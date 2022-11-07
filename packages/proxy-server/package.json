@@ -1,0 +1,21 @@
+{
+  "name": "@expero/neptune-proxy-server",
+  "version": "1.0.0-pre",
+  "description": "Server to facilitate communication between the browser and neptune.",
+  "main": "node-server.js",
+  "scripts": {
+    "start": "node node-server.js"
+  },
+  "author": {
+    "name": "Expero Inc.",
+    "url": "https://www.experoinc.com"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "crypto-js": "^4.1.1",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "node-fetch": "^3.2.10"
+  }
+}

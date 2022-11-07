@@ -1,0 +1,44 @@
+{
+  "name": "@expero/neptune-cge",
+  "version": "1.0.0-pre",
+  "description": "Neptune Graph Explorer powered by Expero Connected",
+  "packageManager": "pnpm@7.9.3",
+  "engines": {
+    "node": ">=16.15.1"
+  },
+  "scripts": {
+    "prepare": "husky install",
+    "precommit": "lint-staged && pnpm types:check",
+    "lint": "pnpm -F @expero/neptune-graph-explorer lint",
+    "format": "pnpm -F @expero/neptune-graph-explorer format",
+    "types:check": "pnpm -F @expero/neptune-graph-explorer types:check",
+    "start": "pnpm -F @expero/neptune-graph-explorer start",
+    "build:dev": "pnpm -F @expero/neptune-graph-explorer build:dev",
+    "build:prod": "pnpm -F @expero/neptune-graph-explorer build:prod",
+    "start:proxy-server": "pnpm -F @expero/neptune-proxy-server start",
+    "dev": "concurrently \"pnpm start:proxy-server\" \"pnpm start\""
+  },
+  "author": {
+    "name": "Expero Inc.",
+    "url": "https://www.experoinc.com"
+  },
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.40.0",
+    "@typescript-eslint/parser": "^5.41.0",
+    "concurrently": "^7.5.0",
+    "eslint": "^7.32.0",
+    "eslint-plugin-react": "^7.31.10",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "husky": "^8.0.0",
+    "lint-staged": "^13.0.3",
+    "prettier": "2.1.2",
+    "typescript": "^4.8.4"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
+  }
+}

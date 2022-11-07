@@ -1,0 +1,57 @@
+import { useCallback } from "react";
+import type { Vertex } from "../@types/entities";
+import useConnector from "../core/ConnectorProvider/useConnector";
+import useEntities from "./useEntities";
+
+const useFetchNode = () => {
+  const [, setEntities] = useEntities();
+  const connector = useConnector();
+
+  const fetchNeighborsCount = useCallback(
+    (vertexId: string) => {
+      return connector.explorer?.fetchNeighborsCount({
+        vertexId: vertexId,
+        limit: 0,
+      });
+    },
+    [connector.explorer]
+  );
+
+  return useCallback(
+    async (nodeOrNodes: Vertex | Vertex[]) => {
+      const nodes = Array.isArray(nodeOrNodes) ? nodeOrNodes : [nodeOrNodes];
+
+      const results = await Promise.all(
+        nodes.map(async node => {
+          const neighborsCount = await fetchNeighborsCount(node.data.__v_id);
+          if (!neighborsCount) {
+            return;
+          }
+
+          return {
+            data: {
+              ...node.data,
+              __totalNeighborCount: neighborsCount?.totalCount,
+              __totalNeighborCounts: neighborsCount?.counts,
+            },
+          };
+        })
+      );
+
+      const validResults = results.filter(Boolean) as Vertex[];
+
+      if (!validResults.length) {
+        return;
+      }
+
+      setEntities({
+        nodes: validResults,
+        edges: [],
+        selectNewEntities: "nodes",
+      });
+    },
+    [fetchNeighborsCount, setEntities]
+  );
+};
+
+export default useFetchNode;
