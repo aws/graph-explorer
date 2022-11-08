@@ -6,7 +6,6 @@ import type {
   PrefixTypeConfig,
   VertexTypeConfig,
 } from "../core";
-import RequestSig from "./auth/RequestSig";
 
 export type QueryOptions = {
   abortSignal?: AbortSignal;
@@ -220,13 +219,4 @@ export abstract class AbstractConnector {
     req: KeywordSearchRequest,
     options?: QueryOptions
   ): Promise<KeywordSearchResponse>;
-
-  public authorizationHeaders(method: string, url: URL) {
-    // Envs vars are loaded as strings
-    if (process.env.REACT_APP_AWS_AUTH_REQUIRED !== "true") {
-      return {};
-    }
-
-    return RequestSig.getInstance().requestAuthHeaders(url, "GET");
-  }
 }

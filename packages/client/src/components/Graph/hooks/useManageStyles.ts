@@ -86,31 +86,13 @@ export const getStyles = ({
     rootStyles.push({ selector, style: stylesWithDefault });
   }
 
+  // Base styles
   addDefault("node", toCyNodeStyle(defaultNodeStyle));
-  addDefault("node.hidden", toCyNodeStyle(hiddenNodeStyle));
-  addDefault("node:selected", toCyNodeStyle(selectedNodeStyle));
-  addDefault(
-    "node.blast-radius-filter-out",
-    toCyNodeStyle(outOfFocusNodeStyle)
-  );
-  addDefault("node.connections-filter-out", toCyNodeStyle(outOfFocusNodeStyle));
-  addDefault("node.out-of-focus", toCyNodeStyle(outOfFocusNodeStyle));
-
-  addDefault("edge.hidden", toCyEdgeStyle(hiddenEdgeStyle));
   if (layout.match("SUBWAY_")) {
     addDefault("edge", toCyEdgeStyle(defaultSubwayEdgeStyles));
-    addDefault("edge:selected", toCyEdgeStyle(selectedSubwayEdgeStyles));
   } else {
     addDefault("edge", toCyEdgeStyle(defaultEdgeStyle));
-    addDefault("edge:selected", toCyEdgeStyle(selectedEdgeStyle));
   }
-
-  addDefault(
-    "edge.blast-radius-filter-out",
-    toCyEdgeStyle(outOfFocusEdgeStyle)
-  );
-  addDefault("edge.connections-filter-out", toCyEdgeStyle(outOfFocusEdgeStyle));
-  addDefault("edge.out-of-focus", toCyEdgeStyle(outOfFocusEdgeStyle));
 
   if (badgesEnabled === false) {
     rootStyles.push({
@@ -121,12 +103,36 @@ export const getStyles = ({
     });
   }
 
+  // External styles
   Object.keys(styles || {}).forEach(rootSelector => {
     rootStyles.push({
       selector: rootSelector,
       style: styles?.[rootSelector] as cytoscape.StylesheetStyle["style"],
     });
   });
+
+  // Selected overrides
+  addDefault("node:selected", toCyNodeStyle(selectedNodeStyle));
+  addDefault("node.hidden", toCyNodeStyle(hiddenNodeStyle));
+  addDefault(
+    "node.blast-radius-filter-out",
+    toCyNodeStyle(outOfFocusNodeStyle)
+  );
+  addDefault("node.connections-filter-out", toCyNodeStyle(outOfFocusNodeStyle));
+  addDefault("node.out-of-focus", toCyNodeStyle(outOfFocusNodeStyle));
+
+  addDefault("edge.hidden", toCyEdgeStyle(hiddenEdgeStyle));
+  if (layout.match("SUBWAY_")) {
+    addDefault("edge:selected", toCyEdgeStyle(selectedSubwayEdgeStyles));
+  } else {
+    addDefault("edge:selected", toCyEdgeStyle(selectedEdgeStyle));
+  }
+  addDefault(
+    "edge.blast-radius-filter-out",
+    toCyEdgeStyle(outOfFocusEdgeStyle)
+  );
+  addDefault("edge.connections-filter-out", toCyEdgeStyle(outOfFocusEdgeStyle));
+  addDefault("edge.out-of-focus", toCyEdgeStyle(outOfFocusEdgeStyle));
 
   rootStyles.push({
     selector: "node[__iconUrl]",
@@ -138,12 +144,14 @@ export const getStyles = ({
   return rootStyles;
 };
 
-export type StyleSelector = {
-  [key: string]:
-    | string
-    | ((element: cytoscape.SingularElementReturnValue) => string)
-    | undefined;
-};
+export type StyleSelector =
+  | cytoscape.StylesheetStyle["style"]
+  | {
+      [key: string]:
+        | string
+        | ((element: cytoscape.SingularElementReturnValue) => string)
+        | undefined;
+    };
 
 export type UseManageStylesProps = {
   cy?: CytoscapeType;

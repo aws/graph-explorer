@@ -9,6 +9,7 @@ RUN yum install -y nodejs
 RUN node --version
 RUN npm install -g pnpm
 RUN pnpm install
+ENV HOME=/neptune-graph-explorer
 EXPOSE 5173
 EXPOSE 8182
 CMD ["pnpm", "dev"]

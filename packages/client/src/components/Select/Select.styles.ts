@@ -279,6 +279,7 @@ const listItemStyles = (pfx: string) => (
 const itemStyles = () => css`
   display: flex;
   align-items: center;
+  width: 100%;
 `;
 
 const searchInputStyles = (activeTheme: ActiveThemeType<ProcessedTheme>) => {

@@ -1,3 +1,8 @@
+import {
+  EdgePreferences,
+  VertexPreferences,
+} from "../StateProvider/userPreferences";
+
 export type AttributeConfig = {
   /**
    * Name of the attribute in the DB schema
@@ -37,14 +42,6 @@ export type VertexTypeConfig = {
    */
   iconUrl?: string;
   /**
-   * Image type: image/svg+xml, image/png, image/jpeg, ...
-   */
-  iconImageType?: string;
-  /**
-   * Optional string color.
-   */
-  color?: string;
-  /**
    * Vertex attribute to be used as label
    */
   displayNameAttribute?: string;
@@ -64,7 +61,7 @@ export type VertexTypeConfig = {
    * Total number of vertices of this type
    */
   total?: number;
-};
+} & VertexPreferences;
 
 export type EdgeTypeConfig = {
   /**
@@ -91,7 +88,7 @@ export type EdgeTypeConfig = {
    * Total number of edges of this type
    */
   total?: number;
-};
+} & EdgePreferences;
 
 export type PrefixTypeConfig = {
   prefix: string;

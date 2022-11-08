@@ -115,6 +115,8 @@ export type NodeStyle = {
   transitionProperty?: string;
   visible?: boolean;
   width: number;
+  underlayOpacity?: number;
+  underlayColor?: string;
 };
 
 export type CyTextStyle = {
@@ -157,6 +159,8 @@ export type CyNodeStyle = CyTextStyle & {
   transitionDuration?: string;
   transitionProperty?: string;
   width: number;
+  underlayOpacity?: number;
+  underlayColor?: string;
 };
 
 export type CurveStyle =

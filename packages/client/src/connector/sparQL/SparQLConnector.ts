@@ -51,11 +51,9 @@ export default class SparQLConnector extends AbstractConnector {
       const encodedQuery = encodeURIComponent(queryTemplate);
 
       const uri = `${url}/sparql?query=${encodedQuery}`;
-      const headers = super.authorizationHeaders("GET", new URL(uri));
 
       const res = await fetch(uri, {
         signal: options?.abortSignal,
-        headers,
       });
 
       return res.json() as TResult;

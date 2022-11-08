@@ -17,7 +17,7 @@ const defaultEdgeStyle: EdgeStyle = {
     background: "#17457b",
     border: {
       width: 0,
-      opacity: 0.5,
+      opacity: 1,
       color: "#1d2531",
       style: "solid",
     },

@@ -12,8 +12,10 @@
   },
   "license": "ISC",
   "dependencies": {
+    "aws-sdk": "^2.1249.0",
     "cors": "^2.8.5",
     "crypto-js": "^4.1.1",
+    "date-fns": "^2.29.2",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "node-fetch": "^3.2.10"

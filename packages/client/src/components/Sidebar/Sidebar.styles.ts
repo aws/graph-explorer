@@ -38,10 +38,10 @@ const defaultStyles = (pfx: string): ThemeStyleFn<SidebarTheme> => ({
         padding: 0;
 
         &.${pfx}-active {
-          color: ${sidebar?.button?.active?.color || palette.primary.main};
+          color: ${sidebar?.button?.active?.color || palette.primary.dark};
           background-color: ${
             sidebar?.button?.active?.background ||
-            fade(palette.primary.main, 0.3)
+            fade(palette.primary.main, 0.6)
           };
         }
       }

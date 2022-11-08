@@ -2,7 +2,7 @@ import { cx } from "@emotion/css";
 import { useCallback } from "react";
 import { Link } from "react-router-dom";
 import { useRecoilState } from "recoil";
-import { Button } from "../../components";
+import { Button, EdgeIcon } from "../../components";
 import PanelEmptyState from "../../components/EmptyStates/PanelEmptyState";
 import IconButton from "../../components/IconButton";
 import {
@@ -11,7 +11,6 @@ import {
   ExpandGraphIcon,
   FilterIcon,
   GraphIcon,
-  StylingIcon,
 } from "../../components/icons";
 import EmptyWidgetIcon from "../../components/icons/EmptyWidgetIcon";
 import GridIcon from "../../components/icons/GridIcon";
@@ -22,13 +21,15 @@ import {
   withClassNamePrefix,
 } from "../../core";
 import { userLayoutAtom } from "../../core/StateProvider/userPreferences";
+import EdgesStyling from "../../modules/EdgesStyling/EdgesStyling";
 import EntitiesFilter from "../../modules/EntitiesFilter";
 import EntitiesTabular from "../../modules/EntitiesTabular/EntitiesTabular";
 import EntityDetails from "../../modules/EntityDetails";
 import GraphViewer from "../../modules/GraphViewer";
 import KeywordSearch from "../../modules/KeywordSearch/KeywordSearch";
+import NodesStyling from "../../modules/NodesStyling/NodesStyling";
 import VertexExpand from "../../modules/VertexExpand";
-import VerticesStyling from "../../modules/VerticesStyling";
+import labelsByEngine from "../../utils/labelsByEngine";
 import TopBarWithLogo from "../common/TopBarWithLogo";
 import defaultStyles from "./GraphExplorer.styles";
 
@@ -41,6 +42,7 @@ const GraphExplorer = ({ classNamePrefix = "ft" }: GraphViewProps) => {
   const pfx = withClassNamePrefix(classNamePrefix);
   const config = useConfiguration();
   const [userLayout, setUserLayout] = useRecoilState(userLayoutAtom);
+  const labels = labelsByEngine[config?.connection?.queryEngine || "gremlin"];
 
   const closeSidebar = useCallback(() => {
     setUserLayout(prev => ({
@@ -185,10 +187,16 @@ const GraphExplorer = ({ classNamePrefix = "ft" }: GraphViewProps) => {
           active={userLayout.activeSidebarItem === "expand"}
         />
         <Workspace.SideBar.Button
-          tooltipText={"Styling"}
-          icon={<StylingIcon />}
-          onPress={toggleSidebar("styling")}
-          active={userLayout.activeSidebarItem === "styling"}
+          tooltipText={`${labels["node"]} Styling`}
+          icon={<GraphIcon />}
+          onPress={toggleSidebar("nodes-styling")}
+          active={userLayout.activeSidebarItem === "nodes-styling"}
+        />
+        <Workspace.SideBar.Button
+          tooltipText={`${labels["edge"]} Styling`}
+          icon={<EdgeIcon />}
+          onPress={toggleSidebar("edges-styling")}
+          active={userLayout.activeSidebarItem === "edges-styling"}
         />
 
         <Workspace.SideBar.Content
@@ -203,8 +211,11 @@ const GraphExplorer = ({ classNamePrefix = "ft" }: GraphViewProps) => {
           {userLayout.activeSidebarItem === "filters" && (
             <EntitiesFilter onClose={closeSidebar} />
           )}
-          {userLayout.activeSidebarItem === "styling" && (
-            <VerticesStyling onClose={closeSidebar} />
+          {userLayout.activeSidebarItem === "nodes-styling" && (
+            <NodesStyling onClose={closeSidebar} />
+          )}
+          {userLayout.activeSidebarItem === "edges-styling" && (
+            <EdgesStyling onClose={closeSidebar} />
           )}
         </Workspace.SideBar.Content>
       </Workspace.SideBar>

@@ -1,10 +1,12 @@
 type LabelKey =
   | "total-nodes"
   | "total-edges"
+  | "node"
   | "node-id"
   | "node-type"
   | "node-attribute"
   | "nodes-types"
+  | "edge"
   | "edge-type"
   | "edges-types"
   | "search-placeholder"
@@ -24,10 +26,12 @@ const labelsByEngine: Record<"gremlin" | "sparql", Record<LabelKey, string>> = {
   gremlin: {
     "total-nodes": "Total Nodes",
     "total-edges": "Total Edges",
+    node: "Node",
     "node-id": "Node Id",
     "node-type": "Node Type",
     "node-attribute": "Attribute",
     "nodes-types": "Nodes Types",
+    edge: "Edge",
     "edge-type": "Edge Type",
     "edges-types": "Edges Types",
     "total-prefixes": "Total Prefixes",
@@ -49,10 +53,12 @@ const labelsByEngine: Record<"gremlin" | "sparql", Record<LabelKey, string>> = {
     "total-nodes": "Total Resources",
     "total-edges": "Total Predicates",
     "total-prefixes": "Total Prefixes",
+    node: "Resource",
     "node-id": "Resource URI",
     "node-type": "Class",
     "node-attribute": "Predicate",
     "nodes-types": "Classes",
+    edge: "Predicate",
     "edge-type": "Predicate",
     "edges-types": "Predicates",
     "search-placeholder": "Search for Classes",

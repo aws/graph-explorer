@@ -187,15 +187,17 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
             return updatedSchema;
           });
 
-          enqueueNotification({
-            title: "Prefixes updated",
-            message:
-              response.prefixes?.length === 1
-                ? "1 new prefix has been generated"
-                : `${response.prefixes?.length} new prefixes have been generated`,
-            type: "success",
-            stackable: true,
-          });
+          if (response.prefixes?.length) {
+            enqueueNotification({
+              title: "Prefixes updated",
+              message:
+                response.prefixes?.length === 1
+                  ? "1 new prefix has been generated"
+                  : `${response.prefixes?.length} new prefixes have been generated`,
+              type: "success",
+              stackable: true,
+            });
+          }
         }
       },
       onError: (e: Error) => {

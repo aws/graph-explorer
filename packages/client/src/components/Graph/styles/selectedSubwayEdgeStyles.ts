@@ -1,7 +1,7 @@
 import { EdgeStyle } from "../Graph.model";
 import selectedEdgeStyle from "./selectedEdgeStyle";
 
-const selectedSubwayEdgeStyles: EdgeStyle = {
+const selectedSubwayEdgeStyles: Partial<EdgeStyle> = {
   ...selectedEdgeStyle,
   curveStyle: "taxi",
   taxiDirection: "rightward",

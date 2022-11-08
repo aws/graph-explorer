@@ -46,11 +46,9 @@ export default class GremlinConnector extends AbstractConnector {
       const encodedQuery = encodeURIComponent(queryTemplate);
 
       const uri = `${url}?gremlin=${encodedQuery}`;
-      const headers = super.authorizationHeaders("GET", new URL(uri));
 
       const res = await fetch(uri, {
         signal: options?.abortSignal,
-        headers,
       });
 
       return res.json() as TResult;

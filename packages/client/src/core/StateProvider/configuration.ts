@@ -10,7 +10,11 @@ import type {
 } from "../ConfigurationProvider";
 import localForageEffect from "./localForageEffect";
 import { schemaAtom } from "./schema";
-import { userStylingAtom, VertexPreferences } from "./userPreferences";
+import {
+  EdgePreferences,
+  userStylingAtom,
+  VertexPreferences,
+} from "./userPreferences";
 
 export const isStoreLoadedAtom = atom<boolean>({
   key: "store-loaded",
@@ -68,8 +72,8 @@ export const mergedConfigurationSelector = selector<RawConfiguration | null>({
         v => v.type === vLabel
       );
       const schemaEdge = currentSchema?.edges.find(v => v.type === vLabel);
-
-      return mergeEdge(configEdge, schemaEdge);
+      const prefsEdge = userStyling.edges?.find(v => v.type === vLabel);
+      return mergeEdge(configEdge, schemaEdge, prefsEdge);
     });
 
     return {
@@ -147,7 +151,8 @@ const mergeVertex = (
 
 const mergeEdge = (
   configEdge?: EdgeTypeConfig,
-  schemaEdge?: EdgeTypeConfig
+  schemaEdge?: EdgeTypeConfig,
+  preferences?: EdgePreferences
 ): EdgeTypeConfig => {
   const attributes = mergeAttributes(configEdge, schemaEdge);
 
@@ -159,6 +164,8 @@ const mergeEdge = (
     ...(schemaEdge || {}),
     // File-based override
     ...(configEdge || {}),
+    // User preferences override
+    ...(preferences || {}),
     attributes,
   };
 };

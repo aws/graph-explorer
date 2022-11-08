@@ -28,9 +28,6 @@ By default, `gremlin` (`gremlin` or `sparql`).
 - `REACT_APP_AWS_REGION`: AWS region of your Neptune instance. By default `us-east-1` (`string`).
 - `REACT_APP_AWS_SERVICE`: Neptune service name. By default `neptune-db` (`string`).
 - `REACT_APP_AWS_CLUSTER_HOST`: Internal Neptune host to sign requests (`string`).
-- `REACT_APP_AWS_ACCESS_KEY`: Access Key to sign requests (`string`).
-- `REACT_APP_AWS_SECRET_ACCESS_KEY`: Secret Access Key to sign requests (`string`).
-- `REACT_APP_AWS_SESSION_TOKEN`: Session token for request signing with temporary credentials.
 - `PROXY_SERVER_CONNECTION_URL`: Proxy server url.
 
 ### Docker Instructions
@@ -50,6 +47,10 @@ By default, `gremlin` (`gremlin` or `sparql`).
 ### Using the Proxy Server
 - Set `PROXY_SERVER_CONNECTION_URL` to the url that accesses your database. If needed you can change the port inside `node-server.js`.
 - Set `REACT_APP_CONNECTION_URL` to the url that accesses your proxy server.
+
+### Using Auth
+- To use auth, you must run requests through the proxy server. This is where your credentials are resolved and the signing logic is.
+- For further information on how to properly have credentials resolved, refer to this documentation: https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/CredentialProviderChain.html
 
 ## License
 Copyright 2022 Expero Inc.

@@ -1,6 +1,45 @@
 import { atom } from "recoil";
 import localForageEffect from "./localForageEffect";
 
+export type ShapeStyle =
+  | "rectangle"
+  | "roundrectangle"
+  | "ellipse"
+  | "triangle"
+  | "pentagon"
+  | "hexagon"
+  | "heptagon"
+  | "octagon"
+  | "star"
+  | "barrel"
+  | "diamond"
+  | "vee"
+  | "rhomboid"
+  | "tag"
+  | "round-rectangle"
+  | "round-triangle"
+  | "round-diamond"
+  | "round-pentagon"
+  | "round-hexagon"
+  | "round-heptagon"
+  | "round-octagon"
+  | "round-tag"
+  | "cut-rectangle"
+  | "concave-hexagon";
+export type LineStyle = "solid" | "dashed" | "dotted";
+export type ArrowStyle =
+  | "triangle"
+  | "triangle-tee"
+  | "triangle-circle"
+  | "triangle-cross"
+  | "triangle-backcurve"
+  | "tee"
+  | "vee"
+  | "square"
+  | "circle"
+  | "diamond"
+  | "none";
+
 export type VertexPreferences = {
   type: string;
   /**
@@ -27,6 +66,27 @@ export type VertexPreferences = {
    * Vertex attribute to be used as description
    */
   longDisplayNameAttribute?: string;
+  shape?: ShapeStyle;
+  backgroundOpacity?: number;
+  borderWidth?: number;
+  borderColor?: string;
+  borderStyle?: LineStyle;
+};
+
+export type EdgePreferences = {
+  type: string;
+  displayLabel?: string;
+  labelColor?: string;
+  labelBackgroundOpacity?: number;
+  labelBorderColor?: string;
+  labelBorderStyle?: LineStyle;
+  labelBorderWidth?: number;
+  labelOpacity?: string;
+  lineColor?: string;
+  lineThickness?: number;
+  lineStyle?: LineStyle;
+  sourceArrowStyle?: ArrowStyle;
+  targetArrowStyle?: ArrowStyle;
 };
 
 export type UserPreferences = {
@@ -36,6 +96,7 @@ export type UserPreferences = {
   };
   styling: {
     vertices?: Array<VertexPreferences>;
+    edges?: Array<EdgePreferences>;
   };
 };
 

@@ -35,6 +35,8 @@ const toCyNodeStyle = (nodeStyle: Partial<NodeStyle>): Partial<CyNodeStyle> => {
     textValign: nodeStyle.text?.vAlign,
     textWrap: nodeStyle.text?.wrap,
     width: nodeStyle.width,
+    underlayColor: nodeStyle.underlayColor,
+    underlayOpacity: nodeStyle.underlayOpacity,
   };
 };
 
