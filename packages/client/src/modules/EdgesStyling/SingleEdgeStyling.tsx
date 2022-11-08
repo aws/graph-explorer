@@ -208,7 +208,7 @@ const SingleEdgeStyling = ({
               <ColorInput
                 label={"Color"}
                 labelPlacement={"inner"}
-                startColor={etPrefs?.lineColor || "#17457b"}
+                startColor={etPrefs?.lineColor || "#b3b3b3"}
                 onChange={(color: string) =>
                   onUserPrefsChange({ lineColor: color })
                 }

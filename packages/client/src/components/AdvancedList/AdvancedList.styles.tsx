@@ -35,9 +35,6 @@ const listStyles = (pfx: string): ThemeStyleFn => ({ theme, isDarkTheme }) => {
       .${pfx}-advanced-list-category-select {
         flex: 1;
       }
-      .${pfx}-input {
-        margin-right: 6px;
-      }
 
       .${pfx}-select {
         min-width: 0;

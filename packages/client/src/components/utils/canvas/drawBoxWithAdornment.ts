@@ -20,6 +20,7 @@ export type DrawBoxWithAdornmentOptions = DrawImageOption &
     title?: string;
     text?: string;
     maxWidth?: number;
+    titleFormat?: "uppercase" | "lowercase";
   };
 
 const BASE_FONT_FAMILY = `-apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif`;
@@ -62,12 +63,17 @@ const drawBoxWithAdornment = (
   options: DrawBoxWithAdornmentOptions = {}
 ) => {
   context.save();
-  const { title, text, src, maxWidth } = options;
+  const { title, text, src, maxWidth, titleFormat } = options;
   applyTextStyles(context, options);
   const fontHeight = parseInt(context.font);
   let actualText = text;
 
-  let actualTitle = title?.toUpperCase();
+  let actualTitle =
+    titleFormat === "uppercase"
+      ? title?.toUpperCase()
+      : titleFormat === "lowercase"
+      ? title?.toLowerCase()
+      : title;
 
   let actualBox = {
     ...boundingBox,

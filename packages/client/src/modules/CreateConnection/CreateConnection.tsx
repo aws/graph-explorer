@@ -24,8 +24,8 @@ type ConnectionForm = {
 };
 
 const CONNECTIONS_OP = [
-  { label: "Gremlin", value: "gremlin" },
-  { label: "SPARQL", value: "sparql" },
+  { label: "LPG (Labelled Property Graph)", value: "gremlin" },
+  { label: "RDF (Resource Description Framework)", value: "sparql" },
 ];
 
 export type CreateConnectionProps = {
@@ -98,7 +98,7 @@ const CreateConnection = ({ onClose }: CreateConnectionProps) => {
           validationState={hasError && !form.name ? "invalid" : "valid"}
         />
         <Select
-          label={"Engine Type"}
+          label={"Graph Type"}
           options={CONNECTIONS_OP}
           value={form.type}
           onChange={onFormChange("type")}

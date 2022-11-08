@@ -30,7 +30,7 @@ export type LineStyle = "solid" | "dashed" | "dotted";
 export type ArrowStyle =
   | "triangle"
   | "triangle-tee"
-  | "triangle-circle"
+  | "circle-triangle"
   | "triangle-cross"
   | "triangle-backcurve"
   | "tee"

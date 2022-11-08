@@ -2,7 +2,9 @@ import { css } from "@emotion/css";
 import type { ThemeStyleFn } from "../../core";
 import fade from "../../core/ThemeProvider/utils/fade";
 
-const defaultStyles = (pfx?: string): ThemeStyleFn => ({ theme }) =>
+const defaultStyles = (pfx: string, lineColor = "#b3b3b3"): ThemeStyleFn => ({
+  theme,
+}) =>
   css`
     height: 100%;
     overflow: auto;
@@ -49,19 +51,16 @@ const defaultStyles = (pfx?: string): ThemeStyleFn => ({ theme }) =>
         left: calc(${theme.spacing["4x"]} + 16px);
         top: 20%;
         height: 80%;
-        width: 0;
-        border: solid 1px ${theme.palette.primary.main};
+        width: 2px;
 
-        :before {
+        .${pfx}-source-arrow-type {
           position: absolute;
-          top: 0;
-          left: 0;
-          transform: translate(-50%, -50%);
-          content: "";
-          width: 8px;
-          height: 8px;
-          border-radius: 8px;
-          background: ${theme.palette.primary.main};
+          top: -12px;
+          left: -11px;
+          transform: rotate(-90deg);
+          width: 24px;
+          height: 24px;
+          color: ${lineColor};
         }
       }
     }
@@ -76,21 +75,42 @@ const defaultStyles = (pfx?: string): ThemeStyleFn => ({ theme }) =>
         left: calc(${theme.spacing["4x"]} + 16px);
         top: -1px;
         height: 80%;
-        width: 0;
-        border: solid 1px ${theme.palette.primary.main};
+        width: 2px;
 
-        :before {
+        .${pfx}-target-arrow-type {
           position: absolute;
-          bottom: 4px;
-          left: 0;
-          transform: translate(-50%, 50%) rotate(45deg);
-          content: "";
-          width: 8px;
-          height: 8px;
-          border: solid ${theme.palette.primary.main};
-          border-width: 0 2px 2px 0;
+          bottom: -12px;
+          left: -11px;
+          transform: rotate(90deg);
+          width: 24px;
+          height: 24px;
+          color: ${lineColor};
         }
       }
+    }
+
+    .${pfx}-line-solid {
+      background: ${lineColor};
+    }
+
+    .${pfx}-line-dashed {
+      background-image: linear-gradient(
+        ${lineColor} 70%,
+        rgba(255, 255, 255, 0) 0%
+      );
+      background-position: right;
+      background-size: 2px 10px;
+      background-repeat: repeat-y;
+    }
+
+    .${pfx}-line-dotted {
+      background-image: linear-gradient(
+        ${lineColor} 50%,
+        rgba(255, 255, 255, 0) 0%
+      );
+      background-position: right;
+      background-size: 2px 6px;
+      background-repeat: repeat-y;
     }
 
     .${pfx}-connections {

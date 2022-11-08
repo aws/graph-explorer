@@ -136,6 +136,7 @@ export { default as MenuSelectorIcon } from "./MenuSelectorIcon";
 export { default as MonetizationOnIcon } from "./MonitizationOnIcon";
 export { default as MoonIcon } from "./MoonIcon";
 export { default as MoreIcon } from "./MoreIcon";
+export { default as NamespaceIcon } from "./NamespaceIcon";
 export { default as NoGraphDataIcon } from "./NoGraphDataIcon";
 export { default as NoInvestigationsIcon } from "./NoInvestigationsIcon";
 export { default as NoSnapshotsIcon } from "./NoSnapshotsIcon";

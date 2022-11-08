@@ -17,6 +17,7 @@ import {
   configurationAtom,
 } from "../../core/StateProvider/configuration";
 import useResetState from "../../core/StateProvider/useResetState";
+import labelsByEngine from "../../utils/labelsByEngine";
 import CreateConnection from "../CreateConnection";
 import defaultStyles from "./AvailableConnections.styles";
 
@@ -67,6 +68,8 @@ const AvailableConnections = ({
   const connectionItems = useMemo(() => {
     const items: AdvancedListItemType<any>[] = [];
     configuration.forEach(config => {
+      const labels =
+        labelsByEngine[config.connection?.queryEngine || "gremlin"];
       items.push({
         id: config.id,
         title: config.displayLabel || config.id,
@@ -75,7 +78,7 @@ const AvailableConnections = ({
         endAdornment: (
           <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
             <Chip size={"sm"} variant={"info"}>
-              {(config.connection?.queryEngine || "gremlin").toUpperCase()}
+              {labels["graph-type"]}
             </Chip>
             <div className={pfx("v-divider")} />
             <Switch

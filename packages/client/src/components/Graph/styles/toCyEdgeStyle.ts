@@ -32,6 +32,9 @@ const toCyEdgeStyle = (edgeStyle: Partial<EdgeStyle>): Partial<CyEdgeStyle> => {
     transitionDuration: edgeStyle.transitionDuration,
     transitionProperty: edgeStyle.transitionProperty,
     width: edgeStyle.width,
+    underlayColor: edgeStyle.underlayColor,
+    underlayOpacity: edgeStyle.underlayOpacity,
+    underlayPadding: edgeStyle.underlayPadding,
   };
 };
 

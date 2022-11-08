@@ -22,8 +22,13 @@ const defaultStyles = (pfx: string): ThemeStyleFn => ({ theme, isDarkTheme }) =>
         width: unset;
 
         .${pfx}-results-adornment {
-          opacity: 0.7;
           font-size: ${theme.typography.sizes?.xs};
+          height: 100%;
+          display: flex;
+          align-items: center;
+          color: ${theme.palette.text.secondary};
+          background: ${theme.palette.grey["200"]};
+          padding-left: ${theme.spacing["2x"]};
         }
       }
 

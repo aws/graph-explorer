@@ -2,7 +2,20 @@ import { cx } from "@emotion/css";
 import { clone } from "lodash";
 import { useMemo } from "react";
 import type { Edge, Vertex } from "../../@types/entities";
-import { VertexIcon } from "../../components";
+import {
+  ArrowCircle,
+  ArrowDiamond,
+  ArrowNone,
+  ArrowSquare,
+  ArrowTee,
+  ArrowTriangle,
+  ArrowTriangleBackCurve,
+  ArrowTriangleCircle,
+  ArrowTriangleCross,
+  ArrowTriangleTee,
+  ArrowVee,
+  VertexIcon,
+} from "../../components";
 import EdgeIcon from "../../components/icons/EdgeIcon";
 import { useWithTheme, withClassNamePrefix } from "../../core";
 import useConfiguration from "../../core/ConfigurationProvider/useConfiguration";
@@ -62,7 +75,11 @@ const EdgeDetail = ({
   const { name: targetName } = getDisplayNames(targetVertex);
 
   return (
-    <div className={styleWithTheme(defaultStyles(classNamePrefix))}>
+    <div
+      className={styleWithTheme(
+        defaultStyles(classNamePrefix, edgeConfig?.lineColor)
+      )}
+    >
       <div className={pfx("header")}>
         <div className={pfx("icon")}>
           <EdgeIcon />
@@ -77,7 +94,47 @@ const EdgeDetail = ({
         </div>
       </div>
       <div className={cx(pfx("header"), pfx("source-vertex"))}>
-        <div className={pfx("start-line")} />
+        <div
+          className={cx(
+            pfx("start-line"),
+            pfx(`line-${edgeConfig?.lineStyle || "solid"}`)
+          )}
+        >
+          {edgeConfig?.sourceArrowStyle === "triangle" && (
+            <ArrowTriangle className={pfx("source-arrow-type")} />
+          )}
+          {edgeConfig?.sourceArrowStyle === "triangle-tee" && (
+            <ArrowTriangleTee className={pfx("source-arrow-type")} />
+          )}
+          {edgeConfig?.sourceArrowStyle === "circle-triangle" && (
+            <ArrowTriangleCircle className={pfx("source-arrow-type")} />
+          )}
+          {edgeConfig?.sourceArrowStyle === "triangle-cross" && (
+            <ArrowTriangleCross className={pfx("source-arrow-type")} />
+          )}
+          {edgeConfig?.sourceArrowStyle === "triangle-backcurve" && (
+            <ArrowTriangleBackCurve className={pfx("source-arrow-type")} />
+          )}
+          {edgeConfig?.sourceArrowStyle === "tee" && (
+            <ArrowTee className={pfx("source-arrow-type")} />
+          )}
+          {edgeConfig?.sourceArrowStyle === "vee" && (
+            <ArrowVee className={pfx("source-arrow-type")} />
+          )}
+          {edgeConfig?.sourceArrowStyle === "square" && (
+            <ArrowSquare className={pfx("source-arrow-type")} />
+          )}
+          {edgeConfig?.sourceArrowStyle === "circle" && (
+            <ArrowCircle className={pfx("source-arrow-type")} />
+          )}
+          {edgeConfig?.sourceArrowStyle === "diamond" && (
+            <ArrowDiamond className={pfx("source-arrow-type")} />
+          )}
+          {(edgeConfig?.sourceArrowStyle === "none" ||
+            !edgeConfig?.sourceArrowStyle) && (
+            <ArrowNone className={pfx("source-arrow-type")} />
+          )}
+        </div>
         {sourceVertexConfig?.iconUrl && (
           <div
             className={pfx("icon")}
@@ -102,7 +159,47 @@ const EdgeDetail = ({
         </div>
       </div>
       <div className={cx(pfx("header"), pfx("target-vertex"))}>
-        <div className={pfx("end-line")} />
+        <div
+          className={cx(
+            pfx("end-line"),
+            pfx(`line-${edgeConfig?.lineStyle || "solid"}`)
+          )}
+        >
+          {(edgeConfig?.targetArrowStyle === "triangle" ||
+            !edgeConfig?.targetArrowStyle) && (
+            <ArrowTriangle className={pfx("target-arrow-type")} />
+          )}
+          {edgeConfig?.targetArrowStyle === "triangle-tee" && (
+            <ArrowTriangleTee className={pfx("target-arrow-type")} />
+          )}
+          {edgeConfig?.targetArrowStyle === "circle-triangle" && (
+            <ArrowTriangleCircle className={pfx("target-arrow-type")} />
+          )}
+          {edgeConfig?.targetArrowStyle === "triangle-cross" && (
+            <ArrowTriangleCross className={pfx("target-arrow-type")} />
+          )}
+          {edgeConfig?.targetArrowStyle === "triangle-backcurve" && (
+            <ArrowTriangleBackCurve className={pfx("target-arrow-type")} />
+          )}
+          {edgeConfig?.targetArrowStyle === "tee" && (
+            <ArrowTee className={pfx("source-arrow-type")} />
+          )}
+          {edgeConfig?.targetArrowStyle === "vee" && (
+            <ArrowVee className={pfx("target-arrow-type")} />
+          )}
+          {edgeConfig?.targetArrowStyle === "square" && (
+            <ArrowSquare className={pfx("target-arrow-type")} />
+          )}
+          {edgeConfig?.targetArrowStyle === "circle" && (
+            <ArrowCircle className={pfx("target-arrow-type")} />
+          )}
+          {edgeConfig?.targetArrowStyle === "diamond" && (
+            <ArrowDiamond className={pfx("target-arrow-type")} />
+          )}
+          {edgeConfig?.targetArrowStyle === "none" && (
+            <ArrowNone className={pfx("target-arrow-type")} />
+          )}
+        </div>
         {targetVertexConfig?.iconUrl && (
           <div
             className={pfx("icon")}

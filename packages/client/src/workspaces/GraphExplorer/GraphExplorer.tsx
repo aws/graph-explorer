@@ -2,7 +2,7 @@ import { cx } from "@emotion/css";
 import { useCallback } from "react";
 import { Link } from "react-router-dom";
 import { useRecoilState } from "recoil";
-import { Button, EdgeIcon } from "../../components";
+import { Button, EdgeIcon, NamespaceIcon } from "../../components";
 import PanelEmptyState from "../../components/EmptyStates/PanelEmptyState";
 import IconButton from "../../components/IconButton";
 import {
@@ -27,6 +27,7 @@ import EntitiesTabular from "../../modules/EntitiesTabular/EntitiesTabular";
 import EntityDetails from "../../modules/EntityDetails";
 import GraphViewer from "../../modules/GraphViewer";
 import KeywordSearch from "../../modules/KeywordSearch/KeywordSearch";
+import Namespaces from "../../modules/Namespaces/Namespaces";
 import NodesStyling from "../../modules/NodesStyling/NodesStyling";
 import VertexExpand from "../../modules/VertexExpand";
 import labelsByEngine from "../../utils/labelsByEngine";
@@ -41,6 +42,7 @@ const GraphExplorer = ({ classNamePrefix = "ft" }: GraphViewProps) => {
   const styleWithTheme = useWithTheme();
   const pfx = withClassNamePrefix(classNamePrefix);
   const config = useConfiguration();
+  const hasNamespaces = config?.connection?.queryEngine === "sparql";
   const [userLayout, setUserLayout] = useRecoilState(userLayoutAtom);
   const labels = labelsByEngine[config?.connection?.queryEngine || "gremlin"];
 
@@ -198,9 +200,21 @@ const GraphExplorer = ({ classNamePrefix = "ft" }: GraphViewProps) => {
           onPress={toggleSidebar("edges-styling")}
           active={userLayout.activeSidebarItem === "edges-styling"}
         />
+        {hasNamespaces && (
+          <Workspace.SideBar.Button
+            tooltipText={"Namespaces"}
+            icon={<NamespaceIcon />}
+            onPress={toggleSidebar("namespaces")}
+            active={userLayout.activeSidebarItem === "namespaces"}
+          />
+        )}
 
         <Workspace.SideBar.Content
-          isOpen={userLayout.activeSidebarItem !== null}
+          isOpen={
+            !hasNamespaces && userLayout.activeSidebarItem === "namespaces"
+              ? false
+              : userLayout.activeSidebarItem !== null
+          }
         >
           {userLayout.activeSidebarItem === "details" && (
             <EntityDetails onClose={closeSidebar} />
@@ -216,6 +230,9 @@ const GraphExplorer = ({ classNamePrefix = "ft" }: GraphViewProps) => {
           )}
           {userLayout.activeSidebarItem === "edges-styling" && (
             <EdgesStyling onClose={closeSidebar} />
+          )}
+          {userLayout.activeSidebarItem === "namespaces" && (
+            <Namespaces onClose={closeSidebar} />
           )}
         </Workspace.SideBar.Content>
       </Workspace.SideBar>

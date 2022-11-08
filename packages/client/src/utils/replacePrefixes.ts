@@ -21,7 +21,9 @@ const replacePrefixes = (
   // 2. common prefixes
   // 3. automatically generated
   const customPrefixes = prefixes.filter(p => !p.__inferred);
-  const generatedPrefixes = prefixes.filter(p => !!p.__inferred);
+  const generatedPrefixes = prefixes.filter(
+    p => p.__inferred === true && p.__matches && p.__matches.size > 1
+  );
   const allPrefixes = [
     ...customPrefixes,
     ...commonPrefixesConfig,

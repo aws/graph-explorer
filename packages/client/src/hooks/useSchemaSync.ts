@@ -72,10 +72,7 @@ const useSchemaSync = () => {
           vertices: schema.vertices,
           edges: schema.edges,
           lastUpdate: new Date(),
-          prefixes: [
-            ...(prevSchemaMap.get(config.id)?.prefixes || []),
-            ...(schema.prefixes || []),
-          ],
+          prefixes: schema.prefixes || [],
         });
         return updatedSchema;
       });
@@ -88,13 +85,16 @@ const useSchemaSync = () => {
         stackable: true,
       });
 
-      if (schema.prefixes?.length) {
+      const oldPrefixesSize = config?.schema?.prefixes?.length || 0;
+      const newPrefixesSize = schema.prefixes?.length || 0;
+      if (schema.prefixes?.length && oldPrefixesSize !== newPrefixesSize) {
+        const addedCount = newPrefixesSize - oldPrefixesSize;
         enqueueNotification({
-          title: "Prefixes updated",
+          title: "Namespaces updated",
           message:
-            schema.prefixes.length === 1
-              ? "1 new prefix has been generated"
-              : `${schema.prefixes.length} new prefixes have been generated`,
+            addedCount === 1
+              ? "1 new namespace has been generated"
+              : `${addedCount} new namespaces have been generated`,
           type: "success",
           stackable: true,
         });

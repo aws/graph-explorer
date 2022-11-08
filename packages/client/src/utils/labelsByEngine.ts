@@ -1,6 +1,7 @@
 type LabelKey =
-  | "total-nodes"
-  | "total-edges"
+  | "graph-type"
+  | "nodes"
+  | "edges"
   | "node"
   | "node-id"
   | "node-type"
@@ -10,7 +11,6 @@ type LabelKey =
   | "edge-type"
   | "edges-types"
   | "search-placeholder"
-  | "total-prefixes"
   | "conn-data-no-results-title"
   | "conn-data-no-results-subtitle"
   | "conn-data-no-elements-title"
@@ -24,8 +24,9 @@ type LabelKey =
 
 const labelsByEngine: Record<"gremlin" | "sparql", Record<LabelKey, string>> = {
   gremlin: {
-    "total-nodes": "Total Nodes",
-    "total-edges": "Total Edges",
+    "graph-type": "LPG",
+    nodes: "Nodes",
+    edges: "Edges",
     node: "Node",
     "node-id": "Node Id",
     "node-type": "Node Type",
@@ -34,7 +35,6 @@ const labelsByEngine: Record<"gremlin" | "sparql", Record<LabelKey, string>> = {
     edge: "Edge",
     "edge-type": "Edge Type",
     "edges-types": "Edges Types",
-    "total-prefixes": "Total Prefixes",
     "search-placeholder": "Search for Node Type",
     "conn-data-no-results-title": "No Nodes Types",
     "conn-data-no-results-subtitle":
@@ -50,9 +50,9 @@ const labelsByEngine: Record<"gremlin" | "sparql", Record<LabelKey, string>> = {
       "Drop a node in the explorer see its connections",
   },
   sparql: {
-    "total-nodes": "Total Resources",
-    "total-edges": "Total Predicates",
-    "total-prefixes": "Total Prefixes",
+    "graph-type": "RDF",
+    nodes: "Resources",
+    edges: "Predicates",
     node: "Resource",
     "node-id": "Resource URI",
     "node-type": "Class",

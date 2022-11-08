@@ -1,6 +1,7 @@
 import { FileButton, Modal } from "@mantine/core";
+import clone from "lodash/clone";
 import debounce from "lodash/debounce";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRecoilCallback, useRecoilValue } from "recoil";
 import {
   Button,
@@ -26,6 +27,7 @@ import {
 } from "../../core/StateProvider/userPreferences";
 import fade from "../../core/ThemeProvider/utils/fade";
 import useTextTransform from "../../hooks/useTextTransform";
+import labelsByEngine from "../../utils/labelsByEngine";
 import { LINE_STYLE_OPTIONS } from "./lineStyling";
 import { NODE_SHAPE } from "./nodeShape";
 import defaultStyles from "./SingleNodeStyling.style";
@@ -63,6 +65,20 @@ const SingleNodeStyling = ({
     vtConfig?.displayLabel || textTransform(vertexType)
   );
 
+  const selectOptions = useMemo(() => {
+    const labels = labelsByEngine[config?.connection?.queryEngine || "gremlin"];
+    const options =
+      vtConfig?.attributes.map(attr => ({
+        value: attr.name,
+        label: attr.displayLabel || textTransform(attr.name),
+      })) || [];
+
+    options.unshift({ label: labels["node-type"], value: "__v_types" });
+    options.unshift({ label: labels["node-id"], value: "__v_id" });
+
+    return options;
+  }, [config?.connection?.queryEngine, textTransform, vtConfig?.attributes]);
+
   const onUserPrefsChange = useRecoilCallback(
     ({ set }) => (prefs: Omit<VertexPreferences, "type">) => {
       set(userStylingAtom, prev => {
@@ -96,6 +112,40 @@ const SingleNodeStyling = ({
         return {
           ...prev,
           vertices: prev.vertices?.filter(e => e.type !== vertexType),
+        };
+      });
+    },
+    [vertexType]
+  );
+
+  const onDisplayNameChange = useRecoilCallback(
+    ({ set }) => (field: "name" | "longName") => (value: string | string[]) => {
+      if (!vertexType) {
+        return;
+      }
+
+      set(userStylingAtom, prevStyling => {
+        const vtItem =
+          clone(prevStyling.vertices?.find(v => v.type === vertexType)) ||
+          ({} as VertexPreferences);
+
+        if (field === "name") {
+          vtItem.displayNameAttribute = value as string;
+        }
+
+        if (field === "longName") {
+          vtItem.longDisplayNameAttribute = value as string;
+        }
+
+        return {
+          ...prevStyling,
+          vertices: [
+            ...(prevStyling.vertices || []).filter(v => v.type !== vertexType),
+            {
+              ...(vtItem || {}),
+              type: vertexType,
+            },
+          ],
         };
       });
     },
@@ -180,6 +230,29 @@ const SingleNodeStyling = ({
         overlayOpacity={0.1}
       >
         <div className={pfx("container")}>
+          <div>
+            <p>Display Attributes</p>
+            <div className={pfx("attrs-container")}>
+              <Select
+                label={"Display Name Attribute"}
+                labelPlacement={"inner"}
+                value={vtConfig?.displayNameAttribute || ""}
+                onChange={onDisplayNameChange("name")}
+                options={selectOptions}
+                hideError={true}
+                noMargin={true}
+              />
+              <Select
+                label={"Display Description Attribute"}
+                labelPlacement={"inner"}
+                value={vtConfig?.longDisplayNameAttribute || ""}
+                onChange={onDisplayNameChange("longName")}
+                options={selectOptions}
+                hideError={true}
+                noMargin={true}
+              />
+            </div>
+          </div>
           <div>
             <p>Shape and Icon</p>
             <div className={pfx("attrs-container")}>

@@ -19,10 +19,14 @@ const useNodeBadges = () => {
       const vtConfig = config?.getVertexTypeConfig(nodeData.__v_type);
       return [
         {
-          hidden: zoomLevel === "small",
+          hidden: zoomLevel === "small" || outOfFocusIds.has(nodeData.id),
           title:
             zoomLevel === "large"
               ? vtConfig?.displayLabel || textTransform(nodeData.__v_type)
+              : undefined,
+          titleFormat:
+            config?.connection?.queryEngine === "gremlin"
+              ? "uppercase"
               : undefined,
           text: name,
           maxWidth: zoomLevel === "large" ? 80 : 50,

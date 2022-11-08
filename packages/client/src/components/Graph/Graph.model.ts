@@ -189,6 +189,9 @@ export type EdgeStyle = {
   transitionProperty?: string;
   visible: boolean;
   width: number;
+  underlayOpacity?: number;
+  underlayColor?: string;
+  underlayPadding?: number;
 };
 
 export type CyEdgeStyle = CyTextStyle & {
@@ -209,4 +212,7 @@ export type CyEdgeStyle = CyTextStyle & {
   transitionDuration?: string;
   transitionProperty?: string;
   width: number;
+  underlayOpacity?: number;
+  underlayColor?: string;
+  underlayPadding?: number;
 };

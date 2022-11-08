@@ -31,7 +31,7 @@ const useDisplayNames = () => {
         name = String(attrs[__name]);
       }
       if (__name && vertex.data[__name] && __name === "__v_id") {
-        name = vertex.data.__v_id;
+        name = textTransform(vertex.data.__v_id);
       }
       if (vtConfig?.displayLabel && __name === "__v_types") {
         name = vtConfig?.displayLabel;

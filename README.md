@@ -1,6 +1,10 @@
 # Neptune Graph Explorer
 Open source version for the Neptune Graph Explorer powered by Expero Connected.
 
+## Supported Graph Types
+- Labelled Property Graph (LPG) using Gremlin
+- Resource Description Framework (RDF) using SPARQL
+
 ### Requirements
 - pnpm >=7.9.3
 - node >=16.15.1

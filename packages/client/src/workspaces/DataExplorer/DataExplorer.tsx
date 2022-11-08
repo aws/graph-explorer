@@ -19,7 +19,6 @@ import {
   SendIcon,
 } from "../../components";
 import Button from "../../components/Button";
-import HumanReadableNumberFormatter from "../../components/HumanReadableNumberFormatter";
 import ExplorerIcon from "../../components/icons/ExplorerIcon";
 import ModuleContainerHeader from "../../components/ModuleContainer/components/ModuleContainerHeader";
 import { useNotification } from "../../components/NotificationProvider";
@@ -231,21 +230,24 @@ const DataExplorer = ({ classNamePrefix = "ft" }: ConnectionsProps) => {
               lastUpdate: schema?.lastUpdate,
               vertices: schema?.vertices || [],
               edges: schema?.edges || [],
-              prefixes: [
-                ...(schema?.prefixes || []),
-                ...(response.prefixes || []),
-              ],
+              prefixes: response.prefixes || [],
             });
             return updatedSchema;
           });
 
-          if (response.prefixes?.length) {
+          const oldPrefixesSize = config?.schema?.prefixes?.length || 0;
+          const newPrefixesSize = response.prefixes?.length || 0;
+          if (
+            response.prefixes?.length &&
+            config?.schema?.prefixes?.length !== response.prefixes?.length
+          ) {
+            const addedCount = newPrefixesSize - oldPrefixesSize;
             enqueueNotification({
-              title: "Prefixes updated",
+              title: "Namespaces updated",
               message:
-                response.prefixes?.length === 1
-                  ? "1 new prefix has been generated"
-                  : `${response.prefixes?.length} new prefixes have been generated`,
+                addedCount === 1
+                  ? "1 namespace has been generated"
+                  : `${addedCount} namespaces have been generated`,
               type: "success",
               stackable: true,
             });
@@ -361,18 +363,6 @@ const DataExplorer = ({ classNamePrefix = "ft" }: ConnectionsProps) => {
                   {vertexConfig?.displayLabel || textTransform(vertexType)}
                 </div>
                 {isFetching && <LoadingSpinner className={pfx("spinner")} />}
-              </div>
-            }
-            subtitle={
-              <div>
-                Total:{" "}
-                {vertexConfig?.total != null && (
-                  <HumanReadableNumberFormatter
-                    className={pfx("vertex-count")}
-                    value={vertexConfig?.total}
-                  />
-                )}
-                {vertexConfig?.total == null && "Unknown total"}
               </div>
             }
           />

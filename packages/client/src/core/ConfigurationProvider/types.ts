@@ -101,6 +101,11 @@ export type PrefixTypeConfig = {
    * Mark as true after inferring from the schema.
    */
   __inferred?: boolean;
+  /**
+   * Internal purpose only.
+   * Matches URIs
+   */
+  __matches?: Set<string>;
 };
 
 export type RawConfiguration = {

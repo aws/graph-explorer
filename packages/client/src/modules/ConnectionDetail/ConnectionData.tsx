@@ -1,5 +1,4 @@
 import { css } from "@emotion/css";
-import { Modal, Tabs } from "@mantine/core";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -7,7 +6,6 @@ import {
   AdvancedListItemType,
   ChevronRightIcon,
   Chip,
-  ConfigureIcon,
   EdgeIcon,
   GraphIcon,
   IconButton,
@@ -19,10 +17,7 @@ import useConfiguration from "../../core/ConfigurationProvider/useConfiguration"
 import useEntitiesCounts from "../../hooks/useEntitiesCounts";
 import useTextTransform from "../../hooks/useTextTransform";
 import labelsByEngine from "../../utils/labelsByEngine";
-import CommonPrefixes from "./CommonPrefixes";
 import defaultStyles from "./ConnectionDetail.styles";
-import GeneratedPrefixes from "./GeneratedPrefixes";
-import UserPrefixes from "./UserPrefixes";
 
 export type VertexDetailProps = {
   classNamePrefix?: string;
@@ -34,7 +29,6 @@ const ConnectionData = ({ classNamePrefix = "ft" }: VertexDetailProps) => {
   const styleWithTheme = useWithTheme();
   const pfx = withClassNamePrefix(classNamePrefix);
   const { totalNodes, totalEdges } = useEntitiesCounts();
-  const [prefixedOpen, setPrefixes] = useState(false);
   const textTransform = useTextTransform();
   const labels = labelsByEngine[config?.connection?.queryEngine || "gremlin"];
 
@@ -53,7 +47,7 @@ const ConnectionData = ({ classNamePrefix = "ft" }: VertexDetailProps) => {
               {textTransform(displayLabel)}
             </div>
             <div className={pfx("nodes-count")}>
-              {labels["total-nodes"]}:{" "}
+              {labels["nodes"]}:{" "}
               {vtConfig?.total ? (
                 <HumanReadableNumberFormatter value={vtConfig?.total} />
               ) : (
@@ -105,7 +99,7 @@ const ConnectionData = ({ classNamePrefix = "ft" }: VertexDetailProps) => {
     <div className={styleWithTheme(defaultStyles(classNamePrefix))}>
       <div className={pfx("info-bar")}>
         <div className={pfx("item")}>
-          <div className={pfx("tag")}>{labels["total-nodes"]}</div>
+          <div className={pfx("tag")}>{labels["nodes"]}</div>
           <div className={pfx("value")}>
             <Chip className={pfx("value-chip")}>
               <GraphIcon />
@@ -117,7 +111,7 @@ const ConnectionData = ({ classNamePrefix = "ft" }: VertexDetailProps) => {
           </div>
         </div>
         <div className={pfx("item")}>
-          <div className={pfx("tag")}>{labels["total-edges"]}</div>
+          <div className={pfx("tag")}>{labels["edges"]}</div>
           <div className={pfx("value")}>
             <Chip className={pfx("value-chip")}>
               <EdgeIcon />
@@ -128,44 +122,6 @@ const ConnectionData = ({ classNamePrefix = "ft" }: VertexDetailProps) => {
             </Chip>
           </div>
         </div>
-        {config?.connection?.queryEngine === "sparql" && (
-          <div className={pfx("item")}>
-            <div className={pfx("tag")}>
-              <div>{labels["total-prefixes"]}</div>
-              <IconButton
-                tooltipText={"Configure Prefixes"}
-                variant={"text"}
-                size={"small"}
-                icon={<ConfigureIcon />}
-                onPress={() => setPrefixes(true)}
-              />
-            </div>
-            <div className={pfx("value")}>
-              <Chip>
-                <div className={pfx("prefix-counter")}>
-                  <HumanReadableNumberFormatter
-                    value={
-                      config?.schema?.prefixes?.filter(p => !p.__inferred)
-                        ?.length || 0
-                    }
-                  />
-                  <span>Custom</span>
-                </div>
-              </Chip>
-              <Chip>
-                <div className={pfx("prefix-counter")}>
-                  <HumanReadableNumberFormatter
-                    value={
-                      config?.schema?.prefixes?.filter(p => !!p.__inferred)
-                        ?.length || 0
-                    }
-                  />
-                  <span>Generated</span>
-                </div>
-              </Chip>
-            </div>
-          </div>
-        )}
       </div>
       <AdvancedList
         searchPlaceholder={labels["search-placeholder"]}
@@ -180,49 +136,6 @@ const ConnectionData = ({ classNamePrefix = "ft" }: VertexDetailProps) => {
           noElementsSubtitle: labels["conn-data-no-elements-subtitle"],
         }}
       />
-      <Modal
-        size={"xl"}
-        centered={true}
-        title={"RDF Prefixes"}
-        opened={prefixedOpen}
-        onClose={() => setPrefixes(false)}
-      >
-        <Tabs defaultValue="custom">
-          <Tabs.List>
-            <Tabs.Tab value="custom">
-              Custom Prefixes (
-              {config?.schema?.prefixes?.filter(
-                prefixConfig => prefixConfig.__inferred !== true
-              ).length || 0}
-              )
-            </Tabs.Tab>
-            <Tabs.Tab value="common">Common Prefixes</Tabs.Tab>
-            <Tabs.Tab value="auto">
-              Auto-Generated Prefixes (
-              {config?.schema?.prefixes?.filter(
-                prefixConfig => prefixConfig.__inferred
-              ).length || 0}
-              )
-            </Tabs.Tab>
-          </Tabs.List>
-
-          <Tabs.Panel value="custom" pt="xs">
-            <div style={{ height: 400 }}>
-              <UserPrefixes />
-            </div>
-          </Tabs.Panel>
-          <Tabs.Panel value="common" pt="xs">
-            <div style={{ height: 400 }}>
-              <CommonPrefixes />
-            </div>
-          </Tabs.Panel>
-          <Tabs.Panel value="auto" pt="xs">
-            <div style={{ height: 400 }}>
-              <GeneratedPrefixes />
-            </div>
-          </Tabs.Panel>
-        </Tabs>
-      </Modal>
     </div>
   );
 };

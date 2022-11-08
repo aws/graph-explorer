@@ -179,21 +179,24 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
               lastUpdate: schema?.lastUpdate,
               vertices: schema?.vertices || [],
               edges: schema?.edges || [],
-              prefixes: [
-                ...(schema?.prefixes || []),
-                ...(response.prefixes || []),
-              ],
+              prefixes: response.prefixes || [],
             });
             return updatedSchema;
           });
 
-          if (response.prefixes?.length) {
+          const oldPrefixesSize = config?.schema?.prefixes?.length || 0;
+          const newPrefixesSize = response.prefixes?.length || 0;
+          if (
+            response.prefixes?.length &&
+            config?.schema?.prefixes?.length !== response.prefixes?.length
+          ) {
+            const addedCount = newPrefixesSize - oldPrefixesSize;
             enqueueNotification({
-              title: "Prefixes updated",
+              title: "Namespaces updated",
               message:
-                response.prefixes?.length === 1
-                  ? "1 new prefix has been generated"
-                  : `${response.prefixes?.length} new prefixes have been generated`,
+                addedCount === 1
+                  ? "1 new namespace has been generated"
+                  : `${addedCount} new namespaces have been generated`,
               type: "success",
               stackable: true,
             });

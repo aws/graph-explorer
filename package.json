@@ -11,6 +11,7 @@
     "precommit": "lint-staged && pnpm types:check",
     "lint": "pnpm -F @expero/neptune-graph-explorer lint",
     "format": "pnpm -F @expero/neptune-graph-explorer format",
+    "test": "pnpm -F @expero/neptune-graph-explorer test",
     "types:check": "pnpm -F @expero/neptune-graph-explorer types:check",
     "start": "pnpm -F @expero/neptune-graph-explorer start",
     "build:dev": "pnpm -F @expero/neptune-graph-explorer build:dev",

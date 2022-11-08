@@ -20,6 +20,7 @@ import {
 import { schemaAtom } from "../../core/StateProvider/schema";
 import useSchemaSync from "../../hooks/useSchemaSync";
 import { formatDate } from "../../utils";
+import labelsByEngine from "../../utils/labelsByEngine";
 import ConnectionData from "./ConnectionData";
 import defaultStyles from "./ConnectionDetail.styles";
 
@@ -96,6 +97,7 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
     [onConfigDelete, onConfigSync]
   );
 
+  const labels = labelsByEngine[config?.connection?.queryEngine || "gremlin"];
   if (!config) {
     return null;
   }
@@ -127,10 +129,8 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
           <div className={pfx("value")}>{config.connection?.url}</div>
         </div>
         <div className={pfx("item")}>
-          <div className={pfx("tag")}>Engine</div>
-          <div className={pfx("value")}>
-            {(config.connection?.queryEngine || "gremlin").toUpperCase()}
-          </div>
+          <div className={pfx("tag")}>Graph Type</div>
+          <div className={pfx("value")}>{labels["graph-type"]}</div>
         </div>
         {!!config.schema?.lasUpdate && (
           <div className={pfx("item")}>
