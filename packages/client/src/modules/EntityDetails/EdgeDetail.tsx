@@ -182,7 +182,7 @@ const EdgeDetail = ({
             <ArrowTriangleBackCurve className={pfx("target-arrow-type")} />
           )}
           {edgeConfig?.targetArrowStyle === "tee" && (
-            <ArrowTee className={pfx("source-arrow-type")} />
+            <ArrowTee className={pfx("target-arrow-type")} />
           )}
           {edgeConfig?.targetArrowStyle === "vee" && (
             <ArrowVee className={pfx("target-arrow-type")} />

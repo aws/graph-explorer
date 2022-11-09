@@ -1,8 +1,7 @@
 import { cx } from "@emotion/css";
 import type { MouseEvent, ReactNode } from "react";
 import { useWithTheme, withClassNamePrefix } from "../../../core";
-import ConnectedIcon from "../../icons/ConnectedIcon";
-import MenuIcon from "../../icons/MenuIcon";
+import { ConnectedIcon, MenuIcon } from "../../icons";
 import defaultStyles from "./HideNavBarLogo.style";
 
 export interface HideNavBarLogoProps {

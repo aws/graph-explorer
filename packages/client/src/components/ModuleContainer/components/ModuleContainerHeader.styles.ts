@@ -58,10 +58,6 @@ const defaultStyles = (pfx: string): ThemeStyleFn => ({ theme }) =>
         align-items: center;
       }
 
-      > .${pfx}-actions-container > * {
-        margin-right: ${theme.spacing.base};
-      }
-
       > .${pfx}-actions-container button:hover {
         color: ${theme.palette.primary.main};
       }

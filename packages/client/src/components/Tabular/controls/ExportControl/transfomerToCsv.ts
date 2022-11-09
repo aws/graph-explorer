@@ -12,9 +12,18 @@ const transformToCsv = (
     return Object.entries(selectedColumns).reduce(
       (cells, [columnId, shouldExport]) => {
         if (shouldExport) {
-          cells.push(
-            getNestedObjectValue(row.original || row, columnId.split("."))
-          );
+          const colDef = columns.find(colDef => colDef.instance.id === columnId)
+            ?.definition;
+
+          if (typeof colDef?.accessor === "string") {
+            cells.push(
+              getNestedObjectValue(row.original || row, columnId.split("."))
+            );
+          } else {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            cells.push(colDef?.accessor?.(row));
+          }
         }
 
         return cells;

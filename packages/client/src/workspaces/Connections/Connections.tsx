@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import Button from "../../components/Button";
-import ExplorerIcon from "../../components/icons/ExplorerIcon";
+import { ExplorerIcon } from "../../components/icons";
 import Workspace from "../../components/Workspace/Workspace";
 import {
   useConfiguration,

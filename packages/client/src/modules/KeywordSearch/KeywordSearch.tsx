@@ -9,7 +9,6 @@ import {
   Card,
   Carousel,
   CloseIcon,
-  Footer,
   GraphIcon,
   IconButton,
   Input,
@@ -381,7 +380,7 @@ const KeywordSearch = ({
               </div>
             )}
           </div>
-          <Footer className={pfx("actions-footer")}>
+          <div className={pfx("actions-footer")}>
             <span className={pfx("footer-text")}>
               Search returned {searchResults.length} results
               {currentTotal != null && " of "}
@@ -407,7 +406,7 @@ const KeywordSearch = ({
                 </div>
               </IconButton>
             </div>
-          </Footer>
+          </div>
         </Card>
       )}
     </div>

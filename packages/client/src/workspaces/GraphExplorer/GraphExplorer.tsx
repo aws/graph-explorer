@@ -2,17 +2,21 @@ import { cx } from "@emotion/css";
 import { useCallback } from "react";
 import { Link } from "react-router-dom";
 import { useRecoilState } from "recoil";
-import { Button, EdgeIcon, NamespaceIcon } from "../../components";
-import PanelEmptyState from "../../components/EmptyStates/PanelEmptyState";
-import IconButton from "../../components/IconButton";
+import {
+  Button,
+  EdgeIcon,
+  IconButton,
+  NamespaceIcon,
+  PanelEmptyState,
+} from "../../components";
 import {
   DatabaseIcon,
   DetailsIcon,
+  EmptyWidgetIcon,
   ExpandGraphIcon,
   FilterIcon,
   GraphIcon,
 } from "../../components/icons";
-import EmptyWidgetIcon from "../../components/icons/EmptyWidgetIcon";
 import GridIcon from "../../components/icons/GridIcon";
 import Workspace from "../../components/Workspace";
 import {

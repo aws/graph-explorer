@@ -2,6 +2,7 @@ import { css, cx } from "@emotion/css";
 
 import { useEffect, useMemo, useState, VFC } from "react";
 import { withClassNamePrefix } from "../../../core";
+import Button from "../../Button";
 import HumanReadableNumberFormatter from "../../HumanReadableNumberFormatter";
 import IconButton from "../../IconButton";
 import {
@@ -11,8 +12,6 @@ import {
   SkipForwardIcon,
 } from "../../icons";
 import Select from "../../Select";
-
-import { ToggleButton } from "../../ToggleButton";
 import { useTabularControl } from "../TabularControlsProvider";
 
 export type PaginationControlProps = {
@@ -160,68 +159,71 @@ export const PaginationControl: VFC<PaginationControlProps> = ({
       {totalRows === 0 && (
         <div className={pfx("pagination-totals")}>No results</div>
       )}
-      <div className={pfx("pagination-controls")}>
-        <Select
-          label="Page size:"
-          labelPlacement="left"
-          className={pfx("page-options-menu")}
-          options={pageOptions.map(pageOption => ({
-            label: pageOption.toString(),
-            value: pageOption.toString(),
-          }))}
-          noMargin
-          hideError
-          value={pageSize.toString()}
-          onChange={value => setPageSize(parseInt(value as string))}
-        />
-        <IconButton
-          isDisabled={!canPreviousPage}
-          variant={"text"}
-          size={"small"}
-          className={cx(pfx("page-button"), pfx("page-control"))}
-          icon={<SkipBackwardIcon />}
-          onPress={() => gotoPage(0)}
-        />
-        <IconButton
-          isDisabled={!canPreviousPage}
-          variant={"text"}
-          size={"small"}
-          className={cx(pfx("page-button"), pfx("page-control"))}
-          icon={<BackwardIcon />}
-          onPress={previousPage}
-        />
-        <div className={pfx("page-viz")}>
-          {pagesToRender.map(page => {
-            return (
-              <ToggleButton
-                key={page}
-                className={pfx("page-button")}
-                isSelected={pageIndex === parseInt(page) - 1}
-                toggle={() => gotoPage(parseInt(page) - 1)}
-                styleLike="button"
-                size="small"
-              >
-                {page}
-              </ToggleButton>
-            );
-          })}
+      {totalRows > 0 && (
+        <div className={pfx("pagination-controls")}>
+          <Select
+            label="Page size:"
+            labelPlacement="left"
+            className={pfx("page-options-menu")}
+            options={pageOptions.map(pageOption => ({
+              label: pageOption.toString(),
+              value: pageOption.toString(),
+            }))}
+            noMargin
+            hideError
+            value={pageSize.toString()}
+            onChange={value => setPageSize(parseInt(value as string))}
+          />
+          <IconButton
+            isDisabled={!canPreviousPage}
+            variant={"text"}
+            size={"small"}
+            className={cx(pfx("page-button"), pfx("page-control"))}
+            icon={<SkipBackwardIcon />}
+            onPress={() => gotoPage(0)}
+          />
+          <IconButton
+            isDisabled={!canPreviousPage}
+            variant={"text"}
+            size={"small"}
+            className={cx(pfx("page-button"), pfx("page-control"))}
+            icon={<BackwardIcon />}
+            onPress={previousPage}
+          />
+          <div className={pfx("page-viz")}>
+            {pagesToRender.map(page => {
+              return (
+                <Button
+                  key={page}
+                  className={pfx("page-button")}
+                  variant={
+                    pageIndex === parseInt(page) - 1 ? "filled" : "default"
+                  }
+                  onPress={() => gotoPage(parseInt(page) - 1)}
+                  size="small"
+                >
+                  {page}
+                </Button>
+              );
+            })}
+          </div>
+          <IconButton
+            isDisabled={!canNextPage}
+            variant={"text"}
+            size={"small"}
+            className={cx(pfx("page-button"), pfx("page-control"))}
+            icon={<ForwardIcon />}
+            onPress={nextPage}
+          />
+          <IconButton
+            isDisabled={!canNextPage}
+            variant={"text"}
+            className={cx(pfx("page-button"), pfx("page-control"))}
+            icon={<SkipForwardIcon />}
+            onPress={() => gotoPage(pageCount - 1)}
+          />
         </div>
-        <IconButton
-          isDisabled={!canNextPage}
-          variant={"text"}
-          size={"small"}
-          className={cx(pfx("page-button"), pfx("page-control"))}
-          icon={<ForwardIcon />}
-          onPress={nextPage}
-        />
-        <IconButton
-          isDisabled={!canNextPage}
-          variant={"text"}
-          className={cx(pfx("page-button"), pfx("page-control"))}
-          icon={<SkipForwardIcon />}
-          onPress={() => gotoPage(pageCount - 1)}
-        />
-      </div>
+      )}
     </div>
   );
 };

@@ -1,13 +1,16 @@
-import { useCallback } from "react";
+import { Modal } from "@mantine/core";
+import { useCallback, useState } from "react";
 import { useRecoilCallback } from "recoil";
 import {
   Chip,
   DatabaseIcon,
   DeleteIcon,
+  EditIcon,
   ModuleContainer,
   ModuleContainerHeader,
+  SyncIcon,
+  TrayArrowIcon,
 } from "../../components";
-import SyncIcon from "../../components/icons/SyncIcon";
 import {
   useConfiguration,
   useWithTheme,
@@ -21,6 +24,8 @@ import { schemaAtom } from "../../core/StateProvider/schema";
 import useSchemaSync from "../../hooks/useSchemaSync";
 import { formatDate } from "../../utils";
 import labelsByEngine from "../../utils/labelsByEngine";
+import saveConfigurationToFile from "../../utils/saveConfigurationToFile";
+import CreateConnection from "../CreateConnection";
 import ConnectionData from "./ConnectionData";
 import defaultStyles from "./ConnectionDetail.styles";
 
@@ -30,11 +35,24 @@ export type ConnectionDetailProps = {
 };
 
 const HEADER_ACTIONS = (isSync: boolean, isFileBased: boolean) => [
-  "divider",
   {
     label: "Synchronize Schema",
     icon: <SyncIcon className={isSync ? "animate-spin" : ""} />,
     value: "sync",
+    isDisabled: isSync,
+  },
+  "divider",
+  {
+    label: "Export Connection",
+    icon: <TrayArrowIcon />,
+    value: "export",
+    isDisabled: isSync,
+  },
+  "divider",
+  {
+    label: "Edit connection",
+    icon: <EditIcon />,
+    value: "edit",
     isDisabled: isSync,
   },
   {
@@ -42,7 +60,7 @@ const HEADER_ACTIONS = (isSync: boolean, isFileBased: boolean) => [
     icon: <DeleteIcon />,
     value: "delete",
     color: "error",
-    isDisabled: isFileBased,
+    isDisabled: isFileBased || isSync,
   },
 ];
 
@@ -50,6 +68,7 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
   const styleWithTheme = useWithTheme();
   const pfx = withClassNamePrefix("ft");
   const config = useConfiguration();
+  const [edit, setEdit] = useState(false);
 
   const updateSchema = useSchemaSync();
   const onConfigSync = useCallback(async () => {
@@ -60,6 +79,14 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
       onSyncChange(false);
     }
   }, [onSyncChange, updateSchema]);
+
+  const onConfigExport = useCallback(() => {
+    if (!config?.id) {
+      return;
+    }
+
+    saveConfigurationToFile(config);
+  }, [config]);
 
   const onConfigDelete = useRecoilCallback(
     ({ set }) => () => {
@@ -90,11 +117,19 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
         return onConfigSync();
       }
 
+      if (value === "edit") {
+        return setEdit(true);
+      }
+
       if (value === "delete") {
         return onConfigDelete();
       }
+
+      if (value === "export") {
+        return onConfigExport();
+      }
     },
-    [onConfigDelete, onConfigSync]
+    [onConfigDelete, onConfigExport, onConfigSync]
   );
 
   const labels = labelsByEngine[config?.connection?.queryEngine || "gremlin"];
@@ -111,12 +146,12 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
         onActionClick={onActionClick}
       >
         <div className={pfx("header-children")}>
-          {!config?.schema?.lasUpdate && (
+          {!config?.schema?.lastUpdate && (
             <Chip size={"sm"} variant={"warning"}>
               Not Synchronized
             </Chip>
           )}
-          {!!config?.schema?.lasUpdate && (
+          {!!config?.schema?.lastUpdate && (
             <Chip size={"sm"} variant={"success"}>
               Synchronized
             </Chip>
@@ -132,16 +167,33 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
           <div className={pfx("tag")}>Graph Type</div>
           <div className={pfx("value")}>{labels["graph-type"]}</div>
         </div>
-        {!!config.schema?.lasUpdate && (
+        {!!config.schema?.lastUpdate && (
           <div className={pfx("item")}>
             <div className={pfx("tag")}>Last Synchronization</div>
             <div className={pfx("value")}>
-              {formatDate(config.schema.lasUpdate)}
+              {formatDate(config.schema.lastUpdate)}
             </div>
           </div>
         )}
       </div>
       <ConnectionData />
+      <Modal
+        opened={edit}
+        onClose={() => setEdit(false)}
+        centered={true}
+        title={"Update connection"}
+      >
+        <CreateConnection
+          onClose={() => setEdit(false)}
+          configId={config.id}
+          disabledFields={config.__fileBase ? ["type", "url"] : undefined}
+          initialData={{
+            name: config.displayLabel || config.id,
+            url: config.connection?.url,
+            type: config.connection?.queryEngine,
+          }}
+        />
+      </Modal>
     </ModuleContainer>
   );
 };

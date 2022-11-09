@@ -1,5 +1,3 @@
-import { useTheme } from "../../core";
-import { useDeepMemo } from "../../hooks";
 import {
   MouseEvent,
   ReactNode,
@@ -37,8 +35,8 @@ import {
   UseSortByColumnOptions,
   useTable,
 } from "react-table";
-
-import type { DatePickerProps } from "../DatePicker";
+import { useTheme } from "../../core";
+import { useDeepMemo } from "../../hooks";
 import TextFilter from "./filters/TextFilter";
 import columnDefinitionToColumn from "./helpers/columnDefinitionToColumn";
 import useSelectionColumn from "./hooks/useSelectionColumn";
@@ -66,12 +64,6 @@ export type TabularFilterType =
     }
   | {
       name: "single-select";
-    }
-  | {
-      name: "date";
-      options?: {
-        mode: DatePickerProps["mode"];
-      };
     };
 
 export type ColumnDefinition<T extends object> = Pick<

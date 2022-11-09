@@ -39,12 +39,14 @@ const BASE_URL = process.env.PROXY_SERVER_CONNECTION_URL.replace(/\/$/, "");
 const BASE_PORT = 8182;
 
 (async () => {
-  const creds = await getCredentials();
-  const requestSig = await new RequestSig(creds[0], creds[1], creds[2]);
-
+  let creds;
+  let requestSig;
+  if (process.env.REACT_APP_AWS_AUTH_REQUIRED) {
+    creds = await getCredentials();
+    requestSig = await new RequestSig(creds[0], creds[1], creds[2]);
+  }
   app.use(cors());
   app.get("/sparql", async (req, res, next) => {
-    console.log("GET /sparql", req.query.query);
     try {
       if (process.env.REACT_APP_AWS_AUTH_REQUIRED) {
         const authHeaders = await requestSig.requestAuthHeaders(new URL(`${BASE_URL}/sparql?query=` + encodeURIComponent(req.query.query) + "&format=json"), "GET");
@@ -68,7 +70,6 @@ const BASE_PORT = 8182;
   });
 
   app.get("/", async (req, res, next) => {
-    console.log("GET /", req.query.gremlin);
     try {
       if (process.env.REACT_APP_AWS_AUTH_REQUIRED) {
         const authHeaders = await requestSig.requestAuthHeaders(new URL(`${BASE_URL}/?gremlin=` + req.query.gremlin), "GET");

@@ -19,7 +19,7 @@ import {
   SendIcon,
 } from "../../components";
 import Button from "../../components/Button";
-import ExplorerIcon from "../../components/icons/ExplorerIcon";
+import { ExplorerIcon } from "../../components/icons";
 import ModuleContainerHeader from "../../components/ModuleContainer/components/ModuleContainerHeader";
 import { useNotification } from "../../components/NotificationProvider";
 import {

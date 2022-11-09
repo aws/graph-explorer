@@ -89,7 +89,7 @@ export const mergedConfigurationSelector = selector<RawConfiguration | null>({
       schema: {
         vertices: mergedVertices,
         edges: mergedEdges,
-        lasUpdate: currentSchema?.lastUpdate,
+        lastUpdate: currentSchema?.lastUpdate,
         prefixes:
           currentConfig.connection?.queryEngine === "sparql"
             ? currentSchema?.prefixes

@@ -1,6 +1,6 @@
 import { css } from "@emotion/css";
-import { PanelEmptyState } from "../../EmptyStates";
-import NoGraphDataIcon from "../../icons/NoGraphDataIcon";
+import { NoGraphDataIcon } from "../../icons";
+import { PanelEmptyState } from "../../PanelEmptyState";
 
 const EmptyState = () => {
   return (

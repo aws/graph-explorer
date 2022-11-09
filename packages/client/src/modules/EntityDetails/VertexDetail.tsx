@@ -9,8 +9,8 @@ import fade from "../../core/ThemeProvider/utils/fade";
 import useDisplayNames from "../../hooks/useDisplayNames";
 import useTextTransform from "../../hooks/useTextTransform";
 import labelsByEngine from "../../utils/labelsByEngine";
+import EntityAttribute from "./EntityAttribute";
 import defaultStyles from "./EntityDetail.styles";
-import EntityAttribute from "./internalComponents/EntityAttribute";
 
 export type VertexDetailProps = {
   classNamePrefix?: string;

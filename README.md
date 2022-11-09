@@ -54,6 +54,7 @@ By default, `gremlin` (`gremlin` or `sparql`).
 
 ### Using Auth
 - To use auth, you must run requests through the proxy server. This is where your credentials are resolved and the signing logic is.
+- You should ensure that your environment has access to neptune (Read privileges needed, see NeptuneReadOnlyAccess managed policy) and can ideally make HTTPS requests to the private endpoint. (To confirm, you can try a curl to the neptune endpoint)
 - For further information on how to properly have credentials resolved, refer to this documentation: https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/CredentialProviderChain.html
 
 ## License

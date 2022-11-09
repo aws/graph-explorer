@@ -11,8 +11,8 @@ import {
 import { mergeRefs, useLayer } from "react-laag";
 import { useWithTheme, withClassNamePrefix } from "../../../core";
 import IconButton from "../../IconButton";
+import { ChevronDownIcon } from "../../icons";
 import CloseIcon from "../../icons/CloseIcon";
-import DropdownIcon from "../../icons/DropdownIcon";
 import type { SelectOption, SelectProps } from "../Select";
 import styles from "../Select.styles";
 import SelectListBox from "./SelectListBox";
@@ -191,7 +191,7 @@ const SelectBox = (
               />
             )}
             {items.length > 0 && (
-              <DropdownIcon
+              <ChevronDownIcon
                 style={{ width: 18, height: 18 }}
                 aria-hidden="true"
               />

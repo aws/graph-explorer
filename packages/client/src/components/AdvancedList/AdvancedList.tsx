@@ -34,7 +34,7 @@ export type AdvancedListItemType<T extends object> = {
   titleComponent?: ReactNode;
   defaultItemType?: string;
   className?: string;
-  wrapperElement?: ComponentType<PropsWithChildren<Record<string, never>>>;
+  wrapperElement?: ComponentType<PropsWithChildren<Record<string, unknown>>>;
 };
 
 export type AdvancedListMouseEvent<E = HTMLElement> = (

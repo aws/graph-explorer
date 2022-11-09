@@ -8,7 +8,6 @@ export {
 export {
   numericFilter as tabularNumericFilter,
   singleSelectionFilter as tabularSingleSelectionFilter,
-  dateFilter as tabularDateFilter,
 } from "./filters";
 export * from "./controls";
 export * from "./builders";

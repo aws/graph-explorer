@@ -1,17 +1,8 @@
 export { default as AdvancedList } from "./AdvancedList";
 export * from "./AdvancedList";
 
-export { default as Autocomplete } from "./Autocomplete";
-export * from "./Autocomplete";
-
-export { default as Banner } from "./Banner";
-export * from "./Banner";
-
 export { default as Button } from "./Button";
 export * from "./Button";
-
-export { default as ButtonMenu } from "./ButtonMenu";
-export * from "./ButtonMenu";
 
 export { default as Card } from "./Card";
 export * from "./Card";
@@ -28,11 +19,8 @@ export * from "./CheckboxList";
 export { default as Chip } from "./Chip";
 export * from "./Chip";
 
-export { PanelEmptyState } from "./EmptyStates";
-export * from "./EmptyStates";
-
-export { default as Footer } from "./Footer";
-export * from "./Footer";
+export { PanelEmptyState } from "./PanelEmptyState";
+export * from "./PanelEmptyState";
 
 export { default as Graph } from "./Graph";
 export * from "./Graph";
@@ -50,9 +38,6 @@ export * from "./ListItem";
 
 export { default as LoadingSpinner } from "./LoadingSpinner";
 export * from "./LoadingSpinner";
-
-export { default as Menu } from "./Menu";
-export * from "./Menu";
 
 export { default as ModuleContainer } from "./ModuleContainer";
 export * from "./ModuleContainer";

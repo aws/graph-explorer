@@ -140,7 +140,7 @@ export type RawConfiguration = {
   schema?: {
     vertices: Array<VertexTypeConfig>;
     edges: Array<EdgeTypeConfig>;
-    lasUpdate?: Date;
+    lastUpdate?: Date;
     /**
      * List of RDF prefixes (only for SPARQL)
      */

@@ -6,9 +6,7 @@ import type { VirtuosoHandle } from "react-virtuoso";
 import { GroupedVirtuoso } from "react-virtuoso";
 import { useWithTheme, withClassNamePrefix } from "../../../core";
 import useDebounceValue from "../../../hooks/useDebounceValue";
-import DetailsIcon from "../../icons/DetailsIcon";
-import DropdownIcon from "../../icons/DropdownIcon";
-import FileIcon from "../../icons/FileIcon";
+import { ChevronDownIcon, DetailsIcon, FileIcon } from "../../icons";
 import Section from "../../Section";
 import type {
   AdvancedListItemType,
@@ -240,13 +238,13 @@ const AdvancedListWithGroups = <T extends object>(
                   }
                 }}
                 collapseAdornment={
-                  <DropdownIcon
+                  <ChevronDownIcon
                     style={{
                       fontSize: 20,
                       transition: "transform 250ms ease",
                       transform: collapsedSections.has(item.id)
-                        ? `rotate(180deg)`
-                        : `rotate(0deg)`,
+                        ? `rotate(0deg)`
+                        : `rotate(90deg)`,
                     }}
                   />
                 }

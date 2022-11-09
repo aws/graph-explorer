@@ -1,7 +1,7 @@
-import type { ActiveThemeType, ProcessedTheme } from "../../../core";
 import { Column, ColumnGroup, ColumnInterfaceBasedOnValue } from "react-table";
+import type { ActiveThemeType, ProcessedTheme } from "../../../core";
 
-import { dateFilter, numericFilter, singleSelectionFilter } from "../filters";
+import { numericFilter, singleSelectionFilter } from "../filters";
 import type { ColumnDefinition } from "../useTabular";
 
 const resolverFilterType = <T extends object>(
@@ -32,13 +32,6 @@ const resolverFilterType = <T extends object>(
     return {
       ...restColumnsProps,
       ...singleSelectionFilter<T>(activeTheme)(),
-    };
-  }
-
-  if (filterType.name === "date") {
-    return {
-      ...restColumnsProps,
-      ...dateFilter<T>(activeTheme)(filterType.options?.mode || "calendar"),
     };
   }
 

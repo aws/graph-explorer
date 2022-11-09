@@ -5,7 +5,7 @@ import type { DragObjectWithType } from "react-dnd";
 import { useDrag } from "react-dnd";
 import { useHover } from "react-laag";
 import { withClassNamePrefix } from "../../../core";
-import CodeIcon from "../../icons/CodeIcon";
+import { CodeIcon } from "../../icons";
 import ListItem from "../../ListItem";
 import type { AdvancedListItemType } from "../AdvancedList";
 

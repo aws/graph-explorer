@@ -1,6 +1,7 @@
-import { Modal } from "@mantine/core";
+import { FileButton, Modal } from "@mantine/core";
 import { useCallback, useMemo } from "react";
 import { useRecoilCallback, useRecoilValue } from "recoil";
+import { v4 } from "uuid";
 import {
   AddIcon,
   AdvancedList,
@@ -9,14 +10,18 @@ import {
   DatabaseIcon,
   ModuleContainer,
   ModuleContainerHeader,
+  TrayArrowIcon,
 } from "../../components";
+import { useNotification } from "../../components/NotificationProvider";
 import Switch from "../../components/Switch";
 import { useWithTheme, withClassNamePrefix } from "../../core";
 import {
   activeConfigurationAtom,
   configurationAtom,
 } from "../../core/StateProvider/configuration";
+import { schemaAtom } from "../../core/StateProvider/schema";
 import useResetState from "../../core/StateProvider/useResetState";
+import isValidConfigurationFile from "../../utils/isValidConfigurationFile";
 import labelsByEngine from "../../utils/labelsByEngine";
 import CreateConnection from "../CreateConnection";
 import defaultStyles from "./AvailableConnections.styles";
@@ -26,15 +31,6 @@ export type ConnectionDetailProps = {
   isModalOpen: boolean;
   onModalChange(isOpen: boolean): void;
 };
-
-const HEADER_ACTIONS = (isSync: boolean) => [
-  {
-    label: "Add New Connection",
-    value: "create",
-    icon: <AddIcon />,
-    isDisabled: isSync,
-  },
-];
 
 const AvailableConnections = ({
   isSync,
@@ -56,6 +52,65 @@ const AvailableConnections = ({
     [resetState]
   );
 
+  const { enqueueNotification } = useNotification();
+  const onConfigImport = useRecoilCallback(
+    ({ set }) => async (file: File) => {
+      const fileContent = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsText(file);
+        reader.onload = () =>
+          resolve(JSON.parse(reader.result?.toString() || ""));
+        reader.onerror = e => reject(e);
+      });
+
+      if (!isValidConfigurationFile(fileContent)) {
+        enqueueNotification({
+          title: "Invalid File",
+          message: "The connection file is not valid",
+          type: "error",
+          stackable: true,
+        });
+        return;
+      }
+
+      // Create new id to avoid collisions
+      const newId = v4();
+      set(configurationAtom, prevConfig => {
+        const updatedConfig = new Map(prevConfig);
+        updatedConfig.set(newId, {
+          id: newId,
+          displayLabel: fileContent.displayLabel,
+          connection: fileContent.connection,
+        });
+        return updatedConfig;
+      });
+      set(schemaAtom, prevSchema => {
+        const updatedSchema = new Map(prevSchema);
+        updatedSchema.set(newId, {
+          vertices: fileContent.schema?.vertices || [],
+          edges: fileContent.schema?.edges || [],
+          prefixes: fileContent.schema?.prefixes?.map(prefix => ({
+            ...prefix,
+            __matches: new Set(prefix.__matches || []),
+          })),
+          lastUpdate: fileContent.schema?.lastUpdate
+            ? new Date(fileContent.schema?.lastUpdate)
+            : undefined,
+        });
+        return updatedSchema;
+      });
+      set(activeConfigurationAtom, newId);
+
+      enqueueNotification({
+        title: "File imported",
+        message: "Connection file successfully imported",
+        type: "success",
+        stackable: true,
+      });
+    },
+    [enqueueNotification]
+  );
+
   const onActionClick = useCallback(
     (value: string) => {
       if (value === "create") {
@@ -63,6 +118,34 @@ const AvailableConnections = ({
       }
     },
     [onModalChange]
+  );
+
+  const headerActions = useMemo(
+    () => [
+      {
+        label: "Import Connection",
+        value: "import",
+        icon: (
+          <FileButton onChange={onConfigImport} accept={"application/json"}>
+            {props => (
+              <TrayArrowIcon
+                onClick={props.onClick}
+                style={{ transform: "rotate(180deg)" }}
+              />
+            )}
+          </FileButton>
+        ),
+        isDisabled: isSync,
+      },
+      "divider",
+      {
+        label: "Add New Connection",
+        value: "create",
+        icon: <AddIcon />,
+        isDisabled: isSync,
+      },
+    ],
+    [isSync, onConfigImport]
   );
 
   const connectionItems = useMemo(() => {
@@ -102,7 +185,7 @@ const AvailableConnections = ({
     <ModuleContainer className={styleWithTheme(defaultStyles("ft"))}>
       <ModuleContainerHeader
         title={"Available connections"}
-        actions={HEADER_ACTIONS(isSync)}
+        actions={headerActions}
         onActionClick={onActionClick}
       />
 

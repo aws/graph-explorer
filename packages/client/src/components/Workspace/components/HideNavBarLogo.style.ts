@@ -1,9 +1,8 @@
 import { css } from "@emotion/css";
 import type { ThemeStyleFn } from "../../../core";
 import { fade } from "../../../core";
-import type { NavBarTheme } from "../../NavBar/NavBar.model";
 
-const defaultStyles = (pfx: string): ThemeStyleFn<NavBarTheme> => ({ theme }) =>
+const defaultStyles = (pfx: string): ThemeStyleFn => ({ theme }) =>
   css`
     &.${pfx}-navbar-logo {
       position: relative;

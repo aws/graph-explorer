@@ -1,10 +1,10 @@
 import { css, cx } from "@emotion/css";
-
-import { withClassNamePrefix } from "../../../../core";
 import { saveAs } from "file-saver";
 import { useCallback, useEffect, useState } from "react";
 import { useLayer } from "react-laag";
 import { Row } from "react-table";
+
+import { withClassNamePrefix } from "../../../../core";
 import Button from "../../../Button";
 import Card from "../../../Card";
 import Checkbox from "../../../Checkbox";
@@ -92,7 +92,11 @@ export const ExternalExportControl = <T extends object>({
       return;
     }
 
-    const jsonData = transformToJson(currentDataSource, selectedColumns);
+    const jsonData = transformToJson(
+      currentDataSource,
+      selectedColumns,
+      exportableColumns
+    );
     const fileToSave = new Blob([JSON.stringify(jsonData)], {
       type: "application/json",
     });

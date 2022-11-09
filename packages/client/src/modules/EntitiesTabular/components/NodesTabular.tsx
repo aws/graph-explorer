@@ -69,6 +69,7 @@ const NodesTabular = forwardRef<TabularInstance<any>, any>((props, ref) => {
         }),
       },
       {
+        id: "node-id",
         accessor: row => textTransform(row.data.__v_id),
         label: labels["node-id"],
         overflow: "ellipsis",
@@ -76,7 +77,8 @@ const NodesTabular = forwardRef<TabularInstance<any>, any>((props, ref) => {
       },
       {
         id: "node-type",
-        accessor: "data",
+        accessor: row =>
+          row.data.__v_types.map(textTransform).filter(Boolean).join(", "),
         label: labels["node-type"],
         filter: (rows, _columnIds, filterValue) => {
           return rows.filter(row => {
@@ -88,16 +90,6 @@ const NodesTabular = forwardRef<TabularInstance<any>, any>((props, ref) => {
           });
         },
         overflow: "ellipsis",
-        cellComponent: ({ cell }) => {
-          const vertex = cell.value as VertexData;
-          return vertex?.__v_types
-            .map(type => {
-              const vtConfig = config?.getVertexTypeConfig(type);
-              return textTransform(vtConfig?.displayLabel || vtConfig?.type);
-            })
-            .filter(Boolean)
-            .join(", ");
-        },
       },
       {
         id: "__name",

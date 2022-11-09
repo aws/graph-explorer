@@ -7,7 +7,7 @@ import type {
 } from "react";
 import { Children, useMemo } from "react";
 import { useWithTheme, withClassNamePrefix } from "../../core";
-import ChevronDownIcon from "../icons/ChevronDownIcon";
+import { ChevronDownIcon } from "../icons";
 import defaultStyles from "./Section.styles";
 
 export interface SectionProps
