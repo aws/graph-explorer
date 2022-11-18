@@ -31,10 +31,10 @@ import {
 import { useEntities, useFetchNode, useSet } from "../../hooks";
 import useDisplayNames from "../../hooks/useDisplayNames";
 import useTextTransform from "../../hooks/useTextTransform";
+import useTranslations from "../../hooks/useTranslations";
 
 import { useClickOutside } from "../../utils";
-import labelsByEngine from "../../utils/labelsByEngine";
-import VertexDetail from "../EntityDetails/VertexDetail";
+import NodeDetail from "../EntityDetails/NodeDetail";
 import defaultStyles from "./KeywordSearch.styles";
 import toAdvancedList from "./toAdvancedList";
 import useKeywordSearch from "./useKeywordSearch";
@@ -49,6 +49,7 @@ const KeywordSearch = ({
   className,
 }: KeywordSearchProps) => {
   const config = useConfiguration();
+  const t = useTranslations();
   const fetchNode = useFetchNode();
   const [entities, setEntities] = useEntities();
   const styleWithTheme = useWithTheme();
@@ -92,17 +93,16 @@ const KeywordSearch = ({
 
   const noResultsAfterFetching = !isFetching && searchResults.length === 0;
   const withResultsAfterFetching = !isFetching && searchResults.length > 0;
-  const labels = labelsByEngine[config?.connection?.queryEngine || "gremlin"];
   const getDisplayNames = useDisplayNames();
   const textTransform = useTextTransform();
   const resultItems = useMemo(() => {
     return toAdvancedList(searchResults, {
       getGroupLabel: vertex => {
-        const vtConfig = config?.getVertexTypeConfig(vertex.data.__v_type);
-        return vtConfig?.displayLabel || textTransform(vertex.data.__v_type);
+        const vtConfig = config?.getVertexTypeConfig(vertex.data.type);
+        return vtConfig?.displayLabel || textTransform(vertex.data.type);
       },
       getItem: vertex => {
-        const vtConfig = config?.getVertexTypeConfig(vertex.data.__v_type);
+        const vtConfig = config?.getVertexTypeConfig(vertex.data.type);
         const { name, longName } = getDisplayNames(vertex);
         return {
           className: css`
@@ -111,7 +111,7 @@ const KeywordSearch = ({
               color: ${vtConfig?.color} !important;
             }
           `,
-          group: vertex.data.__v_type,
+          group: vertex.data.type,
           id: vertex.data.id,
           title: name,
           subtitle: longName,
@@ -122,7 +122,7 @@ const KeywordSearch = ({
             />
           ),
           endAdornment: entities.nodes.find(
-            n => n.data.__v_id === vertex.data.__v_id
+            n => n.data.id === vertex.data.id
           ) ? (
             <IconButton
               tooltipText={"Remove from canvas"}
@@ -135,9 +135,7 @@ const KeywordSearch = ({
                 setEntities(prev => {
                   return {
                     ...prev,
-                    nodes: prev.nodes.filter(
-                      n => n.data.__v_id !== vertex.data.__v_id
-                    ),
+                    nodes: prev.nodes.filter(n => n.data.id !== vertex.data.id),
                     forceSet: true,
                   };
                 });
@@ -276,7 +274,7 @@ const KeywordSearch = ({
           <div className={pfx("search-controls")}>
             <Select
               className={pfx("entity-select")}
-              label={labels["node-type"]}
+              label={t("keyword-search.node-type")}
               labelPlacement={"inner"}
               hideError={true}
               options={vertexOptions}
@@ -285,7 +283,7 @@ const KeywordSearch = ({
             />
             <Select
               className={pfx("entity-select")}
-              label={labels["node-attribute"]}
+              label={t("keyword-search.node-attribute")}
               labelPlacement={"inner"}
               hideError={true}
               options={attributesOptions}
@@ -357,14 +355,15 @@ const KeywordSearch = ({
                     className={pfx("carousel")}
                   >
                     {Array.from(selection.state).map(nodeId => {
-                      const node = getNodeSearchedById(nodeId);
+                      const node = entities.nodes.find(
+                        n => n.data.id === nodeId
+                      );
 
                       return node !== undefined ? (
-                        <VertexDetail
-                          vertex={node}
+                        <NodeDetail
                           key={nodeId}
-                          enableDisplayAs={false}
-                          disableConnections={true}
+                          node={node}
+                          hideNeighbors={true}
                         />
                       ) : null;
                     })}

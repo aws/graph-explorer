@@ -1,0 +1,112 @@
+{
+  "requestId": "ebc4046b-c955-4ad4-a0f4-5cee4efb25b9",
+  "status": {
+    "message": "",
+    "code": 200,
+    "attributes": {
+      "@type": "g:Map",
+      "@value": []
+    }
+  },
+  "result": {
+    "data": {
+      "@type": "g:List",
+      "@value": [
+        {
+          "@type": "g:Map",
+          "@value": [
+            "486",
+            {
+              "@type": "g:Map",
+              "@value": [
+                "continent",
+                {
+                  "@type": "g:Int64",
+                  "@value": 1
+                },
+                "country",
+                {
+                  "@type": "g:Int64",
+                  "@value": 1
+                },
+                "airport",
+                {
+                  "@type": "g:Int64",
+                  "@value": 105
+                }
+              ]
+            },
+            "228",
+            {
+              "@type": "g:Map",
+              "@value": [
+                "continent",
+                {
+                  "@type": "g:Int64",
+                  "@value": 1
+                },
+                "country",
+                {
+                  "@type": "g:Int64",
+                  "@value": 1
+                },
+                "airport",
+                {
+                  "@type": "g:Int64",
+                  "@value": 95
+                }
+              ]
+            },
+            "124",
+            {
+              "@type": "g:Map",
+              "@value": [
+                "continent",
+                {
+                  "@type": "g:Int64",
+                  "@value": 1
+                },
+                "country",
+                {
+                  "@type": "g:Int64",
+                  "@value": 1
+                },
+                "airport",
+                {
+                  "@type": "g:Int64",
+                  "@value": 26
+                }
+              ]
+            },
+            "3741",
+            {
+              "@type": "g:Map",
+              "@value": [
+                "airport",
+                {
+                  "@type": "g:Int64",
+                  "@value": 605
+                }
+              ]
+            },
+            "3701",
+            {
+              "@type": "g:Map",
+              "@value": [
+                "airport",
+                {
+                  "@type": "g:Int64",
+                  "@value": 43
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "meta": {
+      "@type": "g:Map",
+      "@value": []
+    }
+  }
+}

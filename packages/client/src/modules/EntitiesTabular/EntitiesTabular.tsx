@@ -4,11 +4,8 @@ import { ModuleContainer } from "../../components";
 import type { TabularInstance } from "../../components/Tabular";
 import { ModuleContainerTabularHeader } from "../../components/Tabular";
 import TabularControlsProvider from "../../components/Tabular/TabularControlsProvider";
-import {
-  useConfiguration,
-  useWithTheme,
-  withClassNamePrefix,
-} from "../../core";
+import { useWithTheme, withClassNamePrefix } from "../../core";
+import useTranslations from "../../hooks/useTranslations";
 import { EdgesTabular, NodesTabular } from "./components";
 import defaultStyles from "./EntitiesTabular.styles";
 
@@ -18,9 +15,9 @@ enum TableId {
 }
 
 const EntitiesTabular = () => {
-  const config = useConfiguration();
   const styleWithTheme = useWithTheme();
   const pfx = withClassNamePrefix("ft");
+  const t = useTranslations();
 
   const [selectedTable, setSelectedTable] = useState<TableId>(TableId.nodes);
   // Store tabular instances to allow use external tabular controls in the header
@@ -73,17 +70,11 @@ const EntitiesTabular = () => {
             tables={[
               {
                 value: TableId.nodes,
-                label:
-                  config?.connection?.queryEngine === "sparql"
-                    ? "All Resources"
-                    : "All Nodes",
+                label: t("entities-tabular.all-nodes"),
               },
               {
                 value: TableId.edges,
-                label:
-                  config?.connection?.queryEngine === "sparql"
-                    ? "All Predicates"
-                    : "All Edges",
+                label: t("entities-tabular.all-edges"),
               },
             ]}
             selectedTable={selectedTable}

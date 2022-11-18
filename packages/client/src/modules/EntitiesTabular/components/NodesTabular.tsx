@@ -14,6 +14,7 @@ import {
 } from "../../../components/Tabular/controls";
 import Tabular from "../../../components/Tabular/Tabular";
 import { useConfiguration } from "../../../core";
+import { edgesSelectedIdsAtom } from "../../../core/StateProvider/edges";
 import {
   nodesAtom,
   nodesHiddenIdsAtom,
@@ -24,12 +25,13 @@ import {
 import { useDeepMemo } from "../../../hooks";
 import useDisplayNames from "../../../hooks/useDisplayNames";
 import useTextTransform from "../../../hooks/useTextTransform";
-import labelsByEngine from "../../../utils/labelsByEngine";
+import useTranslations from "../../../hooks/useTranslations";
 import { recoilDiffSets } from "../../../utils/recoilState";
 
 type ToggleVertex = Vertex & { __is_visible: boolean };
 
 const NodesTabular = forwardRef<TabularInstance<any>, any>((props, ref) => {
+  const t = useTranslations();
   const nodes = useRecoilValue(nodesAtom);
   const setNodesOut = useSetRecoilState(nodesOutOfFocusIdsAtom);
   const config = useConfiguration();
@@ -39,6 +41,7 @@ const NodesTabular = forwardRef<TabularInstance<any>, any>((props, ref) => {
   const [selectedNodesIds, setSelectedNodesIds] = useRecoilState(
     nodesSelectedIdsAtom
   );
+  const setSelectedEdgesIds = useSetRecoilState(edgesSelectedIdsAtom);
 
   const onToggleVisibility = useCallback(
     (item: ToggleVertex) => {
@@ -48,7 +51,6 @@ const NodesTabular = forwardRef<TabularInstance<any>, any>((props, ref) => {
   );
 
   const textTransform = useTextTransform();
-  const labels = labelsByEngine[config?.connection?.queryEngine || "gremlin"];
 
   const getDisplayNames = useDisplayNames();
   const columns: ColumnDefinition<any>[] = useMemo(() => {
@@ -70,20 +72,23 @@ const NodesTabular = forwardRef<TabularInstance<any>, any>((props, ref) => {
       },
       {
         id: "node-id",
-        accessor: row => textTransform(row.data.__v_id),
-        label: labels["node-id"],
+        accessor: row => row.data.id,
+        label: t("entities-tabular.node-id"),
         overflow: "ellipsis",
         oneLine: true,
       },
       {
         id: "node-type",
         accessor: row =>
-          row.data.__v_types.map(textTransform).filter(Boolean).join(", "),
-        label: labels["node-type"],
+          (row.data.types ?? [row.data.type])
+            .map(textTransform)
+            .filter(Boolean)
+            .join(", "),
+        label: t("entities-tabular.node-type"),
         filter: (rows, _columnIds, filterValue) => {
           return rows.filter(row => {
             const vertex = row.original.data as VertexData;
-            return vertex.__v_types.find(t => {
+            return (vertex.types ?? [vertex.type]).find(t => {
               const label = config?.getVertexTypeConfig(t)?.displayLabel || t;
               return label.toLowerCase().match(filterValue.toLowerCase());
             });
@@ -92,14 +97,14 @@ const NodesTabular = forwardRef<TabularInstance<any>, any>((props, ref) => {
         overflow: "ellipsis",
       },
       {
-        id: "__name",
+        id: "displayName",
         accessor: row => getDisplayNames(row).name,
         label: "Display Name",
         overflow: "ellipsis",
         oneLine: true,
       },
       {
-        id: "__longName",
+        id: "displayDescription",
         accessor: row => getDisplayNames(row).longName,
         label: "Display Description",
         overflow: "ellipsis",
@@ -107,7 +112,7 @@ const NodesTabular = forwardRef<TabularInstance<any>, any>((props, ref) => {
         width: 300,
       },
       {
-        accessor: "data.__totalNeighborCount",
+        accessor: "data.neighborsCount",
         label: "Total Neighbors",
         overflow: "ellipsis",
         oneLine: true,
@@ -119,7 +124,7 @@ const NodesTabular = forwardRef<TabularInstance<any>, any>((props, ref) => {
         },
       },
     ];
-  }, [config, getDisplayNames, labels, onToggleVisibility, textTransform]);
+  }, [config, getDisplayNames, t, onToggleVisibility, textTransform]);
 
   const data: ToggleVertex[] = useDeepMemo(() => {
     return nodes.map(node => ({
@@ -130,16 +135,11 @@ const NodesTabular = forwardRef<TabularInstance<any>, any>((props, ref) => {
 
   const onSelectRows = useCallback(
     (rowIndex: string) => {
-      const copiedSet = new Set(selectedNodesIds);
       const entityId = data[Number(rowIndex)].data.id;
-      if (copiedSet.has(entityId)) {
-        copiedSet.delete(entityId);
-      } else {
-        copiedSet.add(entityId);
-      }
-      setSelectedNodesIds(copiedSet);
+      setSelectedNodesIds(new Set([entityId]));
+      setSelectedEdgesIds(new Set([]));
     },
-    [data, selectedNodesIds, setSelectedNodesIds]
+    [data, setSelectedEdgesIds, setSelectedNodesIds]
   );
 
   const selectedRowsIds: Record<string, boolean> = useDeepMemo(() => {
@@ -171,7 +171,7 @@ const NodesTabular = forwardRef<TabularInstance<any>, any>((props, ref) => {
       <TabularEmptyBodyControls>
         {data.length === 0 && (
           <PlaceholderControl>
-            {labels["nodes-tabular-placeholder"]}
+            {t("entities-tabular.nodes-placeholder")}
           </PlaceholderControl>
         )}
       </TabularEmptyBodyControls>

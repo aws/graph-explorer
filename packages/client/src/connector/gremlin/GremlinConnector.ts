@@ -23,7 +23,7 @@ export default class GremlinConnector extends AbstractConnector {
     req: NeighborsRequest,
     options: QueryOptions | undefined
   ): Promise<NeighborsResponse> {
-    return fetchNeighbors(this._gremlinFetch(options), req, this._config);
+    return fetchNeighbors(this._gremlinFetch(options), req);
   }
 
   fetchNeighborsCount(
@@ -37,7 +37,7 @@ export default class GremlinConnector extends AbstractConnector {
     req: KeywordSearchRequest,
     options?: QueryOptions
   ): Promise<KeywordSearchResponse> {
-    return keywordSearch(this._gremlinFetch(options), req, this._config);
+    return keywordSearch(this._gremlinFetch(options), req);
   }
 
   private _gremlinFetch<TResult>(options?: QueryOptions) {

@@ -45,7 +45,7 @@ import {
 import { useEntities } from "../../hooks";
 import useFetchNode from "../../hooks/useFetchNode";
 import useTextTransform from "../../hooks/useTextTransform";
-import labelsByEngine from "../../utils/labelsByEngine";
+import useTranslations from "../../hooks/useTranslations";
 import TopBarWithLogo from "../common/TopBarWithLogo";
 import defaultStyles from "./DataExplorer.styles";
 
@@ -65,6 +65,7 @@ const DataExplorer = ({ classNamePrefix = "ft" }: ConnectionsProps) => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const config = useConfiguration();
+  const t = useTranslations();
   const connector = useConnector();
   const fetchNode = useFetchNode();
   const [entities] = useEntities({ disableFilters: true });
@@ -116,7 +117,6 @@ const DataExplorer = ({ classNamePrefix = "ft" }: ConnectionsProps) => {
     []
   );
 
-  const labels = labelsByEngine[config?.connection?.queryEngine || "gremlin"];
   const tableRef = useRef<TabularInstance<Vertex> | null>(null);
   const textTransform = useTextTransform();
   const columns: ColumnDefinition<Vertex>[] = useMemo(() => {
@@ -134,9 +134,9 @@ const DataExplorer = ({ classNamePrefix = "ft" }: ConnectionsProps) => {
         .sort((a, b) => a.label.localeCompare(b.label)) || [];
 
     vtColumns.unshift({
-      label: labels["node-id"],
+      label: t("data-explorer.node-id"),
       id: "id",
-      accessor: row => textTransform(row.data.__v_id),
+      accessor: row => textTransform(row.data.id),
       filterable: false,
     });
 
@@ -173,13 +173,7 @@ const DataExplorer = ({ classNamePrefix = "ft" }: ConnectionsProps) => {
     });
 
     return vtColumns;
-  }, [
-    entities.nodes,
-    fetchNode,
-    labels,
-    textTransform,
-    vertexConfig?.attributes,
-  ]);
+  }, [entities.nodes, fetchNode, t, textTransform, vertexConfig?.attributes]);
 
   const selectOptions = useMemo(() => {
     const options =
@@ -188,11 +182,14 @@ const DataExplorer = ({ classNamePrefix = "ft" }: ConnectionsProps) => {
         label: attr.displayLabel || textTransform(attr.name),
       })) || [];
 
-    options.unshift({ label: labels["node-type"], value: "__v_types" });
-    options.unshift({ label: labels["node-id"], value: "__v_id" });
+    options.unshift({
+      label: t("data-explorer.node-type"),
+      value: "types",
+    });
+    options.unshift({ label: t("data-explorer.node-id"), value: "id" });
 
     return options;
-  }, [labels, textTransform, vertexConfig?.attributes]);
+  }, [t, textTransform, vertexConfig?.attributes]);
 
   const { enqueueNotification } = useNotification();
   const setSchema = useSetRecoilState(schemaAtom);
@@ -231,6 +228,8 @@ const DataExplorer = ({ classNamePrefix = "ft" }: ConnectionsProps) => {
               vertices: schema?.vertices || [],
               edges: schema?.edges || [],
               prefixes: response.prefixes || [],
+              lastSyncFail: schema?.lastSyncFail,
+              triedToSync: schema?.triedToSync,
             });
             return updatedSchema;
           });

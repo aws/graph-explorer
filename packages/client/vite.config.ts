@@ -1,6 +1,5 @@
 import react from "@vitejs/plugin-react";
 import { defineConfig, loadEnv } from "vite";
-import EnvironmentPlugin from "vite-plugin-environment";
 
 export default defineConfig(async ({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
@@ -21,14 +20,10 @@ export default defineConfig(async ({ mode }) => {
 
   return {
     server: {
-      host: true
+      host: true,
     },
     base: env.REACT_APP_ENV_ROOT_FOLDER,
     envPrefix: "REACT_APP",
-    plugins: [
-      htmlPlugin(),
-      EnvironmentPlugin("all", { prefix: "REACT_APP_" }),
-      react(),
-    ],
+    plugins: [htmlPlugin(), react()],
   };
 });

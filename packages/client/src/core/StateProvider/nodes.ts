@@ -5,14 +5,12 @@ import { activeConfigurationAtom } from "./configuration";
 import isDefaultValue from "./isDefaultValue";
 import { schemaAtom, SchemaInference } from "./schema";
 
-export type Nodes = Array<Vertex>;
-
-export const nodesAtom = atom<Nodes>({
+export const nodesAtom = atom<Array<Vertex>>({
   key: "nodes",
   default: [],
 });
 
-export const nodesSelector = selector<Nodes>({
+export const nodesSelector = selector<Array<Vertex>>({
   key: "nodes-selector",
   get: ({ get }) => {
     return get(nodesAtom);
@@ -24,6 +22,22 @@ export const nodesSelector = selector<Nodes>({
     }
 
     set(nodesAtom, newValue);
+    const cleanFn = (curr: Set<string>) => {
+      const existingNodesIds = new Set<string>();
+      curr.forEach(nId => {
+        const exist = newValue.find(n => n.data.id === nId);
+        if (exist) {
+          existingNodesIds.add(nId);
+        }
+      });
+      return existingNodesIds;
+    };
+    // Clean all dependent states
+    set(nodesSelectedIdsAtom, cleanFn);
+    set(nodesHiddenIdsAtom, cleanFn);
+    set(nodesOutOfFocusIdsAtom, cleanFn);
+    set(nodesLockedIdsAtom, cleanFn);
+    set(nodesFilteredIdsAtom, cleanFn);
 
     const activeConfig = get(activeConfigurationAtom);
     if (!activeConfig) {
@@ -37,10 +51,10 @@ export const nodesSelector = selector<Nodes>({
 
       updatedSchemas.set(activeConfig, {
         vertices: newValue.reduce((schema, node) => {
-          if (!schema.find(s => s.type === node.data.__v_type)) {
+          if (!schema.find(s => s.type === node.data.type)) {
             schema.push({
-              type: node.data.__v_type,
-              displayLabel: node.data.__v_type_display,
+              type: node.data.type,
+              displayLabel: "",
               attributes: Object.keys(node.data.attributes).map(attr => ({
                 name: attr,
                 displayLabel: sanitizeText(attr),

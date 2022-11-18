@@ -141,6 +141,8 @@ export type RawConfiguration = {
     vertices: Array<VertexTypeConfig>;
     edges: Array<EdgeTypeConfig>;
     lastUpdate?: Date;
+    triedToSync?: boolean;
+    lastSyncFail?: boolean;
     /**
      * List of RDF prefixes (only for SPARQL)
      */

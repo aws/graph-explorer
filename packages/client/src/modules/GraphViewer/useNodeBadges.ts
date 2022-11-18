@@ -1,6 +1,8 @@
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
+import { useRecoilValue } from "recoil";
 import { BadgeRenderer } from "../../components/Graph/hooks/useRenderBadges";
 import { useConfiguration } from "../../core";
+import { nodesAtom } from "../../core/StateProvider/nodes";
 import useDisplayNames from "../../hooks/useDisplayNames";
 import useTextTransform from "../../hooks/useTextTransform";
 
@@ -8,6 +10,19 @@ const useNodeBadges = () => {
   const config = useConfiguration();
   const textTransform = useTextTransform();
   const getDisplayNames = useDisplayNames();
+  const nodes = useRecoilValue(nodesAtom);
+
+  const nodesCurrentNames = useMemo(() => {
+    return nodes.reduce((names, node) => {
+      const vtConfig = config?.getVertexTypeConfig(node.data.type);
+      const { name } = getDisplayNames(node);
+      names[node.data.id] = {
+        name,
+        title: vtConfig?.displayLabel || textTransform(node.data.type),
+      };
+      return names;
+    }, {} as Record<string, { name: string; title: string }>);
+  }, [config, getDisplayNames, nodes, textTransform]);
 
   return useCallback(
     (outOfFocusIds: Set<string>): BadgeRenderer => (
@@ -15,32 +30,26 @@ const useNodeBadges = () => {
       boundingBox,
       { zoomLevel }
     ) => {
-      const { name } = getDisplayNames({ data: nodeData });
-      const vtConfig = config?.getVertexTypeConfig(nodeData.__v_type);
       return [
         {
+          text: nodesCurrentNames[nodeData.id].name,
           hidden: zoomLevel === "small" || outOfFocusIds.has(nodeData.id),
           title:
             zoomLevel === "large"
-              ? vtConfig?.displayLabel || textTransform(nodeData.__v_type)
+              ? nodesCurrentNames[nodeData.id].title
               : undefined,
-          titleFormat:
-            config?.connection?.queryEngine === "gremlin"
-              ? "uppercase"
-              : undefined,
-          text: name,
           maxWidth: zoomLevel === "large" ? 80 : 50,
           anchor: "center",
           fontSize: 7,
-          borderRadius: 6,
+          borderRadius: 2,
           backgroundColor: "rgba(29,37,49,0.6)",
-          paddingLeft: 8,
-          paddingRight: 8,
-          paddingBottom: 4,
-          paddingTop: 4,
+          paddingLeft: 2,
+          paddingRight: 2,
+          paddingBottom: 2,
+          paddingTop: 2,
           boundingBox: {
             x: boundingBox.x + boundingBox.width / 2,
-            y: boundingBox.y + boundingBox.height - 4,
+            y: boundingBox.y + boundingBox.height - 6,
             width: "auto",
             height: "auto",
           },
@@ -49,14 +58,14 @@ const useNodeBadges = () => {
           hidden:
             zoomLevel === "small" ||
             outOfFocusIds.has(nodeData.id) ||
-            nodeData.__unfetchedNeighborCount === 0,
+            !!nodeData.__unfetchedNeighborCount,
           text: String(nodeData.__unfetchedNeighborCount),
           anchor: "center",
-          fontSize: 7,
-          borderRadius: 6,
+          fontSize: 5,
+          borderRadius: 4,
           backgroundColor: "rgba(29,37,49,0.6)",
-          paddingLeft: 4,
-          paddingRight: 4,
+          paddingLeft: 3,
+          paddingRight: 3,
           boundingBox: {
             x: boundingBox.x + boundingBox.width / 2,
             y: boundingBox.y - 6,
@@ -66,7 +75,7 @@ const useNodeBadges = () => {
         },
       ];
     },
-    [config, getDisplayNames, textTransform]
+    [nodesCurrentNames]
   );
 };
 

@@ -1,4 +1,3 @@
-import type { ConfigurationContextProps } from "../../../core";
 import type {
   NeighborsRequest,
   NeighborsResponse,
@@ -8,7 +7,6 @@ import mapApiVertex from "../mappers/mapApiVertex";
 import oneHopTemplate from "../templates/oneHopTemplate";
 import type { GEdgeList, GVertexList } from "../types";
 import { GremlinFetch } from "../types";
-import fetchNeighborsCount from "./fetchNeighborsCount";
 
 type RawOneHopRequest = {
   requestId: string;
@@ -29,29 +27,29 @@ type RawOneHopRequest = {
 
 const fetchNeighbors = async (
   gremlinFetch: GremlinFetch,
-  req: NeighborsRequest,
-  config: ConfigurationContextProps
+  req: NeighborsRequest
 ): Promise<NeighborsResponse> => {
   const gremlinTemplate = oneHopTemplate(req);
   const data = await gremlinFetch<RawOneHopRequest>(gremlinTemplate);
 
-  const vertices = await Promise.all(
-    data.result.data["@value"]?.[0]?.["@value"][1]["@value"].map(
-      async value => {
-        const neighborsCount = await fetchNeighborsCount(gremlinFetch, {
-          vertexId: value["@value"].id,
-          limit: 0,
-        });
-        return mapApiVertex(config, value, neighborsCount);
-      }
-    )
-  );
-
-  const edges = data.result.data["@value"]?.[0]?.["@value"][3]["@value"].map(
-    value => {
-      return mapApiEdge(config, value);
+  const verticesResponse =
+    data.result.data["@value"]?.[0]?.["@value"][1]["@value"];
+  const verticesIds = verticesResponse?.map(v => v["@value"].id);
+  const vertices: NeighborsResponse["vertices"] = verticesResponse?.map(
+    vertex => {
+      return mapApiVertex(vertex);
     }
   );
+
+  const edges = data.result.data["@value"]?.[0]?.["@value"][3]["@value"]
+    .map(value => {
+      return mapApiEdge(value);
+    })
+    .filter(
+      edge =>
+        verticesIds.includes(edge.data.source) ||
+        verticesIds.includes(edge.data.target)
+    );
 
   return {
     vertices,

@@ -27,7 +27,7 @@ import {
 } from "../../core/StateProvider/userPreferences";
 import fade from "../../core/ThemeProvider/utils/fade";
 import useTextTransform from "../../hooks/useTextTransform";
-import labelsByEngine from "../../utils/labelsByEngine";
+import useTranslations from "../../hooks/useTranslations";
 import { LINE_STYLE_OPTIONS } from "./lineStyling";
 import { NODE_SHAPE } from "./nodeShape";
 import defaultStyles from "./SingleNodeStyling.style";
@@ -36,6 +36,9 @@ import modalDefaultStyles from "./SingleNodeStylingModal.style";
 export type SingleNodeStylingProps = {
   classNamePrefix?: string;
   vertexType: string;
+  opened: boolean;
+  onOpen(): void;
+  onClose(): void;
 };
 
 const file2Base64 = (file: File): Promise<string> => {
@@ -50,8 +53,12 @@ const file2Base64 = (file: File): Promise<string> => {
 const SingleNodeStyling = ({
   classNamePrefix = "ft",
   vertexType,
+  opened,
+  onOpen,
+  onClose,
 }: SingleNodeStylingProps) => {
   const config = useConfiguration();
+  const t = useTranslations();
   const styleWithTheme = useWithTheme();
   const pfx = withClassNamePrefix(classNamePrefix);
 
@@ -60,24 +67,25 @@ const SingleNodeStyling = ({
   const vtConfig = config?.getVertexTypeConfig(vertexType);
   const vtPrefs = userStyling.vertices?.find(v => v.type === vertexType);
 
-  const [opened, setOpened] = useState(false);
   const [displayAs, setDisplayAs] = useState(
     vtConfig?.displayLabel || textTransform(vertexType)
   );
 
   const selectOptions = useMemo(() => {
-    const labels = labelsByEngine[config?.connection?.queryEngine || "gremlin"];
     const options =
       vtConfig?.attributes.map(attr => ({
         value: attr.name,
         label: attr.displayLabel || textTransform(attr.name),
       })) || [];
 
-    options.unshift({ label: labels["node-type"], value: "__v_types" });
-    options.unshift({ label: labels["node-id"], value: "__v_id" });
+    options.unshift({
+      label: t("nodes-styling.node-type"),
+      value: "types",
+    });
+    options.unshift({ label: t("nodes-styling.node-id"), value: "id" });
 
     return options;
-  }, [config?.connection?.queryEngine, textTransform, vtConfig?.attributes]);
+  }, [t, textTransform, vtConfig?.attributes]);
 
   const onUserPrefsChange = useRecoilCallback(
     ({ set }) => (prefs: Omit<VertexPreferences, "type">) => {
@@ -212,14 +220,14 @@ const SingleNodeStyling = ({
           icon={<StylingIcon />}
           variant={"text"}
           size={"small"}
-          onPress={() => setOpened(true)}
+          onPress={onOpen}
         >
           Customize
         </Button>
       </div>
       <Modal
         opened={opened}
-        onClose={() => setOpened(false)}
+        onClose={onClose}
         centered={true}
         title={
           <div>

@@ -1,4 +1,4 @@
-import type { NeighborsRequest, Criterion } from "../../AbstractConnector";
+import type { Criterion, NeighborsRequest } from "../../AbstractConnector";
 
 const criterionNumberTemplate = ({
   name,
@@ -122,21 +122,21 @@ const criterionTemplate = (criterion: Criterion): string => {
  *    ).dedup().range(0,10).fold()
  *  )
  *  .by(
- *    bothE("route").dedup().range(0,10).fold()
+ *    bothE("route").dedup().fold()
  *  )
  */
 const oneHopTemplate = ({
   vertexId,
-  vertexTypes = [],
+  filterByVertexTypes = [],
   edgeTypes = [],
   filterCriteria = [],
   limit = 10,
   offset = 0,
-}: NeighborsRequest): string => {
+}: Omit<NeighborsRequest, "vertexType">): string => {
   const range = `.range(${offset}, ${offset + limit})`;
   let template = `g.V("${vertexId}").project("vertices", "edges")`;
 
-  const hasLabelContent = vertexTypes
+  const hasLabelContent = filterByVertexTypes
     .flatMap(type => type.split("::"))
     .map(type => `"${type}"`)
     .join(",");
@@ -146,7 +146,7 @@ const oneHopTemplate = ({
   filterCriteriaTemplate += filterCriteria?.map(criterionTemplate).join(",");
   filterCriteriaTemplate += ")";
 
-  if (vertexTypes.length > 0) {
+  if (filterByVertexTypes.length > 0) {
     if (filterCriteria.length > 0) {
       template += `.by(both().hasLabel(${hasLabelContent})${filterCriteriaTemplate}.dedup()${range}.fold())`;
     } else {
@@ -161,16 +161,16 @@ const oneHopTemplate = ({
   }
 
   if (edgeTypes.length > 0) {
-    if (vertexTypes.length > 0) {
+    if (filterByVertexTypes.length > 0) {
       template += `.by(bothE(${bothEContent}).where(otherV().hasLabel(${hasLabelContent})).dedup()${range}.fold())`;
     } else {
       template += `.by(bothE(${bothEContent}).dedup()${range}.fold())`;
     }
   } else {
-    if (vertexTypes.length > 0) {
-      template += `.by(bothE().where(otherV().hasLabel(${hasLabelContent})).dedup()${range}.fold())`;
+    if (filterByVertexTypes.length > 0) {
+      template += `.by(bothE().where(otherV().hasLabel(${hasLabelContent})).dedup().fold())`;
     } else {
-      template += `.by(bothE().dedup()${range}.fold())`;
+      template += `.by(bothE().dedup().fold())`;
     }
   }
 

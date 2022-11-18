@@ -1,4 +1,3 @@
-import type { ConfigurationContextProps } from "../../../core";
 import type {
   ErrorResponse,
   KeywordSearchRequest,
@@ -23,8 +22,7 @@ type RawKeySearchResponse = {
 
 const keywordSearch = async (
   gremlinFetch: GremlinFetch,
-  req: KeywordSearchRequest,
-  config: ConfigurationContextProps
+  req: KeywordSearchRequest
 ): Promise<KeywordSearchResponse> => {
   const gremlinTemplate = keywordSearchTemplate(req);
   const data = await gremlinFetch<RawKeySearchResponse | ErrorResponse>(
@@ -36,7 +34,7 @@ const keywordSearch = async (
   }
 
   const vertices = data.result.data["@value"].map(value => {
-    return mapApiVertex(config, value);
+    return mapApiVertex(value);
   });
 
   return { vertices };

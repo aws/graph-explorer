@@ -23,7 +23,7 @@ export type CheckboxListProps = {
   /**
    * The content to display as element title.
    */
-  title: string;
+  title?: string;
   /**
    * Checkboxes array to be displayed.
    */
@@ -75,7 +75,7 @@ export const CheckboxList = ({
         className
       )}
     >
-      <div className={pfx("title")}>{title}</div>
+      {title && <div className={pfx("title")}>{title}</div>}
       <div className={pfx("content")}>
         {checkboxes.map(checkbox => {
           return (

@@ -57,11 +57,13 @@ export interface ScheduledNotification extends ProcessedNotification {
 export type NotificationState = {
   active: ProcessedNotification[];
   queue: ProcessedNotification[];
+  cancelledIds: string[];
 };
 
 export const initialState: NotificationState = {
   active: [],
   queue: [],
+  cancelledIds: [],
 };
 
 export type NotificationAction =
@@ -72,15 +74,12 @@ export type NotificationAction =
 const reducer = (state: NotificationState, action: NotificationAction) => {
   switch (action.type) {
     case "clear":
-      if (state.active.length === 0) {
-        return state;
-      }
-
       return {
         ...state,
         active: state.active.filter(
           notification => notification.id !== action.payload.id
         ),
+        cancelledIds: [...state.cancelledIds, action.payload.id],
       };
     case "next": {
       if (state.queue.length === 0) {
@@ -89,8 +88,9 @@ const reducer = (state: NotificationState, action: NotificationAction) => {
 
       const nonExpiredQueue = state.queue.filter(
         notification =>
-          !notification.expiresAt ||
-          notification.expiresAt >= new Date().getTime()
+          (!notification.expiresAt ||
+            notification.expiresAt >= new Date().getTime()) &&
+          !state.cancelledIds.includes(notification.id)
       );
 
       let candidateIndex = 0;
@@ -114,6 +114,7 @@ const reducer = (state: NotificationState, action: NotificationAction) => {
       }
 
       return {
+        ...state,
         active: [...state.active, notificationCandidate],
         queue: nonExpiredQueue.slice(1),
       };

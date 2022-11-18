@@ -24,6 +24,26 @@ const defaultStyles = (pfx: string) => ({
       .${pfx}-space {
         min-width: 4px;
       }
+
+      .${pfx}-table-view-area {
+        position: relative;
+        width: 100% !important;
+        user-select: none;
+      }
+
+      .${pfx}-resizable-handle {
+        cursor: ns-resize;
+        width: 100%;
+        height: 4px;
+        position: absolute;
+        top: -6px;
+        z-index: 100000;
+        left: 0;
+        border-radius: ${theme.shape.borderRadius};
+        :hover {
+          background: ${theme.palette.grey["400"]};
+        }
+      }
     }
   `;
 

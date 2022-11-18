@@ -1,0 +1,202 @@
+{
+  "requestId": "62a79799-aeaf-406e-80f9-7afd091d1782",
+  "status": {
+    "message": "",
+    "code": 200,
+    "attributes": {
+      "@type": "g:Map",
+      "@value": []
+    }
+  },
+  "result": {
+    "data": {
+      "@type": "g:List",
+      "@value": [
+        {
+          "@type": "g:Vertex",
+          "@value": {
+            "id": "836",
+            "label": "airport",
+            "properties": {
+              "country": [
+                {
+                  "@type": "g:VertexProperty",
+                  "@value": {
+                    "id": {
+                      "@type": "g:Int32",
+                      "@value": 1352817622
+                    },
+                    "value": "TN",
+                    "label": "country"
+                  }
+                }
+              ],
+              "longest": [
+                {
+                  "@type": "g:VertexProperty",
+                  "@value": {
+                    "id": {
+                      "@type": "g:Int32",
+                      "@value": 134028273
+                    },
+                    "value": {
+                      "@type": "g:Int32",
+                      "@value": 9843
+                    },
+                    "label": "longest"
+                  }
+                }
+              ],
+              "code": [
+                {
+                  "@type": "g:VertexProperty",
+                  "@value": {
+                    "id": {
+                      "@type": "g:Int32",
+                      "@value": -1352467175
+                    },
+                    "value": "SFA",
+                    "label": "code"
+                  }
+                }
+              ],
+              "city": [
+                {
+                  "@type": "g:VertexProperty",
+                  "@value": {
+                    "id": {
+                      "@type": "g:Int32",
+                      "@value": -1280266501
+                    },
+                    "value": "Sfax",
+                    "label": "city"
+                  }
+                }
+              ],
+              "elev": [
+                {
+                  "@type": "g:VertexProperty",
+                  "@value": {
+                    "id": {
+                      "@type": "g:Int32",
+                      "@value": -1300472611
+                    },
+                    "value": {
+                      "@type": "g:Int32",
+                      "@value": 85
+                    },
+                    "label": "elev"
+                  }
+                }
+              ],
+              "icao": [
+                {
+                  "@type": "g:VertexProperty",
+                  "@value": {
+                    "id": {
+                      "@type": "g:Int32",
+                      "@value": -1129010898
+                    },
+                    "value": "DTTX",
+                    "label": "icao"
+                  }
+                }
+              ],
+              "lon": [
+                {
+                  "@type": "g:VertexProperty",
+                  "@value": {
+                    "id": {
+                      "@type": "g:Int32",
+                      "@value": 27291989
+                    },
+                    "value": {
+                      "@type": "g:Double",
+                      "@value": 10.6909999847412
+                    },
+                    "label": "lon"
+                  }
+                }
+              ],
+              "runways": [
+                {
+                  "@type": "g:VertexProperty",
+                  "@value": {
+                    "id": {
+                      "@type": "g:Int32",
+                      "@value": 200408520
+                    },
+                    "value": {
+                      "@type": "g:Int32",
+                      "@value": 1
+                    },
+                    "label": "runways"
+                  }
+                }
+              ],
+              "region": [
+                {
+                  "@type": "g:VertexProperty",
+                  "@value": {
+                    "id": {
+                      "@type": "g:Int32",
+                      "@value": 1788021184
+                    },
+                    "value": "TN-61",
+                    "label": "region"
+                  }
+                }
+              ],
+              "type": [
+                {
+                  "@type": "g:VertexProperty",
+                  "@value": {
+                    "id": {
+                      "@type": "g:Int32",
+                      "@value": -1535626679
+                    },
+                    "value": "airport",
+                    "label": "type"
+                  }
+                }
+              ],
+              "lat": [
+                {
+                  "@type": "g:VertexProperty",
+                  "@value": {
+                    "id": {
+                      "@type": "g:Int32",
+                      "@value": -301259946
+                    },
+                    "value": {
+                      "@type": "g:Double",
+                      "@value": 34.7179985046387
+                    },
+                    "label": "lat"
+                  }
+                }
+              ],
+              "desc": [
+                {
+                  "@type": "g:VertexProperty",
+                  "@value": {
+                    "id": {
+                      "@type": "g:Int32",
+                      "@value": 1616795696
+                    },
+                    "value": "Sfax Thyna International Airport",
+                    "label": "desc"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "meta": {
+      "@type": "g:Map",
+      "@value": []
+    }
+  }
+}

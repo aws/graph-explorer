@@ -1,13 +1,16 @@
 import { cx } from "@emotion/css";
 import { useCallback, useRef, useState } from "react";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import { VertexData } from "../../@types/entities";
+import { Vertex } from "../../@types/entities";
 import type { ModuleContainerHeaderProps } from "../../components";
 import {
   LoadingSpinner,
   ModuleContainer,
   ModuleContainerHeader,
+  RemoveFromCanvasIcon,
   ResetIcon,
+  ZoomInIcon,
+  ZoomOutIcon,
 } from "../../components";
 import Card from "../../components/Card";
 import Graph from "../../components/Graph";
@@ -52,6 +55,8 @@ export type GraphViewerProps = Omit<
   "title" | "sidebar"
 > & {
   title?: ModuleContainerHeaderProps["title"];
+  onNodeCustomize(nodeType?: string): void;
+  onEdgeCustomize(edgeType?: string): void;
 };
 
 const LAYOUT_OPTIONS = [
@@ -89,8 +94,42 @@ const LAYOUT_OPTIONS = [
   },
 ];
 
+const HEADER_ACTIONS = [
+  {
+    value: "download_screenshot",
+    label: "Download Screenshot",
+    icon: <ScreenshotIcon />,
+  },
+  "divider",
+  {
+    value: "zoom_in",
+    label: "Zoom in",
+    icon: <ZoomInIcon />,
+  },
+  {
+    value: "zoom_out",
+    label: "Zoom out",
+    icon: <ZoomOutIcon />,
+  },
+  "divider",
+  {
+    value: "clear_canvas",
+    label: "Clear canvas",
+    icon: <RemoveFromCanvasIcon />,
+    color: "error",
+  },
+  "divider",
+  {
+    value: "legend",
+    label: "Legend",
+    icon: <InfoIcon />,
+  },
+];
+
 const GraphViewer = ({
   title = "Graph View",
+  onNodeCustomize,
+  onEdgeCustomize,
   ...headerProps
 }: GraphViewerProps) => {
   const styleWithTheme = useWithTheme();
@@ -130,15 +169,19 @@ const GraphViewer = ({
 
   const config = useConfiguration();
   const [legendOpen, setLegendOpen] = useState(false);
-  const { onSaveScreenshot } = useGraphGlobalActions(graphRef);
+  const { onZoomIn, onZoomOut, onSaveScreenshot } = useGraphGlobalActions(
+    graphRef
+  );
 
   const {
     clearAllLayers,
     contextLayerProps,
     contextNodeId,
+    contextEdgeId,
     isContextOpen,
     onGraphRightClick,
     onNodeRightClick,
+    onEdgeRightClick,
     parentRef,
     renderContextLayer,
   } = useContextMenu();
@@ -150,7 +193,7 @@ const GraphViewer = ({
   const expandNode = useExpandNode();
   const [expandVertexName, setExpandVertexName] = useState<string | null>(null);
   const getDisplayNames = useDisplayNames();
-  const onNodeDoubleClick: ElementEventCallback<VertexData> = useCallback(
+  const onNodeDoubleClick: ElementEventCallback<Vertex["data"]> = useCallback(
     async (_, vertexData) => {
       if (vertexData.__unfetchedNeighborCount === 0) {
         enqueueNotification({
@@ -161,7 +204,7 @@ const GraphViewer = ({
         return;
       }
 
-      if (vertexData.__unfetchedNeighborCount > 20) {
+      if ((vertexData.__unfetchedNeighborCount ?? 0) > 10) {
         setUserLayout(prev => ({
           ...prev,
           activeSidebarItem: "expand",
@@ -177,7 +220,8 @@ const GraphViewer = ({
       });
       await expandNode({
         vertexId: vertexData.id,
-        limit: vertexData.__totalNeighborCount,
+        vertexType: vertexData.types?.join("::") ?? vertexData.type,
+        limit: vertexData.neighborsCount,
         offset: 0,
       });
       clearNotification(notificationId);
@@ -193,6 +237,32 @@ const GraphViewer = ({
   );
 
   const [layout, setLayout] = useState("F_COSE");
+  const [, setEntities] = useEntities();
+  const onClearCanvas = useCallback(() => {
+    setEntities({
+      nodes: [],
+      edges: [],
+      forceSet: true,
+    });
+  }, [setEntities]);
+
+  const onHeaderActionClick = useCallback(
+    action => {
+      switch (action) {
+        case "zoom_in":
+          return onZoomIn();
+        case "zoom_out":
+          return onZoomOut();
+        case "clear_canvas":
+          return onClearCanvas();
+        case "download_screenshot":
+          return onSaveScreenshot();
+        case "legend":
+          return setLegendOpen(open => !open);
+      }
+    },
+    [onClearCanvas, onSaveScreenshot, onZoomIn, onZoomOut]
+  );
 
   return (
     <div
@@ -230,26 +300,8 @@ const GraphViewer = ({
             </div>
           }
           variant={"default"}
-          actions={[
-            {
-              value: "download_screenshot",
-              label: "Download Screenshot",
-              icon: <ScreenshotIcon />,
-            },
-            {
-              value: "legend",
-              label: "Legend",
-              icon: <InfoIcon />,
-            },
-          ]}
-          onActionClick={action => {
-            switch (action) {
-              case "download_screenshot":
-                return onSaveScreenshot();
-              case "legend":
-                return setLegendOpen(open => !open);
-            }
-          }}
+          actions={HEADER_ACTIONS}
+          onActionClick={onHeaderActionClick}
           {...headerProps}
         />
         <div
@@ -275,8 +327,9 @@ const GraphViewer = ({
             outOfFocusEdgesIds={edgesOutIds}
             onSelectedNodesIdsChange={onSelectedNodesIdsChange}
             onSelectedEdgesIdsChange={onSelectedEdgesIdsChange}
-            onNodeRightClick={onNodeRightClick}
             onNodeDoubleClick={onNodeDoubleClick}
+            onNodeRightClick={onNodeRightClick}
+            onEdgeRightClick={onEdgeRightClick}
             onGraphRightClick={onGraphRightClick}
             styles={styles}
             layout={layout}
@@ -291,6 +344,9 @@ const GraphViewer = ({
                   graphRef={graphRef}
                   onClose={clearAllLayers}
                   affectedNodesIds={contextNodeId ? [contextNodeId] : []}
+                  affectedEdgesIds={contextEdgeId ? [contextEdgeId] : []}
+                  onNodeCustomize={onNodeCustomize}
+                  onEdgeCustomize={onEdgeCustomize}
                 />
               </div>
             )}

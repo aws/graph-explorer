@@ -1,3 +1,4 @@
+import { uniq } from "lodash";
 import isEqual from "lodash/isEqual";
 import isEqualWith from "lodash/isEqualWith";
 import uniqBy from "lodash/uniqBy";
@@ -79,41 +80,45 @@ const entitiesSelector = selector<Entities>({
 
     // Get stats for each node
     const nodesWithStats = nonDupNodes.map(node => {
-      // Get all OUT connected edges: current node is source and target should be exist
+      // Get all OUT connected edges: current node is source and target should exist
       const outConnections = nonDupEdges.filter(
         edge =>
           edge.data.source === node.data.id &&
           nonDupNodes.some(aNode => aNode.data.id === edge.data.target)
       );
 
-      // Get all IN connected edges: current node is target and source should be exist
+      // Get all IN connected edges: current node is target and source should exist
       const inConnections = nonDupEdges.filter(
         edge =>
           edge.data.target === node.data.id &&
           nonDupNodes.some(aNode => aNode.data.id === edge.data.source)
       );
 
-      // Re-mapping __totalNeighborCounts to only un-fetched counts
+      // Re-mapping neighborsCountByType to only un-fetched counts
       const __unfetchedNeighborCounts = Object.entries(
-        node.data.__totalNeighborCounts
+        node.data.neighborsCountByType
       ).reduce((counts, [type, count]) => {
         // All edges FROM current node to TYPE that it is in the graph
         const fetchedOutEdgesByType = outConnections.filter(
           edge =>
-            edge.data.__targetType.split("::").includes(type) &&
+            edge.data.targetType.split("::").includes(type) &&
             nonDupNodes.some(aNode => aNode.data.id === edge.data.target)
         );
 
         // All edges TO current node from TYPE that it is in the graph
         const fetchedInEdgesByType = inConnections.filter(
           edge =>
-            edge.data.__sourceType.split("::").includes(type) &&
+            edge.data.sourceType.split("::").includes(type) &&
             nonDupNodes.some(aNode => aNode.data.id === edge.data.source)
         );
-        counts[type] = Math.max(
-          0,
-          count - fetchedOutEdgesByType.length - fetchedInEdgesByType.length
-        );
+
+        // Count only unique connected nodes
+        const distinctConnectedNodes = uniq([
+          ...fetchedOutEdgesByType.map(et => et.data.target),
+          ...fetchedInEdgesByType.map(et => et.data.source),
+        ]);
+
+        counts[type] = Math.max(0, count - distinctConnectedNodes.length);
 
         return counts;
       }, {} as Record<string, number>);
@@ -125,7 +130,6 @@ const entitiesSelector = selector<Entities>({
           __unfetchedNeighborCounts,
           __fetchedOutEdgeCount: outConnections.length,
           __fetchedInEdgeCount: inConnections.length,
-          __fetchedUndirectedEdgeCount: 0,
           __unfetchedNeighborCount: Math.max(
             0,
             Object.values(__unfetchedNeighborCounts).reduce(
@@ -221,7 +225,11 @@ const entitiesSelector = selector<Entities>({
 
     // Avoid update the state if edges are equal
     const shouldUpdateEdges = !isEqual(nonUnconnectedEdges, prevEdges);
-    if (shouldUpdateEdges || affectedEdgesIds.size > 0) {
+    if (
+      shouldUpdateEdges ||
+      affectedEdgesIds.size > 0 ||
+      prevEdges.length === 0
+    ) {
       set(edgesSelector, nonUnconnectedEdges);
     }
 

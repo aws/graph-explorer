@@ -18,21 +18,24 @@ import {
 } from "./nodes";
 
 const useResetState = () => {
-  return useRecoilCallback(({ reset }) => () => {
-    reset(nodesAtom);
-    reset(nodesSelectedIdsAtom);
-    reset(nodesLockedIdsAtom);
-    reset(nodesHiddenIdsAtom);
-    reset(nodesOutOfFocusIdsAtom);
-    reset(nodesFilteredIdsAtom);
-    reset(nodesTypesFilteredAtom);
-    reset(edgesAtom);
-    reset(edgesSelectedIdsAtom);
-    reset(edgesHiddenIdsAtom);
-    reset(edgesOutOfFocusIdsAtom);
-    reset(edgesFilteredIdsAtom);
-    reset(edgesTypesFilteredAtom);
-  });
+  return useRecoilCallback(
+    ({ reset }) => () => {
+      reset(nodesAtom);
+      reset(nodesSelectedIdsAtom);
+      reset(nodesLockedIdsAtom);
+      reset(nodesHiddenIdsAtom);
+      reset(nodesOutOfFocusIdsAtom);
+      reset(nodesFilteredIdsAtom);
+      reset(nodesTypesFilteredAtom);
+      reset(edgesAtom);
+      reset(edgesSelectedIdsAtom);
+      reset(edgesHiddenIdsAtom);
+      reset(edgesOutOfFocusIdsAtom);
+      reset(edgesFilteredIdsAtom);
+      reset(edgesTypesFilteredAtom);
+    },
+    []
+  );
 };
 
 export default useResetState;

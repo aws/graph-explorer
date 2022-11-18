@@ -21,8 +21,8 @@ import {
 } from "../../core/StateProvider/configuration";
 import { schemaAtom } from "../../core/StateProvider/schema";
 import useResetState from "../../core/StateProvider/useResetState";
+import useTranslations from "../../hooks/useTranslations";
 import isValidConfigurationFile from "../../utils/isValidConfigurationFile";
-import labelsByEngine from "../../utils/labelsByEngine";
 import CreateConnection from "../CreateConnection";
 import defaultStyles from "./AvailableConnections.styles";
 
@@ -42,6 +42,7 @@ const AvailableConnections = ({
 
   const activeConfig = useRecoilValue(activeConfigurationAtom);
   const configuration = useRecoilValue(configurationAtom);
+  const t = useTranslations();
 
   const resetState = useResetState();
   const onActiveConfigChange = useRecoilCallback(
@@ -101,6 +102,7 @@ const AvailableConnections = ({
       });
       set(activeConfigurationAtom, newId);
 
+      resetState();
       enqueueNotification({
         title: "File imported",
         message: "Connection file successfully imported",
@@ -108,7 +110,7 @@ const AvailableConnections = ({
         stackable: true,
       });
     },
-    [enqueueNotification]
+    [enqueueNotification, resetState]
   );
 
   const onActionClick = useCallback(
@@ -151,8 +153,6 @@ const AvailableConnections = ({
   const connectionItems = useMemo(() => {
     const items: AdvancedListItemType<any>[] = [];
     configuration.forEach(config => {
-      const labels =
-        labelsByEngine[config.connection?.queryEngine || "gremlin"];
       items.push({
         id: config.id,
         title: config.displayLabel || config.id,
@@ -161,7 +161,10 @@ const AvailableConnections = ({
         endAdornment: (
           <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
             <Chip size={"sm"} variant={"info"}>
-              {labels["graph-type"]}
+              {t(
+                "available-connections.graph-type",
+                config.connection?.queryEngine || "gremlin"
+              )}
             </Chip>
             <div className={pfx("v-divider")} />
             <Switch
@@ -179,7 +182,7 @@ const AvailableConnections = ({
     });
 
     return items;
-  }, [activeConfig, configuration, isSync, onActiveConfigChange, pfx]);
+  }, [activeConfig, configuration, isSync, onActiveConfigChange, pfx, t]);
 
   return (
     <ModuleContainer className={styleWithTheme(defaultStyles("ft"))}>

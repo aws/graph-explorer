@@ -2,6 +2,7 @@ import { CyEdgeStyle, EdgeStyle } from "../Graph.model";
 
 const toCyEdgeStyle = (edgeStyle: Partial<EdgeStyle>): Partial<CyEdgeStyle> => {
   return {
+    color: edgeStyle.text?.color,
     curveStyle: edgeStyle.curveStyle,
     display: edgeStyle.visible === false ? "none" : undefined,
     fontSize: edgeStyle.text?.fontSize,
@@ -9,6 +10,7 @@ const toCyEdgeStyle = (edgeStyle: Partial<EdgeStyle>): Partial<CyEdgeStyle> => {
     lineCap: edgeStyle.lineCap,
     lineColor: edgeStyle.lineColor,
     lineStyle: edgeStyle.lineStyle,
+    minZoomedFontSize: edgeStyle.text?.minZoomedFontSize,
     opacity: edgeStyle.opacity,
     sourceArrowColor: edgeStyle.sourceArrowColor,
     sourceArrowShape: edgeStyle.sourceArrowShape,
@@ -22,19 +24,17 @@ const toCyEdgeStyle = (edgeStyle: Partial<EdgeStyle>): Partial<CyEdgeStyle> => {
     textBorderOpacity: edgeStyle.text?.border.opacity,
     textBorderStyle: edgeStyle.text?.border.style,
     textBorderWidth: edgeStyle.text?.border.width,
-    color: edgeStyle.text?.color,
     textHalign: edgeStyle.text?.hAlign,
     textMaxWidth: edgeStyle.text?.maxWidth,
-    minZoomedFontSize: edgeStyle.text?.minZoomedFontSize,
     textRotation: edgeStyle.text?.rotation,
     textValign: edgeStyle.text?.vAlign,
     textWrap: edgeStyle.text?.wrap,
     transitionDuration: edgeStyle.transitionDuration,
     transitionProperty: edgeStyle.transitionProperty,
-    width: edgeStyle.width,
     underlayColor: edgeStyle.underlayColor,
     underlayOpacity: edgeStyle.underlayOpacity,
     underlayPadding: edgeStyle.underlayPadding,
+    width: edgeStyle.width,
   };
 };
 

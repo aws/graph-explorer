@@ -39,6 +39,11 @@ const BASE_URL = process.env.PROXY_SERVER_CONNECTION_URL.replace(/\/$/, "");
 const BASE_PORT = 8182;
 
 (async () => {
+  const connection_details = await (await fetch(new URL(`${BASE_URL}/status`))).json();
+  if (connection_details.role !== "reader") {
+    throw new Error("Neptune connection is not read only");
+  }
+
   let creds;
   let requestSig;
   if (process.env.REACT_APP_AWS_AUTH_REQUIRED) {
@@ -52,7 +57,9 @@ const BASE_PORT = 8182;
         const authHeaders = await requestSig.requestAuthHeaders(new URL(`${BASE_URL}/sparql?query=` + encodeURIComponent(req.query.query) + "&format=json"), "GET");
         req.headers['Authorization'] = authHeaders["Authorization"];
         req.headers['x-amz-date'] = authHeaders['x-amz-date'];
-	      req.headers['x-amz-security-token'] = authHeaders['x-amz-security-token'];
+        if (authHeaders['x-amz-security-token']) {
+          req.headers['x-amz-security-token'] = authHeaders['x-amz-security-token'];
+        }
       }
       req.headers["host"] = process.env.REACT_APP_AWS_CLUSTER_HOST;
       const response = await fetch(
@@ -75,7 +82,9 @@ const BASE_PORT = 8182;
         const authHeaders = await requestSig.requestAuthHeaders(new URL(`${BASE_URL}/?gremlin=` + req.query.gremlin), "GET");
         req.headers['Authorization'] = authHeaders["Authorization"];
         req.headers['x-amz-date'] = authHeaders['x-amz-date'];
-	      req.headers['x-amz-security-token'] = authHeaders['x-amz-security-token'];
+        if (authHeaders['x-amz-security-token']) {
+          req.headers['x-amz-security-token'] = authHeaders['x-amz-security-token'];
+        }
       }
       req.headers["host"] = process.env.REACT_APP_AWS_CLUSTER_HOST;
       const response = await fetch(`${BASE_URL}/?gremlin=` + req.query.gremlin, {

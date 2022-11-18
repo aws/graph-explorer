@@ -25,6 +25,22 @@ export const edgesSelector = selector<Edges>({
 
     set(edgesAtom, newValue);
 
+    const cleanFn = (curr: Set<string>) => {
+      const existingEdgesIds = new Set<string>();
+      curr.forEach(eId => {
+        const exist = newValue.find(n => n.data.id === eId);
+        if (exist) {
+          existingEdgesIds.add(eId);
+        }
+      });
+      return existingEdgesIds;
+    };
+    // Clean all dependent states
+    set(edgesSelectedIdsAtom, cleanFn);
+    set(edgesHiddenIdsAtom, cleanFn);
+    set(edgesOutOfFocusIdsAtom, cleanFn);
+    set(edgesFilteredIdsAtom, cleanFn);
+
     const activeConfig = get(activeConfigurationAtom);
     if (!activeConfig) {
       return;
@@ -37,10 +53,10 @@ export const edgesSelector = selector<Edges>({
 
       updatedSchemas.set(activeConfig, {
         edges: newValue.reduce((schema, edge) => {
-          if (!schema.find(s => s.type === edge.data.__e_type)) {
+          if (!schema.find(s => s.type === edge.data.type)) {
             schema.push({
-              type: edge.data.__e_type,
-              displayLabel: edge.data.__e_type_display,
+              type: edge.data.type,
+              displayLabel: "",
               attributes: Object.keys(edge.data.attributes).map(attr => ({
                 name: attr,
                 displayLabel: sanitizeText(attr),

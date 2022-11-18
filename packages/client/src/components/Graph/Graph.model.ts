@@ -141,10 +141,10 @@ export type CyTextStyle = {
 export type CyNodeStyle = CyTextStyle & {
   backgroundColor: string;
   backgroundFit?: "none" | "contain" | "cover";
-  backgroundWidth?: string;
   backgroundHeight?: string;
   backgroundImage?: string;
   backgroundOpacity: number;
+  backgroundWidth?: string;
   borderColor: string;
   borderOpacity: number;
   borderStyle: cytoscape.Css.LineStyle;
@@ -155,12 +155,13 @@ export type CyNodeStyle = CyTextStyle & {
   height: number;
   label?: string | ((node: cytoscape.NodeSingular) => string);
   opacity: number;
+  padding?: number;
   shape: cytoscape.Css.NodeShape;
   transitionDuration?: string;
   transitionProperty?: string;
-  width: number;
-  underlayOpacity?: number;
   underlayColor?: string;
+  underlayOpacity?: number;
+  width: number;
 };
 
 export type CurveStyle =

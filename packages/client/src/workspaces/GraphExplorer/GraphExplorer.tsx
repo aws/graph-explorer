@@ -1,5 +1,6 @@
 import { cx } from "@emotion/css";
-import { useCallback } from "react";
+import { Resizable } from "re-resizable";
+import { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
 import { useRecoilState } from "recoil";
 import {
@@ -25,16 +26,16 @@ import {
   withClassNamePrefix,
 } from "../../core";
 import { userLayoutAtom } from "../../core/StateProvider/userPreferences";
+import useTranslations from "../../hooks/useTranslations";
 import EdgesStyling from "../../modules/EdgesStyling/EdgesStyling";
 import EntitiesFilter from "../../modules/EntitiesFilter";
 import EntitiesTabular from "../../modules/EntitiesTabular/EntitiesTabular";
 import EntityDetails from "../../modules/EntityDetails";
-import GraphViewer from "../../modules/GraphViewer";
+import GraphViewerWithDetails from "../../modules/GraphViewerWithDetails/GraphViewerWithDetails";
 import KeywordSearch from "../../modules/KeywordSearch/KeywordSearch";
 import Namespaces from "../../modules/Namespaces/Namespaces";
+import NodeExpand from "../../modules/NodeExpand";
 import NodesStyling from "../../modules/NodesStyling/NodesStyling";
-import VertexExpand from "../../modules/VertexExpand";
-import labelsByEngine from "../../utils/labelsByEngine";
 import TopBarWithLogo from "../common/TopBarWithLogo";
 import defaultStyles from "./GraphExplorer.styles";
 
@@ -42,13 +43,24 @@ export type GraphViewProps = {
   classNamePrefix?: string;
 };
 
+const RESIZE_ENABLE_TOP = {
+  top: true,
+  right: false,
+  bottom: false,
+  left: false,
+  topRight: false,
+  bottomRight: false,
+  bottomLeft: false,
+  topLeft: false,
+};
+
 const GraphExplorer = ({ classNamePrefix = "ft" }: GraphViewProps) => {
   const styleWithTheme = useWithTheme();
   const pfx = withClassNamePrefix(classNamePrefix);
   const config = useConfiguration();
+  const t = useTranslations();
   const hasNamespaces = config?.connection?.queryEngine === "sparql";
   const [userLayout, setUserLayout] = useRecoilState(userLayoutAtom);
-  const labels = labelsByEngine[config?.connection?.queryEngine || "gremlin"];
 
   const closeSidebar = useCallback(() => {
     setUserLayout(prev => ({
@@ -95,7 +107,29 @@ const GraphExplorer = ({ classNamePrefix = "ft" }: GraphViewProps) => {
     [setUserLayout]
   );
 
+  const onTableViewResizeStop = useCallback(
+    (_e: unknown, _dir: unknown, _ref: unknown, delta: { height: number }) => {
+      setUserLayout(prev => {
+        return {
+          ...prev,
+          tableView: {
+            ...(prev.tableView || {}),
+            height: (prev.tableView?.height ?? 300) + delta.height,
+          },
+        };
+      });
+    },
+    [setUserLayout]
+  );
+
   const toggles = userLayout.activeToggles;
+  const [customizeNodeType, setCustomizeNodeType] = useState<
+    string | undefined
+  >();
+  const [customizeEdgeType, setCustomizeEdgeType] = useState<
+    string | undefined
+  >();
+
   return (
     <Workspace
       className={cx(
@@ -162,14 +196,33 @@ const GraphExplorer = ({ classNamePrefix = "ft" }: GraphViewProps) => {
           </div>
         )}
         {toggles.has("graph-viewer") && (
-          <div style={{ width: "100%", minHeight: "60%", flexGrow: 1 }}>
-            <GraphViewer />
+          <div
+            style={{
+              width: "100%",
+              flexGrow: 1,
+              position: "relative",
+            }}
+          >
+            <GraphViewerWithDetails
+              onNodeCustomize={setCustomizeNodeType}
+              onEdgeCustomize={setCustomizeEdgeType}
+            />
           </div>
         )}
         {toggles.has("table-view") && (
-          <div style={{ width: "100%", minHeight: "30%", flexGrow: 1 }}>
-            <EntitiesTabular />
-          </div>
+          <Resizable
+            enable={RESIZE_ENABLE_TOP}
+            size={{
+              width: "100%",
+              height: userLayout.tableView?.height || 300,
+            }}
+            minHeight={300}
+            onResizeStop={onTableViewResizeStop}
+          >
+            <div style={{ width: "100%", height: "100%", flexGrow: 1 }}>
+              <EntitiesTabular />
+            </div>
+          </Resizable>
         )}
       </Workspace.Content>
 
@@ -193,13 +246,13 @@ const GraphExplorer = ({ classNamePrefix = "ft" }: GraphViewProps) => {
           active={userLayout.activeSidebarItem === "expand"}
         />
         <Workspace.SideBar.Button
-          tooltipText={`${labels["node"]} Styling`}
+          tooltipText={t("nodes-styling.title")}
           icon={<GraphIcon />}
           onPress={toggleSidebar("nodes-styling")}
           active={userLayout.activeSidebarItem === "nodes-styling"}
         />
         <Workspace.SideBar.Button
-          tooltipText={`${labels["edge"]} Styling`}
+          tooltipText={t("edges-styling.title")}
           icon={<EdgeIcon />}
           onPress={toggleSidebar("edges-styling")}
           active={userLayout.activeSidebarItem === "edges-styling"}
@@ -224,16 +277,24 @@ const GraphExplorer = ({ classNamePrefix = "ft" }: GraphViewProps) => {
             <EntityDetails onClose={closeSidebar} />
           )}
           {userLayout.activeSidebarItem === "expand" && (
-            <VertexExpand onClose={closeSidebar} />
+            <NodeExpand onClose={closeSidebar} />
           )}
           {userLayout.activeSidebarItem === "filters" && (
             <EntitiesFilter onClose={closeSidebar} />
           )}
           {userLayout.activeSidebarItem === "nodes-styling" && (
-            <NodesStyling onClose={closeSidebar} />
+            <NodesStyling
+              onClose={closeSidebar}
+              customizeNodeType={customizeNodeType}
+              onNodeCustomize={setCustomizeNodeType}
+            />
           )}
           {userLayout.activeSidebarItem === "edges-styling" && (
-            <EdgesStyling onClose={closeSidebar} />
+            <EdgesStyling
+              onClose={closeSidebar}
+              customizeEdgeType={customizeEdgeType}
+              onEdgeCustomize={setCustomizeEdgeType}
+            />
           )}
           {userLayout.activeSidebarItem === "namespaces" && (
             <Namespaces onClose={closeSidebar} />

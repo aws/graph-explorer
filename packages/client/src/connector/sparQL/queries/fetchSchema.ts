@@ -1,29 +1,32 @@
-import groupBy from "lodash/groupBy";
 import { PrefixTypeConfig } from "../../../core";
 import generatePrefixes from "../../../utils/generatePrefixes";
 import { SchemaResponse } from "../../AbstractConnector";
-import edgeLabelsTemplate from "../templates/edgeLabelsTemplate";
-import verticesSchemaAndCountsTemplate from "../templates/verticesSchemaAndCountsTemplate";
+import classesWithCountsTemplates from "../templates/classesWithCountsTemplates";
+import predicatesByClassTemplate from "../templates/predicatesByClassTemplate";
+import predicatesWithCountsTemplate from "../templates/predicatesWithCountsTemplate";
 import { RawValue, SparqlFetch } from "../types";
 
-type RawVerticesAndCountsResponse = {
+type RawClassesWCountsResponse = {
   results: {
     bindings: Array<{
       class: RawValue;
       instancesCount: RawValue;
-      predicate: RawValue;
-      object: RawValue;
+    }>;
+  };
+};
+type RawPredicatesSamplesResponse = {
+  results: {
+    bindings: Array<{
+      pred: RawValue;
+      sample: RawValue;
     }>;
   };
 };
 
-type RawEdgeLabelsResponse = {
-  head: {
-    vars: ["edgeType", "count"];
-  };
+type RawPredicatesWCountsResponse = {
   results: {
     bindings: Array<{
-      edgeType: {
+      predicate: {
         type: string;
         value: string;
       };
@@ -56,62 +59,65 @@ const skosNote = "http://www.w3.org/2004/02/skos/core#note";
 const skosDefinition = "http://www.w3.org/2004/02/skos/core#definition";
 const displayDescCandidates = [rdfsComment, skosNote, skosDefinition];
 
-const fetchVerticesSchemaOpt = async (sparqlFetch: SparqlFetch) => {
-  const template = verticesSchemaAndCountsTemplate();
-  const rawVertices = await sparqlFetch<RawVerticesAndCountsResponse>(template);
-
-  const vertices: SchemaResponse["vertices"] = [];
-
-  const groups = groupBy(
-    rawVertices.results.bindings,
-    result => result.class.value
+const fetchClassesSchema = async (sparqlFetch: SparqlFetch) => {
+  const classesTemplate = classesWithCountsTemplates();
+  const classesCounts = await sparqlFetch<RawClassesWCountsResponse>(
+    classesTemplate
   );
 
-  Object.entries(groups).map(([vertexType, result]) => {
-    const attributes = result
-      .filter(item => item.object.type === "literal")
-      .map(item => ({
-        name: item.predicate.value,
+  const vertices: SchemaResponse["vertices"] = [];
+  await Promise.all(
+    classesCounts.results.bindings.map(async classResult => {
+      const classPredicatesTemplate = predicatesByClassTemplate({
+        class: classResult.class.value,
+      });
+      const predicatesResponse = await sparqlFetch<
+        RawPredicatesSamplesResponse
+      >(classPredicatesTemplate);
+
+      const attributes = predicatesResponse.results.bindings.map(item => ({
+        name: item.pred.value,
         displayLabel: "",
         searchable: true,
         hidden: false,
-        dataType: TYPE_MAP[item.predicate.datatype || ""] || "String",
+        dataType: TYPE_MAP[item.sample.datatype || ""] || "String",
       }));
 
-    vertices.push({
-      type: vertexType,
-      displayLabel: "",
-      total: Number(result[0].instancesCount.value),
-      displayNameAttribute:
-        attributes.find(attr => displayNameCandidates.includes(attr.name))
-          ?.name || "__v_id",
-      longDisplayNameAttribute:
-        attributes.find(attr => displayDescCandidates.includes(attr.name))
-          ?.name || "__v_types",
-      attributes,
-    });
-  });
+      vertices.push({
+        type: classResult.class.value,
+        displayLabel: "",
+        total: Number(classResult.instancesCount.value),
+        displayNameAttribute:
+          attributes.find(attr => displayNameCandidates.includes(attr.name))
+            ?.name || "id",
+        longDisplayNameAttribute:
+          attributes.find(attr => displayDescCandidates.includes(attr.name))
+            ?.name || "types",
+        attributes,
+      });
+    })
+  );
 
   return vertices;
 };
 
-const fetchEdgeLabels = async (
+const fetchPredicatesWithCounts = async (
   sparqlFetch: SparqlFetch
 ): Promise<Record<string, number>> => {
-  const labelsTemplate = edgeLabelsTemplate();
-  const data = await sparqlFetch<RawEdgeLabelsResponse>(labelsTemplate);
+  const template = predicatesWithCountsTemplate();
+  const data = await sparqlFetch<RawPredicatesWCountsResponse>(template);
 
   const values = data.results.bindings;
   const labelsWithCounts: Record<string, number> = {};
   for (let i = 0; i < values.length; i += 1) {
-    labelsWithCounts[values[i].edgeType.value] = Number(values[i].count.value);
+    labelsWithCounts[values[i].predicate.value] = Number(values[i].count.value);
   }
 
   return labelsWithCounts;
 };
 
-const fetchEdgesSchema = async (sparqlFetch: SparqlFetch) => {
-  const allLabels = await fetchEdgeLabels(sparqlFetch);
+const fetchPredicatesSchema = async (sparqlFetch: SparqlFetch) => {
+  const allLabels = await fetchPredicatesWithCounts(sparqlFetch);
 
   return Object.entries(allLabels).map(([label, count]) => {
     return {
@@ -123,12 +129,22 @@ const fetchEdgesSchema = async (sparqlFetch: SparqlFetch) => {
   });
 };
 
+/**
+ * Fetch the database shape.
+ * It follows this process:
+ * 1. Fetch all distinct classes their counts
+ * 2. For each class,
+ *    - fetch all predicates to literals
+ *    - and map those predicates to know the shape of the class
+ * 3. Fetch all predicates to non-literals and their counts
+ * 4. Generate prefixes using the received URIs
+ */
 const fetchSchema = async (
   sparqlFetch: SparqlFetch,
   prefixes: PrefixTypeConfig[] = []
 ): Promise<SchemaResponse> => {
-  const vertices = await fetchVerticesSchemaOpt(sparqlFetch);
-  const edges = await fetchEdgesSchema(sparqlFetch);
+  const vertices = await fetchClassesSchema(sparqlFetch);
+  const edges = await fetchPredicatesSchema(sparqlFetch);
 
   const uris = vertices.flatMap(v => [
     v.type,

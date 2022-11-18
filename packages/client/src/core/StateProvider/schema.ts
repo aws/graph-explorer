@@ -11,6 +11,8 @@ export type SchemaInference = {
   edges: EdgeTypeConfig[];
   prefixes?: Array<PrefixTypeConfig>;
   lastUpdate?: Date;
+  triedToSync?: boolean;
+  lastSyncFail?: boolean;
 };
 
 export const schemaAtom = atom<Map<string, SchemaInference>>({

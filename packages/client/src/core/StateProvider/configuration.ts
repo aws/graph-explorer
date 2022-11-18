@@ -94,6 +94,8 @@ export const mergedConfigurationSelector = selector<RawConfiguration | null>({
           currentConfig.connection?.queryEngine === "sparql"
             ? currentSchema?.prefixes
             : undefined,
+        triedToSync: currentSchema?.triedToSync,
+        lastSyncFail: currentSchema?.lastSyncFail,
       },
     };
   },
@@ -137,8 +139,8 @@ const mergeVertex = (
     color: "#128EE5",
     iconUrl: DEFAULT_ICON_URL,
     iconImageType: "image/svg+xml",
-    displayNameAttribute: "__v_id",
-    longDisplayNameAttribute: "__v_types",
+    displayNameAttribute: "id",
+    longDisplayNameAttribute: "types",
     // Automatic schema override
     ...(schemaVertex || {}),
     // File-based override

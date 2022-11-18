@@ -76,6 +76,7 @@ export type VertexPreferences = {
 export type EdgePreferences = {
   type: string;
   displayLabel?: string;
+  displayNameAttribute?: string;
   labelColor?: string;
   labelBackgroundOpacity?: number;
   labelBorderColor?: string;
@@ -93,6 +94,9 @@ export type UserPreferences = {
   layout: {
     activeToggles: Set<string>;
     activeSidebarItem: string | null;
+    tableView?: {
+      height: number;
+    };
   };
   styling: {
     vertices?: Array<VertexPreferences>;
@@ -111,6 +115,9 @@ export const userLayoutAtom = atom<UserPreferences["layout"]>({
   default: {
     activeToggles: new Set(["graph-viewer", "table-view"]),
     activeSidebarItem: null,
+    tableView: {
+      height: 300,
+    },
   },
   effects: [localForageEffect()],
 });

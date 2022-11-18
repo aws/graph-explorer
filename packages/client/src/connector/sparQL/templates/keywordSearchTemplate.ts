@@ -1,85 +1,102 @@
-import type { KeywordSearchRequest } from "../../AbstractConnector";
+import { SPARQLKeywordSearchRequest } from "../types";
 
 /**
  * @example
  * searchTerm = "Ch"
- * vertexTypes = ["http://www.example.com/soccer/ontology/Team"]
- * searchByAttributes = [
+ * subjectClasses = ["http://www.example.com/soccer/ontology/Team"]
+ * predicates = [
  *   "http://www.example.com/soccer/ontology/teamName",
  *   "http://www.example.com/soccer/ontology/nickname"
  * ]
  * limit = 10
  * offset = 0
  *
- * SELECT DISTINCT ?start ?vertexType ?property ?propertyValue
- * {
- *   ?start ?property ?propertyValue
- *   {
- *     SELECT DISTINCT ?start ?vertexType
- *     {
- *       ?start ?property ?propertyValue
- *       {
- *         SELECT *
- *         {
- *           ?start ?edgeType ?vertexType
- *           FILTER(?vertexType = <http://www.example.com/soccer/ontology/Team>)
- *         }
- *       }
- *       FILTER (
- *         (?property = <http://www.example.com/soccer/ontology/teamName> && regex(str(?propertyValue), "Ch", "i")) ||
- *         (?property = <http://www.example.com/soccer/ontology/nickname> && regex(str(?propertyValue), "Ch", "i"))
- *       )
+ * SELECT ?subject ?pred ?value ?class {
+ *   ?subject ?pred ?value {
+ *     SELECT DISTINCT ?subject ?class {
+ *         ?subject a          ?class ;
+ *                  ?predicate ?value .
+ *         FILTER (?predicate IN (
+ *             <http://www.example.com/soccer/ontology/teamName>,
+ *             <http://www.example.com/soccer/ontology/nickname>
+ *         ))
+ *         FILTER (?class IN (
+ *             <http://www.example.com/soccer/ontology/Team>
+ *         ))
+ *         FILTER (regex(str(?value), "Ch", "i"))
  *     }
  *     LIMIT 10
  *     OFFSET 0
  *   }
+ *   FILTER(!isBlank(?subject) && isLiteral(?value))
  * }
  */
 const keywordSearchTemplate = ({
   searchTerm,
-  vertexTypes = [],
-  searchByAttributes = [],
+  subjectClasses = [],
+  predicates = [],
   limit = 10,
   offset = 0,
-}: KeywordSearchRequest): string => {
-  let template =
-    "SELECT DISTINCT ?start ?vertexType ?property ?propertyValue {";
-  template += "?start ?property ?propertyValue { ";
-  template += "SELECT DISTINCT ?start ?vertexType { ";
-  template += "?start ?property ?propertyValue { ";
-  template += "SELECT * { ?start ?edgeType ?vertexType ";
+}: SPARQLKeywordSearchRequest): string => {
+  const getSubjectClasses = () => {
+    if (!subjectClasses?.length) {
+      return "";
+    }
 
-  if (vertexTypes.length !== 0) {
-    template += "FILTER(";
-
-    vertexTypes?.forEach((vt, vtIndex) => {
-      template += `?vertexType = <${vt}>`;
-
-      if (vtIndex < vertexTypes?.length - 1) {
-        template += " || ";
+    let filterByClass = "";
+    filterByClass += "FILTER (?class IN (";
+    subjectClasses.forEach((sc, i) => {
+      filterByClass += `<${sc}>`;
+      if (i < subjectClasses.length - 1) {
+        filterByClass += ", ";
       }
     });
+    filterByClass += "))";
+    return filterByClass;
+  };
 
-    template += ")";
-  }
+  const getFilterPredicates = () => {
+    if (!predicates?.length) {
+      return "";
+    }
 
-  template += "}}";
-
-  if (Boolean(searchTerm) && searchByAttributes.length !== 0) {
-    template += "FILTER (";
-
-    searchByAttributes?.forEach((attr, attrIndex) => {
-      template += `(?property = <${attr}> && regex(str(?propertyValue), "${searchTerm}", "i"))`;
-      if (attrIndex < searchByAttributes.length - 1) {
-        template += " || ";
+    let filterByAttributes = "";
+    filterByAttributes += "FILTER (?predicate IN (";
+    predicates.forEach((p, i) => {
+      filterByAttributes += `<${p}>`;
+      if (i < predicates.length - 1) {
+        filterByAttributes += ", ";
       }
     });
+    filterByAttributes += "))";
+    return filterByAttributes;
+  };
 
-    template += ")";
-  }
+  const getFilterObject = () => {
+    if (!searchTerm) {
+      return "";
+    }
 
-  template += `} LIMIT ${limit} OFFSET ${offset} }}`;
-  return template;
+    let filterBySearchTerm = "";
+    filterBySearchTerm = `FILTER (regex(str(?value), "${searchTerm}", "i"))`;
+    return filterBySearchTerm;
+  };
+
+  return `
+    SELECT ?subject ?pred ?value ?class {
+      ?subject ?pred ?value {
+        SELECT DISTINCT ?subject ?class {
+            ?subject a          ?class ;
+                     ?predicate ?value .
+            ${getFilterPredicates()}
+            ${getSubjectClasses()}
+            ${getFilterObject()}
+        }
+        ${limit > 0 ? `LIMIT ${limit} OFFSET ${offset}` : ""}
+      }
+      FILTER(!isBlank(?subject) && isLiteral(?value))
+    }
+  `;
 };
 
 export default keywordSearchTemplate;

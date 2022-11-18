@@ -162,10 +162,6 @@ const defaultStyles = (pfx: string, lineColor = "#b3b3b3"): ThemeStyleFn => ({
           justify-content: space-between;
           padding: ${theme.spacing["2x"]} 0;
 
-          &:not(:last-of-type) {
-            border-bottom: solid 1px ${theme.palette.border};
-          }
-
           .${pfx}-attribute-select {
             margin-bottom: 0;
             width: auto;

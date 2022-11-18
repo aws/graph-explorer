@@ -34,10 +34,6 @@ export const getStyles = ({
       selector: "node[label]",
       style: { label: "data(label)" },
     });
-    rootStyles.push({
-      selector: "node[__name]",
-      style: { label: "data(__name)" },
-    });
     if (defaultNodeLabelAttribute) {
       rootStyles.push({
         selector: `node[${defaultNodeLabelAttribute}]`,
@@ -56,19 +52,8 @@ export const getStyles = ({
       style: { label: "data(label)" },
     });
     rootStyles.push({
-      selector: "edge[__e_type]",
-      style: { label: "data(__e_type)" },
-    });
-    rootStyles.push({
-      selector: "edge[__e_type_display]",
-      style: { label: "data(__e_type_display)" },
-    });
-    rootStyles.push({
-      selector: "edge[__name]",
-      style: {
-        label: (edge: cytoscape.EdgeSingular) =>
-          `${edge.data("__e_type_display")}: ${edge.data("__name")}`,
-      },
+      selector: "edge[type]",
+      style: { label: "data(type)" },
     });
 
     if (defaultEdgeLabelAttribute) {

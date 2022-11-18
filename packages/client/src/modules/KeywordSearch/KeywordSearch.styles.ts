@@ -97,7 +97,7 @@ const defaultStyles = (pfx: string): ThemeStyleFn => ({ theme, isDarkTheme }) =>
 
           .${pfx}-carousel {
             flex-grow: 1;
-            overflow: auto;
+            overflow: hidden;
           }
 
           .${pfx}-graph-remove-icon {

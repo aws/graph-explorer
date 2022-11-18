@@ -16,7 +16,7 @@ import { fade, useWithTheme, withClassNamePrefix } from "../../core";
 import useConfiguration from "../../core/ConfigurationProvider/useConfiguration";
 import useEntitiesCounts from "../../hooks/useEntitiesCounts";
 import useTextTransform from "../../hooks/useTextTransform";
-import labelsByEngine from "../../utils/labelsByEngine";
+import useTranslations from "../../hooks/useTranslations";
 import defaultStyles from "./ConnectionDetail.styles";
 
 export type VertexDetailProps = {
@@ -30,7 +30,7 @@ const ConnectionData = ({ classNamePrefix = "ft" }: VertexDetailProps) => {
   const pfx = withClassNamePrefix(classNamePrefix);
   const { totalNodes, totalEdges } = useEntitiesCounts();
   const textTransform = useTextTransform();
-  const labels = labelsByEngine[config?.connection?.queryEngine || "gremlin"];
+  const t = useTranslations();
 
   const verticesByTypeItems = useMemo(() => {
     const items: AdvancedListItemType<any>[] = [];
@@ -47,7 +47,7 @@ const ConnectionData = ({ classNamePrefix = "ft" }: VertexDetailProps) => {
               {textTransform(displayLabel)}
             </div>
             <div className={pfx("nodes-count")}>
-              {labels["nodes"]}:{" "}
+              {t("connection-detail.nodes")}:{" "}
               {vtConfig?.total ? (
                 <HumanReadableNumberFormatter value={vtConfig?.total} />
               ) : (
@@ -87,7 +87,7 @@ const ConnectionData = ({ classNamePrefix = "ft" }: VertexDetailProps) => {
     });
 
     return items;
-  }, [config, pfx, textTransform, labels, navigate]);
+  }, [config, pfx, textTransform, t, navigate]);
 
   const [search, setSearch] = useState("");
 
@@ -99,7 +99,7 @@ const ConnectionData = ({ classNamePrefix = "ft" }: VertexDetailProps) => {
     <div className={styleWithTheme(defaultStyles(classNamePrefix))}>
       <div className={pfx("info-bar")}>
         <div className={pfx("item")}>
-          <div className={pfx("tag")}>{labels["nodes"]}</div>
+          <div className={pfx("tag")}>{t("connection-detail.nodes")}</div>
           <div className={pfx("value")}>
             <Chip className={pfx("value-chip")}>
               <GraphIcon />
@@ -111,7 +111,7 @@ const ConnectionData = ({ classNamePrefix = "ft" }: VertexDetailProps) => {
           </div>
         </div>
         <div className={pfx("item")}>
-          <div className={pfx("tag")}>{labels["edges"]}</div>
+          <div className={pfx("tag")}>{t("connection-detail.edges")}</div>
           <div className={pfx("value")}>
             <Chip className={pfx("value-chip")}>
               <EdgeIcon />
@@ -124,16 +124,16 @@ const ConnectionData = ({ classNamePrefix = "ft" }: VertexDetailProps) => {
         </div>
       </div>
       <AdvancedList
-        searchPlaceholder={labels["search-placeholder"]}
+        searchPlaceholder={t("connection-detail.search-placeholder")}
         search={search}
         onSearch={setSearch}
         className={pfx("advanced-list")}
         items={verticesByTypeItems}
         emptyState={{
-          noSearchResultsTitle: labels["conn-data-no-results-title"],
-          noSearchResultsSubtitle: labels["conn-data-no-results-subtitle"],
-          noElementsTitle: labels["conn-data-no-elements-title"],
-          noElementsSubtitle: labels["conn-data-no-elements-subtitle"],
+          noSearchResultsTitle: t("connection-detail.no-search-title"),
+          noSearchResultsSubtitle: t("connection-detail.no-search-subtitle"),
+          noElementsTitle: t("connection-detail.no-elements-title"),
+          noElementsSubtitle: t("connection-detail.no-elements-subtitle"),
         }}
       />
     </div>

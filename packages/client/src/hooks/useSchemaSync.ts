@@ -1,18 +1,37 @@
 import { useCallback, useRef } from "react";
-import { useSetRecoilState } from "recoil";
+import { useRecoilCallback } from "recoil";
 import { useNotification } from "../components/NotificationProvider";
 import { SchemaResponse } from "../connector/AbstractConnector";
 import useConfiguration from "../core/ConfigurationProvider/useConfiguration";
 import useConnector from "../core/ConnectorProvider/useConnector";
 import { schemaAtom } from "../core/StateProvider/schema";
 
-const useSchemaSync = () => {
+const useSchemaSync = (onSyncChange?: (isSyncing: boolean) => void) => {
   const config = useConfiguration();
   const connector = useConnector();
 
-  const setSchema = useSetRecoilState(schemaAtom);
   const { enqueueNotification, clearNotification } = useNotification();
   const notificationId = useRef<string | null>(null);
+
+  const updateSchemaState = useRecoilCallback(
+    ({ set }) => (id: string, schema?: SchemaResponse) => {
+      set(schemaAtom, prevSchemaMap => {
+        const updatedSchema = new Map(prevSchemaMap);
+        const prevSchema = prevSchemaMap.get(id);
+
+        updatedSchema.set(id, {
+          vertices: schema?.vertices || prevSchema?.vertices || [],
+          edges: schema?.edges || prevSchema?.edges || [],
+          prefixes: schema?.prefixes || prevSchema?.prefixes || [],
+          lastUpdate: !schema ? prevSchema?.lastUpdate : new Date(),
+          triedToSync: true,
+          lastSyncFail: !schema && !!prevSchema,
+        });
+        return updatedSchema;
+      });
+    },
+    []
+  );
 
   return useCallback(
     async (abortSignal?: AbortSignal) => {
@@ -24,14 +43,13 @@ const useSchemaSync = () => {
         return;
       }
 
+      onSyncChange?.(true);
       let schema: SchemaResponse | null = null;
       try {
         notificationId.current = enqueueNotification({
           title: config.displayLabel || config.id,
           message: "Updating the Database schema",
           type: "info",
-          closeable: false,
-          autoHideDuration: null,
         });
         schema = await connector.explorer.fetchSchema({
           abortSignal,
@@ -50,6 +68,9 @@ const useSchemaSync = () => {
             stackable: true,
           });
         }
+
+        updateSchemaState(config.id);
+        onSyncChange?.(false);
         return;
       }
 
@@ -63,19 +84,8 @@ const useSchemaSync = () => {
         });
       }
 
-      setSchema(prevSchemaMap => {
-        if (!schema) {
-          return prevSchemaMap;
-        }
-        const updatedSchema = new Map(prevSchemaMap);
-        updatedSchema.set(config.id, {
-          vertices: schema.vertices,
-          edges: schema.edges,
-          lastUpdate: new Date(),
-          prefixes: schema.prefixes || [],
-        });
-        return updatedSchema;
-      });
+      updateSchemaState(config.id, schema);
+      onSyncChange?.(false);
 
       notificationId.current && clearNotification(notificationId.current);
       enqueueNotification({
@@ -105,7 +115,8 @@ const useSchemaSync = () => {
       config,
       connector.explorer,
       enqueueNotification,
-      setSchema,
+      onSyncChange,
+      updateSchemaState,
     ]
   );
 };

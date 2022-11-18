@@ -7,12 +7,17 @@ export const sanitizeText = (text?: string): string => {
     return "";
   }
 
-  return (
-    String(text)
-      .match(
-        /[A-Z\u00C0-\u017F]{2,}(?=[A-Z\u00C0-\u017F][a-z\u00C0-\u017F]+[0-9]*|\b)|[A-Z\u00C0-\u017F]?[a-z\u00C0-\u017F]+[0-9]*|[A-Z\u00C0-\u017F]|[0-9]+/g
-      )
-      ?.map(capitalizeFirstLetter)
-      .join(" ") || text
-  );
+  return String(text)
+    .replace(/([A-Z]+)([A-Z][a-z])/gu, " $1 $2")
+    .replace(/([a-z\d])([A-Z])/gu, "$1 $2")
+    .replace(/([a-zA-Z])(\d)/gu, "$1 $2")
+    .replace(/[-_]/g, " ")
+    .replace(/^./, function (str) {
+      return str.toUpperCase();
+    })
+    .trim()
+    .toLowerCase()
+    .split(" ")
+    .map(capitalizeFirstLetter)
+    .join(" ");
 };

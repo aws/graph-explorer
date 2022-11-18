@@ -2,9 +2,9 @@ import * as localForage from "localforage";
 import { AtomEffect, DefaultValue } from "recoil";
 
 localForage.config({
-  name: process.env.REACT_APP_STORE_ID || "cge",
-  version: Number(process.env.REACT_APP_STORE_VERSION) || 1.0,
-  storeName: process.env.REACT_APP_STORE_NAME || "default",
+  name: import.meta.env.REACT_APP_STORE_ID || "cge",
+  version: Number(import.meta.env.REACT_APP_STORE_VERSION) || 1.0,
+  storeName: import.meta.env.REACT_APP_STORE_NAME || "default",
 });
 
 // The first time that the atom is loaded from the store,

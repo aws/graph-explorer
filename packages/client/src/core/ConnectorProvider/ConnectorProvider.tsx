@@ -1,7 +1,7 @@
 import { createContext, PropsWithChildren, useEffect, useState } from "react";
 import type { AbstractConnector } from "../../connector/AbstractConnector";
 import GremlinConnector from "../../connector/gremlin/GremlinConnector";
-import SparQLConnector from "../../connector/sparQL/SparQLConnector";
+import SPARQLConnector from "../../connector/sparql/SPARQLConnector";
 import useConfiguration from "../ConfigurationProvider/useConfiguration";
 import type { ConnectorContextProps } from "./types";
 
@@ -22,7 +22,7 @@ const ConnectorProvider = ({ children }: PropsWithChildren<any>) => {
     }
 
     if (isSparQL) {
-      setConnector(new SparQLConnector(config));
+      setConnector(new SPARQLConnector(config));
       return;
     }
 

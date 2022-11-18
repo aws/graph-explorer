@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import type { Vertex } from "../@types/entities";
+import { Vertex } from "../@types/entities";
 import useConnector from "../core/ConnectorProvider/useConnector";
 import useEntities from "./useEntities";
 
@@ -23,7 +23,7 @@ const useFetchNode = () => {
 
       const results = await Promise.all(
         nodes.map(async node => {
-          const neighborsCount = await fetchNeighborsCount(node.data.__v_id);
+          const neighborsCount = await fetchNeighborsCount(node.data.id);
           if (!neighborsCount) {
             return;
           }
@@ -31,8 +31,8 @@ const useFetchNode = () => {
           return {
             data: {
               ...node.data,
-              __totalNeighborCount: neighborsCount?.totalCount,
-              __totalNeighborCounts: neighborsCount?.counts,
+              neighborsCount: neighborsCount?.totalCount,
+              neighborsCountByType: neighborsCount?.counts,
             },
           };
         })

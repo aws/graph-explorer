@@ -1,22 +1,18 @@
-import {
-  NeighborsCountRequest,
-  NeighborsCountResponse,
-} from "../../AbstractConnector";
-import incomingNeighborsCountTemplate from "../templates/incomingNeighborsCountTemplate";
-import outgoingNeighborsCountTemplate from "../templates/outgoingNeighborsCountTemplate";
-import { SparqlFetch } from "../types";
+import { NeighborsCountResponse } from "../../AbstractConnector";
+import neighborsCountTemplate from "../templates/neighborsCountTemplate";
+import { SparqlFetch, SPARQLNeighborsCountRequest } from "../types";
 
 type RawNeighborCount = {
   head: {
-    vars: ["vertexType", "total"];
+    vars: ["class", "count"];
   };
   results: {
     bindings: Array<{
-      vertexType: {
+      class: {
         type: string;
         value: string;
       };
-      total: {
+      count: {
         datatype: "http://www.w3.org/2001/XMLSchema#integer";
         type: "literal";
         value: string;
@@ -27,24 +23,16 @@ type RawNeighborCount = {
 
 const fetchNeighborsCount = async (
   sparqlFetch: SparqlFetch,
-  req: NeighborsCountRequest
+  req: SPARQLNeighborsCountRequest
 ): Promise<NeighborsCountResponse> => {
   let totalCount = 0;
   const counts: Record<string, number> = {};
 
-  const incomingTemplate = incomingNeighborsCountTemplate(req);
+  const incomingTemplate = neighborsCountTemplate(req);
   const incomingData = await sparqlFetch<RawNeighborCount>(incomingTemplate);
   incomingData.results.bindings.forEach(result => {
-    const count = Number(result.total.value);
-    counts[result.vertexType.value] = count;
-    totalCount += count;
-  });
-
-  const outgoingTemplate = outgoingNeighborsCountTemplate(req);
-  const outgoingData = await sparqlFetch<RawNeighborCount>(outgoingTemplate);
-  outgoingData.results.bindings.forEach(result => {
-    const count = Number(result.total.value);
-    counts[result.vertexType.value] = count;
+    const count = Number(result.count.value);
+    counts[result.class.value] = count;
     totalCount += count;
   });
 

@@ -18,13 +18,13 @@ if (params.configFile) {
     id: params.configFile,
     remoteConfigFile: params.configFile,
   };
-} else if (process.env.REACT_APP_CONNECTION_URL) {
+} else if (import.meta.env.REACT_APP_CONNECTION_URL) {
   config = {
-    id: process.env.REACT_APP_CONNECTION_URL,
+    id: import.meta.env.REACT_APP_CONNECTION_URL,
     connection: {
-      url: process.env.REACT_APP_CONNECTION_URL,
+      url: import.meta.env.REACT_APP_CONNECTION_URL,
       queryEngine:
-        (process.env.REACT_APP_CONNECTION_ENGINE as
+        (import.meta.env.REACT_APP_CONNECTION_ENGINE as
           | "gremlin"
           | "sparql"
           | undefined) || "gremlin",

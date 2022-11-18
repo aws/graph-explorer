@@ -1,13 +1,13 @@
 import neighborsCountTemplate from "./neighborsCountTemplate";
 
-describe("neighborsCountTemplate", () => {
+describe("Gremlin > neighborsCountTemplate", () => {
   it("Should return a template for the given vertex id with default limit", () => {
     const template = neighborsCountTemplate({
       vertexId: "12",
     });
 
     expect(template).toBe(
-      'g.V("12").both().limit(500).dedup().group().by(label()).by(count())'
+      'g.V("12").both().limit(500).dedup().group().by(label).by(count())'
     );
   });
 
@@ -18,7 +18,7 @@ describe("neighborsCountTemplate", () => {
     });
 
     expect(template).toBe(
-      'g.V("12").both().limit(20).dedup().group().by(label()).by(count())'
+      'g.V("12").both().limit(20).dedup().group().by(label).by(count())'
     );
   });
 
@@ -29,7 +29,7 @@ describe("neighborsCountTemplate", () => {
     });
 
     expect(template).toBe(
-      'g.V("12").both().dedup().group().by(label()).by(count())'
+      'g.V("12").both().dedup().group().by(label).by(count())'
     );
   });
 });

@@ -1,7 +1,13 @@
 import { cx } from "@emotion/css";
-import { RefObject, useCallback } from "react";
+import { RefObject, useCallback, useMemo } from "react";
 import { useRecoilState, useSetRecoilState } from "recoil";
-import { Card, ListItem } from "../../../components";
+import {
+  Card,
+  EdgeIcon,
+  GraphIcon,
+  ListItem,
+  StylingIcon,
+} from "../../../components";
 import { GraphRef } from "../../../components/Graph/Graph";
 import {
   CenterGraphIcon,
@@ -17,7 +23,9 @@ import { useWithTheme, withClassNamePrefix } from "../../../core";
 import { edgesSelectedIdsAtom } from "../../../core/StateProvider/edges";
 import { nodesSelectedIdsAtom } from "../../../core/StateProvider/nodes";
 import { userLayoutAtom } from "../../../core/StateProvider/userPreferences";
+import useDisplayNames from "../../../hooks/useDisplayNames";
 import useEntities from "../../../hooks/useEntities";
+import useTranslations from "../../../hooks/useTranslations";
 import useGraphGlobalActions from "../useGraphGlobalActions";
 import defaultStyles from "./ContextMenu.styles";
 
@@ -25,20 +33,27 @@ export type ContextMenuProps = {
   classNamePrefix?: string;
   className?: string;
   affectedNodesIds?: string[];
+  affectedEdgesIds?: string[];
   graphRef: RefObject<GraphRef | null>;
   onClose?(): void;
+  onNodeCustomize(nodeType?: string): void;
+  onEdgeCustomize(edgeType?: string): void;
 };
 
 const ContextMenu = ({
   classNamePrefix = "ft",
   className,
   affectedNodesIds,
+  affectedEdgesIds,
   graphRef,
   onClose,
+  onNodeCustomize,
+  onEdgeCustomize,
 }: ContextMenuProps) => {
   const styleWithTheme = useWithTheme();
   const pfx = withClassNamePrefix(classNamePrefix);
-  const [entities, setEntitites] = useEntities();
+  const t = useTranslations();
+  const [entities, setEntities] = useEntities();
   const [nodesSelectedIds, setNodesSelectedIds] = useRecoilState(
     nodesSelectedIdsAtom
   );
@@ -57,21 +72,37 @@ const ContextMenu = ({
   } = useGraphGlobalActions(graphRef);
 
   const nonEmptySelection =
-    nodesSelectedIds.size > 1 || edgesSelectedIds.size > 1;
+    nodesSelectedIds.size >= 1 || edgesSelectedIds.size >= 1;
 
   const openSidebarPanel = useCallback(
-    (panelName: string) => () => {
+    (
+      panelName: string,
+      props?: { nodeType?: string; edgeType?: string }
+    ) => () => {
       setUserLayout(prev => ({
         ...prev,
         activeSidebarItem: panelName,
       }));
-      setEdgesSelectedIds(prev => (prev.size === 0 ? prev : new Set([])));
-      setNodesSelectedIds(new Set(affectedNodesIds ?? []));
+      if (affectedNodesIds?.length) {
+        setEdgesSelectedIds(prev => (prev.size === 0 ? prev : new Set([])));
+        setNodesSelectedIds(new Set(affectedNodesIds ?? []));
+      }
+      if (affectedEdgesIds?.length) {
+        setEdgesSelectedIds(new Set(affectedEdgesIds ?? []));
+        setNodesSelectedIds(prev => (prev.size === 0 ? prev : new Set([])));
+      }
+
+      props?.nodeType && onNodeCustomize(props.nodeType);
+      props?.edgeType && onEdgeCustomize(props.edgeType);
+
       onClose?.();
     },
     [
+      affectedEdgesIds,
       affectedNodesIds,
       onClose,
+      onNodeCustomize,
+      onEdgeCustomize,
       setEdgesSelectedIds,
       setNodesSelectedIds,
       setUserLayout,
@@ -108,16 +139,168 @@ const ContextMenu = ({
   }, [onClose, onZoomOut]);
 
   const handleRemoveFromCanvas = useCallback(
-    (vertexIds: string[]) => () => {
-      setEntitites(prev => ({
-        nodes: prev.nodes.filter(n => !vertexIds.includes(n.data.id)),
-        edges: prev.edges,
+    (nodesIds: string[], edgesIds: string[]) => () => {
+      setEntities(prev => ({
+        nodes: prev.nodes.filter(n => !nodesIds.includes(n.data.id)),
+        edges: prev.edges.filter(e => !edgesIds.includes(e.data.id)),
         forceSet: true,
       }));
       onClose?.();
     },
-    [onClose, setEntitites]
+    [onClose, setEntities]
   );
+
+  const handleRemoveAllFromCanvas = useCallback(() => {
+    setEntities({
+      nodes: [],
+      edges: [],
+      forceSet: true,
+    });
+    onClose?.();
+  }, [onClose, setEntities]);
+
+  const noSelectionOrNotAffected =
+    affectedNodesIds?.length === 0 &&
+    nodesSelectedIds.size === 0 &&
+    affectedEdgesIds?.length === 0 &&
+    edgesSelectedIds.size === 0;
+
+  const selectedButNoAffected =
+    affectedNodesIds?.length === 0 &&
+    affectedEdgesIds?.length === 0 &&
+    nodesSelectedIds.size + edgesSelectedIds.size > 0;
+
+  const getDisplayNames = useDisplayNames();
+  const affectedNode = useMemo(() => {
+    if (!affectedNodesIds?.length) {
+      return;
+    }
+
+    return entities.nodes.find(n => n.data.id === affectedNodesIds[0]);
+  }, [affectedNodesIds, entities.nodes]);
+
+  const affectedEdge = useMemo(() => {
+    if (!affectedEdgesIds?.length) {
+      return;
+    }
+
+    return entities.edges.find(e => e.data.id === affectedEdgesIds[0]);
+  }, [affectedEdgesIds, entities.edges]);
+
+  if (affectedNode) {
+    return (
+      <div
+        className={cx(
+          styleWithTheme(defaultStyles(classNamePrefix)),
+          pfx("context-menu"),
+          className
+        )}
+      >
+        <Card className={pfx("card-root")}>
+          <ListItem
+            classNamePrefix={"ft"}
+            className={cx(pfx("list-item"), pfx("list-item-header"))}
+            startAdornment={<GraphIcon />}
+          >
+            {getDisplayNames(affectedNode)?.name}
+          </ListItem>
+          <div className={pfx("divider")} />
+          <ListItem
+            classNamePrefix={"ft"}
+            className={pfx("list-item")}
+            clickable={true}
+            onClick={openSidebarPanel("details")}
+            startAdornment={<DetailsIcon />}
+          >
+            Details
+          </ListItem>
+          <ListItem
+            classNamePrefix={"ft"}
+            className={pfx("list-item")}
+            clickable={true}
+            onClick={openSidebarPanel("expand")}
+            startAdornment={<ExpandGraphIcon />}
+          >
+            Expand
+          </ListItem>
+          <ListItem
+            classNamePrefix={"ft"}
+            className={pfx("list-item")}
+            clickable={true}
+            onClick={openSidebarPanel("nodes-styling", {
+              nodeType: affectedNode.data.type,
+            })}
+            startAdornment={<StylingIcon />}
+          >
+            Customize
+          </ListItem>
+          <div className={pfx("divider")} />
+          <ListItem
+            classNamePrefix={"ft"}
+            className={pfx("list-item")}
+            clickable={true}
+            onClick={handleRemoveFromCanvas([affectedNode.data.id], [])}
+            startAdornment={<RemoveFromCanvasIcon color={"red"} />}
+          >
+            Remove {t("graph-viewer.node")} from canvas
+          </ListItem>
+        </Card>
+      </div>
+    );
+  }
+
+  if (affectedEdge) {
+    return (
+      <div
+        className={cx(
+          styleWithTheme(defaultStyles(classNamePrefix)),
+          pfx("context-menu"),
+          className
+        )}
+      >
+        <Card className={pfx("card-root")}>
+          <ListItem
+            classNamePrefix={"ft"}
+            className={cx(pfx("list-item"), pfx("list-item-header"))}
+            startAdornment={<EdgeIcon />}
+          >
+            {getDisplayNames(affectedEdge)?.name}
+          </ListItem>
+          <div className={pfx("divider")} />
+          <ListItem
+            classNamePrefix={"ft"}
+            className={pfx("list-item")}
+            clickable={true}
+            onClick={openSidebarPanel("details")}
+            startAdornment={<DetailsIcon />}
+          >
+            Details
+          </ListItem>
+          <ListItem
+            classNamePrefix={"ft"}
+            className={pfx("list-item")}
+            clickable={true}
+            onClick={openSidebarPanel("edges-styling", {
+              edgeType: affectedEdge.data.type,
+            })}
+            startAdornment={<StylingIcon />}
+          >
+            Customize
+          </ListItem>
+          <div className={pfx("divider")} />
+          <ListItem
+            classNamePrefix={"ft"}
+            className={pfx("list-item")}
+            clickable={true}
+            onClick={handleRemoveFromCanvas([], [affectedEdge.data.id])}
+            startAdornment={<RemoveFromCanvasIcon color={"red"} />}
+          >
+            Remove {t("graph-viewer.edge")} from canvas
+          </ListItem>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -128,29 +311,6 @@ const ContextMenu = ({
       )}
     >
       <Card className={pfx("card-root")}>
-        {affectedNodesIds?.length === 1 && (
-          <>
-            <ListItem
-              classNamePrefix={"ft"}
-              className={pfx("list-item")}
-              clickable={true}
-              onClick={openSidebarPanel("details")}
-              startAdornment={<DetailsIcon />}
-            >
-              Details
-            </ListItem>
-            <ListItem
-              classNamePrefix={"ft"}
-              className={pfx("list-item")}
-              clickable={true}
-              onClick={openSidebarPanel("expand")}
-              startAdornment={<ExpandGraphIcon />}
-            >
-              Expand
-            </ListItem>
-            <div className={pfx("divider")} />
-          </>
-        )}
         <ListItem
           classNamePrefix={"ft"}
           className={pfx("list-item")}
@@ -197,35 +357,7 @@ const ContextMenu = ({
         >
           Zoom out
         </ListItem>
-        {!!affectedNodesIds?.length && (
-          <>
-            <div className={pfx("divider")} />
-            <ListItem
-              classNamePrefix={"ft"}
-              className={pfx("list-item")}
-              clickable={true}
-              onClick={handleRemoveFromCanvas(affectedNodesIds)}
-              startAdornment={<RemoveFromCanvasIcon color={"red"} />}
-            >
-              Remove from canvas
-            </ListItem>
-          </>
-        )}
-        {nodesSelectedIds.size > 0 && (
-          <>
-            <div className={pfx("divider")} />
-            <ListItem
-              classNamePrefix={"ft"}
-              className={pfx("list-item")}
-              clickable={true}
-              onClick={handleRemoveFromCanvas(Array.from(nodesSelectedIds))}
-              startAdornment={<RemoveFromCanvasIcon color={"red"} />}
-            >
-              Remove selection from canvas
-            </ListItem>
-          </>
-        )}
-        {affectedNodesIds?.length === 0 && nodesSelectedIds.size === 0 && (
+        {selectedButNoAffected && (
           <>
             <div className={pfx("divider")} />
             <ListItem
@@ -233,8 +365,23 @@ const ContextMenu = ({
               className={pfx("list-item")}
               clickable={true}
               onClick={handleRemoveFromCanvas(
-                entities.nodes.map(n => n.data.id)
+                Array.from(nodesSelectedIds),
+                Array.from(edgesSelectedIds)
               )}
+              startAdornment={<RemoveFromCanvasIcon color={"red"} />}
+            >
+              Remove selection from canvas
+            </ListItem>
+          </>
+        )}
+        {noSelectionOrNotAffected && (
+          <>
+            <div className={pfx("divider")} />
+            <ListItem
+              classNamePrefix={"ft"}
+              className={pfx("list-item")}
+              clickable={true}
+              onClick={handleRemoveAllFromCanvas}
               startAdornment={<RemoveFromCanvasIcon color={"red"} />}
             >
               Clear canvas

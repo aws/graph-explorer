@@ -1,25 +1,26 @@
 import { ConfigurationContextProps } from "../../../core";
 import generatePrefixes from "../../../utils/generatePrefixes";
-import {
-  ErrorResponse,
-  KeywordSearchRequest,
-  KeywordSearchResponse,
-} from "../../AbstractConnector";
+import { ErrorResponse, KeywordSearchResponse } from "../../AbstractConnector";
 import isErrorResponse from "../../utils/isErrorResponse";
 import mapRawResultToVertex from "../mappers/mapRawResultToVertex";
 import keywordSearchTemplate from "../templates/keywordSearchTemplate";
-import { RawResult, RawValue, SparqlFetch } from "../types";
+import {
+  RawResult,
+  RawValue,
+  SparqlFetch,
+  SPARQLKeywordSearchRequest,
+} from "../types";
 
 type RawKeywordResponse = {
   head: {
-    vars: ["start", "vertexType", "property", "propertyValue"];
+    vars: ["subject", "class", "pred", "value"];
   };
   results: {
     bindings: Array<{
-      start: RawValue;
-      vertexType: RawValue;
-      property: RawValue;
-      propertyValue: RawValue;
+      subject: RawValue;
+      class: RawValue;
+      pred: RawValue;
+      value: RawValue;
     }>;
   };
 };
@@ -27,7 +28,7 @@ type RawKeywordResponse = {
 const keywordSearch = async (
   config: ConfigurationContextProps,
   sparqlFetch: SparqlFetch,
-  req: KeywordSearchRequest
+  req: SPARQLKeywordSearchRequest
 ): Promise<KeywordSearchResponse> => {
   const template = keywordSearchTemplate(req);
   const data = await sparqlFetch<RawKeywordResponse | ErrorResponse>(template);
@@ -37,34 +38,34 @@ const keywordSearch = async (
   }
 
   const filteredResults = data.results.bindings.filter(
-    result => !req.vertexTypes?.includes(result.start.value)
+    result => !req.subjectClasses?.includes(result.subject.value)
   );
 
   const mappedResults: Record<string, RawResult> = {};
   filteredResults.forEach(result => {
-    if (!mappedResults[result.start.value]) {
-      mappedResults[result.start.value] = {
-        __v_id: result.start.value,
-        __v_type: result.vertexType.value,
+    if (!mappedResults[result.subject.value]) {
+      mappedResults[result.subject.value] = {
+        uri: result.subject.value,
+        class: result.class.value,
         attributes: {},
       };
     }
 
-    if (result.propertyValue.type === "literal") {
-      mappedResults[result.start.value].attributes[result.property.value] =
-        result.propertyValue.value;
+    if (result.value.type === "literal") {
+      mappedResults[result.subject.value].attributes[result.pred.value] =
+        result.value.value;
     }
   });
 
   const vertices = Object.values(mappedResults).map(result =>
-    mapRawResultToVertex(config, result)
+    mapRawResultToVertex(result)
   );
-  const uris = vertices.map(v => v.data.__v_id);
+  const uris = vertices.map(v => v.data.id);
   const genPrefixes = generatePrefixes(uris, config.schema?.prefixes);
 
   return {
     vertices: Object.values(mappedResults).map(result =>
-      mapRawResultToVertex(config, result)
+      mapRawResultToVertex(result)
     ),
     prefixes: genPrefixes,
   };

@@ -129,8 +129,22 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
 
   const { enqueueNotification } = useNotification();
   const [isMount, setMount] = useState(false);
+
+  const vertexTypes =
+    selectedVertexType === "__all" ? config?.vertexTypes : [selectedVertexType];
+  const searchByAttributes =
+    selectedAttribute === "__all"
+      ? uniq(searchableAttributes.map(attr => attr.name))
+      : [selectedAttribute];
+
   const { data, isFetching } = useQuery(
-    ["keyword-search", debouncedSearchTerm, selectedVertexType, isMount],
+    [
+      "keyword-search",
+      debouncedSearchTerm,
+      vertexTypes,
+      searchByAttributes,
+      isMount,
+    ],
     () => {
       if (!isOpen || !config) {
         return;
@@ -140,14 +154,8 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
       const promise = connector.explorer?.keywordSearch(
         {
           searchTerm: debouncedSearchTerm,
-          vertexTypes:
-            selectedVertexType === "__all"
-              ? config?.vertexTypes
-              : [selectedVertexType],
-          searchByAttributes:
-            selectedAttribute === "__all"
-              ? uniq(searchableAttributes.map(attr => attr.name))
-              : [selectedAttribute],
+          vertexTypes,
+          searchByAttributes,
           searchById: searchableAttributes.length === 0,
         },
         { abortSignal: controller.signal }
@@ -180,6 +188,8 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
               vertices: schema?.vertices || [],
               edges: schema?.edges || [],
               prefixes: response.prefixes || [],
+              lastSyncFail: schema?.lastSyncFail,
+              triedToSync: schema?.triedToSync,
             });
             return updatedSchema;
           });
@@ -222,7 +232,6 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
 
   useEffect(() => {
     setSelectedAttribtue("__all");
-    setSearchTerm("");
   }, [selectedVertexType]);
 
   return {

@@ -13,17 +13,21 @@ import {
   nodesSelectedIdsAtom,
 } from "../../core/StateProvider/nodes";
 import EdgeDetail from "./EdgeDetail";
-import VertexDetail from "./VertexDetail";
+import NodeDetail from "./NodeDetail";
 
 export type EntityDetailsProps = Omit<
   ModuleContainerHeaderProps,
   "title" | "sidebar"
 > & {
   title?: ModuleContainerHeaderProps["title"];
+  noHeader?: boolean;
+  disableConnections?: boolean;
 };
 
 const EntityDetails = ({
   title = "Details View",
+  noHeader,
+  disableConnections,
   ...headerProps
 }: EntityDetailsProps) => {
   const nodes = useRecoilValue(nodesAtom);
@@ -55,11 +59,13 @@ const EntityDetails = ({
 
   return (
     <ModuleContainer>
-      <ModuleContainerHeader
-        title={title}
-        variant={"sidebar"}
-        {...headerProps}
-      />
+      {noHeader !== true && (
+        <ModuleContainerHeader
+          title={title}
+          variant={"sidebar"}
+          {...headerProps}
+        />
+      )}
       {isEmptySelection && (
         <PanelEmptyState
           icon={<GraphIcon />}
@@ -75,7 +81,7 @@ const EntityDetails = ({
         />
       )}
       {!isMultiSelection && selectedNodesIds.size === 1 && selectedNode && (
-        <VertexDetail vertex={selectedNode} enableDisplayAs={true} />
+        <NodeDetail node={selectedNode} hideNeighbors={disableConnections} />
       )}
       {!isMultiSelection &&
         selectedEdgesIds.size === 1 &&

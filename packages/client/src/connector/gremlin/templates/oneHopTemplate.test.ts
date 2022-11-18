@@ -1,6 +1,6 @@
 import oneHopTemplate from "./oneHopTemplate";
 
-describe("oneHopTemplate", () => {
+describe("Gremlin > oneHopTemplate", () => {
   it("Should return a template for a simple vertex id", () => {
     const template = oneHopTemplate({
       vertexId: "12",
@@ -9,7 +9,7 @@ describe("oneHopTemplate", () => {
     expect(template).toBe(
       'g.V("12").project("vertices", "edges")' +
         ".by(both().dedup().range(0, 10).fold())" +
-        ".by(bothE().dedup().range(0, 10).fold())"
+        ".by(bothE().dedup().fold())"
     );
   });
 
@@ -23,14 +23,14 @@ describe("oneHopTemplate", () => {
     expect(template).toBe(
       'g.V("12").project("vertices", "edges")' +
         ".by(both().dedup().range(5, 10).fold())" +
-        ".by(bothE().dedup().range(5, 10).fold())"
+        ".by(bothE().dedup().fold())"
     );
   });
 
   it("Should return a template for specific vertex type", () => {
     const template = oneHopTemplate({
       vertexId: "12",
-      vertexTypes: ["country"],
+      filterByVertexTypes: ["country"],
       offset: 5,
       limit: 10,
     });
@@ -38,14 +38,14 @@ describe("oneHopTemplate", () => {
     expect(template).toBe(
       'g.V("12").project("vertices", "edges")' +
         '.by(both().hasLabel("country").dedup().range(5, 15).fold())' +
-        '.by(bothE().where(otherV().hasLabel("country")).dedup().range(5, 15).fold())'
+        '.by(bothE().where(otherV().hasLabel("country")).dedup().fold())'
     );
   });
 
   it("Should return a template with specific filter criteria", () => {
     const template = oneHopTemplate({
       vertexId: "12",
-      vertexTypes: ["country"],
+      filterByVertexTypes: ["country"],
       filterCriteria: [
         { name: "longest", value: 10000, operator: "gte", dataType: "Number" },
         { name: "country", value: "ES", operator: "like" },
@@ -59,7 +59,7 @@ describe("oneHopTemplate", () => {
         '.by(both().hasLabel("country")' +
         '.and(has("longest",gte(10000)),has("country",containing("ES")))' +
         ".dedup().range(5, 15).fold())" +
-        '.by(bothE().where(otherV().hasLabel("country")).dedup().range(5, 15).fold())'
+        '.by(bothE().where(otherV().hasLabel("country")).dedup().fold())'
     );
   });
 });

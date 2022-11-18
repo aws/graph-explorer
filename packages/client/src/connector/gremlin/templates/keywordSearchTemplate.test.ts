@@ -1,6 +1,6 @@
 import keywordSearchTemplate from "./keywordSearchTemplate";
 
-describe("keywordSearchTemplate", () => {
+describe("Gremlin > keywordSearchTemplate", () => {
   it("Should return a template only with default range", () => {
     const template = keywordSearchTemplate({});
 

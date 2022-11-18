@@ -1,6 +1,7 @@
 import { Modal } from "@mantine/core";
+import clone from "lodash/clone";
 import debounce from "lodash/debounce";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRecoilCallback, useRecoilValue } from "recoil";
 import { Button, Input, Select, StylingIcon } from "../../components";
 import ColorInput from "../../components/ColorInput/ColorInput";
@@ -16,6 +17,7 @@ import {
   userStylingAtom,
 } from "../../core/StateProvider/userPreferences";
 import useTextTransform from "../../hooks/useTextTransform";
+import useTranslations from "../../hooks/useTranslations";
 import {
   SOURCE_ARROW_STYLE_OPTIONS,
   TARGET_ARROW_STYLE_OPTIONS,
@@ -27,13 +29,20 @@ import modalDefaultStyles from "./SingleEdgeStylingModal.style";
 export type SingleEdgeStylingProps = {
   classNamePrefix?: string;
   edgeType: string;
+  opened: boolean;
+  onOpen(): void;
+  onClose(): void;
 };
 
 const SingleEdgeStyling = ({
   classNamePrefix = "ft",
   edgeType,
+  opened,
+  onOpen,
+  onClose,
 }: SingleEdgeStylingProps) => {
   const config = useConfiguration();
+  const t = useTranslations();
   const styleWithTheme = useWithTheme();
   const pfx = withClassNamePrefix(classNamePrefix);
 
@@ -42,10 +51,24 @@ const SingleEdgeStyling = ({
   const etConfig = config?.getEdgeTypeConfig(edgeType);
   const etPrefs = userStyling.edges?.find(e => e.type === edgeType);
 
-  const [opened, setOpened] = useState(false);
   const [displayAs, setDisplayAs] = useState(
     etConfig?.displayLabel || textTransform(edgeType)
   );
+
+  const selectOptions = useMemo(() => {
+    const options =
+      etConfig?.attributes.map(attr => ({
+        value: attr.name,
+        label: attr.displayLabel || textTransform(attr.name),
+      })) || [];
+
+    options.unshift({
+      label: t("edges-styling.edge-type"),
+      value: "type",
+    });
+
+    return options;
+  }, [t, textTransform, etConfig?.attributes]);
 
   const onUserPrefsChange = useRecoilCallback(
     ({ set }) => (prefs: Omit<EdgePreferences, "type">) => {
@@ -80,6 +103,35 @@ const SingleEdgeStyling = ({
         return {
           ...prev,
           edges: prev.edges?.filter(e => e.type !== edgeType),
+        };
+      });
+    },
+    [edgeType]
+  );
+
+  const onDisplayNameChange = useRecoilCallback(
+    ({ set }) => (value: string | string[]) => {
+      if (!edgeType) {
+        return;
+      }
+
+      set(userStylingAtom, prevStyling => {
+        const etItem = clone(
+          prevStyling.edges?.find(e => e.type === edgeType) ||
+            ({} as EdgePreferences)
+        );
+
+        etItem.displayNameAttribute = value as string;
+
+        return {
+          ...prevStyling,
+          edges: [
+            ...(prevStyling.edges || []).filter(e => e.type !== edgeType),
+            {
+              ...(etItem || {}),
+              type: edgeType,
+            },
+          ],
         };
       });
     },
@@ -122,14 +174,14 @@ const SingleEdgeStyling = ({
           icon={<StylingIcon />}
           variant={"text"}
           size={"small"}
-          onPress={() => setOpened(true)}
+          onPress={onOpen}
         >
           Customize
         </Button>
       </div>
       <Modal
         opened={opened}
-        onClose={() => setOpened(false)}
+        onClose={onClose}
         centered={true}
         title={
           <div>
@@ -140,6 +192,20 @@ const SingleEdgeStyling = ({
         overlayOpacity={0.1}
       >
         <div className={pfx("container")}>
+          <div>
+            <p>Display Attributes</p>
+            <div className={pfx("attrs-container")}>
+              <Select
+                label={"Display Name Attribute"}
+                labelPlacement={"inner"}
+                value={etConfig?.displayNameAttribute || "type"}
+                onChange={onDisplayNameChange}
+                options={selectOptions}
+                hideError={true}
+                noMargin={true}
+              />
+            </div>
+          </div>
           <div>
             <p>Label Styling</p>
             <div className={pfx("attrs-container")}>

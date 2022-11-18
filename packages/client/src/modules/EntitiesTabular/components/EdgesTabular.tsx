@@ -13,27 +13,28 @@ import {
   TabularEmptyBodyControls,
 } from "../../../components/Tabular/controls";
 import Tabular from "../../../components/Tabular/Tabular";
-import { useConfiguration } from "../../../core";
 import {
   edgesAtom,
   edgesHiddenIdsAtom,
   edgesOutOfFocusIdsAtom,
   edgesSelectedIdsAtom,
 } from "../../../core/StateProvider/edges";
+import { nodesSelectedIdsAtom } from "../../../core/StateProvider/nodes";
 import { useDeepMemo } from "../../../hooks";
 import useTextTransform from "../../../hooks/useTextTransform";
-import labelsByEngine from "../../../utils/labelsByEngine";
+import useTranslations from "../../../hooks/useTranslations";
 import { recoilDiffSets } from "../../../utils/recoilState";
 
 type ToggleEdge = Edge & { __is_visible: boolean };
 
 const EdgesTabular = forwardRef<TabularInstance<any>, any>((props, ref) => {
-  const config = useConfiguration();
+  const t = useTranslations();
   const edges = useRecoilValue(edgesAtom);
   const setEdgesOut = useSetRecoilState(edgesOutOfFocusIdsAtom);
   const [hiddenEdgesIds, setHiddenEdgesIds] = useRecoilState(
     edgesHiddenIdsAtom
   );
+  const setSelectedNodesIds = useSetRecoilState(nodesSelectedIdsAtom);
   const [selectedEdgesIds, setSelectedEdgesIds] = useRecoilState(
     edgesSelectedIdsAtom
   );
@@ -45,7 +46,6 @@ const EdgesTabular = forwardRef<TabularInstance<any>, any>((props, ref) => {
   );
 
   const textTransform = useTextTransform();
-  const labels = labelsByEngine[config?.connection?.queryEngine || "gremlin"];
 
   const columns: ColumnDefinition<any>[] = useMemo(() => {
     return [
@@ -66,36 +66,36 @@ const EdgesTabular = forwardRef<TabularInstance<any>, any>((props, ref) => {
       },
       {
         id: "edge-type",
-        accessor: row => textTransform(row.data.__e_type),
-        label: labels["edge-type"],
+        accessor: row => textTransform(row.data.type),
+        label: t("entities-tabular.edge-type"),
         overflow: "ellipsis",
       },
       {
         id: "source-id",
         accessor: row => textTransform(row.data.source),
-        label: labels["source-id"],
+        label: t("entities-tabular.source-id"),
         overflow: "ellipsis",
       },
       {
         id: "source-type",
-        accessor: row => textTransform(row.data.__sourceType),
-        label: labels["source-type"],
+        accessor: row => textTransform(row.data.sourceType),
+        label: t("entities-tabular.source-type"),
         overflow: "ellipsis",
       },
       {
         id: "target-id",
         accessor: row => textTransform(row.data.target),
-        label: labels["target-id"],
+        label: t("entities-tabular.target-id"),
         overflow: "ellipsis",
       },
       {
         id: "target-type",
-        accessor: row => textTransform(row.data.__targetType),
-        label: labels["target-type"],
+        accessor: row => textTransform(row.data.targetType),
+        label: t("entities-tabular.target-type"),
         overflow: "ellipsis",
       },
     ];
-  }, [labels, onToggleVisibility, textTransform]);
+  }, [t, onToggleVisibility, textTransform]);
 
   const data: ToggleEdge[] = useDeepMemo(() => {
     return edges.map(edge => ({
@@ -106,16 +106,11 @@ const EdgesTabular = forwardRef<TabularInstance<any>, any>((props, ref) => {
 
   const onSelectRows = useCallback(
     (rowIndex: string) => {
-      const copiedSet = new Set(selectedEdgesIds);
       const entityId = data[Number(rowIndex)].data.id;
-      if (copiedSet.has(entityId)) {
-        copiedSet.delete(entityId);
-      } else {
-        copiedSet.add(entityId);
-      }
-      setSelectedEdgesIds(copiedSet);
+      setSelectedEdgesIds(new Set([entityId]));
+      setSelectedNodesIds(new Set([]));
     },
-    [data, selectedEdgesIds, setSelectedEdgesIds]
+    [data, setSelectedEdgesIds, setSelectedNodesIds]
   );
 
   const selectedRowsIds: Record<string, boolean> = useDeepMemo(() => {
@@ -147,7 +142,7 @@ const EdgesTabular = forwardRef<TabularInstance<any>, any>((props, ref) => {
       <TabularEmptyBodyControls>
         {data.length === 0 && (
           <PlaceholderControl>
-            {labels["edges-tabular-placeholder"]}
+            {t("entities-tabular.edges-placeholder")}
           </PlaceholderControl>
         )}
       </TabularEmptyBodyControls>

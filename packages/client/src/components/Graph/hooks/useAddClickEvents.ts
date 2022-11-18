@@ -54,6 +54,7 @@ export interface UseAddClickEvents<
   onEdgeClick?: ElementEventCallback<TEdge>;
   onEdgeMouseOver?: ElementEventCallback<TEdge>;
   onEdgeMouseOut?: ElementEventCallback<TEdge>;
+  onEdgeRightClick?: ElementEventCallback<TEdge>;
   onEdgeDoubleClick?: ElementEventCallback<TEdge>;
 
   // Group events
@@ -72,6 +73,7 @@ const useAddClickEvents = ({
   onNodeDoubleClick,
   onNodeRightClick,
   onEdgeDoubleClick,
+  onEdgeRightClick,
   onGroupClick,
   onGroupDoubleClick,
   onNodeMouseOver,
@@ -193,8 +195,11 @@ const useAddClickEvents = ({
       withElementAndBounds(e, onNodeDoubleClick);
     const handleOnNodeRightClick = (e: cytoscape.EventObject) =>
       withElementAndBounds(e, onNodeRightClick);
+
     const handleOnEdgeClick = (e: cytoscape.EventObject) =>
       withElementAndBounds(e, onEdgeClick);
+    const handleOnEdgeRightClick = (e: cytoscape.EventObject) =>
+      withElementAndBounds(e, onEdgeRightClick);
     const handleOnEdgeDoubleClick = (e: cytoscape.EventObject) =>
       withElementAndBounds(e, onEdgeDoubleClick);
     const handleOnEdgeMouseOver = (e: cytoscape.EventObject) =>
@@ -220,6 +225,7 @@ const useAddClickEvents = ({
 
     // Edge events
     cy.on("tap", "edge", handleOnEdgeClick);
+    cy.on("cxttap", "edge", handleOnEdgeRightClick);
     cy.on("doubleTap", "edge", handleOnEdgeDoubleClick);
     cy.on("mouseover", "edge", handleOnEdgeMouseOver);
     cy.on("mouseout", "edge", handleOnEdgeMouseOut);
@@ -243,6 +249,7 @@ const useAddClickEvents = ({
 
       // Edge events
       cy.off("tap", "edge", handleOnEdgeClick);
+      cy.off("cxttap", "edge", handleOnEdgeRightClick);
       cy.off("doubleTap", "edge", handleOnEdgeDoubleClick);
       cy.off("mouseover", "edge", handleOnEdgeMouseOver);
       cy.off("mouseout", "edge", handleOnGroupClick);
@@ -268,6 +275,7 @@ const useAddClickEvents = ({
     onEdgeMouseOut,
     onGraphRightClick,
     onGroupClick,
+    onEdgeRightClick,
   ]);
 };
 

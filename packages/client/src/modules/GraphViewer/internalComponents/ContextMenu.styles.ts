@@ -1,5 +1,6 @@
 import { css } from "@emotion/css";
 import type { ThemeStyleFn } from "../../../core";
+import { fade } from "../../../core";
 
 const defaultStyles = (pfx: string): ThemeStyleFn => ({ theme }) =>
   css`
@@ -10,15 +11,22 @@ const defaultStyles = (pfx: string): ThemeStyleFn => ({ theme }) =>
         margin: 0;
         padding: 0;
         overflow: auto;
+        border: none;
       }
 
       .${pfx}-title {
-        font-weight: bold;
+        font-weight: ${theme.typography.weight?.bold};
         font-size: ${theme.typography.sizes.xs};
         padding: ${theme.spacing.base} ${theme.spacing["4x"]};
       }
 
       .${pfx}-list-item {
+        &.${pfx}-list-item-header {
+          .${pfx}-primary {
+            font-weight: ${theme.typography.weight?.bold};
+          }
+          background: ${fade(theme.palette.primary.main, 0.3)};
+        }
         font-size: ${theme.typography.sizes.xs};
 
         .${pfx}-content {

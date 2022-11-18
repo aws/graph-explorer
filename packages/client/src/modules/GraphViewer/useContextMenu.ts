@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from "react";
 import { useLayer, useMousePositionAsTrigger } from "react-laag";
-import type { VertexData } from "../../@types/entities";
+import type { EdgeData, VertexData } from "../../@types/entities";
 import type {
   ElementEventCallback,
   GraphEventCallback,
@@ -11,6 +11,7 @@ const useContextMenu = () => {
   const parentRef = useRef<HTMLDivElement>(null);
 
   const [contextNodeId, setContextNodeId] = useState<string | null>(null);
+  const [contextEdgeId, setContextEdgeId] = useState<string | null>(null);
   const [contextPosition, setContextPosition] = useState<{
     top: number;
     left: number;
@@ -26,6 +27,7 @@ const useContextMenu = () => {
 
   const clearAllLayers = useCallback(() => {
     setContextNodeId(null);
+    setContextEdgeId(null);
     setContextPosition(null);
   }, []);
 
@@ -63,6 +65,26 @@ const useContextMenu = () => {
     [handleMouseEvent]
   );
 
+  const onEdgeRightClick: ElementEventCallback<EdgeData> = useCallback(
+    (event, edge) => {
+      const parentBounds = parentRef.current?.getBoundingClientRect() || {
+        top: 0,
+        left: 0,
+      };
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      handleMouseEvent({
+        ...event.originalEvent,
+        // Override the event position to event position and parent offsets
+        clientY: event.renderedPosition.y + parentBounds.top,
+        clientX: event.renderedPosition.x + parentBounds.left,
+      });
+      setContextEdgeId(edge.id);
+      event.preventDefault();
+    },
+    [handleMouseEvent]
+  );
+
   const onGraphRightClick: GraphEventCallback = useCallback(
     (event, position) => {
       clearAllLayers();
@@ -79,16 +101,21 @@ const useContextMenu = () => {
   );
 
   const isContextOpen =
-    (Boolean(contextNodeId) || Boolean(contextPosition)) && hasMousePosition;
+    (Boolean(contextNodeId) ||
+      Boolean(contextEdgeId) ||
+      Boolean(contextPosition)) &&
+    hasMousePosition;
 
   return {
     parentRef,
     isContextOpen,
     onNodeRightClick,
+    onEdgeRightClick,
     onGraphRightClick,
     renderContextLayer,
     contextLayerProps,
     contextNodeId,
+    contextEdgeId,
     clearAllLayers,
   };
 };

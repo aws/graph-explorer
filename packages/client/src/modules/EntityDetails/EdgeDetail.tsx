@@ -43,21 +43,21 @@ const EdgeDetail = ({
   const pfx = withClassNamePrefix(classNamePrefix);
 
   const edgeConfig = useMemo(() => {
-    return config?.getEdgeTypeConfig(edge.data.__e_type);
-  }, [config, edge.data.__e_type]);
+    return config?.getEdgeTypeConfig(edge.data.type);
+  }, [config, edge.data.type]);
 
   const sourceVertexConfig = useMemo(() => {
     if (!sourceVertex) {
       return;
     }
-    return config?.getVertexTypeConfig(sourceVertex?.data.__v_type);
+    return config?.getVertexTypeConfig(sourceVertex?.data.type);
   }, [config, sourceVertex]);
 
   const targetVertexConfig = useMemo(() => {
     if (!targetVertex) {
       return;
     }
-    return config?.getVertexTypeConfig(targetVertex?.data.__v_type);
+    return config?.getVertexTypeConfig(targetVertex?.data.type);
   }, [config, targetVertex]);
 
   const sortedAttributes = useMemo(() => {
@@ -85,9 +85,7 @@ const EdgeDetail = ({
           <EdgeIcon />
         </div>
         <div className={pfx("content")}>
-          <div className={pfx("title")}>
-            {textTransform(edge.data.__e_type)}
-          </div>
+          <div className={pfx("title")}>{textTransform(edge.data.type)}</div>
           {config?.connection?.queryEngine !== "sparql" && (
             <div>{edge.data.id}</div>
           )}
@@ -152,9 +150,7 @@ const EdgeDetail = ({
         <div className={pfx("content")}>
           <div className={pfx("title")}>{sourceName}</div>
           <div>
-            {textTransform(
-              sourceVertex?.data.__v_type || sourceVertex?.data.id
-            )}
+            {textTransform(sourceVertex?.data.type || sourceVertex?.data.id)}
           </div>
         </div>
       </div>
@@ -217,9 +213,7 @@ const EdgeDetail = ({
         <div className={pfx("content")}>
           <div className={pfx("title")}>{targetName}</div>
           <div>
-            {textTransform(
-              targetVertex?.data.__v_type || targetVertex?.data.id
-            )}
+            {textTransform(targetVertex?.data.type || targetVertex?.data.id)}
           </div>
         </div>
       </div>

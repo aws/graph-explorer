@@ -25,7 +25,9 @@ export type VertexSchemaResponse = Pick<
 export type EdgeSchemaResponse = Pick<
   EdgeTypeConfig,
   "type" | "displayLabel" | "attributes"
->;
+> & {
+  total: number;
+};
 
 export type SchemaResponse = {
   /**
@@ -68,9 +70,13 @@ export type NeighborsRequest = {
    */
   vertexId: string;
   /**
+   * Source vertex type.
+   */
+  vertexType: string;
+  /**
    * Filter by vertex types.
    */
-  vertexTypes?: Array<string>;
+  filterByVertexTypes?: Array<string>;
   /**
    * Filter by edge types.
    */

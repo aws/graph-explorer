@@ -6,8 +6,10 @@ import {
   DatabaseIcon,
   DeleteIcon,
   EditIcon,
+  IconButton,
   ModuleContainer,
   ModuleContainerHeader,
+  PanelEmptyState,
   SyncIcon,
   TrayArrowIcon,
 } from "../../components";
@@ -22,8 +24,8 @@ import {
 } from "../../core/StateProvider/configuration";
 import { schemaAtom } from "../../core/StateProvider/schema";
 import useSchemaSync from "../../hooks/useSchemaSync";
+import useTranslations from "../../hooks/useTranslations";
 import { formatDate } from "../../utils";
-import labelsByEngine from "../../utils/labelsByEngine";
 import saveConfigurationToFile from "../../utils/saveConfigurationToFile";
 import CreateConnection from "../CreateConnection";
 import ConnectionData from "./ConnectionData";
@@ -35,13 +37,6 @@ export type ConnectionDetailProps = {
 };
 
 const HEADER_ACTIONS = (isSync: boolean, isFileBased: boolean) => [
-  {
-    label: "Synchronize Schema",
-    icon: <SyncIcon className={isSync ? "animate-spin" : ""} />,
-    value: "sync",
-    isDisabled: isSync,
-  },
-  "divider",
   {
     label: "Export Connection",
     icon: <TrayArrowIcon />,
@@ -68,6 +63,7 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
   const styleWithTheme = useWithTheme();
   const pfx = withClassNamePrefix("ft");
   const config = useConfiguration();
+  const t = useTranslations();
   const [edit, setEdit] = useState(false);
 
   const updateSchema = useSchemaSync();
@@ -113,10 +109,6 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
 
   const onActionClick = useCallback(
     (value: string) => {
-      if (value === "sync") {
-        return onConfigSync();
-      }
-
       if (value === "edit") {
         return setEdit(true);
       }
@@ -129,13 +121,15 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
         return onConfigExport();
       }
     },
-    [onConfigDelete, onConfigExport, onConfigSync]
+    [onConfigDelete, onConfigExport]
   );
 
-  const labels = labelsByEngine[config?.connection?.queryEngine || "gremlin"];
   if (!config) {
     return null;
   }
+
+  const lastSyncUpdate = config?.schema?.lastUpdate;
+  const lastSyncFail = config?.schema?.lastSyncFail === true;
 
   return (
     <ModuleContainer className={styleWithTheme(defaultStyles("ft"))}>
@@ -144,20 +138,7 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
         startAdornment={<DatabaseIcon />}
         actions={HEADER_ACTIONS(isSync, config.__fileBase === true)}
         onActionClick={onActionClick}
-      >
-        <div className={pfx("header-children")}>
-          {!config?.schema?.lastUpdate && (
-            <Chip size={"sm"} variant={"warning"}>
-              Not Synchronized
-            </Chip>
-          )}
-          {!!config?.schema?.lastUpdate && (
-            <Chip size={"sm"} variant={"success"}>
-              Synchronized
-            </Chip>
-          )}
-        </div>
-      </ModuleContainerHeader>
+      />
       <div className={pfx("info-bar")}>
         <div className={pfx("item")}>
           <div className={pfx("tag")}>URL</div>
@@ -165,18 +146,60 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
         </div>
         <div className={pfx("item")}>
           <div className={pfx("tag")}>Graph Type</div>
-          <div className={pfx("value")}>{labels["graph-type"]}</div>
+          <div className={pfx("value")}>
+            {t("connection-detail.graph-type")}
+          </div>
         </div>
-        {!!config.schema?.lastUpdate && (
+        {!!lastSyncUpdate && (
           <div className={pfx("item")}>
-            <div className={pfx("tag")}>Last Synchronization</div>
-            <div className={pfx("value")}>
-              {formatDate(config.schema.lastUpdate)}
+            <div className={pfx("tag")}>
+              <div>Last Synchronization</div>
+              <IconButton
+                icon={<SyncIcon className={isSync ? "animate-spin" : ""} />}
+                tooltipText={"Synchronize Database"}
+                variant={"text"}
+                size={"small"}
+                isDisabled={isSync}
+                onPress={onConfigSync}
+              />
             </div>
+            {!lastSyncFail && (
+              <div className={pfx("value")}>{formatDate(lastSyncUpdate)}</div>
+            )}
+            {!lastSyncUpdate && !lastSyncFail && (
+              <Chip size={"sm"} variant={"warning"}>
+                Not Synchronized
+              </Chip>
+            )}
+            {lastSyncFail && (
+              <Chip size={"sm"} variant={"error"}>
+                Synchronization Failed
+              </Chip>
+            )}
           </div>
         )}
       </div>
-      <ConnectionData />
+      {!isSync && !!lastSyncUpdate && <ConnectionData />}
+      {!lastSyncUpdate && !isSync && (
+        <PanelEmptyState
+          variant={"error"}
+          icon={<SyncIcon className={isSync ? "animate-spin" : ""} />}
+          title={"Synchronization Required"}
+          subtitle={
+            "It is necessary to synchronize the connection to be able to work with the database."
+          }
+          actionLabel={"Start synchronization"}
+          onAction={onConfigSync}
+        />
+      )}
+      {isSync && (
+        <PanelEmptyState
+          variant={"info"}
+          icon={<SyncIcon className={isSync ? "animate-spin" : ""} />}
+          title={"Synchronizing..."}
+          subtitle={"The connection is being synchronized."}
+        />
+      )}
       <Modal
         opened={edit}
         onClose={() => setEdit(false)}

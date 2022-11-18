@@ -1,108 +1,116 @@
-export interface ElementData extends Record<string, unknown> {
+export interface VertexData {
   /**
-   * Unique id.  Synthetic.  Do not try to pass to server
+   * Unique identifier for the vertex.
+   * - For PG, the node id
+   * - For RDF, the resource URI
    */
   id: string;
-}
-
-export interface VertexData extends ElementData {
   /**
-   * Unique id for vertex, only unique for vertex type.  Use this when talking to server
+   * Single vertex type.
+   * - For PG, the node label
+   * - For RDF, the resource class
    */
-  __v_id: string;
+  type: string;
   /**
-   * Primary vertex type.
+   * In gremlin, a node can have multiple labels (types).
+   * So, this stores all possible labels for displaying purposes.
+   * @example
+   * "John Doe" can a "person" and a "worker"
+   * types = ["person", "worker"]
    */
-  __v_type: string;
+  types?: string[];
   /**
-   * All vertex types.
+   * List of attributes associated to the vertex.
+   * - For PG, nodes can contain attributes.
+   * - For RDF, subjects can be connected to other subjects which are literals
    */
-  __v_types: string[];
-  /**
-   * Vertex type formatted for displaying to the user.
-   */
-  __v_type_display: string;
-  /**
-   * The URL to the SVG to render for this vertex
-   */
-  __iconUrl?: string;
-  /**
-   * Formatted name of this vertex for showing to user
-   */
-  __name?: string;
-  /**
-   * Formatted long name of this vertex for showing to outside the graph like in search
-   */
-  __longName?: string;
-  /**
-   * The number of server-side neighbors of this vertex
-   */
-  __totalNeighborCount: number;
-  /**
-   * The number of server-side neighbors of this vertex, grouped by vertex type
-   */
-  __totalNeighborCounts: Record<string, number>;
-  /**
-   * Flag to determine whether to show vertex in UI
-   */
-  __isHidden?: boolean;
-  __isGroupNode?: boolean;
-  __unfetchedNeighborCount: number;
-  __unfetchedNeighborCounts: Record<string, number>;
-  __fetchedInEdgeCount: number;
-  __fetchedOutEdgeCount: number;
-  __fetchedUndirectedEdgeCount: number;
   attributes: Record<string, string | number>;
-}
-
-export interface Vertex<T = Record<string, unknown>> {
-  data: VertexData & T;
-}
-
-export interface EdgeData extends ElementData {
   /**
-   * synthetic id of the node this edge is coming out of (the outbound node)
+   * The total number of neighbors.
+   * - For PG, all connected nodes independently of their direction (in/out)
+   * - For RDF, all subjects which be compliant with:
+   *   1. <resourceURI> ?pred ?subject
+   *   2. ?subject ?pred <resourceURI>
+   *   3. FILTER(!isLiteral(?subject))
+   */
+  neighborsCount: number;
+  /**
+   * The total number of neighbors by type.
+   */
+  neighborsCountByType: Record<string, number>;
+
+  // The following properties are computed on run-time
+  /**
+   * Total number of non-fetched neighbors
+   */
+  __unfetchedNeighborCount?: number;
+  /**
+   * Non-fetched neighbors by type
+   */
+  __unfetchedNeighborCounts?: Record<string, number>;
+  /**
+   * Fetched incoming edges connected with the vertex
+   */
+  __fetchedInEdgeCount?: number;
+  /**
+   * Fetched outgoing edges connected with the vertex
+   */
+  __fetchedOutEdgeCount?: number;
+}
+
+/**
+ * Sometimes is needed to add some extra properties to a Vertex
+ * which cannot be mixed or overwritten with the original data
+ * of a vertex.
+ * For example, NodesTabular add __is_visible property to hide/show a node.
+ */
+export type Vertex<T = Record<string, unknown>> = T & {
+  data: VertexData;
+};
+
+export interface EdgeData {
+  /**
+   * Unique identifier for the edge.
+   * - For PG, the edge id
+   * - For RDF, predicates do not have ids like PG graphs.
+   *   So, a synthetic id is created using <source URI>-[predicate]-><target URI>
+   */
+  id: string;
+  /**
+   * Edge type.
+   * - For PG, the label which identifies the relation type
+   * - For RDF, the predicate
+   */
+  type: string;
+  /**
+   * Source vertex id
    */
   source: string;
   /**
-   * synthetic id of the node this edge is pointing into (the inbound node)
+   * Source vertex type
+   */
+  sourceType: string;
+  /**
+   * Target vertex id
    */
   target: string;
   /**
-   * edge type.  suitable for logic.  do not show to user
+   * Target vertex type
    */
-  __e_type: string;
+  targetType: string;
   /**
-   * edge type formatted for display to user
+   * Only for PG, attributes associated to the edge.
+   * For RDF, predicates do not have more properties than the predicate itself.
    */
-  __e_type_display: string;
-  /**
-   * Formatted name of this edge for display to user
-   */
-  __name?: string;
-  /**
-   * The tigergraph vertex id of the source
-   */
-  __source: string;
-  __sourceType: string;
-  __sourceTypeDisplay: string;
-  /**
-   * The tigergraph vertex id of the target
-   */
-  __target: string;
-  __targetType: string;
-  __targetTypeDisplay: string;
-  /**
-   * if false then this is an undirected edge (no arrow...and nodes are neither inbound nore outbound)
-   */
-  __directed: boolean;
-  /**
-   * Flag to determine whether to show Edge in UI
-   */
-  __isHidden?: boolean;
   attributes: Record<string, string | number>;
 }
 
+/**
+ * Sometimes is needed to add some extra properties to an Edge
+ * which cannot be mixed or overwritten with the original data
+ * of en edge.
+ * For example, EdgesTabular add __is_visible property to hide/show an edge.
+ */
 export interface Edge<T = Record<string, unknown>> {
   data: EdgeData & T;
 }

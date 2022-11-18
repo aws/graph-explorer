@@ -105,15 +105,19 @@ const generatePrefixes = (
     });
 
     if (existPrefixIndex === -1) {
-      const url = new URL(uri);
-      let newPrefix: PrefixTypeConfig;
-      if (url.hash) {
-        newPrefix = generateHashPrefix(url);
-      } else {
-        newPrefix = generatePrefix(url);
-      }
+      try {
+        const url = new URL(uri);
+        let newPrefix: PrefixTypeConfig;
+        if (url.hash) {
+          newPrefix = generateHashPrefix(url);
+        } else {
+          newPrefix = generatePrefix(url);
+        }
 
-      updatedPrefixes.push({ ...newPrefix, __matches: new Set([uri]) });
+        updatedPrefixes.push({ ...newPrefix, __matches: new Set([uri]) });
+      } catch {
+        // Catching wrong URLs and skip them
+      }
     } else {
       if (!updatedPrefixes[existPrefixIndex].__matches) {
         updatedPrefixes[existPrefixIndex].__matches = new Set();

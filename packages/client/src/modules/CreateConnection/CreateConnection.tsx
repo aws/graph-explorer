@@ -26,7 +26,7 @@ type ConnectionForm = {
 };
 
 const CONNECTIONS_OP = [
-  { label: "LPG (Labelled Property Graph)", value: "gremlin" },
+  { label: "PG (Property Graph)", value: "gremlin" },
   { label: "RDF (Resource Description Framework)", value: "sparql" },
 ];
 
@@ -46,8 +46,9 @@ const CreateConnection = ({
   const styleWithTheme = useWithTheme();
   const pfx = withClassNamePrefix("ft");
   const { enqueueNotification } = useNotification();
+
   const onSave = useRecoilCallback(
-    ({ set }) => (data: Required<ConnectionForm>) => {
+    ({ set }) => async (data: Required<ConnectionForm>) => {
       if (!configId) {
         const newConfigId = v4();
         const newConfig: RawConfiguration = {
@@ -87,13 +88,6 @@ const CreateConnection = ({
       const typeChange = initialData?.type !== data.type;
 
       if (urlChange || typeChange) {
-        enqueueNotification({
-          title: "Graph Type or URL changed",
-          message: "Synchronization required",
-          type: "warning",
-          stackable: true,
-        });
-
         set(schemaAtom, prevSchemaMap => {
           const updatedSchema = new Map(prevSchemaMap);
           const currentSchema = updatedSchema.get(configId);
@@ -103,6 +97,8 @@ const CreateConnection = ({
             prefixes: currentSchema?.prefixes || [],
             // If the URL or Engine change, show as not synchronized
             lastUpdate: undefined,
+            lastSyncFail: undefined,
+            triedToSync: undefined,
           });
 
           return updatedSchema;

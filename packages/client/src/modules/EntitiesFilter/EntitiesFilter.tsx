@@ -5,12 +5,8 @@ import {
   ModuleContainer,
   ModuleContainerHeader,
 } from "../../components";
-import {
-  useConfiguration,
-  useWithTheme,
-  withClassNamePrefix,
-} from "../../core";
-import labelsByEngine from "../../utils/labelsByEngine";
+import { useWithTheme, withClassNamePrefix } from "../../core";
+import useTranslations from "../../hooks/useTranslations";
 import defaultStyles from "./EntitiesFilter.styles";
 import useFiltersConfig from "./useFiltersConfig";
 
@@ -25,11 +21,9 @@ const EntitiesFilter = ({
   title = "Entities Filter",
   ...headerProps
 }: EntitiesFilterProps) => {
-  const config = useConfiguration();
+  const t = useTranslations();
   const pfx = withClassNamePrefix("ft");
   const styleWithTheme = useWithTheme();
-
-  const labels = labelsByEngine[config?.connection?.queryEngine || "gremlin"];
 
   const {
     selectedVertexTypes,
@@ -57,7 +51,7 @@ const EntitiesFilter = ({
       {connectionTypes.length > 0 && (
         <div className={pfx("checkbox-list-container")}>
           <CheckboxList
-            title={labels["edges-types"]}
+            title={t("entities-filter.edge-types")}
             selectedIds={selectedConnectionTypes}
             checkboxes={connectionTypes}
             onChange={onChangeConnectionTypes}
@@ -69,7 +63,7 @@ const EntitiesFilter = ({
       {vertexTypes.length > 0 && (
         <div className={pfx("checkbox-list-container")}>
           <CheckboxList
-            title={labels["nodes-types"]}
+            title={t("entities-filter.node-types")}
             selectedIds={selectedVertexTypes}
             checkboxes={vertexTypes}
             onChange={onChangeVertexTypes}

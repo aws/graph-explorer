@@ -1,7 +1,6 @@
 import Color from "color";
-import cytoscape from "cytoscape";
 import { useEffect, useState } from "react";
-import type { VertexData } from "../../@types/entities";
+import { EdgeData } from "../../@types/entities";
 import type { GraphProps } from "../../components";
 import colorizeSvg from "../../components/utils/canvas/colorizeSvg";
 import { useConfiguration } from "../../core";
@@ -21,15 +20,7 @@ const useGraphStyles = () => {
 
   useEffect(() => {
     (async () => {
-      const styles: GraphProps["styles"] = {
-        node: {
-          shape: (el: cytoscape.NodeSingular) => {
-            // Change the shape if contains multiple labels
-            const node = el.data() as VertexData;
-            return node.__v_types.length === 1 ? "ellipse" : "roundrectangle";
-          },
-        },
-      };
+      const styles: GraphProps["styles"] = {};
 
       for (const vt of config?.vertexTypes || []) {
         const vtConfig = config?.getVertexTypeConfig(vt);
@@ -47,7 +38,7 @@ const useGraphStyles = () => {
           ICONS_CACHE.set(vtConfig.iconUrl, iconText);
         }
 
-        styles[`node[__v_type="${vt}"]`] = {
+        styles[`node[type="${vt}"]`] = {
           "background-image":
             iconText && vtConfig.iconImageType === "image/svg+xml"
               ? colorizeSvg(iconText, vtConfig.color || "#128EE5") ||
@@ -69,8 +60,10 @@ const useGraphStyles = () => {
           label = label.substring(0, 17) + "...";
         }
 
-        styles[`edge[__e_type="${et}"]`] = {
+        styles[`edge[type="${et}"]`] = {
           label,
+          "source-distance-from-node": 6,
+          "target-distance-from-node": 6,
         };
 
         const etConfig = config?.getEdgeTypeConfig(et);
@@ -78,8 +71,19 @@ const useGraphStyles = () => {
           continue;
         }
 
-        styles[`edge[__e_type="${et}"]`] = {
-          label: etConfig?.displayLabel || label,
+        styles[`edge[type="${et}"]`] = {
+          label: (el: cytoscape.EdgeSingular) => {
+            const edgeData = el.data() as EdgeData;
+
+            let currentLabel = etConfig.displayLabel || label;
+
+            if (etConfig.displayNameAttribute) {
+              const attr = edgeData.attributes[etConfig.displayNameAttribute];
+              currentLabel = attr != null ? String(attr) : currentLabel;
+            }
+
+            return currentLabel;
+          },
           color: new Color(etConfig?.labelColor || "#17457b").isDark()
             ? "#FFFFFF"
             : "#000000",
@@ -99,6 +103,8 @@ const useGraphStyles = () => {
           "text-border-color": etConfig?.labelBorderColor,
           "text-border-style": etConfig?.labelBorderStyle,
           width: etConfig.lineThickness,
+          "source-distance-from-node": 6,
+          "target-distance-from-node": 6,
         };
       }
 
