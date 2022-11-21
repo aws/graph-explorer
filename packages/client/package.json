@@ -18,7 +18,7 @@
     "serve": "serve dist",
     "prepare": "cd ../.. && husky install",
     "precommit": "lint-staged && pnpm types:check",
-    "types:check": "pnpm -r --parallel types:check"
+    "types:check": "tsc --project ./tsconfig.types.json"
   },
   "author": {
     "name": "Expero Inc.",
@@ -86,8 +86,7 @@
     "recoil": "^0.7.5",
     "swiper": "^8.0.7",
     "use-deep-compare-effect": "^1.6.1",
-    "uuid": "^8.3.1",
-    "web-vitals": "^1.0.1"
+    "uuid": "^8.3.1"
   },
   "devDependencies": {
     "@babel/core": "^7.19.3",

@@ -36,9 +36,7 @@ const fetchNeighbors = async (
     data.result.data["@value"]?.[0]?.["@value"][1]["@value"];
   const verticesIds = verticesResponse?.map(v => v["@value"].id);
   const vertices: NeighborsResponse["vertices"] = verticesResponse?.map(
-    vertex => {
-      return mapApiVertex(vertex);
-    }
+    vertex => mapApiVertex(vertex)
   );
 
   const edges = data.result.data["@value"]?.[0]?.["@value"][3]["@value"]

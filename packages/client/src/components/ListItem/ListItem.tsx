@@ -8,13 +8,10 @@ import type {
   ReactNode,
 } from "react";
 import { forwardRef, useCallback } from "react";
-import type { MouseEventCallback } from "../../@types/typesUtils";
 import { useWithTheme, withClassNamePrefix } from "../../core";
 import defaultStyles from "./ListItem.styles";
 
-export interface ListItemProps
-  extends MouseEventCallback,
-    Pick<HTMLAttributes<HTMLDivElement>, "style"> {
+export interface ListItemProps extends HTMLAttributes<HTMLDivElement> {
   classNamePrefix?: string;
   className?: string;
   /**
@@ -54,7 +51,7 @@ export const ListItem = (
     endAdornment,
     isDisabled,
     onDragStart,
-    ...mouseEvents
+    ...allProps
   }: PropsWithChildren<ListItemProps>,
   ref: ForwardedRef<HTMLDivElement>
 ) => {
@@ -84,7 +81,7 @@ export const ListItem = (
         className
       )}
       onClick={actualOnClick}
-      {...mouseEvents}
+      {...allProps}
     >
       {startAdornment && (
         <div className={pfx("start-adornment")}>{startAdornment}</div>

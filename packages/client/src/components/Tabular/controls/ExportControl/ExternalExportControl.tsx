@@ -12,8 +12,7 @@ import IconButton from "../../../IconButton";
 
 import { TrayArrowIcon } from "../../../icons";
 import Input from "../../../Input";
-
-import RadioGroup, { Radio } from "../../../RadioGroup";
+import Select from "../../../Select";
 import { TabularInstance } from "../../helpers/tableInstanceToTabularInstance";
 import defaultStyles from "./ExportControl.styles";
 import transformToCsv from "./transfomerToCsv";
@@ -192,14 +191,17 @@ export const ExternalExportControl = <T extends object>({
                 Only current page
               </Checkbox>
               <div className={pfx("title")}>Format</div>
-              <RadioGroup
-                aria-label={"export format"}
+              <Select
                 value={format}
-                onChange={setFormat}
-              >
-                <Radio value={"csv"}>CSV</Radio>
-                <Radio value={"json"}>JSON</Radio>
-              </RadioGroup>
+                onChange={f => setFormat(f as string)}
+                options={[
+                  {
+                    label: "CSV",
+                    value: "csv",
+                  },
+                  { label: "JSON", value: "json" },
+                ]}
+              />
               <div className={pfx("title")}>Save as</div>
               <Input
                 aria-label={"Export name"}

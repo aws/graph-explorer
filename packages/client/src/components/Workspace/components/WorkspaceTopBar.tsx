@@ -2,7 +2,7 @@ import { cx } from "@emotion/css";
 import type { PropsWithChildren, ReactElement } from "react";
 import { useMemo } from "react";
 import { useWithTheme, withClassNamePrefix } from "../../../core";
-import groupChildrenByType from "../../../utils/groupChildrenByType";
+import { groupChildrenByType } from "../../../utils";
 import styles from "../Workspace.styles";
 import type { HideNavBarLogoProps } from "./HideNavBarLogo";
 import HideNavBarLogo from "./HideNavBarLogo";

@@ -58,7 +58,7 @@ const useNodeBadges = () => {
           hidden:
             zoomLevel === "small" ||
             outOfFocusIds.has(nodeData.id) ||
-            !!nodeData.__unfetchedNeighborCount,
+            !nodeData.__unfetchedNeighborCount,
           text: String(nodeData.__unfetchedNeighborCount),
           anchor: "center",
           fontSize: 5,

@@ -6,7 +6,6 @@ import App from "./App";
 import { RawConfiguration } from "./core";
 import ConnectedProvider from "./core/ConnectedProvider";
 import "./index.css";
-import reportWebVitals from "./reportWebVitals";
 
 const params = queryString.parse(location.search) as {
   configFile?: string;
@@ -42,8 +41,3 @@ ReactDOM.render(
   </React.StrictMode>,
   document.getElementById("root")
 );
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();

@@ -22,7 +22,7 @@ import useConfiguration from "../../core/ConfigurationProvider/useConfiguration"
 import fade from "../../core/ThemeProvider/utils/fade";
 import useDisplayNames from "../../hooks/useDisplayNames";
 import useTextTransform from "../../hooks/useTextTransform";
-import formatDate from "../../utils/formatDate";
+import { formatDate } from "../../utils";
 import defaultStyles from "./EntityDetail.styles";
 
 export type EdgeDetailProps = {

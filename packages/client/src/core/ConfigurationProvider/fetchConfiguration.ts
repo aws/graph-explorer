@@ -2,9 +2,9 @@ import type { RawConfiguration } from "./types";
 
 const fetchConfiguration = async (
   configUrl: string
-): Promise<RawConfiguration> => {
+): Promise<RawConfiguration | undefined> => {
   if (!configUrl) {
-    return {};
+    return;
   }
 
   try {
@@ -15,7 +15,6 @@ const fetchConfiguration = async (
     if (import.meta.env.DEV) {
       console.error(e);
     }
-    return {};
   }
 };
 

@@ -1,6 +1,8 @@
+// Gracefully copied from
+// https://github.com/apollographql/react-apollo/blob/4aff75b4a073ff7c816738af867ad7b5f2e96407/packages/hooks/src/utils/useDeepMemo.ts
+
 import isEqual from "lodash/isEqual";
 import { useRef } from "react";
-// * Gracefully copied from https://github.com/apollographql/react-apollo/blob/master/packages/hooks/src/utils/useDeepMemo.ts
 
 /**
  * Memoize a result using deep equality. This hook has two advantages over

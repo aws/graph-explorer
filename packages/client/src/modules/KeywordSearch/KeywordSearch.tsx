@@ -355,7 +355,7 @@ const KeywordSearch = ({
                     className={pfx("carousel")}
                   >
                     {Array.from(selection.state).map(nodeId => {
-                      const node = entities.nodes.find(
+                      const node = searchResults.find(
                         n => n.data.id === nodeId
                       );
 

@@ -119,9 +119,7 @@ const useRenderBadges = <TNodeData extends VertexData = VertexData>({
             return;
           }
 
-          const badgeGetter = nodeData.__isGroupNode
-            ? getGroupBadges
-            : getNodeBadges;
+          const badgeGetter = getNodeBadges;
           const nodeBoundingBox = getNodeBoundingBox(node);
           const badges =
             badgeGetter?.(nodeData, nodeBoundingBox, {

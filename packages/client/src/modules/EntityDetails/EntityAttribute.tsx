@@ -1,6 +1,6 @@
 import { AttributeConfig, withClassNamePrefix } from "../../core";
 import useTextTransform from "../../hooks/useTextTransform";
-import formatDate from "../../utils/formatDate";
+import { formatDate } from "../../utils";
 
 export type EntityAttributeProps = {
   classNamePrefix?: string;

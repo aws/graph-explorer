@@ -1,13 +1,17 @@
 import { cx } from "@emotion/css";
-import type { ForwardedRef, PropsWithChildren, ReactNode } from "react";
+import type {
+  ForwardedRef,
+  HTMLAttributes,
+  PropsWithChildren,
+  ReactNode,
+} from "react";
 import { forwardRef } from "react";
-import type { MouseEventCallback } from "../../@types/typesUtils";
 import { useWithTheme, withClassNamePrefix } from "../../core";
 import IconButton from "../IconButton";
 import CloseIcon from "../icons/CloseIcon";
 import defaultStyles from "./Chip.styles";
 
-export interface ChipProps extends MouseEventCallback {
+export interface ChipProps extends HTMLAttributes<HTMLDivElement> {
   className?: string;
   classNamePrefix?: string;
   /* Takes precedence over variants and theme*/
@@ -35,7 +39,7 @@ export const Chip = (
     endAdornment,
     onDelete,
     deleteIcon,
-    ...mouseEvents
+    ...allProps
   }: PropsWithChildren<ChipProps>,
   ref: ForwardedRef<HTMLDivElement>
 ) => {
@@ -51,12 +55,12 @@ export const Chip = (
         ),
         pfx("chip"),
         {
-          [pfx("chip-clickable")]: !!mouseEvents.onClick,
+          [pfx("chip-clickable")]: !!allProps.onClick,
           [pfx("chip-deletable")]: !!onDelete,
         },
         className
       )}
-      {...mouseEvents}
+      {...allProps}
     >
       {startAdornment}
       <span className={pfx("chip-label")}>{children}</span>

@@ -1,8 +1,8 @@
 import { cx } from "@emotion/css";
 import type { CSSProperties, ReactNode } from "react";
 import { useWithTheme } from "../../core";
+import { LoaderIcon } from "../icons";
 
-import ExperoIcon from "./ExperoIcon";
 import defaultStyles from "./LoadingSpinner.styles";
 
 export type LoadingSpinnerProps = {
@@ -24,7 +24,7 @@ export const LoadingSpinner = ({
       className={cx(themedStyle(defaultStyles(color)), className)}
       style={style}
     >
-      <div>{loadingIcon || <ExperoIcon />}</div>
+      <div>{loadingIcon || <LoaderIcon />}</div>
     </div>
   );
 };

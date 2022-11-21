@@ -5,7 +5,7 @@ import parsePropertiesValues from "./parsePropertiesValues";
 
 const mapApiVertex = (
   apiVertex: GVertex,
-  neighborsCount?: NeighborsCountResponse
+  neighborsCount: NeighborsCountResponse = { totalCount: 0, counts: {} }
 ): Vertex => {
   const labels = apiVertex["@value"].label.split("::");
   const vt = labels[0];

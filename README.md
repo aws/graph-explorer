@@ -20,7 +20,7 @@ Open source version for the Neptune Graph Explorer powered by Expero Connected.
 - `pnpm build:prod`
 - `dist` folder is created in the client directory.
 - Serve the static site using the method of your choice,
-for example, using `serve` npm package.
+  for example, using `serve` npm package.
 
 ### Environment variables
 
@@ -29,7 +29,7 @@ for example, using `serve` npm package.
 - `REACT_APP_AWS_CLUSTER_HOST`: Internal Neptune host to sign requests (`string`).
 
 #### Optional
-- `REACT_APP_ENV_ROOT_FOLDER`: Base folder for the public files. By default, `/` (`string`). 
+- `REACT_APP_ENV_ROOT_FOLDER`: Base folder for the public files. By default, `/` (`string`).
 - `REACT_APP_CONNECTION_URL`: Default connection to Neptune instance. Blank by default (`string`).
 - `REACT_APP_STORE_ID`: IndexedDB store identifier, By default, `cge` (`string`).
 - `REACT_APP_STORE_NAME`: IndexedDB store name. By default, `default` (`string`).
@@ -75,16 +75,4 @@ Authentication is enabled using the SigV4 signing process found [here](https://d
 - If the proxy-server fails to start, check that you have a read-only endpoint, that it is properly spelled, and that you have access to from the environment you are trying to run in. If you are in a different VPC, consider VPC Peering.
 
 ## License
-Copyright 2022 Expero Inc.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+This project is licensed under the Apache-2.0 License.

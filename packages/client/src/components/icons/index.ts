@@ -46,6 +46,7 @@ export { default as LessThanIcon } from "./LessThanIcon";
 export { default as LineDashed } from "./LineDashed";
 export { default as LineDotted } from "./LineDotted";
 export { default as LineSolid } from "./LineSolid";
+export { default as LoaderIcon } from "./LoaderIcon";
 export { default as ManageColumnsIcon } from "./ManageColumns";
 export { default as MenuIcon } from "./MenuIcon";
 export { default as NamespaceIcon } from "./NamespaceIcon";

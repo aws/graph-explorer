@@ -1,2 +1,2 @@
 export { default } from "./NodeExpand";
-export type { VertexExpandProps } from "./NodeExpand";
+export type { NodeExpandProps } from "./NodeExpand";
