@@ -30,7 +30,7 @@ jobs:
           role-session-name: ExplorerImageUpdate
 
       - name: Login to Amazon ECR
-        id: login-ecr
+        id: login-ecr-public
         uses: aws-actions/amazon-ecr-login@v1
 
       - name: Build, tag, and push Docker image
