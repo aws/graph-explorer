@@ -1,5 +1,5 @@
 # Graph Explorer
-Open source version for the Graph Explorer powered by Expero Connected.
+Open source version for the Graph Explorer.
 
 ## Development
 
@@ -24,6 +24,10 @@ for example, using `serve` npm package.
 
 ### Environment variables
 
+To change the .env file being used, navigate to `/graph-explorer/packages/proxy-server/node-server.js` and modify the file path provided inside the dotenv function. By default it is as follows: 
+
+`dotenv.config({ path: "../client/.env.development" });`
+
 #### Required
 - `REACT_APP_AWS_AUTH_REQUIRED`: Enable authenticated requests. By default, `false` (`boolean`).
 - `REACT_APP_AWS_CLUSTER_HOST`: Internal host to sign requests (`string`).
@@ -31,7 +35,7 @@ for example, using `serve` npm package.
 #### Optional
 - `REACT_APP_ENV_ROOT_FOLDER`: Base folder for the public files. By default, `/` (`string`). 
 - `REACT_APP_CONNECTION_URL`: Default connection to instance. Blank by default (`string`).
-- `REACT_APP_STORE_ID`: IndexedDB store identifier, By default, `cge` (`string`).
+- `REACT_APP_STORE_ID`: IndexedDB store identifier, By default, `ge` (`string`).
 - `REACT_APP_STORE_NAME`: IndexedDB store name. By default, `default` (`string`).
 - `REACT_APP_STORE_VERSION`: IndexedDB store version. By default, `1.0` (`number`).
 - `REACT_APP_CONNECTION_ENGINE`: Default connection query engine work with the instance. By default, `gremlin` (`gremlin | sparql`).

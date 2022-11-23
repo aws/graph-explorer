@@ -1,6 +1,6 @@
 {
-    "name": "Graph Explorer powered by Expero Connected",
-    "short_name": "CGE",
+    "name": "Graph Explorer",
+    "short_name": "GE",
     "icons": [
         {
             "src": "/android-chrome-192x192.png",

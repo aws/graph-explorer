@@ -81,7 +81,7 @@ const BASE_PORT = 8182;
   app.get("/", async (req, res, next) => {
     try {
       if (process.env.REACT_APP_AWS_AUTH_REQUIRED) {
-        const authHeaders = await requestSig.requestAuthHeaders(new URL(`${BASE_URL}/?gremlin=` + req.query.gremlin), "GET");
+        const authHeaders = await requestSig.requestAuthHeaders(new URL(`${BASE_URL}/?gremlin=` + encodeURIComponent(req.query.gremlin)), "GET");
         req.headers['Authorization'] = authHeaders["Authorization"];
         req.headers['x-amz-date'] = authHeaders['x-amz-date'];
         if (authHeaders['x-amz-security-token']) {
@@ -89,7 +89,7 @@ const BASE_PORT = 8182;
         }
       }
       req.headers["host"] = process.env.REACT_APP_AWS_CLUSTER_HOST;
-      const response = await fetch(`${BASE_URL}/?gremlin=` + req.query.gremlin, {
+      const response = await fetch(`${BASE_URL}/?gremlin=` + encodeURIComponent(req.query.gremlin), {
         headers: req.headers,
       });
       const data = await response.json();

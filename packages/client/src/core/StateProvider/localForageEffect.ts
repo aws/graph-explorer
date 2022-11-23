@@ -2,7 +2,7 @@ import * as localForage from "localforage";
 import { AtomEffect, DefaultValue } from "recoil";
 
 localForage.config({
-  name: import.meta.env.REACT_APP_STORE_ID || "cge",
+  name: import.meta.env.REACT_APP_STORE_ID || "ge",
   version: Number(import.meta.env.REACT_APP_STORE_VERSION) || 1.0,
   storeName: import.meta.env.REACT_APP_STORE_NAME || "default",
 });

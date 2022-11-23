@@ -7,7 +7,7 @@
     "start": "node node-server.js"
   },
   "author": "amazon",
-  "license": "ISC",
+  "license": "Apache-2.0",
   "dependencies": {
     "aws-sdk": "^2.1249.0",
     "cors": "^2.8.5",
