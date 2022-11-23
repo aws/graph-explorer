@@ -1,15 +1,12 @@
 {
-  "name": "@expero/neptune-proxy-server",
-  "version": "1.0.0-pre",
-  "description": "Server to facilitate communication between the browser and neptune.",
+  "name": "@graph-explorer/proxy-server",
+  "version": "1.0.0",
+  "description": "Server to facilitate communication between the browser and the supported graph database.",
   "main": "node-server.js",
   "scripts": {
     "start": "node node-server.js"
   },
-  "author": {
-    "name": "Expero Inc.",
-    "url": "https://www.experoinc.com"
-  },
+  "author": "amazon",
   "license": "ISC",
   "dependencies": {
     "aws-sdk": "^2.1249.0",

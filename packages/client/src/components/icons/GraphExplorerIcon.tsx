@@ -1,7 +1,7 @@
 import type { IconBaseProps } from "./IconBase";
 import IconBase from "./IconBase";
 
-export const NeptuneIcon = (props: IconBaseProps) => {
+export const GraphExplorerIcon = (props: IconBaseProps) => {
   return (
     <IconBase {...props}>
       <path
@@ -18,4 +18,4 @@ export const NeptuneIcon = (props: IconBaseProps) => {
   );
 };
 
-export default NeptuneIcon;
+export default GraphExplorerIcon;

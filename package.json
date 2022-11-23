@@ -9,23 +9,20 @@
   "scripts": {
     "prepare": "husky install",
     "precommit": "lint-staged && pnpm types:check",
-    "lint": "pnpm -F @expero/neptune-graph-explorer lint",
-    "format": "pnpm -F @expero/neptune-graph-explorer format",
-    "test": "pnpm -F @expero/neptune-graph-explorer test",
-    "types:check": "pnpm -F @expero/neptune-graph-explorer types:check",
-    "start": "pnpm -F @expero/neptune-graph-explorer start",
-    "build:dev": "pnpm -F @expero/neptune-graph-explorer build:dev",
-    "build:prod": "pnpm -F @expero/neptune-graph-explorer build:prod",
-    "start:proxy-server": "pnpm -F @expero/neptune-proxy-server start",
+    "lint": "pnpm -F @graph-explorer/client lint",
+    "format": "pnpm -F @graph-explorer/client format",
+    "test": "pnpm -F @graph-explorer/client test",
+    "types:check": "pnpm -F @graph-explorer/client types:check",
+    "start": "pnpm -F @graph-explorer/client start",
+    "build:dev": "pnpm -F @graph-explorer/client build:dev",
+    "build:prod": "pnpm -F @graph-explorer/client build:prod",
+    "start:proxy-server": "pnpm -F @graph-explorer/proxy-server start",
     "dev": "concurrently \"pnpm start:proxy-server\" \"pnpm start\""
   },
-  "author": {
-    "name": "Expero Inc.",
-    "url": "https://www.experoinc.com"
-  },
+  "author": "amazon",
   "license": "Apache-2.0",
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^5.41.0",
+    "@typescript-eslint/eslint-plugin": "^5.40.0",
     "@typescript-eslint/parser": "^5.41.0",
     "concurrently": "^7.5.0",
     "eslint": "^7.32.0",

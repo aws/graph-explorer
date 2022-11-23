@@ -1,6 +1,6 @@
 {
-    "name": "Neptune Graph Explorer powered by Expero Connected",
-    "short_name": "Neptune CGE",
+    "name": "Graph Explorer powered by Expero Connected",
+    "short_name": "CGE",
     "icons": [
         {
             "src": "/android-chrome-192x192.png",

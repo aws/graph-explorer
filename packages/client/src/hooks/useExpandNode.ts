@@ -1,3 +1,4 @@
+import debounce from "lodash/debounce";
 import { useCallback } from "react";
 import { useNotification } from "../components/NotificationProvider";
 import type { NeighborsRequest } from "../connector/AbstractConnector";
@@ -8,6 +9,11 @@ const useExpandNode = () => {
   const [, setEntities] = useEntities();
   const connector = useConnector();
   const { enqueueNotification, clearNotification } = useNotification();
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const debouncedSetEntities = useCallback(debounce(setEntities, 400), [
+    setEntities,
+  ]);
 
   return useCallback(
     async (req: NeighborsRequest) => {
@@ -21,7 +27,7 @@ const useExpandNode = () => {
         return;
       }
 
-      setEntities({
+      debouncedSetEntities({
         nodes: result.vertices,
         edges: result.edges,
         selectNewEntities: "nodes",
@@ -53,7 +59,7 @@ const useExpandNode = () => {
       );
 
       clearNotification(notificationId);
-      setEntities(prev => ({
+      debouncedSetEntities(prev => ({
         nodes: prev.nodes.map(node => {
           const nodeWithCounts = verticesWithUpdatedCounts.find(
             v => v.data.id === node.data.id
@@ -68,7 +74,12 @@ const useExpandNode = () => {
         edges: [],
       }));
     },
-    [connector.explorer, setEntities, enqueueNotification, clearNotification]
+    [
+      connector.explorer,
+      debouncedSetEntities,
+      enqueueNotification,
+      clearNotification,
+    ]
   );
 };
 

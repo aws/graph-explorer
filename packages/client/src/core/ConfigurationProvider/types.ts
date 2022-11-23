@@ -121,7 +121,7 @@ export type RawConfiguration = {
    */
   remoteConfigFile?: string;
   /**
-   * Neptune connection configuration
+   * Connection configuration
    */
   connection?: {
     /**
