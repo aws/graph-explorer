@@ -1,0 +1,63 @@
+{
+  "requestId": "9a1dda48-0547-4661-b6c1-9da600e95e24",
+  "status": {
+    "message": "",
+    "code": 200,
+    "attributes": {
+      "@type": "g:Map",
+      "@value": []
+    }
+  },
+  "result": {
+    "data": {
+      "@type": "g:List",
+      "@value": [
+        {
+          "@type": "g:Map",
+          "@value": [
+            "contains",
+            {
+              "@type": "g:Edge",
+              "@value": {
+                "id": "57783",
+                "label": "contains",
+                "inVLabel": "airport",
+                "outVLabel": "continent",
+                "inV": "1",
+                "outV": "3743"
+              }
+            },
+            "route",
+            {
+              "@type": "g:Edge",
+              "@value": {
+                "id": "3976",
+                "label": "route",
+                "inVLabel": "airport",
+                "outVLabel": "airport",
+                "inV": "1",
+                "outV": "8",
+                "properties": {
+                  "dist": {
+                    "@type": "g:Property",
+                    "@value": {
+                      "key": "dist",
+                      "value": {
+                        "@type": "g:Int32",
+                        "@value": 729
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "meta": {
+      "@type": "g:Map",
+      "@value": []
+    }
+  }
+}

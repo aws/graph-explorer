@@ -1,0 +1,69 @@
+{
+  "available-connections": {
+    "graph-type": "RDF"
+  },
+  "graph-viewer": {
+    "node": "Resource",
+    "edge": "Predicate"
+  },
+  "connection-detail": {
+    "graph-type": "RDF",
+    "nodes": "Resources",
+    "edges": "Predicates",
+    "search-placeholder": "Search for Classes",
+    "no-search-title": "No Classes",
+    "no-search-subtitle": "No Classes found with searched criteria",
+    "no-elements-title": "No Resources",
+    "no-elements-subtitle": "No Resources found to be shown in this list"
+  },
+  "nodes-styling": {
+    "title": "Resources Styling",
+    "node-id": "Resource URI",
+    "node-type": "Class"
+  },
+  "edges-styling": {
+    "title": "Predicates Styling",
+    "edge-type": "Predicate"
+  },
+  "node-detail": {
+    "node-id": "Resource URI",
+    "node-type": "Class"
+  },
+  "keyword-search": {
+    "node-type": "Class",
+    "node-attribute": "Predicate"
+  },
+  "entities-filter": {
+    "node-types": "Resource Types",
+    "edge-types": "Predicates Types"
+  },
+  "node-expand": {
+    "edge-selection-title": "Predicate Selection",
+    "edge-selection-subtitle": "Select a Resource to expand its connections",
+    "no-selection-title": "No Selection",
+    "no-selection-subtitle": "Select a Resource to expand its connections",
+    "multi-selection-title": "Multiple Selection",
+    "multi-selection-subtitle": "Select a single Resource to expand its connections",
+    "no-connections-title": "Unconnected Resource",
+    "no-connections-subtitle": "This resource has no connection. Therefore, it is not expandable",
+    "no-unfetched-title": "Nothing to Expand",
+    "no-unfetched-subtitle": "This resource has been completely expanded"
+  },
+  "entities-tabular": {
+    "all-nodes": "All Resources",
+    "all-edges": "All Predicates",
+    "node-id": "Resource URI",
+    "node-type": "Class",
+    "nodes-placeholder":  "Add resources in the Graph View see their information",
+    "edge-type": "Predicate",
+    "source-id": "Source URI",
+    "source-type": "Source Class",
+    "target-id": "Target URI",
+    "target-type": "Target Class",
+    "edges-placeholder": "Add resources in the Graph View see their predicates"
+  },
+  "data-explorer": {
+    "node-id": "Resource URI",
+    "node-type": "Class"
+  }
+}
