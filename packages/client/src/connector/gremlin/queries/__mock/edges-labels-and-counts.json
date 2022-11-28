@@ -1,0 +1,37 @@
+{
+  "requestId": "bdc1140c-b4a8-45dc-b6a9-5b95b01d1a4e",
+  "status": {
+    "message": "",
+    "code": 200,
+    "attributes": {
+      "@type": "g:Map",
+      "@value": []
+    }
+  },
+  "result": {
+    "data": {
+      "@type": "g:List",
+      "@value": [
+        {
+          "@type": "g:Map",
+          "@value": [
+            "contains",
+            {
+              "@type": "g:Int64",
+              "@value": 7006
+            },
+            "route",
+            {
+              "@type": "g:Int64",
+              "@value": 50532
+            }
+          ]
+        }
+      ]
+    },
+    "meta": {
+      "@type": "g:Map",
+      "@value": []
+    }
+  }
+}

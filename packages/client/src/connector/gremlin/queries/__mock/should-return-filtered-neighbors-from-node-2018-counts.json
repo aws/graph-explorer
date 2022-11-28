@@ -1,0 +1,69 @@
+{
+  "requestId": "394656b2-16c2-4571-b794-da11080693e4",
+  "status": {
+    "message": "",
+    "code": 200,
+    "attributes": {
+      "@type": "g:Map",
+      "@value": []
+    }
+  },
+  "result": {
+    "data": {
+      "@type": "g:List",
+      "@value": [
+        {
+          "@type": "g:Map",
+          "@value": [
+            "486",
+            {
+              "@type": "g:Map",
+              "@value": [
+                "continent",
+                {
+                  "@type": "g:Int64",
+                  "@value": 1
+                },
+                "country",
+                {
+                  "@type": "g:Int64",
+                  "@value": 1
+                },
+                "airport",
+                {
+                  "@type": "g:Int64",
+                  "@value": 105
+                }
+              ]
+            },
+            "124",
+            {
+              "@type": "g:Map",
+              "@value": [
+                "continent",
+                {
+                  "@type": "g:Int64",
+                  "@value": 1
+                },
+                "country",
+                {
+                  "@type": "g:Int64",
+                  "@value": 1
+                },
+                "airport",
+                {
+                  "@type": "g:Int64",
+                  "@value": 26
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "meta": {
+      "@type": "g:Map",
+      "@value": []
+    }
+  }
+}

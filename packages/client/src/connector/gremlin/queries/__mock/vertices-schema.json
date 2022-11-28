@@ -1,0 +1,306 @@
+{
+  "requestId": "c60008f2-f2c1-4a7d-82a5-af41b9355a3c",
+  "status": {
+    "message": "",
+    "code": 200,
+    "attributes": {
+      "@type": "g:Map",
+      "@value": []
+    }
+  },
+  "result": {
+    "data": {
+      "@type": "g:List",
+      "@value": [
+        {
+          "@type": "g:Map",
+          "@value": [
+            "continent",
+            {
+              "@type": "g:Vertex",
+              "@value": {
+                "id": "3741",
+                "label": "continent",
+                "properties": {
+                  "code": [
+                    {
+                      "@type": "g:VertexProperty",
+                      "@value": {
+                        "id": {
+                          "@type": "g:Int32",
+                          "@value": -1353421763
+                        },
+                        "value": "EU",
+                        "label": "code"
+                      }
+                    }
+                  ],
+                  "type": [
+                    {
+                      "@type": "g:VertexProperty",
+                      "@value": {
+                        "id": {
+                          "@type": "g:Int32",
+                          "@value": -478565946
+                        },
+                        "value": "continent",
+                        "label": "type"
+                      }
+                    }
+                  ],
+                  "desc": [
+                    {
+                      "@type": "g:VertexProperty",
+                      "@value": {
+                        "id": {
+                          "@type": "g:Int32",
+                          "@value": -1062097649
+                        },
+                        "value": "Europe",
+                        "label": "desc"
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "country",
+            {
+              "@type": "g:Vertex",
+              "@value": {
+                "id": "3520",
+                "label": "country",
+                "properties": {
+                  "code": [
+                    {
+                      "@type": "g:VertexProperty",
+                      "@value": {
+                        "id": {
+                          "@type": "g:Int32",
+                          "@value": -1353427158
+                        },
+                        "value": "BD",
+                        "label": "code"
+                      }
+                    }
+                  ],
+                  "type": [
+                    {
+                      "@type": "g:VertexProperty",
+                      "@value": {
+                        "id": {
+                          "@type": "g:Int32",
+                          "@value": -1229212573
+                        },
+                        "value": "country",
+                        "label": "type"
+                      }
+                    }
+                  ],
+                  "desc": [
+                    {
+                      "@type": "g:VertexProperty",
+                      "@value": {
+                        "id": {
+                          "@type": "g:Int32",
+                          "@value": 547662157
+                        },
+                        "value": "Bangladesh",
+                        "label": "desc"
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "airport",
+            {
+              "@type": "g:Vertex",
+              "@value": {
+                "id": "1",
+                "label": "airport",
+                "properties": {
+                  "country": [
+                    {
+                      "@type": "g:VertexProperty",
+                      "@value": {
+                        "id": {
+                          "@type": "g:Int32",
+                          "@value": 1352763336
+                        },
+                        "value": "US",
+                        "label": "country"
+                      }
+                    }
+                  ],
+                  "longest": [
+                    {
+                      "@type": "g:VertexProperty",
+                      "@value": {
+                        "id": {
+                          "@type": "g:Int32",
+                          "@value": 134051828
+                        },
+                        "value": {
+                          "@type": "g:Int32",
+                          "@value": 12390
+                        },
+                        "label": "longest"
+                      }
+                    }
+                  ],
+                  "code": [
+                    {
+                      "@type": "g:VertexProperty",
+                      "@value": {
+                        "id": {
+                          "@type": "g:Int32",
+                          "@value": -1353045020
+                        },
+                        "value": "ATL",
+                        "label": "code"
+                      }
+                    }
+                  ],
+                  "city": [
+                    {
+                      "@type": "g:VertexProperty",
+                      "@value": {
+                        "id": {
+                          "@type": "g:Int32",
+                          "@value": -985421752
+                        },
+                        "value": "Atlanta",
+                        "label": "city"
+                      }
+                    }
+                  ],
+                  "elev": [
+                    {
+                      "@type": "g:VertexProperty",
+                      "@value": {
+                        "id": {
+                          "@type": "g:Int32",
+                          "@value": -1300498842
+                        },
+                        "value": {
+                          "@type": "g:Int32",
+                          "@value": 1026
+                        },
+                        "label": "elev"
+                      }
+                    }
+                  ],
+                  "icao": [
+                    {
+                      "@type": "g:VertexProperty",
+                      "@value": {
+                        "id": {
+                          "@type": "g:Int32",
+                          "@value": -1123168054
+                        },
+                        "value": "KATL",
+                        "label": "icao"
+                      }
+                    }
+                  ],
+                  "lon": [
+                    {
+                      "@type": "g:VertexProperty",
+                      "@value": {
+                        "id": {
+                          "@type": "g:Int32",
+                          "@value": 1349829237
+                        },
+                        "value": {
+                          "@type": "g:Double",
+                          "@value": -84.4281005859375
+                        },
+                        "label": "lon"
+                      }
+                    }
+                  ],
+                  "runways": [
+                    {
+                      "@type": "g:VertexProperty",
+                      "@value": {
+                        "id": {
+                          "@type": "g:Int32",
+                          "@value": 200353242
+                        },
+                        "value": {
+                          "@type": "g:Int32",
+                          "@value": 5
+                        },
+                        "label": "runways"
+                      }
+                    }
+                  ],
+                  "region": [
+                    {
+                      "@type": "g:VertexProperty",
+                      "@value": {
+                        "id": {
+                          "@type": "g:Int32",
+                          "@value": 1821229371
+                        },
+                        "value": "US-GA",
+                        "label": "region"
+                      }
+                    }
+                  ],
+                  "type": [
+                    {
+                      "@type": "g:VertexProperty",
+                      "@value": {
+                        "id": {
+                          "@type": "g:Int32",
+                          "@value": -1535682081
+                        },
+                        "value": "airport",
+                        "label": "type"
+                      }
+                    }
+                  ],
+                  "lat": [
+                    {
+                      "@type": "g:VertexProperty",
+                      "@value": {
+                        "id": {
+                          "@type": "g:Int32",
+                          "@value": -302413740
+                        },
+                        "value": {
+                          "@type": "g:Double",
+                          "@value": 33.6366996765137
+                        },
+                        "label": "lat"
+                      }
+                    }
+                  ],
+                  "desc": [
+                    {
+                      "@type": "g:VertexProperty",
+                      "@value": {
+                        "id": {
+                          "@type": "g:Int32",
+                          "@value": -1422750861
+                        },
+                        "value": "Hartsfield - Jackson Atlanta International Airport",
+                        "label": "desc"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "meta": {
+      "@type": "g:Map",
+      "@value": []
+    }
+  }
+}

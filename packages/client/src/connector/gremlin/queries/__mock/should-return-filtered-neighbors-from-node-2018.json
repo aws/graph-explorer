@@ -1,0 +1,537 @@
+{
+  "requestId": "62a37dba-c9e6-4775-a09c-703bc78fe952",
+  "status": {
+    "message": "",
+    "code": 200,
+    "attributes": {
+      "@type": "g:Map",
+      "@value": []
+    }
+  },
+  "result": {
+    "data": {
+      "@type": "g:List",
+      "@value": [
+        {
+          "@type": "g:Map",
+          "@value": [
+            "vertices",
+            {
+              "@type": "g:List",
+              "@value": [
+                {
+                  "@type": "g:Vertex",
+                  "@value": {
+                    "id": "486",
+                    "label": "airport",
+                    "properties": {
+                      "country": [
+                        {
+                          "@type": "g:VertexProperty",
+                          "@value": {
+                            "id": {
+                              "@type": "g:Int32",
+                              "@value": 1352799673
+                            },
+                            "value": "ES",
+                            "label": "country"
+                          }
+                        }
+                      ],
+                      "longest": [
+                        {
+                          "@type": "g:VertexProperty",
+                          "@value": {
+                            "id": {
+                              "@type": "g:Int32",
+                              "@value": 134044920
+                            },
+                            "value": {
+                              "@type": "g:Int32",
+                              "@value": 10499
+                            },
+                            "label": "longest"
+                          }
+                        }
+                      ],
+                      "code": [
+                        {
+                          "@type": "g:VertexProperty",
+                          "@value": {
+                            "id": {
+                              "@type": "g:Int32",
+                              "@value": -1352440515
+                            },
+                            "value": "TFS",
+                            "label": "code"
+                          }
+                        }
+                      ],
+                      "city": [
+                        {
+                          "@type": "g:VertexProperty",
+                          "@value": {
+                            "id": {
+                              "@type": "g:Int32",
+                              "@value": 2091934917
+                            },
+                            "value": "Tenerife Island",
+                            "label": "city"
+                          }
+                        }
+                      ],
+                      "elev": [
+                        {
+                          "@type": "g:VertexProperty",
+                          "@value": {
+                            "id": {
+                              "@type": "g:Int32",
+                              "@value": -1300472456
+                            },
+                            "value": {
+                              "@type": "g:Int32",
+                              "@value": 209
+                            },
+                            "label": "elev"
+                          }
+                        }
+                      ],
+                      "icao": [
+                        {
+                          "@type": "g:VertexProperty",
+                          "@value": {
+                            "id": {
+                              "@type": "g:Int32",
+                              "@value": -1126750626
+                            },
+                            "value": "GCTS",
+                            "label": "icao"
+                          }
+                        }
+                      ],
+                      "lon": [
+                        {
+                          "@type": "g:VertexProperty",
+                          "@value": {
+                            "id": {
+                              "@type": "g:Int32",
+                              "@value": 1812392038
+                            },
+                            "value": {
+                              "@type": "g:Double",
+                              "@value": -16.5725002289
+                            },
+                            "label": "lon"
+                          }
+                        }
+                      ],
+                      "runways": [
+                        {
+                          "@type": "g:VertexProperty",
+                          "@value": {
+                            "id": {
+                              "@type": "g:Int32",
+                              "@value": 200404831
+                            },
+                            "value": {
+                              "@type": "g:Int32",
+                              "@value": 1
+                            },
+                            "label": "runways"
+                          }
+                        }
+                      ],
+                      "region": [
+                        {
+                          "@type": "g:VertexProperty",
+                          "@value": {
+                            "id": {
+                              "@type": "g:Int32",
+                              "@value": 1363211227
+                            },
+                            "value": "ES-CN",
+                            "label": "region"
+                          }
+                        }
+                      ],
+                      "type": [
+                        {
+                          "@type": "g:VertexProperty",
+                          "@value": {
+                            "id": {
+                              "@type": "g:Int32",
+                              "@value": -1535630368
+                            },
+                            "value": "airport",
+                            "label": "type"
+                          }
+                        }
+                      ],
+                      "lat": [
+                        {
+                          "@type": "g:VertexProperty",
+                          "@value": {
+                            "id": {
+                              "@type": "g:Int32",
+                              "@value": -311643241
+                            },
+                            "value": {
+                              "@type": "g:Double",
+                              "@value": 28.044500351
+                            },
+                            "label": "lat"
+                          }
+                        }
+                      ],
+                      "desc": [
+                        {
+                          "@type": "g:VertexProperty",
+                          "@value": {
+                            "id": {
+                              "@type": "g:Int32",
+                              "@value": -1093427764
+                            },
+                            "value": "Tenerife South Airport",
+                            "label": "desc"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "@type": "g:Vertex",
+                  "@value": {
+                    "id": "124",
+                    "label": "airport",
+                    "properties": {
+                      "country": [
+                        {
+                          "@type": "g:VertexProperty",
+                          "@value": {
+                            "id": {
+                              "@type": "g:Int32",
+                              "@value": 1352796602
+                            },
+                            "value": "ES",
+                            "label": "country"
+                          }
+                        }
+                      ],
+                      "longest": [
+                        {
+                          "@type": "g:VertexProperty",
+                          "@value": {
+                            "id": {
+                              "@type": "g:Int32",
+                              "@value": 134062185
+                            },
+                            "value": {
+                              "@type": "g:Int32",
+                              "@value": 11155
+                            },
+                            "label": "longest"
+                          }
+                        }
+                      ],
+                      "code": [
+                        {
+                          "@type": "g:VertexProperty",
+                          "@value": {
+                            "id": {
+                              "@type": "g:Int32",
+                              "@value": -1352443741
+                            },
+                            "value": "TFN",
+                            "label": "code"
+                          }
+                        }
+                      ],
+                      "city": [
+                        {
+                          "@type": "g:VertexProperty",
+                          "@value": {
+                            "id": {
+                              "@type": "g:Int32",
+                              "@value": -1090984001
+                            },
+                            "value": "Tenerife",
+                            "label": "city"
+                          }
+                        }
+                      ],
+                      "elev": [
+                        {
+                          "@type": "g:VertexProperty",
+                          "@value": {
+                            "id": {
+                              "@type": "g:Int32",
+                              "@value": -1300417650
+                            },
+                            "value": {
+                              "@type": "g:Int32",
+                              "@value": 2076
+                            },
+                            "label": "elev"
+                          }
+                        }
+                      ],
+                      "icao": [
+                        {
+                          "@type": "g:VertexProperty",
+                          "@value": {
+                            "id": {
+                              "@type": "g:Int32",
+                              "@value": -1126749977
+                            },
+                            "value": "GCXO",
+                            "label": "icao"
+                          }
+                        }
+                      ],
+                      "lon": [
+                        {
+                          "@type": "g:VertexProperty",
+                          "@value": {
+                            "id": {
+                              "@type": "g:Int32",
+                              "@value": 1078741587
+                            },
+                            "value": {
+                              "@type": "g:Double",
+                              "@value": -16.3414993286
+                            },
+                            "label": "lon"
+                          }
+                        }
+                      ],
+                      "runways": [
+                        {
+                          "@type": "g:VertexProperty",
+                          "@value": {
+                            "id": {
+                              "@type": "g:Int32",
+                              "@value": 200401760
+                            },
+                            "value": {
+                              "@type": "g:Int32",
+                              "@value": 1
+                            },
+                            "label": "runways"
+                          }
+                        }
+                      ],
+                      "region": [
+                        {
+                          "@type": "g:VertexProperty",
+                          "@value": {
+                            "id": {
+                              "@type": "g:Int32",
+                              "@value": 1363208156
+                            },
+                            "value": "ES-CN",
+                            "label": "region"
+                          }
+                        }
+                      ],
+                      "type": [
+                        {
+                          "@type": "g:VertexProperty",
+                          "@value": {
+                            "id": {
+                              "@type": "g:Int32",
+                              "@value": -1535633439
+                            },
+                            "value": "airport",
+                            "label": "type"
+                          }
+                        }
+                      ],
+                      "lat": [
+                        {
+                          "@type": "g:VertexProperty",
+                          "@value": {
+                            "id": {
+                              "@type": "g:Int32",
+                              "@value": 2127422577
+                            },
+                            "value": {
+                              "@type": "g:Double",
+                              "@value": 28.4827003479
+                            },
+                            "label": "lat"
+                          }
+                        }
+                      ],
+                      "desc": [
+                        {
+                          "@type": "g:VertexProperty",
+                          "@value": {
+                            "id": {
+                              "@type": "g:Int32",
+                              "@value": 1636654648
+                            },
+                            "value": "Tenerife Norte Airport",
+                            "label": "desc"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            },
+            "edges",
+            {
+              "@type": "g:List",
+              "@value": [
+                {
+                  "@type": "g:Edge",
+                  "@value": {
+                    "id": "49540",
+                    "label": "route",
+                    "inVLabel": "airport",
+                    "outVLabel": "airport",
+                    "inV": "486",
+                    "outV": "2018",
+                    "properties": {
+                      "dist": {
+                        "@type": "g:Property",
+                        "@value": {
+                          "key": "dist",
+                          "value": {
+                            "@type": "g:Int32",
+                            "@value": 82
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "@type": "g:Edge",
+                  "@value": {
+                    "id": "49539",
+                    "label": "route",
+                    "inVLabel": "airport",
+                    "outVLabel": "airport",
+                    "inV": "228",
+                    "outV": "2018",
+                    "properties": {
+                      "dist": {
+                        "@type": "g:Property",
+                        "@value": {
+                          "key": "dist",
+                          "value": {
+                            "@type": "g:Int32",
+                            "@value": 153
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "@type": "g:Edge",
+                  "@value": {
+                    "id": "49538",
+                    "label": "route",
+                    "inVLabel": "airport",
+                    "outVLabel": "airport",
+                    "inV": "124",
+                    "outV": "2018",
+                    "properties": {
+                      "dist": {
+                        "@type": "g:Property",
+                        "@value": {
+                          "key": "dist",
+                          "value": {
+                            "@type": "g:Int32",
+                            "@value": 105
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "@type": "g:Edge",
+                  "@value": {
+                    "id": "24860",
+                    "label": "route",
+                    "inVLabel": "airport",
+                    "outVLabel": "airport",
+                    "inV": "2018",
+                    "outV": "228",
+                    "properties": {
+                      "dist": {
+                        "@type": "g:Property",
+                        "@value": {
+                          "key": "dist",
+                          "value": {
+                            "@type": "g:Int32",
+                            "@value": 153
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "@type": "g:Edge",
+                  "@value": {
+                    "id": "18665",
+                    "label": "route",
+                    "inVLabel": "airport",
+                    "outVLabel": "airport",
+                    "inV": "2018",
+                    "outV": "124",
+                    "properties": {
+                      "dist": {
+                        "@type": "g:Property",
+                        "@value": {
+                          "key": "dist",
+                          "value": {
+                            "@type": "g:Int32",
+                            "@value": 105
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "@type": "g:Edge",
+                  "@value": {
+                    "id": "33133",
+                    "label": "route",
+                    "inVLabel": "airport",
+                    "outVLabel": "airport",
+                    "inV": "2018",
+                    "outV": "486",
+                    "properties": {
+                      "dist": {
+                        "@type": "g:Property",
+                        "@value": {
+                          "key": "dist",
+                          "value": {
+                            "@type": "g:Int32",
+                            "@value": 82
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "meta": {
+      "@type": "g:Map",
+      "@value": []
+    }
+  }
+}
