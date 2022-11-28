@@ -4,7 +4,7 @@ import { SPARQLNeighborsCountRequest } from "../types";
  * Count neighbors by class which are related with the given subject URI.
  *
  * @example
- * vertexId = "http://kelvinlawrence.net/air-routes/resource/2018"
+ * resourceURI = "http://kelvinlawrence.net/air-routes/resource/2018"
  * limit = 10
  *
  * SELECT ?class (COUNT(?class) AS ?count) {

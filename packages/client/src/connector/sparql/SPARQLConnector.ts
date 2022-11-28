@@ -66,7 +66,7 @@ export default class SPARQLConnector extends AbstractConnector {
 
   private _sparqlFetch<TResult>(options?: QueryOptions) {
     return async (queryTemplate: string) => {
-      const url = this._config.connection.url;
+      const url = this._config.connection.url.replace(/\/$/, "");
       const encodedQuery = encodeURIComponent(queryTemplate);
 
       const uri = `${url}/sparql?query=${encodedQuery}`;

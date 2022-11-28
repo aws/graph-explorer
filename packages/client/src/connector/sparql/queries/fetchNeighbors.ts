@@ -18,6 +18,8 @@ type RawOneHopNeighborsResponse = {
       pred: RawValue;
       value: RawValue;
       subjectClass: RawValue;
+      pToSubject?: RawValue;
+      pFromSubject?: RawValue;
     }>;
   };
 };
@@ -52,7 +54,7 @@ const mapOutgoingToEdge = (
       source: resourceURI,
       target: result.subject.value,
       sourceType: resourceURI,
-      targetType: result.subject.value,
+      targetType: result.subjectClass.value,
       attributes: {},
     },
   };
@@ -76,6 +78,10 @@ const mapIncomingToEdge = (
   };
 };
 
+const isBlank = (result: RawValue) => {
+  return result.type === "bnode";
+};
+
 const fetchOneHopNeighbors = async (
   sparqlFetch: SparqlFetch,
   req: SPARQLNeighborsRequest
@@ -89,8 +95,29 @@ const fetchOneHopNeighbors = async (
   );
 
   const mappedResults: Record<string, RawResult> = {};
+  const bNodesEdges: Edge[] = [];
 
   Object.entries(groupBySubject).forEach(([uri, result]) => {
+    // Create outgoing predicates to blank nodes
+    if (isBlank(result[0].subject) && result[0].pToSubject) {
+      const edge = mapOutgoingToEdge(req.resourceURI, req.resourceClass, {
+        subject: result[0].subject,
+        subjectClass: result[0].subjectClass,
+        predToSubject: result[0].pToSubject,
+      });
+      bNodesEdges.push(edge);
+    }
+
+    // Create incoming predicates from blank nodes
+    if (isBlank(result[0].subject) && result[0].pFromSubject) {
+      const edge = mapIncomingToEdge(req.resourceURI, req.resourceClass, {
+        subject: result[0].subject,
+        subjectClass: result[0].subjectClass,
+        predFromSubject: result[0].pFromSubject,
+      });
+      bNodesEdges.push(edge);
+    }
+
     mappedResults[uri] = {
       uri: uri,
       class: result[0].subjectClass.value,
@@ -102,9 +129,14 @@ const fetchOneHopNeighbors = async (
     });
   });
 
-  return Object.values(mappedResults).map(result => {
+  const vertices = Object.values(mappedResults).map(result => {
     return mapRawResultToVertex(result);
   });
+
+  return {
+    vertices,
+    bNodesEdges,
+  };
 };
 
 const isIncomingPredicate = (result: any): result is IncomingPredicate => {
@@ -150,7 +182,10 @@ const fetchNeighbors = async (
   sparqlFetch: SparqlFetch,
   req: SPARQLNeighborsRequest
 ): Promise<NeighborsResponse> => {
-  const vertices = await fetchOneHopNeighbors(sparqlFetch, req);
+  const { vertices, bNodesEdges } = await fetchOneHopNeighbors(
+    sparqlFetch,
+    req
+  );
   const subjectsURIs = vertices.map(v => v.data.id);
   const edges = await fetchNeighborsPredicates(
     sparqlFetch,
@@ -161,7 +196,7 @@ const fetchNeighbors = async (
 
   return {
     vertices,
-    edges,
+    edges: [...edges, ...bNodesEdges],
   };
 };
 

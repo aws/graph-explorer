@@ -34,6 +34,7 @@ To change the .env file being used, navigate to `/graph-explorer/packages/proxy-
 
 #### Optional
 - `REACT_APP_ENV_ROOT_FOLDER`: Base folder for the public files. By default, `/` (`string`). 
+- `REACT_APP_CONNECTION_NAME`: Default connection name. Blank by default (`string`).
 - `REACT_APP_CONNECTION_URL`: Default connection to instance. Blank by default (`string`).
 - `REACT_APP_STORE_ID`: IndexedDB store identifier, By default, `ge` (`string`).
 - `REACT_APP_STORE_NAME`: IndexedDB store name. By default, `default` (`string`).
@@ -65,7 +66,6 @@ To change the .env file being used, navigate to `/graph-explorer/packages/proxy-
 ### Using the Proxy Server
 - Set `PROXY_SERVER_CONNECTION_URL` to the url that accesses your database. If needed you can change the port inside `node-server.js`.
 - Set `REACT_APP_CONNECTION_URL` to the url that accesses your proxy server.
-- For Neptune connections, the proxy server will check to make sure the url passed in for `PROXY_SERVER_CONNECTION_URL` is a reader endpoing. Beware that if you have a single-instance cluster, the reader endpoint will be registered as having a write role and the application will throw an error as a result. This check is only made for Neptune connections and if connecting to Neptune, please ensure that `REACT_APP_AWS_SERVICE` is set to `neptune-db`.
 
 ## Authentication
 
@@ -79,7 +79,7 @@ Authentication is enabled using the SigV4 signing process found [here](https://d
 ### Potential Errors
 - If the explorer crashes, you can recreate the container or run `pnpm start` inside of `/packages/client`.
 - If the proxy-server crashes, you can recreate the container or run `pnpm start` inside of `/packages/proxy-server`
-- If the proxy-server fails to start, check that you have a read-only endpoint, that it is properly spelled, and that you have access to from the environment you are trying to run in. If you are in a different VPC, consider VPC Peering.
+- If the proxy-server fails to start, check that the provided endpoint is properly spelled and that you have access to from the environment you are trying to run in. If you are in a different VPC, consider VPC Peering.
 
 ## License
 This project is licensed under the Apache-2.0 License.

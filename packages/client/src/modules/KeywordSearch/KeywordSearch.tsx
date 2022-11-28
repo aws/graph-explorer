@@ -317,7 +317,10 @@ const KeywordSearch = ({
                   <div>
                     Looking {currentTotal != null && "at "}
                     {currentTotal != null && (
-                      <HumanReadableNumberFormatter value={currentTotal} />
+                      <HumanReadableNumberFormatter
+                        value={currentTotal}
+                        maxFractionDigits={0}
+                      />
                     )}
                     {currentTotal != null && " records "}
                     for matching results

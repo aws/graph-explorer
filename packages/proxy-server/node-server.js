@@ -39,12 +39,6 @@ const BASE_URL = process.env.PROXY_SERVER_CONNECTION_URL.replace(/\/$/, "");
 const BASE_PORT = 8182;
 
 (async () => {
-  if (process.env.REACT_APP_AWS_SERVICE == "neptune-db") {
-    const connection_details = await (await fetch(new URL(`${BASE_URL}/status`))).json();
-    if (connection_details.role !== "reader") {
-      throw new Error("Neptune connection is not read only");
-    }
-  }
 
   let creds;
   let requestSig;

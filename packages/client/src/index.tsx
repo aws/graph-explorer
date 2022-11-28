@@ -20,6 +20,9 @@ if (params.configFile) {
 } else if (import.meta.env.REACT_APP_CONNECTION_URL) {
   config = {
     id: import.meta.env.REACT_APP_CONNECTION_URL,
+    displayLabel:
+      import.meta.env.REACT_APP_CONNECTION_NAME ||
+      import.meta.env.REACT_APP_CONNECTION_URL,
     connection: {
       url: import.meta.env.REACT_APP_CONNECTION_URL,
       queryEngine:

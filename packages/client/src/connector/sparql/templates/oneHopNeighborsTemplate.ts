@@ -15,18 +15,18 @@ import { SPARQLNeighborsRequest } from "../types";
  * limit = 2
  * offset = 0
  *
- * SELECT ?subject ?pred ?value ?subjectClass {
+ * SELECT ?subject ?pred ?value ?subjectClass ?pToSubject ?pFromSubject {
  *   ?subject a     ?subjectClass;
  *            ?pred ?value {
- *     SELECT DISTINCT ?subject  {
+ *     SELECT DISTINCT ?subject ?pToSubject ?pFromSubject {
  *       BIND(<http://www.example.com/soccer/resource#EPL> AS ?argument)
  *       VALUES ?subjectClass {
  *         <http://www.example.com/soccer/ontology/Team>
  *       }
  *       {
- *         ?argument ?p ?subject.
- *         ?subject a         ?subjectClass;
- *                  ?sPred    ?sValue .
+ *         ?argument ?pToSubject ?subject.
+ *         ?subject a            ?subjectClass;
+ *                  ?sPred       ?sValue .
  *         FILTER (
  *           (?sPred=<http://www.example.com/soccer/ontology/teamName> && regex(str(?sValue), "Arsenal", "i")) ||
  *           (?sPred=<http://www.example.com/soccer/ontology/nickname> && regex(str(?sValue), "Gunners", "i"))
@@ -34,9 +34,9 @@ import { SPARQLNeighborsRequest } from "../types";
  *       }
  *       UNION
  *       {
- *         ?subject ?p ?argument;
- *                  a         ?subjectClass;
- *                  ?sPred    ?sValue .
+ *         ?subject ?pFromSubject ?argument;
+ *                  a             ?subjectClass;
+ *                  ?sPred        ?sValue .
  *        FILTER (
  *           (?sPred=<http://www.example.com/soccer/ontology/teamName> && regex(str(?sValue), "Arsenal", "i")) ||
  *           (?sPred=<http://www.example.com/soccer/ontology/nickname> && regex(str(?sValue), "Gunners", "i"))
@@ -94,21 +94,21 @@ const oneHopNeighborsTemplate = ({
   };
 
   return `
-    SELECT ?subject ?pred ?value ?subjectClass {
+    SELECT ?subject ?pred ?value ?subjectClass ?pToSubject ?pFromSubject {
       ?subject a     ?subjectClass;
                ?pred ?value {
-        SELECT DISTINCT ?subject  {
+        SELECT DISTINCT ?subject ?pToSubject ?pFromSubject {
           BIND(<${resourceURI}> AS ?argument)
           ${getSubjectClasses()}
           {
-            ?argument ?p ?subject.
+            ?argument ?pToSubject ?subject.
             ?subject a         ?subjectClass;
                      ?sPred    ?sValue .
             ${getFilters()}
           }
           UNION
           {
-            ?subject ?p ?argument;
+            ?subject ?pFromSubject ?argument;
                      a         ?subjectClass;
                      ?sPred    ?sValue .
            ${getFilters()}
