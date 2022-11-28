@@ -1,0 +1,42 @@
+{
+  "requestId": "77a16c09-1458-43f6-bfd9-efc219383b9e",
+  "status": {
+    "message": "",
+    "code": 200,
+    "attributes": {
+      "@type": "g:Map",
+      "@value": []
+    }
+  },
+  "result": {
+    "data": {
+      "@type": "g:List",
+      "@value": [
+        {
+          "@type": "g:Map",
+          "@value": [
+            "continent",
+            {
+              "@type": "g:Int64",
+              "@value": 7
+            },
+            "country",
+            {
+              "@type": "g:Int64",
+              "@value": 237
+            },
+            "airport",
+            {
+              "@type": "g:Int64",
+              "@value": 3503
+            }
+          ]
+        }
+      ]
+    },
+    "meta": {
+      "@type": "g:Map",
+      "@value": []
+    }
+  }
+}
