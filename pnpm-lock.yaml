@@ -6,6 +6,7 @@ importers:
     specifiers:
       '@typescript-eslint/eslint-plugin': ^5.40.0
       '@typescript-eslint/parser': ^5.41.0
+      aws4: ^1.11.0
       concurrently: ^7.5.0
       eslint: ^7.32.0
       eslint-plugin-react: ^7.31.10
@@ -14,6 +15,8 @@ importers:
       lint-staged: ^13.0.3
       prettier: 2.1.2
       typescript: ^4.8.4
+    dependencies:
+      aws4: 1.11.0
     devDependencies:
       '@typescript-eslint/eslint-plugin': 5.41.0_df7bmmpvcdp26iorckypvaliia
       '@typescript-eslint/parser': 5.41.0_3rubbgt5ekhqrcgx4uwls3neim
@@ -3963,6 +3966,10 @@ packages:
       util: 0.12.5
       uuid: 8.0.0
       xml2js: 0.4.19
+    dev: false
+
+  /aws4/1.11.0:
+    resolution: {integrity: sha512-xh1Rl34h6Fi1DC2WWKfxUTVqRsNnr6LsKz2+hfwDxQJWmrx8+c7ylaqBMcHfl1U1r2dsifOvKX3LQuLNZ+XSvA==}
     dev: false
 
   /babel-jest/28.1.3_@babel+core@7.19.6:

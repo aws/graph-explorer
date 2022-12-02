@@ -50,14 +50,14 @@ const BASE_PORT = 8182;
   app.get("/sparql", async (req, res, next) => {
     try {
       if (process.env.REACT_APP_AWS_AUTH_REQUIRED) {
-        const authHeaders = await requestSig.requestAuthHeaders(new URL(`${BASE_URL}/sparql?query=` + encodeURIComponent(req.query.query) + "&format=json"), "GET");
-        req.headers['Authorization'] = authHeaders["Authorization"];
-        req.headers['x-amz-date'] = authHeaders['x-amz-date'];
-        if (authHeaders['x-amz-security-token']) {
-          req.headers['x-amz-security-token'] = authHeaders['x-amz-security-token'];
+        const authHeaders = await requestSig.requestAuthHeaders(BASE_PORT, "/sparql?query=" + encodeURIComponent(req.query.query) + "&format=json");
+        req.headers['Authorization'] = authHeaders["headers"]["Authorization"];
+        req.headers['X-Amz-Date'] = authHeaders["headers"]['X-Amz-Date'];
+        if (authHeaders["headers"]['X-Amz-Security-Token']) {
+          req.headers['X-Amz-Security-Token'] = authHeaders["headers"]['X-Amz-Security-Token'];
         }
+        req.headers["host"] = process.env.REACT_APP_AWS_CLUSTER_HOST;
       }
-      req.headers["host"] = process.env.REACT_APP_AWS_CLUSTER_HOST;
       const response = await fetch(
         `${BASE_URL}/sparql?query=` +
         encodeURIComponent(req.query.query) +
@@ -75,14 +75,14 @@ const BASE_PORT = 8182;
   app.get("/", async (req, res, next) => {
     try {
       if (process.env.REACT_APP_AWS_AUTH_REQUIRED) {
-        const authHeaders = await requestSig.requestAuthHeaders(new URL(`${BASE_URL}/?gremlin=` + encodeURIComponent(req.query.gremlin)), "GET");
-        req.headers['Authorization'] = authHeaders["Authorization"];
-        req.headers['x-amz-date'] = authHeaders['x-amz-date'];
-        if (authHeaders['x-amz-security-token']) {
-          req.headers['x-amz-security-token'] = authHeaders['x-amz-security-token'];
+        const authHeaders = await requestSig.requestAuthHeaders(BASE_PORT, "/?gremlin=" + encodeURIComponent(req.query.gremlin));
+        req.headers['Authorization'] = authHeaders["headers"]["Authorization"];
+        req.headers['X-Amz-Date'] = authHeaders["headers"]['X-Amz-Date'];
+        if (authHeaders["headers"]['X-Amz-Security-Token']) {
+          req.headers['X-Amz-Security-Token'] = authHeaders["headers"]['X-Amz-Security-Token'];
         }
+        req.headers["host"] = process.env.REACT_APP_AWS_CLUSTER_HOST;
       }
-      req.headers["host"] = process.env.REACT_APP_AWS_CLUSTER_HOST;
       const response = await fetch(`${BASE_URL}/?gremlin=` + encodeURIComponent(req.query.gremlin), {
         headers: req.headers,
       });
