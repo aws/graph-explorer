@@ -4,7 +4,7 @@ The Graph Explorer project provides a React-based web application that enables u
 To get started, you can deploy Graph Explorer on a local machine using [Docker Desktop](https://www.docker.com/products/docker-desktop/), or in the cloud using a container service such as [Amazon ECS](https://aws.amazon.com/ecs/). The Graph Explorer image is hosted on [Amazon ECR](https://aws.amazon.com/ecr/), and can also be pulled from [DockerHub](https://hub.docker.com/). 
 
 ![A sample image of property graph created by Graph Explorer](./images/LPGIMDb.png)
-![A sample image of RDF graph created by Graph Explorer](./images/RDFAirports.png)
+![A sample image of RDF graph created by Graph Explorer](./images/RDFEL.png)
 
 ## Getting Started
 
