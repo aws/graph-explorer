@@ -134,18 +134,31 @@ export type RawConfiguration = {
      */
     queryEngine?: "gremlin" | "sparql";
     /**
+<<<<<<< HEAD:packages/graph-explorer/src/core/ConfigurationProvider/types.ts
      * If the service is Neptune,
      * all requests should be sent through the nodejs proxy-server.
      */
     proxyConnection?: boolean;
     /**
      * If it is Neptune, the URL of the database.
+=======
+     * If the service is Neptune or Blazegraph,
+     * all requests should be sent through the nodejs proxy-server.
+     */
+    neptuneOrBlazegraph?: boolean;
+    /**
+     * If it is Neptune or Blazegraph, the URL of the database.
+>>>>>>> 00a6590 (12/08 5:31PM CT push):packages/client/src/core/ConfigurationProvider/types.ts
      */
     graphDbUrl?: string;
     /**
      * If it is Neptune, it could need authentication.
      */
+<<<<<<< HEAD:packages/graph-explorer/src/core/ConfigurationProvider/types.ts
     awsAuthEnabled?: boolean;
+=======
+    neptuneAuthEnabled?: boolean;
+>>>>>>> 00a6590 (12/08 5:31PM CT push):packages/client/src/core/ConfigurationProvider/types.ts
     /**
      * AWS Region where the Neptune cluster is deployed.
      * It is needed to sign requests.

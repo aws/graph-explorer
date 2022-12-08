@@ -228,11 +228,19 @@ export abstract class AbstractConnector {
 
   protected get headers() {
     const headers: HeadersInit = {};
+<<<<<<< HEAD:packages/graph-explorer/src/connector/AbstractConnector.ts
     if (this._config.connection?.proxyConnection) {
       headers["graph-db-connection-url"] =
         this._config.connection?.graphDbUrl || "";
     }
     if (this._config.connection?.awsAuthEnabled) {
+=======
+    if (this._config.connection?.neptuneOrBlazegraph) {
+      headers["graph-db-connection-url"] =
+        this._config.connection?.graphDbUrl || "";
+    }
+    if (this._config.connection?.neptuneAuthEnabled) {
+>>>>>>> 00a6590 (12/08 5:31PM CT push):packages/client/src/connector/AbstractConnector.ts
       headers["aws-neptune-region"] = this._config.connection?.awsRegion || "";
     }
 

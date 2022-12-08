@@ -25,9 +25,15 @@ type ConnectionForm = {
   name?: string;
   url?: string;
   type?: "gremlin" | "sparql";
+<<<<<<< HEAD:packages/graph-explorer/src/modules/CreateConnection/CreateConnection.tsx
   proxyConnection?: boolean;
   graphDbUrl?: string;
   awsAuthEnabled?: boolean;
+=======
+  neptuneOrBlazegraph?: boolean;
+  graphDbUrl?: string;
+  neptuneAuthEnabled?: boolean;
+>>>>>>> 00a6590 (12/08 5:31PM CT push):packages/client/src/modules/CreateConnection/CreateConnection.tsx
   awsRegion?: string;
 };
 
@@ -63,9 +69,15 @@ const CreateConnection = ({
           connection: {
             url: data.url,
             queryEngine: data.type,
+<<<<<<< HEAD:packages/graph-explorer/src/modules/CreateConnection/CreateConnection.tsx
             proxyConnection: data.proxyConnection,
             graphDbUrl: data.graphDbUrl,
             awsAuthEnabled: data.awsAuthEnabled,
+=======
+            neptuneOrBlazegraph: data.neptuneOrBlazegraph,
+            graphDbUrl: data.graphDbUrl,
+            neptuneAuthEnabled: data.neptuneAuthEnabled,
+>>>>>>> 00a6590 (12/08 5:31PM CT push):packages/client/src/modules/CreateConnection/CreateConnection.tsx
             awsRegion: data.awsRegion,
           },
         };
@@ -89,9 +101,15 @@ const CreateConnection = ({
           connection: {
             url: data.url,
             queryEngine: data.type,
+<<<<<<< HEAD:packages/graph-explorer/src/modules/CreateConnection/CreateConnection.tsx
             proxyConnection: data.proxyConnection,
             graphDbUrl: data.graphDbUrl,
             awsAuthEnabled: data.awsAuthEnabled,
+=======
+            neptuneOrBlazegraph: data.neptuneOrBlazegraph,
+            graphDbUrl: data.graphDbUrl,
+            neptuneAuthEnabled: data.neptuneAuthEnabled,
+>>>>>>> 00a6590 (12/08 5:31PM CT push):packages/client/src/modules/CreateConnection/CreateConnection.tsx
             awsRegion: data.awsRegion,
           },
         });
@@ -128,9 +146,15 @@ const CreateConnection = ({
       initialData?.name ||
       `Connection (${formatDate(new Date(), "yyyy-MM-dd HH:mm")})`,
     url: initialData?.url || "",
+<<<<<<< HEAD:packages/graph-explorer/src/modules/CreateConnection/CreateConnection.tsx
     proxyConnection: initialData?.proxyConnection || false,
     graphDbUrl: initialData?.graphDbUrl || "",
     awsAuthEnabled: initialData?.awsAuthEnabled || false,
+=======
+    neptuneOrBlazegraph: initialData?.neptuneOrBlazegraph || false,
+    graphDbUrl: initialData?.graphDbUrl || "",
+    neptuneAuthEnabled: initialData?.neptuneAuthEnabled || false,
+>>>>>>> 00a6590 (12/08 5:31PM CT push):packages/client/src/modules/CreateConnection/CreateConnection.tsx
     awsRegion: initialData?.awsRegion || "",
   });
 
@@ -152,12 +176,20 @@ const CreateConnection = ({
       return;
     }
 
+<<<<<<< HEAD:packages/graph-explorer/src/modules/CreateConnection/CreateConnection.tsx
     if (form.proxyConnection && !form.graphDbUrl) {
+=======
+    if (form.neptuneOrBlazegraph && !form.graphDbUrl) {
+>>>>>>> 00a6590 (12/08 5:31PM CT push):packages/client/src/modules/CreateConnection/CreateConnection.tsx
       setError(true);
       return;
     }
 
+<<<<<<< HEAD:packages/graph-explorer/src/modules/CreateConnection/CreateConnection.tsx
     if (form.awsAuthEnabled && !form.awsRegion) {
+=======
+    if (form.neptuneAuthEnabled && !form.awsRegion) {
+>>>>>>> 00a6590 (12/08 5:31PM CT push):packages/client/src/modules/CreateConnection/CreateConnection.tsx
       setError(true);
       return;
     }
@@ -217,6 +249,7 @@ const CreateConnection = ({
         </div>
         <div className={pfx("input-url")}>
           <Checkbox
+<<<<<<< HEAD:packages/graph-explorer/src/modules/CreateConnection/CreateConnection.tsx
             value={"proxyConnection"}
             checked={form.proxyConnection}
             onChange={e => {
@@ -226,6 +259,17 @@ const CreateConnection = ({
           />
         </div>
         {form.proxyConnection && (
+=======
+            value={"neptuneOrBlazegraph"}
+            checked={form.neptuneOrBlazegraph}
+            onChange={e => {
+              onFormChange("neptuneOrBlazegraph")(e.target.checked);
+            }}
+            label={"Neptune or Blazegraph"}
+          />
+        </div>
+        {form.neptuneOrBlazegraph && (
+>>>>>>> 00a6590 (12/08 5:31PM CT push):packages/client/src/modules/CreateConnection/CreateConnection.tsx
           <div className={pfx("input-url")}>
             <Input
               data-autofocus={true}
@@ -240,6 +284,7 @@ const CreateConnection = ({
             />
           </div>
         )}
+<<<<<<< HEAD:packages/graph-explorer/src/modules/CreateConnection/CreateConnection.tsx
         {form.proxyConnection && (
           <div className={pfx("input-url")}>
             <Checkbox
@@ -257,6 +302,25 @@ const CreateConnection = ({
             <Input
               data-autofocus={true}
               label={"AWS Region"}
+=======
+        {form.neptuneOrBlazegraph && (
+          <div className={pfx("input-url")}>
+            <Checkbox
+              value={"neptuneAuthEnabled"}
+              checked={form.neptuneAuthEnabled}
+              onChange={e => {
+                onFormChange("neptuneAuthEnabled")(e.target.checked);
+              }}
+              label={"Neptune Authorization Enabled"}
+            />
+          </div>
+        )}
+        {form.neptuneOrBlazegraph && form.neptuneAuthEnabled && (
+          <div className={pfx("input-url")}>
+            <Input
+              data-autofocus={true}
+              label={"AWS Neptune Region"}
+>>>>>>> 00a6590 (12/08 5:31PM CT push):packages/client/src/modules/CreateConnection/CreateConnection.tsx
               value={form.awsRegion}
               onChange={onFormChange("awsRegion")}
               errorMessage={"Region is required"}

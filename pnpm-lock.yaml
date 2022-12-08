@@ -6,7 +6,6 @@ importers:
     specifiers:
       '@typescript-eslint/eslint-plugin': ^5.40.0
       '@typescript-eslint/parser': ^5.41.0
-      aws4: ^1.11.0
       concurrently: ^7.5.0
       eslint: ^7.32.0
       eslint-plugin-react: ^7.31.10
@@ -15,8 +14,6 @@ importers:
       lint-staged: ^13.0.3
       prettier: 2.1.2
       typescript: ^4.8.4
-    dependencies:
-      aws4: 1.11.0
     devDependencies:
       '@typescript-eslint/eslint-plugin': 5.41.0_df7bmmpvcdp26iorckypvaliia
       '@typescript-eslint/parser': 5.41.0_3rubbgt5ekhqrcgx4uwls3neim
@@ -109,6 +106,7 @@ importers:
       file-saver: ^2.0.5
       flat: ^5.0.2
       framer-motion: ^2.9.5
+      fs: 0.0.1-security
       husky: ^8.0.0
       jest: ^28.1.3
       jest-environment-jsdom: ^29.0.1
@@ -185,6 +183,7 @@ importers:
       file-saver: 2.0.5
       flat: 5.0.2
       framer-motion: 2.9.5_sfoxds7t5ydpegc3knd667wn6m
+      fs: 0.0.1-security
       localforage: 1.10.0
       lodash: 4.17.21
       memoize-one: 5.2.1
