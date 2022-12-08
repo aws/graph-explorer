@@ -225,4 +225,17 @@ export abstract class AbstractConnector {
     req: KeywordSearchRequest,
     options?: QueryOptions
   ): Promise<KeywordSearchResponse>;
+
+  protected get headers() {
+    const headers: HeadersInit = {};
+    if (this._config.connection?.neptuneOrBlazegraph) {
+      headers["graph-db-connection-url"] =
+        this._config.connection?.graphDbUrl || "";
+    }
+    if (this._config.connection?.neptuneAuthEnabled) {
+      headers["aws-neptune-region"] = this._config.connection?.awsRegion || "";
+    }
+
+    return headers;
+  }
 }

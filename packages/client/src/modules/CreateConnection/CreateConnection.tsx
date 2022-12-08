@@ -1,3 +1,4 @@
+import { Checkbox } from "@mantine/core";
 import { useCallback, useState } from "react";
 import { useRecoilCallback } from "recoil";
 import { v4 } from "uuid";
@@ -23,6 +24,10 @@ type ConnectionForm = {
   name?: string;
   url?: string;
   type?: "gremlin" | "sparql";
+  neptuneOrBlazegraph?: boolean;
+  graphDbUrl?: string;
+  neptuneAuthEnabled?: boolean;
+  awsRegion?: string;
 };
 
 const CONNECTIONS_OP = [
@@ -57,6 +62,10 @@ const CreateConnection = ({
           connection: {
             url: data.url,
             queryEngine: data.type,
+            neptuneOrBlazegraph: data.neptuneOrBlazegraph,
+            graphDbUrl: data.graphDbUrl,
+            neptuneAuthEnabled: data.neptuneAuthEnabled,
+            awsRegion: data.awsRegion,
           },
         };
         set(configurationAtom, prevConfigMap => {
@@ -79,6 +88,10 @@ const CreateConnection = ({
           connection: {
             url: data.url,
             queryEngine: data.type,
+            neptuneOrBlazegraph: data.neptuneOrBlazegraph,
+            graphDbUrl: data.graphDbUrl,
+            neptuneAuthEnabled: data.neptuneAuthEnabled,
+            awsRegion: data.awsRegion,
           },
         });
         return updatedConfig;
@@ -114,17 +127,18 @@ const CreateConnection = ({
       initialData?.name ||
       `Connection (${formatDate(new Date(), "yyyy-MM-dd HH:mm")})`,
     url: initialData?.url || "",
+    neptuneOrBlazegraph: initialData?.neptuneOrBlazegraph || false,
+    graphDbUrl: initialData?.graphDbUrl || "",
+    neptuneAuthEnabled: initialData?.neptuneAuthEnabled || false,
+    awsRegion: initialData?.awsRegion || "",
   });
 
   const [hasError, setError] = useState(false);
-
   const onFormChange = useCallback(
-    (attribute: "name" | "url" | "type" | "mode") => (
-      value: string | string[]
-    ) => {
+    (attribute: string) => (value: string | string[] | boolean) => {
       setForm(prev => ({
         ...prev,
-        [attribute]: value as string,
+        [attribute]: value,
       }));
     },
     []
@@ -133,6 +147,16 @@ const CreateConnection = ({
   const reset = useResetState();
   const onSubmit = useCallback(() => {
     if (!form.name || !form.url || !form.type) {
+      setError(true);
+      return;
+    }
+
+    if (form.neptuneOrBlazegraph && !form.graphDbUrl) {
+      setError(true);
+      return;
+    }
+
+    if (form.neptuneAuthEnabled && !form.awsRegion) {
       setError(true);
       return;
     }
@@ -172,6 +196,58 @@ const CreateConnection = ({
             isDisabled={disabledFields?.includes("url")}
           />
         </div>
+        <div className={pfx("input-url")}>
+          <Checkbox
+            value={"neptuneOrBlazegraph"}
+            checked={form.neptuneOrBlazegraph}
+            onChange={e => {
+              onFormChange("neptuneOrBlazegraph")(e.target.checked);
+            }}
+            label={"Neptune or Blazegraph"}
+          />
+        </div>
+        {form.neptuneOrBlazegraph && (
+          <div className={pfx("input-url")}>
+            <Input
+              data-autofocus={true}
+              label={"Graph Connection URL"}
+              value={form.graphDbUrl}
+              onChange={onFormChange("graphDbUrl")}
+              errorMessage={"URL is required"}
+              placeholder={"https://neptune-cluster.amazonaws.com"}
+              validationState={
+                hasError && !form.graphDbUrl ? "invalid" : "valid"
+              }
+            />
+          </div>
+        )}
+        {form.neptuneOrBlazegraph && (
+          <div className={pfx("input-url")}>
+            <Checkbox
+              value={"neptuneAuthEnabled"}
+              checked={form.neptuneAuthEnabled}
+              onChange={e => {
+                onFormChange("neptuneAuthEnabled")(e.target.checked);
+              }}
+              label={"Neptune Authorization Enabled"}
+            />
+          </div>
+        )}
+        {form.neptuneOrBlazegraph && form.neptuneAuthEnabled && (
+          <div className={pfx("input-url")}>
+            <Input
+              data-autofocus={true}
+              label={"AWS Neptune Region"}
+              value={form.awsRegion}
+              onChange={onFormChange("awsRegion")}
+              errorMessage={"Region is required"}
+              placeholder={"us-east-1"}
+              validationState={
+                hasError && !form.awsRegion ? "invalid" : "valid"
+              }
+            />
+          </div>
+        )}
       </div>
       <div className={pfx("actions")}>
         <Button variant={"default"} onPress={onClose}>

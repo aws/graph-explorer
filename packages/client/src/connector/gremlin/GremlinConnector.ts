@@ -49,9 +49,10 @@ export default class GremlinConnector extends AbstractConnector {
 
       const res = await fetch(uri, {
         signal: options?.abortSignal,
+        headers: super.headers,
       });
 
-      return res.json() as TResult;
+      return (await res.json()) as TResult;
     };
   }
 }

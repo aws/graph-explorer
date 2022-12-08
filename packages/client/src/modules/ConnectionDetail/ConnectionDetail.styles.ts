@@ -17,6 +17,7 @@ const defaultStyles = (pfx?: string): ThemeStyleFn => ({ theme }) => css`
     background: ${theme.palette.background.default};
     border-bottom: solid 1px ${theme.palette.divider};
     display: flex;
+    flex-wrap: wrap;
     justify-content: flex-start;
     gap: ${theme.spacing["6x"]};
     padding: ${theme.spacing["4x"]};
@@ -25,6 +26,8 @@ const defaultStyles = (pfx?: string): ThemeStyleFn => ({ theme }) => css`
       display: flex;
       flex-direction: column;
       gap: ${theme.spacing.base};
+      padding: 0 ${theme.spacing["2x"]};
+      max-width: 200px;
 
       .${pfx}-tag {
         display: flex;

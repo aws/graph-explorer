@@ -141,15 +141,27 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
       />
       <div className={pfx("info-bar")}>
         <div className={pfx("item")}>
-          <div className={pfx("tag")}>URL</div>
-          <div className={pfx("value")}>{config.connection?.url}</div>
-        </div>
-        <div className={pfx("item")}>
-          <div className={pfx("tag")}>Graph Type</div>
+          <div className={pfx("tag")}>Type</div>
           <div className={pfx("value")}>
             {t("connection-detail.graph-type")}
           </div>
         </div>
+        <div className={pfx("item")}>
+          <div className={pfx("tag")}>URL</div>
+          <div className={pfx("value")}>{config.connection?.url}</div>
+        </div>
+        {config.connection?.neptuneOrBlazegraph && (
+          <div className={pfx("item")}>
+            <div className={pfx("tag")}>Graph Connection URL</div>
+            <div className={pfx("value")}>{config.connection?.graphDbUrl}</div>
+          </div>
+        )}
+        {config.connection?.neptuneAuthEnabled && (
+          <div className={pfx("item")}>
+            <div className={pfx("tag")}>Region</div>
+            <div className={pfx("value")}>{config.connection?.awsRegion}</div>
+          </div>
+        )}
         {!!lastSyncUpdate && (
           <div className={pfx("item")}>
             <div className={pfx("tag")}>
@@ -203,7 +215,6 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
       <Modal
         opened={edit}
         onClose={() => setEdit(false)}
-        centered={true}
         title={"Update connection"}
       >
         <CreateConnection
@@ -211,6 +222,7 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
           configId={config.id}
           disabledFields={config.__fileBase ? ["type", "url"] : undefined}
           initialData={{
+            ...(config.connection || {}),
             name: config.displayLabel || config.id,
             url: config.connection?.url,
             type: config.connection?.queryEngine,

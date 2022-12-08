@@ -125,14 +125,32 @@ export type RawConfiguration = {
    */
   connection?: {
     /**
+     * Base URL to access to the database through HTTPs endpoints
+     */
+    url: string;
+    /**
      * Choose between gremlin or sparQL engines.
      * By default, it uses gremlin
      */
     queryEngine?: "gremlin" | "sparql";
     /**
-     * Base URL to access to the database through HTTPs endpoints
+     * If the service is Neptune or Blazegraph,
+     * all requests should be sent through the nodejs proxy-server.
      */
-    url: string;
+    neptuneOrBlazegraph?: boolean;
+    /**
+     * If it is Neptune or Blazegraph, the URL of the database.
+     */
+    graphDbUrl?: string;
+    /**
+     * If it is Neptune, it could need authentication.
+     */
+    neptuneAuthEnabled?: boolean;
+    /**
+     * AWS Region where the Neptune cluster is deployed.
+     * It is needed to sign requests.
+     */
+    awsRegion?: string;
   };
   /**
    * Database schema: types, names, labels, icons, ...

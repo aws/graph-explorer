@@ -6,6 +6,8 @@ const fetch = (...args) =>
 const app = express();
 const AWS = require("aws-sdk");
 const { RequestSig } = require("./RequestSig.js");
+const https = require("https");
+const fs = require("fs");
 
 const getCredentials = async () => {
   let accessKey = "";
@@ -33,37 +35,53 @@ const getCredentials = async () => {
   return [accessKey, secretKey, token];
 };
 
-dotenv.config({ path: "../client/.env.development" });
+dotenv.config({ path: "../client/.env" });
 
-const BASE_URL = process.env.PROXY_SERVER_CONNECTION_URL.replace(/\/$/, "");
 const BASE_PORT = 8182;
 
 (async () => {
-
-  let creds;
+  let creds = await getCredentials();
   let requestSig;
-  if (process.env.REACT_APP_AWS_AUTH_REQUIRED) {
-    creds = await getCredentials();
-    requestSig = await new RequestSig(creds[0], creds[1], creds[2]);
-  }
+
   app.use(cors());
+
   app.get("/sparql", async (req, res, next) => {
     try {
-      if (process.env.REACT_APP_AWS_AUTH_REQUIRED) {
-        const authHeaders = await requestSig.requestAuthHeaders(BASE_PORT, "/sparql?query=" + encodeURIComponent(req.query.query) + "&format=json");
-        req.headers['Authorization'] = authHeaders["headers"]["Authorization"];
-        req.headers['X-Amz-Date'] = authHeaders["headers"]['X-Amz-Date'];
-        if (authHeaders["headers"]['X-Amz-Security-Token']) {
-          req.headers['X-Amz-Security-Token'] = authHeaders["headers"]['X-Amz-Security-Token'];
-        }
-        req.headers["host"] = process.env.REACT_APP_AWS_CLUSTER_HOST;
+      let endpoint;
+      const endpoint_input = req.headers["graph-db-connection-url"];
+      const region_input = req.headers["aws-neptune-region"];
+      if (endpoint_input) {
+        requestSig = await new RequestSig(
+          new URL(endpoint_input).host,
+          region_input,
+          creds[0],
+          creds[1],
+          creds[2]
+        );
+        endpoint = endpoint_input;
+      } else {
+        console.log("No endpoint passed");
       }
+
+      const authHeaders = await requestSig.requestAuthHeaders(
+        BASE_PORT,
+        "/sparql?query=" + encodeURIComponent(req.query.query) + "&format=json"
+      );
+      req.headers["Authorization"] = authHeaders["headers"]["Authorization"];
+      req.headers["X-Amz-Date"] = authHeaders["headers"]["X-Amz-Date"];
+      if (authHeaders["headers"]["X-Amz-Security-Token"]) {
+        req.headers["X-Amz-Security-Token"] =
+          authHeaders["headers"]["X-Amz-Security-Token"];
+      }
+      req.headers["host"] = new URL(endpoint).host;
+
       const response = await fetch(
-        `${BASE_URL}/sparql?query=` +
-        encodeURIComponent(req.query.query) +
-        "&format=json",
+        `${endpoint}/sparql?query=` +
+          encodeURIComponent(req.query.query) +
+          "&format=json",
         { headers: req.headers }
       );
+
       const data = await response.json();
       res.send(data);
     } catch (error) {
@@ -74,18 +92,42 @@ const BASE_PORT = 8182;
 
   app.get("/", async (req, res, next) => {
     try {
-      if (process.env.REACT_APP_AWS_AUTH_REQUIRED) {
-        const authHeaders = await requestSig.requestAuthHeaders(BASE_PORT, "/?gremlin=" + encodeURIComponent(req.query.gremlin));
-        req.headers['Authorization'] = authHeaders["headers"]["Authorization"];
-        req.headers['X-Amz-Date'] = authHeaders["headers"]['X-Amz-Date'];
-        if (authHeaders["headers"]['X-Amz-Security-Token']) {
-          req.headers['X-Amz-Security-Token'] = authHeaders["headers"]['X-Amz-Security-Token'];
-        }
-        req.headers["host"] = process.env.REACT_APP_AWS_CLUSTER_HOST;
+      let endpoint;
+      const endpoint_input = req.headers["graph-db-connection-url"];
+      const region_input = req.headers["aws-neptune-region"];
+
+      if (endpoint_input) {
+        requestSig = await new RequestSig(
+          new URL(endpoint_input).host,
+          region_input,
+          creds[0],
+          creds[1],
+          creds[2]
+        );
+        endpoint = endpoint_input;
+      } else {
+        console.log("No endpoint passed");
       }
-      const response = await fetch(`${BASE_URL}/?gremlin=` + encodeURIComponent(req.query.gremlin), {
-        headers: req.headers,
-      });
+
+      const authHeaders = await requestSig.requestAuthHeaders(
+        BASE_PORT,
+        "/?gremlin=" + encodeURIComponent(req.query.gremlin)
+      );
+      req.headers["Authorization"] = authHeaders["headers"]["Authorization"];
+      req.headers["X-Amz-Date"] = authHeaders["headers"]["X-Amz-Date"];
+      if (authHeaders["headers"]["X-Amz-Security-Token"]) {
+        req.headers["X-Amz-Security-Token"] =
+          authHeaders["headers"]["X-Amz-Security-Token"];
+      }
+      req.headers["host"] = new URL(endpoint).host;
+
+      const response = await fetch(
+        `${endpoint}/?gremlin=` + encodeURIComponent(req.query.gremlin),
+        {
+          headers: req.headers,
+        }
+      );
+
       const data = await response.json();
       res.send(data);
     } catch (error) {
@@ -94,8 +136,21 @@ const BASE_PORT = 8182;
     }
   });
 
-  app.listen(BASE_PORT, async () => {
-    console.log(`Proxing to ${BASE_URL}`);
-    console.log(`\tLocal http://localhost:${BASE_PORT}`);
-  });
+  if (process.env.HTTPS_PROXY_SERVER_CONNECTION != "false") {
+    https
+      .createServer(
+        {
+          key: fs.readFileSync("./cert-info/server.key"),
+          cert: fs.readFileSync("./cert-info/server.crt"),
+        },
+        app
+      )
+      .listen(BASE_PORT, async () => {
+        console.log(`\tProxy server located at https://localhost:${BASE_PORT}`);
+      });
+  } else {
+    app.listen(BASE_PORT, async () => {
+      console.log(`\tProxy server located at http://localhost:${BASE_PORT}`);
+    });
+  }
 })();

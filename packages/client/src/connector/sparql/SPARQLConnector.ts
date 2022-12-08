@@ -73,6 +73,7 @@ export default class SPARQLConnector extends AbstractConnector {
 
       const res = await fetch(uri, {
         signal: options?.abortSignal,
+        headers: super.headers,
       });
 
       return res.json() as TResult;

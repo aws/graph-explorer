@@ -6,7 +6,7 @@ const saveConfigurationToFile = (config: ConfigurationContextProps) => {
     id: config.id,
     displayLabel: config.displayLabel || config.id,
     connection: {
-      url: config.connection?.url,
+      ...(config.connection || {}),
       queryEngine: config.connection?.queryEngine || "gremlin",
     },
     schema: {

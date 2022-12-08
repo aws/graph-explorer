@@ -82,9 +82,12 @@ export const mergedConfigurationSelector = selector<RawConfiguration | null>({
       remoteConfigFile: currentConfig.remoteConfigFile,
       __fileBase: currentConfig.__fileBase,
       connection: {
+        ...(currentConfig.connection || {}),
         // Remove trailing slash
         url: currentConfig.connection?.url?.replace(/\/$/, "") || "",
         queryEngine: currentConfig.connection?.queryEngine || "gremlin",
+        graphDbUrl:
+          currentConfig.connection?.graphDbUrl?.replace(/\/$/, "") || "",
       },
       schema: {
         vertices: mergedVertices,

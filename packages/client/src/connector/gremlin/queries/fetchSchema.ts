@@ -4,7 +4,7 @@ import edgeLabelsTemplate from "../templates/edgeLabelsTemplate";
 import edgesSchemaTemplate from "../templates/edgesSchemaTemplate";
 import vertexLabelsTemplate from "../templates/vertexLabelsTemplate";
 import verticesSchemaTemplate from "../templates/verticesSchemaTemplate";
-import type { GEdge, GInt64, GVertex } from "../types";
+import type { GEdge, GInt64, GProperty, GVertex, GVertexProperty } from "../types";
 import { GremlinFetch } from "../types";
 
 type RawVertexLabelsResponse = {
@@ -110,36 +110,39 @@ const fetchVerticesSchema = async (
   gremlinFetch: GremlinFetch
 ): Promise<SchemaResponse["vertices"]> => {
   const allLabels = await fetchVertexLabels(gremlinFetch);
-
-  const verticesTemplate = verticesSchemaTemplate({
-    types: Object.keys(allLabels),
-  });
-  const response = await gremlinFetch<RawVerticesSchemaResponse>(
-    verticesTemplate
-  );
   const vertices: SchemaResponse["vertices"] = [];
-  const verticesSchemas = response.result.data["@value"][0]["@value"];
 
-  for (let i = 0; i < verticesSchemas.length; i += 2) {
-    const label = verticesSchemas[i] as string;
-    const vertex = verticesSchemas[i + 1] as GVertex;
-    const properties = vertex["@value"].properties;
-    vertices.push({
-      type: label,
-      displayLabel: sanitizeText(label),
-      total: allLabels[label],
-      attributes: Object.entries(properties).map(([name, prop]) => {
-        const value = prop[0]?.["@value"].value;
-        return {
-          name,
-          displayLabel: sanitizeText(name),
-          dataType:
-            typeof value === "string"
-              ? "String"
-              : TYPE_MAP[value["@type"]] || "String",
-        };
-      }),
+  if (JSON.stringify(allLabels) != "{}" ) {
+    const verticesTemplate = verticesSchemaTemplate({
+      types: Object.keys(allLabels),
     });
+
+    const response = await gremlinFetch<RawVerticesSchemaResponse>(
+      verticesTemplate
+    );
+    const verticesSchemas = response.result.data["@value"][0]["@value"];
+  
+    for (let i = 0; i < verticesSchemas.length; i += 2) {
+      const label = verticesSchemas[i] as string;
+      const vertex = verticesSchemas[i + 1] as GVertex;
+      const properties = vertex["@value"].properties || {} as Record<string, GVertexProperty[]>;
+      vertices.push({
+        type: label,
+        displayLabel: sanitizeText(label),
+        total: allLabels[label],
+        attributes: Object.entries(properties).map(([name, prop]) => {
+          const value = prop[0]?.["@value"].value;
+          return {
+            name,
+            displayLabel: sanitizeText(name),
+            dataType:
+              typeof value === "string"
+                ? "String"
+                : TYPE_MAP[value["@type"]] || "String",
+          };
+        }),
+      });
+    }
   }
 
   return vertices;
@@ -164,29 +167,32 @@ const fetchEdgesSchema = async (
   gremlinFetch: GremlinFetch
 ): Promise<SchemaResponse["edges"]> => {
   const allLabels = await fetchEdgeLabels(gremlinFetch);
-  const edgesTemplate = edgesSchemaTemplate({ types: Object.keys(allLabels) });
-  const data = await gremlinFetch<RawEdgesSchemaResponse>(edgesTemplate);
-
   const edges: SchemaResponse["edges"] = [];
-  const edgesSchemas = data.result.data["@value"][0]["@value"];
 
-  for (let i = 0; i < edgesSchemas.length; i += 2) {
-    const label = edgesSchemas[i] as string;
-    const vertex = edgesSchemas[i + 1] as GEdge;
-    const properties = vertex["@value"].properties;
-    edges.push({
-      type: label,
-      displayLabel: sanitizeText(label),
-      total: allLabels[label],
-      attributes: Object.entries(properties || {}).map(([name, prop]) => {
-        const value = prop["@value"].value;
-        return {
-          name,
-          displayLabel: sanitizeText(name),
-          dataType: typeof value === "string" ? "String" : value["@type"],
-        };
-      }),
-    });
+  if (JSON.stringify(allLabels) != "{}") {
+    const edgesTemplate = edgesSchemaTemplate({ types: Object.keys(allLabels) });
+    const data = await gremlinFetch<RawEdgesSchemaResponse>(edgesTemplate);
+
+    const edgesSchemas = data.result.data["@value"][0]["@value"];
+
+    for (let i = 0; i < edgesSchemas.length; i += 2) {
+      const label = edgesSchemas[i] as string;
+      const vertex = edgesSchemas[i + 1] as GEdge;
+      const properties = vertex["@value"].properties || {} as Record<string, GProperty>;
+      edges.push({
+        type: label,
+        displayLabel: sanitizeText(label),
+        total: allLabels[label],
+        attributes: Object.entries(properties || {}).map(([name, prop]) => {
+          const value = prop["@value"].value;
+          return {
+            name,
+            displayLabel: sanitizeText(name),
+            dataType: typeof value === "string" ? "String" : value["@type"],
+          };
+        }),
+      });
+    }
   }
 
   return edges;
