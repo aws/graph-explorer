@@ -18,13 +18,13 @@ Open source version for the Graph Explorer.
 ### Build for production
 - `pnpm i`
 - `pnpm build`
-- `dist` folder is created in the client directory.
+- `dist` folder is created in the graph-explorer directory.
 - Serve the static site using the method of your choice,
 for example, using `serve` npm package.
 
 ### Environment variables
 
-You can find a template for the following environment variables at `/packages/client/.env`.
+You can find a template for the following environment variables at `/packages/graph-explorer/.env`.
 
 #### Optional
 - `REACT_APP_ENV_ROOT_FOLDER`: Base folder for the public files. By default, `/` (`string`). 
@@ -66,8 +66,8 @@ Authentication is enabled using the SigV4 signing process for AWS Neptune connec
 - To set up a connection with auth enabled, click `Neptune or BlazeGraph`, then `Neptune Authorization Enabled` and insert the correct region.
 
 ### Potential Errors
-- If the explorer crashes, you can recreate the container or run `pnpm start` inside of `/packages/client`.
-- If the proxy-server crashes, you can recreate the container or run `pnpm start` inside of `/packages/proxy-server`
+- If the explorer crashes, you can recreate the container or run `pnpm start` inside of `/packages/graph-explorer`.
+- If the proxy-server crashes, you can recreate the container or run `pnpm start` inside of `/packages/graph-explorer-proxy-server`
 - If the proxy-server fails to start, check that the provided endpoint is properly spelled and that you have access to from the environment you are trying to run in. If you are in a different VPC, consider VPC Peering.
 
 ## License
