@@ -37,12 +37,18 @@ const getCredentials = async () => {
 
 dotenv.config({ path: "../graph-explorer/.env" });
 
+<<<<<<< HEAD
+=======
+const BASE_PORT = 8182;
+
+>>>>>>> beca7aa (12/09 12:22PM push)
 (async () => {
   let creds = await getCredentials();
   let requestSig;
 
   app.use(cors());
 
+<<<<<<< HEAD
   async function getRequestObjects(endpoint_input, region_input) {
     if (endpoint_input) {
       endpoint_url = new URL(endpoint_input);
@@ -93,6 +99,37 @@ dotenv.config({ path: "../graph-explorer/.env" });
       const requestSig = reqObjects[2];
 
       await getAuthHeaders("sparql", req, endpoint_url, requestSig);
+=======
+  app.get("/sparql", async (req, res, next) => {
+    try {
+      let endpoint;
+      const endpoint_input = req.headers["graph-db-connection-url"];
+      const region_input = req.headers["aws-neptune-region"];
+      if (endpoint_input) {
+        requestSig = await new RequestSig(
+          new URL(endpoint_input).host,
+          region_input,
+          creds[0],
+          creds[1],
+          creds[2]
+        );
+        endpoint = endpoint_input;
+      } else {
+        console.log("No endpoint passed");
+      }
+
+      const authHeaders = await requestSig.requestAuthHeaders(
+        BASE_PORT,
+        "/sparql?query=" + encodeURIComponent(req.query.query) + "&format=json"
+      );
+      req.headers["Authorization"] = authHeaders["headers"]["Authorization"];
+      req.headers["X-Amz-Date"] = authHeaders["headers"]["X-Amz-Date"];
+      if (authHeaders["headers"]["X-Amz-Security-Token"]) {
+        req.headers["X-Amz-Security-Token"] =
+          authHeaders["headers"]["X-Amz-Security-Token"];
+      }
+      req.headers["host"] = new URL(endpoint).host;
+>>>>>>> beca7aa (12/09 12:22PM push)
 
       const response = await fetch(
         `${endpoint}/sparql?query=` +
@@ -111,6 +148,7 @@ dotenv.config({ path: "../graph-explorer/.env" });
 
   app.get("/", async (req, res, next) => {
     try {
+<<<<<<< HEAD
       const reqObjects = await getRequestObjects(req.headers["graph-db-connection-url"], req.headers["aws-neptune-region"]);
       const endpoint_url = reqObjects[0];
       const endpoint = reqObjects[1];
@@ -121,6 +159,39 @@ dotenv.config({ path: "../graph-explorer/.env" });
       const response = await fetch(
         `${endpoint}/?gremlin=` + 
         encodeURIComponent(req.query.gremlin),
+=======
+      let endpoint;
+      const endpoint_input = req.headers["graph-db-connection-url"];
+      const region_input = req.headers["aws-neptune-region"];
+
+      if (endpoint_input) {
+        requestSig = await new RequestSig(
+          new URL(endpoint_input).host,
+          region_input,
+          creds[0],
+          creds[1],
+          creds[2]
+        );
+        endpoint = endpoint_input;
+      } else {
+        console.log("No endpoint passed");
+      }
+
+      const authHeaders = await requestSig.requestAuthHeaders(
+        BASE_PORT,
+        "/?gremlin=" + encodeURIComponent(req.query.gremlin)
+      );
+      req.headers["Authorization"] = authHeaders["headers"]["Authorization"];
+      req.headers["X-Amz-Date"] = authHeaders["headers"]["X-Amz-Date"];
+      if (authHeaders["headers"]["X-Amz-Security-Token"]) {
+        req.headers["X-Amz-Security-Token"] =
+          authHeaders["headers"]["X-Amz-Security-Token"];
+      }
+      req.headers["host"] = new URL(endpoint).host;
+
+      const response = await fetch(
+        `${endpoint}/?gremlin=` + encodeURIComponent(req.query.gremlin),
+>>>>>>> beca7aa (12/09 12:22PM push)
         {
           headers: req.headers,
         }
@@ -134,7 +205,11 @@ dotenv.config({ path: "../graph-explorer/.env" });
     }
   });
 
+<<<<<<< HEAD
   if (process.env.PROXY_SERVER_HTTPS_CONNECTION != false) {
+=======
+  if (process.env.HTTPS_PROXY_SERVER_CONNECTION != "false") {
+>>>>>>> beca7aa (12/09 12:22PM push)
     https
       .createServer(
         {
@@ -143,12 +218,21 @@ dotenv.config({ path: "../graph-explorer/.env" });
         },
         app
       )
+<<<<<<< HEAD
       .listen(8182, async () => {
         console.log(`\tProxy server located at https://localhost:8182`);
       });
   } else {
     app.listen(8182, async () => {
       console.log(`\tProxy server located at http://localhost:8182`);
+=======
+      .listen(BASE_PORT, async () => {
+        console.log(`\tProxy server located at https://localhost:${BASE_PORT}`);
+      });
+  } else {
+    app.listen(BASE_PORT, async () => {
+      console.log(`\tProxy server located at http://localhost:${BASE_PORT}`);
+>>>>>>> beca7aa (12/09 12:22PM push)
     });
   }
 })();

@@ -106,7 +106,6 @@ importers:
       file-saver: ^2.0.5
       flat: ^5.0.2
       framer-motion: ^2.9.5
-      fs: 0.0.1-security
       husky: ^8.0.0
       jest: ^28.1.3
       jest-environment-jsdom: ^29.0.1
@@ -183,7 +182,6 @@ importers:
       file-saver: 2.0.5
       flat: 5.0.2
       framer-motion: 2.9.5_sfoxds7t5ydpegc3knd667wn6m
-      fs: 0.0.1-security
       localforage: 1.10.0
       lodash: 4.17.21
       memoize-one: 5.2.1

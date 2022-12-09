@@ -222,7 +222,11 @@ const CreateConnection = ({
             data-autofocus={true}
             label={
               <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
+<<<<<<< HEAD
                 Public or Proxy Endpoint
+=======
+                Public Endpoint
+>>>>>>> beca7aa (12/09 12:22PM push)
                 <Tooltip
                   text={
                     <div style={{ maxWidth: 300 }}>

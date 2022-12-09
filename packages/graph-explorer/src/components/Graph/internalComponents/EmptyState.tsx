@@ -7,7 +7,11 @@ const EmptyState = () => {
     <div className={styles()}>
       <PanelEmptyState
         icon={<SearchIcon />}
+<<<<<<< HEAD
         title="To get started, click into the search bar to browse graph data. Click + to add to Graph View."
+=======
+        title="To get started, search for an entity"
+>>>>>>> beca7aa (12/09 12:22PM push)
         size="md"
       />
     </div>

@@ -104,15 +104,20 @@ You can search, browse, expand, customize views of your graph data using Graph E
 - `pnpm i`
 - `pnpm build`
 <<<<<<< HEAD
+<<<<<<< HEAD
 - `dist` folder is created in the graph-explorer directory.
 =======
 - `dist` folder is created in the client directory.
 >>>>>>> 00a6590 (12/08 5:31PM CT push)
+=======
+- `dist` folder is created in the graph-explorer directory.
+>>>>>>> beca7aa (12/09 12:22PM push)
 - Serve the static site using the method of your choice,
 for example, using `serve` npm package.
 
 ### Environment variables
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 You can find a template for the following environment variables at `/packages/graph-explorer/.env`. All variables described below are optional and will default to the given values.
 
@@ -123,6 +128,9 @@ You can find a template for the following environment variables at `/packages/gr
 - `PROXY_SERVER_HTTPS_CONNECTION`: Uses the self-signed cert to serve the proxy-server over https if true. By default `true` (`boolean`).
 =======
 You can find a template for the following environment variables at `/packages/client/.env`.
+=======
+You can find a template for the following environment variables at `/packages/graph-explorer/.env`.
+>>>>>>> beca7aa (12/09 12:22PM push)
 
 #### Optional
 - `REACT_APP_ENV_ROOT_FOLDER`: Base folder for the public files. By default, `/` (`string`). 
