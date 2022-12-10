@@ -4,11 +4,17 @@ The Graph Explorer project provides a React-based web application that enables u
 To get started, you can deploy Graph Explorer on a local machine using [Docker Desktop](https://www.docker.com/products/docker-desktop/), or in the cloud using a container service such as [Amazon ECS](https://aws.amazon.com/ecs/). The Graph Explorer image is hosted on [Amazon ECR](https://aws.amazon.com/ecr/), and can also be pulled from [DockerHub](https://hub.docker.com/). 
 
 ![A sample image of property graph created by Graph Explorer](./images/LPGIMDb.png)
-![A sample image of RDF graph created by Graph Explorer](./images/RDFEL.png)
+![A sample image of RDF graph created by Graph Explorer](./images/RDFEPL.png)
 
 ## Getting Started
 
 ## Features
+* *Connections UI:* You can create and manage connections to graph databases using this feature. Connections is accessible as the first screen after deploying the application, when you click “Open Connections” on the top-right. Click ‘+’ on the top-right to add a new connection. You can also edit and delete connections.
+    * *Add a new connection:*
+        * *Name:* Enter a name for your connection (e.g., MyNeptuneCluster). 
+        * *Graph Type:* Choose a graph data model that corresponds to your desired graph database. 
+        * *Public Endpoint:* Provide the publicly accessible endpoint URL for a graph database, e.g., Gremlin Server. If connecting to Amazon Neptune, then provide a proxy endpoint URL that is accessible from outside the VPC, e.g., EC2.
+
 
 
 ## Development
