@@ -37,43 +37,62 @@ const getCredentials = async () => {
 
 dotenv.config({ path: "../graph-explorer/.env" });
 
-const BASE_PORT = 8182;
-
 (async () => {
   let creds = await getCredentials();
   let requestSig;
 
   app.use(cors());
 
-  app.get("/sparql", async (req, res, next) => {
-    try {
-      let endpoint;
-      const endpoint_input = req.headers["graph-db-connection-url"];
-      const region_input = req.headers["aws-neptune-region"];
-      if (endpoint_input) {
-        requestSig = await new RequestSig(
-          new URL(endpoint_input).host,
-          region_input,
-          creds[0],
-          creds[1],
-          creds[2]
-        );
-        endpoint = endpoint_input;
-      } else {
-        console.log("No endpoint passed");
-      }
+  async function getRequestObjects(endpoint_input, region_input) {
+    if (endpoint_input) {
+      endpoint_url = new URL(endpoint_input);
+      requestSig = await new RequestSig(
+        endpoint_url.host,
+        region_input,
+        creds[0],
+        creds[1],
+        creds[2]
+      );
+      endpoint = endpoint_input;
+    } else {
+      console.log("No endpoint passed");
+    }
 
-      const authHeaders = await requestSig.requestAuthHeaders(
-        BASE_PORT,
+    return [new URL(endpoint_input), endpoint_input, requestSig];
+  }
+
+  async function getAuthHeaders(language, req, endpoint_url, requestSig) {
+    let authHeaders 
+    if (language == "sparql") {
+      authHeaders = await requestSig.requestAuthHeaders(
+        endpoint_url.port,
         "/sparql?query=" + encodeURIComponent(req.query.query) + "&format=json"
       );
-      req.headers["Authorization"] = authHeaders["headers"]["Authorization"];
-      req.headers["X-Amz-Date"] = authHeaders["headers"]["X-Amz-Date"];
-      if (authHeaders["headers"]["X-Amz-Security-Token"]) {
-        req.headers["X-Amz-Security-Token"] =
-          authHeaders["headers"]["X-Amz-Security-Token"];
-      }
-      req.headers["host"] = new URL(endpoint).host;
+    } else if (language == "gremlin") {
+      authHeaders = await requestSig.requestAuthHeaders(
+        endpoint_url.port,
+        "/?gremlin=" + encodeURIComponent(req.query.gremlin)
+      );
+    } else {
+      console.log(language + " is not supported.");
+    }
+
+    req.headers["Authorization"] = authHeaders["headers"]["Authorization"];
+    req.headers["X-Amz-Date"] = authHeaders["headers"]["X-Amz-Date"];
+    if (authHeaders["headers"]["X-Amz-Security-Token"]) {
+      req.headers["X-Amz-Security-Token"] = authHeaders["headers"]["X-Amz-Security-Token"];
+    }
+    req.headers["host"] = endpoint_url.host;
+  }
+
+  app.get("/sparql", async (req, res, next) => {
+    try {
+      const reqObjects = await getRequestObjects(req.headers["graph-db-connection-url"], req.headers["aws-neptune-region"]);
+      const endpoint_url = reqObjects[0];
+      const endpoint = reqObjects[1];
+      const requestSig = reqObjects[2];
+
+      await getAuthHeaders("sparql", req, endpoint_url, requestSig);
 
       const response = await fetch(
         `${endpoint}/sparql?query=` +
@@ -92,37 +111,16 @@ const BASE_PORT = 8182;
 
   app.get("/", async (req, res, next) => {
     try {
-      let endpoint;
-      const endpoint_input = req.headers["graph-db-connection-url"];
-      const region_input = req.headers["aws-neptune-region"];
+      const reqObjects = await getRequestObjects(req.headers["graph-db-connection-url"], req.headers["aws-neptune-region"]);
+      const endpoint_url = reqObjects[0];
+      const endpoint = reqObjects[1];
+      const requestSig = reqObjects[2];
 
-      if (endpoint_input) {
-        requestSig = await new RequestSig(
-          new URL(endpoint_input).host,
-          region_input,
-          creds[0],
-          creds[1],
-          creds[2]
-        );
-        endpoint = endpoint_input;
-      } else {
-        console.log("No endpoint passed");
-      }
-
-      const authHeaders = await requestSig.requestAuthHeaders(
-        BASE_PORT,
-        "/?gremlin=" + encodeURIComponent(req.query.gremlin)
-      );
-      req.headers["Authorization"] = authHeaders["headers"]["Authorization"];
-      req.headers["X-Amz-Date"] = authHeaders["headers"]["X-Amz-Date"];
-      if (authHeaders["headers"]["X-Amz-Security-Token"]) {
-        req.headers["X-Amz-Security-Token"] =
-          authHeaders["headers"]["X-Amz-Security-Token"];
-      }
-      req.headers["host"] = new URL(endpoint).host;
+      await getAuthHeaders("gremlin", req, endpoint_url, requestSig);
 
       const response = await fetch(
-        `${endpoint}/?gremlin=` + encodeURIComponent(req.query.gremlin),
+        `${endpoint}/?gremlin=` + 
+        encodeURIComponent(req.query.gremlin),
         {
           headers: req.headers,
         }
@@ -136,7 +134,7 @@ const BASE_PORT = 8182;
     }
   });
 
-  if (process.env.HTTPS_PROXY_SERVER_CONNECTION != "false") {
+  if (process.env.HTTPS_PROXY_SERVER_CONNECTION != false) {
     https
       .createServer(
         {
@@ -145,12 +143,12 @@ const BASE_PORT = 8182;
         },
         app
       )
-      .listen(BASE_PORT, async () => {
-        console.log(`\tProxy server located at https://localhost:${BASE_PORT}`);
+      .listen(8182, async () => {
+        console.log(`\tProxy server located at https://localhost:8182`);
       });
   } else {
-    app.listen(BASE_PORT, async () => {
-      console.log(`\tProxy server located at http://localhost:${BASE_PORT}`);
+    app.listen(8182, async () => {
+      console.log(`\tProxy server located at http://localhost:8182`);
     });
   }
 })();

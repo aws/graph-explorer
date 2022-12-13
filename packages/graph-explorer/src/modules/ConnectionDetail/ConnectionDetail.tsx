@@ -150,13 +150,13 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
           <div className={pfx("tag")}>URL</div>
           <div className={pfx("value")}>{config.connection?.url}</div>
         </div>
-        {config.connection?.neptuneOrBlazegraph && (
+        {config.connection?.proxyConnection && (
           <div className={pfx("item")}>
             <div className={pfx("tag")}>Graph Connection URL</div>
             <div className={pfx("value")}>{config.connection?.graphDbUrl}</div>
           </div>
         )}
-        {config.connection?.neptuneAuthEnabled && (
+        {config.connection?.awsAuthEnabled && (
           <div className={pfx("item")}>
             <div className={pfx("tag")}>Region</div>
             <div className={pfx("value")}>{config.connection?.awsRegion}</div>

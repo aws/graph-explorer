@@ -22,8 +22,8 @@ export default defineConfig(async ({ mode }) => {
     server: {
       host: true,
     },
-    base: env.REACT_APP_ENV_ROOT_FOLDER,
-    envPrefix: "REACT_APP",
+    base: env.GRAPH_EXP_ENV_ROOT_FOLDER,
+    envPrefix: "GRAPH_EXP",
     plugins: [htmlPlugin(), react()],
   };
 });

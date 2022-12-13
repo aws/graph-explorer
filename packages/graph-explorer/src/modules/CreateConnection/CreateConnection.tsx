@@ -25,9 +25,9 @@ type ConnectionForm = {
   name?: string;
   url?: string;
   type?: "gremlin" | "sparql";
-  neptuneOrBlazegraph?: boolean;
+  proxyConnection?: boolean;
   graphDbUrl?: string;
-  neptuneAuthEnabled?: boolean;
+  awsAuthEnabled?: boolean;
   awsRegion?: string;
 };
 
@@ -63,9 +63,9 @@ const CreateConnection = ({
           connection: {
             url: data.url,
             queryEngine: data.type,
-            neptuneOrBlazegraph: data.neptuneOrBlazegraph,
+            proxyConnection: data.proxyConnection,
             graphDbUrl: data.graphDbUrl,
-            neptuneAuthEnabled: data.neptuneAuthEnabled,
+            awsAuthEnabled: data.awsAuthEnabled,
             awsRegion: data.awsRegion,
           },
         };
@@ -89,9 +89,9 @@ const CreateConnection = ({
           connection: {
             url: data.url,
             queryEngine: data.type,
-            neptuneOrBlazegraph: data.neptuneOrBlazegraph,
+            proxyConnection: data.proxyConnection,
             graphDbUrl: data.graphDbUrl,
-            neptuneAuthEnabled: data.neptuneAuthEnabled,
+            awsAuthEnabled: data.awsAuthEnabled,
             awsRegion: data.awsRegion,
           },
         });
@@ -128,9 +128,9 @@ const CreateConnection = ({
       initialData?.name ||
       `Connection (${formatDate(new Date(), "yyyy-MM-dd HH:mm")})`,
     url: initialData?.url || "",
-    neptuneOrBlazegraph: initialData?.neptuneOrBlazegraph || false,
+    proxyConnection: initialData?.proxyConnection || false,
     graphDbUrl: initialData?.graphDbUrl || "",
-    neptuneAuthEnabled: initialData?.neptuneAuthEnabled || false,
+    awsAuthEnabled: initialData?.awsAuthEnabled || false,
     awsRegion: initialData?.awsRegion || "",
   });
 
@@ -152,12 +152,12 @@ const CreateConnection = ({
       return;
     }
 
-    if (form.neptuneOrBlazegraph && !form.graphDbUrl) {
+    if (form.proxyConnection && !form.graphDbUrl) {
       setError(true);
       return;
     }
 
-    if (form.neptuneAuthEnabled && !form.awsRegion) {
+    if (form.awsAuthEnabled && !form.awsRegion) {
       setError(true);
       return;
     }
@@ -217,15 +217,15 @@ const CreateConnection = ({
         </div>
         <div className={pfx("input-url")}>
           <Checkbox
-            value={"neptuneOrBlazegraph"}
-            checked={form.neptuneOrBlazegraph}
+            value={"proxyConnection"}
+            checked={form.proxyConnection}
             onChange={e => {
-              onFormChange("neptuneOrBlazegraph")(e.target.checked);
+              onFormChange("proxyConnection")(e.target.checked);
             }}
-            label={"Neptune or Blazegraph"}
+            label={"Connecting to Proxy-Server"}
           />
         </div>
-        {form.neptuneOrBlazegraph && (
+        {form.proxyConnection && (
           <div className={pfx("input-url")}>
             <Input
               data-autofocus={true}
@@ -240,23 +240,23 @@ const CreateConnection = ({
             />
           </div>
         )}
-        {form.neptuneOrBlazegraph && (
+        {form.proxyConnection && (
           <div className={pfx("input-url")}>
             <Checkbox
-              value={"neptuneAuthEnabled"}
-              checked={form.neptuneAuthEnabled}
+              value={"awsAuthEnabled"}
+              checked={form.awsAuthEnabled}
               onChange={e => {
-                onFormChange("neptuneAuthEnabled")(e.target.checked);
+                onFormChange("awsAuthEnabled")(e.target.checked);
               }}
-              label={"Neptune Authorization Enabled"}
+              label={"AWS IAM Auth Enabled"}
             />
           </div>
         )}
-        {form.neptuneOrBlazegraph && form.neptuneAuthEnabled && (
+        {form.proxyConnection && form.awsAuthEnabled && (
           <div className={pfx("input-url")}>
             <Input
               data-autofocus={true}
-              label={"AWS Neptune Region"}
+              label={"AWS Region"}
               value={form.awsRegion}
               onChange={onFormChange("awsRegion")}
               errorMessage={"Region is required"}

@@ -228,11 +228,11 @@ export abstract class AbstractConnector {
 
   protected get headers() {
     const headers: HeadersInit = {};
-    if (this._config.connection?.neptuneOrBlazegraph) {
+    if (this._config.connection?.proxyConnection) {
       headers["graph-db-connection-url"] =
         this._config.connection?.graphDbUrl || "";
     }
-    if (this._config.connection?.neptuneAuthEnabled) {
+    if (this._config.connection?.awsAuthEnabled) {
       headers["aws-neptune-region"] = this._config.connection?.awsRegion || "";
     }
 

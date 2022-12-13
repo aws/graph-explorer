@@ -17,16 +17,16 @@ if (params.configFile) {
     id: params.configFile,
     remoteConfigFile: params.configFile,
   };
-} else if (import.meta.env.REACT_APP_CONNECTION_URL) {
+} else if (import.meta.env.GRAPH_EXP_CONNECTION_URL) {
   config = {
-    id: import.meta.env.REACT_APP_CONNECTION_URL,
+    id: import.meta.env.GRAPH_EXP_CONNECTION_URL,
     displayLabel:
-      import.meta.env.REACT_APP_CONNECTION_NAME ||
-      import.meta.env.REACT_APP_CONNECTION_URL,
+      import.meta.env.GRAPH_EXP_CONNECTION_NAME ||
+      import.meta.env.GRAPH_EXP_CONNECTION_URL,
     connection: {
-      url: import.meta.env.REACT_APP_CONNECTION_URL,
+      url: import.meta.env.GRAPH_EXP_CONNECTION_URL,
       queryEngine:
-        (import.meta.env.REACT_APP_CONNECTION_ENGINE as
+        (import.meta.env.GRAPH_EXP_CONNECTION_ENGINE as
           | "gremlin"
           | "sparql"
           | undefined) || "gremlin",
