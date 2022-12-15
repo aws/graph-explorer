@@ -8,10 +8,14 @@ const EmptyState = () => {
       <PanelEmptyState
         icon={<SearchIcon />}
 <<<<<<< HEAD
+<<<<<<< HEAD
         title="To get started, click into the search bar to browse graph data. Click + to add to Graph View."
 =======
         title="To get started, search for an entity"
 >>>>>>> beca7aa (12/09 12:22PM push)
+=======
+        title="To get started, click into the search bar to browse graph data. Click + to add to Graph View."
+>>>>>>> d9d360e (12/14 7:50PM push (Address some requested label changes, adding https to graph explorer url, adding format to sparql endpoint))
         size="md"
       />
     </div>

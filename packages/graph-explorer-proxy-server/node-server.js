@@ -238,6 +238,7 @@ const BASE_PORT = 8182;
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (process.env.PROXY_SERVER_HTTPS_CONNECTION != false) {
 =======
   if (process.env.HTTPS_PROXY_SERVER_CONNECTION != "false") {
@@ -245,6 +246,9 @@ const BASE_PORT = 8182;
 =======
   if (process.env.HTTPS_PROXY_SERVER_CONNECTION != false) {
 >>>>>>> e6c010c (12/13 10:01AM push (Address README fixes, change labels of connection page, change ENV variable prefixes, abstract node server logic))
+=======
+  if (process.env.PROXY_SERVER_HTTPS_CONNECTION != false) {
+>>>>>>> d9d360e (12/14 7:50PM push (Address some requested label changes, adding https to graph explorer url, adding format to sparql endpoint))
     https
       .createServer(
         {

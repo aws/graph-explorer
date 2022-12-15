@@ -144,6 +144,7 @@ You can find a template for the following environment variables at `/packages/gr
 - `GRAPH_EXP_CONNECTION_ENGINE`: Default connection query engine work with the instance. By default, `gremlin` (`gremlin | sparql`).
 - `GRAPH_EXP_HTTPS_CONNECTION`: Uses the self-signed cert to serve the Graph Explorer over https if true. By default `true` (`boolean`).
 - `PROXY_SERVER_HTTPS_CONNECTION`: Uses the self-signed cert to serve the proxy-server over https if true. By default `true` (`boolean`).
+<<<<<<< HEAD
 =======
 You can find a template for the following environment variables at `/packages/client/.env`.
 =======
@@ -157,10 +158,12 @@ You can find a template for the following environment variables at `/packages/gr
 - `GRAPH_EXP_CONNECTION_NAME`: Default connection name. Blank by default (`string`).
 - `GRAPH_EXP_CONNECTION_ENGINE`: Default connection query engine work with the instance. By default, `gremlin` (`gremlin | sparql`).
 - `HTTPS_PROXY_SERVER_CONNECTION`: Creates self-signed cert if true. Provide a https url for `Public URL` in the connection pane if true. By default `true` (`boolean`).
+=======
+>>>>>>> d9d360e (12/14 7:50PM push (Address some requested label changes, adding https to graph explorer url, adding format to sparql endpoint))
 
 ### Docker Instructions
 
-The docker image contains the code needed to create a runnable instance of the Explorer inside of a container. The image will create the Graph Explorer communicating through port 5173 and the proxy-server through port 8182. Additionally, it will create a self-signed cert that can be optionally used by configuring `HTTPS_PROXY_SERVER_CONNECTION`.
+The docker image contains the code needed to create a runnable instance of the Explorer inside of a container. The image will create the Graph Explorer communicating through port 5173 and the proxy-server through port 8182. Additionally, it will create a self-signed cert that can be optionally used by configuring `PROXY_SERVER_HTTPS_CONNECTION`.
 
 - To build the image, `docker build -t graph-explorer .` from the root directory. Required.
 - To run the image in a container, run `docker run -dit -p 5173:5173 -p 8182:8182 --name {container_name} graph-explorer`. Optional, can be run as long as the image is there.
@@ -170,10 +173,14 @@ The docker image contains the code needed to create a runnable instance of the E
 
 ### Connecting to Neptune
 <<<<<<< HEAD
+<<<<<<< HEAD
 - Ensure that Graph Explorer has access to the Neptune instance by being in the same VPC or VPC peering. 
 =======
 - Ensure that graph-explorer has access to the Neptune instance by being in the same VPC or VPC peering. 
 >>>>>>> e6c010c (12/13 10:01AM push (Address README fixes, change labels of connection page, change ENV variable prefixes, abstract node server logic))
+=======
+- Ensure that Graph Explorer has access to the Neptune instance by being in the same VPC or VPC peering. 
+>>>>>>> d9d360e (12/14 7:50PM push (Address some requested label changes, adding https to graph explorer url, adding format to sparql endpoint))
 - If authentication is enabled, read query privileges are needed (See ReadDataViaQuery managed policy [here](https://docs.aws.amazon.com/neptune/latest/userguide/iam-data-access-examples.html#iam-auth-data-policy-example-read-query).
 
 ### Connecting to Gremlin-Server
@@ -183,6 +190,7 @@ The docker image contains the code needed to create a runnable instance of the E
 - Build and run the docker container as normal.
 
 ### Connecting to BlazeGraph
+<<<<<<< HEAD
 <<<<<<< HEAD
 - Build and run the docker container as normal and connect the proxy-server to BlazeGraph and your workbench to the proxy-server.
 - If using docker, ensure that the container running the workbench can properly access the container running BlazeGraph. You can find documentation on how to connect containers via docker networks [here](https://docs.docker.com/network/).
@@ -198,12 +206,16 @@ The docker image contains the code needed to create a runnable instance of the E
 - If either of the Graph Explorer or the proxy-server are served over an https connection, you will have to bypass the warning message from the browser due to the certs being self-signed by retrieving the needed certs to trust from `/packages/graph-explorer-proxy-server/cert-info/` or by manually ignoring them from the browser. Once you retrive these cert files, you should add them to your trusted certs on your computer. Each OS is different, but a tutorial can be found via a quick google search. If you only serve the proxy-server over https and want to ignore the error in the browser, you might need to directly navigate to the proxy-server to ignore the cert error. 
 =======
 - Build and run the docker container as normal and connect the proxy server to BlazeGraph and your workbench to the proxy server.
+=======
+- Build and run the docker container as normal and connect the proxy-server to BlazeGraph and your workbench to the proxy-server.
+>>>>>>> d9d360e (12/14 7:50PM push (Address some requested label changes, adding https to graph explorer url, adding format to sparql endpoint))
 - If using docker, ensure that the container running the workbench can properly access the container running BlazeGraph. You can find documentation on how to connect containers via docker networks [here](https://docs.docker.com/network/).
 
 ### Using HTTPS
 - Navigate to `/packages/graph-explorer-proxy-server/cert-info/` and in the following files, you'll need to insert your CN along with the DNS values.
 - Navigate to `/Dockerfile` and on line 14 insert your CN.
 
+<<<<<<< HEAD
 ### Using the Proxy Server
 <<<<<<< HEAD
 - When creating a connection, insert the url to access your proxy server, which is `http(s)://localhost:8182` from the context of the host machine, into the Public URL field. Check `Neptune or BlazeGraph` since you won't be using the proxy with Gremlin-Server, and fill in the Graph Connection URL with the endpoint that the proxy server should make requests to. Ensure that you don't end the Graph Connection URLs with `/`.
@@ -211,6 +223,13 @@ The docker image contains the code needed to create a runnable instance of the E
 =======
 - When creating a connection, insert the url to access your proxy server, which is `http(s)://localhost:8182` from the context of the host machine, into the Public URL field. Check `Connecting to Proxy-Server` since you won't be using the proxy with Gremlin-Server, and fill in the Graph Connection URL with the endpoint that the proxy server should make requests to. Ensure that you don't end the Graph Connection URLs with `/`.
 >>>>>>> e6c010c (12/13 10:01AM push (Address README fixes, change labels of connection page, change ENV variable prefixes, abstract node server logic))
+=======
+### Using the Proxy-Server
+- When creating a connection, insert the url to access your proxy-server, which is `http(s)://localhost:8182` from the context of the host machine, into the Public URL field. Check `Connecting to Proxy-Server` since you won't be using the proxy with Gremlin-Server, and fill in the Graph Connection URL with the endpoint that the proxy-server should make requests to. Ensure that you don't end the Graph Connection URLs with `/`.
+
+### HTTPS Connections
+- If either of the Graph Explorer or the proxy-server are served over an https connection, you will have to bypass the warning message from the browser due to the certs being self-signed by retrieving the needed certs to trust from `/packages/graph-explorer-proxy-server/cert-info/` or by manually ignoring them from the browser. If you only serve the proxy-server over https and want to ignore the error in the browser, you might need to directly navigate to the proxy-server to ignore the cert error. 
+>>>>>>> d9d360e (12/14 7:50PM push (Address some requested label changes, adding https to graph explorer url, adding format to sparql endpoint))
 
 ## Authentication
 

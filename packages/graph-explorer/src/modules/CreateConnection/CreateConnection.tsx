@@ -255,10 +255,14 @@ const CreateConnection = ({
             label={
               <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
 <<<<<<< HEAD
+<<<<<<< HEAD
                 Public or Proxy Endpoint
 =======
                 Public Endpoint
 >>>>>>> beca7aa (12/09 12:22PM push)
+=======
+                Public or Proxy Endpoint
+>>>>>>> d9d360e (12/14 7:50PM push (Address some requested label changes, adding https to graph explorer url, adding format to sparql endpoint))
                 <Tooltip
                   text={
                     <div style={{ maxWidth: 300 }}>
@@ -293,6 +297,7 @@ const CreateConnection = ({
               onFormChange("proxyConnection")(e.target.checked);
             }}
             label={"Using Proxy-Server"}
+<<<<<<< HEAD
           />
         </div>
         {form.proxyConnection && (
@@ -307,6 +312,8 @@ const CreateConnection = ({
               onFormChange("proxyConnection")(e.target.checked);
             }}
             label={"Connecting to Proxy-Server"}
+=======
+>>>>>>> d9d360e (12/14 7:50PM push (Address some requested label changes, adding https to graph explorer url, adding format to sparql endpoint))
           />
         </div>
 <<<<<<< HEAD
