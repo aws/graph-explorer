@@ -62,8 +62,8 @@ const useGraphStyles = () => {
 
         styles[`edge[type="${et}"]`] = {
           label,
-          "source-distance-from-node": 6,
-          "target-distance-from-node": 6,
+          "source-distance-from-node": 0,
+          "target-distance-from-node": 0,
         };
 
         const etConfig = config?.getEdgeTypeConfig(et);
@@ -103,8 +103,8 @@ const useGraphStyles = () => {
           "text-border-color": etConfig?.labelBorderColor,
           "text-border-style": etConfig?.labelBorderStyle,
           width: etConfig.lineThickness,
-          "source-distance-from-node": 6,
-          "target-distance-from-node": 6,
+          "source-distance-from-node": 0,
+          "target-distance-from-node": 0,
         };
       }
 

@@ -7,7 +7,7 @@ const EmptyState = () => {
     <div className={styles()}>
       <PanelEmptyState
         icon={<SearchIcon />}
-        title="To get started, search for an entity"
+        title="To get started, click into the search bar to browse graph data. Click + to add to Graph View."
         size="md"
       />
     </div>

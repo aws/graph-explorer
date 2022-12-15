@@ -71,7 +71,7 @@ export default class SPARQLConnector extends AbstractConnector {
 
       const uri = `${url}/sparql?query=${encodedQuery}`;
 
-      const res = await fetch(uri, {
+      const res = await fetch(uri + "&format=json", {
         signal: options?.abortSignal,
         headers: super.headers,
       });

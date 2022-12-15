@@ -190,7 +190,7 @@ const CreateConnection = ({
             data-autofocus={true}
             label={
               <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
-                Public Endpoint
+                Public or Proxy Endpoint
                 <Tooltip
                   text={
                     <div style={{ maxWidth: 300 }}>
@@ -222,7 +222,7 @@ const CreateConnection = ({
             onChange={e => {
               onFormChange("proxyConnection")(e.target.checked);
             }}
-            label={"Connecting to Proxy-Server"}
+            label={"Using Proxy-Server"}
           />
         </div>
         {form.proxyConnection && (

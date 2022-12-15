@@ -25,9 +25,9 @@ const getEmptyStateItems = (
   }
 
   return {
-    title: emptyState?.noElementsTitle || "No elements",
+    title: emptyState?.noElementsTitle || "No saved connections",
     subtitle:
-      emptyState?.noElementsSubtitle || "No Elements available in this list",
+      emptyState?.noElementsSubtitle || "To get started, click + to add a new connection to a graph database.",
     icon: emptyState?.noElementsIcon || <NoWidgetIcon />,
   };
 };
