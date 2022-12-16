@@ -8,6 +8,20 @@ Upon build, the Graph Explorer will be run at port 5173 and the proxy-server at 
 ![A sample image of property graph created by Graph Explorer](./images/LPG IMDb.png)
 ![A sample image of RDF graph created by Graph Explorer](./images/RDFAirports.png)
 
+## Getting Started
+
+## Features
+
+#### _Connections UI:_
+You can create and manage connections to graph databases using this feature. Connections is accessible as the first screen after deploying the application, when you click `Open Connections` on the top-right. Click `+` on the top-right to add a new connection. You can also edit and delete connections.     
+
+* __Add a new connection:__
+   *  __Name:__ Enter a name for your connection (e.g., `MyNeptuneCluster`). 
+   *  __Graph Type:__ Choose a graph data model that corresponds to your desired graph database. 
+   *  __Public Endpoint:__ Provide the publicly accessible endpoint URL for a graph database, e.g., Gremlin Server. If connecting to Amazon Neptune, then provide a proxy endpoint URL that is accessible from outside the VPC, e.g., EC2.
+
+* __Available Connections:__ Once a connection is created, this section will appear as a left-hand pane. When you create more than one connection to a graph database, you can only connect to and visualize from one graph database endpoint at a time. To select the active database, toggle the “Active” switch.
+
 #### Supported Graph Types
 - Labelled Property Graph (PG) using Gremlin
 - Resource Description Framework (RDF) using SPARQL
