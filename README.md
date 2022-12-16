@@ -5,8 +5,8 @@ To get started, you can deploy Graph Explorer on a local machine using [Docker D
 
 Upon build, the Graph Explorer will be run at port 5173 and the proxy-server at port 8182. The proxy-server will be created automatically, but will only be necessary if you are connecting to Neptune. Gremlin-Server and BlazeGraph can be connected to directly. 
 
-![A sample image of property graph created by Graph Explorer](./images/LPG IMDb.png)
-![A sample image of RDF graph created by Graph Explorer](./images/RDFAirports.png)
+![A sample image of property graph created by Graph Explorer](./images/LPGIMDb.png)
+![A sample image of RDF graph created by Graph Explorer](./images/RDFEPL.png)
 
 ## Getting Started
 
