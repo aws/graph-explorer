@@ -25,8 +25,12 @@ RUN openssl req -x509 -sha256 -days 356 -nodes -newkey rsa:2048 -subj "/CN={YOUR
 =======
 RUN sed -i "21s/$/ $host:*/" csr.conf
 RUN sed -i "8s/$/ $host:*/" cert.conf
+<<<<<<< HEAD
 RUN openssl req -x509 -sha256 -days 356 -nodes -newkey rsa:2048 -subj "/CN=Amazon Neptune/C=US/L=San Fransisco" -keyout rootCA.key -out rootCA.crt
 >>>>>>> 03b76a3 (12/16 11:10AM push (Address README changes and add automatic host resolution for certs))
+=======
+RUN openssl req -x509 -sha256 -days 356 -nodes -newkey rsa:2048 -subj "/CN=Amazon Neptune/C=US/L=Seattle" -keyout rootCA.key -out rootCA.crt
+>>>>>>> 31bfbaa (12/16 11:28 push (Sync locations of cert files to Seattle))
 RUN openssl genrsa -out ./server.key 2048
 RUN openssl req -new -key ./server.key -out ./server.csr -config ./csr.conf
 RUN openssl x509 -req -in ./server.csr -CA ./rootCA.crt -CAkey ./rootCA.key -CAcreateserial -out ./server.crt -days 365 -sha256 -extfile ./cert.conf
