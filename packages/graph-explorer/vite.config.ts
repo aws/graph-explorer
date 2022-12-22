@@ -19,22 +19,24 @@ export default defineConfig(async ({ mode }) => {
     } as any;
   };
 
-  const httpsPlugin = () => {
-    if (env.GRAPH_EXP_HTTPS_CONNECTION) {
+  const serverInfo = () => {
+    if (env.GRAPH_EXP_HTTPS_CONNECTION != "false") {
       return {
-        key: fs.readFileSync("../graph-explorer-proxy-server/cert-info/server.key"),
-        cert: fs.readFileSync("../graph-explorer-proxy-server/cert-info/server.crt"),
-      } as any;
+        host: true,
+        https: {
+          key: fs.readFileSync("../graph-explorer-proxy-server/cert-info/server.key"),
+          cert: fs.readFileSync("../graph-explorer-proxy-server/cert-info/server.crt"),
+        },
+      }
     } else {
-      return {} as any;
+      return {
+        host: true
+      }
     }
   }
 
   return {
-    server: {
-      host: true,
-      https: httpsPlugin(),
-    },
+    server: serverInfo(),
     base: env.GRAPH_EXP_ENV_ROOT_FOLDER,
     envPrefix: "GRAPH_EXP",
     plugins: [htmlPlugin(), react()],
