@@ -10,16 +10,37 @@ Upon build, the Graph Explorer will be run at port 5173 and the proxy-server at 
 
 ## Getting Started
 
+There are many ways to deploy the Graph Explorer application. The following instructions detail how to deploy graph-explorer onto an Amazon EC2 instance and use it as a proxy server with SSH tunneling to connect to Amazon Neptune. Note that this README is not an official recommendation on network setups as there are many ways to connect to Amazon Neptune from outside of the VPC, such as setting up a load balancer or VPC peering.
+
+### Prerequisites:
+
+* Provision an Amazon EC2 instance that will be used to host the application and connect to Neptune as a proxy server. For more details, see instructions here: https://github.com/aws/graph-notebook/tree/main/additional-databases/neptune
+* Ensure the Amazon EC2 instance can send and receive on ports `22` (SSH), `8182` (Neptune), and `5173` (graph-explorer).
+* Open an SSH client and connect to the EC2 instance.
+* Download and install the necessary command line tools such as `git`  and `docker`.
+
+### Steps to install Graph Explorer:
+
+This project contains the code needed to create a Docker image of the Graph Explorer inside of a container. The image will create the Graph Explorer application to communicate through port `5173` and the proxy-server through port `8182`. Additionally, it will create a self-signed certificate that can be optionally used when PROXY_SERVER_HTTPS_CONNECTION or GRAPH_EXP_HTTPS_CONNECTION are set to true (default behavior).
+
+1. To download the source project, run `git clone https://github.com/aws/graph-explorer/`  
+2. To build the image, run `docker build --build-arg host=$(hostname -i) -t graph-explorer .` from the root directory.
+3. To run the image in a container, run `docker run -dit -p 5173:5173 -p 8182:8182 --name {container_name} graph-explorer`. Optional, can be run as long as the image is there.
+4. Since the application is set to use HTTPS by default and contains a self-signed certificate, you will need to add the Graph Explorer certificates to the trusted certificates directory and manually trust them. (**STEP TO BE REWRITTEN IN DETAIL**).
+5. Now, open a browser and type in the public URL of your EC2 instance on port `5173` (e.g., `https://ec2-1-2-3-4.us-east-1.compute.amazonaws.com:5173`). You will receive a warning as the SSL certificate used is self-signed. Click to proceed anyway.
+6. You should now see the Connections UI. See below description on Connections UI to configure your first connection to Amazon Neptune.
+
 ## Features
 
 #### _Connections UI:_
-You can create and manage connections to graph databases using this feature. Connections is accessible as the first screen after deploying the application, when you click `Open Connections` on the top-right. Click `+` on the top-right to add a new connection. You can also edit and delete connections.     
+You can create and manage connections to graph databases using this feature. Connections is accessible as the first screen after deploying the application, when you click `Open Connections` on the top-right. Click `+` on the top-right to add a new connection. You can also edit and delete connections. 
 
 * __Add a new connection:__
    *  __Name:__ Enter a name for your connection (e.g., `MyNeptuneCluster`). 
    *  __Graph Type:__ Choose a graph data model that corresponds to your graph database. 
    *  __Public Endpoint:__ Provide the publicly accessible endpoint URL for a graph database, e.g., Gremlin Server. If connecting to Amazon Neptune, then provide a proxy endpoint URL that is accessible from outside the VPC, e.g., EC2.
-   * __Public or proxy endpoint:__ Provide the publicly accessible endpoint URL for a graph database, e.g., Gremlin Server. If connecting to Amazon Neptune, then provide a proxy endpoint URL that is accessible from outside the VPC, e.g., EC2.
+   * __Public or proxy endpoint:__ Provide the publicly accessible endpoint URL for a graph database, e.g., Gremlin Server. If connecting to Amazon Neptune, then provide a proxy endpoint URL that is accessible from outside the VPC, e.g., EC2. 
+      * **Note:** For connecting to Amazon Neptune, ensure that both the proxy endpoint and the graph connection URL begin with `https://` and end with `:8182`. Ensure that you don't end the URLs with `/`.
    * __Using proxy server:__ Check this box if using a proxy endpoint.
    * __Graph connection URL:__ Provide the endpoint for the graph database
    * __AWS IAM Auth Enabled:__ Check this box if connecting to Amazon Neptune using IAM Auth and SigV4 signed requests
@@ -67,15 +88,15 @@ You can search, browse, expand, customize views of your graph data using Graph E
      * Default columns - You can set which columns you want to display
      * Paging of rows
 
-#### Supported Graph Types
-- Labelled Property Graph (PG) using Gremlin
-- Resource Description Framework (RDF) using SPARQL
-
 ## Development
 
 ### Requirements
 - pnpm >=7.9.3
 - node >=16.15.1
+
+### Supported Graph Types
+- Labelled Property Graph (PG) using Gremlin
+- Resource Description Framework (RDF) using SPARQL 
 
 ### Run in development mode
 - `pnpm i`
@@ -97,13 +118,6 @@ You can find a template for the following environment variables at `/packages/gr
 - `GRAPH_EXP_CONNECTION_ENGINE`: Default connection query engine work with the instance. By default, `gremlin` (`gremlin | sparql`).
 - `GRAPH_EXP_HTTPS_CONNECTION`: Uses the self-signed cert to serve the Graph Explorer over https if true. By default `true` (`boolean`).
 - `PROXY_SERVER_HTTPS_CONNECTION`: Uses the self-signed cert to serve the proxy-server over https if true. By default `true` (`boolean`).
-
-### Docker Instructions
-
-The docker image contains the code needed to create a runnable instance of the Explorer inside of a container. The image will create the Graph Explorer communicating through port 5173 and the proxy-server through port 8182. Additionally, it will create a self-signed cert that can be optionally used when `PROXY_SERVER_HTTPS_CONNECTION` or `GRAPH_EXP_HTTPS_CONNECTION` are set to true (default behavior).
-
-- To build the image, `docker build --build-arg host=$(hostname -i) -t graph-explorer .` from the root directory. Required.
-- To run the image in a container, run `docker run -dit -p 5173:5173 -p 8182:8182 --name {container_name} graph-explorer`. Optional, can be run as long as the image is there.
 
 ## Connection
 
