@@ -3,8 +3,6 @@ The Graph Explorer project provides a React-based web application that enables u
 
 To get started, you can deploy Graph Explorer on a local machine using [Docker Desktop](https://www.docker.com/products/docker-desktop/), or in the cloud using a container service such as [Amazon ECS](https://aws.amazon.com/ecs/). The Graph Explorer image is hosted on [Amazon ECR](https://aws.amazon.com/ecr/), and can also be pulled from [DockerHub](https://hub.docker.com/). 
 
-Upon build, the Graph Explorer will be run at port 5173 and the proxy-server at port 8182. The proxy-server will be created automatically, but will only be necessary if you are connecting to Neptune. Gremlin-Server and BlazeGraph can be connected to directly. 
-
 ![A sample image of property graph created by Graph Explorer](./images/LPGIMDb.png)
 ![A sample image of RDF graph created by Graph Explorer](./images/RDFEPL.png)
 
@@ -21,7 +19,7 @@ There are many ways to deploy the Graph Explorer application. The following inst
 
 ### Steps to install Graph Explorer:
 
-This project contains the code needed to create a Docker image of the Graph Explorer inside of a container. The image will create the Graph Explorer application to communicate through port `5173` and the proxy-server through port `8182`. Additionally, it will create a self-signed certificate that can be optionally used when PROXY_SERVER_HTTPS_CONNECTION or GRAPH_EXP_HTTPS_CONNECTION are set to true (default behavior).
+This project contains the code needed to create a Docker image of the Graph Explorer inside of a container. The image will create the Graph Explorer application to communicate through port `5173` and a proxy server through port `8182`. The proxy server will be created automatically, but will only be necessary if you are connecting to Neptune. Gremlin-Server and BlazeGraph can be connected to directly. Additionally, the image will create a self-signed certificate that can be optionally used when PROXY_SERVER_HTTPS_CONNECTION or GRAPH_EXP_HTTPS_CONNECTION are set to true (default behavior). 
 
 1. To download the source project, run `git clone https://github.com/aws/graph-explorer/`  
 2. To build the image, run `docker build --build-arg host=$(hostname -i) -t graph-explorer .` from the root directory.
