@@ -3,17 +3,6 @@ The Graph Explorer project provides a React-based web application that enables u
 
 To get started, you can deploy Graph Explorer on a local machine using [Docker Desktop](https://www.docker.com/products/docker-desktop/), or in the cloud using a container service such as [Amazon ECS](https://aws.amazon.com/ecs/). The Graph Explorer image is hosted on [Amazon ECR](https://aws.amazon.com/ecr/), and can also be pulled from [DockerHub](https://hub.docker.com/). 
 
-<<<<<<< HEAD
-Upon build, the Graph Explorer will be run at port 5173 and the proxy-server at port 8182. The proxy-server will be created automatically, but will only be necessary if you are connecting to Neptune. Gremlin-Server and BlazeGraph can be connected to directly. 
-
-![A sample image of property graph created by Graph Explorer](./images/LPG IMDb.png)
-![A sample image of RDF graph created by Graph Explorer](./images/RDFAirports.png)
-
-#### Supported Graph Types
-- Labelled Property Graph (PG) using Gremlin
-- Resource Description Framework (RDF) using SPARQL
-
-=======
 ![A sample image of property graph created by Graph Explorer](./images/LPGIMDb.png)
 ![A sample image of RDF graph created by Graph Explorer](./images/RDFEPL.png)
 
@@ -97,7 +86,6 @@ You can search, browse, expand, customize views of your graph data using Graph E
      * Default columns - You can set which columns you want to display
      * Paging of rows
 
->>>>>>> eebfdbf1d8352f65fbffd3993744482e6f556327
 ## Development
 
 ### Requirements
@@ -128,16 +116,6 @@ You can find a template for the following environment variables at `/packages/gr
 - `GRAPH_EXP_CONNECTION_ENGINE`: Default connection query engine work with the instance. By default, `gremlin` (`gremlin | sparql`).
 - `GRAPH_EXP_HTTPS_CONNECTION`: Uses the self-signed cert to serve the Graph Explorer over https if true. By default `true` (`boolean`).
 - `PROXY_SERVER_HTTPS_CONNECTION`: Uses the self-signed cert to serve the proxy-server over https if true. By default `true` (`boolean`).
-<<<<<<< HEAD
-
-### Docker Instructions
-
-The docker image contains the code needed to create a runnable instance of the Explorer inside of a container. The image will create the Graph Explorer communicating through port 5173 and the proxy-server through port 8182. Additionally, it will create a self-signed cert that can be optionally used when `PROXY_SERVER_HTTPS_CONNECTION` or `GRAPH_EXP_HTTPS_CONNECTION` are set to true (default behavior).
-
-- To build the image, `docker build --build-arg host=$(hostname -i) -t graph-explorer .` from the root directory. Required.
-- To run the image in a container, run `docker run -dit -p 5173:5173 -p 8182:8182 --name {container_name} graph-explorer`. Optional, can be run as long as the image is there.
-=======
->>>>>>> eebfdbf1d8352f65fbffd3993744482e6f556327
 
 ## Connection
 
