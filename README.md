@@ -145,6 +145,7 @@ You can find a template for the following environment variables at `/packages/gr
 - `GRAPH_EXP_HTTPS_CONNECTION`: Uses the self-signed cert to serve the Graph Explorer over https if true. By default `true` (`boolean`).
 - `PROXY_SERVER_HTTPS_CONNECTION`: Uses the self-signed cert to serve the proxy-server over https if true. By default `true` (`boolean`).
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 You can find a template for the following environment variables at `/packages/client/.env`.
 =======
@@ -168,6 +169,8 @@ The docker image contains the code needed to create a runnable instance of the E
 - To build the image, `docker build --build-arg host=$(hostname -i) -t graph-explorer .` from the root directory. Required.
 - To run the image in a container, run `docker run -dit -p 5173:5173 -p 8182:8182 --name {container_name} graph-explorer`. Optional, can be run as long as the image is there.
 >>>>>>> 00a6590 (12/08 5:31PM CT push)
+=======
+>>>>>>> b4e8989 (remove left over merge)
 
 ## Connection
 
