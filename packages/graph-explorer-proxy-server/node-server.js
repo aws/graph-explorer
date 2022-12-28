@@ -134,7 +134,7 @@ dotenv.config({ path: "../graph-explorer/.env" });
     }
   });
 
-  if (process.env.PROXY_SERVER_HTTPS_CONNECTION != false) {
+  if (process.env.PROXY_SERVER_HTTPS_CONNECTION != "false") {
     https
       .createServer(
         {

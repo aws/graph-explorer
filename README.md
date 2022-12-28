@@ -22,7 +22,7 @@ There are many ways to deploy the Graph Explorer application. The following inst
 ### Steps to install Graph Explorer:
 
 1. To download the source project, run `git clone https://github.com/aws/graph-explorer/`  
-2. To build the image, run `docker build --build-arg host=$(hostname -i) -t graph-explorer .` from the root directory.
+2. To build the image, run `docker build --build-arg host={your_host_name} -t graph-explorer .` from the root directory.
 3. To run the image in a container, run `docker run -dit -p 5173:5173 -p 8182:8182 --name {insert_container_name} graph-explorer`. Optional, can be run as long as the image is there.
 4. Since the application is set to use HTTPS by default and contains a self-signed certificate, you will need to add the Graph Explorer certificates to the trusted certificates directory and manually trust them. (**STEP TO BE REWRITTEN IN DETAIL**).
 5. Now, open a browser and type in the public URL of your EC2 instance on port `5173` (e.g., `https://ec2-1-2-3-4.us-east-1.compute.amazonaws.com:5173`). You will receive a warning as the SSL certificate used is self-signed. Click to proceed anyway.
@@ -114,8 +114,8 @@ You can find a template for the following environment variables at `/packages/gr
 - `GRAPH_EXP_ENV_ROOT_FOLDER`: Base folder for the public files. By default, `/` (`string`). 
 - `GRAPH_EXP_CONNECTION_NAME`: Default connection name. Blank by default (`string`).
 - `GRAPH_EXP_CONNECTION_ENGINE`: Default connection query engine work with the instance. By default, `gremlin` (`gremlin | sparql`).
-- `GRAPH_EXP_HTTPS_CONNECTION`: Uses the self-signed cert to serve the Graph Explorer over https if true. By default `true` (`boolean`).
-- `PROXY_SERVER_HTTPS_CONNECTION`: Uses the self-signed cert to serve the proxy-server over https if true. By default `true` (`boolean`).
+- `GRAPH_EXP_HTTPS_CONNECTION`: Uses the self-signed certificate to serve the Graph Explorer over https if true. By default `true` (`boolean`).
+- `PROXY_SERVER_HTTPS_CONNECTION`: Uses the self-signed certificate to serve the proxy-server over https if true. By default `true` (`boolean`).
 
 ## Connection
 
@@ -134,14 +134,17 @@ You can find a template for the following environment variables at `/packages/gr
 - If using docker, ensure that the container running the workbench can properly access the container running BlazeGraph. You can find documentation on how to connect containers via docker networks [here](https://docs.docker.com/network/).
 
 ### Using HTTPS
-- Self-signed certs will automatically resolve the hostname, so unless you have specific requirements, there are no extra steps here. 
-- If you would like to modify the cert files, be aware that the Dockerfile is making automatic modifications on line 15 and 16, so you will need to remove these lines.
+- Self-signed certs will use the hostname provided in the docker build command as instructed above, so unless you have specific requirements, there are no extra steps here besides providing the hostname.
+- If you would like to modify the certificate files, be aware that the Dockerfile is making automatic modifications on line 15 and 16, so you will need to remove these lines.
 
 ### Using the Proxy-Server
 - When creating a connection, insert the url to access your proxy-server, which is `http(s)://localhost:8182` from the context of the host machine, into the Public URL field. Check `Connecting to Proxy-Server` since you won't be using the proxy with Gremlin-Server, and fill in the Graph Connection URL with the endpoint that the proxy-server should make requests to. Ensure that you don't end the Graph Connection URLs with `/`.
 
 ### HTTPS Connections
-- If either of the Graph Explorer or the proxy-server are served over an https connection, you will have to bypass the warning message from the browser due to the certs being self-signed by retrieving the needed certs to trust from `/packages/graph-explorer-proxy-server/cert-info/` or by manually ignoring them from the browser. Once you retrive these cert files, you should add them to your trusted certs on your computer. Each OS is different, but a tutorial can be found via a quick google search. If you only serve the proxy-server over https and want to ignore the error in the browser, you might need to directly navigate to the proxy-server to ignore the cert error. 
+- If either of the Graph Explorer or the proxy-server are served over an https connection, you will have to bypass the warning message from the browser due to the certificates being self-signed by manually ignoring them from the browser or downloading the certificate and configuring them to be trusted. 
+- From the browser, you can download the certificate by clicking "Not Secure" on the browser for Google Chrome for example and navigating to the details tab of the "Certificate is not valid" and then exporting. Each browser is different and you can do a quick search on how to do this per browser, but once this certificate is downloaded, you should add it as a trusted certificate for the browser. Tutorials can be found on the internet per browser. For example, if using Safari, you can add the downloaded certificate directly to Keychain Access, which is a pre-installed app on each Mac. From here, you can right click on the certificate, go to the "Get Info" section of the certificate and choose to fully trust it using the options under the "Trust" knockdown.
+- If you only serve one of the proxy-server or Graph Explorer UI over an https connection, you should navigate to the one served over https to download the certificate.
+- The certificate files can also be found at `/packages/graph-explorer-proxy-server/cert-info/` on the docker container that is created.
 
 ## Authentication
 
