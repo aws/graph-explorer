@@ -134,43 +134,18 @@ export type RawConfiguration = {
      */
     queryEngine?: "gremlin" | "sparql";
     /**
-<<<<<<< HEAD
-<<<<<<< HEAD:packages/graph-explorer/src/core/ConfigurationProvider/types.ts
      * If the service is Neptune,
      * all requests should be sent through the nodejs proxy-server.
      */
     proxyConnection?: boolean;
     /**
      * If it is Neptune, the URL of the database.
-=======
-     * If the service is Neptune or Blazegraph,
-=======
-     * If the service is Neptune,
->>>>>>> e6c010c (12/13 10:01AM push (Address README fixes, change labels of connection page, change ENV variable prefixes, abstract node server logic))
-     * all requests should be sent through the nodejs proxy-server.
-     */
-    proxyConnection?: boolean;
-    /**
-<<<<<<< HEAD
-     * If it is Neptune or Blazegraph, the URL of the database.
->>>>>>> 00a6590 (12/08 5:31PM CT push):packages/client/src/core/ConfigurationProvider/types.ts
-=======
-     * If it is Neptune, the URL of the database.
->>>>>>> e6c010c (12/13 10:01AM push (Address README fixes, change labels of connection page, change ENV variable prefixes, abstract node server logic))
      */
     graphDbUrl?: string;
     /**
      * If it is Neptune, it could need authentication.
      */
-<<<<<<< HEAD
-<<<<<<< HEAD:packages/graph-explorer/src/core/ConfigurationProvider/types.ts
     awsAuthEnabled?: boolean;
-=======
-    neptuneAuthEnabled?: boolean;
->>>>>>> 00a6590 (12/08 5:31PM CT push):packages/client/src/core/ConfigurationProvider/types.ts
-=======
-    awsAuthEnabled?: boolean;
->>>>>>> e6c010c (12/13 10:01AM push (Address README fixes, change labels of connection page, change ENV variable prefixes, abstract node server logic))
     /**
      * AWS Region where the Neptune cluster is deployed.
      * It is needed to sign requests.

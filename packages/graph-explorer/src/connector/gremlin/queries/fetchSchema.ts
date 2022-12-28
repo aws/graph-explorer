@@ -111,8 +111,6 @@ const fetchVerticesSchema = async (
 ): Promise<SchemaResponse["vertices"]> => {
   const allLabels = await fetchVertexLabels(gremlinFetch);
   const vertices: SchemaResponse["vertices"] = [];
-<<<<<<< HEAD
-<<<<<<< HEAD:packages/graph-explorer/src/connector/gremlin/queries/fetchSchema.ts
   const labels = Object.keys(allLabels);
 
   if (labels.length === 0) {
@@ -147,48 +145,6 @@ const fetchVerticesSchema = async (
               : TYPE_MAP[value["@type"]] || "String",
         };
       }),
-=======
-
-  if (JSON.stringify(allLabels) != "{}" ) {
-    const verticesTemplate = verticesSchemaTemplate({
-      types: Object.keys(allLabels),
->>>>>>> 00a6590 (12/08 5:31PM CT push):packages/client/src/connector/gremlin/queries/fetchSchema.ts
-=======
-  const labels = Object.keys(allLabels);
-
-  if (labels.length === 0) {
-    return vertices;
-  }
-
-  const verticesTemplate = verticesSchemaTemplate({
-    types: labels,
-  });
-
-  const response = await gremlinFetch<RawVerticesSchemaResponse>(
-    verticesTemplate
-  );
-  const verticesSchemas = response.result.data["@value"][0]["@value"];
-
-  for (let i = 0; i < verticesSchemas.length; i += 2) {
-    const label = verticesSchemas[i] as string;
-    const vertex = verticesSchemas[i + 1] as GVertex;
-    const properties = vertex["@value"].properties;
-    vertices.push({
-      type: label,
-      displayLabel: sanitizeText(label),
-      total: allLabels[label],
-      attributes: Object.entries(properties || {}).map(([name, prop]) => {
-        const value = prop[0]?.["@value"].value;
-        return {
-          name,
-          displayLabel: sanitizeText(name),
-          dataType:
-            typeof value === "string"
-              ? "String"
-              : TYPE_MAP[value["@type"]] || "String",
-        };
-      }),
->>>>>>> beca7aa (12/09 12:22PM push)
     });
   }
 
@@ -215,25 +171,7 @@ const fetchEdgesSchema = async (
 ): Promise<SchemaResponse["edges"]> => {
   const allLabels = await fetchEdgeLabels(gremlinFetch);
   const edges: SchemaResponse["edges"] = [];
-<<<<<<< HEAD
-<<<<<<< HEAD:packages/graph-explorer/src/connector/gremlin/queries/fetchSchema.ts
   const labels = Object.keys(allLabels);
-
-  if (labels.length === 0) {
-    return edges;
-  }
-
-  const edgesTemplate = edgesSchemaTemplate({
-    types: labels,
-  });
-  const data = await gremlinFetch<RawEdgesSchemaResponse>(edgesTemplate);
-
-  const edgesSchemas = data.result.data["@value"][0]["@value"];
-=======
->>>>>>> 00a6590 (12/08 5:31PM CT push):packages/client/src/connector/gremlin/queries/fetchSchema.ts
-=======
-  const labels = Object.keys(allLabels);
->>>>>>> beca7aa (12/09 12:22PM push)
 
   if (labels.length === 0) {
     return edges;

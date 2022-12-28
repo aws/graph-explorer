@@ -25,21 +25,9 @@ type ConnectionForm = {
   name?: string;
   url?: string;
   type?: "gremlin" | "sparql";
-<<<<<<< HEAD
-<<<<<<< HEAD:packages/graph-explorer/src/modules/CreateConnection/CreateConnection.tsx
   proxyConnection?: boolean;
   graphDbUrl?: string;
   awsAuthEnabled?: boolean;
-=======
-  neptuneOrBlazegraph?: boolean;
-  graphDbUrl?: string;
-  neptuneAuthEnabled?: boolean;
->>>>>>> 00a6590 (12/08 5:31PM CT push):packages/client/src/modules/CreateConnection/CreateConnection.tsx
-=======
-  proxyConnection?: boolean;
-  graphDbUrl?: string;
-  awsAuthEnabled?: boolean;
->>>>>>> e6c010c (12/13 10:01AM push (Address README fixes, change labels of connection page, change ENV variable prefixes, abstract node server logic))
   awsRegion?: string;
 };
 
@@ -75,21 +63,9 @@ const CreateConnection = ({
           connection: {
             url: data.url,
             queryEngine: data.type,
-<<<<<<< HEAD
-<<<<<<< HEAD:packages/graph-explorer/src/modules/CreateConnection/CreateConnection.tsx
             proxyConnection: data.proxyConnection,
             graphDbUrl: data.graphDbUrl,
             awsAuthEnabled: data.awsAuthEnabled,
-=======
-            neptuneOrBlazegraph: data.neptuneOrBlazegraph,
-            graphDbUrl: data.graphDbUrl,
-            neptuneAuthEnabled: data.neptuneAuthEnabled,
->>>>>>> 00a6590 (12/08 5:31PM CT push):packages/client/src/modules/CreateConnection/CreateConnection.tsx
-=======
-            proxyConnection: data.proxyConnection,
-            graphDbUrl: data.graphDbUrl,
-            awsAuthEnabled: data.awsAuthEnabled,
->>>>>>> e6c010c (12/13 10:01AM push (Address README fixes, change labels of connection page, change ENV variable prefixes, abstract node server logic))
             awsRegion: data.awsRegion,
           },
         };
@@ -113,21 +89,9 @@ const CreateConnection = ({
           connection: {
             url: data.url,
             queryEngine: data.type,
-<<<<<<< HEAD
-<<<<<<< HEAD:packages/graph-explorer/src/modules/CreateConnection/CreateConnection.tsx
             proxyConnection: data.proxyConnection,
             graphDbUrl: data.graphDbUrl,
             awsAuthEnabled: data.awsAuthEnabled,
-=======
-            neptuneOrBlazegraph: data.neptuneOrBlazegraph,
-            graphDbUrl: data.graphDbUrl,
-            neptuneAuthEnabled: data.neptuneAuthEnabled,
->>>>>>> 00a6590 (12/08 5:31PM CT push):packages/client/src/modules/CreateConnection/CreateConnection.tsx
-=======
-            proxyConnection: data.proxyConnection,
-            graphDbUrl: data.graphDbUrl,
-            awsAuthEnabled: data.awsAuthEnabled,
->>>>>>> e6c010c (12/13 10:01AM push (Address README fixes, change labels of connection page, change ENV variable prefixes, abstract node server logic))
             awsRegion: data.awsRegion,
           },
         });
@@ -164,21 +128,9 @@ const CreateConnection = ({
       initialData?.name ||
       `Connection (${formatDate(new Date(), "yyyy-MM-dd HH:mm")})`,
     url: initialData?.url || "",
-<<<<<<< HEAD
-<<<<<<< HEAD:packages/graph-explorer/src/modules/CreateConnection/CreateConnection.tsx
     proxyConnection: initialData?.proxyConnection || false,
     graphDbUrl: initialData?.graphDbUrl || "",
     awsAuthEnabled: initialData?.awsAuthEnabled || false,
-=======
-    neptuneOrBlazegraph: initialData?.neptuneOrBlazegraph || false,
-    graphDbUrl: initialData?.graphDbUrl || "",
-    neptuneAuthEnabled: initialData?.neptuneAuthEnabled || false,
->>>>>>> 00a6590 (12/08 5:31PM CT push):packages/client/src/modules/CreateConnection/CreateConnection.tsx
-=======
-    proxyConnection: initialData?.proxyConnection || false,
-    graphDbUrl: initialData?.graphDbUrl || "",
-    awsAuthEnabled: initialData?.awsAuthEnabled || false,
->>>>>>> e6c010c (12/13 10:01AM push (Address README fixes, change labels of connection page, change ENV variable prefixes, abstract node server logic))
     awsRegion: initialData?.awsRegion || "",
   });
 
@@ -200,28 +152,12 @@ const CreateConnection = ({
       return;
     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD:packages/graph-explorer/src/modules/CreateConnection/CreateConnection.tsx
     if (form.proxyConnection && !form.graphDbUrl) {
-=======
-    if (form.neptuneOrBlazegraph && !form.graphDbUrl) {
->>>>>>> 00a6590 (12/08 5:31PM CT push):packages/client/src/modules/CreateConnection/CreateConnection.tsx
-=======
-    if (form.proxyConnection && !form.graphDbUrl) {
->>>>>>> e6c010c (12/13 10:01AM push (Address README fixes, change labels of connection page, change ENV variable prefixes, abstract node server logic))
       setError(true);
       return;
     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD:packages/graph-explorer/src/modules/CreateConnection/CreateConnection.tsx
     if (form.awsAuthEnabled && !form.awsRegion) {
-=======
-    if (form.neptuneAuthEnabled && !form.awsRegion) {
->>>>>>> 00a6590 (12/08 5:31PM CT push):packages/client/src/modules/CreateConnection/CreateConnection.tsx
-=======
-    if (form.awsAuthEnabled && !form.awsRegion) {
->>>>>>> e6c010c (12/13 10:01AM push (Address README fixes, change labels of connection page, change ENV variable prefixes, abstract node server logic))
       setError(true);
       return;
     }
@@ -254,15 +190,7 @@ const CreateConnection = ({
             data-autofocus={true}
             label={
               <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
-<<<<<<< HEAD
-<<<<<<< HEAD
                 Public or Proxy Endpoint
-=======
-                Public Endpoint
->>>>>>> beca7aa (12/09 12:22PM push)
-=======
-                Public or Proxy Endpoint
->>>>>>> d9d360e (12/14 7:50PM push (Address some requested label changes, adding https to graph explorer url, adding format to sparql endpoint))
                 <Tooltip
                   text={
                     <div style={{ maxWidth: 300 }}>
@@ -289,39 +217,15 @@ const CreateConnection = ({
         </div>
         <div className={pfx("input-url")}>
           <Checkbox
-<<<<<<< HEAD
-<<<<<<< HEAD:packages/graph-explorer/src/modules/CreateConnection/CreateConnection.tsx
             value={"proxyConnection"}
             checked={form.proxyConnection}
             onChange={e => {
               onFormChange("proxyConnection")(e.target.checked);
             }}
             label={"Using Proxy-Server"}
-<<<<<<< HEAD
           />
         </div>
         {form.proxyConnection && (
-=======
-            value={"neptuneOrBlazegraph"}
-            checked={form.neptuneOrBlazegraph}
-=======
-            value={"proxyConnection"}
-            checked={form.proxyConnection}
->>>>>>> e6c010c (12/13 10:01AM push (Address README fixes, change labels of connection page, change ENV variable prefixes, abstract node server logic))
-            onChange={e => {
-              onFormChange("proxyConnection")(e.target.checked);
-            }}
-            label={"Connecting to Proxy-Server"}
-=======
->>>>>>> d9d360e (12/14 7:50PM push (Address some requested label changes, adding https to graph explorer url, adding format to sparql endpoint))
-          />
-        </div>
-<<<<<<< HEAD
-        {form.neptuneOrBlazegraph && (
->>>>>>> 00a6590 (12/08 5:31PM CT push):packages/client/src/modules/CreateConnection/CreateConnection.tsx
-=======
-        {form.proxyConnection && (
->>>>>>> e6c010c (12/13 10:01AM push (Address README fixes, change labels of connection page, change ENV variable prefixes, abstract node server logic))
           <div className={pfx("input-url")}>
             <Input
               data-autofocus={true}
@@ -336,8 +240,6 @@ const CreateConnection = ({
             />
           </div>
         )}
-<<<<<<< HEAD
-<<<<<<< HEAD:packages/graph-explorer/src/modules/CreateConnection/CreateConnection.tsx
         {form.proxyConnection && (
           <div className={pfx("input-url")}>
             <Checkbox
@@ -355,32 +257,6 @@ const CreateConnection = ({
             <Input
               data-autofocus={true}
               label={"AWS Region"}
-=======
-        {form.neptuneOrBlazegraph && (
-=======
-        {form.proxyConnection && (
->>>>>>> e6c010c (12/13 10:01AM push (Address README fixes, change labels of connection page, change ENV variable prefixes, abstract node server logic))
-          <div className={pfx("input-url")}>
-            <Checkbox
-              value={"awsAuthEnabled"}
-              checked={form.awsAuthEnabled}
-              onChange={e => {
-                onFormChange("awsAuthEnabled")(e.target.checked);
-              }}
-              label={"AWS IAM Auth Enabled"}
-            />
-          </div>
-        )}
-        {form.proxyConnection && form.awsAuthEnabled && (
-          <div className={pfx("input-url")}>
-            <Input
-              data-autofocus={true}
-<<<<<<< HEAD
-              label={"AWS Neptune Region"}
->>>>>>> 00a6590 (12/08 5:31PM CT push):packages/client/src/modules/CreateConnection/CreateConnection.tsx
-=======
-              label={"AWS Region"}
->>>>>>> e6c010c (12/13 10:01AM push (Address README fixes, change labels of connection page, change ENV variable prefixes, abstract node server logic))
               value={form.awsRegion}
               onChange={onFormChange("awsRegion")}
               errorMessage={"Region is required"}
