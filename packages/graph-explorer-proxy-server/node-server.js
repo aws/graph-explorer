@@ -240,6 +240,7 @@ const BASE_PORT = 8182;
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (process.env.PROXY_SERVER_HTTPS_CONNECTION != false) {
 =======
   if (process.env.HTTPS_PROXY_SERVER_CONNECTION != "false") {
@@ -253,6 +254,9 @@ const BASE_PORT = 8182;
 =======
   if (process.env.PROXY_SERVER_HTTPS_CONNECTION != "false") {
 >>>>>>> aa8c3e1 (proxy fix)
+=======
+  if (process.env.PROXY_SERVER_HTTPS_CONNECTION != "false") {
+>>>>>>> 471fd189b1b0ddcab836de6768d57e810ba02bc6
     https
       .createServer(
         {
