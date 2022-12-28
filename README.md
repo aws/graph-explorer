@@ -4,12 +4,15 @@ The Graph Explorer project provides a React-based web application that enables u
 
 To get started, you can deploy Graph Explorer on a local machine using [Docker Desktop](https://www.docker.com/products/docker-desktop/), or in the cloud using a container service such as [Amazon ECS](https://aws.amazon.com/ecs/). The Graph Explorer image is hosted on [Amazon ECR](https://aws.amazon.com/ecr/), and can also be pulled from [DockerHub](https://hub.docker.com/). 
 
-Upon build, the Graph Explorer will be run at port 5173 and the proxy-server at port 8182. The proxy-server will be created automatically, but will only be necessary if you are connecting to Neptune. Gremlin-Server and BlazeGraph can be connected to directly. 
+![A sample image of property graph created by Graph Explorer](./images/LPGIMDb.png)
+![A sample image of RDF graph created by Graph Explorer](./images/RDFEPL.png)
 
-![A sample image of property graph created by Graph Explorer](./images/LPG IMDb.png)
-![A sample image of RDF graph created by Graph Explorer](./images/RDFAirports.png)
+## Getting Started
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> b971db5 (sync README)
 This project contains the code needed to create a Docker image of the Graph Explorer. The image will create the Graph Explorer application to communicate through port `5173` and a proxy server through port `8182`. The proxy server will be created automatically, but will only be necessary if you are connecting to Neptune. Gremlin-Server and BlazeGraph can be connected to directly. Additionally, the image will create a self-signed certificate that can be optionally used when PROXY_SERVER_HTTPS_CONNECTION or GRAPH_EXP_HTTPS_CONNECTION are set to true (default behavior). 
 
 There are many ways to deploy the Graph Explorer application. The following instructions detail how to deploy graph-explorer onto an Amazon EC2 instance and use it as a proxy server with SSH tunneling to connect to Amazon Neptune. Note that this README is not an official recommendation on network setups as there are many ways to connect to Amazon Neptune from outside of the VPC, such as setting up a load balancer or VPC peering.
@@ -24,7 +27,11 @@ There are many ways to deploy the Graph Explorer application. The following inst
 ### Steps to install Graph Explorer:
 
 1. To download the source project, run `git clone https://github.com/aws/graph-explorer/`  
+<<<<<<< HEAD
 2. To build the image, run `docker build --build-arg host=$(hostname -i) -t graph-explorer .` from the root directory.
+=======
+2. To build the image, run `docker build --build-arg host={your_host_name} -t graph-explorer .` from the root directory.
+>>>>>>> b971db5 (sync README)
 3. To run the image in a container, run `docker run -dit -p 5173:5173 -p 8182:8182 --name {insert_container_name} graph-explorer`. Optional, can be run as long as the image is there.
 4. Since the application is set to use HTTPS by default and contains a self-signed certificate, you will need to add the Graph Explorer certificates to the trusted certificates directory and manually trust them. (**STEP TO BE REWRITTEN IN DETAIL**).
 5. Now, open a browser and type in the public URL of your EC2 instance on port `5173` (e.g., `https://ec2-1-2-3-4.us-east-1.compute.amazonaws.com:5173`). You will receive a warning as the SSL certificate used is self-signed. Click to proceed anyway.
@@ -87,6 +94,7 @@ You can search, browse, expand, customize views of your graph data using Graph E
      * Download - You can download the current Table View as a CSV or JSON file with additional customization options
      * Default columns - You can set which columns you want to display
      * Paging of rows
+<<<<<<< HEAD
 =======
 >>>>>>> e6c010c (12/13 10:01AM push (Address README fixes, change labels of connection page, change ENV variable prefixes, abstract node server logic))
 
@@ -104,6 +112,8 @@ Upon build, the Graph Explorer will be run at port 5173 and the proxy-server at 
 #### Supported Graph Types
 - Labelled Property Graph (PG) using Gremlin
 - Resource Description Framework (RDF) using SPARQL
+=======
+>>>>>>> b971db5 (sync README)
 
 ## Development
 
@@ -111,6 +121,10 @@ Upon build, the Graph Explorer will be run at port 5173 and the proxy-server at 
 ### Requirements
 - pnpm >=7.9.3
 - node >=16.15.1
+
+### Supported Graph Types
+- Labelled Property Graph (PG) using Gremlin
+- Resource Description Framework (RDF) using SPARQL 
 
 ### Run in development mode
 - `pnpm i`
@@ -175,6 +189,7 @@ The docker image contains the code needed to create a runnable instance of the E
 - `GRAPH_EXP_HTTPS_CONNECTION`: Uses the self-signed certificate to serve the Graph Explorer over https if true. By default `true` (`boolean`).
 - `PROXY_SERVER_HTTPS_CONNECTION`: Uses the self-signed certificate to serve the proxy-server over https if true. By default `true` (`boolean`).
 
+<<<<<<< HEAD
 ### Docker Instructions
 
 The docker image contains the code needed to create a runnable instance of the Explorer inside of a container. The image will create the Graph Explorer communicating through port 5173 and the proxy-server through port 8182. Additionally, it will create a self-signed certificate that can be optionally used when `PROXY_SERVER_HTTPS_CONNECTION` or `GRAPH_EXP_HTTPS_CONNECTION` are set to true (default behavior).
@@ -183,6 +198,8 @@ The docker image contains the code needed to create a runnable instance of the E
 - To run the image in a container, run `docker run -dit -p 5173:5173 -p 8182:8182 --name {your_container_name} graph-explorer`. Optional, can be run as long as the image is there.
 >>>>>>> 7354802 (update README)
 
+=======
+>>>>>>> b971db5 (sync README)
 ## Connection
 
 ### Connecting to Neptune
