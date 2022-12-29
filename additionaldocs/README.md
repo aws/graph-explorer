@@ -1,4 +1,4 @@
-## Table of contents
+## Table of Contents
 
-* Additional Databases
-* Development
+* [Connections](./additionaldocs/connections.md)
+* [Development](./additionaldocs/development.md)
