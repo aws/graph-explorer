@@ -1,7 +1,7 @@
 # Graph Explorer
 The Graph Explorer project provides a React-based web application that enables users to visualize both property graph and RDF data and explore connections between data without having to write graph queries. You can connect to a graph database that supports either the [W3C RDF/SPARQL](https://www.w3.org/TR/sparql11-overview/) open standard or the open source [Apache TinkerPop Gremlin Server](https://tinkerpop.apache.org/).
 
-To get started, you can deploy Graph Explorer on a local machine using [Docker Desktop](https://www.docker.com/products/docker-desktop/), or in the cloud using a container service such as [Amazon ECS](https://aws.amazon.com/ecs/). The Graph Explorer image is hosted on [Amazon ECR](https://aws.amazon.com/ecr/), and can also be pulled from [DockerHub](https://hub.docker.com/). 
+To get started, you can deploy Graph Explorer on a local machine using [Docker Desktop](https://www.docker.com/products/docker-desktop/), or in the cloud  using Amazon EC2 or a container service like [Amazon ECS](https://aws.amazon.com/ecs/). 
 
 ![A sample image of property graph created by Graph Explorer](./images/LPGIMDb.png)
 ![A sample image of RDF graph created by Graph Explorer](./images/RDFEPL.png)
@@ -22,11 +22,11 @@ There are many ways to deploy the Graph Explorer application. The following inst
 ### Steps to install Graph Explorer:
 
 1. To download the source project, run `git clone https://github.com/aws/graph-explorer/`  
-2. To build the image, run `docker build --build-arg host={your_host_name} -t graph-explorer .` from the root directory.
-3. To run the image in a container, run `docker run -dit -p 5173:5173 -p 8182:8182 --name {insert_container_name} graph-explorer`. Optional, can be run as long as the image is there.
-4. Since the application is set to use HTTPS by default and contains a self-signed certificate, you will need to add the Graph Explorer certificates to the trusted certificates directory and manually trust them. See [HTTPS Connections](#https-connections) section.
-5. Now, open a browser and type in the public URL of your EC2 instance on port `5173` (e.g., `https://ec2-1-2-3-4.us-east-1.compute.amazonaws.com:5173`). You will receive a warning as the SSL certificate used is self-signed. Click to proceed anyway.
-6. You should now see the Connections UI. See below description on Connections UI to configure your first connection to Amazon Neptune.
+2. To build the image, run `docker build --build-arg host={hostname-or-ip-address} -t graph-explorer .` from the root directory.
+3. To run the image in a container, run `docker run -dit -p 5173:5173 -p 8182:8182 --name {container_name} graph-explorer`. 
+4. Now, open a browser and type in the public URL of your EC2 instance on port `5173` (e.g., `https://ec2-1-2-3-4.us-east-1.compute.amazonaws.com:5173`). You will receive a warning as the SSL certificate used is self-signed.
+5. Since the application is set to use HTTPS by default and contains a self-signed certificate, you will need to add the Graph Explorer certificates to the trusted certificates directory and manually trust them. See [HTTPS Connections](#https-connections) section.
+6. After completing the trusted certification step and refreshing the browser, you should now see the Connections UI. See below description on Connections UI to configure your first connection to Amazon Neptune.
 
 ## Features
 
