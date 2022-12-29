@@ -1,4 +1,4 @@
 ## Table of Contents
 
-* [Connections](./additionaldocs/connections.md)
-* [Development](./additionaldocs/development.md)
+* [Connections](./connections.md)
+* [Development](./development.md)
