@@ -29,3 +29,15 @@ You can find a template for the following environment variables at `/packages/gr
 - `GRAPH_EXP_CONNECTION_ENGINE`: Default connection query engine work with the instance. By default, `gremlin` (`gremlin | sparql`).
 - `GRAPH_EXP_HTTPS_CONNECTION`: Uses the self-signed certificate to serve the Graph Explorer over https if true. By default `true` (`boolean`).
 - `PROXY_SERVER_HTTPS_CONNECTION`: Uses the self-signed certificate to serve the proxy-server over https if true. By default `true` (`boolean`).
+
+### Using self-signed certificates in Docker
+
+- Self-signed certificates will use the hostname provided in the Docker build command, so unless you have specific requirements, there are no extra steps here besides providing the hostname.
+- If you would like to modify the certificate files, be aware that the Dockerfile is making automatic modifications on line 15 and 16, so you will need to remove these lines. 
+- If you only serve one of either the proxy server or Graph Explorer UI over an HTTPS connection and wish to download from the browser, you should navigate to the one served over HTTPS to download the certificate.
+- The other certificate files can also be found at /packages/graph-explorer-proxy-server/cert-info/ on the Docker container that is created. 
+
+### Troubleshooting
+- If the Graph Explore crashes, you can recreate the container or run `pnpm start` inside of `/packages/graph-explorer`.
+- If the proxy-server crashes, you can recreate the container or run `pnpm start` inside of `/packages/graph-explorer-proxy-server`
+- If the proxy-server fails to start, check that the provided endpoint is properly spelled and that you have access to from the environment you are trying to run in. If you are in a different VPC, consider VPC Peering.
