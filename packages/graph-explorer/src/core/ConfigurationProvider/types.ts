@@ -108,6 +108,46 @@ export type PrefixTypeConfig = {
   __matches?: Set<string>;
 };
 
+export type ConnectionConfig = {
+  /**
+   * Base URL to access to the database through HTTPs endpoints
+   */
+  url: string;
+  /**
+   * Choose between gremlin or sparQL engines.
+   * By default, it uses gremlin
+   */
+  queryEngine?: "gremlin" | "sparql";
+  /**
+   * If the service is Neptune,
+   * all requests should be sent through the nodejs proxy-server.
+   */
+  proxyConnection?: boolean;
+  /**
+   * If it is Neptune, the URL of the database.
+   */
+  graphDbUrl?: string;
+  /**
+   * If it is Neptune, it could need authentication.
+   */
+  awsAuthEnabled?: boolean;
+  /**
+   * AWS Region where the Neptune cluster is deployed.
+   * It is needed to sign requests.
+   */
+  awsRegion?: string;
+  /**
+   * Set the store for caching requests.
+   * By default, localstorage.
+   */
+  cacheStore?: "memory" | "localstorage";
+  /**
+   * Number of milliseconds before expiring a cached request.
+   * By default, 10 minutes.
+   */
+  cacheTimeMs?: number;
+};
+
 export type RawConfiguration = {
   /**
    * Unique identifier for this config
@@ -123,35 +163,7 @@ export type RawConfiguration = {
   /**
    * Connection configuration
    */
-  connection?: {
-    /**
-     * Base URL to access to the database through HTTPs endpoints
-     */
-    url: string;
-    /**
-     * Choose between gremlin or sparQL engines.
-     * By default, it uses gremlin
-     */
-    queryEngine?: "gremlin" | "sparql";
-    /**
-     * If the service is Neptune,
-     * all requests should be sent through the nodejs proxy-server.
-     */
-    proxyConnection?: boolean;
-    /**
-     * If it is Neptune, the URL of the database.
-     */
-    graphDbUrl?: string;
-    /**
-     * If it is Neptune, it could need authentication.
-     */
-    awsAuthEnabled?: boolean;
-    /**
-     * AWS Region where the Neptune cluster is deployed.
-     * It is needed to sign requests.
-     */
-    awsRegion?: string;
-  };
+  connection?: ConnectionConfig;
   /**
    * Database schema: types, names, labels, icons, ...
    */

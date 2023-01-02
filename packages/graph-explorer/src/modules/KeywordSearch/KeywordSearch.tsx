@@ -1,5 +1,5 @@
 import { css, cx } from "@emotion/css";
-import { useHotkeys } from "@mantine/hooks";
+import { useClickOutside, useHotkeys } from "@mantine/hooks";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Vertex } from "../../@types/entities";
 
@@ -33,7 +33,6 @@ import useDisplayNames from "../../hooks/useDisplayNames";
 import useTextTransform from "../../hooks/useTextTransform";
 import useTranslations from "../../hooks/useTranslations";
 
-import { useClickOutside } from "../../utils";
 import NodeDetail from "../EntityDetails/NodeDetail";
 import defaultStyles from "./KeywordSearch.styles";
 import toAdvancedList from "./toAdvancedList";
@@ -82,13 +81,7 @@ const KeywordSearch = ({
     []
   );
 
-  useClickOutside({
-    ref: rootRef,
-    onClickOutside: onInputFocusChange(false),
-    id: ["keyword-search-module", "layers"],
-    disabledEvents: [],
-  });
-
+  const ref = useClickOutside(onInputFocusChange(false));
   useHotkeys([["Escape", onInputFocusChange(false)]]);
 
   const noResultsAfterFetching = !isFetching && searchResults.length === 0;
@@ -147,7 +140,10 @@ const KeywordSearch = ({
               icon={<AddCircleIcon />}
               size={"small"}
               variant={"text"}
-              onPress={() => fetchNode(vertex)}
+              onPress={() => {
+                fetchNode(vertex);
+                setInputFocused(false);
+              }}
             />
           ),
           properties: vertex,
@@ -270,7 +266,7 @@ const KeywordSearch = ({
         </div>
       )}
       {isFocused && (
-        <Card className={pfx("panel-container")} elevation={3}>
+        <Card ref={ref} className={pfx("panel-container")} elevation={3}>
           <div className={pfx("search-controls")}>
             <Select
               className={pfx("entity-select")}
@@ -280,6 +276,7 @@ const KeywordSearch = ({
               options={vertexOptions}
               value={selectedVertexType}
               onChange={onVertexOptionChange}
+              menuWidth={200}
             />
             <Select
               className={pfx("entity-select")}
@@ -289,6 +286,7 @@ const KeywordSearch = ({
               options={attributesOptions}
               value={selectedAttribute}
               onChange={onAttributeOptionChange}
+              menuWidth={200}
             />
             <Input
               className={pfx("search-input")}

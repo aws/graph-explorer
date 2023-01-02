@@ -72,7 +72,7 @@ const NodesTabular = forwardRef<TabularInstance<any>, any>((props, ref) => {
       },
       {
         id: "node-id",
-        accessor: row => row.data.id,
+        accessor: row => textTransform(row.data.id),
         label: t("entities-tabular.node-id"),
         overflow: "ellipsis",
         oneLine: true,

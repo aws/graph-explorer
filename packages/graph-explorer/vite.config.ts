@@ -20,7 +20,7 @@ export default defineConfig(async ({ mode }) => {
   };
 
   const serverInfo = () => {
-    if (env.GRAPH_EXP_HTTPS_CONNECTION != "false") {
+    if (env.GRAPH_EXP_HTTPS_CONNECTION != "false" && fs.existsSync("../graph-explorer-proxy-server/cert-info/server.key") && fs.existsSync("../graph-explorer-proxy-server/cert-info/server.crt")) {
       return {
         host: true,
         https: {

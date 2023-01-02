@@ -5,6 +5,7 @@ import type {
   ElementEventCallback,
   GraphEventCallback,
 } from "../../components/Graph/hooks/useAddClickEvents";
+import { useClickOutside } from "../../utils";
 
 const useContextMenu = () => {
   // Bounding container used to position the layer correctly
@@ -30,6 +31,12 @@ const useContextMenu = () => {
     setContextEdgeId(null);
     setContextPosition(null);
   }, []);
+
+  useClickOutside({
+    ref: parentRef,
+    onClickOutside: clearAllLayers,
+    id: "",
+  });
 
   const {
     renderLayer: renderContextLayer,
@@ -87,6 +94,12 @@ const useContextMenu = () => {
 
   const onGraphRightClick: GraphEventCallback = useCallback(
     (event, position) => {
+      event.originalEvent.preventDefault();
+      event.originalEvent.stopPropagation();
+      event.originalEvent.cancelBubble = true;
+      event.preventDefault();
+      event.stopPropagation();
+
       clearAllLayers();
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore

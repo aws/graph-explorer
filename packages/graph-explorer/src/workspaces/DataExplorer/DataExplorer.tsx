@@ -21,7 +21,6 @@ import {
 import Button from "../../components/Button";
 import { ExplorerIcon } from "../../components/icons";
 import ModuleContainerHeader from "../../components/ModuleContainer/components/ModuleContainerHeader";
-import { useNotification } from "../../components/NotificationProvider";
 import {
   ColumnDefinition,
   TabularFooterControls,
@@ -37,13 +36,13 @@ import {
   withClassNamePrefix,
 } from "../../core";
 import useConnector from "../../core/ConnectorProvider/useConnector";
-import { schemaAtom } from "../../core/StateProvider/schema";
 import {
   userStylingAtom,
   VertexPreferences,
 } from "../../core/StateProvider/userPreferences";
 import { useEntities } from "../../hooks";
 import useFetchNode from "../../hooks/useFetchNode";
+import usePrefixesUpdater from "../../hooks/usePrefixesUpdater";
 import useTextTransform from "../../hooks/useTextTransform";
 import useTranslations from "../../hooks/useTranslations";
 import TopBarWithLogo from "../common/TopBarWithLogo";
@@ -191,8 +190,7 @@ const DataExplorer = ({ classNamePrefix = "ft" }: ConnectionsProps) => {
     return options;
   }, [t, textTransform, vertexConfig?.attributes]);
 
-  const { enqueueNotification } = useNotification();
-  const setSchema = useSetRecoilState(schemaAtom);
+  const updatePrefixes = usePrefixesUpdater();
   const { data, isFetching } = useQuery(
     ["keywordSearch", vertexType, pageIndex, pageSize],
     () => {
@@ -214,44 +212,7 @@ const DataExplorer = ({ classNamePrefix = "ft" }: ConnectionsProps) => {
           return;
         }
 
-        if (response.prefixes?.length !== 0) {
-          setSchema(prevSchemaMap => {
-            if (!config?.id) {
-              return prevSchemaMap;
-            }
-
-            const updatedSchema = new Map(prevSchemaMap);
-            const schema = updatedSchema.get(config.id);
-            updatedSchema.set(config.id, {
-              // Update prefixes does not affect to sync last update date
-              lastUpdate: schema?.lastUpdate,
-              vertices: schema?.vertices || [],
-              edges: schema?.edges || [],
-              prefixes: response.prefixes || [],
-              lastSyncFail: schema?.lastSyncFail,
-              triedToSync: schema?.triedToSync,
-            });
-            return updatedSchema;
-          });
-
-          const oldPrefixesSize = config?.schema?.prefixes?.length || 0;
-          const newPrefixesSize = response.prefixes?.length || 0;
-          if (
-            response.prefixes?.length &&
-            config?.schema?.prefixes?.length !== response.prefixes?.length
-          ) {
-            const addedCount = newPrefixesSize - oldPrefixesSize;
-            enqueueNotification({
-              title: "Namespaces updated",
-              message:
-                addedCount === 1
-                  ? "1 namespace has been generated"
-                  : `${addedCount} namespaces have been generated`,
-              type: "success",
-              stackable: true,
-            });
-          }
-        }
+        updatePrefixes(response.vertices.map(v => v.data.id));
       },
     }
   );

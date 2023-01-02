@@ -1,5 +1,5 @@
 import { cx } from "@emotion/css";
-import { useCallback, useRef, useState } from "react";
+import { MouseEvent, useCallback, useRef, useState } from "react";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { Vertex } from "../../@types/entities";
 import type { ModuleContainerHeaderProps } from "../../components";
@@ -41,6 +41,7 @@ import fade from "../../core/ThemeProvider/utils/fade";
 import withClassNamePrefix from "../../core/ThemeProvider/utils/withClassNamePrefix";
 import { useEntities, useExpandNode } from "../../hooks";
 import useDisplayNames from "../../hooks/useDisplayNames";
+import useTextTransform from "../../hooks/useTextTransform";
 import defaultStyles from "./GraphViewerModule.styles";
 import ContextMenu from "./internalComponents/ContextMenu";
 import useContextMenu from "./useContextMenu";
@@ -126,6 +127,12 @@ const HEADER_ACTIONS = [
   },
 ];
 
+// Prevent open context menu on Windows
+const onContextMenu = (e: MouseEvent<HTMLDivElement>) => {
+  e.preventDefault();
+  e.stopPropagation();
+};
+
 const GraphViewer = ({
   title = "Graph View",
   onNodeCustomize,
@@ -189,7 +196,7 @@ const GraphViewer = ({
   const styles = useGraphStyles();
   const getNodeBadges = useNodeBadges();
 
-  const { enqueueNotification, clearNotification } = useNotification();
+  const { enqueueNotification } = useNotification();
   const expandNode = useExpandNode();
   const [expandVertexName, setExpandVertexName] = useState<string | null>(null);
   const getDisplayNames = useDisplayNames();
@@ -214,26 +221,15 @@ const GraphViewer = ({
 
       const { name } = getDisplayNames({ data: vertexData });
       setExpandVertexName(name);
-      const notificationId = enqueueNotification({
-        title: "Expanding neighbors",
-        message: `Expanding all neighbors for ${name}`,
-      });
       await expandNode({
         vertexId: vertexData.id,
         vertexType: vertexData.types?.join("::") ?? vertexData.type,
         limit: vertexData.neighborsCount,
         offset: 0,
       });
-      clearNotification(notificationId);
       setExpandVertexName(null);
     },
-    [
-      getDisplayNames,
-      clearNotification,
-      enqueueNotification,
-      expandNode,
-      setUserLayout,
-    ]
+    [getDisplayNames, enqueueNotification, expandNode, setUserLayout]
   );
 
   const [layout, setLayout] = useState("F_COSE");
@@ -264,6 +260,7 @@ const GraphViewer = ({
     [onClearCanvas, onSaveScreenshot, onZoomIn, onZoomOut]
   );
 
+  const textTransform = useTextTransform();
   return (
     <div
       ref={dropAreaRef}
@@ -271,6 +268,7 @@ const GraphViewer = ({
         styleWithTheme(defaultStyles("ft")),
         pfx("graph-viewer-module")
       )}
+      onContextMenu={onContextMenu}
     >
       <ModuleContainer>
         <ModuleContainerHeader
@@ -385,7 +383,7 @@ const GraphViewer = ({
                       )
                     }
                   >
-                    {vtConfig?.displayLabel}
+                    {vtConfig?.displayLabel || textTransform(vertexType)}
                   </ListItem>
                 );
               })}

@@ -1,9 +1,8 @@
-import isEqual from "lodash/isEqual";
+import localforage from "localforage";
 import type { Edge, Vertex } from "../@types/entities";
 import type {
   ConfigurationContextProps,
   EdgeTypeConfig,
-  PrefixTypeConfig,
   VertexTypeConfig,
 } from "../core";
 
@@ -38,10 +37,6 @@ export type SchemaResponse = {
    * List of edges definitions.
    */
   edges: EdgeSchemaResponse[];
-  /**
-   * List of automatically generated prefixes.
-   */
-  prefixes?: PrefixTypeConfig[];
 };
 
 export type Criterion = {
@@ -163,10 +158,6 @@ export type KeywordSearchResponse = {
    * List of vertices.
    */
   vertices: Array<Vertex>;
-  /**
-   * List of automatically generated prefixes.
-   */
-  prefixes?: PrefixTypeConfig[];
 };
 
 export type ErrorResponse = {
@@ -180,19 +171,32 @@ export type ConfigurationWithConnection = Omit<
 > &
   Required<Pick<ConfigurationContextProps, "connection">>;
 
-export abstract class AbstractConnector {
-  protected readonly _config: ConfigurationWithConnection;
+// 10 minutes
+const CACHE_TIME_MS = 10 * 60 * 1000;
+type CacheItem = {
+  updatedAt: number;
+  data: any;
+};
 
-  public constructor(config: ConfigurationContextProps) {
-    if (!config.connection?.url) {
+const localforageCache = localforage.createInstance({
+  name: "ge",
+  version: 1.0,
+  storeName: "connector-cache",
+});
+
+export abstract class AbstractConnector {
+  protected readonly _connection: ConfigurationWithConnection["connection"];
+
+  protected abstract readonly basePath: string;
+
+  private readonly _requestCache: Map<string, CacheItem> = new Map();
+
+  public constructor(connection: ConfigurationWithConnection["connection"]) {
+    if (!connection?.url) {
       throw new Error("Invalid configuration. Missing 'connection.url'");
     }
 
-    this._config = config as ConfigurationWithConnection;
-  }
-
-  public isConfigEqual(config: ConfigurationContextProps) {
-    return isEqual(config, this._config);
+    this._connection = connection;
   }
 
   /**
@@ -226,16 +230,63 @@ export abstract class AbstractConnector {
     options?: QueryOptions
   ): Promise<KeywordSearchResponse>;
 
-  protected get headers() {
-    const headers: HeadersInit = {};
-    if (this._config.connection?.proxyConnection) {
-      headers["graph-db-connection-url"] =
-        this._config.connection?.graphDbUrl || "";
+  /**
+   * This method performs requests and cache their responses.
+   */
+  protected async request<TResult>(
+    queryTemplate: string,
+    options?: { signal?: AbortSignal }
+  ): Promise<any> {
+    const url = this._connection.url.replace(/\/$/, "");
+    const encodedQuery = encodeURIComponent(queryTemplate);
+    const uri = `${url}${this.basePath}${encodedQuery}&format=json`;
+
+    const cachedResponse = await this._getFromCache(uri);
+    if (
+      cachedResponse &&
+      cachedResponse.updatedAt +
+        (this._connection.cacheTimeMs ?? CACHE_TIME_MS) >
+        new Date().getTime()
+    ) {
+      return cachedResponse.data;
     }
-    if (this._config.connection?.awsAuthEnabled) {
-      headers["aws-neptune-region"] = this._config.connection?.awsRegion || "";
+
+    return this._requestAndCache<TResult>(uri, {
+      signal: options?.signal,
+      headers: this._getAuthHeaders(),
+    });
+  }
+
+  private _getAuthHeaders() {
+    const headers: HeadersInit = {};
+    if (this._connection?.proxyConnection) {
+      headers["graph-db-connection-url"] = this._connection?.graphDbUrl || "";
+    }
+    if (this._connection?.awsAuthEnabled) {
+      headers["aws-neptune-region"] = this._connection?.awsRegion || "";
     }
 
     return headers;
+  }
+
+  private async _requestAndCache<TResult>(url: string, init?: RequestInit) {
+    const response = await fetch(url, init);
+    const data = await response.json();
+    this._setToCache(url, { data, updatedAt: new Date().getTime() });
+    return data as TResult;
+  }
+
+  private _getFromCache(key: string) {
+    if (this._connection.cacheStore === "memory") {
+      return this._requestCache.get(key);
+    }
+    return localforageCache.getItem(key) as Promise<CacheItem | undefined>;
+  }
+
+  private _setToCache(key: string, value: CacheItem) {
+    if (this._connection.cacheStore === "memory") {
+      return this._requestCache.set(key, value);
+    }
+    return localforageCache.setItem(key, value);
   }
 }
