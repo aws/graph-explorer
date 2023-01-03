@@ -1,7 +1,7 @@
 # Graph Explorer
 The Graph Explorer project provides a React-based web application that enables users to visualize both property graph and RDF data and explore connections between data without having to write graph queries. You can connect to a graph database that supports either the [W3C RDF/SPARQL](https://www.w3.org/TR/sparql11-overview/) open standard or the open source [Apache TinkerPop Gremlin Server](https://tinkerpop.apache.org/).
 
-To get started, you can deploy Graph Explorer on a local machine using [Docker Desktop](https://www.docker.com/products/docker-desktop/), or in the cloud using Amazon EC2 or a container service like [Amazon ECS](https://aws.amazon.com/ecs/). 
+To get started, you can deploy Graph Explorer on a local machine using [Docker Desktop](https://www.docker.com/products/docker-desktop/), or in the cloud using [Amazon EC2](https://aws.amazon.com/ec2/) or a container service like [Amazon ECS](https://aws.amazon.com/ecs/). 
 
 ![A sample image of property graph created by Graph Explorer](./images/LPGIMDb.png)
 ![A sample image of RDF graph created by Graph Explorer](./images/RDFEPL.png)
@@ -118,6 +118,11 @@ To use AWS IAM authentication, you must run requests through a proxy endpoint, s
 To set up a connection in Graph Explorer UI with AWS IAM auth enabled on Neptune, check Using Proxy-Server, then check AWS IAM Auth Enabled and type in the AWS Region where the Neptune cluster is hosted (e.g., us-east-1).
 
 For further information on how AWS credentials are resolved in Graph Explorer, refer to this [documentation](https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/CredentialProviderChain.html).
+
+
+## Contributing Guidelines
+
+See [CONTRIBUTING](./CONTRIBUTING.md) for more information.
 
 ## License
 This project is licensed under the Apache-2.0 License.
