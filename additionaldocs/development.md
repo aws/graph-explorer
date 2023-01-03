@@ -39,14 +39,14 @@ You can find a template for the following environment variables at `/packages/gr
 
 ### Using Self-signed certificates on Chrome
 
-If you want to use a self-signed certificate on Chrome **without** the “Not Secure” warning and you do not have your own certificate, or one provided by Let’s Encrypt, you can use the following instructions to add the root certificate and remove the warning. These instructions assume you’re using an EC2 instance to run the Docker container for Graph Explorer.
+For browsers like Safari and Firefox, [trusting the certificate from the browser](./README.md#https-connections) is enough to bypass the “Not Secure” warning. However, Chrome treats self-signed certificates differently. If you want to use a self-signed certificate on Chrome **without** the “Not Secure” warning and you do not have your own certificate, or one provided by Let’s Encrypt, you can use the following instructions to add the root certificate and remove the warning. These instructions assume you’re using an EC2 instance to run the Docker container for Graph Explorer.
 
-1. After the docker container is built and running, open a terminal prompt and SSH into your proxy server instance (e.g., EC2).
+1. After the Docker container is built and running, open a terminal prompt and SSH into your proxy server instance (e.g., EC2).
 2. Get the container ID by running `sudo docker ps`
-3. Copy the root certificate file (rootCA.crt) from the container: `sudo docker cp {container_id}:~/graph-explorer/packages/graph-explorer-proxy-server/cert-info/rootCA.crt ~/rootCA.crt`
+3. Copy the root certificate file (rootCA.crt) from the container to EC2: `sudo docker cp {container_id}:~/graph-explorer/packages/graph-explorer-proxy-server/cert-info/rootCA.crt ~/rootCA.crt`
 4. Exit SSH session 
-5. Copy the root certificate file to your local machine (where you would run Graph Explorer on Chrome): `scp -i {path_to_pem_file} {EC2_login}:~/rootCA.crt {path_on_local_to_place_file}` For example, `scp -i /Users/user1/EC2.pem ec2-user@XXX.XXX.XXX.XXX:~/rootCA.crt /Users/user1/downloads`
-6. After copying the certificate from the container to your local machine’s file system, you can delete the rootCA.crt file from the Docker container with `rm -rf ~/rootCA.crt`
+5. Copy the root certificate file from EC2 to your local machine (where you would run Graph Explorer on Chrome): `scp -i {path_to_pem_file} {EC2_login}:~/rootCA.crt {path_on_local_to_place_file}` For example, `scp -i /Users/user1/EC2.pem ec2-user@XXX.XXX.XXX.XXX:~/rootCA.crt /Users/user1/downloads`
+6. After copying the certificate from the container to your local machine’s file system, you can delete the rootCA.crt file from the EC2 file store with `rm -rf ~/rootCA.crt`
 7. Once you have the certificate, you will need to trust it on your machine. For MacOS, you can open the Keychain Access app. Select System under System Keychains. Then go to File > Import Items... and import the certificate you downloaded in the previous step. 
 8. Once imported, select the certificate and right-click to select "Get Info". Expand the Trust section, and change the value of "When using this certificate" to "Always Trust". 
 9. You should now refresh the browser and see that you can proceed to open the application. For Chrome, the application will remain “Not Secure” due to the fact that this is a self-signed certificate. If you have trouble accessing Graph Explorer after completing the previous step and reloading the browser, consider running a docker restart command and refreshing the browser again.
