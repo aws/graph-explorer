@@ -39,7 +39,7 @@ You can find a template for the following environment variables at `/packages/gr
 
 ### Using Self-signed certificates on Chrome
 
-For browsers like Safari and Firefox, [trusting the certificate from the browser](./#https-connections) is enough to bypass the “Not Secure” warning. However, Chrome treats self-signed certificates differently. If you want to use a self-signed certificate on Chrome **without** the “Not Secure” warning and you do not have your own certificate, or one provided by Let’s Encrypt, you can use the following instructions to add the root certificate and remove the warning. These instructions assume you’re using an EC2 instance to run the Docker container for Graph Explorer.
+For browsers like Safari and Firefox, [trusting the certificate from the browser](../../README.md/#https-connections) is enough to bypass the “Not Secure” warning. However, Chrome treats self-signed certificates differently. If you want to use a self-signed certificate on Chrome **without** the “Not Secure” warning and you do not have your own certificate, or one provided by Let’s Encrypt, you can use the following instructions to add the root certificate and remove the warning. These instructions assume you’re using an EC2 instance to run the Docker container for Graph Explorer.
 
 1. After the Docker container is built and running, open a terminal prompt and SSH into your proxy server instance (e.g., EC2).
 2. Get the container ID by running `sudo docker ps`
