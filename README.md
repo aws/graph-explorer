@@ -1,7 +1,7 @@
 # Graph Explorer
 The Graph Explorer project provides a React-based web application that enables users to visualize both property graph and RDF data and explore connections between data without having to write graph queries. You can connect to a graph database that supports either the [W3C RDF/SPARQL](https://www.w3.org/TR/sparql11-overview/) open standard or the open source [Apache TinkerPop Gremlin Server](https://tinkerpop.apache.org/).
 
-To get started, you can deploy Graph Explorer on a local machine using [Docker Desktop](https://www.docker.com/products/docker-desktop/), or in the cloud  using Amazon EC2 or a container service like [Amazon ECS](https://aws.amazon.com/ecs/). 
+To get started, you can deploy Graph Explorer on a local machine using [Docker Desktop](https://www.docker.com/products/docker-desktop/), or in the cloud using Amazon EC2 or a container service like [Amazon ECS](https://aws.amazon.com/ecs/). 
 
 ![A sample image of property graph created by Graph Explorer](./images/LPGIMDb.png)
 ![A sample image of RDF graph created by Graph Explorer](./images/RDFEPL.png)
@@ -106,6 +106,8 @@ If either of the Graph Explorer or the proxy-server are served over an HTTPS con
 2. Once you have the certificate, you will need to trust it on your machine. For MacOS, you can open the Keychain Access app. Select System under System Keychains. Then go to File > Import Items... and import the certificate you downloaded in the previous step. 
 3. Once imported, select the certificate and right-click to select "Get Info". Expand the Trust section, and change the value of "When using this certificate" to "Always Trust". 
 4. You should now refresh the browser and see that you can proceed to open the application. For Chrome, the application will remain “Not Secure” due to the fact that this is a self-signed certificate. If you have trouble accessing Graph Explorer after completing the previous step and reloading the browser, consider running a docker restart command and refreshing the browser again.
+
+Note: To get rid of the “Not Secure” warning, see [Using self-signed certificates on Chrome](./additionaldocs/development#using-self-signed-certificates-on-chrome)
 
 ## Authentication
 
