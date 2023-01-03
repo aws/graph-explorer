@@ -1,20 +1,20 @@
 # Graph Explorer
 The Graph Explorer project provides a React-based web application that enables users to visualize both property graph and RDF data and explore connections between data without having to write graph queries. You can connect to a graph database that supports either the [W3C RDF/SPARQL](https://www.w3.org/TR/sparql11-overview/) open standard or the open source [Apache TinkerPop Gremlin Server](https://tinkerpop.apache.org/).
 
-To get started, you can deploy Graph Explorer on a local machine using [Docker Desktop](https://www.docker.com/products/docker-desktop/), or in the cloud using a container service such as [Amazon ECS](https://aws.amazon.com/ecs/). The Graph Explorer image is hosted on [Amazon ECR](https://aws.amazon.com/ecr/), and can also be pulled from [DockerHub](https://hub.docker.com/). 
+To get started, you can deploy Graph Explorer on a local machine using [Docker Desktop](https://www.docker.com/products/docker-desktop/), or in the cloud using Amazon EC2 or a container service like [Amazon ECS](https://aws.amazon.com/ecs/). 
 
 ![A sample image of property graph created by Graph Explorer](./images/LPGIMDb.png)
 ![A sample image of RDF graph created by Graph Explorer](./images/RDFEPL.png)
 
 ## Getting Started
 
-This project contains the code needed to create a Docker image of the Graph Explorer. The image will create the Graph Explorer application to communicate through port `5173` and a proxy server through port `8182`. The proxy server will be created automatically, but will only be necessary if you are connecting to Neptune. Gremlin-Server and BlazeGraph can be connected to directly. Additionally, the image will create a self-signed certificate that can be optionally used when PROXY_SERVER_HTTPS_CONNECTION or GRAPH_EXP_HTTPS_CONNECTION are set to true (default behavior). 
+This project contains the code needed to create a Docker image of the Graph Explorer. The image will create the Graph Explorer application to communicate through port `5173` and a proxy server through port `8182`. The proxy server will be created automatically, but will only be necessary if you are connecting to Neptune. Gremlin-Server and BlazeGraph can be connected to directly. Additionally, the image will create a self-signed certificate that can be optionally used.
 
 There are many ways to deploy the Graph Explorer application. The following instructions detail how to deploy graph-explorer onto an Amazon EC2 instance and use it as a proxy server with SSH tunneling to connect to Amazon Neptune. Note that this README is not an official recommendation on network setups as there are many ways to connect to Amazon Neptune from outside of the VPC, such as setting up a load balancer or VPC peering.
 
 ### Prerequisites:
 
-* Provision an Amazon EC2 instance that will be used to host the application and connect to Neptune as a proxy server. For more details, see instructions here: https://github.com/aws/graph-notebook/tree/main/additional-databases/neptune
+* Provision an Amazon EC2 instance that will be used to host the application and connect to Neptune as a proxy server. For more details, see instructions [here](https://github.com/aws/graph-notebook/tree/main/additional-databases/neptune).
 * Ensure the Amazon EC2 instance can send and receive on ports `22` (SSH), `8182` (Neptune), and `5173` (graph-explorer).
 * Open an SSH client and connect to the EC2 instance.
 * Download and install the necessary command line tools such as `git`  and `docker`.
@@ -22,11 +22,11 @@ There are many ways to deploy the Graph Explorer application. The following inst
 ### Steps to install Graph Explorer:
 
 1. To download the source project, run `git clone https://github.com/aws/graph-explorer/`  
-2. To build the image, run `docker build --build-arg host={your_host_name} -t graph-explorer .` from the root directory.
-3. To run the image in a container, run `docker run -dit -p 5173:5173 -p 8182:8182 --name {insert_container_name} graph-explorer`. Optional, can be run as long as the image is there.
-4. Since the application is set to use HTTPS by default and contains a self-signed certificate, you will need to add the Graph Explorer certificates to the trusted certificates directory and manually trust them. (**STEP TO BE REWRITTEN IN DETAIL**).
-5. Now, open a browser and type in the public URL of your EC2 instance on port `5173` (e.g., `https://ec2-1-2-3-4.us-east-1.compute.amazonaws.com:5173`). You will receive a warning as the SSL certificate used is self-signed. Click to proceed anyway.
-6. You should now see the Connections UI. See below description on Connections UI to configure your first connection to Amazon Neptune.
+2. To build the image, run `docker build --build-arg host={hostname-or-ip-address} -t graph-explorer .` from the root directory.
+3. To run the image in a container, run `docker run -dit -p 5173:5173 -p 8182:8182 --name {container_name} graph-explorer`. 
+4. Now, open a browser and type in the public URL of your EC2 instance on port `5173` (e.g., `https://ec2-1-2-3-4.us-east-1.compute.amazonaws.com:5173`). You will receive a warning as the SSL certificate used is self-signed.
+5. Since the application is set to use HTTPS by default and contains a self-signed certificate, you will need to add the Graph Explorer certificates to the trusted certificates directory and manually trust them. See [HTTPS Connections](#https-connections) section.
+6. After completing the trusted certification step and refreshing the browser, you should now see the Connections UI. See below description on Connections UI to configure your first connection to Amazon Neptune.
 
 ## Features
 
@@ -86,82 +86,38 @@ You can search, browse, expand, customize views of your graph data using Graph E
      * Default columns - You can set which columns you want to display
      * Paging of rows
 
+## Connections
+The Graph Explorer supports visualizing both **property graphs** and **RDF graphs**. You can connect to Amazon Neptune or you can also connect to open graph databases that implement an Apache TinkerPop Gremlin Server endpoint or the SPARQL 1.1 protocol, such as Blazegraph. For additional details on connecting to different graph databases, see [Connections](./additionaldocs/connections.md).
+
 ## Development
+For development guidance, see [Development](./additionaldocs/development.md).
 
-### Requirements
-- pnpm >=7.9.3
-- node >=16.15.1
+## Security
 
-### Supported Graph Types
-- Labelled Property Graph (PG) using Gremlin
-- Resource Description Framework (RDF) using SPARQL 
+You can use the Graph Explorer to connect to a publicly accessible graph database endpoint, or connect to a proxy endpoint that redirects to a private graph database endpoint.
 
-### Run in development mode
-- `pnpm i`
-- `pnpm start`
-
-### Build for production
-- `pnpm i`
-- `pnpm build`
-- `dist` folder is created in the graph-explorer directory.
-- Serve the static site using the method of your choice,
-for example, using `serve` npm package.
-
-### Environment variables
-
-You can find a template for the following environment variables at `/packages/graph-explorer/.env`. All variables described below are optional and will default to the given values.
-
-- `GRAPH_EXP_ENV_ROOT_FOLDER`: Base folder for the public files. By default, `/` (`string`). 
-- `GRAPH_EXP_CONNECTION_NAME`: Default connection name. Blank by default (`string`).
-- `GRAPH_EXP_CONNECTION_ENGINE`: Default connection query engine work with the instance. By default, `gremlin` (`gremlin | sparql`).
-- `GRAPH_EXP_HTTPS_CONNECTION`: Uses the self-signed certificate to serve the Graph Explorer over https if true. By default `true` (`boolean`).
-- `PROXY_SERVER_HTTPS_CONNECTION`: Uses the self-signed certificate to serve the proxy-server over https if true. By default `true` (`boolean`).
-
-## Connection
-
-### Connecting to Neptune
-- Ensure that Graph Explorer has access to the Neptune instance by being in the same VPC or VPC peering. 
-- If authentication is enabled, read query privileges are needed (See ReadDataViaQuery managed policy [here](https://docs.aws.amazon.com/neptune/latest/userguide/iam-data-access-examples.html#iam-auth-data-policy-example-read-query).
-
-### Connecting to Gremlin-Server
-- The Graph Explorer currently supports only HTTP(S) connections. When connecting to Gremlin-Server, ensure it is configured with a channelizer that support HTTP(S) (i.e. [Channelizer Documentation](https://tinkerpop.apache.org/javadocs/current/full/org/apache/tinkerpop/gremlin/server/Channelizer.html)). The Gremlin Server configuration can be usually found at: /conf/gremlin-server.yaml.
-- Remove “.withStrategies(ReferenceElementStrategy)” from `/scripts/generate-modern.groovy` so that properties are returned.
-- Change `gremlin.tinkergraph.vertexIdManager` and `gremlin.tinkergraph.edgeIdManager` in `/conf/tinkergraph-empty.properties` to support string ids. You can use `ANY`.
-- Build and run the docker container as normal.
-
-### Connecting to BlazeGraph
-- Build and run the docker container as normal and connect the proxy-server to BlazeGraph and your workbench to the proxy-server.
-- If using docker, ensure that the container running the workbench can properly access the container running BlazeGraph. You can find documentation on how to connect containers via docker networks [here](https://docs.docker.com/network/).
-
-### Using HTTPS
-- Self-signed certs will use the hostname provided in the docker build command as instructed above, so unless you have specific requirements, there are no extra steps here besides providing the hostname.
-- If you would like to modify the certificate files, be aware that the Dockerfile is making automatic modifications on line 15 and 16, so you will need to remove these lines.
-
-### Using the Proxy-Server
-- When creating a connection, insert the url to access your proxy-server, which is `http(s)://localhost:8182` from the context of the host machine, into the Public URL field. Check `Connecting to Proxy-Server` since you won't be using the proxy with Gremlin-Server, and fill in the Graph Connection URL with the endpoint that the proxy-server should make requests to. Ensure that you don't end the Graph Connection URLs with `/`.
+Graph Explorer supports the HTTPS protocol by default and provides a self-signed certificate as part of the Docker image. You can choose to use HTTP instead by changing the [environment variable default settings](./additionaldocs/development.md#environment-variables).
 
 ### HTTPS Connections
-- If either of the Graph Explorer or the proxy-server are served over an https connection, you will have to bypass the warning message from the browser due to the certificates being self-signed by manually ignoring them from the browser or downloading the correct certificate and configuring them to be trusted. 
-- For some browsers, like safari, you can download the certificate directly from the browser. For Google Chrome, you will need the root certificate, which is located at `/packages/graph-explorer-proxy-server/cert-info/rootCA.crt` in the docker container. You can run `docker exec -it {name_of_container} /bin/bash` to get inside the container.
-- Once you have the certificate, you will need to trust it on your computer. For Mac, you can open Keychain Access, drag and drop the certificate, right click it, select "Get info", select the trust dropdown, and change "When using this certificate" to "Always Trust". You should now see the "Not secure" error on Chrome resolve.
-- For this application, we recommend Chrome, but for reference, different browsers will have slightly different steps to complete the above. For example, if using Safari, you can use the certificate downloaded from the browser instead of the root certificate.
-- If you only serve one of the proxy-server or Graph Explorer UI over an https connection and wish to download from the browser, you should navigate to the one served over https to download the certificate.
-- The other certificate files can also be found at `/packages/graph-explorer-proxy-server/cert-info/` on the docker container that is created.
+
+If either of the Graph Explorer or the proxy-server are served over an HTTPS connection (which it is by default), you will have to bypass the warning message from the browser due to the included certificate being a self-signed certificate. You can bypass by manually ignoring them from the browser or downloading the correct certificate and configuring them to be trusted. Alternatively, you can provide your own certificate. The following instructions can be used as an example to bypass the warnings for Chrome, but note that different browsers and operating systems will have slightly different steps. 
+
+1. Download the certificate directly from the browser. For example, if using Google Chrome, click the “Not Secure” section on the left of the URL bar and select “Certificate is not valid” to show the certificate. Then click Details tab and click Export at the bottom.
+2. Once you have the certificate, you will need to trust it on your machine. For MacOS, you can open the Keychain Access app. Select System under System Keychains. Then go to File > Import Items... and import the certificate you downloaded in the previous step. 
+3. Once imported, select the certificate and right-click to select "Get Info". Expand the Trust section, and change the value of "When using this certificate" to "Always Trust". 
+4. You should now refresh the browser and see that you can proceed to open the application. For Chrome, the application will remain “Not Secure” due to the fact that this is a self-signed certificate. If you have trouble accessing Graph Explorer after completing the previous step and reloading the browser, consider running a docker restart command and refreshing the browser again.
+
+Note: To get rid of the “Not Secure” warning, see [Using self-signed certificates on Chrome](./additionaldocs/development.md#using-self-signed-certificates-on-chrome).
 
 ## Authentication
 
-Authentication is enabled using the SigV4 signing process for AWS Neptune connections found [here](https://docs.aws.amazon.com/general/latest/gr/signature-version-4.html).
+Authentication for Amazon Neptune connections is enabled using the [SigV4 signing protocol](https://docs.aws.amazon.com/general/latest/gr/signature-version-4.html).
 
-### Use
-- To use auth, you must run requests through the proxy-server. This is where credentials are resolved and the signing logic is.
-- For further information on how to properly have credentials resolved, refer to this [documentation](https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/CredentialProviderChain.html)
-- To use the SharedIniFileCredentials or ProcessCredentials, place your `.aws` folder at the root of the project before creating the docker container.
-- To set up a connection with auth enabled, click `Connecting to Proxy-Server`, then `AWS IAM Auth Enabled` and insert the correct region.
+To use AWS IAM authentication, you must run requests through a proxy endpoint, such as an EC2 instance, where credentials are resolved and where requests are signed.
 
-### Potential Errors
-- If the explorer crashes, you can recreate the container or run `pnpm start` inside of `/packages/graph-explorer`.
-- If the proxy-server crashes, you can recreate the container or run `pnpm start` inside of `/packages/graph-explorer-proxy-server`
-- If the proxy-server fails to start, check that the provided endpoint is properly spelled and that you have access to from the environment you are trying to run in. If you are in a different VPC, consider VPC Peering.
+To set up a connection in Graph Explorer UI with AWS IAM auth enabled on Neptune, check Using Proxy-Server, then check AWS IAM Auth Enabled and type in the AWS Region where the Neptune cluster is hosted (e.g., us-east-1).
+
+For further information on how AWS credentials are resolved in Graph Explorer, refer to this [documentation](https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/CredentialProviderChain.html).
 
 ## License
 This project is licensed under the Apache-2.0 License.
