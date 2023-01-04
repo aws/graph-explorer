@@ -9,7 +9,6 @@ import { edgesAtom, edgesSelectedIdsAtom, edgesSelector } from "./edges";
 import {
   nodesAtom,
   nodesHiddenIdsAtom,
-  nodesLockedIdsAtom,
   nodesSelectedIdsAtom,
   nodesSelector,
 } from "./nodes";
@@ -162,18 +161,16 @@ const entitiesSelector = selector<Entities>({
 
     // When a node is removed, we should delete its id from other nodes-state sets
     if (deletedNodesIds.size > 0) {
-      [nodesSelectedIdsAtom, nodesHiddenIdsAtom, nodesLockedIdsAtom].forEach(
-        selector => {
-          removeFromSetIfDeleted(
-            {
-              get,
-              set,
-            },
-            deletedNodesIds,
-            selector
-          );
-        }
-      );
+      [nodesSelectedIdsAtom, nodesHiddenIdsAtom].forEach(selector => {
+        removeFromSetIfDeleted(
+          {
+            get,
+            set,
+          },
+          deletedNodesIds,
+          selector
+        );
+      });
     }
 
     // Get all edges ids affected by a node deletion

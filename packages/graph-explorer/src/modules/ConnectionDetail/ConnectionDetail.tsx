@@ -150,18 +150,6 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
           <div className={pfx("tag")}>URL</div>
           <div className={pfx("value")}>{config.connection?.url}</div>
         </div>
-        {config.connection?.proxyConnection && (
-          <div className={pfx("item")}>
-            <div className={pfx("tag")}>Graph Connection URL</div>
-            <div className={pfx("value")}>{config.connection?.graphDbUrl}</div>
-          </div>
-        )}
-        {config.connection?.awsAuthEnabled && (
-          <div className={pfx("item")}>
-            <div className={pfx("tag")}>Region</div>
-            <div className={pfx("value")}>{config.connection?.awsRegion}</div>
-          </div>
-        )}
         {!!lastSyncUpdate && (
           <div className={pfx("item")}>
             <div className={pfx("tag")}>
@@ -216,6 +204,7 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
         opened={edit}
         onClose={() => setEdit(false)}
         title={"Update connection"}
+        size={"600px"}
       >
         <CreateConnection
           onClose={() => setEdit(false)}

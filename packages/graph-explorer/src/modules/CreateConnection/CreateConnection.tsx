@@ -29,11 +29,18 @@ type ConnectionForm = {
   graphDbUrl?: string;
   awsAuthEnabled?: boolean;
   awsRegion?: string;
+  cacheStore?: string;
+  cacheTimeMs?: number;
 };
 
 const CONNECTIONS_OP = [
   { label: "PG (Property Graph)", value: "gremlin" },
   { label: "RDF (Resource Description Framework)", value: "sparql" },
+];
+
+const CACHE_OP = [
+  { label: "Browser's store", value: "localstorage" },
+  { label: "In-Memory", value: "memory" },
 ];
 
 export type CreateConnectionProps = {
@@ -67,6 +74,9 @@ const CreateConnection = ({
             graphDbUrl: data.graphDbUrl,
             awsAuthEnabled: data.awsAuthEnabled,
             awsRegion: data.awsRegion,
+            cacheStore:
+              data.cacheStore === "memory" ? "memory" : "localstorage",
+            cacheTimeMs: data.cacheTimeMs * 60 * 1000,
           },
         };
         set(configurationAtom, prevConfigMap => {
@@ -93,6 +103,9 @@ const CreateConnection = ({
             graphDbUrl: data.graphDbUrl,
             awsAuthEnabled: data.awsAuthEnabled,
             awsRegion: data.awsRegion,
+            cacheStore:
+              data.cacheStore === "memory" ? "memory" : "localstorage",
+            cacheTimeMs: data.cacheTimeMs * 60 * 1000,
           },
         });
         return updatedConfig;
@@ -132,11 +145,13 @@ const CreateConnection = ({
     graphDbUrl: initialData?.graphDbUrl || "",
     awsAuthEnabled: initialData?.awsAuthEnabled || false,
     awsRegion: initialData?.awsRegion || "",
+    cacheStore: initialData?.cacheStore || "localstorage",
+    cacheTimeMs: (initialData?.cacheTimeMs ?? 10 * 60 * 1000) / 60000,
   });
 
   const [hasError, setError] = useState(false);
   const onFormChange = useCallback(
-    (attribute: string) => (value: string | string[] | boolean) => {
+    (attribute: string) => (value: number | string | string[] | boolean) => {
       setForm(prev => ({
         ...prev,
         [attribute]: value,
@@ -188,6 +203,7 @@ const CreateConnection = ({
         <div className={pfx("input-url")}>
           <Input
             data-autofocus={true}
+            component={"textarea"}
             label={
               <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
                 Public or Proxy Endpoint
@@ -230,6 +246,7 @@ const CreateConnection = ({
             <Input
               data-autofocus={true}
               label={"Graph Connection URL"}
+              component={"textarea"}
               value={form.graphDbUrl}
               onChange={onFormChange("graphDbUrl")}
               errorMessage={"URL is required"}
@@ -267,6 +284,54 @@ const CreateConnection = ({
             />
           </div>
         )}
+      </div>
+      <div className={pfx("configuration-form")}>
+        <Select
+          label={
+            <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
+              Cache Store
+              <Tooltip
+                text={
+                  <div style={{ maxWidth: 300 }}>
+                    Requests made by the Connector will use a cache storage
+                    which can be stored in browser IndexedDB (it will be stored
+                    between sessions) or in memory (only available in the
+                    current session).
+                  </div>
+                }
+              >
+                <div>
+                  <InfoIcon style={{ width: 18, height: 18 }} />
+                </div>
+              </Tooltip>
+            </div>
+          }
+          options={CACHE_OP}
+          value={form.cacheStore}
+          onChange={onFormChange("cacheStore")}
+        />
+        <Input
+          label={
+            <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
+              Cache Time (minutes)
+              <Tooltip
+                text={
+                  <div style={{ maxWidth: 300 }}>
+                    To disable the caching mechanism, set this to
+                    <strong> 0 minutes</strong>.
+                  </div>
+                }
+              >
+                <div>
+                  <InfoIcon style={{ width: 18, height: 18 }} />
+                </div>
+              </Tooltip>
+            </div>
+          }
+          type={"number"}
+          value={form.cacheTimeMs}
+          onChange={onFormChange("cacheTimeMs")}
+        />
       </div>
       <div className={pfx("actions")}>
         <Button variant={"default"} onPress={onClose}>
