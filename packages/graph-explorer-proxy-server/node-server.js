@@ -55,7 +55,9 @@ dotenv.config({ path: "../graph-explorer/.env" });
       );
       endpoint = endpoint_input;
     } else {
-      console.log("No endpoint passed");
+      msg = "No endpoint passed";
+      console.error(msg);
+      throw Error(msg)
     }
 
     return [new URL(endpoint_input), endpoint_input, requestSig];
@@ -100,7 +102,12 @@ dotenv.config({ path: "../graph-explorer/.env" });
           "&format=json",
         { headers: req.headers }
       );
-
+      
+      if (!response.ok){
+        console.error(response.statusText);
+        throw Error(response.statusText);
+      }
+      
       const data = await response.json();
       res.send(data);
     } catch (error) {
@@ -125,7 +132,12 @@ dotenv.config({ path: "../graph-explorer/.env" });
           headers: req.headers,
         }
       );
-
+      
+      if (!response.ok){
+        console.error(response.statusText);
+        throw Error(response.statusText);
+      }
+      
       const data = await response.json();
       res.send(data);
     } catch (error) {
