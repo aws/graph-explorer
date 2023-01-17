@@ -108,7 +108,7 @@ dotenv.config({ path: "../graph-explorer/.env" });
       );
       
       if (!response.ok){
-        let msg = `Error getting response the SPARQL Server endpoint. [${response.statusText}] with query [${req.query.query}].`
+        let msg = `Error getting response from SPARQL endpoint. [${response.statusText}] with query [${req.query.query}].`
         console.error(msg);
         throw new Error(msg);
       }
