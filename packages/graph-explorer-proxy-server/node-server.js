@@ -29,7 +29,9 @@ const getCredentials = async () => {
     secretKey = credentials.secretAccessKey;
     token = credentials.sessionToken;
   } catch (e) {
-    console.error("No master credentials available", e);
+    let msg = "No master credentials available"
+    console.error(msg, e);
+    throw new Error(msg, e);
   }
 
   return [accessKey, secretKey, token];
@@ -55,9 +57,9 @@ dotenv.config({ path: "../graph-explorer/.env" });
       );
       endpoint = endpoint_input;
     } else {
-      msg = "No endpoint passed";
+      let msg = "No endpoint passed";
       console.error(msg);
-      throw Error(msg)
+      throw new Error(msg)
     }
 
     return [new URL(endpoint_input), endpoint_input, requestSig];
@@ -76,7 +78,9 @@ dotenv.config({ path: "../graph-explorer/.env" });
         "/?gremlin=" + encodeURIComponent(req.query.gremlin)
       );
     } else {
-      console.log(language + " is not supported.");
+      let msg = language + " is not supported.";
+      console.log(msg);
+      throw new Error(msg);
     }
 
     req.headers["Authorization"] = authHeaders["headers"]["Authorization"];
@@ -95,7 +99,7 @@ dotenv.config({ path: "../graph-explorer/.env" });
       const requestSig = reqObjects[2];
 
       await getAuthHeaders("sparql", req, endpoint_url, requestSig);
-
+      
       const response = await fetch(
         `${endpoint}/sparql?query=` +
           encodeURIComponent(req.query.query) +
@@ -104,15 +108,16 @@ dotenv.config({ path: "../graph-explorer/.env" });
       );
       
       if (!response.ok){
-        console.error(response.statusText);
-        throw Error(response.statusText);
+        let msg = `Error getting response the sparql endpoint. [${response.statusText}] with query [${req.query.query}].`
+        console.error(msg);
+        throw new Error(msg);
       }
       
       const data = await response.json();
       res.send(data);
     } catch (error) {
       next(error);
-      console.log(error);
+      console.error(error);
     }
   });
 
@@ -124,7 +129,7 @@ dotenv.config({ path: "../graph-explorer/.env" });
       const requestSig = reqObjects[2];
 
       await getAuthHeaders("gremlin", req, endpoint_url, requestSig);
-
+      
       const response = await fetch(
         `${endpoint}/?gremlin=` + 
         encodeURIComponent(req.query.gremlin),
@@ -134,15 +139,16 @@ dotenv.config({ path: "../graph-explorer/.env" });
       );
       
       if (!response.ok){
-        console.error(response.statusText);
-        throw Error(response.statusText);
+        let msg = `Error getting response from gremlin(default) endpoint. [${response.statusText}] with query [${req.query.gremlin}].`
+        console.error(msg);
+        throw new Error(msg);
       }
       
       const data = await response.json();
       res.send(data);
     } catch (error) {
       next(error);
-      console.log(error);
+      console.error(error);
     }
   });
 
