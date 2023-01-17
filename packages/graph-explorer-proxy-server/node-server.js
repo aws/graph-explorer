@@ -57,7 +57,7 @@ dotenv.config({ path: "../graph-explorer/.env" });
       );
       endpoint = endpoint_input;
     } else {
-      let msg = "No endpoint passed";
+      let msg = "No proxy endpoint is provided.";
       console.error(msg);
       throw new Error(msg)
     }
@@ -108,7 +108,7 @@ dotenv.config({ path: "../graph-explorer/.env" });
       );
       
       if (!response.ok){
-        let msg = `Error getting response the sparql endpoint. [${response.statusText}] with query [${req.query.query}].`
+        let msg = `Error getting response the SPARQL Server endpoint. [${response.statusText}] with query [${req.query.query}].`
         console.error(msg);
         throw new Error(msg);
       }
@@ -139,7 +139,7 @@ dotenv.config({ path: "../graph-explorer/.env" });
       );
       
       if (!response.ok){
-        let msg = `Error getting response from gremlin(default) endpoint. [${response.statusText}] with query [${req.query.gremlin}].`
+        let msg = `Error getting response from Gremlin Server endpoint. [${response.statusText}] with query [${req.query.gremlin}].`
         console.error(msg);
         throw new Error(msg);
       }
