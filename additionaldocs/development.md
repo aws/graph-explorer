@@ -20,6 +20,10 @@ This developer README details instructions for building on top of the graph-expl
 - Serve the static site using the method of your choice,
 for example, using `serve` npm package.
 
+#### UI Version number
+In the user interface, the version number is extracted from `/packages/graph-explorer/package.json`.
+Therefore, when you want to publish a new version of the graph explorer, and that this change is reflected in the user interface, it is necessary to increment the version number before creating a new bundle.
+
 ### Environment variables
 
 You can find a template for the following environment variables at `/packages/graph-explorer/.env`. All variables described below are optional and will default to the given values.

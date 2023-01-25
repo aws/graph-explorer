@@ -83,7 +83,11 @@ declare global {
   interface PromiseWithCancel<T> extends Promise<T> {
     cancel?: () => void;
   }
+
+  /** Graph explorer version extracted from package.json */
+  const __GRAPH_EXP_VERSION__: string;
 }
+
 declare module "rc-dock" {
   /**
    * TabBase allow to add custom props
