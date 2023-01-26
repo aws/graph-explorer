@@ -31,8 +31,12 @@ const useFetchNode = () => {
           return {
             data: {
               ...node.data,
-              neighborsCount: neighborsCount?.totalCount,
-              neighborsCountByType: neighborsCount?.counts,
+              neighborsCount:
+                neighborsCount?.totalCount || node.data.neighborsCount,
+              neighborsCountByType: {
+                ...(node.data.neighborsCountByType || {}),
+                ...(neighborsCount.counts || {}),
+              },
             },
           };
         })

@@ -46,7 +46,7 @@ const defaultStyles = (pfx: string): ThemeStyleFn => ({ theme, isDarkTheme }) =>
       max-width: 700px;
       padding-top: ${theme.spacing.base};
       position: absolute;
-      width: 100%;
+      width: 100vw;
       z-index: ${theme.zIndex.popover};
 
       .${pfx}-search-controls {

@@ -13,6 +13,7 @@ const mapRawResultToVertex = (
       neighborsCount: neighborsCount?.totalCount || 0,
       neighborsCountByType: neighborsCount?.counts || {},
       attributes: rawResult.attributes,
+      __isBlank: rawResult.isBlank,
     },
   };
 };

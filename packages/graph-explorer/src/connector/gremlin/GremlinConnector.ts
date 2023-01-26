@@ -15,6 +15,8 @@ import fetchSchema from "./queries/fetchSchema";
 import keywordSearch from "./queries/keywordSearch";
 
 export default class GremlinConnector extends AbstractConnector {
+  protected readonly basePath = "/?gremlin=";
+
   fetchSchema(options?: QueryOptions): Promise<SchemaResponse> {
     return fetchSchema(this._gremlinFetch(options));
   }
@@ -42,17 +44,9 @@ export default class GremlinConnector extends AbstractConnector {
 
   private _gremlinFetch<TResult>(options?: QueryOptions) {
     return async (queryTemplate: string) => {
-      const url = this._config.connection.url.replace(/\/$/, "");
-      const encodedQuery = encodeURIComponent(queryTemplate);
-
-      const uri = `${url}/?gremlin=${encodedQuery}`;
-
-      const res = await fetch(uri, {
+      return super.request<TResult>(queryTemplate, {
         signal: options?.abortSignal,
-        headers: super.headers,
       });
-
-      return (await res.json()) as TResult;
     };
   }
 }

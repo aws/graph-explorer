@@ -1,4 +1,5 @@
 import cloneDeep from "lodash/cloneDeep";
+import isEqual from "lodash/isEqual";
 import { PrefixTypeConfig } from "../core";
 import commonPrefixes from "./common-prefixes.json";
 
@@ -125,6 +126,10 @@ const generatePrefixes = (
       updatedPrefixes[existPrefixIndex].__matches?.add(uri);
     }
   });
+
+  if (isEqual(currentPrefixes, updatedPrefixes)) {
+    return;
+  }
 
   return updatedPrefixes;
 };
