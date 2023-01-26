@@ -95,14 +95,20 @@ dotenv.config({ path: "../graph-explorer/.env" });
           "&format=json",
         { headers: req.headers }
       );
-      
-      data = await response.json();
-      res.send(data);
+
+      if (response.status >= 400) {
+        throw new Error("Credential Refresh")
+      } else {
+        data = await response.json();
+        res.send(data);
+      }
     } catch (error) {
       next(error);
       console.log(error);
-      creds.get();
-      console.log("Credentials refresh attempt");
+      if (error.message == "Credential Refresh") {
+        creds.get();
+        console.log("Credentials refresh");
+      }
     }
   });
 
@@ -123,13 +129,19 @@ dotenv.config({ path: "../graph-explorer/.env" });
         }
       );
 
-      data = await response.json();
-      res.send(data);
+      if (response.status >= 400) {
+        throw new Error("Credential Refresh")
+      } else {
+        data = await response.json();
+        res.send(data);
+      }
     } catch (error) {
       next(error);
       console.log(error);
-      creds.get();
-      console.log("Credentials refresh attempt");
+      if (error.message == "Credential Refresh") {
+        creds.get();
+        console.log("Credentials refresh");
+      }
     }
   });
 
