@@ -10,12 +10,10 @@ const https = require("https");
 const fs = require("fs");
 
 const getCredentials = async () => {
-  let accessKey = "";
-  let secretKey = "";
-  let token = "";
-  const credProvider = new AWS.CredentialProviderChain();
+  let credentials;
+  let credProvider = new AWS.CredentialProviderChain();
   try {
-    const credentials = await new Promise((resolve, reject) => {
+    credentials = await new Promise((resolve, reject) => {
       credProvider.resolve(function (err, creds) {
         if (err) {
           reject(err);
@@ -25,14 +23,11 @@ const getCredentials = async () => {
         resolve(creds);
       });
     });
-    accessKey = credentials.accessKeyId;
-    secretKey = credentials.secretAccessKey;
-    token = credentials.sessionToken;
   } catch (e) {
     console.error("No master credentials available", e);
   }
 
-  return [accessKey, secretKey, token];
+  return credentials;
 };
 
 dotenv.config({ path: "../graph-explorer/.env" });
@@ -49,9 +44,9 @@ dotenv.config({ path: "../graph-explorer/.env" });
       requestSig = await new RequestSig(
         endpoint_url.host,
         region_input,
-        creds[0],
-        creds[1],
-        creds[2]
+        creds.accessKeyId,
+        creds.secretAccessKey,
+        creds.sessionToken
       );
       endpoint = endpoint_input;
     } else {
@@ -86,55 +81,71 @@ dotenv.config({ path: "../graph-explorer/.env" });
   }
 
   app.get("/sparql", async (req, res, next) => {
+    let reqObjects;
+    let response;
+    let data;
     try {
-      const reqObjects = await getRequestObjects(req.headers["graph-db-connection-url"], req.headers["aws-neptune-region"]);
-      const endpoint_url = reqObjects[0];
-      const endpoint = reqObjects[1];
-      const requestSig = reqObjects[2];
+      reqObjects = await getRequestObjects(req.headers["graph-db-connection-url"], req.headers["aws-neptune-region"]);
 
-      await getAuthHeaders("sparql", req, endpoint_url, requestSig);
+      await getAuthHeaders("sparql", req, reqObjects[0], reqObjects[2]);
 
-      const response = await fetch(
-        `${endpoint}/sparql?query=` +
+      response = await fetch(
+        `${reqObjects[1]}/sparql?query=` +
           encodeURIComponent(req.query.query) +
           "&format=json",
         { headers: req.headers }
       );
 
-      const data = await response.json();
-      res.send(data);
+      if (response.status >= 400) {
+        throw new Error("Credential Refresh")
+      } else {
+        data = await response.json();
+        res.send(data);
+      }
     } catch (error) {
       next(error);
       console.log(error);
+      if (error.message == "Credential Refresh") {
+        creds.get();
+        console.log("Credentials refresh");
+      }
     }
   });
 
   app.get("/", async (req, res, next) => {
+    let reqObjects;
+    let response;
+    let data;
     try {
-      const reqObjects = await getRequestObjects(req.headers["graph-db-connection-url"], req.headers["aws-neptune-region"]);
-      const endpoint_url = reqObjects[0];
-      const endpoint = reqObjects[1];
-      const requestSig = reqObjects[2];
+      reqObjects = await getRequestObjects(req.headers["graph-db-connection-url"], req.headers["aws-neptune-region"]);
 
-      await getAuthHeaders("gremlin", req, endpoint_url, requestSig);
+      await getAuthHeaders("gremlin", req, reqObjects[0], reqObjects[2]);
 
-      const response = await fetch(
-        `${endpoint}/?gremlin=` + 
+      response = await fetch(
+        `${reqObjects[1]}/?gremlin=` + 
         encodeURIComponent(req.query.gremlin),
         {
           headers: req.headers,
         }
       );
 
-      const data = await response.json();
-      res.send(data);
+      if (response.status >= 400) {
+        throw new Error("Credential Refresh")
+      } else {
+        data = await response.json();
+        res.send(data);
+      }
     } catch (error) {
       next(error);
       console.log(error);
+      if (error.message == "Credential Refresh") {
+        creds.get();
+        console.log("Credentials refresh");
+      }
     }
   });
 
-  if (process.env.PROXY_SERVER_HTTPS_CONNECTION != "false") {
+  if (process.env.PROXY_SERVER_HTTPS_CONNECTION != "false" && fs.existsSync("../graph-explorer-proxy-server/cert-info/server.key") && fs.existsSync("../graph-explorer-proxy-server/cert-info/server.crt")) {
     https
       .createServer(
         {
