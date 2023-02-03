@@ -1,4 +1,3 @@
-# Only pushes to a private ECR repository for now. Official graph-explorer public ECR repo release is TBD.
 name: Build Docker image and publish to ECR
 
 on:
@@ -22,7 +21,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_ECR }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ECR }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: us-east-1
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME_ECR }}
           role-duration-seconds: 3600
           role-session-name: ExplorerImageUpdate
@@ -30,12 +29,15 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr-public
         uses: aws-actions/amazon-ecr-login@v1
+        with:
+          registry-type: public
 
       - name: Build, tag, and push Docker image
         env:
           REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
-          REPOSITORY: ${{ secrets.GRAPH_EXPLORER_REPO_NAME }}
-          IMAGE_TAG: ${{ secrets.GRAPH_EXPLORER_IMAGE_TAG }}
+          REGISTRY_ALIAS: neptune
+          REPOSITORY: graph-explorer
+          IMAGE_TAG: latest
         run: |
-          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
-          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+          docker build -t $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG .
+          docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG
