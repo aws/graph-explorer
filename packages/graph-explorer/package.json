@@ -6,6 +6,7 @@
   "engines": {
     "node": ">=16.15.1"
   },
+  "type": "module",
   "scripts": {
     "format": "prettier --write './src/**/*.{css,ts,tsx}'",
     "lint": "eslint src --fix",
