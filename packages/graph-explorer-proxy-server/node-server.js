@@ -44,7 +44,7 @@ dotenv.config({ path: "../graph-explorer/.env" });
 
   app.use(cors());
 
-  app.use("/explorer", express.static(path.join(__dirname, "dist")));
+  app.use("/explorer", express.static(path.join(__dirname, "../graph-explorer/dist")));
 
   async function getRequestObjects(endpoint_input, region_input) {
     if (endpoint_input) {
