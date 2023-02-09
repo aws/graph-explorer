@@ -277,16 +277,18 @@ export abstract class AbstractConnector {
   }
 
   private _getFromCache(key: string) {
-    if (this._connection.cacheStore === "memory") {
-      return this._requestCache.get(key);
+    if (!this._connection.enableCache) {
+      return;
     }
+
     return localforageCache.getItem(key) as Promise<CacheItem | undefined>;
   }
 
   private _setToCache(key: string, value: CacheItem) {
-    if (this._connection.cacheStore === "memory") {
-      return this._requestCache.set(key, value);
+    if (!this._connection.enableCache) {
+      return;
     }
+
     return localforageCache.setItem(key, value);
   }
 }

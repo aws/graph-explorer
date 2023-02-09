@@ -51,7 +51,7 @@ const attrs = [
   "graphDbUrl",
   "awsAuthEnabled",
   "awsRegion",
-  "cacheStore",
+  "enableCache",
   "cacheTimeMs",
 ] as const;
 

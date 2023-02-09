@@ -137,10 +137,10 @@ export type ConnectionConfig = {
    */
   awsRegion?: string;
   /**
-   * Set the store for caching requests.
-   * By default, localstorage.
+   * Enable or disable connector cache.
+   * By default, it's enabled.
    */
-  cacheStore?: "memory" | "localstorage";
+  enableCache?: boolean;
   /**
    * Number of milliseconds before expiring a cached request.
    * By default, 10 minutes.
