@@ -295,7 +295,7 @@ const CreateConnection = ({
               <Tooltip
                 text={
                   <div style={{ maxWidth: 300 }}>
-                    Requests made by the connector can be temporarily stored in
+                    Requests made by the Graph Explorer can be temporarily stored in
                     the browser cache for quick access to the data.
                   </div>
                 }
