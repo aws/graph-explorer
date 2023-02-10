@@ -284,7 +284,28 @@ const CreateConnection = ({
           onChange={e => {
             onFormChange("enableCache")(e.target.checked);
           }}
-          label={"Enable Cache"}
+          styles={{
+            label: {
+              display: "block"
+            }
+          }}
+          label={
+            <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
+              Enable Cache
+              <Tooltip
+                text={
+                  <div style={{ maxWidth: 300 }}>
+                    Requests made by the connector can be temporarily stored in
+                    the browser cache for quick access to the data.
+                  </div>
+                }
+              >
+                <div>
+                  <InfoIcon style={{ width: 18, height: 18 }} />
+                </div>
+              </Tooltip>
+            </div>
+          }
         />
         {form.enableCache && (
           <div className={pfx("input-url")}>
