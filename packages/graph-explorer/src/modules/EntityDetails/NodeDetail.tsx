@@ -106,7 +106,9 @@ const NodeDetail = ({
             }
             attribute={{
               name: "id",
-              displayLabel: t("node-detail.node-id"),
+              displayLabel: node.data.__isBlank
+                ? "Blank node ID"
+                : t("node-detail.node-id"),
             }}
             classNamePrefix={classNamePrefix}
           />

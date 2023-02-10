@@ -1,9 +1,7 @@
-import { ConfigurationContextProps } from "../../../core";
-import generatePrefixes from "../../../utils/generatePrefixes";
 import { ErrorResponse, KeywordSearchResponse } from "../../AbstractConnector";
 import isErrorResponse from "../../utils/isErrorResponse";
 import mapRawResultToVertex from "../mappers/mapRawResultToVertex";
-import keywordSearchTemplate from "../templates/keywordSearchTemplate";
+import keywordSearchTemplate from "../templates/keywordSearch/keywordSearchTemplate";
 import {
   RawResult,
   RawValue,
@@ -26,7 +24,6 @@ type RawKeywordResponse = {
 };
 
 const keywordSearch = async (
-  config: ConfigurationContextProps,
   sparqlFetch: SparqlFetch,
   req: SPARQLKeywordSearchRequest
 ): Promise<KeywordSearchResponse> => {
@@ -45,6 +42,7 @@ const keywordSearch = async (
   filteredResults.forEach(result => {
     if (!mappedResults[result.subject.value]) {
       mappedResults[result.subject.value] = {
+        isBlank: result.subject.type === "bnode",
         uri: result.subject.value,
         class: result.class.value,
         attributes: {},
@@ -57,17 +55,12 @@ const keywordSearch = async (
     }
   });
 
-  const vertices = Object.values(mappedResults).map(result =>
-    mapRawResultToVertex(result)
-  );
-  const uris = vertices.map(v => v.data.id);
-  const genPrefixes = generatePrefixes(uris, config.schema?.prefixes);
+  const vertices = Object.values(mappedResults).map(result => {
+    return mapRawResultToVertex(result);
+  });
 
   return {
-    vertices: Object.values(mappedResults).map(result =>
-      mapRawResultToVertex(result)
-    ),
-    prefixes: genPrefixes,
+    vertices,
   };
 };
 

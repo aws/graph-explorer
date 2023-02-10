@@ -29,6 +29,8 @@ type ConnectionForm = {
   graphDbUrl?: string;
   awsAuthEnabled?: boolean;
   awsRegion?: string;
+  enableCache?: boolean;
+  cacheTimeMs?: number;
 };
 
 const CONNECTIONS_OP = [
@@ -67,6 +69,8 @@ const CreateConnection = ({
             graphDbUrl: data.graphDbUrl,
             awsAuthEnabled: data.awsAuthEnabled,
             awsRegion: data.awsRegion,
+            enableCache: data.enableCache,
+            cacheTimeMs: data.cacheTimeMs * 60 * 1000,
           },
         };
         set(configurationAtom, prevConfigMap => {
@@ -93,6 +97,7 @@ const CreateConnection = ({
             graphDbUrl: data.graphDbUrl,
             awsAuthEnabled: data.awsAuthEnabled,
             awsRegion: data.awsRegion,
+            cacheTimeMs: data.cacheTimeMs * 60 * 1000,
           },
         });
         return updatedConfig;
@@ -132,11 +137,13 @@ const CreateConnection = ({
     graphDbUrl: initialData?.graphDbUrl || "",
     awsAuthEnabled: initialData?.awsAuthEnabled || false,
     awsRegion: initialData?.awsRegion || "",
+    enableCache: true,
+    cacheTimeMs: (initialData?.cacheTimeMs ?? 10 * 60 * 1000) / 60000,
   });
 
   const [hasError, setError] = useState(false);
   const onFormChange = useCallback(
-    (attribute: string) => (value: string | string[] | boolean) => {
+    (attribute: string) => (value: number | string | string[] | boolean) => {
       setForm(prev => ({
         ...prev,
         [attribute]: value,
@@ -188,6 +195,7 @@ const CreateConnection = ({
         <div className={pfx("input-url")}>
           <Input
             data-autofocus={true}
+            component={"textarea"}
             label={
               <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
                 Public or Proxy Endpoint
@@ -230,6 +238,7 @@ const CreateConnection = ({
             <Input
               data-autofocus={true}
               label={"Graph Connection URL"}
+              component={"textarea"}
               value={form.graphDbUrl}
               onChange={onFormChange("graphDbUrl")}
               errorMessage={"URL is required"}
@@ -264,6 +273,48 @@ const CreateConnection = ({
               validationState={
                 hasError && !form.awsRegion ? "invalid" : "valid"
               }
+            />
+          </div>
+        )}
+      </div>
+      <div className={pfx("configuration-form")}>
+        <Checkbox
+          value={"enableCache"}
+          checked={form.enableCache}
+          onChange={e => {
+            onFormChange("enableCache")(e.target.checked);
+          }}
+          styles={{
+            label: {
+              display: "block"
+            }
+          }}
+          label={
+            <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
+              Enable Cache
+              <Tooltip
+                text={
+                  <div style={{ maxWidth: 300 }}>
+                    Requests made by the Graph Explorer can be temporarily stored in
+                    the browser cache for quick access to the data.
+                  </div>
+                }
+              >
+                <div>
+                  <InfoIcon style={{ width: 18, height: 18 }} />
+                </div>
+              </Tooltip>
+            </div>
+          }
+        />
+        {form.enableCache && (
+          <div className={pfx("input-url")}>
+            <Input
+              label="Cache Time (minutes)"
+              type={"number"}
+              value={form.cacheTimeMs}
+              onChange={onFormChange("cacheTimeMs")}
+              min={0}
             />
           </div>
         )}

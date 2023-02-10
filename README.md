@@ -109,6 +109,11 @@ If either of the Graph Explorer or the proxy-server are served over an HTTPS con
 
 Note: To get rid of the “Not Secure” warning, see [Using self-signed certificates on Chrome](./additionaldocs/development.md#using-self-signed-certificates-on-chrome).
 
+### Connection Cache
+Setting up a new connection (or editing an existing connection) allows you to enable a cache for the connector requests. The cache store is configured to use the browser IndexedDB that allows you to make use of data stored between sessions. The time that the data stored in the cache is also configurable, by default it has a lifetime of 10 minutes.
+
+The purpose of the cache is to avoid making multiple requests to the database with the same criteria. Therefore, a request with particular parameters will be cached at most the time set just with the response obtained. After that time, if the exact same request is made again, the response will be updated and stored again.
+
 ## Authentication
 
 Authentication for Amazon Neptune connections is enabled using the [SigV4 signing protocol](https://docs.aws.amazon.com/general/latest/gr/signature-version-4.html).

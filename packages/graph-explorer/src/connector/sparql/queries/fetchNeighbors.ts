@@ -1,9 +1,16 @@
 import groupBy from "lodash/groupBy";
 import { Edge } from "../../../@types/entities";
 import { NeighborsResponse } from "../../AbstractConnector";
+import mapIncomingToEdge, {
+  IncomingPredicate,
+  isIncomingPredicate,
+} from "../mappers/mapIncomingToEdge";
+import mapOutgoingToEdge, {
+  OutgoingPredicate,
+} from "../mappers/mapOutgoingToEdge";
 import mapRawResultToVertex from "../mappers/mapRawResultToVertex";
-import oneHopNeighborsTemplate from "../templates/oneHopNeighborsTemplate";
-import subjectPredicatesTemplate from "../templates/subjectPredicatesTemplate";
+import oneHopNeighborsTemplate from "../templates/oneHopNeighbors/oneHopNeighborsTemplate";
+import subjectPredicatesTemplate from "../templates/subjectPredicates/subjectPredicatesTemplate";
 import {
   RawResult,
   RawValue,
@@ -24,57 +31,9 @@ type RawOneHopNeighborsResponse = {
   };
 };
 
-type OutgoingPredicate = {
-  subject: RawValue;
-  subjectClass: RawValue;
-  predToSubject: RawValue;
-};
-
-type IncomingPredicate = {
-  subject: RawValue;
-  subjectClass: RawValue;
-  predFromSubject: RawValue;
-};
-
 type RawNeighborsPredicatesResponse = {
   results: {
     bindings: Array<OutgoingPredicate | IncomingPredicate>;
-  };
-};
-
-const mapOutgoingToEdge = (
-  resourceURI: string,
-  resourceClass: string,
-  result: OutgoingPredicate
-): Edge => {
-  return {
-    data: {
-      id: `${resourceURI}-[${result.predToSubject.value}]->${result.subject.value}`,
-      type: result.predToSubject.value,
-      source: resourceURI,
-      target: result.subject.value,
-      sourceType: resourceURI,
-      targetType: result.subjectClass.value,
-      attributes: {},
-    },
-  };
-};
-
-const mapIncomingToEdge = (
-  resourceURI: string,
-  resourceClass: string,
-  result: IncomingPredicate
-): Edge => {
-  return {
-    data: {
-      id: `${result.subject.value}-[${result.predFromSubject.value}]->${resourceURI}`,
-      type: result.predFromSubject.value,
-      source: result.subject.value,
-      target: resourceURI,
-      sourceType: result.subjectClass.value,
-      targetType: resourceClass,
-      attributes: {},
-    },
   };
 };
 
@@ -121,6 +80,7 @@ const fetchOneHopNeighbors = async (
     mappedResults[uri] = {
       uri: uri,
       class: result[0].subjectClass.value,
+      isBlank: isBlank(result[0].subject),
       attributes: {},
     };
 
@@ -139,11 +99,7 @@ const fetchOneHopNeighbors = async (
   };
 };
 
-const isIncomingPredicate = (result: any): result is IncomingPredicate => {
-  return !!result.predFromSubject;
-};
-
-const fetchNeighborsPredicates = async (
+export const fetchNeighborsPredicates = async (
   sparqlFetch: SparqlFetch,
   resourceURI: string,
   resourceClass: string,

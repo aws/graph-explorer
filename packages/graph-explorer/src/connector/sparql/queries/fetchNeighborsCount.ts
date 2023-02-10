@@ -1,5 +1,5 @@
 import { NeighborsCountResponse } from "../../AbstractConnector";
-import neighborsCountTemplate from "../templates/neighborsCountTemplate";
+import neighborsCountTemplate from "../templates/neighborsCount/neighborsCountTemplate";
 import { SparqlFetch, SPARQLNeighborsCountRequest } from "../types";
 
 type RawNeighborCount = {

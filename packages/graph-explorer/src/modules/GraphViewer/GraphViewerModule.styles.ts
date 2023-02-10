@@ -98,7 +98,8 @@ const defaultStyles = (pfx: string): ThemeStyleFn => ({ theme }) =>
         position: absolute;
         overflow: auto;
         height: calc(100% - ${theme.spacing["2x"]} - ${theme.spacing["2x"]});
-        width: 200px;
+        min-width: 200px;
+        max-width: 400px;
         z-index: ${theme.zIndex.panes};
         bottom: ${theme.spacing["2x"]};
         right: ${theme.spacing["2x"]};

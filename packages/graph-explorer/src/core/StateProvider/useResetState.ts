@@ -11,7 +11,6 @@ import {
   nodesAtom,
   nodesFilteredIdsAtom,
   nodesHiddenIdsAtom,
-  nodesLockedIdsAtom,
   nodesOutOfFocusIdsAtom,
   nodesSelectedIdsAtom,
   nodesTypesFilteredAtom,
@@ -22,7 +21,6 @@ const useResetState = () => {
     ({ reset }) => () => {
       reset(nodesAtom);
       reset(nodesSelectedIdsAtom);
-      reset(nodesLockedIdsAtom);
       reset(nodesHiddenIdsAtom);
       reset(nodesOutOfFocusIdsAtom);
       reset(nodesFilteredIdsAtom);

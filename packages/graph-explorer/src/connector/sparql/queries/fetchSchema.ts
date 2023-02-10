@@ -1,5 +1,3 @@
-import { PrefixTypeConfig } from "../../../core";
-import generatePrefixes from "../../../utils/generatePrefixes";
 import { SchemaResponse } from "../../AbstractConnector";
 import classesWithCountsTemplates from "../templates/classesWithCountsTemplates";
 import predicatesByClassTemplate from "../templates/predicatesByClassTemplate";
@@ -140,24 +138,14 @@ const fetchPredicatesSchema = async (sparqlFetch: SparqlFetch) => {
  * 4. Generate prefixes using the received URIs
  */
 const fetchSchema = async (
-  sparqlFetch: SparqlFetch,
-  prefixes: PrefixTypeConfig[] = []
+  sparqlFetch: SparqlFetch
 ): Promise<SchemaResponse> => {
   const vertices = await fetchClassesSchema(sparqlFetch);
   const edges = await fetchPredicatesSchema(sparqlFetch);
 
-  const uris = vertices.flatMap(v => [
-    v.type,
-    ...v.attributes.map(attr => attr.name),
-  ]);
-
-  uris.push(...edges.map(e => e.type));
-  const genPrefixes = generatePrefixes(uris, prefixes);
-
   return {
     vertices,
     edges,
-    prefixes: genPrefixes,
   };
 };
 

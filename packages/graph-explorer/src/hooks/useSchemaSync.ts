@@ -5,11 +5,13 @@ import { SchemaResponse } from "../connector/AbstractConnector";
 import useConfiguration from "../core/ConfigurationProvider/useConfiguration";
 import useConnector from "../core/ConnectorProvider/useConnector";
 import { schemaAtom } from "../core/StateProvider/schema";
+import usePrefixesUpdater from "./usePrefixesUpdater";
 
 const useSchemaSync = (onSyncChange?: (isSyncing: boolean) => void) => {
   const config = useConfiguration();
   const connector = useConnector();
 
+  const updatePrefixes = usePrefixesUpdater();
   const { enqueueNotification, clearNotification } = useNotification();
   const notificationId = useRef<string | null>(null);
 
@@ -22,7 +24,7 @@ const useSchemaSync = (onSyncChange?: (isSyncing: boolean) => void) => {
         updatedSchema.set(id, {
           vertices: schema?.vertices || prevSchema?.vertices || [],
           edges: schema?.edges || prevSchema?.edges || [],
-          prefixes: schema?.prefixes || prevSchema?.prefixes || [],
+          prefixes: prevSchema?.prefixes || [],
           lastUpdate: !schema ? prevSchema?.lastUpdate : new Date(),
           triedToSync: true,
           lastSyncFail: !schema && !!prevSchema,
@@ -35,11 +37,7 @@ const useSchemaSync = (onSyncChange?: (isSyncing: boolean) => void) => {
 
   return useCallback(
     async (abortSignal?: AbortSignal) => {
-      if (
-        !config ||
-        !connector.explorer ||
-        !connector.explorer.isConfigEqual(config)
-      ) {
+      if (!config || !connector.explorer) {
         return;
       }
 
@@ -95,20 +93,12 @@ const useSchemaSync = (onSyncChange?: (isSyncing: boolean) => void) => {
         stackable: true,
       });
 
-      const oldPrefixesSize = config?.schema?.prefixes?.length || 0;
-      const newPrefixesSize = schema.prefixes?.length || 0;
-      if (schema.prefixes?.length && oldPrefixesSize !== newPrefixesSize) {
-        const addedCount = newPrefixesSize - oldPrefixesSize;
-        enqueueNotification({
-          title: "Namespaces updated",
-          message:
-            addedCount === 1
-              ? "1 new namespace has been generated"
-              : `${addedCount} new namespaces have been generated`,
-          type: "success",
-          stackable: true,
-        });
-      }
+      const ids = schema.vertices.flatMap(v => [
+        v.type,
+        ...v.attributes.map(attr => attr.name),
+      ]);
+      ids.push(...schema.edges.map(e => e.type));
+      updatePrefixes(ids);
     },
     [
       clearNotification,
@@ -116,6 +106,7 @@ const useSchemaSync = (onSyncChange?: (isSyncing: boolean) => void) => {
       connector.explorer,
       enqueueNotification,
       onSyncChange,
+      updatePrefixes,
       updateSchemaState,
     ]
   );
