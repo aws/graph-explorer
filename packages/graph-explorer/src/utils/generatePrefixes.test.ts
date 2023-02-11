@@ -91,29 +91,29 @@ describe("generatePrefixes", () => {
     );
 
     expect(updatedPrefixes).toHaveLength(5);
-    expect(updatedPrefixes[0]).toEqual({
+    expect(updatedPrefixes?.[0]).toEqual({
       prefix: "owl",
       uri: "https://www.w3.org/2002/07/owl#",
       __matches: new Set(["https://www.w3.org/2002/07/owl#ObjectProperty"]),
     });
-    expect(updatedPrefixes[1]).toEqual({
+    expect(updatedPrefixes?.[1]).toEqual({
       prefix: "dbr",
       uri: "https://dbpedia.org/resource/",
       __matches: new Set(["https://dbpedia.org/resource/Qualifying_Rounds"]),
     });
-    expect(updatedPrefixes[2]).toEqual({
+    expect(updatedPrefixes?.[2]).toEqual({
       __inferred: true,
       uri: "http://www.example.com/soccer/ontology/",
       prefix: "soc",
       __matches: new Set(["http://www.example.com/soccer/ontology/League"]),
     });
-    expect(updatedPrefixes[3]).toEqual({
+    expect(updatedPrefixes?.[3]).toEqual({
       __inferred: true,
       uri: "http://www.example.com/soccer/resource#",
       prefix: "soc-r",
       __matches: new Set(["http://www.example.com/soccer/resource#EPL"]),
     });
-    expect(updatedPrefixes[4]).toEqual({
+    expect(updatedPrefixes?.[4]).toEqual({
       __inferred: true,
       uri: "http://www.example.com/location/resource#",
       prefix: "loc-r",

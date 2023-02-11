@@ -21,7 +21,7 @@ export type SelectProps = {
   options: Array<SelectOption>;
   value?: string | string[];
   onChange: (value: string | string[]) => void;
-  label?: string;
+  label?: ReactNode;
   ["aria-label"]?: string;
   labelPlacement?: "top" | "left" | "inner";
   className?: string;

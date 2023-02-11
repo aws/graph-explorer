@@ -33,11 +33,11 @@ export const nodesSelector = selector<Array<Vertex>>({
       return existingNodesIds;
     };
     // Clean all dependent states
-    set(nodesSelectedIdsAtom, cleanFn);
-    set(nodesHiddenIdsAtom, cleanFn);
-    set(nodesOutOfFocusIdsAtom, cleanFn);
-    set(nodesLockedIdsAtom, cleanFn);
-    set(nodesFilteredIdsAtom, cleanFn);
+    get(nodesSelectedIdsAtom).size > 0 && set(nodesSelectedIdsAtom, cleanFn);
+    get(nodesHiddenIdsAtom).size > 0 && set(nodesHiddenIdsAtom, cleanFn);
+    get(nodesOutOfFocusIdsAtom).size > 0 &&
+      set(nodesOutOfFocusIdsAtom, cleanFn);
+    get(nodesFilteredIdsAtom).size > 0 && set(nodesFilteredIdsAtom, cleanFn);
 
     const activeConfig = get(activeConfigurationAtom);
     if (!activeConfig) {
@@ -76,11 +76,6 @@ export const nodesSelector = selector<Array<Vertex>>({
 
 export const nodesSelectedIdsAtom = atom<Set<string>>({
   key: "nodes-selected-ids",
-  default: new Set(),
-});
-
-export const nodesLockedIdsAtom = atom<Set<string>>({
-  key: "nodes-locked-ids",
   default: new Set(),
 });
 

@@ -21,9 +21,9 @@ There are many ways to deploy the Graph Explorer application. The following inst
 
 ### Steps to install Graph Explorer:
 
-1. To download the source project, run `git clone https://github.com/aws/graph-explorer/`  
-2. To build the image, run `docker build --build-arg host={hostname-or-ip-address} -t graph-explorer .` from the root directory.
-3. To run the image in a container, run `docker run -dit -p 5173:5173 -p 8182:8182 --name {container_name} graph-explorer`. 
+1. To download the source project, run `git clone https://github.com/aws/graph-explorer/`. Navigate to the newly created `graph-explorer` directory.
+2. To build the image, run `docker build --build-arg host={hostname-or-ip-address} -t graph-explorer .` from the root directory. If you receive an error relating to the docker service not running, run `service docker start`.
+3. Run `docker run -p 5173:5173 -p 8182:8182 graph-explorer` to run the docker container.
 4. Now, open a browser and type in the public URL of your EC2 instance on port `5173` (e.g., `https://ec2-1-2-3-4.us-east-1.compute.amazonaws.com:5173`). You will receive a warning as the SSL certificate used is self-signed.
 5. Since the application is set to use HTTPS by default and contains a self-signed certificate, you will need to add the Graph Explorer certificates to the trusted certificates directory and manually trust them. See [HTTPS Connections](#https-connections) section.
 6. After completing the trusted certification step and refreshing the browser, you should now see the Connections UI. See below description on Connections UI to configure your first connection to Amazon Neptune.
@@ -108,6 +108,11 @@ If either of the Graph Explorer or the proxy-server are served over an HTTPS con
 4. You should now refresh the browser and see that you can proceed to open the application. For Chrome, the application will remain “Not Secure” due to the fact that this is a self-signed certificate. If you have trouble accessing Graph Explorer after completing the previous step and reloading the browser, consider running a docker restart command and refreshing the browser again.
 
 Note: To get rid of the “Not Secure” warning, see [Using self-signed certificates on Chrome](./additionaldocs/development.md#using-self-signed-certificates-on-chrome).
+
+### Connection Cache
+Setting up a new connection (or editing an existing connection) allows you to enable a cache for the connector requests. The cache store is configured to use the browser IndexedDB that allows you to make use of data stored between sessions. The time that the data stored in the cache is also configurable, by default it has a lifetime of 10 minutes.
+
+The purpose of the cache is to avoid making multiple requests to the database with the same criteria. Therefore, a request with particular parameters will be cached at most the time set just with the response obtained. After that time, if the exact same request is made again, the response will be updated and stored again.
 
 ## Authentication
 

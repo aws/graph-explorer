@@ -2,13 +2,12 @@ import uniq from "lodash/uniq";
 import uniqBy from "lodash/uniqBy";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useQuery } from "react-query";
-import { useSetRecoilState } from "recoil";
 import { useNotification } from "../../components/NotificationProvider";
 import { KeywordSearchResponse } from "../../connector/AbstractConnector";
 import { useConfiguration } from "../../core";
 import useConnector from "../../core/ConnectorProvider/useConnector";
-import { schemaAtom } from "../../core/StateProvider/schema";
 import useDebounceValue from "../../hooks/useDebounceValue";
+import usePrefixesUpdater from "../../hooks/usePrefixesUpdater";
 import useTextTransform from "../../hooks/useTextTransform";
 
 export interface PromiseWithCancel<T> extends Promise<T> {
@@ -18,11 +17,10 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
   const config = useConfiguration();
   const connector = useConnector();
 
-  const setSchema = useSetRecoilState(schemaAtom);
   const [searchTerm, setSearchTerm] = useState("");
   const debouncedSearchTerm = useDebounceValue(searchTerm, 1000);
   const [selectedVertexType, setSelectedVertexType] = useState("__all");
-  const [selectedAttribute, setSelectedAttribtue] = useState("__all");
+  const [selectedAttribute, setSelectedAttribute] = useState("__all");
   const textTransform = useTextTransform();
 
   const vertexOptions = useMemo(() => {
@@ -49,7 +47,7 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
   }, []);
 
   const onAttributeOptionChange = useCallback((value: string | string[]) => {
-    setSelectedAttribtue(value as string);
+    setSelectedAttribute(value as string);
   }, []);
 
   const searchableAttributes = useMemo(() => {
@@ -137,6 +135,7 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
       ? uniq(searchableAttributes.map(attr => attr.name))
       : [selectedAttribute];
 
+  const updatePrefixes = usePrefixesUpdater();
   const { data, isFetching } = useQuery(
     [
       "keyword-search",
@@ -144,6 +143,7 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
       vertexTypes,
       searchByAttributes,
       isMount,
+      isOpen,
     ],
     () => {
       if (!isOpen || !config) {
@@ -174,44 +174,7 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
           return;
         }
 
-        if (response.prefixes?.length !== 0) {
-          setSchema(prevSchemaMap => {
-            if (!config?.id) {
-              return prevSchemaMap;
-            }
-
-            const updatedSchema = new Map(prevSchemaMap);
-            const schema = updatedSchema.get(config.id);
-            updatedSchema.set(config.id, {
-              // Update prefixes does not affect to sync last update date
-              lastUpdate: schema?.lastUpdate,
-              vertices: schema?.vertices || [],
-              edges: schema?.edges || [],
-              prefixes: response.prefixes || [],
-              lastSyncFail: schema?.lastSyncFail,
-              triedToSync: schema?.triedToSync,
-            });
-            return updatedSchema;
-          });
-
-          const oldPrefixesSize = config?.schema?.prefixes?.length || 0;
-          const newPrefixesSize = response.prefixes?.length || 0;
-          if (
-            response.prefixes?.length &&
-            config?.schema?.prefixes?.length !== response.prefixes?.length
-          ) {
-            const addedCount = newPrefixesSize - oldPrefixesSize;
-            enqueueNotification({
-              title: "Namespaces updated",
-              message:
-                addedCount === 1
-                  ? "1 new namespace has been generated"
-                  : `${addedCount} new namespaces have been generated`,
-              type: "success",
-              stackable: true,
-            });
-          }
-        }
+        updatePrefixes(response.vertices.map(v => v.data.id));
       },
       onError: (e: Error) => {
         enqueueNotification({
@@ -223,15 +186,12 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
     }
   );
 
-  useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
+  if (isOpen && !isMount) {
     setMount(true);
-  }, [isOpen]);
+  }
 
   useEffect(() => {
-    setSelectedAttribtue("__all");
+    setSelectedAttribute("__all");
   }, [selectedVertexType]);
 
   return {
