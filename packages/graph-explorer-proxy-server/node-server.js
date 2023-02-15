@@ -8,6 +8,7 @@ const AWS = require("aws-sdk");
 const { RequestSig } = require("./RequestSig.js");
 const https = require("https");
 const fs = require("fs");
+const { createSecretKey } = require("crypto");
 
 const getCredentials = async () => {
   let credentials;
@@ -85,6 +86,9 @@ dotenv.config({ path: "../graph-explorer/.env" });
     let response;
     let data;
     try {
+      if (creds === undefined) {
+        throw new Error("Credential Refresh");
+      }
       reqObjects = await getRequestObjects(req.headers["graph-db-connection-url"], req.headers["aws-neptune-region"]);
 
       await getAuthHeaders("sparql", req, reqObjects[0], reqObjects[2]);
@@ -106,7 +110,7 @@ dotenv.config({ path: "../graph-explorer/.env" });
       next(error);
       console.log(error);
       if (error.message == "Credential Refresh") {
-        creds.get();
+        creds = await getCredentials();
         console.log("Credentials refresh");
       }
     }
@@ -117,6 +121,9 @@ dotenv.config({ path: "../graph-explorer/.env" });
     let response;
     let data;
     try {
+      if (creds === undefined) {
+        throw new Error("Credential Refresh");
+      }
       reqObjects = await getRequestObjects(req.headers["graph-db-connection-url"], req.headers["aws-neptune-region"]);
 
       await getAuthHeaders("gremlin", req, reqObjects[0], reqObjects[2]);
@@ -139,7 +146,7 @@ dotenv.config({ path: "../graph-explorer/.env" });
       next(error);
       console.log(error);
       if (error.message == "Credential Refresh") {
-        creds.get();
+        creds = await getCredentials();
         console.log("Credentials refresh");
       }
     }
