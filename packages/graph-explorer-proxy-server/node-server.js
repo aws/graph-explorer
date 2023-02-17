@@ -8,7 +8,6 @@ const AWS = require("aws-sdk");
 const { RequestSig } = require("./RequestSig.js");
 const https = require("https");
 const fs = require("fs");
-const { createSecretKey } = require("crypto");
 
 const getCredentials = async () => {
   let credentials;
@@ -38,6 +37,65 @@ dotenv.config({ path: "../graph-explorer/.env" });
   let requestSig;
 
   app.use(cors());
+
+  const delay = (ms) => new Promise((resolve) => setTimeout(() => resolve(), ms));
+
+  async function retryFetch (
+    url,
+    retries = 1,
+    retryDelay = 10000,
+    req,
+    language
+  ) {
+
+    let reqObjects;
+
+    if (creds === undefined) {
+      console.error("Credentials undefined. Trying refresh.");
+      creds = await getCredentials();
+      if (creds === undefined) {
+        throw new Error("Credentials undefined after refresh. Check that you have proper access and that the credentials should work.")
+      }
+    }
+    reqObjects = await getRequestObjects(req.headers["graph-db-connection-url"], req.headers["aws-neptune-region"]);
+    await getAuthHeaders(language, req, reqObjects[0], reqObjects[2]);
+
+    return new Promise((resolve, reject) => {
+        
+      const wrapper = (n) => {
+        fetch(url, { headers: req.headers, })
+          .then(async res => {
+
+            if (!res.ok) {
+	            console.log("Response not ok");
+              const error = res.status
+              return Promise.reject(error);
+            } else {
+	            console.log("Response ok");
+              resolve(res);
+            }
+          })
+          .catch(async (err) => {
+            console.log("Attempt Credential Refresh");
+	          creds = await getCredentials();
+            if (creds === undefined) {
+              reject("Credentials undefined after credential refresh. Check that you have proper acccess")
+            }
+            reqObjects = await getRequestObjects(req.headers["graph-db-connection-url"], req.headers["aws-neptune-region"]);
+            await getAuthHeaders(language, req, reqObjects[0], reqObjects[2]);
+
+            if (n > 0) {
+              await delay(retryDelay);
+              wrapper(--n);
+            } else {
+              reject(err);
+            }
+          });
+      };
+
+      wrapper(retries);
+    });
+  };
 
   async function getRequestObjects(endpoint_input, region_input) {
     if (endpoint_input) {
@@ -82,73 +140,33 @@ dotenv.config({ path: "../graph-explorer/.env" });
   }
 
   app.get("/sparql", async (req, res, next) => {
-    let reqObjects;
     let response;
     let data;
     try {
-      if (creds === undefined) {
-        throw new Error("Credential Refresh");
-      }
-      reqObjects = await getRequestObjects(req.headers["graph-db-connection-url"], req.headers["aws-neptune-region"]);
-
-      await getAuthHeaders("sparql", req, reqObjects[0], reqObjects[2]);
-
-      response = await fetch(
-        `${reqObjects[1]}/sparql?query=` +
-          encodeURIComponent(req.query.query) +
-          "&format=json",
-        { headers: req.headers }
-      );
-
-      if (response.status >= 400) {
-        throw new Error("Credential Refresh")
-      } else {
-        data = await response.json();
-        res.send(data);
-      }
+      response = await retryFetch(`${req.headers["graph-db-connection-url"]}/sparql?query=` +
+      encodeURIComponent(req.query.query) +
+      "&format=json", undefined, undefined, req, "sparql").then((res) => res)
+      
+      data = await response.json();
+      res.send(data);
     } catch (error) {
       next(error);
       console.log(error);
-      if (error.message == "Credential Refresh") {
-        creds = await getCredentials();
-        console.log("Credentials refresh");
-      }
     }
   });
 
   app.get("/", async (req, res, next) => {
-    let reqObjects;
     let response;
     let data;
     try {
-      if (creds === undefined) {
-        throw new Error("Credential Refresh");
-      }
-      reqObjects = await getRequestObjects(req.headers["graph-db-connection-url"], req.headers["aws-neptune-region"]);
+      response = await retryFetch(`${req.headers["graph-db-connection-url"]}/?gremlin=` +
+      encodeURIComponent(req.query.gremlin), undefined, undefined, req, "gremlin").then((res) => res)
 
-      await getAuthHeaders("gremlin", req, reqObjects[0], reqObjects[2]);
-
-      response = await fetch(
-        `${reqObjects[1]}/?gremlin=` + 
-        encodeURIComponent(req.query.gremlin),
-        {
-          headers: req.headers,
-        }
-      );
-
-      if (response.status >= 400) {
-        throw new Error("Credential Refresh")
-      } else {
-        data = await response.json();
-        res.send(data);
-      }
+      data = await response.json();
+      res.send(data);
     } catch (error) {
       next(error);
       console.log(error);
-      if (error.message == "Credential Refresh") {
-        creds = await getCredentials();
-        console.log("Credentials refresh");
-      }
     }
   });
 
