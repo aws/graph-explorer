@@ -21,6 +21,7 @@ RUN openssl x509 -req -in ./server.csr -CA ./rootCA.crt -CAkey ./rootCA.key -CAc
 ### END CERT CREATION
 WORKDIR /graph-explorer/
 ENV HOME=/graph-explorer
-EXPOSE 5173
-EXPOSE 8182
-CMD ["pnpm", "dev"]
+RUN pnpm build
+EXPOSE 443
+EXPOSE 80
+CMD ["pnpm", "start:proxy-server"]

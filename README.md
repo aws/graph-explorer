@@ -8,14 +8,14 @@ To get started, you can deploy Graph Explorer on a local machine using [Docker D
 
 ## Getting Started
 
-This project contains the code needed to create a Docker image of the Graph Explorer. The image will create the Graph Explorer application to communicate through port `5173` and a proxy server through port `8182`. The proxy server will be created automatically, but will only be necessary if you are connecting to Neptune. Gremlin-Server and BlazeGraph can be connected to directly. Additionally, the image will create a self-signed certificate that can be optionally used.
+This project contains the code needed to create a Docker image of the Graph Explorer. The image will create the Graph Explorer application and proxy server that will be served over the standard HTTP or HTTPS ports (HTTPS by default). The proxy server will be created automatically, but will only be necessary if you are connecting to Neptune. Gremlin-Server and BlazeGraph can be connected to directly. Additionally, the image will create a self-signed certificate that can be optionally used.
 
 There are many ways to deploy the Graph Explorer application. The following instructions detail how to deploy graph-explorer onto an Amazon EC2 instance and use it as a proxy server with SSH tunneling to connect to Amazon Neptune. Note that this README is not an official recommendation on network setups as there are many ways to connect to Amazon Neptune from outside of the VPC, such as setting up a load balancer or VPC peering.
 
 ### Prerequisites:
 
 * Provision an Amazon EC2 instance that will be used to host the application and connect to Neptune as a proxy server. For more details, see instructions [here](https://github.com/aws/graph-notebook/tree/main/additional-databases/neptune).
-* Ensure the Amazon EC2 instance can send and receive on ports `22` (SSH), `8182` (Neptune), and `5173` (graph-explorer).
+* Ensure the Amazon EC2 instance can send and receive on ports `22` (SSH), `8182` (Neptune), and `443` or `80` depending on protocol used (graph-explorer).
 * Open an SSH client and connect to the EC2 instance.
 * Download and install the necessary command line tools such as `git`  and `docker`.
 
@@ -23,8 +23,8 @@ There are many ways to deploy the Graph Explorer application. The following inst
 
 1. To download the source project, run `git clone https://github.com/aws/graph-explorer/`. Navigate to the newly created `graph-explorer` directory.
 2. To build the image, run `docker build --build-arg host={hostname-or-ip-address} -t graph-explorer .` from the root directory. If you receive an error relating to the docker service not running, run `service docker start`.
-3. Run `docker run -p 5173:5173 -p 8182:8182 graph-explorer` to run the docker container.
-4. Now, open a browser and type in the public URL of your EC2 instance on port `5173` (e.g., `https://ec2-1-2-3-4.us-east-1.compute.amazonaws.com:5173`). You will receive a warning as the SSL certificate used is self-signed.
+3. Run `docker run -p 80:80 -p 443:443 graph-explorer` to run the docker container.
+4. Now, open a browser and type in the public URL of your EC2 instance accessing the explorer endpoint (e.g., `https://ec2-1-2-3-4.us-east-1.compute.amazonaws.com/explorer`). You will receive a warning as the SSL certificate used is self-signed.
 5. Since the application is set to use HTTPS by default and contains a self-signed certificate, you will need to add the Graph Explorer certificates to the trusted certificates directory and manually trust them. See [HTTPS Connections](#https-connections) section.
 6. After completing the trusted certification step and refreshing the browser, you should now see the Connections UI. See below description on Connections UI to configure your first connection to Amazon Neptune.
 

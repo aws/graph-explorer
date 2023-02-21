@@ -8,6 +8,7 @@ const AWS = require("aws-sdk");
 const { RequestSig } = require("./RequestSig.js");
 const https = require("https");
 const fs = require("fs");
+const path = require("path");
 
 const getCredentials = async () => {
   let credentials;
@@ -31,12 +32,14 @@ const getCredentials = async () => {
 };
 
 dotenv.config({ path: "../graph-explorer/.env" });
-
+  
 (async () => {
   let creds = await getCredentials();
   let requestSig;
 
   app.use(cors());
+
+  app.use("/explorer", express.static(path.join(__dirname, "../graph-explorer/dist")));
 
   const delay = (ms) => new Promise((resolve) => setTimeout(() => resolve(), ms));
 
@@ -179,12 +182,12 @@ dotenv.config({ path: "../graph-explorer/.env" });
         },
         app
       )
-      .listen(8182, async () => {
-        console.log(`\tProxy server located at https://localhost:8182`);
+      .listen(443, async () => {
+        console.log(`\tProxy server located at https://localhost`);
       });
   } else {
-    app.listen(8182, async () => {
-      console.log(`\tProxy server located at http://localhost:8182`);
+    app.listen(80, async () => {
+      console.log(`\tProxy server located at http://localhost`);
     });
   }
 })();
