@@ -18,7 +18,7 @@ const defaultStyles = (pfx: string) => ({
     }
 
     .${pfx}-configuration-form {
-      width: 400px;
+      width: 100%;
       padding: ${theme.spacing["4x"]} ${theme.spacing.base};
       background: ${theme.palette.background.default};
     }

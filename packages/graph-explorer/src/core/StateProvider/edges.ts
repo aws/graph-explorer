@@ -36,10 +36,11 @@ export const edgesSelector = selector<Edges>({
       return existingEdgesIds;
     };
     // Clean all dependent states
-    set(edgesSelectedIdsAtom, cleanFn);
-    set(edgesHiddenIdsAtom, cleanFn);
-    set(edgesOutOfFocusIdsAtom, cleanFn);
-    set(edgesFilteredIdsAtom, cleanFn);
+    get(edgesSelectedIdsAtom).size > 0 && set(edgesSelectedIdsAtom, cleanFn);
+    get(edgesHiddenIdsAtom).size > 0 && set(edgesHiddenIdsAtom, cleanFn);
+    get(edgesOutOfFocusIdsAtom).size > 0 &&
+      set(edgesOutOfFocusIdsAtom, cleanFn);
+    get(edgesFilteredIdsAtom).size > 0 && set(edgesFilteredIdsAtom, cleanFn);
 
     const activeConfig = get(activeConfigurationAtom);
     if (!activeConfig) {

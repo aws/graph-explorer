@@ -1,3 +1,6 @@
+import { Edge, Vertex } from "../../@types/entities";
+import { NeighborsCountResponse } from "../AbstractConnector";
+
 export type SparqlFetch = <TResult = any>(
   queryTemplate: string
 ) => Promise<TResult>;
@@ -12,6 +15,7 @@ export type RawResult = {
   uri: string;
   class: string;
   attributes: Record<string, string | number>;
+  isBlank: boolean;
 };
 
 export type SPARQLCriterion = {
@@ -64,11 +68,34 @@ export type SPARQLNeighborsPredicatesRequest = {
   subjectURIs: string[];
 };
 
+export type SPARQLBlankNodeNeighborsPredicatesRequest = {
+  /**
+   * Sub-query where the blank node was found.
+   */
+  subQuery: string;
+  /**
+   * All subjects URIs that are related to the resourceURI.
+   */
+  subjectURIs: string[];
+};
+
 export type SPARQLNeighborsCountRequest = {
   /**
    * Resource URI.
    */
   resourceURI: string;
+  /**
+   * Limit the number of results.
+   * 0 = No limit.
+   */
+  limit?: number;
+};
+
+export type SPARQLBlankNodeNeighborsCountRequest = {
+  /**
+   * Sub-query where the blank node was found.
+   */
+  subQuery: string;
   /**
    * Limit the number of results.
    * 0 = No limit.
@@ -99,3 +126,27 @@ export type SPARQLKeywordSearchRequest = {
    */
   offset?: number;
 };
+
+export type SPARQLBlankNodeNeighborsRequest = {
+  resourceURI: string;
+  resourceClass: string;
+  subQuery: string;
+};
+
+export type SPARQLBlankNodeNeighborsResponse = NeighborsCountResponse & {
+  neighbors: {
+    vertices: Array<Vertex>;
+    edges: Array<Edge>;
+  };
+};
+
+export type BlankNodeItem = {
+  id: string;
+  subQueryTemplate: string;
+  vertex: Vertex;
+  neighbors?: {
+    vertices: Array<Vertex>;
+    edges: Array<Edge>;
+  };
+};
+export type BlankNodesMap = Map<string, BlankNodeItem>;

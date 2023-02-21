@@ -11,12 +11,10 @@ const fs = require("fs");
 const path = require("path");
 
 const getCredentials = async () => {
-  let accessKey = "";
-  let secretKey = "";
-  let token = "";
-  const credProvider = new AWS.CredentialProviderChain();
+  let credentials;
+  let credProvider = new AWS.CredentialProviderChain();
   try {
-    const credentials = await new Promise((resolve, reject) => {
+    credentials = await new Promise((resolve, reject) => {
       credProvider.resolve(function (err, creds) {
         if (err) {
           reject(err);
@@ -26,14 +24,11 @@ const getCredentials = async () => {
         resolve(creds);
       });
     });
-    accessKey = credentials.accessKeyId;
-    secretKey = credentials.secretAccessKey;
-    token = credentials.sessionToken;
   } catch (e) {
     console.error("No master credentials available", e);
   }
 
-  return [accessKey, secretKey, token];
+  return credentials;
 };
 
 dotenv.config({ path: "../graph-explorer/.env" });
@@ -46,15 +41,74 @@ dotenv.config({ path: "../graph-explorer/.env" });
 
   app.use("/explorer", express.static(path.join(__dirname, "../graph-explorer/dist")));
 
+  const delay = (ms) => new Promise((resolve) => setTimeout(() => resolve(), ms));
+
+  async function retryFetch (
+    url,
+    retries = 1,
+    retryDelay = 10000,
+    req,
+    language
+  ) {
+
+    let reqObjects;
+
+    if (creds === undefined) {
+      console.error("Credentials undefined. Trying refresh.");
+      creds = await getCredentials();
+      if (creds === undefined) {
+        throw new Error("Credentials undefined after refresh. Check that you have proper access and that the credentials should work.")
+      }
+    }
+    reqObjects = await getRequestObjects(req.headers["graph-db-connection-url"], req.headers["aws-neptune-region"]);
+    await getAuthHeaders(language, req, reqObjects[0], reqObjects[2]);
+
+    return new Promise((resolve, reject) => {
+        
+      const wrapper = (n) => {
+        fetch(url, { headers: req.headers, })
+          .then(async res => {
+
+            if (!res.ok) {
+	            console.log("Response not ok");
+              const error = res.status
+              return Promise.reject(error);
+            } else {
+	            console.log("Response ok");
+              resolve(res);
+            }
+          })
+          .catch(async (err) => {
+            console.log("Attempt Credential Refresh");
+	          creds = await getCredentials();
+            if (creds === undefined) {
+              reject("Credentials undefined after credential refresh. Check that you have proper acccess")
+            }
+            reqObjects = await getRequestObjects(req.headers["graph-db-connection-url"], req.headers["aws-neptune-region"]);
+            await getAuthHeaders(language, req, reqObjects[0], reqObjects[2]);
+
+            if (n > 0) {
+              await delay(retryDelay);
+              wrapper(--n);
+            } else {
+              reject(err);
+            }
+          });
+      };
+
+      wrapper(retries);
+    });
+  };
+
   async function getRequestObjects(endpoint_input, region_input) {
     if (endpoint_input) {
       endpoint_url = new URL(endpoint_input);
       requestSig = await new RequestSig(
         endpoint_url.host,
         region_input,
-        creds[0],
-        creds[1],
-        creds[2]
+        creds.accessKeyId,
+        creds.secretAccessKey,
+        creds.sessionToken
       );
       endpoint = endpoint_input;
     } else {
@@ -89,22 +143,14 @@ dotenv.config({ path: "../graph-explorer/.env" });
   }
 
   app.get("/sparql", async (req, res, next) => {
+    let response;
+    let data;
     try {
-      const reqObjects = await getRequestObjects(req.headers["graph-db-connection-url"], req.headers["aws-neptune-region"]);
-      const endpoint_url = reqObjects[0];
-      const endpoint = reqObjects[1];
-      const requestSig = reqObjects[2];
-
-      await getAuthHeaders("sparql", req, endpoint_url, requestSig);
-
-      const response = await fetch(
-        `${endpoint}/sparql?query=` +
-          encodeURIComponent(req.query.query) +
-          "&format=json",
-        { headers: req.headers }
-      );
-
-      const data = await response.json();
+      response = await retryFetch(`${req.headers["graph-db-connection-url"]}/sparql?query=` +
+      encodeURIComponent(req.query.query) +
+      "&format=json", undefined, undefined, req, "sparql").then((res) => res)
+      
+      data = await response.json();
       res.send(data);
     } catch (error) {
       next(error);
@@ -113,23 +159,13 @@ dotenv.config({ path: "../graph-explorer/.env" });
   });
 
   app.get("/", async (req, res, next) => {
+    let response;
+    let data;
     try {
-      const reqObjects = await getRequestObjects(req.headers["graph-db-connection-url"], req.headers["aws-neptune-region"]);
-      const endpoint_url = reqObjects[0];
-      const endpoint = reqObjects[1];
-      const requestSig = reqObjects[2];
+      response = await retryFetch(`${req.headers["graph-db-connection-url"]}/?gremlin=` +
+      encodeURIComponent(req.query.gremlin), undefined, undefined, req, "gremlin").then((res) => res)
 
-      await getAuthHeaders("gremlin", req, endpoint_url, requestSig);
-
-      const response = await fetch(
-        `${endpoint}/?gremlin=` + 
-        encodeURIComponent(req.query.gremlin),
-        {
-          headers: req.headers,
-        }
-      );
-
-      const data = await response.json();
+      data = await response.json();
       res.send(data);
     } catch (error) {
       next(error);
@@ -137,7 +173,7 @@ dotenv.config({ path: "../graph-explorer/.env" });
     }
   });
 
-  if (process.env.PROXY_SERVER_HTTPS_CONNECTION != "false") {
+  if (process.env.PROXY_SERVER_HTTPS_CONNECTION != "false" && fs.existsSync("../graph-explorer-proxy-server/cert-info/server.key") && fs.existsSync("../graph-explorer-proxy-server/cert-info/server.crt")) {
     https
       .createServer(
         {

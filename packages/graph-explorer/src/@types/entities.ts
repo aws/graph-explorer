@@ -15,7 +15,7 @@ export interface VertexData {
    * In gremlin, a node can have multiple labels (types).
    * So, this stores all possible labels for displaying purposes.
    * @example
-   * "John Doe" can a "person" and a "worker"
+   * "John Doe" can be a "person" and a "worker"
    * types = ["person", "worker"]
    */
   types?: string[];
@@ -40,6 +40,10 @@ export interface VertexData {
   neighborsCountByType: Record<string, number>;
 
   // The following properties are computed on run-time
+  /**
+   * Internal flag to mark the resource as blank node in RDF.
+   */
+  __isBlank?: boolean;
   /**
    * Total number of non-fetched neighbors
    */

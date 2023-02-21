@@ -24,7 +24,7 @@ const defaultStyles = (color?: string): ThemeStyleFn => ({ theme }) =>
           transform: rotate(0deg);
         }
         to {
-          transform: rotate(360deg);
+          transform: rotate(359deg);
         }
       }
     }
