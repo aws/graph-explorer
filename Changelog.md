@@ -12,6 +12,7 @@ This release includes the following feature enhancements and bug fixes:
 * Support for blank nodes when visualizing graphs using the RDF data model (https://github.com/aws/graph-explorer/pull/48)
 * Enable Caching feature in the Connections UI which allows you to temporarily store data in the browser between sessions (https://github.com/aws/graph-explorer/pull/48)
 * Simplify the setup by consolidating the build and serving the graph-explorer through port (https://github.com/aws/graph-explorer/pull/52)
+* Moved self-signed SSL certificate creation to Docker entrypoint script (https://github.com/aws/graph-explorer/pull/56)
 
 **Bug fixes**
 
