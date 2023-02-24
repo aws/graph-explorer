@@ -10,6 +10,7 @@ import WorkspaceTopBarAdditionalControls from "./WorkspaceTopBarAdditionalContro
 import WorkspaceTopBarContent from "./WorkspaceTopBarContent";
 import WorkspaceTopBarTitle from "./WorkspaceTopBarTitle";
 import WorkspaceTopBarToggles from "./WorkspaceTopBarToggles";
+import WorkspaceTopBarVersion from "./WorkspaceTopBarVersion";
 
 export type WorkspaceTopBarProps = {
   className?: string;
@@ -24,6 +25,7 @@ interface WorkspaceTopBarComposition {
   Toggles: typeof WorkspaceTopBarToggles;
   AdditionalControls: typeof WorkspaceTopBarAdditionalControls;
   Content: typeof WorkspaceTopBarContent;
+  Version: typeof WorkspaceTopBarVersion;
 }
 
 const WorkspaceTopBar = ({
@@ -47,6 +49,7 @@ const WorkspaceTopBar = ({
           WorkspaceTopBarContent.displayName || WorkspaceTopBarContent.name,
           WorkspaceTopBarAdditionalControls.displayName ||
             WorkspaceTopBarAdditionalControls.name,
+          WorkspaceTopBarVersion.displayName || WorkspaceTopBarVersion.name,
         ],
         "rest"
       ),
@@ -80,6 +83,11 @@ const WorkspaceTopBar = ({
         <div className={pfx("space")} />
         {
           childrenByType[
+            WorkspaceTopBarVersion.displayName || WorkspaceTopBarVersion.name
+          ]
+        }
+        {
+          childrenByType[
             WorkspaceTopBarToggles.displayName || WorkspaceTopBarToggles.name
           ]
         }
@@ -108,6 +116,7 @@ WorkspaceTopBar.Title = WorkspaceTopBarTitle;
 WorkspaceTopBar.Toggles = WorkspaceTopBarToggles;
 WorkspaceTopBar.AdditionalControls = WorkspaceTopBarAdditionalControls;
 WorkspaceTopBar.Content = WorkspaceTopBarContent;
+WorkspaceTopBar.Version = WorkspaceTopBarVersion;
 
 export default WorkspaceTopBar as ((
   props: PropsWithChildren<WorkspaceTopBarProps>

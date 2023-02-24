@@ -185,6 +185,16 @@ const topBarTitleContent: ThemeStyleFn = ({ theme }) => css`
   justify-content: center;
 `;
 
+const topBarTitleVersion: ThemeStyleFn = ({ theme }) => css`
+  display: flex;
+  margin: ${theme.spacing["2x"]};
+  justify-content: center;
+  align-items: center;
+  font-size: ${theme.typography.sizes.xs};
+  font-weight: ${theme.typography.weight.light};
+  color: ${theme.palette.text.secondary};
+`;
+
 const styles = {
   additionalControlsSectionStyles,
   baseStyles,
@@ -197,6 +207,7 @@ const styles = {
   togglesSectionStyles,
   topBarSectionStyles,
   topBarTitleContent,
+  topBarTitleVersion,
 };
 
 export default styles;
