@@ -6,6 +6,6 @@ const toStringId = (id: string | GInt64): string => {
   }
 
   return String(id["@value"]);
-}
+};
 
 export default toStringId;
