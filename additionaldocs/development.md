@@ -41,8 +41,8 @@ You can find a template for the following environment variables at `/packages/gr
 
 ### Using self-signed certificates with Docker
 
-- Self-signed certificates will use the hostname provided in the Docker build command, so unless you have specific requirements, there are no extra steps here besides providing the hostname.
-- If you would like to modify the certificate files, be aware that the Dockerfile is making automatic modifications on line 15 and 16, so you will need to remove these lines. 
+- Self-signed certificates will use the hostname provided in the `docker run` command, so unless you have specific requirements, there are no extra steps here besides providing the hostname.
+- If you would like to modify the certificate files, be aware that the Dockerfile will make automatic modifications on run, in lines 8 and 9 of the [entrypoint script](https://github.com/aws/graph-explorer/blob/main/docker-entrypoint.sh), so you will need to remove these lines.
 - If you only serve one of either the proxy server or Graph Explorer UI over an HTTPS connection and wish to download from the browser, you should navigate to the one served over HTTPS to download the certificate.
 - The other certificate files can also be found at /packages/graph-explorer-proxy-server/cert-info/ on the Docker container that is created. 
 

@@ -22,11 +22,16 @@ There are many ways to deploy the Graph Explorer application. The following inst
 ### Steps to install Graph Explorer:
 
 1. To download the source project, run `git clone https://github.com/aws/graph-explorer/`. Navigate to the newly created `graph-explorer` directory.
-2. To build the image, run `docker build --build-arg host={hostname-or-ip-address} -t graph-explorer .` from the root directory. If you receive an error relating to the docker service not running, run `service docker start`.
-3. Run `docker run -p 80:80 -p 443:443 graph-explorer` to run the docker container.
+2. To build the image, run `docker build -t graph-explorer .` from the root directory. If you receive an error relating to the docker service not running, run `service docker start`.
+3. Run `docker run -p 80:80 -p 443:443 --env HOST={hostname-or-ip-address} graph-explorer` to run the docker container.
 4. Now, open a browser and type in the public URL of your EC2 instance accessing the explorer endpoint (e.g., `https://ec2-1-2-3-4.us-east-1.compute.amazonaws.com/explorer`). You will receive a warning as the SSL certificate used is self-signed.
 5. Since the application is set to use HTTPS by default and contains a self-signed certificate, you will need to add the Graph Explorer certificates to the trusted certificates directory and manually trust them. See [HTTPS Connections](#https-connections) section.
 6. After completing the trusted certification step and refreshing the browser, you should now see the Connections UI. See below description on Connections UI to configure your first connection to Amazon Neptune.
+
+### Troubleshooting
+
+1. If the container does not start, or immediately stops, use `docker logs graph-explorer` to check the container console logs for any related error messages that might provide guidance on why graph-explorer did not start.
+2. If you are having issues connecting graph-explorer to your graph database, use your browser's Developer Tools feature to monitor both the browser console and network calls to determine if here are any errors related to connectivity.
 
 ## Features
 
