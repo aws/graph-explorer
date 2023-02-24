@@ -46,6 +46,7 @@ export type Typography = {
     xl?: string;
   };
   weight?: {
+    light?: number;
     base?: number;
     bold?: number;
     extraBold?: number;

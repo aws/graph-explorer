@@ -116,6 +116,7 @@ const LIGHT_THEME: ProcessedTheme = {
       xl: "1.25rem",
     },
     weight: {
+      light: 400,
       base: 500,
       bold: 600,
       extraBold: 700,
