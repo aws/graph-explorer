@@ -4,6 +4,7 @@ import type {
 } from "../../AbstractConnector";
 import mapApiEdge from "../mappers/mapApiEdge";
 import mapApiVertex from "../mappers/mapApiVertex";
+import toStringId from "../mappers/toStringId";
 import oneHopTemplate from "../templates/oneHopTemplate";
 import type { GEdgeList, GVertexList } from "../types";
 import { GremlinFetch } from "../types";
@@ -34,7 +35,7 @@ const fetchNeighbors = async (
 
   const verticesResponse =
     data.result.data["@value"]?.[0]?.["@value"][1]["@value"];
-  const verticesIds = verticesResponse?.map(v => v["@value"].id);
+  const verticesIds = verticesResponse?.map(v => toStringId(v["@value"].id));
   const vertices: NeighborsResponse["vertices"] = verticesResponse?.map(
     vertex => mapApiVertex(vertex)
   );

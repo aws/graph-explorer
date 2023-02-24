@@ -39,7 +39,7 @@ export type GProperty = {
 export type GVertex = {
   "@type": "g:Vertex";
   "@value": {
-    id: string;
+    id: string | GInt64;
     label: string;
     properties: Record<string, Array<GVertexProperty>>;
   };
@@ -48,12 +48,12 @@ export type GVertex = {
 export type GEdge = {
   "@type": "g:Edge";
   "@value": {
-    id: string;
+    id: string | GInt64;
     label: string;
     inVLabel: string;
-    inV: string;
+    inV: string | GInt64;
     outVLabel: string;
-    outV: string;
+    outV: string | GInt64;
     properties?: Record<string, GProperty>;
   };
 };
