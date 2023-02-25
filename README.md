@@ -43,7 +43,7 @@ You can create and manage connections to graph databases using this feature. Con
    *  __Graph Type:__ Choose a graph data model that corresponds to your graph database. 
    *  __Public Endpoint:__ Provide the publicly accessible endpoint URL for a graph database, e.g., Gremlin Server. If connecting to Amazon Neptune, then provide a proxy endpoint URL that is accessible from outside the VPC, e.g., EC2.
    * __Public or proxy endpoint:__ Provide the publicly accessible endpoint URL for a graph database, e.g., Gremlin Server. If connecting to Amazon Neptune, then provide a proxy endpoint URL that is accessible from outside the VPC, e.g., EC2. 
-      * **Note:** For connecting to Amazon Neptune, ensure that both the proxy endpoint and the graph connection URL begin with `https://` and end with `:8182`. Ensure that you don't end the URLs with `/`.
+      * **Note:** For connecting to Amazon Neptune, ensure that the graph connection URL is in the format `https://[NEPTUNE_ENDPOINT]:8182`, and that the proxy endpoint URL is either `https://[EC2_PUBLIC_HOSTNAME]:443` or `http://[EC2_PUBLIC_HOSTNAME]:80`, depending on the protocol used. Ensure that you don't end either of the URLs with `/`.
    * __Using proxy server:__ Check this box if using a proxy endpoint.
    * __Graph connection URL:__ Provide the endpoint for the graph database
    * __AWS IAM Auth Enabled:__ Check this box if connecting to Amazon Neptune using IAM Auth and SigV4 signed requests
