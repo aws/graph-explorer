@@ -4,9 +4,12 @@ on:
   workflow_dispatch:
     inputs:
       image_tag:
-        description: 'Docker image tag'
+        description: 'ECR image tag type'
         required: false
-        type: string
+        type: choice
+        options:
+          - 'latest'
+          - 'release'
         default: 'latest'
   push:
     branches:
@@ -23,14 +26,25 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Get package version
+        uses: tyankatsu0105/read-package-version-actions@v1
+        with:
+          path: "./"
+        id: package-version
+
       - name: Get image tag
         id: get-image-tag
         run: |
           if ${{ github.event_name == 'workflow_dispatch' }} ; then
-            echo "image_tag=${{ inputs.image_tag }}" >> $GITHUB_OUTPUT
+            if ${{ inputs.image_tag == 'release'}}; then
+              echo "image_tag=${{ steps.package-version.outputs.version }}" >> $GITHUB_OUTPUT
+            else
+              echo "image_tag=latest" >> $GITHUB_OUTPUT
+            fi
           else
             echo "image_tag=latest" >> $GITHUB_OUTPUT
           fi
+          echo "package version: ${{ steps.package-version.outputs.version }}"
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
