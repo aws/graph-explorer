@@ -44,7 +44,6 @@ jobs:
           else
             echo "image_tag=latest" >> $GITHUB_OUTPUT
           fi
-          echo "package version: ${{ steps.package-version.outputs.version }}"
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
