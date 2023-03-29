@@ -21,7 +21,7 @@ const verticesSchemaTemplate = ({ types }: { types: string[] }) => {
      .project(${labels.map(l => `"${l}"`).join(",")})
      ${labels.map(l => `.by(V().hasLabel("${l}").limit(1))`).join("")}
      .limit(1)
-  `.replace(/(\t|\s)+|\n/g, "");
+  `;
 };
 
 export default verticesSchemaTemplate;
