@@ -16,12 +16,7 @@ import { uniq } from "lodash";
 const edgesSchemaTemplate = ({ types }: { types: string[] }) => {
   const labels = uniq(types.flatMap(type => type.split("::")));
 
-  return `
-   g.E()
-     .project(${labels.map(l => `"${l}"`).join(",")})
-     ${labels.map(l => `.by(V().bothE("${l}").limit(1))`).join("\n")}
-     .limit(1)
-  `.replace(/(\t|\s)+|\n/g, "");
+  return `g.E().project(${labels.map(l => `"${l}"`).join(",")})${labels.map(l => `.by(V().bothE("${l}").limit(1))`).join("")}.limit(1)`;
 };
 
 export default edgesSchemaTemplate;
