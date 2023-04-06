@@ -57,7 +57,7 @@ dotenv.config({ path: "../graph-explorer/.env" });
       console.error("Credentials undefined. Trying refresh.");
       creds = await getCredentials();
       if (creds === undefined) {
-        throw new Error("Credentials undefined after refresh. Check that you have proper access and that the credentials should work.")
+        throw new Error("Credentials still undefined. Check that the environment has an appropriate IAM role that trusts it and that it has sufficient read permissions to connect to Neptune.")
       }
     }
     reqObjects = await getRequestObjects(req.headers["graph-db-connection-url"], req.headers["aws-neptune-region"]);
