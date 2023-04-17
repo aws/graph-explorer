@@ -11,6 +11,11 @@ import WorkspaceSideBar from "./components/WorkspaceSideBar";
 import WorkspaceTopBar from "./components/WorkspaceTopBar";
 import styles from "./Workspace.styles";
 
+  //Apotheca additions============================================
+import WorkspaceSideBarLeft from "./components/Ap-WorkspaceSideBarLeft"
+//// ----------this may be unneccessary--------
+//import WorkspaceSideBarContentLeft from "./components/Ap-WorkspaceSideBarContentLeft"
+
 export type WorkspaceProps = {
   orientation?: "vertical" | "horizontal";
   classNamePrefix?: string;
@@ -23,6 +28,10 @@ interface WorkspaceComposition {
   SideBar: typeof WorkspaceSideBar;
   NavBar: typeof WorkspaceNavBar;
   Footer: typeof WorkspaceFooter;
+  //Apotheca additions============================================
+  SideBarLeft: typeof WorkspaceSideBarLeft;
+  //// ----------this may be unneccessary--------
+  //SideBarContentLeft: typeof WorkspaceSideBarContentLeft;
 }
 
 const Workspace = ({
@@ -47,6 +56,7 @@ const Workspace = ({
       WorkspacesContent.displayName || WorkspacesContent.name
     );
   }, [children]);
+  //========================================================
   const sidebarSection = useMemo(() => {
     return getChildOfType(
       children,
@@ -67,6 +77,22 @@ const Workspace = ({
     );
   }, [children]);
 
+  // Apotheca Addition============================================
+  //// ----------this may be unneccessary--------
+  //const sidebarContentLeftSection = useMemo(() => {
+  //  return getChildOfType(
+  //    children,
+  //    WorkspaceSideBarContentLeft.displayName || WorkspaceSideBarContentLeft.name
+  //  );
+  //}, [children]);
+    //========================================================
+  const sidebarLeftSection = useMemo(() => {
+    return getChildOfType(
+      children,
+      WorkspaceSideBarLeft.displayName || WorkspaceSideBarLeft.name
+    );
+  }, [children]);
+
   return (
     <div
       className={cx(
@@ -76,10 +102,15 @@ const Workspace = ({
         pfx(`layout-${orientation}`)
       )}
     >
+      
       {navBarSection}
       <div className={pfx("container")}>
         {topBarSection}
         <div className={pfx("main")}>
+          {/*APOTHECA SIDEBAR HERE*/ }
+        
+          {sidebarLeftSection}
+          
           <div className={pfx("content-footer-section")}>
             <div
               className={cx(
@@ -88,6 +119,7 @@ const Workspace = ({
               )}
             >
               {contentSection}
+              
             </div>
             <div
               className={cx(
@@ -98,7 +130,10 @@ const Workspace = ({
               {footerSection}
             </div>
           </div>
+          
           {sidebarSection}
+          {/* FOR SOME REASON THE SECOND ONE HERE IS DUPLICATING THE SIDE BARS*/ }
+          
         </div>
       </div>
     </div>
@@ -110,6 +145,10 @@ Workspace.NavBar = WorkspaceNavBar;
 Workspace.Content = WorkspacesContent;
 Workspace.SideBar = WorkspaceSideBar;
 Workspace.Footer = WorkspaceFooter;
+
+// Apotheca Addition============================================
+//Workspace.SideBarContentLeft = WorkspaceSideBarContentLeft;
+Workspace.SideBarLeft = WorkspaceSideBarLeft;
 
 export default Workspace as ((
   props: PropsWithChildren<WorkspaceProps>

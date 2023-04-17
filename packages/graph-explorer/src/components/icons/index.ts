@@ -71,3 +71,9 @@ export { default as UploadIcon } from "./UploadIcon";
 export { default as VisibleIcon } from "./VisibleIcon";
 export { default as ZoomInIcon } from "./ZoomInIcon";
 export { default as ZoomOutIcon } from "./ZoomOutIcon";
+
+///------Apotheca Additions--------
+export { default as ApothecaLogo } from './ApothecaLogo';
+export { default as HealthgraphIcon } from './HealthgraphIcon';
+export { default as PatientsIcon } from './PatientsIcon';
+export { default as OntologiesIcon } from './OntologiesIcon';

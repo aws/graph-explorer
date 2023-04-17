@@ -4,55 +4,56 @@ import { useMemo } from "react";
 import { withClassNamePrefix } from "../../../core";
 import getChildOfType from "../../../utils/getChildOfType";
 import getChildrenOfType from "../../../utils/getChildrenOfType";
-import Sidebar from "../../Sidebar/Sidebar";
+//apotheca addition =======================
+import SidebarLeft from "../../Sidebar/Ap-SidebarLeft";
 import SidebarButton from "../../Sidebar/SidebarButton";
-import WorkspaceSideBarContent from "./WorkspaceSideBarContent";
+import WorkspaceSideBarContentLeft from "./Ap-WorkspaceSideBarContentLeft";
 
-interface WorkspaceSideBarComposition {
+interface WorkspaceSideBarLeftComposition {
   Button: typeof SidebarButton;
-  Content: typeof WorkspaceSideBarContent;
+  Content: typeof WorkspaceSideBarContentLeft;
 }
 
-export type WorkspaceSideBarProps = {
+export type WorkspaceSideBarLeftProps = {
   classNamePrefix?: string;
   direction?: "row" | "row-reverse";
 };
 
-const WorkspaceSideBar = ({
+const WorkspaceSideBarLeft = ({
   children,
   classNamePrefix = "ft",
   direction = "row",
-}: PropsWithChildren<WorkspaceSideBarProps>) => {
+}: PropsWithChildren<WorkspaceSideBarLeftProps>) => {
   const pfx = withClassNamePrefix(classNamePrefix);
   const sidebarContent = useMemo(() => {
     return getChildOfType(
       children,
-      WorkspaceSideBarContent.displayName || WorkspaceSideBarContent.name
+      WorkspaceSideBarContentLeft.displayName || WorkspaceSideBarContentLeft.name
     );
   }, [children]);
 
   const sidebarActions = useMemo(() => {
     return getChildrenOfType(
       children,
-      WorkspaceSideBarContent.displayName || WorkspaceSideBarContent.name,
+      WorkspaceSideBarContentLeft.displayName || WorkspaceSideBarContentLeft.name,
       true
     );
   }, [children]);
 
   return (
     <div className={cx(pfx("sidebar-section"), pfx(`direction-${direction}`))}>
-      <Sidebar>{sidebarActions}</Sidebar>
+      <SidebarLeft>{sidebarActions}</SidebarLeft>
       {sidebarContent}
     </div>
   );
 };
 
-WorkspaceSideBar.displayName = "WorkspaceSideBar";
+WorkspaceSideBarLeft.displayName = "WorkspaceSideBarLeft";
 
-WorkspaceSideBar.Button = SidebarButton;
-WorkspaceSideBar.Content = WorkspaceSideBarContent;
+WorkspaceSideBarLeft.Button = SidebarButton;
+WorkspaceSideBarLeft.Content = WorkspaceSideBarContentLeft;
 
-export default WorkspaceSideBar as ((
-  props: PropsWithChildren<WorkspaceSideBarProps>
+export default WorkspaceSideBarLeft as ((
+  props: PropsWithChildren<WorkspaceSideBarLeftProps>
 ) => ReactElement) &
-  WorkspaceSideBarComposition & { displayName: string };
+  WorkspaceSideBarLeftComposition & { displayName: string };

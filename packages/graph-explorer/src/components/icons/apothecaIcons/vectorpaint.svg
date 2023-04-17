@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="1000" height="1000" xml:space="preserve" style=""><rect id="backgroundrect" width="100%" height="100%" x="0" y="0" fill="none" stroke="none"/>
+<desc>Created with Fabric.js 3.5.0</desc>
+<defs>
+</defs>
+<g class="currentLayer" style=""><title>Layer 1</title><rect x="0" y="0" width="100%" height="100%" fill="rgba(255,255,255,0)" id="svg_1"/><g id="141919" class="selected">
+<linearGradient id="SVGID_2" gradientUnits="userSpaceOnUse" gradientTransform="matrix(0.7071 0.7071 -0.7071 0.7071 3.4299 -24.7827)" x1="15.098699569702148" y1="-0.9224100112915039" x2="15.098699569702148" y2="40.821170806884766" transform="translate(0.7142857313156128,0) matrix(23.9201,0,0,23.9201,500.0001,500.0001) " stroke-width="0">
+<stop offset="0%" style="stop-color:rgb(76,192,199);stop-opacity: 1"/>
+<stop offset="15.417%" style="stop-color:rgb(71,185,197);stop-opacity: 1"/>
+<stop offset="37.274%" style="stop-color:rgb(59,167,192);stop-opacity: 1"/>
+<stop offset="62.977000000000004%" style="stop-color:rgb(38,136,185);stop-opacity: 1"/>
+<stop offset="91.393%" style="stop-color:rgb(10,94,174);stop-opacity: 1"/>
+<stop offset="100%" style="stop-color:rgb(0,80,170);stop-opacity: 1"/>
+</linearGradient>
+<circle style="stroke: url(#SVGID_2); stroke-width: 5; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 10; is-custom-font: none; font-file-url: none; fill: none; fill-rule: nonzero; opacity: 1;" cx="0.029861317947506905" cy="0" r="18.371789932250977" transform="matrix(23.9201,0,0,23.9201,500.0001,500.0001) " stroke-width="0" id="svg_2"/>
+</g></g></svg>

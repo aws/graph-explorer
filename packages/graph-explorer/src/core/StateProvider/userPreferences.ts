@@ -94,6 +94,7 @@ export type UserPreferences = {
   layout: {
     activeToggles: Set<string>;
     activeSidebarItem: string | null;
+    activeSidebarItemLeft: string | null;
     tableView?: {
       height: number;
     };
@@ -116,6 +117,7 @@ export const userLayoutAtom = atom<UserPreferences["layout"]>({
   default: {
     activeToggles: new Set(["graph-viewer", "table-view"]),
     activeSidebarItem: null,
+    activeSidebarItemLeft: null,
     detailsAutoOpenOnSelection: true,
     tableView: {
       height: 300,

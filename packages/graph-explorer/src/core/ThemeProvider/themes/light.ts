@@ -31,6 +31,12 @@ const palette: DeepRequired<ProcessedTheme["palette"]> = {
     dark: "#e46000",
     contrastText: "#ffffff",
   },
+  apotheca: {
+    light: "#04a7ff",
+    main: "#fa8500",
+    dark: "#e46000",
+    contrastText: "#ffffff",
+  },
   info: {
     light: "#64c7ff",
     main: "#128ee5",
@@ -67,6 +73,7 @@ const palette: DeepRequired<ProcessedTheme["palette"]> = {
     secondary: "#E0E9F6",
     contrast: grey["200"],
     contrastSecondary: grey["300"],
+    apotheca:'#04a7ff'
   },
   grey,
 };

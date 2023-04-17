@@ -58,6 +58,7 @@ export type Background = {
   secondary?: string;
   contrast?: string;
   contrastSecondary?: string;
+  apotheca?:string
 };
 
 export type ZIndex = {
@@ -118,6 +119,7 @@ export type Theme<
     };
     primary?: Palette;
     secondary?: Palette;
+    apotheca?:Palette;
     info?: Palette;
     error?: Palette;
     warning?: Palette;
@@ -186,6 +188,7 @@ export type ProcessedTheme<
     };
     primary: DeepRequired<Palette>;
     secondary: DeepRequired<Palette>;
+    apotheca: DeepRequired<Palette>;
     info: DeepRequired<Palette>;
     error: DeepRequired<Palette>;
     warning: DeepRequired<Palette>;

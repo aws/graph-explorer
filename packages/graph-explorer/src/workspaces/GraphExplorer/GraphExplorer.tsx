@@ -18,6 +18,9 @@ import {
   ExpandGraphIcon,
   FilterIcon,
   GraphIcon,
+  HealthgraphIcon,
+  PatientsIcon,
+  OntologiesIcon,
 } from "../../components/icons";
 import GridIcon from "../../components/icons/GridIcon";
 import Workspace from "../../components/Workspace";
@@ -31,6 +34,7 @@ import { nodesSelectedIdsAtom } from "../../core/StateProvider/nodes";
 import { userLayoutAtom } from "../../core/StateProvider/userPreferences";
 import { usePrevious } from "../../hooks";
 import useTranslations from "../../hooks/useTranslations";
+///========Sidebar content styling built into app======================///
 import EdgesStyling from "../../modules/EdgesStyling/EdgesStyling";
 import EntitiesFilter from "../../modules/EntitiesFilter";
 import EntitiesTabular from "../../modules/EntitiesTabular/EntitiesTabular";
@@ -42,6 +46,11 @@ import NodeExpand from "../../modules/NodeExpand";
 import NodesStyling from "../../modules/NodesStyling/NodesStyling";
 import TopBarWithLogo from "../common/TopBarWithLogo";
 import defaultStyles from "./GraphExplorer.styles";
+///========Apotheca Sidebar content styling======================///
+import HealthgraphTab from "../../modules/HealthgraphTab";
+import PatientTab from "../../modules/PatientTab";
+import OntologyTab from "../../modules/OntologyTab";
+
 
 export type GraphViewProps = {
   classNamePrefix?: string;
@@ -65,7 +74,10 @@ const GraphExplorer = ({ classNamePrefix = "ft" }: GraphViewProps) => {
   const t = useTranslations();
   const hasNamespaces = config?.connection?.queryEngine === "sparql";
   const [userLayout, setUserLayout] = useRecoilState(userLayoutAtom);
-
+//=====================================VVVVV===========================================
+//below is Apotheca setUserLayout NEED TO CHANGE STILL
+  const [userLayoutLeft, setUserLayoutLeft] = useRecoilState(userLayoutAtom);
+//=====================================↑↑↑↑==========================================
   const nodesSelectedIds = useRecoilValue(nodesSelectedIdsAtom);
   const edgesSelectedIds = useRecoilValue(edgesSelectedIdsAtom);
   const nodeOrEdgeSelected =
@@ -76,7 +88,11 @@ const GraphExplorer = ({ classNamePrefix = "ft" }: GraphViewProps) => {
       ...prev,
       activeSidebarItem: null,
     }));
-  }, [setUserLayout]);
+    setUserLayoutLeft(prev => ({
+      ...prev,
+      activeSidebarItemLeft: null,
+    }));
+  }, [setUserLayout,setUserLayoutLeft]);
 
   const toggleSidebar = useCallback(
     (item: string) => () => {
@@ -85,16 +101,19 @@ const GraphExplorer = ({ classNamePrefix = "ft" }: GraphViewProps) => {
           return {
             ...prev,
             activeSidebarItem: null,
+            activeSidebarItemLeft:null
           };
         }
 
         return {
           ...prev,
           activeSidebarItem: item,
+          activeSidebarItemLeft:null
         };
       });
     },
-    [setUserLayout]
+    [setUserLayout,
+    setUserLayoutLeft]
   );
 
   const toggleView = useCallback(
@@ -113,7 +132,7 @@ const GraphExplorer = ({ classNamePrefix = "ft" }: GraphViewProps) => {
         };
       });
     },
-    [setUserLayout]
+    [setUserLayout,setUserLayoutLeft]
   );
 
   const onTableViewResizeStop = useCallback(
@@ -128,7 +147,7 @@ const GraphExplorer = ({ classNamePrefix = "ft" }: GraphViewProps) => {
         };
       });
     },
-    [setUserLayout]
+    [setUserLayout,setUserLayoutLeft]
   );
 
   const toggles = userLayout.activeToggles;
@@ -166,6 +185,7 @@ const GraphExplorer = ({ classNamePrefix = "ft" }: GraphViewProps) => {
     }, 400),
     [
       setUserLayout,
+      setUserLayoutLeft,
       prevActiveSidebarItem,
       userLayout.activeSidebarItem,
       userLayout.detailsAutoOpenOnSelection,
@@ -176,6 +196,118 @@ const GraphExplorer = ({ classNamePrefix = "ft" }: GraphViewProps) => {
     debounceAutoOpenDetails(nodeOrEdgeSelected);
   }, [debounceAutoOpenDetails, nodeOrEdgeSelected]);
 
+//=====================================VVVVV===========================================
+  //below is apotheca sidebar
+  const closeSidebarLeft = useCallback(() => {
+    setUserLayout(prev => ({
+      ...prev,
+      activeSidebarItem: null,
+    }));
+    setUserLayoutLeft(prev => ({
+      ...prev,
+      activeSidebarItemLeft: null,
+    }));
+  }, [setUserLayout,setUserLayoutLeft]);
+//================================================= WORK HERE
+  const toggleSidebarLeft = useCallback(
+    (item: string) => () => {
+      setUserLayoutLeft(prev => {
+        if (prev.activeSidebarItemLeft === item) {
+          return {
+            ...prev,
+            activeSidebarItemLeft: null,
+            activeSidebarItem: null,
+          };
+        }
+
+        return {
+          ...prev,
+          activeSidebarItemLeft: item,
+          activeSidebarItem: null,
+        };
+      });
+    },
+    [setUserLayoutLeft,
+    setUserLayout]
+    
+  );
+//
+//  const toggleViewLeft = useCallback(
+//    (item: string) => () => {
+//      setUserLayoutLeft(prev => {
+//        const toggles = new Set(prev.activeToggles);
+//        if (toggles.has(item)) {
+//          toggles.delete(item);
+//        } else {
+//          toggles.add(item);
+//        }
+//
+//        return {
+//          ...prev,
+//          activeToggles: toggles,
+//        };
+//      });
+//    },
+//    [setUserLayoutLeft]
+//  );
+//
+//  const onTableViewResizeStopLeft = useCallback(
+//    (_e: unknown, _dir: unknown, _ref: unknown, delta: { height: number }) => {
+//      setUserLayoutLeft(prev => {
+//        return {
+//          ...prev,
+//          tableView: {
+//            ...(prev.tableView || {}),///HERE IS WHERE I MIGHT HAVE TO CHANGE SOME HEIGHTS AND WIDTHS
+//            height: (prev.tableView?.height ?? 300) + delta.height,
+//          },
+//        };
+//      });
+//    },
+//    [setUserLayoutLeft,
+//    ]
+//  );
+
+//  const togglesLeft = userLayoutLeft.activeToggles;
+  
+
+  const prevActiveSidebarItemLeft = usePrevious(userLayoutLeft.activeSidebarItemLeft);
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const debounceAutoOpenDetailsLeft = useCallback(
+    debounce((nodeOrEdgeSelected: boolean) => {
+      if (!nodeOrEdgeSelected) {
+        return;
+      }
+
+      if (
+        userLayoutLeft.detailsAutoOpenOnSelection === false ||
+        userLayoutLeft.activeSidebarItemLeft !== null
+      ) {
+        return;
+      }
+
+      if (prevActiveSidebarItemLeft != null) {
+        return;
+      }
+
+      setUserLayoutLeft(prevState => ({
+        ...prevState,
+        activeSidebarItemLeft: "details",
+      }));
+    }, 400),
+    [
+      setUserLayoutLeft,
+      setUserLayout,
+      prevActiveSidebarItemLeft,
+      userLayoutLeft.activeSidebarItemLeft,
+      userLayoutLeft.detailsAutoOpenOnSelection,
+    ]
+  );
+
+  useEffect(() => {
+    debounceAutoOpenDetailsLeft(nodeOrEdgeSelected);
+  }, [debounceAutoOpenDetailsLeft, nodeOrEdgeSelected]);
+//=====================↑↑↑↑==============================
   return (
     <Workspace
       className={cx(
@@ -230,6 +362,7 @@ const GraphExplorer = ({ classNamePrefix = "ft" }: GraphViewProps) => {
       </TopBarWithLogo>
 
       <Workspace.Content>
+
         {toggles.size === 0 && (
           <div style={{ width: "100%", flexGrow: 1 }}>
             <PanelEmptyState
@@ -283,9 +416,65 @@ const GraphExplorer = ({ classNamePrefix = "ft" }: GraphViewProps) => {
             </div>
           </Resizable>
         )}
-      </Workspace.Content>
+        
 
-      <Workspace.SideBar direction={"row"}>
+      </Workspace.Content>
+      
+      {/*APOTHECA SIDEBAR WORKSPACE*/ }
+      <Workspace.SideBarLeft key='left' direction={"row-reverse"}>
+
+        <Workspace.SideBarLeft.Button
+          tooltipText={"Health Graph"}
+          icon={<HealthgraphIcon />}
+          onPress={toggleSidebarLeft("healthgraph")}
+          active={userLayoutLeft.activeSidebarItemLeft === "healthgraph"}
+        />
+        <Workspace.SideBarLeft.Button
+          tooltipText={"Patients"}
+          icon={<PatientsIcon />}
+          onPress={toggleSidebarLeft("patients")}
+          active={userLayoutLeft.activeSidebarItemLeft === "patients"}
+        />        
+        <Workspace.SideBarLeft.Button
+          tooltipText={"Ontologies"}
+          icon={<OntologiesIcon />}
+          onPress={toggleSidebarLeft("ontologies")}
+          active={userLayoutLeft.activeSidebarItemLeft === "ontologies"}
+        />
+
+
+        {hasNamespaces && (
+          <Workspace.SideBarLeft.Button
+            tooltipText={"Namespaces"}
+            icon={<NamespaceIcon />}
+            onPress={toggleSidebarLeft("namespaces")}
+            active={userLayoutLeft.activeSidebarItemLeft === "namespaces"}
+          />
+        )}
+
+        <Workspace.SideBarLeft.Content
+          isOpen={
+            !hasNamespaces && userLayoutLeft.activeSidebarItemLeft === "namespaces"
+              ? false
+              : userLayoutLeft.activeSidebarItemLeft !== null
+          }
+        >
+          {userLayout.activeSidebarItemLeft === "healthgraph" && (
+            <HealthgraphTab onClose={closeSidebarLeft} />
+          )}
+          {userLayout.activeSidebarItemLeft === "patients" && (
+            <PatientTab onClose={closeSidebarLeft} />
+          )}          
+          {userLayout.activeSidebarItemLeft === "ontologies" && (
+            <OntologyTab onClose={closeSidebarLeft} />
+          )}
+          {userLayout.activeSidebarItemLeft === "namespaces" && (
+            <Namespaces onClose={closeSidebarLeft} />
+          )}
+        </Workspace.SideBarLeft.Content>
+      </Workspace.SideBarLeft>
+      
+      <Workspace.SideBar key= 'right' direction={"row"}>
         <Workspace.SideBar.Button
           tooltipText={"Details"}
           icon={<DetailsIcon />}
@@ -360,6 +549,12 @@ const GraphExplorer = ({ classNamePrefix = "ft" }: GraphViewProps) => {
           )}
         </Workspace.SideBar.Content>
       </Workspace.SideBar>
+      
+
+      
+      
+
+
     </Workspace>
   );
 };

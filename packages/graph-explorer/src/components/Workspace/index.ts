@@ -15,3 +15,5 @@ export type { WorkspaceTopBarTogglesProps } from "./components/WorkspaceTopBarTo
 export { default as WorkspacesContent } from "./components/WorkspacesContent";
 export { default as WorkspaceSideBar } from "./components/WorkspaceSideBar";
 export { default as WorkspaceSideBarContent } from "./components/WorkspaceSideBarContent";
+export { default as WorkspaceSideBarLeft } from "./components/Ap-WorkspaceSideBarLeft" 
+export { default as WorkspaceSideBarContentLeft } from "./components/Ap-WorkspaceSideBarContentLeft";

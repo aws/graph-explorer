@@ -15,8 +15,7 @@
     "isolatedModules": true,
     "useUnknownInCatchVariables": false,
     "jsx": "react-jsx",
-    "noEmit": true,
-    "emitDeclarationOnly": true,
+
     "downlevelIteration": true,
     "importHelpers": true,
     "paths": {},
@@ -24,3 +23,5 @@
   },
   "include": ["src/**/*"]
 }
+//     "noEmit": true,
+//     "emitDeclarationOnly": true,
