@@ -16,12 +16,7 @@ import { uniq } from "lodash";
 const verticesSchemaTemplate = ({ types }: { types: string[] }) => {
   const labels = uniq(types.flatMap(type => type.split("::")));
 
-  return `
-   g.V()
-     .project(${labels.map(l => `"${l}"`).join(",")})
-     ${labels.map(l => `.by(V().hasLabel("${l}").limit(1))`).join("")}
-     .limit(1)
-  `.replace(/(\t|\s)+|\n/g, "");
+  return `g.V().project(${labels.map(l => `"${l}"`).join(",")})${labels.map(l => `.by(V().hasLabel("${l}").limit(1))`).join("")}.limit(1)`;
 };
 
 export default verticesSchemaTemplate;

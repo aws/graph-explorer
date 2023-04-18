@@ -10,7 +10,6 @@ export const sanitizeText = (text?: string): string => {
   return String(text)
     .replace(/([A-Z]+)([A-Z][a-z])/gu, " $1 $2")
     .replace(/([a-z\d])([A-Z])/gu, "$1 $2")
-    .replace(/([a-zA-Z])(\d)/gu, "$1 $2")
     .replace(/[-_]/g, " ")
     .replace(/^./, function (str) {
       return str.toUpperCase();
