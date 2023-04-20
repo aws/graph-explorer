@@ -8,6 +8,7 @@ import type {
 
 export type QueryOptions = {
   abortSignal?: AbortSignal;
+  disableCache?: boolean;
 };
 
 export type VertexSchemaResponse = Pick<
@@ -18,6 +19,13 @@ export type VertexSchemaResponse = Pick<
   | "displayNameAttribute"
   | "longDisplayNameAttribute"
 > & {
+  total?: number;
+};
+
+export type CountsByTypeRequest = {
+  label: string;
+};
+export type CountsByTypeResponse = {
   total: number;
 };
 
@@ -25,14 +33,22 @@ export type EdgeSchemaResponse = Pick<
   EdgeTypeConfig,
   "type" | "displayLabel" | "attributes"
 > & {
-  total: number;
+  total?: number;
 };
 
 export type SchemaResponse = {
   /**
+   * Total number of vertices.
+   */
+  totalVertices?: number;
+  /**
    * List of vertices definitions.
    */
   vertices: VertexSchemaResponse[];
+  /**
+   * Total number of edges.
+   */
+  totalEdges?: number;
   /**
    * List of edges definitions.
    */
@@ -189,8 +205,6 @@ export abstract class AbstractConnector {
 
   protected abstract readonly basePath: string;
 
-  private readonly _requestCache: Map<string, CacheItem> = new Map();
-
   public constructor(connection: ConfigurationWithConnection["connection"]) {
     if (!connection?.url) {
       throw new Error("Invalid configuration. Missing 'connection.url'");
@@ -203,6 +217,14 @@ export abstract class AbstractConnector {
    * Fetch all vertices and edges types (name, data type, attributes, ...)
    */
   public abstract fetchSchema(options?: QueryOptions): Promise<SchemaResponse>;
+
+  /**
+   * Count the number of vertices of a given type
+   */
+  public abstract fetchVertexCountsByType(
+    req: CountsByTypeRequest,
+    options?: QueryOptions
+  ): Promise<CountsByTypeResponse>;
 
   /**
    * Fetch all directly connected neighbors of a given source
@@ -233,15 +255,23 @@ export abstract class AbstractConnector {
   /**
    * This method performs requests and cache their responses.
    */
-  protected async request<TResult>(
+  protected async requestQueryTemplate<TResult = any>(
     queryTemplate: string,
-    options?: { signal?: AbortSignal }
-  ): Promise<any> {
-    const url = this._connection.url.replace(/\/$/, "");
+    options?: { signal?: AbortSignal; disableCache?: boolean }
+  ): Promise<TResult> {
     const encodedQuery = encodeURIComponent(queryTemplate);
-    const uri = `${url}${this.basePath}${encodedQuery}&format=json`;
+    const uri = `${this.basePath}${encodedQuery}&format=json`;
+    return this.request<TResult>(uri, options);
+  }
 
-    const cachedResponse = await this._getFromCache(uri);
+  protected async request<TResult = any>(
+    uri: string,
+    options?: { signal?: AbortSignal; disableCache?: boolean }
+  ): Promise<TResult> {
+    const url = this._connection.url.replace(/\/$/, "");
+    const currentUri = `${url}${uri}`;
+
+    const cachedResponse = await this._getFromCache(currentUri);
     if (
       cachedResponse &&
       cachedResponse.updatedAt +
@@ -251,7 +281,7 @@ export abstract class AbstractConnector {
       return cachedResponse.data;
     }
 
-    return this._requestAndCache<TResult>(uri, {
+    return this._requestAndCache<TResult>(currentUri, {
       signal: options?.signal,
       headers: this._getAuthHeaders(),
     });
@@ -269,10 +299,16 @@ export abstract class AbstractConnector {
     return headers;
   }
 
-  private async _requestAndCache<TResult>(url: string, init?: RequestInit) {
+  private async _requestAndCache<TResult = any>(
+    url: string,
+    init?: RequestInit,
+    options?: Pick<QueryOptions, "disableCache">
+  ) {
     const response = await fetch(url, init);
     const data = await response.json();
-    this._setToCache(url, { data, updatedAt: new Date().getTime() });
+    if (options?.disableCache !== true) {
+      this._setToCache(url, { data, updatedAt: new Date().getTime() });
+    }
     return data as TResult;
   }
 

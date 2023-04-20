@@ -149,4 +149,14 @@ export type BlankNodeItem = {
     edges: Array<Edge>;
   };
 };
+
 export type BlankNodesMap = Map<string, BlankNodeItem>;
+
+export type GraphSummary = {
+  numDistinctSubjects: number;
+  numDistinctPredicates: number;
+  numQuads: number;
+  numClasses: number;
+  classes: Array<string>;
+  predicates: Array<Record<string, number>>;
+};

@@ -117,7 +117,7 @@ export type ConnectionConfig = {
    * Choose between gremlin or sparQL engines.
    * By default, it uses gremlin
    */
-  queryEngine?: "gremlin" | "sparql";
+  queryEngine?: "gremlin" | "sparql" | "open-cypher";
   /**
    * If the service is Neptune,
    * all requests should be sent through the nodejs proxy-server.
@@ -168,7 +168,9 @@ export type RawConfiguration = {
    * Database schema: types, names, labels, icons, ...
    */
   schema?: {
+    totalVertices: number;
     vertices: Array<VertexTypeConfig>;
+    totalEdges: number;
     edges: Array<EdgeTypeConfig>;
     lastUpdate?: Date;
     triedToSync?: boolean;
@@ -185,7 +187,9 @@ export type RawConfiguration = {
 };
 
 export type ConfigurationContextProps = RawConfiguration & {
+  totalVertices: number;
   vertexTypes: Array<string>;
+  totalEdges: number;
   edgeTypes: Array<string>;
   getVertexTypeConfig(vertexType: string): VertexTypeConfig | undefined;
   getVertexTypeAttributes(vertexTypes: string[]): Array<AttributeConfig>;

@@ -5,7 +5,7 @@ import edgesSchemaTemplate from "../templates/edgesSchemaTemplate";
 import vertexLabelsTemplate from "../templates/vertexLabelsTemplate";
 import verticesSchemaTemplate from "../templates/verticesSchemaTemplate";
 import type { GEdge, GInt64, GVertex } from "../types";
-import { GremlinFetch } from "../types";
+import { GraphSummary, GremlinFetch } from "../types";
 
 type RawVertexLabelsResponse = {
   requestId: string;
@@ -106,12 +106,12 @@ const TYPE_MAP = {
   "g:Float": "Number",
 };
 
-const fetchVerticesSchema = async (
-  gremlinFetch: GremlinFetch
+const fetchVerticesAttributes = async (
+  gremlinFetch: GremlinFetch,
+  labels: Array<string>,
+  countsByLabel: Record<string, number>
 ): Promise<SchemaResponse["vertices"]> => {
-  const allLabels = await fetchVertexLabels(gremlinFetch);
   const vertices: SchemaResponse["vertices"] = [];
-  const labels = Object.keys(allLabels);
 
   if (labels.length === 0) {
     return vertices;
@@ -133,7 +133,7 @@ const fetchVerticesSchema = async (
     vertices.push({
       type: label,
       displayLabel: sanitizeText(label),
-      total: allLabels[label],
+      total: countsByLabel[label],
       attributes: Object.entries(properties || {}).map(([name, prop]) => {
         const value = prop[0]?.["@value"].value;
         return {
@@ -151,6 +151,15 @@ const fetchVerticesSchema = async (
   return vertices;
 };
 
+const fetchVerticesSchema = async (
+  gremlinFetch: GremlinFetch
+): Promise<SchemaResponse["vertices"]> => {
+  const countsByLabel = await fetchVertexLabels(gremlinFetch);
+  const labels = Object.keys(countsByLabel);
+
+  return fetchVerticesAttributes(gremlinFetch, labels, countsByLabel);
+};
+
 const fetchEdgeLabels = async (
   gremlinFetch: GremlinFetch
 ): Promise<Record<string, number>> => {
@@ -166,13 +175,12 @@ const fetchEdgeLabels = async (
   return labelsWithCounts;
 };
 
-const fetchEdgesSchema = async (
-  gremlinFetch: GremlinFetch
+const fetchEdgesAttributes = async (
+  gremlinFetch: GremlinFetch,
+  labels: Array<string>,
+  countsByLabel: Record<string, number>
 ): Promise<SchemaResponse["edges"]> => {
-  const allLabels = await fetchEdgeLabels(gremlinFetch);
   const edges: SchemaResponse["edges"] = [];
-  const labels = Object.keys(allLabels);
-
   if (labels.length === 0) {
     return edges;
   }
@@ -191,7 +199,7 @@ const fetchEdgesSchema = async (
     edges.push({
       type: label,
       displayLabel: sanitizeText(label),
-      total: allLabels[label],
+      total: countsByLabel[label],
       attributes: Object.entries(properties || {}).map(([name, prop]) => {
         const value = prop["@value"].value;
         return {
@@ -206,6 +214,15 @@ const fetchEdgesSchema = async (
   return edges;
 };
 
+const fetchEdgesSchema = async (
+  gremlinFetch: GremlinFetch
+): Promise<SchemaResponse["edges"]> => {
+  const countsByLabel = await fetchEdgeLabels(gremlinFetch);
+  const labels = Object.keys(countsByLabel);
+
+  return fetchEdgesAttributes(gremlinFetch, labels, countsByLabel);
+};
+
 /**
  * Fetch the database shape.
  * It follows this process:
@@ -218,13 +235,43 @@ const fetchEdgesSchema = async (
  * nodes/edges with the same label contains an exact set of attributes.
  */
 const fetchSchema = async (
-  gremlinFetch: GremlinFetch
+  gremlinFetch: GremlinFetch,
+  summary?: GraphSummary
 ): Promise<SchemaResponse> => {
-  const vertices = await fetchVerticesSchema(gremlinFetch);
-  const edges = await fetchEdgesSchema(gremlinFetch);
+  if (!summary) {
+    const vertices = await fetchVerticesSchema(gremlinFetch);
+    const totalVertices = vertices.reduce((total, vertex) => {
+      return total + (vertex.total ?? 0);
+    }, 0);
+
+    const edges = await fetchEdgesSchema(gremlinFetch);
+    const totalEdges = edges.reduce((total, edge) => {
+      return total + (edge.total ?? 0);
+    }, 0);
+
+    return {
+      totalVertices,
+      vertices,
+      totalEdges,
+      edges,
+    };
+  }
+
+  const vertices = await fetchVerticesAttributes(
+    gremlinFetch,
+    summary.nodeLabels,
+    {}
+  );
+  const edges = await fetchEdgesAttributes(
+    gremlinFetch,
+    summary.edgeLabels,
+    {}
+  );
 
   return {
+    totalVertices: summary.numNodes,
     vertices,
+    totalEdges: summary.numEdges,
     edges,
   };
 };

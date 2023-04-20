@@ -102,7 +102,9 @@ const ConfigurationProvider = ({
 
     return {
       ...(configuration || {}),
+      totalVertices: configuration.schema?.totalVertices ?? 0,
       vertexTypes: configuration.schema?.vertices?.map(vt => vt.type) || [],
+      totalEdges: configuration.schema?.totalEdges ?? 0,
       edgeTypes: configuration.schema?.edges?.map(et => et.type) || [],
       getVertexTypeConfig,
       getVertexTypeAttributes,
