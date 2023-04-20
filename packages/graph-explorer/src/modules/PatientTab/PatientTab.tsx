@@ -12,6 +12,9 @@ import {
 import useTranslations from "../../hooks/useTranslations";
 import PatientTabContent from "./PatientTabContent";
 
+//APOTHECA CHANGES
+import PatientSearch from "../../modules/PatientSearch/PatientSearch";
+
 export type PatientTabProps = Omit<
   ModuleContainerHeaderProps,
   "title" | "sidebar"
@@ -31,17 +34,21 @@ const PatientTab = ({ title = "Patients", ...headerProps }: PatientTabProps) => 
 
   return (
     <ModuleContainer>
+      
       <ModuleContainerHeader
         title={title}
         variant={"sidebar"}
         {...headerProps}
       />
       {nodesSelectedIds.size === 0 && edgesSelectedIds.size === 0 && (
+        <div>
+          <PatientSearch/>
         <PanelEmptyState
           icon={<GraphIcon />}
           title={t("node-expand.no-selection-title")}
           subtitle={t("node-expand.no-selection-subtitle")}
         />
+        </div>
       )}
       {nodesSelectedIds.size === 0 && edgesSelectedIds.size > 0 && (
         <PanelEmptyState

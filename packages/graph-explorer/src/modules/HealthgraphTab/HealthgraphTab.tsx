@@ -12,6 +12,9 @@ import {
 import useTranslations from "../../hooks/useTranslations";
 import HealthgraphTabContent from "./HealthgraphTabContent";
 
+//APOTHECA CHANGES
+import KeywordSearch from "../../modules/KeywordSearch/KeywordSearch";
+
 export type HealthgraphTabProps = Omit<
   ModuleContainerHeaderProps,
   "title" | "sidebar"
@@ -31,6 +34,7 @@ const HealthGraphTab = ({ title = "Health Graph", ...headerProps }: HealthgraphT
 
   return (
     <ModuleContainer>
+      <KeywordSearch/>
       <ModuleContainerHeader
         title={title}
         variant={"sidebar"}
