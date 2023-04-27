@@ -13,6 +13,8 @@ export type SchemaInference = {
   lastUpdate?: Date;
   triedToSync?: boolean;
   lastSyncFail?: boolean;
+  totalVertices?: number;
+  totalEdges?: number;
 };
 
 export const schemaAtom = atom<Map<string, SchemaInference>>({
