@@ -79,7 +79,7 @@ const ConnectionData = ({ classNamePrefix = "ft" }: VertexDetailProps) => {
     });
 
     return items;
-  }, [config, pfx, textTransform, t, navigate]);
+  }, [config, pfx, textTransform, navigate]);
 
   const [search, setSearch] = useState("");
 
