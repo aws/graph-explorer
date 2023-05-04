@@ -46,12 +46,6 @@ const ConnectionData = ({ classNamePrefix = "ft" }: VertexDetailProps) => {
             <div className={pfx("node-title")}>
               {textTransform(displayLabel)}
             </div>
-            <div className={pfx("nodes-count")}>
-              {t("connection-detail.nodes")}: {vtConfig?.total == null && "~"}
-              {vtConfig?.total != null && (
-                <HumanReadableNumberFormatter value={vtConfig?.total} />
-              )}
-            </div>
           </div>
         ),
         icon: (
