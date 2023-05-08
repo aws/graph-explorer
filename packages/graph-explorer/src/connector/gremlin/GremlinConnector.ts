@@ -1,4 +1,6 @@
 import type {
+  CountsByTypeRequest,
+  CountsByTypeResponse,
   KeywordSearchRequest,
   KeywordSearchResponse,
   NeighborsCountRequest,
@@ -12,13 +14,36 @@ import { AbstractConnector } from "../AbstractConnector";
 import fetchNeighbors from "./queries/fetchNeighbors";
 import fetchNeighborsCount from "./queries/fetchNeighborsCount";
 import fetchSchema from "./queries/fetchSchema";
+import fetchVertexTypeCounts from "./queries/fetchVertexTypeCounts";
 import keywordSearch from "./queries/keywordSearch";
+import { GraphSummary } from "./types";
 
 export default class GremlinConnector extends AbstractConnector {
   protected readonly basePath = "/?gremlin=";
+  private readonly _summaryPath = "/pg/statistics/summary?mode=detailed";
 
-  fetchSchema(options?: QueryOptions): Promise<SchemaResponse> {
-    return fetchSchema(this._gremlinFetch(options));
+  async fetchSchema(options?: QueryOptions): Promise<SchemaResponse> {
+    const ops = { ...options, disableCache: true };
+    let summary: GraphSummary | undefined;
+    try {
+      const response = await this.request<{
+        payload: { graphSummary: GraphSummary };
+      }>(this._summaryPath, ops);
+      summary = response.payload.graphSummary;
+    } catch (e) {
+      if (import.meta.env.DEV) {
+        console.error("[Summary API]", e);
+      }
+    }
+
+    return fetchSchema(this._gremlinFetch(ops), summary);
+  }
+
+  fetchVertexCountsByType(
+    req: CountsByTypeRequest,
+    options: QueryOptions | undefined
+  ): Promise<CountsByTypeResponse> {
+    return fetchVertexTypeCounts(this._gremlinFetch(options), req);
   }
 
   fetchNeighbors(
@@ -44,8 +69,9 @@ export default class GremlinConnector extends AbstractConnector {
 
   private _gremlinFetch<TResult>(options?: QueryOptions) {
     return async (queryTemplate: string) => {
-      return super.request<TResult>(queryTemplate, {
+      return super.requestQueryTemplate<TResult>(queryTemplate, {
         signal: options?.abortSignal,
+        disableCache: options?.disableCache,
       });
     };
   }

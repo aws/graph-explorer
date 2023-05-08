@@ -45,6 +45,7 @@ import useFetchNode from "../../hooks/useFetchNode";
 import usePrefixesUpdater from "../../hooks/usePrefixesUpdater";
 import useTextTransform from "../../hooks/useTextTransform";
 import useTranslations from "../../hooks/useTranslations";
+import useUpdateVertexTypeCounts from "../../hooks/useUpdateVertexTypeCounts";
 import TopBarWithLogo from "../common/TopBarWithLogo";
 import defaultStyles from "./DataExplorer.styles";
 
@@ -68,6 +69,9 @@ const DataExplorer = ({ classNamePrefix = "ft" }: ConnectionsProps) => {
   const connector = useConnector();
   const fetchNode = useFetchNode();
   const [entities] = useEntities({ disableFilters: true });
+
+  // Automatically updates counts if needed
+  useUpdateVertexTypeCounts(vertexType);
 
   const vertexConfig = useMemo(() => {
     if (!vertexType) {

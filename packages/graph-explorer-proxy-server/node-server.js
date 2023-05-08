@@ -32,7 +32,7 @@ const getCredentials = async () => {
 };
 
 dotenv.config({ path: "../graph-explorer/.env" });
-  
+
 (async () => {
   let creds = await getCredentials();
   let requestSig;
@@ -64,23 +64,23 @@ dotenv.config({ path: "../graph-explorer/.env" });
     await getAuthHeaders(language, req, reqObjects[0], reqObjects[2]);
 
     return new Promise((resolve, reject) => {
-        
+
       const wrapper = (n) => {
         fetch(url, { headers: req.headers, })
           .then(async res => {
 
             if (!res.ok) {
-	            console.log("Response not ok");
+              console.log("Response not ok");
               const error = res.status
               return Promise.reject(error);
             } else {
-	            console.log("Response ok");
+              console.log("Response ok");
               resolve(res);
             }
           })
           .catch(async (err) => {
             console.log("Attempt Credential Refresh");
-	          creds = await getCredentials();
+            creds = await getCredentials();
             if (creds === undefined) {
               reject("Credentials undefined after credential refresh. Check that you have proper acccess")
             }
@@ -119,7 +119,7 @@ dotenv.config({ path: "../graph-explorer/.env" });
   }
 
   async function getAuthHeaders(language, req, endpoint_url, requestSig) {
-    let authHeaders 
+    let authHeaders
     if (language == "sparql") {
       authHeaders = await requestSig.requestAuthHeaders(
         endpoint_url.port,
@@ -147,9 +147,9 @@ dotenv.config({ path: "../graph-explorer/.env" });
     let data;
     try {
       response = await retryFetch(`${req.headers["graph-db-connection-url"]}/sparql?query=` +
-      encodeURIComponent(req.query.query) +
-      "&format=json", undefined, undefined, req, "sparql").then((res) => res)
-      
+        encodeURIComponent(req.query.query) +
+        "&format=json", undefined, undefined, req, "sparql").then((res) => res)
+
       data = await response.json();
       res.send(data);
     } catch (error) {
@@ -163,7 +163,35 @@ dotenv.config({ path: "../graph-explorer/.env" });
     let data;
     try {
       response = await retryFetch(`${req.headers["graph-db-connection-url"]}/?gremlin=` +
-      encodeURIComponent(req.query.gremlin), undefined, undefined, req, "gremlin").then((res) => res)
+        encodeURIComponent(req.query.gremlin), undefined, undefined, req, "gremlin").then((res) => res)
+
+      data = await response.json();
+      res.send(data);
+    } catch (error) {
+      next(error);
+      console.log(error);
+    }
+  });
+
+  app.get("/pg/statistics/summary", async (req, res, next) => {
+    let response;
+    let data;
+    try {
+      response = await retryFetch(`${req.headers["graph-db-connection-url"]}/pg/statistics/summary`, undefined, undefined, req, "gremlin").then((res) => res)
+
+      data = await response.json();
+      res.send(data);
+    } catch (error) {
+      next(error);
+      console.log(error);
+    }
+  });
+
+  app.get("/rdf/statistics/summary", async (req, res, next) => {
+    let response;
+    let data;
+    try {
+      response = await retryFetch(`${req.headers["graph-db-connection-url"]}/rdf/statistics/summary`, undefined, undefined, req, "gremlin").then((res) => res)
 
       data = await response.json();
       res.send(data);

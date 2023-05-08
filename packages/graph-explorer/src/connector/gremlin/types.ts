@@ -71,3 +71,18 @@ export type GEdgeList = {
 export type GremlinFetch = <TResult = any>(
   queryTemplate: string
 ) => Promise<TResult>;
+
+export type GraphSummary = {
+  numNodes: number;
+  numEdges: number;
+  numNodeLabels: number;
+  numEdgeLabels: number;
+  nodeLabels: Array<string>;
+  edgeLabels: Array<string>;
+  numNodeProperties: number;
+  numEdgeProperties: number;
+  nodeProperties: Record<string, number>;
+  edgeProperties: Record<string, number>;
+  totalNodePropertyValues: number;
+  totalEdgePropertyValues: number;
+};
