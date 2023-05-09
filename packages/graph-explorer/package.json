@@ -63,6 +63,8 @@
     "lodash": "^4.17.20",
     "memoize-one": "^5.1.1",
     "papaparse": "^5.3.0",
+    "pino": "^8.11.0",
+    "pino-socket": "^7.3.0",
     "query-string": "^7.1.1",
     "rc-tabs": "^11.10.1",
     "re-resizable": "^6.9.9",
@@ -81,8 +83,7 @@
     "react-virtuoso": "^2.10.0",
     "recoil": "^0.7.5",
     "swiper": "^8.0.7",
-    "use-deep-compare-effect": "^1.6.1",
-    "uuid": "^8.3.1"
+    "use-deep-compare-effect": "^1.6.1"
   },
   "devDependencies": {
     "@babel/core": "^7.19.3",

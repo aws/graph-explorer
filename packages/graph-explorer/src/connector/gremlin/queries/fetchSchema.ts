@@ -6,6 +6,7 @@ import vertexLabelsTemplate from "../templates/vertexLabelsTemplate";
 import verticesSchemaTemplate from "../templates/verticesSchemaTemplate";
 import type { GEdge, GInt64, GVertex } from "../types";
 import { GremlinFetch } from "../types";
+import pino from "pino";
 
 type RawVertexLabelsResponse = {
   requestId: string;
@@ -82,6 +83,10 @@ type RawEdgesSchemaResponse = {
     };
   };
 };
+
+const logger = pino({
+  level: 'info'
+});
 
 const fetchVertexLabels = async (
   gremlinFetch: GremlinFetch

@@ -9,6 +9,39 @@ const { RequestSig } = require("./RequestSig.js");
 const https = require("https");
 const fs = require("fs");
 const path = require("path");
+const WebSocket = require('ws');
+const pino = require('pino');
+const pretty = require('pino-pretty');
+
+const appLogger = pino({
+  level: 'info',
+  levels: {
+    error: 0,
+    warn: 1,
+    info: 2,
+    debug: 3,
+    trace: 4
+  },
+  transport: {
+    target: 'pino-pretty'
+  },
+  options: { destination: './logs/app.log' }
+});
+
+const proxyLogger = pino({
+  level: 'info',
+  levels: {
+    error: 0,
+    warn: 1,
+    info: 2,
+    debug: 3,
+    trace: 4
+  },
+  transport: {
+    target: 'pino-pretty'
+  },
+  options: { destination: './logs/proxy-server.log' }
+});
 
 const getCredentials = async () => {
   let credentials;
@@ -20,16 +53,23 @@ const getCredentials = async () => {
           reject(err);
           return;
         }
-        console.log("Master credentials available");
+        proxyLogger.info("Master credentials available and loaded in.");
         resolve(creds);
       });
     });
   } catch (e) {
-    console.error("No master credentials available", e);
+    proxyLogger.error("No master credentials found.");
   }
 
   return credentials;
 };
+
+const errorHandler = (error, request, response, next) => {
+  console.log( `Error: ${error.message}`);
+  const status = error.status || 400;
+  response.status(status).send("The following error occurred. You can check the logs for more information. Error: " + error.message);
+
+}
 
 dotenv.config({ path: "../graph-explorer/.env" });
   
@@ -38,8 +78,8 @@ dotenv.config({ path: "../graph-explorer/.env" });
   let requestSig;
 
   app.use(cors());
-
   app.use("/explorer", express.static(path.join(__dirname, "../graph-explorer/dist")));
+  app.use(errorHandler);
 
   const delay = (ms) => new Promise((resolve) => setTimeout(() => resolve(), ms));
 
@@ -54,7 +94,7 @@ dotenv.config({ path: "../graph-explorer/.env" });
     let reqObjects;
 
     if (creds === undefined) {
-      console.error("Credentials undefined. Trying refresh.");
+      proxyLogger.error("Credentials undefined. Trying to find some.");
       creds = await getCredentials();
       if (creds === undefined) {
         throw new Error("Credentials still undefined. Check that the environment has an appropriate IAM role that trusts it and that it has sufficient read permissions to connect to Neptune.")
@@ -70,19 +110,17 @@ dotenv.config({ path: "../graph-explorer/.env" });
           .then(async res => {
 
             if (!res.ok) {
-	            console.log("Response not ok");
-              const error = res.status
-              return Promise.reject(error);
+              proxyLogger.error("The response was not successful and had a " + res.status + "code with a message of \"" + res.statusText + "\".");
+              return Promise.reject(res.status);
             } else {
-	            console.log("Response ok");
               resolve(res);
             }
           })
           .catch(async (err) => {
-            console.log("Attempt Credential Refresh");
+            proxyLogger.info("Attempting a credential refresh.")
 	          creds = await getCredentials();
             if (creds === undefined) {
-              reject("Credentials undefined after credential refresh. Check that you have proper acccess")
+              proxyLogger.error("Credentials undefined after credential refresh. Check that you have proper acccess.");
             }
             reqObjects = await getRequestObjects(req.headers["graph-db-connection-url"], req.headers["aws-neptune-region"]);
             await getAuthHeaders(language, req, reqObjects[0], reqObjects[2]);
@@ -92,6 +130,7 @@ dotenv.config({ path: "../graph-explorer/.env" });
               wrapper(--n);
             } else {
               reject(err);
+              proxyLogger.error("Still receiving error after credential refresh:\n " + err);
             }
           });
       };
@@ -101,7 +140,7 @@ dotenv.config({ path: "../graph-explorer/.env" });
   };
 
   async function getRequestObjects(endpoint_input, region_input) {
-    if (endpoint_input) {
+    try {
       endpoint_url = new URL(endpoint_input);
       requestSig = await new RequestSig(
         endpoint_url.host,
@@ -111,11 +150,19 @@ dotenv.config({ path: "../graph-explorer/.env" });
         creds.sessionToken
       );
       endpoint = endpoint_input;
-    } else {
-      console.log("No endpoint passed");
-    }
 
-    return [new URL(endpoint_input), endpoint_input, requestSig];
+      return [endpoint_url, endpoint_input, requestSig];
+    } catch (error) {
+      if (error instanceof TypeError) {
+        if (error.message === "Invalid URL") {
+          proxyLogger.error("Attempted to create the authentication headers necessary for AWS SigV4, but received an invalid url. Check that the \"Graph Connection URL\" field in your configuration is properly formatted and that requests to the proxy server have a \"graph-db-connection-url\" header with the URL provided in your configuration.");
+        } else {
+          proxyLogger.error("Unexpected TypeError:\n" + error);
+        }
+      } else {
+        proxyLogger.error("Unexpected error:\n" + error);
+      }
+    }
   }
 
   async function getAuthHeaders(language, req, endpoint_url, requestSig) {
@@ -131,7 +178,7 @@ dotenv.config({ path: "../graph-explorer/.env" });
         "/?gremlin=" + encodeURIComponent(req.query.gremlin)
       );
     } else {
-      console.log(language + " is not supported.");
+      proxyLogger.info(language + "is not supported.");
     }
 
     req.headers["Authorization"] = authHeaders["headers"]["Authorization"];
@@ -154,8 +201,41 @@ dotenv.config({ path: "../graph-explorer/.env" });
       res.send(data);
     } catch (error) {
       next(error);
-      console.log(error);
+      proxyLogger.error("There was a problem with a sparql request. The request made was " + 
+                        `${req.headers["graph-db-connection-url"]}/sparql?query=` +
+                        encodeURIComponent(req.query.query) +
+                        "&format=json and the error received was: \n" + error);
     }
+  });
+  
+  app.get('/logger', (req, res) => {
+    // create a new WebSocket server
+    const wss = new WebSocket.Server({ noServer: true });
+    
+    // listen for incoming WebSocket connections
+    wss.on('connection', (socket) => {
+      console.log('WebSocket connection established');
+    
+      // listen for incoming messages from the client
+      socket.on('message', (message) => {
+        console.log(`Received message from client: ${message}`);
+        socket.send(`You sent: ${message}`);
+      });
+    
+      // listen for the socket to close
+      socket.on('close', () => {
+        console.log('WebSocket connection closed');
+      });
+    });
+
+    appLogger.info("jsk")
+    
+    // upgrade the incoming request to a WebSocket connection
+    req.on('upgrade', (request, socket, head) => {
+      wss.handleUpgrade(request, socket, head, (ws) => {
+        wss.emit('connection', ws, request);
+      });
+    });
   });
 
   app.get("/", async (req, res, next) => {
@@ -168,8 +248,9 @@ dotenv.config({ path: "../graph-explorer/.env" });
       data = await response.json();
       res.send(data);
     } catch (error) {
-      next(error);
-      console.log(error);
+      proxyLogger.error("There was a problem with a gremlin request. The request made was " + 
+                        `${req.headers["graph-db-connection-url"]}/?gremlin=` +
+                        encodeURIComponent(req.query.gremlin) + " and the error received was: \n" + error);
     }
   });
 
