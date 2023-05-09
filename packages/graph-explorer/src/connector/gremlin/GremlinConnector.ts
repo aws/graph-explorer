@@ -1,4 +1,6 @@
 import type {
+  CountsByTypeRequest,
+  CountsByTypeResponse,
   KeywordSearchRequest,
   KeywordSearchResponse,
   NeighborsCountRequest,
@@ -12,56 +14,36 @@ import { AbstractConnector } from "../AbstractConnector";
 import fetchNeighbors from "./queries/fetchNeighbors";
 import fetchNeighborsCount from "./queries/fetchNeighborsCount";
 import fetchSchema from "./queries/fetchSchema";
+import fetchVertexTypeCounts from "./queries/fetchVertexTypeCounts";
 import keywordSearch from "./queries/keywordSearch";
-import pino from "pino";
-import pinoSocket from "pino-socket";
-import { Transform, TransformCallback } from "stream";
-
-const logger = pino({
-  level: 'debug',
-  base: {
-    pid: process.pid,
-    hostname: process.env.HOSTNAME,
-    app: 'my-app'
-  }
-});
-
-const socket = pinoSocket('http://18.232.47.207:3000');
-// create a custom logger transform that extends the Transform stream and logs messages to the pino logger
-class LoggerTransform extends Transform {
-  private logger: pino.Logger;
-
-  constructor(logger: pino.Logger) {
-    super({ objectMode: true });
-    this.logger = logger;
-  }
-
-  _transform(chunk: any, encoding: string, callback: TransformCallback) {
-    const message = chunk.toString();
-    this.logger.info(message);
-    callback();
-  }
-}
-
-// create an instance of the LoggerTransform and pipe the socket to it
-const loggerTransform = new LoggerTransform(logger);
-socket.pipe(loggerTransform);
-
-// log a message to the socket
-socket.write('Hello, world!');
+import { GraphSummary } from "./types";
 
 export default class GremlinConnector extends AbstractConnector {
   protected readonly basePath = "/?gremlin=";
+  private readonly _summaryPath = "/pg/statistics/summary?mode=detailed";
 
+  async fetchSchema(options?: QueryOptions): Promise<SchemaResponse> {
+    const ops = { ...options, disableCache: true };
+    let summary: GraphSummary | undefined;
+    try {
+      const response = await this.request<{
+        payload: { graphSummary: GraphSummary };
+      }>(this._summaryPath, ops);
+      summary = response.payload.graphSummary;
+    } catch (e) {
+      if (import.meta.env.DEV) {
+        console.error("[Summary API]", e);
+      }
+    }
 
-  fetchSchema(options?: QueryOptions): Promise<SchemaResponse> {
-    const logger = pino({
-      level: 'info',
-      prettyPrint: true,
-      timestamp: () => `,"time":"${new Date().toISOString()}"`,
-    }, pino.destination('./logs/app.log'));
-    logger.info("hello");
-    return fetchSchema(this._gremlinFetch(options));
+    return fetchSchema(this._gremlinFetch(ops), summary);
+  }
+
+  fetchVertexCountsByType(
+    req: CountsByTypeRequest,
+    options: QueryOptions | undefined
+  ): Promise<CountsByTypeResponse> {
+    return fetchVertexTypeCounts(this._gremlinFetch(options), req);
   }
 
   fetchNeighbors(
@@ -87,8 +69,9 @@ export default class GremlinConnector extends AbstractConnector {
 
   private _gremlinFetch<TResult>(options?: QueryOptions) {
     return async (queryTemplate: string) => {
-      return super.request<TResult>(queryTemplate, {
+      return super.requestQueryTemplate<TResult>(queryTemplate, {
         signal: options?.abortSignal,
+        disableCache: options?.disableCache,
       });
     };
   }
