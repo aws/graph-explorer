@@ -17,11 +17,9 @@
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "fs": "0.0.1-security",
-    "http": "0.0.1-security",
     "https": "^1.0.0",
     "node-fetch": "^3.2.10",
     "pino": "^8.11.0",
-    "pino-pretty": "^10.0.0",
-    "ws": "^8.13.0"
+    "pino-pretty": "^10.0.0"
   }
 }
