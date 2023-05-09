@@ -94,6 +94,23 @@ You can search, browse, expand, customize views of your graph data using Graph E
 ## Connections
 The Graph Explorer supports visualizing both **property graphs** and **RDF graphs**. You can connect to Amazon Neptune or you can also connect to open graph databases that implement an Apache TinkerPop Gremlin Server endpoint or the SPARQL 1.1 protocol, such as Blazegraph. For additional details on connecting to different graph databases, see [Connections](./additionaldocs/connections.md).
 
+### Providing a Default Connection 
+To provide a default connection such that initial loads of the graph explorer always result with the same starting connection, modify the `docker run ...` command to be `docker run -p 80:80 -p 443:443 --env HOST={hostname-or-ip-address} -v /path/to/config.json:/graph-explorer/config.json graph-explorer` or create a `config.json` file at the root of the project.
+
+The config.json file should provide values for the attributes in the example below:
+
+```
+{
+     "PUBLIC_OR_PROXY_ENDPOINT": "https://public-endpoint,
+     "GRAPH_CONNECTION_URL": "https://cluster-
+cqmizgqgrsbf.us-west-2.neptune.amazonaws.com:8182,
+     "USING_PROXY_SERVER": "true,
+     "IAM": "true,
+     "AWS_REGION": "us-west-2,
+     "GRAPH_TYPE": "PG
+}
+```
+
 ## Development
 For development guidance, see [Development](./additionaldocs/development.md).
 

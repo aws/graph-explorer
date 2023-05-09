@@ -1,5 +1,7 @@
 #!/bin/sh
 
+./process-environment.sh
+
 if [ $(grep -e 'GRAPH_EXP_HTTPS_CONNECTION' ./packages/graph-explorer/.env | cut -d "=" -f 2) ]; then
 
     if [ $HOST ]; then
@@ -25,5 +27,8 @@ else
     echo "SSL disabled. Skipping self-signed certificate generation."
     exit 1
 fi
+
+echo "Building graph explorer..."
+pnpm -w build
 echo "Starting graph explorer..."
 pnpm -w start:proxy-server
