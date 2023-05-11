@@ -24,12 +24,12 @@ if (params.configFile) {
       import.meta.env.GRAPH_EXP_CONNECTION_NAME ||
       import.meta.env.GRAPH_EXP_CONNECTION_URL,
     connection: {
-      url: import.meta.env.GRAPH_EXP_CONNECTION_URL,
-      queryEngine:
-        (import.meta.env.GRAPH_EXP_CONNECTION_ENGINE as
-          | "gremlin"
-          | "sparql"
-          | undefined) || "gremlin",
+      url: import.meta.env.GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT || "",
+      queryEngine: (import.meta.env.GRAPH_EXP_GRAPH_TYPE === "gremlin" || import.meta.env.GRAPH_EXP_GRAPH_TYPE === "sparql") ? import.meta.env.GRAPH_EXP_GRAPH_TYPE : "gremlin",
+      proxyConnection: import.meta.env.GRAPH_EXP_USING_PROXY_SERVER || false,
+      graphDbUrl: import.meta.env.GRAPH_EXP_CONNECTION_URL || "",
+      awsAuthEnabled: import.meta.env.GRAPH_EXP_IAM || false,
+      awsRegion: import.meta.env.GRAPH_EXP_AWS_REGION || "",
     },
   };
 }

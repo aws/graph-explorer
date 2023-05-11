@@ -101,13 +101,13 @@ The config.json file should provide values for the attributes in the example bel
 
 ```
 {
-     "PUBLIC_OR_PROXY_ENDPOINT": "https://public-endpoint,
+     "PUBLIC_OR_PROXY_ENDPOINT": "https://public-endpoint",
      "GRAPH_CONNECTION_URL": "https://cluster-
-cqmizgqgrsbf.us-west-2.neptune.amazonaws.com:8182,
-     "USING_PROXY_SERVER": "true,
-     "IAM": "true,
-     "AWS_REGION": "us-west-2,
-     "GRAPH_TYPE": "PG
+cqmizgqgrsbf.us-west-2.neptune.amazonaws.com:8182",
+     "USING_PROXY_SERVER": "true",
+     "IAM": "true",
+     "AWS_REGION": "us-west-2",
+     "GRAPH_TYPE": "gremlin" (Possible Values: "gremlin" or "sparql")
 }
 ```
 
