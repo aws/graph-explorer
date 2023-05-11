@@ -130,6 +130,11 @@ dotenv.config({ path: "../graph-explorer/.env" });
         endpoint_url.port,
         "/?gremlin=" + encodeURIComponent(req.query.gremlin)
       );
+    } else if (language == "openCypher") {
+      authHeaders = await requestSig.requestAuthHeaders(
+        endpoint_url.port,
+        "/openCypher?query=" + encodeURIComponent(req.query.query)
+      );
     } else {
       console.log(language + " is not supported.");
     }
@@ -164,6 +169,21 @@ dotenv.config({ path: "../graph-explorer/.env" });
     try {
       response = await retryFetch(`${req.headers["graph-db-connection-url"]}/?gremlin=` +
         encodeURIComponent(req.query.gremlin), undefined, undefined, req, "gremlin").then((res) => res)
+
+      data = await response.json();
+      res.send(data);
+    } catch (error) {
+      next(error);
+      console.log(error);
+    }
+  });
+
+  app.get("/openCypher", async (req, res, next) => {
+    let response;
+    let data;
+    try {
+      response = await retryFetch(`${req.headers["graph-db-connection-url"]}/openCypher?query=` +
+        encodeURIComponent(req.query.query), undefined, undefined, req, "openCypher").then((res) => res)
 
       data = await response.json();
       res.send(data);
