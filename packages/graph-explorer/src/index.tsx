@@ -25,10 +25,10 @@ if (params.configFile) {
       import.meta.env.GRAPH_EXP_CONNECTION_URL,
     connection: {
       url: import.meta.env.GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT || "",
-      queryEngine: (import.meta.env.GRAPH_EXP_GRAPH_TYPE === "gremlin" || import.meta.env.GRAPH_EXP_GRAPH_TYPE === "sparql") ? import.meta.env.GRAPH_EXP_GRAPH_TYPE : "gremlin",
-      proxyConnection: import.meta.env.GRAPH_EXP_USING_PROXY_SERVER || false,
+      queryEngine: (import.meta.env.GRAPH_EXP_GRAPH_TYPE.toLowerCase() === "gremlin" || import.meta.env.GRAPH_EXP_GRAPH_TYPE.toLowerCase() === "sparql") ? import.meta.env.GRAPH_EXP_GRAPH_TYPE.toLowerCase() : "gremlin",
+      proxyConnection: (import.meta.env.GRAPH_EXP_USING_PROXY_SERVER.toUpperCase() === "TRUE") ? true : false,
       graphDbUrl: import.meta.env.GRAPH_EXP_CONNECTION_URL || "",
-      awsAuthEnabled: import.meta.env.GRAPH_EXP_IAM || false,
+      awsAuthEnabled: (import.meta.env.GRAPH_EXP_IAM.toUpperCase() === "TRUE") ? true : false,
       awsRegion: import.meta.env.GRAPH_EXP_AWS_REGION || "",
     },
   };
