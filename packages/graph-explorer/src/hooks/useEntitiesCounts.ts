@@ -5,6 +5,10 @@ const useEntitiesCounts = () => {
   const config = useConfiguration();
 
   const totalNodes = useMemo(() => {
+    if (config?.totalVertices != null) {
+      return config?.totalVertices;
+    }
+
     if (!config?.vertexTypes.length) {
       return null;
     }
@@ -24,6 +28,10 @@ const useEntitiesCounts = () => {
   }, [config]);
 
   const totalEdges = useMemo(() => {
+    if (config?.totalEdges != null) {
+      return config?.totalEdges;
+    }
+
     if (!config?.edgeTypes.length) {
       return null;
     }

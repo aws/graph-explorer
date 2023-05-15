@@ -3,12 +3,9 @@ FROM amazonlinux:2
 WORKDIR /
 COPY . /graph-explorer/
 WORKDIR /graph-explorer
-RUN yum install -y curl
-RUN curl -sL https://rpm.nodesource.com/setup_16.x | bash -
-RUN yum install -y nodejs
-RUN yum install -y openssl
-RUN npm install -g pnpm
-RUN pnpm install
+# Keeping all the RUN commands on a single line reduces the number of layers and,
+# as a result, significantly reduces the final image size.
+RUN curl -sL https://rpm.nodesource.com/setup_16.x | bash - && yum install -y nodejs openssl && npm install -g pnpm && pnpm install && rm -rf /var/cache/yum
 WORKDIR /graph-explorer/
 ENV HOME=/graph-explorer
 RUN pnpm build

@@ -2,7 +2,7 @@ import { SchemaResponse } from "../../AbstractConnector";
 import classesWithCountsTemplates from "../templates/classesWithCountsTemplates";
 import predicatesByClassTemplate from "../templates/predicatesByClassTemplate";
 import predicatesWithCountsTemplate from "../templates/predicatesWithCountsTemplate";
-import { RawValue, SparqlFetch } from "../types";
+import { GraphSummary, RawValue, SparqlFetch } from "../types";
 
 type RawClassesWCountsResponse = {
   results: {
@@ -57,17 +57,16 @@ const skosNote = "http://www.w3.org/2004/02/skos/core#note";
 const skosDefinition = "http://www.w3.org/2004/02/skos/core#definition";
 const displayDescCandidates = [rdfsComment, skosNote, skosDefinition];
 
-const fetchClassesSchema = async (sparqlFetch: SparqlFetch) => {
-  const classesTemplate = classesWithCountsTemplates();
-  const classesCounts = await sparqlFetch<RawClassesWCountsResponse>(
-    classesTemplate
-  );
-
+const fetchPredicatesByClass = async (
+  sparqlFetch: SparqlFetch,
+  classes: Array<string>,
+  countsByClass: Record<string, number>
+) => {
   const vertices: SchemaResponse["vertices"] = [];
   await Promise.all(
-    classesCounts.results.bindings.map(async classResult => {
+    classes.map(async classResult => {
       const classPredicatesTemplate = predicatesByClassTemplate({
-        class: classResult.class.value,
+        class: classResult,
       });
       const predicatesResponse = await sparqlFetch<
         RawPredicatesSamplesResponse
@@ -82,9 +81,9 @@ const fetchClassesSchema = async (sparqlFetch: SparqlFetch) => {
       }));
 
       vertices.push({
-        type: classResult.class.value,
+        type: classResult,
         displayLabel: "",
-        total: Number(classResult.instancesCount.value),
+        total: countsByClass[classResult],
         displayNameAttribute:
           attributes.find(attr => displayNameCandidates.includes(attr.name))
             ?.name || "id",
@@ -97,6 +96,24 @@ const fetchClassesSchema = async (sparqlFetch: SparqlFetch) => {
   );
 
   return vertices;
+};
+
+const fetchClassesSchema = async (sparqlFetch: SparqlFetch) => {
+  const classesTemplate = classesWithCountsTemplates();
+  const classesCounts = await sparqlFetch<RawClassesWCountsResponse>(
+    classesTemplate
+  );
+
+  const classes: Array<string> = [];
+  const countsByClass: Record<string, number> = {};
+  classesCounts.results.bindings.forEach(classResult => {
+    classes.push(classResult.class.value);
+    countsByClass[classResult.class.value] = Number(
+      classResult.instancesCount.value
+    );
+  });
+
+  return fetchPredicatesByClass(sparqlFetch, classes, countsByClass);
 };
 
 const fetchPredicatesWithCounts = async (
@@ -138,13 +155,48 @@ const fetchPredicatesSchema = async (sparqlFetch: SparqlFetch) => {
  * 4. Generate prefixes using the received URIs
  */
 const fetchSchema = async (
-  sparqlFetch: SparqlFetch
+  sparqlFetch: SparqlFetch,
+  summary?: GraphSummary
 ): Promise<SchemaResponse> => {
-  const vertices = await fetchClassesSchema(sparqlFetch);
-  const edges = await fetchPredicatesSchema(sparqlFetch);
+  if (!summary) {
+    const vertices = await fetchClassesSchema(sparqlFetch);
+    const totalVertices = vertices.reduce((total, vertex) => {
+      return total + (vertex.total ?? 0);
+    }, 0);
+
+    const edges = await fetchPredicatesSchema(sparqlFetch);
+    const totalEdges = edges.reduce((total, edge) => {
+      return total + (edge.total ?? 0);
+    }, 0);
+
+    return {
+      totalVertices,
+      vertices,
+      totalEdges,
+      edges,
+    };
+  }
+
+  const vertices = await fetchPredicatesByClass(
+    sparqlFetch,
+    summary.classes,
+    {}
+  );
+  const edges = summary.predicates.flatMap(pred => {
+    return Object.entries(pred).map(([type, count]) => {
+      return {
+        type,
+        displayLabel: "",
+        total: count,
+        attributes: [],
+      };
+    });
+  });
 
   return {
+    totalVertices: summary.numDistinctSubjects,
     vertices,
+    totalEdges: summary.numQuads,
     edges,
   };
 };

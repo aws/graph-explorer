@@ -1,11 +1,10 @@
 import { useCallback, useRef } from "react";
-import { useRecoilCallback } from "recoil";
 import { useNotification } from "../components/NotificationProvider";
 import { SchemaResponse } from "../connector/AbstractConnector";
 import useConfiguration from "../core/ConfigurationProvider/useConfiguration";
 import useConnector from "../core/ConnectorProvider/useConnector";
-import { schemaAtom } from "../core/StateProvider/schema";
 import usePrefixesUpdater from "./usePrefixesUpdater";
+import useUpdateSchema from "./useUpdateSchema";
 
 const useSchemaSync = (onSyncChange?: (isSyncing: boolean) => void) => {
   const config = useConfiguration();
@@ -15,26 +14,7 @@ const useSchemaSync = (onSyncChange?: (isSyncing: boolean) => void) => {
   const { enqueueNotification, clearNotification } = useNotification();
   const notificationId = useRef<string | null>(null);
 
-  const updateSchemaState = useRecoilCallback(
-    ({ set }) => (id: string, schema?: SchemaResponse) => {
-      set(schemaAtom, prevSchemaMap => {
-        const updatedSchema = new Map(prevSchemaMap);
-        const prevSchema = prevSchemaMap.get(id);
-
-        updatedSchema.set(id, {
-          vertices: schema?.vertices || prevSchema?.vertices || [],
-          edges: schema?.edges || prevSchema?.edges || [],
-          prefixes: prevSchema?.prefixes || [],
-          lastUpdate: !schema ? prevSchema?.lastUpdate : new Date(),
-          triedToSync: true,
-          lastSyncFail: !schema && !!prevSchema,
-        });
-        return updatedSchema;
-      });
-    },
-    []
-  );
-
+  const updateSchemaState = useUpdateSchema();
   return useCallback(
     async (abortSignal?: AbortSignal) => {
       if (!config || !connector.explorer) {

@@ -1,4 +1,6 @@
 import type {
+  CountsByTypeRequest,
+  CountsByTypeResponse,
   KeywordSearchResponse,
   NeighborsCountRequest,
   NeighborsCountResponse,
@@ -12,20 +14,43 @@ import {
   QueryOptions,
 } from "../AbstractConnector";
 import fetchBlankNodeNeighbors from "./queries/fetchBlankNodeNeighbors";
+import fetchClassCounts from "./queries/fetchClassCounts";
 import fetchNeighbors from "./queries/fetchNeighbors";
 import fetchNeighborsCount from "./queries/fetchNeighborsCount";
 import fetchSchema from "./queries/fetchSchema";
 import keywordSearch from "./queries/keywordSearch";
 import keywordSearchBlankNodesIdsTemplate from "./templates/keywordSearch/keywordSearchBlankNodesIdsTemplate";
 import oneHopNeighborsBlankNodesIdsTemplate from "./templates/oneHopNeighbors/oneHopNeighborsBlankNodesIdsTemplate";
-import { BlankNodesMap, SPARQLNeighborsRequest } from "./types";
+import { BlankNodesMap, GraphSummary, SPARQLNeighborsRequest } from "./types";
 
 export default class SPARQLConnector extends AbstractConnector {
   protected readonly basePath = "/sparql?query=";
+  private readonly _summaryPath = "/rdf/statistics/summary?mode=detailed";
+
   private _blankNodes: BlankNodesMap = new Map();
 
-  fetchSchema(options?: QueryOptions): Promise<SchemaResponse> {
-    return fetchSchema(this._sparqlFetch(options));
+  async fetchSchema(options?: QueryOptions): Promise<SchemaResponse> {
+    const ops = { ...options, disableCache: true };
+    let summary: GraphSummary | undefined;
+    try {
+      const response = await this.request<{
+        payload: { graphSummary: GraphSummary };
+      }>(this._summaryPath, ops);
+      summary = response.payload.graphSummary;
+    } catch (e) {
+      if (import.meta.env.DEV) {
+        console.error("[Summary API]", e);
+      }
+    }
+
+    return fetchSchema(this._sparqlFetch(ops), summary);
+  }
+
+  fetchVertexCountsByType(
+    req: CountsByTypeRequest,
+    options?: QueryOptions
+  ): Promise<CountsByTypeResponse> {
+    return fetchClassCounts(this._sparqlFetch(options), req);
   }
 
   async fetchNeighbors(
@@ -122,8 +147,9 @@ export default class SPARQLConnector extends AbstractConnector {
 
   private _sparqlFetch<TResult>(options?: QueryOptions) {
     return async (queryTemplate: string) => {
-      return super.request<TResult>(queryTemplate, {
+      return super.requestQueryTemplate<TResult>(queryTemplate, {
         signal: options?.abortSignal,
+        disableCache: options?.disableCache,
       });
     };
   }

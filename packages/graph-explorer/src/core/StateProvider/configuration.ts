@@ -99,6 +99,8 @@ export const mergedConfigurationSelector = selector<RawConfiguration | null>({
             : undefined,
         triedToSync: currentSchema?.triedToSync,
         lastSyncFail: currentSchema?.lastSyncFail,
+        totalVertices: currentSchema?.totalVertices ?? 0,
+        totalEdges: currentSchema?.totalEdges ?? 0,
       },
     };
   },
