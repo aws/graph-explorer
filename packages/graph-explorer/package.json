@@ -83,7 +83,8 @@
     "react-virtuoso": "^2.10.0",
     "recoil": "^0.7.5",
     "swiper": "^8.0.7",
-    "use-deep-compare-effect": "^1.6.1"
+    "use-deep-compare-effect": "^1.6.1",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.19.3",
