@@ -44,6 +44,7 @@ describe("Gremlin > keywordSearch", () => {
       searchTerm: "SFA",
       vertexTypes: ["airport"],
       searchByAttributes: ["code"],
+      searchById: false
     });
 
     expect(keywordResponse).toMatchObject({
