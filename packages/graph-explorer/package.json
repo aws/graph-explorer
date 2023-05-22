@@ -63,8 +63,6 @@
     "lodash": "^4.17.20",
     "memoize-one": "^5.1.1",
     "papaparse": "^5.3.0",
-    "pino": "^8.11.0",
-    "pino-socket": "^7.3.0",
     "query-string": "^7.1.1",
     "rc-tabs": "^11.10.1",
     "re-resizable": "^6.9.9",
