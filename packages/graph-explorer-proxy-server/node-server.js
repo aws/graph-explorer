@@ -9,43 +9,17 @@ const { RequestSig } = require("./RequestSig.js");
 const https = require("https");
 const fs = require("fs");
 const path = require("path");
-const WebSocket = require('ws');
 const pino = require('pino');
 
-const appLogger = pino({
-  level: 'info',
-  levels: {
-    error: 0,
-    warn: 1,
-    info: 2,
-    debug: 3,
-    trace: 4
-  },
-  transport: {
-    target: 'pino-pretty',
-    options: {
-      colorize: true,
-      translateTime: true,
-      destination: "./logs/app.log"
-    }
-  }
-});
+dotenv.config({ path: "../graph-explorer/.env" });
 
 const proxyLogger = pino({
-  level: 'info',
-  levels: {
-    error: 0,
-    warn: 1,
-    info: 2,
-    debug: 3,
-    trace: 4
-  },
+  level: process.env.LOG_LEVEL,
   transport: {
     target: 'pino-pretty',
     options: {
       colorize: true,
       translateTime: true,
-      destination: "./logs/proxy-server.log"
     }
   }
 });
@@ -65,19 +39,29 @@ const getCredentials = async () => {
       });
     });
   } catch (e) {
-    proxyLogger.error("No master credentials found.");
+    proxyLogger.info("No master credentials found.");
   }
 
   return credentials;
 };
 
 const errorHandler = (error, request, response, next) => {
-  console.log(error.message);
-  const status = error.status || 400;
-  response.status(status).send("The following error occurred. You can check the logs for more information. " + error.message);
-}
+  if (error.extraInfo) {
+    error.extraInfo += " Error: ";
+    proxyLogger.error(error.extraInfo + error.message);
+    proxyLogger.debug(error.stack);
+  } else {
+    proxyLogger.error("Error: " + error.message);
+    proxyLogger.debug(error.stack);
+  }
 
-dotenv.config({ path: "../graph-explorer/.env" });
+  response.status(error.status || 500).send({
+    error: {
+      status: error.status || 500,
+      message: error.message || 'Internal Server Error',
+    },
+  });
+}
 
 (async () => {
   let creds = await getCredentials();
@@ -85,7 +69,6 @@ dotenv.config({ path: "../graph-explorer/.env" });
 
   app.use(cors());
   app.use("/explorer", express.static(path.join(__dirname, "../graph-explorer/dist")));
-  app.use(errorHandler);
 
   const delay = (ms) => new Promise((resolve) => setTimeout(() => resolve(), ms));
 
@@ -100,10 +83,10 @@ dotenv.config({ path: "../graph-explorer/.env" });
     let reqObjects;
 
     if (creds === undefined) {
-      proxyLogger.error("Credentials undefined. Trying to find some.");
+      proxyLogger.info("Credentials undefined. Trying to find some.");
       creds = await getCredentials();
       if (creds === undefined) {
-        proxyLogger.error("Credentials still undefined. Check that the environment has an appropriate IAM role that trusts it and that it has sufficient read permissions to connect to Neptune.");
+        throw new Error("Credentials still undefined after attempted refresh. Check that the environment has an appropriate IAM role that trusts it and that it has sufficient read permissions to connect to Neptune.");
       }
     }
 
@@ -117,17 +100,19 @@ dotenv.config({ path: "../graph-explorer/.env" });
           .then(async res => {
 
             if (!res.ok) {
-              proxyLogger.error("The response was not successful and had a " + res.status + "code with a message of \"" + res.statusText + "\".");
-              return Promise.reject(res.status);
+              throw new Error("The response was not successful and had a " + res.status + "code with a message of \"" + res.statusText + "\".");
             } else {
               resolve(res);
             }
           })
           .catch(async (error) => {
-            proxyLogger.info("Attempting a credential refresh.")
-	          creds = await getCredentials();
-            if (creds === undefined) {
-              proxyLogger.error("Credentials undefined after credential refresh. Check that you have proper acccess.");
+            if (n > 0) {
+              proxyLogger.info("Received an error. Attempting a credential refresh.")
+              creds = await getCredentials();
+              if (creds === undefined) {
+                error.extraInfo = "Credentials undefined after credential refresh. Check that you have proper acccess.";
+                throw error;
+              }
             }
             reqObjects = await getRequestObjects(req.headers["graph-db-connection-url"], req.headers["aws-neptune-region"]);
             await getAuthHeaders(language, req, reqObjects[0], reqObjects[2]);
@@ -136,7 +121,7 @@ dotenv.config({ path: "../graph-explorer/.env" });
               await delay(retryDelay);
               wrapper(--n);
             } else {
-              proxyLogger.error("Still receiving error after credential refresh:\n" + error);
+              error.extraInfo = "Still receiving error after credential refresh.";
               reject(error);
             }
           });
@@ -147,30 +132,25 @@ dotenv.config({ path: "../graph-explorer/.env" });
   };
 
   async function getRequestObjects(endpoint_input, region_input) {
-    try {
-      endpoint_url = new URL(endpoint_input);
-      requestSig = await new RequestSig(
-        endpoint_url.host,
-        region_input,
-        creds.accessKeyId,
-        creds.secretAccessKey,
-        creds.sessionToken
-      );
-      endpoint = endpoint_input;
+      try {
+        endpoint_url = new URL(endpoint_input);
+        requestSig = await new RequestSig(
+          endpoint_url.host,
+          region_input,
+          creds.accessKeyId,
+          creds.secretAccessKey,
+          creds.sessionToken
+        );
+        endpoint = endpoint_input;
 
-      return [endpoint_url, endpoint_input, requestSig];
-    } catch (error) {
-      if (error instanceof TypeError) {
-        if (error.message === "Invalid URL") {
-          proxyLogger.error("Attempted to create the authentication headers necessary for AWS SigV4, but received a TypeError. Check that the \"Graph Connection URL\" field in your configuration is properly formatted and that requests to the proxy server have a \"graph-db-connection-url\" header with the URL provided in your configuration.");
-        } else {
-          proxyLogger.error("Unexpected TypeError:\n" + error);
+        return [endpoint_url, endpoint_input, requestSig];
+      } catch (error) {
+        if (error instanceof TypeError && error.message === "Invalid URL") {
+          error.extraInfo = "Attempted to create the authentication headers necessary for AWS SigV4. Check that the \"Graph Connection URL\" field in your configuration is a properly formatted URL.";
         }
-      } else {
-        proxyLogger.error("Unexpected Error:\n" + error);
+        throw error;
       }
-    }
-  }
+    } 
 
   async function getAuthHeaders(language, req, endpoint_url, requestSig) {
     let authHeaders
@@ -200,6 +180,10 @@ dotenv.config({ path: "../graph-explorer/.env" });
     let response;
     let data;
     try {
+      if (req.headers["graph-db-connection-url"] === undefined) {
+        throw new Error("No header received for graph-db-connection-url. Query attempted: " + req.query.query);
+      }
+
       response = await retryFetch(`${req.headers["graph-db-connection-url"]}/sparql?query=` +
         encodeURIComponent(req.query.query) +
         "&format=json", undefined, undefined, req, "sparql").then((res) => res)
@@ -207,12 +191,12 @@ dotenv.config({ path: "../graph-explorer/.env" });
       data = await response.json();
       res.send(data);
     } catch (error) {
-      if (req.headers["graph-db-connection-url"] !== undefined) {
-        proxyLogger.error("There was a problem with a sparql request. The request made was " + 
+      if (!error.extraInfo && req.headers["graph-db-connection-url"] !== undefined) {
+        error.extraInfo = "The following request returned an error " + 
                         `${req.headers["graph-db-connection-url"]}/sparql?query=` +
-                        encodeURIComponent(req.query.query) +
-                        "&format=json and the error received was: " + error.message);
-      }
+                        encodeURIComponent(req.query.query) + ".";
+      } 
+
       next(error);
     }
   });
@@ -221,14 +205,23 @@ dotenv.config({ path: "../graph-explorer/.env" });
     let response;
     let data;
     try {
+      if (req.headers["graph-db-connection-url"] === undefined) {
+        throw new Error("No header received for graph-db-connection-url. Query attempted: " + req.query.gremlin);
+      } 
+
       response = await retryFetch(`${req.headers["graph-db-connection-url"]}/?gremlin=` +
         encodeURIComponent(req.query.gremlin), undefined, undefined, req, "gremlin").then((res) => res)
 
       data = await response.json();
       res.send(data);
     } catch (error) {
+      if (!error.extraInfo && req.headers["graph-db-connection-url"] !== undefined) {
+        error.extraInfo = "The following request returned an error " + 
+                        `${req.headers["graph-db-connection-url"]}/?gremlin=` +
+                        encodeURIComponent(req.query.gremlin) + ".";
+      }
+
       next(error);
-      console.log(error);
     }
   });
 
@@ -241,8 +234,11 @@ dotenv.config({ path: "../graph-explorer/.env" });
       data = await response.json();
       res.send(data);
     } catch (error) {
+      if (!error.extraInfo && req.headers["graph-db-connection-url"] !== undefined) {
+        error.extraInfo = "Check that your instance type supports the summary statistics.";
+      }
+
       next(error);
-      console.log(error);
     }
   });
 
@@ -250,16 +246,15 @@ dotenv.config({ path: "../graph-explorer/.env" });
     let response;
     let data;
     try {
-      response = await retryFetch(`${req.headers["graph-db-connection-url"]}/rdf/statistics/summary`, undefined, undefined, req, "gremlin").then((res) => res)
+      response = await retryFetch(`${req.headers["graph-db-connection-url"]}/rdf/statistics/summary`, undefined, undefined, req, "sparql").then((res) => res)
 
       data = await response.json();
       res.send(data);
     } catch (error) {
-      if (req.headers["graph-db-connection-url"] !== undefined) {
-        proxyLogger.error("There was a problem with a gremlin request. The request made was " + 
-                        `${req.headers["graph-db-connection-url"]}/?gremlin=` +
-                        encodeURIComponent(req.query.gremlin) + " and the error received was: " + error.message);
+      if (!error.extraInfo && req.headers["graph-db-connection-url"] !== undefined) {
+        error.extraInfo = "Check that your instance type supports the summary statistics.";
       }
+
       next(error);
     }
   });
@@ -270,29 +265,28 @@ dotenv.config({ path: "../graph-explorer/.env" });
 
     try {
       if (req.headers["level"] === undefined) {
-        proxyLogger.error("No log level passed.");
+        throw new Error("No log level passed.");
       } else {
         level = req.headers["level"];
       }
   
       if (req.headers["message"] === undefined) {
-        proxyLogger.error("No log message passed.");
+        throw new Error("No log message passed.");
       } else {
-        message = req.headers["message"];
+        message = req.headers["message"].replaceAll("\\", "");
       }
   
       if (level.toLowerCase() === "error") {
-        appLogger.error(message);
+        proxyLogger.error(message);
       } else if (level.toLowerCase() === "warn") {
-        appLogger.warn(message);
+        proxyLogger.warn(message);
       } else if (level.toLowerCase() === "info") {
-        appLogger.info(message);
+        proxyLogger.info(message);
       } else if (level.toLowerCase() === "debug") {
-        appLogger.debug(message);
+        proxyLogger.debug(message);
       } else if (level.toLowerCase() === "trace") {
-        appLogger.trace(message);
+        proxyLogger.trace(message);
       } else {
-        appLogger.error("Tried to log to an unknown level.");
         throw new Error("Tried to log to an unknown level.");
       }
 
@@ -301,6 +295,8 @@ dotenv.config({ path: "../graph-explorer/.env" });
       next(error);
     }
   });
+
+  app.use(errorHandler);
 
   if (process.env.PROXY_SERVER_HTTPS_CONNECTION != "false" && fs.existsSync("../graph-explorer-proxy-server/cert-info/server.key") && fs.existsSync("../graph-explorer-proxy-server/cert-info/server.crt")) {
     https
@@ -312,11 +308,11 @@ dotenv.config({ path: "../graph-explorer/.env" });
         app
       )
       .listen(443, async () => {
-        console.log(`\tProxy server located at https://localhost`);
+        proxyLogger.info(`Proxy server located at https://localhost`);
       });
   } else {
     app.listen(80, async () => {
-      console.log(`\tProxy server located at http://localhost`);
+      proxyLogger.info(`Proxy server located at http://localhost`);
     });
   }
 })();
