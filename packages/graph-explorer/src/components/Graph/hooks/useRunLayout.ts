@@ -62,12 +62,15 @@ function useUpdateLayout({
       previousNodesRef.current = nodes;
       previousLayoutRef.current = layout;
     }
+    // nodes variable is not a dependency because
+    // it is kept in the reference and the hook will run using
+    // graphStructureVersion as trigger.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     cy,
     layout,
     additionalLayoutsConfig,
     useAnimation,
-    nodes,
     onLayoutUpdated,
     graphStructureVersion,
     mounted,

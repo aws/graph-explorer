@@ -25,9 +25,11 @@ type RawNeighborsCountResponse = {
 
 const fetchNeighborsCount = async (
   gremlinFetch: GremlinFetch,
-  req: NeighborsCountRequest
+  req: NeighborsCountRequest,
+  rawIds: Map<string, "string" | "number">
 ): Promise<NeighborsCountResponse> => {
-  const gremlinTemplate = neighborsCountTemplate(req);
+  const idType = rawIds.get(req.vertexId) ?? "string";
+  const gremlinTemplate = neighborsCountTemplate({ ...req, idType });
   const data = await gremlinFetch<RawNeighborsCountResponse>(gremlinTemplate);
 
   const pairs = data.result.data["@value"]?.[0]?.["@value"] || [];

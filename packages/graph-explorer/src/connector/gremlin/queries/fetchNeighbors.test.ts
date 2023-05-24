@@ -101,7 +101,7 @@ describe("Gremlin > fetchNeighbors", () => {
     const response = await fetchNeighbors(mockGremlinFetch(), {
       vertexId: "2018",
       vertexType: "airport",
-    });
+    }, new Map());
 
     expect(response).toMatchObject({
       vertices: expectedVertices.map(v => ({
@@ -259,7 +259,7 @@ describe("Gremlin > fetchNeighbors", () => {
       vertexType: "airport",
       filterByVertexTypes: ["airport"],
       filterCriteria: [{ name: "code", value: "TF", operator: "LIKE" }],
-    });
+    }, new Map());
 
     expect(response).toMatchObject({
       vertices: expectedVertices.map(v => ({
