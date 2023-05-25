@@ -4,10 +4,12 @@ import { useConfiguration } from "../core";
 
 import gremlinTs from "./translations/gremlin-translations.json";
 import sparqlTs from "./translations/sparql-translations.json";
+import openCypherTs from "./translations/openCypher-translations.json";
 
 const ts: Record<string, Record<string, string>> = {
   gremlin: flat(gremlinTs),
   sparql: flat(sparqlTs),
+  openCypher: flat(openCypherTs),
 };
 
 const useTranslations = () => {

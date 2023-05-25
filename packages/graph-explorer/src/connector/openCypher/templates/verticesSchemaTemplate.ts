@@ -13,10 +13,8 @@ import { uniq } from "lodash";
  *  .by(V().hasLabel("country").limit(1))
  *  .limit(1)
  */
-const verticesSchemaTemplate = ({ types }: { types: string[] }) => {
-  const labels = uniq(types.flatMap(type => type.split("::")));
-
-  return `MATCH (v) WHERE ${labels.map(l => "v:" + l).join("OR")} LIMIT 1 RETURN type(v) AS label, v`;
+const verticesSchemaTemplate = ({ type }: { type: string }) => {
+  return `MATCH(v:\`${type}\`) RETURN v AS object LIMIT 1`;
 };
 
 export default verticesSchemaTemplate;

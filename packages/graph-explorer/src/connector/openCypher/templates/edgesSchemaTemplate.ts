@@ -19,10 +19,8 @@ MATCH ()-[e:`${label}`]->()
 LIMIT 1
 RETURN e
  */
-const edgesSchemaTemplate = ({ types }: { types: string[] }) => {
-  const labels = uniq(types.flatMap(type => type.split("::")));
- 
-  return `WITH [${labels.join(",")}] AS types UNWIND types AS label MATCH ()-[e:label]->() LIMIT 1 RETURN e`
+const edgesSchemaTemplate = ({ type }: { type: string }) => {
+  return `MATCH() -[e:\`${type}\`]- () RETURN e AS object LIMIT 1`;
 };
 
 export default edgesSchemaTemplate;

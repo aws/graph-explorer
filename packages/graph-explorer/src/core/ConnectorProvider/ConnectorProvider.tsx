@@ -5,6 +5,7 @@ import SPARQLConnector from "../../connector/sparql/SPARQLConnector";
 import { ConnectionConfig } from "../ConfigurationProvider";
 import useConfiguration from "../ConfigurationProvider/useConfiguration";
 import type { ConnectorContextProps } from "./types";
+import OpenCypherConnector from "../../connector/openCypher/openCypherConnector";
 
 export const ConnectorContext = createContext<ConnectorContextProps>({});
 
@@ -22,10 +23,16 @@ const ConnectorProvider = ({ children }: PropsWithChildren<any>) => {
       config?.connection?.queryEngine &&
       config?.connection?.queryEngine === "sparql";
 
+    const isOpenCypher = 
+      config?.connection?.queryEngine &&
+      config?.connection?.queryEngine === "openCypher";
+
     if (!config?.connection?.url) {
       setConnector(undefined);
     } else if (isSPARQL) {
       setConnector(new SPARQLConnector(config?.connection));
+    } else if (isOpenCypher) {
+      setConnector(new OpenCypherConnector(config?.connection));
     } else {
       setConnector(new GremlinConnector(config?.connection));
     }

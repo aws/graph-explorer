@@ -14,8 +14,9 @@ import type {
   /*import fetchNeighbors from "./queries/fetchNeighbors";
   import fetchNeighborsCount from "./queries/fetchNeighborsCount";
   import fetchSchema from "./queries/fetchSchema";
-  import fetchVertexTypeCounts from "./queries/fetchVertexTypeCounts";*/
-  import keywordSearch from "./queries/keywordSearch";
+  import fetchVertexTypeCounts from "./queries/fetchVertexTypeCounts";
+  import keywordSearch from "./queries/keywordSearch";*/
+  import fetchSchema from "./queries/fetchSchema";
   import { GraphSummary } from "./types";
   
   export default class OpenCypherConnector extends AbstractConnector {
@@ -43,28 +44,28 @@ import type {
       req: CountsByTypeRequest,
       options: QueryOptions | undefined
     ): Promise<CountsByTypeResponse> {
-      return fetchVertexTypeCounts(this._gremlinFetch(options), req);
+      return Promise.resolve<CountsByTypeResponse>({total: 5}); //fetchVertexTypeCounts(this._gremlinFetch(options), req);
     }
   
     fetchNeighbors(
       req: NeighborsRequest,
       options: QueryOptions | undefined
     ): Promise<NeighborsResponse> {
-      return fetchNeighbors(this._gremlinFetch(options), req);
+      return Promise.resolve<NeighborsResponse>({vertices: [], edges: []}); //fetchNeighbors(this._gremlinFetch(options), req);
     }
   
     fetchNeighborsCount(
       req: NeighborsCountRequest,
       options?: QueryOptions
     ): Promise<NeighborsCountResponse> {
-      return fetchNeighborsCount(this._gremlinFetch(options), req);
+      return Promise.resolve<NeighborsCountResponse>({totalCount: 4, counts: {}}); //fetchNeighborsCount(this._gremlinFetch(options), req);
     }
   
     keywordSearch(
       req: KeywordSearchRequest,
       options?: QueryOptions
     ): Promise<KeywordSearchResponse> {
-      return keywordSearch(this._gremlinFetch(options), req);
+      return Promise.resolve<KeywordSearchResponse>({vertices: []}); //keywordSearch(this._gremlinFetch(options), req);
     }
   
     private _gremlinFetch<TResult>(options?: QueryOptions) {

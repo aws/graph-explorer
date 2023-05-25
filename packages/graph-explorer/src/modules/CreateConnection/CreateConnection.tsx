@@ -24,7 +24,7 @@ import defaultStyles from "./CreateConnection.styles";
 type ConnectionForm = {
   name?: string;
   url?: string;
-  type?: "gremlin" | "sparql";
+  type?: "gremlin" | "sparql" | "openCypher";
   proxyConnection?: boolean;
   graphDbUrl?: string;
   awsAuthEnabled?: boolean;
@@ -34,7 +34,8 @@ type ConnectionForm = {
 };
 
 const CONNECTIONS_OP = [
-  { label: "PG (Property Graph)", value: "gremlin" },
+  { label: "PG (Property Graph) - Gremlin", value: "gremlin" },
+  { label: "PG (Property Graph) - OpenCypher", value: "openCypher" },
   { label: "RDF (Resource Description Framework)", value: "sparql" },
 ];
 

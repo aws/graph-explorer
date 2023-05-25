@@ -1,0 +1,71 @@
+{
+    "available-connections": {
+      "graph-type": "PG"
+    },
+    "graph-viewer": {
+      "node": "Node",
+      "edge": "Edge"
+    },
+    "connection-detail": {
+      "graph-type": "PG",
+      "nodes": "Nodes",
+      "edges": "Edges",
+      "search-placeholder": "Search for Node Type",
+      "no-search-title": "No Nodes Types",
+      "no-search-subtitle": "No Nodes Types found with searched criteria",
+      "no-elements-title": "No Nodes",
+      "no-elements-subtitle": "No Nodes found to be shown in this list"
+    },
+    "nodes-styling": {
+      "title": "Nodes Styling",
+      "node-id": "Node Id",
+      "node-type": "Node Type"
+    },
+    "edges-styling": {
+      "title": "Edges Styling",
+      "edge-type": "Edge Type"
+    },
+    "node-detail": {
+      "node-id": "Node Id",
+      "node-type": "Node Type"
+    },
+    "keyword-search": {
+      "node-type": "Node Type",
+      "node-attribute": "Attribute"
+    },
+    "entities-filter": {
+      "node-types": "Node Types",
+      "edge-types": "Edge Types"
+    },
+    "node-expand": {
+      "edge-selection-title": "Edge Selection",
+      "edge-selection-subtitle": "Select a Node to expand its connections",
+      "no-selection-title": "No Selection",
+      "no-selection-subtitle": "Select a Node to expand its connections",
+      "multi-selection-title": "Multiple Selection",
+      "multi-selection-subtitle": "Select a single Node to expand its connections",
+      "no-connections-title": "Unconnected Node",
+      "no-connections-subtitle": "This node has no connection. Therefore, it is not expandable",
+      "no-unfetched-title": "Nothing to Expand",
+      "no-unfetched-subtitle": "This node has been completely expanded",
+      "neighbors-of-type": "Expand Neighbors of type"
+    },
+    "entities-tabular": {
+      "all-nodes": "All Nodes",
+      "all-edges": "All Edges",
+      "node-id": "Node Id",
+      "node-type": "Node Type",
+      "nodes-placeholder": "Add a node in the Graph View see its data",
+      "edge-type": "Edge Type",
+      "source-id": "Source Id",
+      "source-type": "Source Type",
+      "target-id": "Target Id",
+      "target-type": "Target Type",
+      "edges-placeholder": "Add a node in the Graph View see its connections"
+    },
+    "data-explorer": {
+      "node-id": "Node Id",
+      "node-type": "Node Type"
+    }
+  }
+  
