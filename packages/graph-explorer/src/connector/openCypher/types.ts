@@ -34,16 +34,6 @@ export type OCEdge = {
   "~properties": Record<string, string | number>;
 }
 
-export type OCVertexList = {
-  "@type": "g:List";
-  "@value": Array<OCVertex>;
-};
-
-export type OCEdgeList = {
-  "@type": "g:List";
-  "@value": Array<OCEdge>;
-};
-
 export type OpenCypherFetch = <TResult = any>(
   queryTemplate: string
 ) => Promise<TResult>;

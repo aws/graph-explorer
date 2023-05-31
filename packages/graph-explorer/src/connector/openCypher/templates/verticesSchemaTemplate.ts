@@ -1,5 +1,3 @@
-import { uniq } from "lodash";
-
 /**
  * Given a set of nodes labels, it returns a Gremlin template that contains
  * one sample of each node label.

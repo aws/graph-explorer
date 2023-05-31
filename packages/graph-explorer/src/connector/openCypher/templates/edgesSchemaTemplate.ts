@@ -1,4 +1,3 @@
-import { uniq } from "lodash";
 
 /**
  * Given a set of edge types, it returns a Gremlin template that contains

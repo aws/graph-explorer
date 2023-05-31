@@ -25,32 +25,27 @@ const keywordSearchTemplate = ({
   limit = 10,
   offset = 0,
 }: KeywordSearchRequest): string => {
-  let template;
+  let template = "";
 
-  if (vertexTypes.length !== 0) {
-    const labels = vertexTypes
-      .flatMap(type => type.split("::"))
-      .map(type => `:${type}`)
-      .join("|");
+  if (vertexTypes.length === 1) {
+    const label = vertexTypes[0];
 
-    template = `MATCH (v:${labels})`;
-  } else {
-    template = `MATCH (v)`;
-  }
+    template += `MATCH (v:\`${label}\`)`;
+  } 
 
   if (Boolean(searchTerm) && (searchByAttributes.length !== 0 || searchById)) {
     const orContent = uniq(
       searchById ? ["id", ...searchByAttributes] : searchByAttributes
     )
-      .map(attr => {
+      .map((attr: any) => {
         return `v.${attr} CONTAINS "${searchTerm}" `;
       })
-      .join(`OR `);
+      .join(` OR `);
 
-    template += `WHERE ${orContent} `;
+    template += ` WHERE ${orContent} `;
   }
 
-  template += `RETURN v SKIP ${offset} LIMIT ${limit}`;
+  template += `RETURN v AS object SKIP ${offset} LIMIT ${limit}`;
   return template;
 };
 

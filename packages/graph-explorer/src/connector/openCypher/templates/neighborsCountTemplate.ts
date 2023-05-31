@@ -15,7 +15,7 @@ const neighborsCountTemplate = ({
   vertexId,
   limit = 500,
 }: NeighborsCountRequest) => {
-  return `MATCH (${vertexId}) -[e]- () LIMIT ${limit} RETURN type(e) AS label, count(e) AS count`;
+  return `MATCH (v) -[e]- (t) WHERE ID(v) = \"${vertexId}\" RETURN labels(t) AS vertexLabel, count(DISTINCT t) AS count LIMIT ${limit}`;
 };
 
 export default neighborsCountTemplate;

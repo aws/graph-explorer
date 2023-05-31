@@ -108,7 +108,6 @@ const oneHopTemplate = ({
     limit = 10,
     offset = 0,
   }: Omit<NeighborsRequest, "vertexType">): string => {
-    const range = `SKIP ${offset} LIMIT ${limit}`;
     let template = `MATCH (v)`;
   
     const formattedVertexTypes = filterByVertexTypes
@@ -129,14 +128,14 @@ const oneHopTemplate = ({
         template += `(tgt) `;
     }
 
-    template += `WHERE id(v) = ${vertexId} `
+    template += `WHERE ID(v) = \"${vertexId}\" `
   
     let filterCriteriaTemplate = filterCriteria?.map(criterionTemplate).join(" AND ");
     if (filterCriteriaTemplate) {
       template += `AND ${filterCriteriaTemplate} `;
     }
 
-    template += `WITH collect(DISTINCT v) AS vertices, collect(DISTINCT e) AS edges ${range} RETURN vertices, edges`;
+    template += `WITH collect(DISTINCT tgt) AS vObjects, collect({edge: e, sourceType: labels(v), targetType: labels(tgt)}) AS eObjects RETURN vObjects, eObjects SKIP ${offset} LIMIT ${limit}`;
   
     return template;
   };
