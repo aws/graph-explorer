@@ -2,7 +2,7 @@
 
 ./process-environment.sh
 
-if [ $(grep -e 'GRAPH_EXP_HTTPS_CONNECTION' ./packages/graph-explorer/.env | cut -d "=" -f 2) ]; then
+if [ $(grep -e 'PROXY_SERVER_HTTPS_CONNECTION' ./packages/graph-explorer/.env | cut -d "=" -f 2) ]; then
 
     if [ $HOST ]; then
         echo "Generating new self-signed SSL cert using $HOST..."
@@ -28,7 +28,5 @@ else
     exit 1
 fi
 
-echo "Building graph explorer..."
-pnpm -w build
 echo "Starting graph explorer..."
 pnpm -w start:proxy-server

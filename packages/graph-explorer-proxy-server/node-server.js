@@ -40,6 +40,7 @@ dotenv.config({ path: "../graph-explorer/.env" });
   app.use(cors());
 
   app.use("/explorer", express.static(path.join(__dirname, "../graph-explorer/dist")));
+  app.use("/defaultConnection", express.static(path.join(__dirname, "../graph-explorer/defaultConnection.json")));
 
   const delay = (ms) => new Promise((resolve) => setTimeout(() => resolve(), ms));
 

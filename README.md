@@ -95,7 +95,7 @@ You can search, browse, expand, customize views of your graph data using Graph E
 The Graph Explorer supports visualizing both **property graphs** and **RDF graphs**. You can connect to Amazon Neptune or you can also connect to open graph databases that implement an Apache TinkerPop Gremlin Server endpoint or the SPARQL 1.1 protocol, such as Blazegraph. For additional details on connecting to different graph databases, see [Connections](./additionaldocs/connections.md).
 
 ### Providing a Default Connection 
-To provide a default connection such that initial loads of the graph explorer always result with the same starting connection, modify the `docker run ...` command to either take in a json configuration or runtime environment variables. A json configuration approach would look like `docker run -p 80:80 -p 443:443 --env HOST={hostname-or-ip-address} -v /path/to/config.json:/graph-explorer/config.json graph-explorer` or create a `config.json` file at the root of the project. An environment variable approach would look like `docker run -p 80:80 -p 443:443 --env HOST={hostname-or-ip-address} --env PUBLIC_OR_PROXY_ENDPOINT=https://public-endpoint --env GRAPH_TYPE=gremlin --env USING_PROXY_SERVER=true --env IAM=false --env GRAPH_CONNECTION_URL=https://cluster-cqmizgqgrsbf.us-west-2.neptune.amazonaws.com:8182 --env AWS_REGION=us-west-2 graph-explorer`. IF you provide both, the json approach will be prioritized.
+To provide a default connection such that initial loads of the graph explorer always result with the same starting connection, modify the `docker run ...` command to either take in a json configuration or runtime environment variables. A json configuration approach would look like `docker run -p 80:80 -p 443:443 --env HOST={hostname-or-ip-address} -v /path/to/config.json:/graph-explorer/config.json graph-explorer` or create a `config.json` file at the root of the project. An environment variable approach would look like `docker run -p 80:80 -p 443:443 --env HOST={hostname-or-ip-address} --env PUBLIC_OR_PROXY_ENDPOINT=https://public-endpoint --env GRAPH_TYPE=gremlin --env USING_PROXY_SERVER=true --env IAM=false --env GRAPH_CONNECTION_URL=https://cluster-cqmizgqgrsbf.us-west-2.neptune.amazonaws.com:8182 --env AWS_REGION=us-west-2 graph-explorer --env PROXY_SERVER_HTTPS_CONNECTION=true`. IF you provide both, the json approach will be prioritized.
 
 
 The set of valid ENV connection variables and their defaults:
@@ -105,6 +105,7 @@ The set of valid ENV connection variables and their defaults:
      * GRAPH_TYPE - PG (Property Graph)
      * USING_PROXY_SERVER - False
      * IAM - False
+     * PROXY_SERVER_HTTPS_CONNECTION - True
 * Conditionally Required:
      * GRAPH_CONNECTION_URL - None 
 * Required if USING_PROXY_SERVER=True
@@ -121,7 +122,8 @@ The config.json file should provide values for the attributes at the top level a
      "USING_PROXY_SERVER": true, (Can be string or boolean)
      "IAM": true, (Can be string or boolean)
      "AWS_REGION": "us-west-2",
-     "GRAPH_TYPE": "gremlin" (Possible Values: "gremlin" or "sparql")
+     "GRAPH_TYPE": "gremlin" (Possible Values: "gremlin" or "sparql"),
+     "PROXY_SERVER_HTTPS_CONNECTION: true, (Can be string or boolean)
 }
 ```
 

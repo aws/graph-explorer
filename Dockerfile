@@ -8,6 +8,7 @@ WORKDIR /graph-explorer
 RUN curl -sL https://rpm.nodesource.com/setup_16.x | bash - && yum install -y nodejs openssl && npm install -g pnpm && pnpm install && rm -rf /var/cache/yum && chmod a+x ./process-environment.sh
 WORKDIR /graph-explorer/
 ENV HOME=/graph-explorer
+RUN pnpm build
 EXPOSE 443
 EXPOSE 80
 RUN chmod a+x ./docker-entrypoint.sh
