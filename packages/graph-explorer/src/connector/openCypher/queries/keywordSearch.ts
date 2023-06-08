@@ -3,25 +3,25 @@ import type {
     ErrorResponse,
     KeywordSearchRequest,
     KeywordSearchResponse,
-  } from "../../AbstractConnector";
-  import isErrorResponse from "../../utils/isErrorResponse";
-  import mapApiVertex from "../mappers/mapApiVertex";
-  import keywordSearchTemplate from "../templates/keywordSearchTemplate";
-  import type { OCVertex } from "../types";
-  import { OpenCypherFetch } from "../types";
+} from "../../AbstractConnector";
+import isErrorResponse from "../../utils/isErrorResponse";
+import mapApiVertex from "../mappers/mapApiVertex";
+import keywordSearchTemplate from "../templates/keywordSearchTemplate";
+import type { OCVertex } from "../types";
+import { OpenCypherFetch } from "../types";
 
-  type RawKeySearchResponse = {
+type RawKeySearchResponse = {
     results: [
         {
-            object: OCVertex
+            object: OCVertex;
         }
     ];
-  };
-  
-  const keywordSearch = async (
-    openCypherFetch: OpenCypherFetch,
-    req: KeywordSearchRequest
-  ): Promise<KeywordSearchResponse> => {
+};
+
+const keywordSearch = async (
+openCypherFetch: OpenCypherFetch,
+req: KeywordSearchRequest
+): Promise<KeywordSearchResponse> => {
     const vertTypes = req.vertexTypes;
     let vertices: Array<Vertex> = [];
 
@@ -34,8 +34,6 @@ import type {
                 openCypherTemplate
             );
 
-            console.log(data);
-
             if (isErrorResponse(data)) {
                 throw new Error(data.detailedMessage);
             }
@@ -44,13 +42,11 @@ import type {
                 console.log(value);
                 return mapApiVertex(value.object);
             }));
-
-            console.log(vertices);
         }
     }
-  
+
     return { vertices };
-  };
-  
-  export default keywordSearch;
+};
+
+export default keywordSearch;
   

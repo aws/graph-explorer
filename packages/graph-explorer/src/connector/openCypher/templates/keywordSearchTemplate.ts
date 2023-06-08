@@ -9,13 +9,13 @@ import type { KeywordSearchRequest } from "../../AbstractConnector";
  * limit = 100
  * offset = 0
  *
- * MATCH (a:airport)
+ * MATCH (v:airport)
  * WHERE
- *   a.city CONTAINS "JFK" OR
- *   a.code CONTAINS "JFK"
- * RETURN a
- * LIMIT 100
+ *   v.city CONTAINS "JFK" OR
+ *   v.code CONTAINS "JFK"
+ * RETURN v
  * SKIP 0
+ * LIMIT 100
  */
 const keywordSearchTemplate = ({
   searchTerm,

@@ -8,8 +8,11 @@ import type { NeighborsCountRequest } from "../../AbstractConnector";
  * ids = "44"
  * limit = 10
  *
- * g.V("44").both().limit(10).dedup()
- *  .group().by(label).by(count())
+ * MATCH (v) -[e]- (t) 
+ * WHERE ID(v) = "44" 
+ * RETURN labels(t) AS vertexLabel, count(DISTINCT t) AS count 
+ * LIMIT 10
+ * 
  */
 const neighborsCountTemplate = ({
   vertexId,

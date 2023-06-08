@@ -94,11 +94,12 @@ const criterionTemplate = (criterion: Criterion): string => {
  * limit = 10
  * offset = 0
  *
- * MATCH (source {id: "124"})-[edge:route]->(v:airport)
- * WHERE v:airport AND NOT (v)-[:route]->() AND NOT ()-[:route]->(v)
- * RETURN DISTINCT v.id as vertexId, edge.id as edgeId
+ * MATCH (v)-[edge:route]->(v:airport)
+ * WHERE ID(v) = "124"
+ * WITH collect(DISTINCT tgt) AS vObjects, collect({edge: e, sourceType: labels(v), targetType: labels(tgt)}) AS eObjects 
+ * RETURN vObjects, eObjects 
+ * SKIP 0
  * LIMIT 10
- * OFFSET 0
  */
 const oneHopTemplate = ({
     vertexId,
@@ -112,8 +113,8 @@ const oneHopTemplate = ({
   
     const formattedVertexTypes = filterByVertexTypes
       .flatMap(type => type.split("::"))
-      .map(type => `${type}`)
-      .join("|");
+      .map(type => `v:${type}`)
+      .join(" OR ");
     const formattedEdgeTypes = edgeTypes.map(type => `${type}`).join("|");
 
     if (edgeTypes.length > 0) {
@@ -122,13 +123,13 @@ const oneHopTemplate = ({
         template += `-[e]-`;
     }
     
-    if (filterByVertexTypes.length > 0) {
-        template += `(tgt:${formattedVertexTypes}) `;
+    if (filterByVertexTypes.length == 1) {
+      template += `(tgt:${filterByVertexTypes[0]}) `;
+    } else if (filterByVertexTypes.length > 1) {
+      template += `(tgt) WHERE ID(v) = \"${vertexId}\" AND ${formattedVertexTypes}`;
     } else {
-        template += `(tgt) `;
+      template += `(tgt) WHERE ID(v) = \"${vertexId}\" `;
     }
-
-    template += `WHERE ID(v) = \"${vertexId}\" `
   
     let filterCriteriaTemplate = filterCriteria?.map(criterionTemplate).join(" AND ");
     if (filterCriteriaTemplate) {

@@ -1,6 +1,5 @@
 import type { Edge } from "../../../@types/entities";
 import type { OCEdge } from "../types";
-//import parseEdgePropertiesValues from "./parseEdgePropertiesValues";
 
 const mapApiEdge = (apiEdge: OCEdge, sourceType: string, targetType: string): Edge => {
   return {

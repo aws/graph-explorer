@@ -1,22 +1,14 @@
 
 /**
- * Given a set of edge types, it returns a Gremlin template that contains
- * one sample of each edge type.
+ * Given an edge type, it returns an OpenCypher template that contains
+ * one sample of the edge.
  *
  * @example
- * types = ["route", "contain"]
- *
- * g.E()
- *  .project("route","contain")
- *  .by(V().bothE("route").limit(1))
- *  .by(V().bothE("contain").limit(1))
- *  .limit(1)
+ * type = "route"
  * 
- * WITH ["route", "contain"] AS types
-UNWIND types AS label
-MATCH ()-[e:`${label}`]->()
-LIMIT 1
-RETURN e
+ * MATCH() -[e:`route`]- () 
+ * RETURN e AS object 
+ * LIMIT 1`
  */
 const edgesSchemaTemplate = ({ type }: { type: string }) => {
   return `MATCH() -[e:\`${type}\`]- () RETURN e AS object LIMIT 1`;

@@ -1,23 +1,3 @@
-export type OCInt32 = {
-  "@type": "g:Int32";
-  "@value": number;
-};
-
-export type OCInt64 = {
-  "@type": "g:Int64";
-  "@value": number;
-};
-
-export type OCDouble = {
-  "@type": "g:Double";
-  "@value": number;
-};
-
-export type OCDate = {
-  "@type": "g:Date";
-  "@value": number;
-};
-
 export type OCVertex = {
   "~id": string;
   "~entityType": string;

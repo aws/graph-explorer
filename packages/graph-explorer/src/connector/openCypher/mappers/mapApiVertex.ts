@@ -1,7 +1,6 @@
 import type { Vertex } from "../../../@types/entities";
 import type { NeighborsCountResponse } from "../../AbstractConnector";
 import type { OCVertex } from "../types";
-//import parsePropertiesValues from "./parsePropertiesValues";
 
 const mapApiVertex = (
   apiVertex: OCVertex,

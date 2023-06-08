@@ -4,7 +4,7 @@ import edgeLabelsTemplate from "../templates/edgeLabelsTemplate";
 import edgesSchemaTemplate from "../templates/edgesSchemaTemplate";
 import vertexLabelsTemplate from "../templates/vertexLabelsTemplate";
 import verticesSchemaTemplate from "../templates/verticesSchemaTemplate";
-import type { OCEdge, OCInt64, OCVertex } from "../types";
+import type { OCEdge, OCVertex } from "../types";
 import { GraphSummary, OpenCypherFetch } from "../types";
 
 type RawVertexLabelsResponse = {
@@ -55,14 +55,6 @@ const fetchVertexLabels = async (
   }
 
   return labelsWithCounts;
-};
-
-const TYPE_MAP = {
-  "g:Date": "Date",
-  "g:Int32": "Number",
-  "g:Int64": "Number",
-  "g:Double": "Number",
-  "g:Float": "Number",
 };
 
 const fetchVerticesAttributes = async (
