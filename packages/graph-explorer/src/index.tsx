@@ -29,10 +29,8 @@ const BootstrapApp = () => {
           let defaultConnectionData = await defaultConnectionFile.json();
   
           setConfig({
-            id: defaultConnectionData.GRAPH_EXP_CONNECTION_URL,
-            displayLabel:
-              defaultConnectionData.GRAPH_EXP_CONNECTION_NAME ||
-              defaultConnectionData.GRAPH_EXP_CONNECTION_URL,
+            id: "Default Connection",
+            displayLabel: "Default Connection",
             connection: {
               url: defaultConnectionData.GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT || "",
               queryEngine: (defaultConnectionData.GRAPH_EXP_GRAPH_TYPE.toLowerCase() === "sparql") ? "sparql" : "gremlin",

@@ -41,7 +41,6 @@ You can create and manage connections to graph databases using this feature. Con
 * __Add a new connection:__
    *  __Name:__ Enter a name for your connection (e.g., `MyNeptuneCluster`). 
    *  __Graph Type:__ Choose a graph data model that corresponds to your graph database. 
-   *  __Public Endpoint:__ Provide the publicly accessible endpoint URL for a graph database, e.g., Gremlin Server. If connecting to Amazon Neptune, then provide a proxy endpoint URL that is accessible from outside the VPC, e.g., EC2.
    * __Public or proxy endpoint:__ Provide the publicly accessible endpoint URL for a graph database, e.g., Gremlin Server. If connecting to Amazon Neptune, then provide a proxy endpoint URL that is accessible from outside the VPC, e.g., EC2. 
       * **Note:** For connecting to Amazon Neptune, ensure that the graph connection URL is in the format `https://[NEPTUNE_ENDPOINT]:8182`, and that the proxy endpoint URL is either `https://[EC2_PUBLIC_HOSTNAME]:443` or `http://[EC2_PUBLIC_HOSTNAME]:80`, depending on the protocol used. Ensure that you don't end either of the URLs with `/`.
    * __Using proxy server:__ Check this box if using a proxy endpoint.
@@ -98,19 +97,19 @@ The Graph Explorer supports visualizing both **property graphs** and **RDF graph
 To provide a default connection such that initial loads of the graph explorer always result with the same starting connection, modify the `docker run ...` command to either take in a json configuration or runtime environment variables. A json configuration approach would look like `docker run -p 80:80 -p 443:443 --env HOST={hostname-or-ip-address} -v /path/to/config.json:/graph-explorer/config.json graph-explorer` or create a `config.json` file at the root of the project. An environment variable approach would look like `docker run -p 80:80 -p 443:443 --env HOST={hostname-or-ip-address} --env PUBLIC_OR_PROXY_ENDPOINT=https://public-endpoint --env GRAPH_TYPE=gremlin --env USING_PROXY_SERVER=true --env IAM=false --env GRAPH_CONNECTION_URL=https://cluster-cqmizgqgrsbf.us-west-2.neptune.amazonaws.com:8182 --env AWS_REGION=us-west-2 --env PROXY_SERVER_HTTPS_CONNECTION=true graph-explorer`. IF you provide both, the json approach will be prioritized.
 
 
-The set of valid ENV connection variables and their defaults:
+The set of valid ENV connection variables, their defaults, and their descriptions:
 * Required:
-     * PUBLIC_OR_PROXY_ENDPOINT - None
+     * PUBLIC_OR_PROXY_ENDPOINT - None - See [Add a New Connection](#connections-ui)
 * Optional
-     * GRAPH_TYPE - PG (Property Graph)
-     * USING_PROXY_SERVER - False
-     * IAM - False
-     * PROXY_SERVER_HTTPS_CONNECTION - True
+     * GRAPH_TYPE - PG (Property Graph)- See [Add a New Connection](#connections-ui)
+     * USING_PROXY_SERVER - False- See [Add a New Connection](#connections-ui)
+     * IAM - False- See [Add a New Connection](#connections-ui)
+     * PROXY_SERVER_HTTPS_CONNECTION - True - Controls whether the server uses SSL or not
 * Conditionally Required:
-     * GRAPH_CONNECTION_URL - None 
-* Required if USING_PROXY_SERVER=True
-     * AWS_REGION - None
-* Required if USING_PROXY_SERVER=True and IAM=True
+     * Required if USING_PROXY_SERVER=True
+          * GRAPH_CONNECTION_URL - None- See [Add a New Connection](#connections-ui)
+     * Required if USING_PROXY_SERVER=True and IAM=True
+          * AWS_REGION - None- See [Add a New Connection](#connections-ui)
 
 
 The config.json file should provide values for the attributes at the top level as in the example below:
