@@ -120,7 +120,7 @@
     "@types/react-transition-group": "^4.4.5",
     "@types/uuid": "^8.3.4",
     "@typescript-eslint/eslint-plugin": "^5.40.0",
-    "@vitejs/plugin-react": "^2.0.1",
+    "@vitejs/plugin-react": "^4.0.0",
     "babel-jest": "^28.1.3",
     "buffer": "^6.0.3",
     "esbuild-loader": "^2.19.0",
@@ -139,7 +139,7 @@
     "tslib": "^2.4.0",
     "type-fest": "^2.19.0",
     "typescript": "^4.8.4",
-    "vite": "^3.0.7",
+    "vite": "^4.3.9",
     "webpack": "^5.74.0"
   },
   "lint-staged": {
