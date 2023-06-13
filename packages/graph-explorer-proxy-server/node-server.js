@@ -15,7 +15,7 @@ const creds = fromNodeProviderChain()
 dotenv.config({ path: "../graph-explorer/.env" });
 
 (async () => {
-  
+  let creds = await getCredentials();
   let requestSig;
 
   app.use(cors());
@@ -36,6 +36,7 @@ dotenv.config({ path: "../graph-explorer/.env" });
 
     if (creds === undefined) {
       console.error("Credentials undefined. Trying refresh.");
+      let creds = await getCredentials();
       if (creds === undefined) {
         throw new Error("Credentials still undefined. Check that the environment has an appropriate IAM role that trusts it and that it has sufficient read permissions to connect to Neptune.")
       }
@@ -60,6 +61,7 @@ dotenv.config({ path: "../graph-explorer/.env" });
           })
           .catch(async (err) => {
             console.log("Attempt Credential Refresh");
+            let creds = await getCredentials();
             if (creds === undefined) {
               reject("Credentials undefined after credential refresh. Check that you have proper acccess")
             }
