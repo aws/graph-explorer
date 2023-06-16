@@ -124,7 +124,7 @@ const oneHopTemplate = ({
     }
     
     if (filterByVertexTypes.length == 1) {
-      template += `(tgt:${filterByVertexTypes[0]}) `;
+      template += `(tgt:${filterByVertexTypes[0]}) WHERE ID(v) = \"${vertexId}\" `;
     } else if (filterByVertexTypes.length > 1) {
       template += `(tgt) WHERE ID(v) = \"${vertexId}\" AND ${formattedVertexTypes}`;
     } else {

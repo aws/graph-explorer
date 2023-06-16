@@ -7,7 +7,7 @@ describe("Gremlin > oneHopTemplate", () => {
     });
 
     expect(template).toBe(
-      "MATCH (v)-[e]-(tgt) WHERE id(v) = 12 WITH collect(DISTINCT v) AS vertices, collect(DISTINCT e) AS edges SKIP 0 LIMIT 10 RETURN vertices, edges"
+      "MATCH (v)-[e]-(tgt) WHERE ID(v) = \"12\" WITH collect(DISTINCT tgt) AS vObjects, collect({edge: e, sourceType: labels(v), targetType: labels(tgt)}) AS eObjects RETURN vObjects, eObjects SKIP 0 LIMIT 10"
     );
   });
 
@@ -19,7 +19,7 @@ describe("Gremlin > oneHopTemplate", () => {
     });
 
     expect(template).toBe(
-      "MATCH (v)-[e]-(tgt) WHERE id(v) = 12 WITH collect(DISTINCT v) AS vertices, collect(DISTINCT e) AS edges SKIP 5 LIMIT 5 RETURN vertices, edges"
+      "MATCH (v)-[e]-(tgt) WHERE ID(v) = \"12\" WITH collect(DISTINCT tgt) AS vObjects, collect({edge: e, sourceType: labels(v), targetType: labels(tgt)}) AS eObjects RETURN vObjects, eObjects SKIP 5 LIMIT 5"
     );
   });
 
@@ -32,7 +32,7 @@ describe("Gremlin > oneHopTemplate", () => {
     });
 
     expect(template).toBe(
-      "MATCH (v)-[e]-(tgt:country) WHERE id(v) = 12 WITH collect(DISTINCT v) AS vertices, collect(DISTINCT e) AS edges SKIP 5 LIMIT 10 RETURN vertices, edges"
+      "MATCH (v)-[e]-(tgt:country) WHERE ID(v) = \"12\" WITH collect(DISTINCT tgt) AS vObjects, collect({edge: e, sourceType: labels(v), targetType: labels(tgt)}) AS eObjects RETURN vObjects, eObjects SKIP 5 LIMIT 10"
     );
   });
 
@@ -49,7 +49,7 @@ describe("Gremlin > oneHopTemplate", () => {
     });
 
     expect(template).toBe(
-      "MATCH (v)-[e]-(tgt:country) WHERE id(v) = 12 AND tgt.longest >= 10000 AND tgt.country CONTAINS \"ES\" WITH collect(DISTINCT v) AS vertices, collect(DISTINCT e) AS edges SKIP 5 LIMIT 10 RETURN vertices, edges"
+      "MATCH (v)-[e]-(tgt:country) WHERE ID(v) = \"12\" AND tgt.longest >= 10000 AND tgt.country CONTAINS \"ES\" WITH collect(DISTINCT tgt) AS vObjects, collect({edge: e, sourceType: labels(v), targetType: labels(tgt)}) AS eObjects RETURN vObjects, eObjects SKIP 5 LIMIT 10"
     );
   });
 });

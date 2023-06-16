@@ -20,7 +20,7 @@ import type { KeywordSearchRequest } from "../../AbstractConnector";
 const keywordSearchTemplate = ({
   searchTerm,
   vertexTypes = [],
-  searchById = false,
+  searchById = true,
   searchByAttributes = [],
   limit = 10,
   offset = 0,
@@ -45,7 +45,7 @@ const keywordSearchTemplate = ({
     template += ` WHERE ${orContent} `;
   }
 
-  template += `RETURN v AS object SKIP ${offset} LIMIT ${limit}`;
+  template += ` RETURN v AS object SKIP ${offset} LIMIT ${limit}`;
   return template;
 };
 

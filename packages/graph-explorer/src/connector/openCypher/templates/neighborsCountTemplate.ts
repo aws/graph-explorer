@@ -1,7 +1,7 @@
 import type { NeighborsCountRequest } from "../../AbstractConnector";
 
 /**
- * Given a single node ids, it returns a Gremlin template with
+ * Given a single nodes id, it returns an OpenCypher template with
  * all neighbors types with their counts.
  *
  * @example

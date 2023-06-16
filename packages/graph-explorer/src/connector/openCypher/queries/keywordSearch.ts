@@ -39,7 +39,6 @@ req: KeywordSearchRequest
             }
 
             vertices = vertices.concat(data.results.map(value => {
-                console.log(value);
                 return mapApiVertex(value.object);
             }));
         }
