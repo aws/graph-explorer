@@ -154,14 +154,6 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
           <div className={pfx("item")}>
             <div className={pfx("tag")}>
               <div>Last Synchronization</div>
-              <IconButton
-                icon={<SyncIcon className={isSync ? "animate-spin" : ""} />}
-                tooltipText={"Synchronize Database"}
-                variant={"text"}
-                size={"small"}
-                isDisabled={isSync}
-                onPress={onConfigSync}
-              />
             </div>
             {!lastSyncFail && (
               <div className={pfx("value")}>{formatDate(lastSyncUpdate)}</div>
@@ -178,6 +170,21 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
             )}
           </div>
         )}
+        <div className={pfx("item")}>
+          <div className={pfx("ft-end-adornment")}>
+            <div className={pfx("tag")}>Re-Sync</div>
+            <div className={pfx("value")}>
+              <IconButton
+                icon={<SyncIcon className={isSync ? "animate-spin" : ""} />}
+                tooltipText={"Synchronize Database"}
+                variant={"text"}
+                size={"base"}
+                isDisabled={isSync}
+                onPress={onConfigSync}
+              />
+            </div>
+          </div>
+        </div>
       </div>
       {!isSync && !!lastSyncUpdate && <ConnectionData />}
       {!lastSyncUpdate && !isSync && (
