@@ -1,0 +1,1 @@
+{"version":3,"file":"FormatApproximately.d.ts","sourceRoot":"","sources":["FormatApproximately.ts"],"names":[],"mappings":"AAAA,OAAO,EAAC,oBAAoB,EAAE,gBAAgB,EAAC,MAAM,iBAAiB,CAAA;AAEtE;;GAEG;AACH,wBAAgB,mBAAmB,CACjC,YAAY,EAAE,IAAI,CAAC,YAAY,EAC/B,MAAM,EAAE,gBAAgB,EAAE,EAC1B,EACE,gBAAgB,GACjB,EAAE;IACD,gBAAgB,CAAC,EAAE,EAAE,IAAI,CAAC,YAAY,GAAG,oBAAoB,CAAA;CAC9D,sBAWF"}

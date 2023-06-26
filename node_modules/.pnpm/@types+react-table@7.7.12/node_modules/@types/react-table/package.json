@@ -1,0 +1,42 @@
+{
+    "name": "@types/react-table",
+    "version": "7.7.12",
+    "description": "TypeScript definitions for react-table",
+    "homepage": "https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/react-table",
+    "license": "MIT",
+    "contributors": [
+        {
+            "name": "Guy Gascoigne-Piggford",
+            "url": "https://github.com/ggascoigne",
+            "githubUsername": "ggascoigne"
+        },
+        {
+            "name": "Michael Stramel",
+            "url": "https://github.com/stramel",
+            "githubUsername": "stramel"
+        },
+        {
+            "name": "Rohit Garg",
+            "url": "https://github.com/gargroh",
+            "githubUsername": "gargroh"
+        },
+        {
+            "name": "Jason Clark",
+            "url": "https://github.com/riceboyler",
+            "githubUsername": "riceboyler"
+        }
+    ],
+    "main": "",
+    "types": "index.d.ts",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/DefinitelyTyped/DefinitelyTyped.git",
+        "directory": "types/react-table"
+    },
+    "scripts": {},
+    "dependencies": {
+        "@types/react": "*"
+    },
+    "typesPublisherContentHash": "28ce2a560b81f85701c43e70d16f022ecafc569457187c2066e6965ede177399",
+    "typeScriptVersion": "3.9"
+}

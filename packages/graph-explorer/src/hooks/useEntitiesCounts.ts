@@ -1,9 +1,11 @@
 import { useMemo } from "react";
-import { useConfiguration } from "../core";
+import { ConfigurationContextProps } from "../core";
 
-const useEntitiesCounts = () => {
-  const config = useConfiguration();
+type EntitiesCountsProps = {
+  config: ConfigurationContextProps;
+};
 
+const useEntitiesCounts = ({ config }: EntitiesCountsProps) => {
   const totalNodes = useMemo(() => {
     if (config?.totalVertices != null) {
       return config?.totalVertices;

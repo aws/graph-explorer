@@ -1,0 +1,70 @@
+{
+    "name": "@types/cytoscape",
+    "version": "3.19.9",
+    "description": "TypeScript definitions for Cytoscape.js",
+    "homepage": "https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/cytoscape",
+    "license": "MIT",
+    "contributors": [
+        {
+            "name": " Fabian Schmidt and Fred Eisele",
+            "url": "https://github.com/phreed",
+            "githubUsername": "phreed"
+        },
+        {
+            "name": "Shenghan Gao",
+            "url": "https://github.com/wy193777",
+            "githubUsername": "wy193777"
+        },
+        {
+            "name": "Yuri Pereira Constante",
+            "url": "https://github.com/ypconstante",
+            "githubUsername": "ypconstante"
+        },
+        {
+            "name": "Jan-Niclas Struewer",
+            "url": "https://github.com/janniclas",
+            "githubUsername": "janniclas"
+        },
+        {
+            "name": "Andrej Kirejeŭ",
+            "url": "https://github.com/gsbelarus",
+            "githubUsername": "gsbelarus"
+        },
+        {
+            "name": "Peter Ferrarotto",
+            "url": "https://github.com/peterjferrarotto",
+            "githubUsername": "peterjferrarotto"
+        },
+        {
+            "name": "Xavier Ho",
+            "url": "https://github.com/spaxe",
+            "githubUsername": "spaxe"
+        },
+        {
+            "name": "Fredrik Sandström",
+            "url": "https://github.com/Veckodag",
+            "githubUsername": "Veckodag"
+        },
+        {
+            "name": "Johan Svensson",
+            "url": "https://github.com/jsve",
+            "githubUsername": "jsve"
+        },
+        {
+            "name": "Roger Dubbs",
+            "url": "https://github.com/rogerdubbs",
+            "githubUsername": "rogerdubbs"
+        }
+    ],
+    "main": "",
+    "types": "index.d.ts",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/DefinitelyTyped/DefinitelyTyped.git",
+        "directory": "types/cytoscape"
+    },
+    "scripts": {},
+    "dependencies": {},
+    "typesPublisherContentHash": "dbdcd94652e4fa8553cdb3ac6ab3efa9901249593a45fc444f8538f138b19e7a",
+    "typeScriptVersion": "4.1"
+}

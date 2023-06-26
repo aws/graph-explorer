@@ -1,0 +1,9 @@
+# Set default line ending behavior
+* text=auto
+
+# Explicitly declare text files we want to always be normalized and converted
+# to native line endings on checkout
+*.js text
+*.json text
+*.md text
+*.html text

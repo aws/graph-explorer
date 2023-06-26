@@ -1,0 +1,47 @@
+{
+	"name": "filter-console",
+	"version": "0.1.1",
+	"description": "Filter out unwanted `console.log()` output",
+	"license": "MIT",
+	"repository": "sindresorhus/filter-console",
+	"author": {
+		"name": "Sindre Sorhus",
+		"email": "sindresorhus@gmail.com",
+		"url": "sindresorhus.com"
+	},
+	"engines": {
+		"node": ">=8"
+	},
+	"scripts": {
+		"test": "xo && ava && tsd"
+	},
+	"files": [
+		"index.js",
+		"index.d.ts"
+	],
+	"keywords": [
+		"filter",
+		"console",
+		"console-log",
+		"log",
+		"logging",
+		"exclude",
+		"exclusion",
+		"devtools",
+		"pattern",
+		"patterns",
+		"test",
+		"testing",
+		"mock",
+		"electron",
+		"react",
+		"proptypes"
+	],
+	"devDependencies": {
+		"@types/node": "^11.13.4",
+		"ava": "^1.4.1",
+		"sinon": "^7.3.1",
+		"tsd": "^0.7.2",
+		"xo": "^0.24.0"
+	}
+}

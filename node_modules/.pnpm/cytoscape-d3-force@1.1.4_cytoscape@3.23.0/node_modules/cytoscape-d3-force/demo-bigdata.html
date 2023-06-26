@@ -1,0 +1,251 @@
+<!DOCTYPE>
+
+<html>
+
+	<head>
+		<title>cytoscape-d3-force.js demo</title>
+
+		<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
+
+		<script src="https://unpkg.com/cytoscape/dist/cytoscape.min.js"></script>
+
+		<!-- for testing with local version of cytoscape.js -->
+		<!--<script src="../cytoscape.js/build/cytoscape.js"></script>-->
+    <script src="https://d3js.org/d3-dispatch.v1.min.js"></script>
+    <script src="https://d3js.org/d3-quadtree.v1.min.js"></script>
+    <script src="https://d3js.org/d3-timer.v1.min.js"></script>
+    <script src="https://d3js.org/d3-force.v2.min.js"></script>
+    <script>
+      window['d3-force'] = d3
+    </script>
+		<script src="cytoscape-d3-force.js"></script>
+
+		<style>
+			body {
+				font-family: helvetica neue, helvetica, liberation sans, arial, sans-serif;
+				font-size: 14px;
+        position: relative;
+			}
+
+			#cy {
+				position: absolute;
+				left: 0;
+				top: 0;
+				bottom: 0;
+				right: 0;
+				z-index: 999;
+			}
+      
+			h1 {
+				opacity: 0.5;
+				font-size: 1em;
+				font-weight: bold;
+			}
+      .cytoscape--container__loading{
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        z-index: 2000;
+        background: #fff;
+      }
+      .progress-bar{
+        top: 50%;
+        margin-top: -15px;
+        left: 20%;
+        width: 60%;
+        text-align: center;
+        position: absolute;
+        overflow: hidden;
+      }
+      .progress-bar__outer{
+        width: 100%;
+        border-radius: 100px;
+        margin: 16px 0;
+        height: 10px;
+        background-color: #ebeef5;
+        overflow: hidden;
+        position: relative;
+        vertical-align: middle;
+      }
+      .progress-bar__inner{
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        background-color: #409eff;
+        text-align: right;
+        border-radius: 100px;
+        line-height: 1;
+        white-space: nowrap;
+      }
+		</style>
+
+		<script>
+      const group = ['hospital', 'clothes', 'computer', 'person', 'flower', 'tree', 'desk', 'house', 'water', 'cup']
+const edgegroup = ['has', 'goto', 'love']
+const year = ['2017', '2018', '2019']
+const MAX_Y = 800
+const MAX_X = 1500
+function createId(salt, randomLength = 8) {
+  return (
+    (salt || '') +
+    Number(
+      Math.random()
+        .toString()
+        .substr(3, randomLength) + Date.now()
+    ).toString(36)
+  )
+}
+function createNodes(num) {
+  let datas = []
+  for (let i = 0; i < num; i++) {
+    let _groupId = group[Math.floor(Math.random() * group.length)]
+    let data = {
+      id: createId('node_'),
+      position: {
+        x: Math.random() * MAX_X,
+        y: Math.random() * MAX_Y,
+      },
+      group: _groupId,
+      parent: _groupId
+    }
+    data.label = data.group + '-node' + i
+    datas.push({
+      group: 'nodes',
+      data,
+      id: data.id
+    })
+  }
+  return datas
+}
+function createParent (nodes) {
+  let _parents = Array.from(new Set(nodes.map(node => node.data.group))).filter(p => !nodes.find(node => node.data.id === p) && p !== 'person')
+  return _parents.map(p => {
+    return {
+      group: 'nodes',
+      data: {
+        id: p,
+        label: p
+      },
+      id: p
+    }
+  })
+}
+function createEdges(nodes, num) {
+  
+  let edges = []
+  for (let i = 0; i < num - 1; i++) {
+    let target = nodes[i + 1].data.id
+    let source = nodes[Math.floor(Math.sqrt(i))].data.id
+    let edge = {
+      target,
+      source,
+      id: createId('edge_'),
+      group: edgegroup[Math.floor(Math.random() * edgegroup.length)],
+      time: year[Math.floor(Math.random() * year.length)] + '-' + Math.ceil(Math.random() * 12) + '-' + Math.ceil(Math.random() * 30)
+    }
+    edge.label = 'edge' + i
+    edge.name = 'edge' + i
+
+    edges.push({
+      data: edge,
+      group: 'edges',
+      id: edge.id
+    })
+  }
+  return edges
+}
+function createEdgesFromId(nodes, id) {
+  let edges = nodes.map(node => {
+    return {
+      group: 'edges',
+      data: {
+        target: node.data.id,
+        source: id,
+        id: createId('edge_'),
+        group: edgegroup[Math.floor(Math.random() * edgegroup.length)],
+        label: node.data.id + '-' + id,
+        name: node.data.id + '-' + id
+      }
+    }
+  })
+  return edges
+}
+function createData(num) {
+  let nodes = createNodes(num)
+  let edges = createEdges(nodes, num)
+  return nodes.concat(edges)// .concat(createParent(nodes))
+}
+function createChildren(id, num) {
+  let nodes = createNodes(num)
+  let edges = createEdgesFromId(nodes, id)
+  return nodes.concat(edges)
+}
+
+			document.addEventListener('DOMContentLoaded', function(){
+
+				var cy = window.cy = cytoscape({
+					container: document.getElementById('cy'),
+
+					// demo your layout
+					layout: {
+						name: 'd3-force',
+            animate: false,
+            fit: false,
+            linkId: function id(d) {
+              return d.id;
+            },
+            linkDistance: 100,
+            manyBodyStrength: -600,
+            ready: function(){
+              document.getElementById('progress-box').style.display = 'block'
+            },
+            stop: function(){
+              document.getElementById('progress-box').style.display = 'none'
+            },
+            tick: function(progress) {
+              let text = (progress * 100).toFixed(1) + '%'
+              document.getElementById('progress-text').innerHTML = `正在计算布局，请稍后 ${text}`
+              document.getElementById('progress-bar').style.width = text
+            },
+            randomize: false,
+            infinite: false
+					},
+
+					style: [
+
+						{
+							selector: 'edge',
+							style: {
+								'curve-style': 'bezier',
+								'target-arrow-shape': 'triangle'
+							}
+						}
+					],
+
+          elements: createData(5000),
+          wheelSensitivity: 0.5,
+        });
+
+
+			});
+		</script>
+	</head>
+
+	<body>
+		<h1>cytoscape-d3-force demo</h1>
+
+    <div id="cy"></div>
+    <div class="cytoscape--container__loading" id="progress-box">
+      <div class="progress-bar">
+        <div class="progress-bar__outer">
+          <div class="progress-bar__inner" id="progress-bar"></div>
+        </div>
+        <div class="progress-bar__text" id="progress-text"></div>
+      </div>  
+    <div>
+	</body>
+
+</html>

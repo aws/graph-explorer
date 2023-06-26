@@ -1,0 +1,1 @@
+{"version":3,"file":"Anchor.d.ts","sourceRoot":"","sources":["../../src/Anchor/Anchor.tsx"],"names":[],"mappings":"AAAA,OAAO,KAAqB,MAAM,OAAO,CAAC;AAG1C,OAAO,EAAQ,SAAS,EAAE,MAAM,cAAc,CAAC;AAG/C,MAAM,WAAW,WAAY,SAAQ,SAAS;IAC5C,QAAQ,CAAC,EAAE,KAAK,CAAC,SAAS,CAAC;CAC5B;AAID,eAAO,MAAM,OAAO;eAA4D,GAAG;2CAqBlF,CAAC;AAIF,eAAO,MAAM,MAAM;;;;;;mCAAwD,CAAC"}

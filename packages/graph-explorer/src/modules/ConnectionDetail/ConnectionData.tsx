@@ -12,7 +12,12 @@ import {
   VertexIcon,
 } from "../../components";
 import HumanReadableNumberFormatter from "../../components/HumanReadableNumberFormatter";
-import { fade, useWithTheme, withClassNamePrefix } from "../../core";
+import {
+  ConfigurationContextProps,
+  fade,
+  useWithTheme,
+  withClassNamePrefix,
+} from "../../core";
 import useConfiguration from "../../core/ConfigurationProvider/useConfiguration";
 import useEntitiesCounts from "../../hooks/useEntitiesCounts";
 import useTextTransform from "../../hooks/useTextTransform";
@@ -24,11 +29,11 @@ export type VertexDetailProps = {
 };
 
 const ConnectionData = ({ classNamePrefix = "ft" }: VertexDetailProps) => {
-  const config = useConfiguration();
+  const config = useConfiguration() as ConfigurationContextProps;
   const navigate = useNavigate();
   const styleWithTheme = useWithTheme();
   const pfx = withClassNamePrefix(classNamePrefix);
-  const { totalNodes, totalEdges } = useEntitiesCounts();
+  const { totalNodes, totalEdges } = useEntitiesCounts({ config });
   const textTransform = useTextTransform();
   const t = useTranslations();
 
