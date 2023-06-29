@@ -38,6 +38,12 @@ export type ConnectionDetailProps = {
 
 const HEADER_ACTIONS = (isSync: boolean, isFileBased: boolean) => [
   {
+    label: "Synchronize Database",
+    icon: <SyncIcon />,
+    value: "sync",
+    isDisabled: isSync,
+  },
+  {
     label: "Export Connection",
     icon: <TrayArrowIcon />,
     value: "export",
@@ -120,6 +126,10 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
       if (value === "export") {
         return onConfigExport();
       }
+
+      if (value === "sync") {
+        return onConfigSync();
+      }
     },
     [onConfigDelete, onConfigExport]
   );
@@ -170,21 +180,6 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
             )}
           </div>
         )}
-        <div className={pfx("item")}>
-          <div className={pfx("ft-end-adornment")}>
-            <div className={pfx("tag")}>Re-Sync</div>
-            <div className={pfx("value")}>
-              <IconButton
-                icon={<SyncIcon className={isSync ? "animate-spin" : ""} />}
-                tooltipText={"Synchronize Database"}
-                variant={"text"}
-                size={"base"}
-                isDisabled={isSync}
-                onPress={onConfigSync}
-              />
-            </div>
-          </div>
-        </div>
       </div>
       {!isSync && !!lastSyncUpdate && <ConnectionData />}
       {!lastSyncUpdate && !isSync && (

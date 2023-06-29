@@ -18,7 +18,7 @@ const defaultStyles = (pfx?: string): ThemeStyleFn => ({ theme }) => css`
     border-bottom: solid 1px ${theme.palette.divider};
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-between;
+    justify-content: flex-start;
     gap: ${theme.spacing["6x"]};
     padding: ${theme.spacing["4x"]};
 
