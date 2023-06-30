@@ -38,8 +38,8 @@ export type ConnectionDetailProps = {
 
 const HEADER_ACTIONS = (isSync: boolean, isFileBased: boolean) => [
   {
-    label: "Sync Connection",
-    icon: <SyncIcon />,
+    label: "Synchronize Database",
+    icon: <SyncIcon className={isSync ? "animate-spin" : ""} />,
     value: "sync",
     isDisabled: isSync,
   },
