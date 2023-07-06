@@ -28,8 +28,6 @@ req: NeighborsRequest
     const gremlinTemplate = oneHopTemplate(req);
     const data = await openCypherFetch<RawOneHopRequest>(gremlinTemplate);
 
-    console.log(data);
-
     const vertices: NeighborsResponse["vertices"] = data.results[0].vObjects.map(
         vertex => mapApiVertex(vertex)
     );

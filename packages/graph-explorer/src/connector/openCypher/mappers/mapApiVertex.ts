@@ -6,7 +6,6 @@ const mapApiVertex = (
   apiVertex: OCVertex,
   neighborsCount: NeighborsCountResponse = { totalCount: 0, counts: {} }
 ): Vertex => {
-  console.log(apiVertex);
   const labels = apiVertex["~labels"];
   const vt = labels[0];
 
