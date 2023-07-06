@@ -2,6 +2,7 @@ import type { Vertex } from "../../../@types/entities";
 import type { NeighborsCountResponse } from "../../AbstractConnector";
 import type { GVertex } from "../types";
 import parsePropertiesValues from "./parsePropertiesValues";
+import toStringId from "./toStringId";
 
 const mapApiVertex = (
   apiVertex: GVertex,
@@ -12,7 +13,7 @@ const mapApiVertex = (
 
   return {
     data: {
-      id: apiVertex["@value"].id,
+      id: toStringId(apiVertex["@value"].id),
       type: vt,
       types: labels,
       neighborsCount: neighborsCount?.totalCount || 0,
