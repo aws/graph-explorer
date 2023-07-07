@@ -22,6 +22,9 @@ export default class GremlinConnector extends AbstractConnector {
   protected readonly basePath = "/?gremlin=";
   private readonly _summaryPath = "/pg/statistics/summary?mode=detailed";
 
+  // Stores the id type before casting it to string
+  private _rawIdTypeMap: Map<string, "string" | "number"> = new Map();
+
   async fetchSchema(options?: QueryOptions): Promise<SchemaResponse> {
     const ops = { ...options, disableCache: true };
     let summary: GraphSummary | undefined;
@@ -50,21 +53,25 @@ export default class GremlinConnector extends AbstractConnector {
     req: NeighborsRequest,
     options: QueryOptions | undefined
   ): Promise<NeighborsResponse> {
-    return fetchNeighbors(this._gremlinFetch(options), req);
+    return fetchNeighbors(this._gremlinFetch(options), req, this._rawIdTypeMap);
   }
 
   fetchNeighborsCount(
     req: NeighborsCountRequest,
     options?: QueryOptions
   ): Promise<NeighborsCountResponse> {
-    return fetchNeighborsCount(this._gremlinFetch(options), req);
+    return fetchNeighborsCount(
+      this._gremlinFetch(options),
+      req,
+      this._rawIdTypeMap
+    );
   }
 
   keywordSearch(
     req: KeywordSearchRequest,
     options?: QueryOptions
   ): Promise<KeywordSearchResponse> {
-    return keywordSearch(this._gremlinFetch(options), req);
+    return keywordSearch(this._gremlinFetch(options), req, this._rawIdTypeMap);
   }
 
   private _gremlinFetch<TResult>(options?: QueryOptions) {

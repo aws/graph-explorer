@@ -1,6 +1,6 @@
 {
   "name": "graph-explorer-proxy-server",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Server to facilitate communication between the browser and the supported graph database.",
   "main": "node-server.js",
   "scripts": {
@@ -9,7 +9,6 @@
   "author": "amazon",
   "license": "Apache-2.0",
   "dependencies": {
-    "aws-sdk": "^2.1249.0",
     "aws4": "^1.11.0",
     "cors": "^2.8.5",
     "crypto-js": "^4.1.1",
@@ -20,6 +19,7 @@
     "https": "^1.0.0",
     "node-fetch": "^3.2.10",
     "pino": "^8.11.0",
-    "pino-pretty": "^10.0.0"
+    "pino-pretty": "^10.0.0",
+    "@aws-sdk/credential-providers": "^3.348.0"
   }
 }

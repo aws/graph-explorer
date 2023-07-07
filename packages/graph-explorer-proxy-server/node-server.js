@@ -4,12 +4,12 @@ const dotenv = require("dotenv");
 const fetch = (...args) =>
   import("node-fetch").then(({ default: fetch }) => fetch(...args));
 const app = express();
-const AWS = require("aws-sdk");
 const { RequestSig } = require("./RequestSig.js");
 const https = require("https");
 const fs = require("fs");
 const path = require("path");
 const pino = require('pino');
+const { fromNodeProviderChain } = require("@aws-sdk/credential-providers");
 
 dotenv.config({ path: "../graph-explorer/.env" });
 
@@ -26,22 +26,12 @@ const proxyLogger = pino({
 
 const getCredentials = async () => {
   let credentials;
-  let credProvider = new AWS.CredentialProviderChain();
   try {
-    credentials = await new Promise((resolve, reject) => {
-      credProvider.resolve(function (err, creds) {
-        if (err) {
-          reject(err);
-          return;
-        }
-        proxyLogger.info("Master credentials available and loaded in.");
-        resolve(creds);
-      });
-    });
+    credentials = fromNodeProviderChain()
+    proxyLogger.info("Master credentials available");
   } catch (e) {
     proxyLogger.info("No master credentials found.");
   }
-
   return credentials;
 };
 
@@ -68,7 +58,8 @@ const errorHandler = (error, request, response, next) => {
   let requestSig;
 
   app.use(cors());
-  app.use("/explorer", express.static(path.join(__dirname, "../graph-explorer/dist")));
+
+  app.use(process.env.GRAPH_EXP_ENV_ROOT_FOLDER, express.static(path.join(__dirname, "../graph-explorer/dist")));
 
   const delay = (ms) => new Promise((resolve) => setTimeout(() => resolve(), ms));
 
@@ -83,8 +74,8 @@ const errorHandler = (error, request, response, next) => {
     let reqObjects;
 
     if (creds === undefined) {
-      proxyLogger.info("Credentials undefined. Trying to find some.");
-      creds = await getCredentials();
+      proxyLogger.info("Credentials undefined. Trying refresh.");
+      let creds = await getCredentials();
       if (creds === undefined) {
         throw new Error("Credentials still undefined after attempted refresh. Check that the environment has an appropriate IAM role that trusts it and that it has sufficient read permissions to connect to Neptune.");
       }
@@ -105,14 +96,12 @@ const errorHandler = (error, request, response, next) => {
               resolve(res);
             }
           })
-          .catch(async (error) => {
-            if (n > 0) {
-              proxyLogger.info("Received an error. Attempting a credential refresh.")
-              creds = await getCredentials();
-              if (creds === undefined) {
-                error.extraInfo = "Credentials undefined after credential refresh. Check that you have proper acccess.";
-                throw error;
-              }
+          .catch(async (err) => {
+            proxyLogger.info("Attempt Credential Refresh");
+            let creds = await getCredentials();
+            if (creds === undefined) {
+              error.extraInfo = "Credentials undefined after credential refresh. Check that you have proper acccess.";
+              throw error;
             }
             reqObjects = await getRequestObjects(req.headers["graph-db-connection-url"], req.headers["aws-neptune-region"]);
             await getAuthHeaders(language, req, reqObjects[0], reqObjects[2]);

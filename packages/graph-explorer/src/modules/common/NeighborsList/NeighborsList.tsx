@@ -29,9 +29,9 @@ const NeighborsList = ({
         Neighbors ({vertex.data.neighborsCount})
       </div>
       {neighborsOptions.map(op => {
-        const inView =
+        const neighborsInView =
           vertex.data.neighborsCountByType[op.value] -
-          vertex.data.neighborsCountByType[op.value];
+          (vertex.data.__unfetchedNeighborCounts?.[op.value] ?? 0);
         return (
           <div key={op.value} className={pfx("node-item")}>
             <div className={pfx("vertex-type")}>
@@ -48,10 +48,11 @@ const NeighborsList = ({
               {op.label}
             </div>
             <div className={pfx("vertex-totals")}>
-              <Tooltip text={`${inView} ${op.label} in the Graph View`}>
+              <Tooltip
+                text={`${neighborsInView} ${op.label} in the Graph View`}
+              >
                 <Chip className={pfx("chip")} startAdornment={<VisibleIcon />}>
-                  {vertex.data.neighborsCountByType[op.value] -
-                    (vertex.data.__unfetchedNeighborCounts?.[op.value] ?? 0)}
+                  {neighborsInView}
                 </Chip>
               </Tooltip>
               <Chip className={pfx("chip")}>
