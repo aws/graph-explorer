@@ -14,8 +14,14 @@ import type { NeighborsCountRequest } from "../../AbstractConnector";
 const neighborsCountTemplate = ({
   vertexId,
   limit = 500,
-}: NeighborsCountRequest) => {
-  let template = `g.V("${vertexId}").both()`;
+  idType = "string",
+}: NeighborsCountRequest & { idType?: "string" | "number" }) => {
+  let template = "";
+  if (idType === "number") {
+    template = `g.V(${vertexId}L).both()`;
+  } else {
+    template = `g.V("${vertexId}").both()`;
+  }
 
   if (limit > 0) {
     template += `.limit(${limit})`;
