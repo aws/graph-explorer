@@ -132,9 +132,19 @@ const oneHopTemplate = ({
   filterCriteria = [],
   limit = 10,
   offset = 0,
-}: Omit<NeighborsRequest, "vertexType">): string => {
+  idType = "string",
+}: Omit<NeighborsRequest, "vertexType"> & {
+  idType?: "string" | "number";
+}): string => {
   const range = `.range(${offset}, ${offset + limit})`;
-  let template = `g.V("${vertexId}").project("vertices", "edges")`;
+  let template = "";
+  if (idType === "number") {
+    template = `g.V(${vertexId}L)`;
+  } else {
+    template = `g.V("${vertexId}")`;
+  }
+
+  template += `.project("vertices", "edges")`;
 
   const hasLabelContent = filterByVertexTypes
     .flatMap(type => type.split("::"))

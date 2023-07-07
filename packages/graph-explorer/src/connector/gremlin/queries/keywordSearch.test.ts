@@ -8,7 +8,7 @@ describe("Gremlin > keywordSearch", () => {
   it("Should return 1 random node", async () => {
     const keywordResponse = await keywordSearch(mockGremlinFetch(), {
       limit: 1,
-    });
+    }, new Map());
 
     expect(keywordResponse).toMatchObject({
       vertices: [
@@ -45,7 +45,7 @@ describe("Gremlin > keywordSearch", () => {
       vertexTypes: ["airport"],
       searchByAttributes: ["code"],
       searchById: false
-    });
+    }, new Map());
 
     expect(keywordResponse).toMatchObject({
       vertices: [

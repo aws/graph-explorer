@@ -1,15 +1,16 @@
 import type { Edge } from "../../../@types/entities";
 import type { GEdge } from "../types";
 import parseEdgePropertiesValues from "./parseEdgePropertiesValues";
+import toStringId from "./toStringId";
 
 const mapApiEdge = (apiEdge: GEdge): Edge => {
   return {
     data: {
-      id: apiEdge["@value"].id,
+      id: toStringId(apiEdge["@value"].id),
       type: apiEdge["@value"].label,
-      source: apiEdge["@value"].outV,
+      source: toStringId(apiEdge["@value"].outV),
       sourceType: apiEdge["@value"].outVLabel,
-      target: apiEdge["@value"].inV,
+      target: toStringId(apiEdge["@value"].inV),
       targetType: apiEdge["@value"].inVLabel,
       attributes: parseEdgePropertiesValues(apiEdge["@value"].properties || {}),
     },

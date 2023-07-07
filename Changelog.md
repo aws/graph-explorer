@@ -3,6 +3,21 @@
 ## Upcoming
 
 
+## Release 1.2.0
+
+This release includes the following feature enhancements and bug fixes:
+
+**Features**
+- Significantly reduced size of Docker image (https://github.com/aws/graph-explorer/pull/104)
+- Improved schema synchronization performance via Summary API integration (https://github.com/aws/graph-explorer/pull/80)
+- Improved error messaging when no/insufficient IAM role is found (https://github.com/aws/graph-explorer/pull/81)
+- Updated Connections UI documentation for single server changes (https://github.com/aws/graph-explorer/pull/59)
+- Added manual trigger for ECR updates (https://github.com/aws/graph-explorer/pull/68)
+
+**Bug fixes**
+- Fixed incorrect display of non-string IDs for Gremlin (https://github.com/aws/graph-explorer/pull/60)
+- Fixed a database synchronization error caused by white spaces in labels for Gremlin requests (https://github.com/aws/graph-explorer/pull/84)
+
 ## Release 1.1.0
 
 This release includes the following feature enhancements and bug fixes:
