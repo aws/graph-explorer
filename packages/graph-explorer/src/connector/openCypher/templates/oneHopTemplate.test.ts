@@ -1,6 +1,6 @@
 import oneHopTemplate from "./oneHopTemplate";
 
-describe("Gremlin > oneHopTemplate", () => {
+describe("OpenCypher > oneHopTemplate", () => {
   it("Should return a template for a simple vertex id", () => {
     const template = oneHopTemplate({
       vertexId: "12",

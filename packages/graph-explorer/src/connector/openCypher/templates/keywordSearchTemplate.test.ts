@@ -1,6 +1,6 @@
 import keywordSearchTemplate from "./keywordSearchTemplate";
 
-describe("Gremlin > keywordSearchTemplate", () => {
+describe("OpenCypher > keywordSearchTemplate", () => {
   it("Should return a template only for vertex type", () => {
     const template = keywordSearchTemplate({
       vertexTypes: ["airport"],

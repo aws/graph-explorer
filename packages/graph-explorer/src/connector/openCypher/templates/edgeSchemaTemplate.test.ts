@@ -1,6 +1,6 @@
 import edgesSchemaTemplate from "./edgesSchemaTemplate";
 
-describe("Gremlin > edgesSchemaTemplate", () => {
+describe("OpenCypher > edgesSchemaTemplate", () => {
   it("Should return a template with the projection of each type", () => {
     const template = edgesSchemaTemplate({ type: "route" });
 
