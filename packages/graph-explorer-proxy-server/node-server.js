@@ -4,30 +4,20 @@ const dotenv = require("dotenv");
 const fetch = (...args) =>
   import("node-fetch").then(({ default: fetch }) => fetch(...args));
 const app = express();
-const AWS = require("aws-sdk");
 const { RequestSig } = require("./RequestSig.js");
 const https = require("https");
 const fs = require("fs");
 const path = require("path");
+const { fromNodeProviderChain } = require("@aws-sdk/credential-providers");
 
 const getCredentials = async () => {
   let credentials;
-  let credProvider = new AWS.CredentialProviderChain();
   try {
-    credentials = await new Promise((resolve, reject) => {
-      credProvider.resolve(function (err, creds) {
-        if (err) {
-          reject(err);
-          return;
-        }
-        console.log("Master credentials available");
-        resolve(creds);
-      });
-    });
+    credentials = fromNodeProviderChain()
+    console.log("Master credentials available");
   } catch (e) {
     console.error("No master credentials available", e);
   }
-
   return credentials;
 };
 
@@ -39,7 +29,7 @@ dotenv.config({ path: "../graph-explorer/.env" });
 
   app.use(cors());
 
-  app.use("/explorer", express.static(path.join(__dirname, "../graph-explorer/dist")));
+  app.use(process.env.GRAPH_EXP_ENV_ROOT_FOLDER, express.static(path.join(__dirname, "../graph-explorer/dist")));
 
   const delay = (ms) => new Promise((resolve) => setTimeout(() => resolve(), ms));
 
@@ -55,7 +45,7 @@ dotenv.config({ path: "../graph-explorer/.env" });
 
     if (creds === undefined) {
       console.error("Credentials undefined. Trying refresh.");
-      creds = await getCredentials();
+      let creds = await getCredentials();
       if (creds === undefined) {
         throw new Error("Credentials still undefined. Check that the environment has an appropriate IAM role that trusts it and that it has sufficient read permissions to connect to Neptune.")
       }
@@ -80,7 +70,7 @@ dotenv.config({ path: "../graph-explorer/.env" });
           })
           .catch(async (err) => {
             console.log("Attempt Credential Refresh");
-            creds = await getCredentials();
+            let creds = await getCredentials();
             if (creds === undefined) {
               reject("Credentials undefined after credential refresh. Check that you have proper acccess")
             }

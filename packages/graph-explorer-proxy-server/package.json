@@ -9,7 +9,6 @@
   "author": "amazon",
   "license": "Apache-2.0",
   "dependencies": {
-    "aws-sdk": "^2.1249.0",
     "aws4": "^1.11.0",
     "cors": "^2.8.5",
     "crypto-js": "^4.1.1",
@@ -18,6 +17,7 @@
     "express": "^4.18.2",
     "fs": "0.0.1-security",
     "https": "^1.0.0",
-    "node-fetch": "^3.2.10"
+    "node-fetch": "^3.2.10",
+    "@aws-sdk/credential-providers": "^3.348.0"
   }
 }

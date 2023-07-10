@@ -86,8 +86,10 @@
   },
   "devDependencies": {
     "@babel/core": "^7.19.3",
+    "@babel/plugin-syntax-import-meta": "^7.10.4",
     "@babel/preset-env": "^7.19.4",
     "@babel/preset-react": "^7.18.6",
+    "@babel/preset-typescript": "^7.22.5",
     "@react-aria/overlays": "3.9.1",
     "@react-stately/radio": "^3.5.0",
     "@react-types/button": "^3.6.1",
@@ -120,7 +122,8 @@
     "@types/react-transition-group": "^4.4.5",
     "@types/uuid": "^8.3.4",
     "@typescript-eslint/eslint-plugin": "^5.40.0",
-    "@vitejs/plugin-react": "^2.0.1",
+    "@typescript-eslint/parser": "^5.41.0",
+    "@vitejs/plugin-react": "^4.0.0",
     "babel-jest": "^28.1.3",
     "buffer": "^6.0.3",
     "esbuild-loader": "^2.19.0",
@@ -130,6 +133,7 @@
     "husky": "^8.0.0",
     "jest": "^28.1.3",
     "jest-environment-jsdom": "^29.0.1",
+    "jest-localstorage-mock": "^2.4.26",
     "lint-staged": "^13.0.3",
     "prettier": "2.1.2",
     "react-test-renderer": "^17.0.2",
@@ -139,7 +143,7 @@
     "tslib": "^2.4.0",
     "type-fest": "^2.19.0",
     "typescript": "^4.8.4",
-    "vite": "^3.0.7",
+    "vite": "^4.3.9",
     "webpack": "^5.74.0"
   },
   "lint-staged": {

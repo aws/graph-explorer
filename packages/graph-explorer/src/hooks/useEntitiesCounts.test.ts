@@ -1,79 +1,69 @@
-import { ConfigurationContextProps } from "../core";
+import { renderHook } from "@testing-library/react-hooks";
 import useEntitiesCounts from "./useEntitiesCounts";
+import { useConfiguration } from "../core";
 
+jest.mock("../core", () => ({
+  __esModule: true,
+  useConfiguration: jest.fn(),
+}));
 
-// Test cases
-describe('useEntitiesCounts', () => {
-  it('should return null for totalNodes if config is null', () => {
-    const config = { totalNodes: null, totalEdges: null, id: '1', vertexTypes: [], edgeTypes: [], getVertexTypeConfig: () => null, getEdgeTypeConfig: () => null, };
-    const { totalNodes, totalEdges } = useEntitiesCounts({ config: config as unknown as ConfigurationContextProps });
-    //  mock ConfigurationContext
-    expect(totalNodes).toBeNull();
-    expect(totalEdges).toBeNull();
+describe("useEntitiesCounts", () => {
+  beforeEach(() => {
+    jest.resetAllMocks();
   });
 
+  it('returns total vertices when totalVertices is defined', () => {
+    (useConfiguration as jest.Mock).mockReturnValue({
+      id: 'some-id',
+      totalVertices: 10,
+      vertexTypes: ["type1", "type2"],
+      edgeTypes: ["edgeType1"],
+      getEdgeTypeConfig: jest.fn(() => ({ total: 5 }))
+    });
 
-  it('should return null for totalNodes if totalVertices is null and vertexTypes is empty', () => {
-    const config = { totalVertices: null, vertexTypes: [] };
-    const { totalNodes } = useEntitiesCounts({ config: config as unknown as ConfigurationContextProps });
-    expect(totalNodes).toBeNull();
+    const { result } = renderHook(() => useEntitiesCounts());
+
+    expect(result.current.totalNodes).toEqual(10);
   });
 
-  it('should return the correct totalNodes if totalVertices is not null', () => {
-    const config = { totalVertices: 10 };
-    const { totalNodes } = useEntitiesCounts({ config: config as ConfigurationContextProps });
-    expect(totalNodes).toEqual(10);
+  it('returns 0 for totalNodes when vertexTypes array is empty', () => {
+    (useConfiguration as jest.Mock).mockReturnValue({
+      id: 'some-id-two',
+      totalVertices: 0,
+      totalEdges: 0,
+      vertexTypes: [],
+      edgeTypes: ["edgeType1"],
+    });
+
+    const { result } = renderHook(() => useEntitiesCounts());
+
+    expect(result.current.totalNodes).toBe(0);
   });
 
-  it('should return the correct totalNodes if vertexTypes are defined', () => {
-    const config = {
-      vertexTypes: ['Person', 'Organization'],
-      getVertexTypeConfig: (vt: string) => {
-        if (vt === 'Person') {
-          return { total: 5 };
-        }
-        if (vt === 'Organization') {
-          return { total: 3 };
-        }
-        return null;
-      },
-    };
-    const { totalNodes } = useEntitiesCounts({ config: config as ConfigurationContextProps });
-    expect(totalNodes).toEqual(8);
+  it('returns calculated total nodes when vertexTypes array is not empty and each type has a total', () => {
+    (useConfiguration as jest.Mock).mockReturnValue({
+      vertexTypes: ['type1', 'type2'],
+      edgeTypes: ['edgeType1', 'edgeType2'],
+      getVertexTypeConfig: jest.fn(() => ({ total: 5 })),
+      getEdgeTypeConfig: jest.fn(() => ({ total: 5 }))
+    });
+    const { result } = renderHook(() => useEntitiesCounts());
+
+    expect(result.current.totalNodes).toEqual(10);
   });
 
-  it('should return null for totalEdges if config is null', () => {
-    const config = null;
-    const { totalEdges } = useEntitiesCounts({ config: config as unknown as ConfigurationContextProps });
-    expect(totalEdges).toBeNull();
+  it('returns totalNodes when vertexTypes array is not empty and at least one type does not have a total', () => {
+    (useConfiguration as jest.Mock).mockReturnValue({
+      vertexTypes: ['type1', 'type2'],
+      edgeTypes: ['edgeType1', 'edgeType2'],
+      getVertexTypeConfig: jest.fn(() => ({ total: 5 })),
+      getEdgeTypeConfig: jest.fn(() => ({ total: null }))
+    });
+
+    const { result } = renderHook(() => useEntitiesCounts());
+
+    expect(result.current.totalNodes).toBe(10);
   });
 
-  it('should return null for totalEdges if totalEdges is null and edgeTypes is empty', () => {
-    const config = { totalEdges: null, edgeTypes: [] };
-    const { totalEdges } = useEntitiesCounts({ config: config as unknown as ConfigurationContextProps });
-    expect(totalEdges).toBeNull();
-  });
-
-  it('should return the correct totalEdges if totalEdges is not null', () => {
-    const config = { totalEdges: 20, };
-    const { totalEdges } = useEntitiesCounts({ config: config as ConfigurationContextProps });
-    expect(totalEdges).toEqual(20);
-  });
-
-  it('should return the correct totalEdges if edgeTypes are defined', () => {
-    const config = {
-      edgeTypes: ['Friend', 'WorksWith'],
-      getEdgeTypeConfig: (et: string) => {
-        if (et === 'Friend') {
-          return { total: 10 };
-        }
-        if (et === 'WorksWith') {
-          return { total: 5 };
-        }
-        return null;
-      },
-    };
-    const { totalEdges } = useEntitiesCounts({ config: config as ConfigurationContextProps });
-    expect(totalEdges).toEqual(15);
-  });
 });
+

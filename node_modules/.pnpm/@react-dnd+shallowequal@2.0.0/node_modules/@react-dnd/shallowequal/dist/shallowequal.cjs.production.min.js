@@ -1,2 +1,0 @@
-"use strict";exports.shallowEqual=function(r,t,e,o){var n=e?e.call(o,r,t):void 0;if(void 0!==n)return!!n;if(r===t)return!0;if("object"!=typeof r||!r||"object"!=typeof t||!t)return!1;var i=Object.keys(r),a=Object.keys(t);if(i.length!==a.length)return!1;for(var f=Object.prototype.hasOwnProperty.bind(t),l=0;l<i.length;l++){var u=i[l];if(!f(u))return!1;var c=r[u],v=t[u];if(!1===(n=e?e.call(o,c,v,u):void 0)||void 0===n&&c!==v)return!1}return!0};
-//# sourceMappingURL=shallowequal.cjs.production.min.js.map

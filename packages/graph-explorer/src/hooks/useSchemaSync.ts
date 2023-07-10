@@ -93,30 +93,3 @@ const useSchemaSync = (onSyncChange?: (isSyncing: boolean) => void) => {
 };
 
 export default useSchemaSync;
-
-
-//  write tests for this hook useSchemaSync
-describe("useSchemaSync", () => {
-  it("should be defined", () => {
-    expect(useSchemaSync).toBeDefined();
-  });
-
-  it("should be a function", () => {
-    expect(useSchemaSync).toBeInstanceOf(Function);
-  }
-  );
-  it("should return a function", () => {
-    expect(useSchemaSync()).toBeInstanceOf(Function);
-  }
-  );
-  it("should return a function that returns a promise", () => {
-    expect(useSchemaSync()()).toBeInstanceOf(Promise);
-  }
-  );
-  it("should return a function that returns a promise that resolves to undefined", async () => {
-    expect(await useSchemaSync()()).toBeUndefined();
-  }
-  );
-  //  it 
-
-});

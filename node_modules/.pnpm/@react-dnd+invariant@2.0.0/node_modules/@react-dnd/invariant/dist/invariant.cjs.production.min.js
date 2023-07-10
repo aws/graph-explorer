@@ -1,2 +1,0 @@
-"use strict";exports.invariant=function(r,e){for(var n=arguments.length,i=new Array(n>2?n-2:0),o=2;o<n;o++)i[o-2]=arguments[o];if(!r){var a;if(void 0===e)a=new Error("Minified exception occurred; use the non-minified dev environment for the full error message and additional helpful warnings.");else{var t=0;(a=new Error(e.replace(/%s/g,(function(){return i[t++]})))).name="Invariant Violation"}throw a.framesToPop=1,a}};
-//# sourceMappingURL=invariant.cjs.production.min.js.map

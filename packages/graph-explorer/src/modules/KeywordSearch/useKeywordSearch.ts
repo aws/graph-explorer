@@ -90,9 +90,8 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
       .slice(0, 5)
       .join(", ");
 
-    return `Search for ${
-      vertexOptions.find(vt => vt.value === selectedVertexType)?.label
-    } by ${attributes || searchById}`;
+    return `Search for ${vertexOptions.find(vt => vt.value === selectedVertexType)?.label
+      } by ${attributes || searchById}`;
   }, [
     config,
     searchableAttributes,
