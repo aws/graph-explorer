@@ -12,7 +12,7 @@ describe("useEntitiesCounts", () => {
     jest.resetAllMocks();
   });
 
-  it('returns total vertices when totalVertices is defined', () => {
+  it('should return total vertices when totalVertices is defined', () => {
     (useConfiguration as jest.Mock).mockReturnValue({
       id: 'some-id',
       totalVertices: 10,
@@ -26,7 +26,7 @@ describe("useEntitiesCounts", () => {
     expect(result.current.totalNodes).toEqual(10);
   });
 
-  it('returns 0 for totalNodes when vertexTypes array is empty', () => {
+  it('should return 0 for totalNodes when vertexTypes array is empty', () => {
     (useConfiguration as jest.Mock).mockReturnValue({
       id: 'some-id-two',
       totalVertices: 0,
@@ -40,7 +40,7 @@ describe("useEntitiesCounts", () => {
     expect(result.current.totalNodes).toBe(0);
   });
 
-  it('returns calculated total nodes when vertexTypes array is not empty and each type has a total', () => {
+  it('should return calculated total nodes when vertexTypes array is not empty and each type has a total', () => {
     (useConfiguration as jest.Mock).mockReturnValue({
       vertexTypes: ['type1', 'type2'],
       edgeTypes: ['edgeType1', 'edgeType2'],
@@ -52,7 +52,7 @@ describe("useEntitiesCounts", () => {
     expect(result.current.totalNodes).toEqual(10);
   });
 
-  it('returns totalNodes when vertexTypes array is not empty and at least one type does not have a total', () => {
+  it('should return totalNodes when vertexTypes array is not empty and at least one type does not have a total', () => {
     (useConfiguration as jest.Mock).mockReturnValue({
       vertexTypes: ['type1', 'type2'],
       edgeTypes: ['edgeType1', 'edgeType2'],

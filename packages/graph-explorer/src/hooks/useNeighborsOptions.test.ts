@@ -26,8 +26,6 @@ describe('useNeighborsOptions', () => {
     } as unknown as Vertex;
 
     it('should return neighbors options correctly', () => {
-        // Mock return values for useConfiguration and useTextTransform
-
         (useConfiguration as jest.Mock).mockReturnValue({
             getVertexTypeConfig: (type: any) => {
                 return { displayLabel: `Label ${type}` };
