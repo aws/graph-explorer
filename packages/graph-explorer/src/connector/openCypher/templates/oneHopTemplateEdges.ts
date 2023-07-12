@@ -101,14 +101,15 @@ const criterionTemplate = (criterion: Criterion): string => {
  * SKIP 0
  * LIMIT 10
  */
-const oneHopTemplate = ({
+const oneHopTemplateEdges = ({
     vertexId,
     filterByVertexTypes = [],
     edgeTypes = [],
     filterCriteria = [],
     limit = 10,
     offset = 0,
-  }: Omit<NeighborsRequest, "vertexType">): string => {
+    edgeIds = [],
+  }: Omit<NeighborsRequest, "vertexType"> & {edgeIds: string[] | undefined;}): string => {
     let template = `MATCH (v)`;
   
     const formattedVertexTypes = filterByVertexTypes
@@ -116,6 +117,7 @@ const oneHopTemplate = ({
       .map(type => `v:${type}`)
       .join(" OR ");
     const formattedEdgeTypes = edgeTypes.map(type => `${type}`).join("|");
+    const formattedEdgeIds = edgeIds.map(id => `\"${id}\"`).join(",");
 
     if (edgeTypes.length > 0) {
         template += `-[e:${formattedEdgeTypes}]-`;
@@ -124,11 +126,11 @@ const oneHopTemplate = ({
     }
     
     if (filterByVertexTypes.length == 1) {
-      template += `(tgt:${filterByVertexTypes[0]}) WHERE ID(v) = \"${vertexId}\" `;
+      template += `(tgt:${filterByVertexTypes[0]}) WHERE ID(v) = \"${vertexId}\" AND ID(e) IN [${formattedEdgeIds}] `;
     } else if (filterByVertexTypes.length > 1) {
-      template += `(tgt) WHERE ID(v) = \"${vertexId}\" AND ${formattedVertexTypes}`;
+      template += `(tgt) WHERE ID(v) = \"${vertexId}\" AND ${formattedVertexTypes} AND ID(e) IN [${formattedEdgeIds}] `;
     } else {
-      template += `(tgt) WHERE ID(v) = \"${vertexId}\" `;
+      template += `(tgt) WHERE ID(v) = \"${vertexId}\" AND ID(e) IN [${formattedEdgeIds}] `;
     }
   
     let filterCriteriaTemplate = filterCriteria?.map(criterionTemplate).join(" AND ");
@@ -141,4 +143,4 @@ const oneHopTemplate = ({
     return template;
   };
 
-export default oneHopTemplate;
+export default oneHopTemplateEdges;

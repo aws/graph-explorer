@@ -38,6 +38,9 @@ const keywordSearchTemplate = ({
       searchById ? ["id", ...searchByAttributes] : searchByAttributes
     )
       .map((attr: any) => {
+        if (attr === "id") {
+          return `v.\`~id\` CONTAINS "${searchTerm}" `;
+        }
         return `v.${attr} CONTAINS "${searchTerm}" `;
       })
       .join(` OR `);

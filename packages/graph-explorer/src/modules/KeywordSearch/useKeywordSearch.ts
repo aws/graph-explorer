@@ -156,7 +156,7 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
           searchTerm: debouncedSearchTerm,
           vertexTypes,
           searchByAttributes,
-          searchById: searchableAttributes.length === 0,
+          searchById: true,
         },
         { abortSignal: controller.signal }
       ) as PromiseWithCancel<KeywordSearchResponse>;

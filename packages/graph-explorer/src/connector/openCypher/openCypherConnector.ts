@@ -36,38 +36,38 @@ import type {
         }
       }
   
-      return fetchSchema(this._gremlinFetch(ops), summary);
+      return fetchSchema(this._openCypherFetch(ops), summary);
     }
   
     fetchVertexCountsByType(
       req: CountsByTypeRequest,
       options: QueryOptions | undefined
     ): Promise<CountsByTypeResponse> {
-      return fetchVertexTypeCounts(this._gremlinFetch(options), req);
+      return fetchVertexTypeCounts(this._openCypherFetch(options), req);
     }
   
     fetchNeighbors(
       req: NeighborsRequest,
       options: QueryOptions | undefined
     ): Promise<NeighborsResponse> {
-      return fetchNeighbors(this._gremlinFetch(options), req);
+      return fetchNeighbors(this._openCypherFetch(options), req);
     }
   
     fetchNeighborsCount(
       req: NeighborsCountRequest,
       options?: QueryOptions
     ): Promise<NeighborsCountResponse> {
-      return fetchNeighborsCount(this._gremlinFetch(options), req);
+      return fetchNeighborsCount(this._openCypherFetch(options), req);
     }
   
     keywordSearch(
       req: KeywordSearchRequest,
       options?: QueryOptions
     ): Promise<KeywordSearchResponse> {
-      return keywordSearch(this._gremlinFetch(options), req);
+      return keywordSearch(this._openCypherFetch(options), req);
     }
   
-    private _gremlinFetch<TResult>(options?: QueryOptions) {
+    private _openCypherFetch<TResult>(options?: QueryOptions) {
       return async (queryTemplate: string) => {
         return super.requestQueryTemplate<TResult>(queryTemplate, {
           signal: options?.abortSignal,

@@ -15,8 +15,8 @@ const fetchNeighborsCount = async (
 openCypherFetch: OpenCypherFetch,
 req: NeighborsCountRequest
 ): Promise<NeighborsCountResponse> => {
-    const gremlinTemplate = neighborsCountTemplate(req);
-    const data = await openCypherFetch<RawNeighborsCountResponse>(gremlinTemplate);
+    const openCypherTemplate = neighborsCountTemplate(req);
+    const data = await openCypherFetch<RawNeighborsCountResponse>(openCypherTemplate);
 
     const results = data.results;
     const counts: Record<string, number> = {};
