@@ -129,6 +129,16 @@ To set up a connection in Graph Explorer UI with AWS IAM auth enabled on Neptune
 
 For further information on how AWS credentials are resolved in Graph Explorer, refer to this [documentation](https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/CredentialProviderChain.html).
 
+## Logging
+
+Logs are, by default, sent to the console and will be visible as output to the docker logs. If you want to access the full set of logs, you can run `docker logs {container name or id}`. The log level will be set via the `LOG_LEVEL` env variable at `/packages/graph-explorer/.env` where the possible options, from highest to lowest, are `error`, `warn`, `info`, `debug`, and `trace` such that `error` is the highest level and will only include logs labeled as errors and `trace` the lowest and will include any type of log. By default, the log level is set to `info` and the only type of logs generated are those of `error`, `info`, or `debug`. If you need more detailed logs, you can change the log level from `info` in the default .env file to `debug` and the logs will begin printing the error's stack trace.
+
+Within node-server.js, you'll notice three things.
+
+1. A proxyLogger object - This is responsible for actually recording the logs.
+2. An errorHandler - This automatically sends errors to the proxyLogger and can log extra information by adding wanted text to the error object at a key called extraInfo. 
+3. An endpoint called `/logger` - This is how you would log things from the browser. It needs a log level and message header passed and you can then expect to see the message logged at the provided log level.
+
 
 ## Contributing Guidelines
 
