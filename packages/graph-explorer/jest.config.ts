@@ -14,17 +14,22 @@ const config: Config = {
     "node_modules/(?!(swiper|dom7)/)",
     "node_modules/(?!(react-dnd-html5-backend)/)"
   ],
-  coverageDirectory: '../coverage',
   testPathIgnorePatterns: [
     '<rootDir>/node_modules/'
-  ],
-  collectCoverageFrom: [
-    '**/*.(t|j)s',
   ],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/packages/$1/src',
   },
-  coverageReporters: ['text', 'lcov'],
+  coverageDirectory: '../coverage',
+  collectCoverage: true, // collect coverage info
+  collectCoverageFrom: [
+    "src/**/*.{js,ts}", // specify the files to collect coverage from
+  ],
+  coverageReporters: ["json", "lcov", "text", "clover"], // lcov is required by Codecov
+  "reporters": [
+    "default",
+    "jest-github-actions-reporter"
+  ],
 };
 
 export default config;

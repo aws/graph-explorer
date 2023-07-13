@@ -1,1 +1,3 @@
 **/node_modules/
+**/coverage/
+/packages/graph-explorer/junit.xml
