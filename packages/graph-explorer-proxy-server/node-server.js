@@ -10,18 +10,14 @@ const fs = require("fs");
 const path = require("path");
 const { fromNodeProviderChain } = require("@aws-sdk/credential-providers");
 
-const credentialProvider = fromNodeProviderChain()
-const creds = credentialProvider();
-
 const getCredentials = async () => {
   try {
-    return await creds.then(function(results){
-      console.log("Credentials retrieved");
-      console.log(results)
-      return results
-    });
+    const credentialProvider = fromNodeProviderChain();
+    const results = await credentialProvider();
+    console.log("IAM credentials were found in provider chain and will be used to sign requests");
+    return results;
   } catch (e) {
-    console.error("No IAM credentials available", e);
+    console.error("No IAM credentials found in provider chain", e);
   }
 };
 
@@ -64,11 +60,11 @@ dotenv.config({ path: "../graph-explorer/.env" });
           .then(async res => {
 
             if (!res.ok) {
-              console.log("Response not ok");
+              console.log("Bad response: "+res.statusText);
               const error = res.status
               return Promise.reject(error);
             } else {
-              console.log("Response ok");
+              console.log("Successful response: "+res.statusText);
               resolve(res);
             }
           })
