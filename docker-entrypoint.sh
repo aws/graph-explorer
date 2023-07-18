@@ -2,7 +2,7 @@
 
 ./process-environment.sh
 
-PROXY_SERVER_HTTPS_CONNECTION_VALUE = $(grep -e 'PROXY_SERVER_HTTPS_CONNECTION' ./packages/graph-explorer/.env | cut -d "=" -f 2)
+PROXY_SERVER_HTTPS_CONNECTION_VALUE=$(grep -e 'PROXY_SERVER_HTTPS_CONNECTION' ./packages/graph-explorer/.env | cut -d "=" -f 2)
 
 if [ -n "$PROXY_SERVER_HTTPS_CONNECTION_VALUE" ] && [ "$PROXY_SERVER_HTTPS_CONNECTION_VALUE" == "true" ]; then
 
