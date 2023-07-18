@@ -10,15 +10,19 @@ const fs = require("fs");
 const path = require("path");
 const { fromNodeProviderChain } = require("@aws-sdk/credential-providers");
 
+const credentialProvider = fromNodeProviderChain()
+const creds = credentialProvider();
+
 const getCredentials = async () => {
-  let credentials;
   try {
-    credentials = fromNodeProviderChain()
-    console.log("Master credentials available");
+    return await creds.then(function(results){
+      console.log("Credentials retrieved");
+      console.log(results)
+      return results
+    });
   } catch (e) {
-    console.error("No master credentials available", e);
+    console.error("No IAM credentials available", e);
   }
-  return credentials;
 };
 
 dotenv.config({ path: "../graph-explorer/.env" });
