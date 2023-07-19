@@ -11,9 +11,20 @@ if [ -f "./config.json" ]; then
     GRAPH_CONNECTION_URL=$(echo "$json" | grep -o '"GRAPH_CONNECTION_URL":[^,}]*' | cut -d '"' -f 4)
     AWS_REGION=$(echo "$json" | grep -o '"AWS_REGION":[^,}]*' | cut -d '"' -f 4)
     PROXY_SERVER_HTTPS_CONNECTION=$(echo "$json" | grep -o '"PROXY_SERVER_HTTPS_CONNECTION":[^,}]*' | cut -d ':' -f 2 | tr -d '[:space:]' | sed 's/"//g')
+    GRAPH_EXP_HTTPS_CONNECTION=$(echo "$json" | grep -o '"GRAPH_EXP_HTTPS_CONNECTION":[^,}]*' | cut -d ':' -f 2 | tr -d '[:space:]' | sed 's/"//g')
 fi
 
-echo -e "\nPROXY_SERVER_HTTPS_CONNECTION=${PROXY_SERVER_HTTPS_CONNECTION}" >> ./packages/graph-explorer/.env
+if [ -n "$PROXY_SERVER_HTTPS_CONNECTION" ]; then
+  echo -e "\nPROXY_SERVER_HTTPS_CONNECTION=${PROXY_SERVER_HTTPS_CONNECTION}" >> ./packages/graph-explorer/.env
+else
+  echo -e "\nPROXY_SERVER_HTTPS_CONNECTION=true" >> ./packages/graph-explorer/.env
+fi
+
+if [ -n "$GRAPH_EXP_HTTPS_CONNECTION" ]; then
+  echo -e "\nGRAPH_EXP_HTTPS_CONNECTION=${GRAPH_EXP_HTTPS_CONNECTION}" >> ./packages/graph-explorer/.env
+else
+  echo -e "\nGRAPH_EXP_HTTPS_CONNECTION=true" >> ./packages/graph-explorer/.env
+fi
 
 # Update the .env file with the configuration values
 if [ -n "$PUBLIC_OR_PROXY_ENDPOINT" ]; then 
