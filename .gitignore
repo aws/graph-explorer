@@ -1,3 +1,4 @@
 node_modules/
 packages/graph-explorer-proxy-server/node_modules/
 packages/graph-explorer/node_modules/
+packages/graph-explorer/dist/
