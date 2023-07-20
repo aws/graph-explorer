@@ -151,6 +151,8 @@ dotenv.config({ path: "../graph-explorer/.env" });
   app.get("/", async (req, res, next) => {
     let response;
     let data;
+
+    console.log('------------------ root api')
     try {
       response = await retryFetch(`${req.headers["graph-db-connection-url"]}/?gremlin=` +
         encodeURIComponent(req.query.gremlin), undefined, undefined, req, "gremlin").then((res) => res)
@@ -166,6 +168,8 @@ dotenv.config({ path: "../graph-explorer/.env" });
   app.get("/pg/statistics/summary", async (req, res, next) => {
     let response;
     let data;
+
+    console.log('----------------- summary api')
     try {
       response = await retryFetch(`${req.headers["graph-db-connection-url"]}/pg/statistics/summary`, undefined, undefined, req, "gremlin").then((res) => res)
 

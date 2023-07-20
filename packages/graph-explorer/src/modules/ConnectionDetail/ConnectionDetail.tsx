@@ -143,12 +143,12 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
 
   return (
     <ModuleContainer className={styleWithTheme(defaultStyles("ft"))}>
-      <ModuleContainerHeader
+      {/* <ModuleContainerHeader
         title={config.displayLabel || config.id}
         startAdornment={<DatabaseIcon />}
         actions={HEADER_ACTIONS(isSync, config.__fileBase === true)}
         onActionClick={onActionClick}
-      />
+      /> */}
       <div className={pfx("info-bar")}>
         <div className={pfx("item")}>
           <div className={pfx("tag")}>Type</div>
@@ -156,10 +156,10 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
             {t("connection-detail.graph-type")}
           </div>
         </div>
-        <div className={pfx("item")}>
+        {/* <div className={pfx("item")}>
           <div className={pfx("tag")}>URL</div>
           <div className={pfx("value")}>{config.connection?.url}</div>
-        </div>
+        </div> */}
         {!!lastSyncUpdate && (
           <div className={pfx("item")}>
             <div className={pfx("tag")}>
