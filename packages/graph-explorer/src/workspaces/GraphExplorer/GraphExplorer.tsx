@@ -40,7 +40,7 @@ import KeywordSearch from "../../modules/KeywordSearch/KeywordSearch";
 import Namespaces from "../../modules/Namespaces/Namespaces";
 import NodeExpand from "../../modules/NodeExpand";
 import NodesStyling from "../../modules/NodesStyling/NodesStyling";
-import TopBarWithLogo from "../common/TopBarWithLogo";
+// import TopBarWithLogo from "../common/TopBarWithLogo";
 import defaultStyles from "./GraphExplorer.styles";
 
 export type GraphViewProps = {
@@ -183,15 +183,15 @@ const GraphExplorer = ({ classNamePrefix = "ft" }: GraphViewProps) => {
         pfx("graph-explorer")
       )}
     >
-      <TopBarWithLogo>
-        <Workspace.TopBar.Title>
+      <Workspace.TopBar>
+        {/* <Workspace.TopBar.Title>
           <div>
             <div className={pfx("top-bar-title")}>Graph Explorer</div>
             <div className={pfx("top-bar-subtitle")}>
               Active connection: {config?.displayLabel || config?.id}
             </div>
           </div>
-        </Workspace.TopBar.Title>
+        </Workspace.TopBar.Title> */}
         <Workspace.TopBar.Content>
           <KeywordSearch />
         </Workspace.TopBar.Content>
@@ -227,7 +227,7 @@ const GraphExplorer = ({ classNamePrefix = "ft" }: GraphViewProps) => {
             </Button>
           </Link>
         </Workspace.TopBar.AdditionalControls>
-      </TopBarWithLogo>
+      </Workspace.TopBar>
 
       <Workspace.Content>
         {toggles.size === 0 && (
