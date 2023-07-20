@@ -1,32 +1,32 @@
 import { Modal } from "@mantine/core";
 import { useCallback, useState } from "react";
-import { useRecoilCallback } from "recoil";
+// import { useRecoilCallback } from "recoil";
 import {
   Chip,
-  DatabaseIcon,
-  DeleteIcon,
-  EditIcon,
-  IconButton,
+  // DatabaseIcon,
+  // DeleteIcon,
+  // EditIcon,
+  // IconButton,
   ModuleContainer,
-  ModuleContainerHeader,
+  // ModuleContainerHeader,
   PanelEmptyState,
   SyncIcon,
-  TrayArrowIcon,
+  // TrayArrowIcon,
 } from "../../components";
 import {
   useConfiguration,
   useWithTheme,
   withClassNamePrefix,
 } from "../../core";
-import {
-  activeConfigurationAtom,
-  configurationAtom,
-} from "../../core/StateProvider/configuration";
-import { schemaAtom } from "../../core/StateProvider/schema";
+// import {
+//   activeConfigurationAtom,
+//   configurationAtom,
+// } from "../../core/StateProvider/configuration";
+// import { schemaAtom } from "../../core/StateProvider/schema";
 import useSchemaSync from "../../hooks/useSchemaSync";
 import useTranslations from "../../hooks/useTranslations";
 import { formatDate } from "../../utils";
-import saveConfigurationToFile from "../../utils/saveConfigurationToFile";
+// import saveConfigurationToFile from "../../utils/saveConfigurationToFile";
 import CreateConnection from "../CreateConnection";
 import ConnectionData from "./ConnectionData";
 import defaultStyles from "./ConnectionDetail.styles";
@@ -36,34 +36,34 @@ export type ConnectionDetailProps = {
   onSyncChange(isSync: boolean): void;
 };
 
-const HEADER_ACTIONS = (isSync: boolean, isFileBased: boolean) => [
-  {
-    label: "Synchronize Database",
-    icon: <SyncIcon className={isSync ? "animate-spin" : ""} />,
-    value: "sync",
-    isDisabled: isSync,
-  },
-  {
-    label: "Export Connection",
-    icon: <TrayArrowIcon />,
-    value: "export",
-    isDisabled: isSync,
-  },
-  "divider",
-  {
-    label: "Edit connection",
-    icon: <EditIcon />,
-    value: "edit",
-    isDisabled: isSync,
-  },
-  {
-    label: isFileBased ? "File (read-only)" : "Delete connection",
-    icon: <DeleteIcon />,
-    value: "delete",
-    color: "error",
-    isDisabled: isFileBased || isSync,
-  },
-];
+// const HEADER_ACTIONS = (isSync: boolean, isFileBased: boolean) => [
+//   {
+//     label: "Synchronize Database",
+//     icon: <SyncIcon className={isSync ? "animate-spin" : ""} />,
+//     value: "sync",
+//     isDisabled: isSync,
+//   },
+//   {
+//     label: "Export Connection",
+//     icon: <TrayArrowIcon />,
+//     value: "export",
+//     isDisabled: isSync,
+//   },
+//   "divider",
+//   {
+//     label: "Edit connection",
+//     icon: <EditIcon />,
+//     value: "edit",
+//     isDisabled: isSync,
+//   },
+//   {
+//     label: isFileBased ? "File (read-only)" : "Delete connection",
+//     icon: <DeleteIcon />,
+//     value: "delete",
+//     color: "error",
+//     isDisabled: isFileBased || isSync,
+//   },
+// ];
 
 const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
   const styleWithTheme = useWithTheme();
@@ -82,57 +82,57 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
     }
   }, [onSyncChange, updateSchema]);
 
-  const onConfigExport = useCallback(() => {
-    if (!config?.id) {
-      return;
-    }
+  // const onConfigExport = useCallback(() => {
+  //   if (!config?.id) {
+  //     return;
+  //   }
 
-    saveConfigurationToFile(config);
-  }, [config]);
+  //   saveConfigurationToFile(config);
+  // }, [config]);
 
-  const onConfigDelete = useRecoilCallback(
-    ({ set }) => () => {
-      if (!config?.id) {
-        return;
-      }
+  // const onConfigDelete = useRecoilCallback(
+  //   ({ set }) => () => {
+  //     if (!config?.id) {
+  //       return;
+  //     }
 
-      set(activeConfigurationAtom, null);
+  //     set(activeConfigurationAtom, null);
 
-      set(configurationAtom, prevConfigs => {
-        const updatedConfigs = new Map(prevConfigs);
-        updatedConfigs.delete(config.id);
-        return updatedConfigs;
-      });
+  //     set(configurationAtom, prevConfigs => {
+  //       const updatedConfigs = new Map(prevConfigs);
+  //       updatedConfigs.delete(config.id);
+  //       return updatedConfigs;
+  //     });
 
-      set(schemaAtom, prevSchemas => {
-        const updatedSchemas = new Map(prevSchemas);
-        updatedSchemas.delete(config.id);
-        return updatedSchemas;
-      });
-    },
-    [config?.id]
-  );
+  //     set(schemaAtom, prevSchemas => {
+  //       const updatedSchemas = new Map(prevSchemas);
+  //       updatedSchemas.delete(config.id);
+  //       return updatedSchemas;
+  //     });
+  //   },
+  //   [config?.id]
+  // );
 
-  const onActionClick = useCallback(
-    (value: string) => {
-      if (value === "edit") {
-        return setEdit(true);
-      }
+  // const onActionClick = useCallback(
+  //   (value: string) => {
+  //     if (value === "edit") {
+  //       return setEdit(true);
+  //     }
 
-      if (value === "delete") {
-        return onConfigDelete();
-      }
+  //     if (value === "delete") {
+  //       return onConfigDelete();
+  //     }
 
-      if (value === "export") {
-        return onConfigExport();
-      }
+  //     if (value === "export") {
+  //       return onConfigExport();
+  //     }
 
-      if (value === "sync") {
-        return onConfigSync();
-      }
-    },
-    [onConfigDelete, onConfigExport]
-  );
+  //     if (value === "sync") {
+  //       return onConfigSync();
+  //     }
+  //   },
+  //   [onConfigDelete, onConfigExport]
+  // );
 
   if (!config) {
     return null;
