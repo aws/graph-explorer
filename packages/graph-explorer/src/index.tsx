@@ -32,6 +32,23 @@ if (params.configFile) {
           | undefined) || "gremlin",
     },
   };
+} 
+else if (import.meta.env.GRAPH_EXP_DB_URL) {
+  config = {
+    id: import.meta.env.GRAPH_EXP_DB_URL,
+    displayLabel:
+      import.meta.env.GRAPH_EXP_CONNECTION_NAME ||
+      import.meta.env.GRAPH_EXP_DB_URL,
+    connection: {
+      url: import.meta.env.GRAPH_EXP_DB_PROXY_URL,
+      proxyConnection: import.meta.env.GRAPH_EXP_PROXY_CONNECTION,
+      enableCache: import.meta.env.GRAPH_EXP_ENABLE_CACHE,
+      cacheTimeMs: import.meta.env.GRAPH_EXP_CACHE_TIME,
+      awsAuthEnabled: import.meta.env.GRAPH_EXP_AWS_AUTH_ENABLED,
+      graphDbUrl: import.meta.env.GRAPH_EXP_DB_URL,
+      queryEngine: import.meta.env.GRAPH_EXP_QUERY_ENGINE,
+    },
+  };
 }
 
 ReactDOM.render(
