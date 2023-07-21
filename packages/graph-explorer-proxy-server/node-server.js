@@ -1,4 +1,5 @@
 const express = require("express");
+const jwt = require("jsonwebtoken");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const fetch = (...args) =>
@@ -132,6 +133,31 @@ dotenv.config({ path: "../graph-explorer/.env" });
     req.headers["host"] = endpoint_url.host;
   }
 
+  function authenticateToken(req, res, next) {
+    const token = req.header('custom-auth-token');
+  
+    if (!token) {
+      return res.status(401).json({ message: 'No token provided.' });
+    }
+  
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decodedToken) => {
+      if (err) {
+        if (err.name === 'TokenExpiredError') {
+          return res.status(401).json({ message: 'Token has expired.' });
+        }
+
+        return res.status(403).json({ message: 'Invalid token.' });
+      }
+
+      if (decodedToken.exp && Date.now() >= decodedToken.exp) {
+        return res.status(403).json({ message: 'Token has expired'});
+      }
+
+      next();
+    });
+  };
+  
+
   app.get("/sparql", async (req, res, next) => {
     let response;
     let data;
@@ -148,7 +174,7 @@ dotenv.config({ path: "../graph-explorer/.env" });
     }
   });
 
-  app.get("/", async (req, res, next) => {
+  app.get("/", authenticateToken, async (req, res, next) => {
     let response;
     let data;
     try {
