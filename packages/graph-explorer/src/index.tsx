@@ -47,6 +47,7 @@ else if (import.meta.env.GRAPH_EXP_DB_URL) {
       awsAuthEnabled: import.meta.env.GRAPH_EXP_AWS_AUTH_ENABLED,
       graphDbUrl: import.meta.env.GRAPH_EXP_DB_URL,
       queryEngine: import.meta.env.GRAPH_EXP_QUERY_ENGINE,
+      useCustomAuthToken: true
     },
   };
 }

@@ -295,6 +295,9 @@ export abstract class AbstractConnector {
     if (this._connection?.awsAuthEnabled) {
       headers["aws-neptune-region"] = this._connection?.awsRegion || "";
     }
+    if (this._connection?.useCustomAuthToken) {
+      headers["custom-auth-token"] = localStorage.getItem('custom-auth-token') || '';
+    }
 
     return headers;
   }

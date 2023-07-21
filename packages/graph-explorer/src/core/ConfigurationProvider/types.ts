@@ -146,6 +146,10 @@ export type ConnectionConfig = {
    * By default, 10 minutes.
    */
   cacheTimeMs?: number;
+  /**
+   * Use custom auth token for authorizing requests
+   */
+  useCustomAuthToken?: boolean;
 };
 
 export type RawConfiguration = {
