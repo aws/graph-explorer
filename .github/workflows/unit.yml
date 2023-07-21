@@ -36,3 +36,10 @@ jobs:
 
       - name: Run package tests
         run: pnpm test
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          directory: "./packages/graph-explorer/coverage"
+          files: "*.info"
+          fail_ci_if_error: true
