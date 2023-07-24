@@ -31,6 +31,7 @@ describe("Gremlin > keywordSearchTemplate", () => {
     const template = keywordSearchTemplate({
       searchTerm: "JFK",
       searchByAttributes: ["code"],
+      searchById: false,
       offset: 2,
       limit: 10,
     });
@@ -45,6 +46,7 @@ describe("Gremlin > keywordSearchTemplate", () => {
       searchTerm: "JFK",
       vertexTypes: ["airport"],
       searchByAttributes: ["code"],
+      searchById: false,
       limit: 25,
       offset: 1,
     });

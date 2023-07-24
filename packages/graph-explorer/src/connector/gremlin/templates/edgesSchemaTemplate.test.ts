@@ -6,9 +6,9 @@ describe("Gremlin > edgesSchemaTemplate", () => {
 
     expect(template).toBe(
       'g.E().project("route","contain")' +
-        '.by(V().bothE("route").limit(1))' +
-        '.by(V().bothE("contain").limit(1))' +
-        ".limit(1)"
+      '.by(V().bothE("route").limit(1))' +
+      '.by(V().bothE("contain").limit(1))' +
+      ".limit(1)"
     );
   });
 });
