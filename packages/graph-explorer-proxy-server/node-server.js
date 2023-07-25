@@ -9,6 +9,8 @@ const https = require("https");
 const fs = require("fs");
 const path = require("path");
 const { fromNodeProviderChain } = require("@aws-sdk/credential-providers");
+const aws4 = require("aws4");
+
 
 const getCredentials = async () => {
   try {
@@ -21,11 +23,25 @@ const getCredentials = async () => {
   }
 };
 
+async function getIAMHeaders(options) {
+
+  // console.log(options)
+  let creds = await getCredentials();
+  if (creds === undefined) {
+    throw new Error("IAM is enabled but credentials cannot be found on the credential provider chain.")
+  }
+  const headers = aws4.sign(options, {
+      accessKeyId: creds.accessKeyId,
+      secretAccessKey: creds.secretAccessKey,
+      sessionToken: creds.sessionToken
+  }).headers;
+
+  return headers;
+}
+
 dotenv.config({ path: "../graph-explorer/.env" });
 
 (async () => {
-  let creds = await getCredentials();
-  let requestSig;
 
   app.use(cors());
 
@@ -35,32 +51,41 @@ dotenv.config({ path: "../graph-explorer/.env" });
 
   async function retryFetch (
     url,
+    headers,
     retries = 1,
-    retryDelay = 10000,
-    req,
-    language
+    retryDelay = 10000
   ) {
 
-    let reqObjects;
+    if (headers["aws-neptune-region"]) {
+      await getIAMHeaders({
+        host: url.hostname,
+        port: url.port,
+        path: url.pathname,
+        service: "neptune-db",
+        region: headers["aws-neptune-region"]
+      }).then(data => {  
+        headers = data;
+      });
+    } 
 
-    if (creds === undefined) {
-      console.error("Credentials undefined. Trying refresh.");
-      let creds = await getCredentials();
-      if (creds === undefined) {
-        throw new Error("Credentials still undefined. Check that the environment has an appropriate IAM role that trusts it and that it has sufficient read permissions to connect to Neptune.")
-      }
-    }
-    reqObjects = await getRequestObjects(req.headers["graph-db-connection-url"], req.headers["aws-neptune-region"]);
-    await getAuthHeaders(language, req, reqObjects[0], reqObjects[2]);
+    // reqObjects = await getRequestObjects(req.headers["graph-db-connection-url"], req.headers["aws-neptune-region"]);
+    // await getAuthHeaders(language, req, reqObjects[0], reqObjects[2]);
 
     return new Promise((resolve, reject) => {
+      
+      urlString = url.href;
+      method = "GET";
+
+      console.log("url: ", urlString);
+      console.log
 
       const wrapper = (n) => {
-        fetch(url, { headers: req.headers, })
-          .then(async res => {
-
+        fetch(url.href, { headers: headers })
+          .then( async res => {
             if (!res.ok) {
-              console.log("Bad response: "+res.statusText);
+              result = await res.json();
+              console.log("Bad response: ", res.statusText);
+              console.log("Error message: ", result);
               const error = res.status
               return Promise.reject(error);
             } else {
@@ -69,13 +94,13 @@ dotenv.config({ path: "../graph-explorer/.env" });
             }
           })
           .catch(async (err) => {
-            console.log("Attempt Credential Refresh");
-            let creds = await getCredentials();
-            if (creds === undefined) {
-              reject("Credentials undefined after credential refresh. Check that you have proper acccess")
-            }
-            reqObjects = await getRequestObjects(req.headers["graph-db-connection-url"], req.headers["aws-neptune-region"]);
-            await getAuthHeaders(language, req, reqObjects[0], reqObjects[2]);
+            // console.log("Attempt Credential Refresh");
+            // let creds = await getCredentials();
+            // if (creds === undefined) {
+            //   reject("Credentials undefined after credential refresh. Check that you have proper acccess")
+            // }
+            // reqObjects = await getRequestObjects(req.headers["graph-db-connection-url"], req.headers["aws-neptune-region"]);
+            // await getAuthHeaders(language, req, reqObjects[0], reqObjects[2]);
 
             if (n > 0) {
               await delay(retryDelay);
@@ -90,55 +115,64 @@ dotenv.config({ path: "../graph-explorer/.env" });
     });
   };
 
-  async function getRequestObjects(endpoint_input, region_input) {
-    if (endpoint_input) {
-      endpoint_url = new URL(endpoint_input);
-      requestSig = await new RequestSig(
-        endpoint_url.host,
-        region_input,
-        creds.accessKeyId,
-        creds.secretAccessKey,
-        creds.sessionToken
-      );
-      endpoint = endpoint_input;
-    } else {
-      console.log("No endpoint passed");
-    }
 
-    return [new URL(endpoint_input), endpoint_input, requestSig];
-  }
 
-  async function getAuthHeaders(language, req, endpoint_url, requestSig) {
-    let authHeaders
-    if (language == "sparql") {
-      authHeaders = await requestSig.requestAuthHeaders(
-        endpoint_url.port,
-        "/sparql?query=" + encodeURIComponent(req.query.query) + "&format=json"
-      );
-    } else if (language == "gremlin") {
-      authHeaders = await requestSig.requestAuthHeaders(
-        endpoint_url.port,
-        "/?gremlin=" + encodeURIComponent(req.query.gremlin)
-      );
-    } else {
-      console.log(language + " is not supported.");
-    }
 
-    req.headers["Authorization"] = authHeaders["headers"]["Authorization"];
-    req.headers["X-Amz-Date"] = authHeaders["headers"]["X-Amz-Date"];
-    if (authHeaders["headers"]["X-Amz-Security-Token"]) {
-      req.headers["X-Amz-Security-Token"] = authHeaders["headers"]["X-Amz-Security-Token"];
-    }
-    req.headers["host"] = endpoint_url.host;
-  }
+
+  // async function getRequestObjects(endpoint_input, region_input) {
+  //   if (endpoint_input) {
+  //     endpoint_url = new URL(endpoint_input);
+  //     requestSig = await new RequestSig(
+  //       endpoint_url.host,
+  //       region_input,
+  //       creds.accessKeyId,
+  //       creds.secretAccessKey,
+  //       creds.sessionToken
+  //     );
+  //     endpoint = endpoint_input;
+  //   } else {
+  //     console.log("No endpoint passed");
+  //   }
+
+  //   return [new URL(endpoint_input), endpoint_input, requestSig];
+  // }
+
+  // async function getAuthHeaders(language, req, endpoint_url, requestSig) {
+  //   let authHeaders
+  //   if (language == "sparql") {
+  //     authHeaders = await requestSig.requestAuthHeaders(
+  //       endpoint_url.port,
+  //       "/sparql?query=" + encodeURIComponent(req.query.query) + "&format=json"
+  //     );
+  //   } else if (language == "gremlin") {
+  //     authHeaders = await requestSig.requestAuthHeaders(
+  //       endpoint_url.port,
+  //       "/?gremlin=" + encodeURIComponent(req.query.gremlin)
+  //     );
+  //   } else {
+  //     console.log(language + " is not supported.");
+  //   }
+
+  //   req.headers["Authorization"] = authHeaders["headers"]["Authorization"];
+  //   req.headers["X-Amz-Date"] = authHeaders["headers"]["X-Amz-Date"];
+  //   if (authHeaders["headers"]["X-Amz-Security-Token"]) {
+  //     req.headers["X-Amz-Security-Token"] = authHeaders["headers"]["X-Amz-Security-Token"];
+  //   }
+  //   req.headers["host"] = endpoint_url.host;
+  // }
 
   app.get("/sparql", async (req, res, next) => {
     let response;
     let data;
     try {
-      response = await retryFetch(`${req.headers["graph-db-connection-url"]}/sparql?query=` +
-        encodeURIComponent(req.query.query) +
-        "&format=json", undefined, undefined, req, "sparql").then((res) => res)
+      response = await retryFetch(
+        new URL(
+          `${req.headers["graph-db-connection-url"]}/sparql?query=` +
+          encodeURIComponent(req.query.query) +
+          "&format=json"
+        ), 
+        req.headers
+      ).then((res) => res)
 
       data = await response.json();
       res.send(data);
@@ -152,8 +186,13 @@ dotenv.config({ path: "../graph-explorer/.env" });
     let response;
     let data;
     try {
-      response = await retryFetch(`${req.headers["graph-db-connection-url"]}/?gremlin=` +
-        encodeURIComponent(req.query.gremlin), undefined, undefined, req, "gremlin").then((res) => res)
+      response = await retryFetch(
+        new URL(
+          `${req.headers["graph-db-connection-url"]}/?gremlin=` + 
+          encodeURIComponent(req.query.gremlin)
+        ), 
+        req.headers
+      ).then((res) => res)
 
       data = await response.json();
       res.send(data);
@@ -167,7 +206,10 @@ dotenv.config({ path: "../graph-explorer/.env" });
     let response;
     let data;
     try {
-      response = await retryFetch(`${req.headers["graph-db-connection-url"]}/pg/statistics/summary`, undefined, undefined, req, "gremlin").then((res) => res)
+      response = await retryFetch(
+        new URL(`${req.headers["graph-db-connection-url"]}/pg/statistics/summary`), 
+        req.headers
+      ).then((res) => res)
 
       data = await response.json();
       res.send(data);
@@ -180,8 +222,13 @@ dotenv.config({ path: "../graph-explorer/.env" });
   app.get("/rdf/statistics/summary", async (req, res, next) => {
     let response;
     let data;
+    let url = new URL(`${req.headers["graph-db-connection-url"]}/rdf/statistics/summary`)
+    let headers = req.headers
     try {
-      response = await retryFetch(`${req.headers["graph-db-connection-url"]}/rdf/statistics/summary`, undefined, undefined, req, "gremlin").then((res) => res)
+      response = await retryFetch(
+        url, 
+        headers
+      ).then((res) => res)
 
       data = await response.json();
       res.send(data);
