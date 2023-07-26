@@ -62,7 +62,7 @@ const AppStatusLoader = ({
           );
           newConfig = merge({}, config, remoteConfig);
         }
-
+        newConfig.__readOnly = config.__readOnly ?? true;
         newConfig.__fileBase = true;
         setConfiguration(prevConfigMap => {
           const updatedConfig = new Map(prevConfigMap);
