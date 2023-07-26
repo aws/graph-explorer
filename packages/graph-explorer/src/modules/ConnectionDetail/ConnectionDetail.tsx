@@ -6,7 +6,6 @@ import {
   DatabaseIcon,
   DeleteIcon,
   EditIcon,
-  IconButton,
   ModuleContainer,
   ModuleContainerHeader,
   PanelEmptyState,
@@ -131,7 +130,7 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
         return onConfigSync();
       }
     },
-    [onConfigDelete, onConfigExport]
+    [onConfigDelete, onConfigExport, onConfigSync]
   );
 
   if (!config) {
@@ -211,7 +210,7 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
         <CreateConnection
           onClose={() => setEdit(false)}
           configId={config.id}
-          disabledFields={config.__fileBase ? ["type", "url"] : undefined}
+          disabledFields={config.__readOnly ? ["type", "url"] : undefined}
           initialData={{
             ...(config.connection || {}),
             name: config.displayLabel || config.id,
