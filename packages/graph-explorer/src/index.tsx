@@ -7,9 +7,7 @@ import { RawConfiguration } from "./core";
 import ConnectedProvider from "./core/ConnectedProvider";
 import "./index.css";
 
-const DEFAULT_GRAPH_TYPE = "gremlin";
-
-const grabConfig = async () => {
+const grabConfig = async (): Promise<RawConfiguration | undefined> => {
   const params = queryString.parse(location.search) as {
     configFile?: string;
   };
@@ -40,11 +38,9 @@ const grabConfig = async () => {
     return {
       id: "Default Connection",
       displayLabel: "Default Connection",
-      __readOnly: false,
       connection: {
         url: defaultConnectionData.GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT || "",
-        queryEngine:
-          defaultConnectionData.GRAPH_EXP_GRAPH_TYPE ?? DEFAULT_GRAPH_TYPE,
+        queryEngine: defaultConnectionData.GRAPH_EXP_GRAPH_TYPE,
         proxyConnection: defaultConnectionData.GRAPH_EXP_USING_PROXY_SERVER
           ? true
           : false,

@@ -184,10 +184,6 @@ export type RawConfiguration = {
    * Mark as created from a file
    */
   __fileBase?: boolean;
-  /**
-   * Mark as read only
-   */
-  __readOnly?: boolean;
 };
 
 export type ConfigurationContextProps = RawConfiguration & {

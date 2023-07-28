@@ -210,7 +210,7 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
         <CreateConnection
           onClose={() => setEdit(false)}
           configId={config.id}
-          disabledFields={config.__readOnly ? ["type", "url"] : undefined}
+          disabledFields={config.__fileBase ? ["type", "url"] : undefined}
           initialData={{
             ...(config.connection || {}),
             name: config.displayLabel || config.id,

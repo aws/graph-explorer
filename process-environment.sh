@@ -32,8 +32,6 @@ if [ -n "$PUBLIC_OR_PROXY_ENDPOINT" ]; then
 
     if [ -n "$GRAPH_TYPE" ]; then 
         echo "\"GRAPH_EXP_GRAPH_TYPE\":\"${GRAPH_TYPE}\"," >> ./packages/graph-explorer/defaultConnection.json
-    else 
-        echo "\"GRAPH_EXP_GRAPH_TYPE\":\"gremlin\"," >> ./packages/graph-explorer/defaultConnection.json
     fi
     
     if [ -n "$USING_PROXY_SERVER" ]; then 

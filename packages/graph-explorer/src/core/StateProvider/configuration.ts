@@ -81,7 +81,6 @@ export const mergedConfigurationSelector = selector<RawConfiguration | null>({
       displayLabel: currentConfig.displayLabel,
       remoteConfigFile: currentConfig.remoteConfigFile,
       __fileBase: currentConfig.__fileBase,
-      __readOnly: currentConfig.__readOnly,
       connection: {
         ...(currentConfig.connection || {}),
         // Remove trailing slash
