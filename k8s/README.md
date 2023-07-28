@@ -21,14 +21,12 @@ kubectl apply -k k8s/manifests/overlays/default
 kubectl port-forward svc/graph-explorer 8080:443
 ```
 
-* Open the url to access on browser: [https://localhost:8080](https://localhost:8080)
-
+* Open the url to access on browser: [https://localhost:8080/explorer](https://localhost:8080/explorer)
 
 ## Removing all resources:
 
 ```bash
 
-cd k8s
 kubectl delete -k k8s/manifests/overlays/default
 
 ```
