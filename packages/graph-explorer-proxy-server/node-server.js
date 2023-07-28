@@ -10,12 +10,13 @@ const fs = require("fs");
 const path = require("path");
 const { fromNodeProviderChain } = require("@aws-sdk/credential-providers");
 const aws4 = require("aws4");
+const e = require("express");
 
 const getCredentials = async () => {
   try {
     const credentialProvider = fromNodeProviderChain();
     const results = await credentialProvider();
-    console.log(
+    console.debug(
       "IAM credentials were found in provider chain and will be used to sign requests"
     );
     return results;
@@ -25,7 +26,8 @@ const getCredentials = async () => {
 };
 
 async function getIAMHeaders(options) {
-  let creds = await getCredentials();
+  const credentialProvider = fromNodeProviderChain();
+  let creds = await credentialProvider();
   if (creds === undefined) {
     throw new Error(
       "IAM is enabled but credentials cannot be found on the credential provider chain."
@@ -53,53 +55,40 @@ dotenv.config({ path: "../graph-explorer/.env" });
   const delay = (ms) =>
     new Promise((resolve) => setTimeout(() => resolve(), ms));
 
-  async function retryFetch(url, headers, retries = 1, retryDelay = 10000) {
+  const retryFetch = async (url, headers, retries = 1, retryDelay = 10000) => {
     if (headers["aws-neptune-region"]) {
-      await getIAMHeaders({
+      data = await getIAMHeaders({
         host: url.hostname,
         port: url.port,
-        path: url.pathname + url.search,
+        path: url.pathname+url.search,
         service: "neptune-db",
-        region: headers["aws-neptune-region"],
-      }).then((data) => {
-        headers = data;
+        region: headers["aws-neptune-region"]
       });
+      // remove the host header because it's not needed for IAM
+      delete headers["host"];
+      headers = { ...headers, ...data };
+    } 
+    for (let i = 0; i < retries; i++) {
+      try {
+        const res = await fetch(url.href, { headers: headers });
+        if (!res.ok) {
+          const result = await res.json();
+          console.log("Bad response: ", res.statusText);
+          console.log("Error message: ", result);
+          throw new Error(result.message);
+        } else {
+          console.log("Successful response: "+res.statusText);
+          return res;
+        }
+      } catch (err) {
+        if (i === retries - 1) {
+          throw err;
+        } else {
+          await new Promise(resolve => setTimeout(resolve, retryDelay));
+        }
+      }
     }
-
-    return new Promise((resolve, reject) => {
-      urlString = url.href;
-      method = "GET";
-
-      console.log("url: ", urlString);
-      console.log;
-
-      const wrapper = (n) => {
-        fetch(url.href, { headers: headers })
-          .then(async (res) => {
-            if (!res.ok) {
-              result = await res.json();
-              console.log("Bad response: ", res.statusText);
-              console.log("Error message: ", result);
-              const error = res.status;
-              return Promise.reject(error);
-            } else {
-              console.log("Successful response: " + res.statusText);
-              resolve(res);
-            }
-          })
-          .catch(async (err) => {
-            if (n > 0) {
-              await delay(retryDelay);
-              wrapper(--n);
-            } else {
-              reject(err);
-            }
-          });
-      };
-
-      wrapper(retries);
-    });
-  }
+  };
 
   app.get("/sparql", async (req, res, next) => {
     try {
@@ -115,7 +104,6 @@ dotenv.config({ path: "../graph-explorer/.env" });
       res.send(data);
     } catch (error) {
       next(error);
-      console.log(error);
     }
   });
 
@@ -132,7 +120,6 @@ dotenv.config({ path: "../graph-explorer/.env" });
       res.send(data);
     } catch (error) {
       next(error);
-      console.log(error);
     }
   });
 
@@ -148,7 +135,6 @@ dotenv.config({ path: "../graph-explorer/.env" });
       res.send(data);
     } catch (error) {
       next(error);
-      console.log(error);
     }
   });
 
@@ -162,8 +148,8 @@ dotenv.config({ path: "../graph-explorer/.env" });
       const data = await response.json();
       res.send(data);
     } catch (error) {
-      next(error);
-      console.log(error);
+      // send the json response in the next call
+      res.send(error);
     }
   });
 
