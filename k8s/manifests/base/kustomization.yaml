@@ -6,6 +6,3 @@ resources:
 - service.yaml
 - namespace.yaml
 
-configMapGenerator:
-- name: graph-explorer-metadata
-
