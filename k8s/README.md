@@ -6,7 +6,7 @@
 
 * Namespace graph-explorer
 * Deployment (1 pod replica)
-* Service
+* ClusterIP Service 
 
 
 ```bash

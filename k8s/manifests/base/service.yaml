@@ -11,4 +11,4 @@ spec:
     targetPort: 443
     protocol: TCP
   sessionAffinity: None
-  type: LoadBalancer
+  type: ClusterIP
