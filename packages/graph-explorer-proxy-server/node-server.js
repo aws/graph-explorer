@@ -12,19 +12,6 @@ const { fromNodeProviderChain } = require("@aws-sdk/credential-providers");
 const aws4 = require("aws4");
 const e = require("express");
 
-const getCredentials = async () => {
-  try {
-    const credentialProvider = fromNodeProviderChain();
-    const results = await credentialProvider();
-    console.debug(
-      "IAM credentials were found in provider chain and will be used to sign requests"
-    );
-    return results;
-  } catch (e) {
-    console.error("No IAM credentials found in provider chain", e);
-  }
-};
-
 async function getIAMHeaders(options) {
   const credentialProvider = fromNodeProviderChain();
   let creds = await credentialProvider();
