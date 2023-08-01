@@ -61,6 +61,7 @@ For browsers like Safari and Firefox, [trusting the certificate from the browser
 9. You should now refresh the browser and see that you can proceed to open the application. For Chrome, the application will remain “Not Secure” due to the fact that this is a self-signed certificate. If you have trouble accessing Graph Explorer after completing the previous step and reloading the browser, consider running a docker restart command and refreshing the browser again.
 
 ### Troubleshooting
+- If you need more detailed logs, you can change the log level from `info` in the default .env file to `debug`. The logs will begin printing the error's stack trace.
 - If the Graph Explore crashes, you can recreate the container or run `pnpm start` inside of `/packages/graph-explorer`.
 - If the proxy-server crashes, you can recreate the container or run `pnpm start` inside of `/packages/graph-explorer-proxy-server`
 - If the proxy-server fails to start, check that the provided endpoint is properly spelled and that you have access to from the environment you are trying to run in. If you are in a different VPC, consider VPC Peering.

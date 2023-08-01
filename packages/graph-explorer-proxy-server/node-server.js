@@ -8,11 +8,25 @@ const { RequestSig } = require("./RequestSig.js");
 const https = require("https");
 const fs = require("fs");
 const path = require("path");
+const pino = require('pino');
 const { fromNodeProviderChain } = require("@aws-sdk/credential-providers");
 const aws4 = require("aws4");
-const e = require("express");
+
+dotenv.config({ path: "../graph-explorer/.env" });
+
+const proxyLogger = pino({
+  level: process.env.LOG_LEVEL,
+  transport: {
+    target: 'pino-pretty',
+    options: {
+      colorize: true,
+      translateTime: true,
+    }
+  }
+});
 
 async function getIAMHeaders(options) {
+  proxyLogger.debug("IAM on")
   const credentialProvider = fromNodeProviderChain();
   let creds = await credentialProvider();
   if (creds === undefined) {
@@ -29,7 +43,23 @@ async function getIAMHeaders(options) {
   return headers;
 }
 
-dotenv.config({ path: "../graph-explorer/.env" });
+const errorHandler = (error, request, response, next) => {
+  if (error.extraInfo) {
+    error.extraInfo += " Error: ";
+    proxyLogger.error(error.extraInfo + error.message);
+    proxyLogger.debug(error.stack);
+  } else {
+    proxyLogger.error("Error: " + error.message);
+    proxyLogger.debug(error.stack);
+  }
+
+  response.status(error.status || 500).send({
+    error: {
+      status: error.status || 500,
+      message: error.message || 'Internal Server Error',
+    },
+  });
+}
 
 (async () => {
   app.use(cors());
@@ -90,6 +120,12 @@ dotenv.config({ path: "../graph-explorer/.env" });
       const data = await response.json();
       res.send(data);
     } catch (error) {
+      if (!error.extraInfo && req.headers["graph-db-connection-url"] !== undefined) {
+        error.extraInfo = "The following request returned an error " + 
+                        `${req.headers["graph-db-connection-url"]}/sparql?query=` +
+                        encodeURIComponent(req.query.query) + ".";
+      } 
+
       next(error);
     }
   });
@@ -106,6 +142,12 @@ dotenv.config({ path: "../graph-explorer/.env" });
       const data = await response.json();
       res.send(data);
     } catch (error) {
+      if (!error.extraInfo && req.headers["graph-db-connection-url"] !== undefined) {
+        error.extraInfo = "The following request returned an error " + 
+                        `${req.headers["graph-db-connection-url"]}/?gremlin=` +
+                        encodeURIComponent(req.query.gremlin) + ".";
+      }
+
       next(error);
     }
   });
@@ -121,6 +163,10 @@ dotenv.config({ path: "../graph-explorer/.env" });
       const data = await response.json();
       res.send(data);
     } catch (error) {
+      if (!error.extraInfo && req.headers["graph-db-connection-url"] !== undefined) {
+        error.extraInfo = "Check that your instance type supports the summary statistics.";
+      }
+
       next(error);
     }
   });
@@ -136,9 +182,51 @@ dotenv.config({ path: "../graph-explorer/.env" });
       const data = await response.json();
       res.send(data);
     } catch (error) {
-      next(error)
+      if (!error.extraInfo && req.headers["graph-db-connection-url"] !== undefined) {
+        error.extraInfo = "Check that your instance type supports the summary statistics.";
+      }
+      next(error);
     }
   });
+
+  app.get('/logger', (req, res) => {
+    let message;
+    let level;
+
+    try {
+      if (req.headers["level"] === undefined) {
+        throw new Error("No log level passed.");
+      } else {
+        level = req.headers["level"];
+      }
+  
+      if (req.headers["message"] === undefined) {
+        throw new Error("No log message passed.");
+      } else {
+        message = req.headers["message"].replaceAll("\\", "");
+      }
+  
+      if (level.toLowerCase() === "error") {
+        proxyLogger.error(message);
+      } else if (level.toLowerCase() === "warn") {
+        proxyLogger.warn(message);
+      } else if (level.toLowerCase() === "info") {
+        proxyLogger.info(message);
+      } else if (level.toLowerCase() === "debug") {
+        proxyLogger.debug(message);
+      } else if (level.toLowerCase() === "trace") {
+        proxyLogger.trace(message);
+      } else {
+        throw new Error("Tried to log to an unknown level.");
+      }
+
+      res.send("Log received.");
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.use(errorHandler);
 
   // Start the server on port 80 or 443 (if HTTPS is enabled)
   if (
@@ -155,11 +243,11 @@ dotenv.config({ path: "../graph-explorer/.env" });
         app
       )
       .listen(443, async () => {
-        console.log(`\tProxy server located at https://localhost`);
+        proxyLogger.info(`Proxy server located at https://localhost`);
       });
   } else {
     app.listen(80, async () => {
-      console.log(`\tProxy server located at http://localhost`);
+      proxyLogger.info(`Proxy server located at http://localhost`);
     });
   }
 })();
