@@ -127,16 +127,16 @@ dotenv.config({ path: "../graph-explorer/.env" });
 
   app.get("/rdf/statistics/summary", async (req, res, next) => {
     try {
-      const url = new URL(
-        `${req.headers["graph-db-connection-url"]}/rdf/statistics/summary`
+      const response = await retryFetch(
+        new URL(
+          `${req.headers["graph-db-connection-url"]}/rdf/statistics/summary`
+          ), 
+          req.headers
       );
-      const headers = req.headers;
-      const response = await retryFetch(url, headers);
       const data = await response.json();
       res.send(data);
     } catch (error) {
-      // send the json response in the next call
-      res.send(error);
+      next(error)
     }
   });
 
