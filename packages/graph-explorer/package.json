@@ -1,6 +1,6 @@
 {
   "name": "graph-explorer",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Graph Explorer",
   "packageManager": "pnpm@7.9.3",
   "engines": {
@@ -82,12 +82,13 @@
     "recoil": "^0.7.5",
     "swiper": "^8.0.7",
     "use-deep-compare-effect": "^1.6.1",
-    "uuid": "^8.3.1"
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.19.3",
     "@babel/preset-env": "^7.19.4",
     "@babel/preset-react": "^7.18.6",
+    "@babel/preset-typescript": "^7.22.5",
     "@react-aria/overlays": "3.9.1",
     "@react-stately/radio": "^3.5.0",
     "@react-types/button": "^3.6.1",
@@ -131,6 +132,9 @@
     "husky": "^8.0.0",
     "jest": "^28.1.3",
     "jest-environment-jsdom": "^29.0.1",
+    "jest-github-actions-reporter": "^1.0.3",
+    "jest-junit": "^16.0.0",
+    "jest-localstorage-mock": "^2.4.26",
     "lint-staged": "^13.0.3",
     "prettier": "2.1.2",
     "react-test-renderer": "^17.0.2",

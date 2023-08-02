@@ -22,5 +22,10 @@
     "paths": {},
     "types": ["vite/client", "@types/jest"]
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*"],
+  "jest": {
+    "transform": {
+      "^.+\\.ts?$": "ts-jest"
+    },
+  }
 }

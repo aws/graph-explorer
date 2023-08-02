@@ -20,7 +20,7 @@ import type { KeywordSearchRequest } from "../../AbstractConnector";
 const keywordSearchTemplate = ({
   searchTerm,
   vertexTypes = [],
-  searchById = false,
+  searchById = true,
   searchByAttributes = [],
   limit = 10,
   offset = 0,
