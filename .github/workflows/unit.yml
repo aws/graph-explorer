@@ -42,4 +42,4 @@ jobs:
         with:
           directory: "./packages/graph-explorer/coverage"
           files: "*.info"
-          verbose: true
+        
