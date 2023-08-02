@@ -18,7 +18,6 @@ class RequestSig {
 
     requestAuthHeaders(inputPort, requestedPath) {
       var opts = { host: this._host.split(":")[0], path: requestedPath, service: this._service, region: this._region, port: inputPort };
-
       return aws4.sign(opts, {accessKeyId: this._ac, secretAccessKey: this._sac, sessionToken: this._st});
     }
   }

@@ -1,6 +1,6 @@
 {
   "name": "graph-explorer",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Graph Explorer",
   "packageManager": "pnpm@7.9.3",
   "engines": {
@@ -82,7 +82,7 @@
     "recoil": "^0.7.5",
     "swiper": "^8.0.7",
     "use-deep-compare-effect": "^1.6.1",
-    "uuid": "^8.3.1"
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.19.3",
