@@ -9,7 +9,6 @@ This release includes the following feature enhancements and bug fixes:
 
 **Bug fixes**
 - IAM credentials not used when calling neptune (https://github.com/aws/graph-explorer/pull/140)
-- Fix Expand Module scrollbar (https://github.com/aws/graph-explorer/pull/131)
 
 ## Release 1.2.0
 
