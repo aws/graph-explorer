@@ -90,9 +90,9 @@ const errorHandler = (error, request, response, next) => {
         const res = await fetch(url.href, { headers: headers });
         if (!res.ok) {
           const result = await res.json();
-          proxyLogger.error("Bad response: ", res.statusText);
-          proxyLogger.error("Error message: ", result);
-          throw new Error(result.message);
+          proxyLogger.error("Bad response: "+res.statusText);
+          proxyLogger.error("Error message: "+result);
+          throw new Error({message: res.statusText, status: res.status, extraInfo: "Error message: "+result});
         } else {
           proxyLogger.debug("Successful response: "+res.statusText);
           return res;
