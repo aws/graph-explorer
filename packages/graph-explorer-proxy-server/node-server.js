@@ -107,56 +107,6 @@ const errorHandler = (error, request, response, next) => {
     }
   };
 
-<<<<<<< HEAD
-  async function getRequestObjects(endpoint_input, region_input) {
-    if (endpoint_input) {
-      endpoint_url = new URL(endpoint_input);
-      requestSig = await new RequestSig(
-        endpoint_url.host,
-        region_input,
-        creds.accessKeyId,
-        creds.secretAccessKey,
-        creds.sessionToken
-      );
-      endpoint = endpoint_input;
-    } else {
-      console.log("No endpoint passed");
-    }
-
-    return [new URL(endpoint_input), endpoint_input, requestSig];
-  }
-
-  async function getAuthHeaders(language, req, endpoint_url, requestSig) {
-    let authHeaders
-    if (language == "sparql") {
-      authHeaders = await requestSig.requestAuthHeaders(
-        endpoint_url.port,
-        "/sparql?query=" + encodeURIComponent(req.query.query) + "&format=json"
-      );
-    } else if (language == "gremlin") {
-      authHeaders = await requestSig.requestAuthHeaders(
-        endpoint_url.port,
-        "/?gremlin=" + encodeURIComponent(req.query.gremlin)
-      );
-    } else if (language == "openCypher") {
-      authHeaders = await requestSig.requestAuthHeaders(
-        endpoint_url.port,
-        "/openCypher?query=" + encodeURIComponent(req.query.query)
-      );
-    } else {
-      console.log(language + " is not supported.");
-    }
-
-    req.headers["Authorization"] = authHeaders["headers"]["Authorization"];
-    req.headers["X-Amz-Date"] = authHeaders["headers"]["X-Amz-Date"];
-    if (authHeaders["headers"]["X-Amz-Security-Token"]) {
-      req.headers["X-Amz-Security-Token"] = authHeaders["headers"]["X-Amz-Security-Token"];
-    }
-    req.headers["host"] = endpoint_url.host;
-  }
-
-=======
->>>>>>> main
   app.get("/sparql", async (req, res, next) => {
     try {
       const response = await retryFetch(
