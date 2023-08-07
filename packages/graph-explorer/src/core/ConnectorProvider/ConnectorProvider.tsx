@@ -36,18 +36,19 @@ const ConnectorProvider = ({ children }: PropsWithChildren<any>) => {
         logger: undefined,
       });
     } else if (isSPARQL) {
-<<<<<<< HEAD
-      setConnector(new SPARQLConnector(config?.connection));
-    } else if (isOpenCypher) {
-      setConnector(new OpenCypherConnector(config?.connection));
-=======
       setConnector({
         explorer: new SPARQLConnector(config.connection),
         logger: new LoggerConnector(config.connection.url, {
           enable: import.meta.env.PROD,
         }),
       });
->>>>>>> main
+    } else if (isOpenCypher) {
+      setConnector({
+        explorer: new OpenCypherConnector(config?.connection),
+        logger: new LoggerConnector(config.connection.url, {
+          enable: import.meta.env.PROD,
+        }),
+      });
     } else {
       setConnector({
         explorer: new GremlinConnector(config.connection),
