@@ -11,7 +11,6 @@ const useFetchNode = () => {
     (vertexId: string) => {
       return connector.explorer?.fetchNeighborsCount({
         vertexId: vertexId,
-        limit: 0,
       });
     },
     [connector.explorer]

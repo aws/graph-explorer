@@ -5,6 +5,7 @@ import SPARQLConnector from "../../connector/sparql/SPARQLConnector";
 import { ConnectionConfig } from "../ConfigurationProvider";
 import useConfiguration from "../ConfigurationProvider/useConfiguration";
 import type { ConnectorContextProps } from "./types";
+import OpenCypherConnector from "../../connector/openCypher/openCypherConnector";
 
 export const ConnectorContext = createContext<ConnectorContextProps>({});
 
@@ -25,6 +26,10 @@ const ConnectorProvider = ({ children }: PropsWithChildren<any>) => {
       config?.connection?.queryEngine &&
       config?.connection?.queryEngine === "sparql";
 
+    const isOpenCypher = 
+      config?.connection?.queryEngine &&
+      config?.connection?.queryEngine === "openCypher";
+
     if (!config?.connection?.url) {
       setConnector({
         explorer: undefined,
@@ -33,6 +38,13 @@ const ConnectorProvider = ({ children }: PropsWithChildren<any>) => {
     } else if (isSPARQL) {
       setConnector({
         explorer: new SPARQLConnector(config.connection),
+        logger: new LoggerConnector(config.connection.url, {
+          enable: import.meta.env.PROD,
+        }),
+      });
+    } else if (isOpenCypher) {
+      setConnector({
+        explorer: new OpenCypherConnector(config?.connection),
         logger: new LoggerConnector(config.connection.url, {
           enable: import.meta.env.PROD,
         }),

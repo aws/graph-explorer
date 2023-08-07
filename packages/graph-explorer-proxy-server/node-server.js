@@ -90,11 +90,11 @@ const errorHandler = (error, request, response, next) => {
         const res = await fetch(url.href, { headers: headers });
         if (!res.ok) {
           const result = await res.json();
-          console.log("Bad response: ", res.statusText);
-          console.log("Error message: ", result);
+          proxyLogger.error("Bad response: ", res.statusText);
+          proxyLogger.error("Error message: ", result);
           throw new Error(result.message);
         } else {
-          console.log("Successful response: "+res.statusText);
+          proxyLogger.debug("Successful response: "+res.statusText);
           return res;
         }
       } catch (err) {
@@ -147,7 +147,29 @@ const errorHandler = (error, request, response, next) => {
                         `${req.headers["graph-db-connection-url"]}/?gremlin=` +
                         encodeURIComponent(req.query.gremlin) + ".";
       }
+      next(error);
+    }
+  });
 
+
+
+  app.get("/openCypher", async (req, res, next) => {
+    try {
+      const response = await retryFetch(
+        new URL(
+          `${req.headers["graph-db-connection-url"]}/openCypher?query=` +
+          encodeURIComponent(req.query.query)
+        ), 
+        req.headers
+      );
+      const data = await response.json();
+      res.send(data);
+    } catch (error) {
+      if (!error.extraInfo && req.headers["graph-db-connection-url"] !== undefined) {
+        error.extraInfo = "The following request returned an error " + 
+                        `${req.headers["graph-db-connection-url"]}/?openCypher=` +
+                        encodeURIComponent(req.query.query) + ".";
+      }
       next(error);
     }
   });

@@ -117,7 +117,7 @@ export type ConnectionConfig = {
    * Choose between gremlin or sparQL engines.
    * By default, it uses gremlin
    */
-  queryEngine?: "gremlin" | "sparql";
+  queryEngine?: "gremlin" | "sparql" | "openCypher";
   /**
    * If the service is Neptune,
    * all requests should be sent through the nodejs proxy-server.

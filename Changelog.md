@@ -1,5 +1,15 @@
 # graph-explorer Change Log
 
+## Release 1.3.0
+
+This release includes the following feature enhancements and bug fixes:
+
+**Features**
+- Support openCypher-based graph databases (https://github.com/aws/graph-explorer/pull/129)
+
+**Bug fixes**
+- Fix Expand Module scrollbar (https://github.com/aws/graph-explorer/pull/131)
+
 ## Release 1.2.1
 
 This release includes the following feature enhancements and bug fixes:
@@ -9,7 +19,6 @@ This release includes the following feature enhancements and bug fixes:
 
 **Bug fixes**
 - IAM credentials not used when calling neptune (https://github.com/aws/graph-explorer/pull/140)
-- Fix Expand Module scrollbar (https://github.com/aws/graph-explorer/pull/131)
 
 ## Release 1.2.0
 
