@@ -1,7 +1,14 @@
 # graph-explorer Change Log
 
-## Upcoming
+## Release 1.2.1
 
+This release includes the following feature enhancements and bug fixes:
+
+**Features**
+- (bug/issue 101) Improve logging (https://github.com/aws/graph-explorer/pull/114)
+
+**Bug fixes**
+- IAM credentials not used when calling neptune (https://github.com/aws/graph-explorer/pull/140)
 
 ## Release 1.2.0
 

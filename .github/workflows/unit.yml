@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         node-version:
-          - 16.15.1
+          - 18.16.0
         pnpm-version:
           - 7.9.3
     steps:
@@ -37,3 +37,10 @@ jobs:
 
       - name: Run package tests
         run: pnpm test
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          directory: "./packages/graph-explorer/coverage"
+          files: "*.info"
+          fail_ci_if_error: true
