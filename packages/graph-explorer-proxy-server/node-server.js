@@ -139,8 +139,6 @@ const errorHandler = (error, request, response, next) => {
     }
   });
 
-
-
   app.get("/openCypher", async (req, res, next) => {
     try {
       const response = await retryFetch(
