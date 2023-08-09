@@ -45,11 +45,10 @@ async function getIAMHeaders(options) {
 
 const errorHandler = (error, request, response, next) => {
   if (error.extraInfo) {
-    error.extraInfo += " Error: ";
     proxyLogger.error(error.extraInfo + error.message);
     proxyLogger.debug(error.stack);
   } else {
-    proxyLogger.error("Error: " + error.message);
+    proxyLogger.error(error.message);
     proxyLogger.debug(error.stack);
   }
 
@@ -90,11 +89,11 @@ const errorHandler = (error, request, response, next) => {
         const res = await fetch(url.href, { headers: headers });
         if (!res.ok) {
           const result = await res.json();
-          console.log("Bad response: ", res.statusText);
-          console.log("Error message: ", result);
-          throw new Error(result.message);
+          proxyLogger.error("!!Request failure!!");
+          proxyLogger.error("URL: "+url.href);
+          throw new Error("\n"+JSON.stringify(result, null, 2));
         } else {
-          console.log("Successful response: "+res.statusText);
+          proxyLogger.debug("Successful response: "+res.statusText);
           return res;
         }
       } catch (err) {
@@ -121,12 +120,6 @@ const errorHandler = (error, request, response, next) => {
       const data = await response.json();
       res.send(data);
     } catch (error) {
-      if (!error.extraInfo && req.headers["graph-db-connection-url"] !== undefined) {
-        error.extraInfo = "The following request returned an error " + 
-                        `${req.headers["graph-db-connection-url"]}/sparql?query=` +
-                        encodeURIComponent(req.query.query) + ".";
-      } 
-
       next(error);
     }
   });
@@ -143,12 +136,22 @@ const errorHandler = (error, request, response, next) => {
       const data = await response.json();
       res.send(data);
     } catch (error) {
-      if (!error.extraInfo && req.headers["graph-db-connection-url"] !== undefined) {
-        error.extraInfo = "The following request returned an error " + 
-                        `${req.headers["graph-db-connection-url"]}/?gremlin=` +
-                        encodeURIComponent(req.query.gremlin) + ".";
-      }
+      next(error);
+    }
+  });
 
+  app.get("/openCypher", async (req, res, next) => {
+    try {
+      const response = await retryFetch(
+        new URL(
+          `${req.headers["graph-db-connection-url"]}/openCypher?query=` +
+          encodeURIComponent(req.query.query)
+        ), 
+        req.headers
+      );
+      const data = await response.json();
+      res.send(data);
+    } catch (error) {
       next(error);
     }
   });
@@ -163,12 +166,8 @@ const errorHandler = (error, request, response, next) => {
       );
       const data = await response.json();
       res.send(data);
-    } catch (error) {
-      if (!error.extraInfo && req.headers["graph-db-connection-url"] !== undefined) {
-        error.extraInfo = "Check that your instance type supports the summary statistics.";
-      }
-
-      next(error);
+    } catch (err) {
+      next();
     }
   });
 
@@ -182,11 +181,8 @@ const errorHandler = (error, request, response, next) => {
       );
       const data = await response.json();
       res.send(data);
-    } catch (error) {
-      if (!error.extraInfo && req.headers["graph-db-connection-url"] !== undefined) {
-        error.extraInfo = "Check that your instance type supports the summary statistics.";
-      }
-      next(error);
+    } catch (err) {
+      next();
     }
   });
 

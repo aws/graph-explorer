@@ -79,7 +79,7 @@ const NodeExpandFilters = ({
   }, [onFiltersChange, selectedType]);
 
   return (
-    <div className={pfx("section")}>
+    <div className={pfx("filters-section")}>
       <div className={pfx("title")}>{t("node-expand.neighbors-of-type")}</div>
       <Select
         aria-label={"neighbor type"}

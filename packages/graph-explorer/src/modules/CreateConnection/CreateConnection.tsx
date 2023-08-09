@@ -25,7 +25,7 @@ import defaultStyles from "./CreateConnection.styles";
 type ConnectionForm = {
   name?: string;
   url?: string;
-  type?: "gremlin" | "sparql";
+  type?: "gremlin" | "sparql" | "openCypher";
   proxyConnection?: boolean;
   graphDbUrl?: string;
   awsAuthEnabled?: boolean;
@@ -38,8 +38,9 @@ export const CONNECTIONS_OP: {
   label: string;
   value: NonNullable<ConnectionConfig["queryEngine"]>;
 }[] = [
-  { label: "PG (Property Graph)", value: "gremlin" },
-  { label: "RDF (Resource Description Framework)", value: "sparql" },
+  { label: "PG (Property Graph) - Gremlin", value: "gremlin" },
+  { label: "PG (Property Graph) - OpenCypher", value: "openCypher" },
+  { label: "RDF (Resource Description Framework) - SPARQL", value: "sparql" }
 ];
 
 export type CreateConnectionProps = {
