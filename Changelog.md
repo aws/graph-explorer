@@ -1,5 +1,14 @@
 # graph-explorer Change Log
 
+## Release 1.3.0
+
+This release includes the following feature enhancements and bug fixes:
+
+**Features**
+- Support openCypher-based graph databases (https://github.com/aws/graph-explorer/pull/129)
+
+**Bug fixes**
+
 ## Release 1.2.1
 
 Patch release to mitigate [#136](https://github.com/aws/graph-explorer/issues/136), changes below will be folded into Release 1.3.0.

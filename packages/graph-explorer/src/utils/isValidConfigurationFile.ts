@@ -60,7 +60,7 @@ const isValidConfigurationFile = (
     !data.connection.url ||
     !data.connection.queryEngine ||
     !isValidHttpUrl(data.connection.url) ||
-    !["gremlin", "sparql"].includes(data.connection.queryEngine)
+    !["gremlin", "sparql", "openCypher"].includes(data.connection.queryEngine)
   ) {
     return false;
   }
