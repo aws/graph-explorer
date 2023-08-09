@@ -8,6 +8,7 @@ This release includes the following feature enhancements and bug fixes:
 - Support openCypher-based graph databases (https://github.com/aws/graph-explorer/pull/129)
 
 **Bug fixes**
+- Fix Expand Module scrollbar (https://github.com/aws/graph-explorer/pull/131)
 
 ## Release 1.2.1
 

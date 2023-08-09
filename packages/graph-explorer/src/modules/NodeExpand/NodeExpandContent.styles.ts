@@ -5,7 +5,6 @@ import fade from "../../core/ThemeProvider/utils/fade";
 const defaultStyles = (pfx?: string): ThemeStyleFn => ({ theme }) =>
   css`
     height: 100%;
-    overflow: auto;
     display: flex;
     flex-direction: column;
     background: ${theme.palette.background.default};
@@ -42,7 +41,8 @@ const defaultStyles = (pfx?: string): ThemeStyleFn => ({ theme }) =>
       }
     }
 
-    .${pfx}-grow {
+    .${pfx}-empty-panel-state {
+      height: auto;
       flex-grow: 1;
     }
     .${pfx}-h-divider {
@@ -67,11 +67,14 @@ const defaultStyles = (pfx?: string): ThemeStyleFn => ({ theme }) =>
       }
     }
 
-    .${pfx}-section {
+    .${pfx}-filters-section {
       display: flex;
       flex-direction: column;
       gap: ${theme.spacing["2x"]};
       padding: ${theme.spacing["4x"]};
+      flex-grow: 1;
+      overflow-y: auto;
+      min-height: 250px;
 
       .${pfx}-title {
         display: flex;

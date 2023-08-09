@@ -116,6 +116,7 @@ const NodeExpandContent = ({
           <NeighborsList vertex={vertex} classNamePrefix={classNamePrefix} />
           {!vertex.data.__unfetchedNeighborCount && (
             <PanelEmptyState
+              className={pfx("empty-panel-state")}
               icon={<GraphIcon />}
               title={t("node-expand.no-unfetched-title")}
               subtitle={t("node-expand.no-unfetched-subtitle")}
@@ -133,7 +134,6 @@ const NodeExpandContent = ({
               onLimitChange={setLimit}
             />
           )}
-          <div className={pfx("grow")} />
           <ModuleContainerFooter>
             <Button
               icon={
