@@ -6,15 +6,6 @@ This release includes the following feature enhancements and bug fixes:
 
 **Features**
 - Support openCypher-based graph databases (https://github.com/aws/graph-explorer/pull/129)
-
-**Bug fixes**
-- Fix Expand Module scrollbar (https://github.com/aws/graph-explorer/pull/131)
-
-## Release 1.2.1
-
-Patch release to mitigate [#136](https://github.com/aws/graph-explorer/issues/136), changes below will be folded into Release 1.3.0.
-
-**Features**
 - Added ability to search by vertex ID for Gremlin (https://github.com/aws/graph-explorer/pull/113)
 - Improved logging visibility and user control (https://github.com/aws/graph-explorer/pull/114)
 - Upgraded various dependencies to resolve Docker build warnings (https://github.com/aws/graph-explorer/pull/118)
@@ -22,6 +13,7 @@ Patch release to mitigate [#136](https://github.com/aws/graph-explorer/issues/13
 - Added coverage tests for the UI client package (https://github.com/aws/graph-explorer/pull/130)
 
 **Bug fixes**
+- Fix Expand Module scrollbar (https://github.com/aws/graph-explorer/pull/131)
 - Fixed header generation for IAM authenticated Neptune requests (https://github.com/aws/graph-explorer/pull/140)
 - Fixed calculation of neighbors count in Expand View sidebar (https://github.com/aws/graph-explorer/pull/121)
 - Fixed proxy server not respecting `GRAPH_EXP_ENV_ROOT_FOLDER` value in .env (https://github.com/aws/graph-explorer/pull/125)
