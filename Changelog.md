@@ -1,5 +1,12 @@
 # graph-explorer Change Log
 
+## Release 1.3.1
+
+This patch release includes bugfixes for Release 1.3.0.
+
+**Bug fixes**
+- Fix proxy issue with non-IAM Neptune requests (https://github.com/aws/graph-explorer/pull/166)
+
 ## Release 1.3.0
 
 This release includes the following feature enhancements and bug fixes:
