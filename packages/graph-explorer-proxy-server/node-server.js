@@ -72,6 +72,8 @@ const errorHandler = (error, request, response, next) => {
     new Promise((resolve) => setTimeout(() => resolve(), ms));
 
   const retryFetch = async (url, headers, retries = 1, retryDelay = 10000) => {
+    // remove the existing host headers, we want ensure that we are passing the DB endpoint hostname.
+    delete headers["host"];
     if (headers["aws-neptune-region"]) {
       data = await getIAMHeaders({
         host: url.hostname,
@@ -80,8 +82,6 @@ const errorHandler = (error, request, response, next) => {
         service: "neptune-db",
         region: headers["aws-neptune-region"]
       });
-      // remove the host header because it's not needed for IAM
-      delete headers["host"];
       headers = { ...headers, ...data };
     } 
     for (let i = 0; i < retries; i++) {
