@@ -103,7 +103,7 @@ The Graph Explorer supports visualizing both **property graphs** and **RDF graph
 
 ### Providing a Default Connection
 
-To provide a default connection such that initial loads of the graph explorer always result with the same starting connection, modify the `docker run ...` command to either take in a json configuration or runtime environment variables. If you provide both a JSON configuration and environmental variables, the JSON will be prioritized.
+To provide a default connection such that initial loads of the graph explorer always result with the same starting connection, modify the `docker run ...` command to either take in a JSON configuration or runtime environment variables. If you provide both a JSON configuration and environmental variables, the JSON will be prioritized.
 
 #### Valid ENV connection variables, their defaults, and their descriptions:
 
@@ -147,9 +147,19 @@ docker run -p 80:80 -p 443:443 --env HOST={hostname-or-ip-address} -v /path/to/c
 #### Environment Variable Approach:
 
 Provide the desired connection variables directly to the `docker run` command, as follows:
+
 ``` 
-docker run -p 80:80 -p 443:443 --env HOST={hostname-or-ip-address} --env PUBLIC_OR_PROXY_ENDPOINT=https://public-endpoint --env GRAPH_TYPE=gremlin --env USING_PROXY_SERVER=true --env IAM=false --env GRAPH_CONNECTION_URL=https://cluster-cqmizgqgrsbf.us-west-2.neptune.amazonaws.com:8182 --env AWS_REGION=us-west-2 --env PROXY_SERVER_HTTPS_CONNECTION=true graph-explorer
-``` 
+docker run -p 80:80 -p 443:443 \
+ --env HOST={hostname-or-ip-address} \
+ --env PUBLIC_OR_PROXY_ENDPOINT=https://public-endpoint \
+ --env GRAPH_TYPE=gremlin \
+ --env USING_PROXY_SERVER=true \
+ --env IAM=false \
+ --env GRAPH_CONNECTION_URL=https://cluster-cqmizgqgrsbf.us-west-2.neptune.amazonaws.com:8182 \
+ --env AWS_REGION=us-west-2 \
+ --env PROXY_SERVER_HTTPS_CONNECTION=true \
+ graph-explorer
+```
 
 ## Development
 
