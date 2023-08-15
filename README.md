@@ -103,25 +103,27 @@ The Graph Explorer supports visualizing both **property graphs** and **RDF graph
 
 ### Providing a Default Connection
 
-To provide a default connection such that initial loads of the graph explorer always result with the same starting connection, modify the `docker run ...` command to either take in a json configuration or runtime environment variables. A json configuration approach would look like `docker run -p 80:80 -p 443:443 --env HOST={hostname-or-ip-address} -v /path/to/config.json:/graph-explorer/config.json graph-explorer` or create a `config.json` file at the root of the project. An environment variable approach would look like `docker run -p 80:80 -p 443:443 --env HOST={hostname-or-ip-address} --env PUBLIC_OR_PROXY_ENDPOINT=https://public-endpoint --env GRAPH_TYPE=gremlin --env USING_PROXY_SERVER=true --env IAM=false --env GRAPH_CONNECTION_URL=https://cluster-cqmizgqgrsbf.us-west-2.neptune.amazonaws.com:8182 --env AWS_REGION=us-west-2 --env PROXY_SERVER_HTTPS_CONNECTION=true graph-explorer`. IF you provide both, the json approach will be prioritized.
+To provide a default connection such that initial loads of the graph explorer always result with the same starting connection, modify the `docker run ...` command to either take in a json configuration or runtime environment variables. If you provide both a JSON configuration and environmental variables, the JSON will be prioritized.
 
-The set of valid ENV connection variables, their defaults, and their descriptions:
+#### Valid ENV connection variables, their defaults, and their descriptions:
 
 - Required:
-  - PUBLIC_OR_PROXY_ENDPOINT - None - See [Add a New Connection](#connections-ui)
+  - `PUBLIC_OR_PROXY_ENDPOINT` - `None` - See [Add a New Connection](#connections-ui)
 - Optional
-  - GRAPH_TYPE - PG (Property Graph)- See [Add a New Connection](#connections-ui)
-  - USING_PROXY_SERVER - False- See [Add a New Connection](#connections-ui)
-  - IAM - False- See [Add a New Connection](#connections-ui)
-  - PROXY_SERVER_HTTPS_CONNECTION - True - Controls whether the server uses SSL or not
-  - GRAPH_EXP_HTTPS_CONNECTION - True - Controls whether the Graph Explorer uses SSL or not
+  - `GRAPH_TYPE` - `None` - If not specified, multiple connections will be created for every available graph type / query language. See [Add a New Connection](#connections-ui)
+  - `USING_PROXY_SERVER` - `False` - See [Add a New Connection](#connections-ui)
+  - `IAM` - `False` - See [Add a New Connection](#connections-ui)
+  - `PROXY_SERVER_HTTPS_CONNECTION` - `True` - Controls whether the server uses SSL or not
+  - `GRAPH_EXP_HTTPS_CONNECTION` - `True` - Controls whether the Graph Explorer uses SSL or not
 - Conditionally Required:
-  - Required if USING_PROXY_SERVER=True
-    - GRAPH_CONNECTION_URL - None- See [Add a New Connection](#connections-ui)
-  - Required if USING_PROXY_SERVER=True and IAM=True
-    - AWS_REGION - None- See [Add a New Connection](#connections-ui)
+  - Required if `USING_PROXY_SERVER=True`
+    - `GRAPH_CONNECTION_URL` - `None` - See [Add a New Connection](#connections-ui)
+  - Required if `USING_PROXY_SERVER=True` and `IAM=True`
+    - `AWS_REGION` - `None` - See [Add a New Connection](#connections-ui)
 
-The config.json file should provide values for the attributes at the top level as in the example below:
+#### JSON Configuration Approach:
+
+First, create a `config.json` file containing values for the connection attributes:
 
 ```json
 {
@@ -130,11 +132,24 @@ The config.json file should provide values for the attributes at the top level a
      "USING_PROXY_SERVER": true, (Can be string or boolean)
      "IAM": true, (Can be string or boolean)
      "AWS_REGION": "us-west-2",
-     "GRAPH_TYPE": "gremlin" (Possible Values: "gremlin" or "sparql"),
+     "GRAPH_TYPE": "gremlin" (Possible Values: "gremlin", "sparql", "opencypher"),
      "PROXY_SERVER_HTTPS_CONNECTION": true, (Can be string or boolean),
      "GRAPH_EXP_HTTPS_CONNECTION": true (Can be string or boolean)
 }
 ```
+
+Pass the `config.json` file path to the `docker run` command.
+
+```
+docker run -p 80:80 -p 443:443 --env HOST={hostname-or-ip-address} -v /path/to/config.json:/graph-explorer/config.json graph-explorer` 
+```
+
+#### Environment Variable Approach:
+
+Provide the desired connection variables directly to the `docker run` command, as follows:
+``` 
+docker run -p 80:80 -p 443:443 --env HOST={hostname-or-ip-address} --env PUBLIC_OR_PROXY_ENDPOINT=https://public-endpoint --env GRAPH_TYPE=gremlin --env USING_PROXY_SERVER=true --env IAM=false --env GRAPH_CONNECTION_URL=https://cluster-cqmizgqgrsbf.us-west-2.neptune.amazonaws.com:8182 --env AWS_REGION=us-west-2 --env PROXY_SERVER_HTTPS_CONNECTION=true graph-explorer
+``` 
 
 ## Development
 
