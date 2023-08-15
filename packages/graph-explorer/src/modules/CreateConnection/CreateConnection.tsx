@@ -8,6 +8,7 @@ import Input from "../../components/Input";
 import { useNotification } from "../../components/NotificationProvider";
 import Select from "../../components/Select";
 import {
+  ConnectionConfig,
   RawConfiguration,
   useWithTheme,
   withClassNamePrefix,
@@ -33,10 +34,13 @@ type ConnectionForm = {
   cacheTimeMs?: number;
 };
 
-const CONNECTIONS_OP = [
+export const CONNECTIONS_OP: {
+  label: string;
+  value: NonNullable<ConnectionConfig["queryEngine"]>;
+}[] = [
   { label: "PG (Property Graph) - Gremlin", value: "gremlin" },
   { label: "PG (Property Graph) - OpenCypher", value: "openCypher" },
-  { label: "RDF (Resource Description Framework) - SPARQL", value: "sparql" },
+  { label: "RDF (Resource Description Framework) - SPARQL", value: "sparql" }
 ];
 
 export type CreateConnectionProps = {

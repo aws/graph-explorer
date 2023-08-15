@@ -6,7 +6,6 @@ import {
   DatabaseIcon,
   DeleteIcon,
   EditIcon,
-  IconButton,
   ModuleContainer,
   ModuleContainerHeader,
   PanelEmptyState,
@@ -131,7 +130,7 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
         return onConfigSync();
       }
     },
-    [onConfigDelete, onConfigExport]
+    [onConfigDelete, onConfigExport, onConfigSync]
   );
 
   if (!config) {

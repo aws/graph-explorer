@@ -62,7 +62,7 @@ const errorHandler = (error, request, response, next) => {
 
 (async () => {
   app.use(cors());
-
+  app.use("/defaultConnection", express.static(path.join(__dirname, "../graph-explorer/defaultConnection.json")));
   app.use(
     process.env.GRAPH_EXP_ENV_ROOT_FOLDER,
     express.static(path.join(__dirname, "../graph-explorer/dist"))
@@ -102,6 +102,7 @@ const errorHandler = (error, request, response, next) => {
         } else {
           await new Promise(resolve => setTimeout(resolve, retryDelay));
         }
+>>>>>>> upstream/main
       }
     }
   };
