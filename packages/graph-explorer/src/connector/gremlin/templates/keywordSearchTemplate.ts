@@ -5,6 +5,7 @@ import type { KeywordSearchRequest } from "../../AbstractConnector";
  * @example
  * searchTerm = "JFK"
  * vertexTypes = ["airport"]
+ * searchById = false
  * searchByAttributes = ["city", "code"]
  * limit = 100
  * offset = 0
@@ -37,8 +38,9 @@ const keywordSearchTemplate = ({
 
   if (Boolean(searchTerm) && (searchByAttributes.length !== 0 || searchById)) {
     const orContent = uniq(
-      searchById ? ["_id", ...searchByAttributes] : searchByAttributes
+        (searchById && searchByAttributes.includes("__all")) ? ["_id", ...searchByAttributes] : searchByAttributes
     )
+      .filter(attr => attr !== "__all")
       .map(attr => {
         if (attr === "_id") {
           return `has(id,containing("${searchTerm}"))`;
