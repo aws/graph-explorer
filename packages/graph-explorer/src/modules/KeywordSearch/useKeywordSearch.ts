@@ -21,6 +21,7 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
   const debouncedSearchTerm = useDebounceValue(searchTerm, 1000);
   const [selectedVertexType, setSelectedVertexType] = useState("__all");
   const [selectedAttribute, setSelectedAttribute] = useState("__all");
+  const [neighborsLimit, setNeighborsLimit] = useState(true);
   const textTransform = useTextTransform();
 
   const vertexOptions = useMemo(() => {
@@ -48,6 +49,10 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
 
   const onAttributeOptionChange = useCallback((value: string | string[]) => {
     setSelectedAttribute(value as string);
+  }, []);
+
+  const onNeighborsLimitChange = useCallback(() => {
+    setNeighborsLimit(neighborsLimit => !neighborsLimit);
   }, []);
 
   const searchableAttributes = useMemo(() => {
@@ -141,6 +146,7 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
       debouncedSearchTerm,
       vertexTypes,
       searchByAttributes,
+      neighborsLimit,
       isMount,
       isOpen,
     ],
@@ -191,6 +197,7 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
 
   useEffect(() => {
     setSelectedAttribute("__all");
+    setNeighborsLimit(true);
   }, [selectedVertexType]);
 
   return {
@@ -205,6 +212,8 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
     selectedAttribute,
     attributesOptions,
     onAttributeOptionChange,
+    neighborsLimit,
+    onNeighborsLimitChange,
     searchResults: data?.vertices || [],
   };
 };
