@@ -1,5 +1,4 @@
-# How to run graph-explorer in Amazon ECS on AWS Fargate and connect to Neptune
-
+# How to run graph-explorer on AWS Fargate in Amazon ECS and connect to Neptune
 The following steps let you set up graph-explorer on Fargate in Amazon ECS and connect to a running Neptune database.
 
 1. **Create a new IAM role and attach these policies to it**
@@ -17,7 +16,7 @@ The following steps let you set up graph-explorer on Fargate in Amazon ECS and c
 
 2. **Create an Amazon ECS Cluster**
      * Open the console at https://console.aws.amazon.com/ecs/v2.
-     * From the navigation bar, select the Region to use.
+     * From the navigation ba
      * In the navigation pane, choose Clusters.
      * On the Clusters page, choose Create cluster.
      * Under Cluster configuration, for Cluster name, enter a unique name.
@@ -49,14 +48,151 @@ After you create the cluster you can create task definitions for your applicants
         * ECDSA P 384
       * In the Tags page, you can optionally tag your certificate.
       * When you finish adding tags, choose Request.
+  
+   After the request is processed, the console returns you to your certificate list, where information about the new certificate is displayed. A certificate enters status     Pending validation upon being requested, and once the verification is successful, ACM will issue the SSL/TLS certificate for the specified domain names.
 
-  After the request is processed, the console returns you to your certificate list, where information about the new certificate is displayed.
-5.
-6. **Creating a task definition**
+4. **Creating a ECS Task Definition**
       * Open the console at https://console.aws.amazon.com/ecs/v2.
       * In the navigation pane, choose Task definitions.
       * Choose Create new task definition, Create new task definition with JSON.
-      * In the JSON editor box, edit your JSON file,
-      * The JSON must pass the validation checks specified in JSON validation.
-      * Choose Create.
-    
+      * In the JSON editor box, edit your JSON file as follows.
+  
+      ```json
+      {
+          "family": "graph-explorer",
+          "containerDefinitions": [
+              {
+                  "name": "graph-explorer",
+                  "image": "public.ecr.aws/neptune/graph-explorer:latest",
+                  "cpu": 0,
+                  "portMappings": [
+                      {
+                          "name": "graph-explorer-80-tcp",
+                          "containerPort": 80,
+                          "hostPort": 80,
+                          "protocol": "tcp",
+                          "appProtocol": "http"
+                      },
+                      {
+                          "name": "graph-explorer-443-tcp",
+                          "containerPort": 443,
+                          "hostPort": 443,
+                          "protocol": "tcp",
+                          "appProtocol": "http"
+                      }
+                  ],
+                  "essential": true,
+                  "environment": [
+                      {
+                          "name": "AWS_REGION",
+                          "value": "us-west-2"
+                      },
+                      {
+                          "name": "GRAPH_TYPE",
+                          "value": "gremlin"
+                      },
+                      {
+                          "name": "GRAPH_EXP_HTTPS_CONNECTION",
+                          "value": "true"
+                      },
+                      {
+                          "name": "IAM",
+                          "value": "false"
+                      },
+                      {
+                          "name": "USING_PROXY_SERVER",
+                          "value": "true"
+                      },
+                      {
+                          "name": "PUBLIC_OR_PROXY_ENDPOINT",
+                          "value": "https://{FQDN_from_step3}"
+                      },
+                      {
+                          "name": "HOST",
+                          "value": "localhost"
+                      },
+                      {
+                          "name": "GRAPH_CONNECTION_URL",
+                          "value": "https://{NEPTUNE_ENDPOINT}:8182"
+                      },
+                      {
+                          "name": "PROXY_SERVER_HTTPS_CONNECTION",
+                          "value": "true"
+                      }
+                  ],
+                  "mountPoints": [],
+                  "volumesFrom": [],
+                  "logConfiguration": {
+                      "logDriver": "awslogs",
+                      "options": {
+                          "awslogs-create-group": "true",
+                          "awslogs-group": "/ecs/graph-explorer",
+                          "awslogs-region": "{REGION}",
+                          "awslogs-stream-prefix": "ecs"
+                      }
+                  }
+              }
+          ],
+          "taskRoleArn": "arn:aws:iam::{account_no}:role/{role_name_from_step_1}",
+          "executionRoleArn": "arn:aws:iam::{account_no}:role/{role_name_from_step_1}",
+          "networkMode": "awsvpc",
+          "requiresCompatibilities": [
+              "FARGATE"
+          ],
+          "cpu": "1024",
+          "memory": "3072",
+          "runtimePlatform": {
+              "cpuArchitecture": "X86_64",
+              "operatingSystemFamily": "LINUX"
+          }
+      }
+      ```
+Update the `region,taskRoleArn,executionRoleArn,GRAPH_CONNECTION_URL,PUBLIC_OR_PROXY_ENDPOINT`.
+
+
+5. **Create a Fargate Service**
+   
+      * Open the console at https://console.aws.amazon.com/ecs/v2.
+      * In the navigation page, choose Clusters.
+      * On the Clusters page, select the cluster that was created in Step 2.
+      * From the Services tab, choose Create.
+      * Expand Compute configuration, and then choose Launch type `Fargate` and Platform Version `Latest`.
+      * To specify how your service is deployed, expand Deployment configuration, and then For Application type, choose `Service`.
+      * For Task definition, choose the task definition created in step4 and select latest revision.
+      * For Service name, enter a name for your service `svc-graphexplorer-demo`.
+      * For Service type, choose `Replica`.
+      * For Desired tasks, enter the number of tasks to launch and maintain in the service.
+      * Expand the Network Configuration and select the VPC where your Neptune database is located.
+      * For Subnets, set to the public subnets of that VPC (remove all others).
+      * For Security Group, create a new security group and specify a security group name `graphexplorer-demo`, description `Security group for access to graph-explorer`, port `80` and `443` and authorize only a specific IP address range to access your instances.
+      * Expand Loadbalancing and select Application loadbalancer and create new loadbalancer with below configuration (see screenshot below).
+          * Loadbalancer Name : `lb-graph-explorer-demo`
+          * Choose container to load balance : graph-explorer 443:443.
+          * Create New listener with  Port 443 / Protocol HTTPS.
+          * Choose from ACM certificate created in Step 3.
+          * Create new target group `tg-graphexplorer-demo` with Protocol `HTTPS` and Health Check Path `/explorer/` with Health check protocol `HTTPS`.
+
+      <img width="720" alt="image" src="https://github.com/StrongPa55w0rd/graph-explorer/assets/356327/c6961dff-c87c-403a-b3b0-52be42564a54">
+     
+      * (Optional) To configure service auto scaling, expand Service auto scaling, and then specify the desired scaling configuration.
+      * (Optional) To help identify your service and tasks, expand the Tags section, and then configure your tags.
+      * To have Amazon ECS automatically tag all newly launched tasks with the cluster name and the task definition tags, select Turn on Amazon ECS managed tags, and then select Task definitions.
+      * Select create
+      
+  
+      <img width="1723" alt="image" src="https://github.com/StrongPa55w0rd/graph-explorer/assets/356327/7746edbd-cf4d-4532-9a10-cde87e5a55a1">
+  After few minutes the service will be created and ready.
+
+6. **Create Amazon Route53 Entry**
+      * Open the Route 53 console at https://console.aws.amazon.com/route53/.
+      * On the Hosted zones page, choose the name of the hosted zone that you want to create records in.
+      * Choose Create record.
+      * Enter the domain or subdomain name that you want to use to route traffic to your Application load balancer. For eg. `graphexplorer.example.com`.
+      * Choose Alias to Application and Classic Load Balancer and then choose the Region that the endpoint is from.
+      * Choose the name that you assigned to the load balancer when you created the ECS Fargate Service.
+      * Leave everything else default and Choose Create records.
+
+Changes generally propagate to all Route 53 servers within 60 seconds. When propagation is done, you'll be able to route traffic to your load balancer by using the name of the alias record that you created in the above step.
+
+Now, enter the URL you created in the previous step into a browser to access the endpoint for the Graph Explorer for eg.`https://graphexplorer.example.com/explorer`. You should now be connected.
+
