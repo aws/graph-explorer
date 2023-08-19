@@ -13,6 +13,7 @@ on:
         default: 'latest'
   push:
     branches:
+      - Issue-149
       - main
 
 jobs:
@@ -66,7 +67,7 @@ jobs:
           REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
           REGISTRY_ALIAS: neptune
           REPOSITORY: graph-explorer
-          IMAGE_TAG: ${{ steps.get-image-tag.outputs.image_tag }}
+          IMAGE_TAG: latest-dev # ${{ steps.get-image-tag.outputs.image_tag }}
         run: |
           docker build -t $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG .
           docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG

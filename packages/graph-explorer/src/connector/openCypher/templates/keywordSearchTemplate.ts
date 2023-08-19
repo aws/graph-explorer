@@ -8,6 +8,7 @@ import type { KeywordSearchRequest } from "../../AbstractConnector";
  * searchByAttributes = ["city", "code"]
  * limit = 100
  * offset = 0
+ * exactMatch = false
  *
  * MATCH (v:airport)
  * WHERE

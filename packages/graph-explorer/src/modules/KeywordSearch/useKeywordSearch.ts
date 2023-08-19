@@ -21,7 +21,9 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
   const debouncedSearchTerm = useDebounceValue(searchTerm, 1000);
   const [selectedVertexType, setSelectedVertexType] = useState("__all");
   const [selectedAttribute, setSelectedAttribute] = useState("__all");
+  const [exactMatch, setExactMatch] = useState(false);
   const textTransform = useTextTransform();
+  const exactMatchOptions = [{ label: "Exact", value: "Exact" }, { label: "Fuzzy", value: "Fuzzy" }];
 
   const vertexOptions = useMemo(() => {
     const vertexOps =
@@ -48,6 +50,15 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
 
   const onAttributeOptionChange = useCallback((value: string | string[]) => {
     setSelectedAttribute(value as string);
+  }, []);
+
+  const onExactMatchChange = useCallback((value: string) => {
+    if (value === "Exact") {
+      setExactMatch(true);
+    }
+    else {
+      setExactMatch(false);
+    }
   }, []);
 
   const searchableAttributes = useMemo(() => {
@@ -141,6 +152,7 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
       debouncedSearchTerm,
       vertexTypes,
       searchByAttributes,
+      exactMatch,
       isMount,
       isOpen,
     ],
@@ -156,7 +168,7 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
           vertexTypes,
           searchByAttributes,
           searchById: true,
-          exactMatch: false,
+          exactMatch: exactMatch,
         },
         { abortSignal: controller.signal }
       ) as PromiseWithCancel<KeywordSearchResponse>;
@@ -192,6 +204,7 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
 
   useEffect(() => {
     setSelectedAttribute("__all");
+    setExactMatch(false);
   }, [selectedVertexType]);
 
   return {
@@ -206,6 +219,9 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
     selectedAttribute,
     attributesOptions,
     onAttributeOptionChange,
+    exactMatch,
+    exactMatchOptions,
+    onExactMatchChange,
     searchResults: data?.vertices || [],
   };
 };

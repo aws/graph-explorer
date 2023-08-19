@@ -18,6 +18,7 @@ import {
   SearchSadIcon,
   Select,
   VertexIcon,
+  Checkbox,
 } from "../../components";
 import { CarouselRef } from "../../components/Carousel/Carousel";
 import HumanReadableNumberFormatter from "../../components/HumanReadableNumberFormatter";
@@ -70,6 +71,9 @@ const KeywordSearch = ({
     selectedAttribute,
     attributesOptions,
     onAttributeOptionChange,
+    exactMatch,
+    exactMatchOptions,
+    onExactMatchChange,
   } = useKeywordSearch({
     isOpen: isFocused,
   });
@@ -276,7 +280,7 @@ const KeywordSearch = ({
               options={vertexOptions}
               value={selectedVertexType}
               onChange={onVertexOptionChange}
-              menuWidth={200}
+              menuWidth={150}
             />
             <Select
               className={pfx("entity-select")}
@@ -286,7 +290,17 @@ const KeywordSearch = ({
               options={attributesOptions}
               value={selectedAttribute}
               onChange={onAttributeOptionChange}
-              menuWidth={200}
+              menuWidth={150}
+            />
+            <Select
+              className={pfx("entity-select")}
+              label={t("keyword-search.node-exact-match")}
+              labelPlacement={"inner"}
+              hideError={true}
+              options={exactMatchOptions}
+              value={exactMatch ? "Exact" : "Fuzzy"}
+              onChange={onExactMatchChange}
+              menuWidth={150}
             />
             <Input
               className={pfx("search-input")}

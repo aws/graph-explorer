@@ -15,7 +15,7 @@ describe("Gremlin > keywordSearchTemplate", () => {
     expect(template).toBe('g.V().hasLabel("airport").range(0,10)');
   });
 
-  it("Should return a template for searched attributes matching with the search term", () => {
+  it("Should return a template for searched attributes containing the search term", () => {
     const template = keywordSearchTemplate({
       searchTerm: "JFK",
       searchById: true,
@@ -24,6 +24,19 @@ describe("Gremlin > keywordSearchTemplate", () => {
 
     expect(template).toBe(
       'g.V().or(has(id,containing("JFK")),has("city",containing("JFK")),has("code",containing("JFK"))).range(0,10)'
+    );
+  });
+
+  it("Should return a template for searched attributes exactly matching the search term", () => {
+    const template = keywordSearchTemplate({
+      searchTerm: "JFK",
+      searchById: true,
+      searchByAttributes: ["city", "code"],
+      exactMatch: true,
+    });
+
+    expect(template).toBe(
+      'g.V().or(has(id,"JFK"),has("city","JFK"),has("code","JFK")).range(0,10)'
     );
   });
 
