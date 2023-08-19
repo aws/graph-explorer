@@ -24,6 +24,7 @@ const keywordSearchTemplate = ({
   searchByAttributes = [],
   limit = 10,
   offset = 0,
+  exactMatch = false,
 }: KeywordSearchRequest): string => {
   let template = "";
 
@@ -39,7 +40,13 @@ const keywordSearchTemplate = ({
     )
       .map((attr: any) => {
         if (attr === "id") {
+          if (exactMatch === true) {
+             return `v.\`~id\` = "${searchTerm}" `;
+          }
           return `v.\`~id\` CONTAINS "${searchTerm}" `;
+        }
+        if (exactMatch === true) {
+           return `v.${attr} = "${searchTerm}" `;
         }
         return `v.${attr} CONTAINS "${searchTerm}" `;
       })
