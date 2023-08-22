@@ -139,7 +139,7 @@ const KeywordSearch = ({
               size={"small"}
               variant={"text"}
               onPress={() => {
-                const numNeighborsLimit = neighborsLimit ? 500 : 1000000;
+                const numNeighborsLimit = neighborsLimit ? 500 : 0;
                 fetchNode(vertex, numNeighborsLimit);
                 setInputFocused(false);
               }}
@@ -194,7 +194,7 @@ const KeywordSearch = ({
     const nodes = nodeIdsToAdd
       .map(getNodeSearchedById)
       .filter(Boolean) as Vertex[];
-    const numNeighborsLimit = neighborsLimit ? 500 : 1000000;
+    const numNeighborsLimit = neighborsLimit ? 500 : 0;
     fetchNode(nodes, numNeighborsLimit);
     handleOnClose();
   };
