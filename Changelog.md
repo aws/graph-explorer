@@ -8,6 +8,9 @@ The next release will include the following feature enhancements and bug fixes:
 - Added Default Connection support (https://github.com/aws/graph-explorer/pull/108)
 - Added query language indicators to created connections (https://github.com/aws/graph-explorer/pull/164)
 
+**Bug fixes**
+- Fixed search UI crashing on node select/preview (https://github.com/aws/graph-explorer/pull/177)
+
 ## Release 1.3.1
 
 This patch release includes bugfixes for Release 1.3.0.

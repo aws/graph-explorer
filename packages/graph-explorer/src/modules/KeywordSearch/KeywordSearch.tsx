@@ -354,6 +354,9 @@ const KeywordSearch = ({
                     ref={carouselRef}
                     slidesToShow={1}
                     className={pfx("carousel")}
+                    pagination={{
+                      el: `.swiper-pagination`
+                    }}
                   >
                     {Array.from(selection.state).map(nodeId => {
                       const node = searchResults.find(
