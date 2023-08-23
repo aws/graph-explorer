@@ -5,6 +5,7 @@
 The next release will include the following feature enhancements and bug fixes:
 
 **Features**
+- Added SageMaker Notebook support (https://github.com/aws/graph-explorer/pull/178)
 - Added Default Connection support (https://github.com/aws/graph-explorer/pull/108)
 - Added query language indicators to created connections (https://github.com/aws/graph-explorer/pull/164)
 
