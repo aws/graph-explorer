@@ -66,6 +66,9 @@ const KeywordSearch = ({
     selectedAttribute,
     attributesOptions,
     onAttributeOptionChange,
+    exactMatch,
+    exactMatchOptions,
+    onExactMatchChange,
     neighborsLimit,
     onNeighborsLimitChange,
   } = useKeywordSearch({
@@ -277,7 +280,7 @@ const KeywordSearch = ({
               options={vertexOptions}
               value={selectedVertexType}
               onChange={onVertexOptionChange}
-              menuWidth={200}
+              menuWidth={150}
             />
             <Select
               className={pfx("entity-select")}
@@ -287,7 +290,17 @@ const KeywordSearch = ({
               options={attributesOptions}
               value={selectedAttribute}
               onChange={onAttributeOptionChange}
-              menuWidth={200}
+              menuWidth={150}
+            />
+            <Select
+              className={pfx("entity-select")}
+              label={t("keyword-search.node-exact-match")}
+              labelPlacement={"inner"}
+              hideError={true}
+              options={exactMatchOptions}
+              value={exactMatch ? "Exact" : "Partial"}
+              onChange={onExactMatchChange}
+              menuWidth={150}
             />
             <Input
               className={pfx("search-input")}

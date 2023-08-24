@@ -21,8 +21,10 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
   const debouncedSearchTerm = useDebounceValue(searchTerm, 1000);
   const [selectedVertexType, setSelectedVertexType] = useState("__all");
   const [selectedAttribute, setSelectedAttribute] = useState("__all");
+  const [exactMatch, setExactMatch] = useState(false);
   const [neighborsLimit, setNeighborsLimit] = useState(true);
   const textTransform = useTextTransform();
+  const exactMatchOptions = [{ label: "Exact", value: "Exact" }, { label: "Partial", value: "Partial" }];
 
   const vertexOptions = useMemo(() => {
     const vertexOps =
@@ -49,6 +51,15 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
 
   const onAttributeOptionChange = useCallback((value: string | string[]) => {
     setSelectedAttribute(value as string);
+  }, []);
+
+  const onExactMatchChange = useCallback((value: string) => {
+    if (value === "Exact") {
+      setExactMatch(true);
+    }
+    else {
+      setExactMatch(false);
+    }
   }, []);
 
   const onNeighborsLimitChange = useCallback(() => {
@@ -146,6 +157,7 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
       debouncedSearchTerm,
       vertexTypes,
       searchByAttributes,
+      exactMatch,
       neighborsLimit,
       isMount,
       isOpen,
@@ -162,6 +174,7 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
           vertexTypes,
           searchByAttributes,
           searchById: true,
+          exactMatch: exactMatch,
         },
         { abortSignal: controller.signal }
       ) as PromiseWithCancel<KeywordSearchResponse>;
@@ -197,6 +210,7 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
 
   useEffect(() => {
     setSelectedAttribute("__all");
+    setExactMatch(false);
     setNeighborsLimit(true);
   }, [selectedVertexType]);
 
@@ -212,6 +226,9 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
     selectedAttribute,
     attributesOptions,
     onAttributeOptionChange,
+    exactMatch,
+    exactMatchOptions,
+    onExactMatchChange,
     neighborsLimit,
     onNeighborsLimitChange,
     searchResults: data?.vertices || [],

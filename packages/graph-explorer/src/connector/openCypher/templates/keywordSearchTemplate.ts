@@ -9,6 +9,7 @@ import type { KeywordSearchRequest } from "../../AbstractConnector";
  * searchByAttributes = ["city", "code"]
  * limit = 100
  * offset = 0
+ * exactMatch = false
  *
  * MATCH (v:airport)
  * WHERE
@@ -25,6 +26,7 @@ const keywordSearchTemplate = ({
   searchByAttributes = [],
   limit = 10,
   offset = 0,
+  exactMatch = false,
 }: KeywordSearchRequest): string => {
   let template = "";
 
@@ -41,7 +43,13 @@ const keywordSearchTemplate = ({
       .filter(attr => attr !== "__all")
       .map((attr: any) => {
         if (attr === "id") {
+          if (exactMatch === true) {
+             return `v.\`~id\` = "${searchTerm}" `;
+          }
           return `v.\`~id\` CONTAINS "${searchTerm}" `;
+        }
+        if (exactMatch === true) {
+           return `v.${attr} = "${searchTerm}" `;
         }
         return `v.${attr} CONTAINS "${searchTerm}" `;
       })

@@ -7,12 +7,11 @@ The next release will include the following feature enhancements and bug fixes:
 **Features**
 - Added Default Connection support (https://github.com/aws/graph-explorer/pull/108)
 - Added query language indicators to created connections (https://github.com/aws/graph-explorer/pull/164)
+- Added match precision option to keyword search (https://github.com/aws/graph-explorer/pull/175)
 - Add toggle for limit on retrieved vertex neighbors (https://github.com/aws/graph-explorer/pull/176)
 
 **Bug fixes**
 - Fixed search UI crashing on node select/preview (https://github.com/aws/graph-explorer/pull/177)
-
-**Bug fixes**
 - Fixed Gremlin/openCypher matching ID property on all keyword searches (https://github.com/aws/graph-explorer/pull/169)
 
 ## Release 1.3.1
