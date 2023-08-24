@@ -8,21 +8,23 @@ const useFetchNode = () => {
   const connector = useConnector();
 
   const fetchNeighborsCount = useCallback(
-    (vertexId: string) => {
+    (vertexId: string, neighbors_limit: number) => {
       return connector.explorer?.fetchNeighborsCount({
         vertexId: vertexId,
+        limit: neighbors_limit,
       });
     },
     [connector.explorer]
   );
 
   return useCallback(
-    async (nodeOrNodes: Vertex | Vertex[]) => {
+    async (nodeOrNodes: Vertex | Vertex[], limit: number) => {
       const nodes = Array.isArray(nodeOrNodes) ? nodeOrNodes : [nodeOrNodes];
+      const neighbors_limit = limit;
 
       const results = await Promise.all(
         nodes.map(async node => {
-          const neighborsCount = await fetchNeighborsCount(node.data.id);
+          const neighborsCount = await fetchNeighborsCount(node.data.id, neighbors_limit);
           if (!neighborsCount) {
             return;
           }
