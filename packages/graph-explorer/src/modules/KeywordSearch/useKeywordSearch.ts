@@ -131,7 +131,7 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
     selectedVertexType === "__all" ? config?.vertexTypes : [selectedVertexType];
   const searchByAttributes =
     selectedAttribute === "__all"
-      ? uniq(searchableAttributes.map(attr => attr.name))
+      ? uniq(searchableAttributes.map(attr => attr.name).concat("__all"))
       : [selectedAttribute];
 
   const updatePrefixes = usePrefixesUpdater();
