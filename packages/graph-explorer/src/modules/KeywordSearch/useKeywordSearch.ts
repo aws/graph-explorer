@@ -23,7 +23,7 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
   const [selectedAttribute, setSelectedAttribute] = useState("__all");
   const [exactMatch, setExactMatch] = useState(false);
   const textTransform = useTextTransform();
-  const exactMatchOptions = [{ label: "Exact", value: "Exact" }, { label: "Fuzzy", value: "Fuzzy" }];
+  const exactMatchOptions = [{ label: "Exact", value: "Exact" }, { label: "Partial", value: "Partial" }];
 
   const vertexOptions = useMemo(() => {
     const vertexOps =

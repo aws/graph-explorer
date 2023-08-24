@@ -298,7 +298,7 @@ const KeywordSearch = ({
               labelPlacement={"inner"}
               hideError={true}
               options={exactMatchOptions}
-              value={exactMatch ? "Exact" : "Fuzzy"}
+              value={exactMatch ? "Exact" : "Partial"}
               onChange={onExactMatchChange}
               menuWidth={150}
             />
