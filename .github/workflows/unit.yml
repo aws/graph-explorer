@@ -43,4 +43,4 @@ jobs:
         with:
           directory: "./packages/graph-explorer/coverage"
           files: "*.info"
-          fail_ci_if_error: true
+        
