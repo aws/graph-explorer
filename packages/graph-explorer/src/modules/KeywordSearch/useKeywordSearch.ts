@@ -22,6 +22,7 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
   const [selectedVertexType, setSelectedVertexType] = useState("__all");
   const [selectedAttribute, setSelectedAttribute] = useState("__all");
   const [exactMatch, setExactMatch] = useState(false);
+  const [neighborsLimit, setNeighborsLimit] = useState(true);
   const textTransform = useTextTransform();
   const exactMatchOptions = [{ label: "Exact", value: "Exact" }, { label: "Partial", value: "Partial" }];
 
@@ -59,6 +60,10 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
     else {
       setExactMatch(false);
     }
+  }, []);
+
+  const onNeighborsLimitChange = useCallback(() => {
+    setNeighborsLimit(neighborsLimit => !neighborsLimit);
   }, []);
 
   const searchableAttributes = useMemo(() => {
@@ -142,7 +147,7 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
     selectedVertexType === "__all" ? config?.vertexTypes : [selectedVertexType];
   const searchByAttributes =
     selectedAttribute === "__all"
-      ? uniq(searchableAttributes.map(attr => attr.name))
+      ? uniq(searchableAttributes.map(attr => attr.name).concat("__all"))
       : [selectedAttribute];
 
   const updatePrefixes = usePrefixesUpdater();
@@ -153,6 +158,7 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
       vertexTypes,
       searchByAttributes,
       exactMatch,
+      neighborsLimit,
       isMount,
       isOpen,
     ],
@@ -205,6 +211,7 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
   useEffect(() => {
     setSelectedAttribute("__all");
     setExactMatch(false);
+    setNeighborsLimit(true);
   }, [selectedVertexType]);
 
   return {
@@ -222,6 +229,8 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
     exactMatch,
     exactMatchOptions,
     onExactMatchChange,
+    neighborsLimit,
+    onNeighborsLimitChange,
     searchResults: data?.vertices || [],
   };
 };

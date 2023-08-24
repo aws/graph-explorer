@@ -23,6 +23,18 @@ describe("Gremlin > keywordSearchTemplate", () => {
     });
 
     expect(template).toBe(
+      'g.V().or(has("city",containing("JFK")),has("code",containing("JFK"))).range(0,10)'
+    );
+  });
+
+  it("Should return a template for searched attributes matching with the search terms, and the ID token attribute", () => {
+    const template = keywordSearchTemplate({
+      searchTerm: "JFK",
+      searchById: true,
+      searchByAttributes: ["city", "code", "__all"],
+    });
+
+    expect(template).toBe(
       'g.V().or(has(id,containing("JFK")),has("city",containing("JFK")),has("code",containing("JFK"))).range(0,10)'
     );
   });
