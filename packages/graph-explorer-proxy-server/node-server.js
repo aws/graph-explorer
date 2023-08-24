@@ -63,10 +63,14 @@ const errorHandler = (error, request, response, next) => {
 (async () => {
   app.use(cors());
   app.use("/defaultConnection", express.static(path.join(__dirname, "../graph-explorer/defaultConnection.json")));
-  app.use(
-    process.env.GRAPH_EXP_ENV_ROOT_FOLDER,
-    express.static(path.join(__dirname, "../graph-explorer/dist"))
-  );
+  if (process.env.NEPTUNE_NOTEBOOK !== "false") {
+    app.use("/explorer", express.static(path.join(__dirname, "../graph-explorer/dist")));
+  } else {
+    app.use(
+        process.env.GRAPH_EXP_ENV_ROOT_FOLDER,
+        express.static(path.join(__dirname, "../graph-explorer/dist"))
+    );
+  }
 
   const delay = (ms) =>
     new Promise((resolve) => setTimeout(() => resolve(), ms));
@@ -225,8 +229,12 @@ const errorHandler = (error, request, response, next) => {
   app.use(errorHandler);
 
   // Start the server on port 80 or 443 (if HTTPS is enabled)
-  if (
-    process.env.PROXY_SERVER_HTTPS_CONNECTION != "false" &&
+  if (process.env.NEPTUNE_NOTEBOOK === "true"){
+    app.listen(9250, async () => {
+      console.log(`\tProxy available at port 9250 for Neptune Notebook instance`);
+    });
+  } else if (
+    process.env.PROXY_SERVER_HTTPS_CONNECTION !== "false" &&
     fs.existsSync("../graph-explorer-proxy-server/cert-info/server.key") &&
     fs.existsSync("../graph-explorer-proxy-server/cert-info/server.crt")
   ) {

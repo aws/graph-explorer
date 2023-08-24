@@ -125,7 +125,7 @@ To provide a default connection such that initial loads of the graph explorer al
 
 First, create a `config.json` file containing values for the connection attributes:
 
-```json
+```
 {
      "PUBLIC_OR_PROXY_ENDPOINT": "https://public-endpoint",
      "GRAPH_CONNECTION_URL": "https://cluster-cqmizgqgrsbf.us-west-2.neptune.amazonaws.com:8182",
