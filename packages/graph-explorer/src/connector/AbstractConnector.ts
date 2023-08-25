@@ -235,6 +235,11 @@ export abstract class AbstractConnector {
     options?: QueryOptions
   ): Promise<NeighborsResponse>;
 
+  public abstract fetcEdgeNeighbors(
+    req: NeighborsRequest,
+    options?: QueryOptions
+  ): Promise<NeighborsResponse>;
+
   /**
    * Count all connected vertices by type of the given source.
    */

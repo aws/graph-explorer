@@ -39,6 +39,7 @@ import GraphViewer from "../../modules/GraphViewer";
 import KeywordSearch from "../../modules/KeywordSearch/KeywordSearch";
 import Namespaces from "../../modules/Namespaces/Namespaces";
 import NodeExpand from "../../modules/NodeExpand";
+import EdgeExpand from "../../modules/EdgeExpand";
 import NodesStyling from "../../modules/NodesStyling/NodesStyling";
 import TopBarWithLogo from "../common/TopBarWithLogo";
 import defaultStyles from "./GraphExplorer.styles";
@@ -305,6 +306,12 @@ const GraphExplorer = ({ classNamePrefix = "ft" }: GraphViewProps) => {
           active={userLayout.activeSidebarItem === "expand"}
         />
         <Workspace.SideBar.Button
+          tooltipText={"Edge Expand"}
+          icon={<ExpandGraphIcon />}
+          onPress={toggleSidebar("edge expand")}
+          active={userLayout.activeSidebarItem === "edge expand"}
+        />
+        <Workspace.SideBar.Button
           tooltipText={t("nodes-styling.title")}
           icon={<GraphIcon />}
           onPress={toggleSidebar("nodes-styling")}
@@ -337,6 +344,9 @@ const GraphExplorer = ({ classNamePrefix = "ft" }: GraphViewProps) => {
           )}
           {userLayout.activeSidebarItem === "expand" && (
             <NodeExpand onClose={closeSidebar} />
+          )}
+          {userLayout.activeSidebarItem === "edge-expand" && (
+            <EdgeExpand onClose={closeSidebar} />
           )}
           {userLayout.activeSidebarItem === "filters" && (
             <EntitiesFilter onClose={closeSidebar} />

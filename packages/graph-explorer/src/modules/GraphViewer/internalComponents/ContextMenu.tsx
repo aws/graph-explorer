@@ -227,6 +227,15 @@ const ContextMenu = ({
             classNamePrefix={"ft"}
             className={pfx("list-item")}
             clickable={true}
+            onClick={openSidebarPanel("edge-expand")}
+            startAdornment={<ExpandGraphIcon />}
+          >
+            Expand Panel
+          </ListItem>
+          <ListItem
+            classNamePrefix={"ft"}
+            className={pfx("list-item")}
+            clickable={true}
             onClick={openSidebarPanel("nodes-styling", {
               nodeType: affectedNode.data.type,
             })}
