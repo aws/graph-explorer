@@ -18,6 +18,7 @@ export type EdgeExpandFilter = {
 export type EdgeExpandFiltersProps = {
   classNamePrefix?: string;
   neighborsOptions: Array<{ label: string; value: string }>;
+  edgesOptions: Array<{ label: string, value: string}>;
   selectedType: string;
   onSelectedTypeChange(type: string): void;
   filters: Array<EdgeExpandFilter>;
@@ -29,6 +30,7 @@ export type EdgeExpandFiltersProps = {
 const EdgeExpandFilters = ({
   classNamePrefix = "ft",
   neighborsOptions,
+  edgesOptions,
   selectedType,
   onSelectedTypeChange,
   filters,
