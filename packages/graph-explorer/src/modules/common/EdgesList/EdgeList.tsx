@@ -4,6 +4,7 @@ import { Chip, Tooltip, VertexIcon, VisibleIcon } from "../../../components";
 import { useWithTheme, withClassNamePrefix } from "../../../core";
 import useNeighborsOptions from "../../../hooks/useNeighborsOptions";
 import defaultStyles from "../EdgesList/EdgesList.styles";
+import useEdgeOptions from "../../../hooks/useEdgeOptions";
 
 export type EdgesListProps = {
   classNamePrefix?: string;
@@ -17,6 +18,8 @@ const EdgeList = ({
   const styleWithTheme = useWithTheme();
   const pfx = withClassNamePrefix(classNamePrefix);
   const neighborsOptions = useNeighborsOptions(vertex);
+  //const edgesOptions = useEdgeOptions(vertex);
+
 
   return (
     <div

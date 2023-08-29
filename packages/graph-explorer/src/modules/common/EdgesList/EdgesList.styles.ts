@@ -1,69 +1,51 @@
-import { cx } from "@emotion/css";
-import { Vertex } from "../../../@types/entities";
-import { Chip, Tooltip, VertexIcon, VisibleIcon } from "../../../components";
-import { useWithTheme, withClassNamePrefix } from "../../../core";
-import useNeighborsOptions from "../../../hooks/useNeighborsOptions";
-import defaultStyles from "./EdgesList.styles";
+import { css } from "@emotion/css";
+import type { ThemeStyleFn } from "../../../core";
 
-export type EdgesListProps = {
-  classNamePrefix?: string;
-  vertex: Vertex;
-};
+const defaultStyles = (pfx?: string): ThemeStyleFn => ({ theme }) =>
+  css`
+    &.${pfx}-section {
+      display: flex;
+      flex-direction: column;
+      padding: ${theme.spacing["4x"]};
+      gap: ${theme.spacing["2x"]};
+      border-bottom: solid 1px ${theme.palette.divider};
+      height: 30%;
+      overflow: auto;
 
-const EdgesList = ({
-  classNamePrefix = "ft",
-  vertex,
-}: EdgesListProps) => {
-  const styleWithTheme = useWithTheme();
-  const pfx = withClassNamePrefix(classNamePrefix);
-  const neighborsOptions = useNeighborsOptions(vertex);
+      .${pfx}-title {
+        font-weight: bold;
+      }
 
-  return (
-    <div
-      className={cx(
-        styleWithTheme(defaultStyles(classNamePrefix)),
-        pfx("section")
-      )}
-    >
-      <div className={pfx("title")}>
-        Neighbors ({vertex.data.neighborsCount})
-      </div>
-      {neighborsOptions.map(op => {
-        const neighborsInView =
-          vertex.data.neighborsCountByType[op.value] -
-          (vertex.data.__unfetchedNeighborCounts?.[op.value] ?? 0);
-        return (
-          <div key={op.value} className={pfx("node-item")}>
-            <div className={pfx("vertex-type")}>
-              <div
-                style={{
-                  color: op.config?.color,
-                }}
-              >
-                <VertexIcon
-                  iconUrl={op.config?.iconUrl}
-                  iconImageType={op.config?.iconImageType}
-                />
-              </div>
-              {op.label}
-            </div>
-            <div className={pfx("vertex-totals")}>
-              <Tooltip
-                text={`${neighborsInView} ${op.label} in the Graph View`}
-              >
-                <Chip className={pfx("chip")} startAdornment={<VisibleIcon />}>
-                  {neighborsInView}
-                </Chip>
-              </Tooltip>
-              <Chip className={pfx("chip")}>
-                {vertex.data.neighborsCountByType[op.value]}
-              </Chip>
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
-};
+      .${pfx}-node-item {
+        display: flex;
+        justify-content: space-between;
+        margin-top: ${theme.spacing["2x"]};
+        gap: ${theme.spacing["2x"]};
+        .${pfx}-chip {
+          user-select: none;
+          min-width: 48px;
+          justify-content: center;
+        }
+        .${pfx}-vertex-type {
+          display: flex;
+          align-items: center;
+          column-gap: ${theme.spacing["2x"]};
 
-export default EdgesList;
+          .${pfx}-icon {
+            color: ${theme.palette.primary.main};
+          }
+        }
+        .${pfx}-vertex-totals {
+          display: flex;
+          align-items: flex-end;
+          column-gap: ${theme.spacing["2x"]};
+
+          .${pfx}-icon {
+            color: ${theme.palette.primary.main};
+          }
+        }
+      }
+    }
+  `;
+
+export default defaultStyles;

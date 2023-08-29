@@ -117,8 +117,8 @@ const EdgeExpandContent = ({
       )}
       {vertex.data.neighborsCount !== 0 && (
         /*
-        //<NeighborsList vertex={vertex} classNamePrefix={classNamePrefix} />
-        <EdgesList vertex={vertex} classNamePrefix={classNamePrefix} />
+        <NeighborsList vertex={vertex} classNamePrefix={classNamePrefix} />
+        <EdgesList vertex={vertex} classNamePrefix= 
         */
         <>
           <NeighborsList vertex={vertex} classNamePrefix={classNamePrefix} />

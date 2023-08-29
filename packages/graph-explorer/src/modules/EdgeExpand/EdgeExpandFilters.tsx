@@ -10,6 +10,7 @@ import {
 import { useConfiguration, withClassNamePrefix } from "../../core";
 import useTextTransform from "../../hooks/useTextTransform";
 import useTranslations from "../../hooks/useTranslations";
+import { Edge } from "../"
 
 export type EdgeExpandFilter = {
   name: string;
@@ -52,6 +53,10 @@ const EdgeExpandFilters = ({
     selectedType
   );
   /*
+  1. get the vertex and all edges that connect to it
+  2. Do something for etConfig?.attributes?.[0].name to get the names of the edge attributes
+  3. Add to filterAdd
+
   const onFilterAdd = useCallback(() => {
     onFiltersChange([
       ...filters,
@@ -61,8 +66,6 @@ const EdgeExpandFilters = ({
       },
     ]);
   }, [filters, onFiltersChange, etConfig?.attributes]);
-
-
 
   */
   const onFilterAdd = useCallback(() => {
