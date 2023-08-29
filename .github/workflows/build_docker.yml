@@ -38,12 +38,12 @@ jobs:
         run: |
           if ${{ github.event_name == 'workflow_dispatch' }} ; then
             if ${{ inputs.image_tag == 'release'}}; then
-              echo "::set-env name=image_tag::${{ steps.package-version.outputs.version }}"
+              echo "image_tag=${{ steps.package-version.outputs.version }}" >> $GITHUB_ENV
             else
-              echo "::set-env name=image_tag::latest"
+              echo "image_tag=latest" >> $GITHUB_ENV
             fi
           else
-            echo "::set-env name=image_tag::latest"
+            echo "image_tag=latest" >> $GITHUB_ENV
           fi
 
       - name: Configure AWS Credentials
