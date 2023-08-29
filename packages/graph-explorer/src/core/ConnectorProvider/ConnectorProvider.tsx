@@ -1,16 +1,20 @@
 import { createContext, PropsWithChildren, useState } from "react";
-import type { AbstractConnector } from "../../connector/AbstractConnector";
 import GremlinConnector from "../../connector/gremlin/GremlinConnector";
+import LoggerConnector from "../../connector/LoggerConnector";
 import SPARQLConnector from "../../connector/sparql/SPARQLConnector";
 import { ConnectionConfig } from "../ConfigurationProvider";
 import useConfiguration from "../ConfigurationProvider/useConfiguration";
 import type { ConnectorContextProps } from "./types";
+import OpenCypherConnector from "../../connector/openCypher/openCypherConnector";
 
 export const ConnectorContext = createContext<ConnectorContextProps>({});
 
 const ConnectorProvider = ({ children }: PropsWithChildren<any>) => {
   const config = useConfiguration();
-  const [connector, setConnector] = useState<AbstractConnector>();
+  const [connector, setConnector] = useState<ConnectorContextProps>({
+    explorer: undefined,
+    logger: undefined,
+  });
 
   const [prevConnection, setPrevConnection] = useState<
     ConnectionConfig | undefined
@@ -22,19 +26,43 @@ const ConnectorProvider = ({ children }: PropsWithChildren<any>) => {
       config?.connection?.queryEngine &&
       config?.connection?.queryEngine === "sparql";
 
+    const isOpenCypher = 
+      config?.connection?.queryEngine &&
+      config?.connection?.queryEngine === "openCypher";
+
     if (!config?.connection?.url) {
-      setConnector(undefined);
+      setConnector({
+        explorer: undefined,
+        logger: undefined,
+      });
     } else if (isSPARQL) {
-      setConnector(new SPARQLConnector(config?.connection));
+      setConnector({
+        explorer: new SPARQLConnector(config.connection),
+        logger: new LoggerConnector(config.connection.url, {
+          enable: import.meta.env.PROD,
+        }),
+      });
+    } else if (isOpenCypher) {
+      setConnector({
+        explorer: new OpenCypherConnector(config?.connection),
+        logger: new LoggerConnector(config.connection.url, {
+          enable: import.meta.env.PROD,
+        }),
+      });
     } else {
-      setConnector(new GremlinConnector(config?.connection));
+      setConnector({
+        explorer: new GremlinConnector(config.connection),
+        logger: new LoggerConnector(config.connection.url, {
+          enable: import.meta.env.PROD,
+        }),
+      });
     }
 
     setPrevConnection(config?.connection);
   }
 
   return (
-    <ConnectorContext.Provider value={{ explorer: connector }}>
+    <ConnectorContext.Provider value={connector}>
       {children}
     </ConnectorContext.Provider>
   );

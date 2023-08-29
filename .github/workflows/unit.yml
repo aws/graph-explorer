@@ -1,6 +1,7 @@
 name: Unit Tests
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
@@ -14,7 +15,7 @@ jobs:
     strategy:
       matrix:
         node-version:
-          - 16.15.1
+          - 18.16.0
         pnpm-version:
           - 7.9.3
     steps:
@@ -40,5 +41,4 @@ jobs:
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
           flags: unittests

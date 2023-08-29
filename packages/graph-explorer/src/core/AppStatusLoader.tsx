@@ -13,6 +13,7 @@ import {
 } from "./StateProvider/configuration";
 import { schemaAtom } from "./StateProvider/schema";
 import useLoadStore from "./StateProvider/useLoadStore";
+import { CONNECTIONS_OP } from "../modules/CreateConnection/CreateConnection";
 
 export type AppLoadingProps = {
   config?: RawConfiguration;
@@ -62,14 +63,32 @@ const AppStatusLoader = ({
           );
           newConfig = merge({}, config, remoteConfig);
         }
-
         newConfig.__fileBase = true;
+        let activeConfigId = config.id;
         setConfiguration(prevConfigMap => {
           const updatedConfig = new Map(prevConfigMap);
-          updatedConfig.set(config.id, newConfig);
+          if (newConfig.connection?.queryEngine) {
+            updatedConfig.set(config.id, newConfig);
+          }
+          //Set a configuration for each connection if queryEngine is not set
+          if (!newConfig.connection?.queryEngine) {
+            CONNECTIONS_OP.forEach(connection => {
+              const connectionConfig = {
+                ...newConfig,
+                id: `${newConfig.id}-${connection.value}`,
+                connection: {
+                  ...newConfig.connection,
+                  url: newConfig.connection?.url || "",
+                  queryEngine: connection.value,
+                },
+              };
+              updatedConfig.set(connectionConfig.id, connectionConfig);
+            });
+            activeConfigId = `${newConfig.id}-${CONNECTIONS_OP[0].value}`;
+          }
           return updatedConfig;
         });
-        setActiveConfig(config.id);
+        setActiveConfig(activeConfigId);
       })();
 
       return;

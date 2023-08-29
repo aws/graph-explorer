@@ -45,6 +45,13 @@ const useSchemaSync = (onSyncChange?: (isSyncing: boolean) => void) => {
             type: "error",
             stackable: true,
           });
+          connector.logger?.error(
+            `[${
+              config.displayLabel || config.id
+            }] Unable to connect with the Database: ${JSON.stringify(
+              config.connection
+            )}`
+          );
         }
 
         updateSchemaState(config.id);
@@ -60,6 +67,13 @@ const useSchemaSync = (onSyncChange?: (isSyncing: boolean) => void) => {
           type: "info",
           stackable: true,
         });
+        connector.logger?.info(
+          `[${
+            config.displayLabel || config.id
+          }] This connection has no data available: ${JSON.stringify(
+            config.connection
+          )}`
+        );
       }
 
       updateSchemaState(config.id, schema);
@@ -72,6 +86,13 @@ const useSchemaSync = (onSyncChange?: (isSyncing: boolean) => void) => {
         type: "success",
         stackable: true,
       });
+      connector.logger?.info(
+        `[${
+          config.displayLabel || config.id
+        }] Connection successfully synchronized: ${JSON.stringify(
+          config.connection
+        )}`
+      );
 
       const ids = schema.vertices.flatMap(v => [
         v.type,
@@ -84,6 +105,7 @@ const useSchemaSync = (onSyncChange?: (isSyncing: boolean) => void) => {
       clearNotification,
       config,
       connector.explorer,
+      connector.logger,
       enqueueNotification,
       onSyncChange,
       updatePrefixes,

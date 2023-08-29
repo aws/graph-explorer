@@ -1,7 +1,7 @@
-import { css, cx } from "@emotion/css";
-import { useClickOutside, useHotkeys } from "@mantine/hooks";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Vertex } from "../../@types/entities";
+import {css, cx} from "@emotion/css";
+import {useClickOutside, useHotkeys} from "@mantine/hooks";
+import {useCallback, useEffect, useMemo, useRef, useState} from "react";
+import {Vertex} from "../../@types/entities";
 
 import {
   AddCircleIcon,
@@ -18,17 +18,13 @@ import {
   SearchSadIcon,
   Select,
   VertexIcon,
+  Checkbox,
 } from "../../components";
-import { CarouselRef } from "../../components/Carousel/Carousel";
+import {CarouselRef} from "../../components/Carousel/Carousel";
 import HumanReadableNumberFormatter from "../../components/HumanReadableNumberFormatter";
 import RemoveFromCanvasIcon from "../../components/icons/RemoveFromCanvasIcon";
-import {
-  fade,
-  useConfiguration,
-  useWithTheme,
-  withClassNamePrefix,
-} from "../../core";
-import { useEntities, useFetchNode, useSet } from "../../hooks";
+import {fade, useConfiguration, useWithTheme, withClassNamePrefix,} from "../../core";
+import {useEntities, useFetchNode, useSet} from "../../hooks";
 import useDisplayNames from "../../hooks/useDisplayNames";
 import useTextTransform from "../../hooks/useTextTransform";
 import useTranslations from "../../hooks/useTranslations";
@@ -70,6 +66,11 @@ const KeywordSearch = ({
     selectedAttribute,
     attributesOptions,
     onAttributeOptionChange,
+    exactMatch,
+    exactMatchOptions,
+    onExactMatchChange,
+    neighborsLimit,
+    onNeighborsLimitChange,
   } = useKeywordSearch({
     isOpen: isFocused,
   });
@@ -141,7 +142,8 @@ const KeywordSearch = ({
               size={"small"}
               variant={"text"}
               onPress={() => {
-                fetchNode(vertex);
+                const numNeighborsLimit = neighborsLimit ? 500 : 0;
+                fetchNode(vertex, numNeighborsLimit);
                 setInputFocused(false);
               }}
             />
@@ -159,6 +161,7 @@ const KeywordSearch = ({
     pfx,
     setEntities,
     fetchNode,
+    neighborsLimit,
   ]);
 
   const isTheNodeAdded = (nodeId: string): boolean => {
@@ -194,7 +197,8 @@ const KeywordSearch = ({
     const nodes = nodeIdsToAdd
       .map(getNodeSearchedById)
       .filter(Boolean) as Vertex[];
-    fetchNode(nodes);
+    const numNeighborsLimit = neighborsLimit ? 500 : 0;
+    fetchNode(nodes, numNeighborsLimit);
     handleOnClose();
   };
 
@@ -276,7 +280,7 @@ const KeywordSearch = ({
               options={vertexOptions}
               value={selectedVertexType}
               onChange={onVertexOptionChange}
-              menuWidth={200}
+              menuWidth={150}
             />
             <Select
               className={pfx("entity-select")}
@@ -286,7 +290,17 @@ const KeywordSearch = ({
               options={attributesOptions}
               value={selectedAttribute}
               onChange={onAttributeOptionChange}
-              menuWidth={200}
+              menuWidth={150}
+            />
+            <Select
+              className={pfx("entity-select")}
+              label={t("keyword-search.node-exact-match")}
+              labelPlacement={"inner"}
+              hideError={true}
+              options={exactMatchOptions}
+              value={exactMatch ? "Exact" : "Partial"}
+              onChange={onExactMatchChange}
+              menuWidth={150}
             />
             <Input
               className={pfx("search-input")}
@@ -354,6 +368,9 @@ const KeywordSearch = ({
                     ref={carouselRef}
                     slidesToShow={1}
                     className={pfx("carousel")}
+                    pagination={{
+                      el: `.swiper-pagination`
+                    }}
                   >
                     {Array.from(selection.state).map(nodeId => {
                       const node = searchResults.find(
@@ -388,6 +405,12 @@ const KeywordSearch = ({
                 <HumanReadableNumberFormatter value={currentTotal} />
               )}
             </span>
+            <Checkbox
+              isSelected={neighborsLimit}
+              onChange={onNeighborsLimitChange}
+            >
+              <div className={pfx("neighbors-limit-checkbox")}>Limit Neighbors?</div>
+            </Checkbox>
             <div>
               <IconButton
                 className={pfx("actions-button")}

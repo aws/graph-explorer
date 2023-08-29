@@ -1,13 +1,13 @@
 {
   "available-connections": {
-    "graph-type": "RDF"
+    "graph-type": "RDF-SPARQL"
   },
   "graph-viewer": {
     "node": "Resource",
     "edge": "Predicate"
   },
   "connection-detail": {
-    "graph-type": "RDF",
+    "graph-type": "RDF-SPARQL",
     "nodes": "Resources",
     "edges": "Predicates",
     "search-placeholder": "Search for Classes",
@@ -31,7 +31,8 @@
   },
   "keyword-search": {
     "node-type": "Class",
-    "node-attribute": "Predicate"
+    "node-attribute": "Predicate",
+    "node-exact-match": "Match Precision"
   },
   "entities-filter": {
     "node-types": "Resource Types",

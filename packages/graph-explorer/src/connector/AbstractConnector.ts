@@ -167,6 +167,10 @@ export type KeywordSearchRequest = {
    * Skip the given number of results.
    */
   offset?: number;
+  /**
+   * Only return exact attribute value matches.
+   */
+  exactMatch?: boolean;
 };
 
 export type KeywordSearchResponse = {

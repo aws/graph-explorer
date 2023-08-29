@@ -82,4 +82,4 @@ export default class GremlinConnector extends AbstractConnector {
       });
     };
   }
-}
+} 

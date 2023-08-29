@@ -2,6 +2,43 @@
 
 ## Upcoming
 
+The next release will include the following feature enhancements and bug fixes:
+
+**Features**
+- Added SageMaker Notebook support (https://github.com/aws/graph-explorer/pull/178)
+- Added Default Connection support (https://github.com/aws/graph-explorer/pull/108)
+- Added query language indicators to created connections (https://github.com/aws/graph-explorer/pull/164)
+- Added match precision option to keyword search (https://github.com/aws/graph-explorer/pull/175)
+- Add toggle for limit on retrieved vertex neighbors (https://github.com/aws/graph-explorer/pull/176)
+
+**Bug fixes**
+- Fixed search UI crashing on node select/preview (https://github.com/aws/graph-explorer/pull/177)
+- Fixed Gremlin/openCypher matching ID property on all keyword searches (https://github.com/aws/graph-explorer/pull/169)
+
+## Release 1.3.1
+
+This patch release includes bugfixes for Release 1.3.0.
+
+**Bug fixes**
+- Fix proxy issue with non-IAM Neptune requests (https://github.com/aws/graph-explorer/pull/166)
+
+## Release 1.3.0
+
+This release includes the following feature enhancements and bug fixes:
+
+**Features**
+- Support openCypher-based graph databases (https://github.com/aws/graph-explorer/pull/129)
+- Added ability to search by vertex ID for Gremlin (https://github.com/aws/graph-explorer/pull/113)
+- Improved logging visibility and user control (https://github.com/aws/graph-explorer/pull/114)
+- Upgraded various dependencies to resolve Docker build warnings (https://github.com/aws/graph-explorer/pull/118)
+- Improved synchronization interface in Connections UI (https://github.com/aws/graph-explorer/pull/120)
+- Added coverage tests for the UI client package (https://github.com/aws/graph-explorer/pull/130)
+
+**Bug fixes**
+- Fix Expand Module scrollbar (https://github.com/aws/graph-explorer/pull/131)
+- Fixed header generation for IAM authenticated Neptune requests (https://github.com/aws/graph-explorer/pull/140)
+- Fixed calculation of neighbors count in Expand View sidebar (https://github.com/aws/graph-explorer/pull/121)
+- Fixed proxy server not respecting `GRAPH_EXP_ENV_ROOT_FOLDER` value in .env (https://github.com/aws/graph-explorer/pull/125)
 
 ## Release 1.2.0
 
