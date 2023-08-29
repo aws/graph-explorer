@@ -4,13 +4,13 @@ on:
   workflow_dispatch:
     inputs:
       image_tag:
-        description: 'ECR image tag type'
+        description: "ECR image tag type"
         required: false
         type: choice
         options:
-          - 'latest'
-          - 'release'
-        default: 'latest'
+          - "latest"
+          - "release"
+        default: "latest"
   push:
     branches:
       - main
@@ -31,18 +31,19 @@ jobs:
         with:
           path: "./"
         id: package-version
+        if: runner.os != 'Windows'
 
       - name: Get image tag
         id: get-image-tag
         run: |
           if ${{ github.event_name == 'workflow_dispatch' }} ; then
             if ${{ inputs.image_tag == 'release'}}; then
-              echo "image_tag=${{ steps.package-version.outputs.version }}" >> $GITHUB_OUTPUT
+              echo "::set-env name=image_tag::${{ steps.package-version.outputs.version }}"
             else
-              echo "image_tag=latest" >> $GITHUB_OUTPUT
+              echo "::set-env name=image_tag::latest"
             fi
           else
-            echo "image_tag=latest" >> $GITHUB_OUTPUT
+            echo "::set-env name=image_tag::latest"
           fi
 
       - name: Configure AWS Credentials
@@ -66,7 +67,7 @@ jobs:
           REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
           REGISTRY_ALIAS: neptune
           REPOSITORY: graph-explorer
-          IMAGE_TAG: ${{ steps.get-image-tag.outputs.image_tag }}
+          IMAGE_TAG: ${{ env.image_tag }}
         run: |
           docker build -t $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG .
           docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG
