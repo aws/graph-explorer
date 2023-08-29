@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
-import type { Vertex } from "../../@types/entities";
+import type { Edge, Vertex } from "../../@types/entities";
 import { ModuleContainerFooter, VertexIcon } from "../../components";
 import Button from "../../components/Button";
 import ExpandGraphIcon from "../../components/icons/ExpandGraphIcon";
@@ -13,6 +13,7 @@ import { useExpandNode } from "../../hooks";
 import { useExpandEdge } from "../../hooks";
 import useDisplayNames from "../../hooks/useDisplayNames";
 import useNeighborsOptions from "../../hooks/useNeighborsOptions";
+// import useEdgeOptions from "../../hooks/useEdgeOptions";
 import useTextTransform from "../../hooks/useTextTransform";
 import useTranslations from "../../hooks/useTranslations";
 import NeighborsList from "../common/NeighborsList/NeighborsList";
@@ -115,6 +116,10 @@ const EdgeExpandContent = ({
         />
       )}
       {vertex.data.neighborsCount !== 0 && (
+        /*
+        //<NeighborsList vertex={vertex} classNamePrefix={classNamePrefix} />
+        <EdgesList vertex={vertex} classNamePrefix={classNamePrefix} />
+        */
         <>
           <NeighborsList vertex={vertex} classNamePrefix={classNamePrefix} />
           {!vertex.data.__unfetchedNeighborCount && (
@@ -133,8 +138,7 @@ const EdgeExpandContent = ({
               filters={filters}
               onFiltersChange={setFilters}
               limit={limit}
-              onLimitChange={setLimit}
-            />
+              onLimitChange={setLimit} edgesOptions={[]}            />
           )}
           <div className={pfx("grow")} />
           <ModuleContainerFooter>

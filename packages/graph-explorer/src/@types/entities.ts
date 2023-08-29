@@ -60,6 +60,10 @@ export interface VertexData {
    * Fetched outgoing edges connected with the vertex
    */
   __fetchedOutEdgeCount?: number;
+  /**
+   * Non-fetched edges by type (?)
+   */
+  __unfetchedEdgeCounts?: Record<string, number>;
 }
 
 /**
@@ -115,6 +119,6 @@ export interface EdgeData {
  * of en edge.
  * For example, EdgesTabular add __is_visible property to hide/show an edge.
  */
-export interface Edge<T = Record<string, unknown>> {
-  data: EdgeData & T;
-}
+export type Edge<T = Record<string, unknown>> = T & {
+  data: EdgeData;
+};

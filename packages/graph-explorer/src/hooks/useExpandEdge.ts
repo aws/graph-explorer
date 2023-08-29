@@ -11,7 +11,7 @@ const useExpandEdge = () => {
 
   return useCallback(
     async (req: NeighborsRequest) => {
-      const result = await connector.explorer?.fetcEdgeNeighbors(req);
+      const result = await connector.explorer?.fetchEdgeNeighbors(req);
 
       if (!result || !result.vertices.length) {
         enqueueNotification({

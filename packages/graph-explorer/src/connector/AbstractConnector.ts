@@ -235,7 +235,7 @@ export abstract class AbstractConnector {
     options?: QueryOptions
   ): Promise<NeighborsResponse>;
 
-  public abstract fetcEdgeNeighbors(
+  public abstract fetchEdgeNeighbors(
     req: NeighborsRequest,
     options?: QueryOptions
   ): Promise<NeighborsResponse>;

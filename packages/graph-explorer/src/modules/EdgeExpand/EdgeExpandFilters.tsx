@@ -30,7 +30,7 @@ export type EdgeExpandFiltersProps = {
 const EdgeExpandFilters = ({
   classNamePrefix = "ft",
   neighborsOptions,
-  edgesOptions,
+  //edgesOptions,
   selectedType,
   onSelectedTypeChange,
   filters,
@@ -108,7 +108,7 @@ const EdgeExpandFilters = ({
         }}
         options={neighborsOptions}
       />
-      {!!etConfig?.attributes?.length && (
+      {!!vtConfig?.attributes?.length && (
         <div className={pfx("title")}>
           <div>Filter to narrow results</div>
           <IconButton
