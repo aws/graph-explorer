@@ -19,6 +19,7 @@ import useTranslations from "../../hooks/useTranslations";
 import NeighborsList from "../common/NeighborsList/NeighborsList";
 import defaultStyles from "./EdgeExpandContent.styles";
 import EdgeExpandFilters, { EdgeExpandFilter } from "./EdgeExpandFilters";
+import {useFindEdge} from "../../hooks";
 
 export type EdgeExpandContentProps = {
   classNamePrefix?: string;
@@ -40,7 +41,10 @@ const EdgeExpandContent = ({
 
   const textTransform = useTextTransform();
   const neighborsOptions = useNeighborsOptions(vertex);
-
+  const findEdge = useFindEdge(vertex);
+  //console.log(edgesList)
+  const edgeCriteria = ["less than", "greater than", "like"];
+  
   const [selectedType, setSelectedType] = useState<string>(
     neighborsOptions[0]?.value
   );
@@ -118,7 +122,7 @@ const EdgeExpandContent = ({
       {vertex.data.neighborsCount !== 0 && (
         /*
         <NeighborsList vertex={vertex} classNamePrefix={classNamePrefix} />
-        <EdgesList vertex={vertex} classNamePrefix= 
+        <EdgesList vertex={vertex} classNamePrefix={classNamePrefix}
         */
         <>
           <NeighborsList vertex={vertex} classNamePrefix={classNamePrefix} />
@@ -133,12 +137,14 @@ const EdgeExpandContent = ({
             <EdgeExpandFilters
               classNamePrefix={classNamePrefix}
               neighborsOptions={neighborsOptions}
+              edgeOptions={findEdge}
+              edgeCriteria={edgesList}
               selectedType={selectedType}
               onSelectedTypeChange={setSelectedType}
               filters={filters}
               onFiltersChange={setFilters}
               limit={limit}
-              onLimitChange={setLimit} edgesOptions={[]}            />
+              onLimitChange={setLimit} />
           )}
           <div className={pfx("grow")} />
           <ModuleContainerFooter>

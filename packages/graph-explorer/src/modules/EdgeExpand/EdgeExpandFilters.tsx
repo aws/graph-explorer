@@ -10,7 +10,8 @@ import {
 import { useConfiguration, withClassNamePrefix } from "../../core";
 import useTextTransform from "../../hooks/useTextTransform";
 import useTranslations from "../../hooks/useTranslations";
-import { Edge } from "../"
+//import { Edge } from "../"
+import { Vertex, Edge } from "../../@types/entities";
 
 export type EdgeExpandFilter = {
   name: string;
@@ -19,7 +20,8 @@ export type EdgeExpandFilter = {
 export type EdgeExpandFiltersProps = {
   classNamePrefix?: string;
   neighborsOptions: Array<{ label: string; value: string }>;
-  edgesOptions: Array<{ label: string, value: string}>;
+  edgeOptions:  Array<string>;
+  edgeCriteria: any;
   selectedType: string;
   onSelectedTypeChange(type: string): void;
   filters: Array<EdgeExpandFilter>;
@@ -31,7 +33,8 @@ export type EdgeExpandFiltersProps = {
 const EdgeExpandFilters = ({
   classNamePrefix = "ft",
   neighborsOptions,
-  //edgesOptions,
+  edgeOptions,
+  edgeCriteria,
   selectedType,
   onSelectedTypeChange,
   filters,
@@ -43,7 +46,6 @@ const EdgeExpandFilters = ({
   const t = useTranslations();
   const textTransform = useTextTransform();
   const pfx = withClassNamePrefix(classNamePrefix);
-
   const vtConfig = config?.getVertexTypeConfig(selectedType);
   const etConfig = config?.getEdgeTypeConfig(selectedType);
   const searchableAttributes = config?.getVertexTypeSearchableAttributes(
@@ -52,6 +54,9 @@ const EdgeExpandFilters = ({
   const edgeSearchableAttributes = config?.getEdgeTypeSearchableAttributes(
     selectedType
   );
+  /*const edgeSearchableAttributes = config?.getEdgeTypeSearchableAttributes(
+    selectedType
+  );*/
   /*
   1. get the vertex and all edges that connect to it
   2. Do something for etConfig?.attributes?.[0].name to get the names of the edge attributes
@@ -69,10 +74,12 @@ const EdgeExpandFilters = ({
 
   */
   const onFilterAdd = useCallback(() => {
+    console.log(`"Edges Data: ${(edgeCriteria)}`);
     onFiltersChange([
       ...filters,
       {
-        name: etConfig?.attributes?.[0].name || "",
+        name: "" || "",
+        //name: etConfig?.attributes?.[0].name || "",
         value: "",
       },
     ]);
@@ -122,20 +129,27 @@ const EdgeExpandFilters = ({
           />
         </div>
       )}
-      {!!edgeSearchableAttributes?.length && (
+      {!!searchableAttributes?.length && (
         <div className={pfx("filters")}>
           {filters.map((filter, filterIndex) => (
             <div key={filterIndex} className={pfx("single-filter")}>
               <Select
                 aria-label={"Attribute"}
                 value={filter.name}
+                //criterion={edgeCriteria}
                 onChange={value => {
                   onFilterChange(filterIndex, value as string, filter.value);
                 }}
-                options={edgeSearchableAttributes?.map(attr => ({
+                options= {edgeOptions.map(attr => {
+                  return({
+                    label: attr || textTransform(attr),
+                    value: attr
+                  })
+                })}
+                /*options={searchableAttributes?.map(attr => ({
                   label: attr.displayLabel || textTransform(attr.name),
                   value: attr.name,
-                }))}
+                }))}*/
                 hideError={true}
                 noMargin={true}
               />
