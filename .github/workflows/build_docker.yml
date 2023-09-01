@@ -27,27 +27,24 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Get package version
-        uses: tyankatsu0105/read-package-version-actions@v1
-        with:
-          path: "./"
+        uses: phips28/gh-action-bump-version@v10.0.1
         id: package-version
-        if: runner.os != 'Windows'
 
       - name: Get image tag
         id: get-image-tag
         run: |
           if ${{ github.event_name == 'workflow_dispatch' }} ; then
             if ${{ inputs.image_tag == 'release'}}; then
-              echo "image_tag=${{ steps.package-version.outputs.version }}" >> $GITHUB_ENV
+              echo "::set-env name=image_tag::${{ steps.package-version.outputs.newTag }}"
             else
-              echo "image_tag=latest" >> $GITHUB_ENV
+              echo "::set-env name=image_tag::latest"
             fi
           else
-            echo "image_tag=latest" >> $GITHUB_ENV
+            echo "::set-env name=image_tag::latest"
           fi
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v3
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_ECR }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ECR }}
@@ -58,7 +55,7 @@ jobs:
 
       - name: Login to Amazon ECR
         id: login-ecr-public
-        uses: aws-actions/amazon-ecr-login@v1
+        uses: karlonovak/amazon-ecr-login@v2.0.0
         with:
           registry-type: public
 
