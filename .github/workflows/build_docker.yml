@@ -35,12 +35,12 @@ jobs:
         run: |
           if ${{ github.event_name == 'workflow_dispatch' }} ; then
             if ${{ inputs.image_tag == 'release'}}; then
-              echo "::set-env name=image_tag::${{ steps.package-version.outputs.newTag }}"
+              echo "image_tag=${{ steps.package-version.outputs.newTag }}" >> $GITHUB_OUTPUT
             else
-              echo "::set-env name=image_tag::latest"
+              echo "image_tag=latest" >> $GITHUB_OUTPUT
             fi
           else
-            echo "::set-env name=image_tag::latest"
+            echo "image_tag=latest" >> $GITHUB_OUTPUT
           fi
 
       - name: Configure AWS Credentials
@@ -64,7 +64,7 @@ jobs:
           REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
           REGISTRY_ALIAS: neptune
           REPOSITORY: graph-explorer
-          IMAGE_TAG: ${{ env.image_tag }}
+          IMAGE_TAG: ${{ steps.get-image-tag.outputs.image_tag }}
         run: |
           docker build -t $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG .
           docker build --build-arg NEPTUNE_NOTEBOOK=true -t $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:sagemaker-$IMAGE_TAG .
