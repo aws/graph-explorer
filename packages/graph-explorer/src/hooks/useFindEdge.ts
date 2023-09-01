@@ -4,34 +4,55 @@ import useConfiguration from "../core/ConfigurationProvider/useConfiguration";
 import useTextTransform from "./useTextTransform";
 import useConnector from "../core/ConnectorProvider/useConnector";
 import { useNotification } from "../components/NotificationProvider";
-import { NeighborsRequest } from "../connector/AbstractConnector";
+import { EdgesRequest, NeighborsRequest } from "../connector/AbstractConnector";
 import useEntities from "./useEntities";
 
 
-const edgeArray = {
-    "label":"value"
-}
-
-const useFindEdge = (vertex: Vertex) => {
+const useFindEdge = () => {
   const config = useConfiguration();
   const [, setEntities] = useEntities();
   const textTransform = useTextTransform();
   const connector = useConnector();
   const { enqueueNotification, clearNotification } = useNotification();
+  const edgesData = useCallback(
+    (req: EdgesRequest) => {
+        return connector.explorer?.fetchConnectedEdges({
+            vertexId:req.vertexId
+        });
+    },
+    [connector.explorer]
+  )
+  return edgesData;
 
-  return useCallback(
-    async (req: NeighborsRequest) => {
+
+}
+/*  return useCallback(
+    async (req: EdgesRequest) => {
         const result = await connector.explorer?.fetchConnectedEdges(req);
         setEntities({
-            nodes: vertex,
+            nodes: [],
+            edges: result.edges,
+            selectNewEntities:"edges",
+        });
+        /*return {
+            data: {
+
+            }
+        };
+        //const validResults = result as Edge[];
+        setEntities({
+            nodes: [],
             edges: result.edges,
             selectNewEntities: "edges",
-          });     
+        })
     },
-    [connector.explorer, setEntities, enqueueNotification, clearNotification]
-  )
+    [edgesData, 
+        setEntities, 
+        enqueueNotification, 
+        clearNotification]
+  
 
-  /*return useMemo(() => {
+  return useMemo(() => {
     return Object.keys(defualtArray)
       .map(vt => {
         const vConfig = config?.getVertexTypeConfig(vt);
@@ -47,7 +68,7 @@ const useFindEdge = (vertex: Vertex) => {
   }, [
     config,
     textTransform
-  ])*/;
-};
+  ]);
+};*/
 
 export default useFindEdge;

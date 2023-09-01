@@ -118,6 +118,14 @@ export type NeighborsResponse = {
   edges: Array<Edge>;
 };
 
+export type EdgesRequest = {
+  /**
+   * Source vertex ID
+   */
+  vertexId: string;
+};
+
+
 export type EdgesResponse = {
     /**
    * List of edges.
@@ -248,7 +256,7 @@ export abstract class AbstractConnector {
   ): Promise<NeighborsResponse>;
 
   public abstract fetchConnectedEdges(
-    req: NeighborsRequest,
+    req: EdgesRequest,
     options?: QueryOptions
   ): Promise<EdgesResponse>;
 

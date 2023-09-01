@@ -1,6 +1,7 @@
 import type {
   CountsByTypeRequest,
   CountsByTypeResponse,
+  EdgesRequest,
   KeywordSearchRequest,
   KeywordSearchResponse,
   NeighborsCountRequest,
@@ -77,7 +78,7 @@ export default class GremlinConnector extends AbstractConnector {
   }
 
   fetchConnectedEdges(
-    req: NeighborsRequest,
+    req: EdgesRequest,
     options?:QueryOptions | undefined
   ): Promise<any>{
     return fetchConnectedEdges(this._gremlinFetch(options), req, this._rawIdTypeMap);

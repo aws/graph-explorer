@@ -136,7 +136,6 @@ const EdgeExpandFilters = ({
               <Select
                 aria-label={"Attribute"}
                 value={filter.name}
-                //criterion={edgeCriteria}
                 onChange={value => {
                   onFilterChange(filterIndex, value as string, filter.value);
                 }}
@@ -155,8 +154,8 @@ const EdgeExpandFilters = ({
               />
               <Input
                 aria-label={"Filter"}
-                className={pfx("input")}
                 value={filter.value}
+                criterion={edgeCriteria}
                 onChange={value => {
                   onFilterChange(filterIndex, filter.name, value as string);
                 }}

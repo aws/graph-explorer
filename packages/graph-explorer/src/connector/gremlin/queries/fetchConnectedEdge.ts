@@ -1,5 +1,6 @@
 import type {
     EdgesResponse,
+    EdgesRequest,
     NeighborsRequest,
     NeighborsResponse,
   } from "../../AbstractConnector";
@@ -27,7 +28,7 @@ type ConnectedEdges = {
 
 const fetchConnectedEdges = async (
     gremlinFetch: GremlinFetch,
-    req: NeighborsRequest,
+    req: EdgesRequest,
     rawIds: Map<string, "string" | "number">
 ): Promise<EdgesResponse> => {
     const idType = rawIds.get(req.vertexId) ?? "string";
