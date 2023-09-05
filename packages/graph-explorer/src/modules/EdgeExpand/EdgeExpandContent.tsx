@@ -25,11 +25,13 @@ import useFindEdge from "../../hooks/useFindEdge";
 export type EdgeExpandContentProps = {
   classNamePrefix?: string;
   vertex: Vertex;
+  edgeList: Set<string>; 
 };
 
 const EdgeExpandContent = ({
   classNamePrefix = "ft",
   vertex,
+  edgeList,
 }: EdgeExpandContentProps) => {
   const config = useConfiguration();
   const t = useTranslations();
@@ -42,10 +44,10 @@ const EdgeExpandContent = ({
 
   const textTransform = useTextTransform();
   const neighborsOptions = useNeighborsOptions(vertex);
-  const testEdge = useFindEdge();
+  //const testEdge = useFindEdge();
   //console.log(edgesList)
-  //const edgeCriteria = ["less than", "greater than", "like"];
-  const findEdge = ["CreatedById", "CreatedDate", "Id", "J2_Drug_ID__c", "J2_NDC__c", "J2_Offer_ID__c", "J2_Ready_for_Review__c", "J2_Record_Active_Date__c", "J2_Record_Expiration_Date__c", "J2_Reviewed_and_Approved__c", "LastModifiedById", "LastModifiedDate", "Name", "OwnerId"];
+  const criteriaOptions = ["less than", "greater than", "like"];
+  //const findEdge = ["CreatedById", "CreatedDate", "Id", "J2_Drug_ID__c", "J2_NDC__c", "J2_Offer_ID__c", "J2_Ready_for_Review__c", "J2_Record_Active_Date__c", "J2_Record_Expiration_Date__c", "J2_Reviewed_and_Approved__c", "LastModifiedById", "LastModifiedDate", "Name", "OwnerId"];
   const [selectedType, setSelectedType] = useState<string>(
     neighborsOptions[0]?.value
   );
@@ -75,9 +77,9 @@ const EdgeExpandContent = ({
     setIsExpanding(false);
   }, [expandEdge, filters, limit, selectedType, vertex.data]);
 
-  const getEdgeData = testEdge({
+  /* const getEdgeData = testEdge({
       vertexId: vertex.data.id
-    });
+    }); */
 
   const displayLabels = useMemo(() => {
     return (vertex.data.types ?? [vertex.data.type])
@@ -143,8 +145,8 @@ const EdgeExpandContent = ({
             <EdgeExpandFilters
               classNamePrefix={classNamePrefix}
               neighborsOptions={neighborsOptions}
-              edgeOptions={findEdge}
-              edgeCriteria={getEdgeData}
+              edgeOptions={edgeList}
+              edgeCriteria={criteriaOptions}
               selectedType={selectedType}
               onSelectedTypeChange={setSelectedType}
               filters={filters}

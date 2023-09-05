@@ -11,6 +11,7 @@ import {
 import {
   edgesAtom,
   edgesSelectedIdsAtom,
+  edgesTypesFilteredAtom,
 } from "../../core/StateProvider/edges";
 import useTranslations from "../../hooks/useTranslations";
 import EdgeExpandContent from "./EdgeExpandContent";
@@ -25,7 +26,8 @@ export type EdgeExpandProps = Omit<
 const EdgeExpand = ({ title = "Expand by Edge", ...headerProps }: EdgeExpandProps) => {
   const t = useTranslations();
   const nodes = useRecoilValue(nodesAtom);
-  const edges = useRecoilValue(edgesAtom);
+  //const edges = useRecoilValue(edgesAtom);
+  const edges = useRecoilValue(edgesTypesFilteredAtom)
   const nodesSelectedIds = useRecoilValue(nodesSelectedIdsAtom);
   const edgesSelectedIds = useRecoilValue(edgesSelectedIdsAtom);
 
@@ -33,9 +35,7 @@ const EdgeExpand = ({ title = "Expand by Edge", ...headerProps }: EdgeExpandProp
     return nodes.find(node => nodesSelectedIds.has(node.data.id));
   }, [nodes, nodesSelectedIds]);
 
-  const selectedEdge = useMemo(() => {
-    return edges.find(edge => edgesSelectedIds.has(edge.data.id));
-  }, [edges, edgesSelectedIds]);
+  const filteredEdges = edges
 
   return (
     <ModuleContainer>
@@ -66,7 +66,9 @@ const EdgeExpand = ({ title = "Expand by Edge", ...headerProps }: EdgeExpandProp
         />
       )}
       {nodesSelectedIds.size === 1 && selectedNode && (
-        <EdgeExpandContent vertex={selectedEdge} />
+        <EdgeExpandContent 
+        vertex={selectedNode}
+        edgeList={filteredEdges} />
       )}
     </ModuleContainer>
   );

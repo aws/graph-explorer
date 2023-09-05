@@ -20,8 +20,8 @@ export type EdgeExpandFilter = {
 export type EdgeExpandFiltersProps = {
   classNamePrefix?: string;
   neighborsOptions: Array<{ label: string; value: string }>;
-  edgeOptions:  Array<string>;
-  edgeCriteria: any;
+  edgeOptions:  Set<string>;
+  edgeCriteria: Array<string>;
   selectedType: string;
   onSelectedTypeChange(type: string): void;
   filters: Array<EdgeExpandFilter>;
@@ -74,7 +74,7 @@ const EdgeExpandFilters = ({
 
   */
   const onFilterAdd = useCallback(() => {
-    console.log(`"Edges Data: ${(edgeCriteria)}`);
+    console.log(`"Edges Data: ${edgeOptions}`);
     onFiltersChange([
       ...filters,
       {
@@ -139,12 +139,10 @@ const EdgeExpandFilters = ({
                 onChange={value => {
                   onFilterChange(filterIndex, value as string, filter.value);
                 }}
-                options= {edgeOptions.map(attr => {
-                  return({
-                    label: attr || textTransform(attr),
-                    value: attr
-                  })
-                })}
+                options= {Array.from(edgeOptions).map(val =>({
+                  label: val,
+                  value: val
+                }))}
                 /*options={searchableAttributes?.map(attr => ({
                   label: attr.displayLabel || textTransform(attr.name),
                   value: attr.name,
@@ -164,7 +162,10 @@ const EdgeExpandFilters = ({
               <Select
               aria-label={"Criterion"}
               value={filter.name}
-              options={edgeCriteria}
+              options={edgeCriteria.map(val =>({
+                label: val,
+                value: val
+              }))}
               onChange={value => {
                 onFilterChange(filterIndex, value as string, filter.value);
               }}

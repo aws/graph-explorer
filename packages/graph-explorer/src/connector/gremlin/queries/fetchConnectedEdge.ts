@@ -37,10 +37,10 @@ const fetchConnectedEdges = async (
     //const data = await gremlinFetch<RawOneHopRequest>(gremlinTemplate);
     //const idType = rawIds.get(req.vertexId) ?? "string";
     const gremlinTemplate = edgesConnected({ ...req, idType  });
-    console.log(`Testing: ${gremlinTemplate}`)
+    //console.log(`Testing: ${gremlinTemplate}`)
     const data = await gremlinFetch<ConnectedEdges>(gremlinTemplate);
-    console.log("test 2")
-    console.log (`Test Return Data ${data}`)
+    //console.log("test 2")
+    //console.log (`Test Return Data ${data}`)
     const unmappedEdges =
         data.result.data["@value"]?.[0]?.["@value"][1]["@value"];
     const edges: EdgesResponse["edges"] = unmappedEdges?.map(
