@@ -132,7 +132,7 @@ const EdgeExpandFilters = ({
       {!!searchableAttributes?.length && (
         <div className={pfx("filters")}>
           {filters.map((filter, filterIndex) => (
-            <div key={filterIndex} className={pfx("single-filter")}>
+            <div key={filterIndex} className={pfx("double-filter")}>
               <Select
                 aria-label={"Attribute"}
                 value={filter.name}
@@ -155,12 +155,19 @@ const EdgeExpandFilters = ({
               <Input
                 aria-label={"Filter"}
                 value={filter.value}
-                criterion={edgeCriteria}
                 onChange={value => {
                   onFilterChange(filterIndex, filter.name, value as string);
                 }}
                 hideError={true}
                 noMargin={true}
+              />
+              <Select
+              aria-label={"Criterion"}
+              value={filter.name}
+              options={edgeCriteria}
+              onChange={value => {
+                onFilterChange(filterIndex, value as string, filter.value);
+              }}
               />
               <IconButton
                 icon={<DeleteIcon />}

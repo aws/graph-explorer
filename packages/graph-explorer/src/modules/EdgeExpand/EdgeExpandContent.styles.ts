@@ -93,7 +93,7 @@ const defaultStyles = (pfx?: string): ThemeStyleFn => ({ theme }) =>
         flex-direction: column;
         gap: ${theme.spacing["4x"]};
         margin-bottom: ${theme.spacing["4x"]};
-        .${pfx}-single-filter {
+        .${pfx}-double-filter {
           display: flex;
           align-items: center;
           gap: ${theme.spacing["2x"]};

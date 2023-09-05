@@ -4,11 +4,14 @@ import type { ModuleContainerHeaderProps } from "../../components";
 import { ModuleContainer, ModuleContainerHeader } from "../../components";
 import GraphIcon from "../../components/icons/GraphIcon";
 import PanelEmptyState from "../../components/PanelEmptyState/PanelEmptyState";
-import { edgesSelectedIdsAtom } from "../../core/StateProvider/edges";
 import {
   nodesAtom,
   nodesSelectedIdsAtom,
 } from "../../core/StateProvider/nodes";
+import {
+  edgesAtom,
+  edgesSelectedIdsAtom,
+} from "../../core/StateProvider/edges";
 import useTranslations from "../../hooks/useTranslations";
 import EdgeExpandContent from "./EdgeExpandContent";
 
@@ -22,12 +25,17 @@ export type EdgeExpandProps = Omit<
 const EdgeExpand = ({ title = "Expand by Edge", ...headerProps }: EdgeExpandProps) => {
   const t = useTranslations();
   const nodes = useRecoilValue(nodesAtom);
+  const edges = useRecoilValue(edgesAtom);
   const nodesSelectedIds = useRecoilValue(nodesSelectedIdsAtom);
   const edgesSelectedIds = useRecoilValue(edgesSelectedIdsAtom);
 
   const selectedNode = useMemo(() => {
     return nodes.find(node => nodesSelectedIds.has(node.data.id));
   }, [nodes, nodesSelectedIds]);
+
+  const selectedEdge = useMemo(() => {
+    return edges.find(edge => edgesSelectedIds.has(edge.data.id));
+  }, [edges, edgesSelectedIds]);
 
   return (
     <ModuleContainer>
@@ -58,7 +66,7 @@ const EdgeExpand = ({ title = "Expand by Edge", ...headerProps }: EdgeExpandProp
         />
       )}
       {nodesSelectedIds.size === 1 && selectedNode && (
-        <EdgeExpandContent vertex={selectedNode} />
+        <EdgeExpandContent vertex={selectedEdge} />
       )}
     </ModuleContainer>
   );
