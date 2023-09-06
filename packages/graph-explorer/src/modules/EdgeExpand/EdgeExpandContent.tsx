@@ -37,6 +37,7 @@ const EdgeExpandContent = ({
   const t = useTranslations();
   //const expandNode = useExpandNode();
   const expandEdge = useExpandEdge();
+  const testEdge = useExpandEdge();
   const styleWithTheme = useWithTheme();
   const pfx = withClassNamePrefix(classNamePrefix);
 
@@ -57,6 +58,12 @@ const EdgeExpandContent = ({
 
   const onExpandClick = useCallback(async () => {
     setIsExpanding(true);
+    const testResult = await testEdge({
+      vertexId: vertex.data.id,
+      vertexType: "drug",
+      edgeTypes: ["j2"]
+    })
+    console.log(testResult)
     await expandEdge({
       vertexId: vertex.data.id,
       vertexType: (vertex.data.types ?? [vertex.data.type])?.join("::"),

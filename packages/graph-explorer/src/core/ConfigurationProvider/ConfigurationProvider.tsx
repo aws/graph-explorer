@@ -95,7 +95,24 @@ const ConfigurationProvider = ({
           attribute.searchable !== false && attribute.dataType === "String"
       );
     },
-    [configuration?.schema?.vertices]
+    [configuration?.schema?.edges]
+  );
+
+  const getFilteredEdges: ConfigurationContextProps["getFilteredEdges"] = useCallback(
+    (vertexType: string) => {
+      const ef = configuration?.schema?.edges?.find(
+        e => e.type 
+      );
+      if (!ef) {
+        return [];
+      }
+
+      return ef.attributes.filter(
+        attribute => 
+          attribute.searchable !== false 
+      );
+    },
+    [configuration?.schema?.edges]
   );
 
   const getEdgeTypeConfig: ConfigurationContextProps["getEdgeTypeConfig"] = useCallback(
@@ -128,6 +145,7 @@ const ConfigurationProvider = ({
       getVertexTypeSearchableAttributes,
       getEdgeTypeSearchableAttributes,
       getEdgeTypeConfig,
+      getFilteredEdges
     };
   }, [
     configuration,
@@ -136,6 +154,7 @@ const ConfigurationProvider = ({
     getVertexTypeSearchableAttributes,
     getEdgeTypeSearchableAttributes,
     getEdgeTypeConfig,
+    getFilteredEdges
   ]);
 
   return (

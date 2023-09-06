@@ -13,7 +13,7 @@ const useExpandEdge = () => {
     async (req: NeighborsRequest) => {
       const result = await connector.explorer?.fetchEdgeNeighbors(req);
 
-      if (!result || !result.vertices.length) {
+      /*if (!result || !result.vertices.length) {
         enqueueNotification({
           title: "No Results",
           message: "Your search has returned no results",
@@ -67,7 +67,8 @@ const useExpandEdge = () => {
           return nodeWithCounts;
         }),
         edges: result.edges,
-      }));
+      }));*/
+      return result
     },
     [connector.explorer, setEntities, enqueueNotification, clearNotification]
   );

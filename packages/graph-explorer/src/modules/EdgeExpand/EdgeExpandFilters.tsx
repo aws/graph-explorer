@@ -74,7 +74,7 @@ const EdgeExpandFilters = ({
 
   */
   const onFilterAdd = useCallback(() => {
-    console.log(`"Edges Data: ${edgeOptions}`);
+    console.log(`"Edges Data: ${selectedType}`);
     onFiltersChange([
       ...filters,
       {
@@ -102,6 +102,7 @@ const EdgeExpandFilters = ({
     },
     [filters, onFiltersChange]
   );
+  
 
   useEffect(() => {
     onFiltersChange([]);
@@ -116,9 +117,12 @@ const EdgeExpandFilters = ({
         onChange={e => {
           onSelectedTypeChange(e as string);
         }}
-        options={neighborsOptions}
+        options={Array.from(edgeOptions).map(val =>({
+          label: val,
+          value: val
+        }))}
       />
-      {!!vtConfig?.attributes?.length && (
+      {!!etConfig?.attributes?.length && (
         <div className={pfx("title")}>
           <div>Filter to narrow results</div>
           <IconButton
@@ -129,7 +133,7 @@ const EdgeExpandFilters = ({
           />
         </div>
       )}
-      {!!searchableAttributes?.length && (
+      {!!edgeSearchableAttributes?.length && (
         <div className={pfx("filters")}>
           {filters.map((filter, filterIndex) => (
             <div key={filterIndex} className={pfx("double-filter")}>
@@ -139,23 +143,14 @@ const EdgeExpandFilters = ({
                 onChange={value => {
                   onFilterChange(filterIndex, value as string, filter.value);
                 }}
-                options= {Array.from(edgeOptions).map(val =>({
-                  label: val,
-                  value: val
+                options= {edgeSearchableAttributes?.map(attr => ({
+                  label: attr.displayLabel || textTransform(attr.name),
+                  value: attr.name,
                 }))}
                 /*options={searchableAttributes?.map(attr => ({
                   label: attr.displayLabel || textTransform(attr.name),
                   value: attr.name,
                 }))}*/
-                hideError={true}
-                noMargin={true}
-              />
-              <Input
-                aria-label={"Filter"}
-                value={filter.value}
-                onChange={value => {
-                  onFilterChange(filterIndex, filter.name, value as string);
-                }}
                 hideError={true}
                 noMargin={true}
               />
@@ -169,6 +164,15 @@ const EdgeExpandFilters = ({
               onChange={value => {
                 onFilterChange(filterIndex, value as string, filter.value);
               }}
+              />
+              <Input
+                aria-label={"Filter"}
+                value={filter.value}
+                onChange={value => {
+                  onFilterChange(filterIndex, filter.name, value as string);
+                }}
+                hideError={true}
+                noMargin={true}
               />
               <IconButton
                 icon={<DeleteIcon />}
