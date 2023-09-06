@@ -61,7 +61,12 @@ const EdgeExpandContent = ({
     const testResult = await testEdge({
       vertexId: vertex.data.id,
       vertexType: "drug",
-      edgeTypes: ["j2"]
+      edgeTypes: ["j2"],
+      filterCriteria:[{
+        name:"J2_Record_Expiration_Date__c",
+        operator:">",
+        value:"2024-0-01"
+      }],
     })
     console.log(testResult)
     await expandEdge({

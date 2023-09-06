@@ -147,6 +147,9 @@ const EdgeExpandFilters = ({
                   label: attr.displayLabel || textTransform(attr.name),
                   value: attr.name,
                 }))}
+                /**
+                 * ToDo:
+                 */
                 /*options={searchableAttributes?.map(attr => ({
                   label: attr.displayLabel || textTransform(attr.name),
                   value: attr.name,

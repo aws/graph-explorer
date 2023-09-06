@@ -33,6 +33,7 @@ const fetchNeighbors = async (
 ): Promise<NeighborsResponse> => {
   const idType = rawIds.get(req.vertexId) ?? "string";
   const gremlinTemplate = oneHopTemplate({ ...req, idType });
+  console.log(gremlinTemplate)
   const data = await gremlinFetch<RawOneHopRequest>(gremlinTemplate);
 
   const verticesResponse =

@@ -34,10 +34,11 @@ type RawOneHopRequest = {
   ): Promise<NeighborsResponse> => {
     const idType = rawIds.get(req.vertexId) ?? "string";
     const gremlinTemplate = edgeOneHopTemplate({ ...req, idType });
+    console.log(`Query: ${gremlinTemplate}`)
     const data = await gremlinFetch<RawOneHopRequest>(gremlinTemplate);
-
     const verticesResponse =
       data.result.data["@value"]?.[0]?.["@value"][1]["@value"];
+    console.log(verticesResponse);
     const verticesIds = verticesResponse?.map(v => toStringId(v["@value"].id));
     const vertices: NeighborsResponse["vertices"] = verticesResponse?.map(
       vertex => mapApiVertex(vertex)

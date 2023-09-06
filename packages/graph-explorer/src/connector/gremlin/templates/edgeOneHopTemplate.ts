@@ -121,6 +121,10 @@ const edgeOneHopTemplate = ({
 
     const bothEContent = edgeTypes.map(type => `"${type}"`).join(",");
 
+    let filterCriteriaTemplate = ".and(";
+    filterCriteriaTemplate += filterCriteria?.map(criterionTemplate).join(",");
+    filterCriteriaTemplate += ")";
+
     const hasLabelContent = filterByVertexTypes
     .flatMap(type => type.split("::"))
     .map(type => `"${type}"`)
@@ -128,13 +132,13 @@ const edgeOneHopTemplate = ({
 
       if (edgeTypes.length > 0){
         if (filterCriteria.length > 0) {
-            template += `.by(bothE(${bothEContent}).has(${filterCriteria}).inV().hasLabel(${hasLabelContent})).dedup()${range}.fold())`;
+            template += `.by(bothE(${bothEContent})${filterCriteriaTemplate}.inV().hasLabel(${hasLabelContent})).dedup()${range}.fold())`;
           } else {
             template += `.by(bothE(${bothEContent}).dedup()${range}.fold())`;
         }
       } else {
         if (filterCriteria.length > 0) {
-          template += `.by(bothE(${bothEContent}).has(${filterCriteria})).dedup().fold())`;
+          template += `.by(bothE(${bothEContent})${filterCriteriaTemplate}.dedup().fold())`;
         } else {
           template += `.by(bothE().dedup().fold())`;
         }
