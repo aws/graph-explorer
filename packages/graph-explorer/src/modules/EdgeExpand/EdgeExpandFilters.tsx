@@ -26,6 +26,8 @@ export type EdgeExpandFiltersProps = {
   //criterion: string;
   onSelectedTypeChange(type: string): void;
   filters: Array<EdgeExpandFilter>;
+  directVal: string;
+  onDirectVal(directVal: string): void;
   onFiltersChange(filters: Array<EdgeExpandFilter>): void;
   limit: number | null;
   onLimitChange(limit: number | null): void;
@@ -40,7 +42,9 @@ const EdgeExpandFilters = ({
   onSelectedTypeChange,
   filters,
   //criterion,
+  directVal,
   onFiltersChange,
+  onDirectVal,
   limit,
   onLimitChange,
 }: EdgeExpandFiltersProps) => {
@@ -86,6 +90,11 @@ const EdgeExpandFilters = ({
     ]);
   }, [filters, onFiltersChange, etConfig?.attributes]);
 
+  const onDirectAdd = useCallback((dVal: string) => {
+    console.log(`Value: ${dVal}`);
+    const directVal = dVal;
+  },[directVal])
+
   const onFilterDelete = useCallback(
     (filterIndex: number) => {
       const updatedFilters = filters.filter((_, i) => i !== filterIndex);
@@ -124,15 +133,15 @@ const EdgeExpandFilters = ({
         }))}
       />
       {!!etConfig?.attributes?.length && (
-        <div className={pfx("title")}>
-          <div>Filter to narrow results</div>
-          <IconButton
-            icon={<AddIcon />}
-            variant={"text"}
-            size={"small"}
-            onPress={onFilterAdd}
-          />
-        </div>
+      <div className={pfx("title")}>
+        <div>Limit returned neighbors to</div>
+        <IconButton
+          icon={<AddIcon />}
+          variant={"text"}
+          size={"small"}
+          onPress={() => onDirectVal("")}
+        />
+      </div>
       )}
       {!!edgeSearchableAttributes?.length && (
         <div className={pfx("filters")}>
@@ -146,9 +155,9 @@ const EdgeExpandFilters = ({
                 }}
                 hideError={true}
                 noMargin={true}
+
               />
             </div>
-          ))}
         </div>
       )}
       <div className={pfx("title")}>

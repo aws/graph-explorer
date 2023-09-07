@@ -54,16 +54,29 @@ const EdgeExpandContent = ({
   );
   const [filters, setFilters] = useState<Array<EdgeExpandFilter>>([]);
   const [limit, setLimit] = useState<number | null>(null);
+  const [directVal, setDirectVal] = useState<string | "">("");
 
 
   const onExpandClick = useCallback(async () => {
     setIsExpanding(true);
 
+    const testResult = await testEdge({
+      vertexId: vertex.data.id,
+      vertexType: "drug",
+      edgeTypes: ["j2"],
+      /*filterCriteria:[{
+        name:"J2_Record_Expiration_Date__c",
+        operator:"LIKE",
+        value:"4000-12-31"
+      }],*/
+    })
+    console.log(directVal)
     await expandEdge({
       vertexId: vertex.data.id,
       vertexType: (vertex.data.types ?? [vertex.data.type])?.join("::"),
       edgeTypes: [selectedType],
       filterByVertexTypes: [selectedType],
+
       filterCriteria: filters.map(filter => ({
         name: filter.name,
         operator: "LIKE",
@@ -152,6 +165,8 @@ const EdgeExpandContent = ({
               edgeCriteria={criteriaOptions}
               selectedType={selectedType}
               onSelectedTypeChange={setSelectedType}
+              directVal={directVal}
+              onDirectVal={setDirectVal}
               filters={filters}
               onFiltersChange={setFilters}
               limit={limit}

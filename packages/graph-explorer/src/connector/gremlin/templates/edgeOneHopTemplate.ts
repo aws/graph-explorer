@@ -109,6 +109,7 @@ const edgeOneHopTemplate = ({
     filterCriteria = [],
     limit = 10,
     offset = 0,
+    directVal,
     idType = "string",
   }: Omit<NeighborsRequest, "vertexType"> & {
     idType?: "string" | "number";
@@ -130,10 +131,12 @@ const edgeOneHopTemplate = ({
 
     const bothEContent = edgeTypes.map(type => `"${type}"`).join(",");
 
+
     let activeDate = filterCriteria[0]['value'];
     let filterCriteriaTemplate = ".and(";
     filterCriteriaTemplate += `has("${edgeTypes[0]}_Record_Active_Date__c", gt("${activeDate}"))`;
     filterCriteriaTemplate += `, has("${edgeTypes[0]}_Record_Expiration_Date__c", lt("${activeDate}"))`;
+
     filterCriteriaTemplate += ")";
 
     /*let filterCriteriaTemplate = ".and(";
@@ -145,21 +148,22 @@ const edgeOneHopTemplate = ({
     .flatMap(type => type.split("::"))
     .map(type => `"${type}"`)
     .join(",");
-
+    template += `.by(bothE(${bothEContent}).and(has("${edgeTypes[0]}_Record_Active_Date__c", gt("4000-12-31")), has("${edgeTypes[0]}_Record_Expiration_Date__c", lt("4000-12-31"))).dedup().outV()${range}.fold())`;
+    /*
       if (edgeTypes.length > 0){
         if (filterCriteria.length > 0) {
-            template += `.by(bothE(${bothEContent})${filterCriteriaTemplate}.dedup().outV()${range}.fold())`;
+            template += `.by(bothE(${bothEContent}).and(has("${edgeTypes[0]}_Record_Active_Date__c", gt("4000-12-31")), has("${edgeTypes[0]}_Record_Expiration_Date__c", lt("4000-12-31"))).dedup().outV()${range}.fold())`;
           } else {
             template += `.by(bothE(${bothEContent}).dedup().outV()s${range}.fold())`;
         }
       } else {
         if (filterCriteria.length > 0) {
-          template += `.by(bothE(${bothEContent})${filterCriteriaTemplate}.dedup().fold())`;
+          template += `.by(bothE(${bothEContent}).and(has("${edgeTypes[0]}_Record_Active_Date__c", gt("4000-12-31")), has("${edgeTypes[0]}_Record_Expiration_Date__c", lt("4000-12-31"))).dedup().fold())`;
         } else {
           template += `.by(bothE().dedup().fold())`;
         }
       }
-      
+    */
       return template;
 };
     
