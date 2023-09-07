@@ -58,22 +58,12 @@ const EdgeExpandContent = ({
 
   const onExpandClick = useCallback(async () => {
     setIsExpanding(true);
-    const testResult = await testEdge({
-      vertexId: vertex.data.id,
-      vertexType: "drug",
-      edgeTypes: ["j2"],
-      /*filterCriteria:[{
-        name:"J2_Record_Expiration_Date__c",
-        operator:"LIKE",
-        value:"4000-12-31"
-      }],*/
-    })
-    console.log(testResult)
+
     await expandEdge({
       vertexId: vertex.data.id,
       vertexType: (vertex.data.types ?? [vertex.data.type])?.join("::"),
       edgeTypes: [selectedType],
-      //filterByVertexTypes: [selectedType],
+      filterByVertexTypes: [selectedType],
       filterCriteria: filters.map(filter => ({
         name: filter.name,
         operator: "LIKE",

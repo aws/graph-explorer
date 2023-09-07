@@ -138,42 +138,14 @@ const EdgeExpandFilters = ({
         <div className={pfx("filters")}>
           {filters.map((filter, filterIndex) => (
             <div key={filterIndex} className={pfx("single-filter")}>
-              <Select
-                aria-label={"Attribute"}
-                value={filter.name}
-                onChange={value => {
-                  onFilterChange(filterIndex, value as string, filter.value);
-                }}
-                options= {edgeSearchableAttributes?.map(attr => ({
-                  label: attr.displayLabel || textTransform(attr.name),
-                  value: attr.name,
-                }))}
-                /**
-                 * ToDo: why can't I do selects at the same time
-                 */
-                /*options={searchableAttributes?.map(attr => ({
-                  label: attr.displayLabel || textTransform(attr.name),
-                  value: attr.name,
-                }))}*/
-                hideError={true}
-                noMargin={true}
-              />
               <Input
                 aria-label={"Filter"}
                 value={filter.value}
                 onChange={value => {
-                  onFilterChange(filterIndex, filter.name, value as string);
+                  onFilterChange(filterIndex, "Active Date", value as string);
                 }}
                 hideError={true}
                 noMargin={true}
-              />
-              <IconButton
-                icon={<DeleteIcon />}
-                variant={"text"}
-                color={"error"}
-                size={"small"}
-                tooltipText={"Remove Filter"}
-                onPress={() => onFilterDelete(filterIndex)}
               />
             </div>
           ))}
