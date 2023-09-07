@@ -10,6 +10,7 @@ import { SPARQLKeywordSearchRequest } from "../types";
  * ]
  * limit = 10
  * offset = 0
+ * exactMatch = False
  *
  * SELECT ?subject ?pred ?value ?class {
  *   ?subject ?pred ?value {
@@ -37,6 +38,7 @@ const keywordSearchTemplate = ({
   predicates = [],
   limit = 10,
   offset = 0,
+  exactMatch = false,
 }: SPARQLKeywordSearchRequest): string => {
   const getSubjectClasses = () => {
     if (!subjectClasses?.length) {
@@ -78,7 +80,11 @@ const keywordSearchTemplate = ({
     }
 
     let filterBySearchTerm = "";
-    filterBySearchTerm = `FILTER (regex(str(?value), "${searchTerm}", "i"))`;
+    if (exactMatch === true) {
+      filterBySearchTerm = `FILTER (?value = "${searchTerm}"))`;
+    } else {
+      filterBySearchTerm = `FILTER (regex(str(?value), "${searchTerm}", "i"))`;
+    }
     return filterBySearchTerm;
   };
 

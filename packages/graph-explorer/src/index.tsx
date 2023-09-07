@@ -8,6 +8,10 @@ import ConnectedProvider from "./core/ConnectedProvider";
 import "./index.css";
 
 const grabConfig = async (): Promise<RawConfiguration | undefined> => {
+  const defaultConnectionPath = `${location.origin}/defaultConnection`;
+  const sagemakerConnectionPath = `${location.origin}/proxy/9250/defaultConnection`;
+  let defaultConnectionFile;
+
   const params = queryString.parse(location.search) as {
     configFile?: string;
   };
@@ -19,14 +23,20 @@ const grabConfig = async (): Promise<RawConfiguration | undefined> => {
     };
   }
 
-  const defaultConnectionPath = `${location.origin}/defaultConnection`;
   try {
-    const defaultConnectionFile = await fetch(defaultConnectionPath);
+    defaultConnectionFile = await fetch(defaultConnectionPath);
 
     if (!defaultConnectionFile.ok) {
-      throw new Error(
-        `Failed to fetch defaultConnection: ${defaultConnectionFile.status} ${defaultConnectionFile.statusText}`
-      );
+      console.log(`Failed to find default connection file at .../defaultConnection, trying path for Sagemaker.`);
+      defaultConnectionFile = await fetch(sagemakerConnectionPath);
+      if (defaultConnectionFile.ok) {
+        console.log(`Found file at ../proxy/9250/defaultConnection.`);
+      }
+      else {
+        console.log(`Did not find file at ../proxy/9250/defaultConnection. No defaultConnectionFile will be set.`);
+      }
+    } else {
+      console.log(`Found file at ../defaultConnection.`);
     }
 
     const contentType = defaultConnectionFile.headers.get("content-type");
@@ -41,11 +51,9 @@ const grabConfig = async (): Promise<RawConfiguration | undefined> => {
       connection: {
         url: defaultConnectionData.GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT || "",
         queryEngine: defaultConnectionData.GRAPH_EXP_GRAPH_TYPE,
-        proxyConnection: defaultConnectionData.GRAPH_EXP_USING_PROXY_SERVER
-          ? true
-          : false,
+        proxyConnection: !!defaultConnectionData.GRAPH_EXP_USING_PROXY_SERVER,
         graphDbUrl: defaultConnectionData.GRAPH_EXP_CONNECTION_URL || "",
-        awsAuthEnabled: defaultConnectionData.GRAPH_EXP_IAM ? true : false,
+        awsAuthEnabled: !!defaultConnectionData.GRAPH_EXP_IAM,
         awsRegion: defaultConnectionData.GRAPH_EXP_AWS_REGION || "",
       },
     };

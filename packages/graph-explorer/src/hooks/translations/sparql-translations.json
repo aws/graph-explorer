@@ -31,7 +31,8 @@
   },
   "keyword-search": {
     "node-type": "Class",
-    "node-attribute": "Predicate"
+    "node-attribute": "Predicate",
+    "node-exact-match": "Match Precision"
   },
   "entities-filter": {
     "node-types": "Resource Types",

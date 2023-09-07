@@ -1,6 +1,6 @@
 #!/bin/sh
 
-if [ -f "./config.json" ]; then 
+if [ -f "./config.json" ]; then
 
     json=$(cat ./config.json)
 
@@ -12,6 +12,18 @@ if [ -f "./config.json" ]; then
     AWS_REGION=$(echo "$json" | grep -o '"AWS_REGION":[^,}]*' | cut -d '"' -f 4)
     PROXY_SERVER_HTTPS_CONNECTION=$(echo "$json" | grep -o '"PROXY_SERVER_HTTPS_CONNECTION":[^,}]*' | cut -d ':' -f 2 | tr -d '[:space:]' | sed 's/"//g')
     GRAPH_EXP_HTTPS_CONNECTION=$(echo "$json" | grep -o '"GRAPH_EXP_HTTPS_CONNECTION":[^,}]*' | cut -d ':' -f 2 | tr -d '[:space:]' | sed 's/"//g')
+    NEPTUNE_NOTEBOOK=$(echo "$json" | grep -o '"NEPTUNE_NOTEBOOK":[^,}]*' | cut -d ':' -f 2 | tr -d '[:space:]' | sed 's/"//g')
+fi
+
+if [ -n "$NEPTUNE_NOTEBOOK" ]; then
+    echo -e "\nNEPTUNE_NOTEBOOK=${NEPTUNE_NOTEBOOK}" >> ./packages/graph-explorer/.env
+    if [ "$NEPTUNE_NOTEBOOK" == "true" ]; then
+      # Override Proxy SSL setting if Neptune notebook
+      PROXY_SERVER_HTTPS_CONNECTION="false"
+      GRAPH_EXP_HTTPS_CONNECTION="false"
+    fi
+else
+    echo -e "\nNEPTUNE_NOTEBOOK=false" >> ./packages/graph-explorer/.env
 fi
 
 if [ -n "$PROXY_SERVER_HTTPS_CONNECTION" ]; then
