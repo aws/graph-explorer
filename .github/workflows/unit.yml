@@ -39,8 +39,6 @@ jobs:
         run: pnpm test
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v2
+        uses: codecov/codecov-action@v3
         with:
-          directory: "./packages/graph-explorer/coverage"
-          files: "*.info"
-        
+          flags: unittests
