@@ -60,7 +60,7 @@
     "no-connections-subtitle": "This node has no connection. Therefore, it is not expandable",
     "no-unfetched-title": "Nothing to Expand",
     "no-unfetched-subtitle": "This node has been completely expanded",
-    "edges-of-type":"Expand Neighbor by Type"
+    "edges-of-type":"Expand Neighbor by Edge Type"
   },
   "entities-tabular": {
     "all-nodes": "All Nodes",

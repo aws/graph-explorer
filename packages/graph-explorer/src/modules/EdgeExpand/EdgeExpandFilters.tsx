@@ -74,7 +74,6 @@ const EdgeExpandFilters = ({
 
   */
   const onFilterAdd = useCallback(() => {
-    console.log(`"Edges Data: ${selectedType}`);
     onFiltersChange([
       ...filters,
       {
@@ -148,7 +147,7 @@ const EdgeExpandFilters = ({
                   value: attr.name,
                 }))}
                 /**
-                 * ToDo:
+                 * ToDo: why can't I do selects at the same time
                  */
                 /*options={searchableAttributes?.map(attr => ({
                   label: attr.displayLabel || textTransform(attr.name),
