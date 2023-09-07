@@ -26,6 +26,8 @@ export type EdgeExpandFiltersProps = {
   //criterion: string;
   onSelectedTypeChange(type: string): void;
   filters: Array<EdgeExpandFilter>;
+  directVal: string;
+  onDirectVal(directVal: string): void;
   onFiltersChange(filters: Array<EdgeExpandFilter>): void;
   limit: number | null;
   onLimitChange(limit: number | null): void;
@@ -40,7 +42,9 @@ const EdgeExpandFilters = ({
   onSelectedTypeChange,
   filters,
   //criterion,
+  directVal,
   onFiltersChange,
+  onDirectVal,
   limit,
   onLimitChange,
 }: EdgeExpandFiltersProps) => {
@@ -86,6 +90,11 @@ const EdgeExpandFilters = ({
     ]);
   }, [filters, onFiltersChange, etConfig?.attributes]);
 
+  const onDirectAdd = useCallback((dVal: string) => {
+    console.log(`Value: ${dVal}`);
+    const directVal = dVal;
+  },[directVal])
+
   const onFilterDelete = useCallback(
     (filterIndex: number) => {
       const updatedFilters = filters.filter((_, i) => i !== filterIndex);
@@ -124,59 +133,36 @@ const EdgeExpandFilters = ({
         }))}
       />
       {!!etConfig?.attributes?.length && (
-        <div className={pfx("title")}>
-          <div>Filter to narrow results</div>
-          <IconButton
-            icon={<AddIcon />}
-            variant={"text"}
-            size={"small"}
-            onPress={onFilterAdd}
-          />
-        </div>
+      <div className={pfx("title")}>
+        <div>Limit returned neighbors to</div>
+        <IconButton
+          icon={<AddIcon />}
+          variant={"text"}
+          size={"small"}
+          onPress={() => onDirectVal("")}
+        />
+      </div>
       )}
       {!!edgeSearchableAttributes?.length && (
         <div className={pfx("filters")}>
-          {filters.map((filter, filterIndex) => (
-            <div key={filterIndex} className={pfx("single-filter")}>
-              <Select
-                aria-label={"Attribute"}
-                value={filter.name}
-                onChange={value => {
-                  onFilterChange(filterIndex, value as string, filter.value);
-                }}
-                options= {edgeSearchableAttributes?.map(attr => ({
-                  label: attr.displayLabel || textTransform(attr.name),
-                  value: attr.name,
-                }))}
-                /**
-                 * ToDo: why can't I do selects at the same time
-                 */
-                /*options={searchableAttributes?.map(attr => ({
-                  label: attr.displayLabel || textTransform(attr.name),
-                  value: attr.name,
-                }))}*/
-                hideError={true}
-                noMargin={true}
-              />
-              <Input
+          <div className={pfx("input")}>
+            <Input
                 aria-label={"Filter"}
-                value={filter.value}
-                onChange={value => {
-                  onFilterChange(filterIndex, filter.name, value as string);
-                }}
+                className={pfx("input")}
+                value={directVal}
+                onChange={(v: string | null) => onDirectVal(v ?? "")}
                 hideError={true}
                 noMargin={true}
-              />
+            />
               <IconButton
                 icon={<DeleteIcon />}
                 variant={"text"}
                 color={"error"}
                 size={"small"}
                 tooltipText={"Remove Filter"}
-                onPress={() => onFilterDelete(filterIndex)}
+                onPress={() => onDirectVal("")}
               />
             </div>
-          ))}
         </div>
       )}
       <div className={pfx("title")}>

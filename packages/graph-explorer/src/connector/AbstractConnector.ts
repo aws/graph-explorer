@@ -105,6 +105,10 @@ export type NeighborsRequest = {
    * Skip the given number of results.
    */
   offset?: number;
+  /**
+   * Direct value change
+   */
+  directVal?: string;
 };
 
 export type NeighborsResponse = {
