@@ -1,6 +1,6 @@
 # Running Graph Explorer on AWS Fargate + Amazon ECS
 
-The following steps will allow you set up Graph Explorer on Fargate in Amazon ECS, and connect to a running Neptune database.
+The following steps will allow you set up Graph Explorer on AWS Fargate in Amazon ECS, and connect to a running Neptune database.
 
 ### Create a new IAM role and permission policies
 1. Open the IAM console at https://console.aws.amazon.com/iam/.
@@ -15,7 +15,7 @@ The following steps will allow you set up Graph Explorer on Fargate in Amazon EC
 
 ![image](https://github.com/StrongPa55w0rd/graph-explorer/assets/356327/16b6cbcf-6898-47c4-8de2-403b977ffe50)
 
-### Create the Amazon ECS Cluster
+### Create an Amazon ECS Cluster
 1. Open the ECS console at https://console.aws.amazon.com/ecs/v2.
 2. In the left hand navigation pane, click **Clusters**.
 3. On the Clusters page, click **Create cluster**.
