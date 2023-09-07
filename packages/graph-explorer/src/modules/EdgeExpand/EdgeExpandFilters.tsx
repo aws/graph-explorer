@@ -23,6 +23,7 @@ export type EdgeExpandFiltersProps = {
   edgeOptions:  Set<string>;
   edgeCriteria: Array<string>;
   selectedType: string;
+  criterion: string;
   onSelectedTypeChange(type: string): void;
   filters: Array<EdgeExpandFilter>;
   onFiltersChange(filters: Array<EdgeExpandFilter>): void;
@@ -38,6 +39,7 @@ const EdgeExpandFilters = ({
   selectedType,
   onSelectedTypeChange,
   filters,
+  criterion,
   onFiltersChange,
   limit,
   onLimitChange,
@@ -135,7 +137,7 @@ const EdgeExpandFilters = ({
       {!!edgeSearchableAttributes?.length && (
         <div className={pfx("filters")}>
           {filters.map((filter, filterIndex) => (
-            <div key={filterIndex} className={pfx("double-filter")}>
+            <div key={filterIndex} className={pfx("single-filter")}>
               <Select
                 aria-label={"Attribute"}
                 value={filter.name}
@@ -155,17 +157,6 @@ const EdgeExpandFilters = ({
                 }))}*/
                 hideError={true}
                 noMargin={true}
-              />
-              <Select
-              aria-label={"Criterion"}
-              value={filter.name}
-              options={edgeCriteria.map(val =>({
-                label: val,
-                value: val
-              }))}
-              onChange={value => {
-                onFilterChange(filterIndex, value as string, filter.value);
-              }}
               />
               <Input
                 aria-label={"Filter"}
@@ -188,6 +179,24 @@ const EdgeExpandFilters = ({
           ))}
         </div>
       )}
+      <div className={pfx("title")}>
+        <div>Criterion Per Attribute</div>
+        <Select
+              aria-label={"Criterion"}
+              value={criterion}
+              //value={filter.name}
+              options={edgeCriteria.map(val =>({
+                label: val,
+                value: val
+              }))}
+              //onChange={value => {
+              //  onFilterChange(filterIndex, value as string, filter.value);
+              //}}
+              onChange= {value => {
+                onFilterChange(0, criterion, value as string);
+              }}
+              />
+      </div>
       <div className={pfx("title")}>
         <div>Limit returned neighbors to</div>
         <IconButton
