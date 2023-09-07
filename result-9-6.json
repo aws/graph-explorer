@@ -1,0 +1,716 @@
+[
+    "edges",
+    {
+        "@type": "g:Edge",
+        "@value": {
+            "id": "66c4e136-a81e-71ae-8d2c-e1c7563249c6",
+            "label": "j2",
+            "inVLabel": "drug",
+            "outVLabel": "offer",
+            "inV": "64c47f3a-af4b-4b52-0698-1d8c0dbb5263",
+            "outV": "2ac4e12c-6974-3172-861e-35510e3e3adf",
+            "properties": {
+                "J2_Record_Expiration_Date__c": {
+                    "@type": "g:Property",
+                    "@value": {
+                        "key": "J2_Record_Expiration_Date__c",
+                        "value": "4000-12-31"
+                    }
+                },
+                "J2_Record_Active_Date__c": {
+                    "@type": "g:Property",
+                    "@value": {
+                        "key": "J2_Record_Active_Date__c",
+                        "value": "2023-06-20"
+                    }
+                }
+            }
+        }
+    },
+    "vertices",
+    {
+        "@type": "g:Vertex",
+        "@value": {
+            "id": "2ac4e12c-6974-3172-861e-35510e3e3adf",
+            "label": "offer",
+            "properties": {
+                "Offer_Quantity_Maximum__c": [
+                    {
+                        "@type": "g:VertexProperty",
+                        "@value": {
+                            "id": {
+                                "@type": "g:Int32",
+                                "@value": 1460128081
+                            },
+                            "value": "nan",
+                            "label": "Offer_Quantity_Maximum__c"
+                        }
+                    }
+                ],
+                "LastModifiedDate": [
+                    {
+                        "@type": "g:VertexProperty",
+                        "@value": {
+                            "id": {
+                                "@type": "g:Int32",
+                                "@value": -163660868
+                            },
+                            "value": "1678128756000",
+                            "label": "LastModifiedDate"
+                        }
+                    }
+                ],
+                "Offer_Multiple_Use_Period__c": [
+                    {
+                        "@type": "g:VertexProperty",
+                        "@value": {
+                            "id": {
+                                "@type": "g:Int32",
+                                "@value": -2142453125
+                            },
+                            "value": "nan",
+                            "label": "Offer_Multiple_Use_Period__c"
+                        }
+                    }
+                ],
+                "Offer_Quantity_Minimum__c": [
+                    {
+                        "@type": "g:VertexProperty",
+                        "@value": {
+                            "id": {
+                                "@type": "g:Int32",
+                                "@value": 1934554147
+                            },
+                            "value": "nan",
+                            "label": "Offer_Quantity_Minimum__c"
+                        }
+                    }
+                ],
+                "Offer_Other_Coverage_Codes_Allowed__c": [
+                    {
+                        "@type": "g:VertexProperty",
+                        "@value": {
+                            "id": {
+                                "@type": "g:Int32",
+                                "@value": 1174840089
+                            },
+                            "value": "8",
+                            "label": "Offer_Other_Coverage_Codes_Allowed__c"
+                        }
+                    }
+                ],
+                "Offer_Ready_for_Review__c": [
+                    {
+                        "@type": "g:VertexProperty",
+                        "@value": {
+                            "id": {
+                                "@type": "g:Int32",
+                                "@value": 1351678525
+                            },
+                            "value": "1",
+                            "label": "Offer_Ready_for_Review__c"
+                        }
+                    }
+                ],
+                "Offer_Record_Active_Date__c": [
+                    {
+                        "@type": "g:VertexProperty",
+                        "@value": {
+                            "id": {
+                                "@type": "g:Int32",
+                                "@value": 1554936839
+                            },
+                            "value": "2021-07-13",
+                            "label": "Offer_Record_Active_Date__c"
+                        }
+                    }
+                ],
+                "Name": [
+                    {
+                        "@type": "g:VertexProperty",
+                        "@value": {
+                            "id": {
+                                "@type": "g:Int32",
+                                "@value": 1363492837
+                            },
+                            "value": "O-00000000",
+                            "label": "Name"
+                        }
+                    }
+                ],
+                "CreatedById": [
+                    {
+                        "@type": "g:VertexProperty",
+                        "@value": {
+                            "id": {
+                                "@type": "g:Int32",
+                                "@value": 495299764
+                            },
+                            "value": "00536000002XVZXAA4",
+                            "label": "CreatedById"
+                        }
+                    }
+                ],
+                "Offer_Max_Refill_Number_Allowed__c": [
+                    {
+                        "@type": "g:VertexProperty",
+                        "@value": {
+                            "id": {
+                                "@type": "g:Int32",
+                                "@value": -261593757
+                            },
+                            "value": "nan",
+                            "label": "Offer_Max_Refill_Number_Allowed__c"
+                        }
+                    }
+                ],
+                "Offer_Patient_State_Exclusions__c": [
+                    {
+                        "@type": "g:VertexProperty",
+                        "@value": {
+                            "id": {
+                                "@type": "g:Int32",
+                                "@value": 249409584
+                            },
+                            "value": "nan",
+                            "label": "Offer_Patient_State_Exclusions__c"
+                        }
+                    }
+                ],
+                "Offer_End_Date__c": [
+                    {
+                        "@type": "g:VertexProperty",
+                        "@value": {
+                            "id": {
+                                "@type": "g:Int32",
+                                "@value": -465701235
+                            },
+                            "value": "4000-12-31",
+                            "label": "Offer_End_Date__c"
+                        }
+                    }
+                ],
+                "Offer_Restricted_Reject_Codes__c": [
+                    {
+                        "@type": "g:VertexProperty",
+                        "@value": {
+                            "id": {
+                                "@type": "g:Int32",
+                                "@value": -1617625447
+                            },
+                            "value": "nan",
+                            "label": "Offer_Restricted_Reject_Codes__c"
+                        }
+                    }
+                ],
+                "Offer_Minimum_Patient_Age__c": [
+                    {
+                        "@type": "g:VertexProperty",
+                        "@value": {
+                            "id": {
+                                "@type": "g:Int32",
+                                "@value": -1240498833
+                            },
+                            "value": "nan",
+                            "label": "Offer_Minimum_Patient_Age__c"
+                        }
+                    }
+                ],
+                "Offer_Initial_Out_of_Pocket_Minimum__c": [
+                    {
+                        "@type": "g:VertexProperty",
+                        "@value": {
+                            "id": {
+                                "@type": "g:Int32",
+                                "@value": 176905579
+                            },
+                            "value": "0.0",
+                            "label": "Offer_Initial_Out_of_Pocket_Minimum__c"
+                        }
+                    }
+                ],
+                "Offer_Coupon_Amount_Qualifier__c": [
+                    {
+                        "@type": "g:VertexProperty",
+                        "@value": {
+                            "id": {
+                                "@type": "g:Int32",
+                                "@value": 630185818
+                            },
+                            "value": "Per prescription for patients with insurance <span style=\"color:#EF8A00;\">\"Covered\"</span>",
+                            "label": "Offer_Coupon_Amount_Qualifier__c"
+                        }
+                    }
+                ],
+                "Offer_Minimum_Days_Between_Fill__c": [
+                    {
+                        "@type": "g:VertexProperty",
+                        "@value": {
+                            "id": {
+                                "@type": "g:Int32",
+                                "@value": -1792550222
+                            },
+                            "value": "nan",
+                            "label": "Offer_Minimum_Days_Between_Fill__c"
+                        }
+                    }
+                ],
+                "Offer_Days_Supply_Minimum__c": [
+                    {
+                        "@type": "g:VertexProperty",
+                        "@value": {
+                            "id": {
+                                "@type": "g:Int32",
+                                "@value": -1238382371
+                            },
+                            "value": "nan",
+                            "label": "Offer_Days_Supply_Minimum__c"
+                        }
+                    }
+                ],
+                "Offer_Start_Date__c": [
+                    {
+                        "@type": "g:VertexProperty",
+                        "@value": {
+                            "id": {
+                                "@type": "g:Int32",
+                                "@value": -731013867
+                            },
+                            "value": "2021-07-13",
+                            "label": "Offer_Start_Date__c"
+                        }
+                    }
+                ],
+                "Offer_Resulting_Patient_Copay_Factor__c": [
+                    {
+                        "@type": "g:VertexProperty",
+                        "@value": {
+                            "id": {
+                                "@type": "g:Int32",
+                                "@value": 753959897
+                            },
+                            "value": "Per Claim",
+                            "label": "Offer_Resulting_Patient_Copay_Factor__c"
+                        }
+                    }
+                ],
+                "Offer_Reject_Message_Response__c": [
+                    {
+                        "@type": "g:VertexProperty",
+                        "@value": {
+                            "id": {
+                                "@type": "g:Int32",
+                                "@value": 870951562
+                            },
+                            "value": "nan",
+                            "label": "Offer_Reject_Message_Response__c"
+                        }
+                    }
+                ],
+                "Offer_Redemptions_Per_Unique_ID__c": [
+                    {
+                        "@type": "g:VertexProperty",
+                        "@value": {
+                            "id": {
+                                "@type": "g:Int32",
+                                "@value": -725295245
+                            },
+                            "value": "nan",
+                            "label": "Offer_Redemptions_Per_Unique_ID__c"
+                        }
+                    }
+                ],
+                "CreatedDate": [
+                    {
+                        "@type": "g:VertexProperty",
+                        "@value": {
+                            "id": {
+                                "@type": "g:Int32",
+                                "@value": -598200547
+                            },
+                            "value": "1651255154000",
+                            "label": "CreatedDate"
+                        }
+                    }
+                ],
+                "Offer_Claim_Max_Benefit__c": [
+                    {
+                        "@type": "g:VertexProperty",
+                        "@value": {
+                            "id": {
+                                "@type": "g:Int32",
+                                "@value": -897141051
+                            },
+                            "value": "75.0",
+                            "label": "Offer_Claim_Max_Benefit__c"
+                        }
+                    }
+                ],
+                "Id": [
+                    {
+                        "@type": "g:VertexProperty",
+                        "@value": {
+                            "id": {
+                                "@type": "g:Int32",
+                                "@value": 1655917460
+                            },
+                            "value": "a0f1Q00000Of7nJQAR",
+                            "label": "Id"
+                        }
+                    }
+                ],
+                "Offer_Explicit_Reject_Inclusion_Only__c": [
+                    {
+                        "@type": "g:VertexProperty",
+                        "@value": {
+                            "id": {
+                                "@type": "g:Int32",
+                                "@value": 1178290564
+                            },
+                            "value": "0",
+                            "label": "Offer_Explicit_Reject_Inclusion_Only__c"
+                        }
+                    }
+                ],
+                "Offer_Maximum_Patient_Age__c": [
+                    {
+                        "@type": "g:VertexProperty",
+                        "@value": {
+                            "id": {
+                                "@type": "g:Int32",
+                                "@value": -1514406499
+                            },
+                            "value": "nan",
+                            "label": "Offer_Maximum_Patient_Age__c"
+                        }
+                    }
+                ],
+                "Offer_Active__c": [
+                    {
+                        "@type": "g:VertexProperty",
+                        "@value": {
+                            "id": {
+                                "@type": "g:Int32",
+                                "@value": 1086023873
+                            },
+                            "value": "1",
+                            "label": "Offer_Active__c"
+                        }
+                    }
+                ],
+                "Offer_Reject_Code_Response__c": [
+                    {
+                        "@type": "g:VertexProperty",
+                        "@value": {
+                            "id": {
+                                "@type": "g:Int32",
+                                "@value": -629567542
+                            },
+                            "value": "nan",
+                            "label": "Offer_Reject_Code_Response__c"
+                        }
+                    }
+                ],
+                "Offer_Initial_Out_of_Pocket_Type__c": [
+                    {
+                        "@type": "g:VertexProperty",
+                        "@value": {
+                            "id": {
+                                "@type": "g:Int32",
+                                "@value": -804970970
+                            },
+                            "value": "Percent of WAC",
+                            "label": "Offer_Initial_Out_of_Pocket_Type__c"
+                        }
+                    }
+                ],
+                "Offer_Reject_Claim__c": [
+                    {
+                        "@type": "g:VertexProperty",
+                        "@value": {
+                            "id": {
+                                "@type": "g:Int32",
+                                "@value": 893791276
+                            },
+                            "value": "0",
+                            "label": "Offer_Reject_Claim__c"
+                        }
+                    }
+                ],
+                "Offer_Record_Expiration_Date__c": [
+                    {
+                        "@type": "g:VertexProperty",
+                        "@value": {
+                            "id": {
+                                "@type": "g:Int32",
+                                "@value": 2078521327
+                            },
+                            "value": "4000-12-31",
+                            "label": "Offer_Record_Expiration_Date__c"
+                        }
+                    }
+                ],
+                "OwnerId": [
+                    {
+                        "@type": "g:VertexProperty",
+                        "@value": {
+                            "id": {
+                                "@type": "g:Int32",
+                                "@value": 576149512
+                            },
+                            "value": "00536000002XVZXAA4",
+                            "label": "OwnerId"
+                        }
+                    }
+                ],
+                "Offer_Reviewed_and_Approved__c": [
+                    {
+                        "@type": "g:VertexProperty",
+                        "@value": {
+                            "id": {
+                                "@type": "g:Int32",
+                                "@value": -1229941626
+                            },
+                            "value": "1",
+                            "label": "Offer_Reviewed_and_Approved__c"
+                        }
+                    }
+                ],
+                "Offer_Redemptions_Per_Unique_Patient__c": [
+                    {
+                        "@type": "g:VertexProperty",
+                        "@value": {
+                            "id": {
+                                "@type": "g:Int32",
+                                "@value": -948447923
+                            },
+                            "value": "nan",
+                            "label": "Offer_Redemptions_Per_Unique_Patient__c"
+                        }
+                    }
+                ],
+                "Offer_Claim_Submission_Window__c": [
+                    {
+                        "@type": "g:VertexProperty",
+                        "@value": {
+                            "id": {
+                                "@type": "g:Int32",
+                                "@value": 1045680133
+                            },
+                            "value": "90.0",
+                            "label": "Offer_Claim_Submission_Window__c"
+                        }
+                    }
+                ],
+                "Offer_Allowable_Quantity_Increments__c": [
+                    {
+                        "@type": "g:VertexProperty",
+                        "@value": {
+                            "id": {
+                                "@type": "g:Int32",
+                                "@value": 1187386247
+                            },
+                            "value": "nan",
+                            "label": "Offer_Allowable_Quantity_Increments__c"
+                        }
+                    }
+                ],
+                "Offer_Parent__c": [
+                    {
+                        "@type": "g:VertexProperty",
+                        "@value": {
+                            "id": {
+                                "@type": "g:Int32",
+                                "@value": -1036148656
+                            },
+                            "value": "a0f1Q00000Of7nKQAR",
+                            "label": "Offer_Parent__c"
+                        }
+                    }
+                ],
+                "Offer_Current_Record_Version__c": [
+                    {
+                        "@type": "g:VertexProperty",
+                        "@value": {
+                            "id": {
+                                "@type": "g:Int32",
+                                "@value": -1340018195
+                            },
+                            "value": "nan",
+                            "label": "Offer_Current_Record_Version__c"
+                        }
+                    }
+                ],
+                "Offer_Bailment_Program__c": [
+                    {
+                        "@type": "g:VertexProperty",
+                        "@value": {
+                            "id": {
+                                "@type": "g:Int32",
+                                "@value": 1184021411
+                            },
+                            "value": "0",
+                            "label": "Offer_Bailment_Program__c"
+                        }
+                    }
+                ],
+                "Offer_Allowed_Reject_Codes__c": [
+                    {
+                        "@type": "g:VertexProperty",
+                        "@value": {
+                            "id": {
+                                "@type": "g:Int32",
+                                "@value": 1632747264
+                            },
+                            "value": "nan",
+                            "label": "Offer_Allowed_Reject_Codes__c"
+                        }
+                    }
+                ],
+                "Offer_Copay_Type__c": [
+                    {
+                        "@type": "g:VertexProperty",
+                        "@value": {
+                            "id": {
+                                "@type": "g:Int32",
+                                "@value": -1751691213
+                            },
+                            "value": "Absolute Value",
+                            "label": "Offer_Copay_Type__c"
+                        }
+                    }
+                ],
+                "Offer_Coupon_Type__c": [
+                    {
+                        "@type": "g:VertexProperty",
+                        "@value": {
+                            "id": {
+                                "@type": "g:Int32",
+                                "@value": 344322067
+                            },
+                            "value": "a0V1Q00002WmNshUAF",
+                            "label": "Offer_Coupon_Type__c"
+                        }
+                    }
+                ],
+                "Offer_Maximum_Days_Between_Fill__c": [
+                    {
+                        "@type": "g:VertexProperty",
+                        "@value": {
+                            "id": {
+                                "@type": "g:Int32",
+                                "@value": -1294794656
+                            },
+                            "value": "nan",
+                            "label": "Offer_Maximum_Days_Between_Fill__c"
+                        }
+                    }
+                ],
+                "Offer_Quantity_Limit_Type__c": [
+                    {
+                        "@type": "g:VertexProperty",
+                        "@value": {
+                            "id": {
+                                "@type": "g:Int32",
+                                "@value": 1944032337
+                            },
+                            "value": "nan",
+                            "label": "Offer_Quantity_Limit_Type__c"
+                        }
+                    }
+                ],
+                "LastActivityDate": [
+                    {
+                        "@type": "g:VertexProperty",
+                        "@value": {
+                            "id": {
+                                "@type": "g:Int32",
+                                "@value": 1858111152
+                            },
+                            "value": "nan",
+                            "label": "LastActivityDate"
+                        }
+                    }
+                ],
+                "Offer_Days_Supply_Maximum__c": [
+                    {
+                        "@type": "g:VertexProperty",
+                        "@value": {
+                            "id": {
+                                "@type": "g:Int32",
+                                "@value": -1712808437
+                            },
+                            "value": "nan",
+                            "label": "Offer_Days_Supply_Maximum__c"
+                        }
+                    }
+                ],
+                "Offer_Initial_Out_of_Pocket_Maximum__c": [
+                    {
+                        "@type": "g:VertexProperty",
+                        "@value": {
+                            "id": {
+                                "@type": "g:Int32",
+                                "@value": -246577877
+                            },
+                            "value": "75.0",
+                            "label": "Offer_Initial_Out_of_Pocket_Maximum__c"
+                        }
+                    }
+                ],
+                "Offer_Claim_Max_Benefit_Type__c": [
+                    {
+                        "@type": "g:VertexProperty",
+                        "@value": {
+                            "id": {
+                                "@type": "g:Int32",
+                                "@value": -1051577011
+                            },
+                            "value": "Percent of WAC",
+                            "label": "Offer_Claim_Max_Benefit_Type__c"
+                        }
+                    }
+                ],
+                "Offer_Resulting_Patient_Copay__c": [
+                    {
+                        "@type": "g:VertexProperty",
+                        "@value": {
+                            "id": {
+                                "@type": "g:Int32",
+                                "@value": 2049496484
+                            },
+                            "value": "0.0",
+                            "label": "Offer_Resulting_Patient_Copay__c"
+                        }
+                    }
+                ],
+                "LastModifiedById": [
+                    {
+                        "@type": "g:VertexProperty",
+                        "@value": {
+                            "id": {
+                                "@type": "g:Int32",
+                                "@value": -1260339568
+                            },
+                            "value": "0051Q00000VQhRHQA1",
+                            "label": "LastModifiedById"
+                        }
+                    }
+                ],
+                "Offer_Pharmacy_State_Exclusions__c": [
+                    {
+                        "@type": "g:VertexProperty",
+                        "@value": {
+                            "id": {
+                                "@type": "g:Int32",
+                                "@value": 58074308
+                            },
+                            "value": "nan",
+                            "label": "Offer_Pharmacy_State_Exclusions__c"
+                        }
+                    }
+                ]
+            }
+        }
+    }
+]
