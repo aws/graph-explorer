@@ -90,19 +90,7 @@ const criterionTemplate = (criterion: Criterion): string => {
     }
 };
 
-/**
- * @example
-      g.V("125")
-      .project("vertices", "edges")
-      .by(
-        bothE({edgeType})
-        .has({filterCriteria K}, {filterCriteria V]})
-        .inV().hasLabel({hasLabelContent})
-      ).dedup().fold()
- * 
- */
-
-const edgeOneHopTemplate = ({
+const expandEdgeDetails = ({
     vertexId,
     filterByVertexTypes= [],
     edgeTypes = [],
@@ -136,9 +124,9 @@ const edgeOneHopTemplate = ({
 
       if (edgeTypes.length > 0){
         if (filterCriteria.length > 0) {
-            template += `.by(bothE(${bothEContent})${filterCriteriaTemplate}.dedup().outV()${range}.fold())`;
+            template += `.by(bothE(${bothEContent})${filterCriteriaTemplate}).dedup()${range}.fold())`;
           } else {
-            template += `.by(bothE(${bothEContent}).dedup().outV()s${range}.fold())`;
+            template += `.by(bothE(${bothEContent}).dedup()${range}.fold())`;
         }
       } else {
         if (filterCriteria.length > 0) {
@@ -151,4 +139,4 @@ const edgeOneHopTemplate = ({
       return template;
 };
     
-export default edgeOneHopTemplate;
+export default expandEdgeDetails;

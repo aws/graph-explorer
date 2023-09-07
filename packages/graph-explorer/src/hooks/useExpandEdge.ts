@@ -13,7 +13,7 @@ const useExpandEdge = () => {
     async (req: NeighborsRequest) => {
       const result = await connector.explorer?.fetchEdgeNeighbors(req);
 
-      /*if (!result || !result.vertices.length) {
+      if (!result || !result.vertices.length) {
         enqueueNotification({
           title: "No Results",
           message: "Your search has returned no results",
@@ -28,8 +28,8 @@ const useExpandEdge = () => {
       });
 
       const notificationId = enqueueNotification({
-        title: "Updating Neighbors",
-        message: `Looking for the Neighbors of ${result.vertices.length} results`,
+        title: "Updating Edge Neighbors",
+        message: `Looking for the Edge Neighbors of ${result.vertices.length} results`,
         autoHideDuration: null,
       });
 
@@ -38,7 +38,6 @@ const useExpandEdge = () => {
           const neighborsCount = await connector.explorer?.fetchNeighborsCount({
             vertexId: vertex.data.id,
           });
-
           // Vertex (totalCount) is how many to receive from, data are the vertices 
           return {
             ...vertex,
@@ -67,7 +66,7 @@ const useExpandEdge = () => {
           return nodeWithCounts;
         }),
         edges: result.edges,
-      }));*/
+      }));
       return result
     },
     [connector.explorer, setEntities, enqueueNotification, clearNotification]

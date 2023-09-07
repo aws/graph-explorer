@@ -72,7 +72,7 @@ const EdgeExpandContent = ({
     await expandEdge({
       vertexId: vertex.data.id,
       vertexType: (vertex.data.types ?? [vertex.data.type])?.join("::"),
-      filterByVertexTypes: [selectedType],
+      //filterByVertexTypes: [selectedType],
       filterCriteria: filters.map(filter => ({
         name: filter.name,
         operator: "LIKE",

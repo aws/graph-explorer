@@ -228,15 +228,15 @@ const GraphViewer = ({
         limit: vertexData.neighborsCount,
         offset: 0,
       });
-      await expandEdge({
+      /*await expandEdge({
         vertexId: vertexData.id,
         vertexType: vertexData.types?.join("::") ?? vertexData.type,
         limit: vertexData.neighborsCount,
         offset: 0,
-      })
+      })*/
       setExpandVertexName(null);
     },
-    [getDisplayNames, enqueueNotification, expandNode, expandEdge, setUserLayout]
+    [getDisplayNames, enqueueNotification, expandNode, setUserLayout]
   );
 
   const [layout, setLayout] = useState("F_COSE");
