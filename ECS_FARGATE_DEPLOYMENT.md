@@ -215,8 +215,7 @@ After few minutes, the Fargate service will be created and ready.
      - **Choose endpoint**: Select `Alias to Application and Classic Load Balancer`.
      - **Choose region**: Select the AWS region that the endpoint is from.
      - **Choose load balancer**: Choose the name that you assigned to the load balancer when you created the ECS Fargate Service.
-9. Choose the name that you assigned to the load balancer when you created the ECS Fargate Service.
-10. Leave everything else default, and click **Create records**.
+7. Leave everything else default, and click **Create records**.
 
 Changes generally propagate to all Route 53 servers within 60 seconds. When propagation is done, you'll be able to route traffic to your load balancer by using the name of the alias record that you created in the above step.
 
