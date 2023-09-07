@@ -125,9 +125,17 @@ const edgeOneHopTemplate = ({
 
     const bothEContent = edgeTypes.map(type => `"${type}"`).join(",");
 
+    console.log(`filters: ${filterCriteria.toString()}`)
+
     let filterCriteriaTemplate = ".and(";
-    filterCriteriaTemplate += filterCriteria?.map(criterionTemplate).join(",");
+    filterCriteriaTemplate += `has("${edgeTypes[0]}_Record_Active_Date__c", gt("${filterCriteria["values"]}"))`;
+    filterCriteriaTemplate += `, has("${edgeTypes[0]}_Record_Expiration_Date__c", lt("${filterCriteria["values"]}"))`;
     filterCriteriaTemplate += ")";
+
+    /*let filterCriteriaTemplate = ".and(";
+    filterCriteriaTemplate += filterCriteria?.map(criterionTemplate).join(",");
+    filterCriteriaTemplate += ")";*/
+
 
     const hasLabelContent = filterByVertexTypes
     .flatMap(type => type.split("::"))

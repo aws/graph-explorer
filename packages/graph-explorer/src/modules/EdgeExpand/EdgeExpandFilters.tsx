@@ -23,7 +23,7 @@ export type EdgeExpandFiltersProps = {
   edgeOptions:  Set<string>;
   edgeCriteria: Array<string>;
   selectedType: string;
-  criterion: string;
+  //criterion: string;
   onSelectedTypeChange(type: string): void;
   filters: Array<EdgeExpandFilter>;
   onFiltersChange(filters: Array<EdgeExpandFilter>): void;
@@ -39,7 +39,7 @@ const EdgeExpandFilters = ({
   selectedType,
   onSelectedTypeChange,
   filters,
-  criterion,
+  //criterion,
   onFiltersChange,
   limit,
   onLimitChange,
@@ -179,24 +179,6 @@ const EdgeExpandFilters = ({
           ))}
         </div>
       )}
-      <div className={pfx("title")}>
-        <div>Criterion Per Attribute</div>
-        <Select
-              aria-label={"Criterion"}
-              value={criterion}
-              //value={filter.name}
-              options={edgeCriteria.map(val =>({
-                label: val,
-                value: val
-              }))}
-              //onChange={value => {
-              //  onFilterChange(filterIndex, value as string, filter.value);
-              //}}
-              onChange= {value => {
-                onFilterChange(0, criterion, value as string);
-              }}
-              />
-      </div>
       <div className={pfx("title")}>
         <div>Limit returned neighbors to</div>
         <IconButton
