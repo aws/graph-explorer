@@ -145,22 +145,17 @@ const EdgeExpandFilters = ({
       )}
       {!!edgeSearchableAttributes?.length && (
         <div className={pfx("filters")}>
-          <div className={pfx("input")}>
-            <Input
+          {filters.map((filter, filterIndex) => (
+            <div key={filterIndex} className={pfx("single-filter")}>
+              <Input
                 aria-label={"Filter"}
-                className={pfx("input")}
-                value={directVal}
-                onChange={(v: string | null) => onDirectVal(v ?? "")}
+                value={filter.value}
+                onChange={value => {
+                  onFilterChange(filterIndex, "Active Date", value as string);
+                }}
                 hideError={true}
                 noMargin={true}
-            />
-              <IconButton
-                icon={<DeleteIcon />}
-                variant={"text"}
-                color={"error"}
-                size={"small"}
-                tooltipText={"Remove Filter"}
-                onPress={() => onDirectVal("")}
+
               />
             </div>
         </div>

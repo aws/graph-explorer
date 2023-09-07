@@ -59,6 +59,7 @@ const EdgeExpandContent = ({
 
   const onExpandClick = useCallback(async () => {
     setIsExpanding(true);
+
     const testResult = await testEdge({
       vertexId: vertex.data.id,
       vertexType: "drug",
@@ -74,8 +75,8 @@ const EdgeExpandContent = ({
       vertexId: vertex.data.id,
       vertexType: (vertex.data.types ?? [vertex.data.type])?.join("::"),
       edgeTypes: [selectedType],
-      //filterByVertexTypes: [selectedType],
-      directVal:directVal, //fix directVal
+      filterByVertexTypes: [selectedType],
+
       filterCriteria: filters.map(filter => ({
         name: filter.name,
         operator: "LIKE",

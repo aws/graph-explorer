@@ -104,7 +104,7 @@ const criterionTemplate = (criterion: Criterion): string => {
 
 const edgeOneHopTemplate = ({
     vertexId,
-    filterByVertexTypes= [],
+    filterByVertexTypes = [],
     edgeTypes = [],
     filterCriteria = [],
     limit = 10,
@@ -122,17 +122,21 @@ const edgeOneHopTemplate = ({
       template = `g.V("${vertexId}")`;
     }
 
+    console.log(`vertexId:`, vertexId)
+    console.log(`filterByVertexTypes:`, filterByVertexTypes)
+    console.log(`edgeTypes:`, edgeTypes)
+    console.log(`filters:`, filterCriteria)
+    
     template += `.project("vertices", "edges")`;
 
     const bothEContent = edgeTypes.map(type => `"${type}"`).join(",");
 
-    console.log(`Value: ${directVal}`)
 
-    directVal = "4000-12-31";
-
+    let activeDate = filterCriteria[0]['value'];
     let filterCriteriaTemplate = ".and(";
-    filterCriteriaTemplate += `has("${edgeTypes[0]}_Record_Active_Date__c", gt("4000-12-31"))`;
-    filterCriteriaTemplate += `, has("${edgeTypes[0]}_Record_Expiration_Date__c", lt("4000-12-31"))`;
+    filterCriteriaTemplate += `has("${edgeTypes[0]}_Record_Active_Date__c", gt("${activeDate}"))`;
+    filterCriteriaTemplate += `, has("${edgeTypes[0]}_Record_Expiration_Date__c", lt("${activeDate}"))`;
+
     filterCriteriaTemplate += ")";
 
     /*let filterCriteriaTemplate = ".and(";
