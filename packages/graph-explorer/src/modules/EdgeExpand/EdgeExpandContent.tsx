@@ -19,7 +19,7 @@ import useTranslations from "../../hooks/useTranslations";
 import NeighborsList from "../common/NeighborsList/NeighborsList";
 import defaultStyles from "./EdgeExpandContent.styles";
 import EdgeExpandFilters, { EdgeExpandFilter } from "./EdgeExpandFilters";
-import useFindEdge from "../../hooks/useFindEdge";
+
 
 
 export type EdgeExpandContentProps = {
@@ -54,7 +54,7 @@ const EdgeExpandContent = ({
   );
   const [filters, setFilters] = useState<Array<EdgeExpandFilter>>([]);
   const [limit, setLimit] = useState<number | null>(null);
-  const [directVal, setDirectVal] = useState<string | "">("");
+  //const [directVal, setDirectVal] = useState<string | "">("");
 
 
   const onExpandClick = useCallback(async () => {
@@ -70,7 +70,6 @@ const EdgeExpandContent = ({
         value:"4000-12-31"
       }],*/
     })
-    console.log(directVal)
     await expandEdge({
       vertexId: vertex.data.id,
       vertexType: (vertex.data.types ?? [vertex.data.type])?.join("::"),
@@ -144,10 +143,6 @@ const EdgeExpandContent = ({
         />
       )}
       {vertex.data.neighborsCount !== 0 && (
-        /*
-        <NeighborsList vertex={vertex} classNamePrefix={classNamePrefix} />
-        <EdgesList vertex={vertex} classNamePrefix={classNamePrefix}
-        */
         <>
           <NeighborsList vertex={vertex} classNamePrefix={classNamePrefix} />
           {!vertex.data.__unfetchedNeighborCount && (
@@ -165,8 +160,6 @@ const EdgeExpandContent = ({
               edgeCriteria={criteriaOptions}
               selectedType={selectedType}
               onSelectedTypeChange={setSelectedType}
-              directVal={directVal}
-              onDirectVal={setDirectVal}
               filters={filters}
               onFiltersChange={setFilters}
               limit={limit}

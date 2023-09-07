@@ -26,8 +26,6 @@ export type EdgeExpandFiltersProps = {
   //criterion: string;
   onSelectedTypeChange(type: string): void;
   filters: Array<EdgeExpandFilter>;
-  directVal: string;
-  onDirectVal(directVal: string): void;
   onFiltersChange(filters: Array<EdgeExpandFilter>): void;
   limit: number | null;
   onLimitChange(limit: number | null): void;
@@ -42,9 +40,7 @@ const EdgeExpandFilters = ({
   onSelectedTypeChange,
   filters,
   //criterion,
-  directVal,
   onFiltersChange,
-  onDirectVal,
   limit,
   onLimitChange,
 }: EdgeExpandFiltersProps) => {
@@ -90,11 +86,6 @@ const EdgeExpandFilters = ({
     ]);
   }, [filters, onFiltersChange, etConfig?.attributes]);
 
-  const onDirectAdd = useCallback((dVal: string) => {
-    console.log(`Value: ${dVal}`);
-    const directVal = dVal;
-  },[directVal])
-
   const onFilterDelete = useCallback(
     (filterIndex: number) => {
       const updatedFilters = filters.filter((_, i) => i !== filterIndex);
@@ -134,12 +125,12 @@ const EdgeExpandFilters = ({
       />
       {!!etConfig?.attributes?.length && (
       <div className={pfx("title")}>
-        <div>Limit returned neighbors to</div>
+        <div>Filter by Date</div>
         <IconButton
           icon={<AddIcon />}
           variant={"text"}
           size={"small"}
-          onPress={() => onDirectVal("")}
+          onPress={onFilterAdd}
         />
       </div>
       )}
@@ -149,15 +140,24 @@ const EdgeExpandFilters = ({
             <div key={filterIndex} className={pfx("single-filter")}>
               <Input
                 aria-label={"Filter"}
+                className={pfx("input")}
                 value={filter.value}
                 onChange={value => {
-                  onFilterChange(filterIndex, "Active Date", value as string);
+                  onFilterChange(filterIndex, "J2_Record_Active_Date__c", value as string);
                 }}
                 hideError={true}
                 noMargin={true}
-
+              />
+              <IconButton
+                icon={<DeleteIcon />}
+                variant={"text"}
+                color={"error"}
+                size={"small"}
+                tooltipText={"Remove Filter"}
+                onPress={() => onFilterDelete(filterIndex)}
               />
             </div>
+          ))}
         </div>
       )}
       <div className={pfx("title")}>
