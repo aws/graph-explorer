@@ -17,6 +17,7 @@ The next release will include the following feature enhancements and bug fixes:
 - Fixed search UI crashing on node select/preview (https://github.com/aws/graph-explorer/pull/177)
 - Fixed Gremlin/openCypher matching ID property on all keyword searches (https://github.com/aws/graph-explorer/pull/169)
 - Resolved deprecation warnings in GitHub workflows (https://github.com/aws/graph-explorer/pull/181)
+- Fixed highlight not persisting on selected graph element (https://github.com/aws/graph-explorer/pull/187)
 
 ## Release 1.3.1
 
