@@ -13,14 +13,14 @@ This project contains the code needed to create a Docker image of the Graph Expl
 
 There are many ways to deploy the Graph Explorer application. The following instructions detail how to deploy graph-explorer onto an Amazon EC2 instance and use it as a proxy server with SSH tunneling to connect to Amazon Neptune. Note that this README is not an official recommendation on network setups as there are many ways to connect to Amazon Neptune from outside of the VPC, such as setting up a load balancer or VPC peering.
 
-### Prerequisites:
+### Prerequisites
 
 - Provision an Amazon EC2 instance that will be used to host the application and connect to Neptune as a proxy server. For more details, see instructions [here](https://github.com/aws/graph-notebook/tree/main/additional-databases/neptune).
 - Ensure the Amazon EC2 instance can send and receive on ports `22` (SSH), `8182` (Neptune), and `443` or `80` depending on protocol used (graph-explorer).
 - Open an SSH client and connect to the EC2 instance.
 - Download and install the necessary command line tools such as `git` and `docker`.
 
-### Steps to install Graph Explorer:
+### Steps to install Graph Explorer
 
 1. To download the source project, run `git clone https://github.com/aws/graph-explorer/`. Navigate to the newly created `graph-explorer` directory.
 2. To build the image, run `docker build -t graph-explorer .` from the root directory. If you receive an error relating to the docker service not running, run `service docker start`.
@@ -36,7 +36,7 @@ There are many ways to deploy the Graph Explorer application. The following inst
 
 ## Features
 
-#### _Connections UI:_
+### _Connections UI:_
 
 You can create and manage connections to graph databases using this feature. Connections is accessible as the first screen after deploying the application, when you click `Open Connections` on the top-right. Click `+` on the top-right to add a new connection. You can also edit and delete connections.
 
@@ -105,7 +105,7 @@ The Graph Explorer supports visualizing both **property graphs** and **RDF graph
 
 To provide a default connection such that initial loads of the graph explorer always result with the same starting connection, modify the `docker run ...` command to either take in a JSON configuration or runtime environment variables. If you provide both a JSON configuration and environmental variables, the JSON will be prioritized.
 
-#### Valid ENV connection variables, their defaults, and their descriptions:
+#### Valid ENV connection variables, their defaults, and their descriptions
 
 - Required:
   - `PUBLIC_OR_PROXY_ENDPOINT` - `None` - See [Add a New Connection](#connections-ui)
@@ -113,19 +113,21 @@ To provide a default connection such that initial loads of the graph explorer al
   - `GRAPH_TYPE` - `None` - If not specified, multiple connections will be created for every available graph type / query language. See [Add a New Connection](#connections-ui)
   - `USING_PROXY_SERVER` - `False` - See [Add a New Connection](#connections-ui)
   - `IAM` - `False` - See [Add a New Connection](#connections-ui)
-  - `PROXY_SERVER_HTTPS_CONNECTION` - `True` - Controls whether the server uses SSL or not
   - `GRAPH_EXP_HTTPS_CONNECTION` - `True` - Controls whether the Graph Explorer uses SSL or not
+  - `PROXY_SERVER_HTTPS_CONNECTION` - `True` - Controls whether the server uses SSL or not
+  - `PROXY_SERVER_REQUEST_TIMEOUT` - `300000` - Controls the timeout for proxy requests
+  - `PROXY_SERVER_MAX_RETRIES` - `1` - Controls the number of retries for proxy requests
 - Conditionally Required:
   - Required if `USING_PROXY_SERVER=True`
     - `GRAPH_CONNECTION_URL` - `None` - See [Add a New Connection](#connections-ui)
   - Required if `USING_PROXY_SERVER=True` and `IAM=True`
     - `AWS_REGION` - `None` - See [Add a New Connection](#connections-ui)
 
-#### JSON Configuration Approach:
+#### JSON Configuration Approach
 
 First, create a `config.json` file containing values for the connection attributes:
 
-```
+```bash
 {
      "PUBLIC_OR_PROXY_ENDPOINT": "https://public-endpoint",
      "GRAPH_CONNECTION_URL": "https://cluster-cqmizgqgrsbf.us-west-2.neptune.amazonaws.com:8182",
@@ -133,22 +135,24 @@ First, create a `config.json` file containing values for the connection attribut
      "IAM": true, (Can be string or boolean)
      "AWS_REGION": "us-west-2",
      "GRAPH_TYPE": "gremlin" (Possible Values: "gremlin", "sparql", "opencypher"),
+     "GRAPH_EXP_HTTPS_CONNECTION": true (Can be string or boolean),
      "PROXY_SERVER_HTTPS_CONNECTION": true, (Can be string or boolean),
-     "GRAPH_EXP_HTTPS_CONNECTION": true (Can be string or boolean)
+     "PROXY_SERVER_REQUEST_TIMEOUT": 300000,
+     "PROXY_SERVER_MAX_RETRIES": 1
 }
 ```
 
 Pass the `config.json` file path to the `docker run` command.
 
-```
+```bash
 docker run -p 80:80 -p 443:443 --env HOST={hostname-or-ip-address} -v /path/to/config.json:/graph-explorer/config.json graph-explorer` 
 ```
 
-#### Environment Variable Approach:
+#### Environment Variable Approach
 
 Provide the desired connection variables directly to the `docker run` command, as follows:
 
-``` 
+```bash
 docker run -p 80:80 -p 443:443 \
  --env HOST={hostname-or-ip-address} \
  --env PUBLIC_OR_PROXY_ENDPOINT=https://public-endpoint \
@@ -158,6 +162,8 @@ docker run -p 80:80 -p 443:443 \
  --env GRAPH_CONNECTION_URL=https://cluster-cqmizgqgrsbf.us-west-2.neptune.amazonaws.com:8182 \
  --env AWS_REGION=us-west-2 \
  --env PROXY_SERVER_HTTPS_CONNECTION=true \
+ --env PROXY_SERVER_REQUEST_TIMEOUT=300000 \
+ --env PROXY_SERVER_MAX_RETRIES=1 \
  graph-explorer
 ```
 
@@ -205,7 +211,7 @@ Logs are, by default, sent to the console and will be visible as output to the d
 Within node-server.js, you'll notice three things.
 
 1. A proxyLogger object - This is responsible for actually recording the logs.
-2. An errorHandler - This automatically sends errors to the proxyLogger and can log extra information by adding wanted text to the error object at a key called extraInfo. 
+2. An errorHandler - This automatically sends errors to the proxyLogger and can log extra information by adding wanted text to the error object at a key called extraInfo.
 3. An endpoint called `/logger` - This is how you would log things from the browser. It needs a log level and message header passed and you can then expect to see the message logged at the provided log level.
 
 ## Contributing Guidelines
