@@ -13,8 +13,8 @@ const aws4 = require("aws4");
 
 dotenv.config({ path: "../graph-explorer/.env" });
 
-const proxyTimeout = process.env.PROXY_REQUEST_TIMEOUT || 5 * 60 * 1000; // 5 minutes in milliseconds
-const refetchMaxRetries = process.env.PROXY_MAX_RETRIES || 1;
+const proxyTimeout = process.env.PROXY_SERVER_REQUEST_TIMEOUT || 5 * 60 * 1000; // 5 minutes in milliseconds
+const refetchMaxRetries = process.env.PROXY_SERVER_MAX_RETRIES || 1;
 
 const proxyLogger = pino({
   level: process.env.LOG_LEVEL,
