@@ -12,6 +12,7 @@ The next release will include the following feature enhancements and bug fixes:
 - Added toggle for limit on retrieved vertex neighbors (https://github.com/aws/graph-explorer/pull/176)
 - Added SageMaker Notebook hosting documentation (https://github.com/aws/graph-explorer/pull/183)
 - Added ECS hosting documentation (https://github.com/aws/graph-explorer/pull/174)
+- Updated Dockerfile base image to AL2022 (https://github.com/aws/graph-explorer/pull/190)
 
 **Bug fixes**
 - Fixed search UI crashing on node select/preview (https://github.com/aws/graph-explorer/pull/177)
