@@ -12,6 +12,12 @@ const { fromNodeProviderChain } = require("@aws-sdk/credential-providers");
 const aws4 = require("aws4");
 
 dotenv.config({ path: "../graph-explorer/.env" });
+const milis = 5 * 60 * 1000;
+// convert milis to miliseconds
+const 
+
+const proxyTimeout = process.env.PROXY_REQUEST_TIMEOUT || 5 * 60 * 1000; // 5 minutes in milliseconds
+const refetchMaxRetries = process.env.PROXY_MAX_RETRIES || 1;
 
 const proxyLogger = pino({
   level: process.env.LOG_LEVEL,
@@ -79,7 +85,7 @@ const errorHandler = (error, request, response, next) => {
     );
   }
 
-  const retryFetch = async (url, headers, retryDelay = 10000, refetchMaxRetries = 1) => {
+  const retryFetch = async (url, headers, retryDelay = 10000) => {
     // remove the existing host headers, we want ensure that we are passing the DB endpoint hostname.
     delete headers["host"];
     if (headers["aws-neptune-region"]) {
@@ -95,7 +101,10 @@ const errorHandler = (error, request, response, next) => {
     for (let i = 0; i < refetchMaxRetries; i++) {
       try {
         proxyLogger.debug("Fetching: " + url.href);
-        const res = await fetch(url.href, {headers});
+        const res = await fetch(url.href, {
+          headers: headers,
+          signal: AbortSignal.timeout(proxyTimeout - 1000), // timing out the request before the proxy timeout
+        });
         if (!res.ok) {
           const result = await res.json();
           proxyLogger.error("!!Request failure!!");
@@ -196,44 +205,45 @@ const errorHandler = (error, request, response, next) => {
     }
   });
 
- app.get("/logger", (req, res, next) => {
-  let message;
-  let level;
+  app.get("/logger", (req, res) => {
+    let message;
+    let level;
 
-  try {
-    if (req.headers["level"] === undefined) {
-      throw new Error("No log level passed.");
-    } else {
-      level = req.headers["level"];
+    try {
+      if (req.headers["level"] === undefined) {
+        throw new Error("No log level passed.");
+      } else {
+        level = req.headers["level"];
+      }
+
+      if (req.headers["message"] === undefined) {
+        throw new Error("No log message passed.");
+      } else {
+        message = req.headers["message"].replaceAll("\\", "");
+      }
+
+      if (level.toLowerCase() === "error") {
+        proxyLogger.error(message);
+      } else if (level.toLowerCase() === "warn") {
+        proxyLogger.warn(message);
+      } else if (level.toLowerCase() === "info") {
+        proxyLogger.info(message);
+      } else if (level.toLowerCase() === "debug") {
+        proxyLogger.debug(message);
+      } else if (level.toLowerCase() === "trace") {
+        proxyLogger.trace(message);
+      } else {
+        throw new Error("Tried to log to an unknown level.");
+      }
+
+      res.send("Log received.");
+    } catch (error) {
+      next(error);
     }
-
-    if (req.headers["message"] === undefined) {
-      throw new Error("No log message passed.");
-    } else {
-      message = req.headers["message"].replaceAll("\\", "");
-    }
-
-    if (level.toLowerCase() === "error") {
-      proxyLogger.error(message);
-    } else if (level.toLowerCase() === "warn") {
-      proxyLogger.warn(message);
-    } else if (level.toLowerCase() === "info") {
-      proxyLogger.info(message);
-    } else if (level.toLowerCase() === "debug") {
-      proxyLogger.debug(message);
-    } else if (level.toLowerCase() === "trace") {
-      proxyLogger.trace(message);
-    } else {
-      throw new Error("Tried to log to an unknown level.");
-    }
-
-    res.send("Log received.");
-  } catch (error) {
-    next(error);
-  }
 });
 
   app.use(errorHandler);
+  app.timeout = proxyTimeout; // Express default is 120000 (2 minutes)
 
   // Start the server on port 80 or 443 (if HTTPS is enabled)
   if (process.env.NEPTUNE_NOTEBOOK === "true") {
