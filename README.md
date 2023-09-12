@@ -116,7 +116,8 @@ To provide a default connection such that initial loads of the graph explorer al
   - `IAM` - `False` - See [Add a New Connection](#connections-ui)
   - `GRAPH_EXP_HTTPS_CONNECTION` - `True` - Controls whether the Graph Explorer uses SSL or not
   - `PROXY_SERVER_HTTPS_CONNECTION` - `True` - Controls whether the server uses SSL or not
-  - `GRAPH_EXP_FETCH_REQUEST_TIMEOUT` - `9000` - Controls the timeout for the fetch request
+  - `PROXY_SERVER_REQUEST_TIMEOUT` - `300000` - Controls the timeout for proxy requests
+  - `PROXY_SERVER_MAX_RETRIES` - `1` - Controls the number of retries for proxy requests
 - Conditionally Required:
   - Required if `USING_PROXY_SERVER=True`
     - `GRAPH_CONNECTION_URL` - `None` - See [Add a New Connection](#connections-ui)
@@ -137,7 +138,8 @@ First, create a `config.json` file containing values for the connection attribut
      "GRAPH_TYPE": "gremlin" (Possible Values: "gremlin", "sparql", "opencypher"),
      "GRAPH_EXP_HTTPS_CONNECTION": true (Can be string or boolean),
      "PROXY_SERVER_HTTPS_CONNECTION": true, (Can be string or boolean),
-     "GRAPH_EXP_FETCH_REQUEST_TIMEOUT": 9000 (Can be number)
+     "PROXY_SERVER_REQUEST_TIMEOUT": 300000,
+     "PROXY_SERVER_MAX_RETRIES": 1
 }
 ```
 
@@ -161,7 +163,8 @@ docker run -p 80:80 -p 443:443 \
  --env GRAPH_CONNECTION_URL=https://cluster-cqmizgqgrsbf.us-west-2.neptune.amazonaws.com:8182 \
  --env AWS_REGION=us-west-2 \
  --env PROXY_SERVER_HTTPS_CONNECTION=true \
- --env GRAPH_EXP_FETCH_REQUEST_TIMEOUT=9000 \
+ --env PROXY_SERVER_REQUEST_TIMEOUT=300000 \
+ --env PROXY_SERVER_MAX_RETRIES=1 \
  graph-explorer
 ```
 
