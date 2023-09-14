@@ -2,7 +2,9 @@
 
 ## Upcoming
 
-The next release will include the following feature enhancements and bug fixes:
+## 1.4.0
+
+This release includes the following feature enhancements and bug fixes:
 
 **Features**
 - Added SageMaker Notebook support (https://github.com/aws/graph-explorer/pull/178)
@@ -19,6 +21,7 @@ The next release will include the following feature enhancements and bug fixes:
 - Fixed Gremlin/openCypher matching ID property on all keyword searches (https://github.com/aws/graph-explorer/pull/169)
 - Fixed default connections failing on SageMaker for certain instance names (https://github.com/aws/graph-explorer/pull/188)
 - Resolved deprecation warnings in GitHub workflows (https://github.com/aws/graph-explorer/pull/181)
+- Patched vulnerable dependencies ([1](https://github.com/aws/graph-explorer/pull/182)) ([2](https://github.com/aws/graph-explorer/pull/189)) ([3](https://github.com/aws/graph-explorer/pull/191))
 
 ## Release 1.3.1
 
