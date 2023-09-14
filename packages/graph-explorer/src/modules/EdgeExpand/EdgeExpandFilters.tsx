@@ -97,6 +97,7 @@ const EdgeExpandFilters = ({
   const onFilterChange = useCallback(
     (filterIndex: number, name?: string, value?: string) => {
       const currFilters = clone(filters);
+      //const edge_name = filterIndex + "_" + name;
       currFilters[filterIndex].name = name || currFilters[filterIndex].name;
       currFilters[filterIndex].value = value ?? currFilters[filterIndex].value;
       onFiltersChange(currFilters);
@@ -143,7 +144,7 @@ const EdgeExpandFilters = ({
                 className={pfx("input")}
                 value={filter.value}
                 onChange={value => {
-                  onFilterChange(filterIndex, "J2_Record_Active_Date__c", value as string);
+                  onFilterChange(filterIndex, "J9_Record_Active_Date__c", value as string);
                 }}
                 hideError={true}
                 noMargin={true}
