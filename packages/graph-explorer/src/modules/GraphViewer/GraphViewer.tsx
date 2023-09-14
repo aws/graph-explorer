@@ -39,7 +39,7 @@ import { userLayoutAtom } from "../../core/StateProvider/userPreferences";
 import useWithTheme from "../../core/ThemeProvider/useWithTheme";
 import fade from "../../core/ThemeProvider/utils/fade";
 import withClassNamePrefix from "../../core/ThemeProvider/utils/withClassNamePrefix";
-import { useEntities, useExpandNode } from "../../hooks";
+import { useEntities, useExpandNode, useExpandEdge } from "../../hooks";
 import useDisplayNames from "../../hooks/useDisplayNames";
 import useTextTransform from "../../hooks/useTextTransform";
 import defaultStyles from "./GraphViewerModule.styles";
@@ -198,6 +198,7 @@ const GraphViewer = ({
 
   const { enqueueNotification } = useNotification();
   const expandNode = useExpandNode();
+  const expandEdge = useExpandEdge();
   const [expandVertexName, setExpandVertexName] = useState<string | null>(null);
   const getDisplayNames = useDisplayNames();
   const onNodeDoubleClick: ElementEventCallback<Vertex["data"]> = useCallback(
@@ -227,6 +228,12 @@ const GraphViewer = ({
         limit: vertexData.neighborsCount,
         offset: 0,
       });
+      /*await expandEdge({
+        vertexId: vertexData.id,
+        vertexType: vertexData.types?.join("::") ?? vertexData.type,
+        limit: vertexData.neighborsCount,
+        offset: 0,
+      })*/
       setExpandVertexName(null);
     },
     [getDisplayNames, enqueueNotification, expandNode, setUserLayout]

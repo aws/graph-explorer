@@ -40,7 +40,7 @@
   },
   "node-expand": {
     "edge-selection-title": "Edge Selection",
-    "edge-selection-subtitle": "Select a Node to expand its connections",
+    "edge-sele ction-subtitle": "Select a Node to expand its connections",
     "no-selection-title": "No Selection",
     "no-selection-subtitle": "Select a Node to expand its connections",
     "multi-selection-title": "Multiple Selection",
@@ -50,6 +50,18 @@
     "no-unfetched-title": "Nothing to Expand",
     "no-unfetched-subtitle": "This node has been completely expanded",
     "neighbors-of-type": "Expand Neighbors of type"
+  },
+  "edge-expand":{
+    "edge-selection-title": "Edge Selection",
+    "edge-selection-subtitle": "Select a Node to expand its connections",
+    "no-selection-title": "No Selection",
+    "no-selection-subtitle": "Select a Node to expand its connections",
+    "multi-selection-title": "Multiple Selection",
+    "multi-selection-subtitle": "Select a single Node to expand its connections",
+    "no-connections-subtitle": "This node has no connection. Therefore, it is not expandable",
+    "no-unfetched-title": "Nothing to Expand",
+    "no-unfetched-subtitle": "This node has been completely expanded",
+    "edges-of-type":"Expand Neighbor by Edge Type"
   },
   "entities-tabular": {
     "all-nodes": "All Nodes",

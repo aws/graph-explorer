@@ -83,7 +83,7 @@ export type EdgeTypeConfig = {
   /**
    * List of attributes for the edge type
    */
-  attributes: Array<Omit<AttributeConfig, "searchable">>;
+  attributes: Array<AttributeConfig>;
   /**
    * Total number of edges of this type
    */
@@ -194,5 +194,7 @@ export type ConfigurationContextProps = RawConfiguration & {
   getVertexTypeConfig(vertexType: string): VertexTypeConfig | undefined;
   getVertexTypeAttributes(vertexTypes: string[]): Array<AttributeConfig>;
   getVertexTypeSearchableAttributes(vertexType: string): Array<AttributeConfig>;
+  getFilteredEdges(vertexType: string):Array<AttributeConfig>;
+  getEdgeTypeSearchableAttributes(edgeType: string): Array<AttributeConfig>;
   getEdgeTypeConfig(edgeType: string): EdgeTypeConfig | undefined;
 };

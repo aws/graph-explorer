@@ -81,6 +81,40 @@ const ConfigurationProvider = ({
     [configuration?.schema?.vertices]
   );
 
+  const getEdgeTypeSearchableAttributes: ConfigurationContextProps["getEdgeTypeSearchableAttributes"] = useCallback(
+    (edgeType: string) => {
+      const etConfig = configuration?.schema?.edges?.find(
+        e => e.type === edgeType
+      );
+      if (!etConfig) {
+        return [];
+      }
+
+      return etConfig.attributes.filter(
+        attribute =>
+          attribute.searchable !== false && attribute.dataType === "String"
+      );
+    },
+    [configuration?.schema?.edges]
+  );
+
+  const getFilteredEdges: ConfigurationContextProps["getFilteredEdges"] = useCallback(
+    (vertexType: string) => {
+      const ef = configuration?.schema?.edges?.find(
+        e => e.type 
+      );
+      if (!ef) {
+        return [];
+      }
+
+      return ef.attributes.filter(
+        attribute => 
+          attribute.searchable !== false 
+      );
+    },
+    [configuration?.schema?.edges]
+  );
+
   const getEdgeTypeConfig: ConfigurationContextProps["getEdgeTypeConfig"] = useCallback(
     (edgeType: string) => {
       const etConfig = configuration?.schema?.edges?.find(
@@ -109,14 +143,18 @@ const ConfigurationProvider = ({
       getVertexTypeConfig,
       getVertexTypeAttributes,
       getVertexTypeSearchableAttributes,
+      getEdgeTypeSearchableAttributes,
       getEdgeTypeConfig,
+      getFilteredEdges
     };
   }, [
     configuration,
     getVertexTypeConfig,
     getVertexTypeAttributes,
     getVertexTypeSearchableAttributes,
+    getEdgeTypeSearchableAttributes,
     getEdgeTypeConfig,
+    getFilteredEdges
   ]);
 
   return (

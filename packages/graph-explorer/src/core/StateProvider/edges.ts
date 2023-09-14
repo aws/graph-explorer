@@ -101,3 +101,8 @@ export const edgesTypesFilteredAtom = atom<Set<string>>({
   key: "edges-types-filtered",
   default: new Set(),
 });
+
+export const edgesAttrsFilteredAtom = atom<Array<{edgeType: string, attrs: string}>>({
+  key: "edges-attributes-filtered",
+  default: [],
+});

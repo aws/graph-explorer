@@ -34,7 +34,6 @@ const fetchNeighbors = async (
   const idType = rawIds.get(req.vertexId) ?? "string";
   const gremlinTemplate = oneHopTemplate({ ...req, idType });
   const data = await gremlinFetch<RawOneHopRequest>(gremlinTemplate);
-
   const verticesResponse =
     data.result.data["@value"]?.[0]?.["@value"][1]["@value"];
   const verticesIds = verticesResponse?.map(v => toStringId(v["@value"].id));
@@ -51,7 +50,8 @@ const fetchNeighbors = async (
         verticesIds.includes(edge.data.source) ||
         verticesIds.includes(edge.data.target)
     );
-
+  console.log(`Vertices: ${vertices}`);
+  console.log(`Edges: ${edges}`);
   return {
     vertices,
     edges,
