@@ -141,8 +141,8 @@ const edgeOneHopTemplate = ({
     }
     console.log(filterCriteria)
     let filterCriteriaTemplate = ".and(";
-    filterCriteriaTemplate += `has("${toUpper(edgeTypes[0])}_Record_Active_Date__c", lte("${activeDate}"))`;
-    filterCriteriaTemplate += `, has("${toUpper(edgeTypes[0])}_Record_Expiration_Date__c", gte("${activeDate}"))`;
+    filterCriteriaTemplate += `has("${toUpper(edgeTypes[0]).slice(0,2)}_Record_Active_Date__c", lte("${activeDate}"))`;
+    filterCriteriaTemplate += `, has("${toUpper(edgeTypes[0]).slice(0,2)}_Record_Expiration_Date__c", gte("${activeDate}"))`;
 
     filterCriteriaTemplate += ")";
 
@@ -155,7 +155,7 @@ const edgeOneHopTemplate = ({
     .flatMap(type => type.split("::"))
     .map(type => `"${type}"`)
     .join(",");
-    template += `.by(bothE(${bothEContent})${filterCriteriaTemplate}.dedup().outV().range(0,500).fold())`;
+    template += `.by(bothE(${bothEContent})${filterCriteriaTemplate}.dedup().bothV().range(0,500).fold())`;
     /*
       if (edgeTypes.length > 0){
         if (filterCriteria.length > 0) {
