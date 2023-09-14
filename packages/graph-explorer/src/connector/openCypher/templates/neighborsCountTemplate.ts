@@ -18,7 +18,14 @@ const neighborsCountTemplate = ({
   vertexId,
   limit = 500,
 }: NeighborsCountRequest) => {
-  return `MATCH (v) -[e]- (t) WHERE ID(v) = \"${vertexId}\" RETURN labels(t) AS vertexLabel, count(DISTINCT t) AS count LIMIT ${limit}`;
+  let template = "";
+  template = `MATCH (v) -[e]- (t) WHERE ID(v) = \"${vertexId}\" RETURN labels(t) AS vertexLabel, count(DISTINCT t) AS count`;
+
+  if (limit > 0) {
+    template += ` LIMIT ${limit}`;
+  }
+
+  return template;
 };
 
 export default neighborsCountTemplate;

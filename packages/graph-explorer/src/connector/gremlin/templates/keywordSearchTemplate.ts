@@ -5,9 +5,11 @@ import type { KeywordSearchRequest } from "../../AbstractConnector";
  * @example
  * searchTerm = "JFK"
  * vertexTypes = ["airport"]
+ * searchById = false
  * searchByAttributes = ["city", "code"]
  * limit = 100
  * offset = 0
+ * exactMatch = false
  *
  * g.V()
  *  .hasLabel("airport")
@@ -24,6 +26,7 @@ const keywordSearchTemplate = ({
   searchByAttributes = [],
   limit = 10,
   offset = 0,
+  exactMatch = false,
 }: KeywordSearchRequest): string => {
   let template = "g.V()";
 
@@ -37,11 +40,18 @@ const keywordSearchTemplate = ({
 
   if (Boolean(searchTerm) && (searchByAttributes.length !== 0 || searchById)) {
     const orContent = uniq(
-      searchById ? ["_id", ...searchByAttributes] : searchByAttributes
+        (searchById && searchByAttributes.includes("__all")) ? ["_id", ...searchByAttributes] : searchByAttributes
     )
+      .filter(attr => attr !== "__all")
       .map(attr => {
         if (attr === "_id") {
+          if (exactMatch === true) {
+             return `has(id,"${searchTerm}")`;
+          }
           return `has(id,containing("${searchTerm}"))`;
+        }
+        if (exactMatch === true) {
+          return `has("${attr}","${searchTerm}")`;
         }
         return `has("${attr}",containing("${searchTerm}"))`;
       })

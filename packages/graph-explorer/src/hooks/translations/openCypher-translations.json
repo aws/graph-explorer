@@ -1,13 +1,13 @@
 {
     "available-connections": {
-      "graph-type": "PG"
+      "graph-type": "PG-openCypher"
     },
     "graph-viewer": {
       "node": "Node",
       "edge": "Edge"
     },
     "connection-detail": {
-      "graph-type": "PG",
+      "graph-type": "PG-openCypher",
       "nodes": "Nodes",
       "edges": "Edges",
       "search-placeholder": "Search for Node Type",
@@ -31,7 +31,8 @@
     },
     "keyword-search": {
       "node-type": "Node Type",
-      "node-attribute": "Attribute"
+      "node-attribute": "Attribute",
+      "node-exact-match": "Match Precision"
     },
     "entities-filter": {
       "node-types": "Node Types",

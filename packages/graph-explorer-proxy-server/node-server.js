@@ -62,16 +62,22 @@ const errorHandler = (error, request, response, next) => {
 
 (async () => {
   app.use(cors());
-
-  app.use(
-    process.env.GRAPH_EXP_ENV_ROOT_FOLDER,
-    express.static(path.join(__dirname, "../graph-explorer/dist"))
-  );
+  app.use("/defaultConnection", express.static(path.join(__dirname, "../graph-explorer/defaultConnection.json")));
+  if (process.env.NEPTUNE_NOTEBOOK !== "false") {
+    app.use("/explorer", express.static(path.join(__dirname, "../graph-explorer/dist")));
+  } else {
+    app.use(
+        process.env.GRAPH_EXP_ENV_ROOT_FOLDER,
+        express.static(path.join(__dirname, "../graph-explorer/dist"))
+    );
+  }
 
   const delay = (ms) =>
     new Promise((resolve) => setTimeout(() => resolve(), ms));
 
   const retryFetch = async (url, headers, retries = 1, retryDelay = 10000) => {
+    // remove the existing host headers, we want ensure that we are passing the DB endpoint hostname.
+    delete headers["host"];
     if (headers["aws-neptune-region"]) {
       data = await getIAMHeaders({
         host: url.hostname,
@@ -80,8 +86,6 @@ const errorHandler = (error, request, response, next) => {
         service: "neptune-db",
         region: headers["aws-neptune-region"]
       });
-      // remove the host header because it's not needed for IAM
-      delete headers["host"];
       headers = { ...headers, ...data };
     } 
     for (let i = 0; i < retries; i++) {
@@ -225,8 +229,12 @@ const errorHandler = (error, request, response, next) => {
   app.use(errorHandler);
 
   // Start the server on port 80 or 443 (if HTTPS is enabled)
-  if (
-    process.env.PROXY_SERVER_HTTPS_CONNECTION != "false" &&
+  if (process.env.NEPTUNE_NOTEBOOK === "true"){
+    app.listen(9250, async () => {
+      console.log(`\tProxy available at port 9250 for Neptune Notebook instance`);
+    });
+  } else if (
+    process.env.PROXY_SERVER_HTTPS_CONNECTION !== "false" &&
     fs.existsSync("../graph-explorer-proxy-server/cert-info/server.key") &&
     fs.existsSync("../graph-explorer-proxy-server/cert-info/server.crt")
   ) {

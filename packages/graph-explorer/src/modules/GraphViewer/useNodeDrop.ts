@@ -16,7 +16,7 @@ const useNodeDrop = () => {
       canDrop: monitor.canDrop(),
     }),
     drop: node => {
-      fetchNode(node);
+      fetchNode(node, 0);
     },
   });
 

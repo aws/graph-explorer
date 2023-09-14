@@ -4,13 +4,13 @@ on:
   workflow_dispatch:
     inputs:
       image_tag:
-        description: 'ECR image tag type'
+        description: "ECR image tag type"
         required: false
         type: choice
         options:
-          - 'latest'
-          - 'release'
-        default: 'latest'
+          - "latest"
+          - "release"
+        default: "latest"
   push:
     branches:
       - main
@@ -30,7 +30,6 @@ jobs:
         uses: tyankatsu0105/read-package-version-actions@v1
         with:
           path: "./"
-        id: package-version
 
       - name: Get image tag
         id: get-image-tag
@@ -46,7 +45,7 @@ jobs:
           fi
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v3
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_ECR }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ECR }}
@@ -69,4 +68,6 @@ jobs:
           IMAGE_TAG: ${{ steps.get-image-tag.outputs.image_tag }}
         run: |
           docker build -t $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG .
+          docker build --build-arg NEPTUNE_NOTEBOOK=true -t $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:sagemaker-$IMAGE_TAG .
           docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG
+          docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:sagemaker-$IMAGE_TAG

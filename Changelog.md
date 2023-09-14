@@ -1,5 +1,32 @@
 # graph-explorer Change Log
 
+## Upcoming
+
+The next release will include the following feature enhancements and bug fixes:
+
+**Features**
+- Added SageMaker Notebook support (https://github.com/aws/graph-explorer/pull/178)
+- Added Default Connection support (https://github.com/aws/graph-explorer/pull/108)
+- Added query language indicators to created connections (https://github.com/aws/graph-explorer/pull/164)
+- Added match precision option to keyword search (https://github.com/aws/graph-explorer/pull/175)
+- Added toggle for limit on retrieved vertex neighbors (https://github.com/aws/graph-explorer/pull/176)
+- Added SageMaker Notebook hosting documentation (https://github.com/aws/graph-explorer/pull/183)
+- Added ECS hosting documentation (https://github.com/aws/graph-explorer/pull/174)
+- Updated Dockerfile base image to AL2022 (https://github.com/aws/graph-explorer/pull/190)
+
+**Bug fixes**
+- Fixed search UI crashing on node select/preview (https://github.com/aws/graph-explorer/pull/177)
+- Fixed Gremlin/openCypher matching ID property on all keyword searches (https://github.com/aws/graph-explorer/pull/169)
+- Fixed default connections failing on SageMaker for certain instance names (https://github.com/aws/graph-explorer/pull/188)
+- Resolved deprecation warnings in GitHub workflows (https://github.com/aws/graph-explorer/pull/181)
+
+## Release 1.3.1
+
+This patch release includes bugfixes for Release 1.3.0.
+
+**Bug fixes**
+- Fix proxy issue with non-IAM Neptune requests (https://github.com/aws/graph-explorer/pull/166)
+
 ## Release 1.3.0
 
 This release includes the following feature enhancements and bug fixes:
