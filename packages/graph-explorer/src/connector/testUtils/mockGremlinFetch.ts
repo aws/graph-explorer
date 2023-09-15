@@ -8,7 +8,7 @@ const mockGremlinFetch = <TResult>(options?: QueryOptions) => {
     const uri = `${url}?gremlin=${encodedQuery}`;
 
     const res = await fetch(uri, {
-      signal: options?.abortSignal,
+      signal: options?.signal,
     });
 
     return res.json() as TResult;

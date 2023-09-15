@@ -77,7 +77,7 @@ export default class GremlinConnector extends AbstractConnector {
   private _gremlinFetch<TResult>(options?: QueryOptions) {
     return async (queryTemplate: string) => {
       return super.requestQueryTemplate<TResult>(queryTemplate, {
-        signal: options?.abortSignal,
+        signal: options?.signal,
         disableCache: options?.disableCache,
       });
     };
