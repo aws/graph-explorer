@@ -30,6 +30,7 @@ jobs:
         uses: tyankatsu0105/read-package-version-actions@v1
         with:
           path: "./"
+        id: package-version
 
       - name: Get image tag
         id: get-image-tag
