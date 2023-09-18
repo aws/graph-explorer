@@ -2,6 +2,11 @@
 
 ## Upcoming
 
+The next release will include the following feature enhancements and bug fixes:
+
+**Bug fixes**
+- Bumped @types/semver to 7.5.2 in lockfile
+
 ## 1.4.0
 
 This release includes the following feature enhancements and bug fixes:
