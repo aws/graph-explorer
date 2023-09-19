@@ -30,7 +30,7 @@ const useSchemaSync = (onSyncChange?: (isSyncing: boolean) => void) => {
           type: "info",
         });
         schema = await connector.explorer.fetchSchema({
-          abortSignal,
+          signal: abortSignal,
         });
       } catch (e) {
         if (import.meta.env.DEV) {
@@ -46,8 +46,7 @@ const useSchemaSync = (onSyncChange?: (isSyncing: boolean) => void) => {
             stackable: true,
           });
           connector.logger?.error(
-            `[${
-              config.displayLabel || config.id
+            `[${config.displayLabel || config.id
             }] Unable to connect with the Database: ${JSON.stringify(
               config.connection
             )}`
@@ -68,8 +67,7 @@ const useSchemaSync = (onSyncChange?: (isSyncing: boolean) => void) => {
           stackable: true,
         });
         connector.logger?.info(
-          `[${
-            config.displayLabel || config.id
+          `[${config.displayLabel || config.id
           }] This connection has no data available: ${JSON.stringify(
             config.connection
           )}`
@@ -87,8 +85,7 @@ const useSchemaSync = (onSyncChange?: (isSyncing: boolean) => void) => {
         stackable: true,
       });
       connector.logger?.info(
-        `[${
-          config.displayLabel || config.id
+        `[${config.displayLabel || config.id
         }] Connection successfully synchronized: ${JSON.stringify(
           config.connection
         )}`

@@ -176,7 +176,7 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
           searchById: true,
           exactMatch: exactMatch,
         },
-        { abortSignal: controller.signal }
+        { signal: controller.signal }
       ) as PromiseWithCancel<KeywordSearchResponse>;
 
       promise.cancel = () => {
