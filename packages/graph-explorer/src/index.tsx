@@ -63,7 +63,7 @@ const grabConfig = async (): Promise<RawConfiguration | undefined> => {
         awsAuthEnabled: !!defaultConnectionData.GRAPH_EXP_IAM,
         awsRegion: defaultConnectionData.GRAPH_EXP_AWS_REGION || "",
         fetchTimeoutMs:
-          defaultConnectionData.GRAPH_EXP_FETCH_REQUEST_TIMEOUT || 0,
+          defaultConnectionData.GRAPH_EXP_FETCH_REQUEST_TIMEOUT || 9000,
       },
     };
   } catch (error) {
