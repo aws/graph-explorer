@@ -298,7 +298,7 @@ export abstract class AbstractConnector {
       );
     }
 
-    return this._requestAndCache<TResult>(currentUri, fetchOptions, options);
+    return this._requestAndCache<TResult>(currentUri, fetchOptions, options) as Promise<TResult>;
   }
 
   private _getAuthHeaders() {
@@ -318,13 +318,20 @@ export abstract class AbstractConnector {
     init?: RequestInit,
     options?: Pick<QueryOptions, "disableCache">
   ) {
-
-    const response = await fetch(url, init);
-    const data = await response.json();
-    if (options?.disableCache !== true) {
-      this._setToCache(url, { data, updatedAt: new Date().getTime() });
+    try {
+      const response = await fetch(url, init);
+      const data = await response.json();
+      if (options?.disableCache !== true) {
+        this._setToCache(url, { data, updatedAt: new Date().getTime() });
+      }
+      return data as TResult;
+    } catch (error) {
+      if (error.name === "AbortError") {
+        console.error(`The request to ${url} timed out after ${this._connection?.fetchTimeoutMs}ms. This may indicate a slow operation or a network issue. To address this issue, you can try increasing the fetch timeout using the 'fetchTimeoutMs' option in your connections configuration. You can also check your network connection and server performance to ensure that they are not causing the issue.`);
+      } else {
+        console.error(`Request failed: ${url}`, error);
+      }
     }
-    return data as TResult;
   }
 
   private _getFromCache(key: string) {
