@@ -27,15 +27,22 @@ const grabConfig = async (): Promise<RawConfiguration | undefined> => {
     defaultConnectionFile = await fetch(defaultConnectionPath);
 
     if (!defaultConnectionFile.ok) {
-      console.log(`Failed to find default connection file at .../defaultConnection, trying path for Sagemaker.`);
+      // eslint-disable-next-line no-console
+      console.log(
+        `Failed to find default connection file at .../defaultConnection, trying path for Sagemaker.`
+      );
       defaultConnectionFile = await fetch(sagemakerConnectionPath);
       if (defaultConnectionFile.ok) {
+        // eslint-disable-next-line no-console
         console.log(`Found file at ../proxy/9250/defaultConnection.`);
-      }
-      else {
-        console.log(`Did not find file at ../proxy/9250/defaultConnection. No defaultConnectionFile will be set.`);
+      } else {
+        // eslint-disable-next-line no-console
+        console.log(
+          `Did not find file at ../proxy/9250/defaultConnection. No defaultConnectionFile will be set.`
+        );
       }
     } else {
+      // eslint-disable-next-line no-console
       console.log(`Found file at ../defaultConnection.`);
     }
 
@@ -55,6 +62,7 @@ const grabConfig = async (): Promise<RawConfiguration | undefined> => {
         graphDbUrl: defaultConnectionData.GRAPH_EXP_CONNECTION_URL || "",
         awsAuthEnabled: !!defaultConnectionData.GRAPH_EXP_IAM,
         awsRegion: defaultConnectionData.GRAPH_EXP_AWS_REGION || "",
+        fetchTimeoutMs: defaultConnectionData.GRAPH_EXP_REQUEST_TIMEOUT || null,
       },
     };
   } catch (error) {

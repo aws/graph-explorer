@@ -32,6 +32,7 @@ type ConnectionForm = {
   awsRegion?: string;
   enableCache?: boolean;
   cacheTimeMs?: number;
+  fetchTimeMs?: number;
 };
 
 export const CONNECTIONS_OP: {
@@ -40,7 +41,7 @@ export const CONNECTIONS_OP: {
 }[] = [
   { label: "PG (Property Graph) - Gremlin", value: "gremlin" },
   { label: "PG (Property Graph) - OpenCypher", value: "openCypher" },
-  { label: "RDF (Resource Description Framework) - SPARQL", value: "sparql" }
+  { label: "RDF (Resource Description Framework) - SPARQL", value: "sparql" },
 ];
 
 export type CreateConnectionProps = {
@@ -76,6 +77,7 @@ const CreateConnection = ({
             awsRegion: data.awsRegion,
             enableCache: data.enableCache,
             cacheTimeMs: data.cacheTimeMs * 60 * 1000,
+            fetchTimeoutMs: data.fetchTimeMs,
           },
         };
         set(configurationAtom, prevConfigMap => {
@@ -103,6 +105,7 @@ const CreateConnection = ({
             awsAuthEnabled: data.awsAuthEnabled,
             awsRegion: data.awsRegion,
             cacheTimeMs: data.cacheTimeMs * 60 * 1000,
+            fetchTimeoutMs: data.fetchTimeMs,
           },
         });
         return updatedConfig;
@@ -144,6 +147,7 @@ const CreateConnection = ({
     awsRegion: initialData?.awsRegion || "",
     enableCache: true,
     cacheTimeMs: (initialData?.cacheTimeMs ?? 10 * 60 * 1000) / 60000,
+    fetchTimeMs: initialData?.fetchTimeMs,
   });
 
   const [hasError, setError] = useState(false);
@@ -319,6 +323,48 @@ const CreateConnection = ({
               type={"number"}
               value={form.cacheTimeMs}
               onChange={onFormChange("cacheTimeMs")}
+              min={0}
+            />
+          </div>
+        )}
+      </div>
+      <div className={pfx("configuration-form")}>
+        <Checkbox
+          value={"fetchTimeoutMs"}
+          checked={!!form.fetchTimeMs}
+          onChange={e => {
+            onFormChange("fetchTimeMs")(e.target.checked);
+          }}
+          styles={{
+            label: {
+              display: "block",
+            },
+          }}
+          label={
+            <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
+              Enable Fetch Timeout
+              <Tooltip
+                text={
+                  <div style={{ maxWidth: 300 }}>
+                    Large datasets may require a large amount of time to fetch.
+                    If the timeout is exceeded, the request will be cancelled.
+                  </div>
+                }
+              >
+                <div>
+                  <InfoIcon style={{ width: 18, height: 18 }} />
+                </div>
+              </Tooltip>
+            </div>
+          }
+        />
+        {form.fetchTimeMs && (
+          <div className={pfx("input-url")}>
+            <Input
+              label="Fetch Timeout (ms)"
+              type={"number"}
+              value={form.fetchTimeMs}
+              onChange={onFormChange("fetchTimeMs")}
               min={0}
             />
           </div>

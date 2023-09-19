@@ -26,7 +26,7 @@ const ConnectorProvider = ({ children }: PropsWithChildren<any>) => {
       config?.connection?.queryEngine &&
       config?.connection?.queryEngine === "sparql";
 
-    const isOpenCypher = 
+    const isOpenCypher =
       config?.connection?.queryEngine &&
       config?.connection?.queryEngine === "openCypher";
 
@@ -81,6 +81,7 @@ const attrs = [
   "awsRegion",
   "enableCache",
   "cacheTimeMs",
+  "fetchTimeoutMs",
 ] as const;
 
 const isSameConnection = (a?: ConnectionConfig, b?: ConnectionConfig) => {

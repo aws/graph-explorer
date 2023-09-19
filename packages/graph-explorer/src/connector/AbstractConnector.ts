@@ -290,9 +290,11 @@ export abstract class AbstractConnector {
       headers: this._getAuthHeaders(),
     };
 
-    if (this._connection.fetchTimeoutMs) {
+    const connectionFetchTimeout = this._connection.fetchTimeoutMs;
+
+    if (connectionFetchTimeout && connectionFetchTimeout > 0) {
       fetchOptions.signal = AbortSignal.timeout(
-        this._connection.fetchTimeoutMs
+        connectionFetchTimeout,
       );
     }
 

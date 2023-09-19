@@ -146,6 +146,11 @@ export type ConnectionConfig = {
    * By default, 10 minutes.
    */
   cacheTimeMs?: number;
+  /**
+   * Number of milliseconds before aborting a request.
+   * By default, 60 seconds.
+   */
+  fetchTimeoutMs?: number;
 };
 
 export type RawConfiguration = {
