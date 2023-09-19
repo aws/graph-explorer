@@ -7,7 +7,7 @@ import type {
 } from "../core";
 
 export type QueryOptions = {
-  abortSignal?: AbortSignal;
+  signal?: AbortSignal;
   disableCache?: boolean;
 };
 
@@ -261,7 +261,7 @@ export abstract class AbstractConnector {
    */
   protected async requestQueryTemplate<TResult = any>(
     queryTemplate: string,
-    options?: { signal?: AbortSignal; disableCache?: boolean }
+    options?: QueryOptions
   ): Promise<TResult> {
     const encodedQuery = encodeURIComponent(queryTemplate);
     const uri = `${this.basePath}${encodedQuery}&format=json`;
@@ -270,7 +270,7 @@ export abstract class AbstractConnector {
 
   protected async request<TResult = any>(
     uri: string,
-    options?: { signal?: AbortSignal; disableCache?: boolean }
+    options?: QueryOptions
   ): Promise<TResult> {
     const url = this._connection.url.replace(/\/$/, "");
     const currentUri = `${url}${uri}`;
@@ -279,16 +279,24 @@ export abstract class AbstractConnector {
     if (
       cachedResponse &&
       cachedResponse.updatedAt +
-        (this._connection.cacheTimeMs ?? CACHE_TIME_MS) >
-        new Date().getTime()
+      (this._connection.cacheTimeMs ?? CACHE_TIME_MS) >
+      new Date().getTime()
     ) {
       return cachedResponse.data;
     }
 
-    return this._requestAndCache<TResult>(currentUri, {
+    const fetchOptions: RequestInit = {
       signal: options?.signal,
       headers: this._getAuthHeaders(),
-    });
+    };
+
+    if (this._connection.fetchTimeoutMs) {
+      fetchOptions.signal = AbortSignal.timeout(
+        this._connection.fetchTimeoutMs
+      );
+    }
+
+    return this._requestAndCache<TResult>(currentUri, fetchOptions, options);
   }
 
   private _getAuthHeaders() {
@@ -308,6 +316,7 @@ export abstract class AbstractConnector {
     init?: RequestInit,
     options?: Pick<QueryOptions, "disableCache">
   ) {
+
     const response = await fetch(url, init);
     const data = await response.json();
     if (options?.disableCache !== true) {
