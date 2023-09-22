@@ -39,12 +39,6 @@ type RawOneHopRequest = {
     console.log(`Demo: ${edgeOneHopTemplate({...req, idType})}`);
     const gremlinTemplate = edgeOneHopTemplate({...req, idType});
     const edgeTemplate = ehhhOneTemplate({...req, idType});
-    //const edgeTemplate = `g.V("${req.vertexId}").project("vertices", "edges").by(bothE("j2").and(has("J2_Record_Expiration_Date__c",gte("${req.filterCriteria[0]["value "]}")), has("J2_Record_Active_Date__c",lte("2023-09-06"))).dedup().range(0,500).fold())`
-    //cont edgeTemplate = expandEdgeDetails({...req, idType})
-    //const gremlinTemplate = `g.V("${req.vertexId}").project("vertices", "edges").by(bothE("j2").and(has("J2_Record_Expiration_Date__c",gte("2023-09-06")), has("J2_Record_Active_Date__c",lte("2023-09-06"))).dedup().outV().range(0,500).fold())`
-    //const edgeTemplate = `g.V("${req.vertexId}").project("vertices", "edges").by(bothE("j2").and(has("J2_Record_Expiration_Date__c",gte("2023-09-06")), has("J2_Record_Active_Date__c",lte("2023-09-06"))).dedup().range(0,500).fold())`
-    //const gremlinTemplate = `g.V("64c47f3a-af4b-4b52-0698-1d8c0dbb5263").project("vertices", "edges").by(bothE("j2").and(has("J2_Record_Expiration_Date__c","4000-12-31")).dedup().outV().range(0,500).fold())
-    //const edgeTemplate = `g.V("64c47f3a-af4b-4b52-0698-1d8c0dbb5263").project("vertices", "edges").by(bothE("j2").and(has("J2_Record_Expiration_Date__c","4000-12-31")).dedup().range(0,500).fold())`
     console.log(`Query: ${gremlinTemplate}`)
     console.log(`Edge Query ${edgeTemplate}`)
 

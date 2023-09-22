@@ -141,9 +141,14 @@ const ehhhOneTemplate = ({
     }
     console.log(filterCriteria)
     let filterCriteriaTemplate = ".and(";
-    filterCriteriaTemplate += `has("${toUpper(edgeTypes[0].slice(0,2))}_Record_Active_Date__c", lte("${activeDate}"))`;
-    filterCriteriaTemplate += `, has("${toUpper(edgeTypes[0]).slice(0,2)}_Record_Expiration_Date__c", gte("${activeDate}"))`;
-
+    let edgePrefix = "";
+    if (edgeTypes[0][0] == 'j'){
+      edgePrefix = toUpper(edgeTypes[0].slice(0,2));
+    } else {
+      edgePrefix = edgeTypes[0]
+    }
+    filterCriteriaTemplate += `has("${edgePrefix}_Record_Active_Date__c", lte("${activeDate}"))`;
+    filterCriteriaTemplate += `, has("${edgePrefix}_Record_Expiration_Date__c", gte("${activeDate}"))`;
     filterCriteriaTemplate += ")";
 
     /*let filterCriteriaTemplate = ".and(";
