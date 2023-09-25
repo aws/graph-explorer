@@ -103,7 +103,7 @@ const criterionTemplate = (criterion: Criterion): string => {
  * 
  */
 
-const edgeOneHopTemplate = ({
+const edgeEdgeHopTemplate = ({
     vertexId,
     filterByVertexTypes = [],
     edgeTypes = [],
@@ -151,32 +151,13 @@ const edgeOneHopTemplate = ({
     filterCriteriaTemplate += `, has("${edgePrefix}_Record_Expiration_Date__c", gte("${activeDate}"))`;
     filterCriteriaTemplate += ")";
 
-    /*let filterCriteriaTemplate = ".and(";
-    filterCriteriaTemplate += filterCriteria?.map(criterionTemplate).join(",");
-    filterCriteriaTemplate += ")";*/
-
-
     const hasLabelContent = filterByVertexTypes
     .flatMap(type => type.split("::"))
     .map(type => `"${type}"`)
     .join(",");
-    template += `.by(bothE(${bothEContent})${filterCriteriaTemplate}.dedup().bothV().range(0,500).fold())`;
-    /*
-      if (edgeTypes.length > 0){
-        if (filterCriteria.length > 0) {
-            template += `.by(bothE(${bothEContent}).and(has("${edgeTypes[0]}_Record_Active_Date__c", gt("4000-12-31")), has("${edgeTypes[0]}_Record_Expiration_Date__c", lt("4000-12-31"))).dedup().outV()${range}.fold())`;
-          } else {
-            template += `.by(bothE(${bothEContent}).dedup().outV()s${range}.fold())`;
-        }
-      } else {
-        if (filterCriteria.length > 0) {
-          template += `.by(bothE(${bothEContent}).and(has("${edgeTypes[0]}_Record_Active_Date__c", gt("4000-12-31")), has("${edgeTypes[0]}_Record_Expiration_Date__c", lt("4000-12-31"))).dedup().fold())`;
-        } else {
-          template += `.by(bothE().dedup().fold())`;
-        }
-      }
-    */
+    template += `.by(bothE(${bothEContent})${filterCriteriaTemplate}.dedup().range(0,500).fold())`;
+
       return template;
 };
-    
-export default edgeOneHopTemplate;
+
+export default edgeEdgeHopTemplate;

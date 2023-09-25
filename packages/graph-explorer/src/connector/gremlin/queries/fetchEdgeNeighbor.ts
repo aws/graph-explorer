@@ -6,9 +6,8 @@ import type {
   import mapApiVertex from "../mappers/mapApiVertex";
   import toStringId from "../mappers/toStringId";
   //import oneHopTemplate from "../templates/oneHopTemplate";
-  import edgeOneHopTemplate from "../templates/edgeOneHopTemplate";
-  import ehhhOneTemplate from "../templates/ehhhOneHopTemplate";
-  import expandEdgeDetails from "../templates/expandEdgeDetails";
+  import edgeVertHopTemplate from "../templates/edgeVertHopTemplate";
+  import edgeEdgeHopTemplate from "../templates/edgeEdgeHopTemplate";
   import type { GEdgeList, GVertexList } from "../types";
   import { GremlinFetch } from "../types";
 
@@ -35,10 +34,10 @@ type RawOneHopRequest = {
     rawIds: Map<string, "string" | "number">
   ): Promise<NeighborsResponse> => {
     const idType = rawIds.get(req.vertexId) ?? "string";
-    //const gremlinTemplate = edgeOneHopTemplate({ ...req, idType });
-    console.log(`Demo: ${edgeOneHopTemplate({...req, idType})}`);
-    const gremlinTemplate = edgeOneHopTemplate({...req, idType});
-    const edgeTemplate = ehhhOneTemplate({...req, idType});
+    //const gremlinTemplate = edgeVertHopTemplate({ ...req, idType });
+    console.log(`Demo: ${edgeVertHopTemplate({...req, idType})}`);
+    const gremlinTemplate = edgeVertHopTemplate({...req, idType}); // Gets the vertices
+    const edgeTemplate = edgeEdgeHopTemplate({...req, idType}); // Gets the edges
     console.log(`Query: ${gremlinTemplate}`)
     console.log(`Edge Query ${edgeTemplate}`)
 

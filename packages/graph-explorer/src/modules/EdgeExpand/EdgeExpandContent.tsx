@@ -13,7 +13,6 @@ import { useExpandNode } from "../../hooks";
 import { useExpandEdge } from "../../hooks";
 import useDisplayNames from "../../hooks/useDisplayNames";
 import useNeighborsOptions from "../../hooks/useNeighborsOptions";
-// import useEdgeOptions from "../../hooks/useEdgeOptions";
 import useTextTransform from "../../hooks/useTextTransform";
 import useTranslations from "../../hooks/useTranslations";
 import NeighborsList from "../common/NeighborsList/NeighborsList";
@@ -37,7 +36,6 @@ const EdgeExpandContent = ({
   const t = useTranslations();
   //const expandNode = useExpandNode();
   const expandEdge = useExpandEdge();
-  const testEdge = useExpandEdge();
   const styleWithTheme = useWithTheme();
   const pfx = withClassNamePrefix(classNamePrefix);
 
@@ -45,10 +43,7 @@ const EdgeExpandContent = ({
 
   const textTransform = useTextTransform();
   const neighborsOptions = useNeighborsOptions(vertex);
-  //const testEdge = useFindEdge();
-  //console.log(edgesList)
   const criteriaOptions = ["less than", "greater than", "like"];
-  //const findEdge = ["CreatedById", "CreatedDate", "Id", "J2_Drug_ID__c", "J2_NDC__c", "J2_Offer_ID__c", "J2_Ready_for_Review__c", "J2_Record_Active_Date__c", "J2_Record_Expiration_Date__c", "J2_Reviewed_and_Approved__c", "LastModifiedById", "LastModifiedDate", "Name", "OwnerId"];
   const [selectedType, setSelectedType] = useState<string>(
     neighborsOptions[0]?.value
   );
@@ -60,16 +55,6 @@ const EdgeExpandContent = ({
   const onExpandClick = useCallback(async () => {
     setIsExpanding(true);
 
-    /*const testResult = await testEdge({
-      vertexId: vertex.data.id,
-      vertexType: "drug",
-      edgeTypes: ["j2"],
-      /*filterCriteria:[{
-        name:"J2_Record_Expiration_Date__c",
-        operator:"LIKE",
-        value:"4000-12-31"
-      }],
-    })*/
     await expandEdge({
       vertexId: vertex.data.id,
       vertexType: (vertex.data.types ?? [vertex.data.type])?.join("::"),
@@ -92,10 +77,6 @@ const EdgeExpandContent = ({
     setIsExpanding(false);
   }, [expandEdge, filters, limit, selectedType, vertex.data]);
 
-  /* const getEdgeData = testEdge({
-      vertexId: vertex.data.id
-    }); */
-
   const displayLabels = useMemo(() => {
     return (vertex.data.types ?? [vertex.data.type])
       .map(type => {
@@ -110,7 +91,7 @@ const EdgeExpandContent = ({
   const getDisplayNames = useDisplayNames();
   const { name } = getDisplayNames(vertex);
   const vtConfig = config?.getVertexTypeConfig(vertex.data.type);
-  //const etConfig = config?.getEdgeTypeConfig(edge.data.type);
+
   return (
     <div className={styleWithTheme(defaultStyles(classNamePrefix))}>
       <div className={pfx("header")}>

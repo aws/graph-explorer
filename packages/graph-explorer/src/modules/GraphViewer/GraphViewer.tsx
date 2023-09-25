@@ -228,12 +228,6 @@ const GraphViewer = ({
         limit: vertexData.neighborsCount,
         offset: 0,
       });
-      /*await expandEdge({
-        vertexId: vertexData.id,
-        vertexType: vertexData.types?.join("::") ?? vertexData.type,
-        limit: vertexData.neighborsCount,
-        offset: 0,
-      })*/
       setExpandVertexName(null);
     },
     [getDisplayNames, enqueueNotification, expandNode, setUserLayout]

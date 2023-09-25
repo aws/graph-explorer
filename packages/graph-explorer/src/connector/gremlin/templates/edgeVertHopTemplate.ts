@@ -103,7 +103,7 @@ const criterionTemplate = (criterion: Criterion): string => {
  * 
  */
 
-const ehhhOneTemplate = ({
+const edgeVertHopTemplate = ({
     vertexId,
     filterByVertexTypes = [],
     edgeTypes = [],
@@ -160,7 +160,7 @@ const ehhhOneTemplate = ({
     .flatMap(type => type.split("::"))
     .map(type => `"${type}"`)
     .join(",");
-    template += `.by(bothE(${bothEContent})${filterCriteriaTemplate}.dedup().range(0,500).fold())`;
+    template += `.by(bothE(${bothEContent})${filterCriteriaTemplate}.dedup().bothV().range(0,500).fold())`;
     /*
       if (edgeTypes.length > 0){
         if (filterCriteria.length > 0) {
@@ -178,11 +178,5 @@ const ehhhOneTemplate = ({
     */
       return template;
 };
-
-/**
- * 
- *  const edgeTemplate = `g.V("${req.vertexId}").project("vertices", "edges").by(bothE("j2").and(has("J2_Record_Expiration_Date__c",gte("2023-09-06")), has("J2_Record_Active_Date__c",lte("2023-09-06"))).dedup().range(0,500).fold())`
- * 
- */
-
-export default ehhhOneTemplate;
+    
+export default edgeVertHopTemplate;

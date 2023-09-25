@@ -98,23 +98,6 @@ const ConfigurationProvider = ({
     [configuration?.schema?.edges]
   );
 
-  const getFilteredEdges: ConfigurationContextProps["getFilteredEdges"] = useCallback(
-    (vertexType: string) => {
-      const ef = configuration?.schema?.edges?.find(
-        e => e.type 
-      );
-      if (!ef) {
-        return [];
-      }
-
-      return ef.attributes.filter(
-        attribute => 
-          attribute.searchable !== false 
-      );
-    },
-    [configuration?.schema?.edges]
-  );
-
   const getEdgeTypeConfig: ConfigurationContextProps["getEdgeTypeConfig"] = useCallback(
     (edgeType: string) => {
       const etConfig = configuration?.schema?.edges?.find(
@@ -145,7 +128,6 @@ const ConfigurationProvider = ({
       getVertexTypeSearchableAttributes,
       getEdgeTypeSearchableAttributes,
       getEdgeTypeConfig,
-      getFilteredEdges
     };
   }, [
     configuration,
@@ -154,7 +136,6 @@ const ConfigurationProvider = ({
     getVertexTypeSearchableAttributes,
     getEdgeTypeSearchableAttributes,
     getEdgeTypeConfig,
-    getFilteredEdges
   ]);
 
   return (
