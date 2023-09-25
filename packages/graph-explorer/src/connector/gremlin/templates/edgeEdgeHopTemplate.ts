@@ -141,15 +141,18 @@ const edgeEdgeHopTemplate = ({
     }
     console.log(filterCriteria)
     let filterCriteriaTemplate = ".and(";
-    let edgePrefix = "";
-    if (edgeTypes[0][0] == 'j'){
-      edgePrefix = toUpper(edgeTypes[0].slice(0,2));
+    let edgePrefix = toUpper(edgeTypes[0].slice(0,2));
+    // only exists because of the RDS data format
+    if (edgeTypes[0] == "network_participation"){
+      filterCriteriaTemplate += `has("Network_Participation_Record_Active_Da__c", lte("${activeDate}"))`;
+      filterCriteriaTemplate += `, has("Network_Participation_Record_Expiratio__c", gte("${activeDate}"))`;
+      filterCriteriaTemplate += ")";
     } else {
-      edgePrefix = edgeTypes[0]
+      filterCriteriaTemplate += `has("${edgePrefix}_Record_Active_Date__c", lte("${activeDate}"))`;
+      filterCriteriaTemplate += `, has("${edgePrefix}_Record_Expiration_Date__c", gte("${activeDate}"))`;
+      filterCriteriaTemplate += ")";
     }
-    filterCriteriaTemplate += `has("${edgePrefix}_Record_Active_Date__c", lte("${activeDate}"))`;
-    filterCriteriaTemplate += `, has("${edgePrefix}_Record_Expiration_Date__c", gte("${activeDate}"))`;
-    filterCriteriaTemplate += ")";
+    
 
     const hasLabelContent = filterByVertexTypes
     .flatMap(type => type.split("::"))
