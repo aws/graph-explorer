@@ -70,7 +70,6 @@ export default class OpenCypherConnector extends AbstractConnector {
   private _openCypherFetch<TResult>(options?: QueryOptions) {
     return async (queryTemplate: string) => {
       return super.requestQueryTemplate<TResult>(queryTemplate, {
-        signal: options?.signal,
         disableCache: options?.disableCache,
       });
     };

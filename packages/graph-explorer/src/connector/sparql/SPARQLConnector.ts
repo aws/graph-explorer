@@ -148,7 +148,6 @@ export default class SPARQLConnector extends AbstractConnector {
   private _sparqlFetch<TResult>(options?: QueryOptions) {
     return async (queryTemplate: string) => {
       return super.requestQueryTemplate<TResult>(queryTemplate, {
-        signal: options?.signal,
         disableCache: options?.disableCache,
       });
     };
