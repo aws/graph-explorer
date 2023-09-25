@@ -141,7 +141,7 @@ const edgeVertHopTemplate = ({
     }
     console.log(filterCriteria)
     let filterCriteriaTemplate = ".and(";
-    let edgePrefix = "";
+    let edgePrefix = toUpper(edgeTypes[0].slice(0,2));
     if (edgeTypes[0] == "network_participation"){
       filterCriteriaTemplate += `has("Network_Participation_Record_Active_Da__c", lte("${activeDate}"))`;
       filterCriteriaTemplate += `, has("Network_Participation_Record_Expiratio__c", gte("${activeDate}"))`;
