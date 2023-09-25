@@ -40,7 +40,7 @@
   },
   "node-expand": {
     "edge-selection-title": "Edge Selection",
-    "edge-sele ction-subtitle": "Select a Node to expand its connections",
+    "edge-selection-subtitle": "Select a Node to expand its connections",
     "no-selection-title": "No Selection",
     "no-selection-subtitle": "Select a Node to expand its connections",
     "multi-selection-title": "Multiple Selection",

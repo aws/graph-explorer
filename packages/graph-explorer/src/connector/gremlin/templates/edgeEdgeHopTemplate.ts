@@ -103,7 +103,7 @@ const criterionTemplate = (criterion: Criterion): string => {
  * 
  */
 
-const ehhhOneTemplate = ({
+const edgeEdgeHopTemplate = ({
     vertexId,
     filterByVertexTypes = [],
     edgeTypes = [],
@@ -141,48 +141,26 @@ const ehhhOneTemplate = ({
     }
     console.log(filterCriteria)
     let filterCriteriaTemplate = ".and(";
-    let edgePrefix = "";
-    if (edgeTypes[0][0] == 'j'){
-      edgePrefix = toUpper(edgeTypes[0].slice(0,2));
+    let edgePrefix = toUpper(edgeTypes[0].slice(0,2));
+    // only exists because of the RDS data format
+    if (edgeTypes[0] == "network_participation"){
+      filterCriteriaTemplate += `has("Network_Participation_Record_Active_Da__c", lte("${activeDate}"))`;
+      filterCriteriaTemplate += `, has("Network_Participation_Record_Expiratio__c", gte("${activeDate}"))`;
+      filterCriteriaTemplate += ")";
     } else {
-      edgePrefix = edgeTypes[0]
+      filterCriteriaTemplate += `has("${edgePrefix}_Record_Active_Date__c", lte("${activeDate}"))`;
+      filterCriteriaTemplate += `, has("${edgePrefix}_Record_Expiration_Date__c", gte("${activeDate}"))`;
+      filterCriteriaTemplate += ")";
     }
-    filterCriteriaTemplate += `has("${edgePrefix}_Record_Active_Date__c", lte("${activeDate}"))`;
-    filterCriteriaTemplate += `, has("${edgePrefix}_Record_Expiration_Date__c", gte("${activeDate}"))`;
-    filterCriteriaTemplate += ")";
-
-    /*let filterCriteriaTemplate = ".and(";
-    filterCriteriaTemplate += filterCriteria?.map(criterionTemplate).join(",");
-    filterCriteriaTemplate += ")";*/
-
+    
 
     const hasLabelContent = filterByVertexTypes
     .flatMap(type => type.split("::"))
     .map(type => `"${type}"`)
     .join(",");
     template += `.by(bothE(${bothEContent})${filterCriteriaTemplate}.dedup().range(0,500).fold())`;
-    /*
-      if (edgeTypes.length > 0){
-        if (filterCriteria.length > 0) {
-            template += `.by(bothE(${bothEContent}).and(has("${edgeTypes[0]}_Record_Active_Date__c", gt("4000-12-31")), has("${edgeTypes[0]}_Record_Expiration_Date__c", lt("4000-12-31"))).dedup().outV()${range}.fold())`;
-          } else {
-            template += `.by(bothE(${bothEContent}).dedup().outV()s${range}.fold())`;
-        }
-      } else {
-        if (filterCriteria.length > 0) {
-          template += `.by(bothE(${bothEContent}).and(has("${edgeTypes[0]}_Record_Active_Date__c", gt("4000-12-31")), has("${edgeTypes[0]}_Record_Expiration_Date__c", lt("4000-12-31"))).dedup().fold())`;
-        } else {
-          template += `.by(bothE().dedup().fold())`;
-        }
-      }
-    */
+
       return template;
 };
 
-/**
- * 
- *  const edgeTemplate = `g.V("${req.vertexId}").project("vertices", "edges").by(bothE("j2").and(has("J2_Record_Expiration_Date__c",gte("2023-09-06")), has("J2_Record_Active_Date__c",lte("2023-09-06"))).dedup().range(0,500).fold())`
- * 
- */
-
-export default ehhhOneTemplate;
+export default edgeEdgeHopTemplate;

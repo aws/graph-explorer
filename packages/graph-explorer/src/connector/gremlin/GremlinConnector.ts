@@ -14,7 +14,6 @@ import type {
 import { AbstractConnector } from "../AbstractConnector";
 import fetchNeighbors from "./queries/fetchNeighbors";
 import fetchNeighborsCount from "./queries/fetchNeighborsCount";
-import fetchConnectedEdges from "./queries/fetchConnectedEdge";
 import fetchEdgeNeighbors from "./queries/fetchEdgeNeighbor";
 import fetchSchema from "./queries/fetchSchema";
 import fetchVertexTypeCounts from "./queries/fetchVertexTypeCounts";
@@ -75,13 +74,6 @@ export default class GremlinConnector extends AbstractConnector {
     options?: QueryOptions
   ): Promise<NeighborsResponse> {
     return fetchEdgeNeighbors(this._gremlinFetch(options), req, this._rawIdTypeMap);
-  }
-
-  fetchConnectedEdges(
-    req: EdgesRequest,
-    options?:QueryOptions | undefined
-  ): Promise<any>{
-    return fetchConnectedEdges(this._gremlinFetch(options), req, this._rawIdTypeMap);
   }
 
   keywordSearch(
