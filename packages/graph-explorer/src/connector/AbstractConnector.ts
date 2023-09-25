@@ -7,7 +7,6 @@ import type {
 } from "../core";
 
 export type QueryOptions = {
-  signal?: AbortSignal;
   disableCache?: boolean;
 };
 
