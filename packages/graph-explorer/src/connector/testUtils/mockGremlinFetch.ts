@@ -1,13 +1,11 @@
-import { QueryOptions } from "../AbstractConnector";
-
-const mockGremlinFetch = <TResult>(options?: QueryOptions) => {
+const mockGremlinFetch = <TResult>() => {
   return async (queryTemplate: string) => {
     const url = "http://mock.test";
     const encodedQuery = encodeURIComponent(queryTemplate);
 
     const uri = `${url}?gremlin=${encodedQuery}`;
 
-    const res = await fetch(uri, options);
+    const res = await fetch(uri);
 
     return res.json() as TResult;
   };
