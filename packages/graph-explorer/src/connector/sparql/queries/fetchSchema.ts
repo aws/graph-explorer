@@ -16,7 +16,6 @@ type RawPredicatesSamplesResponse = {
   results: {
     bindings: Array<{
       pred: RawValue;
-      sample: RawValue;
       object: RawValue;
     }>;
   };
