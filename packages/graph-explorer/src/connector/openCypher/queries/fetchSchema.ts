@@ -7,6 +7,7 @@ import verticesSchemaTemplate from "../templates/verticesSchemaTemplate";
 import type { OCEdge, OCVertex } from "../types";
 import { GraphSummary, OpenCypherFetch } from "../types";
 
+// Response types for raw data returned by OpenCypher queries
 type RawVertexLabelsResponse = {
   results: [
     {
@@ -25,7 +26,6 @@ type RawEdgeLabelsResponse = {
   ];
 };
 
-
 type RawVerticesSchemaResponse = {
   results: [
     {
@@ -42,6 +42,7 @@ type RawEdgesSchemaResponse = {
   ];
 };
 
+// Fetches all vertex labels and their counts
 const fetchVertexLabels = async (
   openCypherFetch: OpenCypherFetch
 ): Promise<Record<string, number>> => {
@@ -57,6 +58,7 @@ const fetchVertexLabels = async (
   return labelsWithCounts;
 };
 
+// Fetches attributes for all vertices with the given labels
 const fetchVerticesAttributes = async (
   openCypherFetch: OpenCypherFetch,
   labels: Array<string>,
@@ -100,6 +102,7 @@ const fetchVerticesAttributes = async (
   return vertices;
 };
 
+// Fetches schema for all vertices
 const fetchVerticesSchema = async (
   openCypherFetch: OpenCypherFetch
 ): Promise<SchemaResponse["vertices"]> => {
@@ -109,6 +112,7 @@ const fetchVerticesSchema = async (
   return fetchVerticesAttributes(openCypherFetch, labels, countsByLabel);
 };
 
+// Fetches all edge labels and their counts
 const fetchEdgeLabels = async (
   openCypherFetch: OpenCypherFetch
 ): Promise<Record<string, number>> => {
@@ -124,6 +128,7 @@ const fetchEdgeLabels = async (
   return labelsWithCounts;
 };
 
+// Fetches attributes for all edges with the given labels
 const fetchEdgesAttributes = async (
   openCypherFetch: OpenCypherFetch,
   labels: Array<string>,
@@ -163,6 +168,7 @@ const fetchEdgesAttributes = async (
   return edges;
 };
 
+// Fetches schema for all edges
 const fetchEdgesSchema = async (
   openCypherFetch: OpenCypherFetch
 ): Promise<SchemaResponse["edges"]> => {
@@ -173,15 +179,19 @@ const fetchEdgesSchema = async (
 };
 
 /**
- * Fetch the database shape.
+ * Fetches the database schema.
  * It follows this process:
- * 1. Fetch all nodes labels and their counts
- * 2. Fetch one sample of each node type to extract all properties
- * 3. Fetch all edges labels and their counts
- * 4. Fetch one sample of each edge type to extract all properties
+ * 1. Fetch all node labels and their counts
+ * 2. Fetch one node of each node type to extract all properties
+ * 3. Fetch all edge labels and their counts
+ * 4. Fetch one edge of each edge type to extract all properties
  *
  * This is an optimistic schema because it does not guarantee that all
  * nodes/edges with the same label contains an exact set of attributes.
+ *
+ * @param openCypherFetch - Function to fetch data from the database
+ * @param summary - Optional summary of the graph to fetch schema for
+ * @returns The schema of the database
  */
 const fetchSchema = async (
   openCypherFetch: OpenCypherFetch,
