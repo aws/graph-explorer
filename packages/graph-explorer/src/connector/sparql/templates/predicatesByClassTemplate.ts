@@ -3,11 +3,16 @@ const predicatesByClassTemplate = (props: { class: string }) => {
   return `
     SELECT DISTINCT ?pred ?object
     WHERE {
-      ?subject a <${props.class}>;
-        ?pred ?object.
+      {
+        SELECT ?subject
+        WHERE {
+          ?subject a <${props.class}>;
+        }
+        LIMIT 1
+      }
+      ?subject ?pred ?object.
       FILTER(!isBlank(?object) && isLiteral(?object))
     }
-    LIMIT 1
   `;
 };
 
