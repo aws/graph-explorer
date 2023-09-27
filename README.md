@@ -50,6 +50,7 @@ You can create and manage connections to graph databases using this feature. Con
   - **Graph connection URL:** Provide the endpoint for the graph database
   - **AWS IAM Auth Enabled:** Check this box if connecting to Amazon Neptune using IAM Auth and SigV4 signed requests
   - **AWS Region:** Specify the AWS region where the Neptune cluster is hosted (e.g., us-east-1)
+  - **Fetch Timeout:** Specify the timeout for the fetch request
 
 - **Available Connections:** Once a connection is created, this section will appear as a left-hand pane. When you create more than one connection to a graph database, you can only connect to and visualize from one graph database endpoint at a time. To select the active database, toggle the “Active” switch.
 
@@ -115,8 +116,7 @@ To provide a default connection such that initial loads of the graph explorer al
   - `IAM` - `False` - See [Add a New Connection](#connections-ui)
   - `GRAPH_EXP_HTTPS_CONNECTION` - `True` - Controls whether the Graph Explorer uses SSL or not
   - `PROXY_SERVER_HTTPS_CONNECTION` - `True` - Controls whether the server uses SSL or not
-  - `PROXY_SERVER_REQUEST_TIMEOUT` - `300000` - Controls the timeout for proxy requests
-  - `PROXY_SERVER_MAX_RETRIES` - `1` - Controls the number of retries for proxy requests
+  - `GRAPH_EXP_FETCH_REQUEST_TIMEOUT` - `9000` - Controls the timeout for the fetch request
 - Conditionally Required:
   - Required if `USING_PROXY_SERVER=True`
     - `GRAPH_CONNECTION_URL` - `None` - See [Add a New Connection](#connections-ui)
@@ -137,8 +137,7 @@ First, create a `config.json` file containing values for the connection attribut
      "GRAPH_TYPE": "gremlin" (Possible Values: "gremlin", "sparql", "opencypher"),
      "GRAPH_EXP_HTTPS_CONNECTION": true (Can be string or boolean),
      "PROXY_SERVER_HTTPS_CONNECTION": true, (Can be string or boolean),
-     "PROXY_SERVER_REQUEST_TIMEOUT": 300000,
-     "PROXY_SERVER_MAX_RETRIES": 1
+     "GRAPH_EXP_FETCH_REQUEST_TIMEOUT": 9000 (Can be number)
 }
 ```
 
@@ -162,8 +161,7 @@ docker run -p 80:80 -p 443:443 \
  --env GRAPH_CONNECTION_URL=https://cluster-cqmizgqgrsbf.us-west-2.neptune.amazonaws.com:8182 \
  --env AWS_REGION=us-west-2 \
  --env PROXY_SERVER_HTTPS_CONNECTION=true \
- --env PROXY_SERVER_REQUEST_TIMEOUT=300000 \
- --env PROXY_SERVER_MAX_RETRIES=1 \
+ --env GRAPH_EXP_FETCH_REQUEST_TIMEOUT=9000 \
  graph-explorer
 ```
 
