@@ -49,7 +49,7 @@ echo "Explorer IAM auth mode: ${IAM}"
 
 echo "Pulling and starting graph-explorer..."
 if [[ ${EXPLORER_VERSION} == "" ]]; then
-  EXPLORER_ECR_TAG=sagemaker-latest
+  EXPLORER_ECR_TAG=sagemaker-latest-SNAPSHOT
 else
   EXPLORER_ECR_TAG=sagemaker-${EXPLORER_VERSION}
 fi
