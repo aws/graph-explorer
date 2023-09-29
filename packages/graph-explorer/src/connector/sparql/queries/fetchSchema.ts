@@ -16,7 +16,7 @@ type RawPredicatesSamplesResponse = {
   results: {
     bindings: Array<{
       pred: RawValue;
-      object: RawValue;
+      sample: RawValue;
     }>;
   };
 };
@@ -77,7 +77,7 @@ const fetchPredicatesByClass = async (
         displayLabel: "",
         searchable: true,
         hidden: false,
-        dataType: TYPE_MAP[item.object.datatype || ""] || "String",
+        dataType: TYPE_MAP[item.sample.datatype || ""] || "String",
       }));
 
       vertices.push({
