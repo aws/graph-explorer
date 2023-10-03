@@ -19,7 +19,7 @@ import type { KeywordSearchRequest } from "../../AbstractConnector";
  *  )
  *  .range(0, 100)
  */
-const keywordSearchTemplate = ({
+const fuzzySearchTemplate = ({
   searchTerm,
   vertexTypes = [],
   searchById = true,
@@ -48,25 +48,25 @@ const keywordSearchTemplate = ({
           if (exactMatch === true) {
              return `has(id,"${searchTerm}")`;
           }
-          return `has(id,containing("${searchTerm}"))`;
+          return `has(id,containing("${searchTerm}")`
+          //return `has(id,containing("${searchTerm}"), has(id,containg("${searchTerm?.toUpperCase()}")), has(id,containg("${searchTerm?.toLowerCase()}")))`;
         }
         if (exactMatch === true) {
           return `has("${attr}","${searchTerm}")`;
         }
-        return `has("${attr}", TextP.regex("(?i)${searchTerm}."))`
-        //searchTerm?.toLowerCase()
-        //return `has("${attr}",containing("${searchTerm?.toUpperCase()}")), has("${attr}",containing("${searchTerm?.toLowerCase()}")), has("${attr}",containing("${}"))`;
-        //return `filter{it.get().property("${attr}").value().contains("${searchTerm?.toUpperCase()}")}`;
+        return `filter{it.get().property("${attr}").value().contains("${searchTerm?.toUpperCase()}")}`
+        //return `has("${attr}",containing("${searchTerm}")), has(id,containg("${searchTerm?.toUpperCase()}")), has(id,containg("${searchTerm?.toLowerCase()}"))`;
+        
       })
       .join(",");
 
-    //template += `.${orContent}`;  
-    template += `.or(${orContent})`;
+    template += `.${orContent}`;
+    //template += `filter{it.get().has("${attr}","${searchTerm}")}`
   }
 
-  template += `.range(${offset},${offset + limit})`;
+  //template += `.range(${offset},${offset + limit})`;
   console.log(`Search Q: ${template}`)
   return template;
 };
 
-export default keywordSearchTemplate;
+export default fuzzySearchTemplate;
