@@ -60,8 +60,8 @@ export type GraphViewerProps = Omit<
   title?: ModuleContainerHeaderProps["title"];
   onNodeCustomize(nodeType?: string): void;
   onEdgeCustomize(edgeType?: string): void;
-  onFilterDate(limitDate: string): void;
-  overDate: string;
+  onFilterDate(limitDate: string | null): void;
+  overDate: string | null;
 };
 
 const LAYOUT_OPTIONS = [
@@ -318,9 +318,7 @@ const GraphViewer = ({
                 tooltipPlacement={"bottom-center"}
                 icon={<DateLock />}
                 variant={"text"}
-                onPress={() => {
-                  graphRef.current?.runLayout();
-                }}
+                onPress={() => onFilterDate(overDate)}
               />
 
             </div>
