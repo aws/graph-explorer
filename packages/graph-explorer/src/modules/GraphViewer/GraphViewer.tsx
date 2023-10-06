@@ -9,8 +9,10 @@ import {
   ModuleContainerHeader,
   RemoveFromCanvasIcon,
   ResetIcon,
+  DateLock,
   ZoomInIcon,
   ZoomOutIcon,
+  Input,
 } from "../../components";
 import Card from "../../components/Card";
 import Graph from "../../components/Graph";
@@ -58,6 +60,8 @@ export type GraphViewerProps = Omit<
   title?: ModuleContainerHeaderProps["title"];
   onNodeCustomize(nodeType?: string): void;
   onEdgeCustomize(edgeType?: string): void;
+  onFilterDate(limitDate: string): void;
+  overDate: string;
 };
 
 const LAYOUT_OPTIONS = [
@@ -127,6 +131,7 @@ const HEADER_ACTIONS = [
   },
 ];
 
+
 // Prevent open context menu on Windows
 const onContextMenu = (e: MouseEvent<HTMLDivElement>) => {
   e.preventDefault();
@@ -137,6 +142,8 @@ const GraphViewer = ({
   title = "Graph View",
   onNodeCustomize,
   onEdgeCustomize,
+  onFilterDate,
+  overDate,
   ...headerProps
 }: GraphViewerProps) => {
   const styleWithTheme = useWithTheme();
@@ -243,6 +250,7 @@ const GraphViewer = ({
     });
   }, [setEntities]);
 
+
   const onHeaderActionClick = useCallback(
     action => {
       switch (action) {
@@ -296,6 +304,25 @@ const GraphViewer = ({
                   graphRef.current?.runLayout();
                 }}
               />
+              <Input
+                className={pfx("full-date-filter")}
+                label={"Date Fixed to Graph"}
+                labelPlacement={"inner"}
+                value={overDate}
+                onChange={(d: string | null) => (d ?? 0)}
+                hideError={true}
+                noMargin={true}
+              />
+              <IconButton
+                tooltipText={"Set Graph Filter"}
+                tooltipPlacement={"bottom-center"}
+                icon={<DateLock />}
+                variant={"text"}
+                onPress={() => {
+                  graphRef.current?.runLayout();
+                }}
+              />
+
             </div>
           }
           variant={"default"}
