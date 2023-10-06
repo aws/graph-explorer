@@ -47,14 +47,25 @@ echo "Neptune URI: ${NEPTUNE_URI}"
 echo "Explorer region: ${AWS_REGION}"
 echo "Explorer IAM auth mode: ${IAM}"
 
+ECR_TOKEN=$(curl -k https://public.ecr.aws/token/ | jq -r '.token')
+LATEST_ECR_RELEASE=$(curl -k -H "Authorization: Bearer $ECR_TOKEN" https://public.ecr.aws/v2/neptune/graph-explorer/tags/list | jq -r '.tags | sort_by(split(".") | try map(tonumber) catch [0,0,0])[-1]')
+
 echo "Pulling and starting graph-explorer..."
 if [[ ${EXPLORER_VERSION} == "" ]]; then
-  EXPLORER_ECR_TAG=sagemaker-latest-SNAPSHOT
+  EXPLORER_ECR_TAG=sagemaker-${LATEST_ECR_RELEASE}
 else
-  EXPLORER_ECR_TAG=sagemaker-${EXPLORER_VERSION}
+  if [[ ${EXPLORER_VERSION//./} -ge 140 ]]; then
+    EXPLORER_ECR_TAG=sagemaker-${EXPLORER_VERSION}
+  elif [[ ${EXPLORER_VERSION} == *latest* ]]; then
+    EXPLORER_ECR_TAG=sagemaker-latest-SNAPSHOT
+  elif [[ ${EXPLORER_VERSION} == *dev* ]]; then
+    EXPLORER_ECR_TAG=sagemaker-dev
+  else
+    echo "Specified Graph Explorer version does not support use on SageMaker. Defaulting to latest release."
+    EXPLORER_ECR_TAG=sagemaker-${LATEST_ECR_RELEASE}
+  fi
 fi
 echo "Using explorer image tag: ${EXPLORER_ECR_TAG}"
-
 docker run -d -p 9250:9250 \
   --env HOST=127.0.0.1 \
   --env PUBLIC_OR_PROXY_ENDPOINT=${EXPLORER_URI} \
