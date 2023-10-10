@@ -60,8 +60,7 @@ export type GraphViewerProps = Omit<
   title?: ModuleContainerHeaderProps["title"];
   onNodeCustomize(nodeType?: string): void;
   onEdgeCustomize(edgeType?: string): void;
-  onFilterDate(limitDate: string | null): void;
-  overDate: string | null;
+//  onFilterDate(limitDate: string | null): void;
 };
 
 const LAYOUT_OPTIONS = [
@@ -142,8 +141,8 @@ const GraphViewer = ({
   title = "Graph View",
   onNodeCustomize,
   onEdgeCustomize,
-  onFilterDate,
-  overDate,
+//  onFilterDate,
+//  overDate,
   ...headerProps
 }: GraphViewerProps) => {
   const styleWithTheme = useWithTheme();
@@ -151,6 +150,8 @@ const GraphViewer = ({
 
   useGraphViewerInit();
   const graphRef = useRef<GraphRef | null>(null);
+  // ADD THING HERE TO APPLY THE OVERDATE
+  // const dateFixer = idfk
   const [entities] = useEntities();
   const { dropAreaRef, isOver, canDrop } = useNodeDrop();
 
@@ -240,7 +241,9 @@ const GraphViewer = ({
     [getDisplayNames, enqueueNotification, expandNode, setUserLayout]
   );
 
+  const now = new Date();
   const [layout, setLayout] = useState("F_COSE");
+  const [overDate, setOverDate] = useState(now.toLocaleDateString())
   const [, setEntities] = useEntities();
   const onClearCanvas = useCallback(() => {
     setEntities({
@@ -309,7 +312,7 @@ const GraphViewer = ({
                 label={"Date Fixed to Graph"}
                 labelPlacement={"inner"}
                 value={overDate}
-                onChange={(d: string | null) => (d ?? 0)}
+                onChange={d => setOverDate(d as string)}
                 hideError={true}
                 noMargin={true}
               />
@@ -318,7 +321,7 @@ const GraphViewer = ({
                 tooltipPlacement={"bottom-center"}
                 icon={<DateLock />}
                 variant={"text"}
-                onPress={() => onFilterDate(overDate)}
+                onPress={() => console.log(overDate)}
               />
 
             </div>
