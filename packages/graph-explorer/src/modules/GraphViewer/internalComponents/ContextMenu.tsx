@@ -221,7 +221,7 @@ const ContextMenu = ({
             onClick={openSidebarPanel("expand")}
             startAdornment={<ExpandGraphIcon />}
           >
-            Expand Panel
+            Expand Graph
           </ListItem>
           <ListItem
             classNamePrefix={"ft"}
@@ -230,7 +230,7 @@ const ContextMenu = ({
             onClick={openSidebarPanel("edge-expand")}
             startAdornment={<ExpandGraphIcon />}
           >
-            Expand Panel
+            Expand Edges
           </ListItem>
           <ListItem
             classNamePrefix={"ft"}

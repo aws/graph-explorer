@@ -66,7 +66,6 @@ const GraphExplorer = ({ classNamePrefix = "ft" }: GraphViewProps) => {
   const t = useTranslations();
   const hasNamespaces = config?.connection?.queryEngine === "sparql";
   const [userLayout, setUserLayout] = useRecoilState(userLayoutAtom);
-  //const overDate = useState<string | null>;
 
   const nodesSelectedIds = useRecoilValue(nodesSelectedIdsAtom);
   const edgesSelectedIds = useRecoilValue(edgesSelectedIdsAtom);
@@ -265,9 +264,6 @@ const GraphExplorer = ({ classNamePrefix = "ft" }: GraphViewProps) => {
             <GraphViewer
               onNodeCustomize={setCustomizeNodeType}
               onEdgeCustomize={setCustomizeEdgeType}
-              //overDate={overDate}
-              //onFilterDate={setDate}//limitDate: string): void;
-              //string
             />
           </div>
         )}

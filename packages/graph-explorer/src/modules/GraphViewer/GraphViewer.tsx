@@ -52,6 +52,7 @@ import useGraphStyles from "./useGraphStyles";
 import useGraphViewerInit from "./useGraphViewerInit";
 import useNodeBadges from "./useNodeBadges";
 import useNodeDrop from "./useNodeDrop";
+import mapDateStr from "../../connector/gremlin/mappers/mapDateStr";
 
 export type GraphViewerProps = Omit<
   ModuleContainerHeaderProps,
@@ -60,7 +61,6 @@ export type GraphViewerProps = Omit<
   title?: ModuleContainerHeaderProps["title"];
   onNodeCustomize(nodeType?: string): void;
   onEdgeCustomize(edgeType?: string): void;
-//  onFilterDate(limitDate: string | null): void;
 };
 
 const LAYOUT_OPTIONS = [
@@ -141,8 +141,6 @@ const GraphViewer = ({
   title = "Graph View",
   onNodeCustomize,
   onEdgeCustomize,
-//  onFilterDate,
-//  overDate,
   ...headerProps
 }: GraphViewerProps) => {
   const styleWithTheme = useWithTheme();
@@ -321,7 +319,7 @@ const GraphViewer = ({
                 tooltipPlacement={"bottom-center"}
                 icon={<DateLock />}
                 variant={"text"}
-                onPress={() => console.log(overDate)}
+                onPress={() => console.log(mapDateStr(overDate))}
               />
 
             </div>

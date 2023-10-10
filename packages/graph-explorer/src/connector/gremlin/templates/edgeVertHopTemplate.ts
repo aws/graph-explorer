@@ -1,6 +1,8 @@
 import { toUpper } from "lodash";
 import type { Criterion, NeighborsRequest } from "../../AbstractConnector";
 
+const now = new Date();
+
 const criterionNumberTemplate = ({
     name,
     operator,
