@@ -4,6 +4,14 @@
 
 The next release will include the following feature enhancements and bug fixes:
 
+**Bug fixes**
+- Fixed highlight not persisting on selected graph element (https://github.com/aws/graph-explorer/pull/187)
+- Bumped @types/semver to 7.5.2 in lockfile
+
+## 1.4.0
+
+This release includes the following feature enhancements and bug fixes:
+
 **Features**
 - Added SageMaker Notebook support (https://github.com/aws/graph-explorer/pull/178)
 - Added Default Connection support (https://github.com/aws/graph-explorer/pull/108)
@@ -12,12 +20,14 @@ The next release will include the following feature enhancements and bug fixes:
 - Added toggle for limit on retrieved vertex neighbors (https://github.com/aws/graph-explorer/pull/176)
 - Added SageMaker Notebook hosting documentation (https://github.com/aws/graph-explorer/pull/183)
 - Added ECS hosting documentation (https://github.com/aws/graph-explorer/pull/174)
+- Updated Dockerfile base image to AL2022 (https://github.com/aws/graph-explorer/pull/190)
 
 **Bug fixes**
 - Fixed search UI crashing on node select/preview (https://github.com/aws/graph-explorer/pull/177)
 - Fixed Gremlin/openCypher matching ID property on all keyword searches (https://github.com/aws/graph-explorer/pull/169)
+- Fixed default connections failing on SageMaker for certain instance names (https://github.com/aws/graph-explorer/pull/188)
 - Resolved deprecation warnings in GitHub workflows (https://github.com/aws/graph-explorer/pull/181)
-- Fixed highlight not persisting on selected graph element (https://github.com/aws/graph-explorer/pull/187)
+- Patched vulnerable dependencies ([1](https://github.com/aws/graph-explorer/pull/182)) ([2](https://github.com/aws/graph-explorer/pull/189)) ([3](https://github.com/aws/graph-explorer/pull/191))
 
 ## Release 1.3.1
 
