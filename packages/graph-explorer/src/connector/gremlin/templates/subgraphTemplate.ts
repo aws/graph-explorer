@@ -4,7 +4,6 @@
 import mapDateStr from "../mappers/mapDateStr";
 
 const subgraphTemplate = ({date = "2023-09-10"}): Array<string> => {
-    let funcTemplates = [];
     // Create the subgraph based on the date filter 
     
     /**
@@ -12,12 +11,16 @@ const subgraphTemplate = ({date = "2023-09-10"}): Array<string> => {
      * 
      * ...uhh just setup with nonsense for deets later
      * */
-    funcTemplates.push(`datedGraph = g.V().has("SOME_ACTIVE_DATE",${mapDateStr(date)})`)
-    
+    let createSubGraph = `subGraph = g.V().and(`;
+    createSubGraph += `has("Drug_Record_Active_Date__c", lte("${mapDateStr(date)}"))`;
+    createSubGraph += `has("Drug_Record_Expiration_Date__c", gte("${mapDateStr(date)}"))`;
+    createSubGraph += ")";
 
-    funcTemplates.push("sg")
+    const subTrav = "sg = traversal().withEmbedded(subGraph)"
 
-    return funcTemplates;
+    const testTrav = "sg.V().limit(1)"
+
+    return [createSubGraph, subTrav, testTrav];
 };
 
 export default subgraphTemplate

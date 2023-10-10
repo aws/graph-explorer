@@ -53,6 +53,7 @@ import useGraphViewerInit from "./useGraphViewerInit";
 import useNodeBadges from "./useNodeBadges";
 import useNodeDrop from "./useNodeDrop";
 import mapDateStr from "../../connector/gremlin/mappers/mapDateStr";
+import subgraphTemplate from "../../connector/gremlin/templates/subgraphTemplate";
 
 export type GraphViewerProps = Omit<
   ModuleContainerHeaderProps,
@@ -319,7 +320,7 @@ const GraphViewer = ({
                 tooltipPlacement={"bottom-center"}
                 icon={<DateLock />}
                 variant={"text"}
-                onPress={() => console.log(mapDateStr(overDate))}
+                onPress={() => console.log(subgraphTemplate({date:mapDateStr(overDate)}))}
               />
 
             </div>
