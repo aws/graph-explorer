@@ -195,6 +195,20 @@ export type KeywordSearchResponse = {
   vertices: Array<Vertex>;
 };
 
+export type SubGraphRequest = {
+  /**
+   * Input Date
+   */
+  date?: string;
+};
+
+export type SubGraphResponse = {
+  /**
+   * List of vertices.
+   */
+  vertices: Array<Vertex>;
+};
+
 export type ErrorResponse = {
   code: string;
   detailedMessage: string;
