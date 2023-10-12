@@ -216,6 +216,7 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
             name: config.displayLabel || config.id,
             url: config.connection?.url,
             type: config.connection?.queryEngine,
+            fetchTimeMs: config.connection?.fetchTimeoutMs,
           }}
         />
       </Modal>
