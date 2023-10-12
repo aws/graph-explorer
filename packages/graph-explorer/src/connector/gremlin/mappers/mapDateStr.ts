@@ -4,7 +4,7 @@ const mapDateStr = (date:string) : string =>{
         let chopDate = date.split("/");
         chopDate.forEach(function (piece, inx){
             if (piece.length == 4){
-                [chopDate[0], chopDate[inx]] = [chopDate[inx], chopDate[0]];
+                [chopDate[0], chopDate[1], chopDate[2]] = [chopDate[2], chopDate[1], chopDate[0]];
             };
         });
         date = chopDate.join("-");

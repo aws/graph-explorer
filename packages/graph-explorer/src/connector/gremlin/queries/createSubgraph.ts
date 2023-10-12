@@ -31,29 +31,31 @@ const subgraphResult = async (
     gremlinFetch: GremlinFetch,
     req: SubGraphRequest,
     rawIds: Map<string, "string" | "number">
-): Promise<SubGraphResponse> => {
+): Promise<any> => {
     const date  = req.date ?? Date.now().toLocaleString();
     const directions = subgraphTemplate({...req, date})
     console.log(directions)
-    let [createRes, subRes, testRes] = await Promise.all([
+    let [createRes] = await Promise.all([
         gremlinFetch<RawSubGraphResponse>(directions[0]),
-        gremlinFetch<RawSubGraphResponse>(directions[1]),
-        gremlinFetch<RawSubGraphResponse>(directions[2])
+        //gremlinFetch<RawSubGraphResponse>(directions[1]),
+        //gremlinFetch<RawSubGraphResponse>(directions[2])
     ]);
     console.log(createRes);
-    console.log(subRes);
-    console.log(testRes);
+    //console.log(subRes);
+    //console.log(testRes);
 
-    const data = testRes;
+    const data = createRes;//testRes;
 
-    const vertices = data.result.data["@value"].map(value => {
+    console.log(`Data: ${data}`)
+
+    /*const vertices = data.result.data["@value"].map(value => {
         rawIds.set(toStringId(value["@value"].id), idType(value["@value"].id));
         return mapApiVertex(value);
-    });
+    });*/
 
-    console.log(vertices)
+    //console.log(vertices)
 
-    return { vertices };
+    return { data };
 };
 
 export default subgraphResult;

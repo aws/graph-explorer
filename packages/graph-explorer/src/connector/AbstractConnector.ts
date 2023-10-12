@@ -199,7 +199,7 @@ export type SubGraphRequest = {
   /**
    * Input Date
    */
-  date?: string;
+  date: string;
 };
 
 export type SubGraphResponse = {
@@ -246,6 +246,12 @@ export abstract class AbstractConnector {
     this._connection = connection;
   }
 
+  public abstract createSubgraph(
+    req: SubGraphRequest,
+    options?:QueryOptions
+  ): Promise<SubGraphResponse>;
+
+
   /**
    * Fetch all vertices and edges types (name, data type, attributes, ...)
    */
@@ -272,7 +278,6 @@ export abstract class AbstractConnector {
     req: NeighborsRequest,
     options?: QueryOptions
   ): Promise<NeighborsResponse>;
-
 
   /**
    * Count all connected vertices by type of the given source.
