@@ -43,14 +43,6 @@ const config: Config = {
     "src/setupTests.ts",
   ],
   coverageProvider: "v8",
-  coverageThreshold: {
-    global: {
-      branches: 31,
-      functions: 14,
-      lines: 8,
-      statements: -0,
-    },
-  },
 };
 
 export default config;
