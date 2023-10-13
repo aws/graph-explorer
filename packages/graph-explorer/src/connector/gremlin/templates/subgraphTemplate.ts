@@ -3,7 +3,7 @@
  */
 import mapDateStr from "../mappers/mapDateStr";
 // nodes = Set
-const subgraphTemplate = ({date = "string"}): string => {
+const subgraphTemplate = ({date = "string", canvas = Array<any>}): string => {
     // Create the subgraph based on the date filter 
     
     /**
@@ -14,10 +14,13 @@ const subgraphTemplate = ({date = "string"}): string => {
     let createSubGraph = `g.V("O-00000000","O-00000002","O-00000008","O-00000012")`;
     //createSubGraph += `has("Drug_Record_Active_Date__c", lte("${mapDateStr(date)}")),`;
     //createSubGraph += `has("Drug_Record_Expiration_Date__c", gte("${mapDateStr(date)}"))`;
-    createSubGraph += `.and(`;
-    createSubGraph += `has("Offer_Record_Active_Date__c", lte("${mapDateStr(date)}"))`;
-    createSubGraph += `, has("Offer_Record_Expiration_Date__c", gte("${mapDateStr(date)}"))`;
-    createSubGraph +=  `)`
+    
+    let subFilters = `.and(`;
+    subFilters += `has("Offer_Record_Active_Date__c", lte("${mapDateStr(date)}"))`;
+    subFilters += `, has("Offer_Record_Expiration_Date__c", gte("${mapDateStr(date)}"))`;
+    subFilters +=  `)`
+
+    createSubGraph += `${subFilters}`
     //createSubGraph += ".dedup().bothV().fold()";
     console.log(createSubGraph)
 

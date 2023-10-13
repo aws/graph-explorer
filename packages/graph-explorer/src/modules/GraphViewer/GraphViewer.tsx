@@ -255,7 +255,8 @@ const GraphViewer = ({
   const onFilterByDate = useCallback(async () =>{
     const currentCanvas = [entities.nodes, entities.edges]
     await createSubGraph({
-      date:overDate
+      date:overDate,
+      canvas:currentCanvas
     });
   },[createSubGraph])
 

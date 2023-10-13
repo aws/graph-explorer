@@ -4,6 +4,7 @@ import type { SubGraphRequest } from "../connector/AbstractConnector";
 import useConnector from "../core/ConnectorProvider/useConnector";
 import useEntities from "./useEntities";
 
+
 const useSubGraph = () => {
   const [, setEntities] = useEntities();
   const connector = useConnector();
@@ -12,14 +13,15 @@ const useSubGraph = () => {
   return useCallback(
     async (req: SubGraphRequest) => {
         const result = await connector.explorer?.createSubgraph(req);
-        if (!result || !result.vertices.length) {
+        
+        if (!result) {
             enqueueNotification({
               title: "No Results",
               message: "Your search has returned no results",
             });
             return;
         }
-
+        console.log(result.vertices)
         /*setEntities({
             nodes: [],
             edges: [],
@@ -41,7 +43,7 @@ const useSubGraph = () => {
 
         
 
-    },[connector.explorer, setEntities]
+    },[connector.explorer, setEntities, enqueueNotification, clearNotification]
   );
 };
 

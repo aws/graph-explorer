@@ -199,7 +199,7 @@ export type SubGraphRequest = {
   /**
    * List of active vertices
    */
-  //vertices: Array<Vertex>
+  canvas: Array<any>
   /**
    * Input Date
    */
