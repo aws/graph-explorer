@@ -12,7 +12,6 @@ const useSubGraph = () => {
   return useCallback(
     async (req: SubGraphRequest) => {
         const result = await connector.explorer?.createSubgraph(req);
-        console.log(result)
         if (!result || !result.vertices.length) {
             enqueueNotification({
               title: "No Results",
@@ -21,10 +20,17 @@ const useSubGraph = () => {
             return;
         }
 
+        /*setEntities({
+            nodes: [],
+            edges: [],
+            forceSet: true,
+        });*/
+
         setEntities({
           nodes: result.vertices,
           edges: result.edges,
           selectNewEntities: "nodes",
+          forceSet:true
         });
 
         const notificationId = enqueueNotification({
@@ -33,7 +39,9 @@ const useSubGraph = () => {
           autoHideDuration: null,
         });
 
-    },[connector.explorer]
+        
+
+    },[connector.explorer, setEntities]
   );
 };
 

@@ -3,13 +3,13 @@
  */
 import mapDateStr from "../mappers/mapDateStr";
 // nodes = Set
-const subgraphTemplate = ({date = "string"}): Array<string> => {
+const subgraphTemplate = ({date = "string"}): string => {
     // Create the subgraph based on the date filter 
     
     /**
      *  This is is going to do a filter for EVERY edge/node for Record_Active_Date-ish?? need to ask jeff
      * 
-     * ...uhh just setup with nonsense for deets later
+     * 
      * */
     let createSubGraph = `g.V("O-00000000","O-00000002","O-00000008","O-00000012")`;
     //createSubGraph += `has("Drug_Record_Active_Date__c", lte("${mapDateStr(date)}")),`;
@@ -21,7 +21,7 @@ const subgraphTemplate = ({date = "string"}): Array<string> => {
     //createSubGraph += ".dedup().bothV().fold()";
     console.log(createSubGraph)
 
-    return [createSubGraph];
+    return createSubGraph;
 };
 
 export default subgraphTemplate

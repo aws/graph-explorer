@@ -11,13 +11,19 @@ import { GInt64, GremlinFetch } from "../types";
 type RawSubGraphRequest = {
     requestId: string;
     status: {
-        message: string;
-        code: number;
+      message: string;
+      code: number;
+    };
+    result: {
+      data: {
+        "@type": "g:List";
+        "@value": Array<{
+          "@type": "g:Map";
+          "@value": ["vertices", GVertexList, "edges", GEdgeList];
+        }>;
       };
-      result: {
-        data: GVertexList;
-      };
-};
+    };
+  };
 
 const idType = (id: string | GInt64) => {
     if (typeof id === "string") {
@@ -34,26 +40,25 @@ const subgraphResult = async (
 ): Promise<any> => {
     const date  = req.date ?? Date.now().toLocaleString();
     const directions = subgraphTemplate({...req})
-    console.log(directions)
-    let [createRes] = await Promise.all([
-        gremlinFetch<RawSubGraphRequest>(directions[0])
+    let [vData] = await Promise.all([
+        gremlinFetch<RawSubGraphRequest>(directions)
         //gremlinFetch<RawSubGraphResponse>(directions[1]),
     ]);
-    console.log(createRes);
+    console.log(vData);
+    const verticesResponse =
+        vData.result.data["@value"]
+        //?.[0]?.["@value"][1]["@value"];
+    console.log(verticesResponse)
+    //const edgesResponse = 
+    //  eData.result.data["@value"]?.[0]?.["@value"][1]["@value"];
 
+    /*const vertices: SubGraphResponse["vertices"] = verticesResponse?.map(
+        vertex => mapApiVertex(vertex)
+    );
 
-    const data = createRes;
+    console.log(vertices)*/
 
-    console.log(`Data: ${data}`)
-
-    const vertices = data.result.data["@value"].map(value => {
-        rawIds.set(toStringId(value["@value"].id), idType(value["@value"].id));
-        return mapApiVertex(value);
-    });
-
-    console.log(vertices)
-
-    return { data };
+    return { vData };
 };
 
 export default subgraphResult;
