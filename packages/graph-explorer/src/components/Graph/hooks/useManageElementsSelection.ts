@@ -87,7 +87,7 @@ export default function useManageElementsSelection(
   }, [options?.autounselectify, options?.disableSelectionEvents]);
 
   // Init cytoscape Select and unselect event handlers
-  const handlers = useRef<Handlers>({
+  const handlers = useRef<Handlers>(<Handlers>{
     onSelectedEdgesIdsChange,
     onSelectedGroupsIdsChange,
     onSelectedNodesIdsChange,
@@ -165,19 +165,19 @@ export default function useManageElementsSelection(
   useEntitySelection(
     cy,
     "node:selected[!__isGroupNode]",
-    selectedNodesIds,
+    selectedNodesIds!,
     isSelectionDisabled
   );
   useEntitySelection(
     cy,
     "node:selected[?__isGroupNode]",
-    selectedGroupsIds,
+    selectedGroupsIds!,
     isSelectionDisabled
   );
   useEntitySelection(
     cy,
     "edge:selected",
-    selectedEdgesIds,
+    selectedEdgesIds!,
     isSelectionDisabled
   );
 }

@@ -30,6 +30,7 @@ jobs:
         uses: tyankatsu0105/read-package-version-actions@v1
         with:
           path: "./"
+        id: package-version
 
       - name: Get image tag
         id: get-image-tag
@@ -38,10 +39,10 @@ jobs:
             if ${{ inputs.image_tag == 'release'}}; then
               echo "image_tag=${{ steps.package-version.outputs.version }}" >> $GITHUB_OUTPUT
             else
-              echo "image_tag=latest" >> $GITHUB_OUTPUT
+              echo "image_tag=latest-SNAPSHOT" >> $GITHUB_OUTPUT
             fi
           else
-            echo "image_tag=latest" >> $GITHUB_OUTPUT
+            echo "image_tag=latest-SNAPSHOT" >> $GITHUB_OUTPUT
           fi
 
       - name: Configure AWS Credentials

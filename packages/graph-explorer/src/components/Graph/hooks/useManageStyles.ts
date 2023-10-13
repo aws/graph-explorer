@@ -26,16 +26,16 @@ export const getStyles = ({
   const rootStyles: cytoscape.StylesheetStyle[] = [];
 
   if (!hideDefaultNodeLabels) {
-    rootStyles.push({
+    rootStyles.push(<cytoscape.StylesheetStyle>{
       selector: "node[id]",
       style: { label: "data(id)" },
     });
-    rootStyles.push({
+    rootStyles.push(<cytoscape.StylesheetStyle>{
       selector: "node[label]",
       style: { label: "data(label)" },
     });
     if (defaultNodeLabelAttribute) {
-      rootStyles.push({
+      rootStyles.push(<cytoscape.StylesheetStyle>{
         selector: `node[${defaultNodeLabelAttribute}]`,
         style: { label: `data(${defaultNodeLabelAttribute})` },
       });
@@ -43,21 +43,21 @@ export const getStyles = ({
   }
 
   if (!hideDefaultEdgeLabels) {
-    rootStyles.push({
+    rootStyles.push(<cytoscape.StylesheetStyle>{
       selector: "edge[id]",
       style: { label: "data(id)" },
     });
-    rootStyles.push({
+    rootStyles.push(<cytoscape.StylesheetStyle>{
       selector: "edge[label]",
       style: { label: "data(label)" },
     });
-    rootStyles.push({
+    rootStyles.push(<cytoscape.StylesheetStyle>{
       selector: "edge[type]",
       style: { label: "data(type)" },
     });
 
     if (defaultEdgeLabelAttribute) {
-      rootStyles.push({
+      rootStyles.push(<cytoscape.StylesheetStyle>{
         selector: `edge[${defaultEdgeLabelAttribute}]`,
         style: { label: `data(${defaultEdgeLabelAttribute})` },
       });
@@ -68,7 +68,7 @@ export const getStyles = ({
     const stylesWithDefault = styles?.[selector]
       ? { ...style, ...styles?.[selector] }
       : style;
-    rootStyles.push({ selector, style: stylesWithDefault });
+    rootStyles.push(<cytoscape.StylesheetStyle>{selector, style: stylesWithDefault});
   }
 
   // Base styles
@@ -80,7 +80,7 @@ export const getStyles = ({
   }
 
   if (badgesEnabled === false) {
-    rootStyles.push({
+    rootStyles.push(<cytoscape.StylesheetStyle>{
       selector: "node",
       style: {
         label: "",
