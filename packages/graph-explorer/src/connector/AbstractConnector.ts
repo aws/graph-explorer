@@ -197,6 +197,10 @@ export type KeywordSearchResponse = {
 
 export type SubGraphRequest = {
   /**
+   * List of active vertices
+   */
+  vertices: Array<string>
+  /**
    * Input Date
    */
   date: string;

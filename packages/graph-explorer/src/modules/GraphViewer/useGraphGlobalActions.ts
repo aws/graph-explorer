@@ -147,6 +147,12 @@ const useGraphGlobalActions = (graphRef?: RefObject<GraphRef | null>) => {
     );
   }, [graphRef]);
 
+  const onFilterByDate = useCallback(() => {
+    graphRef?.current?.cytoscape?.filter(
+      graphRef?.current?.cytoscape?.filter()
+    );
+  },[])
+
   return {
     onFitToCanvas,
     onFitSelectionToCanvas,

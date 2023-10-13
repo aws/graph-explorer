@@ -8,7 +8,7 @@ import mapApiVertex from "../mappers/mapApiVertex";
 import type { GVertexList, GEdgeList } from "../types";
 import { GInt64, GremlinFetch } from "../types";
 
-type RawSubGraphResponse = {
+type RawSubGraphRequest = {
     requestId: string;
     status: {
         message: string;
@@ -36,15 +36,13 @@ const subgraphResult = async (
     const directions = subgraphTemplate({...req, date})
     console.log(directions)
     let [createRes] = await Promise.all([
-        gremlinFetch<RawSubGraphResponse>(directions[0]),
+        gremlinFetch<RawSubGraphRequest>(directions[0])
         //gremlinFetch<RawSubGraphResponse>(directions[1]),
-        //gremlinFetch<RawSubGraphResponse>(directions[2])
     ]);
     console.log(createRes);
-    //console.log(subRes);
-    //console.log(testRes);
 
-    const data = createRes;//testRes;
+
+    const data = createRes;
 
     console.log(`Data: ${data}`)
 

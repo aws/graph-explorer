@@ -53,7 +53,7 @@ import useGraphViewerInit from "./useGraphViewerInit";
 import useNodeBadges from "./useNodeBadges";
 import useNodeDrop from "./useNodeDrop";
 import mapDateStr from "../../connector/gremlin/mappers/mapDateStr";
-import { useSubGraph } from "../../hooks";
+import { useSubgraph } from "../../hooks";
 
 export type GraphViewerProps = Omit<
   ModuleContainerHeaderProps,
@@ -149,7 +149,9 @@ const GraphViewer = ({
   useGraphViewerInit();
   const graphRef = useRef<GraphRef | null>(null);
   // ADD THING HERE TO APPLY THE OVERDATE
-  // const dateFixer = idfk
+  // apply a filter on the canvas .... ughhhhhhh.....
+  // ok its going to be just really long and annoying query whatever
+  const createSubGraph = useSubgraph();
   const [entities] = useEntities();
   const { dropAreaRef, isOver, canDrop } = useNodeDrop();
 
@@ -204,9 +206,7 @@ const GraphViewer = ({
 
   const { enqueueNotification } = useNotification();
   const expandNode = useExpandNode();
-  const subGraph = useSubGraph();
   const expandEdge = useExpandEdge();
-  const [isExpanding, setIsExpanding] = useState(false);
   const [expandVertexName, setExpandVertexName] = useState<string | null>(null);
   const getDisplayNames = useDisplayNames();
   const onNodeDoubleClick: ElementEventCallback<Vertex["data"]> = useCallback(
@@ -242,12 +242,6 @@ const GraphViewer = ({
   );
 
   const now = new Date();
-  const onDateClick = useCallback(async () => {
-    setIsExpanding(true);
-    console.log(mapDateStr(overDate));
-    await subGraph({date:overDate})
-    setIsExpanding(false);
-  }, [subGraph]); //TS is T(ra)S(h)
   const [layout, setLayout] = useState("F_COSE");
   const [overDate, setOverDate] = useState(now.toLocaleDateString())
   const [, setEntities] = useEntities();
@@ -258,7 +252,6 @@ const GraphViewer = ({
       forceSet: true,
     });
   }, [setEntities]);
-
 
   const onHeaderActionClick = useCallback(
     action => {
@@ -327,8 +320,10 @@ const GraphViewer = ({
                 tooltipPlacement={"bottom-center"}
                 icon={<DateLock />}
                 variant={"text"}
-                onPress={onDateClick}
-                  //console.log(subgraphTemplate({date:mapDateStr(overDate)}))}
+                onPress={() => createSubGraph({
+                  date:overDate,
+                  vertices:[]
+                })}
               />
 
             </div>

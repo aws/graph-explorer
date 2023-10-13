@@ -11,18 +11,17 @@ const subgraphTemplate = ({date = "string"}): Array<string> => {
      * 
      * ...uhh just setup with nonsense for deets later
      * */
-    let createSubGraph = `subGraph = g.V().and(`;
+    let createSubGraph = `g.V("O-00000000","O-00000002","O-00000012")`;
     //createSubGraph += `has("Drug_Record_Active_Date__c", lte("${mapDateStr(date)}")),`;
     //createSubGraph += `has("Drug_Record_Expiration_Date__c", gte("${mapDateStr(date)}"))`;
-    createSubGraph += `has("Drug_Record_Active_Date__c", lte("2023-09-10")),`;
-    createSubGraph += `has("Drug_Record_Expiration_Date__c", gte("2023-09-10"))`;
-    createSubGraph += ")";
+    createSubGraph += `.or(`;
+    createSubGraph += `has("Offer_Record_Active_Date__c", lte(${date}))`;
+    createSubGraph += `, has("Offer_Record_Expiration_Date__c", gte(${date}))`;
+    createSubGraph +=  `)`
+    //createSubGraph += ".dedup().bothV().fold()";
+    console.log(createSubGraph)
 
-    const subTrav = "sg = traversal().withEmbedded(subGraph)"
-
-    const testTrav = "sg.V().limit(1)"
-
-    return [`drugs = traversal().withEmbedded(g.V().hasLabel("Drug").subgraph("sg"))`, subTrav, testTrav];
+    return [createSubGraph];
 };
 
 export default subgraphTemplate
