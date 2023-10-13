@@ -4,6 +4,9 @@
 
 The next release will include the following feature enhancements and bug fixes:
 
+**Features**
+- Added new Fetch Timeout option to the Connections UI (https://github.com/aws/graph-explorer/pull/199)
+
 **Bug fixes**
 - Fixed highlight not persisting on selected graph element (https://github.com/aws/graph-explorer/pull/187)
 - Bumped @types/semver to 7.5.2 in lockfile

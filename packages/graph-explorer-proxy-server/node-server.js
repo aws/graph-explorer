@@ -4,11 +4,10 @@ const dotenv = require("dotenv");
 const fetch = (...args) =>
   import("node-fetch").then(({ default: fetch }) => fetch(...args));
 const app = express();
-const { RequestSig } = require("./RequestSig.js");
 const https = require("https");
 const fs = require("fs");
 const path = require("path");
-const pino = require('pino');
+const pino = require("pino");
 const { fromNodeProviderChain } = require("@aws-sdk/credential-providers");
 const aws4 = require("aws4");
 
@@ -17,16 +16,16 @@ dotenv.config({ path: "../graph-explorer/.env" });
 const proxyLogger = pino({
   level: process.env.LOG_LEVEL,
   transport: {
-    target: 'pino-pretty',
+    target: "pino-pretty",
     options: {
       colorize: true,
       translateTime: true,
-    }
-  }
+    },
+  },
 });
 
 async function getIAMHeaders(options) {
-  proxyLogger.debug("IAM on")
+  proxyLogger.debug("IAM on");
   const credentialProvider = fromNodeProviderChain();
   let creds = await credentialProvider();
   if (creds === undefined) {
@@ -55,56 +54,64 @@ const errorHandler = (error, request, response, next) => {
   response.status(error.status || 500).send({
     error: {
       status: error.status || 500,
-      message: error.message || 'Internal Server Error',
+      message: error.message || "Internal Server Error",
     },
   });
-}
+};
 
 (async () => {
   app.use(cors());
-  app.use("/defaultConnection", express.static(path.join(__dirname, "../graph-explorer/defaultConnection.json")));
+  app.use(
+    "/defaultConnection",
+    express.static(
+      path.join(__dirname, "../graph-explorer/defaultConnection.json")
+    )
+  );
   if (process.env.NEPTUNE_NOTEBOOK !== "false") {
-    app.use("/explorer", express.static(path.join(__dirname, "../graph-explorer/dist")));
+    app.use(
+      "/explorer",
+      express.static(path.join(__dirname, "../graph-explorer/dist"))
+    );
   } else {
     app.use(
-        process.env.GRAPH_EXP_ENV_ROOT_FOLDER,
-        express.static(path.join(__dirname, "../graph-explorer/dist"))
+      process.env.GRAPH_EXP_ENV_ROOT_FOLDER,
+      express.static(path.join(__dirname, "../graph-explorer/dist"))
     );
   }
 
-  const delay = (ms) =>
-    new Promise((resolve) => setTimeout(() => resolve(), ms));
-
-  const retryFetch = async (url, headers, retries = 1, retryDelay = 10000) => {
+  const retryFetch = async (url, headers, retryDelay = 10000, refetchMaxRetries = 1) => {
     // remove the existing host headers, we want ensure that we are passing the DB endpoint hostname.
     delete headers["host"];
     if (headers["aws-neptune-region"]) {
       data = await getIAMHeaders({
         host: url.hostname,
         port: url.port,
-        path: url.pathname+url.search,
+        path: url.pathname + url.search,
         service: "neptune-db",
-        region: headers["aws-neptune-region"]
+        region: headers["aws-neptune-region"],
       });
       headers = { ...headers, ...data };
-    } 
-    for (let i = 0; i < retries; i++) {
+    }
+    for (let i = 0; i < refetchMaxRetries; i++) {
       try {
-        const res = await fetch(url.href, { headers: headers });
+        proxyLogger.debug("Fetching: " + url.href);
+        const res = await fetch(url.href, {headers});
         if (!res.ok) {
           const result = await res.json();
           proxyLogger.error("!!Request failure!!");
-          proxyLogger.error("URL: "+url.href);
-          throw new Error("\n"+JSON.stringify(result, null, 2));
+          proxyLogger.error("URL: " + url.href);
+          throw new Error("\n" + JSON.stringify(result, null, 2));
         } else {
-          proxyLogger.debug("Successful response: "+res.statusText);
+          proxyLogger.debug("Successful response: " + res.statusText);
           return res;
         }
       } catch (err) {
-        if (i === retries - 1) {
+        if (i === refetchMaxRetries - 1) {
+          proxyLogger.error("!!Proxy Retry Fetch Reached Maximum Tries!!");
           throw err;
         } else {
-          await new Promise(resolve => setTimeout(resolve, retryDelay));
+          proxyLogger.debug("Proxy Retry Fetch Count::: " + i);
+          await new Promise((resolve) => setTimeout(resolve, retryDelay));
         }
       }
     }
@@ -148,8 +155,8 @@ const errorHandler = (error, request, response, next) => {
       const response = await retryFetch(
         new URL(
           `${req.headers["graph-db-connection-url"]}/openCypher?query=` +
-          encodeURIComponent(req.query.query)
-        ), 
+            encodeURIComponent(req.query.query)
+        ),
         req.headers
       );
       const data = await response.json();
@@ -179,8 +186,8 @@ const errorHandler = (error, request, response, next) => {
       const response = await retryFetch(
         new URL(
           `${req.headers["graph-db-connection-url"]}/rdf/statistics/summary`
-          ), 
-          req.headers
+        ),
+        req.headers
       );
       const data = await response.json();
       res.send(data);
@@ -189,49 +196,51 @@ const errorHandler = (error, request, response, next) => {
     }
   });
 
-  app.get('/logger', (req, res) => {
-    let message;
-    let level;
+ app.get("/logger", (req, res, next) => {
+  let message;
+  let level;
 
-    try {
-      if (req.headers["level"] === undefined) {
-        throw new Error("No log level passed.");
-      } else {
-        level = req.headers["level"];
-      }
-  
-      if (req.headers["message"] === undefined) {
-        throw new Error("No log message passed.");
-      } else {
-        message = req.headers["message"].replaceAll("\\", "");
-      }
-  
-      if (level.toLowerCase() === "error") {
-        proxyLogger.error(message);
-      } else if (level.toLowerCase() === "warn") {
-        proxyLogger.warn(message);
-      } else if (level.toLowerCase() === "info") {
-        proxyLogger.info(message);
-      } else if (level.toLowerCase() === "debug") {
-        proxyLogger.debug(message);
-      } else if (level.toLowerCase() === "trace") {
-        proxyLogger.trace(message);
-      } else {
-        throw new Error("Tried to log to an unknown level.");
-      }
-
-      res.send("Log received.");
-    } catch (error) {
-      next(error);
+  try {
+    if (req.headers["level"] === undefined) {
+      throw new Error("No log level passed.");
+    } else {
+      level = req.headers["level"];
     }
-  });
+
+    if (req.headers["message"] === undefined) {
+      throw new Error("No log message passed.");
+    } else {
+      message = req.headers["message"].replaceAll("\\", "");
+    }
+
+    if (level.toLowerCase() === "error") {
+      proxyLogger.error(message);
+    } else if (level.toLowerCase() === "warn") {
+      proxyLogger.warn(message);
+    } else if (level.toLowerCase() === "info") {
+      proxyLogger.info(message);
+    } else if (level.toLowerCase() === "debug") {
+      proxyLogger.debug(message);
+    } else if (level.toLowerCase() === "trace") {
+      proxyLogger.trace(message);
+    } else {
+      throw new Error("Tried to log to an unknown level.");
+    }
+
+    res.send("Log received.");
+  } catch (error) {
+    next(error);
+  }
+});
 
   app.use(errorHandler);
 
   // Start the server on port 80 or 443 (if HTTPS is enabled)
-  if (process.env.NEPTUNE_NOTEBOOK === "true"){
+  if (process.env.NEPTUNE_NOTEBOOK === "true") {
     app.listen(9250, async () => {
-      console.log(`\tProxy available at port 9250 for Neptune Notebook instance`);
+      console.log(
+        `\tProxy available at port 9250 for Neptune Notebook instance`
+      );
     });
   } else if (
     process.env.PROXY_SERVER_HTTPS_CONNECTION !== "false" &&

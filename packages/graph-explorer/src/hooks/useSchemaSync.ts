@@ -16,7 +16,7 @@ const useSchemaSync = (onSyncChange?: (isSyncing: boolean) => void) => {
 
   const updateSchemaState = useUpdateSchema();
   return useCallback(
-    async (abortSignal?: AbortSignal) => {
+    async () => {
       if (!config || !connector.explorer) {
         return;
       }
@@ -29,29 +29,24 @@ const useSchemaSync = (onSyncChange?: (isSyncing: boolean) => void) => {
           message: "Updating the Database schema",
           type: "info",
         });
-        schema = await connector.explorer.fetchSchema({
-          abortSignal,
-        });
-      } catch (e) {
-        if (import.meta.env.DEV) {
-          console.error(e);
-        }
 
+        schema = await connector.explorer.fetchSchema();
+      } catch (e) {
         if (e.name !== "AbortError") {
           notificationId.current && clearNotification(notificationId.current);
           enqueueNotification({
             title: config.displayLabel || config.id,
-            message: "Unable to connect with the Database",
+            message: `Fetch aborted, reached max time out ${config.connection?.fetchTimeoutMs} MS`,
             type: "error",
             stackable: true,
           });
           connector.logger?.error(
-            `[${
-              config.displayLabel || config.id
-            }] Unable to connect with the Database: ${JSON.stringify(
-              config.connection
-            )}`
+            `[${config.displayLabel || config.id
+            }] Fetch aborted, reached max time out ${config.connection?.fetchTimeoutMs} MS `
           );
+        }
+        if (import.meta.env.DEV) {
+          console.error(e);
         }
 
         updateSchemaState(config.id);
@@ -68,8 +63,7 @@ const useSchemaSync = (onSyncChange?: (isSyncing: boolean) => void) => {
           stackable: true,
         });
         connector.logger?.info(
-          `[${
-            config.displayLabel || config.id
+          `[${config.displayLabel || config.id
           }] This connection has no data available: ${JSON.stringify(
             config.connection
           )}`
@@ -87,8 +81,7 @@ const useSchemaSync = (onSyncChange?: (isSyncing: boolean) => void) => {
         stackable: true,
       });
       connector.logger?.info(
-        `[${
-          config.displayLabel || config.id
+        `[${config.displayLabel || config.id
         }] Connection successfully synchronized: ${JSON.stringify(
           config.connection
         )}`

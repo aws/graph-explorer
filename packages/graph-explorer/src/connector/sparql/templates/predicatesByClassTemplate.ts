@@ -1,10 +1,17 @@
 // Return all predicates which are connected from the given class
 const predicatesByClassTemplate = (props: { class: string }) => {
   return `
-    SELECT DISTINCT ?pred (SAMPLE(?object) as ?sample) {
-        ?subject a     <${props.class}>;
-                 ?pred ?object.
-        FILTER(!isBlank(?object) && isLiteral(?object))
+    SELECT ?pred (SAMPLE(?object) as ?sample)
+    WHERE {
+      {
+        SELECT ?subject
+        WHERE {
+          ?subject a <${props.class}>.
+        }
+        LIMIT 1
+      }
+      ?subject ?pred ?object.
+      FILTER(!isBlank(?object) && isLiteral(?object))
     }
     GROUP BY ?pred
   `;

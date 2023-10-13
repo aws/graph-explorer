@@ -7,41 +7,42 @@ import verticesSchemaTemplate from "../templates/verticesSchemaTemplate";
 import type { OCEdge, OCVertex } from "../types";
 import { GraphSummary, OpenCypherFetch } from "../types";
 
+// Response types for raw data returned by OpenCypher queries
 type RawVertexLabelsResponse = {
-    results: [
-        {
-            label: Array<string>;
-            count: number;
-        }
-    ];
+  results: [
+    {
+      label: Array<string>;
+      count: number;
+    }
+  ];
 }
 
 type RawEdgeLabelsResponse = {
-    results: [
-        {
-            label: Array<string>;
-            count: number;
-        }
-    ];
+  results: [
+    {
+      label: Array<string>;
+      count: number;
+    }
+  ];
 };
 
-
 type RawVerticesSchemaResponse = {
-    results: [
-        {
-            object: OCVertex;
-        }
-    ];
+  results: [
+    {
+      object: OCVertex;
+    }
+  ];
 };
 
 type RawEdgesSchemaResponse = {
-    results: [
-        {
-            object: OCEdge;
-        }
-    ];
+  results: [
+    {
+      object: OCEdge;
+    }
+  ];
 };
 
+// Fetches all vertex labels and their counts
 const fetchVertexLabels = async (
   openCypherFetch: OpenCypherFetch
 ): Promise<Record<string, number>> => {
@@ -57,6 +58,7 @@ const fetchVertexLabels = async (
   return labelsWithCounts;
 };
 
+// Fetches attributes for all vertices with the given labels
 const fetchVerticesAttributes = async (
   openCypherFetch: OpenCypherFetch,
   labels: Array<string>,
@@ -70,36 +72,37 @@ const fetchVerticesAttributes = async (
 
   await Promise.all(
     labels.map(async labelResult => {
-        const verticesTemplate = verticesSchemaTemplate({
-            type: labelResult,
-        });
+      const verticesTemplate = verticesSchemaTemplate({
+        type: labelResult,
+      });
 
-        const response = await openCypherFetch<RawVerticesSchemaResponse>(verticesTemplate);
+      const response = await openCypherFetch<RawVerticesSchemaResponse>(verticesTemplate);
 
-        const vertex = response.results[0].object as OCVertex;
-        const label = vertex["~labels"][0] as string;
-        const properties = vertex["~properties"];
-        vertices.push({
-            type: label,
-            displayLabel: sanitizeText(label),
-            total: countsByLabel[label],
-            attributes: Object.entries(properties || {}).map(([name, prop]) => {
-                const value = prop;
-                return {
-                name,
-                displayLabel: sanitizeText(name),
-                dataType:
-                    typeof value === "string"
-                    ? "String" : "Number",
-                };
-            }),
-        });
+      const vertex = response.results[0]?.object as OCVertex;
+      const label = vertex["~labels"][0] as string;
+      const properties = vertex["~properties"];
+      vertices.push({
+        type: label,
+        displayLabel: sanitizeText(label),
+        total: countsByLabel[label],
+        attributes: Object.entries(properties || {}).map(([name, prop]) => {
+          const value = prop;
+          return {
+            name,
+            displayLabel: sanitizeText(name),
+            dataType:
+              typeof value === "string"
+                ? "String" : "Number",
+          };
+        }),
+      });
     })
   );
 
   return vertices;
 };
 
+// Fetches schema for all vertices
 const fetchVerticesSchema = async (
   openCypherFetch: OpenCypherFetch
 ): Promise<SchemaResponse["vertices"]> => {
@@ -109,6 +112,7 @@ const fetchVerticesSchema = async (
   return fetchVerticesAttributes(openCypherFetch, labels, countsByLabel);
 };
 
+// Fetches all edge labels and their counts
 const fetchEdgeLabels = async (
   openCypherFetch: OpenCypherFetch
 ): Promise<Record<string, number>> => {
@@ -124,45 +128,47 @@ const fetchEdgeLabels = async (
   return labelsWithCounts;
 };
 
+// Fetches attributes for all edges with the given labels
 const fetchEdgesAttributes = async (
   openCypherFetch: OpenCypherFetch,
   labels: Array<string>,
   countsByLabel: Record<string, number>
 ): Promise<SchemaResponse["edges"]> => {
-    const edges: SchemaResponse["edges"] = [];
+  const edges: SchemaResponse["edges"] = [];
 
-    if (labels.length === 0) {
-        return edges;
-    }
-
-    await Promise.all(labels.map(async labelResult => {
-        const edgesTemplate = edgesSchemaTemplate({
-            type: labelResult
-        });
-
-        const response = await openCypherFetch<RawEdgesSchemaResponse>(edgesTemplate);
-
-        const edge = response.results[0].object as OCEdge;
-        const label = edge["~entityType"] as string;
-        const properties = edge["~properties"];
-        edges.push({
-            type: label,
-            displayLabel: sanitizeText(label),
-            total: countsByLabel[label],
-            attributes: Object.entries(properties || {}).map(([name, prop]) => {
-                const value = prop;
-                return {
-                name,
-                displayLabel: sanitizeText(name),
-                dataType: typeof value === "string" ? "String" : "Number",
-                };
-            }),
-        });
-    }));
-
+  if (labels.length === 0) {
     return edges;
+  }
+
+  await Promise.all(labels.map(async labelResult => {
+    const edgesTemplate = edgesSchemaTemplate({
+      type: labelResult
+    });
+
+    const response = await openCypherFetch<RawEdgesSchemaResponse>(edgesTemplate);
+
+    const edge = response.results[0].object as OCEdge;
+    const label = edge["~entityType"] as string;
+    const properties = edge["~properties"];
+    edges.push({
+      type: label,
+      displayLabel: sanitizeText(label),
+      total: countsByLabel[label],
+      attributes: Object.entries(properties || {}).map(([name, prop]) => {
+        const value = prop;
+        return {
+          name,
+          displayLabel: sanitizeText(name),
+          dataType: typeof value === "string" ? "String" : "Number",
+        };
+      }),
+    });
+  }));
+
+  return edges;
 };
 
+// Fetches schema for all edges
 const fetchEdgesSchema = async (
   openCypherFetch: OpenCypherFetch
 ): Promise<SchemaResponse["edges"]> => {
@@ -173,15 +179,19 @@ const fetchEdgesSchema = async (
 };
 
 /**
- * Fetch the database shape.
+ * Fetches the database schema.
  * It follows this process:
- * 1. Fetch all nodes labels and their counts
- * 2. Fetch one sample of each node type to extract all properties
- * 3. Fetch all edges labels and their counts
- * 4. Fetch one sample of each edge type to extract all properties
+ * 1. Fetch all node labels and their counts
+ * 2. Fetch one node of each node type to extract all properties
+ * 3. Fetch all edge labels and their counts
+ * 4. Fetch one edge of each edge type to extract all properties
  *
  * This is an optimistic schema because it does not guarantee that all
  * nodes/edges with the same label contains an exact set of attributes.
+ *
+ * @param openCypherFetch - Function to fetch data from the database
+ * @param summary - Optional summary of the graph to fetch schema for
+ * @returns The schema of the database
  */
 const fetchSchema = async (
   openCypherFetch: OpenCypherFetch,

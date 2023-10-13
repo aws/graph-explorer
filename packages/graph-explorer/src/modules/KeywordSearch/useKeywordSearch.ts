@@ -166,8 +166,6 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
       if (!isOpen || !config) {
         return;
       }
-
-      const controller = new AbortController();
       const promise = connector.explorer?.keywordSearch(
         {
           searchTerm: debouncedSearchTerm,
@@ -176,12 +174,7 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
           searchById: true,
           exactMatch: exactMatch,
         },
-        { abortSignal: controller.signal }
       ) as PromiseWithCancel<KeywordSearchResponse>;
-
-      promise.cancel = () => {
-        controller.abort();
-      };
 
       return promise;
     },
