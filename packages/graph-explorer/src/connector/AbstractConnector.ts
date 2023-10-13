@@ -199,7 +199,7 @@ export type SubGraphRequest = {
   /**
    * List of active vertices
    */
-  vertices: Array<string>
+  //vertices: Array<Vertex>
   /**
    * Input Date
    */
@@ -211,6 +211,10 @@ export type SubGraphResponse = {
    * List of vertices.
    */
   vertices: Array<Vertex>;
+  /**
+   * List of edges.
+   */
+  edges: Array<Edge>;
 };
 
 export type ErrorResponse = {

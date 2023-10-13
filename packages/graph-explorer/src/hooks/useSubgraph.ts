@@ -21,6 +21,18 @@ const useSubGraph = () => {
             return;
         }
 
+        setEntities({
+          nodes: result.vertices,
+          edges: result.edges,
+          selectNewEntities: "nodes",
+        });
+
+        const notificationId = enqueueNotification({
+          title: "Filtering by Date",
+          message: `Looking for everything filtered on ${req.date}`,
+          autoHideDuration: null,
+        });
+
     },[connector.explorer]
   );
 };

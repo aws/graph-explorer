@@ -252,6 +252,17 @@ const GraphViewer = ({
       forceSet: true,
     });
   }, [setEntities]);
+  const onFilterByDate = useCallback(async () =>{
+    const currentCanvas = [entities.nodes, entities.edges]
+    /*setEntities({
+      nodes: [],
+      edges: [],
+      forceSet: true,
+    });*/
+    await createSubGraph({
+      date:overDate
+    });
+  },[createSubGraph])
 
   const onHeaderActionClick = useCallback(
     action => {
@@ -320,10 +331,7 @@ const GraphViewer = ({
                 tooltipPlacement={"bottom-center"}
                 icon={<DateLock />}
                 variant={"text"}
-                onPress={() => createSubGraph({
-                  date:overDate,
-                  vertices:[]
-                })}
+                onPress={onFilterByDate}
               />
 
             </div>
