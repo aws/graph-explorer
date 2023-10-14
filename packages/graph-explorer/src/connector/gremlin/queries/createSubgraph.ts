@@ -8,6 +8,7 @@ import mapApiVertex from "../mappers/mapApiVertex";
 import mapApiEdge from "../mappers/mapApiEdge";
 import type { GVertexList, GEdgeList } from "../types";
 import { GInt64, GremlinFetch } from "../types";
+import { Edge, Vertex } from "../../../@types/entities";
 
 type RawSubGraphRequest = {
   requestId: string;
@@ -33,8 +34,11 @@ const subgraphResult = async (
     req: SubGraphRequest,
     rawIds: Map<string, "string" | "number">
 ): Promise<any> => {
-    const date  = req.date ?? Date.now().toLocaleString();
-    const canvas = req.canvas;
+    if(!req.canvas){
+      const vertices : Array<Vertex> = []; 
+      const edges : Array<Edge> = [];
+      return {vertices, edges}
+    }
     const directions = subgraphTemplate({...req})
     let [vData] = await Promise.all([
         gremlinFetch<RawSubGraphRequest>(directions)

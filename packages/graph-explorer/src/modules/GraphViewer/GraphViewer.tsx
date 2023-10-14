@@ -1,7 +1,7 @@
 import { cx } from "@emotion/css";
 import { MouseEvent, useCallback, useRef, useState } from "react";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import { Vertex } from "../../@types/entities";
+import { Edge, Vertex } from "../../@types/entities";
 import type { ModuleContainerHeaderProps } from "../../components";
 import {
   LoadingSpinner,
@@ -253,7 +253,9 @@ const GraphViewer = ({
     });
   }, [setEntities]);
   const onFilterByDate = useCallback(async () =>{
-    const currentCanvas = [entities.nodes, entities.edges]
+    const currentCanvas: [Array<Vertex>, Array<Edge>] = [entities.nodes, entities.edges]
+    console.log("canvas:")
+    console.log(currentCanvas[0])
     await createSubGraph({
       date:overDate,
       canvas:currentCanvas

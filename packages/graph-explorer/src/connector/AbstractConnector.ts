@@ -197,9 +197,11 @@ export type KeywordSearchResponse = {
 
 export type SubGraphRequest = {
   /**
-   * List of active vertices
+   * List of items on the canvas
    */
-  canvas: Array<any>
+  canvas: [Array<Vertex>,Array<Edge>]
+
+  canvas2?: [Array<string>, Array<string>]
   /**
    * Input Date
    */

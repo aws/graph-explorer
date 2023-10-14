@@ -3,9 +3,12 @@
  */
 import mapDateStr from "../mappers/mapDateStr";
 // nodes = Set
-const subgraphTemplate = ({date = "string", canvas = Array<any>}): string => {
+const subgraphTemplate = ({
+    date = "string", 
+    canvas = []
+}): string => {
     // Create the subgraph based on the date filter 
-    
+    console.log(canvas)
     /**
      *  This is is going to do a filter for EVERY edge/node for Record_Active_Date-ish?? need to ask jeff
      * 
