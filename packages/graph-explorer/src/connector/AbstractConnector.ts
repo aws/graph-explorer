@@ -197,11 +197,15 @@ export type KeywordSearchResponse = {
 
 export type SubGraphRequest = {
   /**
-   * List of items on the canvas
+   * List of vertices on the canvas
    */
-  canvas: [Array<Vertex>,Array<Edge>]
+  canV : Array<Vertex>
 
-  canvas2?: [Array<string>, Array<string>]
+  /**
+   * List of edges on the canvas 
+   */
+  canE : Array<Edge>
+
   /**
    * Input Date
    */

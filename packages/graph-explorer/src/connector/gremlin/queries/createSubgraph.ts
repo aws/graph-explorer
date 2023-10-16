@@ -33,12 +33,13 @@ const subgraphResult = async (
     gremlinFetch: GremlinFetch,
     req: SubGraphRequest,
     rawIds: Map<string, "string" | "number">
-): Promise<any> => {
-    if(!req.canvas){
+): Promise<SubGraphResponse> => {
+    if(!req.canV || !req.canE){
       const vertices : Array<Vertex> = []; 
       const edges : Array<Edge> = [];
       return {vertices, edges}
     }
+    
     const directions = subgraphTemplate({...req})
     let [vData] = await Promise.all([
         gremlinFetch<RawSubGraphRequest>(directions)
