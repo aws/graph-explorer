@@ -4,6 +4,7 @@
 import { forEach } from "lodash";
 import { SubGraphRequest } from "../../AbstractConnector";
 import mapDateStr from "../mappers/mapDateStr";
+import { m } from "framer-motion";
 // nodes = Set
 const subgraphTemplate = ({
     date = "string", 
@@ -11,7 +12,7 @@ const subgraphTemplate = ({
     canE,
 }: SubGraphRequest): string => {
     // Create the subgraph based on the date filter 
-    let vString = `( `;
+    let vString = `(`;
     canV.forEach(function (node){
         vString += `"${node.data.id}",`
     })
@@ -27,19 +28,54 @@ const subgraphTemplate = ({
     //createSubGraph += `has("Drug_Record_Active_Date__c", lte("${mapDateStr(date)}")),`;
     //createSubGraph += `has("Drug_Record_Expiration_Date__c", gte("${mapDateStr(date)}"))`;
 
-    //ADZENYS XR-ODT TAB RAP BP 15.7 MG
+    let offerFilter  = `and(`;
+    offerFilter += `has("Offer_Record_Active_Date__c", lte("${mapDateStr(date)}"))`;
+    offerFilter += `, has("Offer_Record_Expiration_Date__c", gte("${mapDateStr(date)}"))`;
+    offerFilter +=  `),`
 
-    let subFilters = `and(`;
-    subFilters += `has("Offer_Record_Active_Date__c", lte("${mapDateStr(date)}"))`;
-    subFilters += `, has("Offer_Record_Expiration_Date__c", gte("${mapDateStr(date)}"))`;
-    subFilters +=  `),`
+    let drugFilter = `and(`;
+    drugFilter += `has("Drug_Record_Active_Date__c", lte("${mapDateStr(date)}"))`;
+    drugFilter += `, has("Drug_Record_Expiration_Date__c", gte("${mapDateStr(date)}"))`;
+    drugFilter +=  `),`
 
-    subFilters += `and(`
-    subFilters += `has("Drug_Record_Active_Date__c", lte("${mapDateStr(date)}"))`;
-    subFilters += `, has("Drug_Record_Expiration_Date__c", gte("${mapDateStr(date)}"))`;
-    subFilters +=  `)`
+    let pcrFilter = `and(`;
+    pcrFilter += `has("Pharmacy_Contract_Rate_Record_Active_D__c", lte("${mapDateStr(date)}"))`;
+    pcrFilter += `, has("Pharmacy_Contract_Rate_Record_Expirati__c", gte("${mapDateStr(date)}"))`;
+    pcrFilter +=  `),`
 
-    createSubGraph += `.or(${subFilters})`
+    let bnrFilter = `and(`;
+    bnrFilter += `has("Benefit_Net_Rate_Record_Active_Date__c", lte("${mapDateStr(date)}"))`;
+    bnrFilter += `, has("Benefit_Net_Rate_Record_Expiration_Dat__c", gte("${mapDateStr(date)}"))`;
+    bnrFilter +=  `),`
+
+    let contFilter = `and(`;
+    contFilter += `has("Contract_Record_Active_Date__c", lte("${mapDateStr(date)}"))`;
+    contFilter += `, has("Contract_Record_Expiration_Date__c", gte("${mapDateStr(date)}"))`;
+    contFilter +=  `),`
+
+    let campFilter = `and(`;
+    campFilter += `has("Campaign_Record_Active_Date__c", lte("${mapDateStr(date)}"))`;
+    campFilter += `, has("Campaign_Record_Expiration_Date__c", gte("${mapDateStr(date)}"))`;
+    campFilter +=  `),`
+
+    let ggFilter = `and(`;
+    campFilter += `has("Campaign_Record_Active_Date__c", lte("${mapDateStr(date)}"))`;
+    campFilter += `, has("Campaign_Record_Expiration_Date__c", gte("${mapDateStr(date)}"))`;
+    campFilter +=  `),`
+
+    let pharmacy = `hasLabel("pharmacy")`
+
+    let filters: string = [
+        bnrFilter,
+        campFilter,
+        contFilter,
+        drugFilter,
+        offerFilter, 
+        pcrFilter,
+        pharmacy
+    ].join(",")
+
+    createSubGraph += `.or(${filters})`
     //createSubGraph += ".dedup().bothV().fold()";
     console.log(createSubGraph)
 

@@ -40,6 +40,7 @@ const useSubGraph = () => {
           message: `Looking for everything filtered on ${req.date}`,
           autoHideDuration: null,
         });
+        clearNotification(notificationId);
 
         
 
