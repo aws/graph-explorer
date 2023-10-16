@@ -31,37 +31,32 @@ const subgraphTemplate = ({
     let offerFilter  = `and(`;
     offerFilter += `has("Offer_Record_Active_Date__c", lte("${mapDateStr(date)}"))`;
     offerFilter += `, has("Offer_Record_Expiration_Date__c", gte("${mapDateStr(date)}"))`;
-    offerFilter +=  `),`
+    offerFilter +=  `)`
 
     let drugFilter = `and(`;
     drugFilter += `has("Drug_Record_Active_Date__c", lte("${mapDateStr(date)}"))`;
     drugFilter += `, has("Drug_Record_Expiration_Date__c", gte("${mapDateStr(date)}"))`;
-    drugFilter +=  `),`
+    drugFilter +=  `)`
 
     let pcrFilter = `and(`;
     pcrFilter += `has("Pharmacy_Contract_Rate_Record_Active_D__c", lte("${mapDateStr(date)}"))`;
     pcrFilter += `, has("Pharmacy_Contract_Rate_Record_Expirati__c", gte("${mapDateStr(date)}"))`;
-    pcrFilter +=  `),`
+    pcrFilter +=  `)`
 
     let bnrFilter = `and(`;
     bnrFilter += `has("Benefit_Net_Rate_Record_Active_Date__c", lte("${mapDateStr(date)}"))`;
     bnrFilter += `, has("Benefit_Net_Rate_Record_Expiration_Dat__c", gte("${mapDateStr(date)}"))`;
-    bnrFilter +=  `),`
+    bnrFilter +=  `)`
 
     let contFilter = `and(`;
     contFilter += `has("Contract_Record_Active_Date__c", lte("${mapDateStr(date)}"))`;
     contFilter += `, has("Contract_Record_Expiration_Date__c", gte("${mapDateStr(date)}"))`;
-    contFilter +=  `),`
+    contFilter +=  `)`
 
     let campFilter = `and(`;
     campFilter += `has("Campaign_Record_Active_Date__c", lte("${mapDateStr(date)}"))`;
     campFilter += `, has("Campaign_Record_Expiration_Date__c", gte("${mapDateStr(date)}"))`;
-    campFilter +=  `),`
-
-    let ggFilter = `and(`;
-    campFilter += `has("Campaign_Record_Active_Date__c", lte("${mapDateStr(date)}"))`;
-    campFilter += `, has("Campaign_Record_Expiration_Date__c", gte("${mapDateStr(date)}"))`;
-    campFilter +=  `),`
+    campFilter +=  `)`
 
     let pharmacy = `hasLabel("pharmacy")`
 
