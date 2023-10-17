@@ -50,7 +50,6 @@ type RawOneHopRequest = {
       vData.result.data["@value"]?.[0]?.["@value"][1]["@value"];
     const edgesResponse = 
       eData.result.data["@value"]?.[0]?.["@value"][1]["@value"];
-    // So it works with a promise... ok 
     const verticesIds = verticesResponse?.map(v => toStringId(v["@value"].id));
     //const edgeIds = edgesResponse?.map(e => toStringId(e["@value"].id));
     const vertices: NeighborsResponse["vertices"] = verticesResponse?.map(

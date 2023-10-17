@@ -1,7 +1,7 @@
 import { cx } from "@emotion/css";
 import { MouseEvent, useCallback, useRef, useState } from "react";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import { Vertex } from "../../@types/entities";
+import { Edge, Vertex } from "../../@types/entities";
 import type { ModuleContainerHeaderProps } from "../../components";
 import {
   LoadingSpinner,
@@ -9,8 +9,10 @@ import {
   ModuleContainerHeader,
   RemoveFromCanvasIcon,
   ResetIcon,
+  DateLock,
   ZoomInIcon,
   ZoomOutIcon,
+  Input,
 } from "../../components";
 import Card from "../../components/Card";
 import Graph from "../../components/Graph";
@@ -50,6 +52,8 @@ import useGraphStyles from "./useGraphStyles";
 import useGraphViewerInit from "./useGraphViewerInit";
 import useNodeBadges from "./useNodeBadges";
 import useNodeDrop from "./useNodeDrop";
+import mapDateStr from "../../connector/gremlin/mappers/mapDateStr";
+import { useSubgraph } from "../../hooks";
 
 export type GraphViewerProps = Omit<
   ModuleContainerHeaderProps,
@@ -144,6 +148,10 @@ const GraphViewer = ({
 
   useGraphViewerInit();
   const graphRef = useRef<GraphRef | null>(null);
+  // ADD THING HERE TO APPLY THE OVERDATE
+  // apply a filter on the canvas .... ughhhhhhh.....
+  // ok its going to be just really long and annoying query whatever
+  const createSubGraph = useSubgraph();
   const [entities] = useEntities();
   const { dropAreaRef, isOver, canDrop } = useNodeDrop();
 
@@ -233,7 +241,9 @@ const GraphViewer = ({
     [getDisplayNames, enqueueNotification, expandNode, setUserLayout]
   );
 
+  const now = new Date();
   const [layout, setLayout] = useState("F_COSE");
+  const [overDate, setOverDate] = useState(now.toLocaleDateString())
   const [, setEntities] = useEntities();
   const onClearCanvas = useCallback(() => {
     setEntities({
@@ -242,6 +252,16 @@ const GraphViewer = ({
       forceSet: true,
     });
   }, [setEntities]);
+  const onFilterByDate = useCallback(async () =>{
+    let currentCanvas: [Array<Vertex>, Array<Edge>] = [entities.nodes ?? [], entities.edges ?? []]
+    console.log("canvas:")
+    console.log(currentCanvas[0])
+    await createSubGraph({
+      date:overDate,
+      canV: currentCanvas[0],
+      canE: currentCanvas[1],
+    });
+  },[createSubGraph])
 
   const onHeaderActionClick = useCallback(
     action => {
@@ -296,6 +316,23 @@ const GraphViewer = ({
                   graphRef.current?.runLayout();
                 }}
               />
+              <Input
+                className={pfx("full-date-filter")}
+                label={"Date Fixed to Graph"}
+                labelPlacement={"inner"}
+                value={overDate}
+                onChange={d => setOverDate(d as string)}
+                hideError={true}
+                noMargin={true}
+              />
+              <IconButton
+                tooltipText={"Set Graph Filter"}
+                tooltipPlacement={"bottom-center"}
+                icon={<DateLock />}
+                variant={"text"}
+                onPress={onFilterByDate}
+              />
+
             </div>
           }
           variant={"default"}

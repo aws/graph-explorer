@@ -10,6 +10,8 @@ import type {
   NeighborsResponse,
   QueryOptions,
   SchemaResponse,
+  SubGraphRequest,
+  SubGraphResponse,
 } from "../AbstractConnector";
 import { AbstractConnector } from "../AbstractConnector";
 import fetchNeighbors from "./queries/fetchNeighbors";
@@ -18,6 +20,7 @@ import fetchEdgeNeighbors from "./queries/fetchEdgeNeighbor";
 import fetchSchema from "./queries/fetchSchema";
 import fetchVertexTypeCounts from "./queries/fetchVertexTypeCounts";
 import keywordSearch from "./queries/keywordSearch";
+import createSubgraph from "./queries/createSubgraph";
 import { GraphSummary } from "./types";
 
 export default class GremlinConnector extends AbstractConnector {
@@ -81,6 +84,12 @@ export default class GremlinConnector extends AbstractConnector {
     options?: QueryOptions
   ): Promise<KeywordSearchResponse> {
     return keywordSearch(this._gremlinFetch(options), req, this._rawIdTypeMap);
+  }
+
+  createSubgraph(
+    req: SubGraphRequest,
+  ): Promise<SubGraphResponse> {
+    return createSubgraph(this._gremlinFetch(), req, this._rawIdTypeMap)
   }
 
   private _gremlinFetch<TResult>(options?: QueryOptions) {

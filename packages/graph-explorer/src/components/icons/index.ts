@@ -23,6 +23,7 @@ export { default as CloseIcon } from "./CloseIcon";
 export { default as CodeIcon } from "./CodeIcon";
 export { default as ConnectedIcon } from "./ConnectedIcon";
 export { default as DatabaseIcon } from "./DatabaseIcon";
+export { default as DateLock } from "./DateLock";
 export { default as DeleteIcon } from "./DeleteIcon";
 export { default as DetailsIcon } from "./DetailsIcon";
 export { default as DragIcon } from "./DragIcon";

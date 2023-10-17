@@ -195,6 +195,34 @@ export type KeywordSearchResponse = {
   vertices: Array<Vertex>;
 };
 
+export type SubGraphRequest = {
+  /**
+   * List of vertices on the canvas
+   */
+  canV : Array<Vertex>
+
+  /**
+   * List of edges on the canvas 
+   */
+  canE : Array<Edge>
+
+  /**
+   * Input Date
+   */
+  date: string;
+};
+
+export type SubGraphResponse = {
+  /**
+   * List of vertices.
+   */
+  vertices: Array<Vertex>;
+  /**
+   * List of edges.
+   */
+  edges: Array<Edge>;
+};
+
 export type ErrorResponse = {
   code: string;
   detailedMessage: string;
@@ -232,6 +260,12 @@ export abstract class AbstractConnector {
     this._connection = connection;
   }
 
+  public abstract createSubgraph(
+    req: SubGraphRequest,
+    options?:QueryOptions
+  ): Promise<SubGraphResponse>;
+
+
   /**
    * Fetch all vertices and edges types (name, data type, attributes, ...)
    */
@@ -258,7 +292,6 @@ export abstract class AbstractConnector {
     req: NeighborsRequest,
     options?: QueryOptions
   ): Promise<NeighborsResponse>;
-
 
   /**
    * Count all connected vertices by type of the given source.
