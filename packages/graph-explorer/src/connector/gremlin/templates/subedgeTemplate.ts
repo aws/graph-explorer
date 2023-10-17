@@ -12,6 +12,9 @@ const subgraphTemplate = ({
     canE,
 }: SubGraphRequest): string => {
     let eString = `(`;
+    if(canE.length <= 0){
+        return ""
+    }
     canE.forEach(function (edge){
         eString += `"${edge.data.id}",`
     })
@@ -31,7 +34,7 @@ const subgraphTemplate = ({
     for (let i = 1; i <= 10; i++) {
         let edgeFilter = `and(`;
         edgeFilter += `has("J${i}_Record_Active_Date__c", lte("${mapDateStr(date)}"))`;
-        edgeFilter += `, has("J${i}Record_Expiration_Date__c", gte("${mapDateStr(date)}"))`;
+        edgeFilter += `, has("J${i}_Record_Expiration_Date__c", gte("${mapDateStr(date)}"))`;
         edgeFilter +=  `)`
         edges.push(edgeFilter)
     }

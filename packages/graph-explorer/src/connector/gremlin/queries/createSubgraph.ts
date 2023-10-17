@@ -4,6 +4,7 @@ import {
 } from "../../AbstractConnector";
 import toStringId from "../mappers/toStringId";
 import subgraphTemplate from "../templates/subgraphTemplate";
+import subedgeTemplate from "../templates/subedgeTemplate";
 import mapApiVertex from "../mappers/mapApiVertex";
 import mapApiEdge from "../mappers/mapApiEdge";
 import type { GVertexList, GEdgeList } from "../types";
@@ -17,7 +18,13 @@ type RawSubGraphRequest = {
     code: number;
   };
   result: {
-    data: GVertexList;
+    data: {
+      "@type": "g:List";
+      "@value": Array<{
+        "@type": "g:Map";
+        "@value": ["vertices", GVertexList, "edges", GEdgeList];
+      }>;
+    }
   };
 };
 
@@ -34,27 +41,37 @@ const subgraphResult = async (
     req: SubGraphRequest,
     rawIds: Map<string, "string" | "number">
 ): Promise<SubGraphResponse> => {
-    if(!req.canV || !req.canE){
-      const vertices : Array<Vertex> = []; 
-      const edges : Array<Edge> = [];
-      return {vertices, edges}
-    }
-    
-    const directions = subgraphTemplate({...req})
-    let [vData] = await Promise.all([
-        gremlinFetch<RawSubGraphRequest>(directions)
-        //gremlinFetch<RawSubGraphResponse>(directions[1]),
-    ]);
-    console.log(vData);
-    //const edgesResponse = 
-    //  eData.result.data["@value"]?.[0]?.["@value"][1]["@value"];
 
-    const verticesResponse = vData.result.data["@value"].map(value => {
-      rawIds.set(toStringId(value["@value"].id), idType(value["@value"].id));
-      return mapApiVertex(value);
-    });
-    const vertices: SubGraphResponse["vertices"] = verticesResponse;
-    const edges: SubGraphResponse["edges"] = [];
+    
+    const vSG = subgraphTemplate({...req});
+    const eSG = subedgeTemplate({...req});
+    let [vData, eData] = await Promise.all([
+        gremlinFetch<RawSubGraphRequest>(vSG),
+        gremlinFetch<RawSubGraphRequest>(eSG)
+    ]);
+    console.log(vData.result.data["@value"])
+    console.log(eData.result.data["@value"])
+
+    const verticesResponse =
+      vData.result.data["@value"];
+    const edgesResponse = 
+      eData.result.data["@value"];
+    //const verticesIds = verticesResponse?.map(v => toStringId(v["@value"].id));
+    const vertices: SubGraphResponse["vertices"]  =  []/*verticesResponse?.map(
+      vertex => mapApiVertex(vertex)
+    );*/
+    const edges: SubGraphResponse["edges"] = []
+    /*const edges = eData.result.data["@value"]?.[0]?.["@value"][3]["@value"]
+      .map(value => {
+        return mapApiEdge(value);
+      })
+      .filter(
+        edge =>
+          verticesIds.includes(edge.data.source) ||
+          verticesIds.includes(edge.data.target)
+      );*/
+    console.log(`Vertices: ${vertices}`);
+    console.log(`Edges: ${edges}`);
 
     return { vertices, edges };
 };
