@@ -19,7 +19,7 @@ import keywordSearch from "./queries/keywordSearch";
 import { GraphSummary } from "./types";
 
 export default class GremlinConnector extends AbstractConnector {
-  protected readonly basePath = "/?gremlin=";
+  protected readonly basePath = "/gremlin";
   private readonly _summaryPath = "/pg/statistics/summary?mode=detailed";
 
   // Stores the id type before casting it to string
@@ -76,7 +76,11 @@ export default class GremlinConnector extends AbstractConnector {
 
   private _gremlinFetch<TResult>(options?: QueryOptions) {
     return async (queryTemplate: string) => {
-      return super.requestQueryTemplate<TResult>(queryTemplate, {
+      const body = { gremlin: queryTemplate };
+
+      return super.requestQueryTemplate<TResult>({
+        method: "POST",
+        body: JSON.stringify(body),
         disableCache: options?.disableCache,
       });
     };

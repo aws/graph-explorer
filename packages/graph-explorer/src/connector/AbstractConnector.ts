@@ -6,9 +6,11 @@ import type {
   VertexTypeConfig,
 } from "../core";
 
-export type QueryOptions = {
-  disableCache?: boolean;
-};
+export type QueryOptions =
+  RequestInit
+  & {
+    disableCache?: boolean;
+  };
 
 export type VertexSchemaResponse = Pick<
   VertexTypeConfig,
@@ -259,12 +261,9 @@ export abstract class AbstractConnector {
    * This method performs requests and cache their responses.
    */
   protected async requestQueryTemplate<TResult = any>(
-    queryTemplate: string,
     options?: QueryOptions
   ): Promise<TResult> {
-    const encodedQuery = encodeURIComponent(queryTemplate);
-    const uri = `${this.basePath}${encodedQuery}&format=json`;
-    return this.request<TResult>(uri, options);
+    return this.request<TResult>(this.basePath, options);
   }
 
   protected async request<TResult = any>(
@@ -296,7 +295,7 @@ export abstract class AbstractConnector {
       );
     }
 
-    return this._requestAndCache<TResult>(currentUri, fetchOptions, options) as Promise<TResult>;
+    return this._requestAndCache<TResult>(currentUri, { ...fetchOptions, ...options }) as Promise<TResult>;
   }
 
   private _getAuthHeaders() {
@@ -313,10 +312,9 @@ export abstract class AbstractConnector {
 
   private async _requestAndCache<TResult = any>(
     url: string,
-    init?: RequestInit,
-    options?: Pick<QueryOptions, "disableCache">
+    options?: QueryOptions
   ) {
-    const response = await fetch(url, init);
+    const response = await fetch(url, options);
     const data = await response.json();
     if (options?.disableCache !== true) {
       this._setToCache(url, { data, updatedAt: new Date().getTime() });

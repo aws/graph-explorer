@@ -19,7 +19,7 @@ import fetchSchema from "./queries/fetchSchema";
 import { GraphSummary } from "./types";
 
 export default class OpenCypherConnector extends AbstractConnector {
-  protected readonly basePath = "/openCypher?query=";
+  protected readonly basePath = "/openCypher";
   private readonly _summaryPath = "/pg/statistics/summary?mode=detailed";
 
   async fetchSchema(options?: QueryOptions): Promise<SchemaResponse> {
@@ -69,7 +69,13 @@ export default class OpenCypherConnector extends AbstractConnector {
 
   private _openCypherFetch<TResult>(options?: QueryOptions) {
     return async (queryTemplate: string) => {
-      return super.requestQueryTemplate<TResult>(queryTemplate, {
+      const body = `query=${encodeURIComponent(queryTemplate)}`;
+      return super.requestQueryTemplate<TResult>({
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body,
         disableCache: options?.disableCache,
       });
     };

@@ -24,13 +24,13 @@ import oneHopNeighborsBlankNodesIdsTemplate from "./templates/oneHopNeighbors/on
 import { BlankNodesMap, GraphSummary, SPARQLNeighborsRequest } from "./types";
 
 export default class SPARQLConnector extends AbstractConnector {
-  protected readonly basePath = "/sparql?query=";
+  protected readonly basePath = "/sparql";
   private readonly _summaryPath = "/rdf/statistics/summary?mode=detailed";
 
   private _blankNodes: BlankNodesMap = new Map();
 
   async fetchSchema(options?: QueryOptions): Promise<SchemaResponse> {
-    const ops = { ...options, disableCache: true };
+    const ops = { ...options, disableCache: true, method: "GET" };
     let summary: GraphSummary | undefined;
     try {
       const response = await this.request<{
@@ -147,8 +147,15 @@ export default class SPARQLConnector extends AbstractConnector {
 
   private _sparqlFetch<TResult>(options?: QueryOptions) {
     return async (queryTemplate: string) => {
-      return super.requestQueryTemplate<TResult>(queryTemplate, {
+      const body = `query=${encodeURIComponent(queryTemplate)}&format=json`;
+
+      return super.requestQueryTemplate<TResult>({
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
         disableCache: options?.disableCache,
+        body,
       });
     };
   }
