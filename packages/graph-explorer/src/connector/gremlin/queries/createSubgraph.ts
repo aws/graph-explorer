@@ -46,28 +46,43 @@ const subgraphResult = async (
     req: SubGraphRequest,
     rawIds: Map<string, "string" | "number">
 ): Promise<SubGraphResponse> => {
-
-    
+    let vertices: Vertex[] = []
+    let edges: Edge[] = []
+    // Edges will not exist without at least 2 nodes
     const vSG = subgraphTemplate({...req});
-    const eSG = subedgeTemplate({...req});
-    let [vData, eData] = await Promise.all([
-        gremlinFetch<RawSubVertRequest>(vSG),
-        gremlinFetch<RawSubEdgeRequest>(eSG)
-    ]);
+    const eSG = subgraphTemplate({...req})
+    let [vData] = await Promise.all([gremlinFetch<RawSubVertRequest>(vSG)]);
+    const verticesResponse =
+      vData.result.data["@value"]
+    const verticesIds = verticesResponse.map(v => toStringId(v["id"]))
+    if (req.canE.length <= 0){
+      edges = []
+    } else {
+      let [eData] = await Promise.all([gremlinFetch<RawSubEdgeRequest>(eSG)])
+      const edgesResponse = 
+        eData.result.data["@value"]
+      console.log(eData.result.data["@value"])
+      edges = edgesResponse.map(value =>{
+        return mapApiEdge(value)
+      })
+      .filter(
+        edge => 
+        verticesIds.includes(edge.data.source) ||
+        verticesIds.includes(edge.data.target)
+      )
+    };
     console.log("VDATA AND EDATA")
     console.log(vData.result.data["@value"])
-    console.log(eData.result.data["@value"])
 
-    const verticesResponse =
-      vData.result.data["@value"]//?.[0]["@value"];
-    const edgesResponse = 
-      eData.result.data["@value"]//?.[0]["@value"];
+
+    //?.[0]["@value"];
+    //?.[0]["@value"];
     //const verticesIds = verticesResponse.map(v => toStringId(v["id"]));
-    const vertices: SubGraphResponse["vertices"]  =  verticesResponse?.map(
+    /*const vertices: SubGraphResponse["vertices"]  =  verticesResponse?.map(
       vertex => mapApiVertex(vertex)
-    );
+    );*/
     //const edges: SubGraphResponse["edges"] = []
-    const edges = edgesResponse
+    /*const edges = edgesResponse
       .map(value => {
         return mapApiEdge(value);
       })
