@@ -71,6 +71,7 @@ const subgraphResult = async (
         verticesIds.includes(edge.data.target)
       )
     };
+    
     console.log("VDATA AND EDATA")
     console.log(vData.result.data["@value"])
 
