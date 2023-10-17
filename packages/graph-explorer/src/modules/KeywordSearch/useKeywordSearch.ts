@@ -53,14 +53,10 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
     setSelectedAttribute(value as string);
   }, []);
 
-  const onExactMatchChange = useCallback((value: string) => {
-    if (value === "Exact") {
-      setExactMatch(true);
-    }
-    else {
-      setExactMatch(false);
-    }
-  }, []);
+  const onExactMatchChange = useCallback(
+    (value: string | string[]) => {
+      setExactMatch(Array.isArray(value) ? value[0] === "Exact" : value === "Exact");
+    }, []);
 
   const onNeighborsLimitChange = useCallback(() => {
     setNeighborsLimit(neighborsLimit => !neighborsLimit);
