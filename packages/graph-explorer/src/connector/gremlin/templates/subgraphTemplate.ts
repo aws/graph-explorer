@@ -58,6 +58,11 @@ const subgraphTemplate = ({
     campFilter += `, has("Campaign_Record_Expiration_Date__c", gte("${mapDateStr(date)}"))`;
     campFilter +=  `)`
 
+    let netwFilter = `and(`;
+    netwFilter += `has("Network_Record_Active_Date__c", lte("${mapDateStr(date)}"))`;
+    netwFilter += `, has("Network_Record_Expiration_Date__c", gte("${mapDateStr(date)}"))`;
+    netwFilter +=  `)`
+
     let pharmacy = `hasLabel("pharmacy")`
 
     let filters: string = [

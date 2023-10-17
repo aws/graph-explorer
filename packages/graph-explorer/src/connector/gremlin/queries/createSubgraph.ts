@@ -4,20 +4,32 @@ import {
 } from "../../AbstractConnector";
 import toStringId from "../mappers/toStringId";
 import subgraphTemplate from "../templates/subgraphTemplate";
+import subedgeTemplate from "../templates/subedgeTemplate";
 import mapApiVertex from "../mappers/mapApiVertex";
 import mapApiEdge from "../mappers/mapApiEdge";
-import type { GVertexList, GEdgeList } from "../types";
+import type { GVertexList, GEdgeList, GVertex, GEdge } from "../types";
 import { GInt64, GremlinFetch } from "../types";
 import { Edge, Vertex } from "../../../@types/entities";
 
-type RawSubGraphRequest = {
+type RawSubVertRequest = {
   requestId: string;
   status: {
     message: string;
     code: number;
   };
   result: {
-    data: GVertexList;
+    data: GVertexList
+  };
+};
+
+type RawSubEdgeRequest = {
+  requestId: string;
+  status: {
+    message: string;
+    code: number;
+  };
+  result: {
+    data: GEdgeList
   };
 };
 
@@ -34,27 +46,38 @@ const subgraphResult = async (
     req: SubGraphRequest,
     rawIds: Map<string, "string" | "number">
 ): Promise<SubGraphResponse> => {
-    if(!req.canV || !req.canE){
-      const vertices : Array<Vertex> = []; 
-      const edges : Array<Edge> = [];
-      return {vertices, edges}
-    }
-    
-    const directions = subgraphTemplate({...req})
-    let [vData] = await Promise.all([
-        gremlinFetch<RawSubGraphRequest>(directions)
-        //gremlinFetch<RawSubGraphResponse>(directions[1]),
-    ]);
-    console.log(vData);
-    //const edgesResponse = 
-    //  eData.result.data["@value"]?.[0]?.["@value"][1]["@value"];
 
-    const verticesResponse = vData.result.data["@value"].map(value => {
-      rawIds.set(toStringId(value["@value"].id), idType(value["@value"].id));
-      return mapApiVertex(value);
-    });
-    const vertices: SubGraphResponse["vertices"] = verticesResponse;
-    const edges: SubGraphResponse["edges"] = [];
+    
+    const vSG = subgraphTemplate({...req});
+    const eSG = subedgeTemplate({...req});
+    let [vData, eData] = await Promise.all([
+        gremlinFetch<RawSubVertRequest>(vSG),
+        gremlinFetch<RawSubEdgeRequest>(eSG)
+    ]);
+    console.log("VDATA AND EDATA")
+    console.log(vData.result.data["@value"])
+    console.log(eData.result.data["@value"])
+
+    const verticesResponse =
+      vData.result.data["@value"]//?.[0]["@value"];
+    const edgesResponse = 
+      eData.result.data["@value"]//?.[0]["@value"];
+    //const verticesIds = verticesResponse.map(v => toStringId(v["id"]));
+    const vertices: SubGraphResponse["vertices"]  =  verticesResponse?.map(
+      vertex => mapApiVertex(vertex)
+    );
+    //const edges: SubGraphResponse["edges"] = []
+    const edges = edgesResponse
+      .map(value => {
+        return mapApiEdge(value);
+      })
+      /*.filter(
+        edge =>
+          verticesIds.includes(edge.data.source) ||
+          verticesIds.includes(edge.data.target)
+      );*/
+    console.log(`Vertices: ${vertices}`);
+    console.log(`Edges: ${edges}`);
 
     return { vertices, edges };
 };
