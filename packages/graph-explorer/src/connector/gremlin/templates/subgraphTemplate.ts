@@ -70,7 +70,8 @@ const subgraphTemplate = ({
         campFilter,
         contFilter,
         drugFilter,
-        offerFilter, 
+        offerFilter,
+        netwFilter, 
         pcrFilter,
         pharmacy
     ].join(",")
