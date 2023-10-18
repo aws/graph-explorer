@@ -51,7 +51,7 @@ const subgraphResult = async (
 
     // Create the Vertices Result
     const vSG = subgraphTemplate({...req});
-    const eSG = subgraphTemplate({...req})
+    const eSG = subedgeTemplate({...req})
     let [vData] = await Promise.all([gremlinFetch<RawSubVertRequest>(vSG)]);
     const verticesResponse =
       vData.result.data["@value"]
@@ -61,25 +61,32 @@ const subgraphResult = async (
     );
 
     //Create the Edges result
+    console.log("Edges Found:")
+    console.log(req.canE.length)
     if (req.canE.length <= 0){
+      console.log("No edges")
       edges = []
     } else {
       let [eData] = await Promise.all([gremlinFetch<RawSubEdgeRequest>(eSG)])
       const edgesResponse = 
-        eData.result.data["@value"]
-      console.log(eData.result.data["@value"])
-      edges = edgesResponse.map(value =>{
-        return mapApiEdge(value)
-      })
+        eData.result.data["@value"];
+      console.log("CONFIRMATION");
+      console.log(edgesResponse);
+      edges = edgesResponse?.map(
+        edge => mapApiEdge(edge)
+      )
       .filter(
         edge => 
         verticesIds.includes(edge.data.source) ||
         verticesIds.includes(edge.data.target)
-      )
+      );
     };
 
-    console.log(`Vertices: ${vertices}`);
-    console.log(`Edges: ${edges}`);
+    console.log(`Vertices:`);
+    console.log(vertices)
+    console.log(`Edges:`);
+    console.log(edges)
+
 
     return { vertices, edges };
 };
