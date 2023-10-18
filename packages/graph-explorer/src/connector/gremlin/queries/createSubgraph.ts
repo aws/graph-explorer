@@ -46,15 +46,21 @@ const subgraphResult = async (
     req: SubGraphRequest,
     rawIds: Map<string, "string" | "number">
 ): Promise<SubGraphResponse> => {
-    let vertices: Vertex[] = []
-    let edges: Edge[] = []
-    // Edges will not exist without at least 2 nodes
+    let vertices: SubGraphResponse["vertices"] = []
+    let edges: SubGraphResponse["edges"] = []
+
+    // Create the Vertices Result
     const vSG = subgraphTemplate({...req});
     const eSG = subgraphTemplate({...req})
     let [vData] = await Promise.all([gremlinFetch<RawSubVertRequest>(vSG)]);
     const verticesResponse =
       vData.result.data["@value"]
     const verticesIds = verticesResponse.map(v => toStringId(v["@value"]["id"]))
+    vertices = verticesResponse?.map(
+      vertex => mapApiVertex(vertex)
+    );
+
+    //Create the Edges result
     if (req.canE.length <= 0){
       edges = []
     } else {
@@ -71,9 +77,6 @@ const subgraphResult = async (
         verticesIds.includes(edge.data.target)
       )
     };
-
-    console.log("VDATA AND EDATA")
-    console.log(vData.result.data["@value"])
 
     console.log(`Vertices: ${vertices}`);
     console.log(`Edges: ${edges}`);
