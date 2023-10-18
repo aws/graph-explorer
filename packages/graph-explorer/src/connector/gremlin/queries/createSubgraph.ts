@@ -49,7 +49,7 @@ const subgraphResult = async (
     let vertices: SubGraphResponse["vertices"] = []
     let edges: SubGraphResponse["edges"] = []
 
-    if (req.canE.length <= 0 && req.canE.length <=0){
+    if (req.canV.length <= 0 && req.canE.length <=0){
       return { vertices, edges}
     }
 
