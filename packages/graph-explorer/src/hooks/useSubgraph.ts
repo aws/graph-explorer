@@ -21,7 +21,6 @@ const useSubGraph = () => {
             });
             return;
         }
-        console.log(result.vertices)
         /*setEntities({
             nodes: [],
             edges: [],
