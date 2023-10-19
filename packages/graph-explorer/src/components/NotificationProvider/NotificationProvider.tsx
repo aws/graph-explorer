@@ -1,5 +1,5 @@
 import { css } from "@emotion/css";
-import { createContext, CSSProperties, FC, useCallback } from "react";
+import React, { createContext, CSSProperties, FC, useCallback } from "react";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { v4 } from "uuid";
 
@@ -132,6 +132,8 @@ export const NotificationProvider: FC<NotificationProviderProps> = ({
     [dispatchNotification]
   );
 
+  const nodeRef = React.useRef(null);
+
   return (
     <NotificationContext.Provider
       value={{
@@ -169,6 +171,7 @@ export const NotificationProvider: FC<NotificationProviderProps> = ({
           >
             {state.active.map(notification => (
               <CSSTransition
+                nodeRef={nodeRef}
                 key={notification.id}
                 timeout={200}
                 classNames={"item"}
