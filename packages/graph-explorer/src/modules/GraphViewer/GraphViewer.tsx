@@ -208,6 +208,7 @@ const GraphViewer = ({
   const expandNode = useExpandNode();
   const expandEdge = useExpandEdge();
   const [expandVertexName, setExpandVertexName] = useState<string | null>(null);
+  const [dateLayout, setDateLayout] = useState<string | null>(null);
   const getDisplayNames = useDisplayNames();
   const onNodeDoubleClick: ElementEventCallback<Vertex["data"]> = useCallback(
     async (_, vertexData) => {
@@ -262,6 +263,17 @@ const GraphViewer = ({
       canE: currentCanvas[1],
     });
   },[createSubGraph])
+
+  const toggleDateView = useCallback(
+    (item: string) => () => {
+    setDateLayout(prev => {
+      if(!overDate){
+        return ""
+      }
+      return overDate
+    })
+    }, [setDateLayout]
+  );
 
   const onHeaderActionClick = useCallback(
     action => {
