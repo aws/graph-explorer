@@ -10,7 +10,8 @@ The next release will include the following feature enhancements and bug fixes:
 
 **Bug fixes**
 
-- Fixed after re-synchronizing a connection, node and edges count is not updated (<<https://github.com/aws/graph-explorer/pull/209>)
+- Fixed node and edge counts not updating on connection re-synchronization (<<https://github.com/aws/graph-explorer/pull/209>)
+- Fixed loading spinner rotation when synchronizing schema (<<https://github.com/aws/graph-explorer/pull/207>)
 - Fixed highlight not persisting on selected graph element (<https://github.com/aws/graph-explorer/pull/187>)
 - Bumped @types/semver to 7.5.2 in lockfile
 
