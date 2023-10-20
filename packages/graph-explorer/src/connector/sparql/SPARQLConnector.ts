@@ -30,7 +30,7 @@ export default class SPARQLConnector extends AbstractConnector {
   private _blankNodes: BlankNodesMap = new Map();
 
   async fetchSchema(options?: QueryOptions): Promise<SchemaResponse> {
-    const ops = { ...options, disableCache: true, method: "GET" };
+    const ops = { ...options, disableCache: true };
     let summary: GraphSummary | undefined;
     try {
       const response = await this.request<{
