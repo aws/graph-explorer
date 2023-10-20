@@ -63,15 +63,15 @@ const subgraphTemplate = ({
 
     let pharmacy = `hasLabel("pharmacy")`
 
-    let filters: string = [ drugFilter
-        /*bnrFilter,
+    let filters: string = [
+        bnrFilter,
         campFilter,
         contFilter,
         drugFilter,
         offerFilter,
         netwFilter, 
         pcrFilter,
-        pharmacy*/
+        pharmacy
     ].join(",")
 
     createSubGraph += `.or(${filters})`

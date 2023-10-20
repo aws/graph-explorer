@@ -143,6 +143,7 @@ const GraphViewer = ({
   onEdgeCustomize,
   ...headerProps
 }: GraphViewerProps) => {
+  const [overDateFlag, setOverDateFlag ] = useState(false);
   const styleWithTheme = useWithTheme();
   const pfx = withClassNamePrefix("ft");
 
@@ -257,11 +258,15 @@ const GraphViewer = ({
     let currentCanvas: [Array<Vertex>, Array<Edge>] = [entities.nodes ?? [], entities.edges ?? []]
     console.log("canvas:")
     console.log(currentCanvas[0])
+    console.log(`OverDate Start: ${overDateFlag}`)
+    setOverDateFlag(!overDateFlag)
+    console.log(`OverDate End: ${overDateFlag}`)
     await createSubGraph({
       date:overDate,
       canV: currentCanvas[0],
       canE: currentCanvas[1],
     });
+
   },[createSubGraph])
 
   const toggleDateView = useCallback(
@@ -333,7 +338,7 @@ const GraphViewer = ({
                 label={"Date Fixed to Graph"}
                 labelPlacement={"inner"}
                 value={overDate}
-                onChange={d => setOverDate(d as string)}
+                onChange={d => {setOverDate(d as string)}}
                 hideError={true}
                 noMargin={true}
               />
