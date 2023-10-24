@@ -13,6 +13,8 @@ import {
   ZoomInIcon,
   ZoomOutIcon,
   Input,
+  CheckboxList,
+  Checkbox,
 } from "../../components";
 import Card from "../../components/Card";
 import Graph from "../../components/Graph";
@@ -143,7 +145,7 @@ const GraphViewer = ({
   onEdgeCustomize,
   ...headerProps
 }: GraphViewerProps) => {
-  const [overDateFlag, setOverDateFlag ] = useState(false);
+  const [overDateFlag, setOverDateFlag ] = useState<boolean>(false);
   const styleWithTheme = useWithTheme();
   const pfx = withClassNamePrefix("ft");
 
@@ -182,6 +184,12 @@ const GraphViewer = ({
     },
     [setEdgesSelectedIds]
   );
+
+  const onODFlagChange = useCallback(
+    () => {
+    setOverDateFlag(overDateFlag => !overDateFlag);
+    console.log()
+  }, [setOverDateFlag]);
 
   const config = useConfiguration();
   const [legendOpen, setLegendOpen] = useState(false);
@@ -258,9 +266,6 @@ const GraphViewer = ({
     let currentCanvas: [Array<Vertex>, Array<Edge>] = [entities.nodes ?? [], entities.edges ?? []]
     console.log("canvas:")
     console.log(currentCanvas[0])
-    console.log(`OverDate Start: ${overDateFlag}`)
-    setOverDateFlag(!overDateFlag)
-    console.log(`OverDate End: ${overDateFlag}`)
     await createSubGraph({
       date:overDate,
       canV: currentCanvas[0],
@@ -279,6 +284,13 @@ const GraphViewer = ({
     })
     }, [setDateLayout]
   );
+
+  const onTestFeature = useCallback(
+    async () => {
+      console.log(overDateFlag)
+    }, [overDateFlag]
+  ); 
+
 
   const onHeaderActionClick = useCallback(
     action => {
@@ -349,7 +361,13 @@ const GraphViewer = ({
                 variant={"text"}
                 onPress={onFilterByDate}
               />
-
+              <Checkbox
+                aria-label={`Set OverDate Flag?`}
+                isSelected={overDateFlag}
+                onChange={onODFlagChange}
+              >
+                <div className={pfx("set-odf-checkbox")}>Set OverDate?</div>
+              </Checkbox>
             </div>
           }
           variant={"default"}
