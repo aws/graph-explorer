@@ -108,7 +108,11 @@ export type NeighborsRequest = {
   /**
    * Include the date as a required filter
    */
-  overDate?: boolean;
+  odFlag?: boolean;
+  /**
+   * Date to be applied everywhere
+   */
+  overdate?: string
 
 };
 

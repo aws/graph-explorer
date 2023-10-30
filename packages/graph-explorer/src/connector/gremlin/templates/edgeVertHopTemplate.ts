@@ -107,6 +107,8 @@ const criterionTemplate = (criterion: Criterion): string => {
 
 const edgeVertHopTemplate = ({
     vertexId,
+    odFlag,
+    overdate,
     filterByVertexTypes = [],
     edgeTypes = [],
     filterCriteria = [],
@@ -157,7 +159,6 @@ const edgeVertHopTemplate = ({
     /*let filterCriteriaTemplate = ".and(";
     filterCriteriaTemplate += filterCriteria?.map(criterionTemplate).join(",");
     filterCriteriaTemplate += ")";*/
-
 
     const hasLabelContent = filterByVertexTypes
     .flatMap(type => type.split("::"))

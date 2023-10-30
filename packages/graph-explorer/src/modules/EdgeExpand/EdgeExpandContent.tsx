@@ -25,14 +25,16 @@ export type EdgeExpandContentProps = {
   classNamePrefix?: string;
   vertex: Vertex;
   edgeList: Set<string>;
-  overdate: boolean; 
+  odFlag: boolean;
+  overDate: string; 
 };
 
 const EdgeExpandContent = ({
   classNamePrefix = "ft",
   vertex,
   edgeList,
-  overdate
+  odFlag,
+  overDate
 }: EdgeExpandContentProps) => {
   const config = useConfiguration();
   const t = useTranslations();
@@ -61,6 +63,8 @@ const EdgeExpandContent = ({
       vertexId: vertex.data.id,
       vertexType: (vertex.data.types ?? [vertex.data.type])?.join("::"),
       edgeTypes: [selectedType],
+      odFlag: odFlag,
+      overdate: overDate,
       filterByVertexTypes: [selectedType],
 
       filterCriteria: filters.map(filter => ({

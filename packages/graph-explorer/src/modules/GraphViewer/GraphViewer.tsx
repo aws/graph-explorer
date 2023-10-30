@@ -38,7 +38,7 @@ import {
   nodesOutOfFocusIdsAtom,
   nodesSelectedIdsAtom,
 } from "../../core/StateProvider/nodes";
-import { overdateAtom } from "../../core/StateProvider/overdate";
+import { overDateFlagAtom, overDateAtom } from "../../core/StateProvider/overdate";
 import { userLayoutAtom } from "../../core/StateProvider/userPreferences";
 import useWithTheme from "../../core/ThemeProvider/useWithTheme";
 import fade from "../../core/ThemeProvider/utils/fade";
@@ -145,7 +145,7 @@ const GraphViewer = ({
   onEdgeCustomize,
   ...headerProps
 }: GraphViewerProps) => {
-  const [overDateFlag, setOverDateFlag ] = useRecoilState(overdateAtom);
+  const [overDateFlag, setOverDateFlag ] = useRecoilState(overDateFlagAtom);
   const styleWithTheme = useWithTheme();
   const pfx = withClassNamePrefix("ft");
 
@@ -168,6 +168,7 @@ const GraphViewer = ({
   const nodesOutIds = useRecoilValue(nodesOutOfFocusIdsAtom);
   const edgesOutIds = useRecoilValue(edgesOutOfFocusIdsAtom);
   const setUserLayout = useSetRecoilState(userLayoutAtom);
+  const setOverDateString = useSetRecoilState(overDateAtom);
 
   const onSelectedNodesIdsChange = useCallback(
     (selectedIds: string[] | Set<string>) => {
@@ -215,7 +216,7 @@ const GraphViewer = ({
   const expandNode = useExpandNode();
   const expandEdge = useExpandEdge();
   const [expandVertexName, setExpandVertexName] = useState<string | null>(null);
-const [dateLayout, setDateLayout] = useState<string | null>(null);
+  const [dateLayout, setDateLayout] = useState<string | null>(null);
   const getDisplayNames = useDisplayNames();
   const onNodeDoubleClick: ElementEventCallback<Vertex["data"]> = useCallback(
     async (_, vertexData) => {
@@ -251,7 +252,7 @@ const [dateLayout, setDateLayout] = useState<string | null>(null);
 
   const now = new Date();
   const [layout, setLayout] = useState("F_COSE");
-  const [overDate, setOverDate] = useState(now.toLocaleDateString())
+  const [overDate, setOverDate] = useRecoilValue(overDateAtom)
   const [, setEntities] = useEntities();
   const onClearCanvas = useCallback(() => {
     setEntities({
@@ -348,7 +349,7 @@ const [dateLayout, setDateLayout] = useState<string | null>(null);
                 label={"Date Fixed to Graph"}
                 labelPlacement={"inner"}
                 value={overDate}
-                onChange={d => {setOverDate(d as string)}}
+                onChange={d => {setOverDateString(d as string)}}
                 hideError={true}
                 noMargin={true}
               />

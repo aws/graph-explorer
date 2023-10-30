@@ -1,10 +1,13 @@
 import { atom } from "recoil";
 
-export type OverDateFlag = {
-    overDate: boolean;
-};
+const now = new Date().toLocaleDateString();
 
-export const overdateAtom = atom<boolean>({
-    key: "over-date",
+export const overDateFlagAtom = atom<boolean>({
+    key: "over-date-flag",
     default: false,
+});
+
+export const overDateAtom = atom<string>({
+    key: "over-date-string",
+    default: now
 });
