@@ -284,13 +284,6 @@ const GraphViewer = ({
     }, [setDateLayout]
   );
 
-  const onTestFeature = useCallback(
-    async () => {
-      console.log(overDateFlag)
-    }, [overDateFlag]
-  ); 
-
-
   const onHeaderActionClick = useCallback(
     action => {
       switch (action) {
