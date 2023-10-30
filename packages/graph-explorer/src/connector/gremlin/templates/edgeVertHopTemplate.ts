@@ -141,7 +141,7 @@ const edgeVertHopTemplate = ({
     if (filterCriteria.length > 0){
       activeDate += filterCriteria[0]['value'];
     } else {
-      activeDate += "2023-09-10";
+      activeDate += overdate;
     }
     console.log(filterCriteria)
     let filterCriteriaTemplate = ".and(";
