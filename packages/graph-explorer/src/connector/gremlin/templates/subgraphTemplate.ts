@@ -25,8 +25,6 @@ const subgraphTemplate = ({
      * */
 
     let createSubGraph = `g.V${vString}`;
-    //createSubGraph += `has("Drug_Record_Active_Date__c", lte("${mapDateStr(date)}")),`;
-    //createSubGraph += `has("Drug_Record_Expiration_Date__c", gte("${mapDateStr(date)}"))`;
 
     let offerFilter  = `and(`;
     offerFilter += `has("Offer_Record_Active_Date__c", lte("${mapDateStr(date)}"))`;

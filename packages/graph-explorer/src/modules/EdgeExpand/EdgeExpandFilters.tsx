@@ -117,9 +117,11 @@ const EdgeExpandFilters = ({
         aria-label={"edge type"}
         value={selectedType}
         onChange={e => {
+          console.log(edgeOptions)
           onSelectedTypeChange(e as string);
         }}
-        options={Array.from(edgeOptions).map(val =>({
+        options={
+          Array.from(edgeOptions).map(val =>({
           label: val,
           value: val
         }))}

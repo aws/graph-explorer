@@ -107,6 +107,8 @@ const criterionTemplate = (criterion: Criterion): string => {
 
 const edgeVertHopTemplate = ({
     vertexId,
+    odFlag,
+    overdate,
     filterByVertexTypes = [],
     edgeTypes = [],
     filterCriteria = [],
@@ -139,7 +141,7 @@ const edgeVertHopTemplate = ({
     if (filterCriteria.length > 0){
       activeDate += filterCriteria[0]['value'];
     } else {
-      activeDate += "2023-09-10";
+      activeDate += overdate;
     }
     console.log(filterCriteria)
     let filterCriteriaTemplate = ".and(";
@@ -157,7 +159,6 @@ const edgeVertHopTemplate = ({
     /*let filterCriteriaTemplate = ".and(";
     filterCriteriaTemplate += filterCriteria?.map(criterionTemplate).join(",");
     filterCriteriaTemplate += ")";*/
-
 
     const hasLabelContent = filterByVertexTypes
     .flatMap(type => type.split("::"))

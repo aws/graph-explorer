@@ -13,6 +13,7 @@ import {
   ZoomInIcon,
   ZoomOutIcon,
   Input,
+  Checkbox,
 } from "../../components";
 import Card from "../../components/Card";
 import Graph from "../../components/Graph";
@@ -37,6 +38,7 @@ import {
   nodesOutOfFocusIdsAtom,
   nodesSelectedIdsAtom,
 } from "../../core/StateProvider/nodes";
+import { overDateFlagAtom, overDateAtom } from "../../core/StateProvider/overdate";
 import { userLayoutAtom } from "../../core/StateProvider/userPreferences";
 import useWithTheme from "../../core/ThemeProvider/useWithTheme";
 import fade from "../../core/ThemeProvider/utils/fade";
@@ -143,14 +145,13 @@ const GraphViewer = ({
   onEdgeCustomize,
   ...headerProps
 }: GraphViewerProps) => {
+  const [overDateFlag, setOverDateFlag ] = useRecoilState(overDateFlagAtom);
   const styleWithTheme = useWithTheme();
   const pfx = withClassNamePrefix("ft");
 
   useGraphViewerInit();
   const graphRef = useRef<GraphRef | null>(null);
-  // ADD THING HERE TO APPLY THE OVERDATE
-  // apply a filter on the canvas .... ughhhhhhh.....
-  // ok its going to be just really long and annoying query whatever
+  // We are smart people, we can figure this out!
   const createSubGraph = useSubgraph();
   const [entities] = useEntities();
   const { dropAreaRef, isOver, canDrop } = useNodeDrop();
@@ -167,6 +168,7 @@ const GraphViewer = ({
   const nodesOutIds = useRecoilValue(nodesOutOfFocusIdsAtom);
   const edgesOutIds = useRecoilValue(edgesOutOfFocusIdsAtom);
   const setUserLayout = useSetRecoilState(userLayoutAtom);
+  const setOverDateString = useSetRecoilState(overDateAtom);
 
   const onSelectedNodesIdsChange = useCallback(
     (selectedIds: string[] | Set<string>) => {
@@ -181,6 +183,12 @@ const GraphViewer = ({
     },
     [setEdgesSelectedIds]
   );
+
+  const onODFlagChange = useCallback(
+    () => {
+    setOverDateFlag(overDateFlag => !overDateFlag);
+    console.log(overDateFlag)
+  }, [setOverDateFlag]);
 
   const config = useConfiguration();
   const [legendOpen, setLegendOpen] = useState(false);
@@ -208,6 +216,7 @@ const GraphViewer = ({
   const expandNode = useExpandNode();
   const expandEdge = useExpandEdge();
   const [expandVertexName, setExpandVertexName] = useState<string | null>(null);
+  const [dateLayout, setDateLayout] = useState<string | null>(null);
   const getDisplayNames = useDisplayNames();
   const onNodeDoubleClick: ElementEventCallback<Vertex["data"]> = useCallback(
     async (_, vertexData) => {
@@ -243,7 +252,7 @@ const GraphViewer = ({
 
   const now = new Date();
   const [layout, setLayout] = useState("F_COSE");
-  const [overDate, setOverDate] = useState(now.toLocaleDateString())
+  const [overDate, setOverDate] = useRecoilValue(overDateAtom)
   const [, setEntities] = useEntities();
   const onClearCanvas = useCallback(() => {
     setEntities({
@@ -261,7 +270,19 @@ const GraphViewer = ({
       canV: currentCanvas[0],
       canE: currentCanvas[1],
     });
+
   },[createSubGraph])
+
+  const toggleDateView = useCallback(
+    (item: string) => () => {
+    setDateLayout(prev => {
+      if(!overDate){
+        return ""
+      }
+      return overDate
+    })
+    }, [setDateLayout]
+  );
 
   const onHeaderActionClick = useCallback(
     action => {
@@ -321,7 +342,7 @@ const GraphViewer = ({
                 label={"Date Fixed to Graph"}
                 labelPlacement={"inner"}
                 value={overDate}
-                onChange={d => setOverDate(d as string)}
+                onChange={d => {setOverDateString(d as string)}}
                 hideError={true}
                 noMargin={true}
               />
@@ -332,7 +353,13 @@ const GraphViewer = ({
                 variant={"text"}
                 onPress={onFilterByDate}
               />
-
+              <Checkbox
+                aria-label={`Set OverDate Flag?`}
+                isSelected={overDateFlag}
+                onChange={onODFlagChange}
+              >
+                <div className={pfx("set-odf-checkbox")}>Set OverDate?</div>
+              </Checkbox>
             </div>
           }
           variant={"default"}

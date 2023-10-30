@@ -13,6 +13,7 @@ import {
   edgesSelectedIdsAtom,
   edgesTypesFilteredAtom,
 } from "../../core/StateProvider/edges";
+import { overDateAtom, overDateFlagAtom } from "../../core/StateProvider/overdate";
 import useTranslations from "../../hooks/useTranslations";
 import EdgeExpandContent from "./EdgeExpandContent";
 
@@ -36,6 +37,8 @@ const EdgeExpand = ({ title = "Expand by Edge", ...headerProps }: EdgeExpandProp
   }, [nodes, nodesSelectedIds]);
 
   const filteredEdges = edges
+  const odFlag = useRecoilValue(overDateFlagAtom);
+  const overDate = useRecoilValue(overDateAtom);
 
   return (
     <ModuleContainer>
@@ -68,7 +71,9 @@ const EdgeExpand = ({ title = "Expand by Edge", ...headerProps }: EdgeExpandProp
       {nodesSelectedIds.size === 1 && selectedNode && (
         <EdgeExpandContent 
         vertex={selectedNode}
-        edgeList={filteredEdges} />
+        edgeList={filteredEdges}
+        odFlag={odFlag}
+        overDate={overDate}/>
       )}
     </ModuleContainer>
   );

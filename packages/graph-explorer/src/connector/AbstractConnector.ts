@@ -105,6 +105,15 @@ export type NeighborsRequest = {
    * Skip the given number of results.
    */
   offset?: number;
+  /**
+   * Include the date as a required filter
+   */
+  odFlag?: boolean;
+  /**
+   * Date to be applied everywhere
+   */
+  overdate?: string
+
 };
 
 export type NeighborsResponse = {
