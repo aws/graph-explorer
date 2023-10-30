@@ -24,13 +24,15 @@ import EdgeExpandFilters, { EdgeExpandFilter } from "./EdgeExpandFilters";
 export type EdgeExpandContentProps = {
   classNamePrefix?: string;
   vertex: Vertex;
-  edgeList: Set<string>; 
+  edgeList: Set<string>;
+  overdate: boolean; 
 };
 
 const EdgeExpandContent = ({
   classNamePrefix = "ft",
   vertex,
   edgeList,
+  overdate
 }: EdgeExpandContentProps) => {
   const config = useConfiguration();
   const t = useTranslations();

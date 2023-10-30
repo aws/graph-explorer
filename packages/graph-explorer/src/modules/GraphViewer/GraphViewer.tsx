@@ -13,7 +13,6 @@ import {
   ZoomInIcon,
   ZoomOutIcon,
   Input,
-  CheckboxList,
   Checkbox,
 } from "../../components";
 import Card from "../../components/Card";
@@ -39,6 +38,7 @@ import {
   nodesOutOfFocusIdsAtom,
   nodesSelectedIdsAtom,
 } from "../../core/StateProvider/nodes";
+import { overdateAtom } from "../../core/StateProvider/overdate";
 import { userLayoutAtom } from "../../core/StateProvider/userPreferences";
 import useWithTheme from "../../core/ThemeProvider/useWithTheme";
 import fade from "../../core/ThemeProvider/utils/fade";
@@ -145,15 +145,13 @@ const GraphViewer = ({
   onEdgeCustomize,
   ...headerProps
 }: GraphViewerProps) => {
-  const [overDateFlag, setOverDateFlag ] = useState<boolean>(false);
+  const [overDateFlag, setOverDateFlag ] = useRecoilState(overdateAtom);
   const styleWithTheme = useWithTheme();
   const pfx = withClassNamePrefix("ft");
 
   useGraphViewerInit();
   const graphRef = useRef<GraphRef | null>(null);
-  // ADD THING HERE TO APPLY THE OVERDATE
-  // apply a filter on the canvas .... ughhhhhhh.....
-  // ok its going to be just really long and annoying query whatever
+  // We are smart people, we can figure this out!
   const createSubGraph = useSubgraph();
   const [entities] = useEntities();
   const { dropAreaRef, isOver, canDrop } = useNodeDrop();
@@ -188,7 +186,7 @@ const GraphViewer = ({
   const onODFlagChange = useCallback(
     () => {
     setOverDateFlag(overDateFlag => !overDateFlag);
-    console.log()
+    console.log(overDateFlag)
   }, [setOverDateFlag]);
 
   const config = useConfiguration();
@@ -217,7 +215,7 @@ const GraphViewer = ({
   const expandNode = useExpandNode();
   const expandEdge = useExpandEdge();
   const [expandVertexName, setExpandVertexName] = useState<string | null>(null);
-  const [dateLayout, setDateLayout] = useState<string | null>(null);
+const [dateLayout, setDateLayout] = useState<string | null>(null);
   const getDisplayNames = useDisplayNames();
   const onNodeDoubleClick: ElementEventCallback<Vertex["data"]> = useCallback(
     async (_, vertexData) => {
