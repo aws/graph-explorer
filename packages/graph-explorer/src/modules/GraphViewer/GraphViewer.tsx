@@ -168,7 +168,16 @@ const GraphViewer = ({
   const nodesOutIds = useRecoilValue(nodesOutOfFocusIdsAtom);
   const edgesOutIds = useRecoilValue(edgesOutOfFocusIdsAtom);
   const setUserLayout = useSetRecoilState(userLayoutAtom);
-  const setOverDateString = useSetRecoilState(overDateAtom);
+  const setOverDateString = useSetRecoilState(overDateAtom)
+
+  const changeOverdate = useCallback(
+    (overDate: string) => {
+      console.log(`Overdate Begin: ${overDate}`)
+      setOverDateString(overDate)
+      console.log(`New overdate: ${overDate}`)
+    },
+    [setOverDateString]
+  );
 
   const onSelectedNodesIdsChange = useCallback(
     (selectedIds: string[] | Set<string>) => {
@@ -187,7 +196,6 @@ const GraphViewer = ({
   const onODFlagChange = useCallback(
     () => {
     setOverDateFlag(overDateFlag => !overDateFlag);
-    console.log(overDateFlag)
   }, [setOverDateFlag]);
 
   const config = useConfiguration();
@@ -252,7 +260,8 @@ const GraphViewer = ({
 
   const now = new Date();
   const [layout, setLayout] = useState("F_COSE");
-  const [overDate, setOverDate] = useRecoilValue(overDateAtom)
+  const overDate = useRecoilValue(overDateAtom)
+  // const [overDate, setOverDate] = useState(now.toLocaleDateString())
   const [, setEntities] = useEntities();
   const onClearCanvas = useCallback(() => {
     setEntities({
@@ -272,17 +281,6 @@ const GraphViewer = ({
     });
 
   },[createSubGraph])
-
-  const toggleDateView = useCallback(
-    (item: string) => () => {
-    setDateLayout(prev => {
-      if(!overDate){
-        return ""
-      }
-      return overDate
-    })
-    }, [setDateLayout]
-  );
 
   const onHeaderActionClick = useCallback(
     action => {
@@ -342,7 +340,7 @@ const GraphViewer = ({
                 label={"Date Fixed to Graph"}
                 labelPlacement={"inner"}
                 value={overDate}
-                onChange={d => {setOverDateString(d as string)}}
+                onChange={d => changeOverdate(d as string)}
                 hideError={true}
                 noMargin={true}
               />
