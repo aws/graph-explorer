@@ -1,6 +1,7 @@
 import { atom } from "recoil";
+import mapDateStr from "../../connector/gremlin/mappers/mapDateStr";
 
-const now = new Date().toLocaleDateString();
+const now = new Date()
 
 export const overDateFlagAtom = atom<boolean>({
     key: "over-date-flag",
@@ -9,5 +10,5 @@ export const overDateFlagAtom = atom<boolean>({
 
 export const overDateAtom = atom<string>({
     key: "over-date-string",
-    default: now
+    default: mapDateStr(now.toLocaleDateString())
 });
