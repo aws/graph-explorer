@@ -1,5 +1,5 @@
 import type { Vertex } from "../../../@types/entities";
-import type { NeighborsCountResponse } from "../../AbstractConnector";
+import type { NeighborsCountResponse } from "../../useGEFetch";
 import type { OCVertex } from "../types";
 
 const mapApiVertex = (

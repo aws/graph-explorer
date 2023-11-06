@@ -1,65 +1,51 @@
-import { createContext, PropsWithChildren, useState } from "react";
-import GremlinConnector from "../../connector/gremlin/GremlinConnector";
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+import { createContext, PropsWithChildren, useEffect, useState } from "react";
 import LoggerConnector from "../../connector/LoggerConnector";
-import SPARQLConnector from "../../connector/sparql/SPARQLConnector";
-import { ConnectionConfig } from "../ConfigurationProvider";
 import useConfiguration from "../ConfigurationProvider/useConfiguration";
 import type { ConnectorContextProps } from "./types";
-import OpenCypherConnector from "../../connector/openCypher/openCypherConnector";
+import useOpenCypher from "../../connector/openCypher/useOpenCypher";
+import useSPARQL from "../../connector/sparql/useSPARQL";
+import useGremlin from "../../connector/gremlin/useGremlin";
 
 export const ConnectorContext = createContext<ConnectorContextProps>({});
 
 const ConnectorProvider = ({ children }: PropsWithChildren<any>) => {
   const config = useConfiguration();
+
   const [connector, setConnector] = useState<ConnectorContextProps>({
     explorer: undefined,
     logger: undefined,
   });
+  const connecting = config && config.connection;
 
-  const [prevConnection, setPrevConnection] = useState<
-    ConnectionConfig | undefined
-  >();
+  const sparql = useSPARQL(connecting!);
+  const openCypher = useOpenCypher(connecting!);
+  const gremlin = useGremlin(connecting!);
 
-  // connector instance is only rebuilt if any connection attribute change
-  if (!isSameConnection(prevConnection, config?.connection)) {
-    const isSPARQL =
-      config?.connection?.queryEngine &&
-      config?.connection?.queryEngine === "sparql";
+  useEffect(() => {
+    if (config?.connection?.url) {
+      const queryEngine = config?.connection?.queryEngine;
+      let explorer;
+      const logger = new LoggerConnector(config?.connection?.url, {
+        enable: import.meta.env.PROD,
+      });
 
-    const isOpenCypher =
-      config?.connection?.queryEngine &&
-      config?.connection?.queryEngine === "openCypher";
+      switch (queryEngine) {
+        case "sparql":
+          explorer = sparql;
+          break;
+        case "openCypher":
+          explorer = openCypher;
+          break;
+        default:
+          explorer = gremlin;
+          break;
+      }
 
-    if (!config?.connection?.url) {
-      setConnector({
-        explorer: undefined,
-        logger: undefined,
-      });
-    } else if (isSPARQL) {
-      setConnector({
-        explorer: new SPARQLConnector(config.connection),
-        logger: new LoggerConnector(config.connection.url, {
-          enable: import.meta.env.PROD,
-        }),
-      });
-    } else if (isOpenCypher) {
-      setConnector({
-        explorer: new OpenCypherConnector(config?.connection),
-        logger: new LoggerConnector(config.connection.url, {
-          enable: import.meta.env.PROD,
-        }),
-      });
-    } else {
-      setConnector({
-        explorer: new GremlinConnector(config.connection),
-        logger: new LoggerConnector(config.connection.url, {
-          enable: import.meta.env.PROD,
-        }),
-      });
+      setConnector({ explorer, logger });
     }
-
-    setPrevConnection(config?.connection);
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- We Only Want
+  }, [config?.connection?.url, config?.connection?.queryEngine]);
 
   return (
     <ConnectorContext.Provider value={connector}>
@@ -69,27 +55,3 @@ const ConnectorProvider = ({ children }: PropsWithChildren<any>) => {
 };
 
 export default ConnectorProvider;
-
-// Deep check without isEqual to avoid
-// nested comparison of non-relevant properties
-const attrs = [
-  "url",
-  "queryEngine",
-  "proxyConnection",
-  "graphDbUrl",
-  "awsAuthEnabled",
-  "awsRegion",
-  "enableCache",
-  "cacheTimeMs",
-  "fetchTimeoutMs",
-] as const;
-
-const isSameConnection = (a?: ConnectionConfig, b?: ConnectionConfig) => {
-  for (const attr of attrs) {
-    if (a?.[attr] !== b?.[attr]) {
-      return false;
-    }
-  }
-
-  return true;
-};

@@ -1,5 +1,5 @@
 import { useRecoilCallback } from "recoil";
-import { SchemaResponse } from "../connector/AbstractConnector";
+import { SchemaResponse } from "../connector/useGEFetch";
 import { schemaAtom } from "../core/StateProvider/schema";
 
 const useUpdateSchema = () => {

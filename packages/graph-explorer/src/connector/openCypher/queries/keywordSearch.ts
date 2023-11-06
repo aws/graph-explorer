@@ -3,7 +3,7 @@ import type {
     ErrorResponse,
     KeywordSearchRequest,
     KeywordSearchResponse,
-} from "../../AbstractConnector";
+} from "../../useGEFetch";
 import isErrorResponse from "../../utils/isErrorResponse";
 import mapApiVertex from "../mappers/mapApiVertex";
 import keywordSearchTemplate from "../templates/keywordSearchTemplate";
@@ -19,8 +19,8 @@ type RawKeySearchResponse = {
 };
 
 const keywordSearch = async (
-openCypherFetch: OpenCypherFetch,
-req: KeywordSearchRequest
+    openCypherFetch: OpenCypherFetch,
+    req: KeywordSearchRequest
 ): Promise<KeywordSearchResponse> => {
     const vertTypes = req.vertexTypes;
     let vertices: Array<Vertex> = [];
@@ -48,4 +48,3 @@ req: KeywordSearchRequest
 };
 
 export default keywordSearch;
-  

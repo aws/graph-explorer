@@ -1,5 +1,5 @@
 import { sanitizeText } from "../../../utils";
-import type { SchemaResponse } from "../../AbstractConnector";
+import type { SchemaResponse } from "../../useGEFetchTypes";
 import edgeLabelsTemplate from "../templates/edgeLabelsTemplate";
 import edgesSchemaTemplate from "../templates/edgesSchemaTemplate";
 import vertexLabelsTemplate from "../templates/vertexLabelsTemplate";

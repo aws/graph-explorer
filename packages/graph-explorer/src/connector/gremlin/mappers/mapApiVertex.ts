@@ -1,5 +1,5 @@
 import type { Vertex } from "../../../@types/entities";
-import type { NeighborsCountResponse } from "../../AbstractConnector";
+import type { NeighborsCountResponse } from "../../useGEFetchTypes";
 import type { GVertex } from "../types";
 import parsePropertiesValues from "./parsePropertiesValues";
 import toStringId from "./toStringId";

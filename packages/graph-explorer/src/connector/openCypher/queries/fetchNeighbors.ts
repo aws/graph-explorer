@@ -1,5 +1,5 @@
 
-import type { NeighborsRequest, NeighborsResponse } from "../../AbstractConnector";
+import type { NeighborsRequest, NeighborsResponse } from "../../useGEFetch";
 import mapApiEdge from "../mappers/mapApiEdge";
 import mapApiVertex from "../mappers/mapApiVertex";
 import oneHopTemplate from "../templates/oneHopTemplate";
@@ -22,15 +22,15 @@ type RawOneHopRequest = {
     ];
 };
 
-type NeighborsRequestEdge = NeighborsRequest & {edgeIds: string[]};
+type NeighborsRequestEdge = NeighborsRequest & { edgeIds: string[] };
 
 const fetchNeighbors = async (
-openCypherFetch: OpenCypherFetch,
-req: NeighborsRequest
+    openCypherFetch: OpenCypherFetch,
+    req: NeighborsRequest
 ): Promise<NeighborsResponse> => {
     const openCypherTemplate = oneHopTemplate(req);
     const oneHopData = await openCypherFetch<RawOneHopRequest>(openCypherTemplate);
-    
+
     const edges = oneHopData.results[0].eObjects.map(
         edgeInfo => mapApiEdge(edgeInfo.edge, edgeInfo.sourceType[0], edgeInfo.targetType[0])
     );

@@ -1,4 +1,4 @@
-import { NeighborsCountResponse } from "../../AbstractConnector";
+import { NeighborsCountResponse } from "../../useGEFetch";
 import neighborsCountTemplate from "../templates/neighborsCount/neighborsCountTemplate";
 import { SparqlFetch, SPARQLNeighborsCountRequest } from "../types";
 

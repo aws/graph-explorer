@@ -1,5 +1,5 @@
 import { Vertex } from "../../../@types/entities";
-import { NeighborsCountResponse } from "../../AbstractConnector";
+import type { NeighborsCountResponse } from "../../useGEFetchTypes";
 import { RawResult } from "../types";
 
 const mapRawResultToVertex = (

@@ -1,4 +1,4 @@
-import type { AbstractConnector } from "../../connector/AbstractConnector";
+import type { AbstractConnector } from "../../connector/useGEFetch";
 import LoggerConnector from "../../connector/LoggerConnector";
 
 export type ConnectorContextProps = {

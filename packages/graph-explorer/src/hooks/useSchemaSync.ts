@@ -1,6 +1,6 @@
 import { useCallback, useRef } from "react";
 import { useNotification } from "../components/NotificationProvider";
-import { SchemaResponse } from "../connector/AbstractConnector";
+import type { SchemaResponse } from "../connector/useGEFetchTypes";
 import useConfiguration from "../core/ConfigurationProvider/useConfiguration";
 import useConnector from "../core/ConnectorProvider/useConnector";
 import usePrefixesUpdater from "./usePrefixesUpdater";
@@ -54,7 +54,7 @@ const useSchemaSync = (onSyncChange?: (isSyncing: boolean) => void) => {
         return;
       }
 
-      if (!schema.vertices.length) {
+      if (!schema?.vertices.length) {
         notificationId.current && clearNotification(notificationId.current);
         enqueueNotification({
           title: config.displayLabel || config.id,

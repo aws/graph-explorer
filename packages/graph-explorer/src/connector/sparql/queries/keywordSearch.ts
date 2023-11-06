@@ -1,4 +1,4 @@
-import { ErrorResponse, KeywordSearchResponse } from "../../AbstractConnector";
+import { ErrorResponse, KeywordSearchResponse } from "../../useGEFetch";
 import isErrorResponse from "../../utils/isErrorResponse";
 import mapRawResultToVertex from "../mappers/mapRawResultToVertex";
 import keywordSearchTemplate from "../templates/keywordSearch/keywordSearchTemplate";

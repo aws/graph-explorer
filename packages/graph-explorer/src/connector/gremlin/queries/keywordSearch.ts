@@ -2,7 +2,7 @@ import type {
   ErrorResponse,
   KeywordSearchRequest,
   KeywordSearchResponse,
-} from "../../AbstractConnector";
+} from "../../useGEFetchTypes";
 import isErrorResponse from "../../utils/isErrorResponse";
 import mapApiVertex from "../mappers/mapApiVertex";
 import toStringId from "../mappers/toStringId";

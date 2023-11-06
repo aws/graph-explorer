@@ -1,5 +1,5 @@
 import { Edge, Vertex } from "../../@types/entities";
-import { NeighborsCountResponse } from "../AbstractConnector";
+import type { NeighborsCountResponse } from "../useGEFetchTypes";
 
 export type SparqlFetch = <TResult = any>(
   queryTemplate: string

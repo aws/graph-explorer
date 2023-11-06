@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { useNotification } from "../components/NotificationProvider";
-import type { NeighborsRequest } from "../connector/AbstractConnector";
+import type { NeighborsRequest } from "../connector/useGEFetchTypes";
 import useConnector from "../core/ConnectorProvider/useConnector";
 import useEntities from "./useEntities";
 
@@ -48,7 +48,7 @@ const useExpandNode = () => {
               neighborsCountByType:
                 neighborsCount?.counts ?? vertex.data.neighborsCountByType,
             },
-          };
+          } as NeighborsRequest;
         })
       );
 

@@ -29,7 +29,7 @@ import {
 import ExternalPaginationControl from "../../components/Tabular/controls/ExternalPaginationControl";
 import Tabular from "../../components/Tabular/Tabular";
 import Workspace from "../../components/Workspace/Workspace";
-import { KeywordSearchResponse } from "../../connector/AbstractConnector";
+import type { KeywordSearchResponse } from "../../connector/useGEFetchTypes";
 import {
   useConfiguration,
   useWithTheme,

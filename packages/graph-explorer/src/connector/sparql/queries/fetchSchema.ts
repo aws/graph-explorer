@@ -1,4 +1,4 @@
-import { SchemaResponse } from "../../AbstractConnector";
+import { SchemaResponse } from "../../useGEFetch";
 import classesWithCountsTemplates from "../templates/classesWithCountsTemplates";
 import predicatesByClassTemplate from "../templates/predicatesByClassTemplate";
 import predicatesWithCountsTemplate from "../templates/predicatesWithCountsTemplate";

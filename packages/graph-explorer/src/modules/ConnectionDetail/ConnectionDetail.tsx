@@ -75,7 +75,7 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
   const onConfigSync = useCallback(async () => {
     onSyncChange(true);
     try {
-      await updateSchema();
+      updateSchema;
     } finally {
       onSyncChange(false);
     }

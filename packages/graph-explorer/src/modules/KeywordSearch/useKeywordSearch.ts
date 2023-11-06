@@ -3,7 +3,7 @@ import uniqBy from "lodash/uniqBy";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useQuery } from "react-query";
 import { useNotification } from "../../components/NotificationProvider";
-import { KeywordSearchResponse } from "../../connector/AbstractConnector";
+import { KeywordSearchResponse } from "../../connector/useGEFetchTypes";
 import { useConfiguration } from "../../core";
 import useConnector from "../../core/ConnectorProvider/useConnector";
 import useDebounceValue from "../../hooks/useDebounceValue";

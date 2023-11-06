@@ -1,7 +1,7 @@
-import {
+import type {
   CountsByTypeRequest,
   CountsByTypeResponse,
-} from "../../AbstractConnector";
+} from "../../useGEFetchTypes";
 import classWithCountsTemplates from "../templates/classWithCountsTemplates";
 import { RawValue, SparqlFetch } from "../types";
 
