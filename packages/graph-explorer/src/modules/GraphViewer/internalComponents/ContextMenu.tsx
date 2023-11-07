@@ -11,6 +11,7 @@ import {
 import { GraphRef } from "../../../components/Graph/Graph";
 import {
   CenterGraphIcon,
+  DateLock,
   DetailsIcon,
   ExpandGraphIcon,
   FitToFrameIcon,
@@ -231,6 +232,15 @@ const ContextMenu = ({
             startAdornment={<ExpandGraphIcon />}
           >
             Expand Edges
+          </ListItem>
+          <ListItem
+            classNamePrefix={"ft"}
+            className={pfx("list-item")}
+            clickable={true}
+            onClick={openSidebarPanel("multi-details")}
+            startAdornment={<DateLock />}
+          >
+            Multi-Selection
           </ListItem>
           <ListItem
             classNamePrefix={"ft"}
