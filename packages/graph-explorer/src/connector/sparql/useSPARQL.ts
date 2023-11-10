@@ -1,12 +1,8 @@
 import type {
-  CountsByTypeRequest,
-  CountsByTypeResponse,
+  Criterion,
+  KeywordSearchRequest,
   KeywordSearchResponse,
-  NeighborsCountRequest,
-  NeighborsCountResponse,
-  NeighborsRequest,
   NeighborsResponse,
-  SchemaResponse,
 } from "../useGEFetchTypes";
 import useGEFetch from "../useGEFetch";
 import fetchBlankNodeNeighbors from "./queries/fetchBlankNodeNeighbors";
@@ -21,7 +17,7 @@ import { BlankNodesMap, GraphSummary, SPARQLNeighborsRequest } from "./types";
 import { useCallback, useState } from "react";
 import { ConnectionConfig } from "../../core";
 
-const replaceBlankNodeFromSearch = (blankNodes: BlankNodesMap, request, response) => {
+const replaceBlankNodeFromSearch = (blankNodes: BlankNodesMap, request: KeywordSearchRequest, response: KeywordSearchResponse) => {
   return response.vertices.map(vertex => {
     if (!vertex.data.__isBlank) {
       return vertex;
@@ -41,7 +37,7 @@ const replaceBlankNodeFromSearch = (blankNodes: BlankNodesMap, request, response
   });
 };
 
-const replaceBlankNodeFromNeighbors = (blankNodes: BlankNodesMap, request, response) => {
+const replaceBlankNodeFromNeighbors = (blankNodes: BlankNodesMap, request: SPARQLNeighborsRequest, response: KeywordSearchResponse) => {
   return response.vertices.map(vertex => {
     if (!vertex.data.__isBlank) {
       return vertex;
@@ -63,7 +59,7 @@ const replaceBlankNodeFromNeighbors = (blankNodes: BlankNodesMap, request, respo
    * This mock request takes into account the request filtering
    * to narrow the neighbors results of the given blank node.
    */
-const storedBlankNodeNeighborsRequest = (blankNodes, req) => {
+const storedBlankNodeNeighborsRequest = (blankNodes: BlankNodesMap, req: SPARQLNeighborsRequest) => {
   return new Promise(resolve => {
     const bNode = blankNodes.get(req.resourceURI);
     if (!bNode?.neighbors) {
@@ -74,7 +70,7 @@ const storedBlankNodeNeighborsRequest = (blankNodes, req) => {
       return;
     }
 
-    const filteredVertices = bNode.neighbors.vertices.filter(vertex => {
+    const filteredVertices = bNode.neighbors.vertices.filter((vertex: { data: { type: any; attributes: { [x: string]: any; }; }; }) => {
       if (!req.subjectClasses && !req.filterCriteria?.length) {
         return true;
       }
@@ -153,7 +149,7 @@ const useSPARQL = (connection: ConnectionConfig) => {
       resourceURI: req.vertexId,
       resourceClass: req.vertexType,
       subjectClasses: req.filterByVertexTypes,
-      filterCriteria: req.filterCriteria?.map((c: { name: any; value: any; }) => ({
+      filterCriteria: req.filterCriteria?.map((c: Criterion) => ({
         predicate: c.name,
         object: c.value,
       })),

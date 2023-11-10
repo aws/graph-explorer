@@ -1,5 +1,5 @@
 
-import type { NeighborsRequest, NeighborsResponse } from "../../useGEFetch";
+import type { NeighborsRequest, NeighborsResponse } from "../../useGEFetchTypes";
 import mapApiEdge from "../mappers/mapApiEdge";
 import mapApiVertex from "../mappers/mapApiVertex";
 import oneHopTemplate from "../templates/oneHopTemplate";

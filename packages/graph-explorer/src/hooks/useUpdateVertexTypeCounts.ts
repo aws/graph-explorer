@@ -35,7 +35,7 @@ const useUpdateVertexTypeCounts = (vertexType?: string) => {
           return;
         }
 
-        updateSchemaState(config.id, prevSchema => {
+        updateSchemaState(config.id, (prevSchema) => {
           const vertexSchema = prevSchema?.vertices.find(
             vertex => vertex.type === vertexType
           );

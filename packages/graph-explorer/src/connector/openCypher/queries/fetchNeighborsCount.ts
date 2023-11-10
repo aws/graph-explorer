@@ -1,4 +1,4 @@
-import type { NeighborsCountRequest, NeighborsCountResponse } from "../../useGEFetch";
+import type { NeighborsCountRequest, NeighborsCountResponse } from "../../useGEFetchTypes";
 import neighborsCountTemplate from "../templates/neighborsCountTemplate";
 import { OpenCypherFetch } from "../types";
 

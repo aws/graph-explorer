@@ -12,7 +12,6 @@ const useGremlin = (connection: ConnectionConfig) => {
   const useFetch = useGEFetch(connection);
   const url = connection.url;
   const _rawIdTypeMap = useMemo(() => {
-    // Stores the id type before casting it to string
     return new Map<string, "string" | "number">();
   }, []);
 

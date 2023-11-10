@@ -61,6 +61,7 @@ const useSchemaSync = (onSyncChange?: (isSyncing: boolean) => void) => {
         return;
       }
 
+      if (!schema) return;
       if (!schema?.vertices.length) {
         notificationId.current && clearNotification(notificationId.current);
         enqueueNotification({

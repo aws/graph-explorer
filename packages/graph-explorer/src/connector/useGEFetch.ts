@@ -45,7 +45,7 @@ const useGEFetch = (connection: ConnectionConfig) => {
   }, [_setToCache]);
 
   const getAuthHeaders = useCallback((typeHeaders) => {
-    const headers: HeadersInit = { ...typeHeaders };
+    const headers: HeadersInit = {};
     if (connection.proxyConnection) {
       headers["graph-db-connection-url"] = connection.graphDbUrl || "";
     }
@@ -53,7 +53,7 @@ const useGEFetch = (connection: ConnectionConfig) => {
       headers["aws-neptune-region"] = connection.awsRegion || "";
     }
 
-    return headers;
+    return { headers, ...typeHeaders };
 
   }, [connection.awsAuthEnabled, connection.awsRegion, connection.graphDbUrl, connection.proxyConnection]);
 

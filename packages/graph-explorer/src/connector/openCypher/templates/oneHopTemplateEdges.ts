@@ -1,4 +1,4 @@
-import type { Criterion, NeighborsRequest } from "../../useGEFetch";
+import type { Criterion, NeighborsRequest } from "../../useGEFetchTypes";
 
 const criterionNumberTemplate = ({
   name,
@@ -133,7 +133,7 @@ const oneHopTemplateEdges = ({
     template += `(tgt) WHERE ID(v) = \"${vertexId}\" AND ID(e) IN [${formattedEdgeIds}] `;
   }
 
-  let filterCriteriaTemplate = filterCriteria?.map(criterionTemplate).join(" AND ");
+  const filterCriteriaTemplate = filterCriteria?.map(criterionTemplate).join(" AND ");
   if (filterCriteriaTemplate) {
     template += `AND ${filterCriteriaTemplate} `;
   }

@@ -223,7 +223,9 @@ const DataExplorer = ({ classNamePrefix = "ft" }: ConnectionsProps) => {
           return;
         }
 
-        updatePrefixes(response.vertices.map(v => v.data.id));
+        updatePrefixes(
+          response.vertices.map((v: { data: { id: any } }) => v.data.id)
+        );
       },
     }
   );

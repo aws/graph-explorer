@@ -1,11 +1,11 @@
 export type LogLevel = "error" | "warn" | "info" | "debug" | "trace";
 
-type Options = {enable?: boolean};
+type Options = { enable?: boolean };
 export default class LoggerConnector {
   private readonly _baseUrl: string;
   private readonly _options: Options;
 
-  constructor(connectionUrl: string, options: Options = { enable: true}) {
+  constructor(connectionUrl: string, options: Options = { enable: true }) {
     const url = connectionUrl.replace(/\/$/, "");
     this._baseUrl = `${url}/logger`;
     this._options = options;
