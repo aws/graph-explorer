@@ -15,6 +15,7 @@ dotenv.config({ path: "../graph-explorer/.env" });
 
 const proxyTimeout = process.env.PROXY_REQUEST_TIMEOUT || 5 * 60 * 1000; // 5 minutes in milliseconds
 const refetchMaxRetries = process.env.PROXY_MAX_RETRIES || 1;
+const IAMService = process.env.IAM_SERVICE || "neptune-db";
 
 const proxyLogger = pino({
   level: process.env.LOG_LEVEL,
@@ -90,7 +91,7 @@ const errorHandler = (error, request, response, next) => {
         host: url.hostname,
         port: url.port,
         path: url.pathname + url.search,
-        service: "neptune-db",
+        service: IAMService,
         region: headers["aws-neptune-region"],
       });
       headers = { ...headers, ...data };
@@ -237,7 +238,7 @@ const errorHandler = (error, request, response, next) => {
     } catch (error) {
       next(error);
     }
-});
+  });
 
   app.use(errorHandler);
   app.timeout = proxyTimeout; // Express default is 120000 (2 minutes)
