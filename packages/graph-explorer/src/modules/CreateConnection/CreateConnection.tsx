@@ -29,6 +29,7 @@ type ConnectionForm = {
   proxyConnection?: boolean;
   graphDbUrl?: string;
   awsAuthEnabled?: boolean;
+  serviceType?: "neptune-db" | "neptune-graph";
   awsRegion?: string;
   enableCache?: boolean;
   cacheTimeMs?: number;
@@ -39,9 +40,9 @@ export const CONNECTIONS_OP: {
   label: string;
   value: NonNullable<ConnectionConfig["queryEngine"]>;
 }[] = [
-  { label: "PG (Property Graph) - Gremlin", value: "gremlin" },
-  { label: "PG (Property Graph) - OpenCypher", value: "openCypher" },
-  { label: "RDF (Resource Description Framework) - SPARQL", value: "sparql" },
+  { label: "Gremlin - PG (Property Graph)", value: "gremlin" },
+  { label: "OpenCypher - PG (Property Graph)", value: "openCypher" },
+  { label: "SPARQL - RDF (Resource Description Framework)", value: "sparql" },
 ];
 
 export type CreateConnectionProps = {
@@ -74,6 +75,7 @@ const CreateConnection = ({
             proxyConnection: data.proxyConnection,
             graphDbUrl: data.graphDbUrl,
             awsAuthEnabled: data.awsAuthEnabled,
+            serviceType: data.serviceType,
             awsRegion: data.awsRegion,
             enableCache: data.enableCache,
             cacheTimeMs: data.cacheTimeMs * 60 * 1000,
@@ -103,6 +105,7 @@ const CreateConnection = ({
             proxyConnection: data.proxyConnection,
             graphDbUrl: data.graphDbUrl,
             awsAuthEnabled: data.awsAuthEnabled,
+            serviceType: data.serviceType,
             awsRegion: data.awsRegion,
             cacheTimeMs: data.cacheTimeMs * 60 * 1000,
             fetchTimeoutMs: data.fetchTimeMs,
@@ -144,6 +147,7 @@ const CreateConnection = ({
     proxyConnection: initialData?.proxyConnection || false,
     graphDbUrl: initialData?.graphDbUrl || "",
     awsAuthEnabled: initialData?.awsAuthEnabled || false,
+    serviceType: initialData?.serviceType || "neptune-db",
     awsRegion: initialData?.awsRegion || "",
     enableCache: true,
     cacheTimeMs: (initialData?.cacheTimeMs ?? 10 * 60 * 1000) / 60000,
@@ -271,19 +275,32 @@ const CreateConnection = ({
           </div>
         )}
         {form.proxyConnection && form.awsAuthEnabled && (
-          <div className={pfx("input-url")}>
-            <Input
-              data-autofocus={true}
-              label={"AWS Region"}
-              value={form.awsRegion}
-              onChange={onFormChange("awsRegion")}
-              errorMessage={"Region is required"}
-              placeholder={"us-east-1"}
-              validationState={
-                hasError && !form.awsRegion ? "invalid" : "valid"
-              }
-            />
-          </div>
+          <>
+            <div className={pfx("input-url")}>
+              <Input
+                data-autofocus={true}
+                label={"AWS Region"}
+                value={form.awsRegion}
+                onChange={onFormChange("awsRegion")}
+                errorMessage={"Region is required"}
+                placeholder={"us-east-1"}
+                validationState={
+                  hasError && !form.awsRegion ? "invalid" : "valid"
+                }
+              />
+            </div>
+            <div className={pfx("input-url")}>
+              <Select
+                label={"Service Type"}
+                options={[
+                  { label: "Neptune DB", value: "neptune-db" },
+                  { label: "Neptune Graph", value: "neptune-graph" },
+                ]}
+                value={form.serviceType}
+                onChange={onFormChange("serviceType")}
+              />
+            </div>
+          </>
         )}
       </div>
       <div className={pfx("configuration-form")}>
