@@ -12,18 +12,15 @@ import { ConnectionConfig } from "../../core";
 const useOpenCypher = (connection: ConnectionConfig) => {
   const useFetch = useGEFetch(connection);
   const url = connection.url;
-  console.log('we are here openCypher');
-
 
   const _openCypherFetch = useCallback((options) => {
     return async (queryTemplate: string) => {
-      const body = `query=${encodeURIComponent(queryTemplate)}`;
       return useFetch.request(`${url}/openCypher`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Type': 'application/json',
         },
-        body,
+        body: JSON.stringify({ query: queryTemplate }),
         disableCache: options?.disableCache,
         ...options
       });

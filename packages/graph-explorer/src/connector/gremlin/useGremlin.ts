@@ -18,16 +18,17 @@ const useGremlin = (connection: ConnectionConfig) => {
 
   const _gremlinFetch = useCallback((options) => {
     return async (queryTemplate: string) => {
-      const body = { gremlin: queryTemplate };
+      const body = JSON.stringify({ gremlin: queryTemplate });
       return useFetch.request(`${url}/gremlin`, {
         method: "POST",
         headers: {
           'Content-Type': 'application/json',
+          ...options.headers,
         },
-        body: JSON.stringify(body),
+        body,
         disableCache: options?.disableCache,
-        ...options,
       });
+
     };
   }, [url, useFetch]);
 

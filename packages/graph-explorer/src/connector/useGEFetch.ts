@@ -14,27 +14,26 @@ const localforageCache = localforage.createInstance({
 
 const useGEFetch = (connection: ConnectionConfig) => {
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const { url, enableCache, proxyConnection, awsAuthEnabled, awsRegion, graphDbUrl } = connection!;
 
-  if (!url) {
+  if (!connection.url) {
     throw new Error("Invalid configuration. Missing 'connection.url'");
   }
 
   const _getFromCache = useCallback(async (key) => {
-    if (!enableCache) {
+    if (!connection.enableCache) {
       return;
     }
 
     return localforageCache.getItem(key) as Promise<CacheItem | undefined>;
-  }, [enableCache]);
+  }, [connection.enableCache]);
 
   const _setToCache = useCallback(async (key, value) => {
-    if (enableCache) {
+    if (connection.enableCache) {
       return;
     }
 
     return localforageCache.setItem(key, value);
-  }, [enableCache]);
+  }, [connection.enableCache]);
 
   const _requestAndCache = useCallback(async (url, options) => {
     const response = await fetch(url, options);
@@ -45,19 +44,18 @@ const useGEFetch = (connection: ConnectionConfig) => {
     return data as any;
   }, [_setToCache]);
 
-  const getAuthHeaders = useCallback(() => {
-    const headers: HeadersInit = {};
-    if (proxyConnection) {
-      headers["graph-db-connection-url"] = graphDbUrl || "";
+  const getAuthHeaders = useCallback((typeHeaders) => {
+    const headers: HeadersInit = { ...typeHeaders };
+    if (connection.proxyConnection) {
+      headers["graph-db-connection-url"] = connection.graphDbUrl || "";
     }
-    if (awsAuthEnabled) {
-      delete headers["host"];
-      headers["aws-neptune-region"] = awsRegion || "";
+    if (connection.awsAuthEnabled) {
+      headers["aws-neptune-region"] = connection.awsRegion || "";
     }
 
     return headers;
 
-  }, [awsAuthEnabled, awsRegion, graphDbUrl, proxyConnection]);
+  }, [connection.awsAuthEnabled, connection.awsRegion, connection.graphDbUrl, connection.proxyConnection]);
 
 
   const request = useCallback(async (uri, options) => {
@@ -72,7 +70,7 @@ const useGEFetch = (connection: ConnectionConfig) => {
     }
 
     const fetchOptions: RequestInit = {
-      headers: getAuthHeaders(),
+      headers: getAuthHeaders(options.headers),
     };
 
     const connectionFetchTimeout = connection.fetchTimeoutMs;
@@ -83,8 +81,8 @@ const useGEFetch = (connection: ConnectionConfig) => {
       );
     }
 
-    return _requestAndCache(uri, { ...fetchOptions, ...options }) as Promise<any>;
-  }, [_getFromCache, _requestAndCache, connection.cacheTimeMs, connection.fetchTimeoutMs, getAuthHeaders]);  // dependency on connection assuming it affects this function
+    return _requestAndCache(uri, { ...options, ...fetchOptions }) as Promise<any>;
+  }, [_getFromCache, _requestAndCache, connection.cacheTimeMs, connection.fetchTimeoutMs, getAuthHeaders]);
 
   return {
     request,
