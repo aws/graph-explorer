@@ -10,12 +10,9 @@ const path = require("path");
 const pino = require("pino");
 const { fromNodeProviderChain } = require("@aws-sdk/credential-providers");
 const aws4 = require("aws4");
+const serviceType = process.env.SERVICE_TYPE || "neptune-db";
 
 dotenv.config({ path: "../graph-explorer/.env" });
-
-const proxyTimeout = process.env.PROXY_REQUEST_TIMEOUT || 5 * 60 * 1000; // 5 minutes in milliseconds
-const refetchMaxRetries = process.env.PROXY_MAX_RETRIES || 1;
-const serviceType = process.env.SERVICE_TYPE || "neptune-db";
 
 const proxyLogger = pino({
   level: process.env.LOG_LEVEL,
@@ -83,7 +80,12 @@ const errorHandler = (error, request, response, next) => {
     );
   }
 
-  const retryFetch = async (url, headers, retryDelay = 10000) => {
+  const retryFetch = async (
+    url,
+    headers,
+    retryDelay = 10000,
+    refetchMaxRetries = 1
+  ) => {
     // remove the existing host headers, we want ensure that we are passing the DB endpoint hostname.
     delete headers["host"];
     if (headers["aws-neptune-region"]) {
@@ -99,10 +101,7 @@ const errorHandler = (error, request, response, next) => {
     for (let i = 0; i < refetchMaxRetries; i++) {
       try {
         proxyLogger.debug("Fetching: " + url.href);
-        const res = await fetch(url.href, {
-          headers: headers,
-          timeout: proxyTimeout - 1000,
-        });
+        const res = await fetch(url.href, { headers });
         if (!res.ok) {
           const result = await res.json();
           proxyLogger.error("!!Request failure!!");
@@ -203,7 +202,7 @@ const errorHandler = (error, request, response, next) => {
     }
   });
 
-  app.get("/logger", (req, res) => {
+  app.get("/logger", (req, res, next) => {
     let message;
     let level;
 
@@ -241,7 +240,6 @@ const errorHandler = (error, request, response, next) => {
   });
 
   app.use(errorHandler);
-  app.timeout = proxyTimeout; // Express default is 120000 (2 minutes)
 
   // Start the server on port 80 or 443 (if HTTPS is enabled)
   if (process.env.NEPTUNE_NOTEBOOK === "true") {
