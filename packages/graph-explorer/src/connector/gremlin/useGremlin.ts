@@ -22,7 +22,6 @@ const useGremlin = (connection: ConnectionConfig) => {
         method: "POST",
         headers: {
           'Content-Type': 'application/json',
-          ...options.headers,
         },
         body,
         disableCache: options?.disableCache,
@@ -35,7 +34,10 @@ const useGremlin = (connection: ConnectionConfig) => {
     const ops = { ...options, disableCache: true };
     let summary;
     try {
-      const response = await useFetch.request(`${url}/pg/statistics/summary?mode=detailed`, ops);
+      const response = await useFetch.request(`${url}/pg/statistics/summary?mode=detailed`, {
+        method: "GET",
+        ...ops
+      });
       summary = response.payload.graphSummary as GraphSummary;
     } catch (e) {
       if (import.meta.env.DEV) {

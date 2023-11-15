@@ -53,7 +53,7 @@ const useGEFetch = (connection: ConnectionConfig) => {
       headers["aws-neptune-region"] = connection.awsRegion || "";
     }
 
-    return { headers, ...typeHeaders };
+    return { ...headers, ...typeHeaders };
 
   }, [connection.awsAuthEnabled, connection.awsRegion, connection.graphDbUrl, connection.proxyConnection]);
 

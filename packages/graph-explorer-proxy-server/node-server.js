@@ -52,11 +52,66 @@ const errorHandler = (error, request, response, next) => {
     },
   });
 };
+const retryFetch = async (
+  url,
+  headers,
+  retryDelay = 10000,
+  refetchMaxRetries = 1
+) => {
+  if (headers["aws-neptune-region"]) {
+    const data = await getIAMHeaders({
+      host: url.hostname,
+      port: url.port,
+      path: url.pathname + url.search,
+      service: "neptune-db",
+      region: headers["aws-neptune-region"],
+    });
+    headers = { ...headers, ...data };
+  }
+
+  for (let i = 0; i < refetchMaxRetries; i++) {
+    try {
+      const newHeaders = removeHostHeader(headers);
+      const res = await fetch(url.href, newHeaders);
+      if (!res.ok) {
+        const result = await res.json();
+        proxyLogger.error("!!Request failure!!");
+        proxyLogger.error("URL: " + url.href);
+        throw new Error("\n" + JSON.stringify(result, null, 2));
+      } else {
+        proxyLogger.debug("Successful response: " + res.statusText);
+        return res;
+      }
+    } catch (err) {
+      if (i === refetchMaxRetries - 1) {
+        proxyLogger.error("!!Proxy Retry Fetch Reached Maximum Tries!!");
+        throw err;
+      } else {
+        proxyLogger.debug("Proxy Retry Fetch Count::: " + i);
+        await new Promise((resolve) => setTimeout(resolve, retryDelay));
+      }
+    }
+  }
+};
+
+const removeHostHeader = (headers) => {
+  const { host, ...otherHeaders } = headers;
+  return otherHeaders;
+};
+
+async function fetchData(url, options, res, next) {
+  try {
+    const response = await retryFetch(new URL(url), options);
+    const data = await response.json();
+    res.send(data);
+  } catch (error) {
+    next(error);
+  }
+}
+
 (async () => {
   app.use(cors());
-  // To allow the proxy to parse the body of the request as JSON
   app.use(express.json());
-  // To allow the proxy to parse the body of the request as URL encoded data
   app.use(express.urlencoded({ extended: true }));
   app.use(
     "/defaultConnection",
@@ -75,190 +130,93 @@ const errorHandler = (error, request, response, next) => {
       express.static(path.join(__dirname, "../graph-explorer/dist"))
     );
   }
-  const retryFetch = async (
-    url,
-    headers,
-    retryDelay = 10000,
-    refetchMaxRetries = 1
-  ) => {
-    delete headers["host"];
-
-    if (headers["aws-neptune-region"]) {
-      const data = await getIAMHeaders({
-        host: url.hostname,
-        port: url.port,
-        path: url.pathname + url.search,
-        service: "neptune-db",
-        region: headers["aws-neptune-region"],
-      });
-      headers = { ...headers, ...data };
-    }
-
-    for (let i = 0; i < refetchMaxRetries; i++) {
-      try {
-        const res = await fetch(url.href, headers);
-        if (!res.ok) {
-          const result = await res.json();
-          proxyLogger.error("!!Request failure!!");
-          proxyLogger.error("URL: " + url.href);
-          throw new Error("\n" + JSON.stringify(result, null, 2));
-        } else {
-          proxyLogger.debug("Successful response: " + res.statusText);
-          return res;
-        }
-      } catch (err) {
-        if (i === refetchMaxRetries - 1) {
-          proxyLogger.error("!!Proxy Retry Fetch Reached Maximum Tries!!");
-          throw err;
-        } else {
-          proxyLogger.debug("Proxy Retry Fetch Count::: " + i);
-          await new Promise((resolve) => setTimeout(resolve, retryDelay));
-        }
-      }
-    }
-  };
-
   // POST endpoint for SPARQL queries.
   app.post("/sparql", async (req, res, next) => {
-    // Logging the body for debugging purposes. This should be removed in production.(Uncomment below to info logging)
-    // proxyLogger.info(":/sparql req.body:", req.body);
-
     // Validate the input before making any external calls.
     if (!req.body.query) {
       return res.status(400).send({ error: "Query not provided" });
     }
+    const rawHeaders = removeHostHeader(req.headers);
+    const rawUrl = `${req.headers["graph-db-connection-url"]}/sparql`;
+    const requestOptions = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        ...rawHeaders,
+      },
+      // Properly encode the query to ensure it's safe for URL transport.
+      body: `query=${encodeURIComponent(req.body.query)}`,
+    };
 
-    try {
-      // Execute a retryable fetch operation to the SPARQL endpoint.
-      const response = await retryFetch(
-        new URL(`${req.headers["graph-db-connection-url"]}/sparql`),
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-          // Properly encode the query to ensure it's safe for URL transport.
-          body: `query=${encodeURIComponent(req.body.query)}`,
-        }
-      );
-
-      // Parse the JSON response and forward it to the client.
-      const data = await response.json();
-      res.send(data);
-    } catch (error) {
-      // Pass any errors to the error-handling middleware.
-      next(error);
-    }
+    fetchData(rawUrl, requestOptions, res, next);
   });
 
   // POST endpoint for Gremlin queries.
   app.post("/gremlin", async (req, res, next) => {
-    // Logging the body for debugging purposes. This should be removed in production.(Uncomment below to info logging)
-    // proxyLogger.info(":/gremlin req.body:", req.body);
-
     // Validate the input before making any external calls.
     if (!req.body.gremlin) {
       return res.status(400).send({ error: "Gremlin query not provided" });
     }
+    const body = { gremlin: req.body.gremlin };
+    const rawHeaders = removeHostHeader(req.headers);
+    const rawUrl = `${req.headers["graph-db-connection-url"]}/gremlin`;
+    const requestOptions = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...rawHeaders,
+      },
+      body: JSON.stringify(body),
+    };
 
-    try {
-      // Package the query into a JSON body.
-      const body = { gremlin: req.body.gremlin };
-
-      // Execute a retryable fetch operation to the Gremlin endpoint.
-      const response = await retryFetch(
-        new URL(`${req.headers["graph-db-connection-url"]}/gremlin`),
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(body),
-        }
-      );
-
-      // Parse the JSON response and forward it to the client.
-      const data = await response.json();
-      res.send(data);
-    } catch (error) {
-      // Pass any errors to the error-handling middleware.
-      next(error);
-    }
+    fetchData(rawUrl, requestOptions, res, next);
   });
 
   // POST endpoint for openCypher queries.
   app.post("/openCypher", async (req, res, next) => {
-    // Logging the body for debugging purposes. This should be removed in production.(Uncomment below to info logging)
-    // proxyLogger.info(":/openCypher req.body:", req.body);
-
     // Validate the input before making any external calls.
     if (!req.body.query) {
       return res.status(400).send({ error: "openCypher query not provided" });
     }
+    const body = { query: req.body.query };
+    const rawUrl = `${req.headers["graph-db-connection-url"]}/openCypher`;
+    const rawHeaders = removeHostHeader(req.headers);
+    const requestOptions = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...rawHeaders,
+      },
+      body: JSON.stringify(body),
+    };
 
-    try {
-      // Package the query into a JSON body.
-      const body = { query: req.body.query };
-
-      // Execute a retryable fetch operation to the openCypher endpoint.
-      const response = await retryFetch(
-        new URL(`${req.headers["graph-db-connection-url"]}/openCypher`),
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(body),
-        }
-      );
-
-      // Parse the JSON response and forward it to the client.
-      const data = await response.json();
-      res.send(data);
-    } catch (error) {
-      // Pass any errors to the error-handling middleware.
-      next(error);
-    }
+    fetchData(rawUrl, requestOptions, res, next);
   });
 
   // GET endpoint to retrieve PostgreSQL statistics summary.
   app.get("/pg/statistics/summary", async (req, res, next) => {
-    try {
-      // Execute a fetch operation to retrieve the PostgreSQL statistics summary.
-      const response = await retryFetch(
-        new URL(
-          `${req.headers["graph-db-connection-url"]}/pg/statistics/summary`
-        ),
-        req.headers
-      );
-
-      // Parse the JSON response and forward it to the client.
-      const data = await response.json();
-      res.send(data);
-    } catch (err) {
-      // Pass any errors to the error-handling middleware.
-      next(err);
-    }
+    const rawUrl = `${req.headers["graph-db-connection-url"]}/pg/statistics/summary?mode=detailed`;
+    const rawHeaders = removeHostHeader(req.headers);
+    const requestOptions = {
+      method: "GET",
+      headers: {
+        ...rawHeaders,
+      },
+    };
+    fetchData(rawUrl, requestOptions, res, next);
   });
 
   // GET endpoint to retrieve RDF statistics summary.
   app.get("/rdf/statistics/summary", async (req, res, next) => {
-    try {
-      // Execute a fetch operation to retrieve the RDF statistics summary.
-      const response = await retryFetch(
-        new URL(
-          `${req.headers["graph-db-connection-url"]}/rdf/statistics/summary`
-        ),
-        req.headers
-      );
-
-      // Parse the JSON response and forward it to the client.
-      const data = await response.json();
-      res.send(data);
-    } catch (err) {
-      // Pass any errors to the error-handling middleware.
-      next(err);
-    }
+    const rawUrl = `${req.headers["graph-db-connection-url"]}/rdf/statistics/summary?mode=detailed`;
+    const rawHeaders = removeHostHeader(req.headers);
+    const requestOptions = {
+      method: "GET",
+      headers: {
+        ...rawHeaders,
+      },
+    };
+    fetchData(rawUrl, requestOptions, res, next);
   });
 
   app.get("/logger", (req, res, next) => {
