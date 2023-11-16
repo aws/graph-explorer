@@ -1,5 +1,5 @@
 import { css } from "@emotion/css";
-import React, { createContext, CSSProperties, FC, useCallback } from "react";
+import { createContext, CSSProperties, FC, useCallback, useRef } from "react";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { v4 } from "uuid";
 
@@ -132,7 +132,7 @@ export const NotificationProvider: FC<NotificationProviderProps> = ({
     [dispatchNotification]
   );
 
-  const nodeRef = React.useRef(null);
+  const nodeRef = useRef<HTMLElement>(null);
 
   return (
     <NotificationContext.Provider
