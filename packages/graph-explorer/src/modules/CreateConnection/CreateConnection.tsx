@@ -147,7 +147,7 @@ const CreateConnection = ({
     proxyConnection: initialData?.proxyConnection || false,
     graphDbUrl: initialData?.graphDbUrl || "",
     awsAuthEnabled: initialData?.awsAuthEnabled || false,
-    serviceType: initialData?.serviceType || "neptune-db",
+    serviceType: initialData?.serviceType || "neptune-graph",
     awsRegion: initialData?.awsRegion || "",
     enableCache: true,
     cacheTimeMs: (initialData?.cacheTimeMs ?? 10 * 60 * 1000) / 60000,
@@ -177,7 +177,7 @@ const CreateConnection = ({
       return;
     }
 
-    if (form.awsAuthEnabled && !form.awsRegion) {
+    if (form.awsAuthEnabled && !form.awsRegion && !form.serviceType) {
       setError(true);
       return;
     }

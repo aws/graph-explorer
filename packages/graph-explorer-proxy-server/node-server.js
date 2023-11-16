@@ -10,7 +10,6 @@ const path = require("path");
 const pino = require("pino");
 const { fromNodeProviderChain } = require("@aws-sdk/credential-providers");
 const aws4 = require("aws4");
-const serviceType = process.env.SERVICE_TYPE || "neptune-db";
 
 dotenv.config({ path: "../graph-explorer/.env" });
 
@@ -62,6 +61,10 @@ const errorHandler = (error, request, response, next) => {
 
 (async () => {
   app.use(cors());
+  app.use((req, res, next) => {
+    console.log("Headers: ", req.headers);
+    next();
+  });
   app.use(
     "/defaultConnection",
     express.static(
@@ -88,13 +91,16 @@ const errorHandler = (error, request, response, next) => {
   ) => {
     // remove the existing host headers, we want ensure that we are passing the DB endpoint hostname.
     delete headers["host"];
-    if (headers["aws-neptune-region"]) {
+    const serviceType = headers["service-type"];
+    const AWSRegion = headers["aws-neptune-region"];
+
+    if (AWSRegion && serviceType) {
       data = await getIAMHeaders({
         host: url.hostname,
         port: url.port,
         path: url.pathname + url.search,
         service: serviceType,
-        region: headers["aws-neptune-region"],
+        region: AWSRegion,
       });
       headers = { ...headers, ...data };
     }

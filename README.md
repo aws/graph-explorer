@@ -123,7 +123,7 @@ To provide a default connection such that initial loads of the graph explorer al
     - `GRAPH_CONNECTION_URL` - `None` - See [Add a New Connection](#connections-ui)
   - Required if `USING_PROXY_SERVER=True` and `IAM=True`
     - `AWS_REGION` - `None` - See [Add a New Connection](#connections-ui)
-    - `SERVICE_TYPE` - `Neptune-db`
+    - `SERVICE_TYPE` - `neptune-db`
 
 #### JSON Configuration Approach
 
@@ -135,7 +135,7 @@ First, create a `config.json` file containing values for the connection attribut
      "GRAPH_CONNECTION_URL": "https://cluster-cqmizgqgrsbf.us-west-2.neptune.amazonaws.com:8182",
      "USING_PROXY_SERVER": true, (Can be string or boolean)
      "IAM": true, (Can be string or boolean)
-     "SERVICE_TYPE": "Neptune-db",
+     "SERVICE_TYPE": "neptune-db",
      "AWS_REGION": "us-west-2",
      "GRAPH_TYPE": "gremlin" (Possible Values: "gremlin", "sparql", "opencypher"),
      "GRAPH_EXP_HTTPS_CONNECTION": true (Can be string or boolean),
@@ -163,7 +163,7 @@ docker run -p 80:80 -p 443:443 \
  --env IAM=false \
  --env GRAPH_CONNECTION_URL=https://cluster-cqmizgqgrsbf.us-west-2.neptune.amazonaws.com:8182 \
  --env AWS_REGION=us-west-2 \
- --env SERVICE_TYPE=Neptune-db \
+ --env SERVICE_TYPE=neptune-db \
  --env PROXY_SERVER_HTTPS_CONNECTION=true \
  --env GRAPH_EXP_FETCH_REQUEST_TIMEOUT=9000 \
  graph-explorer

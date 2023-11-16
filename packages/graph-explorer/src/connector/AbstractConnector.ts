@@ -307,6 +307,9 @@ export abstract class AbstractConnector {
     if (this._connection?.awsAuthEnabled) {
       headers["aws-neptune-region"] = this._connection?.awsRegion || "";
     }
+    if (this._connection?.serviceType) {
+      headers["service-type"] = this._connection?.serviceType || "";
+    }
 
     return headers;
   }
