@@ -61,10 +61,6 @@ const errorHandler = (error, request, response, next) => {
 
 (async () => {
   app.use(cors());
-  app.use((req, res, next) => {
-    console.log("Headers: ", req.headers);
-    next();
-  });
   app.use(
     "/defaultConnection",
     express.static(
