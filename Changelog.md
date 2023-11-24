@@ -11,9 +11,12 @@ The next release will include the following feature enhancements and bug fixes:
 **Bug fixes**
 
 - Fixed node and edge counts not updating on connection re-synchronization (<<https://github.com/aws/graph-explorer/pull/209>)
-- Fixed loading spinner rotation when synchronizing schema (<<https://github.com/aws/graph-explorer/pull/207>)
+- Fixed issue with Transition2 findDOMNode deprecation (<https://github.com/aws/graph-explorer/pull/211>
+- Fixed loading spinner rotation when synchronizing schema (<https://github.com/aws/graph-explorer/pull/207>)
 - Fixed highlight not persisting on selected graph element (<https://github.com/aws/graph-explorer/pull/187>)
-- Bumped @types/semver to 7.5.2 in lockfile
+- Bumped `@types/semver` to `7.5.2`
+- Bumped `babel`, `postcss`, and `vite` to latest
+- Bumped `crypto-js` to `4.2.0`
 
 ## 1.4.0
 
