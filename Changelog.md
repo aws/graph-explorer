@@ -17,6 +17,7 @@ The next release will include the following feature enhancements and bug fixes:
 - Bumped `@types/semver` to `7.5.2`
 - Bumped `babel`, `postcss`, and `vite` to latest
 - Bumped `crypto-js` to `4.2.0`
+- Bumped `@adobe/css-tools` to `4.3.2`
 
 ## 1.4.0
 
