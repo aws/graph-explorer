@@ -10,15 +10,17 @@ The next release will include the following feature enhancements and bug fixes:
 
 **Bug fixes**
 
-- Fixed Synchronization with high number of labels with long strings  (<https://github.com/aws/graph-explorer/pull/206>)
+- Fixed synchronization with high number of labels with long strings  (<https://github.com/aws/graph-explorer/pull/206>)
 - Fixed loading spinner rotation when synchronizing schema (<<https://github.com/aws/graph-explorer/pull/207>)
+- Fixed node and edge counts not updating on connection re-synchronization (<<https://github.com/aws/graph-explorer/pull/209>)
+- Fixed issue with Transition2 findDOMNode deprecation (<https://github.com/aws/graph-explorer/pull/211>
 - Fixed highlight not persisting on selected graph element (<https://github.com/aws/graph-explorer/pull/187>)
 - Bumped `@types/semver` to `7.5.2`
 - Bumped `babel`, `postcss`, and `vite` to latest
 - Bumped `crypto-js` to `4.2.0`
 
 
-## 1.4.0
+## Release 1.4.0
 
 This release includes the following feature enhancements and bug fixes:
 

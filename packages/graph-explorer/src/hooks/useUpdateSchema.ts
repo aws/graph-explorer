@@ -17,37 +17,28 @@ const useUpdateSchema = () => {
         const currentSchema =
           typeof schema === "function" ? schema(prevSchema) : schema;
 
-        // Preserve vertices counts
-        const vertices = (
-          currentSchema?.vertices ||
-          prevSchema?.vertices ||
-          []
-        ).map(vertex => {
-          const prevVertex = prevSchema?.vertices.find(
-            v => v.type === vertex.type
-          );
+        // Vertices counts
+        const vertices = (currentSchema?.vertices || []).map(vertex => {
           return {
             ...vertex,
-            total: vertex.total ?? prevVertex?.total,
+            total: vertex.total,
           };
         });
 
-        // Preserve edges counts
+        // Edges counts
         const edges = (currentSchema?.edges || prevSchema?.edges || []).map(
           edge => {
-            const prevEdge = prevSchema?.edges.find(e => e.type === edge.type);
             return {
               ...edge,
-              total: edge.total ?? prevEdge?.total,
+              total: edge.total,
             };
           }
         );
 
         updatedSchema.set(id, {
-          totalVertices:
-            currentSchema?.totalVertices || prevSchema?.totalVertices || 0,
+          totalVertices: currentSchema?.totalVertices || 0,
           vertices,
-          totalEdges: currentSchema?.totalEdges || prevSchema?.totalEdges || 0,
+          totalEdges: currentSchema?.totalEdges || 0,
           edges,
           prefixes: prevSchema?.prefixes || [],
           lastUpdate: !currentSchema ? prevSchema?.lastUpdate : new Date(),
