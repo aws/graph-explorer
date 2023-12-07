@@ -63,6 +63,12 @@
     "no-unfetched-subtitle": "This node has been completely expanded",
     "edges-of-type":"Expand Neighbor by Edge Type"
   },
+  "multi-details": {
+    "multi-details-title":"Current Nodes and Edge List",
+    "multi-details-subtitle":"Select a Node or Edge to create with a list",
+    "no-selection-title":"No Selection",
+    "no-selection-subtitle":"Select one or more Nodes to start a list"
+  },
   "entities-tabular": {
     "all-nodes": "All Nodes",
     "all-edges": "All Edges",
