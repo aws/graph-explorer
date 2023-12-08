@@ -5,12 +5,17 @@ const fetch = (...args) =>
   import("node-fetch").then(({ default: fetch }) => fetch(...args));
 const app = express();
 const https = require("https");
+const bodyParser = require("body-parser");
 const fs = require("fs");
 const path = require("path");
 const pino = require("pino");
 const { fromNodeProviderChain } = require("@aws-sdk/credential-providers");
 const aws4 = require("aws4");
+
+// Load environment variables from .env file.
 dotenv.config({ path: "../graph-explorer/.env" });
+
+// Create a logger instance with pino.
 const proxyLogger = pino({
   level: process.env.LOG_LEVEL || "info",
   transport: {
@@ -21,6 +26,37 @@ const proxyLogger = pino({
     },
   },
 });
+
+// Middleware to sign requests with AWS4 signing process if IAM is enabled.
+function aws4SigningMiddleware(req, res, next) {
+  if (req.headers["aws-neptune-region"]) {
+    const options = {
+      host: req.hostname,
+      port: req.port,
+      path: req.path + req.search,
+      service: "neptune-db",
+      region: req.headers["aws-neptune-region"],
+    };
+
+    (async () => {
+      try {
+        const credentials = await getIAMHeaders(options);
+        const signedHeaders = aws4.sign(options, credentials).headers;
+        req.headers = { ...req.headers, ...signedHeaders };
+        delete req.headers["Host"];
+        delete req.headers["host"];
+        next();
+      } catch (error) {
+        console.error(error);
+        next(error);
+      }
+    })();
+  } else {
+    next();
+  }
+}
+
+// Function to get IAM headers for AWS4 signing process.
 async function getIAMHeaders(options) {
   proxyLogger.debug("IAM on");
   const credentialProvider = fromNodeProviderChain();
@@ -37,6 +73,8 @@ async function getIAMHeaders(options) {
   }).headers;
   return headers;
 }
+
+// Error handler middleware to log errors and send appropriate response.
 const errorHandler = (error, request, response, next) => {
   if (error.extraInfo) {
     proxyLogger.error(error.extraInfo + error.message);
@@ -52,27 +90,19 @@ const errorHandler = (error, request, response, next) => {
     },
   });
 };
+
+// Function to retry fetch requests with exponential backoff.
 const retryFetch = async (
   url,
   headers,
   retryDelay = 10000,
   refetchMaxRetries = 1
 ) => {
-  if (headers["aws-neptune-region"]) {
-    const data = await getIAMHeaders({
-      host: url.hostname,
-      port: url.port,
-      path: url.pathname + url.search,
-      service: "neptune-db",
-      region: headers["aws-neptune-region"],
-    });
-    headers = { ...headers, ...data };
-  }
-
   for (let i = 0; i < refetchMaxRetries; i++) {
+    delete headers.headers["host"];
+    delete headers.headers["Host"];
     try {
-      const newHeaders = removeHostHeader(headers);
-      const res = await fetch(url.href, newHeaders);
+      const res = await fetch(url.href, headers);
       if (!res.ok) {
         const result = await res.json();
         proxyLogger.error("!!Request failure!!");
@@ -94,11 +124,7 @@ const retryFetch = async (
   }
 };
 
-const removeHostHeader = (headers) => {
-  const { host, ...otherHeaders } = headers;
-  return otherHeaders;
-};
-
+// Function to fetch data from the given URL and send it as a response.
 async function fetchData(url, options, res, next) {
   try {
     const response = await retryFetch(new URL(url), options);
@@ -111,8 +137,9 @@ async function fetchData(url, options, res, next) {
 
 (async () => {
   app.use(cors());
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: true }));
+  app.use(bodyParser.json());
+  app.use(bodyParser.urlencoded({ extended: true }));
+  app.use(aws4SigningMiddleware);
   app.use(
     "/defaultConnection",
     express.static(
@@ -136,14 +163,10 @@ async function fetchData(url, options, res, next) {
     if (!req.body.query) {
       return res.status(400).send({ error: "Query not provided" });
     }
-    const rawHeaders = removeHostHeader(req.headers);
     const rawUrl = `${req.headers["graph-db-connection-url"]}/sparql`;
     const requestOptions = {
       method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        ...rawHeaders,
-      },
+      headers: req.headers,
       // Properly encode the query to ensure it's safe for URL transport.
       body: `query=${encodeURIComponent(req.body.query)}`,
     };
@@ -158,14 +181,10 @@ async function fetchData(url, options, res, next) {
       return res.status(400).send({ error: "Gremlin query not provided" });
     }
     const body = { gremlin: req.body.gremlin };
-    const rawHeaders = removeHostHeader(req.headers);
     const rawUrl = `${req.headers["graph-db-connection-url"]}/gremlin`;
     const requestOptions = {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...rawHeaders,
-      },
+      headers: req.headers,
       body: JSON.stringify(body),
     };
 
@@ -180,13 +199,10 @@ async function fetchData(url, options, res, next) {
     }
     const body = { query: req.body.query };
     const rawUrl = `${req.headers["graph-db-connection-url"]}/openCypher`;
-    const rawHeaders = removeHostHeader(req.headers);
+
     const requestOptions = {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...rawHeaders,
-      },
+      headers: req.headers,
       body: JSON.stringify(body),
     };
 
@@ -196,12 +212,10 @@ async function fetchData(url, options, res, next) {
   // GET endpoint to retrieve PostgreSQL statistics summary.
   app.get("/pg/statistics/summary", async (req, res, next) => {
     const rawUrl = `${req.headers["graph-db-connection-url"]}/pg/statistics/summary?mode=detailed`;
-    const rawHeaders = removeHostHeader(req.headers);
+
     const requestOptions = {
       method: "GET",
-      headers: {
-        ...rawHeaders,
-      },
+      headers: req.headers,
     };
     fetchData(rawUrl, requestOptions, res, next);
   });
@@ -209,12 +223,10 @@ async function fetchData(url, options, res, next) {
   // GET endpoint to retrieve RDF statistics summary.
   app.get("/rdf/statistics/summary", async (req, res, next) => {
     const rawUrl = `${req.headers["graph-db-connection-url"]}/rdf/statistics/summary?mode=detailed`;
-    const rawHeaders = removeHostHeader(req.headers);
+
     const requestOptions = {
       method: "GET",
-      headers: {
-        ...rawHeaders,
-      },
+      headers: req.headers,
     };
     fetchData(rawUrl, requestOptions, res, next);
   });
