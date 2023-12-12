@@ -13,7 +13,6 @@ const localforageCache = localforage.createInstance({
 });
 
 const useGEFetch = (connection: ConnectionConfig) => {
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 
   if (!connection.url) {
     throw new Error("Invalid configuration. Missing 'connection.url'");

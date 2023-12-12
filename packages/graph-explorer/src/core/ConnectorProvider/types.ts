@@ -4,7 +4,7 @@ import { CountsByTypeResponse, KeywordSearchResponse, NeighborsCountResponse, Ne
 type Explorer = {
   fetchSchema: (options?: any) => Promise<SchemaResponse>;
   fetchVertexCountsByType: (req: any, options?: any) => Promise<CountsByTypeResponse>
-  fetchNeighbors: (req: any, options?: any) => Promise<NeighborsResponse>
+  fetchNeighbors: (req: any, options?: any) => Promise<NeighborsResponse> | Promise<unknown>
   fetchNeighborsCount: (req: any, options?: any) => Promise<NeighborsCountResponse>
   keywordSearch: (req: any, options?: any) => Promise<KeywordSearchResponse>
 };
