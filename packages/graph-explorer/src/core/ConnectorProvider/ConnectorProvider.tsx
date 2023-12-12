@@ -26,10 +26,13 @@ const ConnectorProvider = ({ children }: PropsWithChildren<any>) => {
   const attrs = [
     "url",
     "queryEngine",
+    "proxyConnection",
     "graphDbUrl",
     "awsAuthEnabled",
     "awsRegion",
     "enableCache",
+    "cacheTimeMs",
+    "fetchTimeoutMs",
   ] as const;
 
   const isSameConnection = (a?: ConnectionConfig, b?: ConnectionConfig) => {
