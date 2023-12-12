@@ -15,6 +15,7 @@ import {
   Input,
   Checkbox,
 } from "../../components";
+import { clone } from "lodash";
 import Card from "../../components/Card";
 import Graph from "../../components/Graph";
 import { GraphRef } from "../../components/Graph/Graph";
@@ -274,8 +275,9 @@ const GraphViewer = ({
     let currentCanvas: [Array<Vertex>, Array<Edge>] = [entities.nodes ?? [], entities.edges ?? []]
     console.log("canvas:")
     console.log(currentCanvas[0])
+    console.log("OverDate: " + useRecoilValue(overDateAtom))
     await createSubGraph({
-      date:overDate,
+      date: useRecoilValue(overDateAtom),
       canV: currentCanvas[0],
       canE: currentCanvas[1],
     });
@@ -336,6 +338,7 @@ const GraphViewer = ({
                 }}
               />
               <Input
+                //type={"date"}
                 className={pfx("full-date-filter")}
                 label={"Date Fixed to Graph"}
                 labelPlacement={"inner"}
