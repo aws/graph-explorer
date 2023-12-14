@@ -1,5 +1,5 @@
 import { cx } from "@emotion/css";
-import { MouseEvent, useCallback, useRef, useState } from "react";
+import { MouseEvent, useCallback, useRef, useState, useEffect } from "react";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { Edge, Vertex } from "../../@types/entities";
 import type { ModuleContainerHeaderProps } from "../../components";
@@ -169,16 +169,7 @@ const GraphViewer = ({
   const nodesOutIds = useRecoilValue(nodesOutOfFocusIdsAtom);
   const edgesOutIds = useRecoilValue(edgesOutOfFocusIdsAtom);
   const setUserLayout = useSetRecoilState(userLayoutAtom);
-  const setOverDateString = useSetRecoilState(overDateAtom)
-
-  const changeOverdate = useCallback(
-    (overDate: string) => {
-      console.log(`Overdate Begin: ${overDate}`)
-      setOverDateString(overDate)
-      console.log(`New overdate: ${overDate}`)
-    },
-    [setOverDateString]
-  );
+  const [overDate, setOverDateString] = useRecoilState(overDateAtom)
 
   const onSelectedNodesIdsChange = useCallback(
     (selectedIds: string[] | Set<string>) => {
@@ -259,10 +250,7 @@ const GraphViewer = ({
     [getDisplayNames, enqueueNotification, expandNode, setUserLayout]
   );
 
-  const now = new Date();
   const [layout, setLayout] = useState("F_COSE");
-  const overDate = useRecoilValue(overDateAtom)
-  // const [overDate, setOverDate] = useState(now.toLocaleDateString())
   const [, setEntities] = useEntities();
   const onClearCanvas = useCallback(() => {
     setEntities({
@@ -271,18 +259,41 @@ const GraphViewer = ({
       forceSet: true,
     });
   }, [setEntities]);
-  const onFilterByDate = useCallback(async () =>{
-    let currentCanvas: [Array<Vertex>, Array<Edge>] = [entities.nodes ?? [], entities.edges ?? []]
-    console.log("canvas:")
-    console.log(currentCanvas[0])
-    console.log("OverDate: " + useRecoilValue(overDateAtom))
-    await createSubGraph({
-      date: useRecoilValue(overDateAtom),
-      canV: currentCanvas[0],
-      canE: currentCanvas[1],
-    });
+  const inputRef = useRef();
 
-  },[createSubGraph])
+  //useEffect(() => {})
+  const onFilterByDate = useCallback(async () =>{
+      
+      let currentCanvas: [Array<Vertex>, Array<Edge>] = [entities.nodes ?? [], entities.edges ?? []]
+      console.log("canvas:")
+      console.log(currentCanvas[0])
+
+      // Returns t
+      console.log("OverDate Result:" + overDate) 
+
+
+      await createSubGraph({
+        date: overDate,
+        canV: currentCanvas[0],
+        canE: currentCanvas[1],
+      })
+    },[createSubGraph]);
+
+  /*const onDateChange = useCallback(
+    (dateInput: string) => {
+      const 
+    }
+  )
+
+  useEffect(() => {
+      //let isActiveDate = true;
+      //if (isActiveDate) {
+      setOverDateString(overDate)
+      //}
+      console.log("OverDate:" + overDate)
+      //return () => {isActiveDate = false}
+  },[])*/
+
 
   const onHeaderActionClick = useCallback(
     action => {
@@ -338,12 +349,12 @@ const GraphViewer = ({
                 }}
               />
               <Input
-                //type={"date"}
+                type={"date"}
                 className={pfx("full-date-filter")}
                 label={"Date Fixed to Graph"}
                 labelPlacement={"inner"}
                 value={overDate}
-                onChange={d => changeOverdate(d as string)}
+                onChange={(d) => setOverDateString(d)}
                 hideError={true}
                 noMargin={true}
               />
