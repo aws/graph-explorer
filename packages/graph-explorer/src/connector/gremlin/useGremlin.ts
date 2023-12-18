@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from "react";
-import { ConnectionConfig } from "../../core";
+import { ConnectionConfig, useConfiguration } from "../../core";
 import fetchNeighbors from "./queries/fetchNeighbors";
 import fetchNeighborsCount from "./queries/fetchNeighborsCount";
 import fetchSchema from "./queries/fetchSchema";
@@ -8,9 +8,11 @@ import keywordSearch from "./queries/keywordSearch";
 import useGEFetch from "../useGEFetch";
 import { GraphSummary } from "./types";
 
-const useGremlin = (connection: ConnectionConfig) => {
-  const useFetch = useGEFetch(connection);
-  const url = connection.url;
+const useGremlin = () => {
+  const connection = useConfiguration()?.connection as ConnectionConfig | undefined;
+
+  const useFetch = useGEFetch();
+  const url = connection?.url;
   const _rawIdTypeMap = useMemo(() => {
     return new Map<string, "string" | "number">();
   }, []);

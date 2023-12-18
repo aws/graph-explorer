@@ -14,8 +14,8 @@ import keywordSearch from "./queries/keywordSearch";
 import keywordSearchBlankNodesIdsTemplate from "./templates/keywordSearch/keywordSearchBlankNodesIdsTemplate";
 import oneHopNeighborsBlankNodesIdsTemplate from "./templates/oneHopNeighbors/oneHopNeighborsBlankNodesIdsTemplate";
 import { BlankNodesMap, GraphSummary, SPARQLNeighborsRequest } from "./types";
-import { useCallback, useState } from "react";
-import { ConnectionConfig } from "../../core";
+import { useCallback, } from "react";
+import { ConnectionConfig, useConfiguration } from "../../core";
 
 const replaceBlankNodeFromSearch = (blankNodes: BlankNodesMap, request: KeywordSearchRequest, response: KeywordSearchResponse) => {
   return response.vertices.map(vertex => {
@@ -106,10 +106,11 @@ const storedBlankNodeNeighborsRequest = (blankNodes: BlankNodesMap, req: SPARQLN
   });
 };
 
-const useSPARQL = (connection: ConnectionConfig) => {
-  const [blankNodes,] = useState(new Map());
-  const useFetch = useGEFetch(connection);
-  const url = connection.url;
+const useSPARQL = (blankNodes: BlankNodesMap) => {
+  const connection = useConfiguration()?.connection as ConnectionConfig | undefined;
+
+  const useFetch = useGEFetch();
+  const url = connection?.url;
 
   const _sparqlFetch = useCallback((options) => {
     return async (queryTemplate: string) => {

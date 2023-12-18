@@ -6,12 +6,13 @@ import fetchSchema from "./queries/fetchSchema";
 import { GraphSummary } from "./types";
 import { useCallback } from "react";
 import useGEFetch from "../useGEFetch";
-import { ConnectionConfig } from "../../core";
+import { ConnectionConfig, useConfiguration } from "../../core";
 
 
-const useOpenCypher = (connection: ConnectionConfig) => {
-  const useFetch = useGEFetch(connection);
-  const url = connection.url;
+const useOpenCypher = () => {
+  const connection = useConfiguration()?.connection as ConnectionConfig | undefined;
+  const useFetch = useGEFetch();
+  const url = connection?.url;
 
   const _openCypherFetch = useCallback((options) => {
     return async (queryTemplate: string) => {
