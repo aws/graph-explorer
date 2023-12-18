@@ -57,6 +57,7 @@ import useNodeBadges from "./useNodeBadges";
 import useNodeDrop from "./useNodeDrop";
 import mapDateStr from "../../connector/gremlin/mappers/mapDateStr";
 import { useSubgraph } from "../../hooks";
+import { Button } from "@mantine/core";
 
 export type GraphViewerProps = Omit<
   ModuleContainerHeaderProps,
@@ -169,7 +170,12 @@ const GraphViewer = ({
   const nodesOutIds = useRecoilValue(nodesOutOfFocusIdsAtom);
   const edgesOutIds = useRecoilValue(edgesOutOfFocusIdsAtom);
   const setUserLayout = useSetRecoilState(userLayoutAtom);
-  const [overDate, setOverDateString] = useRecoilState(overDateAtom)
+  //const [overDate, setOverDateString] = useRecoilState(overDateAtom)
+  //const test = useRecoilValue(overDateAtom)
+  const now = new Date()
+  const testDate = useRef(mapDateStr(now.toLocaleDateString()))
+  const [overDate, setOverDate] = useState(now.toLocaleTimeString());
+  
 
   const onSelectedNodesIdsChange = useCallback(
     (selectedIds: string[] | Set<string>) => {
@@ -259,26 +265,24 @@ const GraphViewer = ({
       forceSet: true,
     });
   }, [setEntities]);
-  const inputRef = useRef();
 
-  //useEffect(() => {})
-  const onFilterByDate = useCallback(async () =>{
+  const onFilterByDate = useCallback(async (inputDate: string) =>{
       
       let currentCanvas: [Array<Vertex>, Array<Edge>] = [entities.nodes ?? [], entities.edges ?? []]
       console.log("canvas:")
       console.log(currentCanvas[0])
 
       // Returns t
-      console.log("OverDate Result:" + overDate) 
-
-
+      console.log("OverDate Result:" + overDate);
+      console.log("Ref Result:"+ testDate.current)
       await createSubGraph({
-        date: overDate,
+        date: inputDate,
         canV: currentCanvas[0],
         canE: currentCanvas[1],
       })
     },[createSubGraph]);
-
+  
+    
   /*const onDateChange = useCallback(
     (dateInput: string) => {
       const 
@@ -354,16 +358,16 @@ const GraphViewer = ({
                 label={"Date Fixed to Graph"}
                 labelPlacement={"inner"}
                 value={overDate}
-                onChange={(d) => setOverDateString(d)}
+                onChange={(d) => setOverDate(d)}
                 hideError={true}
                 noMargin={true}
               />
               <IconButton
                 tooltipText={"Set Graph Filter"}
                 tooltipPlacement={"bottom-center"}
-                icon={<DateLock />}
+                icon={<DateLock/>}
                 variant={"text"}
-                onPress={onFilterByDate}
+                onPress={() => onFilterByDate(overDate)}
               />
               <Checkbox
                 aria-label={`Set OverDate Flag?`}
