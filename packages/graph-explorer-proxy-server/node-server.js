@@ -29,7 +29,7 @@ const proxyLogger = pino({
 });
 
 // Middleware to sign requests with AWS4 signing process if IAM is enabled.
-function aws4SigningMiddleware(req, res, next) {
+async function aws4SigningMiddleware(req, res, next) {
   if (req.headers["aws-neptune-region"]) {
     const options = {
       host: req.hostname,
@@ -39,19 +39,18 @@ function aws4SigningMiddleware(req, res, next) {
       region: req.headers["aws-neptune-region"],
     };
 
-    (async () => {
-      try {
-        const credentials = await getIAMHeaders(options);
-        const signedHeaders = aws4.sign(options, credentials).headers;
-        req.headers = { ...req.headers, ...signedHeaders };
-        delete req.headers["Host"];
-        delete req.headers["host"];
-        next();
-      } catch (error) {
-        console.error(error);
-        next(error);
-      }
-    })();
+    try {
+      const credentials = await getIAMHeaders(options);
+      const signedHeaders = aws4.sign(options, credentials).headers;
+      req.headers = { ...req.headers, ...signedHeaders };
+      delete req.headers["Host"];
+      delete req.headers["host"];
+      next();
+    } catch (error) {
+      proxyLogger.error("!getIAMHeaders failure!" + error);
+
+      next(error);
+    }
   } else {
     next();
   }
