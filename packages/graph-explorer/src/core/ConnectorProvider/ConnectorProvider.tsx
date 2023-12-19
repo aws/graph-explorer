@@ -8,7 +8,6 @@ import {
   useState,
 } from "react";
 import LoggerConnector from "../../connector/LoggerConnector";
-import useConfiguration from "../ConfigurationProvider/useConfiguration";
 import type { ConnectorContextProps } from "./types";
 import useOpenCypher from "../../connector/openCypher/useOpenCypher";
 import useSPARQL from "../../connector/sparql/useSPARQL";
