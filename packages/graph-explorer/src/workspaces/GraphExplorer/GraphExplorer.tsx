@@ -43,6 +43,7 @@ import EdgeExpand from "../../modules/EdgeExpand";
 import NodesStyling from "../../modules/NodesStyling/NodesStyling";
 import TopBarWithLogo from "../common/TopBarWithLogo";
 import defaultStyles from "./GraphExplorer.styles";
+import MultiDetails from "../../modules/MultiDetails";
 
 export type GraphViewProps = {
   classNamePrefix?: string;
@@ -375,3 +376,7 @@ const GraphExplorer = ({ classNamePrefix = "ft" }: GraphViewProps) => {
 };
 
 export default GraphExplorer;
+
+/* {userLayout.activeSidebarItem === "multi-details" && (
+  <MultiDetails onClose={closeSidebar}/>
+  )} */
