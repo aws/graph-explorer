@@ -8,15 +8,19 @@ import { uniq } from "lodash";
  * types = ["route", "contain"]
  *
  * g.V()
+ *  .union(
+ *    __.hasLabel("airport").limit(1),
+ *    __.hasLabel("country").limit(1)
+ *  )
+ *  .fold()
  *  .project("airport","country")
- *  .by(V().hasLabel("airport").limit(1))
- *  .by(V().hasLabel("country").limit(1))
- *  .limit(1)
+ *  .by(unfold().hasLabel("airport"))
+ *  .by(unfold().hasLabel("country"))
  */
 const verticesSchemaTemplate = ({ types }: { types: string[] }) => {
   const labels = uniq(types.flatMap(type => type.split("::")));
 
-  return `g.V().project(${labels.map(l => `"${l}"`).join(",")})${labels.map(l => `.by(V().hasLabel("${l}").limit(1))`).join("")}.limit(1)`;
+  return `g.V().union(${labels.map(l => `__.hasLabel("${l}").limit(1)`).join(",")}).fold().project(${labels.map(l => `"${l}"`).join(",")})${labels.map(l => `.by(unfold().hasLabel("${l}"))`).join("")}`;
 };
 
 export default verticesSchemaTemplate;

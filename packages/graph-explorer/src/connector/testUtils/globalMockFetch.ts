@@ -2,7 +2,7 @@ import { shortHash } from "./shortHash";
 
 const GREMLIN = "../gremlin/queries/__mock";
 const RESPONSES_FILES_MAP: Record<string, string> = {
-  "3e5ee5ec": `${GREMLIN}/vertices-schema.json`,
+  "46b9d76b": `${GREMLIN}/vertices-schema.json`,
   "186857e1": `${GREMLIN}/vertices-labels-and-counts.json`,
   "5766be04": `${GREMLIN}/edges-schema.json`,
   "7062d2e": `${GREMLIN}/edges-labels-and-counts.json`,
