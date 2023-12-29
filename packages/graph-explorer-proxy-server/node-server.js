@@ -28,37 +28,8 @@ const proxyLogger = pino({
   },
 });
 
-// Middleware to sign requests with AWS4 signing process if IAM is enabled.
-async function aws4SigningMiddleware(req, res, next) {
-  if (req.headers["aws-neptune-region"]) {
-    const options = {
-      host: req.hostname,
-      port: req.port,
-      path: req.path + req.search,
-      service: "neptune-db",
-      region: req.headers["aws-neptune-region"],
-    };
-
-    try {
-      const credentials = await getIAMHeaders(options);
-      const signedHeaders = aws4.sign(options, credentials).headers;
-      req.headers = { ...req.headers, ...signedHeaders };
-      delete req.headers["Host"];
-      delete req.headers["host"];
-      next();
-    } catch (error) {
-      proxyLogger.error("!getIAMHeaders failure!" + error);
-
-      next(error);
-    }
-  } else {
-    next();
-  }
-}
-
 // Function to get IAM headers for AWS4 signing process.
 async function getIAMHeaders(options) {
-  proxyLogger.debug("IAM on");
   const credentialProvider = fromNodeProviderChain();
   let creds = await credentialProvider();
   if (creds === undefined) {
@@ -67,10 +38,11 @@ async function getIAMHeaders(options) {
     );
   }
   const headers = aws4.sign(options, {
-    accessKeyId: creds.accessKeyId,
-    secretAccessKey: creds.secretAccessKey,
-    sessionToken: creds.sessionToken,
-  }).headers;
+    accessKeyId: encodeURIComponent(creds.accessKeyId),
+    secretAccessKey: encodeURIComponent(creds.secretAccessKey),
+    sessionToken: encodeURIComponent(creds.sessionToken),
+  });
+
   return headers;
 }
 
@@ -94,15 +66,26 @@ const errorHandler = (error, request, response, next) => {
 // Function to retry fetch requests with exponential backoff.
 const retryFetch = async (
   url,
-  headers,
+  options,
+  isIamEnabled,
+  region,
   retryDelay = 10000,
   refetchMaxRetries = 1
 ) => {
   for (let i = 0; i < refetchMaxRetries; i++) {
-    delete headers.headers["host"];
-    delete headers.headers["Host"];
+    if (isIamEnabled) {
+      data = await getIAMHeaders({
+        host: url.hostname,
+        port: url.port,
+        path: url.pathname + url.search,
+        service: "neptune-db",
+        region,
+      });
+      const { host, ...restOptions } = options.headers; // remove host as localhost will cause problems
+      options.headers = { ...restOptions, ...data.headers };
+    }
     try {
-      const res = await fetch(url.href, headers);
+      const res = await fetch(url.href, { ...options, credentials: "include" });
       if (!res.ok) {
         const result = await res.json();
         proxyLogger.error("!!Request failure!!");
@@ -125,9 +108,14 @@ const retryFetch = async (
 };
 
 // Function to fetch data from the given URL and send it as a response.
-async function fetchData(url, options, res, next) {
+async function fetchData(res, next, url, options, isIamEnabled, region) {
   try {
-    const response = await retryFetch(new URL(url), options);
+    const response = await retryFetch(
+      new URL(url),
+      options,
+      isIamEnabled,
+      region
+    );
     const data = await response.json();
     res.send(data);
   } catch (error) {
@@ -136,6 +124,7 @@ async function fetchData(url, options, res, next) {
 }
 
 (async () => {
+  app.use(errorHandler);
   app.use(compression()); // Use compression middleware
   app.use(cors());
   app.use(bodyParser.json());
@@ -162,7 +151,9 @@ async function fetchData(url, options, res, next) {
   app.post("/sparql", async (req, res, next) => {
     // Validate the input before making any external calls.
     if (!req.body.query) {
-      return res.status(400).send({ error: "Query not provided" });
+      return res
+        .status(400)
+        .send({ error: "[Proxy]SPARQL: Query not provided" });
     }
     const rawUrl = `${req.headers["graph-db-connection-url"]}/sparql`;
     const requestOptions = {
@@ -171,15 +162,19 @@ async function fetchData(url, options, res, next) {
       // Properly encode the query to ensure it's safe for URL transport.
       body: `query=${encodeURIComponent(req.body.query)}`,
     };
+    const isIamEnabled = !!req.headers["aws-neptune-region"];
+    const region = isIamEnabled ? req.headers["aws-neptune-region"] : "";
 
-    fetchData(rawUrl, requestOptions, res, next);
+    fetchData(res, next, rawUrl, requestOptions, isIamEnabled, region);
   });
 
   // POST endpoint for Gremlin queries.
   app.post("/gremlin", async (req, res, next) => {
     // Validate the input before making any external calls.
     if (!req.body.gremlin) {
-      return res.status(400).send({ error: "Gremlin query not provided" });
+      return res
+        .status(400)
+        .send({ error: "[Proxy]Gremlin: query not provided" });
     }
     const body = { gremlin: req.body.gremlin };
     const rawUrl = `${req.headers["graph-db-connection-url"]}/gremlin`;
@@ -189,14 +184,19 @@ async function fetchData(url, options, res, next) {
       body: JSON.stringify(body),
     };
 
-    fetchData(rawUrl, requestOptions, res, next);
+    const isIamEnabled = !!req.headers["aws-neptune-region"];
+    const region = isIamEnabled ? req.headers["aws-neptune-region"] : "";
+
+    fetchData(res, next, rawUrl, requestOptions, isIamEnabled, region);
   });
 
   // POST endpoint for openCypher queries.
   app.post("/openCypher", async (req, res, next) => {
     // Validate the input before making any external calls.
     if (!req.body.query) {
-      return res.status(400).send({ error: "openCypher query not provided" });
+      return res
+        .status(400)
+        .send({ error: "[Proxy]OpenCypher: query not provided" });
     }
     const body = { query: req.body.query };
     const rawUrl = `${req.headers["graph-db-connection-url"]}/openCypher`;
@@ -207,7 +207,10 @@ async function fetchData(url, options, res, next) {
       body: JSON.stringify(body),
     };
 
-    fetchData(rawUrl, requestOptions, res, next);
+    const isIamEnabled = !!req.headers["aws-neptune-region"];
+    const region = isIamEnabled ? req.headers["aws-neptune-region"] : "";
+
+    fetchData(res, next, rawUrl, requestOptions, isIamEnabled, region);
   });
 
   // GET endpoint to retrieve PostgreSQL statistics summary.
@@ -218,7 +221,11 @@ async function fetchData(url, options, res, next) {
       method: "GET",
       headers: req.headers,
     };
-    fetchData(rawUrl, requestOptions, res, next);
+
+    const isIamEnabled = !!req.headers["aws-neptune-region"];
+    const region = isIamEnabled ? req.headers["aws-neptune-region"] : "";
+
+    fetchData(res, next, rawUrl, requestOptions, isIamEnabled, region);
   });
 
   // GET endpoint to retrieve RDF statistics summary.
@@ -229,7 +236,11 @@ async function fetchData(url, options, res, next) {
       method: "GET",
       headers: req.headers,
     };
-    fetchData(rawUrl, requestOptions, res, next);
+
+    const isIamEnabled = !!req.headers["aws-neptune-region"];
+    const region = isIamEnabled ? req.headers["aws-neptune-region"] : "";
+
+    fetchData(res, next, rawUrl, requestOptions, isIamEnabled, region);
   });
 
   app.get("/logger", (req, res, next) => {
