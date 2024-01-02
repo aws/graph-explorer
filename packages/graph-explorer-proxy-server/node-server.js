@@ -40,7 +40,7 @@ async function getIAMHeaders(options) {
   const headers = aws4.sign(options, {
     accessKeyId: creds.accessKeyId,
     secretAccessKey: creds.secretAccessKey,
-  }).headers;
+  });
 
   return headers;
 }
@@ -79,9 +79,10 @@ const retryFetch = async (
         path: url.pathname + url.search,
         service: "neptune-db",
         region,
+        method: options.method,
+        body: options.body ?? "",
       });
-      const { host, ...restOptions } = options.headers; // remove host as localhost will cause problems
-      options.headers = { ...restOptions, ...data };
+      options = { ...options, ...data };
     }
     try {
       const res = await fetch(url.href, { ...options });
@@ -196,13 +197,12 @@ async function fetchData(res, next, url, options, isIamEnabled, region) {
         .status(400)
         .send({ error: "[Proxy]OpenCypher: query not provided" });
     }
-    const body = { query: req.body.query };
     const rawUrl = `${req.headers["graph-db-connection-url"]}/openCypher`;
 
     const requestOptions = {
       method: "POST",
       headers: req.headers,
-      body: JSON.stringify(body),
+      body: `query=${encodeURIComponent(req.body.query)}`,
     };
 
     const isIamEnabled = !!req.headers["aws-neptune-region"];
