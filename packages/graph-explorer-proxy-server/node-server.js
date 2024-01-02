@@ -38,10 +38,9 @@ async function getIAMHeaders(options) {
     );
   }
   const headers = aws4.sign(options, {
-    accessKeyId: encodeURIComponent(creds.accessKeyId),
-    secretAccessKey: encodeURIComponent(creds.secretAccessKey),
-    sessionToken: encodeURIComponent(creds.sessionToken),
-  });
+    accessKeyId: creds.accessKeyId,
+    secretAccessKey: creds.secretAccessKey,
+  }).headers;
 
   return headers;
 }
@@ -82,10 +81,10 @@ const retryFetch = async (
         region,
       });
       const { host, ...restOptions } = options.headers; // remove host as localhost will cause problems
-      options.headers = { ...restOptions, ...data.headers };
+      options.headers = { ...restOptions, ...data };
     }
     try {
-      const res = await fetch(url.href, { ...options, credentials: "include" });
+      const res = await fetch(url.href, { ...options });
       if (!res.ok) {
         const result = await res.json();
         proxyLogger.error("!!Request failure!!");
@@ -129,7 +128,6 @@ async function fetchData(res, next, url, options, isIamEnabled, region) {
   app.use(cors());
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: true }));
-  app.use(aws4SigningMiddleware);
   app.use(
     "/defaultConnection",
     express.static(
