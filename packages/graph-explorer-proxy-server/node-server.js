@@ -80,7 +80,7 @@ const retryFetch = async (
         service: "neptune-db",
         region,
         method: options.method,
-        body: options.body ?? "",
+        body: options.body ?? undefined,
       });
       options = { ...options, ...data };
     }
