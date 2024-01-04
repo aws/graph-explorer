@@ -40,6 +40,7 @@ async function getIAMHeaders(options) {
   const headers = aws4.sign(options, {
     accessKeyId: creds.accessKeyId,
     secretAccessKey: creds.secretAccessKey,
+    sessionToken: creds.sessionToken,
   });
 
   return headers;
@@ -82,10 +83,21 @@ const retryFetch = async (
         method: options.method,
         body: options.body ?? undefined,
       });
-      options = { ...options, ...data };
+
+      options = {
+        host: url.hostname,
+        port: url.port,
+        path: url.pathname + url.search,
+        service: "neptune-db",
+        region,
+        method: options.method,
+        body: options.body ?? undefined,
+        headers: data.headers,
+      };
     }
+
     try {
-      const res = await fetch(url.href, { ...options });
+      const res = await fetch(url.href, options);
       if (!res.ok) {
         const result = await res.json();
         proxyLogger.error("!!Request failure!!");
@@ -97,7 +109,7 @@ const retryFetch = async (
       }
     } catch (err) {
       if (i === refetchMaxRetries - 1) {
-        proxyLogger.error("!!Proxy Retry Fetch Reached Maximum Tries!!");
+        proxyLogger.error("!!Proxy Retry Fetch Reached Maximum Tries!!", err);
         throw err;
       } else {
         proxyLogger.debug("Proxy Retry Fetch Count::: " + i);
@@ -157,7 +169,6 @@ async function fetchData(res, next, url, options, isIamEnabled, region) {
     const rawUrl = `${req.headers["graph-db-connection-url"]}/sparql`;
     const requestOptions = {
       method: "POST",
-      headers: req.headers,
       // Properly encode the query to ensure it's safe for URL transport.
       body: `query=${encodeURIComponent(req.body.query)}`,
     };
@@ -170,16 +181,15 @@ async function fetchData(res, next, url, options, isIamEnabled, region) {
   // POST endpoint for Gremlin queries.
   app.post("/gremlin", async (req, res, next) => {
     // Validate the input before making any external calls.
-    if (!req.body.gremlin) {
+    if (!req.body.query) {
       return res
         .status(400)
         .send({ error: "[Proxy]Gremlin: query not provided" });
     }
-    const body = { gremlin: req.body.gremlin };
+    const body = { gremlin: req.body.query };
     const rawUrl = `${req.headers["graph-db-connection-url"]}/gremlin`;
     const requestOptions = {
       method: "POST",
-      headers: req.headers,
       body: JSON.stringify(body),
     };
 
@@ -201,7 +211,6 @@ async function fetchData(res, next, url, options, isIamEnabled, region) {
 
     const requestOptions = {
       method: "POST",
-      headers: req.headers,
       body: `query=${encodeURIComponent(req.body.query)}`,
     };
 
@@ -217,7 +226,6 @@ async function fetchData(res, next, url, options, isIamEnabled, region) {
 
     const requestOptions = {
       method: "GET",
-      headers: req.headers,
     };
 
     const isIamEnabled = !!req.headers["aws-neptune-region"];
@@ -232,7 +240,6 @@ async function fetchData(res, next, url, options, isIamEnabled, region) {
 
     const requestOptions = {
       method: "GET",
-      headers: req.headers,
     };
 
     const isIamEnabled = !!req.headers["aws-neptune-region"];

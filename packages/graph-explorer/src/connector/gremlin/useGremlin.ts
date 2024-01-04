@@ -19,7 +19,7 @@ const useGremlin = () => {
 
   const _gremlinFetch = useCallback((options) => {
     return async (queryTemplate: string) => {
-      const body = JSON.stringify({ gremlin: queryTemplate });
+      const body = JSON.stringify({ query: queryTemplate });
       return useFetch.request(`${url}/gremlin`, {
         method: "POST",
         headers: {
