@@ -25,7 +25,9 @@ const SelectListBox = (props: ListBoxProps<SelectOption>) => {
     filter: nodes =>
       !search || !props.searchable
         ? nodes
-        : new Set([...nodes].filter(node => node.value.label.includes(search))),
+        : new Set(
+            [...nodes].filter(node => node.value?.label.includes(search))
+          ),
   });
   const { listBoxProps } = useListBox(props, state, listBoxRef);
 

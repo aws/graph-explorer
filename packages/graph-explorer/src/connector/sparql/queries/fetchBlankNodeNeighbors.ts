@@ -1,5 +1,5 @@
 import groupBy from "lodash/groupBy";
-import { ErrorResponse } from "../../AbstractConnector";
+import type { ErrorResponse } from "../../useGEFetchTypes";
 import isErrorResponse from "../../utils/isErrorResponse";
 import mapIncomingToEdge, {
   IncomingPredicate,

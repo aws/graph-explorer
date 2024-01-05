@@ -1,65 +1,96 @@
-import { createContext, PropsWithChildren, useState } from "react";
-import GremlinConnector from "../../connector/gremlin/GremlinConnector";
+/* eslint-disable react-hooks/rules-of-hooks */
+import {
+  createContext,
+  PropsWithChildren,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import LoggerConnector from "../../connector/LoggerConnector";
-import SPARQLConnector from "../../connector/sparql/SPARQLConnector";
-import { ConnectionConfig } from "../ConfigurationProvider";
-import useConfiguration from "../ConfigurationProvider/useConfiguration";
 import type { ConnectorContextProps } from "./types";
-import OpenCypherConnector from "../../connector/openCypher/openCypherConnector";
+import useOpenCypher from "../../connector/openCypher/useOpenCypher";
+import useSPARQL from "../../connector/sparql/useSPARQL";
+import useGremlin from "../../connector/gremlin/useGremlin";
+import { ConnectionConfig } from "../ConfigurationProvider/types";
+import { useRecoilValue } from "recoil";
+import { mergedConfigurationSelector } from "../StateProvider/configuration";
+import { every, isEqual } from "lodash";
 
 export const ConnectorContext = createContext<ConnectorContextProps>({});
 
 const ConnectorProvider = ({ children }: PropsWithChildren<any>) => {
-  const config = useConfiguration();
+  const config = useRecoilValue(mergedConfigurationSelector);
+
   const [connector, setConnector] = useState<ConnectorContextProps>({
     explorer: undefined,
     logger: undefined,
   });
+  const openCypherExplorer = useOpenCypher();
+  const sparqlExplorer = useSPARQL(new Map());
+  const gremlinExplorer = useGremlin();
 
   const [prevConnection, setPrevConnection] = useState<
     ConnectionConfig | undefined
   >();
 
-  // connector instance is only rebuilt if any connection attribute change
-  if (!isSameConnection(prevConnection, config?.connection)) {
-    const isSPARQL =
-      config?.connection?.queryEngine &&
-      config?.connection?.queryEngine === "sparql";
+  const attrs = useMemo(
+    () =>
+      [
+        "url",
+        "queryEngine",
+        "proxyConnection",
+        "graphDbUrl",
+        "awsAuthEnabled",
+        "awsRegion",
+        "enableCache",
+        "cacheTimeMs",
+        "fetchTimeoutMs",
+      ] as const,
+    []
+  );
 
-    const isOpenCypher =
-      config?.connection?.queryEngine &&
-      config?.connection?.queryEngine === "openCypher";
+  const isSameConnection = useCallback(
+    (a?: ConnectionConfig, b?: ConnectionConfig) =>
+      every(attrs, attr => isEqual(a?.[attr] as string, b?.[attr])),
+    [attrs]
+  );
 
-    if (!config?.connection?.url) {
+  const getExplorer = useCallback(
+    (connection: ConnectionConfig) => {
+      switch (connection.queryEngine) {
+        case "openCypher":
+          return openCypherExplorer;
+        case "sparql":
+          return sparqlExplorer;
+        default:
+          return gremlinExplorer;
+      }
+    },
+    [openCypherExplorer, sparqlExplorer, gremlinExplorer]
+  );
+
+  useEffect(() => {
+    // connector instance is only rebuilt if any connection attribute change
+    if (!isSameConnection(prevConnection, config?.connection)) {
       setConnector({
-        explorer: undefined,
-        logger: undefined,
-      });
-    } else if (isSPARQL) {
-      setConnector({
-        explorer: new SPARQLConnector(config.connection),
-        logger: new LoggerConnector(config.connection.url, {
+        explorer: getExplorer(
+          (config?.connection as ConnectionConfig) || undefined
+        ),
+        logger: new LoggerConnector(config?.connection?.url ?? "", {
           enable: import.meta.env.PROD,
         }),
       });
-    } else if (isOpenCypher) {
-      setConnector({
-        explorer: new OpenCypherConnector(config?.connection),
-        logger: new LoggerConnector(config.connection.url, {
-          enable: import.meta.env.PROD,
-        }),
-      });
-    } else {
-      setConnector({
-        explorer: new GremlinConnector(config.connection),
-        logger: new LoggerConnector(config.connection.url, {
-          enable: import.meta.env.PROD,
-        }),
-      });
+      setPrevConnection(config?.connection);
     }
-
-    setPrevConnection(config?.connection);
-  }
+  }, [
+    config?.connection?.url,
+    config?.connection?.queryEngine,
+    prevConnection,
+    config?.connection,
+    isSameConnection,
+    getExplorer,
+  ]);
 
   return (
     <ConnectorContext.Provider value={connector}>
@@ -69,27 +100,3 @@ const ConnectorProvider = ({ children }: PropsWithChildren<any>) => {
 };
 
 export default ConnectorProvider;
-
-// Deep check without isEqual to avoid
-// nested comparison of non-relevant properties
-const attrs = [
-  "url",
-  "queryEngine",
-  "proxyConnection",
-  "graphDbUrl",
-  "awsAuthEnabled",
-  "awsRegion",
-  "enableCache",
-  "cacheTimeMs",
-  "fetchTimeoutMs",
-] as const;
-
-const isSameConnection = (a?: ConnectionConfig, b?: ConnectionConfig) => {
-  for (const attr of attrs) {
-    if (a?.[attr] !== b?.[attr]) {
-      return false;
-    }
-  }
-
-  return true;
-};

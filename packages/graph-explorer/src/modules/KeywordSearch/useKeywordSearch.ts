@@ -3,7 +3,7 @@ import uniqBy from "lodash/uniqBy";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useQuery } from "react-query";
 import { useNotification } from "../../components/NotificationProvider";
-import { KeywordSearchResponse } from "../../connector/AbstractConnector";
+import { KeywordSearchResponse } from "../../connector/useGEFetchTypes";
 import { useConfiguration } from "../../core";
 import useConnector from "../../core/ConnectorProvider/useConnector";
 import useDebounceValue from "../../hooks/useDebounceValue";
@@ -53,14 +53,10 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
     setSelectedAttribute(value as string);
   }, []);
 
-  const onExactMatchChange = useCallback((value: string) => {
-    if (value === "Exact") {
-      setExactMatch(true);
-    }
-    else {
-      setExactMatch(false);
-    }
-  }, []);
+  const onExactMatchChange = useCallback(
+    (value: string | string[]) => {
+      setExactMatch(Array.isArray(value) ? value[0] === "Exact" : value === "Exact");
+    }, []);
 
   const onNeighborsLimitChange = useCallback(() => {
     setNeighborsLimit(neighborsLimit => !neighborsLimit);

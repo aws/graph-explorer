@@ -1,5 +1,5 @@
 import { Edge, Vertex } from "../../@types/entities";
-import { NeighborsCountResponse } from "../AbstractConnector";
+import type { NeighborsCountResponse } from "../useGEFetchTypes";
 
 export type SparqlFetch = <TResult = any>(
   queryTemplate: string
@@ -125,6 +125,11 @@ export type SPARQLKeywordSearchRequest = {
    * Skip the given number of results.
    */
   offset?: number;
+  /**
+   * Filter by exact matching values.
+   * 
+   */
+  exactMatch?: boolean;
 };
 
 export type SPARQLBlankNodeNeighborsRequest = {

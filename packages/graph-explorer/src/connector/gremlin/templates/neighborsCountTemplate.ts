@@ -1,4 +1,4 @@
-import type { NeighborsCountRequest } from "../../AbstractConnector";
+import type { NeighborsCountRequest } from "../../useGEFetchTypes";
 
 /**
  * Given a single node ids, it returns a Gremlin template with

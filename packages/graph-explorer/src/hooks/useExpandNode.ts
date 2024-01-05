@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { useNotification } from "../components/NotificationProvider";
-import type { NeighborsRequest } from "../connector/AbstractConnector";
+import type { Criterion, NeighborsRequest } from "../connector/useGEFetchTypes";
 import useConnector from "../core/ConnectorProvider/useConnector";
 import useEntities from "./useEntities";
 
@@ -34,7 +34,7 @@ const useExpandNode = () => {
       });
 
       const verticesWithUpdatedCounts = await Promise.all(
-        result.vertices.map(async vertex => {
+        result.vertices.map(async (vertex: { data?: any; vertexId?: string; vertexType?: string; filterByVertexTypes?: string[] | undefined; edgeTypes?: string[] | undefined; filterCriteria?: Criterion[] | undefined; limit?: number | undefined; offset?: number | undefined; }) => {
           const neighborsCount = await connector.explorer?.fetchNeighborsCount({
             vertexId: vertex.data.id,
           });
@@ -48,7 +48,7 @@ const useExpandNode = () => {
               neighborsCountByType:
                 neighborsCount?.counts ?? vertex.data.neighborsCountByType,
             },
-          };
+          } as NeighborsRequest;
         })
       );
 
