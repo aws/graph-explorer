@@ -2,7 +2,9 @@
 
 ## Upcoming
 
-The next release will include the following feature enhancements and bug fixes:
+## Release 1.5.1
+
+This release includes the following feature enhancements and bug fixes:
 
 **Bug fixes**
 
