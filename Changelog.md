@@ -2,6 +2,13 @@
 
 ## Upcoming
 
+The next release will include the following feature enhancements and bug fixes:
+
+**Bug fixes**
+
+- Refactored API request options for non-IAM endpoints (<https://github.com/aws/graph-explorer/pull/230>)
+- Enforced JSON response format for SPARQL queries (<https://github.com/aws/graph-explorer/pull/230>)
+
 ## Release 1.5.0
 
 This release includes the following feature enhancements and bug fixes:
