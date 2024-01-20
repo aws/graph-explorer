@@ -95,6 +95,15 @@ const retryFetch = async (
         headers: data.headers,
       };
     }
+    options = {
+      host: url.hostname,
+      port: url.port,
+      path: url.pathname + url.search,
+      service: "neptune-db",
+      method: options.method,
+      body: options.body ?? undefined,
+      headers: options.headers,
+    };
 
     try {
       const res = await fetch(url.href, options);
@@ -169,7 +178,9 @@ async function fetchData(res, next, url, options, isIamEnabled, region) {
     const rawUrl = `${req.headers["graph-db-connection-url"]}/sparql`;
     const requestOptions = {
       method: "POST",
-      // Properly encode the query to ensure it's safe for URL transport.
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
       body: `query=${encodeURIComponent(req.body.query)}`,
     };
     const isIamEnabled = !!req.headers["aws-neptune-region"];
@@ -190,6 +201,9 @@ async function fetchData(res, next, url, options, isIamEnabled, region) {
     const rawUrl = `${req.headers["graph-db-connection-url"]}/gremlin`;
     const requestOptions = {
       method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify(body),
     };
 
@@ -211,6 +225,9 @@ async function fetchData(res, next, url, options, isIamEnabled, region) {
 
     const requestOptions = {
       method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
       body: `query=${encodeURIComponent(req.body.query)}`,
     };
 
