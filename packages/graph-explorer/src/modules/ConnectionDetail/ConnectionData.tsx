@@ -81,6 +81,61 @@ const ConnectionData = ({ classNamePrefix = "ft" }: VertexDetailProps) => {
     return items;
   }, [config, pfx, textTransform, navigate]);
 
+//////////////////////////////////////////////////////////////////////
+
+  const edgesByTypeItems = useMemo(() => {
+    const items: AdvancedListItemType<any>[] = [];
+    (config?.edgeTypes || []).forEach(et => {
+      const etConfig = config?.getEdgeTypeConfig(et);
+      const vtConfig = config?.getVertexTypeConfig("Pharmacy")
+      const displayLabel = etConfig?.displayLabel || et;
+
+      items.push({
+        id: et,
+        title: displayLabel,
+        titleComponent: (
+          <div className={pfx("advanced-list-item-title")}>
+            <div className={pfx("node-title")}>
+              {textTransform(displayLabel)}
+            </div>
+          </div>
+        ),
+        icon: (
+          <div
+            style={{
+              color: "blue",
+            }}
+          >
+            <VertexIcon
+              iconUrl={vtConfig?.iconUrl}
+              iconImageType={vtConfig?.iconImageType}
+            />
+          </div>
+        ),
+        className: css`
+          .ft-start-adornment {
+            color: ${vtConfig?.color}!important;
+            background: ${fade(vtConfig?.color, 0.3)}!important;
+          }
+        `,
+        endAdornment: (
+          <IconButton
+            tooltipText={`Explore ${textTransform(displayLabel)}`}
+            icon={<ChevronRightIcon />}
+            variant={"text"}
+            size={"small"}
+            onPress={() => navigate(`/data-explorer/${encodeURIComponent(et)}`)}
+          />
+        ),
+      });
+    });
+
+    return items;
+  }, [config, pfx, textTransform, navigate]);
+
+
+////////////////////////////////////////////////////////////////
+
   const [search, setSearch] = useState("");
 
   useEffect(() => {
@@ -120,7 +175,7 @@ const ConnectionData = ({ classNamePrefix = "ft" }: VertexDetailProps) => {
         search={search}
         onSearch={setSearch}
         className={pfx("advanced-list")}
-        items={verticesByTypeItems}
+        items={verticesByTypeItems.concat(edgesByTypeItems)}
         emptyState={{
           noSearchResultsTitle: t("connection-detail.no-search-title"),
           noSearchResultsSubtitle: t("connection-detail.no-search-subtitle"),
