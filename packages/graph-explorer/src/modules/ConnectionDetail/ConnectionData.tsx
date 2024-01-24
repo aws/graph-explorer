@@ -37,6 +37,7 @@ const ConnectionData = ({ classNamePrefix = "ft" }: VertexDetailProps) => {
     (config?.vertexTypes || []).forEach(vt => {
       const vtConfig = config?.getVertexTypeConfig(vt);
       const displayLabel = vtConfig?.displayLabel || vt;
+      const vDetailCounts =  vtConfig?.total;
 
       items.push({
         id: vt,
@@ -44,7 +45,7 @@ const ConnectionData = ({ classNamePrefix = "ft" }: VertexDetailProps) => {
         titleComponent: (
           <div className={pfx("advanced-list-item-title")}>
             <div className={pfx("node-title")}>
-              {textTransform(displayLabel)}
+              {textTransform(displayLabel + ": " + vDetailCounts)}
             </div>
           </div>
         ),
@@ -89,6 +90,7 @@ const ConnectionData = ({ classNamePrefix = "ft" }: VertexDetailProps) => {
       const etConfig = config?.getEdgeTypeConfig(et);
       const vtConfig = config?.getVertexTypeConfig("Pharmacy")
       const displayLabel = etConfig?.displayLabel || et;
+      const eDetailCounts =  etConfig?.total;
 
       items.push({
         id: et,
@@ -96,14 +98,14 @@ const ConnectionData = ({ classNamePrefix = "ft" }: VertexDetailProps) => {
         titleComponent: (
           <div className={pfx("advanced-list-item-title")}>
             <div className={pfx("node-title")}>
-              {textTransform(displayLabel)}
+              {textTransform(displayLabel + ": " + eDetailCounts)}
             </div>
           </div>
         ),
         icon: (
           <div
             style={{
-              color: "blue",
+              color: vtConfig?.color,
             }}
           >
             <VertexIcon
@@ -175,7 +177,7 @@ const ConnectionData = ({ classNamePrefix = "ft" }: VertexDetailProps) => {
         search={search}
         onSearch={setSearch}
         className={pfx("advanced-list")}
-        items={verticesByTypeItems.concat(edgesByTypeItems)}
+        items={verticesByTypeItems.concat(edgesByTypeItems.sort())}
         emptyState={{
           noSearchResultsTitle: t("connection-detail.no-search-title"),
           noSearchResultsSubtitle: t("connection-detail.no-search-subtitle"),
