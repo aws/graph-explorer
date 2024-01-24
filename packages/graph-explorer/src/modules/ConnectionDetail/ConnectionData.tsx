@@ -45,7 +45,10 @@ const ConnectionData = ({ classNamePrefix = "ft" }: VertexDetailProps) => {
         titleComponent: (
           <div className={pfx("advanced-list-item-title")}>
             <div className={pfx("node-title")}>
-              {textTransform(displayLabel + " :: " + vDetailCounts)}
+            {textTransform(displayLabel)}
+            </div>
+            <div className={pfx("node-count")} style={{color: "grey", fontStyle: 'italic'}}>
+              {vDetailCounts?.toString()}
             </div>
           </div>
         ),
@@ -98,7 +101,10 @@ const ConnectionData = ({ classNamePrefix = "ft" }: VertexDetailProps) => {
         titleComponent: (
           <div className={pfx("advanced-list-item-title")}>
             <div className={pfx("node-title")}>
-              {textTransform(displayLabel + " :: " + eDetailCounts)}
+            {textTransform(displayLabel)}
+            </div>
+            <div className={pfx("edge-count")} style={{color: "grey", fontStyle: 'italic'}}>
+              {eDetailCounts?.toString()}
             </div>
           </div>
         ),
