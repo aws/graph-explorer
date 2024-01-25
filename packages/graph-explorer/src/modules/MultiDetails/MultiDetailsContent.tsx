@@ -82,8 +82,8 @@ const MultiDetailsContent = ({
             {vertex.data.neighborsCount === 0 && (
             <PanelEmptyState
             icon={<GraphIcon />}
-            title={t("edge-expand.no-connections-title")}
-            subtitle={t("edge-expand.no-connections-subtitle")}
+            title={t("multi-details.no-selection-title")}
+            subtitle={t("multi-details.no-connections-subtitle")}
             />
             )}
         </div>
