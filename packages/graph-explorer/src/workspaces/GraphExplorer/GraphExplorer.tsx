@@ -313,6 +313,12 @@ const GraphExplorer = ({ classNamePrefix = "ft" }: GraphViewProps) => {
           active={userLayout.activeSidebarItem === "edge-expand"}
         />
         <Workspace.SideBar.Button
+          tooltipText={"Multiple Expand"}
+          icon={<ExpandGraphIcon />}
+          onPress={toggleSidebar("multiple-expand")}
+          active={userLayout.activeSidebarItem === "multiple-expand"}
+        />
+        <Workspace.SideBar.Button
           tooltipText={t("nodes-styling.title")}
           icon={<GraphIcon />}
           onPress={toggleSidebar("nodes-styling")}
