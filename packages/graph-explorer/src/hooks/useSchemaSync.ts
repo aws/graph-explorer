@@ -1,6 +1,6 @@
 import { useCallback, useRef } from "react";
 import { useNotification } from "../components/NotificationProvider";
-import { SchemaResponse } from "../connector/AbstractConnector";
+import type { SchemaResponse } from "../connector/useGEFetchTypes";
 import useConfiguration from "../core/ConfigurationProvider/useConfiguration";
 import useConnector from "../core/ConnectorProvider/useConnector";
 import usePrefixesUpdater from "./usePrefixesUpdater";
@@ -32,7 +32,7 @@ const useSchemaSync = (onSyncChange?: (isSyncing: boolean) => void) => {
 
         schema = await connector.explorer.fetchSchema();
       } catch (e) {
-        if (e.name !== "AbortError") {
+        if (e.name === "AbortError") {
           notificationId.current && clearNotification(notificationId.current);
           enqueueNotification({
             title: config.displayLabel || config.id,
@@ -45,16 +45,24 @@ const useSchemaSync = (onSyncChange?: (isSyncing: boolean) => void) => {
             }] Fetch aborted, reached max time out ${config.connection?.fetchTimeoutMs} MS `
           );
         }
-        if (import.meta.env.DEV) {
-          console.error(e);
-        }
-
+        notificationId.current && clearNotification(notificationId.current);
+        enqueueNotification({
+          title: config.displayLabel || config.id,
+          message: `Error while fetching schema: ${e.message}`,
+          type: "error",
+          stackable: true,
+        });
+        connector.logger?.error(
+          `[${config.displayLabel || config.id
+          }] Error while fetching schema: ${e.message}`
+        );
         updateSchemaState(config.id);
         onSyncChange?.(false);
         return;
       }
 
-      if (!schema.vertices.length) {
+      if (!schema) return;
+      if (!schema?.vertices.length) {
         notificationId.current && clearNotification(notificationId.current);
         enqueueNotification({
           title: config.displayLabel || config.id,

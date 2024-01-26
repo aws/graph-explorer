@@ -1,5 +1,5 @@
 import uniq from "lodash/uniq";
-import type { KeywordSearchRequest } from "../../AbstractConnector";
+import type { KeywordSearchRequest } from "../../useGEFetchTypes";
 
 /**
  * @example
@@ -34,22 +34,22 @@ const keywordSearchTemplate = ({
     const label = vertexTypes[0];
 
     template += `MATCH (v:\`${label}\`)`;
-  } 
+  }
 
   if (Boolean(searchTerm) && (searchByAttributes.length !== 0 || searchById)) {
     const orContent = uniq(
-        (searchById && searchByAttributes.includes("__all")) ? ["id", ...searchByAttributes] : searchByAttributes
+      (searchById && searchByAttributes.includes("__all")) ? ["id", ...searchByAttributes] : searchByAttributes
     )
       .filter(attr => attr !== "__all")
       .map((attr: any) => {
         if (attr === "id") {
           if (exactMatch === true) {
-             return `v.\`~id\` = "${searchTerm}" `;
+            return `v.\`~id\` = "${searchTerm}" `;
           }
           return `v.\`~id\` CONTAINS "${searchTerm}" `;
         }
         if (exactMatch === true) {
-           return `v.${attr} = "${searchTerm}" `;
+          return `v.${attr} = "${searchTerm}" `;
         }
         return `v.${attr} CONTAINS "${searchTerm}" `;
       })

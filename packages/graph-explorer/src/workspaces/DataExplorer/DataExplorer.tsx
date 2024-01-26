@@ -29,7 +29,7 @@ import {
 import ExternalPaginationControl from "../../components/Tabular/controls/ExternalPaginationControl";
 import Tabular from "../../components/Tabular/Tabular";
 import Workspace from "../../components/Workspace/Workspace";
-import { KeywordSearchResponse } from "../../connector/AbstractConnector";
+import type { KeywordSearchResponse } from "../../connector/useGEFetchTypes";
 import {
   useConfiguration,
   useWithTheme,
@@ -165,7 +165,7 @@ const DataExplorer = ({ classNamePrefix = "ft" }: ConnectionsProps) => {
               size={"small"}
               iconPlacement={"start"}
               onPress={() => {
-                fetchNode(cell.row.original);
+                fetchNode(cell.row.original, pageSize);
               }}
             >
               {isInExplorer ? "Sent to Explorer" : "Send to Explorer"}
@@ -176,7 +176,14 @@ const DataExplorer = ({ classNamePrefix = "ft" }: ConnectionsProps) => {
     });
 
     return vtColumns;
-  }, [entities.nodes, fetchNode, t, textTransform, vertexConfig?.attributes]);
+  }, [
+    entities.nodes,
+    fetchNode,
+    pageSize,
+    t,
+    textTransform,
+    vertexConfig?.attributes,
+  ]);
 
   const selectOptions = useMemo(() => {
     const options =
@@ -216,7 +223,9 @@ const DataExplorer = ({ classNamePrefix = "ft" }: ConnectionsProps) => {
           return;
         }
 
-        updatePrefixes(response.vertices.map(v => v.data.id));
+        updatePrefixes(
+          response.vertices.map((v: { data: { id: any } }) => v.data.id)
+        );
       },
     }
   );

@@ -1,6 +1,6 @@
 {
   "name": "graph-explorer",
-  "version": "1.4.0",
+  "version": "1.5.1",
   "description": "Graph Explorer",
   "packageManager": "pnpm@7.9.3",
   "engines": {
@@ -46,12 +46,13 @@
       "webpack@>=5.0.0 <5.76.0": ">=5.76.0",
       "decode-uri-component@<0.2.1": ">=0.2.1",
       "yaml@>=2.0.0-5 <2.2.2": ">=2.2.2",
-      "vite@>=3.0.2 <3.2.7": ">=3.2.7",
+      "vite@>=4.5.0 <4.5.2": ">=4.5.2",
       "xml2js@<0.5.0": ">=0.5.0",
       "semver@<7.5.2": ">=7.5.2",
       "postcss@<8.4.31": ">=8.4.31",
       "@babel/traverse@<7.23.2": ">=7.23.2",
-      "crypto-js@<4.1.1": ">=4.2.0"
+      "crypto-js@<4.2.0": ">=4.2.0",
+      "@adobe/css-tools@<4.3.2": ">=4.3.2"
     }
   }
 }

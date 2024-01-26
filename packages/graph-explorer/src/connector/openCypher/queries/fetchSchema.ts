@@ -1,5 +1,5 @@
 import { sanitizeText } from "../../../utils";
-import type { SchemaResponse } from "../../AbstractConnector";
+import type { SchemaResponse } from "../../useGEFetchTypes";
 import edgeLabelsTemplate from "../templates/edgeLabelsTemplate";
 import edgesSchemaTemplate from "../templates/edgesSchemaTemplate";
 import vertexLabelsTemplate from "../templates/vertexLabelsTemplate";
@@ -49,7 +49,7 @@ const fetchVertexLabels = async (
   const labelsTemplate = vertexLabelsTemplate();
   const data = await openCypherFetch<RawVertexLabelsResponse>(labelsTemplate);
 
-  const values = data.results;
+  const values = data.results || [];
   const labelsWithCounts: Record<string, number> = {};
   for (let i = 0; i < values.length; i += 1) {
     labelsWithCounts[values[i].label[0] as string] = (values[i].count as number);
@@ -198,12 +198,12 @@ const fetchSchema = async (
   summary?: GraphSummary
 ): Promise<SchemaResponse> => {
   if (!summary) {
-    const vertices = await fetchVerticesSchema(openCypherFetch);
+    const vertices = await fetchVerticesSchema(openCypherFetch) || [];
     const totalVertices = vertices.reduce((total, vertex) => {
       return total + (vertex.total ?? 0);
     }, 0);
 
-    const edges = await fetchEdgesSchema(openCypherFetch);
+    const edges = await fetchEdgesSchema(openCypherFetch) || [];
     const totalEdges = edges.reduce((total, edge) => {
       return total + (edge.total ?? 0);
     }, 0);
@@ -220,12 +220,12 @@ const fetchSchema = async (
     openCypherFetch,
     summary.nodeLabels,
     {}
-  );
+  ) || [];
   const edges = await fetchEdgesAttributes(
     openCypherFetch,
     summary.edgeLabels,
     {}
-  );
+  ) || [];
 
   return {
     totalVertices: summary.numNodes,

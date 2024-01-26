@@ -1,4 +1,4 @@
-import type { Criterion, NeighborsRequest } from "../../AbstractConnector";
+import type { Criterion, NeighborsRequest } from "../../useGEFetchTypes";
 
 const criterionNumberTemplate = ({
   name,
