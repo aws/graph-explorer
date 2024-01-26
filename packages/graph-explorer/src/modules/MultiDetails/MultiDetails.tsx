@@ -5,8 +5,16 @@ import { GridIcon, ModuleContainer, ModuleContainerHeader } from "../../componen
 import GraphIcon from "../../components/icons/GraphIcon";
 import PanelEmptyState from "../../components/PanelEmptyState/PanelEmptyState";
 import useTranslations from "../../hooks/useTranslations";
-import { nodesSelectedIdsAtom } from "../../core/StateProvider/nodes";
-import { edgesSelectedIdsAtom } from "../../core/StateProvider/edges";
+import { 
+    nodesAtom,
+    nodesSelectedIdsAtom, 
+} from "../../core/StateProvider/nodes";
+import {
+    edgesAtom,
+    edgesSelectedIdsAtom,
+    edgesTypesFilteredAtom,
+  } from "../../core/StateProvider/edges";
+import { overDateAtom, overDateFlagAtom } from "../../core/StateProvider/overdate";
 import MultiDetailsContent from "./MultiDetailsContent";
 
 export type MultiDetailsProp = Omit<
@@ -19,8 +27,17 @@ export type MultiDetailsProp = Omit<
 
 const MultiDetails = ({title = "Multi-Details", ...headerProps }: MultiDetailsProp) =>{
     const t = useTranslations();
+    const nodes = useRecoilValue(nodesAtom);
     const nodesSelectedIds = useRecoilValue(nodesSelectedIdsAtom)
     const edgesSelectedIds = useRecoilValue(edgesSelectedIdsAtom)
+
+    const selectedNode = useMemo(() => {
+        return nodes.find(node => nodesSelectedIds.has(node.data.id));
+      }, [nodes, nodesSelectedIds]);
+    
+    const selectedItems = new Set<string>(['test']);
+    const odFlag = useRecoilValue(overDateFlagAtom);
+    const overDate = useRecoilValue(overDateAtom);
 
     return (
         <ModuleContainer>
@@ -36,8 +53,12 @@ const MultiDetails = ({title = "Multi-Details", ...headerProps }: MultiDetailsPr
                 subtitle={t("multi-details.no-selection-subtitle")}
             />
         )}
-        {nodesSelectedIds.size >= 1 && (
-             <MultiDetailsContent vertex={""}/>
+        {nodesSelectedIds.size >= 1 && selectedItems && selectedNode && (
+            <MultiDetailsContent 
+            graphItems={selectedItems}
+            vertex={selectedNode}
+            odFlag={odFlag}
+            overDate={overDate}/>
         )}
         </ModuleContainer>
     );

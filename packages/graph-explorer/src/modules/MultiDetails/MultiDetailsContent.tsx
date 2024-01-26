@@ -13,8 +13,10 @@ import useTextTransform from "../../hooks/useTextTransform";
 import useNeighborsOptions from "../../hooks/useNeighborsOptions";
 import useDisplayNames from "../../hooks/useDisplayNames";
 
+
 export type MultiDetailsContentProps = {
     classNamePrefix?: string,
+    graphItems: Set<string>;
     vertex: Vertex;
     odFlag: boolean;
     overDate: string;
@@ -22,6 +24,7 @@ export type MultiDetailsContentProps = {
 
 const MultiDetailsContent = ({
     classNamePrefix = "ft",
+    graphItems,
     vertex,
     odFlag,
     overDate
