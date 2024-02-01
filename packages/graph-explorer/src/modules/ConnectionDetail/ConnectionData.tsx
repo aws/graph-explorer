@@ -37,6 +37,7 @@ const ConnectionData = ({ classNamePrefix = "ft" }: VertexDetailProps) => {
     (config?.vertexTypes || []).forEach(vt => {
       const vtConfig = config?.getVertexTypeConfig(vt);
       const displayLabel = vtConfig?.displayLabel || vt;
+      const vDetailCounts =  vtConfig?.total;
 
       items.push({
         id: vt,
@@ -44,7 +45,10 @@ const ConnectionData = ({ classNamePrefix = "ft" }: VertexDetailProps) => {
         titleComponent: (
           <div className={pfx("advanced-list-item-title")}>
             <div className={pfx("node-title")}>
-              {textTransform(displayLabel)}
+            {textTransform(displayLabel)}
+            </div>
+            <div className={pfx("node-count")} style={{color: "grey", fontStyle: 'italic'}}>
+              {vDetailCounts?.toString()}
             </div>
           </div>
         ),
@@ -80,6 +84,65 @@ const ConnectionData = ({ classNamePrefix = "ft" }: VertexDetailProps) => {
 
     return items;
   }, [config, pfx, textTransform, navigate]);
+
+//////////////////////////////////////////////////////////////////////
+
+  const edgesByTypeItems = useMemo(() => {
+    const items: AdvancedListItemType<any>[] = [];
+    (config?.edgeTypes || []).forEach(et => {
+      const etConfig = config?.getEdgeTypeConfig(et);
+      const vtConfig = config?.getVertexTypeConfig("Pharmacy")
+      const displayLabel = etConfig?.displayLabel || et;
+      const eDetailCounts =  etConfig?.total;
+
+      items.push({
+        id: et,
+        title: displayLabel,
+        titleComponent: (
+          <div className={pfx("advanced-list-item-title")}>
+            <div className={pfx("node-title")}>
+            {textTransform(displayLabel)}
+            </div>
+            <div className={pfx("edge-count")} style={{color: "grey", fontStyle: 'italic'}}>
+              {eDetailCounts?.toString()}
+            </div>
+          </div>
+        ),
+        icon: (
+          <div
+            style={{
+              color: vtConfig?.color,
+            }}
+          >
+            <VertexIcon
+              iconUrl={vtConfig?.iconUrl}
+              iconImageType={vtConfig?.iconImageType}
+            />
+          </div>
+        ),
+        className: css`
+          .ft-start-adornment {
+            color: ${vtConfig?.color}!important;
+            background: ${fade(vtConfig?.color, 0.3)}!important;
+          }
+        `,
+        endAdornment: (
+          <IconButton
+            tooltipText={`Explore ${textTransform(displayLabel)}`}
+            icon={<ChevronRightIcon />}
+            variant={"text"}
+            size={"small"}
+            onPress={() => navigate(`/data-explorer/${encodeURIComponent(et)}`)}
+          />
+        ),
+      });
+    });
+
+    return items;
+  }, [config, pfx, textTransform, navigate]);
+
+
+////////////////////////////////////////////////////////////////
 
   const [search, setSearch] = useState("");
 
@@ -120,7 +183,7 @@ const ConnectionData = ({ classNamePrefix = "ft" }: VertexDetailProps) => {
         search={search}
         onSearch={setSearch}
         className={pfx("advanced-list")}
-        items={verticesByTypeItems}
+        items={verticesByTypeItems.concat(edgesByTypeItems.sort())}
         emptyState={{
           noSearchResultsTitle: t("connection-detail.no-search-title"),
           noSearchResultsSubtitle: t("connection-detail.no-search-subtitle"),
