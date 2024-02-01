@@ -5,6 +5,7 @@ import { useRecoilValue } from "recoil";
 import DEFAULT_ICON_URL from "../../utils/defaultIconUrl";
 import { mergedConfigurationSelector } from "../StateProvider/configuration";
 import type { ConfigurationContextProps } from "./types";
+import EDGE_ICON_URL from "../../utils/edgeIconUrl";
 
 export const ConfigurationContext = createContext<
   ConfigurationContextProps | undefined
@@ -22,6 +23,8 @@ const getDefaultVertexTypeConfig = (vertexType: string) => ({
 });
 
 const getDefaultEdgeTypeConfig = (edgeType: string) => ({
+  color: "#128EE5",
+  iconUrl: EDGE_ICON_URL,
   type: edgeType,
   displayLabel: "",
   attributes: [],

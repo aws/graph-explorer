@@ -81,6 +81,11 @@ export type EdgeTypeConfig = {
    */
   hidden?: boolean;
   /**
+  * Optional icon to be rendered inside the graph viewer and
+  * other modules.
+  */
+  iconUrl?: string;
+  /**
    * List of attributes for the edge type
    */
   attributes: Array<AttributeConfig>;

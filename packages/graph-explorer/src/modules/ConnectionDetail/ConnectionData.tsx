@@ -4,12 +4,13 @@ import { useNavigate } from "react-router-dom";
 import {
   AdvancedList,
   AdvancedListItemType,
+  BridgeIcon,
   ChevronRightIcon,
   Chip,
   EdgeIcon,
   GraphIcon,
   IconButton,
-  VertexIcon,
+  VertexIcon
 } from "../../components";
 import HumanReadableNumberFormatter from "../../components/HumanReadableNumberFormatter";
 import { fade, useWithTheme, withClassNamePrefix } from "../../core";
@@ -85,8 +86,6 @@ const ConnectionData = ({ classNamePrefix = "ft" }: VertexDetailProps) => {
     return items;
   }, [config, pfx, textTransform, navigate]);
 
-//////////////////////////////////////////////////////////////////////
-
   const edgesByTypeItems = useMemo(() => {
     const items: AdvancedListItemType<any>[] = [];
     (config?.edgeTypes || []).forEach(et => {
@@ -114,9 +113,9 @@ const ConnectionData = ({ classNamePrefix = "ft" }: VertexDetailProps) => {
               color: vtConfig?.color,
             }}
           >
-            <VertexIcon
-              iconUrl={vtConfig?.iconUrl}
-              iconImageType={vtConfig?.iconImageType}
+            <BridgeIcon
+              iconUrl={etConfig?.iconUrl}
+              iconImageType={etConfig?.iconImageType}
             />
           </div>
         ),
