@@ -42,7 +42,7 @@ const criterionStringTemplate = ({
     case "!=":
       return `has("${name}",neq("${value}"))`;
     case "like":
-      return `has("${name}",containing("${value}"))`;
+      return `has("${name}", TextP.regex("(?i)${value}."))`;
   }
 };
 

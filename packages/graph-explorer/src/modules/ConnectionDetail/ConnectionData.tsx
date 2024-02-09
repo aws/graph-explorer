@@ -90,7 +90,6 @@ const ConnectionData = ({ classNamePrefix = "ft" }: VertexDetailProps) => {
     const items: AdvancedListItemType<any>[] = [];
     (config?.edgeTypes || []).forEach(et => {
       const etConfig = config?.getEdgeTypeConfig(et);
-      const vtConfig = config?.getVertexTypeConfig("Pharmacy")
       const displayLabel = etConfig?.displayLabel || et;
       const eDetailCounts =  etConfig?.total;
 
@@ -110,7 +109,7 @@ const ConnectionData = ({ classNamePrefix = "ft" }: VertexDetailProps) => {
         icon: (
           <div
             style={{
-              color: vtConfig?.color,
+              color: "#7b03fc"
             }}
           >
             <BridgeIcon
@@ -121,8 +120,8 @@ const ConnectionData = ({ classNamePrefix = "ft" }: VertexDetailProps) => {
         ),
         className: css`
           .ft-start-adornment {
-            color: ${vtConfig?.color}!important;
-            background: ${fade(vtConfig?.color, 0.3)}!important;
+            color: ${"#7b03fc"}!important;
+            background: ${fade("#7b03fc", 0.3)}!important;
           }
         `,
         endAdornment: (

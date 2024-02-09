@@ -22,6 +22,7 @@ const getDefaultVertexTypeConfig = (vertexType: string) => ({
   attributes: [],
 });
 
+
 const getDefaultEdgeTypeConfig = (edgeType: string) => ({
   color: "#128EE5",
   iconUrl: EDGE_ICON_URL,
