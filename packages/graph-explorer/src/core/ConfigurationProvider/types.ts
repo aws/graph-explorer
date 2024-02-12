@@ -73,6 +73,11 @@ export type EdgeTypeConfig = {
    */
   displayLabel?: string;
   /**
+  * Optional icon to be rendered inside the graph viewer and
+  * other modules.
+  */
+  iconUrl?: string;
+  /**
    * Vertex attribute to be used as label
    */
   displayNameAttribute?: string;
@@ -80,11 +85,6 @@ export type EdgeTypeConfig = {
    * If hidden is true, edges of this types won't be rendered
    */
   hidden?: boolean;
-  /**
-  * Optional icon to be rendered inside the graph viewer and
-  * other modules.
-  */
-  iconUrl?: string;
   /**
    * List of attributes for the edge type
    */
@@ -196,9 +196,12 @@ export type ConfigurationContextProps = RawConfiguration & {
   vertexTypes: Array<string>;
   totalEdges: number;
   edgeTypes: Array<string>;
+
   getVertexTypeConfig(vertexType: string): VertexTypeConfig | undefined;
   getVertexTypeAttributes(vertexTypes: string[]): Array<AttributeConfig>;
   getVertexTypeSearchableAttributes(vertexType: string): Array<AttributeConfig>;
-  getEdgeTypeSearchableAttributes(edgeType: string): Array<AttributeConfig>;
+
   getEdgeTypeConfig(edgeType: string): EdgeTypeConfig | undefined;
+  getEdgeTypeAttributes(edgeTypes: string[]): Array<AttributeConfig>;
+  getEdgeTypeSearchableAttributes(edgeType: string): Array<AttributeConfig>;
 };

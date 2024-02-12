@@ -7,6 +7,7 @@ const VertexIcon = ({
   iconUrl?: string;
   iconImageType?: string;
 }) => {
+
   if (!iconUrl) {
     return null;
   }

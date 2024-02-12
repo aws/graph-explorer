@@ -3,9 +3,10 @@ import type { PropsWithChildren } from "react";
 import { createContext, useCallback, useMemo } from "react";
 import { useRecoilValue } from "recoil";
 import DEFAULT_ICON_URL from "../../utils/defaultIconUrl";
+import EDGE_ICON_URL from "../../utils/edgeIconUrl";
 import { mergedConfigurationSelector } from "../StateProvider/configuration";
 import type { ConfigurationContextProps } from "./types";
-import EDGE_ICON_URL from "../../utils/edgeIconUrl";
+
 
 export const ConfigurationContext = createContext<
   ConfigurationContextProps | undefined
@@ -26,6 +27,7 @@ const getDefaultVertexTypeConfig = (vertexType: string) => ({
 const getDefaultEdgeTypeConfig = (edgeType: string) => ({
   color: "#128EE5",
   iconUrl: EDGE_ICON_URL,
+  iconImageType:"image/svg+xml",
   type: edgeType,
   displayLabel: "",
   attributes: [],
@@ -85,6 +87,39 @@ const ConfigurationProvider = ({
     [configuration?.schema?.vertices]
   );
 
+
+  const getEdgeTypeConfig: ConfigurationContextProps["getEdgeTypeConfig"] = useCallback(
+    (edgeType: string) => {
+      const etConfig = configuration?.schema?.edges?.find(
+        e => e.type === edgeType
+      );
+      if (!etConfig) {
+        return getDefaultEdgeTypeConfig(edgeType);
+      }
+
+      return etConfig;
+    },
+    [configuration?.schema?.edges]
+  );
+
+  const getEdgeTypeAttributes: ConfigurationContextProps["getEdgeTypeAttributes"] = useCallback(
+    (edgeTypes: string[]) => {
+      const etConfig = configuration?.schema?.edges?.filter(v =>
+        edgeTypes.includes(v.type)
+      );
+
+      if (!etConfig?.length) {
+        return [];
+      }
+
+      return uniqBy(
+        etConfig.flatMap(e => e.attributes),
+        e => e.name
+      );
+    },
+    [configuration?.schema?.edges]
+  );
+
   const getEdgeTypeSearchableAttributes: ConfigurationContextProps["getEdgeTypeSearchableAttributes"] = useCallback(
     (edgeType: string) => {
       const etConfig = configuration?.schema?.edges?.find(
@@ -102,19 +137,7 @@ const ConfigurationProvider = ({
     [configuration?.schema?.edges]
   );
 
-  const getEdgeTypeConfig: ConfigurationContextProps["getEdgeTypeConfig"] = useCallback(
-    (edgeType: string) => {
-      const etConfig = configuration?.schema?.edges?.find(
-        e => e.type === edgeType
-      );
-      if (!etConfig) {
-        return getDefaultEdgeTypeConfig(edgeType);
-      }
 
-      return etConfig;
-    },
-    [configuration?.schema?.edges]
-  );
 
   const value: ConfigurationContextProps | undefined = useMemo(() => {
     if (!configuration) {
@@ -130,6 +153,7 @@ const ConfigurationProvider = ({
       getVertexTypeConfig,
       getVertexTypeAttributes,
       getVertexTypeSearchableAttributes,
+      getEdgeTypeAttributes,
       getEdgeTypeSearchableAttributes,
       getEdgeTypeConfig,
     };

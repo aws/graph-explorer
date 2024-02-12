@@ -2,6 +2,7 @@ import { uniq } from "lodash";
 import { atom, selector } from "recoil";
 import { sanitizeText } from "../../utils";
 import DEFAULT_ICON_URL from "../../utils/defaultIconUrl";
+import EDGE_ICON_URL from "../../utils/edgeIconUrl";
 import type {
   AttributeConfig,
   EdgeTypeConfig,
@@ -167,6 +168,9 @@ const mergeEdge = (
     // Defaults
     type: "unknown",
     displayLabel: "Unknown",
+    color: "#e56912",
+    iconUrl: DEFAULT_ICON_URL,
+    iconImageType: "image/svg+xml",
     // Automatic schema override
     ...(schemaEdge || {}),
     // File-based override

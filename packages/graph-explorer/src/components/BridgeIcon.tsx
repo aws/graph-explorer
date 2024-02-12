@@ -7,6 +7,7 @@ const BridgeIcon = ({
   iconUrl?: string;
   iconImageType?: string;
 }) => {
+
   if (!iconUrl) {
     return null;
   }

@@ -109,7 +109,7 @@ const ConnectionData = ({ classNamePrefix = "ft" }: VertexDetailProps) => {
         icon: (
           <div
             style={{
-              color: "#7b03fc"
+              color: etConfig?.color
             }}
           >
             <BridgeIcon
@@ -120,8 +120,8 @@ const ConnectionData = ({ classNamePrefix = "ft" }: VertexDetailProps) => {
         ),
         className: css`
           .ft-start-adornment {
-            color: ${"#7b03fc"}!important;
-            background: ${fade("#7b03fc", 0.3)}!important;
+            color: ${etConfig?.color}!important;
+            background: ${fade(etConfig?.color, 0.3)}!important;
           }
         `,
         endAdornment: (
