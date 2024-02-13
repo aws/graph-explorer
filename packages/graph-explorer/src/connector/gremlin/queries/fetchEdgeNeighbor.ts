@@ -37,8 +37,7 @@ type RawOneHopRequest = {
     //const gremlinTemplate = edgeVertHopTemplate({ ...req, idType });
     const gremlinTemplate = edgeVertHopTemplate({...req, idType}); // Gets the vertices
     const edgeTemplate = edgeEdgeHopTemplate({...req, idType}); // Gets the edges
-    console.log(`Query: ${gremlinTemplate}`)
-    console.log(`Edge Query ${edgeTemplate}`)
+    console.log(`Edge Query ${edgeTemplate} ... AND ... ${gremlinTemplate}`)
 
     let [vData, eData] = await Promise.all([
       gremlinFetch<RawOneHopRequest>(gremlinTemplate),

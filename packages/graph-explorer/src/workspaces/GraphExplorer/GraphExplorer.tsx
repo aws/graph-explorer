@@ -18,6 +18,7 @@ import {
   ExpandGraphIcon,
   FilterIcon,
   GraphIcon,
+  MagicExpandIcon,
 } from "../../components/icons";
 import GridIcon from "../../components/icons/GridIcon";
 import Workspace from "../../components/Workspace";
@@ -308,7 +309,7 @@ const GraphExplorer = ({ classNamePrefix = "ft" }: GraphViewProps) => {
         />
         <Workspace.SideBar.Button
           tooltipText={"Expand By Connection"}
-          icon={<ExpandGraphIcon />}
+          icon={<MagicExpandIcon />}
           onPress={toggleSidebar("edge-expand")}
           active={userLayout.activeSidebarItem === "edge-expand"}
         />

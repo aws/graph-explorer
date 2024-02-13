@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 import type { Vertex } from "../../@types/entities";
-import { EdgeIcon, MagicExpandIcon, ModuleContainerFooter, VertexIcon } from "../../components";
+import { ModuleContainerFooter, VertexIcon } from "../../components";
 import Button from "../../components/Button";
 import ExpandGraphIcon from "../../components/icons/ExpandGraphIcon";
 import GraphIcon from "../../components/icons/GraphIcon";
@@ -65,6 +65,7 @@ const NodeExpandContent = ({
     });
     setIsExpanding(false);
   }, [expandNode, filters, limit, selectedType, vertex.data]);
+
 
   const displayLabels = useMemo(() => {
     return (vertex.data.types ?? [vertex.data.type])
@@ -140,24 +141,6 @@ const NodeExpandContent = ({
                 isExpanding ? (
                   <LoadingSpinner style={{ width: 24, height: 24 }} />
                 ) : (
-                  <MagicExpandIcon />
-                )
-              }
-              variant={"filled"}
-              isDisabled={
-                isExpanding ||
-                !vertex.data.__unfetchedNeighborCount ||
-                !selectedType
-              }
-              onPress={onExpandClick}
-            >
-              Magic Expand
-            </Button>
-            <Button
-              icon={
-                isExpanding ? (
-                  <LoadingSpinner style={{ width: 24, height: 24 }} />
-                ) : (
                   <ExpandGraphIcon />
                 )
               }
@@ -169,7 +152,7 @@ const NodeExpandContent = ({
               }
               onPress={onExpandClick}
             >
-              Exact Expand
+              Expand
             </Button>
           </ModuleContainerFooter>
           
