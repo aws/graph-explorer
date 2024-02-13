@@ -151,9 +151,28 @@ const NodeExpandContent = ({
               }
               onPress={onExpandClick}
             >
-              Expand
+              Magic Expand
+            </Button>
+            <Button
+              icon={
+                isExpanding ? (
+                  <LoadingSpinner style={{ width: 24, height: 24 }} />
+                ) : (
+                  <ExpandGraphIcon />
+                )
+              }
+              variant={"filled"}
+              isDisabled={
+                isExpanding ||
+                !vertex.data.__unfetchedNeighborCount ||
+                !selectedType
+              }
+              onPress={onExpandClick}
+            >
+              Exact Expand
             </Button>
           </ModuleContainerFooter>
+          
         </>
       )}
     </div>

@@ -19,7 +19,7 @@ const ModuleContainerFooter = ({
   const pfx = withClassNamePrefix(classNamePrefix);
   const numberOfChildren = Children.count(children);
   return (
-    <div
+      <div
       className={cx(
         styleWithTheme(defaultStyles(classNamePrefix)),
         pfx("module-container-footer"),
