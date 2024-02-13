@@ -4,12 +4,13 @@ import { useNavigate } from "react-router-dom";
 import {
   AdvancedList,
   AdvancedListItemType,
+  BridgeIcon,
   ChevronRightIcon,
   Chip,
   EdgeIcon,
   GraphIcon,
   IconButton,
-  VertexIcon,
+  VertexIcon
 } from "../../components";
 import HumanReadableNumberFormatter from "../../components/HumanReadableNumberFormatter";
 import { fade, useWithTheme, withClassNamePrefix } from "../../core";
@@ -85,13 +86,10 @@ const ConnectionData = ({ classNamePrefix = "ft" }: VertexDetailProps) => {
     return items;
   }, [config, pfx, textTransform, navigate]);
 
-//////////////////////////////////////////////////////////////////////
-
   const edgesByTypeItems = useMemo(() => {
     const items: AdvancedListItemType<any>[] = [];
     (config?.edgeTypes || []).forEach(et => {
       const etConfig = config?.getEdgeTypeConfig(et);
-      const vtConfig = config?.getVertexTypeConfig("Pharmacy")
       const displayLabel = etConfig?.displayLabel || et;
       const eDetailCounts =  etConfig?.total;
 
@@ -111,19 +109,19 @@ const ConnectionData = ({ classNamePrefix = "ft" }: VertexDetailProps) => {
         icon: (
           <div
             style={{
-              color: vtConfig?.color,
+              color: etConfig?.color
             }}
           >
-            <VertexIcon
-              iconUrl={vtConfig?.iconUrl}
-              iconImageType={vtConfig?.iconImageType}
+            <BridgeIcon
+              iconUrl={etConfig?.iconUrl}
+              iconImageType={etConfig?.iconImageType}
             />
           </div>
         ),
         className: css`
           .ft-start-adornment {
-            color: ${vtConfig?.color}!important;
-            background: ${fade(vtConfig?.color, 0.3)}!important;
+            color: ${etConfig?.color}!important;
+            background: ${fade(etConfig?.color, 0.3)}!important;
           }
         `,
         endAdornment: (

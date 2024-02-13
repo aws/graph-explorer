@@ -74,6 +74,15 @@ export type VertexPreferences = {
 };
 
 export type EdgePreferences = {
+  /**
+   * Icon overwrite for vertex
+   */
+  iconUrl?: string;
+  /**
+   * Icon overwrite for vertex
+   */
+  iconImageType?: string;
+  color?: string;
   type: string;
   displayLabel?: string;
   displayNameAttribute?: string;

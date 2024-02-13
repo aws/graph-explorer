@@ -1,13 +1,12 @@
 import RemoteSvgIcon from "./RemoteSvgIcon";
 
-const VertexIcon = ({
+const BridgeIcon = ({
   iconUrl,
   iconImageType,
 }: {
   iconUrl?: string;
   iconImageType?: string;
 }) => {
-
 
   if (!iconUrl) {
     return null;
@@ -24,4 +23,4 @@ const VertexIcon = ({
   return <img width={24} height={24} src={iconUrl} />;
 };
 
-export default VertexIcon;
+export default BridgeIcon;

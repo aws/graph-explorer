@@ -301,13 +301,13 @@ const GraphExplorer = ({ classNamePrefix = "ft" }: GraphViewProps) => {
           active={userLayout.activeSidebarItem === "filters"}
         />
         <Workspace.SideBar.Button
-          tooltipText={"Expand"}
+          tooltipText={"Expand By Object"}
           icon={<ExpandGraphIcon />}
           onPress={toggleSidebar("expand")}
           active={userLayout.activeSidebarItem === "expand"}
         />
         <Workspace.SideBar.Button
-          tooltipText={"Edge Expand"}
+          tooltipText={"Expand By Connection"}
           icon={<ExpandGraphIcon />}
           onPress={toggleSidebar("edge-expand")}
           active={userLayout.activeSidebarItem === "edge-expand"}
