@@ -35,7 +35,6 @@ type RawOneHopRequest = {
   ): Promise<NeighborsResponse> => {
     const idType = rawIds.get(req.vertexId) ?? "string";
     //const gremlinTemplate = edgeVertHopTemplate({ ...req, idType });
-    console.log(`Demo: ${edgeVertHopTemplate({...req, idType})}`);
     const gremlinTemplate = edgeVertHopTemplate({...req, idType}); // Gets the vertices
     const edgeTemplate = edgeEdgeHopTemplate({...req, idType}); // Gets the edges
     console.log(`Query: ${gremlinTemplate}`)

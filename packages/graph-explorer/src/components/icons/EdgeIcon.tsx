@@ -15,3 +15,5 @@ export const EdgeIcon = (props: IconBaseProps) => {
 };
 
 export default EdgeIcon;
+
+

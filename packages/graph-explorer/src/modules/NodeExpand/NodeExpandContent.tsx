@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 import type { Vertex } from "../../@types/entities";
-import { ModuleContainerFooter, VertexIcon } from "../../components";
+import { EdgeIcon, MagicExpandIcon, ModuleContainerFooter, VertexIcon } from "../../components";
 import Button from "../../components/Button";
 import ExpandGraphIcon from "../../components/icons/ExpandGraphIcon";
 import GraphIcon from "../../components/icons/GraphIcon";
@@ -140,7 +140,7 @@ const NodeExpandContent = ({
                 isExpanding ? (
                   <LoadingSpinner style={{ width: 24, height: 24 }} />
                 ) : (
-                  <ExpandGraphIcon />
+                  <MagicExpandIcon />
                 )
               }
               variant={"filled"}
