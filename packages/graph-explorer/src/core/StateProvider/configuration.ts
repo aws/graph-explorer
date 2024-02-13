@@ -169,7 +169,7 @@ const mergeEdge = (
     type: "unknown",
     displayLabel: "Unknown",
     color: "#e56912",
-    iconUrl: DEFAULT_ICON_URL,
+    iconUrl: EDGE_ICON_URL,
     iconImageType: "image/svg+xml",
     // Automatic schema override
     ...(schemaEdge || {}),

@@ -8,6 +8,9 @@ const VertexIcon = ({
   iconImageType?: string;
 }) => {
 
+  console.log(`VIconURL: ${iconUrl}`)
+  console.log(`VIconImageType: ${iconImageType}`)
+
   if (!iconUrl) {
     return null;
   }
