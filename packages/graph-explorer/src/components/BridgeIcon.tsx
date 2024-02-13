@@ -7,9 +7,6 @@ const BridgeIcon = ({
   iconUrl?: string;
   iconImageType?: string;
 }) => {
-  console.log(`EdgeIconURL: ${iconUrl}`)
-  console.log(`EdgeIconImageType: ${iconImageType}`)
-
 
   if (!iconUrl) {
     return null;
