@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 import type { Vertex } from "../../@types/entities";
-import { ModuleContainerFooter, VertexIcon } from "../../components";
+import { MagicExpandIcon, ModuleContainerFooter, VertexIcon } from "../../components";
 import Button from "../../components/Button";
 import ExpandGraphIcon from "../../components/icons/ExpandGraphIcon";
 import GraphIcon from "../../components/icons/GraphIcon";
@@ -65,6 +65,27 @@ const NodeExpandContent = ({
     });
     setIsExpanding(false);
   }, [expandNode, filters, limit, selectedType, vertex.data]);
+
+
+
+///////////////////////////////////////////////////////////////////////////
+  const onMagicClick = useCallback(async () => {
+    setIsExpanding(true);
+    await expandNode({
+      vertexId: vertex.data.id,
+      vertexType: (vertex.data.types ?? [vertex.data.type])?.join("::"),
+      // TODO - review limit and offset when data is not sorted
+      limit: limit ?? vertex.data.neighborsCount,
+      offset:
+        limit === null
+          ? 0
+          : vertex.data.neighborsCount -
+            (vertex.data.__unfetchedNeighborCount ?? 0),
+    });
+    setIsExpanding(false);
+  }, [expandNode, filters, limit, selectedType, vertex.data]);
+///////////////////////////////////////////////////////////////////////////
+
 
 
   const displayLabels = useMemo(() => {
@@ -141,7 +162,7 @@ const NodeExpandContent = ({
                 isExpanding ? (
                   <LoadingSpinner style={{ width: 24, height: 24 }} />
                 ) : (
-                  <ExpandGraphIcon />
+                  <MagicExpandIcon />
                 )
               }
               variant={"filled"}
@@ -152,7 +173,25 @@ const NodeExpandContent = ({
               }
               onPress={onExpandClick}
             >
-              Expand
+              Exact Expand
+            </Button>
+            <Button
+              icon={
+                isExpanding ? (
+                  <LoadingSpinner style={{ width: 24, height: 24 }} />
+                ) : (
+                  <ExpandGraphIcon />
+                )
+              }
+              variant={"filled"}
+              isDisabled={
+                isExpanding ||
+                !vertex.data.__unfetchedNeighborCount ||
+                !selectedType
+              }
+              onPress={onMagicClick}
+            >
+              Magic Expand
             </Button>
           </ModuleContainerFooter>
           
