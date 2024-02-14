@@ -69,7 +69,7 @@ const NodeExpandContent = ({
 
 
 ///////////////////////////////////////////////////////////////////////////
-  const onMagicClick = useCallback(async () => {
+  const onFullClick = useCallback(async () => {
     setIsExpanding(true);
     await expandNode({
       vertexId: vertex.data.id,
@@ -189,9 +189,9 @@ const NodeExpandContent = ({
                 !vertex.data.__unfetchedNeighborCount ||
                 !selectedType
               }
-              onPress={onMagicClick}
+              onPress={onFullClick}
             >
-              Magic Expand
+              Full Expand
             </Button>
           </ModuleContainerFooter>
           

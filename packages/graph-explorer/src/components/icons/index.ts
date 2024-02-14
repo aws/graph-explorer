@@ -51,6 +51,7 @@ export { default as LineSolid } from "./LineSolid";
 export { default as LoaderIcon } from "./LoaderIcon";
 export { default as ManageColumnsIcon } from "./ManageColumns";
 export { default as MenuIcon } from "./MenuIcon";
+export { default as MultiExpandIcon } from "./MultiExpand";
 export { default as MagicExpandIcon } from './MagicExpandIcon';
 export { default as NamespaceIcon } from "./NamespaceIcon";
 export { default as NoGraphDataIcon } from "./NoGraphDataIcon";

@@ -145,7 +145,7 @@ const oneHopTemplate = ({
   } else {
     template = `g.V("${vertexId}")`;
   }
-
+  
   template += `.project("vertices", "edges")`;
 
   const hasLabelContent = filterByVertexTypes
