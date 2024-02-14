@@ -1,4 +1,4 @@
-import { toUpper } from "lodash";
+import { capitalize, toUpper } from "lodash";
 import type { Criterion, NeighborsRequest } from "../../AbstractConnector";
 
 const now = new Date();
@@ -145,7 +145,7 @@ const edgeVertHopTemplate = ({
     }
     console.log(filterCriteria)
     let filterCriteriaTemplate = ".and(";
-    let edgePrefix = toUpper(edgeTypes[0].slice(0,2));
+    let edgePrefix =  /^[0-9]*$/.test(edgeTypes[0][1]) ? toUpper(edgeTypes[0].slice(0,2)): capitalize(edgeTypes[0]);
     if (edgeTypes[0] == "network_participation"){
       filterCriteriaTemplate += `has("Network_Participation_Record_Active_Da__c", lte("${activeDate}"))`;
       filterCriteriaTemplate += `, has("Network_Participation_Record_Expiratio__c", gte("${activeDate}"))`;

@@ -5,7 +5,7 @@ const defaultStyles = (pfx: string): ThemeStyleFn => ({ theme }) =>
   css`
     &.${pfx}-module-container-footer {
       display: flex;
-      justify-content: space-between;
+      justify-content: space-around;
       align-items: center;
       width: 100%;
       min-height: 42px;
