@@ -46,6 +46,7 @@ const useGEFetch = () => {
     }
     if (connection?.awsAuthEnabled) {
       headers["aws-neptune-region"] = connection.awsRegion || "";
+      headers["service-type"] = connection.serviceType || "neptune-db";
     }
 
     return { ...headers, ...typeHeaders };

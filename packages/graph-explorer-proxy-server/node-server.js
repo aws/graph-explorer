@@ -69,6 +69,7 @@ const retryFetch = async (
   options,
   isIamEnabled,
   region,
+  serviceType,
   retryDelay = 10000,
   refetchMaxRetries = 1
 ) => {
@@ -78,7 +79,7 @@ const retryFetch = async (
         host: url.hostname,
         port: url.port,
         path: url.pathname + url.search,
-        service: "neptune-db",
+        service: serviceType,
         region,
         method: options.method,
         body: options.body ?? undefined,
@@ -88,7 +89,7 @@ const retryFetch = async (
         host: url.hostname,
         port: url.port,
         path: url.pathname + url.search,
-        service: "neptune-db",
+        service: serviceType,
         region,
         method: options.method,
         body: options.body ?? undefined,
@@ -99,7 +100,7 @@ const retryFetch = async (
       host: url.hostname,
       port: url.port,
       path: url.pathname + url.search,
-      service: "neptune-db",
+      service: serviceType,
       method: options.method,
       body: options.body ?? undefined,
       headers: options.headers,
@@ -129,13 +130,14 @@ const retryFetch = async (
 };
 
 // Function to fetch data from the given URL and send it as a response.
-async function fetchData(res, next, url, options, isIamEnabled, region) {
+async function fetchData(res, next, url, options, isIamEnabled, region, serviceType) {
   try {
     const response = await retryFetch(
       new URL(url),
       options,
       isIamEnabled,
-      region
+      region,
+      serviceType
     );
     const data = await response.json();
     res.send(data);
@@ -185,8 +187,9 @@ async function fetchData(res, next, url, options, isIamEnabled, region) {
     };
     const isIamEnabled = !!req.headers["aws-neptune-region"];
     const region = isIamEnabled ? req.headers["aws-neptune-region"] : "";
+    const serviceType = isIamEnabled ? (req.headers["service-type"] ?? "neptune-db") : "";
 
-    fetchData(res, next, rawUrl, requestOptions, isIamEnabled, region);
+    fetchData(res, next, rawUrl, requestOptions, isIamEnabled, region, serviceType);
   });
 
   // POST endpoint for Gremlin queries.
@@ -209,8 +212,9 @@ async function fetchData(res, next, url, options, isIamEnabled, region) {
 
     const isIamEnabled = !!req.headers["aws-neptune-region"];
     const region = isIamEnabled ? req.headers["aws-neptune-region"] : "";
+    const serviceType = isIamEnabled ? (req.headers["service-type"] ?? "neptune-db") : "";
 
-    fetchData(res, next, rawUrl, requestOptions, isIamEnabled, region);
+    fetchData(res, next, rawUrl, requestOptions, isIamEnabled, region, serviceType);
   });
 
   // POST endpoint for openCypher queries.
@@ -233,8 +237,9 @@ async function fetchData(res, next, url, options, isIamEnabled, region) {
 
     const isIamEnabled = !!req.headers["aws-neptune-region"];
     const region = isIamEnabled ? req.headers["aws-neptune-region"] : "";
+    const serviceType = isIamEnabled ? (req.headers["service-type"] ?? "neptune-db") : "";
 
-    fetchData(res, next, rawUrl, requestOptions, isIamEnabled, region);
+    fetchData(res, next, rawUrl, requestOptions, isIamEnabled, region, serviceType);
   });
 
   // GET endpoint to retrieve PostgreSQL statistics summary.
@@ -247,8 +252,9 @@ async function fetchData(res, next, url, options, isIamEnabled, region) {
 
     const isIamEnabled = !!req.headers["aws-neptune-region"];
     const region = isIamEnabled ? req.headers["aws-neptune-region"] : "";
+    const serviceType = isIamEnabled ? (req.headers["service-type"] ?? "neptune-db") : "";
 
-    fetchData(res, next, rawUrl, requestOptions, isIamEnabled, region);
+    fetchData(res, next, rawUrl, requestOptions, isIamEnabled, region, serviceType);
   });
 
   // GET endpoint to retrieve RDF statistics summary.
@@ -261,8 +267,9 @@ async function fetchData(res, next, url, options, isIamEnabled, region) {
 
     const isIamEnabled = !!req.headers["aws-neptune-region"];
     const region = isIamEnabled ? req.headers["aws-neptune-region"] : "";
+    const serviceType = isIamEnabled ? (req.headers["service-type"] ?? "neptune-db") : "";
 
-    fetchData(res, next, rawUrl, requestOptions, isIamEnabled, region);
+    fetchData(res, next, rawUrl, requestOptions, isIamEnabled, region, serviceType);
   });
 
   app.get("/logger", (req, res, next) => {

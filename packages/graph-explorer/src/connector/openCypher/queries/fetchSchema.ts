@@ -79,6 +79,7 @@ const fetchVerticesAttributes = async (
       const response = await openCypherFetch<RawVerticesSchemaResponse>(verticesTemplate);
 
       const vertex = response.results[0]?.object as OCVertex;
+      if (!vertex) return;
       const label = vertex["~labels"][0] as string;
       const properties = vertex["~properties"];
       vertices.push({
