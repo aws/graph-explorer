@@ -114,6 +114,10 @@ After the request is processed, the console will return you to your certificate 
                           "value": "localhost"
                       },
                       {
+                          "name": "SERVICE_TYPE",
+                          "value": "neptune-db"
+                      },
+                      {
                           "name": "GRAPH_CONNECTION_URL",
                           "value": "https://{NEPTUNE_ENDPOINT}:8182"
                       },
@@ -157,6 +161,7 @@ After the request is processed, the console will return you to your certificate 
      - `IAM`: Set this to `true` to use SigV4 signed requests, if your Neptune cluster has IAM db authentication enabled.
      - `GRAPH_CONNECTION_URL`: Set this as `https://{NEPTUNE_ENDPOINT}:8182`.
      - `PUBLIC_OR_PROXY_ENDPOINT`: Set this as `https://{Domain name set in Step 5 of "Request an ACM Public Certificate"}`.
+     - `SERVICE_TYPE`:  Set this as `neptune-db` for Neptune database or `neptune-graph` for Neptune Analytics.
 6. Click **Create**.
 
 ### Create a Fargate Service

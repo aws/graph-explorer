@@ -62,6 +62,7 @@ const grabConfig = async (): Promise<RawConfiguration | undefined> => {
         graphDbUrl: defaultConnectionData.GRAPH_EXP_CONNECTION_URL || "",
         awsAuthEnabled: !!defaultConnectionData.GRAPH_EXP_IAM,
         awsRegion: defaultConnectionData.GRAPH_EXP_AWS_REGION || "",
+        serviceType: defaultConnectionData.SERVICE_TYPE || "neptune-db",
         fetchTimeoutMs:
           defaultConnectionData.GRAPH_EXP_FETCH_REQUEST_TIMEOUT || 240000,
       },

@@ -123,7 +123,7 @@ To provide a default connection such that initial loads of the graph explorer al
     - `GRAPH_CONNECTION_URL` - `None` - See [Add a New Connection](#connections-ui)
   - Required if `USING_PROXY_SERVER=True` and `IAM=True`
     - `AWS_REGION` - `None` - See [Add a New Connection](#connections-ui)
-    - `SERVICE_TYPE` - `neptune-db`
+    - `SERVICE_TYPE` - `neptune-db`, Set this as `neptune-db` for Neptune database or `neptune-graph` for Neptune Analytics.
 
 #### JSON Configuration Approach
 
