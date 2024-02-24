@@ -177,7 +177,7 @@ const CreateConnection = ({
       return;
     }
 
-    if (form.awsAuthEnabled && !form.awsRegion && !form.serviceType) {
+    if (form.awsAuthEnabled && (!form.awsRegion || !form.serviceType)) {
       setError(true);
       return;
     }

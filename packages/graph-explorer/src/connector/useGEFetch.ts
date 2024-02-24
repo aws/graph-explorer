@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import localforage from "localforage";
 import { CacheItem } from './useGEFetchTypes';
 import { useConfiguration, type ConnectionConfig } from '../core';
+import { DEFAULT_SERVICE_TYPE } from "../utils/constants";
 
 // 10 minutes
 const CACHE_TIME_MS = 10 * 60 * 1000;
@@ -46,7 +47,7 @@ const useGEFetch = () => {
     }
     if (connection?.awsAuthEnabled) {
       headers["aws-neptune-region"] = connection.awsRegion || "";
-      headers["service-type"] = connection.serviceType || "neptune-db";
+      headers["service-type"] = connection.serviceType || DEFAULT_SERVICE_TYPE;
     }
 
     return { ...headers, ...typeHeaders };

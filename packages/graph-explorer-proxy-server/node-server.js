@@ -16,6 +16,8 @@ const aws4 = require("aws4");
 // Load environment variables from .env file.
 dotenv.config({ path: "../graph-explorer/.env" });
 
+const DEFAULT_SERVICE_TYPE = "neptune-db";
+
 // Create a logger instance with pino.
 const proxyLogger = pino({
   level: process.env.LOG_LEVEL || "info",
@@ -187,7 +189,7 @@ async function fetchData(res, next, url, options, isIamEnabled, region, serviceT
     };
     const isIamEnabled = !!req.headers["aws-neptune-region"];
     const region = isIamEnabled ? req.headers["aws-neptune-region"] : "";
-    const serviceType = isIamEnabled ? (req.headers["service-type"] ?? "neptune-db") : "";
+    const serviceType = isIamEnabled ? (req.headers["service-type"] ?? DEFAULT_SERVICE_TYPE) : "";
 
     fetchData(res, next, rawUrl, requestOptions, isIamEnabled, region, serviceType);
   });
@@ -212,7 +214,7 @@ async function fetchData(res, next, url, options, isIamEnabled, region, serviceT
 
     const isIamEnabled = !!req.headers["aws-neptune-region"];
     const region = isIamEnabled ? req.headers["aws-neptune-region"] : "";
-    const serviceType = isIamEnabled ? (req.headers["service-type"] ?? "neptune-db") : "";
+    const serviceType = isIamEnabled ? (req.headers["service-type"] ?? DEFAULT_SERVICE_TYPE) : "";
 
     fetchData(res, next, rawUrl, requestOptions, isIamEnabled, region, serviceType);
   });
@@ -237,7 +239,7 @@ async function fetchData(res, next, url, options, isIamEnabled, region, serviceT
 
     const isIamEnabled = !!req.headers["aws-neptune-region"];
     const region = isIamEnabled ? req.headers["aws-neptune-region"] : "";
-    const serviceType = isIamEnabled ? (req.headers["service-type"] ?? "neptune-db") : "";
+    const serviceType = isIamEnabled ? (req.headers["service-type"] ?? DEFAULT_SERVICE_TYPE) : "";
 
     fetchData(res, next, rawUrl, requestOptions, isIamEnabled, region, serviceType);
   });
@@ -252,7 +254,7 @@ async function fetchData(res, next, url, options, isIamEnabled, region, serviceT
 
     const isIamEnabled = !!req.headers["aws-neptune-region"];
     const region = isIamEnabled ? req.headers["aws-neptune-region"] : "";
-    const serviceType = isIamEnabled ? (req.headers["service-type"] ?? "neptune-db") : "";
+    const serviceType = isIamEnabled ? (req.headers["service-type"] ?? DEFAULT_SERVICE_TYPE) : "";
 
     fetchData(res, next, rawUrl, requestOptions, isIamEnabled, region, serviceType);
   });
@@ -267,7 +269,7 @@ async function fetchData(res, next, url, options, isIamEnabled, region, serviceT
 
     const isIamEnabled = !!req.headers["aws-neptune-region"];
     const region = isIamEnabled ? req.headers["aws-neptune-region"] : "";
-    const serviceType = isIamEnabled ? (req.headers["service-type"] ?? "neptune-db") : "";
+    const serviceType = isIamEnabled ? (req.headers["service-type"] ?? DEFAULT_SERVICE_TYPE) : "";
 
     fetchData(res, next, rawUrl, requestOptions, isIamEnabled, region, serviceType);
   });
