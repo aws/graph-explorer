@@ -38,6 +38,18 @@ describe("Gremlin > keywordSearchTemplate", () => {
     );
   });
 
+  it("Should escape the search term", () => {
+    const template = keywordSearchTemplate({
+      searchTerm: '"JFK"',
+      searchByAttributes: ["code"],
+      exactMatch: true,
+    });
+
+    expect(template).toBe(
+      'g.V().or(has("code",\"\\"JFK\\"\")).range(0,10)'
+    );
+  });
+
   it("Should return a template for searched attributes matching with the search terms, and the ID token attribute", () => {
     const template = keywordSearchTemplate({
       searchTerm: "JFK",

@@ -1,3 +1,5 @@
+import { escapeString } from "../../../../utils";
+
 export const getSubjectClasses = (subjectClasses?: string[]) => {
   if (!subjectClasses?.length) {
     return "";
@@ -37,7 +39,9 @@ export const getFilterObject = (searchTerm?: string) => {
     return "";
   }
 
+  const escapedSearchTerm = escapeString(searchTerm);
+
   let filterBySearchTerm = "";
-  filterBySearchTerm = `FILTER (regex(str(?value), "${searchTerm}", "i"))`;
+  filterBySearchTerm = `FILTER (regex(str(?value), "${escapedSearchTerm}", "i"))`;
   return filterBySearchTerm;
 };

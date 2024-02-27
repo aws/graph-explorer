@@ -11,6 +11,7 @@ This release includes the following feature enhancements and bug fixes:
 - Refactored API request options for non-IAM endpoints (<https://github.com/aws/graph-explorer/pull/230>)
 - Enforced JSON response format for SPARQL queries (<https://github.com/aws/graph-explorer/pull/230>)
 - Bumped `vite` to `4.5.2` (<https://github.com/aws/graph-explorer/pull/233>)
+- Searching for text containing quotes now works.
 
 ## Release 1.5.0
 

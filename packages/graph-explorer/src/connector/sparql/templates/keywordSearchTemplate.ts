@@ -1,4 +1,5 @@
 import { SPARQLKeywordSearchRequest } from "../types";
+import { escapeString } from "../../../utils";
 
 /**
  * @example
@@ -79,11 +80,13 @@ const keywordSearchTemplate = ({
       return "";
     }
 
+    const escapedSearchTerm = escapeString(searchTerm);
+
     let filterBySearchTerm = "";
     if (exactMatch === true) {
-      filterBySearchTerm = `FILTER (?value = "${searchTerm}"))`;
+      filterBySearchTerm = `FILTER (?value = "${escapedSearchTerm}"))`;
     } else {
-      filterBySearchTerm = `FILTER (regex(str(?value), "${searchTerm}", "i"))`;
+      filterBySearchTerm = `FILTER (regex(str(?value), "${escapedSearchTerm}", "i"))`;
     }
     return filterBySearchTerm;
   };
