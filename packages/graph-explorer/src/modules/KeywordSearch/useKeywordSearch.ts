@@ -20,8 +20,8 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const debouncedSearchTerm = useDebounceValue(searchTerm, 1000);
   const [selectedVertexType, setSelectedVertexType] = useState("__all");
-  const [selectedAttribute, setSelectedAttribute] = useState("__all");
-  const [exactMatch, setExactMatch] = useState(false);
+  const [selectedAttribute, setSelectedAttribute] = useState("__id");
+  const [exactMatch, setExactMatch] = useState(true);
   const [neighborsLimit, setNeighborsLimit] = useState(true);
   const textTransform = useTextTransform();
   const exactMatchOptions = [
@@ -148,7 +148,28 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
       op => op.value
     );
     return [...defaultAttributes, ...attributes];
-  }, [config, searchableAttributes, selectedVertexType, textTransform]);
+  }, [
+    allowsIdSearch,
+    config,
+    searchableAttributes,
+    selectedVertexType,
+    textTransform,
+  ]);
+
+  const defaultSearchAttribute = useMemo(() => {
+    const fallbackValue = "__all";
+
+    if (config?.connection?.queryEngine === "sparql") {
+      const rdfsLabel = attributesOptions.find(o => o.label === "rdfs:label");
+      return rdfsLabel?.value ?? fallbackValue;
+    }
+
+    if (allowsIdSearch) {
+      return "__id";
+    }
+
+    return fallbackValue;
+  }, [config?.connection?.queryEngine, allowsIdSearch, attributesOptions]);
 
   const { enqueueNotification } = useNotification();
   const [isMount, setMount] = useState(false);
@@ -210,10 +231,10 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
   }
 
   useEffect(() => {
-    setSelectedAttribute("__all");
-    setExactMatch(false);
+    setSelectedAttribute(defaultSearchAttribute);
+    setExactMatch(true);
     setNeighborsLimit(true);
-  }, [selectedVertexType]);
+  }, [selectedVertexType, defaultSearchAttribute]);
 
   return {
     isFetching,
