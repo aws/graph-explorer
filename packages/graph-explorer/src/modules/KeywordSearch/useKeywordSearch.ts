@@ -28,6 +28,8 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
     { label: "Exact", value: "Exact" },
     { label: "Partial", value: "Partial" },
   ];
+  // Sparql is special and ID searching will need more work
+  const allowsIdSearch = config?.connection?.queryEngine !== "sparql";
 
   const vertexOptions = useMemo(() => {
     const vertexOps =
@@ -118,6 +120,13 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
   ]);
 
   const attributesOptions = useMemo(() => {
+    const defaultAttributes = allowsIdSearch
+      ? [
+          { label: "All", value: "__all" },
+          { label: "ID", value: "__id" },
+        ]
+      : [{ label: "All", value: "__all" }];
+
     if (selectedVertexType === "__all") {
       const attributes = uniqBy(
         searchableAttributes.map(attr => ({
@@ -126,7 +135,7 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
         })),
         op => op.value
       );
-      return [{ label: "All", value: "__all" }, ...attributes];
+      return [...defaultAttributes, ...attributes];
     }
 
     const attributes = uniqBy(
@@ -138,7 +147,7 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
         })),
       op => op.value
     );
-    return [{ label: "All", value: "__all" }, ...attributes];
+    return [...defaultAttributes, ...attributes];
   }, [config, searchableAttributes, selectedVertexType, textTransform]);
 
   const { enqueueNotification } = useNotification();

@@ -42,16 +42,16 @@ const keywordSearchTemplate = ({
 
     const orContent = uniq(
       searchById && searchByAttributes.includes("__all")
-        ? ["id", ...searchByAttributes]
+        ? ["__id", ...searchByAttributes]
         : searchByAttributes
     )
       .filter(attr => attr !== "__all")
       .map((attr: any) => {
-        if (attr === "id") {
+        if (attr === "__id") {
           if (exactMatch === true) {
-            return `v.\`~id\` = "${escapedSearchTerm}" `;
+            return `id(v) = "${escapedSearchTerm}" `;
           }
-          return `v.\`~id\` CONTAINS "${escapedSearchTerm}" `;
+          return `toString(id(v)) CONTAINS "${escapedSearchTerm}" `;
         }
         if (exactMatch === true) {
           return `v.${attr} = "${escapedSearchTerm}" `;
