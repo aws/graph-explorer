@@ -5,4 +5,5 @@ export { default as groupChildrenByType } from "./groupChildrenByType";
 export { default as memoize } from "./memoize";
 export { default as useClickOutside } from "./useClickOutside";
 export { default as sanitizeText } from "./sanitizeText";
+export { default as escapeString } from "./escapeString";
 export * from "./set";
