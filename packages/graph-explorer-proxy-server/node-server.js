@@ -17,6 +17,7 @@ const aws4 = require("aws4");
 dotenv.config({ path: "../graph-explorer/.env" });
 
 const DEFAULT_SERVICE_TYPE = "neptune-db";
+const NEPTUNE_ANALYTICS_SERVICE_TYPE = "neptune-graph";
 
 // Create a logger instance with pino.
 const proxyLogger = pino({
@@ -244,17 +245,19 @@ async function fetchData(res, next, url, options, isIamEnabled, region, serviceT
     fetchData(res, next, rawUrl, requestOptions, isIamEnabled, region, serviceType);
   });
 
-  // GET endpoint to retrieve PostgreSQL statistics summary.
+  // GET endpoint to retrieve statistics summary.
   app.get("/pg/statistics/summary", async (req, res, next) => {
-    const rawUrl = `${req.headers["graph-db-connection-url"]}/pg/statistics/summary?mode=detailed`;
+    const isIamEnabled = !!req.headers["aws-neptune-region"];
+    const serviceType = isIamEnabled ? (req.headers["service-type"] ?? DEFAULT_SERVICE_TYPE) : "";
+    const rawUrl = serviceType === NEPTUNE_ANALYTICS_SERVICE_TYPE
+      ? `${req.headers["graph-db-connection-url"]}/summary?mode=detailed`
+      : `${req.headers["graph-db-connection-url"]}/pg/statistics/summary?mode=detailed`;
 
     const requestOptions = {
       method: "GET",
     };
 
-    const isIamEnabled = !!req.headers["aws-neptune-region"];
     const region = isIamEnabled ? req.headers["aws-neptune-region"] : "";
-    const serviceType = isIamEnabled ? (req.headers["service-type"] ?? DEFAULT_SERVICE_TYPE) : "";
 
     fetchData(res, next, rawUrl, requestOptions, isIamEnabled, region, serviceType);
   });

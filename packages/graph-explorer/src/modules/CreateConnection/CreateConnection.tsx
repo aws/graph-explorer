@@ -48,7 +48,7 @@ export const CONNECTIONS_OP: {
 export type CreateConnectionProps = {
   configId?: string;
   initialData?: ConnectionForm;
-  disabledFields?: Array<"name" | "type" | "url">;
+  disabledFields?: Array<"name" | "type" | "url" | "serviceType">;
   onClose(): void;
 };
 
@@ -147,7 +147,7 @@ const CreateConnection = ({
     proxyConnection: initialData?.proxyConnection || false,
     graphDbUrl: initialData?.graphDbUrl || "",
     awsAuthEnabled: initialData?.awsAuthEnabled || false,
-    serviceType: initialData?.serviceType || "neptune-graph",
+    serviceType: initialData?.serviceType || "neptune-db",
     awsRegion: initialData?.awsRegion || "",
     enableCache: true,
     cacheTimeMs: (initialData?.cacheTimeMs ?? 10 * 60 * 1000) / 60000,
@@ -157,10 +157,18 @@ const CreateConnection = ({
   const [hasError, setError] = useState(false);
   const onFormChange = useCallback(
     (attribute: string) => (value: number | string | string[] | boolean) => {
-      setForm(prev => ({
-        ...prev,
-        [attribute]: value,
-      }));
+      if (attribute === "serviceType" && value === "neptune-graph") {
+        setForm(prev => ({
+          ...prev,
+          [attribute]: value,
+          ["type"]: "openCypher",
+        }));
+      } else {
+        setForm(prev => ({
+          ...prev,
+          [attribute]: value,
+        }));
+      }
     },
     []
   );
@@ -203,7 +211,7 @@ const CreateConnection = ({
           options={CONNECTIONS_OP}
           value={form.type}
           onChange={onFormChange("type")}
-          isDisabled={disabledFields?.includes("type")}
+          isDisabled={disabledFields?.includes("type") || form.serviceType === "neptune-graph"}
         />
         <div className={pfx("input-url")}>
           <Input
@@ -298,6 +306,7 @@ const CreateConnection = ({
                 ]}
                 value={form.serviceType}
                 onChange={onFormChange("serviceType")}
+                isDisabled={disabledFields?.includes("serviceType")}
               />
             </div>
           </>

@@ -13,6 +13,10 @@ This release includes the following feature enhancements and bug fixes:
 - Bumped `vite` to `4.5.2` (<https://github.com/aws/graph-explorer/pull/233>)
 - Searching for text containing quotes now works.
 
+**Features**
+
+- Added compatibility with Neptune Analitycs.
+
 ## Release 1.5.0
 
 This release includes the following feature enhancements and bug fixes:
