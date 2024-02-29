@@ -17,7 +17,26 @@ describe("OpenCypher > fetchSchema", () => {
     const schema = await fetchSchema(openCypherFetchFn);
 
     const expected: SchemaResponse = {
-      edges: [],
+      edges: [
+        {
+          attributes: [
+            {
+              dataType: "Number",
+              displayLabel: "Dist",
+              name: "dist",
+            },
+          ],
+          displayLabel: "Relationship",
+          total: undefined,
+          type: "relationship",
+        },
+        {
+          attributes: [],
+          displayLabel: "Relationship",
+          total: undefined,
+          type: "relationship",
+        },
+      ],
       totalEdges: 0,
       totalVertices: 3497,
       vertices: [
