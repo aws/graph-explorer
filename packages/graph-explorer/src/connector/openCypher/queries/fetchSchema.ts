@@ -160,15 +160,10 @@ const fetchEdgesAttributes = async (
       );
 
       if (!response.results || response.results.length === 0) {
-        console.warn("Skipping label because there are no edges:", labelResult);
         return;
       }
 
       if (!response.results[0].object) {
-        console.warn(
-          "Skipping label because the edge has no definition:",
-          labelResult
-        );
         return;
       }
 
