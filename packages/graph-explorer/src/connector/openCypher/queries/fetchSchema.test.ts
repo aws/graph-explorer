@@ -146,7 +146,7 @@ describe("OpenCypher > fetchSchema", () => {
         throw new Error(query);
       });
 
-    const schema = await fetchSchema(openCypherFetchFn);
+    await fetchSchema(openCypherFetchFn);
 
     expect(openCypherFetchFn.mock.calls[3][0]).toStrictEqual(
       "MATCH() -[e:`route`]- () RETURN e AS object LIMIT 1"
@@ -168,7 +168,7 @@ describe("OpenCypher > fetchSchema", () => {
         throw new Error(query);
       });
 
-    const schema = await fetchSchema(openCypherFetchFn);
+    await fetchSchema(openCypherFetchFn);
 
     expect(openCypherFetchFn.mock.calls[3][0]).toStrictEqual(
       "MATCH() -[e:`route`]- () RETURN e AS object LIMIT 1"
