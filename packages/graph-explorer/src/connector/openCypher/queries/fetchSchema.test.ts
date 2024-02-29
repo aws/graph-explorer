@@ -5,7 +5,7 @@ describe("OpenCypher > fetchSchema", () => {
   it("Should return a schema", async () => {
     const openCypherFetchFn = jest
       .fn()
-      .mockResolvedValueOnce(allLabelsResponse)
+      .mockResolvedValueOnce(allVertexLabelsResponse)
       .mockResolvedValueOnce(airportPropertiesResponse)
       .mockResolvedValueOnce(allEdgesResponse)
       .mockResolvedValueOnce(routeEdgePropertiesResponse)
@@ -26,18 +26,18 @@ describe("OpenCypher > fetchSchema", () => {
               name: "dist",
             },
           ],
-          displayLabel: "Relationship",
-          total: undefined,
-          type: "relationship",
+          displayLabel: "Route",
+          total: 101064,
+          type: "route",
         },
         {
           attributes: [],
-          displayLabel: "Relationship",
-          total: undefined,
-          type: "relationship",
+          displayLabel: "Contains",
+          total: 14012,
+          type: "contains",
         },
       ],
-      totalEdges: 0,
+      totalEdges: 115076,
       totalVertices: 3497,
       vertices: [
         {
@@ -118,13 +118,93 @@ describe("OpenCypher > fetchSchema", () => {
     expect(schema).toStrictEqual(expected);
   });
 
+  it("Should handle vertex with empty string label in response object", async () => {
+    const allVertexLabelsResponseEmpty = {
+      results: [
+        {
+          label: "",
+          count: 101064,
+        },
+        {
+          label: "",
+          count: 14012,
+        },
+      ],
+    };
+    const openCypherFetchFn = jest
+      .fn()
+      .mockResolvedValueOnce(allVertexLabelsResponseEmpty)
+      .mockResolvedValueOnce(airportPropertiesResponse)
+      .mockResolvedValueOnce(allEdgesResponse)
+      .mockImplementation(query => {
+        throw new Error(query);
+      });
+
+    const schema = await fetchSchema(openCypherFetchFn);
+    expect(schema.vertices.length).toBe(0);
+  });
+
+  it("Should handle vertex with empty label array in response object", async () => {
+    const allVertexLabelsResponseEmpty = {
+      results: [
+        {
+          label: [],
+          count: 101064,
+        },
+        {
+          label: [],
+          count: 14012,
+        },
+      ],
+    };
+    const openCypherFetchFn = jest
+      .fn()
+      .mockResolvedValueOnce(allVertexLabelsResponseEmpty)
+      .mockResolvedValueOnce(airportPropertiesResponse)
+      .mockResolvedValueOnce(allEdgesResponse)
+      .mockImplementation(query => {
+        throw new Error(query);
+      });
+
+    const schema = await fetchSchema(openCypherFetchFn);
+    expect(schema.vertices.length).toBe(0);
+  });
+
+  it("Should handle vertex with undefined label in response object", async () => {
+    const allVertexLabelsResponseEmpty = {
+      results: [
+        {
+          label: undefined,
+          count: 101064,
+        },
+        {
+          label: undefined,
+          count: 14012,
+        },
+      ],
+    };
+    const openCypherFetchFn = jest
+      .fn()
+      .mockResolvedValueOnce(allVertexLabelsResponseEmpty)
+      .mockResolvedValueOnce(airportPropertiesResponse)
+      .mockResolvedValueOnce(allEdgesResponse)
+      .mockImplementation(query => {
+        throw new Error(query);
+      });
+
+    const schema = await fetchSchema(openCypherFetchFn);
+    expect(schema.vertices.length).toBe(0);
+  });
+
   it("Should handle empty edge properties", async () => {
     const openCypherFetchFn = jest
       .fn()
-      .mockResolvedValueOnce(allLabelsResponse)
+      .mockResolvedValueOnce(allVertexLabelsResponse)
       .mockResolvedValueOnce(airportPropertiesResponse)
       .mockResolvedValueOnce(allEdgesResponse)
-      .mockResolvedValueOnce(emptyEdgePropertiesResponse)
+      .mockResolvedValueOnce({
+        results: [],
+      })
       .mockResolvedValueOnce(containsEdgePropertiesResponse)
       .mockImplementation(query => {
         throw new Error(query);
@@ -134,10 +214,181 @@ describe("OpenCypher > fetchSchema", () => {
     expect(schema).toBeDefined();
   });
 
+  it("Should handle edges empty response object", async () => {
+    const allEdgesResponseEmpty = {};
+    const openCypherFetchFn = jest
+      .fn()
+      .mockResolvedValueOnce(allVertexLabelsResponse)
+      .mockResolvedValueOnce(airportPropertiesResponse)
+      .mockResolvedValueOnce(allEdgesResponseEmpty)
+      .mockImplementation(query => {
+        throw new Error(query);
+      });
+
+    const schema = await fetchSchema(openCypherFetchFn);
+    expect(schema.edges.length).toBe(0);
+  });
+
+  it("Should handle edges with empty label array in response object", async () => {
+    const allEdgesResponseEmpty = {
+      results: [
+        {
+          label: [],
+          count: 101064,
+        },
+        {
+          label: [],
+          count: 14012,
+        },
+      ],
+    };
+    const openCypherFetchFn = jest
+      .fn()
+      .mockResolvedValueOnce(allVertexLabelsResponse)
+      .mockResolvedValueOnce(airportPropertiesResponse)
+      .mockResolvedValueOnce(allEdgesResponseEmpty)
+      .mockImplementation(query => {
+        throw new Error(query);
+      });
+
+    const schema = await fetchSchema(openCypherFetchFn);
+    expect(schema.edges.length).toBe(0);
+  });
+
+  it("Should handle edges with undefined label array in response object", async () => {
+    const allEdgesResponseEmpty = {
+      results: [
+        {
+          label: undefined,
+          count: 101064,
+        },
+        {
+          label: undefined,
+          count: 14012,
+        },
+      ],
+    };
+    const openCypherFetchFn = jest
+      .fn()
+      .mockResolvedValueOnce(allVertexLabelsResponse)
+      .mockResolvedValueOnce(airportPropertiesResponse)
+      .mockResolvedValueOnce(allEdgesResponseEmpty)
+      .mockImplementation(query => {
+        throw new Error(query);
+      });
+
+    const schema = await fetchSchema(openCypherFetchFn);
+    expect(schema.edges.length).toBe(0);
+  });
+
+  it("Should handle edges with empty string label array in response object", async () => {
+    const allEdgesResponseEmpty = {
+      results: [
+        {
+          label: "",
+          count: 101064,
+        },
+        {
+          label: "",
+          count: 14012,
+        },
+      ],
+    };
+    const openCypherFetchFn = jest
+      .fn()
+      .mockResolvedValueOnce(allVertexLabelsResponse)
+      .mockResolvedValueOnce(airportPropertiesResponse)
+      .mockResolvedValueOnce(allEdgesResponseEmpty)
+      .mockImplementation(query => {
+        throw new Error(query);
+      });
+
+    const schema = await fetchSchema(openCypherFetchFn);
+    expect(schema.edges.length).toBe(0);
+  });
+
+  it("Should handle response with missing edge label in attribute list", async () => {
+    const routeEdgePropertiesResponseEmpty = {
+      results: [
+        {
+          object: {
+            "~id": "43549",
+            "~entityType": "relationship",
+            "~start": "1102",
+            "~end": "2357",
+            "~type": "route",
+            "~properties": {
+              dist: 123,
+            },
+          },
+        },
+      ],
+    };
+
+    const openCypherFetchFn = jest
+      .fn()
+      .mockResolvedValueOnce(allVertexLabelsResponse)
+      .mockResolvedValueOnce(airportPropertiesResponse)
+      .mockResolvedValueOnce(allEdgesResponse)
+      .mockResolvedValueOnce(routeEdgePropertiesResponseEmpty)
+      .mockResolvedValueOnce(containsEdgePropertiesResponse)
+      .mockImplementation(query => {
+        throw new Error(query);
+      });
+
+    const schema = await fetchSchema(openCypherFetchFn);
+    expect(schema).toBeDefined();
+  });
+
+  it("Should handle edges property empty response object", async () => {
+    const routeEdgePropertiesResponseEmpty = {};
+    const openCypherFetchFn = jest
+      .fn()
+      .mockResolvedValueOnce(allVertexLabelsResponse)
+      .mockResolvedValueOnce(airportPropertiesResponse)
+      .mockResolvedValueOnce(allEdgesResponse)
+      .mockResolvedValueOnce(routeEdgePropertiesResponseEmpty)
+      .mockResolvedValueOnce(containsEdgePropertiesResponse)
+      .mockImplementation(query => {
+        throw new Error(query);
+      });
+
+    const schema = await fetchSchema(openCypherFetchFn);
+    expect(schema).toBeDefined();
+  });
+
+  it("Should handle edges property malformed item", async () => {
+    const allEdgesResponseMalformed = {
+      results: [
+        {
+          label: "route",
+        },
+        {
+          count: 14012,
+        },
+      ],
+    };
+    const openCypherFetchFn = jest
+      .fn()
+      .mockResolvedValueOnce(allVertexLabelsResponse)
+      .mockResolvedValueOnce(airportPropertiesResponse)
+      .mockResolvedValueOnce(allEdgesResponseMalformed)
+      .mockResolvedValueOnce(routeEdgePropertiesResponse)
+      .mockImplementation(query => {
+        throw new Error(query);
+      });
+
+    const schema = await fetchSchema(openCypherFetchFn);
+    expect(schema).toBeDefined();
+    const routeEdge = schema.edges[0];
+    expect(routeEdge.total).toBeUndefined();
+    expect(schema.edges.length).toBe(1);
+  });
+
   it("Should request properties for edges where labels are strings", async () => {
     const openCypherFetchFn = jest
       .fn()
-      .mockResolvedValueOnce(allLabelsResponse)
+      .mockResolvedValueOnce(allVertexLabelsResponse)
       .mockResolvedValueOnce(airportPropertiesResponse)
       .mockResolvedValueOnce(allEdgesResponse)
       .mockResolvedValueOnce(routeEdgePropertiesResponse)
@@ -159,7 +410,7 @@ describe("OpenCypher > fetchSchema", () => {
   it("Should request properties for edges where labels are arrays of strings", async () => {
     const openCypherFetchFn = jest
       .fn()
-      .mockResolvedValueOnce(allLabelsResponse)
+      .mockResolvedValueOnce(allVertexLabelsResponse)
       .mockResolvedValueOnce(airportPropertiesResponse)
       .mockResolvedValueOnce(allEdgesLabelsInArrayResponse)
       .mockResolvedValueOnce(routeEdgePropertiesResponse)
@@ -179,7 +430,7 @@ describe("OpenCypher > fetchSchema", () => {
   });
 });
 
-const allLabelsResponse = {
+const allVertexLabelsResponse = {
   results: [
     {
       label: ["airport"],
@@ -271,8 +522,4 @@ const containsEdgePropertiesResponse = {
       },
     },
   ],
-};
-
-const emptyEdgePropertiesResponse = {
-  results: [],
 };
