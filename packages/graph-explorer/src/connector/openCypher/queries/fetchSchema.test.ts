@@ -222,7 +222,6 @@ const allEdgesLabelsInArrayResponse = {
   ],
 };
 
-// TODO: Replace with actual values now that it is using the right edge label
 const routeEdgePropertiesResponse = {
   results: [
     {
