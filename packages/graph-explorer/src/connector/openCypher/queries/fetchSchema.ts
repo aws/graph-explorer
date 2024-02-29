@@ -20,7 +20,7 @@ type RawVertexLabelsResponse = {
 type RawEdgeLabelsResponse = {
   results: [
     {
-      label: Array<string>;
+      label: Array<string> | string;
       count: number;
     }
   ];
@@ -128,7 +128,10 @@ const fetchEdgeLabels = async (
   const values = data.results;
   const labelsWithCounts: Record<string, number> = {};
   for (let i = 0; i < values.length; i += 1) {
-    labelsWithCounts[values[i].label[0] as string] = values[i].count as number;
+    const label = Array.isArray(values[i].label)
+      ? values[i].label[0]
+      : (values[i].label as string);
+    labelsWithCounts[label] = values[i].count as number;
   }
 
   return labelsWithCounts;
