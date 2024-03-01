@@ -8,7 +8,9 @@
   },
   "scripts": {
     "format": "prettier --write './src/**/*.{css,ts,tsx}'",
+    "format:check": "prettier --check './src/**/*.{css,ts,tsx}'",
     "lint": "eslint src --fix",
+    "lint:check": "eslint src",
     "test": "jest",
     "start": "vite",
     "clean": "rimraf dist",
