@@ -3,7 +3,6 @@ import uniqBy from "lodash/uniqBy";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useQuery } from "react-query";
 import { useNotification } from "../../components/NotificationProvider";
-import { KeywordSearchResponse } from "../../connector/useGEFetchTypes";
 import { useConfiguration } from "../../core";
 import useConnector from "../../core/ConnectorProvider/useConnector";
 import useDebounceValue from "../../hooks/useDebounceValue";
@@ -194,16 +193,16 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
       isOpen,
     ],
     () => {
-      if (!isOpen || !config) {
+      if (!isOpen || !config || !connector.explorer) {
         return;
       }
-      const promise = connector.explorer?.keywordSearch({
+      const promise = connector.explorer.keywordSearch({
         searchTerm: debouncedSearchTerm,
         vertexTypes,
         searchByAttributes,
         searchById: true,
-        exactMatch: exactMatch,
-      }) as PromiseWithCancel<KeywordSearchResponse>;
+        exactMatch,
+      });
 
       return promise;
     },

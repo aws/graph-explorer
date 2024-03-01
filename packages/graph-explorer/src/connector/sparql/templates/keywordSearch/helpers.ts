@@ -34,7 +34,7 @@ export const getFilterPredicates = (predicates?: string[]) => {
   return filterByAttributes;
 };
 
-export const getFilterObject = (searchTerm?: string) => {
+export const getFilterObject = (exactMatch: boolean, searchTerm?: string) => {
   if (!searchTerm) {
     return "";
   }
@@ -42,6 +42,10 @@ export const getFilterObject = (searchTerm?: string) => {
   const escapedSearchTerm = escapeString(searchTerm);
 
   let filterBySearchTerm = "";
-  filterBySearchTerm = `FILTER (regex(str(?value), "${escapedSearchTerm}", "i"))`;
+  if (exactMatch === true) {
+    filterBySearchTerm = `FILTER (?value = "${escapedSearchTerm}")`;
+  } else {
+    filterBySearchTerm = `FILTER (regex(str(?value), "${escapedSearchTerm}", "i"))`;
+  }
   return filterBySearchTerm;
 };

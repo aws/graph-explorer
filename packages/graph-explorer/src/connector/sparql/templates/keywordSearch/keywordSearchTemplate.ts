@@ -42,6 +42,7 @@ const keywordSearchTemplate = ({
   predicates = [],
   limit = 10,
   offset = 0,
+  exactMatch = false,
 }: SPARQLKeywordSearchRequest): string => {
   return `
     SELECT ?subject ?pred ?value ?class {
@@ -51,7 +52,7 @@ const keywordSearchTemplate = ({
                      ?predicate ?value .
             ${getFilterPredicates(predicates)}
             ${getSubjectClasses(subjectClasses)}
-            ${getFilterObject(searchTerm)}
+            ${getFilterObject(exactMatch, searchTerm)}
         }
         ${limit > 0 ? `LIMIT ${limit} OFFSET ${offset}` : ""}
       }

@@ -16,7 +16,7 @@ describe("SPARQL > keywordSearchTemplate", () => {
             } 
             LIMIT 10 OFFSET 0 
           } 
-          FILTER(!isBlank(?subject) && isLiteral(?value)) 
+          FILTER(isLiteral(?value)) 
         }
       `)
     );
@@ -42,7 +42,7 @@ describe("SPARQL > keywordSearchTemplate", () => {
             } 
             LIMIT 10 OFFSET 0 
           } 
-          FILTER(!isBlank(?subject) && isLiteral(?value)) 
+          FILTER(isLiteral(?value)) 
         }
       `)
     );
@@ -64,11 +64,11 @@ describe("SPARQL > keywordSearchTemplate", () => {
               ?subject a ?class ; ?predicate ?value . 
               FILTER (?predicate IN (<air:city>, <air:code>))
               FILTER (?class IN (<air:airport>))
-              FILTER (?value = "JFK"))
+              FILTER (?value = "JFK")
             } 
             LIMIT 10 OFFSET 0 
           } 
-          FILTER(!isBlank(?subject) && isLiteral(?value)) 
+          FILTER(isLiteral(?value)) 
         }
       `)
     );
@@ -90,11 +90,11 @@ describe("SPARQL > keywordSearchTemplate", () => {
               ?subject a ?class ; ?predicate ?value . 
               FILTER (?predicate IN (<rdfs:label>))
               FILTER (?class IN (<air:airport>))
-              FILTER (?value = "JFK"))
+              FILTER (?value = "JFK")
             } 
             LIMIT 10 OFFSET 0 
           } 
-          FILTER(!isBlank(?subject) && isLiteral(?value)) 
+          FILTER(isLiteral(?value)) 
         }
       `)
     );
@@ -120,7 +120,7 @@ describe("SPARQL > keywordSearchTemplate", () => {
             } 
             LIMIT 10 OFFSET 0 
           } 
-          FILTER(!isBlank(?subject) && isLiteral(?value)) 
+          FILTER(isLiteral(?value)) 
         }
       `)
     );
