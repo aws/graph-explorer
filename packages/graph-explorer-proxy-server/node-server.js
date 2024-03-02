@@ -245,13 +245,26 @@ async function fetchData(res, next, url, options, isIamEnabled, region, serviceT
     fetchData(res, next, rawUrl, requestOptions, isIamEnabled, region, serviceType);
   });
 
-  // GET endpoint to retrieve statistics summary.
+  // GET endpoint to retrieve PropertyGraph statistics summary for Neptune Analytics.
+  app.get("/summary", async (req, res, next) => {
+    const isIamEnabled = !!req.headers["aws-neptune-region"];
+    const serviceType = isIamEnabled ? (req.headers["service-type"] ?? DEFAULT_SERVICE_TYPE) : "";
+    const rawUrl = `${req.headers["graph-db-connection-url"]}/summary?mode=detailed`;
+
+    const requestOptions = {
+      method: "GET",
+    };
+
+    const region = isIamEnabled ? req.headers["aws-neptune-region"] : "";
+
+    fetchData(res, next, rawUrl, requestOptions, isIamEnabled, region, serviceType);
+  });
+
+  // GET endpoint to retrieve PropertyGraph statistics summary for Neptune DB.
   app.get("/pg/statistics/summary", async (req, res, next) => {
     const isIamEnabled = !!req.headers["aws-neptune-region"];
     const serviceType = isIamEnabled ? (req.headers["service-type"] ?? DEFAULT_SERVICE_TYPE) : "";
-    const rawUrl = serviceType === NEPTUNE_ANALYTICS_SERVICE_TYPE
-      ? `${req.headers["graph-db-connection-url"]}/summary?mode=detailed`
-      : `${req.headers["graph-db-connection-url"]}/pg/statistics/summary?mode=detailed`;
+    const rawUrl = `${req.headers["graph-db-connection-url"]}/pg/statistics/summary?mode=detailed`;
 
     const requestOptions = {
       method: "GET",
@@ -264,15 +277,15 @@ async function fetchData(res, next, url, options, isIamEnabled, region, serviceT
 
   // GET endpoint to retrieve RDF statistics summary.
   app.get("/rdf/statistics/summary", async (req, res, next) => {
+    const isIamEnabled = !!req.headers["aws-neptune-region"];
+    const serviceType = isIamEnabled ? (req.headers["service-type"] ?? DEFAULT_SERVICE_TYPE) : "";
     const rawUrl = `${req.headers["graph-db-connection-url"]}/rdf/statistics/summary?mode=detailed`;
 
     const requestOptions = {
       method: "GET",
     };
 
-    const isIamEnabled = !!req.headers["aws-neptune-region"];
     const region = isIamEnabled ? req.headers["aws-neptune-region"] : "";
-    const serviceType = isIamEnabled ? (req.headers["service-type"] ?? DEFAULT_SERVICE_TYPE) : "";
 
     fetchData(res, next, rawUrl, requestOptions, isIamEnabled, region, serviceType);
   });

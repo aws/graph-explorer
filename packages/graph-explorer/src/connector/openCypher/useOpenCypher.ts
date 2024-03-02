@@ -7,12 +7,14 @@ import { GraphSummary } from "./types";
 import { useCallback } from "react";
 import useGEFetch from "../useGEFetch";
 import { ConnectionConfig, useConfiguration } from "../../core";
+import { DEFAULT_SERVICE_TYPE } from "../../utils/constants";
 
 
 const useOpenCypher = () => {
   const connection = useConfiguration()?.connection as ConnectionConfig | undefined;
   const useFetch = useGEFetch();
   const url = connection?.url;
+  const serviceType = connection?.serviceType || DEFAULT_SERVICE_TYPE;
 
   const _openCypherFetch = useCallback((options) => {
     return async (queryTemplate: string) => {
@@ -28,11 +30,15 @@ const useOpenCypher = () => {
     };
   }, [url, useFetch]);
 
-  const fetchSchemaFunc = useCallback(async (options) => {
+  const fetchSchemaFunc = useCallback(async (options: any) => {
     const ops = { ...options, disableCache: true };
+
     let summary;
     try {
-      const response = await useFetch.request(`${url}/pg/statistics/summary?mode=detailed`, {
+      const endpoint= serviceType === DEFAULT_SERVICE_TYPE
+        ? `${url}/pg/statistics/summary?mode=detailed`
+        : `${url}/summary?mode=detailed`
+      const response = await useFetch.request(endpoint, {
         method: "GET",
         ...ops
       });
