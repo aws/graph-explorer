@@ -16,6 +16,9 @@ const aws4 = require("aws4");
 // Load environment variables from .env file.
 dotenv.config({ path: "../graph-explorer/.env" });
 
+const DEFAULT_SERVICE_TYPE = "neptune-db";
+const NEPTUNE_ANALYTICS_SERVICE_TYPE = "neptune-graph";
+
 // Create a logger instance with pino.
 const proxyLogger = pino({
   level: process.env.LOG_LEVEL || "info",
@@ -69,6 +72,7 @@ const retryFetch = async (
   options,
   isIamEnabled,
   region,
+  serviceType,
   retryDelay = 10000,
   refetchMaxRetries = 1
 ) => {
@@ -78,7 +82,7 @@ const retryFetch = async (
         host: url.hostname,
         port: url.port,
         path: url.pathname + url.search,
-        service: "neptune-db",
+        service: serviceType,
         region,
         method: options.method,
         body: options.body ?? undefined,
@@ -88,7 +92,7 @@ const retryFetch = async (
         host: url.hostname,
         port: url.port,
         path: url.pathname + url.search,
-        service: "neptune-db",
+        service: serviceType,
         region,
         method: options.method,
         body: options.body ?? undefined,
@@ -99,7 +103,7 @@ const retryFetch = async (
       host: url.hostname,
       port: url.port,
       path: url.pathname + url.search,
-      service: "neptune-db",
+      service: serviceType,
       method: options.method,
       body: options.body ?? undefined,
       headers: options.headers,
@@ -129,13 +133,14 @@ const retryFetch = async (
 };
 
 // Function to fetch data from the given URL and send it as a response.
-async function fetchData(res, next, url, options, isIamEnabled, region) {
+async function fetchData(res, next, url, options, isIamEnabled, region, serviceType) {
   try {
     const response = await retryFetch(
       new URL(url),
       options,
       isIamEnabled,
-      region
+      region,
+      serviceType
     );
     const data = await response.json();
     res.send(data);
@@ -185,8 +190,9 @@ async function fetchData(res, next, url, options, isIamEnabled, region) {
     };
     const isIamEnabled = !!req.headers["aws-neptune-region"];
     const region = isIamEnabled ? req.headers["aws-neptune-region"] : "";
+    const serviceType = isIamEnabled ? (req.headers["service-type"] ?? DEFAULT_SERVICE_TYPE) : "";
 
-    fetchData(res, next, rawUrl, requestOptions, isIamEnabled, region);
+    fetchData(res, next, rawUrl, requestOptions, isIamEnabled, region, serviceType);
   });
 
   // POST endpoint for Gremlin queries.
@@ -209,8 +215,9 @@ async function fetchData(res, next, url, options, isIamEnabled, region) {
 
     const isIamEnabled = !!req.headers["aws-neptune-region"];
     const region = isIamEnabled ? req.headers["aws-neptune-region"] : "";
+    const serviceType = isIamEnabled ? (req.headers["service-type"] ?? DEFAULT_SERVICE_TYPE) : "";
 
-    fetchData(res, next, rawUrl, requestOptions, isIamEnabled, region);
+    fetchData(res, next, rawUrl, requestOptions, isIamEnabled, region, serviceType);
   });
 
   // POST endpoint for openCypher queries.
@@ -233,22 +240,26 @@ async function fetchData(res, next, url, options, isIamEnabled, region) {
 
     const isIamEnabled = !!req.headers["aws-neptune-region"];
     const region = isIamEnabled ? req.headers["aws-neptune-region"] : "";
+    const serviceType = isIamEnabled ? (req.headers["service-type"] ?? DEFAULT_SERVICE_TYPE) : "";
 
-    fetchData(res, next, rawUrl, requestOptions, isIamEnabled, region);
+    fetchData(res, next, rawUrl, requestOptions, isIamEnabled, region, serviceType);
   });
 
-  // GET endpoint to retrieve PostgreSQL statistics summary.
+  // GET endpoint to retrieve statistics summary.
   app.get("/pg/statistics/summary", async (req, res, next) => {
-    const rawUrl = `${req.headers["graph-db-connection-url"]}/pg/statistics/summary?mode=detailed`;
+    const isIamEnabled = !!req.headers["aws-neptune-region"];
+    const serviceType = isIamEnabled ? (req.headers["service-type"] ?? DEFAULT_SERVICE_TYPE) : "";
+    const rawUrl = serviceType === NEPTUNE_ANALYTICS_SERVICE_TYPE
+      ? `${req.headers["graph-db-connection-url"]}/summary?mode=detailed`
+      : `${req.headers["graph-db-connection-url"]}/pg/statistics/summary?mode=detailed`;
 
     const requestOptions = {
       method: "GET",
     };
 
-    const isIamEnabled = !!req.headers["aws-neptune-region"];
     const region = isIamEnabled ? req.headers["aws-neptune-region"] : "";
 
-    fetchData(res, next, rawUrl, requestOptions, isIamEnabled, region);
+    fetchData(res, next, rawUrl, requestOptions, isIamEnabled, region, serviceType);
   });
 
   // GET endpoint to retrieve RDF statistics summary.
@@ -261,8 +272,9 @@ async function fetchData(res, next, url, options, isIamEnabled, region) {
 
     const isIamEnabled = !!req.headers["aws-neptune-region"];
     const region = isIamEnabled ? req.headers["aws-neptune-region"] : "";
+    const serviceType = isIamEnabled ? (req.headers["service-type"] ?? DEFAULT_SERVICE_TYPE) : "";
 
-    fetchData(res, next, rawUrl, requestOptions, isIamEnabled, region);
+    fetchData(res, next, rawUrl, requestOptions, isIamEnabled, region, serviceType);
   });
 
   app.get("/logger", (req, res, next) => {

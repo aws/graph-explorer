@@ -4,6 +4,7 @@ sudo -u ec2-user -i <<'EOF'
 
 echo "export GRAPH_NOTEBOOK_AUTH_MODE=DEFAULT" >> ~/.bashrc  # set to IAM instead of DEFAULT if cluster is IAM enabled
 echo "export GRAPH_NOTEBOOK_HOST=CHANGE-ME" >> ~/.bashrc
+echo "export GRAPH_NOTEBOOK_SERVICE=neptune-db" >> ~/.bashrc # set to `neptune-db` for Neptune database or `neptune-graph` for Neptune Analytics
 echo "export GRAPH_NOTEBOOK_PORT=8182" >> ~/.bashrc
 echo "export AWS_REGION=us-west-2" >> ~/.bashrc  # modify region if needed
 

@@ -132,6 +132,10 @@ export type ConnectionConfig = {
    */
   awsAuthEnabled?: boolean;
   /**
+   * If it is Neptune, it could need authentication.
+   */
+  serviceType?: 'neptune-db' | 'neptune-graph',
+  /**
    * AWS Region where the Neptune cluster is deployed.
    * It is needed to sign requests.
    */

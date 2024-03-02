@@ -37,7 +37,7 @@ const useOpenCypher = () => {
         ...ops
       });
 
-      summary = response.payload.graphSummary as GraphSummary || undefined;
+      summary = (response.payload ? response.payload.graphSummary as GraphSummary : response.graphSummary as GraphSummary) || undefined;
     } catch (e) {
       if (import.meta.env.DEV) {
         console.error("[Summary API]", e);
