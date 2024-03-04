@@ -42,9 +42,8 @@ const NodeExpandFilters = ({
   const pfx = withClassNamePrefix(classNamePrefix);
 
   const vtConfig = config?.getVertexTypeConfig(selectedType);
-  const searchableAttributes = config?.getVertexTypeSearchableAttributes(
-    selectedType
-  );
+  const searchableAttributes =
+    config?.getVertexTypeSearchableAttributes(selectedType);
 
   const onFilterAdd = useCallback(() => {
     onFiltersChange([

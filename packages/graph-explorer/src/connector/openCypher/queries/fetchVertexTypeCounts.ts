@@ -9,7 +9,7 @@ type RawCountsByTypeResponse = {
   results: [
     {
       count: number;
-    }
+    },
   ];
 };
 

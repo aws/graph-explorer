@@ -35,12 +35,10 @@ const NodesTabular = forwardRef<TabularInstance<any>, any>((props, ref) => {
   const nodes = useRecoilValue(nodesAtom);
   const setNodesOut = useSetRecoilState(nodesOutOfFocusIdsAtom);
   const config = useConfiguration();
-  const [hiddenNodesIds, setHiddenNodesIds] = useRecoilState(
-    nodesHiddenIdsAtom
-  );
-  const [selectedNodesIds, setSelectedNodesIds] = useRecoilState(
-    nodesSelectedIdsAtom
-  );
+  const [hiddenNodesIds, setHiddenNodesIds] =
+    useRecoilState(nodesHiddenIdsAtom);
+  const [selectedNodesIds, setSelectedNodesIds] =
+    useRecoilState(nodesSelectedIdsAtom);
   const setSelectedEdgesIds = useSetRecoilState(edgesSelectedIdsAtom);
 
   const onToggleVisibility = useCallback(

@@ -38,27 +38,29 @@ const UserPrefixes = ({ classNamePrefix = "ft" }: UserPrefixesProps) => {
   const [opened, setOpened] = useState(false);
 
   const onDeletePrefix = useRecoilCallback(
-    ({ set }) => (prefix: string) => () => {
-      if (!config?.id) {
-        return;
-      }
+    ({ set }) =>
+      (prefix: string) =>
+      () => {
+        if (!config?.id) {
+          return;
+        }
 
-      set(schemaAtom, prevSchemas => {
-        const updatedSchemas = new Map(prevSchemas);
-        const activeSchema = updatedSchemas.get(config.id);
+        set(schemaAtom, prevSchemas => {
+          const updatedSchemas = new Map(prevSchemas);
+          const activeSchema = updatedSchemas.get(config.id);
 
-        updatedSchemas.set(config.id, {
-          ...(activeSchema || {}),
-          vertices: activeSchema?.vertices || [],
-          edges: activeSchema?.edges || [],
-          prefixes: (activeSchema?.prefixes || []).filter(
-            prefixConfig => prefixConfig.prefix !== prefix
-          ),
+          updatedSchemas.set(config.id, {
+            ...(activeSchema || {}),
+            vertices: activeSchema?.vertices || [],
+            edges: activeSchema?.edges || [],
+            prefixes: (activeSchema?.prefixes || []).filter(
+              prefixConfig => prefixConfig.prefix !== prefix
+            ),
+          });
+
+          return updatedSchemas;
         });
-
-        return updatedSchemas;
-      });
-    },
+      },
     [config?.id]
   );
 
@@ -104,25 +106,26 @@ const UserPrefixes = ({ classNamePrefix = "ft" }: UserPrefixesProps) => {
   );
 
   const onSave = useRecoilCallback(
-    ({ set }) => (prefix: string, uri: string) => {
-      if (!config?.id) {
-        return;
-      }
+    ({ set }) =>
+      (prefix: string, uri: string) => {
+        if (!config?.id) {
+          return;
+        }
 
-      set(schemaAtom, prevSchemas => {
-        const updatedSchemas = new Map(prevSchemas);
-        const activeSchema = updatedSchemas.get(config.id);
+        set(schemaAtom, prevSchemas => {
+          const updatedSchemas = new Map(prevSchemas);
+          const activeSchema = updatedSchemas.get(config.id);
 
-        updatedSchemas.set(config.id, {
-          ...(activeSchema || {}),
-          vertices: activeSchema?.vertices || [],
-          edges: activeSchema?.edges || [],
-          prefixes: [...(activeSchema?.prefixes || []), { prefix, uri }],
+          updatedSchemas.set(config.id, {
+            ...(activeSchema || {}),
+            vertices: activeSchema?.vertices || [],
+            edges: activeSchema?.edges || [],
+            prefixes: [...(activeSchema?.prefixes || []), { prefix, uri }],
+          });
+
+          return updatedSchemas;
         });
-
-        return updatedSchemas;
-      });
-    },
+      },
     [config?.id]
   );
 

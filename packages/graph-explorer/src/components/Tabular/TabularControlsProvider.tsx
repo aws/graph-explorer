@@ -34,9 +34,8 @@ const TabularControlsProvider = <T extends object>({
 }: PropsWithChildren<{ tabularInstance: TabularInstance<T> }>) => {
   const tableRef = useRef<HTMLDivElement>(null);
   const headerControlsRef = useRef<HTMLDivElement>(null);
-  const [headerControlsPosition, setHeaderControlsPosition] = useState<
-    CSSProperties["position"]
-  >();
+  const [headerControlsPosition, setHeaderControlsPosition] =
+    useState<CSSProperties["position"]>();
 
   return (
     <TabularContext.Provider

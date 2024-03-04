@@ -10,7 +10,7 @@ type RawCountsByTypeResponse = {
     bindings: [
       {
         instancesCount: RawValue;
-      }
+      },
     ];
   };
 };

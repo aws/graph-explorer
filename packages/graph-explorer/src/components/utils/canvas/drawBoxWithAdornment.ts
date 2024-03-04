@@ -72,8 +72,8 @@ const drawBoxWithAdornment = (
     titleFormat === "uppercase"
       ? title?.toUpperCase()
       : titleFormat === "lowercase"
-      ? title?.toLowerCase()
-      : title;
+        ? title?.toLowerCase()
+        : title;
 
   let actualBox = {
     ...boundingBox,

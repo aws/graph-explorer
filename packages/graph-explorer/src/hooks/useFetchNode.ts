@@ -24,7 +24,10 @@ const useFetchNode = () => {
 
       const results = await Promise.all(
         nodes.map(async node => {
-          const neighborsCount = await fetchNeighborsCount(node.data.id, neighbors_limit);
+          const neighborsCount = await fetchNeighborsCount(
+            node.data.id,
+            neighbors_limit
+          );
           if (!neighborsCount) {
             return;
           }

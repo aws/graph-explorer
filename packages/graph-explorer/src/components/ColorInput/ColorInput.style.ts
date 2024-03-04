@@ -1,8 +1,9 @@
 import { css } from "@emotion/css";
 import type { ThemeStyleFn } from "../../core";
 
-const defaultStyles = (pfx?: string): ThemeStyleFn => () =>
-  css`
+const defaultStyles =
+  (pfx?: string): ThemeStyleFn =>
+  () => css`
     .${pfx}-color-input {
       min-width: 105px;
       position: relative;
@@ -15,8 +16,9 @@ const defaultStyles = (pfx?: string): ThemeStyleFn => () =>
     }
   `;
 
-export const colorPickerStyle = (): ThemeStyleFn => ({ theme }) =>
-  css`
+export const colorPickerStyle =
+  (): ThemeStyleFn =>
+  ({ theme }) => css`
     background: ${theme.palette.background.default};
     padding: ${theme.spacing["2x"]};
     box-shadow: ${theme.shadow.lg};

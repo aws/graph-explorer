@@ -66,13 +66,14 @@ const shadowMap = (
   4: theme.card?.shadow?.elevation?.["3"] || theme.shadow.xl,
 });
 
-const defaultStyles = ({
-  elevation,
-  classNamePrefix,
-  disablePadding,
-  transparent,
-}: DefaultStylesProps): ThemeStyleFn => ({ theme, isDarkTheme }) =>
-  css`
+const defaultStyles =
+  ({
+    elevation,
+    classNamePrefix,
+    disablePadding,
+    transparent,
+  }: DefaultStylesProps): ThemeStyleFn =>
+  ({ theme, isDarkTheme }) => css`
     display: flex;
     flex-direction: column;
     flex-grow: 1;

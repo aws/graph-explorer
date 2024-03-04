@@ -8,13 +8,9 @@ type DefaultStylesProps = {
   collapseAction?: "all" | "indicator";
 };
 
-const defaultStyles: (props: DefaultStylesProps) => ThemeStyleFn = ({
-  pfx,
-  disablePadding,
-  disableBorder,
-  collapseAction,
-}) => ({ theme, isDarkTheme }) =>
-  css`
+const defaultStyles: (props: DefaultStylesProps) => ThemeStyleFn =
+  ({ pfx, disablePadding, disableBorder, collapseAction }) =>
+  ({ theme, isDarkTheme }) => css`
     display: flex;
     flex-direction: column;
     width: 100%;

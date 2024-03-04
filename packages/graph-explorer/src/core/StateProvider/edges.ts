@@ -53,21 +53,24 @@ export const edgesSelector = selector<Edges>({
       const updatedSchemas = new Map(prevSchemas);
 
       updatedSchemas.set(activeConfig, {
-        edges: newValue.reduce((schema, edge) => {
-          if (!schema.find(s => s.type === edge.data.type)) {
-            schema.push({
-              type: edge.data.type,
-              displayLabel: "",
-              attributes: Object.keys(edge.data.attributes).map(attr => ({
-                name: attr,
-                displayLabel: sanitizeText(attr),
-                hidden: false,
-              })),
-            });
-          }
+        edges: newValue.reduce(
+          (schema, edge) => {
+            if (!schema.find(s => s.type === edge.data.type)) {
+              schema.push({
+                type: edge.data.type,
+                displayLabel: "",
+                attributes: Object.keys(edge.data.attributes).map(attr => ({
+                  name: attr,
+                  displayLabel: sanitizeText(attr),
+                  hidden: false,
+                })),
+              });
+            }
 
-          return schema;
-        }, activeSchema?.edges as SchemaInference["edges"]),
+            return schema;
+          },
+          activeSchema?.edges as SchemaInference["edges"]
+        ),
         vertices: activeSchema?.vertices || [],
         ...(activeSchema || {}),
       });

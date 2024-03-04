@@ -17,14 +17,11 @@ const useContextMenu = () => {
     top: number;
     left: number;
   } | null>(null);
-  const {
-    hasMousePosition,
-    handleMouseEvent,
-    trigger,
-  } = useMousePositionAsTrigger({
-    enabled: true,
-    preventDefault: false,
-  });
+  const { hasMousePosition, handleMouseEvent, trigger } =
+    useMousePositionAsTrigger({
+      enabled: true,
+      preventDefault: false,
+    });
 
   const clearAllLayers = useCallback(() => {
     setContextNodeId(null);
@@ -38,20 +35,18 @@ const useContextMenu = () => {
     id: "",
   });
 
-  const {
-    renderLayer: renderContextLayer,
-    layerProps: contextLayerProps,
-  } = useLayer({
-    isOpen: Boolean(contextNodeId) || Boolean(contextPosition),
-    overflowContainer: true,
-    auto: true,
-    placement: "right-center",
-    triggerOffset: 0,
-    trigger,
-    onParentClose: clearAllLayers,
-    onDisappear: clearAllLayers,
-    onOutsideClick: clearAllLayers,
-  });
+  const { renderLayer: renderContextLayer, layerProps: contextLayerProps } =
+    useLayer({
+      isOpen: Boolean(contextNodeId) || Boolean(contextPosition),
+      overflowContainer: true,
+      auto: true,
+      placement: "right-center",
+      triggerOffset: 0,
+      trigger,
+      onParentClose: clearAllLayers,
+      onDisappear: clearAllLayers,
+      onOutsideClick: clearAllLayers,
+    });
 
   const onNodeRightClick: ElementEventCallback<VertexData> = useCallback(
     (event, node, bounds) => {

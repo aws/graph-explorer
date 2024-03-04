@@ -89,17 +89,16 @@ type Option = {
   [attributeValue: string]: string;
 };
 
-export const cssConditionalValue = (options: Option, defaultValue?: string) => (
-  attributeValue?: string
-) => {
-  if (attributeValue) {
-    return (
-      options[attributeValue] ||
-      defaultValue ||
-      options[Object.keys(attributeValue)[0]]
-    );
-  }
-  return defaultValue;
-};
+export const cssConditionalValue =
+  (options: Option, defaultValue?: string) => (attributeValue?: string) => {
+    if (attributeValue) {
+      return (
+        options[attributeValue] ||
+        defaultValue ||
+        options[Object.keys(attributeValue)[0]]
+      );
+    }
+    return defaultValue;
+  };
 
 export const isDarkMode = () => document.body.classList.contains("ft-dark");

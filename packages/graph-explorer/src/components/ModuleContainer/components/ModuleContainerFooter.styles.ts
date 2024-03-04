@@ -1,8 +1,9 @@
 import { css } from "@emotion/css";
 import type { ThemeStyleFn } from "../../../core";
 
-const defaultStyles = (pfx: string): ThemeStyleFn => ({ theme }) =>
-  css`
+const defaultStyles =
+  (pfx: string): ThemeStyleFn =>
+  ({ theme }) => css`
     &.${pfx}-module-container-footer {
       display: flex;
       justify-content: space-between;

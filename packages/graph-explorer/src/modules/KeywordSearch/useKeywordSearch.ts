@@ -24,7 +24,10 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
   const [exactMatch, setExactMatch] = useState(false);
   const [neighborsLimit, setNeighborsLimit] = useState(true);
   const textTransform = useTextTransform();
-  const exactMatchOptions = [{ label: "Exact", value: "Exact" }, { label: "Partial", value: "Partial" }];
+  const exactMatchOptions = [
+    { label: "Exact", value: "Exact" },
+    { label: "Partial", value: "Partial" },
+  ];
 
   const vertexOptions = useMemo(() => {
     const vertexOps =
@@ -53,10 +56,11 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
     setSelectedAttribute(value as string);
   }, []);
 
-  const onExactMatchChange = useCallback(
-    (value: string | string[]) => {
-      setExactMatch(Array.isArray(value) ? value[0] === "Exact" : value === "Exact");
-    }, []);
+  const onExactMatchChange = useCallback((value: string | string[]) => {
+    setExactMatch(
+      Array.isArray(value) ? value[0] === "Exact" : value === "Exact"
+    );
+  }, []);
 
   const onNeighborsLimitChange = useCallback(() => {
     setNeighborsLimit(neighborsLimit => !neighborsLimit);
@@ -102,8 +106,9 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
       .slice(0, 5)
       .join(", ");
 
-    return `Search for ${vertexOptions.find(vt => vt.value === selectedVertexType)?.label
-      } by ${attributes || searchById}`;
+    return `Search for ${
+      vertexOptions.find(vt => vt.value === selectedVertexType)?.label
+    } by ${attributes || searchById}`;
   }, [
     config,
     searchableAttributes,
@@ -162,15 +167,13 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
       if (!isOpen || !config) {
         return;
       }
-      const promise = connector.explorer?.keywordSearch(
-        {
-          searchTerm: debouncedSearchTerm,
-          vertexTypes,
-          searchByAttributes,
-          searchById: true,
-          exactMatch: exactMatch,
-        },
-      ) as PromiseWithCancel<KeywordSearchResponse>;
+      const promise = connector.explorer?.keywordSearch({
+        searchTerm: debouncedSearchTerm,
+        vertexTypes,
+        searchByAttributes,
+        searchById: true,
+        exactMatch: exactMatch,
+      }) as PromiseWithCancel<KeywordSearchResponse>;
 
       return promise;
     },

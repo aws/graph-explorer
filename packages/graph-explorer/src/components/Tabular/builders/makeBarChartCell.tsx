@@ -38,33 +38,33 @@ type BarChartCellProps = {
   getBackground(item: unknown, index: number): string;
 };
 
-const makeBarChartCell = <T extends object>({
-  getBackground,
-}: BarChartCellProps) => ({ value }: CellComponentProps<T>) => {
-  const items = value as number[];
+const makeBarChartCell =
+  <T extends object>({ getBackground }: BarChartCellProps) =>
+  ({ value }: CellComponentProps<T>) => {
+    const items = value as number[];
 
-  const [theme] = useTheme();
-  const styleWithTheme = useWithTheme();
-  return (
-    <div className={styleWithTheme(styles)}>
-      {items.map((item, index) => {
-        const value = item?.toFixed(1);
-        const barBackground =
-          parseInt(value) === 0
-            ? theme.theme.palette.border
-            : getBackground(item, index);
-        return (
-          <div
-            key={`item-${index}`}
-            className={cx("box", { "box-empty": parseInt(value) === 0 })}
-            style={{ background: barBackground }}
-          >
-            {Number.isInteger(item) ? item : item?.toFixed(1)}
-          </div>
-        );
-      })}
-    </div>
-  );
-};
+    const [theme] = useTheme();
+    const styleWithTheme = useWithTheme();
+    return (
+      <div className={styleWithTheme(styles)}>
+        {items.map((item, index) => {
+          const value = item?.toFixed(1);
+          const barBackground =
+            parseInt(value) === 0
+              ? theme.theme.palette.border
+              : getBackground(item, index);
+          return (
+            <div
+              key={`item-${index}`}
+              className={cx("box", { "box-empty": parseInt(value) === 0 })}
+              style={{ background: barBackground }}
+            >
+              {Number.isInteger(item) ? item : item?.toFixed(1)}
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
 
 export default makeBarChartCell;

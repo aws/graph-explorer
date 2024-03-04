@@ -2,11 +2,9 @@ import { css } from "@emotion/css";
 import type { ThemeStyleFn } from "../../core";
 import type { ListItemTheme } from "./ListItem.model";
 
-const defaultStyles: (pfx: string) => ThemeStyleFn<ListItemTheme> = pfx => ({
-  theme,
-  isDarkTheme,
-}) =>
-  css`
+const defaultStyles: (pfx: string) => ThemeStyleFn<ListItemTheme> =
+  pfx =>
+  ({ theme, isDarkTheme }) => css`
     width: 100%;
     display: flex;
     flex-direction: row;
@@ -14,7 +12,9 @@ const defaultStyles: (pfx: string) => ThemeStyleFn<ListItemTheme> = pfx => ({
 
     &.${pfx}-clickable {
       cursor: pointer;
-      transition: color 250ms ease, background 250ms ease;
+      transition:
+        color 250ms ease,
+        background 250ms ease;
       background: ${theme.listItem?.clickable?.background || isDarkTheme
         ? theme.palette.background.secondary
         : theme.palette.background.default};

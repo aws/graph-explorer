@@ -44,24 +44,26 @@ type ChipCellProps<T extends object> = {
   getBorderRadius?: ColorPropertyFunction<T>;
 };
 
-export const makeChipCell = <T extends object>({
-  getBackgroundColor,
-  getColor,
-  getBorderRadius,
-}: ChipCellProps<T>) => (props: CellComponentProps<T>) => {
-  const [theme] = useTheme();
-  return (
-    <div
-      className={styles({
-        backgroundColor: getBackgroundColor?.(props.value, props, theme),
-        borderRadius: getBorderRadius?.(props.value, props, theme),
-      })}
-    >
-      <Chip color={getColor?.(props.value, props, theme) || DEFAULT_COLOR}>
-        {props.value}
-      </Chip>
-    </div>
-  );
-};
+export const makeChipCell =
+  <T extends object>({
+    getBackgroundColor,
+    getColor,
+    getBorderRadius,
+  }: ChipCellProps<T>) =>
+  (props: CellComponentProps<T>) => {
+    const [theme] = useTheme();
+    return (
+      <div
+        className={styles({
+          backgroundColor: getBackgroundColor?.(props.value, props, theme),
+          borderRadius: getBorderRadius?.(props.value, props, theme),
+        })}
+      >
+        <Chip color={getColor?.(props.value, props, theme) || DEFAULT_COLOR}>
+          {props.value}
+        </Chip>
+      </div>
+    );
+  };
 
 export default makeChipCell;

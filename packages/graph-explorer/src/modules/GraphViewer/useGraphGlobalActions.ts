@@ -35,9 +35,8 @@ const useGraphGlobalActions = (graphRef?: RefObject<GraphRef | null>) => {
   }, [graphRef?.current?.cytoscape]);
 
   const onFitToCanvas = useCallback(() => {
-    const selectedElements = graphRef?.current?.cytoscape?.elements(
-      ":selected"
-    );
+    const selectedElements =
+      graphRef?.current?.cytoscape?.elements(":selected");
     graphRef?.current?.cytoscape?.fit(
       selectedElements?.nonempty()
         ? selectedElements
@@ -67,9 +66,8 @@ const useGraphGlobalActions = (graphRef?: RefObject<GraphRef | null>) => {
   }, [graphRef]);
 
   const onCenterGraph = useCallback(() => {
-    const selectedElements = graphRef?.current?.cytoscape?.elements(
-      ":selected"
-    );
+    const selectedElements =
+      graphRef?.current?.cytoscape?.elements(":selected");
     graphRef?.current?.cytoscape?.center(
       selectedElements?.nonempty()
         ? selectedElements
@@ -130,9 +128,8 @@ const useGraphGlobalActions = (graphRef?: RefObject<GraphRef | null>) => {
   }, [graphRef]);
 
   const onZoomIn = useCallback(() => {
-    const selectedElements = graphRef?.current?.cytoscape?.elements(
-      ":selected"
-    );
+    const selectedElements =
+      graphRef?.current?.cytoscape?.elements(":selected");
     graphRef?.current?.cytoscape?.zoom(
       graphRef?.current?.cytoscape?.zoom() + 0.5
     );

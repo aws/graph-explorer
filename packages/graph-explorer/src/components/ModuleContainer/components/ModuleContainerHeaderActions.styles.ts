@@ -2,8 +2,9 @@ import { css } from "@emotion/css";
 import type { ThemeStyleFn } from "../../../core";
 import { fade } from "../../../core";
 
-const defaultStyles = (pfx: string): ThemeStyleFn => ({ theme, isDarkTheme }) =>
-  css`
+const defaultStyles =
+  (pfx: string): ThemeStyleFn =>
+  ({ theme, isDarkTheme }) => css`
     &.${pfx}-module-container-header-actions {
       height: 100%;
       display: flex;
@@ -35,8 +36,9 @@ const defaultStyles = (pfx: string): ThemeStyleFn => ({ theme, isDarkTheme }) =>
 
 export default defaultStyles;
 
-export const buttonMenuListItem = (pfx: string): ThemeStyleFn => ({ theme }) =>
-  css`
+export const buttonMenuListItem =
+  (pfx: string): ThemeStyleFn =>
+  ({ theme }) => css`
     font-size: ${theme.typography.sizes?.xs};
     padding-right: ${theme.spacing["2x"]};
 

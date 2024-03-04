@@ -18,18 +18,18 @@ type FilterFn<T extends object = object> = (
   filterValue: unknown
 ) => Row<T>[];
 
-const numberComparisonFilter = <T extends object>(
-  compare: (rValue: number, fValue: number) => boolean
-) => (rows: Row<T>[], columnsIds: IdType<T>[], filterValue: unknown) => {
-  const filter = Number(filterValue);
-  if (isNaN(filter)) {
-    return rows;
-  }
+const numberComparisonFilter =
+  <T extends object>(compare: (rValue: number, fValue: number) => boolean) =>
+  (rows: Row<T>[], columnsIds: IdType<T>[], filterValue: unknown) => {
+    const filter = Number(filterValue);
+    if (isNaN(filter)) {
+      return rows;
+    }
 
-  return rows.filter(row => {
-    return compare(Number(row.values[columnsIds[0]]), filter);
-  });
-};
+    return rows.filter(row => {
+      return compare(Number(row.values[columnsIds[0]]), filter);
+    });
+  };
 
 const equalsFilter = <T extends object>() =>
   numberComparisonFilter<T>(
@@ -72,12 +72,12 @@ const filtersComponentMap: Record<string, ReactNode> = {
   "<=": <LessOrEqualThanIcon />,
 };
 
-export const numericFilter = <T extends object>(
-  activeTheme?: ActiveThemeType<ProcessedTheme>
-) => (operator: string, props: TextFilterProps = {}) => ({
-  filter: filtersMap[operator]<T>(),
-  filterComponent: TextFilter<T>(activeTheme)({
-    placeholder: props.placeholder || placeholdersMap[operator],
-    startAdornment: props.startAdornment || filtersComponentMap[operator],
-  }),
-});
+export const numericFilter =
+  <T extends object>(activeTheme?: ActiveThemeType<ProcessedTheme>) =>
+  (operator: string, props: TextFilterProps = {}) => ({
+    filter: filtersMap[operator]<T>(),
+    filterComponent: TextFilter<T>(activeTheme)({
+      placeholder: props.placeholder || placeholdersMap[operator],
+      startAdornment: props.startAdornment || filtersComponentMap[operator],
+    }),
+  });

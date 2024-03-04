@@ -1,8 +1,9 @@
 import { css } from "@emotion/css";
 import type { ThemeStyleFn } from "../../core";
 
-const defaultStyles = (): ThemeStyleFn => ({ theme }) =>
-  css`
+const defaultStyles =
+  (): ThemeStyleFn =>
+  ({ theme }) => css`
     position: relative;
     display: flex;
     flex-direction: column;

@@ -31,13 +31,11 @@ const EdgesTabular = forwardRef<TabularInstance<any>, any>((props, ref) => {
   const t = useTranslations();
   const edges = useRecoilValue(edgesAtom);
   const setEdgesOut = useSetRecoilState(edgesOutOfFocusIdsAtom);
-  const [hiddenEdgesIds, setHiddenEdgesIds] = useRecoilState(
-    edgesHiddenIdsAtom
-  );
+  const [hiddenEdgesIds, setHiddenEdgesIds] =
+    useRecoilState(edgesHiddenIdsAtom);
   const setSelectedNodesIds = useSetRecoilState(nodesSelectedIdsAtom);
-  const [selectedEdgesIds, setSelectedEdgesIds] = useRecoilState(
-    edgesSelectedIdsAtom
-  );
+  const [selectedEdgesIds, setSelectedEdgesIds] =
+    useRecoilState(edgesSelectedIdsAtom);
   const onToggleVisibility = useCallback(
     (item: ToggleEdge) => {
       recoilDiffSets(setHiddenEdgesIds, new Set([item.data.id]));

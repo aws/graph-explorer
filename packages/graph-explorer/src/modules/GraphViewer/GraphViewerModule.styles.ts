@@ -2,8 +2,9 @@ import { css } from "@emotion/css";
 import { ThemeStyleFn } from "../../core";
 import fade from "../../core/ThemeProvider/utils/fade";
 
-const defaultStyles = (pfx: string): ThemeStyleFn => ({ theme }) =>
-  css`
+const defaultStyles =
+  (pfx: string): ThemeStyleFn =>
+  ({ theme }) => css`
     &.${pfx}-graph-viewer-module {
       position: relative;
       width: 100%;

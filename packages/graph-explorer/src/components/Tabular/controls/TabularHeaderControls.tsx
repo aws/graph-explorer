@@ -20,11 +20,9 @@ export type TabularHeaderControlsProps = {
   disableSticky?: boolean;
 };
 
-const defaultStyles = (
-  pfx: string,
-  variant?: TabularVariantType
-): ThemeStyleFn<TabularTheme> => ({ theme, isDarkTheme }) =>
-  css`
+const defaultStyles =
+  (pfx: string, variant?: TabularVariantType): ThemeStyleFn<TabularTheme> =>
+  ({ theme, isDarkTheme }) => css`
     &.${pfx}-header-controls {
       position: sticky;
       left: 0;

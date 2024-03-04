@@ -35,7 +35,7 @@ type GroupElementEventCallback<TNode extends object = any> = (
 
 export interface UseAddClickEvents<
   TNode extends object = any,
-  TEdge extends object = any
+  TEdge extends object = any,
 > {
   cy?: CytoscapeType;
   // Graph events

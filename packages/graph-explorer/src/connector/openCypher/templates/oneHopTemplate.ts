@@ -96,8 +96,8 @@ const criterionTemplate = (criterion: Criterion): string => {
  *
  * MATCH (v)-[edge:route]->(v:airport)
  * WHERE ID(v) = "124"
- * WITH collect(DISTINCT tgt) AS vObjects, collect({edge: e, sourceType: labels(v), targetType: labels(tgt)}) AS eObjects 
- * RETURN vObjects, eObjects 
+ * WITH collect(DISTINCT tgt) AS vObjects, collect({edge: e, sourceType: labels(v), targetType: labels(tgt)}) AS eObjects
+ * RETURN vObjects, eObjects
  * SKIP 0
  * LIMIT 10
  */
@@ -131,7 +131,9 @@ const oneHopTemplate = ({
     template += `(tgt) WHERE ID(v) = \"${vertexId}\" `;
   }
 
-  const filterCriteriaTemplate = filterCriteria?.map(criterionTemplate).join(" AND ");
+  const filterCriteriaTemplate = filterCriteria
+    ?.map(criterionTemplate)
+    .join(" AND ");
   if (filterCriteriaTemplate) {
     template += `AND ${filterCriteriaTemplate} `;
   }

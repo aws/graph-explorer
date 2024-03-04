@@ -27,12 +27,8 @@ const toAdvancedList = <TDatum extends object>(
   data: TDatum[],
   options: AdvancedListOptions<TDatum>
 ): AdvancedListItemType<TDatum>[] => {
-  const {
-    getGroupLabel,
-    getItem,
-    disableGroupSorting,
-    disableItemSorting,
-  } = options;
+  const { getGroupLabel, getItem, disableGroupSorting, disableItemSorting } =
+    options;
 
   if (getGroupLabel) {
     let groups = Object.entries(groupBy(data, getGroupLabel));

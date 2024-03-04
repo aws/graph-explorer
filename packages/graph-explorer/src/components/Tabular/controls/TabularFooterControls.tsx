@@ -18,45 +18,44 @@ export type TabularFooterControlsProps = {
   disableSticky?: boolean;
 };
 
-const defaultStyles = (
-  pfx: string,
-  variant?: TabularVariantType
-): ThemeStyleFn<TabularTheme> => ({ theme, isDarkTheme }) => {
-  const { tabular, palette } = theme;
+const defaultStyles =
+  (pfx: string, variant?: TabularVariantType): ThemeStyleFn<TabularTheme> =>
+  ({ theme, isDarkTheme }) => {
+    const { tabular, palette } = theme;
 
-  return css`
-    &.${pfx}-footer-controls {
-      position: sticky;
-      left: 0;
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      background: ${tabular?.footer?.controls?.background ||
-      (isDarkTheme ? palette.grey[800] : palette.background.default)};
-      color: ${tabular?.footer?.controls?.color || palette.text.primary};
-      padding: ${tabular?.footer?.controls?.padding ||
-      baseTheme.footer.controls.padding};
-      border: ${tabular?.footer?.controls?.border ||
-      tabular?.border ||
-      `solid 1px ${palette.border}`};
+    return css`
+      &.${pfx}-footer-controls {
+        position: sticky;
+        left: 0;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        background: ${tabular?.footer?.controls?.background ||
+        (isDarkTheme ? palette.grey[800] : palette.background.default)};
+        color: ${tabular?.footer?.controls?.color || palette.text.primary};
+        padding: ${tabular?.footer?.controls?.padding ||
+        baseTheme.footer.controls.padding};
+        border: ${tabular?.footer?.controls?.border ||
+        tabular?.border ||
+        `solid 1px ${palette.border}`};
 
-      ${variant === "noBorders" &&
-      `border-right: none; border-left: none; border-bottom: none;`}
+        ${variant === "noBorders" &&
+        `border-right: none; border-left: none; border-bottom: none;`}
 
-      > * {
-        margin: 0 4px;
+        > * {
+          margin: 0 4px;
+        }
       }
-    }
 
-    &.${pfx}-footer-controls-sticky {
-      z-index: 3;
-      // -1px fixes the border
-      ${variant === "noBorders" ? "bottom: 0;" : "bottom: -1px;"}
-    }
-  `;
-};
+      &.${pfx}-footer-controls-sticky {
+        z-index: 3;
+        // -1px fixes the border
+        ${variant === "noBorders" ? "bottom: 0;" : "bottom: -1px;"}
+      }
+    `;
+  };
 
 const TabularFooterControls: FC<TabularFooterControlsProps> = ({
   children,

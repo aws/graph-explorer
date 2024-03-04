@@ -15,7 +15,9 @@ const TopBarWithLogo = ({ children }: PropsWithChildren<any>) => {
       `}
     >
       {children}
-      <Workspace.TopBar.Version>{__GRAPH_EXP_VERSION__}</Workspace.TopBar.Version>
+      <Workspace.TopBar.Version>
+        {__GRAPH_EXP_VERSION__}
+      </Workspace.TopBar.Version>
     </Workspace.TopBar>
   );
 };

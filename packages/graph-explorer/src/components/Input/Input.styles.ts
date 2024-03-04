@@ -185,131 +185,139 @@ const getInnerLabelStyles = (
   left: calc(${getPaddingBySize(size, activeTheme)});
 `;
 
-export const inputContainerStyles = (
-  labelPlacement: "top" | "left" | "inner",
-  classNamePrefix: string,
-  size: "sm" | "md",
-  isDisabled?: boolean,
-  validationState?: "invalid" | "valid",
-  fullWidth?: boolean,
-  hideError?: boolean,
-  isReadOnly?: boolean,
-  startAdornment?: ReactNode,
-  endAdornment?: ReactNode,
-  isTextArea?: boolean,
-  noMargin?: boolean
-) => (activeTheme: ActiveThemeType<ProcessedTheme>) => {
-  const { theme } = activeTheme;
-  const themeWithDefault = getInputThemeWithDefaults(
-    activeTheme,
-    validationState || "valid"
-  );
-  return css`
-    display: flex;
-    flex-direction: ${labelPlacement === "left" ? "row" : "column"};
-    align-items: ${labelPlacement === "left" ? "center" : "initial"};
-    margin-bottom: ${noMargin ? "0" : "14px"};
-    ${fullWidth ? "flex-grow: 1" : ""};
-    ${fullWidth ? "width: 100%" : ""};
-    ${isReadOnly ? "pointer-events: none" : ""};
-    position: relative;
-
-    &.${classNamePrefix}-input-label-inner {
-      > .${classNamePrefix}-input-label {
-        font-size: 10px;
-        pointer-events: none;
-        ${getInnerLabelStyles(size, theme)}
-      }
-    }
-
-    > .${classNamePrefix}-input-label {
-      width: ${labelPlacement === "left" ? "150px" : "100%"};
-      line-height: ${labelPlacement === "left" ? "0.75em" : "0.875em"};
-      color: ${themeWithDefault?.label?.color};
-      font-size: 0.875em;
-      margin: ${labelPlacement === "left" ? "0 8px 0 0" : "0 0 8px 0"};
-    }
-
-    .${classNamePrefix}-input-container {
-      flex: 1;
+export const inputContainerStyles =
+  (
+    labelPlacement: "top" | "left" | "inner",
+    classNamePrefix: string,
+    size: "sm" | "md",
+    isDisabled?: boolean,
+    validationState?: "invalid" | "valid",
+    fullWidth?: boolean,
+    hideError?: boolean,
+    isReadOnly?: boolean,
+    startAdornment?: ReactNode,
+    endAdornment?: ReactNode,
+    isTextArea?: boolean,
+    noMargin?: boolean
+  ) =>
+  (activeTheme: ActiveThemeType<ProcessedTheme>) => {
+    const { theme } = activeTheme;
+    const themeWithDefault = getInputThemeWithDefaults(
+      activeTheme,
+      validationState || "valid"
+    );
+    return css`
       display: flex;
+      flex-direction: ${labelPlacement === "left" ? "row" : "column"};
+      align-items: ${labelPlacement === "left" ? "center" : "initial"};
+      margin-bottom: ${noMargin ? "0" : "14px"};
+      ${fullWidth ? "flex-grow: 1" : ""};
+      ${fullWidth ? "width: 100%" : ""};
+      ${isReadOnly ? "pointer-events: none" : ""};
       position: relative;
-    }
 
-    .${classNamePrefix}-start-adornment {
-      position: absolute;
-      left: ${getPaddingBySize(size, theme)};
-      top: ${isTextArea ? `calc(${getPaddingBySize(size, theme)} + 2px)` : "0"};
-      height: ${!hideError ? "calc(100% - 8px)" : "100%"};
-      display: flex;
-      align-items: center;
-      color: ${themeWithDefault?.startAdornment?.color};
-    }
-
-    .${classNamePrefix}-end-adornment {
-      position: absolute;
-      right: ${getPaddingBySize(size, theme)};
-      top: ${isTextArea ? `calc(${getPaddingBySize(size, theme)} + 2px)` : "0"};
-      height: ${!hideError ? "calc(100% - 8px)" : "100%"};
-      display: flex;
-      align-items: center;
-      color: ${themeWithDefault?.endAdornment?.color};
-    }
-
-    .${classNamePrefix}-clearButton {
-      position: absolute;
-      right: ${getPaddingBySize(size, theme)};
-      top: ${isTextArea ? `calc(${getPaddingBySize(size, theme)} + 2px)` : "0"};
-      height: ${!hideError ? "calc(100% - 8px)" : "100%"};
-      display: flex;
-      align-items: center;
-      color: ${themeWithDefault?.endAdornment?.color};
-    }
-
-    .${classNamePrefix}-input {
-      font-family: inherit;
-      ${isTextArea && "height: 100px; resize: none;"}
-      background-color: ${!isDisabled
-        ? themeWithDefault?.background
-        : fade(themeWithDefault?.background, 0.7)};
-      color: ${!isDisabled
-        ? themeWithDefault?.color
-        : fade(themeWithDefault?.color, 0.5)};
-      border-radius: ${themeWithDefault?.borderRadius};
-      margin-bottom: ${!hideError ? "8px" : "0"};
-      padding: ${getPaddingBySizeAndAdornment(
-        theme,
-        size,
-        startAdornment,
-        endAdornment,
-        labelPlacement === "inner"
-      )};
-      flex: 1;
-      border: ${themeWithDefault?.border};
-      width: 100%;
-
-      &::placeholder {
-        color: ${themeWithDefault?.placeholderColor};
+      &.${classNamePrefix}-input-label-inner {
+        > .${classNamePrefix}-input-label {
+          font-size: 10px;
+          pointer-events: none;
+          ${getInnerLabelStyles(size, theme)}
+        }
       }
 
-      &:not(.${classNamePrefix}-input-disabled):hover {
-        background-color: ${themeWithDefault?.hover?.background};
-        color: ${themeWithDefault?.hover?.color};
+      > .${classNamePrefix}-input-label {
+        width: ${labelPlacement === "left" ? "150px" : "100%"};
+        line-height: ${labelPlacement === "left" ? "0.75em" : "0.875em"};
+        color: ${themeWithDefault?.label?.color};
+        font-size: 0.875em;
+        margin: ${labelPlacement === "left" ? "0 8px 0 0" : "0 0 8px 0"};
       }
-      &:focus {
-        background-color: ${themeWithDefault?.focus?.background};
-        color: ${themeWithDefault?.focus?.color};
-        outline: none;
-        box-shadow: ${themeWithDefault?.focus?.outlineColor};
-      }
-    }
 
-    .${classNamePrefix}-input-error {
-      position: absolute;
-      top: calc(100% - 6px);
-      left: 0;
-      color: ${themeWithDefault?.error?.errorColor};
-      font-size: 0.75em;
-    }
-  `;
-};
+      .${classNamePrefix}-input-container {
+        flex: 1;
+        display: flex;
+        position: relative;
+      }
+
+      .${classNamePrefix}-start-adornment {
+        position: absolute;
+        left: ${getPaddingBySize(size, theme)};
+        top: ${isTextArea
+          ? `calc(${getPaddingBySize(size, theme)} + 2px)`
+          : "0"};
+        height: ${!hideError ? "calc(100% - 8px)" : "100%"};
+        display: flex;
+        align-items: center;
+        color: ${themeWithDefault?.startAdornment?.color};
+      }
+
+      .${classNamePrefix}-end-adornment {
+        position: absolute;
+        right: ${getPaddingBySize(size, theme)};
+        top: ${isTextArea
+          ? `calc(${getPaddingBySize(size, theme)} + 2px)`
+          : "0"};
+        height: ${!hideError ? "calc(100% - 8px)" : "100%"};
+        display: flex;
+        align-items: center;
+        color: ${themeWithDefault?.endAdornment?.color};
+      }
+
+      .${classNamePrefix}-clearButton {
+        position: absolute;
+        right: ${getPaddingBySize(size, theme)};
+        top: ${isTextArea
+          ? `calc(${getPaddingBySize(size, theme)} + 2px)`
+          : "0"};
+        height: ${!hideError ? "calc(100% - 8px)" : "100%"};
+        display: flex;
+        align-items: center;
+        color: ${themeWithDefault?.endAdornment?.color};
+      }
+
+      .${classNamePrefix}-input {
+        font-family: inherit;
+        ${isTextArea && "height: 100px; resize: none;"}
+        background-color: ${!isDisabled
+          ? themeWithDefault?.background
+          : fade(themeWithDefault?.background, 0.7)};
+        color: ${!isDisabled
+          ? themeWithDefault?.color
+          : fade(themeWithDefault?.color, 0.5)};
+        border-radius: ${themeWithDefault?.borderRadius};
+        margin-bottom: ${!hideError ? "8px" : "0"};
+        padding: ${getPaddingBySizeAndAdornment(
+          theme,
+          size,
+          startAdornment,
+          endAdornment,
+          labelPlacement === "inner"
+        )};
+        flex: 1;
+        border: ${themeWithDefault?.border};
+        width: 100%;
+
+        &::placeholder {
+          color: ${themeWithDefault?.placeholderColor};
+        }
+
+        &:not(.${classNamePrefix}-input-disabled):hover {
+          background-color: ${themeWithDefault?.hover?.background};
+          color: ${themeWithDefault?.hover?.color};
+        }
+        &:focus {
+          background-color: ${themeWithDefault?.focus?.background};
+          color: ${themeWithDefault?.focus?.color};
+          outline: none;
+          box-shadow: ${themeWithDefault?.focus?.outlineColor};
+        }
+      }
+
+      .${classNamePrefix}-input-error {
+        position: absolute;
+        top: calc(100% - 6px);
+        left: 0;
+        color: ${themeWithDefault?.error?.errorColor};
+        font-size: 0.75em;
+      }
+    `;
+  };

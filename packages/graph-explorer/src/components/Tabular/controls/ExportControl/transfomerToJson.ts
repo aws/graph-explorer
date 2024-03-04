@@ -13,13 +13,13 @@ const transformToJson = (
       (cells, [columnId, shouldExport]) => {
         if (shouldExport) {
           const pathParts = columnId.split(".");
-          const colDef = columns.find(colDef => colDef.instance.id === columnId)
-            ?.definition;
+          const colDef = columns.find(
+            colDef => colDef.instance.id === columnId
+          )?.definition;
 
           if (typeof colDef?.accessor === "string") {
-            cells[
-              colDef?.label || pathParts[pathParts.length - 1]
-            ] = getNestedObjectValue(row.original || row, columnId.split("."));
+            cells[colDef?.label || pathParts[pathParts.length - 1]] =
+              getNestedObjectValue(row.original || row, columnId.split("."));
           } else {
             cells[
               colDef?.label || pathParts[pathParts.length - 1]

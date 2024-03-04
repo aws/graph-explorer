@@ -20,7 +20,7 @@ type RawVertexLabelsResponse = {
         {
           "@type": "g:Map";
           "@value": Array<string | GInt64>;
-        }
+        },
       ];
     };
   };
@@ -39,7 +39,7 @@ type RawEdgeLabelsResponse = {
         {
           "@type": "g:Map";
           "@value": Array<string | GInt64>;
-        }
+        },
       ];
     };
   };
@@ -58,7 +58,7 @@ type RawVerticesSchemaResponse = {
         {
           "@type": "g:Map";
           "@value": Array<string | GVertex>;
-        }
+        },
       ];
     };
   };
@@ -77,7 +77,7 @@ type RawEdgesSchemaResponse = {
         {
           "@type": "g:Map";
           "@value": Array<string | GEdge>;
-        }
+        },
       ];
     };
   };
@@ -121,9 +121,8 @@ const fetchVerticesAttributes = async (
     types: labels,
   });
 
-  const response = await gremlinFetch<RawVerticesSchemaResponse>(
-    verticesTemplate
-  );
+  const response =
+    await gremlinFetch<RawVerticesSchemaResponse>(verticesTemplate);
   const verticesSchemas = response.result.data["@value"][0]["@value"];
 
   for (let i = 0; i < verticesSchemas.length; i += 2) {

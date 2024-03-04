@@ -68,7 +68,10 @@ export const getStyles = ({
     const stylesWithDefault = styles?.[selector]
       ? { ...style, ...styles?.[selector] }
       : style;
-    rootStyles.push(<cytoscape.StylesheetStyle>{selector, style: stylesWithDefault});
+    rootStyles.push(<cytoscape.StylesheetStyle>{
+      selector,
+      style: stylesWithDefault,
+    });
   }
 
   // Base styles

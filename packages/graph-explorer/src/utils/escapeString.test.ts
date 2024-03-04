@@ -16,7 +16,6 @@ describe("escapeString", () => {
   it("Should handle strings with quotes", () => {
     expect(escapeString(' te"st ')).toEqual(' te\\"st ');
     expect(escapeString('"test"')).toEqual('\\"test\\"');
-    expect(escapeString("\"t'est\"")).toEqual("\\\"t'est\\\"");
+    expect(escapeString('"t\'est"')).toEqual('\\"t\'est\\"');
   });
-
 });

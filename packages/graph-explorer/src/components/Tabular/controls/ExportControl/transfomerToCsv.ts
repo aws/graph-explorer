@@ -12,8 +12,9 @@ const transformToCsv = (
     return Object.entries(selectedColumns).reduce(
       (cells, [columnId, shouldExport]) => {
         if (shouldExport) {
-          const colDef = columns.find(colDef => colDef.instance.id === columnId)
-            ?.definition;
+          const colDef = columns.find(
+            colDef => colDef.instance.id === columnId
+          )?.definition;
 
           if (typeof colDef?.accessor === "string") {
             cells.push(

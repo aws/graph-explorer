@@ -22,7 +22,7 @@ export type BadgeRenderer<TNodeData extends VertexData = VertexData> = (
 ) => Array<Badge | undefined>;
 
 export interface UseRenderBadgesProps<
-  TNodeData extends VertexData = VertexData
+  TNodeData extends VertexData = VertexData,
 > {
   cy?: CytoscapeType;
   badgesEnabled: boolean;

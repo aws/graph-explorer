@@ -4,11 +4,9 @@ import {
   ProcessedTheme,
 } from "../../core/ThemeProvider/types";
 
-const defaultStyles = (pfx: string) => ({
-  theme,
-  isDarkTheme,
-}: ActiveThemeType<ProcessedTheme>) =>
-  css`
+const defaultStyles =
+  (pfx: string) =>
+  ({ theme, isDarkTheme }: ActiveThemeType<ProcessedTheme>) => css`
     &.${pfx}-entities-filters {
       width: 100%;
       margin: 0;

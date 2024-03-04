@@ -2,8 +2,9 @@ import { css } from "@emotion/css";
 import type { ThemeStyleFn } from "../../../core";
 import { fade } from "../../../core";
 
-const defaultStyles = (pfx: string): ThemeStyleFn => ({ theme }) =>
-  css`
+const defaultStyles =
+  (pfx: string): ThemeStyleFn =>
+  ({ theme }) => css`
     &.${pfx}-navbar-logo {
       position: relative;
       background-color: ${theme.navBar?.header ||

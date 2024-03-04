@@ -4,7 +4,7 @@ import { ThemeContext } from "./ThemeProvider";
 import type { ProcessedTheme, ThemeContextType } from "./types";
 
 export const useTheme = <
-  TThemeExtend extends Record<string, any> = { [key: string]: any }
+  TThemeExtend extends Record<string, any> = { [key: string]: any },
 >(): ThemeContextType<ProcessedTheme<TThemeExtend>> => {
   const theme = useContext(ThemeContext);
 

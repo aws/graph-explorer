@@ -71,70 +71,73 @@ const SingleEdgeStyling = ({
   }, [t, textTransform, etConfig?.attributes]);
 
   const onUserPrefsChange = useRecoilCallback(
-    ({ set }) => (prefs: Omit<EdgePreferences, "type">) => {
-      set(userStylingAtom, prev => {
-        const edges = Array.from(prev.edges || []);
-        const updateIndex = edges.findIndex(e => e.type === edgeType);
+    ({ set }) =>
+      (prefs: Omit<EdgePreferences, "type">) => {
+        set(userStylingAtom, prev => {
+          const edges = Array.from(prev.edges || []);
+          const updateIndex = edges.findIndex(e => e.type === edgeType);
 
-        if (updateIndex === -1) {
+          if (updateIndex === -1) {
+            return {
+              ...prev,
+              edges: [...edges, { ...prefs, type: edgeType }],
+            };
+          }
+
+          edges[updateIndex] = {
+            ...edges[updateIndex],
+            ...prefs,
+            type: edgeType,
+          };
           return {
             ...prev,
-            edges: [...edges, { ...prefs, type: edgeType }],
+            edges,
           };
-        }
-
-        edges[updateIndex] = {
-          ...edges[updateIndex],
-          ...prefs,
-          type: edgeType,
-        };
-        return {
-          ...prev,
-          edges,
-        };
-      });
-    },
+        });
+      },
     [edgeType]
   );
 
   const onUserPrefsReset = useRecoilCallback(
-    ({ set }) => () => {
-      set(userStylingAtom, prev => {
-        return {
-          ...prev,
-          edges: prev.edges?.filter(e => e.type !== edgeType),
-        };
-      });
-    },
+    ({ set }) =>
+      () => {
+        set(userStylingAtom, prev => {
+          return {
+            ...prev,
+            edges: prev.edges?.filter(e => e.type !== edgeType),
+          };
+        });
+      },
     [edgeType]
   );
 
   const onDisplayNameChange = useRecoilCallback(
-    ({ set }) => (value: string | string[]) => {
-      if (!edgeType) {
-        return;
-      }
+    ({ set }) =>
+      (value: string | string[]) => {
+        if (!edgeType) {
+          return;
+        }
 
-      set(userStylingAtom, prevStyling => {
-        const etItem = clone(
-          prevStyling.edges?.find(e => e.type === edgeType) ||
-            ({} as EdgePreferences)
-        );
+        set(userStylingAtom, prevStyling => {
+          const etItem = clone(
+            prevStyling.edges?.find(e => e.type === edgeType) ||
+              ({} as EdgePreferences)
+          );
 
-        etItem.displayNameAttribute = value as string;
+          etItem.displayNameAttribute = value as string;
 
-        return {
-          ...prevStyling,
-          edges: [
-            ...(prevStyling.edges || []).filter(e => e.type !== edgeType),
-            {
-              ...(etItem || {}),
-              type: edgeType,
-            },
-          ],
-        };
-      });
-    },
+          return {
+            ...prevStyling,
+            edges: [
+              ...(prevStyling.edges || []).filter(e => e.type !== edgeType),
+              {
+                ...(etItem || {}),
+                type: edgeType,
+              },
+            ],
+          };
+        });
+      },
     [edgeType]
   );
 

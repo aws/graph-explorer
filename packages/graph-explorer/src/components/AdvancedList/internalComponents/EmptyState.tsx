@@ -27,7 +27,8 @@ const getEmptyStateItems = (
   return {
     title: emptyState?.noElementsTitle || "No saved connections",
     subtitle:
-      emptyState?.noElementsSubtitle || "To get started, click + to add a new connection to a graph database.",
+      emptyState?.noElementsSubtitle ||
+      "To get started, click + to add a new connection to a graph database.",
     icon: emptyState?.noElementsIcon || <NoWidgetIcon />,
   };
 };
