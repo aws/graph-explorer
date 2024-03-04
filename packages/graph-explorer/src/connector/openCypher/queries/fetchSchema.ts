@@ -11,16 +11,16 @@ import { GraphSummary, OpenCypherFetch } from "../types";
 type RawVertexLabelsResponse = {
   results: [
     {
-      label: Array<string>;
+      label: Array<string> | string;
       count: number;
     }
   ];
-}
+};
 
 type RawEdgeLabelsResponse = {
   results: [
     {
-      label: Array<string>;
+      label: Array<string> | string;
       count: number;
     }
   ];
@@ -35,11 +35,13 @@ type RawVerticesSchemaResponse = {
 };
 
 type RawEdgesSchemaResponse = {
-  results: [
-    {
-      object: OCEdge;
-    }
-  ];
+  results:
+    | [
+        {
+          object: OCEdge;
+        }
+      ]
+    | [];
 };
 
 // Fetches all vertex labels and their counts
@@ -52,7 +54,20 @@ const fetchVertexLabels = async (
   const values = data.results || [];
   const labelsWithCounts: Record<string, number> = {};
   for (let i = 0; i < values.length; i += 1) {
-    labelsWithCounts[values[i].label[0] as string] = (values[i].count as number);
+    const vertex = values[i];
+    if (!vertex) {
+      continue;
+    }
+
+    const label = Array.isArray(vertex.label)
+      ? vertex.label[0]
+      : (vertex.label as string);
+
+    if (!label) {
+      continue;
+    }
+
+    labelsWithCounts[label] = vertex.count as number;
   }
 
   return labelsWithCounts;
@@ -76,10 +91,15 @@ const fetchVerticesAttributes = async (
         type: labelResult,
       });
 
-      const response = await openCypherFetch<RawVerticesSchemaResponse>(verticesTemplate);
+      const response = await openCypherFetch<RawVerticesSchemaResponse>(
+        verticesTemplate
+      );
 
       const vertex = response.results[0]?.object as OCVertex;
-      if (!vertex) return;
+      if (!vertex) {
+        return;
+      }
+
       const label = vertex["~labels"][0] as string;
       const properties = vertex["~properties"];
       vertices.push({
@@ -91,9 +111,7 @@ const fetchVerticesAttributes = async (
           return {
             name,
             displayLabel: sanitizeText(name),
-            dataType:
-              typeof value === "string"
-                ? "String" : "Number",
+            dataType: typeof value === "string" ? "String" : "Number",
           };
         }),
       });
@@ -122,8 +140,26 @@ const fetchEdgeLabels = async (
 
   const values = data.results;
   const labelsWithCounts: Record<string, number> = {};
+
+  if (!values) {
+    return labelsWithCounts;
+  }
+
   for (let i = 0; i < values.length; i += 1) {
-    labelsWithCounts[values[i].label[0] as string] = (values[i].count as number);
+    const edge = values[i];
+    if (!edge) {
+      continue;
+    }
+
+    const label = Array.isArray(edge.label)
+      ? edge.label[0]
+      : (edge.label as string);
+
+    if (!label) {
+      continue;
+    }
+
+    labelsWithCounts[label] = edge.count as number;
   }
 
   return labelsWithCounts;
@@ -141,30 +177,50 @@ const fetchEdgesAttributes = async (
     return edges;
   }
 
-  await Promise.all(labels.map(async labelResult => {
-    const edgesTemplate = edgesSchemaTemplate({
-      type: labelResult
-    });
+  await Promise.all(
+    labels.map(async labelResult => {
+      const edgesTemplate = edgesSchemaTemplate({
+        type: labelResult,
+      });
 
-    const response = await openCypherFetch<RawEdgesSchemaResponse>(edgesTemplate);
+      const response = await openCypherFetch<RawEdgesSchemaResponse>(
+        edgesTemplate
+      );
 
-    const edge = response.results[0].object as OCEdge;
-    const label = edge["~entityType"] as string;
-    const properties = edge["~properties"];
-    edges.push({
-      type: label,
-      displayLabel: sanitizeText(label),
-      total: countsByLabel[label],
-      attributes: Object.entries(properties || {}).map(([name, prop]) => {
-        const value = prop;
-        return {
-          name,
-          displayLabel: sanitizeText(name),
-          dataType: typeof value === "string" ? "String" : "Number",
-        };
-      }),
-    });
-  }));
+      // verify response has the info we need
+      if (
+        !response.results ||
+        response.results.length === 0 ||
+        !response.results[0].object
+      ) {
+        return;
+      }
+
+      const edge = response.results[0].object as OCEdge;
+      const entityType = edge["~entityType"] as string;
+      const type = edge["~type"] as string;
+
+      // verify response has the info we need
+      if (!entityType || !type) {
+        return;
+      }
+
+      const properties = edge["~properties"];
+      edges.push({
+        type: type,
+        displayLabel: sanitizeText(type),
+        total: countsByLabel[labelResult],
+        attributes: Object.entries(properties || {}).map(([name, prop]) => {
+          const value = prop;
+          return {
+            name,
+            displayLabel: sanitizeText(name),
+            dataType: typeof value === "string" ? "String" : "Number",
+          };
+        }),
+      });
+    })
+  );
 
   return edges;
 };
@@ -199,12 +255,12 @@ const fetchSchema = async (
   summary?: GraphSummary
 ): Promise<SchemaResponse> => {
   if (!summary) {
-    const vertices = await fetchVerticesSchema(openCypherFetch) || [];
+    const vertices = (await fetchVerticesSchema(openCypherFetch)) || [];
     const totalVertices = vertices.reduce((total, vertex) => {
       return total + (vertex.total ?? 0);
     }, 0);
 
-    const edges = await fetchEdgesSchema(openCypherFetch) || [];
+    const edges = (await fetchEdgesSchema(openCypherFetch)) || [];
     const totalEdges = edges.reduce((total, edge) => {
       return total + (edge.total ?? 0);
     }, 0);
@@ -217,16 +273,11 @@ const fetchSchema = async (
     };
   }
 
-  const vertices = await fetchVerticesAttributes(
-    openCypherFetch,
-    summary.nodeLabels,
-    {}
-  ) || [];
-  const edges = await fetchEdgesAttributes(
-    openCypherFetch,
-    summary.edgeLabels,
-    {}
-  ) || [];
+  const vertices =
+    (await fetchVerticesAttributes(openCypherFetch, summary.nodeLabels, {})) ||
+    [];
+  const edges =
+    (await fetchEdgesAttributes(openCypherFetch, summary.edgeLabels, {})) || [];
 
   return {
     totalVertices: summary.numNodes,
