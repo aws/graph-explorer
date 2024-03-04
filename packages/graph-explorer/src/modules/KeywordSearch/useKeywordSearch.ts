@@ -1,20 +1,16 @@
 import uniq from "lodash/uniq";
 import uniqBy from "lodash/uniqBy";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useQuery } from "react-query";
-import { useNotification } from "../../components/NotificationProvider";
 import { useConfiguration } from "../../core";
-import useConnector from "../../core/ConnectorProvider/useConnector";
 import useDebounceValue from "../../hooks/useDebounceValue";
-import usePrefixesUpdater from "../../hooks/usePrefixesUpdater";
 import useTextTransform from "../../hooks/useTextTransform";
+import { useKeywordSearchQuery } from "./useKeywordSearchQuery";
 
 export interface PromiseWithCancel<T> extends Promise<T> {
   cancel?: () => void;
 }
 const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
   const config = useConfiguration();
-  const connector = useConnector();
 
   const [searchTerm, setSearchTerm] = useState("");
   const debouncedSearchTerm = useDebounceValue(searchTerm, 1000);
@@ -170,7 +166,6 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
     return fallbackValue;
   }, [config?.connection?.queryEngine, allowsIdSearch, attributesOptions]);
 
-  const { enqueueNotification } = useNotification();
   const [isMount, setMount] = useState(false);
 
   const vertexTypes =
@@ -180,50 +175,15 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
       ? uniq(searchableAttributes.map(attr => attr.name).concat("__all"))
       : [selectedAttribute];
 
-  const updatePrefixes = usePrefixesUpdater();
-  const { data, isFetching } = useQuery(
-    [
-      "keyword-search",
-      debouncedSearchTerm,
-      vertexTypes,
-      searchByAttributes,
-      exactMatch,
-      neighborsLimit,
-      isMount,
-      isOpen,
-    ],
-    () => {
-      if (!isOpen || !config || !connector.explorer) {
-        return;
-      }
-      const promise = connector.explorer.keywordSearch({
-        searchTerm: debouncedSearchTerm,
-        vertexTypes,
-        searchByAttributes,
-        searchById: true,
-        exactMatch,
-      });
-
-      return promise;
-    },
-    {
-      enabled: !!config,
-      onSuccess: response => {
-        if (!response) {
-          return;
-        }
-
-        updatePrefixes(response.vertices.map(v => v.data.id));
-      },
-      onError: (e: Error) => {
-        enqueueNotification({
-          type: "error",
-          title: "Something went wrong",
-          message: e.message,
-        });
-      },
-    }
-  );
+  const { data, isFetching } = useKeywordSearchQuery({
+    debouncedSearchTerm,
+    vertexTypes,
+    searchByAttributes,
+    exactMatch,
+    neighborsLimit,
+    isMount,
+    isOpen,
+  });
 
   if (isOpen && !isMount) {
     setMount(true);
