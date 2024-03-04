@@ -7,8 +7,8 @@
     "node": ">=16.15.1"
   },
   "scripts": {
-    "format": "prettier --write './src/**/*.{css,ts,tsx}'",
-    "format:check": "prettier --check './src/**/*.{css,ts,tsx}'",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "lint": "eslint src --fix",
     "lint:check": "eslint src",
     "test": "jest",
