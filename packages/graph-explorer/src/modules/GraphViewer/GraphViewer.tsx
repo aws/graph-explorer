@@ -147,14 +147,12 @@ const GraphViewer = ({
   const [entities] = useEntities();
   const { dropAreaRef, isOver, canDrop } = useNodeDrop();
 
-  const [nodesSelectedIds, setNodesSelectedIds] = useRecoilState(
-    nodesSelectedIdsAtom
-  );
+  const [nodesSelectedIds, setNodesSelectedIds] =
+    useRecoilState(nodesSelectedIdsAtom);
   const hiddenNodesIds = useRecoilValue(nodesHiddenIdsAtom);
 
-  const [edgesSelectedIds, setEdgesSelectedIds] = useRecoilState(
-    edgesSelectedIdsAtom
-  );
+  const [edgesSelectedIds, setEdgesSelectedIds] =
+    useRecoilState(edgesSelectedIdsAtom);
   const hiddenEdgesIds = useRecoilValue(edgesHiddenIdsAtom);
   const nodesOutIds = useRecoilValue(nodesOutOfFocusIdsAtom);
   const edgesOutIds = useRecoilValue(edgesOutOfFocusIdsAtom);
@@ -176,9 +174,8 @@ const GraphViewer = ({
 
   const config = useConfiguration();
   const [legendOpen, setLegendOpen] = useState(false);
-  const { onZoomIn, onZoomOut, onSaveScreenshot } = useGraphGlobalActions(
-    graphRef
-  );
+  const { onZoomIn, onZoomOut, onSaveScreenshot } =
+    useGraphGlobalActions(graphRef);
 
   const {
     clearAllLayers,

@@ -46,70 +46,72 @@ const AvailableConnections = ({
 
   const resetState = useResetState();
   const onActiveConfigChange = useRecoilCallback(
-    ({ set }) => (value: string | string[]) => {
-      set(activeConfigurationAtom, value as string);
-      resetState();
-    },
+    ({ set }) =>
+      (value: string | string[]) => {
+        set(activeConfigurationAtom, value as string);
+        resetState();
+      },
     [resetState]
   );
 
   const { enqueueNotification } = useNotification();
   const onConfigImport = useRecoilCallback(
-    ({ set }) => async (file: File) => {
-      const fileContent = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsText(file);
-        reader.onload = () =>
-          resolve(JSON.parse(reader.result?.toString() || ""));
-        reader.onerror = e => reject(e);
-      });
+    ({ set }) =>
+      async (file: File) => {
+        const fileContent = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.readAsText(file);
+          reader.onload = () =>
+            resolve(JSON.parse(reader.result?.toString() || ""));
+          reader.onerror = e => reject(e);
+        });
 
-      if (!isValidConfigurationFile(fileContent)) {
+        if (!isValidConfigurationFile(fileContent)) {
+          enqueueNotification({
+            title: "Invalid File",
+            message: "The connection file is not valid",
+            type: "error",
+            stackable: true,
+          });
+          return;
+        }
+
+        // Create new id to avoid collisions
+        const newId = v4();
+        set(configurationAtom, prevConfig => {
+          const updatedConfig = new Map(prevConfig);
+          updatedConfig.set(newId, {
+            id: newId,
+            displayLabel: fileContent.displayLabel,
+            connection: fileContent.connection,
+          });
+          return updatedConfig;
+        });
+        set(schemaAtom, prevSchema => {
+          const updatedSchema = new Map(prevSchema);
+          updatedSchema.set(newId, {
+            vertices: fileContent.schema?.vertices || [],
+            edges: fileContent.schema?.edges || [],
+            prefixes: fileContent.schema?.prefixes?.map(prefix => ({
+              ...prefix,
+              __matches: new Set(prefix.__matches || []),
+            })),
+            lastUpdate: fileContent.schema?.lastUpdate
+              ? new Date(fileContent.schema?.lastUpdate)
+              : undefined,
+          });
+          return updatedSchema;
+        });
+        set(activeConfigurationAtom, newId);
+
+        resetState();
         enqueueNotification({
-          title: "Invalid File",
-          message: "The connection file is not valid",
-          type: "error",
+          title: "File imported",
+          message: "Connection file successfully imported",
+          type: "success",
           stackable: true,
         });
-        return;
-      }
-
-      // Create new id to avoid collisions
-      const newId = v4();
-      set(configurationAtom, prevConfig => {
-        const updatedConfig = new Map(prevConfig);
-        updatedConfig.set(newId, {
-          id: newId,
-          displayLabel: fileContent.displayLabel,
-          connection: fileContent.connection,
-        });
-        return updatedConfig;
-      });
-      set(schemaAtom, prevSchema => {
-        const updatedSchema = new Map(prevSchema);
-        updatedSchema.set(newId, {
-          vertices: fileContent.schema?.vertices || [],
-          edges: fileContent.schema?.edges || [],
-          prefixes: fileContent.schema?.prefixes?.map(prefix => ({
-            ...prefix,
-            __matches: new Set(prefix.__matches || []),
-          })),
-          lastUpdate: fileContent.schema?.lastUpdate
-            ? new Date(fileContent.schema?.lastUpdate)
-            : undefined,
-        });
-        return updatedSchema;
-      });
-      set(activeConfigurationAtom, newId);
-
-      resetState();
-      enqueueNotification({
-        title: "File imported",
-        message: "Connection file successfully imported",
-        type: "success",
-        stackable: true,
-      });
-    },
+      },
     [enqueueNotification, resetState]
   );
 

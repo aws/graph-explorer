@@ -48,5 +48,5 @@ export default function memoize<T extends (...args: any[]) => void>(
     return current.result.value;
   }
 
-  return (memoizedFunction as unknown) as T;
+  return memoizedFunction as unknown as T;
 }

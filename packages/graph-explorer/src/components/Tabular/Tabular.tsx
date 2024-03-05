@@ -145,11 +145,8 @@ const TabularContent = <T extends object>({
   TabularProps<T> & { tableInstance: TableInstance<T> }
 >) => {
   const pfx = withClassNamePrefix(classNamePrefix);
-  const {
-    tableRef,
-    headerControlsRef,
-    headerControlsPosition,
-  } = useTabularControl();
+  const { tableRef, headerControlsRef, headerControlsPosition } =
+    useTabularControl();
   const [stickyHeaderTop, setStickyHeaderTop] = useState(0);
   const styleWithTheme = useWithTheme();
 

@@ -95,12 +95,8 @@ export const NotificationProvider: FC<NotificationProviderProps> = ({
     vertical: "bottom",
   },
 }) => {
-  const {
-    state,
-    dispatchNotification,
-    cancelTimeout,
-    resumeTimeout,
-  } = useManager();
+  const { state, dispatchNotification, cancelTimeout, resumeTimeout } =
+    useManager();
 
   const Component = component;
   const actualAnchorOrigin: Required<

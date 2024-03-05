@@ -3,7 +3,7 @@ export type OCVertex = {
   "~entityType": string;
   "~labels": Array<string>;
   "~properties": Record<string, string | number>;
-}
+};
 
 export type OCEdge = {
   "~id": string;
@@ -12,7 +12,7 @@ export type OCEdge = {
   "~end": string;
   "~type": string;
   "~properties": Record<string, string | number>;
-}
+};
 
 export type OpenCypherFetch = <TResult = any>(
   queryTemplate: string

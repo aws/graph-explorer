@@ -6,7 +6,9 @@ describe("OpenCypher > keywordSearchTemplate", () => {
       vertexTypes: ["airport"],
     });
 
-    expect(template).toBe('MATCH (v:\`airport\`) RETURN v AS object SKIP 0 LIMIT 10');
+    expect(template).toBe(
+      "MATCH (v:`airport`) RETURN v AS object SKIP 0 LIMIT 10"
+    );
   });
 
   it("Should return a template for searched attributes containing the search term", () => {
@@ -18,11 +20,11 @@ describe("OpenCypher > keywordSearchTemplate", () => {
     });
 
     expect(template).toBe(
-        'MATCH (v:`airport`) ' +
+      "MATCH (v:`airport`) " +
         'WHERE v.city CONTAINS "JFK"  ' +
         'OR v.code CONTAINS "JFK"   ' +
-        'RETURN v AS object ' +
-        'SKIP 0 LIMIT 10'
+        "RETURN v AS object " +
+        "SKIP 0 LIMIT 10"
     );
   });
 
@@ -35,11 +37,11 @@ describe("OpenCypher > keywordSearchTemplate", () => {
     });
 
     expect(template).toBe(
-        'MATCH (v:`airport`) ' +
+      "MATCH (v:`airport`) " +
         'WHERE v.city = "JFK"  ' +
         'OR v.code = "JFK"   ' +
-        'RETURN v AS object ' +
-        'SKIP 0 LIMIT 10'
+        "RETURN v AS object " +
+        "SKIP 0 LIMIT 10"
     );
   });
 
@@ -52,13 +54,12 @@ describe("OpenCypher > keywordSearchTemplate", () => {
     });
 
     expect(template).toBe(
-        'MATCH (v:`airport`) ' +
+      "MATCH (v:`airport`) " +
         'WHERE v.`~id` CONTAINS "JFK"  ' +
         'OR v.city CONTAINS "JFK"  ' +
         'OR v.code CONTAINS "JFK"   ' +
-        'RETURN v AS object ' +
-        'SKIP 0 LIMIT 10');
+        "RETURN v AS object " +
+        "SKIP 0 LIMIT 10"
+    );
   });
 });
-
-

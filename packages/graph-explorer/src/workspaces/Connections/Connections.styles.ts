@@ -1,10 +1,9 @@
 import { css } from "@emotion/css";
 import { ActiveThemeType, ProcessedTheme } from "../../core";
 
-const defaultStyles = (pfx: string) => ({
-  theme,
-}: ActiveThemeType<ProcessedTheme>) =>
-  css`
+const defaultStyles =
+  (pfx: string) =>
+  ({ theme }: ActiveThemeType<ProcessedTheme>) => css`
     &.${pfx}-connections {
       .${pfx}-button {
         white-space: nowrap;

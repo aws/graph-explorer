@@ -2,10 +2,9 @@ import { css } from "@emotion/css";
 import type { ThemeStyleFn } from "../../core";
 import fade from "../../core/ThemeProvider/utils/fade";
 
-const defaultStyles = (pfx: string, lineColor = "#b3b3b3"): ThemeStyleFn => ({
-  theme,
-}) =>
-  css`
+const defaultStyles =
+  (pfx: string, lineColor = "#b3b3b3"): ThemeStyleFn =>
+  ({ theme }) => css`
     height: 100%;
     overflow: auto;
     background: ${theme.palette.background.default};

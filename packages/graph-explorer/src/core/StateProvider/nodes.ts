@@ -50,21 +50,24 @@ export const nodesSelector = selector<Array<Vertex>>({
       const updatedSchemas = new Map(prevSchemas);
 
       updatedSchemas.set(activeConfig, {
-        vertices: newValue.reduce((schema, node) => {
-          if (!schema.find(s => s.type === node.data.type)) {
-            schema.push({
-              type: node.data.type,
-              displayLabel: "",
-              attributes: Object.keys(node.data.attributes).map(attr => ({
-                name: attr,
-                displayLabel: sanitizeText(attr),
-                hidden: false,
-              })),
-            });
-          }
+        vertices: newValue.reduce(
+          (schema, node) => {
+            if (!schema.find(s => s.type === node.data.type)) {
+              schema.push({
+                type: node.data.type,
+                displayLabel: "",
+                attributes: Object.keys(node.data.attributes).map(attr => ({
+                  name: attr,
+                  displayLabel: sanitizeText(attr),
+                  hidden: false,
+                })),
+              });
+            }
 
-          return schema;
-        }, activeSchema?.vertices as SchemaInference["vertices"]),
+            return schema;
+          },
+          activeSchema?.vertices as SchemaInference["vertices"]
+        ),
         edges: activeSchema?.edges || [],
         ...(activeSchema || {}),
       });

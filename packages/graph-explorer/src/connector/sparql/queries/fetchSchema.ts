@@ -68,9 +68,10 @@ const fetchPredicatesByClass = async (
       const classPredicatesTemplate = predicatesByClassTemplate({
         class: classResult,
       });
-      const predicatesResponse = await sparqlFetch<
-        RawPredicatesSamplesResponse
-      >(classPredicatesTemplate);
+      const predicatesResponse =
+        await sparqlFetch<RawPredicatesSamplesResponse>(
+          classPredicatesTemplate
+        );
 
       const attributes = predicatesResponse.results.bindings.map(item => ({
         name: item.pred.value,
@@ -100,9 +101,8 @@ const fetchPredicatesByClass = async (
 
 const fetchClassesSchema = async (sparqlFetch: SparqlFetch) => {
   const classesTemplate = classesWithCountsTemplates();
-  const classesCounts = await sparqlFetch<RawClassesWCountsResponse>(
-    classesTemplate
-  );
+  const classesCounts =
+    await sparqlFetch<RawClassesWCountsResponse>(classesTemplate);
 
   const classes: Array<string> = [];
   const countsByClass: Record<string, number> = {};

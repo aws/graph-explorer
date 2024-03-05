@@ -39,7 +39,7 @@ const Sidebar = (
   );
 };
 
-const T = (forwardRef(Sidebar) as unknown) as SidebarComposition &
+const T = forwardRef(Sidebar) as unknown as SidebarComposition &
   ((
     props: PropsWithChildren<PropsWithChildren<SidebarProps>> & {
       ref?: ForwardedRef<HTMLDivElement>;

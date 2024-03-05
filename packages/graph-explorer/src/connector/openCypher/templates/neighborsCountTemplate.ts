@@ -8,11 +8,11 @@ import type { NeighborsCountRequest } from "../../useGEFetchTypes";
  * ids = "44"
  * limit = 10
  *
- * MATCH (v) -[e]- (t) 
- * WHERE ID(v) = "44" 
- * RETURN labels(t) AS vertexLabel, count(DISTINCT t) AS count 
+ * MATCH (v) -[e]- (t)
+ * WHERE ID(v) = "44"
+ * RETURN labels(t) AS vertexLabel, count(DISTINCT t) AS count
  * LIMIT 10
- * 
+ *
  */
 const neighborsCountTemplate = ({
   vertexId,

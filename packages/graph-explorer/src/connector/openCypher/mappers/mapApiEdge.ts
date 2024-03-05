@@ -1,7 +1,11 @@
 import type { Edge } from "../../../@types/entities";
 import type { OCEdge } from "../types";
 
-const mapApiEdge = (apiEdge: OCEdge, sourceType: string, targetType: string): Edge => {
+const mapApiEdge = (
+  apiEdge: OCEdge,
+  sourceType: string,
+  targetType: string
+): Edge => {
   return {
     data: {
       id: apiEdge["~id"],

@@ -96,31 +96,34 @@ const entitiesSelector = selector<Entities>({
       // Re-mapping neighborsCountByType to only un-fetched counts
       const __unfetchedNeighborCounts = Object.entries(
         node.data.neighborsCountByType
-      ).reduce((counts, [type, count]) => {
-        // All edges FROM current node to TYPE that it is in the graph
-        const fetchedOutEdgesByType = outConnections.filter(
-          edge =>
-            edge.data.targetType.split("::").includes(type) &&
-            nonDupNodes.some(aNode => aNode.data.id === edge.data.target)
-        );
+      ).reduce(
+        (counts, [type, count]) => {
+          // All edges FROM current node to TYPE that it is in the graph
+          const fetchedOutEdgesByType = outConnections.filter(
+            edge =>
+              edge.data.targetType.split("::").includes(type) &&
+              nonDupNodes.some(aNode => aNode.data.id === edge.data.target)
+          );
 
-        // All edges TO current node from TYPE that it is in the graph
-        const fetchedInEdgesByType = inConnections.filter(
-          edge =>
-            edge.data.sourceType.split("::").includes(type) &&
-            nonDupNodes.some(aNode => aNode.data.id === edge.data.source)
-        );
+          // All edges TO current node from TYPE that it is in the graph
+          const fetchedInEdgesByType = inConnections.filter(
+            edge =>
+              edge.data.sourceType.split("::").includes(type) &&
+              nonDupNodes.some(aNode => aNode.data.id === edge.data.source)
+          );
 
-        // Count only unique connected nodes
-        const distinctConnectedNodes = uniq([
-          ...fetchedOutEdgesByType.map(et => et.data.target),
-          ...fetchedInEdgesByType.map(et => et.data.source),
-        ]);
+          // Count only unique connected nodes
+          const distinctConnectedNodes = uniq([
+            ...fetchedOutEdgesByType.map(et => et.data.target),
+            ...fetchedInEdgesByType.map(et => et.data.source),
+          ]);
 
-        counts[type] = Math.max(0, count - distinctConnectedNodes.length);
+          counts[type] = Math.max(0, count - distinctConnectedNodes.length);
 
-        return counts;
-      }, {} as Record<string, number>);
+          return counts;
+        },
+        {} as Record<string, number>
+      );
 
       return {
         ...node,

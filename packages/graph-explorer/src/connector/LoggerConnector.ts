@@ -40,8 +40,8 @@ export default class LoggerConnector {
       method: "GET",
       headers: {
         level,
-        message: JSON.stringify(message)
-      }
+        message: JSON.stringify(message),
+      },
     });
   }
 }

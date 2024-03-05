@@ -88,75 +88,81 @@ const SingleNodeStyling = ({
   }, [t, textTransform, vtConfig?.attributes]);
 
   const onUserPrefsChange = useRecoilCallback(
-    ({ set }) => (prefs: Omit<VertexPreferences, "type">) => {
-      set(userStylingAtom, prev => {
-        const vertices = Array.from(prev.vertices || []);
-        const updateIndex = vertices.findIndex(v => v.type === vertexType);
+    ({ set }) =>
+      (prefs: Omit<VertexPreferences, "type">) => {
+        set(userStylingAtom, prev => {
+          const vertices = Array.from(prev.vertices || []);
+          const updateIndex = vertices.findIndex(v => v.type === vertexType);
 
-        if (updateIndex === -1) {
+          if (updateIndex === -1) {
+            return {
+              ...prev,
+              vertices: [...vertices, { ...prefs, type: vertexType }],
+            };
+          }
+
+          vertices[updateIndex] = {
+            ...vertices[updateIndex],
+            ...prefs,
+            type: vertexType,
+          };
           return {
             ...prev,
-            vertices: [...vertices, { ...prefs, type: vertexType }],
+            vertices,
           };
-        }
-
-        vertices[updateIndex] = {
-          ...vertices[updateIndex],
-          ...prefs,
-          type: vertexType,
-        };
-        return {
-          ...prev,
-          vertices,
-        };
-      });
-    },
+        });
+      },
     [vertexType]
   );
 
   const onUserPrefsReset = useRecoilCallback(
-    ({ set }) => () => {
-      set(userStylingAtom, prev => {
-        return {
-          ...prev,
-          vertices: prev.vertices?.filter(e => e.type !== vertexType),
-        };
-      });
-    },
+    ({ set }) =>
+      () => {
+        set(userStylingAtom, prev => {
+          return {
+            ...prev,
+            vertices: prev.vertices?.filter(e => e.type !== vertexType),
+          };
+        });
+      },
     [vertexType]
   );
 
   const onDisplayNameChange = useRecoilCallback(
-    ({ set }) => (field: "name" | "longName") => (value: string | string[]) => {
-      if (!vertexType) {
-        return;
-      }
-
-      set(userStylingAtom, prevStyling => {
-        const vtItem =
-          clone(prevStyling.vertices?.find(v => v.type === vertexType)) ||
-          ({} as VertexPreferences);
-
-        if (field === "name") {
-          vtItem.displayNameAttribute = value as string;
+    ({ set }) =>
+      (field: "name" | "longName") =>
+      (value: string | string[]) => {
+        if (!vertexType) {
+          return;
         }
 
-        if (field === "longName") {
-          vtItem.longDisplayNameAttribute = value as string;
-        }
+        set(userStylingAtom, prevStyling => {
+          const vtItem =
+            clone(prevStyling.vertices?.find(v => v.type === vertexType)) ||
+            ({} as VertexPreferences);
 
-        return {
-          ...prevStyling,
-          vertices: [
-            ...(prevStyling.vertices || []).filter(v => v.type !== vertexType),
-            {
-              ...(vtItem || {}),
-              type: vertexType,
-            },
-          ],
-        };
-      });
-    },
+          if (field === "name") {
+            vtItem.displayNameAttribute = value as string;
+          }
+
+          if (field === "longName") {
+            vtItem.longDisplayNameAttribute = value as string;
+          }
+
+          return {
+            ...prevStyling,
+            vertices: [
+              ...(prevStyling.vertices || []).filter(
+                v => v.type !== vertexType
+              ),
+              {
+                ...(vtItem || {}),
+                type: vertexType,
+              },
+            ],
+          };
+        });
+      },
     [vertexType]
   );
 

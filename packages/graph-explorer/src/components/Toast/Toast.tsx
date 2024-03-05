@@ -28,15 +28,13 @@ export interface ToastProps
   className?: string;
 }
 
-const icons: Record<
-  "error" | "warning" | "info" | "success",
-  typeof InfoIcon
-> = {
-  error: ErrorIcon,
-  warning: ErrorIcon,
-  info: InfoIcon,
-  success: CheckIcon,
-};
+const icons: Record<"error" | "warning" | "info" | "success", typeof InfoIcon> =
+  {
+    error: ErrorIcon,
+    warning: ErrorIcon,
+    info: InfoIcon,
+    success: CheckIcon,
+  };
 
 export const Toast: FC<ToastProps> = ({
   children,

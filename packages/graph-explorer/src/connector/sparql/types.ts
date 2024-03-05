@@ -127,7 +127,7 @@ export type SPARQLKeywordSearchRequest = {
   offset?: number;
   /**
    * Filter by exact matching values.
-   * 
+   *
    */
   exactMatch?: boolean;
 };

@@ -2,8 +2,9 @@ import { css } from "@emotion/css";
 import type { ThemeStyleFn } from "../../../core";
 import { fade } from "../../../core";
 
-const defaultStyles = (pfx: string): ThemeStyleFn => ({ theme }) =>
-  css`
+const defaultStyles =
+  (pfx: string): ThemeStyleFn =>
+  ({ theme }) => css`
     &.${pfx}-context-menu {
       .${pfx}-card-root {
         min-width: 150px;

@@ -71,7 +71,7 @@ export type GraphRef = { cytoscape?: CytoscapeType; runLayout(): void };
 
 export interface GraphProps<
   TNode extends object = any,
-  TEdge extends object = any
+  TEdge extends object = any,
 > extends Config,
     Selection,
     Omit<UseAddClickEvents<TNode, TEdge>, "cy"> {

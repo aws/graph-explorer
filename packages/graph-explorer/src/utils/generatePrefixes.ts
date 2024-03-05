@@ -3,9 +3,9 @@ import isEqual from "lodash/isEqual";
 import { PrefixTypeConfig } from "../core";
 import commonPrefixes from "./common-prefixes.json";
 
-const cPrefixes: PrefixTypeConfig[] = Object.entries(
-  commonPrefixes
-).map(([prefix, uri]) => ({ prefix, uri }));
+const cPrefixes: PrefixTypeConfig[] = Object.entries(commonPrefixes).map(
+  ([prefix, uri]) => ({ prefix, uri })
+);
 
 export const generateHashPrefix = (
   url: URL

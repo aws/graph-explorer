@@ -26,6 +26,6 @@
   "jest": {
     "transform": {
       "^.+\\.ts?$": "ts-jest"
-    },
+    }
   }
 }

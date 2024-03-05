@@ -73,12 +73,13 @@ const getStyleByVariant = (
   `;
 };
 
-const styles = (
-  pfx: string,
-  variant: "info" | "waiting" | "warning" | "error",
-  size: "xs" | "sm" | "md" | "lg"
-): ThemeStyleFn => ({ theme, isDarkTheme }) =>
-  css`
+const styles =
+  (
+    pfx: string,
+    variant: "info" | "waiting" | "warning" | "error",
+    size: "xs" | "sm" | "md" | "lg"
+  ): ThemeStyleFn =>
+  ({ theme, isDarkTheme }) => css`
     position: relative;
     display: flex;
     flex-direction: column;

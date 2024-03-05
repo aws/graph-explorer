@@ -33,40 +33,40 @@ export type TextFilterProps = {
   startAdornment?: ReactNode;
 };
 
-export const TextFilter = <T extends object>(
-  activeTheme?: ActiveThemeType<ProcessedTheme>
-) => ({ placeholder, startAdornment }: TextFilterProps) => {
-  // eslint-disable-next-line react/display-name
-  return ({ column }: { column: ColumnInstance<T> }) => {
-    const pfx = withClassNamePrefix("text-filter");
-    return (
-      <div className={defaultStyles("text-filter", activeTheme?.isDarkTheme)}>
-        <Input
-          aria-label={`filter by ${column.id}`}
-          classNamePrefix={"text-filter"}
-          className={pfx("input-root")}
-          type={"text"}
-          size="sm"
-          noMargin
-          hideError
-          placeholder={placeholder || "Filter..."}
-          value={column.filterValue || ""}
-          onChange={value => {
-            // do not use value || undefined because
-            // if the user types zero, it clears the filter too
-            value !== "" && value !== undefined
-              ? column.setFilter(value)
-              : column.setFilter(undefined);
-          }}
-          startAdornment={
-            <div className={pfx("start-adornment")}>
-              {startAdornment || <FilterIcon />}
-            </div>
-          }
-        />
-      </div>
-    );
+export const TextFilter =
+  <T extends object>(activeTheme?: ActiveThemeType<ProcessedTheme>) =>
+  ({ placeholder, startAdornment }: TextFilterProps) => {
+    // eslint-disable-next-line react/display-name
+    return ({ column }: { column: ColumnInstance<T> }) => {
+      const pfx = withClassNamePrefix("text-filter");
+      return (
+        <div className={defaultStyles("text-filter", activeTheme?.isDarkTheme)}>
+          <Input
+            aria-label={`filter by ${column.id}`}
+            classNamePrefix={"text-filter"}
+            className={pfx("input-root")}
+            type={"text"}
+            size="sm"
+            noMargin
+            hideError
+            placeholder={placeholder || "Filter..."}
+            value={column.filterValue || ""}
+            onChange={value => {
+              // do not use value || undefined because
+              // if the user types zero, it clears the filter too
+              value !== "" && value !== undefined
+                ? column.setFilter(value)
+                : column.setFilter(undefined);
+            }}
+            startAdornment={
+              <div className={pfx("start-adornment")}>
+                {startAdornment || <FilterIcon />}
+              </div>
+            }
+          />
+        </div>
+      );
+    };
   };
-};
 
 export default TextFilter;

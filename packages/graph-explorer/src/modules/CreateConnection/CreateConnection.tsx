@@ -63,78 +63,79 @@ const CreateConnection = ({
   const { enqueueNotification } = useNotification();
 
   const onSave = useRecoilCallback(
-    ({ set }) => async (data: Required<ConnectionForm>) => {
-      if (!configId) {
-        const newConfigId = v4();
-        const newConfig: RawConfiguration = {
-          id: newConfigId,
-          displayLabel: data.name,
-          connection: {
-            url: data.url,
-            queryEngine: data.type,
-            proxyConnection: data.proxyConnection,
-            graphDbUrl: data.graphDbUrl,
-            awsAuthEnabled: data.awsAuthEnabled,
-            serviceType: data.serviceType,
-            awsRegion: data.awsRegion,
-            enableCache: data.enableCache,
-            cacheTimeMs: data.cacheTimeMs * 60 * 1000,
-            fetchTimeoutMs: data.fetchTimeMs,
-          },
-        };
+    ({ set }) =>
+      async (data: Required<ConnectionForm>) => {
+        if (!configId) {
+          const newConfigId = v4();
+          const newConfig: RawConfiguration = {
+            id: newConfigId,
+            displayLabel: data.name,
+            connection: {
+              url: data.url,
+              queryEngine: data.type,
+              proxyConnection: data.proxyConnection,
+              graphDbUrl: data.graphDbUrl,
+              awsAuthEnabled: data.awsAuthEnabled,
+              serviceType: data.serviceType,
+              awsRegion: data.awsRegion,
+              enableCache: data.enableCache,
+              cacheTimeMs: data.cacheTimeMs * 60 * 1000,
+              fetchTimeoutMs: data.fetchTimeMs,
+            },
+          };
+          set(configurationAtom, prevConfigMap => {
+            const updatedConfig = new Map(prevConfigMap);
+            updatedConfig.set(newConfigId, newConfig);
+            return updatedConfig;
+          });
+          set(activeConfigurationAtom, newConfigId);
+          return;
+        }
+
         set(configurationAtom, prevConfigMap => {
           const updatedConfig = new Map(prevConfigMap);
-          updatedConfig.set(newConfigId, newConfig);
+          const currentConfig = updatedConfig.get(configId);
+
+          updatedConfig.set(configId, {
+            ...(currentConfig || {}),
+            id: configId,
+            displayLabel: data.name,
+            connection: {
+              url: data.url,
+              queryEngine: data.type,
+              proxyConnection: data.proxyConnection,
+              graphDbUrl: data.graphDbUrl,
+              awsAuthEnabled: data.awsAuthEnabled,
+              serviceType: data.serviceType,
+              awsRegion: data.awsRegion,
+              cacheTimeMs: data.cacheTimeMs * 60 * 1000,
+              fetchTimeoutMs: data.fetchTimeMs,
+            },
+          });
           return updatedConfig;
         });
-        set(activeConfigurationAtom, newConfigId);
-        return;
-      }
 
-      set(configurationAtom, prevConfigMap => {
-        const updatedConfig = new Map(prevConfigMap);
-        const currentConfig = updatedConfig.get(configId);
+        const urlChange = initialData?.url !== data.url;
+        const typeChange = initialData?.type !== data.type;
 
-        updatedConfig.set(configId, {
-          ...(currentConfig || {}),
-          id: configId,
-          displayLabel: data.name,
-          connection: {
-            url: data.url,
-            queryEngine: data.type,
-            proxyConnection: data.proxyConnection,
-            graphDbUrl: data.graphDbUrl,
-            awsAuthEnabled: data.awsAuthEnabled,
-            serviceType: data.serviceType,
-            awsRegion: data.awsRegion,
-            cacheTimeMs: data.cacheTimeMs * 60 * 1000,
-            fetchTimeoutMs: data.fetchTimeMs,
-          },
-        });
-        return updatedConfig;
-      });
+        if (urlChange || typeChange) {
+          set(schemaAtom, prevSchemaMap => {
+            const updatedSchema = new Map(prevSchemaMap);
+            const currentSchema = updatedSchema.get(configId);
+            updatedSchema.set(configId, {
+              vertices: currentSchema?.vertices || [],
+              edges: currentSchema?.edges || [],
+              prefixes: currentSchema?.prefixes || [],
+              // If the URL or Engine change, show as not synchronized
+              lastUpdate: undefined,
+              lastSyncFail: undefined,
+              triedToSync: undefined,
+            });
 
-      const urlChange = initialData?.url !== data.url;
-      const typeChange = initialData?.type !== data.type;
-
-      if (urlChange || typeChange) {
-        set(schemaAtom, prevSchemaMap => {
-          const updatedSchema = new Map(prevSchemaMap);
-          const currentSchema = updatedSchema.get(configId);
-          updatedSchema.set(configId, {
-            vertices: currentSchema?.vertices || [],
-            edges: currentSchema?.edges || [],
-            prefixes: currentSchema?.prefixes || [],
-            // If the URL or Engine change, show as not synchronized
-            lastUpdate: undefined,
-            lastSyncFail: undefined,
-            triedToSync: undefined,
+            return updatedSchema;
           });
-
-          return updatedSchema;
-        });
-      }
-    },
+        }
+      },
     [enqueueNotification, configId]
   );
 
@@ -211,7 +212,10 @@ const CreateConnection = ({
           options={CONNECTIONS_OP}
           value={form.type}
           onChange={onFormChange("type")}
-          isDisabled={disabledFields?.includes("type") || form.serviceType === "neptune-graph"}
+          isDisabled={
+            disabledFields?.includes("type") ||
+            form.serviceType === "neptune-graph"
+          }
         />
         <div className={pfx("input-url")}>
           <Input

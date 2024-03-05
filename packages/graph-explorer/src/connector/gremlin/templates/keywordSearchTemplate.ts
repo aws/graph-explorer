@@ -43,7 +43,9 @@ const keywordSearchTemplate = ({
     const escapedSearchTerm = escapeString(searchTerm);
 
     const orContent = uniq(
-      (searchById && searchByAttributes.includes("__all")) ? ["_id", ...searchByAttributes] : searchByAttributes
+      searchById && searchByAttributes.includes("__all")
+        ? ["_id", ...searchByAttributes]
+        : searchByAttributes
     )
       .filter(attr => attr !== "__all")
       .map(attr => {

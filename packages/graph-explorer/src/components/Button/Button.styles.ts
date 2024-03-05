@@ -60,157 +60,157 @@ type StylesProps = {
   isDisabled?: boolean;
 };
 
-export const defaultStyles = ({
-  variant,
-  size,
-}: StylesProps): ThemeStyleFn<ButtonTheme> => activeTheme => {
-  const { isDarkTheme, theme } = activeTheme;
-  const {
-    palette: { primary, text, background },
-  } = theme;
-  const themeByVariant =
-    variant !== "default" ? theme?.button?.variants?.[variant] : theme.button;
+export const defaultStyles =
+  ({ variant, size }: StylesProps): ThemeStyleFn<ButtonTheme> =>
+  activeTheme => {
+    const { isDarkTheme, theme } = activeTheme;
+    const {
+      palette: { primary, text, background },
+    } = theme;
+    const themeByVariant =
+      variant !== "default" ? theme?.button?.variants?.[variant] : theme.button;
 
-  const variants: {
-    filled: string;
-    default: string;
-    text: string;
-  } = {
-    filled: css`
-      position: relative;
-      background-color: ${themeByVariant?.background ||
-      (isDarkTheme ? primary?.dark : primary?.main)};
-      color: ${themeByVariant?.color || primary?.contrastText};
-      border: ${themeByVariant?.border?.width || "1px"} solid
-        ${themeByVariant?.border?.color || "transparent"};
-      border-radius: ${themeByVariant?.border?.radius || "5px"};
-
-      &:disabled,
-      &[disabled] {
-        pointer-events: none;
-        background-color: ${themeByVariant?.disabled?.background ||
-        fade(background?.contrast, 1)};
-        color: ${themeByVariant?.disabled?.color || text?.disabled};
-        border: ${themeByVariant?.disabled?.border?.width || "1px"} solid
-          ${themeByVariant?.disabled?.border?.color || "transparent"};
-      }
-
-      &:hover {
-        background-color: ${themeByVariant?.hover?.background ||
-        (isDarkTheme ? primary?.main : primary?.light)};
-        color: ${themeByVariant?.hover?.color || primary?.contrastText};
-        border: ${themeByVariant?.hover?.border?.width || "1px"} solid
-          ${themeByVariant?.hover?.border?.color || "transparent"};
-      }
-
-      &:active {
-        background-color: ${themeByVariant?.active?.background ||
+    const variants: {
+      filled: string;
+      default: string;
+      text: string;
+    } = {
+      filled: css`
+        position: relative;
+        background-color: ${themeByVariant?.background ||
         (isDarkTheme ? primary?.dark : primary?.main)};
-        color: ${themeByVariant?.active?.color || primary?.contrastText};
-        border: ${themeByVariant?.active?.border?.width || "1px"} solid
-          ${themeByVariant?.active?.border?.color || "transparent"};
-      }
-
-      &:focus {
-        box-shadow: ${isDarkTheme
-          ? "none"
-          : `0 0 3px ${themeByVariant?.hover?.background || primary?.main}`};
-        outline: ${isDarkTheme
-          ? `1px solid ${themeByVariant?.hover?.background || primary?.light}`
-          : "none"};
-      }
-    `,
-    default: css`
-      background-color: ${themeByVariant?.background ||
-      (isDarkTheme ? background?.secondary : background?.contrast)};
-      color: ${themeByVariant?.color ||
-      (isDarkTheme ? primary?.main : primary?.dark)};
-      border: ${themeByVariant?.border?.width || "1px"} solid
-        ${themeByVariant?.border?.color || "transparent"};
-      border-radius: ${themeByVariant?.border?.radius || "5px"};
-
-      &:disabled,
-      &[disabled] {
-        pointer-events: none;
-        background-color: ${fade(
-          themeByVariant?.disabled?.background || background?.contrast,
-          0.8
-        )};
-        color: ${themeByVariant?.disabled?.color || text?.disabled};
-        border: ${themeByVariant?.disabled?.border?.width || "1px"} solid
-          ${themeByVariant?.disabled?.border?.color || "transparent"};
-      }
-
-      &:hover {
-        background-color: ${themeByVariant?.hover?.background ||
-        background?.contrast};
-        color: ${themeByVariant?.hover?.color ||
-        (isDarkTheme ? primary?.light : primary?.main)};
-        border: ${themeByVariant?.hover?.border?.width || "1px"} solid
-          ${themeByVariant?.hover?.border?.color || "transparent"};
-      }
-
-      &:active {
-        background-color: ${themeByVariant?.active?.background ||
-        background?.contrast};
-        color: ${themeByVariant?.active?.color || primary?.dark};
-        border: ${themeByVariant?.active?.border?.width || "1px"} solid
-          ${themeByVariant?.active?.border?.color || "transparent"};
-      }
-
-      &:focus {
-        box-shadow: ${isDarkTheme
-          ? "none"
-          : `0 0 3px ${themeByVariant?.hover?.background || primary?.main}`};
-        outline: ${isDarkTheme
-          ? `1px solid ${themeByVariant?.hover?.background || primary?.light}`
-          : "none"};
-      }
-    `,
-    text: css`
-      background-color: ${themeByVariant?.background || "transparent"};
-      color: ${themeByVariant?.color ||
-      (isDarkTheme ? primary?.main : primary?.dark)};
-      border: ${themeByVariant?.border?.width || "1px"} solid
-        ${themeByVariant?.border?.color || "transparent"};
-
-      &:disabled,
-      &[disabled] {
-        pointer-events: none;
-        background-color: ${themeByVariant?.disabled?.background ||
-        "transparent"};
-        color: ${themeByVariant?.disabled?.color || text?.disabled};
-        border: ${themeByVariant?.disabled?.border?.width || "1px"} solid
-          ${themeByVariant?.disabled?.border?.color || "transparent"};
-      }
-
-      &:hover {
-        background-color: ${themeByVariant?.hover?.background || "transparent"};
-        color: ${themeByVariant?.hover?.color ||
-        (isDarkTheme ? primary?.light : primary?.main)};
-        border: ${themeByVariant?.hover?.border?.width || "1px"} solid
-          ${themeByVariant?.hover?.border?.color || "transparent"};
+        color: ${themeByVariant?.color || primary?.contrastText};
+        border: ${themeByVariant?.border?.width || "1px"} solid
+          ${themeByVariant?.border?.color || "transparent"};
         border-radius: ${themeByVariant?.border?.radius || "5px"};
-      }
 
-      &:active {
-        background-color: ${themeByVariant?.active?.background ||
-        "transparent"};
-        color: ${themeByVariant?.active?.color || primary?.dark};
-        border: ${themeByVariant?.active?.border?.width || "1px"} solid
-          ${themeByVariant?.active?.border?.color || "transparent"};
-      }
+        &:disabled,
+        &[disabled] {
+          pointer-events: none;
+          background-color: ${themeByVariant?.disabled?.background ||
+          fade(background?.contrast, 1)};
+          color: ${themeByVariant?.disabled?.color || text?.disabled};
+          border: ${themeByVariant?.disabled?.border?.width || "1px"} solid
+            ${themeByVariant?.disabled?.border?.color || "transparent"};
+        }
 
-      &:focus {
-        box-shadow: ${isDarkTheme
-          ? "none"
-          : `0 0 3px ${themeByVariant?.hover?.background || primary?.main}`};
-        outline: ${isDarkTheme
-          ? `1px solid ${themeByVariant?.hover?.background || primary?.light}`
-          : "none"};
-      }
-    `,
+        &:hover {
+          background-color: ${themeByVariant?.hover?.background ||
+          (isDarkTheme ? primary?.main : primary?.light)};
+          color: ${themeByVariant?.hover?.color || primary?.contrastText};
+          border: ${themeByVariant?.hover?.border?.width || "1px"} solid
+            ${themeByVariant?.hover?.border?.color || "transparent"};
+        }
+
+        &:active {
+          background-color: ${themeByVariant?.active?.background ||
+          (isDarkTheme ? primary?.dark : primary?.main)};
+          color: ${themeByVariant?.active?.color || primary?.contrastText};
+          border: ${themeByVariant?.active?.border?.width || "1px"} solid
+            ${themeByVariant?.active?.border?.color || "transparent"};
+        }
+
+        &:focus {
+          box-shadow: ${isDarkTheme
+            ? "none"
+            : `0 0 3px ${themeByVariant?.hover?.background || primary?.main}`};
+          outline: ${isDarkTheme
+            ? `1px solid ${themeByVariant?.hover?.background || primary?.light}`
+            : "none"};
+        }
+      `,
+      default: css`
+        background-color: ${themeByVariant?.background ||
+        (isDarkTheme ? background?.secondary : background?.contrast)};
+        color: ${themeByVariant?.color ||
+        (isDarkTheme ? primary?.main : primary?.dark)};
+        border: ${themeByVariant?.border?.width || "1px"} solid
+          ${themeByVariant?.border?.color || "transparent"};
+        border-radius: ${themeByVariant?.border?.radius || "5px"};
+
+        &:disabled,
+        &[disabled] {
+          pointer-events: none;
+          background-color: ${fade(
+            themeByVariant?.disabled?.background || background?.contrast,
+            0.8
+          )};
+          color: ${themeByVariant?.disabled?.color || text?.disabled};
+          border: ${themeByVariant?.disabled?.border?.width || "1px"} solid
+            ${themeByVariant?.disabled?.border?.color || "transparent"};
+        }
+
+        &:hover {
+          background-color: ${themeByVariant?.hover?.background ||
+          background?.contrast};
+          color: ${themeByVariant?.hover?.color ||
+          (isDarkTheme ? primary?.light : primary?.main)};
+          border: ${themeByVariant?.hover?.border?.width || "1px"} solid
+            ${themeByVariant?.hover?.border?.color || "transparent"};
+        }
+
+        &:active {
+          background-color: ${themeByVariant?.active?.background ||
+          background?.contrast};
+          color: ${themeByVariant?.active?.color || primary?.dark};
+          border: ${themeByVariant?.active?.border?.width || "1px"} solid
+            ${themeByVariant?.active?.border?.color || "transparent"};
+        }
+
+        &:focus {
+          box-shadow: ${isDarkTheme
+            ? "none"
+            : `0 0 3px ${themeByVariant?.hover?.background || primary?.main}`};
+          outline: ${isDarkTheme
+            ? `1px solid ${themeByVariant?.hover?.background || primary?.light}`
+            : "none"};
+        }
+      `,
+      text: css`
+        background-color: ${themeByVariant?.background || "transparent"};
+        color: ${themeByVariant?.color ||
+        (isDarkTheme ? primary?.main : primary?.dark)};
+        border: ${themeByVariant?.border?.width || "1px"} solid
+          ${themeByVariant?.border?.color || "transparent"};
+
+        &:disabled,
+        &[disabled] {
+          pointer-events: none;
+          background-color: ${themeByVariant?.disabled?.background ||
+          "transparent"};
+          color: ${themeByVariant?.disabled?.color || text?.disabled};
+          border: ${themeByVariant?.disabled?.border?.width || "1px"} solid
+            ${themeByVariant?.disabled?.border?.color || "transparent"};
+        }
+
+        &:hover {
+          background-color: ${themeByVariant?.hover?.background ||
+          "transparent"};
+          color: ${themeByVariant?.hover?.color ||
+          (isDarkTheme ? primary?.light : primary?.main)};
+          border: ${themeByVariant?.hover?.border?.width || "1px"} solid
+            ${themeByVariant?.hover?.border?.color || "transparent"};
+          border-radius: ${themeByVariant?.border?.radius || "5px"};
+        }
+
+        &:active {
+          background-color: ${themeByVariant?.active?.background ||
+          "transparent"};
+          color: ${themeByVariant?.active?.color || primary?.dark};
+          border: ${themeByVariant?.active?.border?.width || "1px"} solid
+            ${themeByVariant?.active?.border?.color || "transparent"};
+        }
+
+        &:focus {
+          box-shadow: ${isDarkTheme
+            ? "none"
+            : `0 0 3px ${themeByVariant?.hover?.background || primary?.main}`};
+          outline: ${isDarkTheme
+            ? `1px solid ${themeByVariant?.hover?.background || primary?.light}`
+            : "none"};
+        }
+      `,
+    };
+
+    return cx(variants[variant], baseStyles(theme, size));
   };
-
-  return cx(variants[variant], baseStyles(theme, size));
-};

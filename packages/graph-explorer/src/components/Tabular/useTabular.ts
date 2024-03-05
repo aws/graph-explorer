@@ -377,15 +377,18 @@ export const useTabular = <T extends object>(options: TabularOptions<T>) => {
         ...tableState,
         selectedRowIds: !selectedRowIds
           ? tableState.selectedRowIds
-          : Object.keys(selectedRowIds || {}).reduce((ids, rowId) => {
-              // this reducer fixes getToggleAllRowsSelectedProps bad behaviour.
-              // When the object contains { [rowId]: false } it marks the Checkbox as indeterminate
-              if (selectedRowIds?.[rowId]) {
-                ids[rowId as IdType<T>] = true;
-              }
+          : Object.keys(selectedRowIds || {}).reduce(
+              (ids, rowId) => {
+                // this reducer fixes getToggleAllRowsSelectedProps bad behaviour.
+                // When the object contains { [rowId]: false } it marks the Checkbox as indeterminate
+                if (selectedRowIds?.[rowId]) {
+                  ids[rowId as IdType<T>] = true;
+                }
 
-              return ids;
-            }, {} as UseRowSelectState<T>["selectedRowIds"]),
+                return ids;
+              },
+              {} as UseRowSelectState<T>["selectedRowIds"]
+            ),
       }),
       // selectedRowIds is necessary in deps to listen external updates
       // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -28,7 +28,7 @@ export const ThemeContext = createContext<
 >(undefined!);
 
 const getTheme = <
-  TThemeExtend extends Record<string, any> = { [key: string]: any }
+  TThemeExtend extends Record<string, any> = { [key: string]: any },
 >(
   THEME?: Theme<TThemeExtend>,
   isDarkTheme?: boolean
@@ -47,7 +47,7 @@ const getTheme = <
 };
 
 export type ThemeProviderProps<
-  TThemeExtend extends Record<string, any> = { [key: string]: any }
+  TThemeExtend extends Record<string, any> = { [key: string]: any },
 > = {
   className?: string;
   initialTheme?: string;
@@ -59,7 +59,7 @@ export type ThemeProviderProps<
 const EMPTY_OBJECT = {};
 
 const ThemeProvider = <
-  TThemeExtend extends Record<string, any> = { [key: string]: any }
+  TThemeExtend extends Record<string, any> = { [key: string]: any },
 >({
   className,
   initialTheme,
@@ -67,8 +67,10 @@ const ThemeProvider = <
   children,
   injectGlobal,
 }: PropsWithChildren<ThemeProviderProps<TThemeExtend>>) => {
-  const actualCustomThemes: Record<string, Theme<TThemeExtend>> =
-    customThemes || EMPTY_OBJECT;
+  const actualCustomThemes: Record<
+    string,
+    Theme<TThemeExtend>
+  > = customThemes || EMPTY_OBJECT;
 
   const [theme, setTheme] = useState<
     ActiveThemeType<ProcessedTheme<TThemeExtend>>

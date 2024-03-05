@@ -9,14 +9,15 @@ const heightMap = {
   lg: "30px",
 };
 
-const defaultStyles = (
-  variant: "info" | "success" | "error" | "warning",
-  background?: string,
-  color?: string,
-  size?: "xs" | "sm" | "md" | "lg",
-  pfx?: string
-): ThemeStyleFn => ({ theme }) =>
-  css`
+const defaultStyles =
+  (
+    variant: "info" | "success" | "error" | "warning",
+    background?: string,
+    color?: string,
+    size?: "xs" | "sm" | "md" | "lg",
+    pfx?: string
+  ): ThemeStyleFn =>
+  ({ theme }) => css`
     display: inline-flex;
     border-radius: 16px;
     align-items: center;

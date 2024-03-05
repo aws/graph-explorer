@@ -2,8 +2,9 @@ import { css } from "@emotion/css";
 import type { ThemeStyleFn } from "../../../core";
 import { fade } from "../../../core";
 
-const defaultStyles = (pfx: string): ThemeStyleFn => ({ theme }) =>
-  css`
+const defaultStyles =
+  (pfx: string): ThemeStyleFn =>
+  ({ theme }) => css`
     &.${pfx}-module-container-header {
       display: flex;
       align-items: center;
@@ -71,8 +72,9 @@ const defaultStyles = (pfx: string): ThemeStyleFn => ({ theme }) =>
 
 export default defaultStyles;
 
-export const buttonMenuListItem = (pfx: string): ThemeStyleFn => ({ theme }) =>
-  css`
+export const buttonMenuListItem =
+  (pfx: string): ThemeStyleFn =>
+  ({ theme }) => css`
     font-size: ${theme.typography.sizes?.xs};
     padding-right: ${theme.spacing["2x"]};
 

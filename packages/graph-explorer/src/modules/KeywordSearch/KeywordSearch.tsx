@@ -1,7 +1,7 @@
-import {css, cx} from "@emotion/css";
-import {useClickOutside, useHotkeys} from "@mantine/hooks";
-import {useCallback, useEffect, useMemo, useRef, useState} from "react";
-import {Vertex} from "../../@types/entities";
+import { css, cx } from "@emotion/css";
+import { useClickOutside, useHotkeys } from "@mantine/hooks";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Vertex } from "../../@types/entities";
 
 import {
   AddCircleIcon,
@@ -20,11 +20,16 @@ import {
   VertexIcon,
   Checkbox,
 } from "../../components";
-import {CarouselRef} from "../../components/Carousel/Carousel";
+import { CarouselRef } from "../../components/Carousel/Carousel";
 import HumanReadableNumberFormatter from "../../components/HumanReadableNumberFormatter";
 import RemoveFromCanvasIcon from "../../components/icons/RemoveFromCanvasIcon";
-import {fade, useConfiguration, useWithTheme, withClassNamePrefix,} from "../../core";
-import {useEntities, useFetchNode, useSet} from "../../hooks";
+import {
+  fade,
+  useConfiguration,
+  useWithTheme,
+  withClassNamePrefix,
+} from "../../core";
+import { useEntities, useFetchNode, useSet } from "../../hooks";
 import useDisplayNames from "../../hooks/useDisplayNames";
 import useTextTransform from "../../hooks/useTextTransform";
 import useTranslations from "../../hooks/useTranslations";
@@ -369,7 +374,7 @@ const KeywordSearch = ({
                     slidesToShow={1}
                     className={pfx("carousel")}
                     pagination={{
-                      el: `.swiper-pagination`
+                      el: `.swiper-pagination`,
                     }}
                   >
                     {Array.from(selection.state).map(nodeId => {
@@ -409,7 +414,9 @@ const KeywordSearch = ({
               isSelected={neighborsLimit}
               onChange={onNeighborsLimitChange}
             >
-              <div className={pfx("neighbors-limit-checkbox")}>Limit Neighbors?</div>
+              <div className={pfx("neighbors-limit-checkbox")}>
+                Limit Neighbors?
+              </div>
             </Checkbox>
             <div>
               <IconButton

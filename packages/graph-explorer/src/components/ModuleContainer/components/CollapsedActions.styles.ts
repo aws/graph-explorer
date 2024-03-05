@@ -1,8 +1,9 @@
 import { css } from "@emotion/css";
 import type { ThemeStyleFn } from "../../../core";
 
-const defaultStyles = (pfx: string): ThemeStyleFn => ({ theme, isDarkTheme }) =>
-  css`
+const defaultStyles =
+  (pfx: string): ThemeStyleFn =>
+  ({ theme, isDarkTheme }) => css`
     &.${pfx}-collapsed-actions, &.${pfx}-submenu {
       padding: 0;
       margin: 0;

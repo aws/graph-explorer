@@ -217,11 +217,14 @@ const tableInstanceToTabularInstance = <T extends object>(
 
         return hiddenCols;
       }, []),
-    visibleColumns: tableInstance.visibleColumns.reduce((visible, col) => {
-      visible[col.id] = col.isVisible;
+    visibleColumns: tableInstance.visibleColumns.reduce(
+      (visible, col) => {
+        visible[col.id] = col.isVisible;
 
-      return visible;
-    }, {} as TabularInstance<T>["visibleColumns"]),
+        return visible;
+      },
+      {} as TabularInstance<T>["visibleColumns"]
+    ),
     toggleHideAllColumns: tableInstance.toggleHideAllColumns,
     toggleHideColumn: tableInstance.toggleHideColumn,
   };

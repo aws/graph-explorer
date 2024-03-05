@@ -33,21 +33,19 @@ const styles = () => css`
   }
 `;
 
-export const makeIconActionCell = <T extends object>({
-  icon,
-  getIcon,
-  onPress,
-}: IconActionCellProps<T>) => (props: CellComponentProps<T>) => {
-  return (
-    <div className={styles()}>
-      <IconButton
-        icon={getIcon?.(props) || icon}
-        size={"small"}
-        variant={"text"}
-        onPress={() => onPress(props)}
-      />
-    </div>
-  );
-};
+export const makeIconActionCell =
+  <T extends object>({ icon, getIcon, onPress }: IconActionCellProps<T>) =>
+  (props: CellComponentProps<T>) => {
+    return (
+      <div className={styles()}>
+        <IconButton
+          icon={getIcon?.(props) || icon}
+          size={"small"}
+          variant={"text"}
+          onPress={() => onPress(props)}
+        />
+      </div>
+    );
+  };
 
 export default makeIconActionCell;

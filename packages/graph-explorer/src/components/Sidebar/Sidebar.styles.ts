@@ -3,11 +3,11 @@ import type { ThemeStyleFn } from "../../core";
 import { fade } from "../../core";
 import { SidebarTheme } from "./Sidebar.model";
 
-const defaultStyles = (pfx: string): ThemeStyleFn<SidebarTheme> => ({
-  theme,
-}) => {
-  const { sidebar, spacing, palette } = theme;
-  return css`
+const defaultStyles =
+  (pfx: string): ThemeStyleFn<SidebarTheme> =>
+  ({ theme }) => {
+    const { sidebar, spacing, palette } = theme;
+    return css`
     &.${pfx}-sidebar {
       padding: ${spacing.base};
       height: 100%;
@@ -47,6 +47,6 @@ const defaultStyles = (pfx: string): ThemeStyleFn<SidebarTheme> => ({
       }
     }
   `;
-};
+  };
 
 export default defaultStyles;

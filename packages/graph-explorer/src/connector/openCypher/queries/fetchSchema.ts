@@ -13,7 +13,7 @@ type RawVertexLabelsResponse = {
     {
       label: Array<string> | string;
       count: number;
-    }
+    },
   ];
 };
 
@@ -22,7 +22,7 @@ type RawEdgeLabelsResponse = {
     {
       label: Array<string> | string;
       count: number;
-    }
+    },
   ];
 };
 
@@ -30,7 +30,7 @@ type RawVerticesSchemaResponse = {
   results: [
     {
       object: OCVertex;
-    }
+    },
   ];
 };
 
@@ -39,7 +39,7 @@ type RawEdgesSchemaResponse = {
     | [
         {
           object: OCEdge;
-        }
+        },
       ]
     | [];
 };
@@ -91,9 +91,8 @@ const fetchVerticesAttributes = async (
         type: labelResult,
       });
 
-      const response = await openCypherFetch<RawVerticesSchemaResponse>(
-        verticesTemplate
-      );
+      const response =
+        await openCypherFetch<RawVerticesSchemaResponse>(verticesTemplate);
 
       const vertex = response.results[0]?.object as OCVertex;
       if (!vertex) {
@@ -183,9 +182,8 @@ const fetchEdgesAttributes = async (
         type: labelResult,
       });
 
-      const response = await openCypherFetch<RawEdgesSchemaResponse>(
-        edgesTemplate
-      );
+      const response =
+        await openCypherFetch<RawEdgesSchemaResponse>(edgesTemplate);
 
       // verify response has the info we need
       if (

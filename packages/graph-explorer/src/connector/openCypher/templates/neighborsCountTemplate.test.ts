@@ -7,7 +7,7 @@ describe("OpenCypher > neighborsCountTemplate", () => {
     });
 
     expect(template).toBe(
-      'MATCH (v) -[e]- (t) WHERE ID(v) = \"12\" RETURN labels(t) AS vertexLabel, count(DISTINCT t) AS count LIMIT 500'
+      'MATCH (v) -[e]- (t) WHERE ID(v) = "12" RETURN labels(t) AS vertexLabel, count(DISTINCT t) AS count LIMIT 500'
     );
   });
 
@@ -18,7 +18,7 @@ describe("OpenCypher > neighborsCountTemplate", () => {
     });
 
     expect(template).toBe(
-      'MATCH (v) -[e]- (t) WHERE ID(v) = \"12\" RETURN labels(t) AS vertexLabel, count(DISTINCT t) AS count LIMIT 20'
+      'MATCH (v) -[e]- (t) WHERE ID(v) = "12" RETURN labels(t) AS vertexLabel, count(DISTINCT t) AS count LIMIT 20'
     );
   });
 
@@ -29,7 +29,7 @@ describe("OpenCypher > neighborsCountTemplate", () => {
     });
 
     expect(template).toBe(
-      'MATCH (v) -[e]- (t) WHERE ID(v) = \"12\" RETURN labels(t) AS vertexLabel, count(DISTINCT t) AS count'
+      'MATCH (v) -[e]- (t) WHERE ID(v) = "12" RETURN labels(t) AS vertexLabel, count(DISTINCT t) AS count'
     );
   });
 });

@@ -19,11 +19,11 @@ export type GDate = {
 };
 
 export type JanusID = {
-  "@type": "janusgraph:RelationIdentifier",
+  "@type": "janusgraph:RelationIdentifier";
   "@value": {
-    "relationId": string
-  }
-}
+    relationId: string;
+  };
+};
 
 export type GVertexProperty = {
   "@type": "g:VertexProperty";

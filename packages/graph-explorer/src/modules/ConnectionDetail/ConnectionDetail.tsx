@@ -90,25 +90,26 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
   }, [config]);
 
   const onConfigDelete = useRecoilCallback(
-    ({ set }) => () => {
-      if (!config?.id) {
-        return;
-      }
+    ({ set }) =>
+      () => {
+        if (!config?.id) {
+          return;
+        }
 
-      set(activeConfigurationAtom, null);
+        set(activeConfigurationAtom, null);
 
-      set(configurationAtom, prevConfigs => {
-        const updatedConfigs = new Map(prevConfigs);
-        updatedConfigs.delete(config.id);
-        return updatedConfigs;
-      });
+        set(configurationAtom, prevConfigs => {
+          const updatedConfigs = new Map(prevConfigs);
+          updatedConfigs.delete(config.id);
+          return updatedConfigs;
+        });
 
-      set(schemaAtom, prevSchemas => {
-        const updatedSchemas = new Map(prevSchemas);
-        updatedSchemas.delete(config.id);
-        return updatedSchemas;
-      });
-    },
+        set(schemaAtom, prevSchemas => {
+          const updatedSchemas = new Map(prevSchemas);
+          updatedSchemas.delete(config.id);
+          return updatedSchemas;
+        });
+      },
     [config?.id]
   );
 
@@ -210,7 +211,9 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
         <CreateConnection
           onClose={() => setEdit(false)}
           configId={config.id}
-          disabledFields={config.__fileBase ? ["type", "url", "serviceType"] : undefined}
+          disabledFields={
+            config.__fileBase ? ["type", "url", "serviceType"] : undefined
+          }
           initialData={{
             ...(config.connection || {}),
             name: config.displayLabel || config.id,

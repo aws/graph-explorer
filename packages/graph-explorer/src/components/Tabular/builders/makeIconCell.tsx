@@ -25,24 +25,26 @@ const styles = () => css`
   }
 `;
 
-export const makeIconCell = <T extends object>({
-  icon,
-  getColor,
-  getBackgroundColor,
-}: IconCellProps<T>) => (props: CellComponentProps<T>) => {
-  return (
-    <div className={styles()}>
-      <div
-        style={{
-          fontSize: 24,
-          background: getBackgroundColor?.(props.value, props) || "inherit",
-          color: getColor?.(props.value, props) || "inherit",
-        }}
-      >
-        {icon}
+export const makeIconCell =
+  <T extends object>({
+    icon,
+    getColor,
+    getBackgroundColor,
+  }: IconCellProps<T>) =>
+  (props: CellComponentProps<T>) => {
+    return (
+      <div className={styles()}>
+        <div
+          style={{
+            fontSize: 24,
+            background: getBackgroundColor?.(props.value, props) || "inherit",
+            color: getColor?.(props.value, props) || "inherit",
+          }}
+        >
+          {icon}
+        </div>
       </div>
-    </div>
-  );
-};
+    );
+  };
 
 export default makeIconCell;

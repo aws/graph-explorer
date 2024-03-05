@@ -1,8 +1,9 @@
 import { css } from "@emotion/css";
 import type { ThemeStyleFn } from "../../core";
 
-const defaultStyles = (pfx: string): ThemeStyleFn => ({ theme, isDarkTheme }) =>
-  css`
+const defaultStyles =
+  (pfx: string): ThemeStyleFn =>
+  ({ theme, isDarkTheme }) => css`
     position: relative;
     flex-grow: 1;
     display: flex;

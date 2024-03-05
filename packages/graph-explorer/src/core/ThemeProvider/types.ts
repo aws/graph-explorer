@@ -6,20 +6,20 @@ export type ActiveThemeType<T> = {
 };
 
 export type ThemeContextType<
-  TThemeExtend extends Record<string, any> = Record<string, any>
+  TThemeExtend extends Record<string, any> = Record<string, any>,
 > = [
   ActiveThemeType<TThemeExtend>,
   (selectedTheme: string) => void,
   string[],
-  Record<string, TThemeExtend>
+  Record<string, TThemeExtend>,
 ];
 
 export type ThemeStyleFn<
-  TThemeExtend extends Record<string, any> = Record<string, any>
+  TThemeExtend extends Record<string, any> = Record<string, any>,
 > = (theme: ActiveThemeType<ProcessedTheme<TThemeExtend>>) => string;
 
 export type ThemedStyle<
-  TThemeExtend extends Record<string, any> = Record<string, any>
+  TThemeExtend extends Record<string, any> = Record<string, any>,
 > = (styles: ThemeStyleFn<TThemeExtend>) => string;
 
 export type Palette = {
@@ -106,7 +106,7 @@ export type Shadows = {
 };
 
 export type Theme<
-  TThemeExtend extends Record<string, any> = Record<string, any>
+  TThemeExtend extends Record<string, any> = Record<string, any>,
 > = TThemeExtend & {
   name?: string;
   mode?: "dark" | "light"; // Primary and Secondary colors are defined as fallback of other colors in order
@@ -174,7 +174,7 @@ export type FormBaseTheme = {
 };
 
 export type ProcessedTheme<
-  TThemeExtend extends Record<string, any> = Record<string, any>
+  TThemeExtend extends Record<string, any> = Record<string, any>,
 > = TThemeExtend & {
   name: string;
   mode: "dark" | "light"; // Primary and Secondary colors are defined as fallback of other colors in order

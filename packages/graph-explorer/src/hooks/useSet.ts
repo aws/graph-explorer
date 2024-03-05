@@ -1,9 +1,7 @@
 import { useCallback, useState } from "react";
 import { addItems, deleteItems } from "../utils";
 
-export default function useSet<T>(
-  initialState = new Set<T>()
-): {
+export default function useSet<T>(initialState = new Set<T>()): {
   state: Set<T>;
   toggle: (value: T) => void;
   add: (value: T | T[]) => void;

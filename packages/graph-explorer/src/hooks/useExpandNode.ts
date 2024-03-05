@@ -34,22 +34,34 @@ const useExpandNode = () => {
       });
 
       const verticesWithUpdatedCounts = await Promise.all(
-        result.vertices.map(async (vertex: { data?: any; vertexId?: string; vertexType?: string; filterByVertexTypes?: string[] | undefined; edgeTypes?: string[] | undefined; filterCriteria?: Criterion[] | undefined; limit?: number | undefined; offset?: number | undefined; }) => {
-          const neighborsCount = await connector.explorer?.fetchNeighborsCount({
-            vertexId: vertex.data.id,
-          });
+        result.vertices.map(
+          async (vertex: {
+            data?: any;
+            vertexId?: string;
+            vertexType?: string;
+            filterByVertexTypes?: string[] | undefined;
+            edgeTypes?: string[] | undefined;
+            filterCriteria?: Criterion[] | undefined;
+            limit?: number | undefined;
+            offset?: number | undefined;
+          }) => {
+            const neighborsCount =
+              await connector.explorer?.fetchNeighborsCount({
+                vertexId: vertex.data.id,
+              });
 
-          return {
-            ...vertex,
-            data: {
-              ...vertex.data,
-              neighborsCount:
-                neighborsCount?.totalCount ?? vertex.data.neighborsCount,
-              neighborsCountByType:
-                neighborsCount?.counts ?? vertex.data.neighborsCountByType,
-            },
-          } as NeighborsRequest;
-        })
+            return {
+              ...vertex,
+              data: {
+                ...vertex.data,
+                neighborsCount:
+                  neighborsCount?.totalCount ?? vertex.data.neighborsCount,
+                neighborsCountByType:
+                  neighborsCount?.counts ?? vertex.data.neighborsCountByType,
+              },
+            } as NeighborsRequest;
+          }
+        )
       );
 
       clearNotification(notificationId);

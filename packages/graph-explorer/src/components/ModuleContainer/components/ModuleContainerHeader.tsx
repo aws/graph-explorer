@@ -92,7 +92,7 @@ const ModuleContainerHeader = (
 
   const [alwaysVisibleActions, collapsibleActions]: [
     ActionItem[],
-    (Action | "divider")[]
+    (Action | "divider")[],
   ] = useMemo(() => {
     if (variant === "default") {
       return [actions || [], []];

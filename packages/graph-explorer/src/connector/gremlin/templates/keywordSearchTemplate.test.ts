@@ -45,9 +45,7 @@ describe("Gremlin > keywordSearchTemplate", () => {
       exactMatch: true,
     });
 
-    expect(template).toBe(
-      'g.V().or(has("code",\"\\"JFK\\"\")).range(0,10)'
-    );
+    expect(template).toBe('g.V().or(has("code","\\"JFK\\"")).range(0,10)');
   });
 
   it("Should return a template for searched attributes matching with the search terms, and the ID token attribute", () => {
