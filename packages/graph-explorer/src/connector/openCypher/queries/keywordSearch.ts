@@ -23,30 +23,42 @@ const keywordSearch = async (
   req: KeywordSearchRequest
 ): Promise<KeywordSearchResponse> => {
   const vertTypes = req.vertexTypes;
-  let vertices: Array<Vertex> = [];
 
-  if (vertTypes !== undefined) {
-    for (let i = 0; i < vertTypes.length; i++) {
-      const modifiedReq = req;
-      modifiedReq.vertexTypes = [vertTypes[i]];
-      const openCypherTemplate = keywordSearchTemplate(modifiedReq);
-      const data = await openCypherFetch<RawKeySearchResponse | ErrorResponse>(
-        openCypherTemplate
-      );
-
-      if (isErrorResponse(data)) {
-        throw new Error(data.detailedMessage);
-      }
-
-      vertices = vertices.concat(
-        data.results.map(value => {
-          return mapApiVertex(value.object);
-        })
-      );
-    }
+  if (!vertTypes) {
+    return { vertices: [] };
   }
 
-  return { vertices };
+  // Create multiple requests, one per vertex
+  const modifiedRequests = vertTypes.map(vertex => ({
+    ...req,
+    vertexTypes: [vertex],
+  }));
+
+  // Execute all queries concurrently
+  const promises = modifiedRequests.map(modifiedRequest =>
+    vertexKeywordSearch(openCypherFetch, modifiedRequest)
+  );
+
+  // Wait for all results and flatten to a single array
+  const vertices = (await Promise.all(promises)).flat();
+
+  return { vertices: vertices };
+};
+
+const vertexKeywordSearch = async (
+  openCypherFetch: OpenCypherFetch,
+  req: KeywordSearchRequest
+): Promise<Vertex[]> => {
+  const openCypherTemplate = keywordSearchTemplate(req);
+  const data = await openCypherFetch<RawKeySearchResponse | ErrorResponse>(
+    openCypherTemplate
+  );
+
+  if (isErrorResponse(data)) {
+    throw new Error(data.detailedMessage);
+  }
+
+  return data.results.map(value => mapApiVertex(value.object));
 };
 
 export default keywordSearch;
