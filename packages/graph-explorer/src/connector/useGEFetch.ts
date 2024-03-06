@@ -43,6 +43,9 @@ const useGEFetch = () => {
     async (url, options) => {
       const response = await fetch(url, options);
       const data = await response.json();
+      if (typeof options.successCallback === "function") {
+        options.successCallback();
+      }
       if (options?.disableCache !== true) {
         _setToCache(url, { data, updatedAt: new Date().getTime() });
       }
