@@ -111,6 +111,8 @@ const defaultStyles =
         margin-top: 0;
         width: 100%;
         display: flex;
+        flex-direction: row;
+        gap: ${theme.spacing["2x"]};
         padding: ${theme.spacing["2x"]};
         justify-content: space-between;
         align-items: center;
@@ -120,24 +122,14 @@ const defaultStyles =
         border-top: solid 1px ${theme.palette.border};
 
         .${pfx}-footer-text {
-          padding: ${theme.spacing["2x"]} 0;
           color: ${theme.palette.text.secondary};
           font-size: ${theme.typography.sizes["xs"]};
+          flex-grow: 1;
+          text-wrap: balance;
         }
 
-        .${pfx}-actions-button {
-          display: inline-flex;
-          box-shadow: none;
-          &:not(:last-child) {
-            margin-right: ${theme.spacing["2x"]};
-          }
-          padding-right: ${theme.spacing["2x"]};
-          > svg {
-            font-size: ${theme.typography.sizes["lg"]};
-          }
-        }
-        .${pfx}-icon-button-name {
-          padding-left: ${theme.spacing.base};
+        .${pfx}-refuse-shrink {
+          flex-shrink: 0;
         }
       }
     }

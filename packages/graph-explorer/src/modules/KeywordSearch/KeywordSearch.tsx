@@ -19,6 +19,7 @@ import {
   Select,
   VertexIcon,
   Checkbox,
+  Button,
 } from "../../components";
 import { CarouselRef } from "../../components/Carousel/Carousel";
 import HumanReadableNumberFormatter from "../../components/HumanReadableNumberFormatter";
@@ -413,29 +414,24 @@ const KeywordSearch = ({
             <Checkbox
               isSelected={neighborsLimit}
               onChange={onNeighborsLimitChange}
+              className={pfx("refuse-shrink")}
             >
-              <div className={pfx("neighbors-limit-checkbox")}>
-                Limit Neighbors?
-              </div>
+              Limit Neighbors?
             </Checkbox>
-            <div>
-              <IconButton
-                className={pfx("actions-button")}
-                icon={<RemoveIcon />}
-                onPress={() => selection.clear()}
-              >
-                <div className={pfx("icon-button-name")}>Clear Selection</div>
-              </IconButton>
-              <IconButton
-                className={pfx("actions-button")}
-                icon={<AddCircleIcon />}
-                onPress={handleAddEntities}
-              >
-                <div className={pfx("icon-button-name")}>
-                  {addSelectedNodesMessage()}
-                </div>
-              </IconButton>
-            </div>
+            <Button
+              icon={<RemoveIcon />}
+              onPress={() => selection.clear()}
+              className={pfx("refuse-shrink")}
+            >
+              Clear Selection
+            </Button>
+            <Button
+              icon={<AddCircleIcon />}
+              onPress={handleAddEntities}
+              className={pfx("refuse-shrink")}
+            >
+              {addSelectedNodesMessage()}
+            </Button>
           </div>
         </Card>
       )}
