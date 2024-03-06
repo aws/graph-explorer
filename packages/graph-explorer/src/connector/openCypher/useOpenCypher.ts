@@ -8,7 +8,7 @@ import { useCallback } from "react";
 import useGEFetch from "../useGEFetch";
 import { ConnectionConfig, useConfiguration } from "../../core";
 import { DEFAULT_SERVICE_TYPE } from "../../utils/constants";
-
+import { v4 } from "uuid";
 
 const useOpenCypher = () => {
   const connection = useConfiguration()?.connection as ConnectionConfig | undefined;
@@ -18,14 +18,33 @@ const useOpenCypher = () => {
 
   const _openCypherFetch = useCallback((options) => {
     return async (queryTemplate: string) => {
+      const headers = options.queryId
+        ? {
+          'Content-Type': 'application/json',
+          'queryId': options.queryId
+        }
+        : {
+          'Content-Type': 'application/json',
+        };
       return useFetch.request(`${url}/openCypher`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify({ query: queryTemplate }),
         disableCache: options?.disableCache,
+        successCallback: options?.successCallback,
         ...options
+      });
+    };
+  }, [url, useFetch]);
+
+  const _openCypherCancel = useCallback(() => {
+    return async (queryId: string) => {
+      return useFetch.request(`${url}/openCypher/cancel`, {
+        method: "GET",
+        headers: {
+          'Content-Type': 'application/json',
+          'queryId': queryId
+        },
       });
     };
   }, [url, useFetch]);
@@ -35,7 +54,7 @@ const useOpenCypher = () => {
 
     let summary;
     try {
-      const endpoint= serviceType === DEFAULT_SERVICE_TYPE
+      const endpoint = serviceType === DEFAULT_SERVICE_TYPE
         ? `${url}/pg/statistics/summary?mode=detailed`
         : `${url}/summary?mode=detailed`
       const response = await useFetch.request(endpoint, {
@@ -64,9 +83,22 @@ const useOpenCypher = () => {
     return fetchNeighborsCount(_openCypherFetch(options), req);
   }, [_openCypherFetch]);
 
+  let keywordSearchQueryId: string | undefined;
   const keywordSearchFunc = useCallback((req, options) => {
+    if (keywordSearchQueryId) {
+      // no need to wait for confirmation
+      _openCypherCancel()(keywordSearchQueryId);
+    }
+
+    options ??= {};
+    options.queryId = v4();
+    keywordSearchQueryId = options.queryId;
+    options.successCallback = () => {
+      keywordSearchQueryId = undefined;
+    };
+
     return keywordSearch(_openCypherFetch(options), req);
-  }, [_openCypherFetch]);
+  }, [_openCypherFetch, _openCypherCancel]);
 
   return {
     fetchSchema: fetchSchemaFunc,
