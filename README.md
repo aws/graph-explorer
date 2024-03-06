@@ -137,7 +137,7 @@ First, create a `config.json` file containing values for the connection attribut
      "IAM": true, (Can be string or boolean)
      "SERVICE_TYPE": "neptune-db",
      "AWS_REGION": "us-west-2",
-     "GRAPH_TYPE": "gremlin" (Possible Values: "gremlin", "sparql", "opencypher"),
+     "GRAPH_TYPE": "gremlin" (Possible Values: "gremlin", "sparql", "openCypher"),
      "GRAPH_EXP_HTTPS_CONNECTION": true (Can be string or boolean),
      "PROXY_SERVER_HTTPS_CONNECTION": true, (Can be string or boolean),
      "GRAPH_EXP_FETCH_REQUEST_TIMEOUT": 240000 (Can be number)

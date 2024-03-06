@@ -39,12 +39,22 @@ else
   echo -e "\nGRAPH_EXP_HTTPS_CONNECTION=true" >> ./packages/graph-explorer/.env
 fi
 
-# Update the .env file with the configuration values
+# Update the default connection file with the configuration values
 if [ -n "$PUBLIC_OR_PROXY_ENDPOINT" ]; then 
     echo -e "{\n\"GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT\":\"${PUBLIC_OR_PROXY_ENDPOINT}\"," >> ./packages/graph-explorer/defaultConnection.json
 
+    if [ -n "$SERVICE_TYPE" ]; then
+        echo "\"GRAPH_EXP_SERVICE_TYPE\":\"${SERVICE_TYPE}\"," >> ./packages/graph-explorer/defaultConnection.json
+    else
+        echo "\"GRAPH_EXP_SERVICE_TYPE\":\"neptune-db\"," >> ./packages/graph-explorer/defaultConnection.json
+    fi
+
     if [ -n "$GRAPH_TYPE" ]; then 
         echo "\"GRAPH_EXP_GRAPH_TYPE\":\"${GRAPH_TYPE}\"," >> ./packages/graph-explorer/defaultConnection.json
+    else
+      if [ "$SERVICE_TYPE" == "neptune-graph" ]; then
+        echo "\"GRAPH_EXP_GRAPH_TYPE\":\"openCypher\"," >> ./packages/graph-explorer/defaultConnection.json
+      fi
     fi
     
     if [ -n "$USING_PROXY_SERVER" ]; then 
