@@ -63,7 +63,7 @@ const grabConfig = async (): Promise<RawConfiguration | undefined> => {
         graphDbUrl: defaultConnectionData.GRAPH_EXP_CONNECTION_URL || "",
         awsAuthEnabled: !!defaultConnectionData.GRAPH_EXP_IAM,
         awsRegion: defaultConnectionData.GRAPH_EXP_AWS_REGION || "",
-        serviceType: defaultConnectionData.SERVICE_TYPE || DEFAULT_SERVICE_TYPE,
+        serviceType: defaultConnectionData.GRAPH_EXP_SERVICE_TYPE || DEFAULT_SERVICE_TYPE,
         fetchTimeoutMs:
           defaultConnectionData.GRAPH_EXP_FETCH_REQUEST_TIMEOUT || 240000,
       },
