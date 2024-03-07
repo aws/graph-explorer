@@ -2,7 +2,7 @@
   "name": "graph-explorer",
   "version": "1.5.1",
   "description": "Graph Explorer",
-  "packageManager": "pnpm@7.9.3",
+  "packageManager": "pnpm@8.15.4+sha256.cea6d0bdf2de3a0549582da3983c70c92ffc577ff4410cbf190817ddc35137c2",
   "engines": {
     "node": ">=16.15.1"
   },
@@ -129,6 +129,7 @@
     "buffer": "^6.0.3",
     "esbuild-loader": "^2.21.0",
     "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
     "husky": "^9.0.11",
