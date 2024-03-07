@@ -23,7 +23,7 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
     { label: "Exact", value: "Exact" },
     { label: "Partial", value: "Partial" },
   ];
-  // Sparql is special and ID searching will need more work
+  // Sparql uses rdfs:label, not ID
   const allowsIdSearch = config?.connection?.queryEngine !== "sparql";
 
   const vertexOptions = useMemo(() => {
