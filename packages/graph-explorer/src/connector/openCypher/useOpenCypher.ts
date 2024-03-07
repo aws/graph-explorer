@@ -108,6 +108,7 @@ const useOpenCypher = () => {
   const keywordSearchFunc = useCallback(
     (req, options) => {
       if (keywordSearchQueryId) {
+        console.log("canceling: ", keywordSearchQueryId); // !!!
         // no need to wait for confirmation
         _openCypherCancel()(keywordSearchQueryId);
       }
@@ -115,7 +116,9 @@ const useOpenCypher = () => {
       options ??= {};
       options.queryId = v4();
       keywordSearchQueryId = options.queryId;
+      console.log("starting: ", keywordSearchQueryId); // !!!
       options.successCallback = () => {
+        console.log("done: ", keywordSearchQueryId); // !!!
         keywordSearchQueryId = undefined;
       };
 
