@@ -266,21 +266,14 @@ async function fetchData(res, next, url, options, isIamEnabled, region, serviceT
         .status(400)
         .send({ error: "[Proxy]OpenCypher: query not provided" });
     }
-    console.log("/openCypher" ,req.headers["queryid"]);
-    let rawUrl = `${req.headers["graph-db-connection-url"]}/openCypher`;
-    if (req.headers["queryid"]) {
-      rawUrl += `?queryId=${req.headers["queryid"]}`;
-    }
-    const body = req.headers["queryid"]
-      ? `query=${encodeURIComponent(req.body.query)}&queryId=${req.headers["queryid"]}`
-      : `query=${encodeURIComponent(req.body.query)}`;
 
+    const rawUrl = `${req.headers["graph-db-connection-url"]}/openCypher`;
     const requestOptions = {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
       },
-      body,
+      body: `query=${encodeURIComponent(req.body.query)}`,
     };
 
     const isIamEnabled = !!req.headers["aws-neptune-region"];
