@@ -8,7 +8,6 @@ import { useCallback } from "react";
 import useGEFetch from "../useGEFetch";
 import { ConnectionConfig, useConfiguration } from "../../core";
 import { DEFAULT_SERVICE_TYPE } from "../../utils/constants";
-import { v4 } from "uuid";
 
 const useOpenCypher = () => {
   const connection = useConfiguration()?.connection as
@@ -42,18 +41,6 @@ const useOpenCypher = () => {
     [url, useFetch]
   );
 
-  const _openCypherCancel = useCallback(() => {
-    return async (queryId: string) => {
-      return useFetch.request(`${url}/openCypher/cancel`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          queryId: queryId,
-        },
-      });
-    };
-  }, [url, useFetch]);
-
   const fetchSchemaFunc = useCallback(
     async (options: any) => {
       const ops = { ...options, disableCache: true };
@@ -80,7 +67,7 @@ const useOpenCypher = () => {
       }
       return fetchSchema(_openCypherFetch(ops), summary);
     },
-    [_openCypherFetch, url, useFetch]
+    [_openCypherFetch, url, useFetch, serviceType]
   );
 
   const fetchVertexCountsByType = useCallback(
@@ -104,27 +91,11 @@ const useOpenCypher = () => {
     [_openCypherFetch]
   );
 
-  let keywordSearchQueryId: string | undefined;
   const keywordSearchFunc = useCallback(
     (req, options) => {
-      if (keywordSearchQueryId) {
-        console.log("canceling: ", keywordSearchQueryId); // !!!
-        // no need to wait for confirmation
-        _openCypherCancel()(keywordSearchQueryId);
-      }
-
-      options ??= {};
-      options.queryId = v4();
-      keywordSearchQueryId = options.queryId;
-      console.log("starting: ", keywordSearchQueryId); // !!!
-      options.successCallback = () => {
-        console.log("done: ", keywordSearchQueryId); // !!!
-        keywordSearchQueryId = undefined;
-      };
-
       return keywordSearch(_openCypherFetch(options), req);
     },
-    [_openCypherFetch, _openCypherCancel]
+    [_openCypherFetch]
   );
 
   return {

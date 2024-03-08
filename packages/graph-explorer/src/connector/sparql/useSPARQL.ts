@@ -14,7 +14,7 @@ import keywordSearch from "./queries/keywordSearch";
 import keywordSearchBlankNodesIdsTemplate from "./templates/keywordSearch/keywordSearchBlankNodesIdsTemplate";
 import oneHopNeighborsBlankNodesIdsTemplate from "./templates/oneHopNeighbors/oneHopNeighborsBlankNodesIdsTemplate";
 import { BlankNodesMap, GraphSummary, SPARQLNeighborsRequest } from "./types";
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
 import { ConnectionConfig, useConfiguration } from "../../core";
 import { v4 } from "uuid";
 
@@ -274,22 +274,19 @@ const useSPARQL = (blankNodes: BlankNodesMap) => {
     [_sparqlFetch, blankNodes]
   );
 
-  let keywordSearchQueryId: string | undefined;
+  const keywordSearchQueryId = useRef<string | undefined>(undefined);
   const keywordSearchFunc = useCallback(
     async (req, options) => {
-      if (keywordSearchQueryId) {
-        console.log("canceling: ", keywordSearchQueryId); // !!!
+      if (keywordSearchQueryId.current) {
         // no need to wait for confirmation
-        _sparqlCancel()(keywordSearchQueryId);
+        _sparqlCancel()(keywordSearchQueryId.current);
       }
 
       options ??= {};
       options.queryId = v4();
-      keywordSearchQueryId = options.queryId;
-      console.log("starting: ", keywordSearchQueryId); // !!!
+      keywordSearchQueryId.current = options.queryId;
       options.successCallback = () => {
-        console.log("done: ", keywordSearchQueryId); // !!!
-        keywordSearchQueryId = undefined;
+        keywordSearchQueryId.current = undefined;
       };
 
       const reqParams = {

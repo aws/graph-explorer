@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import { ConnectionConfig, useConfiguration } from "../../core";
 import fetchNeighbors from "./queries/fetchNeighbors";
 import fetchNeighborsCount from "./queries/fetchNeighborsCount";
@@ -101,22 +101,19 @@ const useGremlin = () => {
     [_gremlinFetch, _rawIdTypeMap]
   );
 
-  let keywordSearchQueryId: string | undefined;
+  const keywordSearchQueryId = useRef<string | undefined>(undefined);
   const keywordSearchFunc = useCallback(
     (req, options) => {
-      if (keywordSearchQueryId) {
-        console.log("canceling: ", keywordSearchQueryId); // !!!
+      if (keywordSearchQueryId.current) {
         // no need to wait for confirmation
-        _gremlinCancel()(keywordSearchQueryId);
+        _gremlinCancel()(keywordSearchQueryId.current);
       }
 
       options ??= {};
       options.queryId = v4();
-      keywordSearchQueryId = options.queryId;
-      console.log("starting: ", keywordSearchQueryId); // !!!
+      keywordSearchQueryId.current = options.queryId;
       options.successCallback = () => {
-        console.log("done: ", keywordSearchQueryId); // !!!
-        keywordSearchQueryId = undefined;
+        keywordSearchQueryId.current = undefined;
       };
 
       return keywordSearch(_gremlinFetch(options), req, _rawIdTypeMap);

@@ -73,6 +73,7 @@ const useGEFetch = () => {
       connection?.awsRegion,
       connection?.graphDbUrl,
       connection?.proxyConnection,
+      connection?.serviceType,
     ]
   );
 

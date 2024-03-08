@@ -143,9 +143,6 @@ async function fetchData(res, next, url, options, isIamEnabled, region, serviceT
       serviceType
     );
     const data = await response.json();
-    if (url.includes("status")) {
-      console.log(url, data); // !!!
-    }
     res.send(data);
   } catch (error) {
     next(error);
@@ -204,7 +201,6 @@ async function fetchData(res, next, url, options, isIamEnabled, region, serviceT
 
   // cancel sparql query
   app.get("/sparql/cancel", async (req, res, next) => {
-    console.log('/sparql/cancel', req.headers["queryid"]); // !!!
     const rawUrl = `${req.headers["graph-db-connection-url"]}/sparql/status`;
     const isIamEnabled = !!req.headers["aws-neptune-region"];
     const region = isIamEnabled ? req.headers["aws-neptune-region"] : "";
@@ -250,9 +246,7 @@ async function fetchData(res, next, url, options, isIamEnabled, region, serviceT
 
   // cancel gremlin query
   app.get("/gremlin/cancel", async (req, res, next) => {
-    console.log('/gremlin/cancel', req.headers["queryid"]); // !!!
-
-    const rawUrl = `${req.headers["graph-db-connection-url"]}/gremlin/status?cancelQuery&queryId=${req.headers["queryid"]}&silent=true`;
+    const rawUrl = `${req.headers["graph-db-connection-url"]}/gremlin/status?cancelQuery&queryId=${req.headers["queryid"]}`;
     const isIamEnabled = !!req.headers["aws-neptune-region"];
     const region = isIamEnabled ? req.headers["aws-neptune-region"] : "";
     const serviceType = isIamEnabled ? (req.headers["service-type"] ?? DEFAULT_SERVICE_TYPE) : "";
@@ -292,22 +286,6 @@ async function fetchData(res, next, url, options, isIamEnabled, region, serviceT
     const isIamEnabled = !!req.headers["aws-neptune-region"];
     const region = isIamEnabled ? req.headers["aws-neptune-region"] : "";
     const serviceType = isIamEnabled ? (req.headers["service-type"] ?? DEFAULT_SERVICE_TYPE) : "";
-
-    fetchData(res, next, rawUrl, requestOptions, isIamEnabled, region, serviceType);
-  });
-
-  // cancel openCypher query
-  app.get("/openCypher/cancel", async (req, res, next) => {
-    console.log('/openCypher/cancel', req.headers["queryid"]); // !!!
-    
-    const rawUrl = `${req.headers["graph-db-connection-url"]}/openCypher/status?cancelQuery&queryId=${req.headers["queryid"]}&silent=true`;
-    const isIamEnabled = !!req.headers["aws-neptune-region"];
-    const region = isIamEnabled ? req.headers["aws-neptune-region"] : "";
-    const serviceType = isIamEnabled ? (req.headers["service-type"] ?? DEFAULT_SERVICE_TYPE) : "";
-
-    const requestOptions = {
-      method: "GET",
-    };
 
     fetchData(res, next, rawUrl, requestOptions, isIamEnabled, region, serviceType);
   });
