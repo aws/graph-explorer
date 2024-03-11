@@ -9,13 +9,20 @@ import { useKeywordSearchQuery } from "./useKeywordSearchQuery";
 export interface PromiseWithCancel<T> extends Promise<T> {
   cancel?: () => void;
 }
+
+const allVerticesValue = "__all";
+const allAttributesValue = "__all";
+const idAttributeValue = "__id";
+
 const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
   const config = useConfiguration();
 
   const [searchTerm, setSearchTerm] = useState("");
   const debouncedSearchTerm = useDebounceValue(searchTerm, 1000);
-  const [selectedVertexType, setSelectedVertexType] = useState("__all");
-  const [selectedAttribute, setSelectedAttribute] = useState("__id");
+  const [selectedVertexType, setSelectedVertexType] =
+    useState(allVerticesValue);
+  const [selectedAttribute, setSelectedAttribute] =
+    useState(allAttributesValue);
   const [exactMatch, setExactMatch] = useState(true);
   const [neighborsLimit, setNeighborsLimit] = useState(true);
   const textTransform = useTextTransform();
@@ -38,7 +45,7 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
         })
         .sort((a, b) => a.label.localeCompare(b.label)) || [];
 
-    return [{ label: "All", value: "__all" }, ...vertexOps];
+    return [{ label: "All", value: allVerticesValue }, ...vertexOps];
   }, [config, textTransform]);
 
   const onSearchTermChange = useCallback((value: string) => {
@@ -64,7 +71,7 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
   }, []);
 
   const searchableAttributes = useMemo(() => {
-    if (selectedVertexType !== "__all") {
+    if (selectedVertexType !== allVerticesValue) {
       return (
         config?.getVertexTypeSearchableAttributes(selectedVertexType) || []
       );
@@ -81,7 +88,7 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
     const searchById =
       config?.connection?.queryEngine === "sparql" ? "URI" : "Id";
 
-    if (selectedVertexType === "__all") {
+    if (selectedVertexType === allVerticesValue) {
       const attributes = uniq(
         searchableAttributes.map(
           attr => attr.displayLabel || textTransform(attr.name)
@@ -117,12 +124,12 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
   const attributesOptions = useMemo(() => {
     const defaultAttributes = allowsIdSearch
       ? [
-          { label: "All", value: "__all" },
-          { label: "ID", value: "__id" },
+          { label: "All", value: allAttributesValue },
+          { label: "ID", value: idAttributeValue },
         ]
-      : [{ label: "All", value: "__all" }];
+      : [{ label: "All", value: allAttributesValue }];
 
-    if (selectedVertexType === "__all") {
+    if (selectedVertexType === allVerticesValue) {
       const attributes = uniqBy(
         searchableAttributes.map(attr => ({
           value: attr.name,
@@ -152,7 +159,7 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
   ]);
 
   const defaultSearchAttribute = useMemo(() => {
-    const fallbackValue = "__all";
+    const fallbackValue = allAttributesValue;
 
     if (config?.connection?.queryEngine === "sparql") {
       const rdfsLabel = attributesOptions.find(o => o.label === "rdfs:label");
@@ -160,7 +167,7 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
     }
 
     if (allowsIdSearch) {
-      return "__id";
+      return idAttributeValue;
     }
 
     return fallbackValue;
@@ -169,10 +176,14 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
   const [isMount, setMount] = useState(false);
 
   const vertexTypes =
-    selectedVertexType === "__all" ? config?.vertexTypes : [selectedVertexType];
+    selectedVertexType === allVerticesValue
+      ? config?.vertexTypes
+      : [selectedVertexType];
   const searchByAttributes =
-    selectedAttribute === "__all"
-      ? uniq(searchableAttributes.map(attr => attr.name).concat("__all"))
+    selectedAttribute === allAttributesValue
+      ? uniq(
+          searchableAttributes.map(attr => attr.name).concat(allAttributesValue)
+        )
       : [selectedAttribute];
 
   const { data, isFetching } = useKeywordSearchQuery({
