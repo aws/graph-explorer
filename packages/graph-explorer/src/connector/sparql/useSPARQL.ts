@@ -14,7 +14,7 @@ import keywordSearch from "./queries/keywordSearch";
 import keywordSearchBlankNodesIdsTemplate from "./templates/keywordSearch/keywordSearchBlankNodesIdsTemplate";
 import oneHopNeighborsBlankNodesIdsTemplate from "./templates/oneHopNeighbors/oneHopNeighborsBlankNodesIdsTemplate";
 import { BlankNodesMap, GraphSummary, SPARQLNeighborsRequest } from "./types";
-import { useCallback, useRef } from "react";
+import { useCallback } from "react";
 import { ConnectionConfig, useConfiguration } from "../../core";
 import { v4 } from "uuid";
 
@@ -120,6 +120,7 @@ const storedBlankNodeNeighborsRequest = (
   });
 };
 
+let keywordSearchQueryId: string | undefined;
 const useSPARQL = (blankNodes: BlankNodesMap) => {
   const connection = useConfiguration()?.connection as
     | ConnectionConfig
@@ -134,14 +135,14 @@ const useSPARQL = (blankNodes: BlankNodesMap) => {
         const body = `query=${encodeURIComponent(queryTemplate)}`;
         const headers = options?.queryId
           ? {
-              accept: "application/json",
-              "Content-Type": "application/x-www-form-urlencoded",
-              queryId: options.queryId,
-            }
+            accept: "application/json",
+            "Content-Type": "application/x-www-form-urlencoded",
+            queryId: options.queryId,
+          }
           : {
-              accept: "application/json",
-              "Content-Type": "application/x-www-form-urlencoded",
-            };
+            accept: "application/json",
+            "Content-Type": "application/x-www-form-urlencoded",
+          };
         return useFetch.request(`${url}/sparql`, {
           method: "POST",
           headers,
@@ -274,19 +275,20 @@ const useSPARQL = (blankNodes: BlankNodesMap) => {
     [_sparqlFetch, blankNodes]
   );
 
-  const keywordSearchQueryId = useRef<string | undefined>(undefined);
   const keywordSearchFunc = useCallback(
     async (req, options) => {
-      if (keywordSearchQueryId.current) {
+      if (keywordSearchQueryId) {
         // no need to wait for confirmation
-        _sparqlCancel()(keywordSearchQueryId.current);
+        _sparqlCancel()(keywordSearchQueryId);
       }
 
       options ??= {};
       options.queryId = v4();
-      keywordSearchQueryId.current = options.queryId;
-      options.successCallback = () => {
-        keywordSearchQueryId.current = undefined;
+      keywordSearchQueryId = options.queryId;
+      options.successCallback = (queryId: string) => {
+        if (keywordSearchQueryId === queryId) {
+          keywordSearchQueryId = undefined;
+        }
       };
 
       const reqParams = {

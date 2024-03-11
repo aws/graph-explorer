@@ -51,7 +51,7 @@ const useGEFetch = () => {
       }
       finally {
         if (typeof options.successCallback === "function") {
-          options.successCallback();
+          options.successCallback(options.queryId);
         }
       }
     },

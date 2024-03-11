@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef } from "react";
+import { useCallback, useMemo } from "react";
 import { ConnectionConfig, useConfiguration } from "../../core";
 import fetchNeighbors from "./queries/fetchNeighbors";
 import fetchNeighborsCount from "./queries/fetchNeighborsCount";
@@ -9,6 +9,7 @@ import useGEFetch from "../useGEFetch";
 import { GraphSummary } from "./types";
 import { v4 } from "uuid";
 
+let keywordSearchQueryId: string | undefined;
 const useGremlin = () => {
   const connection = useConfiguration()?.connection as
     | ConnectionConfig
@@ -26,12 +27,12 @@ const useGremlin = () => {
         const body = JSON.stringify({ query: queryTemplate });
         const headers = options?.queryId
           ? {
-              "Content-Type": "application/json",
-              queryId: options.queryId,
-            }
+            "Content-Type": "application/json",
+            queryId: options.queryId,
+          }
           : {
-              "Content-Type": "application/json",
-            };
+            "Content-Type": "application/json",
+          };
 
         return useFetch.request(`${url}/gremlin`, {
           method: "POST",
@@ -101,19 +102,20 @@ const useGremlin = () => {
     [_gremlinFetch, _rawIdTypeMap]
   );
 
-  const keywordSearchQueryId = useRef<string | undefined>(undefined);
   const keywordSearchFunc = useCallback(
     (req, options) => {
-      if (keywordSearchQueryId.current) {
+      if (keywordSearchQueryId) {
         // no need to wait for confirmation
-        _gremlinCancel()(keywordSearchQueryId.current);
+        _gremlinCancel()(keywordSearchQueryId);
       }
 
       options ??= {};
       options.queryId = v4();
-      keywordSearchQueryId.current = options.queryId;
-      options.successCallback = () => {
-        keywordSearchQueryId.current = undefined;
+      keywordSearchQueryId = options.queryId;
+      options.successCallback = (queryId: string) => {
+        if (keywordSearchQueryId === queryId) {
+          keywordSearchQueryId = undefined;
+        }
       };
 
       return keywordSearch(_gremlinFetch(options), req, _rawIdTypeMap);
