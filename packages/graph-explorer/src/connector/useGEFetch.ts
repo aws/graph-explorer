@@ -41,15 +41,19 @@ const useGEFetch = () => {
 
   const _requestAndCache = useCallback(
     async (url, options) => {
-      const response = await fetch(url, options);
-      const data = await response.json();
-      if (typeof options.successCallback === "function") {
-        options.successCallback();
+      try {
+        const response = await fetch(url, options);
+        const data = await response.json();
+        if (options?.disableCache !== true) {
+          _setToCache(url, { data, updatedAt: new Date().getTime() });
+        }
+        return data as any;
       }
-      if (options?.disableCache !== true) {
-        _setToCache(url, { data, updatedAt: new Date().getTime() });
+      finally {
+        if (typeof options.successCallback === "function") {
+          options.successCallback();
+        }
       }
-      return data as any;
     },
     [_setToCache]
   );
@@ -83,7 +87,7 @@ const useGEFetch = () => {
       if (
         cachedResponse &&
         cachedResponse.updatedAt + (connection?.cacheTimeMs ?? CACHE_TIME_MS) >
-          new Date().getTime()
+        new Date().getTime()
       ) {
         return cachedResponse.data;
       }

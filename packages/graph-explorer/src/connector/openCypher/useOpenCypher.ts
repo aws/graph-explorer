@@ -20,20 +20,13 @@ const useOpenCypher = () => {
   const _openCypherFetch = useCallback(
     options => {
       return async (queryTemplate: string) => {
-        const headers = options.queryId
-          ? {
-              "Content-Type": "application/json",
-              queryId: options.queryId,
-            }
-          : {
-              "Content-Type": "application/json",
-            };
         return useFetch.request(`${url}/openCypher`, {
           method: "POST",
-          headers,
+          headers: {
+            "Content-Type": "application/json",
+          },
           body: JSON.stringify({ query: queryTemplate }),
           disableCache: options?.disableCache,
-          successCallback: options?.successCallback,
           ...options,
         });
       };
