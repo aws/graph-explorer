@@ -41,12 +41,19 @@ const useGEFetch = () => {
 
   const _requestAndCache = useCallback(
     async (url, options) => {
-      const response = await fetch(url, options);
-      const data = await response.json();
-      if (options?.disableCache !== true) {
-        _setToCache(url, { data, updatedAt: new Date().getTime() });
+      try {
+        const response = await fetch(url, options);
+        const data = await response.json();
+        if (options?.disableCache !== true) {
+          _setToCache(url, { data, updatedAt: new Date().getTime() });
+        }
+        return data as any;
       }
-      return data as any;
+      finally {
+        if (typeof options.successCallback === "function") {
+          options.successCallback(options.queryId);
+        }
+      }
     },
     [_setToCache]
   );
@@ -70,6 +77,7 @@ const useGEFetch = () => {
       connection?.awsRegion,
       connection?.graphDbUrl,
       connection?.proxyConnection,
+      connection?.serviceType,
     ]
   );
 
@@ -79,7 +87,7 @@ const useGEFetch = () => {
       if (
         cachedResponse &&
         cachedResponse.updatedAt + (connection?.cacheTimeMs ?? CACHE_TIME_MS) >
-          new Date().getTime()
+        new Date().getTime()
       ) {
         return cachedResponse.data;
       }

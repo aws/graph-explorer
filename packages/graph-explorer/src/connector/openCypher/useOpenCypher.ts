@@ -60,7 +60,7 @@ const useOpenCypher = () => {
       }
       return fetchSchema(_openCypherFetch(ops), summary);
     },
-    [_openCypherFetch, url, useFetch]
+    [_openCypherFetch, url, useFetch, serviceType]
   );
 
   const fetchVertexCountsByType = useCallback(

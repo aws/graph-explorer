@@ -7,6 +7,8 @@ import {
 
 export type QueryOptions = RequestInit & {
   disableCache?: boolean;
+  queryId?: string;
+  successCallback?: (queryId: string) => void;
 };
 
 export type VertexSchemaResponse = Pick<
