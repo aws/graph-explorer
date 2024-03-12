@@ -45,6 +45,40 @@ describe("OpenCypher > keywordSearchTemplate", () => {
     );
   });
 
+  it("Should return a template for the ID token attribute exactly matching the search term", () => {
+    const template = keywordSearchTemplate({
+      vertexTypes: ["airport"],
+      searchTerm: "JFK",
+      searchById: true,
+      exactMatch: true,
+      searchByAttributes: ["__id"],
+    });
+
+    expect(template).toBe(
+      "MATCH (v:`airport`) " +
+        'WHERE id(v) = "JFK"   ' +
+        "RETURN v AS object " +
+        "SKIP 0 LIMIT 10"
+    );
+  });
+
+  it("Should return a template for the ID token attribute partially matching the search term", () => {
+    const template = keywordSearchTemplate({
+      vertexTypes: ["airport"],
+      searchTerm: "JFK",
+      searchById: true,
+      exactMatch: false,
+      searchByAttributes: ["__id"],
+    });
+
+    expect(template).toBe(
+      "MATCH (v:`airport`) " +
+        'WHERE toString(id(v)) CONTAINS "JFK"   ' +
+        "RETURN v AS object " +
+        "SKIP 0 LIMIT 10"
+    );
+  });
+
   it("Should return a template for searched attributes matching with the search terms, and the ID token attribute", () => {
     const template = keywordSearchTemplate({
       vertexTypes: ["airport"],
@@ -55,7 +89,7 @@ describe("OpenCypher > keywordSearchTemplate", () => {
 
     expect(template).toBe(
       "MATCH (v:`airport`) " +
-        'WHERE v.`~id` CONTAINS "JFK"  ' +
+        'WHERE toString(id(v)) CONTAINS "JFK"  ' +
         'OR v.city CONTAINS "JFK"  ' +
         'OR v.code CONTAINS "JFK"   ' +
         "RETURN v AS object " +

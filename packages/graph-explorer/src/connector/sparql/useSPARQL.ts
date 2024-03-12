@@ -13,7 +13,12 @@ import fetchSchema from "./queries/fetchSchema";
 import keywordSearch from "./queries/keywordSearch";
 import keywordSearchBlankNodesIdsTemplate from "./templates/keywordSearch/keywordSearchBlankNodesIdsTemplate";
 import oneHopNeighborsBlankNodesIdsTemplate from "./templates/oneHopNeighbors/oneHopNeighborsBlankNodesIdsTemplate";
-import { BlankNodesMap, GraphSummary, SPARQLNeighborsRequest } from "./types";
+import {
+  BlankNodesMap,
+  GraphSummary,
+  SPARQLKeywordSearchRequest,
+  SPARQLNeighborsRequest,
+} from "./types";
 import { useCallback } from "react";
 import { ConnectionConfig, useConfiguration } from "../../core";
 import { v4 } from "uuid";
@@ -291,12 +296,13 @@ const useSPARQL = (blankNodes: BlankNodesMap) => {
         }
       };
 
-      const reqParams = {
+      const reqParams: SPARQLKeywordSearchRequest = {
         searchTerm: req.searchTerm,
         subjectClasses: req.vertexTypes,
         predicates: req.searchByAttributes,
         limit: req.limit,
         offset: req.offset,
+        exactMatch: req.exactMatch,
       };
 
       const response = await keywordSearch(_sparqlFetch(options), reqParams);
