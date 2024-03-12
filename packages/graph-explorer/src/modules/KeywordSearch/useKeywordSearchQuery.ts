@@ -1,8 +1,9 @@
-import { useQuery } from "react-query";
+import { useQuery, useQueryClient } from "react-query";
 import { useNotification } from "../../components/NotificationProvider";
 import { useConfiguration } from "../../core";
 import useConnector from "../../core/ConnectorProvider/useConnector";
 import usePrefixesUpdater from "../../hooks/usePrefixesUpdater";
+import { useCallback, useMemo } from "react";
 
 export type SearchQueryRequest = {
   debouncedSearchTerm: string;
@@ -10,7 +11,6 @@ export type SearchQueryRequest = {
   searchByAttributes: string[];
   exactMatch: boolean;
   neighborsLimit: boolean;
-  isMount: boolean;
   isOpen: boolean;
 };
 
@@ -20,40 +20,53 @@ export function useKeywordSearchQuery({
   searchByAttributes,
   exactMatch,
   neighborsLimit,
-  isMount,
   isOpen,
 }: SearchQueryRequest) {
   const config = useConfiguration();
   const connector = useConnector();
   const updatePrefixes = usePrefixesUpdater();
   const { enqueueNotification } = useNotification();
+  const queryClient = useQueryClient();
 
-  return useQuery(
-    [
+  const queryKey = useMemo(
+    () => [
       "keyword-search",
       debouncedSearchTerm,
       vertexTypes,
       searchByAttributes,
       exactMatch,
       neighborsLimit,
-      isMount,
-      isOpen,
     ],
-    () => {
-      if (!isOpen || !config || !connector.explorer) {
+    [
+      debouncedSearchTerm,
+      vertexTypes,
+      searchByAttributes,
+      exactMatch,
+      neighborsLimit,
+    ]
+  );
+
+  const query = useQuery(
+    queryKey,
+    ({ signal }) => {
+      if (!connector.explorer) {
         return;
       }
-      const promise = connector.explorer.keywordSearch({
-        searchTerm: debouncedSearchTerm,
-        vertexTypes,
-        searchByAttributes,
-        searchById: true,
-        exactMatch,
-      });
+
+      const promise = connector.explorer.keywordSearch(
+        {
+          searchTerm: debouncedSearchTerm,
+          vertexTypes,
+          searchByAttributes,
+          searchById: true,
+          exactMatch,
+        },
+        { signal }
+      );
       return promise;
     },
     {
-      enabled: !!config,
+      enabled: !!config && isOpen && !!connector.explorer,
       onSuccess: response => {
         if (!response) {
           return;
@@ -69,4 +82,16 @@ export function useKeywordSearchQuery({
       },
     }
   );
+
+  const cancelAll = useCallback(async () => {
+    await queryClient.cancelQueries({
+      queryKey: ["keyword-search"],
+      exact: false,
+    });
+  }, [queryClient]);
+
+  return {
+    ...query,
+    cancelAll,
+  };
 }

@@ -3,6 +3,7 @@ import localforage from "localforage";
 import { CacheItem } from "./useGEFetchTypes";
 import { useConfiguration, type ConnectionConfig } from "../core";
 import { DEFAULT_SERVICE_TYPE } from "../utils/constants";
+import { anySignal } from "./utils/anySignal";
 
 // 10 minutes
 const CACHE_TIME_MS = 10 * 60 * 1000;
@@ -40,20 +41,16 @@ const useGEFetch = () => {
   );
 
   const _requestAndCache = useCallback(
-    async (url, options) => {
-      try {
-        const response = await fetch(url, options);
-        const data = await response.json();
-        if (options?.disableCache !== true) {
-          _setToCache(url, { data, updatedAt: new Date().getTime() });
-        }
-        return data as any;
+    async (
+      url: URL,
+      options: (RequestInit & { disableCache: boolean }) | undefined
+    ) => {
+      const response = await fetch(url, options);
+      const data = await response.json();
+      if (options?.disableCache !== true) {
+        _setToCache(url, { data, updatedAt: new Date().getTime() });
       }
-      finally {
-        if (typeof options.successCallback === "function") {
-          options.successCallback(options.queryId);
-        }
-      }
+      return data as any;
     },
     [_setToCache]
   );
@@ -87,7 +84,7 @@ const useGEFetch = () => {
       if (
         cachedResponse &&
         cachedResponse.updatedAt + (connection?.cacheTimeMs ?? CACHE_TIME_MS) >
-        new Date().getTime()
+          new Date().getTime()
       ) {
         return cachedResponse.data;
       }
@@ -99,7 +96,14 @@ const useGEFetch = () => {
       const connectionFetchTimeout = connection?.fetchTimeoutMs;
 
       if (connectionFetchTimeout && connectionFetchTimeout > 0) {
-        fetchOptions.signal = AbortSignal.timeout(connectionFetchTimeout);
+        const timeoutSignal = AbortSignal.timeout(connectionFetchTimeout);
+
+        // Combine timeout with existing signal
+        if (options.signal) {
+          fetchOptions.signal = anySignal([timeoutSignal, options.signal]);
+        } else {
+          fetchOptions.signal = timeoutSignal;
+        }
       }
 
       return _requestAndCache(uri, {
