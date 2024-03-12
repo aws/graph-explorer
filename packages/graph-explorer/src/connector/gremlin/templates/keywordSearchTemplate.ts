@@ -44,12 +44,12 @@ const keywordSearchTemplate = ({
 
     const orContent = uniq(
       searchById && searchByAttributes.includes("__all")
-        ? ["_id", ...searchByAttributes]
+        ? ["__id", ...searchByAttributes]
         : searchByAttributes
     )
       .filter(attr => attr !== "__all")
       .map(attr => {
-        if (attr === "_id") {
+        if (attr === "__id") {
           if (exactMatch === true) {
             return `has(id,"${escapedSearchTerm}")`;
           }

@@ -1,6 +1,7 @@
 import LoggerConnector from "../../connector/LoggerConnector";
 import {
   CountsByTypeResponse,
+  KeywordSearchRequest,
   KeywordSearchResponse,
   NeighborsCountResponse,
   NeighborsResponse,
@@ -21,7 +22,10 @@ type Explorer = {
     req: any,
     options?: any
   ) => Promise<NeighborsCountResponse>;
-  keywordSearch: (req: any, options?: any) => Promise<KeywordSearchResponse>;
+  keywordSearch: (
+    req: KeywordSearchRequest,
+    options?: any
+  ) => Promise<KeywordSearchResponse>;
 };
 
 export type ConnectorContextProps = {
