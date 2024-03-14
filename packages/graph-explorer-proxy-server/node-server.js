@@ -183,6 +183,9 @@ async function fetchData(res, next, url, options, isIamEnabled, region, serviceT
 
     /// Function to cancel long running queries if the client disappears before completion
     async function cancelQuery() {
+      if (!queryId) {
+        return;
+      }
       proxyLogger.debug(`Cancelling request ${queryId}...`);
       return await retryFetch(
         new URL(`${graphDbConnectionUrl}/sparql/status`),
@@ -254,6 +257,9 @@ async function fetchData(res, next, url, options, isIamEnabled, region, serviceT
 
     /// Function to cancel long running queries if the client disappears before completion
     async function cancelQuery() {
+      if (!queryId) {
+        return;
+      }
       proxyLogger.debug(`Cancelling request ${queryId}...`);
       return await retryFetch(
         new URL(`${graphDbConnectionUrl}/gremlin/status?cancelQuery&queryId=${queryId}`),
