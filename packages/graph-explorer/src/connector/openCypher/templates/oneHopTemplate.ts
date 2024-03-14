@@ -107,7 +107,6 @@ const oneHopTemplate = ({
   edgeTypes = [],
   filterCriteria = [],
   limit = 10,
-  offset = 0,
 }: Omit<NeighborsRequest, "vertexType">): string => {
   let template = `MATCH (v)`;
 
@@ -124,11 +123,11 @@ const oneHopTemplate = ({
   }
 
   if (filterByVertexTypes.length == 1) {
-    template += `(tgt:${filterByVertexTypes[0]}) WHERE ID(v) = \"${vertexId}\" `;
+    template += `(tgt:${filterByVertexTypes[0]}) WHERE ID(v) = "${vertexId}" `;
   } else if (filterByVertexTypes.length > 1) {
-    template += `(tgt) WHERE ID(v) = \"${vertexId}\" AND ${formattedVertexTypes}`;
+    template += `(tgt) WHERE ID(v) = "${vertexId}" AND ${formattedVertexTypes}`;
   } else {
-    template += `(tgt) WHERE ID(v) = \"${vertexId}\" `;
+    template += `(tgt) WHERE ID(v) = "${vertexId}" `;
   }
 
   const filterCriteriaTemplate = filterCriteria
