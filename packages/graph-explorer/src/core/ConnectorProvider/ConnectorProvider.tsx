@@ -57,8 +57,8 @@ const ConnectorProvider = ({ children }: PropsWithChildren<any>) => {
   );
 
   const getExplorer = useCallback(
-    (connection: ConnectionConfig): Explorer => {
-      switch (connection.queryEngine) {
+    (connection: ConnectionConfig | undefined): Explorer => {
+      switch (connection?.queryEngine) {
         case "openCypher":
           return openCypherExplorer;
         case "sparql":
@@ -74,9 +74,7 @@ const ConnectorProvider = ({ children }: PropsWithChildren<any>) => {
     // connector instance is only rebuilt if any connection attribute change
     if (!isSameConnection(prevConnection, config?.connection)) {
       setConnector({
-        explorer: config?.connection
-          ? getExplorer(config.connection)
-          : undefined,
+        explorer: getExplorer(config?.connection),
         logger: new LoggerConnector(config?.connection?.url ?? "", {
           enable: import.meta.env.PROD,
         }),
