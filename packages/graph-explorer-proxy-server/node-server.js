@@ -174,16 +174,59 @@ async function fetchData(res, next, url, options, isIamEnabled, region, serviceT
   }
   // POST endpoint for SPARQL queries.
   app.post("/sparql", async (req, res, next) => {
+    // Gather info from the headers
+    const queryId = req.headers["queryid"];
+    const graphDbConnectionUrl = req.headers["graph-db-connection-url"];
+    const isIamEnabled = !!req.headers["aws-neptune-region"];
+    const region = isIamEnabled ? req.headers["aws-neptune-region"] : "";
+    const serviceType = isIamEnabled ? (req.headers["service-type"] ?? DEFAULT_SERVICE_TYPE) : "";
+
+    /// Function to cancel long running queries if the client disappears before completion
+    async function cancelQuery() {
+      if (!queryId) {
+        return;
+      }
+      proxyLogger.debug(`Cancelling request ${queryId}...`);
+      return await retryFetch(
+        new URL(`${graphDbConnectionUrl}/sparql/status`),
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: `cancelQuery&queryId=${encodeURIComponent(queryId)}&silent=true`,
+        },
+        isIamEnabled,
+        region,
+        serviceType
+      );
+    }
+
+    // Watch for a cancelled or aborted connection
+    req.on("close", async () => {
+      if (req.complete) {
+        return;
+      }
+
+      await cancelQuery();
+    });
+    res.on("close", async () => {
+      if (res.writableFinished) {
+        return;
+      }
+      await cancelQuery();
+    });
+
     // Validate the input before making any external calls.
     if (!req.body.query) {
       return res
         .status(400)
         .send({ error: "[Proxy]SPARQL: Query not provided" });
     }
-    const rawUrl = `${req.headers["graph-db-connection-url"]}/sparql`;
-    let body = `query=${encodeURIComponent(req.body.query)}`
-    if (req.headers["queryid"]) {
-      body += `&queryId=${req.headers["queryid"]}`;
+    const rawUrl = `${graphDbConnectionUrl}/sparql`;
+    let body = `query=${encodeURIComponent(req.body.query)}`;
+    if (queryId) {
+      body += `&queryId=${encodeURIComponent(queryId)}`;
     }
     const requestOptions = {
       method: "POST",
@@ -192,67 +235,63 @@ async function fetchData(res, next, url, options, isIamEnabled, region, serviceT
       },
       body,
     };
-    const isIamEnabled = !!req.headers["aws-neptune-region"];
-    const region = isIamEnabled ? req.headers["aws-neptune-region"] : "";
-    const serviceType = isIamEnabled ? (req.headers["service-type"] ?? DEFAULT_SERVICE_TYPE) : "";
-
-    fetchData(res, next, rawUrl, requestOptions, isIamEnabled, region, serviceType);
-  });
-
-  // cancel sparql query
-  app.get("/sparql/cancel", async (req, res, next) => {
-    const rawUrl = `${req.headers["graph-db-connection-url"]}/sparql/status`;
-    const isIamEnabled = !!req.headers["aws-neptune-region"];
-    const region = isIamEnabled ? req.headers["aws-neptune-region"] : "";
-    const serviceType = isIamEnabled ? (req.headers["service-type"] ?? DEFAULT_SERVICE_TYPE) : "";
-
-    const requestOptions = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: `cancelQuery&queryId=${req.headers["queryid"]}&silent=true`,
-    };
 
     fetchData(res, next, rawUrl, requestOptions, isIamEnabled, region, serviceType);
   });
 
   // POST endpoint for Gremlin queries.
   app.post("/gremlin", async (req, res, next) => {
+    // Gather info from the headers
+    const queryId = req.headers["queryid"];
+    const graphDbConnectionUrl = req.headers["graph-db-connection-url"];
+    const isIamEnabled = !!req.headers["aws-neptune-region"];
+    const region = isIamEnabled ? req.headers["aws-neptune-region"] : "";
+    const serviceType = isIamEnabled ? (req.headers["service-type"] ?? DEFAULT_SERVICE_TYPE) : "";
+
     // Validate the input before making any external calls.
     if (!req.body.query) {
       return res
         .status(400)
         .send({ error: "[Proxy]Gremlin: query not provided" });
     }
-    const body = req.headers["queryid"]
-      ? { gremlin: req.body.query, queryId: req.headers["queryid"] }
-      : { gremlin: req.body.query };
-    const rawUrl = `${req.headers["graph-db-connection-url"]}/gremlin`;
+
+    /// Function to cancel long running queries if the client disappears before completion
+    async function cancelQuery() {
+      if (!queryId) {
+        return;
+      }
+      proxyLogger.debug(`Cancelling request ${queryId}...`);
+      return await retryFetch(
+        new URL(`${graphDbConnectionUrl}/gremlin/status?cancelQuery&queryId=${encodeURIComponent(queryId)}`),
+        { method: "GET" },
+        isIamEnabled,
+        region,
+        serviceType
+      );
+    }
+
+    // Watch for a cancelled or aborted connection
+    req.on("close", async () => {
+      if (req.complete) {
+        return;
+      }
+      await cancelQuery();
+    });
+    res.on("close", async () => {
+      if (res.writableFinished) {
+        return;
+      }
+      await cancelQuery();
+    });
+
+    const body = { gremlin: req.body.query, queryId };
+    const rawUrl = `${graphDbConnectionUrl}/gremlin`;
     const requestOptions = {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(body),
-    };
-
-    const isIamEnabled = !!req.headers["aws-neptune-region"];
-    const region = isIamEnabled ? req.headers["aws-neptune-region"] : "";
-    const serviceType = isIamEnabled ? (req.headers["service-type"] ?? DEFAULT_SERVICE_TYPE) : "";
-
-    fetchData(res, next, rawUrl, requestOptions, isIamEnabled, region, serviceType);
-  });
-
-  // cancel gremlin query
-  app.get("/gremlin/cancel", async (req, res, next) => {
-    const rawUrl = `${req.headers["graph-db-connection-url"]}/gremlin/status?cancelQuery&queryId=${req.headers["queryid"]}`;
-    const isIamEnabled = !!req.headers["aws-neptune-region"];
-    const region = isIamEnabled ? req.headers["aws-neptune-region"] : "";
-    const serviceType = isIamEnabled ? (req.headers["service-type"] ?? DEFAULT_SERVICE_TYPE) : "";
-
-    const requestOptions = {
-      method: "GET",
     };
 
     fetchData(res, next, rawUrl, requestOptions, isIamEnabled, region, serviceType);

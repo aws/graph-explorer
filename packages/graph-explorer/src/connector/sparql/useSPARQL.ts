@@ -125,7 +125,6 @@ const storedBlankNodeNeighborsRequest = (
   });
 };
 
-let keywordSearchQueryId: string | undefined;
 const useSPARQL = (blankNodes: BlankNodesMap) => {
   const connection = useConfiguration()?.connection as
     | ConnectionConfig
@@ -152,25 +151,12 @@ const useSPARQL = (blankNodes: BlankNodesMap) => {
           method: "POST",
           headers,
           body,
-          disableCache: options?.disableCache,
           ...options,
         });
       };
     },
     [url, useFetch]
   );
-
-  const _sparqlCancel = useCallback(() => {
-    return async (queryId: string) => {
-      return useFetch.request(`${url}/sparql/cancel`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          queryId: queryId,
-        },
-      });
-    };
-  }, [url, useFetch]);
 
   const fetchSchemaFunc = useCallback(
     async options => {
@@ -279,19 +265,8 @@ const useSPARQL = (blankNodes: BlankNodesMap) => {
 
   const keywordSearchFunc = useCallback(
     async (req, options) => {
-      if (keywordSearchQueryId) {
-        // no need to wait for confirmation
-        _sparqlCancel()(keywordSearchQueryId);
-      }
-
       options ??= {};
       options.queryId = v4();
-      keywordSearchQueryId = options.queryId;
-      options.successCallback = (queryId: string) => {
-        if (keywordSearchQueryId === queryId) {
-          keywordSearchQueryId = undefined;
-        }
-      };
 
       const reqParams: SPARQLKeywordSearchRequest = {
         searchTerm: req.searchTerm,
@@ -311,7 +286,7 @@ const useSPARQL = (blankNodes: BlankNodesMap) => {
 
       return { vertices };
     },
-    [_sparqlFetch, blankNodes, _sparqlCancel]
+    [_sparqlFetch, blankNodes]
   );
 
   return {

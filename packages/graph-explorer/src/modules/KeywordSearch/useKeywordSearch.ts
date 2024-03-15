@@ -173,8 +173,6 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
     return fallbackValue;
   }, [config?.connection?.queryEngine, allowsIdSearch, attributesOptions]);
 
-  const [isMount, setMount] = useState(false);
-
   const vertexTypes =
     selectedVertexType === allVerticesValue
       ? config?.vertexTypes
@@ -186,19 +184,14 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
         )
       : [selectedAttribute];
 
-  const { data, isFetching } = useKeywordSearchQuery({
+  const { data, isFetching, cancelAll } = useKeywordSearchQuery({
     debouncedSearchTerm,
     vertexTypes,
     searchByAttributes,
     exactMatch,
     neighborsLimit,
-    isMount,
     isOpen,
   });
-
-  if (isOpen && !isMount) {
-    setMount(true);
-  }
 
   useEffect(() => {
     setSelectedAttribute(defaultSearchAttribute);
@@ -224,6 +217,7 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
     neighborsLimit,
     onNeighborsLimitChange,
     searchResults: data?.vertices || [],
+    cancelAll,
   };
 };
 

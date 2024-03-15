@@ -77,6 +77,7 @@ const KeywordSearch = ({
     onExactMatchChange,
     neighborsLimit,
     onNeighborsLimitChange,
+    cancelAll,
   } = useKeywordSearch({
     isOpen: isFocused,
   });
@@ -342,6 +343,18 @@ const KeywordSearch = ({
                     )}
                     {currentTotal != null && " records "}
                     for matching results
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        marginTop: "24px",
+                        gap: "24px",
+                      }}
+                    >
+                      <Button onPress={() => cancelAll()}>Cancel</Button>
+                    </div>
                   </div>
                 }
                 icon={<LoadingSpinner />}
