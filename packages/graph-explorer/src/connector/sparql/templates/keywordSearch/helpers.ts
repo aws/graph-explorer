@@ -18,15 +18,16 @@ export const getSubjectClasses = (subjectClasses?: string[]) => {
 };
 
 export const getFilterPredicates = (predicates?: string[]) => {
-  if (!predicates?.length) {
+  const filteredPredicates = predicates?.filter(p => p !== "__all") || [];
+  if (!filteredPredicates.length) {
     return "";
   }
 
   let filterByAttributes = "";
   filterByAttributes += "FILTER (?predicate IN (";
-  predicates.forEach((p, i) => {
+  filteredPredicates.forEach((p, i) => {
     filterByAttributes += `<${p}>`;
-    if (i < predicates.length - 1) {
+    if (i < filteredPredicates.length - 1) {
       filterByAttributes += ", ";
     }
   });

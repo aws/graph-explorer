@@ -74,6 +74,32 @@ describe("SPARQL > keywordSearchTemplate", () => {
     );
   });
 
+  it("Should return a template for searched attributes without the __all predicate", () => {
+    const template = keywordSearchTemplate({
+      subjectClasses: ["air:airport"],
+      searchTerm: "JFK",
+      predicates: ["air:city", "air:code", "__all"],
+      exactMatch: true,
+    });
+
+    expect(removeExtraWhitespace(template)).toBe(
+      removeExtraWhitespace(`
+        SELECT ?subject ?pred ?value ?class { 
+          ?subject ?pred ?value { 
+            SELECT DISTINCT ?subject ?class { 
+              ?subject a ?class ; ?predicate ?value . 
+              FILTER (?predicate IN (<air:city>, <air:code>))
+              FILTER (?class IN (<air:airport>))
+              FILTER (?value = "JFK")
+            } 
+            LIMIT 10 OFFSET 0 
+          } 
+          FILTER(isLiteral(?value)) 
+        }
+      `)
+    );
+  });
+
   it("Should return a template for the ID token attribute exactly matching the search term", () => {
     const template = keywordSearchTemplate({
       subjectClasses: ["air:airport"],
