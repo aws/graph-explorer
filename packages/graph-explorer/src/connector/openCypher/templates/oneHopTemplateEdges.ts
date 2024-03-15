@@ -92,7 +92,6 @@ const criterionTemplate = (criterion: Criterion): string => {
  * vertexTypes = ["airport"]
  * edgeTypes = ["route"]
  * limit = 10
- * offset = 0
  *
  * MATCH (v)-[edge:route]->(v:airport)
  * WHERE ID(v) = "124"
