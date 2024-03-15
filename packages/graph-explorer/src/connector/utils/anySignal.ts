@@ -1,21 +1,28 @@
-export function anySignal(signals: AbortSignal[]) {
+/**
+ * Returns an abort signal that is aborted when at least one of the specified
+ * abort signals is aborted.
+ *
+ * Requires at least node.js 18.
+ *
+ * @param signals An array of AbortSignal values that will be merged.
+ * @returns A single AbortSignal value.
+ */
+export function anySignal(signals: AbortSignal[]): AbortSignal {
   const controller = new AbortController();
-
-  function onAbort() {
-    controller.abort();
-
-    // Cleanup
-    for (const signal of signals) {
-      signal.removeEventListener("abort", onAbort);
-    }
-  }
 
   for (const signal of signals) {
     if (signal.aborted) {
-      onAbort();
+      // Exiting early if one of the signals
+      // is already aborted.
+      controller.abort(signal.reason);
       break;
     }
-    signal.addEventListener("abort", onAbort);
+
+    // Listening for signals and removing the listeners
+    // when at least one symbol is aborted.
+    signal.addEventListener("abort", () => controller.abort(signal.reason), {
+      signal: controller.signal,
+    });
   }
 
   return controller.signal;
