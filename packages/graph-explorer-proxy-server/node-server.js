@@ -194,7 +194,7 @@ async function fetchData(res, next, url, options, isIamEnabled, region, serviceT
           headers: {
             "Content-Type": "application/x-www-form-urlencoded",
           },
-          body: `cancelQuery&queryId=${queryId}&silent=true`,
+          body: `cancelQuery&queryId=${encodeURIComponent(queryId)}&silent=true`,
         },
         isIamEnabled,
         region,
@@ -226,7 +226,7 @@ async function fetchData(res, next, url, options, isIamEnabled, region, serviceT
     const rawUrl = `${graphDbConnectionUrl}/sparql`;
     let body = `query=${encodeURIComponent(req.body.query)}`;
     if (queryId) {
-      body += `&queryId=${queryId}`;
+      body += `&queryId=${encodeURIComponent(queryId)}`;
     }
     const requestOptions = {
       method: "POST",
@@ -262,7 +262,7 @@ async function fetchData(res, next, url, options, isIamEnabled, region, serviceT
       }
       proxyLogger.debug(`Cancelling request ${queryId}...`);
       return await retryFetch(
-        new URL(`${graphDbConnectionUrl}/gremlin/status?cancelQuery&queryId=${queryId}`),
+        new URL(`${graphDbConnectionUrl}/gremlin/status?cancelQuery&queryId=${encodeURIComponent(queryId)}`),
         { method: "GET" },
         isIamEnabled,
         region,
