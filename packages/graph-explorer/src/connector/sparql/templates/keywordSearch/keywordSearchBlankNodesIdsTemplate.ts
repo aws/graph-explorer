@@ -17,6 +17,7 @@ const keywordSearchBlankNodesIdsTemplate = ({
   predicates = [],
   limit = 10,
   offset = 0,
+  exactMatch = true,
 }: SPARQLKeywordSearchRequest): string => {
   return `
     SELECT DISTINCT ?bNode {
@@ -26,7 +27,7 @@ const keywordSearchBlankNodesIdsTemplate = ({
                    ?predicate ?value .
             ${getFilterPredicates(predicates)}
             ${getSubjectClasses(subjectClasses)}
-            ${getFilterObject(searchTerm)}
+            ${getFilterObject(exactMatch, searchTerm)}
         }
         ${limit > 0 ? `LIMIT ${limit} OFFSET ${offset}` : ""}
       }

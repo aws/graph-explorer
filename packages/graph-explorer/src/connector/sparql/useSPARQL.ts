@@ -77,7 +77,7 @@ const storedBlankNodeNeighborsRequest = (
   blankNodes: BlankNodesMap,
   req: SPARQLNeighborsRequest
 ) => {
-  return new Promise(resolve => {
+  return new Promise<NeighborsResponse>(resolve => {
     const bNode = blankNodes.get(req.resourceURI);
     if (!bNode?.neighbors) {
       resolve({
@@ -140,14 +140,14 @@ const useSPARQL = (blankNodes: BlankNodesMap) => {
         const body = `query=${encodeURIComponent(queryTemplate)}`;
         const headers = options?.queryId
           ? {
-            accept: "application/json",
-            "Content-Type": "application/x-www-form-urlencoded",
-            queryId: options.queryId,
-          }
+              accept: "application/json",
+              "Content-Type": "application/x-www-form-urlencoded",
+              queryId: options.queryId,
+            }
           : {
-            accept: "application/json",
-            "Content-Type": "application/x-www-form-urlencoded",
-          };
+              accept: "application/json",
+              "Content-Type": "application/x-www-form-urlencoded",
+            };
         return useFetch.request(`${url}/sparql`, {
           method: "POST",
           headers,
@@ -221,10 +221,7 @@ const useSPARQL = (blankNodes: BlankNodesMap) => {
         return storedBlankNodeNeighborsRequest(blankNodes, request);
       }
 
-      const response = (await fetchNeighbors(
-        _sparqlFetch(options),
-        request
-      )) as NeighborsResponse;
+      const response = await fetchNeighbors(_sparqlFetch(options), request);
       const vertices = replaceBlankNodeFromNeighbors(
         blankNodes,
         request,

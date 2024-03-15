@@ -8,7 +8,7 @@ import {
   useState,
 } from "react";
 import LoggerConnector from "../../connector/LoggerConnector";
-import type { ConnectorContextProps } from "./types";
+import type { ConnectorContextProps, Explorer } from "./types";
 import useOpenCypher from "../../connector/openCypher/useOpenCypher";
 import useSPARQL from "../../connector/sparql/useSPARQL";
 import useGremlin from "../../connector/gremlin/useGremlin";
@@ -57,8 +57,8 @@ const ConnectorProvider = ({ children }: PropsWithChildren<any>) => {
   );
 
   const getExplorer = useCallback(
-    (connection: ConnectionConfig) => {
-      switch (connection.queryEngine) {
+    (connection: ConnectionConfig | undefined): Explorer => {
+      switch (connection?.queryEngine) {
         case "openCypher":
           return openCypherExplorer;
         case "sparql":
@@ -74,9 +74,7 @@ const ConnectorProvider = ({ children }: PropsWithChildren<any>) => {
     // connector instance is only rebuilt if any connection attribute change
     if (!isSameConnection(prevConnection, config?.connection)) {
       setConnector({
-        explorer: getExplorer(
-          (config?.connection as ConnectionConfig) || undefined
-        ),
+        explorer: getExplorer(config?.connection),
         logger: new LoggerConnector(config?.connection?.url ?? "", {
           enable: import.meta.env.PROD,
         }),
