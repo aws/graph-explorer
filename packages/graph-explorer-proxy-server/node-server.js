@@ -112,10 +112,10 @@ const retryFetch = async (
     try {
       const res = await fetch(url.href, options);
       if (!res.ok) {
-        const result = await res.json();
         proxyLogger.error("!!Request failure!!");
         proxyLogger.error("URL: " + url.href);
         proxyLogger.error(`Response: ${res.status} - ${res.statusText}`);
+        const result = await res.json();
         throw new Error("\n" + JSON.stringify(result, null, 2));
       } else {
         proxyLogger.debug("Successful response: " + res.statusText);
