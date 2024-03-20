@@ -191,19 +191,24 @@ async function fetchData(res, next, url, options, isIamEnabled, region, serviceT
         return;
       }
       proxyLogger.debug(`Cancelling request ${queryId}...`);
-      return await retryFetch(
-        new URL(`${graphDbConnectionUrl}/sparql/status`),
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
+      try {
+        await retryFetch(
+          new URL(`${graphDbConnectionUrl}/sparql/status`),
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: `cancelQuery&queryId=${encodeURIComponent(queryId)}&silent=true`,
           },
-          body: `cancelQuery&queryId=${encodeURIComponent(queryId)}&silent=true`,
-        },
-        isIamEnabled,
-        region,
-        serviceType
-      );
+          isIamEnabled,
+          region,
+          serviceType
+        );
+      } catch (err) {
+        // Not really an error
+        proxyLogger.warn("Failed to cancel the query: " + err);
+      }
     }
 
     // Watch for a cancelled or aborted connection
@@ -265,13 +270,18 @@ async function fetchData(res, next, url, options, isIamEnabled, region, serviceT
         return;
       }
       proxyLogger.debug(`Cancelling request ${queryId}...`);
-      return await retryFetch(
-        new URL(`${graphDbConnectionUrl}/gremlin/status?cancelQuery&queryId=${encodeURIComponent(queryId)}`),
-        { method: "GET" },
-        isIamEnabled,
-        region,
-        serviceType
-      );
+      try {
+        await retryFetch(
+          new URL(`${graphDbConnectionUrl}/gremlin/status?cancelQuery&queryId=${encodeURIComponent(queryId)}`),
+          { method: "GET" },
+          isIamEnabled,
+          region,
+          serviceType
+        );
+      } catch (err) {
+        // Not really an error
+        proxyLogger.warn("Failed to cancel the query: " + err);
+      }
     }
 
     // Watch for a cancelled or aborted connection
