@@ -122,7 +122,10 @@ const retryFetch = async (
         return res;
       }
     } catch (err) {
-      if (i === refetchMaxRetries - 1) {
+      if (refetchMaxRetries === 1) {
+        // Don't log about retries if retrying is not used
+        throw err;
+      } else if (i === refetchMaxRetries - 1) {
         proxyLogger.error("!!Proxy Retry Fetch Reached Maximum Tries!!", err);
         throw err;
       } else {
