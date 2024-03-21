@@ -112,16 +112,20 @@ const retryFetch = async (
     try {
       const res = await fetch(url.href, options);
       if (!res.ok) {
-        const result = await res.json();
         proxyLogger.error("!!Request failure!!");
         proxyLogger.error("URL: " + url.href);
+        proxyLogger.error(`Response: ${res.status} - ${res.statusText}`);
+        const result = await res.json();
         throw new Error("\n" + JSON.stringify(result, null, 2));
       } else {
         proxyLogger.debug("Successful response: " + res.statusText);
         return res;
       }
     } catch (err) {
-      if (i === refetchMaxRetries - 1) {
+      if (refetchMaxRetries === 1) {
+        // Don't log about retries if retrying is not used
+        throw err;
+      } else if (i === refetchMaxRetries - 1) {
         proxyLogger.error("!!Proxy Retry Fetch Reached Maximum Tries!!", err);
         throw err;
       } else {
@@ -187,19 +191,24 @@ async function fetchData(res, next, url, options, isIamEnabled, region, serviceT
         return;
       }
       proxyLogger.debug(`Cancelling request ${queryId}...`);
-      return await retryFetch(
-        new URL(`${graphDbConnectionUrl}/sparql/status`),
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
+      try {
+        await retryFetch(
+          new URL(`${graphDbConnectionUrl}/sparql/status`),
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: `cancelQuery&queryId=${encodeURIComponent(queryId)}&silent=true`,
           },
-          body: `cancelQuery&queryId=${encodeURIComponent(queryId)}&silent=true`,
-        },
-        isIamEnabled,
-        region,
-        serviceType
-      );
+          isIamEnabled,
+          region,
+          serviceType
+        );
+      } catch (err) {
+        // Not really an error
+        proxyLogger.warn("Failed to cancel the query: " + err);
+      }
     }
 
     // Watch for a cancelled or aborted connection
@@ -261,13 +270,18 @@ async function fetchData(res, next, url, options, isIamEnabled, region, serviceT
         return;
       }
       proxyLogger.debug(`Cancelling request ${queryId}...`);
-      return await retryFetch(
-        new URL(`${graphDbConnectionUrl}/gremlin/status?cancelQuery&queryId=${encodeURIComponent(queryId)}`),
-        { method: "GET" },
-        isIamEnabled,
-        region,
-        serviceType
-      );
+      try {
+        await retryFetch(
+          new URL(`${graphDbConnectionUrl}/gremlin/status?cancelQuery&queryId=${encodeURIComponent(queryId)}`),
+          { method: "GET" },
+          isIamEnabled,
+          region,
+          serviceType
+        );
+      } catch (err) {
+        // Not really an error
+        proxyLogger.warn("Failed to cancel the query: " + err);
+      }
     }
 
     // Watch for a cancelled or aborted connection
