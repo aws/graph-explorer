@@ -29,10 +29,20 @@ GRAPH_NOTEBOOK_NAME=$(jq '.ResourceName' /opt/ml/metadata/resource-metadata.json
 echo "Grabbed notebook name: ${GRAPH_NOTEBOOK_NAME}"
 
 GRAPH_NOTEBOOK_DESCRIBE_OUTPUT=$(aws sagemaker describe-notebook-instance --notebook-instance-name ${GRAPH_NOTEBOOK_NAME} --region ${AWS_REGION})
-GRAPH_NOTEBOOK_URL=$(echo "$GRAPH_NOTEBOOK_DESCRIBE_OUTPUT" | jq -r 'try .Url catch empty')
-echo "Notebook URL: ${GRAPH_NOTEBOOK_URL}"
+if [ -z "$GRAPH_NOTEBOOK_DESCRIBE_OUTPUT" ]; then
+  echo "DescribeNotebookInstance failed. Manually building Notebook URL from name."
+  if [[ ${AWS_REGION} == "cn-north-1" || ${AWS_REGION} == "cn-northwest-1" ]]; then
+    AWS_DOMAIN=com.cn
+  else
+    AWS_DOMAIN=aws
+  fi
+  EXPLORER_URI="https://${GRAPH_NOTEBOOK_NAME}.notebook.${AWS_REGION}.sagemaker.${AWS_DOMAIN}/proxy/9250"
+else
+  GRAPH_NOTEBOOK_URL=$(echo "$GRAPH_NOTEBOOK_DESCRIBE_OUTPUT" | jq -r 'try .Url catch empty')
+  echo "Notebook URL from DescribeNotebookInstance: ${GRAPH_NOTEBOOK_URL}"
+  EXPLORER_URI="https://${GRAPH_NOTEBOOK_URL}/proxy/9250"
+fi
 
-EXPLORER_URI="https://${GRAPH_NOTEBOOK_URL}/proxy/9250"
 NEPTUNE_URI="https://${GRAPH_NOTEBOOK_HOST}:${GRAPH_NOTEBOOK_PORT}"
 AWS_REGION=${AWS_REGION}
 
