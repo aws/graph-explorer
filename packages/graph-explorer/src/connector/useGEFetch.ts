@@ -144,12 +144,7 @@ const useGEFetch = () => {
       if (connectionFetchTimeout && connectionFetchTimeout > 0) {
         const timeoutSignal = AbortSignal.timeout(connectionFetchTimeout);
 
-        // Combine timeout with existing signal
-        if (options.signal) {
-          fetchOptions.signal = anySignal([timeoutSignal, options.signal]);
-        } else {
-          fetchOptions.signal = timeoutSignal;
-        }
+        fetchOptions.signal = anySignal(timeoutSignal, options.signal);
       }
 
       return _requestAndCache(uri, {
