@@ -46,14 +46,13 @@ const useGremlin = () => {
 
   const fetchSchemaFunc = useCallback(
     async options => {
-      const ops = { ...options, disableCache: true };
       let summary;
       try {
         const response = await useFetch.request(
           `${url}/pg/statistics/summary?mode=detailed`,
           {
             method: "GET",
-            ...ops,
+            ...options,
           }
         );
         summary = (response.payload.graphSummary as GraphSummary) || undefined;
@@ -62,7 +61,7 @@ const useGremlin = () => {
           console.error("[Summary API]", e);
         }
       }
-      return fetchSchema(_gremlinFetch(ops), summary);
+      return fetchSchema(_gremlinFetch(options), summary);
     },
     [_gremlinFetch, url, useFetch]
   );

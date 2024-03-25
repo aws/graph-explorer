@@ -43,8 +43,6 @@ const ConnectorProvider = ({ children }: PropsWithChildren<any>) => {
         "graphDbUrl",
         "awsAuthEnabled",
         "awsRegion",
-        "enableCache",
-        "cacheTimeMs",
         "fetchTimeoutMs",
       ] as const,
     []

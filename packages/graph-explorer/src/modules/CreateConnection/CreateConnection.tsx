@@ -31,8 +31,6 @@ type ConnectionForm = {
   awsAuthEnabled?: boolean;
   serviceType?: "neptune-db" | "neptune-graph";
   awsRegion?: string;
-  enableCache?: boolean;
-  cacheTimeMs?: number;
   fetchTimeMs?: number;
 };
 
@@ -78,8 +76,6 @@ const CreateConnection = ({
               awsAuthEnabled: data.awsAuthEnabled,
               serviceType: data.serviceType,
               awsRegion: data.awsRegion,
-              enableCache: data.enableCache,
-              cacheTimeMs: data.cacheTimeMs * 60 * 1000,
               fetchTimeoutMs: data.fetchTimeMs,
             },
           };
@@ -108,7 +104,6 @@ const CreateConnection = ({
               awsAuthEnabled: data.awsAuthEnabled,
               serviceType: data.serviceType,
               awsRegion: data.awsRegion,
-              cacheTimeMs: data.cacheTimeMs * 60 * 1000,
               fetchTimeoutMs: data.fetchTimeMs,
             },
           });
@@ -150,8 +145,6 @@ const CreateConnection = ({
     awsAuthEnabled: initialData?.awsAuthEnabled || false,
     serviceType: initialData?.serviceType || "neptune-db",
     awsRegion: initialData?.awsRegion || "",
-    enableCache: true,
-    cacheTimeMs: (initialData?.cacheTimeMs ?? 10 * 60 * 1000) / 60000,
     fetchTimeMs: initialData?.fetchTimeMs,
   });
 
@@ -314,48 +307,6 @@ const CreateConnection = ({
               />
             </div>
           </>
-        )}
-      </div>
-      <div className={pfx("configuration-form")}>
-        <Checkbox
-          value={"enableCache"}
-          checked={form.enableCache}
-          onChange={e => {
-            onFormChange("enableCache")(e.target.checked);
-          }}
-          styles={{
-            label: {
-              display: "block",
-            },
-          }}
-          label={
-            <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
-              Enable Cache
-              <Tooltip
-                text={
-                  <div style={{ maxWidth: 300 }}>
-                    Requests made by the Graph Explorer can be temporarily
-                    stored in the browser cache for quick access to the data.
-                  </div>
-                }
-              >
-                <div>
-                  <InfoIcon style={{ width: 18, height: 18 }} />
-                </div>
-              </Tooltip>
-            </div>
-          }
-        />
-        {form.enableCache && (
-          <div className={pfx("input-url")}>
-            <Input
-              label="Cache Time (minutes)"
-              type={"number"}
-              value={form.cacheTimeMs}
-              onChange={onFormChange("cacheTimeMs")}
-              min={0}
-            />
-          </div>
         )}
       </div>
       <div className={pfx("configuration-form")}>
