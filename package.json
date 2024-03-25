@@ -15,6 +15,7 @@
     "format:check": "pnpm -F graph-explorer format:check",
     "test": "pnpm -F graph-explorer test",
     "types:check": "pnpm -F graph-explorer types:check",
+    "checks": "pnpm run types:check && pnpm run lint:check && pnpm run format:check",
     "start": "pnpm -F graph-explorer start",
     "build": "pnpm -F graph-explorer build",
     "start:proxy-server": "pnpm -F graph-explorer-proxy-server start",
