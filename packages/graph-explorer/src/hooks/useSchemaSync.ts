@@ -5,6 +5,7 @@ import useConfiguration from "../core/ConfigurationProvider/useConfiguration";
 import useConnector from "../core/ConnectorProvider/useConnector";
 import usePrefixesUpdater from "./usePrefixesUpdater";
 import useUpdateSchema from "./useUpdateSchema";
+import { createDisplayError } from "../utils/createDisplayError";
 
 const useSchemaSync = (onSyncChange?: (isSyncing: boolean) => void) => {
   const config = useConfiguration();
@@ -31,32 +32,26 @@ const useSchemaSync = (onSyncChange?: (isSyncing: boolean) => void) => {
 
       schema = await connector.explorer.fetchSchema();
     } catch (e) {
+      notificationId.current && clearNotification(notificationId.current);
+      const displayError = createDisplayError(e);
+      enqueueNotification({
+        ...displayError,
+        type: "error",
+        stackable: true,
+      });
       if (e.name === "AbortError") {
-        notificationId.current && clearNotification(notificationId.current);
-        enqueueNotification({
-          title: config.displayLabel || config.id,
-          message: `Fetch aborted, reached max time out ${config.connection?.fetchTimeoutMs} MS`,
-          type: "error",
-          stackable: true,
-        });
         connector.logger?.error(
           `[${
             config.displayLabel || config.id
           }] Fetch aborted, reached max time out ${config.connection?.fetchTimeoutMs} MS `
         );
+      } else {
+        connector.logger?.error(
+          `[${
+            config.displayLabel || config.id
+          }] Error while fetching schema: ${e.message}`
+        );
       }
-      notificationId.current && clearNotification(notificationId.current);
-      enqueueNotification({
-        title: config.displayLabel || config.id,
-        message: `Error while fetching schema: ${e.message}`,
-        type: "error",
-        stackable: true,
-      });
-      connector.logger?.error(
-        `[${
-          config.displayLabel || config.id
-        }] Error while fetching schema: ${e.message}`
-      );
       updateSchemaState(config.id);
       onSyncChange?.(false);
       return;
