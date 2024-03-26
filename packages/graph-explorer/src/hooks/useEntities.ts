@@ -123,12 +123,12 @@ const useEntities = ({ disableFilters }: { disableFilters?: boolean } = {}): [
     let filteredEdges = edges;
     if (!disableFilters) {
       filteredNodes = nodes.filter(node => {
-        return vertexTypes.has(node.data.type);
+        return vertexTypes.has(node.data.type) === false;
       });
 
       filteredEdges = edges.filter(edge => {
         return (
-          connectionTypes.has(edge.data.type) &&
+          connectionTypes.has(edge.data.type) === false &&
           filteredNodes.some(node => node.data.id === edge.data.source) &&
           filteredNodes.some(node => node.data.id === edge.data.target)
         );

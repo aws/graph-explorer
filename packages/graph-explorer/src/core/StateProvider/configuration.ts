@@ -176,3 +176,21 @@ const mergeEdge = (
     attributes,
   };
 };
+
+/** Same as `useConfig().vertexTypes */
+export const vertexTypesSelector = selector({
+  key: "config-vertex-types",
+  get: ({ get }) => {
+    const configuration = get(mergedConfigurationSelector);
+    return configuration?.schema?.vertices?.map(vt => vt.type) || [];
+  },
+});
+
+/** Same as `useConfig().edgeTypes */
+export const edgeTypesSelector = selector({
+  key: "config-edge-types",
+  get: ({ get }) => {
+    const configuration = get(mergedConfigurationSelector);
+    return configuration?.schema?.edges?.map(vt => vt.type) || [];
+  },
+});

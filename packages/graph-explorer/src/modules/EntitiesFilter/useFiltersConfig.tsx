@@ -1,22 +1,49 @@
 import sortBy from "lodash/sortBy";
 import { useCallback, useMemo } from "react";
-import { useRecoilState } from "recoil";
+import { selector, useRecoilValue, useSetRecoilState } from "recoil";
 import { EdgeIcon, VertexIcon } from "../../components";
 import { useConfiguration } from "../../core";
 import { edgesTypesFilteredAtom } from "../../core/StateProvider/edges";
 import { nodesTypesFilteredAtom } from "../../core/StateProvider/nodes";
 import useTextTransform from "../../hooks/useTextTransform";
+import {
+  edgeTypesSelector,
+  vertexTypesSelector,
+} from "../../core/StateProvider/configuration";
+import { CheckboxListItemProps } from "../../components";
+
+const selectedVerticesSelector = selector({
+  key: "filters-selected-vertices",
+  get: ({ get }) => {
+    const filteredNodeTypes = get(nodesTypesFilteredAtom);
+    const allNodeTypes = get(vertexTypesSelector);
+    return new Set(
+      [...allNodeTypes].filter(n => filteredNodeTypes.has(n) === false)
+    );
+  },
+});
+
+const selectedEdgesSelector = selector({
+  key: "filters-selected-edges",
+  get: ({ get }) => {
+    const filteredEdgeTypes = get(edgesTypesFilteredAtom);
+    const allEdgeTypes = get(edgeTypesSelector);
+    return new Set(
+      [...allEdgeTypes].filter(n => filteredEdgeTypes.has(n) === false)
+    );
+  },
+});
 
 const useFiltersConfig = () => {
   const config = useConfiguration();
   const textTransform = useTextTransform();
 
-  const [nodesTypesFiltered, setNodesTypesFiltered] = useRecoilState(
-    nodesTypesFilteredAtom
-  );
-  const [edgesTypesFiltered, setEdgesTypesFiltered] = useRecoilState(
-    edgesTypesFilteredAtom
-  );
+  const vertexTypes = useRecoilValue(vertexTypesSelector);
+  const edgeTypes = useRecoilValue(edgeTypesSelector);
+  const setNodesTypesFiltered = useSetRecoilState(nodesTypesFilteredAtom);
+  const setEdgesTypesFiltered = useSetRecoilState(edgesTypesFilteredAtom);
+  const selectedVertexTypes = useRecoilValue(selectedVerticesSelector);
+  const selectedConnectionTypes = useRecoilValue(selectedEdgesSelector);
 
   const addVertex = useCallback(
     (vertex: string) => {
@@ -64,37 +91,32 @@ const useFiltersConfig = () => {
 
   const onChangeVertexTypes = useCallback(
     (vertexId: string, isSelected: boolean): void => {
-      isSelected ? addVertex(vertexId) : deleteVertex(vertexId);
+      isSelected ? deleteVertex(vertexId) : addVertex(vertexId);
     },
     [addVertex, deleteVertex]
   );
 
   const onChangeAllVertexTypes = useCallback(
     (isSelected: boolean): void => {
-      setNodesTypesFiltered(
-        isSelected ? new Set(config?.vertexTypes || []) : new Set()
-      );
+      setNodesTypesFiltered(isSelected ? new Set() : new Set(vertexTypes));
     },
-    [config?.vertexTypes, setNodesTypesFiltered]
+    [vertexTypes, setNodesTypesFiltered]
   );
 
-  const { vertexTypes, edgeTypes, getVertexTypeConfig, getEdgeTypeConfig } =
-    config || {};
+  const { getVertexTypeConfig, getEdgeTypeConfig } = config || {};
 
   const onChangeConnectionTypes = useCallback(
     (connectionId: string, isSelected: boolean): void => {
-      isSelected ? addConnection(connectionId) : deleteConnection(connectionId);
+      isSelected ? deleteConnection(connectionId) : addConnection(connectionId);
     },
     [addConnection, deleteConnection]
   );
 
   const onChangeAllConnectionTypes = useCallback(
     (isSelected: boolean): void => {
-      setEdgesTypesFiltered(
-        isSelected ? new Set(config?.edgeTypes || []) : new Set()
-      );
+      setEdgesTypesFiltered(isSelected ? new Set() : new Set(edgeTypes));
     },
-    [config?.edgeTypes, setEdgesTypesFiltered]
+    [edgeTypes, setEdgesTypesFiltered]
   );
 
   const vertexTypesCheckboxes = useMemo(() => {
@@ -117,12 +139,11 @@ const useFiltersConfig = () => {
               />
             </div>
           ),
-          isSelected: nodesTypesFiltered.has(vt),
-        };
+        } as CheckboxListItemProps;
       }),
       type => type.text
     );
-  }, [vertexTypes, getVertexTypeConfig, textTransform, nodesTypesFiltered]);
+  }, [vertexTypes, getVertexTypeConfig, textTransform]);
 
   const connectionTypesCheckboxes = useMemo(() => {
     return sortBy(
@@ -132,19 +153,18 @@ const useFiltersConfig = () => {
           id: et,
           text: edgeConfig?.displayLabel || textTransform(et),
           endAdornment: <EdgeIcon />,
-          isSelected: edgesTypesFiltered.has(et),
-        };
+        } as CheckboxListItemProps;
       }),
       type => type.text
     );
-  }, [edgeTypes, getEdgeTypeConfig, edgesTypesFiltered, textTransform]);
+  }, [edgeTypes, getEdgeTypeConfig, textTransform]);
 
   return {
-    selectedVertexTypes: nodesTypesFiltered,
+    selectedVertexTypes,
     vertexTypes: vertexTypesCheckboxes,
     onChangeVertexTypes,
     onChangeAllVertexTypes,
-    selectedConnectionTypes: edgesTypesFiltered,
+    selectedConnectionTypes,
     connectionTypes: connectionTypesCheckboxes,
     onChangeConnectionTypes,
     onChangeAllConnectionTypes,
