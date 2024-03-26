@@ -1,0 +1,19 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": "neptune-graph:*",
+            "Resource": [
+                "arn:[AWS_PARTITION]:neptune-graph:[AWS_REGION]:[AWS_ACCOUNT_ID]:graph/[NEPTUNE_GRAPH_RESOURCE_ID]"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": "sagemaker:DescribeNotebookInstance",
+            "Resource": [
+                "arn:[AWS_PARTITION]:sagemaker:[AWS_REGION]:[AWS_ACCOUNT_ID]:notebook-instance/*"
+            ]
+        }
+    ]
+}
