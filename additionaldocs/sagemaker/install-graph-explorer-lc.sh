@@ -44,6 +44,7 @@ else
 fi
 
 NEPTUNE_URI="https://${GRAPH_NOTEBOOK_HOST}:${GRAPH_NOTEBOOK_PORT}"
+SERVICE=${GRAPH_NOTEBOOK_SERVICE:-"neptune-db"}
 AWS_REGION=${AWS_REGION}
 
 echo "AUTH_MODE from Lifecycle: ${GRAPH_NOTEBOOK_AUTH_MODE}"
@@ -55,6 +56,7 @@ fi
 
 echo "Explorer URI: ${EXPLORER_URI}"
 echo "Neptune URI: ${NEPTUNE_URI}"
+echo "Neptune Service: ${SERVICE}"
 echo "Explorer region: ${AWS_REGION}"
 echo "Explorer IAM auth mode: ${IAM}"
 
@@ -77,13 +79,16 @@ else
   fi
 fi
 echo "Using explorer image tag: ${EXPLORER_ECR_TAG}"
+
 docker run -d -p 9250:9250 \
+  --restart always \
   --env HOST=127.0.0.1 \
   --env PUBLIC_OR_PROXY_ENDPOINT=${EXPLORER_URI} \
   --env GRAPH_CONNECTION_URL=${NEPTUNE_URI} \
   --env USING_PROXY_SERVER=true \
   --env IAM=${IAM} \
   --env AWS_REGION=${AWS_REGION} \
+  --env SERVICE_TYPE=${SERVICE} \
   --env PROXY_SERVER_HTTPS_CONNECTION=false \
   --env NEPTUNE_NOTEBOOK=true public.ecr.aws/neptune/graph-explorer:${EXPLORER_ECR_TAG}
 
