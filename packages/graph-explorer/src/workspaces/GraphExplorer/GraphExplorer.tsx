@@ -28,6 +28,7 @@ import {
 } from "../../core";
 import { edgesSelectedIdsAtom } from "../../core/StateProvider/edges";
 import { nodesSelectedIdsAtom } from "../../core/StateProvider/nodes";
+import { totalFilteredCount } from "../../core/StateProvider/filterCount";
 import { userLayoutAtom } from "../../core/StateProvider/userPreferences";
 import { usePrevious } from "../../hooks";
 import useTranslations from "../../hooks/useTranslations";
@@ -70,6 +71,7 @@ const GraphExplorer = ({ classNamePrefix = "ft" }: GraphViewProps) => {
   const edgesSelectedIds = useRecoilValue(edgesSelectedIdsAtom);
   const nodeOrEdgeSelected =
     nodesSelectedIds.size + edgesSelectedIds.size === 1;
+  const filteredEntitiesCount = useRecoilValue(totalFilteredCount);
 
   const closeSidebar = useCallback(() => {
     setUserLayout(prev => ({
@@ -296,6 +298,9 @@ const GraphExplorer = ({ classNamePrefix = "ft" }: GraphViewProps) => {
           tooltipText={"Filters"}
           icon={<FilterIcon />}
           onPress={toggleSidebar("filters")}
+          badge={filteredEntitiesCount}
+          badgeVariant="undetermined"
+          badgePlacement="top-right"
           active={userLayout.activeSidebarItem === "filters"}
         />
         <Workspace.SideBar.Button

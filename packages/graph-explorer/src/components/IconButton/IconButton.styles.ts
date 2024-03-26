@@ -362,42 +362,42 @@ export const defaultBadgeStyles =
       }
 
       &.${pfx}-placement-bottom-right {
-        bottom: -4px;
-        right: 0;
+        bottom: -6px;
+        right: -6px;
 
         &.${pfx}-variant-undetermined {
-          bottom: 4px;
-          right: 2px;
+          bottom: 0;
+          right: 0;
         }
       }
 
       &.${pfx}-placement-bottom-left {
-        bottom: -4px;
-        left: 0;
+        bottom: -6px;
+        left: -2px;
 
         &.${pfx}-variant-undetermined {
-          bottom: 4px;
-          left: 2px;
+          bottom: 0;
+          left: 0;
         }
       }
 
       &.${pfx}-placement-top-right {
-        top: -4px;
-        right: 0;
+        top: -6px;
+        right: -6px;
 
         &.${pfx}-variant-undetermined {
-          top: 4px;
-          right: 2px;
+          top: 0;
+          right: 0;
         }
       }
 
       &.${pfx}-placement-top-left {
-        top: -4px;
-        left: 0;
+        top: -6px;
+        left: -2px;
 
         &.${pfx}-variant-undetermined {
-          top: 4px;
-          left: 2px;
+          top: 0;
+          left: 0;
         }
       }
     }
