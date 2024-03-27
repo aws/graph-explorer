@@ -2,6 +2,34 @@
 
 ## Upcoming
 
+## Release 1.6.0
+
+This release includes the following feature enhancements and bug fixes:
+
+**Features**
+
+- Added support for Neptune Analytics (<https://github.com/aws/graph-explorer/pull/241>)
+- Added auto-cancellation of previous queries on new SPARQL/Gremlin search (<https://github.com/aws/graph-explorer/pull/259>)
+- Added search cancellation button (<https://github.com/aws/graph-explorer/pull/265>)
+- Added additional PNPM checks to GitHub CI (<https://github.com/aws/graph-explorer/pull/268>)
+- Improved keyword search performance (<https://github.com/aws/graph-explorer/pull/243>)
+- Updated proxy URL generation in SageMaker Lifecycle (<https://github.com/aws/graph-explorer/pull/279>)
+- Updated PropertyGraph Summary API routes in proxy server (<https://github.com/aws/graph-explorer/pull/250>)
+- Updated SageMaker documentation for Neptune Analytics (<https://github.com/aws/graph-explorer/pull/282>)
+
+**Bug Fixes and Minor Changes**
+
+- Fixed escaping of quote characters in keyword search (<https://github.com/aws/graph-explorer/pull/242>)
+- Fixed edge retrieval for legacy schema sync on openCypher (<https://github.com/aws/graph-explorer/pull/245>)
+- Fixed default connections for Neptune Analytics (<https://github.com/aws/graph-explorer/pull/254>)
+- Fixed formatting of search UI footer (<https://github.com/aws/graph-explorer/pull/260>)
+- Fixed handling of query cancellation on unsupported databases (<https://github.com/aws/graph-explorer/pull/276>)
+- Fixed rotation of sync progress indicator (<https://github.com/aws/graph-explorer/pull/278>)
+- Additional config adjustments for ESLint and Prettier (<https://github.com/aws/graph-explorer/pull/255>)
+- Removed `__all` predicate filter from SPARQL search queries (<https://github.com/aws/graph-explorer/pull/270>)
+- Various formatting improvements (<https://github.com/aws/graph-explorer/pull/251>) (<https://github.com/aws/graph-explorer/pull/266>) (<https://github.com/aws/graph-explorer/pull/267>)
+- Various dependency upgrades (<https://github.com/aws/graph-explorer/pull/248>) (<https://github.com/aws/graph-explorer/pull/246>)
+
 ## Release 1.5.1
 
 This release includes the following feature enhancements and bug fixes:
@@ -11,11 +39,6 @@ This release includes the following feature enhancements and bug fixes:
 - Refactored API request options for non-IAM endpoints (<https://github.com/aws/graph-explorer/pull/230>)
 - Enforced JSON response format for SPARQL queries (<https://github.com/aws/graph-explorer/pull/230>)
 - Bumped `vite` to `4.5.2` (<https://github.com/aws/graph-explorer/pull/233>)
-- Searching for text containing quotes now works.
-
-**Features**
-
-- Added compatibility with Neptune Analitycs.
 
 ## Release 1.5.0
 
