@@ -28,7 +28,7 @@ This release includes the following feature enhancements and bug fixes:
 - Additional config adjustments for ESLint and Prettier (<https://github.com/aws/graph-explorer/pull/255>)
 - Removed `__all` predicate filter from SPARQL search queries (<https://github.com/aws/graph-explorer/pull/270>)
 - Various formatting improvements (<https://github.com/aws/graph-explorer/pull/251>) (<https://github.com/aws/graph-explorer/pull/266>) (<https://github.com/aws/graph-explorer/pull/267>)
-- Various dependency upgrades (<https://github.com/aws/graph-explorer/pull/248>) (<https://github.com/aws/graph-explorer/pull/246>)
+- Various dependency upgrades (<https://github.com/aws/graph-explorer/pull/248>) (<https://github.com/aws/graph-explorer/pull/246>) (<https://github.com/aws/graph-explorer/pull/286>)
 
 ## Release 1.5.1
 
