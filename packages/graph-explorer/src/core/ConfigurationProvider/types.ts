@@ -157,6 +157,20 @@ export type ConnectionConfig = {
   fetchTimeoutMs?: number;
 };
 
+export type Schema = {
+  totalVertices: number;
+  vertices: Array<VertexTypeConfig>;
+  totalEdges: number;
+  edges: Array<EdgeTypeConfig>;
+  lastUpdate?: Date;
+  triedToSync?: boolean;
+  lastSyncFail?: boolean;
+  /**
+   * List of RDF prefixes (only for SPARQL)
+   */
+  prefixes?: Array<PrefixTypeConfig>;
+};
+
 export type RawConfiguration = {
   /**
    * Unique identifier for this config
@@ -176,19 +190,7 @@ export type RawConfiguration = {
   /**
    * Database schema: types, names, labels, icons, ...
    */
-  schema?: {
-    totalVertices: number;
-    vertices: Array<VertexTypeConfig>;
-    totalEdges: number;
-    edges: Array<EdgeTypeConfig>;
-    lastUpdate?: Date;
-    triedToSync?: boolean;
-    lastSyncFail?: boolean;
-    /**
-     * List of RDF prefixes (only for SPARQL)
-     */
-    prefixes?: Array<PrefixTypeConfig>;
-  };
+  schema?: Schema;
   /**
    * Mark as created from a file
    */

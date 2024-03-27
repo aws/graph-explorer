@@ -1,7 +1,8 @@
 import sortBy from "lodash/sortBy";
 import { useCallback, useMemo } from "react";
 import { selector, useRecoilValue, useSetRecoilState } from "recoil";
-import { EdgeIcon, VertexIcon } from "../../components";
+import { EdgeIcon } from "../../components/icons";
+import VertexIcon from "../../components/VertexIcon";
 import { useConfiguration } from "../../core";
 import { edgesTypesFilteredAtom } from "../../core/StateProvider/edges";
 import { nodesTypesFilteredAtom } from "../../core/StateProvider/nodes";
