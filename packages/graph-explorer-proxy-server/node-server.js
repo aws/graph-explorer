@@ -150,7 +150,7 @@ async function fetchData(res, next, url, options, isIamEnabled, region, serviceT
       serviceType
     );
     const data = await response.json();
-    res.status(response.status || 200);
+    res.status(response.status);
     res.send(data);
   } catch (error) {
     next(error);
