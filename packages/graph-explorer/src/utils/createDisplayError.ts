@@ -27,6 +27,12 @@ export function createDisplayError(error: any): DisplayError {
         message: "Please check your connection and try again.",
       };
     }
+    if (error?.code === "ECONNRESET" || error?.cause?.code === "ECONNRESET") {
+      return {
+        title: "Connection reset",
+        message: "Please check your connection and try again.",
+      };
+    }
 
     // Server timeout
     if (
