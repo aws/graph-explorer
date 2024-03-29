@@ -14,6 +14,46 @@ const localforageCache = localforage.createInstance({
   storeName: "connector-cache",
 });
 
+/**
+ * Attempts to decode the error response into a JSON object.
+ *
+ * @param response The fetch response that should be decoded
+ * @returns The decoded response or undefined if it fails to decode
+ */
+async function decodeErrorSafely(response: Response): Promise<any | undefined> {
+  const contentType = response.headers.get("Content-Type");
+  const contentTypeHasValue = contentType !== null && contentType.length > 0;
+  // Assume missing content type is JSON
+  const isJson =
+    !contentTypeHasValue || contentType.includes("application/json");
+
+  if (isJson) {
+    try {
+      const data = await response.json();
+      // Flatten the error if it contains an error object
+      return data?.error ?? data;
+    } catch (error) {
+      console.error("Failed to decode the error response as JSON", {
+        error,
+        response,
+      });
+      return undefined;
+    }
+  }
+
+  try {
+    const message = await response.text();
+    return { message };
+  } catch (error) {
+    console.error("Failed to decode the error response as text", {
+      error,
+      response,
+    });
+  }
+
+  return undefined;
+}
+
 const useGEFetch = () => {
   const connection = useConfiguration()?.connection as
     | ConnectionConfig
@@ -46,6 +86,12 @@ const useGEFetch = () => {
       options: (RequestInit & { disableCache: boolean }) | undefined
     ) => {
       const response = await fetch(url, options);
+      if (!response.ok) {
+        const error = await decodeErrorSafely(response);
+        throw new Error("Network response was not OK", { cause: error });
+      }
+
+      // A successful response is assumed to be JSON
       const data = await response.json();
       if (options?.disableCache !== true) {
         _setToCache(url, { data, updatedAt: new Date().getTime() });

@@ -4,6 +4,7 @@ import { useConfiguration } from "../../core";
 import useConnector from "../../core/ConnectorProvider/useConnector";
 import usePrefixesUpdater from "../../hooks/usePrefixesUpdater";
 import { useCallback, useMemo } from "react";
+import { createDisplayError } from "../../utils/createDisplayError";
 
 export type SearchQueryRequest = {
   debouncedSearchTerm: string;
@@ -74,10 +75,10 @@ export function useKeywordSearchQuery({
         updatePrefixes(response.vertices.map(v => v.data.id));
       },
       onError: (e: Error) => {
+        const displayError = createDisplayError(e);
         enqueueNotification({
           type: "error",
-          title: "Something went wrong",
-          message: e.message,
+          ...displayError,
         });
       },
     }
