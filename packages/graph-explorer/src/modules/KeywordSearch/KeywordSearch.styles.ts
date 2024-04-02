@@ -28,7 +28,6 @@ const defaultStyles =
           display: flex;
           align-items: center;
           color: ${theme.palette.text.secondary};
-          background: ${theme.palette.grey["200"]};
           padding-left: ${theme.spacing["2x"]};
         }
       }
