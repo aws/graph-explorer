@@ -91,6 +91,7 @@
     "@babel/preset-env": "^7.23.2",
     "@babel/preset-react": "^7.22.15",
     "@babel/preset-typescript": "^7.22.15",
+    "@jest/globals": "29.0.0",
     "@react-aria/overlays": "3.9.1",
     "@react-stately/radio": "^3.8.2",
     "@react-types/button": "^3.7.3",
