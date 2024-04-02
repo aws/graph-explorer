@@ -34,6 +34,14 @@ describe("createDisplayError", () => {
     });
   });
 
+  it("Should handle connection reset", () => {
+    const result = createDisplayError({ code: "ECONNRESET" });
+    expect(result).toStrictEqual({
+      title: "Connection reset",
+      message: "Please check your connection and try again.",
+    });
+  });
+
   it("Should handle connection refused as inner error", () => {
     const error = new Error("Some error message string", {
       cause: { code: "ECONNREFUSED" },
@@ -41,6 +49,17 @@ describe("createDisplayError", () => {
     const result = createDisplayError(error);
     expect(result).toStrictEqual({
       title: "Connection refused",
+      message: "Please check your connection and try again.",
+    });
+  });
+
+  it("Should handle connection reset as inner error", () => {
+    const error = new Error("Some error message string", {
+      cause: { code: "ECONNRESET" },
+    });
+    const result = createDisplayError(error);
+    expect(result).toStrictEqual({
+      title: "Connection reset",
       message: "Please check your connection and try again.",
     });
   });
