@@ -1,18 +1,7 @@
 import { useCallback } from "react";
-import localforage from "localforage";
-import { CacheItem } from "./useGEFetchTypes";
 import { useConfiguration, type ConnectionConfig } from "../core";
 import { DEFAULT_SERVICE_TYPE } from "../utils/constants";
 import { anySignal } from "./utils/anySignal";
-
-// 10 minutes
-const CACHE_TIME_MS = 10 * 60 * 1000;
-
-const localforageCache = localforage.createInstance({
-  name: "ge",
-  version: 1.0,
-  storeName: "connector-cache",
-});
 
 /**
  * Attempts to decode the error response into a JSON object.
@@ -58,49 +47,8 @@ const useGEFetch = () => {
   const connection = useConfiguration()?.connection as
     | ConnectionConfig
     | undefined;
-  const _getFromCache = useCallback(
-    async key => {
-      if (!connection?.enableCache) {
-        return;
-      }
 
-      return localforageCache.getItem(key) as Promise<CacheItem | undefined>;
-    },
-    [connection?.enableCache]
-  );
-
-  const _setToCache = useCallback(
-    async (key, value) => {
-      if (connection?.enableCache) {
-        return;
-      }
-
-      return localforageCache.setItem(key, value);
-    },
-    [connection?.enableCache]
-  );
-
-  const _requestAndCache = useCallback(
-    async (
-      url: URL,
-      options: (RequestInit & { disableCache: boolean }) | undefined
-    ) => {
-      const response = await fetch(url, options);
-      if (!response.ok) {
-        const error = await decodeErrorSafely(response);
-        throw new Error("Network response was not OK", { cause: error });
-      }
-
-      // A successful response is assumed to be JSON
-      const data = await response.json();
-      if (options?.disableCache !== true) {
-        _setToCache(url, { data, updatedAt: new Date().getTime() });
-      }
-      return data as any;
-    },
-    [_setToCache]
-  );
-
+  // Construct the request headers based on the connection settings
   const getAuthHeaders = useCallback(
     typeHeaders => {
       const headers: HeadersInit = {};
@@ -124,46 +72,40 @@ const useGEFetch = () => {
     ]
   );
 
-  const request = useCallback(
-    async (uri, options) => {
-      const cachedResponse = await _getFromCache(uri);
-      if (
-        cachedResponse &&
-        cachedResponse.updatedAt + (connection?.cacheTimeMs ?? CACHE_TIME_MS) >
-          new Date().getTime()
-      ) {
-        return cachedResponse.data;
-      }
+  // Construct an AbortSignal for the fetch timeout if configured
+  const getFetchTimeoutSignal = useCallback(() => {
+    if (!connection?.fetchTimeoutMs) {
+      return null;
+    }
 
+    if (connection.fetchTimeoutMs <= 0) {
+      return null;
+    }
+
+    return AbortSignal.timeout(connection.fetchTimeoutMs);
+  }, [connection?.fetchTimeoutMs]);
+
+  const request = useCallback(
+    async (uri: URL | RequestInfo, options: RequestInit) => {
+      // Apply connection settings to fetch options
       const fetchOptions: RequestInit = {
+        ...options,
         headers: getAuthHeaders(options.headers),
+        signal: anySignal(getFetchTimeoutSignal(), options.signal),
       };
 
-      const connectionFetchTimeout = connection?.fetchTimeoutMs;
+      const response = await fetch(uri, fetchOptions);
 
-      if (connectionFetchTimeout && connectionFetchTimeout > 0) {
-        const timeoutSignal = AbortSignal.timeout(connectionFetchTimeout);
-
-        // Combine timeout with existing signal
-        if (options.signal) {
-          fetchOptions.signal = anySignal([timeoutSignal, options.signal]);
-        } else {
-          fetchOptions.signal = timeoutSignal;
-        }
+      if (!response.ok) {
+        const error = await decodeErrorSafely(response);
+        throw new Error("Network response was not OK", { cause: error });
       }
 
-      return _requestAndCache(uri, {
-        ...options,
-        ...fetchOptions,
-      }) as Promise<any>;
+      // A successful response is assumed to be JSON
+      const data = await response.json();
+      return data;
     },
-    [
-      _getFromCache,
-      _requestAndCache,
-      connection?.cacheTimeMs,
-      connection?.fetchTimeoutMs,
-      getAuthHeaders,
-    ]
+    [getAuthHeaders, getFetchTimeoutSignal]
   );
 
   return {

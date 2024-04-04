@@ -26,7 +26,6 @@ const useOpenCypher = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ query: queryTemplate }),
-          disableCache: options?.disableCache,
           ...options,
         });
       };
@@ -36,8 +35,6 @@ const useOpenCypher = () => {
 
   const fetchSchemaFunc = useCallback(
     async (options: any) => {
-      const ops = { ...options, disableCache: true };
-
       let summary;
       try {
         const endpoint =
@@ -46,7 +43,7 @@ const useOpenCypher = () => {
             : `${url}/summary?mode=detailed`;
         const response = await useFetch.request(endpoint, {
           method: "GET",
-          ...ops,
+          ...options,
         });
 
         summary =
@@ -58,7 +55,7 @@ const useOpenCypher = () => {
           console.error("[Summary API]", e);
         }
       }
-      return fetchSchema(_openCypherFetch(ops), summary);
+      return fetchSchema(_openCypherFetch(options), summary);
     },
     [_openCypherFetch, url, useFetch, serviceType]
   );

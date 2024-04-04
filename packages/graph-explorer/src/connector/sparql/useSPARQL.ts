@@ -160,14 +160,13 @@ const useSPARQL = (blankNodes: BlankNodesMap) => {
 
   const fetchSchemaFunc = useCallback(
     async options => {
-      const ops = { ...options, disableCache: true };
       let summary;
       try {
         const response = await useFetch.request(
           `${url}/rdf/statistics/summary?mode=detailed`,
           {
             method: "GET",
-            ...ops,
+            ...options,
           }
         );
         summary = (response.payload.graphSummary as GraphSummary) || undefined;
@@ -176,7 +175,7 @@ const useSPARQL = (blankNodes: BlankNodesMap) => {
           console.error("[Summary API]", e);
         }
       }
-      return fetchSchema(_sparqlFetch(ops), summary);
+      return fetchSchema(_sparqlFetch(options), summary);
     },
     [_sparqlFetch, url, useFetch]
   );

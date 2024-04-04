@@ -141,16 +141,6 @@ export type ConnectionConfig = {
    */
   awsRegion?: string;
   /**
-   * Enable or disable connector cache.
-   * By default, it's enabled.
-   */
-  enableCache?: boolean;
-  /**
-   * Number of milliseconds before expiring a cached request.
-   * By default, 10 minutes.
-   */
-  cacheTimeMs?: number;
-  /**
    * Number of milliseconds before aborting a request.
    * By default, 60 seconds.
    */

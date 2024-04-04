@@ -6,9 +6,7 @@ import {
 } from "../core";
 
 export type QueryOptions = RequestInit & {
-  disableCache?: boolean;
   queryId?: string;
-  successCallback?: (queryId: string) => void;
 };
 
 export type VertexSchemaResponse = Pick<
@@ -190,8 +188,3 @@ export type ConfigurationWithConnection = Omit<
   "connection"
 > &
   Required<Pick<ConfigurationContextProps, "connection">>;
-
-export type CacheItem = {
-  updatedAt: number;
-  data: any;
-};

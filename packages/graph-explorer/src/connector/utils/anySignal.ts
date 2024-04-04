@@ -4,13 +4,21 @@
  *
  * Requires at least node.js 18.
  *
- * @param signals An array of AbortSignal values that will be merged.
- * @returns A single AbortSignal value.
+ * @param signals A variable amount of AbortSignal values that will be merged in to one.
+ * @returns A single AbortSignal value or undefined if none are passed.
  */
-export function anySignal(signals: AbortSignal[]): AbortSignal {
-  const controller = new AbortController();
+export function anySignal(
+  ...signals: (AbortSignal | null | undefined)[]
+): AbortSignal | undefined {
+  // Filter out null or undefined signals
+  const filteredSignals = signals.flatMap(s => (s ? [s] : []));
 
-  for (const signal of signals) {
+  if (filteredSignals.length === 0) {
+    return undefined;
+  }
+
+  const controller = new AbortController();
+  for (const signal of filteredSignals) {
     if (signal.aborted) {
       // Exiting early if one of the signals
       // is already aborted.
