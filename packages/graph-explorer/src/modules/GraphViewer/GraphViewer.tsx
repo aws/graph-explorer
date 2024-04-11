@@ -47,7 +47,6 @@ import ContextMenu from "./internalComponents/ContextMenu";
 import useContextMenu from "./useContextMenu";
 import useGraphGlobalActions from "./useGraphGlobalActions";
 import useGraphStyles from "./useGraphStyles";
-import useGraphViewerInit from "./useGraphViewerInit";
 import useNodeBadges from "./useNodeBadges";
 import useNodeDrop from "./useNodeDrop";
 
@@ -142,7 +141,6 @@ const GraphViewer = ({
   const styleWithTheme = useWithTheme();
   const pfx = withClassNamePrefix("ft");
 
-  useGraphViewerInit();
   const graphRef = useRef<GraphRef | null>(null);
   const [entities] = useEntities();
   const { dropAreaRef, isOver, canDrop } = useNodeDrop();

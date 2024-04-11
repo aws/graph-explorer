@@ -253,6 +253,9 @@ importers:
       '@babel/preset-typescript':
         specifier: ^7.22.15
         version: 7.22.15(@babel/core@7.23.2)
+      '@jest/globals':
+        specifier: 29.0.0
+        version: 29.0.0
       '@react-stately/radio':
         specifier: ^3.8.2
         version: 3.8.2(react@17.0.2)
@@ -2391,6 +2394,7 @@ packages:
 
   /@emotion/memoize@0.7.4:
     resolution: {integrity: sha512-Ja/Vfqe3HpuzRsG1oBtWTHk2PGZ7GR+2Vz5iYGelAw8dx32K0y7PjVuxK6z1nMpZOqAFsRUPCkK1YjJ56qJlgw==}
+    requiresBuild: true
     dev: false
     optional: true
 
@@ -3119,6 +3123,18 @@ packages:
       jest-message-util: 29.7.0
       jest-mock: 29.7.0
       jest-util: 29.7.0
+    dev: true
+
+  /@jest/globals@29.0.0:
+    resolution: {integrity: sha512-ZHQMh6BZtabbikh9wkuPpVQmPHEpc4EgOaY/UJNM6hHHA5HRmiP5rH54M8267nkGscuqM5KpWP+zAZ4XEOXZag==}
+    engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
+    dependencies:
+      '@jest/environment': 29.7.0
+      '@jest/expect': 29.7.0
+      '@jest/types': 29.6.3
+      jest-mock: 29.7.0
+    transitivePeerDependencies:
+      - supports-color
     dev: true
 
   /@jest/globals@29.7.0:
@@ -4690,7 +4706,7 @@ packages:
   /@swc/helpers@0.4.14:
     resolution: {integrity: sha512-4C7nX/dvpzB7za4Ql9K81xK3HPxCpHMgwTZVyf+9JQ6VUbn9jjZVN7/Nkdz/Ugzs2CSjqnL/UPXroiVBVHUWUw==}
     dependencies:
-      tslib: 2.6.0
+      tslib: 2.6.2
     dev: false
 
   /@swc/helpers@0.4.36:
@@ -5347,7 +5363,7 @@ packages:
     resolution: {integrity: sha512-pwXDog5nwwvSIzwrvYYmA2Ljcd/ZNlcsSG2Q9CNDBwnsd55UGAyr2doXtB5j+2uymRCnCfExlznzzSFbBRcoCg==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
-      vite: ^4.2.0
+      vite: '>=4.5.2'
     dependencies:
       '@babel/core': 7.23.2
       '@babel/plugin-transform-react-jsx-self': 7.24.1(@babel/core@7.23.2)
@@ -6971,7 +6987,7 @@ packages:
   /esbuild-loader@2.21.0(webpack@5.76.0):
     resolution: {integrity: sha512-k7ijTkCT43YBSZ6+fBCW1Gin7s46RrJ0VQaM8qA7lq7W+OLsGgtLyFV8470FzYi/4TeDexniTBTPTwZUnXXR5g==}
     peerDependencies:
-      webpack: ^4.40.0 || ^5.0.0
+      webpack: '>=5.76.0'
     dependencies:
       esbuild: 0.16.17
       joycon: 3.1.1
@@ -10852,7 +10868,7 @@ packages:
       '@swc/core': '*'
       esbuild: '*'
       uglify-js: '*'
-      webpack: ^5.1.0
+      webpack: '>=5.76.0'
     peerDependenciesMeta:
       '@swc/core':
         optional: true

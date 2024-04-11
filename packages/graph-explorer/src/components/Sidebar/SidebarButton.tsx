@@ -1,7 +1,7 @@
 import { cx } from "@emotion/css";
 import type { ReactNode } from "react";
 import { withClassNamePrefix } from "../../core";
-import IconButton from "../IconButton";
+import IconButton, { IconButtonProps } from "../IconButton";
 
 export type NavItem = {
   icon: ReactNode;
@@ -10,40 +10,25 @@ export type NavItem = {
 };
 
 export type SidebarButtonProps = {
-  tooltipText?: string;
-  icon: ReactNode;
-  onPress(): void;
-  classNamePrefix?: string;
-  className?: string;
   active?: boolean;
-};
+} & Omit<IconButtonProps, "variant" | "rounded" | "tooltipPlacement">;
 
 const SidebarButton = ({
-  tooltipText,
   classNamePrefix = "ft",
   className,
   active,
-  icon,
-  onPress,
+  ...props
 }: SidebarButtonProps) => {
   const pfx = withClassNamePrefix(classNamePrefix);
 
   return (
     <IconButton
-      tooltipText={tooltipText}
       tooltipPlacement={"left-center"}
       variant={"text"}
       rounded={true}
       classNamePrefix={classNamePrefix}
-      className={cx(
-        pfx("sidebar-button"),
-        {
-          [pfx("active")]: active,
-        },
-        className
-      )}
-      icon={icon}
-      onPress={onPress}
+      className={cx(pfx("sidebar-button"), active && pfx("active"), className)}
+      {...props}
     />
   );
 };
