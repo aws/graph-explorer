@@ -20,7 +20,7 @@ const rootStyles = () => css`
   align-items: center;
 `;
 
-interface ColumnOrderControlProps<T extends object> {
+interface ColumnOrderControlProps<T extends Record<string, unknown>> {
   instance: TabularInstance<T>;
   classNamePrefix?: string;
   className?: string;
@@ -34,7 +34,7 @@ const reorder = (list: string[], startIndex: number, endIndex: number) => {
   return result;
 };
 
-export const ColumnSettingsControl = <T extends object>({
+export const ColumnSettingsControl = <T extends Record<string, unknown>>({
   classNamePrefix = "ft",
   className,
 }: ColumnOrderControlProps<T>) => {

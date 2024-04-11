@@ -24,14 +24,14 @@ const rootStyles = () => css`
   align-items: center;
 `;
 
-type ExportControlProps<T extends object> = {
+type ExportControlProps<T extends Record<string, unknown>> = {
   classNamePrefix?: string;
   className?: string;
   omittedColumnsIds?: string[];
   instance: TabularInstance<T>;
 };
 
-export const ExternalExportControl = <T extends object>({
+export const ExternalExportControl = <T extends Record<string, unknown>>({
   classNamePrefix = "ft",
   className,
   omittedColumnsIds,
