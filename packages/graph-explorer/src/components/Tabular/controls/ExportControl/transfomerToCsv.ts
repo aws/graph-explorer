@@ -3,11 +3,11 @@ import type { Row } from "react-table";
 import type { TabularColumnInstance } from "../../helpers/tableInstanceToTabularInstance";
 import getNestedObjectValue from "./getNestedObjectValue";
 
-const transformToCsv = (
+export default function transformToCsv(
   currentDataSource: readonly any[],
   selectedColumns: Record<string, boolean>,
   columns: TabularColumnInstance<any>[]
-) => {
+) {
   const filteredRows = currentDataSource.map((row: any | Row<any>) => {
     return Object.entries(selectedColumns).reduce(
       (cells, [columnId, shouldExport]) => {
@@ -50,6 +50,4 @@ const transformToCsv = (
   );
 
   return unparse([headers, ...filteredRows], { header: false });
-};
-
-export default transformToCsv;
+}
