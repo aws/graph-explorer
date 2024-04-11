@@ -8,30 +8,30 @@ export default function transformToCsv<T extends Record<string, unknown>>(
   selectedColumns: Record<string, boolean>,
   columns: TabularColumnInstance<T>[]
 ) {
-  const filteredRows = currentDataSource.map(row => {
-    return Object.entries(selectedColumns).reduce(
-      (cells, [columnId, shouldExport]) => {
-        if (shouldExport) {
-          const colDef = columns.find(
-            colDef => colDef.instance.id === columnId
-          )?.definition;
+  const filteredRows = currentDataSource
+    .map(row => (row as Row<T>).original || row)
+    .map(row => {
+      return Object.entries(selectedColumns).reduce(
+        (cells, [columnId, shouldExport]) => {
+          if (shouldExport) {
+            const colDef = columns.find(
+              colDef => colDef.instance.id === columnId
+            )?.definition;
 
-          if (typeof colDef?.accessor === "string") {
-            cells.push(
-              getNestedObjectValue(row.original || row, columnId.split("."))
-            );
-          } else {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            cells.push(colDef?.accessor?.(row));
+            if (typeof colDef?.accessor === "string") {
+              cells.push(getNestedObjectValue(row, columnId.split(".")));
+            } else {
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
+              cells.push(colDef?.accessor?.(row));
+            }
           }
-        }
 
-        return cells;
-      },
-      [] as (string | number)[]
-    );
-  }, []);
+          return cells;
+        },
+        [] as (string | number)[]
+      );
+    }, []);
 
   const headers = Object.entries(selectedColumns).reduce<string[]>(
     (header, [columnId, shouldExport]) => {
