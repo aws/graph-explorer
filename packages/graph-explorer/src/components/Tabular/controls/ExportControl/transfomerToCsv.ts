@@ -3,35 +3,35 @@ import type { Row } from "react-table";
 import type { TabularColumnInstance } from "../../helpers/tableInstanceToTabularInstance";
 import getNestedObjectValue from "./getNestedObjectValue";
 
-const transformToCsv = (
-  currentDataSource: readonly any[],
+export default function transformToCsv<T extends Record<string, unknown>>(
+  currentDataSource: readonly T[] | Row<T>[],
   selectedColumns: Record<string, boolean>,
-  columns: TabularColumnInstance<any>[]
-) => {
-  const filteredRows = currentDataSource.map((row: any | Row<any>) => {
-    return Object.entries(selectedColumns).reduce(
-      (cells, [columnId, shouldExport]) => {
-        if (shouldExport) {
-          const colDef = columns.find(
-            colDef => colDef.instance.id === columnId
-          )?.definition;
+  columns: TabularColumnInstance<T>[]
+) {
+  const filteredRows = currentDataSource
+    .map(row => (row as Row<T>).original || row)
+    .map(row => {
+      return Object.entries(selectedColumns).reduce(
+        (cells, [columnId, shouldExport]) => {
+          if (shouldExport) {
+            const colDef = columns.find(
+              colDef => colDef.instance.id === columnId
+            )?.definition;
 
-          if (typeof colDef?.accessor === "string") {
-            cells.push(
-              getNestedObjectValue(row.original || row, columnId.split("."))
-            );
-          } else {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            cells.push(colDef?.accessor?.(row));
+            if (typeof colDef?.accessor === "string") {
+              cells.push(getNestedObjectValue(row, columnId.split(".")));
+            } else {
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
+              cells.push(colDef?.accessor?.(row));
+            }
           }
-        }
 
-        return cells;
-      },
-      [] as (string | number)[]
-    );
-  }, []);
+          return cells;
+        },
+        [] as (string | number)[]
+      );
+    }, []);
 
   const headers = Object.entries(selectedColumns).reduce<string[]>(
     (header, [columnId, shouldExport]) => {
@@ -50,6 +50,4 @@ const transformToCsv = (
   );
 
   return unparse([headers, ...filteredRows], { header: false });
-};
-
-export default transformToCsv;
+}

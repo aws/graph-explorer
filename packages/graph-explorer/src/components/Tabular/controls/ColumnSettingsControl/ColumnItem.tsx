@@ -5,14 +5,14 @@ import Switch from "../../../Switch";
 import type { TabularInstance } from "../../helpers/tableInstanceToTabularInstance";
 import { useTabularControl } from "../../TabularControlsProvider";
 
-type ColumnItemProps<T extends object> = {
+type ColumnItemProps<T extends Record<string, unknown>> = {
   classNamePrefix: string;
   columnId: string;
   column: TabularInstance<T>["columns"][number];
   index: number;
 };
 
-const ColumnItem = <T extends object>({
+const ColumnItem = <T extends Record<string, unknown>>({
   classNamePrefix,
   columnId,
   column,
