@@ -2,11 +2,10 @@ import Color from "color";
 import { useEffect, useState } from "react";
 import { EdgeData } from "../../@types/entities";
 import type { GraphProps } from "../../components";
-import colorizeSvg from "../../components/utils/canvas/colorizeSvg";
 import { useConfiguration } from "../../core";
 import useTextTransform from "../../hooks/useTextTransform";
+import { renderNode } from "./renderNode";
 
-const ICONS_CACHE: Map<string, string> = new Map();
 const LINE_PATTERN = {
   solid: undefined,
   dashed: [5, 6],
@@ -28,22 +27,11 @@ const useGraphStyles = () => {
           continue;
         }
 
-        // To avoid multiple requests, cache icons under the same URL
-        let iconText = vtConfig.iconUrl
-          ? ICONS_CACHE.get(vtConfig.iconUrl)
-          : undefined;
-        if (vtConfig.iconUrl && !iconText) {
-          const response = await fetch(vtConfig.iconUrl);
-          iconText = await response.text();
-          ICONS_CACHE.set(vtConfig.iconUrl, iconText);
-        }
+        // Process the image data or SVG
+        const backgroundImage = await renderNode(vtConfig);
 
         styles[`node[type="${vt}"]`] = {
-          "background-image":
-            iconText && vtConfig.iconImageType === "image/svg+xml"
-              ? colorizeSvg(iconText, vtConfig.color || "#128EE5") ||
-                "data(__iconUrl)"
-              : vtConfig.iconUrl,
+          "background-image": backgroundImage,
           "background-color": vtConfig.color,
           "background-opacity": vtConfig.backgroundOpacity,
           "border-color": vtConfig.borderColor,
@@ -51,6 +39,8 @@ const useGraphStyles = () => {
           "border-opacity": vtConfig.borderWidth ? 1 : 0,
           "border-style": vtConfig.borderStyle,
           shape: vtConfig.shape,
+          width: 24,
+          height: 24,
         };
       }
 

@@ -38,6 +38,19 @@ export function createRandomBoolean(): boolean {
 }
 
 /**
+ * Randomly creates a hex value for an RGB color.
+ * @returns The hex string of the random color.
+ */
+export function createRandomColor(): string {
+  const letters = "0123456789ABCDEF".split("");
+  let color = "#";
+  for (let i = 0; i < 6; i++) {
+    color += letters[Math.round(Math.random() * 15)];
+  }
+  return color;
+}
+
+/**
  * Randomly returns the provided value or undefined.
  * @returns Either the value or undefined.
  */
