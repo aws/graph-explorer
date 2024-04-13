@@ -17,7 +17,7 @@ jobs:
         node-version:
           - 18.16.0
         pnpm-version:
-          - 8.15.4
+          - 8.15.6
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
