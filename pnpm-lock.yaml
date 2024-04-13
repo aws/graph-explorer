@@ -397,9 +397,6 @@ importers:
       lint-staged:
         specifier: ^13.2.3
         version: 13.2.3
-      prettier:
-        specifier: 3.2.5
-        version: 3.2.5
       react-test-renderer:
         specifier: ^17.0.2
         version: 17.0.2(react@17.0.2)
