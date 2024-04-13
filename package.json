@@ -9,8 +9,8 @@
   "scripts": {
     "prepare": "husky install",
     "precommit": "lint-staged && pnpm types:check",
-    "lint": "pnpm -F graph-explorer lint",
-    "lint:check": "pnpm -F graph-explorer lint:check",
+    "lint": "eslint . --fix",
+    "lint:check": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "pnpm -F graph-explorer test",
@@ -28,6 +28,7 @@
     "@typescript-eslint/parser": "^7.1.0",
     "concurrently": "^8.2.0",
     "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
     "husky": "^9.0.11",
@@ -36,10 +37,10 @@
     "typescript": "^5.1.6"
   },
   "lint-staged": {
-    "*.{ts,tsx}": [
-      "eslint --fix",
-      "prettier --write"
-    ]
+    "*.{js,ts,tsx}": [
+      "eslint --fix"
+    ],
+    "**/*": "prettier --write --ignore-unknown"
   },
   "pnpm": {
     "overrides": {
