@@ -3,6 +3,7 @@ FROM amazonlinux:2022
 ARG NEPTUNE_NOTEBOOK
 ENV NVM_DIR /root/.nvm
 ENV NODE_VERSION v16.20.2
+ENV PNPM_VERSION 8.15.4
 WORKDIR /
 COPY . /graph-explorer/
 WORKDIR /graph-explorer
@@ -16,7 +17,7 @@ RUN yum update -y && \
     nvm install $NODE_VERSION && \
     nvm alias default $NODE_VERSION && \
     nvm use $NODE_VERSION && \
-    npm install -g pnpm && \
+    npm install -g pnpm@${PNPM_VERSION} && \
     pnpm install && \
     yum clean all && \
     yum remove -y tar gzip findutils && \
