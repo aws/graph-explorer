@@ -12,8 +12,6 @@
     "vite-build": "NODE_OPTIONS=--max_old_space_size=6144 vite build",
     "build": "pnpm vite-build -- --mode production",
     "serve": "serve dist",
-    "prepare": "cd ../.. && husky install",
-    "precommit": "lint-staged && pnpm types:check",
     "types:check": "tsc --project ./tsconfig.types.json"
   },
   "author": "amazon",
@@ -124,7 +122,6 @@
     "babel-jest": "^29.0.0",
     "buffer": "^6.0.3",
     "esbuild-loader": "^2.21.0",
-    "husky": "^9.0.11",
     "jest": "^29.0.0",
     "jest-environment-jsdom": "^29.6.1",
     "jest-github-actions-reporter": "^1.0.3",
