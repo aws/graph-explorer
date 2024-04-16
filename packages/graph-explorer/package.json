@@ -3,7 +3,7 @@
   "version": "1.6.0",
   "description": "Graph Explorer",
   "engines": {
-    "node": ">=16.15.1"
+    "node": ">=20.12.2"
   },
   "scripts": {
     "test": "jest",
@@ -106,7 +106,7 @@
     "@types/history": "4.7.11",
     "@types/jest": "^26.0.24",
     "@types/lodash": "^4.14.195",
-    "@types/node": "^17.0.45",
+    "@types/node": "^20.12.7",
     "@types/papaparse": "^5.3.7",
     "@types/react": "^17.0.62",
     "@types/react-beautiful-dnd": "^13.1.4",
