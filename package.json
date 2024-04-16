@@ -19,7 +19,9 @@
     "start": "pnpm -F graph-explorer start",
     "build": "pnpm -F graph-explorer build",
     "start:proxy-server": "pnpm -F graph-explorer-proxy-server start",
-    "dev": "concurrently \"pnpm start:proxy-server\" \"pnpm start\""
+    "dev": "concurrently \"pnpm start:proxy-server\" \"pnpm start\"",
+    "ui": "pnpm --filter \"graph-explorer\"",
+    "server": "pnpm --filter \"graph-explorer-proxy-server\""
   },
   "author": "amazon",
   "license": "Apache-2.0",
