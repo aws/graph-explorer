@@ -72,3 +72,16 @@ jobs:
           docker build --build-arg NEPTUNE_NOTEBOOK=true -t $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:sagemaker-$IMAGE_TAG .
           docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG
           docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:sagemaker-$IMAGE_TAG
+
+      - name: Update latest tag for release
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.image_tag == 'release' }}
+        env:
+          REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
+          REGISTRY_ALIAS: neptune
+          REPOSITORY: graph-explorer
+          IMAGE_TAG: ${{ steps.get-image-tag.outputs.image_tag }}
+        run: |
+          docker tag $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:latest
+          docker tag $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:sagemaker-$IMAGE_TAG $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:sagemaker-latest
+          docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:latest
+          docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:sagemaker-latest
