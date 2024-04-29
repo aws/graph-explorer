@@ -2,11 +2,11 @@
 This developer README details instructions for building on top of the graph-explorer application, or for configuring advanced settings, like using environment variables to switch to HTTP.
 
 ### Requirements
-- pnpm >=7.9.3
+- pnpm >=8.15.6
 - node >=16.15.1
 
 ### Supported Graph Types
-- Labelled Property Graph (PG) using Gremlin
+- Labelled Property Graph (PG) using Gremlin or openCypher
 - Resource Description Framework (RDF) using SPARQL 
 
 ### Run in development mode
@@ -20,11 +20,23 @@ This developer README details instructions for building on top of the graph-expl
 - Serve the static site using the method of your choice,
 for example, using `serve` npm package.
 
+### Managing dependencies
+
+If you need to add, remove, or update a dependency you can easily do so from the root folder in the CLI:
+
+```bash
+# Adding a package for the react app
+pnpm ui add react
+
+# Adding a dev only dependency for the server app
+pnpm server add -D jest
+```
+
 #### Preparation of a release
 This repository is composed by 2 packages and a mono-repository structure itself. Then, you need to take into account 3 different `package.json` files:
 - `<root>/package.json` is intended to keep the dependencies for managing the repository. It has utilities like linter, code formatter, or git checks.
 - `<root>/packages/graph-explorer/package.json` is the package file that describes the UI client package.
-- `<root>/packages/graph-explorer-proxy-server/package.json` is the package file for the node server which is in charge of authentication and redirections of requests.
+- `<root>/packages/graph-explorer-proxy-server/package.json` is the package file for the node server which is in charge of authentication and redirection of requests.
 
 Each of these `package.json` files has an independent `version` property. However, in this project we should keep them correlated. Therefore, when a new release version is being prepared, the version number should be increased in all 3 files.
 Regarding the version number displayed in the user interface, it is specifically extracted from the `<root>/packages/graph-explorer/package.json`. file

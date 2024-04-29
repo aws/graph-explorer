@@ -2,32 +2,34 @@
   "name": "graph-explorer",
   "version": "1.6.0",
   "description": "Graph Explorer",
-  "packageManager": "pnpm@8.15.4+sha256.cea6d0bdf2de3a0549582da3983c70c92ffc577ff4410cbf190817ddc35137c2",
+  "packageManager": "pnpm@8.15.6+sha256.01c01eeb990e379b31ef19c03e9d06a14afa5250b82e81303f88721c99ff2e6f",
   "engines": {
     "node": ">=16.15.1"
   },
   "scripts": {
     "prepare": "husky install",
     "precommit": "lint-staged && pnpm types:check",
-    "lint": "pnpm -F graph-explorer lint",
-    "lint:check": "pnpm -F graph-explorer lint:check",
-    "format": "pnpm -F graph-explorer format",
-    "format:check": "pnpm -F graph-explorer format:check",
+    "lint": "eslint . --fix",
+    "check:lint": "eslint .",
+    "format": "prettier --write .",
+    "check:format": "prettier --check .",
     "test": "pnpm -F graph-explorer test",
-    "types:check": "pnpm -F graph-explorer types:check",
-    "checks": "pnpm run types:check && pnpm run lint:check && pnpm run format:check",
-    "start": "pnpm -F graph-explorer start",
+    "check:types": "pnpm -F graph-explorer types:check",
+    "checks": "pnpm run '/^check:.*/'",
+    "start": "pnpm --stream -r run start",
     "build": "pnpm -F graph-explorer build",
     "start:proxy-server": "pnpm -F graph-explorer-proxy-server start",
-    "dev": "concurrently \"pnpm start:proxy-server\" \"pnpm start\""
+    "dev": "pnpm --stream -r run start",
+    "ui": "pnpm --filter \"graph-explorer\"",
+    "server": "pnpm --filter \"graph-explorer-proxy-server\""
   },
   "author": "amazon",
   "license": "Apache-2.0",
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^7.1.0",
     "@typescript-eslint/parser": "^7.1.0",
-    "concurrently": "^8.2.0",
     "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
     "husky": "^9.0.11",
@@ -36,10 +38,10 @@
     "typescript": "^5.1.6"
   },
   "lint-staged": {
-    "*.{ts,tsx}": [
-      "eslint --fix",
-      "prettier --write"
-    ]
+    "*.{js,ts,tsx}": [
+      "eslint --fix"
+    ],
+    "**/*": "prettier --write --ignore-unknown"
   },
   "pnpm": {
     "overrides": {

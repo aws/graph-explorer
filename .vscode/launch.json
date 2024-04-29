@@ -10,8 +10,12 @@
       "name": "Jest current file",
       "skipFiles": ["<node_internals>/**"],
       "runtimeExecutable": "sh",
-      "program": "${workspaceFolder}/node_modules/.bin/jest",
-      "args": ["${relativeFile}", "--coverage=false"],
+      "program": "${workspaceFolder}/packages/graph-explorer/node_modules/.bin/jest",
+      "args": [
+        "${relativeFile}",
+        "--coverage=false",
+        "--config=${workspaceFolder}/packages/graph-explorer/jest.config.ts"
+      ],
       "console": "integratedTerminal",
       "internalConsoleOptions": "openOnFirstSessionStart"
     }

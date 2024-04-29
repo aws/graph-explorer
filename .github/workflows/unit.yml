@@ -17,7 +17,7 @@ jobs:
         node-version:
           - 18.16.0
         pnpm-version:
-          - 8.15.4
+          - 8.15.6
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -35,14 +35,8 @@ jobs:
       - name: Install package and dependencies
         run: pnpm install
 
-      - name: Run type check
-        run: pnpm run types:check
-
-      - name: Run lint check
-        run: pnpm run lint:check
-
-      - name: Run format check
-        run: pnpm run format:check
+      - name: Run type, lint, and format checks
+        run: pnpm checks
 
       - name: Run package tests
         run: pnpm test
