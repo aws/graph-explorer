@@ -3,7 +3,7 @@ This developer README details instructions for building on top of the graph-expl
 
 ### Requirements
 - pnpm >=8.15.6
-- node >=16.15.1
+- node >=20.12.2
 
 ### Supported Graph Types
 - Labelled Property Graph (PG) using Gremlin or openCypher

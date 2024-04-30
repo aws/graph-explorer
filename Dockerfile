@@ -2,8 +2,7 @@
 FROM amazonlinux:2022
 ARG NEPTUNE_NOTEBOOK
 ENV NVM_DIR /root/.nvm
-ENV NODE_VERSION v16.20.2
-ENV PNPM_VERSION 8.15.6
+ENV NODE_VERSION v20.12.2
 WORKDIR /
 COPY . /graph-explorer/
 WORKDIR /graph-explorer
@@ -12,12 +11,12 @@ WORKDIR /graph-explorer
 RUN yum update -y && \
     yum install -y tar gzip git findutils openssl && \
     mkdir -p $NVM_DIR && \
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash && \
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash && \
     source $NVM_DIR/nvm.sh && \
     nvm install $NODE_VERSION && \
     nvm alias default $NODE_VERSION && \
     nvm use $NODE_VERSION && \
-    npm install -g pnpm@${PNPM_VERSION} && \
+    corepack enable && \
     pnpm install && \
     yum clean all && \
     yum remove -y tar gzip findutils && \
