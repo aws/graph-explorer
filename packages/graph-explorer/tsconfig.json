@@ -16,7 +16,6 @@
     "useUnknownInCatchVariables": false,
     "jsx": "react-jsx",
     "noEmit": true,
-    "emitDeclarationOnly": true,
     "downlevelIteration": true,
     "importHelpers": true,
     "paths": {},
