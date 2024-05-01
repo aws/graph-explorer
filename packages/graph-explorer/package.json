@@ -11,8 +11,7 @@
     "clean": "rimraf dist",
     "vite-build": "NODE_OPTIONS=--max_old_space_size=6144 vite build",
     "build": "pnpm vite-build -- --mode production",
-    "serve": "serve dist",
-    "types:check": "tsc"
+    "serve": "serve dist"
   },
   "author": "amazon",
   "license": "Apache-2.0",
@@ -134,7 +133,6 @@
     "ts-node": "^10.9.2",
     "tslib": "^2.6.2",
     "type-fest": "^2.19.0",
-    "typescript": "^4.9.5",
     "vite": "^4.5.3",
     "webpack": "^5.91.0",
     "whatwg-fetch": "^3.6.20"
