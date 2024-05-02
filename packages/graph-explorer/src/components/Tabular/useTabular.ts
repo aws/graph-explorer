@@ -1,20 +1,14 @@
-import {
-  MouseEvent,
-  ReactNode,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { MouseEvent, useEffect, useMemo, useRef, useState } from "react";
 
 import {
   ActionType,
   CellProps,
   Column,
-  ColumnInstance,
   ColumnInterfaceBasedOnValue,
   DefaultFilterTypes,
+  FilterProps,
   IdType,
+  Renderer,
   Row,
   TableInstance,
   TableOptions,
@@ -102,9 +96,7 @@ export type ColumnDefinition<T extends object> = Pick<
    * By default, it uses a Text Input filter component
    * @param props - Receives the table instance and column as props
    */
-  filterComponent?: (
-    props: TableInstance<T> & { column: ColumnInstance<T> }
-  ) => ReactNode;
+  filterComponent?: Renderer<FilterProps<T>>;
 
   /**
    * Allows to enable the filtering for a column. Defaults to true.
@@ -320,12 +312,13 @@ export const useTabular = <T extends object>(options: TabularOptions<T>) => {
 
   // Default defaultColumn if it's not defined in options
   const defaultColumn = useMemo(
-    () => ({
-      minWidth: 60,
-      width: 100,
-      Filter: TextFilter(activeTheme)({}),
-      ...columnDefinitionToColumn(options.defaultColumn || {}),
-    }),
+    () =>
+      ({
+        minWidth: 60,
+        width: 100,
+        Filter: TextFilter(activeTheme)({}),
+        ...columnDefinitionToColumn(options.defaultColumn || {}),
+      }) as Column<T>,
     [activeTheme, options.defaultColumn]
   );
 
