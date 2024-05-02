@@ -1,6 +1,6 @@
 import queryString from "query-string";
 import React, { useEffect, useState } from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import { HashRouter as Router } from "react-router-dom";
 import App from "./App";
 import { RawConfiguration } from "./core";
@@ -95,4 +95,6 @@ const BootstrapApp = () => {
   );
 };
 
-ReactDOM.render(<BootstrapApp />, document.getElementById("root"));
+const container = document.getElementById("root");
+const root = createRoot(container!);
+root.render(<BootstrapApp />);
