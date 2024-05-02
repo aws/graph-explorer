@@ -50,7 +50,7 @@ const useGEFetch = () => {
 
   // Construct the request headers based on the connection settings
   const getAuthHeaders = useCallback(
-    typeHeaders => {
+    (typeHeaders: HeadersInit | undefined) => {
       const headers: HeadersInit = {};
       if (connection?.proxyConnection) {
         headers["graph-db-connection-url"] = connection.graphDbUrl || "";

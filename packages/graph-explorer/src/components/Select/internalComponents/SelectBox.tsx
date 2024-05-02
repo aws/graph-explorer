@@ -115,7 +115,7 @@ const SelectBox = (
   }, [props.selectedKeys, props.selectionMode, props.items, styleWithTheme]);
 
   const handleChange: MultipleSelection["onSelectionChange"] = useCallback(
-    value => {
+    (value: any) => {
       if (props.selectionMode === "single") {
         const selection = [...value];
         if (selection.length === 0 && !props.allowDeselect) {

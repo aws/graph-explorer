@@ -1,14 +1,14 @@
 import { css, cx } from "@emotion/css";
 
-import { FC } from "react";
+import { FC, PropsWithChildren } from "react";
 import { withClassNamePrefix } from "../../../core";
 
 import { useTabularControl } from "../TabularControlsProvider";
 
-export type TabularEmptyBodyControlsProps = {
+export type TabularEmptyBodyControlsProps = PropsWithChildren<{
   classNamePrefix?: string;
   className?: string;
-};
+}>;
 
 const defaultStyles = (pfx: string) => css`
   &.${pfx}-body-controls {

@@ -18,7 +18,7 @@ const useOpenCypher = () => {
   const serviceType = connection?.serviceType || DEFAULT_SERVICE_TYPE;
 
   const _openCypherFetch = useCallback(
-    options => {
+    (options: any) => {
       return async (queryTemplate: string) => {
         return useFetch.request(`${url}/openCypher`, {
           method: "POST",
@@ -61,28 +61,28 @@ const useOpenCypher = () => {
   );
 
   const fetchVertexCountsByType = useCallback(
-    (req, options) => {
+    (req: any, options: any) => {
       return fetchVertexTypeCounts(_openCypherFetch(options), req);
     },
     [_openCypherFetch]
   );
 
   const fetchNeighborsFunc = useCallback(
-    (req, options) => {
+    (req: any, options: any) => {
       return fetchNeighbors(_openCypherFetch(options), req);
     },
     [_openCypherFetch]
   );
 
   const fetchNeighborsCountFunc = useCallback(
-    (req, options) => {
+    (req: any, options: any) => {
       return fetchNeighborsCount(_openCypherFetch(options), req);
     },
     [_openCypherFetch]
   );
 
   const keywordSearchFunc = useCallback(
-    (req, options) => {
+    (req: any, options: any) => {
       return keywordSearch(_openCypherFetch(options), req);
     },
     [_openCypherFetch]

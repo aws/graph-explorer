@@ -1,6 +1,6 @@
 import { css, cx } from "@emotion/css";
 
-import { useEffect, useMemo, useState, VFC } from "react";
+import { FunctionComponent, useEffect, useMemo, useState } from "react";
 import { withClassNamePrefix } from "../../../core";
 import Button from "../../Button";
 import HumanReadableNumberFormatter from "../../HumanReadableNumberFormatter";
@@ -84,7 +84,7 @@ const defaultStyles = (pfx: string) => css`
 `;
 
 const DEFAULT_PAGE_OPTIONS = [10, 20, 50];
-export const PaginationControl: VFC<PaginationControlProps> = ({
+export const PaginationControl: FunctionComponent<PaginationControlProps> = ({
   classNamePrefix = "ft",
   className,
   totalRows,
