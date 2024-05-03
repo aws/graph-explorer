@@ -192,7 +192,9 @@ const SingleEdgeStyling = ({
           </div>
         }
         className={styleWithTheme(modalDefaultStyles(classNamePrefix))}
-        overlayOpacity={0.1}
+        overlayProps={{
+          backgroundOpacity: 0.1,
+        }}
       >
         <div className={pfx("container")}>
           <div>
