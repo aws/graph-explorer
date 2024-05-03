@@ -21,7 +21,7 @@ const useGremlin = () => {
   }, []);
 
   const _gremlinFetch = useCallback(
-    options => {
+    (options: any) => {
       return async (queryTemplate: string) => {
         const body = JSON.stringify({ query: queryTemplate });
         const headers = options?.queryId
@@ -45,7 +45,7 @@ const useGremlin = () => {
   );
 
   const fetchSchemaFunc = useCallback(
-    async options => {
+    async (options: any) => {
       let summary;
       try {
         const response = await useFetch.request(
@@ -67,28 +67,28 @@ const useGremlin = () => {
   );
 
   const fetchVertexCountsByType = useCallback(
-    (req, options) => {
+    (req: any, options: any) => {
       return fetchVertexTypeCounts(_gremlinFetch(options), req);
     },
     [_gremlinFetch]
   );
 
   const fetchNeighborsFunc = useCallback(
-    (req, options) => {
+    (req: any, options: any) => {
       return fetchNeighbors(_gremlinFetch(options), req, _rawIdTypeMap);
     },
     [_gremlinFetch, _rawIdTypeMap]
   );
 
   const fetchNeighborsCountFunc = useCallback(
-    (req, options) => {
+    (req: any, options: any) => {
       return fetchNeighborsCount(_gremlinFetch(options), req, _rawIdTypeMap);
     },
     [_gremlinFetch, _rawIdTypeMap]
   );
 
   const keywordSearchFunc = useCallback(
-    (req, options) => {
+    (req: any, options: any) => {
       options ??= {};
       options.queryId = v4();
 

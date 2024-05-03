@@ -2,7 +2,7 @@ import { cx } from "@emotion/css";
 import { MouseEvent, useCallback, useRef, useState } from "react";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { Vertex } from "../../@types/entities";
-import type { ModuleContainerHeaderProps } from "../../components";
+import type { ActionItem, ModuleContainerHeaderProps } from "../../components";
 import {
   LoadingSpinner,
   ModuleContainer,
@@ -94,7 +94,7 @@ const LAYOUT_OPTIONS = [
   },
 ];
 
-const HEADER_ACTIONS = [
+const HEADER_ACTIONS: ActionItem[] = [
   {
     value: "download_screenshot",
     label: "Download Screenshot",
@@ -238,7 +238,7 @@ const GraphViewer = ({
   }, [setEntities]);
 
   const onHeaderActionClick = useCallback(
-    action => {
+    (action: any) => {
       switch (action) {
         case "zoom_in":
           return onZoomIn();

@@ -1,6 +1,6 @@
 import { css, cx } from "@emotion/css";
 import { cssVar } from "../../../core/ThemeProvider/utils/lib";
-import { FC, useEffect } from "react";
+import { FC, PropsWithChildren, useEffect } from "react";
 import type { ThemeStyleFn } from "../../../core";
 import { useWithTheme, withClassNamePrefix } from "../../../core";
 import type { TabularVariantType } from "../Tabular";
@@ -8,7 +8,7 @@ import type { TabularVariantType } from "../Tabular";
 import { useTabularControl } from "../TabularControlsProvider";
 import type { TabularTheme } from "../Tabular.model";
 
-export type TabularHeaderControlsProps = {
+export type TabularHeaderControlsProps = PropsWithChildren<{
   classNamePrefix?: string;
   className?: string;
   variant?: TabularVariantType;
@@ -18,7 +18,7 @@ export type TabularHeaderControlsProps = {
    * so that it is visible even when scrolling.
    */
   disableSticky?: boolean;
-};
+}>;
 
 const defaultStyles =
   (pfx: string, variant?: TabularVariantType): ThemeStyleFn<TabularTheme> =>

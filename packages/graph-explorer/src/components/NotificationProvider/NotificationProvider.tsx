@@ -1,5 +1,12 @@
 import { css } from "@emotion/css";
-import { createContext, CSSProperties, FC, useCallback, useRef } from "react";
+import {
+  createContext,
+  CSSProperties,
+  FC,
+  PropsWithChildren,
+  useCallback,
+  useRef,
+} from "react";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { v4 } from "uuid";
 
@@ -41,7 +48,7 @@ export const NotificationContext = createContext<NotificationContextValue>({
   clearNotification: voidFn,
 });
 
-export type NotificationComponentProps = {
+export type NotificationComponentProps = PropsWithChildren<{
   message: string;
   title?: string;
   type?: "error" | "warning" | "info" | "success";
@@ -55,11 +62,11 @@ export type NotificationComponentProps = {
    * It's triggered when manually close the notification
    */
   onClose?(): void;
-};
+}>;
 
 type AnchorHorizontal = "left" | "center" | "right";
 type AnchorVertical = "top" | "bottom";
-export type NotificationProviderProps = {
+export type NotificationProviderProps = PropsWithChildren<{
   component: FC<NotificationComponentProps>;
 
   /**
@@ -69,7 +76,7 @@ export type NotificationProviderProps = {
     horizontal?: AnchorHorizontal;
     vertical?: AnchorVertical;
   };
-};
+}>;
 
 const anchorOriginStyleMap: Record<
   AnchorHorizontal | AnchorVertical,

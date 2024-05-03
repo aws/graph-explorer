@@ -2,6 +2,7 @@ import { Modal } from "@mantine/core";
 import { useCallback, useState } from "react";
 import { useRecoilCallback } from "recoil";
 import {
+  ActionItem,
   Chip,
   DatabaseIcon,
   DeleteIcon,
@@ -35,7 +36,10 @@ export type ConnectionDetailProps = {
   onSyncChange(isSync: boolean): void;
 };
 
-const HEADER_ACTIONS = (isSync: boolean, isFileBased: boolean) => [
+const HEADER_ACTIONS = (
+  isSync: boolean,
+  isFileBased: boolean
+): ActionItem[] => [
   {
     label: "Synchronize Database",
     icon: <SyncIcon className={isSync ? "animate-spin" : ""} />,

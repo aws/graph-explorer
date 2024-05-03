@@ -44,9 +44,11 @@ const TabularRow = <T extends object>({
     };
   }, [tableInstance.state.columnResizing.isResizingColumn]);
 
+  const { key: _, ...rowProps } = row.getRowProps();
+
   return (
     <div
-      {...row.getRowProps()}
+      {...rowProps}
       className={cx(pfx("row"), {
         [pfx("row-grow")]: fitRowsVertically,
         [pfx("row-selectable")]: rowSelectionMode === "row",
@@ -59,10 +61,13 @@ const TabularRow = <T extends object>({
       onMouseOut={event => onMouseOut?.(event, row)}
     >
       {row.cells.map(cell => {
+        const { key, ...cellProps } = cell.getCellProps({
+          style: { display: "flex" },
+        });
         return (
-          // eslint-disable-next-line react/jsx-key
           <div
-            {...cell.getCellProps({ style: { display: "flex" } })}
+            key={key}
+            {...cellProps}
             className={cx(
               pfx("cell"),
               pfx(`cell-align-${cell.column.align || "left"}`),

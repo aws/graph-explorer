@@ -1,11 +1,12 @@
 import queryString from "query-string";
 import React, { useEffect, useState } from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import { HashRouter as Router } from "react-router-dom";
 import App from "./App";
 import { RawConfiguration } from "./core";
 import ConnectedProvider from "./core/ConnectedProvider";
 import "./index.css";
+import "@mantine/core/styles.css";
 import { DEFAULT_SERVICE_TYPE } from "./utils/constants";
 
 const grabConfig = async (): Promise<RawConfiguration | undefined> => {
@@ -95,4 +96,6 @@ const BootstrapApp = () => {
   );
 };
 
-ReactDOM.render(<BootstrapApp />, document.getElementById("root"));
+const container = document.getElementById("root");
+const root = createRoot(container!);
+root.render(<BootstrapApp />);

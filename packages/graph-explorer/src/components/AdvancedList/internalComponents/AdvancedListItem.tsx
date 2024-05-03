@@ -1,7 +1,6 @@
 import { cx } from "@emotion/css";
 import type { DragEvent, MouseEvent, ReactNode, RefObject } from "react";
 import { useRef } from "react";
-import type { DragObjectWithType } from "react-dnd";
 import { useDrag } from "react-dnd";
 import { useHover } from "react-laag";
 import { withClassNamePrefix } from "../../../core";
@@ -73,13 +72,11 @@ const AdvancedListItem = <T extends object>({
   const pfx = withClassNamePrefix(classNamePrefix);
   const ref = useRef<HTMLDivElement>(null);
   const [{ isDragging }, dragRef] = useDrag({
+    type: defaultItemType || "none",
     collect: monitor => ({
       isDragging: monitor.isDragging(),
     }),
-    item: {
-      type: defaultItemType || "none",
-      ...item.properties,
-    } as DragObjectWithType & T,
+    item: item.properties,
   });
   const [isOver, hoverProps] = useHover({
     delayEnter: 400,

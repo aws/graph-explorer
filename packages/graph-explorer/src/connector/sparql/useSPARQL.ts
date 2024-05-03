@@ -134,7 +134,7 @@ const useSPARQL = (blankNodes: BlankNodesMap) => {
   const url = connection?.url;
 
   const _sparqlFetch = useCallback(
-    options => {
+    (options: any) => {
       return async (queryTemplate: string) => {
         const body = `query=${encodeURIComponent(queryTemplate)}`;
         const headers = options?.queryId
@@ -159,7 +159,7 @@ const useSPARQL = (blankNodes: BlankNodesMap) => {
   );
 
   const fetchSchemaFunc = useCallback(
-    async options => {
+    async (options: any) => {
       let summary;
       try {
         const response = await useFetch.request(
@@ -181,14 +181,14 @@ const useSPARQL = (blankNodes: BlankNodesMap) => {
   );
 
   const fetchVertexCountsByType = useCallback(
-    (req, options) => {
+    (req: any, options: any) => {
       return fetchClassCounts(_sparqlFetch(options), req);
     },
     [_sparqlFetch]
   );
 
   const fetchNeighborsFunc = useCallback(
-    async (req, options) => {
+    async (req: any, options: any) => {
       const request: SPARQLNeighborsRequest = {
         resourceURI: req.vertexId,
         resourceClass: req.vertexType,
@@ -218,7 +218,7 @@ const useSPARQL = (blankNodes: BlankNodesMap) => {
   );
 
   const fetchNeighborsCountFunc = useCallback(
-    async (req, options) => {
+    async (req: any, options: any) => {
       const bNode = blankNodes.get(req.vertexId);
 
       if (bNode?.neighbors) {
@@ -263,7 +263,7 @@ const useSPARQL = (blankNodes: BlankNodesMap) => {
   );
 
   const keywordSearchFunc = useCallback(
-    async (req, options) => {
+    async (req: any, options: any) => {
       options ??= {};
       options.queryId = v4();
 
