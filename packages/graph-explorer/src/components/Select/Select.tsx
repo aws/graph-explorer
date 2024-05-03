@@ -1,6 +1,7 @@
 import { Item } from "@react-stately/collections";
 import type { Selection } from "@react-types/shared";
-import type { CSSProperties, ForwardedRef, Key, ReactNode } from "react";
+import type { CSSProperties, ForwardedRef, ReactNode } from "react";
+import { Key } from "@react-types/shared";
 import { forwardRef, useMemo } from "react";
 import SelectBox from "./internalComponents/SelectBox";
 
