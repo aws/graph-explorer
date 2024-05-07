@@ -1,11 +1,21 @@
 import { act, renderHook } from "@testing-library/react-hooks";
-import { RecoilRoot } from "recoil";
+import { RecoilRoot, useRecoilState, useSetRecoilState } from "recoil";
 import useEntities from "./useEntities";
 import { Vertex } from "../@types/entities";
+import {
+  createRandomEntities,
+  createRandomName,
+  createRandomSchema,
+} from "../utils/testing/randomData";
+import { schemaAtom } from "../core/StateProvider/schema";
+import { activeConfigurationAtom } from "../core/StateProvider/configuration";
+import { Schema } from "../core";
+import { Entities } from "../core/StateProvider/entitiesSelector";
 
 jest.mock("localforage", () => ({
   config: jest.fn(),
   getItem: jest.fn(),
+  setItem: jest.fn(),
 }));
 
 describe("useEntities", () => {
@@ -269,4 +279,124 @@ describe("useEntities", () => {
     expect(result.current[0]).toEqual(originalEntities);
     expect(result.current[2]).toEqual(originalEntities);
   });
+
+  it("should update the schema with new node types", async () => {
+    const originalSchema = createRandomSchema();
+    const originalEntities = createRandomEntities();
+
+    const { schema } = await setupAndPerformSetEntities(
+      originalSchema,
+      originalEntities
+    );
+
+    // Ensure new node types are added to the schema
+    const schemaNodeLabels = schema.vertices.map(v => v.type);
+    const entityNodeLabels = originalEntities.nodes.map(n => n.data.type);
+    expect(schemaNodeLabels).toEqual(expect.arrayContaining(entityNodeLabels));
+  });
+
+  it("should update the schema with new edge types", async () => {
+    const originalSchema = createRandomSchema();
+    const originalEntities = createRandomEntities();
+
+    const { schema } = await setupAndPerformSetEntities(
+      originalSchema,
+      originalEntities
+    );
+
+    // Ensure new edge types are added to the schema
+    const schemaEdgeLabels = schema.edges.map(e => e.type);
+    const entityEdgeLabels = originalEntities.edges.map(e => e.data.type);
+    expect(schemaEdgeLabels).toEqual(expect.arrayContaining(entityEdgeLabels));
+  });
+
+  it("should update the schema node attributes", async () => {
+    const originalSchema = createRandomSchema();
+    const originalEntities = createRandomEntities();
+
+    // Add a node that matches a node type in the schema
+    const nodeTypeWithAdditionalAttributes = originalSchema.vertices[0].type;
+    originalEntities.nodes[0].data.type = nodeTypeWithAdditionalAttributes;
+
+    const { schema, entities } = await setupAndPerformSetEntities(
+      originalSchema,
+      originalEntities
+    );
+
+    // Ensure node with new attributes is updated in schema
+    const schemaNode = schema.vertices.find(
+      v => v.type === nodeTypeWithAdditionalAttributes
+    )!;
+    const entityNode = entities.nodes[0];
+    const schemaNodeAttributeNames = schemaNode.attributes.map(a => a.name);
+    const entityNodeAttributeNames = Object.keys(entityNode.data.attributes);
+    expect(schemaNodeAttributeNames).toEqual(
+      expect.arrayContaining(entityNodeAttributeNames)
+    );
+  });
+
+  it("should update the schema edge attributes", async () => {
+    const originalSchema = createRandomSchema();
+    const originalEntities = createRandomEntities();
+
+    // Set an edge to match an edge type in the schema
+    const edgeTypeWithAdditionalAttributes = originalSchema.edges[0].type;
+    originalEntities.edges[0].data.type = edgeTypeWithAdditionalAttributes;
+
+    const { schema, entities } = await setupAndPerformSetEntities(
+      originalSchema,
+      originalEntities
+    );
+
+    // Ensure edge with new attributes is updated in schema
+    const schemaEdge = schema.edges.find(
+      v => v.type === edgeTypeWithAdditionalAttributes
+    )!;
+    const entityEdge = entities.edges[0];
+    const schemaEdgeAttributeNames = schemaEdge.attributes.map(a => a.name);
+    const entityEdgeAttributeNames = Object.keys(entityEdge.data.attributes);
+    expect(schemaEdgeAttributeNames).toEqual(
+      expect.arrayContaining(entityEdgeAttributeNames)
+    );
+  });
 });
+
+/**
+ * Sets up the initial schema in Recoil and performs the setEntities() call
+ * with the given entities.
+ *
+ * @param initialSchema The schema to set in Recoil initially
+ * @param updatedEntities The entities to pass to setEntities()
+ * @returns The updated schema and entities, and setEntities hook
+ */
+async function setupAndPerformSetEntities(
+  initialSchema: Schema,
+  updatedEntities: Entities
+) {
+  const { result, waitForNextUpdate } = renderHook(
+    () => {
+      const configId = createRandomName("configId");
+      const [entities, setEntities] = useEntities();
+      const [schemas, setSchemas] = useRecoilState(schemaAtom);
+      const setActiveConfigId = useSetRecoilState(activeConfigurationAtom);
+
+      setSchemas(prev => prev.set(configId, initialSchema));
+      setActiveConfigId(configId);
+      const schema = schemas.get(configId)!;
+
+      return {
+        entities,
+        setEntities,
+        schema,
+      };
+    },
+    {
+      wrapper: RecoilRoot,
+    }
+  );
+
+  act(() => result.current.setEntities(updatedEntities));
+  await waitForNextUpdate();
+
+  return result.current;
+}
