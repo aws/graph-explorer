@@ -50,9 +50,13 @@ export const nodesSelector = selector<Array<Vertex>>({
       const updatedSchemas = new Map(prevSchemas);
 
       updatedSchemas.set(activeConfig, {
+        ...(activeSchema || {}),
         vertices: newValue.reduce(
           (schema, node) => {
-            if (!schema.find(s => s.type === node.data.type)) {
+            // Find the node type definition in the schema
+            const schemaNode = schema.find(s => s.type === node.data.type);
+
+            if (!schemaNode) {
               schema.push({
                 type: node.data.type,
                 displayLabel: "",
@@ -62,6 +66,23 @@ export const nodesSelector = selector<Array<Vertex>>({
                   hidden: false,
                 })),
               });
+
+              // Since the node type is new we can go ahead and return
+              return schema;
+            }
+
+            // Ensure the node attributes are updated in the schema
+            const schemaAttributes = schemaNode.attributes.map(a => a.name);
+            const missingAttributeNames = Object.keys(
+              node.data.attributes
+            ).filter(name => !schemaAttributes.includes(name));
+
+            for (const attributeName of missingAttributeNames) {
+              schemaNode.attributes.push({
+                name: attributeName,
+                displayLabel: sanitizeText(attributeName),
+                hidden: false,
+              });
             }
 
             return schema;
@@ -69,7 +90,6 @@ export const nodesSelector = selector<Array<Vertex>>({
           activeSchema?.vertices as SchemaInference["vertices"]
         ),
         edges: activeSchema?.edges || [],
-        ...(activeSchema || {}),
       });
 
       return updatedSchemas;
