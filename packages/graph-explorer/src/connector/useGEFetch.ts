@@ -43,55 +43,48 @@ async function decodeErrorSafely(response: Response): Promise<any | undefined> {
   return undefined;
 }
 
+// Construct the request headers based on the connection settings
+function getAuthHeaders(
+  connection: ConnectionConfig | undefined,
+  typeHeaders: HeadersInit | undefined
+) {
+  const headers: HeadersInit = {};
+  if (connection?.proxyConnection) {
+    headers["graph-db-connection-url"] = connection.graphDbUrl || "";
+  }
+  if (connection?.awsAuthEnabled) {
+    headers["aws-neptune-region"] = connection.awsRegion || "";
+    headers["service-type"] = connection.serviceType || DEFAULT_SERVICE_TYPE;
+  }
+
+  return { ...headers, ...typeHeaders };
+}
+
+// Construct an AbortSignal for the fetch timeout if configured
+function getFetchTimeoutSignal(connection: ConnectionConfig | undefined) {
+  if (!connection?.fetchTimeoutMs) {
+    return null;
+  }
+
+  if (connection.fetchTimeoutMs <= 0) {
+    return null;
+  }
+
+  return AbortSignal.timeout(connection.fetchTimeoutMs);
+}
+
 const useGEFetch = () => {
   const connection = useConfiguration()?.connection as
     | ConnectionConfig
     | undefined;
-
-  // Construct the request headers based on the connection settings
-  const getAuthHeaders = useCallback(
-    (typeHeaders: HeadersInit | undefined) => {
-      const headers: HeadersInit = {};
-      if (connection?.proxyConnection) {
-        headers["graph-db-connection-url"] = connection.graphDbUrl || "";
-      }
-      if (connection?.awsAuthEnabled) {
-        headers["aws-neptune-region"] = connection.awsRegion || "";
-        headers["service-type"] =
-          connection.serviceType || DEFAULT_SERVICE_TYPE;
-      }
-
-      return { ...headers, ...typeHeaders };
-    },
-    [
-      connection?.awsAuthEnabled,
-      connection?.awsRegion,
-      connection?.graphDbUrl,
-      connection?.proxyConnection,
-      connection?.serviceType,
-    ]
-  );
-
-  // Construct an AbortSignal for the fetch timeout if configured
-  const getFetchTimeoutSignal = useCallback(() => {
-    if (!connection?.fetchTimeoutMs) {
-      return null;
-    }
-
-    if (connection.fetchTimeoutMs <= 0) {
-      return null;
-    }
-
-    return AbortSignal.timeout(connection.fetchTimeoutMs);
-  }, [connection?.fetchTimeoutMs]);
 
   const request = useCallback(
     async (uri: URL | RequestInfo, options: RequestInit) => {
       // Apply connection settings to fetch options
       const fetchOptions: RequestInit = {
         ...options,
-        headers: getAuthHeaders(options.headers),
-        signal: anySignal(getFetchTimeoutSignal(), options.signal),
+        headers: getAuthHeaders(connection, options.headers),
+        signal: anySignal(getFetchTimeoutSignal(connection), options.signal),
       };
 
       const response = await fetch(uri, fetchOptions);
@@ -105,7 +98,7 @@ const useGEFetch = () => {
       const data = await response.json();
       return data;
     },
-    [getAuthHeaders, getFetchTimeoutSignal]
+    [connection]
   );
 
   return {
