@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from "react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNotification } from "../../components/NotificationProvider";
 import { useConfiguration } from "../../core";
 import useConnector from "../../core/ConnectorProvider/useConnector";

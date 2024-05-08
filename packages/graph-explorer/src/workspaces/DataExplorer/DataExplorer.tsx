@@ -1,7 +1,7 @@
 import { cx } from "@emotion/css";
 import clone from "lodash/clone";
 import { useCallback, useMemo, useRef, useState } from "react";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import {
   Link,
   useNavigate,

@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useConfiguration } from "../core";
 import useConnector from "../core/ConnectorProvider/useConnector";
 import useUpdateSchema from "./useUpdateSchema";
