@@ -48,6 +48,7 @@ const useUpdateVertexTypeCounts = (vertexType?: string) => {
       }
       vertexSchema.total = vertexTotal;
       return {
+        ...prevSchema,
         vertices: [
           ...(prevSchema?.vertices.filter(
             vertex => vertex.type !== vertexType
