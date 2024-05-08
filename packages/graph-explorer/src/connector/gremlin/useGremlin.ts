@@ -8,8 +8,31 @@ import keywordSearch from "./queries/keywordSearch";
 import { fetchDatabaseRequest } from "../fetchDatabaseRequest";
 import { GraphSummary } from "./types";
 import { v4 } from "uuid";
+import { Explorer } from "../../core/ConnectorProvider/types";
 
-const useGremlin = () => {
+function _gremlinFetch(connection: ConnectionConfig | undefined, options: any) {
+  const url = connection?.url;
+  return async (queryTemplate: string) => {
+    const body = JSON.stringify({ query: queryTemplate });
+    const headers = options?.queryId
+      ? {
+          "Content-Type": "application/json",
+          queryId: options.queryId,
+        }
+      : {
+          "Content-Type": "application/json",
+        };
+
+    return fetchDatabaseRequest(connection, `${url}/gremlin`, {
+      method: "POST",
+      headers,
+      body,
+      ...options,
+    });
+  };
+}
+
+const useGremlin = (): Explorer => {
   const connection = useConfiguration()?.connection as
     | ConnectionConfig
     | undefined;
@@ -18,30 +41,6 @@ const useGremlin = () => {
   const _rawIdTypeMap = useMemo(() => {
     return new Map<string, "string" | "number">();
   }, []);
-
-  const _gremlinFetch = useCallback(
-    (options: any) => {
-      return async (queryTemplate: string) => {
-        const body = JSON.stringify({ query: queryTemplate });
-        const headers = options?.queryId
-          ? {
-              "Content-Type": "application/json",
-              queryId: options.queryId,
-            }
-          : {
-              "Content-Type": "application/json",
-            };
-
-        return fetchDatabaseRequest(connection, `${url}/gremlin`, {
-          method: "POST",
-          headers,
-          body,
-          ...options,
-        });
-      };
-    },
-    [connection, url]
-  );
 
   const fetchSchemaFunc = useCallback(
     async (options: any) => {
@@ -61,30 +60,38 @@ const useGremlin = () => {
           console.error("[Summary API]", e);
         }
       }
-      return fetchSchema(_gremlinFetch(options), summary);
+      return fetchSchema(_gremlinFetch(connection, options), summary);
     },
-    [_gremlinFetch, connection, url]
+    [connection, url]
   );
 
   const fetchVertexCountsByType = useCallback(
     (req: any, options: any) => {
-      return fetchVertexTypeCounts(_gremlinFetch(options), req);
+      return fetchVertexTypeCounts(_gremlinFetch(connection, options), req);
     },
-    [_gremlinFetch]
+    [connection]
   );
 
   const fetchNeighborsFunc = useCallback(
     (req: any, options: any) => {
-      return fetchNeighbors(_gremlinFetch(options), req, _rawIdTypeMap);
+      return fetchNeighbors(
+        _gremlinFetch(connection, options),
+        req,
+        _rawIdTypeMap
+      );
     },
-    [_gremlinFetch, _rawIdTypeMap]
+    [_rawIdTypeMap, connection]
   );
 
   const fetchNeighborsCountFunc = useCallback(
     (req: any, options: any) => {
-      return fetchNeighborsCount(_gremlinFetch(options), req, _rawIdTypeMap);
+      return fetchNeighborsCount(
+        _gremlinFetch(connection, options),
+        req,
+        _rawIdTypeMap
+      );
     },
-    [_gremlinFetch, _rawIdTypeMap]
+    [_rawIdTypeMap, connection]
   );
 
   const keywordSearchFunc = useCallback(
@@ -92,9 +99,13 @@ const useGremlin = () => {
       options ??= {};
       options.queryId = v4();
 
-      return keywordSearch(_gremlinFetch(options), req, _rawIdTypeMap);
+      return keywordSearch(
+        _gremlinFetch(connection, options),
+        req,
+        _rawIdTypeMap
+      );
     },
-    [_gremlinFetch, _rawIdTypeMap]
+    [_rawIdTypeMap, connection]
   );
 
   return {
