@@ -5,7 +5,7 @@ import keywordSearch from "./queries/keywordSearch";
 import fetchSchema from "./queries/fetchSchema";
 import { GraphSummary } from "./types";
 import { useCallback } from "react";
-import useGEFetch from "../useGEFetch";
+import { fetchDatabaseRequest } from "../useGEFetch";
 import { ConnectionConfig, useConfiguration } from "../../core";
 import { DEFAULT_SERVICE_TYPE } from "../../utils/constants";
 
@@ -13,14 +13,13 @@ const useOpenCypher = () => {
   const connection = useConfiguration()?.connection as
     | ConnectionConfig
     | undefined;
-  const useFetch = useGEFetch();
   const url = connection?.url;
   const serviceType = connection?.serviceType || DEFAULT_SERVICE_TYPE;
 
   const _openCypherFetch = useCallback(
     (options: any) => {
       return async (queryTemplate: string) => {
-        return useFetch.request(`${url}/openCypher`, {
+        return fetchDatabaseRequest(connection, `${url}/openCypher`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -30,7 +29,7 @@ const useOpenCypher = () => {
         });
       };
     },
-    [url, useFetch]
+    [connection, url]
   );
 
   const fetchSchemaFunc = useCallback(
@@ -41,7 +40,7 @@ const useOpenCypher = () => {
           serviceType === DEFAULT_SERVICE_TYPE
             ? `${url}/pg/statistics/summary?mode=detailed`
             : `${url}/summary?mode=detailed`;
-        const response = await useFetch.request(endpoint, {
+        const response = await fetchDatabaseRequest(connection, endpoint, {
           method: "GET",
           ...options,
         });
@@ -57,7 +56,7 @@ const useOpenCypher = () => {
       }
       return fetchSchema(_openCypherFetch(options), summary);
     },
-    [_openCypherFetch, url, useFetch, serviceType]
+    [_openCypherFetch, serviceType, url, connection]
   );
 
   const fetchVertexCountsByType = useCallback(

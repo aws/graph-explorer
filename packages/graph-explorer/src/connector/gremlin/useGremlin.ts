@@ -5,7 +5,7 @@ import fetchNeighborsCount from "./queries/fetchNeighborsCount";
 import fetchSchema from "./queries/fetchSchema";
 import fetchVertexTypeCounts from "./queries/fetchVertexTypeCounts";
 import keywordSearch from "./queries/keywordSearch";
-import useGEFetch from "../useGEFetch";
+import { fetchDatabaseRequest } from "../useGEFetch";
 import { GraphSummary } from "./types";
 import { v4 } from "uuid";
 
@@ -14,7 +14,6 @@ const useGremlin = () => {
     | ConnectionConfig
     | undefined;
 
-  const useFetch = useGEFetch();
   const url = connection?.url;
   const _rawIdTypeMap = useMemo(() => {
     return new Map<string, "string" | "number">();
@@ -33,7 +32,7 @@ const useGremlin = () => {
               "Content-Type": "application/json",
             };
 
-        return useFetch.request(`${url}/gremlin`, {
+        return fetchDatabaseRequest(connection, `${url}/gremlin`, {
           method: "POST",
           headers,
           body,
@@ -41,14 +40,15 @@ const useGremlin = () => {
         });
       };
     },
-    [url, useFetch]
+    [connection, url]
   );
 
   const fetchSchemaFunc = useCallback(
     async (options: any) => {
       let summary;
       try {
-        const response = await useFetch.request(
+        const response = await fetchDatabaseRequest(
+          connection,
           `${url}/pg/statistics/summary?mode=detailed`,
           {
             method: "GET",
@@ -63,7 +63,7 @@ const useGremlin = () => {
       }
       return fetchSchema(_gremlinFetch(options), summary);
     },
-    [_gremlinFetch, url, useFetch]
+    [_gremlinFetch, connection, url]
   );
 
   const fetchVertexCountsByType = useCallback(

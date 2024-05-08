@@ -1,5 +1,4 @@
-import { useCallback } from "react";
-import { useConfiguration, type ConnectionConfig } from "../core";
+import { type ConnectionConfig } from "../core";
 import { DEFAULT_SERVICE_TYPE } from "../utils/constants";
 import { anySignal } from "./utils/anySignal";
 
@@ -73,37 +72,26 @@ function getFetchTimeoutSignal(connection: ConnectionConfig | undefined) {
   return AbortSignal.timeout(connection.fetchTimeoutMs);
 }
 
-const useGEFetch = () => {
-  const connection = useConfiguration()?.connection as
-    | ConnectionConfig
-    | undefined;
-
-  const request = useCallback(
-    async (uri: URL | RequestInfo, options: RequestInit) => {
-      // Apply connection settings to fetch options
-      const fetchOptions: RequestInit = {
-        ...options,
-        headers: getAuthHeaders(connection, options.headers),
-        signal: anySignal(getFetchTimeoutSignal(connection), options.signal),
-      };
-
-      const response = await fetch(uri, fetchOptions);
-
-      if (!response.ok) {
-        const error = await decodeErrorSafely(response);
-        throw new Error("Network response was not OK", { cause: error });
-      }
-
-      // A successful response is assumed to be JSON
-      const data = await response.json();
-      return data;
-    },
-    [connection]
-  );
-
-  return {
-    request,
+export async function fetchDatabaseRequest(
+  connection: ConnectionConfig | undefined,
+  uri: URL | RequestInfo,
+  options: RequestInit
+) {
+  // Apply connection settings to fetch options
+  const fetchOptions: RequestInit = {
+    ...options,
+    headers: getAuthHeaders(connection, options.headers),
+    signal: anySignal(getFetchTimeoutSignal(connection), options.signal),
   };
-};
 
-export default useGEFetch;
+  const response = await fetch(uri, fetchOptions);
+
+  if (!response.ok) {
+    const error = await decodeErrorSafely(response);
+    throw new Error("Network response was not OK", { cause: error });
+  }
+
+  // A successful response is assumed to be JSON
+  const data = await response.json();
+  return data;
+}
