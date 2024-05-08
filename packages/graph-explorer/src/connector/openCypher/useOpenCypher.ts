@@ -5,7 +5,7 @@ import keywordSearch from "./queries/keywordSearch";
 import fetchSchema from "./queries/fetchSchema";
 import { GraphSummary } from "./types";
 import { useCallback } from "react";
-import { fetchDatabaseRequest } from "../useGEFetch";
+import { fetchDatabaseRequest } from "../fetchDatabaseRequest";
 import { ConnectionConfig, useConfiguration } from "../../core";
 import { DEFAULT_SERVICE_TYPE } from "../../utils/constants";
 

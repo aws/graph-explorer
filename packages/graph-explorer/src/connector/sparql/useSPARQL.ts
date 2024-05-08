@@ -4,7 +4,7 @@ import type {
   KeywordSearchResponse,
   NeighborsResponse,
 } from "../useGEFetchTypes";
-import { fetchDatabaseRequest } from "../useGEFetch";
+import { fetchDatabaseRequest } from "../fetchDatabaseRequest";
 import fetchBlankNodeNeighbors from "./queries/fetchBlankNodeNeighbors";
 import fetchClassCounts from "./queries/fetchClassCounts";
 import fetchNeighbors from "./queries/fetchNeighbors";
