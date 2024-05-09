@@ -9,6 +9,11 @@ import { fetchDatabaseRequest } from "../fetchDatabaseRequest";
 import { GraphSummary } from "./types";
 import { v4 } from "uuid";
 import { Explorer } from "../../core/ConnectorProvider/types";
+import {
+  KeywordSearchRequest,
+  NeighborsCountRequest,
+  NeighborsRequest,
+} from "../useGEFetchTypes";
 
 function _gremlinFetch(connection: ConnectionConfig | undefined, options: any) {
   const url = connection?.url;
@@ -43,7 +48,7 @@ const useGremlin = (): Explorer => {
   }, []);
 
   const fetchSchemaFunc = useCallback(
-    async (options: any) => {
+    async (options?: any) => {
       let summary;
       try {
         const response = await fetchDatabaseRequest(
@@ -73,7 +78,7 @@ const useGremlin = (): Explorer => {
   );
 
   const fetchNeighborsFunc = useCallback(
-    (req: any, options: any) => {
+    (req: NeighborsRequest, options?: any) => {
       return fetchNeighbors(
         _gremlinFetch(connection, options),
         req,
@@ -84,7 +89,7 @@ const useGremlin = (): Explorer => {
   );
 
   const fetchNeighborsCountFunc = useCallback(
-    (req: any, options: any) => {
+    (req: NeighborsCountRequest, options?: any) => {
       return fetchNeighborsCount(
         _gremlinFetch(connection, options),
         req,
@@ -95,7 +100,7 @@ const useGremlin = (): Explorer => {
   );
 
   const keywordSearchFunc = useCallback(
-    (req: any, options: any) => {
+    (req: KeywordSearchRequest, options?: any) => {
       options ??= {};
       options.queryId = v4();
 
@@ -108,13 +113,15 @@ const useGremlin = (): Explorer => {
     [_rawIdTypeMap, connection]
   );
 
-  return {
+  const explorer: Explorer = {
     fetchSchema: fetchSchemaFunc,
     fetchVertexCountsByType,
     fetchNeighbors: fetchNeighborsFunc,
     fetchNeighborsCount: fetchNeighborsCountFunc,
     keywordSearch: keywordSearchFunc,
   };
+
+  return explorer;
 };
 
 export default useGremlin;

@@ -8,8 +8,14 @@ import { useCallback } from "react";
 import { fetchDatabaseRequest } from "../fetchDatabaseRequest";
 import { ConnectionConfig, useConfiguration } from "../../core";
 import { DEFAULT_SERVICE_TYPE } from "../../utils/constants";
+import { Explorer } from "../../core/ConnectorProvider/types";
+import {
+  KeywordSearchRequest,
+  NeighborsCountRequest,
+  NeighborsRequest,
+} from "../useGEFetchTypes";
 
-const useOpenCypher = () => {
+const useOpenCypher = (): Explorer => {
   const connection = useConfiguration()?.connection as
     | ConnectionConfig
     | undefined;
@@ -33,7 +39,7 @@ const useOpenCypher = () => {
   );
 
   const fetchSchemaFunc = useCallback(
-    async (options: any) => {
+    async (options?: any) => {
       let summary;
       try {
         const endpoint =
@@ -60,28 +66,28 @@ const useOpenCypher = () => {
   );
 
   const fetchVertexCountsByType = useCallback(
-    (req: any, options: any) => {
+    (req: any, options?: any) => {
       return fetchVertexTypeCounts(_openCypherFetch(options), req);
     },
     [_openCypherFetch]
   );
 
   const fetchNeighborsFunc = useCallback(
-    (req: any, options: any) => {
+    (req: NeighborsRequest, options?: any) => {
       return fetchNeighbors(_openCypherFetch(options), req);
     },
     [_openCypherFetch]
   );
 
   const fetchNeighborsCountFunc = useCallback(
-    (req: any, options: any) => {
+    (req: NeighborsCountRequest, options?: any) => {
       return fetchNeighborsCount(_openCypherFetch(options), req);
     },
     [_openCypherFetch]
   );
 
   const keywordSearchFunc = useCallback(
-    (req: any, options: any) => {
+    (req: KeywordSearchRequest, options?: any) => {
       return keywordSearch(_openCypherFetch(options), req);
     },
     [_openCypherFetch]
