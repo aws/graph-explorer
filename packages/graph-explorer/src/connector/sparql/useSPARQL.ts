@@ -2,8 +2,6 @@ import type {
   Criterion,
   KeywordSearchRequest,
   KeywordSearchResponse,
-  NeighborsCountRequest,
-  NeighborsRequest,
   NeighborsResponse,
 } from "../useGEFetchTypes";
 import { fetchDatabaseRequest } from "../fetchDatabaseRequest";
@@ -21,8 +19,7 @@ import {
   SPARQLKeywordSearchRequest,
   SPARQLNeighborsRequest,
 } from "./types";
-import { useCallback } from "react";
-import { ConnectionConfig, useConfiguration } from "../../core";
+import { ConnectionConfig } from "../../core";
 import { v4 } from "uuid";
 import { Explorer } from "../../core/ConnectorProvider/types";
 
@@ -128,40 +125,36 @@ const storedBlankNodeNeighborsRequest = (
   });
 };
 
-const useSPARQL = (blankNodes: BlankNodesMap): Explorer => {
-  const connection = useConfiguration()?.connection as
-    | ConnectionConfig
-    | undefined;
-
+function _sparqlFetch(connection: ConnectionConfig | undefined, options?: any) {
   const url = connection?.url;
+  return async (queryTemplate: string) => {
+    const body = `query=${encodeURIComponent(queryTemplate)}`;
+    const headers = options?.queryId
+      ? {
+          accept: "application/json",
+          "Content-Type": "application/x-www-form-urlencoded",
+          queryId: options.queryId,
+        }
+      : {
+          accept: "application/json",
+          "Content-Type": "application/x-www-form-urlencoded",
+        };
+    return fetchDatabaseRequest(connection, `${url}/sparql`, {
+      method: "POST",
+      headers,
+      body,
+      ...options,
+    });
+  };
+}
 
-  const _sparqlFetch = useCallback(
-    (options?: any) => {
-      return async (queryTemplate: string) => {
-        const body = `query=${encodeURIComponent(queryTemplate)}`;
-        const headers = options?.queryId
-          ? {
-              accept: "application/json",
-              "Content-Type": "application/x-www-form-urlencoded",
-              queryId: options.queryId,
-            }
-          : {
-              accept: "application/json",
-              "Content-Type": "application/x-www-form-urlencoded",
-            };
-        return fetchDatabaseRequest(connection, `${url}/sparql`, {
-          method: "POST",
-          headers,
-          body,
-          ...options,
-        });
-      };
-    },
-    [connection, url]
-  );
-
-  const fetchSchemaFunc = useCallback(
-    async (options?: any) => {
+export function createSparqlExplorer(
+  connection: ConnectionConfig | undefined,
+  blankNodes: BlankNodesMap
+): Explorer {
+  const url = connection?.url;
+  return {
+    async fetchSchema(options) {
       let summary;
       try {
         const response = await fetchDatabaseRequest(
@@ -178,20 +171,12 @@ const useSPARQL = (blankNodes: BlankNodesMap): Explorer => {
           console.error("[Summary API]", e);
         }
       }
-      return fetchSchema(_sparqlFetch(options), summary);
+      return fetchSchema(_sparqlFetch(connection, options), summary);
     },
-    [_sparqlFetch, connection, url]
-  );
-
-  const fetchVertexCountsByType = useCallback(
-    (req: any, options?: any) => {
-      return fetchClassCounts(_sparqlFetch(options), req);
+    async fetchVertexCountsByType(req, options) {
+      return fetchClassCounts(_sparqlFetch(connection, options), req);
     },
-    [_sparqlFetch]
-  );
-
-  const fetchNeighborsFunc = useCallback(
-    async (req: NeighborsRequest, options?: any) => {
+    async fetchNeighbors(req, options) {
       const request: SPARQLNeighborsRequest = {
         resourceURI: req.vertexId,
         resourceClass: req.vertexType,
@@ -209,7 +194,10 @@ const useSPARQL = (blankNodes: BlankNodesMap): Explorer => {
         return storedBlankNodeNeighborsRequest(blankNodes, request);
       }
 
-      const response = await fetchNeighbors(_sparqlFetch(options), request);
+      const response = await fetchNeighbors(
+        _sparqlFetch(connection, options),
+        request
+      );
       const vertices = replaceBlankNodeFromNeighbors(
         blankNodes,
         request,
@@ -217,11 +205,7 @@ const useSPARQL = (blankNodes: BlankNodesMap): Explorer => {
       );
       return { vertices, edges: response.edges };
     },
-    [_sparqlFetch, blankNodes]
-  );
-
-  const fetchNeighborsCountFunc = useCallback(
-    async (req: NeighborsCountRequest, options?: any) => {
+    async fetchNeighborsCount(req, options) {
       const bNode = blankNodes.get(req.vertexId);
 
       if (bNode?.neighbors) {
@@ -232,11 +216,14 @@ const useSPARQL = (blankNodes: BlankNodesMap): Explorer => {
       }
 
       if (bNode && !bNode.neighbors) {
-        const response = await fetchBlankNodeNeighbors(_sparqlFetch(options), {
-          resourceURI: bNode.vertex.data.id,
-          resourceClass: bNode.vertex.data.type,
-          subQuery: bNode.subQueryTemplate,
-        });
+        const response = await fetchBlankNodeNeighbors(
+          _sparqlFetch(connection, options),
+          {
+            resourceURI: bNode.vertex.data.id,
+            resourceClass: bNode.vertex.data.type,
+            subQuery: bNode.subQueryTemplate,
+          }
+        );
 
         blankNodes.set(req.vertexId, {
           ...bNode,
@@ -257,16 +244,12 @@ const useSPARQL = (blankNodes: BlankNodesMap): Explorer => {
         };
       }
 
-      return fetchNeighborsCount(_sparqlFetch(options), {
+      return fetchNeighborsCount(_sparqlFetch(connection, options), {
         resourceURI: req.vertexId,
         limit: req.limit,
       });
     },
-    [_sparqlFetch, blankNodes]
-  );
-
-  const keywordSearchFunc = useCallback(
-    async (req: KeywordSearchRequest, options?: any) => {
+    async keywordSearch(req, options) {
       options ??= {};
       options.queryId = v4();
 
@@ -279,7 +262,10 @@ const useSPARQL = (blankNodes: BlankNodesMap): Explorer => {
         exactMatch: req.exactMatch,
       };
 
-      const response = await keywordSearch(_sparqlFetch(options), reqParams);
+      const response = await keywordSearch(
+        _sparqlFetch(connection, options),
+        reqParams
+      );
       const vertices = replaceBlankNodeFromSearch(
         blankNodes,
         reqParams,
@@ -288,16 +274,5 @@ const useSPARQL = (blankNodes: BlankNodesMap): Explorer => {
 
       return { vertices };
     },
-    [_sparqlFetch, blankNodes]
-  );
-
-  return {
-    fetchSchema: fetchSchemaFunc,
-    fetchVertexCountsByType,
-    fetchNeighbors: fetchNeighborsFunc,
-    fetchNeighborsCount: fetchNeighborsCountFunc,
-    keywordSearch: keywordSearchFunc,
   };
-};
-
-export default useSPARQL;
+}

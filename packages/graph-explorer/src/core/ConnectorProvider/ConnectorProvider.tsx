@@ -10,7 +10,7 @@ import {
 import LoggerConnector from "../../connector/LoggerConnector";
 import type { ConnectorContextProps, Explorer } from "./types";
 import { createOpenCypherExplorer } from "../../connector/openCypher/useOpenCypher";
-import useSPARQL from "../../connector/sparql/useSPARQL";
+import { createSparqlExplorer } from "../../connector/sparql/useSPARQL";
 import { createGremlinExplorer } from "../../connector/gremlin/useGremlin";
 import { ConnectionConfig } from "../ConfigurationProvider/types";
 import { useRecoilValue } from "recoil";
@@ -19,14 +19,25 @@ import { every, isEqual } from "lodash";
 
 export const ConnectorContext = createContext<ConnectorContextProps>({});
 
+const getExplorer = (connection: ConnectionConfig | undefined): Explorer => {
+  switch (connection?.queryEngine) {
+    case "openCypher":
+      return createOpenCypherExplorer(connection);
+    case "sparql":
+      return createSparqlExplorer(connection, new Map());
+    default:
+      return createGremlinExplorer(connection);
+  }
+};
+
 const ConnectorProvider = ({ children }: PropsWithChildren<any>) => {
   const config = useRecoilValue(mergedConfigurationSelector);
+  const queryEngine = config?.connection?.queryEngine;
 
   const [connector, setConnector] = useState<ConnectorContextProps>({
     explorer: undefined,
     logger: undefined,
   });
-  const sparqlExplorer = useSPARQL(new Map());
 
   const [prevConnection, setPrevConnection] = useState<
     ConnectionConfig | undefined
@@ -52,20 +63,6 @@ const ConnectorProvider = ({ children }: PropsWithChildren<any>) => {
     [attrs]
   );
 
-  const getExplorer = useCallback(
-    (connection: ConnectionConfig | undefined): Explorer => {
-      switch (connection?.queryEngine) {
-        case "openCypher":
-          return createOpenCypherExplorer(connection);
-        case "sparql":
-          return sparqlExplorer;
-        default:
-          return createGremlinExplorer(connection);
-      }
-    },
-    [sparqlExplorer]
-  );
-
   useEffect(() => {
     // connector instance is only rebuilt if any connection attribute change
     if (!isSameConnection(prevConnection, config?.connection)) {
@@ -79,11 +76,10 @@ const ConnectorProvider = ({ children }: PropsWithChildren<any>) => {
     }
   }, [
     config?.connection?.url,
-    config?.connection?.queryEngine,
+    queryEngine,
     prevConnection,
     config?.connection,
     isSameConnection,
-    getExplorer,
   ]);
 
   return (
