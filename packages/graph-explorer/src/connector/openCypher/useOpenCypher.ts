@@ -9,13 +9,9 @@ import { ConnectionConfig } from "../../core";
 import { DEFAULT_SERVICE_TYPE } from "../../utils/constants";
 import { Explorer } from "../../core/ConnectorProvider/types";
 
-function _openCypherFetch(
-  connection: ConnectionConfig | undefined,
-  options: any
-) {
-  const url = connection?.url;
+function _openCypherFetch(connection: ConnectionConfig, options: any) {
   return async (queryTemplate: string) => {
-    return fetchDatabaseRequest(connection, `${url}/openCypher`, {
+    return fetchDatabaseRequest(connection, `${connection.url}/openCypher`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -27,18 +23,17 @@ function _openCypherFetch(
 }
 
 export function createOpenCypherExplorer(
-  connection: ConnectionConfig | undefined
+  connection: ConnectionConfig
 ): Explorer {
-  const url = connection?.url;
-  const serviceType = connection?.serviceType || DEFAULT_SERVICE_TYPE;
+  const serviceType = connection.serviceType || DEFAULT_SERVICE_TYPE;
   return {
     async fetchSchema(options) {
       let summary;
       try {
         const endpoint =
           serviceType === DEFAULT_SERVICE_TYPE
-            ? `${url}/pg/statistics/summary?mode=detailed`
-            : `${url}/summary?mode=detailed`;
+            ? `${connection.url}/pg/statistics/summary?mode=detailed`
+            : `${connection.url}/summary?mode=detailed`;
         const response = await fetchDatabaseRequest(connection, endpoint, {
           method: "GET",
           ...options,

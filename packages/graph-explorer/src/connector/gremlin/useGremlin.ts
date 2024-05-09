@@ -9,8 +9,7 @@ import { GraphSummary } from "./types";
 import { v4 } from "uuid";
 import { Explorer } from "../../core/ConnectorProvider/types";
 
-function _gremlinFetch(connection: ConnectionConfig | undefined, options: any) {
-  const url = connection?.url;
+function _gremlinFetch(connection: ConnectionConfig, options: any) {
   return async (queryTemplate: string) => {
     const body = JSON.stringify({ query: queryTemplate });
     const headers = options?.queryId
@@ -22,7 +21,7 @@ function _gremlinFetch(connection: ConnectionConfig | undefined, options: any) {
           "Content-Type": "application/json",
         };
 
-    return fetchDatabaseRequest(connection, `${url}/gremlin`, {
+    return fetchDatabaseRequest(connection, `${connection.url}/gremlin`, {
       method: "POST",
       headers,
       body,
@@ -31,18 +30,14 @@ function _gremlinFetch(connection: ConnectionConfig | undefined, options: any) {
   };
 }
 
-export function createGremlinExplorer(
-  connection: ConnectionConfig | undefined
-): Explorer {
-  const url = connection?.url;
-
+export function createGremlinExplorer(connection: ConnectionConfig): Explorer {
   return {
     async fetchSchema(options) {
       let summary;
       try {
         const response = await fetchDatabaseRequest(
           connection,
-          `${url}/pg/statistics/summary?mode=detailed`,
+          `${connection.url}/pg/statistics/summary?mode=detailed`,
           {
             method: "GET",
             ...options,

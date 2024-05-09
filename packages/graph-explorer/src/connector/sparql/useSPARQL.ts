@@ -125,8 +125,7 @@ const storedBlankNodeNeighborsRequest = (
   });
 };
 
-function _sparqlFetch(connection: ConnectionConfig | undefined, options?: any) {
-  const url = connection?.url;
+function _sparqlFetch(connection: ConnectionConfig, options?: any) {
   return async (queryTemplate: string) => {
     const body = `query=${encodeURIComponent(queryTemplate)}`;
     const headers = options?.queryId
@@ -139,7 +138,7 @@ function _sparqlFetch(connection: ConnectionConfig | undefined, options?: any) {
           accept: "application/json",
           "Content-Type": "application/x-www-form-urlencoded",
         };
-    return fetchDatabaseRequest(connection, `${url}/sparql`, {
+    return fetchDatabaseRequest(connection, `${connection.url}/sparql`, {
       method: "POST",
       headers,
       body,
@@ -149,17 +148,16 @@ function _sparqlFetch(connection: ConnectionConfig | undefined, options?: any) {
 }
 
 export function createSparqlExplorer(
-  connection: ConnectionConfig | undefined,
+  connection: ConnectionConfig,
   blankNodes: BlankNodesMap
 ): Explorer {
-  const url = connection?.url;
   return {
     async fetchSchema(options) {
       let summary;
       try {
         const response = await fetchDatabaseRequest(
           connection,
-          `${url}/rdf/statistics/summary?mode=detailed`,
+          `${connection.url}/rdf/statistics/summary?mode=detailed`,
           {
             method: "GET",
             ...options,

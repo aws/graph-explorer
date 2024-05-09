@@ -19,7 +19,12 @@ import { every, isEqual } from "lodash";
 
 export const ConnectorContext = createContext<ConnectorContextProps>({});
 
-const getExplorer = (connection: ConnectionConfig | undefined): Explorer => {
+const getExplorer = (
+  connection: ConnectionConfig | undefined
+): Explorer | null => {
+  if (!connection) {
+    return null;
+  }
   switch (connection?.queryEngine) {
     case "openCypher":
       return createOpenCypherExplorer(connection);

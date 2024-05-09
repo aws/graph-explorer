@@ -32,6 +32,6 @@ export type Explorer = {
 };
 
 export type ConnectorContextProps = {
-  explorer?: Explorer;
+  explorer?: Explorer | null;
   logger?: LoggerConnector;
 };
