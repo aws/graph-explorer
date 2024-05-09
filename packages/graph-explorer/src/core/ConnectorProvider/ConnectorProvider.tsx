@@ -11,7 +11,7 @@ import LoggerConnector from "../../connector/LoggerConnector";
 import type { ConnectorContextProps, Explorer } from "./types";
 import useOpenCypher from "../../connector/openCypher/useOpenCypher";
 import useSPARQL from "../../connector/sparql/useSPARQL";
-import useGremlin from "../../connector/gremlin/useGremlin";
+import { createGremlinExplorer } from "../../connector/gremlin/useGremlin";
 import { ConnectionConfig } from "../ConfigurationProvider/types";
 import { useRecoilValue } from "recoil";
 import { mergedConfigurationSelector } from "../StateProvider/configuration";
@@ -28,7 +28,6 @@ const ConnectorProvider = ({ children }: PropsWithChildren<any>) => {
   });
   const openCypherExplorer = useOpenCypher();
   const sparqlExplorer = useSPARQL(new Map());
-  const gremlinExplorer = useGremlin();
 
   const [prevConnection, setPrevConnection] = useState<
     ConnectionConfig | undefined
@@ -62,10 +61,10 @@ const ConnectorProvider = ({ children }: PropsWithChildren<any>) => {
         case "sparql":
           return sparqlExplorer;
         default:
-          return gremlinExplorer;
+          return createGremlinExplorer(connection);
       }
     },
-    [openCypherExplorer, sparqlExplorer, gremlinExplorer]
+    [openCypherExplorer, sparqlExplorer]
   );
 
   useEffect(() => {
