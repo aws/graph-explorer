@@ -48,6 +48,7 @@ const NodeExpandContent = ({
     setIsExpanding(true);
     await expandNode({
       vertexId: vertex.data.id,
+      idType: vertex.data.idType,
       vertexType: (vertex.data.types ?? [vertex.data.type])?.join("::"),
       filterByVertexTypes: [selectedType],
       filterCriteria: filters.map(filter => ({

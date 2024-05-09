@@ -218,6 +218,7 @@ const GraphViewer = ({
       setExpandVertexName(name);
       await expandNode({
         vertexId: vertexData.id,
+        idType: vertexData.idType,
         vertexType: vertexData.types?.join("::") ?? vertexData.type,
         limit: vertexData.neighborsCount,
         offset: 0,

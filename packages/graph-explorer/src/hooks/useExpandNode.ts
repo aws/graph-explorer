@@ -38,6 +38,7 @@ const useExpandNode = () => {
         result.vertices.map(async vertex => {
           const neighborsCount = await connector.explorer?.fetchNeighborsCount({
             vertexId: vertex.data.id,
+            idType: vertex.data.idType,
           });
 
           return {

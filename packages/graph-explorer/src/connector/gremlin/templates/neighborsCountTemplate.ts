@@ -14,8 +14,8 @@ import type { NeighborsCountRequest } from "../../useGEFetchTypes";
 const neighborsCountTemplate = ({
   vertexId,
   limit = 500,
-  idType = "string",
-}: NeighborsCountRequest & { idType?: "string" | "number" }) => {
+  idType,
+}: NeighborsCountRequest) => {
   let template = "";
   if (idType === "number") {
     template = `g.V(${vertexId}L).both()`;

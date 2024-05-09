@@ -4,9 +4,7 @@ import type {
   KeywordSearchResponse,
 } from "../../useGEFetchTypes";
 import isErrorResponse from "../../utils/isErrorResponse";
-import { detectIdType } from "../mappers/detectIdType";
 import mapApiVertex from "../mappers/mapApiVertex";
-import toStringId from "../mappers/toStringId";
 import keywordSearchTemplate from "../templates/keywordSearchTemplate";
 import type { GVertexList } from "../types";
 import { GremlinFetch } from "../types";
@@ -24,8 +22,7 @@ type RawKeySearchResponse = {
 
 const keywordSearch = async (
   gremlinFetch: GremlinFetch,
-  req: KeywordSearchRequest,
-  rawIds: Map<string, "string" | "number">
+  req: KeywordSearchRequest
 ): Promise<KeywordSearchResponse> => {
   const gremlinTemplate = keywordSearchTemplate(req);
   const data = await gremlinFetch<RawKeySearchResponse | ErrorResponse>(
@@ -37,10 +34,6 @@ const keywordSearch = async (
   }
 
   const vertices = data.result.data["@value"].map(value => {
-    rawIds.set(
-      toStringId(value["@value"].id),
-      detectIdType(value["@value"].id)
-    );
     return mapApiVertex(value);
   });
 
