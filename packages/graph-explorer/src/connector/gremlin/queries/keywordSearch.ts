@@ -4,11 +4,12 @@ import type {
   KeywordSearchResponse,
 } from "../../useGEFetchTypes";
 import isErrorResponse from "../../utils/isErrorResponse";
+import { detectIdType } from "../mappers/detectIdType";
 import mapApiVertex from "../mappers/mapApiVertex";
 import toStringId from "../mappers/toStringId";
 import keywordSearchTemplate from "../templates/keywordSearchTemplate";
 import type { GVertexList } from "../types";
-import { GInt64, GremlinFetch } from "../types";
+import { GremlinFetch } from "../types";
 
 type RawKeySearchResponse = {
   requestId: string;
@@ -19,14 +20,6 @@ type RawKeySearchResponse = {
   result: {
     data: GVertexList;
   };
-};
-
-const idType = (id: string | GInt64) => {
-  if (typeof id === "string") {
-    return "string";
-  }
-
-  return "number";
 };
 
 const keywordSearch = async (
@@ -44,7 +37,10 @@ const keywordSearch = async (
   }
 
   const vertices = data.result.data["@value"].map(value => {
-    rawIds.set(toStringId(value["@value"].id), idType(value["@value"].id));
+    rawIds.set(
+      toStringId(value["@value"].id),
+      detectIdType(value["@value"].id)
+    );
     return mapApiVertex(value);
   });
 
