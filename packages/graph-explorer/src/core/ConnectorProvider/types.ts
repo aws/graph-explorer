@@ -1,4 +1,3 @@
-import LoggerConnector from "../../connector/LoggerConnector";
 import {
   CountsByTypeRequest,
   CountsByTypeResponse,
@@ -29,9 +28,4 @@ export type Explorer = {
     req: KeywordSearchRequest,
     options?: any
   ) => Promise<KeywordSearchResponse>;
-};
-
-export type ConnectorContextProps = {
-  explorer?: Explorer | null;
-  logger?: LoggerConnector;
 };
