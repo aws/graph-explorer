@@ -1,8 +1,8 @@
 import { every, isEqual } from "lodash";
 import LoggerConnector from "../connector/LoggerConnector";
-import { createGremlinExplorer } from "../connector/gremlin/useGremlin";
-import { createOpenCypherExplorer } from "../connector/openCypher/useOpenCypher";
-import { createSparqlExplorer } from "../connector/sparql/useSPARQL";
+import { createGremlinExplorer } from "../connector/gremlin/gremlinExplorer";
+import { createOpenCypherExplorer } from "../connector/openCypher/openCypherExplorer";
+import { createSparqlExplorer } from "../connector/sparql/sparqlExplorer";
 import { mergedConfigurationSelector } from "./StateProvider/configuration";
 import { selector } from "recoil";
 import { equalSelector } from "../utils/recoilState";
