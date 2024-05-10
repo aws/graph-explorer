@@ -4,7 +4,7 @@ import { createGremlinExplorer } from "../../connector/gremlin/useGremlin";
 import { createOpenCypherExplorer } from "../../connector/openCypher/useOpenCypher";
 import { createSparqlExplorer } from "../../connector/sparql/useSPARQL";
 import { mergedConfigurationSelector } from "../StateProvider/configuration";
-import { selector, useRecoilValue } from "recoil";
+import { selector } from "recoil";
 import { equalSelector } from "../../utils/recoilState";
 
 /**
@@ -87,15 +87,3 @@ export const loggerSelector = selector({
     });
   },
 });
-
-const useConnector = () => {
-  const explorer = useRecoilValue(explorerSelector);
-  const logger = useRecoilValue(loggerSelector);
-
-  return {
-    explorer,
-    logger,
-  };
-};
-
-export default useConnector;
