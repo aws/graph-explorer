@@ -7,7 +7,7 @@ import keywordSearch from "./queries/keywordSearch";
 import { fetchDatabaseRequest } from "../fetchDatabaseRequest";
 import { GraphSummary } from "./types";
 import { v4 } from "uuid";
-import { Explorer } from "../../core/ConnectorProvider/types";
+import { Explorer } from "../useGEFetchTypes";
 
 function _gremlinFetch(connection: ConnectionConfig, options: any) {
   return async (queryTemplate: string) => {

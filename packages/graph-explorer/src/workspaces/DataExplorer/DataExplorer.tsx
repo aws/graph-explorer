@@ -35,7 +35,7 @@ import {
   useWithTheme,
   withClassNamePrefix,
 } from "../../core";
-import { explorerSelector } from "../../core/ConnectorProvider/connector";
+import { explorerSelector } from "../../core/connector";
 import {
   userStylingAtom,
   VertexPreferences,

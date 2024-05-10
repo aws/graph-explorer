@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useConfiguration } from "../core";
-import { explorerSelector } from "../core/ConnectorProvider/connector";
+import { explorerSelector } from "../core/connector";
 import useUpdateSchema from "./useUpdateSchema";
 import { useRecoilValue } from "recoil";
 

@@ -1,11 +1,11 @@
 import { every, isEqual } from "lodash";
-import LoggerConnector from "../../connector/LoggerConnector";
-import { createGremlinExplorer } from "../../connector/gremlin/useGremlin";
-import { createOpenCypherExplorer } from "../../connector/openCypher/useOpenCypher";
-import { createSparqlExplorer } from "../../connector/sparql/useSPARQL";
-import { mergedConfigurationSelector } from "../StateProvider/configuration";
+import LoggerConnector from "../connector/LoggerConnector";
+import { createGremlinExplorer } from "../connector/gremlin/useGremlin";
+import { createOpenCypherExplorer } from "../connector/openCypher/useOpenCypher";
+import { createSparqlExplorer } from "../connector/sparql/useSPARQL";
+import { mergedConfigurationSelector } from "./StateProvider/configuration";
 import { selector } from "recoil";
-import { equalSelector } from "../../utils/recoilState";
+import { equalSelector } from "../utils/recoilState";
 
 /**
  * Active connection where the value will only change when one of the

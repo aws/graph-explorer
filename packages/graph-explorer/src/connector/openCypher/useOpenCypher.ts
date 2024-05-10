@@ -7,7 +7,7 @@ import { GraphSummary } from "./types";
 import { fetchDatabaseRequest } from "../fetchDatabaseRequest";
 import { ConnectionConfig } from "../../core";
 import { DEFAULT_SERVICE_TYPE } from "../../utils/constants";
-import { Explorer } from "../../core/ConnectorProvider/types";
+import { Explorer } from "../useGEFetchTypes";
 
 function _openCypherFetch(connection: ConnectionConfig, options: any) {
   return async (queryTemplate: string) => {

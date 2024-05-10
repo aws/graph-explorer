@@ -2,10 +2,7 @@ import { useCallback, useRef } from "react";
 import { useNotification } from "../components/NotificationProvider";
 import type { SchemaResponse } from "../connector/useGEFetchTypes";
 import useConfiguration from "../core/ConfigurationProvider/useConfiguration";
-import {
-  explorerSelector,
-  loggerSelector,
-} from "../core/ConnectorProvider/connector";
+import { explorerSelector, loggerSelector } from "../core/connector";
 import usePrefixesUpdater from "./usePrefixesUpdater";
 import useUpdateSchema from "./useUpdateSchema";
 import { createDisplayError } from "../utils/createDisplayError";

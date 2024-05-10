@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { useNotification } from "../components/NotificationProvider";
 import type { NeighborsRequest } from "../connector/useGEFetchTypes";
-import { explorerSelector } from "../core/ConnectorProvider/connector";
+import { explorerSelector } from "../core/connector";
 import useEntities from "./useEntities";
 import { Vertex } from "../@types/entities";
 import { useRecoilValue } from "recoil";

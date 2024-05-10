@@ -1,5 +1,6 @@
 import type {
   Criterion,
+  Explorer,
   KeywordSearchRequest,
   KeywordSearchResponse,
   NeighborsResponse,
@@ -21,7 +22,6 @@ import {
 } from "./types";
 import { ConnectionConfig } from "../../core";
 import { v4 } from "uuid";
-import { Explorer } from "../../core/ConnectorProvider/types";
 
 const replaceBlankNodeFromSearch = (
   blankNodes: BlankNodesMap,

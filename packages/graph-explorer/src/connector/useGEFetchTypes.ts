@@ -201,3 +201,27 @@ export type ConfigurationWithConnection = Omit<
   "connection"
 > &
   Required<Pick<ConfigurationContextProps, "connection">>;
+
+/**
+ * Abstracted interface to the common database queries used by
+ * Graph Explorer.
+ */
+export type Explorer = {
+  fetchSchema: (options?: any) => Promise<SchemaResponse>;
+  fetchVertexCountsByType: (
+    req: CountsByTypeRequest,
+    options?: any
+  ) => Promise<CountsByTypeResponse>;
+  fetchNeighbors: (
+    req: NeighborsRequest,
+    options?: any
+  ) => Promise<NeighborsResponse>;
+  fetchNeighborsCount: (
+    req: NeighborsCountRequest,
+    options?: any
+  ) => Promise<NeighborsCountResponse>;
+  keywordSearch: (
+    req: KeywordSearchRequest,
+    options?: any
+  ) => Promise<KeywordSearchResponse>;
+};
