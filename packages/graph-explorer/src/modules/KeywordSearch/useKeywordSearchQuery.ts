@@ -1,6 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNotification } from "../../components/NotificationProvider";
-import { useConfiguration } from "../../core";
 import { explorerSelector } from "../../core/connector";
 import usePrefixesUpdater from "../../hooks/usePrefixesUpdater";
 import { useCallback, useEffect, useMemo } from "react";
@@ -24,7 +23,6 @@ export function useKeywordSearchQuery({
   neighborsLimit,
   isOpen,
 }: SearchQueryRequest) {
-  const config = useConfiguration();
   const explorer = useRecoilValue(explorerSelector);
   const updatePrefixes = usePrefixesUpdater();
   const { enqueueNotification } = useNotification();
@@ -66,7 +64,7 @@ export function useKeywordSearchQuery({
         { signal }
       );
     },
-    enabled: !!config && isOpen && !!explorer,
+    enabled: isOpen && !!explorer,
   });
 
   // Sync sparql prefixes
