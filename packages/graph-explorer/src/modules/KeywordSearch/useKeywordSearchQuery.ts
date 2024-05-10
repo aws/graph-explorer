@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNotification } from "../../components/NotificationProvider";
 import { useConfiguration } from "../../core";
-import { explorerSelector } from "../../core/ConnectorProvider/useConnector";
+import { explorerSelector } from "../../core/ConnectorProvider/connector";
 import usePrefixesUpdater from "../../hooks/usePrefixesUpdater";
 import { useCallback, useEffect, useMemo } from "react";
 import { createDisplayError } from "../../utils/createDisplayError";

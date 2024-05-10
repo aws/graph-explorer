@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { Vertex } from "../@types/entities";
-import { explorerSelector } from "../core/ConnectorProvider/useConnector";
+import { explorerSelector } from "../core/ConnectorProvider/connector";
 import useEntities from "./useEntities";
 import { NeighborsCountRequest } from "../connector/useGEFetchTypes";
 import { useRecoilValue } from "recoil";

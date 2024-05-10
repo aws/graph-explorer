@@ -5,7 +5,7 @@ import useConfiguration from "../core/ConfigurationProvider/useConfiguration";
 import {
   explorerSelector,
   loggerSelector,
-} from "../core/ConnectorProvider/useConnector";
+} from "../core/ConnectorProvider/connector";
 import usePrefixesUpdater from "./usePrefixesUpdater";
 import useUpdateSchema from "./useUpdateSchema";
 import { createDisplayError } from "../utils/createDisplayError";
