@@ -127,15 +127,13 @@ const criterionTemplate = (criterion: Criterion): string => {
  */
 const oneHopTemplate = ({
   vertexId,
+  idType,
   filterByVertexTypes = [],
   edgeTypes = [],
   filterCriteria = [],
   limit = 10,
   offset = 0,
-  idType = "string",
-}: Omit<NeighborsRequest, "vertexType"> & {
-  idType?: "string" | "number";
-}): string => {
+}: Omit<NeighborsRequest, "vertexType">): string => {
   const range = `.range(${offset}, ${offset + limit})`;
   let template = "";
   if (idType === "number") {

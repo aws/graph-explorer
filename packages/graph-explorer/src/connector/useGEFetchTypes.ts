@@ -9,6 +9,11 @@ export type QueryOptions = RequestInit & {
   queryId?: string;
 };
 
+/**
+ * The type of the vertex ID.
+ */
+export type VertexIdType = "string" | "number";
+
 export type VertexSchemaResponse = Pick<
   VertexTypeConfig,
   | "type"
@@ -79,6 +84,10 @@ export type NeighborsRequest = {
    */
   vertexId: string;
   /**
+   * The type of the vertex ID.
+   */
+  idType: VertexIdType;
+  /**
    * Source vertex type.
    */
   vertexType: string;
@@ -121,6 +130,10 @@ export type NeighborsCountRequest = {
    * Source vertex ID.
    */
   vertexId: string;
+  /**
+   * The type of the vertex ID.
+   */
+  idType: VertexIdType;
   /**
    * Limit the number of results.
    * 0 = No limit.

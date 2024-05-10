@@ -176,6 +176,7 @@ export function createRandomVertex(): Vertex {
   return {
     data: {
       id: createRandomName("VertexId"),
+      idType: "string",
       type: createRandomName("VertexType"),
       attributes: createRecord(3, createRandomEntityAttribute),
       neighborsCount: 0,

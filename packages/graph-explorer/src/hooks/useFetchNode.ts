@@ -24,6 +24,7 @@ const useFetchNode = () => {
         nodes.map(async node => {
           const neighborsCount = await fetchNeighborsCount({
             vertexId: node.data.id,
+            idType: node.data.idType,
             limit: neighbors_limit,
           });
           if (!neighborsCount) {

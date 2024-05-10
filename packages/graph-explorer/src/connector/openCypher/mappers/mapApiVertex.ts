@@ -12,6 +12,7 @@ const mapApiVertex = (
   return {
     data: {
       id: apiVertex["~id"],
+      idType: "string",
       type: vt,
       types: labels,
       neighborsCount: neighborsCount?.totalCount || 0,

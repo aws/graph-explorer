@@ -9,6 +9,7 @@ const mapRawResultToVertex = (
   return {
     data: {
       id: rawResult.uri,
+      idType: "string",
       type: rawResult.class,
       neighborsCount: neighborsCount?.totalCount || 0,
       neighborsCountByType: neighborsCount?.counts || {},

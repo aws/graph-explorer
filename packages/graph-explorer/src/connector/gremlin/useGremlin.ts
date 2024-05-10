@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import { useCallback } from "react";
 import { ConnectionConfig, useConfiguration } from "../../core";
 import fetchNeighbors from "./queries/fetchNeighbors";
 import fetchNeighborsCount from "./queries/fetchNeighborsCount";
@@ -43,9 +43,6 @@ const useGremlin = (): Explorer => {
     | undefined;
 
   const url = connection?.url;
-  const _rawIdTypeMap = useMemo(() => {
-    return new Map<string, "string" | "number">();
-  }, []);
 
   const fetchSchemaFunc = useCallback(
     async (options?: any) => {
@@ -79,24 +76,16 @@ const useGremlin = (): Explorer => {
 
   const fetchNeighborsFunc = useCallback(
     (req: NeighborsRequest, options?: any) => {
-      return fetchNeighbors(
-        _gremlinFetch(connection, options),
-        req,
-        _rawIdTypeMap
-      );
+      return fetchNeighbors(_gremlinFetch(connection, options), req);
     },
-    [_rawIdTypeMap, connection]
+    [connection]
   );
 
   const fetchNeighborsCountFunc = useCallback(
     (req: NeighborsCountRequest, options?: any) => {
-      return fetchNeighborsCount(
-        _gremlinFetch(connection, options),
-        req,
-        _rawIdTypeMap
-      );
+      return fetchNeighborsCount(_gremlinFetch(connection, options), req);
     },
-    [_rawIdTypeMap, connection]
+    [connection]
   );
 
   const keywordSearchFunc = useCallback(
@@ -104,13 +93,9 @@ const useGremlin = (): Explorer => {
       options ??= {};
       options.queryId = v4();
 
-      return keywordSearch(
-        _gremlinFetch(connection, options),
-        req,
-        _rawIdTypeMap
-      );
+      return keywordSearch(_gremlinFetch(connection, options), req);
     },
-    [_rawIdTypeMap, connection]
+    [connection]
   );
 
   const explorer: Explorer = {
