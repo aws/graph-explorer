@@ -5,6 +5,8 @@ import {
   Schema,
   VertexTypeConfig,
 } from "../../core";
+import { Edge, Vertex } from "../../@types/entities";
+import { Entities } from "../../core/StateProvider/entitiesSelector";
 
 /*
 
@@ -38,6 +40,15 @@ export function createRandomBoolean(): boolean {
 }
 
 /**
+ * Creates a random integer.
+ * @param max The maximum value the random integer can have. Defaults to 100,000.
+ * @returns A random integer value from 0 to the max.
+ */
+export function createRandomInteger(max: number = 100000): number {
+  return Math.floor(Math.random() * max);
+}
+
+/**
  * Randomly creates a hex value for an RGB color.
  * @returns The hex string of the random color.
  */
@@ -66,6 +77,20 @@ export function randomlyUndefined<T>(value: T): T | undefined {
  */
 export function createArray<T>(length: number, factory: () => T): T[] {
   return Array.from({ length }, factory);
+}
+
+export function createRecord<TValue>(
+  length: number,
+  factory: () => { key: string; value: TValue }
+): Record<string, TValue> {
+  const result: Record<string, TValue> = {};
+
+  for (let i = 0; i < length; i++) {
+    const newEntry = factory();
+    result[newEntry.key] = newEntry.value;
+  }
+
+  return result;
 }
 
 /**
@@ -113,8 +138,8 @@ export function createRandomVertexTypeConfig(): VertexTypeConfig {
  * @returns A random Schema object.
  */
 export function createRandomSchema(): Schema {
-  const edges = createArray(6, createRandomEdgeTypeConfig);
-  const vertices = createArray(6, createRandomVertexTypeConfig);
+  const edges = createArray(3, createRandomEdgeTypeConfig);
+  const vertices = createArray(3, createRandomVertexTypeConfig);
   const schema: Schema = {
     edges,
     vertices,
@@ -122,4 +147,74 @@ export function createRandomSchema(): Schema {
     totalVertices: vertices.length,
   };
   return schema;
+}
+
+/**
+ * Creates random entities (nodes and edges).
+ * @returns A random Entities object.
+ */
+export function createRandomEntities(): Entities {
+  const nodes = createArray(3, createRandomVertex);
+  const edges = [
+    createRandomEdge(nodes[0], nodes[1]),
+    createRandomEdge(nodes[0], nodes[2]),
+    createRandomEdge(nodes[1], nodes[2]),
+
+    // Reverse edges
+    createRandomEdge(nodes[1], nodes[0]),
+    createRandomEdge(nodes[2], nodes[0]),
+    createRandomEdge(nodes[2], nodes[1]),
+  ];
+  return { nodes, edges };
+}
+
+/**
+ * Creates a random vertex.
+ * @returns A random Vertex object.
+ */
+export function createRandomVertex(): Vertex {
+  return {
+    data: {
+      id: createRandomName("VertexId"),
+      idType: "string",
+      type: createRandomName("VertexType"),
+      attributes: createRecord(3, createRandomEntityAttribute),
+      neighborsCount: 0,
+      neighborsCountByType: {},
+    },
+  };
+}
+
+/**
+ * Creates a random edge.
+ * @returns A random Edge object.
+ */
+export function createRandomEdge(source: Vertex, target: Vertex): Edge {
+  return {
+    data: {
+      id: createRandomName("EdgeId"),
+      type: createRandomName("EdgeType"),
+      attributes: createRecord(3, createRandomEntityAttribute),
+      source: source.data.id,
+      sourceType: source.data.type,
+      target: target.data.id,
+      targetType: target.data.type,
+    },
+  };
+}
+
+/**
+ * Creates a random entity (vertex or edge) attribute.
+ * @returns A random entity attribute object.
+ */
+export function createRandomEntityAttribute(): {
+  key: string;
+  value: string | number;
+} {
+  return {
+    key: createRandomName("EntityAttribute"),
+    value: createRandomBoolean()
+      ? createRandomName("StringValue")
+      : createRandomInteger(),
+  };
 }

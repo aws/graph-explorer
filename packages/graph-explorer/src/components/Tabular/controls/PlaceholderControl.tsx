@@ -1,6 +1,6 @@
 import { css } from "@emotion/css";
 
-import { FC } from "react";
+import { PropsWithChildren } from "react";
 
 const defaultStyles = () => css`
   font-style: italic;
@@ -9,7 +9,7 @@ const defaultStyles = () => css`
   color: var(--palette-primary-main);
 `;
 
-export const PlaceholderControl: FC = ({ children }) => {
+export const PlaceholderControl = ({ children }: PropsWithChildren) => {
   return <div className={defaultStyles()}>{children}</div>;
 };
 

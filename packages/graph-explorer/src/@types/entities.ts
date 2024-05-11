@@ -6,6 +6,12 @@ export interface VertexData {
    */
   id: string;
   /**
+   * Data type for the node id.
+   * - For Gremlin, could be string or number
+   * - For openCypher and SPARQL, always string
+   */
+  idType: "string" | "number";
+  /**
    * Single vertex type.
    * - For PG, the node label
    * - For RDF, the resource class

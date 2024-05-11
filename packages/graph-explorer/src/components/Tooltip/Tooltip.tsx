@@ -1,6 +1,6 @@
 import { cx } from "@emotion/css";
 import { AnimatePresence, motion } from "framer-motion";
-import type { PropsWithChildren, ReactNode, ReactText } from "react";
+import type { PropsWithChildren, ReactNode } from "react";
 import { cloneElement, useEffect } from "react";
 import { Arrow, useHover, useLayer } from "react-laag";
 import type { PlacementType } from "react-laag/dist/PlacementType";
@@ -13,7 +13,7 @@ function isReactText(children: ReactNode) {
 }
 
 export type TooltipProps = {
-  text: ReactNode | ReactText;
+  text: ReactNode;
   placement?: PlacementType;
   delayEnter?: number;
   delayLeave?: number;

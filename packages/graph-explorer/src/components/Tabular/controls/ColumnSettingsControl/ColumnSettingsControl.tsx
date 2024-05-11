@@ -1,4 +1,4 @@
-import { VFC } from "react";
+import { FunctionComponent } from "react";
 import { useTabularControl } from "../../TabularControlsProvider";
 import ExternalColumnSettingsControl from "./ExternalColumnSettingsControl";
 
@@ -8,7 +8,9 @@ type ExportControlProps = {
   omittedColumnsIds?: string[];
 };
 
-export const ColumnSettingsControl: VFC<ExportControlProps> = props => {
+export const ColumnSettingsControl: FunctionComponent<
+  ExportControlProps
+> = props => {
   const { instance } = useTabularControl();
 
   if (!instance) {

@@ -1,6 +1,6 @@
 import { css, cx } from "@emotion/css";
 import { saveAs } from "file-saver";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { useLayer } from "react-laag";
 import { Row } from "react-table";
 
@@ -31,15 +31,62 @@ type ExportControlProps<T extends Record<string, unknown>> = {
   instance: TabularInstance<T>;
 };
 
-export const ExternalExportControl = <T extends Record<string, unknown>>({
+export function ExternalExportControl<T extends Record<string, unknown>>({
   classNamePrefix = "ft",
   className,
   omittedColumnsIds,
   instance,
-}: ExportControlProps<T>) => {
+}: ExportControlProps<T>) {
+  const [isContentVisible, setIsContentVisible] = useState(false);
+
+  const { renderLayer, triggerProps, layerProps } = useLayer({
+    isOpen: isContentVisible,
+    onOutsideClick: () => {
+      setIsContentVisible(false);
+    },
+    onDisappear: () => {
+      setIsContentVisible(false);
+    },
+    overflowContainer: true,
+    auto: true,
+    placement: "bottom-end",
+    triggerOffset: 4,
+  });
+
+  return (
+    <div id="export-control" className={rootStyles()}>
+      <IconButton
+        variant={"text"}
+        size={"base"}
+        icon={<TrayArrowIcon />}
+        onPress={() => setIsContentVisible(visible => !visible)}
+        {...triggerProps}
+      />
+      {renderLayer(
+        <div
+          {...layerProps}
+          className={cx(defaultStyles(classNamePrefix), className)}
+        >
+          {isContentVisible && (
+            <ExportOptionsModal
+              classNamePrefix={classNamePrefix}
+              instance={instance}
+              omittedColumnsIds={omittedColumnsIds}
+            />
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ExportOptionsModal<T extends Record<string, unknown>>({
+  classNamePrefix,
+  instance,
+  omittedColumnsIds,
+}: ExportControlProps<T>) {
   const pfx = withClassNamePrefix(classNamePrefix);
   const { rows, data, page, columns, columnOrder, visibleColumns } = instance;
-  const [isContentVisible, setIsContentVisible] = useState(false);
   const [format, setFormat] = useState("csv");
   const [name, setName] = useState<string>("");
   const [options, setOptions] = useState<Record<string, boolean>>({});
@@ -49,16 +96,6 @@ export const ExternalExportControl = <T extends Record<string, unknown>>({
       return init;
     }, {})
   );
-
-  useEffect(() => {
-    setSelectedColumns(
-      columnOrder.reduce<Record<string, boolean>>((init, col) => {
-        init[col] = !omittedColumnsIds?.includes(col) && visibleColumns[col];
-        return init;
-      }, {})
-    );
-    // if columns changes, it should be recomputed from scratch
-  }, [columns, columnOrder, omittedColumnsIds, visibleColumns]);
 
   const onExport = useCallback(() => {
     let currentDataSource: readonly T[] | Row<T>[] = data;
@@ -113,113 +150,79 @@ export const ExternalExportControl = <T extends Record<string, unknown>>({
     omittedColumnsIds,
   ]);
 
-  const { renderLayer, triggerProps, layerProps } = useLayer({
-    isOpen: isContentVisible,
-    onOutsideClick: () => {
-      setIsContentVisible(false);
-    },
-    onDisappear: () => {
-      setIsContentVisible(false);
-    },
-    overflowContainer: true,
-    auto: true,
-    placement: "bottom-end",
-    triggerOffset: 4,
-  });
-
   return (
-    <div id="export-control" className={rootStyles()}>
-      <IconButton
-        variant={"text"}
-        size={"base"}
-        icon={<TrayArrowIcon />}
-        onPress={() => setIsContentVisible(visible => !visible)}
-        {...triggerProps}
+    <Card className={pfx("card")}>
+      <div className={pfx("title")}>Export columns</div>
+      <div className={pfx("columns-container")}>
+        {columnOrder.map(columnId =>
+          omittedColumnsIds?.includes(columnId) ||
+          !visibleColumns[columnId] ? null : (
+            <Checkbox
+              aria-label={`choose ${columnId}`}
+              key={columnId}
+              isSelected={selectedColumns[columnId]}
+              onChange={isSelected => {
+                setSelectedColumns(prev => ({
+                  ...prev,
+                  [columnId]: isSelected,
+                }));
+              }}
+            >
+              {columns.find(colDef => colDef.instance.id === columnId)
+                ?.definition?.label || columnId}
+            </Checkbox>
+          )
+        )}
+      </div>
+      <div className={pfx("title")}>Options</div>
+      <Checkbox
+        aria-label={`Keep filtering and sorting`}
+        isSelected={options["include-filters"]}
+        onChange={isSelected => {
+          setOptions(prev => ({
+            ...prev,
+            "include-filters": isSelected,
+          }));
+        }}
+      >
+        Keep filtering and sorting
+      </Checkbox>
+      <Checkbox
+        aria-label={`Only current page`}
+        isSelected={options["only-page"]}
+        onChange={isSelected => {
+          setOptions(prev => ({
+            ...prev,
+            "only-page": isSelected,
+          }));
+        }}
+      >
+        Only current page
+      </Checkbox>
+      <div className={pfx("title")}>Format</div>
+      <Select
+        value={format}
+        onChange={f => setFormat(f as string)}
+        options={[
+          {
+            label: "CSV",
+            value: "csv",
+          },
+          { label: "JSON", value: "json" },
+        ]}
       />
-      {renderLayer(
-        <div
-          {...layerProps}
-          className={cx(defaultStyles(classNamePrefix), className)}
-        >
-          {isContentVisible && (
-            <Card className={pfx("card")}>
-              <div className={pfx("title")}>Export columns</div>
-              <div className={pfx("columns-container")}>
-                {columnOrder.map(columnId =>
-                  omittedColumnsIds?.includes(columnId) ||
-                  !visibleColumns[columnId] ? null : (
-                    <Checkbox
-                      aria-label={`choose ${columnId}`}
-                      key={columnId}
-                      isSelected={selectedColumns[columnId]}
-                      onChange={isSelected => {
-                        setSelectedColumns(prev => ({
-                          ...prev,
-                          [columnId]: isSelected,
-                        }));
-                      }}
-                    >
-                      {columns.find(colDef => colDef.instance.id === columnId)
-                        ?.definition?.label || columnId}
-                    </Checkbox>
-                  )
-                )}
-              </div>
-              <div className={pfx("title")}>Options</div>
-              <Checkbox
-                aria-label={`Keep filtering and sorting`}
-                isSelected={options["include-filters"]}
-                onChange={isSelected => {
-                  setOptions(prev => ({
-                    ...prev,
-                    "include-filters": isSelected,
-                  }));
-                }}
-              >
-                Keep filtering and sorting
-              </Checkbox>
-              <Checkbox
-                aria-label={`Only current page`}
-                isSelected={options["only-page"]}
-                onChange={isSelected => {
-                  setOptions(prev => ({
-                    ...prev,
-                    "only-page": isSelected,
-                  }));
-                }}
-              >
-                Only current page
-              </Checkbox>
-              <div className={pfx("title")}>Format</div>
-              <Select
-                value={format}
-                onChange={f => setFormat(f as string)}
-                options={[
-                  {
-                    label: "CSV",
-                    value: "csv",
-                  },
-                  { label: "JSON", value: "json" },
-                ]}
-              />
-              <div className={pfx("title")}>Save as</div>
-              <Input
-                aria-label={"Export name"}
-                value={name}
-                placeholder={`export-${new Date().getTime()}.${format}`}
-                onChange={setName}
-              />
-              <div className={pfx("actions")}>
-                <Button variant={"filled"} onPress={onExport}>
-                  Export
-                </Button>
-              </div>
-            </Card>
-          )}
-        </div>
-      )}
-    </div>
+      <div className={pfx("title")}>Save as</div>
+      <Input
+        aria-label={"Export name"}
+        value={name}
+        placeholder={`export-${new Date().getTime()}.${format}`}
+        onChange={setName}
+      />
+      <div className={pfx("actions")}>
+        <Button variant={"filled"} onPress={onExport}>
+          Export
+        </Button>
+      </div>
+    </Card>
   );
-};
-
-export default ExternalExportControl;
+}

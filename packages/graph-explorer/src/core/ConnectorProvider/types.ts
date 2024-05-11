@@ -1,9 +1,12 @@
 import LoggerConnector from "../../connector/LoggerConnector";
 import {
+  CountsByTypeRequest,
   CountsByTypeResponse,
   KeywordSearchRequest,
   KeywordSearchResponse,
+  NeighborsCountRequest,
   NeighborsCountResponse,
+  NeighborsRequest,
   NeighborsResponse,
   SchemaResponse,
 } from "../../connector/useGEFetchTypes";
@@ -11,12 +14,15 @@ import {
 export type Explorer = {
   fetchSchema: (options?: any) => Promise<SchemaResponse>;
   fetchVertexCountsByType: (
-    req: any,
+    req: CountsByTypeRequest,
     options?: any
   ) => Promise<CountsByTypeResponse>;
-  fetchNeighbors: (req: any, options?: any) => Promise<NeighborsResponse>;
+  fetchNeighbors: (
+    req: NeighborsRequest,
+    options?: any
+  ) => Promise<NeighborsResponse>;
   fetchNeighborsCount: (
-    req: any,
+    req: NeighborsCountRequest,
     options?: any
   ) => Promise<NeighborsCountResponse>;
   keywordSearch: (

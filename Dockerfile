@@ -1,6 +1,8 @@
 # syntax=docker/dockerfile:1
 FROM node:20.12.2-alpine
 ARG NEPTUNE_NOTEBOOK
+ENV NVM_DIR /root/.nvm
+ENV NODE_VERSION v20.12.2
 WORKDIR /
 COPY . /graph-explorer/
 WORKDIR /graph-explorer

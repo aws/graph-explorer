@@ -241,7 +241,9 @@ const SingleNodeStyling = ({
           </div>
         }
         className={styleWithTheme(modalDefaultStyles(classNamePrefix))}
-        overlayOpacity={0.1}
+        overlayProps={{
+          backgroundOpacity: 0.1,
+        }}
       >
         <div className={pfx("container")}>
           <div>
@@ -284,8 +286,8 @@ const SingleNodeStyling = ({
               <div className={pfx("icon")}>
                 <FileButton
                   accept={"image/*"}
-                  onChange={(file: File) => {
-                    convertImageToBase64AndSetNewIcon(file);
+                  onChange={file => {
+                    file && convertImageToBase64AndSetNewIcon(file);
                   }}
                 >
                   {props => (

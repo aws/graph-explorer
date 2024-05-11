@@ -130,7 +130,10 @@ const AvailableConnections = ({
         label: "Import Connection",
         value: "import",
         icon: (
-          <FileButton onChange={onConfigImport} accept={"application/json"}>
+          <FileButton
+            onChange={payload => payload && onConfigImport(payload)}
+            accept={"application/json"}
+          >
             {props => (
               <TrayArrowIcon
                 onClick={props.onClick}

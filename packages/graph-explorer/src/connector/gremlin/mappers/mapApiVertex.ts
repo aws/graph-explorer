@@ -1,6 +1,7 @@
 import type { Vertex } from "../../../@types/entities";
 import type { NeighborsCountResponse } from "../../useGEFetchTypes";
 import type { GVertex } from "../types";
+import { detectIdType } from "./detectIdType";
 import parsePropertiesValues from "./parsePropertiesValues";
 import toStringId from "./toStringId";
 
@@ -14,6 +15,7 @@ const mapApiVertex = (
   return {
     data: {
       id: toStringId(apiVertex["@value"].id),
+      idType: detectIdType(apiVertex["@value"].id),
       type: vt,
       types: labels,
       neighborsCount: neighborsCount?.totalCount || 0,

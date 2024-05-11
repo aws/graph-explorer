@@ -2,9 +2,11 @@ import type {
   Criterion,
   KeywordSearchRequest,
   KeywordSearchResponse,
+  NeighborsCountRequest,
+  NeighborsRequest,
   NeighborsResponse,
 } from "../useGEFetchTypes";
-import useGEFetch from "../useGEFetch";
+import { fetchDatabaseRequest } from "../fetchDatabaseRequest";
 import fetchBlankNodeNeighbors from "./queries/fetchBlankNodeNeighbors";
 import fetchClassCounts from "./queries/fetchClassCounts";
 import fetchNeighbors from "./queries/fetchNeighbors";
@@ -22,6 +24,7 @@ import {
 import { useCallback } from "react";
 import { ConnectionConfig, useConfiguration } from "../../core";
 import { v4 } from "uuid";
+import { Explorer } from "../../core/ConnectorProvider/types";
 
 const replaceBlankNodeFromSearch = (
   blankNodes: BlankNodesMap,
@@ -125,16 +128,15 @@ const storedBlankNodeNeighborsRequest = (
   });
 };
 
-const useSPARQL = (blankNodes: BlankNodesMap) => {
+const useSPARQL = (blankNodes: BlankNodesMap): Explorer => {
   const connection = useConfiguration()?.connection as
     | ConnectionConfig
     | undefined;
 
-  const useFetch = useGEFetch();
   const url = connection?.url;
 
   const _sparqlFetch = useCallback(
-    options => {
+    (options?: any) => {
       return async (queryTemplate: string) => {
         const body = `query=${encodeURIComponent(queryTemplate)}`;
         const headers = options?.queryId
@@ -147,7 +149,7 @@ const useSPARQL = (blankNodes: BlankNodesMap) => {
               accept: "application/json",
               "Content-Type": "application/x-www-form-urlencoded",
             };
-        return useFetch.request(`${url}/sparql`, {
+        return fetchDatabaseRequest(connection, `${url}/sparql`, {
           method: "POST",
           headers,
           body,
@@ -155,14 +157,15 @@ const useSPARQL = (blankNodes: BlankNodesMap) => {
         });
       };
     },
-    [url, useFetch]
+    [connection, url]
   );
 
   const fetchSchemaFunc = useCallback(
-    async options => {
+    async (options?: any) => {
       let summary;
       try {
-        const response = await useFetch.request(
+        const response = await fetchDatabaseRequest(
+          connection,
           `${url}/rdf/statistics/summary?mode=detailed`,
           {
             method: "GET",
@@ -177,18 +180,18 @@ const useSPARQL = (blankNodes: BlankNodesMap) => {
       }
       return fetchSchema(_sparqlFetch(options), summary);
     },
-    [_sparqlFetch, url, useFetch]
+    [_sparqlFetch, connection, url]
   );
 
   const fetchVertexCountsByType = useCallback(
-    (req, options) => {
+    (req: any, options?: any) => {
       return fetchClassCounts(_sparqlFetch(options), req);
     },
     [_sparqlFetch]
   );
 
   const fetchNeighborsFunc = useCallback(
-    async (req, options) => {
+    async (req: NeighborsRequest, options?: any) => {
       const request: SPARQLNeighborsRequest = {
         resourceURI: req.vertexId,
         resourceClass: req.vertexType,
@@ -218,7 +221,7 @@ const useSPARQL = (blankNodes: BlankNodesMap) => {
   );
 
   const fetchNeighborsCountFunc = useCallback(
-    async (req, options) => {
+    async (req: NeighborsCountRequest, options?: any) => {
       const bNode = blankNodes.get(req.vertexId);
 
       if (bNode?.neighbors) {
@@ -263,7 +266,7 @@ const useSPARQL = (blankNodes: BlankNodesMap) => {
   );
 
   const keywordSearchFunc = useCallback(
-    async (req, options) => {
+    async (req: KeywordSearchRequest, options?: any) => {
       options ??= {};
       options.queryId = v4();
 

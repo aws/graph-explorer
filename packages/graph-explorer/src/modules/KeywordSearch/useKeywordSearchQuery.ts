@@ -1,9 +1,9 @@
-import { useQuery, useQueryClient } from "react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNotification } from "../../components/NotificationProvider";
 import { useConfiguration } from "../../core";
 import useConnector from "../../core/ConnectorProvider/useConnector";
 import usePrefixesUpdater from "../../hooks/usePrefixesUpdater";
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { createDisplayError } from "../../utils/createDisplayError";
 
 export type SearchQueryRequest = {
@@ -47,14 +47,14 @@ export function useKeywordSearchQuery({
     ]
   );
 
-  const query = useQuery(
+  const query = useQuery({
     queryKey,
-    ({ signal }) => {
+    queryFn: async ({ signal }) => {
       if (!connector.explorer) {
         return;
       }
 
-      const promise = connector.explorer.keywordSearch(
+      return await connector.explorer.keywordSearch(
         {
           searchTerm: debouncedSearchTerm,
           vertexTypes,
@@ -64,25 +64,29 @@ export function useKeywordSearchQuery({
         },
         { signal }
       );
-      return promise;
     },
-    {
-      enabled: !!config && isOpen && !!connector.explorer,
-      onSuccess: response => {
-        if (!response) {
-          return;
-        }
-        updatePrefixes(response.vertices.map(v => v.data.id));
-      },
-      onError: (e: Error) => {
-        const displayError = createDisplayError(e);
-        enqueueNotification({
-          type: "error",
-          ...displayError,
-        });
-      },
+    enabled: !!config && isOpen && !!connector.explorer,
+  });
+
+  // Sync sparql prefixes
+  useEffect(() => {
+    if (!query.data) {
+      return;
     }
-  );
+    updatePrefixes(query.data.vertices.map(v => v.data.id));
+  }, [query.data, updatePrefixes]);
+
+  // Show errors
+  useEffect(() => {
+    if (!query.error) {
+      return;
+    }
+    const displayError = createDisplayError(query.error);
+    enqueueNotification({
+      type: "error",
+      ...displayError,
+    });
+  }, [query.error, enqueueNotification]);
 
   const cancelAll = useCallback(async () => {
     await queryClient.cancelQueries({

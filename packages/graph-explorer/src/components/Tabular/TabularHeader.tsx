@@ -16,9 +16,10 @@ const TabularHeader = <T extends object>({
 }) => {
   const pfx = withClassNamePrefix(classNamePrefix);
   const { state } = tableInstance;
+  const { key, ...otherProps } = headerGroup.getHeaderGroupProps();
 
   return (
-    <div {...headerGroup.getHeaderGroupProps()} className={pfx("row")}>
+    <div key={key} {...otherProps} className={pfx("row")}>
       {headerGroup.headers.map(column => {
         const { key, style, ...restHeaderProps } = column.getHeaderProps(
           column.getSortByToggleProps({

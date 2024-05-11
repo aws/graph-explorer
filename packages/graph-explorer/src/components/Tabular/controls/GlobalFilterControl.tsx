@@ -1,5 +1,5 @@
 import { css } from "@emotion/css";
-import { VFC } from "react";
+import { FunctionComponent } from "react";
 import { useIsDarkTheme } from "../../../core";
 import { cssVar } from "../../../core/ThemeProvider/utils/lib";
 
@@ -35,7 +35,7 @@ const defaultStyles = (pfx: string, isDarkTheme: boolean) => css`
   }
 `;
 
-export const GlobalFilterControl: VFC = () => {
+export const GlobalFilterControl: FunctionComponent = () => {
   const { instance } = useTabularControl();
   const isDarkTheme = useIsDarkTheme();
   return (

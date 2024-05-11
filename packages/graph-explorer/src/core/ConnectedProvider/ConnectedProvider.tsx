@@ -1,7 +1,7 @@
 import type { PropsWithChildren } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { QueryClient, QueryClientProvider } from "react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { NotificationProvider } from "../../components/NotificationProvider";
 import Toast from "../../components/Toast";
 import AppStatusLoader from "../AppStatusLoader";
@@ -11,6 +11,8 @@ import ConnectorProvider from "../ConnectorProvider/ConnectorProvider";
 import StateProvider from "../StateProvider/StateProvider";
 import type { ThemeProviderProps } from "../ThemeProvider/ThemeProvider";
 import ThemeProvider from "../ThemeProvider/ThemeProvider";
+import { MantineProvider } from "@mantine/core";
+import { emotionTransform, MantineEmotionProvider } from "@mantine/emotion";
 
 export type ConnectedProviderProps = {
   config?: RawConfiguration;
@@ -33,17 +35,21 @@ const ConnectedProvider = (
     <div style={{ width: "100%", height: "100vh", overflow: "hidden" }}>
       <QueryClientProvider client={queryClient}>
         <DndProvider backend={HTML5Backend}>
-          <ThemeProvider {...themeProps}>
-            <NotificationProvider component={Toast}>
-              <StateProvider>
-                <AppStatusLoader config={config}>
-                  <ConfigurationProvider>
-                    <ConnectorProvider>{children}</ConnectorProvider>
-                  </ConfigurationProvider>
-                </AppStatusLoader>
-              </StateProvider>
-            </NotificationProvider>
-          </ThemeProvider>
+          <MantineProvider stylesTransform={emotionTransform}>
+            <MantineEmotionProvider>
+              <ThemeProvider {...themeProps}>
+                <NotificationProvider component={Toast}>
+                  <StateProvider>
+                    <AppStatusLoader config={config}>
+                      <ConfigurationProvider>
+                        <ConnectorProvider>{children}</ConnectorProvider>
+                      </ConfigurationProvider>
+                    </AppStatusLoader>
+                  </StateProvider>
+                </NotificationProvider>
+              </ThemeProvider>
+            </MantineEmotionProvider>
+          </MantineProvider>
         </DndProvider>
       </QueryClientProvider>
     </div>

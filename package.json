@@ -8,13 +8,13 @@
   },
   "scripts": {
     "prepare": "husky install",
-    "precommit": "lint-staged && pnpm types:check",
+    "precommit": "lint-staged && pnpm check:types",
     "lint": "eslint . --fix",
     "check:lint": "eslint .",
     "format": "prettier --write .",
     "check:format": "prettier --check .",
     "test": "pnpm -F graph-explorer test",
-    "check:types": "pnpm -F graph-explorer types:check",
+    "check:types": "tsc --project packages/graph-explorer/",
     "checks": "pnpm run '/^check:.*/'",
     "start": "pnpm --stream -r run start",
     "build": "pnpm -F graph-explorer build",
@@ -26,16 +26,16 @@
   "author": "amazon",
   "license": "Apache-2.0",
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^7.1.0",
-    "@typescript-eslint/parser": "^7.1.0",
+    "@typescript-eslint/eslint-plugin": "^7.8.0",
+    "@typescript-eslint/parser": "^7.8.0",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-react": "^7.33.2",
-    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react": "^7.34.1",
+    "eslint-plugin-react-hooks": "^4.6.2",
     "husky": "^9.0.11",
-    "lint-staged": "^13.2.3",
+    "lint-staged": "^13.3.0",
     "prettier": "3.2.5",
-    "typescript": "^5.1.6"
+    "typescript": "^5.4.5"
   },
   "lint-staged": {
     "*.{js,ts,tsx}": [

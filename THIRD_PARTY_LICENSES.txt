@@ -884,7 +884,7 @@ Apache License
 
 ------
 
-** typescript; version 4.8.4 -- https://www.typescriptlang.org/
+** typescript; version 5.4.5 -- https://www.typescriptlang.org/
 
 Apache License
 

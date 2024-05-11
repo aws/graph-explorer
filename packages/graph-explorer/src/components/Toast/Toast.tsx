@@ -1,12 +1,12 @@
 import { cx } from "@emotion/css";
-import { FC } from "react";
+import { FC, PropsWithChildren } from "react";
 import { useWithTheme, withClassNamePrefix } from "../../core";
 import Card from "../Card";
 
 import { CheckIcon, CloseIcon, ErrorIcon, InfoIcon } from "../icons";
 import defaultStyles from "./Toast.styles";
 
-export type NotificationComponentProps = {
+export type NotificationComponentProps = PropsWithChildren<{
   message: string;
   title?: string;
   type?: "error" | "warning" | "info" | "success";
@@ -20,7 +20,7 @@ export type NotificationComponentProps = {
    * It's triggered when manually close the notification
    */
   onClose?(): void;
-};
+}>;
 
 export interface ToastProps
   extends Omit<NotificationComponentProps, "message"> {
