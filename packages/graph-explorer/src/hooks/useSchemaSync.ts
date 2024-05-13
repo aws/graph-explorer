@@ -2,14 +2,16 @@ import { useCallback, useRef } from "react";
 import { useNotification } from "../components/NotificationProvider";
 import type { SchemaResponse } from "../connector/useGEFetchTypes";
 import useConfiguration from "../core/ConfigurationProvider/useConfiguration";
-import useConnector from "../core/ConnectorProvider/useConnector";
+import { explorerSelector, loggerSelector } from "../core/connector";
 import usePrefixesUpdater from "./usePrefixesUpdater";
 import useUpdateSchema from "./useUpdateSchema";
 import { createDisplayError } from "../utils/createDisplayError";
+import { useRecoilValue } from "recoil";
 
 const useSchemaSync = (onSyncChange?: (isSyncing: boolean) => void) => {
   const config = useConfiguration();
-  const connector = useConnector();
+  const explorer = useRecoilValue(explorerSelector);
+  const logger = useRecoilValue(loggerSelector);
 
   const updatePrefixes = usePrefixesUpdater();
   const { enqueueNotification, clearNotification } = useNotification();
@@ -17,7 +19,7 @@ const useSchemaSync = (onSyncChange?: (isSyncing: boolean) => void) => {
 
   const updateSchemaState = useUpdateSchema();
   return useCallback(async () => {
-    if (!config || !connector.explorer) {
+    if (!config || !explorer) {
       return;
     }
 
@@ -30,7 +32,7 @@ const useSchemaSync = (onSyncChange?: (isSyncing: boolean) => void) => {
         type: "info",
       });
 
-      schema = await connector.explorer.fetchSchema();
+      schema = await explorer.fetchSchema();
     } catch (e) {
       notificationId.current && clearNotification(notificationId.current);
       const displayError = createDisplayError(e);
@@ -40,13 +42,13 @@ const useSchemaSync = (onSyncChange?: (isSyncing: boolean) => void) => {
         stackable: true,
       });
       if (e.name === "AbortError") {
-        connector.logger?.error(
+        logger?.error(
           `[${
             config.displayLabel || config.id
           }] Fetch aborted, reached max time out ${config.connection?.fetchTimeoutMs} MS `
         );
       } else {
-        connector.logger?.error(
+        logger?.error(
           `[${
             config.displayLabel || config.id
           }] Error while fetching schema: ${e.message}`
@@ -66,7 +68,7 @@ const useSchemaSync = (onSyncChange?: (isSyncing: boolean) => void) => {
         type: "info",
         stackable: true,
       });
-      connector.logger?.info(
+      logger?.info(
         `[${
           config.displayLabel || config.id
         }] This connection has no data available: ${JSON.stringify(
@@ -85,7 +87,7 @@ const useSchemaSync = (onSyncChange?: (isSyncing: boolean) => void) => {
       type: "success",
       stackable: true,
     });
-    connector.logger?.info(
+    logger?.info(
       `[${
         config.displayLabel || config.id
       }] Connection successfully synchronized: ${JSON.stringify(
@@ -102,8 +104,8 @@ const useSchemaSync = (onSyncChange?: (isSyncing: boolean) => void) => {
   }, [
     clearNotification,
     config,
-    connector.explorer,
-    connector.logger,
+    explorer,
+    logger,
     enqueueNotification,
     onSyncChange,
     updatePrefixes,

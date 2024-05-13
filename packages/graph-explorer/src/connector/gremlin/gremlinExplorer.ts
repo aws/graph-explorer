@@ -1,5 +1,4 @@
-import { useCallback } from "react";
-import { ConnectionConfig, useConfiguration } from "../../core";
+import { ConnectionConfig } from "../../core";
 import fetchNeighbors from "./queries/fetchNeighbors";
 import fetchNeighborsCount from "./queries/fetchNeighborsCount";
 import fetchSchema from "./queries/fetchSchema";
@@ -8,15 +7,9 @@ import keywordSearch from "./queries/keywordSearch";
 import { fetchDatabaseRequest } from "../fetchDatabaseRequest";
 import { GraphSummary } from "./types";
 import { v4 } from "uuid";
-import { Explorer } from "../../core/ConnectorProvider/types";
-import {
-  KeywordSearchRequest,
-  NeighborsCountRequest,
-  NeighborsRequest,
-} from "../useGEFetchTypes";
+import { Explorer } from "../useGEFetchTypes";
 
-function _gremlinFetch(connection: ConnectionConfig | undefined, options: any) {
-  const url = connection?.url;
+function _gremlinFetch(connection: ConnectionConfig, options: any) {
   return async (queryTemplate: string) => {
     const body = JSON.stringify({ query: queryTemplate });
     const headers = options?.queryId
@@ -28,7 +21,7 @@ function _gremlinFetch(connection: ConnectionConfig | undefined, options: any) {
           "Content-Type": "application/json",
         };
 
-    return fetchDatabaseRequest(connection, `${url}/gremlin`, {
+    return fetchDatabaseRequest(connection, `${connection.url}/gremlin`, {
       method: "POST",
       headers,
       body,
@@ -37,20 +30,14 @@ function _gremlinFetch(connection: ConnectionConfig | undefined, options: any) {
   };
 }
 
-const useGremlin = (): Explorer => {
-  const connection = useConfiguration()?.connection as
-    | ConnectionConfig
-    | undefined;
-
-  const url = connection?.url;
-
-  const fetchSchemaFunc = useCallback(
-    async (options?: any) => {
+export function createGremlinExplorer(connection: ConnectionConfig): Explorer {
+  return {
+    async fetchSchema(options) {
       let summary;
       try {
         const response = await fetchDatabaseRequest(
           connection,
-          `${url}/pg/statistics/summary?mode=detailed`,
+          `${connection.url}/pg/statistics/summary?mode=detailed`,
           {
             method: "GET",
             ...options,
@@ -64,49 +51,20 @@ const useGremlin = (): Explorer => {
       }
       return fetchSchema(_gremlinFetch(connection, options), summary);
     },
-    [connection, url]
-  );
-
-  const fetchVertexCountsByType = useCallback(
-    (req: any, options: any) => {
+    async fetchVertexCountsByType(req, options) {
       return fetchVertexTypeCounts(_gremlinFetch(connection, options), req);
     },
-    [connection]
-  );
-
-  const fetchNeighborsFunc = useCallback(
-    (req: NeighborsRequest, options?: any) => {
+    async fetchNeighbors(req, options) {
       return fetchNeighbors(_gremlinFetch(connection, options), req);
     },
-    [connection]
-  );
-
-  const fetchNeighborsCountFunc = useCallback(
-    (req: NeighborsCountRequest, options?: any) => {
+    async fetchNeighborsCount(req, options) {
       return fetchNeighborsCount(_gremlinFetch(connection, options), req);
     },
-    [connection]
-  );
-
-  const keywordSearchFunc = useCallback(
-    (req: KeywordSearchRequest, options?: any) => {
+    async keywordSearch(req, options) {
       options ??= {};
       options.queryId = v4();
 
       return keywordSearch(_gremlinFetch(connection, options), req);
     },
-    [connection]
-  );
-
-  const explorer: Explorer = {
-    fetchSchema: fetchSchemaFunc,
-    fetchVertexCountsByType,
-    fetchNeighbors: fetchNeighborsFunc,
-    fetchNeighborsCount: fetchNeighborsCountFunc,
-    keywordSearch: keywordSearchFunc,
   };
-
-  return explorer;
-};
-
-export default useGremlin;
+}

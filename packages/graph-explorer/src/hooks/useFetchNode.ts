@@ -1,18 +1,19 @@
 import { useCallback } from "react";
 import { Vertex } from "../@types/entities";
-import useConnector from "../core/ConnectorProvider/useConnector";
+import { explorerSelector } from "../core/connector";
 import useEntities from "./useEntities";
 import { NeighborsCountRequest } from "../connector/useGEFetchTypes";
+import { useRecoilValue } from "recoil";
 
 const useFetchNode = () => {
   const [, setEntities] = useEntities();
-  const connector = useConnector();
+  const explorer = useRecoilValue(explorerSelector);
 
   const fetchNeighborsCount = useCallback(
     (req: NeighborsCountRequest) => {
-      return connector.explorer?.fetchNeighborsCount(req);
+      return explorer?.fetchNeighborsCount(req);
     },
-    [connector.explorer]
+    [explorer]
   );
 
   return useCallback(

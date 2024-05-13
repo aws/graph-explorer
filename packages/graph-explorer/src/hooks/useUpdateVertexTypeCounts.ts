@@ -1,13 +1,14 @@
 import { useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useConfiguration } from "../core";
-import useConnector from "../core/ConnectorProvider/useConnector";
+import { explorerSelector } from "../core/connector";
 import useUpdateSchema from "./useUpdateSchema";
+import { useRecoilValue } from "recoil";
 
 const useUpdateVertexTypeCounts = (vertexType?: string) => {
   const config = useConfiguration();
   const configId = config?.id;
-  const connector = useConnector();
+  const explorer = useRecoilValue(explorerSelector);
 
   const vertexConfig = useMemo(() => {
     if (!vertexType) {
@@ -25,7 +26,7 @@ const useUpdateVertexTypeCounts = (vertexType?: string) => {
         return;
       }
 
-      return connector.explorer?.fetchVertexCountsByType({
+      return explorer?.fetchVertexCountsByType({
         label: vertexConfig?.type,
       });
     },

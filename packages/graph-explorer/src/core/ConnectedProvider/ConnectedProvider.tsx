@@ -7,7 +7,6 @@ import Toast from "../../components/Toast";
 import AppStatusLoader from "../AppStatusLoader";
 import type { RawConfiguration } from "../ConfigurationProvider";
 import ConfigurationProvider from "../ConfigurationProvider";
-import ConnectorProvider from "../ConnectorProvider/ConnectorProvider";
 import StateProvider from "../StateProvider/StateProvider";
 import type { ThemeProviderProps } from "../ThemeProvider/ThemeProvider";
 import ThemeProvider from "../ThemeProvider/ThemeProvider";
@@ -41,9 +40,7 @@ const ConnectedProvider = (
                 <NotificationProvider component={Toast}>
                   <StateProvider>
                     <AppStatusLoader config={config}>
-                      <ConfigurationProvider>
-                        <ConnectorProvider>{children}</ConnectorProvider>
-                      </ConfigurationProvider>
+                      <ConfigurationProvider>{children}</ConfigurationProvider>
                     </AppStatusLoader>
                   </StateProvider>
                 </NotificationProvider>
