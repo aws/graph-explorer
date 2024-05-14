@@ -1,6 +1,6 @@
 ## Table of Contents
 
-* [Connections](./connections.md)
-* [Development](./development.md)
-* [SageMaker](./sagemaker)
-* [ECS](./ecs)
+- [Connections](./connections.md)
+- [Development](./development.md)
+- [SageMaker](./sagemaker)
+- [ECS](./ecs)
