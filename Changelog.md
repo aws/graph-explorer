@@ -2,6 +2,29 @@
 
 ## Upcoming
 
+## Release 1.7.0
+
+This release includes the following feature enhancements and bug fixes:
+
+**Features**
+
+- Updated to Node v20 & React v18 (<https://github.com/aws/graph-explorer/pull/330>) (<https://github.com/aws/graph-explorer/pull/345>) (<https://github.com/aws/graph-explorer/pull/352>)
+- Added schema updating automatically when an unknown attribute is discovered (<https://github.com/aws/graph-explorer/pull/356>)
+- Improved error handling on the client and server side (<https://github.com/aws/graph-explorer/pull/283>) (<https://github.com/aws/graph-explorer/pull/288>)
+- Removed fetch caching options (<https://github.com/aws/graph-explorer/pull/280>)
+
+**Bug Fixes and Minor Changes**
+
+- Fixed node and edge filter behavior (<https://github.com/aws/graph-explorer/pull/289>)
+- Fixed error on CSV export when "keep filtering and sorting" (<https://github.com/aws/graph-explorer/pull/297>)
+- Fixed uploaded SVG rendering in graph (<https://github.com/aws/graph-explorer/pull/296>)
+- Fixed search bar hover color (<https://github.com/aws/graph-explorer/pull/293>)
+- Fixed Docker image tagging in GitHub workflows (<https://github.com/aws/graph-explorer/pull/320>)
+- Improved monorepo configuration (<https://github.com/aws/graph-explorer/pull/305>)
+- Updated database query abstractions (<https://github.com/aws/graph-explorer/pull/366>) (<https://github.com/aws/graph-explorer/pull/367>) (<https://github.com/aws/graph-explorer/pull/365>)
+- Improved the GitHub templates for issues and pull requests (<https://github.com/aws/graph-explorer/pull/281>) (<https://github.com/aws/graph-explorer/pull/332>) (<https://github.com/aws/graph-explorer/pull/362>)
+- Various dependency upgrades (<https://github.com/aws/graph-explorer/pull/295>) (<https://github.com/aws/graph-explorer/pull/306>) (<https://github.com/aws/graph-explorer/pull/360>)
+
 ## Release 1.6.0
 
 This release includes the following feature enhancements and bug fixes:
