@@ -3,15 +3,14 @@ name: Feature request
 about: Suggest an idea for improving this project
 title: "[Feature Request] "
 labels: enhancement
-projects: 'aws/112'
-assignees: ''
-
+projects: "aws/112"
+assignees: ""
 ---
 
 ## Description
 
 <!--
-  A clear and concise description of what the problem is. 
+  A clear and concise description of what the problem is.
   e.g. I'm frustrated when [...]
 -->
 
@@ -22,7 +21,7 @@ assignees: ''
 ## Additional Context
 
 <!--
-  Add any other context or screenshots about the feature request here. 
+  Add any other context or screenshots about the feature request here.
   Describe any alternatives you've considered.
 -->
 
@@ -35,18 +34,17 @@ assignees: ''
 
 ## Tasks
 
-<!-- 
-  Add any known tasks that are required to complete this feature request. 
+<!--
+  Add any known tasks that are required to complete this feature request.
   For Example:
   - [ ] Update documentation
 -->
 
 ---
 
-> [!IMPORTANT]
-> If you are interested in working on this issue or have submitted a pull request, please leave a comment.
+> [!IMPORTANT] If you are interested in working on this issue or have submitted
+> a pull request, please leave a comment.
 
-> [!TIP]
-> Please use a 👍 reaction to provide a +1/vote. 
-> 
+> [!TIP] Please use a 👍 reaction to provide a +1/vote.
+>
 > This helps the community and maintainers prioritize this request.

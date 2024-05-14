@@ -74,7 +74,9 @@ jobs:
           docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:sagemaker-$IMAGE_TAG
 
       - name: Update latest tag for release
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.image_tag == 'release' }}
+        if:
+          ${{ github.event_name == 'workflow_dispatch' && inputs.image_tag ==
+          'release' }}
         env:
           REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
           REGISTRY_ALIAS: neptune

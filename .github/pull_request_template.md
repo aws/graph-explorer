@@ -25,7 +25,8 @@ Please read the [Code of Conduct](https://github.com/aws/graph-explorer/blob/mai
   You can check the items by adding an `x` between the brackets, like this: `[x]`
 -->
 
-- [ ] I confirm that my contribution is made under the terms of the Apache 2.0 license.
+- [ ] I confirm that my contribution is made under the terms of the Apache 2.0
+      license.
 - [ ] I have run `pnpm checks` to ensure code compiles and meets standards.
 - [ ] I have run `pnpm test` to check if all tests are passing.
 - [ ] I have covered new added functionality with unit tests if necessary.
