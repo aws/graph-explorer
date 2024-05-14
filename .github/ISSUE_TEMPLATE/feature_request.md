@@ -42,9 +42,13 @@ assignees: ""
 
 ---
 
-> [!IMPORTANT] If you are interested in working on this issue or have submitted
+<!-- prettier-ignore -->
+> [!IMPORTANT]
+> If you are interested in working on this issue or have submitted
 > a pull request, please leave a comment.
 
-> [!TIP] Please use a 👍 reaction to provide a +1/vote.
+<!-- prettier-ignore -->
+> [!TIP]
+> Please use a 👍 reaction to provide a +1/vote.
 >
 > This helps the community and maintainers prioritize this request.
