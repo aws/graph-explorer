@@ -4,5 +4,4 @@ pnpm-lock.yaml
 # TODO: These are disabled because they have files that are not formatted.
 # A future PR can be created to format these files and remove these ignore rules.
 
-packages/graph-explorer-proxy-server/**/*
 .github/**/*

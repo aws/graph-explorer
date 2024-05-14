@@ -274,7 +274,6 @@ After few minutes, the Fargate service will be created and ready.
 
 <img width="1723" alt="image" src="https://github.com/StrongPa55w0rd/graph-explorer/assets/356327/7746edbd-cf4d-4532-9a10-cde87e5a55a1">
 
-
 ### Create an Amazon Route53 Entry
 
 1. Open the Route 53 console at https://console.aws.amazon.com/route53/.
