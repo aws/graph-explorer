@@ -5,13 +5,48 @@ This developer README details instructions for building on top of the graph-expl
 - pnpm >=8.15.6
 - node >=20.12.2
 
+#### Node Version
+Ensure you are running the correct Node version. If you are using [NVM](https://github.com/nvm-sh/nvm), you can simply do:
+
+```bash
+nvm use
+```
+
+Otherwise, use whatever method you use to install [Node v20](https://nodejs.org/en/download).
+
+#### Node Corepack
+[Corepack](https://nodejs.org/api/corepack.html) is used to ensure the package manager used for the project is consistent.
+
+```bash
+corepack enable
+```
+
 ### Supported Graph Types
 - Labelled Property Graph (PG) using Gremlin or openCypher
 - Resource Description Framework (RDF) using SPARQL 
 
 ### Run in development mode
-- `pnpm i`
-- `pnpm start`
+
+Install any missing or updated dependencies.
+
+```bash
+pnpm install
+```
+
+Start the development servers.
+
+```bash
+pnpm start
+```
+
+Launch your web browser of choice and navigate to
+
+```
+http://localhost:5173
+```
+
+At this point, Graph Explorer should be successfully running and it is asking you for connection details. This part is specific to your personal setup.
+
 
 ### Build for production
 - `pnpm i`
