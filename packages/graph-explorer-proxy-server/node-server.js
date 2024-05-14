@@ -58,16 +58,14 @@ const errorHandler = (error, request, response, next) => {
     proxyLogger.error(error.message);
     proxyLogger.debug(error.stack);
   }
-  
-  response
-    .status(error.status || 500)
-    .json({
-      error: {
-        ...error,
-        status: error.status || 500,
-        message: error.message || "Internal Server Error",
-      },
-    });
+
+  response.status(error.status || 500).json({
+    error: {
+      ...error,
+      status: error.status || 500,
+      message: error.message || "Internal Server Error",
+    },
+  });
 };
 
 // Function to retry fetch requests with exponential backoff.
@@ -133,14 +131,22 @@ const retryFetch = async (
         throw err;
       } else {
         proxyLogger.debug("Proxy Retry Fetch Count::: " + i);
-        await new Promise((resolve) => setTimeout(resolve, retryDelay));
+        await new Promise(resolve => setTimeout(resolve, retryDelay));
       }
     }
   }
 };
 
 // Function to fetch data from the given URL and send it as a response.
-async function fetchData(res, next, url, options, isIamEnabled, region, serviceType) {
+async function fetchData(
+  res,
+  next,
+  url,
+  options,
+  isIamEnabled,
+  region,
+  serviceType
+) {
   try {
     const response = await retryFetch(
       new URL(url),
@@ -185,7 +191,9 @@ app.post("/sparql", async (req, res, next) => {
   const graphDbConnectionUrl = req.headers["graph-db-connection-url"];
   const isIamEnabled = !!req.headers["aws-neptune-region"];
   const region = isIamEnabled ? req.headers["aws-neptune-region"] : "";
-  const serviceType = isIamEnabled ? (req.headers["service-type"] ?? DEFAULT_SERVICE_TYPE) : "";
+  const serviceType = isIamEnabled
+    ? req.headers["service-type"] ?? DEFAULT_SERVICE_TYPE
+    : "";
 
   /// Function to cancel long running queries if the client disappears before completion
   async function cancelQuery() {
@@ -200,7 +208,7 @@ app.post("/sparql", async (req, res, next) => {
           method: "POST",
           headers: {
             "Content-Type": "application/x-www-form-urlencoded",
-            "Accept": "application/json"
+            Accept: "application/json",
           },
           body: `cancelQuery&queryId=${encodeURIComponent(queryId)}&silent=true`,
         },
@@ -231,9 +239,7 @@ app.post("/sparql", async (req, res, next) => {
 
   // Validate the input before making any external calls.
   if (!req.body.query) {
-    return res
-      .status(400)
-      .send({ error: "[Proxy]SPARQL: Query not provided" });
+    return res.status(400).send({ error: "[Proxy]SPARQL: Query not provided" });
   }
   const rawUrl = `${graphDbConnectionUrl}/sparql`;
   let body = `query=${encodeURIComponent(req.body.query)}`;
@@ -244,12 +250,20 @@ app.post("/sparql", async (req, res, next) => {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
-      "Accept": "application/json"
+      Accept: "application/json",
     },
     body,
   };
 
-  fetchData(res, next, rawUrl, requestOptions, isIamEnabled, region, serviceType);
+  fetchData(
+    res,
+    next,
+    rawUrl,
+    requestOptions,
+    isIamEnabled,
+    region,
+    serviceType
+  );
 });
 
 // POST endpoint for Gremlin queries.
@@ -259,7 +273,9 @@ app.post("/gremlin", async (req, res, next) => {
   const graphDbConnectionUrl = req.headers["graph-db-connection-url"];
   const isIamEnabled = !!req.headers["aws-neptune-region"];
   const region = isIamEnabled ? req.headers["aws-neptune-region"] : "";
-  const serviceType = isIamEnabled ? (req.headers["service-type"] ?? DEFAULT_SERVICE_TYPE) : "";
+  const serviceType = isIamEnabled
+    ? req.headers["service-type"] ?? DEFAULT_SERVICE_TYPE
+    : "";
 
   // Validate the input before making any external calls.
   if (!req.body.query) {
@@ -276,7 +292,9 @@ app.post("/gremlin", async (req, res, next) => {
     proxyLogger.debug(`Cancelling request ${queryId}...`);
     try {
       await retryFetch(
-        new URL(`${graphDbConnectionUrl}/gremlin/status?cancelQuery&queryId=${encodeURIComponent(queryId)}`),
+        new URL(
+          `${graphDbConnectionUrl}/gremlin/status?cancelQuery&queryId=${encodeURIComponent(queryId)}`
+        ),
         { method: "GET" },
         isIamEnabled,
         region,
@@ -308,12 +326,20 @@ app.post("/gremlin", async (req, res, next) => {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Accept": "application/json",
+      Accept: "application/json",
     },
     body: JSON.stringify(body),
   };
 
-  fetchData(res, next, rawUrl, requestOptions, isIamEnabled, region, serviceType);
+  fetchData(
+    res,
+    next,
+    rawUrl,
+    requestOptions,
+    isIamEnabled,
+    region,
+    serviceType
+  );
 });
 
 // POST endpoint for openCypher queries.
@@ -330,22 +356,34 @@ app.post("/openCypher", async (req, res, next) => {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
-      "Accept": "application/json",
+      Accept: "application/json",
     },
     body: `query=${encodeURIComponent(req.body.query)}`,
   };
 
   const isIamEnabled = !!req.headers["aws-neptune-region"];
   const region = isIamEnabled ? req.headers["aws-neptune-region"] : "";
-  const serviceType = isIamEnabled ? (req.headers["service-type"] ?? DEFAULT_SERVICE_TYPE) : "";
+  const serviceType = isIamEnabled
+    ? req.headers["service-type"] ?? DEFAULT_SERVICE_TYPE
+    : "";
 
-  fetchData(res, next, rawUrl, requestOptions, isIamEnabled, region, serviceType);
+  fetchData(
+    res,
+    next,
+    rawUrl,
+    requestOptions,
+    isIamEnabled,
+    region,
+    serviceType
+  );
 });
 
 // GET endpoint to retrieve PropertyGraph statistics summary for Neptune Analytics.
 app.get("/summary", async (req, res, next) => {
   const isIamEnabled = !!req.headers["aws-neptune-region"];
-  const serviceType = isIamEnabled ? (req.headers["service-type"] ?? DEFAULT_SERVICE_TYPE) : "";
+  const serviceType = isIamEnabled
+    ? req.headers["service-type"] ?? DEFAULT_SERVICE_TYPE
+    : "";
   const rawUrl = `${req.headers["graph-db-connection-url"]}/summary?mode=detailed`;
 
   const requestOptions = {
@@ -354,13 +392,23 @@ app.get("/summary", async (req, res, next) => {
 
   const region = isIamEnabled ? req.headers["aws-neptune-region"] : "";
 
-  fetchData(res, next, rawUrl, requestOptions, isIamEnabled, region, serviceType);
+  fetchData(
+    res,
+    next,
+    rawUrl,
+    requestOptions,
+    isIamEnabled,
+    region,
+    serviceType
+  );
 });
 
 // GET endpoint to retrieve PropertyGraph statistics summary for Neptune DB.
 app.get("/pg/statistics/summary", async (req, res, next) => {
   const isIamEnabled = !!req.headers["aws-neptune-region"];
-  const serviceType = isIamEnabled ? (req.headers["service-type"] ?? DEFAULT_SERVICE_TYPE) : "";
+  const serviceType = isIamEnabled
+    ? req.headers["service-type"] ?? DEFAULT_SERVICE_TYPE
+    : "";
   const rawUrl = `${req.headers["graph-db-connection-url"]}/pg/statistics/summary?mode=detailed`;
 
   const requestOptions = {
@@ -369,13 +417,23 @@ app.get("/pg/statistics/summary", async (req, res, next) => {
 
   const region = isIamEnabled ? req.headers["aws-neptune-region"] : "";
 
-  fetchData(res, next, rawUrl, requestOptions, isIamEnabled, region, serviceType);
+  fetchData(
+    res,
+    next,
+    rawUrl,
+    requestOptions,
+    isIamEnabled,
+    region,
+    serviceType
+  );
 });
 
 // GET endpoint to retrieve RDF statistics summary.
 app.get("/rdf/statistics/summary", async (req, res, next) => {
   const isIamEnabled = !!req.headers["aws-neptune-region"];
-  const serviceType = isIamEnabled ? (req.headers["service-type"] ?? DEFAULT_SERVICE_TYPE) : "";
+  const serviceType = isIamEnabled
+    ? req.headers["service-type"] ?? DEFAULT_SERVICE_TYPE
+    : "";
   const rawUrl = `${req.headers["graph-db-connection-url"]}/rdf/statistics/summary?mode=detailed`;
 
   const requestOptions = {
@@ -384,7 +442,15 @@ app.get("/rdf/statistics/summary", async (req, res, next) => {
 
   const region = isIamEnabled ? req.headers["aws-neptune-region"] : "";
 
-  fetchData(res, next, rawUrl, requestOptions, isIamEnabled, region, serviceType);
+  fetchData(
+    res,
+    next,
+    rawUrl,
+    requestOptions,
+    isIamEnabled,
+    region,
+    serviceType
+  );
 });
 
 app.get("/logger", (req, res, next) => {
@@ -439,13 +505,12 @@ if (process.env.NEPTUNE_NOTEBOOK === "true") {
     key: fs.readFileSync("./cert-info/server.key"),
     cert: fs.readFileSync("./cert-info/server.crt"),
   };
-  https.createServer(options, app)
-    .listen(443, () => {
-      proxyLogger.info(`Proxy server located at https://localhost`);
-      proxyLogger.info(
-        `Graph Explorer live at: ${process.env.GRAPH_CONNECTION_URL}/explorer`
-      );
-    });
+  https.createServer(options, app).listen(443, () => {
+    proxyLogger.info(`Proxy server located at https://localhost`);
+    proxyLogger.info(
+      `Graph Explorer live at: ${process.env.GRAPH_CONNECTION_URL}/explorer`
+    );
+  });
 } else {
   app.listen(80, () => {
     proxyLogger.info(`Proxy server located at http://localhost`);

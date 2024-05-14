@@ -1,19 +1,19 @@
 {
-	"Version": "2012-10-17",
-	"Statement": [
-		{
-			"Effect": "Allow",
-			"Action": "neptune-db:*",
-			"Resource": [
-				"arn:[AWS_PARTITION]:neptune-db:[AWS_REGION]:[AWS_ACCOUNT_ID]:[NEPTUNE_CLUSTER_RESOURCE_ID]/*"
-			]
-		},
-		{
-			"Effect": "Allow",
-			"Action": "sagemaker:DescribeNotebookInstance",
-			"Resource": [
-				"arn:[AWS_PARTITION]:sagemaker:[AWS_REGION]:[AWS_ACCOUNT_ID]:notebook-instance/*"
-			]
-		}
-	]
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "neptune-db:*",
+      "Resource": [
+        "arn:[AWS_PARTITION]:neptune-db:[AWS_REGION]:[AWS_ACCOUNT_ID]:[NEPTUNE_CLUSTER_RESOURCE_ID]/*"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": "sagemaker:DescribeNotebookInstance",
+      "Resource": [
+        "arn:[AWS_PARTITION]:sagemaker:[AWS_REGION]:[AWS_ACCOUNT_ID]:notebook-instance/*"
+      ]
+    }
+  ]
 }
