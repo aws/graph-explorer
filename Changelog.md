@@ -20,6 +20,7 @@ This release includes the following feature enhancements and bug fixes:
 - Fixed uploaded SVG rendering in graph (<https://github.com/aws/graph-explorer/pull/296>)
 - Fixed search bar hover color (<https://github.com/aws/graph-explorer/pull/293>)
 - Fixed Docker image tagging in GitHub workflows (<https://github.com/aws/graph-explorer/pull/320>)
+- Fixed non-JSON response from SwissLipids (<https://github.com/aws/graph-explorer/pull/395>)
 - Improved monorepo configuration (<https://github.com/aws/graph-explorer/pull/305>)
 - Updated database query abstractions (<https://github.com/aws/graph-explorer/pull/366>) (<https://github.com/aws/graph-explorer/pull/367>) (<https://github.com/aws/graph-explorer/pull/365>)
 - Improved the GitHub templates for issues and pull requests (<https://github.com/aws/graph-explorer/pull/281>) (<https://github.com/aws/graph-explorer/pull/332>) (<https://github.com/aws/graph-explorer/pull/362>)

@@ -200,6 +200,7 @@ app.post("/sparql", async (req, res, next) => {
           method: "POST",
           headers: {
             "Content-Type": "application/x-www-form-urlencoded",
+            "Accept": "application/json"
           },
           body: `cancelQuery&queryId=${encodeURIComponent(queryId)}&silent=true`,
         },
@@ -243,6 +244,7 @@ app.post("/sparql", async (req, res, next) => {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
+      "Accept": "application/json"
     },
     body,
   };
@@ -306,6 +308,7 @@ app.post("/gremlin", async (req, res, next) => {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      "Accept": "application/json",
     },
     body: JSON.stringify(body),
   };
@@ -327,6 +330,7 @@ app.post("/openCypher", async (req, res, next) => {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
+      "Accept": "application/json",
     },
     body: `query=${encodeURIComponent(req.body.query)}`,
   };
