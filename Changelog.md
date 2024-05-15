@@ -29,7 +29,6 @@ This release includes the following feature enhancements and bug fixes:
 - Fixed uploaded SVG rendering in graph
   (<https://github.com/aws/graph-explorer/pull/296>)
 - Fixed search bar hover color
-- Fixed search bar hover color
   (<https://github.com/aws/graph-explorer/pull/293>)
 - Fixed Docker image tagging in GitHub workflows
   (<https://github.com/aws/graph-explorer/pull/320>)
