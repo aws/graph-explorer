@@ -6,7 +6,7 @@
 
 This release includes the following feature enhancements and bug fixes:
 
-**Features**
+**Major Changes**
 
 - Updated to Node v20 & React v18
   (<https://github.com/aws/graph-explorer/pull/330>)
