@@ -88,6 +88,16 @@ describe("Gremlin > keywordSearchTemplate", () => {
     );
   });
 
+  it("Should return a template for a single vertex and paged", () => {
+    const template = keywordSearchTemplate({
+      vertexTypes: ["airport"],
+      offset: 25,
+      limit: 25,
+    });
+
+    expect(template).toBe('g.V().hasLabel("airport").range(25,50)');
+  });
+
   it("Should return a template with an offset and limit", () => {
     const template = keywordSearchTemplate({
       searchTerm: "JFK",
