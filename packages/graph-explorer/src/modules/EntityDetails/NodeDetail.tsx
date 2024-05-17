@@ -2,7 +2,7 @@ import difference from "lodash/difference";
 import { useMemo } from "react";
 import type { Vertex } from "../../@types/entities";
 import { useWithTheme, withClassNamePrefix } from "../../core";
-import useConfiguration from "../../core/ConfigurationProvider/useConfiguration";
+import { useConfiguration } from "../../core/ConfigurationProvider";
 import useTextTransform from "../../hooks/useTextTransform";
 import useTranslations from "../../hooks/useTranslations";
 import NeighborsList from "../common/NeighborsList/NeighborsList";

@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Vertex } from "../@types/entities";
-import useConfiguration from "../core/ConfigurationProvider/useConfiguration";
+import { useConfiguration } from "../core/ConfigurationProvider";
 import useTextTransform from "./useTextTransform";
 
 const useNeighborsOptions = (vertex: Vertex) => {

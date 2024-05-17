@@ -4,8 +4,7 @@ import { useLocation } from "react-router-dom";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { LoadingSpinner, PanelEmptyState } from "../components";
 import Redirect from "../components/Redirect";
-import { RawConfiguration } from "./ConfigurationProvider";
-import fetchConfiguration from "./ConfigurationProvider/fetchConfiguration";
+import { RawConfiguration, fetchConfiguration } from "./ConfigurationProvider";
 import {
   activeConfigurationAtom,
   configurationAtom,

@@ -24,7 +24,7 @@ import ListItem from "../../components/ListItem";
 import { useNotification } from "../../components/NotificationProvider";
 import RemoteSvgIcon from "../../components/RemoteSvgIcon";
 import Select from "../../components/Select";
-import useConfiguration from "../../core/ConfigurationProvider/useConfiguration";
+import { useConfiguration } from "../../core/ConfigurationProvider";
 import {
   edgesHiddenIdsAtom,
   edgesOutOfFocusIdsAtom,
