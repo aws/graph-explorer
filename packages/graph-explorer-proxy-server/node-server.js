@@ -326,7 +326,7 @@ app.post("/gremlin", async (req, res, next) => {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Accept: "application/json",
+      Accept: "application/vnd.gremlin-v3.0+json",
     },
     body: JSON.stringify(body),
   };

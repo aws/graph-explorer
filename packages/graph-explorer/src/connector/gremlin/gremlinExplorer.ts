@@ -12,14 +12,13 @@ import { Explorer } from "../useGEFetchTypes";
 function _gremlinFetch(connection: ConnectionConfig, options: any) {
   return async (queryTemplate: string) => {
     const body = JSON.stringify({ query: queryTemplate });
-    const headers = options?.queryId
-      ? {
-          "Content-Type": "application/json",
-          queryId: options.queryId,
-        }
-      : {
-          "Content-Type": "application/json",
-        };
+    const headers: HeadersInit = {
+      "Content-Type": "application/json",
+      Accept: "application/vnd.gremlin-v3.0+json",
+    };
+    if (options?.queryId && connection?.proxyConnection === true) {
+      headers.queryId = options.queryId;
+    }
 
     return fetchDatabaseRequest(connection, `${connection.url}/gremlin`, {
       method: "POST",
