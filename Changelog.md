@@ -2,6 +2,13 @@
 
 ## Upcoming
 
+**Major Changes**
+
+**Bug Fixes and Minor Changes**
+
+- Fixed issue with Gremlin Server 3.7
+  (<https://github.com/aws/graph-explorer/pull/411>)
+
 ## Release 1.7.0
 
 This release includes the following feature enhancements and bug fixes:
