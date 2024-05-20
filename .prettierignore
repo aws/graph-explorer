@@ -1,2 +1,4 @@
 # Don't allow Prettier to change the PNPM lock file
 pnpm-lock.yaml
+
+packages/graph-explorer/dist/
