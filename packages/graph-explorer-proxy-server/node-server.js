@@ -173,17 +173,18 @@ app.use(
     path.join(__dirname, "../graph-explorer/defaultConnection.json")
   )
 );
-if (process.env.NEPTUNE_NOTEBOOK !== "false") {
-  app.use(
-    "/explorer",
-    express.static(path.join(__dirname, "../graph-explorer/dist"))
-  );
-} else {
-  app.use(
-    process.env.GRAPH_EXP_ENV_ROOT_FOLDER,
-    express.static(path.join(__dirname, "../graph-explorer/dist"))
-  );
-}
+
+// Host the Graph Explorer UI static files
+let staticFilesBasePath =
+  process.env.NEPTUNE_NOTEBOOK !== "false"
+    ? "/explorer"
+    : process.env.GRAPH_EXP_ENV_ROOT_FOLDER;
+
+app.use(
+  staticFilesBasePath,
+  express.static(path.join(__dirname, "../graph-explorer/dist"))
+);
+
 // POST endpoint for SPARQL queries.
 app.post("/sparql", async (req, res, next) => {
   // Gather info from the headers
@@ -508,11 +509,14 @@ if (process.env.NEPTUNE_NOTEBOOK === "true") {
   https.createServer(options, app).listen(443, () => {
     proxyLogger.info(`Proxy server located at https://localhost`);
     proxyLogger.info(
-      `Graph Explorer live at: ${process.env.GRAPH_CONNECTION_URL}/explorer`
+      `Graph Explorer UI located at: https://localhost${staticFilesBasePath}`
     );
   });
 } else {
   app.listen(80, () => {
     proxyLogger.info(`Proxy server located at http://localhost`);
+    proxyLogger.info(
+      `Graph Explorer UI located at: http://localhost${staticFilesBasePath}`
+    );
   });
 }
