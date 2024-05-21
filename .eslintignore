@@ -5,4 +5,5 @@
 # A future PR can be created to lint these files and remove these ignore rules.
 
 packages/graph-explorer/babel.config.js
+packages/graph-explorer/dist/**/*
 packages/graph-explorer-proxy-server/**/*
