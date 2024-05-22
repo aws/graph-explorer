@@ -101,20 +101,59 @@ file
 
 ### Environment variables
 
-You can find a template for the following environment variables at
-`/packages/graph-explorer/.env`. All variables described below are optional and
-will default to the given values.
+#### `GRAPH_EXP_ENV_ROOT_FOLDER`
 
-- `GRAPH_EXP_ENV_ROOT_FOLDER`: Base folder for the public files. By default, `/`
-  (`string`).
-- `GRAPH_EXP_CONNECTION_NAME`: Default connection name. Blank by default
-  (`string`).
-- `GRAPH_EXP_CONNECTION_ENGINE`: Default connection query engine work with the
-  instance. By default, `gremlin` (`gremlin | sparql`).
-- `GRAPH_EXP_HTTPS_CONNECTION`: Uses the self-signed certificate to serve the
-  Graph Explorer over https if true. By default `true` (`boolean`).
-- `PROXY_SERVER_HTTPS_CONNECTION`: Uses the self-signed certificate to serve the
-  proxy-server over https if true. By default `true` (`boolean`).
+Base path used to serve the `graph-explorer` front end application.
+
+Example: `/explorer`
+
+- Optional
+- Default: `/`
+- Type: `string`
+
+#### `GRAPH_EXP_CONNECTION_NAME`
+
+Default connection name.
+
+- Optional
+- Default is empty
+- Type: `string`
+
+#### `GRAPH_EXP_CONNECTION_ENGINE`
+
+The query engine to use for the default connection.
+
+- Optional
+- Default is `gremlin`
+- Valid values are `gremlin`, `openCypher`, or `sparql`
+- Type: `string`
+
+#### `HOST`
+
+The public hostname of the server. This is used to generate the SSL certificate
+during the Docker build.
+
+Example: `localhost`
+
+- Required when using HTTPS connections
+- Default is empty
+- Type: `string`
+
+#### `GRAPH_EXP_HTTPS_CONNECTION`
+
+Uses the self-signed certificate to serve the Graph Explorer over https if true.
+
+- Optional
+- Default `true`
+- Type: `boolean`
+
+#### `PROXY_SERVER_HTTPS_CONNECTION`
+
+Uses the self-signed certificate to serve the proxy-server over https if true.
+
+- Optional
+- Default `true`
+- Type: `boolean`
 
 ### Using self-signed certificates with Docker
 
