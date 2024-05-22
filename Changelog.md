@@ -8,6 +8,8 @@
 
 - Fixed issue with Gremlin Server 3.7
   (<https://github.com/aws/graph-explorer/pull/411>)
+- Fixed server starting log message
+  (<https://github.com/aws/graph-explorer/pull/416>)
 
 ## Release 1.7.0
 
