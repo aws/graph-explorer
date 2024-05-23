@@ -17,70 +17,24 @@ like [Amazon ECS](https://aws.amazon.com/ecs/).
 
 ## Getting Started
 
-This project contains the code needed to create a Docker image of the Graph
-Explorer. The image will create the Graph Explorer application and proxy server
-that will be served over the standard HTTP or HTTPS ports (HTTPS by default).
-The proxy server will be created automatically, but will only be necessary if
-you are connecting to Neptune. Gremlin-Server and BlazeGraph can be connected to
-directly. Additionally, the image will create a self-signed certificate that can
-be optionally used.
+There are many ways to deploy and run Graph Explorer. If you are new to graph
+databases and Graph Explorer, we recommend that you check out the
+[Getting Started](./additionaldocs/getting-started/README.md) guide.
 
-There are many ways to deploy the Graph Explorer application. The following
-instructions detail how to deploy graph-explorer onto an Amazon EC2 instance and
-use it as a proxy server with SSH tunneling to connect to Amazon Neptune. Note
-that this README is not an official recommendation on network setups as there
-are many ways to connect to Amazon Neptune from outside of the VPC, such as
-setting up a load balancer or VPC peering.
-
-### Prerequisites
-
-- Provision an Amazon EC2 instance that will be used to host the application and
-  connect to Neptune as a proxy server. For more details, see instructions
-  [here](https://github.com/aws/graph-notebook/tree/main/additional-databases/neptune).
-- Ensure the Amazon EC2 instance can send and receive on ports `22` (SSH),
-  `8182` (Neptune), and `443` or `80` depending on protocol used
-  (graph-explorer).
-- Open an SSH client and connect to the EC2 instance.
-- Download and install the necessary command line tools such as `git` and
-  `docker`.
-
-### Steps to install Graph Explorer
-
-1. To download the source project, run
-   `git clone https://github.com/aws/graph-explorer/`. Navigate to the newly
-   created `graph-explorer` directory.
-2. To build the image, run `docker build -t graph-explorer .` from the root
-   directory. If you receive an error relating to the docker service not
-   running, run `service docker start`.
-3. Run
-   `docker run -p 80:80 -p 443:443 --env HOST={hostname-or-ip-address} graph-explorer`
-   to run the docker container.
-4. Now, open a browser and type in the public URL of your EC2 instance accessing
-   the explorer endpoint (e.g.,
-   `https://ec2-1-2-3-4.us-east-1.compute.amazonaws.com/explorer`). You will
-   receive a warning as the SSL certificate used is self-signed.
-5. Since the application is set to use HTTPS by default and contains a
-   self-signed certificate, you will need to add the Graph Explorer certificates
-   to the trusted certificates directory and manually trust them. See
-   [HTTPS Connections](#https-connections) section.
-6. After completing the trusted certification step and refreshing the browser,
-   you should now see the Connections UI. See below description on Connections
-   UI to configure your first connection to Amazon Neptune.
-
-### Troubleshooting
-
-1. If the container does not start, or immediately stops, use
-   `docker logs graph-explorer` to check the container console logs for any
-   related error messages that might provide guidance on why graph-explorer did
-   not start.
-2. If you are having issues connecting graph-explorer to your graph database,
-   use your browser's Developer Tools feature to monitor both the browser
-   console and network calls to determine if here are any errors related to
-   connectivity.
+- [Local Docker Setup](./additionaldocs/getting-started/README.md#local-docker-setup) -
+  A quick start guide to deploying Graph Explorer locally using the official
+  Docker image.
+- [Amazon EC2 Setup](./additionaldocs/getting-started/README.md#amazon-ec2-setup) -
+  A quick start guide to setting up Graph Explorer on Amazon EC2 with Neptune.
+- [Local Development](./additionaldocs/getting-started/README.md#local-development-setup) -
+  A quick start guide building the Docker image from source code.
+- [Helpful Tips](./additionaldocs/getting-started/README.md#helpful-tips) - A
+  collection of helpful tips if you run in to issues while setting up Graph
+  Explorer.
 
 ## Features
 
-### _Connections UI:_
+### Connections UI
 
 You can create and manage connections to graph databases using this feature.
 Connections is accessible as the first screen after deploying the application,
@@ -128,7 +82,7 @@ to add a new connection. You can also edit and delete connections.
   nodes under this type and choose one or more nodes to “Send to Explorer” for
   getting started quickly if you are new to the data.
 
-#### _Graph Explorer UI:_
+#### Graph Explorer UI
 
 You can search, browse, expand, customize views of your graph data using Graph
 Explorer, which is the main UI of this application. Once you create a
@@ -188,13 +142,13 @@ here. There are several key features on this UI:
   - Total Neighbors - Enter an integer to be used as the >= limit
 
 - **Additional Table View UI Features**
-  - Visibility - manually show or hide nodes or edges
-  - All Nodes / All Edges (or All Resources / All Predicates) dropdown - allows
-    you to display a list of either nodes or edges and control display/filter on
-    them
-  - Download - You can download the current Table View as a CSV or JSON file
+  - **Visibility** - manually show or hide nodes or edges
+  - **All Nodes / All Edges (or All Resources / All Predicates) dropdown** -
+    allows you to display a list of either nodes or edges and control
+    display/filter on them
+  - **Download** - You can download the current Table View as a CSV or JSON file
     with additional customization options
-  - Default columns - You can set which columns you want to display
+  - **Default columns** - You can set which columns you want to display
   - Paging of rows
 
 ## Connections
@@ -214,7 +168,10 @@ command to either take in a JSON configuration or runtime environment variables.
 If you provide both a JSON configuration and environmental variables, the JSON
 will be prioritized.
 
-#### Valid ENV connection variables, their defaults, and their descriptions
+#### Environment Variables
+
+These are the valid environment variables used for the default connection, their
+defaults, and their descriptions.
 
 - Required:
   - `PUBLIC_OR_PROXY_ENDPOINT` - `None` - See
@@ -230,7 +187,8 @@ will be prioritized.
   - `PROXY_SERVER_HTTPS_CONNECTION` - `True` - Controls whether the server uses
     SSL or not
   - `GRAPH_EXP_FETCH_REQUEST_TIMEOUT` - `240000` - Controls the timeout for the
-    fetch request
+    fetch request. Measured in milliseconds (i.e. 240000 is 240 seconds or 4
+    minutes).
 - Conditionally Required:
   - Required if `USING_PROXY_SERVER=True`
     - `GRAPH_CONNECTION_URL` - `None` - See
@@ -245,25 +203,30 @@ will be prioritized.
 First, create a `config.json` file containing values for the connection
 attributes:
 
-```bash
+```js
 {
-     "PUBLIC_OR_PROXY_ENDPOINT": "https://public-endpoint",
-     "GRAPH_CONNECTION_URL": "https://cluster-cqmizgqgrsbf.us-west-2.neptune.amazonaws.com:8182",
-     "USING_PROXY_SERVER": true, (Can be string or boolean)
-     "IAM": true, (Can be string or boolean)
-     "SERVICE_TYPE": "neptune-db",
-     "AWS_REGION": "us-west-2",
-     "GRAPH_TYPE": "gremlin" (Possible Values: "gremlin", "sparql", "openCypher"),
-     "GRAPH_EXP_HTTPS_CONNECTION": true (Can be string or boolean),
-     "PROXY_SERVER_HTTPS_CONNECTION": true, (Can be string or boolean),
-     "GRAPH_EXP_FETCH_REQUEST_TIMEOUT": 240000 (Can be number)
+  "PUBLIC_OR_PROXY_ENDPOINT": "https://public-endpoint",
+  "GRAPH_CONNECTION_URL": "https://cluster-cqmizgqgrsbf.us-west-2.neptune.amazonaws.com:8182",
+  "USING_PROXY_SERVER": true,
+  "IAM": true,
+  "SERVICE_TYPE": "neptune-db",
+  "AWS_REGION": "us-west-2",
+  // Possible Values are "gremlin", "sparql", "openCypher"
+  "GRAPH_TYPE": "gremlin",
+  "GRAPH_EXP_HTTPS_CONNECTION": true,
+  "PROXY_SERVER_HTTPS_CONNECTION": true,
+  // Measured in milliseconds (i.e. 240000 is 240 seconds or 4 minutes)
+  "GRAPH_EXP_FETCH_REQUEST_TIMEOUT": 240000
 }
 ```
 
 Pass the `config.json` file path to the `docker run` command.
 
 ```bash
-docker run -p 80:80 -p 443:443 --env HOST={hostname-or-ip-address} -v /path/to/config.json:/graph-explorer/config.json graph-explorer`
+docker run -p 80:80 -p 443:443 \
+ --env HOST={hostname-or-ip-address} \
+ -v /path/to/config.json:/graph-explorer/config.json \
+ graph-explorer
 ```
 
 #### Environment Variable Approach
@@ -329,7 +292,10 @@ different browsers and operating systems will have slightly different steps.
    Graph Explorer after completing the previous step and reloading the browser,
    consider running a docker restart command and refreshing the browser again.
 
-Note: To get rid of the “Not Secure” warning, see
+<!-- prettier-ignore -->
+> [!TIP] 
+> 
+> To get rid of the “Not Secure” warning, see
 [Using self-signed certificates on Chrome](./additionaldocs/development.md#using-self-signed-certificates-on-chrome).
 
 ## Authentication
@@ -353,22 +319,25 @@ refer to this
 
 Logs are, by default, sent to the console and will be visible as output to the
 docker logs. If you want to access the full set of logs, you can run
-`docker logs {container name or id}`. The log level will be set via the
-`LOG_LEVEL` env variable at `/packages/graph-explorer/.env` where the possible
-options, from highest to lowest, are `error`, `warn`, `info`, `debug`, and
-`trace` such that `error` is the highest level and will only include logs
-labeled as errors and `trace` the lowest and will include any type of log. By
-default, the log level is set to `info` and the only type of logs generated are
-those of `error`, `info`, or `debug`. If you need more detailed logs, you can
-change the log level from `info` in the default .env file to `debug` and the
+`docker logs {container name or id}`.
+
+The log level will be set via the `LOG_LEVEL` env variable at
+`/packages/graph-explorer/.env` where the possible options, from highest to
+lowest, are `error`, `warn`, `info`, `debug`, and `trace` such that `error` is
+the highest level and will only include logs labeled as errors and `trace` the
+lowest and will include any type of log.
+
+By default, the log level is set to `info` and the only type of logs generated
+are those of `error`, `info`, or `debug`. If you need more detailed logs, you
+can change the log level from `info` in the default .env file to `debug` and the
 logs will begin printing the error's stack trace.
 
 Within node-server.js, you'll notice three things.
 
-1. A proxyLogger object - This is responsible for actually recording the logs.
-2. An errorHandler - This automatically sends errors to the proxyLogger and can
-   log extra information by adding wanted text to the error object at a key
-   called extraInfo.
+1. A `proxyLogger` object - This is responsible for actually recording the logs.
+2. An `errorHandler` - This automatically sends errors to the `proxyLogger` and
+   can log extra information by adding wanted text to the error object at a key
+   called `extraInfo`.
 3. An endpoint called `/logger` - This is how you would log things from the
    browser. It needs a log level and message header passed and you can then
    expect to see the message logged at the provided log level.
