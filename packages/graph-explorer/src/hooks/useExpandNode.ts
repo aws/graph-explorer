@@ -17,8 +17,9 @@ const useExpandNode = () => {
 
       if (!result || !result.vertices.length) {
         enqueueNotification({
-          title: "No Results",
-          message: "Your search has returned no results",
+          title: "No more neighbors",
+          message:
+            "This vertex has been fully expanded or it does not have connections",
         });
         return;
       }
