@@ -1,16 +1,14 @@
 import difference from "lodash/difference";
 import { useMemo } from "react";
 import type { Vertex } from "../../@types/entities";
-import { VertexIcon } from "../../components";
 import { useWithTheme, withClassNamePrefix } from "../../core";
 import useConfiguration from "../../core/ConfigurationProvider/useConfiguration";
-import fade from "../../core/ThemeProvider/utils/fade";
-import useDisplayNames from "../../hooks/useDisplayNames";
 import useTextTransform from "../../hooks/useTextTransform";
 import useTranslations from "../../hooks/useTranslations";
 import NeighborsList from "../common/NeighborsList/NeighborsList";
 import EntityAttribute from "./EntityAttribute";
 import defaultStyles from "./EntityDetail.styles";
+import VertexHeader from "../common/VertexHeader";
 
 export type VertexDetailProps = {
   classNamePrefix?: string;
@@ -18,11 +16,11 @@ export type VertexDetailProps = {
   node: Vertex;
 };
 
-const NodeDetail = ({
+export default function NodeDetail({
   classNamePrefix = "ft",
   node,
   hideNeighbors = false,
-}: VertexDetailProps) => {
+}: VertexDetailProps) {
   const config = useConfiguration();
   const t = useTranslations();
   const styleWithTheme = useWithTheme();
@@ -59,39 +57,9 @@ const NodeDetail = ({
     textTransform,
   ]);
 
-  const displayLabels = useMemo(() => {
-    return (node.data.types ?? [node.data.type])
-      .map(type => {
-        const vtConfig = config?.getVertexTypeConfig(type);
-        return vtConfig?.displayLabel || textTransform(vtConfig?.type);
-      })
-      .filter(Boolean)
-      .join(", ");
-  }, [node.data.types, node.data.type, config, textTransform]);
-
-  const getDisplayNames = useDisplayNames();
   return (
     <div className={styleWithTheme(defaultStyles(classNamePrefix))}>
-      <div className={pfx("header")}>
-        {vertexConfig?.iconUrl && (
-          <div
-            className={pfx("icon")}
-            style={{
-              background: fade(vertexConfig.color, 0.2),
-              color: vertexConfig.color,
-            }}
-          >
-            <VertexIcon
-              iconUrl={vertexConfig?.iconUrl}
-              iconImageType={vertexConfig?.iconImageType}
-            />
-          </div>
-        )}
-        <div className={pfx("content")}>
-          <div className={pfx("title")}>{displayLabels || node.data.type}</div>
-          <div>{getDisplayNames(node).name}</div>
-        </div>
-      </div>
+      <VertexHeader vertex={node} classNamePrefix={classNamePrefix} />
       {hideNeighbors != true && (
         <NeighborsList vertex={node} classNamePrefix={classNamePrefix} />
       )}
@@ -137,6 +105,4 @@ const NodeDetail = ({
       </div>
     </div>
   );
-};
-
-export default NodeDetail;
+}
