@@ -1,16 +1,28 @@
-import "jest-localstorage-mock";
+import { MutableSnapshot } from "recoil";
+import {
+  activeConfigurationAtom,
+  configurationAtom,
+} from "../core/StateProvider/configuration";
+import { createRandomRawConfiguration } from "../utils/testing/randomData";
+import renderHookWithRecoilRoot from "../utils/testing/renderHookWithRecoilRoot";
 import useTextTransform from "./useTextTransform";
 import { renderHook } from "@testing-library/react-hooks";
-import { useConfiguration } from "../core";
 
-jest.mock("../core/ConnectedProvider/ConnectedProvider.tsx", () => ({
-  ConnectedProvider: ({ children }: any) => children,
-}));
+function initializeConfigWithPrefix(snapshot: MutableSnapshot) {
+  // Create config and setup schema
+  const config = createRandomRawConfiguration();
+  config.connection!.queryEngine = "sparql";
+  config.schema!.prefixes = [
+    {
+      prefix: "rdf",
+      uri: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    },
+  ];
+  snapshot.set(configurationAtom, new Map([[config.id, config]]));
 
-jest.mock("../core", () => ({
-  __esModule: true,
-  useConfiguration: jest.fn(),
-}));
+  // Make config active
+  snapshot.set(activeConfigurationAtom, config.id);
+}
 
 describe("useTextTransform", () => {
   beforeEach(() => {
@@ -19,20 +31,10 @@ describe("useTextTransform", () => {
   it("should replace prefixes in URIs", () => {
     const text = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
     const expected = "rdf:type";
-    (useConfiguration as jest.Mock).mockReturnValue({
-      connection: {
-        queryEngine: "sparql",
-      },
-      schema: {
-        prefixes: [
-          {
-            prefix: "rdf",
-            uri: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-          },
-        ],
-      },
-    });
-    const { result } = renderHook(() => useTextTransform());
+    const { result } = renderHookWithRecoilRoot(
+      () => useTextTransform(),
+      initializeConfigWithPrefix
+    );
     expect(result.current(text)).toEqual(expected);
   });
 
@@ -65,39 +67,21 @@ describe("useTextTransform", () => {
   // Boundary cases
   it("should return original input if it's a URI not in schema.prefixes", () => {
     const input = "http://www.some-uri.com/";
-    (useConfiguration as jest.Mock).mockReturnValue({
-      connection: {
-        queryEngine: "sparql",
-      },
-      schema: {
-        prefixes: [
-          {
-            prefix: "rdf",
-            uri: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-          },
-        ],
-      },
-    });
-    const { result } = renderHook(() => useTextTransform());
+    const { result } = renderHookWithRecoilRoot(
+      () => useTextTransform(),
+      initializeConfigWithPrefix
+    );
     expect(result.current(input)).toBe(input);
   });
 
   it("should return original input if the connection.queryEngine is 'sparql' and input doesn't contain a URI", () => {
     const input = "Some Text Without URI";
-    (useConfiguration as jest.Mock).mockReturnValue({
-      connection: {
-        queryEngine: "sparql",
-      },
-      schema: {
-        prefixes: [
-          {
-            prefix: "rdf",
-            uri: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-          },
-        ],
-      },
-    });
-    const { result } = renderHook(() => useTextTransform());
+
+    const { result } = renderHookWithRecoilRoot(
+      () => useTextTransform(),
+      initializeConfigWithPrefix
+    );
+
     expect(result.current(input)).toBe(input);
   });
 
