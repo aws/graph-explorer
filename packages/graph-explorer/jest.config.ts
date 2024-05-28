@@ -8,6 +8,7 @@ const config: Config = {
   moduleFileExtensions: ["js", "ts", "tsx", "json"],
   rootDir: "src",
   testRegex: ".test.ts$",
+  setupFilesAfterEnv: ["<rootDir>/utils/testing/setupTests.ts"],
   transformIgnorePatterns: [
     "node_modules/(?!(swiper|dom7)/)",
     "node_modules/(?!(react-dnd-html5-backend)/)",
