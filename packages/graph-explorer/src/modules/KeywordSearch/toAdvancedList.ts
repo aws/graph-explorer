@@ -1,5 +1,6 @@
 import groupBy from "lodash/groupBy";
 import type { AdvancedListItemType } from "../../components/AdvancedList";
+import { env } from "../../utils";
 
 export type AdvancedListOptions<TDatum extends object> = {
   getGroupLabel?(datum: TDatum): string;
@@ -43,7 +44,7 @@ const toAdvancedList = <TDatum extends object>(
           lisItems = lisItems.sort(sortFn);
         }
       } catch (e) {
-        if (import.meta.env.DEV) {
+        if (env.DEV) {
           console.error(e);
         }
       }

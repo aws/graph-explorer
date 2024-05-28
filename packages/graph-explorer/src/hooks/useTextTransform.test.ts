@@ -3,8 +3,6 @@ import useTextTransform from "./useTextTransform";
 import { renderHook } from "@testing-library/react-hooks";
 import { useConfiguration } from "../core";
 
-jest.mock("localforage");
-
 jest.mock("../core/ConnectedProvider/ConnectedProvider.tsx", () => ({
   ConnectedProvider: ({ children }: any) => children,
 }));

@@ -7,12 +7,6 @@ import { TestableRootProviders } from "../../utils/testing/TestableRootProviders
 import { sample, sortBy } from "lodash";
 import { Schema } from "../../core";
 
-jest.mock("localforage", () => ({
-  config: jest.fn(),
-  getItem: jest.fn(),
-  setItem: jest.fn(),
-}));
-
 /** Creates a config with the schema and makes it active, then renders the `useFiltersConfig` hook. */
 function renderFilterConfigHook(schema: Schema) {
   return renderHook(

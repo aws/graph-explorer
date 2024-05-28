@@ -6,6 +6,7 @@ import { createSparqlExplorer } from "../connector/sparql/sparqlExplorer";
 import { mergedConfigurationSelector } from "./StateProvider/configuration";
 import { selector } from "recoil";
 import { equalSelector } from "../utils/recoilState";
+import { env } from "../utils";
 
 /**
  * Active connection where the value will only change when one of the
@@ -83,7 +84,7 @@ export const loggerSelector = selector({
     }
 
     return new LoggerConnector(url, {
-      enable: import.meta.env.PROD,
+      enable: env.PROD,
     });
   },
 });

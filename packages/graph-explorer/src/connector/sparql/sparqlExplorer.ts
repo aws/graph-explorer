@@ -22,6 +22,7 @@ import {
 } from "./types";
 import { ConnectionConfig } from "../../core";
 import { v4 } from "uuid";
+import { env } from "../../utils";
 
 const replaceBlankNodeFromSearch = (
   blankNodes: BlankNodesMap,
@@ -165,7 +166,7 @@ export function createSparqlExplorer(
         );
         summary = (response.payload.graphSummary as GraphSummary) || undefined;
       } catch (e) {
-        if (import.meta.env.DEV) {
+        if (env.DEV) {
           console.error("[Summary API]", e);
         }
       }

@@ -8,3 +8,4 @@ export { default as sanitizeText } from "./sanitizeText";
 export { DEFAULT_SERVICE_TYPE } from "./constants";
 export { default as escapeString } from "./escapeString";
 export * from "./set";
+export * from "./env";
