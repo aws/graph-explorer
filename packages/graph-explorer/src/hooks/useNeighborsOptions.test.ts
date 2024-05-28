@@ -6,7 +6,6 @@ import useNeighborsOptions from "./useNeighborsOptions";
 import { Vertex } from "../@types/entities";
 
 jest.mock("../core/ConfigurationProvider/useConfiguration");
-jest.mock("localforage");
 jest.mock("./useTextTransform");
 
 jest.mock("../core/ConfigurationProvider/ConfigurationProvider.tsx", () => ({

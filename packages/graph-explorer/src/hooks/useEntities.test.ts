@@ -12,12 +12,6 @@ import { activeConfigurationAtom } from "../core/StateProvider/configuration";
 import { Schema } from "../core";
 import { Entities } from "../core/StateProvider/entitiesSelector";
 
-jest.mock("localforage", () => ({
-  config: jest.fn(),
-  getItem: jest.fn(),
-  setItem: jest.fn(),
-}));
-
 describe("useEntities", () => {
   beforeEach(() => {
     jest.resetAllMocks();

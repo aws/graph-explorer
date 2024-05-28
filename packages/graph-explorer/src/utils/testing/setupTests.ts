@@ -9,3 +9,10 @@ jest.mock("../env", () => {
     PROD: false,
   };
 });
+
+// Mock localforage
+jest.mock("localforage", () => ({
+  config: jest.fn(),
+  getItem: jest.fn(),
+  setItem: jest.fn(),
+}));
