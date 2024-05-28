@@ -142,7 +142,7 @@ export default function GraphViewer({
   const pfx = withClassNamePrefix("ft");
 
   const graphRef = useRef<GraphRef | null>(null);
-  const [entities] = useEntities();
+  const [entities, setEntities] = useEntities();
   const { dropAreaRef, isOver, canDrop } = useNodeDrop();
 
   const [nodesSelectedIds, setNodesSelectedIds] =
@@ -228,7 +228,6 @@ export default function GraphViewer({
   );
 
   const [layout, setLayout] = useState("F_COSE");
-  const [, setEntities] = useEntities();
   const onClearCanvas = useCallback(() => {
     setEntities({
       nodes: [],
