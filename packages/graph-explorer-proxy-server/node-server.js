@@ -279,7 +279,7 @@ app.post("/gremlin", async (req, res, next) => {
     : "";
 
   // Validate the input before making any external calls.
-  if (!req.body.query) {
+  if (!req.body.gremlin) {
     return res
       .status(400)
       .send({ error: "[Proxy]Gremlin: query not provided" });
@@ -321,7 +321,7 @@ app.post("/gremlin", async (req, res, next) => {
     await cancelQuery();
   });
 
-  const body = { gremlin: req.body.query, queryId };
+  const body = { gremlin: req.body.gremlin, queryId };
   const rawUrl = `${graphDbConnectionUrl}/gremlin`;
   const requestOptions = {
     method: "POST",
