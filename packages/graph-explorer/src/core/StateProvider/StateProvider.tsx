@@ -1,6 +1,7 @@
 import { PropsWithChildren } from "react";
 import { RecoilRoot } from "recoil";
 import StateDebug from "./StateDebug";
+import { env } from "../../utils";
 
 const StateProvider = ({
   children,
@@ -8,7 +9,7 @@ const StateProvider = ({
   return (
     <RecoilRoot>
       {children}
-      {import.meta.env.DEV && <StateDebug />}
+      {env.DEV && <StateDebug />}
     </RecoilRoot>
   );
 };

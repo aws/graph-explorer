@@ -6,6 +6,7 @@ import type { AutoBoundingBox, BoundingBox } from "../../utils/canvas/types";
 import type { CytoscapeCanvas, CytoscapeType } from "../Graph.model";
 import getNodeBoundingBox from "../helpers/getNodeBoundingBox";
 import getZoomLevel from "../helpers/getZoomLevel";
+import { env } from "../../../utils";
 
 export type Badge = DrawBoxWithAdornmentOptions & {
   boundingBox: AutoBoundingBox;
@@ -73,7 +74,7 @@ const useRenderBadges = <TNodeData extends VertexData = VertexData>({
         layerRef.current = cy.cyCanvas({ zIndex: 20 });
         canvasRef.current = layerRef.current.getCanvas() ?? null;
       } catch (e) {
-        if (import.meta.env.DEV)
+        if (env.DEV)
           console.error(
             "If you want to render badges you need to install the " +
               "cytoscape-canvas plugin first, see the documentation " +

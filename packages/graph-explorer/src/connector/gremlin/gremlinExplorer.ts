@@ -8,6 +8,7 @@ import { fetchDatabaseRequest } from "../fetchDatabaseRequest";
 import { GraphSummary } from "./types";
 import { v4 } from "uuid";
 import { Explorer } from "../useGEFetchTypes";
+import { env } from "../../utils";
 
 function _gremlinFetch(connection: ConnectionConfig, options: any) {
   return async (queryTemplate: string) => {
@@ -44,7 +45,7 @@ export function createGremlinExplorer(connection: ConnectionConfig): Explorer {
         );
         summary = (response.payload.graphSummary as GraphSummary) || undefined;
       } catch (e) {
-        if (import.meta.env.DEV) {
+        if (env.DEV) {
           console.error("[Summary API]", e);
         }
       }

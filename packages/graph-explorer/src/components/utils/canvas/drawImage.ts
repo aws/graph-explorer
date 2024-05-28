@@ -1,3 +1,4 @@
+import { env } from "../../../utils";
 import colorizeSvg from "./colorizeSvg";
 import type { BoundingBox } from "./types";
 
@@ -33,7 +34,7 @@ async function fetchIcon(url: string): Promise<string | undefined> {
       return await response.text();
     }
   } catch (err) {
-    if (import.meta.env.DEV) {
+    if (env.DEV) {
       console.error(`Unable to fetch ${url}: ${err}`);
     }
   }

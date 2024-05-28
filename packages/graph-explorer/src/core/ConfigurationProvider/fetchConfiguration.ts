@@ -1,3 +1,4 @@
+import { env } from "../../utils";
 import type { RawConfiguration } from "./types";
 
 const fetchConfiguration = async (
@@ -12,7 +13,7 @@ const fetchConfiguration = async (
     const rawData = await response.json();
     return rawData as RawConfiguration;
   } catch (e) {
-    if (import.meta.env.DEV) {
+    if (env.DEV) {
       console.error(e);
     }
   }

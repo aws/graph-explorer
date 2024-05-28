@@ -8,6 +8,7 @@ import { fetchDatabaseRequest } from "../fetchDatabaseRequest";
 import { ConnectionConfig } from "../../core";
 import { DEFAULT_SERVICE_TYPE } from "../../utils/constants";
 import { Explorer } from "../useGEFetchTypes";
+import { env } from "../../utils";
 
 function _openCypherFetch(connection: ConnectionConfig, options: any) {
   return async (queryTemplate: string) => {
@@ -44,7 +45,7 @@ export function createOpenCypherExplorer(
             ? (response.payload.graphSummary as GraphSummary)
             : (response.graphSummary as GraphSummary)) || undefined;
       } catch (e) {
-        if (import.meta.env.DEV) {
+        if (env.DEV) {
           console.error("[Summary API]", e);
         }
       }
