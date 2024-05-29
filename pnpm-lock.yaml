@@ -391,9 +391,6 @@ importers:
       jest-junit:
         specifier: ^16.0.0
         version: 16.0.0
-      jest-localstorage-mock:
-        specifier: ^2.4.26
-        version: 2.4.26
       lint-staged:
         specifier: ^13.3.0
         version: 13.3.0
@@ -8038,11 +8035,6 @@ packages:
     dependencies:
       jest-get-type: 29.6.3
       pretty-format: 29.7.0
-    dev: true
-
-  /jest-localstorage-mock@2.4.26:
-    resolution: {integrity: sha512-owAJrYnjulVlMIXOYQIPRCCn3MmqI3GzgfZCXdD3/pmwrIvFMXcKVWZ+aMc44IzaASapg0Z4SEFxR+v5qxDA2w==}
-    engines: {node: '>=6.16.0'}
     dev: true
 
   /jest-matcher-utils@29.7.0:
