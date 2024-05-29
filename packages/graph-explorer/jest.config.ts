@@ -37,7 +37,7 @@ const config: Config = {
     "src/App.ts",
     "src/setupTests.ts",
   ],
-  setupFiles: ["<rootDir>/setupTests.ts"],
+  setupFilesAfterEnv: ["<rootDir>/setupTests.ts"],
   coverageProvider: "v8",
 };
 

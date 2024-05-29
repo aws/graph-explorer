@@ -6,7 +6,7 @@ import {
 import { createRandomRawConfiguration } from "../utils/testing/randomData";
 import renderHookWithRecoilRoot from "../utils/testing/renderHookWithRecoilRoot";
 import useTextTransform from "./useTextTransform";
-import { renderHook } from "@testing-library/react-hooks";
+import { renderHook } from "@testing-library/react";
 
 function initializeConfigWithPrefix(snapshot: MutableSnapshot) {
   // Create config and setup schema
