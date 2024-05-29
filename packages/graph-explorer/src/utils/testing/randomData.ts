@@ -2,6 +2,7 @@ import { v4 } from "uuid";
 import {
   AttributeConfig,
   EdgeTypeConfig,
+  RawConfiguration,
   Schema,
   VertexTypeConfig,
 } from "../../core";
@@ -216,5 +217,25 @@ export function createRandomEntityAttribute(): {
     value: createRandomBoolean()
       ? createRandomName("StringValue")
       : createRandomInteger(),
+  };
+}
+
+function pickRandomElement<T>(array: T[]): T {
+  return array[Math.floor(Math.random() * array.length)];
+}
+
+/**
+ * Creates a random RawConfiguration object.
+ * @returns A random RawConfiguration object.
+ */
+export function createRandomRawConfiguration(): RawConfiguration {
+  return {
+    id: createRandomName("id"),
+    displayLabel: createRandomName("displayLabel"),
+    connection: {
+      url: createRandomName("url"),
+      queryEngine: pickRandomElement(["gremlin", "openCypher", "sparql"]),
+    },
+    schema: createRandomSchema(),
   };
 }

@@ -1,21 +1,28 @@
 import { expect, jest } from "@jest/globals";
-import { act, renderHook } from "@testing-library/react-hooks";
+import { act } from "@testing-library/react-hooks";
 import useFiltersConfig from "./useFiltersConfig";
-import { useTestSchema } from "../../utils/testing/useTestSchema";
-import { createRandomSchema } from "../../utils/testing/randomData";
-import { TestableRootProviders } from "../../utils/testing/TestableRootProviders";
+import {
+  createRandomRawConfiguration,
+  createRandomSchema,
+} from "../../utils/testing/randomData";
 import { sample, sortBy } from "lodash";
 import { Schema } from "../../core";
+import renderHookWithRecoilRoot from "../../utils/testing/renderHookWithRecoilRoot";
+import {
+  activeConfigurationAtom,
+  configurationAtom,
+} from "../../core/StateProvider/configuration";
 
 /** Creates a config with the schema and makes it active, then renders the `useFiltersConfig` hook. */
 function renderFilterConfigHook(schema: Schema) {
-  return renderHook(
-    () => {
-      useTestSchema(schema);
-      return useFiltersConfig();
-    },
-    {
-      wrapper: TestableRootProviders,
+  return renderHookWithRecoilRoot(
+    () => useFiltersConfig(),
+    snapshot => {
+      // Initialize the configuration atom with a test config
+      const config = createRandomRawConfiguration();
+      config.schema = schema;
+      snapshot.set(configurationAtom, new Map([[config.id, config]]));
+      snapshot.set(activeConfigurationAtom, config.id);
     }
   );
 }

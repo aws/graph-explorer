@@ -1,5 +1,5 @@
-import { act, renderHook } from "@testing-library/react-hooks";
-import { RecoilRoot, useRecoilState, useSetRecoilState } from "recoil";
+import { act } from "@testing-library/react-hooks";
+import { useRecoilValue } from "recoil";
 import useEntities from "./useEntities";
 import { Vertex } from "../@types/entities";
 import {
@@ -11,6 +11,7 @@ import { schemaAtom } from "../core/StateProvider/schema";
 import { activeConfigurationAtom } from "../core/StateProvider/configuration";
 import { Schema } from "../core";
 import { Entities } from "../core/StateProvider/entitiesSelector";
+import renderHookWithRecoilRoot from "../utils/testing/renderHookWithRecoilRoot";
 
 describe("useEntities", () => {
   beforeEach(() => {
@@ -39,15 +40,10 @@ describe("useEntities", () => {
       },
     };
 
-    const { result, waitForNextUpdate } = renderHook(
-      () => {
-        const [entities, setEntities] = useEntities({ disableFilters: true });
-        return { entities, setEntities };
-      },
-      {
-        wrapper: RecoilRoot,
-      }
-    );
+    const { result, waitForNextUpdate } = renderHookWithRecoilRoot(() => {
+      const [entities, setEntities] = useEntities({ disableFilters: true });
+      return { entities, setEntities };
+    });
 
     act(() => {
       result.current.setEntities({ nodes: [randomNode], edges: [] });
@@ -149,15 +145,10 @@ describe("useEntities", () => {
       },
     ];
 
-    const { result, waitForNextUpdate } = renderHook(
-      () => {
-        const [entities, setEntities] = useEntities({ disableFilters: true });
-        return { entities, setEntities };
-      },
-      {
-        wrapper: RecoilRoot,
-      }
-    );
+    const { result, waitForNextUpdate } = renderHookWithRecoilRoot(() => {
+      const [entities, setEntities] = useEntities({ disableFilters: true });
+      return { entities, setEntities };
+    });
 
     act(() => {
       result.current.setEntities({ nodes: [node1, node2, node3], edges: [] });
@@ -265,9 +256,7 @@ describe("useEntities", () => {
     jest.doMock("../../src/hooks/useEntities", () => useEntitiesMock);
 
     // Render the hook
-    const { result } = renderHook(() => useEntitiesMock(), {
-      wrapper: RecoilRoot,
-    });
+    const { result } = renderHookWithRecoilRoot(() => useEntitiesMock());
 
     // Since we have mocked useEntitiesMock, it should return the originalEntities immediately
     expect(result.current[0]).toEqual(originalEntities);
@@ -367,15 +356,11 @@ async function setupAndPerformSetEntities(
   initialSchema: Schema,
   updatedEntities: Entities
 ) {
-  const { result, waitForNextUpdate } = renderHook(
+  const configId = createRandomName("configId");
+  const { result, waitForNextUpdate } = renderHookWithRecoilRoot(
     () => {
-      const configId = createRandomName("configId");
       const [entities, setEntities] = useEntities();
-      const [schemas, setSchemas] = useRecoilState(schemaAtom);
-      const setActiveConfigId = useSetRecoilState(activeConfigurationAtom);
-
-      setSchemas(prev => prev.set(configId, initialSchema));
-      setActiveConfigId(configId);
+      const schemas = useRecoilValue(schemaAtom);
       const schema = schemas.get(configId)!;
 
       return {
@@ -384,8 +369,9 @@ async function setupAndPerformSetEntities(
         schema,
       };
     },
-    {
-      wrapper: RecoilRoot,
+    snapshot => {
+      snapshot.set(schemaAtom, new Map([[configId, initialSchema]]));
+      snapshot.set(activeConfigurationAtom, configId);
     }
   );
 

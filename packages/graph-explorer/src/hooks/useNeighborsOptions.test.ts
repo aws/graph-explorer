@@ -1,20 +1,11 @@
-import "jest-localstorage-mock";
-import { renderHook } from "@testing-library/react-hooks";
-import { useConfiguration } from "../core";
-import useTextTransform from "./useTextTransform";
 import useNeighborsOptions from "./useNeighborsOptions";
 import { Vertex } from "../@types/entities";
-
-jest.mock("../core/ConfigurationProvider/useConfiguration");
-jest.mock("./useTextTransform");
-
-jest.mock("../core/ConfigurationProvider/ConfigurationProvider.tsx", () => ({
-  ConfigurationProvider: ({ children }: any) => children,
-}));
-
-jest.mock("../core/ConnectedProvider/ConnectedProvider.tsx", () => ({
-  ConnectedProvider: ({ children }: any) => children,
-}));
+import renderHookWithRecoilRoot from "../utils/testing/renderHookWithRecoilRoot";
+import {
+  activeConfigurationAtom,
+  configurationAtom,
+} from "../core/StateProvider/configuration";
+import { createRandomRawConfiguration } from "../utils/testing/randomData";
 
 describe("useNeighborsOptions", () => {
   const vertex = {
@@ -25,18 +16,34 @@ describe("useNeighborsOptions", () => {
   } as unknown as Vertex;
 
   it("should return neighbors options correctly", () => {
-    (useConfiguration as jest.Mock).mockReturnValue({
-      getVertexTypeConfig: (type: any) => {
-        return { displayLabel: `Label ${type}` };
-      },
-    });
-    (useTextTransform as jest.Mock).mockReturnValue((str: string) =>
-      str.toUpperCase()
+    const { result } = renderHookWithRecoilRoot(
+      () => useNeighborsOptions(vertex),
+      snapshot => {
+        const config = createRandomRawConfiguration();
+        config.schema!.vertices = [
+          {
+            type: "nodeType1",
+            displayLabel: "Label nodeType1",
+            attributes: [],
+          },
+          {
+            type: "nodeType2",
+            displayLabel: "Label nodeType2",
+            attributes: [],
+          },
+        ];
+        snapshot.set(configurationAtom, new Map([[config.id, config]]));
+        snapshot.set(activeConfigurationAtom, config.id);
+      }
     );
 
-    const { result } = renderHook(() => useNeighborsOptions(vertex));
-
-    expect(result.current).toEqual([
+    expect(
+      result.current.map(option => ({
+        ...option,
+        // We only care about verifying the displayLabel property
+        config: { displayLabel: option.config?.displayLabel },
+      }))
+    ).toEqual([
       {
         label: "Label nodeType1",
         value: "nodeType1",
