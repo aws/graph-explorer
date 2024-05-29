@@ -10,6 +10,8 @@
   (<https://github.com/aws/graph-explorer/pull/411>)
 - Fixed server starting log message
   (<https://github.com/aws/graph-explorer/pull/416>)
+- Refactored several graph views for readability
+  (<https://github.com/aws/graph-explorer/pull/419>)
 
 ## Release 1.7.0
 

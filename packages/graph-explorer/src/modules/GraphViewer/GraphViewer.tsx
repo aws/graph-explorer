@@ -127,17 +127,17 @@ const HEADER_ACTIONS: ActionItem[] = [
 ];
 
 // Prevent open context menu on Windows
-const onContextMenu = (e: MouseEvent<HTMLDivElement>) => {
+function onContextMenu(e: MouseEvent<HTMLDivElement>) {
   e.preventDefault();
   e.stopPropagation();
-};
+}
 
-const GraphViewer = ({
+export default function GraphViewer({
   title = "Graph View",
   onNodeCustomize,
   onEdgeCustomize,
   ...headerProps
-}: GraphViewerProps) => {
+}: GraphViewerProps) {
   const styleWithTheme = useWithTheme();
   const pfx = withClassNamePrefix("ft");
 
@@ -170,7 +170,6 @@ const GraphViewer = ({
     [setEdgesSelectedIds]
   );
 
-  const config = useConfiguration();
   const [legendOpen, setLegendOpen] = useState(false);
   const { onZoomIn, onZoomOut, onSaveScreenshot } =
     useGraphGlobalActions(graphRef);
@@ -256,7 +255,6 @@ const GraphViewer = ({
     [onClearCanvas, onSaveScreenshot, onZoomIn, onZoomOut]
   );
 
-  const textTransform = useTextTransform();
   return (
     <div
       ref={dropAreaRef}
@@ -344,47 +342,7 @@ const GraphViewer = ({
                 />
               </div>
             )}
-          {legendOpen && (
-            <Card className={pfx("legend-container")}>
-              <ListItem
-                className={cx(pfx("legend-item"), pfx("legend-title"))}
-                endAdornment={
-                  <IconButton
-                    icon={<CloseIcon />}
-                    onPress={() => setLegendOpen(false)}
-                    variant={"text"}
-                    size={"small"}
-                  />
-                }
-              >
-                Legend
-              </ListItem>
-              {config?.vertexTypes.map(vertexType => {
-                const vtConfig = config?.getVertexTypeConfig(vertexType);
-                return (
-                  <ListItem
-                    key={vertexType}
-                    className={pfx("legend-item")}
-                    startAdornment={
-                      vtConfig?.iconUrl && (
-                        <div
-                          className={pfx("icon")}
-                          style={{
-                            background: fade(vtConfig?.color, 0.2),
-                            color: vtConfig?.color,
-                          }}
-                        >
-                          <RemoteSvgIcon src={vtConfig.iconUrl} />
-                        </div>
-                      )
-                    }
-                  >
-                    {vtConfig?.displayLabel || textTransform(vertexType)}
-                  </ListItem>
-                );
-              })}
-            </Card>
-          )}
+          {legendOpen && <Legend onClose={() => setLegendOpen(false)} />}
         </div>
       </ModuleContainer>
       <div
@@ -405,6 +363,52 @@ const GraphViewer = ({
       </div>
     </div>
   );
-};
+}
 
-export default GraphViewer;
+function Legend({ onClose }: { onClose: () => void }) {
+  const pfx = withClassNamePrefix("ft");
+  const config = useConfiguration();
+  const textTransform = useTextTransform();
+
+  return (
+    <Card className={pfx("legend-container")}>
+      <ListItem
+        className={cx(pfx("legend-item"), pfx("legend-title"))}
+        endAdornment={
+          <IconButton
+            icon={<CloseIcon />}
+            onPress={onClose}
+            variant={"text"}
+            size={"small"}
+          />
+        }
+      >
+        Legend
+      </ListItem>
+      {config?.vertexTypes.map(vertexType => {
+        const vtConfig = config?.getVertexTypeConfig(vertexType);
+        return (
+          <ListItem
+            key={vertexType}
+            className={pfx("legend-item")}
+            startAdornment={
+              vtConfig?.iconUrl && (
+                <div
+                  className={pfx("icon")}
+                  style={{
+                    background: fade(vtConfig?.color, 0.2),
+                    color: vtConfig?.color,
+                  }}
+                >
+                  <RemoteSvgIcon src={vtConfig.iconUrl} />
+                </div>
+              )
+            }
+          >
+            {vtConfig?.displayLabel || textTransform(vertexType)}
+          </ListItem>
+        );
+      })}
+    </Card>
+  );
+}
