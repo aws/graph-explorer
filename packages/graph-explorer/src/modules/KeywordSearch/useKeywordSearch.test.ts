@@ -1,6 +1,12 @@
-import { renderHook } from "@testing-library/react";
 import useKeywordSearch from "./useKeywordSearch";
-import { AttributeConfig, useConfiguration } from "../../core";
+import { ConnectionConfig } from "../../core";
+import renderHookWithRecoilRoot from "../../utils/testing/renderHookWithRecoilRoot";
+import { createRandomRawConfiguration } from "../../utils/testing/randomData";
+import {
+  activeConfigurationAtom,
+  configurationAtom,
+} from "../../core/StateProvider/configuration";
+import { MutableSnapshot } from "recoil";
 
 jest.mock("./useKeywordSearchQuery", () => ({
   useKeywordSearchQuery: jest.fn().mockReturnValue({
@@ -9,41 +15,55 @@ jest.mock("./useKeywordSearchQuery", () => ({
   }),
 }));
 
-jest.mock("../../core", () => ({
-  useConfiguration: jest.fn(),
-}));
+function initializeConfigWithQueryEngine(
+  queryEngine: ConnectionConfig["queryEngine"]
+) {
+  return (snapshot: MutableSnapshot) => {
+    // Create config and setup schema
+    const config = createRandomRawConfiguration();
+    config.connection!.queryEngine = queryEngine;
+
+    snapshot.set(configurationAtom, new Map([[config.id, config]]));
+
+    // Make config active
+    snapshot.set(activeConfigurationAtom, config.id);
+  };
+}
 
 describe("useKeywordSearch", () => {
   describe("Gremlin", () => {
-    beforeEach(() => {
-      (useConfiguration as jest.Mock).mockReturnValue({
-        vertexTypes: [],
-        getEdgeTypeConfig: jest.fn(),
-        getVertexTypeConfig: jest.fn(),
-        connection: { queryEngine: "gremlin" },
-      });
-    });
-
     it("Should default to precision match exact", () => {
-      const { result } = renderHook(() => useKeywordSearch({ isOpen: false }));
+      const { result } = renderHookWithRecoilRoot(
+        () => useKeywordSearch({ isOpen: false }),
+        initializeConfigWithQueryEngine("gremlin")
+      );
 
       expect(result.current.exactMatch).toBe(true);
     });
 
     it("Should default to attribute ID", () => {
-      const { result } = renderHook(() => useKeywordSearch({ isOpen: false }));
+      const { result } = renderHookWithRecoilRoot(
+        () => useKeywordSearch({ isOpen: false }),
+        initializeConfigWithQueryEngine("gremlin")
+      );
 
       expect(result.current.selectedAttribute).toBe("__id");
     });
 
     it("Should default to node type All", () => {
-      const { result } = renderHook(() => useKeywordSearch({ isOpen: false }));
+      const { result } = renderHookWithRecoilRoot(
+        () => useKeywordSearch({ isOpen: false }),
+        initializeConfigWithQueryEngine("gremlin")
+      );
 
       expect(result.current.selectedVertexType).toBe("__all");
     });
 
     it("Should have all searchable attributes", () => {
-      const { result } = renderHook(() => useKeywordSearch({ isOpen: false }));
+      const { result } = renderHookWithRecoilRoot(
+        () => useKeywordSearch({ isOpen: false }),
+        initializeConfigWithQueryEngine("gremlin")
+      );
 
       expect(result.current.attributesOptions).toStrictEqual([
         { value: "__all", label: "All" },
@@ -53,35 +73,38 @@ describe("useKeywordSearch", () => {
   });
 
   describe("OpenCypher", () => {
-    beforeEach(() => {
-      (useConfiguration as jest.Mock).mockReturnValue({
-        vertexTypes: [],
-        getEdgeTypeConfig: jest.fn(),
-        getVertexTypeConfig: jest.fn(),
-        connection: { queryEngine: "openCypher" },
-      });
-    });
-
     it("Should default to precision match exact", () => {
-      const { result } = renderHook(() => useKeywordSearch({ isOpen: false }));
+      const { result } = renderHookWithRecoilRoot(
+        () => useKeywordSearch({ isOpen: false }),
+        initializeConfigWithQueryEngine("openCypher")
+      );
 
       expect(result.current.exactMatch).toBe(true);
     });
 
     it("Should default to attribute ID", () => {
-      const { result } = renderHook(() => useKeywordSearch({ isOpen: false }));
+      const { result } = renderHookWithRecoilRoot(
+        () => useKeywordSearch({ isOpen: false }),
+        initializeConfigWithQueryEngine("openCypher")
+      );
 
       expect(result.current.selectedAttribute).toBe("__id");
     });
 
     it("Should default to node type All", () => {
-      const { result } = renderHook(() => useKeywordSearch({ isOpen: false }));
+      const { result } = renderHookWithRecoilRoot(
+        () => useKeywordSearch({ isOpen: false }),
+        initializeConfigWithQueryEngine("openCypher")
+      );
 
       expect(result.current.selectedVertexType).toBe("__all");
     });
 
     it("Should have all searchable attributes", () => {
-      const { result } = renderHook(() => useKeywordSearch({ isOpen: false }));
+      const { result } = renderHookWithRecoilRoot(
+        () => useKeywordSearch({ isOpen: false }),
+        initializeConfigWithQueryEngine("openCypher")
+      );
 
       expect(result.current.attributesOptions).toStrictEqual([
         { value: "__all", label: "All" },
@@ -91,42 +114,55 @@ describe("useKeywordSearch", () => {
   });
 
   describe("SPARQL", () => {
-    beforeEach(() => {
-      (useConfiguration as jest.Mock).mockReturnValue({
-        schema: { vertices: [{ type: "Foo" }] },
-        vertexTypes: ["Foo"],
-        getEdgeTypeConfig: jest.fn(),
-        getVertexTypeConfig: jest.fn(),
-        getVertexTypeSearchableAttributes: jest.fn().mockReturnValue([
-          {
-            name: "rdfs:label",
-            displayLabel: "rdfs:label",
-          } as AttributeConfig,
-        ]),
-        connection: { queryEngine: "sparql" },
+    function initializeConfigWithRdfLabel(snapshot: MutableSnapshot) {
+      // Create config and setup schema
+      const config = createRandomRawConfiguration();
+      config.connection!.queryEngine = "sparql";
+      config.schema?.vertices[0].attributes.push({
+        name: "rdfs:label",
+        displayLabel: "rdfs:label",
+        searchable: true,
+        dataType: "String",
       });
-    });
+
+      snapshot.set(configurationAtom, new Map([[config.id, config]]));
+
+      // Make config active
+      snapshot.set(activeConfigurationAtom, config.id);
+    }
 
     it("Should default to precision match exact", () => {
-      const { result } = renderHook(() => useKeywordSearch({ isOpen: false }));
+      const { result } = renderHookWithRecoilRoot(
+        () => useKeywordSearch({ isOpen: false }),
+        initializeConfigWithRdfLabel
+      );
 
       expect(result.current.exactMatch).toBe(true);
     });
 
     it("Should default to attribute rdfs:label", async () => {
-      const { result } = renderHook(() => useKeywordSearch({ isOpen: false }));
+      const { result } = renderHookWithRecoilRoot(
+        () => useKeywordSearch({ isOpen: false }),
+        initializeConfigWithRdfLabel
+      );
 
       expect(result.current.selectedAttribute).toBe("rdfs:label");
     });
 
     it("Should default to node type All", () => {
-      const { result } = renderHook(() => useKeywordSearch({ isOpen: false }));
+      const { result } = renderHookWithRecoilRoot(
+        () => useKeywordSearch({ isOpen: false }),
+        initializeConfigWithRdfLabel
+      );
 
       expect(result.current.selectedVertexType).toBe("__all");
     });
 
     it("Should have all searchable attributes", () => {
-      const { result } = renderHook(() => useKeywordSearch({ isOpen: false }));
+      const { result } = renderHookWithRecoilRoot(
+        () => useKeywordSearch({ isOpen: false }),
+        initializeConfigWithRdfLabel
+      );
 
       expect(result.current.attributesOptions).toStrictEqual([
         { value: "__all", label: "All" },
@@ -136,37 +172,38 @@ describe("useKeywordSearch", () => {
   });
 
   describe("SPARQL without rdfs:label", () => {
-    beforeEach(() => {
-      (useConfiguration as jest.Mock).mockReturnValue({
-        schema: { vertices: [{ type: "Foo" }] },
-        vertexTypes: ["Foo"],
-        getEdgeTypeConfig: jest.fn(),
-        getVertexTypeConfig: jest.fn(),
-        getVertexTypeSearchableAttributes: jest.fn().mockReturnValue([]),
-        connection: { queryEngine: "sparql" },
-      });
-    });
-
     it("Should default to precision match exact", () => {
-      const { result } = renderHook(() => useKeywordSearch({ isOpen: false }));
+      const { result } = renderHookWithRecoilRoot(
+        () => useKeywordSearch({ isOpen: false }),
+        initializeConfigWithQueryEngine("sparql")
+      );
 
       expect(result.current.exactMatch).toBe(true);
     });
 
     it("Should default to attribute All", async () => {
-      const { result } = renderHook(() => useKeywordSearch({ isOpen: false }));
+      const { result } = renderHookWithRecoilRoot(
+        () => useKeywordSearch({ isOpen: false }),
+        initializeConfigWithQueryEngine("sparql")
+      );
 
       expect(result.current.selectedAttribute).toBe("__all");
     });
 
     it("Should default to node type All", () => {
-      const { result } = renderHook(() => useKeywordSearch({ isOpen: false }));
+      const { result } = renderHookWithRecoilRoot(
+        () => useKeywordSearch({ isOpen: false }),
+        initializeConfigWithQueryEngine("sparql")
+      );
 
       expect(result.current.selectedVertexType).toBe("__all");
     });
 
     it("Should have all searchable attributes", () => {
-      const { result } = renderHook(() => useKeywordSearch({ isOpen: false }));
+      const { result } = renderHookWithRecoilRoot(
+        () => useKeywordSearch({ isOpen: false }),
+        initializeConfigWithQueryEngine("sparql")
+      );
 
       expect(result.current.attributesOptions).toStrictEqual([
         { value: "__all", label: "All" },

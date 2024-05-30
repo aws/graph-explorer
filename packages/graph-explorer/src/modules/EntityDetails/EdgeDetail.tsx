@@ -18,7 +18,7 @@ import {
 } from "../../components";
 import EdgeIcon from "../../components/icons/EdgeIcon";
 import { useWithTheme, withClassNamePrefix } from "../../core";
-import useConfiguration from "../../core/ConfigurationProvider/useConfiguration";
+import { useConfiguration } from "../../core/ConfigurationProvider";
 import fade from "../../core/ThemeProvider/utils/fade";
 import useDisplayNames from "../../hooks/useDisplayNames";
 import useTextTransform from "../../hooks/useTextTransform";

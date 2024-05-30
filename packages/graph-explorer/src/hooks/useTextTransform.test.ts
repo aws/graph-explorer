@@ -6,7 +6,6 @@ import {
 import { createRandomRawConfiguration } from "../utils/testing/randomData";
 import renderHookWithRecoilRoot from "../utils/testing/renderHookWithRecoilRoot";
 import useTextTransform from "./useTextTransform";
-import { renderHook } from "@testing-library/react";
 
 function initializeConfigWithPrefix(snapshot: MutableSnapshot) {
   // Create config and setup schema
@@ -41,26 +40,26 @@ describe("useTextTransform", () => {
   it("should sanitize text", () => {
     const text = "this is a test";
     const expected = "This Is A Test";
-    const { result } = renderHook(() => useTextTransform());
+    const { result } = renderHookWithRecoilRoot(() => useTextTransform());
     expect(result.current(text)).toBe(expected);
   });
 
   it("should return the original text if no transformation is needed", () => {
     const text = "This Is A Test";
-    const { result } = renderHook(() => useTextTransform());
+    const { result } = renderHookWithRecoilRoot(() => useTextTransform());
     expect(result.current(text)).toBe(text);
   });
 
   it("should handle empty string", () => {
     const input = "";
-    const { result } = renderHook(() => useTextTransform());
+    const { result } = renderHookWithRecoilRoot(() => useTextTransform());
     expect(result.current(input)).toBe(input);
   });
 
   it("should handle strings with invalid characters", () => {
     const input = "str\u{1F600}";
     const expected = "Str\u{1F600}";
-    const { result } = renderHook(() => useTextTransform());
+    const { result } = renderHookWithRecoilRoot(() => useTextTransform());
     expect(result.current(input)).toBe(expected);
   });
 
@@ -89,7 +88,7 @@ describe("useTextTransform", () => {
   it("should handle random data", () => {
     const input = "str\u{1F600}abcdef";
     const expected = "Str\u{1F600}abcdef";
-    const { result } = renderHook(() => useTextTransform());
+    const { result } = renderHookWithRecoilRoot(() => useTextTransform());
     expect(result.current(input)).toBe(expected);
   });
 });

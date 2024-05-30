@@ -6,7 +6,7 @@ import {
   useSetRecoilState,
 } from "recoil";
 import type { Edge, Vertex } from "../@types/entities";
-import useConfiguration from "../core/ConfigurationProvider/useConfiguration";
+import { useConfiguration } from "../core/ConfigurationProvider";
 import {
   edgesFilteredIdsAtom,
   edgesSelector,

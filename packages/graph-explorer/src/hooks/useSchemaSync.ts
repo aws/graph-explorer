@@ -1,7 +1,7 @@
 import { useCallback, useRef } from "react";
 import { useNotification } from "../components/NotificationProvider";
 import type { SchemaResponse } from "../connector/useGEFetchTypes";
-import useConfiguration from "../core/ConfigurationProvider/useConfiguration";
+import { useConfiguration } from "../core/ConfigurationProvider";
 import { explorerSelector, loggerSelector } from "../core/connector";
 import usePrefixesUpdater from "./usePrefixesUpdater";
 import useUpdateSchema from "./useUpdateSchema";

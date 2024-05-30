@@ -13,7 +13,7 @@ import {
 } from "../../components";
 import HumanReadableNumberFormatter from "../../components/HumanReadableNumberFormatter";
 import { fade, useWithTheme, withClassNamePrefix } from "../../core";
-import useConfiguration from "../../core/ConfigurationProvider/useConfiguration";
+import { useConfiguration } from "../../core/ConfigurationProvider";
 import useEntitiesCounts from "../../hooks/useEntitiesCounts";
 import useTextTransform from "../../hooks/useTextTransform";
 import useTranslations from "../../hooks/useTranslations";

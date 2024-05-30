@@ -1,6 +1,5 @@
 import { renderHook } from "@testing-library/react";
 import { RecoilRootProps, RecoilRoot, MutableSnapshot } from "recoil";
-import ConfigurationProvider from "../../core/ConfigurationProvider";
 
 export default function renderHookWithRecoilRoot<TResult>(
   callback: (props: RecoilRootProps) => TResult,
@@ -8,9 +7,7 @@ export default function renderHookWithRecoilRoot<TResult>(
 ) {
   return renderHook(callback, {
     wrapper: ({ children }) => (
-      <RecoilRoot initializeState={initializeState}>
-        <ConfigurationProvider>{children}</ConfigurationProvider>
-      </RecoilRoot>
+      <RecoilRoot initializeState={initializeState}>{children}</RecoilRoot>
     ),
   });
 }
