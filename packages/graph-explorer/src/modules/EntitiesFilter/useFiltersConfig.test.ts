@@ -1,5 +1,5 @@
 import { expect, jest } from "@jest/globals";
-import { act } from "@testing-library/react-hooks";
+import { act } from "@testing-library/react";
 import useFiltersConfig from "./useFiltersConfig";
 import {
   createRandomRawConfiguration,

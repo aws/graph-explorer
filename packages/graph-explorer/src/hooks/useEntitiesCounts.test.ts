@@ -1,4 +1,4 @@
-import { renderHook } from "@testing-library/react-hooks";
+import { renderHook } from "@testing-library/react";
 import useEntitiesCounts from "./useEntitiesCounts";
 import { useConfiguration } from "../core";
 

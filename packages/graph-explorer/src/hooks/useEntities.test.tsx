@@ -1,4 +1,3 @@
-import { act } from "@testing-library/react-hooks";
 import { useRecoilValue } from "recoil";
 import useEntities from "./useEntities";
 import { Vertex } from "../@types/entities";
@@ -12,6 +11,7 @@ import { activeConfigurationAtom } from "../core/StateProvider/configuration";
 import { Schema } from "../core";
 import { Entities } from "../core/StateProvider/entitiesSelector";
 import renderHookWithRecoilRoot from "../utils/testing/renderHookWithRecoilRoot";
+import { waitForValueToChange } from "../utils/testing/waitForValueToChange";
 
 describe("useEntities", () => {
   beforeEach(() => {
@@ -40,16 +40,14 @@ describe("useEntities", () => {
       },
     };
 
-    const { result, waitForNextUpdate } = renderHookWithRecoilRoot(() => {
+    const { result } = renderHookWithRecoilRoot(() => {
       const [entities, setEntities] = useEntities({ disableFilters: true });
       return { entities, setEntities };
     });
 
-    act(() => {
-      result.current.setEntities({ nodes: [randomNode], edges: [] });
-    });
+    result.current.setEntities({ nodes: [randomNode], edges: [] });
 
-    await waitForNextUpdate();
+    await waitForValueToChange(() => result.current.entities);
 
     expect(result.current.entities).toEqual({
       nodes: [expectedRandomNodes],
@@ -145,16 +143,14 @@ describe("useEntities", () => {
       },
     ];
 
-    const { result, waitForNextUpdate } = renderHookWithRecoilRoot(() => {
+    const { result } = renderHookWithRecoilRoot(() => {
       const [entities, setEntities] = useEntities({ disableFilters: true });
       return { entities, setEntities };
     });
 
-    act(() => {
-      result.current.setEntities({ nodes: [node1, node2, node3], edges: [] });
-    });
+    result.current.setEntities({ nodes: [node1, node2, node3], edges: [] });
 
-    await waitForNextUpdate();
+    await waitForValueToChange(() => result.current.entities);
 
     expect(result.current.entities).toEqual({
       nodes: expectedNodes,
@@ -357,7 +353,7 @@ async function setupAndPerformSetEntities(
   updatedEntities: Entities
 ) {
   const configId = createRandomName("configId");
-  const { result, waitForNextUpdate } = renderHookWithRecoilRoot(
+  const { result } = renderHookWithRecoilRoot(
     () => {
       const [entities, setEntities] = useEntities();
       const schemas = useRecoilValue(schemaAtom);
@@ -375,8 +371,9 @@ async function setupAndPerformSetEntities(
     }
   );
 
-  act(() => result.current.setEntities(updatedEntities));
-  await waitForNextUpdate();
+  result.current.setEntities(updatedEntities);
+
+  await waitForValueToChange(() => result.current.entities);
 
   return result.current;
 }
