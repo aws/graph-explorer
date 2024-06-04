@@ -2,6 +2,7 @@ import { v4 } from "uuid";
 import {
   AttributeConfig,
   EdgeTypeConfig,
+  PrefixTypeConfig,
   RawConfiguration,
   Schema,
   VertexTypeConfig,
@@ -60,6 +61,19 @@ export function createRandomColor(): string {
     color += letters[Math.round(Math.random() * 15)];
   }
   return color;
+}
+
+/**
+ * Randomly creates a HTTP URL value.
+ * @returns The URL object.
+ */
+export function createRandomHttpUrl(): URL {
+  const domain = v4().replace(/-/g, ".");
+  const port = randomlyUndefined(`:${createRandomInteger(9999)}`) ?? "";
+  const paths = createArray(createRandomInteger(3), createRandomName);
+  const basePath = `http://${domain}${port}`;
+  const fullUrlString = [basePath, ...paths].join("/");
+  return new URL(fullUrlString);
 }
 
 /**
@@ -135,17 +149,30 @@ export function createRandomVertexTypeConfig(): VertexTypeConfig {
 }
 
 /**
+ * Creates a random PrefixTypeConfig object.
+ * @returns A random PrefixTypeConfig object.
+ */
+export function createRandomPrefix(): PrefixTypeConfig {
+  return {
+    uri: createRandomHttpUrl().toString(),
+    prefix: createRandomName("prefix"),
+  };
+}
+
+/**
  * Creates a random schema object.
  * @returns A random Schema object.
  */
 export function createRandomSchema(): Schema {
   const edges = createArray(3, createRandomEdgeTypeConfig);
   const vertices = createArray(3, createRandomVertexTypeConfig);
+  const prefixes = createArray(3, createRandomPrefix);
   const schema: Schema = {
     edges,
     vertices,
     totalEdges: edges.length,
     totalVertices: vertices.length,
+    prefixes,
   };
   return schema;
 }
@@ -220,7 +247,12 @@ export function createRandomEntityAttribute(): {
   };
 }
 
-function pickRandomElement<T>(array: T[]): T {
+/**
+ * Picks a random element from the given array.
+ * @param array The array of options from which to choose.
+ * @returns A random element.
+ */
+export function pickRandomElement<T>(array: T[]): T {
   return array[Math.floor(Math.random() * array.length)];
 }
 
@@ -233,8 +265,10 @@ export function createRandomRawConfiguration(): RawConfiguration {
     id: createRandomName("id"),
     displayLabel: createRandomName("displayLabel"),
     connection: {
-      url: createRandomName("url"),
       queryEngine: pickRandomElement(["gremlin", "openCypher", "sparql"]),
+      // Remove trailing slash
+      url: createRandomHttpUrl().toString().replace(/\/$/, ""),
+      graphDbUrl: createRandomHttpUrl().toString().replace(/\/$/, ""),
     },
     schema: createRandomSchema(),
   };

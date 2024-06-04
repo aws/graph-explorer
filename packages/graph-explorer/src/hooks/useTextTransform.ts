@@ -1,10 +1,11 @@
 import { useCallback } from "react";
-import { useConfiguration } from "../core";
 import { sanitizeText } from "../utils";
 import replacePrefixes from "../utils/replacePrefixes";
+import { useRecoilValue } from "recoil";
+import { prefixesSelector } from "../core/StateProvider/configuration";
 
 const useTextTransform = () => {
-  const config = useConfiguration();
+  const prefixes = useRecoilValue(prefixesSelector);
 
   return useCallback(
     (text?: string): string => {
@@ -12,13 +13,13 @@ const useTextTransform = () => {
         return "";
       }
 
-      if (config?.connection?.queryEngine === "sparql") {
-        return replacePrefixes(text, config?.schema?.prefixes);
+      if (prefixes) {
+        return replacePrefixes(text, prefixes);
       }
 
       return sanitizeText(text);
     },
-    [config]
+    [prefixes]
   );
 };
 

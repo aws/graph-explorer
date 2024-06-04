@@ -9,7 +9,7 @@ import type {
   VertexTypeConfig,
 } from "../ConfigurationProvider";
 import localForageEffect from "./localForageEffect";
-import { schemaAtom } from "./schema";
+import { activeSchemaSelector } from "./schema";
 import {
   EdgePreferences,
   userStylingAtom,
@@ -33,18 +33,62 @@ export const configurationAtom = atom<Map<string, RawConfiguration>>({
   effects: [localForageEffect()],
 });
 
+const activeConfigurationSelector = selector({
+  key: "active-config",
+  get: ({ get }) => {
+    const id = get(activeConfigurationAtom);
+    const all = get(configurationAtom);
+    return id && all.get(id);
+  },
+});
+
+export const activeConnectionSelector = selector({
+  key: "active-connection",
+  get: ({ get }) => {
+    const currentConfig = get(activeConfigurationSelector);
+    if (!currentConfig) {
+      return;
+    }
+
+    return {
+      ...(currentConfig.connection || {}),
+      // Remove trailing slash
+      url: currentConfig.connection?.url?.replace(/\/$/, "") || "",
+      queryEngine: currentConfig.connection?.queryEngine || "gremlin",
+      graphDbUrl:
+        currentConfig.connection?.graphDbUrl?.replace(/\/$/, "") || "",
+    };
+  },
+});
+
+export const prefixesSelector = selector({
+  key: "active-prefixes",
+  get: ({ get }) => {
+    const connection = get(activeConnectionSelector);
+    if (!connection) {
+      return;
+    }
+
+    if (connection?.queryEngine !== "sparql") {
+      return;
+    }
+
+    const schema = get(activeSchemaSelector);
+    return schema?.prefixes || [];
+  },
+});
+
 export const mergedConfigurationSelector = selector<RawConfiguration | null>({
   key: "merged-configuration",
   get: ({ get }) => {
-    const activeConfig = get(activeConfigurationAtom);
-    const config = get(configurationAtom);
-    const currentConfig = activeConfig && config.get(activeConfig);
+    const currentConfig = get(activeConfigurationSelector);
     if (!currentConfig) {
       return null;
     }
 
-    const schema = get(schemaAtom);
-    const currentSchema = activeConfig ? schema.get(activeConfig) : null;
+    const currentSchema = get(activeSchemaSelector) ?? null;
+    const connection = get(activeConnectionSelector);
+    const prefixes = get(prefixesSelector);
     const userStyling = get(userStylingAtom);
 
     const configVLabels = currentConfig.schema?.vertices.map(v => v.type) || [];
@@ -81,22 +125,12 @@ export const mergedConfigurationSelector = selector<RawConfiguration | null>({
       displayLabel: currentConfig.displayLabel,
       remoteConfigFile: currentConfig.remoteConfigFile,
       __fileBase: currentConfig.__fileBase,
-      connection: {
-        ...(currentConfig.connection || {}),
-        // Remove trailing slash
-        url: currentConfig.connection?.url?.replace(/\/$/, "") || "",
-        queryEngine: currentConfig.connection?.queryEngine || "gremlin",
-        graphDbUrl:
-          currentConfig.connection?.graphDbUrl?.replace(/\/$/, "") || "",
-      },
+      connection,
       schema: {
         vertices: mergedVertices,
         edges: mergedEdges,
         lastUpdate: currentSchema?.lastUpdate,
-        prefixes:
-          currentConfig.connection?.queryEngine === "sparql"
-            ? currentSchema?.prefixes
-            : undefined,
+        prefixes,
         triedToSync: currentSchema?.triedToSync,
         lastSyncFail: currentSchema?.lastSyncFail,
         totalVertices: currentSchema?.totalVertices ?? 0,

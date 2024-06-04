@@ -1,9 +1,9 @@
 import { atom, selector } from "recoil";
 import type { Edge } from "../../@types/entities";
 import { sanitizeText } from "../../utils";
-import { activeConfigurationAtom } from "./configuration";
 import isDefaultValue from "./isDefaultValue";
 import { schemaAtom } from "./schema";
+import { activeConfigurationAtom } from "./configuration";
 
 export type Edges = Array<Edge>;
 
@@ -43,11 +43,11 @@ export const edgesSelector = selector<Edges>({
     get(edgesFilteredIdsAtom).size > 0 && set(edgesFilteredIdsAtom, cleanFn);
 
     const activeConfig = get(activeConfigurationAtom);
-    if (!activeConfig) {
+    const schemas = get(schemaAtom);
+    const activeSchema = activeConfig && schemas.get(activeConfig);
+    if (!activeSchema) {
       return;
     }
-    const schemas = get(schemaAtom);
-    const activeSchema = schemas.get(activeConfig);
 
     set(schemaAtom, prevSchemas => {
       const updatedSchemas = new Map(prevSchemas);
@@ -87,12 +87,11 @@ export const edgesSelector = selector<Edges>({
         }
 
         return schema;
-      }, activeSchema?.edges ?? []);
+      }, activeSchema.edges);
 
       updatedSchemas.set(activeConfig, {
+        ...activeSchema,
         edges: updatedEdges,
-        vertices: activeSchema?.vertices || [],
-        ...(activeSchema || {}),
       });
 
       return updatedSchemas;

@@ -44,8 +44,8 @@ const activeConnectionSelector = equalSelector({
 const activeConnectionUrlSelector = equalSelector({
   key: "activeConnectionUrl",
   get: ({ get }) => {
-    const config = get(mergedConfigurationSelector);
-    return config?.connection?.url;
+    const connection = get(activeConnectionSelector);
+    return connection?.url;
   },
   equals: (latest, prior) => latest === prior,
 });

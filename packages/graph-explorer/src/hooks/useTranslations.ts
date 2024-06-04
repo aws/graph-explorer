@@ -1,10 +1,11 @@
 import flat from "flat";
 import { useCallback } from "react";
-import { useConfiguration } from "../core";
 
 import gremlinTs from "./translations/gremlin-translations.json";
 import sparqlTs from "./translations/sparql-translations.json";
 import openCypherTs from "./translations/openCypher-translations.json";
+import { activeConnectionSelector } from "../core/StateProvider/configuration";
+import { useRecoilValue } from "recoil";
 
 const ts: Record<string, Record<string, string>> = {
   gremlin: flat(gremlinTs),
@@ -13,8 +14,8 @@ const ts: Record<string, Record<string, string>> = {
 };
 
 const useTranslations = () => {
-  const config = useConfiguration();
-  const engine = config?.connection?.queryEngine || "gremlin";
+  const connection = useRecoilValue(activeConnectionSelector);
+  const engine = connection?.queryEngine || "gremlin";
 
   return useCallback(
     (key: string, ns?: string) => {

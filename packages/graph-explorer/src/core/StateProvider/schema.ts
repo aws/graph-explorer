@@ -1,10 +1,11 @@
-import { atom } from "recoil";
+import { atom, selector } from "recoil";
 import {
   EdgeTypeConfig,
   PrefixTypeConfig,
   VertexTypeConfig,
 } from "../ConfigurationProvider";
 import localForageEffect from "./localForageEffect";
+import { activeConfigurationAtom } from "./configuration";
 
 export type SchemaInference = {
   vertices: VertexTypeConfig[];
@@ -21,4 +22,16 @@ export const schemaAtom = atom<Map<string, SchemaInference>>({
   key: "schema",
   default: new Map(),
   effects: [localForageEffect()],
+});
+
+export const activeSchemaSelector = selector({
+  key: "active-schema",
+  get: ({ get }) => {
+    const activeConfigId = get(activeConfigurationAtom);
+    if (!activeConfigId) {
+      return;
+    }
+    const schemas = get(schemaAtom);
+    return schemas.get(activeConfigId);
+  },
 });
