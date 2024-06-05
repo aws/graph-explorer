@@ -6,6 +6,8 @@
 
 **Bug Fixes and Minor Changes**
 
+- Fix edge case where node badges are stale
+  (<https://github.com/aws/graph-explorer/pull/427>)
 - Fixed issue with Gremlin Server 3.7
   (<https://github.com/aws/graph-explorer/pull/411>)
 - Fixed server starting log message
