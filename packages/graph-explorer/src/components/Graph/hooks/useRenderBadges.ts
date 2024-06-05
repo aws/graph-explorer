@@ -120,13 +120,11 @@ const useRenderBadges = <TNodeData extends VertexData = VertexData>({
             return;
           }
 
-          const badgeGetter = getNodeBadges;
           const nodeBoundingBox = getNodeBoundingBox(node);
-          const badges =
-            badgeGetter?.(nodeData, nodeBoundingBox, {
-              context,
-              zoomLevel,
-            }) || [];
+          const badges = getNodeBadges(nodeData, nodeBoundingBox, {
+            context,
+            zoomLevel,
+          });
           badges.forEach(badge => {
             if (!badge) {
               return;
@@ -136,7 +134,13 @@ const useRenderBadges = <TNodeData extends VertexData = VertexData>({
           });
         });
       };
+
+      // Run once to render the initial badges and when the dependencies change
+      onCanvasResize();
+
+      // Wire up the resize event to re-render the badges
       cy.on("render", onCanvasResize);
+
       return () => {
         cy.off("render", onCanvasResize);
       };

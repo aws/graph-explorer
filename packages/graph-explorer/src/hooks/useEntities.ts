@@ -28,14 +28,9 @@ type ProcessedEntities = {
   edges: Edge[];
 };
 
-type UseEntitiesProps = {
-  originalEntities: ProcessedEntities;
-};
-
 const useEntities = ({ disableFilters }: { disableFilters?: boolean } = {}): [
   ProcessedEntities,
   SetterOrUpdater<Entities>,
-  UseEntitiesProps,
 ] => {
   const config = useConfiguration();
   const filteredNodesIds = useRecoilValue(nodesFilteredIdsAtom);
@@ -156,13 +151,7 @@ const useEntities = ({ disableFilters }: { disableFilters?: boolean } = {}): [
     };
   }, [filteredEdgesIds, filteredEntitiesByGlobalFilters, filteredNodesIds]);
 
-  return [
-    filteredEntities,
-    setEntities,
-    {
-      originalEntities: filteredEntitiesByGlobalFilters,
-    },
-  ];
+  return [filteredEntities, setEntities];
 };
 
 export default useEntities;

@@ -11,10 +11,12 @@
       "skipFiles": ["<node_internals>/**"],
       "runtimeExecutable": "sh",
       "program": "${workspaceFolder}/packages/graph-explorer/node_modules/.bin/jest",
+      "cwd": "${workspaceFolder}",
       "args": [
         "${relativeFile}",
         "--coverage=false",
-        "--config=${workspaceFolder}/packages/graph-explorer/jest.config.ts"
+        "--config=${workspaceFolder}/packages/graph-explorer/jest.config.ts",
+        "--runInBand"
       ],
       "console": "integratedTerminal",
       "internalConsoleOptions": "openOnFirstSessionStart"
