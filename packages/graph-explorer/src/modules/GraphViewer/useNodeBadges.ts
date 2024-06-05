@@ -30,14 +30,15 @@ const useNodeBadges = () => {
   return useCallback(
     (outOfFocusIds: Set<string>): BadgeRenderer =>
       (nodeData, boundingBox, { zoomLevel }) => {
+        // Ensure we have the node name and title
+        const name = nodesCurrentNames[nodeData.id]?.name ?? "";
+        const title = nodesCurrentNames[nodeData.id]?.title ?? "";
+
         return [
           {
-            text: nodesCurrentNames[nodeData.id].name,
+            text: name,
             hidden: zoomLevel === "small" || outOfFocusIds.has(nodeData.id),
-            title:
-              zoomLevel === "large"
-                ? nodesCurrentNames[nodeData.id].title
-                : undefined,
+            title: zoomLevel === "large" ? title : undefined,
             maxWidth: zoomLevel === "large" ? 80 : 50,
             anchor: "center",
             fontSize: 7,
