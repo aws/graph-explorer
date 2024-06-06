@@ -18,7 +18,6 @@ import {
   SearchSadIcon,
   Select,
   VertexIcon,
-  Checkbox,
   Button,
 } from "../../components";
 import { CarouselRef } from "../../components/Carousel/Carousel";
@@ -75,8 +74,6 @@ const KeywordSearch = ({
     exactMatch,
     exactMatchOptions,
     onExactMatchChange,
-    neighborsLimit,
-    onNeighborsLimitChange,
     cancelAll,
   } = useKeywordSearch({
     isOpen: isFocused,
@@ -421,13 +418,6 @@ const KeywordSearch = ({
                 <HumanReadableNumberFormatter value={currentTotal} />
               )}
             </span>
-            <Checkbox
-              isSelected={neighborsLimit}
-              onChange={onNeighborsLimitChange}
-              className={pfx("refuse-shrink")}
-            >
-              Limit Neighbors?
-            </Checkbox>
             <Button
               icon={<RemoveIcon />}
               onPress={() => selection.clear()}
