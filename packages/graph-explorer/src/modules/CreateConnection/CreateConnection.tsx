@@ -5,7 +5,6 @@ import { v4 } from "uuid";
 import { InfoIcon, Tooltip } from "../../components";
 import Button from "../../components/Button";
 import Input from "../../components/Input";
-import { useNotification } from "../../components/NotificationProvider";
 import Select from "../../components/Select";
 import {
   ConnectionConfig,
@@ -58,7 +57,6 @@ const CreateConnection = ({
 }: CreateConnectionProps) => {
   const styleWithTheme = useWithTheme();
   const pfx = withClassNamePrefix("ft");
-  const { enqueueNotification } = useNotification();
 
   const onSave = useRecoilCallback(
     ({ set }) =>
@@ -131,7 +129,7 @@ const CreateConnection = ({
           });
         }
       },
-    [enqueueNotification, configId]
+    [configId, initialData?.url, initialData?.type]
   );
 
   const [form, setForm] = useState<ConnectionForm>({
