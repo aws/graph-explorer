@@ -27,72 +27,72 @@ function getDefaultEdgeTypeConfig(edgeType: string): EdgeTypeConfig {
   };
 }
 
-const assembledConfigSelector = selector<ConfigurationContextProps | undefined>(
-  {
-    key: "assembled-config",
-    get: ({ get }) => {
-      const configuration = get(mergedConfigurationSelector);
-      if (!configuration) {
-        return;
-      }
+export const assembledConfigSelector = selector<
+  ConfigurationContextProps | undefined
+>({
+  key: "assembled-config",
+  get: ({ get }) => {
+    const configuration = get(mergedConfigurationSelector);
+    if (!configuration) {
+      return;
+    }
 
-      return {
-        ...configuration,
-        totalVertices: configuration.schema?.totalVertices ?? 0,
-        vertexTypes: configuration.schema?.vertices?.map(vt => vt.type) || [],
-        totalEdges: configuration.schema?.totalEdges ?? 0,
-        edgeTypes: configuration.schema?.edges?.map(et => et.type) || [],
-        getVertexTypeConfig(vertexType) {
-          const vtConfig = configuration?.schema?.vertices?.find(
-            v => v.type === vertexType
-          );
-          if (!vtConfig) {
-            return getDefaultVertexTypeConfig(vertexType);
-          }
+    return {
+      ...configuration,
+      totalVertices: configuration.schema?.totalVertices ?? 0,
+      vertexTypes: configuration.schema?.vertices?.map(vt => vt.type) || [],
+      totalEdges: configuration.schema?.totalEdges ?? 0,
+      edgeTypes: configuration.schema?.edges?.map(et => et.type) || [],
+      getVertexTypeConfig(vertexType) {
+        const vtConfig = configuration?.schema?.vertices?.find(
+          v => v.type === vertexType
+        );
+        if (!vtConfig) {
+          return getDefaultVertexTypeConfig(vertexType);
+        }
 
-          return vtConfig;
-        },
-        getVertexTypeAttributes(vertexTypes) {
-          const vtConfig = configuration?.schema?.vertices?.filter(v =>
-            vertexTypes.includes(v.type)
-          );
+        return vtConfig;
+      },
+      getVertexTypeAttributes(vertexTypes) {
+        const vtConfig = configuration?.schema?.vertices?.filter(v =>
+          vertexTypes.includes(v.type)
+        );
 
-          if (!vtConfig?.length) {
-            return [];
-          }
+        if (!vtConfig?.length) {
+          return [];
+        }
 
-          return uniqBy(
-            vtConfig.flatMap(v => v.attributes),
-            v => v.name
-          );
-        },
-        getVertexTypeSearchableAttributes(vertexType) {
-          const vtConfig = configuration?.schema?.vertices?.find(
-            v => v.type === vertexType
-          );
-          if (!vtConfig) {
-            return [];
-          }
+        return uniqBy(
+          vtConfig.flatMap(v => v.attributes),
+          v => v.name
+        );
+      },
+      getVertexTypeSearchableAttributes(vertexType) {
+        const vtConfig = configuration?.schema?.vertices?.find(
+          v => v.type === vertexType
+        );
+        if (!vtConfig) {
+          return [];
+        }
 
-          return vtConfig.attributes.filter(
-            attribute =>
-              attribute.searchable !== false && attribute.dataType === "String"
-          );
-        },
-        getEdgeTypeConfig(edgeType) {
-          const etConfig = configuration?.schema?.edges?.find(
-            e => e.type === edgeType
-          );
-          if (!etConfig) {
-            return getDefaultEdgeTypeConfig(edgeType);
-          }
+        return vtConfig.attributes.filter(
+          attribute =>
+            attribute.searchable !== false && attribute.dataType === "String"
+        );
+      },
+      getEdgeTypeConfig(edgeType) {
+        const etConfig = configuration?.schema?.edges?.find(
+          e => e.type === edgeType
+        );
+        if (!etConfig) {
+          return getDefaultEdgeTypeConfig(edgeType);
+        }
 
-          return etConfig;
-        },
-      };
-    },
-  }
-);
+        return etConfig;
+      },
+    };
+  },
+});
 
 export default function useConfiguration() {
   return useRecoilValue(assembledConfigSelector);
