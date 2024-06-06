@@ -109,4 +109,10 @@ export default function useExpandNode() {
   ]);
 
   return { expandNode, ...query };
+
+  // const notificationId = enqueueNotification({
+  //   title: "Updating Neighbors",
+  //   message: `Looking for the Neighbors of ${result.vertices.length} results`,
+  //   autoHideDuration: null,
+  // });
 }
