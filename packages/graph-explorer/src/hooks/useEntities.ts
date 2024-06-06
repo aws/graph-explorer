@@ -1,12 +1,6 @@
 import { useMemo } from "react";
-import {
-  SetterOrUpdater,
-  useRecoilCallback,
-  useRecoilValue,
-  useSetRecoilState,
-} from "recoil";
+import { SetterOrUpdater, useRecoilCallback, useRecoilValue } from "recoil";
 import type { Edge, Vertex } from "../@types/entities";
-import { useConfiguration } from "../core/ConfigurationProvider";
 import {
   edgesFilteredIdsAtom,
   edgesSelector,
@@ -22,6 +16,7 @@ import {
 } from "../core/StateProvider/nodes";
 
 import useDeepMemo from "./useDeepMemo";
+import { assembledConfigSelector } from "../core/ConfigurationProvider/useConfiguration";
 
 type ProcessedEntities = {
   nodes: Vertex[];
@@ -32,20 +27,19 @@ const useEntities = ({ disableFilters }: { disableFilters?: boolean } = {}): [
   ProcessedEntities,
   SetterOrUpdater<Entities>,
 ] => {
-  const config = useConfiguration();
   const filteredNodesIds = useRecoilValue(nodesFilteredIdsAtom);
   const filteredEdgesIds = useRecoilValue(edgesFilteredIdsAtom);
   const nodes = useRecoilValue(nodesSelector);
   const edges = useRecoilValue(edgesSelector);
-  const recoilSetEntities = useSetRecoilState(entitiesSelector);
 
   // Some nodes/edges are not defined in the schema or their types are hidden.
   // Here these types are filtered before to set the updated state.
   // We need to make a hook because these types are defined in the config that
   // works using a hook.
   const setEntities: SetterOrUpdater<Entities> = useRecoilCallback(
-    ({ snapshot }) =>
+    ({ snapshot, set }) =>
       async valOrUpdater => {
+        const config = await snapshot.getPromise(assembledConfigSelector);
         const entities = await snapshot.getPromise(entitiesSelector);
         const nextEntities =
           typeof valOrUpdater === "function"
@@ -99,7 +93,7 @@ const useEntities = ({ disableFilters }: { disableFilters?: boolean } = {}): [
             ?.hidden;
         });
 
-        recoilSetEntities({
+        set(entitiesSelector, {
           nodes: nodesWithoutHiddenCounts,
           edges: filteredEdges,
           preserveSelection: nextEntities.preserveSelection,
@@ -107,7 +101,7 @@ const useEntities = ({ disableFilters }: { disableFilters?: boolean } = {}): [
           forceSet: nextEntities.forceSet,
         });
       },
-    [config?.schema, recoilSetEntities]
+    [] // Ensures this callback is memoized and not recreated on each render
   );
 
   const vertexTypes = useRecoilValue(nodesTypesFilteredAtom);
