@@ -98,7 +98,7 @@ export default function useExpandNode() {
     setEntities({
       nodes: query.data.vertices,
       edges: query.data.edges,
-      selectNewEntities: "nodes",
+      // selectNewEntities: "nodes",
     });
   }, [
     query.data?.vertices,
