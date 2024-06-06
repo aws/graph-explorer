@@ -207,13 +207,6 @@ export function createSparqlExplorer(
     async fetchNeighborsCount(req, options) {
       const bNode = blankNodes.get(req.vertexId);
 
-      if (bNode?.neighbors) {
-        return {
-          totalCount: bNode.vertex.data.neighborsCount,
-          counts: bNode.vertex.data.neighborsCountByType,
-        };
-      }
-
       if (bNode && !bNode.neighbors) {
         const response = await fetchBlankNodeNeighbors(
           _sparqlFetch(connection, options),
@@ -226,14 +219,6 @@ export function createSparqlExplorer(
 
         blankNodes.set(req.vertexId, {
           ...bNode,
-          vertex: {
-            ...bNode.vertex,
-            data: {
-              ...bNode.vertex.data,
-              neighborsCount: response.totalCount,
-              neighborsCountByType: response.counts,
-            },
-          },
           neighbors: response.neighbors,
         });
 

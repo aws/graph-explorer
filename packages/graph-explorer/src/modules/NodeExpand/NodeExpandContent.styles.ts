@@ -10,10 +10,6 @@ const defaultStyles =
     flex-direction: column;
     background: ${theme.palette.background.default};
 
-    .${pfx}-empty-panel-state {
-      height: auto;
-      flex-grow: 1;
-    }
     .${pfx}-h-divider {
       height: 1px;
       margin: ${theme.spacing["2x"]} 0;

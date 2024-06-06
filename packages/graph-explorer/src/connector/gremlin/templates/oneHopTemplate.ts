@@ -131,10 +131,14 @@ const oneHopTemplate = ({
   filterByVertexTypes = [],
   edgeTypes = [],
   filterCriteria = [],
-  limit = 10,
-  offset = 0,
+  // TODO: Double check all the places that were using default values for limit and offset before.
+  limit,
+  offset,
 }: Omit<NeighborsRequest, "vertexType">): string => {
-  const range = `.range(${offset}, ${offset + limit})`;
+  let range = "";
+  if (limit !== undefined) {
+    range = `.range(${offset ?? 0}, ${(offset ?? 0) + limit})`;
+  }
   let template = "";
   if (idType === "number") {
     template = `g.V(${vertexId}L)`;

@@ -1,11 +1,7 @@
 import type { Vertex } from "../../../@types/entities";
-import type { NeighborsCountResponse } from "../../useGEFetchTypes";
 import type { OCVertex } from "../types";
 
-const mapApiVertex = (
-  apiVertex: OCVertex,
-  neighborsCount: NeighborsCountResponse = { totalCount: 0, counts: {} }
-): Vertex => {
+export default function mapApiVertex(apiVertex: OCVertex): Vertex {
   const labels = apiVertex["~labels"];
   const vt = labels[0];
 
@@ -15,11 +11,7 @@ const mapApiVertex = (
       idType: "string",
       type: vt,
       types: labels,
-      neighborsCount: neighborsCount?.totalCount || 0,
-      neighborsCountByType: neighborsCount?.counts || {},
       attributes: apiVertex["~properties"],
     },
   };
-};
-
-export default mapApiVertex;
+}

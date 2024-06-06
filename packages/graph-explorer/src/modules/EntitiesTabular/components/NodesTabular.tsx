@@ -27,8 +27,9 @@ import useDisplayNames from "../../../hooks/useDisplayNames";
 import useTextTransform from "../../../hooks/useTextTransform";
 import useTranslations from "../../../hooks/useTranslations";
 import { recoilDiffSets } from "../../../utils/recoilState";
+import useNodeCounts from "../../../hooks/useNodeCounts";
 
-type ToggleVertex = Vertex & { __is_visible: boolean };
+type ToggleVertex = Vertex & { __is_visible: boolean; neighborsCount?: number };
 
 const NodesTabular = forwardRef<TabularInstance<any>, any>((props, ref) => {
   const t = useTranslations();
@@ -40,6 +41,8 @@ const NodesTabular = forwardRef<TabularInstance<any>, any>((props, ref) => {
   const [selectedNodesIds, setSelectedNodesIds] =
     useRecoilState(nodesSelectedIdsAtom);
   const setSelectedEdgesIds = useSetRecoilState(edgesSelectedIdsAtom);
+
+  const nodeCountsMap = useNodeCounts();
 
   const onToggleVisibility = useCallback(
     (item: ToggleVertex) => {
@@ -110,7 +113,7 @@ const NodesTabular = forwardRef<TabularInstance<any>, any>((props, ref) => {
         width: 300,
       },
       {
-        accessor: "data.neighborsCount",
+        accessor: "neighborsCount",
         label: "Total Neighbors",
         overflow: "ellipsis",
         oneLine: true,
@@ -125,11 +128,14 @@ const NodesTabular = forwardRef<TabularInstance<any>, any>((props, ref) => {
   }, [config, getDisplayNames, t, onToggleVisibility, textTransform]);
 
   const data: ToggleVertex[] = useDeepMemo(() => {
-    return nodes.map(node => ({
-      ...node,
-      __is_visible: !hiddenNodesIds.has(node.data.id),
-    }));
-  }, [nodes, hiddenNodesIds]);
+    return nodes.map(
+      (node): ToggleVertex => ({
+        ...node,
+        __is_visible: !hiddenNodesIds.has(node.data.id),
+        neighborsCount: nodeCountsMap.get(node.data.id)?.data?.totalCount,
+      })
+    );
+  }, [nodes, hiddenNodesIds, nodeCountsMap]);
 
   const onSelectRows = useCallback(
     (rowIndex: string) => {

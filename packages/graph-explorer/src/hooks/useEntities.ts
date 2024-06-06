@@ -53,40 +53,6 @@ const useEntities = ({ disableFilters }: { disableFilters?: boolean } = {}): [
           )?.hidden;
         });
 
-        // Update counts filtering by defined and not hidden
-        const nodesWithoutHiddenCounts = filteredNodes.map(node => {
-          const [totalNeighborCount, totalNeighborCounts] = Object.entries(
-            node.data.neighborsCountByType
-          ).reduce(
-            (totalNeighborsCounts, [type, count]) => {
-              if (
-                !config?.schema?.vertices.find(
-                  vertex => vertex.type === node.data.type
-                )?.hidden
-              ) {
-                totalNeighborsCounts[1][type] = count;
-              } else {
-                totalNeighborsCounts[0] -= count;
-              }
-
-              return totalNeighborsCounts;
-            },
-            [node.data.neighborsCount, {}] as [
-              number,
-              typeof node.data.neighborsCountByType,
-            ]
-          );
-
-          return {
-            ...node,
-            data: {
-              ...node.data,
-              neighborsCount: totalNeighborCount,
-              neighborsCountByType: totalNeighborCounts,
-            },
-          };
-        });
-
         // Filter edges that are defined and not hidden
         const filteredEdges = nextEntities.edges.filter(edge => {
           return !config?.schema?.edges.find(e => e.type === edge.data.type)
@@ -94,7 +60,7 @@ const useEntities = ({ disableFilters }: { disableFilters?: boolean } = {}): [
         });
 
         set(entitiesSelector, {
-          nodes: nodesWithoutHiddenCounts,
+          nodes: filteredNodes,
           edges: filteredEdges,
           preserveSelection: nextEntities.preserveSelection,
           selectNewEntities: nextEntities.selectNewEntities,

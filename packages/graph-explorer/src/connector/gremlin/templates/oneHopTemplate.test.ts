@@ -9,7 +9,7 @@ describe("Gremlin > oneHopTemplate", () => {
 
     expect(template).toBe(
       'g.V("12").project("vertices", "edges")' +
-        ".by(both().dedup().range(0, 10).fold())" +
+        ".by(both().dedup().fold())" +
         ".by(bothE().dedup().fold())"
     );
   });
@@ -18,6 +18,7 @@ describe("Gremlin > oneHopTemplate", () => {
     const template = oneHopTemplate({
       vertexId: "12",
       idType: "number",
+      limit: 10,
     });
 
     expect(template).toBe(

@@ -40,7 +40,6 @@ import {
   userStylingAtom,
   VertexPreferences,
 } from "../../core/StateProvider/userPreferences";
-import { useEntities } from "../../hooks";
 import useFetchNode from "../../hooks/useFetchNode";
 import usePrefixesUpdater from "../../hooks/usePrefixesUpdater";
 import useTextTransform from "../../hooks/useTextTransform";
@@ -48,6 +47,7 @@ import useTranslations from "../../hooks/useTranslations";
 import useUpdateVertexTypeCounts from "../../hooks/useUpdateVertexTypeCounts";
 import TopBarWithLogo from "../common/TopBarWithLogo";
 import defaultStyles from "./DataExplorer.styles";
+import entitiesSelector from "../../core/StateProvider/entitiesSelector";
 
 export type ConnectionsProps = {
   classNamePrefix?: string;
@@ -68,7 +68,7 @@ const DataExplorer = ({ classNamePrefix = "ft" }: ConnectionsProps) => {
   const t = useTranslations();
   const explorer = useRecoilValue(explorerSelector);
   const fetchNode = useFetchNode();
-  const [entities] = useEntities({ disableFilters: true });
+  const entities = useRecoilValue(entitiesSelector);
 
   // Automatically updates counts if needed
   useUpdateVertexTypeCounts(vertexType);
@@ -165,7 +165,7 @@ const DataExplorer = ({ classNamePrefix = "ft" }: ConnectionsProps) => {
               size={"small"}
               iconPlacement={"start"}
               onPress={() => {
-                fetchNode(cell.row.original, pageSize);
+                fetchNode(cell.row.original);
               }}
             >
               {isInExplorer ? "Sent to Explorer" : "Send to Explorer"}
@@ -176,14 +176,7 @@ const DataExplorer = ({ classNamePrefix = "ft" }: ConnectionsProps) => {
     });
 
     return vtColumns;
-  }, [
-    entities.nodes,
-    fetchNode,
-    pageSize,
-    t,
-    textTransform,
-    vertexConfig?.attributes,
-  ]);
+  }, [entities.nodes, fetchNode, t, textTransform, vertexConfig?.attributes]);
 
   const selectOptions = useMemo(() => {
     const options =

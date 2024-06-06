@@ -1,6 +1,14 @@
 import { cx } from "@emotion/css";
 import { Vertex } from "../../../@types/entities";
-import { Chip, Tooltip, VertexIcon, VisibleIcon } from "../../../components";
+import {
+  Chip,
+  LoadingSpinner,
+  PanelEmptyState,
+  PanelError,
+  Tooltip,
+  VertexIcon,
+  VisibleIcon,
+} from "../../../components";
 import { useWithTheme, withClassNamePrefix } from "../../../core";
 import useNeighborsOptions from "../../../hooks/useNeighborsOptions";
 import defaultStyles from "./NeighborsList.styles";
@@ -10,13 +18,12 @@ export type NeighborsListProps = {
   vertex: Vertex;
 };
 
-const NeighborsList = ({
+export default function NeighborsList({
   classNamePrefix = "ft",
   vertex,
-}: NeighborsListProps) => {
+}: NeighborsListProps) {
   const styleWithTheme = useWithTheme();
   const pfx = withClassNamePrefix(classNamePrefix);
-  const neighborsOptions = useNeighborsOptions(vertex);
 
   return (
     <div
@@ -25,13 +32,29 @@ const NeighborsList = ({
         pfx("section")
       )}
     >
-      <div className={pfx("title")}>
-        Neighbors ({vertex.data.neighborsCount})
-      </div>
-      {neighborsOptions.map(op => {
-        const neighborsInView =
-          vertex.data.neighborsCountByType[op.value] -
-          (vertex.data.__unfetchedNeighborCounts?.[op.value] ?? 0);
+      <Content classNamePrefix={classNamePrefix} vertex={vertex} />
+    </div>
+  );
+}
+
+function Content({ classNamePrefix = "ft", vertex }: NeighborsListProps) {
+  const pfx = withClassNamePrefix(classNamePrefix);
+  const query = useNeighborsOptions(vertex);
+
+  if (query.isError) {
+    return <PanelError error={query.error} onRetry={query.refetch} />;
+  }
+
+  if (!query.data) {
+    return (
+      <PanelEmptyState icon={<LoadingSpinner />} title={"Loading Neighbors"} />
+    );
+  }
+
+  return (
+    <>
+      <div className={pfx("title")}>Neighbors ({query.data.totalCount})</div>
+      {query.data.options.map(op => {
         return (
           <div key={op.value} className={pfx("node-item")}>
             <div className={pfx("vertex-type")}>
@@ -48,22 +71,16 @@ const NeighborsList = ({
               {op.label}
             </div>
             <div className={pfx("vertex-totals")}>
-              <Tooltip
-                text={`${neighborsInView} ${op.label} in the Graph View`}
-              >
+              <Tooltip text={`${op.addedCount} ${op.label} in the Graph View`}>
                 <Chip className={pfx("chip")} startAdornment={<VisibleIcon />}>
-                  {neighborsInView}
+                  {op.addedCount}
                 </Chip>
               </Tooltip>
-              <Chip className={pfx("chip")}>
-                {vertex.data.neighborsCountByType[op.value]}
-              </Chip>
+              <Chip className={pfx("chip")}>{op.totalCount}</Chip>
             </div>
           </div>
         );
       })}
-    </div>
+    </>
   );
-};
-
-export default NeighborsList;
+}

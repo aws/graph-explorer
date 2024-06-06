@@ -180,8 +180,6 @@ export function createRandomVertex(): Vertex {
       idType: "string",
       type: createRandomName("VertexType"),
       attributes: createRecord(3, createRandomEntityAttribute),
-      neighborsCount: 0,
-      neighborsCountByType: {},
     },
   };
 }

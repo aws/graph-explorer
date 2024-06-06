@@ -5,12 +5,14 @@ import { useConfiguration } from "../../core";
 import { nodesAtom } from "../../core/StateProvider/nodes";
 import useDisplayNames from "../../hooks/useDisplayNames";
 import useTextTransform from "../../hooks/useTextTransform";
+import useNodeCounts from "../../hooks/useNodeCounts";
 
 const useNodeBadges = () => {
   const config = useConfiguration();
   const textTransform = useTextTransform();
   const getDisplayNames = useDisplayNames();
   const nodes = useRecoilValue(nodesAtom);
+  const nodeCountsMap = useNodeCounts();
 
   const nodesCurrentNames = useMemo(() => {
     return nodes.reduce(
@@ -33,6 +35,22 @@ const useNodeBadges = () => {
         // Ensure we have the node name and title
         const name = nodesCurrentNames[nodeData.id]?.name ?? "";
         const title = nodesCurrentNames[nodeData.id]?.title ?? "";
+
+        // Render the collapsed neighbor counts
+        const nodeCounts = nodeCountsMap.get(nodeData.id);
+        const countBadge = (() => {
+          if (!nodeCounts || nodeCounts.isError) {
+            return "";
+          }
+          if (nodeCounts.isLoading) {
+            return "-";
+          }
+          // Hide the badge if the collapsed count is zero
+          if (!nodeCounts.data || nodeCounts.data.collapsedCount <= 0) {
+            return "";
+          }
+          return String(nodeCounts.data.collapsedCount);
+        })();
 
         return [
           {
@@ -59,8 +77,8 @@ const useNodeBadges = () => {
             hidden:
               zoomLevel === "small" ||
               outOfFocusIds.has(nodeData.id) ||
-              !nodeData.__unfetchedNeighborCount,
-            text: String(nodeData.__unfetchedNeighborCount),
+              !countBadge,
+            text: countBadge,
             anchor: "center",
             fontSize: 5,
             borderRadius: 4,
@@ -76,7 +94,7 @@ const useNodeBadges = () => {
           },
         ];
       },
-    [nodesCurrentNames]
+    [nodeCountsMap, nodesCurrentNames]
   );
 };
 
