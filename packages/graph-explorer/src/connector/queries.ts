@@ -1,5 +1,27 @@
 import { queryOptions } from "@tanstack/react-query";
-import { Explorer, VertexId, typeofVertexId } from "./useGEFetchTypes";
+import {
+  Explorer,
+  NeighborsRequest,
+  NeighborsResponse,
+  VertexId,
+  typeofVertexId,
+} from "./useGEFetchTypes";
+
+export const neighborsQuery = (
+  request: NeighborsRequest | null,
+  explorer: Explorer | null
+) =>
+  queryOptions({
+    queryKey: ["neighbors", request],
+    enabled: Boolean(explorer) && Boolean(request),
+    staleTime: 1000 * 60, // 1 minute cache
+    queryFn: async (): Promise<NeighborsResponse | null> => {
+      if (!explorer || !request) {
+        return null;
+      }
+      return await explorer.fetchNeighbors(request);
+    },
+  });
 
 export type NeighborCountsQueryResponse = {
   nodeId: VertexId;
