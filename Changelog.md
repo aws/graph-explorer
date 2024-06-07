@@ -6,6 +6,8 @@
 
 **Bug Fixes and Minor Changes**
 
+- Remove extraneous openCypher query when expanding nodes
+  (<https://github.com/aws/graph-explorer/pull/431>)
 - Fix edge case where node badges are stale
   (<https://github.com/aws/graph-explorer/pull/427>)
 - Fixed issue with Gremlin Server 3.7
