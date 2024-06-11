@@ -149,8 +149,7 @@ const KeywordSearch = ({
               size={"small"}
               variant={"text"}
               onPress={() => {
-                const numNeighborsLimit = neighborsLimit ? 500 : 0;
-                fetchNode(vertex, numNeighborsLimit);
+                fetchNode(vertex);
                 setInputFocused(false);
               }}
             />
@@ -168,7 +167,6 @@ const KeywordSearch = ({
     pfx,
     setEntities,
     fetchNode,
-    neighborsLimit,
   ]);
 
   const isTheNodeAdded = (nodeId: string): boolean => {
@@ -204,8 +202,7 @@ const KeywordSearch = ({
     const nodes = nodeIdsToAdd
       .map(getNodeSearchedById)
       .filter(Boolean) as Vertex[];
-    const numNeighborsLimit = neighborsLimit ? 500 : 0;
-    fetchNode(nodes, numNeighborsLimit);
+    fetchNode(nodes);
     handleOnClose();
   };
 

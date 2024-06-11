@@ -13,6 +13,14 @@ export type QueryOptions = RequestInit & {
  * The type of the vertex ID.
  */
 export type VertexIdType = "string" | "number";
+export type VertexId = string | number;
+
+export function typeofVertexId(id: VertexId): VertexIdType {
+  if (typeof id === "number") {
+    return "number";
+  }
+  return "string";
+}
 
 export type VertexSchemaResponse = Pick<
   VertexTypeConfig,

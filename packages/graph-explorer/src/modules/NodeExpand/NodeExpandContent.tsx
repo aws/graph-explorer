@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import type { Vertex } from "../../@types/entities";
 import { ModuleContainerFooter } from "../../components";
 import Button from "../../components/Button";
@@ -13,8 +13,8 @@ import useTranslations from "../../hooks/useTranslations";
 import NeighborsList from "../common/NeighborsList/NeighborsList";
 import defaultStyles from "./NodeExpandContent.styles";
 import NodeExpandFilters, { NodeExpandFilter } from "./NodeExpandFilters";
-import { NeighborsRequest } from "../../connector/useGEFetchTypes";
 import VertexHeader from "../common/VertexHeader";
+import { ExpandNodeRequest } from "../../hooks/useExpandNode";
 
 export type NodeExpandContentProps = {
   classNamePrefix?: string;
@@ -95,23 +95,22 @@ function NeighborDetails({
       <ModuleContainerFooter>
         <ExpandButton
           isDisabled={!hasUnfetchedNeighbors || !hasSelectedType}
-          vertexId={vertex.data.id}
-          idType={vertex.data.idType}
-          vertexType={(vertex.data.types ?? [vertex.data.type])?.join("::")}
-          filterByVertexTypes={[selectedType]}
-          filterCriteria={filters.map(filter => ({
-            name: filter.name,
-            operator: "LIKE",
-            value: filter.value,
-          }))}
-          // TODO - review limit and offset when data is not sorted
-          limit={limit ?? vertex.data.neighborsCount}
-          offset={
-            limit === null
-              ? 0
-              : vertex.data.neighborsCount -
-                (vertex.data.__unfetchedNeighborCount ?? 0)
-          }
+          vertex={vertex}
+          filters={{
+            filterByVertexTypes: [selectedType],
+            filterCriteria: filters.map(filter => ({
+              name: filter.name,
+              operator: "LIKE",
+              value: filter.value,
+            })),
+            // TODO - review limit and offset when data is not sorted
+            limit: limit ?? vertex.data.neighborsCount,
+            offset:
+              limit === null
+                ? 0
+                : vertex.data.neighborsCount -
+                  (vertex.data.__unfetchedNeighborCount ?? 0),
+          }}
         />
       </ModuleContainerFooter>
     </>
@@ -120,29 +119,23 @@ function NeighborDetails({
 
 function ExpandButton({
   isDisabled,
-  ...request
-}: NeighborsRequest & { isDisabled: boolean }) {
-  const expandNode = useExpandNode();
+  vertex,
+  filters,
+}: ExpandNodeRequest & { isDisabled: boolean }) {
+  const { expandNode, query } = useExpandNode();
 
-  const [isExpanding, setIsExpanding] = useState(false);
-
-  const onExpandClick = useCallback(async () => {
-    setIsExpanding(true);
-    await expandNode(request);
-    setIsExpanding(false);
-  }, [request, expandNode]);
   return (
     <Button
       icon={
-        isExpanding ? (
+        query.isLoading ? (
           <LoadingSpinner style={{ width: 24, height: 24 }} />
         ) : (
           <ExpandGraphIcon />
         )
       }
       variant={"filled"}
-      isDisabled={isExpanding || isDisabled}
-      onPress={onExpandClick}
+      isDisabled={query.isLoading || isDisabled}
+      onPress={() => expandNode(vertex, filters)}
     >
       Expand
     </Button>

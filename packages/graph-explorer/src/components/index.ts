@@ -21,6 +21,7 @@ export * from "./Chip";
 
 export { PanelEmptyState } from "./PanelEmptyState";
 export * from "./PanelEmptyState";
+export { default as PanelError } from "./PanelError";
 
 export { default as Graph } from "./Graph";
 export * from "./Graph";

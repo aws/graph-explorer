@@ -4,7 +4,6 @@ import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { Vertex } from "../../@types/entities";
 import type { ActionItem, ModuleContainerHeaderProps } from "../../components";
 import {
-  LoadingSpinner,
   ModuleContainer,
   ModuleContainerHeader,
   RemoveFromCanvasIcon,
@@ -21,7 +20,6 @@ import CloseIcon from "../../components/icons/CloseIcon";
 import InfoIcon from "../../components/icons/InfoIcon";
 import ScreenshotIcon from "../../components/icons/ScreenshotIcon";
 import ListItem from "../../components/ListItem";
-import { useNotification } from "../../components/NotificationProvider";
 import RemoteSvgIcon from "../../components/RemoteSvgIcon";
 import Select from "../../components/Select";
 import { useConfiguration } from "../../core/ConfigurationProvider";
@@ -35,12 +33,10 @@ import {
   nodesOutOfFocusIdsAtom,
   nodesSelectedIdsAtom,
 } from "../../core/StateProvider/nodes";
-import { userLayoutAtom } from "../../core/StateProvider/userPreferences";
 import useWithTheme from "../../core/ThemeProvider/useWithTheme";
 import fade from "../../core/ThemeProvider/utils/fade";
 import withClassNamePrefix from "../../core/ThemeProvider/utils/withClassNamePrefix";
 import { useEntities, useExpandNode } from "../../hooks";
-import useDisplayNames from "../../hooks/useDisplayNames";
 import useTextTransform from "../../hooks/useTextTransform";
 import defaultStyles from "./GraphViewerModule.styles";
 import ContextMenu from "./internalComponents/ContextMenu";
@@ -49,6 +45,7 @@ import useGraphGlobalActions from "./useGraphGlobalActions";
 import useGraphStyles from "./useGraphStyles";
 import useNodeBadges from "./useNodeBadges";
 import useNodeDrop from "./useNodeDrop";
+import { userLayoutAtom } from "../../core/StateProvider/userPreferences";
 
 export type GraphViewerProps = Omit<
   ModuleContainerHeaderProps,
@@ -190,21 +187,9 @@ export default function GraphViewer({
   const styles = useGraphStyles();
   const getNodeBadges = useNodeBadges();
 
-  const { enqueueNotification } = useNotification();
-  const expandNode = useExpandNode();
-  const [expandVertexName, setExpandVertexName] = useState<string | null>(null);
-  const getDisplayNames = useDisplayNames();
+  const { expandNode } = useExpandNode();
   const onNodeDoubleClick: ElementEventCallback<Vertex["data"]> = useCallback(
-    async (_, vertexData) => {
-      if (vertexData.__unfetchedNeighborCount === 0) {
-        enqueueNotification({
-          title: "No more neighbors",
-          message:
-            "This vertex has been fully expanded or it does not have connections",
-        });
-        return;
-      }
-
+    (_, vertexData) => {
       if ((vertexData.__unfetchedNeighborCount ?? 0) > 10) {
         setUserLayout(prev => ({
           ...prev,
@@ -212,19 +197,9 @@ export default function GraphViewer({
         }));
         return;
       }
-
-      const { name } = getDisplayNames({ data: vertexData });
-      setExpandVertexName(name);
-      await expandNode({
-        vertexId: vertexData.id,
-        idType: vertexData.idType,
-        vertexType: vertexData.types?.join("::") ?? vertexData.type,
-        limit: vertexData.neighborsCount,
-        offset: 0,
-      });
-      setExpandVertexName(null);
+      expandNode({ data: vertexData });
     },
-    [getDisplayNames, enqueueNotification, expandNode, setUserLayout]
+    [expandNode, setUserLayout]
   );
 
   const [layout, setLayout] = useState("F_COSE");
@@ -350,16 +325,6 @@ export default function GraphViewer({
           [pfx("drop-overlay-can-drop")]: !isOver && canDrop,
         })}
       />
-      <div
-        className={cx(pfx("drop-overlay"), pfx("expanding-overlay"), {
-          [pfx("visible")]: !!expandVertexName,
-        })}
-      >
-        <div>
-          <LoadingSpinner className={pfx("expanding-spinner")} /> Expanding{" "}
-          {expandVertexName}
-        </div>
-      </div>
     </div>
   );
 }
