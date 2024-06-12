@@ -179,6 +179,11 @@ export function ExpandNodeProvider(props: PropsWithChildren) {
   );
 }
 
+/**
+ * Hook that watches nodes added to the graph and queries the database for
+ * neighbor counts. There should be only one instance of this hook in the render
+ * pipeline since it uses effects for progress and error notifications.
+ */
 function useUpdateNodeCounts() {
   const [entities, setEntities] = useEntities();
   const explorer = useRecoilValue(explorerSelector);
@@ -263,6 +268,10 @@ function useUpdateNodeCounts() {
   }, [clearNotification, query.pending, query.hasErrors, enqueueNotification]);
 }
 
+/**
+ * Provides a callback to submit a node expansion request, the query
+ * information, and a callback to reset the request state.
+ */
 export default function useExpandNode() {
   const value = useContext(ExpandNodeContext);
   if (!value) {
