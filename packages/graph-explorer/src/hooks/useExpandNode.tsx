@@ -42,6 +42,7 @@ export type ExpandNodeRequest = {
 
 export type ExpandNodeContextType = {
   expandNode: (vertex: Vertex, filters?: ExpandNodeFilters) => void;
+  reset: () => void;
   query: UseQueryResult<NeighborsResponse | null, Error>;
 };
 
@@ -129,11 +130,11 @@ export function ExpandNodeProvider(props: PropsWithChildren) {
 
     // Reset the expand request
     setExpandNodeRequest(null);
-  }, [query.data, setEntities]);
+  }, [query.data, setEntities, setExpandNodeRequest]);
 
   const expandNode = useCallback(
     (vertex: Vertex, filters?: ExpandNodeFilters) => {
-      const request = { vertex, filters };
+      const request: ExpandNodeRequest = { vertex, filters };
 
       // Retry error cases
       if (query.isError && isEqual(request, expandNodeRequest)) {
@@ -158,10 +159,18 @@ export function ExpandNodeProvider(props: PropsWithChildren) {
       setExpandNodeRequest(null);
       setExpandNodeRequest(request);
     },
-    [enqueueNotification, expandNodeRequest, query]
+    [enqueueNotification, expandNodeRequest, query, setExpandNodeRequest]
   );
 
-  const value: ExpandNodeContextType = { expandNode, query };
+  // Reset is needed when changing connections and there was an error that
+  // preserves the request state. I tried making the state a Recoil atom, but it
+  // caused a crash for some reason. It would be worth retrying that approach
+  // if we move to Jotai.
+  const reset = useCallback(() => {
+    setExpandNodeRequest(null);
+  }, []);
+
+  const value: ExpandNodeContextType = { expandNode, query, reset };
 
   return (
     <ExpandNodeContext.Provider value={value}>

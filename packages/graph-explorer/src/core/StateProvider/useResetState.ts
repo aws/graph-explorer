@@ -15,11 +15,15 @@ import {
   nodesSelectedIdsAtom,
   nodesTypesFilteredAtom,
 } from "./nodes";
+import useExpandNode from "../../hooks/useExpandNode";
 
-const useResetState = () => {
+export default function useResetState() {
+  const { reset: resetExpandNodeRequest } = useExpandNode();
+
   return useRecoilCallback(
     ({ reset }) =>
       () => {
+        resetExpandNodeRequest();
         reset(nodesAtom);
         reset(nodesSelectedIdsAtom);
         reset(nodesHiddenIdsAtom);
@@ -33,8 +37,6 @@ const useResetState = () => {
         reset(edgesFilteredIdsAtom);
         reset(edgesTypesFilteredAtom);
       },
-    []
+    [resetExpandNodeRequest]
   );
-};
-
-export default useResetState;
+}
