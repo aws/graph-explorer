@@ -165,7 +165,7 @@ const DataExplorer = ({ classNamePrefix = "ft" }: ConnectionsProps) => {
               size={"small"}
               iconPlacement={"start"}
               onPress={() => {
-                fetchNode(cell.row.original, pageSize);
+                fetchNode(cell.row.original);
               }}
             >
               {isInExplorer ? "Sent to Explorer" : "Send to Explorer"}
@@ -176,14 +176,7 @@ const DataExplorer = ({ classNamePrefix = "ft" }: ConnectionsProps) => {
     });
 
     return vtColumns;
-  }, [
-    entities.nodes,
-    fetchNode,
-    pageSize,
-    t,
-    textTransform,
-    vertexConfig?.attributes,
-  ]);
+  }, [entities.nodes, fetchNode, t, textTransform, vertexConfig?.attributes]);
 
   const selectOptions = useMemo(() => {
     const options =
