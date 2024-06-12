@@ -48,8 +48,8 @@ const AvailableConnections = ({
   const onActiveConfigChange = useRecoilCallback(
     ({ set }) =>
       (value: string | string[]) => {
-        set(activeConfigurationAtom, value as string);
         resetState();
+        set(activeConfigurationAtom, value as string);
       },
     [resetState]
   );

@@ -23,7 +23,7 @@ export const neighborsQuery = (
   explorer: Explorer | null
 ) =>
   queryOptions({
-    queryKey: ["neighbors", request],
+    queryKey: ["neighbors", request, explorer],
     enabled: Boolean(explorer) && Boolean(request),
     staleTime: 1000 * 60, // 1 minute cache
     retry: 3,
@@ -50,7 +50,7 @@ export type NeighborCountsQueryResponse = {
  */
 export const neighborsCountQuery = (id: VertexId, explorer: Explorer | null) =>
   queryOptions({
-    queryKey: ["neighborsCount", id],
+    queryKey: ["neighborsCount", id, explorer],
     enabled: !!explorer,
     staleTime: 1000 * 60, // 1 minute cache
     retry: 3,

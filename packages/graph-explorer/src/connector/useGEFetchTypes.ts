@@ -1,6 +1,7 @@
 import { Edge, Vertex } from "../@types/entities";
 import {
   ConfigurationContextProps,
+  ConnectionConfig,
   EdgeTypeConfig,
   VertexTypeConfig,
 } from "../core";
@@ -215,6 +216,7 @@ export type ConfigurationWithConnection = Omit<
  * Graph Explorer.
  */
 export type Explorer = {
+  connection: ConnectionConfig;
   fetchSchema: (options?: any) => Promise<SchemaResponse>;
   fetchVertexCountsByType: (
     req: CountsByTypeRequest,
