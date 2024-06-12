@@ -56,7 +56,6 @@ export function createGremlinExplorer(connection: ConnectionConfig): Explorer {
       return fetchVertexTypeCounts(_gremlinFetch(connection, options), req);
     },
     async fetchNeighbors(req, options) {
-      throw new Error("Boom");
       return fetchNeighbors(_gremlinFetch(connection, options), req);
     },
     async fetchNeighborsCount(req, options) {
