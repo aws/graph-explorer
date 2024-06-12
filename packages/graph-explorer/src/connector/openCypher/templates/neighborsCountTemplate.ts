@@ -1,3 +1,4 @@
+import dedent from "dedent";
 import type { NeighborsCountRequest } from "../../useGEFetchTypes";
 
 /**
@@ -8,24 +9,21 @@ import type { NeighborsCountRequest } from "../../useGEFetchTypes";
  * ids = "44"
  * limit = 10
  *
- * MATCH (v) -[e]- (t)
+ * MATCH (v) -[]- (neighbor)
  * WHERE ID(v) = "44"
- * RETURN labels(t) AS vertexLabel, count(DISTINCT t) AS count
- * LIMIT 10
+ * WITH DISTINCT neighbor LIMIT 500
+ * RETURN labels(t) AS vertexLabel, count(neighbor) AS count
  *
  */
-const neighborsCountTemplate = ({
+export default function neighborsCountTemplate({
   vertexId,
   limit = 0,
-}: NeighborsCountRequest) => {
-  let template = "";
-  template = `MATCH (v) -[e]- (t) WHERE ID(v) = "${vertexId}" RETURN labels(t) AS vertexLabel, count(DISTINCT t) AS count`;
-
-  if (limit > 0) {
-    template += ` LIMIT ${limit}`;
-  }
-
-  return template;
-};
-
-export default neighborsCountTemplate;
+}: NeighborsCountRequest) {
+  return dedent`
+      MATCH (v)-[]-(neighbor)
+      WHERE ID(v) = "${vertexId}" 
+      WITH DISTINCT neighbor
+      ${limit > 0 ? `LIMIT ${limit}` : ``}
+      RETURN labels(neighbor) AS vertexLabel, count(DISTINCT neighbor) AS count
+    `;
+}
