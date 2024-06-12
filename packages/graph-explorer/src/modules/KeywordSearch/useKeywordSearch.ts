@@ -24,7 +24,6 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
   const [selectedAttribute, setSelectedAttribute] =
     useState(allAttributesValue);
   const [exactMatch, setExactMatch] = useState(true);
-  const [neighborsLimit, setNeighborsLimit] = useState(true);
   const textTransform = useTextTransform();
   const exactMatchOptions = [
     { label: "Exact", value: "Exact" },
@@ -64,10 +63,6 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
     setExactMatch(
       Array.isArray(value) ? value[0] === "Exact" : value === "Exact"
     );
-  }, []);
-
-  const onNeighborsLimitChange = useCallback(() => {
-    setNeighborsLimit(neighborsLimit => !neighborsLimit);
   }, []);
 
   const searchableAttributes = useMemo(() => {
@@ -189,14 +184,12 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
     vertexTypes,
     searchByAttributes,
     exactMatch,
-    neighborsLimit,
     isOpen,
   });
 
   useEffect(() => {
     setSelectedAttribute(defaultSearchAttribute);
     setExactMatch(true);
-    setNeighborsLimit(true);
   }, [selectedVertexType, defaultSearchAttribute]);
 
   return {
@@ -214,8 +207,6 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
     exactMatch,
     exactMatchOptions,
     onExactMatchChange,
-    neighborsLimit,
-    onNeighborsLimitChange,
     searchResults: data?.vertices || [],
     cancelAll,
   };
