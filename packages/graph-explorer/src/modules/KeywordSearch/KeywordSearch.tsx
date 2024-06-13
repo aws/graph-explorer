@@ -18,7 +18,6 @@ import {
   SearchSadIcon,
   Select,
   VertexIcon,
-  Checkbox,
   Button,
 } from "../../components";
 import { CarouselRef } from "../../components/Carousel/Carousel";
