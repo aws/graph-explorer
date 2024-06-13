@@ -86,13 +86,6 @@ const defaultStyles =
         &.${pfx}-visible {
           display: flex;
         }
-
-        .${pfx}-expanding-spinner {
-          color: ${theme.palette.text.secondary};
-          width: 24px;
-          height: 24px;
-          margin-right: ${theme.spacing["4x"]};
-        }
       }
 
       .${pfx}-legend-container {
