@@ -40,7 +40,6 @@ export type ExpandNodeRequest = {
 
 export type ExpandNodeContextType = {
   expandNode: (vertex: Vertex, filters?: ExpandNodeFilters) => void;
-  reset: () => void;
   isPending: boolean;
 };
 
@@ -135,18 +134,9 @@ export function ExpandNodeProvider(props: PropsWithChildren) {
     [enqueueNotification, mutation]
   );
 
-  // Reset is needed when changing connections and there was an error that
-  // preserves the request state. I tried making the state a Recoil atom, but it
-  // caused a crash for some reason. It would be worth retrying that approach
-  // if we move to Jotai.
-  const reset = useCallback(() => {
-    // setExpandNodeRequest(null);
-  }, []);
-
   const value: ExpandNodeContextType = {
     expandNode,
     isPending: mutation.isPending,
-    reset,
   };
 
   return (
