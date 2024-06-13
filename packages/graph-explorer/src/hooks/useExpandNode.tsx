@@ -4,7 +4,6 @@ import {
   useCallback,
   useContext,
   useEffect,
-  useState,
 } from "react";
 import { useNotification } from "../components/NotificationProvider";
 import type {
@@ -14,11 +13,10 @@ import type {
 import { explorerSelector } from "../core/connector";
 import useEntities from "./useEntities";
 import { useRecoilValue } from "recoil";
-import { UseQueryResult, useQueries, useQuery } from "@tanstack/react-query";
-import { neighborsCountQuery, neighborsQuery } from "../connector/queries";
+import { useMutation, useQueries } from "@tanstack/react-query";
+import { neighborsCountQuery } from "../connector/queries";
 import useDisplayNames from "./useDisplayNames";
 import { Vertex } from "../@types/entities";
-import { isEqual } from "lodash";
 
 /*
 
@@ -43,7 +41,7 @@ export type ExpandNodeRequest = {
 export type ExpandNodeContextType = {
   expandNode: (vertex: Vertex, filters?: ExpandNodeFilters) => void;
   reset: () => void;
-  query: UseQueryResult<NeighborsResponse | null, Error>;
+  isPending: boolean;
 };
 
 const ExpandNodeContext = createContext<ExpandNodeContextType | null>(null);
@@ -52,98 +50,74 @@ export function ExpandNodeProvider(props: PropsWithChildren) {
   // Wires up node count query in response to new nodes in the graph
   useUpdateNodeCounts();
 
-  const [expandNodeRequest, setExpandNodeRequest] =
-    useState<ExpandNodeRequest | null>(null);
-
-  // Perform the query when a request exists
-  const request: NeighborsRequest | null = expandNodeRequest && {
-    vertexId: expandNodeRequest.vertex.data.id,
-    idType: expandNodeRequest.vertex.data.idType,
-    vertexType:
-      expandNodeRequest.vertex.data.types?.join("::") ??
-      expandNodeRequest.vertex.data.type,
-    ...expandNodeRequest.filters,
-  };
   const explorer = useRecoilValue(explorerSelector);
-  const query = useQuery(neighborsQuery(request, explorer));
-
+  const [_, setEntities] = useEntities();
   const { enqueueNotification, clearNotification } = useNotification();
   const getDisplayNames = useDisplayNames();
 
+  const mutation = useMutation({
+    mutationFn: async (
+      expandNodeRequest: ExpandNodeRequest
+    ): Promise<NeighborsResponse | null> => {
+      // Perform the query when a request exists
+      const request: NeighborsRequest | null = expandNodeRequest && {
+        vertexId: expandNodeRequest.vertex.data.id,
+        idType: expandNodeRequest.vertex.data.idType,
+        vertexType:
+          expandNodeRequest.vertex.data.types?.join("::") ??
+          expandNodeRequest.vertex.data.type,
+        ...expandNodeRequest.filters,
+      };
+
+      if (!explorer || !request) {
+        return null;
+      }
+
+      return await explorer.fetchNeighbors(request);
+    },
+    onSuccess: data => {
+      if (!data) {
+        return;
+      }
+      // Update nodes and edges in the graph
+      setEntities({
+        nodes: data.vertices,
+        edges: data.edges,
+      });
+    },
+    onError: (error, request) => {
+      const displayName = getDisplayNames(request.vertex);
+      // Notify the user of the error
+      enqueueNotification({
+        title: "Expanding Node Failed",
+        message: `Expanding the node ${displayName.name} failed with error "${error.message}"`,
+        type: "error",
+      });
+    },
+  });
+
   // Show a loading message to the user
   useEffect(() => {
-    if (!expandNodeRequest || !query.isLoading) {
+    if (!mutation.isPending) {
       return;
     }
-    const displayName = getDisplayNames(expandNodeRequest.vertex);
+    // const displayName = getDisplayNames(expandNodeRequest.vertex);
     const notificationId = enqueueNotification({
       title: "Expanding Node",
-      message: `Expanding the node ${displayName.name}`,
+      // message: `Expanding the node ${displayName.name}`,
+      message: "Expanding neighbors for the given node.",
       stackable: true,
     });
 
     return () => clearNotification(notificationId);
-  }, [
-    clearNotification,
-    enqueueNotification,
-    getDisplayNames,
-    query.isLoading,
-    expandNodeRequest,
-  ]);
-
-  // Show an error message to the user
-  const error =
-    expandNodeRequest && !query.isFetching && query.isError
-      ? query.error
-      : null;
-  useEffect(() => {
-    if (!error || !expandNodeRequest) {
-      return;
-    }
-
-    const displayName = getDisplayNames(expandNodeRequest.vertex);
-    const notificationId = enqueueNotification({
-      title: "Expanding Node Failed",
-      message: `Expanding the node ${displayName.name} failed with error "${error.message}"`,
-      type: "error",
-    });
-
-    return () => clearNotification(notificationId);
-  }, [
-    clearNotification,
-    enqueueNotification,
-    getDisplayNames,
-    expandNodeRequest,
-    error,
-  ]);
-
-  // Update the graph with the new neighbors
-  const [, setEntities] = useEntities();
-  useEffect(() => {
-    if (!query.data) {
-      return;
-    }
-    setEntities({
-      nodes: query.data.vertices,
-      edges: query.data.edges,
-    });
-
-    // Reset the expand request
-    setExpandNodeRequest(null);
-  }, [query.data, setEntities, setExpandNodeRequest]);
+  }, [clearNotification, enqueueNotification, mutation.isPending]);
 
   const expandNode = useCallback(
     (vertex: Vertex, filters?: ExpandNodeFilters) => {
       const request: ExpandNodeRequest = { vertex, filters };
 
-      // Retry error cases
-      if (query.isError && isEqual(request, expandNodeRequest)) {
-        query.refetch();
-        return;
-      }
-
       // Only allow expansion if we are not busy with another expansion
-      if (expandNodeRequest) {
+      if (mutation.isPending) {
         return;
       }
 
@@ -156,10 +130,9 @@ export function ExpandNodeProvider(props: PropsWithChildren) {
         return;
       }
 
-      setExpandNodeRequest(null);
-      setExpandNodeRequest(request);
+      mutation.mutate(request);
     },
-    [enqueueNotification, expandNodeRequest, query, setExpandNodeRequest]
+    [enqueueNotification, mutation]
   );
 
   // Reset is needed when changing connections and there was an error that
@@ -167,10 +140,14 @@ export function ExpandNodeProvider(props: PropsWithChildren) {
   // caused a crash for some reason. It would be worth retrying that approach
   // if we move to Jotai.
   const reset = useCallback(() => {
-    setExpandNodeRequest(null);
+    // setExpandNodeRequest(null);
   }, []);
 
-  const value: ExpandNodeContextType = { expandNode, query, reset };
+  const value: ExpandNodeContextType = {
+    expandNode,
+    isPending: mutation.isPending,
+    reset,
+  };
 
   return (
     <ExpandNodeContext.Provider value={value}>

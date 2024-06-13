@@ -122,19 +122,19 @@ function ExpandButton({
   vertex,
   filters,
 }: ExpandNodeRequest & { isDisabled: boolean }) {
-  const { expandNode, query } = useExpandNode();
+  const { expandNode, isPending } = useExpandNode();
 
   return (
     <Button
       icon={
-        query.isLoading ? (
+        isPending ? (
           <LoadingSpinner style={{ width: 24, height: 24 }} />
         ) : (
           <ExpandGraphIcon />
         )
       }
       variant={"filled"}
-      isDisabled={query.isLoading || isDisabled}
+      isDisabled={isPending || isDisabled}
       onPress={() => expandNode(vertex, filters)}
     >
       Expand
