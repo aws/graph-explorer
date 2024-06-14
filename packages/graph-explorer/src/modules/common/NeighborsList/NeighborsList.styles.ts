@@ -10,8 +10,6 @@ const defaultStyles =
       padding: ${theme.spacing["4x"]};
       gap: ${theme.spacing["2x"]};
       border-bottom: solid 1px ${theme.palette.divider};
-      height: 30%;
-      overflow: auto;
 
       .${pfx}-title {
         font-weight: bold;

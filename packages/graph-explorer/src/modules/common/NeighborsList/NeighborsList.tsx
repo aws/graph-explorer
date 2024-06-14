@@ -1,9 +1,16 @@
 import { cx } from "@emotion/css";
 import { Vertex } from "../../../@types/entities";
-import { Chip, Tooltip, VertexIcon, VisibleIcon } from "../../../components";
+import {
+  Button,
+  Chip,
+  Tooltip,
+  VertexIcon,
+  VisibleIcon,
+} from "../../../components";
 import { useWithTheme, withClassNamePrefix } from "../../../core";
 import useNeighborsOptions from "../../../hooks/useNeighborsOptions";
 import defaultStyles from "./NeighborsList.styles";
+import { useState } from "react";
 
 export type NeighborsListProps = {
   classNamePrefix?: string;
@@ -17,6 +24,10 @@ const NeighborsList = ({
   const styleWithTheme = useWithTheme();
   const pfx = withClassNamePrefix(classNamePrefix);
   const neighborsOptions = useNeighborsOptions(vertex);
+  const [showMore, setShowMore] = useState(false);
+  const maxStartingItems = 5;
+  const hasMore = neighborsOptions.length > maxStartingItems;
+  const extraCount = hasMore ? neighborsOptions.length - maxStartingItems : 0;
 
   return (
     <div
@@ -28,7 +39,7 @@ const NeighborsList = ({
       <div className={pfx("title")}>
         Neighbors ({vertex.data.neighborsCount})
       </div>
-      {neighborsOptions.map(op => {
+      {neighborsOptions.slice(0, showMore ? undefined : 5).map(op => {
         const neighborsInView =
           vertex.data.neighborsCountByType[op.value] -
           (vertex.data.__unfetchedNeighborCounts?.[op.value] ?? 0);
@@ -62,6 +73,14 @@ const NeighborsList = ({
           </div>
         );
       })}
+
+      {hasMore ? (
+        <Button variant="text" onPress={() => setShowMore(prev => !prev)}>
+          {showMore
+            ? `Hide ${extraCount} additional neighbors`
+            : `Show ${extraCount} additional neighbors`}
+        </Button>
+      ) : null}
     </div>
   );
 };
