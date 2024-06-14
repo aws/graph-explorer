@@ -8,6 +8,7 @@ const defaultStyles =
     height: 100%;
     display: flex;
     flex-direction: column;
+    overflow-y: scroll;
     background: ${theme.palette.background.default};
 
     .${pfx}-empty-panel-state {
