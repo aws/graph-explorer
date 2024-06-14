@@ -11,6 +11,7 @@ import type { ThemeProviderProps } from "../ThemeProvider/ThemeProvider";
 import ThemeProvider from "../ThemeProvider/ThemeProvider";
 import { MantineProvider } from "@mantine/core";
 import { emotionTransform, MantineEmotionProvider } from "@mantine/emotion";
+import { ExpandNodeProvider } from "../../hooks/useExpandNode";
 
 export type ConnectedProviderProps = {
   config?: RawConfiguration;
@@ -39,7 +40,7 @@ const ConnectedProvider = (
                 <NotificationProvider component={Toast}>
                   <StateProvider>
                     <AppStatusLoader config={config}>
-                      {children}
+                      <ExpandNodeProvider>{children}</ExpandNodeProvider>
                     </AppStatusLoader>
                   </StateProvider>
                 </NotificationProvider>

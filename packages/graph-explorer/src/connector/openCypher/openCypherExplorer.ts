@@ -28,6 +28,7 @@ export function createOpenCypherExplorer(
 ): Explorer {
   const serviceType = connection.serviceType || DEFAULT_SERVICE_TYPE;
   return {
+    connection: connection,
     async fetchSchema(options) {
       let summary;
       try {

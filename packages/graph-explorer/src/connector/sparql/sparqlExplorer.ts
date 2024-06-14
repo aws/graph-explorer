@@ -153,6 +153,7 @@ export function createSparqlExplorer(
   blankNodes: BlankNodesMap
 ): Explorer {
   return {
+    connection: connection,
     async fetchSchema(options) {
       let summary;
       try {

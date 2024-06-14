@@ -1,6 +1,7 @@
 import { Edge, Vertex } from "../@types/entities";
 import {
   ConfigurationContextProps,
+  ConnectionConfig,
   EdgeTypeConfig,
   VertexTypeConfig,
 } from "../core";
@@ -13,6 +14,14 @@ export type QueryOptions = RequestInit & {
  * The type of the vertex ID.
  */
 export type VertexIdType = "string" | "number";
+export type VertexId = string | number;
+
+export function typeofVertexId(id: VertexId): VertexIdType {
+  if (typeof id === "number") {
+    return "number";
+  }
+  return "string";
+}
 
 export type VertexSchemaResponse = Pick<
   VertexTypeConfig,
@@ -207,6 +216,7 @@ export type ConfigurationWithConnection = Omit<
  * Graph Explorer.
  */
 export type Explorer = {
+  connection: ConnectionConfig;
   fetchSchema: (options?: any) => Promise<SchemaResponse>;
   fetchVertexCountsByType: (
     req: CountsByTypeRequest,

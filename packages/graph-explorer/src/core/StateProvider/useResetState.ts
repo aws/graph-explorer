@@ -16,7 +16,7 @@ import {
   nodesTypesFilteredAtom,
 } from "./nodes";
 
-const useResetState = () => {
+export default function useResetState() {
   return useRecoilCallback(
     ({ reset }) =>
       () => {
@@ -35,6 +35,4 @@ const useResetState = () => {
       },
     []
   );
-};
-
-export default useResetState;
+}

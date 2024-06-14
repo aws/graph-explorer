@@ -18,7 +18,6 @@ import {
   SearchSadIcon,
   Select,
   VertexIcon,
-  Checkbox,
   Button,
 } from "../../components";
 import { CarouselRef } from "../../components/Carousel/Carousel";
@@ -75,8 +74,6 @@ const KeywordSearch = ({
     exactMatch,
     exactMatchOptions,
     onExactMatchChange,
-    neighborsLimit,
-    onNeighborsLimitChange,
     cancelAll,
   } = useKeywordSearch({
     isOpen: isFocused,
@@ -149,8 +146,7 @@ const KeywordSearch = ({
               size={"small"}
               variant={"text"}
               onPress={() => {
-                const numNeighborsLimit = neighborsLimit ? 500 : 0;
-                fetchNode(vertex, numNeighborsLimit);
+                fetchNode(vertex);
                 setInputFocused(false);
               }}
             />
@@ -168,7 +164,6 @@ const KeywordSearch = ({
     pfx,
     setEntities,
     fetchNode,
-    neighborsLimit,
   ]);
 
   const isTheNodeAdded = (nodeId: string): boolean => {
@@ -204,8 +199,7 @@ const KeywordSearch = ({
     const nodes = nodeIdsToAdd
       .map(getNodeSearchedById)
       .filter(Boolean) as Vertex[];
-    const numNeighborsLimit = neighborsLimit ? 500 : 0;
-    fetchNode(nodes, numNeighborsLimit);
+    fetchNode(nodes);
     handleOnClose();
   };
 
@@ -424,13 +418,6 @@ const KeywordSearch = ({
                 <HumanReadableNumberFormatter value={currentTotal} />
               )}
             </span>
-            <Checkbox
-              isSelected={neighborsLimit}
-              onChange={onNeighborsLimitChange}
-              className={pfx("refuse-shrink")}
-            >
-              Limit Neighbors?
-            </Checkbox>
             <Button
               icon={<RemoveIcon />}
               onPress={() => selection.clear()}

@@ -11,7 +11,6 @@ export type SearchQueryRequest = {
   vertexTypes?: string[];
   searchByAttributes: string[];
   exactMatch: boolean;
-  neighborsLimit: boolean;
   isOpen: boolean;
 };
 
@@ -20,7 +19,6 @@ export function useKeywordSearchQuery({
   vertexTypes,
   searchByAttributes,
   exactMatch,
-  neighborsLimit,
   isOpen,
 }: SearchQueryRequest) {
   const explorer = useRecoilValue(explorerSelector);
@@ -35,15 +33,8 @@ export function useKeywordSearchQuery({
       vertexTypes,
       searchByAttributes,
       exactMatch,
-      neighborsLimit,
     ],
-    [
-      debouncedSearchTerm,
-      vertexTypes,
-      searchByAttributes,
-      exactMatch,
-      neighborsLimit,
-    ]
+    [debouncedSearchTerm, vertexTypes, searchByAttributes, exactMatch]
   );
 
   const query = useQuery({

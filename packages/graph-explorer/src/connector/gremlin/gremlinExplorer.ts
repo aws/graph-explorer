@@ -32,6 +32,7 @@ function _gremlinFetch(connection: ConnectionConfig, options: any) {
 
 export function createGremlinExplorer(connection: ConnectionConfig): Explorer {
   return {
+    connection: connection,
     async fetchSchema(options) {
       let summary;
       try {

@@ -4,6 +4,11 @@
 
 **Major Changes**
 
+- Added notification for errors in node expansion and neighbor counts
+  (<https://github.com/aws/graph-explorer/pull/434>)
+- Added caching and retries to node expansion and neighbor counts
+  (<https://github.com/aws/graph-explorer/pull/434>)
+
 **Bug Fixes and Minor Changes**
 
 - Remove extraneous openCypher query when expanding nodes
