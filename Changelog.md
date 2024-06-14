@@ -8,6 +8,8 @@
   (<https://github.com/aws/graph-explorer/pull/434>)
 - Added caching and retries to node expansion and neighbor counts
   (<https://github.com/aws/graph-explorer/pull/434>)
+- Improved scrolling behavior in expand sidebar
+  (<https://github.com/aws/graph-explorer/pull/436>)
 
 **Bug Fixes and Minor Changes**
 
