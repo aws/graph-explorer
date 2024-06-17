@@ -196,7 +196,7 @@ const DataExplorer = ({ classNamePrefix = "ft" }: ConnectionsProps) => {
 
   const updatePrefixes = usePrefixesUpdater();
   const { data, isFetching } = useQuery({
-    queryKey: ["keywordSearch", vertexType, pageIndex, pageSize],
+    queryKey: ["keywordSearch", vertexType, pageIndex, pageSize, explorer],
     queryFn: () => {
       if (!vertexType || !explorer) {
         return { vertices: [] } as KeywordSearchResponse;

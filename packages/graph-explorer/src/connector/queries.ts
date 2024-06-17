@@ -7,10 +7,6 @@ import {
   typeofVertexId,
 } from "./useGEFetchTypes";
 
-function exponentialBackoff(attempt: number): number {
-  return Math.min(attempt > 1 ? 2 ** attempt * 1000 : 1000, 30 * 1000);
-}
-
 /**
  * Retrieves the neighbor info for the given node using the provided filters to
  * limit the results.
@@ -25,9 +21,6 @@ export const neighborsQuery = (
   queryOptions({
     queryKey: ["neighbors", request, explorer],
     enabled: Boolean(explorer) && Boolean(request),
-    staleTime: 1000 * 60, // 1 minute cache
-    retry: 3,
-    retryDelay: exponentialBackoff,
     queryFn: async (): Promise<NeighborsResponse | null> => {
       if (!explorer || !request) {
         return null;
@@ -51,10 +44,7 @@ export type NeighborCountsQueryResponse = {
 export const neighborsCountQuery = (id: VertexId, explorer: Explorer | null) =>
   queryOptions({
     queryKey: ["neighborsCount", id, explorer],
-    enabled: !!explorer,
-    staleTime: 1000 * 60, // 1 minute cache
-    retry: 3,
-    retryDelay: exponentialBackoff,
+    enabled: Boolean(explorer),
     queryFn: async (): Promise<NeighborCountsQueryResponse | undefined> => {
       const result = await explorer?.fetchNeighborsCount({
         vertexId: id.toString(),
