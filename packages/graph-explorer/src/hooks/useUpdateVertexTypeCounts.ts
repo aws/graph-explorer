@@ -11,7 +11,7 @@ const useUpdateVertexTypeCounts = (vertexType?: string) => {
   const explorer = useRecoilValue(explorerSelector);
 
   const query = useQuery({
-    queryKey: ["fetchCountsByType", vertexType],
+    queryKey: ["fetchCountsByType", vertexType, explorer],
     queryFn: () => {
       if (!vertexType) {
         return { total: 0 };
