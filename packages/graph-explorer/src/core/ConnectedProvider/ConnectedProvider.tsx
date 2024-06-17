@@ -13,15 +13,22 @@ import ThemeProvider from "../ThemeProvider/ThemeProvider";
 import { MantineProvider } from "@mantine/core";
 import { emotionTransform, MantineEmotionProvider } from "@mantine/emotion";
 import { ExpandNodeProvider } from "../../hooks/useExpandNode";
+import { env } from "../../utils";
 
 export type ConnectedProviderProps = {
   config?: RawConfiguration;
 } & ThemeProviderProps;
 
+function exponentialBackoff(attempt: number): number {
+  return Math.min(attempt > 1 ? 2 ** attempt * 1000 : 1000, 30 * 1000);
+}
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: 0,
+      retry: 3,
+      retryDelay: exponentialBackoff,
+      staleTime: 1000 * 60, // 1 minute cache
       refetchOnWindowFocus: false,
     },
   },
