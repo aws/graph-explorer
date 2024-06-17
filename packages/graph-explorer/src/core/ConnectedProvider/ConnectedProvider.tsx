@@ -13,7 +13,6 @@ import ThemeProvider from "../ThemeProvider/ThemeProvider";
 import { MantineProvider } from "@mantine/core";
 import { emotionTransform, MantineEmotionProvider } from "@mantine/emotion";
 import { ExpandNodeProvider } from "../../hooks/useExpandNode";
-import { env } from "../../utils";
 
 export type ConnectedProviderProps = {
   config?: RawConfiguration;
