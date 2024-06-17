@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNotification } from "../../components/NotificationProvider";
 import { explorerSelector } from "../../core/connector";
 import usePrefixesUpdater from "../../hooks/usePrefixesUpdater";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect } from "react";
 import { createDisplayError } from "../../utils/createDisplayError";
 import { useRecoilValue } from "recoil";
 
@@ -26,22 +26,18 @@ export function useKeywordSearchQuery({
   const { enqueueNotification } = useNotification();
   const queryClient = useQueryClient();
 
-  const queryKey = useMemo(
-    () => [
+  const query = useQuery({
+    queryKey: [
       "keyword-search",
       debouncedSearchTerm,
       vertexTypes,
       searchByAttributes,
       exactMatch,
+      explorer,
     ],
-    [debouncedSearchTerm, vertexTypes, searchByAttributes, exactMatch]
-  );
-
-  const query = useQuery({
-    queryKey,
     queryFn: async ({ signal }) => {
       if (!explorer) {
-        return;
+        return { vertices: [] };
       }
 
       return await explorer.keywordSearch(
@@ -55,7 +51,7 @@ export function useKeywordSearchQuery({
         { signal }
       );
     },
-    enabled: isOpen && !!explorer,
+    enabled: isOpen && Boolean(explorer),
   });
 
   // Sync sparql prefixes
