@@ -4,25 +4,14 @@ import { useConfiguration } from "../core";
 import { explorerSelector } from "../core/connector";
 import useUpdateSchema from "./useUpdateSchema";
 import { useRecoilValue } from "recoil";
+import { nodeCountByNodeTypeQuery } from "../connector/queries";
 
-const useUpdateVertexTypeCounts = (vertexType?: string) => {
+export default function useUpdateVertexTypeCounts(vertexType: string) {
   const config = useConfiguration();
   const configId = config?.id;
   const explorer = useRecoilValue(explorerSelector);
 
-  const query = useQuery({
-    queryKey: ["fetchCountsByType", vertexType, explorer],
-    queryFn: () => {
-      if (!vertexType) {
-        return { total: 0 };
-      }
-
-      return explorer?.fetchVertexCountsByType({
-        label: vertexType,
-      });
-    },
-    enabled: Boolean(vertexType),
-  });
+  const query = useQuery(nodeCountByNodeTypeQuery(vertexType, explorer));
 
   // Sync the result over to the schema in Recoil state
   const updateSchemaState = useUpdateSchema();
@@ -51,6 +40,4 @@ const useUpdateVertexTypeCounts = (vertexType?: string) => {
       };
     });
   }, [query.data, configId, updateSchemaState, vertexType]);
-};
-
-export default useUpdateVertexTypeCounts;
+}

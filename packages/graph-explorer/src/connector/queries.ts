@@ -1,5 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
 import {
+  CountsByTypeResponse,
   Explorer,
   NeighborsRequest,
   NeighborsResponse,
@@ -62,3 +63,23 @@ export const neighborsCountQuery = (id: VertexId, explorer: Explorer | null) =>
       };
     },
   });
+
+/**
+ * Retrieves the count of nodes for a specific node type.
+ * @param nodeType A node label or class.
+ * @param explorer The service client to use for fetching.
+ * @returns An object with the total nodes for the given node type.
+ */
+export const nodeCountByNodeTypeQuery = (
+  nodeType: string,
+  explorer: Explorer | null
+) =>
+  queryOptions({
+    queryKey: ["node-count-by-node-type", nodeType, explorer],
+    enabled: Boolean(explorer),
+    queryFn: () =>
+      explorer?.fetchVertexCountsByType({
+        label: nodeType,
+      }) ?? nodeCountByNodeTypeEmptyResponse,
+  });
+const nodeCountByNodeTypeEmptyResponse: CountsByTypeResponse = { total: 0 };

@@ -50,6 +50,7 @@ import TopBarWithLogo from "../common/TopBarWithLogo";
 import defaultStyles from "./DataExplorer.styles";
 
 export type ConnectionsProps = {
+  vertexType: string;
   classNamePrefix?: string;
 };
 
@@ -57,11 +58,24 @@ const DEFAULT_COLUMN = {
   width: 150,
 };
 
-const DataExplorer = ({ classNamePrefix = "ft" }: ConnectionsProps) => {
+export default function DataExplorer() {
+  const { vertexType } = useParams();
+
+  if (!vertexType) {
+    // React Router will redirect if vertexType is not defined before reaching here.
+    return <>No vertex type was defined</>;
+  }
+
+  return <DataExplorerContent vertexType={vertexType} />;
+}
+
+function DataExplorerContent({
+  vertexType,
+  classNamePrefix = "ft",
+}: ConnectionsProps) {
   const styleWithTheme = useWithTheme();
   const pfx = withClassNamePrefix(classNamePrefix);
   const navigate = useNavigate();
-  const { vertexType } = useParams<{ vertexType: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const config = useConfiguration();
@@ -74,10 +88,6 @@ const DataExplorer = ({ classNamePrefix = "ft" }: ConnectionsProps) => {
   useUpdateVertexTypeCounts(vertexType);
 
   const vertexConfig = useMemo(() => {
-    if (!vertexType) {
-      return;
-    }
-
     return config?.getVertexTypeConfig(vertexType);
   }, [config, vertexType]);
 
@@ -198,7 +208,7 @@ const DataExplorer = ({ classNamePrefix = "ft" }: ConnectionsProps) => {
   const { data, isFetching } = useQuery({
     queryKey: ["keywordSearch", vertexType, pageIndex, pageSize, explorer],
     queryFn: () => {
-      if (!vertexType || !explorer) {
+      if (!explorer) {
         return { vertices: [] } as KeywordSearchResponse;
       }
 
@@ -209,7 +219,7 @@ const DataExplorer = ({ classNamePrefix = "ft" }: ConnectionsProps) => {
       });
     },
     placeholderData: keepPreviousData,
-    enabled: Boolean(vertexType) && Boolean(explorer),
+    enabled: Boolean(explorer),
   });
 
   useEffect(() => {
@@ -223,10 +233,6 @@ const DataExplorer = ({ classNamePrefix = "ft" }: ConnectionsProps) => {
   const setUserStyling = useSetRecoilState(userStylingAtom);
   const onDisplayNameChange = useCallback(
     (field: "name" | "longName") => (value: string | string[]) => {
-      if (!vertexType) {
-        return;
-      }
-
       setUserStyling(prevStyling => {
         const vtItem =
           clone(prevStyling.vertices?.find(v => v.type === vertexType)) ||
@@ -355,6 +361,4 @@ const DataExplorer = ({ classNamePrefix = "ft" }: ConnectionsProps) => {
       </Workspace.Content>
     </Workspace>
   );
-};
-
-export default DataExplorer;
+}
