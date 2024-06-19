@@ -19,7 +19,15 @@ const globalMockFetch = () => {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   global.fetch = jest.fn(async (url: string) => {
-    const response = await import(RESPONSES_FILES_MAP[shortHash(url)]);
+    const key = shortHash(url);
+    const filePath = RESPONSES_FILES_MAP[key];
+    if (!filePath) {
+      throw new Error(
+        `Failed to find a response file in the map for key '${key}'`,
+        { cause: { url } }
+      );
+    }
+    const response = await import(filePath);
     return Promise.resolve({
       json: () => {
         return Promise.resolve(response);
