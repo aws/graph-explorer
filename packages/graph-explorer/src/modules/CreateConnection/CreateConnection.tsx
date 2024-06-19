@@ -31,6 +31,7 @@ type ConnectionForm = {
   awsAuthEnabled?: boolean;
   serviceType?: "neptune-db" | "neptune-graph";
   awsRegion?: string;
+  fetchTimeoutEnabled: boolean;
   fetchTimeoutMs?: number;
 };
 
@@ -63,6 +64,7 @@ const CreateConnection = ({
     ? {
         ...(existingConfig.connection || {}),
         name: existingConfig.displayLabel || existingConfig.id,
+        fetchTimeoutEnabled: Boolean(existingConfig.connection?.fetchTimeoutMs),
       }
     : undefined;
 
@@ -151,6 +153,7 @@ const CreateConnection = ({
     awsAuthEnabled: initialData?.awsAuthEnabled || false,
     serviceType: initialData?.serviceType || "neptune-db",
     awsRegion: initialData?.awsRegion || "",
+    fetchTimeoutEnabled: initialData?.fetchTimeoutEnabled || false,
     fetchTimeoutMs: initialData?.fetchTimeoutMs,
   });
 
@@ -162,6 +165,15 @@ const CreateConnection = ({
           ...prev,
           [attribute]: value,
           ["queryEngine"]: "openCypher",
+        }));
+      } else if (
+        attribute === "fetchTimeoutEnabled" &&
+        typeof value === "boolean"
+      ) {
+        setForm(prev => ({
+          ...prev,
+          [attribute]: value,
+          ["fetchTimeoutMs"]: value ? 240000 : undefined,
         }));
       } else {
         setForm(prev => ({
@@ -317,10 +329,10 @@ const CreateConnection = ({
       </div>
       <div className={pfx("configuration-form")}>
         <Checkbox
-          value={"fetchTimeoutMs"}
-          checked={!!form.fetchTimeoutMs}
+          value={"fetchTimeoutEnabled"}
+          checked={form.fetchTimeoutEnabled}
           onChange={e => {
-            onFormChange("fetchTimeoutMs")(e.target.checked);
+            onFormChange("fetchTimeoutEnabled")(e.target.checked);
           }}
           styles={{
             label: {
@@ -345,7 +357,7 @@ const CreateConnection = ({
             </div>
           }
         />
-        {form.fetchTimeoutMs && (
+        {form.fetchTimeoutEnabled && (
           <div className={pfx("input-url")}>
             <Input
               label="Fetch Timeout (ms)"
