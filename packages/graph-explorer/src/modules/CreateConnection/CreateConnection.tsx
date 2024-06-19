@@ -31,7 +31,7 @@ type ConnectionForm = {
   awsAuthEnabled?: boolean;
   serviceType?: "neptune-db" | "neptune-graph";
   awsRegion?: string;
-  fetchTimeMs?: number;
+  fetchTimeoutMs?: number;
 };
 
 export const CONNECTIONS_OP: {
@@ -65,7 +65,7 @@ const CreateConnection = ({
         name: existingConfig.displayLabel || existingConfig.id,
         url: existingConfig.connection?.url,
         queryEngine: existingConfig.connection?.queryEngine,
-        fetchTimeMs: existingConfig.connection?.fetchTimeoutMs,
+        fetchTimeoutMs: existingConfig.connection?.fetchTimeoutMs,
         serviceType: existingConfig.connection?.serviceType,
       }
     : undefined;
@@ -86,7 +86,7 @@ const CreateConnection = ({
               awsAuthEnabled: data.awsAuthEnabled,
               serviceType: data.serviceType,
               awsRegion: data.awsRegion,
-              fetchTimeoutMs: data.fetchTimeMs,
+              fetchTimeoutMs: data.fetchTimeoutMs,
             },
           };
           set(configurationAtom, prevConfigMap => {
@@ -114,7 +114,7 @@ const CreateConnection = ({
               awsAuthEnabled: data.awsAuthEnabled,
               serviceType: data.serviceType,
               awsRegion: data.awsRegion,
-              fetchTimeoutMs: data.fetchTimeMs,
+              fetchTimeoutMs: data.fetchTimeoutMs,
             },
           });
           return updatedConfig;
@@ -155,7 +155,7 @@ const CreateConnection = ({
     awsAuthEnabled: initialData?.awsAuthEnabled || false,
     serviceType: initialData?.serviceType || "neptune-db",
     awsRegion: initialData?.awsRegion || "",
-    fetchTimeMs: initialData?.fetchTimeMs,
+    fetchTimeoutMs: initialData?.fetchTimeoutMs,
   });
 
   const [hasError, setError] = useState(false);
@@ -322,9 +322,9 @@ const CreateConnection = ({
       <div className={pfx("configuration-form")}>
         <Checkbox
           value={"fetchTimeoutMs"}
-          checked={!!form.fetchTimeMs}
+          checked={!!form.fetchTimeoutMs}
           onChange={e => {
-            onFormChange("fetchTimeMs")(e.target.checked);
+            onFormChange("fetchTimeoutMs")(e.target.checked);
           }}
           styles={{
             label: {
@@ -349,13 +349,13 @@ const CreateConnection = ({
             </div>
           }
         />
-        {form.fetchTimeMs && (
+        {form.fetchTimeoutMs && (
           <div className={pfx("input-url")}>
             <Input
               label="Fetch Timeout (ms)"
               type={"number"}
-              value={form.fetchTimeMs}
-              onChange={onFormChange("fetchTimeMs")}
+              value={form.fetchTimeoutMs}
+              onChange={onFormChange("fetchTimeoutMs")}
               min={0}
             />
           </div>
