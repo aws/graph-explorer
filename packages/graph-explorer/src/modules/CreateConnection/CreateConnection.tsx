@@ -70,9 +70,9 @@ const CreateConnection = ({
   const pfx = withClassNamePrefix("ft");
 
   const configId = existingConfig?.id;
-  const disabledFields = existingConfig?.__fileBase
+  const disabledFields: (keyof ConnectionForm)[] = existingConfig?.__fileBase
     ? ["queryEngine", "url", "serviceType"]
-    : undefined;
+    : [];
   const initialData: ConnectionForm | undefined = existingConfig
     ? {
         ...(existingConfig.connection || {}),
@@ -212,7 +212,7 @@ const CreateConnection = ({
           onChange={onFormChange("name")}
           errorMessage={"Name is required"}
           validationState={hasError && !form.name ? "invalid" : "valid"}
-          isDisabled={disabledFields?.includes("name")}
+          isDisabled={disabledFields.includes("name")}
         />
         <Select
           label={"Graph Type"}
@@ -220,7 +220,7 @@ const CreateConnection = ({
           value={form.queryEngine}
           onChange={onFormChange("queryEngine")}
           isDisabled={
-            disabledFields?.includes("queryEngine") ||
+            disabledFields.includes("queryEngine") ||
             form.serviceType === "neptune-graph"
           }
         />
@@ -252,7 +252,7 @@ const CreateConnection = ({
             errorMessage={"URL is required"}
             placeholder={"https://example.com"}
             validationState={hasError && !form.url ? "invalid" : "valid"}
-            isDisabled={disabledFields?.includes("url")}
+            isDisabled={disabledFields.includes("url")}
           />
         </div>
         <div className={pfx("input-url")}>
@@ -317,7 +317,7 @@ const CreateConnection = ({
                 ]}
                 value={form.serviceType}
                 onChange={onFormChange("serviceType")}
-                isDisabled={disabledFields?.includes("serviceType")}
+                isDisabled={disabledFields.includes("serviceType")}
               />
             </div>
           </>
