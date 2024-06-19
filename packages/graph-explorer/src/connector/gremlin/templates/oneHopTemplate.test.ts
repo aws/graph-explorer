@@ -9,7 +9,7 @@ describe("Gremlin > oneHopTemplate", () => {
 
     expect(template).toBe(
       'g.V("12").project("vertices", "edges")' +
-        ".by(both().dedup().range(0, 10).fold())" +
+        ".by(both().dedup().fold())" +
         ".by(bothE().dedup().fold())"
     );
   });
@@ -22,7 +22,7 @@ describe("Gremlin > oneHopTemplate", () => {
 
     expect(template).toBe(
       'g.V(12L).project("vertices", "edges")' +
-        ".by(both().dedup().range(0, 10).fold())" +
+        ".by(both().dedup().fold())" +
         ".by(bothE().dedup().fold())"
     );
   });

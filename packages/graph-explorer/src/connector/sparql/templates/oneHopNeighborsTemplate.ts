@@ -86,12 +86,7 @@ const oneHopNeighborsTemplate = ({
     return filter;
   };
 
-  const getLimit = () => {
-    if (limit === 0) {
-      return "";
-    }
-    return `LIMIT ${limit} OFFSET ${offset}`;
-  };
+  const limitTemplate = limit > 0 ? `LIMIT ${limit} OFFSET ${offset}` : "";
 
   return `
     SELECT ?subject ?pred ?value ?subjectClass ?pToSubject ?pFromSubject {
@@ -114,7 +109,7 @@ const oneHopNeighborsTemplate = ({
            ${getFilters()}
           }
         }
-        ${getLimit()}
+        ${limitTemplate}
       }
       FILTER(isLiteral(?value))
     }

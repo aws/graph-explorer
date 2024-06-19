@@ -16,7 +16,7 @@ import type { NeighborsCountRequest } from "../../useGEFetchTypes";
  */
 const neighborsCountTemplate = ({
   vertexId,
-  limit = 500,
+  limit = 0,
 }: NeighborsCountRequest) => {
   let template = "";
   template = `MATCH (v) -[e]- (t) WHERE ID(v) = "${vertexId}" RETURN labels(t) AS vertexLabel, count(DISTINCT t) AS count`;

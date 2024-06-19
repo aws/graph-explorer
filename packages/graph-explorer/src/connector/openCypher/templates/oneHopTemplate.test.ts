@@ -8,7 +8,7 @@ describe("OpenCypher > oneHopTemplate", () => {
     });
 
     expect(template).toBe(
-      'MATCH (v)-[e]-(tgt) WHERE ID(v) = "12" WITH collect(DISTINCT tgt)[..10] AS vObjects, collect({edge: e, sourceType: labels(v), targetType: labels(tgt)})[..10] AS eObjects RETURN vObjects, eObjects'
+      'MATCH (v)-[e]-(tgt) WHERE ID(v) = "12" WITH collect(DISTINCT tgt) AS vObjects, collect({edge: e, sourceType: labels(v), targetType: labels(tgt)}) AS eObjects RETURN vObjects, eObjects'
     );
   });
 
