@@ -159,7 +159,8 @@ const CreateConnection = ({
 
   const [hasError, setError] = useState(false);
   const onFormChange = useCallback(
-    (attribute: string) => (value: number | string | string[] | boolean) => {
+    (attribute: keyof ConnectionForm) =>
+      (value: number | string | string[] | boolean) => {
       if (attribute === "serviceType" && value === "neptune-graph") {
         setForm(prev => ({
           ...prev,
