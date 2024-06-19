@@ -29,7 +29,6 @@ const defaultStyles =
         flex-direction: column;
         gap: ${theme.spacing.base};
         padding: 0 ${theme.spacing["2x"]};
-        max-width: 200px;
 
         .${pfx}-tag {
           display: flex;

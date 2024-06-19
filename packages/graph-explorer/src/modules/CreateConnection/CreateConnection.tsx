@@ -7,6 +7,7 @@ import Button from "../../components/Button";
 import Input from "../../components/Input";
 import Select from "../../components/Select";
 import {
+  ConfigurationContextProps,
   ConnectionConfig,
   RawConfiguration,
   useWithTheme,
@@ -24,13 +25,14 @@ import defaultStyles from "./CreateConnection.styles";
 type ConnectionForm = {
   name?: string;
   url?: string;
-  type?: "gremlin" | "sparql" | "openCypher";
+  queryEngine?: "gremlin" | "sparql" | "openCypher";
   proxyConnection?: boolean;
   graphDbUrl?: string;
   awsAuthEnabled?: boolean;
   serviceType?: "neptune-db" | "neptune-graph";
   awsRegion?: string;
-  fetchTimeMs?: number;
+  fetchTimeoutEnabled: boolean;
+  fetchTimeoutMs?: number;
 };
 
 export const CONNECTIONS_OP: {
@@ -43,20 +45,28 @@ export const CONNECTIONS_OP: {
 ];
 
 export type CreateConnectionProps = {
-  configId?: string;
-  initialData?: ConnectionForm;
-  disabledFields?: Array<"name" | "type" | "url" | "serviceType">;
+  existingConfig?: ConfigurationContextProps;
   onClose(): void;
 };
 
 const CreateConnection = ({
-  configId,
-  initialData,
-  disabledFields,
+  existingConfig,
   onClose,
 }: CreateConnectionProps) => {
   const styleWithTheme = useWithTheme();
   const pfx = withClassNamePrefix("ft");
+
+  const configId = existingConfig?.id;
+  const disabledFields = existingConfig?.__fileBase
+    ? ["queryEngine", "url", "serviceType"]
+    : undefined;
+  const initialData: ConnectionForm | undefined = existingConfig
+    ? {
+        ...(existingConfig.connection || {}),
+        name: existingConfig.displayLabel || existingConfig.id,
+        fetchTimeoutEnabled: Boolean(existingConfig.connection?.fetchTimeoutMs),
+      }
+    : undefined;
 
   const onSave = useRecoilCallback(
     ({ set }) =>
@@ -68,13 +78,13 @@ const CreateConnection = ({
             displayLabel: data.name,
             connection: {
               url: data.url,
-              queryEngine: data.type,
+              queryEngine: data.queryEngine,
               proxyConnection: data.proxyConnection,
               graphDbUrl: data.graphDbUrl,
               awsAuthEnabled: data.awsAuthEnabled,
               serviceType: data.serviceType,
               awsRegion: data.awsRegion,
-              fetchTimeoutMs: data.fetchTimeMs,
+              fetchTimeoutMs: data.fetchTimeoutMs,
             },
           };
           set(configurationAtom, prevConfigMap => {
@@ -96,20 +106,20 @@ const CreateConnection = ({
             displayLabel: data.name,
             connection: {
               url: data.url,
-              queryEngine: data.type,
+              queryEngine: data.queryEngine,
               proxyConnection: data.proxyConnection,
               graphDbUrl: data.graphDbUrl,
               awsAuthEnabled: data.awsAuthEnabled,
               serviceType: data.serviceType,
               awsRegion: data.awsRegion,
-              fetchTimeoutMs: data.fetchTimeMs,
+              fetchTimeoutMs: data.fetchTimeoutMs,
             },
           });
           return updatedConfig;
         });
 
         const urlChange = initialData?.url !== data.url;
-        const typeChange = initialData?.type !== data.type;
+        const typeChange = initialData?.queryEngine !== data.queryEngine;
 
         if (urlChange || typeChange) {
           set(schemaAtom, prevSchemaMap => {
@@ -129,11 +139,11 @@ const CreateConnection = ({
           });
         }
       },
-    [configId, initialData?.url, initialData?.type]
+    [configId, initialData?.url, initialData?.queryEngine]
   );
 
   const [form, setForm] = useState<ConnectionForm>({
-    type: initialData?.type || "gremlin",
+    queryEngine: initialData?.queryEngine || "gremlin",
     name:
       initialData?.name ||
       `Connection (${formatDate(new Date(), "yyyy-MM-dd HH:mm")})`,
@@ -143,7 +153,8 @@ const CreateConnection = ({
     awsAuthEnabled: initialData?.awsAuthEnabled || false,
     serviceType: initialData?.serviceType || "neptune-db",
     awsRegion: initialData?.awsRegion || "",
-    fetchTimeMs: initialData?.fetchTimeMs,
+    fetchTimeoutEnabled: initialData?.fetchTimeoutEnabled || false,
+    fetchTimeoutMs: initialData?.fetchTimeoutMs,
   });
 
   const [hasError, setError] = useState(false);
@@ -153,7 +164,16 @@ const CreateConnection = ({
         setForm(prev => ({
           ...prev,
           [attribute]: value,
-          ["type"]: "openCypher",
+          ["queryEngine"]: "openCypher",
+        }));
+      } else if (
+        attribute === "fetchTimeoutEnabled" &&
+        typeof value === "boolean"
+      ) {
+        setForm(prev => ({
+          ...prev,
+          [attribute]: value,
+          ["fetchTimeoutMs"]: value ? 240000 : undefined,
         }));
       } else {
         setForm(prev => ({
@@ -167,7 +187,7 @@ const CreateConnection = ({
 
   const reset = useResetState();
   const onSubmit = useCallback(() => {
-    if (!form.name || !form.url || !form.type) {
+    if (!form.name || !form.url || !form.queryEngine) {
       setError(true);
       return;
     }
@@ -201,10 +221,10 @@ const CreateConnection = ({
         <Select
           label={"Graph Type"}
           options={CONNECTIONS_OP}
-          value={form.type}
-          onChange={onFormChange("type")}
+          value={form.queryEngine}
+          onChange={onFormChange("queryEngine")}
           isDisabled={
-            disabledFields?.includes("type") ||
+            disabledFields?.includes("queryEngine") ||
             form.serviceType === "neptune-graph"
           }
         />
@@ -309,10 +329,10 @@ const CreateConnection = ({
       </div>
       <div className={pfx("configuration-form")}>
         <Checkbox
-          value={"fetchTimeoutMs"}
-          checked={!!form.fetchTimeMs}
+          value={"fetchTimeoutEnabled"}
+          checked={form.fetchTimeoutEnabled}
           onChange={e => {
-            onFormChange("fetchTimeMs")(e.target.checked);
+            onFormChange("fetchTimeoutEnabled")(e.target.checked);
           }}
           styles={{
             label: {
@@ -337,13 +357,13 @@ const CreateConnection = ({
             </div>
           }
         />
-        {form.fetchTimeMs && (
+        {form.fetchTimeoutEnabled && (
           <div className={pfx("input-url")}>
             <Input
               label="Fetch Timeout (ms)"
               type={"number"}
-              value={form.fetchTimeMs}
-              onChange={onFormChange("fetchTimeMs")}
+              value={form.fetchTimeoutMs}
+              onChange={onFormChange("fetchTimeoutMs")}
               min={0}
             />
           </div>

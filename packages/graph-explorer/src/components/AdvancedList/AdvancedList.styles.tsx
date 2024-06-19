@@ -91,6 +91,7 @@ const listStyles =
         }
         .${pfx}-content {
           flex: 1;
+          padding: 2.5px 0;
         }
 
         .${pfx}-secondary {

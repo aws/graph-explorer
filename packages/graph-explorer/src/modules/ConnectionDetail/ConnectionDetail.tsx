@@ -214,18 +214,7 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
       >
         <CreateConnection
           onClose={() => setEdit(false)}
-          configId={config.id}
-          disabledFields={
-            config.__fileBase ? ["type", "url", "serviceType"] : undefined
-          }
-          initialData={{
-            ...(config.connection || {}),
-            name: config.displayLabel || config.id,
-            url: config.connection?.url,
-            type: config.connection?.queryEngine,
-            fetchTimeMs: config.connection?.fetchTimeoutMs,
-            serviceType: config.connection?.serviceType,
-          }}
+          existingConfig={config}
         />
       </Modal>
     </ModuleContainer>
