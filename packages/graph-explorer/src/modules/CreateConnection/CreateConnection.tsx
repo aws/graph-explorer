@@ -7,6 +7,7 @@ import Button from "../../components/Button";
 import Input from "../../components/Input";
 import Select from "../../components/Select";
 import {
+  ConfigurationContextProps,
   ConnectionConfig,
   RawConfiguration,
   useWithTheme,
@@ -43,20 +44,31 @@ export const CONNECTIONS_OP: {
 ];
 
 export type CreateConnectionProps = {
-  configId?: string;
-  initialData?: ConnectionForm;
-  disabledFields?: Array<"name" | "type" | "url" | "serviceType">;
+  existingConfig?: ConfigurationContextProps;
   onClose(): void;
 };
 
 const CreateConnection = ({
-  configId,
-  initialData,
-  disabledFields,
+  existingConfig,
   onClose,
 }: CreateConnectionProps) => {
   const styleWithTheme = useWithTheme();
   const pfx = withClassNamePrefix("ft");
+
+  const configId = existingConfig?.id;
+  const disabledFields = existingConfig?.__fileBase
+    ? ["type", "url", "serviceType"]
+    : undefined;
+  const initialData: ConnectionForm | undefined = existingConfig
+    ? {
+        ...(existingConfig.connection || {}),
+        name: existingConfig.displayLabel || existingConfig.id,
+        url: existingConfig.connection?.url,
+        type: existingConfig.connection?.queryEngine,
+        fetchTimeMs: existingConfig.connection?.fetchTimeoutMs,
+        serviceType: existingConfig.connection?.serviceType,
+      }
+    : undefined;
 
   const onSave = useRecoilCallback(
     ({ set }) =>
