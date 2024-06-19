@@ -33,6 +33,8 @@ type ConnectionForm = {
   awsRegion?: string;
   fetchTimeoutEnabled: boolean;
   fetchTimeoutMs?: number;
+  nodeExpansionLimitEnabled: boolean;
+  nodeExpansionLimit?: number;
 };
 
 export const CONNECTIONS_OP: {
@@ -59,6 +61,9 @@ function mapToConnection(data: Required<ConnectionForm>): ConnectionConfig {
     serviceType: data.serviceType,
     awsRegion: data.awsRegion,
     fetchTimeoutMs: data.fetchTimeoutEnabled ? data.fetchTimeoutMs : undefined,
+    nodeExpansionLimit: data.nodeExpansionLimitEnabled
+      ? data.nodeExpansionLimit
+      : undefined,
   };
 }
 
@@ -78,6 +83,9 @@ const CreateConnection = ({
         ...(existingConfig.connection || {}),
         name: existingConfig.displayLabel || existingConfig.id,
         fetchTimeoutEnabled: Boolean(existingConfig.connection?.fetchTimeoutMs),
+        nodeExpansionLimitEnabled: Boolean(
+          existingConfig.connection?.nodeExpansionLimit
+        ),
       }
     : undefined;
 
@@ -150,34 +158,45 @@ const CreateConnection = ({
     awsRegion: initialData?.awsRegion || "",
     fetchTimeoutEnabled: initialData?.fetchTimeoutEnabled || false,
     fetchTimeoutMs: initialData?.fetchTimeoutMs,
+    nodeExpansionLimitEnabled: initialData?.nodeExpansionLimitEnabled || false,
+    nodeExpansionLimit: initialData?.nodeExpansionLimit,
   });
 
   const [hasError, setError] = useState(false);
   const onFormChange = useCallback(
     (attribute: keyof ConnectionForm) =>
       (value: number | string | string[] | boolean) => {
-      if (attribute === "serviceType" && value === "neptune-graph") {
-        setForm(prev => ({
-          ...prev,
-          [attribute]: value,
-          ["queryEngine"]: "openCypher",
-        }));
-      } else if (
-        attribute === "fetchTimeoutEnabled" &&
-        typeof value === "boolean"
-      ) {
-        setForm(prev => ({
-          ...prev,
-          [attribute]: value,
-          ["fetchTimeoutMs"]: value ? 240000 : undefined,
-        }));
-      } else {
-        setForm(prev => ({
-          ...prev,
-          [attribute]: value,
-        }));
-      }
-    },
+        if (attribute === "serviceType" && value === "neptune-graph") {
+          setForm(prev => ({
+            ...prev,
+            [attribute]: value,
+            ["queryEngine"]: "openCypher",
+          }));
+        } else if (
+          attribute === "fetchTimeoutEnabled" &&
+          typeof value === "boolean"
+        ) {
+          setForm(prev => ({
+            ...prev,
+            [attribute]: value,
+            ["fetchTimeoutMs"]: value ? 240000 : undefined,
+          }));
+        } else if (
+          attribute === "nodeExpansionLimitEnabled" &&
+          typeof value === "boolean"
+        ) {
+          setForm(prev => ({
+            ...prev,
+            [attribute]: value,
+            ["nodeExpansionLimit"]: value ? 500 : undefined,
+          }));
+        } else {
+          setForm(prev => ({
+            ...prev,
+            [attribute]: value,
+          }));
+        }
+      },
     []
   );
 
@@ -360,6 +379,48 @@ const CreateConnection = ({
               type={"number"}
               value={form.fetchTimeoutMs}
               onChange={onFormChange("fetchTimeoutMs")}
+              min={0}
+            />
+          </div>
+        )}
+      </div>
+      <div className={pfx("configuration-form")}>
+        <Checkbox
+          value={"nodeExpansionLimitEnabled"}
+          checked={form.nodeExpansionLimitEnabled}
+          onChange={e => {
+            onFormChange("nodeExpansionLimitEnabled")(e.target.checked);
+          }}
+          styles={{
+            label: {
+              display: "block",
+            },
+          }}
+          label={
+            <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
+              Enable Node Expansion Limit
+              <Tooltip
+                text={
+                  <div style={{ maxWidth: 300 }}>
+                    Large datasets may require a default limit to the amount of
+                    neighbors that are returned during any single expansion.
+                  </div>
+                }
+              >
+                <div>
+                  <InfoIcon style={{ width: 18, height: 18 }} />
+                </div>
+              </Tooltip>
+            </div>
+          }
+        />
+        {form.nodeExpansionLimitEnabled && (
+          <div className={pfx("input-url")}>
+            <Input
+              label="Node Expansion Limit"
+              type="number"
+              value={form.nodeExpansionLimit}
+              onChange={onFormChange("nodeExpansionLimit")}
               min={0}
             />
           </div>
