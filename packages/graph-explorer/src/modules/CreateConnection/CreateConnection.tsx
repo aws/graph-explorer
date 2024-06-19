@@ -63,10 +63,6 @@ const CreateConnection = ({
     ? {
         ...(existingConfig.connection || {}),
         name: existingConfig.displayLabel || existingConfig.id,
-        url: existingConfig.connection?.url,
-        queryEngine: existingConfig.connection?.queryEngine,
-        fetchTimeoutMs: existingConfig.connection?.fetchTimeoutMs,
-        serviceType: existingConfig.connection?.serviceType,
       }
     : undefined;
 
