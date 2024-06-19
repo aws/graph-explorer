@@ -49,6 +49,19 @@ export type CreateConnectionProps = {
   onClose(): void;
 };
 
+function mapToConnection(data: Required<ConnectionForm>): ConnectionConfig {
+  return {
+    url: data.url,
+    queryEngine: data.queryEngine,
+    proxyConnection: data.proxyConnection,
+    graphDbUrl: data.graphDbUrl,
+    awsAuthEnabled: data.awsAuthEnabled,
+    serviceType: data.serviceType,
+    awsRegion: data.awsRegion,
+    fetchTimeoutMs: data.fetchTimeoutEnabled ? data.fetchTimeoutMs : undefined,
+  };
+}
+
 const CreateConnection = ({
   existingConfig,
   onClose,
@@ -76,16 +89,7 @@ const CreateConnection = ({
           const newConfig: RawConfiguration = {
             id: newConfigId,
             displayLabel: data.name,
-            connection: {
-              url: data.url,
-              queryEngine: data.queryEngine,
-              proxyConnection: data.proxyConnection,
-              graphDbUrl: data.graphDbUrl,
-              awsAuthEnabled: data.awsAuthEnabled,
-              serviceType: data.serviceType,
-              awsRegion: data.awsRegion,
-              fetchTimeoutMs: data.fetchTimeoutMs,
-            },
+            connection: mapToConnection(data),
           };
           set(configurationAtom, prevConfigMap => {
             const updatedConfig = new Map(prevConfigMap);
@@ -104,16 +108,7 @@ const CreateConnection = ({
             ...(currentConfig || {}),
             id: configId,
             displayLabel: data.name,
-            connection: {
-              url: data.url,
-              queryEngine: data.queryEngine,
-              proxyConnection: data.proxyConnection,
-              graphDbUrl: data.graphDbUrl,
-              awsAuthEnabled: data.awsAuthEnabled,
-              serviceType: data.serviceType,
-              awsRegion: data.awsRegion,
-              fetchTimeoutMs: data.fetchTimeoutMs,
-            },
+            connection: mapToConnection(data),
           });
           return updatedConfig;
         });
