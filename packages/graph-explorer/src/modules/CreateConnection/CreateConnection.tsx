@@ -25,7 +25,7 @@ import defaultStyles from "./CreateConnection.styles";
 type ConnectionForm = {
   name?: string;
   url?: string;
-  type?: "gremlin" | "sparql" | "openCypher";
+  queryEngine?: "gremlin" | "sparql" | "openCypher";
   proxyConnection?: boolean;
   graphDbUrl?: string;
   awsAuthEnabled?: boolean;
@@ -57,14 +57,14 @@ const CreateConnection = ({
 
   const configId = existingConfig?.id;
   const disabledFields = existingConfig?.__fileBase
-    ? ["type", "url", "serviceType"]
+    ? ["queryEngine", "url", "serviceType"]
     : undefined;
   const initialData: ConnectionForm | undefined = existingConfig
     ? {
         ...(existingConfig.connection || {}),
         name: existingConfig.displayLabel || existingConfig.id,
         url: existingConfig.connection?.url,
-        type: existingConfig.connection?.queryEngine,
+        queryEngine: existingConfig.connection?.queryEngine,
         fetchTimeMs: existingConfig.connection?.fetchTimeoutMs,
         serviceType: existingConfig.connection?.serviceType,
       }
@@ -80,7 +80,7 @@ const CreateConnection = ({
             displayLabel: data.name,
             connection: {
               url: data.url,
-              queryEngine: data.type,
+              queryEngine: data.queryEngine,
               proxyConnection: data.proxyConnection,
               graphDbUrl: data.graphDbUrl,
               awsAuthEnabled: data.awsAuthEnabled,
@@ -108,7 +108,7 @@ const CreateConnection = ({
             displayLabel: data.name,
             connection: {
               url: data.url,
-              queryEngine: data.type,
+              queryEngine: data.queryEngine,
               proxyConnection: data.proxyConnection,
               graphDbUrl: data.graphDbUrl,
               awsAuthEnabled: data.awsAuthEnabled,
@@ -121,7 +121,7 @@ const CreateConnection = ({
         });
 
         const urlChange = initialData?.url !== data.url;
-        const typeChange = initialData?.type !== data.type;
+        const typeChange = initialData?.queryEngine !== data.queryEngine;
 
         if (urlChange || typeChange) {
           set(schemaAtom, prevSchemaMap => {
@@ -141,11 +141,11 @@ const CreateConnection = ({
           });
         }
       },
-    [configId, initialData?.url, initialData?.type]
+    [configId, initialData?.url, initialData?.queryEngine]
   );
 
   const [form, setForm] = useState<ConnectionForm>({
-    type: initialData?.type || "gremlin",
+    queryEngine: initialData?.queryEngine || "gremlin",
     name:
       initialData?.name ||
       `Connection (${formatDate(new Date(), "yyyy-MM-dd HH:mm")})`,
@@ -165,7 +165,7 @@ const CreateConnection = ({
         setForm(prev => ({
           ...prev,
           [attribute]: value,
-          ["type"]: "openCypher",
+          ["queryEngine"]: "openCypher",
         }));
       } else {
         setForm(prev => ({
@@ -179,7 +179,7 @@ const CreateConnection = ({
 
   const reset = useResetState();
   const onSubmit = useCallback(() => {
-    if (!form.name || !form.url || !form.type) {
+    if (!form.name || !form.url || !form.queryEngine) {
       setError(true);
       return;
     }
@@ -213,10 +213,10 @@ const CreateConnection = ({
         <Select
           label={"Graph Type"}
           options={CONNECTIONS_OP}
-          value={form.type}
-          onChange={onFormChange("type")}
+          value={form.queryEngine}
+          onChange={onFormChange("queryEngine")}
           isDisabled={
-            disabledFields?.includes("type") ||
+            disabledFields?.includes("queryEngine") ||
             form.serviceType === "neptune-graph"
           }
         />
