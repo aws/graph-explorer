@@ -10,7 +10,7 @@ import type {
   NeighborsRequest,
   NeighborsResponse,
 } from "../connector/useGEFetchTypes";
-import { explorerSelector } from "../core/connector";
+import { activeConnectionSelector, explorerSelector } from "../core/connector";
 import useEntities from "./useEntities";
 import { useRecoilValue } from "recoil";
 import { useMutation, useQueries } from "@tanstack/react-query";
@@ -111,9 +111,16 @@ export function ExpandNodeProvider(props: PropsWithChildren) {
     return () => clearNotification(notificationId);
   }, [clearNotification, enqueueNotification, mutation.isPending]);
 
+  const connection = useRecoilValue(activeConnectionSelector);
   const expandNode = useCallback(
     (vertex: Vertex, filters?: ExpandNodeFilters) => {
-      const request: ExpandNodeRequest = { vertex, filters };
+      const request: ExpandNodeRequest = {
+        vertex,
+        filters: {
+          ...filters,
+          limit: filters?.limit || connection?.nodeExpansionLimit,
+        },
+      };
 
       // Only allow expansion if we are not busy with another expansion
       if (mutation.isPending) {
@@ -131,7 +138,7 @@ export function ExpandNodeProvider(props: PropsWithChildren) {
 
       mutation.mutate(request);
     },
-    [enqueueNotification, mutation]
+    [connection?.nodeExpansionLimit, enqueueNotification, mutation]
   );
 
   const value: ExpandNodeContextType = {
@@ -153,13 +160,16 @@ export function ExpandNodeProvider(props: PropsWithChildren) {
  */
 function useUpdateNodeCounts() {
   const [entities, setEntities] = useEntities();
+  const connection = useRecoilValue(activeConnectionSelector);
   const explorer = useRecoilValue(explorerSelector);
   const { enqueueNotification, clearNotification } = useNotification();
 
   const nodeIds = [...new Set(entities.nodes.map(n => n.data.id))];
 
   const query = useQueries({
-    queries: nodeIds.map(id => neighborsCountQuery(id, explorer)),
+    queries: nodeIds.map(id =>
+      neighborsCountQuery(id, connection?.nodeExpansionLimit, explorer)
+    ),
     combine: results => {
       // Combines data with existing node data and filters out undefined
       const data = results

@@ -189,6 +189,8 @@ defaults, and their descriptions.
   - `GRAPH_EXP_FETCH_REQUEST_TIMEOUT` - `240000` - Controls the timeout for the
     fetch request. Measured in milliseconds (i.e. 240000 is 240 seconds or 4
     minutes).
+  - `GRAPH_EXP_NODE_EXPANSION_LIMIT` - `None` - Controls the limit for node
+    counts and expansion queries.
 - Conditionally Required:
   - Required if `USING_PROXY_SERVER=True`
     - `GRAPH_CONNECTION_URL` - `None` - See
@@ -216,7 +218,8 @@ attributes:
   "GRAPH_EXP_HTTPS_CONNECTION": true,
   "PROXY_SERVER_HTTPS_CONNECTION": true,
   // Measured in milliseconds (i.e. 240000 is 240 seconds or 4 minutes)
-  "GRAPH_EXP_FETCH_REQUEST_TIMEOUT": 240000
+  "GRAPH_EXP_FETCH_REQUEST_TIMEOUT": 240000,
+  "GRAPH_EXP_NODE_EXPANSION_LIMIT": 500,
 }
 ```
 
@@ -246,6 +249,7 @@ docker run -p 80:80 -p 443:443 \
  --env SERVICE_TYPE=neptune-db \
  --env PROXY_SERVER_HTTPS_CONNECTION=true \
  --env GRAPH_EXP_FETCH_REQUEST_TIMEOUT=240000 \
+ --env GRAPH_EXP_NODE_EXPANSION_LIMIT=500 \
  graph-explorer
 ```
 

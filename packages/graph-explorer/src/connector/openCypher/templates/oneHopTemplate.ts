@@ -106,7 +106,7 @@ const oneHopTemplate = ({
   filterByVertexTypes = [],
   edgeTypes = [],
   filterCriteria = [],
-  limit = 10,
+  limit = 0,
 }: Omit<NeighborsRequest, "vertexType">): string => {
   let template = `MATCH (v)`;
 
@@ -137,7 +137,9 @@ const oneHopTemplate = ({
     template += `AND ${filterCriteriaTemplate} `;
   }
 
-  template += `WITH collect(DISTINCT tgt)[..${limit}] AS vObjects, collect({edge: e, sourceType: labels(v), targetType: labels(tgt)})[..${limit}] AS eObjects RETURN vObjects, eObjects`;
+  const limitTemplate = limit > 0 ? `[..${limit}]` : "";
+
+  template += `WITH collect(DISTINCT tgt)${limitTemplate} AS vObjects, collect({edge: e, sourceType: labels(v), targetType: labels(tgt)})${limitTemplate} AS eObjects RETURN vObjects, eObjects`;
 
   return template;
 };

@@ -13,7 +13,7 @@ import type { NeighborsCountRequest } from "../../useGEFetchTypes";
  */
 const neighborsCountTemplate = ({
   vertexId,
-  limit = 500,
+  limit = 0,
   idType,
 }: NeighborsCountRequest) => {
   let template = "";

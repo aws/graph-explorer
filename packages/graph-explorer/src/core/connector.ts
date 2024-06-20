@@ -7,12 +7,13 @@ import { mergedConfigurationSelector } from "./StateProvider/configuration";
 import { selector } from "recoil";
 import { equalSelector } from "../utils/recoilState";
 import { env } from "../utils";
+import { ConnectionConfig } from "./ConfigurationProvider";
 
 /**
  * Active connection where the value will only change when one of the
  * properties we care about are changed.
  */
-const activeConnectionSelector = equalSelector({
+export const activeConnectionSelector = equalSelector({
   key: "activeConnection",
   get: ({ get }) => {
     const config = get(mergedConfigurationSelector);
@@ -33,7 +34,8 @@ const activeConnectionSelector = equalSelector({
       "awsAuthEnabled",
       "awsRegion",
       "fetchTimeoutMs",
-    ] as const;
+      "nodeExpansionLimit",
+    ] as (keyof ConnectionConfig)[];
     return every(attrs, attr => isEqual(latest[attr] as string, prior[attr]));
   },
 });

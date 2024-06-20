@@ -68,6 +68,8 @@ const grabConfig = async (): Promise<RawConfiguration | undefined> => {
           defaultConnectionData.GRAPH_EXP_SERVICE_TYPE || DEFAULT_SERVICE_TYPE,
         fetchTimeoutMs:
           defaultConnectionData.GRAPH_EXP_FETCH_REQUEST_TIMEOUT || 240000,
+        nodeExpansionLimit:
+          defaultConnectionData.GRAPH_EXP_NODE_EXPANSION_LIMIT,
       },
     };
   } catch (error) {

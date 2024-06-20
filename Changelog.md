@@ -10,6 +10,8 @@
   (<https://github.com/aws/graph-explorer/pull/434>)
 - Improved scrolling behavior in expand sidebar
   (<https://github.com/aws/graph-explorer/pull/436>)
+- Add node expansion limit per connection
+  (<https://github.com/aws/graph-explorer/pull/447>)
 
 **Bug Fixes and Minor Changes**
 

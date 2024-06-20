@@ -21,6 +21,10 @@ import { schemaAtom } from "../../core/StateProvider/schema";
 import useResetState from "../../core/StateProvider/useResetState";
 import { formatDate } from "../../utils";
 import defaultStyles from "./CreateConnection.styles";
+import {
+  DEFAULT_FETCH_TIMEOUT,
+  DEFAULT_NODE_EXPAND_LIMIT,
+} from "../../utils/constants";
 
 type ConnectionForm = {
   name?: string;
@@ -33,6 +37,8 @@ type ConnectionForm = {
   awsRegion?: string;
   fetchTimeoutEnabled: boolean;
   fetchTimeoutMs?: number;
+  nodeExpansionLimitEnabled: boolean;
+  nodeExpansionLimit?: number;
 };
 
 export const CONNECTIONS_OP: {
@@ -49,6 +55,22 @@ export type CreateConnectionProps = {
   onClose(): void;
 };
 
+function mapToConnection(data: Required<ConnectionForm>): ConnectionConfig {
+  return {
+    url: data.url,
+    queryEngine: data.queryEngine,
+    proxyConnection: data.proxyConnection,
+    graphDbUrl: data.graphDbUrl,
+    awsAuthEnabled: data.awsAuthEnabled,
+    serviceType: data.serviceType,
+    awsRegion: data.awsRegion,
+    fetchTimeoutMs: data.fetchTimeoutEnabled ? data.fetchTimeoutMs : undefined,
+    nodeExpansionLimit: data.nodeExpansionLimitEnabled
+      ? data.nodeExpansionLimit
+      : undefined,
+  };
+}
+
 const CreateConnection = ({
   existingConfig,
   onClose,
@@ -57,14 +79,17 @@ const CreateConnection = ({
   const pfx = withClassNamePrefix("ft");
 
   const configId = existingConfig?.id;
-  const disabledFields = existingConfig?.__fileBase
+  const disabledFields: (keyof ConnectionForm)[] = existingConfig?.__fileBase
     ? ["queryEngine", "url", "serviceType"]
-    : undefined;
+    : [];
   const initialData: ConnectionForm | undefined = existingConfig
     ? {
         ...(existingConfig.connection || {}),
         name: existingConfig.displayLabel || existingConfig.id,
         fetchTimeoutEnabled: Boolean(existingConfig.connection?.fetchTimeoutMs),
+        nodeExpansionLimitEnabled: Boolean(
+          existingConfig.connection?.nodeExpansionLimit
+        ),
       }
     : undefined;
 
@@ -76,16 +101,7 @@ const CreateConnection = ({
           const newConfig: RawConfiguration = {
             id: newConfigId,
             displayLabel: data.name,
-            connection: {
-              url: data.url,
-              queryEngine: data.queryEngine,
-              proxyConnection: data.proxyConnection,
-              graphDbUrl: data.graphDbUrl,
-              awsAuthEnabled: data.awsAuthEnabled,
-              serviceType: data.serviceType,
-              awsRegion: data.awsRegion,
-              fetchTimeoutMs: data.fetchTimeoutMs,
-            },
+            connection: mapToConnection(data),
           };
           set(configurationAtom, prevConfigMap => {
             const updatedConfig = new Map(prevConfigMap);
@@ -104,16 +120,7 @@ const CreateConnection = ({
             ...(currentConfig || {}),
             id: configId,
             displayLabel: data.name,
-            connection: {
-              url: data.url,
-              queryEngine: data.queryEngine,
-              proxyConnection: data.proxyConnection,
-              graphDbUrl: data.graphDbUrl,
-              awsAuthEnabled: data.awsAuthEnabled,
-              serviceType: data.serviceType,
-              awsRegion: data.awsRegion,
-              fetchTimeoutMs: data.fetchTimeoutMs,
-            },
+            connection: mapToConnection(data),
           });
           return updatedConfig;
         });
@@ -155,33 +162,47 @@ const CreateConnection = ({
     awsRegion: initialData?.awsRegion || "",
     fetchTimeoutEnabled: initialData?.fetchTimeoutEnabled || false,
     fetchTimeoutMs: initialData?.fetchTimeoutMs,
+    nodeExpansionLimitEnabled: initialData?.nodeExpansionLimitEnabled || false,
+    nodeExpansionLimit: initialData?.nodeExpansionLimit,
   });
 
   const [hasError, setError] = useState(false);
   const onFormChange = useCallback(
-    (attribute: string) => (value: number | string | string[] | boolean) => {
-      if (attribute === "serviceType" && value === "neptune-graph") {
-        setForm(prev => ({
-          ...prev,
-          [attribute]: value,
-          ["queryEngine"]: "openCypher",
-        }));
-      } else if (
-        attribute === "fetchTimeoutEnabled" &&
-        typeof value === "boolean"
-      ) {
-        setForm(prev => ({
-          ...prev,
-          [attribute]: value,
-          ["fetchTimeoutMs"]: value ? 240000 : undefined,
-        }));
-      } else {
-        setForm(prev => ({
-          ...prev,
-          [attribute]: value,
-        }));
-      }
-    },
+    (attribute: keyof ConnectionForm) =>
+      (value: number | string | string[] | boolean) => {
+        if (attribute === "serviceType" && value === "neptune-graph") {
+          setForm(prev => ({
+            ...prev,
+            [attribute]: value,
+            ["queryEngine"]: "openCypher",
+          }));
+        } else if (
+          attribute === "fetchTimeoutEnabled" &&
+          typeof value === "boolean"
+        ) {
+          setForm(prev => ({
+            ...prev,
+            [attribute]: value,
+            ["fetchTimeoutMs"]: value ? DEFAULT_FETCH_TIMEOUT : undefined,
+          }));
+        } else if (
+          attribute === "nodeExpansionLimitEnabled" &&
+          typeof value === "boolean"
+        ) {
+          setForm(prev => ({
+            ...prev,
+            [attribute]: value,
+            ["nodeExpansionLimit"]: value
+              ? DEFAULT_NODE_EXPAND_LIMIT
+              : undefined,
+          }));
+        } else {
+          setForm(prev => ({
+            ...prev,
+            [attribute]: value,
+          }));
+        }
+      },
     []
   );
 
@@ -216,7 +237,7 @@ const CreateConnection = ({
           onChange={onFormChange("name")}
           errorMessage={"Name is required"}
           validationState={hasError && !form.name ? "invalid" : "valid"}
-          isDisabled={disabledFields?.includes("name")}
+          isDisabled={disabledFields.includes("name")}
         />
         <Select
           label={"Graph Type"}
@@ -224,7 +245,7 @@ const CreateConnection = ({
           value={form.queryEngine}
           onChange={onFormChange("queryEngine")}
           isDisabled={
-            disabledFields?.includes("queryEngine") ||
+            disabledFields.includes("queryEngine") ||
             form.serviceType === "neptune-graph"
           }
         />
@@ -256,7 +277,7 @@ const CreateConnection = ({
             errorMessage={"URL is required"}
             placeholder={"https://example.com"}
             validationState={hasError && !form.url ? "invalid" : "valid"}
-            isDisabled={disabledFields?.includes("url")}
+            isDisabled={disabledFields.includes("url")}
           />
         </div>
         <div className={pfx("input-url")}>
@@ -321,7 +342,7 @@ const CreateConnection = ({
                 ]}
                 value={form.serviceType}
                 onChange={onFormChange("serviceType")}
-                isDisabled={disabledFields?.includes("serviceType")}
+                isDisabled={disabledFields.includes("serviceType")}
               />
             </div>
           </>
@@ -364,6 +385,48 @@ const CreateConnection = ({
               type={"number"}
               value={form.fetchTimeoutMs}
               onChange={onFormChange("fetchTimeoutMs")}
+              min={0}
+            />
+          </div>
+        )}
+      </div>
+      <div className={pfx("configuration-form")}>
+        <Checkbox
+          value={"nodeExpansionLimitEnabled"}
+          checked={form.nodeExpansionLimitEnabled}
+          onChange={e => {
+            onFormChange("nodeExpansionLimitEnabled")(e.target.checked);
+          }}
+          styles={{
+            label: {
+              display: "block",
+            },
+          }}
+          label={
+            <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
+              Enable Node Expansion Limit
+              <Tooltip
+                text={
+                  <div style={{ maxWidth: 300 }}>
+                    Large datasets may require a default limit to the amount of
+                    neighbors that are returned during any single expansion.
+                  </div>
+                }
+              >
+                <div>
+                  <InfoIcon style={{ width: 18, height: 18 }} />
+                </div>
+              </Tooltip>
+            </div>
+          }
+        />
+        {form.nodeExpansionLimitEnabled && (
+          <div className={pfx("input-url")}>
+            <Input
+              label="Node Expansion Limit"
+              type="number"
+              value={form.nodeExpansionLimit}
+              onChange={onFormChange("nodeExpansionLimit")}
               min={0}
             />
           </div>

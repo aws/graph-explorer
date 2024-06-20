@@ -142,9 +142,14 @@ export type ConnectionConfig = {
   awsRegion?: string;
   /**
    * Number of milliseconds before aborting a request.
-   * By default, 60 seconds.
+   * By default, undefined.
    */
   fetchTimeoutMs?: number;
+  /**
+   * A default limit on the number of nodes that can be expanded in one query.
+   * By default, undefined.
+   */
+  nodeExpansionLimit?: number;
 };
 
 export type Schema = {
