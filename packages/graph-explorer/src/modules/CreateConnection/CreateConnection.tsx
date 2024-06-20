@@ -21,6 +21,10 @@ import { schemaAtom } from "../../core/StateProvider/schema";
 import useResetState from "../../core/StateProvider/useResetState";
 import { formatDate } from "../../utils";
 import defaultStyles from "./CreateConnection.styles";
+import {
+  DEFAULT_FETCH_TIMEOUT,
+  DEFAULT_NODE_EXPAND_LIMIT,
+} from "../../utils/constants";
 
 type ConnectionForm = {
   name?: string;
@@ -179,7 +183,7 @@ const CreateConnection = ({
           setForm(prev => ({
             ...prev,
             [attribute]: value,
-            ["fetchTimeoutMs"]: value ? 240000 : undefined,
+            ["fetchTimeoutMs"]: value ? DEFAULT_FETCH_TIMEOUT : undefined,
           }));
         } else if (
           attribute === "nodeExpansionLimitEnabled" &&
@@ -188,7 +192,9 @@ const CreateConnection = ({
           setForm(prev => ({
             ...prev,
             [attribute]: value,
-            ["nodeExpansionLimit"]: value ? 500 : undefined,
+            ["nodeExpansionLimit"]: value
+              ? DEFAULT_NODE_EXPAND_LIMIT
+              : undefined,
           }));
         } else {
           setForm(prev => ({
