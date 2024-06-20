@@ -1,3 +1,4 @@
+import dedent from "dedent";
 import { SPARQLNeighborsRequest } from "../../types";
 import { getFilters, getLimit, getSubjectClasses } from "./helpers";
 
@@ -7,14 +8,14 @@ import { getFilters, getLimit, getSubjectClasses } from "./helpers";
  *
  * @see oneHopNeighborsTemplate
  */
-const oneHopNeighborsBlankNodesIdsTemplate = ({
+export default function oneHopNeighborsBlankNodesIdsTemplate({
   resourceURI,
   subjectClasses = [],
   filterCriteria = [],
   limit = 0,
   offset = 0,
-}: SPARQLNeighborsRequest) => {
-  return `
+}: SPARQLNeighborsRequest) {
+  return dedent`
     SELECT DISTINCT (?subject AS ?bNode) {
       BIND(<${resourceURI}> AS ?argument)
       ${getSubjectClasses(subjectClasses)}
@@ -35,6 +36,4 @@ const oneHopNeighborsBlankNodesIdsTemplate = ({
     }
     ${getLimit(limit, offset)}
   `;
-};
-
-export default oneHopNeighborsBlankNodesIdsTemplate;
+}

@@ -1,6 +1,8 @@
+import dedent from "dedent";
+
 // Return all predicates which are connected from the given class
-const predicatesByClassTemplate = (props: { class: string }) => {
-  return `
+export default function predicatesByClassTemplate(props: { class: string }) {
+  return dedent`
     SELECT ?pred (SAMPLE(?object) as ?sample)
     WHERE {
       {
@@ -15,6 +17,4 @@ const predicatesByClassTemplate = (props: { class: string }) => {
     }
     GROUP BY ?pred
   `;
-};
-
-export default predicatesByClassTemplate;
+}

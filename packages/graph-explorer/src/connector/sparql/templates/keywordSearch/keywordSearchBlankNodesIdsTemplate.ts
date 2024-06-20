@@ -11,14 +11,14 @@ import {
  *
  * @see keywordSearchTemplate
  */
-const keywordSearchBlankNodesIdsTemplate = ({
+export default function keywordSearchBlankNodesIdsTemplate({
   searchTerm,
   subjectClasses = [],
   predicates = [],
   limit = 10,
   offset = 0,
   exactMatch = true,
-}: SPARQLKeywordSearchRequest): string => {
+}: SPARQLKeywordSearchRequest): string {
   return `
     SELECT DISTINCT ?bNode {
       ?bNode ?pred ?value {
@@ -35,6 +35,4 @@ const keywordSearchBlankNodesIdsTemplate = ({
       FILTER(isBlank(?bNode))
     }
   `;
-};
-
-export default keywordSearchBlankNodesIdsTemplate;
+}

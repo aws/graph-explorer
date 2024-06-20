@@ -28,9 +28,9 @@ const fetchNeighborsCount = async (
   let totalCount = 0;
   const counts: Record<string, number> = {};
 
-  const incomingTemplate = neighborsCountTemplate(req);
-  const incomingData = await sparqlFetch<RawNeighborCount>(incomingTemplate);
-  incomingData.results.bindings.forEach(result => {
+  const template = neighborsCountTemplate(req);
+  const response = await sparqlFetch<RawNeighborCount>(template);
+  response.results.bindings.forEach(result => {
     const count = Number(result.count.value);
     counts[result.class.value] = count;
     totalCount += count;

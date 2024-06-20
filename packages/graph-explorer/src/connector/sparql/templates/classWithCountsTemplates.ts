@@ -1,10 +1,10 @@
+import dedent from "dedent";
+
 // It returns the number of instances of the given class
-const classWithCountsTemplates = (className: string) => {
-  return `
+export default function classWithCountsTemplates(className: string) {
+  return dedent`
     SELECT (COUNT(?start) AS ?instancesCount) {
       ?start a <${className}>
     }
   `;
-};
-
-export default classWithCountsTemplates;
+}

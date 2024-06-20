@@ -1,3 +1,4 @@
+import dedent from "dedent";
 import { SPARQLNeighborsRequest } from "../types";
 
 /**
@@ -49,13 +50,13 @@ import { SPARQLNeighborsRequest } from "../types";
  *   FILTER(isLiteral(?value))
  * }
  */
-const oneHopNeighborsTemplate = ({
+export default function oneHopNeighborsTemplate({
   resourceURI,
   subjectClasses = [],
   filterCriteria = [],
   limit = 0,
   offset = 0,
-}: SPARQLNeighborsRequest): string => {
+}: SPARQLNeighborsRequest): string {
   const getSubjectClasses = () => {
     if (!subjectClasses?.length) {
       return "";
@@ -88,7 +89,7 @@ const oneHopNeighborsTemplate = ({
 
   const limitTemplate = limit > 0 ? `LIMIT ${limit} OFFSET ${offset}` : "";
 
-  return `
+  return dedent`
     SELECT ?subject ?pred ?value ?subjectClass ?pToSubject ?pFromSubject {
       ?subject a     ?subjectClass;
                ?pred ?value {
@@ -114,6 +115,4 @@ const oneHopNeighborsTemplate = ({
       FILTER(isLiteral(?value))
     }
   `;
-};
-
-export default oneHopNeighborsTemplate;
+}

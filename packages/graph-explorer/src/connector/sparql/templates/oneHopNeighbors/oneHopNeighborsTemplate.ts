@@ -1,5 +1,6 @@
 import { SPARQLNeighborsRequest } from "../../types";
 import { getFilters, getLimit, getSubjectClasses } from "./helpers";
+import dedent from "dedent";
 
 /**
  * Fetch all neighbors and their predicates, values, and classes.
@@ -50,14 +51,14 @@ import { getFilters, getLimit, getSubjectClasses } from "./helpers";
  *   FILTER(isLiteral(?value))
  * }
  */
-const oneHopNeighborsTemplate = ({
+export default function oneHopNeighborsTemplate({
   resourceURI,
   subjectClasses = [],
   filterCriteria = [],
   limit = 0,
   offset = 0,
-}: SPARQLNeighborsRequest): string => {
-  return `
+}: SPARQLNeighborsRequest): string {
+  return dedent`
     SELECT ?subject ?pred ?value ?subjectClass ?pToSubject ?pFromSubject {
       ?subject a     ?subjectClass;
                ?pred ?value {
@@ -83,6 +84,4 @@ const oneHopNeighborsTemplate = ({
       FILTER(isLiteral(?value))
     }
   `;
-};
-
-export default oneHopNeighborsTemplate;
+}

@@ -178,6 +178,9 @@ importers:
       dayjs:
         specifier: ^1.11.11
         version: 1.11.11
+      dedent:
+        specifier: ^1.5.3
+        version: 1.5.3
       file-saver:
         specifier: ^2.0.5
         version: 2.0.5
@@ -5899,7 +5902,7 @@ packages:
     resolution: {integrity: sha512-oojO9IDc4nCUUi8qIR11KoQm0XFFLIwsRBwHRR4d/88IWghn1y6ckz/bJ8GHDCsYEJee8mDzqtJxh15/cisJNQ==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
-      vite: ^4.2.0 || ^5.0.0
+      vite: '>=4.5.3'
     dependencies:
       '@babel/core': 7.24.5
       '@babel/plugin-transform-react-jsx-self': 7.24.7(@babel/core@7.24.5)
@@ -7097,7 +7100,6 @@ packages:
     peerDependenciesMeta:
       babel-plugin-macros:
         optional: true
-    dev: true
 
   /deep-equal@2.2.3:
     resolution: {integrity: sha512-ZIwpnevOurS8bpT4192sqAowWM76JDKSHYzMLty3BZGSswgq6pBaH3DhCSW5xVAZICZyKdOBPjwww5wfgT/6PA==}
@@ -7483,7 +7485,7 @@ packages:
   /esbuild-loader@2.21.0(webpack@5.91.0):
     resolution: {integrity: sha512-k7ijTkCT43YBSZ6+fBCW1Gin7s46RrJ0VQaM8qA7lq7W+OLsGgtLyFV8470FzYi/4TeDexniTBTPTwZUnXXR5g==}
     peerDependencies:
-      webpack: ^4.40.0 || ^5.0.0
+      webpack: '>=5.76.0'
     dependencies:
       esbuild: 0.16.17
       joycon: 3.1.1
@@ -11326,7 +11328,7 @@ packages:
       '@swc/core': '*'
       esbuild: '*'
       uglify-js: '*'
-      webpack: ^5.1.0
+      webpack: '>=5.76.0'
     peerDependenciesMeta:
       '@swc/core':
         optional: true

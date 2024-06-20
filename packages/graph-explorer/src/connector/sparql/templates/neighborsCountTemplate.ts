@@ -1,3 +1,4 @@
+import dedent from "dedent";
 import { SPARQLNeighborsCountRequest } from "../types";
 
 /**
@@ -18,11 +19,11 @@ import { SPARQLNeighborsCountRequest } from "../types";
  * }
  * GROUP BY ?class
  */
-const neighborsCountTemplate = ({
+export default function neighborsCountTemplate({
   resourceURI,
   limit = 0,
-}: SPARQLNeighborsCountRequest) => {
-  return `
+}: SPARQLNeighborsCountRequest) {
+  return dedent`
     SELECT ?class (COUNT(?class) AS ?count) {
       ?subject a ?class {
         SELECT DISTINCT ?subject ?class {
@@ -36,6 +37,4 @@ const neighborsCountTemplate = ({
     }
     GROUP BY ?class
   `;
-};
-
-export default neighborsCountTemplate;
+}
