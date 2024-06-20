@@ -139,7 +139,7 @@ const oneHopTemplate = ({
 
   const limitTemplate = limit > 0 ? `[..${limit}]` : "";
 
-  template += `WITH collect(DISTINCT tgt)${limitTemplate} AS vObjects, collect({edge: e, sourceType: labels(v), targetType: labels(tgt)})${limitTemplate} AS eObjects RETURN vObjects, eObjects`;
+  template += `WITH collect(DISTINCT tgt)${limitTemplate} AS vObjects, collect({edge: e, sourceType: labels(startNode(e)), targetType: labels(endNode(e))})${limitTemplate} AS eObjects RETURN vObjects, eObjects`;
 
   return template;
 };

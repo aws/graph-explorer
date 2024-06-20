@@ -8,7 +8,7 @@ describe("OpenCypher > oneHopTemplate", () => {
     });
 
     expect(template).toBe(
-      'MATCH (v)-[e]-(tgt) WHERE ID(v) = "12" WITH collect(DISTINCT tgt) AS vObjects, collect({edge: e, sourceType: labels(v), targetType: labels(tgt)}) AS eObjects RETURN vObjects, eObjects'
+      'MATCH (v)-[e]-(tgt) WHERE ID(v) = "12" WITH collect(DISTINCT tgt) AS vObjects, collect({edge: e, sourceType: labels(startNode(e)), targetType: labels(endNode(e))}) AS eObjects RETURN vObjects, eObjects'
     );
   });
 
@@ -21,7 +21,7 @@ describe("OpenCypher > oneHopTemplate", () => {
     });
 
     expect(template).toBe(
-      'MATCH (v)-[e]-(tgt) WHERE ID(v) = "12" WITH collect(DISTINCT tgt)[..5] AS vObjects, collect({edge: e, sourceType: labels(v), targetType: labels(tgt)})[..5] AS eObjects RETURN vObjects, eObjects'
+      'MATCH (v)-[e]-(tgt) WHERE ID(v) = "12" WITH collect(DISTINCT tgt)[..5] AS vObjects, collect({edge: e, sourceType: labels(startNode(e)), targetType: labels(endNode(e))})[..5] AS eObjects RETURN vObjects, eObjects'
     );
   });
 
@@ -35,7 +35,7 @@ describe("OpenCypher > oneHopTemplate", () => {
     });
 
     expect(template).toBe(
-      'MATCH (v)-[e]-(tgt:country) WHERE ID(v) = "12" WITH collect(DISTINCT tgt)[..10] AS vObjects, collect({edge: e, sourceType: labels(v), targetType: labels(tgt)})[..10] AS eObjects RETURN vObjects, eObjects'
+      'MATCH (v)-[e]-(tgt:country) WHERE ID(v) = "12" WITH collect(DISTINCT tgt)[..10] AS vObjects, collect({edge: e, sourceType: labels(startNode(e)), targetType: labels(endNode(e))})[..10] AS eObjects RETURN vObjects, eObjects'
     );
   });
 
@@ -53,7 +53,7 @@ describe("OpenCypher > oneHopTemplate", () => {
     });
 
     expect(template).toBe(
-      'MATCH (v)-[e]-(tgt:country) WHERE ID(v) = "12" AND tgt.longest >= 10000 AND tgt.country CONTAINS "ES" WITH collect(DISTINCT tgt)[..10] AS vObjects, collect({edge: e, sourceType: labels(v), targetType: labels(tgt)})[..10] AS eObjects RETURN vObjects, eObjects'
+      'MATCH (v)-[e]-(tgt:country) WHERE ID(v) = "12" AND tgt.longest >= 10000 AND tgt.country CONTAINS "ES" WITH collect(DISTINCT tgt)[..10] AS vObjects, collect({edge: e, sourceType: labels(startNode(e)), targetType: labels(endNode(e))})[..10] AS eObjects RETURN vObjects, eObjects'
     );
   });
 });
