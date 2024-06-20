@@ -1,11 +1,13 @@
+import dedent from "dedent";
+
 /**
  * Fetch all neighbors and their predicates, values, and classes
  * given a blank node sub-query.
  *
  * @see oneHopNeighborsTemplate
  */
-const blankNodeOneHopNeighborsTemplate = (subQuery: string) => {
-  return `
+export default function blankNodeOneHopNeighborsTemplate(subQuery: string) {
+  return dedent`
 		SELECT ?bNode ?subject ?pred ?value ?subjectClass ?pToSubject ?pFromSubject {
 			?subject a     ?subjectClass ;
 							 ?pred ?value .
@@ -20,6 +22,4 @@ const blankNodeOneHopNeighborsTemplate = (subQuery: string) => {
 			FILTER(isLiteral(?value))
 		}
   `;
-};
-
-export default blankNodeOneHopNeighborsTemplate;
+}

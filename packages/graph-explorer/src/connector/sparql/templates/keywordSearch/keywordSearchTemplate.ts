@@ -1,3 +1,4 @@
+import dedent from "dedent";
 import { SPARQLKeywordSearchRequest } from "../../types";
 import {
   getFilterObject,
@@ -36,15 +37,15 @@ import {
  *   FILTER(isLiteral(?value))
  * }
  */
-const keywordSearchTemplate = ({
+export default function keywordSearchTemplate({
   searchTerm,
   subjectClasses = [],
   predicates = [],
   limit = 10,
   offset = 0,
   exactMatch = false,
-}: SPARQLKeywordSearchRequest): string => {
-  return `
+}: SPARQLKeywordSearchRequest): string {
+  return dedent`
     SELECT ?subject ?pred ?value ?class {
       ?subject ?pred ?value {
         SELECT DISTINCT ?subject ?class {
@@ -59,6 +60,4 @@ const keywordSearchTemplate = ({
       FILTER(isLiteral(?value))
     }
   `;
-};
-
-export default keywordSearchTemplate;
+}

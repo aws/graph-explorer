@@ -39,13 +39,13 @@ type RawNeighborsPredicatesResponse = {
   };
 };
 
-const fetchBlankNodeNeighborsPredicates = async (
+async function fetchBlankNodeNeighborsPredicates(
   sparqlFetch: SparqlFetch,
   subQuery: string,
   resourceURI: string,
   resourceClass: string,
   subjectURIs: string[]
-) => {
+) {
   const template = blankNodeSubjectPredicatesTemplate({
     subQuery,
     subjectURIs,
@@ -59,9 +59,9 @@ const fetchBlankNodeNeighborsPredicates = async (
 
     return mapOutgoingToEdge(resourceURI, resourceClass, result);
   });
-};
+}
 
-export const mapOneHop = (data: RawBlankNodeNeighborsResponse) => {
+export function mapOneHop(data: RawBlankNodeNeighborsResponse) {
   const groupBySubject = groupBy(
     data.results.bindings,
     result => result.subject.value
@@ -85,12 +85,12 @@ export const mapOneHop = (data: RawBlankNodeNeighborsResponse) => {
   return Object.values(mappedResults).map(result => {
     return mapRawResultToVertex(result);
   });
-};
+}
 
-const fetchBlankNodeNeighbors = async (
+export default async function fetchBlankNodeNeighbors(
   sparqlFetch: SparqlFetch,
   req: SPARQLBlankNodeNeighborsRequest
-): Promise<SPARQLBlankNodeNeighborsResponse> => {
+): Promise<SPARQLBlankNodeNeighborsResponse> {
   const neighborsTemplate = blankNodeOneHopNeighborsTemplate(req.subQuery);
   const neighbors = await sparqlFetch<
     RawBlankNodeNeighborsResponse | ErrorResponse
@@ -132,6 +132,4 @@ const fetchBlankNodeNeighbors = async (
       edges,
     },
   };
-};
-
-export default fetchBlankNodeNeighbors;
+}

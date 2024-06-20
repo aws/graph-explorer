@@ -1,4 +1,5 @@
 import { SPARQLBlankNodeNeighborsCountRequest } from "../../types";
+import dedent from "dedent";
 
 /**
  * Count neighbors by class which are related with the given subject URI.
@@ -19,11 +20,11 @@ import { SPARQLBlankNodeNeighborsCountRequest } from "../../types";
  * }
  * GROUP BY ?bNode ?class
  */
-const blankNodeNeighborsCountTemplate = ({
+export default function blankNodeNeighborsCountTemplate({
   subQuery,
   limit = 0,
-}: SPARQLBlankNodeNeighborsCountRequest) => {
-  return `
+}: SPARQLBlankNodeNeighborsCountRequest) {
+  return dedent`
     SELECT ?bNode ?class (COUNT(?class) AS ?count) {
       ?subject a ?class {
         SELECT DISTINCT ?bNode ?subject ?class {
@@ -38,6 +39,4 @@ const blankNodeNeighborsCountTemplate = ({
     }
     GROUP BY ?bNode ?class
   `;
-};
-
-export default blankNodeNeighborsCountTemplate;
+}

@@ -1,3 +1,4 @@
+import dedent from "dedent";
 import { SPARQLNeighborsPredicatesRequest } from "../types";
 
 /**
@@ -27,10 +28,10 @@ import { SPARQLNeighborsPredicatesRequest } from "../types";
  *   }
  * }
  */
-const subjectPredicatesTemplate = ({
+export default function subjectPredicatesTemplate({
   resourceURI,
   subjectURIs = [],
-}: SPARQLNeighborsPredicatesRequest): string => {
+}: SPARQLNeighborsPredicatesRequest): string {
   const getSubjectURIs = () => {
     if (!subjectURIs?.length) {
       return "";
@@ -44,7 +45,7 @@ const subjectPredicatesTemplate = ({
     return classesValues;
   };
 
-  return `
+  return dedent`
     SELECT ?subject ?subjectClass ?predToSubject ?predFromSubject {
       BIND(<${resourceURI}> AS ?argument)
       ${getSubjectURIs()}
@@ -59,6 +60,4 @@ const subjectPredicatesTemplate = ({
       }
     }
   `;
-};
-
-export default subjectPredicatesTemplate;
+}
