@@ -1,3 +1,4 @@
+import dedent from "dedent";
 import type { Criterion, NeighborsRequest } from "../../useGEFetchTypes";
 
 const criterionNumberTemplate = ({
@@ -108,40 +109,42 @@ const oneHopTemplate = ({
   filterCriteria = [],
   limit = 0,
 }: Omit<NeighborsRequest, "vertexType">): string => {
-  let template = `MATCH (v)`;
-
-  const formattedVertexTypes = filterByVertexTypes
-    .flatMap(type => type.split("::"))
-    .map(type => `v:${type}`)
-    .join(" OR ");
+  // List of possible vertex types
+  const formattedVertexTypes =
+    filterByVertexTypes.length > 1
+      ? `(${filterByVertexTypes
+          .flatMap(type => type.split("::"))
+          .map(type => `v:${type}`)
+          .join(" OR ")})`
+      : "";
   const formattedEdgeTypes = edgeTypes.map(type => `${type}`).join("|");
-
-  if (edgeTypes.length > 0) {
-    template += `-[e:${formattedEdgeTypes}]-`;
-  } else {
-    template += `-[e]-`;
-  }
-
-  if (filterByVertexTypes.length == 1) {
-    template += `(tgt:${filterByVertexTypes[0]}) WHERE ID(v) = "${vertexId}" `;
-  } else if (filterByVertexTypes.length > 1) {
-    template += `(tgt) WHERE ID(v) = "${vertexId}" AND ${formattedVertexTypes}`;
-  } else {
-    template += `(tgt) WHERE ID(v) = "${vertexId}" `;
-  }
-
-  const filterCriteriaTemplate = filterCriteria
-    ?.map(criterionTemplate)
-    .join(" AND ");
-  if (filterCriteriaTemplate) {
-    template += `AND ${filterCriteriaTemplate} `;
-  }
 
   const limitTemplate = limit > 0 ? `[..${limit}]` : "";
 
-  template += `WITH collect(DISTINCT tgt)${limitTemplate} AS vObjects, collect({edge: e, sourceType: labels(startNode(e)), targetType: labels(endNode(e))})${limitTemplate} AS eObjects RETURN vObjects, eObjects`;
+  // Specify edge type if provided
+  const edgeMatch = edgeTypes.length > 0 ? `e:${formattedEdgeTypes}` : `e`;
 
-  return template;
+  // Specify node type for target if provided and only one
+  const targetMatch =
+    filterByVertexTypes.length == 1 ? `tgt:${filterByVertexTypes[0]}` : `tgt`;
+
+  // Combine all the WHERE conditions
+  const whereConditions = [
+    `ID(v) = "${vertexId}"`,
+    formattedVertexTypes,
+    ...(filterCriteria?.map(criterionTemplate) ?? []),
+  ]
+    .filter(Boolean)
+    .join(" AND ");
+
+  return dedent`
+    MATCH (v)-[${edgeMatch}]-(${targetMatch})
+    WHERE ${whereConditions}
+    WITH
+      collect(DISTINCT tgt)${limitTemplate} AS vObjects, 
+      collect({ edge: e, sourceType: labels(startNode(e)), targetType: labels(endNode(e)) })${limitTemplate} AS eObjects
+    RETURN vObjects, eObjects
+  `;
 };
 
 export default oneHopTemplate;
