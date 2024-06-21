@@ -1,7 +1,7 @@
 import useKeywordSearch from "./useKeywordSearch";
 import { ConnectionConfig } from "../../core";
-import renderHookWithRecoilRoot from "../../utils/testing/renderHookWithRecoilRoot";
-import { createRandomRawConfiguration } from "../../utils/testing/randomData";
+import { renderHookWithRecoilRoot } from "../../utils/testing";
+import { createRandomRawConfiguration } from "../../utils/testing";
 import {
   activeConfigurationAtom,
   configurationAtom,

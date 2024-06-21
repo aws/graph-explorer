@@ -4,10 +4,7 @@
 
 import { describe, it, expect, jest } from "@jest/globals";
 import { ICONS_CACHE, VertexIconConfig, renderNode } from "./renderNode";
-import {
-  createRandomColor,
-  createRandomName,
-} from "../../utils/testing/randomData";
+import { createRandomColor, createRandomName } from "../../utils/testing";
 
 global.fetch =
   jest.fn<

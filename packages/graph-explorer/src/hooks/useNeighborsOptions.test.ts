@@ -1,11 +1,13 @@
 import useNeighborsOptions from "./useNeighborsOptions";
 import { Vertex } from "../@types/entities";
-import renderHookWithRecoilRoot from "../utils/testing/renderHookWithRecoilRoot";
 import {
   activeConfigurationAtom,
   configurationAtom,
 } from "../core/StateProvider/configuration";
-import { createRandomRawConfiguration } from "../utils/testing/randomData";
+import {
+  createRandomRawConfiguration,
+  renderHookWithRecoilRoot,
+} from "../utils/testing";
 
 describe("useNeighborsOptions", () => {
   const vertex = {

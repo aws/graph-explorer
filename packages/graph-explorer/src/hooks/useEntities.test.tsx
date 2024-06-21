@@ -8,12 +8,12 @@ import {
   createRandomName,
   createRandomSchema,
   createRandomVertex,
-} from "../utils/testing/randomData";
+} from "../utils/testing";
 import { schemaAtom } from "../core/StateProvider/schema";
 import { activeConfigurationAtom } from "../core/StateProvider/configuration";
 import { Schema } from "../core";
 import { Entities } from "../core/StateProvider/entitiesSelector";
-import renderHookWithRecoilRoot from "../utils/testing/renderHookWithRecoilRoot";
+import { renderHookWithRecoilRoot } from "../utils/testing";
 import { waitForValueToChange } from "../utils/testing/waitForValueToChange";
 
 describe("useEntities", () => {
