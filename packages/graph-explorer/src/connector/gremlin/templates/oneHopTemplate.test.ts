@@ -67,6 +67,24 @@ describe("Gremlin > oneHopTemplate", () => {
     );
   });
 
+  it("Should return a template for multiple vertex type", () => {
+    const template = oneHopTemplate({
+      vertexId: "12",
+      idType: "string",
+      filterByVertexTypes: ["country", "airport", "continent"],
+      offset: 5,
+      limit: 10,
+    });
+
+    expect(normalize(template)).toBe(
+      normalize(`
+        g.V("12").project("vertices", "edges")
+          .by(both().hasLabel("country", "airport", "continent").dedup().range(5, 15).fold())
+          .by(bothE().where(otherV().hasLabel("country", "airport", "continent")).dedup().fold())
+      `)
+    );
+  });
+
   it("Should return a template with specific filter criteria", () => {
     const template = oneHopTemplate({
       vertexId: "12",
