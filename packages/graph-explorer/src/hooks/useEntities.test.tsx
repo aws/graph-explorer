@@ -2,9 +2,12 @@ import { useRecoilValue } from "recoil";
 import useEntities from "./useEntities";
 import { Vertex } from "../@types/entities";
 import {
+  createRandomEdge,
   createRandomEntities,
+  createRandomInteger,
   createRandomName,
   createRandomSchema,
+  createRandomVertex,
 } from "../utils/testing/randomData";
 import { schemaAtom } from "../core/StateProvider/schema";
 import { activeConfigurationAtom } from "../core/StateProvider/configuration";
@@ -218,6 +221,34 @@ describe("useEntities", () => {
     expect(
       result.current.entities.nodes[2].data.__unfetchedNeighborCount
     ).toEqual(0);
+  });
+
+  it("should calculate stats after adding new nodes and edges", async () => {
+    const node1 = createRandomVertex();
+    const node2 = createRandomVertex();
+    const randomNeighborCount = createRandomInteger(500);
+    node1.data.neighborsCount = randomNeighborCount;
+    node1.data.neighborsCountByType[node2.data.type] = randomNeighborCount;
+    const edge1to2 = createRandomEdge(node1, node2);
+
+    const { result } = renderHookWithRecoilRoot(() => {
+      const [entities, setEntities] = useEntities({ disableFilters: true });
+      return { entities, setEntities };
+    });
+
+    result.current.setEntities({ nodes: [node1, node2], edges: [edge1to2] });
+
+    await waitForValueToChange(() => result.current.entities);
+
+    const actualNode1 = result.current.entities.nodes.find(
+      n => n.data.id === node1.data.id
+    )!;
+    expect(actualNode1.data.__unfetchedNeighborCount).toEqual(
+      randomNeighborCount - 1
+    );
+    expect(
+      actualNode1.data.__unfetchedNeighborCounts![node2.data.type]
+    ).toEqual(randomNeighborCount - 1);
   });
 
   it("should return original entities before any filters were applied", async () => {

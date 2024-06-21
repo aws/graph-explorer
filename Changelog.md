@@ -12,6 +12,12 @@
   (<https://github.com/aws/graph-explorer/pull/436>)
 - Add node expansion limit per connection
   (<https://github.com/aws/graph-explorer/pull/447>)
+- Fixed many bugs around neighbor expansion and counts for openCypher
+  (<https://github.com/aws/graph-explorer/pull/449>)
+  - Fixed expand limit to be type based when expanding from sidebar
+  - Fixed expand query to respect limit and offset properly so multiple
+    expansions return unique results
+  - Fixed expand query so all edges are returned between source and target nodes
 
 **Bug Fixes and Minor Changes**
 

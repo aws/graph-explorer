@@ -103,13 +103,12 @@ function NeighborDetails({
               operator: "LIKE",
               value: filter.value,
             })),
-            // TODO - review limit and offset when data is not sorted
-            limit: limit ?? vertex.data.neighborsCount,
+            limit: limit || undefined,
             offset:
-              limit === null
-                ? 0
-                : vertex.data.neighborsCount -
-                  (vertex.data.__unfetchedNeighborCount ?? 0),
+              limit !== null && vertex.data.__unfetchedNeighborCounts
+                ? vertex.data.neighborsCountByType[selectedType] -
+                  vertex.data.__unfetchedNeighborCounts[selectedType]
+                : undefined,
           }}
         />
       </ModuleContainerFooter>

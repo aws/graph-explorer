@@ -1,3 +1,4 @@
+import normalize from "../../../utils/testing/normalize";
 import neighborsCountTemplate from "./neighborsCountTemplate";
 
 describe("OpenCypher > neighborsCountTemplate", () => {
@@ -7,8 +8,15 @@ describe("OpenCypher > neighborsCountTemplate", () => {
       idType: "string",
     });
 
-    expect(template).toBe(
-      'MATCH (v) -[e]- (t) WHERE ID(v) = "12" RETURN labels(t) AS vertexLabel, count(DISTINCT t) AS count'
+    expect(normalize(template)).toBe(
+      normalize(
+        `
+          MATCH (v)-[]-(neighbor) 
+          WHERE ID(v) = "12" 
+          WITH DISTINCT neighbor 
+          RETURN labels(neighbor) AS vertexLabel, count(DISTINCT neighbor) AS count
+        `
+      )
     );
   });
 
@@ -19,8 +27,16 @@ describe("OpenCypher > neighborsCountTemplate", () => {
       limit: 20,
     });
 
-    expect(template).toBe(
-      'MATCH (v) -[e]- (t) WHERE ID(v) = "12" RETURN labels(t) AS vertexLabel, count(DISTINCT t) AS count LIMIT 20'
+    expect(normalize(template)).toBe(
+      normalize(
+        `
+        MATCH (v)-[]-(neighbor) 
+        WHERE ID(v) = "12"
+        WITH DISTINCT neighbor 
+        LIMIT 20
+        RETURN labels(neighbor) AS vertexLabel, count(DISTINCT neighbor) AS count 
+        `
+      )
     );
   });
 
@@ -31,8 +47,15 @@ describe("OpenCypher > neighborsCountTemplate", () => {
       limit: 0,
     });
 
-    expect(template).toBe(
-      'MATCH (v) -[e]- (t) WHERE ID(v) = "12" RETURN labels(t) AS vertexLabel, count(DISTINCT t) AS count'
+    expect(normalize(template)).toBe(
+      normalize(
+        `
+        MATCH (v)-[]-(neighbor)
+        WHERE ID(v) = "12"
+        WITH DISTINCT neighbor 
+        RETURN labels(neighbor) AS vertexLabel, count(DISTINCT neighbor) AS count
+        `
+      )
     );
   });
 });
