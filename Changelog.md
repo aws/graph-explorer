@@ -23,7 +23,9 @@
 
 - Remove extraneous openCypher query when expanding nodes
   (<https://github.com/aws/graph-explorer/pull/431>)
-- Fix edge case where node badges are stale
+- Made double clicking a node easier
+  (<https://github.com/aws/graph-explorer/pull/453>)
+- Fixed edge case where node badges are stale
   (<https://github.com/aws/graph-explorer/pull/427>)
 - Fixed issue with Gremlin Server 3.7
   (<https://github.com/aws/graph-explorer/pull/411>)
