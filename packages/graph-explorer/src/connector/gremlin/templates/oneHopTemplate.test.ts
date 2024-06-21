@@ -1,3 +1,4 @@
+import { normalizeWithNoSpace as normalize } from "../../../utils/testing";
 import oneHopTemplate from "./oneHopTemplate";
 
 describe("Gremlin > oneHopTemplate", () => {
@@ -7,10 +8,12 @@ describe("Gremlin > oneHopTemplate", () => {
       idType: "string",
     });
 
-    expect(template).toBe(
-      'g.V("12").project("vertices", "edges")' +
-        ".by(both().dedup().fold())" +
-        ".by(bothE().dedup().fold())"
+    expect(normalize(template)).toBe(
+      normalize(`
+        g.V("12").project("vertices", "edges")
+          .by(both().dedup().fold())
+          .by(bothE().dedup().fold())
+      `)
     );
   });
 
@@ -20,10 +23,12 @@ describe("Gremlin > oneHopTemplate", () => {
       idType: "number",
     });
 
-    expect(template).toBe(
-      'g.V(12L).project("vertices", "edges")' +
-        ".by(both().dedup().fold())" +
-        ".by(bothE().dedup().fold())"
+    expect(normalize(template)).toBe(
+      normalize(`
+        g.V(12L).project("vertices", "edges")
+          .by(both().dedup().fold())
+          .by(bothE().dedup().fold())
+      `)
     );
   });
 
@@ -35,10 +40,12 @@ describe("Gremlin > oneHopTemplate", () => {
       limit: 5,
     });
 
-    expect(template).toBe(
-      'g.V("12").project("vertices", "edges")' +
-        ".by(both().dedup().range(5, 10).fold())" +
-        ".by(bothE().dedup().fold())"
+    expect(normalize(template)).toBe(
+      normalize(`
+        g.V("12").project("vertices", "edges")
+          .by(both().dedup().range(5, 10).fold())
+          .by(bothE().dedup().fold())
+      `)
     );
   });
 
@@ -51,10 +58,12 @@ describe("Gremlin > oneHopTemplate", () => {
       limit: 10,
     });
 
-    expect(template).toBe(
-      'g.V("12").project("vertices", "edges")' +
-        '.by(both().hasLabel("country").dedup().range(5, 15).fold())' +
-        '.by(bothE().where(otherV().hasLabel("country")).dedup().fold())'
+    expect(normalize(template)).toBe(
+      normalize(`
+        g.V("12").project("vertices", "edges")
+          .by(both().hasLabel("country").dedup().range(5, 15).fold())
+          .by(bothE().where(otherV().hasLabel("country")).dedup().fold())
+      `)
     );
   });
 
@@ -71,12 +80,14 @@ describe("Gremlin > oneHopTemplate", () => {
       limit: 10,
     });
 
-    expect(template).toBe(
-      'g.V("12").project("vertices", "edges")' +
-        '.by(both().hasLabel("country")' +
-        '.and(has("longest",gte(10000)),has("country",containing("ES")))' +
-        ".dedup().range(5, 15).fold())" +
-        '.by(bothE().where(otherV().hasLabel("country")).dedup().fold())'
+    expect(normalize(template)).toBe(
+      normalize(`
+        g.V("12").project("vertices", "edges")
+          .by(both().hasLabel("country")
+          .and(has("longest",gte(10000)),has("country",containing("ES")))
+          .dedup().range(5, 15).fold())
+          .by(bothE().where(otherV().hasLabel("country")).dedup().fold())
+      `)
     );
   });
 });
