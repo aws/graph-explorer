@@ -37,6 +37,7 @@
   string is empty (<https://github.com/aws/graph-explorer/pull/445>)
 - Fixed issue where long connection URLs had no vertical padding
   (<https://github.com/aws/graph-explorer/pull/445>)
+- Updated to TypeScript 5.5 (<https://github.com/aws/graph-explorer/pull/451>)
 
 ## Release 1.7.0
 
