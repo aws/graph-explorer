@@ -11,11 +11,11 @@ import type { NeighborsCountRequest } from "../../useGEFetchTypes";
  * g.V("44").both().limit(10).dedup()
  *  .group().by(label).by(count())
  */
-const neighborsCountTemplate = ({
+export default function neighborsCountTemplate({
   vertexId,
   limit = 0,
   idType,
-}: NeighborsCountRequest) => {
+}: NeighborsCountRequest) {
   let template = "";
   if (idType === "number") {
     template = `g.V(${vertexId}L).both()`;
@@ -29,6 +29,4 @@ const neighborsCountTemplate = ({
   template += `.dedup().group().by(label).by(count())`;
 
   return template;
-};
-
-export default neighborsCountTemplate;
+}

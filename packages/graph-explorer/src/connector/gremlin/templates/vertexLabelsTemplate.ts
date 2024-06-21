@@ -1,8 +1,6 @@
 /**
  * It returns a Gremlin template to get all nodes labels and their counts
  */
-const vertexLabelsTemplate = () => {
+export default function vertexLabelsTemplate() {
   return "g.V().groupCount().by(label)";
-};
-
-export default vertexLabelsTemplate;
+}

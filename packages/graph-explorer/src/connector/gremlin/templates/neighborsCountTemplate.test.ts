@@ -1,4 +1,5 @@
 import neighborsCountTemplate from "./neighborsCountTemplate";
+import { normalizeWithNoSpace as normalize } from "../../../utils/testing";
 
 describe("Gremlin > neighborsCountTemplate", () => {
   it("Should return a template for the given vertex id", () => {
@@ -7,8 +8,10 @@ describe("Gremlin > neighborsCountTemplate", () => {
       idType: "string",
     });
 
-    expect(template).toBe(
-      'g.V("12").both().dedup().group().by(label).by(count())'
+    expect(normalize(template)).toBe(
+      normalize(`
+        g.V("12").both().dedup().group().by(label).by(count())
+      `)
     );
   });
 
@@ -18,8 +21,10 @@ describe("Gremlin > neighborsCountTemplate", () => {
       idType: "number",
     });
 
-    expect(template).toBe(
-      "g.V(12L).both().dedup().group().by(label).by(count())"
+    expect(normalize(template)).toBe(
+      normalize(`
+        g.V(12L).both().dedup().group().by(label).by(count())
+      `)
     );
   });
 
@@ -30,8 +35,10 @@ describe("Gremlin > neighborsCountTemplate", () => {
       limit: 20,
     });
 
-    expect(template).toBe(
-      'g.V("12").both().limit(20).dedup().group().by(label).by(count())'
+    expect(normalize(template)).toBe(
+      normalize(`
+        g.V("12").both().limit(20).dedup().group().by(label).by(count())
+      `)
     );
   });
 
@@ -42,8 +49,10 @@ describe("Gremlin > neighborsCountTemplate", () => {
       limit: 0,
     });
 
-    expect(template).toBe(
-      'g.V("12").both().dedup().group().by(label).by(count())'
+    expect(normalize(template)).toBe(
+      normalize(`
+        g.V("12").both().dedup().group().by(label).by(count())
+      `)
     );
   });
 });

@@ -3,8 +3,10 @@ import {
   activeConfigurationAtom,
   configurationAtom,
 } from "../core/StateProvider/configuration";
-import { createRandomRawConfiguration } from "../utils/testing/randomData";
-import renderHookWithRecoilRoot from "../utils/testing/renderHookWithRecoilRoot";
+import {
+  createRandomRawConfiguration,
+  renderHookWithRecoilRoot,
+} from "../utils/testing";
 import useTextTransform from "./useTextTransform";
 
 function initializeConfigWithPrefix(snapshot: MutableSnapshot) {

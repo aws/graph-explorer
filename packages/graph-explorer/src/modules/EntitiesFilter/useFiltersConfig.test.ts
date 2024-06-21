@@ -4,10 +4,10 @@ import useFiltersConfig from "./useFiltersConfig";
 import {
   createRandomRawConfiguration,
   createRandomSchema,
-} from "../../utils/testing/randomData";
+  renderHookWithRecoilRoot,
+} from "../../utils/testing";
 import { sample, sortBy } from "lodash";
 import { Schema } from "../../core";
-import renderHookWithRecoilRoot from "../../utils/testing/renderHookWithRecoilRoot";
 import {
   activeConfigurationAtom,
   configurationAtom,

@@ -1,10 +1,10 @@
 import type { Criterion, NeighborsRequest } from "../../useGEFetchTypes";
 
-const criterionNumberTemplate = ({
+function criterionNumberTemplate({
   name,
   operator,
   value,
-}: Omit<Criterion, "dataType">): string => {
+}: Omit<Criterion, "dataType">): string {
   switch (operator.toLowerCase()) {
     case "eq":
     case "==":
@@ -26,13 +26,13 @@ const criterionNumberTemplate = ({
     case "!=":
       return `has("${name}",neq(${value}))`;
   }
-};
+}
 
-const criterionStringTemplate = ({
+function criterionStringTemplate({
   name,
   operator,
   value,
-}: Omit<Criterion, "dataType">): string => {
+}: Omit<Criterion, "dataType">): string {
   switch (operator.toLowerCase()) {
     case "eq":
     case "==":
@@ -44,13 +44,13 @@ const criterionStringTemplate = ({
     case "like":
       return `has("${name}",containing("${value}"))`;
   }
-};
+}
 
-const criterionDateTemplate = ({
+function criterionDateTemplate({
   name,
   operator,
   value,
-}: Omit<Criterion, "dataType">): string => {
+}: Omit<Criterion, "dataType">): string {
   switch (operator.toLowerCase()) {
     case "eq":
     case "==":
@@ -72,9 +72,9 @@ const criterionDateTemplate = ({
     case "!=":
       return `has("${name}",neq(datetime(${value})))`;
   }
-};
+}
 
-const criterionTemplate = (criterion: Criterion): string => {
+function criterionTemplate(criterion: Criterion): string {
   switch (criterion.dataType) {
     case "Number":
       return criterionNumberTemplate(criterion);
@@ -84,7 +84,7 @@ const criterionTemplate = (criterion: Criterion): string => {
     default:
       return criterionStringTemplate(criterion);
   }
-};
+}
 
 /**
  * @example
@@ -125,7 +125,7 @@ const criterionTemplate = (criterion: Criterion): string => {
  *    bothE("route").dedup().fold()
  *  )
  */
-const oneHopTemplate = ({
+export default function oneHopTemplate({
   vertexId,
   idType,
   filterByVertexTypes = [],
@@ -133,7 +133,7 @@ const oneHopTemplate = ({
   filterCriteria = [],
   limit = 0,
   offset = 0,
-}: Omit<NeighborsRequest, "vertexType">): string => {
+}: Omit<NeighborsRequest, "vertexType">): string {
   const range = limit > 0 ? `.range(${offset}, ${offset + limit})` : "";
   let template = "";
   if (idType === "number") {
@@ -183,6 +183,4 @@ const oneHopTemplate = ({
   }
 
   return template;
-};
-
-export default oneHopTemplate;
+}

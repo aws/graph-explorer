@@ -1,10 +1,11 @@
 import keywordSearchTemplate from "./keywordSearchTemplate";
+import { normalizeWithNoSpace as normalize } from "../../../utils/testing";
 
 describe("Gremlin > keywordSearchTemplate", () => {
   it("Should return a template only with default range", () => {
     const template = keywordSearchTemplate({});
 
-    expect(template).toBe("g.V().range(0,10)");
+    expect(normalize(template)).toBe(normalize("g.V().range(0,10)"));
   });
 
   it("Should return a template only for vertex type", () => {
@@ -12,7 +13,9 @@ describe("Gremlin > keywordSearchTemplate", () => {
       vertexTypes: ["airport"],
     });
 
-    expect(template).toBe('g.V().hasLabel("airport").range(0,10)');
+    expect(normalize(template)).toBe(
+      normalize('g.V().hasLabel("airport").range(0,10)')
+    );
   });
 
   it("Should return a template for searched attributes containing the search term", () => {
@@ -21,8 +24,10 @@ describe("Gremlin > keywordSearchTemplate", () => {
       searchByAttributes: ["city", "code"],
     });
 
-    expect(template).toBe(
-      'g.V().or(has("city",containing("JFK")),has("code",containing("JFK"))).range(0,10)'
+    expect(normalize(template)).toBe(
+      normalize(
+        'g.V().or(has("city",containing("JFK")),has("code",containing("JFK"))).range(0,10)'
+      )
     );
   });
 
@@ -33,8 +38,8 @@ describe("Gremlin > keywordSearchTemplate", () => {
       exactMatch: true,
     });
 
-    expect(template).toBe(
-      'g.V().or(has("city","JFK"),has("code","JFK")).range(0,10)'
+    expect(normalize(template)).toBe(
+      normalize('g.V().or(has("city","JFK"),has("code","JFK")).range(0,10)')
     );
   });
 
@@ -45,7 +50,9 @@ describe("Gremlin > keywordSearchTemplate", () => {
       exactMatch: true,
     });
 
-    expect(template).toBe('g.V().or(has("code","\\"JFK\\"")).range(0,10)');
+    expect(normalize(template)).toBe(
+      normalize('g.V().or(has("code","\\"JFK\\"")).range(0,10)')
+    );
   });
 
   it("Should return a template for the ID token attribute exactly matching the search term", () => {
@@ -57,8 +64,8 @@ describe("Gremlin > keywordSearchTemplate", () => {
       searchByAttributes: ["__id"],
     });
 
-    expect(template).toBe(
-      'g.V().hasLabel("airport").or(has(id,"JFK")).range(0,10)'
+    expect(normalize(template)).toBe(
+      normalize('g.V().hasLabel("airport").or(has(id,"JFK")).range(0,10)')
     );
   });
 
@@ -71,8 +78,10 @@ describe("Gremlin > keywordSearchTemplate", () => {
       searchByAttributes: ["__id"],
     });
 
-    expect(template).toBe(
-      'g.V().hasLabel("airport").or(has(id,containing("JFK"))).range(0,10)'
+    expect(normalize(template)).toBe(
+      normalize(
+        'g.V().hasLabel("airport").or(has(id,containing("JFK"))).range(0,10)'
+      )
     );
   });
 
@@ -83,8 +92,16 @@ describe("Gremlin > keywordSearchTemplate", () => {
       searchByAttributes: ["city", "code", "__all"],
     });
 
-    expect(template).toBe(
-      'g.V().or(has(id,containing("JFK")),has("city",containing("JFK")),has("code",containing("JFK"))).range(0,10)'
+    expect(normalize(template)).toBe(
+      normalize(`
+        g.V()
+          .or(
+            has(id, containing("JFK")), 
+            has("city", containing("JFK")), 
+            has("code", containing("JFK"))
+          )
+          .range(0,10)
+      `)
     );
   });
 
@@ -95,7 +112,9 @@ describe("Gremlin > keywordSearchTemplate", () => {
       limit: 25,
     });
 
-    expect(template).toBe('g.V().hasLabel("airport").range(25,50)');
+    expect(normalize(template)).toBe(
+      normalize('g.V().hasLabel("airport").range(25,50)')
+    );
   });
 
   it("Should return a template with an offset and limit", () => {
@@ -107,8 +126,8 @@ describe("Gremlin > keywordSearchTemplate", () => {
       limit: 10,
     });
 
-    expect(template).toBe(
-      'g.V().or(has("code",containing("JFK"))).range(2,12)'
+    expect(normalize(template)).toBe(
+      normalize('g.V().or(has("code",containing("JFK"))).range(2,12)')
     );
   });
 
@@ -122,8 +141,10 @@ describe("Gremlin > keywordSearchTemplate", () => {
       offset: 1,
     });
 
-    expect(template).toBe(
-      'g.V().hasLabel("airport").or(has("code",containing("JFK"))).range(1,26)'
+    expect(normalize(template)).toBe(
+      normalize(
+        'g.V().hasLabel("airport").or(has("code",containing("JFK"))).range(1,26)'
+      )
     );
   });
 });
