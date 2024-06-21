@@ -1,5 +1,5 @@
 import cytoscape from "cytoscape";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 
 import { CytoscapeType } from "../Graph.model";
 
@@ -62,7 +62,7 @@ export interface UseAddClickEvents<
   onGroupDoubleClick?: GroupElementEventCallback<TNode>;
 }
 
-const DOUBLE_CLICK_DELAY_MS = 200;
+const DOUBLE_CLICK_DELAY_MS = 300;
 
 const useAddClickEvents = ({
   cy,
@@ -82,28 +82,41 @@ const useAddClickEvents = ({
   onEdgeMouseOut,
   onEdgeMouseOver,
 }: UseAddClickEvents) => {
-  const lastTapTimestamp = useRef<number>(0);
-
   useEffect(() => {
     if (!cy) {
       return;
     }
 
+    let tappedBefore: any = null;
+    let tappedTimeout: NodeJS.Timeout | null = null;
+
     const handleDoubleTap = (event: cytoscape.EventObject) => {
-      if (
-        lastTapTimestamp.current + DOUBLE_CLICK_DELAY_MS >=
-        new Date().getTime()
-      ) {
-        event.target.trigger("doubleTap", event);
-        return;
+      const tappedNow = event.target;
+
+      // Cancel timeout since we have arrived before it has fired
+      if (tappedTimeout && tappedBefore) {
+        clearTimeout(tappedTimeout);
       }
 
-      lastTapTimestamp.current = new Date().getTime();
+      // Check that we are tapping the same element
+      if (tappedBefore === tappedNow) {
+        tappedNow.trigger("doubleTap", event);
+        tappedBefore = null;
+      } else {
+        // Clear out the tappedBefore when the timeout fires
+        tappedTimeout = setTimeout(() => {
+          tappedBefore = null;
+        }, DOUBLE_CLICK_DELAY_MS);
+        // Set the tappedBefore so we can check it on the next click
+        tappedBefore = tappedNow;
+      }
     };
 
     cy.on("tap", handleDoubleTap);
 
     return () => {
+      // Clear the timeout if it exists
+      tappedTimeout && clearTimeout(tappedTimeout);
       cy.off("tap", handleDoubleTap);
     };
   }, [cy]);
