@@ -13,10 +13,8 @@ import { uniq } from "lodash";
  *  .by(V().bothE("contain").limit(1))
  *  .limit(1)
  */
-const edgesSchemaTemplate = ({ types }: { types: string[] }) => {
+export default function edgesSchemaTemplate({ types }: { types: string[] }) {
   const labels = uniq(types.flatMap(type => type.split("::")));
 
   return `g.E().project(${labels.map(l => `"${l}"`).join(",")})${labels.map(l => `.by(V().bothE("${l}").limit(1))`).join("")}.limit(1)`;
-};
-
-export default edgesSchemaTemplate;
+}

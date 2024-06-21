@@ -20,7 +20,7 @@ import { escapeString } from "../../../utils";
  *  )
  *  .range(0, 100)
  */
-const keywordSearchTemplate = ({
+export default function keywordSearchTemplate({
   searchTerm,
   vertexTypes = [],
   searchById = true,
@@ -28,7 +28,7 @@ const keywordSearchTemplate = ({
   limit = 10,
   offset = 0,
   exactMatch = false,
-}: KeywordSearchRequest): string => {
+}: KeywordSearchRequest): string {
   let template = "g.V()";
 
   if (vertexTypes.length !== 0) {
@@ -67,6 +67,4 @@ const keywordSearchTemplate = ({
 
   template += `.range(${offset},${offset + limit})`;
   return template;
-};
-
-export default keywordSearchTemplate;
+}
