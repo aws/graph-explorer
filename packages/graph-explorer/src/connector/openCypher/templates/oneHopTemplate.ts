@@ -108,6 +108,7 @@ const oneHopTemplate = ({
   edgeTypes = [],
   filterCriteria = [],
   limit = 0,
+  offset = 0,
 }: Omit<NeighborsRequest, "vertexType">): string => {
   // List of possible vertex types
   const formattedVertexTypes =
@@ -118,8 +119,6 @@ const oneHopTemplate = ({
           .join(" OR ")})`
       : "";
   const formattedEdgeTypes = edgeTypes.map(type => `${type}`).join("|");
-
-  const limitTemplate = limit > 0 ? `[..${limit}]` : "";
 
   // Specify edge type if provided
   const edgeMatch = edgeTypes.length > 0 ? `e:${formattedEdgeTypes}` : `e`;
@@ -140,9 +139,14 @@ const oneHopTemplate = ({
   return dedent`
     MATCH (v)-[${edgeMatch}]-(${targetMatch})
     WHERE ${whereConditions}
+    WITH DISTINCT v, tgt
+    ORDER BY toInteger(ID(tgt))
+    ${limit > 0 && offset > 0 ? `SKIP ${offset}` : ``}
+    ${limit > 0 ? `LIMIT ${limit}` : ``}
+    MATCH (v)-[${edgeMatch}]-(tgt)
     WITH
-      collect(DISTINCT tgt)${limitTemplate} AS vObjects, 
-      collect({ edge: e, sourceType: labels(startNode(e)), targetType: labels(endNode(e)) })${limitTemplate} AS eObjects
+      collect(DISTINCT tgt) AS vObjects, 
+      collect({ edge: e, sourceType: labels(startNode(e)), targetType: labels(endNode(e)) }) AS eObjects
     RETURN vObjects, eObjects
   `;
 };

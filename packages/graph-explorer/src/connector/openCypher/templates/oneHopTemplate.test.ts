@@ -12,6 +12,9 @@ describe("OpenCypher > oneHopTemplate", () => {
       normalize(`
         MATCH (v)-[e]-(tgt)
         WHERE ID(v) = "12"
+        WITH DISTINCT v, tgt 
+        ORDER BY toInteger(ID(tgt)) 
+        MATCH (v)-[e]-(tgt)
         WITH
           collect(DISTINCT tgt) AS vObjects,
           collect({ edge: e, sourceType: labels(startNode(e)), targetType: labels(endNode(e)) }) AS eObjects
@@ -32,9 +35,14 @@ describe("OpenCypher > oneHopTemplate", () => {
       normalize(`
         MATCH (v)-[e]-(tgt) 
         WHERE ID(v) = "12" 
+        WITH DISTINCT v, tgt 
+        ORDER BY toInteger(ID(tgt)) 
+        SKIP 5 
+        LIMIT 5
+        MATCH (v)-[e]-(tgt)
         WITH 
-          collect(DISTINCT tgt)[..5] AS vObjects, 
-          collect({ edge: e, sourceType: labels(startNode(e)), targetType: labels(endNode(e)) })[..5] AS eObjects 
+          collect(DISTINCT tgt) AS vObjects, 
+          collect({ edge: e, sourceType: labels(startNode(e)), targetType: labels(endNode(e)) }) AS eObjects 
         RETURN vObjects, eObjects
       `)
     );
@@ -53,9 +61,14 @@ describe("OpenCypher > oneHopTemplate", () => {
       normalize(`
         MATCH (v)-[e]-(tgt:country) 
         WHERE ID(v) = "12" 
+        WITH DISTINCT v, tgt 
+        ORDER BY toInteger(ID(tgt)) 
+        SKIP 5 
+        LIMIT 10
+        MATCH (v)-[e]-(tgt)
         WITH 
-          collect(DISTINCT tgt)[..10] AS vObjects, 
-          collect({ edge: e, sourceType: labels(startNode(e)), targetType: labels(endNode(e)) })[..10] AS eObjects 
+          collect(DISTINCT tgt) AS vObjects, 
+          collect({ edge: e, sourceType: labels(startNode(e)), targetType: labels(endNode(e)) }) AS eObjects 
         RETURN vObjects, eObjects
       `)
     );
@@ -72,6 +85,9 @@ describe("OpenCypher > oneHopTemplate", () => {
       normalize(`
         MATCH (v)-[e]-(tgt)
         WHERE ID(v) = "12" AND (v:country OR v:continent OR v:airport OR v:person)
+        WITH DISTINCT v, tgt 
+        ORDER BY toInteger(ID(tgt)) 
+        MATCH (v)-[e]-(tgt)
         WITH
           collect(DISTINCT tgt) AS vObjects,
           collect({ edge: e, sourceType: labels(startNode(e)), targetType: labels(endNode(e)) }) AS eObjects
@@ -93,9 +109,14 @@ describe("OpenCypher > oneHopTemplate", () => {
       normalize(`
         MATCH (v)-[e:locatedIn]-(tgt) 
         WHERE ID(v) = "12" 
+        WITH DISTINCT v, tgt 
+        ORDER BY toInteger(ID(tgt)) 
+        SKIP 5 
+        LIMIT 10
+        MATCH (v)-[e:locatedIn]-(tgt)
         WITH 
-          collect(DISTINCT tgt)[..10] AS vObjects, 
-          collect({ edge: e, sourceType: labels(startNode(e)), targetType: labels(endNode(e)) })[..10] AS eObjects 
+          collect(DISTINCT tgt) AS vObjects, 
+          collect({ edge: e, sourceType: labels(startNode(e)), targetType: labels(endNode(e)) }) AS eObjects 
         RETURN vObjects, eObjects
       `)
     );
@@ -118,9 +139,14 @@ describe("OpenCypher > oneHopTemplate", () => {
       normalize(`
         MATCH (v)-[e]-(tgt:country) 
         WHERE ID(v) = "12" AND tgt.longest >= 10000 AND tgt.country CONTAINS "ES" 
+        WITH DISTINCT v, tgt 
+        ORDER BY toInteger(ID(tgt)) 
+        SKIP 5 
+        LIMIT 10
+        MATCH (v)-[e]-(tgt)
         WITH 
-          collect(DISTINCT tgt)[..10] AS vObjects, 
-          collect({ edge: e, sourceType: labels(startNode(e)), targetType: labels(endNode(e)) })[..10] AS eObjects 
+          collect(DISTINCT tgt) AS vObjects, 
+          collect({ edge: e, sourceType: labels(startNode(e)), targetType: labels(endNode(e)) }) AS eObjects 
         RETURN vObjects, eObjects
       `)
     );
