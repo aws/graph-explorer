@@ -126,11 +126,33 @@ describe("Gremlin > fetchNeighbors", () => {
         },
         {
           data: {
+            id: "33133",
+            type: "route",
+            source: "486",
+            sourceType: "airport",
+            target: "2018",
+            targetType: "airport",
+            attributes: { dist: 82 },
+          },
+        },
+        {
+          data: {
             id: "49539",
             type: "route",
             source: "2018",
             sourceType: "airport",
             target: "228",
+            targetType: "airport",
+            attributes: { dist: 153 },
+          },
+        },
+        {
+          data: {
+            id: "24860",
+            type: "route",
+            source: "228",
+            sourceType: "airport",
+            target: "2018",
             targetType: "airport",
             attributes: { dist: 153 },
           },
@@ -148,17 +170,6 @@ describe("Gremlin > fetchNeighbors", () => {
         },
         {
           data: {
-            id: "24860",
-            type: "route",
-            source: "228",
-            sourceType: "airport",
-            target: "2018",
-            targetType: "airport",
-            attributes: { dist: 153 },
-          },
-        },
-        {
-          data: {
             id: "18665",
             type: "route",
             source: "124",
@@ -166,17 +177,6 @@ describe("Gremlin > fetchNeighbors", () => {
             target: "2018",
             targetType: "airport",
             attributes: { dist: 105 },
-          },
-        },
-        {
-          data: {
-            id: "33133",
-            type: "route",
-            source: "486",
-            sourceType: "airport",
-            target: "2018",
-            targetType: "airport",
-            attributes: { dist: 82 },
           },
         },
         {
@@ -285,6 +285,17 @@ describe("Gremlin > fetchNeighbors", () => {
         },
         {
           data: {
+            id: "33133",
+            type: "route",
+            source: "486",
+            sourceType: "airport",
+            target: "2018",
+            targetType: "airport",
+            attributes: { dist: 82 },
+          },
+        },
+        {
+          data: {
             id: "49538",
             type: "route",
             source: "2018",
@@ -303,17 +314,6 @@ describe("Gremlin > fetchNeighbors", () => {
             target: "2018",
             targetType: "airport",
             attributes: { dist: 105 },
-          },
-        },
-        {
-          data: {
-            id: "33133",
-            type: "route",
-            source: "486",
-            sourceType: "airport",
-            target: "2018",
-            targetType: "airport",
-            attributes: { dist: 82 },
           },
         },
       ],

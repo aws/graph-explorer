@@ -1,3 +1,4 @@
+import dedent from "dedent";
 import type { Criterion, NeighborsRequest } from "../../useGEFetchTypes";
 
 function criterionNumberTemplate({
@@ -134,53 +135,38 @@ export default function oneHopTemplate({
   limit = 0,
   offset = 0,
 }: Omit<NeighborsRequest, "vertexType">): string {
+  const idTemplate = idType === "number" ? `${vertexId}L` : `"${vertexId}"`;
   const range = limit > 0 ? `.range(${offset}, ${offset + limit})` : "";
-  let template = "";
-  if (idType === "number") {
-    template = `g.V(${vertexId}L)`;
-  } else {
-    template = `g.V("${vertexId}")`;
-  }
 
-  template += `.project("vertices", "edges")`;
+  const vertexTypes = filterByVertexTypes.flatMap(type => type.split("::"));
+  const vertexTypesTemplate =
+    vertexTypes.length > 0
+      ? `hasLabel(${vertexTypes.map(type => `"${type}"`).join(", ")})`
+      : ``;
 
-  const hasLabelContent = filterByVertexTypes
-    .flatMap(type => type.split("::"))
-    .map(type => `"${type}"`)
-    .join(",");
-  const bothEContent = edgeTypes.map(type => `"${type}"`).join(",");
+  const filterCriteriaTemplate =
+    filterCriteria.length > 0
+      ? `and(${filterCriteria.map(criterionTemplate).join(", ")})`
+      : ``;
 
-  let filterCriteriaTemplate = ".and(";
-  filterCriteriaTemplate += filterCriteria?.map(criterionTemplate).join(",");
-  filterCriteriaTemplate += ")";
+  const nodeFilters = [vertexTypesTemplate, filterCriteriaTemplate].filter(
+    Boolean
+  );
 
-  if (filterByVertexTypes.length > 0) {
-    if (filterCriteria.length > 0) {
-      template += `.by(both().hasLabel(${hasLabelContent})${filterCriteriaTemplate}.dedup()${range}.fold())`;
-    } else {
-      template += `.by(both().hasLabel(${hasLabelContent}).dedup()${range}.fold())`;
-    }
-  } else {
-    if (filterCriteria.length > 0) {
-      template += `.by(both()${filterCriteriaTemplate}.dedup()${range}.fold())`;
-    } else {
-      template += `.by(both().dedup()${range}.fold())`;
-    }
-  }
+  const nodeFiltersTemplate =
+    nodeFilters.length > 0 ? `.${nodeFilters.join(".")}` : ``;
 
-  if (edgeTypes.length > 0) {
-    if (filterByVertexTypes.length > 0) {
-      template += `.by(bothE(${bothEContent}).where(otherV().hasLabel(${hasLabelContent})).dedup()${range}.fold())`;
-    } else {
-      template += `.by(bothE(${bothEContent}).dedup()${range}.fold())`;
-    }
-  } else {
-    if (filterByVertexTypes.length > 0) {
-      template += `.by(bothE().where(otherV().hasLabel(${hasLabelContent})).dedup().fold())`;
-    } else {
-      template += `.by(bothE().dedup().fold())`;
-    }
-  }
+  const edgeTypesTemplate = edgeTypes.map(type => `"${type}"`).join(",");
 
-  return template;
+  return dedent`
+    g.V(${idTemplate})
+      .both()${nodeFiltersTemplate}.dedup().order()${range}.as("v")
+      .project("vertex", "edges")
+        .by()
+        .by(
+          __.select("v").bothE(${edgeTypesTemplate})
+            .where(otherV().id().is(${idTemplate}))
+            .dedup().fold()
+        )
+  `;
 }

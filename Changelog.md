@@ -21,6 +21,8 @@
 
 **Bug Fixes and Minor Changes**
 
+- Improved performance and reliability of Gremlin neighbor expansion query
+  (<https://github.com/aws/graph-explorer/pull/454>)
 - Remove extraneous openCypher query when expanding nodes
   (<https://github.com/aws/graph-explorer/pull/431>)
 - Made double clicking a node easier
