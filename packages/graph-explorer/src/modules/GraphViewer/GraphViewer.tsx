@@ -1,6 +1,6 @@
 import { cx } from "@emotion/css";
 import { MouseEvent, useCallback, useRef, useState } from "react";
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import { Vertex } from "../../@types/entities";
 import type { ActionItem, ModuleContainerHeaderProps } from "../../components";
 import {
@@ -45,7 +45,6 @@ import useGraphGlobalActions from "./useGraphGlobalActions";
 import useGraphStyles from "./useGraphStyles";
 import useNodeBadges from "./useNodeBadges";
 import useNodeDrop from "./useNodeDrop";
-import { userLayoutAtom } from "../../core/StateProvider/userPreferences";
 
 export type GraphViewerProps = Omit<
   ModuleContainerHeaderProps,
@@ -151,7 +150,6 @@ export default function GraphViewer({
   const hiddenEdgesIds = useRecoilValue(edgesHiddenIdsAtom);
   const nodesOutIds = useRecoilValue(nodesOutOfFocusIdsAtom);
   const edgesOutIds = useRecoilValue(edgesOutOfFocusIdsAtom);
-  const setUserLayout = useSetRecoilState(userLayoutAtom);
 
   const onSelectedNodesIdsChange = useCallback(
     (selectedIds: string[] | Set<string>) => {
@@ -190,16 +188,19 @@ export default function GraphViewer({
   const { expandNode } = useExpandNode();
   const onNodeDoubleClick: ElementEventCallback<Vertex["data"]> = useCallback(
     (_, vertexData) => {
-      if ((vertexData.__unfetchedNeighborCount ?? 0) > 10) {
-        setUserLayout(prev => ({
-          ...prev,
-          activeSidebarItem: "expand",
-        }));
-        return;
-      }
-      expandNode({ data: vertexData });
+      const vertex: Vertex = { data: vertexData };
+      const offset = vertex.data.__unfetchedNeighborCount
+        ? Math.max(
+            0,
+            vertex.data.neighborsCount - vertex.data.__unfetchedNeighborCount
+          )
+        : undefined;
+      expandNode(vertex, {
+        limit: 10,
+        offset,
+      });
     },
-    [expandNode, setUserLayout]
+    [expandNode]
   );
 
   const [layout, setLayout] = useState("F_COSE");
