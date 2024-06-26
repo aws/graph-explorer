@@ -1,4 +1,4 @@
-import { useQueries } from "@tanstack/react-query";
+import { useQueries, useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useRecoilValue } from "recoil";
 import { Vertex } from "../@types/entities";
@@ -6,6 +6,15 @@ import { useNotification } from "../components/NotificationProvider";
 import { neighborsCountQuery } from "../connector/queries";
 import { activeConnectionSelector, explorerSelector } from "../core/connector";
 import useEntities from "./useEntities";
+import { VertexId } from "../connector/useGEFetchTypes";
+
+export function useUpdateNodeCountsQuery(nodeId: VertexId) {
+  const connection = useRecoilValue(activeConnectionSelector);
+  const explorer = useRecoilValue(explorerSelector);
+  return useQuery(
+    neighborsCountQuery(nodeId, connection?.nodeExpansionLimit, explorer)
+  );
+}
 
 /**
  * Hook that watches nodes added to the graph and queries the database for
