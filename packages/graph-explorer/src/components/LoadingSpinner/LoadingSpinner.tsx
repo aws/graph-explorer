@@ -1,28 +1,27 @@
 import { cx } from "@emotion/css";
-import type { CSSProperties, ReactNode } from "react";
+import type { ReactNode } from "react";
 import { useWithTheme } from "../../core";
 import { LoaderIcon } from "../icons";
 
 import defaultStyles from "./LoadingSpinner.styles";
 
-export type LoadingSpinnerProps = {
-  style?: CSSProperties;
+export interface LoadingSpinnerProps
+  extends React.HTMLAttributes<HTMLDivElement> {
   color?: string;
-  className?: string;
   loadingIcon?: ReactNode;
-};
+}
 
 export const LoadingSpinner = ({
-  style,
   color,
   className,
   loadingIcon,
+  ...props
 }: LoadingSpinnerProps) => {
   const themedStyle = useWithTheme();
   return (
     <div
       className={cx(themedStyle(defaultStyles(color)), className)}
-      style={style}
+      {...props}
     >
       <div>{loadingIcon || <LoaderIcon />}</div>
     </div>
