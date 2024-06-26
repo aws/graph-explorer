@@ -8,6 +8,8 @@
   (<https://github.com/aws/graph-explorer/pull/434>)
 - Added caching and retries to node expansion and neighbor counts
   (<https://github.com/aws/graph-explorer/pull/434>)
+- Added progress and error UI for neighbor counts
+  (<https://github.com/aws/graph-explorer/pull/463>)
 - Improved scrolling behavior in expand sidebar
   (<https://github.com/aws/graph-explorer/pull/436>)
 - Add node expansion limit per connection
