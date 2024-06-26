@@ -12,7 +12,7 @@ import useEntities from "./useEntities";
  * neighbor counts. There should be only one instance of this hook in the render
  * pipeline since it uses effects for progress and error notifications.
  */
-export default function useUpdateNodeCounts() {
+export function useUpdateAllNodeCounts() {
   const [entities, setEntities] = useEntities();
   const connection = useRecoilValue(activeConnectionSelector);
   const explorer = useRecoilValue(explorerSelector);

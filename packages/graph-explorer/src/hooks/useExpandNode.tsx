@@ -16,7 +16,7 @@ import { useRecoilValue } from "recoil";
 import { useMutation } from "@tanstack/react-query";
 import useDisplayNames from "./useDisplayNames";
 import { Vertex } from "../@types/entities";
-import useUpdateNodeCounts from "./useUpdateNodeCounts";
+import { useUpdateAllNodeCounts } from "./useUpdateNodeCounts";
 
 /*
 
@@ -47,7 +47,7 @@ const ExpandNodeContext = createContext<ExpandNodeContextType | null>(null);
 
 export function ExpandNodeProvider(props: PropsWithChildren) {
   // Wires up node count query in response to new nodes in the graph
-  useUpdateNodeCounts();
+  useUpdateAllNodeCounts();
 
   const explorer = useRecoilValue(explorerSelector);
   const [_, setEntities] = useEntities();
