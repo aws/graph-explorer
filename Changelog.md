@@ -1,41 +1,51 @@
 # graph-explorer Change Log
 
-## Upcoming
+## Release 1.8.0
 
 **Major Changes**
 
-- Added notification for errors in node expansion and neighbor counts
-  (<https://github.com/aws/graph-explorer/pull/434>)
-- Added caching and retries to node expansion and neighbor counts
-  (<https://github.com/aws/graph-explorer/pull/434>)
-- Added progress and error UI for neighbor counts
-  (<https://github.com/aws/graph-explorer/pull/463>)
-- Improved scrolling behavior in expand sidebar
-  (<https://github.com/aws/graph-explorer/pull/436>)
-- Add node expansion limit per connection
-  (<https://github.com/aws/graph-explorer/pull/447>)
-- Double clicking a node will expand up to 10 neighbors each time
-  (<https://github.com/aws/graph-explorer/pull/455>,
-  <https://github.com/aws/graph-explorer/pull/465>)
+- Better UX around neighbor expansion
+
+  - Expand up to 10 additional neighbors when double clicking a node
+    (<https://github.com/aws/graph-explorer/pull/455>,
+    <https://github.com/aws/graph-explorer/pull/465>)
+  - Improved reliability of node double click detection
+    (<https://github.com/aws/graph-explorer/pull/453>)
+  - Progress and errors are reported in notifications
+    (<https://github.com/aws/graph-explorer/pull/434>)
+  - Added ability to set a max limit for neighbor expansion per connection
+    (<https://github.com/aws/graph-explorer/pull/447>)
+  - Improved scrolling behavior in expand sidebar
+    (<https://github.com/aws/graph-explorer/pull/436>)
+  - Added caching and retries for failed requests
+    (<https://github.com/aws/graph-explorer/pull/434>)
+
+- Better UX around node counts
+
+  - Progress and errors are reported in notifications when any are happening
+    (<https://github.com/aws/graph-explorer/pull/434>)
+  - Progress and errors are shown for selected node in the expand side bar
+    (<https://github.com/aws/graph-explorer/pull/463>)
+  - Added caching and retries for failed requests
+    (<https://github.com/aws/graph-explorer/pull/434>)
+
+- Added support for Gremlin Server 3.7
+  (<https://github.com/aws/graph-explorer/pull/411>)
+
+**Bug Fixes and Minor Changes**
+
 - Fixed many bugs around neighbor expansion and counts for openCypher
   (<https://github.com/aws/graph-explorer/pull/449>)
   - Fixed expand limit to be type based when expanding from sidebar
   - Fixed expand query to respect limit and offset properly so multiple
     expansions return unique results
   - Fixed expand query so all edges are returned between source and target nodes
-
-**Bug Fixes and Minor Changes**
-
 - Improved performance and reliability of Gremlin neighbor expansion query
   (<https://github.com/aws/graph-explorer/pull/454>)
 - Remove extraneous openCypher query when expanding nodes
   (<https://github.com/aws/graph-explorer/pull/431>)
-- Made double clicking a node easier
-  (<https://github.com/aws/graph-explorer/pull/453>)
 - Fixed edge case where node badges are stale
   (<https://github.com/aws/graph-explorer/pull/427>)
-- Fixed issue with Gremlin Server 3.7
-  (<https://github.com/aws/graph-explorer/pull/411>)
 - Fixed server starting log message
   (<https://github.com/aws/graph-explorer/pull/416>)
 - Refactored several graph views for readability
