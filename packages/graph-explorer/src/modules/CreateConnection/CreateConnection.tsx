@@ -2,7 +2,7 @@ import { Checkbox } from "@mantine/core";
 import { useCallback, useState } from "react";
 import { useRecoilCallback } from "recoil";
 import { v4 } from "uuid";
-import { InfoIcon, Tooltip } from "../../components";
+import { InfoTooltip } from "../../components";
 import Button from "../../components/Button";
 import Input from "../../components/Input";
 import Select from "../../components/Select";
@@ -256,20 +256,12 @@ const CreateConnection = ({
             label={
               <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
                 Public or Proxy Endpoint
-                <Tooltip
-                  text={
-                    <div style={{ maxWidth: 300 }}>
-                      Provide the endpoint URL for an open graph database, e.g.,
-                      Gremlin Server. If connecting to Amazon Neptune, then
-                      provide a proxy endpoint URL that is accessible from
-                      outside the VPC, e.g., EC2.
-                    </div>
-                  }
-                >
-                  <div>
-                    <InfoIcon style={{ width: 18, height: 18 }} />
-                  </div>
-                </Tooltip>
+                <InfoTooltip>
+                  Provide the endpoint URL for an open graph database, e.g.,
+                  Gremlin Server. If connecting to Amazon Neptune, then provide
+                  a proxy endpoint URL that is accessible from outside the VPC,
+                  e.g., EC2.
+                </InfoTooltip>
               </div>
             }
             value={form.url}
@@ -363,18 +355,10 @@ const CreateConnection = ({
           label={
             <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
               Enable Fetch Timeout
-              <Tooltip
-                text={
-                  <div style={{ maxWidth: 300 }}>
-                    Large datasets may require a large amount of time to fetch.
-                    If the timeout is exceeded, the request will be cancelled.
-                  </div>
-                }
-              >
-                <div>
-                  <InfoIcon style={{ width: 18, height: 18 }} />
-                </div>
-              </Tooltip>
+              <InfoTooltip>
+                Large datasets may require a large amount of time to fetch. If
+                the timeout is exceeded, the request will be cancelled.
+              </InfoTooltip>
             </div>
           }
         />
@@ -405,18 +389,10 @@ const CreateConnection = ({
           label={
             <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
               Enable Node Expansion Limit
-              <Tooltip
-                text={
-                  <div style={{ maxWidth: 300 }}>
-                    Large datasets may require a default limit to the amount of
-                    neighbors that are returned during any single expansion.
-                  </div>
-                }
-              >
-                <div>
-                  <InfoIcon style={{ width: 18, height: 18 }} />
-                </div>
-              </Tooltip>
+              <InfoTooltip>
+                Large datasets may require a default limit to the amount of
+                neighbors that are returned during any single expansion.
+              </InfoTooltip>
             </div>
           }
         />

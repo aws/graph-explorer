@@ -15,7 +15,8 @@
 - Add node expansion limit per connection
   (<https://github.com/aws/graph-explorer/pull/447>)
 - Double clicking a node will expand up to 10 neighbors each time
-  (<https://github.com/aws/graph-explorer/pull/455>)
+  (<https://github.com/aws/graph-explorer/pull/455>,
+  <https://github.com/aws/graph-explorer/pull/465>)
 - Fixed many bugs around neighbor expansion and counts for openCypher
   (<https://github.com/aws/graph-explorer/pull/449>)
   - Fixed expand limit to be type based when expanding from sidebar

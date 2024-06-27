@@ -9,6 +9,7 @@ export const tooltipStyles: ThemeStyleFn<TooltipTheme> = ({ theme }) => css`
   border-width: ${theme?.tooltip?.border?.width || "0"};
   box-shadow: ${theme?.tooltip?.shadow || "0 2px 4px 0 rgba(0, 0, 0, 0.3)"};
   border-radius: ${theme?.tooltip?.border?.radius || theme.shape.borderRadius};
-  padding: ${theme?.tooltip?.padding || theme.spacing.base};
+  padding: ${theme?.tooltip?.padding || theme.spacing.base}
+    ${theme?.tooltip?.padding || theme.spacing["2x"]};
   z-index: 999999;
 `;
