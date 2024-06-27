@@ -4,8 +4,11 @@ import {
   AddIcon,
   DeleteIcon,
   IconButton,
+  InfoIcon,
+  InfoTooltip,
   Input,
   Select,
+  Tooltip,
 } from "../../components";
 import { useConfiguration, withClassNamePrefix } from "../../core";
 import useTextTransform from "../../hooks/useTextTransform";
@@ -139,7 +142,13 @@ const NodeExpandFilters = ({
         </div>
       )}
       <div className={pfx("title")}>
-        <div>Limit returned neighbors to</div>
+        <div style={{ display: "flex", gap: 2, alignItems: "center" }}>
+          Limit returned neighbors to
+          <InfoTooltip>
+            It is possible that a limited expansion will not return all of the
+            expected nodes. A full expansion may be necessary.
+          </InfoTooltip>
+        </div>
         <IconButton
           icon={<AddIcon />}
           variant={"text"}
