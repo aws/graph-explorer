@@ -55,7 +55,6 @@ export * from "./Select";
 export { default as Sidebar } from "./Sidebar";
 export * from "./Sidebar";
 
-export { default as Tooltip } from "./Tooltip";
 export * from "./Tooltip";
 
 export { default as UseLayer } from "./UseLayer";
