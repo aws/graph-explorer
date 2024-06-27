@@ -2,7 +2,7 @@ import { Checkbox } from "@mantine/core";
 import { useCallback, useState } from "react";
 import { useRecoilCallback } from "recoil";
 import { v4 } from "uuid";
-import { InfoIcon, InfoTooltip, Tooltip } from "../../components";
+import { InfoTooltip } from "../../components";
 import Button from "../../components/Button";
 import Input from "../../components/Input";
 import Select from "../../components/Select";

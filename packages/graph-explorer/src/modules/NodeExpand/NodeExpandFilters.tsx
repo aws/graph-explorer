@@ -4,11 +4,9 @@ import {
   AddIcon,
   DeleteIcon,
   IconButton,
-  InfoIcon,
   InfoTooltip,
   Input,
   Select,
-  Tooltip,
 } from "../../components";
 import { useConfiguration, withClassNamePrefix } from "../../core";
 import useTextTransform from "../../hooks/useTextTransform";
