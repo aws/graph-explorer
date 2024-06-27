@@ -10,6 +10,7 @@ export const IconBase = ({
   className,
   color,
   children,
+  style,
   ...attrs
 }: PropsWithChildren<IconBaseProps>) => {
   return (
@@ -20,7 +21,7 @@ export const IconBase = ({
       fill="none"
       viewBox="0 0 24 24"
       xmlns="http://www.w3.org/2000/svg"
-      style={{ color: color, ...attrs.style }}
+      style={{ ...style, color: color }}
       {...attrs}
     >
       {children}
