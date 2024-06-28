@@ -104,11 +104,16 @@ const titleSectionStyles =
     flex-direction: column;
 
     > .${pfx}-title {
-      font-size: ${theme.typography.sizes.lg};
+      font-weight: bold;
     }
 
     > .${pfx}-subtitle {
+      overflow: hidden;
       font-size: ${theme.typography.sizes.xs};
+      line-height: 1.25em;
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
       color: ${theme.palette.text.secondary};
     }
   `;
@@ -156,6 +161,7 @@ const mainBarStyles: ThemeStyleFn = ({ theme }) => css`
   padding: 0 ${theme.spacing["2x"]} 0 0;
   background-color: ${theme.palette.background.default};
   color: ${theme.palette.text.primary};
+  gap: ${theme.spacing["2x"]};
 `;
 
 const subBarStyles: ThemeStyleFn = ({ theme }) => css`
@@ -174,7 +180,6 @@ const titleContainerStyles =
     display: flex;
     height: 100%;
     align-items: center;
-    gap: ${theme.spacing["2x"]};
     margin-left: ${withBackButton ? "-" + theme.spacing["2x"] : 0};
   `;
 

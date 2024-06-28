@@ -269,14 +269,10 @@ function DataExplorerContent({
       )}
     >
       <TopBarWithLogo>
-        <Workspace.TopBar.Title>
-          <div>
-            <div className={pfx("top-bar-title")}>Data Explorer</div>
-            <div className={pfx("top-bar-subtitle")}>
-              Active connection: {config?.displayLabel || config?.id}
-            </div>
-          </div>
-        </Workspace.TopBar.Title>
+        <Workspace.TopBar.Title
+          title="Data Explorer"
+          subtitle={`Connection: ${config?.displayLabel || config?.id}`}
+        />
         <Workspace.TopBar.AdditionalControls>
           <Link to={"/graph-explorer"}>
             <Button
