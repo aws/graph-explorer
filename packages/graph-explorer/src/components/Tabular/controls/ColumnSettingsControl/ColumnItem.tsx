@@ -1,4 +1,3 @@
-import { withClassNamePrefix } from "../../../../core";
 import { Draggable } from "react-beautiful-dnd";
 import { DragIcon } from "../../../icons";
 import Switch from "../../../Switch";
@@ -6,20 +5,16 @@ import type { TabularInstance } from "../../helpers/tableInstanceToTabularInstan
 import { useTabularControl } from "../../TabularControlsProvider";
 
 type ColumnItemProps<T extends Record<string, unknown>> = {
-  classNamePrefix: string;
   columnId: string;
   column: TabularInstance<T>["columns"][number];
   index: number;
 };
 
 const ColumnItem = <T extends Record<string, unknown>>({
-  classNamePrefix,
   columnId,
   column,
   index,
 }: ColumnItemProps<T>) => {
-  const pfx = withClassNamePrefix(classNamePrefix);
-
   const {
     instance: { visibleColumns, toggleHideColumn },
   } = useTabularControl();
@@ -30,22 +25,22 @@ const ColumnItem = <T extends Record<string, unknown>>({
         <div
           ref={provided.innerRef}
           {...provided.draggableProps}
-          className={pfx("column-item")}
+          className={"column-item"}
         >
-          <div className={pfx("column-item-switch")}>
+          <div className={"column-item-switch"}>
             <Switch
               size={"sm"}
               isSelected={visibleColumns[columnId] || false}
               onChange={() => toggleHideColumn(columnId)}
               isDisabled={column.definition?.unhideable}
             >
-              <div className={pfx("column-item-label")}>
+              <div className={"column-item-label"}>
                 {column.instance.render("Header")}
               </div>
             </Switch>
           </div>
           <div
-            className={pfx("column-item-drag-handler")}
+            className={"column-item-drag-handler"}
             {...provided.dragHandleProps}
           >
             <DragIcon />

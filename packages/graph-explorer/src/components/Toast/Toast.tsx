@@ -1,6 +1,6 @@
 import { cx } from "@emotion/css";
 import { FC, PropsWithChildren } from "react";
-import { useWithTheme, withClassNamePrefix } from "../../core";
+import { useWithTheme } from "../../core";
 import Card from "../Card";
 
 import { CheckIcon, CloseIcon, ErrorIcon, InfoIcon } from "../icons";
@@ -24,7 +24,6 @@ export type NotificationComponentProps = PropsWithChildren<{
 
 export interface ToastProps
   extends Omit<NotificationComponentProps, "message"> {
-  classNamePrefix?: string;
   className?: string;
 }
 
@@ -38,7 +37,6 @@ const icons: Record<"error" | "warning" | "info" | "success", typeof InfoIcon> =
 
 export const Toast: FC<ToastProps> = ({
   children,
-  classNamePrefix = "ft",
   className,
   type = "info",
   title,
@@ -46,25 +44,22 @@ export const Toast: FC<ToastProps> = ({
   onClose,
 }) => {
   const stylesWithTheme = useWithTheme();
-  const pfx = withClassNamePrefix(classNamePrefix);
 
   const Icon = icons[type];
   return (
-    <div
-      className={cx(stylesWithTheme(defaultStyles(classNamePrefix)), className)}
-    >
-      <Card className={cx(pfx("card"), pfx(type))} transparent>
-        <div className={pfx("icon")}>
+    <div className={cx(stylesWithTheme(defaultStyles), className)}>
+      <Card className={cx("card", type)} transparent>
+        <div className={"icon"}>
           <Icon width={24} height={24} />
         </div>
-        <div className={pfx("content")}>
-          {title && <div className={pfx("title")}>{title}</div>}
+        <div className={"content"}>
+          {title && <div className={"title"}>{title}</div>}
           {children}
         </div>
         {closeable && (
           <div
-            className={cx(pfx("close-container"), {
-              [pfx("close-container-no-title")]: !title,
+            className={cx("close-container", {
+              ["close-container-no-title"]: !title,
             })}
           >
             <div onClick={onClose} style={{ height: 16 }}>

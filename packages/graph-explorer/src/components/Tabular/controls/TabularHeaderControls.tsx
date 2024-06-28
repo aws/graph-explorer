@@ -2,14 +2,13 @@ import { css, cx } from "@emotion/css";
 import { cssVar } from "../../../core/ThemeProvider/utils/lib";
 import { FC, PropsWithChildren, useEffect } from "react";
 import type { ThemeStyleFn } from "../../../core";
-import { useWithTheme, withClassNamePrefix } from "../../../core";
+import { useWithTheme } from "../../../core";
 import type { TabularVariantType } from "../Tabular";
 
 import { useTabularControl } from "../TabularControlsProvider";
 import type { TabularTheme } from "../Tabular.model";
 
 export type TabularHeaderControlsProps = PropsWithChildren<{
-  classNamePrefix?: string;
   className?: string;
   variant?: TabularVariantType;
 
@@ -21,9 +20,9 @@ export type TabularHeaderControlsProps = PropsWithChildren<{
 }>;
 
 const defaultStyles =
-  (pfx: string, variant?: TabularVariantType): ThemeStyleFn<TabularTheme> =>
+  (variant?: TabularVariantType): ThemeStyleFn<TabularTheme> =>
   ({ theme, isDarkTheme }) => css`
-    &.${pfx}-header-controls {
+    &.header-controls {
       position: sticky;
       left: 0;
       display: flex;
@@ -72,7 +71,7 @@ const defaultStyles =
       }
     }
 
-    &.${pfx}-header-controls-sticky {
+    &.header-controls-sticky {
       z-index: 2;
       top: 0;
     }
@@ -81,11 +80,9 @@ const defaultStyles =
 const TabularHeaderControls: FC<TabularHeaderControlsProps> = ({
   children,
   className,
-  classNamePrefix = "ft",
   disableSticky,
   variant,
 }) => {
-  const pfx = withClassNamePrefix(classNamePrefix);
   const { headerControlsRef, setHeaderControlsPosition } = useTabularControl();
   useEffect(() => {
     setHeaderControlsPosition(disableSticky ? "initial" : "sticky");
@@ -95,11 +92,11 @@ const TabularHeaderControls: FC<TabularHeaderControlsProps> = ({
     <div
       ref={headerControlsRef}
       className={cx(
-        styleWithTheme(defaultStyles(classNamePrefix, variant)),
-        pfx("header-controls"),
+        styleWithTheme(defaultStyles(variant)),
+        "header-controls",
         className,
         {
-          [pfx("header-controls-sticky")]: !disableSticky,
+          ["header-controls-sticky"]: !disableSticky,
         }
       )}
     >

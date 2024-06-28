@@ -6,7 +6,6 @@ import baseTheme from "./baseTheme";
 
 const defaultStyles =
   (
-    pfx: string,
     variant: "bordered" | "noBorders" = "bordered"
   ): ThemeStyleFn<TabularTheme> =>
   ({ theme, isDarkTheme }) => {
@@ -23,7 +22,7 @@ const defaultStyles =
       background: ${tabular?.background || palette.background.default};
       color: ${tabular?.color || palette.text.primary};
 
-      .${pfx}-table {
+      .table {
         flex-grow: 1;
         width: 100%;
         position: relative;
@@ -31,7 +30,7 @@ const defaultStyles =
         flex-direction: column;
       }
 
-      .${pfx}-headers {
+      .headers {
         box-sizing: border-box;
         width: fit-content;
         min-width: 100%;
@@ -42,18 +41,18 @@ const defaultStyles =
         ${variant === "noBorders" && `border-right: none; border-left: none;`}
         min-height: ${tabular?.header?.minHeight || baseTheme.header.minHeight};
 
-        .${pfx}-row:last-child {
+        .row:last-child {
           border-bottom: none;
         }
       }
 
-      .${pfx}-headers-sticky {
+      .headers-sticky {
         position: sticky;
         top: 0;
         z-index: 1;
       }
 
-      .${pfx}-row {
+      .row {
         box-sizing: border-box;
         min-height: ${tabular?.row?.minHeight || baseTheme.row.minHeight};
         border-bottom: ${variant === "bordered"
@@ -81,11 +80,11 @@ const defaultStyles =
         }
       }
 
-      .${pfx}-row-grow {
+      .row-grow {
         flex-grow: 1 !important;
       }
 
-      .${pfx}-row-selectable {
+      .row-selectable {
         background: ${tabular?.row?.selectable?.background ||
         baseTheme.row.selectable.background};
         color: ${tabular?.row?.selectable?.color ||
@@ -99,13 +98,13 @@ const defaultStyles =
         }
       }
 
-      .${pfx}-row-selected {
+      .row-selected {
         background: ${tabular?.row?.selected?.background ||
         fade(palette.primary.main, 0.25)};
         color: ${tabular?.row?.selected?.color || baseTheme.row.selected.color};
       }
 
-      .${pfx}-header {
+      .header {
         display: flex;
         flex-direction: column;
         padding: ${tabular?.header?.padding || baseTheme.header.padding};
@@ -120,7 +119,7 @@ const defaultStyles =
           border 250ms ease-in;
       }
 
-      .${pfx}-header-label {
+      .header-label {
         display: flex;
         flex-direction: row;
         justify-content: space-between;
@@ -137,7 +136,7 @@ const defaultStyles =
         baseTheme.header.label.padding};
       }
 
-      .${pfx}-header-filter {
+      .header-filter {
         display: flex;
         flex-direction: row;
         justify-content: space-between;
@@ -152,7 +151,7 @@ const defaultStyles =
         baseTheme.header.filter.padding};
       }
 
-      .${pfx}-header-resizing {
+      .header-resizing {
         background: ${tabular?.header?.resizing?.background ||
         palette.background.contrastSecondary};
         color: ${tabular?.header?.resizing?.color ||
@@ -161,7 +160,7 @@ const defaultStyles =
         `1px dashed ${palette.border}`};
       }
 
-      .${pfx}-header-label-sorter {
+      .header-label-sorter {
         display: flex;
         justify-content: center;
         align-items: center;
@@ -172,7 +171,7 @@ const defaultStyles =
         baseTheme.header.sorter.opacity};
       }
 
-      .${pfx}-cell {
+      .cell {
         display: flex;
         flex-direction: row;
         align-items: center;
@@ -185,27 +184,27 @@ const defaultStyles =
           : "none"};
       }
 
-      .${pfx}-cell-content {
+      .cell-content {
         width: 100%;
       }
 
-      .${pfx}-cell-overflow-ellipsis {
+      .cell-overflow-ellipsis {
         max-width: 100%;
         overflow: hidden;
         text-overflow: ellipsis;
       }
 
-      .${pfx}-cell-overflow-truncate {
+      .cell-overflow-truncate {
         max-width: 100%;
         overflow: hidden;
       }
 
-      .${pfx}-cell-one-line {
+      .cell-one-line {
         word-break: keep-all;
         white-space: nowrap;
       }
 
-      .${pfx}-cell-resizing {
+      .cell-resizing {
         background: ${tabular?.row?.resizing?.background ||
         palette.background.contrastSecondary};
         color: ${tabular?.row?.resizing?.background ||
@@ -214,19 +213,21 @@ const defaultStyles =
         `1px dashed ${palette.border}`};
       }
 
-      .${pfx}-header-label-align-left, .${pfx}-cell-align-left {
+      .header-label-align-left,
+      .cell-align-left {
         flex-direction: row;
         justify-content: flex-start;
         text-align: left;
       }
 
-      .${pfx}-header-label-align-right, .${pfx}-cell-align-right {
+      .header-label-align-right,
+      .cell-align-right {
         flex-direction: row-reverse;
         justify-content: flex-start;
         text-align: right;
       }
 
-      .${pfx}-header-label-sortable {
+      .header-label-sortable {
         cursor: pointer;
         justify-content: space-between;
 
@@ -236,7 +237,7 @@ const defaultStyles =
             overflow: hidden;
           }
 
-          .${pfx}-header-label-sorter {
+          .header-label-sorter {
             color: ${tabular?.header?.sorter?.hover?.color ||
             baseTheme.header.sorter.hover.color};
             opacity: ${tabular?.header?.sorter?.hover?.opacity ||
@@ -245,25 +246,27 @@ const defaultStyles =
         }
       }
 
-      .${pfx}-header-label-sort-desc, .${pfx}-header-label-sort-asc {
+      .header-label-sort-desc,
+      .header-label-sort-asc {
         > div:first-child {
           max-width: calc(100% - 16px);
           overflow: hidden;
         }
       }
 
-      .${pfx}-header-overflow-ellipsis {
+      .header-overflow-ellipsis {
         max-width: 100%;
         overflow: hidden;
         text-overflow: ellipsis;
       }
 
-      .${pfx}-header-overflow-truncate {
+      .header-overflow-truncate {
         max-width: 100%;
         overflow: hidden;
       }
 
-      .${pfx}-col-resizer, .${pfx}-cell-resizer {
+      .col-resizer,
+      .cell-resizer {
         position: absolute;
         top: 0;
         right: 0;
@@ -272,7 +275,7 @@ const defaultStyles =
         z-index: 1;
       }
 
-      .${pfx}-body {
+      .body {
         width: fit-content;
         min-width: 100%;
         flex-grow: 1;

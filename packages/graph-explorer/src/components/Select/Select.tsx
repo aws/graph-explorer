@@ -26,7 +26,6 @@ export type SelectProps = {
   ["aria-label"]?: string;
   labelPlacement?: "top" | "left" | "inner";
   className?: string;
-  classNamePrefix?: string;
   placeholder?: string;
   errorMessage?: string;
   hideError?: boolean;

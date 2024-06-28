@@ -1,7 +1,7 @@
 import difference from "lodash/difference";
 import { useMemo } from "react";
 import type { Vertex } from "../../@types/entities";
-import { useWithTheme, withClassNamePrefix } from "../../core";
+import { useWithTheme } from "../../core";
 import { useConfiguration } from "../../core/ConfigurationProvider";
 import useTextTransform from "../../hooks/useTextTransform";
 import useTranslations from "../../hooks/useTranslations";
@@ -11,20 +11,17 @@ import defaultStyles from "./EntityDetail.styles";
 import VertexHeader from "../common/VertexHeader";
 
 export type VertexDetailProps = {
-  classNamePrefix?: string;
   hideNeighbors?: boolean;
   node: Vertex;
 };
 
 export default function NodeDetail({
-  classNamePrefix = "ft",
   node,
   hideNeighbors = false,
 }: VertexDetailProps) {
   const config = useConfiguration();
   const t = useTranslations();
   const styleWithTheme = useWithTheme();
-  const pfx = withClassNamePrefix(classNamePrefix);
   const textTransform = useTextTransform();
 
   const vertexConfig = useMemo(() => {
@@ -58,14 +55,12 @@ export default function NodeDetail({
   ]);
 
   return (
-    <div className={styleWithTheme(defaultStyles(classNamePrefix))}>
-      <VertexHeader vertex={node} classNamePrefix={classNamePrefix} />
-      {hideNeighbors != true && (
-        <NeighborsList vertex={node} classNamePrefix={classNamePrefix} />
-      )}
-      <div className={pfx("properties")}>
-        <div className={pfx("title")}>Properties</div>
-        <div className={pfx("content")}>
+    <div className={styleWithTheme(defaultStyles())}>
+      <VertexHeader vertex={node} />
+      {hideNeighbors != true && <NeighborsList vertex={node} />}
+      <div className={"properties"}>
+        <div className={"title"}>Properties</div>
+        <div className={"content"}>
           <EntityAttribute
             value={
               config?.connection?.queryEngine === "sparql"
@@ -78,7 +73,6 @@ export default function NodeDetail({
                 ? "Blank node ID"
                 : t("node-detail.node-id"),
             }}
-            classNamePrefix={classNamePrefix}
           />
           <EntityAttribute
             value={
@@ -91,14 +85,12 @@ export default function NodeDetail({
               name: "types",
               displayLabel: t("node-detail.node-type"),
             }}
-            classNamePrefix={classNamePrefix}
           />
           {sortedAttributes.map(attribute => (
             <EntityAttribute
               key={attribute.name}
               value={node.data.attributes[attribute.name]}
               attribute={attribute}
-              classNamePrefix={classNamePrefix}
             />
           ))}
         </div>

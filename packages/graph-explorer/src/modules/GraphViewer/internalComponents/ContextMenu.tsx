@@ -19,7 +19,7 @@ import {
   ZoomInIcon,
   ZoomOutIcon,
 } from "../../../components/icons";
-import { useWithTheme, withClassNamePrefix } from "../../../core";
+import { useWithTheme } from "../../../core";
 import { edgesSelectedIdsAtom } from "../../../core/StateProvider/edges";
 import { nodesSelectedIdsAtom } from "../../../core/StateProvider/nodes";
 import { userLayoutAtom } from "../../../core/StateProvider/userPreferences";
@@ -30,7 +30,6 @@ import useGraphGlobalActions from "../useGraphGlobalActions";
 import defaultStyles from "./ContextMenu.styles";
 
 export type ContextMenuProps = {
-  classNamePrefix?: string;
   className?: string;
   affectedNodesIds?: string[];
   affectedEdgesIds?: string[];
@@ -41,7 +40,6 @@ export type ContextMenuProps = {
 };
 
 const ContextMenu = ({
-  classNamePrefix = "ft",
   className,
   affectedNodesIds,
   affectedEdgesIds,
@@ -51,7 +49,6 @@ const ContextMenu = ({
   onEdgeCustomize,
 }: ContextMenuProps) => {
   const styleWithTheme = useWithTheme();
-  const pfx = withClassNamePrefix(classNamePrefix);
   const t = useTranslations();
   const [entities, setEntities] = useEntities();
   const [nodesSelectedIds, setNodesSelectedIds] =
@@ -186,24 +183,18 @@ const ContextMenu = ({
   if (affectedNode) {
     return (
       <div
-        className={cx(
-          styleWithTheme(defaultStyles(classNamePrefix)),
-          pfx("context-menu"),
-          className
-        )}
+        className={cx(styleWithTheme(defaultStyles), "context-menu", className)}
       >
-        <Card className={pfx("card-root")}>
+        <Card className={"card-root"}>
           <ListItem
-            classNamePrefix={"ft"}
-            className={cx(pfx("list-item"), pfx("list-item-header"))}
+            className={cx("list-item", "list-item-header")}
             startAdornment={<GraphIcon />}
           >
             {getDisplayNames(affectedNode)?.name}
           </ListItem>
-          <div className={pfx("divider")} />
+          <div className={"divider"} />
           <ListItem
-            classNamePrefix={"ft"}
-            className={pfx("list-item")}
+            className={"list-item"}
             clickable={true}
             onClick={openSidebarPanel("details")}
             startAdornment={<DetailsIcon />}
@@ -211,8 +202,7 @@ const ContextMenu = ({
             Details Panel
           </ListItem>
           <ListItem
-            classNamePrefix={"ft"}
-            className={pfx("list-item")}
+            className={"list-item"}
             clickable={true}
             onClick={openSidebarPanel("expand")}
             startAdornment={<ExpandGraphIcon />}
@@ -220,8 +210,7 @@ const ContextMenu = ({
             Expand Panel
           </ListItem>
           <ListItem
-            classNamePrefix={"ft"}
-            className={pfx("list-item")}
+            className={"list-item"}
             clickable={true}
             onClick={openSidebarPanel("nodes-styling", {
               nodeType: affectedNode.data.type,
@@ -230,10 +219,9 @@ const ContextMenu = ({
           >
             Customize Panel
           </ListItem>
-          <div className={pfx("divider")} />
+          <div className={"divider"} />
           <ListItem
-            classNamePrefix={"ft"}
-            className={pfx("list-item")}
+            className={"list-item"}
             clickable={true}
             onClick={handleRemoveFromCanvas([affectedNode.data.id], [])}
             startAdornment={<RemoveFromCanvasIcon color={"red"} />}
@@ -248,24 +236,18 @@ const ContextMenu = ({
   if (affectedEdge) {
     return (
       <div
-        className={cx(
-          styleWithTheme(defaultStyles(classNamePrefix)),
-          pfx("context-menu"),
-          className
-        )}
+        className={cx(styleWithTheme(defaultStyles), "context-menu", className)}
       >
-        <Card className={pfx("card-root")}>
+        <Card className={"card-root"}>
           <ListItem
-            classNamePrefix={"ft"}
-            className={cx(pfx("list-item"), pfx("list-item-header"))}
+            className={cx("list-item", "list-item-header")}
             startAdornment={<EdgeIcon />}
           >
             {getDisplayNames(affectedEdge)?.name}
           </ListItem>
-          <div className={pfx("divider")} />
+          <div className={"divider"} />
           <ListItem
-            classNamePrefix={"ft"}
-            className={pfx("list-item")}
+            className={"list-item"}
             clickable={true}
             onClick={openSidebarPanel("details")}
             startAdornment={<DetailsIcon />}
@@ -273,8 +255,7 @@ const ContextMenu = ({
             Details Panel
           </ListItem>
           <ListItem
-            classNamePrefix={"ft"}
-            className={pfx("list-item")}
+            className={"list-item"}
             clickable={true}
             onClick={openSidebarPanel("edges-styling", {
               edgeType: affectedEdge.data.type,
@@ -283,10 +264,9 @@ const ContextMenu = ({
           >
             Customize Panel
           </ListItem>
-          <div className={pfx("divider")} />
+          <div className={"divider"} />
           <ListItem
-            classNamePrefix={"ft"}
-            className={pfx("list-item")}
+            className={"list-item"}
             clickable={true}
             onClick={handleRemoveFromCanvas([], [affectedEdge.data.id])}
             startAdornment={<RemoveFromCanvasIcon color={"red"} />}
@@ -300,16 +280,11 @@ const ContextMenu = ({
 
   return (
     <div
-      className={cx(
-        styleWithTheme(defaultStyles(classNamePrefix)),
-        pfx("context-menu"),
-        className
-      )}
+      className={cx(styleWithTheme(defaultStyles), "context-menu", className)}
     >
-      <Card className={pfx("card-root")}>
+      <Card className={"card-root"}>
         <ListItem
-          classNamePrefix={"ft"}
-          className={pfx("list-item")}
+          className={"list-item"}
           clickable={true}
           onClick={handleFitToFrame}
           startAdornment={<FitToFrameIcon />}
@@ -317,8 +292,7 @@ const ContextMenu = ({
           {nonEmptySelection ? "Fit Selection to Frame" : "Fit to Frame"}
         </ListItem>
         <ListItem
-          classNamePrefix={"ft"}
-          className={pfx("list-item")}
+          className={"list-item"}
           clickable={true}
           onClick={handleCenter}
           startAdornment={<CenterGraphIcon />}
@@ -326,18 +300,16 @@ const ContextMenu = ({
           {nonEmptySelection ? "Center Selection" : "Center"}
         </ListItem>
         <ListItem
-          classNamePrefix={"ft"}
-          className={pfx("list-item")}
+          className={"list-item"}
           clickable={true}
           onClick={handleDownloadScreenshot}
           startAdornment={<ScreenshotIcon />}
         >
           Download Screenshot
         </ListItem>
-        <div className={pfx("divider")} />
+        <div className={"divider"} />
         <ListItem
-          classNamePrefix={"ft"}
-          className={pfx("list-item")}
+          className={"list-item"}
           clickable={true}
           onClick={handleZoomIn}
           startAdornment={<ZoomInIcon />}
@@ -345,8 +317,7 @@ const ContextMenu = ({
           Zoom in
         </ListItem>
         <ListItem
-          classNamePrefix={"ft"}
-          className={pfx("list-item")}
+          className={"list-item"}
           clickable={true}
           onClick={handleZoomOut}
           startAdornment={<ZoomOutIcon />}
@@ -355,10 +326,9 @@ const ContextMenu = ({
         </ListItem>
         {selectedButNoAffected && (
           <>
-            <div className={pfx("divider")} />
+            <div className={"divider"} />
             <ListItem
-              classNamePrefix={"ft"}
-              className={pfx("list-item")}
+              className={"list-item"}
               clickable={true}
               onClick={handleRemoveFromCanvas(
                 Array.from(nodesSelectedIds),
@@ -372,10 +342,9 @@ const ContextMenu = ({
         )}
         {noSelectionOrNotAffected && (
           <>
-            <div className={pfx("divider")} />
+            <div className={"divider"} />
             <ListItem
-              classNamePrefix={"ft"}
-              className={pfx("list-item")}
+              className={"list-item"}
               clickable={true}
               onClick={handleRemoveAllFromCanvas}
               startAdornment={<RemoveFromCanvasIcon color={"red"} />}

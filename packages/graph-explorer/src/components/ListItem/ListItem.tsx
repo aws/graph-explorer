@@ -8,11 +8,10 @@ import type {
   ReactNode,
 } from "react";
 import { forwardRef, useCallback } from "react";
-import { useWithTheme, withClassNamePrefix } from "../../core";
+import { useWithTheme } from "../../core";
 import defaultStyles from "./ListItem.styles";
 
 export interface ListItemProps extends HTMLAttributes<HTMLDivElement> {
-  classNamePrefix?: string;
   className?: string;
   /**
    * If true, adds onClick event and the proper styling to the root element.
@@ -42,7 +41,6 @@ export interface ListItemProps extends HTMLAttributes<HTMLDivElement> {
 export const ListItem = (
   {
     children,
-    classNamePrefix = "ft",
     className,
     clickable,
     onClick,
@@ -56,7 +54,6 @@ export const ListItem = (
   ref: ForwardedRef<HTMLDivElement>
 ) => {
   const styleWithTheme = useWithTheme();
-  const pfx = withClassNamePrefix(classNamePrefix);
 
   const actualOnClick = useCallback(
     (ev: MouseEvent<HTMLDivElement>) => {
@@ -75,24 +72,22 @@ export const ListItem = (
       onDragStart={onDragStart}
       draggable={!!onDragStart}
       className={cx(
-        styleWithTheme(defaultStyles(classNamePrefix)),
-        { [pfx("disabled")]: isDisabled },
-        { [pfx("clickable")]: clickable },
+        styleWithTheme(defaultStyles),
+        { ["disabled"]: isDisabled },
+        { ["clickable"]: clickable },
         className
       )}
       onClick={actualOnClick}
       {...allProps}
     >
       {startAdornment && (
-        <div className={pfx("start-adornment")}>{startAdornment}</div>
+        <div className={"start-adornment"}>{startAdornment}</div>
       )}
-      <div className={pfx("content")}>
-        <div className={pfx("primary")}>{children}</div>
-        <div className={pfx("secondary")}>{secondary}</div>
+      <div className={"content"}>
+        <div className={"primary"}>{children}</div>
+        <div className={"secondary"}>{secondary}</div>
       </div>
-      {endAdornment && (
-        <div className={pfx("end-adornment")}>{endAdornment}</div>
-      )}
+      {endAdornment && <div className={"end-adornment"}>{endAdornment}</div>}
     </div>
   );
 };

@@ -85,7 +85,7 @@ const ThemeProvider = <
       THEME?.mode === "dark" || initialTheme === "dark"
     );
 
-    const themeWithDefaults = { ...composedTheme, "ft-palette-opacity": "1" };
+    const themeWithDefaults = { ...composedTheme, "palette-opacity": "1" };
     const cssVariables = getCSSVariablesFromTheme(themeWithDefaults);
 
     return {
@@ -100,16 +100,16 @@ const ThemeProvider = <
     if (injectGlobal) {
       if (theme.theme.mode === "dark") {
         emotionInjectGlobal(
-          `body.ft-dark img{filter: brightness(.9) contrast(1.2);} body{color-scheme: dark;}`
+          `body.dark img{filter: brightness(.9) contrast(1.2);} body{color-scheme: dark;}`
         );
-        document.body.classList.add("ft-dark");
-        document.body.classList.remove("ft-light");
+        document.body.classList.add("dark");
+        document.body.classList.remove("light");
         return;
       }
 
-      emotionInjectGlobal(`body.ft-light{color-scheme: light;}`);
-      document.body.classList.add("ft-light");
-      document.body.classList.remove("ft-dark");
+      emotionInjectGlobal(`body.light{color-scheme: light;}`);
+      document.body.classList.add("light");
+      document.body.classList.remove("dark");
     }
   }, [theme.theme.mode, injectGlobal]);
 

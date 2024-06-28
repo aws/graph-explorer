@@ -1,7 +1,7 @@
 import { cx } from "@emotion/css";
 import { ReactNode } from "react";
 
-import { useWithTheme, withClassNamePrefix } from "../../../core";
+import { useWithTheme } from "../../../core";
 import { GridIcon } from "../../icons";
 import Select from "../../Select";
 import { ExportControl } from "../controls";
@@ -23,25 +23,21 @@ const ModuleContainerTabularHeader = ({
   onTableChange,
   moduleName = "Table View",
 }: EntitiesTabularHeaderProps) => {
-  const pfx = withClassNamePrefix("ft");
   const styleWithTheme = useWithTheme();
 
   return (
     <div
-      className={cx(
-        styleWithTheme(defaultStyles("ft")),
-        pfx("entities-tabular-header")
-      )}
+      className={cx(styleWithTheme(defaultStyles), "entities-tabular-header")}
     >
-      <div className={pfx("title")}>
+      <div className={"title"}>
         {startAdornment ? (
-          <div className={pfx("start-adornment")}>{startAdornment}</div>
+          <div className={"start-adornment"}>{startAdornment}</div>
         ) : (
-          <GridIcon className={pfx("icon")} />
+          <GridIcon className={"icon"} />
         )}
         {moduleName}
       </div>
-      <div className={pfx("select-table")}>
+      <div className={"select-table"}>
         <Select
           aria-label={"Table"}
           value={selectedTable}
@@ -50,7 +46,7 @@ const ModuleContainerTabularHeader = ({
           hideError={true}
         />
       </div>
-      <div className={pfx("space")} />
+      <div className={"space"} />
       <ExportControl />
     </div>
   );

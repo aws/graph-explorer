@@ -11,7 +11,7 @@ import type {
 import { Children, forwardRef, useEffect, useMemo, useState } from "react";
 import type { VirtuosoHandle } from "react-virtuoso";
 import { Virtuoso } from "react-virtuoso";
-import { useWithTheme, withClassNamePrefix } from "../../core";
+import { useWithTheme } from "../../core";
 import useDebounceValue from "../../hooks/useDebounceValue";
 import LoadingSpinner from "../LoadingSpinner";
 import Section from "../Section/Section";
@@ -44,7 +44,6 @@ export type AdvancedListMouseEvent<E = HTMLElement> = (
 
 export type AdvancedListProps<T extends object> = {
   items: AdvancedListItemType<T>[];
-  classNamePrefix?: string;
   className?: string;
   selectedItemsIds?: string[];
   draggable?: boolean;
@@ -104,7 +103,6 @@ const AdvancedList = <T extends object>(
     items,
     className,
     children,
-    classNamePrefix = "ft",
     emptyState,
     onSearch,
     search,
@@ -135,7 +133,6 @@ const AdvancedList = <T extends object>(
   );
   const debouncedSearch = useDebounceValue(search, 300);
   const styleWithTheme = useWithTheme();
-  const pfx = withClassNamePrefix(classNamePrefix);
   const hasGroups = useMemo(() => {
     return items.some(item => !!item.items?.length);
   }, [items]);
@@ -195,8 +192,8 @@ const AdvancedList = <T extends object>(
     <>
       <div
         className={cx(
-          styleWithTheme(styles.listStyles(classNamePrefix)),
-          pfx("advanced-list"),
+          styleWithTheme(styles.listStyles),
+          "advanced-list",
           className
         )}
       >
@@ -206,11 +203,10 @@ const AdvancedList = <T extends object>(
             disableBorder
             title={
               hasHeader && (
-                <div className={pfx("advanced-list-search-wrapper")}>
+                <div className={"advanced-list-search-wrapper"}>
                   {children}
                   {onSearch && (
                     <SearchBar
-                      classNamePrefix={classNamePrefix}
                       types={typesOptions}
                       search={search}
                       searchPlaceholder={searchPlaceholder}
@@ -223,12 +219,9 @@ const AdvancedList = <T extends object>(
               )
             }
             disablePadding
-            classNamePrefix={classNamePrefix}
             className={cx(
-              styleWithTheme(
-                styles.headerStyles(classNamePrefix, noSearchResults)
-              ),
-              pfx("advanced-list-header")
+              styleWithTheme(styles.headerStyles(noSearchResults)),
+              "advanced-list-header"
             )}
           >
             {isGroupedListVisible && (
@@ -238,7 +231,6 @@ const AdvancedList = <T extends object>(
                 search={debouncedSearch}
                 category={category}
                 draggable={draggable}
-                classNamePrefix={classNamePrefix}
                 selectedItemsIds={selectedItemsIds}
                 onItemClick={onItemClick}
                 onItemMouseOver={onItemMouseOver}
@@ -254,7 +246,7 @@ const AdvancedList = <T extends object>(
               />
             )}
             {isPlainListVisible && (
-              <div className={pfx("advanced-list-nogroup")}>
+              <div className={"advanced-list-nogroup"}>
                 {!disableVirtualization && (
                   <Virtuoso
                     ref={ref}
@@ -263,9 +255,7 @@ const AdvancedList = <T extends object>(
                       const item = filteredItems[index];
                       return (
                         <div
-                          className={cx(
-                            pfx("advanced-list-nogroup-item-wrapper")
-                          )}
+                          className={cx("advanced-list-nogroup-item-wrapper")}
                         >
                           <ElementsListItem
                             item={item}
@@ -287,7 +277,6 @@ const AdvancedList = <T extends object>(
                             onMouseLeave={event =>
                               onItemMouseLeave?.(event, index)
                             }
-                            classNamePrefix={classNamePrefix}
                             draggable={draggable}
                             isSelected={
                               !!item.id && selectedItemsIds?.includes(item.id)
@@ -306,7 +295,7 @@ const AdvancedList = <T extends object>(
                 {disableVirtualization &&
                   filteredItems.map((item, index) => (
                     <div
-                      className={pfx("advanced-list-nogroup-item-wrapper")}
+                      className={"advanced-list-nogroup-item-wrapper"}
                       key={item.id}
                     >
                       <ElementsListItem
@@ -316,7 +305,6 @@ const AdvancedList = <T extends object>(
                             ? (event, item) => onItemClick?.(event, item, index)
                             : undefined
                         }
-                        classNamePrefix={classNamePrefix}
                         draggable={draggable}
                         isSelected={
                           !!item.id && selectedItemsIds?.includes(item.id)
@@ -334,13 +322,12 @@ const AdvancedList = <T extends object>(
           </Section>
         )}
         {isLoading && (
-          <div className={pfx("advanced-list-loading")}>
+          <div className={"advanced-list-loading"}>
             <LoadingSpinner />
           </div>
         )}
         {!hideEmptyState && !hasGroups && isEmpty && (
           <EmptyState
-            classNamePrefix={classNamePrefix}
             emptyState={emptyState}
             empty={search ? !items.length : false}
             noSearchResults={noSearchResults}
@@ -350,10 +337,9 @@ const AdvancedList = <T extends object>(
           <Footer
             count={filteredItems.length}
             total={itemsCount}
-            classNamePrefix={classNamePrefix}
             className={cx(
-              styleWithTheme(styles.footerStyles(classNamePrefix)),
-              pfx("advanced-list-footer")
+              styleWithTheme(styles.footerStyles),
+              "advanced-list-footer"
             )}
           />
         )}

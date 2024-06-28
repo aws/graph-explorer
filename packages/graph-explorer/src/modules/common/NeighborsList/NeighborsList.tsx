@@ -7,7 +7,7 @@ import {
   VertexIcon,
   VisibleIcon,
 } from "../../../components";
-import { useWithTheme, withClassNamePrefix } from "../../../core";
+import { useWithTheme } from "../../../core";
 import useNeighborsOptions from "../../../hooks/useNeighborsOptions";
 import defaultStyles from "./NeighborsList.styles";
 import { useState } from "react";
@@ -15,31 +15,19 @@ import { useRecoilValue } from "recoil";
 import { activeConnectionSelector } from "../../../core/connector";
 
 export type NeighborsListProps = {
-  classNamePrefix?: string;
   vertex: Vertex;
 };
 
 const MAX_NEIGHBOR_TYPE_ROWS = 5;
 
-export default function NeighborsList({
-  classNamePrefix = "ft",
-  vertex,
-}: NeighborsListProps) {
+export default function NeighborsList({ vertex }: NeighborsListProps) {
   const styleWithTheme = useWithTheme();
-  const pfx = withClassNamePrefix(classNamePrefix);
   const neighborsOptions = useNeighborsOptions(vertex);
   const [showMore, setShowMore] = useState(false);
 
   return (
-    <div
-      className={cx(
-        styleWithTheme(defaultStyles(classNamePrefix)),
-        pfx("section")
-      )}
-    >
-      <div className={pfx("title")}>
-        Neighbors ({vertex.data.neighborsCount})
-      </div>
+    <div className={cx(styleWithTheme(defaultStyles), "section")}>
+      <div className={"title"}>Neighbors ({vertex.data.neighborsCount})</div>
       {neighborsOptions
         .slice(0, showMore ? undefined : MAX_NEIGHBOR_TYPE_ROWS)
         .map(op => {
@@ -47,8 +35,8 @@ export default function NeighborsList({
             vertex.data.neighborsCountByType[op.value] -
             (vertex.data.__unfetchedNeighborCounts?.[op.value] ?? 0);
           return (
-            <div key={op.value} className={pfx("node-item")}>
-              <div className={pfx("vertex-type")}>
+            <div key={op.value} className={"node-item"}>
+              <div className={"vertex-type"}>
                 <div
                   style={{
                     color: op.config?.color,
@@ -61,18 +49,15 @@ export default function NeighborsList({
                 </div>
                 {op.label}
               </div>
-              <div className={pfx("vertex-totals")}>
+              <div className={"vertex-totals"}>
                 <Tooltip
                   text={`${neighborsInView} ${op.label} in the Graph View`}
                 >
-                  <Chip
-                    className={pfx("chip")}
-                    startAdornment={<VisibleIcon />}
-                  >
+                  <Chip className={"chip"} startAdornment={<VisibleIcon />}>
                     {neighborsInView}
                   </Chip>
                 </Tooltip>
-                <Chip className={pfx("chip")}>
+                <Chip className={"chip"}>
                   {vertex.data.neighborsCountByType[op.value]}
                 </Chip>
               </div>

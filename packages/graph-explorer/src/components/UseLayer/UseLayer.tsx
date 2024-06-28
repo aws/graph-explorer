@@ -3,7 +3,6 @@ import type { PropsWithChildren } from "react";
 import { forwardRef, useEffect, useMemo } from "react";
 import type { ArrowProps, LayerSide, UseLayerOptions } from "react-laag";
 import { Arrow, useLayer } from "react-laag";
-import { withClassNamePrefix } from "../../core";
 import getChildOfType from "../../utils/getChildOfType";
 import UseLayerOverlay from "./UseLayerOverlay";
 import UseLayerTrigger from "./UseLayerTrigger";
@@ -16,7 +15,6 @@ export type UseLayerProps = UseLayerOptions & {
   arrowProps?: ArrowProps;
   onClose?(): void;
   className?: string;
-  classNamePrefix?: string;
   onLayerSideChange?: (side: UseLayerSides) => void;
 };
 
@@ -29,7 +27,6 @@ const UseLayer = forwardRef<HTMLDivElement, PropsWithChildren<UseLayerProps>>(
       showArrow,
       arrowProps,
       className,
-      classNamePrefix = "ft",
       onClose,
       placement,
       possiblePlacements,
@@ -53,8 +50,6 @@ const UseLayer = forwardRef<HTMLDivElement, PropsWithChildren<UseLayerProps>>(
       auto: true,
       ...layerOptions,
     });
-
-    const pfx = withClassNamePrefix(classNamePrefix);
 
     useEffect(() => {
       onLayerSideChange?.(layerSide);
@@ -84,10 +79,10 @@ const UseLayer = forwardRef<HTMLDivElement, PropsWithChildren<UseLayerProps>>(
       <div
         ref={ref}
         id={id}
-        className={cx(pfx("layer-container"), className)}
+        className={cx("layer-container", className)}
         style={{ display: "inline-block" }}
       >
-        <div {...triggerProps} className={pfx("trigger-container")}>
+        <div {...triggerProps} className={"trigger-container"}>
           {triggerChild}
         </div>
         {renderLayer(
@@ -97,10 +92,10 @@ const UseLayer = forwardRef<HTMLDivElement, PropsWithChildren<UseLayerProps>>(
               ...layerProps.style,
               zIndex: 9999,
             }}
-            className={pfx("overlay-container")}
+            className={"overlay-container"}
           >
             {layerOptions.isOpen && (
-              <div className={pfx("overlay-inner-container")}>
+              <div className={"overlay-inner-container"}>
                 {showArrow && <Arrow {...layerArrowProps} {...arrowProps} />}
                 {overlayChild}
               </div>

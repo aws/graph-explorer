@@ -12,7 +12,6 @@ import SelectHeader from "./SelectHeader/SelectHeader";
 type ListBoxProps<T> = ListProps<T> &
   Omit<SelectProps, "options" | "value" | "onChange"> & {
     items: Array<SelectOption>;
-    classNamePrefix?: string;
   };
 
 const SelectListBox = (props: ListBoxProps<SelectOption>) => {

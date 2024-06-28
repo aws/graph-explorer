@@ -1,6 +1,6 @@
 import { cx } from "@emotion/css";
 import { Fragment, useMemo, useState } from "react";
-import { useWithTheme, withClassNamePrefix } from "../../../core";
+import { useWithTheme } from "../../../core";
 import IconButton from "../../IconButton";
 import MoreIcon from "../../icons/MoreIcon";
 import UseLayer, { UseLayerOverlay, UseLayerTrigger } from "../../UseLayer";
@@ -10,7 +10,6 @@ import defaultStyles from "./ModuleContainerHeaderActions.styles";
 
 export type ModuleContainerHeaderActionsProps = {
   variant?: "sidebar" | "default";
-  classNamePrefix?: string;
   actions?: Array<ActionItem>;
   onActionClick?(action: string): void;
   isCollapsedMenuOpen?: boolean;
@@ -26,7 +25,6 @@ const isActionType = (action: any): action is Action => {
 };
 
 const ModuleContainerHeaderActions = ({
-  classNamePrefix = "ft",
   variant,
   actions,
   onActionClick,
@@ -34,7 +32,6 @@ const ModuleContainerHeaderActions = ({
   onCollapsedMenuChange,
 }: ModuleContainerHeaderActionsProps) => {
   const styleWithTheme = useWithTheme();
-  const pfx = withClassNamePrefix(classNamePrefix);
   const [collapsedActionsOpen, setCollapsedActionsOpen] = useState(false);
 
   // Make the component controlled and uncontrolled
@@ -82,13 +79,13 @@ const ModuleContainerHeaderActions = ({
   return (
     <div
       className={cx(
-        styleWithTheme(defaultStyles(classNamePrefix)),
-        pfx("module-container-header-actions")
+        styleWithTheme(defaultStyles),
+        "module-container-header-actions"
       )}
     >
       {alwaysVisibleActions?.map((action, actionIndex) => {
         if (action === "divider") {
-          return <div key={actionIndex} className={pfx("divider")} />;
+          return <div key={actionIndex} className={"divider"} />;
         }
 
         if (isActionType(action)) {
@@ -128,7 +125,6 @@ const ModuleContainerHeaderActions = ({
           </UseLayerTrigger>
           <UseLayerOverlay>
             <CollapsedActions
-              classNamePrefix={classNamePrefix}
               actions={collapsibleActions}
               onActionClick={action => {
                 onActionClick?.(action);

@@ -11,7 +11,7 @@ import {
 import type { TableInstance } from "react-table";
 import useDeepCompareEffect from "use-deep-compare-effect";
 
-import { useWithTheme, withClassNamePrefix } from "../../core";
+import { useWithTheme } from "../../core";
 import { useDeepMemo } from "../../hooks";
 import { getChildOfType } from "../../utils";
 
@@ -36,7 +36,6 @@ import useTabular from "./useTabular";
 export type TabularVariantType = "bordered" | "noBorders";
 
 export interface TabularProps<T extends object> extends TabularOptions<T> {
-  classNamePrefix?: string;
   className?: string;
 
   /**
@@ -57,7 +56,6 @@ export interface TabularProps<T extends object> extends TabularOptions<T> {
 export const Tabular = <T extends Record<string, unknown>>(
   {
     children,
-    classNamePrefix = "ft",
     className,
     data,
     disablePagination,
@@ -81,7 +79,6 @@ export const Tabular = <T extends Record<string, unknown>>(
 
   const tabularContentProps = {
     children,
-    classNamePrefix,
     className,
     data,
     disablePagination,
@@ -131,7 +128,6 @@ export const Tabular = <T extends Record<string, unknown>>(
 
 const TabularContent = <T extends Record<string, unknown>>({
   children,
-  classNamePrefix = "ft",
   className,
   tableInstance,
   disablePagination,
@@ -144,7 +140,6 @@ const TabularContent = <T extends Record<string, unknown>>({
 }: PropsWithChildren<
   TabularProps<T> & { tableInstance: TableInstance<T> }
 >) => {
-  const pfx = withClassNamePrefix(classNamePrefix);
   const { tableRef, headerControlsRef, headerControlsPosition } =
     useTabularControl();
   const [stickyHeaderTop, setStickyHeaderTop] = useState(0);
@@ -217,10 +212,7 @@ const TabularContent = <T extends Record<string, unknown>>({
   return (
     <div
       ref={tableRef}
-      className={cx(
-        styleWithTheme(defaultStyles(classNamePrefix, variant)),
-        className
-      )}
+      className={cx(styleWithTheme(defaultStyles(variant)), className)}
       style={{
         userSelect: tableInstance.state.columnResizing?.isResizingColumn
           ? "none"
@@ -228,10 +220,10 @@ const TabularContent = <T extends Record<string, unknown>>({
       }}
     >
       {headerControlsChildren}
-      <div {...getTableProps()} className={pfx("table")}>
+      <div {...getTableProps()} className={"table"}>
         <div
-          className={cx(pfx("headers"), {
-            [pfx("headers-sticky")]: !disableStickyHeader,
+          className={cx("headers", {
+            ["headers-sticky"]: !disableStickyHeader,
           })}
           style={{
             // Top is assigned depending on the header-controls visibility and height
@@ -247,7 +239,7 @@ const TabularContent = <T extends Record<string, unknown>>({
             />
           ))}
         </div>
-        <div {...getTableBodyProps()} className={pfx("body")}>
+        <div {...getTableBodyProps()} className={"body"}>
           {emptyBodyControlsChildren}
           {actualRows.map(row => {
             return (
@@ -267,10 +259,7 @@ const TabularContent = <T extends Record<string, unknown>>({
       {footerControlsChildren}
       {!footerControlsChildren && !disablePagination && (
         <TabularFooterControls variant={variant}>
-          <PaginationControl
-            classNamePrefix={classNamePrefix}
-            totalRows={rows.length}
-          />
+          <PaginationControl totalRows={rows.length} />
         </TabularFooterControls>
       )}
     </div>

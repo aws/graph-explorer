@@ -1,6 +1,6 @@
 import { css, cx } from "@emotion/css";
 import { FC, PropsWithChildren } from "react";
-import { useWithTheme, withClassNamePrefix } from "../../../core";
+import { useWithTheme } from "../../../core";
 import type { TabularVariantType } from "../Tabular";
 
 import type { ThemeStyleFn } from "../../../core/ThemeProvider/types";
@@ -8,7 +8,6 @@ import type { TabularTheme } from "../Tabular.model";
 import baseTheme from "../baseTheme";
 
 export type TabularFooterControlsProps = PropsWithChildren<{
-  classNamePrefix?: string;
   className?: string;
   variant?: TabularVariantType;
   /**
@@ -19,12 +18,12 @@ export type TabularFooterControlsProps = PropsWithChildren<{
 }>;
 
 const defaultStyles =
-  (pfx: string, variant?: TabularVariantType): ThemeStyleFn<TabularTheme> =>
+  (variant?: TabularVariantType): ThemeStyleFn<TabularTheme> =>
   ({ theme, isDarkTheme }) => {
     const { tabular, palette } = theme;
 
     return css`
-      &.${pfx}-footer-controls {
+      &.footer-controls {
         position: sticky;
         left: 0;
         width: 100%;
@@ -49,7 +48,7 @@ const defaultStyles =
         }
       }
 
-      &.${pfx}-footer-controls-sticky {
+      &.footer-controls-sticky {
         z-index: 3;
         // -1px fixes the border
         ${variant === "noBorders" ? "bottom: 0;" : "bottom: -1px;"}
@@ -60,21 +59,19 @@ const defaultStyles =
 const TabularFooterControls: FC<TabularFooterControlsProps> = ({
   children,
   className,
-  classNamePrefix = "ft",
   disableSticky,
   variant,
 }) => {
-  const pfx = withClassNamePrefix(classNamePrefix);
   const styleWithTheme = useWithTheme();
 
   return (
     <div
       className={cx(
-        styleWithTheme(defaultStyles(classNamePrefix, variant)),
-        pfx("footer-controls"),
+        styleWithTheme(defaultStyles(variant)),
+        "footer-controls",
         className,
         {
-          [pfx("footer-controls-sticky")]: !disableSticky,
+          ["footer-controls-sticky"]: !disableSticky,
         }
       )}
     >

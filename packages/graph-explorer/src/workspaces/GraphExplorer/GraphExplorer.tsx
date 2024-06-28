@@ -21,11 +21,7 @@ import {
 } from "../../components/icons";
 import GridIcon from "../../components/icons/GridIcon";
 import Workspace from "../../components/Workspace";
-import {
-  useConfiguration,
-  useWithTheme,
-  withClassNamePrefix,
-} from "../../core";
+import { useConfiguration, useWithTheme } from "../../core";
 import { edgesSelectedIdsAtom } from "../../core/StateProvider/edges";
 import { nodesSelectedIdsAtom } from "../../core/StateProvider/nodes";
 import { totalFilteredCount } from "../../core/StateProvider/filterCount";
@@ -44,10 +40,6 @@ import NodesStyling from "../../modules/NodesStyling/NodesStyling";
 import TopBarWithLogo from "../common/TopBarWithLogo";
 import defaultStyles from "./GraphExplorer.styles";
 
-export type GraphViewProps = {
-  classNamePrefix?: string;
-};
-
 const RESIZE_ENABLE_TOP = {
   top: true,
   right: false,
@@ -59,9 +51,8 @@ const RESIZE_ENABLE_TOP = {
   topLeft: false,
 };
 
-const GraphExplorer = ({ classNamePrefix = "ft" }: GraphViewProps) => {
+const GraphExplorer = () => {
   const styleWithTheme = useWithTheme();
-  const pfx = withClassNamePrefix(classNamePrefix);
   const config = useConfiguration();
   const t = useTranslations();
   const hasNamespaces = config?.connection?.queryEngine === "sparql";
@@ -179,12 +170,7 @@ const GraphExplorer = ({ classNamePrefix = "ft" }: GraphViewProps) => {
   }, [debounceAutoOpenDetails, nodeOrEdgeSelected]);
 
   return (
-    <Workspace
-      className={cx(
-        styleWithTheme(defaultStyles(classNamePrefix)),
-        pfx("graph-explorer")
-      )}
-    >
+    <Workspace className={cx(styleWithTheme(defaultStyles), "graph-explorer")}>
       <TopBarWithLogo>
         <Workspace.TopBar.Title
           title="Graph Explorer"
@@ -214,10 +200,10 @@ const GraphExplorer = ({ classNamePrefix = "ft" }: GraphViewProps) => {
             icon={<GridIcon />}
             onPress={toggleView("table-view")}
           />
-          <div className={pfx("v-divider")} />
+          <div className={"v-divider"} />
           <Link to={"/connections"}>
             <Button
-              className={pfx("button")}
+              className={"button"}
               icon={<DatabaseIcon />}
               variant={"filled"}
             >

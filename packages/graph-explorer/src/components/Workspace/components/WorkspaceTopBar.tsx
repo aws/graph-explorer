@@ -1,7 +1,7 @@
 import { cx } from "@emotion/css";
 import type { PropsWithChildren, ReactElement } from "react";
 import { useMemo } from "react";
-import { useWithTheme, withClassNamePrefix } from "../../../core";
+import { useWithTheme } from "../../../core";
 import { groupChildrenByType } from "../../../utils";
 import styles from "../Workspace.styles";
 import type { HideNavBarLogoProps } from "./HideNavBarLogo";
@@ -14,7 +14,6 @@ import WorkspaceTopBarVersion from "./WorkspaceTopBarVersion";
 
 export type WorkspaceTopBarProps = {
   className?: string;
-  classNamePrefix?: string;
   logo?: HideNavBarLogoProps["logo"];
   logoVisible?: HideNavBarLogoProps["logo"];
   onLogoClick?: HideNavBarLogoProps["onClick"];
@@ -30,14 +29,12 @@ interface WorkspaceTopBarComposition {
 
 const WorkspaceTopBar = ({
   className,
-  classNamePrefix,
   children,
   logo,
   logoVisible,
   onLogoClick,
 }: PropsWithChildren<WorkspaceTopBarProps>) => {
   const stylesWithTheme = useWithTheme();
-  const pfx = withClassNamePrefix(classNamePrefix || "ft");
 
   const childrenByType = useMemo(
     () =>
@@ -59,7 +56,7 @@ const WorkspaceTopBar = ({
     <div
       className={cx(
         stylesWithTheme(styles.topBarSectionStyles),
-        pfx("top-bar-container"),
+        "top-bar-container",
         className
       )}
     >
@@ -76,7 +73,7 @@ const WorkspaceTopBar = ({
         }
         {childrenByType[
           WorkspaceTopBarContent.displayName || WorkspaceTopBarContent.name
-        ] ?? <div className={pfx("space")} />}
+        ] ?? <div className={"space"} />}
         {
           childrenByType[
             WorkspaceTopBarVersion.displayName || WorkspaceTopBarVersion.name
@@ -97,7 +94,7 @@ const WorkspaceTopBar = ({
       <div
         className={cx(
           stylesWithTheme(styles.subBarStyles),
-          pfx("sub-bar-container")
+          "sub-bar-container"
         )}
       >
         {childrenByType.rest}

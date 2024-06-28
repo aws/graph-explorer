@@ -14,7 +14,7 @@ import {
 } from "../../components";
 import { useNotification } from "../../components/NotificationProvider";
 import Switch from "../../components/Switch";
-import { useWithTheme, withClassNamePrefix } from "../../core";
+import { useWithTheme } from "../../core";
 import {
   activeConfigurationAtom,
   configurationAtom,
@@ -38,7 +38,6 @@ const AvailableConnections = ({
   onModalChange,
 }: ConnectionDetailProps) => {
   const styleWithTheme = useWithTheme();
-  const pfx = withClassNamePrefix("ft");
 
   const activeConfig = useRecoilValue(activeConfigurationAtom);
   const configuration = useRecoilValue(configurationAtom);
@@ -171,9 +170,9 @@ const AvailableConnections = ({
                 config.connection?.queryEngine || "gremlin"
               )}
             </Chip>
-            <div className={pfx("v-divider")} />
+            <div className={"v-divider"} />
             <Switch
-              className={pfx("item-switch")}
+              className={"item-switch"}
               labelPosition={"left"}
               isSelected={activeConfig === config.id}
               onChange={() => onActiveConfigChange(config.id)}
@@ -187,10 +186,10 @@ const AvailableConnections = ({
     });
 
     return items;
-  }, [activeConfig, configuration, isSync, onActiveConfigChange, pfx, t]);
+  }, [activeConfig, configuration, isSync, onActiveConfigChange, t]);
 
   return (
-    <ModuleContainer className={styleWithTheme(defaultStyles("ft"))}>
+    <ModuleContainer className={styleWithTheme(defaultStyles)}>
       <ModuleContainerHeader
         title={"Available connections"}
         actions={headerActions}
@@ -198,7 +197,7 @@ const AvailableConnections = ({
       />
 
       <AdvancedList
-        className={pfx("advanced-list")}
+        className={"advanced-list"}
         items={connectionItems}
         selectedItemsIds={[activeConfig || ""]}
       />

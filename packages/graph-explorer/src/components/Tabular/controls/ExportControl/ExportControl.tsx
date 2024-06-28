@@ -4,7 +4,6 @@ import { useTabularControl } from "../../TabularControlsProvider";
 import { ExternalExportControl } from "./ExternalExportControl";
 
 type ExportControlProps = {
-  classNamePrefix?: string;
   className?: string;
   omittedColumnsIds?: string[];
 };

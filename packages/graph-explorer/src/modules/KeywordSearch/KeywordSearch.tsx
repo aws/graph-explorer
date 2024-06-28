@@ -23,12 +23,7 @@ import {
 import { CarouselRef } from "../../components/Carousel/Carousel";
 import HumanReadableNumberFormatter from "../../components/HumanReadableNumberFormatter";
 import RemoveFromCanvasIcon from "../../components/icons/RemoveFromCanvasIcon";
-import {
-  fade,
-  useConfiguration,
-  useWithTheme,
-  withClassNamePrefix,
-} from "../../core";
+import { fade, useConfiguration, useWithTheme } from "../../core";
 import { useEntities, useFetchNode, useSet } from "../../hooks";
 import useDisplayNames from "../../hooks/useDisplayNames";
 import useTextTransform from "../../hooks/useTextTransform";
@@ -40,20 +35,15 @@ import toAdvancedList from "./toAdvancedList";
 import useKeywordSearch from "./useKeywordSearch";
 
 export type KeywordSearchProps = {
-  classNamePrefix?: string;
   className?: string;
 };
 
-const KeywordSearch = ({
-  classNamePrefix = "ft",
-  className,
-}: KeywordSearchProps) => {
+const KeywordSearch = ({ className }: KeywordSearchProps) => {
   const config = useConfiguration();
   const t = useTranslations();
   const fetchNode = useFetchNode();
   const [entities, setEntities] = useEntities();
   const styleWithTheme = useWithTheme();
-  const pfx = withClassNamePrefix(classNamePrefix);
 
   const rootRef = useRef<HTMLDivElement | null>(null);
   const [isFocused, setInputFocused] = useState(false);
@@ -104,7 +94,7 @@ const KeywordSearch = ({
         const { name, longName } = getDisplayNames(vertex);
         return {
           className: css`
-            .ft-start-adornment {
+            .start-adornment {
               background-color: ${fade(vtConfig?.color, 0.2)} !important;
               color: ${vtConfig?.color} !important;
             }
@@ -124,9 +114,7 @@ const KeywordSearch = ({
           ) ? (
             <IconButton
               tooltipText={"Remove from canvas"}
-              icon={
-                <RemoveFromCanvasIcon className={pfx("graph-remove-icon")} />
-              }
+              icon={<RemoveFromCanvasIcon className={"graph-remove-icon"} />}
               size={"small"}
               variant={"text"}
               onPress={() => {
@@ -161,7 +149,6 @@ const KeywordSearch = ({
     getDisplayNames,
     textTransform,
     entities.nodes,
-    pfx,
     setEntities,
     fetchNode,
   ]);
@@ -244,12 +231,12 @@ const KeywordSearch = ({
     <div
       ref={rootRef}
       id={"keyword-search-module"}
-      className={cx(styleWithTheme(defaultStyles(classNamePrefix)), className)}
+      className={cx(styleWithTheme(defaultStyles), className)}
     >
       {!isFocused && (
-        <div className={pfx("bar-container")}>
+        <div className={"bar-container"}>
           <Input
-            className={pfx("search-input")}
+            className={"search-input"}
             aria-label={"Search box"}
             hideError={true}
             value={searchTerm}
@@ -262,7 +249,7 @@ const KeywordSearch = ({
                   color={"var(--palette-primary-main)"}
                 />
               ) : searchResults.length > 0 ? (
-                <div className={pfx("results-adornment")}>
+                <div className={"results-adornment"}>
                   {searchResults.length} results
                 </div>
               ) : undefined
@@ -271,10 +258,10 @@ const KeywordSearch = ({
         </div>
       )}
       {isFocused && (
-        <Card ref={ref} className={pfx("panel-container")} elevation={3}>
-          <div className={pfx("search-controls")}>
+        <Card ref={ref} className={"panel-container"} elevation={3}>
+          <div className={"search-controls"}>
             <Select
-              className={pfx("entity-select")}
+              className={"entity-select"}
               label={t("keyword-search.node-type")}
               labelPlacement={"inner"}
               hideError={true}
@@ -284,7 +271,7 @@ const KeywordSearch = ({
               menuWidth={150}
             />
             <Select
-              className={pfx("entity-select")}
+              className={"entity-select"}
               label={t("keyword-search.node-attribute")}
               labelPlacement={"inner"}
               hideError={true}
@@ -294,7 +281,7 @@ const KeywordSearch = ({
               menuWidth={150}
             />
             <Select
-              className={pfx("entity-select")}
+              className={"entity-select"}
               label={t("keyword-search.node-exact-match")}
               labelPlacement={"inner"}
               hideError={true}
@@ -304,7 +291,7 @@ const KeywordSearch = ({
               menuWidth={150}
             />
             <Input
-              className={pfx("search-input")}
+              className={"search-input"}
               aria-label={"Search box"}
               hideError={true}
               autoFocus={true}
@@ -313,7 +300,7 @@ const KeywordSearch = ({
               placeholder={searchPlaceholder}
             />
             <IconButton
-              className={pfx("close-button")}
+              className={"close-button"}
               variant={"text"}
               tooltipText={"Close search"}
               tooltipPlacement={"bottom-center"}
@@ -321,10 +308,9 @@ const KeywordSearch = ({
               onPress={onInputFocusChange(false)}
             />
           </div>
-          <div className={pfx("search-results")}>
+          <div className={"search-results"}>
             {isFetching && (
               <PanelEmptyState
-                classNamePrefix={classNamePrefix}
                 title={"Searching..."}
                 subtitle={
                   <div>
@@ -356,17 +342,15 @@ const KeywordSearch = ({
             )}
             {noResultsAfterFetching && (
               <PanelEmptyState
-                classNamePrefix={classNamePrefix}
                 title={"No Results"}
                 subtitle={"Your criteria does not match with any record"}
                 icon={<SearchSadIcon />}
               />
             )}
             {withResultsAfterFetching && (
-              <div className={pfx("search-results-grid")}>
+              <div className={"search-results-grid"}>
                 <AdvancedList
-                  classNamePrefix={classNamePrefix}
-                  className={pfx("search-results-advanced-list")}
+                  className={"search-results-advanced-list"}
                   items={resultItems}
                   draggable={true}
                   defaultItemType={"graph-viewer__node"}
@@ -380,7 +364,7 @@ const KeywordSearch = ({
                   <Carousel
                     ref={carouselRef}
                     slidesToShow={1}
-                    className={pfx("carousel")}
+                    className={"carousel"}
                     pagination={{
                       el: `.swiper-pagination`,
                     }}
@@ -402,7 +386,7 @@ const KeywordSearch = ({
                 )}
                 {selection.state.size === 0 && (
                   <PanelEmptyState
-                    className={pfx("node-preview")}
+                    className={"node-preview"}
                     title="Select an item to preview"
                     icon={<GraphIcon />}
                   />
@@ -410,8 +394,8 @@ const KeywordSearch = ({
               </div>
             )}
           </div>
-          <div className={pfx("actions-footer")}>
-            <span className={pfx("footer-text")}>
+          <div className={"actions-footer"}>
+            <span className={"footer-text"}>
               Search returned {searchResults.length} results
               {currentTotal != null && " of "}
               {currentTotal != null && (
@@ -421,14 +405,14 @@ const KeywordSearch = ({
             <Button
               icon={<RemoveIcon />}
               onPress={() => selection.clear()}
-              className={pfx("refuse-shrink")}
+              className={"refuse-shrink"}
             >
               Clear Selection
             </Button>
             <Button
               icon={<AddCircleIcon />}
               onPress={handleAddEntities}
-              className={pfx("refuse-shrink")}
+              className={"refuse-shrink"}
             >
               {addSelectedNodesMessage()}
             </Button>

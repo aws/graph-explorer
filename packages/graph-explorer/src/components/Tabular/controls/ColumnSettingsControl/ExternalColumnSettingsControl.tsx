@@ -1,5 +1,4 @@
 import { css, cx } from "@emotion/css";
-import { withClassNamePrefix } from "../../../../core";
 import { useCallback, useState } from "react";
 import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
 import { useLayer } from "react-laag";
@@ -22,7 +21,6 @@ const rootStyles = () => css`
 
 interface ColumnOrderControlProps<T extends Record<string, unknown>> {
   instance: TabularInstance<T>;
-  classNamePrefix?: string;
   className?: string;
 }
 
@@ -35,10 +33,8 @@ const reorder = (list: string[], startIndex: number, endIndex: number) => {
 };
 
 export const ColumnSettingsControl = <T extends Record<string, unknown>>({
-  classNamePrefix = "ft",
   className,
 }: ColumnOrderControlProps<T>) => {
-  const pfx = withClassNamePrefix(classNamePrefix);
   const [isContentVisible, setIsContentVisible] = useState(false);
 
   const {
@@ -111,19 +107,16 @@ export const ColumnSettingsControl = <T extends Record<string, unknown>>({
         {...triggerProps}
       />
       {renderLayer(
-        <div
-          {...layerProps}
-          className={cx(defaultStyles(classNamePrefix), className)}
-        >
+        <div {...layerProps} className={cx(defaultStyles(), className)}>
           {isContentVisible && (
-            <Card className={pfx("card")}>
+            <Card className={"card"}>
               <DragDropContext onDragEnd={onDragEnd}>
                 <Droppable droppableId="columns-list">
                   {provided => (
                     <div
                       ref={provided.innerRef}
                       {...provided.droppableProps}
-                      className={pfx("columns-list")}
+                      className={"columns-list"}
                     >
                       {columnOrder.map((columnId, index) => {
                         const currentColumn = columns.find(
@@ -136,7 +129,6 @@ export const ColumnSettingsControl = <T extends Record<string, unknown>>({
                         return (
                           <ColumnItem
                             key={columnId}
-                            classNamePrefix={classNamePrefix}
                             index={index}
                             columnId={columnId}
                             column={currentColumn}
@@ -144,7 +136,7 @@ export const ColumnSettingsControl = <T extends Record<string, unknown>>({
                         );
                       })}
                       {provided.placeholder}
-                      <div className={pfx("action-item")}>
+                      <div className={"action-item"}>
                         <Button
                           variant={"text"}
                           size={"small"}

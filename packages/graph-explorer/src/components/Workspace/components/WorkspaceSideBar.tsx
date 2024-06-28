@@ -1,7 +1,6 @@
 import { cx } from "@emotion/css";
 import type { PropsWithChildren, ReactElement } from "react";
 import { useMemo } from "react";
-import { withClassNamePrefix } from "../../../core";
 import getChildOfType from "../../../utils/getChildOfType";
 import getChildrenOfType from "../../../utils/getChildrenOfType";
 import Sidebar from "../../Sidebar";
@@ -14,16 +13,13 @@ interface WorkspaceSideBarComposition {
 }
 
 export type WorkspaceSideBarProps = {
-  classNamePrefix?: string;
   direction?: "row" | "row-reverse";
 };
 
 const WorkspaceSideBar = ({
   children,
-  classNamePrefix = "ft",
   direction = "row",
 }: PropsWithChildren<WorkspaceSideBarProps>) => {
-  const pfx = withClassNamePrefix(classNamePrefix);
   const sidebarContent = useMemo(() => {
     return getChildOfType(
       children,
@@ -40,7 +36,7 @@ const WorkspaceSideBar = ({
   }, [children]);
 
   return (
-    <div className={cx(pfx("sidebar-section"), pfx(`direction-${direction}`))}>
+    <div className={cx("sidebar-section", `direction-${direction}`)}>
       <Sidebar>{sidebarActions}</Sidebar>
       {sidebarContent}
     </div>

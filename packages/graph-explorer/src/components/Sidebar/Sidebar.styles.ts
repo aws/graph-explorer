@@ -3,12 +3,10 @@ import type { ThemeStyleFn } from "../../core";
 import { fade } from "../../core";
 import { SidebarTheme } from "./Sidebar.model";
 
-const defaultStyles =
-  (pfx: string): ThemeStyleFn<SidebarTheme> =>
-  ({ theme }) => {
-    const { sidebar, spacing, palette } = theme;
-    return css`
-    &.${pfx}-sidebar {
+const defaultStyles: ThemeStyleFn<SidebarTheme> = ({ theme }) => {
+  const { sidebar, spacing, palette } = theme;
+  return css`
+    &.sidebar {
       padding: ${spacing.base};
       height: 100%;
       display: flex;
@@ -17,19 +15,19 @@ const defaultStyles =
       background-color: ${fade(palette.primary.light, 0.2)};
       color: ${palette.text.primary};
 
-      .${pfx}-divider {
+      .divider {
         width: 60%;
         margin: ${spacing["2x"]} auto;
         height: 1px;
         background: ${palette.divider};
       }
 
-        &.${pfx}-active {
+        &.active {
           color: ${palette.primary.main};
         }
       }
 
-      .${pfx}-sidebar-button {
+      .sidebar-button {
         color: ${sidebar?.button?.color || palette.primary.dark};
         background-color: ${
           sidebar?.button?.background || fade(palette.primary.main, 0.2)
@@ -37,7 +35,7 @@ const defaultStyles =
         margin: ${spacing.base};
         padding: 0;
 
-        &.${pfx}-active {
+        &.active {
           color: ${sidebar?.button?.active?.color || palette.primary.dark};
           background-color: ${
             sidebar?.button?.active?.background ||
@@ -47,6 +45,6 @@ const defaultStyles =
       }
     }
   `;
-  };
+};
 
 export default defaultStyles;

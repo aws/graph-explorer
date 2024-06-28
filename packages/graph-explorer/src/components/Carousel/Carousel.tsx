@@ -21,13 +21,12 @@ import {
   Swiper as SwiperClass,
   SwiperOptions,
 } from "swiper/types";
-import { useWithTheme, withClassNamePrefix } from "../../core";
+import { useWithTheme } from "../../core";
 import { ChevronLeftIcon, ChevronRightIcon } from "../icons";
 import { defaultStyles, navArrowsStyles } from "./Carousel.styles";
 
 export interface CarouselProps {
   className?: string;
-  classNamePrefix?: string;
   centerMode?: boolean;
   pagination?: PaginationOptions;
   draggable?: boolean;
@@ -46,19 +45,14 @@ const PrevArrow = forwardRef<
     className?: string;
     style?: CSSProperties;
     onClick?: MouseEventHandler<any> | undefined;
-    classNamePrefix?: string;
   }
->(({ className, onClick, style, classNamePrefix = "ft" }, ref) => {
-  const pfx = withClassNamePrefix(classNamePrefix);
+>(({ className, onClick, style }, ref) => {
   const stylesWithTheme = useWithTheme();
 
   return (
     <div
       ref={ref}
-      className={cx(
-        stylesWithTheme(navArrowsStyles),
-        pfx("carousel-nav-arrow")
-      )}
+      className={cx(stylesWithTheme(navArrowsStyles), "carousel-nav-arrow")}
     >
       <ChevronLeftIcon
         className={cx(className)}
@@ -69,29 +63,24 @@ const PrevArrow = forwardRef<
   );
 });
 
-const NextArrow = forwardRef<
-  HTMLDivElement,
-  CustomArrowProps & { classNamePrefix?: string }
->(({ className, onClick, style, classNamePrefix = "ft" }, ref) => {
-  const pfx = withClassNamePrefix(classNamePrefix);
-  const stylesWithTheme = useWithTheme();
+const NextArrow = forwardRef<HTMLDivElement, CustomArrowProps>(
+  ({ className, onClick, style }, ref) => {
+    const stylesWithTheme = useWithTheme();
 
-  return (
-    <div
-      ref={ref}
-      className={cx(
-        stylesWithTheme(navArrowsStyles),
-        pfx("carousel-nav-arrow")
-      )}
-    >
-      <ChevronRightIcon
-        className={cx(className)}
-        style={{ ...style }}
-        onClick={onClick}
-      />
-    </div>
-  );
-});
+    return (
+      <div
+        ref={ref}
+        className={cx(stylesWithTheme(navArrowsStyles), "carousel-nav-arrow")}
+      >
+        <ChevronRightIcon
+          className={cx(className)}
+          style={{ ...style }}
+          onClick={onClick}
+        />
+      </div>
+    );
+  }
+);
 
 export type CarouselRef = SwiperClass | undefined;
 

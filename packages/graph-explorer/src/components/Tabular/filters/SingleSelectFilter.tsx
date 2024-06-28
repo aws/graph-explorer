@@ -1,15 +1,14 @@
 import { css } from "@emotion/css";
 import type { ActiveThemeType, ProcessedTheme } from "../../../core";
-import { withClassNamePrefix } from "../../../core";
 import { useDeepMemo } from "../../../hooks";
 import type { ColumnInstance } from "react-table";
 
 import Select from "../../Select/Select";
 
-const defaultStyles = (pfx: string, isDarkTheme?: boolean) => css`
+const defaultStyles = (isDarkTheme?: boolean) => css`
   width: 100%;
 
-  .${pfx}-menu-root {
+  .menu-root {
     button {
       ${!isDarkTheme && `background-color: var(--palette-background-default)`}
     }
@@ -48,20 +47,14 @@ export const SingleSelectFilter =
       [options]
     );
 
-    const pfx = withClassNamePrefix("filter-type-select");
     return (
-      <div
-        className={defaultStyles(
-          "filter-type-select",
-          activeTheme?.isDarkTheme
-        )}
-      >
+      <div className={defaultStyles(activeTheme?.isDarkTheme)}>
         <Select
           aria-label={`filter select for ${id}`}
           size="sm"
           noMargin
           hideError
-          className={pfx("menu-root")}
+          className={"menu-root"}
           value={column.filterValue || "all"}
           onChange={option =>
             option === "all" ? setFilter(undefined) : setFilter(option)

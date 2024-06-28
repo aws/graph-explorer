@@ -6,7 +6,7 @@ import { useSwitch } from "@react-aria/switch";
 import { VisuallyHidden } from "@react-aria/visually-hidden";
 import type { AriaSwitchProps } from "@react-types/switch";
 
-import { useWithTheme, withClassNamePrefix } from "../../core";
+import { useWithTheme } from "../../core";
 import { defaultSwitchLabelStyles, defaultSwitchStyles } from "./Switch.styles";
 
 const sizeMap = {
@@ -26,7 +26,6 @@ const sizeMap = {
 
 export interface SwitchProps extends AriaSwitchProps {
   className?: string;
-  classNamePrefix?: string;
   size?: "sm" | "md" | "lg";
   isSelected: boolean;
   onChange: (isSelected: boolean) => void;
@@ -38,14 +37,7 @@ export interface SwitchProps extends AriaSwitchProps {
 // eslint-disable-next-line react/display-name
 export const Switch = forwardRef<HTMLInputElement, SwitchProps>(
   (
-    {
-      size = "md",
-      classNamePrefix = "ft",
-      labelPosition = "right",
-      onIcon,
-      offIcon,
-      ...props
-    },
+    { size = "md", labelPosition = "right", onIcon, offIcon, ...props },
     ref
   ) => {
     const { isSelected, onChange, className, isDisabled, isReadOnly } = props;
@@ -59,19 +51,14 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(
       ref as RefObject<HTMLInputElement>
     );
     const { isFocusVisible, focusProps } = useFocusRing();
-    const pfx = withClassNamePrefix(classNamePrefix);
     const styleWithTheme = useWithTheme();
     return (
       <label
         onClick={e => e.stopPropagation()}
-        className={cx(
-          className,
-          styleWithTheme(defaultSwitchLabelStyles(classNamePrefix)),
-          {
-            [pfx("switch-label-disabled")]: isDisabled,
-            [pfx("switch-label-readonly")]: isReadOnly,
-          }
-        )}
+        className={cx(className, styleWithTheme(defaultSwitchLabelStyles), {
+          ["switch-label-disabled"]: isDisabled,
+          ["switch-label-readonly"]: isReadOnly,
+        })}
       >
         <VisuallyHidden>
           <input
@@ -84,19 +71,17 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(
         <div
           style={{ width: sizeMap[size].width, height: sizeMap[size].height }}
           className={cx(
-            styleWithTheme(
-              defaultSwitchStyles(classNamePrefix, sizeMap[size].width)
-            ),
-            isSelected ? pfx("switch-on") : pfx("switch-off"),
-            pfx(`switch-${size}`),
+            styleWithTheme(defaultSwitchStyles(sizeMap[size].width)),
+            isSelected ? "switch-on" : "switch-off",
+            `switch-${size}`,
             {
-              [pfx("switch-disabled")]: isDisabled,
-              [pfx("switch-focused")]: isFocusVisible,
+              ["switch-disabled"]: isDisabled,
+              ["switch-focused"]: isFocusVisible,
             }
           )}
         >
-          <div className={pfx("switch-track")}>
-            <div className={pfx("switch-handle")}>
+          <div className={"switch-track"}>
+            <div className={"switch-handle"}>
               {isSelected && onIcon} {!isSelected && offIcon}
             </div>
           </div>

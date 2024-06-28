@@ -3,13 +3,11 @@ import type { DragEvent, MouseEvent, ReactNode, RefObject } from "react";
 import { useRef } from "react";
 import { useDrag } from "react-dnd";
 import { useHover } from "react-laag";
-import { withClassNamePrefix } from "../../../core";
 import { CodeIcon } from "../../icons";
 import ListItem from "../../ListItem";
 import type { AdvancedListItemType } from "../AdvancedList";
 
 type AdvancedListItemProps<T extends object> = {
-  classNamePrefix?: string;
   className?: string;
   onClick?: (
     event: MouseEvent<HTMLDivElement>,
@@ -51,7 +49,6 @@ type AdvancedListItemProps<T extends object> = {
 };
 
 const AdvancedListItem = <T extends object>({
-  classNamePrefix = "ft",
   onClick,
   onMouseOver,
   onMouseOut,
@@ -69,7 +66,6 @@ const AdvancedListItem = <T extends object>({
   hidePopover,
   renderPopover,
 }: AdvancedListItemProps<T>) => {
-  const pfx = withClassNamePrefix(classNamePrefix);
   const ref = useRef<HTMLDivElement>(null);
   const [{ isDragging }, dragRef] = useDrag({
     type: defaultItemType || "none",
@@ -93,11 +89,10 @@ const AdvancedListItem = <T extends object>({
         onMouseOut={event => onMouseOut?.(event, item)}
         onMouseEnter={event => onMouseEnter?.(event, item)}
         onMouseLeave={event => onMouseLeave?.(event, item)}
-        classNamePrefix={classNamePrefix}
-        className={cx(pfx("advanced-list-item"), item.className, {
-          [pfx("advanced-list-item-with-popover")]: isOver,
-          [pfx("advanced-list-item-selected")]: isSelected,
-          [pfx("advanced-list-item-active")]: isActive,
+        className={cx("advanced-list-item", item.className, {
+          ["advanced-list-item-with-popover"]: isOver,
+          ["advanced-list-item-selected"]: isSelected,
+          ["advanced-list-item-active"]: isActive,
         })}
         startAdornment={item.icon || <CodeIcon />}
         secondary={item.subtitle}
@@ -123,14 +118,14 @@ const AdvancedListItem = <T extends object>({
 
   if (!draggable) {
     return (
-      <div className={cx(className, pfx("advanced-list-item-wrapper"))}>
+      <div className={cx(className, "advanced-list-item-wrapper")}>
         {WrappedElement}
       </div>
     );
   }
 
   return (
-    <div className={pfx("advanced-list-item-wrapper")}>
+    <div className={"advanced-list-item-wrapper"}>
       <div ref={dragRef} className={className}>
         {WrappedElement}
       </div>

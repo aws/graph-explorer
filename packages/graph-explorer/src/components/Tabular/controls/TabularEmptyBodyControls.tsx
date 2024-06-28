@@ -1,17 +1,15 @@
 import { css, cx } from "@emotion/css";
 
 import { FC, PropsWithChildren } from "react";
-import { withClassNamePrefix } from "../../../core";
 
 import { useTabularControl } from "../TabularControlsProvider";
 
 export type TabularEmptyBodyControlsProps = PropsWithChildren<{
-  classNamePrefix?: string;
   className?: string;
 }>;
 
-const defaultStyles = (pfx: string) => css`
-  &.${pfx}-body-controls {
+const defaultStyles = () => css`
+  &.body-controls {
     position: relative;
     display: flex;
     flex-direction: column;
@@ -25,9 +23,7 @@ const defaultStyles = (pfx: string) => css`
 const TabularEmptyBodyControls: FC<TabularEmptyBodyControlsProps> = ({
   children,
   className,
-  classNamePrefix = "ft",
 }) => {
-  const pfx = withClassNamePrefix(classNamePrefix);
   const {
     instance: { page },
   } = useTabularControl();
@@ -37,13 +33,7 @@ const TabularEmptyBodyControls: FC<TabularEmptyBodyControlsProps> = ({
   }
 
   return (
-    <div
-      className={cx(
-        defaultStyles(classNamePrefix),
-        pfx("body-controls"),
-        className
-      )}
-    >
+    <div className={cx(defaultStyles(), "body-controls", className)}>
       {children}
     </div>
   );

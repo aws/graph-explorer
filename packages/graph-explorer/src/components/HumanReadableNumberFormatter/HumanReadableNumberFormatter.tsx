@@ -1,7 +1,5 @@
 import { cx } from "@emotion/css";
-
 import { forwardRef } from "react";
-
 import { formatWithoutSymbol, getSymbolForNumber } from "./numberFormat";
 import {
   containerStyles,
@@ -18,7 +16,6 @@ export interface HumanReadableNumberFormatterProps {
   /* print rawValue */
   noFormat?: boolean;
   className?: string;
-  classNamePrefix?: string;
   unitPlacement?: "start" | "end";
 }
 
@@ -32,7 +29,6 @@ export const HumanReadableNumberFormatter = forwardRef<
       unit,
       maxFractionDigits = 2,
       className,
-      classNamePrefix = "ft",
       noFormat,
       unitPlacement = "end",
     },
@@ -44,22 +40,14 @@ export const HumanReadableNumberFormatter = forwardRef<
     return (
       <div ref={ref} className={cx(containerStyles(), className)}>
         {!!unit && unitPlacement === "start" && (
-          <div className={cx(unitStyles, `${classNamePrefix}-unit`)}>
-            {unit}
-          </div>
+          <div className={cx(unitStyles, `unit`)}>{unit}</div>
         )}
-        <div className={`${classNamePrefix}-number`}>
-          {!noFormat ? formattedValue : value}
-        </div>
+        <div className={`number`}>{!noFormat ? formattedValue : value}</div>
         {!noFormat && symbol && (
-          <div className={cx(symbolStyles, `${classNamePrefix}-symbol`)}>
-            {symbol}
-          </div>
+          <div className={cx(symbolStyles, `symbol`)}>{symbol}</div>
         )}
         {!!unit && unitPlacement === "end" && (
-          <div className={cx(unitStyles, `${classNamePrefix}-unit`)}>
-            {unit}
-          </div>
+          <div className={cx(unitStyles, `unit`)}>{unit}</div>
         )}
       </div>
     );

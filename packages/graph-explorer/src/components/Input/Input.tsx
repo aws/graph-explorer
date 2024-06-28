@@ -10,7 +10,7 @@ import type {
   RefObject,
 } from "react";
 import { forwardRef, useRef } from "react";
-import { useWithTheme, withClassNamePrefix } from "../../core";
+import { useWithTheme } from "../../core";
 import { inputContainerStyles } from "./Input.styles";
 
 export interface BaseInputProps
@@ -21,7 +21,6 @@ export interface BaseInputProps
   label?: ReactNode;
   labelPlacement?: "top" | "left" | "inner";
   className?: string;
-  classNamePrefix?: string;
   errorMessage?: string;
   fullWidth?: boolean;
   hideError?: boolean;
@@ -54,7 +53,6 @@ const isNumberInput = (props: InputProps): props is NumberInputProps =>
 export const Input = (
   {
     labelPlacement = "top",
-    classNamePrefix = "ft",
     size = "md",
     fullWidth = false,
     hideError = false,
@@ -78,7 +76,6 @@ export const Input = (
     isReadOnly,
   } = props;
   const styleWithTheme = useWithTheme();
-  const pfx = withClassNamePrefix(classNamePrefix);
   const localRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
   const { labelProps, inputProps } = useTextField(
     {
@@ -107,7 +104,6 @@ export const Input = (
         styleWithTheme(
           inputContainerStyles(
             labelPlacement,
-            classNamePrefix,
             size,
             isDisabled,
             validationState,
@@ -120,28 +116,28 @@ export const Input = (
             noMargin
           )
         ),
-        pfx(`input-label-${labelPlacement}`),
-        pfx("input-wrapper"),
+        `input-label-${labelPlacement}`,
+        "input-wrapper",
         className
       )}
     >
       {label && (
-        <label className={pfx("input-label")} {...labelProps}>
+        <label className={"input-label"} {...labelProps}>
           {label}
         </label>
       )}
-      <div className={pfx("input-container")}>
+      <div className={"input-container"}>
         {!!startAdornment && (
-          <span className={pfx("start-adornment")}>{startAdornment}</span>
+          <span className={"start-adornment"}>{startAdornment}</span>
         )}
         {component === "input" && (
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           /*@ts-ignore*/
           <input
             {...clickHandlers}
-            className={cx(pfx("input"), {
-              [pfx("input-disabled")]: isDisabled,
-              [pfx("input-label-inner")]: labelPlacement === "inner",
+            className={cx("input", {
+              ["input-disabled"]: isDisabled,
+              ["input-label-inner"]: labelPlacement === "inner",
             })}
             min={isNumberInput(props) ? props.min : undefined}
             max={isNumberInput(props) ? props.max : undefined}
@@ -156,22 +152,20 @@ export const Input = (
           /*@ts-ignore*/
           <textarea
             {...clickHandlers}
-            className={cx(pfx("input"), {
-              [pfx("input-disabled")]: isDisabled,
-              [pfx("input-label-inner")]: labelPlacement === "inner",
+            className={cx("input", {
+              ["input-disabled"]: isDisabled,
+              ["input-label-inner"]: labelPlacement === "inner",
             })}
             ref={(ref as RefObject<HTMLTextAreaElement>) || localRef}
             {...inputProps}
           />
         )}
         {!!endAdornment && (
-          <span className={pfx("end-adornment")}>{endAdornment}</span>
+          <span className={"end-adornment"}>{endAdornment}</span>
         )}
-        {!!clearButton && (
-          <span className={pfx("clearButton")}>{clearButton}</span>
-        )}
+        {!!clearButton && <span className={"clearButton"}>{clearButton}</span>}
         {validationState === "invalid" && !!errorMessage && !hideError && (
-          <div className={pfx("input-error")}>{errorMessage}</div>
+          <div className={"input-error"}>{errorMessage}</div>
         )}
       </div>
     </div>

@@ -5,7 +5,7 @@ import {
   ModuleContainer,
   ModuleContainerHeader,
 } from "../../components";
-import { useWithTheme, withClassNamePrefix } from "../../core";
+import { useWithTheme } from "../../core";
 import useTranslations from "../../hooks/useTranslations";
 import defaultStyles from "./EntitiesFilter.styles";
 import useFiltersConfig from "./useFiltersConfig";
@@ -22,7 +22,6 @@ const EntitiesFilter = ({
   ...headerProps
 }: EntitiesFilterProps) => {
   const t = useTranslations();
-  const pfx = withClassNamePrefix("ft");
   const styleWithTheme = useWithTheme();
 
   const {
@@ -38,10 +37,7 @@ const EntitiesFilter = ({
 
   return (
     <ModuleContainer
-      className={cx(
-        styleWithTheme(defaultStyles("ft")),
-        pfx("entities-filters")
-      )}
+      className={cx(styleWithTheme(defaultStyles), "entities-filters")}
     >
       <ModuleContainerHeader
         title={title}
@@ -49,7 +45,7 @@ const EntitiesFilter = ({
         {...headerProps}
       />
       {connectionTypes.length > 0 && (
-        <div className={pfx("checkbox-list-container")}>
+        <div className={"checkbox-list-container"}>
           <CheckboxList
             title={t("entities-filter.edge-types")}
             selectedIds={selectedConnectionTypes}
@@ -59,9 +55,9 @@ const EntitiesFilter = ({
           />
         </div>
       )}
-      <div className={pfx("section-divider")} />
+      <div className={"section-divider"} />
       {vertexTypes.length > 0 && (
-        <div className={pfx("checkbox-list-container")}>
+        <div className={"checkbox-list-container"}>
           <CheckboxList
             title={t("entities-filter.node-types")}
             selectedIds={selectedVertexTypes}

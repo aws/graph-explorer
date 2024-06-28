@@ -1,9 +1,9 @@
 import { css } from "@emotion/css";
 
-const defaultStyles = (pfx: string) => css`
+const defaultStyles = () => css`
   z-index: 1000;
 
-  .${pfx}-card {
+  .card {
     border-radius: 2px;
     margin: 0 4px;
     padding: 16px;
@@ -11,12 +11,12 @@ const defaultStyles = (pfx: string) => css`
     overflow-y: auto;
   }
 
-  .${pfx}-title {
+  .title {
     padding: 8px 0;
     font-size: 0.75rem;
   }
 
-  .${pfx}-columns-container {
+  .columns-container {
     width: 90%;
     min-width: 200px;
     min-height: 32px;
@@ -30,7 +30,7 @@ const defaultStyles = (pfx: string) => css`
     border-radius: 4px;
   }
 
-  .${pfx}-actions {
+  .actions {
     padding: 8px 4px;
     display: flex;
     flex-direction: column;

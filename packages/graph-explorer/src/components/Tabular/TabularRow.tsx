@@ -2,28 +2,22 @@ import { cx } from "@emotion/css";
 
 import { MouseEvent, useEffect, useState } from "react";
 import type { Row, TableInstance } from "react-table";
-import { withClassNamePrefix } from "../../core";
 
 import type { TabularProps } from "./Tabular";
 
 const TabularRow = <T extends object>({
-  classNamePrefix = "ft",
   fitRowsVertically,
   rowSelectionMode,
   row,
   tableInstance,
   onMouseOver,
   onMouseOut,
-}: Pick<
-  TabularProps<T>,
-  "classNamePrefix" | "fitRowsVertically" | "rowSelectionMode"
-> & {
+}: Pick<TabularProps<T>, "fitRowsVertically" | "rowSelectionMode"> & {
   tableInstance: TableInstance<T>;
   row: Row<T>;
   onMouseOver?(event: MouseEvent<HTMLDivElement>, row: Row<T>): void;
   onMouseOut?(event: MouseEvent<HTMLDivElement>, row: Row<T>): void;
 }) => {
-  const pfx = withClassNamePrefix(classNamePrefix);
   const { prepareRow, state } = tableInstance;
   prepareRow(row);
 
@@ -49,10 +43,10 @@ const TabularRow = <T extends object>({
   return (
     <div
       {...rowProps}
-      className={cx(pfx("row"), {
-        [pfx("row-grow")]: fitRowsVertically,
-        [pfx("row-selectable")]: rowSelectionMode === "row",
-        [pfx("row-selected")]: row.isSelected,
+      className={cx("row", {
+        ["row-grow"]: fitRowsVertically,
+        ["row-selectable"]: rowSelectionMode === "row",
+        ["row-selected"]: row.isSelected,
       })}
       onClick={() =>
         rowSelectionMode === "row" && selectable && row.toggleRowSelected()
@@ -68,23 +62,17 @@ const TabularRow = <T extends object>({
           <div
             key={key}
             {...cellProps}
-            className={cx(
-              pfx("cell"),
-              pfx(`cell-align-${cell.column.align || "left"}`),
-              {
-                [pfx("cell-resizing")]:
-                  cell.column.isResizing ||
-                  state.columnResizing?.isResizingColumn === cell.column.id,
-              }
-            )}
+            className={cx("cell", `cell-align-${cell.column.align || "left"}`, {
+              ["cell-resizing"]:
+                cell.column.isResizing ||
+                state.columnResizing?.isResizingColumn === cell.column.id,
+            })}
           >
             <div
-              className={cx(pfx("cell-content"), {
-                [pfx("cell-overflow-ellipsis")]:
-                  cell.column.overflow === "ellipsis",
-                [pfx("cell-overflow-truncate")]:
-                  cell.column.overflow === "truncate",
-                [pfx("cell-one-line")]: cell.column.oneLine,
+              className={cx("cell-content", {
+                ["cell-overflow-ellipsis"]: cell.column.overflow === "ellipsis",
+                ["cell-overflow-truncate"]: cell.column.overflow === "truncate",
+                ["cell-one-line"]: cell.column.oneLine,
               })}
             >
               {cell.render("Cell")}
@@ -92,7 +80,7 @@ const TabularRow = <T extends object>({
             {cell.column.canResize && (
               <div
                 {...(cell.column.getResizerProps?.() || {})}
-                className={pfx("cell-resizer")}
+                className={"cell-resizer"}
               />
             )}
           </div>

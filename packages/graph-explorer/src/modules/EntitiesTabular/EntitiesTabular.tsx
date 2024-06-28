@@ -4,7 +4,7 @@ import { ModuleContainer } from "../../components";
 import type { TabularInstance } from "../../components/Tabular";
 import { ModuleContainerTabularHeader } from "../../components/Tabular";
 import TabularControlsProvider from "../../components/Tabular/TabularControlsProvider";
-import { useWithTheme, withClassNamePrefix } from "../../core";
+import { useWithTheme } from "../../core";
 import useTranslations from "../../hooks/useTranslations";
 import { EdgesTabular, NodesTabular } from "./components";
 import defaultStyles from "./EntitiesTabular.styles";
@@ -16,7 +16,6 @@ enum TableId {
 
 const EntitiesTabular = () => {
   const styleWithTheme = useWithTheme();
-  const pfx = withClassNamePrefix("ft");
   const t = useTranslations();
 
   const [selectedTable, setSelectedTable] = useState<TableId>(TableId.nodes);
@@ -58,11 +57,7 @@ const EntitiesTabular = () => {
 
   return (
     <ModuleContainer
-      classNamePrefix={"ft"}
-      className={cx(
-        styleWithTheme(defaultStyles("ft")),
-        pfx("entities-tabular-module")
-      )}
+      className={cx(styleWithTheme(defaultStyles), "entities-tabular-module")}
     >
       {nodeInstance && edgeInstance && selectedTabularInstance && (
         <TabularControlsProvider tabularInstance={selectedTabularInstance}>

@@ -5,11 +5,7 @@ import { useRecoilValue } from "recoil";
 import Button from "../../components/Button";
 import { ExplorerIcon } from "../../components/icons";
 import Workspace from "../../components/Workspace/Workspace";
-import {
-  useConfiguration,
-  useWithTheme,
-  withClassNamePrefix,
-} from "../../core";
+import { useConfiguration, useWithTheme } from "../../core";
 import {
   activeConfigurationAtom,
   configurationAtom,
@@ -20,13 +16,8 @@ import ConnectionDetail from "../../modules/ConnectionDetail";
 import TopBarWithLogo from "../common/TopBarWithLogo";
 import defaultStyles from "./Connections.styles";
 
-export type ConnectionsProps = {
-  classNamePrefix?: string;
-};
-
-const Connections = ({ classNamePrefix = "ft" }: ConnectionsProps) => {
+const Connections = () => {
   const styleWithTheme = useWithTheme();
-  const pfx = withClassNamePrefix(classNamePrefix);
 
   const config = useConfiguration();
   const activeConfig = useRecoilValue(activeConfigurationAtom);
@@ -34,7 +25,7 @@ const Connections = ({ classNamePrefix = "ft" }: ConnectionsProps) => {
   const [isModalOpen, setModal] = useState(configuration.size === 0);
   const [isSyncing, setSyncing] = useState(false);
 
-  // Everytime that the active connection changes,
+  // Every time that the active connection changes,
   // if it was not synchronized yet, try to sync it
   const updateSchema = useSchemaSync(setSyncing);
   useEffect(() => {
@@ -46,12 +37,7 @@ const Connections = ({ classNamePrefix = "ft" }: ConnectionsProps) => {
   }, [activeConfig, config?.schema?.triedToSync, updateSchema]);
 
   return (
-    <Workspace
-      className={cx(
-        styleWithTheme(defaultStyles(classNamePrefix)),
-        pfx("connections")
-      )}
-    >
+    <Workspace className={cx(styleWithTheme(defaultStyles), "connections")}>
       <TopBarWithLogo>
         <Workspace.TopBar.Title
           title="Connections Details"
@@ -67,7 +53,7 @@ const Connections = ({ classNamePrefix = "ft" }: ConnectionsProps) => {
           >
             <Button
               isDisabled={!activeConfig || !config?.schema?.lastUpdate}
-              className={pfx("button")}
+              className={"button"}
               icon={<ExplorerIcon />}
               variant={"filled"}
             >

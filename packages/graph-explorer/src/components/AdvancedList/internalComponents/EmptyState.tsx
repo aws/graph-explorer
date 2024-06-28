@@ -36,7 +36,6 @@ const getEmptyStateItems = (
 export type EmptyStateProps = {
   empty: boolean;
   noSearchResults: boolean;
-  classNamePrefix?: string;
   className?: string;
   emptyState?: {
     noSearchResultsTitle?: ReactNode;
@@ -52,13 +51,11 @@ const EmptyState = ({
   empty,
   noSearchResults,
   emptyState,
-  classNamePrefix = "ft",
   className,
 }: EmptyStateProps) => {
   const state = getEmptyStateItems(empty, noSearchResults, emptyState);
   return (
     <PanelEmptyState
-      classNamePrefix={classNamePrefix}
       className={className}
       icon={state.icon}
       title={state.title}

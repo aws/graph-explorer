@@ -13,7 +13,6 @@ import {
   useImperativeHandle,
   useState,
 } from "react";
-import { withClassNamePrefix } from "../../core";
 import type {
   Config,
   CytoscapeType,
@@ -48,12 +47,12 @@ cytoscape.use(d3Force);
 cytoscape.use(fcose);
 cyCanvas(cytoscape);
 
-const defaultStyles = (pfx: string) => css`
+const defaultStyles = () => css`
   width: 100%;
   height: 100%;
   position: relative;
   overflow: hidden;
-  .${pfx}-graph-container {
+  .graph-container {
     width: 100%;
     height: 100%;
     position: absolute;
@@ -81,7 +80,6 @@ export interface GraphProps<
   edges: GraphEdge[];
   //styling
   className?: string;
-  classNamePrefix?: string;
   styles?: {
     [selector: string]: StyleSelector;
   };
@@ -174,7 +172,6 @@ export const Graph = (
     onSelectedGroupsIdsChange,
     onSelectedEdgesIdsChange,
     className = "",
-    classNamePrefix = "ft",
     styles,
     onEdgeClick,
     onEdgeRightClick,
@@ -397,12 +394,11 @@ export const Graph = (
   const EmptyComponent = emptyComponent ? emptyComponent : EmptyState;
   const LoadingComponent = loadingComponent ? loadingComponent : GraphLoading;
 
-  const pfx = withClassNamePrefix(classNamePrefix);
   const isEmpty = !nodes.length && !edges.length;
   const isLoading = loading;
   return (
-    <div className={cx(defaultStyles(classNamePrefix), className)}>
-      <div className={pfx("graph-container")} ref={wrapperRefCb} />
+    <div className={cx(defaultStyles(), className)}>
+      <div className={"graph-container"} ref={wrapperRefCb} />
       {cy && children ? children(cy) : null}
       {isEmpty && !isLoading ? <EmptyComponent /> : null}
       {isLoading ? <LoadingComponent /> : null}
