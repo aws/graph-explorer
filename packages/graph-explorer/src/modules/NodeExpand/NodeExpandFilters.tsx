@@ -143,8 +143,8 @@ const NodeExpandFilters = ({
         <div style={{ display: "flex", gap: 2, alignItems: "center" }}>
           Limit returned neighbors to
           <InfoTooltip>
-            It is possible that a limited expansion will not return all of the
-            expected nodes. A full expansion may be necessary.
+            Please use full expansion if all the expected nodes are not returned
+            from limited expansion.
           </InfoTooltip>
         </div>
         <IconButton
