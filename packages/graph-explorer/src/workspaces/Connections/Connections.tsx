@@ -55,7 +55,7 @@ const Connections = ({ classNamePrefix = "ft" }: ConnectionsProps) => {
       <TopBarWithLogo>
         <Workspace.TopBar.Title
           title="Connections Details"
-          subtitle={`Connection: ${config?.displayLabel || config?.id}`}
+          subtitle={`Connection: ${config?.displayLabel || config?.id || "none"}`}
         />
         <Workspace.TopBar.AdditionalControls>
           <Link
