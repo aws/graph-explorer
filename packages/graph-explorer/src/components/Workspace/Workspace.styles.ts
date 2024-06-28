@@ -193,6 +193,7 @@ const topBarTitleContent: ThemeStyleFn = ({ theme }) => css`
   padding: ${theme.spacing["2x"]} 0;
   justify-content: center;
   flex-grow: 1;
+  min-width: 240px;
 `;
 
 const topBarTitleVersion: ThemeStyleFn = ({ theme }) => css`
