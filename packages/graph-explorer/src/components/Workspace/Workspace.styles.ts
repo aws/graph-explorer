@@ -105,6 +105,10 @@ const titleSectionStyles =
 
     > .${pfx}-title {
       font-weight: bold;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
     }
 
     > .${pfx}-subtitle {
