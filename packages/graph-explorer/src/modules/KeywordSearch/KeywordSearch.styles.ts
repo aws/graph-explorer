@@ -21,6 +21,7 @@ const defaultStyles =
       .${pfx}-search-input {
         flex-grow: 5;
         width: unset;
+        margin-bottom: unset;
 
         .${pfx}-results-adornment {
           font-size: ${theme.typography.sizes?.xs};
