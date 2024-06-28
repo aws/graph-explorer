@@ -5,12 +5,6 @@ const defaultStyles =
   (pfx: string) =>
   ({ theme }: ActiveThemeType<ProcessedTheme>) => css`
     &.${pfx}-graph-explorer {
-      .${pfx}-top-bar-title {
-        font-weight: bold;
-      }
-      .${pfx}-top-bar-subtitle {
-        font-size: ${theme.typography.sizes?.xs};
-      }
       .${pfx}-v-divider {
         height: 24px;
         width: 1px;

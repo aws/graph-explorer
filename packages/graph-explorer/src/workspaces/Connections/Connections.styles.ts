@@ -9,13 +9,6 @@ const defaultStyles =
         white-space: nowrap;
       }
 
-      .${pfx}-top-bar-title {
-        font-weight: bold;
-      }
-      .${pfx}-top-bar-subtitle {
-        font-size: ${theme.typography.sizes?.xs};
-      }
-
       .${pfx}-advanced-list {
         padding: ${theme.spacing["2x"]};
         background: ${theme.palette.background.default};

@@ -186,14 +186,10 @@ const GraphExplorer = ({ classNamePrefix = "ft" }: GraphViewProps) => {
       )}
     >
       <TopBarWithLogo>
-        <Workspace.TopBar.Title>
-          <div>
-            <div className={pfx("top-bar-title")}>Graph Explorer</div>
-            <div className={pfx("top-bar-subtitle")}>
-              Active connection: {config?.displayLabel || config?.id}
-            </div>
-          </div>
-        </Workspace.TopBar.Title>
+        <Workspace.TopBar.Title
+          title="Graph Explorer"
+          subtitle={`Connection: ${config?.displayLabel || config?.id}`}
+        />
         <Workspace.TopBar.Content>
           <KeywordSearch />
         </Workspace.TopBar.Content>

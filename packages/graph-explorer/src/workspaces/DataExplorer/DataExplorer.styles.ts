@@ -9,12 +9,6 @@ const defaultStyles =
         min-width: 500px;
       }
 
-      .${pfx}-top-bar-title {
-        font-weight: bold;
-      }
-      .${pfx}-top-bar-subtitle {
-        font-size: ${theme.typography.sizes?.xs};
-      }
       .${pfx}-button {
         white-space: nowrap;
       }
