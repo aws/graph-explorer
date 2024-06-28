@@ -19,7 +19,7 @@ const defaultStyles =
       display: flex;
       justify-content: space-between;
       gap: ${theme.spacing["2x"]};
-      .${pfx}-edge-name {
+      .${pfx}-vertex-name {
         margin-bottom: ${theme.spacing.base};
         max-width: 80%;
         word-break: break-word;
