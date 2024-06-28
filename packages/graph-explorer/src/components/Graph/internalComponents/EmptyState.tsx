@@ -27,6 +27,8 @@ function styles() {
     flex-direction: column;
     color: #4b8fe2;
     font-size: 1rem;
+    text-wrap: balance;
+    padding: 1rem;
     user-select: none;
     pointer-events: none;
     .label {
