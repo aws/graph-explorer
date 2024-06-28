@@ -10,7 +10,7 @@ const defaultStyles =
       background-color: ${theme.navBar?.header ||
       fade(theme.palette.primary.dark, 0.5)};
       height: 100%;
-      margin-right: ${theme.spacing["4x"]};
+      margin-right: ${theme.spacing["2x"]};
 
       .${pfx}-navbar-logo-container {
         transition: ${theme.navBar?.animation?.toggleMenuSpeed || "400ms"};

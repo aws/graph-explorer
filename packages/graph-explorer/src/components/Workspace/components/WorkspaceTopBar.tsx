@@ -74,13 +74,9 @@ const WorkspaceTopBar = ({
             WorkspaceTopBarTitle.displayName || WorkspaceTopBarTitle.name
           ]
         }
-        <div className={pfx("space")} />
-        {
-          childrenByType[
-            WorkspaceTopBarContent.displayName || WorkspaceTopBarContent.name
-          ]
-        }
-        <div className={pfx("space")} />
+        {childrenByType[
+          WorkspaceTopBarContent.displayName || WorkspaceTopBarContent.name
+        ] ?? <div className={pfx("space")} />}
         {
           childrenByType[
             WorkspaceTopBarVersion.displayName || WorkspaceTopBarVersion.name

@@ -161,7 +161,7 @@ const mainBarStyles: ThemeStyleFn = ({ theme }) => css`
   padding: 0 ${theme.spacing["2x"]} 0 0;
   background-color: ${theme.palette.background.default};
   color: ${theme.palette.text.primary};
-  gap: ${theme.spacing["2x"]};
+  gap: ${theme.spacing["3x"]};
 `;
 
 const subBarStyles: ThemeStyleFn = ({ theme }) => css`
@@ -185,15 +185,14 @@ const titleContainerStyles =
 
 const topBarTitleContent: ThemeStyleFn = ({ theme }) => css`
   display: flex;
-  width: 60%;
   height: 100%;
   padding: ${theme.spacing["2x"]} 0;
   justify-content: center;
+  flex-grow: 1;
 `;
 
 const topBarTitleVersion: ThemeStyleFn = ({ theme }) => css`
   display: flex;
-  margin: ${theme.spacing["2x"]};
   justify-content: center;
   align-items: center;
   font-size: ${theme.typography.sizes.xs};
