@@ -3,13 +3,13 @@ import type { ThemeStyleFn } from "../../core";
 import fade from "../../core/ThemeProvider/utils/fade";
 
 const defaultStyles =
-  (pfx: string, lineColor = "#b3b3b3"): ThemeStyleFn =>
+  (lineColor = "#b3b3b3"): ThemeStyleFn =>
   ({ theme }) => css`
     height: 100%;
     overflow: auto;
     background: ${theme.palette.background.default};
 
-    .${pfx}-header {
+    .header {
       position: sticky;
       top: 0;
       z-index: 1;
@@ -20,7 +20,7 @@ const defaultStyles =
       column-gap: ${theme.spacing["2x"]};
       border-bottom: solid 1px ${theme.palette.border};
 
-      .${pfx}-icon {
+      .icon {
         display: flex;
         justify-content: center;
         align-items: center;
@@ -32,27 +32,27 @@ const defaultStyles =
         min-height: 36px;
       }
 
-      .${pfx}-content {
+      .content {
         word-break: break-word;
-        .${pfx}-title {
+        .title {
           font-weight: bold;
         }
       }
     }
 
-    .${pfx}-source-vertex {
+    .source-vertex {
       position: relative;
       z-index: 0;
       padding-left: calc(${theme.spacing["4x"]} + 48px);
 
-      .${pfx}-start-line {
+      .start-line {
         position: absolute;
         left: calc(${theme.spacing["4x"]} + 16px);
         top: 20%;
         height: 80%;
         width: 2px;
 
-        .${pfx}-source-arrow-type {
+        .source-arrow-type {
           position: absolute;
           top: -12px;
           left: -11px;
@@ -64,19 +64,19 @@ const defaultStyles =
       }
     }
 
-    .${pfx}-target-vertex {
+    .target-vertex {
       position: relative;
       z-index: 0;
       padding-left: calc(${theme.spacing["4x"]} + 48px);
 
-      .${pfx}-end-line {
+      .end-line {
         position: absolute;
         left: calc(${theme.spacing["4x"]} + 16px);
         top: -1px;
         height: 80%;
         width: 2px;
 
-        .${pfx}-target-arrow-type {
+        .target-arrow-type {
           position: absolute;
           bottom: -12px;
           left: -11px;
@@ -88,11 +88,11 @@ const defaultStyles =
       }
     }
 
-    .${pfx}-line-solid {
+    .line-solid {
       background: ${lineColor};
     }
 
-    .${pfx}-line-dashed {
+    .line-dashed {
       background-image: linear-gradient(
         ${lineColor} 70%,
         rgba(255, 255, 255, 0) 0%
@@ -102,7 +102,7 @@ const defaultStyles =
       background-repeat: repeat-y;
     }
 
-    .${pfx}-line-dotted {
+    .line-dotted {
       background-image: linear-gradient(
         ${lineColor} 50%,
         rgba(255, 255, 255, 0) 0%
@@ -112,26 +112,26 @@ const defaultStyles =
       background-repeat: repeat-y;
     }
 
-    .${pfx}-connections {
+    .connections {
       padding: ${theme.spacing["4x"]};
       border-bottom: solid 1px ${theme.palette.border};
 
-      .${pfx}-title {
+      .title {
         font-weight: bold;
       }
 
-      .${pfx}-chip {
+      .chip {
         padding: ${theme.spacing["2x"]};
         background: ${fade(theme.palette.primary.main, 0.2)};
         color: ${theme.palette.primary.main};
       }
 
-      .${pfx}-content {
+      .content {
         display: flex;
         margin-top: ${theme.spacing["2x"]};
         column-gap: ${theme.spacing["4x"]};
-        .${pfx}-item {
-          .${pfx}-chip {
+        .item {
+          .chip {
             padding: ${theme.spacing["2x"]};
             background: ${fade(theme.palette.primary.main, 0.2)};
             color: ${theme.palette.primary.main};
@@ -143,45 +143,46 @@ const defaultStyles =
       }
     }
 
-    .${pfx}-properties {
+    .properties {
       padding: ${theme.spacing["4x"]};
 
-      .${pfx}-title {
+      .title {
         font-weight: bold;
       }
 
-      .${pfx}-content {
+      .content {
         display: flex;
         flex-direction: column;
         margin-top: ${theme.spacing["2x"]};
 
-        .${pfx}-attribute {
+        .attribute {
           display: flex;
           align-items: center;
           justify-content: space-between;
           padding: ${theme.spacing["2x"]} 0;
 
-          .${pfx}-attribute-select {
+          .attribute-select {
             margin-bottom: 0;
             width: auto;
             min-width: 120px;
-            .${pfx}-select {
+            .select {
               padding: ${theme.spacing.base} 0 ${theme.spacing.base}
                 ${theme.spacing["2x"]};
               border-radius: 24px;
             }
-            .${pfx}-option-selected {
+            .option-selected {
               background: ${theme.palette.primary.main};
               color: ${theme.palette.primary.contrastText};
             }
-            .${pfx}-selection, .${pfx}-placeholder {
+            .selection,
+            .placeholder {
               margin-right: 24px;
             }
           }
 
           > div {
             width: 100%;
-            .${pfx}-attribute-name {
+            .attribute-name {
               display: flex;
               align-items: center;
               justify-content: space-between;
@@ -192,7 +193,7 @@ const defaultStyles =
                 word-break: break-word;
               }
             }
-            .${pfx}-attribute-value {
+            .attribute-value {
               word-break: break-word;
               font-weight: bold;
             }

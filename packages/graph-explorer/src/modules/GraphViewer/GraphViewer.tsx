@@ -35,7 +35,6 @@ import {
 } from "../../core/StateProvider/nodes";
 import useWithTheme from "../../core/ThemeProvider/useWithTheme";
 import fade from "../../core/ThemeProvider/utils/fade";
-import withClassNamePrefix from "../../core/ThemeProvider/utils/withClassNamePrefix";
 import { useEntities, useExpandNode } from "../../hooks";
 import useTextTransform from "../../hooks/useTextTransform";
 import defaultStyles from "./GraphViewerModule.styles";
@@ -135,7 +134,6 @@ export default function GraphViewer({
   ...headerProps
 }: GraphViewerProps) {
   const styleWithTheme = useWithTheme();
-  const pfx = withClassNamePrefix("ft");
 
   const graphRef = useRef<GraphRef | null>(null);
   const [entities, setEntities] = useEntities();
@@ -233,10 +231,7 @@ export default function GraphViewer({
   return (
     <div
       ref={dropAreaRef}
-      className={cx(
-        styleWithTheme(defaultStyles("ft")),
-        pfx("graph-viewer-module")
-      )}
+      className={cx(styleWithTheme(defaultStyles), "graph-viewer-module")}
       onContextMenu={onContextMenu}
     >
       <ModuleContainer>
@@ -247,7 +242,7 @@ export default function GraphViewer({
             >
               <div style={{ whiteSpace: "nowrap" }}>{title}</div>
               <Select
-                className={pfx("entity-select")}
+                className={"entity-select"}
                 label={"Layout"}
                 labelPlacement={"inner"}
                 hideError={true}
@@ -321,9 +316,9 @@ export default function GraphViewer({
         </div>
       </ModuleContainer>
       <div
-        className={cx(pfx("drop-overlay"), {
-          [pfx("drop-overlay-is-over")]: isOver,
-          [pfx("drop-overlay-can-drop")]: !isOver && canDrop,
+        className={cx("drop-overlay", {
+          ["drop-overlay-is-over"]: isOver,
+          ["drop-overlay-can-drop"]: !isOver && canDrop,
         })}
       />
     </div>
@@ -331,14 +326,13 @@ export default function GraphViewer({
 }
 
 function Legend({ onClose }: { onClose: () => void }) {
-  const pfx = withClassNamePrefix("ft");
   const config = useConfiguration();
   const textTransform = useTextTransform();
 
   return (
-    <Card className={pfx("legend-container")}>
+    <Card className={"legend-container"}>
       <ListItem
-        className={cx(pfx("legend-item"), pfx("legend-title"))}
+        className={cx("legend-item", "legend-title")}
         endAdornment={
           <IconButton
             icon={<CloseIcon />}
@@ -355,11 +349,11 @@ function Legend({ onClose }: { onClose: () => void }) {
         return (
           <ListItem
             key={vertexType}
-            className={pfx("legend-item")}
+            className={"legend-item"}
             startAdornment={
               vtConfig?.iconUrl && (
                 <div
-                  className={pfx("icon")}
+                  className={"icon"}
                   style={{
                     background: fade(vtConfig?.color, 0.2),
                     color: vtConfig?.color,

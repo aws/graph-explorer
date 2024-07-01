@@ -5,7 +5,7 @@ import { VisuallyHidden } from "@react-aria/visually-hidden";
 import type { AriaCheckboxProps } from "@react-types/checkbox";
 import type { PropsWithChildren } from "react";
 import { useCallback, useRef } from "react";
-import { useTheme, useWithTheme, withClassNamePrefix } from "../../core";
+import { useTheme, useWithTheme } from "../../core";
 import { checkboxStyles, labelStyles } from "./Checkbox.styles";
 
 export enum CheckboxSizes {
@@ -20,7 +20,6 @@ export interface CheckboxProps
   size?: CheckboxSizes | keyof typeof CheckboxSizes;
   onChange: (isSelected: boolean) => void;
   className?: string;
-  classNamePrefix?: string;
 }
 
 const defaultSizeMap: Record<CheckboxSizes, number> = {
@@ -38,7 +37,6 @@ const NOOP = () => {};
 
 export const Checkbox = ({
   size = "md",
-  classNamePrefix = "ft",
   className,
   ...props
 }: PropsWithChildren<CheckboxProps>) => {
@@ -69,16 +67,15 @@ export const Checkbox = ({
   const isSelectedOrIndeterminate = isSelected || isIndeterminate;
   const computedSize = sizeMap[size] || 28;
 
-  const pfx = withClassNamePrefix(classNamePrefix);
   const styleWithTheme = useWithTheme();
   return (
     <label
       className={cx(
-        styleWithTheme(labelStyles(classNamePrefix)),
+        styleWithTheme(labelStyles),
         {
-          [pfx("checkbox-label-disabled")]: props.isDisabled,
-          [pfx("checkbox-label-readonly")]: props.isReadOnly,
-          [pfx("checkbox-label-invalid")]: props.validationState === "invalid",
+          ["checkbox-label-disabled"]: props.isDisabled,
+          ["checkbox-label-readonly"]: props.isReadOnly,
+          ["checkbox-label-invalid"]: props.validationState === "invalid",
         },
         className
       )}
@@ -89,12 +86,12 @@ export const Checkbox = ({
       <svg
         width={computedSize}
         height={computedSize}
-        className={cx(styleWithTheme(checkboxStyles(classNamePrefix)), {
-          [pfx("checkbox-selected")]: isSelected,
-          [pfx("checkbox-disabled")]: props.isDisabled,
-          [pfx("checkbox-readonly")]: props.isReadOnly,
-          [pfx("checkbox-indeterminate")]: props.isIndeterminate,
-          [pfx("checkbox-invalid")]: props.validationState === "invalid",
+        className={cx(styleWithTheme(checkboxStyles), {
+          ["checkbox-selected"]: isSelected,
+          ["checkbox-disabled"]: props.isDisabled,
+          ["checkbox-readonly"]: props.isReadOnly,
+          ["checkbox-indeterminate"]: props.isIndeterminate,
+          ["checkbox-invalid"]: props.validationState === "invalid",
         })}
         aria-hidden="true"
       >

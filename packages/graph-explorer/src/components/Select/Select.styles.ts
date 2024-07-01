@@ -45,7 +45,6 @@ const getInnerLabelStyles = (
 
 type containerStylesParams = {
   labelPlacement: "top" | "left" | "inner";
-  classNamePrefix: string;
   size: "sm" | "md";
   validationState?: "invalid" | "valid";
   hideError?: boolean;
@@ -57,7 +56,6 @@ type containerStylesParams = {
 
 export const getStylesByVariantAndValidationState =
   (
-    classNamePrefix: string,
     variant: containerStylesParams["variant"],
     validationState: containerStylesParams["validationState"]
   ) =>
@@ -68,11 +66,11 @@ export const getStylesByVariantAndValidationState =
     )(variant);
     return css`
       cursor: pointer;
-      > .${classNamePrefix}-input-label {
+      > .input-label {
         color: ${themeWithDefault.label?.color};
       }
 
-      .${classNamePrefix}-select {
+      .select {
         color: ${themeWithDefault.color};
         border-radius: ${themeWithDefault.borderRadius};
         border: ${themeWithDefault.border};
@@ -91,11 +89,11 @@ export const getStylesByVariantAndValidationState =
         }
       }
 
-      .${classNamePrefix}-placeholder {
+      .placeholder {
         color: ${themeWithDefault.placeholderColor};
       }
 
-      .${classNamePrefix}-input-error {
+      .input-error {
         color: ${themeWithDefault.error?.errorColor};
       }
     `;
@@ -104,7 +102,6 @@ export const getStylesByVariantAndValidationState =
 export const selectContainerStyles =
   ({
     labelPlacement,
-    classNamePrefix,
     size,
     hideError,
     noMargin,
@@ -123,42 +120,42 @@ export const selectContainerStyles =
       margin-bottom: ${noMargin ? "0" : "14px"};
       cursor: pointer;
 
-      &.${classNamePrefix}-select-label-left {
+      &.select-label-left {
         flex-direction: row;
         align-items: center;
-        > .${classNamePrefix}-input-label {
+        > .input-label {
           width: 150px;
           line-height: 0.75em;
         }
       }
 
-      &.${classNamePrefix}-select-label-inner {
-        > .${classNamePrefix}-input-label {
+      &.select-label-inner {
+        > .input-label {
           font-size: 10px;
           pointer-events: none;
           ${getInnerLabelStyles(size, activeTheme)}
         }
       }
 
-      &.${classNamePrefix}-select-readonly {
+      &.select-readonly {
         pointer-events: none;
       }
 
-      > .${classNamePrefix}-input-label {
+      > .input-label {
         width: 100%;
         line-height: 0.875em;
         font-size: 0.875em;
         margin: 0 0 8px 0;
       }
 
-      .${classNamePrefix}-input-container {
+      .input-container {
         flex: 1;
         display: flex;
         position: relative;
       }
 
-      &.${classNamePrefix}-select-disabled {
-        .${classNamePrefix}-select {
+      &.select-disabled {
+        .select {
           filter: opacity(
             ${theme.select?.disabledOpacity ||
             theme.forms?.disabledOpacity ||
@@ -167,7 +164,7 @@ export const selectContainerStyles =
           pointer-events: none;
         }
       }
-      .${classNamePrefix}-select {
+      .select {
         font-family: inherit;
         text-align: left;
         cursor: pointer;
@@ -184,12 +181,12 @@ export const selectContainerStyles =
         )};
         flex: 1;
 
-        &.${classNamePrefix}-no-options {
+        &.no-options {
           padding-right: ${getPaddingBySize(size, activeTheme)};
         }
       }
 
-      .${classNamePrefix}-input-error {
+      .input-error {
         position: absolute;
         bottom: -14px;
         left: 0;
@@ -197,11 +194,10 @@ export const selectContainerStyles =
       }
 
       ${getStylesByVariantAndValidationState(
-        classNamePrefix,
         variant,
         validationState
       )(activeTheme)}
-      .${classNamePrefix}-dropdown-indicator {
+      .dropdown-indicator {
         position: absolute;
         right: calc(${getPaddingBySize(size, activeTheme)});
         top: ${labelPlacement === "inner" ? "calc(50% + 4px)" : "50%"};
@@ -212,10 +208,10 @@ export const selectContainerStyles =
         background-color: transparent;
         margin-right: 0;
 
-        .${classNamePrefix}-clear-button {
+        .clear-button {
           margin-right: -10px;
         }
-        .${classNamePrefix}-clear-button:hover {
+        .clear-button:hover {
           background-color: transparent;
         }
       }
@@ -231,53 +227,52 @@ const listStyles = () => css`
   outline: none;
 `;
 
-const listItemStyles =
-  (pfx: string) => (activeTheme: ActiveThemeType<ProcessedTheme>) => {
-    const themeWithDefault = getSelectThemeWithDefaults(
-      activeTheme,
-      "valid"
-    )("default");
+const listItemStyles = () => (activeTheme: ActiveThemeType<ProcessedTheme>) => {
+  const themeWithDefault = getSelectThemeWithDefaults(
+    activeTheme,
+    "valid"
+  )("default");
 
-    const { theme } = activeTheme;
-    return css`
-      background: ${themeWithDefault.list?.item?.background};
-      color: ${themeWithDefault.list?.item?.color};
-      padding: 8px;
-      display: flex;
-      align-items: center;
-      cursor: pointer;
-      outline: none;
+  const { theme } = activeTheme;
+  return css`
+    background: ${themeWithDefault.list?.item?.background};
+    color: ${themeWithDefault.list?.item?.color};
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    outline: none;
 
-      &:focus:not(.${pfx}-select-list-item-selected),
-      &.${pfx}-select-list-item-focused {
-        background: ${themeWithDefault.list?.item?.hover?.background};
-        color: ${themeWithDefault.list?.item?.hover?.color};
-      }
+    &:focus:not(.select-list-item-selected),
+    &.select-list-item-focused {
+      background: ${themeWithDefault.list?.item?.hover?.background};
+      color: ${themeWithDefault.list?.item?.hover?.color};
+    }
 
+    &:hover {
+      background: ${themeWithDefault.list?.item?.hover?.background};
+      color: ${themeWithDefault.list?.item?.hover?.color};
+    }
+
+    &.select-list-item-selected {
+      background: ${themeWithDefault.list?.item?.selected?.background};
+      color: ${themeWithDefault.list?.item?.selected?.color};
       &:hover {
-        background: ${themeWithDefault.list?.item?.hover?.background};
-        color: ${themeWithDefault.list?.item?.hover?.color};
-      }
-
-      &.${pfx}-select-list-item-selected {
         background: ${themeWithDefault.list?.item?.selected?.background};
         color: ${themeWithDefault.list?.item?.selected?.color};
-        &:hover {
-          background: ${themeWithDefault.list?.item?.selected?.background};
-          color: ${themeWithDefault.list?.item?.selected?.color};
-        }
       }
+    }
 
-      &.${pfx}-select-list-item-disabled {
-        pointer-events: none;
-        filter: opacity(
-          ${theme.forms?.disabledOpacity ||
-          theme?.select?.disabledOpacity ||
-          "40%"}
-        );
-      }
-    `;
-  };
+    &.select-list-item-disabled {
+      pointer-events: none;
+      filter: opacity(
+        ${theme.forms?.disabledOpacity ||
+        theme?.select?.disabledOpacity ||
+        "40%"}
+      );
+    }
+  `;
+};
 
 const itemStyles = () => css`
   display: flex;

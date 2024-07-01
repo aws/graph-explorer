@@ -3,7 +3,6 @@ import { useTabularControl } from "../../TabularControlsProvider";
 import ExternalColumnSettingsControl from "./ExternalColumnSettingsControl";
 
 type ExportControlProps = {
-  classNamePrefix?: string;
   className?: string;
   omittedColumnsIds?: string[];
 };

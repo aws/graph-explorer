@@ -1,7 +1,7 @@
 import { cx } from "@emotion/css";
 import { ColorPicker, ColorPickerProps } from "@mantine/core";
 import { FC, useEffect, useState } from "react";
-import { useWithTheme, withClassNamePrefix } from "../../core";
+import { useWithTheme } from "../../core";
 import {
   Input,
   InputProps,
@@ -14,13 +14,11 @@ import defaultStyles, { colorPickerStyle } from "./ColorInput.style";
 const validHexColorRegex = /^#([0-9a-f]{3}){1,2}$/i;
 
 export type ColorInputProps = Pick<InputProps, "label" | "labelPlacement"> & {
-  classNamePrefix?: string;
   startColor?: string;
   onChange(color: string): void;
 };
 
 const ColorInput: FC<ColorInputProps & ColorPickerProps> = ({
-  classNamePrefix = "ft",
   className,
   startColor = "#128ee5",
   onChange,
@@ -29,7 +27,6 @@ const ColorInput: FC<ColorInputProps & ColorPickerProps> = ({
   ...props
 }) => {
   const styleWithTheme = useWithTheme();
-  const pfx = withClassNamePrefix(classNamePrefix);
 
   const [lastColor, setLastColor] = useState<string>(startColor);
   const [color, setColor] = useState<string>(startColor);
@@ -51,10 +48,8 @@ const ColorInput: FC<ColorInputProps & ColorPickerProps> = ({
   }, [startColor, color, lastColor, onChange]);
 
   return (
-    <div
-      className={cx(styleWithTheme(defaultStyles(classNamePrefix)), className)}
-    >
-      <div className={pfx("color-input")}>
+    <div className={cx(styleWithTheme(defaultStyles), className)}>
+      <div className={"color-input"}>
         <UseLayer
           onClose={() => setColorPickerOpen(false)}
           isOpen={colorPickerOpen}
@@ -65,8 +60,7 @@ const ColorInput: FC<ColorInputProps & ColorPickerProps> = ({
               label={label}
               labelPlacement={labelPlacement}
               aria-label="color-input"
-              classNamePrefix={classNamePrefix}
-              className={pfx("input")}
+              className={"input"}
               onClick={() => setColorPickerOpen(true)}
               type={"text"}
               value={color}
@@ -85,7 +79,7 @@ const ColorInput: FC<ColorInputProps & ColorPickerProps> = ({
             />
           </UseLayerTrigger>
           <UseLayerOverlay>
-            <div className={styleWithTheme(colorPickerStyle())}>
+            <div className={styleWithTheme(colorPickerStyle)}>
               <ColorPicker
                 onChange={(newColor: string) => setColor(newColor)}
                 value={color}

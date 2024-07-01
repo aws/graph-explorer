@@ -7,24 +7,24 @@ import { SearchIcon } from "../../icons";
 import { Input } from "../../Input/Input";
 import { useTabularControl } from "../TabularControlsProvider";
 
-const defaultStyles = (pfx: string, isDarkTheme: boolean) => css`
+const defaultStyles = (isDarkTheme: boolean) => css`
   display: flex;
   align-items: center;
 
-  .${pfx}-input-root {
+  .input-root {
     width: 100%;
     margin: 0;
-    .${pfx}-input {
+    .input {
       margin: 0;
       width: 100%;
       box-sizing: border-box;
     }
 
-    .${pfx}-input:not(:hover):not(:focus):not(:active) {
+    .input:not(:hover):not(:focus):not(:active) {
       ${!isDarkTheme && `background-color: var(--palette-background-default);`}
     }
 
-    .${pfx}-start-adornment {
+    .start-adornment {
       color: ${cssVar(
         "--forms-input-color",
         "--palette-text-disabled",
@@ -39,10 +39,9 @@ export const GlobalFilterControl: FunctionComponent = () => {
   const { instance } = useTabularControl();
   const isDarkTheme = useIsDarkTheme();
   return (
-    <div className={defaultStyles("global-filter", isDarkTheme)}>
+    <div className={defaultStyles(isDarkTheme)}>
       <Input
         aria-label={"global filter"}
-        classNamePrefix={"global-filter"}
         className={"global-filter-input-root"}
         type={"text"}
         noMargin

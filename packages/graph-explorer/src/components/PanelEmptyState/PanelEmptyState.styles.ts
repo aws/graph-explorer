@@ -75,7 +75,6 @@ const getStyleByVariant = (
 
 const styles =
   (
-    pfx: string,
     variant: "info" | "waiting" | "warning" | "error",
     size: "xs" | "sm" | "md" | "lg"
   ): ThemeStyleFn =>
@@ -89,24 +88,24 @@ const styles =
     height: 100%;
     z-index: 1;
 
-    &.${pfx}-panel-empty-state-horizontal {
+    &.panel-empty-state-horizontal {
       flex-direction: row;
-      .${pfx}-indicator-wrapper {
+      .indicator-wrapper {
         margin-bottom: 0;
         margin-right: 12px;
       }
-      .${pfx}-panel-empty-state-title {
+      .panel-empty-state-title {
         margin-bottom: 8px;
       }
-      .${pfx}-panel-empty-state-subtitle {
+      .panel-empty-state-subtitle {
         text-align: center;
       }
     }
 
-    .${pfx}-indicator-wrapper {
+    .indicator-wrapper {
       margin-bottom: 16px;
     }
-    .${pfx}-indicator {
+    .indicator {
       ${getStyleByVariant(variant, theme, isDarkTheme)};
       ${getIndicatorSize(size)};
       border-radius: 50%;
@@ -119,14 +118,14 @@ const styles =
       }
     }
 
-    .${pfx}-panel-empty-state-text-container {
+    .panel-empty-state-text-container {
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
     }
 
-    .${pfx}-panel-empty-state-title {
+    .panel-empty-state-title {
       margin: 0;
       margin-bottom: 4px;
       text-align: center;
@@ -137,7 +136,7 @@ const styles =
       font-weight: ${theme.emptyState?.panel?.title?.fontWeight || 500};
     }
 
-    .${pfx}-panel-empty-state-subtitle {
+    .panel-empty-state-subtitle {
       margin: 0;
       text-align: center;
       color: ${theme.emptyState?.panel?.subtitle?.color ||

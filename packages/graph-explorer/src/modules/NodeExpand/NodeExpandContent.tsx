@@ -6,7 +6,7 @@ import ExpandGraphIcon from "../../components/icons/ExpandGraphIcon";
 import GraphIcon from "../../components/icons/GraphIcon";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import PanelEmptyState from "../../components/PanelEmptyState/PanelEmptyState";
-import { useWithTheme, withClassNamePrefix } from "../../core";
+import { useWithTheme } from "../../core";
 import { useExpandNode } from "../../hooks";
 import useNeighborsOptions from "../../hooks/useNeighborsOptions";
 import useTranslations from "../../hooks/useTranslations";
@@ -18,31 +18,21 @@ import { ExpandNodeRequest } from "../../hooks/useExpandNode";
 import { useUpdateNodeCountsQuery } from "../../hooks/useUpdateNodeCounts";
 
 export type NodeExpandContentProps = {
-  classNamePrefix?: string;
   vertex: Vertex;
 };
 
-export default function NodeExpandContent({
-  classNamePrefix = "ft",
-  vertex,
-}: NodeExpandContentProps) {
+export default function NodeExpandContent({ vertex }: NodeExpandContentProps) {
   const styleWithTheme = useWithTheme();
 
   return (
-    <div className={styleWithTheme(defaultStyles(classNamePrefix))}>
-      <VertexHeader vertex={vertex} classNamePrefix={classNamePrefix} />
-      <ExpandSidebarContent vertex={vertex} classNamePrefix={classNamePrefix} />
+    <div className={styleWithTheme(defaultStyles)}>
+      <VertexHeader vertex={vertex} />
+      <ExpandSidebarContent vertex={vertex} />
     </div>
   );
 }
 
-function ExpandSidebarContent({
-  classNamePrefix,
-  vertex,
-}: {
-  classNamePrefix?: string;
-  vertex: Vertex;
-}) {
+function ExpandSidebarContent({ vertex }: { vertex: Vertex }) {
   const t = useTranslations();
   const query = useUpdateNodeCountsQuery(vertex.data.id);
 
@@ -68,21 +58,14 @@ function ExpandSidebarContent({
 
   return (
     <>
-      <NeighborsList vertex={vertex} classNamePrefix={classNamePrefix} />
-      <ExpansionOptions classNamePrefix={classNamePrefix} vertex={vertex} />
+      <NeighborsList vertex={vertex} />
+      <ExpansionOptions vertex={vertex} />
     </>
   );
 }
 
-function ExpansionOptions({
-  vertex,
-  classNamePrefix,
-}: {
-  vertex: Vertex;
-  classNamePrefix?: string;
-}) {
+function ExpansionOptions({ vertex }: { vertex: Vertex }) {
   const t = useTranslations();
-  const pfx = withClassNamePrefix(classNamePrefix);
   const neighborsOptions = useNeighborsOptions(vertex);
 
   const [selectedType, setSelectedType] = useState<string>(
@@ -101,7 +84,7 @@ function ExpansionOptions({
   if (!hasUnfetchedNeighbors) {
     return (
       <PanelEmptyState
-        className={pfx("empty-panel-state")}
+        className={"empty-panel-state"}
         icon={<GraphIcon />}
         title={t("node-expand.no-unfetched-title")}
         subtitle={t("node-expand.no-unfetched-subtitle")}
@@ -112,7 +95,6 @@ function ExpansionOptions({
   return (
     <>
       <NodeExpandFilters
-        classNamePrefix={classNamePrefix}
         neighborsOptions={neighborsOptions}
         selectedType={selectedType}
         onSelectedTypeChange={setSelectedType}

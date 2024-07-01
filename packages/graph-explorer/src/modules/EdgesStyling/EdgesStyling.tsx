@@ -31,7 +31,7 @@ const EdgesStyling = ({
         title={t("edges-styling.title")}
         {...headerProps}
       />
-      <div className={styleWithTheme(defaultStyles())}>
+      <div className={styleWithTheme(defaultStyles)}>
         {config?.edgeTypes.map(edgeType => (
           <SingleEdgeStyling
             key={edgeType}

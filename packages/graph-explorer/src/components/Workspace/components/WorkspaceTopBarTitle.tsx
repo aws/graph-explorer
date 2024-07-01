@@ -1,13 +1,12 @@
 import { cx } from "@emotion/css";
 import type { PropsWithChildren, ReactNode } from "react";
-import { useWithTheme, withClassNamePrefix } from "../../../core";
+import { useWithTheme } from "../../../core";
 import IconButton from "../../IconButton";
 import ChevronLeftIcon from "../../icons/ChevronLeftIcon";
 import styles from "../Workspace.styles";
 
 export type WorkspaceTopBarTitleProps = {
   className?: string;
-  classNamePrefix?: string;
   title?: ReactNode;
   subtitle?: ReactNode;
   withBackButton?: boolean;
@@ -16,7 +15,6 @@ export type WorkspaceTopBarTitleProps = {
 
 const WorkspaceTopBarTitle = ({
   className,
-  classNamePrefix = "ft",
   withBackButton,
   onBack,
   title,
@@ -24,7 +22,7 @@ const WorkspaceTopBarTitle = ({
   children,
 }: PropsWithChildren<WorkspaceTopBarTitleProps>) => {
   const stylesWithTheme = useWithTheme();
-  const pfx = withClassNamePrefix(classNamePrefix);
+
   return (
     <div
       className={cx(
@@ -41,12 +39,12 @@ const WorkspaceTopBarTitle = ({
       )}
       <div
         className={cx(
-          stylesWithTheme(styles.titleSectionStyles(classNamePrefix || "ft")),
-          pfx("title-section-container")
+          stylesWithTheme(styles.titleSectionStyles),
+          "title-section-container"
         )}
       >
-        {title && <div className={pfx("title")}>{title}</div>}
-        {subtitle && <div className={pfx("subtitle")}>{subtitle}</div>}
+        {title && <div className={"title"}>{title}</div>}
+        {subtitle && <div className={"subtitle"}>{subtitle}</div>}
       </div>
       {children}
     </div>

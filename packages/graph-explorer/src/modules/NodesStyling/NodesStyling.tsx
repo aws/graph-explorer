@@ -31,7 +31,7 @@ const NodesStyling = ({
         title={t("nodes-styling.title")}
         {...headerProps}
       />
-      <div className={styleWithTheme(defaultStyles())}>
+      <div className={styleWithTheme(defaultStyles)}>
         {config?.vertexTypes.map(vertexType => (
           <SingleNodeStyling
             key={vertexType}

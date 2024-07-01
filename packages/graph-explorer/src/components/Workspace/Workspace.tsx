@@ -1,7 +1,7 @@
 import { cx } from "@emotion/css";
 import type { PropsWithChildren, ReactElement } from "react";
 import { useMemo } from "react";
-import { useWithTheme, withClassNamePrefix } from "../../core";
+import { useWithTheme } from "../../core";
 import { getChildrenOfType } from "../../utils";
 import getChildOfType from "../../utils/getChildOfType";
 import WorkspaceFooter from "./components/WorkspaceFooter";
@@ -13,7 +13,6 @@ import styles from "./Workspace.styles";
 
 export type WorkspaceProps = {
   orientation?: "vertical" | "horizontal";
-  classNamePrefix?: string;
   className?: string;
 };
 
@@ -28,11 +27,9 @@ interface WorkspaceComposition {
 const Workspace = ({
   orientation = "vertical",
   children,
-  classNamePrefix = "ft",
   className,
 }: PropsWithChildren<WorkspaceProps>) => {
   const stylesWithTheme = useWithTheme();
-  const pfx = withClassNamePrefix(classNamePrefix);
 
   const topBarSection = useMemo(() => {
     return getChildrenOfType(
@@ -70,21 +67,21 @@ const Workspace = ({
   return (
     <div
       className={cx(
-        stylesWithTheme(styles.baseStyles("ft")),
+        stylesWithTheme(styles.baseStyles),
         className,
-        pfx("connected-toolkit-layout"),
-        pfx(`layout-${orientation}`)
+        "connected-toolkit-layout",
+        `layout-${orientation}`
       )}
     >
       {navBarSection}
-      <div className={pfx("container")}>
+      <div className={"container"}>
         {topBarSection}
-        <div className={pfx("main")}>
-          <div className={pfx("content-footer-section")}>
+        <div className={"main"}>
+          <div className={"content-footer-section"}>
             <div
               className={cx(
                 stylesWithTheme(styles.contentSectionStyles),
-                pfx("content-section")
+                "content-section"
               )}
             >
               {contentSection}
@@ -92,7 +89,7 @@ const Workspace = ({
             <div
               className={cx(
                 stylesWithTheme(styles.footerSectionStyles),
-                pfx("footer-section")
+                "footer-section"
               )}
             >
               {footerSection}

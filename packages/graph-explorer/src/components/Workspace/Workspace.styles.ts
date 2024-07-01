@@ -1,126 +1,122 @@
 import { css } from "@emotion/css";
 import type { ThemeStyleFn } from "../../core";
 
-const baseStyles =
-  (pfx: string): ThemeStyleFn =>
-  ({ theme }) => css`
-    width: 100%;
+const baseStyles: ThemeStyleFn = ({ theme }) => css`
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: row;
+  background-color: ${theme.palette.background.secondary};
+  flex-grow: 1;
+
+  &.layout-vertical {
+    > .container {
+      > .main {
+        > .content-footer-section {
+          > .content-section {
+            flex-direction: column;
+            padding: ${theme.spacing["2x"]};
+            row-gap: ${theme.spacing["2x"]};
+          }
+        }
+      }
+    }
+  }
+
+  &.layout-horizontal {
+    > .container {
+      > .main {
+        > .content-footer-section {
+          > .content-section {
+            flex-direction: row;
+            padding: ${theme.spacing["2x"]};
+            column-gap: ${theme.spacing["2x"]};
+          }
+        }
+      }
+    }
+  }
+
+  .space {
+    flex-grow: 1;
+  }
+
+  > .container {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
     height: 100%;
     overflow: hidden;
-    display: flex;
-    flex-direction: row;
-    background-color: ${theme.palette.background.secondary};
-    flex-grow: 1;
 
-    &.${pfx}-layout-vertical {
-      > .${pfx}-container {
-        > .${pfx}-main {
-          > .${pfx}-content-footer-section {
-            > .${pfx}-content-section {
-              flex-direction: column;
-              padding: ${theme.spacing["2x"]};
-              row-gap: ${theme.spacing["2x"]};
-            }
-          }
-        }
-      }
-    }
-
-    &.${pfx}-layout-horizontal {
-      > .${pfx}-container {
-        > .${pfx}-main {
-          > .${pfx}-content-footer-section {
-            > .${pfx}-content-section {
-              flex-direction: row;
-              padding: ${theme.spacing["2x"]};
-              column-gap: ${theme.spacing["2x"]};
-            }
-          }
-        }
-      }
-    }
-
-    .${pfx}-space {
-      flex-grow: 1;
-    }
-
-    > .${pfx}-container {
+    .main {
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
       flex-grow: 1;
       height: 100%;
-      overflow: hidden;
+      overflow: auto;
 
-      .${pfx}-main {
+      .content-footer-section {
         display: flex;
-        flex-direction: row;
+        flex-direction: column;
         flex-grow: 1;
         height: 100%;
         overflow: auto;
 
-        .${pfx}-content-footer-section {
-          display: flex;
-          flex-direction: column;
+        .content-section {
           flex-grow: 1;
           height: 100%;
           overflow: auto;
+        }
+      }
 
-          .${pfx}-content-section {
-            flex-grow: 1;
-            height: 100%;
-            overflow: auto;
-          }
+      .sidebar-section {
+        display: flex;
+        box-shadow: ${theme.shadow.left};
+        background: ${theme.palette.background.default};
+        > div:first-of-type {
+          box-shadow: ${theme.shadow.base};
         }
 
-        .${pfx}-sidebar-section {
-          display: flex;
-          box-shadow: ${theme.shadow.left};
-          background: ${theme.palette.background.default};
-          > div:first-of-type {
-            box-shadow: ${theme.shadow.base};
-          }
+        &.direction-row {
+          flex-direction: row;
+        }
+        &.direction-row-reverse {
+          flex-direction: row-reverse;
+        }
 
-          &.${pfx}-direction-row {
-            flex-direction: row;
-          }
-          &.${pfx}-direction-row-reverse {
-            flex-direction: row-reverse;
-          }
-
-          .${pfx}-sidebar-content {
-            height: 100%;
-            overflow-x: hidden;
-            transition: width 200ms ease-in-out;
-          }
+        .sidebar-content {
+          height: 100%;
+          overflow-x: hidden;
+          transition: width 200ms ease-in-out;
         }
       }
     }
-  `;
+  }
+`;
 
-const titleSectionStyles =
-  (pfx: string): ThemeStyleFn =>
-  ({ theme }) => css`
-    display: flex;
-    flex-direction: column;
+const titleSectionStyles: ThemeStyleFn = ({ theme }) => css`
+  display: flex;
+  flex-direction: column;
 
-    > .${pfx}-title {
-      font-weight: bold;
-      overflow: hidden;
-      display: -webkit-box;
-      -webkit-line-clamp: 1;
-      -webkit-box-orient: vertical;
-    }
+  > .title {
+    font-weight: bold;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+  }
 
-    > .${pfx}-subtitle {
-      overflow: hidden;
-      font-size: ${theme.typography.sizes.xs};
-      line-height: 1.25em;
-      display: -webkit-box;
-      -webkit-line-clamp: 1;
-      -webkit-box-orient: vertical;
-      color: ${theme.palette.text.secondary};
-    }
-  `;
+  > .subtitle {
+    overflow: hidden;
+    font-size: ${theme.typography.sizes.xs};
+    line-height: 1.25em;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    color: ${theme.palette.text.secondary};
+  }
+`;
 
 const togglesSectionStyles: ThemeStyleFn = ({ theme }) => css`
   display: flex;

@@ -8,7 +8,7 @@ import {
   Input,
   Select,
 } from "../../components";
-import { useConfiguration, withClassNamePrefix } from "../../core";
+import { useConfiguration } from "../../core";
 import useTextTransform from "../../hooks/useTextTransform";
 import useTranslations from "../../hooks/useTranslations";
 
@@ -17,7 +17,6 @@ export type NodeExpandFilter = {
   value: string;
 };
 export type NodeExpandFiltersProps = {
-  classNamePrefix?: string;
   neighborsOptions: Array<{ label: string; value: string }>;
   selectedType: string;
   onSelectedTypeChange(type: string): void;
@@ -28,7 +27,6 @@ export type NodeExpandFiltersProps = {
 };
 
 const NodeExpandFilters = ({
-  classNamePrefix = "ft",
   neighborsOptions,
   selectedType,
   onSelectedTypeChange,
@@ -40,7 +38,6 @@ const NodeExpandFilters = ({
   const config = useConfiguration();
   const t = useTranslations();
   const textTransform = useTextTransform();
-  const pfx = withClassNamePrefix(classNamePrefix);
 
   const vtConfig = config?.getVertexTypeConfig(selectedType);
   const searchableAttributes =
@@ -79,8 +76,8 @@ const NodeExpandFilters = ({
   }, [onFiltersChange, selectedType]);
 
   return (
-    <div className={pfx("filters-section")}>
-      <div className={pfx("title")}>{t("node-expand.neighbors-of-type")}</div>
+    <div className={"filters-section"}>
+      <div className={"title"}>{t("node-expand.neighbors-of-type")}</div>
       <Select
         aria-label={"neighbor type"}
         value={selectedType}
@@ -90,7 +87,7 @@ const NodeExpandFilters = ({
         options={neighborsOptions}
       />
       {!!vtConfig?.attributes?.length && (
-        <div className={pfx("title")}>
+        <div className={"title"}>
           <div>Filter to narrow results</div>
           <IconButton
             icon={<AddIcon />}
@@ -101,9 +98,9 @@ const NodeExpandFilters = ({
         </div>
       )}
       {!!searchableAttributes?.length && (
-        <div className={pfx("filters")}>
+        <div className={"filters"}>
           {filters.map((filter, filterIndex) => (
-            <div key={filterIndex} className={pfx("single-filter")}>
+            <div key={filterIndex} className={"single-filter"}>
               <Select
                 aria-label={"Attribute"}
                 value={filter.name}
@@ -119,7 +116,7 @@ const NodeExpandFilters = ({
               />
               <Input
                 aria-label={"Filter"}
-                className={pfx("input")}
+                className={"input"}
                 value={filter.value}
                 onChange={value => {
                   onFilterChange(filterIndex, filter.name, value as string);
@@ -139,7 +136,7 @@ const NodeExpandFilters = ({
           ))}
         </div>
       )}
-      <div className={pfx("title")}>
+      <div className={"title"}>
         <div style={{ display: "flex", gap: 2, alignItems: "center" }}>
           Limit returned neighbors to
           <InfoTooltip>
@@ -155,10 +152,10 @@ const NodeExpandFilters = ({
         />
       </div>
       {limit !== null && (
-        <div className={pfx("limit")}>
+        <div className={"limit"}>
           <Input
             aria-label={"limit"}
-            className={pfx("input")}
+            className={"input"}
             type={"number"}
             min={1}
             step={1}

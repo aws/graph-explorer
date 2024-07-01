@@ -5,11 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRecoilCallback, useRecoilValue } from "recoil";
 import { Button, Input, Select, StylingIcon } from "../../components";
 import ColorInput from "../../components/ColorInput/ColorInput";
-import {
-  useConfiguration,
-  useWithTheme,
-  withClassNamePrefix,
-} from "../../core";
+import { useConfiguration, useWithTheme } from "../../core";
 import {
   ArrowStyle,
   EdgePreferences,
@@ -27,7 +23,6 @@ import defaultStyles from "./SingleEdgeStyling.style";
 import modalDefaultStyles from "./SingleEdgeStylingModal.style";
 
 export type SingleEdgeStylingProps = {
-  classNamePrefix?: string;
   edgeType: string;
   opened: boolean;
   onOpen(): void;
@@ -35,7 +30,6 @@ export type SingleEdgeStylingProps = {
 };
 
 const SingleEdgeStyling = ({
-  classNamePrefix = "ft",
   edgeType,
   opened,
   onOpen,
@@ -44,7 +38,6 @@ const SingleEdgeStyling = ({
   const config = useConfiguration();
   const t = useTranslations();
   const styleWithTheme = useWithTheme();
-  const pfx = withClassNamePrefix(classNamePrefix);
 
   const userStyling = useRecoilValue(userStylingAtom);
   const textTransform = useTextTransform();
@@ -159,13 +152,13 @@ const SingleEdgeStyling = ({
   }, [displayAs, debouncedChange]);
 
   return (
-    <div className={styleWithTheme(defaultStyles(classNamePrefix))}>
-      <div className={pfx("title")}>
-        <div className={pfx("edge-name")}>{edgeType}</div>
+    <div className={styleWithTheme(defaultStyles)}>
+      <div className={"title"}>
+        <div className={"edge-name"}>{edgeType}</div>
       </div>
-      <div className={pfx("label-container")}>
+      <div className={"label-container"}>
         <Input
-          className={pfx("label-display")}
+          className={"label-display"}
           label={"Display As"}
           labelPlacement={"inner"}
           value={displayAs}
@@ -191,15 +184,15 @@ const SingleEdgeStyling = ({
             Customize <strong>{displayAs || edgeType}</strong>
           </div>
         }
-        className={styleWithTheme(modalDefaultStyles(classNamePrefix))}
+        className={styleWithTheme(modalDefaultStyles)}
         overlayProps={{
           backgroundOpacity: 0.1,
         }}
       >
-        <div className={pfx("container")}>
+        <div className={"container"}>
           <div>
             <p>Display Attributes</p>
-            <div className={pfx("attrs-container")}>
+            <div className={"attrs-container"}>
               <Select
                 label={"Display Name Attribute"}
                 labelPlacement={"inner"}
@@ -213,7 +206,7 @@ const SingleEdgeStyling = ({
           </div>
           <div>
             <p>Label Styling</p>
-            <div className={pfx("attrs-container")}>
+            <div className={"attrs-container"}>
               <ColorInput
                 label={"Color"}
                 labelPlacement={"inner"}
@@ -239,7 +232,7 @@ const SingleEdgeStyling = ({
             </div>
           </div>
           <div>
-            <div className={pfx("attrs-container")}>
+            <div className={"attrs-container"}>
               <ColorInput
                 label={"Border Color"}
                 labelPlacement={"inner"}
@@ -275,7 +268,7 @@ const SingleEdgeStyling = ({
           </div>
           <div>
             <p>Line Styling</p>
-            <div className={pfx("attrs-container")}>
+            <div className={"attrs-container"}>
               <ColorInput
                 label={"Color"}
                 labelPlacement={"inner"}
@@ -311,7 +304,7 @@ const SingleEdgeStyling = ({
           </div>
           <div>
             <p>Arrows Styling</p>
-            <div className={pfx("attrs-container")}>
+            <div className={"attrs-container"}>
               <Select
                 label={"Source"}
                 labelPlacement={"inner"}
@@ -336,7 +329,7 @@ const SingleEdgeStyling = ({
               />
             </div>
           </div>
-          <div className={pfx("actions")}>
+          <div className={"actions"}>
             <Button onPress={onUserPrefsReset}>Reset to Default</Button>
           </div>
         </div>

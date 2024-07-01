@@ -1,59 +1,44 @@
 import { useMemo } from "react";
 import { Vertex } from "../../@types/entities";
 import { VertexIcon } from "../../components";
-import {
-  withClassNamePrefix,
-  useConfiguration,
-  fade,
-  ThemeStyleFn,
-  useWithTheme,
-} from "../../core";
+import { useConfiguration, fade, ThemeStyleFn, useWithTheme } from "../../core";
 import useDisplayNames from "../../hooks/useDisplayNames";
 import useTextTransform from "../../hooks/useTextTransform";
 import { css } from "@emotion/css";
 
-const defaultStyles =
-  (pfx?: string): ThemeStyleFn =>
-  ({ theme }) => css`
-    position: sticky;
-    top: 0;
-    z-index: 1;
-    background: ${theme.palette.background.default};
+const defaultStyles: ThemeStyleFn = ({ theme }) => css`
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: ${theme.palette.background.default};
+  display: flex;
+  padding: ${theme.spacing["4x"]};
+  align-items: center;
+  column-gap: ${theme.spacing["2x"]};
+  border-bottom: solid 1px ${theme.palette.border};
+  word-break: break-word;
+
+  .icon {
     display: flex;
-    padding: ${theme.spacing["4x"]};
+    justify-content: center;
     align-items: center;
-    column-gap: ${theme.spacing["2x"]};
-    border-bottom: solid 1px ${theme.palette.border};
-    word-break: break-word;
+    background: ${fade(theme.palette.primary.main, 0.2)};
+    color: ${theme.palette.primary.main};
+    font-size: 2em;
+    border-radius: 24px;
+    min-width: 36px;
+    min-height: 36px;
+  }
 
-    .${pfx}-icon {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: ${fade(theme.palette.primary.main, 0.2)};
-      color: ${theme.palette.primary.main};
-      font-size: 2em;
-      border-radius: 24px;
-      min-width: 36px;
-      min-height: 36px;
+  .content {
+    .title {
+      font-weight: bold;
+      word-break: break-word;
     }
+  }
+`;
 
-    .${pfx}-content {
-      .${pfx}-title {
-        font-weight: bold;
-        word-break: break-word;
-      }
-    }
-  `;
-
-export default function VertexHeader({
-  vertex,
-  classNamePrefix,
-}: {
-  vertex: Vertex;
-  classNamePrefix?: string;
-}) {
-  const pfx = withClassNamePrefix(classNamePrefix);
+export default function VertexHeader({ vertex }: { vertex: Vertex }) {
   const styleWithTheme = useWithTheme();
   const config = useConfiguration();
   const textTransform = useTextTransform();
@@ -72,10 +57,10 @@ export default function VertexHeader({
   const vtConfig = config?.getVertexTypeConfig(vertex.data.type);
 
   return (
-    <div className={styleWithTheme(defaultStyles(classNamePrefix))}>
+    <div className={styleWithTheme(defaultStyles)}>
       {vtConfig?.iconUrl && (
         <div
-          className={pfx("icon")}
+          className={"icon"}
           style={{
             background: fade(vtConfig?.color, 0.2),
             color: vtConfig.color,
@@ -87,8 +72,8 @@ export default function VertexHeader({
           />
         </div>
       )}
-      <div className={pfx("content")}>
-        <div className={pfx("title")}>{displayLabels || vertex.data.type}</div>
+      <div className={"content"}>
+        <div className={"title"}>{displayLabels || vertex.data.type}</div>
         <div>{name}</div>
       </div>
     </div>

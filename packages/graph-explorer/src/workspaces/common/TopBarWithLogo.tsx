@@ -9,7 +9,7 @@ const TopBarWithLogo = ({ children }: PropsWithChildren<any>) => {
       logoVisible={true}
       logo={<GraphExplorerIcon width={"2em"} height={"2em"} />}
       className={css`
-        .ft-navbar-logo-container {
+        .navbar-logo-container {
           background: linear-gradient(225deg, #4d72f2 12.15%, #3334b9 87.02%);
         }
       `}

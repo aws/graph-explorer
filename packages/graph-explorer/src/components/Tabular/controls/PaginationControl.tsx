@@ -1,7 +1,6 @@
 import { css, cx } from "@emotion/css";
 
 import { FunctionComponent, useEffect, useMemo, useState } from "react";
-import { withClassNamePrefix } from "../../../core";
 import Button from "../../Button";
 import HumanReadableNumberFormatter from "../../HumanReadableNumberFormatter";
 import IconButton from "../../IconButton";
@@ -15,21 +14,20 @@ import Select from "../../Select";
 import { useTabularControl } from "../TabularControlsProvider";
 
 export type PaginationControlProps = {
-  classNamePrefix?: string;
   className?: string;
   totalRows: number;
 };
 
-const defaultStyles = (pfx: string) => css`
+const defaultStyles = () => css`
   display: flex;
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  .${pfx}-pagination-totals {
+  .pagination-totals {
     color: var(--palette-text-disabled, #838383);
   }
 
-  .${pfx}-pagination-controls {
+  .pagination-controls {
     display: flex;
     justify-content: flex-end;
     align-items: center;
@@ -42,18 +40,18 @@ const defaultStyles = (pfx: string) => css`
       margin-right: 0;
     }
 
-    .${pfx}-page-options-menu {
-      .ft-select {
+    .page-options-menu {
+      .select {
         min-width: 30px;
       }
-      .ft-input-label {
+      .input-label {
         width: 75px;
         font-size: 14px;
         margin: 0;
       }
     }
 
-    .${pfx}-page-viz {
+    .page-viz {
       display: flex;
       align-items: center;
       > * {
@@ -61,18 +59,18 @@ const defaultStyles = (pfx: string) => css`
       }
     }
 
-    .${pfx}-page-button {
+    .page-button {
       font-size: 14px;
       min-width: 24px;
       margin: 0 1px;
-      &.${pfx}-page-control {
+      &.page-control {
         > svg {
           width: 24px;
           height: 24px;
         }
         padding: 0;
       }
-      &.${pfx}-toggle-button-inactive {
+      &.toggle-button-inactive {
         background-color: transparent;
       }
     }
@@ -80,11 +78,9 @@ const defaultStyles = (pfx: string) => css`
 `;
 
 export const PaginationControl: FunctionComponent<PaginationControlProps> = ({
-  classNamePrefix = "ft",
   className,
   totalRows,
 }) => {
-  const pfx = withClassNamePrefix(classNamePrefix);
   const {
     instance: {
       disablePagination,
@@ -149,22 +145,20 @@ export const PaginationControl: FunctionComponent<PaginationControlProps> = ({
     return null;
   }
   return (
-    <div className={cx(defaultStyles(classNamePrefix), className)}>
+    <div className={cx(defaultStyles(), className)}>
       {totalRows > 0 && (
-        <div className={pfx("pagination-totals")}>
+        <div className={"pagination-totals"}>
           Displaying {pageRange} of{" "}
           <HumanReadableNumberFormatter value={totalRows} /> results
         </div>
       )}
-      {totalRows === 0 && (
-        <div className={pfx("pagination-totals")}>No results</div>
-      )}
+      {totalRows === 0 && <div className={"pagination-totals"}>No results</div>}
       {totalRows > 0 && (
-        <div className={pfx("pagination-controls")}>
+        <div className={"pagination-controls"}>
           <Select
             label="Page size:"
             labelPlacement="left"
-            className={pfx("page-options-menu")}
+            className={"page-options-menu"}
             options={pageOptions.map(pageOption => ({
               label: pageOption.toString(),
               value: pageOption.toString(),
@@ -178,7 +172,7 @@ export const PaginationControl: FunctionComponent<PaginationControlProps> = ({
             isDisabled={!canPreviousPage}
             variant={"text"}
             size={"small"}
-            className={cx(pfx("page-button"), pfx("page-control"))}
+            className={cx("page-button", "page-control")}
             icon={<SkipBackwardIcon />}
             onPress={() => gotoPage(0)}
           />
@@ -186,16 +180,16 @@ export const PaginationControl: FunctionComponent<PaginationControlProps> = ({
             isDisabled={!canPreviousPage}
             variant={"text"}
             size={"small"}
-            className={cx(pfx("page-button"), pfx("page-control"))}
+            className={cx("page-button", "page-control")}
             icon={<BackwardIcon />}
             onPress={previousPage}
           />
-          <div className={pfx("page-viz")}>
+          <div className={"page-viz"}>
             {pagesToRender.map(page => {
               return (
                 <Button
                   key={page}
-                  className={pfx("page-button")}
+                  className={"page-button"}
                   variant={
                     pageIndex === parseInt(page) - 1 ? "filled" : "default"
                   }
@@ -211,14 +205,14 @@ export const PaginationControl: FunctionComponent<PaginationControlProps> = ({
             isDisabled={!canNextPage}
             variant={"text"}
             size={"small"}
-            className={cx(pfx("page-button"), pfx("page-control"))}
+            className={cx("page-button", "page-control")}
             icon={<ForwardIcon />}
             onPress={nextPage}
           />
           <IconButton
             isDisabled={!canNextPage}
             variant={"text"}
-            className={cx(pfx("page-button"), pfx("page-control"))}
+            className={cx("page-button", "page-control")}
             icon={<SkipForwardIcon />}
             onPress={() => gotoPage(pageCount - 1)}
           />

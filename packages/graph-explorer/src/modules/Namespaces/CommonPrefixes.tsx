@@ -15,16 +15,12 @@ const COMMON_PREFIXES_ITEMS = Object.entries(commonPrefixes)
   })
   .sort((a, b) => a.title.localeCompare(b.title));
 
-export type CommonPrefixesProps = {
-  classNamePrefix?: string;
-};
-
-const CommonPrefixes = ({ classNamePrefix = "ft" }: CommonPrefixesProps) => {
+const CommonPrefixes = () => {
   const styleWithTheme = useWithTheme();
   const [search, setSearch] = useState("");
 
   return (
-    <div className={styleWithTheme(defaultStyles(classNamePrefix))}>
+    <div className={styleWithTheme(defaultStyles)}>
       <AdvancedList
         searchPlaceholder={"Search for Namespaces or URIs"}
         search={search}

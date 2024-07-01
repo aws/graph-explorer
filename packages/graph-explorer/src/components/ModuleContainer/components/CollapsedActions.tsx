@@ -1,6 +1,6 @@
 import { cx } from "@emotion/css";
 import { cloneElement, useState } from "react";
-import { useWithTheme, withClassNamePrefix } from "../../../core";
+import { useWithTheme } from "../../../core";
 import Card from "../../Card";
 import ForwardIcon from "../../icons/ForwardIcon";
 import ListItem from "../../ListItem";
@@ -11,28 +11,20 @@ import defaultStyles from "./CollapsedActions.styles";
 import { Action } from "./ModuleContainerHeader";
 
 export type CollapsedActionsProps = {
-  classNamePrefix?: string;
   actions: (Action | "divider")[];
   onActionClick(action: string): void;
 };
 
 const CollapsedActions = ({
-  classNamePrefix = "ft",
   actions,
   onActionClick,
 }: CollapsedActionsProps) => {
   const styleWithTheme = useWithTheme();
-  const pfx = withClassNamePrefix(classNamePrefix);
 
   const [open, setOpen] = useState(-1);
 
   return (
-    <Card
-      className={cx(
-        styleWithTheme(defaultStyles(classNamePrefix)),
-        pfx("collapsed-actions")
-      )}
-    >
+    <Card className={cx(styleWithTheme(defaultStyles), "collapsed-actions")}>
       {actions.map((action, actionIndex) => {
         if (
           (actionIndex === 0 || actionIndex === actions.length - 1) &&
@@ -42,7 +34,7 @@ const CollapsedActions = ({
         }
 
         if (action === "divider") {
-          return <div key={actionIndex} className={pfx("divider")} />;
+          return <div key={actionIndex} className={"divider"} />;
         }
 
         if (action.collapsedItems) {
@@ -56,10 +48,9 @@ const CollapsedActions = ({
             >
               <UseLayerTrigger>
                 <ListItem
-                  classNamePrefix={"ft"}
-                  className={cx(pfx("list-item"), {
-                    [pfx("submenu-is-open")]: open === actionIndex,
-                    [pfx("submenu-is-disabled")]: action.isDisabled,
+                  className={cx("list-item", {
+                    ["submenu-is-open"]: open === actionIndex,
+                    ["submenu-is-disabled"]: action.isDisabled,
                   })}
                   clickable={!action.isDisabled}
                   startAdornment={action.icon}
@@ -74,7 +65,7 @@ const CollapsedActions = ({
               <UseLayerOverlay>
                 {cloneElement(action.collapsedItems, {
                   parentLayerSide: "left",
-                  className: styleWithTheme(defaultStyles(classNamePrefix)),
+                  className: styleWithTheme(defaultStyles),
                 })}
               </UseLayerOverlay>
             </UseLayer>
@@ -85,7 +76,7 @@ const CollapsedActions = ({
           <ListItem
             key={action.value}
             ref={action.ref}
-            className={pfx("list-item")}
+            className={"list-item"}
             clickable={!action.isDisabled}
             onClick={() => {
               onActionClick(action.value);

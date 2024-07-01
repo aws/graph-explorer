@@ -101,4 +101,4 @@ export const cssConditionalValue =
     return defaultValue;
   };
 
-export const isDarkMode = () => document.body.classList.contains("ft-dark");
+export const isDarkMode = () => document.body.classList.contains("dark");

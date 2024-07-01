@@ -340,65 +340,63 @@ export const defaultToggleButtonStyles =
     );
   };
 
-export const defaultBadgeStyles =
-  (pfx: string): ThemeStyleFn =>
-  ({ theme }) => css`
-    &.${pfx}-badge {
-      position: absolute;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 16px;
-      height: 16px;
-      border-radius: 8px;
-      padding: 0 ${theme.spacing.base};
-      font-size: ${theme.typography.sizes.xs};
-      color: ${theme.palette.secondary.contrastText};
-      background: ${theme.palette.secondary.main};
+export const defaultBadgeStyles: ThemeStyleFn = ({ theme }) => css`
+  &.badge {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 16px;
+    height: 16px;
+    border-radius: 8px;
+    padding: 0 ${theme.spacing.base};
+    font-size: ${theme.typography.sizes.xs};
+    color: ${theme.palette.secondary.contrastText};
+    background: ${theme.palette.secondary.main};
 
-      &.${pfx}-variant-undetermined {
-        min-width: 8px;
-        height: 8px;
-      }
+    &.variant-undetermined {
+      min-width: 8px;
+      height: 8px;
+    }
 
-      &.${pfx}-placement-bottom-right {
-        bottom: -6px;
-        right: -6px;
+    &.placement-bottom-right {
+      bottom: -6px;
+      right: -6px;
 
-        &.${pfx}-variant-undetermined {
-          bottom: 0;
-          right: 0;
-        }
-      }
-
-      &.${pfx}-placement-bottom-left {
-        bottom: -6px;
-        left: -2px;
-
-        &.${pfx}-variant-undetermined {
-          bottom: 0;
-          left: 0;
-        }
-      }
-
-      &.${pfx}-placement-top-right {
-        top: -6px;
-        right: -6px;
-
-        &.${pfx}-variant-undetermined {
-          top: 0;
-          right: 0;
-        }
-      }
-
-      &.${pfx}-placement-top-left {
-        top: -6px;
-        left: -2px;
-
-        &.${pfx}-variant-undetermined {
-          top: 0;
-          left: 0;
-        }
+      &.variant-undetermined {
+        bottom: 0;
+        right: 0;
       }
     }
-  `;
+
+    &.placement-bottom-left {
+      bottom: -6px;
+      left: -2px;
+
+      &.variant-undetermined {
+        bottom: 0;
+        left: 0;
+      }
+    }
+
+    &.placement-top-right {
+      top: -6px;
+      right: -6px;
+
+      &.variant-undetermined {
+        top: 0;
+        right: 0;
+      }
+    }
+
+    &.placement-top-left {
+      top: -6px;
+      left: -2px;
+
+      &.variant-undetermined {
+        top: 0;
+        left: 0;
+      }
+    }
+  }
+`;

@@ -14,11 +14,7 @@ import {
 } from "../../components";
 import ColorInput from "../../components/ColorInput/ColorInput";
 import { useNotification } from "../../components/NotificationProvider";
-import {
-  useConfiguration,
-  useWithTheme,
-  withClassNamePrefix,
-} from "../../core";
+import { useConfiguration, useWithTheme } from "../../core";
 import {
   LineStyle,
   ShapeStyle,
@@ -34,7 +30,6 @@ import defaultStyles from "./SingleNodeStyling.style";
 import modalDefaultStyles from "./SingleNodeStylingModal.style";
 
 export type SingleNodeStylingProps = {
-  classNamePrefix?: string;
   vertexType: string;
   opened: boolean;
   onOpen(): void;
@@ -51,7 +46,6 @@ const file2Base64 = (file: File): Promise<string> => {
 };
 
 const SingleNodeStyling = ({
-  classNamePrefix = "ft",
   vertexType,
   opened,
   onOpen,
@@ -60,7 +54,6 @@ const SingleNodeStyling = ({
   const config = useConfiguration();
   const t = useTranslations();
   const styleWithTheme = useWithTheme();
-  const pfx = withClassNamePrefix(classNamePrefix);
 
   const userStyling = useRecoilValue(userStylingAtom);
   const textTransform = useTextTransform();
@@ -208,13 +201,13 @@ const SingleNodeStyling = ({
     (vtPrefs?.iconImageType || vtConfig?.iconImageType) === "image/svg+xml";
 
   return (
-    <div className={styleWithTheme(defaultStyles(classNamePrefix))}>
-      <div className={pfx("title")}>
-        <div className={pfx("vertex-name")}>{vertexType}</div>
+    <div className={styleWithTheme(defaultStyles)}>
+      <div className={"title"}>
+        <div className={"vertex-name"}>{vertexType}</div>
       </div>
-      <div className={pfx("label-container")}>
+      <div className={"label-container"}>
         <Input
-          className={pfx("label-display")}
+          className={"label-display"}
           label={"Display As"}
           labelPlacement={"inner"}
           value={displayAs}
@@ -240,15 +233,15 @@ const SingleNodeStyling = ({
             Customize <strong>{displayAs || vertexType}</strong>
           </div>
         }
-        className={styleWithTheme(modalDefaultStyles(classNamePrefix))}
+        className={styleWithTheme(modalDefaultStyles)}
         overlayProps={{
           backgroundOpacity: 0.1,
         }}
       >
-        <div className={pfx("container")}>
+        <div className={"container"}>
           <div>
             <p>Display Attributes</p>
-            <div className={pfx("attrs-container")}>
+            <div className={"attrs-container"}>
               <Select
                 label={"Display Name Attribute"}
                 labelPlacement={"inner"}
@@ -271,7 +264,7 @@ const SingleNodeStyling = ({
           </div>
           <div>
             <p>Shape and Icon</p>
-            <div className={pfx("attrs-container")}>
+            <div className={"attrs-container"}>
               <Select
                 label={"Style"}
                 labelPlacement={"inner"}
@@ -283,7 +276,7 @@ const SingleNodeStyling = ({
                 hideError={true}
                 noMargin={true}
               />
-              <div className={pfx("icon")}>
+              <div className={"icon"}>
                 <FileButton
                   accept={"image/*"}
                   onChange={file => {
@@ -294,11 +287,11 @@ const SingleNodeStyling = ({
                     <IconButton
                       icon={
                         <div>
-                          <div className={pfx("upload-icon")}>
+                          <div className={"upload-icon"}>
                             <UploadIcon />
                           </div>
                           <div
-                            className={pfx("vertex-icon")}
+                            className={"vertex-icon"}
                             style={{
                               background: fade(vtConfig?.color, 0.2),
                               color: vtConfig?.color,
@@ -332,7 +325,7 @@ const SingleNodeStyling = ({
           </div>
           <div>
             <p>Shape Styling</p>
-            <div className={pfx("attrs-container")}>
+            <div className={"attrs-container"}>
               <ColorInput
                 label={"Color"}
                 labelPlacement={"inner"}
@@ -356,7 +349,7 @@ const SingleNodeStyling = ({
             </div>
           </div>
           <div>
-            <div className={pfx("attrs-container")}>
+            <div className={"attrs-container"}>
               <ColorInput
                 label={"Border Color"}
                 labelPlacement={"inner"}
@@ -390,7 +383,7 @@ const SingleNodeStyling = ({
               />
             </div>
           </div>
-          <div className={pfx("actions")}>
+          <div className={"actions"}>
             <Button onPress={onUserPrefsReset}>Reset to Default</Button>
           </div>
         </div>

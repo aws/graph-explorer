@@ -1,7 +1,7 @@
 import { cx } from "@emotion/css";
 import type { ForwardedRef, PropsWithChildren } from "react";
 import { forwardRef, useMemo } from "react";
-import { useWithTheme, withClassNamePrefix } from "../../core";
+import { useWithTheme } from "../../core";
 import getChildOfType from "../../utils/getChildOfType";
 import getChildrenOfType from "../../utils/getChildrenOfType";
 import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
@@ -11,7 +11,6 @@ import defaultStyles from "./ModuleContainer.styles";
 
 export type ModuleContainerProps = {
   id?: string;
-  classNamePrefix?: string;
   className?: string;
   /**
    * Variant allows to render the module to be attached in a sidebar
@@ -29,7 +28,6 @@ const ModuleContainer = (
   {
     id,
     children,
-    classNamePrefix = "ft",
     className,
     variant = "default",
     isLoading,
@@ -37,10 +35,9 @@ const ModuleContainer = (
   ref: ForwardedRef<HTMLDivElement>
 ) => {
   const styleWithTheme = useWithTheme();
-  const pfx = withClassNamePrefix(classNamePrefix);
   const rootClassname = useMemo(
-    () => styleWithTheme(defaultStyles(classNamePrefix)),
-    [classNamePrefix, styleWithTheme]
+    () => styleWithTheme(defaultStyles),
+    [styleWithTheme]
   );
 
   const headerContainerChildren = useMemo(() => {
@@ -74,15 +71,15 @@ const ModuleContainer = (
       id={id}
       className={cx(
         rootClassname,
-        pfx("module-container"),
-        pfx(`variant-${variant}`),
+        "module-container",
+        `variant-${variant}`,
         className
       )}
     >
       {headerContainerChildren}
-      <div className={pfx("content")}>
+      <div className={"content"}>
         {isLoading && (
-          <div className={pfx("loading")}>
+          <div className={"loading"}>
             <LoadingSpinner />
           </div>
         )}

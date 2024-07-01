@@ -3,13 +3,7 @@ import { AdvancedList, NamespaceIcon, PanelEmptyState } from "../../components";
 import { useConfiguration, useWithTheme } from "../../core";
 import defaultStyles from "./NsType.styles";
 
-export type GeneratedPrefixesProps = {
-  classNamePrefix?: string;
-};
-
-const GeneratedPrefixes = ({
-  classNamePrefix = "ft",
-}: GeneratedPrefixesProps) => {
+const GeneratedPrefixes = () => {
   const styleWithTheme = useWithTheme();
   const config = useConfiguration();
   const [search, setSearch] = useState("");
@@ -36,7 +30,7 @@ const GeneratedPrefixes = ({
   }, [config?.schema?.prefixes]);
 
   return (
-    <div className={styleWithTheme(defaultStyles(classNamePrefix))}>
+    <div className={styleWithTheme(defaultStyles)}>
       {items.length === 0 && (
         <PanelEmptyState
           title={"No Namespaces"}

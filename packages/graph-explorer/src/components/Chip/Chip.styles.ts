@@ -14,8 +14,7 @@ const defaultStyles =
     variant: "info" | "success" | "error" | "warning",
     background?: string,
     color?: string,
-    size?: "xs" | "sm" | "md" | "lg",
-    pfx?: string
+    size?: "xs" | "sm" | "md" | "lg"
   ): ThemeStyleFn =>
   ({ theme }) => css`
     display: inline-flex;
@@ -34,7 +33,7 @@ const defaultStyles =
       : theme.chip?.variants?.[variant]?.background ||
         theme.palette[variant === "info" ? "primary" : variant].main};
 
-    &.${pfx}-chip-clickable {
+    &.chip-clickable {
       cursor: pointer;
       &:hover {
         color: ${color
@@ -50,7 +49,7 @@ const defaultStyles =
             )};
       }
     }
-    .${pfx}-chip-label {
+    .chip-label {
       overflow: hidden;
       text-overflow: ellipsis;
       padding: 0 ${theme.spacing.base};
@@ -58,7 +57,7 @@ const defaultStyles =
       white-space: nowrap;
     }
 
-    .${pfx}-icon-delete {
+    .icon-delete {
       padding: 0;
       color: ${fade(theme.palette.grey[600], 0.7)};
 

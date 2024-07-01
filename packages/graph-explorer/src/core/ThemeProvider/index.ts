@@ -3,9 +3,6 @@ export { default as useTheme } from "./useTheme";
 export { default as useWithTheme } from "./useWithTheme";
 export { default as useIsDarkTheme } from "./useIsDarkTheme";
 
-// Class names utils
-export { default as withClassNamePrefix } from "./utils/withClassNamePrefix";
-
 // Color utils
 export { default as contrastColor } from "./utils/contrastColor";
 export { default as darken } from "./utils/darken";

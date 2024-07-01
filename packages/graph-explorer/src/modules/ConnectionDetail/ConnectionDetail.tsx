@@ -13,11 +13,7 @@ import {
   SyncIcon,
   TrayArrowIcon,
 } from "../../components";
-import {
-  useConfiguration,
-  useWithTheme,
-  withClassNamePrefix,
-} from "../../core";
+import { useConfiguration, useWithTheme } from "../../core";
 import {
   activeConfigurationAtom,
   configurationAtom,
@@ -70,7 +66,6 @@ const HEADER_ACTIONS = (
 
 const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
   const styleWithTheme = useWithTheme();
-  const pfx = withClassNamePrefix("ft");
   const config = useConfiguration();
   const t = useTranslations();
   const [edit, setEdit] = useState(false);
@@ -146,31 +141,29 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
   const lastSyncFail = config?.schema?.lastSyncFail === true;
 
   return (
-    <ModuleContainer className={styleWithTheme(defaultStyles("ft"))}>
+    <ModuleContainer className={styleWithTheme(defaultStyles)}>
       <ModuleContainerHeader
         title={config.displayLabel || config.id}
         startAdornment={<DatabaseIcon />}
         actions={HEADER_ACTIONS(isSync, config.__fileBase === true)}
         onActionClick={onActionClick}
       />
-      <div className={pfx("info-bar")}>
-        <div className={pfx("item")}>
-          <div className={pfx("tag")}>Type</div>
-          <div className={pfx("value")}>
-            {t("connection-detail.graph-type")}
-          </div>
+      <div className={"info-bar"}>
+        <div className={"item"}>
+          <div className={"tag"}>Type</div>
+          <div className={"value"}>{t("connection-detail.graph-type")}</div>
         </div>
-        <div className={pfx("item")}>
-          <div className={pfx("tag")}>URL</div>
-          <div className={pfx("value")}>{config.connection?.url}</div>
+        <div className={"item"}>
+          <div className={"tag"}>URL</div>
+          <div className={"value"}>{config.connection?.url}</div>
         </div>
         {!!lastSyncUpdate && (
-          <div className={pfx("item")}>
-            <div className={pfx("tag")}>
+          <div className={"item"}>
+            <div className={"tag"}>
               <div>Last Synchronization</div>
             </div>
             {!lastSyncFail && (
-              <div className={pfx("value")}>{formatDate(lastSyncUpdate)}</div>
+              <div className={"value"}>{formatDate(lastSyncUpdate)}</div>
             )}
             {!lastSyncUpdate && !lastSyncFail && (
               <Chip size={"sm"} variant={"warning"}>

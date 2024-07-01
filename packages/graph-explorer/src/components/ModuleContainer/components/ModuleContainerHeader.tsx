@@ -7,7 +7,7 @@ import type {
   RefObject,
 } from "react";
 import { forwardRef, Fragment, useMemo, useState } from "react";
-import { useWithTheme, withClassNamePrefix } from "../../../core";
+import { useWithTheme } from "../../../core";
 import getChildrenOfType from "../../../utils/getChildrenOfType";
 import type { IconButtonProps } from "../../IconButton";
 import IconButton from "../../IconButton";
@@ -39,7 +39,6 @@ export type ActionItem = Action | "divider" | ReactNode;
 
 export type ModuleContainerHeaderProps = PropsWithChildren<{
   id?: string;
-  classNamePrefix?: string;
   className?: string;
   title: ReactNode;
   subtitle?: ReactNode;
@@ -64,7 +63,6 @@ const isActionType = (action: any): action is Action => {
 const ModuleContainerHeader = (
   {
     id,
-    classNamePrefix = "ft",
     className,
     title,
     subtitle,
@@ -81,7 +79,6 @@ const ModuleContainerHeader = (
   ref: ForwardedRef<HTMLDivElement>
 ) => {
   const styleWithTheme = useWithTheme();
-  const pfx = withClassNamePrefix(classNamePrefix);
   const [collapsedActionsOpen, setCollapsedActionsOpen] = useState(false);
 
   // Make the component controlled and uncontrolled
@@ -148,13 +145,13 @@ const ModuleContainerHeader = (
       id={id}
       ref={ref}
       className={cx(
-        styleWithTheme(defaultStyles(classNamePrefix)),
-        pfx("module-container-header"),
+        styleWithTheme(defaultStyles),
+        "module-container-header",
         className
       )}
     >
       {onBack && (
-        <div className={pfx("back-action")}>
+        <div className={"back-action"}>
           <IconButton
             tooltipText={"Go Back"}
             variant={"text"}
@@ -165,18 +162,18 @@ const ModuleContainerHeader = (
         </div>
       )}
       {startAdornment && (
-        <div className={pfx("start-adornment")}>{startAdornment}</div>
+        <div className={"start-adornment"}>{startAdornment}</div>
       )}
-      <div className={pfx("title-container")}>
-        <div className={pfx("title")}>{title}</div>
-        <div className={pfx("subtitle")}>{subtitle}</div>
+      <div className={"title-container"}>
+        <div className={"title"}>{title}</div>
+        <div className={"subtitle"}>{subtitle}</div>
       </div>
-      <div className={pfx("children-container")}>{nonActionsChildren}</div>
+      <div className={"children-container"}>{nonActionsChildren}</div>
       {actionsChildren}
-      <div className={pfx("actions-container")}>
+      <div className={"actions-container"}>
         {alwaysVisibleActions?.map((action, actionIndex) => {
           if (action === "divider") {
-            return <div key={actionIndex} className={pfx("divider")} />;
+            return <div key={actionIndex} className={"divider"} />;
           }
 
           if (isActionType(action)) {
@@ -217,7 +214,6 @@ const ModuleContainerHeader = (
             </UseLayerTrigger>
             <UseLayerOverlay>
               <CollapsedActions
-                classNamePrefix={classNamePrefix}
                 actions={collapsibleActions}
                 onActionClick={action => {
                   onActionClick?.(action);
@@ -230,8 +226,8 @@ const ModuleContainerHeader = (
       </div>
       {onClose && (
         <>
-          <div className={pfx("divider")} />
-          <div className={pfx("close-action")}>
+          <div className={"divider"} />
+          <div className={"close-action"}>
             <IconButton
               tooltipText={"Close"}
               variant={"text"}

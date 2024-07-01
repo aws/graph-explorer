@@ -3,7 +3,7 @@ import { useButton } from "@react-aria/button";
 import type { AriaButtonProps } from "@react-types/button";
 import type { ElementType, ForwardedRef, ReactNode, RefObject } from "react";
 import { forwardRef } from "react";
-import { useWithTheme, withClassNamePrefix } from "../../core";
+import { useWithTheme } from "../../core";
 import type { TooltipProps } from "../Tooltip";
 import Tooltip from "../Tooltip/Tooltip";
 import {
@@ -13,7 +13,6 @@ import {
 
 export interface IconButtonProps
   extends Omit<AriaButtonProps<ElementType<any>>, "elementType"> {
-  classNamePrefix?: string;
   className?: string;
   color?: "primary" | "error" | "info" | "success" | "warning";
   variant?: "filled" | "default" | "text";
@@ -32,7 +31,6 @@ export interface IconButtonProps
 
 export const IconButton = (
   {
-    classNamePrefix = "ft",
     tooltipText,
     tooltipPlacement,
     onClick,
@@ -51,7 +49,6 @@ export const IconButton = (
     ref as RefObject<HTMLButtonElement>
   );
   const styles = useWithTheme();
-  const pfx = withClassNamePrefix(classNamePrefix);
 
   const {
     className,
@@ -81,10 +78,10 @@ export const IconButton = (
       {Boolean(badge) && (
         <div
           className={cx(
-            styles(defaultBadgeStyles(classNamePrefix)),
-            pfx("badge"),
-            pfx(`variant-${badgeVariant}`),
-            pfx(`placement-${badgePlacement}`)
+            styles(defaultBadgeStyles),
+            "badge",
+            `variant-${badgeVariant}`,
+            `placement-${badgePlacement}`
           )}
         >
           {typeof badge !== "boolean" && badgeVariant === "determined" && badge}

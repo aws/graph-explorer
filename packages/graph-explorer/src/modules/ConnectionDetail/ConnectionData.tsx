@@ -12,22 +12,17 @@ import {
   VertexIcon,
 } from "../../components";
 import HumanReadableNumberFormatter from "../../components/HumanReadableNumberFormatter";
-import { fade, useWithTheme, withClassNamePrefix } from "../../core";
+import { fade, useWithTheme } from "../../core";
 import { useConfiguration } from "../../core/ConfigurationProvider";
 import useEntitiesCounts from "../../hooks/useEntitiesCounts";
 import useTextTransform from "../../hooks/useTextTransform";
 import useTranslations from "../../hooks/useTranslations";
 import defaultStyles from "./ConnectionDetail.styles";
 
-export type VertexDetailProps = {
-  classNamePrefix?: string;
-};
-
-const ConnectionData = ({ classNamePrefix = "ft" }: VertexDetailProps) => {
+const ConnectionData = () => {
   const config = useConfiguration();
   const navigate = useNavigate();
   const styleWithTheme = useWithTheme();
-  const pfx = withClassNamePrefix(classNamePrefix);
   const { totalNodes, totalEdges } = useEntitiesCounts();
   const textTransform = useTextTransform();
   const t = useTranslations();
@@ -42,10 +37,8 @@ const ConnectionData = ({ classNamePrefix = "ft" }: VertexDetailProps) => {
         id: vt,
         title: displayLabel,
         titleComponent: (
-          <div className={pfx("advanced-list-item-title")}>
-            <div className={pfx("node-title")}>
-              {textTransform(displayLabel)}
-            </div>
+          <div className={"advanced-list-item-title"}>
+            <div className={"node-title"}>{textTransform(displayLabel)}</div>
           </div>
         ),
         icon: (
@@ -61,7 +54,7 @@ const ConnectionData = ({ classNamePrefix = "ft" }: VertexDetailProps) => {
           </div>
         ),
         className: css`
-          .ft-start-adornment {
+          .start-adornment {
             color: ${vtConfig?.color}!important;
             background: ${fade(vtConfig?.color, 0.3)}!important;
           }
@@ -79,7 +72,7 @@ const ConnectionData = ({ classNamePrefix = "ft" }: VertexDetailProps) => {
     });
 
     return items;
-  }, [config, pfx, textTransform, navigate]);
+  }, [config, textTransform, navigate]);
 
   const [search, setSearch] = useState("");
 
@@ -88,12 +81,12 @@ const ConnectionData = ({ classNamePrefix = "ft" }: VertexDetailProps) => {
   }, [config?.id]);
 
   return (
-    <div className={styleWithTheme(defaultStyles(classNamePrefix))}>
-      <div className={pfx("info-bar")}>
-        <div className={pfx("item")}>
-          <div className={pfx("tag")}>{t("connection-detail.nodes")}</div>
-          <div className={pfx("value")}>
-            <Chip className={pfx("value-chip")}>
+    <div className={styleWithTheme(defaultStyles)}>
+      <div className={"info-bar"}>
+        <div className={"item"}>
+          <div className={"tag"}>{t("connection-detail.nodes")}</div>
+          <div className={"value"}>
+            <Chip className={"value-chip"}>
               <GraphIcon />
               {totalNodes != null && (
                 <HumanReadableNumberFormatter value={totalNodes} />
@@ -102,10 +95,10 @@ const ConnectionData = ({ classNamePrefix = "ft" }: VertexDetailProps) => {
             </Chip>
           </div>
         </div>
-        <div className={pfx("item")}>
-          <div className={pfx("tag")}>{t("connection-detail.edges")}</div>
-          <div className={pfx("value")}>
-            <Chip className={pfx("value-chip")}>
+        <div className={"item"}>
+          <div className={"tag"}>{t("connection-detail.edges")}</div>
+          <div className={"value"}>
+            <Chip className={"value-chip"}>
               <EdgeIcon />
               {totalEdges != null && (
                 <HumanReadableNumberFormatter value={totalEdges} />
@@ -119,7 +112,7 @@ const ConnectionData = ({ classNamePrefix = "ft" }: VertexDetailProps) => {
         searchPlaceholder={t("connection-detail.search-placeholder")}
         search={search}
         onSearch={setSearch}
-        className={pfx("advanced-list")}
+        className={"advanced-list"}
         items={verticesByTypeItems}
         emptyState={{
           noSearchResultsTitle: t("connection-detail.no-search-title"),

@@ -2,17 +2,16 @@ import { css } from "@emotion/css";
 import { ReactNode } from "react";
 import { ColumnInstance } from "react-table";
 
-import { withClassNamePrefix } from "../../../core";
 import type { ActiveThemeType, ProcessedTheme } from "../../../core";
 import { cssVar } from "../../../core/ThemeProvider/utils/lib";
 
 import { FilterIcon } from "../../icons";
 import Input from "../../Input";
 
-const defaultStyles = (pfx: string, isDarkTheme?: boolean) => css`
+const defaultStyles = (isDarkTheme?: boolean) => css`
   width: 100%;
-  .${pfx}-input-root {
-    .${pfx}-input {
+  .input-root {
+    .input {
       margin: 0;
       width: 100%;
       box-sizing: border-box;
@@ -20,7 +19,7 @@ const defaultStyles = (pfx: string, isDarkTheme?: boolean) => css`
     }
   }
 
-  .${pfx}-input-container .${pfx}-start-adornment {
+  .input-container .start-adornment {
     display: flex;
     align-items: center;
     color: ${cssVar("--forms-input-color", "--palette-text-disabled", "black")};
@@ -38,13 +37,11 @@ export const TextFilter =
   ({ placeholder, startAdornment }: TextFilterProps) => {
     // eslint-disable-next-line react/display-name
     return ({ column }: { column: ColumnInstance<T> }) => {
-      const pfx = withClassNamePrefix("text-filter");
       return (
-        <div className={defaultStyles("text-filter", activeTheme?.isDarkTheme)}>
+        <div className={defaultStyles(activeTheme?.isDarkTheme)}>
           <Input
             aria-label={`filter by ${column.id}`}
-            classNamePrefix={"text-filter"}
-            className={pfx("input-root")}
+            className={"input-root"}
             type={"text"}
             size="sm"
             noMargin
@@ -59,7 +56,7 @@ export const TextFilter =
                 : column.setFilter(undefined);
             }}
             startAdornment={
-              <div className={pfx("start-adornment")}>
+              <div className={"start-adornment"}>
                 {startAdornment || <FilterIcon />}
               </div>
             }

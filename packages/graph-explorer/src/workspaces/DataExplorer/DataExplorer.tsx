@@ -30,11 +30,7 @@ import ExternalPaginationControl from "../../components/Tabular/controls/Externa
 import Tabular from "../../components/Tabular/Tabular";
 import Workspace from "../../components/Workspace/Workspace";
 import type { KeywordSearchResponse } from "../../connector/useGEFetchTypes";
-import {
-  useConfiguration,
-  useWithTheme,
-  withClassNamePrefix,
-} from "../../core";
+import { useConfiguration, useWithTheme } from "../../core";
 import { explorerSelector } from "../../core/connector";
 import {
   userStylingAtom,
@@ -51,7 +47,6 @@ import defaultStyles from "./DataExplorer.styles";
 
 export type ConnectionsProps = {
   vertexType: string;
-  classNamePrefix?: string;
 };
 
 const DEFAULT_COLUMN = {
@@ -69,12 +64,8 @@ export default function DataExplorer() {
   return <DataExplorerContent vertexType={vertexType} />;
 }
 
-function DataExplorerContent({
-  vertexType,
-  classNamePrefix = "ft",
-}: ConnectionsProps) {
+function DataExplorerContent({ vertexType }: ConnectionsProps) {
   const styleWithTheme = useWithTheme();
-  const pfx = withClassNamePrefix(classNamePrefix);
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -262,12 +253,7 @@ function DataExplorerContent({
   );
 
   return (
-    <Workspace
-      className={cx(
-        styleWithTheme(defaultStyles(classNamePrefix)),
-        pfx("data-explorer")
-      )}
-    >
+    <Workspace className={cx(styleWithTheme(defaultStyles), "data-explorer")}>
       <TopBarWithLogo>
         <Workspace.TopBar.Title
           title="Data Explorer"
@@ -276,7 +262,7 @@ function DataExplorerContent({
         <Workspace.TopBar.AdditionalControls>
           <Link to={"/graph-explorer"}>
             <Button
-              className={pfx("button")}
+              className={"button"}
               icon={<ExplorerIcon />}
               variant={"filled"}
             >
@@ -295,9 +281,9 @@ function DataExplorerContent({
           </Button>
         </Workspace.TopBar.Title>
         <Workspace.TopBar.AdditionalControls>
-          <div className={pfx("header-children")}>
+          <div className={"header-children"}>
             <Select
-              className={pfx("header-select")}
+              className={"header-select"}
               value={vertexConfig?.displayNameAttribute || ""}
               onChange={onDisplayNameChange("name")}
               options={selectOptions}
@@ -307,7 +293,7 @@ function DataExplorerContent({
               labelPlacement={"inner"}
             />
             <Select
-              className={pfx("header-select")}
+              className={"header-select"}
               value={vertexConfig?.longDisplayNameAttribute || ""}
               onChange={onDisplayNameChange("longName")}
               options={selectOptions}
@@ -323,11 +309,11 @@ function DataExplorerContent({
         <ModuleContainer>
           <ModuleContainerHeader
             title={
-              <div className={pfx("container-header")}>
+              <div className={"container-header"}>
                 <div>
                   {vertexConfig?.displayLabel || textTransform(vertexType)}
                 </div>
-                {isFetching && <LoadingSpinner className={pfx("spinner")} />}
+                {isFetching && <LoadingSpinner className={"spinner"} />}
               </div>
             }
           />

@@ -1,9 +1,9 @@
 import { css } from "@emotion/css";
 
-const defaultStyles = (pfx: string) => css`
+const defaultStyles = () => css`
   z-index: 1000;
 
-  .${pfx}-card {
+  .card {
     border-radius: 2px;
     margin: 0 4px;
     padding: 8px 4px 0 8px;
@@ -11,11 +11,11 @@ const defaultStyles = (pfx: string) => css`
     overflow-y: auto;
   }
 
-  .${pfx}-columns-list {
+  .columns-list {
     user-select: none;
   }
 
-  .${pfx}-column-item {
+  .column-item {
     display: flex;
     align-items: center;
     padding: 8px;
@@ -25,7 +25,7 @@ const defaultStyles = (pfx: string) => css`
     }
   }
 
-  .${pfx}-action-item {
+  .action-item {
     position: sticky;
     bottom: 0;
     display: flex;
@@ -35,16 +35,16 @@ const defaultStyles = (pfx: string) => css`
     border-top: solid 1px var(--palette-border);
   }
 
-  .${pfx}-column-item-switch {
+  .column-item-switch {
     flex-grow: 1;
   }
 
-  .${pfx}-column-item-label {
+  .column-item-label {
     font-size: 0.875rem;
     margin-right: var(--spacing-2x, 8px);
   }
 
-  .${pfx}-column-item-drag-handler {
+  .column-item-drag-handler {
     display: flex;
     flex-direction: column;
     justify-content: center;

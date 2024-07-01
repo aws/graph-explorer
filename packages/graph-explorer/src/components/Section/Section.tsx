@@ -6,13 +6,12 @@ import type {
   ReactNode,
 } from "react";
 import { Children, useMemo } from "react";
-import { useWithTheme, withClassNamePrefix } from "../../core";
+import { useWithTheme } from "../../core";
 import { ChevronDownIcon } from "../icons";
 import defaultStyles from "./Section.styles";
 
 export interface SectionProps
   extends Pick<HTMLAttributes<HTMLDivElement>, "style"> {
-  classNamePrefix?: string;
   className?: string;
   unmountOnCollapse?: boolean;
   /**
@@ -58,7 +57,6 @@ export interface SectionProps
 }
 
 export const Section = ({
-  classNamePrefix = "ft",
   className,
   children,
   title,
@@ -75,7 +73,6 @@ export const Section = ({
   ...styleProps
 }: PropsWithChildren<SectionProps>) => {
   const styleWithTheme = useWithTheme();
-  const pfx = withClassNamePrefix(classNamePrefix);
 
   const headerContainer = useMemo(() => {
     if (!title && !collapsible) {
@@ -94,23 +91,23 @@ export const Section = ({
     );
     return (
       <div
-        className={pfx("header-container")}
+        className={"header-container"}
         onClick={ev =>
           collapseAction === "all" && onCollapseChange?.(!isCollapse, ev)
         }
       >
         {collapsible && collapseIndicatorPosition === "start" && (
           <div
-            className={pfx("collapse-action")}
+            className={"collapse-action"}
             onClick={ev => onCollapseChange?.(!isCollapse, ev)}
           >
             {collapseIndicator}
           </div>
         )}
-        <div className={pfx("title")}>{title}</div>
+        <div className={"title"}>{title}</div>
         {collapsible && collapseIndicatorPosition === "end" && (
           <div
-            className={pfx("collapse-action")}
+            className={"collapse-action"}
             onClick={ev => onCollapseChange?.(!isCollapse, ev)}
           >
             {collapseIndicator}
@@ -127,7 +124,6 @@ export const Section = ({
     isCollapse,
     reverse,
     title,
-    pfx,
   ]);
 
   // This allows to clean sections with conditional children or without them
@@ -146,8 +142,6 @@ export const Section = ({
       className={cx(
         styleWithTheme(
           defaultStyles({
-            pfx: classNamePrefix,
-            collapseAction,
             ...styleProps,
           })
         ),
@@ -157,11 +151,11 @@ export const Section = ({
     >
       {headerContainer}
       {Children.count(children) > 0 && (
-        <div className={pfx("content")}>
+        <div className={"content"}>
           {collapsible ? (
             <div
-              className={cx(pfx("collapsible-container"), {
-                [pfx("collapsed")]: isCollapse,
+              className={cx("collapsible-container", {
+                ["collapsed"]: isCollapse,
               })}
             >
               {unmountOnCollapse && isCollapse ? null : children}

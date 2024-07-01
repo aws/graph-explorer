@@ -9,7 +9,7 @@ import {
   useState,
 } from "react";
 import { mergeRefs, useLayer } from "react-laag";
-import { useWithTheme, withClassNamePrefix } from "../../../core";
+import { useWithTheme } from "../../../core";
 import IconButton from "../../IconButton";
 import { ChevronDownIcon } from "../../icons";
 import CloseIcon from "../../icons/CloseIcon";
@@ -34,7 +34,6 @@ const SelectBox = (
     isDisabled,
     isReadOnly,
     labelPlacement = "top",
-    classNamePrefix = "ft",
     size = "md",
     validationState,
     hideError,
@@ -64,8 +63,6 @@ const SelectBox = (
   const close = useCallback(() => {
     setMenuOpen(false);
   }, [setMenuOpen]);
-
-  const pfx = withClassNamePrefix(classNamePrefix);
 
   const selectedOptions = useMemo(() => {
     if (!props.selectedKeys) {
@@ -139,7 +136,6 @@ const SelectBox = (
         styleWithTheme(
           styles.selectContainerStyles({
             labelPlacement,
-            classNamePrefix,
             size,
             validationState,
             hideError,
@@ -148,13 +144,13 @@ const SelectBox = (
             clearable,
           })
         ),
-        pfx(`select-label-${labelPlacement}`),
-        pfx(`select-variant-${variant}`),
-        pfx(`select-size-${size}`),
-        pfx(`select-${validationState || "valid"}`),
+        `select-label-${labelPlacement}`,
+        `select-variant-${variant}`,
+        `select-size-${size}`,
+        `select-${validationState || "valid"}`,
         {
-          [pfx("select-disabled")]: isDisabled,
-          [pfx("select-readonly")]: isReadOnly,
+          ["select-disabled"]: isDisabled,
+          ["select-readonly"]: isReadOnly,
         },
         className
       )}
@@ -163,27 +159,27 @@ const SelectBox = (
         items.length > 0 && setMenuOpen(!menuOpen);
       }}
     >
-      {label && <label className={pfx("input-label")}>{label}</label>}
-      <div className={pfx("input-container")} aria-label={props["aria-label"]}>
+      {label && <label className={"input-label"}>{label}</label>}
+      <div className={"input-container"} aria-label={props["aria-label"]}>
         <button
           ref={mergeRefs(triggerProps.ref, ref)}
           type="button"
-          className={cx(pfx("select"), {
-            [pfx("no-options")]: items.length < 1,
-            [pfx("option-selected")]: selectedOptions !== "",
+          className={cx("select", {
+            ["no-options"]: items.length < 1,
+            ["option-selected"]: selectedOptions !== "",
           })}
         >
           {selectedOptions !== "" ? (
-            <span className={pfx("selection")}>{selectedOptions}</span>
+            <span className={"selection"}>{selectedOptions}</span>
           ) : (
-            <span className={pfx("placeholder")}>
+            <span className={"placeholder"}>
               {props.placeholder || "Select an option..."}
             </span>
           )}
-          <span className={pfx("dropdown-indicator")}>
+          <span className={"dropdown-indicator"}>
             {clearable && selectedOptions !== "" && (
               <IconButton
-                className={pfx("clear-button")}
+                className={"clear-button"}
                 as="span"
                 variant="text"
                 icon={<CloseIcon />}
@@ -199,7 +195,7 @@ const SelectBox = (
           </span>
         </button>
         {validationState === "invalid" && !!errorMessage && !hideError && (
-          <div className={pfx("input-error")}>{errorMessage}</div>
+          <div className={"input-error"}>{errorMessage}</div>
         )}
       </div>
       {items.length > 0 &&

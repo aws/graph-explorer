@@ -1,6 +1,6 @@
 import { cx } from "@emotion/css";
 import { ReactNode } from "react";
-import { useWithTheme, withClassNamePrefix } from "../../core";
+import { useWithTheme } from "../../core";
 import Checkbox from "../Checkbox/Checkbox";
 import defaultStyles from "./CheckboxList.styles";
 
@@ -12,10 +12,6 @@ export type CheckboxListItemProps = {
 };
 
 export type CheckboxListProps = {
-  /**
-   * Prefix for style classes.
-   */
-  classNamePrefix?: string;
   /**
    * Override or extend the styles applied to the component.
    */
@@ -48,7 +44,6 @@ export type CheckboxListProps = {
 };
 
 export const CheckboxList = ({
-  classNamePrefix = "ft",
   className,
   title,
   checkboxes,
@@ -57,7 +52,6 @@ export const CheckboxList = ({
   onChange,
   onChangeAll,
 }: CheckboxListProps) => {
-  const pfx = withClassNamePrefix(classNamePrefix);
   const stylesWithTheme = useWithTheme();
 
   const numOfSelections = selectedIds.size;
@@ -69,35 +63,31 @@ export const CheckboxList = ({
 
   return (
     <div
-      className={cx(
-        stylesWithTheme(defaultStyles(classNamePrefix)),
-        pfx("checkbox-list"),
-        className
-      )}
+      className={cx(stylesWithTheme(defaultStyles), "checkbox-list", className)}
     >
-      {title && <div className={pfx("title")}>{title}</div>}
-      <div className={pfx("content")}>
+      {title && <div className={"title"}>{title}</div>}
+      <div className={"content"}>
         {checkboxes.map(checkbox => {
           return (
-            <div key={checkbox.id} className={pfx("checkbox-container")}>
+            <div key={checkbox.id} className={"checkbox-container"}>
               <Checkbox
                 aria-label={`checkbox for ${checkbox.id}`}
                 isSelected={selectedIds.has(checkbox.id)}
                 isDisabled={isDisabled || checkbox.isDisabled}
                 onChange={isSelected => onChange(checkbox.id, isSelected)}
-                className={pfx("checkbox")}
+                className={"checkbox"}
               >
-                <div className={pfx("checkbox-content")}>
+                <div className={"checkbox-content"}>
                   <div>{checkbox.text}</div>
-                  <div className={pfx("icon")}>{checkbox.endAdornment}</div>
+                  <div className={"icon"}>{checkbox.endAdornment}</div>
                 </div>
               </Checkbox>
             </div>
           );
         })}
         {onChangeAll && (
-          <div className={pfx("selector")}>
-            <div className={pfx("checkbox-container")}>
+          <div className={"selector"}>
+            <div className={"checkbox-container"}>
               <Checkbox
                 aria-label={"checkbox for all"}
                 isIndeterminate={
@@ -109,7 +99,7 @@ export const CheckboxList = ({
                   onChangeAll(isSelected);
                 }}
               >
-                <div className={pfx("checkbox-content")}>
+                <div className={"checkbox-content"}>
                   <div>
                     {numOfSelections} selected of {totalCheckboxes}
                   </div>

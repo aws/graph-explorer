@@ -1,25 +1,21 @@
 import { cx } from "@emotion/css";
 
-import { withClassNamePrefix } from "../../core";
 import type { HeaderGroup, TableInstance } from "react-table";
 
 import { ArrowDown } from "../icons";
-import type { TabularProps } from "./Tabular";
 
 const TabularHeader = <T extends object>({
-  classNamePrefix = "ft",
   headerGroup,
   tableInstance,
-}: Pick<TabularProps<T>, "classNamePrefix"> & {
+}: {
   tableInstance: TableInstance<T>;
   headerGroup: HeaderGroup<T>;
 }) => {
-  const pfx = withClassNamePrefix(classNamePrefix);
   const { state } = tableInstance;
   const { key, ...otherProps } = headerGroup.getHeaderGroupProps();
 
   return (
-    <div key={key} {...otherProps} className={pfx("row")}>
+    <div key={key} {...otherProps} className={"row"}>
       {headerGroup.headers.map(column => {
         const { key, style, ...restHeaderProps } = column.getHeaderProps(
           column.getSortByToggleProps({
@@ -32,8 +28,8 @@ const TabularHeader = <T extends object>({
           <div
             key={key}
             style={style}
-            className={cx(pfx("header"), {
-              [pfx("header-resizing")]:
+            className={cx("header", {
+              ["header-resizing"]:
                 column.isResizing ||
                 state.columnResizing?.isResizingColumn === column.id,
             })}
@@ -41,29 +37,26 @@ const TabularHeader = <T extends object>({
             <div
               {...restHeaderProps}
               className={cx(
-                pfx("header-label"),
-                pfx(`header-label-align-${column.align || "left"}`),
+                "header-label",
+                `header-label-align-${column.align || "left"}`,
                 {
-                  [pfx("header-label-sortable")]: column.canSort,
-                  [pfx(
-                    `header-label-sort-${column.isSortedDesc ? "desc" : "asc"}`
-                  )]: column.isSorted,
+                  ["header-label-sortable"]: column.canSort,
+                  [`header-label-sort-${column.isSortedDesc ? "desc" : "asc"}`]:
+                    column.isSorted,
                 }
               )}
             >
               <div
                 className={cx({
-                  [pfx("header-overflow-ellipsis")]:
-                    column.overflow === "ellipsis",
-                  [pfx("header-overflow-truncate")]:
-                    column.overflow === "truncate",
+                  ["header-overflow-ellipsis"]: column.overflow === "ellipsis",
+                  ["header-overflow-truncate"]: column.overflow === "truncate",
                 })}
               >
                 {column.render("Header")}
               </div>
               <div>
                 <div
-                  className={pfx("header-label-sorter")}
+                  className={"header-label-sorter"}
                   style={{
                     opacity: column.isSorted ? 1 : 0,
                     transform: column.isSortedDesc ? "unset" : "rotate(180deg)",
@@ -74,14 +67,12 @@ const TabularHeader = <T extends object>({
               </div>
             </div>
             {column.canFilter && (
-              <div className={pfx("header-filter")}>
-                {column.render("Filter")}
-              </div>
+              <div className={"header-filter"}>{column.render("Filter")}</div>
             )}
             {column.canResize && (
               <div
                 {...(column.getResizerProps?.() || {})}
-                className={pfx("col-resizer")}
+                className={"col-resizer"}
               />
             )}
           </div>

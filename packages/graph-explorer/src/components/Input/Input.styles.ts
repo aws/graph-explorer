@@ -188,7 +188,6 @@ const getInnerLabelStyles = (
 export const inputContainerStyles =
   (
     labelPlacement: "top" | "left" | "inner",
-    classNamePrefix: string,
     size: "sm" | "md",
     isDisabled?: boolean,
     validationState?: "invalid" | "valid",
@@ -216,15 +215,15 @@ export const inputContainerStyles =
       ${isReadOnly ? "pointer-events: none" : ""};
       position: relative;
 
-      &.${classNamePrefix}-input-label-inner {
-        > .${classNamePrefix}-input-label {
+      &.input-label-inner {
+        > .input-label {
           font-size: 10px;
           pointer-events: none;
           ${getInnerLabelStyles(size, theme)}
         }
       }
 
-      > .${classNamePrefix}-input-label {
+      > .input-label {
         width: ${labelPlacement === "left" ? "150px" : "100%"};
         line-height: ${labelPlacement === "left" ? "0.75em" : "0.875em"};
         color: ${themeWithDefault?.label?.color};
@@ -232,13 +231,13 @@ export const inputContainerStyles =
         margin: ${labelPlacement === "left" ? "0 8px 0 0" : "0 0 8px 0"};
       }
 
-      .${classNamePrefix}-input-container {
+      .input-container {
         flex: 1;
         display: flex;
         position: relative;
       }
 
-      .${classNamePrefix}-start-adornment {
+      .start-adornment {
         position: absolute;
         left: ${getPaddingBySize(size, theme)};
         top: ${isTextArea
@@ -250,7 +249,7 @@ export const inputContainerStyles =
         color: ${themeWithDefault?.startAdornment?.color};
       }
 
-      .${classNamePrefix}-end-adornment {
+      .end-adornment {
         position: absolute;
         right: ${getPaddingBySize(size, theme)};
         top: ${isTextArea
@@ -262,7 +261,7 @@ export const inputContainerStyles =
         color: ${themeWithDefault?.endAdornment?.color};
       }
 
-      .${classNamePrefix}-clearButton {
+      .clearButton {
         position: absolute;
         right: ${getPaddingBySize(size, theme)};
         top: ${isTextArea
@@ -274,7 +273,7 @@ export const inputContainerStyles =
         color: ${themeWithDefault?.endAdornment?.color};
       }
 
-      .${classNamePrefix}-input {
+      .input {
         font-family: inherit;
         ${isTextArea && "height: 100px; resize: none;"}
         background-color: ${!isDisabled
@@ -300,7 +299,7 @@ export const inputContainerStyles =
           color: ${themeWithDefault?.placeholderColor};
         }
 
-        &:not(.${classNamePrefix}-input-disabled):hover {
+        &:not(.input-disabled):hover {
           background-color: ${themeWithDefault?.hover?.background};
           color: ${themeWithDefault?.hover?.color};
         }
@@ -312,7 +311,7 @@ export const inputContainerStyles =
         }
       }
 
-      .${classNamePrefix}-input-error {
+      .input-error {
         position: absolute;
         top: calc(100% - 6px);
         left: 0;

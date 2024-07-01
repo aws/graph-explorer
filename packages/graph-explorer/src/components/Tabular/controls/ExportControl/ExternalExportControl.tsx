@@ -4,7 +4,6 @@ import { useCallback, useState } from "react";
 import { useLayer } from "react-laag";
 import { Row } from "react-table";
 
-import { withClassNamePrefix } from "../../../../core";
 import Button from "../../../Button";
 import Card from "../../../Card";
 import Checkbox from "../../../Checkbox";
@@ -25,14 +24,12 @@ const rootStyles = () => css`
 `;
 
 type ExportControlProps<T extends Record<string, unknown>> = {
-  classNamePrefix?: string;
   className?: string;
   omittedColumnsIds?: string[];
   instance: TabularInstance<T>;
 };
 
 export function ExternalExportControl<T extends Record<string, unknown>>({
-  classNamePrefix = "ft",
   className,
   omittedColumnsIds,
   instance,
@@ -63,13 +60,9 @@ export function ExternalExportControl<T extends Record<string, unknown>>({
         {...triggerProps}
       />
       {renderLayer(
-        <div
-          {...layerProps}
-          className={cx(defaultStyles(classNamePrefix), className)}
-        >
+        <div {...layerProps} className={cx(defaultStyles(), className)}>
           {isContentVisible && (
             <ExportOptionsModal
-              classNamePrefix={classNamePrefix}
               instance={instance}
               omittedColumnsIds={omittedColumnsIds}
             />
@@ -81,11 +74,9 @@ export function ExternalExportControl<T extends Record<string, unknown>>({
 }
 
 function ExportOptionsModal<T extends Record<string, unknown>>({
-  classNamePrefix,
   instance,
   omittedColumnsIds,
 }: ExportControlProps<T>) {
-  const pfx = withClassNamePrefix(classNamePrefix);
   const { rows, data, page, columns, columnOrder, visibleColumns } = instance;
   const [format, setFormat] = useState("csv");
   const [name, setName] = useState<string>("");
@@ -151,9 +142,9 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
   ]);
 
   return (
-    <Card className={pfx("card")}>
-      <div className={pfx("title")}>Export columns</div>
-      <div className={pfx("columns-container")}>
+    <Card className={"card"}>
+      <div className={"title"}>Export columns</div>
+      <div className={"columns-container"}>
         {columnOrder.map(columnId =>
           omittedColumnsIds?.includes(columnId) ||
           !visibleColumns[columnId] ? null : (
@@ -174,7 +165,7 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
           )
         )}
       </div>
-      <div className={pfx("title")}>Options</div>
+      <div className={"title"}>Options</div>
       <Checkbox
         aria-label={`Keep filtering and sorting`}
         isSelected={options["include-filters"]}
@@ -199,7 +190,7 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
       >
         Only current page
       </Checkbox>
-      <div className={pfx("title")}>Format</div>
+      <div className={"title"}>Format</div>
       <Select
         value={format}
         onChange={f => setFormat(f as string)}
@@ -211,14 +202,14 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
           { label: "JSON", value: "json" },
         ]}
       />
-      <div className={pfx("title")}>Save as</div>
+      <div className={"title"}>Save as</div>
       <Input
         aria-label={"Export name"}
         value={name}
         placeholder={`export-${new Date().getTime()}.${format}`}
         onChange={setName}
       />
-      <div className={pfx("actions")}>
+      <div className={"actions"}>
         <Button variant={"filled"} onPress={onExport}>
           Export
         </Button>

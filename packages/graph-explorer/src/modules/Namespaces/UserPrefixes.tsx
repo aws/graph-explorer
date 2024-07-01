@@ -12,27 +12,18 @@ import {
   PanelEmptyState,
   SaveIcon,
 } from "../../components";
-import {
-  useConfiguration,
-  useWithTheme,
-  withClassNamePrefix,
-} from "../../core";
+import { useConfiguration, useWithTheme } from "../../core";
 import { schemaAtom } from "../../core/StateProvider/schema";
 import defaultStyles from "./NsType.styles";
 import modalDefaultStyles from "./NsTypeModal.styles";
-
-export type UserPrefixesProps = {
-  classNamePrefix?: string;
-};
 
 type PrefixForm = {
   prefix: string;
   uri: string;
 };
 
-const UserPrefixes = ({ classNamePrefix = "ft" }: UserPrefixesProps) => {
+const UserPrefixes = () => {
   const styleWithTheme = useWithTheme();
-  const pfx = withClassNamePrefix(classNamePrefix);
   const config = useConfiguration();
   const [search, setSearch] = useState("");
   const [opened, setOpened] = useState(false);
@@ -142,7 +133,7 @@ const UserPrefixes = ({ classNamePrefix = "ft" }: UserPrefixesProps) => {
   }, [form.prefix, form.uri, onSave]);
 
   return (
-    <div className={styleWithTheme(defaultStyles(classNamePrefix))}>
+    <div className={styleWithTheme(defaultStyles)}>
       {items.length === 0 && (
         <PanelEmptyState
           title={"No Namespaces"}
@@ -154,7 +145,7 @@ const UserPrefixes = ({ classNamePrefix = "ft" }: UserPrefixesProps) => {
       )}
       {items.length > 0 && (
         <AdvancedList
-          className={pfx("advanced-list")}
+          className={"advanced-list"}
           searchPlaceholder={"Search for Namespaces or URIs"}
           search={search}
           onSearch={setSearch}
@@ -165,7 +156,7 @@ const UserPrefixes = ({ classNamePrefix = "ft" }: UserPrefixesProps) => {
         />
       )}
       {items.length > 0 && (
-        <div className={pfx("actions")}>
+        <div className={"actions"}>
           <Button
             icon={<AddIcon />}
             variant={"filled"}
@@ -180,7 +171,7 @@ const UserPrefixes = ({ classNamePrefix = "ft" }: UserPrefixesProps) => {
         onClose={() => setOpened(false)}
         centered={true}
         title={"Create a new Namespace"}
-        className={styleWithTheme(modalDefaultStyles(classNamePrefix))}
+        className={styleWithTheme(modalDefaultStyles)}
       >
         <div>
           <Input
@@ -192,7 +183,7 @@ const UserPrefixes = ({ classNamePrefix = "ft" }: UserPrefixesProps) => {
             errorMessage={"Namespace is required"}
           />
           <Input
-            className={pfx("input-uri")}
+            className={"input-uri"}
             label={"URI"}
             value={form.uri}
             onChange={onFormChange("uri")}
@@ -201,7 +192,7 @@ const UserPrefixes = ({ classNamePrefix = "ft" }: UserPrefixesProps) => {
             errorMessage={"URI is required"}
           />
         </div>
-        <div className={pfx("actions")}>
+        <div className={"actions"}>
           <Button icon={<SaveIcon />} variant={"filled"} onPress={onSubmit}>
             Save
           </Button>

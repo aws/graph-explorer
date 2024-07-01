@@ -2,14 +2,13 @@ import { css } from "@emotion/css";
 import type { ThemeStyleFn } from "../../core";
 
 type DefaultStylesProps = {
-  pfx: string;
   disablePadding?: boolean;
   disableBorder?: boolean;
   collapseAction?: "all" | "indicator";
 };
 
 const defaultStyles: (props: DefaultStylesProps) => ThemeStyleFn =
-  ({ pfx, disablePadding, disableBorder, collapseAction }) =>
+  ({ disablePadding, disableBorder, collapseAction }) =>
   ({ theme, isDarkTheme }) => css`
     display: flex;
     flex-direction: column;
@@ -23,7 +22,7 @@ const defaultStyles: (props: DefaultStylesProps) => ThemeStyleFn =
       border-bottom: none;
     }
 
-    .${pfx}-header-container {
+    .header-container {
       ${collapseAction === "all" ? "cursor: pointer;" : ""}
       display: flex;
       background: ${isDarkTheme
@@ -35,11 +34,11 @@ const defaultStyles: (props: DefaultStylesProps) => ThemeStyleFn =
       box-sizing: border-box;
     }
 
-    .${pfx}-title {
+    .title {
       flex-grow: 1;
     }
 
-    .${pfx}-collapse-action {
+    .collapse-action {
       display: flex;
       justify-content: center;
       align-items: center;
@@ -47,13 +46,13 @@ const defaultStyles: (props: DefaultStylesProps) => ThemeStyleFn =
       cursor: pointer;
     }
 
-    .${pfx}-collapsible-container {
+    .collapsible-container {
       flex-grow: 1;
       height: auto;
       padding: ${disablePadding ? 0 : `0 ${theme.spacing["2x"]}`};
     }
 
-    .${pfx}-collapsed {
+    .collapsed {
       height: 0;
       overflow: hidden;
     }

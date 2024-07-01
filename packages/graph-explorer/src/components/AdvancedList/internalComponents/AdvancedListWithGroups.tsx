@@ -4,7 +4,7 @@ import type { DragEvent, MouseEvent, ReactNode, Ref, RefObject } from "react";
 import { forwardRef, memo, useEffect, useMemo, useState } from "react";
 import type { VirtuosoHandle } from "react-virtuoso";
 import { GroupedVirtuoso } from "react-virtuoso";
-import { useWithTheme, withClassNamePrefix } from "../../../core";
+import { useWithTheme } from "../../../core";
 import useDebounceValue from "../../../hooks/useDebounceValue";
 import { ChevronDownIcon, DetailsIcon, FileIcon } from "../../icons";
 import Section from "../../Section";
@@ -20,7 +20,7 @@ import Footer from "./Footer";
 type ElementsListWithGroupsProps<T extends object> = {
   ref?: Ref<VirtuosoHandle>;
   items: AdvancedListItemType<T>[];
-  classNamePrefix?: string;
+
   selectedItemsIds?: string[];
   draggable?: boolean;
   search?: string;
@@ -69,7 +69,7 @@ type ElementsListWithGroupsProps<T extends object> = {
 const AdvancedListWithGroups = <T extends object>(
   {
     items,
-    classNamePrefix = "ft",
+
     search,
     category = "all",
     draggable,
@@ -102,7 +102,7 @@ const AdvancedListWithGroups = <T extends object>(
     new Set()
   );
   const styleWithTheme = useWithTheme();
-  const pfx = withClassNamePrefix(classNamePrefix);
+
   const allGroups = useMemo(() => {
     const groupedItems = items.filter(el => !!el.items);
     const unGroupedItems = items.filter(el => !el.items);
@@ -195,7 +195,6 @@ const AdvancedListWithGroups = <T extends object>(
   if (showEmptyState) {
     return (
       <EmptyState
-        classNamePrefix={classNamePrefix}
         emptyState={emptyState}
         empty={!allItems.length}
         noSearchResults={!filteredItems.length}
@@ -248,10 +247,9 @@ const AdvancedListWithGroups = <T extends object>(
                     }}
                   />
                 }
-                classNamePrefix={classNamePrefix}
                 showWhenEmpty
-                className={cx(pfx("advanced-list-category"), {
-                  [pfx("advanced-list-category-first")]: index === 0,
+                className={cx("advanced-list-category", {
+                  ["advanced-list-category-first"]: index === 0,
                 })}
               />
             );
@@ -277,7 +275,6 @@ const AdvancedListWithGroups = <T extends object>(
                 onMouseEnter={event => onItemMouseEnter?.(event, index)}
                 onMouseLeave={event => onItemMouseLeave?.(event, index)}
                 group={group}
-                classNamePrefix={classNamePrefix}
                 draggable={draggable}
                 isSelected={
                   !!innerItem.id && selectedItemsIds?.includes(innerItem.id)
@@ -298,10 +295,9 @@ const AdvancedListWithGroups = <T extends object>(
         <Footer
           count={filteredItems.length}
           total={allItems.length}
-          classNamePrefix={classNamePrefix}
           className={cx(
-            styleWithTheme(styles.footerStyles(classNamePrefix)),
-            pfx("advanced-list-footer")
+            styleWithTheme(styles.footerStyles),
+            "advanced-list-footer"
           )}
         />
       )}

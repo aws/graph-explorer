@@ -11,7 +11,6 @@ import {
   ConnectionConfig,
   RawConfiguration,
   useWithTheme,
-  withClassNamePrefix,
 } from "../../core";
 import {
   activeConfigurationAtom,
@@ -76,7 +75,6 @@ const CreateConnection = ({
   onClose,
 }: CreateConnectionProps) => {
   const styleWithTheme = useWithTheme();
-  const pfx = withClassNamePrefix("ft");
 
   const configId = existingConfig?.id;
   const disabledFields: (keyof ConnectionForm)[] = existingConfig?.__fileBase
@@ -229,8 +227,8 @@ const CreateConnection = ({
   }, [form, onClose, onSave, reset]);
 
   return (
-    <div className={styleWithTheme(defaultStyles("ft"))}>
-      <div className={pfx("configuration-form")}>
+    <div className={styleWithTheme(defaultStyles)}>
+      <div className={"configuration-form"}>
         <Input
           label={"Name"}
           value={form.name}
@@ -249,7 +247,7 @@ const CreateConnection = ({
             form.serviceType === "neptune-graph"
           }
         />
-        <div className={pfx("input-url")}>
+        <div className={"input-url"}>
           <Input
             data-autofocus={true}
             component={"textarea"}
@@ -272,7 +270,7 @@ const CreateConnection = ({
             isDisabled={disabledFields.includes("url")}
           />
         </div>
-        <div className={pfx("input-url")}>
+        <div className={"input-url"}>
           <Checkbox
             value={"proxyConnection"}
             checked={form.proxyConnection}
@@ -283,7 +281,7 @@ const CreateConnection = ({
           />
         </div>
         {form.proxyConnection && (
-          <div className={pfx("input-url")}>
+          <div className={"input-url"}>
             <Input
               data-autofocus={true}
               label={"Graph Connection URL"}
@@ -299,7 +297,7 @@ const CreateConnection = ({
           </div>
         )}
         {form.proxyConnection && (
-          <div className={pfx("input-url")}>
+          <div className={"input-url"}>
             <Checkbox
               value={"awsAuthEnabled"}
               checked={form.awsAuthEnabled}
@@ -312,7 +310,7 @@ const CreateConnection = ({
         )}
         {form.proxyConnection && form.awsAuthEnabled && (
           <>
-            <div className={pfx("input-url")}>
+            <div className={"input-url"}>
               <Input
                 data-autofocus={true}
                 label={"AWS Region"}
@@ -325,7 +323,7 @@ const CreateConnection = ({
                 }
               />
             </div>
-            <div className={pfx("input-url")}>
+            <div className={"input-url"}>
               <Select
                 label={"Service Type"}
                 options={[
@@ -340,7 +338,7 @@ const CreateConnection = ({
           </>
         )}
       </div>
-      <div className={pfx("configuration-form")}>
+      <div className={"configuration-form"}>
         <Checkbox
           value={"fetchTimeoutEnabled"}
           checked={form.fetchTimeoutEnabled}
@@ -363,7 +361,7 @@ const CreateConnection = ({
           }
         />
         {form.fetchTimeoutEnabled && (
-          <div className={pfx("input-url")}>
+          <div className={"input-url"}>
             <Input
               label="Fetch Timeout (ms)"
               type={"number"}
@@ -374,7 +372,7 @@ const CreateConnection = ({
           </div>
         )}
       </div>
-      <div className={pfx("configuration-form")}>
+      <div className={"configuration-form"}>
         <Checkbox
           value={"nodeExpansionLimitEnabled"}
           checked={form.nodeExpansionLimitEnabled}
@@ -397,7 +395,7 @@ const CreateConnection = ({
           }
         />
         {form.nodeExpansionLimitEnabled && (
-          <div className={pfx("input-url")}>
+          <div className={"input-url"}>
             <Input
               label="Node Expansion Limit"
               type="number"
@@ -408,7 +406,7 @@ const CreateConnection = ({
           </div>
         )}
       </div>
-      <div className={pfx("actions")}>
+      <div className={"actions"}>
         <Button variant={"default"} onPress={onClose}>
           Cancel
         </Button>

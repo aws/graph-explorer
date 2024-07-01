@@ -17,7 +17,7 @@ import {
   VertexIcon,
 } from "../../components";
 import EdgeIcon from "../../components/icons/EdgeIcon";
-import { useWithTheme, withClassNamePrefix } from "../../core";
+import { useWithTheme } from "../../core";
 import { useConfiguration } from "../../core/ConfigurationProvider";
 import fade from "../../core/ThemeProvider/utils/fade";
 import useDisplayNames from "../../hooks/useDisplayNames";
@@ -26,21 +26,14 @@ import { formatDate } from "../../utils";
 import defaultStyles from "./EntityDetail.styles";
 
 export type EdgeDetailProps = {
-  classNamePrefix?: string;
   edge: Edge;
   sourceVertex: Vertex;
   targetVertex: Vertex;
 };
 
-const EdgeDetail = ({
-  classNamePrefix = "ft",
-  edge,
-  sourceVertex,
-  targetVertex,
-}: EdgeDetailProps) => {
+const EdgeDetail = ({ edge, sourceVertex, targetVertex }: EdgeDetailProps) => {
   const config = useConfiguration();
   const styleWithTheme = useWithTheme();
-  const pfx = withClassNamePrefix(classNamePrefix);
 
   const edgeConfig = useMemo(() => {
     return config?.getEdgeTypeConfig(edge.data.type);
@@ -75,67 +68,63 @@ const EdgeDetail = ({
   const { name: targetName } = getDisplayNames(targetVertex);
 
   return (
-    <div
-      className={styleWithTheme(
-        defaultStyles(classNamePrefix, edgeConfig?.lineColor)
-      )}
-    >
-      <div className={pfx("header")}>
-        <div className={pfx("icon")}>
+    <div className={styleWithTheme(defaultStyles(edgeConfig?.lineColor))}>
+      <div className={"header"}>
+        <div className={"icon"}>
           <EdgeIcon />
         </div>
-        <div className={pfx("content")}>
-          <div className={pfx("title")}>{textTransform(edge.data.type)}</div>
+        <div className={"content"}>
+          <div className={"title"}>{textTransform(edge.data.type)}</div>
           {config?.connection?.queryEngine !== "sparql" && (
             <div>{edge.data.id}</div>
           )}
         </div>
       </div>
-      <div className={cx(pfx("header"), pfx("source-vertex"))}>
+      <div className={cx("header", "source-vertex")}>
         <div
           className={cx(
-            pfx("start-line"),
-            pfx(`line-${edgeConfig?.lineStyle || "solid"}`)
+            "start-line",
+            `line-${edgeConfig?.lineStyle || "solid"}`
           )}
         >
           {edgeConfig?.sourceArrowStyle === "triangle" && (
-            <ArrowTriangle className={pfx("source-arrow-type")} />
+            <ArrowTriangle className={"source-arrow-type"} />
           )}
           {edgeConfig?.sourceArrowStyle === "triangle-tee" && (
-            <ArrowTriangleTee className={pfx("source-arrow-type")} />
+            <ArrowTriangleTee className={"source-arrow-type"} />
           )}
           {edgeConfig?.sourceArrowStyle === "circle-triangle" && (
-            <ArrowTriangleCircle className={pfx("source-arrow-type")} />
+            <ArrowTriangleCircle className={"source-arrow-type"} />
           )}
           {edgeConfig?.sourceArrowStyle === "triangle-cross" && (
-            <ArrowTriangleCross className={pfx("source-arrow-type")} />
+            <ArrowTriangleCross className={"source-arrow-type"} />
           )}
           {edgeConfig?.sourceArrowStyle === "triangle-backcurve" && (
-            <ArrowTriangleBackCurve className={pfx("source-arrow-type")} />
+            <ArrowTriangleBackCurve className={"source-arrow-type"} />
           )}
           {edgeConfig?.sourceArrowStyle === "tee" && (
-            <ArrowTee className={pfx("source-arrow-type")} />
+            <ArrowTee className={"source-arrow-type"} />
           )}
           {edgeConfig?.sourceArrowStyle === "vee" && (
-            <ArrowVee className={pfx("source-arrow-type")} />
+            <ArrowVee className={"source-arrow-type"} />
           )}
           {edgeConfig?.sourceArrowStyle === "square" && (
-            <ArrowSquare className={pfx("source-arrow-type")} />
+            <ArrowSquare className={"source-arrow-type"} />
           )}
           {edgeConfig?.sourceArrowStyle === "circle" && (
-            <ArrowCircle className={pfx("source-arrow-type")} />
+            <ArrowCircle className={"source-arrow-type"} />
           )}
           {edgeConfig?.sourceArrowStyle === "diamond" && (
-            <ArrowDiamond className={pfx("source-arrow-type")} />
+            <ArrowDiamond className={"source-arrow-type"} />
           )}
           {(edgeConfig?.sourceArrowStyle === "none" ||
             !edgeConfig?.sourceArrowStyle) && (
-            <ArrowNone className={pfx("source-arrow-type")} />
+            <ArrowNone className={"source-arrow-type"} />
           )}
         </div>
         {sourceVertexConfig?.iconUrl && (
           <div
-            className={pfx("icon")}
+            className={"icon"}
             style={{
               background: fade(sourceVertexConfig.color, 0.2),
               color: sourceVertexConfig.color,
@@ -147,58 +136,55 @@ const EdgeDetail = ({
             />
           </div>
         )}
-        <div className={pfx("content")}>
-          <div className={pfx("title")}>{sourceName}</div>
+        <div className={"content"}>
+          <div className={"title"}>{sourceName}</div>
           <div>
             {textTransform(sourceVertex?.data.type || sourceVertex?.data.id)}
           </div>
         </div>
       </div>
-      <div className={cx(pfx("header"), pfx("target-vertex"))}>
+      <div className={cx("header", "target-vertex")}>
         <div
-          className={cx(
-            pfx("end-line"),
-            pfx(`line-${edgeConfig?.lineStyle || "solid"}`)
-          )}
+          className={cx("end-line", `line-${edgeConfig?.lineStyle || "solid"}`)}
         >
           {(edgeConfig?.targetArrowStyle === "triangle" ||
             !edgeConfig?.targetArrowStyle) && (
-            <ArrowTriangle className={pfx("target-arrow-type")} />
+            <ArrowTriangle className={"target-arrow-type"} />
           )}
           {edgeConfig?.targetArrowStyle === "triangle-tee" && (
-            <ArrowTriangleTee className={pfx("target-arrow-type")} />
+            <ArrowTriangleTee className={"target-arrow-type"} />
           )}
           {edgeConfig?.targetArrowStyle === "circle-triangle" && (
-            <ArrowTriangleCircle className={pfx("target-arrow-type")} />
+            <ArrowTriangleCircle className={"target-arrow-type"} />
           )}
           {edgeConfig?.targetArrowStyle === "triangle-cross" && (
-            <ArrowTriangleCross className={pfx("target-arrow-type")} />
+            <ArrowTriangleCross className={"target-arrow-type"} />
           )}
           {edgeConfig?.targetArrowStyle === "triangle-backcurve" && (
-            <ArrowTriangleBackCurve className={pfx("target-arrow-type")} />
+            <ArrowTriangleBackCurve className={"target-arrow-type"} />
           )}
           {edgeConfig?.targetArrowStyle === "tee" && (
-            <ArrowTee className={pfx("target-arrow-type")} />
+            <ArrowTee className={"target-arrow-type"} />
           )}
           {edgeConfig?.targetArrowStyle === "vee" && (
-            <ArrowVee className={pfx("target-arrow-type")} />
+            <ArrowVee className={"target-arrow-type"} />
           )}
           {edgeConfig?.targetArrowStyle === "square" && (
-            <ArrowSquare className={pfx("target-arrow-type")} />
+            <ArrowSquare className={"target-arrow-type"} />
           )}
           {edgeConfig?.targetArrowStyle === "circle" && (
-            <ArrowCircle className={pfx("target-arrow-type")} />
+            <ArrowCircle className={"target-arrow-type"} />
           )}
           {edgeConfig?.targetArrowStyle === "diamond" && (
-            <ArrowDiamond className={pfx("target-arrow-type")} />
+            <ArrowDiamond className={"target-arrow-type"} />
           )}
           {edgeConfig?.targetArrowStyle === "none" && (
-            <ArrowNone className={pfx("target-arrow-type")} />
+            <ArrowNone className={"target-arrow-type"} />
           )}
         </div>
         {targetVertexConfig?.iconUrl && (
           <div
-            className={pfx("icon")}
+            className={"icon"}
             style={{
               background: fade(targetVertexConfig.color, 0.2),
               color: targetVertexConfig.color,
@@ -210,31 +196,29 @@ const EdgeDetail = ({
             />
           </div>
         )}
-        <div className={pfx("content")}>
-          <div className={pfx("title")}>{targetName}</div>
+        <div className={"content"}>
+          <div className={"title"}>{targetName}</div>
           <div>
             {textTransform(targetVertex?.data.type || targetVertex?.data.id)}
           </div>
         </div>
       </div>
       {edgeConfig && sortedAttributes.length > 0 && (
-        <div className={pfx("properties")}>
-          <div className={pfx("title")}>Properties</div>
-          <div className={pfx("content")}>
+        <div className={"properties"}>
+          <div className={"title"}>Properties</div>
+          <div className={"content"}>
             {sortedAttributes.map(attribute => (
-              <div key={attribute.name} className={pfx("attribute")}>
-                <div className={pfx("attribute-name")}>
-                  {attribute.displayLabel}
-                </div>
+              <div key={attribute.name} className={"attribute"}>
+                <div className={"attribute-name"}>{attribute.displayLabel}</div>
                 {attribute.dataType !== "Date" && (
-                  <div className={pfx("attribute-value")}>
+                  <div className={"attribute-value"}>
                     {edge.data.attributes[attribute.name] == null
                       ? "---"
                       : String(edge.data.attributes[attribute.name])}
                   </div>
                 )}
                 {attribute.dataType === "Date" && (
-                  <div className={pfx("attribute-value")}>
+                  <div className={"attribute-value"}>
                     {formatDate(new Date(edge.data.attributes[attribute.name]))}
                   </div>
                 )}
