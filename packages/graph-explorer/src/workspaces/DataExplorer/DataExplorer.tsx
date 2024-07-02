@@ -1,6 +1,6 @@
 import { cx } from "@emotion/css";
 import clone from "lodash/clone";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import {
   Link,
@@ -70,6 +70,8 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
   const styleWithTheme = useWithTheme();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const pageIndex = Number(searchParams.get("page") || 1) - 1;
+  const pageSize = Number(searchParams.get("pageSize") || 20);
 
   const config = useConfiguration();
   const t = useTranslations();
@@ -81,23 +83,18 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
 
   const vertexConfig = useRecoilValue(vertexTypeConfigSelector(vertexType));
 
-  const [pageIndex, setPageIndex] = useState(
-    Number(searchParams.get("page") || 1) - 1
-  );
-  const [pageSize, setPageSize] = useState(
-    Number(searchParams.get("pageSize") || 20)
-  );
-
   const onPageIndexChange = useCallback(
     (pageIndex: number) => {
-      setPageIndex(pageIndex);
-      setSearchParams(prevState => {
-        const currPageSize = Number(prevState.get("pageSize") || 20);
-        return {
-          page: String(pageIndex + 1),
-          pageSize: String(currPageSize),
-        };
-      });
+      setSearchParams(
+        prevState => {
+          const currPageSize = Number(prevState.get("pageSize") || 20);
+          return {
+            page: String(pageIndex + 1),
+            pageSize: String(currPageSize),
+          };
+        },
+        { replace: true }
+      );
     },
     // setSearchParams is not memoized and causes infinite loop
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -106,14 +103,16 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
 
   const onPageSizeChange = useCallback(
     (pageSize: number) => {
-      setPageSize(pageSize);
-      setSearchParams(prevState => {
-        const currPageIndex = Number(prevState.get("page") || 1);
-        return {
-          page: String(currPageIndex),
-          pageSize: String(pageSize),
-        };
-      });
+      setSearchParams(
+        prevState => {
+          const currPageIndex = Number(prevState.get("page") || 1);
+          return {
+            page: String(currPageIndex),
+            pageSize: String(pageSize),
+          };
+        },
+        { replace: true }
+      );
     },
     // setSearchParams is not memoized and causes infinite loop
     // eslint-disable-next-line react-hooks/exhaustive-deps
