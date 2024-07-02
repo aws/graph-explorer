@@ -73,7 +73,6 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
 
   const config = useConfiguration();
   const t = useTranslations();
-  const explorer = useRecoilValue(explorerSelector);
   const fetchNode = useFetchNode();
   const [entities] = useEntities({ disableFilters: true });
 
@@ -195,25 +194,11 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
     return options;
   }, [t, textTransform, vertexConfig?.attributes]);
 
-  const updatePrefixes = usePrefixesUpdater();
-
-  const searchRequest: KeywordSearchRequest = {
-    vertexTypes: [vertexType],
-    limit: pageSize,
-    offset: pageIndex * pageSize,
-  };
-  const { data, isFetching } = useQuery({
-    ...searchQuery(searchRequest, explorer),
-    placeholderData: keepPreviousData,
-  });
-
-  useEffect(() => {
-    if (!data) {
-      return;
-    }
-
-    updatePrefixes(data.vertices.map((v: { data: { id: any } }) => v.data.id));
-  }, [data, updatePrefixes]);
+  const { data, isFetching } = useDataExplorerQuery(
+    vertexType,
+    pageSize,
+    pageIndex
+  );
 
   const setUserStyling = useSetRecoilState(userStylingAtom);
   const onDisplayNameChange = useCallback(
@@ -337,4 +322,36 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
       </Workspace.Content>
     </Workspace>
   );
+}
+
+function useDataExplorerQuery(
+  vertexType: string,
+  pageSize: number,
+  pageIndex: number
+) {
+  const explorer = useRecoilValue(explorerSelector);
+
+  const updatePrefixes = usePrefixesUpdater();
+
+  const searchRequest: KeywordSearchRequest = {
+    vertexTypes: [vertexType],
+    limit: pageSize,
+    offset: pageIndex * pageSize,
+  };
+  const query = useQuery({
+    ...searchQuery(searchRequest, explorer),
+    placeholderData: keepPreviousData,
+  });
+
+  useEffect(() => {
+    if (!query.data) {
+      return;
+    }
+
+    updatePrefixes(
+      query.data.vertices.map((v: { data: { id: any } }) => v.data.id)
+    );
+  }, [query.data, updatePrefixes]);
+
+  return query;
 }
