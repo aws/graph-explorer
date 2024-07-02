@@ -24,7 +24,7 @@ export function useKeywordSearchQuery({
   const explorer = useRecoilValue(explorerSelector);
   const updatePrefixes = usePrefixesUpdater();
   const { enqueueNotification } = useNotification();
-  const queryClient = useQueryClient();
+  const cancelAll = useCancelKeywordSearch();
 
   const query = useQuery({
     queryKey: [
@@ -74,6 +74,15 @@ export function useKeywordSearchQuery({
     });
   }, [query.error, enqueueNotification]);
 
+  return {
+    ...query,
+    cancelAll,
+  };
+}
+
+function useCancelKeywordSearch() {
+  const queryClient = useQueryClient();
+
   const cancelAll = useCallback(async () => {
     await queryClient.cancelQueries({
       queryKey: ["keyword-search"],
@@ -81,8 +90,5 @@ export function useKeywordSearchQuery({
     });
   }, [queryClient]);
 
-  return {
-    ...query,
-    cancelAll,
-  };
+  return cancelAll;
 }
