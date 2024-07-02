@@ -45,6 +45,7 @@ import useUpdateVertexTypeCounts from "../../hooks/useUpdateVertexTypeCounts";
 import TopBarWithLogo from "../common/TopBarWithLogo";
 import defaultStyles from "./DataExplorer.styles";
 import { searchQuery } from "../../connector/queries";
+import { vertexTypeConfigSelector } from "../../core/ConfigurationProvider/useConfiguration";
 
 export type ConnectionsProps = {
   vertexType: string;
@@ -79,9 +80,7 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
   // Automatically updates counts if needed
   useUpdateVertexTypeCounts(vertexType);
 
-  const vertexConfig = useMemo(() => {
-    return config?.getVertexTypeConfig(vertexType);
-  }, [config, vertexType]);
+  const vertexConfig = useRecoilValue(vertexTypeConfigSelector(vertexType));
 
   const [pageIndex, setPageIndex] = useState(
     Number(searchParams.get("page") || 1) - 1
