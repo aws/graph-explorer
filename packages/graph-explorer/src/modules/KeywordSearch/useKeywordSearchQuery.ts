@@ -33,6 +33,7 @@ export function useKeywordSearchQuery({
         searchTerm: debouncedSearchTerm,
         vertexTypes,
         searchById: true,
+        limit: 10,
         // Only set these when there is a search term to reduce queries
         searchByAttributes: debouncedSearchTerm
           ? searchByAttributes
