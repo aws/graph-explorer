@@ -32,9 +32,12 @@ export function useKeywordSearchQuery({
     ? {
         searchTerm: debouncedSearchTerm,
         vertexTypes,
-        searchByAttributes,
         searchById: true,
-        exactMatch,
+        // Only set these when there is a search term to reduce queries
+        searchByAttributes: debouncedSearchTerm
+          ? searchByAttributes
+          : undefined,
+        exactMatch: debouncedSearchTerm ? exactMatch : undefined,
       }
     : null;
   const query = useQuery(searchQuery(request, explorer));
