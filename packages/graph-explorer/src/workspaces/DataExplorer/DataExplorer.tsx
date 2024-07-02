@@ -29,7 +29,7 @@ import {
 import ExternalPaginationControl from "../../components/Tabular/controls/ExternalPaginationControl";
 import Tabular from "../../components/Tabular/Tabular";
 import Workspace from "../../components/Workspace/Workspace";
-import type { KeywordSearchResponse } from "../../connector/useGEFetchTypes";
+import type { KeywordSearchRequest } from "../../connector/useGEFetchTypes";
 import { useConfiguration, useWithTheme } from "../../core";
 import { explorerSelector } from "../../core/connector";
 import {
@@ -44,6 +44,7 @@ import useTranslations from "../../hooks/useTranslations";
 import useUpdateVertexTypeCounts from "../../hooks/useUpdateVertexTypeCounts";
 import TopBarWithLogo from "../common/TopBarWithLogo";
 import defaultStyles from "./DataExplorer.styles";
+import { searchQuery } from "../../connector/queries";
 
 export type ConnectionsProps = {
   vertexType: string;
@@ -196,21 +197,15 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
   }, [t, textTransform, vertexConfig?.attributes]);
 
   const updatePrefixes = usePrefixesUpdater();
-  const { data, isFetching } = useQuery({
-    queryKey: ["keywordSearch", vertexType, pageIndex, pageSize, explorer],
-    queryFn: () => {
-      if (!explorer) {
-        return { vertices: [] } as KeywordSearchResponse;
-      }
 
-      return explorer.keywordSearch({
-        vertexTypes: [vertexType],
-        limit: pageSize,
-        offset: pageIndex * pageSize,
-      });
-    },
+  const searchRequest: KeywordSearchRequest = {
+    vertexTypes: [vertexType],
+    limit: pageSize,
+    offset: pageIndex * pageSize,
+  };
+  const { data, isFetching } = useQuery({
+    ...searchQuery(searchRequest, explorer),
     placeholderData: keepPreviousData,
-    enabled: Boolean(explorer),
   });
 
   useEffect(() => {
