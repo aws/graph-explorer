@@ -119,57 +119,10 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
     return vtColumns;
   }, [t, textTransform, vertexConfig?.attributes]);
 
-  const selectOptions = useMemo(() => {
-    const options =
-      vertexConfig?.attributes.map(attr => ({
-        value: attr.name,
-        label: attr.displayLabel || textTransform(attr.name),
-      })) || [];
-
-    options.unshift({
-      label: t("data-explorer.node-type"),
-      value: "types",
-    });
-    options.unshift({ label: t("data-explorer.node-id"), value: "id" });
-
-    return options;
-  }, [t, textTransform, vertexConfig?.attributes]);
-
   const { data, isFetching } = useDataExplorerQuery(
     vertexType,
     pageSize,
     pageIndex
-  );
-
-  const setUserStyling = useSetRecoilState(userStylingAtom);
-  const onDisplayNameChange = useCallback(
-    (field: "name" | "longName") => (value: string | string[]) => {
-      setUserStyling(prevStyling => {
-        const vtItem =
-          clone(prevStyling.vertices?.find(v => v.type === vertexType)) ||
-          ({} as VertexPreferences);
-
-        if (field === "name") {
-          vtItem.displayNameAttribute = value as string;
-        }
-
-        if (field === "longName") {
-          vtItem.longDisplayNameAttribute = value as string;
-        }
-
-        return {
-          ...prevStyling,
-          vertices: [
-            ...(prevStyling.vertices || []).filter(v => v.type !== vertexType),
-            {
-              ...(vtItem || {}),
-              type: vertexType,
-            },
-          ],
-        };
-      });
-    },
-    [setUserStyling, vertexType]
   );
 
   return (
@@ -201,28 +154,7 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
           </Button>
         </Workspace.TopBar.Title>
         <Workspace.TopBar.AdditionalControls>
-          <div className={"header-children"}>
-            <Select
-              className={"header-select"}
-              value={vertexConfig?.displayNameAttribute || ""}
-              onChange={onDisplayNameChange("name")}
-              options={selectOptions}
-              hideError={true}
-              noMargin={true}
-              label={"Display Name"}
-              labelPlacement={"inner"}
-            />
-            <Select
-              className={"header-select"}
-              value={vertexConfig?.longDisplayNameAttribute || ""}
-              onChange={onDisplayNameChange("longName")}
-              options={selectOptions}
-              hideError={true}
-              noMargin={true}
-              label={"Display Description"}
-              labelPlacement={"inner"}
-            />
-          </div>
+          <DisplayNameAndDescriptionOptions vertexType={vertexType} />
         </Workspace.TopBar.AdditionalControls>
       </Workspace.TopBar>
       <Workspace.Content>
@@ -262,6 +194,87 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
         </ModuleContainer>
       </Workspace.Content>
     </Workspace>
+  );
+}
+
+function DisplayNameAndDescriptionOptions({
+  vertexType,
+}: {
+  vertexType: string;
+}) {
+  const textTransform = useTextTransform();
+  const t = useTranslations();
+  const vertexConfig = useRecoilValue(vertexTypeConfigSelector(vertexType));
+  const selectOptions = useMemo(() => {
+    const options =
+      vertexConfig?.attributes.map(attr => ({
+        value: attr.name,
+        label: attr.displayLabel || textTransform(attr.name),
+      })) || [];
+
+    options.unshift({
+      label: t("data-explorer.node-type"),
+      value: "types",
+    });
+    options.unshift({ label: t("data-explorer.node-id"), value: "id" });
+
+    return options;
+  }, [t, textTransform, vertexConfig?.attributes]);
+
+  const setUserStyling = useSetRecoilState(userStylingAtom);
+  const onDisplayNameChange = useCallback(
+    (field: "name" | "longName") => (value: string | string[]) => {
+      setUserStyling(prevStyling => {
+        const vtItem =
+          clone(prevStyling.vertices?.find(v => v.type === vertexType)) ||
+          ({} as VertexPreferences);
+
+        if (field === "name") {
+          vtItem.displayNameAttribute = value as string;
+        }
+
+        if (field === "longName") {
+          vtItem.longDisplayNameAttribute = value as string;
+        }
+
+        return {
+          ...prevStyling,
+          vertices: [
+            ...(prevStyling.vertices || []).filter(v => v.type !== vertexType),
+            {
+              ...(vtItem || {}),
+              type: vertexType,
+            },
+          ],
+        };
+      });
+    },
+    [setUserStyling, vertexType]
+  );
+
+  return (
+    <div className={"header-children"}>
+      <Select
+        className={"header-select"}
+        value={vertexConfig?.displayNameAttribute || ""}
+        onChange={onDisplayNameChange("name")}
+        options={selectOptions}
+        hideError={true}
+        noMargin={true}
+        label={"Display Name"}
+        labelPlacement={"inner"}
+      />
+      <Select
+        className={"header-select"}
+        value={vertexConfig?.longDisplayNameAttribute || ""}
+        onChange={onDisplayNameChange("longName")}
+        options={selectOptions}
+        hideError={true}
+        noMargin={true}
+        label={"Display Description"}
+        labelPlacement={"inner"}
+      />
+    </div>
   );
 }
 
