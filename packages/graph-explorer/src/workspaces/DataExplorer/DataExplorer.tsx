@@ -71,7 +71,6 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
   const navigate = useNavigate();
 
   const config = useConfiguration();
-  const t = useTranslations();
 
   // Automatically updates counts if needed
   useUpdateVertexTypeCounts(vertexType);
@@ -82,42 +81,7 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
 
   const tableRef = useRef<TabularInstance<Vertex> | null>(null);
   const textTransform = useTextTransform();
-  const columns: ColumnDefinition<Vertex>[] = useMemo(() => {
-    const vtColumns: ColumnDefinition<Vertex>[] =
-      vertexConfig?.attributes
-        .map(attr => ({
-          id: attr.name,
-          label: attr.displayLabel || textTransform(attr.name),
-          accessor: (row: Vertex) => row.data.attributes[attr.name],
-          filterType:
-            attr.dataType === "String"
-              ? { name: "string" as const }
-              : undefined,
-        }))
-        .sort((a, b) => a.label.localeCompare(b.label)) || [];
-
-    vtColumns.unshift({
-      label: t("data-explorer.node-id"),
-      id: "__id",
-      accessor: row => textTransform(row.data.id),
-      filterable: false,
-    });
-
-    vtColumns.push({
-      id: "__send_to_explorer",
-      label: "",
-      filterable: false,
-      sortable: false,
-      resizable: false,
-      width: 200,
-      align: "right",
-      cellComponent: ({ cell }) => (
-        <AddToExplorerButton vertex={cell.row.original} />
-      ),
-    });
-
-    return vtColumns;
-  }, [t, textTransform, vertexConfig?.attributes]);
+  const columns = useColumnDefinitions(vertexType);
 
   const { data, isFetching } = useDataExplorerQuery(
     vertexType,
@@ -301,6 +265,49 @@ function AddToExplorerButton({ vertex }: { vertex: Vertex }) {
       </Button>
     </div>
   );
+}
+
+function useColumnDefinitions(vertexType: string) {
+  const textTransform = useTextTransform();
+  const t = useTranslations();
+  const vertexConfig = useRecoilValue(vertexTypeConfigSelector(vertexType));
+  const columns: ColumnDefinition<Vertex>[] = useMemo(() => {
+    const vtColumns: ColumnDefinition<Vertex>[] =
+      vertexConfig?.attributes
+        .map(attr => ({
+          id: attr.name,
+          label: attr.displayLabel || textTransform(attr.name),
+          accessor: (row: Vertex) => row.data.attributes[attr.name],
+          filterType:
+            attr.dataType === "String"
+              ? { name: "string" as const }
+              : undefined,
+        }))
+        .sort((a, b) => a.label.localeCompare(b.label)) || [];
+
+    vtColumns.unshift({
+      label: t("data-explorer.node-id"),
+      id: "__id",
+      accessor: row => textTransform(row.data.id),
+      filterable: false,
+    });
+
+    vtColumns.push({
+      id: "__send_to_explorer",
+      label: "",
+      filterable: false,
+      sortable: false,
+      resizable: false,
+      width: 200,
+      align: "right",
+      cellComponent: ({ cell }) => (
+        <AddToExplorerButton vertex={cell.row.original} />
+      ),
+    });
+
+    return vtColumns;
+  }, [t, textTransform, vertexConfig?.attributes]);
+  return columns;
 }
 
 function usePagingOptions() {
