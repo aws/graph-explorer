@@ -72,8 +72,6 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
 
   const config = useConfiguration();
   const t = useTranslations();
-  const fetchNode = useFetchNode();
-  const [entities] = useEntities({ disableFilters: true });
 
   // Automatically updates counts if needed
   useUpdateVertexTypeCounts(vertexType);
@@ -113,32 +111,13 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
       resizable: false,
       width: 200,
       align: "right",
-      cellComponent: ({ cell }) => {
-        const isInExplorer = !!entities.nodes.find(
-          node => node.data.id === cell.row.original.data.id
-        );
-
-        return (
-          <div style={{ display: "inline-block" }}>
-            <Button
-              isDisabled={isInExplorer}
-              icon={isInExplorer ? <CheckIcon /> : <SendIcon />}
-              variant={"default"}
-              size={"small"}
-              iconPlacement={"start"}
-              onPress={() => {
-                fetchNode(cell.row.original);
-              }}
-            >
-              {isInExplorer ? "Sent to Explorer" : "Send to Explorer"}
-            </Button>
-          </div>
-        );
-      },
+      cellComponent: ({ cell }) => (
+        <AddToExplorerButton vertex={cell.row.original} />
+      ),
     });
 
     return vtColumns;
-  }, [entities.nodes, fetchNode, t, textTransform, vertexConfig?.attributes]);
+  }, [t, textTransform, vertexConfig?.attributes]);
 
   const selectOptions = useMemo(() => {
     const options =
@@ -283,6 +262,31 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
         </ModuleContainer>
       </Workspace.Content>
     </Workspace>
+  );
+}
+
+function AddToExplorerButton({ vertex }: { vertex: Vertex }) {
+  const fetchNode = useFetchNode();
+  const [entities] = useEntities({ disableFilters: true });
+  const isInExplorer = !!entities.nodes.find(
+    node => node.data.id === vertex.data.id
+  );
+
+  return (
+    <div style={{ display: "inline-block" }}>
+      <Button
+        isDisabled={isInExplorer}
+        icon={isInExplorer ? <CheckIcon /> : <SendIcon />}
+        variant={"default"}
+        size={"small"}
+        iconPlacement={"start"}
+        onPress={() => {
+          fetchNode(vertex);
+        }}
+      >
+        {isInExplorer ? "Sent to Explorer" : "Send to Explorer"}
+      </Button>
+    </div>
   );
 }
 
