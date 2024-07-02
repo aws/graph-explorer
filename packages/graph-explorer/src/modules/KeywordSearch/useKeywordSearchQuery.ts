@@ -5,6 +5,8 @@ import usePrefixesUpdater from "../../hooks/usePrefixesUpdater";
 import { useCallback, useEffect } from "react";
 import { createDisplayError } from "../../utils/createDisplayError";
 import { useRecoilValue } from "recoil";
+import { searchQuery } from "../../connector/queries";
+import { KeywordSearchRequest } from "../../connector/useGEFetchTypes";
 
 export type SearchQueryRequest = {
   debouncedSearchTerm: string;
@@ -26,33 +28,16 @@ export function useKeywordSearchQuery({
   const { enqueueNotification } = useNotification();
   const cancelAll = useCancelKeywordSearch();
 
-  const query = useQuery({
-    queryKey: [
-      "keyword-search",
-      debouncedSearchTerm,
-      vertexTypes,
-      searchByAttributes,
-      exactMatch,
-      explorer,
-    ],
-    queryFn: async ({ signal }) => {
-      if (!explorer) {
-        return { vertices: [] };
+  const request: KeywordSearchRequest | null = isOpen
+    ? {
+        searchTerm: debouncedSearchTerm,
+        vertexTypes,
+        searchByAttributes,
+        searchById: true,
+        exactMatch,
       }
-
-      return await explorer.keywordSearch(
-        {
-          searchTerm: debouncedSearchTerm,
-          vertexTypes,
-          searchByAttributes,
-          searchById: true,
-          exactMatch,
-        },
-        { signal }
-      );
-    },
-    enabled: isOpen && Boolean(explorer),
-  });
+    : null;
+  const query = useQuery(searchQuery(request, explorer));
 
   // Sync sparql prefixes
   useEffect(() => {
