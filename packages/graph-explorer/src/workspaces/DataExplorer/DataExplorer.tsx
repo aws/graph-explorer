@@ -69,9 +69,6 @@ export default function DataExplorer() {
 function DataExplorerContent({ vertexType }: ConnectionsProps) {
   const styleWithTheme = useWithTheme();
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const pageIndex = Number(searchParams.get("page") || 1) - 1;
-  const pageSize = Number(searchParams.get("pageSize") || 20);
 
   const config = useConfiguration();
   const t = useTranslations();
@@ -82,42 +79,8 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
   useUpdateVertexTypeCounts(vertexType);
 
   const vertexConfig = useRecoilValue(vertexTypeConfigSelector(vertexType));
-
-  const onPageIndexChange = useCallback(
-    (pageIndex: number) => {
-      setSearchParams(
-        prevState => {
-          const currPageSize = Number(prevState.get("pageSize") || 20);
-          return {
-            page: String(pageIndex + 1),
-            pageSize: String(currPageSize),
-          };
-        },
-        { replace: true }
-      );
-    },
-    // setSearchParams is not memoized and causes infinite loop
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
-  );
-
-  const onPageSizeChange = useCallback(
-    (pageSize: number) => {
-      setSearchParams(
-        prevState => {
-          const currPageIndex = Number(prevState.get("page") || 1);
-          return {
-            page: String(currPageIndex),
-            pageSize: String(pageSize),
-          };
-        },
-        { replace: true }
-      );
-    },
-    // setSearchParams is not memoized and causes infinite loop
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
-  );
+  const { pageIndex, pageSize, onPageIndexChange, onPageSizeChange } =
+    usePagingOptions();
 
   const tableRef = useRef<TabularInstance<Vertex> | null>(null);
   const textTransform = useTextTransform();
@@ -321,6 +284,54 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
       </Workspace.Content>
     </Workspace>
   );
+}
+
+function usePagingOptions() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const pageIndex = Number(searchParams.get("page") || 1) - 1;
+  const pageSize = Number(searchParams.get("pageSize") || 20);
+  const onPageIndexChange = useCallback(
+    (pageIndex: number) => {
+      setSearchParams(
+        prevState => {
+          const currPageSize = Number(prevState.get("pageSize") || 20);
+          return {
+            page: String(pageIndex + 1),
+            pageSize: String(currPageSize),
+          };
+        },
+        { replace: true }
+      );
+    },
+    // setSearchParams is not memoized and causes infinite loop
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
+
+  const onPageSizeChange = useCallback(
+    (pageSize: number) => {
+      setSearchParams(
+        prevState => {
+          const currPageIndex = Number(prevState.get("page") || 1);
+          return {
+            page: String(currPageIndex),
+            pageSize: String(pageSize),
+          };
+        },
+        { replace: true }
+      );
+    },
+    // setSearchParams is not memoized and causes infinite loop
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
+
+  return {
+    pageIndex,
+    pageSize,
+    onPageIndexChange,
+    onPageSizeChange,
+  };
 }
 
 function useDataExplorerQuery(
