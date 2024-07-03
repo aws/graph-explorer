@@ -24,6 +24,7 @@ import { ExplorerIcon } from "../../components/icons";
 import ModuleContainerHeader from "../../components/ModuleContainer/components/ModuleContainerHeader";
 import {
   ColumnDefinition,
+  PlaceholderControl,
   TabularEmptyBodyControls,
   TabularFooterControls,
   TabularInstance,
@@ -87,6 +88,9 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
 
   const query = useDataExplorerQuery(vertexType, pageSize, pageIndex);
 
+  const vertexTypeDisplay =
+    vertexConfig?.displayLabel || textTransform(vertexType);
+
   return (
     <Workspace className={cx(styleWithTheme(defaultStyles), "data-explorer")}>
       <TopBarWithLogo>
@@ -124,9 +128,7 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
           <ModuleContainerHeader
             title={
               <div className={"container-header"}>
-                <div>
-                  {vertexConfig?.displayLabel || textTransform(vertexType)}
-                </div>
+                <div>{vertexTypeDisplay}</div>
                 {query.isFetching && <LoadingSpinner className={"spinner"} />}
               </div>
             }
@@ -147,6 +149,11 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
               {query.isError ? (
                 <PanelError error={query.error} onRetry={query.refetch} />
               ) : null}
+              {query.data?.vertices.length === 0 && (
+                <PlaceholderControl>
+                  {`No nodes found for "${vertexTypeDisplay}"`}
+                </PlaceholderControl>
+              )}
             </TabularEmptyBodyControls>
             <TabularFooterControls>
               <ExternalPaginationControl
