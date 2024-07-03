@@ -83,11 +83,7 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
   const textTransform = useTextTransform();
   const columns = useColumnDefinitions(vertexType);
 
-  const { data, isFetching } = useDataExplorerQuery(
-    vertexType,
-    pageSize,
-    pageIndex
-  );
+  const query = useDataExplorerQuery(vertexType, pageSize, pageIndex);
 
   return (
     <Workspace className={cx(styleWithTheme(defaultStyles), "data-explorer")}>
@@ -129,14 +125,14 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
                 <div>
                   {vertexConfig?.displayLabel || textTransform(vertexType)}
                 </div>
-                {isFetching && <LoadingSpinner className={"spinner"} />}
+                {query.isFetching && <LoadingSpinner className={"spinner"} />}
               </div>
             }
           />
           <Tabular
             ref={tableRef}
             defaultColumn={DEFAULT_COLUMN}
-            data={data?.vertices || []}
+            data={query.data?.vertices || []}
             columns={columns}
             fullWidth={true}
             pageIndex={pageIndex}
