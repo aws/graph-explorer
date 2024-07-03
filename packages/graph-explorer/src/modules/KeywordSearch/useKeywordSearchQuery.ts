@@ -5,6 +5,8 @@ import usePrefixesUpdater from "../../hooks/usePrefixesUpdater";
 import { useCallback, useEffect } from "react";
 import { createDisplayError } from "../../utils/createDisplayError";
 import { useRecoilValue } from "recoil";
+import { searchQuery } from "../../connector/queries";
+import { KeywordSearchRequest } from "../../connector/useGEFetchTypes";
 
 export type SearchQueryRequest = {
   debouncedSearchTerm: string;
@@ -24,35 +26,22 @@ export function useKeywordSearchQuery({
   const explorer = useRecoilValue(explorerSelector);
   const updatePrefixes = usePrefixesUpdater();
   const { enqueueNotification } = useNotification();
-  const queryClient = useQueryClient();
+  const cancelAll = useCancelKeywordSearch();
 
-  const query = useQuery({
-    queryKey: [
-      "keyword-search",
-      debouncedSearchTerm,
-      vertexTypes,
-      searchByAttributes,
-      exactMatch,
-      explorer,
-    ],
-    queryFn: async ({ signal }) => {
-      if (!explorer) {
-        return { vertices: [] };
+  const request: KeywordSearchRequest | null = isOpen
+    ? {
+        searchTerm: debouncedSearchTerm,
+        vertexTypes,
+        searchById: true,
+        limit: 10,
+        // Only set these when there is a search term to reduce queries
+        searchByAttributes: debouncedSearchTerm
+          ? searchByAttributes
+          : undefined,
+        exactMatch: debouncedSearchTerm ? exactMatch : undefined,
       }
-
-      return await explorer.keywordSearch(
-        {
-          searchTerm: debouncedSearchTerm,
-          vertexTypes,
-          searchByAttributes,
-          searchById: true,
-          exactMatch,
-        },
-        { signal }
-      );
-    },
-    enabled: isOpen && Boolean(explorer),
-  });
+    : null;
+  const query = useQuery(searchQuery(request, explorer));
 
   // Sync sparql prefixes
   useEffect(() => {
@@ -74,6 +63,15 @@ export function useKeywordSearchQuery({
     });
   }, [query.error, enqueueNotification]);
 
+  return {
+    ...query,
+    cancelAll,
+  };
+}
+
+function useCancelKeywordSearch() {
+  const queryClient = useQueryClient();
+
   const cancelAll = useCallback(async () => {
     await queryClient.cancelQueries({
       queryKey: ["keyword-search"],
@@ -81,8 +79,5 @@ export function useKeywordSearchQuery({
     });
   }, [queryClient]);
 
-  return {
-    ...query,
-    cancelAll,
-  };
+  return cancelAll;
 }

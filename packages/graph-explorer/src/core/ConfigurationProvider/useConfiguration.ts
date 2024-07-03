@@ -1,5 +1,5 @@
 import uniqBy from "lodash/uniqBy";
-import { selector, useRecoilValue } from "recoil";
+import { selector, selectorFamily, useRecoilValue } from "recoil";
 import DEFAULT_ICON_URL from "../../utils/defaultIconUrl";
 import { mergedConfigurationSelector } from "../StateProvider/configuration";
 import type {
@@ -92,6 +92,15 @@ export const assembledConfigSelector = selector<
       },
     };
   },
+});
+
+export const vertexTypeConfigSelector = selectorFamily({
+  key: "vertex-type-config",
+  get:
+    (vertexType: string) =>
+    ({ get }) => {
+      return get(assembledConfigSelector)?.getVertexTypeConfig(vertexType);
+    },
 });
 
 export default function useConfiguration() {

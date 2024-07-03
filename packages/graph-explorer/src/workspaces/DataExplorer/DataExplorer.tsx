@@ -1,6 +1,6 @@
 import { cx } from "@emotion/css";
 import clone from "lodash/clone";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import {
   Link,
@@ -29,7 +29,7 @@ import {
 import ExternalPaginationControl from "../../components/Tabular/controls/ExternalPaginationControl";
 import Tabular from "../../components/Tabular/Tabular";
 import Workspace from "../../components/Workspace/Workspace";
-import type { KeywordSearchResponse } from "../../connector/useGEFetchTypes";
+import type { KeywordSearchRequest } from "../../connector/useGEFetchTypes";
 import { useConfiguration, useWithTheme } from "../../core";
 import { explorerSelector } from "../../core/connector";
 import {
@@ -44,6 +44,8 @@ import useTranslations from "../../hooks/useTranslations";
 import useUpdateVertexTypeCounts from "../../hooks/useUpdateVertexTypeCounts";
 import TopBarWithLogo from "../common/TopBarWithLogo";
 import defaultStyles from "./DataExplorer.styles";
+import { searchQuery } from "../../connector/queries";
+import { vertexTypeConfigSelector } from "../../core/ConfigurationProvider/useConfiguration";
 
 export type ConnectionsProps = {
   vertexType: string;
@@ -67,189 +69,24 @@ export default function DataExplorer() {
 function DataExplorerContent({ vertexType }: ConnectionsProps) {
   const styleWithTheme = useWithTheme();
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
 
   const config = useConfiguration();
-  const t = useTranslations();
-  const explorer = useRecoilValue(explorerSelector);
-  const fetchNode = useFetchNode();
-  const [entities] = useEntities({ disableFilters: true });
 
   // Automatically updates counts if needed
   useUpdateVertexTypeCounts(vertexType);
 
-  const vertexConfig = useMemo(() => {
-    return config?.getVertexTypeConfig(vertexType);
-  }, [config, vertexType]);
-
-  const [pageIndex, setPageIndex] = useState(
-    Number(searchParams.get("page") || 1) - 1
-  );
-  const [pageSize, setPageSize] = useState(
-    Number(searchParams.get("pageSize") || 20)
-  );
-
-  const onPageIndexChange = useCallback(
-    (pageIndex: number) => {
-      setPageIndex(pageIndex);
-      setSearchParams(prevState => {
-        const currPageSize = Number(prevState.get("pageSize") || 20);
-        return {
-          page: String(pageIndex + 1),
-          pageSize: String(currPageSize),
-        };
-      });
-    },
-    // setSearchParams is not memoized and causes infinite loop
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
-  );
-
-  const onPageSizeChange = useCallback(
-    (pageSize: number) => {
-      setPageSize(pageSize);
-      setSearchParams(prevState => {
-        const currPageIndex = Number(prevState.get("page") || 1);
-        return {
-          page: String(currPageIndex),
-          pageSize: String(pageSize),
-        };
-      });
-    },
-    // setSearchParams is not memoized and causes infinite loop
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
-  );
+  const vertexConfig = useRecoilValue(vertexTypeConfigSelector(vertexType));
+  const { pageIndex, pageSize, onPageIndexChange, onPageSizeChange } =
+    usePagingOptions();
 
   const tableRef = useRef<TabularInstance<Vertex> | null>(null);
   const textTransform = useTextTransform();
-  const columns: ColumnDefinition<Vertex>[] = useMemo(() => {
-    const vtColumns: ColumnDefinition<Vertex>[] =
-      vertexConfig?.attributes
-        .map(attr => ({
-          id: attr.name,
-          label: attr.displayLabel || textTransform(attr.name),
-          accessor: (row: Vertex) => row.data.attributes[attr.name],
-          filterType:
-            attr.dataType === "String"
-              ? { name: "string" as const }
-              : undefined,
-        }))
-        .sort((a, b) => a.label.localeCompare(b.label)) || [];
+  const columns = useColumnDefinitions(vertexType);
 
-    vtColumns.unshift({
-      label: t("data-explorer.node-id"),
-      id: "__id",
-      accessor: row => textTransform(row.data.id),
-      filterable: false,
-    });
-
-    vtColumns.push({
-      id: "__send_to_explorer",
-      label: "",
-      filterable: false,
-      sortable: false,
-      resizable: false,
-      width: 200,
-      align: "right",
-      cellComponent: ({ cell }) => {
-        const isInExplorer = !!entities.nodes.find(
-          node => node.data.id === cell.row.original.data.id
-        );
-
-        return (
-          <div style={{ display: "inline-block" }}>
-            <Button
-              isDisabled={isInExplorer}
-              icon={isInExplorer ? <CheckIcon /> : <SendIcon />}
-              variant={"default"}
-              size={"small"}
-              iconPlacement={"start"}
-              onPress={() => {
-                fetchNode(cell.row.original);
-              }}
-            >
-              {isInExplorer ? "Sent to Explorer" : "Send to Explorer"}
-            </Button>
-          </div>
-        );
-      },
-    });
-
-    return vtColumns;
-  }, [entities.nodes, fetchNode, t, textTransform, vertexConfig?.attributes]);
-
-  const selectOptions = useMemo(() => {
-    const options =
-      vertexConfig?.attributes.map(attr => ({
-        value: attr.name,
-        label: attr.displayLabel || textTransform(attr.name),
-      })) || [];
-
-    options.unshift({
-      label: t("data-explorer.node-type"),
-      value: "types",
-    });
-    options.unshift({ label: t("data-explorer.node-id"), value: "id" });
-
-    return options;
-  }, [t, textTransform, vertexConfig?.attributes]);
-
-  const updatePrefixes = usePrefixesUpdater();
-  const { data, isFetching } = useQuery({
-    queryKey: ["keywordSearch", vertexType, pageIndex, pageSize, explorer],
-    queryFn: () => {
-      if (!explorer) {
-        return { vertices: [] } as KeywordSearchResponse;
-      }
-
-      return explorer.keywordSearch({
-        vertexTypes: [vertexType],
-        limit: pageSize,
-        offset: pageIndex * pageSize,
-      });
-    },
-    placeholderData: keepPreviousData,
-    enabled: Boolean(explorer),
-  });
-
-  useEffect(() => {
-    if (!data) {
-      return;
-    }
-
-    updatePrefixes(data.vertices.map((v: { data: { id: any } }) => v.data.id));
-  }, [data, updatePrefixes]);
-
-  const setUserStyling = useSetRecoilState(userStylingAtom);
-  const onDisplayNameChange = useCallback(
-    (field: "name" | "longName") => (value: string | string[]) => {
-      setUserStyling(prevStyling => {
-        const vtItem =
-          clone(prevStyling.vertices?.find(v => v.type === vertexType)) ||
-          ({} as VertexPreferences);
-
-        if (field === "name") {
-          vtItem.displayNameAttribute = value as string;
-        }
-
-        if (field === "longName") {
-          vtItem.longDisplayNameAttribute = value as string;
-        }
-
-        return {
-          ...prevStyling,
-          vertices: [
-            ...(prevStyling.vertices || []).filter(v => v.type !== vertexType),
-            {
-              ...(vtItem || {}),
-              type: vertexType,
-            },
-          ],
-        };
-      });
-    },
-    [setUserStyling, vertexType]
+  const { data, isFetching } = useDataExplorerQuery(
+    vertexType,
+    pageSize,
+    pageIndex
   );
 
   return (
@@ -281,28 +118,7 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
           </Button>
         </Workspace.TopBar.Title>
         <Workspace.TopBar.AdditionalControls>
-          <div className={"header-children"}>
-            <Select
-              className={"header-select"}
-              value={vertexConfig?.displayNameAttribute || ""}
-              onChange={onDisplayNameChange("name")}
-              options={selectOptions}
-              hideError={true}
-              noMargin={true}
-              label={"Display Name"}
-              labelPlacement={"inner"}
-            />
-            <Select
-              className={"header-select"}
-              value={vertexConfig?.longDisplayNameAttribute || ""}
-              onChange={onDisplayNameChange("longName")}
-              options={selectOptions}
-              hideError={true}
-              noMargin={true}
-              label={"Display Description"}
-              labelPlacement={"inner"}
-            />
-          </div>
+          <DisplayNameAndDescriptionOptions vertexType={vertexType} />
         </Workspace.TopBar.AdditionalControls>
       </Workspace.TopBar>
       <Workspace.Content>
@@ -343,4 +159,233 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
       </Workspace.Content>
     </Workspace>
   );
+}
+
+function DisplayNameAndDescriptionOptions({
+  vertexType,
+}: {
+  vertexType: string;
+}) {
+  const textTransform = useTextTransform();
+  const t = useTranslations();
+  const vertexConfig = useRecoilValue(vertexTypeConfigSelector(vertexType));
+  const selectOptions = useMemo(() => {
+    const options =
+      vertexConfig?.attributes.map(attr => ({
+        value: attr.name,
+        label: attr.displayLabel || textTransform(attr.name),
+      })) || [];
+
+    options.unshift({
+      label: t("data-explorer.node-type"),
+      value: "types",
+    });
+    options.unshift({ label: t("data-explorer.node-id"), value: "id" });
+
+    return options;
+  }, [t, textTransform, vertexConfig?.attributes]);
+
+  const setUserStyling = useSetRecoilState(userStylingAtom);
+  const onDisplayNameChange = useCallback(
+    (field: "name" | "longName") => (value: string | string[]) => {
+      setUserStyling(prevStyling => {
+        const vtItem =
+          clone(prevStyling.vertices?.find(v => v.type === vertexType)) ||
+          ({} as VertexPreferences);
+
+        if (field === "name") {
+          vtItem.displayNameAttribute = value as string;
+        }
+
+        if (field === "longName") {
+          vtItem.longDisplayNameAttribute = value as string;
+        }
+
+        return {
+          ...prevStyling,
+          vertices: [
+            ...(prevStyling.vertices || []).filter(v => v.type !== vertexType),
+            {
+              ...(vtItem || {}),
+              type: vertexType,
+            },
+          ],
+        };
+      });
+    },
+    [setUserStyling, vertexType]
+  );
+
+  return (
+    <div className={"header-children"}>
+      <Select
+        className={"header-select"}
+        value={vertexConfig?.displayNameAttribute || ""}
+        onChange={onDisplayNameChange("name")}
+        options={selectOptions}
+        hideError={true}
+        noMargin={true}
+        label={"Display Name"}
+        labelPlacement={"inner"}
+      />
+      <Select
+        className={"header-select"}
+        value={vertexConfig?.longDisplayNameAttribute || ""}
+        onChange={onDisplayNameChange("longName")}
+        options={selectOptions}
+        hideError={true}
+        noMargin={true}
+        label={"Display Description"}
+        labelPlacement={"inner"}
+      />
+    </div>
+  );
+}
+
+function AddToExplorerButton({ vertex }: { vertex: Vertex }) {
+  const fetchNode = useFetchNode();
+  const [entities] = useEntities({ disableFilters: true });
+  const isInExplorer = !!entities.nodes.find(
+    node => node.data.id === vertex.data.id
+  );
+
+  return (
+    <div style={{ display: "inline-block" }}>
+      <Button
+        isDisabled={isInExplorer}
+        icon={isInExplorer ? <CheckIcon /> : <SendIcon />}
+        variant={"default"}
+        size={"small"}
+        iconPlacement={"start"}
+        onPress={() => {
+          fetchNode(vertex);
+        }}
+      >
+        {isInExplorer ? "Sent to Explorer" : "Send to Explorer"}
+      </Button>
+    </div>
+  );
+}
+
+function useColumnDefinitions(vertexType: string) {
+  const textTransform = useTextTransform();
+  const t = useTranslations();
+  const vertexConfig = useRecoilValue(vertexTypeConfigSelector(vertexType));
+  const columns: ColumnDefinition<Vertex>[] = useMemo(() => {
+    const vtColumns: ColumnDefinition<Vertex>[] =
+      vertexConfig?.attributes
+        .map(attr => ({
+          id: attr.name,
+          label: attr.displayLabel || textTransform(attr.name),
+          accessor: (row: Vertex) => row.data.attributes[attr.name],
+          filterType:
+            attr.dataType === "String"
+              ? { name: "string" as const }
+              : undefined,
+        }))
+        .sort((a, b) => a.label.localeCompare(b.label)) || [];
+
+    vtColumns.unshift({
+      label: t("data-explorer.node-id"),
+      id: "__id",
+      accessor: row => textTransform(row.data.id),
+      filterable: false,
+    });
+
+    vtColumns.push({
+      id: "__send_to_explorer",
+      label: "",
+      filterable: false,
+      sortable: false,
+      resizable: false,
+      width: 200,
+      align: "right",
+      cellComponent: ({ cell }) => (
+        <AddToExplorerButton vertex={cell.row.original} />
+      ),
+    });
+
+    return vtColumns;
+  }, [t, textTransform, vertexConfig?.attributes]);
+  return columns;
+}
+
+function usePagingOptions() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const pageIndex = Number(searchParams.get("page") || 1) - 1;
+  const pageSize = Number(searchParams.get("pageSize") || 20);
+  const onPageIndexChange = useCallback(
+    (pageIndex: number) => {
+      setSearchParams(
+        prevState => {
+          const currPageSize = Number(prevState.get("pageSize") || 20);
+          return {
+            page: String(pageIndex + 1),
+            pageSize: String(currPageSize),
+          };
+        },
+        { replace: true }
+      );
+    },
+    // setSearchParams is not memoized and causes infinite loop
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
+
+  const onPageSizeChange = useCallback(
+    (pageSize: number) => {
+      setSearchParams(
+        prevState => {
+          const currPageIndex = Number(prevState.get("page") || 1);
+          return {
+            page: String(currPageIndex),
+            pageSize: String(pageSize),
+          };
+        },
+        { replace: true }
+      );
+    },
+    // setSearchParams is not memoized and causes infinite loop
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
+
+  return {
+    pageIndex,
+    pageSize,
+    onPageIndexChange,
+    onPageSizeChange,
+  };
+}
+
+function useDataExplorerQuery(
+  vertexType: string,
+  pageSize: number,
+  pageIndex: number
+) {
+  const explorer = useRecoilValue(explorerSelector);
+
+  const updatePrefixes = usePrefixesUpdater();
+
+  const searchRequest: KeywordSearchRequest = {
+    vertexTypes: [vertexType],
+    limit: pageSize,
+    offset: pageIndex * pageSize,
+  };
+  const query = useQuery({
+    ...searchQuery(searchRequest, explorer),
+    placeholderData: keepPreviousData,
+  });
+
+  useEffect(() => {
+    if (!query.data) {
+      return;
+    }
+
+    updatePrefixes(
+      query.data.vertices.map((v: { data: { id: any } }) => v.data.id)
+    );
+  }, [query.data, updatePrefixes]);
+
+  return query;
 }

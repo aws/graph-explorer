@@ -1,5 +1,12 @@
 # graph-explorer Change Log
 
+## Upcoming
+
+**Bug Fixes and Minor Changes**
+
+- Reduce search queries when no search term provided by ignoring attribute and
+  exact match changes (<https://github.com/aws/graph-explorer/pull/473>)
+
 ## Release 1.8.0
 
 **Major Changes**

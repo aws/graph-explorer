@@ -2,11 +2,35 @@ import { queryOptions } from "@tanstack/react-query";
 import {
   CountsByTypeResponse,
   Explorer,
+  KeywordSearchRequest,
+  KeywordSearchResponse,
   NeighborsRequest,
   NeighborsResponse,
   VertexId,
   typeofVertexId,
 } from "./useGEFetchTypes";
+
+/**
+ * Performs a search with the provided parameters.
+ * @param request The search parameters to use for the query.
+ * @param explorer The service client to use for fetching the neighbors count.
+ * @returns A list of nodes that match the search parameters.
+ */
+export function searchQuery(
+  request: KeywordSearchRequest | null,
+  explorer: Explorer | null
+) {
+  return queryOptions({
+    queryKey: ["keyword-search", request, explorer],
+    enabled: Boolean(explorer) && Boolean(request),
+    queryFn: async ({ signal }): Promise<KeywordSearchResponse | null> => {
+      if (!explorer || !request) {
+        return { vertices: [] };
+      }
+      return await explorer.keywordSearch(request, { signal });
+    },
+  });
+}
 
 /**
  * Retrieves the neighbor info for the given node using the provided filters to
