@@ -15,6 +15,7 @@ import {
   ChevronLeftIcon,
   LoadingSpinner,
   ModuleContainer,
+  PanelError,
   Select,
   SendIcon,
 } from "../../components";
@@ -23,6 +24,7 @@ import { ExplorerIcon } from "../../components/icons";
 import ModuleContainerHeader from "../../components/ModuleContainer/components/ModuleContainerHeader";
 import {
   ColumnDefinition,
+  TabularEmptyBodyControls,
   TabularFooterControls,
   TabularInstance,
 } from "../../components/Tabular";
@@ -141,6 +143,11 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
             disableFilters={true}
             disableSorting={true}
           >
+            <TabularEmptyBodyControls>
+              {query.isError ? (
+                <PanelError error={query.error} onRetry={query.refetch} />
+              ) : null}
+            </TabularEmptyBodyControls>
             <TabularFooterControls>
               <ExternalPaginationControl
                 pageIndex={pageIndex}
