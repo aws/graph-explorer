@@ -6,6 +6,7 @@
 
 - Reduce search queries when no search term provided by ignoring attribute and
   exact match changes (<https://github.com/aws/graph-explorer/pull/473>)
+- Update PNPM version (<https://github.com/aws/graph-explorer/pull/475>)
 
 ## Release 1.8.0
 
