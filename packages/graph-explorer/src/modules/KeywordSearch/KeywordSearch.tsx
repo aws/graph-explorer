@@ -51,11 +51,10 @@ export default function KeywordSearch({ className }: KeywordSearchProps) {
   const selection = useSet<string>(new Set());
 
   const {
-    isFetching,
+    query,
     onSearchTermChange,
     onVertexOptionChange,
     searchPlaceholder,
-    searchResults,
     searchTerm,
     selectedVertexType,
     vertexOptions,
@@ -80,8 +79,11 @@ export default function KeywordSearch({ className }: KeywordSearchProps) {
   const ref = useClickOutside(onInputFocusChange(false));
   useHotkeys([["Escape", onInputFocusChange(false)]]);
 
-  const noResultsAfterFetching = !isFetching && searchResults.length === 0;
-  const withResultsAfterFetching = !isFetching && searchResults.length > 0;
+  const searchResults = useMemo(() => query.data?.vertices ?? [], [query.data]);
+  const noResultsAfterFetching =
+    !query.isFetching && searchResults.length === 0;
+  const withResultsAfterFetching =
+    !query.isFetching && searchResults.length > 0;
   const getDisplayNames = useDisplayNames();
   const textTransform = useTextTransform();
   const resultItems = useMemo(() => {
@@ -244,7 +246,7 @@ export default function KeywordSearch({ className }: KeywordSearchProps) {
             placeholder={searchPlaceholder}
             onFocus={onInputFocusChange(true)}
             endAdornment={
-              isFetching ? (
+              query.isFetching ? (
                 <LoadingSpinner
                   style={{ width: 24, height: 24 }}
                   color={"var(--palette-primary-main)"}
@@ -310,7 +312,7 @@ export default function KeywordSearch({ className }: KeywordSearchProps) {
             />
           </div>
           <div className={"search-results"}>
-            {isFetching && (
+            {query.isFetching && (
               <PanelEmptyState
                 title={"Searching..."}
                 subtitle={

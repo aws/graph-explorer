@@ -62,9 +62,7 @@ export function useKeywordSearchQuery({
     });
   }, [query.error, enqueueNotification]);
 
-  return {
-    ...query,
-  };
+  return query;
 }
 
 export function useCancelKeywordSearch() {

@@ -179,7 +179,7 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
         )
       : [selectedAttribute];
 
-  const { data, isFetching } = useKeywordSearchQuery({
+  const query = useKeywordSearchQuery({
     debouncedSearchTerm,
     vertexTypes,
     searchByAttributes,
@@ -193,7 +193,7 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
   }, [selectedVertexType, defaultSearchAttribute]);
 
   return {
-    isFetching,
+    query,
     debouncedSearchTerm,
     onSearchTermChange,
     onVertexOptionChange,
@@ -207,7 +207,6 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
     exactMatch,
     exactMatchOptions,
     onExactMatchChange,
-    searchResults: data?.vertices || [],
   };
 };
 
