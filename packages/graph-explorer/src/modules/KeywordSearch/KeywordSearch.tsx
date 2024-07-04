@@ -33,6 +33,7 @@ import NodeDetail from "../EntityDetails/NodeDetail";
 import defaultStyles from "./KeywordSearch.styles";
 import toAdvancedList from "./toAdvancedList";
 import useKeywordSearch from "./useKeywordSearch";
+import { useCancelKeywordSearch } from "./useKeywordSearchQuery";
 
 export type KeywordSearchProps = {
   className?: string;
@@ -64,10 +65,10 @@ export default function KeywordSearch({ className }: KeywordSearchProps) {
     exactMatch,
     exactMatchOptions,
     onExactMatchChange,
-    cancelAll,
   } = useKeywordSearch({
     isOpen: isFocused,
   });
+  const cancelAll = useCancelKeywordSearch();
 
   const onInputFocusChange = useCallback(
     (isFocused: boolean) => () => {

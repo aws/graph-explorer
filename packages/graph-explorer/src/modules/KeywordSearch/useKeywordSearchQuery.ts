@@ -26,7 +26,6 @@ export function useKeywordSearchQuery({
   const explorer = useRecoilValue(explorerSelector);
   const updatePrefixes = usePrefixesUpdater();
   const { enqueueNotification } = useNotification();
-  const cancelAll = useCancelKeywordSearch();
 
   const request: KeywordSearchRequest | null = isOpen
     ? {
@@ -65,11 +64,10 @@ export function useKeywordSearchQuery({
 
   return {
     ...query,
-    cancelAll,
   };
 }
 
-function useCancelKeywordSearch() {
+export function useCancelKeywordSearch() {
   const queryClient = useQueryClient();
 
   const cancelAll = useCallback(async () => {
