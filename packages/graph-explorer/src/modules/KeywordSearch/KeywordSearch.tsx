@@ -19,6 +19,7 @@ import {
   Select,
   VertexIcon,
   Button,
+  PanelError,
 } from "../../components";
 import { CarouselRef } from "../../components/Carousel/Carousel";
 import HumanReadableNumberFormatter from "../../components/HumanReadableNumberFormatter";
@@ -289,11 +290,6 @@ function SearchResults({
   const searchResults = useMemo(() => query.data?.vertices ?? [], [query.data]);
   const cancelAll = useCancelKeywordSearch();
 
-  const noResultsAfterFetching =
-    !query.isFetching && searchResults.length === 0;
-  const withResultsAfterFetching =
-    !query.isFetching && searchResults.length > 0;
-
   const resultItems = useMemo(() => {
     return toAdvancedList(searchResults, {
       getGroupLabel: vertex => {
@@ -370,86 +366,92 @@ function SearchResults({
     carouselRef.current?.slideTo(selection.state.size - 1);
   }, [selection.state.size]);
 
-  return (
-    <>
-      {query.isFetching && (
-        <PanelEmptyState
-          title={"Searching..."}
-          subtitle={
-            <div>
-              Looking {currentTotal != null && "at "}
-              {currentTotal != null && (
-                <HumanReadableNumberFormatter
-                  value={currentTotal}
-                  maxFractionDigits={0}
-                />
-              )}
-              {currentTotal != null && " records "}
-              for matching results
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  marginTop: "24px",
-                  gap: "24px",
-                }}
-              >
-                <Button onPress={() => cancelAll()}>Cancel</Button>
-              </div>
-            </div>
-          }
-          icon={<LoadingSpinner />}
-        />
-      )}
-      {noResultsAfterFetching && (
-        <PanelEmptyState
-          title={"No Results"}
-          subtitle={"Your criteria does not match with any record"}
-          icon={<SearchSadIcon />}
-        />
-      )}
-      {withResultsAfterFetching && (
-        <div className={"search-results-grid"}>
-          <AdvancedList
-            className={"search-results-advanced-list"}
-            items={resultItems}
-            draggable={true}
-            defaultItemType={"graph-viewer__node"}
-            onItemClick={(event, item) => {
-              selection.toggle(item.id);
-            }}
-            selectedItemsIds={Array.from(selection.state)}
-            hideFooter
-          />
-          {selection.state.size > 0 && (
-            <Carousel
-              ref={carouselRef}
-              slidesToShow={1}
-              className={"carousel"}
-              pagination={{
-                el: `.swiper-pagination`,
+  if (query.isLoading) {
+    return (
+      <PanelEmptyState
+        title={"Searching..."}
+        subtitle={
+          <div>
+            Looking {currentTotal != null && "at "}
+            {currentTotal != null && (
+              <HumanReadableNumberFormatter
+                value={currentTotal}
+                maxFractionDigits={0}
+              />
+            )}
+            {currentTotal != null && " records "}
+            for matching results
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                marginTop: "24px",
+                gap: "24px",
               }}
             >
-              {Array.from(selection.state).map(nodeId => {
-                const node = searchResults.find(n => n.data.id === nodeId);
+              <Button onPress={() => cancelAll()}>Cancel</Button>
+            </div>
+          </div>
+        }
+        icon={<LoadingSpinner />}
+      />
+    );
+  }
 
-                return node !== undefined ? (
-                  <NodeDetail key={nodeId} node={node} hideNeighbors={true} />
-                ) : null;
-              })}
-            </Carousel>
-          )}
-          {selection.state.size === 0 && (
-            <PanelEmptyState
-              className={"node-preview"}
-              title="Select an item to preview"
-              icon={<GraphIcon />}
-            />
-          )}
-        </div>
+  if (query.isError && !query.data) {
+    return <PanelError error={query.error} onRetry={query.refetch} />;
+  }
+
+  if (!query.data || query.data.vertices.length === 0) {
+    return (
+      <PanelEmptyState
+        title={"No Results"}
+        subtitle={"Your criteria does not match with any record"}
+        icon={<SearchSadIcon />}
+      />
+    );
+  }
+
+  return (
+    <div className={"search-results-grid"}>
+      <AdvancedList
+        className={"search-results-advanced-list"}
+        items={resultItems}
+        draggable={true}
+        defaultItemType={"graph-viewer__node"}
+        onItemClick={(event, item) => {
+          selection.toggle(item.id);
+        }}
+        selectedItemsIds={Array.from(selection.state)}
+        hideFooter
+      />
+      {selection.state.size > 0 && (
+        <Carousel
+          ref={carouselRef}
+          slidesToShow={1}
+          className={"carousel"}
+          pagination={{
+            el: `.swiper-pagination`,
+          }}
+        >
+          {Array.from(selection.state).map(nodeId => {
+            const node = searchResults.find(n => n.data.id === nodeId);
+
+            return node !== undefined ? (
+              <NodeDetail key={nodeId} node={node} hideNeighbors={true} />
+            ) : null;
+          })}
+        </Carousel>
       )}
-    </>
+      {selection.state.size === 0 && (
+        <PanelEmptyState
+          className={"node-preview"}
+          title="Select an item to preview"
+          icon={<GraphIcon />}
+        />
+      )}
+    </div>
   );
 }

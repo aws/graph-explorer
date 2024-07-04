@@ -1,9 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useNotification } from "../../components/NotificationProvider";
 import { explorerSelector } from "../../core/connector";
 import usePrefixesUpdater from "../../hooks/usePrefixesUpdater";
 import { useCallback, useEffect } from "react";
-import { createDisplayError } from "../../utils/createDisplayError";
 import { useRecoilValue } from "recoil";
 import { searchQuery } from "../../connector/queries";
 import { KeywordSearchRequest } from "../../connector/useGEFetchTypes";
@@ -25,7 +23,6 @@ export function useKeywordSearchQuery({
 }: SearchQueryRequest) {
   const explorer = useRecoilValue(explorerSelector);
   const updatePrefixes = usePrefixesUpdater();
-  const { enqueueNotification } = useNotification();
 
   const request: KeywordSearchRequest | null = isOpen
     ? {
@@ -49,18 +46,6 @@ export function useKeywordSearchQuery({
     }
     updatePrefixes(query.data.vertices.map(v => v.data.id));
   }, [query.data, updatePrefixes]);
-
-  // Show errors
-  useEffect(() => {
-    if (!query.error) {
-      return;
-    }
-    const displayError = createDisplayError(query.error);
-    enqueueNotification({
-      type: "error",
-      ...displayError,
-    });
-  }, [query.error, enqueueNotification]);
 
   return query;
 }
