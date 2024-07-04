@@ -1,13 +1,15 @@
 import { useCallback, useState } from "react";
 import { addItems, deleteItems } from "../utils";
 
-export default function useSet<T>(initialState = new Set<T>()): {
+export type SetResult<T> = {
   state: Set<T>;
   toggle: (value: T) => void;
   add: (value: T | T[]) => void;
   remove: (value: T | T[]) => void;
   clear: () => void;
-} {
+};
+
+export default function useSet<T>(initialState = new Set<T>()): SetResult<T> {
   const [state, setState] = useState<Set<T>>(initialState);
   const toggle = useCallback(
     (value: T) =>
