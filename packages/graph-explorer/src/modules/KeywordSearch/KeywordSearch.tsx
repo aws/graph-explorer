@@ -38,7 +38,7 @@ export type KeywordSearchProps = {
   className?: string;
 };
 
-const KeywordSearch = ({ className }: KeywordSearchProps) => {
+export default function KeywordSearch({ className }: KeywordSearchProps) {
   const config = useConfiguration();
   const t = useTranslations();
   const fetchNode = useFetchNode();
@@ -421,6 +421,4 @@ const KeywordSearch = ({ className }: KeywordSearchProps) => {
       )}
     </div>
   );
-};
-
-export default KeywordSearch;
+}
