@@ -6,6 +6,8 @@
 
 - Reduce search queries when no search term provided by ignoring attribute and
   exact match changes (<https://github.com/aws/graph-explorer/pull/473>)
+- Fix issue when selecting an item in search results that resulted in errors in
+  the browser console (<https://github.com/aws/graph-explorer/pull/474>)
 - Update PNPM version (<https://github.com/aws/graph-explorer/pull/475>)
 
 ## Release 1.8.0

@@ -6,10 +6,12 @@ import {
   forwardRef,
   MouseEventHandler,
   PropsWithChildren,
+  useCallback,
   useImperativeHandle,
   useMemo,
   useRef,
   useState,
+  useTransition,
 } from "react";
 import { CustomArrowProps } from "react-slick";
 import { Navigation, Pagination } from "swiper";
@@ -124,6 +126,22 @@ export const Carousel = forwardRef<
     const [swiper, setSwiper] = useState<SwiperClass | undefined>(undefined);
     useImperativeHandle(ref, () => swiper, [swiper]);
 
+    const [_, startTransition] = useTransition();
+    const onInit = useCallback((swiper: SwiperClass) => {
+      // run this on next tick
+      startTransition(() => {
+        if (swiper.params.navigation && isObject(swiper.params.navigation)) {
+          swiper.params.navigation.prevEl = prevRef.current;
+          swiper.params.navigation.nextEl = nextRef.current;
+        }
+      });
+      startTransition(() => {
+        swiper.updateSize();
+        swiper.updateSlides();
+        swiper.navigation.update();
+      });
+    }, []);
+
     if (!childrenComputed) {
       return null;
     }
@@ -143,23 +161,7 @@ export const Carousel = forwardRef<
             nextEl: nextRef.current,
             prevEl: prevRef.current,
           }}
-          onInit={swiper => {
-            // run this on next tick
-            setTimeout(() => {
-              if (
-                swiper.params.navigation &&
-                isObject(swiper.params.navigation)
-              ) {
-                swiper.params.navigation.prevEl = prevRef.current;
-                swiper.params.navigation.nextEl = nextRef.current;
-              }
-            }, 0);
-            setTimeout(() => {
-              swiper.updateSize();
-              swiper.updateSlides();
-              swiper.navigation.update();
-            }, 1000);
-          }}
+          onInit={onInit}
           modules={[Pagination, Navigation]}
         >
           {childrenComputed}
