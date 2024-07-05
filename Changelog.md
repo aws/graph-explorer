@@ -4,6 +4,12 @@
 
 **Bug Fixes and Minor Changes**
 
+- Show errors during search in the search UI
+  (<https://github.com/aws/graph-explorer/pull/477>)
+- Show errors in the Data Explorer UI
+  (<https://github.com/aws/graph-explorer/pull/477>)
+- Show empty state in the Data Explorer UI
+  (<https://github.com/aws/graph-explorer/pull/477>)
 - Reduce search queries when no search term provided by ignoring attribute and
   exact match changes (<https://github.com/aws/graph-explorer/pull/473>)
 - Fix issue when selecting an item in search results that resulted in errors in

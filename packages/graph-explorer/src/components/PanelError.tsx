@@ -17,7 +17,7 @@ export default function PanelError({
       title={displayError.title}
       subtitle={displayError.message}
       onAction={onRetry}
-      actionLabel="Retry"
+      actionLabel={onRetry ? "Retry" : undefined}
     />
   );
 }

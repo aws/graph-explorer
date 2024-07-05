@@ -141,6 +141,7 @@ const UserPrefixes = () => {
           icon={<NamespaceIcon />}
           actionLabel={"Start creating a new namespace"}
           onAction={() => setOpened(true)}
+          actionVariant="text"
         />
       )}
       {items.length > 0 && (

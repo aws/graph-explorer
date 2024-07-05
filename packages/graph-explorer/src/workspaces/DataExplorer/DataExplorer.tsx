@@ -15,6 +15,7 @@ import {
   ChevronLeftIcon,
   LoadingSpinner,
   ModuleContainer,
+  PanelError,
   Select,
   SendIcon,
 } from "../../components";
@@ -23,6 +24,8 @@ import { ExplorerIcon } from "../../components/icons";
 import ModuleContainerHeader from "../../components/ModuleContainer/components/ModuleContainerHeader";
 import {
   ColumnDefinition,
+  PlaceholderControl,
+  TabularEmptyBodyControls,
   TabularFooterControls,
   TabularInstance,
 } from "../../components/Tabular";
@@ -83,11 +86,10 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
   const textTransform = useTextTransform();
   const columns = useColumnDefinitions(vertexType);
 
-  const { data, isFetching } = useDataExplorerQuery(
-    vertexType,
-    pageSize,
-    pageIndex
-  );
+  const query = useDataExplorerQuery(vertexType, pageSize, pageIndex);
+
+  const vertexTypeDisplay =
+    vertexConfig?.displayLabel || textTransform(vertexType);
 
   return (
     <Workspace className={cx(styleWithTheme(defaultStyles), "data-explorer")}>
@@ -126,17 +128,15 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
           <ModuleContainerHeader
             title={
               <div className={"container-header"}>
-                <div>
-                  {vertexConfig?.displayLabel || textTransform(vertexType)}
-                </div>
-                {isFetching && <LoadingSpinner className={"spinner"} />}
+                <div>{vertexTypeDisplay}</div>
+                {query.isFetching && <LoadingSpinner className={"spinner"} />}
               </div>
             }
           />
           <Tabular
             ref={tableRef}
             defaultColumn={DEFAULT_COLUMN}
-            data={data?.vertices || []}
+            data={query.data?.vertices || []}
             columns={columns}
             fullWidth={true}
             pageIndex={pageIndex}
@@ -145,6 +145,16 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
             disableFilters={true}
             disableSorting={true}
           >
+            <TabularEmptyBodyControls>
+              {query.isError ? (
+                <PanelError error={query.error} onRetry={query.refetch} />
+              ) : null}
+              {query.data?.vertices.length === 0 && (
+                <PlaceholderControl>
+                  {`No nodes found for "${vertexTypeDisplay}"`}
+                </PlaceholderControl>
+              )}
+            </TabularEmptyBodyControls>
             <TabularFooterControls>
               <ExternalPaginationControl
                 pageIndex={pageIndex}

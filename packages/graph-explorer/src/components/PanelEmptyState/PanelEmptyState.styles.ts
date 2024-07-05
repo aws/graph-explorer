@@ -118,16 +118,24 @@ const styles =
       }
     }
 
+    .panel-empty-state-container {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: ${theme.spacing["4x"]};
+    }
+
     .panel-empty-state-text-container {
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
+      gap: ${theme.spacing.base};
     }
 
     .panel-empty-state-title {
       margin: 0;
-      margin-bottom: 4px;
       text-align: center;
       color: ${theme.emptyState?.panel?.title?.color ||
       theme.palette.text.primary};

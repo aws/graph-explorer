@@ -19,6 +19,7 @@ import {
   Select,
   VertexIcon,
   Button,
+  PanelError,
 } from "../../components";
 import { CarouselRef } from "../../components/Carousel/Carousel";
 import HumanReadableNumberFormatter from "../../components/HumanReadableNumberFormatter";
@@ -33,16 +34,20 @@ import NodeDetail from "../EntityDetails/NodeDetail";
 import defaultStyles from "./KeywordSearch.styles";
 import toAdvancedList from "./toAdvancedList";
 import useKeywordSearch from "./useKeywordSearch";
+import { useCancelKeywordSearch } from "./useKeywordSearchQuery";
+import { UseQueryResult } from "@tanstack/react-query";
+import { KeywordSearchResponse } from "../../connector/useGEFetchTypes";
+import { SetResult } from "../../hooks/useSet";
 
 export type KeywordSearchProps = {
   className?: string;
 };
 
-const KeywordSearch = ({ className }: KeywordSearchProps) => {
+export default function KeywordSearch({ className }: KeywordSearchProps) {
   const config = useConfiguration();
   const t = useTranslations();
   const fetchNode = useFetchNode();
-  const [entities, setEntities] = useEntities();
+  const [entities] = useEntities();
   const styleWithTheme = useWithTheme();
 
   const rootRef = useRef<HTMLDivElement | null>(null);
@@ -50,11 +55,10 @@ const KeywordSearch = ({ className }: KeywordSearchProps) => {
   const selection = useSet<string>(new Set());
 
   const {
-    isFetching,
+    query,
     onSearchTermChange,
     onVertexOptionChange,
     searchPlaceholder,
-    searchResults,
     searchTerm,
     selectedVertexType,
     vertexOptions,
@@ -64,11 +68,9 @@ const KeywordSearch = ({ className }: KeywordSearchProps) => {
     exactMatch,
     exactMatchOptions,
     onExactMatchChange,
-    cancelAll,
   } = useKeywordSearch({
     isOpen: isFocused,
   });
-
   const onInputFocusChange = useCallback(
     (isFocused: boolean) => () => {
       setInputFocused(isFocused);
@@ -79,79 +81,7 @@ const KeywordSearch = ({ className }: KeywordSearchProps) => {
   const ref = useClickOutside(onInputFocusChange(false));
   useHotkeys([["Escape", onInputFocusChange(false)]]);
 
-  const noResultsAfterFetching = !isFetching && searchResults.length === 0;
-  const withResultsAfterFetching = !isFetching && searchResults.length > 0;
-  const getDisplayNames = useDisplayNames();
-  const textTransform = useTextTransform();
-  const resultItems = useMemo(() => {
-    return toAdvancedList(searchResults, {
-      getGroupLabel: vertex => {
-        const vtConfig = config?.getVertexTypeConfig(vertex.data.type);
-        return vtConfig?.displayLabel || textTransform(vertex.data.type);
-      },
-      getItem: vertex => {
-        const vtConfig = config?.getVertexTypeConfig(vertex.data.type);
-        const { name, longName } = getDisplayNames(vertex);
-        return {
-          className: css`
-            .start-adornment {
-              background-color: ${fade(vtConfig?.color, 0.2)} !important;
-              color: ${vtConfig?.color} !important;
-            }
-          `,
-          group: vertex.data.type,
-          id: vertex.data.id,
-          title: name,
-          subtitle: longName,
-          icon: (
-            <VertexIcon
-              iconUrl={vtConfig?.iconUrl}
-              iconImageType={vtConfig?.iconImageType}
-            />
-          ),
-          endAdornment: entities.nodes.find(
-            n => n.data.id === vertex.data.id
-          ) ? (
-            <IconButton
-              tooltipText={"Remove from canvas"}
-              icon={<RemoveFromCanvasIcon className={"graph-remove-icon"} />}
-              size={"small"}
-              variant={"text"}
-              onPress={() => {
-                setEntities(prev => {
-                  return {
-                    ...prev,
-                    nodes: prev.nodes.filter(n => n.data.id !== vertex.data.id),
-                    forceSet: true,
-                  };
-                });
-              }}
-            />
-          ) : (
-            <IconButton
-              tooltipText={"Add to canvas"}
-              icon={<AddCircleIcon />}
-              size={"small"}
-              variant={"text"}
-              onPress={() => {
-                fetchNode(vertex);
-                setInputFocused(false);
-              }}
-            />
-          ),
-          properties: vertex,
-        };
-      },
-    });
-  }, [
-    searchResults,
-    config,
-    getDisplayNames,
-    textTransform,
-    entities.nodes,
-    setEntities,
-    fetchNode,
-  ]);
+  const searchResults = useMemo(() => query.data?.vertices ?? [], [query.data]);
 
   const isTheNodeAdded = (nodeId: string): boolean => {
     const possibleNode = entities.nodes.find(
@@ -222,11 +152,6 @@ const KeywordSearch = ({ className }: KeywordSearchProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedVertexType, searchTerm]);
 
-  const carouselRef = useRef<CarouselRef>(null);
-  useEffect(() => {
-    carouselRef.current?.slideTo(selection.state.size - 1);
-  }, [selection.state.size]);
-
   return (
     <div
       ref={rootRef}
@@ -243,7 +168,7 @@ const KeywordSearch = ({ className }: KeywordSearchProps) => {
             placeholder={searchPlaceholder}
             onFocus={onInputFocusChange(true)}
             endAdornment={
-              isFetching ? (
+              query.isFetching ? (
                 <LoadingSpinner
                   style={{ width: 24, height: 24 }}
                   color={"var(--palette-primary-main)"}
@@ -309,90 +234,12 @@ const KeywordSearch = ({ className }: KeywordSearchProps) => {
             />
           </div>
           <div className={"search-results"}>
-            {isFetching && (
-              <PanelEmptyState
-                title={"Searching..."}
-                subtitle={
-                  <div>
-                    Looking {currentTotal != null && "at "}
-                    {currentTotal != null && (
-                      <HumanReadableNumberFormatter
-                        value={currentTotal}
-                        maxFractionDigits={0}
-                      />
-                    )}
-                    {currentTotal != null && " records "}
-                    for matching results
-                    <div
-                      style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        marginTop: "24px",
-                        gap: "24px",
-                      }}
-                    >
-                      <Button onPress={() => cancelAll()}>Cancel</Button>
-                    </div>
-                  </div>
-                }
-                icon={<LoadingSpinner />}
-              />
-            )}
-            {noResultsAfterFetching && (
-              <PanelEmptyState
-                title={"No Results"}
-                subtitle={"Your criteria does not match with any record"}
-                icon={<SearchSadIcon />}
-              />
-            )}
-            {withResultsAfterFetching && (
-              <div className={"search-results-grid"}>
-                <AdvancedList
-                  className={"search-results-advanced-list"}
-                  items={resultItems}
-                  draggable={true}
-                  defaultItemType={"graph-viewer__node"}
-                  onItemClick={(event, item) => {
-                    selection.toggle(item.id);
-                  }}
-                  selectedItemsIds={Array.from(selection.state)}
-                  hideFooter
-                />
-                {selection.state.size > 0 && (
-                  <Carousel
-                    ref={carouselRef}
-                    slidesToShow={1}
-                    className={"carousel"}
-                    pagination={{
-                      el: `.swiper-pagination`,
-                    }}
-                  >
-                    {Array.from(selection.state).map(nodeId => {
-                      const node = searchResults.find(
-                        n => n.data.id === nodeId
-                      );
-
-                      return node !== undefined ? (
-                        <NodeDetail
-                          key={nodeId}
-                          node={node}
-                          hideNeighbors={true}
-                        />
-                      ) : null;
-                    })}
-                  </Carousel>
-                )}
-                {selection.state.size === 0 && (
-                  <PanelEmptyState
-                    className={"node-preview"}
-                    title="Select an item to preview"
-                    icon={<GraphIcon />}
-                  />
-                )}
-              </div>
-            )}
+            <SearchResults
+              query={query}
+              currentTotal={currentTotal}
+              selection={selection}
+              close={() => setInputFocused(false)}
+            />
           </div>
           <div className={"actions-footer"}>
             <span className={"footer-text"}>
@@ -421,6 +268,181 @@ const KeywordSearch = ({ className }: KeywordSearchProps) => {
       )}
     </div>
   );
-};
+}
 
-export default KeywordSearch;
+function SearchResults({
+  query,
+  currentTotal,
+  selection,
+  close,
+}: {
+  query: UseQueryResult<KeywordSearchResponse | null, Error>;
+  currentTotal: number | null | undefined;
+  selection: SetResult<string>;
+  close: () => void;
+}) {
+  const config = useConfiguration();
+  const fetchNode = useFetchNode();
+  const [entities, setEntities] = useEntities();
+  const getDisplayNames = useDisplayNames();
+  const textTransform = useTextTransform();
+
+  const searchResults = useMemo(() => query.data?.vertices ?? [], [query.data]);
+  const cancelAll = useCancelKeywordSearch();
+
+  const resultItems = useMemo(() => {
+    return toAdvancedList(searchResults, {
+      getGroupLabel: vertex => {
+        const vtConfig = config?.getVertexTypeConfig(vertex.data.type);
+        return vtConfig?.displayLabel || textTransform(vertex.data.type);
+      },
+      getItem: vertex => {
+        const vtConfig = config?.getVertexTypeConfig(vertex.data.type);
+        const { name, longName } = getDisplayNames(vertex);
+        return {
+          className: css`
+            .start-adornment {
+              background-color: ${fade(vtConfig?.color, 0.2)} !important;
+              color: ${vtConfig?.color} !important;
+            }
+          `,
+          group: vertex.data.type,
+          id: vertex.data.id,
+          title: name,
+          subtitle: longName,
+          icon: (
+            <VertexIcon
+              iconUrl={vtConfig?.iconUrl}
+              iconImageType={vtConfig?.iconImageType}
+            />
+          ),
+          endAdornment: entities.nodes.find(
+            n => n.data.id === vertex.data.id
+          ) ? (
+            <IconButton
+              tooltipText={"Remove from canvas"}
+              icon={<RemoveFromCanvasIcon className={"graph-remove-icon"} />}
+              size={"small"}
+              variant={"text"}
+              onPress={() => {
+                setEntities(prev => {
+                  return {
+                    ...prev,
+                    nodes: prev.nodes.filter(n => n.data.id !== vertex.data.id),
+                    forceSet: true,
+                  };
+                });
+              }}
+            />
+          ) : (
+            <IconButton
+              tooltipText={"Add to canvas"}
+              icon={<AddCircleIcon />}
+              size={"small"}
+              variant={"text"}
+              onPress={() => {
+                fetchNode(vertex);
+                close();
+              }}
+            />
+          ),
+          properties: vertex,
+        };
+      },
+    });
+  }, [
+    searchResults,
+    config,
+    textTransform,
+    getDisplayNames,
+    entities.nodes,
+    setEntities,
+    fetchNode,
+    close,
+  ]);
+
+  const carouselRef = useRef<CarouselRef>(null);
+  useEffect(() => {
+    carouselRef.current?.slideTo(selection.state.size - 1);
+  }, [selection.state.size]);
+
+  if (query.isLoading) {
+    return (
+      <PanelEmptyState
+        title="Searching..."
+        subtitle={
+          currentTotal ? (
+            <div>
+              Looking at
+              <HumanReadableNumberFormatter
+                value={currentTotal}
+                maxFractionDigits={0}
+              />
+              records for matching results
+            </div>
+          ) : (
+            "Looking for matching results"
+          )
+        }
+        actionLabel="Cancel"
+        onAction={() => cancelAll()}
+        icon={<LoadingSpinner />}
+      />
+    );
+  }
+
+  if (query.isError && !query.data) {
+    return <PanelError error={query.error} onRetry={query.refetch} />;
+  }
+
+  if (!query.data || query.data.vertices.length === 0) {
+    return (
+      <PanelEmptyState
+        title={"No Results"}
+        subtitle={"Your criteria does not match with any record"}
+        icon={<SearchSadIcon />}
+      />
+    );
+  }
+
+  return (
+    <div className={"search-results-grid"}>
+      <AdvancedList
+        className={"search-results-advanced-list"}
+        items={resultItems}
+        draggable={true}
+        defaultItemType={"graph-viewer__node"}
+        onItemClick={(event, item) => {
+          selection.toggle(item.id);
+        }}
+        selectedItemsIds={Array.from(selection.state)}
+        hideFooter
+      />
+      {selection.state.size > 0 && (
+        <Carousel
+          ref={carouselRef}
+          slidesToShow={1}
+          className={"carousel"}
+          pagination={{
+            el: `.swiper-pagination`,
+          }}
+        >
+          {Array.from(selection.state).map(nodeId => {
+            const node = searchResults.find(n => n.data.id === nodeId);
+
+            return node !== undefined ? (
+              <NodeDetail key={nodeId} node={node} hideNeighbors={true} />
+            ) : null;
+          })}
+        </Carousel>
+      )}
+      {selection.state.size === 0 && (
+        <PanelEmptyState
+          className={"node-preview"}
+          title="Select an item to preview"
+          icon={<GraphIcon />}
+        />
+      )}
+    </div>
+  );
+}
