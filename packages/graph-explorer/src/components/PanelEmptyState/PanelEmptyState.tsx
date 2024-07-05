@@ -1,7 +1,7 @@
 import { cx } from "@emotion/css";
 import type { PropsWithChildren, ReactNode } from "react";
 import { useWithTheme } from "../../core";
-import Button from "../Button/Button";
+import Button, { ButtonProps } from "../Button/Button";
 import styles from "./PanelEmptyState.styles";
 
 export type PanelEmptyStateProps = {
@@ -14,6 +14,7 @@ export type PanelEmptyStateProps = {
   onAction?: () => void;
   actionId?: string;
   actionLabel?: string;
+  actionVariant?: ButtonProps["variant"];
   layout?: "horizontal" | "vertical";
 };
 
@@ -28,6 +29,7 @@ const PanelEmptyState = ({
   actionId,
   onAction,
   actionLabel,
+  actionVariant,
   layout = "vertical",
 }: PropsWithChildren<PanelEmptyStateProps>) => {
   const styleWithTheme = useWithTheme();
@@ -41,17 +43,19 @@ const PanelEmptyState = ({
       )}
     >
       {icon && (
-        <div className={"indicator-wrapper"}>
-          <div className={"indicator"}>{icon}</div>
+        <div className="indicator-wrapper">
+          <div className="indicator">{icon}</div>
         </div>
       )}
-      <div className={"panel-empty-state-text-container"}>
-        {title && <h1 className={"panel-empty-state-title"}>{title}</h1>}
-        {subtitle && (
-          <h2 className={"panel-empty-state-subtitle"}>{subtitle}</h2>
-        )}
+      <div className="panel-empty-state-container">
+        <div className="panel-empty-state-text-container">
+          {title && <h1 className="panel-empty-state-title">{title}</h1>}
+          {subtitle && (
+            <h2 className="panel-empty-state-subtitle">{subtitle}</h2>
+          )}
+        </div>
         {onAction && actionLabel && (
-          <Button id={actionId} onPress={onAction} variant="text">
+          <Button id={actionId} onPress={onAction} variant={actionVariant}>
             {actionLabel}
           </Button>
         )}

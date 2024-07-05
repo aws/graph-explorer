@@ -369,32 +369,23 @@ function SearchResults({
   if (query.isLoading) {
     return (
       <PanelEmptyState
-        title={"Searching..."}
+        title="Searching..."
         subtitle={
-          <div>
-            Looking {currentTotal != null && "at "}
-            {currentTotal != null && (
+          currentTotal ? (
+            <div>
+              Looking at
               <HumanReadableNumberFormatter
                 value={currentTotal}
                 maxFractionDigits={0}
               />
-            )}
-            {currentTotal != null && " records "}
-            for matching results
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                marginTop: "24px",
-                gap: "24px",
-              }}
-            >
-              <Button onPress={() => cancelAll()}>Cancel</Button>
+              records for matching results
             </div>
-          </div>
+          ) : (
+            "Looking for matching results"
+          )
         }
+        actionLabel="Cancel"
+        onAction={() => cancelAll()}
         icon={<LoadingSpinner />}
       />
     );

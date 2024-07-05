@@ -189,6 +189,7 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
           }
           actionLabel={"Start synchronization"}
           onAction={onConfigSync}
+          actionVariant="text"
         />
       )}
       {isSync && (
