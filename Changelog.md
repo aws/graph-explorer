@@ -14,7 +14,8 @@
   exact match changes (<https://github.com/aws/graph-explorer/pull/473>)
 - Fix issue when selecting an item in search results that resulted in errors in
   the browser console (<https://github.com/aws/graph-explorer/pull/474>)
-- Update PNPM version (<https://github.com/aws/graph-explorer/pull/475>)
+- Update dependencies (<https://github.com/aws/graph-explorer/pull/475>,
+  <https://github.com/aws/graph-explorer/pull/486>)
 
 ## Release 1.8.0
 
