@@ -1,3 +1,4 @@
+import dedent from "dedent";
 import { uniq } from "lodash";
 
 /**
@@ -14,7 +15,15 @@ import { uniq } from "lodash";
  *  .limit(1)
  */
 export default function edgesSchemaTemplate({ types }: { types: string[] }) {
-  const labels = uniq(types.flatMap(type => type.split("::")));
+  // Labels with quotes
+  const labels = uniq(types.flatMap(type => type.split("::"))).map(
+    label => `"${label}"`
+  );
 
-  return `g.E().project(${labels.map(l => `"${l}"`).join(",")})${labels.map(l => `.by(V().bothE("${l}").limit(1))`).join("")}.limit(1)`;
+  return dedent`
+    g.E()
+      .project(${labels.join(", ")})
+      ${labels.map(label => `.by(V().bothE(${label}).limit(1))`).join("\n      ")}
+      .limit(1)
+  `;
 }

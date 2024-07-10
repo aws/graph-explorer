@@ -12,8 +12,10 @@ import "@testing-library/jest-dom/extend-expect";
 // Mock the env module
 jest.mock("./utils/env", () => {
   return {
-    DEV: true,
-    PROD: false,
+    env: {
+      DEV: true,
+      PROD: false,
+    },
   };
 });
 

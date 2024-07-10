@@ -2,9 +2,9 @@ import { shortHash } from "./shortHash";
 
 const GREMLIN = "../gremlin/queries/__mock";
 const RESPONSES_FILES_MAP: Record<string, string> = {
-  "3e5ee5ec": `${GREMLIN}/vertices-schema.json`,
+  "6281d1a5": `${GREMLIN}/vertices-schema.json`,
   "186857e1": `${GREMLIN}/vertices-labels-and-counts.json`,
-  "5766be04": `${GREMLIN}/edges-schema.json`,
+  "2c38e2dd": `${GREMLIN}/edges-schema.json`,
   "7062d2e": `${GREMLIN}/edges-labels-and-counts.json`,
   "35be2501": `${GREMLIN}/should-return-1-random-node.json`,
   "54fa1494": `${GREMLIN}/should-return-airports-whose-code-matches-with-SFA.json`,
@@ -23,7 +23,7 @@ const globalMockFetch = () => {
     const filePath = RESPONSES_FILES_MAP[key];
     if (!filePath) {
       throw new Error(
-        `Failed to find a response file in the map for key '${key}'`,
+        `Failed to find a response file in the map for key '${key}' and URL '${url}'`,
         { cause: { url } }
       );
     }

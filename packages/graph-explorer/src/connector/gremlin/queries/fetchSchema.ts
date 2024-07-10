@@ -1,4 +1,4 @@
-import { sanitizeText } from "../../../utils";
+import { logger, sanitizeText } from "../../../utils";
 import type { SchemaResponse } from "../../useGEFetchTypes";
 import edgeLabelsTemplate from "../templates/edgeLabelsTemplate";
 import edgesSchemaTemplate from "../templates/edgesSchemaTemplate";
@@ -87,6 +87,7 @@ const fetchVertexLabels = async (
   gremlinFetch: GremlinFetch
 ): Promise<Record<string, number>> => {
   const labelsTemplate = vertexLabelsTemplate();
+  logger.log("[Gremlin Explorer] Fetching vertex labels with counts...");
   const data = await gremlinFetch<RawVertexLabelsResponse>(labelsTemplate);
 
   const values = data.result.data["@value"][0]["@value"];
@@ -121,6 +122,7 @@ const fetchVerticesAttributes = async (
     types: labels,
   });
 
+  logger.log("[Gremlin Explorer] Fetching vertices attributes...");
   const response =
     await gremlinFetch<RawVerticesSchemaResponse>(verticesTemplate);
   const verticesSchemas = response.result.data["@value"][0]["@value"];
@@ -163,6 +165,7 @@ const fetchEdgeLabels = async (
   gremlinFetch: GremlinFetch
 ): Promise<Record<string, number>> => {
   const labelsTemplate = edgeLabelsTemplate();
+  logger.log("[Gremlin Explorer] Fetching edge labels with counts...");
   const data = await gremlinFetch<RawEdgeLabelsResponse>(labelsTemplate);
 
   const values = data.result.data["@value"][0]["@value"];
@@ -187,6 +190,7 @@ const fetchEdgesAttributes = async (
   const edgesTemplate = edgesSchemaTemplate({
     types: labels,
   });
+  logger.log("[Gremlin Explorer] Fetching edges attributes...");
   const data = await gremlinFetch<RawEdgesSchemaResponse>(edgesTemplate);
 
   const edgesSchemas = data.result.data["@value"][0]["@value"];
@@ -238,6 +242,8 @@ const fetchSchema = async (
   summary?: GraphSummary
 ): Promise<SchemaResponse> => {
   if (!summary) {
+    logger.log("[Gremlin Explorer] No summary statistics");
+
     const vertices = await fetchVerticesSchema(gremlinFetch);
     const totalVertices = vertices.reduce((total, vertex) => {
       return total + (vertex.total ?? 0);
@@ -255,6 +261,8 @@ const fetchSchema = async (
       edges,
     };
   }
+
+  logger.log("[Gremlin Explorer] Using summary statistics");
 
   const vertices = await fetchVerticesAttributes(
     gremlinFetch,
