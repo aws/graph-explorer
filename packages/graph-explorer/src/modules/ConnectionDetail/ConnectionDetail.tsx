@@ -1,14 +1,16 @@
 import { Modal } from "@mantine/core";
 import { useCallback, useState } from "react";
-import { useRecoilCallback } from "recoil";
+import { useRecoilCallback, useSetRecoilState } from "recoil";
 import {
   ActionItem,
+  Button,
   Chip,
   DatabaseIcon,
   DeleteIcon,
   EditIcon,
   ModuleContainer,
   ModuleContainerHeader,
+  NotInProduction,
   PanelEmptyState,
   SyncIcon,
   TrayArrowIcon,
@@ -18,10 +20,13 @@ import {
   activeConfigurationAtom,
   configurationAtom,
 } from "../../core/StateProvider/configuration";
-import { schemaAtom } from "../../core/StateProvider/schema";
+import {
+  activeSchemaSelector,
+  schemaAtom,
+} from "../../core/StateProvider/schema";
 import useSchemaSync from "../../hooks/useSchemaSync";
 import useTranslations from "../../hooks/useTranslations";
-import { formatDate } from "../../utils";
+import { formatDate, logger } from "../../utils";
 import saveConfigurationToFile from "../../utils/saveConfigurationToFile";
 import CreateConnection from "../CreateConnection";
 import ConnectionData from "./ConnectionData";
@@ -177,6 +182,9 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
             )}
           </div>
         )}
+        <NotInProduction>
+          <DebugActions />
+        </NotInProduction>
       </div>
       {!isSync && !!lastSyncUpdate && <ConnectionData />}
       {!lastSyncUpdate && !isSync && (
@@ -212,5 +220,68 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
     </ModuleContainer>
   );
 };
+
+function DebugActions() {
+  const setActiveSchema = useSetRecoilState(activeSchemaSelector);
+
+  const deleteSchema = () => {
+    logger.log("Deleting schema");
+    setActiveSchema(null);
+  };
+  const resetSchemaLastUpdated = () => {
+    logger.log("Resetting schema last updated");
+    setActiveSchema(prevSchema => {
+      if (!prevSchema) {
+        return prevSchema;
+      }
+      return {
+        ...prevSchema,
+        lastUpdate: undefined,
+      };
+    });
+  };
+  const setSchemaSyncFailed = () => {
+    logger.log("Setting last schema sync failed");
+    setActiveSchema(prevSchema => {
+      if (!prevSchema) {
+        return prevSchema;
+      }
+      return {
+        ...prevSchema,
+        lastSyncFail: true,
+      };
+    });
+  };
+  const resetVertexTotals = () => {
+    logger.log("Setting vertex totals to undefined");
+    setActiveSchema(prevSchema => {
+      if (!prevSchema) {
+        return prevSchema;
+      }
+
+      return {
+        ...prevSchema,
+        vertices: prevSchema.vertices.map(vertex => ({
+          ...vertex,
+          total: undefined,
+        })),
+      };
+    });
+  };
+
+  return (
+    <div className="item">
+      <div className="tag">Debug Actions</div>
+      <div className="flex flex-wrap gap-2">
+        <Button onPress={() => deleteSchema()}>Delete Schema</Button>
+        <Button onPress={() => resetSchemaLastUpdated()}>
+          Reset Last Updated
+        </Button>
+        <Button onPress={() => setSchemaSyncFailed()}>Last Sync Failed</Button>
+        <Button onPress={() => resetVertexTotals()}>Reset Vertex Totals</Button>
+      </div>
+    </div>
+  );
+}
 
 export default ConnectionDetail;
