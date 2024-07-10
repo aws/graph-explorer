@@ -148,30 +148,30 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
         actions={HEADER_ACTIONS(isSync, config.__fileBase === true)}
         onActionClick={onActionClick}
       />
-      <div className={"info-bar"}>
-        <div className={"item"}>
-          <div className={"tag"}>Type</div>
-          <div className={"value"}>{t("connection-detail.graph-type")}</div>
+      <div className="info-bar">
+        <div className="item">
+          <div className="tag">Type</div>
+          <div className="value">{t("connection-detail.graph-type")}</div>
         </div>
-        <div className={"item"}>
-          <div className={"tag"}>URL</div>
-          <div className={"value"}>{config.connection?.url}</div>
+        <div className="item">
+          <div className="tag">URL</div>
+          <div className="value">{config.connection?.url}</div>
         </div>
         {!!lastSyncUpdate && (
-          <div className={"item"}>
-            <div className={"tag"}>
+          <div className="item">
+            <div className="tag">
               <div>Last Synchronization</div>
             </div>
             {!lastSyncFail && (
-              <div className={"value"}>{formatDate(lastSyncUpdate)}</div>
+              <div className="value">{formatDate(lastSyncUpdate)}</div>
             )}
             {!lastSyncUpdate && !lastSyncFail && (
-              <Chip size={"sm"} variant={"warning"}>
+              <Chip size="sm" variant="warning">
                 Not Synchronized
               </Chip>
             )}
             {lastSyncFail && (
-              <Chip size={"sm"} variant={"error"}>
+              <Chip size="sm" variant="error">
                 Synchronization Failed
               </Chip>
             )}
@@ -181,30 +181,28 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
       {!isSync && !!lastSyncUpdate && <ConnectionData />}
       {!lastSyncUpdate && !isSync && (
         <PanelEmptyState
-          variant={"error"}
-          icon={<SyncIcon className={isSync ? "animate-spin" : ""} />}
-          title={"Synchronization Required"}
-          subtitle={
-            "It is necessary to synchronize the connection to be able to work with the database."
-          }
-          actionLabel={"Start synchronization"}
+          variant="error"
+          icon={<SyncIcon />}
+          title="Synchronization Required"
+          subtitle="It is necessary to synchronize the connection to be able to work with the database."
+          actionLabel="Start synchronization"
           onAction={onConfigSync}
           actionVariant="text"
         />
       )}
       {isSync && (
         <PanelEmptyState
-          variant={"info"}
-          icon={<SyncIcon className={isSync ? "animate-spin" : ""} />}
-          title={"Synchronizing..."}
-          subtitle={"The connection is being synchronized."}
+          variant="info"
+          icon={<SyncIcon className="animate-spin" />}
+          title="Synchronizing..."
+          subtitle="The connection is being synchronized."
         />
       )}
       <Modal
         opened={edit}
         onClose={() => setEdit(false)}
-        title={"Update connection"}
-        size={"600px"}
+        title="Update connection"
+        size="600px"
       >
         <CreateConnection
           onClose={() => setEdit(false)}
