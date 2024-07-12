@@ -5,7 +5,7 @@ describe("OpenCypher > edgesSchemaTemplate", () => {
     const template = edgesSchemaTemplate({ type: "route" });
 
     expect(template).toBe(
-      `MATCH() -[e:\`route\`]- () RETURN e AS object LIMIT 1`
+      `MATCH () -[e:\`route\`]- () RETURN e AS object LIMIT 1`
     );
   });
 });

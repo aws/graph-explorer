@@ -10,7 +10,7 @@
  * LIMIT 1`
  */
 const edgesSchemaTemplate = ({ type }: { type: string }) => {
-  return `MATCH() -[e:\`${type}\`]- () RETURN e AS object LIMIT 1`;
+  return `MATCH () -[e:\`${type}\`]- () RETURN e AS object LIMIT 1`;
 };
 
 export default edgesSchemaTemplate;

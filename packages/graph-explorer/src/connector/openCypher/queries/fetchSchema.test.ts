@@ -400,10 +400,10 @@ describe("OpenCypher > fetchSchema", () => {
     await fetchSchema(openCypherFetchFn);
 
     expect(openCypherFetchFn.mock.calls[3][0]).toStrictEqual(
-      "MATCH() -[e:`route`]- () RETURN e AS object LIMIT 1"
+      "MATCH () -[e:`route`]- () RETURN e AS object LIMIT 1"
     );
     expect(openCypherFetchFn.mock.calls[4][0]).toStrictEqual(
-      "MATCH() -[e:`contains`]- () RETURN e AS object LIMIT 1"
+      "MATCH () -[e:`contains`]- () RETURN e AS object LIMIT 1"
     );
   });
 
@@ -422,10 +422,10 @@ describe("OpenCypher > fetchSchema", () => {
     await fetchSchema(openCypherFetchFn);
 
     expect(openCypherFetchFn.mock.calls[3][0]).toStrictEqual(
-      "MATCH() -[e:`route`]- () RETURN e AS object LIMIT 1"
+      "MATCH () -[e:`route`]- () RETURN e AS object LIMIT 1"
     );
     expect(openCypherFetchFn.mock.calls[4][0]).toStrictEqual(
-      "MATCH() -[e:`contains`]- () RETURN e AS object LIMIT 1"
+      "MATCH () -[e:`contains`]- () RETURN e AS object LIMIT 1"
     );
   });
 });

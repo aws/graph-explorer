@@ -1,3 +1,5 @@
+import { batchPromisesSerially } from "../../../utils";
+import { DEFAULT_CONCURRENT_REQUESTS_LIMIT } from "../../../utils/constants";
 import type { SchemaResponse } from "../../useGEFetchTypes";
 import classesWithCountsTemplates from "../templates/classesWithCountsTemplates";
 import predicatesByClassTemplate from "../templates/predicatesByClassTemplate";
@@ -62,11 +64,12 @@ const fetchPredicatesByClass = async (
   classes: Array<string>,
   countsByClass: Record<string, number>
 ) => {
-  const vertices: SchemaResponse["vertices"] = [];
-  await Promise.all(
-    classes.map(async classResult => {
+  const responses = await batchPromisesSerially(
+    classes,
+    DEFAULT_CONCURRENT_REQUESTS_LIMIT,
+    async resourceClass => {
       const classPredicatesTemplate = predicatesByClassTemplate({
-        class: classResult,
+        class: resourceClass,
       });
       const predicatesResponse =
         await sparqlFetch<RawPredicatesSamplesResponse>(
@@ -81,22 +84,25 @@ const fetchPredicatesByClass = async (
         dataType: TYPE_MAP[item.sample.datatype || ""] || "String",
       }));
 
-      vertices.push({
-        type: classResult,
-        displayLabel: "",
-        total: countsByClass[classResult],
-        displayNameAttribute:
-          attributes.find(attr => displayNameCandidates.includes(attr.name))
-            ?.name || "id",
-        longDisplayNameAttribute:
-          attributes.find(attr => displayDescCandidates.includes(attr.name))
-            ?.name || "types",
+      return {
         attributes,
-      });
-    })
+        resourceClass,
+      };
+    }
   );
 
-  return vertices;
+  return responses.map(({ attributes, resourceClass }) => ({
+    type: resourceClass,
+    displayLabel: "",
+    total: countsByClass[resourceClass],
+    displayNameAttribute:
+      attributes.find(attr => displayNameCandidates.includes(attr.name))
+        ?.name || "id",
+    longDisplayNameAttribute:
+      attributes.find(attr => displayDescCandidates.includes(attr.name))
+        ?.name || "types",
+    attributes,
+  }));
 };
 
 const fetchClassesSchema = async (sparqlFetch: SparqlFetch) => {

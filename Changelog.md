@@ -9,6 +9,9 @@
 - Gremlin schema sync will be much faster on larger databases, thanks to
   @dsaban-lightricks for his great suggestion in issue #225
   (<https://github.com/aws/graph-explorer/pull/498>)
+- Requests executed in parallel for each label or class are now batched in
+  groups of 10 to reduce chance of throttling errors
+  (<https://github.com/aws/graph-explorer/pull/489>)
 
 **Bug Fixes and Minor Changes**
 
