@@ -22,25 +22,7 @@ const keywordSearch = async (
   openCypherFetch: OpenCypherFetch,
   req: KeywordSearchRequest
 ): Promise<KeywordSearchResponse> => {
-  const vertTypes = req.vertexTypes;
-
-  if (!vertTypes) {
-    return { vertices: [] };
-  }
-
-  // Create multiple requests, one per vertex
-  const modifiedRequests = vertTypes.map(vertex => ({
-    ...req,
-    vertexTypes: [vertex],
-  }));
-
-  // Execute all queries concurrently
-  const promises = modifiedRequests.map(modifiedRequest =>
-    vertexKeywordSearch(openCypherFetch, modifiedRequest)
-  );
-
-  // Wait for all results and flatten to a single array
-  const vertices = (await Promise.all(promises)).flat();
+  const vertices = await vertexKeywordSearch(openCypherFetch, req);
 
   return { vertices: vertices };
 };
