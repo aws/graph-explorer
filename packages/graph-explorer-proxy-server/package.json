@@ -2,9 +2,12 @@
   "name": "graph-explorer-proxy-server",
   "version": "1.8.0",
   "description": "Server to facilitate communication between the browser and the supported graph database.",
-  "main": "node-server.js",
+  "main": "dist/node-server.js",
+  "type": "module",
   "scripts": {
-    "start": "node node-server.js"
+    "build": "tsc",
+    "dev": "tsx watch node-server.ts",
+    "start": "node dist/node-server.js"
   },
   "author": "amazon",
   "license": "Apache-2.0",

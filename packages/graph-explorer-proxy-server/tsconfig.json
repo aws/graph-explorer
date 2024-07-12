@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    /* Projects */
+    "composite": true,
+
+    /* Language and Environment */
+    "target": "ES2022",
+    "lib": ["ES2023"],
+
+    /* Modules */
+    "module": "node16",
+
+    /* Emit */
+    "outDir": "./dist",
+
+    /* Interop Constraints */
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+
+    /* Type Checking */
+    "strict": true,
+    "noImplicitAny": false,
+
+    /* Completeness */
+    "skipLibCheck": true
+  }
+}
