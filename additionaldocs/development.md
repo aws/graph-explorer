@@ -46,7 +46,7 @@ pnpm install
 Start the development servers.
 
 ```bash
-pnpm start
+pnpm dev
 ```
 
 Launch your web browser of choice and navigate to
@@ -60,11 +60,32 @@ you for connection details. This part is specific to your personal setup.
 
 ### Build for production
 
-- `pnpm i`
-- `pnpm build`
-- `dist` folder is created in the graph-explorer directory.
-- Serve the static site using the method of your choice, for example, using
-  `serve` npm package.
+Building Graph Explorer is simple.
+
+```bash
+pnpm install
+pnpm build
+```
+
+This will run the build across the both the client code and the proxy server
+code. You'll end up with two `dist` folders:
+
+```
+{ROOT_PATH}/packages/graph-explorer/dist/
+{ROOT_PATH}/packages/graph-explorer-proxy-server/dist/
+```
+
+The recommended way to server Graph Explorer is using the proxy server.
+
+```bash
+pnpm start
+```
+
+However, if you want to run Graph Explorer without the proxy server, you can:
+
+```bash
+pnpm start:client
+```
 
 ### Managing dependencies
 
@@ -73,10 +94,10 @@ root folder in the CLI:
 
 ```bash
 # Adding a package for the react app
-pnpm ui add react
+pnpm add react --filter graph-explorer
 
 # Adding a dev only dependency for the server app
-pnpm server add -D jest
+pnpm add -D jest --filter graph-explorer-proxy-server
 ```
 
 #### Preparation of a release
@@ -214,10 +235,7 @@ using an EC2 instance to run the Docker container for Graph Explorer.
 - If you need more detailed logs, you can change the log level from `info` in
   the default .env file to `debug`. The logs will begin printing the error's
   stack trace.
-- If the Graph Explore crashes, you can recreate the container or run
-  `pnpm start` inside of `/packages/graph-explorer`.
-- If the proxy-server crashes, you can recreate the container or run
-  `pnpm start` inside of `/packages/graph-explorer-proxy-server`
-- If the proxy-server fails to start, check that the provided endpoint is
-  properly spelled and that you have access to from the environment you are
-  trying to run in. If you are in a different VPC, consider VPC Peering.
+- If Graph Explorer crashes, you can recreate the container or run `pnpm start`
+- If Graph Explorer fails to start, check that the provided endpoint is properly
+  spelled and that you have access to from the environment you are trying to run
+  in. If you are in a different VPC, consider VPC Peering.
