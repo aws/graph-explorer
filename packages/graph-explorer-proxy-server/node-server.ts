@@ -12,12 +12,14 @@ import { fromNodeProviderChain } from "@aws-sdk/credential-providers";
 import aws4 from "aws4";
 import { IncomingHttpHeaders } from "http";
 
-const __dirname = import.meta.dirname;
+// Construct relative paths
+const clientRoot = path.join(import.meta.dirname, "../../graph-explorer/");
+const proxyServerRoot = path.join(import.meta.dirname, "../");
 
 const app = express();
 
 // Load environment variables from .env file.
-dotenv.config({ path: "../graph-explorer/.env" });
+dotenv.config({ path: path.join(clientRoot, ".env") });
 
 const DEFAULT_SERVICE_TYPE = "neptune-db";
 const NEPTUNE_ANALYTICS_SERVICE_TYPE = "neptune-graph";
@@ -184,9 +186,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(
   "/defaultConnection",
-  express.static(
-    path.join(__dirname, "../graph-explorer/defaultConnection.json")
-  )
+  express.static(path.join(clientRoot, "defaultConnection.json"))
 );
 
 // Host the Graph Explorer UI static files
@@ -195,7 +195,7 @@ const staticFilesVirtualPath =
   process.env.NEPTUNE_NOTEBOOK !== "false"
     ? defaultVirtualPath
     : process.env.GRAPH_EXP_ENV_ROOT_FOLDER ?? defaultVirtualPath;
-const staticFilesPath = path.join(__dirname, "../../graph-explorer/dist");
+const staticFilesPath = path.join(clientRoot, "dist");
 
 proxyLogger.debug(
   "Setting up static file virtual path:",
@@ -516,6 +516,13 @@ app.get("/logger", (req, res, next) => {
 // Plugin the error handler after the routes
 app.use(errorHandler);
 
+// Relative paths to certificate files
+const certificateKeyFilePath = path.join(
+  proxyServerRoot,
+  "cert-info/server.key"
+);
+const certificateFilePath = path.join(proxyServerRoot, "cert-info/server.crt");
+
 // Start the server on port 80 or 443 (if HTTPS is enabled)
 if (process.env.NEPTUNE_NOTEBOOK === "true") {
   app.listen(9250, () => {
@@ -525,12 +532,12 @@ if (process.env.NEPTUNE_NOTEBOOK === "true") {
   });
 } else if (
   process.env.PROXY_SERVER_HTTPS_CONNECTION !== "false" &&
-  fs.existsSync("../graph-explorer-proxy-server/cert-info/server.key") &&
-  fs.existsSync("../graph-explorer-proxy-server/cert-info/server.crt")
+  fs.existsSync(certificateKeyFilePath) &&
+  fs.existsSync(certificateFilePath)
 ) {
   const options = {
-    key: fs.readFileSync("./cert-info/server.key"),
-    cert: fs.readFileSync("./cert-info/server.crt"),
+    key: fs.readFileSync(certificateKeyFilePath),
+    cert: fs.readFileSync(certificateFilePath),
   };
   https.createServer(options, app).listen(443, () => {
     proxyLogger.info(`Proxy server located at https://localhost`);
