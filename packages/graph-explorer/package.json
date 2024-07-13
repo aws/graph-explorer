@@ -99,7 +99,6 @@
     "@react-types/radio": "^3.8.0",
     "@react-types/shared": "^3.23.0",
     "@react-types/switch": "^3.5.2",
-    "@tanstack/eslint-plugin-query": "^5.43.1",
     "@testing-library/dom": "^8.20.1",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^15.0.7",

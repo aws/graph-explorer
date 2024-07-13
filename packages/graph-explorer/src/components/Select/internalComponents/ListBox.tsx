@@ -17,7 +17,6 @@ interface ListBoxProps<T> extends AriaListBoxOptions<T> {
   state: ListState<T>;
 }
 
-// eslint-disable-next-line react/display-name
 const ListBox = forwardRef(
   <T,>(props: ListBoxProps<T>, ref: ForwardedRef<HTMLUListElement | null>) => {
     const { state } = props;

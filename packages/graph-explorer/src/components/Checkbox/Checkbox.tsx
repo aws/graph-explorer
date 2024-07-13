@@ -32,7 +32,6 @@ const scaconstick = (size: number) => {
   return size / defaultSizeMap.md;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-empty-function
 const NOOP = () => {};
 
 export const Checkbox = ({

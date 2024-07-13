@@ -10,7 +10,6 @@ export type SidebarModuleContainerProps<
   startAdornment?: ReactNode;
 };
 
-/* eslint-disable react/display-name */
 const asSidebarModuleContainer =
   <TProps extends Record<string, any> = Record<string, any>>(
     Component: ComponentType<TProps>,

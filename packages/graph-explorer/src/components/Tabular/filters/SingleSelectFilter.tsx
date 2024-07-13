@@ -19,10 +19,7 @@ const defaultStyles = (isDarkTheme?: boolean) => css`
 //      - error in react lifecycle. However, we need to review
 //      - how to use hooks inside a filter component in react-tables
 export const SingleSelectFilter =
-  <T extends object>(
-    activeTheme?: ActiveThemeType<ProcessedTheme>
-    // eslint-disable-next-line react/display-name
-  ) =>
+  <T extends object>(activeTheme?: ActiveThemeType<ProcessedTheme>) =>
   ({ column }: { column: ColumnInstance<T> }) => {
     const { setFilter, preFilteredRows, id } = column;
     // TODO - above scenario

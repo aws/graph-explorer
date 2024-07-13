@@ -1,6 +1,5 @@
 import { useCallback, useRef } from "react";
 
-// eslint-disable-next-line @typescript-eslint/no-empty-function
 const NOOP = () => {};
 
 const useClickAndHold = (effect = NOOP) => {
