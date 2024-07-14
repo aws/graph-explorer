@@ -1,25 +1,25 @@
 import react from "@vitejs/plugin-react";
 import * as fs from "fs";
-import { defineConfig, loadEnv } from "vite";
+import { defineConfig, loadEnv, PluginOption, ServerOptions } from "vite";
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
 
-  const htmlPlugin = () => {
+  const htmlPlugin = (): PluginOption => {
     return {
       name: "html-transform",
       transformIndexHtml: {
-        enforce: "pre",
-        transform: (html: string) => {
+        order: "pre",
+        handler: (html: string) => {
           return html.replace(/%(.*?)%/g, function (match, p1) {
             return env[p1] ? env[p1] : "";
           });
         },
       },
-    } as any;
+    };
   };
 
-  const serverInfo = () => {
+  const serverInfo = (): ServerOptions => {
     if (
       env.GRAPH_EXP_HTTPS_CONNECTION != "false" &&
       fs.existsSync("../graph-explorer-proxy-server/cert-info/server.key") &&
