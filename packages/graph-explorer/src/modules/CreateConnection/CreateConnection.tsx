@@ -93,7 +93,7 @@ const CreateConnection = ({
 
   const onSave = useRecoilCallback(
     ({ set }) =>
-      async (data: Required<ConnectionForm>) => {
+      (data: Required<ConnectionForm>) => {
         if (!configId) {
           const newConfigId = v4();
           const newConfig: RawConfiguration = {

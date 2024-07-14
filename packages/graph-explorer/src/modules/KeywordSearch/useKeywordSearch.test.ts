@@ -140,7 +140,7 @@ describe("useKeywordSearch", () => {
       expect(result.current.exactMatch).toBe(true);
     });
 
-    it("Should default to attribute rdfs:label", async () => {
+    it("Should default to attribute rdfs:label", () => {
       const { result } = renderHookWithRecoilRoot(
         () => useKeywordSearch({ isOpen: false }),
         initializeConfigWithRdfLabel
@@ -181,7 +181,7 @@ describe("useKeywordSearch", () => {
       expect(result.current.exactMatch).toBe(true);
     });
 
-    it("Should default to attribute All", async () => {
+    it("Should default to attribute All", () => {
       const { result } = renderHookWithRecoilRoot(
         () => useKeywordSearch({ isOpen: false }),
         initializeConfigWithQueryEngine("sparql")

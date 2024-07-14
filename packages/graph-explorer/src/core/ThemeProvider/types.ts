@@ -202,5 +202,5 @@ export type ProcessedTheme<
   spacing: DeepRequired<Spacing>;
   shadow: DeepRequired<Shadows>;
   forms?: FormBaseTheme;
-  [key: string]: undefined | any;
+  [key: string]: any;
 };

@@ -2,7 +2,7 @@ import react from "@vitejs/plugin-react";
 import * as fs from "fs";
 import { defineConfig, loadEnv } from "vite";
 
-export default defineConfig(async ({ mode }) => {
+export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
 
   const htmlPlugin = () => {

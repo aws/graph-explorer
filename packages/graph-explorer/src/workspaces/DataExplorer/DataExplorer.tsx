@@ -392,9 +392,7 @@ function useDataExplorerQuery(
       return;
     }
 
-    updatePrefixes(
-      query.data.vertices.map((v: { data: { id: any } }) => v.data.id)
-    );
+    updatePrefixes(query.data.vertices.map(v => v.data.id));
   }, [query.data, updatePrefixes]);
 
   return query;

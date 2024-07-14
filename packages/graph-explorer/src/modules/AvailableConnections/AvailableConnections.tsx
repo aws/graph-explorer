@@ -62,7 +62,7 @@ const AvailableConnections = ({
           reader.readAsText(file);
           reader.onload = () =>
             resolve(JSON.parse(reader.result?.toString() || ""));
-          reader.onerror = e => reject(e);
+          reader.onerror = reject;
         });
 
         if (!isValidConfigurationFile(fileContent)) {

@@ -251,7 +251,7 @@ describe("useEntities", () => {
     ).toEqual(randomNeighborCount - 1);
   });
 
-  it("should return original entities before any filters were applied", async () => {
+  it("should return original entities before any filters were applied", () => {
     // Define newNode and newEdge
     const newNode = {
       data: {

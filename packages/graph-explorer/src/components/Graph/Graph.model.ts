@@ -86,7 +86,7 @@ export type TextStyle = {
   minZoomedFontSize: number;
   opacity: number;
   padding: number;
-  rotation: "autorotate" | string;
+  rotation: string;
   shape: "rectangle" | "round-rectangle";
   vAlign: "bottom" | "top" | "center";
   vMargin: number;
@@ -133,7 +133,7 @@ export type CyTextStyle = {
   textMarginY: number;
   textMaxWidth: number;
   minZoomedFontSize: number;
-  textRotation: "autorotate" | string;
+  textRotation: string;
   textValign: "bottom" | "top" | "center";
   textWrap: "none" | "wrap" | "ellipsis";
 };

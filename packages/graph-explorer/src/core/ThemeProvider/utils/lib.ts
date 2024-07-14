@@ -4,7 +4,7 @@ const isColor = (stringToTest: string) => {
   try {
     Color(stringToTest);
     return true;
-  } catch (e) {
+  } catch {
     return false;
   }
 };
@@ -18,7 +18,7 @@ const colorAsRgb = (colorStr: string, parentPropertyKey: string) => {
     if (isPaletteColor(parentPropertyKey)) {
       return Color(colorStr).rgb().array().join(",");
     }
-  } catch (e) {
+  } catch {
     return colorStr;
   }
 

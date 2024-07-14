@@ -39,7 +39,7 @@ export function equalSelector<T>(
         return prior;
       }
       prior = latest;
-      return latest as T;
+      return latest;
     },
   });
 }

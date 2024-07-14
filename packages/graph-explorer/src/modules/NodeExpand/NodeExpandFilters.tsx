@@ -119,7 +119,7 @@ const NodeExpandFilters = ({
                 className={"input"}
                 value={filter.value}
                 onChange={value => {
-                  onFilterChange(filterIndex, filter.name, value as string);
+                  onFilterChange(filterIndex, filter.name, value);
                 }}
                 hideError={true}
                 noMargin={true}
