@@ -25,7 +25,7 @@ export default [
   { languageOptions: { parserOptions: { ecmaFeatures: { jsx: true } } } },
   { languageOptions: { globals: { ...globals.browser, ...globals.node } } },
   pluginJs.configs.recommended,
-  ...tseslint.configs.recommended,
+  ...tseslint.configs.recommendedTypeChecked,
   ...fixupConfigRules(pluginReactConfig),
   {
     plugins: { "react-hooks": fixupPluginRules(reactHooksLint) },
@@ -42,6 +42,11 @@ export default [
   eslintConfigPrettier,
   // General rules
   {
+    languageOptions: {
+      parserOptions: {
+        projectService: true,
+      },
+    },
     rules: {
       "no-console": ["error", { allow: ["warn", "error"] }],
 
