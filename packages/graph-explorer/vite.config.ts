@@ -1,6 +1,8 @@
+/// <reference types="vitest" />
 import react from "@vitejs/plugin-react";
 import * as fs from "fs";
-import { defineConfig, loadEnv, PluginOption, ServerOptions } from "vite";
+import { loadEnv, PluginOption, ServerOptions } from "vite";
+import { coverageConfigDefaults, defineConfig } from "vitest/config";
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
@@ -51,5 +53,26 @@ export default defineConfig(({ mode }) => {
       __GRAPH_EXP_VERSION__: JSON.stringify(process.env.npm_package_version),
     },
     plugins: [htmlPlugin(), react()],
+    test: {
+      environment: "happy-dom",
+      globals: true,
+      setupFiles: ["src/setupTests.ts"],
+      coverage: {
+        reportsDirectory: "coverage",
+        provider: "v8",
+        reporter: ["lcov", "text", "json", "clover"],
+        exclude: [
+          "src/components/icons",
+          "src/@types",
+          "src/index.tsx",
+          "src/App.ts",
+          "src/setupTests.ts",
+          "src/**/*.style.ts",
+          "src/**/*.styles.ts",
+          "src/**/*.styles.css.ts",
+          ...coverageConfigDefaults.exclude,
+        ],
+      },
+    },
   };
 });

@@ -18,13 +18,7 @@
     "noEmit": true,
     "downlevelIteration": true,
     "importHelpers": true,
-    "paths": {},
-    "types": ["vite/client", "@types/jest"]
+    "types": ["vite/client", "vitest/globals", "@testing-library/jest-dom"]
   },
-  "include": ["src/**/*"],
-  "jest": {
-    "transform": {
-      "^.+\\.ts?$": "ts-jest"
-    }
-  }
+  "include": ["src/**/*"]
 }
