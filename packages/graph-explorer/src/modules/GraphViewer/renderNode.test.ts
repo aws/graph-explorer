@@ -75,7 +75,7 @@ describe("renderNode", () => {
     const svgContent = `<svg fill="${originalColor}" xmlns="http://www.w3.org/2000/svg"/>`;
     const mockedFetch = vi
       .mocked(global.fetch)
-      .mockResolvedValue(new Response(new Blob([svgContent])));
+      .mockResolvedValue(new Response(svgContent));
     const node: VertexIconConfig = {
       type: createRandomName("vertex"),
       color: createRandomColor(),
@@ -100,7 +100,7 @@ describe("renderNode", () => {
     const svgContent = `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg"/>`;
     const mockedFetch = vi
       .mocked(global.fetch)
-      .mockResolvedValue(new Response(new Blob([svgContent])));
+      .mockResolvedValue(new Response(svgContent));
     const iconUrl = createRandomName("iconUrl");
     const node: VertexIconConfig = {
       type: createRandomName("vertex"),
@@ -126,7 +126,7 @@ describe("renderNode", () => {
     const svgContent = `<svg fill="currentColor" stroke="currentColor" xmlns="http://www.w3.org/2000/svg"/>`;
     const mockedFetch = vi
       .mocked(global.fetch)
-      .mockResolvedValue(new Response(new Blob([svgContent])));
+      .mockResolvedValue(new Response(svgContent));
     const node: VertexIconConfig = {
       type: createRandomName("vertex"),
       color: createRandomColor(),
@@ -152,7 +152,7 @@ describe("renderNode", () => {
     const svgContent = `<svg fill="${originalColor}" viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg"/>`;
     const mockedFetch = vi
       .mocked(global.fetch)
-      .mockResolvedValue(new Response(new Blob([svgContent])));
+      .mockResolvedValue(new Response(svgContent));
     const node: VertexIconConfig = {
       type: createRandomName("vertex"),
       color: createRandomColor(),
