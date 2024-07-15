@@ -1,3 +1,4 @@
+import { vi } from "vitest";
 import { shortHash } from "./shortHash";
 
 const GREMLIN = "../gremlin/queries/__mock";
@@ -18,7 +19,7 @@ const RESPONSES_FILES_MAP: Record<string, string> = {
 const globalMockFetch = () => {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
-  global.fetch = jest.fn(async (url: string) => {
+  global.fetch = vi.fn(async (url: string) => {
     const key = shortHash(url);
     const filePath = RESPONSES_FILES_MAP[key];
     if (!filePath) {

@@ -2,15 +2,18 @@
  * Global Jest setup for all tests
  */
 
-// Sets up `fetch` for JSDom environment.
-// https://github.com/jsdom/jsdom/issues/1724#issuecomment-720727999
-import "whatwg-fetch";
+import { expect, afterEach, vi } from "vitest";
+import { cleanup } from "@testing-library/react";
+import * as matchers from "@testing-library/jest-dom/matchers";
 
-// Sets up extra expectations for Jest to work with React
-import "@testing-library/jest-dom/extend-expect";
+expect.extend(matchers);
+
+afterEach(() => {
+  cleanup();
+});
 
 // Mock the env module
-jest.mock("./utils/env", () => {
+vi.mock("./utils/env", () => {
   return {
     env: {
       DEV: true,
@@ -20,8 +23,12 @@ jest.mock("./utils/env", () => {
 });
 
 // Mock localforage
-jest.mock("localforage", () => ({
-  config: jest.fn(),
-  getItem: jest.fn(),
-  setItem: jest.fn(),
-}));
+vi.mock("localforage", () => {
+  return {
+    default: {
+      config: vi.fn(),
+      getItem: vi.fn(),
+      setItem: vi.fn(),
+    },
+  };
+});

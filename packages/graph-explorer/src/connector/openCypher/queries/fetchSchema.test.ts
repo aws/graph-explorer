@@ -1,9 +1,10 @@
+import { vi } from "vitest";
 import { SchemaResponse } from "../../useGEFetchTypes";
 import fetchSchema from "./fetchSchema";
 
 describe("OpenCypher > fetchSchema", () => {
   it("Should return a schema", async () => {
-    const openCypherFetchFn = jest
+    const openCypherFetchFn = vi
       .fn()
       .mockResolvedValueOnce(allVertexLabelsResponse)
       .mockResolvedValueOnce(airportPropertiesResponse)
@@ -131,7 +132,7 @@ describe("OpenCypher > fetchSchema", () => {
         },
       ],
     };
-    const openCypherFetchFn = jest
+    const openCypherFetchFn = vi
       .fn()
       .mockResolvedValueOnce(allVertexLabelsResponseEmpty)
       .mockResolvedValueOnce(airportPropertiesResponse)
@@ -157,7 +158,7 @@ describe("OpenCypher > fetchSchema", () => {
         },
       ],
     };
-    const openCypherFetchFn = jest
+    const openCypherFetchFn = vi
       .fn()
       .mockResolvedValueOnce(allVertexLabelsResponseEmpty)
       .mockResolvedValueOnce(airportPropertiesResponse)
@@ -183,7 +184,7 @@ describe("OpenCypher > fetchSchema", () => {
         },
       ],
     };
-    const openCypherFetchFn = jest
+    const openCypherFetchFn = vi
       .fn()
       .mockResolvedValueOnce(allVertexLabelsResponseEmpty)
       .mockResolvedValueOnce(airportPropertiesResponse)
@@ -197,7 +198,7 @@ describe("OpenCypher > fetchSchema", () => {
   });
 
   it("Should handle empty edge properties", async () => {
-    const openCypherFetchFn = jest
+    const openCypherFetchFn = vi
       .fn()
       .mockResolvedValueOnce(allVertexLabelsResponse)
       .mockResolvedValueOnce(airportPropertiesResponse)
@@ -216,7 +217,7 @@ describe("OpenCypher > fetchSchema", () => {
 
   it("Should handle edges empty response object", async () => {
     const allEdgesResponseEmpty = {};
-    const openCypherFetchFn = jest
+    const openCypherFetchFn = vi
       .fn()
       .mockResolvedValueOnce(allVertexLabelsResponse)
       .mockResolvedValueOnce(airportPropertiesResponse)
@@ -242,7 +243,7 @@ describe("OpenCypher > fetchSchema", () => {
         },
       ],
     };
-    const openCypherFetchFn = jest
+    const openCypherFetchFn = vi
       .fn()
       .mockResolvedValueOnce(allVertexLabelsResponse)
       .mockResolvedValueOnce(airportPropertiesResponse)
@@ -268,7 +269,7 @@ describe("OpenCypher > fetchSchema", () => {
         },
       ],
     };
-    const openCypherFetchFn = jest
+    const openCypherFetchFn = vi
       .fn()
       .mockResolvedValueOnce(allVertexLabelsResponse)
       .mockResolvedValueOnce(airportPropertiesResponse)
@@ -294,7 +295,7 @@ describe("OpenCypher > fetchSchema", () => {
         },
       ],
     };
-    const openCypherFetchFn = jest
+    const openCypherFetchFn = vi
       .fn()
       .mockResolvedValueOnce(allVertexLabelsResponse)
       .mockResolvedValueOnce(airportPropertiesResponse)
@@ -325,7 +326,7 @@ describe("OpenCypher > fetchSchema", () => {
       ],
     };
 
-    const openCypherFetchFn = jest
+    const openCypherFetchFn = vi
       .fn()
       .mockResolvedValueOnce(allVertexLabelsResponse)
       .mockResolvedValueOnce(airportPropertiesResponse)
@@ -342,7 +343,7 @@ describe("OpenCypher > fetchSchema", () => {
 
   it("Should handle edges property empty response object", async () => {
     const routeEdgePropertiesResponseEmpty = {};
-    const openCypherFetchFn = jest
+    const openCypherFetchFn = vi
       .fn()
       .mockResolvedValueOnce(allVertexLabelsResponse)
       .mockResolvedValueOnce(airportPropertiesResponse)
@@ -368,7 +369,7 @@ describe("OpenCypher > fetchSchema", () => {
         },
       ],
     };
-    const openCypherFetchFn = jest
+    const openCypherFetchFn = vi
       .fn()
       .mockResolvedValueOnce(allVertexLabelsResponse)
       .mockResolvedValueOnce(airportPropertiesResponse)
@@ -386,7 +387,7 @@ describe("OpenCypher > fetchSchema", () => {
   });
 
   it("Should request properties for edges where labels are strings", async () => {
-    const openCypherFetchFn = jest
+    const openCypherFetchFn = vi
       .fn()
       .mockResolvedValueOnce(allVertexLabelsResponse)
       .mockResolvedValueOnce(airportPropertiesResponse)
@@ -408,7 +409,7 @@ describe("OpenCypher > fetchSchema", () => {
   });
 
   it("Should request properties for edges where labels are arrays of strings", async () => {
-    const openCypherFetchFn = jest
+    const openCypherFetchFn = vi
       .fn()
       .mockResolvedValueOnce(allVertexLabelsResponse)
       .mockResolvedValueOnce(airportPropertiesResponse)

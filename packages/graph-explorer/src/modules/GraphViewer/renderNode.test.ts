@@ -1,13 +1,13 @@
-/**
- * @jest-environment jsdom
- */
+// @vitest-environment jsdom
 
-import { describe, it, expect, jest } from "@jest/globals";
+// DEV NOTE: The DOMParser in happy-dom is not fully functional. Using jsdom until it works properly.
+
 import { ICONS_CACHE, VertexIconConfig, renderNode } from "./renderNode";
 import { createRandomColor, createRandomName } from "../../utils/testing";
+import { vi } from "vitest";
 
 global.fetch =
-  jest.fn<
+  vi.fn<
     (
       input: RequestInfo | URL,
       init?: RequestInit | undefined
@@ -17,11 +17,11 @@ global.fetch =
 describe("renderNode", () => {
   beforeEach(() => {
     ICONS_CACHE.clear();
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should return undefined given no icon url", async () => {
-    const mockedFetch = jest.mocked(global.fetch);
+    const mockedFetch = vi.mocked(global.fetch);
     const node: VertexIconConfig = {
       type: createRandomName("vertex"),
       color: createRandomColor(),
@@ -37,7 +37,7 @@ describe("renderNode", () => {
   });
 
   it("should return undefined when error occurs in fetch", async () => {
-    const mockedFetch = jest
+    const mockedFetch = vi
       .mocked(global.fetch)
       .mockRejectedValue(new Error("Failed"));
     const node: VertexIconConfig = {
@@ -55,7 +55,7 @@ describe("renderNode", () => {
   });
 
   it("should return icon url given image type is not an SVG", async () => {
-    const mockedFetch = jest.mocked(global.fetch);
+    const mockedFetch = vi.mocked(global.fetch);
     const node: VertexIconConfig = {
       type: createRandomName("vertex"),
       color: createRandomColor(),
@@ -73,7 +73,7 @@ describe("renderNode", () => {
   it("should return processed SVG string keeping original color", async () => {
     const originalColor = createRandomColor();
     const svgContent = `<svg fill="${originalColor}" xmlns="http://www.w3.org/2000/svg"/>`;
-    const mockedFetch = jest
+    const mockedFetch = vi
       .mocked(global.fetch)
       .mockResolvedValue(new Response(new Blob([svgContent])));
     const node: VertexIconConfig = {
@@ -98,7 +98,7 @@ describe("renderNode", () => {
 
   it("should return processed SVG string replacing currentColor with default color when custom color not provided", async () => {
     const svgContent = `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg"/>`;
-    const mockedFetch = jest
+    const mockedFetch = vi
       .mocked(global.fetch)
       .mockResolvedValue(new Response(new Blob([svgContent])));
     const iconUrl = createRandomName("iconUrl");
@@ -124,7 +124,7 @@ describe("renderNode", () => {
 
   it("should return processed SVG string replacing currentColor with provided custom color", async () => {
     const svgContent = `<svg fill="currentColor" stroke="currentColor" xmlns="http://www.w3.org/2000/svg"/>`;
-    const mockedFetch = jest
+    const mockedFetch = vi
       .mocked(global.fetch)
       .mockResolvedValue(new Response(new Blob([svgContent])));
     const node: VertexIconConfig = {
@@ -150,7 +150,7 @@ describe("renderNode", () => {
   it("should return processed SVG string modifying the width and height", async () => {
     const originalColor = createRandomColor();
     const svgContent = `<svg fill="${originalColor}" viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg"/>`;
-    const mockedFetch = jest
+    const mockedFetch = vi
       .mocked(global.fetch)
       .mockResolvedValue(new Response(new Blob([svgContent])));
     const node: VertexIconConfig = {
