@@ -1,8 +1,8 @@
 # syntax=docker/dockerfile:1
 FROM amazonlinux:2022
 ARG NEPTUNE_NOTEBOOK
-ENV NVM_DIR /root/.nvm
-ENV NODE_VERSION v20.12.2
+ENV NVM_DIR=/root/.nvm
+ENV NODE_VERSION=v20.12.2
 WORKDIR /
 COPY . /graph-explorer/
 WORKDIR /graph-explorer
@@ -23,8 +23,8 @@ RUN yum update -y && \
     rm -rf /var/cache/yum && \
     chmod a+x ./process-environment.sh
 # Set node/npm in path so we can reuse it in the next run layer
-ENV NODE_PATH $NVM_DIR/versions/node/$NODE_VERSION/lib/node_modules
-ENV PATH $NVM_DIR/versions/node/$NODE_VERSION/bin:$PATH
+ENV NODE_PATH=$NVM_DIR/versions/node/$NODE_VERSION/lib/node_modules
+ENV PATH=$NVM_DIR/versions/node/$NODE_VERSION/bin:$PATH
 WORKDIR /graph-explorer/
 ENV HOME=/graph-explorer
 ENV NEPTUNE_NOTEBOOK=$NEPTUNE_NOTEBOOK

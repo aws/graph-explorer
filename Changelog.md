@@ -4,6 +4,11 @@
 
 **Bug Fixes and Minor Changes**
 
+- Development scripts updated to be more consistent with the industry
+  (<https://github.com/aws/graph-explorer/pull/488>)
+  - Run the dev environment `pnpm dev`
+  - Run the production environment `pnpm start`
+  - Run the production environment without the proxy server `pnpm start:client`
 - Show errors during search in the search UI
   (<https://github.com/aws/graph-explorer/pull/477>)
 - Show errors in the Data Explorer UI

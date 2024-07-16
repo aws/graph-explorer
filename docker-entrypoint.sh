@@ -30,4 +30,4 @@ else
 fi
 
 echo "Starting graph explorer..."
-pnpm -w start:proxy-server
+pnpm -w start
