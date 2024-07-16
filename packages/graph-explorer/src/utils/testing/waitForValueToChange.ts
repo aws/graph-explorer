@@ -8,7 +8,7 @@ import { waitFor } from "@testing-library/react";
 export async function waitForValueToChange<T>(getValue: () => T) {
   const original = getValue();
 
-  await waitFor(async () => {
-    expect(await original).not.toBe(await getValue());
+  await waitFor(() => {
+    expect(original).not.toBe(getValue());
   });
 }

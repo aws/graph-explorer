@@ -18,7 +18,6 @@ export type UseLayerProps = UseLayerOptions & {
   onLayerSideChange?: (side: UseLayerSides) => void;
 };
 
-// eslint-disable-next-line react/display-name
 const UseLayer = forwardRef<HTMLDivElement, PropsWithChildren<UseLayerProps>>(
   (
     {

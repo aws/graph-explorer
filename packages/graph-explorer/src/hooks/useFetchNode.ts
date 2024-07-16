@@ -7,10 +7,10 @@ export default function useFetchNode() {
   const [, setEntities] = useEntities();
 
   return useCallback(
-    async (nodeOrNodes: Vertex | Vertex[]) => {
+    (nodeOrNodes: Vertex | Vertex[]) => {
       const nodes = Array.isArray(nodeOrNodes) ? nodeOrNodes : [nodeOrNodes];
 
-      const validResults = nodes.filter(Boolean) as Vertex[];
+      const validResults = nodes.filter(Boolean);
 
       if (!validResults.length) {
         return;

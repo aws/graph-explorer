@@ -8,7 +8,7 @@ const transformToJson = (
   selectedColumns: Record<string, boolean>,
   columns: TabularColumnInstance<any>[]
 ) => {
-  return currentDataSource.map((row: any | Row<any>) => {
+  return currentDataSource.map((row: Row<any>) => {
     return Object.entries(selectedColumns).reduce(
       (cells, [columnId, shouldExport]) => {
         if (shouldExport) {

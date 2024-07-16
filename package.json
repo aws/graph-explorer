@@ -24,16 +24,19 @@
   "author": "amazon",
   "license": "Apache-2.0",
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^7.13.1",
-    "@typescript-eslint/parser": "^7.13.1",
-    "eslint": "^8.57.0",
+    "@eslint/compat": "^1.1.1",
+    "@eslint/js": "^9.7.0",
+    "@tanstack/eslint-plugin-query": "^5.51.1",
+    "eslint": "^9.7.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-react": "^7.34.1",
     "eslint-plugin-react-hooks": "^4.6.2",
+    "globals": "^15.8.0",
     "husky": "^9.0.11",
     "lint-staged": "^13.3.0",
     "prettier": "3.2.5",
-    "typescript": "^5.5.3"
+    "typescript": "^5.5.3",
+    "typescript-eslint": "8.0.0-alpha.42"
   },
   "lint-staged": {
     "*.{js,ts,tsx}": [

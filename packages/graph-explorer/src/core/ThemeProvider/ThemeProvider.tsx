@@ -24,7 +24,6 @@ import { getCSSVariablesFromTheme } from "./utils/lib";
 // the current active theme. Need to do research to achieve it
 export const ThemeContext = createContext<
   ThemeContextType<ProcessedTheme<any>>
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 >(undefined!);
 
 const getTheme = <

@@ -59,15 +59,13 @@ const fetchVertexLabels = async (
       continue;
     }
 
-    const label = Array.isArray(vertex.label)
-      ? vertex.label[0]
-      : (vertex.label as string);
+    const label = Array.isArray(vertex.label) ? vertex.label[0] : vertex.label;
 
     if (!label) {
       continue;
     }
 
-    labelsWithCounts[label] = vertex.count as number;
+    labelsWithCounts[label] = vertex.count;
   }
 
   return labelsWithCounts;
@@ -94,12 +92,12 @@ const fetchVerticesAttributes = async (
       const response =
         await openCypherFetch<RawVerticesSchemaResponse>(verticesTemplate);
 
-      const vertex = response.results[0]?.object as OCVertex;
+      const vertex = response.results[0]?.object;
       if (!vertex) {
         return;
       }
 
-      const label = vertex["~labels"][0] as string;
+      const label = vertex["~labels"][0];
       const properties = vertex["~properties"];
       vertices.push({
         type: label,
@@ -150,15 +148,13 @@ const fetchEdgeLabels = async (
       continue;
     }
 
-    const label = Array.isArray(edge.label)
-      ? edge.label[0]
-      : (edge.label as string);
+    const label = Array.isArray(edge.label) ? edge.label[0] : edge.label;
 
     if (!label) {
       continue;
     }
 
-    labelsWithCounts[label] = edge.count as number;
+    labelsWithCounts[label] = edge.count;
   }
 
   return labelsWithCounts;
@@ -194,9 +190,9 @@ const fetchEdgesAttributes = async (
         return;
       }
 
-      const edge = response.results[0].object as OCEdge;
-      const entityType = edge["~entityType"] as string;
-      const type = edge["~type"] as string;
+      const edge = response.results[0].object;
+      const entityType = edge["~entityType"];
+      const type = edge["~type"];
 
       // verify response has the info we need
       if (!entityType || !type) {

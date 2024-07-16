@@ -35,7 +35,6 @@ export type TextFilterProps = {
 export const TextFilter =
   <T extends object>(activeTheme?: ActiveThemeType<ProcessedTheme>) =>
   ({ placeholder, startAdornment }: TextFilterProps) => {
-    // eslint-disable-next-line react/display-name
     return ({ column }: { column: ColumnInstance<T> }) => {
       return (
         <div className={defaultStyles(activeTheme?.isDarkTheme)}>

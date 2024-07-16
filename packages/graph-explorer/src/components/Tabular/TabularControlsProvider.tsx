@@ -25,7 +25,6 @@ const createTabularContext = <T extends Record<string, unknown> = any>(
   return createContext<TabularContextValue<T>>(defaultValue);
 };
 
-// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const TabularContext = createTabularContext(undefined!);
 
 const TabularControlsProvider = <T extends Record<string, unknown>>({

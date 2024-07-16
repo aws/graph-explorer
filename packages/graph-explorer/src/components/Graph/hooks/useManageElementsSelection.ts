@@ -165,19 +165,19 @@ export default function useManageElementsSelection(
   useEntitySelection(
     cy,
     "node:selected[!__isGroupNode]",
-    selectedNodesIds!,
+    selectedNodesIds,
     isSelectionDisabled
   );
   useEntitySelection(
     cy,
     "node:selected[?__isGroupNode]",
-    selectedGroupsIds!,
+    selectedGroupsIds,
     isSelectionDisabled
   );
   useEntitySelection(
     cy,
     "edge:selected",
-    selectedEdgesIds!,
+    selectedEdgesIds,
     isSelectionDisabled
   );
 }

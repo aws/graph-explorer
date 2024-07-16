@@ -78,7 +78,8 @@ const useRenderBadges = <TNodeData extends VertexData = VertexData>({
           console.error(
             "If you want to render badges you need to install the " +
               "cytoscape-canvas plugin first, see the documentation " +
-              "for more information"
+              "for more information",
+            e
           );
         return;
       }

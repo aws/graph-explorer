@@ -8,7 +8,7 @@ import { anySignal } from "./utils/anySignal";
  * @param response The fetch response that should be decoded
  * @returns The decoded response or undefined if it fails to decode
  */
-async function decodeErrorSafely(response: Response): Promise<any | undefined> {
+async function decodeErrorSafely(response: Response): Promise<any> {
   const contentType = response.headers.get("Content-Type");
   const contentTypeHasValue = contentType !== null && contentType.length > 0;
   // Assume missing content type is JSON

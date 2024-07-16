@@ -35,7 +35,7 @@ export type Action = {
   collapsedItems?: ReactElement;
 };
 
-export type ActionItem = Action | "divider" | ReactNode;
+export type ActionItem = Action | ReactNode;
 
 export type ModuleContainerHeaderProps = PropsWithChildren<{
   id?: string;

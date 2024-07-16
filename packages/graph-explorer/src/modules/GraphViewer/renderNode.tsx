@@ -37,7 +37,10 @@ export async function renderNode(
     return iconText;
   } catch (error) {
     // Ignore the error and move on
-    console.error(`Failed to fetch the icon data for vertex ${vtConfig.type}`);
+    console.error(
+      `Failed to fetch the icon data for vertex ${vtConfig.type}`,
+      error
+    );
     return;
   }
 }

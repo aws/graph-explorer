@@ -34,7 +34,6 @@ export interface SwitchProps extends AriaSwitchProps {
   offIcon?: ReactNode;
 }
 
-// eslint-disable-next-line react/display-name
 export const Switch = forwardRef<HTMLInputElement, SwitchProps>(
   (
     { size = "md", labelPosition = "right", onIcon, offIcon, ...props },

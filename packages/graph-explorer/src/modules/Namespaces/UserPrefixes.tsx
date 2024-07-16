@@ -90,7 +90,7 @@ const UserPrefixes = () => {
     (attribute: "prefix" | "uri") => (value: string) => {
       setForm(prev => ({
         ...prev,
-        [attribute]: value as string,
+        [attribute]: value,
       }));
     },
     []
