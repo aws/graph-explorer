@@ -2,6 +2,11 @@
 
 ## Upcoming
 
+**Major Changes**
+
+- Search in openCypher will now execute a single request when searching across
+  all labels (<https://github.com/aws/graph-explorer/pull/493>)
+
 **Bug Fixes and Minor Changes**
 
 - Increase request body size limit for proxy server

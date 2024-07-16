@@ -1,6 +1,7 @@
 import uniq from "lodash/uniq";
 import type { KeywordSearchRequest } from "../../useGEFetchTypes";
 import { escapeString } from "../../../utils";
+import dedent from "dedent";
 
 /**
  * @example
@@ -13,58 +14,76 @@ import { escapeString } from "../../../utils";
  * exactMatch = false
  *
  * MATCH (v:airport)
- * WHERE
- *   v.city CONTAINS "JFK" OR
- *   v.code CONTAINS "JFK"
- * RETURN v
- * SKIP 0
+ * WHERE (v.city CONTAINS "JFK" OR v.code CONTAINS "JFK")
+ * RETURN v as object
+ * ORDER BY id(v)
  * LIMIT 100
  */
 const keywordSearchTemplate = ({
   searchTerm,
   vertexTypes = [],
-  searchById = true,
+  searchById,
   searchByAttributes = [],
-  limit = 10,
-  offset = 0,
-  exactMatch = false,
+  limit,
+  offset,
+  exactMatch,
 }: KeywordSearchRequest): string => {
-  let template = "";
+  // For exactly one vertex type we put the type in the match
+  const vertexMatchTemplate =
+    vertexTypes.length === 1 ? `v:\`${vertexTypes[0]}\`` : "v";
+  // For multiple vertex types we use the where clause
+  const vertexTypeWhereClause =
+    vertexTypes.length > 1 &&
+    vertexTypes.map(type => `v:\`${type}\``).join(" OR ");
 
-  if (vertexTypes.length === 1) {
-    const label = vertexTypes[0];
-
-    template += `MATCH (v:\`${label}\`)`;
-  }
-
-  if (Boolean(searchTerm) && (searchByAttributes.length !== 0 || searchById)) {
-    const escapedSearchTerm = escapeString(searchTerm);
-
-    const orContent = uniq(
+  // If we have a search term we need to build the search term where clause
+  const hasSearchTerm =
+    Boolean(searchTerm) && (searchByAttributes.length !== 0 || searchById);
+  const searchTermWhereClause =
+    hasSearchTerm &&
+    uniq(
       searchById && searchByAttributes.includes("__all")
         ? ["__id", ...searchByAttributes]
         : searchByAttributes
     )
       .filter(attr => attr !== "__all")
-      .map((attr: any) => {
+      .map(attr => {
+        // ID is a special case
         if (attr === "__id") {
-          if (exactMatch === true) {
-            return `id(v) = "${escapedSearchTerm}" `;
-          }
-          return `toString(id(v)) CONTAINS "${escapedSearchTerm}" `;
+          return exactMatch === true
+            ? `id(v) = "${escapeString(searchTerm)}"`
+            : `toString(id(v)) CONTAINS "${escapeString(searchTerm)}"`;
         }
-        if (exactMatch === true) {
-          return `v.${attr} = "${escapedSearchTerm}" `;
-        }
-        return `v.${attr} CONTAINS "${escapedSearchTerm}" `;
+
+        return exactMatch === true
+          ? `v.${attr} = "${escapeString(searchTerm)}"`
+          : `v.${attr} CONTAINS "${escapeString(searchTerm)}"`;
       })
-      .join(` OR `);
+      .join(" OR ");
 
-    template += ` WHERE ${orContent} `;
-  }
+  // Combine the where clauses together (i.e. WHERE clause1 AND clause2)
+  const whereClauses = [vertexTypeWhereClause, searchTermWhereClause]
+    .filter(Boolean)
+    .filter(w => w != null)
+    .map(clause => `(${clause})`)
+    .join("\n      AND ");
+  const whereTemplate = whereClauses ? `WHERE ${whereClauses}` : "";
 
-  template += ` RETURN v AS object SKIP ${offset} LIMIT ${limit}`;
-  return template;
+  // Add paging options if needed
+  const limitTemplate =
+    limit && offset
+      ? `SKIP ${offset} LIMIT ${limit}`
+      : limit
+        ? `LIMIT ${limit}`
+        : "";
+
+  return dedent`
+    MATCH (${vertexMatchTemplate})
+    ${whereTemplate}
+    RETURN v AS object
+    ORDER BY id(v)
+    ${limitTemplate}
+  `;
 };
 
 export default keywordSearchTemplate;
