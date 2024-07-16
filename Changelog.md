@@ -4,6 +4,8 @@
 
 **Bug Fixes and Minor Changes**
 
+- Increase request body size limit for proxy server
+  (<https://github.com/aws/graph-explorer/pull/488>)
 - Development scripts updated to be more consistent with the industry
   (<https://github.com/aws/graph-explorer/pull/488>)
   - Run the dev environment `pnpm dev`

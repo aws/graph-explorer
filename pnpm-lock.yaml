@@ -477,6 +477,9 @@ importers:
       '@types/aws4':
         specifier: ^1.11.6
         version: 1.11.6
+      '@types/body-parser':
+        specifier: ^1.19.5
+        version: 1.19.5
       '@types/compression':
         specifier: ^1.7.5
         version: 1.7.5
