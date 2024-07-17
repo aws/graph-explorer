@@ -3,7 +3,7 @@ import mockGremlinFetch from "../../testUtils/mockGremlinFetch";
 import keywordSearch from "./keywordSearch";
 
 describe("Gremlin > keywordSearch", () => {
-  beforeAll(globalMockFetch);
+  beforeEach(globalMockFetch);
 
   it("Should return 1 random node", async () => {
     const keywordResponse = await keywordSearch(mockGremlinFetch(), {

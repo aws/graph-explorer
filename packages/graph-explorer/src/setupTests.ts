@@ -10,25 +10,23 @@ expect.extend(matchers);
 
 afterEach(() => {
   cleanup();
+  vi.unstubAllEnvs();
 });
 
-// Mock the env module
-vi.mock("./utils/env", () => {
-  return {
-    env: {
-      DEV: true,
-      PROD: false,
-    },
-  };
+beforeEach(() => {
+  vi.stubEnv("DEV", true);
+  vi.stubEnv("PROD", false);
 });
 
-// Mock localforage
-vi.mock("localforage", () => {
-  return {
-    default: {
-      config: vi.fn(),
-      getItem: vi.fn(),
-      setItem: vi.fn(),
-    },
-  };
+beforeAll(() => {
+  // Mock localforage
+  vi.mock("localforage", () => {
+    return {
+      default: {
+        config: vi.fn(),
+        getItem: vi.fn(),
+        setItem: vi.fn(),
+      },
+    };
+  });
 });

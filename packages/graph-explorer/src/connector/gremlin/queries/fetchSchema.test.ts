@@ -3,7 +3,7 @@ import mockGremlinFetch from "../../testUtils/mockGremlinFetch";
 import fetchSchema from "./fetchSchema";
 
 describe("Gremlin > fetchSchema", () => {
-  beforeAll(globalMockFetch);
+  beforeEach(globalMockFetch);
 
   it("Should return an inferred schema", async () => {
     const schemaResponse = await fetchSchema(mockGremlinFetch());
