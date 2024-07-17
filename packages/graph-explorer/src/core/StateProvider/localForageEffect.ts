@@ -1,4 +1,4 @@
-import * as localForage from "localforage";
+import localForage from "localforage";
 import { AtomEffect, DefaultValue } from "recoil";
 
 localForage.config({

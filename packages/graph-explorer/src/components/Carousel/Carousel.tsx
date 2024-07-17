@@ -14,7 +14,7 @@ import {
   useTransition,
 } from "react";
 import { CustomArrowProps } from "react-slick";
-import { Navigation, Pagination } from "swiper";
+import { Navigation, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import { Swiper, SwiperSlide } from "swiper/react";
