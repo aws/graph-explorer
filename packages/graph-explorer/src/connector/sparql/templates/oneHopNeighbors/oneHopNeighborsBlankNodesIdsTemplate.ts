@@ -16,6 +16,7 @@ export default function oneHopNeighborsBlankNodesIdsTemplate({
   offset = 0,
 }: SPARQLNeighborsRequest) {
   return dedent`
+    # Sub-query to fetch blank node ids for one hop neighbors
     SELECT DISTINCT (?subject AS ?bNode) {
       BIND(<${resourceURI}> AS ?argument)
       ${getSubjectClasses(subjectClasses)}

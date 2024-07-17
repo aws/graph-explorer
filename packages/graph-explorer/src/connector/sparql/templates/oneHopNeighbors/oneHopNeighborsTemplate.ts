@@ -59,6 +59,7 @@ export default function oneHopNeighborsTemplate({
   offset = 0,
 }: SPARQLNeighborsRequest): string {
   return dedent`
+    # Fetch all neighbors and their predicates, values, and classes
     SELECT ?subject ?pred ?value ?subjectClass ?pToSubject ?pFromSubject {
       ?subject a     ?subjectClass;
                ?pred ?value {

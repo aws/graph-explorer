@@ -21,6 +21,7 @@ export default function keywordSearchBlankNodesIdsTemplate({
   exactMatch = true,
 }: SPARQLKeywordSearchRequest): string {
   return dedent`
+    # Fetch all blank nodes ids from a generic keyword search request
     SELECT DISTINCT ?bNode {
       ?bNode ?pred ?value {
         SELECT DISTINCT ?bNode {

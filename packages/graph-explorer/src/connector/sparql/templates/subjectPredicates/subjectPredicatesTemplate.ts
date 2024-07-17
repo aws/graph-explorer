@@ -46,6 +46,7 @@ const subjectPredicatesTemplate = ({
   };
 
   return dedent`
+    # Fetch all predicates and their direction of a pairs of subjects
     SELECT ?subject ?subjectClass ?predToSubject ?predFromSubject {
       BIND(<${resourceURI}> AS ?argument)
       ${getSubjectURIs()}

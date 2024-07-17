@@ -24,6 +24,7 @@ export default function neighborsCountTemplate({
   limit = 0,
 }: SPARQLNeighborsCountRequest) {
   return dedent`
+    # Count the number of neighbors by class
     SELECT ?class (COUNT(?class) AS ?count) {
       ?subject a ?class {
         SELECT DISTINCT ?subject ?class {
