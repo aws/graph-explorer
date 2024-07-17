@@ -8,7 +8,7 @@ import { fetchDatabaseRequest } from "../fetchDatabaseRequest";
 import { GraphSummary } from "./types";
 import { v4 } from "uuid";
 import { Explorer } from "../useGEFetchTypes";
-import { env } from "../../utils";
+import { logger } from "../../utils";
 
 function _gremlinFetch(connection: ConnectionConfig, options: any) {
   return async (queryTemplate: string) => {
@@ -30,41 +30,53 @@ function _gremlinFetch(connection: ConnectionConfig, options: any) {
   };
 }
 
+async function fetchSummary(
+  connection: ConnectionConfig,
+  options: RequestInit
+) {
+  try {
+    const response = await fetchDatabaseRequest(
+      connection,
+      `${connection.url}/pg/statistics/summary?mode=detailed`,
+      {
+        method: "GET",
+        ...options,
+      }
+    );
+    return response.payload.graphSummary as GraphSummary;
+  } catch (error) {
+    logger.error(
+      "[Gremlin Explorer] Failed to gather summary statistics",
+      error
+    );
+  }
+}
+
 export function createGremlinExplorer(connection: ConnectionConfig): Explorer {
   return {
     connection: connection,
     async fetchSchema(options) {
-      let summary;
-      try {
-        const response = await fetchDatabaseRequest(
-          connection,
-          `${connection.url}/pg/statistics/summary?mode=detailed`,
-          {
-            method: "GET",
-            ...options,
-          }
-        );
-        summary = (response.payload.graphSummary as GraphSummary) || undefined;
-      } catch (e) {
-        if (env.DEV) {
-          console.error("[Summary API]", e);
-        }
-      }
+      logger.log("[Gremlin Explorer] Fetching schema...");
+      const summary = await fetchSummary(connection, options);
       return fetchSchema(_gremlinFetch(connection, options), summary);
     },
     async fetchVertexCountsByType(req, options) {
+      logger.log("[Gremlin Explorer] Fetching vertex counts by type...");
       return fetchVertexTypeCounts(_gremlinFetch(connection, options), req);
     },
     async fetchNeighbors(req, options) {
+      logger.log("[Gremlin Explorer] Fetching neighbors...");
       return fetchNeighbors(_gremlinFetch(connection, options), req);
     },
     async fetchNeighborsCount(req, options) {
+      logger.log("[Gremlin Explorer] Fetching neighbors count...");
       return fetchNeighborsCount(_gremlinFetch(connection, options), req);
     },
     async keywordSearch(req, options) {
       options ??= {};
       options.queryId = v4();
 
+      logger.log("[Gremlin Explorer] Fetching keyword search...");
       return keywordSearch(_gremlinFetch(connection, options), req);
     },
   };

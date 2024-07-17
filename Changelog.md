@@ -6,6 +6,9 @@
 
 - Search in openCypher will now execute a single request when searching across
   all labels (<https://github.com/aws/graph-explorer/pull/493>)
+- Gremlin schema sync will be much faster on larger databases, thanks to
+  @dsaban-lightricks for his great suggestion in issue #225
+  (<https://github.com/aws/graph-explorer/pull/498>)
 
 **Bug Fixes and Minor Changes**
 

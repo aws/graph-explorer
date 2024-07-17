@@ -1,3 +1,4 @@
+import dedent from "dedent";
 import { uniq } from "lodash";
 
 /**
@@ -5,16 +6,35 @@ import { uniq } from "lodash";
  * one sample of each node label.
  *
  * @example
- * types = ["route", "contain"]
+ * types = ["airport", "country"]
  *
  * g.V()
- *  .project("airport","country")
- *  .by(V().hasLabel("airport").limit(1))
- *  .by(V().hasLabel("country").limit(1))
- *  .limit(1)
+ *   .union(
+ *     __.hasLabel("airport").limit(1),
+ *     __.hasLabel("country").limit(1)
+ *   )
+ *   .fold()
+ *   .project(
+ *     "airport", "country"
+ *   )
+ *   .by(unfold().hasLabel("airport"))
+ *   .by(unfold().hasLabel("country"))
  */
 export default function verticesSchemaTemplate({ types }: { types: string[] }) {
-  const labels = uniq(types.flatMap(type => type.split("::")));
+  // Labels with quotes
+  const labels = uniq(types.flatMap(type => type.split("::"))).map(
+    label => `"${label}"`
+  );
 
-  return `g.V().project(${labels.map(l => `"${l}"`).join(",")})${labels.map(l => `.by(V().hasLabel("${l}").limit(1))`).join("")}.limit(1)`;
+  return dedent`
+    g.V()
+      .union(
+        ${labels.map(label => `__.hasLabel(${label}).limit(1)`).join(",\n        ")}
+      )
+      .fold()
+      .project(
+        ${labels.join(",\n        ")}
+      )
+      ${labels.map(label => `.by(unfold().hasLabel(${label}))`).join("\n      ")}
+    `;
 }

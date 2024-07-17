@@ -7,10 +7,14 @@ describe("Gremlin > verticesSchemaTemplate", () => {
 
     expect(normalize(template)).toBe(
       normalize(`
-        g.V().project("airport","country")
-          .by(V().hasLabel("airport").limit(1))
-          .by(V().hasLabel("country").limit(1))
-          .limit(1)
+        g.V().union(
+          __.hasLabel("airport").limit(1),
+          __.hasLabel("country").limit(1)
+        )
+        .fold()
+        .project("airport", "country")
+        .by(unfold().hasLabel("airport"))
+        .by(unfold().hasLabel("country"))
       `)
     );
   });
