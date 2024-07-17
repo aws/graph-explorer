@@ -5,7 +5,8 @@ import dedent from "dedent";
  */
 export default function predicatesWithCountsTemplate() {
   return dedent`
-  SELECT ?predicate (COUNT(?predicate) as ?count) {
-    [] ?predicate ?object FILTER(!isLiteral(?object))
-  } GROUP BY ?predicate`;
+    SELECT ?predicate (COUNT(?predicate) as ?count) {
+      [] ?predicate ?object FILTER(!isLiteral(?object))
+    } GROUP BY ?predicate
+  `;
 }

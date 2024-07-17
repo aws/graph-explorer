@@ -1,3 +1,4 @@
+import dedent from "dedent";
 import { SPARQLBlankNodeNeighborsPredicatesRequest } from "../../types";
 
 /**
@@ -23,7 +24,7 @@ const blankNodeSubjectPredicatesTemplate = ({
     return classesValues;
   };
 
-  return `
+  return dedent`
     SELECT ?subject ?subjectClass ?predToSubject ?predFromSubject {
       ${getSubjectURIs()}
       { 

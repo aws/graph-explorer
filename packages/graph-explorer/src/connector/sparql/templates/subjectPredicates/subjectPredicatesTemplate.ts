@@ -1,3 +1,4 @@
+import dedent from "dedent";
 import { SPARQLNeighborsPredicatesRequest } from "../../types";
 
 /**
@@ -44,7 +45,7 @@ const subjectPredicatesTemplate = ({
     return classesValues;
   };
 
-  return `
+  return dedent`
     SELECT ?subject ?subjectClass ?predToSubject ?predFromSubject {
       BIND(<${resourceURI}> AS ?argument)
       ${getSubjectURIs()}
