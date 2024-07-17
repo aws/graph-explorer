@@ -8,6 +8,7 @@ import {
   renderHookWithRecoilRoot,
 } from "../utils/testing";
 import useTextTransform from "./useTextTransform";
+import { vi } from "vitest";
 
 function initializeConfigWithPrefix(snapshot: MutableSnapshot) {
   // Create config and setup schema
@@ -27,7 +28,7 @@ function initializeConfigWithPrefix(snapshot: MutableSnapshot) {
 
 describe("useTextTransform", () => {
   beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
   it("should replace prefixes in URIs", () => {
     const text = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";

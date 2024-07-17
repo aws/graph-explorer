@@ -1,4 +1,3 @@
-import { expect, jest } from "@jest/globals";
 import { act } from "@testing-library/react";
 import useFiltersConfig from "./useFiltersConfig";
 import {
@@ -12,6 +11,7 @@ import {
   activeConfigurationAtom,
   configurationAtom,
 } from "../../core/StateProvider/configuration";
+import { vi } from "vitest";
 
 /** Creates a config with the schema and makes it active, then renders the `useFiltersConfig` hook. */
 function renderFilterConfigHook(schema: Schema) {
@@ -29,7 +29,7 @@ function renderFilterConfigHook(schema: Schema) {
 
 describe("useFiltersConfig", () => {
   beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should have all entities selected", () => {

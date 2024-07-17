@@ -97,7 +97,7 @@ root folder in the CLI:
 pnpm add react --filter graph-explorer
 
 # Adding a dev only dependency for the server app
-pnpm add -D jest --filter graph-explorer-proxy-server
+pnpm add -D vitest --filter graph-explorer-proxy-server
 ```
 
 #### Preparation of a release

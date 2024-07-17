@@ -3,7 +3,7 @@ import mockGremlinFetch from "../../testUtils/mockGremlinFetch";
 import fetchNeighborsCount from "./fetchNeighborsCount";
 
 describe("Gremlin > fetchNeighborsCount", () => {
-  beforeAll(globalMockFetch);
+  beforeEach(globalMockFetch);
 
   it("Should return neighbors counts for node 2018", async () => {
     const response = await fetchNeighborsCount(mockGremlinFetch(), {

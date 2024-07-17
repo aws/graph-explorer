@@ -3,23 +3,5 @@
   // Hover to view descriptions of existing attributes.
   // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
-  "configurations": [
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Jest current file",
-      "skipFiles": ["<node_internals>/**"],
-      "runtimeExecutable": "sh",
-      "program": "${workspaceFolder}/packages/graph-explorer/node_modules/.bin/jest",
-      "cwd": "${workspaceFolder}",
-      "args": [
-        "${relativeFile}",
-        "--coverage=false",
-        "--config=${workspaceFolder}/packages/graph-explorer/jest.config.ts",
-        "--runInBand"
-      ],
-      "console": "integratedTerminal",
-      "internalConsoleOptions": "openOnFirstSessionStart"
-    }
-  ]
+  "configurations": []
 }

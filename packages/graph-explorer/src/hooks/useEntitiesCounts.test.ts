@@ -1,24 +1,25 @@
 import { renderHook } from "@testing-library/react";
 import useEntitiesCounts from "./useEntitiesCounts";
 import { useConfiguration } from "../core";
+import { Mock, vi } from "vitest";
 
-jest.mock("../core", () => ({
+vi.mock("../core", () => ({
   __esModule: true,
-  useConfiguration: jest.fn(),
+  useConfiguration: vi.fn(),
 }));
 
 describe("useEntitiesCounts", () => {
   beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should return total vertices when totalVertices is defined", () => {
-    (useConfiguration as jest.Mock).mockReturnValue({
+    (useConfiguration as Mock).mockReturnValue({
       id: "some-id",
       totalVertices: 10,
       vertexTypes: ["type1", "type2"],
       edgeTypes: ["edgeType1"],
-      getEdgeTypeConfig: jest.fn(() => ({ total: 5 })),
+      getEdgeTypeConfig: vi.fn(() => ({ total: 5 })),
     });
 
     const { result } = renderHook(() => useEntitiesCounts());
@@ -27,7 +28,7 @@ describe("useEntitiesCounts", () => {
   });
 
   it("should return 0 for totalNodes when vertexTypes array is empty", () => {
-    (useConfiguration as jest.Mock).mockReturnValue({
+    (useConfiguration as Mock).mockReturnValue({
       id: "some-id-two",
       totalVertices: 0,
       totalEdges: 0,
@@ -41,11 +42,11 @@ describe("useEntitiesCounts", () => {
   });
 
   it("should return calculated total nodes when vertexTypes array is not empty and each type has a total", () => {
-    (useConfiguration as jest.Mock).mockReturnValue({
+    (useConfiguration as Mock).mockReturnValue({
       vertexTypes: ["type1", "type2"],
       edgeTypes: ["edgeType1", "edgeType2"],
-      getVertexTypeConfig: jest.fn(() => ({ total: 5 })),
-      getEdgeTypeConfig: jest.fn(() => ({ total: 5 })),
+      getVertexTypeConfig: vi.fn(() => ({ total: 5 })),
+      getEdgeTypeConfig: vi.fn(() => ({ total: 5 })),
     });
     const { result } = renderHook(() => useEntitiesCounts());
 
@@ -53,11 +54,11 @@ describe("useEntitiesCounts", () => {
   });
 
   it("should return totalNodes when vertexTypes array is not empty and at least one type does not have a total", () => {
-    (useConfiguration as jest.Mock).mockReturnValue({
+    (useConfiguration as Mock).mockReturnValue({
       vertexTypes: ["type1", "type2"],
       edgeTypes: ["edgeType1", "edgeType2"],
-      getVertexTypeConfig: jest.fn(() => ({ total: 5 })),
-      getEdgeTypeConfig: jest.fn(() => ({ total: null })),
+      getVertexTypeConfig: vi.fn(() => ({ total: 5 })),
+      getEdgeTypeConfig: vi.fn(() => ({ total: null })),
     });
 
     const { result } = renderHook(() => useEntitiesCounts());

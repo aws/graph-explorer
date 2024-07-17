@@ -7,9 +7,10 @@ import {
   configurationAtom,
 } from "../../core/StateProvider/configuration";
 import { MutableSnapshot } from "recoil";
+import { vi } from "vitest";
 
-jest.mock("./useKeywordSearchQuery", () => ({
-  useKeywordSearchQuery: jest.fn().mockReturnValue({
+vi.mock("./useKeywordSearchQuery", () => ({
+  useKeywordSearchQuery: vi.fn().mockReturnValue({
     data: {},
     isFetching: false,
   }),

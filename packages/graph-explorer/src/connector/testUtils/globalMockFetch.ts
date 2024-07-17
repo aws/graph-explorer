@@ -1,3 +1,4 @@
+import { vi } from "vitest";
 import { shortHash } from "./shortHash";
 
 const GREMLIN = "../gremlin/queries/__mock";
@@ -15,25 +16,24 @@ const RESPONSES_FILES_MAP: Record<string, string> = {
   "59bc2d43": `${GREMLIN}/should-return-neighbors-counts-for-node-123.json`,
 };
 
-const globalMockFetch = () => {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  global.fetch = jest.fn(async (url: string) => {
-    const key = shortHash(url);
-    const filePath = RESPONSES_FILES_MAP[key];
-    if (!filePath) {
-      throw new Error(
-        `Failed to find a response file in the map for key '${key}' and URL '${url}'`,
-        { cause: { url } }
-      );
-    }
-    const response = await import(filePath);
-    return Promise.resolve({
-      json: () => {
-        return Promise.resolve(response);
-      },
-    });
-  });
-};
-
-export default globalMockFetch;
+export default function globalMockFetch() {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (url: string) => {
+      const key = shortHash(url);
+      const filePath = RESPONSES_FILES_MAP[key];
+      if (!filePath) {
+        throw new Error(
+          `Failed to find a response file in the map for key '${key}' and URL '${url}'`,
+          { cause: { url } }
+        );
+      }
+      const response = await import(filePath);
+      return Promise.resolve({
+        json: () => {
+          return Promise.resolve(response);
+        },
+      });
+    })
+  );
+}

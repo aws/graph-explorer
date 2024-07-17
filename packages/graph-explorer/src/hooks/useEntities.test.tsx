@@ -15,10 +15,11 @@ import { Schema } from "../core";
 import { Entities } from "../core/StateProvider/entitiesSelector";
 import { renderHookWithRecoilRoot } from "../utils/testing";
 import { waitForValueToChange } from "../utils/testing/waitForValueToChange";
+import { vi } from "vitest";
 
 describe("useEntities", () => {
   beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should handle single node data correctly", async () => {
@@ -272,15 +273,15 @@ describe("useEntities", () => {
     };
 
     // Mock the useEntities hook
-    const useEntitiesMock = jest.fn();
+    const useEntitiesMock = vi.fn();
     useEntitiesMock.mockReturnValue([
       originalEntities,
-      jest.fn(),
+      vi.fn(),
       originalEntities,
     ]);
 
     // Override the useEntities function in the module
-    jest.doMock("../../src/hooks/useEntities", () => useEntitiesMock);
+    vi.doMock("../../src/hooks/useEntities", () => useEntitiesMock);
 
     // Render the hook
     const { result } = renderHookWithRecoilRoot(() => useEntitiesMock());

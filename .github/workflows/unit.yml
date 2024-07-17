@@ -38,8 +38,8 @@ jobs:
       - name: Run type, lint, and format checks
         run: pnpm checks
 
-      - name: Run package tests
-        run: pnpm test
+      - name: Run package tests with code coverage
+        run: pnpm coverage
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3

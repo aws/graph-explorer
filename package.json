@@ -13,7 +13,9 @@
     "check:lint": "eslint .",
     "format": "prettier --write .",
     "check:format": "prettier --check .",
-    "test": "pnpm -F graph-explorer test",
+    "test": "pnpm --stream -r run test",
+    "test:watch": "pnpm --stream -r run test:watch",
+    "coverage": "pnpm --stream -r run coverage",
     "check:types": "tsc --project packages/graph-explorer/",
     "checks": "pnpm run '/^check:.*/'",
     "start": "pnpm --stream -r run start",
@@ -36,7 +38,8 @@
     "lint-staged": "^13.3.0",
     "prettier": "3.2.5",
     "typescript": "^5.5.3",
-    "typescript-eslint": "8.0.0-alpha.42"
+    "typescript-eslint": "8.0.0-alpha.42",
+    "vitest": "^2.0.3"
   },
   "lint-staged": {
     "*.{js,ts,tsx}": [
