@@ -1,5 +1,10 @@
-import { sanitizeText } from "../../../utils";
-import type { SchemaResponse } from "../../useGEFetchTypes";
+import { batchPromisesSerially, sanitizeText } from "../../../utils";
+import { DEFAULT_CONCURRENT_REQUESTS_LIMIT } from "../../../utils/constants";
+import type {
+  EdgeSchemaResponse,
+  SchemaResponse,
+  VertexSchemaResponse,
+} from "../../useGEFetchTypes";
 import edgeLabelsTemplate from "../templates/edgeLabelsTemplate";
 import edgesSchemaTemplate from "../templates/edgesSchemaTemplate";
 import vertexLabelsTemplate from "../templates/vertexLabelsTemplate";
@@ -27,11 +32,14 @@ type RawEdgeLabelsResponse = {
 };
 
 type RawVerticesSchemaResponse = {
-  results: [
-    {
-      object: OCVertex;
-    },
-  ];
+  results:
+    | [
+        {
+          object: OCVertex;
+        },
+      ]
+    | []
+    | undefined;
 };
 
 type RawEdgesSchemaResponse = {
@@ -41,7 +49,8 @@ type RawEdgesSchemaResponse = {
           object: OCEdge;
         },
       ]
-    | [];
+    | []
+    | undefined;
 };
 
 // Fetches all vertex labels and their counts
@@ -77,29 +86,39 @@ const fetchVerticesAttributes = async (
   labels: Array<string>,
   countsByLabel: Record<string, number>
 ): Promise<SchemaResponse["vertices"]> => {
-  const vertices: SchemaResponse["vertices"] = [];
-
   if (labels.length === 0) {
-    return vertices;
+    return [];
   }
 
-  await Promise.all(
-    labels.map(async labelResult => {
+  const responses = await batchPromisesSerially(
+    labels,
+    DEFAULT_CONCURRENT_REQUESTS_LIMIT,
+    async label => {
       const verticesTemplate = verticesSchemaTemplate({
-        type: labelResult,
+        type: label,
       });
 
       const response =
         await openCypherFetch<RawVerticesSchemaResponse>(verticesTemplate);
 
-      const vertex = response.results[0]?.object;
-      if (!vertex) {
-        return;
+      return {
+        vertex: response.results ? response.results[0]?.object : null,
+        label,
+      };
+    }
+  );
+
+  const vertices = responses
+    .map(({ vertex }) => {
+      // verify response has the info we need
+      if (!vertex || !vertex["~labels"]) {
+        return null;
       }
 
+      // Use the first label
       const label = vertex["~labels"][0];
       const properties = vertex["~properties"];
-      vertices.push({
+      const vertexSchema: VertexSchemaResponse = {
         type: label,
         displayLabel: sanitizeText(label),
         total: countsByLabel[label],
@@ -111,9 +130,10 @@ const fetchVerticesAttributes = async (
             dataType: typeof value === "string" ? "String" : "Number",
           };
         }),
-      });
+      };
+      return vertexSchema;
     })
-  );
+    .filter(vertexSchema => vertexSchema != null);
 
   return vertices;
 };
@@ -166,44 +186,41 @@ const fetchEdgesAttributes = async (
   labels: Array<string>,
   countsByLabel: Record<string, number>
 ): Promise<SchemaResponse["edges"]> => {
-  const edges: SchemaResponse["edges"] = [];
-
   if (labels.length === 0) {
-    return edges;
+    return [];
   }
 
-  await Promise.all(
-    labels.map(async labelResult => {
+  const responses = await batchPromisesSerially(
+    labels,
+    DEFAULT_CONCURRENT_REQUESTS_LIMIT,
+    async label => {
       const edgesTemplate = edgesSchemaTemplate({
-        type: labelResult,
+        type: label,
       });
 
       const response =
         await openCypherFetch<RawEdgesSchemaResponse>(edgesTemplate);
 
+      return {
+        edge: response.results ? response.results[0]?.object : null,
+        label,
+      };
+    }
+  );
+
+  const edges = responses
+    .map(({ edge, label }) => {
       // verify response has the info we need
-      if (
-        !response.results ||
-        response.results.length === 0 ||
-        !response.results[0].object
-      ) {
-        return;
+      if (!edge || !edge["~entityType"] || !edge["~type"]) {
+        return null;
       }
 
-      const edge = response.results[0].object;
-      const entityType = edge["~entityType"];
       const type = edge["~type"];
-
-      // verify response has the info we need
-      if (!entityType || !type) {
-        return;
-      }
-
       const properties = edge["~properties"];
-      edges.push({
+      const edgeSchema: EdgeSchemaResponse = {
         type: type,
         displayLabel: sanitizeText(type),
-        total: countsByLabel[labelResult],
+        total: countsByLabel[label],
         attributes: Object.entries(properties || {}).map(([name, prop]) => {
           const value = prop;
           return {
@@ -212,9 +229,10 @@ const fetchEdgesAttributes = async (
             dataType: typeof value === "string" ? "String" : "Number",
           };
         }),
-      });
+      };
+      return edgeSchema;
     })
-  );
+    .filter(edgeSchema => edgeSchema != null);
 
   return edges;
 };
