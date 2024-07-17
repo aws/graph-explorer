@@ -1,5 +1,5 @@
 /*
- * Global Jest setup for all tests
+ * Global test setup for all tests
  */
 
 import { expect, afterEach, vi } from "vitest";
