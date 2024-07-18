@@ -17,6 +17,7 @@ import {
   SparqlFetch,
   SPARQLNeighborsRequest,
 } from "../types";
+import { logger } from "../../../utils";
 
 type RawOneHopNeighborsResponse = {
   results: {
@@ -46,6 +47,7 @@ const fetchOneHopNeighbors = async (
   req: SPARQLNeighborsRequest
 ) => {
   const oneHopTemplate = oneHopNeighborsTemplate(req);
+  logger.log("[SPARQL Explorer] Fetching oneHopNeighbors...", req);
   const data = await sparqlFetch<RawOneHopNeighborsResponse>(oneHopTemplate);
 
   const groupBySubject = groupBy(
@@ -110,6 +112,11 @@ export const fetchNeighborsPredicates = async (
     subjectURIs,
   });
 
+  logger.log("[SPARQL Explorer] Fetching neighbor predicates...", {
+    resourceURI,
+    resourceClass,
+    subjectURIs,
+  });
   const response = await sparqlFetch<RawNeighborsPredicatesResponse>(template);
   return response.results.bindings.map(result => {
     if (isIncomingPredicate(result)) {

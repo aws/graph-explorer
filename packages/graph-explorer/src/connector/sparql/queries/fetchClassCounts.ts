@@ -1,3 +1,4 @@
+import { logger } from "../../../utils";
 import type {
   CountsByTypeRequest,
   CountsByTypeResponse,
@@ -20,6 +21,7 @@ const fetchClassCounts = async (
   req: CountsByTypeRequest
 ): Promise<CountsByTypeResponse> => {
   const template = classWithCountsTemplates(req.label);
+  logger.log("[SPARQL Explorer] Fetching class counts...", req);
   const response = await sparqlFetch<RawCountsByTypeResponse>(template);
 
   return {

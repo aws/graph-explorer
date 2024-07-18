@@ -1,4 +1,4 @@
-import { batchPromisesSerially } from "../../../utils";
+import { batchPromisesSerially, logger } from "../../../utils";
 import { DEFAULT_CONCURRENT_REQUESTS_LIMIT } from "../../../utils/constants";
 import type { SchemaResponse } from "../../useGEFetchTypes";
 import classesWithCountsTemplates from "../templates/classesWithCountsTemplates";
@@ -71,6 +71,10 @@ const fetchPredicatesByClass = async (
       const classPredicatesTemplate = predicatesByClassTemplate({
         class: resourceClass,
       });
+      logger.log("[SPARQL Explorer] Fetching predicates by class...", {
+        resourceClass,
+        countsByClass,
+      });
       const predicatesResponse =
         await sparqlFetch<RawPredicatesSamplesResponse>(
           classPredicatesTemplate
@@ -107,6 +111,7 @@ const fetchPredicatesByClass = async (
 
 const fetchClassesSchema = async (sparqlFetch: SparqlFetch) => {
   const classesTemplate = classesWithCountsTemplates();
+  logger.log("[SPARQL Explorer] Fetching classes schema...");
   const classesCounts =
     await sparqlFetch<RawClassesWCountsResponse>(classesTemplate);
 
@@ -126,6 +131,7 @@ const fetchPredicatesWithCounts = async (
   sparqlFetch: SparqlFetch
 ): Promise<Record<string, number>> => {
   const template = predicatesWithCountsTemplate();
+  logger.log("[SPARQL Explorer] Fetching predicates with counts...");
   const data = await sparqlFetch<RawPredicatesWCountsResponse>(template);
 
   const values = data.results.bindings;

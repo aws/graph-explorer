@@ -29,6 +29,9 @@ const replaceBlankNodeFromSearch = (
   request: KeywordSearchRequest,
   response: KeywordSearchResponse
 ) => {
+  logger.log(
+    "[SPARQL Explorer] Replacing blank node from search with keywordSearchBlankNodesIdsTemplate"
+  );
   return response.vertices.map(vertex => {
     if (!vertex.data.__isBlank) {
       return vertex;
@@ -53,6 +56,9 @@ const replaceBlankNodeFromNeighbors = (
   request: SPARQLNeighborsRequest,
   response: KeywordSearchResponse
 ) => {
+  logger.log(
+    "[SPARQL Explorer] Replacing blank node from search with oneHopNeighborsBlankNodesIdsTemplate"
+  );
   return response.vertices.map(vertex => {
     if (!vertex.data.__isBlank) {
       return vertex;
