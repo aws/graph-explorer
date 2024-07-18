@@ -12,6 +12,7 @@ import { env, logger } from "../../utils";
 
 function _openCypherFetch(connection: ConnectionConfig, options: any) {
   return async (queryTemplate: string) => {
+    logger.debug(queryTemplate);
     return fetchDatabaseRequest(connection, `${connection.url}/openCypher`, {
       method: "POST",
       headers: {

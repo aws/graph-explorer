@@ -12,6 +12,7 @@ import { logger } from "../../utils";
 
 function _gremlinFetch(connection: ConnectionConfig, options: any) {
   return async (queryTemplate: string) => {
+    logger.debug(queryTemplate);
     const body = JSON.stringify({ query: queryTemplate });
     const headers: HeadersInit = {
       "Content-Type": "application/json",

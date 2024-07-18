@@ -128,6 +128,7 @@ const storedBlankNodeNeighborsRequest = (
 
 function _sparqlFetch(connection: ConnectionConfig, options?: any) {
   return async (queryTemplate: string) => {
+    logger.debug(queryTemplate);
     const body = `query=${encodeURIComponent(queryTemplate)}`;
     const headers = options?.queryId
       ? {
