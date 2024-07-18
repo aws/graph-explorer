@@ -4,7 +4,15 @@
  * @returns A whitespace normalized string.
  */
 export function normalize(str: string) {
-  return str.replace(/\s+/g, " ").trim();
+  return (
+    str
+      // Remove any line beginning with `#`
+      .replace(/^[#].*/g, "")
+      // Replace any whitespace with a single space
+      .replace(/\s+/g, " ")
+      // Trim leading and trailing whitespace
+      .trim()
+  );
 }
 
 /**

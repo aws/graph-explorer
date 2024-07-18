@@ -1,3 +1,4 @@
+import { normalize } from "../../../../utils/testing";
 import keywordSearchTemplate from "./keywordSearchTemplate";
 
 describe("SPARQL > keywordSearchTemplate", () => {
@@ -6,8 +7,8 @@ describe("SPARQL > keywordSearchTemplate", () => {
       subjectClasses: ["air:airport"],
     });
 
-    expect(removeExtraWhitespace(template)).toBe(
-      removeExtraWhitespace(`
+    expect(normalize(template)).toBe(
+      normalize(`
         SELECT ?subject ?pred ?value ?class { 
           ?subject ?pred ?value { 
             SELECT DISTINCT ?subject ?class { 
@@ -30,8 +31,8 @@ describe("SPARQL > keywordSearchTemplate", () => {
       exactMatch: false,
     });
 
-    expect(removeExtraWhitespace(template)).toBe(
-      removeExtraWhitespace(`
+    expect(normalize(template)).toBe(
+      normalize(`
         SELECT ?subject ?pred ?value ?class { 
           ?subject ?pred ?value { 
             SELECT DISTINCT ?subject ?class { 
@@ -56,8 +57,8 @@ describe("SPARQL > keywordSearchTemplate", () => {
       exactMatch: true,
     });
 
-    expect(removeExtraWhitespace(template)).toBe(
-      removeExtraWhitespace(`
+    expect(normalize(template)).toBe(
+      normalize(`
         SELECT ?subject ?pred ?value ?class { 
           ?subject ?pred ?value { 
             SELECT DISTINCT ?subject ?class { 
@@ -82,8 +83,8 @@ describe("SPARQL > keywordSearchTemplate", () => {
       exactMatch: true,
     });
 
-    expect(removeExtraWhitespace(template)).toBe(
-      removeExtraWhitespace(`
+    expect(normalize(template)).toBe(
+      normalize(`
         SELECT ?subject ?pred ?value ?class { 
           ?subject ?pred ?value { 
             SELECT DISTINCT ?subject ?class { 
@@ -108,8 +109,8 @@ describe("SPARQL > keywordSearchTemplate", () => {
       predicates: ["rdfs:label"],
     });
 
-    expect(removeExtraWhitespace(template)).toBe(
-      removeExtraWhitespace(`
+    expect(normalize(template)).toBe(
+      normalize(`
         SELECT ?subject ?pred ?value ?class { 
           ?subject ?pred ?value { 
             SELECT DISTINCT ?subject ?class { 
@@ -134,8 +135,8 @@ describe("SPARQL > keywordSearchTemplate", () => {
       predicates: ["rdfs:label"],
     });
 
-    expect(removeExtraWhitespace(template)).toBe(
-      removeExtraWhitespace(`
+    expect(normalize(template)).toBe(
+      normalize(`
         SELECT ?subject ?pred ?value ?class { 
           ?subject ?pred ?value { 
             SELECT DISTINCT ?subject ?class { 
@@ -152,7 +153,3 @@ describe("SPARQL > keywordSearchTemplate", () => {
     );
   });
 });
-
-function removeExtraWhitespace(value: string): string {
-  return value.replace(/\s+/g, " ").trim();
-}
