@@ -15,15 +15,27 @@ at runtime.
 
 export default {
   /** Calls `console.log` if the app is running in DEV mode. */
+  debug(message?: any, ...optionalParams: any[]) {
+    env.DEV && optionalParams.length > 0
+      ? console.debug(message, optionalParams)
+      : console.debug(message);
+  },
+  /** Calls `console.log` if the app is running in DEV mode. */
   log(message?: any, ...optionalParams: any[]) {
-    env.DEV && console.log(message, optionalParams);
+    env.DEV && optionalParams.length > 0
+      ? console.log(message, optionalParams)
+      : console.log(message);
   },
   /** Calls `console.warn`. */
   warn(message?: any, ...optionalParams: any[]) {
-    console.warn(message, optionalParams);
+    optionalParams.length > 0
+      ? console.warn(message, optionalParams)
+      : console.warn(message);
   },
   /** Calls `console.error`. */
   error(message?: any, ...optionalParams: any[]) {
-    console.error(message, optionalParams);
+    optionalParams.length > 0
+      ? console.error(message, optionalParams)
+      : console.error(message);
   },
 };
