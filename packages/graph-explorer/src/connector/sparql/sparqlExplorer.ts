@@ -131,12 +131,12 @@ function _sparqlFetch(connection: ConnectionConfig, options?: any) {
     const body = `query=${encodeURIComponent(queryTemplate)}`;
     const headers = options?.queryId
       ? {
-          accept: "application/json",
+          accept: "application/sparql-results+json",
           "Content-Type": "application/x-www-form-urlencoded",
           queryId: options.queryId,
         }
       : {
-          accept: "application/json",
+          accept: "application/sparql-results+json",
           "Content-Type": "application/x-www-form-urlencoded",
         };
     return fetchDatabaseRequest(connection, `${connection.url}/sparql`, {

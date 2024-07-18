@@ -272,7 +272,7 @@ app.post("/sparql", async (req, res, next) => {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
-      Accept: "application/json",
+      Accept: "application/sparql-results+json",
     },
     body,
   };
