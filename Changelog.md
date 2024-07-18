@@ -15,6 +15,10 @@
 
 **Bug Fixes and Minor Changes**
 
+- Use `application/sparql-results+json` accept header for SPARQL requests
+  (<https://github.com/aws/graph-explorer/pull/499>)
+- Fix text wrapping for labels in edge styling sidebar
+  (<https://github.com/aws/graph-explorer/pull/499>)
 - Increase request body size limit for proxy server
   (<https://github.com/aws/graph-explorer/pull/488>)
 - Development scripts updated to be more consistent with the industry
