@@ -8,7 +8,7 @@ import { fetchDatabaseRequest } from "../fetchDatabaseRequest";
 import { ConnectionConfig } from "../../core";
 import { DEFAULT_SERVICE_TYPE } from "../../utils/constants";
 import { Explorer } from "../useGEFetchTypes";
-import { env } from "../../utils";
+import { env, logger } from "../../utils";
 
 function _openCypherFetch(connection: ConnectionConfig, options: any) {
   return async (queryTemplate: string) => {
@@ -30,26 +30,7 @@ export function createOpenCypherExplorer(
   return {
     connection: connection,
     async fetchSchema(options) {
-      let summary;
-      try {
-        const endpoint =
-          serviceType === DEFAULT_SERVICE_TYPE
-            ? `${connection.url}/pg/statistics/summary?mode=detailed`
-            : `${connection.url}/summary?mode=detailed`;
-        const response = await fetchDatabaseRequest(connection, endpoint, {
-          method: "GET",
-          ...options,
-        });
-
-        summary =
-          (response.payload
-            ? (response.payload.graphSummary as GraphSummary)
-            : (response.graphSummary as GraphSummary)) || undefined;
-      } catch (e) {
-        if (env.DEV) {
-          console.error("[Summary API]", e);
-        }
-      }
+      const summary = await fetchSummary(serviceType, connection, options);
       return fetchSchema(_openCypherFetch(connection, options), summary);
     },
     async fetchVertexCountsByType(req, options) {
@@ -65,4 +46,31 @@ export function createOpenCypherExplorer(
       return keywordSearch(_openCypherFetch(connection, options), req);
     },
   };
+}
+
+async function fetchSummary(
+  serviceType: string,
+  connection: ConnectionConfig,
+  options: RequestInit
+) {
+  try {
+    const endpoint =
+      serviceType === DEFAULT_SERVICE_TYPE
+        ? `${connection.url}/pg/statistics/summary?mode=detailed`
+        : `${connection.url}/summary?mode=detailed`;
+    const response = await fetchDatabaseRequest(connection, endpoint, {
+      method: "GET",
+      ...options,
+    });
+
+    return (
+      (response.payload
+        ? (response.payload.graphSummary as GraphSummary)
+        : (response.graphSummary as GraphSummary)) || undefined
+    );
+  } catch (e) {
+    if (env.DEV) {
+      logger.error("[Summary API]", e);
+    }
+  }
 }
