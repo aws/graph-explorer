@@ -15,6 +15,8 @@
 
 **Bug Fixes and Minor Changes**
 
+- Fix default selection of expand type to be the first available type for
+  expansion (<https://github.com/aws/graph-explorer/pull/501>)
 - Use `application/sparql-results+json` accept header for SPARQL requests
   (<https://github.com/aws/graph-explorer/pull/499>)
 - Fix text wrapping for labels in edge styling sidebar
