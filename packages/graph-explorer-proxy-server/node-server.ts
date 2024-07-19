@@ -198,10 +198,10 @@ const staticFilesVirtualPath =
 const staticFilesPath = path.join(clientRoot, "dist");
 
 proxyLogger.debug(
-  "Setting up static file virtual path:",
+  "Setting up static file virtual path: %s",
   staticFilesVirtualPath
 );
-proxyLogger.debug("Setting up static file path:", staticFilesPath);
+proxyLogger.debug("Setting up static file path: %s", staticFilesPath);
 
 app.use(staticFilesVirtualPath, express.static(staticFilesPath));
 
