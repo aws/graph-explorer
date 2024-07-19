@@ -17,7 +17,8 @@ const defaultStyles: ThemeStyleFn = ({ theme }) => css`
     display: flex;
     justify-content: space-between;
     gap: ${theme.spacing["2x"]};
-    .vertex-name {
+    .vertex-name,
+    .edge-name {
       margin-bottom: ${theme.spacing.base};
       max-width: 80%;
       word-break: break-word;

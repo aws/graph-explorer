@@ -7,6 +7,7 @@ import {
 } from "./helpers";
 
 /**
+ * Fetch nodes matching the given search parameters
  * @example
  * searchTerm = "Ch"
  * subjectClasses = ["http://www.example.com/soccer/ontology/Team"]
@@ -46,6 +47,7 @@ export default function keywordSearchTemplate({
   exactMatch = false,
 }: SPARQLKeywordSearchRequest): string {
   return dedent`
+    # Fetch nodes matching the given search parameters
     SELECT ?subject ?pred ?value ?class {
       ?subject ?pred ?value {
         SELECT DISTINCT ?subject ?class {

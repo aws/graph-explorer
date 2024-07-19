@@ -1,3 +1,4 @@
+import dedent from "dedent";
 import { SPARQLKeywordSearchRequest } from "../../types";
 import {
   getFilterObject,
@@ -19,7 +20,8 @@ export default function keywordSearchBlankNodesIdsTemplate({
   offset = 0,
   exactMatch = true,
 }: SPARQLKeywordSearchRequest): string {
-  return `
+  return dedent`
+    # Fetch all blank nodes ids from a generic keyword search request
     SELECT DISTINCT ?bNode {
       ?bNode ?pred ?value {
         SELECT DISTINCT ?bNode {

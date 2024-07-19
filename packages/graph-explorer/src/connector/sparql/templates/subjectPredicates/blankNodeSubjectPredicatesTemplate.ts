@@ -1,3 +1,4 @@
+import dedent from "dedent";
 import { SPARQLBlankNodeNeighborsPredicatesRequest } from "../../types";
 
 /**
@@ -23,7 +24,8 @@ const blankNodeSubjectPredicatesTemplate = ({
     return classesValues;
   };
 
-  return `
+  return dedent`
+    # Fetch all predicates and their direction of a pairs of subjects given a blank node sub-query
     SELECT ?subject ?subjectClass ?predToSubject ?predFromSubject {
       ${getSubjectURIs()}
       { 

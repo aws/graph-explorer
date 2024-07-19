@@ -1,4 +1,5 @@
 export const env = {
-  DEV: import.meta.env.DEV,
-  PROD: import.meta.env.PROD,
+  DEV: import.meta.env.MODE !== "production",
+  PROD: import.meta.env.MODE === "production",
+  MODE: import.meta.env.MODE,
 };

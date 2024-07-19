@@ -1,3 +1,4 @@
+import { logger } from "../../../utils";
 import type {
   ErrorResponse,
   KeywordSearchResponse,
@@ -31,6 +32,8 @@ const keywordSearch = async (
   req: SPARQLKeywordSearchRequest
 ): Promise<KeywordSearchResponse> => {
   const template = keywordSearchTemplate(req);
+
+  logger.log("[SPARQL Explorer] Fetching search results...", req);
   const data = await sparqlFetch<RawKeywordResponse | ErrorResponse>(template);
 
   if (isErrorResponse(data)) {

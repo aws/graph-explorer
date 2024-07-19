@@ -22,13 +22,16 @@ import {
 } from "./types";
 import { ConnectionConfig } from "../../core";
 import { v4 } from "uuid";
-import { env } from "../../utils";
+import { env, logger } from "../../utils";
 
 const replaceBlankNodeFromSearch = (
   blankNodes: BlankNodesMap,
   request: KeywordSearchRequest,
   response: KeywordSearchResponse
 ) => {
+  logger.log(
+    "[SPARQL Explorer] Replacing blank node from search with keywordSearchBlankNodesIdsTemplate"
+  );
   return response.vertices.map(vertex => {
     if (!vertex.data.__isBlank) {
       return vertex;
@@ -53,6 +56,9 @@ const replaceBlankNodeFromNeighbors = (
   request: SPARQLNeighborsRequest,
   response: KeywordSearchResponse
 ) => {
+  logger.log(
+    "[SPARQL Explorer] Replacing blank node from search with oneHopNeighborsBlankNodesIdsTemplate"
+  );
   return response.vertices.map(vertex => {
     if (!vertex.data.__isBlank) {
       return vertex;
@@ -128,15 +134,16 @@ const storedBlankNodeNeighborsRequest = (
 
 function _sparqlFetch(connection: ConnectionConfig, options?: any) {
   return async (queryTemplate: string) => {
+    logger.debug(queryTemplate);
     const body = `query=${encodeURIComponent(queryTemplate)}`;
     const headers = options?.queryId
       ? {
-          accept: "application/json",
+          accept: "application/sparql-results+json",
           "Content-Type": "application/x-www-form-urlencoded",
           queryId: options.queryId,
         }
       : {
-          accept: "application/json",
+          accept: "application/sparql-results+json",
           "Content-Type": "application/x-www-form-urlencoded",
         };
     return fetchDatabaseRequest(connection, `${connection.url}/sparql`, {
@@ -148,6 +155,28 @@ function _sparqlFetch(connection: ConnectionConfig, options?: any) {
   };
 }
 
+async function fetchSummary(
+  connection: ConnectionConfig,
+  options: RequestInit
+) {
+  try {
+    const response = await fetchDatabaseRequest(
+      connection,
+      `${connection.url}/rdf/statistics/summary?mode=detailed`,
+      {
+        method: "GET",
+        ...options,
+      }
+    );
+
+    return (response?.payload?.graphSummary as GraphSummary) || undefined;
+  } catch (e) {
+    if (env.DEV) {
+      logger.error("[Summary API]", e);
+    }
+  }
+}
+
 export function createSparqlExplorer(
   connection: ConnectionConfig,
   blankNodes: BlankNodesMap
@@ -155,22 +184,7 @@ export function createSparqlExplorer(
   return {
     connection: connection,
     async fetchSchema(options) {
-      let summary;
-      try {
-        const response = await fetchDatabaseRequest(
-          connection,
-          `${connection.url}/rdf/statistics/summary?mode=detailed`,
-          {
-            method: "GET",
-            ...options,
-          }
-        );
-        summary = (response.payload.graphSummary as GraphSummary) || undefined;
-      } catch (e) {
-        if (env.DEV) {
-          console.error("[Summary API]", e);
-        }
-      }
+      const summary = await fetchSummary(connection, options);
       return fetchSchema(_sparqlFetch(connection, options), summary);
     },
     async fetchVertexCountsByType(req, options) {

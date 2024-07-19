@@ -18,6 +18,7 @@ import {
   SPARQLBlankNodeNeighborsResponse,
   SparqlFetch,
 } from "../types";
+import { logger } from "../../../utils";
 
 type RawBlankNodeNeighborsResponse = {
   results: {
@@ -51,6 +52,12 @@ async function fetchBlankNodeNeighborsPredicates(
     subjectURIs,
   });
 
+  logger.log("[SPARQL Explorer] Fetching blank node neighbor predicates...", {
+    subQuery,
+    resourceURI,
+    resourceClass,
+    subjectURIs,
+  });
   const response = await sparqlFetch<RawNeighborsPredicatesResponse>(template);
   return response.results.bindings.map(result => {
     if (isIncomingPredicate(result)) {
@@ -91,6 +98,7 @@ export default async function fetchBlankNodeNeighbors(
   sparqlFetch: SparqlFetch,
   req: SPARQLBlankNodeNeighborsRequest
 ): Promise<SPARQLBlankNodeNeighborsResponse> {
+  logger.log("[SPARQL Explorer] Fetching blank node one hop neighbors", req);
   const neighborsTemplate = blankNodeOneHopNeighborsTemplate(req.subQuery);
   const neighbors = await sparqlFetch<
     RawBlankNodeNeighborsResponse | ErrorResponse

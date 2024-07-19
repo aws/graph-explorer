@@ -3,6 +3,7 @@ import dedent from "dedent";
 // Return all predicates which are connected from the given class
 export default function predicatesByClassTemplate(props: { class: string }) {
   return dedent`
+    # Return all predicates which are connected from the given class
     SELECT ?pred (SAMPLE(?object) as ?sample)
     WHERE {
       {
