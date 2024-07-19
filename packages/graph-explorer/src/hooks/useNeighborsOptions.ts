@@ -1,9 +1,17 @@
 import { useMemo } from "react";
 import { Vertex } from "../@types/entities";
-import { useConfiguration } from "../core/ConfigurationProvider";
+import {
+  useConfiguration,
+  VertexTypeConfig,
+} from "../core/ConfigurationProvider";
 import useTextTransform from "./useTextTransform";
+import { SelectOption } from "../components";
 
-const useNeighborsOptions = (vertex: Vertex) => {
+export type NeighborOption = SelectOption & {
+  config?: VertexTypeConfig;
+};
+
+export default function useNeighborsOptions(vertex: Vertex): NeighborOption[] {
   const config = useConfiguration();
   const textTransform = useTextTransform();
 
@@ -26,6 +34,4 @@ const useNeighborsOptions = (vertex: Vertex) => {
     vertex.data.neighborsCountByType,
     vertex.data.__unfetchedNeighborCounts,
   ]);
-};
-
-export default useNeighborsOptions;
+}
