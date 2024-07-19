@@ -16,13 +16,19 @@ at runtime.
 export default {
   /** Calls `console.log` if the app is running in DEV mode. */
   debug(message?: any, ...optionalParams: any[]) {
-    env.DEV && optionalParams.length > 0
+    if (env.PROD) {
+      return;
+    }
+    optionalParams.length > 0
       ? console.debug(message, optionalParams)
       : console.debug(message);
   },
   /** Calls `console.log` if the app is running in DEV mode. */
   log(message?: any, ...optionalParams: any[]) {
-    env.DEV && optionalParams.length > 0
+    if (env.PROD) {
+      return;
+    }
+    optionalParams.length > 0
       ? console.log(message, optionalParams)
       : console.log(message);
   },
