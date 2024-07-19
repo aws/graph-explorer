@@ -8,7 +8,9 @@ import LoadingSpinner from "../../components/LoadingSpinner";
 import PanelEmptyState from "../../components/PanelEmptyState/PanelEmptyState";
 import { useWithTheme } from "../../core";
 import { useExpandNode } from "../../hooks";
-import useNeighborsOptions from "../../hooks/useNeighborsOptions";
+import useNeighborsOptions, {
+  NeighborOption,
+} from "../../hooks/useNeighborsOptions";
 import useTranslations from "../../hooks/useTranslations";
 import NeighborsList from "../common/NeighborsList/NeighborsList";
 import defaultStyles from "./NodeExpandContent.styles";
@@ -69,13 +71,15 @@ function ExpansionOptions({ vertex }: { vertex: Vertex }) {
   const neighborsOptions = useNeighborsOptions(vertex);
 
   const [selectedType, setSelectedType] = useState<string>(
-    neighborsOptions[0]?.value
+    firstNeighborAvailableForExpansion(neighborsOptions)?.value ?? ""
   );
   const [filters, setFilters] = useState<Array<NodeExpandFilter>>([]);
   const [limit, setLimit] = useState<number | null>(null);
 
   useEffect(() => {
-    setSelectedType(neighborsOptions[0]?.value);
+    setSelectedType(
+      firstNeighborAvailableForExpansion(neighborsOptions)?.value ?? ""
+    );
   }, [neighborsOptions]);
 
   const hasUnfetchedNeighbors = Boolean(vertex.data.__unfetchedNeighborCount);
@@ -150,4 +154,10 @@ function ExpandButton({
       Expand
     </Button>
   );
+}
+
+function firstNeighborAvailableForExpansion(
+  neighborsOptions: NeighborOption[]
+) {
+  return neighborsOptions.find(x => !x.isDisabled) ?? neighborsOptions[0];
 }

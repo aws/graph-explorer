@@ -7,6 +7,7 @@ import {
   InfoTooltip,
   Input,
   Select,
+  SelectOption,
 } from "../../components";
 import { useConfiguration } from "../../core";
 import useTextTransform from "../../hooks/useTextTransform";
@@ -17,7 +18,7 @@ export type NodeExpandFilter = {
   value: string;
 };
 export type NodeExpandFiltersProps = {
-  neighborsOptions: Array<{ label: string; value: string }>;
+  neighborsOptions: SelectOption[];
   selectedType: string;
   onSelectedTypeChange(type: string): void;
   filters: Array<NodeExpandFilter>;
