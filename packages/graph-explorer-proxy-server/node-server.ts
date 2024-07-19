@@ -19,7 +19,9 @@ const proxyServerRoot = path.join(import.meta.dirname, "../");
 const app = express();
 
 // Load environment variables from .env file.
-dotenv.config({ path: path.join(clientRoot, ".env") });
+dotenv.config({
+  path: [path.join(clientRoot, ".env.local"), path.join(clientRoot, ".env")],
+});
 
 const DEFAULT_SERVICE_TYPE = "neptune-db";
 const NEPTUNE_ANALYTICS_SERVICE_TYPE = "neptune-graph";
