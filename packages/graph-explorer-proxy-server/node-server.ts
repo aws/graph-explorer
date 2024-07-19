@@ -190,20 +190,19 @@ app.use(
 );
 
 // Host the Graph Explorer UI static files
-const defaultVirtualPath = "/explorer";
-const staticFilesVirtualPath =
-  process.env.NEPTUNE_NOTEBOOK !== "false"
-    ? defaultVirtualPath
-    : process.env.GRAPH_EXP_ENV_ROOT_FOLDER ?? defaultVirtualPath;
+const staticFilesVirtualPath = process.env.GRAPH_EXP_ENV_ROOT_FOLDER;
 const staticFilesPath = path.join(clientRoot, "dist");
 
+proxyLogger.debug("Hosting client side static files from: %s", staticFilesPath);
 proxyLogger.debug(
-  "Setting up static file virtual path: %s",
-  staticFilesVirtualPath
+  "Hosting client side static files at: %s",
+  staticFilesVirtualPath ?? "/"
 );
-proxyLogger.debug("Setting up static file path: %s", staticFilesPath);
-
-app.use(staticFilesVirtualPath, express.static(staticFilesPath));
+if (staticFilesVirtualPath) {
+  app.use(staticFilesVirtualPath, express.static(staticFilesPath));
+} else {
+  app.use(express.static(staticFilesPath));
+}
 
 // POST endpoint for SPARQL queries.
 app.post("/sparql", async (req, res, next) => {
