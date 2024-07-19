@@ -524,33 +524,42 @@ const certificateKeyFilePath = path.join(
 );
 const certificateFilePath = path.join(proxyServerRoot, "cert-info/server.crt");
 
-// Start the server on port 80 or 443 (if HTTPS is enabled)
-if (process.env.NEPTUNE_NOTEBOOK === "true") {
-  app.listen(9250, () => {
-    proxyLogger.info(
-      `\tProxy available at port 9250 for Neptune Notebook instance`
-    );
-  });
-} else if (
+// Get the port numbers to listen on
+const httpPort = process.env.PROXY_SERVER_HTTP_PORT || 80;
+const httpsPort = process.env.PROXY_SERVER_HTTPS_PORT || 443;
+const useHttps =
+  process.env.NEPTUNE_NOTEBOOK !== "true" &&
   process.env.PROXY_SERVER_HTTPS_CONNECTION !== "false" &&
   fs.existsSync(certificateKeyFilePath) &&
-  fs.existsSync(certificateFilePath)
-) {
+  fs.existsSync(certificateFilePath);
+
+// Log the server locations based on the configuration.
+function logServerLocations() {
+  const scheme = useHttps ? "https" : "http";
+  let port = "";
+  if (useHttps && httpsPort !== 443) {
+    port = `:${httpsPort}`;
+  } else if (!useHttps && httpPort !== 80) {
+    port = `:${httpPort}`;
+  }
+  const baseUrl = `${scheme}://localhost${port}`;
+  proxyLogger.info(`Proxy server located at ${baseUrl}`);
+  proxyLogger.info(
+    `Graph Explorer UI located at: ${baseUrl}${staticFilesVirtualPath}`
+  );
+}
+
+// Start the server on port 80 or 443 (if HTTPS is enabled)
+if (useHttps) {
   const options = {
-    key: fs.readFileSync(certificateKeyFilePath),
-    cert: fs.readFileSync(certificateFilePath),
+    key: fs.readFileSync("./cert-info/server.key"),
+    cert: fs.readFileSync("./cert-info/server.crt"),
   };
-  https.createServer(options, app).listen(443, () => {
-    proxyLogger.info(`Proxy server located at https://localhost`);
-    proxyLogger.info(
-      `Graph Explorer UI located at: https://localhost${staticFilesVirtualPath}`
-    );
+  https.createServer(options, app).listen(httpsPort, () => {
+    logServerLocations();
   });
 } else {
-  app.listen(80, () => {
-    proxyLogger.info(`Proxy server located at http://localhost`);
-    proxyLogger.info(
-      `Graph Explorer UI located at: http://localhost${staticFilesVirtualPath}`
-    );
+  app.listen(httpPort, () => {
+    logServerLocations();
   });
 }
