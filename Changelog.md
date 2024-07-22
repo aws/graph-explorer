@@ -40,6 +40,8 @@
   the browser console (<https://github.com/aws/graph-explorer/pull/474>)
 - Allow HTTP and HTTPS ports to be overridden with environment values
   (<https://github.com/aws/graph-explorer/pull/500>)
+- Fix running in production mode locally with Node
+  (<https://github.com/aws/graph-explorer/pull/500>)
 - Update dependencies (<https://github.com/aws/graph-explorer/pull/475>,
   <https://github.com/aws/graph-explorer/pull/486>,
   <https://github.com/aws/graph-explorer/pull/490>,
