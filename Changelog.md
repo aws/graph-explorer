@@ -15,6 +15,8 @@
 
 **Bug Fixes and Minor Changes**
 
+- Provide better error messages when expanding a node fails
+  (<https://github.com/aws/graph-explorer/pull/502>)
 - Fix default selection of expand type to be the first available type for
   expansion (<https://github.com/aws/graph-explorer/pull/501>)
 - Use `application/sparql-results+json` accept header for SPARQL requests
