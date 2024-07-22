@@ -1,14 +1,11 @@
 export type LogLevel = "error" | "warn" | "info" | "debug" | "trace";
 
-type Options = { enable?: boolean };
 export default class LoggerConnector {
   private readonly _baseUrl: string;
-  private readonly _options: Options;
 
-  constructor(connectionUrl: string, options: Options = { enable: true }) {
+  constructor(connectionUrl: string) {
     const url = connectionUrl.replace(/\/$/, "");
     this._baseUrl = `${url}/logger`;
-    this._options = options;
   }
 
   public error(message: unknown) {
@@ -32,10 +29,6 @@ export default class LoggerConnector {
   }
 
   private _sendLog(level: LogLevel, message: unknown) {
-    if (!this._options.enable) {
-      return;
-    }
-
     return fetch(this._baseUrl, {
       method: "POST",
       headers: {

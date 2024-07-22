@@ -6,7 +6,6 @@ import { createSparqlExplorer } from "../connector/sparql/sparqlExplorer";
 import { mergedConfigurationSelector } from "./StateProvider/configuration";
 import { selector } from "recoil";
 import { equalSelector } from "../utils/recoilState";
-import { env } from "../utils";
 import { ConnectionConfig } from "./ConfigurationProvider";
 
 /**
@@ -85,8 +84,6 @@ export const loggerSelector = selector({
       return null;
     }
 
-    return new LoggerConnector(url, {
-      enable: env.PROD,
-    });
+    return new LoggerConnector(url);
   },
 });
