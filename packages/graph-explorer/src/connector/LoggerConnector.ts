@@ -1,6 +1,16 @@
+import { logger } from "../utils";
+
 export type LogLevel = "error" | "warn" | "info" | "debug" | "trace";
 
-export default class LoggerConnector {
+interface ILoggerConnector {
+  error(message: unknown): void;
+  warn(message: unknown): void;
+  info(message: unknown): void;
+  debug(message: unknown): void;
+  trace(message: unknown): void;
+}
+
+export class LoggerConnector implements ILoggerConnector {
   private readonly _baseUrl: string;
 
   constructor(connectionUrl: string) {
@@ -36,5 +46,23 @@ export default class LoggerConnector {
         message: JSON.stringify(message),
       },
     });
+  }
+}
+
+export class ClientLoggerConnector implements ILoggerConnector {
+  error(message: unknown): void {
+    logger.error(message);
+  }
+  warn(message: unknown): void {
+    logger.warn(message);
+  }
+  info(message: unknown): void {
+    logger.log(message);
+  }
+  debug(message: unknown): void {
+    logger.debug(message);
+  }
+  trace(message: unknown): void {
+    logger.log(message);
   }
 }

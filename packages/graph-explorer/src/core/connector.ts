@@ -1,5 +1,8 @@
 import { every, isEqual } from "lodash";
-import LoggerConnector from "../connector/LoggerConnector";
+import {
+  ClientLoggerConnector,
+  LoggerConnector,
+} from "../connector/LoggerConnector";
 import { createGremlinExplorer } from "../connector/gremlin/gremlinExplorer";
 import { createOpenCypherExplorer } from "../connector/openCypher/openCypherExplorer";
 import { createSparqlExplorer } from "../connector/sparql/sparqlExplorer";
@@ -81,7 +84,7 @@ export const loggerSelector = selector({
   get: ({ get }) => {
     const url = get(activeConnectionUrlSelector);
     if (!url) {
-      return null;
+      return new ClientLoggerConnector();
     }
 
     return new LoggerConnector(url);

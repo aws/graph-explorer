@@ -42,13 +42,13 @@ const useSchemaSync = (onSyncChange?: (isSyncing: boolean) => void) => {
         stackable: true,
       });
       if (e.name === "AbortError") {
-        logger?.error(
+        logger.error(
           `[${
             config.displayLabel || config.id
           }] Fetch aborted, reached max time out ${config.connection?.fetchTimeoutMs} MS `
         );
       } else {
-        logger?.error(
+        logger.error(
           `[${
             config.displayLabel || config.id
           }] Error while fetching schema: ${e.message}`
@@ -68,7 +68,7 @@ const useSchemaSync = (onSyncChange?: (isSyncing: boolean) => void) => {
         type: "info",
         stackable: true,
       });
-      logger?.info(
+      logger.info(
         `[${
           config.displayLabel || config.id
         }] This connection has no data available: ${JSON.stringify(
@@ -87,7 +87,7 @@ const useSchemaSync = (onSyncChange?: (isSyncing: boolean) => void) => {
       type: "success",
       stackable: true,
     });
-    logger?.info(
+    logger.info(
       `[${
         config.displayLabel || config.id
       }] Connection successfully synchronized: ${JSON.stringify(
