@@ -43,18 +43,6 @@ export const activeConnectionSelector = equalSelector({
 });
 
 /**
- * Active connection URL
- */
-const activeConnectionUrlSelector = equalSelector({
-  key: "activeConnectionUrl",
-  get: ({ get }) => {
-    const config = get(mergedConfigurationSelector);
-    return config?.connection?.url;
-  },
-  equals: (latest, prior) => latest === prior,
-});
-
-/**
  * Explorer based on the active connection.
  */
 export const explorerSelector = selector({
@@ -82,11 +70,13 @@ export const explorerSelector = selector({
 export const loggerSelector = selector({
   key: "logger",
   get: ({ get }) => {
-    const url = get(activeConnectionUrlSelector);
-    if (!url) {
+    const connection = get(activeConnectionSelector);
+
+    // Check for a url and that we are using the proxy server
+    if (!connection || !connection.url || connection.proxyConnection === true) {
       return new ClientLoggerConnector();
     }
 
-    return new LoggerConnector(url);
+    return new LoggerConnector(connection.url);
   },
 });
