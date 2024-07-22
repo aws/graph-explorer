@@ -2,7 +2,7 @@ import { logger } from "../utils";
 
 export type LogLevel = "error" | "warn" | "info" | "debug" | "trace";
 
-interface ILoggerConnector {
+export interface LoggerConnector {
   error(message: unknown): void;
   warn(message: unknown): void;
   info(message: unknown): void;
@@ -10,7 +10,8 @@ interface ILoggerConnector {
   trace(message: unknown): void;
 }
 
-export class LoggerConnector implements ILoggerConnector {
+/** Sends log messages to the server in the connection configuration. */
+export class ServerLoggerConnector implements LoggerConnector {
   private readonly _baseUrl: string;
 
   constructor(connectionUrl: string) {
@@ -49,7 +50,8 @@ export class LoggerConnector implements ILoggerConnector {
   }
 }
 
-export class ClientLoggerConnector implements ILoggerConnector {
+/** Sends logs to the browser's console. */
+export class ClientLoggerConnector implements LoggerConnector {
   error(message: unknown): void {
     logger.error(message);
   }

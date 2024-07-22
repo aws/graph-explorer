@@ -2,6 +2,7 @@ import { every, isEqual } from "lodash";
 import {
   ClientLoggerConnector,
   LoggerConnector,
+  ServerLoggerConnector,
 } from "../connector/LoggerConnector";
 import { createGremlinExplorer } from "../connector/gremlin/gremlinExplorer";
 import { createOpenCypherExplorer } from "../connector/openCypher/openCypherExplorer";
@@ -67,7 +68,7 @@ export const explorerSelector = selector({
 /**
  * Logger based on the active connection proxy URL.
  */
-export const loggerSelector = selector({
+export const loggerSelector = selector<LoggerConnector>({
   key: "logger",
   get: ({ get }) => {
     const connection = get(activeConnectionSelector);
@@ -77,6 +78,6 @@ export const loggerSelector = selector({
       return new ClientLoggerConnector();
     }
 
-    return new LoggerConnector(connection.url);
+    return new ServerLoggerConnector(connection.url);
   },
 });
