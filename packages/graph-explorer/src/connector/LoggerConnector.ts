@@ -37,7 +37,7 @@ export default class LoggerConnector {
     }
 
     return fetch(this._baseUrl, {
-      method: "GET",
+      method: "POST",
       headers: {
         level,
         message: JSON.stringify(message),
