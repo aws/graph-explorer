@@ -2,6 +2,36 @@ import { type ConnectionConfig } from "../core";
 import { DEFAULT_SERVICE_TYPE } from "../utils/constants";
 import { anySignal } from "./utils/anySignal";
 
+type NeptuneError = {
+  code: string;
+  requestId: string;
+  detailedMessage: string;
+  message?: string;
+};
+
+function isNeptuneError(value: unknown): value is NeptuneError {
+  if (typeof value !== "object" || value == null) {
+    return false;
+  }
+
+  if (!("code" in value) || typeof value.code !== "string") {
+    return false;
+  }
+
+  if (
+    !("detailedMessage" in value) ||
+    typeof value.detailedMessage !== "string"
+  ) {
+    return false;
+  }
+
+  if (!("requestId" in value) || typeof value.requestId !== "string") {
+    return false;
+  }
+
+  return true;
+}
+
 /**
  * Attempts to decode the error response into a JSON object.
  *
@@ -18,6 +48,7 @@ async function decodeErrorSafely(response: Response): Promise<any> {
   if (isJson) {
     try {
       const data = await response.json();
+
       // Flatten the error if it contains an error object
       return data?.error ?? data;
     } catch (error) {
@@ -88,6 +119,9 @@ export async function fetchDatabaseRequest(
 
   if (!response.ok) {
     const error = await decodeErrorSafely(response);
+    if (isNeptuneError(error)) {
+      throw new Error(error.detailedMessage, { cause: error });
+    }
     throw new Error("Network response was not OK", { cause: error });
   }
 
