@@ -168,6 +168,22 @@ Uses the self-signed certificate to serve the Graph Explorer over https if true.
 - Default `true`
 - Type: `boolean`
 
+#### `PROXY_SERVER_HTTPS_PORT`
+
+The port to use for the HTTPS server.
+
+- Optional
+- Default `443`
+- Type: `number`
+
+#### `PROXY_SERVER_HTTP_PORT`
+
+The port to use for the HTTP server.
+
+- Optional
+- Default `80`
+- Type: `number`
+
 #### `PROXY_SERVER_HTTPS_CONNECTION`
 
 Uses the self-signed certificate to serve the proxy-server over https if true.
