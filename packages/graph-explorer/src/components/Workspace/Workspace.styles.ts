@@ -201,6 +201,16 @@ const topBarTitleVersion: ThemeStyleFn = ({ theme }) => css`
   color: ${theme.palette.text.secondary};
 `;
 
+const additionalInputStyles: ThemeStyleFn = ({ theme }) => css`
+display: flex;
+width: 40%;
+height: 100%;
+padding: ${theme.spacing["2x"]} 10px; // Updated to add 10px padding on left and right
+margin-left: 5px;
+margin-top: 2px;
+justify-content: center;
+border-radius: 8px; // Add rounded corners (adjust the value as needed)
+`;
 const styles = {
   additionalControlsSectionStyles,
   baseStyles,
@@ -214,6 +224,7 @@ const styles = {
   topBarSectionStyles,
   topBarTitleContent,
   topBarTitleVersion,
+  additionalInputStyles,
 };
 
 export default styles;
