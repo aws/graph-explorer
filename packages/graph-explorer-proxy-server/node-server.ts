@@ -19,7 +19,9 @@ const proxyServerRoot = path.join(import.meta.dirname, "../");
 const app = express();
 
 // Load environment variables from .env file.
-dotenv.config({ path: path.join(clientRoot, ".env") });
+dotenv.config({
+  path: [path.join(clientRoot, ".env.local"), path.join(clientRoot, ".env")],
+});
 
 const DEFAULT_SERVICE_TYPE = "neptune-db";
 const NEPTUNE_ANALYTICS_SERVICE_TYPE = "neptune-graph";
@@ -190,20 +192,19 @@ app.use(
 );
 
 // Host the Graph Explorer UI static files
-const defaultVirtualPath = "/explorer";
-const staticFilesVirtualPath =
-  process.env.NEPTUNE_NOTEBOOK !== "false"
-    ? defaultVirtualPath
-    : process.env.GRAPH_EXP_ENV_ROOT_FOLDER ?? defaultVirtualPath;
+const staticFilesVirtualPath = process.env.GRAPH_EXP_ENV_ROOT_FOLDER;
 const staticFilesPath = path.join(clientRoot, "dist");
 
+proxyLogger.debug("Hosting client side static files from: %s", staticFilesPath);
 proxyLogger.debug(
-  "Setting up static file virtual path: %s",
-  staticFilesVirtualPath
+  "Hosting client side static files at: %s",
+  staticFilesVirtualPath ?? "/"
 );
-proxyLogger.debug("Setting up static file path: %s", staticFilesPath);
-
-app.use(staticFilesVirtualPath, express.static(staticFilesPath));
+if (staticFilesVirtualPath) {
+  app.use(staticFilesVirtualPath, express.static(staticFilesPath));
+} else {
+  app.use(express.static(staticFilesPath));
+}
 
 // POST endpoint for SPARQL queries.
 app.post("/sparql", async (req, res, next) => {
@@ -523,33 +524,45 @@ const certificateKeyFilePath = path.join(
 );
 const certificateFilePath = path.join(proxyServerRoot, "cert-info/server.crt");
 
-// Start the server on port 80 or 443 (if HTTPS is enabled)
-if (process.env.NEPTUNE_NOTEBOOK === "true") {
-  app.listen(9250, () => {
-    proxyLogger.info(
-      `\tProxy available at port 9250 for Neptune Notebook instance`
-    );
-  });
-} else if (
-  process.env.PROXY_SERVER_HTTPS_CONNECTION !== "false" &&
+// Get the port numbers to listen on
+const host = process.env.HOST || "localhost";
+const httpPort = process.env.PROXY_SERVER_HTTP_PORT || 80;
+const httpsPort = process.env.PROXY_SERVER_HTTPS_PORT || 443;
+const useHttps =
+  process.env.PROXY_SERVER_HTTPS_CONNECTION === "true" &&
   fs.existsSync(certificateKeyFilePath) &&
-  fs.existsSync(certificateFilePath)
-) {
+  fs.existsSync(certificateFilePath);
+
+// Log the server locations based on the configuration.
+function logServerLocations() {
+  const scheme = useHttps ? "https" : "http";
+  let port = "";
+
+  // Only show the port if it is not one of the defaults
+  if (useHttps && httpsPort !== 443) {
+    port = `:${httpsPort}`;
+  } else if (!useHttps && httpPort !== 80) {
+    port = `:${httpPort}`;
+  }
+
+  const baseUrl = `${scheme}://${host}${port}`;
+  proxyLogger.info(`Proxy server located at ${baseUrl}`);
+  proxyLogger.info(
+    `Graph Explorer UI located at: ${baseUrl}${staticFilesVirtualPath}`
+  );
+}
+
+// Start the server on port 80 or 443 (if HTTPS is enabled)
+if (useHttps) {
   const options = {
     key: fs.readFileSync(certificateKeyFilePath),
     cert: fs.readFileSync(certificateFilePath),
   };
-  https.createServer(options, app).listen(443, () => {
-    proxyLogger.info(`Proxy server located at https://localhost`);
-    proxyLogger.info(
-      `Graph Explorer UI located at: https://localhost${staticFilesVirtualPath}`
-    );
+  https.createServer(options, app).listen(httpsPort, () => {
+    logServerLocations();
   });
 } else {
-  app.listen(80, () => {
-    proxyLogger.info(`Proxy server located at http://localhost`);
-    proxyLogger.info(
-      `Graph Explorer UI located at: http://localhost${staticFilesVirtualPath}`
-    );
+  app.listen(httpPort, () => {
+    logServerLocations();
   });
 }
