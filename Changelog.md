@@ -15,6 +15,8 @@
 
 **Bug Fixes and Minor Changes**
 
+- Fix expanding a node on old versions of Gremlin
+  (<https://github.com/aws/graph-explorer/pull/503>)
 - Provide better error messages when expanding a node fails
   (<https://github.com/aws/graph-explorer/pull/502>)
 - Fix default selection of expand type to be the first available type for
