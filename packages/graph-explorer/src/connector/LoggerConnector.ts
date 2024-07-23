@@ -1,14 +1,22 @@
+import { logger } from "../utils";
+
 export type LogLevel = "error" | "warn" | "info" | "debug" | "trace";
 
-type Options = { enable?: boolean };
-export default class LoggerConnector {
-  private readonly _baseUrl: string;
-  private readonly _options: Options;
+export interface LoggerConnector {
+  error(message: unknown): void;
+  warn(message: unknown): void;
+  info(message: unknown): void;
+  debug(message: unknown): void;
+  trace(message: unknown): void;
+}
 
-  constructor(connectionUrl: string, options: Options = { enable: true }) {
+/** Sends log messages to the server in the connection configuration. */
+export class ServerLoggerConnector implements LoggerConnector {
+  private readonly _baseUrl: string;
+
+  constructor(connectionUrl: string) {
     const url = connectionUrl.replace(/\/$/, "");
     this._baseUrl = `${url}/logger`;
-    this._options = options;
   }
 
   public error(message: unknown) {
@@ -32,16 +40,31 @@ export default class LoggerConnector {
   }
 
   private _sendLog(level: LogLevel, message: unknown) {
-    if (!this._options.enable) {
-      return;
-    }
-
     return fetch(this._baseUrl, {
-      method: "GET",
+      method: "POST",
       headers: {
         level,
         message: JSON.stringify(message),
       },
     });
+  }
+}
+
+/** Sends logs to the browser's console. */
+export class ClientLoggerConnector implements LoggerConnector {
+  error(message: unknown): void {
+    logger.error(message);
+  }
+  warn(message: unknown): void {
+    logger.warn(message);
+  }
+  info(message: unknown): void {
+    logger.log(message);
+  }
+  debug(message: unknown): void {
+    logger.debug(message);
+  }
+  trace(message: unknown): void {
+    logger.log(message);
   }
 }

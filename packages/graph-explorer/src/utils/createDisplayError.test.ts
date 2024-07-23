@@ -80,4 +80,13 @@ describe("createDisplayError", () => {
         "Increase the query timeout in the DB cluster parameter group, or retry the request.",
     });
   });
+
+  it("Should handle malformed query", () => {
+    const result = createDisplayError({ code: "MalformedQueryException" });
+    expect(result).toStrictEqual({
+      title: "Malformed Query",
+      message:
+        "The executed query was rejected by the database. It is possible the query structure is not supported by your database.",
+    });
+  });
 });

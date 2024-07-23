@@ -46,6 +46,18 @@ export function createDisplayError(error: any): DisplayError {
       };
     }
 
+    // Malformed query
+    if (
+      error?.code === "MalformedQueryException" ||
+      error?.cause?.code === "MalformedQueryException"
+    ) {
+      return {
+        title: "Malformed Query",
+        message:
+          "The executed query was rejected by the database. It is possible the query structure is not supported by your database.",
+      };
+    }
+
     // Fetch timeout
     if (error?.name === "AbortError") {
       return {

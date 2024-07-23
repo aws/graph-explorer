@@ -479,7 +479,7 @@ app.get("/rdf/statistics/summary", async (req, res, next) => {
   );
 });
 
-app.get("/logger", (req, res, next) => {
+app.post("/logger", (req, res, next) => {
   const headers = req.headers as LoggerIncomingHttpHeaders;
   let message;
   let level;
