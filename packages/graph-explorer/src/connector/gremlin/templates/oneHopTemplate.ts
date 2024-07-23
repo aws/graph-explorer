@@ -160,7 +160,7 @@ export default function oneHopTemplate({
 
   return dedent`
     g.V(${idTemplate})
-      .both()${nodeFiltersTemplate}.dedup().order()${range}.as("v")
+      .both()${nodeFiltersTemplate}.dedup().order().by(id())${range}.as("v")
       .project("vertex", "edges")
         .by()
         .by(

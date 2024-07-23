@@ -11,7 +11,7 @@ describe("Gremlin > oneHopTemplate", () => {
     expect(normalize(template)).toBe(
       normalize(`
         g.V("12")
-          .both().dedup().order().as("v")
+          .both().dedup().order().by(id()).as("v")
           .project("vertex", "edges")
             .by()
             .by(
@@ -32,7 +32,7 @@ describe("Gremlin > oneHopTemplate", () => {
     expect(normalize(template)).toBe(
       normalize(`
         g.V(12L)
-          .both().dedup().order().as("v")
+          .both().dedup().order().by(id()).as("v")
           .project("vertex", "edges")
             .by()
             .by(
@@ -55,7 +55,7 @@ describe("Gremlin > oneHopTemplate", () => {
     expect(normalize(template)).toBe(
       normalize(`
         g.V("12")
-          .both().dedup().order().range(5, 10).as("v")
+          .both().dedup().order().by(id()).range(5, 10).as("v")
           .project("vertex", "edges")
             .by()
             .by(
@@ -79,7 +79,7 @@ describe("Gremlin > oneHopTemplate", () => {
     expect(normalize(template)).toBe(
       normalize(`
         g.V("12")
-          .both().hasLabel("country").dedup().order().range(5, 15).as("v")
+          .both().hasLabel("country").dedup().order().by(id()).range(5, 15).as("v")
           .project("vertex", "edges")
             .by()
             .by(
@@ -103,7 +103,7 @@ describe("Gremlin > oneHopTemplate", () => {
     expect(normalize(template)).toBe(
       normalize(`
         g.V("12")
-          .both().hasLabel("country", "airport", "continent").dedup().order().range(5, 15).as("v")
+          .both().hasLabel("country", "airport", "continent").dedup().order().by(id()).range(5, 15).as("v")
           .project("vertex", "edges")
             .by()
             .by(
@@ -133,7 +133,7 @@ describe("Gremlin > oneHopTemplate", () => {
         g.V("12")
           .both().hasLabel("country")
             .and(has("longest",gte(10000)),has("country",containing("ES")))
-            .dedup().order().range(5, 15).as("v")
+            .dedup().order().by(id()).range(5, 15).as("v")
           .project("vertex", "edges")
             .by()
             .by(
