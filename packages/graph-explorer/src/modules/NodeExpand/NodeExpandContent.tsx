@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { Vertex } from "../../@types/entities";
 import { ModuleContainerFooter, PanelError } from "../../components";
 import Button from "../../components/Button";
@@ -37,6 +37,7 @@ export default function NodeExpandContent({ vertex }: NodeExpandContentProps) {
 function ExpandSidebarContent({ vertex }: { vertex: Vertex }) {
   const t = useTranslations();
   const query = useUpdateNodeCountsQuery(vertex.data.id);
+  const neighborsOptions = useNeighborsOptions(vertex);
 
   if (query.isError) {
     return <PanelError error={query.error} onRetry={query.refetch} />;
@@ -61,26 +62,29 @@ function ExpandSidebarContent({ vertex }: { vertex: Vertex }) {
   return (
     <>
       <NeighborsList vertex={vertex} />
-      <ExpansionOptions vertex={vertex} />
+      <ExpansionOptions
+        vertex={vertex}
+        neighborsOptions={neighborsOptions}
+        key={neighborsOptions.map(o => o.value).join()}
+      />
     </>
   );
 }
 
-function ExpansionOptions({ vertex }: { vertex: Vertex }) {
+function ExpansionOptions({
+  vertex,
+  neighborsOptions,
+}: {
+  vertex: Vertex;
+  neighborsOptions: NeighborOption[];
+}) {
   const t = useTranslations();
-  const neighborsOptions = useNeighborsOptions(vertex);
 
   const [selectedType, setSelectedType] = useState<string>(
     firstNeighborAvailableForExpansion(neighborsOptions)?.value ?? ""
   );
   const [filters, setFilters] = useState<Array<NodeExpandFilter>>([]);
   const [limit, setLimit] = useState<number | null>(null);
-
-  useEffect(() => {
-    setSelectedType(
-      firstNeighborAvailableForExpansion(neighborsOptions)?.value ?? ""
-    );
-  }, [neighborsOptions]);
 
   const hasUnfetchedNeighbors = Boolean(vertex.data.__unfetchedNeighborCount);
   const hasSelectedType = Boolean(selectedType);
