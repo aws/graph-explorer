@@ -89,6 +89,13 @@ function ExpansionOptions({
   const hasUnfetchedNeighbors = Boolean(vertex.data.__unfetchedNeighborCount);
   const hasSelectedType = Boolean(selectedType);
 
+  // Reset filters when selected type changes
+  const [prevSelectedType, setPrevSelectedType] = useState(selectedType);
+  if (prevSelectedType !== selectedType) {
+    setPrevSelectedType(selectedType);
+    setFilters([]);
+  }
+
   if (!hasUnfetchedNeighbors) {
     return (
       <PanelEmptyState
