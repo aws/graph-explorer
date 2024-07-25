@@ -1,10 +1,13 @@
-import { useMemo } from "react";
 import { Vertex } from "../../@types/entities";
 import { VertexIcon } from "../../components";
-import { useConfiguration, fade, ThemeStyleFn, useWithTheme } from "../../core";
+import { fade, ThemeStyleFn, useWithTheme } from "../../core";
 import useDisplayNames from "../../hooks/useDisplayNames";
 import useTextTransform from "../../hooks/useTextTransform";
 import { css } from "@emotion/css";
+import {
+  useVertexTypeConfig,
+  useVertexTypeConfigs,
+} from "../../core/ConfigurationProvider/useConfiguration";
 
 const defaultStyles: ThemeStyleFn = ({ theme }) => css`
   position: sticky;
@@ -40,35 +43,30 @@ const defaultStyles: ThemeStyleFn = ({ theme }) => css`
 
 export default function VertexHeader({ vertex }: { vertex: Vertex }) {
   const styleWithTheme = useWithTheme();
-  const config = useConfiguration();
   const textTransform = useTextTransform();
-  const displayLabels = useMemo(() => {
-    return (vertex.data.types ?? [vertex.data.type])
-      .map(type => {
-        return (
-          config?.getVertexTypeConfig(type)?.displayLabel || textTransform(type)
-        );
-      })
-      .filter(Boolean)
-      .join(", ");
-  }, [config, textTransform, vertex.data.type, vertex.data.types]);
+  const vertexTypeConfigs = useVertexTypeConfigs(
+    vertex.data.types ?? [vertex.data.type]
+  );
+  const displayLabels = vertexTypeConfigs
+    .map(vtConfig => vtConfig.displayLabel || textTransform(vtConfig.type))
+    .join(", ");
   const getDisplayNames = useDisplayNames();
   const { name } = getDisplayNames(vertex);
-  const vtConfig = config?.getVertexTypeConfig(vertex.data.type);
+  const vtConfig = useVertexTypeConfig(vertex.data.type);
 
   return (
     <div className={styleWithTheme(defaultStyles)}>
-      {vtConfig?.iconUrl && (
+      {vtConfig.iconUrl && (
         <div
           className={"icon"}
           style={{
-            background: fade(vtConfig?.color, 0.2),
+            background: fade(vtConfig.color, 0.2),
             color: vtConfig.color,
           }}
         >
           <VertexIcon
-            iconUrl={vtConfig?.iconUrl}
-            iconImageType={vtConfig?.iconImageType}
+            iconUrl={vtConfig.iconUrl}
+            iconImageType={vtConfig.iconImageType}
           />
         </div>
       )}

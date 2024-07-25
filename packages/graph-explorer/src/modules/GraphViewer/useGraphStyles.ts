@@ -5,6 +5,7 @@ import type { GraphProps } from "../../components";
 import { useConfiguration } from "../../core";
 import useTextTransform from "../../hooks/useTextTransform";
 import { renderNode } from "./renderNode";
+import { useVertexTypeConfigs } from "../../core/ConfigurationProvider/useConfiguration";
 
 const LINE_PATTERN = {
   solid: undefined,
@@ -14,6 +15,7 @@ const LINE_PATTERN = {
 
 const useGraphStyles = () => {
   const config = useConfiguration();
+  const vtConfigs = useVertexTypeConfigs();
   const textTransform = useTextTransform();
   const [styles, setStyles] = useState<GraphProps["styles"]>({});
 
@@ -21,11 +23,8 @@ const useGraphStyles = () => {
     (async () => {
       const styles: GraphProps["styles"] = {};
 
-      for (const vt of config?.vertexTypes || []) {
-        const vtConfig = config?.getVertexTypeConfig(vt);
-        if (!vtConfig) {
-          continue;
-        }
+      for (const vtConfig of vtConfigs) {
+        const vt = vtConfig.type;
 
         // Process the image data or SVG
         const backgroundImage = await renderNode(vtConfig);
@@ -100,7 +99,7 @@ const useGraphStyles = () => {
 
       setStyles(styles);
     })();
-  }, [config, textTransform]);
+  }, [config, textTransform, vtConfigs]);
 
   return styles;
 };

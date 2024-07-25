@@ -5,6 +5,7 @@ import { useConfiguration } from "../../core";
 import useDebounceValue from "../../hooks/useDebounceValue";
 import useTextTransform from "../../hooks/useTextTransform";
 import { useKeywordSearchQuery } from "./useKeywordSearchQuery";
+import { useVertexTypeConfigs } from "../../core/ConfigurationProvider/useConfiguration";
 
 export interface PromiseWithCancel<T> extends Promise<T> {
   cancel?: () => void;
@@ -32,20 +33,20 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
   // Sparql uses rdfs:label, not ID
   const allowsIdSearch = config?.connection?.queryEngine !== "sparql";
 
+  const vtConfigs = useVertexTypeConfigs();
   const vertexOptions = useMemo(() => {
     const vertexOps =
-      config?.vertexTypes
-        .map(vt => {
-          const vtConfig = config?.getVertexTypeConfig(vt);
+      vtConfigs
+        .map(vtConfig => {
           return {
-            label: textTransform(vtConfig?.displayLabel || vt),
-            value: vt,
+            label: textTransform(vtConfig?.displayLabel || vtConfig.type),
+            value: vtConfig.type,
           };
         })
         .sort((a, b) => a.label.localeCompare(b.label)) || [];
 
     return [{ label: "All", value: allVerticesValue }, ...vertexOps];
-  }, [config, textTransform]);
+  }, [textTransform, vtConfigs]);
 
   const onSearchTermChange = useCallback((value: string) => {
     setSearchTerm(value);

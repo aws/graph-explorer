@@ -12,6 +12,7 @@ import {
   vertexTypesSelector,
 } from "../../core/StateProvider/configuration";
 import { CheckboxListItemProps } from "../../components";
+import { useVertexTypeConfigs } from "../../core/ConfigurationProvider/useConfiguration";
 
 const selectedVerticesSelector = selector({
   key: "filters-selected-vertices",
@@ -40,6 +41,7 @@ const useFiltersConfig = () => {
   const textTransform = useTextTransform();
 
   const vertexTypes = useRecoilValue(vertexTypesSelector);
+  const vtConfigs = useVertexTypeConfigs();
   const edgeTypes = useRecoilValue(edgeTypesSelector);
   const setNodesTypesFiltered = useSetRecoilState(nodesTypesFilteredAtom);
   const setEdgesTypesFiltered = useSetRecoilState(edgesTypesFilteredAtom);
@@ -104,7 +106,7 @@ const useFiltersConfig = () => {
     [vertexTypes, setNodesTypesFiltered]
   );
 
-  const { getVertexTypeConfig, getEdgeTypeConfig } = config || {};
+  const { getEdgeTypeConfig } = config || {};
 
   const onChangeConnectionTypes = useCallback(
     (connectionId: string, isSelected: boolean): void => {
@@ -122,8 +124,8 @@ const useFiltersConfig = () => {
 
   const vertexTypesCheckboxes = useMemo(() => {
     return sortBy(
-      vertexTypes?.map(vt => {
-        const vertexConfig = getVertexTypeConfig?.(vt);
+      vtConfigs.map(vertexConfig => {
+        const vt = vertexConfig.type;
 
         return {
           id: vt,
@@ -144,7 +146,7 @@ const useFiltersConfig = () => {
       }),
       type => type.text
     );
-  }, [vertexTypes, getVertexTypeConfig, textTransform]);
+  }, [vtConfigs, textTransform]);
 
   const connectionTypesCheckboxes = useMemo(() => {
     return sortBy(

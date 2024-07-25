@@ -18,9 +18,11 @@ import useEntitiesCounts from "../../hooks/useEntitiesCounts";
 import useTextTransform from "../../hooks/useTextTransform";
 import useTranslations from "../../hooks/useTranslations";
 import defaultStyles from "./ConnectionDetail.styles";
+import { useVertexTypeConfigs } from "../../core/ConfigurationProvider/useConfiguration";
 
 const ConnectionData = () => {
   const config = useConfiguration();
+  const vtConfigs = useVertexTypeConfigs();
   const navigate = useNavigate();
   const styleWithTheme = useWithTheme();
   const { totalNodes, totalEdges } = useEntitiesCounts();
@@ -29,9 +31,9 @@ const ConnectionData = () => {
 
   const verticesByTypeItems = useMemo(() => {
     const items: AdvancedListItemType<any>[] = [];
-    (config?.vertexTypes || []).forEach(vt => {
-      const vtConfig = config?.getVertexTypeConfig(vt);
-      const displayLabel = vtConfig?.displayLabel || vt;
+    vtConfigs.forEach(vtConfig => {
+      const vt = vtConfig.type;
+      const displayLabel = vtConfig.displayLabel || vt;
 
       items.push({
         id: vt,
@@ -44,19 +46,19 @@ const ConnectionData = () => {
         icon: (
           <div
             style={{
-              color: vtConfig?.color,
+              color: vtConfig.color,
             }}
           >
             <VertexIcon
-              iconUrl={vtConfig?.iconUrl}
-              iconImageType={vtConfig?.iconImageType}
+              iconUrl={vtConfig.iconUrl}
+              iconImageType={vtConfig.iconImageType}
             />
           </div>
         ),
         className: css`
           .start-adornment {
-            color: ${vtConfig?.color}!important;
-            background: ${fade(vtConfig?.color, 0.3)}!important;
+            color: ${vtConfig.color}!important;
+            background: ${fade(vtConfig.color, 0.3)}!important;
           }
         `,
         endAdornment: (
@@ -72,7 +74,7 @@ const ConnectionData = () => {
     });
 
     return items;
-  }, [config, textTransform, navigate]);
+  }, [vtConfigs, textTransform, navigate]);
 
   const [search, setSearch] = useState("");
 

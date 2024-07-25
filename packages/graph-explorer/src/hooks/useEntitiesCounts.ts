@@ -1,22 +1,24 @@
 import { useMemo } from "react";
 import { useConfiguration } from "../core";
+import { useVertexTypeConfigs } from "../core/ConfigurationProvider/useConfiguration";
 
 const useEntitiesCounts = () => {
   const config = useConfiguration();
+  const vtConfigs = useVertexTypeConfigs();
 
   const totalNodes = useMemo(() => {
     if (config?.totalVertices != null) {
-      return config?.totalVertices;
+      return config.totalVertices;
     }
 
-    if (!config?.vertexTypes.length) {
+    if (!vtConfigs.length) {
       return null;
     }
 
     let total = 0;
 
-    for (const vt of config.vertexTypes) {
-      const currTotal = config?.getVertexTypeConfig(vt)?.total;
+    for (const vtConfig of vtConfigs) {
+      const currTotal = vtConfig.total;
       if (currTotal == null) {
         return null;
       }
@@ -25,7 +27,7 @@ const useEntitiesCounts = () => {
     }
 
     return total;
-  }, [config]);
+  }, [config?.totalVertices, vtConfigs]);
 
   const totalEdges = useMemo(() => {
     if (config?.totalEdges != null) {

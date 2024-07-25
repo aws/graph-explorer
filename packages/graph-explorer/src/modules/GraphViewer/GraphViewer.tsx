@@ -22,7 +22,6 @@ import ScreenshotIcon from "../../components/icons/ScreenshotIcon";
 import ListItem from "../../components/ListItem";
 import RemoteSvgIcon from "../../components/RemoteSvgIcon";
 import Select from "../../components/Select";
-import { useConfiguration } from "../../core/ConfigurationProvider";
 import {
   edgesHiddenIdsAtom,
   edgesOutOfFocusIdsAtom,
@@ -44,6 +43,7 @@ import useGraphGlobalActions from "./useGraphGlobalActions";
 import useGraphStyles from "./useGraphStyles";
 import useNodeBadges from "./useNodeBadges";
 import useNodeDrop from "./useNodeDrop";
+import { useVertexTypeConfigs } from "../../core/ConfigurationProvider/useConfiguration";
 
 export type GraphViewerProps = Omit<
   ModuleContainerHeaderProps,
@@ -326,8 +326,8 @@ export default function GraphViewer({
 }
 
 function Legend({ onClose }: { onClose: () => void }) {
-  const config = useConfiguration();
   const textTransform = useTextTransform();
+  const vtConfigs = useVertexTypeConfigs();
 
   return (
     <Card className={"legend-container"}>
@@ -344,19 +344,18 @@ function Legend({ onClose }: { onClose: () => void }) {
       >
         Legend
       </ListItem>
-      {config?.vertexTypes.map(vertexType => {
-        const vtConfig = config?.getVertexTypeConfig(vertexType);
+      {vtConfigs.map(vtConfig => {
         return (
           <ListItem
-            key={vertexType}
+            key={vtConfig.type}
             className={"legend-item"}
             startAdornment={
-              vtConfig?.iconUrl && (
+              vtConfig.iconUrl && (
                 <div
                   className={"icon"}
                   style={{
-                    background: fade(vtConfig?.color, 0.2),
-                    color: vtConfig?.color,
+                    background: fade(vtConfig.color, 0.2),
+                    color: vtConfig.color,
                   }}
                 >
                   <RemoteSvgIcon src={vtConfig.iconUrl} />
@@ -364,7 +363,7 @@ function Legend({ onClose }: { onClose: () => void }) {
               )
             }
           >
-            {vtConfig?.displayLabel || textTransform(vertexType)}
+            {vtConfig.displayLabel || textTransform(vtConfig.type)}
           </ListItem>
         );
       })}

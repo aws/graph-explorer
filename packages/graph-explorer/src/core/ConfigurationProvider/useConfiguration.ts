@@ -94,14 +94,29 @@ export const assembledConfigSelector = selector<
   },
 });
 
-export const vertexTypeConfigSelector = selectorFamily({
-  key: "vertex-type-config",
+const vertexTypeConfigsSelector = selectorFamily({
+  key: "vertex-type-configs",
   get:
-    (vertexType: string) =>
-    ({ get }) => {
-      return get(assembledConfigSelector)?.getVertexTypeConfig(vertexType);
-    },
+    (vertexTypes: string[]) =>
+    ({ get }) =>
+      vertexTypes.map(
+        vertexType =>
+          get(assembledConfigSelector)?.getVertexTypeConfig(vertexType) ??
+          getDefaultVertexTypeConfig(vertexType)
+      ),
 });
+
+/** Gets the matching vertex type config or a generated default value. */
+export function useVertexTypeConfig(vertexType: string) {
+  return useRecoilValue(vertexTypeConfigsSelector([vertexType]))[0];
+}
+
+/** Gets the matching vertex type configs or the generated default values. */
+export function useVertexTypeConfigs(vertexTypes?: string[]) {
+  const config = useRecoilValue(assembledConfigSelector);
+  const types = vertexTypes ?? config?.vertexTypes ?? [];
+  return useRecoilValue(vertexTypeConfigsSelector(types));
+}
 
 export default function useConfiguration() {
   return useRecoilValue(assembledConfigSelector);
