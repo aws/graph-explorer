@@ -5,22 +5,26 @@ import {
 } from "../core/StateProvider/configuration";
 import {
   createRandomRawConfiguration,
+  createRandomSchema,
   renderHookWithRecoilRoot,
 } from "../utils/testing";
 import useTextTransform from "./useTextTransform";
 import { vi } from "vitest";
+import { schemaAtom } from "../core/StateProvider/schema";
 
 function initializeConfigWithPrefix(snapshot: MutableSnapshot) {
   // Create config and setup schema
   const config = createRandomRawConfiguration();
+  const schema = createRandomSchema();
   config.connection!.queryEngine = "sparql";
-  config.schema!.prefixes = [
+  schema.prefixes = [
     {
       prefix: "rdf",
       uri: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
     },
   ];
   snapshot.set(configurationAtom, new Map([[config.id, config]]));
+  snapshot.set(schemaAtom, new Map([[config.id, schema]]));
 
   // Make config active
   snapshot.set(activeConfigurationAtom, config.id);

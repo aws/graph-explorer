@@ -1,6 +1,9 @@
 import useKeywordSearch from "./useKeywordSearch";
 import { ConnectionConfig } from "../../core";
-import { renderHookWithRecoilRoot } from "../../utils/testing";
+import {
+  createRandomSchema,
+  renderHookWithRecoilRoot,
+} from "../../utils/testing";
 import { createRandomRawConfiguration } from "../../utils/testing";
 import {
   activeConfigurationAtom,
@@ -8,6 +11,7 @@ import {
 } from "../../core/StateProvider/configuration";
 import { MutableSnapshot } from "recoil";
 import { vi } from "vitest";
+import { schemaAtom } from "../../core/StateProvider/schema";
 
 vi.mock("./useKeywordSearchQuery", () => ({
   useKeywordSearchQuery: vi.fn().mockReturnValue({
@@ -118,8 +122,9 @@ describe("useKeywordSearch", () => {
     function initializeConfigWithRdfLabel(snapshot: MutableSnapshot) {
       // Create config and setup schema
       const config = createRandomRawConfiguration();
+      const schema = createRandomSchema();
       config.connection!.queryEngine = "sparql";
-      config.schema?.vertices[0].attributes.push({
+      schema.vertices[0].attributes.push({
         name: "rdfs:label",
         displayLabel: "rdfs:label",
         searchable: true,
@@ -127,6 +132,7 @@ describe("useKeywordSearch", () => {
       });
 
       snapshot.set(configurationAtom, new Map([[config.id, config]]));
+      snapshot.set(schemaAtom, new Map([[config.id, schema]]));
 
       // Make config active
       snapshot.set(activeConfigurationAtom, config.id);

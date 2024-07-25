@@ -236,6 +236,5 @@ export function createRandomRawConfiguration(): RawConfiguration {
       url: createRandomName("url"),
       queryEngine: pickRandomElement(["gremlin", "openCypher", "sparql"]),
     },
-    schema: createRandomSchema(),
   };
 }
