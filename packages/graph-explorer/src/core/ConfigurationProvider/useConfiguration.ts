@@ -118,6 +118,31 @@ export function useVertexTypeConfigs(vertexTypes?: string[]) {
   return useRecoilValue(vertexTypeConfigsSelector(types));
 }
 
+const edgeTypeConfigsSelector = selectorFamily({
+  key: "edge-type-configs",
+  get:
+    (edgeTypes: string[]) =>
+    ({ get }) =>
+      edgeTypes.map(
+        edgeType =>
+          get(assembledConfigSelector)?.getEdgeTypeConfig(edgeType) ??
+          getDefaultEdgeTypeConfig(edgeType)
+      ),
+});
+
+/** Gets the matching edge type config or a generated default value. */
+export function useEdgeTypeConfig(edgeType: string) {
+  return useRecoilValue(edgeTypeConfigsSelector([edgeType]))[0];
+}
+
+/** Gets the matching edge type configs or the generated default values. */
+export function useEdgeTypeConfigs(edgeTypes?: string[]) {
+  const config = useRecoilValue(assembledConfigSelector);
+  const types = edgeTypes ?? config?.edgeTypes ?? [];
+  return useRecoilValue(edgeTypeConfigsSelector(types));
+}
+
+/** Gets the fully merged and augmented configuration & schema */
 export default function useConfiguration() {
   return useRecoilValue(assembledConfigSelector);
 }

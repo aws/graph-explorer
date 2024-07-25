@@ -3,7 +3,6 @@ import { useCallback, useMemo } from "react";
 import { selector, useRecoilValue, useSetRecoilState } from "recoil";
 import { EdgeIcon } from "../../components/icons";
 import VertexIcon from "../../components/VertexIcon";
-import { useConfiguration } from "../../core";
 import { edgesTypesFilteredAtom } from "../../core/StateProvider/edges";
 import { nodesTypesFilteredAtom } from "../../core/StateProvider/nodes";
 import useTextTransform from "../../hooks/useTextTransform";
@@ -12,7 +11,10 @@ import {
   vertexTypesSelector,
 } from "../../core/StateProvider/configuration";
 import { CheckboxListItemProps } from "../../components";
-import { useVertexTypeConfigs } from "../../core/ConfigurationProvider/useConfiguration";
+import {
+  useEdgeTypeConfigs,
+  useVertexTypeConfigs,
+} from "../../core/ConfigurationProvider/useConfiguration";
 
 const selectedVerticesSelector = selector({
   key: "filters-selected-vertices",
@@ -37,12 +39,12 @@ const selectedEdgesSelector = selector({
 });
 
 const useFiltersConfig = () => {
-  const config = useConfiguration();
   const textTransform = useTextTransform();
 
   const vertexTypes = useRecoilValue(vertexTypesSelector);
   const vtConfigs = useVertexTypeConfigs();
   const edgeTypes = useRecoilValue(edgeTypesSelector);
+  const etConfigs = useEdgeTypeConfigs();
   const setNodesTypesFiltered = useSetRecoilState(nodesTypesFilteredAtom);
   const setEdgesTypesFiltered = useSetRecoilState(edgesTypesFilteredAtom);
   const selectedVertexTypes = useRecoilValue(selectedVerticesSelector);
@@ -106,8 +108,6 @@ const useFiltersConfig = () => {
     [vertexTypes, setNodesTypesFiltered]
   );
 
-  const { getEdgeTypeConfig } = config || {};
-
   const onChangeConnectionTypes = useCallback(
     (connectionId: string, isSelected: boolean): void => {
       isSelected ? deleteConnection(connectionId) : addConnection(connectionId);
@@ -150,17 +150,16 @@ const useFiltersConfig = () => {
 
   const connectionTypesCheckboxes = useMemo(() => {
     return sortBy(
-      edgeTypes?.map(et => {
-        const edgeConfig = getEdgeTypeConfig?.(et);
+      etConfigs.map(edgeConfig => {
         return {
-          id: et,
-          text: edgeConfig?.displayLabel || textTransform(et),
+          id: edgeConfig.type,
+          text: edgeConfig?.displayLabel || textTransform(edgeConfig.type),
           endAdornment: <EdgeIcon />,
         } as CheckboxListItemProps;
       }),
       type => type.text
     );
-  }, [edgeTypes, getEdgeTypeConfig, textTransform]);
+  }, [etConfigs, textTransform]);
 
   return {
     selectedVertexTypes,
