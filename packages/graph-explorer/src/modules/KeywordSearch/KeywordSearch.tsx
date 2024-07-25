@@ -373,11 +373,11 @@ function SearchResults({
         subtitle={
           currentTotal ? (
             <div>
-              Looking at
+              Looking at{" "}
               <HumanReadableNumberFormatter
                 value={currentTotal}
                 maxFractionDigits={0}
-              />
+              />{" "}
               records for matching results
             </div>
           ) : (

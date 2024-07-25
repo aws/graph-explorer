@@ -1,5 +1,5 @@
 import { clone } from "lodash";
-import { useCallback, useEffect } from "react";
+import { useCallback } from "react";
 import {
   AddIcon,
   DeleteIcon,
@@ -71,10 +71,6 @@ const NodeExpandFilters = ({
     },
     [filters, onFiltersChange]
   );
-
-  useEffect(() => {
-    onFiltersChange([]);
-  }, [onFiltersChange, selectedType]);
 
   return (
     <div className={"filters-section"}>
