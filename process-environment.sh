@@ -41,6 +41,9 @@ fi
 
 # Update the default connection file with the configuration values
 if [ -n "$PUBLIC_OR_PROXY_ENDPOINT" ]; then 
+    # Overwrite existing file with an empty string
+    echo "" > ./packages/graph-explorer/defaultConnection.json
+    
     echo -e "{\n\"GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT\":\"${PUBLIC_OR_PROXY_ENDPOINT}\"," >> ./packages/graph-explorer/defaultConnection.json
 
     if [ -n "$SERVICE_TYPE" ]; then
