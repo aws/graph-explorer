@@ -118,6 +118,7 @@ export function createRandomEdgeTypeConfig(): EdgeTypeConfig {
     attributes: createArray(6, createRandomAttributeConfig),
     displayLabel: randomlyUndefined(createRandomName("displayLabel")),
     hidden: randomlyUndefined(createRandomBoolean()),
+    total: createRandomInteger(),
   };
 }
 
@@ -131,6 +132,7 @@ export function createRandomVertexTypeConfig(): VertexTypeConfig {
     attributes: createArray(6, createRandomAttributeConfig),
     displayLabel: randomlyUndefined(createRandomName("displayLabel")),
     hidden: randomlyUndefined(createRandomBoolean()),
+    total: createRandomInteger(),
   };
 }
 
@@ -144,8 +146,15 @@ export function createRandomSchema(): Schema {
   const schema: Schema = {
     edges,
     vertices,
-    totalEdges: edges.length,
-    totalVertices: vertices.length,
+    totalEdges: edges
+      .map(e => e.total ?? 0)
+      .reduce((prev, current) => current + prev, 0),
+    totalVertices: vertices
+      .map(v => v.total ?? 0)
+      .reduce((prev, current) => current + prev, 0),
+    lastSyncFail: false,
+    lastUpdate: new Date(),
+    triedToSync: true,
   };
   return schema;
 }

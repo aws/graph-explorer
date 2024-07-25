@@ -1,18 +1,32 @@
 import { useMemo } from "react";
 import { useConfiguration } from "../core";
-import { useVertexTypeConfigs } from "../core/ConfigurationProvider/useConfiguration";
+import {
+  useEdgeTypeConfigs,
+  useVertexTypeConfigs,
+} from "../core/ConfigurationProvider/useConfiguration";
 
 const useEntitiesCounts = () => {
   const config = useConfiguration();
   const vtConfigs = useVertexTypeConfigs();
+  const etConfigs = useEdgeTypeConfigs();
+
+  const preCalculatedTotalNodes = config?.totalVertices ?? 0;
+  const preCalculatedTotalEdges = config?.totalEdges ?? 0;
+
+  const hasSyncedSchema = Boolean(config?.schema?.lastUpdate);
 
   const totalNodes = useMemo(() => {
-    if (config?.totalVertices != null) {
-      return config.totalVertices;
+    if (!hasSyncedSchema) {
+      return null;
+    }
+
+    // If pre-calculated total exists, use that
+    if (preCalculatedTotalNodes !== 0) {
+      return preCalculatedTotalNodes;
     }
 
     if (!vtConfigs.length) {
-      return null;
+      return 0;
     }
 
     let total = 0;
@@ -27,21 +41,25 @@ const useEntitiesCounts = () => {
     }
 
     return total;
-  }, [config?.totalVertices, vtConfigs]);
+  }, [hasSyncedSchema, preCalculatedTotalNodes, vtConfigs]);
 
   const totalEdges = useMemo(() => {
-    if (config?.totalEdges != null) {
-      return config?.totalEdges;
+    if (!hasSyncedSchema) {
+      return null;
     }
 
-    if (!config?.edgeTypes.length) {
-      return null;
+    if (preCalculatedTotalEdges !== 0) {
+      return preCalculatedTotalEdges;
+    }
+
+    if (!etConfigs.length) {
+      return 0;
     }
 
     let total = 0;
 
-    for (const et of config.edgeTypes) {
-      const currTotal = config?.getEdgeTypeConfig(et)?.total;
+    for (const etConfig of etConfigs) {
+      const currTotal = etConfig.total;
       if (currTotal == null) {
         return null;
       }
@@ -50,7 +68,7 @@ const useEntitiesCounts = () => {
     }
 
     return total;
-  }, [config]);
+  }, [etConfigs, hasSyncedSchema, preCalculatedTotalEdges]);
 
   return { totalNodes, totalEdges };
 };
