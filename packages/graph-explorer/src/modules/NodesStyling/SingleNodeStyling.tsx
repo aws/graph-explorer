@@ -14,7 +14,7 @@ import {
 } from "../../components";
 import ColorInput from "../../components/ColorInput/ColorInput";
 import { useNotification } from "../../components/NotificationProvider";
-import { useConfiguration, useWithTheme } from "../../core";
+import { useWithTheme } from "../../core";
 import {
   LineStyle,
   ShapeStyle,
@@ -28,6 +28,7 @@ import { LINE_STYLE_OPTIONS } from "./lineStyling";
 import { NODE_SHAPE } from "./nodeShape";
 import defaultStyles from "./SingleNodeStyling.style";
 import modalDefaultStyles from "./SingleNodeStylingModal.style";
+import { useVertexTypeConfig } from "../../core/ConfigurationProvider/useConfiguration";
 
 export type SingleNodeStylingProps = {
   vertexType: string;
@@ -51,25 +52,23 @@ const SingleNodeStyling = ({
   onOpen,
   onClose,
 }: SingleNodeStylingProps) => {
-  const config = useConfiguration();
   const t = useTranslations();
   const styleWithTheme = useWithTheme();
 
   const userStyling = useRecoilValue(userStylingAtom);
   const textTransform = useTextTransform();
-  const vtConfig = config?.getVertexTypeConfig(vertexType);
+  const vtConfig = useVertexTypeConfig(vertexType);
   const vtPrefs = userStyling.vertices?.find(v => v.type === vertexType);
 
   const [displayAs, setDisplayAs] = useState(
-    vtConfig?.displayLabel || textTransform(vertexType)
+    vtConfig.displayLabel || textTransform(vertexType)
   );
 
   const selectOptions = useMemo(() => {
-    const options =
-      vtConfig?.attributes.map(attr => ({
-        value: attr.name,
-        label: attr.displayLabel || textTransform(attr.name),
-      })) || [];
+    const options = vtConfig.attributes.map(attr => ({
+      value: attr.name,
+      label: attr.displayLabel || textTransform(attr.name),
+    }));
 
     options.unshift({
       label: t("nodes-styling.node-type"),
@@ -78,7 +77,7 @@ const SingleNodeStyling = ({
     options.unshift({ label: t("nodes-styling.node-id"), value: "id" });
 
     return options;
-  }, [t, textTransform, vtConfig?.attributes]);
+  }, [t, textTransform, vtConfig.attributes]);
 
   const onUserPrefsChange = useRecoilCallback(
     ({ set }) =>
@@ -198,7 +197,7 @@ const SingleNodeStyling = ({
   }, [displayAs, debouncedChange]);
 
   const isSvg =
-    (vtPrefs?.iconImageType || vtConfig?.iconImageType) === "image/svg+xml";
+    (vtPrefs?.iconImageType || vtConfig.iconImageType) === "image/svg+xml";
 
   return (
     <div className={styleWithTheme(defaultStyles)}>
@@ -245,7 +244,7 @@ const SingleNodeStyling = ({
               <Select
                 label={"Display Name Attribute"}
                 labelPlacement={"inner"}
-                value={vtConfig?.displayNameAttribute || ""}
+                value={vtConfig.displayNameAttribute || ""}
                 onChange={onDisplayNameChange("name")}
                 options={selectOptions}
                 hideError={true}
@@ -254,7 +253,7 @@ const SingleNodeStyling = ({
               <Select
                 label={"Display Description Attribute"}
                 labelPlacement={"inner"}
-                value={vtConfig?.longDisplayNameAttribute || ""}
+                value={vtConfig.longDisplayNameAttribute || ""}
                 onChange={onDisplayNameChange("longName")}
                 options={selectOptions}
                 hideError={true}
@@ -293,22 +292,20 @@ const SingleNodeStyling = ({
                           <div
                             className={"vertex-icon"}
                             style={{
-                              background: fade(vtConfig?.color, 0.2),
-                              color: vtConfig?.color,
+                              background: fade(vtConfig.color, 0.2),
+                              color: vtConfig.color,
                             }}
                           >
                             {isSvg && (
                               <RemoteSvgIcon
-                                src={
-                                  vtPrefs?.iconUrl || vtConfig?.iconUrl || ""
-                                }
+                                src={vtPrefs?.iconUrl || vtConfig.iconUrl || ""}
                               />
                             )}
                             {!isSvg && (
                               <img
                                 width={24}
                                 height={24}
-                                src={vtPrefs?.iconUrl || vtConfig?.iconUrl}
+                                src={vtPrefs?.iconUrl || vtConfig.iconUrl}
                               />
                             )}
                           </div>

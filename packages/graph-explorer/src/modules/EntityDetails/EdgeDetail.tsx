@@ -24,6 +24,7 @@ import useDisplayNames from "../../hooks/useDisplayNames";
 import useTextTransform from "../../hooks/useTextTransform";
 import { formatDate } from "../../utils";
 import defaultStyles from "./EntityDetail.styles";
+import { useEdgeTypeConfig } from "../../core/ConfigurationProvider/useConfiguration";
 
 export type EdgeDetailProps = {
   edge: Edge;
@@ -35,9 +36,7 @@ const EdgeDetail = ({ edge, sourceVertex, targetVertex }: EdgeDetailProps) => {
   const config = useConfiguration();
   const styleWithTheme = useWithTheme();
 
-  const edgeConfig = useMemo(() => {
-    return config?.getEdgeTypeConfig(edge.data.type);
-  }, [config, edge.data.type]);
+  const edgeConfig = useEdgeTypeConfig(edge.data.type);
 
   const sourceVertexConfig = useMemo(() => {
     if (!sourceVertex) {

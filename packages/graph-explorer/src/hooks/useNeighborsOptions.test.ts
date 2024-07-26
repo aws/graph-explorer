@@ -6,8 +6,10 @@ import {
 } from "../core/StateProvider/configuration";
 import {
   createRandomRawConfiguration,
+  createRandomSchema,
   renderHookWithRecoilRoot,
 } from "../utils/testing";
+import { schemaAtom } from "../core/StateProvider/schema";
 
 describe("useNeighborsOptions", () => {
   const vertex = {
@@ -22,7 +24,8 @@ describe("useNeighborsOptions", () => {
       () => useNeighborsOptions(vertex),
       snapshot => {
         const config = createRandomRawConfiguration();
-        config.schema!.vertices = [
+        const schema = createRandomSchema();
+        schema.vertices = [
           {
             type: "nodeType1",
             displayLabel: "Label nodeType1",
@@ -35,6 +38,7 @@ describe("useNeighborsOptions", () => {
           },
         ];
         snapshot.set(configurationAtom, new Map([[config.id, config]]));
+        snapshot.set(schemaAtom, new Map([[config.id, schema]]));
         snapshot.set(activeConfigurationAtom, config.id);
       }
     );

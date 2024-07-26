@@ -12,6 +12,7 @@ import {
 import { useConfiguration } from "../../core";
 import useTextTransform from "../../hooks/useTextTransform";
 import useTranslations from "../../hooks/useTranslations";
+import { useVertexTypeConfig } from "../../core/ConfigurationProvider/useConfiguration";
 
 export type NodeExpandFilter = {
   name: string;
@@ -40,7 +41,7 @@ const NodeExpandFilters = ({
   const t = useTranslations();
   const textTransform = useTextTransform();
 
-  const vtConfig = config?.getVertexTypeConfig(selectedType);
+  const vtConfig = useVertexTypeConfig(selectedType);
   const searchableAttributes =
     config?.getVertexTypeSearchableAttributes(selectedType);
 
@@ -48,11 +49,11 @@ const NodeExpandFilters = ({
     onFiltersChange([
       ...filters,
       {
-        name: vtConfig?.attributes?.[0].name || "",
+        name: vtConfig.attributes[0]?.name || "",
         value: "",
       },
     ]);
-  }, [filters, onFiltersChange, vtConfig?.attributes]);
+  }, [filters, onFiltersChange, vtConfig.attributes]);
 
   const onFilterDelete = useCallback(
     (filterIndex: number) => {
@@ -83,7 +84,7 @@ const NodeExpandFilters = ({
         }}
         options={neighborsOptions}
       />
-      {!!vtConfig?.attributes?.length && (
+      {!!vtConfig.attributes.length && (
         <div className={"title"}>
           <div>Filter to narrow results</div>
           <IconButton

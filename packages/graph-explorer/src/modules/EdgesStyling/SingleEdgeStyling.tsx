@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRecoilCallback, useRecoilValue } from "recoil";
 import { Button, Input, Select, StylingIcon } from "../../components";
 import ColorInput from "../../components/ColorInput/ColorInput";
-import { useConfiguration, useWithTheme } from "../../core";
+import { useWithTheme } from "../../core";
 import {
   ArrowStyle,
   EdgePreferences,
@@ -21,6 +21,7 @@ import {
 import { LINE_STYLE_OPTIONS } from "./lineStyling";
 import defaultStyles from "./SingleEdgeStyling.style";
 import modalDefaultStyles from "./SingleEdgeStylingModal.style";
+import { useEdgeTypeConfig } from "../../core/ConfigurationProvider/useConfiguration";
 
 export type SingleEdgeStylingProps = {
   edgeType: string;
@@ -35,13 +36,12 @@ const SingleEdgeStyling = ({
   onOpen,
   onClose,
 }: SingleEdgeStylingProps) => {
-  const config = useConfiguration();
   const t = useTranslations();
   const styleWithTheme = useWithTheme();
 
   const userStyling = useRecoilValue(userStylingAtom);
   const textTransform = useTextTransform();
-  const etConfig = config?.getEdgeTypeConfig(edgeType);
+  const etConfig = useEdgeTypeConfig(edgeType);
   const etPrefs = userStyling.edges?.find(e => e.type === edgeType);
 
   const [displayAs, setDisplayAs] = useState(

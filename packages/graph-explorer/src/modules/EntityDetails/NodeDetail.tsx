@@ -9,6 +9,7 @@ import NeighborsList from "../common/NeighborsList/NeighborsList";
 import EntityAttribute from "./EntityAttribute";
 import defaultStyles from "./EntityDetail.styles";
 import VertexHeader from "../common/VertexHeader";
+import { useVertexTypeConfig } from "../../core/ConfigurationProvider/useConfiguration";
 
 export type VertexDetailProps = {
   hideNeighbors?: boolean;
@@ -24,9 +25,7 @@ export default function NodeDetail({
   const styleWithTheme = useWithTheme();
   const textTransform = useTextTransform();
 
-  const vertexConfig = useMemo(() => {
-    return config?.getVertexTypeConfig(node.data.type);
-  }, [config, node.data.type]);
+  const vertexConfig = useVertexTypeConfig(node.data.type);
 
   const sortedAttributes = useMemo(() => {
     const attributes =
@@ -76,7 +75,7 @@ export default function NodeDetail({
           />
           <EntityAttribute
             value={
-              vertexConfig?.displayLabel ||
+              vertexConfig.displayLabel ||
               (node.data.types ?? [node.data.type])
                 .map(textTransform)
                 .join(", ")

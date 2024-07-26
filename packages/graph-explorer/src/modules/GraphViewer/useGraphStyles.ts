@@ -2,9 +2,12 @@ import Color from "color";
 import { useEffect, useState } from "react";
 import { EdgeData } from "../../@types/entities";
 import type { GraphProps } from "../../components";
-import { useConfiguration } from "../../core";
 import useTextTransform from "../../hooks/useTextTransform";
 import { renderNode } from "./renderNode";
+import {
+  useEdgeTypeConfigs,
+  useVertexTypeConfigs,
+} from "../../core/ConfigurationProvider/useConfiguration";
 
 const LINE_PATTERN = {
   solid: undefined,
@@ -13,7 +16,8 @@ const LINE_PATTERN = {
 };
 
 const useGraphStyles = () => {
-  const config = useConfiguration();
+  const vtConfigs = useVertexTypeConfigs();
+  const etConfigs = useEdgeTypeConfigs();
   const textTransform = useTextTransform();
   const [styles, setStyles] = useState<GraphProps["styles"]>({});
 
@@ -21,11 +25,8 @@ const useGraphStyles = () => {
     (async () => {
       const styles: GraphProps["styles"] = {};
 
-      for (const vt of config?.vertexTypes || []) {
-        const vtConfig = config?.getVertexTypeConfig(vt);
-        if (!vtConfig) {
-          continue;
-        }
+      for (const vtConfig of vtConfigs) {
+        const vt = vtConfig.type;
 
         // Process the image data or SVG
         const backgroundImage = await renderNode(vtConfig);
@@ -44,7 +45,9 @@ const useGraphStyles = () => {
         };
       }
 
-      for (const et of config?.edgeTypes || []) {
+      for (const etConfig of etConfigs) {
+        const et = etConfig?.type;
+
         let label = textTransform(et);
         if (label.length > 20) {
           label = label.substring(0, 17) + "...";
@@ -55,11 +58,6 @@ const useGraphStyles = () => {
           "source-distance-from-node": 0,
           "target-distance-from-node": 0,
         };
-
-        const etConfig = config?.getEdgeTypeConfig(et);
-        if (!etConfig) {
-          continue;
-        }
 
         styles[`edge[type="${et}"]`] = {
           label: (el: cytoscape.EdgeSingular) => {
@@ -100,7 +98,7 @@ const useGraphStyles = () => {
 
       setStyles(styles);
     })();
-  }, [config, textTransform]);
+  }, [etConfigs, textTransform, vtConfigs]);
 
   return styles;
 };

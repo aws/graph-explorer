@@ -1,22 +1,38 @@
 import { useMemo } from "react";
 import { useConfiguration } from "../core";
+import {
+  useEdgeTypeConfigs,
+  useVertexTypeConfigs,
+} from "../core/ConfigurationProvider/useConfiguration";
 
 const useEntitiesCounts = () => {
   const config = useConfiguration();
+  const vtConfigs = useVertexTypeConfigs();
+  const etConfigs = useEdgeTypeConfigs();
+
+  const preCalculatedTotalNodes = config?.totalVertices ?? 0;
+  const preCalculatedTotalEdges = config?.totalEdges ?? 0;
+
+  const hasSyncedSchema = Boolean(config?.schema?.lastUpdate);
 
   const totalNodes = useMemo(() => {
-    if (config?.totalVertices != null) {
-      return config?.totalVertices;
+    if (!hasSyncedSchema) {
+      return null;
     }
 
-    if (!config?.vertexTypes.length) {
-      return null;
+    // If pre-calculated total exists, use that
+    if (preCalculatedTotalNodes !== 0) {
+      return preCalculatedTotalNodes;
+    }
+
+    if (!vtConfigs.length) {
+      return 0;
     }
 
     let total = 0;
 
-    for (const vt of config.vertexTypes) {
-      const currTotal = config?.getVertexTypeConfig(vt)?.total;
+    for (const vtConfig of vtConfigs) {
+      const currTotal = vtConfig.total;
       if (currTotal == null) {
         return null;
       }
@@ -25,21 +41,25 @@ const useEntitiesCounts = () => {
     }
 
     return total;
-  }, [config]);
+  }, [hasSyncedSchema, preCalculatedTotalNodes, vtConfigs]);
 
   const totalEdges = useMemo(() => {
-    if (config?.totalEdges != null) {
-      return config?.totalEdges;
+    if (!hasSyncedSchema) {
+      return null;
     }
 
-    if (!config?.edgeTypes.length) {
-      return null;
+    if (preCalculatedTotalEdges !== 0) {
+      return preCalculatedTotalEdges;
+    }
+
+    if (!etConfigs.length) {
+      return 0;
     }
 
     let total = 0;
 
-    for (const et of config.edgeTypes) {
-      const currTotal = config?.getEdgeTypeConfig(et)?.total;
+    for (const etConfig of etConfigs) {
+      const currTotal = etConfig.total;
       if (currTotal == null) {
         return null;
       }
@@ -48,7 +68,7 @@ const useEntitiesCounts = () => {
     }
 
     return total;
-  }, [config]);
+  }, [etConfigs, hasSyncedSchema, preCalculatedTotalEdges]);
 
   return { totalNodes, totalEdges };
 };

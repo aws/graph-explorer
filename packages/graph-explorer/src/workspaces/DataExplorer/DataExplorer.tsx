@@ -48,7 +48,7 @@ import useUpdateVertexTypeCounts from "../../hooks/useUpdateVertexTypeCounts";
 import TopBarWithLogo from "../common/TopBarWithLogo";
 import defaultStyles from "./DataExplorer.styles";
 import { searchQuery } from "../../connector/queries";
-import { vertexTypeConfigSelector } from "../../core/ConfigurationProvider/useConfiguration";
+import { useVertexTypeConfig } from "../../core/ConfigurationProvider/useConfiguration";
 
 export type ConnectionsProps = {
   vertexType: string;
@@ -78,7 +78,7 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
   // Automatically updates counts if needed
   useUpdateVertexTypeCounts(vertexType);
 
-  const vertexConfig = useRecoilValue(vertexTypeConfigSelector(vertexType));
+  const vertexConfig = useVertexTypeConfig(vertexType);
   const { pageIndex, pageSize, onPageIndexChange, onPageSizeChange } =
     usePagingOptions();
 
@@ -178,7 +178,7 @@ function DisplayNameAndDescriptionOptions({
 }) {
   const textTransform = useTextTransform();
   const t = useTranslations();
-  const vertexConfig = useRecoilValue(vertexTypeConfigSelector(vertexType));
+  const vertexConfig = useVertexTypeConfig(vertexType);
   const selectOptions = useMemo(() => {
     const options =
       vertexConfig?.attributes.map(attr => ({
@@ -280,7 +280,7 @@ function AddToExplorerButton({ vertex }: { vertex: Vertex }) {
 function useColumnDefinitions(vertexType: string) {
   const textTransform = useTextTransform();
   const t = useTranslations();
-  const vertexConfig = useRecoilValue(vertexTypeConfigSelector(vertexType));
+  const vertexConfig = useVertexTypeConfig(vertexType);
   const columns: ColumnDefinition<Vertex>[] = useMemo(() => {
     const vtColumns: ColumnDefinition<Vertex>[] =
       vertexConfig?.attributes
