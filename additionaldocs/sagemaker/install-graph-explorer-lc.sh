@@ -2,12 +2,39 @@
 
 sudo -u ec2-user -i <<'EOF'
 
-echo "export GRAPH_NOTEBOOK_AUTH_MODE=DEFAULT" >> ~/.bashrc  # set to IAM instead of DEFAULT if cluster is IAM enabled
-echo "export GRAPH_NOTEBOOK_HOST=CHANGE-ME" >> ~/.bashrc
-echo "export GRAPH_NOTEBOOK_SERVICE=neptune-db" >> ~/.bashrc # set to `neptune-db` for Neptune database or `neptune-graph` for Neptune Analytics
-echo "export GRAPH_NOTEBOOK_PORT=8182" >> ~/.bashrc
-echo "export AWS_REGION=us-west-2" >> ~/.bashrc  # modify region if needed
+# Custom configuration for the graph notebook instance
+# 
+# These values must be configured to match your Notebook setup
 
+# The authentication mode for your Neptune cluster.
+# 
+# Options include:
+# - `DEFAULT` - cluster does not have IAM enabled
+# - `IAM` - cluster is IAM enabled
+echo "export GRAPH_NOTEBOOK_AUTH_MODE=DEFAULT" >> ~/.bashrc
+
+# Set the host name of the your Neptune cluster endpoint
+echo "export GRAPH_NOTEBOOK_HOST=CHANGE-ME" >> ~/.bashrc
+
+# The database service the notebook will be connecting to.
+# 
+# Options include:
+# - `neptune-db` - Neptune database 
+# - `neptune-graph` - Neptune Analytics
+echo "export GRAPH_NOTEBOOK_SERVICE=neptune-db" >> ~/.bashrc 
+
+# The port for the Notebook instance. This value should not change.
+echo "export GRAPH_NOTEBOOK_PORT=8182" >> ~/.bashrc
+
+# The AWS region for your Neptune Notebook. Modify if needed
+echo "export AWS_REGION=us-west-2" >> ~/.bashrc
+
+# The Graph Explorer version to use
+# 
+# Options include:
+# - Empty or no value - Will use the latest stable release
+# - Specific version - uses the version specified if found (i.e. `1.8.0`)
+# - `latest` - uses the most recent development build
 EXPLORER_VERSION=""
 
 source activate JupyterSystemEnv
