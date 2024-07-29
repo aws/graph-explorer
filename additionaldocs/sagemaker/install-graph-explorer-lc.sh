@@ -40,7 +40,7 @@ EXPLORER_VERSION=""
 source activate JupyterSystemEnv
 source ~/.bashrc || exit
 
-echo "Constructing explorer connection configuration..."
+echo "Constructing Graph Explorer connection configuration..."
 
 GRAPH_NOTEBOOK_NAME=$(jq '.ResourceName' /opt/ml/metadata/resource-metadata.json --raw-output)
 echo "Grabbed notebook name: ${GRAPH_NOTEBOOK_NAME}"
@@ -76,11 +76,12 @@ echo "Neptune URI: ${NEPTUNE_URI}"
 echo "Neptune Service: ${SERVICE}"
 echo "Explorer region: ${AWS_REGION}"
 echo "Explorer IAM auth mode: ${IAM}"
+echo "Explorer version: ${EXPLORER_VERSION}"
 
 ECR_TOKEN=$(curl -k https://public.ecr.aws/token/ | jq -r '.token')
 LATEST_ECR_RELEASE=$(curl -k -H "Authorization: Bearer $ECR_TOKEN" https://public.ecr.aws/v2/neptune/graph-explorer/tags/list | jq -r '.tags | sort_by(split(".") | try map(tonumber) catch [0,0,0])[-1]')
 
-echo "Pulling and starting graph-explorer..."
+echo "Pulling and starting Graph Explorer Docker container..."
 if [[ ${EXPLORER_VERSION} == "" ]]; then
   EXPLORER_ECR_TAG=sagemaker-${LATEST_ECR_RELEASE}
 else
@@ -95,8 +96,10 @@ else
     EXPLORER_ECR_TAG=sagemaker-${LATEST_ECR_RELEASE}
   fi
 fi
-echo "Using explorer image tag: ${EXPLORER_ECR_TAG}"
+echo "Using Graph Explorer image tag: ${EXPLORER_ECR_TAG}"
 
+# Start the Graph Explorer Docker container
+echo "Starting the Graph Explorer docker container..."
 docker run -d -p 9250:9250 \
   --restart always \
   --log-driver=awslogs \
@@ -115,7 +118,7 @@ docker run -d -p 9250:9250 \
   --env NEPTUNE_NOTEBOOK=true \
   public.ecr.aws/neptune/graph-explorer:${EXPLORER_ECR_TAG}
 
-echo "Explorer installation done."
+echo "Graph Explorer installation done."
 
 conda /home/ec2-user/anaconda3/bin/deactivate
 echo "done."
