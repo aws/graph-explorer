@@ -82,6 +82,10 @@ echo "Using explorer image tag: ${EXPLORER_ECR_TAG}"
 
 docker run -d -p 9250:9250 \
   --restart always \
+  --log-driver=awslogs \
+  --log-opt awslogs-region=${AWS_REGION} \
+  --log-opt awslogs-group=/aws/sagemaker/NotebookInstances \
+  --log-opt awslogs-stream=${GRAPH_NOTEBOOK_NAME}/graph-explorer.log \
   --env HOST=127.0.0.1 \
   --env PUBLIC_OR_PROXY_ENDPOINT=${EXPLORER_URI} \
   --env GRAPH_CONNECTION_URL=${NEPTUNE_URI} \
@@ -90,7 +94,9 @@ docker run -d -p 9250:9250 \
   --env AWS_REGION=${AWS_REGION} \
   --env SERVICE_TYPE=${SERVICE} \
   --env PROXY_SERVER_HTTPS_CONNECTION=false \
-  --env NEPTUNE_NOTEBOOK=true public.ecr.aws/neptune/graph-explorer:${EXPLORER_ECR_TAG}
+  --env LOG_LEVEL=debug \
+  --env NEPTUNE_NOTEBOOK=true \
+  public.ecr.aws/neptune/graph-explorer:${EXPLORER_ECR_TAG}
 
 echo "Explorer installation done."
 
