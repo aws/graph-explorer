@@ -9,16 +9,6 @@ echo "export GRAPH_NOTEBOOK_PORT=8182" >> ~/.bashrc
 echo "export AWS_REGION=us-west-2" >> ~/.bashrc  # modify region if needed
 
 EXPLORER_VERSION=""
-for i in "$@"
-do
-case $i in
-    -ev=*|--explorer-version=*)
-    EXPLORER_VERSION="${i#*=}"
-    echo "set explorer version to ${EXPLORER_VERSION}"
-    shift
-    ;;
-esac
-done
 
 source activate JupyterSystemEnv
 source ~/.bashrc || exit
