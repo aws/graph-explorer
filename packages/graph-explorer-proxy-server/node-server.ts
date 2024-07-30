@@ -548,7 +548,7 @@ function logServerLocations() {
   const baseUrl = `${scheme}://${host}${port}`;
   proxyLogger.info(`Proxy server located at ${baseUrl}`);
   proxyLogger.info(
-    `Graph Explorer UI located at: ${baseUrl}${staticFilesVirtualPath}`
+    `Graph Explorer UI located at: ${baseUrl}${staticFilesVirtualPath ?? ""}`
   );
 }
 
