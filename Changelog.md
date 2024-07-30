@@ -12,6 +12,9 @@
 - Requests executed in parallel for each label or class are now batched in
   groups of 10 to reduce chance of throttling errors
   (<https://github.com/aws/graph-explorer/pull/489>)
+- Updated the example SageMaker lifecycle configuration script and IAM policies
+  to include logging to CloudWatch
+  (<https://github.com/aws/graph-explorer/pull/517>)
 
 **Bug Fixes and Minor Changes**
 

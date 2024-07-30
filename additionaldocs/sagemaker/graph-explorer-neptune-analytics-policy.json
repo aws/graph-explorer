@@ -14,6 +14,18 @@
       "Resource": [
         "arn:[AWS_PARTITION]:sagemaker:[AWS_REGION]:[AWS_ACCOUNT_ID]:notebook-instance/*"
       ]
+    },
+    {
+      "Sid": "LogGroupAccess",
+      "Effect": "Allow",
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ],
+      "Resource": [
+        "arn:[AWS_PARTITION]:logs:[AWS_REGION]:[AWS_ACCOUNT_ID]:log-group:/aws/sagemaker/*"
+      ]
     }
   ]
 }
