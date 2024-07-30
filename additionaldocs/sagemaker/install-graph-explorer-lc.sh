@@ -129,14 +129,14 @@ ECR_TOKEN=$(curl -k https://public.ecr.aws/token/ | jq -r '.token')
 LATEST_ECR_RELEASE=$(curl -k -H "Authorization: Bearer $ECR_TOKEN" https://public.ecr.aws/v2/neptune/graph-explorer/tags/list | jq -r '.tags | sort_by(split(".") | try map(tonumber) catch [0,0,0])[-1]')
 
 echo "Pulling and starting graph-explorer..."
-if [[ ${GRAPH_EXPLORER_VERSION} == "" ]]; then
+if [[ ${EXPLORER_VERSION} == "" ]]; then
   EXPLORER_ECR_TAG=sagemaker-${LATEST_ECR_RELEASE}
 else
-  if [[ ${GRAPH_EXPLORER_VERSION//./} -ge 140 ]]; then
-    EXPLORER_ECR_TAG=sagemaker-${GRAPH_EXPLORER_VERSION}
-  elif [[ ${GRAPH_EXPLORER_VERSION} == *latest* ]]; then
+  if [[ ${EXPLORER_VERSION//./} -ge 140 ]]; then
+    EXPLORER_ECR_TAG=sagemaker-${EXPLORER_VERSION}
+  elif [[ ${EXPLORER_VERSION} == *latest* ]]; then
     EXPLORER_ECR_TAG=sagemaker-latest-SNAPSHOT
-  elif [[ ${GRAPH_EXPLORER_VERSION} == *dev* ]]; then
+  elif [[ ${EXPLORER_VERSION} == *dev* ]]; then
     EXPLORER_ECR_TAG=sagemaker-dev
   else
     echo "Specified Graph Explorer version does not support use on SageMaker. Defaulting to latest release."
