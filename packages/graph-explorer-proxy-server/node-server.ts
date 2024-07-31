@@ -1,8 +1,8 @@
-import express from "express";
+import express, { NextFunction, Request, Response } from "express";
 import cors from "cors";
 import compression from "compression";
 import dotenv from "dotenv";
-import fetch from "node-fetch";
+import fetch, { RequestInit } from "node-fetch";
 import https from "https";
 import bodyParser from "body-parser";
 import fs from "fs";
@@ -24,7 +24,6 @@ dotenv.config({
 });
 
 const DEFAULT_SERVICE_TYPE = "neptune-db";
-const NEPTUNE_ANALYTICS_SERVICE_TYPE = "neptune-graph";
 
 interface DbQueryIncomingHttpHeaders extends IncomingHttpHeaders {
   queryid?: string;
@@ -44,7 +43,7 @@ app.use(requestLoggingMiddleware(proxyLogger));
 // Function to get IAM headers for AWS4 signing process.
 async function getIAMHeaders(options) {
   const credentialProvider = fromNodeProviderChain();
-  let creds = await credentialProvider();
+  const creds = await credentialProvider();
   if (creds === undefined) {
     throw new Error(
       "IAM is enabled but credentials cannot be found on the credential provider chain."
@@ -60,7 +59,12 @@ async function getIAMHeaders(options) {
 }
 
 // Error handler middleware to log errors and send appropriate response.
-const errorHandler = (error, request, response, next) => {
+const errorHandler = (
+  error: any,
+  _request: Request,
+  response: Response,
+  _next: NextFunction
+) => {
   if (error.extraInfo) {
     proxyLogger.error(error.extraInfo + error.message);
     proxyLogger.debug(error.stack);
@@ -80,11 +84,11 @@ const errorHandler = (error, request, response, next) => {
 
 // Function to retry fetch requests with exponential backoff.
 const retryFetch = async (
-  url,
-  options,
-  isIamEnabled,
-  region,
-  serviceType,
+  url: URL,
+  options: any,
+  isIamEnabled: boolean,
+  region: string | undefined,
+  serviceType: string,
   retryDelay = 10000,
   refetchMaxRetries = 1
 ) => {
@@ -149,13 +153,13 @@ const retryFetch = async (
 
 // Function to fetch data from the given URL and send it as a response.
 async function fetchData(
-  res,
-  next,
-  url,
-  options,
-  isIamEnabled,
-  region,
-  serviceType
+  res: Response,
+  next: NextFunction,
+  url: string,
+  options: RequestInit,
+  isIamEnabled: boolean,
+  region: string | undefined,
+  serviceType: string
 ) {
   try {
     const response = await retryFetch(
@@ -198,7 +202,7 @@ if (staticFilesVirtualPath) {
 }
 
 // POST endpoint for SPARQL queries.
-app.post("/sparql", async (req, res, next) => {
+app.post("/sparql", (req, res, next) => {
   // Gather info from the headers
   const headers = req.headers as DbQueryIncomingHttpHeaders;
   const queryId = headers["queryid"];
@@ -232,7 +236,7 @@ app.post("/sparql", async (req, res, next) => {
       );
     } catch (err) {
       // Not really an error
-      proxyLogger.warn("Failed to cancel the query: " + err);
+      proxyLogger.warn("Failed to cancel the query: %o", err);
     }
   }
 
@@ -281,7 +285,7 @@ app.post("/sparql", async (req, res, next) => {
 });
 
 // POST endpoint for Gremlin queries.
-app.post("/gremlin", async (req, res, next) => {
+app.post("/gremlin", (req, res, next) => {
   // Gather info from the headers
   const headers = req.headers as DbQueryIncomingHttpHeaders;
   const queryId = headers["queryid"];
@@ -317,7 +321,7 @@ app.post("/gremlin", async (req, res, next) => {
       );
     } catch (err) {
       // Not really an error
-      proxyLogger.warn("Failed to cancel the query: " + err);
+      proxyLogger.warn("Failed to cancel the query: %o", err);
     }
   }
 
@@ -358,7 +362,7 @@ app.post("/gremlin", async (req, res, next) => {
 });
 
 // POST endpoint for openCypher queries.
-app.post("/openCypher", async (req, res, next) => {
+app.post("/openCypher", (req, res, next) => {
   // Validate the input before making any external calls.
   if (!req.body.query) {
     return res
@@ -366,7 +370,8 @@ app.post("/openCypher", async (req, res, next) => {
       .send({ error: "[Proxy]OpenCypher: query not provided" });
   }
 
-  const rawUrl = `${req.headers["graph-db-connection-url"]}/openCypher`;
+  const headers = req.headers as DbQueryIncomingHttpHeaders;
+  const rawUrl = `${headers["graph-db-connection-url"]}/openCypher`;
   const requestOptions = {
     method: "POST",
     headers: {
@@ -376,10 +381,10 @@ app.post("/openCypher", async (req, res, next) => {
     body: `query=${encodeURIComponent(req.body.query)}`,
   };
 
-  const isIamEnabled = !!req.headers["aws-neptune-region"];
-  const region = isIamEnabled ? req.headers["aws-neptune-region"] : "";
+  const isIamEnabled = !!headers["aws-neptune-region"];
+  const region = isIamEnabled ? headers["aws-neptune-region"] : "";
   const serviceType = isIamEnabled
-    ? req.headers["service-type"] ?? DEFAULT_SERVICE_TYPE
+    ? headers["service-type"] ?? DEFAULT_SERVICE_TYPE
     : "";
 
   fetchData(
@@ -394,7 +399,7 @@ app.post("/openCypher", async (req, res, next) => {
 });
 
 // GET endpoint to retrieve PropertyGraph statistics summary for Neptune Analytics.
-app.get("/summary", async (req, res, next) => {
+app.get("/summary", (req, res, next) => {
   const headers = req.headers as DbQueryIncomingHttpHeaders;
   const isIamEnabled = !!headers["aws-neptune-region"];
   const serviceType = isIamEnabled
@@ -420,7 +425,7 @@ app.get("/summary", async (req, res, next) => {
 });
 
 // GET endpoint to retrieve PropertyGraph statistics summary for Neptune DB.
-app.get("/pg/statistics/summary", async (req, res, next) => {
+app.get("/pg/statistics/summary", (req, res, next) => {
   const headers = req.headers as DbQueryIncomingHttpHeaders;
   const isIamEnabled = !!headers["aws-neptune-region"];
   const serviceType = isIamEnabled
@@ -446,7 +451,7 @@ app.get("/pg/statistics/summary", async (req, res, next) => {
 });
 
 // GET endpoint to retrieve RDF statistics summary.
-app.get("/rdf/statistics/summary", async (req, res, next) => {
+app.get("/rdf/statistics/summary", (req, res, next) => {
   const headers = req.headers as DbQueryIncomingHttpHeaders;
   const isIamEnabled = !!headers["aws-neptune-region"];
   const serviceType = isIamEnabled
