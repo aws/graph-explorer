@@ -1,15 +1,11 @@
 import globals from "globals";
 import pluginJs from "@eslint/js";
 import tseslint from "typescript-eslint";
-import pluginReactConfig from "eslint-plugin-react/configs/recommended.js";
+import reactLint from "eslint-plugin-react";
 import reactHooksLint from "eslint-plugin-react-hooks";
 import tanstackQueryLint from "@tanstack/eslint-plugin-query";
 import eslintConfigPrettier from "eslint-config-prettier";
-import {
-  fixupConfigRules,
-  fixupPluginRules,
-  includeIgnoreFile,
-} from "@eslint/compat";
+import { fixupPluginRules, includeIgnoreFile } from "@eslint/compat";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -19,14 +15,11 @@ const gitignorePath = path.resolve(__dirname, ".gitignore");
 
 export default [
   includeIgnoreFile(gitignorePath),
-  {
-    ignores: ["packages/graph-explorer-proxy-server/*"],
-  },
   { languageOptions: { parserOptions: { ecmaFeatures: { jsx: true } } } },
   { languageOptions: { globals: { ...globals.browser, ...globals.node } } },
   pluginJs.configs.recommended,
   ...tseslint.configs.recommendedTypeChecked,
-  ...fixupConfigRules(pluginReactConfig),
+  reactLint.configs.flat.recommended,
   {
     plugins: { "react-hooks": fixupPluginRules(reactHooksLint) },
     rules: { ...reactHooksLint.configs.recommended.rules },
