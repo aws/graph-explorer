@@ -51,11 +51,14 @@
   (<https://github.com/aws/graph-explorer/pull/500>)
 - Fix running in production mode locally with Node
   (<https://github.com/aws/graph-explorer/pull/500>)
+- Add type checking and linting to server code
+  (<https://github.com/aws/graph-explorer/pull/522>)
 - Update dependencies (<https://github.com/aws/graph-explorer/pull/475>,
   <https://github.com/aws/graph-explorer/pull/486>,
   <https://github.com/aws/graph-explorer/pull/490>,
   <https://github.com/aws/graph-explorer/pull/492>,
-  <https://github.com/aws/graph-explorer/pull/491>)
+  <https://github.com/aws/graph-explorer/pull/491>,
+  <https://github.com/aws/graph-explorer/pull/522>)
 
 ## Release 1.8.0
 
