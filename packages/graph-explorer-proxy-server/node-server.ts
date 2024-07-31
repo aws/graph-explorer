@@ -183,7 +183,7 @@ app.use(
 );
 
 // Host the Graph Explorer UI static files
-const staticFilesVirtualPath = process.env.GRAPH_EXP_ENV_ROOT_FOLDER;
+const staticFilesVirtualPath = "/explorer";
 const staticFilesPath = path.join(clientRoot, "dist");
 
 proxyLogger.info("Hosting client side static files from: %s", staticFilesPath);
