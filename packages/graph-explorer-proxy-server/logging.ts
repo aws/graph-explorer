@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from "express";
 import { Logger, pino } from "pino";
-import { pinoHttp } from "pino-http";
 import { PrettyOptions } from "pino-pretty";
 
 /** Create a logger instance with pino. */
