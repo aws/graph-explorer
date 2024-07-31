@@ -31,6 +31,7 @@ ENV NEPTUNE_NOTEBOOK=$NEPTUNE_NOTEBOOK
 RUN if [ -n "$NEPTUNE_NOTEBOOK" ] && [ "$NEPTUNE_NOTEBOOK" = "true" ]; then \
       echo "GRAPH_EXP_ENV_ROOT_FOLDER=/proxy/9250/explorer" >> ./packages/graph-explorer/.env; \
       echo "PROXY_SERVER_HTTP_PORT=9250" >> ./packages/graph-explorer/.env; \
+      echo "LOG_STYLE=cloudwatch" >> ./packages/graph-explorer/.env; \
     else \
       echo "GRAPH_EXP_ENV_ROOT_FOLDER=/explorer" >> ./packages/graph-explorer/.env; \
     fi && \
