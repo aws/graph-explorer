@@ -7,10 +7,10 @@ import https from "https";
 import bodyParser from "body-parser";
 import fs from "fs";
 import path from "path";
-import { pino } from "pino";
 import { fromNodeProviderChain } from "@aws-sdk/credential-providers";
 import aws4 from "aws4";
 import { IncomingHttpHeaders } from "http";
+import { createLogger, requestLoggingMiddleware } from "./logging.js";
 
 // Construct relative paths
 const clientRoot = path.join(import.meta.dirname, "../../graph-explorer/");
@@ -38,17 +38,8 @@ interface LoggerIncomingHttpHeaders extends IncomingHttpHeaders {
   message?: string;
 }
 
-// Create a logger instance with pino.
-const proxyLogger = pino({
-  level: process.env.LOG_LEVEL || "info",
-  transport: {
-    target: "pino-pretty",
-    options: {
-      colorize: true,
-      translateTime: true,
-    },
-  },
-});
+const proxyLogger = createLogger();
+app.use(requestLoggingMiddleware(proxyLogger));
 
 // Function to get IAM headers for AWS4 signing process.
 async function getIAMHeaders(options) {
@@ -192,11 +183,11 @@ app.use(
 );
 
 // Host the Graph Explorer UI static files
-const staticFilesVirtualPath = process.env.GRAPH_EXP_ENV_ROOT_FOLDER;
+const staticFilesVirtualPath = "/explorer";
 const staticFilesPath = path.join(clientRoot, "dist");
 
-proxyLogger.debug("Hosting client side static files from: %s", staticFilesPath);
-proxyLogger.debug(
+proxyLogger.info("Hosting client side static files from: %s", staticFilesPath);
+proxyLogger.info(
   "Hosting client side static files at: %s",
   staticFilesVirtualPath ?? "/"
 );
@@ -548,7 +539,7 @@ function logServerLocations() {
   const baseUrl = `${scheme}://${host}${port}`;
   proxyLogger.info(`Proxy server located at ${baseUrl}`);
   proxyLogger.info(
-    `Graph Explorer UI located at: ${baseUrl}${staticFilesVirtualPath}`
+    `Graph Explorer UI located at: ${baseUrl}${staticFilesVirtualPath ?? ""}`
   );
 }
 
