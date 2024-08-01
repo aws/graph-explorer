@@ -11,6 +11,9 @@ import { useRecoilValue } from "recoil";
 import { activeConnectionSelector } from "../../../core/connector";
 import mapOpenCypherVertex from "../../../connector/openCypher/mappers/mapApiVertex";
 import mapOpenCypherEdge from "../../../connector/openCypher/mappers/mapApiEdge";
+import { GEdge, GVertex, GPath } from "../../../connector/gremlin/types";
+import type { Vertex } from "../../../@types/entities";
+import type { Edge } from "../../../@types/entities";
 
 export type WorkspaceTopBarContentProps = {
   className?: string;
@@ -29,21 +32,23 @@ const WorkspaceTopBarContent = ({
   const callFetchGremlin = async (event: any) => {
     if (event.key === "Enter") {
       const query = { query: event.target.value };
-      let vertices: string | any[] = [];
-      let results = {
+      const results: {
+        vertices: Vertex[];
+        edges: Edge[];
+        selectNewEntities: string;
+      } = {
         vertices: [],
         edges: [],
         selectNewEntities: "nodes",
       };
-      console.log(activeConnection);
-      const options = {
+      const options: RequestInit = {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "graph-db-connection-url": activeConnection?.graphDbUrl,
           "aws-neptune-region": activeConnection?.awsRegion,
           "service-type": activeConnection?.serviceType,
-        },
+        } as HeadersInit,
         body: JSON.stringify(query),
       };
       let url = "";
@@ -51,21 +56,18 @@ const WorkspaceTopBarContent = ({
         url = activeConnection?.url + "/gremlin";
       } else if (activeConnection?.queryEngine === "sparql") {
         url = activeConnection?.url + "/sparql";
-        console.log("sparql");
       } else if (activeConnection?.queryEngine === "openCypher") {
         url = activeConnection?.url + "/openCypher";
-        console.log("openCypher");
       } else {
         window.alert("Query engine not supported");
       }
+      type GremlinResponse = GVertex | GEdge | GPath;
       await fetch(url, options)
         .then(res => res.json())
         .then(data => {
-          console.log(data);
-
           //Process raw gremlin query
           if (activeConnection?.queryEngine === "gremlin") {
-            data.result.data["@value"].forEach(element => {
+            data.result.data["@value"].forEach((element: GremlinResponse) => {
               //Process nodes,edges and path queries
               if (element["@type"] === "g:Vertex") {
                 results.vertices.push(mapApiVertex(element));
@@ -85,13 +87,13 @@ const WorkspaceTopBarContent = ({
           }
           //Process raw openCypherQueries
           if (activeConnection?.queryEngine === "openCypher") {
-            data.results.forEach(element => {
+            data.results.forEach((element: GremlinResponse) => {
               if (Array.isArray(Object.values(element)[0])) {
-                Object.values(element)[0].forEach(item => {
+                Object.values(element)[0].forEach((item: any) => {
                   if (item && item["~entityType"] === "node")
                     results.vertices.push(mapOpenCypherVertex(item));
                   if (item && item["~entityType"] === "relationship")
-                    results.edges.push(mapOpenCypherEdge(item));
+                    results.edges.push(mapOpenCypherEdge(item, "", ""));
                 });
               } else {
                 if (Object.keys(element).length > 1) {
@@ -99,10 +101,10 @@ const WorkspaceTopBarContent = ({
                     if (item && item["~entityType"] === "node")
                       results.vertices.push(mapOpenCypherVertex(item));
                     if (item && item["~entityType"] === "relationship")
-                      results.edges.push(mapOpenCypherEdge(item));
+                      results.edges.push(mapOpenCypherEdge(item, "", ""));
                   });
                 } else {
-                  const responseItem = Object.values(element)[0];
+                  const responseItem:any = Object.values(element)[0];
                   if (responseItem && responseItem["~entityType"] === "node") {
                     results.vertices.push(mapOpenCypherVertex(responseItem));
                   }
@@ -110,19 +112,19 @@ const WorkspaceTopBarContent = ({
                     responseItem &&
                     responseItem["~entityType"] === "relationship"
                   ) {
-                    results.edges.push(mapOpenCypherEdge(responseItem));
+                    results.edges.push(mapOpenCypherEdge(responseItem, "", ""));
                   }
                 }
               }
             });
-            console.log(results);
           }
         })
         .catch(err => {
+          // eslint-disable-next-line no-console
           console.log(err);
         });
       if (results.vertices.length) {
-        fetchNodeData(results.vertices, 100);
+        fetchNodeData(results.vertices);
       }
       if (results.edges.length) {
         setEntities({
