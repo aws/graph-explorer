@@ -104,7 +104,7 @@ const WorkspaceTopBarContent = ({
                       results.edges.push(mapOpenCypherEdge(item, "", ""));
                   });
                 } else {
-                  const responseItem:any = Object.values(element)[0];
+                  const responseItem: any = Object.values(element)[0];
                   if (responseItem && responseItem["~entityType"] === "node") {
                     results.vertices.push(mapOpenCypherVertex(responseItem));
                   }
