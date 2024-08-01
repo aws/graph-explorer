@@ -45,6 +45,9 @@ a more pleasant experience, especially for users with larger databases.
 - **Fixed** some SPARQL endpoints by using `application/sparql-results+json`
   accept header for SPARQL requests
   ([#499](https://github.com/aws/graph-explorer/pull/499))
+- **Fixed** CORS issue for some SPARQL and Gremlin endpoints due to `queryId` in
+  the request headers ([#529](https://github.com/aws/graph-explorer/pull/529))
+  ([#499](https://github.com/aws/graph-explorer/pull/499))
 - **Fixed** text wrapping for labels in edge styling sidebar
   ([#499](https://github.com/aws/graph-explorer/pull/499))
 - **Fixed** potential error when the request body is very large by increasing
