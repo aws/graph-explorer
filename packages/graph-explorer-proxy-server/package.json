@@ -5,6 +5,7 @@
   "main": "dist/node-server.js",
   "type": "module",
   "scripts": {
+    "clean": "rimraf dist",
     "build": "tsc",
     "dev": "tsx watch node-server.ts",
     "start": "node dist/node-server.js"
