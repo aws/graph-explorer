@@ -81,7 +81,6 @@ const keywordSearchTemplate = ({
     MATCH (${vertexMatchTemplate})
     ${whereTemplate}
     RETURN v AS object
-    ORDER BY id(v)
     ${limitTemplate}
   `;
 };

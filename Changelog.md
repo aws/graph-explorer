@@ -13,7 +13,8 @@ a more pleasant experience, especially for users with larger databases.
   ([#477](https://github.com/aws/graph-explorer/pull/477))
 - **Improved** search using openCypher which will now execute a single request
   when searching across all labels
-  ([#493](https://github.com/aws/graph-explorer/pull/493))
+  ([#493](https://github.com/aws/graph-explorer/pull/493),
+  [#532](https://github.com/aws/graph-explorer/pull/532))
 - **Improved** error messages for node expansion
   ([#502](https://github.com/aws/graph-explorer/pull/502))
 - **Improved** Gremlin schema sync performance on larger databases, thanks to

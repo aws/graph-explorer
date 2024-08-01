@@ -11,7 +11,6 @@ describe("OpenCypher > keywordSearchTemplate", () => {
       normalize(`
         MATCH (v:\`airport\`) 
         RETURN v AS object 
-        ORDER BY id(v)
       `)
     );
   });
@@ -26,7 +25,6 @@ describe("OpenCypher > keywordSearchTemplate", () => {
         MATCH (v) 
         WHERE (v:\`airport\` OR v:\`country\`) 
         RETURN v AS object 
-        ORDER BY id(v)
       `)
     );
   });
@@ -42,7 +40,6 @@ describe("OpenCypher > keywordSearchTemplate", () => {
       normalize(`
         MATCH (v:\`airport\`)
         RETURN v AS object
-        ORDER BY id(v)
         SKIP 10 LIMIT 20
       `)
     );
@@ -62,7 +59,6 @@ describe("OpenCypher > keywordSearchTemplate", () => {
         WHERE (v:\`airport\` OR v:\`country\`) 
           AND (v.city CONTAINS "JFK" OR v.code CONTAINS "JFK")
         RETURN v AS object
-        ORDER BY id(v)
       `)
     );
   });
@@ -80,7 +76,6 @@ describe("OpenCypher > keywordSearchTemplate", () => {
         MATCH (v:\`airport\`)
         WHERE (v.city CONTAINS "JFK" OR v.code CONTAINS "JFK")
         RETURN v AS object
-        ORDER BY id(v)
       `)
     );
   });
@@ -98,7 +93,6 @@ describe("OpenCypher > keywordSearchTemplate", () => {
         MATCH (v:\`airport\`)
         WHERE (v.city = "JFK" OR v.code = "JFK")
         RETURN v AS object
-        ORDER BY id(v)
       `)
     );
   });
@@ -117,7 +111,6 @@ describe("OpenCypher > keywordSearchTemplate", () => {
         MATCH (v:\`airport\`)
         WHERE (id(v) = "JFK")
         RETURN v AS object
-        ORDER BY id(v)
       `)
     );
   });
@@ -136,7 +129,6 @@ describe("OpenCypher > keywordSearchTemplate", () => {
         MATCH (v:\`airport\`)
         WHERE (toString(id(v)) CONTAINS "JFK")
         RETURN v AS object
-        ORDER BY id(v)
       `)
     );
   });
@@ -154,7 +146,6 @@ describe("OpenCypher > keywordSearchTemplate", () => {
         MATCH (v:\`airport\`)
         WHERE (toString(id(v)) CONTAINS "JFK" OR v.city CONTAINS "JFK" OR v.code CONTAINS "JFK")
         RETURN v AS object
-        ORDER BY id(v)
       `)
     );
   });
@@ -176,7 +167,6 @@ describe("OpenCypher > keywordSearchTemplate", () => {
         WHERE (v:\`airport\` OR v:\`country\`)
           AND (toString(id(v)) CONTAINS "JFK" OR v.city CONTAINS "JFK" OR v.code CONTAINS "JFK")
         RETURN v AS object
-        ORDER BY id(v)
         SKIP 25 LIMIT 50
       `)
     );
