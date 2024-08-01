@@ -37,6 +37,8 @@
   - Run the dev environment `pnpm dev`
   - Run the production environment `pnpm start`
   - Run the production environment without the proxy server `pnpm start:client`
+  - Added `pnpm clean` script to delete `*/dist` folders
+    (<https://github.com/aws/graph-explorer/pull/525>)
 - Show errors during search in the search UI
   (<https://github.com/aws/graph-explorer/pull/477>)
 - Show errors in the Data Explorer UI
