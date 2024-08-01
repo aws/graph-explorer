@@ -1,67 +1,80 @@
 # graph-explorer Change Log
 
-## Upcoming
+## Release 1.9.0
+
+This release includes many fixes and enhancements that make using Graph Explorer
+a more pleasant experience, especially for users with larger databases.
 
 **Major Changes**
 
-- Search in openCypher will now execute a single request when searching across
-  all labels (<https://github.com/aws/graph-explorer/pull/493>)
-- Gremlin schema sync will be much faster on larger databases, thanks to
+- **Improved** error experience in search and Data Explorer UI that includes a
+  retry button ([#477](https://github.com/aws/graph-explorer/pull/477))
+- **Improved** empty state experience in Data Explorer UI
+  ([#477](https://github.com/aws/graph-explorer/pull/477))
+- **Improved** search using openCypher which will now execute a single request
+  when searching across all labels
+  ([#493](https://github.com/aws/graph-explorer/pull/493))
+- **Improved** error messages for node expansion
+  ([#502](https://github.com/aws/graph-explorer/pull/502))
+- **Improved** Gremlin schema sync performance on larger databases, thanks to
   @dsaban-lightricks for his great suggestion in issue #225
-  (<https://github.com/aws/graph-explorer/pull/498>)
-- Requests executed in parallel for each label or class are now batched in
-  groups of 10 to reduce chance of throttling errors
-  (<https://github.com/aws/graph-explorer/pull/489>)
-- Updated the example SageMaker lifecycle configuration script and IAM policies
-  to include logging to CloudWatch
-  (<https://github.com/aws/graph-explorer/pull/517>)
+  ([#498](https://github.com/aws/graph-explorer/pull/498))
+- **Reduced** chance of throttling issues when a large amount of requests are
+  executed in parallel by batching requests in groups of 10
+  ([#489](https://github.com/aws/graph-explorer/pull/489))
+- **Reduced** unnecessary search queries when no search term is provided by
+  ignoring attribute and exact match changes
+  ([#473](https://github.com/aws/graph-explorer/pull/473))
+- **Improved** diagnostic logging in Neptune Notebooks by adding CloudWatch logs
+  ([#517](https://github.com/aws/graph-explorer/pull/517))
+  - Check out the example
+    [lifecycle script](additionaldocs/sagemaker/install-graph-explorer-lc.sh)
+    and IAM policies for
+    [Neptune](additionaldocs/sagemaker/graph-explorer-neptune-db-policy.json)
+    and
+    [Neptune Analytics](additionaldocs/sagemaker/graph-explorer-neptune-analytics-policy.json)
 
 **Bug Fixes and Minor Changes**
 
-- Fix issue with default connections when Neptune Notebook instance is restarted
-  (<https://github.com/aws/graph-explorer/pull/508>)
-- Fix expanding a node on old versions of Gremlin
-  (<https://github.com/aws/graph-explorer/pull/503>)
-- Provide better error messages when expanding a node fails
-  (<https://github.com/aws/graph-explorer/pull/502>)
-- Fix default selection of expand type to be the first available type for
-  expansion (<https://github.com/aws/graph-explorer/pull/501>)
-- Use `application/sparql-results+json` accept header for SPARQL requests
-  (<https://github.com/aws/graph-explorer/pull/499>)
-- Fix text wrapping for labels in edge styling sidebar
-  (<https://github.com/aws/graph-explorer/pull/499>)
-- Increase request body size limit for proxy server
-  (<https://github.com/aws/graph-explorer/pull/488>)
-- Development scripts updated to be more consistent with the industry
-  (<https://github.com/aws/graph-explorer/pull/488>)
-  - Run the dev environment `pnpm dev`
-  - Run the production environment `pnpm start`
-  - Run the production environment without the proxy server `pnpm start:client`
-  - Added `pnpm clean` script to delete `*/dist` folders
-    (<https://github.com/aws/graph-explorer/pull/525>)
-- Show errors during search in the search UI
-  (<https://github.com/aws/graph-explorer/pull/477>)
-- Show errors in the Data Explorer UI
-  (<https://github.com/aws/graph-explorer/pull/477>)
-- Show empty state in the Data Explorer UI
-  (<https://github.com/aws/graph-explorer/pull/477>)
-- Reduce search queries when no search term provided by ignoring attribute and
-  exact match changes (<https://github.com/aws/graph-explorer/pull/473>)
-- Fix issue when selecting an item in search results that resulted in errors in
-  the browser console (<https://github.com/aws/graph-explorer/pull/474>)
-- Allow HTTP and HTTPS ports to be overridden with environment values
-  (<https://github.com/aws/graph-explorer/pull/500>)
-- Fix running in production mode locally with Node
-  (<https://github.com/aws/graph-explorer/pull/500>)
-- Add type checking and linting to server code
+- **Fixed** issue with default connections when Neptune Notebook instance is
+  restarted ([#508](https://github.com/aws/graph-explorer/pull/508))
+- **Fixed** expanding a node on old versions of Gremlin
+  ([#503](https://github.com/aws/graph-explorer/pull/503))
+- **Fixed** default selection of expand type to be the first available type for
+  expansion ([#501](https://github.com/aws/graph-explorer/pull/501))
+- **Fixed** some SPARQL endpoints by using `application/sparql-results+json`
+  accept header for SPARQL requests
+  ([#499](https://github.com/aws/graph-explorer/pull/499))
+- **Fixed** text wrapping for labels in edge styling sidebar
+  ([#499](https://github.com/aws/graph-explorer/pull/499))
+- **Fixed** potential error when the request body is very large by increasing
+  the body size limit for proxy server
+  ([#488](https://github.com/aws/graph-explorer/pull/488))
+- **Fixed** issue when selecting an item in search results that resulted in
+  errors in the browser console
+  ([#474](https://github.com/aws/graph-explorer/pull/474))
+- **Added** type checking and linting to server code
   (<https://github.com/aws/graph-explorer/pull/522>)
-- Update dependencies (<https://github.com/aws/graph-explorer/pull/475>,
-  <https://github.com/aws/graph-explorer/pull/486>,
-  <https://github.com/aws/graph-explorer/pull/490>,
-  <https://github.com/aws/graph-explorer/pull/492>,
-  <https://github.com/aws/graph-explorer/pull/491>,
-  <https://github.com/aws/graph-explorer/pull/522>,
-  <https://github.com/aws/graph-explorer/pull/523>)
+- **Added** environment values to override HTTP and HTTPS ports for proxy server
+  ([#500](https://github.com/aws/graph-explorer/pull/500))
+  - `PROXY_SERVER_HTTP_PORT` default is 80
+  - `PROXY_SERVER_HTTPS_PORT` default is 443
+- **Updated** development scripts updated to be more consistent with the
+  industry ([#487](https://github.com/aws/graph-explorer/pull/487),
+  [#525](https://github.com/aws/graph-explorer/pull/525))
+  - Run the dev environment `pnpm dev`
+  - Build & run the production environment `pnpm build && pnpm start`
+  - Clean build artifacts with `pnpm clean`
+- **Fixed** running in production mode locally with Node
+  ([#500](https://github.com/aws/graph-explorer/pull/500))
+- **Updated** multiple dependencies
+  ([#475](https://github.com/aws/graph-explorer/pull/475),
+  [#486](https://github.com/aws/graph-explorer/pull/486),
+  [#490](https://github.com/aws/graph-explorer/pull/490),
+  [#492](https://github.com/aws/graph-explorer/pull/492),
+  [#491](https://github.com/aws/graph-explorer/pull/491),
+  [#522](https://github.com/aws/graph-explorer/pull/522),
+  [#523](https://github.com/aws/graph-explorer/pull/523))
 
 ## Release 1.8.0
 
