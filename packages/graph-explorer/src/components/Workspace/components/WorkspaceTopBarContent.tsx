@@ -135,7 +135,10 @@ const WorkspaceTopBarContent = ({
       } else return false;
     }
   };
-  const AdditionalInput = (
+  const shouldRenderInput =
+    activeConnection?.queryEngine === "gremlin" ||
+    activeConnection?.queryEngine === "openCypher";
+  const AdditionalInput = shouldRenderInput && (
     <input
       type="text"
       placeholder={`Enter ${activeConnection?.queryEngine} query and press enter`}
