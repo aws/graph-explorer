@@ -18,7 +18,7 @@ function _gremlinFetch(connection: ConnectionConfig, options: any) {
       "Content-Type": "application/json",
       Accept: "application/vnd.gremlin-v3.0+json",
     };
-    if (options?.queryId && connection?.proxyConnection === true) {
+    if (options?.queryId && connection.proxyConnection === true) {
       headers.queryId = options.queryId;
     }
 

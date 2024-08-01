@@ -136,16 +136,17 @@ function _sparqlFetch(connection: ConnectionConfig, options?: any) {
   return async (queryTemplate: string) => {
     logger.debug(queryTemplate);
     const body = `query=${encodeURIComponent(queryTemplate)}`;
-    const headers = options?.queryId
-      ? {
-          accept: "application/sparql-results+json",
-          "Content-Type": "application/x-www-form-urlencoded",
-          queryId: options.queryId,
-        }
-      : {
-          accept: "application/sparql-results+json",
-          "Content-Type": "application/x-www-form-urlencoded",
-        };
+    const headers =
+      options?.queryId && connection.proxyConnection === true
+        ? {
+            accept: "application/sparql-results+json",
+            "Content-Type": "application/x-www-form-urlencoded",
+            queryId: options.queryId,
+          }
+        : {
+            accept: "application/sparql-results+json",
+            "Content-Type": "application/x-www-form-urlencoded",
+          };
     return fetchDatabaseRequest(connection, `${connection.url}/sparql`, {
       method: "POST",
       headers,
