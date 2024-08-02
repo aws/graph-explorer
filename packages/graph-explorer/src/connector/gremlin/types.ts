@@ -65,6 +65,20 @@ export type GEdge = {
   };
 };
 
+export type GPath = {
+  "@type": "g:Path";
+  "@value": {
+    labels: {
+      "@type": "g:List";
+      "@value": "Array";
+    };
+    objects: {
+      "@type": "g:List";
+      "@value": Array<GVertex | GEdge>;
+    };
+  };
+};
+
 export type GVertexList = {
   "@type": "g:List";
   "@value": Array<GVertex>;
