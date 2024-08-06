@@ -25,6 +25,7 @@ import useTranslations from "../../hooks/useTranslations";
 import isValidConfigurationFile from "../../utils/isValidConfigurationFile";
 import CreateConnection from "../CreateConnection";
 import defaultStyles from "./AvailableConnections.styles";
+import { fromFileToJson } from "../../utils/fileData";
 
 export type ConnectionDetailProps = {
   isSync: boolean;
@@ -57,13 +58,7 @@ const AvailableConnections = ({
   const onConfigImport = useRecoilCallback(
     ({ set }) =>
       async (file: File) => {
-        const fileContent = await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.readAsText(file);
-          reader.onload = () =>
-            resolve(JSON.parse(reader.result?.toString() || ""));
-          reader.onerror = reject;
-        });
+        const fileContent = await fromFileToJson(file);
 
         if (!isValidConfigurationFile(fileContent)) {
           enqueueNotification({
