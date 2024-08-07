@@ -77,6 +77,7 @@ export const defaultStyles =
     } = {
       filled: css`
         position: relative;
+        padding: 0 ${theme.spacing.base};
         background-color: ${themeByVariant?.background ||
         (isDarkTheme ? primary?.dark : primary?.main)};
         color: ${themeByVariant?.color || primary?.contrastText};
@@ -120,6 +121,7 @@ export const defaultStyles =
         }
       `,
       default: css`
+        padding: 0 ${theme.spacing.base};
         background-color: ${themeByVariant?.background ||
         (isDarkTheme ? background?.secondary : background?.contrast)};
         color: ${themeByVariant?.color ||
