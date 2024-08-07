@@ -39,7 +39,7 @@ const Namespaces = (headerProps: EdgesStylingProps) => {
   }, [config?.schema?.prefixes]);
 
   return (
-    <ModuleContainer variant={"sidebar"}>
+    <ModuleContainer variant="sidebar">
       <ModuleContainerHeader title={"Namespaces"} {...headerProps}>
         <div style={{ marginLeft: 16 }}>
           <Select

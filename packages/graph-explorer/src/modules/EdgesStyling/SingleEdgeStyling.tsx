@@ -1,5 +1,11 @@
 import { Modal } from "@mantine/core";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  ComponentProps,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { useRecoilState, useResetRecoilState } from "recoil";
 import { Button, Input, Select, StylingIcon } from "../../components";
 import ColorInput from "../../components/ColorInput/ColorInput";
@@ -21,19 +27,22 @@ import defaultStyles from "./SingleEdgeStyling.style";
 import modalDefaultStyles from "./SingleEdgeStylingModal.style";
 import { useEdgeTypeConfig } from "../../core/ConfigurationProvider/useConfiguration";
 import { useDebounceValue, usePrevious } from "../../hooks";
+import { cx } from "@emotion/css";
 
 export type SingleEdgeStylingProps = {
   edgeType: string;
   opened: boolean;
   onOpen(): void;
   onClose(): void;
-};
+} & ComponentProps<"div">;
 
 export default function SingleEdgeStyling({
   edgeType,
   opened,
   onOpen,
   onClose,
+  className,
+  ...rest
 }: SingleEdgeStylingProps) {
   const t = useTranslations();
   const styleWithTheme = useWithTheme();
@@ -84,7 +93,7 @@ export default function SingleEdgeStyling({
   }, [debouncedDisplayAs, prevDisplayAs, onUserPrefsChange]);
 
   return (
-    <div className={styleWithTheme(defaultStyles)}>
+    <div className={cx(styleWithTheme(defaultStyles), className)} {...rest}>
       <div className={"title"}>
         <div className={"edge-name"}>{edgeType}</div>
       </div>
@@ -121,7 +130,7 @@ export default function SingleEdgeStyling({
           backgroundOpacity: 0.1,
         }}
       >
-        <div className={"container"}>
+        <div className={"modal-container"}>
           <div>
             <p>Display Attributes</p>
             <div className={"attrs-container"}>

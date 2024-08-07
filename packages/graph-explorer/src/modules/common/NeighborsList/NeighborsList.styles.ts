@@ -5,7 +5,7 @@ const defaultStyles: ThemeStyleFn = ({ theme }) => css`
   &.section {
     display: flex;
     flex-direction: column;
-    padding: ${theme.spacing["4x"]};
+    padding: ${theme.spacing["4x"]} ${theme.spacing["3x"]};
     gap: ${theme.spacing["2x"]};
     border-bottom: solid 1px ${theme.palette.divider};
 

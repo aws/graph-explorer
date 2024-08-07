@@ -65,8 +65,8 @@ export const CheckboxList = ({
     <div
       className={cx(stylesWithTheme(defaultStyles), "checkbox-list", className)}
     >
-      {title && <div className={"title"}>{title}</div>}
-      <div className={"content"}>
+      {title && <div className="title">{title}</div>}
+      <div className="content">
         {checkboxes.map(checkbox => {
           return (
             <div key={checkbox.id} className={"checkbox-container"}>
