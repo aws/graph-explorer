@@ -1,27 +1,20 @@
 import { cx } from "@emotion/css";
 import type { PropsWithChildren, ReactElement } from "react";
 import { useMemo } from "react";
-import { useWithTheme } from "../../../core";
 import { groupChildrenByType } from "../../../utils";
-import styles from "../Workspace.styles";
-import type { HideNavBarLogoProps } from "./HideNavBarLogo";
-import HideNavBarLogo from "./HideNavBarLogo";
+import NavBarLogo from "./NavBarLogo";
 import WorkspaceTopBarAdditionalControls from "./WorkspaceTopBarAdditionalControls";
 import WorkspaceTopBarContent from "./WorkspaceTopBarContent";
 import WorkspaceTopBarTitle from "./WorkspaceTopBarTitle";
-import WorkspaceTopBarToggles from "./WorkspaceTopBarToggles";
 import WorkspaceTopBarVersion from "./WorkspaceTopBarVersion";
 
 export type WorkspaceTopBarProps = {
   className?: string;
-  logo?: HideNavBarLogoProps["logo"];
-  logoVisible?: HideNavBarLogoProps["logo"];
-  onLogoClick?: HideNavBarLogoProps["onClick"];
+  logoVisible?: boolean;
 };
 
 interface WorkspaceTopBarComposition {
   Title: typeof WorkspaceTopBarTitle;
-  Toggles: typeof WorkspaceTopBarToggles;
   AdditionalControls: typeof WorkspaceTopBarAdditionalControls;
   Content: typeof WorkspaceTopBarContent;
   Version: typeof WorkspaceTopBarVersion;
@@ -30,19 +23,14 @@ interface WorkspaceTopBarComposition {
 const WorkspaceTopBar = ({
   className,
   children,
-  logo,
   logoVisible,
-  onLogoClick,
 }: PropsWithChildren<WorkspaceTopBarProps>) => {
-  const stylesWithTheme = useWithTheme();
-
   const childrenByType = useMemo(
     () =>
       groupChildrenByType(
         children,
         [
           WorkspaceTopBarTitle.displayName || WorkspaceTopBarTitle.name,
-          WorkspaceTopBarToggles.displayName || WorkspaceTopBarToggles.name,
           WorkspaceTopBarContent.displayName || WorkspaceTopBarContent.name,
           WorkspaceTopBarAdditionalControls.displayName ||
             WorkspaceTopBarAdditionalControls.name,
@@ -55,17 +43,17 @@ const WorkspaceTopBar = ({
   return (
     <div
       className={cx(
-        stylesWithTheme(styles.topBarSectionStyles),
-        "top-bar-container",
+        "bg-background-default text-text-primary border-divider flex flex-col border-b",
         className
       )}
     >
-      <div className={stylesWithTheme(styles.mainBarStyles)}>
-        <HideNavBarLogo
-          logo={logo}
-          isVisible={!!logoVisible}
-          onClick={onLogoClick}
-        />
+      <div
+        className={cx(
+          "bg-background-default text-text-primary flex min-h-[3.5rem] items-center gap-3",
+          logoVisible ? "pr-2" : "px-2"
+        )}
+      >
+        {logoVisible ? <NavBarLogo /> : null}
         {
           childrenByType[
             WorkspaceTopBarTitle.displayName || WorkspaceTopBarTitle.name
@@ -73,15 +61,10 @@ const WorkspaceTopBar = ({
         }
         {childrenByType[
           WorkspaceTopBarContent.displayName || WorkspaceTopBarContent.name
-        ] ?? <div className={"space"} />}
+        ] ?? <div className="grow" />}
         {
           childrenByType[
             WorkspaceTopBarVersion.displayName || WorkspaceTopBarVersion.name
-          ]
-        }
-        {
-          childrenByType[
-            WorkspaceTopBarToggles.displayName || WorkspaceTopBarToggles.name
           ]
         }
         {
@@ -91,14 +74,11 @@ const WorkspaceTopBar = ({
           ]
         }
       </div>
-      <div
-        className={cx(
-          stylesWithTheme(styles.subBarStyles),
-          "sub-bar-container"
-        )}
-      >
-        {childrenByType.rest}
-      </div>
+      {childrenByType.rest?.length > 0 ? (
+        <div className="text-text-primary border-divider flex w-full items-center border-t bg-black">
+          {childrenByType.rest}
+        </div>
+      ) : null}
     </div>
   );
 };
@@ -106,7 +86,6 @@ const WorkspaceTopBar = ({
 WorkspaceTopBar.displayName = "WorkspaceTopBar";
 
 WorkspaceTopBar.Title = WorkspaceTopBarTitle;
-WorkspaceTopBar.Toggles = WorkspaceTopBarToggles;
 WorkspaceTopBar.AdditionalControls = WorkspaceTopBarAdditionalControls;
 WorkspaceTopBar.Content = WorkspaceTopBarContent;
 WorkspaceTopBar.Version = WorkspaceTopBarVersion;

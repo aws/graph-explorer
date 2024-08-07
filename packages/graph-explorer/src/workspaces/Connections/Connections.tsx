@@ -13,7 +13,6 @@ import {
 import useSchemaSync from "../../hooks/useSchemaSync";
 import AvailableConnections from "../../modules/AvailableConnections";
 import ConnectionDetail from "../../modules/ConnectionDetail";
-import TopBarWithLogo from "../common/TopBarWithLogo";
 import defaultStyles from "./Connections.styles";
 
 const Connections = () => {
@@ -38,11 +37,14 @@ const Connections = () => {
 
   return (
     <Workspace className={cx(styleWithTheme(defaultStyles), "connections")}>
-      <TopBarWithLogo>
+      <Workspace.TopBar logoVisible>
         <Workspace.TopBar.Title
           title="Connections Details"
           subtitle={`Connection: ${config?.displayLabel || config?.id || "none"}`}
         />
+        <Workspace.TopBar.Version>
+          {__GRAPH_EXP_VERSION__}
+        </Workspace.TopBar.Version>
         <Workspace.TopBar.AdditionalControls>
           <Link
             to={
@@ -61,7 +63,7 @@ const Connections = () => {
             </Button>
           </Link>
         </Workspace.TopBar.AdditionalControls>
-      </TopBarWithLogo>
+      </Workspace.TopBar>
       <Workspace.Content>
         <div
           style={{

@@ -15,7 +15,10 @@ const WorkspaceSideBarContent = ({
 }: PropsWithChildren<WorkspaceSideBarContentProps>) => {
   return (
     <div
-      className={cx("sidebar-content", className)}
+      className={cx(
+        "transition-width h-full overflow-x-hidden duration-200 ease-in-out",
+        className
+      )}
       style={{
         width: isOpen ? defaultWidth : 0,
       }}
