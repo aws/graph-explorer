@@ -22,9 +22,9 @@ const asSidebarModuleContainer =
     ...props
   }: SidebarModuleContainerProps<TProps>) => {
     return (
-      <ModuleContainer variant={"sidebar"}>
+      <ModuleContainer variant="sidebar">
         <ModuleContainerHeader
-          variant={"sidebar"}
+          variant="sidebar"
           title={title}
           onClose={onClose}
           startAdornment={startAdornment}

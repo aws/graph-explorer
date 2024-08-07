@@ -118,7 +118,7 @@ function ExpansionOptions({
         limit={limit}
         onLimitChange={setLimit}
       />
-      <ModuleContainerFooter>
+      <ModuleContainerFooter className="flex flex-row justify-end">
         <ExpandButton
           isDisabled={!hasUnfetchedNeighbors || !hasSelectedType}
           vertex={vertex}

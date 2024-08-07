@@ -46,7 +46,7 @@ const ModuleContainerTabularHeader = ({
           hideError={true}
         />
       </div>
-      <div className={"space"} />
+      <div className="grow" />
       <ExportControl />
     </div>
   );

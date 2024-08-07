@@ -8,13 +8,6 @@ const defaultStyles: ThemeStyleFn = ({ theme, isDarkTheme }) => css`
     margin: 0;
     border-radius: ${theme.shape.borderRadius};
 
-    .divider {
-      width: 60%;
-      height: 1px;
-      background: ${theme.palette.divider};
-      margin: ${theme.spacing["2x"]} auto;
-    }
-
     .list-item {
       border-radius: ${theme.shape.borderRadius};
       font-size: ${theme.typography.sizes.xs};

@@ -9,6 +9,7 @@ import UseLayerOverlay from "../../UseLayer/UseLayerOverlay";
 import UseLayerTrigger from "../../UseLayer/UseLayerTrigger";
 import defaultStyles from "./CollapsedActions.styles";
 import { Action } from "./ModuleContainerHeader";
+import ModuleContainerVerticalDivider from "./ModuleContainerVerticalDivider";
 
 export type CollapsedActionsProps = {
   actions: (Action | "divider")[];
@@ -34,7 +35,7 @@ const CollapsedActions = ({
         }
 
         if (action === "divider") {
-          return <div key={actionIndex} className={"divider"} />;
+          return <ModuleContainerVerticalDivider key={actionIndex} />;
         }
 
         if (action.collapsedItems) {
@@ -76,7 +77,7 @@ const CollapsedActions = ({
           <ListItem
             key={action.value}
             ref={action.ref}
-            className={"list-item"}
+            className="list-item"
             clickable={!action.isDisabled}
             onClick={() => {
               onActionClick(action.value);
