@@ -1,13 +1,10 @@
 import { cx } from "@emotion/css";
 import type { ForwardedRef, PropsWithChildren } from "react";
 import { forwardRef, useMemo } from "react";
-import { useWithTheme } from "../../core";
 import getChildOfType from "../../utils/getChildOfType";
 import getChildrenOfType from "../../utils/getChildrenOfType";
-import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
 import ModuleContainerFooter from "./components/ModuleContainerFooter";
 import ModuleContainerHeader from "./components/ModuleContainerHeader";
-import defaultStyles from "./ModuleContainer.styles";
 
 export type ModuleContainerProps = {
   id?: string;
@@ -16,12 +13,7 @@ export type ModuleContainerProps = {
    * Variant allows to render the module to be attached in a sidebar
    * or be inside the main layout (default).
    */
-  variant?: "sidebar" | "default" | "widget";
-
-  onClose?(): void;
-  onBack?(): void;
-
-  isLoading?: boolean;
+  variant?: "sidebar" | "default";
 };
 
 const ModuleContainer = (
@@ -30,16 +22,9 @@ const ModuleContainer = (
     children,
     className,
     variant = "default",
-    isLoading,
   }: PropsWithChildren<ModuleContainerProps>,
   ref: ForwardedRef<HTMLDivElement>
 ) => {
-  const styleWithTheme = useWithTheme();
-  const rootClassname = useMemo(
-    () => styleWithTheme(defaultStyles),
-    [styleWithTheme]
-  );
-
   const headerContainerChildren = useMemo(() => {
     return getChildOfType(
       children,
@@ -70,21 +55,13 @@ const ModuleContainer = (
       ref={ref}
       id={id}
       className={cx(
-        rootClassname,
-        "module-container",
-        `variant-${variant}`,
+        "bg-background-secondary text-text-secondary flex h-full flex-col overflow-hidden",
+        variant === "default" && "shadow-base rounded",
         className
       )}
     >
       {headerContainerChildren}
-      <div className={"content"}>
-        {isLoading && (
-          <div className={"loading"}>
-            <LoadingSpinner />
-          </div>
-        )}
-        {!isLoading && restChildren}
-      </div>
+      <div className="flex grow flex-col overflow-hidden">{restChildren}</div>
       {footerContainerChildren}
     </div>
   );
