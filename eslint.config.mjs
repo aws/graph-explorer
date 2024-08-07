@@ -35,6 +35,7 @@ export default [
   eslintConfigPrettier,
   // General rules
   {
+    ignores: ["tailwind.config.ts"],
     languageOptions: {
       parserOptions: {
         projectService: true,
