@@ -155,14 +155,14 @@ export default function KeywordSearch({ className }: KeywordSearchProps) {
   return (
     <div
       ref={rootRef}
-      id={"keyword-search-module"}
+      id="keyword-search-module"
       className={cx(styleWithTheme(defaultStyles), className)}
     >
       {!isFocused && (
-        <div className={"bar-container"}>
+        <div className="bar-container">
           <Input
-            className={"search-input"}
-            aria-label={"Search box"}
+            className="search-input"
+            aria-label="Search box"
             hideError={true}
             value={searchTerm}
             placeholder={searchPlaceholder}
@@ -171,10 +171,10 @@ export default function KeywordSearch({ className }: KeywordSearchProps) {
               query.isFetching ? (
                 <LoadingSpinner
                   style={{ width: 24, height: 24 }}
-                  color={"var(--palette-primary-main)"}
+                  color="var(--palette-primary-main)"
                 />
               ) : searchResults.length > 0 ? (
-                <div className={"results-adornment"}>
+                <div className="results-adornment">
                   {searchResults.length} results
                 </div>
               ) : undefined
@@ -183,12 +183,12 @@ export default function KeywordSearch({ className }: KeywordSearchProps) {
         </div>
       )}
       {isFocused && (
-        <Card ref={ref} className={"panel-container"} elevation={3}>
-          <div className={"search-controls"}>
+        <Card ref={ref} className="panel-container" elevation={3}>
+          <div className="search-controls">
             <Select
-              className={"entity-select"}
+              className="entity-select"
               label={t("keyword-search.node-type")}
-              labelPlacement={"inner"}
+              labelPlacement="inner"
               hideError={true}
               options={vertexOptions}
               value={selectedVertexType}
@@ -196,9 +196,9 @@ export default function KeywordSearch({ className }: KeywordSearchProps) {
               menuWidth={150}
             />
             <Select
-              className={"entity-select"}
+              className="entity-select"
               label={t("keyword-search.node-attribute")}
-              labelPlacement={"inner"}
+              labelPlacement="inner"
               hideError={true}
               options={attributesOptions}
               value={selectedAttribute}
@@ -206,9 +206,9 @@ export default function KeywordSearch({ className }: KeywordSearchProps) {
               menuWidth={150}
             />
             <Select
-              className={"entity-select"}
+              className="entity-select"
               label={t("keyword-search.node-exact-match")}
-              labelPlacement={"inner"}
+              labelPlacement="inner"
               hideError={true}
               options={exactMatchOptions}
               value={exactMatch ? "Exact" : "Partial"}
@@ -216,8 +216,8 @@ export default function KeywordSearch({ className }: KeywordSearchProps) {
               menuWidth={150}
             />
             <Input
-              className={"search-input"}
-              aria-label={"Search box"}
+              className="search-input"
+              aria-label="Search box"
               hideError={true}
               autoFocus={true}
               value={searchTerm}
@@ -225,15 +225,15 @@ export default function KeywordSearch({ className }: KeywordSearchProps) {
               placeholder={searchPlaceholder}
             />
             <IconButton
-              className={"close-button"}
-              variant={"text"}
-              tooltipText={"Close search"}
-              tooltipPlacement={"bottom-center"}
+              className="close-button"
+              variant="text"
+              tooltipText="Close search"
+              tooltipPlacement="bottom-center"
               icon={<CloseIcon />}
               onPress={onInputFocusChange(false)}
             />
           </div>
-          <div className={"search-results"}>
+          <div className="search-results">
             <SearchResults
               query={query}
               currentTotal={currentTotal}
@@ -241,8 +241,8 @@ export default function KeywordSearch({ className }: KeywordSearchProps) {
               close={() => setInputFocused(false)}
             />
           </div>
-          <div className={"actions-footer"}>
-            <span className={"footer-text"}>
+          <div className="actions-footer">
+            <span className="footer-text">
               Search returned {searchResults.length} results
               {currentTotal != null && " of "}
               {currentTotal != null && (
@@ -252,14 +252,14 @@ export default function KeywordSearch({ className }: KeywordSearchProps) {
             <Button
               icon={<RemoveIcon />}
               onPress={() => selection.clear()}
-              className={"refuse-shrink"}
+              className="refuse-shrink"
             >
               Clear Selection
             </Button>
             <Button
               icon={<AddCircleIcon />}
               onPress={handleAddEntities}
-              className={"refuse-shrink"}
+              className="refuse-shrink"
             >
               {addSelectedNodesMessage()}
             </Button>
@@ -320,10 +320,10 @@ function SearchResults({
             n => n.data.id === vertex.data.id
           ) ? (
             <IconButton
-              tooltipText={"Remove from canvas"}
-              icon={<RemoveFromCanvasIcon className={"graph-remove-icon"} />}
-              size={"small"}
-              variant={"text"}
+              tooltipText="Remove from canvas"
+              icon={<RemoveFromCanvasIcon className="graph-remove-icon" />}
+              size="small"
+              variant="text"
               onPress={() => {
                 setEntities(prev => {
                   return {
@@ -336,10 +336,10 @@ function SearchResults({
             />
           ) : (
             <IconButton
-              tooltipText={"Add to canvas"}
+              tooltipText="Add to canvas"
               icon={<AddCircleIcon />}
-              size={"small"}
-              variant={"text"}
+              size="small"
+              variant="text"
               onPress={() => {
                 fetchNode(vertex);
                 close();
@@ -398,20 +398,20 @@ function SearchResults({
   if (!query.data || query.data.vertices.length === 0) {
     return (
       <PanelEmptyState
-        title={"No Results"}
-        subtitle={"Your criteria does not match with any record"}
+        title="No Results"
+        subtitle="Your criteria does not match with any record"
         icon={<SearchSadIcon />}
       />
     );
   }
 
   return (
-    <div className={"search-results-grid"}>
+    <div className="search-results-grid">
       <AdvancedList
-        className={"search-results-advanced-list"}
+        className="search-results-advanced-list"
         items={resultItems}
         draggable={true}
-        defaultItemType={"graph-viewer__node"}
+        defaultItemType="graph-viewer__node"
         onItemClick={(event, item) => {
           selection.toggle(item.id);
         }}
@@ -422,7 +422,7 @@ function SearchResults({
         <Carousel
           ref={carouselRef}
           slidesToShow={1}
-          className={"carousel"}
+          className="carousel"
           pagination={{
             el: `.swiper-pagination`,
           }}
@@ -438,7 +438,7 @@ function SearchResults({
       )}
       {selection.state.size === 0 && (
         <PanelEmptyState
-          className={"node-preview"}
+          className="node-preview"
           title="Select an item to preview"
           icon={<GraphIcon />}
         />

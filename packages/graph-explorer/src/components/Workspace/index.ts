@@ -10,8 +10,6 @@ export { default as WorkspaceTopBarContent } from "./components/WorkspaceTopBarC
 export type { WorkspaceTopBarContentProps } from "./components/WorkspaceTopBarContent";
 export { default as WorkspaceTopBarTitle } from "./components/WorkspaceTopBarTitle";
 export type { WorkspaceTopBarTitleProps } from "./components/WorkspaceTopBarTitle";
-export { default as WorkspaceTopBarToggles } from "./components/WorkspaceTopBarToggles";
-export type { WorkspaceTopBarTogglesProps } from "./components/WorkspaceTopBarToggles";
 export { default as WorkspacesContent } from "./components/WorkspacesContent";
 export { default as WorkspaceSideBar } from "./components/WorkspaceSideBar";
 export { default as WorkspaceSideBarContent } from "./components/WorkspaceSideBarContent";

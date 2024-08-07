@@ -1,7 +1,6 @@
 import { cx } from "@emotion/css";
 import type { PropsWithChildren, ReactElement } from "react";
 import { useMemo } from "react";
-import { useWithTheme } from "../../core";
 import { getChildrenOfType } from "../../utils";
 import getChildOfType from "../../utils/getChildOfType";
 import WorkspaceFooter from "./components/WorkspaceFooter";
@@ -9,7 +8,6 @@ import WorkspaceNavBar from "./components/WorkspaceNavBar";
 import WorkspacesContent from "./components/WorkspacesContent";
 import WorkspaceSideBar from "./components/WorkspaceSideBar";
 import WorkspaceTopBar from "./components/WorkspaceTopBar";
-import styles from "./Workspace.styles";
 
 export type WorkspaceProps = {
   orientation?: "vertical" | "horizontal";
@@ -29,8 +27,6 @@ const Workspace = ({
   children,
   className,
 }: PropsWithChildren<WorkspaceProps>) => {
-  const stylesWithTheme = useWithTheme();
-
   const topBarSection = useMemo(() => {
     return getChildrenOfType(
       children,
@@ -67,33 +63,24 @@ const Workspace = ({
   return (
     <div
       className={cx(
-        stylesWithTheme(styles.baseStyles),
-        className,
-        "connected-toolkit-layout",
-        `layout-${orientation}`
+        "bg-background-secondary flex h-full w-full grow flex-row overflow-hidden",
+        className
       )}
     >
       {navBarSection}
-      <div className={"container"}>
+      <div className="flex h-full grow flex-col overflow-hidden">
         {topBarSection}
-        <div className={"main"}>
-          <div className={"content-footer-section"}>
+        <div className="flex h-full grow flex-row overflow-auto">
+          <div className="flex h-full grow flex-col overflow-auto">
             <div
               className={cx(
-                stylesWithTheme(styles.contentSectionStyles),
-                "content-section"
+                "flex h-full grow gap-2 overflow-auto p-2",
+                orientation === "vertical" ? "flex-col" : "flex-row"
               )}
             >
               {contentSection}
             </div>
-            <div
-              className={cx(
-                stylesWithTheme(styles.footerSectionStyles),
-                "footer-section"
-              )}
-            >
-              {footerSection}
-            </div>
+            <div className="flex w-full flex-col">{footerSection}</div>
           </div>
           {sidebarSection}
         </div>

@@ -1,8 +1,6 @@
 import type { PropsWithChildren } from "react";
 
-const WorkspaceFooter = ({
-  children,
-}: PropsWithChildren<Record<string, never>>) => {
+const WorkspaceFooter = ({ children }: PropsWithChildren) => {
   return <>{children}</>;
 };
 

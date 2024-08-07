@@ -45,7 +45,6 @@ import usePrefixesUpdater from "../../hooks/usePrefixesUpdater";
 import useTextTransform from "../../hooks/useTextTransform";
 import useTranslations from "../../hooks/useTranslations";
 import useUpdateVertexTypeCounts from "../../hooks/useUpdateVertexTypeCounts";
-import TopBarWithLogo from "../common/TopBarWithLogo";
 import defaultStyles from "./DataExplorer.styles";
 import { searchQuery } from "../../connector/queries";
 import { useVertexTypeConfig } from "../../core/ConfigurationProvider/useConfiguration";
@@ -93,11 +92,14 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
 
   return (
     <Workspace className={cx(styleWithTheme(defaultStyles), "data-explorer")}>
-      <TopBarWithLogo>
+      <Workspace.TopBar logoVisible>
         <Workspace.TopBar.Title
           title="Data Explorer"
           subtitle={`Connection: ${config?.displayLabel || config?.id}`}
         />
+        <Workspace.TopBar.Version>
+          {__GRAPH_EXP_VERSION__}
+        </Workspace.TopBar.Version>
         <Workspace.TopBar.AdditionalControls>
           <Link to={"/graph-explorer"}>
             <Button
@@ -109,7 +111,7 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
             </Button>
           </Link>
         </Workspace.TopBar.AdditionalControls>
-      </TopBarWithLogo>
+      </Workspace.TopBar>
       <Workspace.TopBar>
         <Workspace.TopBar.Title>
           <Button

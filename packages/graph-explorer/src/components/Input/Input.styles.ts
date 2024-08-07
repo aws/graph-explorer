@@ -235,6 +235,7 @@ export const inputContainerStyles =
         flex: 1;
         display: flex;
         position: relative;
+        align-items: center;
       }
 
       .start-adornment {

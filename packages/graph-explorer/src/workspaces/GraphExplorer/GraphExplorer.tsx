@@ -37,7 +37,6 @@ import KeywordSearch from "../../modules/KeywordSearch/KeywordSearch";
 import Namespaces from "../../modules/Namespaces/Namespaces";
 import NodeExpand from "../../modules/NodeExpand";
 import NodesStyling from "../../modules/NodesStyling/NodesStyling";
-import TopBarWithLogo from "../common/TopBarWithLogo";
 import defaultStyles from "./GraphExplorer.styles";
 
 const RESIZE_ENABLE_TOP = {
@@ -171,7 +170,7 @@ const GraphExplorer = () => {
 
   return (
     <Workspace className={cx(styleWithTheme(defaultStyles), "graph-explorer")}>
-      <TopBarWithLogo>
+      <Workspace.TopBar logoVisible>
         <Workspace.TopBar.Title
           title="Graph Explorer"
           subtitle={`Connection: ${config?.displayLabel || config?.id}`}
@@ -179,6 +178,9 @@ const GraphExplorer = () => {
         <Workspace.TopBar.Content>
           <KeywordSearch />
         </Workspace.TopBar.Content>
+        <Workspace.TopBar.Version>
+          {__GRAPH_EXP_VERSION__}
+        </Workspace.TopBar.Version>
         <Workspace.TopBar.AdditionalControls>
           <IconButton
             tooltipText={
@@ -211,7 +213,7 @@ const GraphExplorer = () => {
             </Button>
           </Link>
         </Workspace.TopBar.AdditionalControls>
-      </TopBarWithLogo>
+      </Workspace.TopBar>
 
       <Workspace.Content>
         {toggles.size === 0 && (
