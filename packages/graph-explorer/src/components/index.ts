@@ -23,6 +23,8 @@ export { PanelEmptyState } from "./PanelEmptyState";
 export * from "./PanelEmptyState";
 export { default as PanelError } from "./PanelError";
 
+export { default as Divider } from "./Divider";
+
 export { default as Graph } from "./Graph";
 export * from "./Graph";
 

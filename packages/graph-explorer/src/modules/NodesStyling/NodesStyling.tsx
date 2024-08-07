@@ -1,12 +1,14 @@
 import {
+  Divider,
   ModuleContainer,
+  ModuleContainerContent,
   ModuleContainerHeader,
   ModuleContainerHeaderProps,
 } from "../../components";
-import { useConfiguration, useWithTheme } from "../../core";
+import { useConfiguration } from "../../core";
 import useTranslations from "../../hooks/useTranslations";
-import defaultStyles from "./NodesStyling.style";
 import SingleNodeStyling from "./SingleNodeStyling";
+import { Fragment } from "react/jsx-runtime";
 
 export type NodesStylingProps = Omit<
   ModuleContainerHeaderProps,
@@ -23,25 +25,30 @@ const NodesStyling = ({
 }: NodesStylingProps) => {
   const config = useConfiguration();
   const t = useTranslations();
-  const styleWithTheme = useWithTheme();
 
   return (
-    <ModuleContainer variant={"sidebar"}>
+    <ModuleContainer variant="sidebar">
       <ModuleContainerHeader
         title={t("nodes-styling.title")}
         {...headerProps}
       />
-      <div className={styleWithTheme(defaultStyles)}>
-        {config?.vertexTypes.map(vertexType => (
-          <SingleNodeStyling
-            key={vertexType}
-            vertexType={vertexType}
-            opened={customizeNodeType === vertexType}
-            onOpen={() => onNodeCustomize(vertexType)}
-            onClose={() => onNodeCustomize(undefined)}
-          />
-        ))}
-      </div>
+      <ModuleContainerContent className="flex flex-col gap-2">
+        {config?.vertexTypes.map((vertexType, index) => {
+          return (
+            <Fragment key={vertexType}>
+              {index !== 0 ? <Divider /> : null}
+
+              <SingleNodeStyling
+                vertexType={vertexType}
+                opened={customizeNodeType === vertexType}
+                onOpen={() => onNodeCustomize(vertexType)}
+                onClose={() => onNodeCustomize(undefined)}
+                className="px-3 pb-3 pt-2"
+              />
+            </Fragment>
+          );
+        })}
+      </ModuleContainerContent>
     </ModuleContainer>
   );
 };

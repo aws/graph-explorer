@@ -18,21 +18,6 @@ const defaultStyles = ({
       ? theme.palette.background.secondary
       : theme.palette.background.default};
   }
-
-  .section-divider {
-    height: 1px;
-    min-height: 1px;
-    width: 100%;
-    margin: ${theme.spacing.base} auto;
-    background-color: ${theme.palette.divider};
-  }
-
-  .checkbox-list-container {
-    width: 90%;
-    margin: 0 auto;
-    min-height: auto;
-    max-height: 50%;
-  }
 `;
 
 export default defaultStyles;

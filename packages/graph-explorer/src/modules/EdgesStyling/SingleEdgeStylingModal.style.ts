@@ -7,7 +7,7 @@ const defaultStyles: ThemeStyleFn = ({ theme }) => css`
     margin-left: auto;
     margin-bottom: 0;
   }
-  .container {
+  .modal-container {
     display: flex;
     flex-direction: column;
     gap: ${theme.spacing["4x"]};
