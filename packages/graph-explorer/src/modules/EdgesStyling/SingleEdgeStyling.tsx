@@ -1,8 +1,6 @@
 import { Modal } from "@mantine/core";
-import clone from "lodash/clone";
-import debounce from "lodash/debounce";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useRecoilCallback, useRecoilValue } from "recoil";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useRecoilState, useResetRecoilState } from "recoil";
 import { Button, Input, Select, StylingIcon } from "../../components";
 import ColorInput from "../../components/ColorInput/ColorInput";
 import { useWithTheme } from "../../core";
@@ -10,7 +8,7 @@ import {
   ArrowStyle,
   EdgePreferences,
   LineStyle,
-  userStylingAtom,
+  userStylingEdgeAtom,
 } from "../../core/StateProvider/userPreferences";
 import useTextTransform from "../../hooks/useTextTransform";
 import useTranslations from "../../hooks/useTranslations";
@@ -22,6 +20,7 @@ import { LINE_STYLE_OPTIONS } from "./lineStyling";
 import defaultStyles from "./SingleEdgeStyling.style";
 import modalDefaultStyles from "./SingleEdgeStylingModal.style";
 import { useEdgeTypeConfig } from "../../core/ConfigurationProvider/useConfiguration";
+import { useDebounceValue, usePrevious } from "../../hooks";
 
 export type SingleEdgeStylingProps = {
   edgeType: string;
@@ -30,22 +29,23 @@ export type SingleEdgeStylingProps = {
   onClose(): void;
 };
 
-const SingleEdgeStyling = ({
+export default function SingleEdgeStyling({
   edgeType,
   opened,
   onOpen,
   onClose,
-}: SingleEdgeStylingProps) => {
+}: SingleEdgeStylingProps) {
   const t = useTranslations();
   const styleWithTheme = useWithTheme();
 
-  const userStyling = useRecoilValue(userStylingAtom);
+  const [edgePreferences, setEdgePreferences] = useRecoilState(
+    userStylingEdgeAtom(edgeType)
+  );
   const textTransform = useTextTransform();
   const etConfig = useEdgeTypeConfig(edgeType);
-  const etPrefs = userStyling.edges?.find(e => e.type === edgeType);
 
   const [displayAs, setDisplayAs] = useState(
-    etConfig?.displayLabel || textTransform(edgeType)
+    etConfig.displayLabel || textTransform(edgeType)
   );
 
   const selectOptions = useMemo(() => {
@@ -63,93 +63,25 @@ const SingleEdgeStyling = ({
     return options;
   }, [t, textTransform, etConfig?.attributes]);
 
-  const onUserPrefsChange = useRecoilCallback(
-    ({ set }) =>
-      (prefs: Omit<EdgePreferences, "type">) => {
-        set(userStylingAtom, prev => {
-          const edges = Array.from(prev.edges || []);
-          const updateIndex = edges.findIndex(e => e.type === edgeType);
-
-          if (updateIndex === -1) {
-            return {
-              ...prev,
-              edges: [...edges, { ...prefs, type: edgeType }],
-            };
-          }
-
-          edges[updateIndex] = {
-            ...edges[updateIndex],
-            ...prefs,
-            type: edgeType,
-          };
-          return {
-            ...prev,
-            edges,
-          };
-        });
-      },
-    [edgeType]
+  const onUserPrefsChange = useCallback(
+    (prefs: Omit<EdgePreferences, "type">) => {
+      setEdgePreferences({ type: edgeType, ...prefs });
+    },
+    [edgeType, setEdgePreferences]
   );
 
-  const onUserPrefsReset = useRecoilCallback(
-    ({ set }) =>
-      () => {
-        set(userStylingAtom, prev => {
-          return {
-            ...prev,
-            edges: prev.edges?.filter(e => e.type !== edgeType),
-          };
-        });
-      },
-    [edgeType]
-  );
+  const onUserPrefsReset = useResetRecoilState(userStylingEdgeAtom(edgeType));
 
-  const onDisplayNameChange = useRecoilCallback(
-    ({ set }) =>
-      (value: string | string[]) => {
-        if (!edgeType) {
-          return;
-        }
+  // Delayed update of display name to prevent input lag
+  const debouncedDisplayAs = useDebounceValue(displayAs, 400);
+  const prevDisplayAs = usePrevious(debouncedDisplayAs);
 
-        set(userStylingAtom, prevStyling => {
-          const etItem = clone(
-            prevStyling.edges?.find(e => e.type === edgeType) ||
-              ({} as EdgePreferences)
-          );
-
-          etItem.displayNameAttribute = value as string;
-
-          return {
-            ...prevStyling,
-            edges: [
-              ...(prevStyling.edges || []).filter(e => e.type !== edgeType),
-              {
-                ...(etItem || {}),
-                type: edgeType,
-              },
-            ],
-          };
-        });
-      },
-    [edgeType]
-  );
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const debouncedChange = useCallback(
-    debounce((displayLabel?: string) => {
-      onUserPrefsChange({ displayLabel });
-    }, 400),
-    [onUserPrefsChange]
-  );
-
-  const mounted = useRef(false);
   useEffect(() => {
-    if (!mounted.current) {
-      mounted.current = true;
+    if (prevDisplayAs === null || prevDisplayAs === debouncedDisplayAs) {
       return;
     }
-    debouncedChange(displayAs);
-  }, [displayAs, debouncedChange]);
+    onUserPrefsChange({ displayLabel: debouncedDisplayAs });
+  }, [debouncedDisplayAs, prevDisplayAs, onUserPrefsChange]);
 
   return (
     <div className={styleWithTheme(defaultStyles)}>
@@ -197,7 +129,9 @@ const SingleEdgeStyling = ({
                 label={"Display Name Attribute"}
                 labelPlacement={"inner"}
                 value={etConfig?.displayNameAttribute || "type"}
-                onChange={onDisplayNameChange}
+                onChange={value =>
+                  onUserPrefsChange({ displayNameAttribute: value as string })
+                }
                 options={selectOptions}
                 hideError={true}
                 noMargin={true}
@@ -210,7 +144,7 @@ const SingleEdgeStyling = ({
               <ColorInput
                 label={"Color"}
                 labelPlacement={"inner"}
-                startColor={etPrefs?.labelColor || "#17457b"}
+                startColor={edgePreferences?.labelColor || "#17457b"}
                 onChange={(color: string) =>
                   onUserPrefsChange({ labelColor: color })
                 }
@@ -222,7 +156,7 @@ const SingleEdgeStyling = ({
                 min={0}
                 max={1}
                 step={0.1}
-                value={etPrefs?.labelBackgroundOpacity ?? 0.7}
+                value={edgePreferences?.labelBackgroundOpacity ?? 0.7}
                 onChange={(value: number) =>
                   onUserPrefsChange({ labelBackgroundOpacity: value })
                 }
@@ -236,7 +170,7 @@ const SingleEdgeStyling = ({
               <ColorInput
                 label={"Border Color"}
                 labelPlacement={"inner"}
-                startColor={etPrefs?.labelBorderColor || "#17457b"}
+                startColor={edgePreferences?.labelBorderColor || "#17457b"}
                 onChange={(color: string) =>
                   onUserPrefsChange({ labelBorderColor: color })
                 }
@@ -246,7 +180,7 @@ const SingleEdgeStyling = ({
                 labelPlacement={"inner"}
                 type={"number"}
                 min={0}
-                value={etPrefs?.labelBorderWidth ?? 0}
+                value={edgePreferences?.labelBorderWidth ?? 0}
                 onChange={(value: number) =>
                   onUserPrefsChange({ labelBorderWidth: value })
                 }
@@ -256,7 +190,7 @@ const SingleEdgeStyling = ({
               <Select
                 label={"Border Style"}
                 labelPlacement={"inner"}
-                value={etPrefs?.labelBorderStyle || "solid"}
+                value={edgePreferences?.labelBorderStyle || "solid"}
                 onChange={value =>
                   onUserPrefsChange({ labelBorderStyle: value as LineStyle })
                 }
@@ -272,7 +206,7 @@ const SingleEdgeStyling = ({
               <ColorInput
                 label={"Color"}
                 labelPlacement={"inner"}
-                startColor={etPrefs?.lineColor || "#b3b3b3"}
+                startColor={edgePreferences?.lineColor || "#b3b3b3"}
                 onChange={(color: string) =>
                   onUserPrefsChange({ lineColor: color })
                 }
@@ -282,7 +216,7 @@ const SingleEdgeStyling = ({
                 labelPlacement={"inner"}
                 type={"number"}
                 min={1}
-                value={etPrefs?.lineThickness || 2}
+                value={edgePreferences?.lineThickness || 2}
                 onChange={(value: number) =>
                   onUserPrefsChange({ lineThickness: value })
                 }
@@ -292,7 +226,7 @@ const SingleEdgeStyling = ({
               <Select
                 label={"Style"}
                 labelPlacement={"inner"}
-                value={etPrefs?.lineStyle || "solid"}
+                value={edgePreferences?.lineStyle || "solid"}
                 onChange={value =>
                   onUserPrefsChange({ lineStyle: value as LineStyle })
                 }
@@ -308,7 +242,7 @@ const SingleEdgeStyling = ({
               <Select
                 label={"Source"}
                 labelPlacement={"inner"}
-                value={etPrefs?.sourceArrowStyle || "none"}
+                value={edgePreferences?.sourceArrowStyle || "none"}
                 onChange={value =>
                   onUserPrefsChange({ sourceArrowStyle: value as ArrowStyle })
                 }
@@ -319,7 +253,7 @@ const SingleEdgeStyling = ({
               <Select
                 label={"Target"}
                 labelPlacement={"inner"}
-                value={etPrefs?.targetArrowStyle || "triangle"}
+                value={edgePreferences?.targetArrowStyle || "triangle"}
                 onChange={value =>
                   onUserPrefsChange({ targetArrowStyle: value as ArrowStyle })
                 }
@@ -336,6 +270,4 @@ const SingleEdgeStyling = ({
       </Modal>
     </div>
   );
-};
-
-export default SingleEdgeStyling;
+}

@@ -1,4 +1,4 @@
-import { atom } from "recoil";
+import { atom, DefaultValue, selectorFamily } from "recoil";
 import localForageEffect from "./localForageEffect";
 
 export type ShapeStyle =
@@ -109,6 +109,84 @@ export const userStylingAtom = atom<UserPreferences["styling"]>({
   key: "user-styling",
   default: {},
   effects: [localForageEffect()],
+});
+
+export const userStylingNodeAtom = selectorFamily({
+  key: "user-styling-node",
+  get:
+    (nodeType: string) =>
+    ({ get }) => {
+      return get(userStylingAtom).vertices?.find(
+        node => node.type === nodeType
+      );
+    },
+  set:
+    (nodeType: string) =>
+    ({ set }, newValue) => {
+      set(userStylingAtom, prev => {
+        let newNodes = Array.from(prev.vertices ?? []);
+        const existingIndex = newNodes.findIndex(
+          node => node.type === nodeType
+        );
+
+        if (newValue instanceof DefaultValue || !newValue) {
+          // Remove the entry from user styles
+          newNodes = newNodes.filter(node => node.type !== nodeType);
+        } else if (existingIndex === -1) {
+          // Add it because it doesn't exist
+          newNodes.push(newValue);
+        } else {
+          // Replace the existing entry
+          newNodes[existingIndex] = {
+            ...newNodes[existingIndex],
+            ...newValue,
+          };
+        }
+
+        return {
+          ...prev,
+          vertices: newNodes,
+        };
+      });
+    },
+});
+
+export const userStylingEdgeAtom = selectorFamily({
+  key: "user-styling-edge",
+  get:
+    (edgeType: string) =>
+    ({ get }) => {
+      return get(userStylingAtom).edges?.find(edge => edge.type === edgeType);
+    },
+  set:
+    (edgeType: string) =>
+    ({ set }, newValue) => {
+      set(userStylingAtom, prev => {
+        let newEdges = Array.from(prev.edges ?? []);
+        const existingIndex = newEdges.findIndex(
+          edge => edge.type === edgeType
+        );
+
+        if (newValue instanceof DefaultValue || !newValue) {
+          // Remove the entry from user styles
+          newEdges = newEdges.filter(edge => edge.type !== edgeType);
+        } else if (existingIndex === -1) {
+          // Add it because it doesn't exist
+          newEdges.push(newValue);
+        } else {
+          // Replace the existing entry
+          newEdges[existingIndex] = {
+            ...newEdges[existingIndex],
+            ...newValue,
+          };
+        }
+
+        return {
+          ...prev,
+          edges: newEdges,
+        };
+      });
+    },
 });
 
 export const userLayoutAtom = atom<UserPreferences["layout"]>({

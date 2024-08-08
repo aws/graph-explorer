@@ -1,8 +1,6 @@
 import { FileButton, Modal } from "@mantine/core";
-import clone from "lodash/clone";
-import debounce from "lodash/debounce";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useRecoilCallback, useRecoilValue } from "recoil";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useRecoilState, useResetRecoilState } from "recoil";
 import {
   Button,
   IconButton,
@@ -18,7 +16,7 @@ import { useWithTheme } from "../../core";
 import {
   LineStyle,
   ShapeStyle,
-  userStylingAtom,
+  userStylingNodeAtom,
   VertexPreferences,
 } from "../../core/StateProvider/userPreferences";
 import fade from "../../core/ThemeProvider/utils/fade";
@@ -29,6 +27,7 @@ import { NODE_SHAPE } from "./nodeShape";
 import defaultStyles from "./SingleNodeStyling.style";
 import modalDefaultStyles from "./SingleNodeStylingModal.style";
 import { useVertexTypeConfig } from "../../core/ConfigurationProvider/useConfiguration";
+import { useDebounceValue, usePrevious } from "../../hooks";
 
 export type SingleNodeStylingProps = {
   vertexType: string;
@@ -46,19 +45,20 @@ const file2Base64 = (file: File): Promise<string> => {
   });
 };
 
-const SingleNodeStyling = ({
+export default function SingleNodeStyling({
   vertexType,
   opened,
   onOpen,
   onClose,
-}: SingleNodeStylingProps) => {
+}: SingleNodeStylingProps) {
   const t = useTranslations();
   const styleWithTheme = useWithTheme();
 
-  const userStyling = useRecoilValue(userStylingAtom);
+  const [nodePreferences, setNodePreferences] = useRecoilState(
+    userStylingNodeAtom(vertexType)
+  );
   const textTransform = useTextTransform();
   const vtConfig = useVertexTypeConfig(vertexType);
-  const vtPrefs = userStyling.vertices?.find(v => v.type === vertexType);
 
   const [displayAs, setDisplayAs] = useState(
     vtConfig.displayLabel || textTransform(vertexType)
@@ -79,84 +79,14 @@ const SingleNodeStyling = ({
     return options;
   }, [t, textTransform, vtConfig.attributes]);
 
-  const onUserPrefsChange = useRecoilCallback(
-    ({ set }) =>
-      (prefs: Omit<VertexPreferences, "type">) => {
-        set(userStylingAtom, prev => {
-          const vertices = Array.from(prev.vertices || []);
-          const updateIndex = vertices.findIndex(v => v.type === vertexType);
-
-          if (updateIndex === -1) {
-            return {
-              ...prev,
-              vertices: [...vertices, { ...prefs, type: vertexType }],
-            };
-          }
-
-          vertices[updateIndex] = {
-            ...vertices[updateIndex],
-            ...prefs,
-            type: vertexType,
-          };
-          return {
-            ...prev,
-            vertices,
-          };
-        });
-      },
-    [vertexType]
+  const onUserPrefsChange = useCallback(
+    (prefs: Omit<VertexPreferences, "type">) => {
+      setNodePreferences({ type: vertexType, ...prefs });
+    },
+    [setNodePreferences, vertexType]
   );
 
-  const onUserPrefsReset = useRecoilCallback(
-    ({ set }) =>
-      () => {
-        set(userStylingAtom, prev => {
-          return {
-            ...prev,
-            vertices: prev.vertices?.filter(e => e.type !== vertexType),
-          };
-        });
-      },
-    [vertexType]
-  );
-
-  const onDisplayNameChange = useRecoilCallback(
-    ({ set }) =>
-      (field: "name" | "longName") =>
-      (value: string | string[]) => {
-        if (!vertexType) {
-          return;
-        }
-
-        set(userStylingAtom, prevStyling => {
-          const vtItem =
-            clone(prevStyling.vertices?.find(v => v.type === vertexType)) ||
-            ({} as VertexPreferences);
-
-          if (field === "name") {
-            vtItem.displayNameAttribute = value as string;
-          }
-
-          if (field === "longName") {
-            vtItem.longDisplayNameAttribute = value as string;
-          }
-
-          return {
-            ...prevStyling,
-            vertices: [
-              ...(prevStyling.vertices || []).filter(
-                v => v.type !== vertexType
-              ),
-              {
-                ...(vtItem || {}),
-                type: vertexType,
-              },
-            ],
-          };
-        });
-      },
-    [vertexType]
-  );
+  const reset = useResetRecoilState(userStylingNodeAtom(vertexType));
 
   const { enqueueNotification } = useNotification();
   const convertImageToBase64AndSetNewIcon = useCallback(
@@ -179,25 +109,20 @@ const SingleNodeStyling = ({
     [enqueueNotification, onUserPrefsChange]
   );
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const debouncedChange = useCallback(
-    debounce((displayLabel?: string) => {
-      onUserPrefsChange({ displayLabel });
-    }, 400),
-    [onUserPrefsChange]
-  );
+  // Delayed update of display name to prevent input lag
+  const debouncedDisplayAs = useDebounceValue(displayAs, 400);
+  const prevDisplayAs = usePrevious(debouncedDisplayAs);
 
-  const mounted = useRef(false);
   useEffect(() => {
-    if (!mounted.current) {
-      mounted.current = true;
+    if (prevDisplayAs === null || prevDisplayAs === debouncedDisplayAs) {
       return;
     }
-    debouncedChange(displayAs);
-  }, [displayAs, debouncedChange]);
+    onUserPrefsChange({ displayLabel: debouncedDisplayAs });
+  }, [debouncedDisplayAs, prevDisplayAs, onUserPrefsChange]);
 
   const isSvg =
-    (vtPrefs?.iconImageType || vtConfig.iconImageType) === "image/svg+xml";
+    (nodePreferences?.iconImageType || vtConfig.iconImageType) ===
+    "image/svg+xml";
 
   return (
     <div className={styleWithTheme(defaultStyles)}>
@@ -245,7 +170,9 @@ const SingleNodeStyling = ({
                 label={"Display Name Attribute"}
                 labelPlacement={"inner"}
                 value={vtConfig.displayNameAttribute || ""}
-                onChange={onDisplayNameChange("name")}
+                onChange={value => {
+                  onUserPrefsChange({ displayNameAttribute: value as string });
+                }}
                 options={selectOptions}
                 hideError={true}
                 noMargin={true}
@@ -254,7 +181,11 @@ const SingleNodeStyling = ({
                 label={"Display Description Attribute"}
                 labelPlacement={"inner"}
                 value={vtConfig.longDisplayNameAttribute || ""}
-                onChange={onDisplayNameChange("longName")}
+                onChange={value => {
+                  onUserPrefsChange({
+                    longDisplayNameAttribute: value as string,
+                  });
+                }}
                 options={selectOptions}
                 hideError={true}
                 noMargin={true}
@@ -267,7 +198,7 @@ const SingleNodeStyling = ({
               <Select
                 label={"Style"}
                 labelPlacement={"inner"}
-                value={vtPrefs?.shape || "ellipse"}
+                value={nodePreferences?.shape || "ellipse"}
                 onChange={value =>
                   onUserPrefsChange({ shape: value as ShapeStyle })
                 }
@@ -298,14 +229,20 @@ const SingleNodeStyling = ({
                           >
                             {isSvg && (
                               <RemoteSvgIcon
-                                src={vtPrefs?.iconUrl || vtConfig.iconUrl || ""}
+                                src={
+                                  nodePreferences?.iconUrl ||
+                                  vtConfig.iconUrl ||
+                                  ""
+                                }
                               />
                             )}
                             {!isSvg && (
                               <img
                                 width={24}
                                 height={24}
-                                src={vtPrefs?.iconUrl || vtConfig.iconUrl}
+                                src={
+                                  nodePreferences?.iconUrl || vtConfig.iconUrl
+                                }
                               />
                             )}
                           </div>
@@ -326,7 +263,7 @@ const SingleNodeStyling = ({
               <ColorInput
                 label={"Color"}
                 labelPlacement={"inner"}
-                startColor={vtPrefs?.color || "#17457b"}
+                startColor={nodePreferences?.color || "#17457b"}
                 onChange={(color: string) => onUserPrefsChange({ color })}
               />
               <Input
@@ -336,7 +273,7 @@ const SingleNodeStyling = ({
                 min={0}
                 max={1}
                 step={0.1}
-                value={vtPrefs?.backgroundOpacity ?? 0.4}
+                value={nodePreferences?.backgroundOpacity ?? 0.4}
                 onChange={(value: number) =>
                   onUserPrefsChange({ backgroundOpacity: value })
                 }
@@ -350,7 +287,7 @@ const SingleNodeStyling = ({
               <ColorInput
                 label={"Border Color"}
                 labelPlacement={"inner"}
-                startColor={vtPrefs?.borderColor || "#17457b"}
+                startColor={nodePreferences?.borderColor || "#17457b"}
                 onChange={(color: string) =>
                   onUserPrefsChange({ borderColor: color })
                 }
@@ -360,7 +297,7 @@ const SingleNodeStyling = ({
                 labelPlacement={"inner"}
                 type={"number"}
                 min={0}
-                value={vtPrefs?.borderWidth ?? 0}
+                value={nodePreferences?.borderWidth ?? 0}
                 onChange={(value: number) =>
                   onUserPrefsChange({ borderWidth: value })
                 }
@@ -370,7 +307,7 @@ const SingleNodeStyling = ({
               <Select
                 label={"Border Style"}
                 labelPlacement={"inner"}
-                value={vtPrefs?.borderStyle || "solid"}
+                value={nodePreferences?.borderStyle || "solid"}
                 onChange={value =>
                   onUserPrefsChange({ borderStyle: value as LineStyle })
                 }
@@ -381,12 +318,10 @@ const SingleNodeStyling = ({
             </div>
           </div>
           <div className={"actions"}>
-            <Button onPress={onUserPrefsReset}>Reset to Default</Button>
+            <Button onPress={() => reset()}>Reset to Default</Button>
           </div>
         </div>
       </Modal>
     </div>
   );
-};
-
-export default SingleNodeStyling;
+}
