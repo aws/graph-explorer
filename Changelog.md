@@ -1,5 +1,10 @@
 # graph-explorer Change Log
 
+## Upcoming Release
+
+- **Improved** performance of styling sidebar panels when many node & edge types
+  exist ([#542](https://github.com/aws/graph-explorer/pull/542))
+
 ## Release 1.9.0
 
 This release includes many fixes and enhancements that make using Graph Explorer
