@@ -2,9 +2,9 @@ import { renderHook } from "@testing-library/react";
 import usePrevious from "./usePrevious";
 
 describe("usePrevious", () => {
-  it("should return undefined for the first render", () => {
+  it("should return null for the first render", () => {
     const { result } = renderHook(() => usePrevious(10));
-    expect(result.current).toBeUndefined();
+    expect(result.current).toBeNull();
   });
 
   it("should return the previous value after a re-render", () => {
@@ -12,7 +12,7 @@ describe("usePrevious", () => {
       initialProps: { value: 10 },
     });
 
-    expect(result.current).toBeUndefined();
+    expect(result.current).toBeNull();
 
     rerender({ value: 20 });
     expect(result.current).toEqual(10);
