@@ -95,17 +95,18 @@ const generatePrefixes = (
   const updatedPrefixes: PrefixTypeConfig[] = cloneDeep(currentPrefixes);
   uris.forEach(uri => {
     const existInCommon = cPrefixes.some(prefixConfig => {
-      return !!uri.match(new RegExp(`^${prefixConfig.uri}`));
+      return !!uri.match(new RegExp(`^${prefixConfig.uri}`, "i"));
     });
     if (existInCommon) {
       return;
     }
 
     const existPrefixIndex = updatedPrefixes.findIndex(prefixConfig => {
-      return !!uri.match(new RegExp(`^${prefixConfig.uri}`));
+      return !!uri.match(new RegExp(`^${prefixConfig.uri}`, "i"));
     });
 
     if (existPrefixIndex === -1) {
+      // Create a new prefix entry
       try {
         const url = new URL(uri);
         let newPrefix: PrefixTypeConfig;
@@ -120,6 +121,7 @@ const generatePrefixes = (
         // Catching wrong URLs and skip them
       }
     } else {
+      // Update existing prefix entry
       if (!updatedPrefixes[existPrefixIndex].__matches) {
         updatedPrefixes[existPrefixIndex].__matches = new Set();
       }

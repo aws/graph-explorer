@@ -10,8 +10,8 @@ const usePrefixesUpdater = () => {
   const setSchema = useSetRecoilState(schemaAtom);
   const { enqueueNotification } = useNotification();
 
-  const supportsPrefixes = config?.connection?.queryEngine === "sparql"
-  const existingPrefixes = config?.schema?.prefixes
+  const supportsPrefixes = config?.connection?.queryEngine === "sparql";
+  const existingPrefixes = config?.schema?.prefixes;
   const activeConfigId = config?.id;
 
   return useCallback(
@@ -62,7 +62,13 @@ const usePrefixesUpdater = () => {
         });
       }
     },
-    [supportsPrefixes, existingPrefixes, setSchema,  activeConfigId, enqueueNotification]
+    [
+      supportsPrefixes,
+      existingPrefixes,
+      setSchema,
+      activeConfigId,
+      enqueueNotification,
+    ]
   );
 };
 
