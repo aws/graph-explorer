@@ -1,14 +1,9 @@
 import { FileButton, Modal } from "@mantine/core";
-import {
-  ComponentProps,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRecoilState, useResetRecoilState } from "recoil";
 import {
   Button,
+  ComponentBaseProps,
   IconButton,
   Input,
   RemoteSvgIcon,
@@ -41,7 +36,7 @@ export type SingleNodeStylingProps = {
   opened: boolean;
   onOpen(): void;
   onClose(): void;
-} & ComponentProps<"div">;
+} & ComponentBaseProps;
 
 const file2Base64 = (file: File): Promise<string> => {
   return new Promise<string>((resolve, reject) => {

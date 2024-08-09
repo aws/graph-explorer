@@ -1,5 +1,5 @@
 import { Vertex } from "../../@types/entities";
-import { VertexIcon } from "../../components";
+import { ComponentBaseProps, VertexIcon } from "../../components";
 import { fade } from "../../core";
 import useDisplayNames from "../../hooks/useDisplayNames";
 import useTextTransform from "../../hooks/useTextTransform";
@@ -8,7 +8,9 @@ import {
   useVertexTypeConfigs,
 } from "../../core/ConfigurationProvider/useConfiguration";
 
-export default function VertexHeader({ vertex }: { vertex: Vertex }) {
+export default function VertexHeader({
+  vertex,
+}: { vertex: Vertex } & ComponentBaseProps) {
   const textTransform = useTextTransform();
   const vertexTypeConfigs = useVertexTypeConfigs(
     vertex.data.types ?? [vertex.data.type]
