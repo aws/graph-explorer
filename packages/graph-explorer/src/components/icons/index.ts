@@ -21,7 +21,6 @@ export { default as ChevronLeftIcon } from "./ChevronLeftIcon";
 export { default as ChevronRightIcon } from "./ChevronRightIcon";
 export { default as CloseIcon } from "./CloseIcon";
 export { default as CodeIcon } from "./CodeIcon";
-export { default as ConnectedIcon } from "./ConnectedIcon";
 export { default as DatabaseIcon } from "./DatabaseIcon";
 export { default as DeleteIcon } from "./DeleteIcon";
 export { default as DetailsIcon } from "./DetailsIcon";

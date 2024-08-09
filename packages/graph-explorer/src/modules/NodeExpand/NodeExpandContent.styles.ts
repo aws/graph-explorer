@@ -3,20 +3,9 @@ import type { ThemeStyleFn } from "../../core";
 import fade from "../../core/ThemeProvider/utils/fade";
 
 const defaultStyles: ThemeStyleFn = ({ theme }) => css`
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  overflow-y: scroll;
-  background: ${theme.palette.background.default};
-
   .empty-panel-state {
     height: auto;
     flex-grow: 1;
-  }
-  .h-divider {
-    height: 1px;
-    margin: ${theme.spacing["2x"]} 0;
-    background: ${theme.palette.divider};
   }
 
   .node-item {
@@ -39,7 +28,7 @@ const defaultStyles: ThemeStyleFn = ({ theme }) => css`
     display: flex;
     flex-direction: column;
     gap: ${theme.spacing["2x"]};
-    padding: ${theme.spacing["4x"]};
+    padding: ${theme.spacing["4x"]} ${theme.spacing["3x"]};
     flex-grow: 1;
     overflow-y: auto;
     min-height: 250px;

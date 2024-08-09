@@ -7,6 +7,7 @@ import UseLayer, { UseLayerOverlay, UseLayerTrigger } from "../../UseLayer";
 import CollapsedActions from "./CollapsedActions";
 import type { Action, ActionItem } from "./ModuleContainerHeader";
 import defaultStyles from "./ModuleContainerHeaderActions.styles";
+import ModuleContainerVerticalDivider from "./ModuleContainerVerticalDivider";
 
 export type ModuleContainerHeaderActionsProps = {
   variant?: "sidebar" | "default";
@@ -85,7 +86,7 @@ const ModuleContainerHeaderActions = ({
     >
       {alwaysVisibleActions?.map((action, actionIndex) => {
         if (action === "divider") {
-          return <div key={actionIndex} className={"divider"} />;
+          return <ModuleContainerVerticalDivider key={actionIndex} />;
         }
 
         if (isActionType(action)) {
@@ -94,12 +95,12 @@ const ModuleContainerHeaderActions = ({
               <IconButton
                 isDisabled={action.isDisabled}
                 tooltipText={action.label}
-                variant={"text"}
+                variant="text"
                 icon={action.icon}
                 onPress={() => onActionClick?.(action.value)}
                 badge={action.badge}
                 badgeVariant={action.badgeVariant}
-                badgePlacement={"bottom-right"}
+                badgePlacement="bottom-right"
               />
             </div>
           );

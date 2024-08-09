@@ -7,7 +7,7 @@ import type {
   RefObject,
 } from "react";
 import { forwardRef, Fragment, useMemo, useState } from "react";
-import { useWithTheme } from "../../../core";
+
 import getChildrenOfType from "../../../utils/getChildrenOfType";
 import type { IconButtonProps } from "../../IconButton";
 import IconButton from "../../IconButton";
@@ -16,8 +16,8 @@ import CloseIcon from "../../icons/CloseIcon";
 import MoreIcon from "../../icons/MoreIcon";
 import UseLayer, { UseLayerOverlay, UseLayerTrigger } from "../../UseLayer";
 import CollapsedActions from "./CollapsedActions";
-import defaultStyles from "./ModuleContainerHeader.styles";
 import ModuleContainerHeaderActions from "./ModuleContainerHeaderActions";
+import ModuleContainerVerticalDivider from "./ModuleContainerVerticalDivider";
 
 export type Action = {
   label: string;
@@ -43,7 +43,7 @@ export type ModuleContainerHeaderProps = PropsWithChildren<{
   title: ReactNode;
   subtitle?: ReactNode;
   startAdornment?: ReactNode;
-  variant?: "sidebar" | "default" | "widget";
+  variant?: "sidebar" | "default";
   onClose?(): void;
   onBack?(): void;
   actions?: Array<ActionItem>;
@@ -78,7 +78,6 @@ const ModuleContainerHeader = (
   }: ModuleContainerHeaderProps,
   ref: ForwardedRef<HTMLDivElement>
 ) => {
-  const styleWithTheme = useWithTheme();
   const [collapsedActionsOpen, setCollapsedActionsOpen] = useState(false);
 
   // Make the component controlled and uncontrolled
@@ -145,35 +144,34 @@ const ModuleContainerHeader = (
       id={id}
       ref={ref}
       className={cx(
-        styleWithTheme(defaultStyles),
-        "module-container-header",
+        "bg-background-default text-text-primary flex min-h-[3rem] w-full items-center gap-1 border-b px-3 py-1",
         className
       )}
     >
       {onBack && (
-        <div className={"back-action"}>
+        <div className="mr-1">
           <IconButton
-            tooltipText={"Go Back"}
-            variant={"text"}
-            size={"small"}
+            tooltipText="Go Back"
+            variant="text"
+            size="small"
             icon={<ChevronLeftIcon />}
             onPress={onBack}
           />
         </div>
       )}
       {startAdornment && (
-        <div className={"start-adornment"}>{startAdornment}</div>
+        <div className="mr-2 flex items-center">{startAdornment}</div>
       )}
-      <div className={"title-container"}>
-        <div className={"title"}>{title}</div>
-        <div className={"subtitle"}>{subtitle}</div>
+      <div>
+        <div className="line-clamp-1 font-bold">{title}</div>
+        <div className="line-clamp-1 text-xs">{subtitle}</div>
       </div>
-      <div className={"children-container"}>{nonActionsChildren}</div>
+      <div className="grow">{nonActionsChildren}</div>
       {actionsChildren}
-      <div className={"actions-container"}>
+      <div className="flex h-full items-center justify-end gap-1">
         {alwaysVisibleActions?.map((action, actionIndex) => {
           if (action === "divider") {
-            return <div key={actionIndex} className={"divider"} />;
+            return <ModuleContainerVerticalDivider key={actionIndex} />;
           }
 
           if (isActionType(action)) {
@@ -188,7 +186,8 @@ const ModuleContainerHeader = (
                   onPress={() => onActionClick?.(action.value)}
                   badge={action.badge}
                   badgeVariant={action.badgeVariant}
-                  badgePlacement={"bottom-right"}
+                  badgePlacement="bottom-right"
+                  className="hover:text-primary-main focus:text-primary-main focus:bg-primary-main/20"
                 />
               </div>
             );
@@ -199,13 +198,13 @@ const ModuleContainerHeader = (
         {Boolean(collapsibleActions?.length) && variant === "sidebar" && (
           <UseLayer
             isOpen={actualCollapsedActionsOpen}
-            placement={"bottom-end"}
+            placement="bottom-end"
             onOutsideClick={() => actualSetCollapsedActionsOpen(false)}
           >
             <UseLayerTrigger>
               <IconButton
-                size={"base"}
-                variant={"text"}
+                size="base"
+                variant="text"
                 icon={<MoreIcon />}
                 onPress={() =>
                   actualSetCollapsedActionsOpen(!actualCollapsedActionsOpen)
@@ -226,12 +225,12 @@ const ModuleContainerHeader = (
       </div>
       {onClose && (
         <>
-          <div className={"divider"} />
-          <div className={"close-action"}>
+          <ModuleContainerVerticalDivider />
+          <div className="close-action">
             <IconButton
-              tooltipText={"Close"}
-              variant={"text"}
-              size={"small"}
+              tooltipText="Close"
+              variant="text"
+              size="small"
               icon={<CloseIcon />}
               onPress={onClose}
             />

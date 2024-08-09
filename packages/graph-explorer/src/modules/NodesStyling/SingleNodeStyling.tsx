@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRecoilState, useResetRecoilState } from "recoil";
 import {
   Button,
+  ComponentBaseProps,
   IconButton,
   Input,
   RemoteSvgIcon,
@@ -28,13 +29,14 @@ import defaultStyles from "./SingleNodeStyling.style";
 import modalDefaultStyles from "./SingleNodeStylingModal.style";
 import { useVertexTypeConfig } from "../../core/ConfigurationProvider/useConfiguration";
 import { useDebounceValue, usePrevious } from "../../hooks";
+import { cx } from "@emotion/css";
 
 export type SingleNodeStylingProps = {
   vertexType: string;
   opened: boolean;
   onOpen(): void;
   onClose(): void;
-};
+} & ComponentBaseProps;
 
 const file2Base64 = (file: File): Promise<string> => {
   return new Promise<string>((resolve, reject) => {
@@ -50,6 +52,8 @@ export default function SingleNodeStyling({
   opened,
   onOpen,
   onClose,
+  className,
+  ...rest
 }: SingleNodeStylingProps) {
   const t = useTranslations();
   const styleWithTheme = useWithTheme();
@@ -125,7 +129,7 @@ export default function SingleNodeStyling({
     "image/svg+xml";
 
   return (
-    <div className={styleWithTheme(defaultStyles)}>
+    <div className={cx(styleWithTheme(defaultStyles), className)} {...rest}>
       <div className={"title"}>
         <div className={"vertex-name"}>{vertexType}</div>
       </div>
@@ -162,7 +166,7 @@ export default function SingleNodeStyling({
           backgroundOpacity: 0.1,
         }}
       >
-        <div className={"container"}>
+        <div className={"modal-container"}>
           <div>
             <p>Display Attributes</p>
             <div className={"attrs-container"}>

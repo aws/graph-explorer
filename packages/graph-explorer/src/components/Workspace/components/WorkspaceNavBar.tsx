@@ -1,8 +1,6 @@
 import type { PropsWithChildren } from "react";
 
-const WorkspaceNavBar = ({
-  children,
-}: PropsWithChildren<Record<string, never>>) => {
+const WorkspaceNavBar = ({ children }: PropsWithChildren) => {
   return <>{children}</>;
 };
 

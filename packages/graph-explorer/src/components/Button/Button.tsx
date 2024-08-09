@@ -50,11 +50,11 @@ export const Button = (
       )}
     >
       {icon && iconPlacement === "start" && (
-        <span style={{ display: "flex", marginRight: 4 }}>{icon}</span>
+        <span className="mr-1 flex">{icon}</span>
       )}
       {children}
       {icon && iconPlacement === "end" && (
-        <span style={{ display: "flex", marginLeft: 4 }}>{icon}</span>
+        <span className="ml-1 flex">{icon}</span>
       )}
     </Component>
   );

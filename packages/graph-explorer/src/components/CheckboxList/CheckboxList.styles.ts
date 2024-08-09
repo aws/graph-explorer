@@ -20,6 +20,7 @@ const defaultStyles: ThemeStyleFn = ({ theme, isDarkTheme }) => css`
       display: flex;
       flex-direction: column;
       overflow: auto;
+      max-height: 25rem;
       row-gap: ${theme.spacing["2x"]};
       padding: ${theme.spacing["2x"]} 0 0;
       border: solid 1px ${theme.palette.border};

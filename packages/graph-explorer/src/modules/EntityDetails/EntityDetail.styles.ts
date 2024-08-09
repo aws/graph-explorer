@@ -5,17 +5,13 @@ import fade from "../../core/ThemeProvider/utils/fade";
 const defaultStyles =
   (lineColor = "#b3b3b3"): ThemeStyleFn =>
   ({ theme }) => css`
-    height: 100%;
-    overflow: auto;
-    background: ${theme.palette.background.default};
-
     .header {
       position: sticky;
       top: 0;
       z-index: 1;
       background: ${theme.palette.background.default};
       display: flex;
-      padding: ${theme.spacing["4x"]};
+      padding: ${theme.spacing["4x"]} ${theme.spacing["3x"]};
       align-items: center;
       column-gap: ${theme.spacing["2x"]};
       border-bottom: solid 1px ${theme.palette.border};
@@ -43,11 +39,11 @@ const defaultStyles =
     .source-vertex {
       position: relative;
       z-index: 0;
-      padding-left: calc(${theme.spacing["4x"]} + 48px);
+      padding-left: calc(${theme.spacing["3x"]} + 48px);
 
       .start-line {
         position: absolute;
-        left: calc(${theme.spacing["4x"]} + 16px);
+        left: calc(${theme.spacing["3x"]} + 16px);
         top: 20%;
         height: 80%;
         width: 2px;
@@ -67,11 +63,11 @@ const defaultStyles =
     .target-vertex {
       position: relative;
       z-index: 0;
-      padding-left: calc(${theme.spacing["4x"]} + 48px);
+      padding-left: calc(${theme.spacing["3x"]} + 48px);
 
       .end-line {
         position: absolute;
-        left: calc(${theme.spacing["4x"]} + 16px);
+        left: calc(${theme.spacing["3x"]} + 16px);
         top: -1px;
         height: 80%;
         width: 2px;
@@ -113,7 +109,7 @@ const defaultStyles =
     }
 
     .connections {
-      padding: ${theme.spacing["4x"]};
+      padding: ${theme.spacing["4x"]} ${theme.spacing["3x"]};
       border-bottom: solid 1px ${theme.palette.border};
 
       .title {
@@ -144,7 +140,7 @@ const defaultStyles =
     }
 
     .properties {
-      padding: ${theme.spacing["4x"]};
+      padding: ${theme.spacing["4x"]} ${theme.spacing["3x"]};
 
       .title {
         font-weight: bold;
