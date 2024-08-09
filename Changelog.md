@@ -4,6 +4,8 @@
 
 - **Improved** performance of styling sidebar panels when many node & edge types
   exist ([#542](https://github.com/aws/graph-explorer/pull/542))
+- **Fixed** issue with upper case characters in RDF URIs
+  ([#544](https://github.com/aws/graph-explorer/pull/544))
 
 ## Release 1.9.0
 
