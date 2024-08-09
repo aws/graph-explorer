@@ -1,13 +1,13 @@
 import { Modal } from "@mantine/core";
-import {
-  ComponentProps,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRecoilState, useResetRecoilState } from "recoil";
-import { Button, Input, Select, StylingIcon } from "../../components";
+import {
+  Button,
+  ComponentBaseProps,
+  Input,
+  Select,
+  StylingIcon,
+} from "../../components";
 import ColorInput from "../../components/ColorInput/ColorInput";
 import { useWithTheme } from "../../core";
 import {
@@ -34,7 +34,7 @@ export type SingleEdgeStylingProps = {
   opened: boolean;
   onOpen(): void;
   onClose(): void;
-} & ComponentProps<"div">;
+} & ComponentBaseProps;
 
 export default function SingleEdgeStyling({
   edgeType,

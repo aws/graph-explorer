@@ -1,3 +1,5 @@
+import { ComponentProps, JSXElementConstructor } from "react";
+
 export { default as AdvancedList } from "./AdvancedList";
 export * from "./AdvancedList";
 
@@ -66,3 +68,7 @@ export { default as VertexIcon } from "./VertexIcon";
 
 export { default as Workspace } from "./Workspace";
 export * from "./Workspace";
+
+export type ComponentBaseProps<
+  T extends keyof JSX.IntrinsicElements | JSXElementConstructor<any> = "div",
+> = Omit<ComponentProps<T>, "children">;

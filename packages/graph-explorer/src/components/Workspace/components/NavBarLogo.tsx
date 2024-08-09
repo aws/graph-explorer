@@ -1,10 +1,8 @@
 import { cx } from "@emotion/css";
-import type { ComponentProps } from "react";
 import GraphExplorerIcon from "../../icons/GraphExplorerIcon";
+import { ComponentBaseProps } from "../..";
 
-export type NavBarLogoProps = Omit<ComponentProps<"div">, "children">;
-
-export default function NavBarLogo({ className, ...rest }: NavBarLogoProps) {
+export default function NavBarLogo({ className, ...rest }: ComponentBaseProps) {
   return (
     <div
       className={cx(
