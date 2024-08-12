@@ -4,6 +4,7 @@ import type { ModuleContainerHeaderProps } from "../../components";
 import {
   AutoFitLeftIcon,
   ModuleContainer,
+  ModuleContainerContent,
   ModuleContainerHeader,
 } from "../../components";
 import GraphIcon from "../../components/icons/GraphIcon";
@@ -76,7 +77,7 @@ const EntityDetails = ({
   );
 
   return (
-    <ModuleContainer>
+    <ModuleContainer variant="sidebar">
       {noHeader !== true && (
         <ModuleContainerHeader
           title={title}
@@ -94,34 +95,36 @@ const EntityDetails = ({
           {...headerProps}
         />
       )}
-      {isEmptySelection && (
-        <PanelEmptyState
-          icon={<GraphIcon />}
-          title={"Empty Selection"}
-          subtitle={"Select an entity to see its details"}
-        />
-      )}
-      {isMultiSelection && (
-        <PanelEmptyState
-          icon={<GraphIcon />}
-          title={"Multiple Selection"}
-          subtitle={"Select a single entity to see its details"}
-        />
-      )}
-      {!isMultiSelection && selectedNodesIds.size === 1 && selectedNode && (
-        <NodeDetail node={selectedNode} hideNeighbors={disableConnections} />
-      )}
-      {!isMultiSelection &&
-        selectedEdgesIds.size === 1 &&
-        selectedEdge &&
-        sourceNode &&
-        targetNode && (
-          <EdgeDetail
-            edge={selectedEdge}
-            sourceVertex={sourceNode}
-            targetVertex={targetNode}
+      <ModuleContainerContent>
+        {isEmptySelection && (
+          <PanelEmptyState
+            icon={<GraphIcon />}
+            title={"Empty Selection"}
+            subtitle={"Select an entity to see its details"}
           />
         )}
+        {isMultiSelection && (
+          <PanelEmptyState
+            icon={<GraphIcon />}
+            title={"Multiple Selection"}
+            subtitle={"Select a single entity to see its details"}
+          />
+        )}
+        {!isMultiSelection && selectedNodesIds.size === 1 && selectedNode && (
+          <NodeDetail node={selectedNode} hideNeighbors={disableConnections} />
+        )}
+        {!isMultiSelection &&
+          selectedEdgesIds.size === 1 &&
+          selectedEdge &&
+          sourceNode &&
+          targetNode && (
+            <EdgeDetail
+              edge={selectedEdge}
+              sourceVertex={sourceNode}
+              targetVertex={targetNode}
+            />
+          )}
+      </ModuleContainerContent>
     </ModuleContainer>
   );
 };

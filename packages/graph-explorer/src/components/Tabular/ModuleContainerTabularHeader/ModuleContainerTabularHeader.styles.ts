@@ -38,17 +38,6 @@ const defaultStyles: ThemeStyleFn = ({ theme }) => {
           margin-bottom: 0;
         }
       }
-
-      .space {
-        flex-grow: 1;
-      }
-
-      > .divider {
-        width: 2px;
-        height: 60%;
-        margin: auto ${theme.spacing.base};
-        background-color: ${palette.divider};
-      }
     }
   `;
 };

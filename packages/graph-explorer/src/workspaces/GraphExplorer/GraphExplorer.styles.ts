@@ -12,9 +12,6 @@ const defaultStyles = ({ theme }: ActiveThemeType<ProcessedTheme>) => css`
     .button {
       white-space: nowrap;
     }
-    .space {
-      min-width: 4px;
-    }
 
     .table-view-area {
       position: relative;

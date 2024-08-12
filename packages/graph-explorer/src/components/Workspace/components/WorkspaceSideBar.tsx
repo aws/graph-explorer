@@ -36,7 +36,13 @@ const WorkspaceSideBar = ({
   }, [children]);
 
   return (
-    <div className={cx("sidebar-section", `direction-${direction}`)}>
+    <div
+      className={cx(
+        "shadow-left bg-background-default flex",
+        direction === "row" && "flex-row",
+        direction === "row-reverse" && "flex-row-reverse"
+      )}
+    >
       <Sidebar>{sidebarActions}</Sidebar>
       {sidebarContent}
     </div>

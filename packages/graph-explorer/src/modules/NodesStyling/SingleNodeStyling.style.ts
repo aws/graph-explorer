@@ -4,14 +4,7 @@ import type { ThemeStyleFn } from "../../core";
 const defaultStyles: ThemeStyleFn = ({ theme }) => css`
   display: flex;
   flex-direction: column;
-  background: ${theme.palette.background.default};
-  gap: ${theme.spacing["2x"]};
-  padding: ${theme.spacing["2x"]} ${theme.spacing["4x"]};
-  border-bottom: solid 1px ${theme.palette.divider};
-
-  &:last-of-type {
-    border-bottom: none;
-  }
+  gap: ${theme.spacing.base};
 
   .title {
     display: flex;

@@ -18,6 +18,7 @@ import NodeExpandFilters, { NodeExpandFilter } from "./NodeExpandFilters";
 import VertexHeader from "../common/VertexHeader";
 import { ExpandNodeRequest } from "../../hooks/useExpandNode";
 import { useUpdateNodeCountsQuery } from "../../hooks/useUpdateNodeCounts";
+import { cx } from "@emotion/css";
 
 export type NodeExpandContentProps = {
   vertex: Vertex;
@@ -27,7 +28,9 @@ export default function NodeExpandContent({ vertex }: NodeExpandContentProps) {
   const styleWithTheme = useWithTheme();
 
   return (
-    <div className={styleWithTheme(defaultStyles)}>
+    <div
+      className={cx(styleWithTheme(defaultStyles), "flex h-full grow flex-col")}
+    >
       <VertexHeader vertex={vertex} />
       <ExpandSidebarContent vertex={vertex} />
     </div>
@@ -118,7 +121,7 @@ function ExpansionOptions({
         limit={limit}
         onLimitChange={setLimit}
       />
-      <ModuleContainerFooter>
+      <ModuleContainerFooter className="flex flex-row justify-end">
         <ExpandButton
           isDisabled={!hasUnfetchedNeighbors || !hasSelectedType}
           vertex={vertex}

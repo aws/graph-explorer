@@ -7,6 +7,7 @@ export type {
   Action,
 } from "./components/ModuleContainerHeader";
 export { default as ModuleContainerFooter } from "./components/ModuleContainerFooter";
+export { default as ModuleContainerContent } from "./components/ModuleContainerContent";
 export type { ModuleContainerFooterProps } from "./components/ModuleContainerFooter";
 export { default as CollapsedActions } from "./components/CollapsedActions";
 export { default as asSidebarModuleContainer } from "./asSidebarModuleContainer";

@@ -10,5 +10,6 @@
   "useTabs": false,
   "singleQuote": false,
   "bracketSpacing": true,
-  "printWidth": 80
+  "printWidth": 80,
+  "plugins": ["prettier-plugin-tailwindcss"]
 }
