@@ -10,7 +10,20 @@ export const getHeightBySize = (
   const sizeMap = {
     small: theme.button?.sizes?.small || "24px",
     base: theme.button?.sizes?.base || "30px",
-    large: theme.button?.sizes?.large || "38px",
+    large: theme.button?.sizes?.large || "42px",
+  };
+
+  return sizeMap[size];
+};
+
+export const getPaddingSizeBySize = (
+  theme: ProcessedTheme<ButtonTheme>,
+  size: "small" | "base" | "large"
+) => {
+  const sizeMap = {
+    small: theme.spacing.base || "4px",
+    base: theme.spacing["2x"] || "16px",
+    large: theme.spacing["4x"] || "24px",
   };
 
   return sizeMap[size];
@@ -77,7 +90,7 @@ export const defaultStyles =
     } = {
       filled: css`
         position: relative;
-        padding: 0 ${theme.spacing.base};
+        padding: 0 ${getPaddingSizeBySize(theme, size)};
         background-color: ${themeByVariant?.background ||
         (isDarkTheme ? primary?.dark : primary?.main)};
         color: ${themeByVariant?.color || primary?.contrastText};
@@ -121,7 +134,7 @@ export const defaultStyles =
         }
       `,
       default: css`
-        padding: 0 ${theme.spacing.base};
+        padding: 0 ${getPaddingSizeBySize(theme, size)};
         background-color: ${themeByVariant?.background ||
         (isDarkTheme ? background?.secondary : background?.contrast)};
         color: ${themeByVariant?.color ||

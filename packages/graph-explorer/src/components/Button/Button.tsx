@@ -50,11 +50,29 @@ export const Button = (
       )}
     >
       {icon && iconPlacement === "start" && (
-        <span className="mr-1 flex">{icon}</span>
+        <span
+          className={cx(
+            "mr-1 flex items-center",
+            size === "small" && "h-4 w-4",
+            size === "base" && "h-5 w-5",
+            size === "large" && "h-6 w-6"
+          )}
+        >
+          {icon}
+        </span>
       )}
       {children}
       {icon && iconPlacement === "end" && (
-        <span className="ml-1 flex">{icon}</span>
+        <span
+          className={cx(
+            "ml-1 flex items-center",
+            size === "small" && "h-4 w-4",
+            size === "base" && "h-5 w-5",
+            size === "large" && "h-6 w-6"
+          )}
+        >
+          {icon}
+        </span>
       )}
     </Component>
   );
