@@ -10,25 +10,29 @@ const usePrefixesUpdater = () => {
   const setSchema = useSetRecoilState(schemaAtom);
   const { enqueueNotification } = useNotification();
 
+  const supportsPrefixes = config?.connection?.queryEngine === "sparql";
+  const existingPrefixes = config?.schema?.prefixes;
+  const activeConfigId = config?.id;
+
   return useCallback(
     (ids: Array<string>) => {
-      if (config?.connection?.queryEngine !== "sparql" || ids.length === 0) {
+      if (supportsPrefixes || ids.length === 0) {
         return;
       }
 
-      const genPrefixes = generatePrefixes(ids, config?.schema?.prefixes);
+      const genPrefixes = generatePrefixes(ids, existingPrefixes);
       if (!genPrefixes?.length) {
         return;
       }
 
       setSchema(prevSchemaMap => {
-        if (!config?.id) {
+        if (!activeConfigId) {
           return prevSchemaMap;
         }
 
         const updatedSchema = new Map(prevSchemaMap);
-        const schema = updatedSchema.get(config.id);
-        updatedSchema.set(config.id, {
+        const schema = updatedSchema.get(activeConfigId);
+        updatedSchema.set(activeConfigId, {
           // Update prefixes does not affect to sync last update date
           lastUpdate: schema?.lastUpdate,
           vertices: schema?.vertices || [],
@@ -40,11 +44,11 @@ const usePrefixesUpdater = () => {
         return updatedSchema;
       });
 
-      const oldPrefixesSize = config?.schema?.prefixes?.length || 0;
-      const newPrefixesSize = genPrefixes.length || 0;
+      const oldPrefixesSize = existingPrefixes?.length ?? 0;
+      const newPrefixesSize = genPrefixes.length;
       if (
         genPrefixes.length &&
-        config?.schema?.prefixes?.length !== genPrefixes.length
+        existingPrefixes?.length !== genPrefixes.length
       ) {
         const addedCount = newPrefixesSize - oldPrefixesSize;
         enqueueNotification({
@@ -59,11 +63,11 @@ const usePrefixesUpdater = () => {
       }
     },
     [
-      config?.id,
-      config?.connection?.queryEngine,
-      config?.schema?.prefixes,
-      enqueueNotification,
+      supportsPrefixes,
+      existingPrefixes,
       setSchema,
+      activeConfigId,
+      enqueueNotification,
     ]
   );
 };

@@ -87,6 +87,15 @@ describe("generatePrefixes", () => {
       [
         { prefix: "owl", uri: "https://www.w3.org/2002/07/owl#" },
         { prefix: "dbr", uri: "https://dbpedia.org/resource/" },
+        {
+          __inferred: true,
+          prefix: "loc-r",
+          uri: "http://www.example.com/location/resource#",
+          __matches: new Set([
+            "http://www.example.com/location/resource#London",
+            "http://www.example.com/location/resource#Manchester",
+          ]),
+        },
       ]
     );
 
@@ -103,24 +112,59 @@ describe("generatePrefixes", () => {
     });
     expect(updatedPrefixes?.[2]).toEqual({
       __inferred: true,
-      uri: "http://www.example.com/soccer/ontology/",
-      prefix: "soc",
-      __matches: new Set(["http://www.example.com/soccer/ontology/League"]),
-    });
-    expect(updatedPrefixes?.[3]).toEqual({
-      __inferred: true,
-      uri: "http://www.example.com/soccer/resource#",
-      prefix: "soc-r",
-      __matches: new Set(["http://www.example.com/soccer/resource#EPL"]),
-    });
-    expect(updatedPrefixes?.[4]).toEqual({
-      __inferred: true,
       uri: "http://www.example.com/location/resource#",
       prefix: "loc-r",
       __matches: new Set([
         "http://www.example.com/location/resource#London",
         "http://www.example.com/location/resource#Manchester",
       ]),
+    });
+    expect(updatedPrefixes?.[3]).toEqual({
+      __inferred: true,
+      uri: "http://www.example.com/soccer/ontology/",
+      prefix: "soc",
+      __matches: new Set(["http://www.example.com/soccer/ontology/League"]),
+    });
+    expect(updatedPrefixes?.[4]).toEqual({
+      __inferred: true,
+      uri: "http://www.example.com/soccer/resource#",
+      prefix: "soc-r",
+      __matches: new Set(["http://www.example.com/soccer/resource#EPL"]),
+    });
+  });
+
+  it("Should update existing prefixes when casing doesn't match", () => {
+    const updatedPrefixes = generatePrefixes(
+      [
+        "http://SecretSpyOrg/entity/quantity",
+        "http://SecretSpyOrg/entity/other",
+        "http://SecretSpyOrg/data/hasText",
+      ],
+      [
+        {
+          __inferred: true,
+          prefix: "ent",
+          uri: "http://secretspyorg/entity/",
+          __matches: new Set(["http://SecretSpyOrg/entity/quantity"]),
+        },
+      ]
+    );
+
+    expect(updatedPrefixes).toHaveLength(2);
+    expect(updatedPrefixes?.[0]).toEqual({
+      __inferred: true,
+      uri: "http://secretspyorg/entity/",
+      prefix: "ent",
+      __matches: new Set([
+        "http://SecretSpyOrg/entity/quantity",
+        "http://SecretSpyOrg/entity/other",
+      ]),
+    });
+    expect(updatedPrefixes?.[1]).toEqual({
+      __inferred: true,
+      uri: "http://secretspyorg/data/",
+      prefix: "dat",
+      __matches: new Set(["http://SecretSpyOrg/data/hasText"]),
     });
   });
 });
