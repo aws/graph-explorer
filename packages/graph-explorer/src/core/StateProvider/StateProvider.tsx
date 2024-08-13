@@ -1,10 +1,10 @@
 import { PropsWithChildren, Suspense } from "react";
 import { RecoilRoot } from "recoil";
 import StateDebug from "./StateDebug";
-import { env } from "../../utils";
 import { ErrorBoundary } from "react-error-boundary";
 import AppErrorPage from "../AppErrorPage";
 import AppLoadingPage from "../AppLoadingPage";
+import { NotInProduction } from "../../components";
 
 export default function StateProvider({
   children,
@@ -14,7 +14,9 @@ export default function StateProvider({
       <ErrorBoundary FallbackComponent={AppErrorPage}>
         <Suspense fallback={<AppLoadingPage />}>
           {children}
-          {env.DEV && <StateDebug />}
+          <NotInProduction>
+            <StateDebug />
+          </NotInProduction>
         </Suspense>
       </ErrorBoundary>
     </RecoilRoot>

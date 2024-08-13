@@ -47,6 +47,8 @@ export * from "./LoadingSpinner";
 export { default as ModuleContainer } from "./ModuleContainer";
 export * from "./ModuleContainer";
 
+export { default as NotInProduction } from "./NotInProduction";
+
 export { default as RemoteSvgIcon } from "./RemoteSvgIcon";
 export * from "./RemoteSvgIcon";
 
