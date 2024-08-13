@@ -1,17 +1,22 @@
-import { PropsWithChildren } from "react";
+import { PropsWithChildren, Suspense } from "react";
 import { RecoilRoot } from "recoil";
 import StateDebug from "./StateDebug";
 import { env } from "../../utils";
+import { ErrorBoundary } from "react-error-boundary";
+import AppErrorPage from "../AppErrorPage";
+import AppLoadingPage from "../AppLoadingPage";
 
-const StateProvider = ({
+export default function StateProvider({
   children,
-}: PropsWithChildren<Record<string, unknown>>) => {
+}: PropsWithChildren<Record<string, unknown>>) {
   return (
     <RecoilRoot>
-      {children}
-      {env.DEV && <StateDebug />}
+      <ErrorBoundary FallbackComponent={AppErrorPage}>
+        <Suspense fallback={<AppLoadingPage />}>
+          {children}
+          {env.DEV && <StateDebug />}
+        </Suspense>
+      </ErrorBoundary>
     </RecoilRoot>
   );
-};
-
-export default StateProvider;
+}
