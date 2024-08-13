@@ -60,6 +60,7 @@ export { default as Sidebar } from "./Sidebar";
 export * from "./Sidebar";
 
 export * from "./Tooltip";
+export * from "./Typography";
 
 export { default as UseLayer } from "./UseLayer";
 export * from "./UseLayer";
