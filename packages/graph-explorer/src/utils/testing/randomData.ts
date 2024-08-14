@@ -63,6 +63,31 @@ export function createRandomColor(): string {
 }
 
 /**
+ * Randomly creates a URL string.
+ * @returns The URL string.
+ */
+export function createRandomUrlString(): string {
+  const scheme = pickRandomElement(["http", "https"]);
+  const host = createRandomName("host");
+  const port = pickRandomElement(["", `:${createRandomInteger(30000)}`]);
+  const path = pickRandomElement(["", `/${createRandomName("path")}`]);
+  return `${scheme}://${host}${port}${path}`;
+}
+
+/**
+ * Creates a random date.
+ * @param start The lower bound of the random date.
+ * @param end The upper bound of the random date.
+ * @returns A random `Date` value bound by the given `start` and `end` values.
+ */
+export function createRandomDate(start?: Date, end?: Date): Date {
+  const startTime = start ? start.getTime() : new Date(1970, 0, 1).getTime();
+  const endTime = end ? end.getTime() : new Date().getTime();
+  const randomTime = startTime + Math.random() * (endTime - startTime);
+  return new Date(randomTime);
+}
+
+/**
  * Randomly returns the provided value or undefined.
  * @returns Either the value or undefined.
  */
@@ -238,12 +263,27 @@ function pickRandomElement<T>(array: T[]): T {
  * @returns A random RawConfiguration object.
  */
 export function createRandomRawConfiguration(): RawConfiguration {
+  const isProxyConnection = createRandomBoolean();
+  const isIamEnabled = createRandomBoolean();
   return {
     id: createRandomName("id"),
     displayLabel: createRandomName("displayLabel"),
     connection: {
-      url: createRandomName("url"),
+      url: createRandomUrlString(),
+      graphDbUrl: isProxyConnection ? createRandomUrlString() : undefined,
       queryEngine: pickRandomElement(["gremlin", "openCypher", "sparql"]),
+      proxyConnection: isProxyConnection,
+      awsAuthEnabled: isIamEnabled ? createRandomBoolean() : undefined,
+      awsRegion: isIamEnabled
+        ? pickRandomElement(["us-west-1", "us-west-2", "us-east-1"])
+        : undefined,
+      fetchTimeoutMs: randomlyUndefined(createRandomInteger()),
+      nodeExpansionLimit: randomlyUndefined(createRandomInteger()),
+      serviceType: pickRandomElement([
+        "neptune-db",
+        "neptune-graph",
+        undefined,
+      ]),
     },
   };
 }
