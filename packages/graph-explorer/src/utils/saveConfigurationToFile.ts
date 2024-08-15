@@ -1,5 +1,6 @@
 import { saveAs } from "file-saver";
 import { ConfigurationContextProps } from "../core";
+import { toJsonFileData } from "./fileData";
 
 const saveConfigurationToFile = (config: ConfigurationContextProps) => {
   const exportableConfig = {
@@ -20,10 +21,7 @@ const saveConfigurationToFile = (config: ConfigurationContextProps) => {
     },
   };
 
-  const fileToSave = new Blob([JSON.stringify(exportableConfig)], {
-    type: "application/json",
-  });
-
+  const fileToSave = toJsonFileData(exportableConfig);
   saveAs(fileToSave, `${exportableConfig.displayLabel}.json`);
 };
 

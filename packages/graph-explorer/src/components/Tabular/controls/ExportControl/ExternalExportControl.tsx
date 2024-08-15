@@ -16,6 +16,7 @@ import { TabularInstance } from "../../helpers/tableInstanceToTabularInstance";
 import defaultStyles from "./ExportControl.styles";
 import transformToCsv from "./transfomerToCsv";
 import transformToJson from "./transfomerToJson";
+import { toCsvFileData, toJsonFileData } from "../../../../utils/fileData";
 
 const rootStyles = () => css`
   position: relative;
@@ -111,11 +112,10 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
         selectedColumns,
         exportableColumns
       );
-      const fileToSave = new Blob([csvData], {
-        type: "text/csv;charset=UTF-8",
-      });
 
+      const fileToSave = toCsvFileData(csvData);
       saveAs(fileToSave, `${exportName.replace(/\.csv$/i, "")}.${format}`);
+
       return;
     }
 
@@ -124,10 +124,8 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
       selectedColumns,
       exportableColumns
     );
-    const fileToSave = new Blob([JSON.stringify(jsonData)], {
-      type: "application/json",
-    });
 
+    const fileToSave = toJsonFileData(jsonData);
     saveAs(fileToSave, `${exportName.replace(/\.json$/i, "")}.${format}`);
   }, [
     data,

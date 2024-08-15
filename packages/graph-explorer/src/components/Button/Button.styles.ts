@@ -58,6 +58,7 @@ export const baseStyles = (
   align-items: center;
   height: ${getHeightBySize(theme, size)};
   font-size: ${getFontSizeBySize(size)};
+  font-weight: ${theme.typography.weight.base};
   font-family: ${theme.typography.fontFamily || "sans-serif"};
   cursor: pointer;
 

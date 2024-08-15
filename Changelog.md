@@ -11,6 +11,9 @@
   ([#543](https://github.com/aws/graph-explorer/pull/543))
 - **Fixed** issue with upper case characters in RDF URIs
   ([#544](https://github.com/aws/graph-explorer/pull/544))
+- **Improved** app styles
+  ([#543](https://github.com/aws/graph-explorer/pull/543),
+  [#548](https://github.com/aws/graph-explorer/pull/548))
 
 ## Release 1.9.0
 

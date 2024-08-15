@@ -20,7 +20,7 @@ const formatDate = () => {
   );
 };
 
-const StateDebug = () => {
+export default function StateDebug() {
   const snapshot = useRecoilSnapshot();
 
   const prevUpdates = useRef<Record<string, any>>({});
@@ -44,6 +44,4 @@ const StateDebug = () => {
   }, [snapshot]);
 
   return null;
-};
-
-export default StateDebug;
+}

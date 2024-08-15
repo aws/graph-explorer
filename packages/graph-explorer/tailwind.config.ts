@@ -140,6 +140,9 @@ export default {
       borderColor: {
         DEFAULT: grey["200"],
       },
+      maxWidth: {
+        paragraph: "40rem",
+      },
     },
   },
   plugins: [],
