@@ -10,7 +10,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "coverage": "vitest run --coverage",
-    "dev": "vite",
+    "dev": "vite --force",
     "clean": "rimraf dist",
     "vite-build": "NODE_OPTIONS=--max_old_space_size=6144 vite build",
     "build": "pnpm vite-build -- --mode production",
