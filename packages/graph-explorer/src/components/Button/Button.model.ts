@@ -36,6 +36,7 @@ type ButtonThemeVariants = BaseButtonTheme & {
   variants: {
     filled: ButtonThemeVariants;
     text: ButtonThemeVariants;
+    danger: ButtonThemeVariants;
   };
   sizes: {
     small: string;

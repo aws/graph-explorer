@@ -68,7 +68,7 @@ export const baseStyles = (
 `;
 
 type StylesProps = {
-  variant: "filled" | "default" | "text";
+  variant: "filled" | "default" | "text" | "danger";
   size: "small" | "base" | "large";
   rounded?: boolean;
   isDisabled?: boolean;
@@ -79,7 +79,7 @@ export const defaultStyles =
   activeTheme => {
     const { isDarkTheme, theme } = activeTheme;
     const {
-      palette: { primary, text, background },
+      palette: { primary, text, background, error },
     } = theme;
     const themeByVariant =
       variant !== "default" ? theme?.button?.variants?.[variant] : theme.button;
@@ -88,6 +88,7 @@ export const defaultStyles =
       filled: string;
       default: string;
       text: string;
+      danger: string;
     } = {
       filled: css`
         position: relative;
@@ -223,6 +224,51 @@ export const defaultStyles =
             : `0 0 3px ${themeByVariant?.hover?.background || primary?.main}`};
           outline: ${isDarkTheme
             ? `1px solid ${themeByVariant?.hover?.background || primary?.light}`
+            : "none"};
+        }
+      `,
+      danger: css`
+        position: relative;
+        padding: 0 ${getPaddingSizeBySize(theme, size)};
+        background-color: ${themeByVariant?.background ||
+        (isDarkTheme ? error?.dark : error?.main)};
+        color: ${themeByVariant?.color || error?.contrastText};
+        border: ${themeByVariant?.border?.width || "1px"} solid
+          ${themeByVariant?.border?.color || "transparent"};
+        border-radius: ${themeByVariant?.border?.radius || "5px"};
+
+        &:disabled,
+        &[disabled] {
+          pointer-events: none;
+          background-color: ${themeByVariant?.disabled?.background ||
+          fade(background?.contrast, 1)};
+          color: ${themeByVariant?.disabled?.color || text?.disabled};
+          border: ${themeByVariant?.disabled?.border?.width || "1px"} solid
+            ${themeByVariant?.disabled?.border?.color || "transparent"};
+        }
+
+        &:hover {
+          background-color: ${themeByVariant?.hover?.background ||
+          (isDarkTheme ? error?.main : error?.light)};
+          color: ${themeByVariant?.hover?.color || error?.contrastText};
+          border: ${themeByVariant?.hover?.border?.width || "1px"} solid
+            ${themeByVariant?.hover?.border?.color || "transparent"};
+        }
+
+        &:active {
+          background-color: ${themeByVariant?.active?.background ||
+          (isDarkTheme ? error?.dark : error?.main)};
+          color: ${themeByVariant?.active?.color || error?.contrastText};
+          border: ${themeByVariant?.active?.border?.width || "1px"} solid
+            ${themeByVariant?.active?.border?.color || "transparent"};
+        }
+
+        &:focus {
+          box-shadow: ${isDarkTheme
+            ? "none"
+            : `0 0 3px ${themeByVariant?.hover?.background || error?.main}`};
+          outline: ${isDarkTheme
+            ? `1px solid ${themeByVariant?.hover?.background || error?.light}`
             : "none"};
         }
       `,

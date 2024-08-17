@@ -9,7 +9,7 @@ import { defaultStyles } from "./Button.styles";
 export interface ButtonProps
   extends Omit<AriaButtonProps<ElementType>, "elementType"> {
   className?: string;
-  variant?: "filled" | "default" | "text";
+  variant?: "filled" | "default" | "text" | "danger";
   size?: "small" | "base" | "large";
   rounded?: boolean;
   icon?: ReactNode;
