@@ -86,7 +86,8 @@
     "recoil": "^0.7.7",
     "swiper": "^11.1.5",
     "use-deep-compare-effect": "^1.8.1",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "vite-tsconfig-paths": "^5.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.24.5",
