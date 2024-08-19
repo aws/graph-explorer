@@ -7,6 +7,8 @@ import {
   Paragraph,
   ResetIcon,
 } from "@/components";
+import { env } from "@/utils";
+import { APP_NAME } from "@/utils/constants";
 
 /** This is the app wide error page that will be shown when the app essentially crashes */
 export default function AppErrorPage(props: FallbackProps) {
@@ -22,9 +24,9 @@ export default function AppErrorPage(props: FallbackProps) {
         </div>
 
         {/* Force a full reload of the app in the browser */}
-        <a href="/">
+        <a href={env.BASE_URL}>
           <Button variant="filled" size="large" icon={<ResetIcon />}>
-            Reload Graph Explorer
+            Reload {APP_NAME}
           </Button>
         </a>
       </div>

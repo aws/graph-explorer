@@ -5,6 +5,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import AppErrorPage from "@/core/AppErrorPage";
 import AppLoadingPage from "@/core/AppLoadingPage";
 import { NotInProduction } from "@/components";
+import { showRecoilStateLoggingAtom } from "../featureFlags";
 
 export default function StateProvider({
   children,
@@ -14,7 +15,7 @@ export default function StateProvider({
       <ErrorBoundary FallbackComponent={AppErrorPage}>
         <Suspense fallback={<AppLoadingPage />}>
           {children}
-          <NotInProduction>
+          <NotInProduction featureFlag={showRecoilStateLoggingAtom}>
             <StateDebug />
           </NotInProduction>
         </Suspense>

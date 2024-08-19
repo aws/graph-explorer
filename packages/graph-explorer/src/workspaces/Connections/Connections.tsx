@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import Button from "@/components/Button";
-import { ExplorerIcon } from "@/components/icons";
+import { ExplorerIcon, GearIcon } from "@/components/icons";
 import Workspace from "@/components/Workspace/Workspace";
 import { useConfiguration, useWithTheme } from "@/core";
 import {
@@ -14,6 +14,7 @@ import useSchemaSync from "@/hooks/useSchemaSync";
 import AvailableConnections from "@/modules/AvailableConnections";
 import ConnectionDetail from "@/modules/ConnectionDetail";
 import defaultStyles from "./Connections.styles";
+import { APP_NAME } from "../../utils/constants";
 
 const Connections = () => {
   const styleWithTheme = useWithTheme();
@@ -46,33 +47,33 @@ const Connections = () => {
           {__GRAPH_EXP_VERSION__}
         </Workspace.TopBar.Version>
         <Workspace.TopBar.AdditionalControls>
-          <Link
-            to={
-              !activeConfig || !config?.schema?.lastUpdate
-                ? "/connections"
-                : "/graph-explorer"
-            }
-          >
-            <Button
-              isDisabled={!activeConfig || !config?.schema?.lastUpdate}
-              className={"button"}
-              icon={<ExplorerIcon />}
-              variant={"filled"}
+          <div className="flex gap-2">
+            <Link to="/settings/general">
+              <Button icon={<GearIcon />}>Settings</Button>
+            </Link>
+
+            <Link
+              to={
+                !activeConfig || !config?.schema?.lastUpdate
+                  ? "/connections"
+                  : "/graph-explorer"
+              }
             >
-              Open Graph Explorer
-            </Button>
-          </Link>
+              <Button
+                isDisabled={!activeConfig || !config?.schema?.lastUpdate}
+                className={"button"}
+                icon={<ExplorerIcon />}
+                variant={"filled"}
+              >
+                Open {APP_NAME}
+              </Button>
+            </Link>
+          </div>
         </Workspace.TopBar.AdditionalControls>
       </Workspace.TopBar>
       <Workspace.Content>
-        <div
-          style={{
-            display: "flex",
-            height: "100%",
-            gap: 8,
-          }}
-        >
-          <div style={{ flexGrow: 1, minWidth: "50%" }}>
+        <div className="flex h-full gap-2">
+          <div className="h-full min-w-[50%] grow">
             <AvailableConnections
               isSync={isSyncing}
               isModalOpen={isModalOpen}
@@ -80,7 +81,7 @@ const Connections = () => {
             />
           </div>
           {activeConfig && (
-            <div style={{ flexGrow: 1, width: "50%", height: "100%" }}>
+            <div className="h-full min-w-[50%] grow">
               <ConnectionDetail isSync={isSyncing} onSyncChange={setSyncing} />
             </div>
           )}

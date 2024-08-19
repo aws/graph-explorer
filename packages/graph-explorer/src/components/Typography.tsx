@@ -36,3 +36,22 @@ export function Paragraph({ className, ...props }: ComponentProps<"p">) {
     />
   );
 }
+
+export function ImportantBlock({
+  className,
+  children,
+  ...props
+}: ComponentProps<"div">) {
+  return (
+    <div
+      className={cx(
+        "border-info-main bg-info-light/20 text-info-dark rounded border-l-4 px-4 py-1",
+        className
+      )}
+      {...props}
+    >
+      <div className="font-extraBold uppercase">Important</div>
+      {children}
+    </div>
+  );
+}

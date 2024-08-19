@@ -9,6 +9,7 @@ import {
   Chip,
   DatabaseIcon,
   ModuleContainer,
+  ModuleContainerContent,
   ModuleContainerHeader,
   TrayArrowIcon,
 } from "@/components";
@@ -191,19 +192,21 @@ const AvailableConnections = ({
         onActionClick={onActionClick}
       />
 
-      <AdvancedList
-        className={"advanced-list"}
-        items={connectionItems}
-        selectedItemsIds={[activeConfig || ""]}
-      />
-      <Modal
-        centered={true}
-        title={"Add New Connection"}
-        opened={isModalOpen}
-        onClose={() => onModalChange(false)}
-      >
-        <CreateConnection onClose={() => onModalChange(false)} />
-      </Modal>
+      <ModuleContainerContent>
+        <AdvancedList
+          className={"advanced-list"}
+          items={connectionItems}
+          selectedItemsIds={[activeConfig || ""]}
+        />
+        <Modal
+          centered={true}
+          title={"Add New Connection"}
+          opened={isModalOpen}
+          onClose={() => onModalChange(false)}
+        >
+          <CreateConnection onClose={() => onModalChange(false)} />
+        </Modal>
+      </ModuleContainerContent>
     </ModuleContainer>
   );
 };

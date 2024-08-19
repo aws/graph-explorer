@@ -132,7 +132,10 @@ const AppStatusLoader = ({
   // Force to be in Connections if no config is activated
   // even by changing the URL
   if (!activeConfig || !schema.get(activeConfig || "")?.lastUpdate) {
-    if (!location.pathname.match(/\/connections/)) {
+    if (
+      !location.pathname.match(/\/connections/) &&
+      !location.pathname.match(/\/settings/)
+    ) {
       return <Redirect to={"/connections"} />;
     }
   }

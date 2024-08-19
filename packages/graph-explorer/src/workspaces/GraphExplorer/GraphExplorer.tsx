@@ -38,6 +38,7 @@ import Namespaces from "@/modules/Namespaces/Namespaces";
 import NodeExpand from "@/modules/NodeExpand";
 import NodesStyling from "@/modules/NodesStyling/NodesStyling";
 import defaultStyles from "./GraphExplorer.styles";
+import { APP_NAME } from "../../utils/constants";
 
 const RESIZE_ENABLE_TOP = {
   top: true,
@@ -172,7 +173,7 @@ const GraphExplorer = () => {
     <Workspace className={cx(styleWithTheme(defaultStyles), "graph-explorer")}>
       <Workspace.TopBar logoVisible>
         <Workspace.TopBar.Title
-          title="Graph Explorer"
+          title={APP_NAME}
           subtitle={`Connection: ${config?.displayLabel || config?.id}`}
         />
         <Workspace.TopBar.Content>

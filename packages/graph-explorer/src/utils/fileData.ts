@@ -10,7 +10,7 @@ export function toCsvFileData(input: string) {
   });
 }
 
-export async function fromFileToJson(file: File) {
-  const textContents = await file.text();
-  return JSON.parse(textContents);
+export async function fromFileToJson(blob: Blob) {
+  const textContents = await blob.text();
+  return JSON.parse(textContents) as unknown;
 }

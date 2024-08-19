@@ -9,13 +9,18 @@ import {
   DeleteIcon,
   EditIcon,
   ModuleContainer,
+  ModuleContainerContent,
   ModuleContainerHeader,
   NotInProduction,
   PanelEmptyState,
   SyncIcon,
   TrayArrowIcon,
 } from "@/components";
-import { useConfiguration, useWithTheme } from "@/core";
+import {
+  showDebugActionsAtom,
+  useConfiguration,
+  useWithTheme,
+} from "@/core";
 import {
   activeConfigurationAtom,
   configurationAtom,
@@ -150,70 +155,72 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
         actions={HEADER_ACTIONS(isSync, config.__fileBase === true)}
         onActionClick={onActionClick}
       />
-      <div className="info-bar">
-        <div className="item">
-          <div className="tag">Type</div>
-          <div className="value">{t("connection-detail.graph-type")}</div>
-        </div>
-        <div className="item">
-          <div className="tag">URL</div>
-          <div className="value">{config.connection?.url}</div>
-        </div>
-        {!!lastSyncUpdate && (
+      <ModuleContainerContent>
+        <div className="info-bar">
           <div className="item">
-            <div className="tag">
-              <div>Last Synchronization</div>
-            </div>
-            {!lastSyncFail && (
-              <div className="value">{formatDate(lastSyncUpdate)}</div>
-            )}
-            {!lastSyncUpdate && !lastSyncFail && (
-              <Chip size="sm" variant="warning">
-                Not Synchronized
-              </Chip>
-            )}
-            {lastSyncFail && (
-              <Chip size="sm" variant="error">
-                Synchronization Failed
-              </Chip>
-            )}
+            <div className="tag">Type</div>
+            <div className="value">{t("connection-detail.graph-type")}</div>
           </div>
+          <div className="item">
+            <div className="tag">URL</div>
+            <div className="value">{config.connection?.url}</div>
+          </div>
+          {!!lastSyncUpdate && (
+            <div className="item">
+              <div className="tag">
+                <div>Last Synchronization</div>
+              </div>
+              {!lastSyncFail && (
+                <div className="value">{formatDate(lastSyncUpdate)}</div>
+              )}
+              {!lastSyncUpdate && !lastSyncFail && (
+                <Chip size="sm" variant="warning">
+                  Not Synchronized
+                </Chip>
+              )}
+              {lastSyncFail && (
+                <Chip size="sm" variant="error">
+                  Synchronization Failed
+                </Chip>
+              )}
+            </div>
+          )}
+          <NotInProduction featureFlag={showDebugActionsAtom}>
+            <DebugActions />
+          </NotInProduction>
+        </div>
+        {!isSync && !!lastSyncUpdate && <ConnectionData />}
+        {!lastSyncUpdate && !isSync && (
+          <PanelEmptyState
+            variant="error"
+            icon={<SyncIcon />}
+            title="Synchronization Required"
+            subtitle="It is necessary to synchronize the connection to be able to work with the database."
+            actionLabel="Start synchronization"
+            onAction={onConfigSync}
+            actionVariant="text"
+          />
         )}
-        <NotInProduction>
-          <DebugActions />
-        </NotInProduction>
-      </div>
-      {!isSync && !!lastSyncUpdate && <ConnectionData />}
-      {!lastSyncUpdate && !isSync && (
-        <PanelEmptyState
-          variant="error"
-          icon={<SyncIcon />}
-          title="Synchronization Required"
-          subtitle="It is necessary to synchronize the connection to be able to work with the database."
-          actionLabel="Start synchronization"
-          onAction={onConfigSync}
-          actionVariant="text"
-        />
-      )}
-      {isSync && (
-        <PanelEmptyState
-          variant="info"
-          icon={<SyncIcon className="animate-spin" />}
-          title="Synchronizing..."
-          subtitle="The connection is being synchronized."
-        />
-      )}
-      <Modal
-        opened={edit}
-        onClose={() => setEdit(false)}
-        title="Update connection"
-        size="600px"
-      >
-        <CreateConnection
+        {isSync && (
+          <PanelEmptyState
+            variant="info"
+            icon={<SyncIcon className="animate-spin" />}
+            title="Synchronizing..."
+            subtitle="The connection is being synchronized."
+          />
+        )}
+        <Modal
+          opened={edit}
           onClose={() => setEdit(false)}
-          existingConfig={config}
-        />
-      </Modal>
+          title="Update connection"
+          size="600px"
+        >
+          <CreateConnection
+            onClose={() => setEdit(false)}
+            existingConfig={config}
+          />
+        </Modal>
+      </ModuleContainerContent>
     </ModuleContainer>
   );
 };
