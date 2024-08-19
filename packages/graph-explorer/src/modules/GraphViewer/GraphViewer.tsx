@@ -1,11 +1,14 @@
-import { cn } from "@/utils";
 import { MouseEvent, useCallback, useMemo, useRef, useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { EdgeId, Vertex, VertexId } from "@/types/entities";
-import type { ActionItem, ModuleContainerHeaderProps } from "@/components";
 import {
-  ModuleContainer,
-  ModuleContainerHeader,
+  Panel,
+  PanelContent,
+  PanelHeader,
+  PanelHeaderActionButton,
+  PanelHeaderActions,
+  PanelHeaderDivider,
+  PanelTitle,
   RemoveFromCanvasIcon,
   ResetIcon,
   VertexSymbol,
@@ -31,10 +34,8 @@ import {
   nodesOutOfFocusIdsAtom,
   nodesSelectedIdsAtom,
 } from "@/core/StateProvider/nodes";
-import useWithTheme from "@/core/ThemeProvider/useWithTheme";
 import { useEntities, useExpandNode } from "@/hooks";
 import useTextTransform from "@/hooks/useTextTransform";
-import defaultStyles from "./GraphViewerModule.styles";
 import ContextMenu from "./internalComponents/ContextMenu";
 import useContextMenu from "./useContextMenu";
 import useGraphGlobalActions from "./useGraphGlobalActions";
@@ -42,11 +43,7 @@ import useGraphStyles from "./useGraphStyles";
 import useNodeBadges from "./useNodeBadges";
 import { useVertexTypeConfigs } from "@/core/ConfigurationProvider/useConfiguration";
 
-export type GraphViewerProps = Omit<
-  ModuleContainerHeaderProps,
-  "title" | "sidebar"
-> & {
-  title?: ModuleContainerHeaderProps["title"];
+export type GraphViewerProps = {
   onNodeCustomize(nodeType?: string): void;
   onEdgeCustomize(edgeType?: string): void;
 };
@@ -86,38 +83,6 @@ const LAYOUT_OPTIONS = [
   },
 ];
 
-const HEADER_ACTIONS: ActionItem[] = [
-  {
-    value: "download_screenshot",
-    label: "Download Screenshot",
-    icon: <ScreenshotIcon />,
-  },
-  "divider",
-  {
-    value: "zoom_in",
-    label: "Zoom in",
-    icon: <ZoomInIcon />,
-  },
-  {
-    value: "zoom_out",
-    label: "Zoom out",
-    icon: <ZoomOutIcon />,
-  },
-  "divider",
-  {
-    value: "clear_canvas",
-    label: "Clear canvas",
-    icon: <RemoveFromCanvasIcon />,
-    color: "error",
-  },
-  "divider",
-  {
-    value: "legend",
-    label: "Legend",
-    icon: <InfoIcon />,
-  },
-];
-
 // Prevent open context menu on Windows
 function onContextMenu(e: MouseEvent<HTMLDivElement>) {
   e.preventDefault();
@@ -125,13 +90,9 @@ function onContextMenu(e: MouseEvent<HTMLDivElement>) {
 }
 
 export default function GraphViewer({
-  title = "Graph View",
   onNodeCustomize,
   onEdgeCustomize,
-  ...headerProps
 }: GraphViewerProps) {
-  const styleWithTheme = useWithTheme();
-
   const graphRef = useRef<GraphRef | null>(null);
   const [entities, setEntities] = useEntities();
 
@@ -202,24 +163,6 @@ export default function GraphViewer({
     });
   }, [setEntities]);
 
-  const onHeaderActionClick = useCallback(
-    (action: any) => {
-      switch (action) {
-        case "zoom_in":
-          return onZoomIn();
-        case "zoom_out":
-          return onZoomOut();
-        case "clear_canvas":
-          return onClearCanvas();
-        case "download_screenshot":
-          return onSaveScreenshot();
-        case "legend":
-          return setLegendOpen(open => !open);
-      }
-    },
-    [onClearCanvas, onSaveScreenshot, onZoomIn, onZoomOut]
-  );
-
   const nodes = useMemo(
     () =>
       entities.nodes
@@ -238,43 +181,65 @@ export default function GraphViewer({
   );
 
   return (
-    <div
-      className={cn(styleWithTheme(defaultStyles), "graph-viewer-module")}
-      onContextMenu={onContextMenu}
-    >
-      <ModuleContainer>
-        <ModuleContainerHeader
-          title={
-            <div
-              style={{ display: "flex", width: "100%", alignItems: "center" }}
-            >
-              <div style={{ whiteSpace: "nowrap" }}>{title}</div>
-              <Select
-                className={"entity-select"}
-                label={"Layout"}
-                labelPlacement={"inner"}
-                hideError={true}
-                options={LAYOUT_OPTIONS}
-                value={layout}
-                onChange={v => setLayout(v as string)}
-              />
-              <IconButton
-                tooltipText={"Re-run Layout"}
-                tooltipPlacement={"bottom-center"}
-                icon={<ResetIcon />}
-                variant={"text"}
-                onPress={() => {
-                  graphRef.current?.runLayout();
-                }}
-              />
-            </div>
-          }
-          variant={"default"}
-          actions={HEADER_ACTIONS}
-          onActionClick={onHeaderActionClick}
-          {...headerProps}
-        />
-        <div className="relative flex h-full w-full" ref={parentRef}>
+    <div className="relative size-full grow" onContextMenu={onContextMenu}>
+      <Panel>
+        <PanelHeader>
+          <PanelTitle>Graph View</PanelTitle>
+          <PanelHeaderActions>
+            <Select
+              className="min-w-auto max-w-64"
+              label="Layout"
+              labelPlacement="inner"
+              hideError={true}
+              options={LAYOUT_OPTIONS}
+              value={layout}
+              noMargin
+              onChange={v => setLayout(v as string)}
+            />
+            <IconButton
+              tooltipText="Re-run Layout"
+              tooltipPlacement="bottom-center"
+              icon={<ResetIcon />}
+              variant="text"
+              onPress={() => {
+                graphRef.current?.runLayout();
+              }}
+            />
+            <div className="grow" />
+            <PanelHeaderActionButton
+              label="Download Screenshot"
+              icon={<ScreenshotIcon />}
+              onActionClick={onSaveScreenshot}
+            />
+            <PanelHeaderDivider />
+            <PanelHeaderActionButton
+              label="Zoom in"
+              icon={<ZoomInIcon />}
+              onActionClick={onZoomIn}
+            />
+            <PanelHeaderActionButton
+              label="Zoom out"
+              icon={<ZoomOutIcon />}
+              onActionClick={onZoomOut}
+            />
+            <PanelHeaderDivider />
+            <PanelHeaderActionButton
+              label="Clear canvas"
+              icon={<RemoveFromCanvasIcon />}
+              color="error"
+              onActionClick={onClearCanvas}
+            />
+            <PanelHeaderActionButton
+              label="Legend"
+              icon={<InfoIcon />}
+              onActionClick={() => setLegendOpen(open => !open)}
+            />
+          </PanelHeaderActions>
+        </PanelHeader>
+        <PanelContent
+          className="bg-background-secondary relative flex h-full w-full"
+          ref={parentRef}
+        >
           <Graph
             ref={graphRef}
             nodes={nodes}
@@ -313,8 +278,8 @@ export default function GraphViewer({
               </div>
             )}
           {legendOpen && <Legend onClose={() => setLegendOpen(false)} />}
-        </div>
-      </ModuleContainer>
+        </PanelContent>
+      </Panel>
     </div>
   );
 }

@@ -1,13 +1,10 @@
-import { cn } from "@/utils";
 import { useMemo, useState } from "react";
-import { ModuleContainer } from "@/components";
+import { Panel } from "@/components";
 import type { TabularInstance } from "@/components/Tabular";
 import { ModuleContainerTabularHeader } from "@/components/Tabular";
 import TabularControlsProvider from "@/components/Tabular/TabularControlsProvider";
-import { useWithTheme } from "@/core";
 import useTranslations from "@/hooks/useTranslations";
 import { EdgesTabular, NodesTabular } from "./components";
-import defaultStyles from "./EntitiesTabular.styles";
 
 enum TableId {
   edges = "edges",
@@ -15,7 +12,6 @@ enum TableId {
 }
 
 const EntitiesTabular = () => {
-  const styleWithTheme = useWithTheme();
   const t = useTranslations();
 
   const [selectedTable, setSelectedTable] = useState<TableId>(TableId.nodes);
@@ -56,9 +52,7 @@ const EntitiesTabular = () => {
     TableId.nodes === selectedTable ? nodeInstance : edgeInstance;
 
   return (
-    <ModuleContainer
-      className={cn(styleWithTheme(defaultStyles), "entities-tabular-module")}
-    >
+    <Panel>
       {nodeInstance && edgeInstance && selectedTabularInstance && (
         <TabularControlsProvider tabularInstance={selectedTabularInstance}>
           <ModuleContainerTabularHeader
@@ -92,7 +86,7 @@ const EntitiesTabular = () => {
           {table.component}
         </div>
       ))}
-    </ModuleContainer>
+    </Panel>
   );
 };
 

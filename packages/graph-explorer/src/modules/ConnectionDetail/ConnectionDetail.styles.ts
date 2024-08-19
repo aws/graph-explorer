@@ -2,13 +2,6 @@ import { css } from "@emotion/css";
 import type { ThemeStyleFn } from "@/core";
 
 const defaultStyles: ThemeStyleFn = ({ theme }) => css`
-  .header-children {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    margin-right: ${theme.spacing["2x"]};
-  }
-
   .info-bar {
     background: ${theme.palette.background.default};
     border-bottom: solid 1px ${theme.palette.divider};

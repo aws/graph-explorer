@@ -15,11 +15,7 @@ import AvailableConnections from "@/modules/AvailableConnections";
 import ConnectionDetail from "@/modules/ConnectionDetail";
 import defaultStyles from "./Connections.styles";
 import { APP_NAME } from "@/utils/constants";
-import {
-  ModuleContainer,
-  ModuleContainerContent,
-  PanelEmptyState,
-} from "@/components";
+import { Panel, PanelContent, PanelEmptyState } from "@/components";
 import GraphExplorerIcon from "@/components/icons/GraphExplorerIcon";
 
 const Connections = () => {
@@ -101,15 +97,15 @@ const Connections = () => {
 
 function NoActiveConnectionPanel() {
   return (
-    <ModuleContainer>
-      <ModuleContainerContent>
+    <Panel>
+      <PanelContent>
         <PanelEmptyState
           icon={<GraphExplorerIcon />}
           title="No Active Connection"
           subtitle="Select a connection in the left panel to be the active connection."
         />
-      </ModuleContainerContent>
-    </ModuleContainer>
+      </PanelContent>
+    </Panel>
   );
 }
 

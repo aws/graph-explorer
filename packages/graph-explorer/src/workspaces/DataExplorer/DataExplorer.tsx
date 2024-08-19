@@ -14,14 +14,15 @@ import {
   CheckIcon,
   ChevronLeftIcon,
   LoadingSpinner,
-  ModuleContainer,
+  Panel,
   PanelError,
+  PanelHeader,
+  PanelTitle,
   Select,
   SendIcon,
 } from "@/components";
 import Button from "@/components/Button";
 import { ExplorerIcon } from "@/components/icons";
-import ModuleContainerHeader from "@/components/ModuleContainer/components/ModuleContainerHeader";
 import {
   ColumnDefinition,
   PlaceholderControl,
@@ -127,15 +128,15 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
         </Workspace.TopBar.AdditionalControls>
       </Workspace.TopBar>
       <Workspace.Content>
-        <ModuleContainer>
-          <ModuleContainerHeader
-            title={
+        <Panel>
+          <PanelHeader>
+            <PanelTitle>
               <div className={"container-header"}>
                 <div>{vertexTypeDisplay}</div>
                 {query.isFetching && <LoadingSpinner className={"spinner"} />}
               </div>
-            }
-          />
+            </PanelTitle>
+          </PanelHeader>
           <Tabular
             ref={tableRef}
             defaultColumn={DEFAULT_COLUMN}
@@ -168,7 +169,7 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
               />
             </TabularFooterControls>
           </Tabular>
-        </ModuleContainer>
+        </Panel>
       </Workspace.Content>
     </Workspace>
   );

@@ -6,17 +6,20 @@ import {
   useSetRecoilState,
 } from "recoil";
 import {
-  ActionItem,
   Button,
   Chip,
   DatabaseIcon,
   DeleteIcon,
   EditIcon,
-  ModuleContainer,
-  ModuleContainerContent,
-  ModuleContainerHeader,
   NotInProduction,
+  Panel,
+  PanelContent,
   PanelEmptyState,
+  PanelHeader,
+  PanelHeaderActionButton,
+  PanelHeaderActions,
+  PanelHeaderDivider,
+  PanelTitle,
   SyncIcon,
   TrayArrowIcon,
 } from "@/components";
@@ -28,7 +31,7 @@ import {
 import { activeSchemaSelector, schemaAtom } from "@/core/StateProvider/schema";
 import useSchemaSync from "@/hooks/useSchemaSync";
 import useTranslations from "@/hooks/useTranslations";
-import { formatDate, logger } from "@/utils";
+import { cn, formatDate, logger } from "@/utils";
 import saveConfigurationToFile from "@/utils/saveConfigurationToFile";
 import CreateConnection from "@/modules/CreateConnection";
 import ConnectionData from "./ConnectionData";
@@ -38,38 +41,6 @@ export type ConnectionDetailProps = {
   isSync: boolean;
   onSyncChange(isSync: boolean): void;
 };
-
-const HEADER_ACTIONS = (
-  isSync: boolean,
-  isFileBased: boolean
-): ActionItem[] => [
-  {
-    label: "Synchronize Database",
-    icon: <SyncIcon className={isSync ? "animate-spin" : ""} />,
-    value: "sync",
-    isDisabled: isSync,
-  },
-  {
-    label: "Export Connection",
-    icon: <TrayArrowIcon />,
-    value: "export",
-    isDisabled: isSync,
-  },
-  "divider",
-  {
-    label: "Edit connection",
-    icon: <EditIcon />,
-    value: "edit",
-    isDisabled: isSync,
-  },
-  {
-    label: isFileBased ? "File (read-only)" : "Delete connection",
-    icon: <DeleteIcon />,
-    value: "delete",
-    color: "error",
-    isDisabled: isFileBased || isSync,
-  },
-];
 
 const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
   const styleWithTheme = useWithTheme();
@@ -119,43 +90,51 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
     [config?.id]
   );
 
-  const onActionClick = useCallback(
-    (value: string) => {
-      if (value === "edit") {
-        return setEdit(true);
-      }
-
-      if (value === "delete") {
-        return onConfigDelete();
-      }
-
-      if (value === "export") {
-        return onConfigExport();
-      }
-
-      if (value === "sync") {
-        return onConfigSync();
-      }
-    },
-    [onConfigDelete, onConfigExport, onConfigSync]
-  );
-
   if (!config) {
     return null;
   }
 
   const lastSyncUpdate = config?.schema?.lastUpdate;
   const lastSyncFail = config?.schema?.lastSyncFail === true;
+  const isFileBased = config.__fileBase === true;
 
   return (
-    <ModuleContainer className={styleWithTheme(defaultStyles)}>
-      <ModuleContainerHeader
-        title={config.displayLabel || config.id}
-        startAdornment={<DatabaseIcon />}
-        actions={HEADER_ACTIONS(isSync, config.__fileBase === true)}
-        onActionClick={onActionClick}
-      />
-      <ModuleContainerContent className="flex flex-col">
+    <Panel className={cn(styleWithTheme(defaultStyles))}>
+      <PanelHeader>
+        <PanelTitle>
+          <DatabaseIcon />
+          {config.displayLabel || config.id}
+        </PanelTitle>
+        <PanelHeaderActions>
+          <PanelHeaderActionButton
+            label="Synchronize Database"
+            icon={<SyncIcon className={isSync ? "animate-spin" : ""} />}
+            isDisabled={isSync}
+            onActionClick={onConfigSync}
+          />
+          <PanelHeaderActionButton
+            label="Export Connection"
+            icon={<TrayArrowIcon />}
+            isDisabled={isSync}
+            onActionClick={onConfigExport}
+          />
+          <PanelHeaderDivider />
+          <PanelHeaderActionButton
+            label="Edit connection"
+            icon={<EditIcon />}
+            isDisabled={isSync}
+            onActionClick={() => setEdit(true)}
+          />
+          <PanelHeaderActionButton
+            label={isFileBased ? "File (read-only)" : "Delete connection"}
+            icon={<DeleteIcon />}
+            color="error"
+            isDisabled={isFileBased || isSync}
+            onActionClick={onConfigDelete}
+          />
+        </PanelHeaderActions>
+      </PanelHeader>
+      <PanelContent>
         <div className="info-bar">
           <div className="item">
             <div className="tag">Type</div>
@@ -218,8 +197,8 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
             existingConfig={config}
           />
         </Modal>
-      </ModuleContainerContent>
-    </ModuleContainer>
+      </PanelContent>
+    </Panel>
   );
 };
 

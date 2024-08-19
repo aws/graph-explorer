@@ -1,19 +1,19 @@
 import {
   Divider,
-  ModuleContainer,
-  ModuleContainerContent,
-  ModuleContainerHeader,
-  ModuleContainerHeaderProps,
+  Panel,
+  PanelContent,
+  PanelHeader,
+  PanelHeaderActions,
+  PanelHeaderCloseButton,
+  PanelHeaderCloseButtonProps,
+  PanelTitle,
 } from "@/components";
 import { useConfiguration } from "@/core";
 import useTranslations from "@/hooks/useTranslations";
 import SingleNodeStyling from "./SingleNodeStyling";
 import { Fragment } from "react/jsx-runtime";
 
-export type NodesStylingProps = Omit<
-  ModuleContainerHeaderProps,
-  "title" | "sidebar"
-> & {
+export type NodesStylingProps = Pick<PanelHeaderCloseButtonProps, "onClose"> & {
   onNodeCustomize(nodeType?: string): void;
   customizeNodeType?: string;
 };
@@ -21,18 +21,20 @@ export type NodesStylingProps = Omit<
 const NodesStyling = ({
   customizeNodeType,
   onNodeCustomize,
-  ...headerProps
+  onClose,
 }: NodesStylingProps) => {
   const config = useConfiguration();
   const t = useTranslations();
 
   return (
-    <ModuleContainer variant="sidebar">
-      <ModuleContainerHeader
-        title={t("nodes-styling.title")}
-        {...headerProps}
-      />
-      <ModuleContainerContent className="flex flex-col gap-2">
+    <Panel variant="sidebar">
+      <PanelHeader>
+        <PanelTitle>{t("nodes-styling.title")}</PanelTitle>
+        <PanelHeaderActions>
+          <PanelHeaderCloseButton onClose={onClose} />
+        </PanelHeaderActions>
+      </PanelHeader>
+      <PanelContent className="gap-2">
         {config?.vertexTypes.map((vertexType, index) => {
           return (
             <Fragment key={vertexType}>
@@ -48,8 +50,8 @@ const NodesStyling = ({
             </Fragment>
           );
         })}
-      </ModuleContainerContent>
-    </ModuleContainer>
+      </PanelContent>
+    </Panel>
   );
 };
 

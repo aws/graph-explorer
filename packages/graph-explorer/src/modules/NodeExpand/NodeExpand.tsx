@@ -1,10 +1,13 @@
 import { useMemo } from "react";
 import { useRecoilValue } from "recoil";
-import type { ModuleContainerHeaderProps } from "@/components";
+import type { PanelHeaderCloseButtonProps } from "@/components";
 import {
-  ModuleContainer,
-  ModuleContainerContent,
-  ModuleContainerHeader,
+  Panel,
+  PanelContent,
+  PanelHeader,
+  PanelHeaderActions,
+  PanelHeaderCloseButton,
+  PanelTitle,
 } from "@/components";
 import GraphIcon from "@/components/icons/GraphIcon";
 import PanelEmptyState from "@/components/PanelEmptyState/PanelEmptyState";
@@ -13,14 +16,9 @@ import { nodesAtom, nodesSelectedIdsAtom } from "@/core/StateProvider/nodes";
 import useTranslations from "@/hooks/useTranslations";
 import NodeExpandContent from "./NodeExpandContent";
 
-export type NodeExpandProps = Omit<
-  ModuleContainerHeaderProps,
-  "title" | "sidebar"
-> & {
-  title?: ModuleContainerHeaderProps["title"];
-};
+export type NodeExpandProps = Pick<PanelHeaderCloseButtonProps, "onClose">;
 
-const NodeExpand = ({ title = "Expand", ...headerProps }: NodeExpandProps) => {
+const NodeExpand = ({ onClose }: NodeExpandProps) => {
   const t = useTranslations();
   const nodes = useRecoilValue(nodesAtom);
   const nodesSelectedIds = useRecoilValue(nodesSelectedIdsAtom);
@@ -36,13 +34,14 @@ const NodeExpand = ({ title = "Expand", ...headerProps }: NodeExpandProps) => {
   }, [nodes, nodesSelectedIds]);
 
   return (
-    <ModuleContainer variant="sidebar">
-      <ModuleContainerHeader
-        title={title}
-        variant={"sidebar"}
-        {...headerProps}
-      />
-      <ModuleContainerContent>
+    <Panel variant="sidebar">
+      <PanelHeader>
+        <PanelTitle>Expand</PanelTitle>
+        <PanelHeaderActions>
+          <PanelHeaderCloseButton onClose={onClose} />
+        </PanelHeaderActions>
+      </PanelHeader>
+      <PanelContent>
         {nodesSelectedIds.size === 0 && edgesSelectedIds.size === 0 && (
           <PanelEmptyState
             icon={<GraphIcon />}
@@ -67,8 +66,8 @@ const NodeExpand = ({ title = "Expand", ...headerProps }: NodeExpandProps) => {
         {nodesSelectedIds.size === 1 && selectedNode && (
           <NodeExpandContent vertex={selectedNode} />
         )}
-      </ModuleContainerContent>
-    </ModuleContainer>
+      </PanelContent>
+    </Panel>
   );
 };
 
