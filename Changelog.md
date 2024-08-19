@@ -2,6 +2,10 @@
 
 ## Upcoming Release
 
+- **Added** backup & restore options for Graph Explorer local data
+  ([#549](https://github.com/aws/graph-explorer/pull/549))
+- **Added** about screen that includes a link to submit feedback
+  ([#549](https://github.com/aws/graph-explorer/pull/549))
 - **Improved** performance of styling sidebar panels when many node & edge types
   exist ([#542](https://github.com/aws/graph-explorer/pull/542))
 - **Added** global error page if the React app crashes
