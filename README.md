@@ -46,6 +46,25 @@ For non-Neptune databases, we recommend at least TinkerPop 3.6.
 
 ## Features
 
+### Settings UI
+
+#### General Settings
+
+- **Save Configuration:** This action will export all the configuration data
+  within the Graph Explorer local database. This will not store any data from
+  the connected graph databases. However, the export may contain the shape of
+  the schema for your databases and the connection URL.
+- **Load Configuration:** This action will replace all the Graph Explorer
+  configuration data you currently have with the data in the provided
+  configuration file. This is a destructive act and can not be undone. It is
+  **strongly** suggested that you perform a **Save Configuration** action before
+  performing a **Load Configuration** action to preserve any existing
+  configuration data.
+
+#### About
+
+In the _About_ page you can see the version number and submit any feedback.
+
 ### Connections UI
 
 You can create and manage connections to graph databases using this feature.
