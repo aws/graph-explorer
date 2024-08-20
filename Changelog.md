@@ -14,6 +14,8 @@
 - **Improved** app styles
   ([#543](https://github.com/aws/graph-explorer/pull/543),
   [#548](https://github.com/aws/graph-explorer/pull/548))
+- **Improved** SageMaker Lifecycle script handling of CloudWatch log driver failures
+  ([#543](https://github.com/aws/graph-explorer/pull/550))
 
 ## Release 1.9.0
 
