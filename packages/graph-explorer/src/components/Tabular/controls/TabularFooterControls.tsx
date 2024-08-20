@@ -1,9 +1,9 @@
 import { css, cx } from "@emotion/css";
 import { FC, PropsWithChildren } from "react";
-import { useWithTheme } from "../../../core";
+import { useWithTheme } from "@/core";
 import type { TabularVariantType } from "../Tabular";
 
-import type { ThemeStyleFn } from "../../../core/ThemeProvider/types";
+import type { ThemeStyleFn } from "@/core/ThemeProvider/types";
 import type { TabularTheme } from "../Tabular.model";
 import baseTheme from "../baseTheme";
 

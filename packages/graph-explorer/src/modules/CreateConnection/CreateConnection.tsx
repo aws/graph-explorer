@@ -2,28 +2,28 @@ import { Checkbox } from "@mantine/core";
 import { useCallback, useState } from "react";
 import { useRecoilCallback } from "recoil";
 import { v4 } from "uuid";
-import { InfoTooltip } from "../../components";
-import Button from "../../components/Button";
-import Input from "../../components/Input";
-import Select from "../../components/Select";
+import { InfoTooltip } from "@/components";
+import Button from "@/components/Button";
+import Input from "@/components/Input";
+import Select from "@/components/Select";
 import {
   ConfigurationContextProps,
   ConnectionConfig,
   RawConfiguration,
   useWithTheme,
-} from "../../core";
+} from "@/core";
 import {
   activeConfigurationAtom,
   configurationAtom,
-} from "../../core/StateProvider/configuration";
-import { schemaAtom } from "../../core/StateProvider/schema";
-import useResetState from "../../core/StateProvider/useResetState";
-import { formatDate } from "../../utils";
+} from "@/core/StateProvider/configuration";
+import { schemaAtom } from "@/core/StateProvider/schema";
+import useResetState from "@/core/StateProvider/useResetState";
+import { formatDate } from "@/utils";
 import defaultStyles from "./CreateConnection.styles";
 import {
   DEFAULT_FETCH_TIMEOUT,
   DEFAULT_NODE_EXPAND_LIMIT,
-} from "../../utils/constants";
+} from "@/utils/constants";
 
 type ConnectionForm = {
   name?: string;

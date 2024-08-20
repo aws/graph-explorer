@@ -1,6 +1,6 @@
 import { atom, selector } from "recoil";
-import type { Edge } from "../../@types/entities";
-import { sanitizeText } from "../../utils";
+import type { Edge } from "@/types/entities";
+import { sanitizeText } from "@/utils";
 import { activeConfigurationAtom } from "./configuration";
 import isDefaultValue from "./isDefaultValue";
 import { schemaAtom } from "./schema";

@@ -1,6 +1,6 @@
 import { cx } from "@emotion/css";
 import type { PropsWithChildren, ReactNode } from "react";
-import { useWithTheme } from "../../core";
+import { useWithTheme } from "@/core";
 import Button, { ButtonProps } from "../Button/Button";
 import styles from "./PanelEmptyState.styles";
 

@@ -1,8 +1,8 @@
 import { css, cx } from "@emotion/css";
-import { cssVar } from "../../../core/ThemeProvider/utils/lib";
+import { cssVar } from "@/core/ThemeProvider/utils/lib";
 import { FC, PropsWithChildren, useEffect } from "react";
-import type { ThemeStyleFn } from "../../../core";
-import { useWithTheme } from "../../../core";
+import type { ThemeStyleFn } from "@/core";
+import { useWithTheme } from "@/core";
 import type { TabularVariantType } from "../Tabular";
 
 import { useTabularControl } from "../TabularControlsProvider";

@@ -1,6 +1,6 @@
 import { useDrop } from "react-dnd";
-import type { Vertex } from "../../@types/entities";
-import { useFetchNode } from "../../hooks";
+import type { Vertex } from "@/types/entities";
+import { useFetchNode } from "@/hooks";
 
 const useNodeDrop = () => {
   const fetchNode = useFetchNode();

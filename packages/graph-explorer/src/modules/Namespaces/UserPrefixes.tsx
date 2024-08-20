@@ -11,9 +11,9 @@ import {
   NamespaceIcon,
   PanelEmptyState,
   SaveIcon,
-} from "../../components";
-import { useConfiguration, useWithTheme } from "../../core";
-import { schemaAtom } from "../../core/StateProvider/schema";
+} from "@/components";
+import { useConfiguration, useWithTheme } from "@/core";
+import { schemaAtom } from "@/core/StateProvider/schema";
 import defaultStyles from "./NsType.styles";
 import modalDefaultStyles from "./NsTypeModal.styles";
 

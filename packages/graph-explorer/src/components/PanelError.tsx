@@ -1,4 +1,4 @@
-import { createDisplayError } from "../utils/createDisplayError";
+import { createDisplayError } from "@/utils/createDisplayError";
 import { PanelEmptyState } from "./PanelEmptyState";
 import { GraphIcon } from "./icons";
 

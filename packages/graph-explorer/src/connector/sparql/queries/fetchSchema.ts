@@ -1,6 +1,6 @@
-import { batchPromisesSerially, logger } from "../../../utils";
-import { DEFAULT_CONCURRENT_REQUESTS_LIMIT } from "../../../utils/constants";
-import type { SchemaResponse } from "../../useGEFetchTypes";
+import { batchPromisesSerially, logger } from "@/utils";
+import { DEFAULT_CONCURRENT_REQUESTS_LIMIT } from "@/utils/constants";
+import type { SchemaResponse } from "@/connector/useGEFetchTypes";
 import classesWithCountsTemplates from "../templates/classesWithCountsTemplates";
 import predicatesByClassTemplate from "../templates/predicatesByClassTemplate";
 import predicatesWithCountsTemplate from "../templates/predicatesWithCountsTemplate";

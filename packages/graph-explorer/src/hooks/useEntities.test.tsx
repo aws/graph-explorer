@@ -1,6 +1,6 @@
 import { useRecoilValue } from "recoil";
 import useEntities from "./useEntities";
-import { Vertex } from "../@types/entities";
+import { Vertex } from "@/types/entities";
 import {
   createRandomEdge,
   createRandomEntities,
@@ -8,13 +8,13 @@ import {
   createRandomName,
   createRandomSchema,
   createRandomVertex,
-} from "../utils/testing";
-import { schemaAtom } from "../core/StateProvider/schema";
-import { activeConfigurationAtom } from "../core/StateProvider/configuration";
-import { Schema } from "../core";
-import { Entities } from "../core/StateProvider/entitiesSelector";
-import { renderHookWithRecoilRoot } from "../utils/testing";
-import { waitForValueToChange } from "../utils/testing/waitForValueToChange";
+} from "@/utils/testing";
+import { schemaAtom } from "@/core/StateProvider/schema";
+import { activeConfigurationAtom } from "@/core/StateProvider/configuration";
+import { Schema } from "@/core";
+import { Entities } from "@/core/StateProvider/entitiesSelector";
+import { renderHookWithRecoilRoot } from "@/utils/testing";
+import { waitForValueToChange } from "@/utils/testing/waitForValueToChange";
 import { vi } from "vitest";
 
 describe("useEntities", () => {

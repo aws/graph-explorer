@@ -1,6 +1,6 @@
 import groupBy from "lodash/groupBy";
-import type { AdvancedListItemType } from "../../components/AdvancedList";
-import { env } from "../../utils";
+import type { AdvancedListItemType } from "@/components/AdvancedList";
+import { env } from "@/utils";
 
 export type AdvancedListOptions<TDatum extends object> = {
   getGroupLabel?(datum: TDatum): string;

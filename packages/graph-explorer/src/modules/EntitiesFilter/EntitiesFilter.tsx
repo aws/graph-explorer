@@ -1,14 +1,14 @@
 import { cx } from "@emotion/css";
-import type { ModuleContainerHeaderProps } from "../../components";
+import type { ModuleContainerHeaderProps } from "@/components";
 import {
   CheckboxList,
   Divider,
   ModuleContainer,
   ModuleContainerContent,
   ModuleContainerHeader,
-} from "../../components";
-import { useWithTheme } from "../../core";
-import useTranslations from "../../hooks/useTranslations";
+} from "@/components";
+import { useWithTheme } from "@/core";
+import useTranslations from "@/hooks/useTranslations";
 import defaultStyles from "./EntitiesFilter.styles";
 import useFiltersConfig from "./useFiltersConfig";
 import { PropsWithChildren } from "react";

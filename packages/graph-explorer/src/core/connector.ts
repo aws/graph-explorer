@@ -3,13 +3,13 @@ import {
   ClientLoggerConnector,
   LoggerConnector,
   ServerLoggerConnector,
-} from "../connector/LoggerConnector";
-import { createGremlinExplorer } from "../connector/gremlin/gremlinExplorer";
-import { createOpenCypherExplorer } from "../connector/openCypher/openCypherExplorer";
-import { createSparqlExplorer } from "../connector/sparql/sparqlExplorer";
+} from "@/connector/LoggerConnector";
+import { createGremlinExplorer } from "@/connector/gremlin/gremlinExplorer";
+import { createOpenCypherExplorer } from "@/connector/openCypher/openCypherExplorer";
+import { createSparqlExplorer } from "@/connector/sparql/sparqlExplorer";
 import { mergedConfigurationSelector } from "./StateProvider/configuration";
 import { selector } from "recoil";
-import { equalSelector } from "../utils/recoilState";
+import { equalSelector } from "@/utils/recoilState";
 import { ConnectionConfig } from "./ConfigurationProvider";
 
 /**

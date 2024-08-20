@@ -4,10 +4,10 @@ import type { DragEvent, MouseEvent, ReactNode, Ref, RefObject } from "react";
 import { forwardRef, memo, useEffect, useMemo, useState } from "react";
 import type { VirtuosoHandle } from "react-virtuoso";
 import { GroupedVirtuoso } from "react-virtuoso";
-import { useWithTheme } from "../../../core";
-import useDebounceValue from "../../../hooks/useDebounceValue";
-import { ChevronDownIcon, DetailsIcon, FileIcon } from "../../icons";
-import Section from "../../Section";
+import { useWithTheme } from "@/core";
+import useDebounceValue from "@/hooks/useDebounceValue";
+import { ChevronDownIcon, DetailsIcon, FileIcon } from "@/components/icons";
+import Section from "@/components/Section";
 import type {
   AdvancedListItemType,
   AdvancedListMouseEvent,

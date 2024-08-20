@@ -1,10 +1,10 @@
-import { batchPromisesSerially, sanitizeText } from "../../../utils";
-import { DEFAULT_CONCURRENT_REQUESTS_LIMIT } from "../../../utils/constants";
+import { batchPromisesSerially, sanitizeText } from "@/utils";
+import { DEFAULT_CONCURRENT_REQUESTS_LIMIT } from "@/utils/constants";
 import type {
   EdgeSchemaResponse,
   SchemaResponse,
   VertexSchemaResponse,
-} from "../../useGEFetchTypes";
+} from "@/connector/useGEFetchTypes";
 import edgeLabelsTemplate from "../templates/edgeLabelsTemplate";
 import edgesSchemaTemplate from "../templates/edgesSchemaTemplate";
 import vertexLabelsTemplate from "../templates/vertexLabelsTemplate";

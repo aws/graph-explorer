@@ -5,7 +5,7 @@ import { VisuallyHidden } from "@react-aria/visually-hidden";
 import type { AriaCheckboxProps } from "@react-types/checkbox";
 import type { PropsWithChildren } from "react";
 import { useCallback, useRef } from "react";
-import { useTheme, useWithTheme } from "../../core";
+import { useTheme, useWithTheme } from "@/core";
 import { checkboxStyles, labelStyles } from "./Checkbox.styles";
 
 export enum CheckboxSizes {

@@ -1,11 +1,11 @@
 import { cx } from "@emotion/css";
 import { useMemo, useState } from "react";
-import { ModuleContainer } from "../../components";
-import type { TabularInstance } from "../../components/Tabular";
-import { ModuleContainerTabularHeader } from "../../components/Tabular";
-import TabularControlsProvider from "../../components/Tabular/TabularControlsProvider";
-import { useWithTheme } from "../../core";
-import useTranslations from "../../hooks/useTranslations";
+import { ModuleContainer } from "@/components";
+import type { TabularInstance } from "@/components/Tabular";
+import { ModuleContainerTabularHeader } from "@/components/Tabular";
+import TabularControlsProvider from "@/components/Tabular/TabularControlsProvider";
+import { useWithTheme } from "@/core";
+import useTranslations from "@/hooks/useTranslations";
 import { EdgesTabular, NodesTabular } from "./components";
 import defaultStyles from "./EntitiesTabular.styles";
 

@@ -1,11 +1,11 @@
 import { useMemo } from "react";
-import { Vertex } from "../@types/entities";
+import { Vertex } from "@/types/entities";
 import {
   useConfiguration,
   VertexTypeConfig,
-} from "../core/ConfigurationProvider";
+} from "@/core/ConfigurationProvider";
 import useTextTransform from "./useTextTransform";
-import { SelectOption } from "../components";
+import { SelectOption } from "@/components";
 
 export type NeighborOption = SelectOption & {
   config?: VertexTypeConfig;

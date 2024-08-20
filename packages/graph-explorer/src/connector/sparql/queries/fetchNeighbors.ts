@@ -1,6 +1,6 @@
 import groupBy from "lodash/groupBy";
-import { Edge } from "../../../@types/entities";
-import type { NeighborsResponse } from "../../useGEFetchTypes";
+import { Edge } from "@/@types/entities";
+import type { NeighborsResponse } from "@/connector/useGEFetchTypes";
 import mapIncomingToEdge, {
   IncomingPredicate,
   isIncomingPredicate,
@@ -17,7 +17,7 @@ import {
   SparqlFetch,
   SPARQLNeighborsRequest,
 } from "../types";
-import { logger } from "../../../utils";
+import { logger } from "@/utils";
 
 type RawOneHopNeighborsResponse = {
   results: {

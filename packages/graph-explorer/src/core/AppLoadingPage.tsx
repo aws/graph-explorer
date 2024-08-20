@@ -1,4 +1,4 @@
-import { LoaderIcon, SectionTitle } from "../components";
+import { LoaderIcon, SectionTitle } from "@/components";
 
 export default function AppLoadingPage() {
   return (

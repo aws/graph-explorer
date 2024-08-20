@@ -1,5 +1,5 @@
-import { logger, sanitizeText } from "../../../utils";
-import type { SchemaResponse } from "../../useGEFetchTypes";
+import { logger, sanitizeText } from "@/utils";
+import type { SchemaResponse } from "@/connector/useGEFetchTypes";
 import edgeLabelsTemplate from "../templates/edgeLabelsTemplate";
 import edgesSchemaTemplate from "../templates/edgesSchemaTemplate";
 import vertexLabelsTemplate from "../templates/vertexLabelsTemplate";

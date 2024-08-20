@@ -1,8 +1,8 @@
 import { cx } from "@emotion/css";
 import type { ForwardedRef, PropsWithChildren } from "react";
 import { forwardRef, useMemo } from "react";
-import getChildOfType from "../../utils/getChildOfType";
-import getChildrenOfType from "../../utils/getChildrenOfType";
+import getChildOfType from "@/utils/getChildOfType";
+import getChildrenOfType from "@/utils/getChildrenOfType";
 import ModuleContainerFooter from "./components/ModuleContainerFooter";
 import ModuleContainerHeader from "./components/ModuleContainerHeader";
 

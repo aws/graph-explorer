@@ -1,4 +1,4 @@
-import type { Edge } from "../../../@types/entities";
+import type { Edge } from "@/@types/entities";
 import type { GEdge } from "../types";
 import parseEdgePropertiesValues from "./parseEdgePropertiesValues";
 import toStringId from "./toStringId";

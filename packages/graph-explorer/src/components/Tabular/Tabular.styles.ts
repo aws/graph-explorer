@@ -1,6 +1,6 @@
 import { css } from "@emotion/css";
 
-import { fade, ThemeStyleFn } from "../../core";
+import { fade, ThemeStyleFn } from "@/core";
 import { TabularTheme } from "./Tabular.model";
 import baseTheme from "./baseTheme";
 

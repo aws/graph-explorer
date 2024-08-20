@@ -14,21 +14,18 @@ import {
   PanelEmptyState,
   SyncIcon,
   TrayArrowIcon,
-} from "../../components";
-import { useConfiguration, useWithTheme } from "../../core";
+} from "@/components";
+import { useConfiguration, useWithTheme } from "@/core";
 import {
   activeConfigurationAtom,
   configurationAtom,
-} from "../../core/StateProvider/configuration";
-import {
-  activeSchemaSelector,
-  schemaAtom,
-} from "../../core/StateProvider/schema";
-import useSchemaSync from "../../hooks/useSchemaSync";
-import useTranslations from "../../hooks/useTranslations";
-import { formatDate, logger } from "../../utils";
-import saveConfigurationToFile from "../../utils/saveConfigurationToFile";
-import CreateConnection from "../CreateConnection";
+} from "@/core/StateProvider/configuration";
+import { activeSchemaSelector, schemaAtom } from "@/core/StateProvider/schema";
+import useSchemaSync from "@/hooks/useSchemaSync";
+import useTranslations from "@/hooks/useTranslations";
+import { formatDate, logger } from "@/utils";
+import saveConfigurationToFile from "@/utils/saveConfigurationToFile";
+import CreateConnection from "@/modules/CreateConnection";
 import ConnectionData from "./ConnectionData";
 import defaultStyles from "./ConnectionDetail.styles";
 

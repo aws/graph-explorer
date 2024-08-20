@@ -1,10 +1,10 @@
 import { useCallback, useMemo } from "react";
 import { useRecoilValue } from "recoil";
-import { BadgeRenderer } from "../../components/Graph/hooks/useRenderBadges";
-import { useConfiguration } from "../../core";
-import { nodesAtom } from "../../core/StateProvider/nodes";
-import useDisplayNames from "../../hooks/useDisplayNames";
-import useTextTransform from "../../hooks/useTextTransform";
+import { BadgeRenderer } from "@/components/Graph/hooks/useRenderBadges";
+import { useConfiguration } from "@/core";
+import { nodesAtom } from "@/core/StateProvider/nodes";
+import useDisplayNames from "@/hooks/useDisplayNames";
+import useTextTransform from "@/hooks/useTextTransform";
 
 const useNodeBadges = () => {
   const config = useConfiguration();

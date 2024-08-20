@@ -3,7 +3,7 @@ import type { PropsWithChildren } from "react";
 import { forwardRef, useEffect, useMemo } from "react";
 import type { ArrowProps, LayerSide, UseLayerOptions } from "react-laag";
 import { Arrow, useLayer } from "react-laag";
-import getChildOfType from "../../utils/getChildOfType";
+import getChildOfType from "@/utils/getChildOfType";
 import UseLayerOverlay from "./UseLayerOverlay";
 import UseLayerTrigger from "./UseLayerTrigger";
 

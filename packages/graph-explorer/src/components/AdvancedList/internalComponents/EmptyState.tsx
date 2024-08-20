@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import { NoWidgetIcon, SearchSadIcon } from "../../icons";
-import { PanelEmptyState } from "../../PanelEmptyState";
+import { NoWidgetIcon, SearchSadIcon } from "@/components/icons";
+import { PanelEmptyState } from "@/components/PanelEmptyState";
 
 const getEmptyStateItems = (
   empty: boolean,

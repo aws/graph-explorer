@@ -1,5 +1,5 @@
 import { css } from "@emotion/css";
-import { ActiveThemeType, fade, ProcessedTheme } from "../../core";
+import { ActiveThemeType, fade, ProcessedTheme } from "@/core";
 
 const defaultStyles = ({ theme }: ActiveThemeType<ProcessedTheme>) => css`
   &.data-explorer {

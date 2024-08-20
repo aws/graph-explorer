@@ -23,8 +23,8 @@ import {
   Swiper as SwiperClass,
   SwiperOptions,
 } from "swiper/types";
-import { useWithTheme } from "../../core";
-import { ChevronLeftIcon, ChevronRightIcon } from "../icons";
+import { useWithTheme } from "@/core";
+import { ChevronLeftIcon, ChevronRightIcon } from "@/components/icons";
 import { defaultStyles, navArrowsStyles } from "./Carousel.styles";
 
 export interface CarouselProps {

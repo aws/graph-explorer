@@ -2,12 +2,12 @@ import { css, cx } from "@emotion/css";
 import { useCallback, useState } from "react";
 import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
 import { useLayer } from "react-laag";
-import Button from "../../../Button";
-import Card from "../../../Card";
-import IconButton from "../../../IconButton";
-import { ManageColumnsIcon } from "../../../icons";
-import type { TabularInstance } from "../../helpers/tableInstanceToTabularInstance";
-import { useTabularControl } from "../../TabularControlsProvider";
+import Button from "@/components/Button";
+import Card from "@/components/Card";
+import IconButton from "@/components/IconButton";
+import { ManageColumnsIcon } from "@/components/icons";
+import type { TabularInstance } from "@/components/Tabular/helpers/tableInstanceToTabularInstance";
+import { useTabularControl } from "@/components/Tabular/TabularControlsProvider";
 import ColumnItem from "./ColumnItem";
 import defaultStyles from "./ColumnSettingsControl.styles";
 

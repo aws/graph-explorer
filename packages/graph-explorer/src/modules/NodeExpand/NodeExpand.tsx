@@ -1,19 +1,16 @@
 import { useMemo } from "react";
 import { useRecoilValue } from "recoil";
-import type { ModuleContainerHeaderProps } from "../../components";
+import type { ModuleContainerHeaderProps } from "@/components";
 import {
   ModuleContainer,
   ModuleContainerContent,
   ModuleContainerHeader,
-} from "../../components";
-import GraphIcon from "../../components/icons/GraphIcon";
-import PanelEmptyState from "../../components/PanelEmptyState/PanelEmptyState";
-import { edgesSelectedIdsAtom } from "../../core/StateProvider/edges";
-import {
-  nodesAtom,
-  nodesSelectedIdsAtom,
-} from "../../core/StateProvider/nodes";
-import useTranslations from "../../hooks/useTranslations";
+} from "@/components";
+import GraphIcon from "@/components/icons/GraphIcon";
+import PanelEmptyState from "@/components/PanelEmptyState/PanelEmptyState";
+import { edgesSelectedIdsAtom } from "@/core/StateProvider/edges";
+import { nodesAtom, nodesSelectedIdsAtom } from "@/core/StateProvider/nodes";
+import useTranslations from "@/hooks/useTranslations";
 import NodeExpandContent from "./NodeExpandContent";
 
 export type NodeExpandProps = Omit<

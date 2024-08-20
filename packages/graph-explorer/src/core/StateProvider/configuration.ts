@@ -1,7 +1,7 @@
 import { uniq } from "lodash";
 import { atom, selector } from "recoil";
-import { sanitizeText } from "../../utils";
-import DEFAULT_ICON_URL from "../../utils/defaultIconUrl";
+import { sanitizeText } from "@/utils";
+import DEFAULT_ICON_URL from "@/utils/defaultIconUrl";
 import type {
   AttributeConfig,
   EdgeTypeConfig,

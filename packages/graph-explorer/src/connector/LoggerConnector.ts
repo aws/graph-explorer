@@ -1,4 +1,4 @@
-import { logger } from "../utils";
+import { logger } from "@/utils";
 
 export type LogLevel = "error" | "warn" | "info" | "debug" | "trace";
 

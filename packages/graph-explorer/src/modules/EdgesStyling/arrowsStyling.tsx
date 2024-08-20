@@ -12,7 +12,7 @@ import {
   ArrowTriangleTee,
   ArrowVee,
   SelectOption,
-} from "../../components";
+} from "@/components";
 
 const Wrapper = ({ children }: PropsWithChildren<any>) => (
   <div

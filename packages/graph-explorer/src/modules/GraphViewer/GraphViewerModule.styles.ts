@@ -1,6 +1,6 @@
 import { css } from "@emotion/css";
-import { ThemeStyleFn } from "../../core";
-import fade from "../../core/ThemeProvider/utils/fade";
+import { ThemeStyleFn } from "@/core";
+import fade from "@/core/ThemeProvider/utils/fade";
 
 const defaultStyles: ThemeStyleFn = ({ theme }) => css`
   &.graph-viewer-module {

@@ -1,5 +1,5 @@
 import dedent from "dedent";
-import type { Criterion, NeighborsRequest } from "../../useGEFetchTypes";
+import type { Criterion, NeighborsRequest } from "@/connector/useGEFetchTypes";
 
 const criterionNumberTemplate = ({
   name,

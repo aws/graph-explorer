@@ -1,5 +1,5 @@
 import neighborsCountTemplate from "./neighborsCountTemplate";
-import { normalizeWithNoSpace as normalize } from "../../../utils/testing";
+import { normalizeWithNoSpace as normalize } from "@/utils/testing";
 
 describe("Gremlin > neighborsCountTemplate", () => {
   it("Should return a template for the given vertex id", () => {

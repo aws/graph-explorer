@@ -1,5 +1,5 @@
-import type { ActiveThemeType, ProcessedTheme } from "../../../core";
-import { memoize } from "../../../utils";
+import type { ActiveThemeType, ProcessedTheme } from "@/core";
+import { memoize } from "@/utils";
 import type { SelectTheme } from "../Select.model";
 
 export const getSelectThemeWithDefaults = memoize(

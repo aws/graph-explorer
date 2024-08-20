@@ -1,12 +1,15 @@
 import { useEffect, useRef } from "react";
-import { VertexData } from "../../../@types/entities";
-import type { DrawBoxWithAdornmentOptions } from "../../utils";
-import drawBoxWithAdornment from "../../utils/canvas/drawBoxWithAdornment";
-import type { AutoBoundingBox, BoundingBox } from "../../utils/canvas/types";
+import { VertexData } from "@/@types/entities";
+import { DrawBoxWithAdornmentOptions } from "@/components/utils";
+import drawBoxWithAdornment from "@/components/utils/canvas/drawBoxWithAdornment";
+import type {
+  AutoBoundingBox,
+  BoundingBox,
+} from "@/components/utils/canvas/types";
 import type { CytoscapeCanvas, CytoscapeType } from "../Graph.model";
 import getNodeBoundingBox from "../helpers/getNodeBoundingBox";
 import getZoomLevel from "../helpers/getZoomLevel";
-import { env } from "../../../utils";
+import { env } from "@/utils";
 
 export type Badge = DrawBoxWithAdornmentOptions & {
   boundingBox: AutoBoundingBox;

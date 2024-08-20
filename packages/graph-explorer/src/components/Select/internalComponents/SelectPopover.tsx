@@ -3,7 +3,7 @@ import { DismissButton, useOverlay } from "@react-aria/overlays";
 import type { CSSProperties, ForwardedRef, RefObject } from "react";
 import { forwardRef } from "react";
 import type { Styles } from "react-laag/dist/types";
-import { useWithTheme } from "../../../core";
+import { useWithTheme } from "@/core";
 import popoverStyles from "../Select.styles";
 
 interface PopoverProps {

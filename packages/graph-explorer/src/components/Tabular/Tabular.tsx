@@ -11,9 +11,9 @@ import {
 import type { TableInstance } from "react-table";
 import useDeepCompareEffect from "use-deep-compare-effect";
 
-import { useWithTheme } from "../../core";
-import { useDeepMemo } from "../../hooks";
-import { getChildOfType } from "../../utils";
+import { useWithTheme } from "@/core";
+import { useDeepMemo } from "@/hooks";
+import { getChildOfType } from "@/utils";
 
 import {
   PaginationControl,

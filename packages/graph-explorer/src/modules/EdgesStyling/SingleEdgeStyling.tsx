@@ -7,17 +7,17 @@ import {
   Input,
   Select,
   StylingIcon,
-} from "../../components";
-import ColorInput from "../../components/ColorInput/ColorInput";
-import { useWithTheme } from "../../core";
+} from "@/components";
+import ColorInput from "@/components/ColorInput/ColorInput";
+import { useWithTheme } from "@/core";
 import {
   ArrowStyle,
   EdgePreferences,
   LineStyle,
   userStylingEdgeAtom,
-} from "../../core/StateProvider/userPreferences";
-import useTextTransform from "../../hooks/useTextTransform";
-import useTranslations from "../../hooks/useTranslations";
+} from "@/core/StateProvider/userPreferences";
+import useTextTransform from "@/hooks/useTextTransform";
+import useTranslations from "@/hooks/useTranslations";
 import {
   SOURCE_ARROW_STYLE_OPTIONS,
   TARGET_ARROW_STYLE_OPTIONS,
@@ -25,8 +25,8 @@ import {
 import { LINE_STYLE_OPTIONS } from "./lineStyling";
 import defaultStyles from "./SingleEdgeStyling.style";
 import modalDefaultStyles from "./SingleEdgeStylingModal.style";
-import { useEdgeTypeConfig } from "../../core/ConfigurationProvider/useConfiguration";
-import { useDebounceValue, usePrevious } from "../../hooks";
+import { useEdgeTypeConfig } from "@/core/ConfigurationProvider/useConfiguration";
+import { useDebounceValue, usePrevious } from "@/hooks";
 import { cx } from "@emotion/css";
 
 export type SingleEdgeStylingProps = {

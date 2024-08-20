@@ -1,7 +1,7 @@
 import { cx } from "@emotion/css";
 import { ReactNode } from "react";
-import { useWithTheme } from "../../core";
-import Checkbox from "../Checkbox/Checkbox";
+import { useWithTheme } from "@/core";
+import Checkbox from "@/components/Checkbox/Checkbox";
 import defaultStyles from "./CheckboxList.styles";
 
 export type CheckboxListItemProps = {

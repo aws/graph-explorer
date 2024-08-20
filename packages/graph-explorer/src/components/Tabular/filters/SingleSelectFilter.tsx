@@ -1,9 +1,9 @@
 import { css } from "@emotion/css";
-import type { ActiveThemeType, ProcessedTheme } from "../../../core";
-import { useDeepMemo } from "../../../hooks";
+import type { ActiveThemeType, ProcessedTheme } from "@/core";
+import { useDeepMemo } from "@/hooks";
 import type { ColumnInstance } from "react-table";
 
-import Select from "../../Select/Select";
+import Select from "@/components/Select/Select";
 
 const defaultStyles = (isDarkTheme?: boolean) => css`
   width: 100%;

@@ -3,7 +3,7 @@ import { useButton } from "@react-aria/button";
 import type { AriaButtonProps } from "@react-types/button";
 import type { ElementType, ForwardedRef, ReactNode, RefObject } from "react";
 import { forwardRef } from "react";
-import { useWithTheme } from "../../core";
+import { useWithTheme } from "@/core";
 import type { TooltipProps } from "../Tooltip";
 import Tooltip from "../Tooltip/Tooltip";
 import {

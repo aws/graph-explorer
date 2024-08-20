@@ -1,9 +1,9 @@
 import { AriaListBoxOptions, useListBox } from "@react-aria/listbox";
 import { ListProps, useListState } from "@react-stately/list";
 import { useRef, useState } from "react";
-import { useWithTheme } from "../../../core";
-import SearchIcon from "../../icons/SearchIcon";
-import Input from "../../Input";
+import { useWithTheme } from "@/core";
+import SearchIcon from "@/components/icons/SearchIcon";
+import Input from "@/components/Input";
 import type { SelectOption, SelectProps } from "../Select";
 import styles from "../Select.styles";
 import ListBox from "./ListBox";

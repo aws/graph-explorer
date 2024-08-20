@@ -1,7 +1,7 @@
 import { cx } from "@emotion/css";
 import type { ForwardedRef, PropsWithChildren } from "react";
 import { forwardRef } from "react";
-import { useWithTheme } from "../../core";
+import { useWithTheme } from "@/core";
 import defaultStyles from "./Sidebar.styles";
 import SidebarButton from "./SidebarButton";
 

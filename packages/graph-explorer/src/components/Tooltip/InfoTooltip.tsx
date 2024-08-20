@@ -1,7 +1,7 @@
 import { PropsWithChildren } from "react";
-import { InfoIcon } from "../icons";
+import { InfoIcon } from "@/components/icons";
 import Tooltip from "./Tooltip";
-import { useTheme } from "../../core";
+import { useTheme } from "@/core";
 
 export default function InfoTooltip({ children }: PropsWithChildren) {
   const [theme] = useTheme();

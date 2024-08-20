@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { AdvancedList } from "../../components";
-import { useWithTheme } from "../../core";
-import commonPrefixes from "../../utils/common-prefixes.json";
+import { AdvancedList } from "@/components";
+import { useWithTheme } from "@/core";
+import commonPrefixes from "@/utils/common-prefixes.json";
 import defaultStyles from "./NsType.styles";
 
 const COMMON_PREFIXES_ITEMS = Object.entries(commonPrefixes)

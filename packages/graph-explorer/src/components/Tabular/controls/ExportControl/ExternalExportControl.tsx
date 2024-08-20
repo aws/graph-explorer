@@ -4,19 +4,19 @@ import { useCallback, useState } from "react";
 import { useLayer } from "react-laag";
 import { Row } from "react-table";
 
-import Button from "../../../Button";
-import Card from "../../../Card";
-import Checkbox from "../../../Checkbox";
-import IconButton from "../../../IconButton";
+import Button from "@/components/Button";
+import Card from "@/components/Card";
+import Checkbox from "@/components/Checkbox";
+import IconButton from "@/components/IconButton";
 
-import { TrayArrowIcon } from "../../../icons";
-import Input from "../../../Input";
-import Select from "../../../Select";
-import { TabularInstance } from "../../helpers/tableInstanceToTabularInstance";
+import { TrayArrowIcon } from "@/components/icons";
+import Input from "@/components/Input";
+import Select from "@/components/Select";
+import { TabularInstance } from "@/components/Tabular/helpers/tableInstanceToTabularInstance";
 import defaultStyles from "./ExportControl.styles";
 import transformToCsv from "./transfomerToCsv";
 import transformToJson from "./transfomerToJson";
-import { toCsvFileData, toJsonFileData } from "../../../../utils/fileData";
+import { toCsvFileData, toJsonFileData } from "@/utils/fileData";
 
 const rootStyles = () => css`
   position: relative;

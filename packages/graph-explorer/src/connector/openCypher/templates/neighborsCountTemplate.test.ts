@@ -1,4 +1,4 @@
-import { normalize } from "../../../utils/testing";
+import { normalize } from "@/utils/testing";
 import neighborsCountTemplate from "./neighborsCountTemplate";
 
 describe("OpenCypher > neighborsCountTemplate", () => {

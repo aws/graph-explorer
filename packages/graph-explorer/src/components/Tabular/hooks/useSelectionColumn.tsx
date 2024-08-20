@@ -5,7 +5,7 @@
 
 import type { Hooks, Row } from "react-table";
 
-import { Checkbox, CheckboxSizes } from "../../Checkbox/Checkbox";
+import { Checkbox, CheckboxSizes } from "@/components/Checkbox/Checkbox";
 import type { TabularOptions } from "../useTabular";
 
 export const TABULAR_SELECTION_COL_ID = "__tabular-auto-generated-selection";

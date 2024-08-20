@@ -3,9 +3,9 @@ import type { DragEvent, MouseEvent, ReactNode, RefObject } from "react";
 import { useRef } from "react";
 import { useDrag } from "react-dnd";
 import { useHover } from "react-laag";
-import { CodeIcon } from "../../icons";
-import ListItem from "../../ListItem";
-import type { AdvancedListItemType } from "../AdvancedList";
+import { CodeIcon } from "@/components/icons";
+import ListItem from "@/components/ListItem";
+import type { AdvancedListItemType } from "@/components/AdvancedList";
 
 type AdvancedListItemProps<T extends object> = {
   className?: string;

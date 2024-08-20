@@ -1,4 +1,4 @@
-import { ConnectionConfig } from "../../core";
+import { ConnectionConfig } from "@/core";
 import fetchNeighbors from "./queries/fetchNeighbors";
 import fetchNeighborsCount from "./queries/fetchNeighborsCount";
 import fetchSchema from "./queries/fetchSchema";
@@ -8,7 +8,7 @@ import { fetchDatabaseRequest } from "../fetchDatabaseRequest";
 import { GraphSummary } from "./types";
 import { v4 } from "uuid";
 import { Explorer } from "../useGEFetchTypes";
-import { logger } from "../../utils";
+import { logger } from "@/utils";
 
 function _gremlinFetch(connection: ConnectionConfig, options: any) {
   return async (queryTemplate: string) => {

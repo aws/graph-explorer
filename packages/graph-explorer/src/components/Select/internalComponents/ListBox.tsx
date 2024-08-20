@@ -5,7 +5,7 @@ import type { ListState } from "@react-stately/list";
 import type { Node } from "@react-types/shared";
 import type { ForwardedRef, RefObject } from "react";
 import { forwardRef, useRef } from "react";
-import { useWithTheme } from "../../../core";
+import { useWithTheme } from "@/core";
 import styles from "../Select.styles";
 
 interface OptionProps<T> {

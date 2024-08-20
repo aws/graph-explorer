@@ -8,13 +8,16 @@ import type {
 } from "react";
 import { forwardRef, Fragment, useMemo, useState } from "react";
 
-import getChildrenOfType from "../../../utils/getChildrenOfType";
-import type { IconButtonProps } from "../../IconButton";
-import IconButton from "../../IconButton";
-import ChevronLeftIcon from "../../icons/ChevronLeftIcon";
-import CloseIcon from "../../icons/CloseIcon";
-import MoreIcon from "../../icons/MoreIcon";
-import UseLayer, { UseLayerOverlay, UseLayerTrigger } from "../../UseLayer";
+import getChildrenOfType from "@/utils/getChildrenOfType";
+import type { IconButtonProps } from "@/components/IconButton";
+import IconButton from "@/components/IconButton";
+import ChevronLeftIcon from "@/components/icons/ChevronLeftIcon";
+import CloseIcon from "@/components/icons/CloseIcon";
+import MoreIcon from "@/components/icons/MoreIcon";
+import UseLayer, {
+  UseLayerOverlay,
+  UseLayerTrigger,
+} from "@/components/UseLayer";
 import CollapsedActions from "./CollapsedActions";
 import ModuleContainerHeaderActions from "./ModuleContainerHeaderActions";
 import ModuleContainerVerticalDivider from "./ModuleContainerVerticalDivider";

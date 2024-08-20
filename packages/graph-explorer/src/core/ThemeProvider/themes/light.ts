@@ -1,4 +1,4 @@
-import type { ProcessedTheme } from "../types";
+import type { ProcessedTheme } from "@/core/ThemeProvider/types";
 
 const spacing = (scale: number) => `${scale * 4}px`;
 

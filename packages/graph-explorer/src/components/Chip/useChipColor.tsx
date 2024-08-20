@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { useTheme } from "../../core";
+import { useTheme } from "@/core";
 import type { ChipProps } from "./Chip";
 
 const isColorVariant = (

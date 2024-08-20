@@ -1,4 +1,4 @@
-import type { Edge } from "../../../@types/entities";
+import type { Edge } from "@/@types/entities";
 import type { OCEdge } from "../types";
 
 const mapApiEdge = (

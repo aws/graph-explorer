@@ -1,5 +1,5 @@
 import dedent from "dedent";
-import type { NeighborsCountRequest } from "../../useGEFetchTypes";
+import type { NeighborsCountRequest } from "@/connector/useGEFetchTypes";
 
 /**
  * Given a single nodes id, it returns an OpenCypher template with

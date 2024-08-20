@@ -1,29 +1,26 @@
 import difference from "lodash/difference";
 import { forwardRef, useCallback, useMemo } from "react";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import type { Edge } from "../../../@types/entities";
-import { NonVisibleIcon, VisibleIcon } from "../../../components";
-import type {
-  ColumnDefinition,
-  TabularInstance,
-} from "../../../components/Tabular";
-import { makeIconToggleCell } from "../../../components/Tabular/builders";
+import type { Edge } from "@/@types/entities";
+import { NonVisibleIcon, VisibleIcon } from "@/components";
+import type { ColumnDefinition, TabularInstance } from "@/components/Tabular";
+import { makeIconToggleCell } from "@/components/Tabular/builders";
 import {
   PlaceholderControl,
   TabularEmptyBodyControls,
-} from "../../../components/Tabular/controls";
-import Tabular from "../../../components/Tabular/Tabular";
+} from "@/components/Tabular/controls";
+import Tabular from "@/components/Tabular/Tabular";
 import {
   edgesAtom,
   edgesHiddenIdsAtom,
   edgesOutOfFocusIdsAtom,
   edgesSelectedIdsAtom,
-} from "../../../core/StateProvider/edges";
-import { nodesSelectedIdsAtom } from "../../../core/StateProvider/nodes";
-import { useDeepMemo } from "../../../hooks";
-import useTextTransform from "../../../hooks/useTextTransform";
-import useTranslations from "../../../hooks/useTranslations";
-import { recoilDiffSets } from "../../../utils/recoilState";
+} from "@/core/StateProvider/edges";
+import { nodesSelectedIdsAtom } from "@/core/StateProvider/nodes";
+import { useDeepMemo } from "@/hooks";
+import useTextTransform from "@/hooks/useTextTransform";
+import useTranslations from "@/hooks/useTranslations";
+import { recoilDiffSets } from "@/utils/recoilState";
 
 type ToggleEdge = Edge & { __is_visible: boolean };
 

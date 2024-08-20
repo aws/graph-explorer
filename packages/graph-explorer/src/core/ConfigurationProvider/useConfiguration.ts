@@ -1,7 +1,7 @@
 import uniqBy from "lodash/uniqBy";
 import { selector, selectorFamily, useRecoilValue } from "recoil";
-import DEFAULT_ICON_URL from "../../utils/defaultIconUrl";
-import { mergedConfigurationSelector } from "../StateProvider/configuration";
+import DEFAULT_ICON_URL from "@/utils/defaultIconUrl";
+import { mergedConfigurationSelector } from "@/core/StateProvider/configuration";
 import type {
   ConfigurationContextProps,
   EdgeTypeConfig,

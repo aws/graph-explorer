@@ -1,8 +1,8 @@
 import { cx } from "@emotion/css";
 import { MouseEvent, useCallback, useRef, useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
-import { Vertex } from "../../@types/entities";
-import type { ActionItem, ModuleContainerHeaderProps } from "../../components";
+import { Vertex } from "@/types/entities";
+import type { ActionItem, ModuleContainerHeaderProps } from "@/components";
 import {
   ModuleContainer,
   ModuleContainerHeader,
@@ -10,32 +10,32 @@ import {
   ResetIcon,
   ZoomInIcon,
   ZoomOutIcon,
-} from "../../components";
-import Card from "../../components/Card";
-import Graph from "../../components/Graph";
-import { GraphRef } from "../../components/Graph/Graph";
-import { ElementEventCallback } from "../../components/Graph/hooks/useAddClickEvents";
-import IconButton from "../../components/IconButton";
-import CloseIcon from "../../components/icons/CloseIcon";
-import InfoIcon from "../../components/icons/InfoIcon";
-import ScreenshotIcon from "../../components/icons/ScreenshotIcon";
-import ListItem from "../../components/ListItem";
-import RemoteSvgIcon from "../../components/RemoteSvgIcon";
-import Select from "../../components/Select";
+} from "@/components";
+import Card from "@/components/Card";
+import Graph from "@/components/Graph";
+import { GraphRef } from "@/components/Graph/Graph";
+import { ElementEventCallback } from "@/components/Graph/hooks/useAddClickEvents";
+import IconButton from "@/components/IconButton";
+import CloseIcon from "@/components/icons/CloseIcon";
+import InfoIcon from "@/components/icons/InfoIcon";
+import ScreenshotIcon from "@/components/icons/ScreenshotIcon";
+import ListItem from "@/components/ListItem";
+import RemoteSvgIcon from "@/components/RemoteSvgIcon";
+import Select from "@/components/Select";
 import {
   edgesHiddenIdsAtom,
   edgesOutOfFocusIdsAtom,
   edgesSelectedIdsAtom,
-} from "../../core/StateProvider/edges";
+} from "@/core/StateProvider/edges";
 import {
   nodesHiddenIdsAtom,
   nodesOutOfFocusIdsAtom,
   nodesSelectedIdsAtom,
-} from "../../core/StateProvider/nodes";
-import useWithTheme from "../../core/ThemeProvider/useWithTheme";
-import fade from "../../core/ThemeProvider/utils/fade";
-import { useEntities, useExpandNode } from "../../hooks";
-import useTextTransform from "../../hooks/useTextTransform";
+} from "@/core/StateProvider/nodes";
+import useWithTheme from "@/core/ThemeProvider/useWithTheme";
+import fade from "@/core/ThemeProvider/utils/fade";
+import { useEntities, useExpandNode } from "@/hooks";
+import useTextTransform from "@/hooks/useTextTransform";
 import defaultStyles from "./GraphViewerModule.styles";
 import ContextMenu from "./internalComponents/ContextMenu";
 import useContextMenu from "./useContextMenu";
@@ -43,7 +43,7 @@ import useGraphGlobalActions from "./useGraphGlobalActions";
 import useGraphStyles from "./useGraphStyles";
 import useNodeBadges from "./useNodeBadges";
 import useNodeDrop from "./useNodeDrop";
-import { useVertexTypeConfigs } from "../../core/ConfigurationProvider/useConfiguration";
+import { useVertexTypeConfigs } from "@/core/ConfigurationProvider/useConfiguration";
 
 export type GraphViewerProps = Omit<
   ModuleContainerHeaderProps,

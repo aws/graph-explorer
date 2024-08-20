@@ -1,5 +1,5 @@
 import { css, cx } from "@emotion/css";
-import LoadingSpinner from "../../LoadingSpinner";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 const loadingStyles = css`
   position: absolute;

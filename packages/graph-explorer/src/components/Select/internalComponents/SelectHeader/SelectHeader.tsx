@@ -1,6 +1,6 @@
 import { cx } from "@emotion/css";
 import type { PropsWithChildren } from "react";
-import { useWithTheme } from "../../../../core";
+import { useWithTheme } from "@/core";
 import defaultStyles from "./SelectHeader.styles";
 
 interface SelectHeaderProps {

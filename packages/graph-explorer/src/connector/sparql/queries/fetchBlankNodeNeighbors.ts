@@ -1,6 +1,6 @@
 import groupBy from "lodash/groupBy";
-import type { ErrorResponse } from "../../useGEFetchTypes";
-import isErrorResponse from "../../utils/isErrorResponse";
+import type { ErrorResponse } from "@/connector/useGEFetchTypes";
+import isErrorResponse from "@/connector/utils/isErrorResponse";
 import mapIncomingToEdge, {
   IncomingPredicate,
   isIncomingPredicate,
@@ -18,7 +18,7 @@ import {
   SPARQLBlankNodeNeighborsResponse,
   SparqlFetch,
 } from "../types";
-import { logger } from "../../../utils";
+import { logger } from "@/utils";
 
 type RawBlankNodeNeighborsResponse = {
   results: {

@@ -1,5 +1,5 @@
 import { css } from "@emotion/css";
-import type { ThemeStyleFn } from "../../../../core";
+import { ThemeStyleFn } from "@/core";
 import getSelectThemeWithDefaults from "../../utils/getThemeWithDefaultValues";
 
 const defaultStyles: ThemeStyleFn = activeTheme => {

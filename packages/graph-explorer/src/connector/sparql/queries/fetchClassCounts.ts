@@ -1,8 +1,8 @@
-import { logger } from "../../../utils";
+import { logger } from "@/utils";
 import type {
   CountsByTypeRequest,
   CountsByTypeResponse,
-} from "../../useGEFetchTypes";
+} from "@/connector/useGEFetchTypes";
 import classWithCountsTemplates from "../templates/classWithCountsTemplates";
 import { RawValue, SparqlFetch } from "../types";
 

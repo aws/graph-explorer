@@ -1,6 +1,6 @@
 import uniq from "lodash/uniq";
-import type { KeywordSearchRequest } from "../../useGEFetchTypes";
-import { escapeString } from "../../../utils";
+import type { KeywordSearchRequest } from "@/connector/useGEFetchTypes";
+import { escapeString } from "@/utils";
 import dedent from "dedent";
 
 /**

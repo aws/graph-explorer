@@ -1,9 +1,9 @@
 import { cx } from "@emotion/css";
 import { ReactNode } from "react";
 
-import { useWithTheme } from "../../../core";
-import { GridIcon } from "../../icons";
-import Select from "../../Select";
+import { useWithTheme } from "@/core";
+import { GridIcon } from "@/components/icons";
+import Select from "@/components/Select";
 import { ExportControl } from "../controls";
 
 import defaultStyles from "./ModuleContainerTabularHeader.styles";

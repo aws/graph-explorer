@@ -1,5 +1,5 @@
 import { css } from "@emotion/css";
-import type { ProcessedTheme, ThemeStyleFn } from "../../core";
+import type { ProcessedTheme, ThemeStyleFn } from "@/core";
 
 type DefaultStylesProps = {
   elevation: 0 | 1 | 2 | 3 | 4;

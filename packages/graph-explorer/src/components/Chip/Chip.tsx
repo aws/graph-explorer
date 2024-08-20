@@ -6,9 +6,9 @@ import type {
   ReactNode,
 } from "react";
 import { forwardRef } from "react";
-import { useWithTheme } from "../../core";
+import { useWithTheme } from "@/core";
 import IconButton from "../IconButton";
-import CloseIcon from "../icons/CloseIcon";
+import CloseIcon from "@/components/icons/CloseIcon";
 import defaultStyles from "./Chip.styles";
 
 export interface ChipProps extends HTMLAttributes<HTMLDivElement> {

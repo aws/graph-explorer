@@ -4,8 +4,8 @@ import type { PropsWithChildren, ReactNode } from "react";
 import { cloneElement, useEffect } from "react";
 import { Arrow, useHover, useLayer } from "react-laag";
 import type { PlacementType } from "react-laag/dist/PlacementType";
-import { useTheme, useWithTheme } from "../../core";
-import usePrevious from "../../hooks/usePrevious";
+import { useTheme, useWithTheme } from "@/core";
+import usePrevious from "@/hooks/usePrevious";
 import { tooltipStyles } from "./Tooltip.styles";
 
 function isReactText(children: ReactNode) {

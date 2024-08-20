@@ -29,8 +29,8 @@ import {
   UseSortByColumnOptions,
   useTable,
 } from "react-table";
-import { useTheme } from "../../core";
-import { useDeepMemo } from "../../hooks";
+import { useTheme } from "@/core";
+import { useDeepMemo } from "@/hooks";
 import TextFilter from "./filters/TextFilter";
 import columnDefinitionToColumn from "./helpers/columnDefinitionToColumn";
 import useSelectionColumn from "./hooks/useSelectionColumn";

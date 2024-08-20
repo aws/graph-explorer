@@ -1,6 +1,6 @@
 import cloneDeep from "lodash/cloneDeep";
 import isEqual from "lodash/isEqual";
-import { PrefixTypeConfig } from "../core";
+import { PrefixTypeConfig } from "@/core";
 import commonPrefixes from "./common-prefixes.json";
 
 const cPrefixes: PrefixTypeConfig[] = Object.entries(commonPrefixes).map(

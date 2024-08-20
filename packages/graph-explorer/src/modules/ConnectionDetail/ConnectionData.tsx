@@ -10,15 +10,15 @@ import {
   GraphIcon,
   IconButton,
   VertexIcon,
-} from "../../components";
-import HumanReadableNumberFormatter from "../../components/HumanReadableNumberFormatter";
-import { fade, useWithTheme } from "../../core";
-import { useConfiguration } from "../../core/ConfigurationProvider";
-import useEntitiesCounts from "../../hooks/useEntitiesCounts";
-import useTextTransform from "../../hooks/useTextTransform";
-import useTranslations from "../../hooks/useTranslations";
+} from "@/components";
+import HumanReadableNumberFormatter from "@/components/HumanReadableNumberFormatter";
+import { fade, useWithTheme } from "@/core";
+import { useConfiguration } from "@/core/ConfigurationProvider";
+import useEntitiesCounts from "@/hooks/useEntitiesCounts";
+import useTextTransform from "@/hooks/useTextTransform";
+import useTranslations from "@/hooks/useTranslations";
 import defaultStyles from "./ConnectionDetail.styles";
-import { useVertexTypeConfigs } from "../../core/ConfigurationProvider/useConfiguration";
+import { useVertexTypeConfigs } from "@/core/ConfigurationProvider/useConfiguration";
 
 const ConnectionData = () => {
   const config = useConfiguration();

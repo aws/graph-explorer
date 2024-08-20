@@ -1,4 +1,4 @@
-import { Edge } from "../../../@types/entities";
+import { Edge } from "@/@types/entities";
 import { RawValue } from "../types";
 
 export type IncomingPredicate = {

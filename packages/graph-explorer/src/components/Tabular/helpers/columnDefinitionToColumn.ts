@@ -1,5 +1,5 @@
 import { Column, ColumnGroup, ColumnInterfaceBasedOnValue } from "react-table";
-import type { ActiveThemeType, ProcessedTheme } from "../../../core";
+import type { ActiveThemeType, ProcessedTheme } from "@/core";
 
 import { numericFilter, singleSelectionFilter } from "../filters";
 import type { ColumnDefinition } from "../useTabular";

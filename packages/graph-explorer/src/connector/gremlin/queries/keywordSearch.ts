@@ -2,8 +2,8 @@ import type {
   ErrorResponse,
   KeywordSearchRequest,
   KeywordSearchResponse,
-} from "../../useGEFetchTypes";
-import isErrorResponse from "../../utils/isErrorResponse";
+} from "@/connector/useGEFetchTypes";
+import isErrorResponse from "@/connector/utils/isErrorResponse";
 import mapApiVertex from "../mappers/mapApiVertex";
 import keywordSearchTemplate from "../templates/keywordSearchTemplate";
 import type { GVertexList } from "../types";

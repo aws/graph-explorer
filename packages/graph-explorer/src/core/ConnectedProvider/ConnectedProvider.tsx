@@ -3,18 +3,18 @@ import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { NotificationProvider } from "../../components/NotificationProvider";
-import Toast from "../../components/Toast";
-import AppStatusLoader from "../AppStatusLoader";
-import type { RawConfiguration } from "../ConfigurationProvider";
-import StateProvider from "../StateProvider/StateProvider";
+import { NotificationProvider } from "@/components/NotificationProvider";
+import Toast from "@/components/Toast";
+import AppStatusLoader from "@/core/AppStatusLoader";
+import type { RawConfiguration } from "@/core/ConfigurationProvider";
+import StateProvider from "@/core/StateProvider/StateProvider";
 import type { ThemeProviderProps } from "../ThemeProvider/ThemeProvider";
-import ThemeProvider from "../ThemeProvider/ThemeProvider";
+import ThemeProvider from "@/core/ThemeProvider/ThemeProvider";
 import { MantineProvider } from "@mantine/core";
 import { emotionTransform, MantineEmotionProvider } from "@mantine/emotion";
-import { ExpandNodeProvider } from "../../hooks/useExpandNode";
+import { ExpandNodeProvider } from "@/hooks/useExpandNode";
 import { ErrorBoundary } from "react-error-boundary";
-import AppErrorPage from "../AppErrorPage";
+import AppErrorPage from "@/core/AppErrorPage";
 
 export type ConnectedProviderProps = {
   config?: RawConfiguration;

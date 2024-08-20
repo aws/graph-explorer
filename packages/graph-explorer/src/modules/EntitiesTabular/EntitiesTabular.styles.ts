@@ -1,5 +1,5 @@
 import { css } from "@emotion/css";
-import type { ThemeStyleFn } from "../../core/ThemeProvider/types";
+import type { ThemeStyleFn } from "@/core/ThemeProvider/types";
 
 const defaultStyles: ThemeStyleFn = ({ theme }) => {
   const { palette } = theme;

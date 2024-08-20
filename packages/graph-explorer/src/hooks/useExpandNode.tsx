@@ -5,22 +5,22 @@ import {
   useContext,
   useEffect,
 } from "react";
-import { useNotification } from "../components/NotificationProvider";
+import { useNotification } from "@/components/NotificationProvider";
 import type {
   NeighborsRequest,
   NeighborsResponse,
-} from "../connector/useGEFetchTypes";
+} from "@/connector/useGEFetchTypes";
 import {
   activeConnectionSelector,
   explorerSelector,
   loggerSelector,
-} from "../core/connector";
+} from "@/core/connector";
 import useEntities from "./useEntities";
 import { useRecoilValue } from "recoil";
 import { useMutation } from "@tanstack/react-query";
-import { Vertex } from "../@types/entities";
+import { Vertex } from "@/types/entities";
 import { useUpdateAllNodeCounts } from "./useUpdateNodeCounts";
-import { createDisplayError } from "../utils/createDisplayError";
+import { createDisplayError } from "@/utils/createDisplayError";
 
 /*
 

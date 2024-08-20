@@ -1,15 +1,15 @@
 import difference from "lodash/difference";
 import { useMemo } from "react";
-import type { Vertex } from "../../@types/entities";
-import { useWithTheme } from "../../core";
-import { useConfiguration } from "../../core/ConfigurationProvider";
-import useTextTransform from "../../hooks/useTextTransform";
-import useTranslations from "../../hooks/useTranslations";
+import type { Vertex } from "@/types/entities";
+import { useWithTheme } from "@/core";
+import { useConfiguration } from "@/core/ConfigurationProvider";
+import useTextTransform from "@/hooks/useTextTransform";
+import useTranslations from "@/hooks/useTranslations";
 import NeighborsList from "../common/NeighborsList/NeighborsList";
 import EntityAttribute from "./EntityAttribute";
 import defaultStyles from "./EntityDetail.styles";
 import VertexHeader from "../common/VertexHeader";
-import { useVertexTypeConfig } from "../../core/ConfigurationProvider/useConfiguration";
+import { useVertexTypeConfig } from "@/core/ConfigurationProvider/useConfiguration";
 
 export type VertexDetailProps = {
   hideNeighbors?: boolean;

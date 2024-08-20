@@ -1,5 +1,5 @@
 import { cx } from "@emotion/css";
-import GraphExplorerIcon from "../../icons/GraphExplorerIcon";
+import GraphExplorerIcon from "@/components/icons/GraphExplorerIcon";
 import { ComponentBaseProps } from "../..";
 
 export default function NavBarLogo({ className, ...rest }: ComponentBaseProps) {

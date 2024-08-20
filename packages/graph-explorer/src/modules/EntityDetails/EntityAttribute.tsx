@@ -1,6 +1,6 @@
-import { AttributeConfig } from "../../core";
-import useTextTransform from "../../hooks/useTextTransform";
-import { formatDate } from "../../utils";
+import { AttributeConfig } from "@/core";
+import useTextTransform from "@/hooks/useTextTransform";
+import { formatDate } from "@/utils";
 
 export type EntityAttributeProps = {
   value: Date | string | number;

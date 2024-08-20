@@ -1,10 +1,10 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { explorerSelector } from "../../core/connector";
-import usePrefixesUpdater from "../../hooks/usePrefixesUpdater";
+import { explorerSelector } from "@/core/connector";
+import usePrefixesUpdater from "@/hooks/usePrefixesUpdater";
 import { useCallback, useEffect } from "react";
 import { useRecoilValue } from "recoil";
-import { searchQuery } from "../../connector/queries";
-import { KeywordSearchRequest } from "../../connector/useGEFetchTypes";
+import { searchQuery } from "@/connector/queries";
+import { KeywordSearchRequest } from "@/connector/useGEFetchTypes";
 
 export type SearchQueryRequest = {
   debouncedSearchTerm: string;

@@ -1,4 +1,4 @@
-import { escapeString } from "../../../../utils";
+import { escapeString } from "@/utils";
 
 export const getSubjectClasses = (subjectClasses?: string[]) => {
   if (!subjectClasses?.length) {

@@ -1,12 +1,12 @@
 import { useQueries, useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useRecoilValue } from "recoil";
-import { Vertex } from "../@types/entities";
-import { useNotification } from "../components/NotificationProvider";
-import { neighborsCountQuery } from "../connector/queries";
-import { activeConnectionSelector, explorerSelector } from "../core/connector";
+import { Vertex } from "@/types/entities";
+import { useNotification } from "@/components/NotificationProvider";
+import { neighborsCountQuery } from "@/connector/queries";
+import { activeConnectionSelector, explorerSelector } from "@/core/connector";
 import useEntities from "./useEntities";
-import { VertexId } from "../connector/useGEFetchTypes";
+import { VertexId } from "@/connector/useGEFetchTypes";
 
 export function useUpdateNodeCountsQuery(nodeId: VertexId) {
   const connection = useRecoilValue(activeConnectionSelector);

@@ -1,4 +1,4 @@
-import { VertexTypeConfig } from "../../core";
+import { VertexTypeConfig } from "@/core";
 
 export type VertexIconConfig = Pick<
   VertexTypeConfig,

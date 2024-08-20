@@ -1,9 +1,9 @@
 import { useMemo } from "react";
-import { useConfiguration } from "../core";
+import { useConfiguration } from "@/core";
 import {
   useEdgeTypeConfigs,
   useVertexTypeConfigs,
-} from "../core/ConfigurationProvider/useConfiguration";
+} from "@/core/ConfigurationProvider/useConfiguration";
 
 const useEntitiesCounts = () => {
   const config = useConfiguration();

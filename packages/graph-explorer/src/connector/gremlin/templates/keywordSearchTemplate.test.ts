@@ -1,5 +1,5 @@
 import keywordSearchTemplate from "./keywordSearchTemplate";
-import { normalizeWithNoSpace as normalize } from "../../../utils/testing";
+import { normalizeWithNoSpace as normalize } from "@/utils/testing";
 
 describe("Gremlin > keywordSearchTemplate", () => {
   it("Should return a template only with default range", () => {
