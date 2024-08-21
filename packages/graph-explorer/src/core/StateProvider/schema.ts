@@ -3,7 +3,7 @@ import {
   EdgeTypeConfig,
   PrefixTypeConfig,
   VertexTypeConfig,
-} from "../ConfigurationProvider";
+} from "@/core/ConfigurationProvider";
 import localForageEffect from "./localForageEffect";
 import { activeConfigurationAtom } from "./configuration";
 import isDefaultValue from "./isDefaultValue";

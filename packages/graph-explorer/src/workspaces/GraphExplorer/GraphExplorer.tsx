@@ -38,7 +38,7 @@ import Namespaces from "@/modules/Namespaces/Namespaces";
 import NodeExpand from "@/modules/NodeExpand";
 import NodesStyling from "@/modules/NodesStyling/NodesStyling";
 import defaultStyles from "./GraphExplorer.styles";
-import { APP_NAME } from "../../utils/constants";
+import { APP_NAME } from "@/utils/constants";
 
 const RESIZE_ENABLE_TOP = {
   top: true,

@@ -12,10 +12,10 @@ import useNeighborsOptions, {
   NeighborOption,
 } from "@/hooks/useNeighborsOptions";
 import useTranslations from "@/hooks/useTranslations";
-import NeighborsList from "../common/NeighborsList/NeighborsList";
+import NeighborsList from "@/modules/common/NeighborsList/NeighborsList";
 import defaultStyles from "./NodeExpandContent.styles";
 import NodeExpandFilters, { NodeExpandFilter } from "./NodeExpandFilters";
-import VertexHeader from "../common/VertexHeader";
+import VertexHeader from "@/modules/common/VertexHeader";
 import { ExpandNodeRequest } from "@/hooks/useExpandNode";
 import { useUpdateNodeCountsQuery } from "@/hooks/useUpdateNodeCounts";
 import { cx } from "@emotion/css";

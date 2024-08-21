@@ -4,9 +4,9 @@ import {
   SectionTitle,
   Paragraph,
   SendIcon,
-} from "../../components";
-import { env } from "../../utils";
-import { APP_NAME } from "../../utils/constants";
+} from "@/components";
+import { env } from "@/utils";
+import { APP_NAME } from "@/utils/constants";
 import { SettingsSection, SettingsSectionContainer } from "./SettingsSection";
 
 export default function SettingsAbout() {

@@ -12,15 +12,15 @@ import {
   LoaderIcon,
   Button,
   CheckIcon,
-} from "../../components";
+} from "@/components";
 import {
   readBackupDataFromFile,
   restoreBackup,
   type SerializedBackup,
-} from "../../core/StateProvider/localDb";
-import { useDebounceValue } from "../../hooks";
-import { env } from "../../utils";
-import { APP_NAME } from "../../utils/constants";
+} from "@/core/StateProvider/localDb";
+import { useDebounceValue } from "@/hooks";
+import { env } from "@/utils";
+import { APP_NAME } from "@/utils/constants";
 
 export default function LoadConfigButton() {
   const [file, setFile] = useState<File | null>(null);

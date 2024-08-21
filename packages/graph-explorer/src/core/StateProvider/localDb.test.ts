@@ -1,11 +1,11 @@
-import { toJsonFileData } from "../../utils/fileData";
+import { toJsonFileData } from "@/utils/fileData";
 import {
   createRandomDate,
   createRandomInteger,
   createRandomName,
   createRandomRawConfiguration,
   createRandomSchema,
-} from "../../utils/testing";
+} from "@/utils/testing";
 import {
   createBackupData,
   LocalDb,

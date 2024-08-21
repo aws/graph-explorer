@@ -16,11 +16,7 @@ import {
   SyncIcon,
   TrayArrowIcon,
 } from "@/components";
-import {
-  showDebugActionsAtom,
-  useConfiguration,
-  useWithTheme,
-} from "@/core";
+import { showDebugActionsAtom, useConfiguration, useWithTheme } from "@/core";
 import {
   activeConfigurationAtom,
   configurationAtom,

@@ -1,16 +1,16 @@
-import Workspace from "../../components/Workspace/Workspace";
+import Workspace from "@/components/Workspace/Workspace";
 import {
   Button,
   DatabaseIcon,
   ForwardIcon,
   ModuleContainer,
   ModuleContainerContent,
-} from "../../components";
+} from "@/components";
 import { Link, NavLink, Outlet, To } from "react-router-dom";
 import { PropsWithChildren, Suspense } from "react";
-import AppLoadingPage from "../../core/AppLoadingPage";
+import AppLoadingPage from "@/core/AppLoadingPage";
 import { cx } from "@emotion/css";
-import { APP_NAME } from "../../utils/constants";
+import { APP_NAME } from "@/utils/constants";
 
 export default function SettingsRoot() {
   return (

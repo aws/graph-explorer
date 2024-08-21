@@ -1,5 +1,5 @@
 import { useRecoilState } from "recoil";
-import { showDebugActionsAtom, showRecoilStateLoggingAtom } from "../../core";
+import { showDebugActionsAtom, showRecoilStateLoggingAtom } from "@/core";
 import {
   Button,
   Checkbox,
@@ -9,12 +9,12 @@ import {
   SaveIcon,
   ImportantBlock,
   NotInProduction,
-} from "../../components";
+} from "@/components";
 import { SettingsSection, SettingsSectionContainer } from "./SettingsSection";
-import { saveLocalForageToFile } from "../../core/StateProvider/localDb";
+import { saveLocalForageToFile } from "@/core/StateProvider/localDb";
 import localforage from "localforage";
 import LoadConfigButton from "./LoadConfigButton";
-import { APP_NAME } from "../../utils/constants";
+import { APP_NAME } from "@/utils/constants";
 
 export default function SettingsGeneral() {
   const [isStateLoggingEnabled, setIsStateLoggingEnabled] = useRecoilState(

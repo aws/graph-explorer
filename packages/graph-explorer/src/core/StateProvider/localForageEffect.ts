@@ -1,6 +1,6 @@
 import localForage from "localforage";
 import { AtomEffect, DefaultValue } from "recoil";
-import { logger } from "../../utils";
+import { logger } from "@/utils";
 
 localForage.config({
   name: "ge",

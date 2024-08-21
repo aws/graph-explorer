@@ -14,7 +14,7 @@ import useSchemaSync from "@/hooks/useSchemaSync";
 import AvailableConnections from "@/modules/AvailableConnections";
 import ConnectionDetail from "@/modules/ConnectionDetail";
 import defaultStyles from "./Connections.styles";
-import { APP_NAME } from "../../utils/constants";
+import { APP_NAME } from "@/utils/constants";
 
 const Connections = () => {
   const styleWithTheme = useWithTheme();

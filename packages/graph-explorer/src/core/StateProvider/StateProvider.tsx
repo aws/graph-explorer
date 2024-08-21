@@ -5,7 +5,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import AppErrorPage from "@/core/AppErrorPage";
 import AppLoadingPage from "@/core/AppLoadingPage";
 import { NotInProduction } from "@/components";
-import { showRecoilStateLoggingAtom } from "../featureFlags";
+import { showRecoilStateLoggingAtom } from "@/core/featureFlags";
 
 export default function StateProvider({
   children,
