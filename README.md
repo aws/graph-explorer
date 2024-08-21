@@ -32,6 +32,18 @@ databases and Graph Explorer, we recommend that you check out the
   collection of helpful tips if you run in to issues while setting up Graph
   Explorer.
 
+### Minimum Recommended Versions
+
+Graph Explorer does not block any particular versions of graph databases, but
+the queries used may or may not succeed based on the version of the query
+engine.
+
+For Neptune databases, we recommend
+[version 1.2.1.0](https://docs.aws.amazon.com/neptune/latest/userguide/engine-releases-1.2.1.0.html)
+or above, which include the summary API and TinkerPop 3.6.2.
+
+For non-Neptune databases, we recommend at least TinkerPop 3.6.
+
 ## Features
 
 ### Connections UI
