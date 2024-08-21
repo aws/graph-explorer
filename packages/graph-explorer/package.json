@@ -10,7 +10,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "coverage": "vitest run --coverage",
-    "dev": "vite",
+    "dev": "vite --force",
     "clean": "rimraf dist",
     "vite-build": "NODE_OPTIONS=--max_old_space_size=6144 vite build",
     "build": "pnpm vite-build -- --mode production",
@@ -87,7 +87,8 @@
     "swiper": "^11.1.5",
     "use-deep-compare-effect": "^1.8.1",
     "uuid": "^9.0.1",
-    "vite-tsconfig-paths": "^5.0.1"
+    "vite-tsconfig-paths": "^5.0.1",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@babel/core": "^7.24.5",

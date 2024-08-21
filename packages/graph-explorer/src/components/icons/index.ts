@@ -36,6 +36,7 @@ export { default as FileIcon } from "./FileIcon";
 export { default as FilterIcon } from "./FilterIcon";
 export { default as FitToFrameIcon } from "./FitToFrameIcon";
 export { default as ForwardIcon } from "./ForwardIcon";
+export { default as GearIcon } from "./GearIcon";
 export { default as GraphIcon } from "./GraphIcon";
 export { default as GreaterOrEqualThanIcon } from "./GreaterOrEqualThanIcon";
 export { default as GreaterThanIcon } from "./GreaterThanIcon";

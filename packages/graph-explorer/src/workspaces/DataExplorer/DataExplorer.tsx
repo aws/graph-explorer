@@ -48,6 +48,7 @@ import useUpdateVertexTypeCounts from "@/hooks/useUpdateVertexTypeCounts";
 import defaultStyles from "./DataExplorer.styles";
 import { searchQuery } from "@/connector/queries";
 import { useVertexTypeConfig } from "@/core/ConfigurationProvider/useConfiguration";
+import { APP_NAME } from "@/utils/constants";
 
 export type ConnectionsProps = {
   vertexType: string;
@@ -107,7 +108,7 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
               icon={<ExplorerIcon />}
               variant={"filled"}
             >
-              Open Graph Explorer
+              Open {APP_NAME}
             </Button>
           </Link>
         </Workspace.TopBar.AdditionalControls>

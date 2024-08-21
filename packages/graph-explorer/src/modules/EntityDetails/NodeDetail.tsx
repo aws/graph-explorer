@@ -5,10 +5,10 @@ import { useWithTheme } from "@/core";
 import { useConfiguration } from "@/core/ConfigurationProvider";
 import useTextTransform from "@/hooks/useTextTransform";
 import useTranslations from "@/hooks/useTranslations";
-import NeighborsList from "../common/NeighborsList/NeighborsList";
+import NeighborsList from "@/modules/common/NeighborsList/NeighborsList";
 import EntityAttribute from "./EntityAttribute";
 import defaultStyles from "./EntityDetail.styles";
-import VertexHeader from "../common/VertexHeader";
+import VertexHeader from "@/modules/common/VertexHeader";
 import { useVertexTypeConfig } from "@/core/ConfigurationProvider/useConfiguration";
 
 export type VertexDetailProps = {

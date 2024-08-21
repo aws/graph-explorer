@@ -30,7 +30,7 @@ import useDisplayNames from "@/hooks/useDisplayNames";
 import useTextTransform from "@/hooks/useTextTransform";
 import useTranslations from "@/hooks/useTranslations";
 
-import NodeDetail from "../EntityDetails/NodeDetail";
+import NodeDetail from "@/modules/EntityDetails/NodeDetail";
 import defaultStyles from "./KeywordSearch.styles";
 import toAdvancedList from "./toAdvancedList";
 import useKeywordSearch from "./useKeywordSearch";

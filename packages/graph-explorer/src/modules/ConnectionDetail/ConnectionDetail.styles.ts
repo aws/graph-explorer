@@ -2,10 +2,6 @@ import { css } from "@emotion/css";
 import type { ThemeStyleFn } from "@/core";
 
 const defaultStyles: ThemeStyleFn = ({ theme }) => css`
-  display: contents;
-  height: 100%;
-  background: ${theme.palette.background.default};
-
   .header-children {
     display: flex;
     justify-content: flex-end;
