@@ -182,10 +182,15 @@ start_graph_explorer_with_default_logs() {
 output=$(start_graph_explorer_with_cw_logs 2>&1)
 exit_status=$?
 
-if [[ $exit_status -ne 0 && "$output" == *"logging driver"* ]]; then
+if [[ $exit_status -ne 0 ]]; then
+  if [[ "$output" == *"logging driver"* ]]; then
     echo "Failed to start Graph Explorer Docker container with AWS log driver. Please check that your notebook has sufficient CloudWatch IAM permissions."
     echo "Retrying with default JSON file logging driver..."
     start_graph_explorer_with_default_logs
+  else
+    echo "$output"
+    exit 1
+  fi
 fi
 
 echo "Graph Explorer installation done."
