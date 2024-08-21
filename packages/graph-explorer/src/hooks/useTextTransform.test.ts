@@ -2,15 +2,15 @@ import { MutableSnapshot } from "recoil";
 import {
   activeConfigurationAtom,
   configurationAtom,
-} from "../core/StateProvider/configuration";
+} from "@/core/StateProvider/configuration";
 import {
   createRandomRawConfiguration,
   createRandomSchema,
   renderHookWithRecoilRoot,
-} from "../utils/testing";
+} from "@/utils/testing";
 import useTextTransform from "./useTextTransform";
 import { vi } from "vitest";
-import { schemaAtom } from "../core/StateProvider/schema";
+import { schemaAtom } from "@/core/StateProvider/schema";
 
 function initializeConfigWithPrefix(snapshot: MutableSnapshot) {
   // Create config and setup schema

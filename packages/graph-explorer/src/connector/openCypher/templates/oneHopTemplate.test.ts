@@ -1,4 +1,4 @@
-import { normalize } from "../../../utils/testing";
+import { normalize } from "@/utils/testing";
 import oneHopTemplate from "./oneHopTemplate";
 
 describe("OpenCypher > oneHopTemplate", () => {

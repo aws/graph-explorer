@@ -2,11 +2,11 @@ import { css } from "@emotion/css";
 import { ReactNode } from "react";
 import { ColumnInstance } from "react-table";
 
-import type { ActiveThemeType, ProcessedTheme } from "../../../core";
-import { cssVar } from "../../../core/ThemeProvider/utils/lib";
+import type { ActiveThemeType, ProcessedTheme } from "@/core";
+import { cssVar } from "@/core/ThemeProvider/utils/lib";
 
-import { FilterIcon } from "../../icons";
-import Input from "../../Input";
+import { FilterIcon } from "@/components/icons";
+import Input from "@/components/Input";
 
 const defaultStyles = (isDarkTheme?: boolean) => css`
   width: 100%;

@@ -1,15 +1,15 @@
 import useNeighborsOptions from "./useNeighborsOptions";
-import { Vertex } from "../@types/entities";
+import { Vertex } from "@/types/entities";
 import {
   activeConfigurationAtom,
   configurationAtom,
-} from "../core/StateProvider/configuration";
+} from "@/core/StateProvider/configuration";
 import {
   createRandomRawConfiguration,
   createRandomSchema,
   renderHookWithRecoilRoot,
-} from "../utils/testing";
-import { schemaAtom } from "../core/StateProvider/schema";
+} from "@/utils/testing";
+import { schemaAtom } from "@/core/StateProvider/schema";
 
 describe("useNeighborsOptions", () => {
   const vertex = {

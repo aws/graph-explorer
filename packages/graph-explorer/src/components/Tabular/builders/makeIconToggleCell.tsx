@@ -1,6 +1,6 @@
 import { css } from "@emotion/css";
 import type { ReactNode } from "react";
-import IconButton from "../../IconButton";
+import IconButton from "@/components/IconButton";
 
 import type { CellComponentProps } from "../useTabular";
 

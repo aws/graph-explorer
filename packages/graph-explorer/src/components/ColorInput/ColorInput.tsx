@@ -1,7 +1,7 @@
 import { cx } from "@emotion/css";
 import { ColorPicker, ColorPickerProps } from "@mantine/core";
 import { FC, useEffect, useState } from "react";
-import { useWithTheme } from "../../core";
+import { useWithTheme } from "@/core";
 import {
   Input,
   InputProps,

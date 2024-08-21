@@ -2,8 +2,8 @@ import merge from "lodash/merge";
 import { PropsWithChildren, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { useRecoilState, useRecoilValue } from "recoil";
-import { LoadingSpinner, PanelEmptyState } from "../components";
-import Redirect from "../components/Redirect";
+import { LoadingSpinner, PanelEmptyState } from "@/components";
+import Redirect from "@/components/Redirect";
 import { RawConfiguration, fetchConfiguration } from "./ConfigurationProvider";
 import {
   activeConfigurationAtom,
@@ -12,7 +12,7 @@ import {
 } from "./StateProvider/configuration";
 import { schemaAtom } from "./StateProvider/schema";
 import useLoadStore from "./StateProvider/useLoadStore";
-import { CONNECTIONS_OP } from "../modules/CreateConnection/CreateConnection";
+import { CONNECTIONS_OP } from "@/modules/CreateConnection/CreateConnection";
 
 export type AppLoadingProps = {
   config?: RawConfiguration;

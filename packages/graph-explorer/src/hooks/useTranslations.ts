@@ -1,6 +1,6 @@
 import flat from "flat";
 import { useCallback } from "react";
-import { useConfiguration } from "../core";
+import { useConfiguration } from "@/core";
 
 import gremlinTs from "./translations/gremlin-translations.json";
 import sparqlTs from "./translations/sparql-translations.json";

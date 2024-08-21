@@ -2,9 +2,9 @@ import { PropsWithChildren, Suspense } from "react";
 import { RecoilRoot } from "recoil";
 import StateDebug from "./StateDebug";
 import { ErrorBoundary } from "react-error-boundary";
-import AppErrorPage from "../AppErrorPage";
-import AppLoadingPage from "../AppLoadingPage";
-import { NotInProduction } from "../../components";
+import AppErrorPage from "@/core/AppErrorPage";
+import AppLoadingPage from "@/core/AppLoadingPage";
+import { NotInProduction } from "@/components";
 
 export default function StateProvider({
   children,

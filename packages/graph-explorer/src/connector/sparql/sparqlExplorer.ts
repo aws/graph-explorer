@@ -20,9 +20,9 @@ import {
   SPARQLKeywordSearchRequest,
   SPARQLNeighborsRequest,
 } from "./types";
-import { ConnectionConfig } from "../../core";
+import { ConnectionConfig } from "@/core";
 import { v4 } from "uuid";
-import { env, logger } from "../../utils";
+import { env, logger } from "@/utils";
 
 const replaceBlankNodeFromSearch = (
   blankNodes: BlankNodesMap,

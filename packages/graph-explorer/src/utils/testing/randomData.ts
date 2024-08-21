@@ -5,9 +5,9 @@ import {
   RawConfiguration,
   Schema,
   VertexTypeConfig,
-} from "../../core";
-import { Edge, Vertex } from "../../@types/entities";
-import { Entities } from "../../core/StateProvider/entitiesSelector";
+} from "@/core";
+import { Edge, Vertex } from "@/types/entities";
+import { Entities } from "@/core/StateProvider/entitiesSelector";
 
 /*
 

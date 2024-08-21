@@ -1,6 +1,6 @@
 import { css } from "@emotion/css";
-import type { ThemeStyleFn } from "../../core";
-import fade from "../../core/ThemeProvider/utils/fade";
+import type { ThemeStyleFn } from "@/core";
+import fade from "@/core/ThemeProvider/utils/fade";
 
 const defaultStyles =
   (lineColor = "#b3b3b3"): ThemeStyleFn =>

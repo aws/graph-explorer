@@ -2,7 +2,7 @@ import { cx } from "@emotion/css";
 
 import type { HeaderGroup, TableInstance } from "react-table";
 
-import { ArrowDown } from "../icons";
+import { ArrowDown } from "@/components/icons";
 
 const TabularHeader = <T extends object>({
   headerGroup,

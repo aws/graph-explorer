@@ -4,9 +4,9 @@ import {
   ModuleContainerContent,
   ModuleContainerHeader,
   ModuleContainerHeaderProps,
-} from "../../components";
-import { useConfiguration } from "../../core";
-import useTranslations from "../../hooks/useTranslations";
+} from "@/components";
+import { useConfiguration } from "@/core";
+import useTranslations from "@/hooks/useTranslations";
 import SingleNodeStyling from "./SingleNodeStyling";
 import { Fragment } from "react/jsx-runtime";
 

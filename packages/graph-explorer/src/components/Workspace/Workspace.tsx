@@ -1,8 +1,8 @@
 import { cx } from "@emotion/css";
 import type { PropsWithChildren, ReactElement } from "react";
 import { useMemo } from "react";
-import { getChildrenOfType } from "../../utils";
-import getChildOfType from "../../utils/getChildOfType";
+import { getChildrenOfType } from "@/utils";
+import getChildOfType from "@/utils/getChildOfType";
 import WorkspaceFooter from "./components/WorkspaceFooter";
 import WorkspaceNavBar from "./components/WorkspaceNavBar";
 import WorkspacesContent from "./components/WorkspacesContent";

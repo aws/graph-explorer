@@ -1,8 +1,8 @@
 import { css } from "@emotion/css";
-import type { ActiveThemeType, ProcessedTheme } from "../../../core";
-import { useTheme } from "../../../core";
+import type { ActiveThemeType, ProcessedTheme } from "@/core";
+import { useTheme } from "@/core";
 
-import { Chip } from "../../Chip/Chip";
+import { Chip } from "@/components/Chip/Chip";
 import type { CellComponentProps } from "../useTabular";
 
 const DEFAULT_COLOR = "#128ee5";

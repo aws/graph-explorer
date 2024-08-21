@@ -1,4 +1,4 @@
-import { normalize } from "../../../../utils/testing";
+import { normalize } from "@/utils/testing";
 import keywordSearchTemplate from "./keywordSearchTemplate";
 
 describe("SPARQL > keywordSearchTemplate", () => {

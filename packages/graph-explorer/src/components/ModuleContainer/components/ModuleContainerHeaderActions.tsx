@@ -1,9 +1,12 @@
 import { cx } from "@emotion/css";
 import { Fragment, useMemo, useState } from "react";
-import { useWithTheme } from "../../../core";
-import IconButton from "../../IconButton";
-import MoreIcon from "../../icons/MoreIcon";
-import UseLayer, { UseLayerOverlay, UseLayerTrigger } from "../../UseLayer";
+import { useWithTheme } from "@/core";
+import IconButton from "@/components/IconButton";
+import MoreIcon from "@/components/icons/MoreIcon";
+import UseLayer, {
+  UseLayerOverlay,
+  UseLayerTrigger,
+} from "@/components/UseLayer";
 import CollapsedActions from "./CollapsedActions";
 import type { Action, ActionItem } from "./ModuleContainerHeader";
 import defaultStyles from "./ModuleContainerHeaderActions.styles";

@@ -1,32 +1,29 @@
 import difference from "lodash/difference";
 import { forwardRef, useCallback, useMemo } from "react";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import type { Vertex, VertexData } from "../../../@types/entities";
-import { NonVisibleIcon, VisibleIcon } from "../../../components";
-import type {
-  ColumnDefinition,
-  TabularInstance,
-} from "../../../components/Tabular";
-import { makeIconToggleCell } from "../../../components/Tabular/builders";
+import type { Vertex, VertexData } from "@/@types/entities";
+import { NonVisibleIcon, VisibleIcon } from "@/components";
+import type { ColumnDefinition, TabularInstance } from "@/components/Tabular";
+import { makeIconToggleCell } from "@/components/Tabular/builders";
 import {
   PlaceholderControl,
   TabularEmptyBodyControls,
-} from "../../../components/Tabular/controls";
-import Tabular from "../../../components/Tabular/Tabular";
-import { useConfiguration } from "../../../core";
-import { edgesSelectedIdsAtom } from "../../../core/StateProvider/edges";
+} from "@/components/Tabular/controls";
+import Tabular from "@/components/Tabular/Tabular";
+import { useConfiguration } from "@/core";
+import { edgesSelectedIdsAtom } from "@/core/StateProvider/edges";
 import {
   nodesAtom,
   nodesHiddenIdsAtom,
   nodesOutOfFocusIdsAtom,
   nodesSelectedIdsAtom,
-} from "../../../core/StateProvider/nodes";
+} from "@/core/StateProvider/nodes";
 
-import { useDeepMemo } from "../../../hooks";
-import useDisplayNames from "../../../hooks/useDisplayNames";
-import useTextTransform from "../../../hooks/useTextTransform";
-import useTranslations from "../../../hooks/useTranslations";
-import { recoilDiffSets } from "../../../utils/recoilState";
+import { useDeepMemo } from "@/hooks";
+import useDisplayNames from "@/hooks/useDisplayNames";
+import useTextTransform from "@/hooks/useTextTransform";
+import useTranslations from "@/hooks/useTranslations";
+import { recoilDiffSets } from "@/utils/recoilState";
 
 type ToggleVertex = Vertex & { __is_visible: boolean };
 

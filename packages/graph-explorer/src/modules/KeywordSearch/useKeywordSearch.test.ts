@@ -1,17 +1,14 @@
 import useKeywordSearch from "./useKeywordSearch";
-import { ConnectionConfig } from "../../core";
-import {
-  createRandomSchema,
-  renderHookWithRecoilRoot,
-} from "../../utils/testing";
-import { createRandomRawConfiguration } from "../../utils/testing";
+import { ConnectionConfig } from "@/core";
+import { createRandomSchema, renderHookWithRecoilRoot } from "@/utils/testing";
+import { createRandomRawConfiguration } from "@/utils/testing";
 import {
   activeConfigurationAtom,
   configurationAtom,
-} from "../../core/StateProvider/configuration";
+} from "@/core/StateProvider/configuration";
 import { MutableSnapshot } from "recoil";
 import { vi } from "vitest";
-import { schemaAtom } from "../../core/StateProvider/schema";
+import { schemaAtom } from "@/core/StateProvider/schema";
 
 vi.mock("./useKeywordSearchQuery", () => ({
   useKeywordSearchQuery: vi.fn().mockReturnValue({

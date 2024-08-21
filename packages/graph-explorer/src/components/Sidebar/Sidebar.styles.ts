@@ -1,6 +1,6 @@
 import { css } from "@emotion/css";
-import type { ThemeStyleFn } from "../../core";
-import { fade } from "../../core";
+import type { ThemeStyleFn } from "@/core";
+import { fade } from "@/core";
 import { SidebarTheme } from "./Sidebar.model";
 
 const defaultStyles: ThemeStyleFn<SidebarTheme> = ({ theme }) => {

@@ -1,7 +1,7 @@
 import { css, cx } from "@emotion/css";
 
-import type { ActiveThemeType, ProcessedTheme } from "../../../core";
-import { useTheme, useWithTheme } from "../../../core";
+import type { ActiveThemeType, ProcessedTheme } from "@/core";
+import { useTheme, useWithTheme } from "@/core";
 
 import type { CellComponentProps } from "../useTabular";
 

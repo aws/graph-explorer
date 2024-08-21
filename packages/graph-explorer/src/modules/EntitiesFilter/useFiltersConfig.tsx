@@ -1,20 +1,20 @@
 import sortBy from "lodash/sortBy";
 import { useCallback, useMemo } from "react";
 import { selector, useRecoilValue, useSetRecoilState } from "recoil";
-import { EdgeIcon } from "../../components/icons";
-import VertexIcon from "../../components/VertexIcon";
-import { edgesTypesFilteredAtom } from "../../core/StateProvider/edges";
-import { nodesTypesFilteredAtom } from "../../core/StateProvider/nodes";
-import useTextTransform from "../../hooks/useTextTransform";
+import { EdgeIcon } from "@/components/icons";
+import VertexIcon from "@/components/VertexIcon";
+import { edgesTypesFilteredAtom } from "@/core/StateProvider/edges";
+import { nodesTypesFilteredAtom } from "@/core/StateProvider/nodes";
+import useTextTransform from "@/hooks/useTextTransform";
 import {
   edgeTypesSelector,
   vertexTypesSelector,
-} from "../../core/StateProvider/configuration";
-import { CheckboxListItemProps } from "../../components";
+} from "@/core/StateProvider/configuration";
+import { CheckboxListItemProps } from "@/components";
 import {
   useEdgeTypeConfigs,
   useVertexTypeConfigs,
-} from "../../core/ConfigurationProvider/useConfiguration";
+} from "@/core/ConfigurationProvider/useConfiguration";
 
 const selectedVerticesSelector = selector({
   key: "filters-selected-vertices",

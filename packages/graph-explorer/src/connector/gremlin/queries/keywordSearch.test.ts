@@ -1,5 +1,5 @@
-import globalMockFetch from "../../testUtils/globalMockFetch";
-import mockGremlinFetch from "../../testUtils/mockGremlinFetch";
+import globalMockFetch from "@/connector/testUtils/globalMockFetch";
+import mockGremlinFetch from "@/connector/testUtils/mockGremlinFetch";
 import keywordSearch from "./keywordSearch";
 
 describe("Gremlin > keywordSearch", () => {

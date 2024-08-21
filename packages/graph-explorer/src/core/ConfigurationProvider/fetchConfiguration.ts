@@ -1,4 +1,4 @@
-import { env } from "../../utils";
+import { env } from "@/utils";
 import type { RawConfiguration } from "./types";
 
 const fetchConfiguration = async (

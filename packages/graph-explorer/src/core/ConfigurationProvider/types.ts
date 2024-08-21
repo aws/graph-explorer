@@ -1,7 +1,7 @@
 import {
   EdgePreferences,
   VertexPreferences,
-} from "../StateProvider/userPreferences";
+} from "@/core/StateProvider/userPreferences";
 
 export type AttributeConfig = {
   /**

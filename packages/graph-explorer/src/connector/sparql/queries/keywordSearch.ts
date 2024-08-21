@@ -1,9 +1,9 @@
-import { logger } from "../../../utils";
+import { logger } from "@/utils";
 import type {
   ErrorResponse,
   KeywordSearchResponse,
-} from "../../useGEFetchTypes";
-import isErrorResponse from "../../utils/isErrorResponse";
+} from "@/connector/useGEFetchTypes";
+import isErrorResponse from "@/connector/utils/isErrorResponse";
 import mapRawResultToVertex from "../mappers/mapRawResultToVertex";
 import keywordSearchTemplate from "../templates/keywordSearch/keywordSearchTemplate";
 import {

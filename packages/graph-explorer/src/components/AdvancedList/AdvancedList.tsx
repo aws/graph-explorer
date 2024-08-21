@@ -11,10 +11,10 @@ import type {
 import { Children, forwardRef, useEffect, useMemo, useState } from "react";
 import type { VirtuosoHandle } from "react-virtuoso";
 import { Virtuoso } from "react-virtuoso";
-import { useWithTheme } from "../../core";
-import useDebounceValue from "../../hooks/useDebounceValue";
-import LoadingSpinner from "../LoadingSpinner";
-import Section from "../Section/Section";
+import { useWithTheme } from "@/core";
+import useDebounceValue from "@/hooks/useDebounceValue";
+import LoadingSpinner from "@/components/LoadingSpinner";
+import Section from "@/components/Section/Section";
 import styles from "./AdvancedList.styles";
 import ElementsListItem from "./internalComponents/AdvancedListItem";
 import AdvancedListWithGroups from "./internalComponents/AdvancedListWithGroups";

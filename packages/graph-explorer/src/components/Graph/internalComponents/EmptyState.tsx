@@ -1,6 +1,6 @@
 import { css } from "@emotion/css";
-import { SearchIcon } from "../../icons";
-import { PanelEmptyState } from "../../PanelEmptyState";
+import { SearchIcon } from "@/components/icons";
+import { PanelEmptyState } from "@/components/PanelEmptyState";
 
 const EmptyState = () => {
   return (

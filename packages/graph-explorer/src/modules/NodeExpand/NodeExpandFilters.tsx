@@ -8,11 +8,11 @@ import {
   Input,
   Select,
   SelectOption,
-} from "../../components";
-import { useConfiguration } from "../../core";
-import useTextTransform from "../../hooks/useTextTransform";
-import useTranslations from "../../hooks/useTranslations";
-import { useVertexTypeConfig } from "../../core/ConfigurationProvider/useConfiguration";
+} from "@/components";
+import { useConfiguration } from "@/core";
+import useTextTransform from "@/hooks/useTextTransform";
+import useTranslations from "@/hooks/useTranslations";
+import { useVertexTypeConfig } from "@/core/ConfigurationProvider/useConfiguration";
 
 export type NodeExpandFilter = {
   name: string;

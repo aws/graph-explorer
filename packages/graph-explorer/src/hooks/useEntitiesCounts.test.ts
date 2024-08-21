@@ -1,5 +1,5 @@
 import useEntitiesCounts from "./useEntitiesCounts";
-import { RawConfiguration, Schema } from "../core";
+import { RawConfiguration, Schema } from "@/core";
 import { vi } from "vitest";
 import {
   createRandomEdgeTypeConfig,
@@ -8,12 +8,12 @@ import {
   createRandomSchema,
   createRandomVertexTypeConfig,
   renderHookWithRecoilRoot,
-} from "../utils/testing";
+} from "@/utils/testing";
 import {
   activeConfigurationAtom,
   configurationAtom,
-} from "../core/StateProvider/configuration";
-import { schemaAtom } from "../core/StateProvider/schema";
+} from "@/core/StateProvider/configuration";
+import { schemaAtom } from "@/core/StateProvider/schema";
 
 function renderUseEntitiesHook(config: RawConfiguration, schema: Schema) {
   return renderHookWithRecoilRoot(

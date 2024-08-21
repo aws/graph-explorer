@@ -1,6 +1,6 @@
 import { css, cx } from "@emotion/css";
-import type { ProcessedTheme, ThemeStyleFn } from "../../core";
-import { fade } from "../../core";
+import type { ProcessedTheme, ThemeStyleFn } from "@/core";
+import { fade } from "@/core";
 import type { ButtonTheme } from "./Button.model";
 
 export const getHeightBySize = (

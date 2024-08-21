@@ -10,7 +10,7 @@ import type {
   RefObject,
 } from "react";
 import { forwardRef, useRef } from "react";
-import { useWithTheme } from "../../core";
+import { useWithTheme } from "@/core";
 import { inputContainerStyles } from "./Input.styles";
 
 export interface BaseInputProps

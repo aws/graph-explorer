@@ -10,25 +10,25 @@ import {
   Select,
   StylingIcon,
   UploadIcon,
-} from "../../components";
-import ColorInput from "../../components/ColorInput/ColorInput";
-import { useNotification } from "../../components/NotificationProvider";
-import { useWithTheme } from "../../core";
+} from "@/components";
+import ColorInput from "@/components/ColorInput/ColorInput";
+import { useNotification } from "@/components/NotificationProvider";
+import { useWithTheme } from "@/core";
 import {
   LineStyle,
   ShapeStyle,
   userStylingNodeAtom,
   VertexPreferences,
-} from "../../core/StateProvider/userPreferences";
-import fade from "../../core/ThemeProvider/utils/fade";
-import useTextTransform from "../../hooks/useTextTransform";
-import useTranslations from "../../hooks/useTranslations";
+} from "@/core/StateProvider/userPreferences";
+import fade from "@/core/ThemeProvider/utils/fade";
+import useTextTransform from "@/hooks/useTextTransform";
+import useTranslations from "@/hooks/useTranslations";
 import { LINE_STYLE_OPTIONS } from "./lineStyling";
 import { NODE_SHAPE } from "./nodeShape";
 import defaultStyles from "./SingleNodeStyling.style";
 import modalDefaultStyles from "./SingleNodeStylingModal.style";
-import { useVertexTypeConfig } from "../../core/ConfigurationProvider/useConfiguration";
-import { useDebounceValue, usePrevious } from "../../hooks";
+import { useVertexTypeConfig } from "@/core/ConfigurationProvider/useConfiguration";
+import { useDebounceValue, usePrevious } from "@/hooks";
 import { cx } from "@emotion/css";
 
 export type SingleNodeStylingProps = {

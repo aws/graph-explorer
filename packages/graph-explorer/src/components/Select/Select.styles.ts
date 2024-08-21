@@ -1,5 +1,5 @@
 import { css } from "@emotion/css";
-import type { ActiveThemeType, ProcessedTheme } from "../../core";
+import type { ActiveThemeType, ProcessedTheme } from "@/core";
 import getSelectThemeWithDefaults from "./utils/getThemeWithDefaultValues";
 
 const getPaddingBySize = (

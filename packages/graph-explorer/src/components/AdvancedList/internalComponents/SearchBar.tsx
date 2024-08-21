@@ -1,8 +1,8 @@
 import { memo } from "react";
-import SearchIcon from "../../icons/SearchIcon";
-import Input from "../../Input";
-import type { SelectOption } from "../../Select";
-import Select from "../../Select";
+import SearchIcon from "@/components/icons/SearchIcon";
+import Input from "@/components/Input";
+import type { SelectOption } from "@/components/Select";
+import Select from "@/components/Select";
 
 type SearchBarProps = {
   types: SelectOption[];

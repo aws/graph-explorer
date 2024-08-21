@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { Vertex } from "../@types/entities";
+import { Vertex } from "@/types/entities";
 import useEntities from "./useEntities";
 
 /** Returns a callback that adds a node or array of nodes to the graph. */

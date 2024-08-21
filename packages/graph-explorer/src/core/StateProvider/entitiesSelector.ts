@@ -4,7 +4,7 @@ import isEqualWith from "lodash/isEqualWith";
 import uniqBy from "lodash/uniqBy";
 import type { GetRecoilValue, RecoilState, SetRecoilState } from "recoil";
 import { selector } from "recoil";
-import type { Edge, Vertex } from "../../@types/entities";
+import type { Edge, Vertex } from "@/types/entities";
 import { edgesAtom, edgesSelectedIdsAtom, edgesSelector } from "./edges";
 import {
   nodesAtom,

@@ -3,7 +3,7 @@ import {
   ConfigurationContextProps,
   EdgeTypeConfig,
   VertexTypeConfig,
-} from "../core";
+} from "@/core";
 
 const isValidHttpUrl = (str: string) => {
   let url;

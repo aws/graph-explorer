@@ -1,4 +1,4 @@
-import type { ActiveThemeType, ProcessedTheme } from "../../../core";
+import type { ActiveThemeType, ProcessedTheme } from "@/core";
 import type { IdType, Row } from "react-table";
 
 import SingleSelectFilter from "./SingleSelectFilter";

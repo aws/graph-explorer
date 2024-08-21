@@ -1,5 +1,5 @@
 import type { Row } from "react-table";
-import { TabularColumnInstance } from "../../helpers/tableInstanceToTabularInstance";
+import { TabularColumnInstance } from "@/components/Tabular/helpers/tableInstanceToTabularInstance";
 
 import getNestedObjectValue from "./getNestedObjectValue";
 

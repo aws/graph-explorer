@@ -8,7 +8,7 @@ import type {
   ReactNode,
 } from "react";
 import { forwardRef, useCallback } from "react";
-import { useWithTheme } from "../../core";
+import { useWithTheme } from "@/core";
 import defaultStyles from "./ListItem.styles";
 
 export interface ListItemProps extends HTMLAttributes<HTMLDivElement> {

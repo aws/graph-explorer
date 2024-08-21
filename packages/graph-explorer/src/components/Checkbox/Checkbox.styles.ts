@@ -1,5 +1,5 @@
 import { css } from "@emotion/css";
-import { fade, ThemeStyleFn } from "../../core";
+import { fade, ThemeStyleFn } from "@/core";
 import { CheckboxTheme } from "./Checkbox.model";
 
 export const checkboxStyles: ThemeStyleFn<CheckboxTheme> = ({ theme }) => {

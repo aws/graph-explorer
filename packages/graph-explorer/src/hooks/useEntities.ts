@@ -1,22 +1,22 @@
 import { useMemo } from "react";
 import { SetterOrUpdater, useRecoilCallback, useRecoilValue } from "recoil";
-import type { Edge, Vertex } from "../@types/entities";
+import type { Edge, Vertex } from "@/types/entities";
 import {
   edgesFilteredIdsAtom,
   edgesSelector,
   edgesTypesFilteredAtom,
-} from "../core/StateProvider/edges";
+} from "@/core/StateProvider/edges";
 import entitiesSelector, {
   Entities,
-} from "../core/StateProvider/entitiesSelector";
+} from "@/core/StateProvider/entitiesSelector";
 import {
   nodesFilteredIdsAtom,
   nodesSelector,
   nodesTypesFilteredAtom,
-} from "../core/StateProvider/nodes";
+} from "@/core/StateProvider/nodes";
 
 import useDeepMemo from "./useDeepMemo";
-import { assembledConfigSelector } from "../core/ConfigurationProvider/useConfiguration";
+import { assembledConfigSelector } from "@/core/ConfigurationProvider/useConfiguration";
 
 type ProcessedEntities = {
   nodes: Vertex[];

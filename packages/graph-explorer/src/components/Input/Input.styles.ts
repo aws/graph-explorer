@@ -1,8 +1,8 @@
 import { css } from "@emotion/css";
 import type { ReactNode } from "react";
-import type { ActiveThemeType, ProcessedTheme } from "../../core";
-import { fade } from "../../core";
-import { memoize } from "../../utils";
+import type { ActiveThemeType, ProcessedTheme } from "@/core";
+import { fade } from "@/core";
+import { memoize } from "@/utils";
 import { InputTheme } from "./Input.model";
 
 export const getInputThemeWithDefaults = memoize(

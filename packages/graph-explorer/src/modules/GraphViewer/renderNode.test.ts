@@ -3,7 +3,7 @@
 // DEV NOTE: The DOMParser in happy-dom is not fully functional. Using jsdom until it works properly.
 
 import { ICONS_CACHE, VertexIconConfig, renderNode } from "./renderNode";
-import { createRandomColor, createRandomName } from "../../utils/testing";
+import { createRandomColor, createRandomName } from "@/utils/testing";
 import { vi } from "vitest";
 
 const fetchMock = vi.fn<typeof fetch>();

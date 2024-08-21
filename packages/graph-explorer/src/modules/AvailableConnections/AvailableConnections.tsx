@@ -11,21 +11,21 @@ import {
   ModuleContainer,
   ModuleContainerHeader,
   TrayArrowIcon,
-} from "../../components";
-import { useNotification } from "../../components/NotificationProvider";
-import Switch from "../../components/Switch";
-import { useWithTheme } from "../../core";
+} from "@/components";
+import { useNotification } from "@/components/NotificationProvider";
+import Switch from "@/components/Switch";
+import { useWithTheme } from "@/core";
 import {
   activeConfigurationAtom,
   configurationAtom,
-} from "../../core/StateProvider/configuration";
-import { schemaAtom } from "../../core/StateProvider/schema";
-import useResetState from "../../core/StateProvider/useResetState";
-import useTranslations from "../../hooks/useTranslations";
-import isValidConfigurationFile from "../../utils/isValidConfigurationFile";
-import CreateConnection from "../CreateConnection";
+} from "@/core/StateProvider/configuration";
+import { schemaAtom } from "@/core/StateProvider/schema";
+import useResetState from "@/core/StateProvider/useResetState";
+import useTranslations from "@/hooks/useTranslations";
+import isValidConfigurationFile from "@/utils/isValidConfigurationFile";
+import CreateConnection from "@/modules/CreateConnection";
 import defaultStyles from "./AvailableConnections.styles";
-import { fromFileToJson } from "../../utils/fileData";
+import { fromFileToJson } from "@/utils/fileData";
 
 export type ConnectionDetailProps = {
   isSync: boolean;

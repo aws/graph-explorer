@@ -1,4 +1,4 @@
-import { env } from "../../utils";
+import { env } from "@/utils";
 import type { ConfigurationContextProps } from "./types";
 
 const logDevError = (...args: Parameters<typeof console.error>) => {

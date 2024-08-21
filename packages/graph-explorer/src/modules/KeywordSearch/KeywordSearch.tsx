@@ -1,7 +1,7 @@
 import { css, cx } from "@emotion/css";
 import { useClickOutside, useHotkeys } from "@mantine/hooks";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Vertex } from "../../@types/entities";
+import { Vertex } from "@/types/entities";
 
 import {
   AddCircleIcon,
@@ -20,15 +20,15 @@ import {
   VertexIcon,
   Button,
   PanelError,
-} from "../../components";
-import { CarouselRef } from "../../components/Carousel/Carousel";
-import HumanReadableNumberFormatter from "../../components/HumanReadableNumberFormatter";
-import RemoveFromCanvasIcon from "../../components/icons/RemoveFromCanvasIcon";
-import { fade, useConfiguration, useWithTheme } from "../../core";
-import { useEntities, useFetchNode, useSet } from "../../hooks";
-import useDisplayNames from "../../hooks/useDisplayNames";
-import useTextTransform from "../../hooks/useTextTransform";
-import useTranslations from "../../hooks/useTranslations";
+} from "@/components";
+import { CarouselRef } from "@/components/Carousel/Carousel";
+import HumanReadableNumberFormatter from "@/components/HumanReadableNumberFormatter";
+import RemoveFromCanvasIcon from "@/components/icons/RemoveFromCanvasIcon";
+import { fade, useConfiguration, useWithTheme } from "@/core";
+import { useEntities, useFetchNode, useSet } from "@/hooks";
+import useDisplayNames from "@/hooks/useDisplayNames";
+import useTextTransform from "@/hooks/useTextTransform";
+import useTranslations from "@/hooks/useTranslations";
 
 import NodeDetail from "../EntityDetails/NodeDetail";
 import defaultStyles from "./KeywordSearch.styles";
@@ -36,8 +36,8 @@ import toAdvancedList from "./toAdvancedList";
 import useKeywordSearch from "./useKeywordSearch";
 import { useCancelKeywordSearch } from "./useKeywordSearchQuery";
 import { UseQueryResult } from "@tanstack/react-query";
-import { KeywordSearchResponse } from "../../connector/useGEFetchTypes";
-import { SetResult } from "../../hooks/useSet";
+import { KeywordSearchResponse } from "@/connector/useGEFetchTypes";
+import { SetResult } from "@/hooks/useSet";
 
 export type KeywordSearchProps = {
   className?: string;

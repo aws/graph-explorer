@@ -1,10 +1,10 @@
 import { cx } from "@emotion/css";
 import type { PropsWithChildren, ReactElement } from "react";
 import { useMemo } from "react";
-import getChildOfType from "../../../utils/getChildOfType";
-import getChildrenOfType from "../../../utils/getChildrenOfType";
-import Sidebar from "../../Sidebar";
-import SidebarButton from "../../Sidebar/SidebarButton";
+import getChildOfType from "@/utils/getChildOfType";
+import getChildrenOfType from "@/utils/getChildrenOfType";
+import Sidebar from "@/components/Sidebar";
+import SidebarButton from "@/components/Sidebar/SidebarButton";
 import WorkspaceSideBarContent from "./WorkspaceSideBarContent";
 
 interface WorkspaceSideBarComposition {

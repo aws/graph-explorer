@@ -1,14 +1,14 @@
 import { ReactNode } from "react";
 import type { IdType, Row } from "react-table";
 
-import type { ActiveThemeType, ProcessedTheme } from "../../../core";
+import type { ActiveThemeType, ProcessedTheme } from "@/core";
 import {
   EqualsIcon,
   GreaterOrEqualThanIcon,
   GreaterThanIcon,
   LessOrEqualThanIcon,
   LessThanIcon,
-} from "../../icons";
+} from "@/components/icons";
 import TextFilter from "./TextFilter";
 import type { TextFilterProps } from "./TextFilter";
 

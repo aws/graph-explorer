@@ -1,11 +1,11 @@
 import { useCallback, useRef, useState } from "react";
 import { useLayer, useMousePositionAsTrigger } from "react-laag";
-import type { EdgeData, VertexData } from "../../@types/entities";
+import type { EdgeData, VertexData } from "@/types/entities";
 import type {
   ElementEventCallback,
   GraphEventCallback,
-} from "../../components/Graph/hooks/useAddClickEvents";
-import { useClickOutside } from "../../utils";
+} from "@/components/Graph/hooks/useAddClickEvents";
+import { useClickOutside } from "@/utils";
 
 const useContextMenu = () => {
   // Bounding container used to position the layer correctly

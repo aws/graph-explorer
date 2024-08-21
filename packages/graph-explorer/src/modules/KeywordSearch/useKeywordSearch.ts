@@ -1,11 +1,11 @@
 import uniq from "lodash/uniq";
 import uniqBy from "lodash/uniqBy";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useConfiguration } from "../../core";
-import useDebounceValue from "../../hooks/useDebounceValue";
-import useTextTransform from "../../hooks/useTextTransform";
+import { useConfiguration } from "@/core";
+import useDebounceValue from "@/hooks/useDebounceValue";
+import useTextTransform from "@/hooks/useTextTransform";
 import { useKeywordSearchQuery } from "./useKeywordSearchQuery";
-import { useVertexTypeConfigs } from "../../core/ConfigurationProvider/useConfiguration";
+import { useVertexTypeConfigs } from "@/core/ConfigurationProvider/useConfiguration";
 
 export interface PromiseWithCancel<T> extends Promise<T> {
   cancel?: () => void;

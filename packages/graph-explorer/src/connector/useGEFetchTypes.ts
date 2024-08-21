@@ -1,10 +1,10 @@
-import { Edge, Vertex } from "../@types/entities";
+import { Edge, Vertex } from "@/types/entities";
 import {
   ConfigurationContextProps,
   ConnectionConfig,
   EdgeTypeConfig,
   VertexTypeConfig,
-} from "../core";
+} from "@/core";
 
 export type QueryOptions = RequestInit & {
   queryId?: string;

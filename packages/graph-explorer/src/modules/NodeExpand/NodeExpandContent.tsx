@@ -1,23 +1,23 @@
 import { useState } from "react";
-import type { Vertex } from "../../@types/entities";
-import { ModuleContainerFooter, PanelError } from "../../components";
-import Button from "../../components/Button";
-import ExpandGraphIcon from "../../components/icons/ExpandGraphIcon";
-import GraphIcon from "../../components/icons/GraphIcon";
-import LoadingSpinner from "../../components/LoadingSpinner";
-import PanelEmptyState from "../../components/PanelEmptyState/PanelEmptyState";
-import { useWithTheme } from "../../core";
-import { useExpandNode } from "../../hooks";
+import type { Vertex } from "@/types/entities";
+import { ModuleContainerFooter, PanelError } from "@/components";
+import Button from "@/components/Button";
+import ExpandGraphIcon from "@/components/icons/ExpandGraphIcon";
+import GraphIcon from "@/components/icons/GraphIcon";
+import LoadingSpinner from "@/components/LoadingSpinner";
+import PanelEmptyState from "@/components/PanelEmptyState/PanelEmptyState";
+import { useWithTheme } from "@/core";
+import { useExpandNode } from "@/hooks";
 import useNeighborsOptions, {
   NeighborOption,
-} from "../../hooks/useNeighborsOptions";
-import useTranslations from "../../hooks/useTranslations";
+} from "@/hooks/useNeighborsOptions";
+import useTranslations from "@/hooks/useTranslations";
 import NeighborsList from "../common/NeighborsList/NeighborsList";
 import defaultStyles from "./NodeExpandContent.styles";
 import NodeExpandFilters, { NodeExpandFilter } from "./NodeExpandFilters";
 import VertexHeader from "../common/VertexHeader";
-import { ExpandNodeRequest } from "../../hooks/useExpandNode";
-import { useUpdateNodeCountsQuery } from "../../hooks/useUpdateNodeCounts";
+import { ExpandNodeRequest } from "@/hooks/useExpandNode";
+import { useUpdateNodeCountsQuery } from "@/hooks/useUpdateNodeCounts";
 import { cx } from "@emotion/css";
 
 export type NodeExpandContentProps = {

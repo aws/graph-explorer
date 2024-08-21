@@ -9,10 +9,10 @@ import {
   useState,
 } from "react";
 import { mergeRefs, useLayer } from "react-laag";
-import { useWithTheme } from "../../../core";
-import IconButton from "../../IconButton";
-import { ChevronDownIcon } from "../../icons";
-import CloseIcon from "../../icons/CloseIcon";
+import { useWithTheme } from "@/core";
+import IconButton from "@/components/IconButton";
+import { ChevronDownIcon } from "@/components/icons";
+import CloseIcon from "@/components/icons/CloseIcon";
 import type { SelectOption, SelectProps } from "../Select";
 import styles from "../Select.styles";
 import SelectListBox from "./SelectListBox";

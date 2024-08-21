@@ -1,18 +1,12 @@
 import { cx } from "@emotion/css";
-import { Vertex } from "../../../@types/entities";
-import {
-  Button,
-  Chip,
-  Tooltip,
-  VertexIcon,
-  VisibleIcon,
-} from "../../../components";
-import { useWithTheme } from "../../../core";
-import useNeighborsOptions from "../../../hooks/useNeighborsOptions";
+import { Vertex } from "@/@types/entities";
+import { Button, Chip, Tooltip, VertexIcon, VisibleIcon } from "@/components";
+import { useWithTheme } from "@/core";
+import useNeighborsOptions from "@/hooks/useNeighborsOptions";
 import defaultStyles from "./NeighborsList.styles";
 import { useState } from "react";
 import { useRecoilValue } from "recoil";
-import { activeConnectionSelector } from "../../../core/connector";
+import { activeConnectionSelector } from "@/core/connector";
 
 export type NeighborsListProps = {
   vertex: Vertex;

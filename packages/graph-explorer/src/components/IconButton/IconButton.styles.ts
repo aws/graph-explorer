@@ -1,6 +1,6 @@
 import { css, cx } from "@emotion/css";
-import type { ThemeStyleFn } from "../../core";
-import { fade } from "../../core";
+import type { ThemeStyleFn } from "@/core";
+import { fade } from "@/core";
 import {
   baseStyles,
   defaultStyles,

@@ -1,8 +1,8 @@
 import { Draggable } from "react-beautiful-dnd";
-import { DragIcon } from "../../../icons";
-import Switch from "../../../Switch";
-import type { TabularInstance } from "../../helpers/tableInstanceToTabularInstance";
-import { useTabularControl } from "../../TabularControlsProvider";
+import { DragIcon } from "@/components/icons";
+import Switch from "@/components/Switch";
+import type { TabularInstance } from "@/components/Tabular/helpers/tableInstanceToTabularInstance";
+import { useTabularControl } from "@/components/Tabular/TabularControlsProvider";
 
 type ColumnItemProps<T extends Record<string, unknown>> = {
   columnId: string;

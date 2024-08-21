@@ -1,6 +1,6 @@
 import { css } from "@emotion/css";
-import type { ProcessedTheme, ThemeStyleFn } from "../../core";
-import { fade } from "../../core";
+import type { ProcessedTheme, ThemeStyleFn } from "@/core";
+import { fade } from "@/core";
 
 const getIndicatorSize = (size: "xs" | "sm" | "md" | "lg") => {
   if (size === "md") {

@@ -1,9 +1,9 @@
 import { cx } from "@emotion/css";
 import { FC, PropsWithChildren } from "react";
-import { useWithTheme } from "../../core";
+import { useWithTheme } from "@/core";
 import Card from "../Card";
 
-import { CheckIcon, CloseIcon, ErrorIcon, InfoIcon } from "../icons";
+import { CheckIcon, CloseIcon, ErrorIcon, InfoIcon } from "@/components/icons";
 import defaultStyles from "./Toast.styles";
 
 export type NotificationComponentProps = PropsWithChildren<{

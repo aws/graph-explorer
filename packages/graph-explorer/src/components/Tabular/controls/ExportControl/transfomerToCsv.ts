@@ -1,6 +1,6 @@
 import { unparse } from "papaparse";
 import type { Row } from "react-table";
-import type { TabularColumnInstance } from "../../helpers/tableInstanceToTabularInstance";
+import type { TabularColumnInstance } from "@/components/Tabular/helpers/tableInstanceToTabularInstance";
 import getNestedObjectValue from "./getNestedObjectValue";
 
 export default function transformToCsv<T extends Record<string, unknown>>(

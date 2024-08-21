@@ -1,10 +1,10 @@
 import { css } from "@emotion/css";
 import { FunctionComponent } from "react";
-import { useIsDarkTheme } from "../../../core";
-import { cssVar } from "../../../core/ThemeProvider/utils/lib";
+import { useIsDarkTheme } from "@/core";
+import { cssVar } from "@/core/ThemeProvider/utils/lib";
 
-import { SearchIcon } from "../../icons";
-import { Input } from "../../Input/Input";
+import { SearchIcon } from "@/components/icons";
+import { Input } from "@/components/Input/Input";
 import { useTabularControl } from "../TabularControlsProvider";
 
 const defaultStyles = (isDarkTheme: boolean) => css`

@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
-import { AdvancedList, NamespaceIcon, PanelEmptyState } from "../../components";
-import { useConfiguration, useWithTheme } from "../../core";
+import { AdvancedList, NamespaceIcon, PanelEmptyState } from "@/components";
+import { useConfiguration, useWithTheme } from "@/core";
 import defaultStyles from "./NsType.styles";
 
 const GeneratedPrefixes = () => {

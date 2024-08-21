@@ -1,9 +1,9 @@
 import { useCallback } from "react";
 import { useSetRecoilState } from "recoil";
-import { useNotification } from "../components/NotificationProvider";
-import { useConfiguration } from "../core";
-import { schemaAtom } from "../core/StateProvider/schema";
-import generatePrefixes from "../utils/generatePrefixes";
+import { useNotification } from "@/components/NotificationProvider";
+import { useConfiguration } from "@/core";
+import { schemaAtom } from "@/core/StateProvider/schema";
+import generatePrefixes from "@/utils/generatePrefixes";
 
 const usePrefixesUpdater = () => {
   const config = useConfiguration();

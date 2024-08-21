@@ -1,5 +1,5 @@
 import { PropsWithChildren } from "react";
-import { env } from "../utils";
+import { env } from "@/utils";
 import { atom, RecoilValue, useRecoilValue } from "recoil";
 
 type Props = {

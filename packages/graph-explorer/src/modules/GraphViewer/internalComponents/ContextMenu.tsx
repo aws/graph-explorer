@@ -1,14 +1,8 @@
 import { cx } from "@emotion/css";
 import { RefObject, useCallback, useMemo } from "react";
 import { useRecoilState, useSetRecoilState } from "recoil";
-import {
-  Card,
-  EdgeIcon,
-  GraphIcon,
-  ListItem,
-  StylingIcon,
-} from "../../../components";
-import { GraphRef } from "../../../components/Graph/Graph";
+import { Card, EdgeIcon, GraphIcon, ListItem, StylingIcon } from "@/components";
+import { GraphRef } from "@/components/Graph/Graph";
 import {
   CenterGraphIcon,
   DetailsIcon,
@@ -18,14 +12,14 @@ import {
   ScreenshotIcon,
   ZoomInIcon,
   ZoomOutIcon,
-} from "../../../components/icons";
-import { useWithTheme } from "../../../core";
-import { edgesSelectedIdsAtom } from "../../../core/StateProvider/edges";
-import { nodesSelectedIdsAtom } from "../../../core/StateProvider/nodes";
-import { userLayoutAtom } from "../../../core/StateProvider/userPreferences";
-import useDisplayNames from "../../../hooks/useDisplayNames";
-import useEntities from "../../../hooks/useEntities";
-import useTranslations from "../../../hooks/useTranslations";
+} from "@/components/icons";
+import { useWithTheme } from "@/core";
+import { edgesSelectedIdsAtom } from "@/core/StateProvider/edges";
+import { nodesSelectedIdsAtom } from "@/core/StateProvider/nodes";
+import { userLayoutAtom } from "@/core/StateProvider/userPreferences";
+import useDisplayNames from "@/hooks/useDisplayNames";
+import useEntities from "@/hooks/useEntities";
+import useTranslations from "@/hooks/useTranslations";
 import useGraphGlobalActions from "../useGraphGlobalActions";
 import defaultStyles from "./ContextMenu.styles";
 

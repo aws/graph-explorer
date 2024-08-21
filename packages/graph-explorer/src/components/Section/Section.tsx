@@ -6,8 +6,8 @@ import type {
   ReactNode,
 } from "react";
 import { Children, useMemo } from "react";
-import { useWithTheme } from "../../core";
-import { ChevronDownIcon } from "../icons";
+import { useWithTheme } from "@/core";
+import { ChevronDownIcon } from "@/components/icons";
 import defaultStyles from "./Section.styles";
 
 export interface SectionProps

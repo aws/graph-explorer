@@ -1,5 +1,5 @@
-import { type ConnectionConfig } from "../core";
-import { DEFAULT_SERVICE_TYPE } from "../utils/constants";
+import { type ConnectionConfig } from "@/core";
+import { DEFAULT_SERVICE_TYPE } from "@/utils/constants";
 import { anySignal } from "./utils/anySignal";
 
 type NeptuneError = {

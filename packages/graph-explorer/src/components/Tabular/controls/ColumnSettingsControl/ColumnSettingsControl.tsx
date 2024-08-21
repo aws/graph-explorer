@@ -1,5 +1,5 @@
 import { FunctionComponent } from "react";
-import { useTabularControl } from "../../TabularControlsProvider";
+import { useTabularControl } from "@/components/Tabular/TabularControlsProvider";
 import ExternalColumnSettingsControl from "./ExternalColumnSettingsControl";
 
 type ExportControlProps = {

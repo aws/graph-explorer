@@ -1,8 +1,5 @@
 import { css } from "@emotion/css";
-import {
-  ActiveThemeType,
-  ProcessedTheme,
-} from "../../core/ThemeProvider/types";
+import { ActiveThemeType, ProcessedTheme } from "@/core/ThemeProvider/types";
 
 const defaultStyles = ({
   theme,

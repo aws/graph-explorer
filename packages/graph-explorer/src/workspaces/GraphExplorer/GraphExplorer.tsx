@@ -10,7 +10,7 @@ import {
   IconButton,
   NamespaceIcon,
   PanelEmptyState,
-} from "../../components";
+} from "@/components";
 import {
   DatabaseIcon,
   DetailsIcon,
@@ -18,25 +18,25 @@ import {
   ExpandGraphIcon,
   FilterIcon,
   GraphIcon,
-} from "../../components/icons";
-import GridIcon from "../../components/icons/GridIcon";
-import Workspace from "../../components/Workspace";
-import { useConfiguration, useWithTheme } from "../../core";
-import { edgesSelectedIdsAtom } from "../../core/StateProvider/edges";
-import { nodesSelectedIdsAtom } from "../../core/StateProvider/nodes";
-import { totalFilteredCount } from "../../core/StateProvider/filterCount";
-import { userLayoutAtom } from "../../core/StateProvider/userPreferences";
-import { usePrevious } from "../../hooks";
-import useTranslations from "../../hooks/useTranslations";
-import EdgesStyling from "../../modules/EdgesStyling/EdgesStyling";
-import EntitiesFilter from "../../modules/EntitiesFilter";
-import EntitiesTabular from "../../modules/EntitiesTabular/EntitiesTabular";
-import EntityDetails from "../../modules/EntityDetails";
-import GraphViewer from "../../modules/GraphViewer";
-import KeywordSearch from "../../modules/KeywordSearch/KeywordSearch";
-import Namespaces from "../../modules/Namespaces/Namespaces";
-import NodeExpand from "../../modules/NodeExpand";
-import NodesStyling from "../../modules/NodesStyling/NodesStyling";
+} from "@/components/icons";
+import GridIcon from "@/components/icons/GridIcon";
+import Workspace from "@/components/Workspace";
+import { useConfiguration, useWithTheme } from "@/core";
+import { edgesSelectedIdsAtom } from "@/core/StateProvider/edges";
+import { nodesSelectedIdsAtom } from "@/core/StateProvider/nodes";
+import { totalFilteredCount } from "@/core/StateProvider/filterCount";
+import { userLayoutAtom } from "@/core/StateProvider/userPreferences";
+import { usePrevious } from "@/hooks";
+import useTranslations from "@/hooks/useTranslations";
+import EdgesStyling from "@/modules/EdgesStyling/EdgesStyling";
+import EntitiesFilter from "@/modules/EntitiesFilter";
+import EntitiesTabular from "@/modules/EntitiesTabular/EntitiesTabular";
+import EntityDetails from "@/modules/EntityDetails";
+import GraphViewer from "@/modules/GraphViewer";
+import KeywordSearch from "@/modules/KeywordSearch/KeywordSearch";
+import Namespaces from "@/modules/Namespaces/Namespaces";
+import NodeExpand from "@/modules/NodeExpand";
+import NodesStyling from "@/modules/NodesStyling/NodesStyling";
 import defaultStyles from "./GraphExplorer.styles";
 
 const RESIZE_ENABLE_TOP = {

@@ -9,7 +9,7 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import { useRecoilValue, useSetRecoilState } from "recoil";
-import { Vertex } from "../../@types/entities";
+import { Vertex } from "@/types/entities";
 import {
   CheckIcon,
   ChevronLeftIcon,
@@ -18,36 +18,36 @@ import {
   PanelError,
   Select,
   SendIcon,
-} from "../../components";
-import Button from "../../components/Button";
-import { ExplorerIcon } from "../../components/icons";
-import ModuleContainerHeader from "../../components/ModuleContainer/components/ModuleContainerHeader";
+} from "@/components";
+import Button from "@/components/Button";
+import { ExplorerIcon } from "@/components/icons";
+import ModuleContainerHeader from "@/components/ModuleContainer/components/ModuleContainerHeader";
 import {
   ColumnDefinition,
   PlaceholderControl,
   TabularEmptyBodyControls,
   TabularFooterControls,
   TabularInstance,
-} from "../../components/Tabular";
-import ExternalPaginationControl from "../../components/Tabular/controls/ExternalPaginationControl";
-import Tabular from "../../components/Tabular/Tabular";
-import Workspace from "../../components/Workspace/Workspace";
-import type { KeywordSearchRequest } from "../../connector/useGEFetchTypes";
-import { useConfiguration, useWithTheme } from "../../core";
-import { explorerSelector } from "../../core/connector";
+} from "@/components/Tabular";
+import ExternalPaginationControl from "@/components/Tabular/controls/ExternalPaginationControl";
+import Tabular from "@/components/Tabular/Tabular";
+import Workspace from "@/components/Workspace/Workspace";
+import type { KeywordSearchRequest } from "@/connector/useGEFetchTypes";
+import { useConfiguration, useWithTheme } from "@/core";
+import { explorerSelector } from "@/core/connector";
 import {
   userStylingAtom,
   VertexPreferences,
-} from "../../core/StateProvider/userPreferences";
-import { useEntities } from "../../hooks";
-import useFetchNode from "../../hooks/useFetchNode";
-import usePrefixesUpdater from "../../hooks/usePrefixesUpdater";
-import useTextTransform from "../../hooks/useTextTransform";
-import useTranslations from "../../hooks/useTranslations";
-import useUpdateVertexTypeCounts from "../../hooks/useUpdateVertexTypeCounts";
+} from "@/core/StateProvider/userPreferences";
+import { useEntities } from "@/hooks";
+import useFetchNode from "@/hooks/useFetchNode";
+import usePrefixesUpdater from "@/hooks/usePrefixesUpdater";
+import useTextTransform from "@/hooks/useTextTransform";
+import useTranslations from "@/hooks/useTranslations";
+import useUpdateVertexTypeCounts from "@/hooks/useUpdateVertexTypeCounts";
 import defaultStyles from "./DataExplorer.styles";
-import { searchQuery } from "../../connector/queries";
-import { useVertexTypeConfig } from "../../core/ConfigurationProvider/useConfiguration";
+import { searchQuery } from "@/connector/queries";
+import { useVertexTypeConfig } from "@/core/ConfigurationProvider/useConfiguration";
 
 export type ConnectionsProps = {
   vertexType: string;

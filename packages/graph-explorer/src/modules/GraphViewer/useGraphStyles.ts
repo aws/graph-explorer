@@ -1,13 +1,13 @@
 import Color from "color";
 import { useEffect, useState } from "react";
-import { EdgeData } from "../../@types/entities";
-import type { GraphProps } from "../../components";
-import useTextTransform from "../../hooks/useTextTransform";
+import { EdgeData } from "@/types/entities";
+import type { GraphProps } from "@/components";
+import useTextTransform from "@/hooks/useTextTransform";
 import { renderNode } from "./renderNode";
 import {
   useEdgeTypeConfigs,
   useVertexTypeConfigs,
-} from "../../core/ConfigurationProvider/useConfiguration";
+} from "@/core/ConfigurationProvider/useConfiguration";
 
 const LINE_PATTERN = {
   solid: undefined,

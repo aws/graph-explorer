@@ -1,5 +1,5 @@
 import { vi } from "vitest";
-import { SchemaResponse } from "../../useGEFetchTypes";
+import { SchemaResponse } from "@/connector/useGEFetchTypes";
 import fetchSchema from "./fetchSchema";
 
 describe("OpenCypher > fetchSchema", () => {

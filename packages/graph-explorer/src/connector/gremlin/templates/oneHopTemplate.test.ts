@@ -1,4 +1,4 @@
-import { normalizeWithNoSpace as normalize } from "../../../utils/testing";
+import { normalizeWithNoSpace as normalize } from "@/utils/testing";
 import oneHopTemplate from "./oneHopTemplate";
 
 describe("Gremlin > oneHopTemplate", () => {

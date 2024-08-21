@@ -1,6 +1,6 @@
 import { useRecoilCallback } from "recoil";
-import type { SchemaResponse } from "../connector/useGEFetchTypes";
-import { schemaAtom } from "../core/StateProvider/schema";
+import type { SchemaResponse } from "@/connector/useGEFetchTypes";
+import { schemaAtom } from "@/core/StateProvider/schema";
 
 const useUpdateSchema = () => {
   return useRecoilCallback(

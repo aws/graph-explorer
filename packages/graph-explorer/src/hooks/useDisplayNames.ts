@@ -1,6 +1,6 @@
 import { useCallback } from "react";
-import { Edge, Vertex } from "../@types/entities";
-import { useConfiguration } from "../core";
+import { Edge, Vertex } from "@/types/entities";
+import { useConfiguration } from "@/core";
 import useTextTransform from "./useTextTransform";
 
 const isVertex = (vOrE: any): vOrE is Vertex => {

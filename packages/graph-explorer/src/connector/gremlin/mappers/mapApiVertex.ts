@@ -1,5 +1,5 @@
-import type { Vertex } from "../../../@types/entities";
-import type { NeighborsCountResponse } from "../../useGEFetchTypes";
+import type { Vertex } from "@/@types/entities";
+import type { NeighborsCountResponse } from "@/connector/useGEFetchTypes";
 import type { GVertex } from "../types";
 import { detectIdType } from "./detectIdType";
 import parsePropertiesValues from "./parsePropertiesValues";

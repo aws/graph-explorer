@@ -1,12 +1,12 @@
-import { Vertex } from "../../@types/entities";
-import { ComponentBaseProps, VertexIcon } from "../../components";
-import { fade } from "../../core";
-import useDisplayNames from "../../hooks/useDisplayNames";
-import useTextTransform from "../../hooks/useTextTransform";
+import { Vertex } from "@/types/entities";
+import { ComponentBaseProps, VertexIcon } from "@/components";
+import { fade } from "@/core";
+import useDisplayNames from "@/hooks/useDisplayNames";
+import useTextTransform from "@/hooks/useTextTransform";
 import {
   useVertexTypeConfig,
   useVertexTypeConfigs,
-} from "../../core/ConfigurationProvider/useConfiguration";
+} from "@/core/ConfigurationProvider/useConfiguration";
 
 export default function VertexHeader({
   vertex,

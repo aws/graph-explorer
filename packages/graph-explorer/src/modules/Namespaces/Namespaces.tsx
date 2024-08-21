@@ -4,8 +4,8 @@ import {
   ModuleContainerHeader,
   ModuleContainerHeaderProps,
   Select,
-} from "../../components";
-import { useConfiguration } from "../../core";
+} from "@/components";
+import { useConfiguration } from "@/core";
 import CommonPrefixes from "./CommonPrefixes";
 import GeneratedPrefixes from "./GeneratedPrefixes";
 import defaultStyles from "./Namespaces.style";

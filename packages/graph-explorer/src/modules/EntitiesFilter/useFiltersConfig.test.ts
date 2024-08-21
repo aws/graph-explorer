@@ -4,13 +4,13 @@ import {
   createRandomRawConfiguration,
   createRandomSchema,
   renderHookWithRecoilRoot,
-} from "../../utils/testing";
+} from "@/utils/testing";
 import { sample, sortBy } from "lodash";
-import { Schema } from "../../core";
+import { Schema } from "@/core";
 import {
   activeConfigurationAtom,
   configurationAtom,
-} from "../../core/StateProvider/configuration";
+} from "@/core/StateProvider/configuration";
 import { vi } from "vitest";
 
 /** Creates a config with the schema and makes it active, then renders the `useFiltersConfig` hook. */

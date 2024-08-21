@@ -1,5 +1,5 @@
 import { memo } from "react";
-import Section from "../../Section";
+import Section from "@/components/Section";
 
 type FooterProps = {
   count: number;

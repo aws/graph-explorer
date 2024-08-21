@@ -1,7 +1,7 @@
 import { cx } from "@emotion/css";
 import { clone } from "lodash";
 import { useMemo } from "react";
-import type { Edge, Vertex } from "../../@types/entities";
+import type { Edge, Vertex } from "@/types/entities";
 import {
   ArrowCircle,
   ArrowDiamond,
@@ -15,16 +15,16 @@ import {
   ArrowTriangleTee,
   ArrowVee,
   VertexIcon,
-} from "../../components";
-import EdgeIcon from "../../components/icons/EdgeIcon";
-import { useWithTheme } from "../../core";
-import { useConfiguration } from "../../core/ConfigurationProvider";
-import fade from "../../core/ThemeProvider/utils/fade";
-import useDisplayNames from "../../hooks/useDisplayNames";
-import useTextTransform from "../../hooks/useTextTransform";
-import { formatDate } from "../../utils";
+} from "@/components";
+import EdgeIcon from "@/components/icons/EdgeIcon";
+import { useWithTheme } from "@/core";
+import { useConfiguration } from "@/core/ConfigurationProvider";
+import fade from "@/core/ThemeProvider/utils/fade";
+import useDisplayNames from "@/hooks/useDisplayNames";
+import useTextTransform from "@/hooks/useTextTransform";
+import { formatDate } from "@/utils";
 import defaultStyles from "./EntityDetail.styles";
-import { useEdgeTypeConfig } from "../../core/ConfigurationProvider/useConfiguration";
+import { useEdgeTypeConfig } from "@/core/ConfigurationProvider/useConfiguration";
 
 export type EdgeDetailProps = {
   edge: Edge;

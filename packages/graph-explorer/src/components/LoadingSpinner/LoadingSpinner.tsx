@@ -1,7 +1,7 @@
 import { cx } from "@emotion/css";
 import type { ReactNode } from "react";
-import { useWithTheme } from "../../core";
-import { LoaderIcon } from "../icons";
+import { useWithTheme } from "@/core";
+import { LoaderIcon } from "@/components/icons";
 
 import defaultStyles from "./LoadingSpinner.styles";
 

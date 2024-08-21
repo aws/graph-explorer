@@ -1,6 +1,6 @@
 import { css } from "@emotion/css";
-import type { ThemeStyleFn } from "../../../core";
-import { fade } from "../../../core";
+import type { ThemeStyleFn } from "@/core";
+import { fade } from "@/core";
 
 const defaultStyles: ThemeStyleFn = ({ theme, isDarkTheme }) => css`
   &.module-container-header-actions {

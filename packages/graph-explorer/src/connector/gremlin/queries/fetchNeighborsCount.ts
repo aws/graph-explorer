@@ -1,7 +1,7 @@
 import type {
   NeighborsCountRequest,
   NeighborsCountResponse,
-} from "../../useGEFetchTypes";
+} from "@/connector/useGEFetchTypes";
 import neighborsCountTemplate from "../templates/neighborsCountTemplate";
 import type { GInt64 } from "../types";
 import { GremlinFetch } from "../types";

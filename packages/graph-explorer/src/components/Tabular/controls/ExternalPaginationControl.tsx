@@ -1,16 +1,16 @@
 import { css, cx } from "@emotion/css";
 
 import { FunctionComponent, useEffect, useMemo, useState } from "react";
-import Button from "../../Button";
-import HumanReadableNumberFormatter from "../../HumanReadableNumberFormatter";
-import IconButton from "../../IconButton";
+import Button from "@/components/Button";
+import HumanReadableNumberFormatter from "@/components/HumanReadableNumberFormatter";
+import IconButton from "@/components/IconButton";
 import {
   BackwardIcon,
   ForwardIcon,
   SkipBackwardIcon,
   SkipForwardIcon,
-} from "../../icons";
-import Select from "../../Select";
+} from "@/components/icons";
+import Select from "@/components/Select";
 
 export type PaginationControlProps = {
   className?: string;

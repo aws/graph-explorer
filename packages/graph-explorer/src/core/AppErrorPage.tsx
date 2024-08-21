@@ -1,12 +1,12 @@
 import { FallbackProps } from "react-error-boundary";
-import { createDisplayError } from "../utils/createDisplayError";
+import { createDisplayError } from "@/utils/createDisplayError";
 import {
   Button,
   ErrorIcon,
   PageHeading,
   Paragraph,
   ResetIcon,
-} from "../components";
+} from "@/components";
 
 /** This is the app wide error page that will be shown when the app essentially crashes */
 export default function AppErrorPage(props: FallbackProps) {

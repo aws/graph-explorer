@@ -6,7 +6,7 @@ import { useSwitch } from "@react-aria/switch";
 import { VisuallyHidden } from "@react-aria/visually-hidden";
 import type { AriaSwitchProps } from "@react-types/switch";
 
-import { useWithTheme } from "../../core";
+import { useWithTheme } from "@/core";
 import { defaultSwitchLabelStyles, defaultSwitchStyles } from "./Switch.styles";
 
 const sizeMap = {

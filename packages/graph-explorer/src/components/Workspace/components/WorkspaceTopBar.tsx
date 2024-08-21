@@ -1,7 +1,7 @@
 import { cx } from "@emotion/css";
 import type { PropsWithChildren, ReactElement } from "react";
 import { useMemo } from "react";
-import { groupChildrenByType } from "../../../utils";
+import { groupChildrenByType } from "@/utils";
 import NavBarLogo from "./NavBarLogo";
 import WorkspaceTopBarAdditionalControls from "./WorkspaceTopBarAdditionalControls";
 import WorkspaceTopBarContent from "./WorkspaceTopBarContent";
