@@ -83,7 +83,7 @@ const SelectBox = (
       return selectedValue !== undefined
         ? item.render
           ? item.render(item)
-          : item.label ?? ""
+          : (item.label ?? "")
         : "";
     }
 
@@ -95,7 +95,7 @@ const SelectBox = (
       return selectedValue !== undefined
         ? item.render
           ? item.render(item)
-          : item.label ?? ""
+          : (item.label ?? "")
         : "";
     });
     if (!selectedValues.length) {

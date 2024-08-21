@@ -37,7 +37,7 @@
     "globals": "^15.8.0",
     "husky": "^9.0.11",
     "lint-staged": "^13.3.0",
-    "prettier": "3.2.5",
+    "prettier": "3.3.3",
     "typescript": "^5.5.4",
     "typescript-eslint": "8.0.0-alpha.42",
     "vitest": "^2.0.5"
