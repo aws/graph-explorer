@@ -6,8 +6,8 @@
   "type": "module",
   "scripts": {
     "clean": "rimraf dist",
-    "build": "tsc",
-    "dev": "tsx watch node-server.ts",
+    "build": "tsc -p tsconfig.build.json",
+    "dev": "tsx watch src/node-server.ts",
     "start": "node dist/node-server.js",
     "check:types": "tsc --noEmit"
   },

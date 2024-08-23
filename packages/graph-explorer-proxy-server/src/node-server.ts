@@ -13,8 +13,8 @@ import { IncomingHttpHeaders } from "http";
 import { createLogger, requestLoggingMiddleware } from "./logging.js";
 
 // Construct relative paths
-const clientRoot = path.join(import.meta.dirname, "../../graph-explorer/");
-const proxyServerRoot = path.join(import.meta.dirname, "../");
+const clientRoot = path.join(import.meta.dirname, "../../../graph-explorer/");
+const proxyServerRoot = path.join(import.meta.dirname, "../../");
 
 const app = express();
 
