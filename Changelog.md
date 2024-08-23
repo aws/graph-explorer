@@ -20,6 +20,8 @@
   [#548](https://github.com/aws/graph-explorer/pull/548))
 - **Improved** SageMaker Lifecycle script handling of CloudWatch log driver
   failures ([#550](https://github.com/aws/graph-explorer/pull/550))
+- **Updated** multiple dependencies
+  ([#555](https://github.com/aws/graph-explorer/pull/555))
 
 ## Release 1.9.0
 
