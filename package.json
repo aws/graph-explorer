@@ -16,7 +16,7 @@
     "test": "pnpm --stream -r run test",
     "test:watch": "pnpm --stream -r run test:watch",
     "coverage": "pnpm --stream -r run coverage",
-    "check:types": "tsc --project packages/graph-explorer/ && tsc --project packages/graph-explorer-proxy-server",
+    "check:types": "pnpm --stream -r check:types",
     "checks": "pnpm run '/^check:.*/'",
     "start": "pnpm --filter \"graph-explorer-proxy-server\" run start",
     "start:client": "pnpm --filter \"graph-explorer\" run serve",

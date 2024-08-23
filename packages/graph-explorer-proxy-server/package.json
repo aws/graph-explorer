@@ -8,7 +8,8 @@
     "clean": "rimraf dist",
     "build": "tsc",
     "dev": "tsx watch node-server.ts",
-    "start": "node dist/node-server.js"
+    "start": "node dist/node-server.js",
+    "check:types": "tsc --noEmit"
   },
   "author": "amazon",
   "license": "Apache-2.0",
