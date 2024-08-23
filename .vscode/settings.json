@@ -3,5 +3,5 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "typescript.tsdk": "node_modules/typescript/lib",
-  "vitest.rootConfig": "packages/graph-explorer/vite.config.ts"
+  "vitest.workspaceConfig": "vitest.workspace.ts"
 }

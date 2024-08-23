@@ -38,9 +38,9 @@
     "husky": "^9.0.11",
     "lint-staged": "^13.3.0",
     "prettier": "3.2.5",
-    "typescript": "^5.5.3",
+    "typescript": "^5.5.4",
     "typescript-eslint": "8.0.0-alpha.42",
-    "vitest": "^2.0.3"
+    "vitest": "^2.0.5"
   },
   "lint-staged": {
     "*.{js,ts,tsx}": [
