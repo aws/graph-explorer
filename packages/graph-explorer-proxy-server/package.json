@@ -6,9 +6,13 @@
   "type": "module",
   "scripts": {
     "clean": "rimraf dist",
-    "build": "tsc",
-    "dev": "tsx watch node-server.ts",
-    "start": "node dist/node-server.js"
+    "build": "tsc -p tsconfig.build.json",
+    "dev": "tsx watch src/node-server.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "coverage": "vitest run --coverage",
+    "start": "node dist/node-server.js",
+    "check:types": "tsc --noEmit"
   },
   "author": "amazon",
   "license": "Apache-2.0",
@@ -35,7 +39,10 @@
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
     "@types/node": "^20.12.8",
+    "@vitest/coverage-v8": "^2.0.5",
+    "memfs": "^4.11.1",
     "rimraf": "^6.0.1",
-    "tsx": "^4.16.2"
+    "tsx": "^4.16.2",
+    "vitest": "^2.0.5"
   }
 }

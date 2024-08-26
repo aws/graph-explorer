@@ -11,10 +11,7 @@ import { fromNodeProviderChain } from "@aws-sdk/credential-providers";
 import aws4 from "aws4";
 import { IncomingHttpHeaders } from "http";
 import { createLogger, requestLoggingMiddleware } from "./logging.js";
-
-// Construct relative paths
-const clientRoot = path.join(import.meta.dirname, "../../graph-explorer/");
-const proxyServerRoot = path.join(import.meta.dirname, "../");
+import { clientRoot, proxyServerRoot } from "./paths.js";
 
 const app = express();
 
@@ -210,7 +207,7 @@ app.post("/sparql", (req, res, next) => {
   const isIamEnabled = !!headers["aws-neptune-region"];
   const region = isIamEnabled ? headers["aws-neptune-region"] : "";
   const serviceType = isIamEnabled
-    ? headers["service-type"] ?? DEFAULT_SERVICE_TYPE
+    ? (headers["service-type"] ?? DEFAULT_SERVICE_TYPE)
     : "";
 
   /// Function to cancel long running queries if the client disappears before completion
@@ -293,7 +290,7 @@ app.post("/gremlin", (req, res, next) => {
   const isIamEnabled = !!headers["aws-neptune-region"];
   const region = isIamEnabled ? headers["aws-neptune-region"] : "";
   const serviceType = isIamEnabled
-    ? headers["service-type"] ?? DEFAULT_SERVICE_TYPE
+    ? (headers["service-type"] ?? DEFAULT_SERVICE_TYPE)
     : "";
 
   // Validate the input before making any external calls.
@@ -384,7 +381,7 @@ app.post("/openCypher", (req, res, next) => {
   const isIamEnabled = !!headers["aws-neptune-region"];
   const region = isIamEnabled ? headers["aws-neptune-region"] : "";
   const serviceType = isIamEnabled
-    ? headers["service-type"] ?? DEFAULT_SERVICE_TYPE
+    ? (headers["service-type"] ?? DEFAULT_SERVICE_TYPE)
     : "";
 
   fetchData(
@@ -403,7 +400,7 @@ app.get("/summary", (req, res, next) => {
   const headers = req.headers as DbQueryIncomingHttpHeaders;
   const isIamEnabled = !!headers["aws-neptune-region"];
   const serviceType = isIamEnabled
-    ? headers["service-type"] ?? DEFAULT_SERVICE_TYPE
+    ? (headers["service-type"] ?? DEFAULT_SERVICE_TYPE)
     : "";
   const rawUrl = `${headers["graph-db-connection-url"]}/summary?mode=detailed`;
 
@@ -429,7 +426,7 @@ app.get("/pg/statistics/summary", (req, res, next) => {
   const headers = req.headers as DbQueryIncomingHttpHeaders;
   const isIamEnabled = !!headers["aws-neptune-region"];
   const serviceType = isIamEnabled
-    ? headers["service-type"] ?? DEFAULT_SERVICE_TYPE
+    ? (headers["service-type"] ?? DEFAULT_SERVICE_TYPE)
     : "";
   const rawUrl = `${headers["graph-db-connection-url"]}/pg/statistics/summary?mode=detailed`;
 
@@ -455,7 +452,7 @@ app.get("/rdf/statistics/summary", (req, res, next) => {
   const headers = req.headers as DbQueryIncomingHttpHeaders;
   const isIamEnabled = !!headers["aws-neptune-region"];
   const serviceType = isIamEnabled
-    ? headers["service-type"] ?? DEFAULT_SERVICE_TYPE
+    ? (headers["service-type"] ?? DEFAULT_SERVICE_TYPE)
     : "";
   const rawUrl = `${headers["graph-db-connection-url"]}/rdf/statistics/summary?mode=detailed`;
 

@@ -1,31 +1,7 @@
 {
-  "compilerOptions": {
-    "target": "es2022",
-    "lib": ["es2022", "dom", "dom.iterable"],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "noFallthroughCasesInSwitch": true,
-    "module": "esnext",
-    "moduleResolution": "Bundler",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "useUnknownInCatchVariables": false,
-    "jsx": "react-jsx",
-    "noEmit": true,
-    "downlevelIteration": true,
-    "importHelpers": true,
-    "types": ["vite/client", "vitest/globals", "@testing-library/jest-dom"],
-
-    "baseUrl": "./src",
-    "paths": {
-      "@/*": ["./*"],
-      "@/types/*": ["./@types/*"]
-    }
-  },
-  "include": ["**/*.ts", "**/*.tsx", "**/*.cjs", "**/*.js"],
-  "exclude": ["node_modules"]
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.vite.json" }
+  ]
 }

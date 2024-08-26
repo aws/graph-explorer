@@ -14,7 +14,8 @@
     "clean": "rimraf dist",
     "vite-build": "NODE_OPTIONS=--max_old_space_size=6144 vite build",
     "build": "pnpm vite-build -- --mode production",
-    "serve": "serve dist"
+    "serve": "serve dist",
+    "check:types": "tsc --noEmit"
   },
   "author": "amazon",
   "license": "Apache-2.0",
@@ -125,7 +126,7 @@
     "@types/react-transition-group": "^4.4.10",
     "@types/uuid": "^8.3.4",
     "@vitejs/plugin-react": "^4.2.1",
-    "@vitest/coverage-v8": "^2.0.3",
+    "@vitest/coverage-v8": "^2.0.5",
     "autoprefixer": "^10.4.20",
     "buffer": "^6.0.3",
     "esbuild-loader": "^2.21.0",
@@ -141,8 +142,8 @@
     "ts-node": "^10.9.2",
     "tslib": "^2.6.2",
     "type-fest": "^4.18.1",
-    "vite": "^5.3.3",
-    "vitest": "^2.0.3",
+    "vite": "^5.4.2",
+    "vitest": "^2.0.5",
     "webpack": "^5.91.0"
   },
   "overrides": {

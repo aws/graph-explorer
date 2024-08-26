@@ -1,17 +1,12 @@
 {
   "compilerOptions": {
-    /* Projects */
-    "composite": true,
-
     /* Language and Environment */
     "target": "ES2022",
     "lib": ["ES2023"],
 
     /* Modules */
     "module": "node16",
-
-    /* Emit */
-    "outDir": "./dist",
+    "noEmit": true,
 
     /* Interop Constraints */
     "esModuleInterop": true,
@@ -20,8 +15,16 @@
     /* Type Checking */
     "strict": true,
     "noImplicitAny": false,
+    "types": ["vitest/globals"],
 
     /* Completeness */
-    "skipLibCheck": true
-  }
+    "skipLibCheck": true,
+
+    /* Paths */
+    "baseUrl": "./src",
+    "paths": {
+      "@/*": ["./*"]
+    }
+  },
+  "include": ["src"]
 }

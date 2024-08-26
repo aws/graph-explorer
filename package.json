@@ -2,10 +2,17 @@
   "name": "graph-explorer",
   "version": "1.9.0",
   "description": "Graph Explorer",
+  "author": "amazon",
+  "license": "Apache-2.0",
   "packageManager": "pnpm@8.15.8",
   "engines": {
-    "node": ">=20.12.2"
+    "node": ">=20.12.2",
+    "pnpm": "8.15.8"
   },
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "prepare": "husky install",
     "precommit": "lint-staged && pnpm check:types",
@@ -16,7 +23,7 @@
     "test": "pnpm --stream -r run test",
     "test:watch": "pnpm --stream -r run test:watch",
     "coverage": "pnpm --stream -r run coverage",
-    "check:types": "tsc --project packages/graph-explorer/ && tsc --project packages/graph-explorer-proxy-server",
+    "check:types": "pnpm --stream -r check:types",
     "checks": "pnpm run '/^check:.*/'",
     "start": "pnpm --filter \"graph-explorer-proxy-server\" run start",
     "start:client": "pnpm --filter \"graph-explorer\" run serve",
@@ -24,23 +31,21 @@
     "build": "pnpm --stream -r run build",
     "dev": "pnpm --stream -r run dev"
   },
-  "author": "amazon",
-  "license": "Apache-2.0",
   "devDependencies": {
     "@eslint/compat": "^1.1.1",
-    "@eslint/js": "^9.7.0",
+    "@eslint/js": "^9.9.0",
     "@tanstack/eslint-plugin-query": "^5.51.1",
-    "eslint": "^9.7.0",
+    "eslint": "^9.9.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-react": "^7.35.0",
     "eslint-plugin-react-hooks": "^4.6.2",
     "globals": "^15.8.0",
     "husky": "^9.0.11",
     "lint-staged": "^13.3.0",
-    "prettier": "3.2.5",
-    "typescript": "^5.5.3",
+    "prettier": "3.3.3",
+    "typescript": "^5.5.4",
     "typescript-eslint": "8.0.0-alpha.42",
-    "vitest": "^2.0.3"
+    "vitest": "^2.0.5"
   },
   "lint-staged": {
     "*.{js,ts,tsx}": [
