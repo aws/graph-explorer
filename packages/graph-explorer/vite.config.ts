@@ -1,8 +1,7 @@
 /// <reference types="vitest" />
 import react from "@vitejs/plugin-react";
 import tsconfigPaths from "vite-tsconfig-paths";
-import * as fs from "fs";
-import { loadEnv, PluginOption, ServerOptions } from "vite";
+import { loadEnv, PluginOption } from "vite";
 import { coverageConfigDefaults, defineConfig } from "vitest/config";
 
 export default defineConfig(({ mode }) => {
@@ -22,32 +21,10 @@ export default defineConfig(({ mode }) => {
     };
   };
 
-  const serverInfo = (): ServerOptions => {
-    if (
-      env.GRAPH_EXP_HTTPS_CONNECTION != "false" &&
-      fs.existsSync("../graph-explorer-proxy-server/cert-info/server.key") &&
-      fs.existsSync("../graph-explorer-proxy-server/cert-info/server.crt")
-    ) {
-      return {
-        host: true,
-        https: {
-          key: fs.readFileSync(
-            "../graph-explorer-proxy-server/cert-info/server.key"
-          ),
-          cert: fs.readFileSync(
-            "../graph-explorer-proxy-server/cert-info/server.crt"
-          ),
-        },
-      };
-    } else {
-      return {
-        host: true,
-      };
-    }
-  };
-
   return {
-    server: serverInfo(),
+    server: {
+      host: true,
+    },
     base: env.GRAPH_EXP_ENV_ROOT_FOLDER,
     envPrefix: "GRAPH_EXP",
     define: {
