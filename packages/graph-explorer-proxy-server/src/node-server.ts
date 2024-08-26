@@ -1,4 +1,4 @@
-import express, { NextFunction, Request, Response } from "express";
+import express, { NextFunction, Response } from "express";
 import cors from "cors";
 import compression from "compression";
 import dotenv from "dotenv";
@@ -12,6 +12,7 @@ import aws4 from "aws4";
 import { IncomingHttpHeaders } from "http";
 import { logger as proxyLogger, requestLoggingMiddleware } from "./logging.js";
 import { clientRoot, proxyServerRoot } from "./paths.js";
+import { errorHandlingMiddleware, handleError } from "./error-handler.js";
 
 const app = express();
 
@@ -483,26 +484,11 @@ app.post("/logger", (req, res, next) => {
 });
 
 // Error handler middleware to log errors and send appropriate response.
-app.use(
-  (error: any, request: Request, response: Response, next: NextFunction) => {
-    response.status(error.status || 500);
+app.use(errorHandlingMiddleware());
 
-    // Log the request info and response status since request logging middleware will not be called.
-    logRequestAndResponse(request, response, proxyLogger);
-
-    // Log the error itself
-    proxyLogger.error(error);
-
-    response.send({
-      error: {
-        ...error,
-        status: error.status || 500,
-        message: error.message || "Internal Server Error",
-      },
-    });
-    next();
-  }
-);
+app.use((_req, res) => {
+  res.status(404).send("The requested resource was not available");
+});
 
 // Relative paths to certificate files
 const certificateKeyFilePath = path.join(
@@ -557,6 +543,14 @@ function startServer() {
 }
 
 const server = startServer();
+
+process.on("uncaughtException", (error: Error) => {
+  handleError(error);
+});
+
+process.on("unhandledRejection", reason => {
+  handleError(reason);
+});
 
 // Watch for shutdown event and close gracefully.
 process.on("SIGTERM", () => {
