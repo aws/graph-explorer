@@ -14,7 +14,6 @@
     "clean": "rimraf dist",
     "vite-build": "NODE_OPTIONS=--max_old_space_size=6144 vite build",
     "build": "pnpm vite-build -- --mode production",
-    "serve": "serve dist",
     "check:types": "tsc --noEmit"
   },
   "author": "amazon",
