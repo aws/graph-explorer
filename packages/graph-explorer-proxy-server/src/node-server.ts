@@ -549,16 +549,28 @@ function logServerLocations() {
 }
 
 // Start the server on port 80 or 443 (if HTTPS is enabled)
-if (useHttps) {
-  const options = {
-    key: fs.readFileSync(certificateKeyFilePath),
-    cert: fs.readFileSync(certificateFilePath),
-  };
-  https.createServer(options, app).listen(httpsPort, () => {
-    logServerLocations();
-  });
-} else {
-  app.listen(httpPort, () => {
-    logServerLocations();
-  });
+function startServer() {
+  if (useHttps) {
+    const options = {
+      key: fs.readFileSync(certificateKeyFilePath),
+      cert: fs.readFileSync(certificateFilePath),
+    };
+    return https.createServer(options, app).listen(httpsPort, () => {
+      logServerLocations();
+    });
+  } else {
+    return app.listen(httpPort, () => {
+      logServerLocations();
+    });
+  }
 }
+
+const server = startServer();
+
+// Watch for shutdown event and close gracefully.
+process.on("SIGTERM", () => {
+  proxyLogger.info("SIGTERM signal received: closing HTTP server");
+  server.close(() => {
+    proxyLogger.info("HTTP server closed");
+  });
+});
