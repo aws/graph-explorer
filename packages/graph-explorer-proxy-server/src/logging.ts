@@ -1,9 +1,35 @@
 import { NextFunction, Request, Response } from "express";
-import { Logger, pino } from "pino";
+import { pino } from "pino";
 import { PrettyOptions } from "pino-pretty";
+import { z } from "zod";
+
+export type LogLevel = pino.LevelWithSilent;
+
+const LogLevelSchema = z.enum([
+  "fatal",
+  "error",
+  "warn",
+  "info",
+  "debug",
+  "trace",
+  "silent",
+]);
+
+export const logger = createLogger();
+
+/** Parses the log level from a given string. If the value is unrecognized or undefined, the default is "info". */
+function toLogLevel(value: string | undefined): LogLevel {
+  const parsed = LogLevelSchema.safeParse(value);
+
+  if (!parsed.success) {
+    return "info";
+  }
+
+  return parsed.data;
+}
 
 /** Create a logger instance with pino. */
-export function createLogger() {
+function createLogger() {
   // Check whether we are configured with CloudWatch style
   const loggingInCloudWatch = process.env.LOG_STYLE === "cloudwatch";
   const options: PrettyOptions = loggingInCloudWatch
@@ -17,7 +43,7 @@ export function createLogger() {
         colorize: true,
         translateTime: true,
       };
-  const level = process.env.LOG_LEVEL || "info";
+  const level = toLogLevel(process.env.LOG_LEVEL);
 
   return pino({
     level,
@@ -28,31 +54,45 @@ export function createLogger() {
   });
 }
 
+/** Chooses an log level appropriate for the given status code. */
+function logLevelFromStatusCode(statusCode: number): LogLevel {
+  if (statusCode >= 400 && statusCode < 500) {
+    return "warn";
+  } else if (statusCode >= 500) {
+    return "error";
+  } else if (statusCode >= 300 && statusCode < 400) {
+    return "silent";
+  }
+  return "debug";
+}
+
+/** Logs the request path and response status using the given logger. */
+export function logRequestAndResponse(req: Request, res: Response) {
+  const logLevel = logLevelFromStatusCode(res.statusCode);
+
+  const requestMessage = `${res.statusCode} - ${req.method} ${req.path}`;
+
+  switch (logLevel) {
+    case "debug":
+      logger.debug(requestMessage);
+      break;
+    case "error":
+      logger.error(requestMessage);
+      break;
+    case "warn":
+      logger.warn(requestMessage);
+      break;
+  }
+}
+
 /** Creates the pino-http middleware with the given logger and appropriate options. */
-export function requestLoggingMiddleware(logger: Logger<never>) {
+export function requestLoggingMiddleware() {
   return (req: Request, res: Response, next: NextFunction) => {
-    let logLevel = "debug";
-    if (res.statusCode >= 400 && res.statusCode < 500) {
-      logLevel = "warn";
-    } else if (res.statusCode >= 500) {
-      logLevel = "error";
-    } else if (res.statusCode >= 300 && res.statusCode < 400) {
-      logLevel = "silent";
-    }
+    // Wait for the request to complete.
+    req.on("end", () => {
+      logRequestAndResponse(req, res);
+    });
 
-    const requestMessage = `${res.statusCode} - ${req.method} ${req.path}`;
-
-    switch (logLevel) {
-      case "debug":
-        logger.debug(requestMessage);
-        break;
-      case "error":
-        logger.error(requestMessage);
-        break;
-      case "warn":
-        logger.warn(requestMessage);
-        break;
-    }
     next();
   };
 }

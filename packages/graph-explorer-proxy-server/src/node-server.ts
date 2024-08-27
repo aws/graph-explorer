@@ -10,7 +10,7 @@ import path from "path";
 import { fromNodeProviderChain } from "@aws-sdk/credential-providers";
 import aws4 from "aws4";
 import { IncomingHttpHeaders } from "http";
-import { createLogger, requestLoggingMiddleware } from "./logging.js";
+import { logger as proxyLogger, requestLoggingMiddleware } from "./logging.js";
 import { clientRoot, proxyServerRoot } from "./paths.js";
 
 const app = express();
@@ -34,8 +34,7 @@ interface LoggerIncomingHttpHeaders extends IncomingHttpHeaders {
   message?: string;
 }
 
-const proxyLogger = createLogger();
-app.use(requestLoggingMiddleware(proxyLogger));
+app.use(requestLoggingMiddleware());
 
 // Function to get IAM headers for AWS4 signing process.
 async function getIAMHeaders(options: string | aws4.Request) {
@@ -55,30 +54,6 @@ async function getIAMHeaders(options: string | aws4.Request) {
 
   return headers;
 }
-
-// Error handler middleware to log errors and send appropriate response.
-const errorHandler = (
-  error: any,
-  _request: Request,
-  response: Response,
-  _next: NextFunction
-) => {
-  if (error.extraInfo) {
-    proxyLogger.error(error.extraInfo + error.message);
-    proxyLogger.debug(error.stack);
-  } else {
-    proxyLogger.error(error.message);
-    proxyLogger.debug(error.stack);
-  }
-
-  response.status(error.status || 500).json({
-    error: {
-      ...error,
-      status: error.status || 500,
-      message: error.message || "Internal Server Error",
-    },
-  });
-};
 
 // Function to retry fetch requests with exponential backoff.
 const retryFetch = async (
@@ -510,8 +485,27 @@ app.post("/logger", (req, res, next) => {
   }
 });
 
-// Plugin the error handler after the routes
-app.use(errorHandler);
+// Error handler middleware to log errors and send appropriate response.
+app.use(
+  (error: any, request: Request, response: Response, next: NextFunction) => {
+    response.status(error.status || 500);
+
+    // Log the request info and response status since request logging middleware will not be called.
+    logRequestAndResponse(request, response, proxyLogger);
+
+    // Log the error itself
+    proxyLogger.error(error);
+
+    response.send({
+      error: {
+        ...error,
+        status: error.status || 500,
+        message: error.message || "Internal Server Error",
+      },
+    });
+    next();
+  }
+);
 
 // Relative paths to certificate files
 const certificateKeyFilePath = path.join(
