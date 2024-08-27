@@ -20,6 +20,8 @@
   [#548](https://github.com/aws/graph-explorer/pull/548))
 - **Improved** SageMaker Lifecycle script handling of CloudWatch log driver
   failures ([#550](https://github.com/aws/graph-explorer/pull/550))
+- **Changed** Node to run in production mode
+  ([#558](https://github.com/aws/graph-explorer/pull/558))
 - **Removed** hosting production server using the client side Vite
   configuration, requiring the use of the proxy server
   ([#565](https://github.com/aws/graph-explorer/pull/565))
