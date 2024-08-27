@@ -5,11 +5,10 @@
   "main": "dist/node-server.js",
   "type": "module",
   "scripts": {
-    "clean": "rimraf dist",
-    "build": "tsc -p tsconfig.build.json",
+    "clean": "tsc --build tsconfig.build.json --clean && rimraf dist coverage",
+    "build": "tsc --build tsconfig.build.json",
     "dev": "tsx watch src/node-server.ts",
-    "start": "NODE_ENV=production node dist/node-server.js",
-    "check:types": "tsc --noEmit"
+    "start": "NODE_ENV=production node dist/node-server.js"
   },
   "author": "amazon",
   "license": "Apache-2.0",
