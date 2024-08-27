@@ -24,7 +24,7 @@
     "test:watch": "vitest",
     "coverage": "vitest run --coverage",
     "check:types": "tsc --build",
-    "checks": "pnpm run '/^check:.*/'",
+    "checks": "pnpm clean && pnpm run '/^check:.*/'",
     "start": "pnpm --filter \"graph-explorer-proxy-server\" run start",
     "clean": "pnpm --stream -r run clean",
     "build": "pnpm --stream -r run build",
