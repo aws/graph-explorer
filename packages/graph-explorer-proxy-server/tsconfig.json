@@ -2,20 +2,22 @@
   "extends": ["../../tsconfig.base.json"],
   "compilerOptions": {
     /* Language and Environment */
+    "composite": true,
     "target": "ES2022",
     "lib": ["ES2023"],
     "types": ["vitest/globals"],
 
     /* Modules */
     "module": "node16",
-    "noEmit": true,
 
     /* Interop Constraints */
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
 
     /* Paths */
+    "outDir": "./dist",
     "baseUrl": "./src",
+    "rootDir": "./src",
     "paths": {
       "@/*": ["./*"]
     }
