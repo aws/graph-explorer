@@ -11,7 +11,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "coverage": "vitest run --coverage",
-    "start": "node dist/node-server.js",
+    "start": "NODE_ENV=production node dist/node-server.js",
     "check:types": "tsc --noEmit"
   },
   "author": "amazon",
