@@ -26,7 +26,6 @@
     "check:types": "pnpm --stream -r check:types",
     "checks": "pnpm run '/^check:.*/'",
     "start": "pnpm --filter \"graph-explorer-proxy-server\" run start",
-    "start:client": "pnpm --filter \"graph-explorer\" run serve",
     "clean": "pnpm --stream -r run clean",
     "build": "pnpm --stream -r run build",
     "dev": "pnpm --stream -r run dev"
