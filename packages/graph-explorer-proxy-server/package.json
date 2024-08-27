@@ -8,9 +8,6 @@
     "clean": "rimraf dist",
     "build": "tsc -p tsconfig.build.json",
     "dev": "tsx watch src/node-server.ts",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "coverage": "vitest run --coverage",
     "start": "NODE_ENV=production node dist/node-server.js",
     "check:types": "tsc --noEmit"
   },

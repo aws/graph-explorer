@@ -34,6 +34,9 @@ importers:
       '@tanstack/eslint-plugin-query':
         specifier: ^5.51.1
         version: 5.51.1(eslint@9.9.0)(typescript@5.5.4)
+      '@vitest/coverage-v8':
+        specifier: ^2.0.5
+        version: 2.0.5(vitest@2.0.5)
       eslint:
         specifier: ^9.9.0
         version: 9.9.0
@@ -5520,7 +5523,7 @@ packages:
       std-env: 3.7.0
       test-exclude: 7.0.1
       tinyrainbow: 1.2.0
-      vitest: 2.0.5(@types/node@20.12.8)(happy-dom@14.12.3)(jsdom@24.1.0)
+      vitest: 2.0.5
     transitivePeerDependencies:
       - supports-color
     dev: true
