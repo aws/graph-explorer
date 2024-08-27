@@ -28,7 +28,8 @@
   configuration, requiring the use of the proxy server
   ([#565](https://github.com/aws/graph-explorer/pull/565))
 - **Updated** multiple dependencies
-  ([#555](https://github.com/aws/graph-explorer/pull/555))
+  ([#555](https://github.com/aws/graph-explorer/pull/555),
+  [#557](https://github.com/aws/graph-explorer/pull/557))
 
 ## Release 1.9.0
 
