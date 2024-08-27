@@ -5,7 +5,7 @@ import keywordSearch from "./queries/keywordSearch";
 import fetchSchema from "./queries/fetchSchema";
 import { GraphSummary } from "./types";
 import { fetchDatabaseRequest } from "../fetchDatabaseRequest";
-import { ConnectionConfig } from "@/core";
+import { ConnectionConfig } from "@shared/types";
 import { DEFAULT_SERVICE_TYPE } from "@/utils/constants";
 import { Explorer } from "../useGEFetchTypes";
 import { env, logger } from "@/utils";

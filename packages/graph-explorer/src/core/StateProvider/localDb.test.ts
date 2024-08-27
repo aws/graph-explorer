@@ -1,8 +1,5 @@
 import { toJsonFileData } from "@/utils/fileData";
 import {
-  createRandomDate,
-  createRandomInteger,
-  createRandomName,
   createRandomRawConfiguration,
   createRandomSchema,
 } from "@/utils/testing";
@@ -18,6 +15,11 @@ import {
   restoreBackup,
 } from "./localDb";
 import { serializeData } from "./serializeData";
+import {
+  createRandomDate,
+  createRandomInteger,
+  createRandomName,
+} from "@shared/utils/testing";
 
 describe("exportFromLocalForage", () => {
   let timestamp: Date;

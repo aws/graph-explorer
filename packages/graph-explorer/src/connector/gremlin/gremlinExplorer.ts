@@ -1,4 +1,4 @@
-import { ConnectionConfig } from "@/core";
+import { ConnectionConfig } from "@shared/types";
 import fetchNeighbors from "./queries/fetchNeighbors";
 import fetchNeighborsCount from "./queries/fetchNeighborsCount";
 import fetchSchema from "./queries/fetchSchema";

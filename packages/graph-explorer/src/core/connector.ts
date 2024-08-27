@@ -10,7 +10,7 @@ import { createSparqlExplorer } from "@/connector/sparql/sparqlExplorer";
 import { mergedConfigurationSelector } from "./StateProvider/configuration";
 import { selector } from "recoil";
 import { equalSelector } from "@/utils/recoilState";
-import { ConnectionConfig } from "./ConfigurationProvider";
+import { ConnectionConfig } from "@shared/types";
 
 /**
  * Active connection where the value will only change when one of the

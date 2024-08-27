@@ -1,0 +1,24 @@
+{
+  "name": "@graph-explorer/shared",
+  "version": "1.9.0",
+  "description": "Shared types and functions across client and server.",
+  "author": "amazon",
+  "license": "Apache-2.0",
+  "keywords": [],
+  "private": true,
+  "type": "module",
+  "main": "index.ts",
+  "scripts": {
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "uuid": "^9.0.1",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/uuid": "^8.3.4",
+    "@vitest/coverage-v8": "^2.0.5",
+    "rimraf": "^6.0.1",
+    "vitest": "^2.0.5"
+  }
+}

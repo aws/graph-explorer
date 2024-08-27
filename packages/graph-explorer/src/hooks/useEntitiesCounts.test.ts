@@ -3,7 +3,6 @@ import { RawConfiguration, Schema } from "@/core";
 import { vi } from "vitest";
 import {
   createRandomEdgeTypeConfig,
-  createRandomInteger,
   createRandomRawConfiguration,
   createRandomSchema,
   createRandomVertexTypeConfig,
@@ -14,6 +13,7 @@ import {
   configurationAtom,
 } from "@/core/StateProvider/configuration";
 import { schemaAtom } from "@/core/StateProvider/schema";
+import { createRandomInteger } from "@shared/utils/testing";
 
 function renderUseEntitiesHook(config: RawConfiguration, schema: Schema) {
   return renderHookWithRecoilRoot(

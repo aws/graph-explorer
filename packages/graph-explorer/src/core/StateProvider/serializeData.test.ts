@@ -3,7 +3,7 @@ import {
   createRandomInteger,
   createRandomDate,
   createArray,
-} from "@/utils/testing";
+} from "@shared/utils/testing";
 import { serializeData, deserializeData } from "./serializeData";
 
 describe("serializeData", () => {
