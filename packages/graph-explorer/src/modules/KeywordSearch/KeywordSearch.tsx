@@ -412,7 +412,7 @@ function SearchResults({
         items={resultItems}
         draggable={true}
         defaultItemType="graph-viewer__node"
-        onItemClick={(event, item) => {
+        onItemClick={(_event, item) => {
           selection.toggle(item.id);
         }}
         selectedItemsIds={Array.from(selection.state)}

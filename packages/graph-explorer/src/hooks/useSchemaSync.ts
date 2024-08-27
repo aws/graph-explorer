@@ -41,17 +41,17 @@ const useSchemaSync = (onSyncChange?: (isSyncing: boolean) => void) => {
         type: "error",
         stackable: true,
       });
-      if (e.name === "AbortError") {
+      if (e instanceof Error && e.name === "AbortError") {
         logger.error(
           `[${
             config.displayLabel || config.id
-          }] Fetch aborted, reached max time out ${config.connection?.fetchTimeoutMs} MS `
+          }] Fetch aborted, reached max time out ${config.connection?.fetchTimeoutMs} MS`
         );
       } else {
         logger.error(
           `[${
             config.displayLabel || config.id
-          }] Error while fetching schema: ${e.message}`
+          }] Error while fetching schema: ${e instanceof Error ? e.message : "Unexpected error"}`
         );
       }
       updateSchemaState(config.id);

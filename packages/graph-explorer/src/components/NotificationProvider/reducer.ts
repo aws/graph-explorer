@@ -152,8 +152,6 @@ const reducer = (state: NotificationState, action: NotificationAction) => {
       };
     }
   }
-
-  return state;
 };
 
 export default reducer;

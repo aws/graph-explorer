@@ -24,7 +24,7 @@ import { recoilDiffSets } from "@/utils/recoilState";
 
 type ToggleEdge = Edge & { __is_visible: boolean };
 
-const EdgesTabular = forwardRef<TabularInstance<any>, any>((props, ref) => {
+const EdgesTabular = forwardRef<TabularInstance<any>, any>((_props, ref) => {
   const t = useTranslations();
   const edges = useRecoilValue(edgesAtom);
   const setEdgesOut = useSetRecoilState(edgesOutOfFocusIdsAtom);
