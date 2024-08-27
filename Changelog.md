@@ -10,6 +10,8 @@
   exist ([#542](https://github.com/aws/graph-explorer/pull/542))
 - **Added** global error page if the React app crashes
   ([#547](https://github.com/aws/graph-explorer/pull/547))
+- **Improved** handling of server errors with more consistent logging
+  ([#557](https://github.com/aws/graph-explorer/pull/557))
 - **Transition** to Tailwind instead of EmotionCSS for styles, which should make
   updating the UI much simpler
   ([#543](https://github.com/aws/graph-explorer/pull/543))
