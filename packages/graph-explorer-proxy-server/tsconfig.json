@@ -1,8 +1,10 @@
 {
+  "extends": ["../../tsconfig.base.json"],
   "compilerOptions": {
     /* Language and Environment */
     "target": "ES2022",
     "lib": ["ES2023"],
+    "types": ["vitest/globals"],
 
     /* Modules */
     "module": "node16",
@@ -12,19 +14,12 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
 
-    /* Type Checking */
-    "strict": true,
-    "noImplicitAny": false,
-    "types": ["vitest/globals"],
-
-    /* Completeness */
-    "skipLibCheck": true,
-
     /* Paths */
     "baseUrl": "./src",
     "paths": {
       "@/*": ["./*"]
     }
   },
-  "include": ["src"]
+  "include": ["src"],
+  "references": [{ "path": "./tsconfig.build.json" }]
 }
