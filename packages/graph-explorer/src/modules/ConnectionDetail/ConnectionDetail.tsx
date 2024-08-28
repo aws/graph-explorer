@@ -268,6 +268,28 @@ function DebugActions() {
       };
     });
   };
+  const resetAllTotals = () => {
+    logger.log("Setting vertex totals to undefined");
+    setActiveSchema(prev => {
+      if (!prev) {
+        return prev;
+      }
+
+      return {
+        ...prev,
+        vertices: prev.vertices.map(vertex => ({
+          ...vertex,
+          total: undefined,
+        })),
+        edges: prev.edges.map(edge => ({
+          ...edge,
+          total: undefined,
+        })),
+        totalEdges: undefined,
+        totalVertices: undefined,
+      };
+    });
+  };
 
   return (
     <div className="item">
@@ -279,6 +301,7 @@ function DebugActions() {
         </Button>
         <Button onPress={() => setSchemaSyncFailed()}>Last Sync Failed</Button>
         <Button onPress={() => resetVertexTotals()}>Reset Vertex Totals</Button>
+        <Button onPress={() => resetAllTotals()}>Reset All Totals</Button>
       </div>
     </div>
   );
