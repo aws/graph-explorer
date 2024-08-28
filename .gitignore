@@ -5,3 +5,6 @@
 **/.idea/
 **/dist/
 **/.env.local
+
+# TypeScript build cache manifests
+*.tsbuildinfo

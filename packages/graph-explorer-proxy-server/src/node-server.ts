@@ -38,7 +38,7 @@ const proxyLogger = createLogger();
 app.use(requestLoggingMiddleware(proxyLogger));
 
 // Function to get IAM headers for AWS4 signing process.
-async function getIAMHeaders(options) {
+async function getIAMHeaders(options: string | aws4.Request) {
   const credentialProvider = fromNodeProviderChain();
   const creds = await credentialProvider();
   if (creds === undefined) {
@@ -46,10 +46,11 @@ async function getIAMHeaders(options) {
       "IAM is enabled but credentials cannot be found on the credential provider chain."
     );
   }
+
   const headers = aws4.sign(options, {
     accessKeyId: creds.accessKeyId,
     secretAccessKey: creds.secretAccessKey,
-    sessionToken: creds.sessionToken,
+    ...(creds.sessionToken && { sessionToken: creds.sessionToken }),
   });
 
   return headers;
@@ -146,6 +147,8 @@ const retryFetch = async (
       }
     }
   }
+  // Should never reach this code
+  throw new Error("retryFetch failed to complete retry logic");
 };
 
 // Function to fetch data from the given URL and send it as a response.
@@ -166,8 +169,8 @@ async function fetchData(
       region,
       serviceType
     );
-    const data = await response!.json();
-    res.status(response!.status);
+    const data = await response.json();
+    res.status(response.status);
     res.send(data);
   } catch (error) {
     next(error);
@@ -270,7 +273,7 @@ app.post("/sparql", (req, res, next) => {
     body,
   };
 
-  fetchData(
+  return fetchData(
     res,
     next,
     rawUrl,
@@ -347,7 +350,7 @@ app.post("/gremlin", (req, res, next) => {
     body: JSON.stringify(body),
   };
 
-  fetchData(
+  return fetchData(
     res,
     next,
     rawUrl,
@@ -384,7 +387,7 @@ app.post("/openCypher", (req, res, next) => {
     ? (headers["service-type"] ?? DEFAULT_SERVICE_TYPE)
     : "";
 
-  fetchData(
+  return fetchData(
     res,
     next,
     rawUrl,

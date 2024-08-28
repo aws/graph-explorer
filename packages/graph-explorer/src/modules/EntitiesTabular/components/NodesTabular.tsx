@@ -27,7 +27,7 @@ import { recoilDiffSets } from "@/utils/recoilState";
 
 type ToggleVertex = Vertex & { __is_visible: boolean };
 
-const NodesTabular = forwardRef<TabularInstance<any>, any>((props, ref) => {
+const NodesTabular = forwardRef<TabularInstance<any>, any>((_props, ref) => {
   const t = useTranslations();
   const nodes = useRecoilValue(nodesAtom);
   const setNodesOut = useSetRecoilState(nodesOutOfFocusIdsAtom);

@@ -13,7 +13,7 @@ export default defineConfig(({ mode }) => {
       transformIndexHtml: {
         order: "pre",
         handler: (html: string) => {
-          return html.replace(/%(.*?)%/g, function (match, p1) {
+          return html.replace(/%(.*?)%/g, function (_match, p1) {
             return env[p1] ? env[p1] : "";
           });
         },

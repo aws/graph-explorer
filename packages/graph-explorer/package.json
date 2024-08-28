@@ -7,14 +7,10 @@
   },
   "type": "module",
   "scripts": {
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "coverage": "vitest run --coverage",
     "dev": "vite --force",
-    "clean": "rimraf dist",
+    "clean": "tsc --build --clean && rimraf dist coverage",
     "vite-build": "NODE_OPTIONS=--max_old_space_size=6144 vite build",
-    "build": "pnpm vite-build -- --mode production",
-    "check:types": "tsc --noEmit"
+    "build": "pnpm vite-build -- --mode production"
   },
   "author": "amazon",
   "license": "Apache-2.0",

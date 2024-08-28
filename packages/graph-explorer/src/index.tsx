@@ -73,7 +73,9 @@ const grabConfig = async (): Promise<RawConfiguration | undefined> => {
       },
     };
   } catch (error) {
-    console.error(`Error when trying to create connection: ${error.message}`);
+    console.error(
+      `Error when trying to create connection: ${error instanceof Error ? error.message : "Unexpected error"}`
+    );
   }
 };
 

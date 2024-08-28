@@ -3,7 +3,7 @@ import { NoWidgetIcon, SearchSadIcon } from "@/components/icons";
 import { PanelEmptyState } from "@/components/PanelEmptyState";
 
 const getEmptyStateItems = (
-  empty: boolean,
+  _empty: boolean,
   noSearchResults: boolean,
   emptyState?: {
     noSearchResultsTitle?: ReactNode;
