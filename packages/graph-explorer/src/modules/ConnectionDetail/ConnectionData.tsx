@@ -39,8 +39,8 @@ const ConnectionData = () => {
         id: vt,
         title: displayLabel,
         titleComponent: (
-          <div className={"advanced-list-item-title"}>
-            <div className={"node-title"}>{textTransform(displayLabel)}</div>
+          <div className="advanced-list-item-title">
+            <div className="node-title">{textTransform(displayLabel)}</div>
           </div>
         ),
         icon: (
@@ -65,8 +65,8 @@ const ConnectionData = () => {
           <IconButton
             tooltipText={`Explore ${textTransform(displayLabel)}`}
             icon={<ChevronRightIcon />}
-            variant={"text"}
-            size={"small"}
+            variant="text"
+            size="small"
             onPress={() => navigate(`/data-explorer/${encodeURIComponent(vt)}`)}
           />
         ),
@@ -84,11 +84,11 @@ const ConnectionData = () => {
 
   return (
     <div className={cx(styleWithTheme(defaultStyles), "h-full")}>
-      <div className={"info-bar"}>
-        <div className={"item"}>
-          <div className={"tag"}>{t("connection-detail.nodes")}</div>
-          <div className={"value"}>
-            <Chip className={"value-chip"}>
+      <div className="info-bar">
+        <div className="item">
+          <div className="tag">{t("connection-detail.nodes")}</div>
+          <div className="value">
+            <Chip className="value-chip">
               <GraphIcon />
               {totalNodes != null && (
                 <HumanReadableNumberFormatter value={totalNodes} />
@@ -97,10 +97,10 @@ const ConnectionData = () => {
             </Chip>
           </div>
         </div>
-        <div className={"item"}>
-          <div className={"tag"}>{t("connection-detail.edges")}</div>
-          <div className={"value"}>
-            <Chip className={"value-chip"}>
+        <div className="item">
+          <div className="tag">{t("connection-detail.edges")}</div>
+          <div className="value">
+            <Chip className="value-chip">
               <EdgeIcon />
               {totalEdges != null && (
                 <HumanReadableNumberFormatter value={totalEdges} />
@@ -114,7 +114,7 @@ const ConnectionData = () => {
         searchPlaceholder={t("connection-detail.search-placeholder")}
         search={search}
         onSearch={setSearch}
-        className={"advanced-list"}
+        className="advanced-list"
         items={verticesByTypeItems}
         emptyState={{
           noSearchResultsTitle: t("connection-detail.no-search-title"),
