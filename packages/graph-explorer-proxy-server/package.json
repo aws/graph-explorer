@@ -26,7 +26,8 @@
     "https": "^1.0.0",
     "node-fetch": "^3.3.2",
     "pino": "^9.3.2",
-    "pino-pretty": "^11.0.0"
+    "pino-pretty": "^11.0.0",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/aws4": "^1.11.6",

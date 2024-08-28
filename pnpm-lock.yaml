@@ -485,6 +485,9 @@ importers:
       pino-pretty:
         specifier: ^11.0.0
         version: 11.0.0
+      zod:
+        specifier: ^3.23.8
+        version: 3.23.8
     devDependencies:
       '@types/aws4':
         specifier: ^1.11.6

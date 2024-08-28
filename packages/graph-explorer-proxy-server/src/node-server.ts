@@ -1,4 +1,4 @@
-import express, { NextFunction, Request, Response } from "express";
+import express, { NextFunction, Response } from "express";
 import cors from "cors";
 import compression from "compression";
 import dotenv from "dotenv";
@@ -10,8 +10,9 @@ import path from "path";
 import { fromNodeProviderChain } from "@aws-sdk/credential-providers";
 import aws4 from "aws4";
 import { IncomingHttpHeaders } from "http";
-import { createLogger, requestLoggingMiddleware } from "./logging.js";
+import { logger as proxyLogger, requestLoggingMiddleware } from "./logging.js";
 import { clientRoot, proxyServerRoot } from "./paths.js";
+import { errorHandlingMiddleware, handleError } from "./error-handler.js";
 
 const app = express();
 
@@ -34,8 +35,7 @@ interface LoggerIncomingHttpHeaders extends IncomingHttpHeaders {
   message?: string;
 }
 
-const proxyLogger = createLogger();
-app.use(requestLoggingMiddleware(proxyLogger));
+app.use(requestLoggingMiddleware());
 
 // Function to get IAM headers for AWS4 signing process.
 async function getIAMHeaders(options: string | aws4.Request) {
@@ -55,30 +55,6 @@ async function getIAMHeaders(options: string | aws4.Request) {
 
   return headers;
 }
-
-// Error handler middleware to log errors and send appropriate response.
-const errorHandler = (
-  error: any,
-  _request: Request,
-  response: Response,
-  _next: NextFunction
-) => {
-  if (error.extraInfo) {
-    proxyLogger.error(error.extraInfo + error.message);
-    proxyLogger.debug(error.stack);
-  } else {
-    proxyLogger.error(error.message);
-    proxyLogger.debug(error.stack);
-  }
-
-  response.status(error.status || 500).json({
-    error: {
-      ...error,
-      status: error.status || 500,
-      message: error.message || "Internal Server Error",
-    },
-  });
-};
 
 // Function to retry fetch requests with exponential backoff.
 const retryFetch = async (
@@ -127,11 +103,8 @@ const retryFetch = async (
       const res = await fetch(url.href, options);
       if (!res.ok) {
         proxyLogger.error("!!Request failure!!");
-        proxyLogger.error("URL: " + url.href);
-        proxyLogger.error(`Response: ${res.status} - ${res.statusText}`);
         return res;
       } else {
-        proxyLogger.debug("Successful response: " + res.statusText);
         return res;
       }
     } catch (err) {
@@ -510,8 +483,12 @@ app.post("/logger", (req, res, next) => {
   }
 });
 
-// Plugin the error handler after the routes
-app.use(errorHandler);
+// Error handler middleware to log errors and send appropriate response.
+app.use(errorHandlingMiddleware());
+
+app.use((_req, res) => {
+  res.status(404).send("The requested resource was not available");
+});
 
 // Relative paths to certificate files
 const certificateKeyFilePath = path.join(
@@ -549,16 +526,36 @@ function logServerLocations() {
 }
 
 // Start the server on port 80 or 443 (if HTTPS is enabled)
-if (useHttps) {
-  const options = {
-    key: fs.readFileSync(certificateKeyFilePath),
-    cert: fs.readFileSync(certificateFilePath),
-  };
-  https.createServer(options, app).listen(httpsPort, () => {
-    logServerLocations();
-  });
-} else {
-  app.listen(httpPort, () => {
-    logServerLocations();
-  });
+function startServer() {
+  if (useHttps) {
+    const options = {
+      key: fs.readFileSync(certificateKeyFilePath),
+      cert: fs.readFileSync(certificateFilePath),
+    };
+    return https.createServer(options, app).listen(httpsPort, () => {
+      logServerLocations();
+    });
+  } else {
+    return app.listen(httpPort, () => {
+      logServerLocations();
+    });
+  }
 }
+
+const server = startServer();
+
+process.on("uncaughtException", (error: Error) => {
+  handleError(error);
+});
+
+process.on("unhandledRejection", reason => {
+  handleError(reason);
+});
+
+// Watch for shutdown event and close gracefully.
+process.on("SIGTERM", () => {
+  proxyLogger.info("SIGTERM signal received: closing HTTP server");
+  server.close(() => {
+    proxyLogger.info("HTTP server closed");
+  });
+});
