@@ -1,6 +1,5 @@
 import { useCallback, useRef } from "react";
 import { useNotification } from "@/components/NotificationProvider";
-import type { SchemaResponse } from "@/connector/useGEFetchTypes";
 import { useConfiguration } from "@/core/ConfigurationProvider";
 import { explorerSelector, loggerSelector } from "@/core/connector";
 import usePrefixesUpdater from "./usePrefixesUpdater";
@@ -17,14 +16,13 @@ const useSchemaSync = (onSyncChange?: (isSyncing: boolean) => void) => {
   const { enqueueNotification, clearNotification } = useNotification();
   const notificationId = useRef<string | null>(null);
 
-  const updateSchemaState = useUpdateSchema();
+  const { replaceSchema, setSyncFailure } = useUpdateSchema();
   return useCallback(async () => {
     if (!config || !explorer) {
       return;
     }
 
     onSyncChange?.(true);
-    let schema: SchemaResponse | null = null;
     try {
       notificationId.current = enqueueNotification({
         title: config.displayLabel || config.id,
@@ -32,7 +30,49 @@ const useSchemaSync = (onSyncChange?: (isSyncing: boolean) => void) => {
         type: "info",
       });
 
-      schema = await explorer.fetchSchema();
+      const schema = await explorer.fetchSchema();
+
+      if (!schema.vertices.length) {
+        notificationId.current && clearNotification(notificationId.current);
+        enqueueNotification({
+          title: config.displayLabel || config.id,
+          message: "This connection has no data available",
+          type: "info",
+          stackable: true,
+        });
+        logger.info(
+          `[${
+            config.displayLabel || config.id
+          }] This connection has no data available: ${JSON.stringify(
+            config.connection
+          )}`
+        );
+      }
+
+      replaceSchema(schema);
+      onSyncChange?.(false);
+
+      notificationId.current && clearNotification(notificationId.current);
+      enqueueNotification({
+        title: config.displayLabel || config.id,
+        message: "Connection successfully synchronized",
+        type: "success",
+        stackable: true,
+      });
+      logger.info(
+        `[${
+          config.displayLabel || config.id
+        }] Connection successfully synchronized: ${JSON.stringify(
+          config.connection
+        )}`
+      );
+
+      const ids = schema.vertices.flatMap(v => [
+        v.type,
+        ...v.attributes.map(attr => attr.name),
+      ]);
+      ids.push(...schema.edges.map(e => e.type));
+      updatePrefixes(ids);
     } catch (e) {
       notificationId.current && clearNotification(notificationId.current);
       const displayError = createDisplayError(e);
@@ -54,62 +94,19 @@ const useSchemaSync = (onSyncChange?: (isSyncing: boolean) => void) => {
           }] Error while fetching schema: ${e instanceof Error ? e.message : "Unexpected error"}`
         );
       }
-      updateSchemaState(config.id);
+      setSyncFailure();
       onSyncChange?.(false);
-      return;
     }
-
-    if (!schema) return;
-    if (!schema?.vertices.length) {
-      notificationId.current && clearNotification(notificationId.current);
-      enqueueNotification({
-        title: config.displayLabel || config.id,
-        message: "This connection has no data available",
-        type: "info",
-        stackable: true,
-      });
-      logger.info(
-        `[${
-          config.displayLabel || config.id
-        }] This connection has no data available: ${JSON.stringify(
-          config.connection
-        )}`
-      );
-    }
-
-    updateSchemaState(config.id, schema);
-    onSyncChange?.(false);
-
-    notificationId.current && clearNotification(notificationId.current);
-    enqueueNotification({
-      title: config.displayLabel || config.id,
-      message: "Connection successfully synchronized",
-      type: "success",
-      stackable: true,
-    });
-    logger.info(
-      `[${
-        config.displayLabel || config.id
-      }] Connection successfully synchronized: ${JSON.stringify(
-        config.connection
-      )}`
-    );
-
-    const ids = schema.vertices.flatMap(v => [
-      v.type,
-      ...v.attributes.map(attr => attr.name),
-    ]);
-    ids.push(...schema.edges.map(e => e.type));
-    updatePrefixes(ids);
   }, [
-    clearNotification,
     config,
     explorer,
-    logger,
-    enqueueNotification,
     onSyncChange,
+    enqueueNotification,
+    replaceSchema,
+    clearNotification,
+    logger,
     updatePrefixes,
-    updateSchemaState,
+    setSyncFailure,
   ]);
 };
 
