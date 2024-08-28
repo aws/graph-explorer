@@ -42,7 +42,7 @@ export const activeSchemaSelector = selector({
       const updatedSchemaMap = new Map(prevSchemaMap);
 
       // Handle reset value
-      if (isDefaultValue(newValue) || !newValue) {
+      if (!newValue || isDefaultValue(newValue)) {
         updatedSchemaMap.delete(schemaId);
         return updatedSchemaMap;
       }
