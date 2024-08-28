@@ -12,6 +12,7 @@ import {
   nodesSelectedIdsAtom,
   nodesSelector,
 } from "./nodes";
+import { updateSchemaFromEntitiesAtom } from "./schema";
 
 export type Entities = {
   /**
@@ -232,6 +233,11 @@ const entitiesSelector = selector<Entities>({
     ) {
       set(edgesSelector, nonUnconnectedEdges);
     }
+
+    set(updateSchemaFromEntitiesAtom, {
+      nodes: nodesWithStats,
+      edges: nonUnconnectedEdges,
+    });
 
     // Select new entities preserving selected ones by default
     const selectedNodesIds =
