@@ -1,6 +1,10 @@
 import { Modal } from "@mantine/core";
 import { useCallback, useState } from "react";
-import { useRecoilCallback, useSetRecoilState } from "recoil";
+import {
+  useRecoilCallback,
+  useResetRecoilState,
+  useSetRecoilState,
+} from "recoil";
 import {
   ActionItem,
   Button,
@@ -223,10 +227,11 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
 
 function DebugActions() {
   const setActiveSchema = useSetRecoilState(activeSchemaSelector);
+  const resetActiveSchema = useResetRecoilState(activeSchemaSelector);
 
   const deleteSchema = () => {
     logger.log("Deleting schema");
-    setActiveSchema(null);
+    resetActiveSchema();
   };
   const resetSchemaLastUpdated = () => {
     logger.log("Resetting schema last updated");
