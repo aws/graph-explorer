@@ -2,6 +2,7 @@
   "extends": "./tsconfig.base.json",
   "files": [],
   "references": [
+    { "path": "packages/shared" },
     { "path": "packages/graph-explorer" },
     { "path": "packages/graph-explorer-proxy-server" }
   ]

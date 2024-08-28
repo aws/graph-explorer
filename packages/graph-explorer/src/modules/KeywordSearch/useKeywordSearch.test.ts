@@ -1,5 +1,5 @@
 import useKeywordSearch from "./useKeywordSearch";
-import { ConnectionConfig } from "@/core";
+import { ConnectionConfig } from "@shared/types";
 import { createRandomSchema, renderHookWithRecoilRoot } from "@/utils/testing";
 import { createRandomRawConfiguration } from "@/utils/testing";
 import {
