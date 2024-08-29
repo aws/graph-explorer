@@ -38,7 +38,7 @@ export const mergedConfigurationSelector = selector<RawConfiguration | null>({
   get: ({ get }) => {
     const activeConfig = get(activeConfigurationAtom);
     const config = get(configurationAtom);
-    const currentConfig = activeConfig && config.get(activeConfig);
+    const currentConfig = activeConfig ? config.get(activeConfig) : null;
     if (!currentConfig) {
       return null;
     }
