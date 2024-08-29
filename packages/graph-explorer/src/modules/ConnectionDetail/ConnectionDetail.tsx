@@ -1,6 +1,10 @@
 import { Modal } from "@mantine/core";
 import { useCallback, useState } from "react";
-import { useRecoilCallback, useSetRecoilState } from "recoil";
+import {
+  useRecoilCallback,
+  useResetRecoilState,
+  useSetRecoilState,
+} from "recoil";
 import {
   ActionItem,
   Button,
@@ -223,10 +227,11 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
 
 function DebugActions() {
   const setActiveSchema = useSetRecoilState(activeSchemaSelector);
+  const resetActiveSchema = useResetRecoilState(activeSchemaSelector);
 
   const deleteSchema = () => {
     logger.log("Deleting schema");
-    setActiveSchema(null);
+    resetActiveSchema();
   };
   const resetSchemaLastUpdated = () => {
     logger.log("Resetting schema last updated");
@@ -268,6 +273,28 @@ function DebugActions() {
       };
     });
   };
+  const resetAllTotals = () => {
+    logger.log("Setting vertex totals to undefined");
+    setActiveSchema(prev => {
+      if (!prev) {
+        return prev;
+      }
+
+      return {
+        ...prev,
+        vertices: prev.vertices.map(vertex => ({
+          ...vertex,
+          total: undefined,
+        })),
+        edges: prev.edges.map(edge => ({
+          ...edge,
+          total: undefined,
+        })),
+        totalEdges: undefined,
+        totalVertices: undefined,
+      };
+    });
+  };
 
   return (
     <div className="item">
@@ -279,6 +306,7 @@ function DebugActions() {
         </Button>
         <Button onPress={() => setSchemaSyncFailed()}>Last Sync Failed</Button>
         <Button onPress={() => resetVertexTotals()}>Reset Vertex Totals</Button>
+        <Button onPress={() => resetAllTotals()}>Reset All Totals</Button>
       </div>
     </div>
   );
