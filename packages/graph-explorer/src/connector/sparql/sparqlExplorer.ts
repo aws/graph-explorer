@@ -23,6 +23,7 @@ import {
 import { ConnectionConfig } from "@shared/types";
 import { v4 } from "uuid";
 import { env, logger } from "@/utils";
+import { createLoggerFromConnection } from "@/core/connector";
 
 const replaceBlankNodeFromSearch = (
   blankNodes: BlankNodesMap,
@@ -182,16 +183,20 @@ export function createSparqlExplorer(
   connection: ConnectionConfig,
   blankNodes: BlankNodesMap
 ): Explorer {
+  const remoteLogger = createLoggerFromConnection(connection);
   return {
     connection: connection,
     async fetchSchema(options) {
+      remoteLogger.info("[SPARQL Explorer] Fetching schema...");
       const summary = await fetchSummary(connection, options);
       return fetchSchema(_sparqlFetch(connection, options), summary);
     },
     async fetchVertexCountsByType(req, options) {
+      remoteLogger.info("[SPARQL Explorer] Fetching vertex counts by type...");
       return fetchClassCounts(_sparqlFetch(connection, options), req);
     },
     async fetchNeighbors(req, options) {
+      remoteLogger.info("[SPARQL Explorer] Fetching neighbors...");
       const request: SPARQLNeighborsRequest = {
         resourceURI: req.vertexId,
         resourceClass: req.vertexType,
@@ -221,6 +226,7 @@ export function createSparqlExplorer(
       return { vertices, edges: response.edges };
     },
     async fetchNeighborsCount(req, options) {
+      remoteLogger.info("[SPARQL Explorer] Fetching neighbors count...");
       const bNode = blankNodes.get(req.vertexId);
 
       if (bNode?.neighbors) {
@@ -267,6 +273,8 @@ export function createSparqlExplorer(
     async keywordSearch(req, options) {
       options ??= {};
       options.queryId = v4();
+
+      remoteLogger.info("[SPARQL Explorer] Fetching keyword search...");
 
       const reqParams: SPARQLKeywordSearchRequest = {
         searchTerm: req.searchTerm,

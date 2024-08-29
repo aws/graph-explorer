@@ -9,6 +9,7 @@ import { ConnectionConfig } from "@shared/types";
 import { DEFAULT_SERVICE_TYPE } from "@/utils/constants";
 import { Explorer } from "../useGEFetchTypes";
 import { env, logger } from "@/utils";
+import { createLoggerFromConnection } from "@/core/connector";
 
 function _openCypherFetch(connection: ConnectionConfig, options: any) {
   return async (queryTemplate: string) => {
@@ -27,23 +28,31 @@ function _openCypherFetch(connection: ConnectionConfig, options: any) {
 export function createOpenCypherExplorer(
   connection: ConnectionConfig
 ): Explorer {
+  const remoteLogger = createLoggerFromConnection(connection);
   const serviceType = connection.serviceType || DEFAULT_SERVICE_TYPE;
   return {
     connection: connection,
     async fetchSchema(options) {
+      remoteLogger.info("[openCypher Explorer] Fetching schema...");
       const summary = await fetchSummary(serviceType, connection, options);
       return fetchSchema(_openCypherFetch(connection, options), summary);
     },
     async fetchVertexCountsByType(req, options) {
+      remoteLogger.info(
+        "[openCypher Explorer] Fetching vertex counts by type..."
+      );
       return fetchVertexTypeCounts(_openCypherFetch(connection, options), req);
     },
     async fetchNeighbors(req, options) {
+      remoteLogger.info("[openCypher Explorer] Fetching neighbors...");
       return fetchNeighbors(_openCypherFetch(connection, options), req);
     },
     async fetchNeighborsCount(req, options) {
+      remoteLogger.info("[openCypher Explorer] Fetching neighbors count...");
       return fetchNeighborsCount(_openCypherFetch(connection, options), req);
     },
     async keywordSearch(req, options) {
+      remoteLogger.info("[openCypher Explorer] Fetching keyword search...");
       return keywordSearch(_openCypherFetch(connection, options), req);
     },
   };

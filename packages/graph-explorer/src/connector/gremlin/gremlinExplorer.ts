@@ -9,6 +9,7 @@ import { GraphSummary } from "./types";
 import { v4 } from "uuid";
 import { Explorer } from "../useGEFetchTypes";
 import { logger } from "@/utils";
+import { createLoggerFromConnection } from "@/core/connector";
 
 function _gremlinFetch(connection: ConnectionConfig, options: any) {
   return async (queryTemplate: string) => {
@@ -54,30 +55,31 @@ async function fetchSummary(
 }
 
 export function createGremlinExplorer(connection: ConnectionConfig): Explorer {
+  const remoteLogger = createLoggerFromConnection(connection);
   return {
     connection: connection,
     async fetchSchema(options) {
-      logger.log("[Gremlin Explorer] Fetching schema...");
+      remoteLogger.info("[Gremlin Explorer] Fetching schema...");
       const summary = await fetchSummary(connection, options);
       return fetchSchema(_gremlinFetch(connection, options), summary);
     },
     async fetchVertexCountsByType(req, options) {
-      logger.log("[Gremlin Explorer] Fetching vertex counts by type...");
+      remoteLogger.info("[Gremlin Explorer] Fetching vertex counts by type...");
       return fetchVertexTypeCounts(_gremlinFetch(connection, options), req);
     },
     async fetchNeighbors(req, options) {
-      logger.log("[Gremlin Explorer] Fetching neighbors...");
+      remoteLogger.info("[Gremlin Explorer] Fetching neighbors...");
       return fetchNeighbors(_gremlinFetch(connection, options), req);
     },
     async fetchNeighborsCount(req, options) {
-      logger.log("[Gremlin Explorer] Fetching neighbors count...");
+      remoteLogger.info("[Gremlin Explorer] Fetching neighbors count...");
       return fetchNeighborsCount(_gremlinFetch(connection, options), req);
     },
     async keywordSearch(req, options) {
       options ??= {};
       options.queryId = v4();
 
-      logger.log("[Gremlin Explorer] Fetching keyword search...");
+      remoteLogger.info("[Gremlin Explorer] Fetching keyword search...");
       return keywordSearch(_gremlinFetch(connection, options), req);
     },
   };
