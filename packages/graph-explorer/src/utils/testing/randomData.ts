@@ -10,12 +10,18 @@ import { Entities } from "@/core/StateProvider/entitiesSelector";
 import {
   createArray,
   createRandomBoolean,
+  createRandomColor,
   createRandomInteger,
   createRandomName,
   createRandomUrlString,
   createRecord,
   randomlyUndefined,
 } from "@shared/utils/testing";
+import {
+  EdgePreferences,
+  UserStyling,
+  VertexPreferences,
+} from "@/core/StateProvider/userPreferences";
 
 /*
 
@@ -36,12 +42,15 @@ affected by those values, regardless of what they are.
  * @returns A random AttributeConfig object.
  */
 export function createRandomAttributeConfig(): AttributeConfig {
+  const dataType = randomlyUndefined(createRandomName("dataType"));
+  const hidden = randomlyUndefined(createRandomBoolean());
+  const searchable = randomlyUndefined(createRandomBoolean());
   return {
     name: createRandomName("name"),
     displayLabel: createRandomName("displayLabel"),
-    dataType: randomlyUndefined(createRandomName("dataType")),
-    hidden: randomlyUndefined(createRandomBoolean()),
-    searchable: randomlyUndefined(createRandomBoolean()),
+    ...(dataType && { dataType }),
+    ...(hidden && { hidden }),
+    ...(searchable && { searchable }),
   };
 }
 
@@ -50,11 +59,13 @@ export function createRandomAttributeConfig(): AttributeConfig {
  * @returns A random EdgeTypeConfig object.
  */
 export function createRandomEdgeTypeConfig(): EdgeTypeConfig {
+  const displayLabel = randomlyUndefined(createRandomName("displayLabel"));
+  const hidden = randomlyUndefined(createRandomBoolean());
   return {
     type: createRandomName("type"),
     attributes: createArray(6, createRandomAttributeConfig),
-    displayLabel: randomlyUndefined(createRandomName("displayLabel")),
-    hidden: randomlyUndefined(createRandomBoolean()),
+    ...(displayLabel && { displayLabel }),
+    ...(hidden && { hidden }),
     total: createRandomInteger(),
   };
 }
@@ -64,11 +75,13 @@ export function createRandomEdgeTypeConfig(): EdgeTypeConfig {
  * @returns A random VertexTypeConfig object.
  */
 export function createRandomVertexTypeConfig(): VertexTypeConfig {
+  const displayLabel = randomlyUndefined(createRandomName("displayLabel"));
+  const hidden = randomlyUndefined(createRandomBoolean());
   return {
     type: createRandomName("type"),
     attributes: createArray(6, createRandomAttributeConfig),
-    displayLabel: randomlyUndefined(createRandomName("displayLabel")),
-    hidden: randomlyUndefined(createRandomBoolean()),
+    ...(displayLabel && { displayLabel }),
+    ...(hidden && { hidden }),
     total: createRandomInteger(),
   };
 }
@@ -177,25 +190,75 @@ function pickRandomElement<T>(array: T[]): T {
 export function createRandomRawConfiguration(): RawConfiguration {
   const isProxyConnection = createRandomBoolean();
   const isIamEnabled = createRandomBoolean();
+  const fetchTimeoutMs = randomlyUndefined(createRandomInteger());
+  const nodeExpansionLimit = randomlyUndefined(createRandomInteger());
+  const serviceType = randomlyUndefined(
+    pickRandomElement(["neptune-db", "neptune-graph"] as const)
+  );
   return {
     id: createRandomName("id"),
     displayLabel: createRandomName("displayLabel"),
     connection: {
       url: createRandomUrlString(),
-      graphDbUrl: isProxyConnection ? createRandomUrlString() : undefined,
+      ...(isProxyConnection && { graphDbUrl: createRandomUrlString() }),
       queryEngine: pickRandomElement(["gremlin", "openCypher", "sparql"]),
       proxyConnection: isProxyConnection,
-      awsAuthEnabled: isIamEnabled ? createRandomBoolean() : undefined,
-      awsRegion: isIamEnabled
-        ? pickRandomElement(["us-west-1", "us-west-2", "us-east-1"])
-        : undefined,
-      fetchTimeoutMs: randomlyUndefined(createRandomInteger()),
-      nodeExpansionLimit: randomlyUndefined(createRandomInteger()),
-      serviceType: pickRandomElement([
-        "neptune-db",
-        "neptune-graph",
-        undefined,
-      ]),
+      ...(isIamEnabled && { awsAuthEnabled: createRandomBoolean() }),
+      ...(isIamEnabled && {
+        awsRegion: pickRandomElement(["us-west-1", "us-west-2", "us-east-1"]),
+      }),
+      ...(fetchTimeoutMs && { fetchTimeoutMs }),
+      ...(nodeExpansionLimit && { nodeExpansionLimit }),
+      ...(serviceType && { serviceType }),
     },
+  };
+}
+
+export function createRandomVertexPreferences(): VertexPreferences {
+  const color = randomlyUndefined(createRandomColor());
+  const borderColor = randomlyUndefined(createRandomColor());
+  const iconUrl = randomlyUndefined(createRandomUrlString());
+  const longDisplayNameAttribute = randomlyUndefined(
+    createRandomName("LongDisplayNameAttribute")
+  );
+  const displayNameAttribute = randomlyUndefined(
+    createRandomName("DisplayNameAttribute")
+  );
+  const displayLabel = randomlyUndefined(createRandomName("DisplayLabel"));
+  return {
+    type: createRandomName("VertexType"),
+    ...(displayLabel && { displayLabel }),
+    ...(displayNameAttribute && { displayNameAttribute }),
+    ...(longDisplayNameAttribute && { longDisplayNameAttribute }),
+    ...(color && { color }),
+    ...(borderColor && { borderColor }),
+    ...(iconUrl && { iconUrl }),
+  };
+}
+
+export function createRandomEdgePreferences(): EdgePreferences {
+  const displayLabel = randomlyUndefined(createRandomName("DisplayLabel"));
+  const displayNameAttribute = randomlyUndefined(
+    createRandomName("DisplayNameAttribute")
+  );
+  const lineColor = randomlyUndefined(createRandomColor());
+  const labelColor = randomlyUndefined(createRandomColor());
+  const labelBorderColor = randomlyUndefined(createRandomColor());
+  const lineThickness = randomlyUndefined(createRandomInteger(25));
+  return {
+    type: createRandomName("EdgeType"),
+    ...(displayLabel && { displayLabel }),
+    ...(displayNameAttribute && { displayNameAttribute }),
+    ...(lineColor && { lineColor }),
+    ...(labelColor && { labelColor }),
+    ...(labelBorderColor && { labelBorderColor }),
+    ...(lineThickness && { lineThickness }),
+  };
+}
+
+export function createRandomUserStyling(): UserStyling {
+  return {
+    vertices: createArray(3, createRandomVertexPreferences),
+    edges: createArray(3, createRandomEdgePreferences),
   };
 }
