@@ -13,29 +13,36 @@ export interface LoggerConnector {
 /** Sends log messages to the server in the connection configuration. */
 export class ServerLoggerConnector implements LoggerConnector {
   private readonly _baseUrl: string;
+  private readonly _clientLogger: ClientLoggerConnector;
 
   constructor(connectionUrl: string) {
     const url = connectionUrl.replace(/\/$/, "");
     this._baseUrl = `${url}/logger`;
+    this._clientLogger = new ClientLoggerConnector();
   }
 
   public error(message: unknown) {
+    this._clientLogger.error(message);
     return this._sendLog("error", message);
   }
 
   public warn(message: unknown) {
+    this._clientLogger.warn(message);
     return this._sendLog("warn", message);
   }
 
   public info(message: unknown) {
+    this._clientLogger.info(message);
     return this._sendLog("info", message);
   }
 
   public debug(message: unknown) {
+    this._clientLogger.info(message);
     return this._sendLog("debug", message);
   }
 
   public trace(message: unknown) {
+    this._clientLogger.trace(message);
     return this._sendLog("trace", message);
   }
 

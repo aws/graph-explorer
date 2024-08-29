@@ -11,6 +11,7 @@ import { mergedConfigurationSelector } from "./StateProvider/configuration";
 import { selector } from "recoil";
 import { equalSelector } from "@/utils/recoilState";
 import { ConnectionConfig } from "@shared/types";
+import { logger } from "@/utils";
 
 /**
  * Active connection where the value will only change when one of the
@@ -70,14 +71,26 @@ export const explorerSelector = selector({
  */
 export const loggerSelector = selector<LoggerConnector>({
   key: "logger",
-  get: ({ get }) => {
-    const connection = get(activeConnectionSelector);
-
-    // Check for a url and that we are using the proxy server
-    if (!connection || !connection.url || connection.proxyConnection === true) {
-      return new ClientLoggerConnector();
-    }
-
-    return new ServerLoggerConnector(connection.url);
-  },
+  get: ({ get }) => createLoggerFromConnection(get(activeConnectionSelector)),
 });
+
+/** Creates a logger instance that will be remote if the connection is using the
+ * proxy server. Otherwise it will be a client only logger. */
+export function createLoggerFromConnection(
+  connection?: ConnectionConfig
+): LoggerConnector {
+  // Check for a url and that we are using the proxy server
+  if (!connection || !connection.url || connection.proxyConnection !== true) {
+    logger.debug(
+      "Connection did not contain enough information to create a remote logger, so using a client logger instead",
+      connection
+    );
+    return new ClientLoggerConnector();
+  }
+
+  logger.debug(
+    "Creating a remote server logger using proxy server URL",
+    connection.url
+  );
+  return new ServerLoggerConnector(connection.url);
+}
