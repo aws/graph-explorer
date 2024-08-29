@@ -14,3 +14,10 @@ export const showDebugActionsAtom = atom({
   default: false,
   effects: [asyncLocalForageEffect("showDebugActions")],
 });
+
+/** Shows debug actions in various places around the app. */
+export const allowLoggingDbQueryAtom = atom({
+  key: "feature-flag-db-query-logging",
+  default: false,
+  effects: [asyncLocalForageEffect("allowLoggingDbQuery")],
+});
