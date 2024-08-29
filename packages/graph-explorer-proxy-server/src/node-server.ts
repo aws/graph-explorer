@@ -224,11 +224,13 @@ app.post("/sparql", (req, res, next) => {
   });
 
   // Validate the input before making any external calls.
-  if (!req.body.query) {
+  const queryString = req.body.query;
+  if (!queryString) {
     return res.status(400).send({ error: "[Proxy]SPARQL: Query not provided" });
   }
+  proxyLogger.debug("[SPARQL] Received database query:\n%s", queryString);
   const rawUrl = `${graphDbConnectionUrl}/sparql`;
-  let body = `query=${encodeURIComponent(req.body.query)}`;
+  let body = `query=${encodeURIComponent(queryString)}`;
   if (queryId) {
     body += `&queryId=${encodeURIComponent(queryId)}`;
   }
@@ -265,11 +267,14 @@ app.post("/gremlin", (req, res, next) => {
     : "";
 
   // Validate the input before making any external calls.
-  if (!req.body.query) {
+  const queryString = req.body.query;
+  if (!queryString) {
     return res
       .status(400)
       .send({ error: "[Proxy]Gremlin: query not provided" });
   }
+
+  proxyLogger.debug("[Gremlin] Received database query:\n%s", queryString);
 
   /// Function to cancel long running queries if the client disappears before completion
   async function cancelQuery() {
@@ -307,7 +312,7 @@ app.post("/gremlin", (req, res, next) => {
     await cancelQuery();
   });
 
-  const body = { gremlin: req.body.query, queryId };
+  const body = { gremlin: queryString, queryId };
   const rawUrl = `${graphDbConnectionUrl}/gremlin`;
   const requestOptions = {
     method: "POST",
@@ -331,12 +336,15 @@ app.post("/gremlin", (req, res, next) => {
 
 // POST endpoint for openCypher queries.
 app.post("/openCypher", (req, res, next) => {
+  const queryString = req.body.query;
   // Validate the input before making any external calls.
-  if (!req.body.query) {
+  if (!queryString) {
     return res
       .status(400)
       .send({ error: "[Proxy]OpenCypher: query not provided" });
   }
+
+  proxyLogger.debug("[openCypher] Received database query:\n%s", queryString);
 
   const headers = req.headers as DbQueryIncomingHttpHeaders;
   const rawUrl = `${headers["graph-db-connection-url"]}/openCypher`;
@@ -346,7 +354,7 @@ app.post("/openCypher", (req, res, next) => {
       "Content-Type": "application/x-www-form-urlencoded",
       Accept: "application/json",
     },
-    body: `query=${encodeURIComponent(req.body.query)}`,
+    body: `query=${encodeURIComponent(queryString)}`,
   };
 
   const isIamEnabled = !!headers["aws-neptune-region"];
