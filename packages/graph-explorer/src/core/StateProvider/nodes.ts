@@ -1,9 +1,6 @@
 import { atom, selector } from "recoil";
 import type { Vertex } from "@/types/entities";
-import { sanitizeText } from "@/utils";
-import { activeConfigurationAtom } from "./configuration";
 import isDefaultValue from "./isDefaultValue";
-import { schemaAtom, SchemaInference } from "./schema";
 
 export const nodesAtom = atom<Array<Vertex>>({
   key: "nodes",
@@ -38,62 +35,6 @@ export const nodesSelector = selector<Array<Vertex>>({
     get(nodesOutOfFocusIdsAtom).size > 0 &&
       set(nodesOutOfFocusIdsAtom, cleanFn);
     get(nodesFilteredIdsAtom).size > 0 && set(nodesFilteredIdsAtom, cleanFn);
-
-    const activeConfig = get(activeConfigurationAtom);
-    if (!activeConfig) {
-      return;
-    }
-    const schemas = get(schemaAtom);
-    const activeSchema = schemas.get(activeConfig);
-
-    set(schemaAtom, prevSchemas => {
-      const updatedSchemas = new Map(prevSchemas);
-
-      updatedSchemas.set(activeConfig, {
-        ...(activeSchema || {}),
-        vertices: newValue.reduce(
-          (schema, node) => {
-            // Find the node type definition in the schema
-            const schemaNode = schema.find(s => s.type === node.data.type);
-
-            if (!schemaNode) {
-              schema.push({
-                type: node.data.type,
-                displayLabel: "",
-                attributes: Object.keys(node.data.attributes).map(attr => ({
-                  name: attr,
-                  displayLabel: sanitizeText(attr),
-                  hidden: false,
-                })),
-              });
-
-              // Since the node type is new we can go ahead and return
-              return schema;
-            }
-
-            // Ensure the node attributes are updated in the schema
-            const schemaAttributes = schemaNode.attributes.map(a => a.name);
-            const missingAttributeNames = Object.keys(
-              node.data.attributes
-            ).filter(name => !schemaAttributes.includes(name));
-
-            for (const attributeName of missingAttributeNames) {
-              schemaNode.attributes.push({
-                name: attributeName,
-                displayLabel: sanitizeText(attributeName),
-                hidden: false,
-              });
-            }
-
-            return schema;
-          },
-          activeSchema?.vertices as SchemaInference["vertices"]
-        ),
-        edges: activeSchema?.edges || [],
-      });
-
-      return updatedSchemas;
-    });
   },
 });
 

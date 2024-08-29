@@ -1,9 +1,6 @@
 import { atom, selector } from "recoil";
 import type { Edge } from "@/types/entities";
-import { sanitizeText } from "@/utils";
-import { activeConfigurationAtom } from "./configuration";
 import isDefaultValue from "./isDefaultValue";
-import { schemaAtom } from "./schema";
 
 export type Edges = Array<Edge>;
 
@@ -41,62 +38,6 @@ export const edgesSelector = selector<Edges>({
     get(edgesOutOfFocusIdsAtom).size > 0 &&
       set(edgesOutOfFocusIdsAtom, cleanFn);
     get(edgesFilteredIdsAtom).size > 0 && set(edgesFilteredIdsAtom, cleanFn);
-
-    const activeConfig = get(activeConfigurationAtom);
-    if (!activeConfig) {
-      return;
-    }
-    const schemas = get(schemaAtom);
-    const activeSchema = schemas.get(activeConfig);
-
-    set(schemaAtom, prevSchemas => {
-      const updatedSchemas = new Map(prevSchemas);
-
-      const updatedEdges = newValue.reduce((schema, edge) => {
-        // Find the edge type definition in the schema
-        const schemaEdge = schema.find(s => s.type === edge.data.type);
-
-        // Add edge to schema if it is missing
-        if (!schemaEdge) {
-          schema.push({
-            type: edge.data.type,
-            displayLabel: "",
-            attributes: Object.keys(edge.data.attributes).map(attr => ({
-              name: attr,
-              displayLabel: sanitizeText(attr),
-              hidden: false,
-            })),
-          });
-
-          // Since the edge type is new we can go ahead and return
-          return schema;
-        }
-
-        // Ensure the edge attributes are updated in the schema
-        const schemaAttributes = schemaEdge.attributes.map(a => a.name);
-        const missingAttributeNames = Object.keys(edge.data.attributes).filter(
-          name => !schemaAttributes.includes(name)
-        );
-
-        for (const attributeName of missingAttributeNames) {
-          schemaEdge.attributes.push({
-            name: attributeName,
-            displayLabel: sanitizeText(attributeName),
-            hidden: false,
-          });
-        }
-
-        return schema;
-      }, activeSchema?.edges ?? []);
-
-      updatedSchemas.set(activeConfig, {
-        edges: updatedEdges,
-        vertices: activeSchema?.vertices || [],
-        ...(activeSchema || {}),
-      });
-
-      return updatedSchemas;
-    });
   },
 });
 
