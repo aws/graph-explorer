@@ -56,7 +56,7 @@ export function ExpandNodeProvider(props: PropsWithChildren) {
   const explorer = useRecoilValue(explorerSelector);
   const [_, setEntities] = useEntities();
   const { enqueueNotification, clearNotification } = useNotification();
-  const logger = useRecoilValue(loggerSelector);
+  const remoteLogger = useRecoilValue(loggerSelector);
 
   const mutation = useMutation({
     mutationFn: async (
@@ -89,7 +89,7 @@ export function ExpandNodeProvider(props: PropsWithChildren) {
       });
     },
     onError: error => {
-      logger.error(`Failed to expand node: ${error.message}`);
+      remoteLogger.error(`Failed to expand node: ${error.message}`);
       const displayError = createDisplayError(error);
       // Notify the user of the error
       enqueueNotification({

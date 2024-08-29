@@ -10,7 +10,7 @@ import { useRecoilValue } from "recoil";
 const useSchemaSync = (onSyncChange?: (isSyncing: boolean) => void) => {
   const config = useConfiguration();
   const explorer = useRecoilValue(explorerSelector);
-  const logger = useRecoilValue(loggerSelector);
+  const remoteLogger = useRecoilValue(loggerSelector);
 
   const updatePrefixes = usePrefixesUpdater();
   const { enqueueNotification, clearNotification } = useNotification();
@@ -40,7 +40,7 @@ const useSchemaSync = (onSyncChange?: (isSyncing: boolean) => void) => {
           type: "info",
           stackable: true,
         });
-        logger.info(
+        remoteLogger.info(
           `[${
             config.displayLabel || config.id
           }] This connection has no data available: ${JSON.stringify(
@@ -59,7 +59,7 @@ const useSchemaSync = (onSyncChange?: (isSyncing: boolean) => void) => {
         type: "success",
         stackable: true,
       });
-      logger.info(
+      remoteLogger.info(
         `[${
           config.displayLabel || config.id
         }] Connection successfully synchronized: ${JSON.stringify(
@@ -82,13 +82,13 @@ const useSchemaSync = (onSyncChange?: (isSyncing: boolean) => void) => {
         stackable: true,
       });
       if (e instanceof Error && e.name === "AbortError") {
-        logger.error(
+        remoteLogger.error(
           `[${
             config.displayLabel || config.id
           }] Fetch aborted, reached max time out ${config.connection?.fetchTimeoutMs} MS`
         );
       } else {
-        logger.error(
+        remoteLogger.error(
           `[${
             config.displayLabel || config.id
           }] Error while fetching schema: ${e instanceof Error ? e.message : "Unexpected error"}`
@@ -104,7 +104,7 @@ const useSchemaSync = (onSyncChange?: (isSyncing: boolean) => void) => {
     enqueueNotification,
     replaceSchema,
     clearNotification,
-    logger,
+    remoteLogger,
     updatePrefixes,
     setSyncFailure,
   ]);
