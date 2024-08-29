@@ -10,6 +10,8 @@
   exist ([#542](https://github.com/aws/graph-explorer/pull/542))
 - **Added** global error page if the React app crashes
   ([#547](https://github.com/aws/graph-explorer/pull/547))
+- **Added** server logging of database queries when using the proxy server
+  ([#574](https://github.com/aws/graph-explorer/pull/574))
 - **Improved** handling of server errors with more consistent logging
   ([#557](https://github.com/aws/graph-explorer/pull/557))
 - **Transition** to Tailwind instead of EmotionCSS for styles, which should make
@@ -22,6 +24,9 @@
   [#548](https://github.com/aws/graph-explorer/pull/548))
 - **Improved** SageMaker Lifecycle script handling of CloudWatch log driver
   failures ([#550](https://github.com/aws/graph-explorer/pull/550))
+- **Improved** parsing of environment values in proxy server resulting in an
+  error when the values are invalid
+  ([#574](https://github.com/aws/graph-explorer/pull/574))
 - **Changed** Node to run in production mode
   ([#558](https://github.com/aws/graph-explorer/pull/558))
 - **Removed** hosting production server using the client side Vite
