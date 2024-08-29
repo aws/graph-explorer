@@ -1,7 +1,6 @@
 import express, { NextFunction, Response } from "express";
 import cors from "cors";
 import compression from "compression";
-import dotenv from "dotenv";
 import fetch, { RequestInit } from "node-fetch";
 import https from "https";
 import bodyParser from "body-parser";
@@ -13,13 +12,9 @@ import { IncomingHttpHeaders } from "http";
 import { logger as proxyLogger, requestLoggingMiddleware } from "./logging.js";
 import { clientRoot, proxyServerRoot } from "./paths.js";
 import { errorHandlingMiddleware, handleError } from "./error-handler.js";
+import { env } from "./env.js";
 
 const app = express();
-
-// Load environment variables from .env file.
-dotenv.config({
-  path: [path.join(clientRoot, ".env.local"), path.join(clientRoot, ".env")],
-});
 
 const DEFAULT_SERVICE_TYPE = "neptune-db";
 
@@ -498,11 +493,11 @@ const certificateKeyFilePath = path.join(
 const certificateFilePath = path.join(proxyServerRoot, "cert-info/server.crt");
 
 // Get the port numbers to listen on
-const host = process.env.HOST || "localhost";
-const httpPort = process.env.PROXY_SERVER_HTTP_PORT || 80;
-const httpsPort = process.env.PROXY_SERVER_HTTPS_PORT || 443;
+const host = env.HOST;
+const httpPort = env.PROXY_SERVER_HTTP_PORT;
+const httpsPort = env.PROXY_SERVER_HTTPS_PORT;
 const useHttps =
-  process.env.PROXY_SERVER_HTTPS_CONNECTION === "true" &&
+  env.PROXY_SERVER_HTTPS_CONNECTION &&
   fs.existsSync(certificateKeyFilePath) &&
   fs.existsSync(certificateFilePath);
 

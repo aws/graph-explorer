@@ -1,37 +1,16 @@
 import { NextFunction, Request, Response } from "express";
 import { pino } from "pino";
 import { PrettyOptions } from "pino-pretty";
-import { z } from "zod";
+import { env } from "./env.js";
 
 export type LogLevel = pino.LevelWithSilent;
 
-const LogLevelSchema = z.enum([
-  "fatal",
-  "error",
-  "warn",
-  "info",
-  "debug",
-  "trace",
-  "silent",
-]);
-
 export const logger = createLogger();
-
-/** Parses the log level from a given string. If the value is unrecognized or undefined, the default is "info". */
-function toLogLevel(value: string | undefined): LogLevel {
-  const parsed = LogLevelSchema.safeParse(value);
-
-  if (!parsed.success) {
-    return "info";
-  }
-
-  return parsed.data;
-}
 
 /** Create a logger instance with pino. */
 function createLogger() {
   // Check whether we are configured with CloudWatch style
-  const loggingInCloudWatch = process.env.LOG_STYLE === "cloudwatch";
+  const loggingInCloudWatch = env.LOG_STYLE === "cloudwatch";
   const options: PrettyOptions = loggingInCloudWatch
     ? {
         // Avoid colors
@@ -43,7 +22,7 @@ function createLogger() {
         colorize: true,
         translateTime: true,
       };
-  const level = toLogLevel(process.env.LOG_LEVEL);
+  const level = env.LOG_LEVEL;
 
   return pino({
     level,
