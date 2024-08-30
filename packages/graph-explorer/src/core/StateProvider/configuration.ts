@@ -9,13 +9,14 @@ import type {
   VertexTypeConfig,
 } from "../ConfigurationProvider";
 import localForageEffect from "./localForageEffect";
-import { schemaAtom, SchemaInference } from "./schema";
+import { activeSchemaSelector, SchemaInference } from "./schema";
 import {
   EdgePreferences,
   UserStyling,
   userStylingAtom,
   VertexPreferences,
 } from "./userPreferences";
+import isDefaultValue from "./isDefaultValue";
 
 export const isStoreLoadedAtom = atom<boolean>({
   key: "store-loaded",
@@ -34,18 +35,46 @@ export const configurationAtom = atom<Map<string, RawConfiguration>>({
   effects: [localForageEffect()],
 });
 
+/** Gets or sets the config that is currently active. */
+export const activeConfigSelector = selector({
+  key: "active-config-selector",
+  get({ get }) {
+    const configMap = get(configurationAtom);
+    const id = get(activeConfigurationAtom);
+    const activeConfig = id ? configMap.get(id) : null;
+    return activeConfig;
+  },
+  set({ get, set }, newValue) {
+    const configId = get(activeConfigurationAtom);
+    if (!configId) {
+      return;
+    }
+    set(configurationAtom, prevConfigMap => {
+      const updatedConfigMap = new Map(prevConfigMap);
+
+      // Handle reset value
+      if (!newValue || isDefaultValue(newValue)) {
+        updatedConfigMap.delete(configId);
+        return updatedConfigMap;
+      }
+
+      // Update the map
+      updatedConfigMap.set(configId, newValue);
+
+      return updatedConfigMap;
+    });
+  },
+});
+
 export const mergedConfigurationSelector = selector<RawConfiguration | null>({
   key: "merged-configuration",
   get: ({ get }) => {
-    const activeConfig = get(activeConfigurationAtom);
-    const config = get(configurationAtom);
-    const currentConfig = activeConfig ? config.get(activeConfig) : null;
+    const currentConfig = get(activeConfigSelector);
     if (!currentConfig) {
       return null;
     }
 
-    const schema = get(schemaAtom);
-    const currentSchema = activeConfig ? schema.get(activeConfig) : null;
+    const currentSchema = get(activeSchemaSelector);
     const userStyling = get(userStylingAtom);
 
     return mergeConfiguration(currentSchema, currentConfig, userStyling);
