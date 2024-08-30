@@ -1,6 +1,7 @@
 import {
   AttributeConfig,
   EdgeTypeConfig,
+  FeatureFlags,
   RawConfiguration,
   Schema,
   VertexTypeConfig,
@@ -260,5 +261,13 @@ export function createRandomUserStyling(): UserStyling {
   return {
     vertices: createArray(3, createRandomVertexPreferences),
     edges: createArray(3, createRandomEdgePreferences),
+  };
+}
+
+export function createRandomFeatureFlags(): FeatureFlags {
+  return {
+    showRecoilStateLogging: createRandomBoolean(),
+    showDebugActions: createRandomBoolean(),
+    allowLoggingDbQuery: createRandomBoolean(),
   };
 }

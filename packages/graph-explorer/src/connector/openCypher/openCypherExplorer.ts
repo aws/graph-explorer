@@ -10,26 +10,34 @@ import { DEFAULT_SERVICE_TYPE } from "@/utils/constants";
 import { Explorer, ExplorerRequestOptions } from "../useGEFetchTypes";
 import { env, logger } from "@/utils";
 import { createLoggerFromConnection } from "@/core/connector";
+import { FeatureFlags } from "@/core";
 
 function _openCypherFetch(
   connection: ConnectionConfig,
+  featureFlags: FeatureFlags,
   options?: ExplorerRequestOptions
 ) {
   return async (queryTemplate: string) => {
     logger.debug(queryTemplate);
-    return fetchDatabaseRequest(connection, `${connection.url}/openCypher`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ query: queryTemplate }),
-      ...options,
-    });
+    return fetchDatabaseRequest(
+      connection,
+      featureFlags,
+      `${connection.url}/openCypher`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ query: queryTemplate }),
+        ...options,
+      }
+    );
   };
 }
 
 export function createOpenCypherExplorer(
-  connection: ConnectionConfig
+  connection: ConnectionConfig,
+  featureFlags: FeatureFlags
 ): Explorer {
   const remoteLogger = createLoggerFromConnection(connection);
   const serviceType = connection.serviceType || DEFAULT_SERVICE_TYPE;
@@ -37,26 +45,46 @@ export function createOpenCypherExplorer(
     connection: connection,
     async fetchSchema(options) {
       remoteLogger.info("[openCypher Explorer] Fetching schema...");
-      const summary = await fetchSummary(serviceType, connection, options);
-      return fetchSchema(_openCypherFetch(connection, options), summary);
+      const summary = await fetchSummary(
+        serviceType,
+        connection,
+        featureFlags,
+        options
+      );
+      return fetchSchema(
+        _openCypherFetch(connection, featureFlags, options),
+        summary
+      );
     },
     async fetchVertexCountsByType(req, options) {
       remoteLogger.info(
         "[openCypher Explorer] Fetching vertex counts by type..."
       );
-      return fetchVertexTypeCounts(_openCypherFetch(connection, options), req);
+      return fetchVertexTypeCounts(
+        _openCypherFetch(connection, featureFlags, options),
+        req
+      );
     },
     async fetchNeighbors(req, options) {
       remoteLogger.info("[openCypher Explorer] Fetching neighbors...");
-      return fetchNeighbors(_openCypherFetch(connection, options), req);
+      return fetchNeighbors(
+        _openCypherFetch(connection, featureFlags, options),
+        req
+      );
     },
     async fetchNeighborsCount(req, options) {
       remoteLogger.info("[openCypher Explorer] Fetching neighbors count...");
-      return fetchNeighborsCount(_openCypherFetch(connection, options), req);
+      return fetchNeighborsCount(
+        _openCypherFetch(connection, featureFlags, options),
+        req
+      );
     },
     async keywordSearch(req, options) {
       remoteLogger.info("[openCypher Explorer] Fetching keyword search...");
-      return keywordSearch(_openCypherFetch(connection, options), req);
+      return keywordSearch(
+        _openCypherFetch(connection, featureFlags, options),
+        req
+      );
     },
   } satisfies Explorer;
 }
@@ -64,6 +92,7 @@ export function createOpenCypherExplorer(
 async function fetchSummary(
   serviceType: string,
   connection: ConnectionConfig,
+  featureFlags: FeatureFlags,
   options?: RequestInit
 ) {
   try {
@@ -71,10 +100,15 @@ async function fetchSummary(
       serviceType === DEFAULT_SERVICE_TYPE
         ? `${connection.url}/pg/statistics/summary?mode=detailed`
         : `${connection.url}/summary?mode=detailed`;
-    const response = await fetchDatabaseRequest(connection, endpoint, {
-      method: "GET",
-      ...options,
-    });
+    const response = await fetchDatabaseRequest(
+      connection,
+      featureFlags,
+      endpoint,
+      {
+        method: "GET",
+        ...options,
+      }
+    );
 
     return (
       (response.payload

@@ -25,6 +25,7 @@ import { ConnectionConfig } from "@shared/types";
 import { v4 } from "uuid";
 import { env, logger } from "@/utils";
 import { createLoggerFromConnection } from "@/core/connector";
+import { FeatureFlags } from "@/core";
 
 const replaceBlankNodeFromSearch = (
   blankNodes: BlankNodesMap,
@@ -136,6 +137,7 @@ const storedBlankNodeNeighborsRequest = (
 
 function _sparqlFetch(
   connection: ConnectionConfig,
+  featureFlags: FeatureFlags,
   options?: ExplorerRequestOptions
 ) {
   return async (queryTemplate: string) => {
@@ -153,22 +155,29 @@ function _sparqlFetch(
             accept: "application/sparql-results+json",
             "Content-Type": "application/x-www-form-urlencoded",
           };
-    return fetchDatabaseRequest(connection, `${connection.url}/sparql`, {
-      method: "POST",
-      headers,
-      body,
-      ...options,
-    });
+    return fetchDatabaseRequest(
+      connection,
+      featureFlags,
+      `${connection.url}/sparql`,
+      {
+        method: "POST",
+        headers,
+        body,
+        ...options,
+      }
+    );
   };
 }
 
 async function fetchSummary(
   connection: ConnectionConfig,
-  options: RequestInit
+  featureFlags: FeatureFlags,
+  options?: RequestInit
 ) {
   try {
     const response = await fetchDatabaseRequest(
       connection,
+      featureFlags,
       `${connection.url}/rdf/statistics/summary?mode=detailed`,
       {
         method: "GET",
@@ -186,6 +195,7 @@ async function fetchSummary(
 
 export function createSparqlExplorer(
   connection: ConnectionConfig,
+  featureFlags: FeatureFlags,
   blankNodes: BlankNodesMap
 ): Explorer {
   const remoteLogger = createLoggerFromConnection(connection);
@@ -193,12 +203,18 @@ export function createSparqlExplorer(
     connection: connection,
     async fetchSchema(options) {
       remoteLogger.info("[SPARQL Explorer] Fetching schema...");
-      const summary = await fetchSummary(connection, options);
-      return fetchSchema(_sparqlFetch(connection, options), summary);
+      const summary = await fetchSummary(connection, featureFlags, options);
+      return fetchSchema(
+        _sparqlFetch(connection, featureFlags, options),
+        summary
+      );
     },
     async fetchVertexCountsByType(req, options) {
       remoteLogger.info("[SPARQL Explorer] Fetching vertex counts by type...");
-      return fetchClassCounts(_sparqlFetch(connection, options), req);
+      return fetchClassCounts(
+        _sparqlFetch(connection, featureFlags, options),
+        req
+      );
     },
     async fetchNeighbors(req, options) {
       remoteLogger.info("[SPARQL Explorer] Fetching neighbors...");
@@ -220,7 +236,7 @@ export function createSparqlExplorer(
       }
 
       const response = await fetchNeighbors(
-        _sparqlFetch(connection, options),
+        _sparqlFetch(connection, featureFlags, options),
         request
       );
       const vertices = replaceBlankNodeFromNeighbors(
@@ -243,7 +259,7 @@ export function createSparqlExplorer(
 
       if (bNode && !bNode.neighbors) {
         const response = await fetchBlankNodeNeighbors(
-          _sparqlFetch(connection, options),
+          _sparqlFetch(connection, featureFlags, options),
           {
             resourceURI: bNode.vertex.data.id,
             resourceClass: bNode.vertex.data.type,
@@ -270,10 +286,13 @@ export function createSparqlExplorer(
         };
       }
 
-      return fetchNeighborsCount(_sparqlFetch(connection, options), {
-        resourceURI: req.vertexId,
-        limit: req.limit,
-      });
+      return fetchNeighborsCount(
+        _sparqlFetch(connection, featureFlags, options),
+        {
+          resourceURI: req.vertexId,
+          limit: req.limit,
+        }
+      );
     },
     async keywordSearch(req, options) {
       options ??= {};
@@ -291,7 +310,7 @@ export function createSparqlExplorer(
       };
 
       const response = await keywordSearch(
-        _sparqlFetch(connection, options),
+        _sparqlFetch(connection, featureFlags, options),
         reqParams
       );
       const vertices = replaceBlankNodeFromSearch(
