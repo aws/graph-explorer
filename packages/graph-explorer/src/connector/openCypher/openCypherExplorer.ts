@@ -7,11 +7,14 @@ import { GraphSummary } from "./types";
 import { fetchDatabaseRequest } from "../fetchDatabaseRequest";
 import { ConnectionConfig } from "@shared/types";
 import { DEFAULT_SERVICE_TYPE } from "@/utils/constants";
-import { Explorer } from "../useGEFetchTypes";
+import { Explorer, ExplorerRequestOptions } from "../useGEFetchTypes";
 import { env, logger } from "@/utils";
 import { createLoggerFromConnection } from "@/core/connector";
 
-function _openCypherFetch(connection: ConnectionConfig, options: any) {
+function _openCypherFetch(
+  connection: ConnectionConfig,
+  options?: ExplorerRequestOptions
+) {
   return async (queryTemplate: string) => {
     logger.debug(queryTemplate);
     return fetchDatabaseRequest(connection, `${connection.url}/openCypher`, {
@@ -55,13 +58,13 @@ export function createOpenCypherExplorer(
       remoteLogger.info("[openCypher Explorer] Fetching keyword search...");
       return keywordSearch(_openCypherFetch(connection, options), req);
     },
-  };
+  } satisfies Explorer;
 }
 
 async function fetchSummary(
   serviceType: string,
   connection: ConnectionConfig,
-  options: RequestInit
+  options?: RequestInit
 ) {
   try {
     const endpoint =

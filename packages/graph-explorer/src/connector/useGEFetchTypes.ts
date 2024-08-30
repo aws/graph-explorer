@@ -211,27 +211,31 @@ export type ConfigurationWithConnection = Omit<
 > &
   Required<Pick<ConfigurationContextProps, "connection">>;
 
+export type ExplorerRequestOptions = RequestInit & {
+  queryId?: string;
+};
+
 /**
  * Abstracted interface to the common database queries used by
  * Graph Explorer.
  */
 export type Explorer = {
   connection: ConnectionConfig;
-  fetchSchema: (options?: any) => Promise<SchemaResponse>;
+  fetchSchema: (options?: ExplorerRequestOptions) => Promise<SchemaResponse>;
   fetchVertexCountsByType: (
     req: CountsByTypeRequest,
-    options?: any
+    options?: ExplorerRequestOptions
   ) => Promise<CountsByTypeResponse>;
   fetchNeighbors: (
     req: NeighborsRequest,
-    options?: any
+    options?: ExplorerRequestOptions
   ) => Promise<NeighborsResponse>;
   fetchNeighborsCount: (
     req: NeighborsCountRequest,
-    options?: any
+    options?: ExplorerRequestOptions
   ) => Promise<NeighborsCountResponse>;
   keywordSearch: (
     req: KeywordSearchRequest,
-    options?: any
+    options?: ExplorerRequestOptions
   ) => Promise<KeywordSearchResponse>;
 };

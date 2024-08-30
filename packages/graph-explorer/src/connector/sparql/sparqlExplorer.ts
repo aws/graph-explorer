@@ -1,6 +1,7 @@
 import type {
   Criterion,
   Explorer,
+  ExplorerRequestOptions,
   KeywordSearchRequest,
   KeywordSearchResponse,
   NeighborsResponse,
@@ -133,16 +134,20 @@ const storedBlankNodeNeighborsRequest = (
   });
 };
 
-function _sparqlFetch(connection: ConnectionConfig, options?: any) {
+function _sparqlFetch(
+  connection: ConnectionConfig,
+  options?: ExplorerRequestOptions
+) {
   return async (queryTemplate: string) => {
     logger.debug(queryTemplate);
     const body = `query=${encodeURIComponent(queryTemplate)}`;
-    const headers =
-      options?.queryId && connection.proxyConnection === true
+    const queryId = options?.queryId;
+    const headers: Record<string, string> =
+      queryId && connection.proxyConnection === true
         ? {
             accept: "application/sparql-results+json",
             "Content-Type": "application/x-www-form-urlencoded",
-            queryId: options.queryId,
+            queryId: queryId,
           }
         : {
             accept: "application/sparql-results+json",
@@ -297,5 +302,5 @@ export function createSparqlExplorer(
 
       return { vertices };
     },
-  };
+  } satisfies Explorer;
 }

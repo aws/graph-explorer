@@ -7,11 +7,14 @@ import keywordSearch from "./queries/keywordSearch";
 import { fetchDatabaseRequest } from "../fetchDatabaseRequest";
 import { GraphSummary } from "./types";
 import { v4 } from "uuid";
-import { Explorer } from "../useGEFetchTypes";
+import { Explorer, ExplorerRequestOptions } from "../useGEFetchTypes";
 import { logger } from "@/utils";
 import { createLoggerFromConnection } from "@/core/connector";
 
-function _gremlinFetch(connection: ConnectionConfig, options: any) {
+function _gremlinFetch(
+  connection: ConnectionConfig,
+  options?: ExplorerRequestOptions
+) {
   return async (queryTemplate: string) => {
     logger.debug(queryTemplate);
     const body = JSON.stringify({ query: queryTemplate });
@@ -82,5 +85,5 @@ export function createGremlinExplorer(connection: ConnectionConfig): Explorer {
       remoteLogger.info("[Gremlin Explorer] Fetching keyword search...");
       return keywordSearch(_gremlinFetch(connection, options), req);
     },
-  };
+  } satisfies Explorer;
 }
