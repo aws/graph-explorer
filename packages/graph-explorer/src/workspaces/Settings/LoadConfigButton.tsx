@@ -19,8 +19,7 @@ import {
   type SerializedBackup,
 } from "@/core/StateProvider/localDb";
 import { useDebounceValue } from "@/hooks";
-import { env } from "@/utils";
-import { APP_NAME } from "@/utils/constants";
+import { APP_NAME, RELOAD_URL } from "@/utils/constants";
 
 export default function LoadConfigButton() {
   const [file, setFile] = useState<File | null>(null);
@@ -244,7 +243,7 @@ function SuccessModal({ success }: { success: boolean }) {
           </div>
 
           {/* Force a full reload of the app in the browser */}
-          <a href={env.BASE_URL} className="self-end">
+          <a href={RELOAD_URL} className="self-end">
             <Button variant="filled" size="large">
               Reload {APP_NAME}
             </Button>
