@@ -1,39 +1,48 @@
 # graph-explorer Change Log
 
-## Upcoming Release
+## Release 1.10.0
+
+This release includes some new features to make managing and supporting Graph
+Explorer more friendly.
+
+**Major Changes**
 
 - **Added** backup & restore options for Graph Explorer local data
   ([#549](https://github.com/aws/graph-explorer/pull/549))
 - **Added** about screen that includes a link to submit feedback
   ([#549](https://github.com/aws/graph-explorer/pull/549))
-- **Improved** performance of styling sidebar panels when many node & edge types
-  exist ([#542](https://github.com/aws/graph-explorer/pull/542))
-- **Added** global error page if the React app crashes
-  ([#547](https://github.com/aws/graph-explorer/pull/547))
-- **Added** optional server logging of database queries when using the proxy
-  server which can be enabled within settings
-  ([#574](https://github.com/aws/graph-explorer/pull/574),
-  [#575](https://github.com/aws/graph-explorer/pull/575))
-- **Improved** handling of server errors with more consistent logging
-  ([#557](https://github.com/aws/graph-explorer/pull/557))
-- **Transition** to Tailwind instead of EmotionCSS for styles, which should make
-  updating the UI much simpler
-  ([#543](https://github.com/aws/graph-explorer/pull/543))
+- **Improved** logging & error handling to aid in support
+  - **Added** global error page if the React app crashes
+    ([#547](https://github.com/aws/graph-explorer/pull/547))
+  - **Added** optional server logging of database queries when using the proxy
+    server which can be enabled within settings
+    ([#574](https://github.com/aws/graph-explorer/pull/574),
+    [#575](https://github.com/aws/graph-explorer/pull/575))
+  - **Improved** handling of server errors with more consistent logging
+    ([#557](https://github.com/aws/graph-explorer/pull/557))
+  - **Improved** SageMaker Lifecycle script handling of CloudWatch log driver
+    failures ([#550](https://github.com/aws/graph-explorer/pull/550))
+  - **Improved** parsing of environment values in proxy server resulting in an
+    error when the values are invalid
+    ([#574](https://github.com/aws/graph-explorer/pull/574))
+
+**Bug Fixes and Minor Changes**
+
+- **Fixed** performance issue in styling sidebar panels when many node & edge
+  types exist ([#542](https://github.com/aws/graph-explorer/pull/542))
 - **Fixed** issue with upper case characters in RDF URIs
   ([#544](https://github.com/aws/graph-explorer/pull/544))
 - **Improved** app styles
   ([#543](https://github.com/aws/graph-explorer/pull/543),
   [#548](https://github.com/aws/graph-explorer/pull/548))
-- **Improved** SageMaker Lifecycle script handling of CloudWatch log driver
-  failures ([#550](https://github.com/aws/graph-explorer/pull/550))
-- **Improved** parsing of environment values in proxy server resulting in an
-  error when the values are invalid
-  ([#574](https://github.com/aws/graph-explorer/pull/574))
 - **Changed** Node to run in production mode
   ([#558](https://github.com/aws/graph-explorer/pull/558))
 - **Removed** hosting production server using the client side Vite
   configuration, requiring the use of the proxy server
   ([#565](https://github.com/aws/graph-explorer/pull/565))
+- **Transition** to Tailwind instead of EmotionCSS for styles, which should make
+  updating the UI much simpler
+  ([#543](https://github.com/aws/graph-explorer/pull/543))
 - **Updated** multiple dependencies
   ([#555](https://github.com/aws/graph-explorer/pull/555),
   [#557](https://github.com/aws/graph-explorer/pull/557))
