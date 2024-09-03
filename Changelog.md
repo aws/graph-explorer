@@ -1,6 +1,6 @@
 # graph-explorer Change Log
 
-## Upcoming Release
+## Release 1.10.0
 
 - **Added** backup & restore options for Graph Explorer local data
   ([#549](https://github.com/aws/graph-explorer/pull/549))
