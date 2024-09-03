@@ -7,11 +7,16 @@ import keywordSearch from "./queries/keywordSearch";
 import { fetchDatabaseRequest } from "../fetchDatabaseRequest";
 import { GraphSummary } from "./types";
 import { v4 } from "uuid";
-import { Explorer } from "../useGEFetchTypes";
+import { Explorer, ExplorerRequestOptions } from "../useGEFetchTypes";
 import { logger } from "@/utils";
 import { createLoggerFromConnection } from "@/core/connector";
+import { FeatureFlags } from "@/core";
 
-function _gremlinFetch(connection: ConnectionConfig, options: any) {
+function _gremlinFetch(
+  connection: ConnectionConfig,
+  featureFlags: FeatureFlags,
+  options?: ExplorerRequestOptions
+) {
   return async (queryTemplate: string) => {
     logger.debug(queryTemplate);
     const body = JSON.stringify({ query: queryTemplate });
@@ -23,22 +28,29 @@ function _gremlinFetch(connection: ConnectionConfig, options: any) {
       headers.queryId = options.queryId;
     }
 
-    return fetchDatabaseRequest(connection, `${connection.url}/gremlin`, {
-      method: "POST",
-      headers,
-      body,
-      ...options,
-    });
+    return fetchDatabaseRequest(
+      connection,
+      featureFlags,
+      `${connection.url}/gremlin`,
+      {
+        method: "POST",
+        headers,
+        body,
+        ...options,
+      }
+    );
   };
 }
 
 async function fetchSummary(
   connection: ConnectionConfig,
-  options: RequestInit
+  featureFlags: FeatureFlags,
+  options?: RequestInit
 ) {
   try {
     const response = await fetchDatabaseRequest(
       connection,
+      featureFlags,
       `${connection.url}/pg/statistics/summary?mode=detailed`,
       {
         method: "GET",
@@ -54,33 +66,51 @@ async function fetchSummary(
   }
 }
 
-export function createGremlinExplorer(connection: ConnectionConfig): Explorer {
+export function createGremlinExplorer(
+  connection: ConnectionConfig,
+  featureFlags: FeatureFlags
+): Explorer {
   const remoteLogger = createLoggerFromConnection(connection);
   return {
     connection: connection,
     async fetchSchema(options) {
       remoteLogger.info("[Gremlin Explorer] Fetching schema...");
-      const summary = await fetchSummary(connection, options);
-      return fetchSchema(_gremlinFetch(connection, options), summary);
+      const summary = await fetchSummary(connection, featureFlags, options);
+      return fetchSchema(
+        _gremlinFetch(connection, featureFlags, options),
+        summary
+      );
     },
     async fetchVertexCountsByType(req, options) {
       remoteLogger.info("[Gremlin Explorer] Fetching vertex counts by type...");
-      return fetchVertexTypeCounts(_gremlinFetch(connection, options), req);
+      return fetchVertexTypeCounts(
+        _gremlinFetch(connection, featureFlags, options),
+        req
+      );
     },
     async fetchNeighbors(req, options) {
       remoteLogger.info("[Gremlin Explorer] Fetching neighbors...");
-      return fetchNeighbors(_gremlinFetch(connection, options), req);
+      return fetchNeighbors(
+        _gremlinFetch(connection, featureFlags, options),
+        req
+      );
     },
     async fetchNeighborsCount(req, options) {
       remoteLogger.info("[Gremlin Explorer] Fetching neighbors count...");
-      return fetchNeighborsCount(_gremlinFetch(connection, options), req);
+      return fetchNeighborsCount(
+        _gremlinFetch(connection, featureFlags, options),
+        req
+      );
     },
     async keywordSearch(req, options) {
       options ??= {};
       options.queryId = v4();
 
       remoteLogger.info("[Gremlin Explorer] Fetching keyword search...");
-      return keywordSearch(_gremlinFetch(connection, options), req);
+      return keywordSearch(
+        _gremlinFetch(connection, featureFlags, options),
+        req
+      );
     },
-  };
+  } satisfies Explorer;
 }

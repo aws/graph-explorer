@@ -1,6 +1,7 @@
 import { type ConnectionConfig } from "@shared/types";
 import { DEFAULT_SERVICE_TYPE } from "@/utils/constants";
 import { anySignal } from "./utils/anySignal";
+import { FeatureFlags } from "@/core";
 
 type NeptuneError = {
   code: string;
@@ -76,11 +77,15 @@ async function decodeErrorSafely(response: Response): Promise<any> {
 // Construct the request headers based on the connection settings
 function getAuthHeaders(
   connection: ConnectionConfig | undefined,
+  featureFlags: FeatureFlags,
   typeHeaders: HeadersInit | undefined
 ) {
   const headers: HeadersInit = {};
   if (connection?.proxyConnection) {
     headers["graph-db-connection-url"] = connection.graphDbUrl || "";
+    headers["db-query-logging-enabled"] = String(
+      featureFlags.allowLoggingDbQuery
+    );
   }
   if (connection?.awsAuthEnabled) {
     headers["aws-neptune-region"] = connection.awsRegion || "";
@@ -105,13 +110,14 @@ function getFetchTimeoutSignal(connection: ConnectionConfig | undefined) {
 
 export async function fetchDatabaseRequest(
   connection: ConnectionConfig | undefined,
+  featureFlags: FeatureFlags,
   uri: URL | RequestInfo,
   options: RequestInit
 ) {
   // Apply connection settings to fetch options
   const fetchOptions: RequestInit = {
     ...options,
-    headers: getAuthHeaders(connection, options.headers),
+    headers: getAuthHeaders(connection, featureFlags, options.headers),
     signal: anySignal(getFetchTimeoutSignal(connection), options.signal),
   };
 

@@ -73,6 +73,12 @@ export function requestLoggingMiddleware() {
       return;
     }
 
+    // Ignore CORS options requests
+    if (req.method === "OPTIONS") {
+      next();
+      return;
+    }
+
     // Wait for the request to complete.
     req.on("end", () => {
       logRequestAndResponse(req, res);

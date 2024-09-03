@@ -12,6 +12,7 @@ import { selector } from "recoil";
 import { equalSelector } from "@/utils/recoilState";
 import { ConnectionConfig } from "@shared/types";
 import { logger } from "@/utils";
+import { featureFlagsSelector } from "./featureFlags";
 
 /**
  * Active connection where the value will only change when one of the
@@ -51,17 +52,18 @@ export const explorerSelector = selector({
   key: "explorer",
   get: ({ get }) => {
     const connection = get(activeConnectionSelector);
+    const featureFlags = get(featureFlagsSelector);
 
     if (!connection) {
       return null;
     }
     switch (connection.queryEngine) {
       case "openCypher":
-        return createOpenCypherExplorer(connection);
+        return createOpenCypherExplorer(connection, featureFlags);
       case "sparql":
-        return createSparqlExplorer(connection, new Map());
+        return createSparqlExplorer(connection, featureFlags, new Map());
       default:
-        return createGremlinExplorer(connection);
+        return createGremlinExplorer(connection, featureFlags);
     }
   },
 });

@@ -12,7 +12,7 @@ import { IncomingHttpHeaders } from "http";
 import { logger as proxyLogger, requestLoggingMiddleware } from "./logging.js";
 import { clientRoot, proxyServerRoot } from "./paths.js";
 import { errorHandlingMiddleware, handleError } from "./error-handler.js";
-import { env } from "./env.js";
+import { BooleanStringSchema, env } from "./env.js";
 
 const app = express();
 
@@ -23,6 +23,7 @@ interface DbQueryIncomingHttpHeaders extends IncomingHttpHeaders {
   "graph-db-connection-url"?: string;
   "aws-neptune-region"?: string;
   "service-type"?: string;
+  "db-query-logging-enabled"?: string;
 }
 
 interface LoggerIncomingHttpHeaders extends IncomingHttpHeaders {
@@ -175,6 +176,9 @@ app.post("/sparql", (req, res, next) => {
   const headers = req.headers as DbQueryIncomingHttpHeaders;
   const queryId = headers["queryid"];
   const graphDbConnectionUrl = headers["graph-db-connection-url"];
+  const shouldLogDbQuery = BooleanStringSchema.default("false").parse(
+    headers["db-query-logging-enabled"]
+  );
   const isIamEnabled = !!headers["aws-neptune-region"];
   const region = isIamEnabled ? headers["aws-neptune-region"] : "";
   const serviceType = isIamEnabled
@@ -228,7 +232,11 @@ app.post("/sparql", (req, res, next) => {
   if (!queryString) {
     return res.status(400).send({ error: "[Proxy]SPARQL: Query not provided" });
   }
-  proxyLogger.debug("[SPARQL] Received database query:\n%s", queryString);
+
+  if (shouldLogDbQuery) {
+    proxyLogger.debug("[SPARQL] Received database query:\n%s", queryString);
+  }
+
   const rawUrl = `${graphDbConnectionUrl}/sparql`;
   let body = `query=${encodeURIComponent(queryString)}`;
   if (queryId) {
@@ -260,6 +268,9 @@ app.post("/gremlin", (req, res, next) => {
   const headers = req.headers as DbQueryIncomingHttpHeaders;
   const queryId = headers["queryid"];
   const graphDbConnectionUrl = headers["graph-db-connection-url"];
+  const shouldLogDbQuery = BooleanStringSchema.default("false").parse(
+    headers["db-query-logging-enabled"]
+  );
   const isIamEnabled = !!headers["aws-neptune-region"];
   const region = isIamEnabled ? headers["aws-neptune-region"] : "";
   const serviceType = isIamEnabled
@@ -274,7 +285,9 @@ app.post("/gremlin", (req, res, next) => {
       .send({ error: "[Proxy]Gremlin: query not provided" });
   }
 
-  proxyLogger.debug("[Gremlin] Received database query:\n%s", queryString);
+  if (shouldLogDbQuery) {
+    proxyLogger.debug("[Gremlin] Received database query:\n%s", queryString);
+  }
 
   /// Function to cancel long running queries if the client disappears before completion
   async function cancelQuery() {
@@ -336,6 +349,11 @@ app.post("/gremlin", (req, res, next) => {
 
 // POST endpoint for openCypher queries.
 app.post("/openCypher", (req, res, next) => {
+  const headers = req.headers as DbQueryIncomingHttpHeaders;
+  const shouldLogDbQuery = BooleanStringSchema.default("false").parse(
+    headers["db-query-logging-enabled"]
+  );
+
   const queryString = req.body.query;
   // Validate the input before making any external calls.
   if (!queryString) {
@@ -344,9 +362,10 @@ app.post("/openCypher", (req, res, next) => {
       .send({ error: "[Proxy]OpenCypher: query not provided" });
   }
 
-  proxyLogger.debug("[openCypher] Received database query:\n%s", queryString);
+  if (shouldLogDbQuery) {
+    proxyLogger.debug("[openCypher] Received database query:\n%s", queryString);
+  }
 
-  const headers = req.headers as DbQueryIncomingHttpHeaders;
   const rawUrl = `${headers["graph-db-connection-url"]}/openCypher`;
   const requestOptions = {
     method: "POST",

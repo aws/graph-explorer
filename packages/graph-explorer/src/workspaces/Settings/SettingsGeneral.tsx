@@ -1,5 +1,9 @@
 import { useRecoilState } from "recoil";
-import { showDebugActionsAtom, showRecoilStateLoggingAtom } from "@/core";
+import {
+  allowLoggingDbQueryAtom,
+  showDebugActionsAtom,
+  showRecoilStateLoggingAtom,
+} from "@/core";
 import {
   Button,
   Checkbox,
@@ -23,11 +27,37 @@ export default function SettingsGeneral() {
   const [isDebugOptionsEnabled, setIsDebugOptionsEnabled] =
     useRecoilState(showDebugActionsAtom);
 
+  const [allowLoggingDbQuery, setAllowLoggingDbQuery] = useRecoilState(
+    allowLoggingDbQueryAtom
+  );
+
   return (
     <>
       <PageHeading>General Settings</PageHeading>
 
       <SettingsSectionContainer>
+        <SettingsSection className="items-start">
+          <SectionTitle>Logging</SectionTitle>
+          <Paragraph className="max-w-paragraph">
+            If you have encountered an issue it may be helpful to enable server
+            side logging of the database queries used by Graph Explorer.
+          </Paragraph>
+          <ImportantBlock className="max-w-paragraph mb-4">
+            This <b>will not</b> log any data returned by the database queries.
+            However, the node & edge labels, ID values, and any value filters
+            will be present in the queries.
+          </ImportantBlock>
+          <Checkbox
+            value="isLoggingDbQueryEnabled"
+            isSelected={allowLoggingDbQuery}
+            onChange={isSelected => {
+              setAllowLoggingDbQuery(isSelected);
+            }}
+          >
+            Enable database query logging on proxy server
+          </Checkbox>
+        </SettingsSection>
+
         <SettingsSection className="items-start">
           <SectionTitle>Save Configuration Data</SectionTitle>
           <Paragraph className="max-w-paragraph">
@@ -41,6 +71,7 @@ export default function SettingsGeneral() {
             Save Configuration
           </Button>
         </SettingsSection>
+
         <SettingsSection className="items-start">
           <SectionTitle>Load Configuration Data</SectionTitle>
           <Paragraph className="max-w-paragraph">

@@ -9,12 +9,14 @@ import type {
   VertexTypeConfig,
 } from "../ConfigurationProvider";
 import localForageEffect from "./localForageEffect";
-import { schemaAtom } from "./schema";
+import { activeSchemaSelector, SchemaInference } from "./schema";
 import {
   EdgePreferences,
+  UserStyling,
   userStylingAtom,
   VertexPreferences,
 } from "./userPreferences";
+import isDefaultValue from "./isDefaultValue";
 
 export const isStoreLoadedAtom = atom<boolean>({
   key: "store-loaded",
@@ -33,78 +35,110 @@ export const configurationAtom = atom<Map<string, RawConfiguration>>({
   effects: [localForageEffect()],
 });
 
+/** Gets or sets the config that is currently active. */
+export const activeConfigSelector = selector({
+  key: "active-config-selector",
+  get({ get }) {
+    const configMap = get(configurationAtom);
+    const id = get(activeConfigurationAtom);
+    const activeConfig = id ? configMap.get(id) : null;
+    return activeConfig;
+  },
+  set({ get, set }, newValue) {
+    const configId = get(activeConfigurationAtom);
+    if (!configId) {
+      return;
+    }
+    set(configurationAtom, prevConfigMap => {
+      const updatedConfigMap = new Map(prevConfigMap);
+
+      // Handle reset value
+      if (!newValue || isDefaultValue(newValue)) {
+        updatedConfigMap.delete(configId);
+        return updatedConfigMap;
+      }
+
+      // Update the map
+      updatedConfigMap.set(configId, newValue);
+
+      return updatedConfigMap;
+    });
+  },
+});
+
 export const mergedConfigurationSelector = selector<RawConfiguration | null>({
   key: "merged-configuration",
   get: ({ get }) => {
-    const activeConfig = get(activeConfigurationAtom);
-    const config = get(configurationAtom);
-    const currentConfig = activeConfig && config.get(activeConfig);
+    const currentConfig = get(activeConfigSelector);
     if (!currentConfig) {
       return null;
     }
 
-    const schema = get(schemaAtom);
-    const currentSchema = activeConfig ? schema.get(activeConfig) : null;
+    const currentSchema = get(activeSchemaSelector);
     const userStyling = get(userStylingAtom);
 
-    const configVLabels = currentConfig.schema?.vertices.map(v => v.type) || [];
-    const schemaVLabels = currentSchema?.vertices?.map(v => v.type) || [];
-    const allVertexLabels = uniq([...configVLabels, ...schemaVLabels]);
-    const mergedVertices = allVertexLabels
-      .map(vLabel => {
-        const configVertex = currentConfig.schema?.vertices.find(
-          v => v.type === vLabel
-        );
-        const schemaVertex = currentSchema?.vertices.find(
-          v => v.type === vLabel
-        );
-        const prefsVertex = userStyling.vertices?.find(v => v.type === vLabel);
-
-        return mergeVertex(configVertex, schemaVertex, prefsVertex);
-      })
-      .sort((a, b) => a.type.localeCompare(b.type));
-
-    const configELabels = currentConfig.schema?.edges.map(v => v.type) || [];
-    const schemaELabels = currentSchema?.edges?.map(v => v.type) || [];
-    const allEdgeLabels = uniq([...configELabels, ...schemaELabels]);
-    const mergedEdges = allEdgeLabels.map(vLabel => {
-      const configEdge = currentConfig.schema?.edges.find(
-        v => v.type === vLabel
-      );
-      const schemaEdge = currentSchema?.edges.find(v => v.type === vLabel);
-      const prefsEdge = userStyling.edges?.find(v => v.type === vLabel);
-      return mergeEdge(configEdge, schemaEdge, prefsEdge);
-    });
-
-    return {
-      id: currentConfig.id,
-      displayLabel: currentConfig.displayLabel,
-      remoteConfigFile: currentConfig.remoteConfigFile,
-      __fileBase: currentConfig.__fileBase,
-      connection: {
-        ...(currentConfig.connection || {}),
-        // Remove trailing slash
-        url: currentConfig.connection?.url?.replace(/\/$/, "") || "",
-        queryEngine: currentConfig.connection?.queryEngine || "gremlin",
-        graphDbUrl:
-          currentConfig.connection?.graphDbUrl?.replace(/\/$/, "") || "",
-      },
-      schema: {
-        vertices: mergedVertices,
-        edges: mergedEdges,
-        lastUpdate: currentSchema?.lastUpdate,
-        prefixes:
-          currentConfig.connection?.queryEngine === "sparql"
-            ? currentSchema?.prefixes
-            : undefined,
-        triedToSync: currentSchema?.triedToSync,
-        lastSyncFail: currentSchema?.lastSyncFail,
-        totalVertices: currentSchema?.totalVertices ?? 0,
-        totalEdges: currentSchema?.totalEdges ?? 0,
-      },
-    };
+    return mergeConfiguration(currentSchema, currentConfig, userStyling);
   },
 });
+
+export function mergeConfiguration(
+  currentSchema: SchemaInference | null | undefined,
+  currentConfig: RawConfiguration,
+  userStyling: UserStyling
+): RawConfiguration {
+  const configVLabels = currentConfig.schema?.vertices.map(v => v.type) || [];
+  const schemaVLabels = currentSchema?.vertices?.map(v => v.type) || [];
+  const allVertexLabels = uniq([...configVLabels, ...schemaVLabels]);
+  const mergedVertices = allVertexLabels
+    .map(vLabel => {
+      const configVertex = currentConfig.schema?.vertices.find(
+        v => v.type === vLabel
+      );
+      const schemaVertex = currentSchema?.vertices.find(v => v.type === vLabel);
+      const prefsVertex = userStyling.vertices?.find(v => v.type === vLabel);
+
+      return mergeVertex(configVertex, schemaVertex, prefsVertex);
+    })
+    .sort((a, b) => a.type.localeCompare(b.type));
+
+  const configELabels = currentConfig.schema?.edges.map(v => v.type) || [];
+  const schemaELabels = currentSchema?.edges?.map(v => v.type) || [];
+  const allEdgeLabels = uniq([...configELabels, ...schemaELabels]);
+  const mergedEdges = allEdgeLabels.map(vLabel => {
+    const configEdge = currentConfig.schema?.edges.find(v => v.type === vLabel);
+    const schemaEdge = currentSchema?.edges.find(v => v.type === vLabel);
+    const prefsEdge = userStyling.edges?.find(v => v.type === vLabel);
+    return mergeEdge(configEdge, schemaEdge, prefsEdge);
+  });
+
+  return {
+    id: currentConfig.id,
+    displayLabel: currentConfig.displayLabel,
+    remoteConfigFile: currentConfig.remoteConfigFile,
+    __fileBase: currentConfig.__fileBase,
+    connection: {
+      ...(currentConfig.connection || {}),
+      // Remove trailing slash
+      url: currentConfig.connection?.url?.replace(/\/$/, "") || "",
+      queryEngine: currentConfig.connection?.queryEngine || "gremlin",
+      graphDbUrl:
+        currentConfig.connection?.graphDbUrl?.replace(/\/$/, "") || "",
+    },
+    schema: {
+      vertices: mergedVertices,
+      edges: mergedEdges,
+      lastUpdate: currentSchema?.lastUpdate,
+      prefixes:
+        currentConfig.connection?.queryEngine === "sparql"
+          ? currentSchema?.prefixes
+          : undefined,
+      triedToSync: currentSchema?.triedToSync,
+      lastSyncFail: currentSchema?.lastSyncFail,
+      totalVertices: currentSchema?.totalVertices ?? 0,
+      totalEdges: currentSchema?.totalEdges ?? 0,
+    },
+  };
+}
 
 const mergeAttributes = (
   config?: VertexTypeConfig | EdgeTypeConfig,

@@ -90,6 +90,11 @@ export type EdgePreferences = {
   targetArrowStyle?: ArrowStyle;
 };
 
+export type UserStyling = {
+  vertices?: Array<VertexPreferences>;
+  edges?: Array<EdgePreferences>;
+};
+
 export type UserPreferences = {
   layout: {
     activeToggles: Set<string>;
@@ -99,13 +104,10 @@ export type UserPreferences = {
     };
     detailsAutoOpenOnSelection?: boolean;
   };
-  styling: {
-    vertices?: Array<VertexPreferences>;
-    edges?: Array<EdgePreferences>;
-  };
+  styling: UserStyling;
 };
 
-export const userStylingAtom = atom<UserPreferences["styling"]>({
+export const userStylingAtom = atom<UserStyling>({
   key: "user-styling",
   default: {},
   effects: [localForageEffect()],

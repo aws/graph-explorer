@@ -10,8 +10,10 @@
   exist ([#542](https://github.com/aws/graph-explorer/pull/542))
 - **Added** global error page if the React app crashes
   ([#547](https://github.com/aws/graph-explorer/pull/547))
-- **Added** server logging of database queries when using the proxy server
-  ([#574](https://github.com/aws/graph-explorer/pull/574))
+- **Added** optional server logging of database queries when using the proxy
+  server which can be enabled within settings
+  ([#574](https://github.com/aws/graph-explorer/pull/574),
+  [#575](https://github.com/aws/graph-explorer/pull/575))
 - **Improved** handling of server errors with more consistent logging
   ([#557](https://github.com/aws/graph-explorer/pull/557))
 - **Transition** to Tailwind instead of EmotionCSS for styles, which should make
