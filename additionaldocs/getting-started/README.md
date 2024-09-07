@@ -291,3 +291,51 @@ slightly different steps.
 > [!TIP]
 > To get rid of the “Not Secure” warning, see
 [Using self-signed certificates on Chrome](../development.md#using-self-signed-certificates-on-chrome).
+
+### Schema Sync Fails
+
+This can happen for many reasons. Here are a few of the common ones.
+
+#### Timeout
+
+There are multiple sources of timeouts.
+
+- Database server
+- Networking layer (load balancer, proxy, etc)
+- Browser
+- Graph Explorer connection configuration
+
+The error you receive in Graph Explorer can interpret Neptune timeout errors and
+timeouts from Graph Explorer's configuration.
+
+#### Out of Memory
+
+This can happen when your database is very large. Graph Explorer does its best
+to support larger databases and is always improving. Please
+[file an issue](https://github.com/aws/graph-explorer/issues/new/choose) if you
+encounter this situation.
+
+#### Proxy Server Cannot Be Reached
+
+Communication between the client and proxy server can be configured in different
+ways. When Graph Explorer proxy server starts up it will print out its best
+approximation of the correct public proxy server address.
+
+This can manifest as different types of errors depending on the root cause. You
+may receive 404 not found responses or get connection refused errors.
+
+- The proxy server can be hosting HTTP or HTTPS
+- The port of the proxy server could be the default (i.e. 80 or 443 with SSL) or
+  a specific port provided through environment values
+- The proxy server paths are not exposed by the networking layer (load balancer,
+  proxy, firewall, etc)
+  - The client is hosted at `/explorer` by default, which is configurable
+  - Queries are handled via `/gremlin`, `/opencypher`, `/sparql`
+  - Summary APIs are handled via `/summary`, `/pg/statistics/summary`,
+    `/rdf/statistics/summary`
+  - Logging is handled by `/logger`
+  - Default connection is handled by `/defaultConnection`
+
+> [!IMPORTANT]  
+> The paths listed here could always change in the future. If they do change, we
+> will note that in the release notes.
