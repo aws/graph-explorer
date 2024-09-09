@@ -19,7 +19,7 @@ const defaultStyles: ThemeStyleFn = ({ theme }) => css`
       padding: ${theme.spacing.base} ${theme.spacing["4x"]};
     }
 
-    .list-item {
+    .context-menu-list-item {
       &.list-item-header {
         .primary {
           font-weight: ${theme.typography.weight?.bold};

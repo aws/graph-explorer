@@ -49,7 +49,7 @@ const CollapsedActions = ({
             >
               <UseLayerTrigger>
                 <ListItem
-                  className={cx("list-item", {
+                  className={cx("collapsed-action-list-item", {
                     ["submenu-is-open"]: open === actionIndex,
                     ["submenu-is-disabled"]: action.isDisabled,
                   })}
@@ -77,7 +77,7 @@ const CollapsedActions = ({
           <ListItem
             key={action.value}
             ref={action.ref}
-            className="list-item"
+            className="collapsed-action-list-item"
             clickable={!action.isDisabled}
             onClick={() => {
               onActionClick(action.value);
