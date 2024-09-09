@@ -1,5 +1,10 @@
 # graph-explorer Change Log
 
+## Upcoming
+
+- Fix context menu styles
+  ([#600](https://github.com/aws/graph-explorer/pull/600))
+
 ## Release 1.10.0
 
 This release includes some new features to make managing and supporting Graph
