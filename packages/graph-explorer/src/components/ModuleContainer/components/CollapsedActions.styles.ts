@@ -8,7 +8,7 @@ const defaultStyles: ThemeStyleFn = ({ theme, isDarkTheme }) => css`
     margin: 0;
     border-radius: ${theme.shape.borderRadius};
 
-    .list-item {
+    .collapsed-action-list-item {
       border-radius: ${theme.shape.borderRadius};
       font-size: ${theme.typography.sizes.xs};
       padding-right: ${theme.spacing["2x"]};

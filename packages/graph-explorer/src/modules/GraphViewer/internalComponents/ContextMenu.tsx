@@ -181,14 +181,14 @@ const ContextMenu = ({
       >
         <Card className={"card-root"}>
           <ListItem
-            className={cx("list-item", "list-item-header")}
+            className={cx("context-menu-list-item", "list-item-header")}
             startAdornment={<GraphIcon />}
           >
             {getDisplayNames(affectedNode)?.name}
           </ListItem>
           <div className={"divider"} />
           <ListItem
-            className={"list-item"}
+            className={"context-menu-list-item"}
             clickable={true}
             onClick={openSidebarPanel("details")}
             startAdornment={<DetailsIcon />}
@@ -196,7 +196,7 @@ const ContextMenu = ({
             Details Panel
           </ListItem>
           <ListItem
-            className={"list-item"}
+            className={"context-menu-list-item"}
             clickable={true}
             onClick={openSidebarPanel("expand")}
             startAdornment={<ExpandGraphIcon />}
@@ -204,7 +204,7 @@ const ContextMenu = ({
             Expand Panel
           </ListItem>
           <ListItem
-            className={"list-item"}
+            className={"context-menu-list-item"}
             clickable={true}
             onClick={openSidebarPanel("nodes-styling", {
               nodeType: affectedNode.data.type,
@@ -215,7 +215,7 @@ const ContextMenu = ({
           </ListItem>
           <div className={"divider"} />
           <ListItem
-            className={"list-item"}
+            className={"context-menu-list-item"}
             clickable={true}
             onClick={handleRemoveFromCanvas([affectedNode.data.id], [])}
             startAdornment={<RemoveFromCanvasIcon color={"red"} />}
@@ -234,14 +234,14 @@ const ContextMenu = ({
       >
         <Card className={"card-root"}>
           <ListItem
-            className={cx("list-item", "list-item-header")}
+            className={cx("context-menu-list-item", "list-item-header")}
             startAdornment={<EdgeIcon />}
           >
             {getDisplayNames(affectedEdge)?.name}
           </ListItem>
           <div className={"divider"} />
           <ListItem
-            className={"list-item"}
+            className={"context-menu-list-item"}
             clickable={true}
             onClick={openSidebarPanel("details")}
             startAdornment={<DetailsIcon />}
@@ -249,7 +249,7 @@ const ContextMenu = ({
             Details Panel
           </ListItem>
           <ListItem
-            className={"list-item"}
+            className={"context-menu-list-item"}
             clickable={true}
             onClick={openSidebarPanel("edges-styling", {
               edgeType: affectedEdge.data.type,
@@ -260,7 +260,7 @@ const ContextMenu = ({
           </ListItem>
           <div className={"divider"} />
           <ListItem
-            className={"list-item"}
+            className={"context-menu-list-item"}
             clickable={true}
             onClick={handleRemoveFromCanvas([], [affectedEdge.data.id])}
             startAdornment={<RemoveFromCanvasIcon color={"red"} />}
@@ -278,7 +278,7 @@ const ContextMenu = ({
     >
       <Card className={"card-root"}>
         <ListItem
-          className={"list-item"}
+          className={"context-menu-list-item"}
           clickable={true}
           onClick={handleFitToFrame}
           startAdornment={<FitToFrameIcon />}
@@ -286,7 +286,7 @@ const ContextMenu = ({
           {nonEmptySelection ? "Fit Selection to Frame" : "Fit to Frame"}
         </ListItem>
         <ListItem
-          className={"list-item"}
+          className={"context-menu-list-item"}
           clickable={true}
           onClick={handleCenter}
           startAdornment={<CenterGraphIcon />}
@@ -294,7 +294,7 @@ const ContextMenu = ({
           {nonEmptySelection ? "Center Selection" : "Center"}
         </ListItem>
         <ListItem
-          className={"list-item"}
+          className={"context-menu-list-item"}
           clickable={true}
           onClick={handleDownloadScreenshot}
           startAdornment={<ScreenshotIcon />}
@@ -303,7 +303,7 @@ const ContextMenu = ({
         </ListItem>
         <div className={"divider"} />
         <ListItem
-          className={"list-item"}
+          className={"context-menu-list-item"}
           clickable={true}
           onClick={handleZoomIn}
           startAdornment={<ZoomInIcon />}
@@ -311,7 +311,7 @@ const ContextMenu = ({
           Zoom in
         </ListItem>
         <ListItem
-          className={"list-item"}
+          className={"context-menu-list-item"}
           clickable={true}
           onClick={handleZoomOut}
           startAdornment={<ZoomOutIcon />}
@@ -322,7 +322,7 @@ const ContextMenu = ({
           <>
             <div className={"divider"} />
             <ListItem
-              className={"list-item"}
+              className={"context-menu-list-item"}
               clickable={true}
               onClick={handleRemoveFromCanvas(
                 Array.from(nodesSelectedIds),
@@ -338,7 +338,7 @@ const ContextMenu = ({
           <>
             <div className={"divider"} />
             <ListItem
-              className={"list-item"}
+              className={"context-menu-list-item"}
               clickable={true}
               onClick={handleRemoveAllFromCanvas}
               startAdornment={<RemoveFromCanvasIcon color={"red"} />}
