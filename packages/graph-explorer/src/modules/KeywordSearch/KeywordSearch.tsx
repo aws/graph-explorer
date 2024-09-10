@@ -184,9 +184,9 @@ export default function KeywordSearch({ className }: KeywordSearchProps) {
       )}
       {isFocused && (
         <Card ref={ref} className="panel-container" elevation={3}>
-          <div className="search-controls">
+          <div className="flex h-[42px] flex-row gap-2">
             <Select
-              className="entity-select"
+              className="w-[100px] min-w-[100px] grow"
               label={t("keyword-search.node-type")}
               labelPlacement="inner"
               hideError={true}
@@ -196,7 +196,7 @@ export default function KeywordSearch({ className }: KeywordSearchProps) {
               menuWidth={150}
             />
             <Select
-              className="entity-select"
+              className="w-[100px] min-w-[100px] grow"
               label={t("keyword-search.node-attribute")}
               labelPlacement="inner"
               hideError={true}
@@ -206,7 +206,7 @@ export default function KeywordSearch({ className }: KeywordSearchProps) {
               menuWidth={150}
             />
             <Select
-              className="entity-select"
+              className="w-[100px] min-w-[100px] grow"
               label={t("keyword-search.node-exact-match")}
               labelPlacement="inner"
               hideError={true}
@@ -216,7 +216,7 @@ export default function KeywordSearch({ className }: KeywordSearchProps) {
               menuWidth={150}
             />
             <Input
-              className="search-input"
+              className="grow-[5]"
               aria-label="Search box"
               hideError={true}
               autoFocus={true}
@@ -225,7 +225,7 @@ export default function KeywordSearch({ className }: KeywordSearchProps) {
               placeholder={searchPlaceholder}
             />
             <IconButton
-              className="close-button"
+              className="close-button self-center"
               variant="text"
               tooltipText="Close search"
               tooltipPlacement="bottom-center"

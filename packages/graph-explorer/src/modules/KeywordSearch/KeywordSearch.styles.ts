@@ -48,24 +48,6 @@ const defaultStyles: ThemeStyleFn = ({ theme, isDarkTheme }) => css`
     width: 100vw;
     z-index: ${theme.zIndex.popover};
 
-    .search-controls {
-      display: flex;
-      flex-direction: row;
-      height: 42px;
-      column-gap: ${theme.spacing["2x"]};
-
-      .search-input {
-        flex-grow: 5;
-        width: unset;
-      }
-
-      .entity-select {
-        flex-grow: 1;
-        min-width: 100px;
-        width: 100px;
-      }
-    }
-
     .node-preview {
       width: 50%;
     }
