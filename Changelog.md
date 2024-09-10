@@ -2,8 +2,10 @@
 
 ## Upcoming
 
-- Fix context menu styles
+- **Fixed** context menu styles
   ([#600](https://github.com/aws/graph-explorer/pull/600))
+- **Improved** support for databases with thousands of node & edge types
+  ([#599](https://github.com/aws/graph-explorer/pull/599))
 
 ## Release 1.10.0
 
