@@ -59,7 +59,6 @@ describe("Gremlin > keywordSearchTemplate", () => {
     const template = keywordSearchTemplate({
       vertexTypes: ["airport"],
       searchTerm: "JFK",
-      searchById: true,
       exactMatch: true,
       searchByAttributes: ["__id"],
     });
@@ -73,7 +72,6 @@ describe("Gremlin > keywordSearchTemplate", () => {
     const template = keywordSearchTemplate({
       vertexTypes: ["airport"],
       searchTerm: "JFK",
-      searchById: true,
       exactMatch: false,
       searchByAttributes: ["__id"],
     });
@@ -88,7 +86,6 @@ describe("Gremlin > keywordSearchTemplate", () => {
   it("Should return a template for searched attributes matching with the search terms, and the ID token attribute", () => {
     const template = keywordSearchTemplate({
       searchTerm: "JFK",
-      searchById: true,
       searchByAttributes: ["city", "code", "__all"],
     });
 
@@ -121,7 +118,6 @@ describe("Gremlin > keywordSearchTemplate", () => {
     const template = keywordSearchTemplate({
       searchTerm: "JFK",
       searchByAttributes: ["code"],
-      searchById: false,
       offset: 2,
       limit: 10,
     });
@@ -136,7 +132,6 @@ describe("Gremlin > keywordSearchTemplate", () => {
       searchTerm: "JFK",
       vertexTypes: ["airport"],
       searchByAttributes: ["code"],
-      searchById: false,
       limit: 25,
       offset: 1,
     });

@@ -167,10 +167,6 @@ export type KeywordSearchRequest = {
    */
   searchTerm?: string;
   /**
-   * Include the Node ID in the attributes
-   */
-  searchById?: boolean;
-  /**
    * Filter by attribute names.
    */
   searchByAttributes?: Array<string>;

@@ -6,7 +6,6 @@ import { escapeString } from "@/utils";
  * @example
  * searchTerm = "JFK"
  * vertexTypes = ["airport"]
- * searchById = false
  * searchByAttributes = ["city", "code"]
  * limit = 100
  * offset = 0
@@ -23,7 +22,6 @@ import { escapeString } from "@/utils";
 export default function keywordSearchTemplate({
   searchTerm,
   vertexTypes = [],
-  searchById = true,
   searchByAttributes = [],
   limit = 10,
   offset = 0,
@@ -39,11 +37,11 @@ export default function keywordSearchTemplate({
     template += `.hasLabel(${hasLabelContent})`;
   }
 
-  if (Boolean(searchTerm) && (searchByAttributes.length !== 0 || searchById)) {
+  if (searchTerm) {
     const escapedSearchTerm = escapeString(searchTerm);
 
     const orContent = uniq(
-      searchById && searchByAttributes.includes("__all")
+      searchByAttributes.includes("__all")
         ? ["__id", ...searchByAttributes]
         : searchByAttributes
     )

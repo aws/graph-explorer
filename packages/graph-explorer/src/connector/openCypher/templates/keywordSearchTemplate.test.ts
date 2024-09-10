@@ -101,7 +101,6 @@ describe("OpenCypher > keywordSearchTemplate", () => {
     const template = keywordSearchTemplate({
       vertexTypes: ["airport"],
       searchTerm: "JFK",
-      searchById: true,
       exactMatch: true,
       searchByAttributes: ["__id"],
     });
@@ -119,7 +118,6 @@ describe("OpenCypher > keywordSearchTemplate", () => {
     const template = keywordSearchTemplate({
       vertexTypes: ["airport"],
       searchTerm: "JFK",
-      searchById: true,
       exactMatch: false,
       searchByAttributes: ["__id"],
     });
@@ -137,7 +135,6 @@ describe("OpenCypher > keywordSearchTemplate", () => {
     const template = keywordSearchTemplate({
       vertexTypes: ["airport"],
       searchTerm: "JFK",
-      searchById: true,
       searchByAttributes: ["city", "code", "__all"],
     });
 
@@ -154,7 +151,6 @@ describe("OpenCypher > keywordSearchTemplate", () => {
     const template = keywordSearchTemplate({
       vertexTypes: ["airport", "country"],
       searchTerm: "JFK",
-      searchById: true,
       exactMatch: false,
       searchByAttributes: ["city", "code", "__all"],
       limit: 50,
