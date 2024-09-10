@@ -6,6 +6,8 @@
   ([#600](https://github.com/aws/graph-explorer/pull/600))
 - **Improved** support for databases with thousands of node & edge types
   ([#599](https://github.com/aws/graph-explorer/pull/599))
+- **Fixed** alignment of close button in search panel
+  ([#603](https://github.com/aws/graph-explorer/pull/603))
 
 ## Release 1.10.0
 
