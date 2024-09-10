@@ -6,6 +6,9 @@ import vertexLabelsTemplate from "../templates/vertexLabelsTemplate";
 import verticesSchemaTemplate from "../templates/verticesSchemaTemplate";
 import type { GEdge, GInt64, GVertex } from "../types";
 import { GraphSummary, GremlinFetch } from "../types";
+import { chunk } from "lodash";
+
+const BATCH_SIZE = 100;
 
 type RawVertexLabelsResponse = {
   requestId: string;
@@ -118,35 +121,40 @@ const fetchVerticesAttributes = async (
     return vertices;
   }
 
-  const verticesTemplate = verticesSchemaTemplate({
-    types: labels,
-  });
+  // Batch in to sets of 100
+  const batches = chunk(labels, BATCH_SIZE);
 
-  logger.log("[Gremlin Explorer] Fetching vertices attributes...");
-  const response =
-    await gremlinFetch<RawVerticesSchemaResponse>(verticesTemplate);
-  const verticesSchemas = response.result.data["@value"][0]["@value"];
-
-  for (let i = 0; i < verticesSchemas.length; i += 2) {
-    const label = verticesSchemas[i] as string;
-    const vertex = verticesSchemas[i + 1] as GVertex;
-    const properties = vertex["@value"].properties;
-    vertices.push({
-      type: label,
-      displayLabel: sanitizeText(label),
-      total: countsByLabel[label],
-      attributes: Object.entries(properties || {}).map(([name, prop]) => {
-        const value = prop[0]?.["@value"].value;
-        return {
-          name,
-          displayLabel: sanitizeText(name),
-          dataType:
-            typeof value === "string"
-              ? "String"
-              : TYPE_MAP[value["@type"]] || "String",
-        };
-      }),
+  for (const batch of batches) {
+    const verticesTemplate = verticesSchemaTemplate({
+      types: batch,
     });
+
+    logger.log("[Gremlin Explorer] Fetching vertices attributes...");
+    const response =
+      await gremlinFetch<RawVerticesSchemaResponse>(verticesTemplate);
+    const verticesSchemas = response.result.data["@value"][0]["@value"];
+
+    for (let i = 0; i < verticesSchemas.length; i += 2) {
+      const label = verticesSchemas[i] as string;
+      const vertex = verticesSchemas[i + 1] as GVertex;
+      const properties = vertex["@value"].properties;
+      vertices.push({
+        type: label,
+        displayLabel: sanitizeText(label),
+        total: countsByLabel[label],
+        attributes: Object.entries(properties || {}).map(([name, prop]) => {
+          const value = prop[0]?.["@value"].value;
+          return {
+            name,
+            displayLabel: sanitizeText(name),
+            dataType:
+              typeof value === "string"
+                ? "String"
+                : TYPE_MAP[value["@type"]] || "String",
+          };
+        }),
+      });
+    }
   }
 
   return vertices;
@@ -187,31 +195,36 @@ const fetchEdgesAttributes = async (
     return edges;
   }
 
-  const edgesTemplate = edgesSchemaTemplate({
-    types: labels,
-  });
-  logger.log("[Gremlin Explorer] Fetching edges attributes...");
-  const data = await gremlinFetch<RawEdgesSchemaResponse>(edgesTemplate);
+  // Batch in to sets of 100
+  const batches = chunk(labels, BATCH_SIZE);
 
-  const edgesSchemas = data.result.data["@value"][0]["@value"];
-
-  for (let i = 0; i < edgesSchemas.length; i += 2) {
-    const label = edgesSchemas[i] as string;
-    const vertex = edgesSchemas[i + 1] as GEdge;
-    const properties = vertex["@value"].properties;
-    edges.push({
-      type: label,
-      displayLabel: sanitizeText(label),
-      total: countsByLabel[label],
-      attributes: Object.entries(properties || {}).map(([name, prop]) => {
-        const value = prop["@value"].value;
-        return {
-          name,
-          displayLabel: sanitizeText(name),
-          dataType: typeof value === "string" ? "String" : value["@type"],
-        };
-      }),
+  for (const batch of batches) {
+    const edgesTemplate = edgesSchemaTemplate({
+      types: batch,
     });
+    logger.log("[Gremlin Explorer] Fetching edges attributes...");
+    const data = await gremlinFetch<RawEdgesSchemaResponse>(edgesTemplate);
+
+    const edgesSchemas = data.result.data["@value"][0]["@value"];
+
+    for (let i = 0; i < edgesSchemas.length; i += 2) {
+      const label = edgesSchemas[i] as string;
+      const vertex = edgesSchemas[i + 1] as GEdge;
+      const properties = vertex["@value"].properties;
+      edges.push({
+        type: label,
+        displayLabel: sanitizeText(label),
+        total: countsByLabel[label],
+        attributes: Object.entries(properties || {}).map(([name, prop]) => {
+          const value = prop["@value"].value;
+          return {
+            name,
+            displayLabel: sanitizeText(name),
+            dataType: typeof value === "string" ? "String" : value["@type"],
+          };
+        }),
+      });
+    }
   }
 
   return edges;
