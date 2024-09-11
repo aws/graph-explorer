@@ -93,7 +93,7 @@ export const IconButton = (
   if (tooltipText) {
     return (
       <Tooltip text={tooltipText} placement={tooltipPlacement} delayEnter={400}>
-        <span>{component}</span>
+        {component}
       </Tooltip>
     );
   }
