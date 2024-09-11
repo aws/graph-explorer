@@ -2,6 +2,24 @@ import { normalize } from "@/utils/testing";
 import keywordSearchTemplate from "./keywordSearchTemplate";
 
 describe("SPARQL > keywordSearchTemplate", () => {
+  it("Should return a template for an empty request", () => {
+    const template = keywordSearchTemplate({});
+
+    expect(normalize(template)).toBe(
+      normalize(`
+        SELECT ?subject ?pred ?value ?class { 
+          ?subject ?pred ?value { 
+            SELECT DISTINCT ?subject ?class { 
+              ?subject a ?class ; ?predicate ?value . 
+            } 
+            LIMIT 10 OFFSET 0 
+          } 
+          FILTER(isLiteral(?value)) 
+        }
+      `)
+    );
+  });
+
   it("Should return a template only for vertex type", () => {
     const template = keywordSearchTemplate({
       subjectClasses: ["air:airport"],

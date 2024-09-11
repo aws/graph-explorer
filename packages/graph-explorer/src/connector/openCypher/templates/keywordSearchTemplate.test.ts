@@ -2,6 +2,18 @@ import { normalize } from "@/utils/testing";
 import keywordSearchTemplate from "./keywordSearchTemplate";
 
 describe("OpenCypher > keywordSearchTemplate", () => {
+  it("Should return a template for empty request", () => {
+    const template = keywordSearchTemplate({});
+
+    expect(normalize(template)).toBe(
+      normalize(`
+        MATCH (v)
+        WHERE (size(labels(v)) > 0) 
+        RETURN v AS object 
+      `)
+    );
+  });
+
   it("Should return a template only for vertex type", () => {
     const template = keywordSearchTemplate({
       vertexTypes: ["airport"],

@@ -170,9 +170,7 @@ const useKeywordSearch = ({ isOpen }: { isOpen: boolean }) => {
   }, [config?.connection?.queryEngine, allowsIdSearch, attributesOptions]);
 
   const vertexTypes =
-    selectedVertexType === allVerticesValue
-      ? config?.vertexTypes
-      : [selectedVertexType];
+    selectedVertexType === allVerticesValue ? [] : [selectedVertexType];
   const searchByAttributes =
     selectedAttribute === allAttributesValue
       ? uniq(
