@@ -1,4 +1,4 @@
-import dedent from "dedent";
+import { query } from "@/utils";
 import { SPARQLKeywordSearchRequest } from "../../types";
 import {
   getFilterObject,
@@ -46,7 +46,7 @@ export default function keywordSearchTemplate({
   offset = 0,
   exactMatch = false,
 }: SPARQLKeywordSearchRequest): string {
-  return dedent`
+  return query`
     # Fetch nodes matching the given search parameters
     SELECT ?subject ?pred ?value ?class {
       ?subject ?pred ?value {

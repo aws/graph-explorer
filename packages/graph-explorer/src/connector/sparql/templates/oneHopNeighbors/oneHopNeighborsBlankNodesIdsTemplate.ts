@@ -1,4 +1,4 @@
-import dedent from "dedent";
+import { query } from "@/utils";
 import { SPARQLNeighborsRequest } from "../../types";
 import { getFilters, getLimit, getSubjectClasses } from "./helpers";
 
@@ -15,7 +15,7 @@ export default function oneHopNeighborsBlankNodesIdsTemplate({
   limit = 0,
   offset = 0,
 }: SPARQLNeighborsRequest) {
-  return dedent`
+  return query`
     # Sub-query to fetch blank node ids for one hop neighbors
     SELECT DISTINCT (?subject AS ?bNode) {
       BIND(<${resourceURI}> AS ?argument)

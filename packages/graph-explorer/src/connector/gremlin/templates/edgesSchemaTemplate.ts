@@ -1,4 +1,4 @@
-import dedent from "dedent";
+import { query } from "@/utils";
 import { uniq } from "lodash";
 
 /**
@@ -20,7 +20,7 @@ export default function edgesSchemaTemplate({ types }: { types: string[] }) {
     label => `"${label}"`
   );
 
-  return dedent`
+  return query`
     g.E()
       .project(${labels.join(", ")})
       ${labels.map(label => `.by(V().bothE(${label}).limit(1))`).join("\n      ")}

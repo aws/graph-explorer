@@ -1,8 +1,8 @@
-import dedent from "dedent";
+import { query } from "@/utils";
 
 // Return all predicates which are connected from the given class
 export default function predicatesByClassTemplate(props: { class: string }) {
-  return dedent`
+  return query`
     # Return all predicates which are connected from the given class
     SELECT ?pred (SAMPLE(?object) as ?sample)
     WHERE {

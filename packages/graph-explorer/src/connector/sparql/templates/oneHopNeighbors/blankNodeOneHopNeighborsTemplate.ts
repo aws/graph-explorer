@@ -1,4 +1,4 @@
-import dedent from "dedent";
+import { query } from "@/utils";
 
 /**
  * Fetch all neighbors and their predicates, values, and classes
@@ -7,7 +7,7 @@ import dedent from "dedent";
  * @see oneHopNeighborsTemplate
  */
 export default function blankNodeOneHopNeighborsTemplate(subQuery: string) {
-  return dedent`
+  return query`
 	  # Fetch all neighbors and their predicates, values, and classes given a blank node sub-query.
 		SELECT ?bNode ?subject ?pred ?value ?subjectClass ?pToSubject ?pFromSubject {
 			?subject a     ?subjectClass ;

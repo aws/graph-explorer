@@ -1,4 +1,4 @@
-import dedent from "dedent";
+import { query } from "@/utils";
 import { SPARQLNeighborsRequest } from "../types";
 
 /**
@@ -89,7 +89,7 @@ export default function oneHopNeighborsTemplate({
 
   const limitTemplate = limit > 0 ? `LIMIT ${limit} OFFSET ${offset}` : "";
 
-  return dedent`
+  return query`
     # Fetch all neighbors and their predicates, values, and classes
     SELECT ?subject ?pred ?value ?subjectClass ?pToSubject ?pFromSubject {
       ?subject a     ?subjectClass;

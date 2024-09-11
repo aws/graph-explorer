@@ -1,4 +1,4 @@
-import dedent from "dedent";
+import { query } from "@/utils";
 import { SPARQLNeighborsCountRequest } from "../../types";
 
 /**
@@ -23,7 +23,7 @@ export default function neighborsCountTemplate({
   resourceURI,
   limit = 0,
 }: SPARQLNeighborsCountRequest) {
-  return dedent`
+  return query`
     # Count neighbors by class which are related with the given subject URI
     SELECT ?class (COUNT(?class) AS ?count) {
       ?subject a ?class {

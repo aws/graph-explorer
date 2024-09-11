@@ -1,4 +1,4 @@
-import dedent from "dedent";
+import { query } from "@/utils";
 import type { Criterion, NeighborsRequest } from "@/connector/useGEFetchTypes";
 
 function criterionNumberTemplate({
@@ -158,7 +158,7 @@ export default function oneHopTemplate({
 
   const edgeTypesTemplate = edgeTypes.map(type => `"${type}"`).join(",");
 
-  return dedent`
+  return query`
     g.V(${idTemplate})
       .both()${nodeFiltersTemplate}.dedup().order().by(id())${range}.as("v")
       .project("vertex", "edges")

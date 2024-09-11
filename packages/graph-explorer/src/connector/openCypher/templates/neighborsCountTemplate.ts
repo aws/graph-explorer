@@ -1,4 +1,4 @@
-import dedent from "dedent";
+import { query } from "@/utils";
 import type { NeighborsCountRequest } from "@/connector/useGEFetchTypes";
 
 /**
@@ -19,7 +19,7 @@ export default function neighborsCountTemplate({
   vertexId,
   limit = 0,
 }: NeighborsCountRequest) {
-  return dedent`
+  return query`
       MATCH (v)-[]-(neighbor)
       WHERE ID(v) = "${vertexId}" 
       WITH DISTINCT neighbor
