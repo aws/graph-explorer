@@ -1,10 +1,11 @@
-import { batchPromisesSerially, logger } from "@/utils";
+import { batchPromisesSerially } from "@/utils";
 import { DEFAULT_CONCURRENT_REQUESTS_LIMIT } from "@/utils/constants";
 import type { SchemaResponse } from "@/connector/useGEFetchTypes";
 import classesWithCountsTemplates from "../templates/classesWithCountsTemplates";
 import predicatesByClassTemplate from "../templates/predicatesByClassTemplate";
 import predicatesWithCountsTemplate from "../templates/predicatesWithCountsTemplate";
 import { GraphSummary, RawValue, SparqlFetch } from "../types";
+import { LoggerConnector } from "@/connector/LoggerConnector";
 
 type RawClassesWCountsResponse = {
   results: {
@@ -61,6 +62,7 @@ const displayDescCandidates = [rdfsComment, skosNote, skosDefinition];
 
 const fetchPredicatesByClass = async (
   sparqlFetch: SparqlFetch,
+  remoteLogger: LoggerConnector,
   classes: Array<string>,
   countsByClass: Record<string, number>
 ) => {
@@ -71,10 +73,9 @@ const fetchPredicatesByClass = async (
       const classPredicatesTemplate = predicatesByClassTemplate({
         class: resourceClass,
       });
-      logger.log("[SPARQL Explorer] Fetching predicates by class...", {
-        resourceClass,
-        countsByClass,
-      });
+      remoteLogger.info(
+        `[SPARQL Explorer] Fetching predicates by class ${resourceClass}...`
+      );
       const predicatesResponse =
         await sparqlFetch<RawPredicatesSamplesResponse>(
           classPredicatesTemplate
@@ -109,9 +110,12 @@ const fetchPredicatesByClass = async (
   }));
 };
 
-const fetchClassesSchema = async (sparqlFetch: SparqlFetch) => {
+const fetchClassesSchema = async (
+  sparqlFetch: SparqlFetch,
+  remoteLogger: LoggerConnector
+) => {
   const classesTemplate = classesWithCountsTemplates();
-  logger.log("[SPARQL Explorer] Fetching classes schema...");
+  remoteLogger.info("[SPARQL Explorer] Fetching classes schema...");
   const classesCounts =
     await sparqlFetch<RawClassesWCountsResponse>(classesTemplate);
 
@@ -124,14 +128,20 @@ const fetchClassesSchema = async (sparqlFetch: SparqlFetch) => {
     );
   });
 
-  return fetchPredicatesByClass(sparqlFetch, classes, countsByClass);
+  return fetchPredicatesByClass(
+    sparqlFetch,
+    remoteLogger,
+    classes,
+    countsByClass
+  );
 };
 
 const fetchPredicatesWithCounts = async (
-  sparqlFetch: SparqlFetch
+  sparqlFetch: SparqlFetch,
+  remoteLogger: LoggerConnector
 ): Promise<Record<string, number>> => {
   const template = predicatesWithCountsTemplate();
-  logger.log("[SPARQL Explorer] Fetching predicates with counts...");
+  remoteLogger.info("[SPARQL Explorer] Fetching predicates with counts...");
   const data = await sparqlFetch<RawPredicatesWCountsResponse>(template);
 
   const values = data.results.bindings;
@@ -143,8 +153,11 @@ const fetchPredicatesWithCounts = async (
   return labelsWithCounts;
 };
 
-const fetchPredicatesSchema = async (sparqlFetch: SparqlFetch) => {
-  const allLabels = await fetchPredicatesWithCounts(sparqlFetch);
+const fetchPredicatesSchema = async (
+  sparqlFetch: SparqlFetch,
+  remoteLogger: LoggerConnector
+) => {
+  const allLabels = await fetchPredicatesWithCounts(sparqlFetch, remoteLogger);
 
   return Object.entries(allLabels).map(([label, count]) => {
     return {
@@ -168,18 +181,23 @@ const fetchPredicatesSchema = async (sparqlFetch: SparqlFetch) => {
  */
 const fetchSchema = async (
   sparqlFetch: SparqlFetch,
+  remoteLogger: LoggerConnector,
   summary?: GraphSummary
 ): Promise<SchemaResponse> => {
   if (!summary) {
-    const vertices = await fetchClassesSchema(sparqlFetch);
+    const vertices = await fetchClassesSchema(sparqlFetch, remoteLogger);
     const totalVertices = vertices.reduce((total, vertex) => {
       return total + (vertex.total ?? 0);
     }, 0);
 
-    const edges = await fetchPredicatesSchema(sparqlFetch);
+    const edges = await fetchPredicatesSchema(sparqlFetch, remoteLogger);
     const totalEdges = edges.reduce((total, edge) => {
       return total + (edge.total ?? 0);
     }, 0);
+
+    remoteLogger.info(
+      `[SPARQL Explorer] Schema sync successful (${totalVertices} vertices; ${totalEdges} edges; ${vertices.length} vertex types; ${edges.length} edge types)`
+    );
 
     return {
       totalVertices,
@@ -191,6 +209,7 @@ const fetchSchema = async (
 
   const vertices = await fetchPredicatesByClass(
     sparqlFetch,
+    remoteLogger,
     summary.classes,
     {}
   );
@@ -204,6 +223,10 @@ const fetchSchema = async (
       };
     });
   });
+
+  remoteLogger.info(
+    `[SPARQL Explorer] Schema sync successful (${summary.numDistinctSubjects} vertices; ${summary.numQuads} edges; ${vertices.length} vertex types; ${edges.length} edge types)`
+  );
 
   return {
     totalVertices: summary.numDistinctSubjects,

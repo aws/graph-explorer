@@ -282,7 +282,7 @@ app.post("/gremlin", (req, res, next) => {
   if (!queryString) {
     return res
       .status(400)
-      .send({ error: "[Proxy]Gremlin: query not provided" });
+      .send({ error: "[Proxy] Gremlin: query not provided" });
   }
 
   if (shouldLogDbQuery) {
@@ -484,7 +484,7 @@ app.post("/logger", (req, res, next) => {
     if (headers["message"] === undefined) {
       throw new Error("No log message passed.");
     } else {
-      message = headers["message"].replaceAll("\\", "");
+      message = JSON.parse(headers["message"]).replaceAll("\\", "");
     }
     if (level.toLowerCase() === "error") {
       proxyLogger.error(message);

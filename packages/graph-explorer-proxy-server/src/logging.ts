@@ -40,7 +40,7 @@ function logLevelFromStatusCode(statusCode: number): LogLevel {
   } else if (statusCode >= 500) {
     return "error";
   } else if (statusCode >= 300 && statusCode < 400) {
-    return "silent";
+    return "debug";
   }
   return "debug";
 }
@@ -49,7 +49,7 @@ function logLevelFromStatusCode(statusCode: number): LogLevel {
 export function logRequestAndResponse(req: Request, res: Response) {
   const logLevel = logLevelFromStatusCode(res.statusCode);
 
-  const requestMessage = `${res.statusCode} - ${req.method} ${req.path}`;
+  const requestMessage = `[${req.method} ${req.path}] Response ${res.statusCode} ${res.statusMessage}`;
 
   switch (logLevel) {
     case "debug":
@@ -79,8 +79,10 @@ export function requestLoggingMiddleware() {
       return;
     }
 
-    // Wait for the request to complete.
-    req.on("end", () => {
+    logger.trace(`[${req.method} ${req.path}] Request received`);
+
+    // Wait for the response to finish
+    res.on("finish", () => {
       logRequestAndResponse(req, res);
     });
 
