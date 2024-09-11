@@ -53,6 +53,7 @@ export function createOpenCypherExplorer(
       );
       return fetchSchema(
         _openCypherFetch(connection, featureFlags, options),
+        remoteLogger,
         summary
       );
     },

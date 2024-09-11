@@ -78,6 +78,7 @@ export function createGremlinExplorer(
       const summary = await fetchSummary(connection, featureFlags, options);
       return fetchSchema(
         _gremlinFetch(connection, featureFlags, options),
+        remoteLogger,
         summary
       );
     },

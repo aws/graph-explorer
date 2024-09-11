@@ -206,6 +206,7 @@ export function createSparqlExplorer(
       const summary = await fetchSummary(connection, featureFlags, options);
       return fetchSchema(
         _sparqlFetch(connection, featureFlags, options),
+        remoteLogger,
         summary
       );
     },
