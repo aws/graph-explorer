@@ -79,8 +79,8 @@ export function requestLoggingMiddleware() {
       return;
     }
 
-    // Wait for the request to complete.
-    req.on("end", () => {
+    // Wait for the response to finish
+    res.on("finish", () => {
       logRequestAndResponse(req, res);
     });
 

@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { logger, logRequestAndResponse } from "./logging.js";
+import { logger } from "./logging.js";
 
 /**
  * Global error handler
@@ -14,15 +14,13 @@ export function handleError(error: unknown) {
 export function errorHandlingMiddleware() {
   return (
     error: unknown,
-    request: Request,
+    _request: Request,
     response: Response,
     _next: NextFunction
   ) => {
     const errorInfo = extractErrorInfo(error);
 
     response.status(errorInfo.status);
-
-    logRequestAndResponse(request, response);
 
     response.send({
       error: errorInfo,
