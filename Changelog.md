@@ -1,13 +1,13 @@
 # graph-explorer Change Log
 
-## Upcoming
+## Release 1.10.1
 
-- **Fixed** context menu styles
-  ([#600](https://github.com/aws/graph-explorer/pull/600))
-- **Improved** logging on server and around schema sync
-  ([#604](https://github.com/aws/graph-explorer/pull/604))
 - **Improved** support for databases with thousands of node & edge types
   ([#599](https://github.com/aws/graph-explorer/pull/599))
+- **Improved** logging on server and around schema sync
+  ([#604](https://github.com/aws/graph-explorer/pull/604))
+- **Fixed** context menu styles
+  ([#600](https://github.com/aws/graph-explorer/pull/600))
 - **Fixed** alignment of close button in search panel
   ([#603](https://github.com/aws/graph-explorer/pull/603))
 
