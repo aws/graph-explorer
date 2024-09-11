@@ -79,6 +79,8 @@ export function requestLoggingMiddleware() {
       return;
     }
 
+    logger.trace(`[${req.method} ${req.path}] Request received`);
+
     // Wait for the response to finish
     res.on("finish", () => {
       logRequestAndResponse(req, res);
