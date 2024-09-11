@@ -40,7 +40,7 @@ function logLevelFromStatusCode(statusCode: number): LogLevel {
   } else if (statusCode >= 500) {
     return "error";
   } else if (statusCode >= 300 && statusCode < 400) {
-    return "silent";
+    return "debug";
   }
   return "debug";
 }
