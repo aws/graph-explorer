@@ -49,7 +49,7 @@ function logLevelFromStatusCode(statusCode: number): LogLevel {
 export function logRequestAndResponse(req: Request, res: Response) {
   const logLevel = logLevelFromStatusCode(res.statusCode);
 
-  const requestMessage = `${res.statusCode} - ${req.method} ${req.path}`;
+  const requestMessage = `[${req.method} ${req.path}] Response ${res.statusCode} ${res.statusMessage}`;
 
   switch (logLevel) {
     case "debug":
