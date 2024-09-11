@@ -7,7 +7,6 @@ import dedent from "dedent";
  * @example
  * searchTerm = "JFK"
  * vertexTypes = ["airport"]
- * searchById = false
  * searchByAttributes = ["city", "code"]
  * limit = 100
  * offset = 0
@@ -22,7 +21,6 @@ import dedent from "dedent";
 const keywordSearchTemplate = ({
   searchTerm,
   vertexTypes = [],
-  searchById,
   searchByAttributes = [],
   limit,
   offset,
@@ -37,12 +35,11 @@ const keywordSearchTemplate = ({
     vertexTypes.map(type => `v:\`${type}\``).join(" OR ");
 
   // If we have a search term we need to build the search term where clause
-  const hasSearchTerm =
-    Boolean(searchTerm) && (searchByAttributes.length !== 0 || searchById);
+  const hasSearchTerm = Boolean(searchTerm);
   const searchTermWhereClause =
     hasSearchTerm &&
     uniq(
-      searchById && searchByAttributes.includes("__all")
+      searchByAttributes.includes("__all")
         ? ["__id", ...searchByAttributes]
         : searchByAttributes
     )
