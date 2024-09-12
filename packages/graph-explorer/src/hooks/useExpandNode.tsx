@@ -58,7 +58,7 @@ export function ExpandNodeProvider(props: PropsWithChildren) {
   const { enqueueNotification, clearNotification } = useNotification();
   const remoteLogger = useRecoilValue(loggerSelector);
 
-  const mutation = useMutation({
+  const { isPending, mutate } = useMutation({
     mutationFn: async (
       expandNodeRequest: ExpandNodeRequest
     ): Promise<NeighborsResponse | null> => {
@@ -102,7 +102,7 @@ export function ExpandNodeProvider(props: PropsWithChildren) {
 
   // Show a loading message to the user
   useEffect(() => {
-    if (!mutation.isPending) {
+    if (!isPending) {
       return;
     }
     // const displayName = getDisplayNames(expandNodeRequest.vertex);
@@ -114,7 +114,7 @@ export function ExpandNodeProvider(props: PropsWithChildren) {
     });
 
     return () => clearNotification(notificationId);
-  }, [clearNotification, enqueueNotification, mutation.isPending]);
+  }, [clearNotification, enqueueNotification, isPending]);
 
   const connection = useRecoilValue(activeConnectionSelector);
   const expandNode = useCallback(
@@ -128,7 +128,7 @@ export function ExpandNodeProvider(props: PropsWithChildren) {
       };
 
       // Only allow expansion if we are not busy with another expansion
-      if (mutation.isPending) {
+      if (isPending) {
         return;
       }
 
@@ -141,14 +141,14 @@ export function ExpandNodeProvider(props: PropsWithChildren) {
         return;
       }
 
-      mutation.mutate(request);
+      mutate(request);
     },
-    [connection?.nodeExpansionLimit, enqueueNotification, mutation]
+    [connection?.nodeExpansionLimit, enqueueNotification, isPending, mutate]
   );
 
   const value: ExpandNodeContextType = {
     expandNode,
-    isPending: mutation.isPending,
+    isPending,
   };
 
   return (
