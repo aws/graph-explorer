@@ -38,14 +38,14 @@ const palette: DeepRequired<ProcessedTheme["palette"]> = {
     contrastText: "#ffffff",
   },
   error: {
-    main: "#eb4e4c",
     light: "#ff9077",
+    main: "#eb4e4c",
     dark: "#a41c1b",
     contrastText: "#ffffff",
   },
   success: {
-    main: "#27af8c",
     light: "#31deb2",
+    main: "#27af8c",
     dark: "#129271",
     contrastText: "#ffffff",
   },
