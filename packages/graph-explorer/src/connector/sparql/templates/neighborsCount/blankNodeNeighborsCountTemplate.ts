@@ -1,5 +1,5 @@
 import { SPARQLBlankNodeNeighborsCountRequest } from "../../types";
-import dedent from "dedent";
+import { query } from "@/utils";
 
 /**
  * Count neighbors by class which are related with the given blank node sub-query.
@@ -24,7 +24,7 @@ export default function blankNodeNeighborsCountTemplate({
   subQuery,
   limit = 0,
 }: SPARQLBlankNodeNeighborsCountRequest) {
-  return dedent`
+  return query`
     # Count neighbors by class which are related with the given blank node sub-query
     SELECT ?bNode ?class (COUNT(?class) AS ?count) {
       ?subject a ?class {

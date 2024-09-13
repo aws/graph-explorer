@@ -1,4 +1,4 @@
-import dedent from "dedent";
+import { query } from "@/utils";
 import type { Criterion, NeighborsRequest } from "@/connector/useGEFetchTypes";
 
 const criterionNumberTemplate = ({
@@ -136,7 +136,7 @@ const oneHopTemplate = ({
     .filter(Boolean)
     .join(" AND ");
 
-  return dedent`
+  return query`
     MATCH (v)-[${edgeMatch}]-(${targetMatch})
     WHERE ${whereConditions}
     WITH DISTINCT v, tgt

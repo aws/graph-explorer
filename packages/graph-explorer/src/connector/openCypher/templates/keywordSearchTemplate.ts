@@ -1,7 +1,6 @@
 import uniq from "lodash/uniq";
 import type { KeywordSearchRequest } from "@/connector/useGEFetchTypes";
-import { escapeString } from "@/utils";
-import dedent from "dedent";
+import { escapeString, query } from "@/utils";
 
 /**
  * @example
@@ -74,7 +73,7 @@ const keywordSearchTemplate = ({
         ? `LIMIT ${limit}`
         : "";
 
-  return dedent`
+  return query`
     MATCH (${vertexMatchTemplate})
     ${whereTemplate}
     RETURN v AS object

@@ -1,4 +1,4 @@
-import dedent from "dedent";
+import { query } from "@/utils";
 import { SPARQLNeighborsPredicatesRequest } from "../../types";
 
 /**
@@ -45,7 +45,7 @@ const subjectPredicatesTemplate = ({
     return classesValues;
   };
 
-  return dedent`
+  return query`
     # Fetch all predicates and their direction of a pairs of subjects
     SELECT ?subject ?subjectClass ?predToSubject ?predFromSubject {
       BIND(<${resourceURI}> AS ?argument)

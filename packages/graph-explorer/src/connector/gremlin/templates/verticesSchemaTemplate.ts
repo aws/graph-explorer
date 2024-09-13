@@ -1,4 +1,4 @@
-import dedent from "dedent";
+import { query } from "@/utils";
 import { uniq } from "lodash";
 
 /**
@@ -26,7 +26,7 @@ export default function verticesSchemaTemplate({ types }: { types: string[] }) {
     label => `"${label}"`
   );
 
-  return dedent`
+  return query`
     g.V()
       .union(
         ${labels.map(label => `__.hasLabel(${label}).limit(1)`).join(",\n        ")}
