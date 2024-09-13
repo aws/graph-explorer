@@ -38,6 +38,9 @@ export * from "./icons";
 export { default as Input } from "./Input";
 export * from "./Input";
 
+export { default as TextArea } from "./TextArea";
+export * from "./TextArea";
+
 export { default as ListItem } from "./ListItem";
 export * from "./ListItem";
 

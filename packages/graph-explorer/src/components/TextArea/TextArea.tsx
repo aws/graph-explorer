@@ -11,13 +11,14 @@ import type {
 } from "react";
 import { forwardRef, useRef } from "react";
 import { useWithTheme } from "@/core";
-import { inputContainerStyles } from "./Input.styles";
+import { textAreaContainerStyles } from "./TextArea.styles";
 
-export interface BaseInputProps
+export interface TextAreaProps
   extends Omit<
-    AriaTextFieldOptions<"input">,
-    "value" | "defaultValue" | "onChange"
-  > {
+      AriaTextFieldOptions<"textarea">,
+      "value" | "defaultValue" | "onChange"
+    >,
+    ValueBase<string> {
   label?: ReactNode;
   labelPlacement?: "top" | "left" | "inner";
   className?: string;
@@ -31,25 +32,10 @@ export interface BaseInputProps
   noMargin?: boolean;
   onClick?: MouseEventHandler;
   clearButton?: ReactNode;
-  overrideInputProps?: InputHTMLAttributes<HTMLInputElement>;
+  overrideInputProps?: InputHTMLAttributes<HTMLTextAreaElement>;
 }
 
-interface TextInputProps extends BaseInputProps, ValueBase<string> {}
-
-interface NumberInputProps extends BaseInputProps, ValueBase<number> {
-  type: "number";
-  component?: "input";
-  min?: number;
-  max?: number;
-  step?: number;
-}
-
-export type InputProps = TextInputProps | NumberInputProps;
-
-const isNumberInput = (props: InputProps): props is NumberInputProps =>
-  props.type === "number";
-
-export const Input = (
+export const TextArea = (
   {
     labelPlacement = "top",
     size = "md",
@@ -62,8 +48,8 @@ export const Input = (
     clearButton,
     overrideInputProps,
     ...props
-  }: InputProps,
-  ref: ForwardedRef<HTMLInputElement>
+  }: TextAreaProps,
+  ref: ForwardedRef<HTMLTextAreaElement>
 ) => {
   const {
     label,
@@ -74,25 +60,10 @@ export const Input = (
     isReadOnly,
   } = props;
   const styleWithTheme = useWithTheme();
-  const localRef = useRef<HTMLInputElement>(null);
+  const localRef = useRef<HTMLTextAreaElement>(null);
   const { labelProps, inputProps } = useTextField(
-    {
-      ...props,
-      value: isNumberInput(props)
-        ? String(props.value)
-        : (props.value as string),
-      defaultValue: isNumberInput(props)
-        ? String(props.defaultValue)
-        : (props.defaultValue as string),
-      onChange: isNumberInput(props)
-        ? // It returns null if the field is empty
-          (v: string) =>
-            (props.onChange as (v: number | null) => void)?.(
-              v && !isNaN(Number(v)) ? Number(v) : null
-            )
-        : (props.onChange as (v: string) => void),
-    },
-    (ref as RefObject<HTMLInputElement>) || localRef
+    props,
+    (ref as RefObject<HTMLTextAreaElement>) || localRef
   );
 
   const clickHandlers = onClick ? { onClick } : {};
@@ -100,7 +71,7 @@ export const Input = (
     <div
       className={cn(
         styleWithTheme(
-          inputContainerStyles(
+          textAreaContainerStyles(
             labelPlacement,
             size,
             isDisabled,
@@ -127,20 +98,16 @@ export const Input = (
         {!!startAdornment && (
           <span className={"start-adornment"}>{startAdornment}</span>
         )}
-        <input
+        <textarea
           {...clickHandlers}
           className={cn("input", {
             ["input-disabled"]: isDisabled,
             ["input-label-inner"]: labelPlacement === "inner",
           })}
-          min={isNumberInput(props) ? props.min : undefined}
-          max={isNumberInput(props) ? props.max : undefined}
-          step={isNumberInput(props) ? props.step : undefined}
           ref={ref || localRef}
           {...inputProps}
           {...overrideInputProps}
         />
-
         {!!endAdornment && (
           <span className={"end-adornment"}>{endAdornment}</span>
         )}
@@ -153,4 +120,4 @@ export const Input = (
   );
 };
 
-export default forwardRef<HTMLInputElement, InputProps>(Input);
+export default forwardRef<HTMLTextAreaElement, TextAreaProps>(TextArea);

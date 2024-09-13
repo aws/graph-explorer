@@ -3,18 +3,18 @@ import type { ReactNode } from "react";
 import type { ActiveThemeType, ProcessedTheme } from "@/core";
 import { fade } from "@/core";
 import { memoize } from "@/utils";
-import { InputTheme } from "./Input.model";
+import { TextAreaTheme } from "./TextArea.model";
 
 export const getInputThemeWithDefaults = memoize(
   (
-    activeTheme: ActiveThemeType<ProcessedTheme<InputTheme>>,
+    activeTheme: ActiveThemeType<ProcessedTheme<TextAreaTheme>>,
     validationState: "valid" | "invalid"
-  ): InputTheme["input"] => {
+  ): TextAreaTheme["textArea"] => {
     const { isDarkTheme, theme } = activeTheme;
     const { palette } = theme;
     const { text, background, primary, error } = palette;
     const baseFormTheme = theme.forms;
-    const inputTheme = theme.input;
+    const inputTheme = theme.textArea;
     const styleByValidationState = {
       invalid: {
         color:
@@ -185,7 +185,7 @@ const getInnerLabelStyles = (
   left: calc(${getPaddingBySize(size, activeTheme)});
 `;
 
-export const inputContainerStyles =
+export const textAreaContainerStyles =
   (
     labelPlacement: "top" | "left" | "inner",
     size: "sm" | "md",
@@ -240,7 +240,7 @@ export const inputContainerStyles =
       .start-adornment {
         position: absolute;
         left: ${getPaddingBySize(size, theme)};
-        top: 0;
+        top: calc(${getPaddingBySize(size, theme)} + 2px);
         height: ${!hideError ? "calc(100% - 8px)" : "100%"};
         display: flex;
         align-items: center;
@@ -250,7 +250,7 @@ export const inputContainerStyles =
       .end-adornment {
         position: absolute;
         right: ${getPaddingBySize(size, theme)};
-        top: 0;
+        top: calc(${getPaddingBySize(size, theme)} + 2px);
         height: ${!hideError ? "calc(100% - 8px)" : "100%"};
         display: flex;
         align-items: center;
@@ -260,7 +260,7 @@ export const inputContainerStyles =
       .clearButton {
         position: absolute;
         right: ${getPaddingBySize(size, theme)};
-        top: 0;
+        top: calc(${getPaddingBySize(size, theme)} + 2px);
         height: ${!hideError ? "calc(100% - 8px)" : "100%"};
         display: flex;
         align-items: center;
@@ -269,6 +269,8 @@ export const inputContainerStyles =
 
       .input {
         font-family: inherit;
+        height: 100px;
+        resize: none;
         background-color: ${!isDisabled
           ? themeWithDefault?.background
           : fade(themeWithDefault?.background, 0.7)};
