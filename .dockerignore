@@ -1,3 +1,15 @@
 # Avoid copying node_modules to fix issue with esbuild working on a macOS computer with an ARM processor 
 # More info: https://esbuild.github.io/getting-started/#simultaneous-platforms
 node_modules
+
+# Ignore development related files
+.git
+.github
+.husky
+.vscode
+coverage
+
+# Ignore documentation related files
+additionaldocs
+images
+*.md

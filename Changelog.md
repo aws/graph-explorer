@@ -1,5 +1,10 @@
 # graph-explorer Change Log
 
+## Upcoming
+
+- **Fixed** Docker image containing more files than necessary.
+  ([#613](https://github.com/aws/graph-explorer/pull/613))
+
 ## Release 1.10.1
 
 - **Improved** support for databases with thousands of node & edge types
