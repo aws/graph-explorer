@@ -7,7 +7,8 @@
 - **Improved** query generation by removing empty lines
   ([#608](https://github.com/aws/graph-explorer/pull/608))
 - **Updated** multiple dependencies
-  ([#611](https://github.com/aws/graph-explorer/pull/611))
+  ([#611](https://github.com/aws/graph-explorer/pull/611),
+  [#614](https://github.com/aws/graph-explorer/pull/614))
 
 ## Release 1.10.1
 
