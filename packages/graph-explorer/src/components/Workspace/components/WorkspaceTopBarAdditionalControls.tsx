@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import type { PropsWithChildren } from "react";
 
 export type WorkspaceTopBarAdditionalControlsProps = {
@@ -10,7 +10,7 @@ const WorkspaceTopBarAdditionalControls = ({
   children,
 }: PropsWithChildren<WorkspaceTopBarAdditionalControlsProps>) => {
   return (
-    <div className={cx("flex h-full items-center gap-1", className)}>
+    <div className={cn("flex h-full items-center gap-1", className)}>
       {children}
     </div>
   );

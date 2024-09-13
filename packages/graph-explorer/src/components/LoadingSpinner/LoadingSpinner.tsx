@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import type { ReactNode } from "react";
 import { useWithTheme } from "@/core";
 import { LoaderIcon } from "@/components/icons";
@@ -20,7 +20,7 @@ export const LoadingSpinner = ({
   const themedStyle = useWithTheme();
   return (
     <div
-      className={cx(themedStyle(defaultStyles(color)), className)}
+      className={cn(themedStyle(defaultStyles(color)), className)}
       {...props}
     >
       <div>{loadingIcon || <LoaderIcon />}</div>

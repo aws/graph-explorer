@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import type { ListProps } from "@react-stately/list";
 import type { MultipleSelection } from "@react-types/shared/src/selection";
 import {
@@ -132,7 +132,7 @@ const SelectBox = (
 
   return (
     <div
-      className={cx(
+      className={cn(
         styleWithTheme(
           styles.selectContainerStyles({
             labelPlacement,
@@ -164,7 +164,7 @@ const SelectBox = (
         <button
           ref={mergeRefs(triggerProps.ref, ref)}
           type="button"
-          className={cx("select", {
+          className={cn("select", {
             ["no-options"]: items.length < 1,
             ["option-selected"]: selectedOptions !== "",
           })}

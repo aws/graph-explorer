@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import type { ForwardedRef, PropsWithChildren } from "react";
 import { forwardRef, useMemo } from "react";
 import getChildOfType from "@/utils/getChildOfType";
@@ -54,7 +54,7 @@ const ModuleContainer = (
     <div
       ref={ref}
       id={id}
-      className={cx(
+      className={cn(
         "bg-background-secondary text-text-secondary flex h-full flex-col overflow-hidden",
         variant === "default" && "shadow-base rounded",
         className

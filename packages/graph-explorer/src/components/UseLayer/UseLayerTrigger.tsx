@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import type { PropsWithChildren } from "react";
 
 import defaultStyles from "./UseLayer.styles";
@@ -13,7 +13,7 @@ const UseLayerTrigger = ({
 }: PropsWithChildren<UseLayerTriggerProps>) => {
   return (
     <div
-      className={cx(defaultStyles(), "trigger", className)}
+      className={cn(defaultStyles(), "trigger", className)}
       onClick={e => e.stopPropagation()}
     >
       {children}

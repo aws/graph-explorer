@@ -1,4 +1,5 @@
-import { css, cx } from "@emotion/css";
+import { css } from "@emotion/css";
+import { cn } from "@/utils";
 import { FC, PropsWithChildren } from "react";
 import { useWithTheme } from "@/core";
 import type { TabularVariantType } from "../Tabular";
@@ -66,7 +67,7 @@ const TabularFooterControls: FC<TabularFooterControlsProps> = ({
 
   return (
     <div
-      className={cx(
+      className={cn(
         styleWithTheme(defaultStyles(variant)),
         "footer-controls",
         className,

@@ -29,7 +29,7 @@ import defaultStyles from "./SingleNodeStyling.style";
 import modalDefaultStyles from "./SingleNodeStylingModal.style";
 import { useVertexTypeConfig } from "@/core/ConfigurationProvider/useConfiguration";
 import { useDebounceValue, usePrevious } from "@/hooks";
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 
 export type SingleNodeStylingProps = {
   vertexType: string;
@@ -129,7 +129,7 @@ export default function SingleNodeStyling({
     "image/svg+xml";
 
   return (
-    <div className={cx(styleWithTheme(defaultStyles), className)} {...rest}>
+    <div className={cn(styleWithTheme(defaultStyles), className)} {...rest}>
       <div className={"title"}>
         <div className={"vertex-name"}>{vertexType}</div>
       </div>

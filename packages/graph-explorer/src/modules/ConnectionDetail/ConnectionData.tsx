@@ -1,4 +1,5 @@
-import { css, cx } from "@emotion/css";
+import { css } from "@emotion/css";
+import { cn } from "@/utils";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -83,7 +84,7 @@ const ConnectionData = () => {
   }, [config?.id]);
 
   return (
-    <div className={cx(styleWithTheme(defaultStyles), "h-full")}>
+    <div className={cn(styleWithTheme(defaultStyles), "h-full")}>
       <div className="info-bar">
         <div className="item">
           <div className="tag">{t("connection-detail.nodes")}</div>

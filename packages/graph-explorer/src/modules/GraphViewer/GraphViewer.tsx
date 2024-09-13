@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import { MouseEvent, useCallback, useRef, useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { Vertex } from "@/types/entities";
@@ -231,7 +231,7 @@ export default function GraphViewer({
   return (
     <div
       ref={dropAreaRef}
-      className={cx(styleWithTheme(defaultStyles), "graph-viewer-module")}
+      className={cn(styleWithTheme(defaultStyles), "graph-viewer-module")}
       onContextMenu={onContextMenu}
     >
       <ModuleContainer>
@@ -316,7 +316,7 @@ export default function GraphViewer({
         </div>
       </ModuleContainer>
       <div
-        className={cx("drop-overlay", {
+        className={cn("drop-overlay", {
           ["drop-overlay-is-over"]: isOver,
           ["drop-overlay-can-drop"]: !isOver && canDrop,
         })}
@@ -332,7 +332,7 @@ function Legend({ onClose }: { onClose: () => void }) {
   return (
     <Card className={"legend-container"}>
       <ListItem
-        className={cx("legend-item", "legend-title")}
+        className={cn("legend-item", "legend-title")}
         endAdornment={
           <IconButton
             icon={<CloseIcon />}

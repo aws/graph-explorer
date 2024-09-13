@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import { useButton } from "@react-aria/button";
 import type { AriaButtonProps } from "@react-types/button";
 import type { ElementType, ForwardedRef, ReactNode, RefObject } from "react";
@@ -66,7 +66,7 @@ export const IconButton = (
     <Component
       ref={ref}
       {...buttonProps}
-      className={cx(
+      className={cn(
         styles(defaultIconButtonStyles({ variant, size, isDisabled, rounded })),
         className,
         color ? `color-${color}` : ""
@@ -77,7 +77,7 @@ export const IconButton = (
       {props.children}
       {Boolean(badge) && (
         <div
-          className={cx(
+          className={cn(
             styles(defaultBadgeStyles),
             "badge",
             `variant-${badgeVariant}`,

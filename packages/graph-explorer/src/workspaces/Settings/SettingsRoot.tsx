@@ -9,7 +9,7 @@ import {
 import { Link, NavLink, Outlet, To } from "react-router-dom";
 import { PropsWithChildren, Suspense } from "react";
 import AppLoadingPage from "@/core/AppLoadingPage";
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import { APP_NAME } from "@/utils/constants";
 
 export default function SettingsRoot() {
@@ -66,7 +66,7 @@ function SideBarItem(props: PropsWithChildren<{ to: To }>) {
     <NavLink
       to={props.to}
       className={({ isActive }) =>
-        cx(
+        cn(
           "flex w-full flex-row items-center rounded-md px-2 py-1 text-lg",
           isActive &&
             "bg-primary-main text-primary-contrastText hover:bg-primary-light font-bold",

@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import { RefObject, useCallback, useMemo } from "react";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import { Card, EdgeIcon, GraphIcon, ListItem, StylingIcon } from "@/components";
@@ -177,11 +177,11 @@ const ContextMenu = ({
   if (affectedNode) {
     return (
       <div
-        className={cx(styleWithTheme(defaultStyles), "context-menu", className)}
+        className={cn(styleWithTheme(defaultStyles), "context-menu", className)}
       >
         <Card className={"card-root"}>
           <ListItem
-            className={cx("context-menu-list-item", "list-item-header")}
+            className={cn("context-menu-list-item", "list-item-header")}
             startAdornment={<GraphIcon />}
           >
             {getDisplayNames(affectedNode)?.name}
@@ -230,11 +230,11 @@ const ContextMenu = ({
   if (affectedEdge) {
     return (
       <div
-        className={cx(styleWithTheme(defaultStyles), "context-menu", className)}
+        className={cn(styleWithTheme(defaultStyles), "context-menu", className)}
       >
         <Card className={"card-root"}>
           <ListItem
-            className={cx("context-menu-list-item", "list-item-header")}
+            className={cn("context-menu-list-item", "list-item-header")}
             startAdornment={<EdgeIcon />}
           >
             {getDisplayNames(affectedEdge)?.name}
@@ -274,7 +274,7 @@ const ContextMenu = ({
 
   return (
     <div
-      className={cx(styleWithTheme(defaultStyles), "context-menu", className)}
+      className={cn(styleWithTheme(defaultStyles), "context-menu", className)}
     >
       <Card className={"card-root"}>
         <ListItem

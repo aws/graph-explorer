@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 
 import { forwardRef, ReactNode, RefObject } from "react";
 import { useFocusRing } from "@react-aria/focus";
@@ -54,7 +54,7 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(
     return (
       <label
         onClick={e => e.stopPropagation()}
-        className={cx(className, styleWithTheme(defaultSwitchLabelStyles), {
+        className={cn(className, styleWithTheme(defaultSwitchLabelStyles), {
           ["switch-label-disabled"]: isDisabled,
           ["switch-label-readonly"]: isReadOnly,
         })}
@@ -69,7 +69,7 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(
         {labelPosition === "left" && <>{props.children}</>}
         <div
           style={{ width: sizeMap[size].width, height: sizeMap[size].height }}
-          className={cx(
+          className={cn(
             styleWithTheme(defaultSwitchStyles(sizeMap[size].width)),
             isSelected ? "switch-on" : "switch-off",
             `switch-${size}`,

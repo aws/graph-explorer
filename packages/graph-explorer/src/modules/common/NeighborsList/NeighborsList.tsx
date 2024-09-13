@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import { Vertex } from "@/@types/entities";
 import { Button, Chip, Tooltip, VertexIcon, VisibleIcon } from "@/components";
 import { useWithTheme } from "@/core";
@@ -20,7 +20,7 @@ export default function NeighborsList({ vertex }: NeighborsListProps) {
   const [showMore, setShowMore] = useState(false);
 
   return (
-    <div className={cx(styleWithTheme(defaultStyles), "section")}>
+    <div className={cn(styleWithTheme(defaultStyles), "section")}>
       <div className={"title"}>Neighbors ({vertex.data.neighborsCount})</div>
       {neighborsOptions
         .slice(0, showMore ? undefined : MAX_NEIGHBOR_TYPE_ROWS)

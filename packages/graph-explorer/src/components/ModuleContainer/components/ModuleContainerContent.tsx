@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import { ComponentProps } from "react";
 
 export default function ModuleContainerContent({
@@ -7,7 +7,7 @@ export default function ModuleContainerContent({
 }: ComponentProps<"div">) {
   return (
     <div
-      className={cx(
+      className={cn(
         "bg-background-default h-full w-full grow overflow-auto",
         className
       )}

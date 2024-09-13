@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import { ColorPicker, ColorPickerProps } from "@mantine/core";
 import { FC, useEffect, useState } from "react";
 import { useWithTheme } from "@/core";
@@ -48,7 +48,7 @@ const ColorInput: FC<ColorInputProps & ColorPickerProps> = ({
   }, [startColor, color, lastColor, onChange]);
 
   return (
-    <div className={cx(styleWithTheme(defaultStyles), className)}>
+    <div className={cn(styleWithTheme(defaultStyles), className)}>
       <div className={"color-input"}>
         <UseLayer
           onClose={() => setColorPickerOpen(false)}

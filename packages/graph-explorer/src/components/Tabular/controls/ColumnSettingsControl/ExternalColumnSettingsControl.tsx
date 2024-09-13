@@ -1,4 +1,5 @@
-import { css, cx } from "@emotion/css";
+import { css } from "@emotion/css";
+import { cn } from "@/utils";
 import { useCallback, useState } from "react";
 import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
 import { useLayer } from "react-laag";
@@ -107,7 +108,7 @@ export const ColumnSettingsControl = <T extends Record<string, unknown>>({
         {...triggerProps}
       />
       {renderLayer(
-        <div {...layerProps} className={cx(defaultStyles(), className)}>
+        <div {...layerProps} className={cn(defaultStyles(), className)}>
           {isContentVisible && (
             <Card className={"card"}>
               <DragDropContext onDragEnd={onDragEnd}>

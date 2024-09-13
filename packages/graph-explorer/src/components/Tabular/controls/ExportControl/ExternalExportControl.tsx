@@ -1,4 +1,5 @@
-import { css, cx } from "@emotion/css";
+import { css } from "@emotion/css";
+import { cn } from "@/utils";
 import { saveAs } from "file-saver";
 import { useCallback, useState } from "react";
 import { useLayer } from "react-laag";
@@ -61,7 +62,7 @@ export function ExternalExportControl<T extends Record<string, unknown>>({
         {...triggerProps}
       />
       {renderLayer(
-        <div {...layerProps} className={cx(defaultStyles(), className)}>
+        <div {...layerProps} className={cn(defaultStyles(), className)}>
           {isContentVisible && (
             <ExportOptionsModal
               instance={instance}

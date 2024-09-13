@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import { useMemo, useState } from "react";
 import { ModuleContainer } from "@/components";
 import type { TabularInstance } from "@/components/Tabular";
@@ -57,7 +57,7 @@ const EntitiesTabular = () => {
 
   return (
     <ModuleContainer
-      className={cx(styleWithTheme(defaultStyles), "entities-tabular-module")}
+      className={cn(styleWithTheme(defaultStyles), "entities-tabular-module")}
     >
       {nodeInstance && edgeInstance && selectedTabularInstance && (
         <TabularControlsProvider tabularInstance={selectedTabularInstance}>

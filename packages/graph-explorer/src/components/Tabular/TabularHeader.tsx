@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 
 import type { HeaderGroup, TableInstance } from "react-table";
 
@@ -28,7 +28,7 @@ const TabularHeader = <T extends object>({
           <div
             key={key}
             style={style}
-            className={cx("header", {
+            className={cn("header", {
               ["header-resizing"]:
                 column.isResizing ||
                 state.columnResizing?.isResizingColumn === column.id,
@@ -36,7 +36,7 @@ const TabularHeader = <T extends object>({
           >
             <div
               {...restHeaderProps}
-              className={cx(
+              className={cn(
                 "header-label",
                 `header-label-align-${column.align || "left"}`,
                 {
@@ -47,7 +47,7 @@ const TabularHeader = <T extends object>({
               )}
             >
               <div
-                className={cx({
+                className={cn({
                   ["header-overflow-ellipsis"]: column.overflow === "ellipsis",
                   ["header-overflow-truncate"]: column.overflow === "truncate",
                 })}

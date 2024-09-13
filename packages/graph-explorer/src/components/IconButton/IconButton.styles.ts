@@ -1,4 +1,5 @@
-import { css, cx } from "@emotion/css";
+import { css } from "@emotion/css";
+import { cn } from "@/utils";
 import type { ThemeStyleFn } from "@/core";
 import { fade } from "@/core";
 import {
@@ -238,7 +239,7 @@ export const defaultIconButtonStyles =
       padding: 0;
     `;
 
-    return cx(variants[variant], baseStyles(theme, size), iconButtonStyles);
+    return cn(variants[variant], baseStyles(theme, size), iconButtonStyles);
   };
 
 type toggleButtonStylesProps = {
@@ -333,7 +334,7 @@ export const defaultToggleButtonStyles =
 
     const styles =
       styleLike === "button" ? defaultStyles : defaultIconButtonStyles;
-    return cx(
+    return cn(
       styles({ variant, size, isDisabled, rounded })(activeTheme),
       stylesByVariantMap[variant],
       isSelected ? selectedStylesByVariantMap[variant] : ""

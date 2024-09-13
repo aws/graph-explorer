@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import type { PropsWithChildren, ReactElement } from "react";
 import { useMemo } from "react";
 import { getChildrenOfType } from "@/utils";
@@ -62,7 +62,7 @@ const Workspace = ({
 
   return (
     <div
-      className={cx(
+      className={cn(
         "bg-background-secondary flex h-full w-full grow flex-row overflow-hidden",
         className
       )}
@@ -73,7 +73,7 @@ const Workspace = ({
         <div className="flex h-full grow flex-row overflow-auto">
           <div className="flex h-full grow flex-col overflow-auto">
             <div
-              className={cx(
+              className={cn(
                 "flex h-full grow gap-2 overflow-auto p-2",
                 orientation === "vertical" ? "flex-col" : "flex-row"
               )}

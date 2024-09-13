@@ -1,4 +1,5 @@
-import { css, cx } from "@emotion/css";
+import { css } from "@emotion/css";
+import { cn } from "@/utils";
 import { cssVar } from "@/core/ThemeProvider/utils/lib";
 import { FC, PropsWithChildren, useEffect } from "react";
 import type { ThemeStyleFn } from "@/core";
@@ -91,7 +92,7 @@ const TabularHeaderControls: FC<TabularHeaderControlsProps> = ({
   return (
     <div
       ref={headerControlsRef}
-      className={cx(
+      className={cn(
         styleWithTheme(defaultStyles(variant)),
         "header-controls",
         className,

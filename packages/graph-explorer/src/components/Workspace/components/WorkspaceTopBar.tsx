@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import type { PropsWithChildren, ReactElement } from "react";
 import { useMemo } from "react";
 import { groupChildrenByType } from "@/utils";
@@ -42,13 +42,13 @@ const WorkspaceTopBar = ({
   );
   return (
     <div
-      className={cx(
+      className={cn(
         "bg-background-default text-text-primary border-divider flex flex-col border-b",
         className
       )}
     >
       <div
-        className={cx(
+        className={cn(
           "bg-background-default text-text-primary flex min-h-[3.5rem] items-center gap-3",
           logoVisible ? "pr-2" : "px-2"
         )}

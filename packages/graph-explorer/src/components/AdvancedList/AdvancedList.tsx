@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import type {
   ComponentType,
   ForwardedRef,
@@ -191,7 +191,7 @@ const AdvancedList = <T extends object>(
   return (
     <>
       <div
-        className={cx(
+        className={cn(
           styleWithTheme(styles.listStyles),
           "advanced-list",
           className
@@ -219,7 +219,7 @@ const AdvancedList = <T extends object>(
               )
             }
             disablePadding
-            className={cx(
+            className={cn(
               styleWithTheme(styles.headerStyles(noSearchResults)),
               "advanced-list-header"
             )}
@@ -255,7 +255,7 @@ const AdvancedList = <T extends object>(
                       const item = filteredItems[index];
                       return (
                         <div
-                          className={cx("advanced-list-nogroup-item-wrapper")}
+                          className={cn("advanced-list-nogroup-item-wrapper")}
                         >
                           <ElementsListItem
                             item={item}
@@ -337,7 +337,7 @@ const AdvancedList = <T extends object>(
           <Footer
             count={filteredItems.length}
             total={itemsCount}
-            className={cx(
+            className={cn(
               styleWithTheme(styles.footerStyles),
               "advanced-list-footer"
             )}

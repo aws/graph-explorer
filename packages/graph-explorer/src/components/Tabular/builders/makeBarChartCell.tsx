@@ -1,4 +1,5 @@
-import { css, cx } from "@emotion/css";
+import { css } from "@emotion/css";
+import { cn } from "@/utils";
 
 import type { ActiveThemeType, ProcessedTheme } from "@/core";
 import { useTheme, useWithTheme } from "@/core";
@@ -56,7 +57,7 @@ const makeBarChartCell =
           return (
             <div
               key={`item-${index}`}
-              className={cx("box", { "box-empty": parseInt(value) === 0 })}
+              className={cn("box", { "box-empty": parseInt(value) === 0 })}
               style={{ background: barBackground }}
             >
               {Number.isInteger(item) ? item : item?.toFixed(1)}

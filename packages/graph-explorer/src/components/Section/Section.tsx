@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import type {
   HTMLAttributes,
   MouseEvent,
@@ -139,7 +139,7 @@ export const Section = ({
 
   return (
     <section
-      className={cx(
+      className={cn(
         styleWithTheme(
           defaultStyles({
             ...styleProps,
@@ -154,7 +154,7 @@ export const Section = ({
         <div className={"content"}>
           {collapsible ? (
             <div
-              className={cx("collapsible-container", {
+              className={cn("collapsible-container", {
                 ["collapsed"]: isCollapse,
               })}
             >

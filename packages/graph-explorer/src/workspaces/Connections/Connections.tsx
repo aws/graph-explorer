@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useRecoilValue } from "recoil";
@@ -37,7 +37,7 @@ const Connections = () => {
   }, [activeConfig, config?.schema?.triedToSync, updateSchema]);
 
   return (
-    <Workspace className={cx(styleWithTheme(defaultStyles), "connections")}>
+    <Workspace className={cn(styleWithTheme(defaultStyles), "connections")}>
       <Workspace.TopBar logoVisible>
         <Workspace.TopBar.Title
           title="Connections Details"

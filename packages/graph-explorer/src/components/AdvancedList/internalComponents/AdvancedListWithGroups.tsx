@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import groupBy from "lodash/groupBy";
 import type { DragEvent, MouseEvent, ReactNode, Ref, RefObject } from "react";
 import { forwardRef, memo, useEffect, useMemo, useState } from "react";
@@ -248,7 +248,7 @@ const AdvancedListWithGroups = <T extends object>(
                   />
                 }
                 showWhenEmpty
-                className={cx("advanced-list-category", {
+                className={cn("advanced-list-category", {
                   ["advanced-list-category-first"]: index === 0,
                 })}
               />
@@ -295,7 +295,7 @@ const AdvancedListWithGroups = <T extends object>(
         <Footer
           count={filteredItems.length}
           total={allItems.length}
-          className={cx(
+          className={cn(
             styleWithTheme(styles.footerStyles),
             "advanced-list-footer"
           )}

@@ -1,4 +1,5 @@
-import { cx, injectGlobal as emotionInjectGlobal } from "@emotion/css";
+import { injectGlobal as emotionInjectGlobal } from "@emotion/css";
+import { cn } from "@/utils";
 import merge from "lodash/merge";
 import type { CSSProperties, PropsWithChildren } from "react";
 import {
@@ -179,7 +180,7 @@ const ThemeProvider = <
     <ThemeContext.Provider value={value}>
       {!injectGlobal && (
         <div
-          className={cx(
+          className={cn(
             `${theme.themeName}-wrapper`,
             defaultStyles(),
             className

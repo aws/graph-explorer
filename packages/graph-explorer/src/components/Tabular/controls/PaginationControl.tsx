@@ -1,4 +1,5 @@
-import { css, cx } from "@emotion/css";
+import { css } from "@emotion/css";
+import { cn } from "@/utils";
 
 import { FunctionComponent, useEffect, useMemo, useState } from "react";
 import Button from "@/components/Button";
@@ -145,7 +146,7 @@ export const PaginationControl: FunctionComponent<PaginationControlProps> = ({
     return null;
   }
   return (
-    <div className={cx(defaultStyles(), className)}>
+    <div className={cn(defaultStyles(), className)}>
       {totalRows > 0 && (
         <div className={"pagination-totals"}>
           Displaying {pageRange} of{" "}
@@ -172,7 +173,7 @@ export const PaginationControl: FunctionComponent<PaginationControlProps> = ({
             isDisabled={!canPreviousPage}
             variant={"text"}
             size={"small"}
-            className={cx("page-button", "page-control")}
+            className={cn("page-button", "page-control")}
             icon={<SkipBackwardIcon />}
             onPress={() => gotoPage(0)}
           />
@@ -180,7 +181,7 @@ export const PaginationControl: FunctionComponent<PaginationControlProps> = ({
             isDisabled={!canPreviousPage}
             variant={"text"}
             size={"small"}
-            className={cx("page-button", "page-control")}
+            className={cn("page-button", "page-control")}
             icon={<BackwardIcon />}
             onPress={previousPage}
           />
@@ -205,14 +206,14 @@ export const PaginationControl: FunctionComponent<PaginationControlProps> = ({
             isDisabled={!canNextPage}
             variant={"text"}
             size={"small"}
-            className={cx("page-button", "page-control")}
+            className={cn("page-button", "page-control")}
             icon={<ForwardIcon />}
             onPress={nextPage}
           />
           <IconButton
             isDisabled={!canNextPage}
             variant={"text"}
-            className={cx("page-button", "page-control")}
+            className={cn("page-button", "page-control")}
             icon={<SkipForwardIcon />}
             onPress={() => gotoPage(pageCount - 1)}
           />

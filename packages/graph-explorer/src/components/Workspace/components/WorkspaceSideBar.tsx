@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import type { PropsWithChildren, ReactElement } from "react";
 import { useMemo } from "react";
 import getChildOfType from "@/utils/getChildOfType";
@@ -37,7 +37,7 @@ const WorkspaceSideBar = ({
 
   return (
     <div
-      className={cx(
+      className={cn(
         "shadow-left bg-background-default flex",
         direction === "row" && "flex-row",
         direction === "row-reverse" && "flex-row-reverse"

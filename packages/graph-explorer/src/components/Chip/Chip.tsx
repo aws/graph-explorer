@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import type {
   ForwardedRef,
   HTMLAttributes,
@@ -46,7 +46,7 @@ export const Chip = (
   return (
     <div
       ref={ref}
-      className={cx(
+      className={cn(
         styleWithTheme(defaultStyles(variant, background, color, size)),
         "chip",
         {

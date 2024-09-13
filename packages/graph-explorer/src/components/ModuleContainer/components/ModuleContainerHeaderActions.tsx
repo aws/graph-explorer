@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import { Fragment, useMemo, useState } from "react";
 import { useWithTheme } from "@/core";
 import IconButton from "@/components/IconButton";
@@ -82,7 +82,7 @@ const ModuleContainerHeaderActions = ({
 
   return (
     <div
-      className={cx(
+      className={cn(
         styleWithTheme(defaultStyles),
         "module-container-header-actions"
       )}

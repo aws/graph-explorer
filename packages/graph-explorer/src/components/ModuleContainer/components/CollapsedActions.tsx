@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import { cloneElement, useState } from "react";
 import { useWithTheme } from "@/core";
 import Card from "@/components/Card";
@@ -25,7 +25,7 @@ const CollapsedActions = ({
   const [open, setOpen] = useState(-1);
 
   return (
-    <Card className={cx(styleWithTheme(defaultStyles), "collapsed-actions")}>
+    <Card className={cn(styleWithTheme(defaultStyles), "collapsed-actions")}>
       {actions.map((action, actionIndex) => {
         if (
           (actionIndex === 0 || actionIndex === actions.length - 1) &&
@@ -49,7 +49,7 @@ const CollapsedActions = ({
             >
               <UseLayerTrigger>
                 <ListItem
-                  className={cx("collapsed-action-list-item", {
+                  className={cn("collapsed-action-list-item", {
                     ["submenu-is-open"]: open === actionIndex,
                     ["submenu-is-disabled"]: action.isDisabled,
                   })}

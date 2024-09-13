@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import type { PropsWithChildren, ReactNode } from "react";
 import { cloneElement, useEffect } from "react";
@@ -78,7 +78,7 @@ export const Tooltip = ({
         <AnimatePresence>
           {!disabled && (isOver || isOverTooltip) && (
             <motion.div
-              className={cx(stylesWithTheme(tooltipStyles), className)}
+              className={cn(stylesWithTheme(tooltipStyles), className)}
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}

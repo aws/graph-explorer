@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import type { PropsWithChildren } from "react";
 import { forwardRef, useEffect, useMemo } from "react";
 import type { ArrowProps, LayerSide, UseLayerOptions } from "react-laag";
@@ -78,7 +78,7 @@ const UseLayer = forwardRef<HTMLDivElement, PropsWithChildren<UseLayerProps>>(
       <div
         ref={ref}
         id={id}
-        className={cx("layer-container", className)}
+        className={cn("layer-container", className)}
         style={{ display: "inline-block" }}
       >
         <div {...triggerProps} className={"trigger-container"}>

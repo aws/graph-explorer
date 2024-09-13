@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import {
   ForwardedRef,
   forwardRef,
@@ -212,7 +212,7 @@ const TabularContent = <T extends Record<string, unknown>>({
   return (
     <div
       ref={tableRef}
-      className={cx(styleWithTheme(defaultStyles(variant)), className)}
+      className={cn(styleWithTheme(defaultStyles(variant)), className)}
       style={{
         userSelect: tableInstance.state.columnResizing?.isResizingColumn
           ? "none"
@@ -222,7 +222,7 @@ const TabularContent = <T extends Record<string, unknown>>({
       {headerControlsChildren}
       <div {...getTableProps()} className={"table"}>
         <div
-          className={cx("headers", {
+          className={cn("headers", {
             ["headers-sticky"]: !disableStickyHeader,
           })}
           style={{

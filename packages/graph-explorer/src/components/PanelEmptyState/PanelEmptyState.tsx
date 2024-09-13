@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import type { PropsWithChildren, ReactNode } from "react";
 import { useWithTheme } from "@/core";
 import Button, { ButtonProps } from "../Button/Button";
@@ -35,7 +35,7 @@ const PanelEmptyState = ({
   const styleWithTheme = useWithTheme();
   return (
     <div
-      className={cx(
+      className={cn(
         className,
         "panel-empty-state-wrapper",
         `panel-empty-state-${layout}`,

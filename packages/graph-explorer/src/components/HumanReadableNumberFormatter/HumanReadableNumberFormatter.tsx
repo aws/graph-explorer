@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import { forwardRef } from "react";
 import { formatWithoutSymbol, getSymbolForNumber } from "./numberFormat";
 import {
@@ -38,16 +38,16 @@ export const HumanReadableNumberFormatter = forwardRef<
     const symbol = getSymbolForNumber(value);
 
     return (
-      <div ref={ref} className={cx(containerStyles(), className)}>
+      <div ref={ref} className={cn(containerStyles(), className)}>
         {!!unit && unitPlacement === "start" && (
-          <div className={cx(unitStyles, `unit`)}>{unit}</div>
+          <div className={cn(unitStyles, `unit`)}>{unit}</div>
         )}
         <div className={`number`}>{!noFormat ? formattedValue : value}</div>
         {!noFormat && symbol && (
-          <div className={cx(symbolStyles, `symbol`)}>{symbol}</div>
+          <div className={cn(symbolStyles, `symbol`)}>{symbol}</div>
         )}
         {!!unit && unitPlacement === "end" && (
-          <div className={cx(unitStyles, `unit`)}>{unit}</div>
+          <div className={cn(unitStyles, `unit`)}>{unit}</div>
         )}
       </div>
     );

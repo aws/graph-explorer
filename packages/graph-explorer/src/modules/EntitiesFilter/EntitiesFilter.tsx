@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import type { ModuleContainerHeaderProps } from "@/components";
 import {
   CheckboxList,
@@ -40,7 +40,7 @@ const EntitiesFilter = ({
 
   return (
     <ModuleContainer
-      className={cx(styleWithTheme(defaultStyles), "entities-filters")}
+      className={cn(styleWithTheme(defaultStyles), "entities-filters")}
       variant="sidebar"
     >
       <ModuleContainerHeader

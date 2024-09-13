@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import isObject from "lodash/isObject";
 import {
   Children,
@@ -54,10 +54,10 @@ const PrevArrow = forwardRef<
   return (
     <div
       ref={ref}
-      className={cx(stylesWithTheme(navArrowsStyles), "carousel-nav-arrow")}
+      className={cn(stylesWithTheme(navArrowsStyles), "carousel-nav-arrow")}
     >
       <ChevronLeftIcon
-        className={cx(className)}
+        className={cn(className)}
         style={{ ...style }}
         onClick={onClick}
       />
@@ -72,10 +72,10 @@ const NextArrow = forwardRef<HTMLDivElement, CustomArrowProps>(
     return (
       <div
         ref={ref}
-        className={cx(stylesWithTheme(navArrowsStyles), "carousel-nav-arrow")}
+        className={cn(stylesWithTheme(navArrowsStyles), "carousel-nav-arrow")}
       >
         <ChevronRightIcon
-          className={cx(className)}
+          className={cn(className)}
           style={{ ...style }}
           onClick={onClick}
         />
@@ -147,7 +147,7 @@ export const Carousel = forwardRef<
     }
 
     return (
-      <div className={cx(stylesWithTheme(defaultStyles), className)}>
+      <div className={cn(stylesWithTheme(defaultStyles), className)}>
         <PrevArrow ref={prevRef} />
         <Swiper
           onSwiper={setSwiper}

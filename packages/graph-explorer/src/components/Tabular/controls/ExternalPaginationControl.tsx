@@ -1,4 +1,5 @@
-import { css, cx } from "@emotion/css";
+import { css } from "@emotion/css";
+import { cn } from "@/utils";
 
 import { FunctionComponent, useEffect, useMemo, useState } from "react";
 import Button from "@/components/Button";
@@ -138,7 +139,7 @@ export const PaginationControl: FunctionComponent<PaginationControlProps> = ({
   }, [pageIndex, pageSize, totalRows]);
 
   return (
-    <div className={cx(defaultStyles(), className)}>
+    <div className={cn(defaultStyles(), className)}>
       {totalRows > 0 && (
         <div className={"pagination-totals"}>
           Displaying {pageRange} of{" "}
@@ -165,7 +166,7 @@ export const PaginationControl: FunctionComponent<PaginationControlProps> = ({
             isDisabled={pageIndex - 1 < 0}
             variant={"text"}
             size={"small"}
-            className={cx("page-button", "page-control")}
+            className={cn("page-button", "page-control")}
             icon={<SkipBackwardIcon />}
             onPress={() => onPageIndexChange(0)}
           />
@@ -173,7 +174,7 @@ export const PaginationControl: FunctionComponent<PaginationControlProps> = ({
             isDisabled={pageIndex - 1 < 0}
             variant={"text"}
             size={"small"}
-            className={cx("page-button", "page-control")}
+            className={cn("page-button", "page-control")}
             icon={<BackwardIcon />}
             onPress={() => onPageIndexChange(pageIndex - 1)}
           />
@@ -198,14 +199,14 @@ export const PaginationControl: FunctionComponent<PaginationControlProps> = ({
             isDisabled={pageIndex + 1 >= pageCount}
             variant={"text"}
             size={"small"}
-            className={cx("page-button", "page-control")}
+            className={cn("page-button", "page-control")}
             icon={<ForwardIcon />}
             onPress={() => onPageIndexChange(pageIndex + 1)}
           />
           <IconButton
             isDisabled={pageIndex + 1 >= pageCount}
             variant={"text"}
-            className={cx("page-button", "page-control")}
+            className={cn("page-button", "page-control")}
             icon={<SkipForwardIcon />}
             onPress={() => onPageIndexChange(pageCount - 1)}
           />

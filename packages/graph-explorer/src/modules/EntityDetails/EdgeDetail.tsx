@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import { clone } from "lodash";
 import { useMemo } from "react";
 import type { Edge, Vertex } from "@/types/entities";
@@ -79,9 +79,9 @@ const EdgeDetail = ({ edge, sourceVertex, targetVertex }: EdgeDetailProps) => {
           )}
         </div>
       </div>
-      <div className={cx("header", "source-vertex")}>
+      <div className={cn("header", "source-vertex")}>
         <div
-          className={cx(
+          className={cn(
             "start-line",
             `line-${edgeConfig?.lineStyle || "solid"}`
           )}
@@ -142,9 +142,9 @@ const EdgeDetail = ({ edge, sourceVertex, targetVertex }: EdgeDetailProps) => {
           </div>
         </div>
       </div>
-      <div className={cx("header", "target-vertex")}>
+      <div className={cn("header", "target-vertex")}>
         <div
-          className={cx("end-line", `line-${edgeConfig?.lineStyle || "solid"}`)}
+          className={cn("end-line", `line-${edgeConfig?.lineStyle || "solid"}`)}
         >
           {(edgeConfig?.targetArrowStyle === "triangle" ||
             !edgeConfig?.targetArrowStyle) && (

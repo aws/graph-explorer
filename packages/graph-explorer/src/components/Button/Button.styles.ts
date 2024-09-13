@@ -1,4 +1,5 @@
-import { css, cx } from "@emotion/css";
+import { css } from "@emotion/css";
+import { cn } from "@/utils";
 import type { ProcessedTheme, ThemeStyleFn } from "@/core";
 import { fade } from "@/core";
 import type { ButtonTheme } from "./Button.model";
@@ -274,5 +275,5 @@ export const defaultStyles =
       `,
     };
 
-    return cx(variants[variant], baseStyles(theme, size));
+    return cn(variants[variant], baseStyles(theme, size));
   };

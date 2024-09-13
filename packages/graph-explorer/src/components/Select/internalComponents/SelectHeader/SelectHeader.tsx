@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import type { PropsWithChildren } from "react";
 import { useWithTheme } from "@/core";
 import defaultStyles from "./SelectHeader.styles";
@@ -19,7 +19,7 @@ const SelectHeader = ({
     return null;
   }
   return (
-    <div className={cx(styleWithTheme(defaultStyles), className)}>
+    <div className={cn(styleWithTheme(defaultStyles), className)}>
       {title && <div className={"select-header-title"}>{title}</div>}
       {subtitle && <div className={"select-header-subtitle"}>{subtitle}</div>}
     </div>

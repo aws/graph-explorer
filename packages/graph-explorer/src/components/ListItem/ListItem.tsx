@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import type {
   DragEventHandler,
   ForwardedRef,
@@ -71,7 +71,7 @@ export const ListItem = (
       ref={ref}
       onDragStart={onDragStart}
       draggable={!!onDragStart}
-      className={cx(
+      className={cn(
         styleWithTheme(defaultStyles),
         { ["disabled"]: isDisabled },
         { ["clickable"]: clickable },
