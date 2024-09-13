@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         node-version:
-          - 20.12.2
+          - 20.17.0
         pnpm-version:
           - 9.10.0
     steps:
