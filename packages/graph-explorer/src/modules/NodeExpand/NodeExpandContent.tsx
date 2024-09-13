@@ -18,7 +18,7 @@ import NodeExpandFilters, { NodeExpandFilter } from "./NodeExpandFilters";
 import VertexHeader from "@/modules/common/VertexHeader";
 import { ExpandNodeRequest } from "@/hooks/useExpandNode";
 import { useUpdateNodeCountsQuery } from "@/hooks/useUpdateNodeCounts";
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 
 export type NodeExpandContentProps = {
   vertex: Vertex;
@@ -29,7 +29,7 @@ export default function NodeExpandContent({ vertex }: NodeExpandContentProps) {
 
   return (
     <div
-      className={cx(styleWithTheme(defaultStyles), "flex h-full grow flex-col")}
+      className={cn(styleWithTheme(defaultStyles), "flex h-full grow flex-col")}
     >
       <VertexHeader vertex={vertex} />
       <ExpandSidebarContent vertex={vertex} />

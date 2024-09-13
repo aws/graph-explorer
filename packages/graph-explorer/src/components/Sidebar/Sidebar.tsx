@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import type { ForwardedRef, PropsWithChildren } from "react";
 import { forwardRef } from "react";
 import { useWithTheme } from "@/core";
@@ -22,7 +22,7 @@ const Sidebar = (
   return (
     <div
       ref={ref}
-      className={cx(stylesWithTheme(defaultStyles), "sidebar", className)}
+      className={cn(stylesWithTheme(defaultStyles), "sidebar", className)}
     >
       {children}
     </div>

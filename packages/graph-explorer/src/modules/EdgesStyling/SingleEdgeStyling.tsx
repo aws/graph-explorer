@@ -27,7 +27,7 @@ import defaultStyles from "./SingleEdgeStyling.style";
 import modalDefaultStyles from "./SingleEdgeStylingModal.style";
 import { useEdgeTypeConfig } from "@/core/ConfigurationProvider/useConfiguration";
 import { useDebounceValue, usePrevious } from "@/hooks";
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 
 export type SingleEdgeStylingProps = {
   edgeType: string;
@@ -93,7 +93,7 @@ export default function SingleEdgeStyling({
   }, [debouncedDisplayAs, prevDisplayAs, onUserPrefsChange]);
 
   return (
-    <div className={cx(styleWithTheme(defaultStyles), className)} {...rest}>
+    <div className={cn(styleWithTheme(defaultStyles), className)} {...rest}>
       <div className={"title"}>
         <div className={"edge-name"}>{edgeType}</div>
       </div>

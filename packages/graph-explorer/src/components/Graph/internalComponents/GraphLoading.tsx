@@ -1,4 +1,5 @@
-import { css, cx } from "@emotion/css";
+import { css } from "@emotion/css";
+import { cn } from "@/utils";
 import LoadingSpinner from "@/components/LoadingSpinner";
 
 const loadingStyles = css`
@@ -18,7 +19,7 @@ interface GraphLoadingProps {
 
 const GraphLoading = ({ className }: GraphLoadingProps) => {
   return (
-    <div className={cx(loadingStyles, className)}>
+    <div className={cn(loadingStyles, className)}>
       <LoadingSpinner style={{ width: "3rem", height: "3rem" }} />
     </div>
   );

@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import type { ForwardedRef, HTMLAttributes, PropsWithChildren } from "react";
 import { forwardRef } from "react";
 import { useWithTheme } from "@/core";
@@ -36,7 +36,7 @@ export const Card = (
       id={id}
       onClick={onClick}
       ref={ref}
-      className={cx(
+      className={cn(
         styleWithTheme(
           defaultStyles({
             elevation,

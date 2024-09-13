@@ -10,5 +10,6 @@ export { default as escapeString } from "./escapeString";
 export { default as batchPromisesSerially } from "./batchPromisesSerially";
 export { default as logger } from "./logger";
 export * from "./sanitizeQuery";
+export * from "./cn";
 export * from "./set";
 export * from "./env";

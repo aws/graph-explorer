@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import { ReactNode } from "react";
 
 import { useWithTheme } from "@/core";
@@ -27,7 +27,7 @@ const ModuleContainerTabularHeader = ({
 
   return (
     <div
-      className={cx(styleWithTheme(defaultStyles), "entities-tabular-header")}
+      className={cn(styleWithTheme(defaultStyles), "entities-tabular-header")}
     >
       <div className={"title"}>
         {startAdornment ? (

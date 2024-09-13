@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import type { PropsWithChildren, ReactNode } from "react";
 
 export type WorkspaceTopBarTitleProps = {
@@ -14,7 +14,7 @@ const WorkspaceTopBarTitle = ({
   children,
 }: PropsWithChildren<WorkspaceTopBarTitleProps>) => {
   return (
-    <div className={cx("flex h-full items-center", className)}>
+    <div className={cn("flex h-full items-center", className)}>
       <div className="flex flex-col">
         {title && (
           <div className="line-clamp-1 overflow-hidden font-bold">{title}</div>

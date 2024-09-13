@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import { useButton } from "@react-aria/button";
 import type { AriaButtonProps } from "@react-types/button";
 import type { ElementType, ForwardedRef, ReactNode, RefObject } from "react";
@@ -44,14 +44,14 @@ export const Button = (
     <Component
       ref={ref}
       {...buttonProps}
-      className={cx(
+      className={cn(
         styleWithTheme(defaultStyles({ variant, size, rounded })),
         className
       )}
     >
       {icon && iconPlacement === "start" && (
         <span
-          className={cx(
+          className={cn(
             "mr-1 flex items-center",
             size === "small" && "h-4 w-4",
             size === "base" && "h-5 w-5",
@@ -64,7 +64,7 @@ export const Button = (
       {children}
       {icon && iconPlacement === "end" && (
         <span
-          className={cx(
+          className={cn(
             "ml-1 flex items-center",
             size === "small" && "h-4 w-4",
             size === "base" && "h-5 w-5",

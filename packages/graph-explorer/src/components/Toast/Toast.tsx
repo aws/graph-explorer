@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import { FC, PropsWithChildren } from "react";
 import { useWithTheme } from "@/core";
 import Card from "../Card";
@@ -47,8 +47,8 @@ export const Toast: FC<ToastProps> = ({
 
   const Icon = icons[type];
   return (
-    <div className={cx(stylesWithTheme(defaultStyles), className)}>
-      <Card className={cx("card", type)} transparent>
+    <div className={cn(stylesWithTheme(defaultStyles), className)}>
+      <Card className={cn("card", type)} transparent>
         <div className={"icon"}>
           <Icon width={24} height={24} />
         </div>
@@ -58,7 +58,7 @@ export const Toast: FC<ToastProps> = ({
         </div>
         {closeable && (
           <div
-            className={cx("close-container", {
+            className={cn("close-container", {
               ["close-container-no-title"]: !title,
             })}
           >

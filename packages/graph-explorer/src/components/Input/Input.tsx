@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import type { AriaTextFieldOptions } from "@react-aria/textfield";
 import { useTextField } from "@react-aria/textfield";
 import type { ValueBase } from "@react-types/shared";
@@ -100,7 +100,7 @@ export const Input = (
   const clickHandlers = onClick ? { onClick } : {};
   return (
     <div
-      className={cx(
+      className={cn(
         styleWithTheme(
           inputContainerStyles(
             labelPlacement,
@@ -135,7 +135,7 @@ export const Input = (
           /*@ts-ignore*/
           <input
             {...clickHandlers}
-            className={cx("input", {
+            className={cn("input", {
               ["input-disabled"]: isDisabled,
               ["input-label-inner"]: labelPlacement === "inner",
             })}
@@ -152,7 +152,7 @@ export const Input = (
           /*@ts-ignore*/
           <textarea
             {...clickHandlers}
-            className={cx("input", {
+            className={cn("input", {
               ["input-disabled"]: isDisabled,
               ["input-label-inner"]: labelPlacement === "inner",
             })}

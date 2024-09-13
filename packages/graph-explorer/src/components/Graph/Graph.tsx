@@ -1,4 +1,5 @@
-import { css, cx } from "@emotion/css";
+import { css } from "@emotion/css";
+import { cn } from "@/utils";
 import cytoscape from "cytoscape";
 import cyCanvas from "cytoscape-canvas";
 import d3Force from "cytoscape-d3-force";
@@ -397,7 +398,7 @@ export const Graph = (
   const isEmpty = !nodes.length && !edges.length;
   const isLoading = loading;
   return (
-    <div className={cx(defaultStyles(), className)}>
+    <div className={cn(defaultStyles(), className)}>
       <div className={"graph-container"} ref={wrapperRefCb} />
       {cy && children ? children(cy) : null}
       {isEmpty && !isLoading ? <EmptyComponent /> : null}

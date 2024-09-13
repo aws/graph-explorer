@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import { ReactNode } from "react";
 import { useWithTheme } from "@/core";
 import Checkbox from "@/components/Checkbox/Checkbox";
@@ -63,7 +63,7 @@ export const CheckboxList = ({
 
   return (
     <div
-      className={cx(stylesWithTheme(defaultStyles), "checkbox-list", className)}
+      className={cn(stylesWithTheme(defaultStyles), "checkbox-list", className)}
     >
       {title && <div className="title">{title}</div>}
       <div className="content">

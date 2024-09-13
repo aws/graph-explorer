@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 
 import { MouseEvent, useEffect, useState } from "react";
 import type { Row, TableInstance } from "react-table";
@@ -43,7 +43,7 @@ const TabularRow = <T extends object>({
   return (
     <div
       {...rowProps}
-      className={cx("row", {
+      className={cn("row", {
         ["row-grow"]: fitRowsVertically,
         ["row-selectable"]: rowSelectionMode === "row",
         ["row-selected"]: row.isSelected,
@@ -62,14 +62,14 @@ const TabularRow = <T extends object>({
           <div
             key={key}
             {...cellProps}
-            className={cx("cell", `cell-align-${cell.column.align || "left"}`, {
+            className={cn("cell", `cell-align-${cell.column.align || "left"}`, {
               ["cell-resizing"]:
                 cell.column.isResizing ||
                 state.columnResizing?.isResizingColumn === cell.column.id,
             })}
           >
             <div
-              className={cx("cell-content", {
+              className={cn("cell-content", {
                 ["cell-overflow-ellipsis"]: cell.column.overflow === "ellipsis",
                 ["cell-overflow-truncate"]: cell.column.overflow === "truncate",
                 ["cell-one-line"]: cell.column.oneLine,

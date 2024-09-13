@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import type { AriaListBoxOptions } from "@react-aria/listbox";
 import { useListBox, useOption } from "@react-aria/listbox";
 import type { ListState } from "@react-stately/list";
@@ -61,7 +61,7 @@ const OptionItem = <T,>({ item, state }: OptionProps<T>) => {
 
   return (
     <li
-      className={cx(
+      className={cn(
         styleWithTheme(styles.listItemStyles()),
         "select-list-item-wrapper",
         {
@@ -74,7 +74,7 @@ const OptionItem = <T,>({ item, state }: OptionProps<T>) => {
       ref={ref}
     >
       <div
-        className={cx(styleWithTheme(styles.itemStyles), "select-list-item")}
+        className={cn(styleWithTheme(styles.itemStyles), "select-list-item")}
       >
         {item.rendered}
       </div>

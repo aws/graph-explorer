@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import { FileButton, Modal } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -145,11 +145,11 @@ function ConfirmationModal({
               isDisabled={isPending}
               className="relative transition-opacity"
             >
-              <span className={cx(isPending && "opacity-0")}>
+              <span className={cn(isPending && "opacity-0")}>
                 Replace {APP_NAME} Configuration
               </span>
               <div
-                className={cx(
+                className={cn(
                   "absolute inset-auto opacity-0",
                   isPending && "opacity-100"
                 )}

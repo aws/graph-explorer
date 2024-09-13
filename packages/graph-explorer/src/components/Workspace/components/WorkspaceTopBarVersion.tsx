@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import type { PropsWithChildren } from "react";
 
 export type WorkspaceTopBarVersionProps = {
@@ -11,7 +11,7 @@ const WorkspaceTopBarVersion = ({
 }: PropsWithChildren<WorkspaceTopBarVersionProps>) => {
   return (
     <div
-      className={cx(
+      className={cn(
         "top-bar-version text-text-secondary flex items-center justify-center text-xs font-light",
         className
       )}

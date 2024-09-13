@@ -1,11 +1,11 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import GraphExplorerIcon from "@/components/icons/GraphExplorerIcon";
 import { ComponentBaseProps } from "../..";
 
 export default function NavBarLogo({ className, ...rest }: ComponentBaseProps) {
   return (
     <div
-      className={cx(
+      className={cn(
         "bg-logo-gradient mr-2 grid aspect-square h-full place-content-center overflow-hidden text-white",
         className
       )}

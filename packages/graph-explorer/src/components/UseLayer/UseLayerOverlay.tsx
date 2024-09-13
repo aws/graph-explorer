@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import type { PropsWithChildren } from "react";
 import defaultStyles from "./UseLayer.styles";
 
@@ -11,7 +11,7 @@ const UseLayerOverlay = ({
   children,
 }: PropsWithChildren<UseLayerOverlayProps>) => {
   return (
-    <div className={cx(defaultStyles(), "overlay", className)}>{children}</div>
+    <div className={cn(defaultStyles(), "overlay", className)}>{children}</div>
   );
 };
 

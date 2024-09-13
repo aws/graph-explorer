@@ -1,10 +1,10 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import { ComponentProps } from "react";
 
 export function PageHeading({ className, ...props }: ComponentProps<"h1">) {
   return (
     <h1
-      className={cx(
+      className={cn(
         "font-extraBold text-text-primary mb-2 text-4xl leading-relaxed",
         className
       )}
@@ -16,7 +16,7 @@ export function PageHeading({ className, ...props }: ComponentProps<"h1">) {
 export function SectionTitle({ className, ...props }: ComponentProps<"h2">) {
   return (
     <h2
-      className={cx(
+      className={cn(
         "text-text-secondary text-xl font-bold leading-loose",
         className
       )}
@@ -28,7 +28,7 @@ export function SectionTitle({ className, ...props }: ComponentProps<"h2">) {
 export function Paragraph({ className, ...props }: ComponentProps<"p">) {
   return (
     <p
-      className={cx(
+      className={cn(
         "text-text-secondary text-text-secondary-dark my-2 text-lg font-light",
         className
       )}
@@ -44,7 +44,7 @@ export function ImportantBlock({
 }: ComponentProps<"div">) {
   return (
     <div
-      className={cx(
+      className={cn(
         "border-info-main bg-info-light/20 text-info-dark rounded border-l-4 px-4 py-1",
         className
       )}

@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import { useCheckbox } from "@react-aria/checkbox";
 import { useFocusRing } from "@react-aria/focus";
 import { VisuallyHidden } from "@react-aria/visually-hidden";
@@ -69,7 +69,7 @@ export const Checkbox = ({
   const styleWithTheme = useWithTheme();
   return (
     <label
-      className={cx(
+      className={cn(
         styleWithTheme(labelStyles),
         {
           ["checkbox-label-disabled"]: props.isDisabled,
@@ -85,7 +85,7 @@ export const Checkbox = ({
       <svg
         width={computedSize}
         height={computedSize}
-        className={cx(styleWithTheme(checkboxStyles), {
+        className={cn(styleWithTheme(checkboxStyles), {
           ["checkbox-selected"]: isSelected,
           ["checkbox-disabled"]: props.isDisabled,
           ["checkbox-readonly"]: props.isReadOnly,

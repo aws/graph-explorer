@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import type {
   ForwardedRef,
   PropsWithChildren,
@@ -146,7 +146,7 @@ const ModuleContainerHeader = (
     <div
       id={id}
       ref={ref}
-      className={cx(
+      className={cn(
         "bg-background-default text-text-primary flex min-h-[3rem] w-full items-center gap-1 border-b px-3 py-1",
         className
       )}

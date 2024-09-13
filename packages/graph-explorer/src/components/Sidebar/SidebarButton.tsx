@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import type { ReactNode } from "react";
 import IconButton, { IconButtonProps } from "../IconButton";
 
@@ -18,7 +18,7 @@ const SidebarButton = ({ className, active, ...props }: SidebarButtonProps) => {
       tooltipPlacement={"left-center"}
       variant={"text"}
       rounded={true}
-      className={cx("sidebar-button", active && "active", className)}
+      className={cn("sidebar-button", active && "active", className)}
       {...props}
     />
   );

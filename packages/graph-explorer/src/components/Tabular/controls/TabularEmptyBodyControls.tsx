@@ -1,4 +1,5 @@
-import { css, cx } from "@emotion/css";
+import { css } from "@emotion/css";
+import { cn } from "@/utils";
 
 import { FC, PropsWithChildren } from "react";
 
@@ -33,7 +34,7 @@ const TabularEmptyBodyControls: FC<TabularEmptyBodyControlsProps> = ({
   }
 
   return (
-    <div className={cx(defaultStyles(), "body-controls", className)}>
+    <div className={cn(defaultStyles(), "body-controls", className)}>
       {children}
     </div>
   );

@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import clone from "lodash/clone";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
@@ -92,7 +92,7 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
     vertexConfig?.displayLabel || textTransform(vertexType);
 
   return (
-    <Workspace className={cx(styleWithTheme(defaultStyles), "data-explorer")}>
+    <Workspace className={cn(styleWithTheme(defaultStyles), "data-explorer")}>
       <Workspace.TopBar logoVisible>
         <Workspace.TopBar.Title
           title="Data Explorer"

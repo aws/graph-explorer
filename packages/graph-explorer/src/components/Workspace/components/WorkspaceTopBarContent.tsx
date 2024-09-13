@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import type { PropsWithChildren } from "react";
 
 export type WorkspaceTopBarContentProps = {
@@ -11,7 +11,7 @@ const WorkspaceTopBarContent = ({
 }: PropsWithChildren<WorkspaceTopBarContentProps>) => {
   return (
     <div
-      className={cx(
+      className={cn(
         "flex h-full min-w-[240px] grow justify-center py-1",
         className
       )}

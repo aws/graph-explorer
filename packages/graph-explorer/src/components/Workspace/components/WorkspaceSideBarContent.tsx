@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import type { PropsWithChildren } from "react";
 
 export type WorkspaceSideBarContentProps = {
@@ -15,7 +15,7 @@ const WorkspaceSideBarContent = ({
 }: PropsWithChildren<WorkspaceSideBarContentProps>) => {
   return (
     <div
-      className={cx(
+      className={cn(
         "transition-width h-full overflow-x-hidden duration-200 ease-in-out",
         className
       )}

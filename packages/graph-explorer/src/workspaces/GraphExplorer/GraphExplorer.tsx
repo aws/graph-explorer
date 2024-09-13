@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import debounce from "lodash/debounce";
 import { Resizable } from "re-resizable";
 import { useCallback, useEffect, useState } from "react";
@@ -170,7 +170,7 @@ const GraphExplorer = () => {
   }, [debounceAutoOpenDetails, nodeOrEdgeSelected]);
 
   return (
-    <Workspace className={cx(styleWithTheme(defaultStyles), "graph-explorer")}>
+    <Workspace className={cn(styleWithTheme(defaultStyles), "graph-explorer")}>
       <Workspace.TopBar logoVisible>
         <Workspace.TopBar.Title
           title={APP_NAME}

@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import type { DragEvent, MouseEvent, ReactNode, RefObject } from "react";
 import { useRef } from "react";
 import { useDrag } from "react-dnd";
@@ -89,7 +89,7 @@ const AdvancedListItem = <T extends object>({
         onMouseOut={event => onMouseOut?.(event, item)}
         onMouseEnter={event => onMouseEnter?.(event, item)}
         onMouseLeave={event => onMouseLeave?.(event, item)}
-        className={cx("advanced-list-item", item.className, {
+        className={cn("advanced-list-item", item.className, {
           ["advanced-list-item-with-popover"]: isOver,
           ["advanced-list-item-selected"]: isSelected,
           ["advanced-list-item-active"]: isActive,
@@ -118,7 +118,7 @@ const AdvancedListItem = <T extends object>({
 
   if (!draggable) {
     return (
-      <div className={cx(className, "advanced-list-item-wrapper")}>
+      <div className={cn(className, "advanced-list-item-wrapper")}>
         {WrappedElement}
       </div>
     );

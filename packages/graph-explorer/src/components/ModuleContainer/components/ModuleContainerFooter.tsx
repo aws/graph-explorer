@@ -1,4 +1,4 @@
-import { cx } from "@emotion/css";
+import { cn } from "@/utils";
 import type { PropsWithChildren } from "react";
 
 export type ModuleContainerFooterProps = {
@@ -11,7 +11,7 @@ const ModuleContainerFooter = ({
 }: PropsWithChildren<ModuleContainerFooterProps>) => {
   return (
     <div
-      className={cx(
+      className={cn(
         "module-container-footer bg-background-default text-text-primary w-full border-t px-3 py-2",
         className
       )}

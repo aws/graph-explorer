@@ -1,4 +1,5 @@
-import { css, cx } from "@emotion/css";
+import { css } from "@emotion/css";
+import { cn } from "@/utils";
 import { useClickOutside, useHotkeys } from "@mantine/hooks";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Vertex } from "@/types/entities";
@@ -156,7 +157,7 @@ export default function KeywordSearch({ className }: KeywordSearchProps) {
     <div
       ref={rootRef}
       id="keyword-search-module"
-      className={cx(styleWithTheme(defaultStyles), className)}
+      className={cn(styleWithTheme(defaultStyles), className)}
     >
       {!isFocused && (
         <div className="bar-container">
