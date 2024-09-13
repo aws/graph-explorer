@@ -38,12 +38,12 @@
     --color-info-main: 18 142 229;
     --color-info-dark: 23 69 123;
 
-    --color-error-light: 235 78 76;
-    --color-error-main: 255 144 119;
+    --color-error-light: 255 144 119;
+    --color-error-main: 235 78 76;
     --color-error-dark: 164 28 27;
 
-    --color-success-light: 39 175 140;
-    --color-success-main: 49 222 178;
+    --color-success-light: 49 222 178;
+    --color-success-main: 39 175 140;
     --color-success-dark: 18 146 113;
 
     --color-warning-light: 255 184 46;
