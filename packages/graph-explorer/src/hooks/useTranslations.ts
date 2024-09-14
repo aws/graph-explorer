@@ -1,4 +1,4 @@
-import flat from "flat";
+import { flatten } from "flat";
 import { useCallback } from "react";
 import { useConfiguration } from "@/core";
 
@@ -7,9 +7,9 @@ import sparqlTs from "./translations/sparql-translations.json";
 import openCypherTs from "./translations/openCypher-translations.json";
 
 const ts: Record<string, Record<string, string>> = {
-  gremlin: flat(gremlinTs),
-  sparql: flat(sparqlTs),
-  openCypher: flat(openCypherTs),
+  gremlin: flatten(gremlinTs),
+  sparql: flatten(sparqlTs),
+  openCypher: flatten(openCypherTs),
 };
 
 const useTranslations = () => {

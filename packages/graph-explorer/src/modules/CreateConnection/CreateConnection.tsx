@@ -2,7 +2,7 @@ import { Checkbox } from "@mantine/core";
 import { useCallback, useState } from "react";
 import { useRecoilCallback } from "recoil";
 import { v4 } from "uuid";
-import { InfoTooltip } from "@/components";
+import { InfoTooltip, TextArea } from "@/components";
 import Button from "@/components/Button";
 import Input from "@/components/Input";
 import Select from "@/components/Select";
@@ -248,9 +248,8 @@ const CreateConnection = ({
           }
         />
         <div className={"input-url"}>
-          <Input
+          <TextArea
             data-autofocus={true}
-            component={"textarea"}
             label={
               <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
                 Public or Proxy Endpoint
@@ -282,10 +281,9 @@ const CreateConnection = ({
         </div>
         {form.proxyConnection && (
           <div className={"input-url"}>
-            <Input
+            <TextArea
               data-autofocus={true}
               label={"Graph Connection URL"}
-              component={"textarea"}
               value={form.graphDbUrl}
               onChange={onFormChange("graphDbUrl")}
               errorMessage={"URL is required"}
