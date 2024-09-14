@@ -2,7 +2,7 @@
 FROM amazonlinux:2022
 ARG NEPTUNE_NOTEBOOK
 ENV NVM_DIR=/root/.nvm
-ENV NODE_VERSION=v20.12.2
+ENV NODE_VERSION=v20.17.0
 WORKDIR /
 COPY . /graph-explorer/
 WORKDIR /graph-explorer
