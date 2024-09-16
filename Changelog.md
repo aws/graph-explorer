@@ -6,9 +6,13 @@
   ([#613](https://github.com/aws/graph-explorer/pull/613))
 - **Improved** query generation by removing empty lines
   ([#608](https://github.com/aws/graph-explorer/pull/608))
+- **Fixed** security vulnerabilities in the Docker image from dev dependencies
+  remaining in the image
+  ([#616](https://github.com/aws/graph-explorer/pull/616))
 - **Updated** multiple dependencies
   ([#611](https://github.com/aws/graph-explorer/pull/611),
-  [#614](https://github.com/aws/graph-explorer/pull/614))
+  [#614](https://github.com/aws/graph-explorer/pull/614),
+  [#616](https://github.com/aws/graph-explorer/pull/616))
 
 ## Release 1.10.1
 
