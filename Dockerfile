@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM amazonlinux:2022
+FROM amazonlinux:2023
 ARG NEPTUNE_NOTEBOOK
 ENV NVM_DIR=/root/.nvm
 ENV NODE_VERSION=v20.17.0
@@ -35,7 +35,7 @@ RUN if [ -n "$NEPTUNE_NOTEBOOK" ] && [ "$NEPTUNE_NOTEBOOK" = "true" ]; then \
     else \
       echo "GRAPH_EXP_ENV_ROOT_FOLDER=/explorer" >> ./packages/graph-explorer/.env; \
     fi && \
-    pnpm build
+    pnpm build && pnpm clean:dep && pnpm install --prod --ignore-scripts
 EXPOSE 443
 EXPOSE 80
 EXPOSE 9250
