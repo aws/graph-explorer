@@ -4,6 +4,8 @@
 
 - **Fixed** Docker image containing more files than necessary.
   ([#613](https://github.com/aws/graph-explorer/pull/613))
+- **Improved** Docker image size, reducing it by 196 MB
+  ([#619](https://github.com/aws/graph-explorer/pull/619))
 - **Improved** query generation by removing empty lines
   ([#608](https://github.com/aws/graph-explorer/pull/608))
 - **Fixed** security vulnerabilities in the Docker image from dev dependencies
