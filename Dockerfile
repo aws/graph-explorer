@@ -52,7 +52,7 @@ RUN yum update -y && \
     chmod a+x ./process-environment.sh && \
     chmod a+x ./docker-entrypoint.sh
 
-    # Set node/npm in path so we can reuse it in the next run layer
+# Set node/npm in path so it can be used by the app when the container is run
 ENV NODE_PATH=$NVM_DIR/versions/node/$NODE_VERSION/lib/node_modules
 ENV PATH=$NVM_DIR/versions/node/$NODE_VERSION/bin:$PATH
 
