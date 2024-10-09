@@ -30,10 +30,8 @@ const keywordSearchTemplate = ({
     vertexTypes.length === 1 ? `v:\`${vertexTypes[0]}\`` : "v";
   // For multiple vertex types we use the where clause
   const vertexTypeWhereClause =
-    vertexTypes.length == 0
-      ? `size(labels(v)) > 0`
-      : vertexTypes.length > 1 &&
-        vertexTypes.map(type => `v:\`${type}\``).join(" OR ");
+    vertexTypes.length > 1 &&
+    vertexTypes.map(type => `v:\`${type}\``).join(" OR ");
 
   // If we have a search term we need to build the search term where clause
   const hasSearchTerm = Boolean(searchTerm);

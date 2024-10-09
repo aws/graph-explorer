@@ -8,7 +8,6 @@ describe("OpenCypher > keywordSearchTemplate", () => {
     expect(normalize(template)).toBe(
       normalize(`
         MATCH (v)
-        WHERE (size(labels(v)) > 0) 
         RETURN v AS object 
       `)
     );
