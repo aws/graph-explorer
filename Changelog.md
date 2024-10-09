@@ -6,6 +6,8 @@
   ([#613](https://github.com/aws/graph-explorer/pull/613))
 - **Improved** Docker image size, reducing it by 196 MB
   ([#619](https://github.com/aws/graph-explorer/pull/619))
+- **Improved** query when searching across all node types
+  ([#607](https://github.com/aws/graph-explorer/pull/607))
 - **Improved** query generation by removing empty lines
   ([#608](https://github.com/aws/graph-explorer/pull/608))
 - **Fixed** security vulnerabilities in the Docker image from dev dependencies
