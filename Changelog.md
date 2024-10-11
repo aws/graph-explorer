@@ -16,7 +16,8 @@
 - **Updated** multiple dependencies
   ([#611](https://github.com/aws/graph-explorer/pull/611),
   [#614](https://github.com/aws/graph-explorer/pull/614),
-  [#616](https://github.com/aws/graph-explorer/pull/616))
+  [#616](https://github.com/aws/graph-explorer/pull/616),
+  [#624](https://github.com/aws/graph-explorer/pull/624))
 
 ## Release 1.10.1
 
