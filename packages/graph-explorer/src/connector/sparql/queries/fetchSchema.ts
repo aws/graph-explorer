@@ -1,5 +1,8 @@
 import { batchPromisesSerially } from "@/utils";
-import { DEFAULT_CONCURRENT_REQUESTS_LIMIT } from "@/utils/constants";
+import {
+  DEFAULT_CONCURRENT_REQUESTS_LIMIT,
+  RESERVED_ID_PROPERTY,
+} from "@/utils/constants";
 import type { SchemaResponse } from "@/connector/useGEFetchTypes";
 import classesWithCountsTemplates from "../templates/classesWithCountsTemplates";
 import predicatesByClassTemplate from "../templates/predicatesByClassTemplate";
@@ -102,7 +105,7 @@ const fetchPredicatesByClass = async (
     total: countsByClass[resourceClass],
     displayNameAttribute:
       attributes.find(attr => displayNameCandidates.includes(attr.name))
-        ?.name || "id",
+        ?.name || RESERVED_ID_PROPERTY,
     longDisplayNameAttribute:
       attributes.find(attr => displayDescCandidates.includes(attr.name))
         ?.name || "types",

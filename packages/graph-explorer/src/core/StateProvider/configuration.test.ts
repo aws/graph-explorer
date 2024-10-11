@@ -10,12 +10,13 @@ import DEFAULT_ICON_URL from "@/utils/defaultIconUrl";
 import { SchemaInference } from "./schema";
 import { UserStyling } from "./userPreferences";
 import { sanitizeText } from "@/utils";
+import { RESERVED_ID_PROPERTY } from "@/utils/constants";
 
 const defaultVertexStyle = {
   color: "#128EE5",
   iconUrl: DEFAULT_ICON_URL,
   iconImageType: "image/svg+xml",
-  displayNameAttribute: "id",
+  displayNameAttribute: RESERVED_ID_PROPERTY,
   longDisplayNameAttribute: "types",
 };
 

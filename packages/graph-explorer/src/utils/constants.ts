@@ -3,6 +3,9 @@ export const DEFAULT_FETCH_TIMEOUT = 240000;
 export const DEFAULT_NODE_EXPAND_LIMIT = 500;
 export const DEFAULT_CONCURRENT_REQUESTS_LIMIT = 10;
 
+/** The name of the special property representing the node ID */
+export const RESERVED_ID_PROPERTY = "~id";
+
 /** The string "Graph Explorer". */
 export const APP_NAME = "Graph Explorer";
 

@@ -48,7 +48,7 @@ import useUpdateVertexTypeCounts from "@/hooks/useUpdateVertexTypeCounts";
 import defaultStyles from "./DataExplorer.styles";
 import { searchQuery } from "@/connector/queries";
 import { useVertexTypeConfig } from "@/core/ConfigurationProvider/useConfiguration";
-import { APP_NAME } from "@/utils/constants";
+import { APP_NAME, RESERVED_ID_PROPERTY } from "@/utils/constants";
 
 export type ConnectionsProps = {
   vertexType: string;
@@ -193,7 +193,10 @@ function DisplayNameAndDescriptionOptions({
       label: t("data-explorer.node-type"),
       value: "types",
     });
-    options.unshift({ label: t("data-explorer.node-id"), value: "id" });
+    options.unshift({
+      label: t("data-explorer.node-id"),
+      value: RESERVED_ID_PROPERTY,
+    });
 
     return options;
   }, [t, textTransform, vertexConfig?.attributes]);
