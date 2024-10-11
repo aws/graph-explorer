@@ -23,7 +23,7 @@ export default function keywordSearchTemplate({
   searchTerm,
   vertexTypes = [],
   searchByAttributes = [],
-  limit = 10,
+  limit,
   offset = 0,
   exactMatch = false,
 }: KeywordSearchRequest): string {
@@ -63,6 +63,8 @@ export default function keywordSearchTemplate({
     template += `.or(${orContent})`;
   }
 
-  template += `.range(${offset},${offset + limit})`;
+  if (limit) {
+    template += `.range(${offset},${offset + limit})`;
+  }
   return template;
 }

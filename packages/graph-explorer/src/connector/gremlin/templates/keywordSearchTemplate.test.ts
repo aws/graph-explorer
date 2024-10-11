@@ -5,7 +5,7 @@ describe("Gremlin > keywordSearchTemplate", () => {
   it("Should return a template for an empty request", () => {
     const template = keywordSearchTemplate({});
 
-    expect(normalize(template)).toBe(normalize("g.V().range(0,10)"));
+    expect(normalize(template)).toBe(normalize("g.V()"));
   });
 
   it("Should return a template only for vertex type", () => {
@@ -13,9 +13,7 @@ describe("Gremlin > keywordSearchTemplate", () => {
       vertexTypes: ["airport"],
     });
 
-    expect(normalize(template)).toBe(
-      normalize('g.V().hasLabel("airport").range(0,10)')
-    );
+    expect(normalize(template)).toBe(normalize('g.V().hasLabel("airport")'));
   });
 
   it("Should return a template for searched attributes containing the search term", () => {
@@ -26,7 +24,7 @@ describe("Gremlin > keywordSearchTemplate", () => {
 
     expect(normalize(template)).toBe(
       normalize(
-        'g.V().or(has("city",containing("JFK")),has("code",containing("JFK"))).range(0,10)'
+        'g.V().or(has("city",containing("JFK")),has("code",containing("JFK")))'
       )
     );
   });
@@ -39,7 +37,7 @@ describe("Gremlin > keywordSearchTemplate", () => {
     });
 
     expect(normalize(template)).toBe(
-      normalize('g.V().or(has("city","JFK"),has("code","JFK")).range(0,10)')
+      normalize('g.V().or(has("city","JFK"),has("code","JFK"))')
     );
   });
 
@@ -51,7 +49,7 @@ describe("Gremlin > keywordSearchTemplate", () => {
     });
 
     expect(normalize(template)).toBe(
-      normalize('g.V().or(has("code","\\"JFK\\"")).range(0,10)')
+      normalize('g.V().or(has("code","\\"JFK\\""))')
     );
   });
 
@@ -64,7 +62,7 @@ describe("Gremlin > keywordSearchTemplate", () => {
     });
 
     expect(normalize(template)).toBe(
-      normalize('g.V().hasLabel("airport").or(has(id,"JFK")).range(0,10)')
+      normalize('g.V().hasLabel("airport").or(has(id,"JFK"))')
     );
   });
 
@@ -77,9 +75,7 @@ describe("Gremlin > keywordSearchTemplate", () => {
     });
 
     expect(normalize(template)).toBe(
-      normalize(
-        'g.V().hasLabel("airport").or(has(id,containing("JFK"))).range(0,10)'
-      )
+      normalize('g.V().hasLabel("airport").or(has(id,containing("JFK")))')
     );
   });
 
@@ -97,7 +93,6 @@ describe("Gremlin > keywordSearchTemplate", () => {
             has("city", containing("JFK")), 
             has("code", containing("JFK"))
           )
-          .range(0,10)
       `)
     );
   });

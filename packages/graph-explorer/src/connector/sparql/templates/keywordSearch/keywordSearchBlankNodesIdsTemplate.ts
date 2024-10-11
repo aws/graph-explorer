@@ -16,7 +16,7 @@ export default function keywordSearchBlankNodesIdsTemplate({
   searchTerm,
   subjectClasses = [],
   predicates = [],
-  limit = 10,
+  limit,
   offset = 0,
   exactMatch = true,
 }: SPARQLKeywordSearchRequest): string {
@@ -31,7 +31,7 @@ export default function keywordSearchBlankNodesIdsTemplate({
             ${getSubjectClasses(subjectClasses)}
             ${getFilterObject(exactMatch, searchTerm)}
         }
-        ${limit > 0 ? `LIMIT ${limit} OFFSET ${offset}` : ""}
+        ${limit ? `LIMIT ${limit} OFFSET ${offset}` : ""}
       }
       FILTER(isLiteral(?value))
       FILTER(isBlank(?bNode))
