@@ -2,7 +2,7 @@ import keywordSearchTemplate from "./keywordSearchTemplate";
 import { normalizeWithNoSpace as normalize } from "@/utils/testing";
 
 describe("Gremlin > keywordSearchTemplate", () => {
-  it("Should return a template only with default range", () => {
+  it("Should return a template for an empty request", () => {
     const template = keywordSearchTemplate({});
 
     expect(normalize(template)).toBe(normalize("g.V().range(0,10)"));
