@@ -15,6 +15,12 @@ import AvailableConnections from "@/modules/AvailableConnections";
 import ConnectionDetail from "@/modules/ConnectionDetail";
 import defaultStyles from "./Connections.styles";
 import { APP_NAME } from "@/utils/constants";
+import {
+  ModuleContainer,
+  ModuleContainerContent,
+  PanelEmptyState,
+} from "@/components";
+import GraphExplorerIcon from "@/components/icons/GraphExplorerIcon";
 
 const Connections = () => {
   const styleWithTheme = useWithTheme();
@@ -72,23 +78,39 @@ const Connections = () => {
         </Workspace.TopBar.AdditionalControls>
       </Workspace.TopBar>
       <Workspace.Content>
-        <div className="flex h-full gap-2">
-          <div className="h-full min-w-[50%] grow">
+        <div className="grid h-full grid-cols-2 gap-2">
+          <div className="h-full grow">
             <AvailableConnections
               isSync={isSyncing}
               isModalOpen={isModalOpen}
               onModalChange={setModal}
             />
           </div>
-          {activeConfig && (
-            <div className="h-full min-w-[50%] grow">
+          {activeConfig ? (
+            <div className="h-full grow">
               <ConnectionDetail isSync={isSyncing} onSyncChange={setSyncing} />
             </div>
+          ) : (
+            <NoActiveConnectionPanel />
           )}
         </div>
       </Workspace.Content>
     </Workspace>
   );
 };
+
+function NoActiveConnectionPanel() {
+  return (
+    <ModuleContainer>
+      <ModuleContainerContent>
+        <PanelEmptyState
+          icon={<GraphExplorerIcon />}
+          title="No Active Connection"
+          subtitle="Select a connection in the left panel to be the active connection."
+        />
+      </ModuleContainerContent>
+    </ModuleContainer>
+  );
+}
 
 export default Connections;
