@@ -155,7 +155,7 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
         actions={HEADER_ACTIONS(isSync, config.__fileBase === true)}
         onActionClick={onActionClick}
       />
-      <ModuleContainerContent>
+      <ModuleContainerContent className="flex flex-col">
         <div className="info-bar">
           <div className="item">
             <div className="tag">Type</div>
