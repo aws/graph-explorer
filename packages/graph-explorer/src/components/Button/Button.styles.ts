@@ -127,7 +127,7 @@ export const defaultStyles =
             ${themeByVariant?.active?.border?.color || "transparent"};
         }
 
-        &:focus {
+        &:focus-visible {
           box-shadow: ${isDarkTheme
             ? "none"
             : `0 0 3px ${themeByVariant?.hover?.background || primary?.main}`};
@@ -175,7 +175,7 @@ export const defaultStyles =
             ${themeByVariant?.active?.border?.color || "transparent"};
         }
 
-        &:focus {
+        &:focus-visible {
           box-shadow: ${isDarkTheme
             ? "none"
             : `0 0 3px ${themeByVariant?.hover?.background || primary?.main}`};
@@ -219,7 +219,7 @@ export const defaultStyles =
             ${themeByVariant?.active?.border?.color || "transparent"};
         }
 
-        &:focus {
+        &:focus-visible {
           box-shadow: ${isDarkTheme
             ? "none"
             : `0 0 3px ${themeByVariant?.hover?.background || primary?.main}`};
@@ -264,7 +264,7 @@ export const defaultStyles =
             ${themeByVariant?.active?.border?.color || "transparent"};
         }
 
-        &:focus {
+        &:focus-visible {
           box-shadow: ${isDarkTheme
             ? "none"
             : `0 0 3px ${themeByVariant?.hover?.background || error?.main}`};
