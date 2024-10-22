@@ -10,6 +10,8 @@
   ([#607](https://github.com/aws/graph-explorer/pull/607))
 - **Improved** query generation by removing empty lines
   ([#608](https://github.com/aws/graph-explorer/pull/608))
+- **Fixed** style issue where buttons have a halo around them after being
+  clicked ([#650](https://github.com/aws/graph-explorer/pull/650))
 - **Fixed** security vulnerabilities in the Docker image from dev dependencies
   remaining in the image
   ([#616](https://github.com/aws/graph-explorer/pull/616))
