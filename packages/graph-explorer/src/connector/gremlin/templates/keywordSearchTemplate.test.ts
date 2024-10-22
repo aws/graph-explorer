@@ -122,6 +122,30 @@ describe("Gremlin > keywordSearchTemplate", () => {
     );
   });
 
+  it("Should return a template with just a limit", () => {
+    const template = keywordSearchTemplate({
+      searchTerm: "JFK",
+      searchByAttributes: ["code"],
+      limit: 10,
+    });
+
+    expect(normalize(template)).toBe(
+      normalize('g.V().or(has("code",containing("JFK"))).range(0,10)')
+    );
+  });
+
+  it("Should return a template without a range when limit is zero", () => {
+    const template = keywordSearchTemplate({
+      searchTerm: "JFK",
+      searchByAttributes: ["code"],
+      limit: 0,
+    });
+
+    expect(normalize(template)).toBe(
+      normalize('g.V().or(has("code",containing("JFK")))')
+    );
+  });
+
   it("Should return a template for a specific vertex type", () => {
     const template = keywordSearchTemplate({
       searchTerm: "JFK",

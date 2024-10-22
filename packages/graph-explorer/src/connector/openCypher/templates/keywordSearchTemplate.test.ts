@@ -56,6 +56,35 @@ describe("OpenCypher > keywordSearchTemplate", () => {
     );
   });
 
+  it("Should return a template with just a limit", () => {
+    const template = keywordSearchTemplate({
+      vertexTypes: ["airport"],
+      limit: 20,
+    });
+
+    expect(normalize(template)).toBe(
+      normalize(`
+        MATCH (v:\`airport\`)
+        RETURN v AS object
+        LIMIT 20
+      `)
+    );
+  });
+
+  it("Should return a template where a limit of zero is not limited", () => {
+    const template = keywordSearchTemplate({
+      vertexTypes: ["airport"],
+      limit: 0,
+    });
+
+    expect(normalize(template)).toBe(
+      normalize(`
+        MATCH (v:\`airport\`)
+        RETURN v AS object
+      `)
+    );
+  });
+
   it("Should return a template with multiple vertex types and for searched attributes containing the search term", () => {
     const template = keywordSearchTemplate({
       vertexTypes: ["airport", "country"],

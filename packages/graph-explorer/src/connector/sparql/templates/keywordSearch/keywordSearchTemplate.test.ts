@@ -22,6 +22,27 @@ describe("SPARQL > keywordSearchTemplate", () => {
   it("Should return a template with paging", () => {
     const template = keywordSearchTemplate({
       limit: 10,
+      offset: 20,
+    });
+
+    expect(normalize(template)).toBe(
+      normalize(`
+        SELECT ?subject ?pred ?value ?class { 
+          ?subject ?pred ?value { 
+            SELECT DISTINCT ?subject ?class { 
+              ?subject a ?class ; ?predicate ?value . 
+            } 
+            LIMIT 10 OFFSET 20 
+          } 
+          FILTER(isLiteral(?value)) 
+        }
+      `)
+    );
+  });
+
+  it("Should return a template with just a limit", () => {
+    const template = keywordSearchTemplate({
+      limit: 10,
     });
 
     expect(normalize(template)).toBe(
@@ -32,6 +53,25 @@ describe("SPARQL > keywordSearchTemplate", () => {
               ?subject a ?class ; ?predicate ?value . 
             } 
             LIMIT 10 OFFSET 0 
+          } 
+          FILTER(isLiteral(?value)) 
+        }
+      `)
+    );
+  });
+
+  it("Should return a template where a limit of zero is not limited", () => {
+    const template = keywordSearchTemplate({
+      limit: 0,
+    });
+
+    expect(normalize(template)).toBe(
+      normalize(`
+        SELECT ?subject ?pred ?value ?class { 
+          ?subject ?pred ?value { 
+            SELECT DISTINCT ?subject ?class { 
+              ?subject a ?class ; ?predicate ?value . 
+            } 
           } 
           FILTER(isLiteral(?value)) 
         }
