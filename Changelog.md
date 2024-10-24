@@ -16,6 +16,8 @@
 - **Fixed** security vulnerabilities in the Docker image from dev dependencies
   remaining in the image
   ([#616](https://github.com/aws/graph-explorer/pull/616))
+- **Fixed** minor layout issue on connections screen
+  ([#648](https://github.com/aws/graph-explorer/pull/648))
 - **Updated** multiple dependencies
   ([#611](https://github.com/aws/graph-explorer/pull/611),
   [#614](https://github.com/aws/graph-explorer/pull/614),

@@ -84,7 +84,7 @@ const ConnectionData = () => {
   }, [config?.id]);
 
   return (
-    <div className={cn(styleWithTheme(defaultStyles), "h-full")}>
+    <div className={cn(styleWithTheme(defaultStyles), "flex grow flex-col")}>
       <div className="info-bar">
         <div className="item">
           <div className="tag">{t("connection-detail.nodes")}</div>
