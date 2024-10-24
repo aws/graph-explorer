@@ -22,7 +22,7 @@ const defaultStyles: ThemeStyleFn = ({ theme, isDarkTheme }) => css`
     color: ${theme.palette.primary.main};
   }
 
-  &.module-container-header-actions button:focus {
+  &.module-container-header-actions button:focus-visible {
     color: ${theme.palette.primary.main};
     background-color: ${fade(theme.palette.primary.main, 0.2)};
   }

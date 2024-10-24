@@ -301,6 +301,8 @@ export const textAreaContainerStyles =
         &:focus {
           background-color: ${themeWithDefault?.focus?.background};
           color: ${themeWithDefault?.focus?.color};
+        }
+        &:focus-visible {
           outline: none;
           box-shadow: ${themeWithDefault?.focus?.outlineColor};
         }

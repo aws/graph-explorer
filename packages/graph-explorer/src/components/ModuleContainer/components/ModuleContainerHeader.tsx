@@ -190,7 +190,7 @@ const ModuleContainerHeader = (
                   badge={action.badge}
                   badgeVariant={action.badgeVariant}
                   badgePlacement="bottom-right"
-                  className="hover:text-primary-main focus:text-primary-main focus:bg-primary-main/20"
+                  className="hover:text-primary-main focus-visible:text-primary-main focus-visible:bg-primary-main/20"
                 />
               </div>
             );

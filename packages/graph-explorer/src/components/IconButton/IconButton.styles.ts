@@ -89,7 +89,7 @@ export const defaultIconButtonStyles =
             ${themeByVariant?.active?.border?.color || "transparent"};
         }
 
-        &:focus {
+        &:focus-visible {
           box-shadow: ${isDarkTheme
             ? "none"
             : `0 0 3px ${themeByVariant?.hover?.background || primary.main}`};
@@ -161,7 +161,7 @@ export const defaultIconButtonStyles =
             ${themeByVariant?.active?.border?.color || "transparent"};
         }
 
-        &:focus {
+        &:focus-visible {
           box-shadow: ${isDarkTheme
             ? "none"
             : `0 0 3px ${themeByVariant?.hover?.background || primary.main}`};
@@ -223,7 +223,7 @@ export const defaultIconButtonStyles =
             ${themeByVariant?.active?.border?.color || "transparent"};
         }
 
-        &:focus {
+        &:focus-visible {
           box-shadow: ${isDarkTheme
             ? "none"
             : `0 0 3px ${themeByVariant?.hover?.background || primary.main}`};
@@ -305,7 +305,7 @@ export const defaultToggleButtonStyles =
           background-color: ${themeByVariant?.hover?.background ||
           fade(theme.palette.primary.main, 0.5)};
           color: ${themeByVariant?.hover?.color || primary.dark};
-          &:focus {
+          &:focus-visible {
             box-shadow: none !important;
             border: 1px solid
               ${themeByVariant?.hover?.background ||
