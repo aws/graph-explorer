@@ -10,6 +10,7 @@ import EntityAttribute from "./EntityAttribute";
 import defaultStyles from "./EntityDetail.styles";
 import VertexHeader from "@/modules/common/VertexHeader";
 import { useVertexTypeConfig } from "@/core/ConfigurationProvider/useConfiguration";
+import { RESERVED_ID_PROPERTY } from "@/utils/constants";
 
 export type VertexDetailProps = {
   hideNeighbors?: boolean;
@@ -67,7 +68,7 @@ export default function NodeDetail({
                 : node.data.id
             }
             attribute={{
-              name: "id",
+              name: RESERVED_ID_PROPERTY,
               displayLabel: node.data.__isBlank
                 ? "Blank node ID"
                 : t("node-detail.node-id"),

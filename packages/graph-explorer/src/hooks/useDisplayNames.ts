@@ -2,6 +2,7 @@ import { useCallback } from "react";
 import { Edge, Vertex } from "@/types/entities";
 import { useConfiguration } from "@/core";
 import useTextTransform from "./useTextTransform";
+import { RESERVED_ID_PROPERTY } from "@/utils/constants";
 
 const isVertex = (vOrE: any): vOrE is Vertex => {
   return vOrE.data.neighborsCount != null;
@@ -35,7 +36,7 @@ const useDisplayNames = () => {
           longDisplayNameAttribute: __longName,
         } = vtConfig;
 
-        if (__name === "id") {
+        if (__name === RESERVED_ID_PROPERTY) {
           name = vertex.data.id;
         } else if (__name === "types") {
           name = (vertex.data.types ?? [vertex.data.type])
@@ -45,7 +46,7 @@ const useDisplayNames = () => {
           name = attrs[__name] ? String(attrs[__name]) : "---";
         }
 
-        if (__longName === "id") {
+        if (__longName === RESERVED_ID_PROPERTY) {
           longName = vertex.data.id;
         } else if (__longName === "types") {
           longName = (vertex.data.types ?? [vertex.data.type])

@@ -4,6 +4,9 @@
 
 - **Fixed** Docker image containing more files than necessary.
   ([#613](https://github.com/aws/graph-explorer/pull/613))
+- **Fixed** conflict when a node has a property named "id" that prevented
+  changing the display attribute.
+  ([#626](https://github.com/aws/graph-explorer/pull/626))
 - **Improved** Docker image size, reducing it by 196 MB
   ([#619](https://github.com/aws/graph-explorer/pull/619))
 - **Improved** query when searching across all node types
