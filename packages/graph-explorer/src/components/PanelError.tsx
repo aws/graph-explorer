@@ -5,9 +5,11 @@ import { GraphIcon } from "./icons";
 export default function PanelError({
   error,
   onRetry,
+  className,
 }: {
   error: Error;
   onRetry?: () => void;
+  className?: string | undefined;
 }) {
   const displayError = createDisplayError(error);
   return (
@@ -18,6 +20,7 @@ export default function PanelError({
       subtitle={displayError.message}
       onAction={onRetry}
       actionLabel={onRetry ? "Retry" : undefined}
+      className={className}
     />
   );
 }
