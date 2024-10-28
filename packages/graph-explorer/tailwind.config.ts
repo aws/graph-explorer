@@ -112,8 +112,9 @@ export default {
       ],
     },
     fontWeight: {
-      light: "400",
-      base: "500",
+      light: "300",
+      base: "400",
+      medium: "500",
       bold: "600",
       extraBold: "700",
     },
