@@ -26,9 +26,17 @@
     --color-background-contrast: var(--color-gray-200);
     --color-background-contrast-secondary: var(--color-gray-300);
 
-    --color-primary-light: 100 199 255;
-    --color-primary-main: 18 142 229;
-    --color-primary-dark: 23 69 123;
+    --color-brand-50: 205deg 87% 95%;
+    --color-brand-100: 205deg 87% 93%;
+    --color-brand-200: 205deg 87% 82%;
+    --color-brand-300: 205deg 95% 71%;
+    --color-brand-400: 205deg 87% 57%;
+    --color-brand-500: 205deg 85% 48%;
+    --color-brand-600: 205deg 87% 39%;
+    --color-brand-700: 205deg 89% 31%;
+    --color-brand-800: 205deg 92% 24%;
+    --color-brand-900: 205deg 95% 12%;
+    --color-brand-950: 205deg 98% 6%;
 
     --color-secondary-light: 255 184 46;
     --color-secondary-main: 250 133 0;

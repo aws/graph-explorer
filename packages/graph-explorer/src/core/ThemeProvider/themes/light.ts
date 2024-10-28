@@ -20,9 +20,9 @@ const palette: DeepRequired<ProcessedTheme["palette"]> = {
     black: "#000",
   },
   primary: {
-    light: "#64c7ff",
-    main: "#128ee5",
-    dark: "#17457b",
+    light: "hsl(var(--color-brand-300))",
+    main: "hsl(var(--color-brand-500))",
+    dark: "hsl(var(--color-brand-800))",
     contrastText: "#ffffff",
   },
   secondary: {
