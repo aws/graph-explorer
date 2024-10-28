@@ -3,8 +3,7 @@ import type { PropsWithChildren, ReactElement } from "react";
 import { useMemo } from "react";
 import getChildOfType from "@/utils/getChildOfType";
 import getChildrenOfType from "@/utils/getChildrenOfType";
-import Sidebar from "@/components/Sidebar";
-import SidebarButton from "@/components/Sidebar/SidebarButton";
+import { SidebarButton } from "@/components/Workspace/components/SidebarButton";
 import WorkspaceSideBarContent from "./WorkspaceSideBarContent";
 
 interface WorkspaceSideBarComposition {
@@ -43,7 +42,9 @@ const WorkspaceSideBar = ({
         direction === "row-reverse" && "flex-row-reverse"
       )}
     >
-      <Sidebar>{sidebarActions}</Sidebar>
+      <div className="bg-brand-100 text-brand-900 flex flex-col gap-2 p-2">
+        {sidebarActions}
+      </div>
       {sidebarContent}
     </div>
   );
