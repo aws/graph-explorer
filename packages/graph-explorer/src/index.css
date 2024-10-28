@@ -60,6 +60,9 @@
 
     --color-divider: var(--color-gray-200);
     --color-border: var(--color-gray-200);
+
+    /* Allow animating intrinsic values like height */
+    interpolate-size: allow-keywords;
   }
 
   .dark {
