@@ -274,44 +274,42 @@ const GraphExplorer = () => {
 
       <Workspace.SideBar direction={"row"}>
         <Workspace.SideBar.Button
-          tooltipText={"Details"}
+          title="Details"
           icon={<DetailsIcon />}
-          onPress={toggleSidebar("details")}
-          active={userLayout.activeSidebarItem === "details"}
+          onPressedChange={toggleSidebar("details")}
+          pressed={userLayout.activeSidebarItem === "details"}
         />
         <Workspace.SideBar.Button
-          tooltipText={"Filters"}
+          title="Filters"
           icon={<FilterIcon />}
-          onPress={toggleSidebar("filters")}
-          badge={filteredEntitiesCount}
-          badgeVariant="undetermined"
-          badgePlacement="top-right"
-          active={userLayout.activeSidebarItem === "filters"}
+          onPressedChange={toggleSidebar("filters")}
+          badge={filteredEntitiesCount > 0}
+          pressed={userLayout.activeSidebarItem === "filters"}
         />
         <Workspace.SideBar.Button
-          tooltipText={"Expand"}
+          title="Expand"
           icon={<ExpandGraphIcon />}
-          onPress={toggleSidebar("expand")}
-          active={userLayout.activeSidebarItem === "expand"}
+          onPressedChange={toggleSidebar("expand")}
+          pressed={userLayout.activeSidebarItem === "expand"}
         />
         <Workspace.SideBar.Button
-          tooltipText={t("nodes-styling.title")}
+          title={t("nodes-styling.title")}
           icon={<GraphIcon />}
-          onPress={toggleSidebar("nodes-styling")}
-          active={userLayout.activeSidebarItem === "nodes-styling"}
+          onPressedChange={toggleSidebar("nodes-styling")}
+          pressed={userLayout.activeSidebarItem === "nodes-styling"}
         />
         <Workspace.SideBar.Button
-          tooltipText={t("edges-styling.title")}
+          title={t("edges-styling.title")}
           icon={<EdgeIcon />}
-          onPress={toggleSidebar("edges-styling")}
-          active={userLayout.activeSidebarItem === "edges-styling"}
+          onPressedChange={toggleSidebar("edges-styling")}
+          pressed={userLayout.activeSidebarItem === "edges-styling"}
         />
         {hasNamespaces && (
           <Workspace.SideBar.Button
-            tooltipText={"Namespaces"}
+            title="Namespaces"
             icon={<NamespaceIcon />}
-            onPress={toggleSidebar("namespaces")}
-            active={userLayout.activeSidebarItem === "namespaces"}
+            onPressedChange={toggleSidebar("namespaces")}
+            pressed={userLayout.activeSidebarItem === "namespaces"}
           />
         )}
 

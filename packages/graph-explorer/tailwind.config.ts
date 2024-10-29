@@ -14,6 +14,20 @@ const gray = {
   900: "rgb(var(--color-gray-900) / <alpha-value>)",
 };
 
+const blue = {
+  50: "hsl(var(--color-brand-50) / <alpha-value>)",
+  100: "hsl(var(--color-brand-100) / <alpha-value>)",
+  200: "hsl(var(--color-brand-200) / <alpha-value>)",
+  300: "hsl(var(--color-brand-300) / <alpha-value>)",
+  400: "hsl(var(--color-brand-400) / <alpha-value>)",
+  500: "hsl(var(--color-brand-500) / <alpha-value>)",
+  600: "hsl(var(--color-brand-600) / <alpha-value>)",
+  700: "hsl(var(--color-brand-700) / <alpha-value>)",
+  800: "hsl(var(--color-brand-800) / <alpha-value>)",
+  900: "hsl(var(--color-brand-900) / <alpha-value>)",
+  950: "hsl(var(--color-brand-950) / <alpha-value>)",
+};
+
 export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   darkMode: "class",
@@ -24,10 +38,11 @@ export default {
       black,
       white,
       gray,
+      brand: blue,
       primary: {
-        light: "rgb(var(--color-primary-light) / <alpha-value>)",
-        main: "rgb(var(--color-primary-main) / <alpha-value>)",
-        dark: "rgb(var(--color-primary-dark) / <alpha-value>)",
+        light: blue[300],
+        main: blue[500],
+        dark: blue[800],
         contrastText: white,
       },
       secondary: {
