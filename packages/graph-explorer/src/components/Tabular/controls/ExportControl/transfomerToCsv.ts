@@ -3,7 +3,7 @@ import type { Row } from "react-table";
 import type { TabularColumnInstance } from "@/components/Tabular/helpers/tableInstanceToTabularInstance";
 import getNestedObjectValue from "./getNestedObjectValue";
 
-export default function transformToCsv<T extends Record<string, unknown>>(
+export default function transformToCsv<T extends object>(
   currentDataSource: readonly T[] | Row<T>[],
   selectedColumns: Record<string, boolean>,
   columns: TabularColumnInstance<T>[]

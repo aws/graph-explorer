@@ -68,13 +68,7 @@ export interface VertexData {
   __fetchedOutEdgeCount?: number;
 }
 
-/**
- * Sometimes is needed to add some extra properties to a Vertex
- * which cannot be mixed or overwritten with the original data
- * of a vertex.
- * For example, NodesTabular add __is_visible property to hide/show a node.
- */
-export type Vertex<T = Record<string, unknown>> = T & {
+export type Vertex = {
   data: VertexData;
 };
 
@@ -115,12 +109,6 @@ export interface EdgeData {
   attributes: Record<string, string | number>;
 }
 
-/**
- * Sometimes is needed to add some extra properties to an Edge
- * which cannot be mixed or overwritten with the original data
- * of en edge.
- * For example, EdgesTabular add __is_visible property to hide/show an edge.
- */
-export interface Edge<T = Record<string, unknown>> {
-  data: EdgeData & T;
+export interface Edge {
+  data: EdgeData;
 }

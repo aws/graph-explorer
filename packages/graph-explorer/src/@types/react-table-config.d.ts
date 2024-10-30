@@ -57,7 +57,7 @@ export type UseDiffState = {
 declare module "react-table" {
   // take this file as-is, or comment out the sections that don't apply to your plugin configuration
 
-  export interface TableOptions<D extends Record<string, unknown>>
+  export interface TableOptions<D>
     extends UseExpandedOptions<D>,
       UseFiltersOptions<D>,
       UseGlobalFiltersOptions<D>,

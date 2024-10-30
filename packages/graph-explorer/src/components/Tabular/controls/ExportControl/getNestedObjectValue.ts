@@ -1,13 +1,10 @@
-const getNestedObjectValue = (
-  nestedObj: Record<string, unknown>,
+function getNestedObjectValue<T extends object>(
+  nestedObj: T,
   path: string[]
-): string | number => {
+): string | number {
   return path.reduce((obj, key) => {
-    return (obj?.[key] !== undefined ? obj[key] : undefined) as Record<
-      string,
-      unknown
-    >;
-  }, nestedObj) as unknown as string | number;
-};
+    return obj && key in obj ? obj[key] : undefined;
+  }, nestedObj as any) as string | number;
+}
 
 export default getNestedObjectValue;

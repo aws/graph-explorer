@@ -10,7 +10,7 @@ import {
 
 import type { TabularInstance } from "./helpers/tableInstanceToTabularInstance";
 
-type TabularContextValue<T extends Record<string, unknown>> = {
+type TabularContextValue<T extends object> = {
   tableRef: RefObject<HTMLDivElement>;
   instance: TabularInstance<T>;
   headerControlsRef: RefObject<HTMLDivElement>;
@@ -19,7 +19,7 @@ type TabularContextValue<T extends Record<string, unknown>> = {
   disablePagination?: boolean;
 };
 
-const createTabularContext = <T extends Record<string, unknown> = any>(
+const createTabularContext = <T extends object = any>(
   defaultValue: TabularContextValue<T>
 ) => {
   return createContext<TabularContextValue<T>>(defaultValue);
@@ -27,7 +27,7 @@ const createTabularContext = <T extends Record<string, unknown> = any>(
 
 const TabularContext = createTabularContext(undefined!);
 
-const TabularControlsProvider = <T extends Record<string, unknown>>({
+const TabularControlsProvider = <T extends object>({
   tabularInstance,
   children,
 }: PropsWithChildren<{ tabularInstance: TabularInstance<T> }>) => {
