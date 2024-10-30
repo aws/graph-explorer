@@ -10,14 +10,12 @@ export default function mapApiVertex(
   const vt = labels[0] ?? "";
 
   return {
-    data: {
-      id: apiVertex["~id"] as VertexId,
-      idType: "string",
-      type: vt,
-      types: labels,
-      neighborsCount: neighborsCount?.totalCount || 0,
-      neighborsCountByType: neighborsCount?.counts || {},
-      attributes: apiVertex["~properties"],
-    },
+    id: apiVertex["~id"] as VertexId,
+    idType: "string",
+    type: vt,
+    types: labels,
+    neighborsCount: neighborsCount?.totalCount || 0,
+    neighborsCountByType: neighborsCount?.counts || {},
+    attributes: apiVertex["~properties"],
   };
 }

@@ -7,15 +7,13 @@ const mapApiEdge = (
   targetType: string
 ): Edge => {
   return {
-    data: {
-      id: apiEdge["~id"] as EdgeId,
-      type: apiEdge["~type"],
-      source: apiEdge["~start"] as VertexId,
-      sourceType: sourceType,
-      target: apiEdge["~end"] as VertexId,
-      targetType: targetType,
-      attributes: apiEdge["~properties"] || {},
-    },
+    id: apiEdge["~id"] as EdgeId,
+    type: apiEdge["~type"],
+    source: apiEdge["~start"] as VertexId,
+    sourceType: sourceType,
+    target: apiEdge["~end"] as VertexId,
+    targetType: targetType,
+    attributes: apiEdge["~properties"] || {},
   };
 };
 

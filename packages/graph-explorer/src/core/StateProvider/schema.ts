@@ -126,9 +126,9 @@ export function extractConfigFromEntity<Entity extends Vertex | Edge>(
   entity: Entity
 ): Entity extends Vertex ? VertexTypeConfig : EdgeTypeConfig {
   return {
-    type: entity.data.type,
+    type: entity.type,
     displayLabel: "",
-    attributes: Object.keys(entity.data.attributes).map(attr => ({
+    attributes: Object.keys(entity.attributes).map(attr => ({
       name: attr,
       displayLabel: sanitizeText(attr),
       hidden: false,

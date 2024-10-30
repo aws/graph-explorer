@@ -13,10 +13,8 @@ import { schemaAtom } from "@/core/StateProvider/schema";
 
 describe("useNeighborsOptions", () => {
   const vertex = {
-    data: {
-      neighborsCountByType: { nodeType1: 5, nodeType2: 3 },
-      __unfetchedNeighborCounts: { nodeType1: 0, nodeType2: 1 },
-    },
+    neighborsCountByType: { nodeType1: 5, nodeType2: 3 },
+    __unfetchedNeighborCounts: { nodeType1: 0, nodeType2: 1 },
   } as unknown as Vertex;
 
   it("should return neighbors options correctly", () => {

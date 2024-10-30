@@ -64,11 +64,11 @@ export function ExpandNodeProvider(props: PropsWithChildren) {
     ): Promise<NeighborsResponse | null> => {
       // Perform the query when a request exists
       const request: NeighborsRequest | null = expandNodeRequest && {
-        vertexId: expandNodeRequest.vertex.data.id,
-        idType: expandNodeRequest.vertex.data.idType,
+        vertexId: expandNodeRequest.vertex.id,
+        idType: expandNodeRequest.vertex.idType,
         vertexType:
-          expandNodeRequest.vertex.data.types?.join("::") ??
-          expandNodeRequest.vertex.data.type,
+          expandNodeRequest.vertex.types?.join("::") ??
+          expandNodeRequest.vertex.type,
         ...expandNodeRequest.filters,
       };
 
@@ -132,7 +132,7 @@ export function ExpandNodeProvider(props: PropsWithChildren) {
         return;
       }
 
-      if (vertex.data.__unfetchedNeighborCount === 0) {
+      if (vertex.__unfetchedNeighborCount === 0) {
         enqueueNotification({
           title: "No more neighbors",
           message:

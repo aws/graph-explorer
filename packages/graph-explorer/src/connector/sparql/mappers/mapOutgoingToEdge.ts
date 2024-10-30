@@ -13,15 +13,13 @@ const mapOutgoingToEdge = (
   result: OutgoingPredicate
 ): Edge => {
   return {
-    data: {
-      id: `${resourceURI}-[${result.predToSubject.value}]->${result.subject.value}` as EdgeId,
-      type: result.predToSubject.value,
-      source: resourceURI as VertexId,
-      sourceType: resourceClass,
-      target: result.subject.value as VertexId,
-      targetType: result.subjectClass.value,
-      attributes: {},
-    },
+    id: `${resourceURI}-[${result.predToSubject.value}]->${result.subject.value}` as EdgeId,
+    type: result.predToSubject.value,
+    source: resourceURI as VertexId,
+    sourceType: resourceClass,
+    target: result.subject.value as VertexId,
+    targetType: result.subjectClass.value,
+    attributes: {},
   };
 };
 

@@ -69,13 +69,13 @@ const entitiesSelector = selector<Entities>({
     // Remove duplicated nodes by id
     const nonDupNodes = uniqBy(
       [...newEntities.nodes, ...prevNodes],
-      node => node.data.id
+      node => node.id
     );
 
     // Remove duplicated edges by id
     const nonDupEdges = uniqBy(
       [...newEntities.edges, ...prevEdges],
-      edge => edge.data.id
+      edge => edge.id
     );
 
     // Get stats for each node
@@ -83,40 +83,40 @@ const entitiesSelector = selector<Entities>({
       // Get all OUT connected edges: current node is source and target should exist
       const outConnections = nonDupEdges.filter(
         edge =>
-          edge.data.source === node.data.id &&
-          nonDupNodes.some(aNode => aNode.data.id === edge.data.target)
+          edge.source === node.id &&
+          nonDupNodes.some(aNode => aNode.id === edge.target)
       );
 
       // Get all IN connected edges: current node is target and source should exist
       const inConnections = nonDupEdges.filter(
         edge =>
-          edge.data.target === node.data.id &&
-          nonDupNodes.some(aNode => aNode.data.id === edge.data.source)
+          edge.target === node.id &&
+          nonDupNodes.some(aNode => aNode.id === edge.source)
       );
 
       // Re-mapping neighborsCountByType to only un-fetched counts
       const __unfetchedNeighborCounts = Object.entries(
-        node.data.neighborsCountByType
+        node.neighborsCountByType
       ).reduce(
         (counts, [type, count]) => {
           // All edges FROM current node to TYPE that it is in the graph
           const fetchedOutEdgesByType = outConnections.filter(
             edge =>
-              edge.data.targetType.split("::").includes(type) &&
-              nonDupNodes.some(aNode => aNode.data.id === edge.data.target)
+              edge.targetType.split("::").includes(type) &&
+              nonDupNodes.some(aNode => aNode.id === edge.target)
           );
 
           // All edges TO current node from TYPE that it is in the graph
           const fetchedInEdgesByType = inConnections.filter(
             edge =>
-              edge.data.sourceType.split("::").includes(type) &&
-              nonDupNodes.some(aNode => aNode.data.id === edge.data.source)
+              edge.sourceType.split("::").includes(type) &&
+              nonDupNodes.some(aNode => aNode.id === edge.source)
           );
 
           // Count only unique connected nodes
           const distinctConnectedNodes = uniq([
-            ...fetchedOutEdgesByType.map(et => et.data.target),
-            ...fetchedInEdgesByType.map(et => et.data.source),
+            ...fetchedOutEdgesByType.map(et => et.target),
+            ...fetchedInEdgesByType.map(et => et.source),
           ]);
 
           counts[type] = Math.max(0, count - distinctConnectedNodes.length);
@@ -128,27 +128,24 @@ const entitiesSelector = selector<Entities>({
 
       return {
         ...node,
-        data: {
-          ...node.data,
-          __unfetchedNeighborCounts,
-          __fetchedOutEdgeCount: outConnections.length,
-          __fetchedInEdgeCount: inConnections.length,
-          __unfetchedNeighborCount: Math.max(
-            0,
-            Object.values(__unfetchedNeighborCounts).reduce(
-              (sum, count) => sum + count,
-              0
-            )
-          ),
-        },
+        __unfetchedNeighborCounts,
+        __fetchedOutEdgeCount: outConnections.length,
+        __fetchedInEdgeCount: inConnections.length,
+        __unfetchedNeighborCount: Math.max(
+          0,
+          Object.values(__unfetchedNeighborCounts).reduce(
+            (sum, count) => sum + count,
+            0
+          )
+        ),
       };
     });
 
     // Remove all unconnected edges
     const nonUnconnectedEdges = nonDupEdges.filter(edge => {
       return (
-        nodesWithStats.some(node => node.data.id === edge.data.source) &&
-        nodesWithStats.some(node => node.data.id === edge.data.target)
+        nodesWithStats.some(node => node.id === edge.source) &&
+        nodesWithStats.some(node => node.id === edge.target)
       );
     });
 
@@ -156,11 +153,9 @@ const entitiesSelector = selector<Entities>({
     const deletedNodesIds = new Set(
       get(nodesAtom)
         .filter(node => {
-          return !nodesWithStats.find(
-            newNode => newNode.data.id === node.data.id
-          );
+          return !nodesWithStats.find(newNode => newNode.id === node.id);
         })
-        .map(node => node.data.id)
+        .map(node => node.id)
     );
 
     // When a node is removed, we should delete its id from other nodes-state sets
@@ -184,11 +179,11 @@ const entitiesSelector = selector<Entities>({
             get(edgesAtom)
               .filter(edge => {
                 return (
-                  deletedNodesIds.has(edge.data.source) ||
-                  deletedNodesIds.has(edge.data.target)
+                  deletedNodesIds.has(edge.source) ||
+                  deletedNodesIds.has(edge.target)
                 );
               })
-              .map(edge => edge.data.id)
+              .map(edge => edge.id)
           )
         : new Set<string>();
 
@@ -254,7 +249,7 @@ const entitiesSelector = selector<Entities>({
       newEntities.selectNewEntities === "nodes"
     ) {
       newEntities.nodes.forEach(node => {
-        selectedNodesIds.add(node.data.id);
+        selectedNodesIds.add(node.id);
       });
       set(nodesSelectedIdsAtom, selectedNodesIds);
     }
@@ -263,7 +258,7 @@ const entitiesSelector = selector<Entities>({
       newEntities.selectNewEntities === "edges"
     ) {
       newEntities.edges.forEach(edge => {
-        selectedEdgesIds.add(edge.data.id);
+        selectedEdgesIds.add(edge.id);
       });
       set(edgesSelectedIdsAtom, selectedEdgesIds);
     }

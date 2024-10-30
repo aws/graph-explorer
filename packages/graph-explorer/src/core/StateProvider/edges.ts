@@ -25,7 +25,7 @@ export const edgesSelector = selector<Edges>({
     const cleanFn = (curr: Set<string>) => {
       const existingEdgesIds = new Set<string>();
       curr.forEach(eId => {
-        const exist = newValue.find(n => n.data.id === eId);
+        const exist = newValue.find(n => n.id === eId);
         if (exist) {
           existingEdgesIds.add(eId);
         }

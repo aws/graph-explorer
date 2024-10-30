@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { VertexData } from "@/@types/entities";
+import { Vertex } from "@/@types/entities";
 import { DrawBoxWithAdornmentOptions } from "@/components/utils";
 import drawBoxWithAdornment from "@/components/utils/canvas/drawBoxWithAdornment";
 import type {
@@ -16,8 +16,8 @@ export type Badge = DrawBoxWithAdornmentOptions & {
   hidden?: boolean;
 };
 
-export type BadgeRenderer<TNodeData extends VertexData = VertexData> = (
-  nodeData: TNodeData,
+export type BadgeRenderer = (
+  nodeData: Vertex,
   boundingBox: BoundingBox,
   options: {
     context: CanvasRenderingContext2D;
@@ -25,14 +25,12 @@ export type BadgeRenderer<TNodeData extends VertexData = VertexData> = (
   }
 ) => Array<Badge | undefined>;
 
-export interface UseRenderBadgesProps<
-  TNodeData extends VertexData = VertexData,
-> {
+export interface UseRenderBadgesProps {
   cy?: CytoscapeType;
   badgesEnabled: boolean;
   mounted: boolean;
-  getNodeBadges?: BadgeRenderer<TNodeData>;
-  getGroupBadges?: BadgeRenderer<TNodeData>;
+  getNodeBadges?: BadgeRenderer;
+  getGroupBadges?: BadgeRenderer;
   primaryNodeId?: string;
 }
 
@@ -59,13 +57,13 @@ const renderSingleBadge = (context: CanvasRenderingContext2D, badge: Badge) => {
   });
 };
 
-const useRenderBadges = <TNodeData extends VertexData = VertexData>({
+const useRenderBadges = ({
   cy,
   badgesEnabled,
   mounted,
   getNodeBadges,
   getGroupBadges,
-}: UseRenderBadgesProps<TNodeData>) => {
+}: UseRenderBadgesProps) => {
   const layerRef = useRef<CytoscapeCanvas | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -115,7 +113,7 @@ const useRenderBadges = <TNodeData extends VertexData = VertexData>({
         // Draw model elements
         cy.nodes().forEach(node => {
           const zoomLevel = getZoomLevel(cy);
-          const nodeData = node.data() as TNodeData;
+          const nodeData = node.data() as Vertex;
 
           if (
             node.style("display") === "none" ||

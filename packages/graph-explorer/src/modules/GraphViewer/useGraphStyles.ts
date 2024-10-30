@@ -1,6 +1,6 @@
 import Color from "color";
 import { useEffect, useState } from "react";
-import { EdgeData } from "@/types/entities";
+import { Edge } from "@/types/entities";
 import type { GraphProps } from "@/components";
 import useTextTransform from "@/hooks/useTextTransform";
 import { renderNode } from "./renderNode";
@@ -61,7 +61,7 @@ const useGraphStyles = () => {
 
         styles[`edge[type="${et}"]`] = {
           label: (el: cytoscape.EdgeSingular) => {
-            const edgeData = el.data() as EdgeData;
+            const edgeData = el.data() as Edge;
 
             let currentLabel = etConfig.displayLabel || label;
 

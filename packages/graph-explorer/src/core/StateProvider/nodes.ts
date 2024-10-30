@@ -22,7 +22,7 @@ export const nodesSelector = selector<Array<Vertex>>({
     const cleanFn = (curr: Set<string>) => {
       const existingNodesIds = new Set<string>();
       curr.forEach(nId => {
-        const exist = newValue.find(n => n.data.id === nId);
+        const exist = newValue.find(n => n.id === nId);
         if (exist) {
           existingNodesIds.add(nId);
         }

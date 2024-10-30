@@ -39,7 +39,7 @@ export default function NodeExpandContent({ vertex }: NodeExpandContentProps) {
 
 function ExpandSidebarContent({ vertex }: { vertex: Vertex }) {
   const t = useTranslations();
-  const query = useUpdateNodeCountsQuery(vertex.data.id, vertex.data.idType);
+  const query = useUpdateNodeCountsQuery(vertex.id, vertex.idType);
   const neighborsOptions = useNeighborsOptions(vertex);
 
   if (query.isError) {
@@ -89,7 +89,7 @@ function ExpansionOptions({
   const [filters, setFilters] = useState<Array<NodeExpandFilter>>([]);
   const [limit, setLimit] = useState<number | null>(null);
 
-  const hasUnfetchedNeighbors = Boolean(vertex.data.__unfetchedNeighborCount);
+  const hasUnfetchedNeighbors = Boolean(vertex.__unfetchedNeighborCount);
   const hasSelectedType = Boolean(selectedType);
 
   // Reset filters when selected type changes
@@ -134,9 +134,9 @@ function ExpansionOptions({
             })),
             limit: limit || undefined,
             offset:
-              limit !== null && vertex.data.__unfetchedNeighborCounts
-                ? vertex.data.neighborsCountByType[selectedType] -
-                  vertex.data.__unfetchedNeighborCounts[selectedType]
+              limit !== null && vertex.__unfetchedNeighborCounts
+                ? vertex.neighborsCountByType[selectedType] -
+                  vertex.__unfetchedNeighborCounts[selectedType]
                 : undefined,
           }}
         />

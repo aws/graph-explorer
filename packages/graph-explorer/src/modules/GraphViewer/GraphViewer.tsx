@@ -1,5 +1,5 @@
 import { cn } from "@/utils";
-import { MouseEvent, useCallback, useRef, useState } from "react";
+import { MouseEvent, useCallback, useMemo, useRef, useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { Vertex } from "@/types/entities";
 import type { ActionItem, ModuleContainerHeaderProps } from "@/components";
@@ -184,14 +184,10 @@ export default function GraphViewer({
   const getNodeBadges = useNodeBadges();
 
   const { expandNode } = useExpandNode();
-  const onNodeDoubleClick: ElementEventCallback<Vertex["data"]> = useCallback(
-    (_, vertexData) => {
-      const vertex: Vertex = { data: vertexData };
-      const offset = vertex.data.__unfetchedNeighborCount
-        ? Math.max(
-            0,
-            vertex.data.neighborsCount - vertex.data.__unfetchedNeighborCount
-          )
+  const onNodeDoubleClick: ElementEventCallback<Vertex> = useCallback(
+    (_, vertex) => {
+      const offset = vertex.__unfetchedNeighborCount
+        ? Math.max(0, vertex.neighborsCount - vertex.__unfetchedNeighborCount)
         : undefined;
       expandNode(vertex, {
         limit: 10,
@@ -226,6 +222,15 @@ export default function GraphViewer({
       }
     },
     [onClearCanvas, onSaveScreenshot, onZoomIn, onZoomOut]
+  );
+
+  const nodes = useMemo(
+    () => entities.nodes.map(n => ({ data: n })),
+    [entities]
+  );
+  const edges = useMemo(
+    () => entities.edges.map(e => ({ data: e })),
+    [entities]
   );
 
   return (
@@ -277,8 +282,8 @@ export default function GraphViewer({
         >
           <Graph
             ref={graphRef}
-            nodes={entities.nodes}
-            edges={entities.edges}
+            nodes={nodes}
+            edges={edges}
             badgesEnabled={false}
             getNodeBadges={getNodeBadges(nodesOutIds)}
             selectedNodesIds={nodesSelectedIds}

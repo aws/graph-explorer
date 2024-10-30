@@ -37,9 +37,7 @@ export function useUpdateAllNodeCounts() {
 
   // Unique ID & ID type combos
   const nodeIdAndTypes = [
-    ...new Map([
-      ...entities.nodes.map(n => [n.data.id, n.data.idType] as const),
-    ]),
+    ...new Map([...entities.nodes.map(n => [n.id, n.idType] as const)]),
   ];
 
   const query = useQueries({
@@ -51,15 +49,12 @@ export function useUpdateAllNodeCounts() {
       const data = results
         .flatMap(result => (result.data ? [result.data] : []))
         .map(data => {
-          const prevNode = entities.nodes.find(n => n.data.id === data.nodeId);
+          const prevNode = entities.nodes.find(n => n.id === data.nodeId);
           const node: Vertex | undefined = prevNode
             ? {
                 ...prevNode,
-                data: {
-                  ...prevNode.data,
-                  neighborsCount: data.totalCount,
-                  neighborsCountByType: data.counts,
-                },
+                neighborsCount: data.totalCount,
+                neighborsCountByType: data.counts,
               }
             : undefined;
           return node;
@@ -84,9 +79,7 @@ export function useUpdateAllNodeCounts() {
     // Update node graph with counts
     setEntities(prev => ({
       nodes: prev.nodes.map(node => {
-        const nodeWithCounts = query.data.find(
-          n => n?.data.id === node.data.id
-        );
+        const nodeWithCounts = query.data.find(n => n?.id === node.id);
 
         return nodeWithCounts ?? node;
       }),

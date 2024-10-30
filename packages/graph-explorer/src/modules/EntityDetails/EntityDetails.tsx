@@ -37,11 +37,11 @@ const EntityDetails = ({
   const [userLayout, setUserLayout] = useRecoilState(userLayoutAtom);
 
   const selectedNode = useMemo(() => {
-    return nodes.find(node => selectedNodesIds.has(node.data.id));
+    return nodes.find(node => selectedNodesIds.has(node.id));
   }, [nodes, selectedNodesIds]);
 
   const selectedEdge = useMemo(() => {
-    return edges.find(edge => selectedEdgesIds.has(edge.data.id));
+    return edges.find(edge => selectedEdgesIds.has(edge.id));
   }, [edges, selectedEdgesIds]);
 
   const [sourceNode, targetNode] = useMemo(() => {
@@ -50,8 +50,8 @@ const EntityDetails = ({
     }
 
     return [
-      nodes.find(node => node.data.id === selectedEdge.data.source),
-      nodes.find(node => node.data.id === selectedEdge.data.target),
+      nodes.find(node => node.id === selectedEdge.source),
+      nodes.find(node => node.id === selectedEdge.target),
     ];
   }, [selectedEdgesIds, selectedEdge, nodes]);
 

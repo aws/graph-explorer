@@ -21,13 +21,13 @@ export default function NeighborsList({ vertex }: NeighborsListProps) {
 
   return (
     <div className={cn(styleWithTheme(defaultStyles), "section")}>
-      <div className={"title"}>Neighbors ({vertex.data.neighborsCount})</div>
+      <div className={"title"}>Neighbors ({vertex.neighborsCount})</div>
       {neighborsOptions
         .slice(0, showMore ? undefined : MAX_NEIGHBOR_TYPE_ROWS)
         .map(op => {
           const neighborsInView =
-            vertex.data.neighborsCountByType[op.value] -
-            (vertex.data.__unfetchedNeighborCounts?.[op.value] ?? 0);
+            vertex.neighborsCountByType[op.value] -
+            (vertex.__unfetchedNeighborCounts?.[op.value] ?? 0);
           return (
             <div key={op.value} className={"node-item"}>
               <div className={"vertex-type"}>
@@ -52,7 +52,7 @@ export default function NeighborsList({ vertex }: NeighborsListProps) {
                   </Chip>
                 </Tooltip>
                 <Chip className={"chip"}>
-                  {vertex.data.neighborsCountByType[op.value]}
+                  {vertex.neighborsCountByType[op.value]}
                 </Chip>
               </div>
             </div>

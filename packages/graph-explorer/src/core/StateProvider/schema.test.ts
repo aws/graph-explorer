@@ -11,10 +11,10 @@ describe("schema", () => {
     it("should work with vertex", () => {
       const entity = createRandomVertex();
       const result = extractConfigFromEntity(entity);
-      expect(result.type).toEqual(entity.data.type);
+      expect(result.type).toEqual(entity.type);
       expect(result.hidden).toBeFalsy();
       expect(result.attributes).toHaveLength(
-        Object.keys(entity.data.attributes).length
+        Object.keys(entity.attributes).length
       );
     });
     it("should work with edge", () => {
@@ -23,10 +23,10 @@ describe("schema", () => {
         createRandomVertex()
       );
       const result = extractConfigFromEntity(entity);
-      expect(result.type).toEqual(entity.data.type);
+      expect(result.type).toEqual(entity.type);
       expect(result.hidden).toBeFalsy();
       expect(result.attributes).toHaveLength(
-        Object.keys(entity.data.attributes).length
+        Object.keys(entity.attributes).length
       );
     });
   });
@@ -73,8 +73,8 @@ describe("schema", () => {
         createRandomVertex(),
         createRandomVertex()
       );
-      newNode.data.type = originalSchema.vertices[0].type;
-      newEdge.data.type = originalSchema.edges[0].type;
+      newNode.type = originalSchema.vertices[0].type;
+      newEdge.type = originalSchema.edges[0].type;
 
       const extractedNodeConfig = extractConfigFromEntity(newNode);
       const extractedEdgeConfig = extractConfigFromEntity(newEdge);

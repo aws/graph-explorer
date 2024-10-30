@@ -86,7 +86,7 @@ export default function KeywordSearch({ className }: KeywordSearchProps) {
 
   const isTheNodeAdded = (nodeId: string): boolean => {
     const possibleNode = entities.nodes.find(
-      addedNode => addedNode.data.id === nodeId
+      addedNode => addedNode.id === nodeId
     );
     return possibleNode !== undefined;
   };
@@ -97,7 +97,7 @@ export default function KeywordSearch({ className }: KeywordSearchProps) {
   };
 
   const getNodeSearchedById = (nodeId: string): Vertex | undefined => {
-    return searchResults.find(result => result.data.id === nodeId);
+    return searchResults.find(result => result.id === nodeId);
   };
 
   const addSelectedNodesMessage = () => {
@@ -294,11 +294,11 @@ function SearchResults({
   const resultItems = useMemo(() => {
     return toAdvancedList(searchResults, {
       getGroupLabel: vertex => {
-        const vtConfig = config?.getVertexTypeConfig(vertex.data.type);
-        return vtConfig?.displayLabel || textTransform(vertex.data.type);
+        const vtConfig = config?.getVertexTypeConfig(vertex.type);
+        return vtConfig?.displayLabel || textTransform(vertex.type);
       },
       getItem: vertex => {
-        const vtConfig = config?.getVertexTypeConfig(vertex.data.type);
+        const vtConfig = config?.getVertexTypeConfig(vertex.type);
         const { name, longName } = getDisplayNames(vertex);
         return {
           className: css`
@@ -307,8 +307,8 @@ function SearchResults({
               color: ${vtConfig?.color} !important;
             }
           `,
-          group: vertex.data.type,
-          id: vertex.data.id,
+          group: vertex.type,
+          id: vertex.id,
           title: name,
           subtitle: longName,
           icon: (
@@ -317,9 +317,7 @@ function SearchResults({
               iconImageType={vtConfig?.iconImageType}
             />
           ),
-          endAdornment: entities.nodes.find(
-            n => n.data.id === vertex.data.id
-          ) ? (
+          endAdornment: entities.nodes.find(n => n.id === vertex.id) ? (
             <IconButton
               tooltipText="Remove from canvas"
               icon={<RemoveFromCanvasIcon className="graph-remove-icon" />}
@@ -329,7 +327,7 @@ function SearchResults({
                 setEntities(prev => {
                   return {
                     ...prev,
-                    nodes: prev.nodes.filter(n => n.data.id !== vertex.data.id),
+                    nodes: prev.nodes.filter(n => n.id !== vertex.id),
                     forceSet: true,
                   };
                 });
@@ -429,7 +427,7 @@ function SearchResults({
           }}
         >
           {Array.from(selection.state).map(nodeId => {
-            const node = searchResults.find(n => n.data.id === nodeId);
+            const node = searchResults.find(n => n.id === nodeId);
 
             return node !== undefined ? (
               <NodeDetail key={nodeId} node={node} hideNeighbors={true} />

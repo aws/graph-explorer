@@ -3,7 +3,7 @@ import { Branded } from "@/utils";
 export type EdgeId = Branded<string, "EdgeId">;
 export type VertexId = Branded<string, "VertexId">;
 
-export interface VertexData {
+export type Vertex = {
   /**
    * Unique identifier for the vertex.
    * - For PG, the node id
@@ -71,13 +71,9 @@ export interface VertexData {
    * Fetched outgoing edges connected with the vertex
    */
   __fetchedOutEdgeCount?: number;
-}
-
-export type Vertex = {
-  data: VertexData;
 };
 
-export interface EdgeData {
+export type Edge = {
   /**
    * Unique identifier for the edge.
    * - For PG, the edge id
@@ -112,8 +108,4 @@ export interface EdgeData {
    * For RDF, predicates do not have more properties than the predicate itself.
    */
   attributes: Record<string, string | number>;
-}
-
-export interface Edge {
-  data: EdgeData;
-}
+};

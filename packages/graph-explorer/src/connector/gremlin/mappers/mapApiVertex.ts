@@ -13,15 +13,13 @@ const mapApiVertex = (
   const vt = labels[0];
 
   return {
-    data: {
-      id: toStringId(apiVertex["@value"].id) as VertexId,
-      idType: detectIdType(apiVertex["@value"].id),
-      type: vt,
-      types: labels,
-      neighborsCount: neighborsCount?.totalCount || 0,
-      neighborsCountByType: neighborsCount?.counts || {},
-      attributes: parsePropertiesValues(apiVertex["@value"].properties),
-    },
+    id: toStringId(apiVertex["@value"].id) as VertexId,
+    idType: detectIdType(apiVertex["@value"].id),
+    type: vt,
+    types: labels,
+    neighborsCount: neighborsCount?.totalCount || 0,
+    neighborsCountByType: neighborsCount?.counts || {},
+    attributes: parsePropertiesValues(apiVertex["@value"].properties),
   };
 };
 

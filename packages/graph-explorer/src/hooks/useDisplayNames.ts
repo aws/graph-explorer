@@ -4,8 +4,8 @@ import { useConfiguration } from "@/core";
 import useTextTransform from "./useTextTransform";
 import { RESERVED_ID_PROPERTY } from "@/utils/constants";
 
-const isVertex = (vOrE: any): vOrE is Vertex => {
-  return vOrE.data.neighborsCount != null;
+const isVertex = (vOrE: Vertex | Edge): vOrE is Vertex => {
+  return "neighborsCount" in vOrE && vOrE.neighborsCount != null;
 };
 
 const useDisplayNames = () => {
@@ -16,10 +16,10 @@ const useDisplayNames = () => {
     (vertexOrEdge: Vertex | Edge) => {
       if (isVertex(vertexOrEdge)) {
         const vertex = vertexOrEdge;
-        const vtConfig = config?.getVertexTypeConfig(vertex.data.type);
+        const vtConfig = config?.getVertexTypeConfig(vertex.type);
 
-        let name = textTransform(vertex.data.id);
-        let longName = (vertex.data.types ?? [vertex.data.type])
+        let name = textTransform(vertex.id);
+        let longName = (vertex.types ?? [vertex.type])
           .map(textTransform)
           .join(", ");
 
@@ -30,26 +30,24 @@ const useDisplayNames = () => {
           };
         }
 
-        const attrs = vertex.data.attributes;
+        const attrs = vertex.attributes;
         const {
           displayNameAttribute: __name,
           longDisplayNameAttribute: __longName,
         } = vtConfig;
 
         if (__name === RESERVED_ID_PROPERTY) {
-          name = vertex.data.id;
+          name = vertex.id;
         } else if (__name === "types") {
-          name = (vertex.data.types ?? [vertex.data.type])
-            .map(textTransform)
-            .join(", ");
+          name = (vertex.types ?? [vertex.type]).map(textTransform).join(", ");
         } else if (__name) {
           name = attrs[__name] ? String(attrs[__name]) : "---";
         }
 
         if (__longName === RESERVED_ID_PROPERTY) {
-          longName = vertex.data.id;
+          longName = vertex.id;
         } else if (__longName === "types") {
-          longName = (vertex.data.types ?? [vertex.data.type])
+          longName = (vertex.types ?? [vertex.type])
             .map(textTransform)
             .join(", ");
         } else if (__longName) {
@@ -63,9 +61,9 @@ const useDisplayNames = () => {
       }
 
       const edge = vertexOrEdge;
-      const etConfig = config?.getEdgeTypeConfig(edge.data.type);
-      const attrs = edge.data.attributes;
-      let name = textTransform(edge.data.type);
+      const etConfig = config?.getEdgeTypeConfig(edge.type);
+      const attrs = edge.attributes;
+      let name = textTransform(edge.type);
 
       if (!etConfig) {
         return {
