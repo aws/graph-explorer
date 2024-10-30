@@ -6,7 +6,7 @@ import {
   Schema,
   VertexTypeConfig,
 } from "@/core";
-import { Edge, Vertex } from "@/types/entities";
+import { Edge, EdgeId, Vertex, VertexId } from "@/types/entities";
 import { Entities } from "@/core/StateProvider/entitiesSelector";
 import {
   createArray,
@@ -136,7 +136,7 @@ export function createRandomEntities(): Entities {
 export function createRandomVertex(): Vertex {
   return {
     data: {
-      id: createRandomName("VertexId"),
+      id: createRandomName("VertexId") as VertexId,
       idType: "string",
       type: createRandomName("VertexType"),
       attributes: createRecord(3, createRandomEntityAttribute),
@@ -153,7 +153,7 @@ export function createRandomVertex(): Vertex {
 export function createRandomEdge(source: Vertex, target: Vertex): Edge {
   return {
     data: {
-      id: createRandomName("EdgeId"),
+      id: createRandomName("EdgeId") as EdgeId,
       type: createRandomName("EdgeType"),
       attributes: createRecord(3, createRandomEntityAttribute),
       source: source.data.id,

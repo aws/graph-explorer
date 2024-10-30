@@ -39,7 +39,7 @@ export default function NodeExpandContent({ vertex }: NodeExpandContentProps) {
 
 function ExpandSidebarContent({ vertex }: { vertex: Vertex }) {
   const t = useTranslations();
-  const query = useUpdateNodeCountsQuery(vertex.data.id);
+  const query = useUpdateNodeCountsQuery(vertex.data.id, vertex.data.idType);
   const neighborsOptions = useNeighborsOptions(vertex);
 
   if (query.isError) {

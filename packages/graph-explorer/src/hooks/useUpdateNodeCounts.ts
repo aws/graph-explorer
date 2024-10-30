@@ -1,18 +1,26 @@
 import { useQueries, useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useRecoilValue } from "recoil";
-import { Vertex } from "@/types/entities";
+import { Vertex, VertexId } from "@/types/entities";
 import { useNotification } from "@/components/NotificationProvider";
 import { neighborsCountQuery } from "@/connector/queries";
 import { activeConnectionSelector, explorerSelector } from "@/core/connector";
 import useEntities from "./useEntities";
-import { VertexId } from "@/connector/useGEFetchTypes";
+import { VertexIdType } from "@/connector/useGEFetchTypes";
 
-export function useUpdateNodeCountsQuery(nodeId: VertexId) {
+export function useUpdateNodeCountsQuery(
+  nodeId: VertexId,
+  nodeIdType: VertexIdType
+) {
   const connection = useRecoilValue(activeConnectionSelector);
   const explorer = useRecoilValue(explorerSelector);
   return useQuery(
-    neighborsCountQuery(nodeId, connection?.nodeExpansionLimit, explorer)
+    neighborsCountQuery(
+      nodeId,
+      nodeIdType,
+      connection?.nodeExpansionLimit,
+      explorer
+    )
   );
 }
 
@@ -27,11 +35,16 @@ export function useUpdateAllNodeCounts() {
   const explorer = useRecoilValue(explorerSelector);
   const { enqueueNotification, clearNotification } = useNotification();
 
-  const nodeIds = [...new Set(entities.nodes.map(n => n.data.id))];
+  // Unique ID & ID type combos
+  const nodeIdAndTypes = [
+    ...new Map([
+      ...entities.nodes.map(n => [n.data.id, n.data.idType] as const),
+    ]),
+  ];
 
   const query = useQueries({
-    queries: nodeIds.map(id =>
-      neighborsCountQuery(id, connection?.nodeExpansionLimit, explorer)
+    queries: nodeIdAndTypes.map(([id, idType]) =>
+      neighborsCountQuery(id, idType, connection?.nodeExpansionLimit, explorer)
     ),
     combine: results => {
       // Combines data with existing node data and filters out undefined
