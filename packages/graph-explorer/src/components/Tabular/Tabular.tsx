@@ -53,7 +53,7 @@ export interface TabularProps<T extends object> extends TabularOptions<T> {
   globalSearch?: string;
 }
 
-export const Tabular = <T extends Record<string, unknown>>(
+export const Tabular = <T extends object>(
   {
     children,
     className,
@@ -126,7 +126,7 @@ export const Tabular = <T extends Record<string, unknown>>(
   );
 };
 
-const TabularContent = <T extends Record<string, unknown>>({
+const TabularContent = <T extends object>({
   children,
   className,
   tableInstance,
@@ -266,7 +266,7 @@ const TabularContent = <T extends Record<string, unknown>>({
   );
 };
 
-export default forwardRef(Tabular) as <T extends Record<string, unknown>>(
+export default forwardRef(Tabular) as <T extends object>(
   props: PropsWithChildren<TabularProps<T>> & {
     ref?: ForwardedRef<TabularInstance<T>>;
   }

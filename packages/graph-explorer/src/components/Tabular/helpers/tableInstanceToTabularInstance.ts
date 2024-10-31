@@ -22,12 +22,12 @@ import {
 import type { TabularProps } from "../Tabular";
 import type { ColumnDefinition } from "../useTabular";
 
-export type TabularColumnInstance<T extends Record<string, unknown>> = {
+export type TabularColumnInstance<T extends object> = {
   instance: ColumnInstance<T>;
   definition?: ColumnDefinition<T>;
 };
 
-export type TabularInstance<T extends Record<string, unknown>> = {
+export type TabularInstance<T extends object> = {
   /**
    * Original data
    */
@@ -142,7 +142,7 @@ export type TabularInstance<T extends Record<string, unknown>> = {
   initialHiddenColumns: Array<IdType<T>>;
 };
 
-const tableInstanceToTabularInstance = <T extends Record<string, unknown>>(
+const tableInstanceToTabularInstance = <T extends object>(
   tableInstance: TableInstance<T>,
   tableProps: TabularProps<T>
 ): TabularInstance<T> => {

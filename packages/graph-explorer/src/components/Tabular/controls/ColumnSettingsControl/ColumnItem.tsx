@@ -4,13 +4,13 @@ import Switch from "@/components/Switch";
 import type { TabularInstance } from "@/components/Tabular/helpers/tableInstanceToTabularInstance";
 import { useTabularControl } from "@/components/Tabular/TabularControlsProvider";
 
-type ColumnItemProps<T extends Record<string, unknown>> = {
+type ColumnItemProps<T extends object> = {
   columnId: string;
   column: TabularInstance<T>["columns"][number];
   index: number;
 };
 
-const ColumnItem = <T extends Record<string, unknown>>({
+const ColumnItem = <T extends object>({
   columnId,
   column,
   index,
