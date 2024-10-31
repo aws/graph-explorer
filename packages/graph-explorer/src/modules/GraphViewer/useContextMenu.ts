@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from "react";
 import { useLayer, useMousePositionAsTrigger } from "react-laag";
-import type { EdgeData, VertexData } from "@/types/entities";
+import type { Edge, Vertex } from "@/types/entities";
 import type {
   ElementEventCallback,
   GraphEventCallback,
@@ -48,7 +48,7 @@ const useContextMenu = () => {
       onOutsideClick: clearAllLayers,
     });
 
-  const onNodeRightClick: ElementEventCallback<VertexData> = useCallback(
+  const onNodeRightClick: ElementEventCallback<Vertex> = useCallback(
     (event, node, bounds) => {
       const parentBounds = parentRef.current?.getBoundingClientRect() || {
         top: 0,
@@ -67,7 +67,7 @@ const useContextMenu = () => {
     [handleMouseEvent]
   );
 
-  const onEdgeRightClick: ElementEventCallback<EdgeData> = useCallback(
+  const onEdgeRightClick: ElementEventCallback<Edge> = useCallback(
     (event, edge) => {
       const parentBounds = parentRef.current?.getBoundingClientRect() || {
         top: 0,

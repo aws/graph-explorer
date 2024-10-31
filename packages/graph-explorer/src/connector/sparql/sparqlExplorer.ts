@@ -36,15 +36,15 @@ const replaceBlankNodeFromSearch = (
     "[SPARQL Explorer] Replacing blank node from search with keywordSearchBlankNodesIdsTemplate"
   );
   return response.vertices.map(vertex => {
-    if (!vertex.data.__isBlank) {
+    if (!vertex.__isBlank) {
       return vertex;
     }
 
-    const bNode = blankNodes.get(vertex.data.id);
+    const bNode = blankNodes.get(vertex.id);
 
     if (!bNode) {
-      blankNodes.set(vertex.data.id, {
-        id: vertex.data.id,
+      blankNodes.set(vertex.id, {
+        id: vertex.id,
         subQueryTemplate: keywordSearchBlankNodesIdsTemplate(request),
         vertex,
       });
@@ -63,14 +63,14 @@ const replaceBlankNodeFromNeighbors = (
     "[SPARQL Explorer] Replacing blank node from search with oneHopNeighborsBlankNodesIdsTemplate"
   );
   return response.vertices.map(vertex => {
-    if (!vertex.data.__isBlank) {
+    if (!vertex.__isBlank) {
       return vertex;
     }
 
-    const bNode = blankNodes.get(vertex.data.id);
+    const bNode = blankNodes.get(vertex.id);
     if (!bNode?.neighbors) {
-      blankNodes.set(vertex.data.id, {
-        id: vertex.data.id,
+      blankNodes.set(vertex.id, {
+        id: vertex.id,
         subQueryTemplate: oneHopNeighborsBlankNodesIdsTemplate(request),
         vertex,
       });
@@ -97,33 +97,31 @@ const storedBlankNodeNeighborsRequest = (
       return;
     }
 
-    const filteredVertices = bNode.neighbors.vertices.filter(
-      (vertex: { data: { type: any; attributes: { [x: string]: any } } }) => {
-        if (!req.subjectClasses && !req.filterCriteria?.length) {
-          return true;
-        }
-
-        if (!req.subjectClasses?.includes(vertex.data.type)) {
-          return false;
-        }
-
-        if (!req.filterCriteria?.length) {
-          return true;
-        }
-
-        for (const criterion of req.filterCriteria) {
-          const attrVal = vertex.data.attributes[criterion.predicate];
-          if (attrVal == null) {
-            return false;
-          }
-          if (!String(attrVal).match(new RegExp(criterion.object, "gi"))) {
-            return false;
-          }
-        }
-
+    const filteredVertices = bNode.neighbors.vertices.filter(vertex => {
+      if (!req.subjectClasses && !req.filterCriteria?.length) {
         return true;
       }
-    );
+
+      if (!req.subjectClasses?.includes(vertex.type)) {
+        return false;
+      }
+
+      if (!req.filterCriteria?.length) {
+        return true;
+      }
+
+      for (const criterion of req.filterCriteria) {
+        const attrVal = vertex.attributes[criterion.predicate];
+        if (attrVal == null) {
+          return false;
+        }
+        if (!String(attrVal).match(new RegExp(criterion.object, "gi"))) {
+          return false;
+        }
+      }
+
+      return true;
+    });
 
     resolve({
       vertices: filteredVertices.slice(
@@ -253,8 +251,8 @@ export function createSparqlExplorer(
 
       if (bNode?.neighbors) {
         return {
-          totalCount: bNode.vertex.data.neighborsCount,
-          counts: bNode.vertex.data.neighborsCountByType,
+          totalCount: bNode.vertex.neighborsCount,
+          counts: bNode.vertex.neighborsCountByType,
         };
       }
 
@@ -262,8 +260,8 @@ export function createSparqlExplorer(
         const response = await fetchBlankNodeNeighbors(
           _sparqlFetch(connection, featureFlags, options),
           {
-            resourceURI: bNode.vertex.data.id,
-            resourceClass: bNode.vertex.data.type,
+            resourceURI: bNode.vertex.id,
+            resourceClass: bNode.vertex.type,
             subQuery: bNode.subQueryTemplate,
           }
         );
@@ -272,11 +270,8 @@ export function createSparqlExplorer(
           ...bNode,
           vertex: {
             ...bNode.vertex,
-            data: {
-              ...bNode.vertex.data,
-              neighborsCount: response.totalCount,
-              neighborsCountByType: response.counts,
-            },
+            neighborsCount: response.totalCount,
+            neighborsCountByType: response.counts,
           },
           neighbors: response.neighbors,
         });

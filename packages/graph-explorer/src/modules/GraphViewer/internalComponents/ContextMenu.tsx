@@ -128,8 +128,8 @@ const ContextMenu = ({
   const handleRemoveFromCanvas = useCallback(
     (nodesIds: string[], edgesIds: string[]) => () => {
       setEntities(prev => ({
-        nodes: prev.nodes.filter(n => !nodesIds.includes(n.data.id)),
-        edges: prev.edges.filter(e => !edgesIds.includes(e.data.id)),
+        nodes: prev.nodes.filter(n => !nodesIds.includes(n.id)),
+        edges: prev.edges.filter(e => !edgesIds.includes(e.id)),
         forceSet: true,
       }));
       onClose?.();
@@ -163,7 +163,7 @@ const ContextMenu = ({
       return;
     }
 
-    return entities.nodes.find(n => n.data.id === affectedNodesIds[0]);
+    return entities.nodes.find(n => n.id === affectedNodesIds[0]);
   }, [affectedNodesIds, entities.nodes]);
 
   const affectedEdge = useMemo(() => {
@@ -171,7 +171,7 @@ const ContextMenu = ({
       return;
     }
 
-    return entities.edges.find(e => e.data.id === affectedEdgesIds[0]);
+    return entities.edges.find(e => e.id === affectedEdgesIds[0]);
   }, [affectedEdgesIds, entities.edges]);
 
   if (affectedNode) {
@@ -207,7 +207,7 @@ const ContextMenu = ({
             className={"context-menu-list-item"}
             clickable={true}
             onClick={openSidebarPanel("nodes-styling", {
-              nodeType: affectedNode.data.type,
+              nodeType: affectedNode.type,
             })}
             startAdornment={<StylingIcon />}
           >
@@ -217,7 +217,7 @@ const ContextMenu = ({
           <ListItem
             className={"context-menu-list-item"}
             clickable={true}
-            onClick={handleRemoveFromCanvas([affectedNode.data.id], [])}
+            onClick={handleRemoveFromCanvas([affectedNode.id], [])}
             startAdornment={<RemoveFromCanvasIcon color={"red"} />}
           >
             Remove {t("graph-viewer.node")} from canvas
@@ -252,7 +252,7 @@ const ContextMenu = ({
             className={"context-menu-list-item"}
             clickable={true}
             onClick={openSidebarPanel("edges-styling", {
-              edgeType: affectedEdge.data.type,
+              edgeType: affectedEdge.type,
             })}
             startAdornment={<StylingIcon />}
           >
@@ -262,7 +262,7 @@ const ContextMenu = ({
           <ListItem
             className={"context-menu-list-item"}
             clickable={true}
-            onClick={handleRemoveFromCanvas([], [affectedEdge.data.id])}
+            onClick={handleRemoveFromCanvas([], [affectedEdge.id])}
             startAdornment={<RemoveFromCanvasIcon color={"red"} />}
           >
             Remove {t("graph-viewer.edge")} from canvas

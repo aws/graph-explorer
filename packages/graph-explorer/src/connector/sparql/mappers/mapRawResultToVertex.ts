@@ -7,15 +7,13 @@ const mapRawResultToVertex = (
   neighborsCount?: NeighborsCountResponse
 ): Vertex => {
   return {
-    data: {
-      id: rawResult.uri as VertexId,
-      idType: "string",
-      type: rawResult.class,
-      neighborsCount: neighborsCount?.totalCount || 0,
-      neighborsCountByType: neighborsCount?.counts || {},
-      attributes: rawResult.attributes,
-      __isBlank: rawResult.isBlank,
-    },
+    id: rawResult.uri as VertexId,
+    idType: "string",
+    type: rawResult.class,
+    neighborsCount: neighborsCount?.totalCount || 0,
+    neighborsCountByType: neighborsCount?.counts || {},
+    attributes: rawResult.attributes,
+    __isBlank: rawResult.isBlank,
   };
 };
 

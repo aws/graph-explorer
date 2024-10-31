@@ -149,7 +149,7 @@ const fetchNeighbors = async (
     sparqlFetch,
     req
   );
-  const subjectsURIs = vertices.map(v => v.data.id);
+  const subjectsURIs = vertices.map(v => v.id);
   const edges = await fetchNeighborsPredicates(
     sparqlFetch,
     req.resourceURI,

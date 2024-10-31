@@ -135,14 +135,12 @@ export function createRandomEntities(): Entities {
  */
 export function createRandomVertex(): Vertex {
   return {
-    data: {
-      id: createRandomName("VertexId") as VertexId,
-      idType: "string",
-      type: createRandomName("VertexType"),
-      attributes: createRecord(3, createRandomEntityAttribute),
-      neighborsCount: 0,
-      neighborsCountByType: {},
-    },
+    id: createRandomName("VertexId") as VertexId,
+    idType: "string",
+    type: createRandomName("VertexType"),
+    attributes: createRecord(3, createRandomEntityAttribute),
+    neighborsCount: 0,
+    neighborsCountByType: {},
   };
 }
 
@@ -152,15 +150,13 @@ export function createRandomVertex(): Vertex {
  */
 export function createRandomEdge(source: Vertex, target: Vertex): Edge {
   return {
-    data: {
-      id: createRandomName("EdgeId") as EdgeId,
-      type: createRandomName("EdgeType"),
-      attributes: createRecord(3, createRandomEntityAttribute),
-      source: source.data.id,
-      sourceType: source.data.type,
-      target: target.data.id,
-      targetType: target.data.type,
-    },
+    id: createRandomName("EdgeId") as EdgeId,
+    type: createRandomName("EdgeType"),
+    attributes: createRecord(3, createRandomEntityAttribute),
+    source: source.id,
+    sourceType: source.type,
+    target: target.id,
+    targetType: target.type,
   };
 }
 

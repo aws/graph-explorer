@@ -15,11 +15,11 @@ const useNodeBadges = () => {
   const nodesCurrentNames = useMemo(() => {
     return nodes.reduce(
       (names, node) => {
-        const vtConfig = config?.getVertexTypeConfig(node.data.type);
+        const vtConfig = config?.getVertexTypeConfig(node.type);
         const { name } = getDisplayNames(node);
-        names[node.data.id] = {
+        names[node.id] = {
           name,
-          title: vtConfig?.displayLabel || textTransform(node.data.type),
+          title: vtConfig?.displayLabel || textTransform(node.type),
         };
         return names;
       },

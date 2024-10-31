@@ -261,9 +261,7 @@ function DisplayNameAndDescriptionOptions({
 function AddToExplorerButton({ vertex }: { vertex: Vertex }) {
   const fetchNode = useFetchNode();
   const [entities] = useEntities({ disableFilters: true });
-  const isInExplorer = !!entities.nodes.find(
-    node => node.data.id === vertex.data.id
-  );
+  const isInExplorer = !!entities.nodes.find(node => node.id === vertex.id);
 
   return (
     <div style={{ display: "inline-block" }}>
@@ -293,7 +291,7 @@ function useColumnDefinitions(vertexType: string) {
         .map(attr => ({
           id: attr.name,
           label: attr.displayLabel || textTransform(attr.name),
-          accessor: (row: Vertex) => row.data.attributes[attr.name],
+          accessor: (row: Vertex) => row.attributes[attr.name],
           filterType:
             attr.dataType === "String"
               ? { name: "string" as const }
@@ -304,7 +302,7 @@ function useColumnDefinitions(vertexType: string) {
     vtColumns.unshift({
       label: t("data-explorer.node-id"),
       id: "__id",
-      accessor: row => textTransform(row.data.id),
+      accessor: row => textTransform(row.id),
       filterable: false,
     });
 
@@ -398,7 +396,7 @@ function useDataExplorerQuery(
       return;
     }
 
-    updatePrefixes(query.data.vertices.map(v => v.data.id));
+    updatePrefixes(query.data.vertices.map(v => v.id));
   }, [query.data, updatePrefixes]);
 
   return query;

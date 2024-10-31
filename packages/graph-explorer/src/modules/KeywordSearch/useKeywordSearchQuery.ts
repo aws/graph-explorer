@@ -43,7 +43,7 @@ export function useKeywordSearchQuery({
     if (!query.data) {
       return;
     }
-    updatePrefixes(query.data.vertices.map(v => v.data.id));
+    updatePrefixes(query.data.vertices.map(v => v.id));
   }, [query.data, updatePrefixes]);
 
   return query;

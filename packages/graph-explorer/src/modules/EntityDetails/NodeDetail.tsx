@@ -26,16 +26,15 @@ export default function NodeDetail({
   const styleWithTheme = useWithTheme();
   const textTransform = useTextTransform();
 
-  const vertexConfig = useVertexTypeConfig(node.data.type);
+  const vertexConfig = useVertexTypeConfig(node.type);
 
   const sortedAttributes = useMemo(() => {
     const attributes =
-      config?.getVertexTypeAttributes(node.data.types ?? [node.data.type]) ||
-      [];
+      config?.getVertexTypeAttributes(node.types ?? [node.type]) || [];
 
     // const attributes = clone(vertexConfig?.attributes) || [];
     const unknownAttrKeys = difference(
-      Object.keys(node.data.attributes),
+      Object.keys(node.attributes),
       attributes.map(attr => attr.name)
     ).map(attrName => ({
       displayLabel: textTransform(attrName),
@@ -46,13 +45,7 @@ export default function NodeDetail({
     return [...attributes, ...unknownAttrKeys].sort((a, b) =>
       a.displayLabel.localeCompare(b.displayLabel)
     );
-  }, [
-    config,
-    node.data.types,
-    node.data.type,
-    node.data.attributes,
-    textTransform,
-  ]);
+  }, [config, node.types, node.type, node.attributes, textTransform]);
 
   return (
     <div className={styleWithTheme(defaultStyles())}>
@@ -64,12 +57,12 @@ export default function NodeDetail({
           <EntityAttribute
             value={
               config?.connection?.queryEngine === "sparql"
-                ? textTransform(node.data.id)
-                : node.data.id
+                ? textTransform(node.id)
+                : node.id
             }
             attribute={{
               name: RESERVED_ID_PROPERTY,
-              displayLabel: node.data.__isBlank
+              displayLabel: node.__isBlank
                 ? "Blank node ID"
                 : t("node-detail.node-id"),
             }}
@@ -77,9 +70,7 @@ export default function NodeDetail({
           <EntityAttribute
             value={
               vertexConfig.displayLabel ||
-              (node.data.types ?? [node.data.type])
-                .map(textTransform)
-                .join(", ")
+              (node.types ?? [node.type]).map(textTransform).join(", ")
             }
             attribute={{
               name: "types",
@@ -89,7 +80,7 @@ export default function NodeDetail({
           {sortedAttributes.map(attribute => (
             <EntityAttribute
               key={attribute.name}
-              value={node.data.attributes[attribute.name]}
+              value={node.attributes[attribute.name]}
               attribute={attribute}
             />
           ))}

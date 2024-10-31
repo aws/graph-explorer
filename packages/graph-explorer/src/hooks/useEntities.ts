@@ -49,19 +49,19 @@ const useEntities = ({ disableFilters }: { disableFilters?: boolean } = {}): [
         // Filter nodes that are defined and not hidden
         const filteredNodes = nextEntities.nodes.filter(node => {
           return !config?.schema?.vertices.find(
-            vertex => vertex.type === node.data.type
+            vertex => vertex.type === node.type
           )?.hidden;
         });
 
         // Update counts filtering by defined and not hidden
         const nodesWithoutHiddenCounts = filteredNodes.map(node => {
           const [totalNeighborCount, totalNeighborCounts] = Object.entries(
-            node.data.neighborsCountByType
+            node.neighborsCountByType
           ).reduce(
             (totalNeighborsCounts, [type, count]) => {
               if (
                 !config?.schema?.vertices.find(
-                  vertex => vertex.type === node.data.type
+                  vertex => vertex.type === node.type
                 )?.hidden
               ) {
                 totalNeighborsCounts[1][type] = count;
@@ -71,26 +71,22 @@ const useEntities = ({ disableFilters }: { disableFilters?: boolean } = {}): [
 
               return totalNeighborsCounts;
             },
-            [node.data.neighborsCount, {}] as [
+            [node.neighborsCount, {}] as [
               number,
-              typeof node.data.neighborsCountByType,
+              typeof node.neighborsCountByType,
             ]
           );
 
           return {
             ...node,
-            data: {
-              ...node.data,
-              neighborsCount: totalNeighborCount,
-              neighborsCountByType: totalNeighborCounts,
-            },
+            neighborsCount: totalNeighborCount,
+            neighborsCountByType: totalNeighborCounts,
           };
         });
 
         // Filter edges that are defined and not hidden
         const filteredEdges = nextEntities.edges.filter(edge => {
-          return !config?.schema?.edges.find(e => e.type === edge.data.type)
-            ?.hidden;
+          return !config?.schema?.edges.find(e => e.type === edge.type)?.hidden;
         });
 
         set(entitiesSelector, {
@@ -112,14 +108,14 @@ const useEntities = ({ disableFilters }: { disableFilters?: boolean } = {}): [
     let filteredEdges = edges;
     if (!disableFilters) {
       filteredNodes = nodes.filter(node => {
-        return vertexTypes.has(node.data.type) === false;
+        return vertexTypes.has(node.type) === false;
       });
 
       filteredEdges = edges.filter(edge => {
         return (
-          connectionTypes.has(edge.data.type) === false &&
-          filteredNodes.some(node => node.data.id === edge.data.source) &&
-          filteredNodes.some(node => node.data.id === edge.data.target)
+          connectionTypes.has(edge.type) === false &&
+          filteredNodes.some(node => node.id === edge.source) &&
+          filteredNodes.some(node => node.id === edge.target)
         );
       });
     }
@@ -132,14 +128,14 @@ const useEntities = ({ disableFilters }: { disableFilters?: boolean } = {}): [
   const filteredEntities = useMemo(() => {
     return {
       nodes: filteredEntitiesByGlobalFilters.nodes.filter(node => {
-        return !filteredNodesIds.has(node.data.id);
+        return !filteredNodesIds.has(node.id);
       }),
       edges: filteredEntitiesByGlobalFilters.edges.filter(edge => {
         // Edges should not be in the filteredEdgesIds neither be unconnected
         return (
-          !filteredEdgesIds.has(edge.data.id) &&
-          !filteredNodesIds.has(edge.data.source) &&
-          !filteredNodesIds.has(edge.data.target)
+          !filteredEdgesIds.has(edge.id) &&
+          !filteredNodesIds.has(edge.source) &&
+          !filteredNodesIds.has(edge.target)
         );
       }),
     };

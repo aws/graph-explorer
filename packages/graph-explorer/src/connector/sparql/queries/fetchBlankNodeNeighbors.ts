@@ -117,7 +117,7 @@ export default async function fetchBlankNodeNeighbors(
       bindings: filteredNeighbors,
     },
   });
-  const subjectsURIs = vertices.map(v => v.data.id);
+  const subjectsURIs = vertices.map(v => v.id);
   const edges = await fetchBlankNodeNeighborsPredicates(
     sparqlFetch,
     req.subQuery,
@@ -128,7 +128,7 @@ export default async function fetchBlankNodeNeighbors(
 
   return {
     totalCount: vertices.length,
-    counts: Object.entries(groupBy(vertices, v => v.data.type)).reduce(
+    counts: Object.entries(groupBy(vertices, v => v.type)).reduce(
       (counts, [group, vs]) => {
         counts[group] = vs.length;
         return counts;

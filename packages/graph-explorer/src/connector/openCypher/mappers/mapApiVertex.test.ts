@@ -11,15 +11,13 @@ test("maps empty vertex", () => {
   const result = mapApiVertex(input);
 
   expect(result).toEqual({
-    data: {
-      id: "",
-      idType: "string",
-      type: "",
-      types: [],
-      attributes: {},
-      neighborsCount: 0,
-      neighborsCountByType: {},
-    },
+    id: "",
+    idType: "string",
+    type: "",
+    types: [],
+    attributes: {},
+    neighborsCount: 0,
+    neighborsCountByType: {},
   });
 });
 
@@ -39,15 +37,13 @@ test("applies the given counts", () => {
   const result = mapApiVertex(input, counts);
 
   expect(result).toEqual({
-    data: {
-      id: "",
-      idType: "string",
-      type: "",
-      types: [],
-      attributes: {},
-      neighborsCount: counts.totalCount,
-      neighborsCountByType: counts.counts,
-    },
+    id: "",
+    idType: "string",
+    type: "",
+    types: [],
+    attributes: {},
+    neighborsCount: counts.totalCount,
+    neighborsCountByType: counts.counts,
   });
 });
 
@@ -75,27 +71,25 @@ test("maps airport node", () => {
   const result = mapApiVertex(input);
 
   expect(result).toEqual({
-    data: {
-      id: "1",
-      idType: "string",
+    id: "1",
+    idType: "string",
+    type: "airport",
+    types: ["airport"],
+    attributes: {
+      city: "Atlanta",
+      code: "ATL",
+      country: "US",
+      desc: "Hartsfield - Jackson Atlanta International Airport",
+      elev: 1026,
+      icao: "KATL",
+      lat: 33.6366996765137,
+      lon: -84.4281005859375,
+      longest: 12390,
+      region: "US-GA",
+      runways: 5,
       type: "airport",
-      types: ["airport"],
-      attributes: {
-        city: "Atlanta",
-        code: "ATL",
-        country: "US",
-        desc: "Hartsfield - Jackson Atlanta International Airport",
-        elev: 1026,
-        icao: "KATL",
-        lat: 33.6366996765137,
-        lon: -84.4281005859375,
-        longest: 12390,
-        region: "US-GA",
-        runways: 5,
-        type: "airport",
-      },
-      neighborsCount: 0,
-      neighborsCountByType: {},
     },
+    neighborsCount: 0,
+    neighborsCountByType: {},
   });
 });

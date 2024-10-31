@@ -36,20 +36,20 @@ const EdgeDetail = ({ edge, sourceVertex, targetVertex }: EdgeDetailProps) => {
   const config = useConfiguration();
   const styleWithTheme = useWithTheme();
 
-  const edgeConfig = useEdgeTypeConfig(edge.data.type);
+  const edgeConfig = useEdgeTypeConfig(edge.type);
 
   const sourceVertexConfig = useMemo(() => {
     if (!sourceVertex) {
       return;
     }
-    return config?.getVertexTypeConfig(sourceVertex?.data.type);
+    return config?.getVertexTypeConfig(sourceVertex?.type);
   }, [config, sourceVertex]);
 
   const targetVertexConfig = useMemo(() => {
     if (!targetVertex) {
       return;
     }
-    return config?.getVertexTypeConfig(targetVertex?.data.type);
+    return config?.getVertexTypeConfig(targetVertex?.type);
   }, [config, targetVertex]);
 
   const sortedAttributes = useMemo(() => {
@@ -73,10 +73,8 @@ const EdgeDetail = ({ edge, sourceVertex, targetVertex }: EdgeDetailProps) => {
           <EdgeIcon />
         </div>
         <div className={"content"}>
-          <div className={"title"}>{textTransform(edge.data.type)}</div>
-          {config?.connection?.queryEngine !== "sparql" && (
-            <div>{edge.data.id}</div>
-          )}
+          <div className={"title"}>{textTransform(edge.type)}</div>
+          {config?.connection?.queryEngine !== "sparql" && <div>{edge.id}</div>}
         </div>
       </div>
       <div className={cn("header", "source-vertex")}>
@@ -137,9 +135,7 @@ const EdgeDetail = ({ edge, sourceVertex, targetVertex }: EdgeDetailProps) => {
         )}
         <div className={"content"}>
           <div className={"title"}>{sourceName}</div>
-          <div>
-            {textTransform(sourceVertex?.data.type || sourceVertex?.data.id)}
-          </div>
+          <div>{textTransform(sourceVertex?.type || sourceVertex?.id)}</div>
         </div>
       </div>
       <div className={cn("header", "target-vertex")}>
@@ -197,9 +193,7 @@ const EdgeDetail = ({ edge, sourceVertex, targetVertex }: EdgeDetailProps) => {
         )}
         <div className={"content"}>
           <div className={"title"}>{targetName}</div>
-          <div>
-            {textTransform(targetVertex?.data.type || targetVertex?.data.id)}
-          </div>
+          <div>{textTransform(targetVertex?.type || targetVertex?.id)}</div>
         </div>
       </div>
       {edgeConfig && sortedAttributes.length > 0 && (
@@ -211,14 +205,14 @@ const EdgeDetail = ({ edge, sourceVertex, targetVertex }: EdgeDetailProps) => {
                 <div className={"attribute-name"}>{attribute.displayLabel}</div>
                 {attribute.dataType !== "Date" && (
                   <div className={"attribute-value"}>
-                    {edge.data.attributes[attribute.name] == null
+                    {edge.attributes[attribute.name] == null
                       ? "---"
-                      : String(edge.data.attributes[attribute.name])}
+                      : String(edge.attributes[attribute.name])}
                   </div>
                 )}
                 {attribute.dataType === "Date" && (
                   <div className={"attribute-value"}>
-                    {formatDate(new Date(edge.data.attributes[attribute.name]))}
+                    {formatDate(new Date(edge.attributes[attribute.name]))}
                   </div>
                 )}
               </div>
