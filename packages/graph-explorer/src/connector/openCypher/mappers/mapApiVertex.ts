@@ -1,4 +1,4 @@
-import type { Vertex } from "@/@types/entities";
+import type { Vertex, VertexId } from "@/@types/entities";
 import type { NeighborsCountResponse } from "@/connector/useGEFetchTypes";
 import type { OCVertex } from "../types";
 
@@ -11,7 +11,7 @@ export default function mapApiVertex(
 
   return {
     data: {
-      id: apiVertex["~id"],
+      id: apiVertex["~id"] as VertexId,
       idType: "string",
       type: vt,
       types: labels,

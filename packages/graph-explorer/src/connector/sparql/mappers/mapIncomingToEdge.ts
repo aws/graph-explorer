@@ -1,4 +1,4 @@
-import { Edge } from "@/@types/entities";
+import { Edge, EdgeId, VertexId } from "@/@types/entities";
 import { RawValue } from "../types";
 
 export type IncomingPredicate = {
@@ -14,11 +14,11 @@ const mapIncomingToEdge = (
 ): Edge => {
   return {
     data: {
-      id: `${result.subject.value}-[${result.predFromSubject.value}]->${resourceURI}`,
+      id: `${result.subject.value}-[${result.predFromSubject.value}]->${resourceURI}` as EdgeId,
       type: result.predFromSubject.value,
-      source: result.subject.value,
+      source: result.subject.value as VertexId,
       sourceType: result.subjectClass.value,
-      target: resourceURI,
+      target: resourceURI as VertexId,
       targetType: resourceClass,
       attributes: {},
     },

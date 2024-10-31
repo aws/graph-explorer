@@ -1,10 +1,15 @@
+import { Branded } from "@/utils";
+
+export type EdgeId = Branded<string, "EdgeId">;
+export type VertexId = Branded<string, "VertexId">;
+
 export interface VertexData {
   /**
    * Unique identifier for the vertex.
    * - For PG, the node id
    * - For RDF, the resource URI
    */
-  id: string;
+  id: VertexId;
   /**
    * Data type for the node id.
    * - For Gremlin, could be string or number
@@ -85,7 +90,7 @@ export interface EdgeData {
    * - For RDF, predicates do not have ids like PG graphs.
    *   So, a synthetic id is created using <source URI>-[predicate]-><target URI>
    */
-  id: string;
+  id: EdgeId;
   /**
    * Edge type.
    * - For PG, the label which identifies the relation type
@@ -95,7 +100,7 @@ export interface EdgeData {
   /**
    * Source vertex id
    */
-  source: string;
+  source: VertexId;
   /**
    * Source vertex type
    */
@@ -103,7 +108,7 @@ export interface EdgeData {
   /**
    * Target vertex id
    */
-  target: string;
+  target: VertexId;
   /**
    * Target vertex type
    */

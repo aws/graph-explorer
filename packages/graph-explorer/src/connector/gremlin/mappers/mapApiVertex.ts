@@ -1,4 +1,4 @@
-import type { Vertex } from "@/@types/entities";
+import type { Vertex, VertexId } from "@/@types/entities";
 import type { NeighborsCountResponse } from "@/connector/useGEFetchTypes";
 import type { GVertex } from "../types";
 import { detectIdType } from "./detectIdType";
@@ -14,7 +14,7 @@ const mapApiVertex = (
 
   return {
     data: {
-      id: toStringId(apiVertex["@value"].id),
+      id: toStringId(apiVertex["@value"].id) as VertexId,
       idType: detectIdType(apiVertex["@value"].id),
       type: vt,
       types: labels,
