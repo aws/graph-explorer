@@ -22,11 +22,12 @@ import useEntities from "@/hooks/useEntities";
 import useTranslations from "@/hooks/useTranslations";
 import useGraphGlobalActions from "../useGraphGlobalActions";
 import defaultStyles from "./ContextMenu.styles";
+import { EdgeId, VertexId } from "@/@types/entities";
 
 export type ContextMenuProps = {
   className?: string;
-  affectedNodesIds?: string[];
-  affectedEdgesIds?: string[];
+  affectedNodesIds?: VertexId[];
+  affectedEdgesIds?: EdgeId[];
   graphRef: RefObject<GraphRef | null>;
   onClose?(): void;
   onNodeCustomize(nodeType?: string): void;
@@ -126,7 +127,7 @@ const ContextMenu = ({
   }, [onClose, onZoomOut]);
 
   const handleRemoveFromCanvas = useCallback(
-    (nodesIds: string[], edgesIds: string[]) => () => {
+    (nodesIds: VertexId[], edgesIds: EdgeId[]) => () => {
       setEntities(prev => ({
         nodes: prev.nodes.filter(n => !nodesIds.includes(n.id)),
         edges: prev.edges.filter(e => !edgesIds.includes(e.id)),

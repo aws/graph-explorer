@@ -5,6 +5,7 @@ import { useConfiguration } from "@/core";
 import { nodesAtom } from "@/core/StateProvider/nodes";
 import useDisplayNames from "@/hooks/useDisplayNames";
 import useTextTransform from "@/hooks/useTextTransform";
+import { VertexId } from "@/@types/entities";
 
 const useNodeBadges = () => {
   const config = useConfiguration();
@@ -28,7 +29,7 @@ const useNodeBadges = () => {
   }, [config, getDisplayNames, nodes, textTransform]);
 
   return useCallback(
-    (outOfFocusIds: Set<string>): BadgeRenderer =>
+    (outOfFocusIds: Set<VertexId>): BadgeRenderer =>
       (nodeData, boundingBox, { zoomLevel }) => {
         // Ensure we have the node name and title
         const name = nodesCurrentNames[nodeData.id]?.name ?? "";

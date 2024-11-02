@@ -1,5 +1,5 @@
 import { atom, selector } from "recoil";
-import type { Edge } from "@/types/entities";
+import type { Edge, EdgeId } from "@/types/entities";
 import isDefaultValue from "./isDefaultValue";
 
 export type Edges = Array<Edge>;
@@ -22,8 +22,8 @@ export const edgesSelector = selector<Edges>({
 
     set(edgesAtom, newValue);
 
-    const cleanFn = (curr: Set<string>) => {
-      const existingEdgesIds = new Set<string>();
+    const cleanFn = (curr: Set<EdgeId>) => {
+      const existingEdgesIds = new Set<EdgeId>();
       curr.forEach(eId => {
         const exist = newValue.find(n => n.id === eId);
         if (exist) {
@@ -41,22 +41,22 @@ export const edgesSelector = selector<Edges>({
   },
 });
 
-export const edgesSelectedIdsAtom = atom<Set<string>>({
+export const edgesSelectedIdsAtom = atom<Set<EdgeId>>({
   key: "edges-selected-ids",
   default: new Set(),
 });
 
-export const edgesHiddenIdsAtom = atom<Set<string>>({
+export const edgesHiddenIdsAtom = atom<Set<EdgeId>>({
   key: "edges-hidden-ids",
   default: new Set(),
 });
 
-export const edgesOutOfFocusIdsAtom = atom<Set<string>>({
+export const edgesOutOfFocusIdsAtom = atom<Set<EdgeId>>({
   key: "edges-out-of-focus-ids",
   default: new Set(),
 });
 
-export const edgesFilteredIdsAtom = atom<Set<string>>({
+export const edgesFilteredIdsAtom = atom<Set<EdgeId>>({
   key: "edges-filtered-ids",
   default: new Set(),
 });

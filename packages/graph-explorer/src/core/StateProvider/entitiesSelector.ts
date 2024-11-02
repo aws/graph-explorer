@@ -4,7 +4,7 @@ import isEqualWith from "lodash/isEqualWith";
 import uniqBy from "lodash/uniqBy";
 import type { GetRecoilValue, RecoilState, SetRecoilState } from "recoil";
 import { selector } from "recoil";
-import type { Edge, Vertex } from "@/types/entities";
+import type { Edge, EdgeId, Vertex, VertexId } from "@/types/entities";
 import { edgesAtom, edgesSelectedIdsAtom, edgesSelector } from "./edges";
 import {
   nodesAtom,
@@ -28,7 +28,7 @@ const isEntities = (value: any): value is Entities => {
   return !!value.nodes;
 };
 
-const removeFromSetIfDeleted = (
+function removeFromSetIfDeleted<T>(
   {
     get,
     set,
@@ -36,9 +36,9 @@ const removeFromSetIfDeleted = (
     get: GetRecoilValue;
     set: SetRecoilState;
   },
-  deletedIds: Set<string>,
-  selector: RecoilState<Set<string>>
-) => {
+  deletedIds: Set<T>,
+  selector: RecoilState<Set<T>>
+) {
   const selectorIds = get(selector);
   const copiedSelectorIds = new Set(selectorIds);
   deletedIds.forEach(id => {
@@ -46,7 +46,7 @@ const removeFromSetIfDeleted = (
   });
   set(selector, copiedSelectorIds);
   return copiedSelectorIds;
-};
+}
 
 // This selector is the safer way to add entities to the graph
 // It computes stats (counts) every time that some entity is added
@@ -185,7 +185,7 @@ const entitiesSelector = selector<Entities>({
               })
               .map(edge => edge.id)
           )
-        : new Set<string>();
+        : new Set<EdgeId>();
 
     // When a node is removed, we should remove its involved edge id from other edges-state sets
     if (affectedEdgesIds.size > 0) {
@@ -237,11 +237,11 @@ const entitiesSelector = selector<Entities>({
     // Select new entities preserving selected ones by default
     const selectedNodesIds =
       newEntities.preserveSelection === false
-        ? new Set<string>()
+        ? new Set<VertexId>()
         : new Set(get(nodesSelectedIdsAtom));
     const selectedEdgesIds =
       newEntities.preserveSelection === false
-        ? new Set<string>()
+        ? new Set<EdgeId>()
         : new Set(get(edgesSelectedIdsAtom));
 
     if (

@@ -2,7 +2,7 @@ import { css } from "@emotion/css";
 import { cn } from "@/utils";
 import { useClickOutside, useHotkeys } from "@mantine/hooks";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Vertex } from "@/types/entities";
+import { Vertex, VertexId } from "@/types/entities";
 
 import {
   AddCircleIcon,
@@ -53,7 +53,7 @@ export default function KeywordSearch({ className }: KeywordSearchProps) {
 
   const rootRef = useRef<HTMLDivElement | null>(null);
   const [isFocused, setInputFocused] = useState(false);
-  const selection = useSet<string>(new Set());
+  const selection = useSet<VertexId>(new Set());
 
   const {
     query,
@@ -279,7 +279,7 @@ function SearchResults({
 }: {
   query: UseQueryResult<KeywordSearchResponse | null, Error>;
   currentTotal: number | null | undefined;
-  selection: SetResult<string>;
+  selection: SetResult<VertexId>;
   close: () => void;
 }) {
   const config = useConfiguration();
@@ -412,7 +412,7 @@ function SearchResults({
         draggable={true}
         defaultItemType="graph-viewer__node"
         onItemClick={(_event, item) => {
-          selection.toggle(item.id);
+          selection.toggle(item.id as VertexId);
         }}
         selectedItemsIds={Array.from(selection.state)}
         hideFooter
