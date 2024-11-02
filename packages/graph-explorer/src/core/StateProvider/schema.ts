@@ -63,7 +63,7 @@ type SchemaEntities = Pick<Entities, "nodes" | "edges">;
 /** Write only atom that updates the schema based on the given nodes and edges. */
 export const updateSchemaFromEntitiesAtom = selector<SchemaEntities>({
   key: "update-schema-from-entities",
-  get: () => ({ nodes: new Map(), edges: [] }),
+  get: () => ({ nodes: new Map(), edges: new Map() }),
   set({ set }, newValue) {
     set(activeSchemaSelector, prev => {
       if (!prev || isDefaultValue(newValue)) {
@@ -83,7 +83,10 @@ export function updateSchemaFromEntities(
     .values()
     .map(extractConfigFromEntity)
     .toArray();
-  const newEdgeConfigs = entities.edges.map(extractConfigFromEntity);
+  const newEdgeConfigs = entities.edges
+    .values()
+    .map(extractConfigFromEntity)
+    .toArray();
 
   return {
     ...schema,

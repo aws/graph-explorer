@@ -19,7 +19,7 @@ export default function useFetchNode() {
 
       setEntities({
         nodes: toNodeMap(validResults),
-        edges: [],
+        edges: new Map(),
         selectNewEntities: "nodes",
       });
     },

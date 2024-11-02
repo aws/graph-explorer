@@ -45,7 +45,11 @@ const EntityDetails = ({
   }, [nodes, selectedNodesIds]);
 
   const selectedEdge = useMemo(() => {
-    return edges.find(edge => selectedEdgesIds.has(edge.id));
+    return selectedEdgesIds
+      .keys()
+      .map(id => edges.get(id))
+      .filter(n => n != null)
+      .next().value;
   }, [edges, selectedEdgesIds]);
 
   const [sourceNode, targetNode] = useMemo(() => {

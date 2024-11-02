@@ -4,7 +4,7 @@ import {
   createRandomVertex,
 } from "@/utils/testing";
 import { useRecoilState, useRecoilValue } from "recoil";
-import { edgesAtom, edgesSelector } from "./edges";
+import { edgesAtom, edgesSelector, toEdgeMap } from "./edges";
 import { act } from "@testing-library/react";
 
 describe("edgeSelector", () => {
@@ -16,13 +16,13 @@ describe("edgeSelector", () => {
     const { result } = renderHookWithRecoilRoot(
       () => useRecoilValue(edgesSelector),
       snapshot => {
-        snapshot.set(edgesAtom, [edge1, edge2, edge3]);
+        snapshot.set(edgesAtom, toEdgeMap([edge1, edge2, edge3]));
       }
     );
 
-    expect(result.current).toContainEqual(edge1);
-    expect(result.current).toContainEqual(edge2);
-    expect(result.current).toContainEqual(edge3);
+    expect(result.current.get(edge1.id)).toEqual(edge1);
+    expect(result.current.get(edge2.id)).toEqual(edge2);
+    expect(result.current.get(edge3.id)).toEqual(edge3);
   });
 
   it("should add new edges", () => {
@@ -33,8 +33,8 @@ describe("edgeSelector", () => {
       return { value, set };
     });
 
-    act(() => result.current.set([edge]));
+    act(() => result.current.set(toEdgeMap([edge])));
 
-    expect(result.current.value).toContainEqual(edge);
+    expect(result.current.value.get(edge.id)).toEqual(edge);
   });
 });

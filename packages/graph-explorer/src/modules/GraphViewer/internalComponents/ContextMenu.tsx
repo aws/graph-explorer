@@ -14,7 +14,7 @@ import {
   ZoomOutIcon,
 } from "@/components/icons";
 import { useWithTheme } from "@/core";
-import { edgesSelectedIdsAtom } from "@/core/StateProvider/edges";
+import { edgesSelectedIdsAtom, toEdgeMap } from "@/core/StateProvider/edges";
 import { nodesSelectedIdsAtom, toNodeMap } from "@/core/StateProvider/nodes";
 import { userLayoutAtom } from "@/core/StateProvider/userPreferences";
 import useDisplayNames from "@/hooks/useDisplayNames";
@@ -139,7 +139,12 @@ const ContextMenu = ({
               .filter(n => !nodesIds.includes(n.id))
               .toArray()
           ),
-          edges: prev.edges.filter(e => !edgesIds.includes(e.id)),
+          edges: toEdgeMap(
+            prev.edges
+              .values()
+              .filter(e => !edgesIds.includes(e.id))
+              .toArray()
+          ),
           forceSet: true,
         };
       });
@@ -151,7 +156,7 @@ const ContextMenu = ({
   const handleRemoveAllFromCanvas = useCallback(() => {
     setEntities({
       nodes: new Map(),
-      edges: [],
+      edges: new Map(),
       forceSet: true,
     });
     onClose?.();
@@ -182,7 +187,7 @@ const ContextMenu = ({
       return;
     }
 
-    return entities.edges.find(e => e.id === affectedEdgesIds[0]);
+    return entities.edges.get(affectedEdgesIds[0]);
   }, [affectedEdgesIds, entities.edges]);
 
   if (affectedNode) {

@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { SetterOrUpdater, useRecoilCallback, useRecoilValue } from "recoil";
-import type { Edge, Vertex, VertexId } from "@/types/entities";
+import type { Edge, EdgeId, Vertex, VertexId } from "@/types/entities";
 import {
   edgesFilteredIdsAtom,
   edgesSelector,
@@ -20,7 +20,7 @@ import { assembledConfigSelector } from "@/core/ConfigurationProvider/useConfigu
 
 type ProcessedEntities = {
   nodes: Map<VertexId, Vertex>;
-  edges: Edge[];
+  edges: Map<EdgeId, Edge>;
 };
 
 const useEntities = ({ disableFilters }: { disableFilters?: boolean } = {}): [
@@ -92,9 +92,12 @@ const useEntities = ({ disableFilters }: { disableFilters?: boolean } = {}): [
         );
 
         // Filter edges that are defined and not hidden
-        const filteredEdges = nextEntities.edges.filter(edge => {
-          return !config?.schema?.edges.find(e => e.type === edge.type)?.hidden;
-        });
+        const filteredEdges = new Map(
+          nextEntities.edges.entries().filter(([_id, edge]) => {
+            return !config?.schema?.edges.find(e => e.type === edge.type)
+              ?.hidden;
+          })
+        );
 
         set(entitiesSelector, {
           nodes: nodesWithoutHiddenCounts,
@@ -120,13 +123,15 @@ const useEntities = ({ disableFilters }: { disableFilters?: boolean } = {}): [
         })
       );
 
-      filteredEdges = edges.filter(edge => {
-        return (
-          connectionTypes.has(edge.type) === false &&
-          filteredNodes.has(edge.source) &&
-          filteredNodes.has(edge.target)
-        );
-      });
+      filteredEdges = new Map(
+        edges.entries().filter(([_id, edge]) => {
+          return (
+            connectionTypes.has(edge.type) === false &&
+            filteredNodes.has(edge.source) &&
+            filteredNodes.has(edge.target)
+          );
+        })
+      );
     }
     return {
       nodes: filteredNodes,
@@ -135,7 +140,7 @@ const useEntities = ({ disableFilters }: { disableFilters?: boolean } = {}): [
   }, [connectionTypes, disableFilters, edges, nodes, vertexTypes]);
 
   const filteredEntities = useMemo(() => {
-    return {
+    return <ProcessedEntities>{
       nodes: new Map(
         filteredEntitiesByGlobalFilters.nodes
           .entries()
@@ -143,14 +148,18 @@ const useEntities = ({ disableFilters }: { disableFilters?: boolean } = {}): [
             return !filteredNodesIds.has(id);
           })
       ),
-      edges: filteredEntitiesByGlobalFilters.edges.filter(edge => {
-        // Edges should not be in the filteredEdgesIds neither be unconnected
-        return (
-          !filteredEdgesIds.has(edge.id) &&
-          !filteredNodesIds.has(edge.source) &&
-          !filteredNodesIds.has(edge.target)
-        );
-      }),
+      edges: new Map(
+        filteredEntitiesByGlobalFilters.edges
+          .entries()
+          .filter(([_id, edge]) => {
+            // Edges should not be in the filteredEdgesIds neither be unconnected
+            return (
+              !filteredEdgesIds.has(edge.id) &&
+              !filteredNodesIds.has(edge.source) &&
+              !filteredNodesIds.has(edge.target)
+            );
+          })
+      ),
     };
   }, [filteredEdgesIds, filteredEntitiesByGlobalFilters, filteredNodesIds]);
 

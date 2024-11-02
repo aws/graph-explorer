@@ -1,7 +1,5 @@
-import { uniq } from "lodash";
 import isEqual from "lodash/isEqual";
 import isEqualWith from "lodash/isEqualWith";
-import uniqBy from "lodash/uniqBy";
 import type { GetRecoilValue, RecoilState, SetRecoilState } from "recoil";
 import { selector } from "recoil";
 import type { Edge, EdgeId, Vertex, VertexId } from "@/types/entities";
@@ -22,7 +20,7 @@ export type Entities = {
   preserveSelection?: boolean;
   selectNewEntities?: boolean | "nodes" | "edges";
   nodes: Map<VertexId, Vertex>;
-  edges: Edge[];
+  edges: Map<EdgeId, Edge>;
 };
 const isEntities = (value: any): value is Entities => {
   return !!value.nodes;
@@ -66,29 +64,30 @@ const entitiesSelector = selector<Entities>({
     const prevNodes = newEntities.forceSet
       ? new Map<VertexId, Vertex>()
       : get(nodesAtom);
-    const prevEdges = newEntities.forceSet ? [] : get(edgesAtom);
+    const prevEdges = newEntities.forceSet
+      ? new Map<EdgeId, Edge>()
+      : get(edgesAtom);
 
     // Remove duplicated nodes by id
     const nonDupNodes = new Map([...prevNodes, ...newEntities.nodes]);
 
     // Remove duplicated edges by id
-    const nonDupEdges = uniqBy(
-      [...newEntities.edges, ...prevEdges],
-      edge => edge.id
-    );
+    const nonDupEdges = new Map([...prevEdges, ...newEntities.edges]);
 
     // Get stats for each node
     const nodesWithStats = new Map(
       nonDupNodes.entries().map(([id, node]) => {
         // Get all OUT connected edges: current node is source and target should exist
-        const outConnections = nonDupEdges.filter(
-          edge => edge.source === id && nonDupNodes.has(edge.target)
-        );
+        const outConnections = nonDupEdges
+          .values()
+          .filter(edge => edge.source === id && nonDupNodes.has(edge.target))
+          .toArray();
 
         // Get all IN connected edges: current node is target and source should exist
-        const inConnections = nonDupEdges.filter(
-          edge => edge.target === id && nonDupNodes.has(edge.source)
-        );
+        const inConnections = nonDupEdges
+          .values()
+          .filter(edge => edge.target === id && nonDupNodes.has(edge.source))
+          .toArray();
 
         // Re-mapping neighborsCountByType to only un-fetched counts
         const __unfetchedNeighborCounts = Object.entries(
@@ -110,12 +109,12 @@ const entitiesSelector = selector<Entities>({
             );
 
             // Count only unique connected nodes
-            const distinctConnectedNodes = uniq([
+            const distinctConnectedNodes = new Set([
               ...fetchedOutEdgesByType.map(et => et.target),
               ...fetchedInEdgesByType.map(et => et.source),
             ]);
 
-            counts[type] = Math.max(0, count - distinctConnectedNodes.length);
+            counts[type] = Math.max(0, count - distinctConnectedNodes.size);
 
             return counts;
           },
@@ -142,9 +141,14 @@ const entitiesSelector = selector<Entities>({
     );
 
     // Remove all unconnected edges
-    const nonUnconnectedEdges = nonDupEdges.filter(edge => {
-      return nonDupNodes.has(edge.source) && nonDupNodes.has(edge.target);
-    });
+    const nonUnconnectedEdges = new Map(
+      nonDupEdges
+        .entries()
+        .filter(
+          ([_id, edge]) =>
+            nonDupNodes.has(edge.source) && nonDupNodes.has(edge.target)
+        )
+    );
 
     // Get deleted nodes ids
     const deletedNodesIds = new Set(
@@ -173,6 +177,7 @@ const entitiesSelector = selector<Entities>({
       deletedNodesIds.size > 0
         ? new Set(
             get(edgesAtom)
+              .values()
               .filter(edge => {
                 return (
                   deletedNodesIds.has(edge.source) ||
@@ -220,7 +225,7 @@ const entitiesSelector = selector<Entities>({
     if (
       shouldUpdateEdges ||
       affectedEdgesIds.size > 0 ||
-      prevEdges.length === 0
+      prevEdges.size === 0
     ) {
       set(edgesSelector, nonUnconnectedEdges);
     }

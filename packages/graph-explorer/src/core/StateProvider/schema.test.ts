@@ -6,6 +6,7 @@ import {
 import { extractConfigFromEntity, updateSchemaFromEntities } from "./schema";
 import { createArray } from "@shared/utils/testing";
 import { toNodeMap } from "./nodes";
+import { toEdgeMap } from "./edges";
 
 describe("schema", () => {
   describe("extractConfigFromEntity", () => {
@@ -36,7 +37,7 @@ describe("schema", () => {
     it("should do nothing when no entities", () => {
       const originalSchema = createRandomSchema();
       const result = updateSchemaFromEntities(
-        { nodes: new Map(), edges: [] },
+        { nodes: new Map(), edges: new Map() },
         originalSchema
       );
 
@@ -52,7 +53,7 @@ describe("schema", () => {
       const result = updateSchemaFromEntities(
         {
           nodes: toNodeMap(newNodes),
-          edges: newEdges,
+          edges: toEdgeMap(newEdges),
         },
         originalSchema
       );
@@ -86,7 +87,7 @@ describe("schema", () => {
       const result = updateSchemaFromEntities(
         {
           nodes: toNodeMap([newNode]),
-          edges: [newEdge],
+          edges: toEdgeMap([newEdge]),
         },
         originalSchema
       );

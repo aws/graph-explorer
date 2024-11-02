@@ -16,6 +16,7 @@ import { waitForValueToChange } from "@/utils/testing/waitForValueToChange";
 import { vi } from "vitest";
 import { createRandomInteger, createRandomName } from "@shared/utils/testing";
 import { toNodeMap } from "@/core/StateProvider/nodes";
+import { toEdgeMap } from "@/core/StateProvider/edges";
 
 describe("useEntities", () => {
   beforeEach(() => {
@@ -43,13 +44,16 @@ describe("useEntities", () => {
       return { entities, setEntities };
     });
 
-    result.current.setEntities({ nodes: toNodeMap([randomNode]), edges: [] });
+    result.current.setEntities({
+      nodes: toNodeMap([randomNode]),
+      edges: new Map(),
+    });
 
     await waitForValueToChange(() => result.current.entities);
 
     expect(result.current.entities).toEqual({
       nodes: toNodeMap([expectedRandomNodes]),
-      edges: [],
+      edges: toEdgeMap([]),
     });
     const actualNode = result.current.entities.nodes.get(randomNode.id);
     expect(actualNode?.id).toEqual(randomNode.id);
@@ -133,14 +137,14 @@ describe("useEntities", () => {
 
     result.current.setEntities({
       nodes: toNodeMap([node1, node2, node3]),
-      edges: [],
+      edges: new Map(),
     });
 
     await waitForValueToChange(() => result.current.entities);
 
     expect(result.current.entities).toEqual({
       nodes: expectedNodes,
-      edges: [],
+      edges: new Map(),
     });
     const actualNode1 = result.current.entities.nodes.get(node1.id);
     expect(actualNode1).not.toBeUndefined();
@@ -191,7 +195,7 @@ describe("useEntities", () => {
 
     result.current.setEntities({
       nodes: toNodeMap([node1, node2]),
-      edges: [edge1to2],
+      edges: toEdgeMap([edge1to2]),
     });
 
     await waitForValueToChange(() => result.current.entities);
@@ -274,7 +278,10 @@ describe("useEntities", () => {
 
     // Ensure new edge types are added to the schema
     const schemaEdgeLabels = schema.edges.map(e => e.type);
-    const entityEdgeLabels = originalEntities.edges.map(e => e.type);
+    const entityEdgeLabels = originalEntities.edges
+      .values()
+      .map(e => e.type)
+      .toArray();
     expect(schemaEdgeLabels).toEqual(expect.arrayContaining(entityEdgeLabels));
   });
 
@@ -310,7 +317,8 @@ describe("useEntities", () => {
 
     // Set an edge to match an edge type in the schema
     const edgeTypeWithAdditionalAttributes = originalSchema.edges[0].type;
-    originalEntities.edges[0].type = edgeTypeWithAdditionalAttributes;
+    originalEntities.edges.values().next().value!.type =
+      edgeTypeWithAdditionalAttributes;
 
     const { schema, entities } = await setupAndPerformSetEntities(
       originalSchema,
@@ -321,7 +329,7 @@ describe("useEntities", () => {
     const schemaEdge = schema.edges.find(
       v => v.type === edgeTypeWithAdditionalAttributes
     )!;
-    const entityEdge = entities.edges[0];
+    const entityEdge = entities.edges.values().next().value!;
     const schemaEdgeAttributeNames = schemaEdge.attributes.map(a => a.name);
     const entityEdgeAttributeNames = Object.keys(entityEdge.attributes);
     expect(schemaEdgeAttributeNames).toEqual(

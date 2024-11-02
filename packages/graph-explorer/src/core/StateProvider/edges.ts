@@ -2,11 +2,15 @@ import { atom, selector } from "recoil";
 import type { Edge, EdgeId } from "@/types/entities";
 import isDefaultValue from "./isDefaultValue";
 
-export type Edges = Array<Edge>;
+export type Edges = Map<EdgeId, Edge>;
+
+export function toEdgeMap(edges: Edge[]): Edges {
+  return new Map(edges.map(e => [e.id, e]));
+}
 
 export const edgesAtom = atom<Edges>({
   key: "edges",
-  default: [],
+  default: new Map(),
 });
 
 export const edgesSelector = selector<Edges>({
@@ -25,7 +29,7 @@ export const edgesSelector = selector<Edges>({
     const cleanFn = (curr: Set<EdgeId>) => {
       const existingEdgesIds = new Set<EdgeId>();
       curr.forEach(eId => {
-        const exist = newValue.find(n => n.id === eId);
+        const exist = newValue.has(eId);
         if (exist) {
           existingEdgesIds.add(eId);
         }

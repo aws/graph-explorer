@@ -24,6 +24,7 @@ import {
   VertexPreferences,
 } from "@/core/StateProvider/userPreferences";
 import { toNodeMap } from "@/core/StateProvider/nodes";
+import { toEdgeMap } from "@/core/StateProvider/edges";
 
 /*
 
@@ -127,7 +128,7 @@ export function createRandomEntities(): Entities {
     createRandomEdge(nodes[2], nodes[0]),
     createRandomEdge(nodes[2], nodes[1]),
   ];
-  return { nodes: toNodeMap(nodes), edges };
+  return { nodes: toNodeMap(nodes), edges: toEdgeMap(edges) };
 }
 
 /**
