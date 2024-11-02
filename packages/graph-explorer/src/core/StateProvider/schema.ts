@@ -9,6 +9,7 @@ import { activeConfigurationAtom } from "./configuration";
 import isDefaultValue from "./isDefaultValue";
 import { Edge, Vertex } from "@/@types/entities";
 import { sanitizeText } from "@/utils";
+import { Entities } from "./entitiesSelector";
 
 export type SchemaInference = {
   vertices: VertexTypeConfig[];
@@ -57,12 +58,12 @@ export const activeSchemaSelector = selector({
   },
 });
 
-type Entities = { nodes?: Vertex[]; edges?: Edge[] };
+type SchemaEntities = Pick<Entities, "nodes" | "edges">;
 
 /** Write only atom that updates the schema based on the given nodes and edges. */
-export const updateSchemaFromEntitiesAtom = selector<Entities>({
+export const updateSchemaFromEntitiesAtom = selector<SchemaEntities>({
   key: "update-schema-from-entities",
-  get: () => ({}),
+  get: () => ({ nodes: new Map(), edges: [] }),
   set({ set }, newValue) {
     set(activeSchemaSelector, prev => {
       if (!prev || isDefaultValue(newValue)) {
@@ -75,11 +76,14 @@ export const updateSchemaFromEntitiesAtom = selector<Entities>({
 
 /** Updates the schema based on the given nodes and edges. */
 export function updateSchemaFromEntities(
-  entities: Entities,
+  entities: SchemaEntities,
   schema: SchemaInference
 ) {
-  const newVertexConfigs = (entities.nodes ?? []).map(extractConfigFromEntity);
-  const newEdgeConfigs = (entities.edges ?? []).map(extractConfigFromEntity);
+  const newVertexConfigs = entities.nodes
+    .values()
+    .map(extractConfigFromEntity)
+    .toArray();
+  const newEdgeConfigs = entities.edges.map(extractConfigFromEntity);
 
   return {
     ...schema,

@@ -2,12 +2,16 @@ import { atom, selector } from "recoil";
 import type { Vertex, VertexId } from "@/types/entities";
 import isDefaultValue from "./isDefaultValue";
 
-export const nodesAtom = atom<Array<Vertex>>({
+export function toNodeMap(nodes: Vertex[]): Map<VertexId, Vertex> {
+  return new Map(nodes.map(n => [n.id, n]));
+}
+
+export const nodesAtom = atom<Map<VertexId, Vertex>>({
   key: "nodes",
-  default: [],
+  default: new Map(),
 });
 
-export const nodesSelector = selector<Array<Vertex>>({
+export const nodesSelector = selector<Map<VertexId, Vertex>>({
   key: "nodes-selector",
   get: ({ get }) => {
     return get(nodesAtom);
@@ -22,7 +26,7 @@ export const nodesSelector = selector<Array<Vertex>>({
     const cleanFn = (curr: Set<VertexId>) => {
       const existingNodesIds = new Set<VertexId>();
       curr.forEach(nId => {
-        const exist = newValue.find(n => n.id === nId);
+        const exist = newValue.get(nId);
         if (exist) {
           existingNodesIds.add(nId);
         }

@@ -21,6 +21,7 @@ import { useMutation } from "@tanstack/react-query";
 import { Vertex } from "@/types/entities";
 import { useUpdateAllNodeCounts } from "./useUpdateNodeCounts";
 import { createDisplayError } from "@/utils/createDisplayError";
+import { toNodeMap } from "@/core/StateProvider/nodes";
 
 /*
 
@@ -84,7 +85,7 @@ export function ExpandNodeProvider(props: PropsWithChildren) {
       }
       // Update nodes and edges in the graph
       setEntities({
-        nodes: data.vertices,
+        nodes: toNodeMap(data.vertices),
         edges: data.edges,
       });
     },

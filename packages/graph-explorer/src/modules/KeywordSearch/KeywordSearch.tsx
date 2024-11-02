@@ -84,12 +84,7 @@ export default function KeywordSearch({ className }: KeywordSearchProps) {
 
   const searchResults = useMemo(() => query.data?.vertices ?? [], [query.data]);
 
-  const isTheNodeAdded = (nodeId: string): boolean => {
-    const possibleNode = entities.nodes.find(
-      addedNode => addedNode.id === nodeId
-    );
-    return possibleNode !== undefined;
-  };
+  const isTheNodeAdded = (nodeId: VertexId) => entities.nodes.has(nodeId);
 
   const getNodeIdsToAdd = () => {
     const selectedNodeIds = Array.from(selection.state);
@@ -114,9 +109,7 @@ export default function KeywordSearch({ className }: KeywordSearchProps) {
 
   const handleAddEntities = () => {
     const nodeIdsToAdd = getNodeIdsToAdd();
-    const nodes = nodeIdsToAdd
-      .map(getNodeSearchedById)
-      .filter(Boolean) as Vertex[];
+    const nodes = nodeIdsToAdd.map(getNodeSearchedById).filter(n => n != null);
     fetchNode(nodes);
     handleOnClose();
   };
@@ -317,7 +310,7 @@ function SearchResults({
               iconImageType={vtConfig?.iconImageType}
             />
           ),
-          endAdornment: entities.nodes.find(n => n.id === vertex.id) ? (
+          endAdornment: entities.nodes.has(vertex.id) ? (
             <IconButton
               tooltipText="Remove from canvas"
               icon={<RemoveFromCanvasIcon className="graph-remove-icon" />}
@@ -327,7 +320,11 @@ function SearchResults({
                 setEntities(prev => {
                   return {
                     ...prev,
-                    nodes: prev.nodes.filter(n => n.id !== vertex.id),
+                    nodes: new Map(
+                      prev.nodes
+                        .entries()
+                        .filter(([id, _node]) => id !== vertex.id)
+                    ),
                     forceSet: true,
                   };
                 });

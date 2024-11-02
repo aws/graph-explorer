@@ -15,7 +15,7 @@ import {
 } from "@/components/icons";
 import { useWithTheme } from "@/core";
 import { edgesSelectedIdsAtom } from "@/core/StateProvider/edges";
-import { nodesSelectedIdsAtom } from "@/core/StateProvider/nodes";
+import { nodesSelectedIdsAtom, toNodeMap } from "@/core/StateProvider/nodes";
 import { userLayoutAtom } from "@/core/StateProvider/userPreferences";
 import useDisplayNames from "@/hooks/useDisplayNames";
 import useEntities from "@/hooks/useEntities";
@@ -128,11 +128,21 @@ const ContextMenu = ({
 
   const handleRemoveFromCanvas = useCallback(
     (nodesIds: VertexId[], edgesIds: EdgeId[]) => () => {
-      setEntities(prev => ({
-        nodes: prev.nodes.filter(n => !nodesIds.includes(n.id)),
-        edges: prev.edges.filter(e => !edgesIds.includes(e.id)),
-        forceSet: true,
-      }));
+      setEntities(prev => {
+        // const newNodes = new Map(prev.nodes);
+        // nodesIds.forEach(id => newNodes.delete(id));
+        return {
+          // nodes: newNodes,
+          nodes: toNodeMap(
+            prev.nodes
+              .values()
+              .filter(n => !nodesIds.includes(n.id))
+              .toArray()
+          ),
+          edges: prev.edges.filter(e => !edgesIds.includes(e.id)),
+          forceSet: true,
+        };
+      });
       onClose?.();
     },
     [onClose, setEntities]
@@ -140,7 +150,7 @@ const ContextMenu = ({
 
   const handleRemoveAllFromCanvas = useCallback(() => {
     setEntities({
-      nodes: [],
+      nodes: new Map(),
       edges: [],
       forceSet: true,
     });
@@ -164,7 +174,7 @@ const ContextMenu = ({
       return;
     }
 
-    return entities.nodes.find(n => n.id === affectedNodesIds[0]);
+    return entities.nodes.get(affectedNodesIds[0]);
   }, [affectedNodesIds, entities.nodes]);
 
   const affectedEdge = useMemo(() => {

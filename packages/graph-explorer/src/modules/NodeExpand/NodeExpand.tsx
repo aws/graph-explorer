@@ -27,7 +27,12 @@ const NodeExpand = ({ title = "Expand", ...headerProps }: NodeExpandProps) => {
   const edgesSelectedIds = useRecoilValue(edgesSelectedIdsAtom);
 
   const selectedNode = useMemo(() => {
-    return nodes.find(node => nodesSelectedIds.has(node.id));
+    return nodesSelectedIds
+      .keys()
+      .map(id => nodes.get(id))
+      .filter(v => v != null)
+      .next().value;
+    // return nodes.find(node => nodesSelectedIds.has(node.id));
   }, [nodes, nodesSelectedIds]);
 
   return (

@@ -200,7 +200,7 @@ export default function GraphViewer({
   const [layout, setLayout] = useState("F_COSE");
   const onClearCanvas = useCallback(() => {
     setEntities({
-      nodes: [],
+      nodes: new Map(),
       edges: [],
       forceSet: true,
     });
@@ -225,7 +225,11 @@ export default function GraphViewer({
   );
 
   const nodes = useMemo(
-    () => entities.nodes.map(n => ({ data: n })),
+    () =>
+      entities.nodes
+        .values()
+        .map(n => ({ data: n }))
+        .toArray(),
     [entities]
   );
   const edges = useMemo(

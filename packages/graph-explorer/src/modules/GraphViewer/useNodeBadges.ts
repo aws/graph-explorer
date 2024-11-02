@@ -14,17 +14,13 @@ const useNodeBadges = () => {
   const nodes = useRecoilValue(nodesAtom);
 
   const nodesCurrentNames = useMemo(() => {
-    return nodes.reduce(
-      (names, node) => {
+    return new Map(
+      nodes.entries().map(([id, node]) => {
         const vtConfig = config?.getVertexTypeConfig(node.type);
+        const title = vtConfig?.displayLabel || textTransform(node.type);
         const { name } = getDisplayNames(node);
-        names[node.id] = {
-          name,
-          title: vtConfig?.displayLabel || textTransform(node.type),
-        };
-        return names;
-      },
-      {} as Record<string, { name: string; title: string }>
+        return [id, { name, title }];
+      })
     );
   }, [config, getDisplayNames, nodes, textTransform]);
 
@@ -32,8 +28,8 @@ const useNodeBadges = () => {
     (outOfFocusIds: Set<VertexId>): BadgeRenderer =>
       (nodeData, boundingBox, { zoomLevel }) => {
         // Ensure we have the node name and title
-        const name = nodesCurrentNames[nodeData.id]?.name ?? "";
-        const title = nodesCurrentNames[nodeData.id]?.title ?? "";
+        const name = nodesCurrentNames.get(nodeData.id)?.name ?? "";
+        const title = nodesCurrentNames.get(nodeData.id)?.title ?? "";
 
         return [
           {

@@ -36,9 +36,10 @@ export function useUpdateAllNodeCounts() {
   const { enqueueNotification, clearNotification } = useNotification();
 
   // Unique ID & ID type combos
-  const nodeIdAndTypes = [
-    ...new Map([...entities.nodes.map(n => [n.id, n.idType] as const)]),
-  ];
+  const nodeIdAndTypes = entities.nodes
+    .entries()
+    .map(([id, node]) => [id, node.idType] as const)
+    .toArray();
 
   const query = useQueries({
     queries: nodeIdAndTypes.map(([id, idType]) =>
@@ -49,7 +50,7 @@ export function useUpdateAllNodeCounts() {
       const data = results
         .flatMap(result => (result.data ? [result.data] : []))
         .map(data => {
-          const prevNode = entities.nodes.find(n => n.id === data.nodeId);
+          const prevNode = entities.nodes.get(data.nodeId);
           const node: Vertex | undefined = prevNode
             ? {
                 ...prevNode,
@@ -78,11 +79,13 @@ export function useUpdateAllNodeCounts() {
 
     // Update node graph with counts
     setEntities(prev => ({
-      nodes: prev.nodes.map(node => {
-        const nodeWithCounts = query.data.find(n => n?.id === node.id);
+      nodes: new Map(
+        prev.nodes.entries().map(([id, node]) => {
+          const nodeWithCounts = query.data.find(n => n?.id === id);
 
-        return nodeWithCounts ?? node;
-      }),
+          return [id, nodeWithCounts ?? node];
+        })
+      ),
       edges: prev.edges,
     }));
   }, [query.data, query.pending, setEntities]);

@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 import { Vertex } from "@/types/entities";
 import useEntities from "./useEntities";
+import { toNodeMap } from "@/core/StateProvider/nodes";
 
 /** Returns a callback that adds a node or array of nodes to the graph. */
 export default function useFetchNode() {
@@ -17,7 +18,7 @@ export default function useFetchNode() {
       }
 
       setEntities({
-        nodes: validResults,
+        nodes: toNodeMap(validResults),
         edges: [],
         selectNewEntities: "nodes",
       });

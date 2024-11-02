@@ -123,10 +123,13 @@ const NodesTabular = forwardRef<TabularInstance<ToggleVertex>, any>(
     }, [config, getDisplayNames, t, onToggleVisibility, textTransform]);
 
     const data: ToggleVertex[] = useDeepMemo(() => {
-      return nodes.map(node => ({
-        ...node,
-        __is_visible: !hiddenNodesIds.has(node.id),
-      }));
+      return nodes
+        .values()
+        .map(node => ({
+          ...node,
+          __is_visible: !hiddenNodesIds.has(node.id),
+        }))
+        .toArray();
     }, [nodes, hiddenNodesIds]);
 
     const onSelectRows = useCallback(
@@ -159,7 +162,7 @@ const NodesTabular = forwardRef<TabularInstance<ToggleVertex>, any>(
         data={data}
         columns={columns}
         onDataFilteredChange={rows => {
-          const nodesIds = nodes.map(n => n.id);
+          const nodesIds = nodes.keys().toArray();
           const ids = rows.map(row => row.original.id);
           setNodesOut(new Set(difference(nodesIds, ids)));
         }}
