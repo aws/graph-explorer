@@ -8,6 +8,7 @@ import ConnectedProvider from "./core/ConnectedProvider";
 import "./index.css";
 import "@mantine/core/styles.css";
 import { DEFAULT_SERVICE_TYPE } from "./utils/constants";
+import "core-js/full/iterator";
 
 const grabConfig = async (): Promise<RawConfiguration | undefined> => {
   const defaultConnectionPath = `${location.origin}/defaultConnection`;
