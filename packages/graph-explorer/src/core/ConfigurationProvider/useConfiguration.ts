@@ -60,7 +60,7 @@ export const assembledConfigSelector = selector<
         const attributesByNameMap = new Map(
           vertexTypes
             .values()
-            .map(vertexTypesMap.get)
+            .map(vt => vertexTypesMap.get(vt))
             .filter(vt => vt != null)
             .flatMap(vt => vt.attributes)
             .map(attr => [attr.name, attr])
