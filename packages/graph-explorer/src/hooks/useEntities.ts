@@ -49,9 +49,7 @@ const useEntities = ({ disableFilters }: { disableFilters?: boolean } = {}): [
         // Filter nodes that are defined and not hidden
         const filteredNodes = new Map(
           nextEntities.nodes.entries().filter(([_id, node]) => {
-            return !config?.schema?.vertices.find(
-              vertex => vertex.type === node.type
-            )?.hidden;
+            return !config?.getVertexTypeConfig(node.type)?.hidden;
           })
         );
 
@@ -62,11 +60,7 @@ const useEntities = ({ disableFilters }: { disableFilters?: boolean } = {}): [
               node.neighborsCountByType
             ).reduce(
               (totalNeighborsCounts, [type, count]) => {
-                if (
-                  !config?.schema?.vertices.find(
-                    vertex => vertex.type === node.type
-                  )?.hidden
-                ) {
+                if (!config?.getVertexTypeConfig(node.type)?.hidden) {
                   totalNeighborsCounts[1][type] = count;
                 } else {
                   totalNeighborsCounts[0] -= count;
@@ -94,8 +88,7 @@ const useEntities = ({ disableFilters }: { disableFilters?: boolean } = {}): [
         // Filter edges that are defined and not hidden
         const filteredEdges = new Map(
           nextEntities.edges.entries().filter(([_id, edge]) => {
-            return !config?.schema?.edges.find(e => e.type === edge.type)
-              ?.hidden;
+            return !config?.getEdgeTypeConfig(edge.type)?.hidden;
           })
         );
 
