@@ -1,4 +1,3 @@
-import { css } from "@emotion/css";
 import { cn } from "@/utils";
 import cytoscape from "cytoscape";
 import cyCanvas from "cytoscape-canvas";
@@ -47,23 +46,6 @@ cytoscape.use(dagre);
 cytoscape.use(d3Force);
 cytoscape.use(fcose);
 cyCanvas(cytoscape);
-
-const defaultStyles = () => css`
-  width: 100%;
-  height: 100%;
-  position: relative;
-  overflow: hidden;
-  .graph-container {
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    > div:first-child {
-      // Allow to render layers below the main nodes/edges layer
-      // E.g. animation layer should be at the bottom
-      z-index: 10 !important;
-    }
-  }
-`;
 
 const EMPTY_SET = new Set<string>();
 
@@ -398,8 +380,8 @@ export const Graph = (
   const isEmpty = !nodes.length && !edges.length;
   const isLoading = loading;
   return (
-    <div className={cn(defaultStyles(), className)}>
-      <div className={"graph-container"} ref={wrapperRefCb} />
+    <div className={cn("relative h-full w-full overflow-hidden", className)}>
+      <div className="absolute h-full w-full first:z-10" ref={wrapperRefCb} />
       {cy && children ? children(cy) : null}
       {isEmpty && !isLoading ? <EmptyComponent /> : null}
       {isLoading ? <LoadingComponent /> : null}

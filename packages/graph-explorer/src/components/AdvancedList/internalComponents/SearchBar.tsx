@@ -24,7 +24,7 @@ const SearchBar = ({
   return (
     <>
       <Input
-        className={"advanced-list-search-input"}
+        className="flex-[2]"
         value={search}
         aria-label="Search available items"
         onChange={onSearch}
@@ -37,7 +37,7 @@ const SearchBar = ({
       {!!types.length && onTypeChange && (
         <Select
           aria-label="select category"
-          className={"advanced-list-category-select"}
+          className="flex-1"
           options={types}
           value={type}
           onChange={value => onTypeChange?.(value as string)}

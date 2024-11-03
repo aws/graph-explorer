@@ -1,21 +1,18 @@
-import { cn } from "@/utils";
 import type { PropsWithChildren, ReactNode } from "react";
-import { useWithTheme } from "@/core";
 import Button, { ButtonProps } from "../Button/Button";
-import styles from "./PanelEmptyState.styles";
+import { cva } from "class-variance-authority";
+import { cn } from "@/utils";
 
 export type PanelEmptyStateProps = {
-  variant?: "info" | "waiting" | "warning" | "error";
+  variant?: "info" | "error";
   icon?: ReactNode;
   title?: ReactNode;
   subtitle?: ReactNode;
   className?: string;
-  size?: "xs" | "sm" | "md" | "lg";
   onAction?: () => void;
   actionId?: string;
   actionLabel?: string;
   actionVariant?: ButtonProps["variant"];
-  layout?: "horizontal" | "vertical";
 };
 
 const PanelEmptyState = ({
@@ -25,33 +22,52 @@ const PanelEmptyState = ({
   title,
   subtitle,
   className,
-  size = "md",
   actionId,
   onAction,
   actionLabel,
   actionVariant,
-  layout = "vertical",
 }: PropsWithChildren<PanelEmptyStateProps>) => {
-  const styleWithTheme = useWithTheme();
+  const variantStyles = cva([], {
+    variants: {
+      variant: {
+        info: "bg-gradient-to-b from-primary-main to-primary-light shadow-[0_0_20px_2px_hsl(205,95%,71%,70%)]",
+        error:
+          "bg-gradient-to-b from-error-main to-error-light shadow-[0_0_20px_2px_rgba(255,144,119,0.7)]",
+      },
+    },
+    defaultVariants: {
+      variant: "info",
+    },
+  });
+
   return (
     <div
       className={cn(
-        className,
-        "panel-empty-state-wrapper",
-        `panel-empty-state-${layout}`,
-        styleWithTheme(styles(variant, size))
+        "relative flex h-full w-full flex-col items-center justify-center",
+        className
       )}
     >
       {icon && (
-        <div className="indicator-wrapper">
-          <div className="indicator">{icon}</div>
+        <div className="mb-4">
+          <div
+            className={cn(
+              "flex size-24 items-center justify-center rounded-full text-7xl text-white [&>svg]:size-[60%]",
+              variantStyles({ variant })
+            )}
+          >
+            {icon}
+          </div>
         </div>
       )}
-      <div className="panel-empty-state-container">
-        <div className="panel-empty-state-text-container">
-          {title && <h1 className="panel-empty-state-title">{title}</h1>}
+      <div className="flex flex-col items-center justify-center gap-4">
+        <div className="flex flex-col items-center justify-center gap-1 text-center">
+          {title && (
+            <h1 className="text-text-primary font-base text-base">{title}</h1>
+          )}
           {subtitle && (
-            <h2 className="panel-empty-state-subtitle">{subtitle}</h2>
+            <h2 className="text-text-secondary text-sm font-light">
+              {subtitle}
+            </h2>
           )}
         </div>
         {onAction && actionLabel && (

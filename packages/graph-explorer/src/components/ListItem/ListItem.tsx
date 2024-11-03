@@ -87,7 +87,7 @@ export const ListItem = (
         <div className={"primary"}>{children}</div>
         <div className={"secondary"}>{secondary}</div>
       </div>
-      {endAdornment && <div className={"end-adornment"}>{endAdornment}</div>}
+      {endAdornment && <div className="end-adornment">{endAdornment}</div>}
     </div>
   );
 };
