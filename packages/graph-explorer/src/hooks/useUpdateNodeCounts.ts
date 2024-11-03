@@ -35,16 +35,18 @@ export function useUpdateAllNodeCounts() {
   const explorer = useRecoilValue(explorerSelector);
   const { enqueueNotification, clearNotification } = useNotification();
 
-  // Unique ID & ID type combos
-  const nodeIdAndTypes = entities.nodes
-    .entries()
-    .map(([id, node]) => [id, node.idType] as const)
-    .toArray();
-
   const query = useQueries({
-    queries: nodeIdAndTypes.map(([id, idType]) =>
-      neighborsCountQuery(id, idType, connection?.nodeExpansionLimit, explorer)
-    ),
+    queries: entities.nodes
+      .values()
+      .map(node =>
+        neighborsCountQuery(
+          node.id,
+          node.idType,
+          connection?.nodeExpansionLimit,
+          explorer
+        )
+      )
+      .toArray(),
     combine: results => {
       // Combines data with existing node data and filters out undefined
       const data = results
