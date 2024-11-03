@@ -169,6 +169,9 @@ importers:
       '@tanstack/react-query-devtools':
         specifier: ^5.59.9
         version: 5.59.9(@tanstack/react-query@5.59.9(react@18.3.1))(react@18.3.1)
+      class-variance-authority:
+        specifier: ^0.7.0
+        version: 0.7.0
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
