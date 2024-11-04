@@ -13,7 +13,7 @@ import {
 } from "@/components";
 import { useNotification } from "@/components/NotificationProvider";
 import Switch from "@/components/Switch";
-import { useWithTheme } from "@/core";
+import { RawConfiguration, useWithTheme } from "@/core";
 import {
   activeConfigurationAtom,
   configurationAtom,
@@ -42,7 +42,6 @@ const AvailableConnections = ({
 
   const activeConfig = useRecoilValue(activeConfigurationAtom);
   const configuration = useRecoilValue(configurationAtom);
-  const t = useTranslations();
 
   const resetState = useResetState();
   const onActiveConfigChange = useRecoilCallback(
@@ -162,39 +161,12 @@ const AvailableConnections = ({
           data={[...configuration.values()]}
           itemContent={(_index, config) => (
             <div className="px-3 py-1.5">
-              <div
-                className="bg-brand-700/15 ring-primary-dark/25 hover:ring-primary-dark has-[:checked]:ring-primary-dark flex items-center gap-4 rounded-lg px-3 py-1.5 ring-1 transition-shadow duration-200 hover:cursor-pointer hover:ring-1"
-                onClick={() => onActiveConfigChange(config.id)}
-              >
-                <DatabaseIcon className="text-primary-main size-6" />
-                <div className="grow">
-                  <div className="text-text-primary font-bold">
-                    {config.displayLabel || config.id}
-                  </div>
-                  {config.connection ? (
-                    <div className="text-text-secondary text-sm">
-                      {config.connection.url}
-                    </div>
-                  ) : null}
-                </div>
-                <div className="flex items-center gap-2">
-                  <Chip variant="info">
-                    {t(
-                      "available-connections.graph-type",
-                      config.connection?.queryEngine || "gremlin"
-                    )}
-                  </Chip>
-                  <Switch
-                    className="item-switch"
-                    labelPosition="left"
-                    isSelected={activeConfig === config.id}
-                    onChange={() => onActiveConfigChange(config.id)}
-                    isDisabled={isSync}
-                  >
-                    {activeConfig === config.id ? "Active" : "Inactive"}
-                  </Switch>
-                </div>
-              </div>
+              <ConfigRow
+                config={config}
+                isSelected={activeConfig === config.id}
+                isDisabled={isSync}
+                makeSelected={() => onActiveConfigChange(config.id)}
+              />
             </div>
           )}
         />
@@ -210,5 +182,55 @@ const AvailableConnections = ({
     </ModuleContainer>
   );
 };
+
+function ConfigRow({
+  config,
+  isSelected,
+  isDisabled,
+  makeSelected,
+}: {
+  config: RawConfiguration;
+  isSelected: boolean;
+  isDisabled: boolean;
+  makeSelected: () => void;
+}) {
+  const t = useTranslations();
+
+  return (
+    <div
+      className="bg-background-secondary hover:ring-primary-dark has-[:checked]:ring-primary-dark flex items-center gap-4 rounded-lg px-3 py-1.5 ring-1 ring-transparent transition-shadow duration-200 hover:cursor-pointer hover:ring-1"
+      onClick={() => !isDisabled && makeSelected()}
+    >
+      <DatabaseIcon className="text-primary-main size-6" />
+      <div className="grow">
+        <div className="text-text-primary font-bold">
+          {config.displayLabel || config.id}
+        </div>
+        {config.connection ? (
+          <div className="text-text-secondary text-sm">
+            {config.connection.url}
+          </div>
+        ) : null}
+      </div>
+      <div className="flex items-center gap-2">
+        <Chip variant="info">
+          {t(
+            "available-connections.graph-type",
+            config.connection?.queryEngine || "gremlin"
+          )}
+        </Chip>
+        <Switch
+          className="item-switch"
+          labelPosition="left"
+          isSelected={isSelected}
+          onChange={makeSelected}
+          isDisabled={isDisabled}
+        >
+          {isSelected ? "Active" : "Inactive"}
+        </Switch>
+      </div>
+    </div>
+  );
+}
 
 export default AvailableConnections;
