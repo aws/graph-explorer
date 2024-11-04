@@ -8,7 +8,6 @@ import Toast from "@/components/Toast";
 import AppStatusLoader from "@/core/AppStatusLoader";
 import type { RawConfiguration } from "@/core/ConfigurationProvider";
 import StateProvider from "@/core/StateProvider/StateProvider";
-import type { ThemeProviderProps } from "../ThemeProvider/ThemeProvider";
 import ThemeProvider from "@/core/ThemeProvider/ThemeProvider";
 import { MantineProvider } from "@mantine/core";
 import { emotionTransform, MantineEmotionProvider } from "@mantine/emotion";
@@ -18,7 +17,7 @@ import AppErrorPage from "@/core/AppErrorPage";
 
 export type ConnectedProviderProps = {
   config?: RawConfiguration;
-} & ThemeProviderProps;
+};
 
 function exponentialBackoff(attempt: number): number {
   return Math.min(attempt > 1 ? 2 ** attempt * 1000 : 1000, 30 * 1000);
@@ -38,7 +37,7 @@ const queryClient = new QueryClient({
 const ConnectedProvider = (
   props: PropsWithChildren<ConnectedProviderProps>
 ) => {
-  const { config, children, ...themeProps } = props;
+  const { config, children } = props;
   return (
     <ErrorBoundary FallbackComponent={AppErrorPage}>
       <div className="h-screen w-full overflow-hidden">
@@ -46,7 +45,7 @@ const ConnectedProvider = (
           <DndProvider backend={HTML5Backend}>
             <MantineProvider stylesTransform={emotionTransform}>
               <MantineEmotionProvider>
-                <ThemeProvider {...themeProps}>
+                <ThemeProvider>
                   <NotificationProvider component={Toast}>
                     <StateProvider>
                       <AppStatusLoader config={config}>

@@ -7,12 +7,7 @@ export type ActiveThemeType<T> = {
 
 export type ThemeContextType<
   TThemeExtend extends Record<string, any> = Record<string, any>,
-> = [
-  ActiveThemeType<TThemeExtend>,
-  (selectedTheme: string) => void,
-  string[],
-  Record<string, TThemeExtend>,
-];
+> = ActiveThemeType<TThemeExtend>;
 
 export type ThemeStyleFn<
   TThemeExtend extends Record<string, any> = Record<string, any>,
@@ -103,36 +98,6 @@ export type Shadows = {
   none?: string;
   left?: string;
   right?: string;
-};
-
-export type Theme<
-  TThemeExtend extends Record<string, any> = Record<string, any>,
-> = TThemeExtend & {
-  name?: string;
-  mode?: "dark" | "light"; // Primary and Secondary colors are defined as fallback of other colors in order
-  // to avoid duplication of colors everywhere.
-  palette?: {
-    common?: {
-      white?: string;
-      black?: string;
-    };
-    primary?: Palette;
-    secondary?: Palette;
-    info?: Palette;
-    error?: Palette;
-    warning?: Palette;
-    success?: Palette;
-    text?: TextPalette;
-    background?: Background;
-    divider?: string;
-    border?: string;
-    grey?: Grey;
-  };
-  zIndex?: ZIndex;
-  typography?: Typography;
-  shape?: Shape;
-  spacing?: Spacing;
-  shadow?: Shadows;
 };
 
 export type FormBaseTheme = {
