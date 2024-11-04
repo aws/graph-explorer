@@ -4,8 +4,6 @@ import { useRecoilCallback, useRecoilValue } from "recoil";
 import { v4 } from "uuid";
 import {
   AddIcon,
-  AdvancedList,
-  AdvancedListItemType,
   Chip,
   DatabaseIcon,
   ModuleContainer,
@@ -27,6 +25,7 @@ import isValidConfigurationFile from "@/utils/isValidConfigurationFile";
 import CreateConnection from "@/modules/CreateConnection";
 import defaultStyles from "./AvailableConnections.styles";
 import { fromFileToJson } from "@/utils/fileData";
+import { Virtuoso } from "react-virtuoso";
 
 export type ConnectionDetailProps = {
   isSync: boolean;
@@ -150,40 +149,6 @@ const AvailableConnections = ({
     [isSync, onConfigImport]
   );
 
-  const connectionItems = useMemo(() => {
-    const items: AdvancedListItemType<any>[] = [];
-    configuration.forEach(config => {
-      items.push({
-        id: config.id,
-        title: config.displayLabel || config.id,
-        subtitle: config.connection?.url,
-        icon: <DatabaseIcon />,
-        endAdornment: (
-          <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-            <Chip size={"sm"} variant={"info"}>
-              {t(
-                "available-connections.graph-type",
-                config.connection?.queryEngine || "gremlin"
-              )}
-            </Chip>
-            <div className={"v-divider"} />
-            <Switch
-              className={"item-switch"}
-              labelPosition={"left"}
-              isSelected={activeConfig === config.id}
-              onChange={() => onActiveConfigChange(config.id)}
-              isDisabled={isSync}
-            >
-              {activeConfig === config.id ? "Active" : "Inactive"}
-            </Switch>
-          </div>
-        ),
-      });
-    });
-
-    return items;
-  }, [activeConfig, configuration, isSync, onActiveConfigChange, t]);
-
   return (
     <ModuleContainer className={styleWithTheme(defaultStyles)}>
       <ModuleContainerHeader
@@ -192,15 +157,50 @@ const AvailableConnections = ({
         onActionClick={onActionClick}
       />
 
-      <ModuleContainerContent>
-        <AdvancedList
-          className={"advanced-list"}
-          items={connectionItems}
-          selectedItemsIds={[activeConfig || ""]}
+      <ModuleContainerContent className="py-1.5">
+        <Virtuoso
+          data={[...configuration.values()]}
+          itemContent={(_index, config) => (
+            <div className="px-3 py-1.5">
+              <div
+                className="bg-brand-700/15 ring-primary-dark/25 hover:ring-primary-dark has-[:checked]:ring-primary-dark flex items-center gap-4 rounded-lg px-3 py-1.5 ring-1 transition-shadow duration-200 hover:cursor-pointer hover:ring-1"
+                onClick={() => onActiveConfigChange(config.id)}
+              >
+                <DatabaseIcon className="text-primary-main size-6" />
+                <div className="grow">
+                  <div className="text-text-primary font-bold">
+                    {config.displayLabel || config.id}
+                  </div>
+                  {config.connection ? (
+                    <div className="text-text-secondary text-sm">
+                      {config.connection.url}
+                    </div>
+                  ) : null}
+                </div>
+                <div className="flex items-center gap-2">
+                  <Chip size="sm" variant="info">
+                    {t(
+                      "available-connections.graph-type",
+                      config.connection?.queryEngine || "gremlin"
+                    )}
+                  </Chip>
+                  <Switch
+                    className="item-switch"
+                    labelPosition="left"
+                    isSelected={activeConfig === config.id}
+                    onChange={() => onActiveConfigChange(config.id)}
+                    isDisabled={isSync}
+                  >
+                    {activeConfig === config.id ? "Active" : "Inactive"}
+                  </Switch>
+                </div>
+              </div>
+            </div>
+          )}
         />
         <Modal
           centered={true}
-          title={"Add New Connection"}
+          title="Add New Connection"
           opened={isModalOpen}
           onClose={() => onModalChange(false)}
         >
