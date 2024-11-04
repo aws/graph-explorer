@@ -4,6 +4,10 @@
   },
   "typescript.tsdk": "node_modules/typescript/lib",
   "vitest.workspaceConfig": "vitest.workspace.ts",
+  "editor.quickSuggestions": {
+    "strings": "on"
+  },
+  "tailwindCSS.rootFontSize": 14,
   "tailwindCSS.experimental.classRegex": [
     ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
     ["cn\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
