@@ -1,75 +1,38 @@
 import { cn } from "@/utils";
-import type {
-  ForwardedRef,
-  HTMLAttributes,
-  PropsWithChildren,
-  ReactNode,
-} from "react";
+import type { ForwardedRef, HTMLAttributes, PropsWithChildren } from "react";
 import { forwardRef } from "react";
-import { useWithTheme } from "@/core";
-import IconButton from "../IconButton";
-import CloseIcon from "@/components/icons/CloseIcon";
-import defaultStyles from "./Chip.styles";
+import { cva, VariantProps } from "class-variance-authority";
 
-export interface ChipProps extends HTMLAttributes<HTMLDivElement> {
-  className?: string;
-  /* Takes precedence over variants and theme*/
-  color?: string;
-  /* Takes precedence over variants and theme*/
-  background?: string;
-  startAdornment?: ReactNode;
-  endAdornment?: ReactNode;
-  deleteIcon?: ReactNode;
-  onDelete?(): void;
-  size?: "xs" | "sm" | "md" | "lg";
-  variant?: "info" | "success" | "error" | "warning";
-}
+const chip = cva(
+  [
+    "chip font-base inline-flex h-[22px] items-center select-none justify-center gap-1 overflow-hidden text-ellipsis whitespace-nowrap rounded-full px-2.5 text-sm text-white [&>svg]:size-4",
+  ],
+  {
+    variants: {
+      variant: {
+        info: "bg-info-main",
+        success: "bg-success-main",
+        error: "bg-error-main",
+        warning: "bg-warning-main",
+      },
+    },
+    defaultVariants: {
+      variant: "info",
+    },
+  }
+);
+
+export interface ChipProps
+  extends HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof chip> {}
 
 export const Chip = (
-  {
-    children,
-    className,
-    color,
-    background,
-    size = "sm",
-    variant = "info",
-    startAdornment,
-    endAdornment,
-    onDelete,
-    deleteIcon,
-    ...allProps
-  }: PropsWithChildren<ChipProps>,
+  { children, className, variant, ...allProps }: PropsWithChildren<ChipProps>,
   ref: ForwardedRef<HTMLDivElement>
 ) => {
-  const styleWithTheme = useWithTheme();
-
   return (
-    <div
-      ref={ref}
-      className={cn(
-        styleWithTheme(defaultStyles(variant, background, color, size)),
-        "chip",
-        {
-          ["chip-clickable"]: !!allProps.onClick,
-          ["chip-deletable"]: !!onDelete,
-        },
-        className
-      )}
-      {...allProps}
-    >
-      {startAdornment}
-      <span className={"chip-label"}>{children}</span>
-      {endAdornment}
-      {onDelete && (
-        <IconButton
-          rounded
-          onPress={onDelete}
-          className={"icon-delete"}
-          icon={deleteIcon || <CloseIcon />}
-          variant="text"
-          size="small"
-        />
-      )}
+    <div ref={ref} className={cn(chip({ variant }), className)} {...allProps}>
+      {children}
     </div>
   );
 };

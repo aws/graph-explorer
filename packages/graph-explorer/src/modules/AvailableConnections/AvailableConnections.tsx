@@ -178,7 +178,7 @@ const AvailableConnections = ({
                   ) : null}
                 </div>
                 <div className="flex items-center gap-2">
-                  <Chip size="sm" variant="info">
+                  <Chip variant="info">
                     {t(
                       "available-connections.graph-type",
                       config.connection?.queryEngine || "gremlin"
