@@ -39,7 +39,7 @@ function Badge({
   ...props
 }: React.ComponentPropsWithoutRef<"div"> & { value?: boolean }) {
   return (
-    <div className="stack" aria-hidden {...props}>
+    <div className="stack" {...props}>
       {children}
       {value ? (
         <span
