@@ -54,17 +54,17 @@ export type AdvancedListProps<T extends object> = {
   category?: string;
   onItemClick?: (
     event: MouseEvent<HTMLDivElement>,
-    item: AdvancedListItemType<any>,
+    item: AdvancedListItemType<T>,
     index: number
   ) => void;
   onItemMouseOver?: (
     event: MouseEvent<HTMLElement>,
-    item: AdvancedListItemType<any>,
+    item: AdvancedListItemType<T>,
     index: number
   ) => void;
   onItemMouseOut?: (
     event: MouseEvent<HTMLElement>,
-    item: AdvancedListItemType<any>,
+    item: AdvancedListItemType<T>,
     index: number
   ) => void;
   onItemMouseEnter?: AdvancedListMouseEvent;
@@ -83,7 +83,7 @@ export type AdvancedListProps<T extends object> = {
   hideCount?: boolean;
   hideEmptyState?: boolean;
   renderPopover?: (
-    item: AdvancedListItemType<any>,
+    item: AdvancedListItemType<T>,
     itemRef: RefObject<HTMLDivElement>
   ) => ReactNode;
   hidePopover?: boolean;
