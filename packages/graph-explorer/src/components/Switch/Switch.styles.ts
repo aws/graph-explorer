@@ -1,12 +1,11 @@
 import { css } from "@emotion/css";
 
 import { fade, ThemeStyleFn } from "@/core";
-import type { SwitchTheme } from "./Switch.model";
 
 export const defaultSwitchStyles =
-  (width: number): ThemeStyleFn<SwitchTheme> =>
+  (width: number): ThemeStyleFn =>
   ({ theme }) => {
-    const { switchTheme, palette } = theme;
+    const { palette } = theme;
     const trackWidth = width - 10;
 
     return css`
@@ -18,13 +17,12 @@ export const defaultSwitchStyles =
       padding: 4px 5px;
       &.switch-on {
         .switch-track {
-          background: ${switchTheme?.on?.background || palette.primary.main};
+          background: ${palette.primary.main};
           justify-content: flex-end;
           .switch-handle {
             transform: translateX(calc(${trackWidth - 2}px - 100% - 2px));
-            color: ${switchTheme?.on?.iconColor || palette.primary.main};
-            background-color: ${switchTheme?.on?.handleBackground ||
-            palette.common.white};
+            color: ${palette.primary.main};
+            background-color: ${palette.common.white};
           }
         }
       }
@@ -32,22 +30,16 @@ export const defaultSwitchStyles =
       &.switch-off {
         .switch-track {
           justify-content: flex-start;
-          background-color: ${switchTheme?.off?.background ||
-          palette.grey["500"]};
+          background-color: ${palette.grey["500"]};
           .switch-handle {
-            color: ${switchTheme?.off?.iconColor || palette.grey["500"]};
-            background-color: ${switchTheme?.off?.handleBackground ||
-            palette.common.white};
+            color: ${palette.grey["500"]};
+            background-color: ${palette.common.white};
           }
         }
       }
       &.switch-focused {
         .switch-track {
-          outline: 2px solid
-            ${fade(
-              switchTheme?.focus?.outlineColor || palette.primary.main,
-              0.5
-            )};
+          outline: 2px solid ${fade(palette.primary.main, 0.5)};
         }
       }
 
@@ -101,23 +93,16 @@ export const defaultSwitchStyles =
       }
 
       &.switch-disabled {
-        filter: opacity(
-          ${switchTheme?.disabledOpacity ||
-          theme.forms?.disabledOpacity ||
-          "50%"}
-        );
+        filter: opacity(${theme.forms?.disabledOpacity || "50%"});
         > .focus {
-          color: ${switchTheme?.on?.background || palette.primary.main};
+          color: ${palette.primary.main};
         }
       }
     `;
   };
 
-export const defaultSwitchLabelStyles: ThemeStyleFn<SwitchTheme> = ({
-  theme,
-}) => {
+export const defaultSwitchLabelStyles: ThemeStyleFn = ({ theme }) => {
   const {
-    switchTheme,
     palette: { text },
     forms,
   } = theme;
@@ -132,9 +117,7 @@ export const defaultSwitchLabelStyles: ThemeStyleFn<SwitchTheme> = ({
     &.switch-label-disabled {
       cursor: auto;
       pointer-events: none;
-      filter: opacity(
-        ${switchTheme?.disabledOpacity || forms?.disabledOpacity || "50%"}
-      );
+      filter: opacity(${forms?.disabledOpacity || "50%"});
     }
 
     &.switch-label-readonly {

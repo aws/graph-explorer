@@ -1,6 +1,4 @@
-import { BaseTabularTheme } from "./Tabular.model";
-
-const baseTheme: BaseTabularTheme = {
+const baseTheme = {
   background: "inherit",
   border: "inherit",
   color: "solid 1px #d3d3d3",

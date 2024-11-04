@@ -1,12 +1,12 @@
 import { css } from "@emotion/css";
 import { cn } from "@/utils";
 
-import type { ActiveThemeType, ProcessedTheme } from "@/core";
+import type { ActiveThemeType } from "@/core";
 import { useTheme, useWithTheme } from "@/core";
 
 import type { CellComponentProps } from "../useTabular";
 
-const styles = (activeTheme: ActiveThemeType<ProcessedTheme>) => css`
+const styles = (activeTheme: ActiveThemeType) => css`
   display: flex;
   height: 24px;
 

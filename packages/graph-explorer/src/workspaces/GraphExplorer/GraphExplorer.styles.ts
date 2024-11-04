@@ -1,7 +1,7 @@
 import { css } from "@emotion/css";
-import { ActiveThemeType, ProcessedTheme } from "@/core";
+import { ActiveThemeType } from "@/core";
 
-const defaultStyles = ({ theme }: ActiveThemeType<ProcessedTheme>) => css`
+const defaultStyles = ({ theme }: ActiveThemeType) => css`
   &.graph-explorer {
     .v-divider {
       height: 24px;

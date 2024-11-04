@@ -1,21 +1,13 @@
-export type ActiveThemeType<T> = {
-  theme: T;
+export type ActiveThemeType = {
+  theme: ProcessedTheme;
   themeName: string;
   cssVariables: Record<string, unknown>;
   isDarkTheme?: boolean;
 };
 
-export type ThemeContextType<
-  TThemeExtend extends Record<string, any> = Record<string, any>,
-> = ActiveThemeType<TThemeExtend>;
-
-export type ThemeStyleFn<
-  TThemeExtend extends Record<string, any> = Record<string, any>,
-> = (theme: ActiveThemeType<ProcessedTheme<TThemeExtend>>) => string;
-
-export type ThemedStyle<
-  TThemeExtend extends Record<string, any> = Record<string, any>,
-> = (styles: ThemeStyleFn<TThemeExtend>) => string;
+export type ThemeContextType = ActiveThemeType;
+export type ThemeStyleFn = (theme: ActiveThemeType) => string;
+export type ThemedStyle = (styles: ThemeStyleFn) => string;
 
 export type Palette = {
   main: string;
@@ -138,9 +130,7 @@ export type FormBaseTheme = {
   };
 };
 
-export type ProcessedTheme<
-  TThemeExtend extends Record<string, any> = Record<string, any>,
-> = TThemeExtend & {
+export type ProcessedTheme = {
   name: string;
   mode: "dark" | "light"; // Primary and Secondary colors are defined as fallback of other colors in order
   // to avoid duplication of colors everywhere.
@@ -167,5 +157,4 @@ export type ProcessedTheme<
   spacing: DeepRequired<Spacing>;
   shadow: DeepRequired<Shadows>;
   forms?: FormBaseTheme;
-  [key: string]: any;
 };

@@ -3,73 +3,38 @@ import type { ReactNode } from "react";
 import type { ActiveThemeType, ProcessedTheme } from "@/core";
 import { fade } from "@/core";
 import { memoize } from "@/utils";
-import { InputTheme } from "./Input.model";
 
 export const getInputThemeWithDefaults = memoize(
-  (
-    activeTheme: ActiveThemeType<ProcessedTheme<InputTheme>>,
-    validationState: "valid" | "invalid"
-  ): InputTheme["input"] => {
+  (activeTheme: ActiveThemeType, validationState: "valid" | "invalid") => {
     const { isDarkTheme, theme } = activeTheme;
     const { palette } = theme;
     const { text, background, primary, error } = palette;
     const baseFormTheme = theme.forms;
-    const inputTheme = theme.input;
     const styleByValidationState = {
       invalid: {
-        color:
-          inputTheme?.error?.labelColor ||
-          baseFormTheme?.error?.labelColor ||
-          error.main,
+        color: baseFormTheme?.error?.labelColor || error.main,
         input: {
-          background:
-            inputTheme?.error?.background ||
-            baseFormTheme?.error?.background ||
-            background.contrast,
-          color:
-            inputTheme?.error?.color ||
-            baseFormTheme?.error?.color ||
-            text.primary,
-          border:
-            inputTheme?.error?.border ||
-            baseFormTheme?.error?.border ||
-            `1px solid ${error.main}`,
+          background: baseFormTheme?.error?.background || background.contrast,
+          color: baseFormTheme?.error?.color || text.primary,
+          border: baseFormTheme?.error?.border || `1px solid ${error.main}`,
           placeholder:
-            inputTheme?.error?.placeholderColor ||
             baseFormTheme?.error?.placeholderColor ||
-            inputTheme?.placeholderColor ||
             baseFormTheme?.placeholderColor ||
             text.disabled,
           focus: {
-            shadow:
-              inputTheme?.error?.focus?.outlineColor ||
-              baseFormTheme?.error?.focus?.outlineColor ||
-              error.main,
+            shadow: baseFormTheme?.error?.focus?.outlineColor || error.main,
           },
         },
       },
       valid: {
-        color:
-          inputTheme?.label?.color ||
-          baseFormTheme?.label?.color ||
-          text.primary,
+        color: baseFormTheme?.label?.color || text.primary,
         input: {
-          background:
-            inputTheme?.background ||
-            baseFormTheme?.background ||
-            background.contrast,
-          color: inputTheme?.color || baseFormTheme?.color || text.primary,
-          border:
-            inputTheme?.border ||
-            baseFormTheme?.border ||
-            "1px solid transparent",
-          placeholder:
-            inputTheme?.placeholderColor ||
-            baseFormTheme?.placeholderColor ||
-            text.disabled,
+          background: baseFormTheme?.background || background.contrast,
+          color: baseFormTheme?.color || text.primary,
+          border: baseFormTheme?.border || "1px solid transparent",
+          placeholder: baseFormTheme?.placeholderColor || text.disabled,
           focus: {
             shadow:
-              inputTheme?.error?.focus?.outlineColor ||
               baseFormTheme?.error?.focus?.outlineColor ||
               (isDarkTheme ? primary.dark : primary.main),
           },
@@ -83,25 +48,15 @@ export const getInputThemeWithDefaults = memoize(
       placeholderColor:
         styleByValidationState[validationState].input.placeholder,
       border: styleByValidationState[validationState].input.border,
-      borderRadius:
-        inputTheme?.borderRadius ||
-        baseFormTheme?.borderRadius ||
-        theme.shape.borderRadius,
-      disabledOpacity:
-        inputTheme?.disabledOpacity || baseFormTheme?.disabledOpacity || "70%",
+      borderRadius: baseFormTheme?.borderRadius || theme.shape.borderRadius,
+      disabledOpacity: baseFormTheme?.disabledOpacity || "70%",
       padding: "0",
       paddingSmall: "0",
       startAdornment: {
-        color:
-          baseFormTheme?.startAdornment?.color ||
-          inputTheme?.startAdornment?.color ||
-          text.primary,
+        color: baseFormTheme?.startAdornment?.color || text.primary,
       },
       endAdornment: {
-        color:
-          baseFormTheme?.endAdornment?.color ||
-          inputTheme?.endAdornment?.color ||
-          text.primary,
+        color: baseFormTheme?.endAdornment?.color || text.primary,
       },
       focus: {
         outlineColor: `0 0 0 1px
@@ -110,44 +65,30 @@ export const getInputThemeWithDefaults = memoize(
               .shadow
           }`,
         background:
-          inputTheme?.focus?.background ||
-          baseFormTheme?.focus?.background ||
-          background.contrastSecondary,
-        color:
-          inputTheme?.focus?.color ||
-          baseFormTheme?.focus?.color ||
-          text.primary,
+          baseFormTheme?.focus?.background || background.contrastSecondary,
+        color: baseFormTheme?.focus?.color || text.primary,
       },
       hover: {
         background:
-          inputTheme?.hover?.background ||
-          baseFormTheme?.hover?.background ||
-          background.contrastSecondary,
-        color:
-          inputTheme?.hover?.color ||
-          baseFormTheme?.hover?.color ||
-          text.primary,
+          baseFormTheme?.hover?.background || background.contrastSecondary,
+        color: baseFormTheme?.hover?.color || text.primary,
       },
       label: {
         color: styleByValidationState[validationState].color,
       },
       error: {
-        errorColor:
-          inputTheme?.error?.errorColor ||
-          baseFormTheme?.error?.errorColor ||
-          error.main,
+        errorColor: baseFormTheme?.error?.errorColor || error.main,
       },
     };
   }
 );
 
 const getPaddingBySize = (size: "sm" | "md", theme: ProcessedTheme) => {
-  const basePadding = theme.input?.padding || theme.spacing["2x"];
   if (size === "sm") {
-    return `calc(${basePadding} / 2)`;
+    return `calc(${theme.spacing["2x"]} / 2)`;
   }
 
-  return basePadding;
+  return theme.spacing["2x"];
 };
 const getPaddingBySizeAndAdornment = (
   theme: ProcessedTheme,
@@ -198,7 +139,7 @@ export const inputContainerStyles =
     endAdornment?: ReactNode,
     noMargin?: boolean
   ) =>
-  (activeTheme: ActiveThemeType<ProcessedTheme>) => {
+  (activeTheme: ActiveThemeType) => {
     const { theme } = activeTheme;
     const themeWithDefault = getInputThemeWithDefaults(
       activeTheme,

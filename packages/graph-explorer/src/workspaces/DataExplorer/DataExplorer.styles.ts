@@ -1,7 +1,7 @@
 import { css } from "@emotion/css";
-import { ActiveThemeType, fade, ProcessedTheme } from "@/core";
+import { ActiveThemeType, fade } from "@/core";
 
-const defaultStyles = ({ theme }: ActiveThemeType<ProcessedTheme>) => css`
+const defaultStyles = ({ theme }: ActiveThemeType) => css`
   &.data-explorer {
     .top-bar {
       min-width: 500px;

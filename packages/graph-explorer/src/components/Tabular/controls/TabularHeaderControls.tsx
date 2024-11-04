@@ -7,7 +7,6 @@ import { useWithTheme } from "@/core";
 import type { TabularVariantType } from "../Tabular";
 
 import { useTabularControl } from "../TabularControlsProvider";
-import type { TabularTheme } from "../Tabular.model";
 
 export type TabularHeaderControlsProps = PropsWithChildren<{
   className?: string;
@@ -21,8 +20,8 @@ export type TabularHeaderControlsProps = PropsWithChildren<{
 }>;
 
 const defaultStyles =
-  (variant?: TabularVariantType): ThemeStyleFn<TabularTheme> =>
-  ({ theme, isDarkTheme }) => css`
+  (variant?: TabularVariantType): ThemeStyleFn =>
+  ({ isDarkTheme }) => css`
     &.header-controls {
       position: sticky;
       left: 0;
@@ -35,18 +34,13 @@ const defaultStyles =
       background: ${cssVar(
         "--tabular-header-controls-background",
         "--tabular-header-background",
-        isDarkTheme ? "--palette-grey-800" : "--palette-background-contrast",
-        theme.header.controls.background
+        isDarkTheme ? "--palette-grey-800" : "--palette-background-contrast"
       )};
       color: ${cssVar(
         "--tabular-header-controls-color",
-        "--tabular-header-color",
-        theme.header.controls.color
+        "--tabular-header-color"
       )};
-      padding: ${cssVar(
-        "--tabular-header-controls-padding",
-        theme.header.controls.padding
-      )};
+      padding: ${cssVar("--tabular-header-controls-padding")};
       ${variant !== "noBorders" &&
       `
     border-top: ${cssVar(
