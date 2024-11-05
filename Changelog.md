@@ -2,6 +2,8 @@
 
 ## Upcoming
 
+- **Improved** UI responsiveness by using map instead of array for large data
+  sets [#658](https://github.com/aws/graph-explorer/pull/658)
 - **Improved** style for the sidebar buttons
   [#651](https://github.com/aws/graph-explorer/pull/651)
 - **Fixed** Docker image containing more files than necessary.
