@@ -291,7 +291,7 @@ export interface TabularOptions<T extends object> {
 }
 
 export const useTabular = <T extends object>(options: TabularOptions<T>) => {
-  const [activeTheme] = useTheme();
+  const activeTheme = useTheme();
 
   const {
     data,

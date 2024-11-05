@@ -44,7 +44,7 @@ const makeBarChartCell =
   ({ value }: CellComponentProps<T>) => {
     const items = value as number[];
 
-    const [theme] = useTheme();
+    const theme = useTheme();
     const styleWithTheme = useWithTheme();
     return (
       <div className={styleWithTheme(styles)}>

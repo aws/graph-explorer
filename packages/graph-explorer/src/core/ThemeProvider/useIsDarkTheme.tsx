@@ -1,9 +1,9 @@
 import useTheme from "./useTheme";
 
 export const useIsDarkTheme = (): boolean => {
-  const [theme] = useTheme();
+  const theme = useTheme();
 
-  return !!theme?.isDarkTheme;
+  return !!theme.isDarkTheme;
 };
 
 export default useIsDarkTheme;
