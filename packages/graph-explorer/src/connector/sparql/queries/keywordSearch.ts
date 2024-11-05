@@ -67,6 +67,8 @@ const keywordSearch = async (
 
   return {
     vertices,
+    edges: [],
+    scalars: [],
   };
 };
 

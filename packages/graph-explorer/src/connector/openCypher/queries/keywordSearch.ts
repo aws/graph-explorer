@@ -24,7 +24,7 @@ const keywordSearch = async (
 ): Promise<KeywordSearchResponse> => {
   const vertices = await vertexKeywordSearch(openCypherFetch, req);
 
-  return { vertices: vertices };
+  return { vertices: vertices, edges: [], scalars: [] };
 };
 
 const vertexKeywordSearch = async (

@@ -56,6 +56,11 @@ export type Vertex = {
 
   // The following properties are computed on run-time
   /**
+   * Sometimes the vertex response does not include the properties, so this flag
+   * indicates that another query must be executed to get the properties.
+   */
+  __isFragment?: boolean;
+  /**
    * Internal flag to mark the resource as blank node in RDF.
    */
   __isBlank?: boolean;
@@ -116,4 +121,10 @@ export type Edge = {
    * For RDF, predicates do not have more properties than the predicate itself.
    */
   attributes: Record<string, string | number>;
+
+  /**
+   * Sometimes the edge response does not include the properties, so this flag
+   * indicates that another query must be executed to get the properties.
+   */
+  __isFragment?: boolean;
 };

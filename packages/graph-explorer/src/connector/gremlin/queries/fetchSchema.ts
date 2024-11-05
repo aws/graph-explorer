@@ -144,7 +144,7 @@ const fetchVerticesAttributes = async (
     for (let i = 0; i < verticesSchemas.length; i += 2) {
       const label = verticesSchemas[i] as string;
       const vertex = verticesSchemas[i + 1] as GVertex;
-      const properties = vertex["@value"].properties;
+      const properties = vertex["@value"].properties ?? {};
       vertices.push({
         type: label,
         displayLabel: sanitizeText(label),

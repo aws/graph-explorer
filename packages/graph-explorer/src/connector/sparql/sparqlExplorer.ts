@@ -93,6 +93,7 @@ const storedBlankNodeNeighborsRequest = (
       resolve({
         vertices: [],
         edges: [],
+        scalars: [],
       });
       return;
     }
@@ -129,6 +130,7 @@ const storedBlankNodeNeighborsRequest = (
         req.limit ? req.limit + (req.offset ?? 0) : undefined
       ),
       edges: bNode.neighbors.edges,
+      scalars: [],
     });
   });
 };
@@ -243,7 +245,7 @@ export function createSparqlExplorer(
         request,
         response
       );
-      return { vertices, edges: response.edges };
+      return { vertices, edges: response.edges, scalars: [] };
     },
     async fetchNeighborsCount(req, options) {
       remoteLogger.info("[SPARQL Explorer] Fetching neighbors count...");
@@ -315,7 +317,7 @@ export function createSparqlExplorer(
         response
       );
 
-      return { vertices };
+      return { vertices, edges: [], scalars: [] };
     },
   } satisfies Explorer;
 }

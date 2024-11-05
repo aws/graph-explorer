@@ -160,6 +160,7 @@ const fetchNeighbors = async (
   return {
     vertices,
     edges: [...edges, ...bNodesEdges],
+    scalars: [],
   };
 };
 
