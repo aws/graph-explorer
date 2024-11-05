@@ -10,6 +10,7 @@ export default function mapApiVertex(
   const vt = labels[0] ?? "";
 
   return {
+    entityType: "vertex",
     id: apiVertex["~id"] as VertexId,
     idType: "string",
     type: vt,

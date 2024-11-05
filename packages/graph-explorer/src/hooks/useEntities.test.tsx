@@ -68,6 +68,7 @@ describe("useEntities", () => {
 
   it("should handle multiple nodes correctly", async () => {
     const node1: Vertex = {
+      entityType: "vertex",
       id: "1" as VertexId,
       idType: "string",
       type: "type1",
@@ -76,6 +77,7 @@ describe("useEntities", () => {
       neighborsCountByType: {},
     };
     const node2: Vertex = {
+      entityType: "vertex",
       id: "2" as VertexId,
       idType: "string",
       type: "type2",
@@ -84,6 +86,7 @@ describe("useEntities", () => {
       neighborsCountByType: {},
     };
     const node3: Vertex = {
+      entityType: "vertex",
       id: "3" as VertexId,
       idType: "string",
       type: "type3",
@@ -93,6 +96,7 @@ describe("useEntities", () => {
     };
     const expectedNodes = toNodeMap([
       {
+        entityType: "vertex",
         id: node1.id,
         idType: "string",
         type: node1.type,
@@ -105,6 +109,7 @@ describe("useEntities", () => {
         __unfetchedNeighborCount: 0,
       },
       {
+        entityType: "vertex",
         id: node2.id,
         idType: "string",
         type: node2.type,
@@ -117,6 +122,7 @@ describe("useEntities", () => {
         __unfetchedNeighborCount: 0,
       },
       {
+        entityType: "vertex",
         id: node3.id,
         idType: "string",
         type: node3.type,

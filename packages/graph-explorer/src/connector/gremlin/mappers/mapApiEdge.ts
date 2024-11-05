@@ -5,6 +5,7 @@ import toStringId from "./toStringId";
 
 const mapApiEdge = (apiEdge: GEdge): Edge => {
   return {
+    entityType: "edge",
     id: toStringId(apiEdge["@value"].id) as EdgeId,
     type: apiEdge["@value"].label,
     source: toStringId(apiEdge["@value"].outV) as VertexId,

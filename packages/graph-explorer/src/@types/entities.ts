@@ -5,6 +5,10 @@ export type VertexId = Branded<string, "VertexId">;
 
 export type Vertex = {
   /**
+   * Indicates the type in order to discriminate from the `Edge` type in unions.
+   */
+  entityType: "vertex";
+  /**
    * Unique identifier for the vertex.
    * - For PG, the node id
    * - For RDF, the resource URI
@@ -74,6 +78,10 @@ export type Vertex = {
 };
 
 export type Edge = {
+  /**
+   * Indicates the type in order to discriminate from the `Vertex` type in unions.
+   */
+  entityType: "edge";
   /**
    * Unique identifier for the edge.
    * - For PG, the edge id

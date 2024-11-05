@@ -7,6 +7,7 @@ const mapRawResultToVertex = (
   neighborsCount?: NeighborsCountResponse
 ): Vertex => {
   return {
+    entityType: "vertex",
     id: rawResult.uri as VertexId,
     idType: "string",
     type: rawResult.class,

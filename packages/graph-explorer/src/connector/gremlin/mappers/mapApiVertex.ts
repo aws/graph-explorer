@@ -13,6 +13,7 @@ const mapApiVertex = (
   const vt = labels[0];
 
   return {
+    entityType: "vertex",
     id: toStringId(apiVertex["@value"].id) as VertexId,
     idType: detectIdType(apiVertex["@value"].id),
     type: vt,

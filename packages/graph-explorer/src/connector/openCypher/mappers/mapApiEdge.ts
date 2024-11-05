@@ -7,6 +7,7 @@ const mapApiEdge = (
   targetType: string
 ): Edge => {
   return {
+    entityType: "edge",
     id: apiEdge["~id"] as EdgeId,
     type: apiEdge["~type"],
     source: apiEdge["~start"] as VertexId,
