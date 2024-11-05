@@ -35,21 +35,24 @@ export function useUpdateAllNodeCounts() {
   const explorer = useRecoilValue(explorerSelector);
   const { enqueueNotification, clearNotification } = useNotification();
 
-  // Unique ID & ID type combos
-  const nodeIdAndTypes = [
-    ...new Map([...entities.nodes.map(n => [n.id, n.idType] as const)]),
-  ];
-
   const query = useQueries({
-    queries: nodeIdAndTypes.map(([id, idType]) =>
-      neighborsCountQuery(id, idType, connection?.nodeExpansionLimit, explorer)
-    ),
+    queries: entities.nodes
+      .values()
+      .map(node =>
+        neighborsCountQuery(
+          node.id,
+          node.idType,
+          connection?.nodeExpansionLimit,
+          explorer
+        )
+      )
+      .toArray(),
     combine: results => {
       // Combines data with existing node data and filters out undefined
       const data = results
         .flatMap(result => (result.data ? [result.data] : []))
         .map(data => {
-          const prevNode = entities.nodes.find(n => n.id === data.nodeId);
+          const prevNode = entities.nodes.get(data.nodeId);
           const node: Vertex | undefined = prevNode
             ? {
                 ...prevNode,
@@ -78,11 +81,13 @@ export function useUpdateAllNodeCounts() {
 
     // Update node graph with counts
     setEntities(prev => ({
-      nodes: prev.nodes.map(node => {
-        const nodeWithCounts = query.data.find(n => n?.id === node.id);
+      nodes: new Map(
+        prev.nodes.entries().map(([id, node]) => {
+          const nodeWithCounts = query.data.find(n => n?.id === id);
 
-        return nodeWithCounts ?? node;
-      }),
+          return [id, nodeWithCounts ?? node];
+        })
+      ),
       edges: prev.edges,
     }));
   }, [query.data, query.pending, setEntities]);

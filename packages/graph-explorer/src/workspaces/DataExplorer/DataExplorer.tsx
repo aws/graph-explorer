@@ -261,7 +261,7 @@ function DisplayNameAndDescriptionOptions({
 function AddToExplorerButton({ vertex }: { vertex: Vertex }) {
   const fetchNode = useFetchNode();
   const [entities] = useEntities({ disableFilters: true });
-  const isInExplorer = !!entities.nodes.find(node => node.id === vertex.id);
+  const isInExplorer = entities.nodes.has(vertex.id);
 
   return (
     <div style={{ display: "inline-block" }}>

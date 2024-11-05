@@ -1,13 +1,17 @@
 import { atom, selector } from "recoil";
-import type { Vertex } from "@/types/entities";
+import type { Vertex, VertexId } from "@/types/entities";
 import isDefaultValue from "./isDefaultValue";
 
-export const nodesAtom = atom<Array<Vertex>>({
+export function toNodeMap(nodes: Vertex[]): Map<VertexId, Vertex> {
+  return new Map(nodes.map(n => [n.id, n]));
+}
+
+export const nodesAtom = atom<Map<VertexId, Vertex>>({
   key: "nodes",
-  default: [],
+  default: new Map(),
 });
 
-export const nodesSelector = selector<Array<Vertex>>({
+export const nodesSelector = selector<Map<VertexId, Vertex>>({
   key: "nodes-selector",
   get: ({ get }) => {
     return get(nodesAtom);
@@ -19,10 +23,10 @@ export const nodesSelector = selector<Array<Vertex>>({
     }
 
     set(nodesAtom, newValue);
-    const cleanFn = (curr: Set<string>) => {
-      const existingNodesIds = new Set<string>();
+    const cleanFn = (curr: Set<VertexId>) => {
+      const existingNodesIds = new Set<VertexId>();
       curr.forEach(nId => {
-        const exist = newValue.find(n => n.id === nId);
+        const exist = newValue.get(nId);
         if (exist) {
           existingNodesIds.add(nId);
         }
@@ -38,22 +42,22 @@ export const nodesSelector = selector<Array<Vertex>>({
   },
 });
 
-export const nodesSelectedIdsAtom = atom<Set<string>>({
+export const nodesSelectedIdsAtom = atom<Set<VertexId>>({
   key: "nodes-selected-ids",
   default: new Set(),
 });
 
-export const nodesHiddenIdsAtom = atom<Set<string>>({
+export const nodesHiddenIdsAtom = atom<Set<VertexId>>({
   key: "nodes-hidden-ids",
   default: new Set(),
 });
 
-export const nodesOutOfFocusIdsAtom = atom<Set<string>>({
+export const nodesOutOfFocusIdsAtom = atom<Set<VertexId>>({
   key: "nodes-out-of-focus-ids",
   default: new Set(),
 });
 
-export const nodesFilteredIdsAtom = atom<Set<string>>({
+export const nodesFilteredIdsAtom = atom<Set<VertexId>>({
   key: "nodes-filtered-ids",
   default: new Set(),
 });

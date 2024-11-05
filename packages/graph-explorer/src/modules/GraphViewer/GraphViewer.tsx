@@ -1,7 +1,7 @@
 import { cn } from "@/utils";
 import { MouseEvent, useCallback, useMemo, useRef, useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
-import { Vertex } from "@/types/entities";
+import { EdgeId, Vertex, VertexId } from "@/types/entities";
 import type { ActionItem, ModuleContainerHeaderProps } from "@/components";
 import {
   ModuleContainer,
@@ -150,14 +150,14 @@ export default function GraphViewer({
   const edgesOutIds = useRecoilValue(edgesOutOfFocusIdsAtom);
 
   const onSelectedNodesIdsChange = useCallback(
-    (selectedIds: string[] | Set<string>) => {
+    (selectedIds: VertexId[] | Set<VertexId>) => {
       setNodesSelectedIds(new Set(selectedIds));
     },
     [setNodesSelectedIds]
   );
 
   const onSelectedEdgesIdsChange = useCallback(
-    (selectedIds: string[] | Set<string>) => {
+    (selectedIds: EdgeId[] | Set<EdgeId>) => {
       setEdgesSelectedIds(new Set(selectedIds));
     },
     [setEdgesSelectedIds]
@@ -200,8 +200,8 @@ export default function GraphViewer({
   const [layout, setLayout] = useState("F_COSE");
   const onClearCanvas = useCallback(() => {
     setEntities({
-      nodes: [],
-      edges: [],
+      nodes: new Map(),
+      edges: new Map(),
       forceSet: true,
     });
   }, [setEntities]);
@@ -225,11 +225,19 @@ export default function GraphViewer({
   );
 
   const nodes = useMemo(
-    () => entities.nodes.map(n => ({ data: n })),
+    () =>
+      entities.nodes
+        .values()
+        .map(n => ({ data: n }))
+        .toArray(),
     [entities]
   );
   const edges = useMemo(
-    () => entities.edges.map(e => ({ data: e })),
+    () =>
+      entities.edges
+        .values()
+        .map(e => ({ data: e }))
+        .toArray(),
     [entities]
   );
 

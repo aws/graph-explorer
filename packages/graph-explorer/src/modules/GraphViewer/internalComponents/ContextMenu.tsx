@@ -14,19 +14,20 @@ import {
   ZoomOutIcon,
 } from "@/components/icons";
 import { useWithTheme } from "@/core";
-import { edgesSelectedIdsAtom } from "@/core/StateProvider/edges";
-import { nodesSelectedIdsAtom } from "@/core/StateProvider/nodes";
+import { edgesSelectedIdsAtom, toEdgeMap } from "@/core/StateProvider/edges";
+import { nodesSelectedIdsAtom, toNodeMap } from "@/core/StateProvider/nodes";
 import { userLayoutAtom } from "@/core/StateProvider/userPreferences";
 import useDisplayNames from "@/hooks/useDisplayNames";
 import useEntities from "@/hooks/useEntities";
 import useTranslations from "@/hooks/useTranslations";
 import useGraphGlobalActions from "../useGraphGlobalActions";
 import defaultStyles from "./ContextMenu.styles";
+import { EdgeId, VertexId } from "@/@types/entities";
 
 export type ContextMenuProps = {
   className?: string;
-  affectedNodesIds?: string[];
-  affectedEdgesIds?: string[];
+  affectedNodesIds?: VertexId[];
+  affectedEdgesIds?: EdgeId[];
   graphRef: RefObject<GraphRef | null>;
   onClose?(): void;
   onNodeCustomize(nodeType?: string): void;
@@ -126,12 +127,27 @@ const ContextMenu = ({
   }, [onClose, onZoomOut]);
 
   const handleRemoveFromCanvas = useCallback(
-    (nodesIds: string[], edgesIds: string[]) => () => {
-      setEntities(prev => ({
-        nodes: prev.nodes.filter(n => !nodesIds.includes(n.id)),
-        edges: prev.edges.filter(e => !edgesIds.includes(e.id)),
-        forceSet: true,
-      }));
+    (nodesIds: VertexId[], edgesIds: EdgeId[]) => () => {
+      setEntities(prev => {
+        // const newNodes = new Map(prev.nodes);
+        // nodesIds.forEach(id => newNodes.delete(id));
+        return {
+          // nodes: newNodes,
+          nodes: toNodeMap(
+            prev.nodes
+              .values()
+              .filter(n => !nodesIds.includes(n.id))
+              .toArray()
+          ),
+          edges: toEdgeMap(
+            prev.edges
+              .values()
+              .filter(e => !edgesIds.includes(e.id))
+              .toArray()
+          ),
+          forceSet: true,
+        };
+      });
       onClose?.();
     },
     [onClose, setEntities]
@@ -139,8 +155,8 @@ const ContextMenu = ({
 
   const handleRemoveAllFromCanvas = useCallback(() => {
     setEntities({
-      nodes: [],
-      edges: [],
+      nodes: new Map(),
+      edges: new Map(),
       forceSet: true,
     });
     onClose?.();
@@ -163,7 +179,7 @@ const ContextMenu = ({
       return;
     }
 
-    return entities.nodes.find(n => n.id === affectedNodesIds[0]);
+    return entities.nodes.get(affectedNodesIds[0]);
   }, [affectedNodesIds, entities.nodes]);
 
   const affectedEdge = useMemo(() => {
@@ -171,7 +187,7 @@ const ContextMenu = ({
       return;
     }
 
-    return entities.edges.find(e => e.id === affectedEdgesIds[0]);
+    return entities.edges.get(affectedEdgesIds[0]);
   }, [affectedEdgesIds, entities.edges]);
 
   if (affectedNode) {

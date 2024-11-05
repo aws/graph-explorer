@@ -1,4 +1,3 @@
-import uniqBy from "lodash/uniqBy";
 import { selector, selectorFamily, useRecoilValue } from "recoil";
 import DEFAULT_ICON_URL from "@/utils/defaultIconUrl";
 import { mergedConfigurationSelector } from "@/core/StateProvider/configuration";
@@ -37,40 +36,40 @@ export const assembledConfigSelector = selector<
       return;
     }
 
+    const vertexTypesMap = new Map(
+      configuration.schema?.vertices.map(v => [v.type, v])
+    );
+
+    const edgeTypesMap = new Map(
+      configuration.schema?.edges.map(e => [e.type, e])
+    );
+
     return {
       ...configuration,
       totalVertices: configuration.schema?.totalVertices ?? 0,
-      vertexTypes: configuration.schema?.vertices?.map(vt => vt.type) || [],
+      vertexTypes: vertexTypesMap.keys().toArray(),
       totalEdges: configuration.schema?.totalEdges ?? 0,
-      edgeTypes: configuration.schema?.edges?.map(et => et.type) || [],
+      edgeTypes: edgeTypesMap.keys().toArray(),
       getVertexTypeConfig(vertexType) {
-        const vtConfig = configuration?.schema?.vertices?.find(
-          v => v.type === vertexType
+        return (
+          vertexTypesMap.get(vertexType) ??
+          getDefaultVertexTypeConfig(vertexType)
         );
-        if (!vtConfig) {
-          return getDefaultVertexTypeConfig(vertexType);
-        }
-
-        return vtConfig;
       },
       getVertexTypeAttributes(vertexTypes) {
-        const vtConfig = configuration?.schema?.vertices?.filter(v =>
-          vertexTypes.includes(v.type)
+        const attributesByNameMap = new Map(
+          vertexTypes
+            .values()
+            .map(vt => vertexTypesMap.get(vt))
+            .filter(vt => vt != null)
+            .flatMap(vt => vt.attributes)
+            .map(attr => [attr.name, attr])
         );
 
-        if (!vtConfig?.length) {
-          return [];
-        }
-
-        return uniqBy(
-          vtConfig.flatMap(v => v.attributes),
-          v => v.name
-        );
+        return attributesByNameMap.values().toArray();
       },
       getVertexTypeSearchableAttributes(vertexType) {
-        const vtConfig = configuration?.schema?.vertices?.find(
-          v => v.type === vertexType
-        );
+        const vtConfig = vertexTypesMap.get(vertexType);
         if (!vtConfig) {
           return [];
         }
@@ -81,14 +80,7 @@ export const assembledConfigSelector = selector<
         );
       },
       getEdgeTypeConfig(edgeType) {
-        const etConfig = configuration?.schema?.edges?.find(
-          e => e.type === edgeType
-        );
-        if (!etConfig) {
-          return getDefaultEdgeTypeConfig(edgeType);
-        }
-
-        return etConfig;
+        return edgeTypesMap.get(edgeType) ?? getDefaultEdgeTypeConfig(edgeType);
       },
     };
   },

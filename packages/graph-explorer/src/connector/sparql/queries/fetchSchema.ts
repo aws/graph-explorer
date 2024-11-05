@@ -84,13 +84,17 @@ const fetchPredicatesByClass = async (
           classPredicatesTemplate
         );
 
-      const attributes = predicatesResponse.results.bindings.map(item => ({
-        name: item.pred.value,
-        displayLabel: "",
-        searchable: true,
-        hidden: false,
-        dataType: TYPE_MAP[item.sample.datatype || ""] || "String",
-      }));
+      const attributes = new Map(
+        predicatesResponse.results.bindings
+          .map(item => ({
+            name: item.pred.value,
+            displayLabel: "",
+            searchable: true,
+            hidden: false,
+            dataType: TYPE_MAP[item.sample.datatype || ""] || "String",
+          }))
+          .map(a => [a.name, a])
+      );
 
       return {
         attributes,
@@ -104,12 +108,18 @@ const fetchPredicatesByClass = async (
     displayLabel: "",
     total: countsByClass[resourceClass],
     displayNameAttribute:
-      attributes.find(attr => displayNameCandidates.includes(attr.name))
-        ?.name || RESERVED_ID_PROPERTY,
+      displayNameCandidates
+        .values()
+        .map(c => attributes.get(c)?.name)
+        .filter(n => n != null)
+        .next().value ?? RESERVED_ID_PROPERTY,
     longDisplayNameAttribute:
-      attributes.find(attr => displayDescCandidates.includes(attr.name))
-        ?.name || "types",
-    attributes,
+      displayDescCandidates
+        .values()
+        .map(c => attributes.get(c)?.name)
+        .filter(n => n != null)
+        .next().value ?? "types",
+    attributes: attributes.values().toArray(),
   }));
 };
 

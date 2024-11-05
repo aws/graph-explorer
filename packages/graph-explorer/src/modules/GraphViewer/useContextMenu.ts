@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from "react";
 import { useLayer, useMousePositionAsTrigger } from "react-laag";
-import type { Edge, Vertex } from "@/types/entities";
+import type { Edge, EdgeId, Vertex, VertexId } from "@/types/entities";
 import type {
   ElementEventCallback,
   GraphEventCallback,
@@ -11,8 +11,8 @@ const useContextMenu = () => {
   // Bounding container used to position the layer correctly
   const parentRef = useRef<HTMLDivElement>(null);
 
-  const [contextNodeId, setContextNodeId] = useState<string | null>(null);
-  const [contextEdgeId, setContextEdgeId] = useState<string | null>(null);
+  const [contextNodeId, setContextNodeId] = useState<VertexId | null>(null);
+  const [contextEdgeId, setContextEdgeId] = useState<EdgeId | null>(null);
   const [contextPosition, setContextPosition] = useState<{
     top: number;
     left: number;

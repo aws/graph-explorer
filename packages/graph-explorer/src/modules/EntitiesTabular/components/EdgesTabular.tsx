@@ -94,10 +94,13 @@ const EdgesTabular = forwardRef<TabularInstance<ToggleEdge>, any>(
     }, [t, onToggleVisibility, textTransform]);
 
     const data: ToggleEdge[] = useDeepMemo(() => {
-      return edges.map(edge => ({
-        ...edge,
-        __is_visible: !hiddenEdgesIds.has(edge.id),
-      }));
+      return edges
+        .values()
+        .map(edge => ({
+          ...edge,
+          __is_visible: !hiddenEdgesIds.has(edge.id),
+        }))
+        .toArray();
     }, [edges, hiddenEdgesIds]);
 
     const onSelectRows = useCallback(
@@ -130,7 +133,7 @@ const EdgesTabular = forwardRef<TabularInstance<ToggleEdge>, any>(
         data={data}
         columns={columns as any[]}
         onDataFilteredChange={rows => {
-          const edgesIds = edges.map(e => e.id);
+          const edgesIds = edges.keys().toArray();
           const ids = rows.map(row => row.original.id);
           setEdgesOut(new Set(difference(edgesIds, ids)));
         }}
