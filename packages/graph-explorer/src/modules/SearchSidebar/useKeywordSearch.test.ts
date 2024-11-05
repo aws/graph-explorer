@@ -36,16 +36,16 @@ describe("useKeywordSearch", () => {
   describe("Gremlin", () => {
     it("Should default to precision match exact", () => {
       const { result } = renderHookWithRecoilRoot(
-        () => useKeywordSearch({ isOpen: false }),
+        () => useKeywordSearch(),
         initializeConfigWithQueryEngine("gremlin")
       );
 
-      expect(result.current.exactMatch).toBe(true);
+      expect(result.current.partialMatch).toBe(false);
     });
 
     it("Should default to attribute ID", () => {
       const { result } = renderHookWithRecoilRoot(
-        () => useKeywordSearch({ isOpen: false }),
+        () => useKeywordSearch(),
         initializeConfigWithQueryEngine("gremlin")
       );
 
@@ -54,7 +54,7 @@ describe("useKeywordSearch", () => {
 
     it("Should default to node type All", () => {
       const { result } = renderHookWithRecoilRoot(
-        () => useKeywordSearch({ isOpen: false }),
+        () => useKeywordSearch(),
         initializeConfigWithQueryEngine("gremlin")
       );
 
@@ -63,7 +63,7 @@ describe("useKeywordSearch", () => {
 
     it("Should have all searchable attributes", () => {
       const { result } = renderHookWithRecoilRoot(
-        () => useKeywordSearch({ isOpen: false }),
+        () => useKeywordSearch(),
         initializeConfigWithQueryEngine("gremlin")
       );
 
@@ -77,16 +77,16 @@ describe("useKeywordSearch", () => {
   describe("OpenCypher", () => {
     it("Should default to precision match exact", () => {
       const { result } = renderHookWithRecoilRoot(
-        () => useKeywordSearch({ isOpen: false }),
+        () => useKeywordSearch(),
         initializeConfigWithQueryEngine("openCypher")
       );
 
-      expect(result.current.exactMatch).toBe(true);
+      expect(result.current.partialMatch).toBe(false);
     });
 
     it("Should default to attribute ID", () => {
       const { result } = renderHookWithRecoilRoot(
-        () => useKeywordSearch({ isOpen: false }),
+        () => useKeywordSearch(),
         initializeConfigWithQueryEngine("openCypher")
       );
 
@@ -95,7 +95,7 @@ describe("useKeywordSearch", () => {
 
     it("Should default to node type All", () => {
       const { result } = renderHookWithRecoilRoot(
-        () => useKeywordSearch({ isOpen: false }),
+        () => useKeywordSearch(),
         initializeConfigWithQueryEngine("openCypher")
       );
 
@@ -104,7 +104,7 @@ describe("useKeywordSearch", () => {
 
     it("Should have all searchable attributes", () => {
       const { result } = renderHookWithRecoilRoot(
-        () => useKeywordSearch({ isOpen: false }),
+        () => useKeywordSearch(),
         initializeConfigWithQueryEngine("openCypher")
       );
 
@@ -137,16 +137,16 @@ describe("useKeywordSearch", () => {
 
     it("Should default to precision match exact", () => {
       const { result } = renderHookWithRecoilRoot(
-        () => useKeywordSearch({ isOpen: false }),
+        () => useKeywordSearch(),
         initializeConfigWithRdfLabel
       );
 
-      expect(result.current.exactMatch).toBe(true);
+      expect(result.current.partialMatch).toBe(false);
     });
 
     it("Should default to attribute rdfs:label", () => {
       const { result } = renderHookWithRecoilRoot(
-        () => useKeywordSearch({ isOpen: false }),
+        () => useKeywordSearch(),
         initializeConfigWithRdfLabel
       );
 
@@ -155,7 +155,7 @@ describe("useKeywordSearch", () => {
 
     it("Should default to node type All", () => {
       const { result } = renderHookWithRecoilRoot(
-        () => useKeywordSearch({ isOpen: false }),
+        () => useKeywordSearch(),
         initializeConfigWithRdfLabel
       );
 
@@ -164,7 +164,7 @@ describe("useKeywordSearch", () => {
 
     it("Should have all searchable attributes", () => {
       const { result } = renderHookWithRecoilRoot(
-        () => useKeywordSearch({ isOpen: false }),
+        () => useKeywordSearch(),
         initializeConfigWithRdfLabel
       );
 
@@ -178,16 +178,16 @@ describe("useKeywordSearch", () => {
   describe("SPARQL without rdfs:label", () => {
     it("Should default to precision match exact", () => {
       const { result } = renderHookWithRecoilRoot(
-        () => useKeywordSearch({ isOpen: false }),
+        () => useKeywordSearch(),
         initializeConfigWithQueryEngine("sparql")
       );
 
-      expect(result.current.exactMatch).toBe(true);
+      expect(result.current.partialMatch).toBe(false);
     });
 
     it("Should default to attribute All", () => {
       const { result } = renderHookWithRecoilRoot(
-        () => useKeywordSearch({ isOpen: false }),
+        () => useKeywordSearch(),
         initializeConfigWithQueryEngine("sparql")
       );
 
@@ -196,7 +196,7 @@ describe("useKeywordSearch", () => {
 
     it("Should default to node type All", () => {
       const { result } = renderHookWithRecoilRoot(
-        () => useKeywordSearch({ isOpen: false }),
+        () => useKeywordSearch(),
         initializeConfigWithQueryEngine("sparql")
       );
 
@@ -205,7 +205,7 @@ describe("useKeywordSearch", () => {
 
     it("Should have all searchable attributes", () => {
       const { result } = renderHookWithRecoilRoot(
-        () => useKeywordSearch({ isOpen: false }),
+        () => useKeywordSearch(),
         initializeConfigWithQueryEngine("sparql")
       );
 

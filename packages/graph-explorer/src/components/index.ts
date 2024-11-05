@@ -9,9 +9,6 @@ export * from "./Button";
 export { default as Card } from "./Card";
 export * from "./Card";
 
-export { default as Carousel } from "./Carousel";
-export * from "./Carousel";
-
 export { default as Checkbox } from "./Checkbox";
 export * from "./Checkbox";
 

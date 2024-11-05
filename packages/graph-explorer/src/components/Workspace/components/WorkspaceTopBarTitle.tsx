@@ -20,7 +20,7 @@ const WorkspaceTopBarTitle = ({
           <div className="line-clamp-1 overflow-hidden font-bold">{title}</div>
         )}
         {subtitle && (
-          <div className="text-text-secondary line-clamp-1 overflow-hidden text-xs font-bold leading-tight">
+          <div className="text-text-secondary line-clamp-1 overflow-hidden text-sm font-medium leading-tight">
             {subtitle}
           </div>
         )}

@@ -1,4 +1,5 @@
 import { type Config } from "tailwindcss";
+import tailwindAnimate from "tailwindcss-animate";
 
 const black = "rgb(var(--color-black) / <alpha-value>)";
 const white = "rgb(var(--color-white) / <alpha-value>)";
@@ -39,6 +40,10 @@ export default {
       white,
       gray,
       brand: blue,
+      input: {
+        background: "rgb(var(--color-input-background) / <alpha-value>)",
+        hover: "rgb(var(--color-input-hover) / <alpha-value>)",
+      },
       primary: {
         light: blue[300],
         main: blue[500],
@@ -152,5 +157,5 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [tailwindAnimate],
 } satisfies Config;

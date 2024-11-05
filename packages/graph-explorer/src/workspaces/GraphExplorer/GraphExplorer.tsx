@@ -18,6 +18,7 @@ import {
   ExpandGraphIcon,
   FilterIcon,
   GraphIcon,
+  SearchIcon,
 } from "@/components/icons";
 import GridIcon from "@/components/icons/GridIcon";
 import Workspace from "@/components/Workspace";
@@ -33,12 +34,12 @@ import EntitiesFilter from "@/modules/EntitiesFilter";
 import EntitiesTabular from "@/modules/EntitiesTabular/EntitiesTabular";
 import EntityDetails from "@/modules/EntityDetails";
 import GraphViewer from "@/modules/GraphViewer";
-import KeywordSearch from "@/modules/KeywordSearch/KeywordSearch";
 import Namespaces from "@/modules/Namespaces/Namespaces";
 import NodeExpand from "@/modules/NodeExpand";
 import NodesStyling from "@/modules/NodesStyling/NodesStyling";
 import defaultStyles from "./GraphExplorer.styles";
 import { APP_NAME } from "@/utils/constants";
+import { SearchSidebarPanel } from "@/modules/SearchSidebar";
 
 const RESIZE_ENABLE_TOP = {
   top: true,
@@ -173,12 +174,9 @@ const GraphExplorer = () => {
     <Workspace className={cn(styleWithTheme(defaultStyles), "graph-explorer")}>
       <Workspace.TopBar logoVisible>
         <Workspace.TopBar.Title
-          title={APP_NAME}
+          title={`${APP_NAME}`}
           subtitle={`Connection: ${config?.displayLabel || config?.id}`}
         />
-        <Workspace.TopBar.Content>
-          <KeywordSearch />
-        </Workspace.TopBar.Content>
         <Workspace.TopBar.Version>
           {__GRAPH_EXP_VERSION__}
         </Workspace.TopBar.Version>
@@ -268,6 +266,12 @@ const GraphExplorer = () => {
 
       <Workspace.SideBar direction={"row"}>
         <Workspace.SideBar.Button
+          title="Search"
+          icon={<SearchIcon />}
+          onPressedChange={toggleSidebar("search")}
+          pressed={userLayout.activeSidebarItem === "search"}
+        />
+        <Workspace.SideBar.Button
           title="Details"
           icon={<DetailsIcon />}
           onPressedChange={toggleSidebar("details")}
@@ -314,6 +318,9 @@ const GraphExplorer = () => {
               : userLayout.activeSidebarItem !== null
           }
         >
+          {userLayout.activeSidebarItem === "search" && (
+            <SearchSidebarPanel onClose={closeSidebar} />
+          )}
           {userLayout.activeSidebarItem === "details" && (
             <EntityDetails onClose={closeSidebar} />
           )}
