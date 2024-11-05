@@ -6,10 +6,7 @@ import { forwardRef } from "react";
 import { useWithTheme } from "@/core";
 import type { TooltipProps } from "../Tooltip";
 import Tooltip from "../Tooltip/Tooltip";
-import {
-  defaultBadgeStyles,
-  defaultIconButtonStyles,
-} from "./IconButton.styles";
+import { defaultIconButtonStyles } from "./IconButton.styles";
 
 export interface IconButtonProps
   extends Omit<AriaButtonProps<ElementType<any>>, "elementType"> {
@@ -23,23 +20,11 @@ export interface IconButtonProps
   as?: ElementType;
   tooltipText?: TooltipProps["text"];
   tooltipPlacement?: TooltipProps["placement"];
-  badge?: ReactNode;
-  badgeVariant?: "determined" | "undetermined";
-  badgePlacement?: "top-left" | "top-right" | "bottom-left" | "bottom-right";
   onClick?(e: MouseEvent): void;
 }
 
 export const IconButton = (
-  {
-    tooltipText,
-    tooltipPlacement,
-    onClick,
-    badge,
-    color,
-    badgeVariant = "undetermined",
-    badgePlacement = "bottom-right",
-    ...props
-  }: IconButtonProps,
+  { tooltipText, tooltipPlacement, onClick, color, ...props }: IconButtonProps,
   ref: ForwardedRef<HTMLButtonElement>
 ) => {
   const { buttonProps } = useButton(
@@ -75,18 +60,6 @@ export const IconButton = (
     >
       {icon}
       {props.children}
-      {Boolean(badge) && (
-        <div
-          className={cn(
-            styles(defaultBadgeStyles),
-            "badge",
-            `variant-${badgeVariant}`,
-            `placement-${badgePlacement}`
-          )}
-        >
-          {typeof badge !== "boolean" && badgeVariant === "determined" && badge}
-        </div>
-      )}
     </Component>
   );
 

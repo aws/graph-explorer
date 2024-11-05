@@ -4,6 +4,10 @@
 
 - **Improved** UI responsiveness by using map instead of array for large data
   sets [#658](https://github.com/aws/graph-explorer/pull/658)
+- **Improved** connection selection can now happen on any part of the connection
+  row [#657](https://github.com/aws/graph-explorer/pull/657)
+- **Fixed** scrolling on search result details
+  [#657](https://github.com/aws/graph-explorer/pull/657)
 - **Improved** style for the sidebar buttons
   [#651](https://github.com/aws/graph-explorer/pull/651)
 - **Fixed** Docker image containing more files than necessary.

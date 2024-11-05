@@ -43,15 +43,16 @@ export default function NeighborsList({ vertex }: NeighborsListProps) {
                 </div>
                 {op.label}
               </div>
-              <div className={"vertex-totals"}>
+              <div className="vertex-totals">
                 <Tooltip
                   text={`${neighborsInView} ${op.label} in the Graph View`}
                 >
-                  <Chip className={"chip"} startAdornment={<VisibleIcon />}>
+                  <Chip className="min-w-12">
+                    <VisibleIcon />
                     {neighborsInView}
                   </Chip>
                 </Tooltip>
-                <Chip className={"chip"}>
+                <Chip className="min-w-12">
                   {vertex.neighborsCountByType[op.value]}
                 </Chip>
               </div>

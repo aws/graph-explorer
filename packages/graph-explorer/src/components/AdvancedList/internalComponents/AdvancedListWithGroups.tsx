@@ -1,6 +1,14 @@
 import { cn } from "@/utils";
 import groupBy from "lodash/groupBy";
-import type { DragEvent, MouseEvent, ReactNode, Ref, RefObject } from "react";
+import type {
+  DragEvent,
+  ForwardedRef,
+  MouseEvent,
+  PropsWithChildren,
+  ReactNode,
+  Ref,
+  RefObject,
+} from "react";
 import { forwardRef, memo, useEffect, useMemo, useState } from "react";
 import type { VirtuosoHandle } from "react-virtuoso";
 import { GroupedVirtuoso } from "react-virtuoso";
@@ -305,4 +313,8 @@ const AdvancedListWithGroups = <T extends object>(
   );
 };
 
-export default memo(forwardRef(AdvancedListWithGroups));
+export default memo(forwardRef(AdvancedListWithGroups)) as <T extends object>(
+  props: PropsWithChildren<ElementsListWithGroupsProps<T>> & {
+    ref?: ForwardedRef<VirtuosoHandle>;
+  }
+) => ReturnType<typeof AdvancedListWithGroups>;

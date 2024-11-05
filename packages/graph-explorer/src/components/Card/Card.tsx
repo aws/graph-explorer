@@ -17,7 +17,7 @@ export interface CardProps
   onClick?: () => void;
 }
 
-export const Card = (
+export function Card(
   {
     id,
     className,
@@ -29,7 +29,7 @@ export const Card = (
     ...restProps
   }: PropsWithChildren<CardProps>,
   ref: ForwardedRef<HTMLDivElement>
-) => {
+) {
   const styleWithTheme = useWithTheme();
   return (
     <div
@@ -55,6 +55,6 @@ export const Card = (
       {children}
     </div>
   );
-};
+}
 
 export default forwardRef<HTMLDivElement, PropsWithChildren<CardProps>>(Card);

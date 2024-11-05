@@ -415,14 +415,7 @@ function SearchResults({
         hideFooter
       />
       {selection.state.size > 0 && (
-        <Carousel
-          ref={carouselRef}
-          slidesToShow={1}
-          className="carousel"
-          pagination={{
-            el: `.swiper-pagination`,
-          }}
-        >
+        <Carousel ref={carouselRef} slidesToShow={1} className="carousel">
           {Array.from(selection.state).map(nodeId => {
             const node = searchResults.find(n => n.id === nodeId);
 

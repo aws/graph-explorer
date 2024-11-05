@@ -101,9 +101,6 @@ const ModuleContainerHeaderActions = ({
                 variant="text"
                 icon={action.icon}
                 onPress={() => onActionClick?.(action.value)}
-                badge={action.badge}
-                badgeVariant={action.badgeVariant}
-                badgePlacement="bottom-right"
               />
             </div>
           );

@@ -174,14 +174,10 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
                 <div className="value">{formatDate(lastSyncUpdate)}</div>
               )}
               {!lastSyncUpdate && !lastSyncFail && (
-                <Chip size="sm" variant="warning">
-                  Not Synchronized
-                </Chip>
+                <Chip variant="warning">Not Synchronized</Chip>
               )}
               {lastSyncFail && (
-                <Chip size="sm" variant="error">
-                  Synchronization Failed
-                </Chip>
+                <Chip variant="error">Synchronization Failed</Chip>
               )}
             </div>
           )}

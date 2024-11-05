@@ -41,7 +41,7 @@ const ConnectedProvider = (
   const { config, children, ...themeProps } = props;
   return (
     <ErrorBoundary FallbackComponent={AppErrorPage}>
-      <div style={{ width: "100%", height: "100vh", overflow: "hidden" }}>
+      <div className="h-screen w-full overflow-hidden">
         <QueryClientProvider client={queryClient}>
           <DndProvider backend={HTML5Backend}>
             <MantineProvider stylesTransform={emotionTransform}>

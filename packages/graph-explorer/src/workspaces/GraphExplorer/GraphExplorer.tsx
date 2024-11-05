@@ -240,13 +240,7 @@ const GraphExplorer = () => {
           </div>
         )}
         {toggles.has("graph-viewer") && (
-          <div
-            style={{
-              width: "100%",
-              flexGrow: 1,
-              position: "relative",
-            }}
-          >
+          <div className="relative w-full grow">
             <GraphViewer
               onNodeCustomize={setCustomizeNodeType}
               onEdgeCustomize={setCustomizeEdgeType}

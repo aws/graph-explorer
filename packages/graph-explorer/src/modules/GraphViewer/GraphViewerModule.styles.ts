@@ -85,45 +85,6 @@ const defaultStyles: ThemeStyleFn = ({ theme }) => css`
         display: flex;
       }
     }
-
-    .legend-container {
-      position: absolute;
-      overflow: auto;
-      height: calc(100% - ${theme.spacing["2x"]} - ${theme.spacing["2x"]});
-      min-width: 200px;
-      max-width: 400px;
-      z-index: ${theme.zIndex.panes};
-      bottom: ${theme.spacing["2x"]};
-      right: ${theme.spacing["2x"]};
-      row-gap: ${theme.spacing["2x"]};
-
-      .legend-title {
-        .content {
-          .primary {
-            font-weight: bold;
-          }
-        }
-        .end-adornment {
-          margin: 0;
-        }
-      }
-      .legend-item {
-        .icon {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 24px;
-          height: 24px;
-          padding: ${theme.spacing.base};
-          border-radius: 12px;
-          color: ${theme.palette.primary.main};
-          background: ${fade(theme.palette.primary.main, 0.3)};
-        }
-        .content {
-          min-height: 24px;
-        }
-      }
-    }
   }
 `;
 

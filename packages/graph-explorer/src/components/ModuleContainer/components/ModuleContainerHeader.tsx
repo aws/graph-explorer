@@ -9,7 +9,6 @@ import type {
 import { forwardRef, Fragment, useMemo, useState } from "react";
 
 import getChildrenOfType from "@/utils/getChildrenOfType";
-import type { IconButtonProps } from "@/components/IconButton";
 import IconButton from "@/components/IconButton";
 import ChevronLeftIcon from "@/components/icons/ChevronLeftIcon";
 import CloseIcon from "@/components/icons/CloseIcon";
@@ -33,8 +32,6 @@ export type Action = {
   active?: boolean;
   onlyPinnedVisible?: boolean;
   isDisabled?: boolean;
-  badge?: IconButtonProps["badge"];
-  badgeVariant?: IconButtonProps["badgeVariant"];
   collapsedItems?: ReactElement;
 };
 
@@ -187,9 +184,6 @@ const ModuleContainerHeader = (
                   color={action.color}
                   icon={action.icon}
                   onPress={() => onActionClick?.(action.value)}
-                  badge={action.badge}
-                  badgeVariant={action.badgeVariant}
-                  badgePlacement="bottom-right"
                   className="hover:text-primary-main focus-visible:text-primary-main focus-visible:bg-primary-main/20"
                 />
               </div>

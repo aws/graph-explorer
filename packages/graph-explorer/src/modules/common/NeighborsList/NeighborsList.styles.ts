@@ -18,11 +18,7 @@ const defaultStyles: ThemeStyleFn = ({ theme }) => css`
       justify-content: space-between;
       margin-top: ${theme.spacing["2x"]};
       gap: ${theme.spacing["2x"]};
-      .chip {
-        user-select: none;
-        min-width: 48px;
-        justify-content: center;
-      }
+
       .vertex-type {
         display: flex;
         align-items: center;

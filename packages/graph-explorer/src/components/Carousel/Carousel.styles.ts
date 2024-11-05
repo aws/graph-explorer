@@ -1,14 +1,6 @@
 import { css } from "@emotion/css";
 import { ActiveThemeType, fade, ProcessedTheme } from "@/core";
 
-export const defaultStyles = () => css`
-  display: flex;
-  .swiper {
-    height: 484px;
-    width: 320px;
-  }
-`;
-
 export const navArrowsStyles = ({
   theme,
 }: ActiveThemeType<ProcessedTheme>) => css`

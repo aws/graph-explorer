@@ -8,6 +8,7 @@ import {
   ModuleContainerHeader,
   RemoveFromCanvasIcon,
   ResetIcon,
+  VertexSymbol,
   ZoomInIcon,
   ZoomOutIcon,
 } from "@/components";
@@ -19,8 +20,6 @@ import IconButton from "@/components/IconButton";
 import CloseIcon from "@/components/icons/CloseIcon";
 import InfoIcon from "@/components/icons/InfoIcon";
 import ScreenshotIcon from "@/components/icons/ScreenshotIcon";
-import ListItem from "@/components/ListItem";
-import RemoteSvgIcon from "@/components/RemoteSvgIcon";
 import Select from "@/components/Select";
 import {
   edgesHiddenIdsAtom,
@@ -33,7 +32,6 @@ import {
   nodesSelectedIdsAtom,
 } from "@/core/StateProvider/nodes";
 import useWithTheme from "@/core/ThemeProvider/useWithTheme";
-import fade from "@/core/ThemeProvider/utils/fade";
 import { useEntities, useExpandNode } from "@/hooks";
 import useTextTransform from "@/hooks/useTextTransform";
 import defaultStyles from "./GraphViewerModule.styles";
@@ -279,15 +277,7 @@ export default function GraphViewer({
           onActionClick={onHeaderActionClick}
           {...headerProps}
         />
-        <div
-          style={{
-            position: "relative",
-            display: "flex",
-            width: "100%",
-            height: "100%",
-          }}
-          ref={parentRef}
-        >
+        <div className="relative flex h-full w-full" ref={parentRef}>
           <Graph
             ref={graphRef}
             nodes={nodes}
@@ -343,43 +333,33 @@ function Legend({ onClose }: { onClose: () => void }) {
   const vtConfigs = useVertexTypeConfigs();
 
   return (
-    <Card className={"legend-container"}>
-      <ListItem
-        className={cn("legend-item", "legend-title")}
-        endAdornment={
-          <IconButton
-            icon={<CloseIcon />}
-            onPress={onClose}
-            variant={"text"}
-            size={"small"}
-          />
-        }
-      >
-        Legend
-      </ListItem>
-      {vtConfigs.map(vtConfig => {
-        return (
-          <ListItem
-            key={vtConfig.type}
-            className={"legend-item"}
-            startAdornment={
-              vtConfig.iconUrl && (
-                <div
-                  className={"icon"}
-                  style={{
-                    background: fade(vtConfig.color, 0.2),
-                    color: vtConfig.color,
-                  }}
-                >
-                  <RemoteSvgIcon src={vtConfig.iconUrl} />
-                </div>
-              )
-            }
-          >
-            {vtConfig.displayLabel || textTransform(vtConfig.type)}
-          </ListItem>
-        );
-      })}
+    <Card
+      className={
+        "z-panes absolute bottom-2 right-2 top-2 h-full min-w-48 max-w-80 overflow-auto"
+      }
+    >
+      <div className="mb-4 flex items-center justify-between">
+        <h1 className="text-base font-bold">Legend</h1>
+        <IconButton
+          icon={<CloseIcon />}
+          onPress={onClose}
+          variant="text"
+          size="small"
+        />
+      </div>
+      <ul className="space-y-2 overflow-y-scroll">
+        {vtConfigs.map(vtConfig => {
+          return (
+            <li
+              key={vtConfig.type}
+              className="flex items-center gap-2 text-balance"
+            >
+              <VertexSymbol vtConfig={vtConfig} className="size-8 p-1.5" />
+              {vtConfig.displayLabel || textTransform(vtConfig.type)}
+            </li>
+          );
+        })}
+      </ul>
     </Card>
   );
 }

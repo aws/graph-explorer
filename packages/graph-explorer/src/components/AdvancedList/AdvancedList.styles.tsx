@@ -28,13 +28,6 @@ const listStyles: ThemeStyleFn = ({ theme, isDarkTheme }) => {
     .advanced-list-search-wrapper {
       display: flex;
       align-items: center;
-      .advanced-list-search-input {
-        flex: 2;
-      }
-
-      .advanced-list-category-select {
-        flex: 1;
-      }
 
       .select {
         min-width: 0;

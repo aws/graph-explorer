@@ -25,7 +25,7 @@ import {
 } from "swiper/types";
 import { useWithTheme } from "@/core";
 import { ChevronLeftIcon, ChevronRightIcon } from "@/components/icons";
-import { defaultStyles, navArrowsStyles } from "./Carousel.styles";
+import { navArrowsStyles } from "./Carousel.styles";
 
 export interface CarouselProps {
   className?: string;
@@ -38,7 +38,6 @@ export interface CarouselProps {
   prevArrow?: JSX.Element;
   slidesToShow?: number;
   swipe?: boolean;
-  variableWidth?: boolean;
 }
 
 const PrevArrow = forwardRef<
@@ -99,7 +98,6 @@ export const Carousel = forwardRef<
       slidesToShow = 5,
       centerMode,
       pagination,
-      ...props
     },
     ref
   ) => {
@@ -110,18 +108,13 @@ export const Carousel = forwardRef<
       () =>
         Children.map(children, (child, index) => {
           return (
-            <SwiperSlide
-              style={props.variableWidth ? { width: "auto" } : {}}
-              key={index}
-            >
+            <SwiperSlide className="w-full" key={index}>
               {child}
             </SwiperSlide>
           );
         }),
-      [children, props.variableWidth]
+      [children]
     );
-
-    const stylesWithTheme = useWithTheme();
 
     const [swiper, setSwiper] = useState<SwiperClass | undefined>(undefined);
     useImperativeHandle(ref, () => swiper, [swiper]);
@@ -147,7 +140,7 @@ export const Carousel = forwardRef<
     }
 
     return (
-      <div className={cn(stylesWithTheme(defaultStyles), className)}>
+      <div className={cn("flex", className)}>
         <PrevArrow ref={prevRef} />
         <Swiper
           onSwiper={setSwiper}
@@ -156,13 +149,14 @@ export const Carousel = forwardRef<
           effect={effect}
           centeredSlides={centerMode}
           spaceBetween={8}
-          slidesPerView={props.variableWidth ? "auto" : slidesToShow}
+          slidesPerView={slidesToShow}
           navigation={{
             nextEl: nextRef.current,
             prevEl: prevRef.current,
           }}
           onInit={onInit}
           modules={[Pagination, Navigation]}
+          className="w-[320px] overflow-y-auto"
         >
           {childrenComputed}
         </Swiper>

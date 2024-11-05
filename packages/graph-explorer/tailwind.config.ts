@@ -142,6 +142,13 @@ export default {
       maxWidth: {
         paragraph: "40rem",
       },
+      zIndex: {
+        appBar: "1000",
+        panes: "1100",
+        modal: "1200",
+        popover: "1300",
+        tooltip: "1400",
+      },
     },
   },
   plugins: [],
