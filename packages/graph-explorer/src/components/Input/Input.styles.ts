@@ -209,7 +209,6 @@ export const inputContainerStyles =
       }
 
       .input {
-        font-family: inherit;
         background-color: ${!isDisabled
           ? themeWithDefault?.background
           : fade(themeWithDefault?.background, 0.7)};
