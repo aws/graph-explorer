@@ -39,25 +39,23 @@ const ConnectedProvider = (
   const { config, children } = props;
   return (
     <ErrorBoundary FallbackComponent={AppErrorPage}>
-      <div className="h-screen w-full overflow-hidden">
-        <QueryClientProvider client={queryClient}>
-          <DndProvider backend={HTML5Backend}>
-            <MantineProvider stylesTransform={emotionTransform}>
-              <MantineEmotionProvider>
-                <ThemeProvider>
-                  <NotificationProvider component={Toast}>
-                    <StateProvider>
-                      <AppStatusLoader config={config}>
-                        <ExpandNodeProvider>{children}</ExpandNodeProvider>
-                      </AppStatusLoader>
-                    </StateProvider>
-                  </NotificationProvider>
-                </ThemeProvider>
-              </MantineEmotionProvider>
-            </MantineProvider>
-          </DndProvider>
-        </QueryClientProvider>
-      </div>
+      <QueryClientProvider client={queryClient}>
+        <DndProvider backend={HTML5Backend}>
+          <MantineProvider stylesTransform={emotionTransform}>
+            <MantineEmotionProvider>
+              <ThemeProvider>
+                <NotificationProvider component={Toast}>
+                  <StateProvider>
+                    <AppStatusLoader config={config}>
+                      <ExpandNodeProvider>{children}</ExpandNodeProvider>
+                    </AppStatusLoader>
+                  </StateProvider>
+                </NotificationProvider>
+              </ThemeProvider>
+            </MantineEmotionProvider>
+          </MantineProvider>
+        </DndProvider>
+      </QueryClientProvider>
     </ErrorBoundary>
   );
 };

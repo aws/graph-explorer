@@ -1,7 +1,6 @@
 export type ActiveThemeType = {
   theme: ProcessedTheme;
   themeName: string;
-  cssVariables: Record<string, unknown>;
   isDarkTheme?: boolean;
 };
 

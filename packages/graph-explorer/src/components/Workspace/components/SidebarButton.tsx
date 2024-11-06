@@ -17,8 +17,9 @@ const SidebarButton = React.forwardRef<
         <TogglePrimitive.Root
           ref={ref}
           className={cn(
-            "text-brand-900 data-[state=on]:bg-brand-500 active:bg-brand-300 inline-flex size-10 items-center justify-center rounded-md bg-transparent p-2 ring-0 transition-colors duration-150 focus:shadow-none active:text-white disabled:pointer-events-none disabled:opacity-50 data-[state=on]:text-white [&_svg]:size-6",
+            "text-brand-900 data-[state=on]:bg-brand-500 active:bg-brand-300 inline-flex size-10 items-center justify-center rounded-md bg-transparent p-2 ring-0 transition-colors duration-100 focus:shadow-none active:text-white disabled:pointer-events-none disabled:opacity-50 data-[state=on]:text-white [&_svg]:size-6",
             "hover:bg-brand-200/50 hover:text-primary-dark hover:data-[state=on]:bg-brand-400",
+            "dark:text-brand-300 dark:hover:data-[state=on]:bg-brand-500 dark:data-[state=on]:bg-brand-400 dark:hover:bg-gray-800 dark:data-[state=on]:text-white",
             "focus-visible:ring-brand-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 active:ring-0",
             className
           )}
