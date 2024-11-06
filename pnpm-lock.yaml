@@ -36,7 +36,7 @@ importers:
         version: 5.59.7(eslint@9.12.0(jiti@1.21.6))(typescript@5.6.3)
       '@vitest/coverage-v8':
         specifier: ^2.1.2
-        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1))
+        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1))
       eslint:
         specifier: ^9.12.0
         version: 9.12.0(jiti@1.21.6)
@@ -69,7 +69,7 @@ importers:
         version: 8.0.0-alpha.42(eslint@9.12.0(jiti@1.21.6))(typescript@5.6.3)
       vitest:
         specifier: ^2.1.2
-        version: 2.1.2(@types/node@22.7.5)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1)
+        version: 2.1.2(@types/node@22.7.5)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1)
 
   packages/graph-explorer:
     dependencies:
@@ -400,7 +400,7 @@ importers:
         version: 4.3.2(vite@5.4.8(@types/node@22.7.5)(terser@5.34.1))
       '@vitest/coverage-v8':
         specifier: ^2.1.2
-        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1))
+        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1))
       autoprefixer:
         specifier: ^10.4.20
         version: 10.4.20(postcss@8.4.47)
@@ -414,8 +414,8 @@ importers:
         specifier: ^4.2.2
         version: 4.2.2(webpack@5.95.0)
       happy-dom:
-        specifier: ^15.7.4
-        version: 15.7.4
+        specifier: ^15.10.1
+        version: 15.10.1
       jsdom:
         specifier: ^25.0.1
         version: 25.0.1
@@ -457,7 +457,7 @@ importers:
         version: 5.0.1(typescript@5.6.3)(vite@5.4.8(@types/node@22.7.5)(terser@5.34.1))
       vitest:
         specifier: ^2.1.2
-        version: 2.1.2(@types/node@22.7.5)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1)
+        version: 2.1.2(@types/node@22.7.5)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1)
       webpack:
         specifier: ^5.95.0
         version: 5.95.0
@@ -533,7 +533,7 @@ importers:
         version: 22.7.5
       '@vitest/coverage-v8':
         specifier: ^2.1.2
-        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1))
+        version: 2.1.2(vitest@2.1.2(@types/node@22.7.5)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1))
       memfs:
         specifier: ^4.13.0
         version: 4.13.0
@@ -545,7 +545,7 @@ importers:
         version: 4.19.1
       vitest:
         specifier: ^2.1.2
-        version: 2.1.2(@types/node@22.7.5)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1)
+        version: 2.1.2(@types/node@22.7.5)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1)
 
   packages/shared:
     dependencies:
@@ -561,13 +561,13 @@ importers:
         version: 10.0.0
       '@vitest/coverage-v8':
         specifier: ^2.1.1
-        version: 2.1.1(vitest@2.1.1(@types/node@22.7.5)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1))
+        version: 2.1.1(vitest@2.1.1(@types/node@22.7.5)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1))
       rimraf:
         specifier: ^6.0.1
         version: 6.0.1
       vitest:
         specifier: ^2.1.1
-        version: 2.1.1(@types/node@22.7.5)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1)
+        version: 2.1.1(@types/node@22.7.5)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1)
 
 packages:
 
@@ -3888,8 +3888,8 @@ packages:
   hamt_plus@1.0.2:
     resolution: {integrity: sha512-t2JXKaehnMb9paaYA7J0BX8QQAY8lwfQ9Gjf4pg/mk4krt+cmwmU652HOoWonf+7+EQV97ARPMhhVgU1ra2GhA==}
 
-  happy-dom@15.7.4:
-    resolution: {integrity: sha512-r1vadDYGMtsHAAsqhDuk4IpPvr6N8MGKy5ntBo7tSdim+pWDxus2PNqOcOt8LuDZ4t3KJHE+gCuzupcx/GKnyQ==}
+  happy-dom@15.10.1:
+    resolution: {integrity: sha512-FuGnj/qIB4QnBL6fWmD7Wnh6STxevLgOVWB6+nopDGgWG1+t9CXkNB2ldZ+iqwD2UKxD2D0SU8el8A6AX6Q1+g==}
     engines: {node: '>=18.0.0'}
 
   has-bigints@1.0.2:
@@ -4913,6 +4913,7 @@ packages:
 
   react-beautiful-dnd@13.1.1:
     resolution: {integrity: sha512-0Lvs4tq2VcrEjEgDXHjT98r+63drkKEgqyxdA7qD3mvKwga6a5SscbdLPO2IExotU1jW8L0Ksdl0Cj2AF67nPQ==}
+    deprecated: 'react-beautiful-dnd is now deprecated. Context and options: https://github.com/atlassian/react-beautiful-dnd/issues/2672'
     peerDependencies:
       react: ^16.8.5 || ^17.0.0 || ^18.0.0
       react-dom: ^16.8.5 || ^17.0.0 || ^18.0.0
@@ -8840,7 +8841,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@vitest/coverage-v8@2.1.1(vitest@2.1.1(@types/node@22.7.5)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1))':
+  '@vitest/coverage-v8@2.1.1(vitest@2.1.1(@types/node@22.7.5)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1))':
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@bcoe/v8-coverage': 0.2.3
@@ -8854,11 +8855,11 @@ snapshots:
       std-env: 3.7.0
       test-exclude: 7.0.1
       tinyrainbow: 1.2.0
-      vitest: 2.1.1(@types/node@22.7.5)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1)
+      vitest: 2.1.1(@types/node@22.7.5)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1)
     transitivePeerDependencies:
       - supports-color
 
-  '@vitest/coverage-v8@2.1.2(vitest@2.1.2(@types/node@22.7.5)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1))':
+  '@vitest/coverage-v8@2.1.2(vitest@2.1.2(@types/node@22.7.5)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1))':
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@bcoe/v8-coverage': 0.2.3
@@ -8872,7 +8873,7 @@ snapshots:
       std-env: 3.7.0
       test-exclude: 7.0.1
       tinyrainbow: 1.2.0
-      vitest: 2.1.2(@types/node@22.7.5)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1)
+      vitest: 2.1.2(@types/node@22.7.5)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -10281,7 +10282,7 @@ snapshots:
 
   hamt_plus@1.0.2: {}
 
-  happy-dom@15.7.4:
+  happy-dom@15.10.1:
     dependencies:
       entities: 4.5.0
       webidl-conversions: 7.0.0
@@ -12223,7 +12224,7 @@ snapshots:
       fsevents: 2.3.3
       terser: 5.34.1
 
-  vitest@2.1.1(@types/node@22.7.5)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1):
+  vitest@2.1.1(@types/node@22.7.5)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1):
     dependencies:
       '@vitest/expect': 2.1.1
       '@vitest/mocker': 2.1.1(@vitest/spy@2.1.1)(vite@5.4.8(@types/node@22.7.5)(terser@5.34.1))
@@ -12246,7 +12247,7 @@ snapshots:
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 22.7.5
-      happy-dom: 15.7.4
+      happy-dom: 15.10.1
       jsdom: 25.0.1
     transitivePeerDependencies:
       - less
@@ -12259,7 +12260,7 @@ snapshots:
       - supports-color
       - terser
 
-  vitest@2.1.2(@types/node@22.7.5)(happy-dom@15.7.4)(jsdom@25.0.1)(terser@5.34.1):
+  vitest@2.1.2(@types/node@22.7.5)(happy-dom@15.10.1)(jsdom@25.0.1)(terser@5.34.1):
     dependencies:
       '@vitest/expect': 2.1.2
       '@vitest/mocker': 2.1.2(@vitest/spy@2.1.2)(vite@5.4.8(@types/node@22.7.5)(terser@5.34.1))
@@ -12282,7 +12283,7 @@ snapshots:
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 22.7.5
-      happy-dom: 15.7.4
+      happy-dom: 15.10.1
       jsdom: 25.0.1
     transitivePeerDependencies:
       - less

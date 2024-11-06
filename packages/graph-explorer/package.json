@@ -131,7 +131,7 @@
     "buffer": "^6.0.3",
     "core-js": "^3.39.0",
     "esbuild-loader": "^4.2.2",
-    "happy-dom": "^15.7.4",
+    "happy-dom": "^15.10.1",
     "jsdom": "^25.0.1",
     "lint-staged": "^15.2.10",
     "postcss": "^8.4.47",
