@@ -2,7 +2,7 @@ import { css } from "@emotion/css";
 import { ReactNode } from "react";
 import { ColumnInstance } from "react-table";
 
-import type { ActiveThemeType, ProcessedTheme } from "@/core";
+import type { ActiveThemeType } from "@/core";
 import { cssVar } from "@/core/ThemeProvider/utils/lib";
 
 import { FilterIcon } from "@/components/icons";
@@ -33,7 +33,7 @@ export type TextFilterProps = {
 };
 
 export const TextFilter =
-  <T extends object>(activeTheme?: ActiveThemeType<ProcessedTheme>) =>
+  <T extends object>(activeTheme?: ActiveThemeType) =>
   ({ placeholder, startAdornment }: TextFilterProps) => {
     return ({ column }: { column: ColumnInstance<T> }) => {
       return (

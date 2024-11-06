@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import type { IdType, Row } from "react-table";
 
-import type { ActiveThemeType, ProcessedTheme } from "@/core";
+import type { ActiveThemeType } from "@/core";
 import {
   EqualsIcon,
   GreaterOrEqualThanIcon,
@@ -73,7 +73,7 @@ const filtersComponentMap: Record<string, ReactNode> = {
 };
 
 export const numericFilter =
-  <T extends object>(activeTheme?: ActiveThemeType<ProcessedTheme>) =>
+  <T extends object>(activeTheme?: ActiveThemeType) =>
   (operator: string, props: TextFilterProps = {}) => ({
     filter: filtersMap[operator]<T>(),
     filterComponent: TextFilter<T>(activeTheme)({

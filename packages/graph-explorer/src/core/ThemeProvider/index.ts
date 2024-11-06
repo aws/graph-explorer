@@ -20,7 +20,6 @@ export type {
   Shape,
   Spacing,
   TextPalette,
-  Theme,
   ThemeContextType,
   ThemeStyleFn,
   ThemedStyle,

@@ -5,7 +5,7 @@ import { VisuallyHidden } from "@react-aria/visually-hidden";
 import type { AriaCheckboxProps } from "@react-types/checkbox";
 import type { PropsWithChildren } from "react";
 import { useCallback, useRef } from "react";
-import { useTheme, useWithTheme } from "@/core";
+import { useWithTheme } from "@/core";
 import { checkboxStyles, labelStyles } from "./Checkbox.styles";
 
 export enum CheckboxSizes {
@@ -40,8 +40,8 @@ export const Checkbox = ({
   ...props
 }: PropsWithChildren<CheckboxProps>) => {
   const ref = useRef<HTMLInputElement>(null);
-  const [theme] = useTheme();
-  const sizeMap = theme?.theme?.checkbox?.sizes || defaultSizeMap;
+
+  const sizeMap = defaultSizeMap;
 
   const { isSelected, isIndeterminate, onChange, children } = props;
 

@@ -1,9 +1,8 @@
 import { css } from "@emotion/css";
 import { fade, ThemeStyleFn } from "@/core";
-import { CheckboxTheme } from "./Checkbox.model";
 
-export const checkboxStyles: ThemeStyleFn<CheckboxTheme> = ({ theme }) => {
-  const { forms, checkbox, palette } = theme;
+export const checkboxStyles: ThemeStyleFn = ({ theme }) => {
+  const { forms, palette } = theme;
   return css`
     margin-right: 4px;
     cursor: pointer;
@@ -20,54 +19,48 @@ export const checkboxStyles: ThemeStyleFn<CheckboxTheme> = ({ theme }) => {
 
     &.checkbox-selected {
       rect:first-of-type {
-        fill: ${checkbox?.checked?.fill || palette.primary.main};
-        stroke: ${checkbox?.checked?.stroke || "none"};
+        fill: ${palette.primary.main};
+        stroke: none;
       }
 
       path:first-of-type {
-        fill: ${checkbox?.checked?.tickColor || palette.primary.contrastText};
+        fill: ${palette.primary.contrastText};
       }
     }
 
     &.checkbox-indeterminate {
       rect:first-of-type {
-        fill: ${checkbox?.indeterminate?.fill || palette.border};
-        stroke: ${checkbox?.indeterminate?.stroke || "none"};
+        fill: ${palette.border};
+        stroke: none;
       }
     }
 
     &.checkbox-invalid {
       rect:first-of-type {
-        stroke: ${checkbox?.error?.stroke || fade(palette.error.main, 0.7)};
+        stroke: ${fade(palette.error.main, 0.7)};
       }
     }
     rect:first-of-type {
-      fill: ${checkbox?.fill || "none"};
-      stroke: ${checkbox?.stroke || palette.border};
+      fill: none;
+      stroke: ${palette.border};
     }
 
     path:first-of-type {
-      fill: ${checkbox?.fill || palette.primary.contrastText};
+      fill: ${palette.primary.contrastText};
     }
 
     rect ~ rect {
-      stroke: ${checkbox?.focus?.outlineColor ||
-      forms?.focus?.outlineColor ||
-      palette.primary.main};
+      stroke: ${forms?.focus?.outlineColor || palette.primary.main};
     }
   `;
 };
 
-export const labelStyles: ThemeStyleFn<CheckboxTheme> = ({ theme }) => css`
+export const labelStyles: ThemeStyleFn = ({ theme }) => css`
   display: flex;
   align-items: center;
-  color: ${theme.checkbox?.label?.color ||
-  theme.forms?.label?.color ||
-  theme.palette.text.primary};
+  color: ${theme.forms?.label?.color || theme.palette.text.primary};
   &.checkbox-label-invalid {
-    color: ${theme.checkbox?.error?.stroke ||
-    theme.forms?.error?.labelColor ||
-    theme.palette.error.main};
+    color: ${theme.forms?.error?.labelColor || theme.palette.error.main};
   }
   &.checkbox-label-readonly {
     pointer-events: none;

@@ -4,7 +4,7 @@ import Tooltip from "./Tooltip";
 import { useTheme } from "@/core";
 
 export default function InfoTooltip({ children }: PropsWithChildren) {
-  const [theme] = useTheme();
+  const theme = useTheme();
 
   return (
     <Tooltip text={<div style={{ maxWidth: 300 }}>{children}</div>}>

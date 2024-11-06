@@ -1,10 +1,7 @@
 import { css } from "@emotion/css";
-import { ActiveThemeType, ProcessedTheme } from "@/core/ThemeProvider/types";
+import { ActiveThemeType } from "@/core/ThemeProvider/types";
 
-const defaultStyles = ({
-  theme,
-  isDarkTheme,
-}: ActiveThemeType<ProcessedTheme>) => css`
+const defaultStyles = ({ theme, isDarkTheme }: ActiveThemeType) => css`
   &.entities-filters {
     width: 100%;
     margin: 0;

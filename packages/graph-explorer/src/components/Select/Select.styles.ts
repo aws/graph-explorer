@@ -1,13 +1,10 @@
 import { css } from "@emotion/css";
-import type { ActiveThemeType, ProcessedTheme } from "@/core";
+import type { ActiveThemeType } from "@/core";
 import getSelectThemeWithDefaults from "./utils/getThemeWithDefaultValues";
 
-const getPaddingBySize = (
-  size: "sm" | "md",
-  activeTheme: ActiveThemeType<ProcessedTheme>
-) => {
+const getPaddingBySize = (size: "sm" | "md", activeTheme: ActiveThemeType) => {
   const { theme } = activeTheme;
-  const basePadding = theme.select?.padding || theme.spacing["2x"];
+  const basePadding = theme.spacing["2x"];
   if (size === "sm") {
     return `calc(${basePadding} / 2)`;
   }
@@ -16,7 +13,7 @@ const getPaddingBySize = (
 };
 
 const getPaddingBySizeAndAdornment = (
-  activeTheme: ActiveThemeType<ProcessedTheme>,
+  activeTheme: ActiveThemeType,
   size: "sm" | "md",
   hasInnerLabel?: boolean,
   clearable?: boolean
@@ -34,7 +31,7 @@ const getPaddingBySizeAndAdornment = (
 
 const getInnerLabelStyles = (
   size: "sm" | "md",
-  activeTheme: ActiveThemeType<ProcessedTheme>
+  activeTheme: ActiveThemeType
 ) => css`
   position: absolute;
   cursor: pointer;
@@ -59,7 +56,7 @@ export const getStylesByVariantAndValidationState =
     variant: containerStylesParams["variant"],
     validationState: containerStylesParams["validationState"]
   ) =>
-  (activeTheme: ActiveThemeType<ProcessedTheme>) => {
+  (activeTheme: ActiveThemeType) => {
     const themeWithDefault = getSelectThemeWithDefaults(
       activeTheme,
       validationState || "valid"
@@ -109,7 +106,7 @@ export const selectContainerStyles =
     variant,
     clearable,
   }: containerStylesParams) =>
-  (activeTheme: ActiveThemeType<ProcessedTheme>) => {
+  (activeTheme: ActiveThemeType) => {
     const { theme } = activeTheme;
     return css`
       display: flex;
@@ -156,11 +153,7 @@ export const selectContainerStyles =
 
       &.select-disabled {
         .select {
-          filter: opacity(
-            ${theme.select?.disabledOpacity ||
-            theme.forms?.disabledOpacity ||
-            "70%"}
-          );
+          filter: opacity(${theme.forms?.disabledOpacity || "70%"});
           pointer-events: none;
         }
       }
@@ -227,7 +220,7 @@ const listStyles = () => css`
   outline: none;
 `;
 
-const listItemStyles = () => (activeTheme: ActiveThemeType<ProcessedTheme>) => {
+const listItemStyles = () => (activeTheme: ActiveThemeType) => {
   const themeWithDefault = getSelectThemeWithDefaults(
     activeTheme,
     "valid"
@@ -265,11 +258,7 @@ const listItemStyles = () => (activeTheme: ActiveThemeType<ProcessedTheme>) => {
 
     &.select-list-item-disabled {
       pointer-events: none;
-      filter: opacity(
-        ${theme.forms?.disabledOpacity ||
-        theme?.select?.disabledOpacity ||
-        "40%"}
-      );
+      filter: opacity(${theme.forms?.disabledOpacity || "40%"});
     }
   `;
 };
@@ -280,7 +269,7 @@ const itemStyles = () => css`
   width: 100%;
 `;
 
-const searchInputStyles = (activeTheme: ActiveThemeType<ProcessedTheme>) => {
+const searchInputStyles = (activeTheme: ActiveThemeType) => {
   const themeWithDefault = getSelectThemeWithDefaults(
     activeTheme,
     "valid"
@@ -291,7 +280,7 @@ const searchInputStyles = (activeTheme: ActiveThemeType<ProcessedTheme>) => {
   `;
 };
 
-const popoverWrapperStyles = (activeTheme: ActiveThemeType<ProcessedTheme>) => {
+const popoverWrapperStyles = (activeTheme: ActiveThemeType) => {
   const themeWithDefault = getSelectThemeWithDefaults(
     activeTheme,
     "valid"
@@ -309,9 +298,7 @@ const popoverWrapperStyles = (activeTheme: ActiveThemeType<ProcessedTheme>) => {
   `;
 };
 
-const multipleSelectedValuesWrapper = ({
-  theme,
-}: ActiveThemeType<ProcessedTheme>) => css`
+const multipleSelectedValuesWrapper = ({ theme }: ActiveThemeType) => css`
   display: flex;
   gap: ${theme.spacing.base};
   white-space: nowrap;

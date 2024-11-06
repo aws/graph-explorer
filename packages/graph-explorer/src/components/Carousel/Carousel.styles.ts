@@ -1,9 +1,7 @@
 import { css } from "@emotion/css";
-import { ActiveThemeType, fade, ProcessedTheme } from "@/core";
+import { ActiveThemeType, fade } from "@/core";
 
-export const navArrowsStyles = ({
-  theme,
-}: ActiveThemeType<ProcessedTheme>) => css`
+export const navArrowsStyles = ({ theme }: ActiveThemeType) => css`
   color: ${theme.palette.primary.main};
   font-size: 18px;
   height: 100%;

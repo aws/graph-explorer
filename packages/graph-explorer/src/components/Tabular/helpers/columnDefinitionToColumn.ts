@@ -1,12 +1,12 @@
 import { Column, ColumnGroup, ColumnInterfaceBasedOnValue } from "react-table";
-import type { ActiveThemeType, ProcessedTheme } from "@/core";
+import type { ActiveThemeType } from "@/core";
 
 import { numericFilter, singleSelectionFilter } from "../filters";
 import type { ColumnDefinition } from "../useTabular";
 
 const resolverFilterType = <T extends object>(
   column: ColumnDefinition<T>,
-  activeTheme?: ActiveThemeType<ProcessedTheme>
+  activeTheme?: ActiveThemeType
 ): ColumnDefinition<T> => {
   const { filterType, ...restColumnsProps } = column;
 
@@ -49,7 +49,7 @@ const resolverFilterType = <T extends object>(
  */
 const columnDefinitionToColumn = <T extends object>(
   columnDefinition: ColumnDefinition<T>,
-  activeTheme?: ActiveThemeType<ProcessedTheme>
+  activeTheme?: ActiveThemeType
 ): Column<T> => {
   const mergedColumnDefinition = {
     ...columnDefinition,

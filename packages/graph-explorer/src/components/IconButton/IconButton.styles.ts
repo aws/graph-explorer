@@ -23,11 +23,6 @@ export const defaultIconButtonStyles =
       palette: { primary, text, background },
     } = theme;
 
-    const themeByVariant =
-      variant !== "default"
-        ? theme?.iconButton?.variants?.[variant]
-        : theme.iconButton;
-
     const variants: {
       filled: string;
       default: string;
@@ -54,48 +49,34 @@ export const defaultIconButtonStyles =
           color: ${theme.palette.error.main};
           background: ${fade(theme.palette.error.main, 0.2)};
         }
-        background-color: ${themeByVariant?.background ||
-        (isDarkTheme ? primary.dark : primary.main)};
-        color: ${themeByVariant?.color || primary.contrastText};
-        border: ${themeByVariant?.border?.width || "1px"} solid
-          ${themeByVariant?.border?.color || "transparent"};
-        border-radius: ${rounded
-          ? "50%"
-          : themeByVariant?.border?.radius || "5px"};
+        background-color: ${isDarkTheme ? primary.dark : primary.main};
+        color: ${primary.contrastText};
+        border: 1px solid transparent;
+        border-radius: ${rounded ? "50%" : "5px"};
 
         &:disabled,
         &[disabled] {
           pointer-events: none;
-          background-color: ${themeByVariant?.disabled?.background ||
-          fade(background.contrast, 1)};
-          color: ${themeByVariant?.disabled?.color || text.disabled};
-          border: ${themeByVariant?.disabled?.border?.width || "1px"} solid
-            ${themeByVariant?.disabled?.border?.color || "transparent"};
+          background-color: ${fade(background.contrast, 1)};
+          color: ${text.disabled};
+          border: 1px solid transparent;
         }
 
         &:hover {
-          background-color: ${themeByVariant?.hover?.background ||
-          (isDarkTheme ? primary.main : primary.light)};
-          color: ${themeByVariant?.hover?.color || primary.contrastText};
-          border: ${themeByVariant?.hover?.border?.width || "1px"} solid
-            ${themeByVariant?.hover?.border?.color || "transparent"};
+          background-color: ${isDarkTheme ? primary.main : primary.light};
+          color: ${primary.contrastText};
+          border: 1px solid transparent;
         }
 
         &:active {
-          background-color: ${themeByVariant?.active?.background ||
-          (isDarkTheme ? primary.dark : primary.main)};
-          color: ${themeByVariant?.active?.color || primary.contrastText};
-          border: ${themeByVariant?.active?.border?.width || "1px"} solid
-            ${themeByVariant?.active?.border?.color || "transparent"};
+          background-color: ${isDarkTheme ? primary.dark : primary.main};
+          color: ${primary.contrastText};
+          border: 1px solid transparent;
         }
 
         &:focus-visible {
-          box-shadow: ${isDarkTheme
-            ? "none"
-            : `0 0 3px ${themeByVariant?.hover?.background || primary.main}`};
-          outline: ${isDarkTheme
-            ? `1px solid ${themeByVariant?.hover?.background || primary.light}`
-            : "none"};
+          box-shadow: ${isDarkTheme ? "none" : `0 0 3px ${primary.main}`};
+          outline: ${isDarkTheme ? `1px solid ${primary.light}` : "none"};
         }
       `,
       default: css`
@@ -120,54 +101,41 @@ export const defaultIconButtonStyles =
           background: ${fade(theme.palette.error.main, 0.2)};
         }
         position: relative;
-        background-color: ${themeByVariant?.background ||
-        (isDarkTheme ? background.secondary : background.contrast)};
-        color: ${themeByVariant?.color ||
-        (isDarkTheme ? primary.main : primary.dark)};
-        border: ${themeByVariant?.border?.width || "1px"} solid
-          ${themeByVariant?.border?.color || "transparent"};
-        border-radius: ${rounded
-          ? "50%"
-          : themeByVariant?.border?.radius || "5px"};
-        box-shadow: ${isDarkTheme
-          ? "none"
-          : themeByVariant?.shadow || "0 2px 6px 0 rgba(0, 0, 0, 0.3)"};
+        background-color: ${isDarkTheme
+          ? background.secondary
+          : background.contrast};
+        color: ${isDarkTheme ? primary.main : primary.dark};
+        border: 1px solid transparent;
+        border-radius: ${rounded ? "50%" : "5px"};
+        box-shadow: ${isDarkTheme ? "none" : "0 2px 6px 0 rgba(0, 0, 0, 0.3)"};
 
         &:disabled,
         &[disabled] {
           pointer-events: none;
-          background-color: ${themeByVariant?.disabled?.background ||
-          fade(background.contrast, 0.7)};
-          color: ${themeByVariant?.disabled?.color ||
-          (isDarkTheme ? primary.main : primary.dark)};
-          border: ${themeByVariant?.disabled?.border?.width || "1px"} solid
-            ${themeByVariant?.disabled?.border?.color || "transparent"};
+          background-color: ${fade(background.contrast, 0.7)};
+          color: ${isDarkTheme ? primary.main : primary.dark};
+          border: 1px solid transparent;
         }
 
         &:hover {
-          background-color: ${themeByVariant?.hover?.background ||
-          (isDarkTheme ? background.contrast : background.default)};
-          color: ${themeByVariant?.hover?.color ||
-          (isDarkTheme ? primary.light : primary.main)};
-          border: ${themeByVariant?.hover?.border?.width || "1px"} solid
-            ${themeByVariant?.hover?.border?.color || "transparent"};
+          background-color: ${isDarkTheme
+            ? background.contrast
+            : background.default};
+          color: ${isDarkTheme ? primary.light : primary.main};
+          border: 1px solid transparent;
         }
 
         &:active {
-          background-color: ${themeByVariant?.active?.background ||
-          (isDarkTheme ? background.contrastSecondary : background.secondary)};
-          color: ${themeByVariant?.active?.color || primary.dark};
-          border: ${themeByVariant?.active?.border?.width || "1px"} solid
-            ${themeByVariant?.active?.border?.color || "transparent"};
+          background-color: ${isDarkTheme
+            ? background.contrastSecondary
+            : background.secondary};
+          color: ${primary.dark};
+          border: 1px solid transparent;
         }
 
         &:focus-visible {
-          box-shadow: ${isDarkTheme
-            ? "none"
-            : `0 0 3px ${themeByVariant?.hover?.background || primary.main}`};
-          outline: ${isDarkTheme
-            ? `1px solid ${themeByVariant?.hover?.background || primary.light}`
-            : "none"};
+          box-shadow: ${isDarkTheme ? "none" : `0 0 3px ${primary.main}`};
+          outline: ${isDarkTheme ? `1px solid ${primary.light}` : "none"};
         }
       `,
       text: css`
@@ -187,55 +155,42 @@ export const defaultIconButtonStyles =
           color: ${theme.palette.error.main};
         }
         position: relative;
-        background-color: ${themeByVariant?.background || "transparent"};
-        color: ${themeByVariant?.color ||
-        (isDarkTheme ? primary.main : primary.dark)};
-        border: ${themeByVariant?.border?.width || "1px"} solid
-          ${themeByVariant?.border?.color || "transparent"};
-        border-radius: ${rounded
-          ? "50%"
-          : themeByVariant?.border?.radius || "5px"};
+        background-color: transparent;
+        color: ${isDarkTheme ? primary.main : primary.dark};
+        border: 1px solid transparent;
+        border-radius: ${rounded ? "50%" : "5px"};
 
         &:disabled,
         &[disabled] {
           pointer-events: none;
-          background-color: ${themeByVariant?.disabled?.background ||
-          "transparent"};
-          color: ${themeByVariant?.disabled?.color || text.disabled};
-          border: ${themeByVariant?.disabled?.border?.width || "1px"} solid
-            ${themeByVariant?.disabled?.border?.color || "transparent"};
+          background-color: transparent;
+          color: ${text.disabled};
+          border: 1px solid transparent;
         }
 
         &:hover {
-          background-color: ${themeByVariant?.hover?.background ||
-          "transparent"};
-          color: ${themeByVariant?.hover?.color ||
-          (isDarkTheme ? primary.light : primary.main)};
-          border: ${themeByVariant?.hover?.border?.width || "1px"} solid
-            ${themeByVariant?.hover?.border?.color || "transparent"};
+          background-color: transparent;
+          color: ${isDarkTheme ? primary.light : primary.main};
+          border: 1px solid transparent;
         }
 
         &:active {
-          background-color: ${themeByVariant?.active?.background ||
-          (isDarkTheme ? background.contrastSecondary : background.secondary)};
-          color: ${themeByVariant?.active?.color || primary.dark};
-          border: ${themeByVariant?.active?.border?.width || "1px"} solid
-            ${themeByVariant?.active?.border?.color || "transparent"};
+          background-color: ${isDarkTheme
+            ? background.contrastSecondary
+            : background.secondary};
+          color: ${primary.dark};
+          border: 1px solid transparent;
         }
 
         &:focus-visible {
-          box-shadow: ${isDarkTheme
-            ? "none"
-            : `0 0 3px ${themeByVariant?.hover?.background || primary.main}`};
-          outline: ${isDarkTheme
-            ? `1px solid ${themeByVariant?.hover?.background || primary.light}`
-            : "none"};
+          box-shadow: ${isDarkTheme ? "none" : `0 0 3px ${primary.main}`};
+          outline: ${isDarkTheme ? `1px solid ${primary.light}` : "none"};
         }
       `,
     };
 
     const iconButtonStyles = css`
-      min-width: ${getHeightBySize(theme, size)};
+      min-width: ${getHeightBySize(size)};
       padding: 0;
     `;
 
@@ -266,58 +221,49 @@ export const defaultToggleButtonStyles =
       palette: { primary, background, text },
     } = theme;
 
-    const themeByVariant =
-      variant !== "default"
-        ? theme?.[styleLike]?.variants?.[variant]
-        : theme.iconButton;
-
     const selectedStylesByVariantMap = {
       filled: css`
-        background-color: ${themeByVariant?.hover?.background || primary.dark};
-        color: ${themeByVariant?.hover?.color || primary.contrastText};
+        background-color: ${primary.dark};
+        color: ${primary.contrastText};
         &:disabled,
         &[disabled] {
-          background-color: ${themeByVariant?.hover?.background ||
-          primary.dark} !important;
-          color: ${themeByVariant?.hover?.color ||
-          primary.contrastText} !important;
+          background-color: ${primary.dark} !important;
+          color: ${primary.contrastText} !important;
           filter: opacity(70%) !important;
         }
       `,
       default: css`
-        background-color: ${themeByVariant?.hover?.background ||
-        (isDarkTheme ? fade(primary.dark, 0.25) : "transparent")};
-        color: ${themeByVariant?.hover?.color || primary.main};
+        background-color: ${isDarkTheme
+          ? fade(primary.dark, 0.25)
+          : "transparent"};
+        color: ${primary.main};
         &:disabled,
         &[disabled] {
-          background-color: ${themeByVariant?.hover?.background ||
-          (isDarkTheme ? fade(primary.dark, 0.25) : "transparent")} !important;
-          color: ${themeByVariant?.hover?.color || primary.main} !important;
+          background-color: ${isDarkTheme
+            ? fade(primary.dark, 0.25)
+            : "transparent"} !important;
+          color: ${primary.main} !important;
           filter: opacity(70%) !important;
         }
       `,
       text: css`
-        background-color: ${themeByVariant?.hover?.background ||
-        fade(theme.palette.primary.main, 0.2)};
-        color: ${themeByVariant?.hover?.color ||
-        (isDarkTheme ? primary.light : primary.main)};
+        background-color: ${fade(theme.palette.primary.main, 0.2)};
+        color: ${isDarkTheme ? primary.light : primary.main};
         &:hover {
-          background-color: ${themeByVariant?.hover?.background ||
-          fade(theme.palette.primary.main, 0.5)};
-          color: ${themeByVariant?.hover?.color || primary.dark};
+          background-color: ${fade(theme.palette.primary.main, 0.5)};
+          color: ${primary.dark};
           &:focus-visible {
             box-shadow: none !important;
             border: 1px solid
-              ${themeByVariant?.hover?.background ||
-              (isDarkTheme ? background.contrast : "transparent")};
+              ${isDarkTheme ? background.contrast : "transparent"};
           }
         }
         &:disabled,
         &[disabled] {
-          background-color: ${themeByVariant?.hover?.background ||
-          (isDarkTheme ? background.contrast : "transparent")} !important;
-          color: ${themeByVariant?.hover?.color ||
-          (isDarkTheme ? primary.light : primary.main)} !important;
+          background-color: ${isDarkTheme
+            ? background.contrast
+            : "transparent"} !important;
+          color: ${isDarkTheme ? primary.light : primary.main} !important;
           filter: opacity(70%) !important;
         }
       `,
@@ -326,8 +272,7 @@ export const defaultToggleButtonStyles =
     const stylesByVariantMap = {
       filled: "",
       default: css`
-        color: ${themeByVariant?.color ||
-        (isDarkTheme ? text.disabled : primary.dark)};
+        color: ${isDarkTheme ? text.disabled : primary.dark};
       `,
       text: "",
     };
