@@ -2,7 +2,6 @@ import { type PropsWithChildren } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { NotificationProvider } from "@/components/NotificationProvider";
 import Toast from "@/components/Toast";
 import AppStatusLoader from "@/core/AppStatusLoader";
@@ -57,10 +56,6 @@ const ConnectedProvider = (
               </MantineEmotionProvider>
             </MantineProvider>
           </DndProvider>
-          <ReactQueryDevtools
-            initialIsOpen={false}
-            buttonPosition="bottom-left"
-          />
         </QueryClientProvider>
       </div>
     </ErrorBoundary>
