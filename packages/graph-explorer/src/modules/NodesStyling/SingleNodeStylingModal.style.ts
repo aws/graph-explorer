@@ -29,46 +29,6 @@ const defaultStyles: ThemeStyleFn = ({ theme }) => css`
       display: flex;
       justify-content: center;
       align-items: center;
-
-      button {
-        color: ${theme.palette.common.black};
-        box-shadow: none;
-        background: none;
-
-        .upload-icon {
-          display: none;
-        }
-
-        .vertex-icon {
-          border-radius: 50%;
-          padding: ${theme.spacing.base};
-          display: block;
-          width: 28px;
-          height: 28px;
-
-          > * {
-            width: 18px;
-            height: 18px;
-          }
-        }
-      }
-
-      &:hover {
-        cursor: pointer;
-
-        button {
-          background: ${theme.palette.grey[200]};
-          border-radius: 50%;
-
-          .upload-icon {
-            display: block;
-          }
-
-          .vertex-icon {
-            display: none;
-          }
-        }
-      }
     }
 
     .actions {
