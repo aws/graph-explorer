@@ -9,7 +9,7 @@ import { KeywordSearchResponse } from "@/connector/useGEFetchTypes";
 import { UseQueryResult } from "@tanstack/react-query";
 import { useCancelKeywordSearch } from "./useKeywordSearchQuery";
 import { NodeSearchResult } from "./NodeSearchResult";
-import { useAddToGraph } from "@/hooks/useFetchNode";
+import { useAddToGraph } from "@/hooks/useAddToGraph";
 import { MappedQueryResults } from "@/connector/gremlin/mappers/mapResults";
 import { PlusCircleIcon } from "lucide-react";
 
@@ -59,7 +59,7 @@ export function SearchResultsList({
 }
 
 function LoadedResults({ vertices, edges, scalars }: MappedQueryResults) {
-  const sendToGraph = useAddToGraph(vertices, edges);
+  const sendToGraph = useAddToGraph(...vertices, ...edges);
   const canSendToGraph = vertices.length > 0 || edges.length > 0;
 
   const counts = [

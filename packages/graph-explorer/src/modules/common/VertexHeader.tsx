@@ -1,7 +1,6 @@
 import { Vertex } from "@/types/entities";
 import { ComponentBaseProps, VertexSymbol } from "@/components";
-import useDisplayNames from "@/hooks/useDisplayNames";
-import useTextTransform from "@/hooks/useTextTransform";
+import { useDisplayNames, useTextTransform } from "@/hooks";
 import {
   useVertexTypeConfig,
   useVertexTypeConfigs,

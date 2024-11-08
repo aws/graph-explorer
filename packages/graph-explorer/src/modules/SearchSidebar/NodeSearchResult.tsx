@@ -1,13 +1,13 @@
 import { Vertex } from "@/@types/entities";
 import { Button, VertexSymbol } from "@/components";
 import { useVertexTypeConfig } from "@/core/ConfigurationProvider/useConfiguration";
-import useDisplayNames from "@/hooks/useDisplayNames";
 import {
   useAddToGraph,
   useHasNodeBeenAddedToGraph,
   useRemoveNodeFromGraph,
-} from "@/hooks/useFetchNode";
-import useTextTransform from "@/hooks/useTextTransform";
+  useDisplayNames,
+  useTextTransform,
+} from "@/hooks";
 import { cn } from "@/utils";
 import { ChevronRightIcon, PlusCircleIcon, Trash2Icon } from "lucide-react";
 import { useState } from "react";
@@ -22,7 +22,7 @@ export function NodeSearchResult({ node }: { node: Vertex }) {
   const vtConfig = useVertexTypeConfig(node.type);
   const nodeType = vtConfig?.displayLabel || textTransform(node.type);
 
-  const addToGraph = useAddToGraph([node], []);
+  const addToGraph = useAddToGraph(node);
   const removeFromGraph = useRemoveNodeFromGraph(node.id);
   const hasBeenAdded = useHasNodeBeenAddedToGraph(node.id);
 
