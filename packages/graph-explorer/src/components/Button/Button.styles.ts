@@ -56,7 +56,6 @@ export const baseStyles = (
   height: ${getHeightBySize(size)};
   font-size: ${getFontSizeBySize(size)};
   font-weight: ${theme.typography.weight.base};
-  font-family: ${theme.typography.fontFamily || "sans-serif"};
   cursor: pointer;
 
   svg {

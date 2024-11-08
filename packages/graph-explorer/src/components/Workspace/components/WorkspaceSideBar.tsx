@@ -42,7 +42,7 @@ const WorkspaceSideBar = ({
         direction === "row-reverse" && "flex-row-reverse"
       )}
     >
-      <div className="bg-brand-100 text-brand-900 flex flex-col gap-2 p-2">
+      <div className="bg-brand-100 text-brand-900 dark:text-brand-100 flex flex-col gap-2 p-2 dark:bg-gray-900">
         {sidebarActions}
       </div>
       {sidebarContent}

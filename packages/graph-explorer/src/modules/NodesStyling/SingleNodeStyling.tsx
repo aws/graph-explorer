@@ -6,10 +6,10 @@ import {
   ComponentBaseProps,
   IconButton,
   Input,
-  RemoteSvgIcon,
   Select,
   StylingIcon,
   UploadIcon,
+  VertexSymbol,
 } from "@/components";
 import ColorInput from "@/components/ColorInput/ColorInput";
 import { useNotification } from "@/components/NotificationProvider";
@@ -20,7 +20,6 @@ import {
   userStylingNodeAtom,
   VertexPreferences,
 } from "@/core/StateProvider/userPreferences";
-import fade from "@/core/ThemeProvider/utils/fade";
 import useTextTransform from "@/hooks/useTextTransform";
 import useTranslations from "@/hooks/useTranslations";
 import { LINE_STYLE_OPTIONS } from "./lineStyling";
@@ -128,10 +127,6 @@ export default function SingleNodeStyling({
     onUserPrefsChange({ displayLabel: debouncedDisplayAs });
   }, [debouncedDisplayAs, prevDisplayAs, onUserPrefsChange]);
 
-  const isSvg =
-    (nodePreferences?.iconImageType || vtConfig.iconImageType) ===
-    "image/svg+xml";
-
   return (
     <div className={cn(styleWithTheme(defaultStyles), className)} {...rest}>
       <div className={"title"}>
@@ -202,10 +197,10 @@ export default function SingleNodeStyling({
           </div>
           <div>
             <p>Shape and Icon</p>
-            <div className={"attrs-container"}>
+            <div className={"flex flex-row items-center gap-2"}>
               <Select
-                label={"Style"}
-                labelPlacement={"inner"}
+                label="Style"
+                labelPlacement="inner"
                 value={nodePreferences?.shape || "ellipse"}
                 onChange={value =>
                   onUserPrefsChange({ shape: value as ShapeStyle })
@@ -213,56 +208,35 @@ export default function SingleNodeStyling({
                 options={NODE_SHAPE}
                 hideError={true}
                 noMargin={true}
+                className="grow"
               />
-              <div className={"icon"}>
-                <FileButton
-                  accept={"image/*"}
-                  onChange={file => {
-                    file && convertImageToBase64AndSetNewIcon(file);
-                  }}
-                >
-                  {props => (
-                    <IconButton
-                      icon={
-                        <div>
-                          <div className={"upload-icon"}>
-                            <UploadIcon />
-                          </div>
-                          <div
-                            className={"vertex-icon"}
-                            style={{
-                              background: fade(vtConfig.color, 0.2),
-                              color: vtConfig.color,
-                            }}
-                          >
-                            {isSvg && (
-                              <RemoteSvgIcon
-                                src={
-                                  nodePreferences?.iconUrl ||
-                                  vtConfig.iconUrl ||
-                                  ""
-                                }
-                              />
-                            )}
-                            {!isSvg && (
-                              <img
-                                width={24}
-                                height={24}
-                                src={
-                                  nodePreferences?.iconUrl || vtConfig.iconUrl
-                                }
-                              />
-                            )}
-                          </div>
+              <FileButton
+                accept="image/*"
+                onChange={file => {
+                  file && convertImageToBase64AndSetNewIcon(file);
+                }}
+              >
+                {props => (
+                  <IconButton
+                    variant="filled"
+                    className="text-text-primary hover:text-text-primary group rounded-full border-0 bg-transparent p-0 hover:cursor-pointer hover:bg-gray-200"
+                    icon={
+                      <>
+                        <div className="hidden group-hover:flex">
+                          <UploadIcon />
                         </div>
-                      }
-                      tooltipText={"Upload New Icon"}
-                      tooltipPlacement={"bottom-end"}
-                      onClick={props.onClick}
-                    />
-                  )}
-                </FileButton>
-              </div>
+                        <VertexSymbol
+                          vtConfig={vtConfig}
+                          className="size-full group-hover:hidden"
+                        />
+                      </>
+                    }
+                    tooltipText="Upload New Icon"
+                    tooltipPlacement="bottom-end"
+                    onClick={props.onClick}
+                  />
+                )}
+              </FileButton>
             </div>
           </div>
           <div>

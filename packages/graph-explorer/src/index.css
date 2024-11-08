@@ -60,6 +60,9 @@
 
     --color-divider: var(--color-gray-200);
     --color-border: var(--color-gray-200);
+
+    /* Allow animating intrinsic values like height */
+    interpolate-size: allow-keywords;
   }
 
   .dark {
@@ -89,6 +92,10 @@
   html {
     font-size: 14px;
   }
+
+  body {
+    @apply bg-background-default text-text-primary font-sans;
+  }
 }
 
 @layer utilities {
@@ -99,23 +106,6 @@
   .stack > * {
     grid-area: 1 / 1 / 2 / 2;
   }
-}
-
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-a {
-  text-decoration: none;
-}
-
-* {
-  box-sizing: border-box;
 }
 
 @keyframes spin {

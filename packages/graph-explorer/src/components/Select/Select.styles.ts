@@ -158,7 +158,6 @@ export const selectContainerStyles =
         }
       }
       .select {
-        font-family: inherit;
         text-align: left;
         cursor: pointer;
         white-space: nowrap;

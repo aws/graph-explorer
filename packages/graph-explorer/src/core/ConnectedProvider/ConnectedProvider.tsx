@@ -2,7 +2,6 @@ import { type PropsWithChildren } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { NotificationProvider } from "@/components/NotificationProvider";
 import Toast from "@/components/Toast";
 import AppStatusLoader from "@/core/AppStatusLoader";
@@ -40,29 +39,23 @@ const ConnectedProvider = (
   const { config, children } = props;
   return (
     <ErrorBoundary FallbackComponent={AppErrorPage}>
-      <div className="h-screen w-full overflow-hidden">
-        <QueryClientProvider client={queryClient}>
-          <DndProvider backend={HTML5Backend}>
-            <MantineProvider stylesTransform={emotionTransform}>
-              <MantineEmotionProvider>
-                <ThemeProvider>
-                  <NotificationProvider component={Toast}>
-                    <StateProvider>
-                      <AppStatusLoader config={config}>
-                        <ExpandNodeProvider>{children}</ExpandNodeProvider>
-                      </AppStatusLoader>
-                    </StateProvider>
-                  </NotificationProvider>
-                </ThemeProvider>
-              </MantineEmotionProvider>
-            </MantineProvider>
-          </DndProvider>
-          <ReactQueryDevtools
-            initialIsOpen={false}
-            buttonPosition="bottom-left"
-          />
-        </QueryClientProvider>
-      </div>
+      <QueryClientProvider client={queryClient}>
+        <DndProvider backend={HTML5Backend}>
+          <MantineProvider stylesTransform={emotionTransform}>
+            <MantineEmotionProvider>
+              <ThemeProvider>
+                <NotificationProvider component={Toast}>
+                  <StateProvider>
+                    <AppStatusLoader config={config}>
+                      <ExpandNodeProvider>{children}</ExpandNodeProvider>
+                    </AppStatusLoader>
+                  </StateProvider>
+                </NotificationProvider>
+              </ThemeProvider>
+            </MantineEmotionProvider>
+          </MantineProvider>
+        </DndProvider>
+      </QueryClientProvider>
     </ErrorBoundary>
   );
 };

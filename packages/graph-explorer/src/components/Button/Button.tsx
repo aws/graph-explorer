@@ -46,34 +46,16 @@ export const Button = (
       {...buttonProps}
       className={cn(
         styleWithTheme(defaultStyles({ variant, size, rounded })),
+        "inline-flex items-center gap-1.5",
+        size === "small" && "[&_svg]:size-4",
+        size === "base" && "[&_svg]:size-5",
+        size === "large" && "[&_svg]:size-6",
         className
       )}
     >
-      {icon && iconPlacement === "start" && (
-        <span
-          className={cn(
-            "mr-1 flex items-center",
-            size === "small" && "h-4 w-4",
-            size === "base" && "h-5 w-5",
-            size === "large" && "h-6 w-6"
-          )}
-        >
-          {icon}
-        </span>
-      )}
+      {icon && iconPlacement === "start" && icon}
       {children}
-      {icon && iconPlacement === "end" && (
-        <span
-          className={cn(
-            "ml-1 flex items-center",
-            size === "small" && "h-4 w-4",
-            size === "base" && "h-5 w-5",
-            size === "large" && "h-6 w-6"
-          )}
-        >
-          {icon}
-        </span>
-      )}
+      {icon && iconPlacement === "end" && icon}
     </Component>
   );
 };

@@ -214,7 +214,6 @@ export const textAreaContainerStyles =
       }
 
       .input {
-        font-family: inherit;
         height: 100px;
         resize: none;
         background-color: ${!isDisabled

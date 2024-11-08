@@ -1,12 +1,9 @@
 import { cn } from "@/utils";
-import type { CSSProperties, PropsWithChildren } from "react";
+import type { PropsWithChildren } from "react";
 import { createContext } from "react";
-import defaultStyles from "./ThemeProvider.styles.css";
 import DEFAULT_DARK_THEME from "./themes/dark";
 import DEFAULT_LIGHT_THEME from "./themes/light";
 import type { ThemeContextType } from "./types";
-
-import { getCSSVariablesFromTheme } from "./utils/lib";
 
 // This any should be replaced by a generic type that should detect the type of
 // the current active theme. Need to do research to achieve it
@@ -26,23 +23,21 @@ function ThemeProvider({
     const composedTheme =
       initialTheme === "dark" ? DEFAULT_DARK_THEME : DEFAULT_LIGHT_THEME;
 
-    const themeWithDefaults = { ...composedTheme, "palette-opacity": "1" };
-    const cssVariables = getCSSVariablesFromTheme(themeWithDefaults);
-
     return {
       themeName: initialTheme,
       theme: composedTheme,
-      cssVariables,
       isDarkTheme: composedTheme.mode === "dark",
     } as ThemeContextType;
   })();
 
-  const cssVariables = (theme.cssVariables as { html?: CSSProperties })?.html;
   return (
     <ThemeContext.Provider value={theme}>
       <div
-        className={cn(`${theme.themeName}-wrapper`, defaultStyles(), className)}
-        style={{ ...cssVariables, height: "100%" }}
+        className={cn(
+          `${theme.themeName}-wrapper h-full`,
+          theme.isDarkTheme && "dark",
+          className
+        )}
       >
         {children}
       </div>
