@@ -174,7 +174,7 @@ const GraphExplorer = () => {
     <Workspace className={cn(styleWithTheme(defaultStyles), "graph-explorer")}>
       <Workspace.TopBar logoVisible>
         <Workspace.TopBar.Title
-          title={`${APP_NAME}`}
+          title={APP_NAME}
           subtitle={`Connection: ${config?.displayLabel || config?.id}`}
         />
         <Workspace.TopBar.Version>
