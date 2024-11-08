@@ -40,7 +40,6 @@ import useContextMenu from "./useContextMenu";
 import useGraphGlobalActions from "./useGraphGlobalActions";
 import useGraphStyles from "./useGraphStyles";
 import useNodeBadges from "./useNodeBadges";
-import useNodeDrop from "./useNodeDrop";
 import { useVertexTypeConfigs } from "@/core/ConfigurationProvider/useConfiguration";
 
 export type GraphViewerProps = Omit<
@@ -135,7 +134,6 @@ export default function GraphViewer({
 
   const graphRef = useRef<GraphRef | null>(null);
   const [entities, setEntities] = useEntities();
-  const { dropAreaRef, isOver, canDrop } = useNodeDrop();
 
   const [nodesSelectedIds, setNodesSelectedIds] =
     useRecoilState(nodesSelectedIdsAtom);
@@ -241,7 +239,6 @@ export default function GraphViewer({
 
   return (
     <div
-      ref={dropAreaRef}
       className={cn(styleWithTheme(defaultStyles), "graph-viewer-module")}
       onContextMenu={onContextMenu}
     >
@@ -318,12 +315,6 @@ export default function GraphViewer({
           {legendOpen && <Legend onClose={() => setLegendOpen(false)} />}
         </div>
       </ModuleContainer>
-      <div
-        className={cn("drop-overlay", {
-          ["drop-overlay-is-over"]: isOver,
-          ["drop-overlay-can-drop"]: !isOver && canDrop,
-        })}
-      />
     </div>
   );
 }

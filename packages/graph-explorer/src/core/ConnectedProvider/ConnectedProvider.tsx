@@ -1,6 +1,4 @@
 import { type PropsWithChildren } from "react";
-import { DndProvider } from "react-dnd";
-import { HTML5Backend } from "react-dnd-html5-backend";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { NotificationProvider } from "@/components/NotificationProvider";
 import Toast from "@/components/Toast";
@@ -40,21 +38,19 @@ const ConnectedProvider = (
   return (
     <ErrorBoundary FallbackComponent={AppErrorPage}>
       <QueryClientProvider client={queryClient}>
-        <DndProvider backend={HTML5Backend}>
-          <MantineProvider stylesTransform={emotionTransform}>
-            <MantineEmotionProvider>
-              <ThemeProvider>
-                <NotificationProvider component={Toast}>
-                  <StateProvider>
-                    <AppStatusLoader config={config}>
-                      <ExpandNodeProvider>{children}</ExpandNodeProvider>
-                    </AppStatusLoader>
-                  </StateProvider>
-                </NotificationProvider>
-              </ThemeProvider>
-            </MantineEmotionProvider>
-          </MantineProvider>
-        </DndProvider>
+        <MantineProvider stylesTransform={emotionTransform}>
+          <MantineEmotionProvider>
+            <ThemeProvider>
+              <NotificationProvider component={Toast}>
+                <StateProvider>
+                  <AppStatusLoader config={config}>
+                    <ExpandNodeProvider>{children}</ExpandNodeProvider>
+                  </AppStatusLoader>
+                </StateProvider>
+              </NotificationProvider>
+            </ThemeProvider>
+          </MantineEmotionProvider>
+        </MantineProvider>
       </QueryClientProvider>
     </ErrorBoundary>
   );

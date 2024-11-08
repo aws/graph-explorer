@@ -1,7 +1,6 @@
 import { cn } from "@/utils";
-import type { DragEvent, MouseEvent, ReactNode, RefObject } from "react";
+import type { MouseEvent, ReactNode, RefObject } from "react";
 import { useRef } from "react";
-import { useDrag } from "react-dnd";
 import { useHover } from "react-laag";
 import { CodeIcon } from "@/components/icons";
 import ListItem from "@/components/ListItem";
@@ -32,14 +31,7 @@ type AdvancedListItemProps<T extends object> = {
   item: AdvancedListItemType<T>;
   group?: AdvancedListItemType<T>;
   isSelected?: boolean;
-  draggable?: boolean;
-  onDragStart?: (
-    item: AdvancedListItemType<T>,
-    group: AdvancedListItemType<T> | undefined,
-    event: DragEvent<unknown>
-  ) => void;
   overrideTitle?: ReactNode;
-  defaultItemType?: string;
   renderPopover?: (
     item: AdvancedListItemType<any>,
     itemRef: RefObject<HTMLDivElement>
@@ -56,24 +48,14 @@ const AdvancedListItem = <T extends object>({
   onMouseLeave,
   className,
   item,
-  draggable,
   isSelected,
   isActive = false,
-  onDragStart,
   overrideTitle,
-  group,
-  defaultItemType,
   hidePopover,
   renderPopover,
 }: AdvancedListItemProps<T>) => {
   const ref = useRef<HTMLDivElement>(null);
-  const [{ isDragging }, dragRef] = useDrag({
-    type: defaultItemType || "none",
-    collect: monitor => ({
-      isDragging: monitor.isDragging(),
-    }),
-    item: item.properties,
-  });
+
   const [isOver, hoverProps] = useHover({
     delayEnter: 400,
     delayLeave: 100,
@@ -97,15 +79,10 @@ const AdvancedListItem = <T extends object>({
         startAdornment={item.icon || <CodeIcon />}
         secondary={item.subtitle}
         endAdornment={item.endAdornment}
-        onDragStart={event => onDragStart?.(item, group, event)}
       >
         {overrideTitle || item.title}
       </ListItem>
-      {isOver &&
-        !isDragging &&
-        !!renderPopover &&
-        !hidePopover &&
-        renderPopover(item, ref)}
+      {isOver && !!renderPopover && !hidePopover && renderPopover(item, ref)}
     </div>
   );
 
@@ -116,19 +93,9 @@ const AdvancedListItem = <T extends object>({
     InnerItem
   );
 
-  if (!draggable) {
-    return (
-      <div className={cn(className, "advanced-list-item-wrapper")}>
-        {WrappedElement}
-      </div>
-    );
-  }
-
   return (
-    <div className={"advanced-list-item-wrapper"}>
-      <div ref={dragRef} className={className}>
-        {WrappedElement}
-      </div>
+    <div className={cn(className, "advanced-list-item-wrapper")}>
+      {WrappedElement}
     </div>
   );
 };
