@@ -1,5 +1,6 @@
 import { createRandomInteger, createRandomName } from "@shared/utils/testing";
 import mapApiVertex from "./mapApiVertex";
+import { Vertex, VertexId } from "@/@types/entities";
 
 test("maps empty vertex", () => {
   const input = {
@@ -11,14 +12,15 @@ test("maps empty vertex", () => {
   const result = mapApiVertex(input);
 
   expect(result).toEqual({
-    id: "",
+    entityType: "vertex",
+    id: "" as VertexId,
     idType: "string",
     type: "",
     types: [],
     attributes: {},
     neighborsCount: 0,
     neighborsCountByType: {},
-  });
+  } satisfies Vertex);
 });
 
 test("applies the given counts", () => {
@@ -37,14 +39,15 @@ test("applies the given counts", () => {
   const result = mapApiVertex(input, counts);
 
   expect(result).toEqual({
-    id: "",
+    entityType: "vertex",
+    id: "" as VertexId,
     idType: "string",
     type: "",
     types: [],
     attributes: {},
     neighborsCount: counts.totalCount,
     neighborsCountByType: counts.counts,
-  });
+  } satisfies Vertex);
 });
 
 test("maps airport node", () => {
@@ -71,7 +74,8 @@ test("maps airport node", () => {
   const result = mapApiVertex(input);
 
   expect(result).toEqual({
-    id: "1",
+    entityType: "vertex",
+    id: "1" as VertexId,
     idType: "string",
     type: "airport",
     types: ["airport"],
@@ -91,5 +95,5 @@ test("maps airport node", () => {
     },
     neighborsCount: 0,
     neighborsCountByType: {},
-  });
+  } satisfies Vertex);
 });
