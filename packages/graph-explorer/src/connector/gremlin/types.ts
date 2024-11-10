@@ -18,6 +18,8 @@ export type GDate = {
   "@value": number;
 };
 
+export type GScalar = GInt32 | GInt64 | GDouble | GDate | string;
+
 export type JanusID = {
   "@type": "janusgraph:RelationIdentifier";
   "@value": {
@@ -30,7 +32,7 @@ export type GVertexProperty = {
   "@value": {
     id: GInt32;
     label: string;
-    value: string | GInt32 | GDouble | GDate;
+    value: GScalar;
   };
 };
 
@@ -39,7 +41,7 @@ export type GProperty = {
   "@value": {
     id: GInt32;
     key: string;
-    value: string | GInt32 | GDouble | GDate;
+    value: GScalar;
   };
 };
 
@@ -48,7 +50,7 @@ export type GVertex = {
   "@value": {
     id: string | GInt64;
     label: string;
-    properties: Record<string, Array<GVertexProperty>>;
+    properties?: Record<string, Array<GVertexProperty>>;
   };
 };
 
@@ -74,6 +76,36 @@ export type GEdgeList = {
   "@type": "g:List";
   "@value": Array<GEdge>;
 };
+
+export type GPath = {
+  "@type": "g:Path";
+  "@value": {
+    labels: GList;
+    objects: GList;
+  };
+};
+
+export type GList = {
+  "@type": "g:List";
+  "@value": Array<GAnyValue>;
+};
+
+export type GMap = {
+  "@type": "g:Map";
+  "@value": Array<GAnyValue>;
+};
+
+export type GSet = {
+  "@type": "g:Set";
+  "@value": Array<GAnyValue>;
+};
+
+export type GEntityList = {
+  "@type": "g:List";
+  "@value": Array<GVertex | GEdge>;
+};
+
+export type GAnyValue = GList | GMap | GSet | GPath | GVertex | GEdge | GScalar;
 
 export type GremlinFetch = <TResult = any>(
   queryTemplate: string

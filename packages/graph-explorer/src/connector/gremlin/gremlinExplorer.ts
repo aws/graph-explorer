@@ -5,7 +5,7 @@ import fetchSchema from "./queries/fetchSchema";
 import fetchVertexTypeCounts from "./queries/fetchVertexTypeCounts";
 import keywordSearch from "./queries/keywordSearch";
 import { fetchDatabaseRequest } from "../fetchDatabaseRequest";
-import { GraphSummary } from "./types";
+import { GraphSummary, GremlinFetch } from "./types";
 import { v4 } from "uuid";
 import { Explorer, ExplorerRequestOptions } from "../useGEFetchTypes";
 import { logger } from "@/utils";
@@ -16,7 +16,7 @@ function _gremlinFetch(
   connection: ConnectionConfig,
   featureFlags: FeatureFlags,
   options?: ExplorerRequestOptions
-) {
+): GremlinFetch {
   return async (queryTemplate: string) => {
     logger.debug(queryTemplate);
     const body = JSON.stringify({ query: queryTemplate });

@@ -5,7 +5,7 @@ import useTextTransform from "./useTextTransform";
 import { RESERVED_ID_PROPERTY } from "@/utils/constants";
 
 const isVertex = (vOrE: Vertex | Edge): vOrE is Vertex => {
-  return "neighborsCount" in vOrE && vOrE.neighborsCount != null;
+  return vOrE.entityType === "vertex";
 };
 
 const useDisplayNames = () => {

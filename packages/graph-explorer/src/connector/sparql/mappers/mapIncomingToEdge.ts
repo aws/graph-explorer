@@ -13,6 +13,7 @@ const mapIncomingToEdge = (
   result: IncomingPredicate
 ): Edge => {
   return {
+    entityType: "edge",
     id: `${result.subject.value}-[${result.predFromSubject.value}]->${resourceURI}` as EdgeId,
     type: result.predFromSubject.value,
     source: result.subject.value as VertexId,

@@ -1,10 +1,10 @@
-import { Edge, Vertex } from "@/types/entities";
 import {
   ConfigurationContextProps,
   EdgeTypeConfig,
   VertexTypeConfig,
 } from "@/core";
 import { ConnectionConfig } from "@shared/types";
+import { MappedQueryResults } from "./gremlin/mappers/mapResults";
 
 export type QueryOptions = RequestInit & {
   queryId?: string;
@@ -115,16 +115,7 @@ export type NeighborsRequest = {
   offset?: number;
 };
 
-export type NeighborsResponse = {
-  /**
-   * List of vertices.
-   */
-  vertices: Array<Vertex>;
-  /**
-   * List of edges.
-   */
-  edges: Array<Edge>;
-};
+export type NeighborsResponse = MappedQueryResults;
 
 export type NeighborsCountRequest = {
   /**
@@ -181,12 +172,7 @@ export type KeywordSearchRequest = {
   exactMatch?: boolean;
 };
 
-export type KeywordSearchResponse = {
-  /**
-   * List of vertices.
-   */
-  vertices: Array<Vertex>;
-};
+export type KeywordSearchResponse = MappedQueryResults;
 
 export type ErrorResponse = {
   code: string;

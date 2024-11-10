@@ -137,6 +137,7 @@ export function createRandomEntities(): Entities {
  */
 export function createRandomVertex(): Vertex {
   return {
+    entityType: "vertex",
     id: createRandomName("VertexId") as VertexId,
     idType: "string",
     type: createRandomName("VertexType"),
@@ -152,6 +153,7 @@ export function createRandomVertex(): Vertex {
  */
 export function createRandomEdge(source: Vertex, target: Vertex): Edge {
   return {
+    entityType: "edge",
     id: createRandomName("EdgeId") as EdgeId,
     type: createRandomName("EdgeType"),
     attributes: createRecord(3, createRandomEntityAttribute),

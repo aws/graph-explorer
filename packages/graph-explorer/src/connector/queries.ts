@@ -25,7 +25,7 @@ export function searchQuery(
     enabled: Boolean(explorer) && Boolean(request),
     queryFn: async ({ signal }): Promise<KeywordSearchResponse | null> => {
       if (!explorer || !request) {
-        return { vertices: [] };
+        return { vertices: [], edges: [], scalars: [] };
       }
       return await explorer.keywordSearch(request, { signal });
     },

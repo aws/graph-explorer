@@ -37,7 +37,7 @@ const keywordSearch = async (
     return mapApiVertex(value);
   });
 
-  return { vertices };
+  return { vertices, edges: [], scalars: [] };
 };
 
 export default keywordSearch;
