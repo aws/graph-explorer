@@ -1,6 +1,6 @@
 import type { PropsWithChildren, ReactNode } from "react";
 import Button, { ButtonProps } from "../Button/Button";
-import { cva } from "class-variance-authority";
+import { cva } from "cva";
 import { cn } from "@/utils";
 
 export type PanelEmptyStateProps = {
@@ -27,7 +27,7 @@ const PanelEmptyState = ({
   actionLabel,
   actionVariant,
 }: PropsWithChildren<PanelEmptyStateProps>) => {
-  const variantStyles = cva([], {
+  const variantStyles = cva({
     variants: {
       variant: {
         info: "from-primary-main to-primary-light bg-gradient-to-b shadow-[0_0_20px_2px_hsl(205,95%,71%,70%)]",
