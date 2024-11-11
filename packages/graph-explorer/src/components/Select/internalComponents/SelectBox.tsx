@@ -10,7 +10,7 @@ import {
 } from "react";
 import { mergeRefs, useLayer } from "react-laag";
 import { useWithTheme } from "@/core";
-import IconButton from "@/components/IconButton";
+import { IconButton } from "@/components";
 import { ChevronDownIcon } from "@/components/icons";
 import CloseIcon from "@/components/icons/CloseIcon";
 import type { SelectOption, SelectProps } from "../Select";

@@ -113,8 +113,8 @@ const NodeExpandFilters = ({
                 noMargin={true}
               />
               <Input
-                aria-label={"Filter"}
-                className={"input"}
+                aria-label="Filter"
+                className="input"
                 value={filter.value}
                 onChange={value => {
                   onFilterChange(filterIndex, filter.name, value);
@@ -124,17 +124,16 @@ const NodeExpandFilters = ({
               />
               <IconButton
                 icon={<DeleteIcon />}
-                variant={"text"}
-                color={"error"}
-                size={"small"}
-                tooltipText={"Remove Filter"}
+                variant="text"
+                color="error"
+                tooltipText="Remove Filter"
                 onPress={() => onFilterDelete(filterIndex)}
               />
             </div>
           ))}
         </div>
       )}
-      <div className={"title"}>
+      <div className="title">
         <div style={{ display: "flex", gap: 2, alignItems: "center" }}>
           Limit returned neighbors to
           <InfoTooltip>
@@ -144,17 +143,17 @@ const NodeExpandFilters = ({
         </div>
         <IconButton
           icon={<AddIcon />}
-          variant={"text"}
-          size={"small"}
+          variant="text"
+          size="small"
           onPress={() => onLimitChange(1)}
         />
       </div>
       {limit !== null && (
-        <div className={"limit"}>
+        <div className="limit">
           <Input
-            aria-label={"limit"}
-            className={"input"}
-            type={"number"}
+            aria-label="limit"
+            className="input"
+            type="number"
             min={1}
             step={1}
             value={limit}
@@ -164,10 +163,9 @@ const NodeExpandFilters = ({
           />
           <IconButton
             icon={<DeleteIcon />}
-            variant={"text"}
-            color={"error"}
-            size={"small"}
-            tooltipText={"Remove Limit"}
+            variant="text"
+            color="error"
+            tooltipText="Remove Limit"
             onPress={() => onLimitChange(null)}
           />
         </div>
