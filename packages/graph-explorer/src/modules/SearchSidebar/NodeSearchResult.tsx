@@ -29,13 +29,13 @@ export function NodeSearchResult({ node }: { node: Vertex }) {
   return (
     <div
       className={cn(
-        "bg-background-default group w-full overflow-hidden transition-all hover:cursor-pointer"
+        "bg-background-default group w-full overflow-hidden transition-all"
       )}
       data-expanded={expanded}
     >
       <div
         onClick={() => setExpanded(e => !e)}
-        className="group-data-[expanded=true]:border-background-secondary group flex w-full flex-row items-center gap-2 p-3 text-left ring-0"
+        className="group-data-[expanded=true]:border-background-secondary group flex w-full flex-row items-center gap-2 p-3 text-left ring-0 hover:cursor-pointer"
       >
         <div>
           <ChevronRightIcon className="text-primary-dark/50 size-5 transition-transform duration-200 ease-in-out group-data-[expanded=true]:rotate-90" />
