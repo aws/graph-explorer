@@ -2,27 +2,61 @@
 
 ## Upcoming
 
+## Release 1.11.0
+
+### What's New
+
+This release includes a big change to search and substantial improvements to the
+Docker image. As always, there are many additional small fixes and improvements
+that round out this release.
+
+#### Search Sidebar
+
+With this release, we've moved search out of the top navigation bar and in to
+the sidebar. This means for new users when they first open Graph Explorer
+they'll be presented with a set of search results that they can add in to the
+graph and start exploring.
+
+For existing users, you'll benefit from a better experience with search. Your
+filters will remain active as you navigate around. It'll also do its best to
+keep your selections for attribute when you change the node type. There's also a
+new "Add All" button, when you want to add all the search results to the graph
+with a single click.
+
+#### Docker Image
+
+The Docker image size had become a bit bloated over time. We took a look at what
+was going on and discovered we were shipping all of our dev dependencies in the
+Docker image when these are entirely unnecessary.
+
+Once we stripped those out, along with some additional unnecessary files, we
+ended up with a Docker image that is 196 MB lighter. This should make
+downloading Graph Explorer from the repository much faster for everyone,
+including any Neptune Notebook instances you have.
+
+### What's Changed
+
 - **Improved** search discoverability and ergonomics by moving the UI in to the
   sidebar [#665](https://github.com/aws/graph-explorer/pull/665)
 - **Improved** UI responsiveness by using map instead of array for large data
   sets [#658](https://github.com/aws/graph-explorer/pull/658)
 - **Improved** connection selection can now happen on any part of the connection
   row [#657](https://github.com/aws/graph-explorer/pull/657)
-- **Fixed** scrolling on search result details
-  [#657](https://github.com/aws/graph-explorer/pull/657)
 - **Improved** style for the sidebar buttons
   [#651](https://github.com/aws/graph-explorer/pull/651)
-- **Fixed** Docker image containing more files than necessary.
-  ([#613](https://github.com/aws/graph-explorer/pull/613))
-- **Fixed** conflict when a node has a property named "id" that prevented
-  changing the display attribute.
-  ([#626](https://github.com/aws/graph-explorer/pull/626))
 - **Improved** Docker image size, reducing it by 196 MB
   ([#619](https://github.com/aws/graph-explorer/pull/619))
 - **Improved** query when searching across all node types
   ([#607](https://github.com/aws/graph-explorer/pull/607))
 - **Improved** query generation by removing empty lines
   ([#608](https://github.com/aws/graph-explorer/pull/608))
+- **Fixed** scrolling on search result details
+  [#657](https://github.com/aws/graph-explorer/pull/657)
+- **Fixed** Docker image containing more files than necessary.
+  ([#613](https://github.com/aws/graph-explorer/pull/613))
+- **Fixed** conflict when a node has a property named "id" that prevented
+  changing the display attribute.
+  ([#626](https://github.com/aws/graph-explorer/pull/626))
 - **Fixed** style issue where buttons have a halo around them after being
   clicked ([#650](https://github.com/aws/graph-explorer/pull/650))
 - **Fixed** security vulnerabilities in the Docker image from dev dependencies
