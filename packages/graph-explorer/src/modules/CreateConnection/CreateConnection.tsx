@@ -1,4 +1,3 @@
-import { Checkbox } from "@mantine/core";
 import { useCallback, useState } from "react";
 import { useRecoilCallback } from "recoil";
 import { v4 } from "uuid";
@@ -24,6 +23,7 @@ import {
   DEFAULT_FETCH_TIMEOUT,
   DEFAULT_NODE_EXPAND_LIMIT,
 } from "@/utils/constants";
+import { Checkbox, Label } from "@/components/radix";
 
 type ConnectionForm = {
   name?: string;
@@ -270,14 +270,16 @@ const CreateConnection = ({
           />
         </div>
         <div className={"input-url"}>
-          <Checkbox
-            value={"proxyConnection"}
-            checked={form.proxyConnection}
-            onChange={e => {
-              onFormChange("proxyConnection")(e.target.checked);
-            }}
-            label={"Using Proxy-Server"}
-          />
+          <Label className="cursor-pointer">
+            <Checkbox
+              value={"proxyConnection"}
+              checked={form.proxyConnection}
+              onCheckedChange={checked => {
+                onFormChange("proxyConnection")(checked);
+              }}
+            />
+            Using Proxy-Server
+          </Label>
         </div>
         {form.proxyConnection && (
           <div className={"input-url"}>
@@ -296,14 +298,16 @@ const CreateConnection = ({
         )}
         {form.proxyConnection && (
           <div className={"input-url"}>
-            <Checkbox
-              value={"awsAuthEnabled"}
-              checked={form.awsAuthEnabled}
-              onChange={e => {
-                onFormChange("awsAuthEnabled")(e.target.checked);
-              }}
-              label={"AWS IAM Auth Enabled"}
-            />
+            <Label className="cursor-pointer">
+              <Checkbox
+                value={"awsAuthEnabled"}
+                checked={form.awsAuthEnabled}
+                onCheckedChange={checked => {
+                  onFormChange("awsAuthEnabled")(checked);
+                }}
+              />
+              AWS IAM Auth Enabled
+            </Label>
           </div>
         )}
         {form.proxyConnection && form.awsAuthEnabled && (
@@ -337,27 +341,22 @@ const CreateConnection = ({
         )}
       </div>
       <div className={"configuration-form"}>
-        <Checkbox
-          value={"fetchTimeoutEnabled"}
-          checked={form.fetchTimeoutEnabled}
-          onChange={e => {
-            onFormChange("fetchTimeoutEnabled")(e.target.checked);
-          }}
-          styles={{
-            label: {
-              display: "block",
-            },
-          }}
-          label={
-            <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
-              Enable Fetch Timeout
-              <InfoTooltip>
-                Large datasets may require a large amount of time to fetch. If
-                the timeout is exceeded, the request will be cancelled.
-              </InfoTooltip>
-            </div>
-          }
-        />
+        <Label className="cursor-pointer">
+          <Checkbox
+            value={"fetchTimeoutEnabled"}
+            checked={form.fetchTimeoutEnabled}
+            onCheckedChange={checked => {
+              onFormChange("fetchTimeoutEnabled")(checked);
+            }}
+          />
+          <div className="flex items-center gap-2">
+            Enable Fetch Timeout
+            <InfoTooltip>
+              Large datasets may require a large amount of time to fetch. If the
+              timeout is exceeded, the request will be cancelled.
+            </InfoTooltip>
+          </div>
+        </Label>
         {form.fetchTimeoutEnabled && (
           <div className={"input-url"}>
             <Input
@@ -371,27 +370,22 @@ const CreateConnection = ({
         )}
       </div>
       <div className={"configuration-form"}>
-        <Checkbox
-          value={"nodeExpansionLimitEnabled"}
-          checked={form.nodeExpansionLimitEnabled}
-          onChange={e => {
-            onFormChange("nodeExpansionLimitEnabled")(e.target.checked);
-          }}
-          styles={{
-            label: {
-              display: "block",
-            },
-          }}
-          label={
-            <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
-              Enable Node Expansion Limit
-              <InfoTooltip>
-                Large datasets may require a default limit to the amount of
-                neighbors that are returned during any single expansion.
-              </InfoTooltip>
-            </div>
-          }
-        />
+        <Label className="cursor-pointer">
+          <Checkbox
+            value={"nodeExpansionLimitEnabled"}
+            checked={form.nodeExpansionLimitEnabled}
+            onCheckedChange={checked => {
+              onFormChange("nodeExpansionLimitEnabled")(checked);
+            }}
+          />
+          <div className="flex items-center gap-2">
+            Enable Node Expansion Limit
+            <InfoTooltip>
+              Large datasets may require a default limit to the amount of
+              neighbors that are returned during any single expansion.
+            </InfoTooltip>
+          </div>
+        </Label>
         {form.nodeExpansionLimitEnabled && (
           <div className={"input-url"}>
             <Input

@@ -6,7 +6,6 @@ import {
 } from "@/core";
 import {
   Button,
-  Checkbox,
   PageHeading,
   SectionTitle,
   Paragraph,
@@ -14,6 +13,7 @@ import {
   ImportantBlock,
   NotInProduction,
 } from "@/components";
+import { Checkbox, Label } from "@/components/radix";
 import { SettingsSection, SettingsSectionContainer } from "./SettingsSection";
 import { saveLocalForageToFile } from "@/core/StateProvider/localDb";
 import localforage from "localforage";
@@ -47,15 +47,16 @@ export default function SettingsGeneral() {
             However, the node & edge labels, ID values, and any value filters
             will be present in the queries.
           </ImportantBlock>
-          <Checkbox
-            value="isLoggingDbQueryEnabled"
-            isSelected={allowLoggingDbQuery}
-            onChange={isSelected => {
-              setAllowLoggingDbQuery(isSelected);
-            }}
-          >
+          <Label>
+            <Checkbox
+              value="isLoggingDbQueryEnabled"
+              checked={allowLoggingDbQuery}
+              onCheckedChange={isSelected => {
+                setAllowLoggingDbQuery(Boolean(isSelected));
+              }}
+            />
             Enable database query logging on proxy server
-          </Checkbox>
+          </Label>
         </SettingsSection>
 
         <SettingsSection className="items-start">
@@ -94,25 +95,27 @@ export default function SettingsGeneral() {
                 full time, so we recommend leaving these disabled.
               </Paragraph>
             </div>
-            <div>
-              <Checkbox
-                value="isStateLoggingEnabled"
-                isSelected={isStateLoggingEnabled}
-                onChange={isSelected => {
-                  setIsStateLoggingEnabled(isSelected);
-                }}
-              >
+            <div className="flex flex-col gap-4">
+              <Label>
+                <Checkbox
+                  value="isStateLoggingEnabled"
+                  checked={isStateLoggingEnabled}
+                  onCheckedChange={isSelected => {
+                    setIsStateLoggingEnabled(Boolean(isSelected));
+                  }}
+                />
                 Enable Recoil state logging
-              </Checkbox>
-              <Checkbox
-                value="isDebugOptionsEnabled"
-                isSelected={isDebugOptionsEnabled}
-                onChange={isSelected => {
-                  setIsDebugOptionsEnabled(isSelected);
-                }}
-              >
+              </Label>
+              <Label>
+                <Checkbox
+                  value="isDebugOptionsEnabled"
+                  checked={isDebugOptionsEnabled}
+                  onCheckedChange={isSelected => {
+                    setIsDebugOptionsEnabled(Boolean(isSelected));
+                  }}
+                />
                 Show debug actions
-              </Checkbox>
+              </Label>
             </div>
           </SettingsSection>
         </NotInProduction>

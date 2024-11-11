@@ -23,7 +23,6 @@ import {
 } from "./controls";
 import type { TabularInstance } from "./helpers/tableInstanceToTabularInstance";
 import tableInstanceToTabularInstance from "./helpers/tableInstanceToTabularInstance";
-import { TABULAR_SELECTION_COL_ID } from "./hooks/useSelectionColumn";
 import defaultStyles from "./Tabular.styles";
 import TabularControlsProvider, {
   useTabularControl,
@@ -145,14 +144,8 @@ const TabularContent = <T extends object>({
   const [stickyHeaderTop, setStickyHeaderTop] = useState(0);
   const styleWithTheme = useWithTheme();
 
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    rows,
-    page,
-    setHiddenColumns,
-  } = tableInstance;
+  const { getTableProps, getTableBodyProps, headerGroups, rows, page } =
+    tableInstance;
 
   const actualRows = useDeepMemo(() => {
     if (disablePagination) {
@@ -193,21 +186,6 @@ const TabularContent = <T extends object>({
     setStickyHeaderTop(height);
     // headerControlsChildren can affect to the container's height
   }, [headerControlsRef, headerControlsChildren, headerControlsPosition]);
-
-  useEffect(() => {
-    if (rowSelectionMode !== "checkbox") {
-      setHiddenColumns(hiddenColumns => [
-        TABULAR_SELECTION_COL_ID,
-        ...hiddenColumns,
-      ]);
-
-      return;
-    }
-
-    setHiddenColumns(hiddenColumns =>
-      hiddenColumns.filter(col => col !== TABULAR_SELECTION_COL_ID)
-    );
-  }, [setHiddenColumns, rowSelectionMode]);
 
   return (
     <div
