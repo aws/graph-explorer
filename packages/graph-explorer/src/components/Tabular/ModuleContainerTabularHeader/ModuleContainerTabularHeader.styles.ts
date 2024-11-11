@@ -10,8 +10,8 @@ const defaultStyles: ThemeStyleFn = ({ theme }) => {
       display: flex;
       align-items: center;
       width: 100%;
-      height: 42px;
-      min-height: 42px;
+      height: 48px;
+      min-height: 48px;
       padding: 0 ${theme.spacing["3x"]};
       border-bottom: solid 1px ${palette.divider};
       background-color: ${palette.background.default};
