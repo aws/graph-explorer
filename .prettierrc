@@ -11,5 +11,6 @@
   "singleQuote": false,
   "bracketSpacing": true,
   "printWidth": 80,
-  "plugins": ["prettier-plugin-tailwindcss"]
+  "plugins": ["prettier-plugin-tailwindcss"],
+  "tailwindFunctions": ["cva", "cn"]
 }
