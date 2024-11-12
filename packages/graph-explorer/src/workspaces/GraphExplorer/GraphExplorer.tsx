@@ -26,7 +26,10 @@ import { useConfiguration, useWithTheme } from "@/core";
 import { edgesSelectedIdsAtom } from "@/core/StateProvider/edges";
 import { nodesSelectedIdsAtom } from "@/core/StateProvider/nodes";
 import { totalFilteredCount } from "@/core/StateProvider/filterCount";
-import { userLayoutAtom } from "@/core/StateProvider/userPreferences";
+import {
+  SidebarItems,
+  userLayoutAtom,
+} from "@/core/StateProvider/userPreferences";
 import { usePrevious } from "@/hooks";
 import useTranslations from "@/hooks/useTranslations";
 import EdgesStyling from "@/modules/EdgesStyling/EdgesStyling";
@@ -73,7 +76,7 @@ const GraphExplorer = () => {
   }, [setUserLayout]);
 
   const toggleSidebar = useCallback(
-    (item: string) => () => {
+    (item: SidebarItems) => () => {
       setUserLayout(prev => {
         if (prev.activeSidebarItem === item) {
           return {

@@ -16,7 +16,10 @@ import {
 import { useWithTheme } from "@/core";
 import { edgesSelectedIdsAtom, toEdgeMap } from "@/core/StateProvider/edges";
 import { nodesSelectedIdsAtom, toNodeMap } from "@/core/StateProvider/nodes";
-import { userLayoutAtom } from "@/core/StateProvider/userPreferences";
+import {
+  SidebarItems,
+  userLayoutAtom,
+} from "@/core/StateProvider/userPreferences";
 import { useDisplayNames, useEntities, useTranslations } from "@/hooks";
 import useGraphGlobalActions from "../useGraphGlobalActions";
 import defaultStyles from "./ContextMenu.styles";
@@ -63,7 +66,10 @@ const ContextMenu = ({
     nodesSelectedIds.size >= 1 || edgesSelectedIds.size >= 1;
 
   const openSidebarPanel = useCallback(
-    (panelName: string, props?: { nodeType?: string; edgeType?: string }) =>
+    (
+      panelName: SidebarItems,
+      props?: { nodeType?: string; edgeType?: string }
+    ) =>
       () => {
         setUserLayout(prev => ({
           ...prev,

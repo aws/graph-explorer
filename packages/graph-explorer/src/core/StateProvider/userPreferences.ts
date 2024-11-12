@@ -98,7 +98,15 @@ export type UserStyling = {
 export type UserPreferences = {
   layout: {
     activeToggles: Set<string>;
-    activeSidebarItem: string | null;
+    activeSidebarItem:
+      | "search"
+      | "details"
+      | "filters"
+      | "expand"
+      | "nodes-styling"
+      | "edges-styling"
+      | "namespaces"
+      | null;
     tableView?: {
       height: number;
     };
@@ -106,6 +114,7 @@ export type UserPreferences = {
   };
   styling: UserStyling;
 };
+export type SidebarItems = UserPreferences["layout"]["activeSidebarItem"];
 
 export const userStylingAtom = atom<UserStyling>({
   key: "user-styling",
