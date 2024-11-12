@@ -201,7 +201,7 @@ function ConfigRow({
       className="bg-background-secondary hover:ring-primary-dark has-[:checked]:ring-primary-dark flex items-center gap-4 rounded-lg px-3 py-1.5 ring-1 ring-transparent transition-shadow duration-200 hover:cursor-pointer hover:ring-1"
       onClick={() => !isDisabled && makeSelected()}
     >
-      <DatabaseIcon className="text-primary-main size-6" />
+      <DatabaseIcon className="text-primary-main size-6 shrink-0" />
       <div className="grow">
         <div className="text-text-primary font-bold">
           {config.displayLabel || config.id}

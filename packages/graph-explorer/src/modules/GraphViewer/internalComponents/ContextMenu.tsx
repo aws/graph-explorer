@@ -24,6 +24,7 @@ import { useDisplayNames, useEntities, useTranslations } from "@/hooks";
 import useGraphGlobalActions from "../useGraphGlobalActions";
 import defaultStyles from "./ContextMenu.styles";
 import { EdgeId, VertexId } from "@/@types/entities";
+import { MinusCircleIcon } from "lucide-react";
 
 export type ContextMenuProps = {
   className?: string;
@@ -213,7 +214,7 @@ const ContextMenu = ({
             onClick={openSidebarPanel("details")}
             startAdornment={<DetailsIcon />}
           >
-            Details Panel
+            Details panel
           </ListItem>
           <ListItem
             className={"context-menu-list-item"}
@@ -221,7 +222,7 @@ const ContextMenu = ({
             onClick={openSidebarPanel("expand")}
             startAdornment={<ExpandGraphIcon />}
           >
-            Expand Panel
+            Expand panel
           </ListItem>
           <ListItem
             className={"context-menu-list-item"}
@@ -231,16 +232,16 @@ const ContextMenu = ({
             })}
             startAdornment={<StylingIcon />}
           >
-            Customize Panel
+            Customize panel
           </ListItem>
           <div className={"divider"} />
           <ListItem
             className={"context-menu-list-item"}
             clickable={true}
             onClick={handleRemoveFromCanvas([affectedNode.id], [])}
-            startAdornment={<RemoveFromCanvasIcon color={"red"} />}
+            startAdornment={<MinusCircleIcon className="size-5" />}
           >
-            Remove {t("graph-viewer.node")} from canvas
+            Remove {t("graph-viewer.node").toLowerCase()} from view
           </ListItem>
         </Card>
       </div>
