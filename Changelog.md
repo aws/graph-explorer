@@ -2,6 +2,8 @@
 
 ## Upcoming
 
+- **Improved** search discoverability and ergonomics by moving the UI in to the
+  sidebar [#665](https://github.com/aws/graph-explorer/pull/665)
 - **Improved** UI responsiveness by using map instead of array for large data
   sets [#658](https://github.com/aws/graph-explorer/pull/658)
 - **Improved** connection selection can now happen on any part of the connection

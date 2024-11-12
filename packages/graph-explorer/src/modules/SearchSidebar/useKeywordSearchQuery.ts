@@ -11,7 +11,6 @@ export type SearchQueryRequest = {
   vertexTypes?: string[];
   searchByAttributes: string[];
   exactMatch: boolean;
-  isOpen: boolean;
 };
 
 export function useKeywordSearchQuery({
@@ -19,23 +18,18 @@ export function useKeywordSearchQuery({
   vertexTypes,
   searchByAttributes,
   exactMatch,
-  isOpen,
 }: SearchQueryRequest) {
   const explorer = useRecoilValue(explorerSelector);
   const updatePrefixes = usePrefixesUpdater();
 
-  const request: KeywordSearchRequest | null = isOpen
-    ? {
-        searchTerm: debouncedSearchTerm,
-        vertexTypes,
-        limit: 10,
-        // Only set these when there is a search term to reduce queries
-        searchByAttributes: debouncedSearchTerm
-          ? searchByAttributes
-          : undefined,
-        exactMatch: debouncedSearchTerm ? exactMatch : undefined,
-      }
-    : null;
+  const request: KeywordSearchRequest = {
+    searchTerm: debouncedSearchTerm,
+    vertexTypes,
+    limit: 10,
+    // Only set these when there is a search term to reduce queries
+    searchByAttributes: debouncedSearchTerm ? searchByAttributes : undefined,
+    exactMatch: debouncedSearchTerm ? exactMatch : undefined,
+  };
   const query = useQuery(searchQuery(request, explorer));
 
   // Sync sparql prefixes

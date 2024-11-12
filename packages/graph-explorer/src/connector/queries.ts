@@ -17,12 +17,12 @@ import { VertexId } from "@/@types/entities";
  * @returns A list of nodes that match the search parameters.
  */
 export function searchQuery(
-  request: KeywordSearchRequest | null,
+  request: KeywordSearchRequest,
   explorer: Explorer | null
 ) {
   return queryOptions({
     queryKey: ["keyword-search", request, explorer],
-    enabled: Boolean(explorer) && Boolean(request),
+    enabled: Boolean(explorer),
     queryFn: async ({ signal }): Promise<KeywordSearchResponse | null> => {
       if (!explorer || !request) {
         return { vertices: [], edges: [], scalars: [] };

@@ -1,7 +1,6 @@
 import { cn } from "@/utils";
 import groupBy from "lodash/groupBy";
 import type {
-  DragEvent,
   ForwardedRef,
   MouseEvent,
   PropsWithChildren,
@@ -30,7 +29,6 @@ type ElementsListWithGroupsProps<T extends object> = {
   items: AdvancedListItemType<T>[];
 
   selectedItemsIds?: string[];
-  draggable?: boolean;
   search?: string;
   category?: string;
   onItemClick?: (
@@ -50,11 +48,6 @@ type ElementsListWithGroupsProps<T extends object> = {
   ) => void;
   onItemMouseEnter?: AdvancedListMouseEvent;
   onItemMouseLeave?: AdvancedListMouseEvent;
-  onDragStart?: (
-    item: AdvancedListItemType<T>,
-    group: AdvancedListItemType<T> | undefined,
-    event: DragEvent<unknown>
-  ) => void;
   emptyState?: {
     noSearchResultsTitle?: string;
     noSearchResultsSubtitle?: string;
@@ -63,7 +56,6 @@ type ElementsListWithGroupsProps<T extends object> = {
     noElementsSubtitle?: string;
     noElementsIcon?: string;
   };
-  defaultItemType?: string;
   hideFooter?: boolean;
   hideCount?: boolean;
   renderPopover?: (
@@ -80,7 +72,6 @@ const AdvancedListWithGroups = <T extends object>(
 
     search,
     category = "all",
-    draggable,
     onItemClick,
     onItemMouseOver,
     onItemMouseOut,
@@ -88,8 +79,6 @@ const AdvancedListWithGroups = <T extends object>(
     onItemMouseLeave,
     selectedItemsIds,
     emptyState,
-    onDragStart,
-    defaultItemType,
     hideFooter,
     hideCount,
     renderPopover,
@@ -283,14 +272,11 @@ const AdvancedListWithGroups = <T extends object>(
                 onMouseEnter={event => onItemMouseEnter?.(event, index)}
                 onMouseLeave={event => onItemMouseLeave?.(event, index)}
                 group={group}
-                draggable={draggable}
                 isSelected={
                   !!innerItem.id && selectedItemsIds?.includes(innerItem.id)
                 }
                 isActive={activeItemIds?.includes(innerItem.id)}
                 key={innerItem.id}
-                onDragStart={onDragStart}
-                defaultItemType={defaultItemType}
                 renderPopover={renderPopover}
                 hidePopover={hidePopover}
                 overrideTitle={innerItem.titleComponent}

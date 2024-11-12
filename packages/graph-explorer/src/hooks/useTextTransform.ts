@@ -1,13 +1,14 @@
-import { useCallback } from "react";
-import { useConfiguration } from "@/core";
 import { sanitizeText } from "@/utils";
 import replacePrefixes from "@/utils/replacePrefixes";
+import { selector, useRecoilValue } from "recoil";
+import { assembledConfigSelector } from "@/core/ConfigurationProvider/useConfiguration";
 
-const useTextTransform = () => {
-  const config = useConfiguration();
+export const textTransformSelector = selector({
+  key: "textTransform",
+  get: ({ get }) => {
+    const config = get(assembledConfigSelector);
 
-  return useCallback(
-    (text?: string): string => {
+    return (text?: string): string => {
       if (!text) {
         return "";
       }
@@ -17,9 +18,12 @@ const useTextTransform = () => {
       }
 
       return sanitizeText(text);
-    },
-    [config]
-  );
+    };
+  },
+});
+
+const useTextTransform = () => {
+  return useRecoilValue(textTransformSelector);
 };
 
 export default useTextTransform;

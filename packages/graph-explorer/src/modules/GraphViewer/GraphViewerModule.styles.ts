@@ -45,26 +45,6 @@ const defaultStyles: ThemeStyleFn = ({ theme }) => css`
       }
     }
 
-    .drop-overlay {
-      position: absolute;
-      height: 100%;
-      width: 100%;
-      top: 0;
-      left: 0;
-      z-index: ${theme.zIndex.panes};
-      pointer-events: none;
-      transition: background-color 250ms ease;
-      border-radius: ${theme.shape.borderRadius};
-    }
-
-    .drop-overlay-is-over {
-      background-color: ${fade(theme.palette.primary.main, 0.3)};
-    }
-
-    .drop-overlay-can-drop {
-      background-color: ${fade(theme.palette.secondary.main, 0.3)};
-    }
-
     .expanding-overlay {
       display: none;
       color: ${theme.palette.text.primary};

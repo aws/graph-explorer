@@ -2,15 +2,13 @@ import { fade, VertexTypeConfig } from "@/core";
 import RemoteSvgIcon from "./RemoteSvgIcon";
 import { cn } from "@/utils";
 
-const VertexIcon = ({
-  iconUrl,
-  iconImageType,
-  className,
-}: {
+interface Props {
   iconUrl?: string;
   iconImageType?: string;
   className?: string;
-}) => {
+}
+
+function VertexIcon({ iconUrl, iconImageType, className }: Props) {
   if (!iconUrl) {
     return null;
   }
@@ -20,7 +18,7 @@ const VertexIcon = ({
   }
 
   return <img src={iconUrl} className={cn("size-6", className)} />;
-};
+}
 
 export function VertexSymbol({
   vtConfig,

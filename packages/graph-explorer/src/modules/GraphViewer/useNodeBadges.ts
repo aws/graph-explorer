@@ -3,8 +3,7 @@ import { useRecoilValue } from "recoil";
 import { BadgeRenderer } from "@/components/Graph/hooks/useRenderBadges";
 import { useConfiguration } from "@/core";
 import { nodesAtom } from "@/core/StateProvider/nodes";
-import useDisplayNames from "@/hooks/useDisplayNames";
-import useTextTransform from "@/hooks/useTextTransform";
+import { useTextTransform, useDisplayNames } from "@/hooks";
 import { VertexId } from "@/@types/entities";
 
 const useNodeBadges = () => {

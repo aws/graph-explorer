@@ -40,7 +40,7 @@ import {
   VertexPreferences,
 } from "@/core/StateProvider/userPreferences";
 import { useEntities } from "@/hooks";
-import useFetchNode from "@/hooks/useFetchNode";
+import { useAddToGraph } from "@/hooks/useAddToGraph";
 import usePrefixesUpdater from "@/hooks/usePrefixesUpdater";
 import useTextTransform from "@/hooks/useTextTransform";
 import useTranslations from "@/hooks/useTranslations";
@@ -259,7 +259,7 @@ function DisplayNameAndDescriptionOptions({
 }
 
 function AddToExplorerButton({ vertex }: { vertex: Vertex }) {
-  const fetchNode = useFetchNode();
+  const addToGraph = useAddToGraph(vertex);
   const [entities] = useEntities({ disableFilters: true });
   const isInExplorer = entities.nodes.has(vertex.id);
 
@@ -271,9 +271,7 @@ function AddToExplorerButton({ vertex }: { vertex: Vertex }) {
         variant={"default"}
         size={"small"}
         iconPlacement={"start"}
-        onPress={() => {
-          fetchNode(vertex);
-        }}
+        onPress={addToGraph}
       >
         {isInExplorer ? "Sent to Explorer" : "Send to Explorer"}
       </Button>

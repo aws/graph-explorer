@@ -32,7 +32,6 @@ export type AdvancedListItemType<T extends object> = {
   items?: AdvancedListItemType<T>[];
   properties?: T;
   titleComponent?: ReactNode;
-  defaultItemType?: string;
   className?: string;
   wrapperElement?: ComponentType<PropsWithChildren<Record<string, unknown>>>;
 };
@@ -46,7 +45,6 @@ export type AdvancedListProps<T extends object> = {
   items: AdvancedListItemType<T>[];
   className?: string;
   selectedItemsIds?: string[];
-  draggable?: boolean;
   search?: string;
   searchPlaceholder?: string;
   isLoading?: boolean;
@@ -78,7 +76,6 @@ export type AdvancedListProps<T extends object> = {
     noElementsSubtitle?: ReactNode;
     noElementsIcon?: ReactNode;
   };
-  defaultItemType?: string;
   hideFooter?: boolean;
   hideCount?: boolean;
   hideEmptyState?: boolean;
@@ -109,7 +106,6 @@ const AdvancedList = <T extends object>(
     searchPlaceholder,
     onCategoryChange,
     category = "all",
-    draggable = false,
     onItemClick,
     onItemMouseOver,
     onItemMouseOut,
@@ -117,7 +113,6 @@ const AdvancedList = <T extends object>(
     onItemMouseLeave,
     selectedItemsIds,
     isLoading,
-    defaultItemType,
     hideFooter,
     hideCount,
     hideEmptyState,
@@ -230,14 +225,12 @@ const AdvancedList = <T extends object>(
                 items={items}
                 search={debouncedSearch}
                 category={category}
-                draggable={draggable}
                 selectedItemsIds={selectedItemsIds}
                 onItemClick={onItemClick}
                 onItemMouseOver={onItemMouseOver}
                 onItemMouseOut={onItemMouseOut}
                 onItemMouseEnter={onItemMouseEnter}
                 onItemMouseLeave={onItemMouseLeave}
-                defaultItemType={defaultItemType}
                 hideFooter={hideFooter}
                 hideCount={hideCount}
                 renderPopover={renderPopover}
@@ -277,13 +270,11 @@ const AdvancedList = <T extends object>(
                             onMouseLeave={event =>
                               onItemMouseLeave?.(event, index)
                             }
-                            draggable={draggable}
                             isSelected={
                               !!item.id && selectedItemsIds?.includes(item.id)
                             }
                             key={item.id}
                             overrideTitle={item.titleComponent}
-                            defaultItemType={defaultItemType}
                             renderPopover={renderPopover}
                             hidePopover={hidePopover}
                           />
@@ -305,13 +296,11 @@ const AdvancedList = <T extends object>(
                             ? (event, item) => onItemClick?.(event, item, index)
                             : undefined
                         }
-                        draggable={draggable}
                         isSelected={
                           !!item.id && selectedItemsIds?.includes(item.id)
                         }
                         key={item.id}
                         overrideTitle={item.titleComponent}
-                        defaultItemType={defaultItemType}
                         renderPopover={renderPopover}
                         hidePopover={hidePopover}
                       />

@@ -48,7 +48,7 @@ const PanelEmptyState = ({
       )}
     >
       {icon && (
-        <div className="mb-4">
+        <div className="mb-6">
           <div
             className={cn(
               "flex size-24 items-center justify-center rounded-full text-7xl text-white [&>svg]:size-[60%]",
@@ -62,10 +62,10 @@ const PanelEmptyState = ({
       <div className="flex flex-col items-center justify-center gap-4">
         <div className="flex flex-col items-center justify-center gap-1 text-center">
           {title && (
-            <h1 className="text-text-primary font-base text-base">{title}</h1>
+            <h1 className="text-text-primary text-lg font-bold">{title}</h1>
           )}
           {subtitle && (
-            <h2 className="text-text-secondary text-sm font-light">
+            <h2 className="text-text-secondary font-base text-base">
               {subtitle}
             </h2>
           )}

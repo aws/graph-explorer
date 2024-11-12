@@ -144,7 +144,7 @@ const ModuleContainerHeader = (
       id={id}
       ref={ref}
       className={cn(
-        "bg-background-default text-text-primary flex min-h-[3rem] w-full items-center gap-1 border-b px-3 py-1",
+        "bg-background-default text-text-primary flex min-h-[48px] w-full shrink-0 items-center gap-1 border-b px-3 py-1",
         className
       )}
     >
@@ -163,8 +163,8 @@ const ModuleContainerHeader = (
         <div className="mr-2 flex items-center">{startAdornment}</div>
       )}
       <div>
-        <div className="line-clamp-1 font-bold">{title}</div>
-        <div className="line-clamp-1 text-xs">{subtitle}</div>
+        <div className="font-bold">{title}</div>
+        <div className="text-xs">{subtitle}</div>
       </div>
       <div className="grow">{nonActionsChildren}</div>
       {actionsChildren}

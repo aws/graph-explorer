@@ -15,6 +15,12 @@ import {
   nodesSelectedIdsAtom,
   nodesTypesFilteredAtom,
 } from "./nodes";
+import {
+  partialMatchAtom,
+  searchTermAtom,
+  selectedAttributeAtom,
+  selectedVertexTypeAtom,
+} from "@/modules/SearchSidebar/useKeywordSearch";
 
 export default function useResetState() {
   return useRecoilCallback(
@@ -32,6 +38,10 @@ export default function useResetState() {
         reset(edgesOutOfFocusIdsAtom);
         reset(edgesFilteredIdsAtom);
         reset(edgesTypesFilteredAtom);
+        reset(searchTermAtom);
+        reset(selectedVertexTypeAtom);
+        reset(selectedAttributeAtom);
+        reset(partialMatchAtom);
       },
     []
   );

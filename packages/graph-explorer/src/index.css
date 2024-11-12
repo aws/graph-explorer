@@ -17,6 +17,9 @@
     --color-gray-800: 66 66 66;
     --color-gray-900: 33 33 33;
 
+    --color-input-background: var(--color-gray-100);
+    --color-input-hover: var(--color-gray-200);
+
     --color-text-primary: 33 33 33;
     --color-text-secondary: 102 102 102;
     --color-text-disabled: 158 158 158;
@@ -58,8 +61,8 @@
     --color-warning-main: 250 133 0;
     --color-warning-dark: 228 96 0;
 
-    --color-divider: var(--color-gray-200);
-    --color-border: var(--color-gray-200);
+    --color-divider: var(--color-gray-300);
+    --color-border: var(--color-gray-300);
 
     /* Allow animating intrinsic values like height */
     interpolate-size: allow-keywords;
@@ -69,8 +72,11 @@
     --color-white: 240 240 240;
     --color-black: 15 15 15;
 
+    --color-input-background: var(--color-gray-900);
+    --color-input-hover: var(--color-gray-800);
+
     --color-text-primary: var(--color-white);
-    --color-text-secondary: 38 38 38;
+    --color-text-secondary: 224 224 224;
     --color-text-disabled: 160 160 160;
 
     --color-background-default: 16 16 16;
@@ -96,6 +102,10 @@
   body {
     @apply bg-background-default text-text-primary font-sans;
   }
+}
+
+.lucide {
+  stroke-width: 2px;
 }
 
 @layer utilities {
