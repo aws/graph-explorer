@@ -1,5 +1,5 @@
 import { Vertex } from "@/@types/entities";
-import { Button, VertexSymbol } from "@/components";
+import { Button, Tooltip, VertexSymbol } from "@/components";
 import { useVertexTypeConfig } from "@/core/ConfigurationProvider/useConfiguration";
 import {
   useAddToGraph,
@@ -9,7 +9,11 @@ import {
   useTextTransform,
 } from "@/hooks";
 import { cn } from "@/utils";
-import { ChevronRightIcon, PlusCircleIcon, Trash2Icon } from "lucide-react";
+import {
+  ChevronRightIcon,
+  MinusCircleIcon,
+  PlusCircleIcon,
+} from "lucide-react";
 import { useState } from "react";
 
 export function NodeSearchResult({ node }: { node: Vertex }) {
@@ -51,27 +55,30 @@ export function NodeSearchResult({ node }: { node: Vertex }) {
             </div>
           </div>
         </div>
-        <div className="flex size-8 shrink-0 items-center justify-center">
-          {hasBeenAdded ? (
-            <Button
-              icon={<Trash2Icon />}
-              variant="text"
-              className="text-warning-dark hover:text-warning-main"
-              onPress={removeFromGraph}
-            >
-              <span className="sr-only">Remove</span>
-            </Button>
-          ) : (
-            <Button
-              icon={<PlusCircleIcon />}
-              variant="text"
-              className="text-primary-dark hover:text-primary-main"
-              onPress={addToGraph}
-            >
-              <span className="sr-only">Add to Graph</span>
-            </Button>
-          )}
-        </div>
+        <Tooltip
+          text={hasBeenAdded ? "Remove from graph" : "Add to graph"}
+          delayEnter={200}
+        >
+          <div className="flex size-8 shrink-0 items-center justify-center">
+            {hasBeenAdded ? (
+              <Button
+                icon={<MinusCircleIcon />}
+                variant="text"
+                onPress={removeFromGraph}
+              >
+                <span className="sr-only">Remove from graph</span>
+              </Button>
+            ) : (
+              <Button
+                icon={<PlusCircleIcon />}
+                variant="text"
+                onPress={addToGraph}
+              >
+                <span className="sr-only">Add to Graph</span>
+              </Button>
+            )}
+          </div>
+        </Tooltip>
       </div>
       <div className="border-background-secondary px-8 transition-all group-data-[expanded=false]:h-0 group-data-[expanded=true]:h-auto group-data-[expanded=true]:border-t">
         <ul>

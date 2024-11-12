@@ -195,6 +195,7 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
             actionLabel="Start synchronization"
             onAction={onConfigSync}
             actionVariant="text"
+            className="p-6"
           />
         )}
         {isSync && (
@@ -203,6 +204,7 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
             icon={<SyncIcon className="animate-spin" />}
             title="Synchronizing..."
             subtitle="The connection is being synchronized."
+            className="p-6"
           />
         )}
         <Modal
