@@ -44,6 +44,8 @@ including any Neptune Notebook instances you have.
   row [#657](https://github.com/aws/graph-explorer/pull/657)
 - **Improved** style for the sidebar buttons
   [#651](https://github.com/aws/graph-explorer/pull/651)
+- **Improved** styles in the context menu to be easier to read
+  ([#670](https://github.com/aws/graph-explorer/pull/670))
 - **Improved** Docker image size, reducing it by 196 MB
   ([#619](https://github.com/aws/graph-explorer/pull/619))
 - **Improved** query when searching across all node types
@@ -63,7 +65,8 @@ including any Neptune Notebook instances you have.
   remaining in the image
   ([#616](https://github.com/aws/graph-explorer/pull/616))
 - **Fixed** minor layout issue on connections screen
-  ([#648](https://github.com/aws/graph-explorer/pull/648))
+  ([#648](https://github.com/aws/graph-explorer/pull/648),
+  [#670](https://github.com/aws/graph-explorer/pull/670))
 - **Updated** multiple dependencies
   ([#611](https://github.com/aws/graph-explorer/pull/611),
   [#614](https://github.com/aws/graph-explorer/pull/614),
