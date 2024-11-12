@@ -204,7 +204,7 @@ export const userLayoutAtom = atom<UserPreferences["layout"]>({
   key: "user-layout",
   default: {
     activeToggles: new Set(["graph-viewer", "table-view"]),
-    activeSidebarItem: null,
+    activeSidebarItem: "search",
     detailsAutoOpenOnSelection: true,
     tableView: {
       height: 300,
