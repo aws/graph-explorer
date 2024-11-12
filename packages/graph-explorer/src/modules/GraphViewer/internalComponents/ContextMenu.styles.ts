@@ -15,7 +15,7 @@ const defaultStyles: ThemeStyleFn = ({ theme }) => css`
 
     .title {
       font-weight: ${theme.typography.weight?.bold};
-      font-size: ${theme.typography.sizes.xs};
+      font-size: ${theme.typography.sizes.base};
       padding: ${theme.spacing.base} ${theme.spacing["4x"]};
     }
 
@@ -26,21 +26,21 @@ const defaultStyles: ThemeStyleFn = ({ theme }) => css`
         }
         background: ${fade(theme.palette.primary.main, 0.3)};
       }
-      font-size: ${theme.typography.sizes.xs};
+      font-size: ${theme.typography.sizes.base};
 
       .content {
         min-height: 28px;
-        height: 28px;
+        height: 32px;
         padding-right: ${theme.spacing["2x"]};
       }
 
       .list-item-chip {
-        font-size: ${theme.typography.sizes.xs};
+        font-size: ${theme.typography.sizes.base};
         height: 16px;
       }
 
       .start-adornment {
-        font-size: ${theme.typography.sizes.base};
+        font-size: ${theme.typography.sizes.xl};
         color: ${theme.palette.text.disabled};
         margin: 0;
       }
