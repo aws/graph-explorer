@@ -56,7 +56,7 @@ export function NodeSearchResult({ node }: { node: Vertex }) {
           </div>
         </div>
         <Tooltip
-          text={hasBeenAdded ? "Remove from view" : "Add to view"}
+          text={hasBeenAdded ? "Remove node from view" : "Add node to view"}
           delayEnter={200}
         >
           <div className="flex size-8 shrink-0 items-center justify-center">
@@ -66,7 +66,7 @@ export function NodeSearchResult({ node }: { node: Vertex }) {
                 variant="text"
                 onPress={removeFromGraph}
               >
-                <span className="sr-only">Remove from view</span>
+                <span className="sr-only">Remove node from view</span>
               </Button>
             ) : (
               <Button
@@ -74,7 +74,7 @@ export function NodeSearchResult({ node }: { node: Vertex }) {
                 variant="text"
                 onPress={addToGraph}
               >
-                <span className="sr-only">Add to view</span>
+                <span className="sr-only">Add node to view</span>
               </Button>
             )}
           </div>
