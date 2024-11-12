@@ -241,7 +241,7 @@ const ContextMenu = ({
             onClick={handleRemoveFromCanvas([affectedNode.id], [])}
             startAdornment={<MinusCircleIcon className="size-5" />}
           >
-            Remove {t("graph-viewer.node").toLowerCase()} from canvas
+            Remove {t("graph-viewer.node").toLowerCase()} from view
           </ListItem>
         </Card>
       </div>
