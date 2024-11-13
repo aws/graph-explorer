@@ -1,7 +1,7 @@
 import { css } from "@emotion/css";
 import { ReactNode } from "react";
 
-import IconButton from "@/components/IconButton";
+import { IconButton } from "@/components";
 import type { CellComponentProps } from "../useTabular";
 
 type IconActionCellProps<T extends object> = {

@@ -19,7 +19,7 @@ import Card from "@/components/Card";
 import Graph from "@/components/Graph";
 import { GraphRef } from "@/components/Graph/Graph";
 import { ElementEventCallback } from "@/components/Graph/hooks/useAddClickEvents";
-import IconButton from "@/components/IconButton";
+import { IconButton } from "@/components";
 import CloseIcon from "@/components/icons/CloseIcon";
 import InfoIcon from "@/components/icons/InfoIcon";
 import ScreenshotIcon from "@/components/icons/ScreenshotIcon";

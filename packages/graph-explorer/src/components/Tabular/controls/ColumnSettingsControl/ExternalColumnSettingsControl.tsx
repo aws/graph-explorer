@@ -5,7 +5,7 @@ import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
 import { useLayer } from "react-laag";
 import Button from "@/components/Button";
 import Card from "@/components/Card";
-import IconButton from "@/components/IconButton";
+import { IconButton } from "@/components";
 import { ManageColumnsIcon } from "@/components/icons";
 import type { TabularInstance } from "@/components/Tabular/helpers/tableInstanceToTabularInstance";
 import { useTabularControl } from "@/components/Tabular/TabularControlsProvider";

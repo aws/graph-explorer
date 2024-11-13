@@ -27,7 +27,6 @@ export { default as Divider } from "./Divider";
 export { default as Graph } from "./Graph";
 export * from "./Graph";
 
-export { default as IconButton } from "./IconButton";
 export * from "./IconButton";
 
 export * from "./icons";

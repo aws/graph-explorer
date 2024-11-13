@@ -2,48 +2,40 @@
 
 ## Upcoming
 
+- **Improved** styling on icon buttons
+  ([#675](https://github.com/aws/graph-explorer/pull/675))
+
 ## Release 1.11.0
 
-### What's New
+This release includes a big change to search, improvements to the Docker image
+size and security, and as always, there are many additional small fixes and
+improvements.
 
-This release includes a big change to search and substantial improvements to the
-Docker image. As always, there are many additional small fixes and improvements
-that round out this release.
-
-#### Search Sidebar
+### Search Sidebar
 
 With this release, we've moved search out of the top navigation bar and in to
-the sidebar. This means for new users when they first open Graph Explorer
-they'll be presented with a set of search results that they can add in to the
-graph and start exploring.
+the sidebar. When new users open Graph Explorer for the first time, they will be
+greeted with a set of search results ready to be added to the graph and
+explored.
 
 For existing users, you'll benefit from a better experience with search. Your
-filters will remain active as you navigate around. It'll also do its best to
-keep your selections for attribute when you change the node type. There's also a
-new "Add All" button, when you want to add all the search results to the graph
-with a single click.
+filters will remain active as you navigate around and it will do its best to
+keep your attribute selection when you change the node type. There's also a new
+"Add All" button, when you want to add all the search results to the graph with
+a single click.
 
-#### Docker Image
-
-The Docker image size had become a bit bloated over time. We took a look at what
-was going on and discovered we were shipping all of our dev dependencies in the
-Docker image when these are entirely unnecessary.
-
-Once we stripped those out, along with some additional unnecessary files, we
-ended up with a Docker image that is 196 MB lighter. This should make
-downloading Graph Explorer from the repository much faster for everyone,
-including any Neptune Notebook instances you have.
-
-### What's Changed
+### All Changes
 
 - **Improved** search discoverability and ergonomics by moving the UI in to the
-  sidebar [#665](https://github.com/aws/graph-explorer/pull/665)
+  sidebar ([#665](https://github.com/aws/graph-explorer/pull/665),
+  [#669](https://github.com/aws/graph-explorer/pull/669),
+  [#670](https://github.com/aws/graph-explorer/pull/670))
 - **Improved** UI responsiveness by using map instead of array for large data
-  sets [#658](https://github.com/aws/graph-explorer/pull/658)
+  sets ([#658](https://github.com/aws/graph-explorer/pull/658))
 - **Improved** connection selection can now happen on any part of the connection
-  row [#657](https://github.com/aws/graph-explorer/pull/657)
+  row ([#657](https://github.com/aws/graph-explorer/pull/657))
 - **Improved** style for the sidebar buttons
-  [#651](https://github.com/aws/graph-explorer/pull/651)
+  ([#651](https://github.com/aws/graph-explorer/pull/651))
 - **Improved** styles in the context menu to be easier to read
   ([#670](https://github.com/aws/graph-explorer/pull/670))
 - **Improved** Docker image size, reducing it by 196 MB

@@ -4,7 +4,7 @@ import { cn } from "@/utils";
 import { FunctionComponent, useEffect, useMemo, useState } from "react";
 import Button from "@/components/Button";
 import HumanReadableNumberFormatter from "@/components/HumanReadableNumberFormatter";
-import IconButton from "@/components/IconButton";
+import { IconButton } from "@/components";
 import {
   BackwardIcon,
   ForwardIcon,
