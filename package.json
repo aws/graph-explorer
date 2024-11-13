@@ -29,21 +29,21 @@
     "dev": "pnpm --stream -r run dev"
   },
   "devDependencies": {
-    "@eslint/compat": "^1.2.0",
-    "@eslint/js": "^9.12.0",
-    "@tanstack/eslint-plugin-query": "^5.59.7",
-    "@vitest/coverage-v8": "^2.1.2",
-    "eslint": "^9.12.0",
+    "@eslint/compat": "^1.2.2",
+    "@eslint/js": "^9.14.0",
+    "@tanstack/eslint-plugin-query": "^5.60.1",
+    "@vitest/coverage-v8": "^2.1.5",
+    "eslint": "^9.14.0",
     "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-react": "^7.37.1",
+    "eslint-plugin-react": "^7.37.2",
     "eslint-plugin-react-hooks": "^4.6.2",
-    "globals": "^15.11.0",
+    "globals": "^15.12.0",
     "husky": "^9.1.6",
     "lint-staged": "^15.2.10",
     "prettier": "3.3.3",
     "typescript": "^5.6.3",
     "typescript-eslint": "8.0.0-alpha.42",
-    "vitest": "^2.1.2"
+    "vitest": "^2.1.5"
   },
   "lint-staged": {
     "*.{js,ts,tsx}": [
