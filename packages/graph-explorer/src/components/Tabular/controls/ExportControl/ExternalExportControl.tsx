@@ -1,77 +1,40 @@
-import { css } from "@emotion/css";
-import { cn } from "@/utils";
 import { saveAs } from "file-saver";
 import { useCallback, useState } from "react";
-import { useLayer } from "react-laag";
 import { Row } from "react-table";
 
-import Button from "@/components/Button";
-import Card from "@/components/Card";
+import { Button, Input, Select } from "@/components";
 import { Checkbox, Label } from "@/components/radix";
 import { IconButton } from "@/components";
 
 import { TrayArrowIcon } from "@/components/icons";
-import Input from "@/components/Input";
-import Select from "@/components/Select";
 import { TabularInstance } from "@/components/Tabular/helpers/tableInstanceToTabularInstance";
 
 import transformToCsv from "./transfomerToCsv";
 import transformToJson from "./transfomerToJson";
 import { toCsvFileData, toJsonFileData } from "@/utils/fileData";
-
-const rootStyles = () => css`
-  position: relative;
-  display: flex;
-  align-items: center;
-`;
+import { Popover, PopoverContent, PopoverTrigger } from "@/components";
 
 type ExportControlProps<T extends Record<string, unknown>> = {
-  className?: string;
   omittedColumnsIds?: string[];
   instance: TabularInstance<T>;
 };
 
 export function ExternalExportControl<T extends Record<string, unknown>>({
-  className,
   omittedColumnsIds,
   instance,
 }: ExportControlProps<T>) {
-  const [isContentVisible, setIsContentVisible] = useState(false);
-
-  const { renderLayer, triggerProps, layerProps } = useLayer({
-    isOpen: isContentVisible,
-    onOutsideClick: () => {
-      setIsContentVisible(false);
-    },
-    onDisappear: () => {
-      setIsContentVisible(false);
-    },
-    overflowContainer: true,
-    auto: true,
-    placement: "bottom-end",
-    triggerOffset: 4,
-  });
-
   return (
-    <div id="export-control" className={rootStyles()}>
-      <IconButton
-        variant={"text"}
-        size={"base"}
-        icon={<TrayArrowIcon />}
-        onPress={() => setIsContentVisible(visible => !visible)}
-        {...triggerProps}
-      />
-      {renderLayer(
-        <div {...layerProps} className={cn(className)}>
-          {isContentVisible && (
-            <ExportOptionsModal
-              instance={instance}
-              omittedColumnsIds={omittedColumnsIds}
-            />
-          )}
-        </div>
-      )}
-    </div>
+    <Popover>
+      <PopoverTrigger asChild>
+        <IconButton variant="text" icon={<TrayArrowIcon />} />
+      </PopoverTrigger>
+      <PopoverContent side="right">
+        <ExportOptionsModal
+          instance={instance}
+          omittedColumnsIds={omittedColumnsIds}
+        />
+      </PopoverContent>
+    </Popover>
   );
 }
 
@@ -141,7 +104,7 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
   ]);
 
   return (
-    <Card className="flex min-w-72 flex-col gap-4 p-4">
+    <div className="flex flex-col gap-4">
       <div className="space-y-3">
         <div className="text-base font-medium">Export columns</div>
         <div className="flex flex-col gap-2">
@@ -228,6 +191,6 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
           Export
         </Button>
       </div>
-    </Card>
+    </div>
   );
 }
