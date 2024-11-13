@@ -41,6 +41,7 @@ export { default as LoadingSpinner } from "./LoadingSpinner";
 export * from "./LoadingSpinner";
 
 export * from "./Panel";
+export * from "./Popover";
 
 export { default as NotInProduction } from "./NotInProduction";
 
