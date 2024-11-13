@@ -2,6 +2,9 @@
 
 ## Upcoming
 
+- **Improved** styling on icon buttons
+  ([#675](https://github.com/aws/graph-explorer/pull/675))
+
 ## Release 1.11.0
 
 ### What's New
