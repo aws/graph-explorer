@@ -1,19 +1,19 @@
 import { Fragment } from "react/jsx-runtime";
 import {
   Divider,
-  ModuleContainer,
-  ModuleContainerContent,
-  ModuleContainerHeader,
-  ModuleContainerHeaderProps,
+  Panel,
+  PanelContent,
+  PanelHeader,
+  PanelHeaderActions,
+  PanelHeaderCloseButton,
+  PanelHeaderCloseButtonProps,
+  PanelTitle,
 } from "@/components";
 import { useConfiguration } from "@/core";
 import useTranslations from "@/hooks/useTranslations";
 import SingleEdgeStyling from "./SingleEdgeStyling";
 
-export type EdgesStylingProps = Omit<
-  ModuleContainerHeaderProps,
-  "title" | "sidebar"
-> & {
+export type EdgesStylingProps = Pick<PanelHeaderCloseButtonProps, "onClose"> & {
   onEdgeCustomize(edgeType?: string): void;
   customizeEdgeType?: string;
 };
@@ -21,18 +21,20 @@ export type EdgesStylingProps = Omit<
 const EdgesStyling = ({
   customizeEdgeType,
   onEdgeCustomize,
-  ...headerProps
+  onClose,
 }: EdgesStylingProps) => {
   const config = useConfiguration();
   const t = useTranslations();
 
   return (
-    <ModuleContainer variant="sidebar">
-      <ModuleContainerHeader
-        title={t("edges-styling.title")}
-        {...headerProps}
-      />
-      <ModuleContainerContent className="flex flex-col gap-2">
+    <Panel variant="sidebar">
+      <PanelHeader>
+        <PanelTitle>{t("edges-styling.title")}</PanelTitle>
+        <PanelHeaderActions>
+          <PanelHeaderCloseButton onClose={onClose} />
+        </PanelHeaderActions>
+      </PanelHeader>
+      <PanelContent className="flex flex-col gap-2">
         {config?.edgeTypes.map((edgeType, index) => {
           return (
             <Fragment key={edgeType}>
@@ -48,8 +50,8 @@ const EdgesStyling = ({
             </Fragment>
           );
         })}
-      </ModuleContainerContent>
-    </ModuleContainer>
+      </PanelContent>
+    </Panel>
   );
 };
 

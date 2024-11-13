@@ -1,8 +1,13 @@
 import { useMemo, useState } from "react";
 import {
-  ModuleContainer,
-  ModuleContainerHeader,
-  ModuleContainerHeaderProps,
+  Panel,
+  PanelContent,
+  PanelHeader,
+  PanelHeaderActions,
+  PanelHeaderCloseButton,
+  PanelHeaderCloseButtonProps,
+  PanelHeaderDivider,
+  PanelTitle,
   Select,
 } from "@/components";
 import { useConfiguration } from "@/core";
@@ -11,12 +16,9 @@ import GeneratedPrefixes from "./GeneratedPrefixes";
 import defaultStyles from "./Namespaces.style";
 import UserPrefixes from "./UserPrefixes";
 
-export type EdgesStylingProps = Omit<
-  ModuleContainerHeaderProps,
-  "title" | "sidebar"
->;
+export type EdgesStylingProps = Pick<PanelHeaderCloseButtonProps, "onClose">;
 
-const Namespaces = (headerProps: EdgesStylingProps) => {
+const Namespaces = ({ onClose }: EdgesStylingProps) => {
   const config = useConfiguration();
   const [nsType, setNsType] = useState("auto");
 
@@ -39,26 +41,35 @@ const Namespaces = (headerProps: EdgesStylingProps) => {
   }, [config?.schema?.prefixes]);
 
   return (
-    <ModuleContainer variant="sidebar">
-      <ModuleContainerHeader title={"Namespaces"} {...headerProps}>
-        <div style={{ marginLeft: 16 }}>
+    <Panel variant="sidebar">
+      <PanelHeader>
+        <PanelTitle>Namespaces</PanelTitle>
+
+        <PanelHeaderActions>
           <Select
-            aria-label={"Namespace type"}
+            aria-label="Namespace type"
             options={nsOptions}
             value={nsType}
             onChange={v => setNsType(v as string)}
             hideError={true}
             noMargin={true}
-            size={"sm"}
+            size="sm"
           />
-        </div>
-      </ModuleContainerHeader>
-      <div className={defaultStyles()}>
+          {onClose ? (
+            <>
+              <PanelHeaderDivider />
+              <PanelHeaderCloseButton onClose={onClose} />
+            </>
+          ) : null}
+        </PanelHeaderActions>
+      </PanelHeader>
+
+      <PanelContent className={defaultStyles()}>
         {nsType === "auto" && <GeneratedPrefixes />}
         {nsType === "custom" && <UserPrefixes />}
         {nsType === "common" && <CommonPrefixes />}
-      </div>
-    </ModuleContainer>
+      </PanelContent>
+    </Panel>
   );
 };
 

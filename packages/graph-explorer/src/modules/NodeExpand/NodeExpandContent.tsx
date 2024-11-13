@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { Vertex } from "@/types/entities";
-import { ModuleContainerFooter, PanelError } from "@/components";
+import { PanelError, PanelFooter } from "@/components";
 import Button from "@/components/Button";
 import ExpandGraphIcon from "@/components/icons/ExpandGraphIcon";
 import GraphIcon from "@/components/icons/GraphIcon";
@@ -121,7 +121,7 @@ function ExpansionOptions({
         limit={limit}
         onLimitChange={setLimit}
       />
-      <ModuleContainerFooter className="flex flex-row justify-end">
+      <PanelFooter className="flex flex-row justify-end">
         <ExpandButton
           isDisabled={!hasUnfetchedNeighbors || !hasSelectedType}
           vertex={vertex}
@@ -140,7 +140,7 @@ function ExpansionOptions({
                 : undefined,
           }}
         />
-      </ModuleContainerFooter>
+      </PanelFooter>
     </>
   );
 }

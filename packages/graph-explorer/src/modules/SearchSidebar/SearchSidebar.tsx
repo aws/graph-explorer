@@ -1,27 +1,31 @@
 import {
-  ModuleContainer,
-  ModuleContainerContent,
-  ModuleContainerHeader,
-  ModuleContainerHeaderProps,
+  Panel,
+  PanelContent,
+  PanelHeader,
+  PanelHeaderActions,
+  PanelHeaderCloseButton,
+  PanelHeaderCloseButtonProps,
+  PanelTitle,
 } from "@/components";
 import { FilterSearchTabContent } from "./FilterSearchTabContent";
 
 export type SearchSidebarPanelProps = Pick<
-  ModuleContainerHeaderProps,
+  PanelHeaderCloseButtonProps,
   "onClose"
 >;
 
 export function SearchSidebarPanel({ onClose }: SearchSidebarPanelProps) {
   return (
-    <ModuleContainer variant="sidebar">
-      <ModuleContainerHeader
-        title="Search"
-        variant="sidebar"
-        onClose={onClose}
-      />
-      <ModuleContainerContent className="flex h-full grow flex-col">
+    <Panel variant="sidebar">
+      <PanelHeader>
+        <PanelTitle>Search</PanelTitle>
+        <PanelHeaderActions>
+          <PanelHeaderCloseButton onClose={onClose} />
+        </PanelHeaderActions>
+      </PanelHeader>
+      <PanelContent>
         <FilterSearchTabContent />
-      </ModuleContainerContent>
-    </ModuleContainer>
+      </PanelContent>
+    </Panel>
   );
 }

@@ -46,6 +46,16 @@ export const getIconFontSizeBySize = (size: "small" | "base" | "large") => {
   return sizeMap[size];
 };
 
+export const getIconHeightBySize = (size: "small" | "base" | "large") => {
+  const sizeMap = {
+    small: "16px",
+    base: "22px",
+    large: "26px",
+  };
+
+  return sizeMap[size];
+};
+
 export const baseStyles = (
   theme: ProcessedTheme,
   size: "small" | "base" | "large"
@@ -60,6 +70,7 @@ export const baseStyles = (
 
   svg {
     font-size: ${getIconFontSizeBySize(size)};
+    height: ${getIconHeightBySize(size)};
   }
 `;
 

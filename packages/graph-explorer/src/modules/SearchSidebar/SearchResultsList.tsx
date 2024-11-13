@@ -4,6 +4,7 @@ import {
   PanelError,
   SearchSadIcon,
   Button,
+  PanelFooter,
 } from "@/components";
 import { KeywordSearchResponse } from "@/connector/useGEFetchTypes";
 import { UseQueryResult } from "@tanstack/react-query";
@@ -85,22 +86,20 @@ function LoadedResults({ vertices, edges, scalars }: MappedQueryResults) {
         </ul>
       </div>
 
-      <div className="bg-background-default border-divider sticky bottom-0 flex flex-col border-t">
-        <div className="flex flex-row items-center justify-between border-b px-3 py-3">
-          <Button
-            icon={<PlusCircleIcon />}
-            onPress={sendToGraph}
-            isDisabled={!canSendToGraph}
-          >
-            Add all
-          </Button>
-          <div className="flex items-center gap-2">
-            <div className="text-text-secondary text-sm">
-              {counts || "No results"}
-            </div>
+      <PanelFooter className="sticky bottom-0 flex flex-row items-center justify-between">
+        <Button
+          icon={<PlusCircleIcon />}
+          onPress={sendToGraph}
+          isDisabled={!canSendToGraph}
+        >
+          Add all
+        </Button>
+        <div className="flex items-center gap-2">
+          <div className="text-text-secondary text-sm">
+            {counts || "No results"}
           </div>
         </div>
-      </div>
+      </PanelFooter>
     </>
   );
 }

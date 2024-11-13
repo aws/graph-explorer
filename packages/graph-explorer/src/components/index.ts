@@ -44,8 +44,7 @@ export * from "./ListItem";
 export { default as LoadingSpinner } from "./LoadingSpinner";
 export * from "./LoadingSpinner";
 
-export { default as ModuleContainer } from "./ModuleContainer";
-export * from "./ModuleContainer";
+export * from "./Panel";
 
 export { default as NotInProduction } from "./NotInProduction";
 

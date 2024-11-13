@@ -1,11 +1,16 @@
-import { useCallback, useMemo } from "react";
+import { useMemo } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
-import type { ModuleContainerHeaderProps } from "@/components";
+import type { PanelHeaderCloseButtonProps } from "@/components";
 import {
   AutoFitLeftIcon,
-  ModuleContainer,
-  ModuleContainerContent,
-  ModuleContainerHeader,
+  Panel,
+  PanelContent,
+  PanelHeader,
+  PanelHeaderActionButton,
+  PanelHeaderActions,
+  PanelHeaderCloseButton,
+  PanelHeaderDivider,
+  PanelTitle,
 } from "@/components";
 import GraphIcon from "@/components/icons/GraphIcon";
 import PanelEmptyState from "@/components/PanelEmptyState/PanelEmptyState";
@@ -15,21 +20,14 @@ import { userLayoutAtom } from "@/core/StateProvider/userPreferences";
 import EdgeDetail from "./EdgeDetail";
 import NodeDetail from "./NodeDetail";
 
-export type EntityDetailsProps = Omit<
-  ModuleContainerHeaderProps,
-  "title" | "sidebar"
+export type EntityDetailsProps = Pick<
+  PanelHeaderCloseButtonProps,
+  "onClose"
 > & {
-  title?: ModuleContainerHeaderProps["title"];
-  noHeader?: boolean;
   disableConnections?: boolean;
 };
 
-const EntityDetails = ({
-  title = "Details View",
-  noHeader,
-  disableConnections,
-  ...headerProps
-}: EntityDetailsProps) => {
+const EntityDetails = ({ disableConnections, onClose }: EntityDetailsProps) => {
   const nodes = useRecoilValue(nodesAtom);
   const edges = useRecoilValue(edgesAtom);
   const selectedNodesIds = useRecoilValue(nodesSelectedIdsAtom);
@@ -63,38 +61,27 @@ const EntityDetails = ({
   const isEmptySelection = selectedNodesIds.size + selectedEdgesIds.size === 0;
   const isMultiSelection = selectedNodesIds.size + selectedEdgesIds.size > 1;
 
-  const onAction = useCallback(
-    (value: string) => {
-      if (value === "auto_open") {
-        return setUserLayout(prev => ({
-          ...prev,
-          detailsAutoOpenOnSelection: !prev.detailsAutoOpenOnSelection,
-        }));
-      }
-    },
-    [setUserLayout]
-  );
-
   return (
-    <ModuleContainer variant="sidebar">
-      {noHeader !== true && (
-        <ModuleContainerHeader
-          title={title}
-          variant={"sidebar"}
-          actions={[
-            {
-              label: "Automatically open on selection",
-              value: "auto_open",
-              alwaysVisible: true,
-              icon: <AutoFitLeftIcon />,
-              active: userLayout.detailsAutoOpenOnSelection,
-            },
-          ]}
-          onActionClick={onAction}
-          {...headerProps}
-        />
-      )}
-      <ModuleContainerContent>
+    <Panel variant="sidebar">
+      <PanelHeader>
+        <PanelTitle>Details View</PanelTitle>
+        <PanelHeaderActions>
+          <PanelHeaderActionButton
+            label="Automatically open on selection"
+            icon={<AutoFitLeftIcon />}
+            active={userLayout.detailsAutoOpenOnSelection}
+            onActionClick={() =>
+              setUserLayout(prev => ({
+                ...prev,
+                detailsAutoOpenOnSelection: !prev.detailsAutoOpenOnSelection,
+              }))
+            }
+          />
+          <PanelHeaderDivider />
+          <PanelHeaderCloseButton onClose={onClose} />
+        </PanelHeaderActions>
+      </PanelHeader>
+      <PanelContent>
         {isEmptySelection && (
           <PanelEmptyState
             icon={<GraphIcon />}
@@ -123,8 +110,8 @@ const EntityDetails = ({
               targetVertex={targetNode}
             />
           )}
-      </ModuleContainerContent>
-    </ModuleContainer>
+      </PanelContent>
+    </Panel>
   );
 };
 

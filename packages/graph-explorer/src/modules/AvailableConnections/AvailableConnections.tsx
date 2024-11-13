@@ -1,19 +1,22 @@
 import { FileButton, Modal } from "@mantine/core";
-import { useCallback, useMemo } from "react";
 import { useRecoilCallback, useRecoilValue } from "recoil";
 import { v4 } from "uuid";
 import {
   AddIcon,
   Chip,
   DatabaseIcon,
-  ModuleContainer,
-  ModuleContainerContent,
-  ModuleContainerHeader,
+  PanelHeaderActionButton,
+  PanelHeaderActions,
+  PanelHeader,
   TrayArrowIcon,
+  PanelTitle,
+  PanelHeaderDivider,
+  Panel,
+  PanelContent,
 } from "@/components";
 import { useNotification } from "@/components/NotificationProvider";
 import Switch from "@/components/Switch";
-import { RawConfiguration, useWithTheme } from "@/core";
+import { RawConfiguration } from "@/core";
 import {
   activeConfigurationAtom,
   configurationAtom,
@@ -23,7 +26,6 @@ import useResetState from "@/core/StateProvider/useResetState";
 import useTranslations from "@/hooks/useTranslations";
 import isValidConfigurationFile from "@/utils/isValidConfigurationFile";
 import CreateConnection from "@/modules/CreateConnection";
-import defaultStyles from "./AvailableConnections.styles";
 import { fromFileToJson } from "@/utils/fileData";
 import { Virtuoso } from "react-virtuoso";
 
@@ -38,8 +40,6 @@ const AvailableConnections = ({
   isModalOpen,
   onModalChange,
 }: ConnectionDetailProps) => {
-  const styleWithTheme = useWithTheme();
-
   const activeConfig = useRecoilValue(activeConfigurationAtom);
   const configuration = useRecoilValue(configurationAtom);
 
@@ -108,55 +108,34 @@ const AvailableConnections = ({
     [enqueueNotification, resetState]
   );
 
-  const onActionClick = useCallback(
-    (value: string) => {
-      if (value === "create") {
-        return onModalChange(true);
-      }
-    },
-    [onModalChange]
-  );
-
-  const headerActions = useMemo(
-    () => [
-      {
-        label: "Import Connection",
-        value: "import",
-        icon: (
+  return (
+    <Panel>
+      <PanelHeader>
+        <PanelTitle>Available connections</PanelTitle>
+        <PanelHeaderActions>
           <FileButton
             onChange={payload => payload && onConfigImport(payload)}
             accept={"application/json"}
           >
             {props => (
-              <TrayArrowIcon
-                onClick={props.onClick}
-                style={{ transform: "rotate(180deg)" }}
+              <PanelHeaderActionButton
+                label="Import Connection"
+                isDisabled={isSync}
+                onActionClick={props.onClick}
+                icon={<TrayArrowIcon style={{ transform: "rotate(180deg)" }} />}
               />
             )}
           </FileButton>
-        ),
-        isDisabled: isSync,
-      },
-      "divider",
-      {
-        label: "Add New Connection",
-        value: "create",
-        icon: <AddIcon />,
-        isDisabled: isSync,
-      },
-    ],
-    [isSync, onConfigImport]
-  );
+          <PanelHeaderDivider />
+          <PanelHeaderActionButton
+            label="Add New Connection"
+            icon={<AddIcon />}
+            onActionClick={() => onModalChange(true)}
+          />
+        </PanelHeaderActions>
+      </PanelHeader>
 
-  return (
-    <ModuleContainer className={styleWithTheme(defaultStyles)}>
-      <ModuleContainerHeader
-        title={"Available connections"}
-        actions={headerActions}
-        onActionClick={onActionClick}
-      />
-
-      <ModuleContainerContent className="py-1.5">
+      <PanelContent className="py-1.5">
         <Virtuoso
           data={[...configuration.values()]}
           itemContent={(_index, config) => (
@@ -178,8 +157,8 @@ const AvailableConnections = ({
         >
           <CreateConnection onClose={() => onModalChange(false)} />
         </Modal>
-      </ModuleContainerContent>
-    </ModuleContainer>
+      </PanelContent>
+    </Panel>
   );
 };
 

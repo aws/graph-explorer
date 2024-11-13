@@ -1,31 +1,22 @@
-import { cn } from "@/utils";
-import type { ModuleContainerHeaderProps } from "@/components";
+import type { PanelHeaderCloseButtonProps } from "@/components";
 import {
   CheckboxList,
   Divider,
-  ModuleContainer,
-  ModuleContainerContent,
-  ModuleContainerHeader,
+  Panel,
+  PanelContent,
+  PanelHeader,
+  PanelHeaderActions,
+  PanelHeaderCloseButton,
+  PanelTitle,
 } from "@/components";
-import { useWithTheme } from "@/core";
 import useTranslations from "@/hooks/useTranslations";
-import defaultStyles from "./EntitiesFilter.styles";
 import useFiltersConfig from "./useFiltersConfig";
 import { PropsWithChildren } from "react";
 
-export type EntitiesFilterProps = Omit<
-  ModuleContainerHeaderProps,
-  "title" | "sidebar"
-> & {
-  title?: ModuleContainerHeaderProps["title"];
-};
+export type EntitiesFilterProps = Pick<PanelHeaderCloseButtonProps, "onClose">;
 
-const EntitiesFilter = ({
-  title = "Entities Filter",
-  ...headerProps
-}: EntitiesFilterProps) => {
+const EntitiesFilter = ({ onClose }: EntitiesFilterProps) => {
   const t = useTranslations();
-  const styleWithTheme = useWithTheme();
 
   const {
     selectedVertexTypes,
@@ -39,16 +30,14 @@ const EntitiesFilter = ({
   } = useFiltersConfig();
 
   return (
-    <ModuleContainer
-      className={cn(styleWithTheme(defaultStyles), "entities-filters")}
-      variant="sidebar"
-    >
-      <ModuleContainerHeader
-        title={title}
-        variant={"sidebar"}
-        {...headerProps}
-      />
-      <ModuleContainerContent>
+    <Panel variant="sidebar">
+      <PanelHeader>
+        <PanelTitle>Entities Filter</PanelTitle>
+        <PanelHeaderActions>
+          <PanelHeaderCloseButton onClose={onClose} />
+        </PanelHeaderActions>
+      </PanelHeader>
+      <PanelContent>
         {connectionTypes.length > 0 && (
           <CheckboxListContainer>
             <CheckboxList
@@ -72,8 +61,8 @@ const EntitiesFilter = ({
             />
           </CheckboxListContainer>
         )}
-      </ModuleContainerContent>
-    </ModuleContainer>
+      </PanelContent>
+    </Panel>
   );
 };
 

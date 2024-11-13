@@ -3,8 +3,8 @@ import {
   Button,
   DatabaseIcon,
   ForwardIcon,
-  ModuleContainer,
-  ModuleContainerContent,
+  Panel,
+  PanelContent,
 } from "@/components";
 import { Link, NavLink, Outlet, To } from "react-router-dom";
 import { PropsWithChildren, Suspense } from "react";
@@ -29,18 +29,18 @@ export default function SettingsRoot() {
         </Workspace.TopBar.AdditionalControls>
       </Workspace.TopBar>
       <Workspace.Content>
-        <ModuleContainer className="min-w-[16rem]">
-          <ModuleContainerContent className="px-3 py-6">
+        <Panel className="min-w-[16rem]">
+          <PanelContent className="px-3 py-6">
             <SideBar />
-          </ModuleContainerContent>
-        </ModuleContainer>
-        <ModuleContainer className="w-full grow">
-          <ModuleContainerContent className="p-6">
+          </PanelContent>
+        </Panel>
+        <Panel className="w-full grow">
+          <PanelContent className="p-6">
             <Suspense fallback={<AppLoadingPage />}>
               <Outlet />
             </Suspense>
-          </ModuleContainerContent>
-        </ModuleContainer>
+          </PanelContent>
+        </Panel>
       </Workspace.Content>
     </Workspace>
   );
