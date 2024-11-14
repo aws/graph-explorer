@@ -9,9 +9,6 @@ export * from "./Button";
 export { default as Card } from "./Card";
 export * from "./Card";
 
-export { default as Checkbox } from "./Checkbox";
-export * from "./Checkbox";
-
 export { default as CheckboxList } from "./CheckboxList";
 export * from "./CheckboxList";
 
@@ -44,6 +41,7 @@ export { default as LoadingSpinner } from "./LoadingSpinner";
 export * from "./LoadingSpinner";
 
 export * from "./Panel";
+export * from "./Popover";
 
 export { default as NotInProduction } from "./NotInProduction";
 

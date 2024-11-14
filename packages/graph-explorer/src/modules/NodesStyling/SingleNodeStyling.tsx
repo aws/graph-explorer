@@ -129,14 +129,14 @@ export default function SingleNodeStyling({
 
   return (
     <div className={cn(styleWithTheme(defaultStyles), className)} {...rest}>
-      <div className={"title"}>
-        <div className={"vertex-name"}>{vertexType}</div>
+      <div className="title">
+        <div className="vertex-name">{vertexType}</div>
       </div>
-      <div className={"label-container"}>
+      <div className="label-container">
         <Input
-          className={"label-display"}
-          label={"Display As"}
-          labelPlacement={"inner"}
+          className="label-display"
+          label="Display As"
+          labelPlacement="inner"
           value={displayAs}
           onChange={setDisplayAs}
           hideError={true}
@@ -144,8 +144,8 @@ export default function SingleNodeStyling({
         />
         <Button
           icon={<StylingIcon />}
-          variant={"text"}
-          size={"small"}
+          variant="text"
+          size="small"
           onPress={onOpen}
         >
           Customize
@@ -165,13 +165,13 @@ export default function SingleNodeStyling({
           backgroundOpacity: 0.1,
         }}
       >
-        <div className={"modal-container"}>
+        <div className="modal-container">
           <div>
             <p>Display Attributes</p>
-            <div className={"attrs-container"}>
+            <div className="attrs-container">
               <Select
-                label={"Display Name Attribute"}
-                labelPlacement={"inner"}
+                label="Display Name Attribute"
+                labelPlacement="inner"
                 value={vtConfig.displayNameAttribute || ""}
                 onChange={value => {
                   onUserPrefsChange({ displayNameAttribute: value as string });
@@ -181,8 +181,8 @@ export default function SingleNodeStyling({
                 noMargin={true}
               />
               <Select
-                label={"Display Description Attribute"}
-                labelPlacement={"inner"}
+                label="Display Description Attribute"
+                labelPlacement="inner"
                 value={vtConfig.longDisplayNameAttribute || ""}
                 onChange={value => {
                   onUserPrefsChange({
@@ -197,7 +197,7 @@ export default function SingleNodeStyling({
           </div>
           <div>
             <p>Shape and Icon</p>
-            <div className={"flex flex-row items-center gap-2"}>
+            <div className="flex flex-row items-center gap-2">
               <Select
                 label="Style"
                 labelPlacement="inner"
@@ -241,17 +241,17 @@ export default function SingleNodeStyling({
           </div>
           <div>
             <p>Shape Styling</p>
-            <div className={"attrs-container"}>
+            <div className="attrs-container">
               <ColorInput
-                label={"Color"}
-                labelPlacement={"inner"}
+                label="Color"
+                labelPlacement="inner"
                 startColor={nodePreferences?.color || "#17457b"}
                 onChange={(color: string) => onUserPrefsChange({ color })}
               />
               <Input
-                label={"Background Opacity"}
-                labelPlacement={"inner"}
-                type={"number"}
+                label="Background Opacity"
+                labelPlacement="inner"
+                type="number"
                 min={0}
                 max={1}
                 step={0.1}
@@ -265,19 +265,19 @@ export default function SingleNodeStyling({
             </div>
           </div>
           <div>
-            <div className={"attrs-container"}>
+            <div className="attrs-container">
               <ColorInput
-                label={"Border Color"}
-                labelPlacement={"inner"}
+                label="Border Color"
+                labelPlacement="inner"
                 startColor={nodePreferences?.borderColor || "#17457b"}
                 onChange={(color: string) =>
                   onUserPrefsChange({ borderColor: color })
                 }
               />
               <Input
-                label={"Border Width"}
-                labelPlacement={"inner"}
-                type={"number"}
+                label="Border Width"
+                labelPlacement="inner"
+                type="number"
                 min={0}
                 value={nodePreferences?.borderWidth ?? 0}
                 onChange={(value: number) =>
@@ -287,8 +287,8 @@ export default function SingleNodeStyling({
                 noMargin={true}
               />
               <Select
-                label={"Border Style"}
-                labelPlacement={"inner"}
+                label="Border Style"
+                labelPlacement="inner"
                 value={nodePreferences?.borderStyle || "solid"}
                 onChange={value =>
                   onUserPrefsChange({ borderStyle: value as LineStyle })
@@ -299,7 +299,7 @@ export default function SingleNodeStyling({
               />
             </div>
           </div>
-          <div className={"actions"}>
+          <div className="actions">
             <Button onPress={() => reset()}>Reset to Default</Button>
           </div>
         </div>

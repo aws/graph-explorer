@@ -33,7 +33,6 @@ import { useTheme } from "@/core";
 import { useDeepMemo } from "@/hooks";
 import TextFilter from "./filters/TextFilter";
 import columnDefinitionToColumn from "./helpers/columnDefinitionToColumn";
-import useSelectionColumn from "./hooks/useSelectionColumn";
 import useDiffState from "./plugins/useDiffState";
 import useFullWidth from "./plugins/useFullWidth";
 
@@ -443,8 +442,7 @@ export const useTabular = <T extends object>(options: TabularOptions<T>) => {
     useDiffState,
     useSortBy,
     usePagination,
-    useRowSelect,
-    useSelectionColumn(options)
+    useRowSelect
   );
 };
 

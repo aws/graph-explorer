@@ -4,6 +4,9 @@
 
 - **Improved** styling on icon buttons
   ([#675](https://github.com/aws/graph-explorer/pull/675))
+- **Improved** styling on checkboxes across the app, and specifically the export
+  options popover and entity filters sidebar
+  ([#676](https://github.com/aws/graph-explorer/pull/676))
 
 ## Release 1.11.0
 
