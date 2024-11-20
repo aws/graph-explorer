@@ -35,10 +35,17 @@ export type Config = {
   };
 };
 
+export type SelectedElements = {
+  nodeIds: Set<string>;
+  edgeIds: Set<string>;
+  groupIds: Set<string>;
+};
+
 export type Selection = {
   selectedNodesIds?: Array<string> | Set<string>;
   selectedEdgesIds?: Array<string> | Set<string>;
   selectedGroupsIds?: Array<string> | Set<string>;
+  onSelectedElementIdsChange?(selected: SelectedElements): void;
   onSelectedNodesIdsChange?(nodesIds: Array<string> | Set<string>): void;
   onSelectedGroupsIdsChange?(
     groupsIds: Array<string> | Set<string>,
