@@ -7,6 +7,9 @@
 - **Improved** styling on checkboxes across the app, and specifically the export
   options popover and entity filters sidebar
   ([#676](https://github.com/aws/graph-explorer/pull/676))
+- **Fixed** a bug where the automatic open details feature would not open the
+  details sidebar when selecting nodes
+  ([#679](https://github.com/aws/graph-explorer/pull/679))
 
 ## Release 1.11.0
 
