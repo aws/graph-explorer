@@ -1,6 +1,6 @@
 import { cn } from "@/utils";
 import { Resizable } from "re-resizable";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
 import { useRecoilState, useRecoilValue } from "recoil";
 import {
