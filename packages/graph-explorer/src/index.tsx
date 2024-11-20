@@ -92,7 +92,7 @@ const BootstrapApp = () => {
 
   return (
     <React.StrictMode>
-      <Router>
+      <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <ConnectedProvider config={config}>
           <App />
         </ConnectedProvider>
