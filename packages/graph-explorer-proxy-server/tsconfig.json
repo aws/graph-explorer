@@ -8,7 +8,7 @@
     "types": ["vitest/globals"],
 
     /* Modules */
-    "module": "node16",
+    "module": "Node16",
 
     /* Interop Constraints */
     "esModuleInterop": true,

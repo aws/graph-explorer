@@ -12,13 +12,13 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "uuid": "^10.0.0",
+    "uuid": "^11.0.3",
     "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/uuid": "^10.0.0",
-    "@vitest/coverage-v8": "^2.1.1",
+    "@vitest/coverage-v8": "^2.1.5",
     "rimraf": "^6.0.1",
-    "vitest": "^2.1.1"
+    "vitest": "^2.1.5"
   }
 }
