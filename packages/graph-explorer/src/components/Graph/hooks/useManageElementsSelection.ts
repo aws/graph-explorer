@@ -11,6 +11,7 @@ interface UseManageElementsSelection extends Selection {
 
 type Handlers = Pick<
   Selection,
+  | "onSelectedElementIdsChange"
   | "onSelectedNodesIdsChange"
   | "onSelectedEdgesIdsChange"
   | "onSelectedGroupsIdsChange"
@@ -76,6 +77,7 @@ export default function useManageElementsSelection(
     selectedNodesIds = [],
     selectedEdgesIds = [],
     selectedGroupsIds = [],
+    onSelectedElementIdsChange,
     onSelectedNodesIdsChange,
     onSelectedEdgesIdsChange,
     onSelectedGroupsIdsChange,
@@ -88,6 +90,7 @@ export default function useManageElementsSelection(
 
   // Init cytoscape Select and unselect event handlers
   const handlers = useRef<Handlers>(<Handlers>{
+    onSelectedElementIdsChange,
     onSelectedEdgesIdsChange,
     onSelectedGroupsIdsChange,
     onSelectedNodesIdsChange,
@@ -109,6 +112,21 @@ export default function useManageElementsSelection(
 
   useEffect(() => {
     if (!cy) return;
+
+    const debouncedElementSelection = debounce(() => {
+      const selectedNodes = cy.$("node:selected[!__isGroupNode]");
+      const selectedEdges = cy.$("edge:selected");
+      const selectedGroups = cy.$("node:selected[?__isGroupNode]");
+      const selected = {
+        nodeIds: new Set(selectedNodes.map(p => p.id())),
+        edgeIds: new Set(selectedEdges.map(p => p.id())),
+        groupIds: new Set(selectedGroups.map(p => p.id())),
+      };
+      if (handlers.current.onSelectedElementIdsChange) {
+        handlers.current.onSelectedElementIdsChange(selected);
+      }
+    }, 0);
+    cy.on("select unselect", debouncedElementSelection);
 
     // cy.on("Select unselect", ...) is called once by element selected/unselected.
     // These debounce functions avoid repeatedly call once by element.
@@ -152,6 +170,7 @@ export default function useManageElementsSelection(
     cy.on("select unselect", "edge", debouncedEdgeSelection);
 
     return () => {
+      cy.off("select unselect", debouncedElementSelection);
       cy.off("select unselect", "node[!__isGroupNode]", debouncedNodeSelection);
       cy.off(
         "select unselect",

@@ -42,6 +42,8 @@ import useGraphGlobalActions from "./useGraphGlobalActions";
 import useGraphStyles from "./useGraphStyles";
 import useNodeBadges from "./useNodeBadges";
 import { useVertexTypeConfigs } from "@/core/ConfigurationProvider/useConfiguration";
+import { SelectedElements } from "@/components/Graph/Graph.model";
+import { useAutoOpenDetailsSidebar } from "./useAutoOpenDetailsSidebar";
 
 export type GraphViewerProps = {
   onNodeCustomize(nodeType?: string): void;
@@ -106,18 +108,21 @@ export default function GraphViewer({
   const nodesOutIds = useRecoilValue(nodesOutOfFocusIdsAtom);
   const edgesOutIds = useRecoilValue(edgesOutOfFocusIdsAtom);
 
-  const onSelectedNodesIdsChange = useCallback(
-    (selectedIds: VertexId[] | Set<VertexId>) => {
-      setNodesSelectedIds(new Set(selectedIds));
-    },
-    [setNodesSelectedIds]
-  );
+  const autoOpenDetails = useAutoOpenDetailsSidebar();
 
-  const onSelectedEdgesIdsChange = useCallback(
-    (selectedIds: EdgeId[] | Set<EdgeId>) => {
-      setEdgesSelectedIds(new Set(selectedIds));
+  const onSelectedElementIdsChange = useCallback(
+    ({ nodeIds, edgeIds }: SelectedElements) => {
+      setNodesSelectedIds(nodeIds as Set<VertexId>);
+      setEdgesSelectedIds(edgeIds as Set<EdgeId>);
+
+      if (
+        (nodeIds.size === 1 && edgeIds.size === 0) ||
+        (nodeIds.size === 0 && edgeIds.size === 1)
+      ) {
+        autoOpenDetails();
+      }
     },
-    [setEdgesSelectedIds]
+    [autoOpenDetails, setEdgesSelectedIds, setNodesSelectedIds]
   );
 
   const [legendOpen, setLegendOpen] = useState(false);
@@ -252,8 +257,7 @@ export default function GraphViewer({
             hiddenEdgesIds={hiddenEdgesIds}
             outOfFocusNodesIds={nodesOutIds}
             outOfFocusEdgesIds={edgesOutIds}
-            onSelectedNodesIdsChange={onSelectedNodesIdsChange}
-            onSelectedEdgesIdsChange={onSelectedEdgesIdsChange}
+            onSelectedElementIdsChange={onSelectedElementIdsChange}
             onNodeDoubleClick={onNodeDoubleClick}
             onNodeRightClick={onNodeRightClick}
             onEdgeRightClick={onEdgeRightClick}

@@ -20,14 +20,9 @@ import { userLayoutAtom } from "@/core/StateProvider/userPreferences";
 import EdgeDetail from "./EdgeDetail";
 import NodeDetail from "./NodeDetail";
 
-export type EntityDetailsProps = Pick<
-  PanelHeaderCloseButtonProps,
-  "onClose"
-> & {
-  disableConnections?: boolean;
-};
+export type EntityDetailsProps = Pick<PanelHeaderCloseButtonProps, "onClose">;
 
-const EntityDetails = ({ disableConnections, onClose }: EntityDetailsProps) => {
+const EntityDetails = ({ onClose }: EntityDetailsProps) => {
   const nodes = useRecoilValue(nodesAtom);
   const edges = useRecoilValue(edgesAtom);
   const selectedNodesIds = useRecoilValue(nodesSelectedIdsAtom);
@@ -97,7 +92,7 @@ const EntityDetails = ({ disableConnections, onClose }: EntityDetailsProps) => {
           />
         )}
         {!isMultiSelection && selectedNodesIds.size === 1 && selectedNode && (
-          <NodeDetail node={selectedNode} hideNeighbors={disableConnections} />
+          <NodeDetail node={selectedNode} />
         )}
         {!isMultiSelection &&
           selectedEdgesIds.size === 1 &&

@@ -13,14 +13,10 @@ import { useVertexTypeConfig } from "@/core/ConfigurationProvider/useConfigurati
 import { RESERVED_ID_PROPERTY } from "@/utils/constants";
 
 export type VertexDetailProps = {
-  hideNeighbors?: boolean;
   node: Vertex;
 };
 
-export default function NodeDetail({
-  node,
-  hideNeighbors = false,
-}: VertexDetailProps) {
+export default function NodeDetail({ node }: VertexDetailProps) {
   const config = useConfiguration();
   const t = useTranslations();
   const styleWithTheme = useWithTheme();
@@ -50,7 +46,7 @@ export default function NodeDetail({
   return (
     <div className={styleWithTheme(defaultStyles())}>
       <VertexHeader vertex={node} />
-      {hideNeighbors != true && <NeighborsList vertex={node} />}
+      <NeighborsList vertex={node} />
       <div className={"properties"}>
         <div className={"title"}>Properties</div>
         <div className={"content"}>

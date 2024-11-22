@@ -1,7 +1,6 @@
 import { cn } from "@/utils";
-import debounce from "lodash/debounce";
 import { Resizable } from "re-resizable";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
 import { useRecoilState, useRecoilValue } from "recoil";
 import {
@@ -23,14 +22,11 @@ import {
 import GridIcon from "@/components/icons/GridIcon";
 import Workspace from "@/components/Workspace";
 import { useConfiguration, useWithTheme } from "@/core";
-import { edgesSelectedIdsAtom } from "@/core/StateProvider/edges";
-import { nodesSelectedIdsAtom } from "@/core/StateProvider/nodes";
 import { totalFilteredCount } from "@/core/StateProvider/filterCount";
 import {
   SidebarItems,
   userLayoutAtom,
 } from "@/core/StateProvider/userPreferences";
-import { usePrevious } from "@/hooks";
 import useTranslations from "@/hooks/useTranslations";
 import EdgesStyling from "@/modules/EdgesStyling/EdgesStyling";
 import EntitiesFilter from "@/modules/EntitiesFilter";
@@ -62,10 +58,6 @@ const GraphExplorer = () => {
   const hasNamespaces = config?.connection?.queryEngine === "sparql";
   const [userLayout, setUserLayout] = useRecoilState(userLayoutAtom);
 
-  const nodesSelectedIds = useRecoilValue(nodesSelectedIdsAtom);
-  const edgesSelectedIds = useRecoilValue(edgesSelectedIdsAtom);
-  const nodeOrEdgeSelected =
-    nodesSelectedIds.size + edgesSelectedIds.size === 1;
   const filteredEntitiesCount = useRecoilValue(totalFilteredCount);
 
   const closeSidebar = useCallback(() => {
@@ -135,43 +127,6 @@ const GraphExplorer = () => {
   const [customizeEdgeType, setCustomizeEdgeType] = useState<
     string | undefined
   >();
-
-  const prevActiveSidebarItem = usePrevious(userLayout.activeSidebarItem);
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const debounceAutoOpenDetails = useCallback(
-    debounce((nodeOrEdgeSelected: boolean) => {
-      if (!nodeOrEdgeSelected) {
-        return;
-      }
-
-      if (
-        userLayout.detailsAutoOpenOnSelection === false ||
-        userLayout.activeSidebarItem !== null
-      ) {
-        return;
-      }
-
-      if (prevActiveSidebarItem != null) {
-        return;
-      }
-
-      setUserLayout(prevState => ({
-        ...prevState,
-        activeSidebarItem: "details",
-      }));
-    }, 400),
-    [
-      setUserLayout,
-      prevActiveSidebarItem,
-      userLayout.activeSidebarItem,
-      userLayout.detailsAutoOpenOnSelection,
-    ]
-  );
-
-  useEffect(() => {
-    debounceAutoOpenDetails(nodeOrEdgeSelected);
-  }, [debounceAutoOpenDetails, nodeOrEdgeSelected]);
 
   return (
     <Workspace className={cn(styleWithTheme(defaultStyles), "graph-explorer")}>
