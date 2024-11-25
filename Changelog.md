@@ -10,6 +10,8 @@
 - **Fixed** a bug where the automatic open details feature would not open the
   details sidebar when selecting nodes
   ([#679](https://github.com/aws/graph-explorer/pull/679))
+- **Updated** documentation to reorganize and extend the troubleshooting tips
+  ([#681](https://github.com/aws/graph-explorer/pull/681))
 - **Updated** dependencies, including Node v22
   ([#680](https://github.com/aws/graph-explorer/pull/680))
 

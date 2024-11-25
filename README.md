@@ -28,9 +28,8 @@ databases and Graph Explorer, we recommend that you check out the
   A quick start guide to setting up Graph Explorer on Amazon EC2 with Neptune.
 - [Local Development](./additionaldocs/getting-started/README.md#local-development-setup) -
   A quick start guide building the Docker image from source code.
-- [Helpful Tips](./additionaldocs/getting-started/README.md#helpful-tips) - A
-  collection of helpful tips if you run in to issues while setting up Graph
-  Explorer.
+- [Troubleshooting](./additionaldocs/troubleshooting.md) - A collection of
+  helpful tips if you run in to issues while setting up Graph Explorer.
 
 ### Minimum Recommended Versions
 
@@ -121,9 +120,6 @@ connection, you can click “Open Graph Explorer” on the top-right to navigate
 here. There are several key features on this UI:
 
 - **Top Bar UI:**
-  - **Search bar:** If a user wants to start without using the Data Explorer,
-    they can go directly to the search bar and use the search to visualize a
-    starting node in the graph.
   - **Toggles:** You can toggle to show/hide the Graph View and/or Table View
     for screen real-estate management.
   - **Open Connections:** This takes the user back to Connections UI.
@@ -139,6 +135,8 @@ here. There are several key features on this UI:
     display names available.
 - **Right-hand Pane UI:** There are 5-6 functions in the collapsible right-hand
   pane of Graph Explorer:
+  - **Search View** allows you to search for specific nodes by filtering on node
+    types and attributes and then adding nodes to the graph view.
   - **Details View** shows details about a selected node/edge such as properties
     etc.
   - **Entities Filter** is used to control the display of nodes and edges that
