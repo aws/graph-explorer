@@ -206,7 +206,7 @@ export default function GraphViewer({
               tooltipPlacement="bottom-center"
               icon={<ResetIcon />}
               variant="text"
-              onPress={() => {
+              onClick={() => {
                 graphRef.current?.runLayout();
               }}
             />
@@ -302,7 +302,7 @@ function Legend({ onClose }: { onClose: () => void }) {
         <h1 className="text-base font-bold">Legend</h1>
         <IconButton
           icon={<CloseIcon />}
-          onPress={onClose}
+          onClick={onClose}
           variant="text"
           size="small"
         />

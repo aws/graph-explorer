@@ -180,10 +180,9 @@ const SelectBox = (
             {clearable && selectedOptions !== "" && (
               <IconButton
                 className={"clear-button"}
-                as="span"
                 variant="text"
                 icon={<CloseIcon />}
-                onPress={() => onSelectionChange?.(new Set())}
+                onClick={() => onSelectionChange?.(new Set())}
               />
             )}
             {items.length > 0 && (

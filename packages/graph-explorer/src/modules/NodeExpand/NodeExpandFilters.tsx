@@ -91,7 +91,7 @@ const NodeExpandFilters = ({
             icon={<AddIcon />}
             variant={"text"}
             size={"small"}
-            onPress={onFilterAdd}
+            onClick={onFilterAdd}
           />
         </div>
       )}
@@ -127,7 +127,7 @@ const NodeExpandFilters = ({
                 variant="text"
                 color="error"
                 tooltipText="Remove Filter"
-                onPress={() => onFilterDelete(filterIndex)}
+                onClick={() => onFilterDelete(filterIndex)}
               />
             </div>
           ))}
@@ -145,7 +145,7 @@ const NodeExpandFilters = ({
           icon={<AddIcon />}
           variant="text"
           size="small"
-          onPress={() => onLimitChange(1)}
+          onClick={() => onLimitChange(1)}
         />
       </div>
       {limit !== null && (
@@ -166,7 +166,7 @@ const NodeExpandFilters = ({
             variant="text"
             color="error"
             tooltipText="Remove Limit"
-            onPress={() => onLimitChange(null)}
+            onClick={() => onLimitChange(null)}
           />
         </div>
       )}

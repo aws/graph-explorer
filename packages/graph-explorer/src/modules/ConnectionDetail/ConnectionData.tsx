@@ -68,7 +68,7 @@ const ConnectionData = () => {
             icon={<ChevronRightIcon />}
             variant="text"
             size="small"
-            onPress={() => navigate(`/data-explorer/${encodeURIComponent(vt)}`)}
+            onClick={() => navigate(`/data-explorer/${encodeURIComponent(vt)}`)}
           />
         ),
       });

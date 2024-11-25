@@ -148,7 +148,7 @@ const GraphExplorer = () => {
             tooltipPlacement={"bottom-center"}
             variant={toggles.has("graph-viewer") ? "filled" : "text"}
             icon={<GraphIcon />}
-            onPress={toggleView("graph-viewer")}
+            onClick={toggleView("graph-viewer")}
           />
           <IconButton
             tooltipText={
@@ -157,7 +157,7 @@ const GraphExplorer = () => {
             tooltipPlacement={"bottom-center"}
             variant={toggles.has("table-view") ? "filled" : "text"}
             icon={<GridIcon />}
-            onPress={toggleView("table-view")}
+            onClick={toggleView("table-view")}
           />
           <div className={"v-divider"} />
           <Link to={"/connections"}>

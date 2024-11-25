@@ -1,7 +1,5 @@
 import { cn } from "@/utils";
-import { useButton } from "@react-aria/button";
-import type { AriaButtonProps } from "@react-types/button";
-import type { ElementType, ForwardedRef, ReactNode, RefObject } from "react";
+import type { ComponentPropsWithoutRef, ForwardedRef, ReactNode } from "react";
 import { forwardRef } from "react";
 import type { TooltipProps } from "./Tooltip";
 import Tooltip from "./Tooltip/Tooltip";
@@ -53,18 +51,12 @@ const iconButtonVariants = cva({
   },
 });
 
-type IconButtonVariants = VariantProps<typeof iconButtonVariants>;
-
 export interface IconButtonProps
-  extends Omit<AriaButtonProps<ElementType<any>>, "elementType">,
-    IconButtonVariants {
-  className?: string;
+  extends Omit<ComponentPropsWithoutRef<"button">, "color">,
+    VariantProps<typeof iconButtonVariants> {
   icon: ReactNode;
-  isDisabled?: boolean;
-  as?: ElementType;
   tooltipText?: TooltipProps["text"];
   tooltipPlacement?: TooltipProps["placement"];
-  onClick?(e: MouseEvent): void;
 }
 
 export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
@@ -72,35 +64,24 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
     {
       tooltipText,
       tooltipPlacement,
-      onClick,
       variant,
       size,
       color,
+      className,
+      icon,
       ...props
     }: IconButtonProps,
     ref: ForwardedRef<HTMLButtonElement>
   ) => {
-    const { buttonProps } = useButton(
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      props,
-      ref as RefObject<HTMLButtonElement>
-    );
-
-    const { className, icon, as } = props;
-
-    const Component: ElementType = as ? as : "button";
-
     const component = (
-      <Component
+      <button
         ref={ref}
-        {...buttonProps}
         className={cn(iconButtonVariants({ variant, color, size }), className)}
-        onClick={onClick}
+        {...props}
       >
         {icon}
         {props.children}
-      </Component>
+      </button>
     );
 
     if (tooltipText) {

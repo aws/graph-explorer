@@ -42,7 +42,7 @@ export const makeIconActionCell =
           icon={getIcon?.(props) || icon}
           size={"small"}
           variant={"text"}
-          onPress={() => onPress(props)}
+          onClick={() => onPress(props)}
         />
       </div>
     );

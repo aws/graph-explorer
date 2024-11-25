@@ -71,7 +71,7 @@ const UserPrefixes = () => {
                 size={"small"}
                 color={"error"}
                 icon={<DeleteIcon />}
-                onPress={onDeletePrefix(prefixConfig.prefix)}
+                onClick={onDeletePrefix(prefixConfig.prefix)}
               />
             ),
           };
