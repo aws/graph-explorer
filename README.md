@@ -45,6 +45,9 @@ For non-Neptune databases, we recommend at least TinkerPop 3.6.
 
 ## Features
 
+If you are interested in where Graph Explorer is headed in the future then check
+out our [roadmap](./ROADMAP.md) and participate in the discussions.
+
 ### Settings UI
 
 #### General Settings
