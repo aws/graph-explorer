@@ -104,7 +104,7 @@ export const ColumnSettingsControl = <T extends Record<string, unknown>>({
         variant={"text"}
         size={"base"}
         icon={<ManageColumnsIcon />}
-        onPress={() => setIsContentVisible(visible => !visible)}
+        onClick={() => setIsContentVisible(visible => !visible)}
         {...triggerProps}
       />
       {renderLayer(

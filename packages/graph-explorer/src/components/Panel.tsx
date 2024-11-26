@@ -121,7 +121,7 @@ export function PanelHeaderCloseButton({
     <IconButton
       tooltipText="Close"
       icon={<XIcon />}
-      onPress={onClose}
+      onClick={onClose}
       variant="text"
       size="small"
     />
@@ -140,12 +140,12 @@ export function PanelHeaderActionButton({
 }: Action & IconButtonProps) {
   return (
     <IconButton
-      isDisabled={isDisabled}
+      disabled={isDisabled}
       tooltipText={label}
       variant={active ? "filled" : "text"}
       color={color}
       icon={icon}
-      onPress={() => onActionClick()}
+      onClick={() => onActionClick()}
       {...props}
     />
   );

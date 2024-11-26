@@ -170,20 +170,20 @@ export const PaginationControl: FunctionComponent<PaginationControlProps> = ({
             onChange={value => setPageSize(parseInt(value as string))}
           />
           <IconButton
-            isDisabled={!canPreviousPage}
+            disabled={!canPreviousPage}
             variant={"text"}
             size={"small"}
             className={cn("page-button", "page-control")}
             icon={<SkipBackwardIcon />}
-            onPress={() => gotoPage(0)}
+            onClick={() => gotoPage(0)}
           />
           <IconButton
-            isDisabled={!canPreviousPage}
+            disabled={!canPreviousPage}
             variant={"text"}
             size={"small"}
             className={cn("page-button", "page-control")}
             icon={<BackwardIcon />}
-            onPress={previousPage}
+            onClick={previousPage}
           />
           <div className={"page-viz"}>
             {pagesToRender.map(page => {
@@ -203,19 +203,19 @@ export const PaginationControl: FunctionComponent<PaginationControlProps> = ({
             })}
           </div>
           <IconButton
-            isDisabled={!canNextPage}
+            disabled={!canNextPage}
             variant={"text"}
             size={"small"}
             className={cn("page-button", "page-control")}
             icon={<ForwardIcon />}
-            onPress={nextPage}
+            onClick={nextPage}
           />
           <IconButton
-            isDisabled={!canNextPage}
+            disabled={!canNextPage}
             variant={"text"}
             className={cn("page-button", "page-control")}
             icon={<SkipForwardIcon />}
-            onPress={() => gotoPage(pageCount - 1)}
+            onClick={() => gotoPage(pageCount - 1)}
           />
         </div>
       )}
