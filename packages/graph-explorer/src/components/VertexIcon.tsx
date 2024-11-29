@@ -1,5 +1,5 @@
 import { fade, VertexTypeConfig } from "@/core";
-import RemoteSvgIcon from "./RemoteSvgIcon";
+import SVG from "react-inlinesvg";
 import { cn } from "@/utils";
 
 interface Props {
@@ -14,7 +14,7 @@ function VertexIcon({ iconUrl, iconImageType, className }: Props) {
   }
 
   if (iconImageType === "image/svg+xml") {
-    return <RemoteSvgIcon src={iconUrl} className={cn("size-6", className)} />;
+    return <SVG src={iconUrl} className={cn("size-6", className)} />;
   }
 
   return <img src={iconUrl} className={cn("size-6", className)} />;
