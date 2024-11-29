@@ -8,9 +8,9 @@ import useTranslations from "@/hooks/useTranslations";
 import NeighborsList from "@/modules/common/NeighborsList/NeighborsList";
 import EntityAttribute from "./EntityAttribute";
 import defaultStyles from "./EntityDetail.styles";
-import VertexHeader from "@/modules/common/VertexHeader";
 import { useVertexTypeConfig } from "@/core/ConfigurationProvider/useConfiguration";
 import { RESERVED_ID_PROPERTY } from "@/utils/constants";
+import { VertexRow } from "@/components";
 
 export type VertexDetailProps = {
   node: Vertex;
@@ -45,7 +45,7 @@ export default function NodeDetail({ node }: VertexDetailProps) {
 
   return (
     <div className={styleWithTheme(defaultStyles())}>
-      <VertexHeader vertex={node} />
+      <VertexRow vertex={node} className="border-b p-3" />
       <NeighborsList vertex={node} />
       <div className={"properties"}>
         <div className={"title"}>Properties</div>

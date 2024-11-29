@@ -45,9 +45,6 @@ export * from "./Popover";
 
 export { default as NotInProduction } from "./NotInProduction";
 
-export { default as RemoteSvgIcon } from "./RemoteSvgIcon";
-export * from "./RemoteSvgIcon";
-
 export { default as Section } from "./Section";
 export * from "./Section";
 
@@ -62,6 +59,8 @@ export * from "./UseLayer";
 
 export { default as VertexIcon } from "./VertexIcon";
 export * from "./VertexIcon";
+
+export * from "./VertexRow";
 
 export { default as Workspace } from "./Workspace";
 export * from "./Workspace";
