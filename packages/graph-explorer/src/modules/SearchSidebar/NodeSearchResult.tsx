@@ -1,12 +1,9 @@
 import { Vertex } from "@/@types/entities";
-import { Button, Tooltip, VertexSymbol } from "@/components";
-import { useVertexTypeConfig } from "@/core/ConfigurationProvider/useConfiguration";
+import { Button, Tooltip, VertexRow } from "@/components";
 import {
   useAddToGraph,
   useHasNodeBeenAddedToGraph,
   useRemoveNodeFromGraph,
-  useDisplayNames,
-  useTextTransform,
 } from "@/hooks";
 import { cn } from "@/utils";
 import {
@@ -18,14 +15,6 @@ import { useState } from "react";
 
 export function NodeSearchResult({ node }: { node: Vertex }) {
   const [expanded, setExpanded] = useState(false);
-  const getDisplayNames = useDisplayNames();
-  const textTransform = useTextTransform();
-
-  const { name, longName } = getDisplayNames(node);
-
-  const vtConfig = useVertexTypeConfig(node.type);
-  const nodeType = vtConfig?.displayLabel || textTransform(node.type);
-
   const addToGraph = useAddToGraph(node);
   const removeFromGraph = useRemoveNodeFromGraph(node.id);
   const hasBeenAdded = useHasNodeBeenAddedToGraph(node.id);
@@ -44,17 +33,7 @@ export function NodeSearchResult({ node }: { node: Vertex }) {
         <div>
           <ChevronRightIcon className="text-primary-dark/50 size-5 transition-transform duration-200 ease-in-out group-data-[expanded=true]:rotate-90" />
         </div>
-        <div className="flex grow flex-row items-center gap-3">
-          <VertexSymbol vtConfig={vtConfig} />
-          <div className="flex grow flex-col items-start">
-            <div className="text-base font-bold leading-snug">
-              {nodeType} &rsaquo; {name}
-            </div>
-            <div className="text-text-secondary/90 line-clamp-2 text-base leading-snug">
-              {longName}
-            </div>
-          </div>
-        </div>
+        <VertexRow vertex={node} className="grow" />
         <Tooltip
           text={hasBeenAdded ? "Remove node from view" : "Add node to view"}
           delayEnter={200}

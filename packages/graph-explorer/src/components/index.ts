@@ -63,6 +63,8 @@ export * from "./UseLayer";
 export { default as VertexIcon } from "./VertexIcon";
 export * from "./VertexIcon";
 
+export * from "./VertexRow";
+
 export { default as Workspace } from "./Workspace";
 export * from "./Workspace";
 

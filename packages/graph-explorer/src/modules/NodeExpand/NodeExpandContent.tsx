@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { Vertex } from "@/types/entities";
-import { PanelError, PanelFooter } from "@/components";
+import { PanelError, PanelFooter, VertexRow } from "@/components";
 import Button from "@/components/Button";
 import ExpandGraphIcon from "@/components/icons/ExpandGraphIcon";
 import GraphIcon from "@/components/icons/GraphIcon";
@@ -15,7 +15,6 @@ import useTranslations from "@/hooks/useTranslations";
 import NeighborsList from "@/modules/common/NeighborsList/NeighborsList";
 import defaultStyles from "./NodeExpandContent.styles";
 import NodeExpandFilters, { NodeExpandFilter } from "./NodeExpandFilters";
-import VertexHeader from "@/modules/common/VertexHeader";
 import { ExpandNodeRequest } from "@/hooks/useExpandNode";
 import { useUpdateNodeCountsQuery } from "@/hooks/useUpdateNodeCounts";
 import { cn } from "@/utils";
@@ -31,7 +30,7 @@ export default function NodeExpandContent({ vertex }: NodeExpandContentProps) {
     <div
       className={cn(styleWithTheme(defaultStyles), "flex h-full grow flex-col")}
     >
-      <VertexHeader vertex={vertex} />
+      <VertexRow vertex={vertex} className="border-b p-3" />
       <ExpandSidebarContent vertex={vertex} />
     </div>
   );

@@ -14,13 +14,12 @@ import {
   ArrowTriangleCross,
   ArrowTriangleTee,
   ArrowVee,
-  VertexIcon,
+  VertexRow,
 } from "@/components";
 import EdgeIcon from "@/components/icons/EdgeIcon";
 import { useWithTheme } from "@/core";
 import { useConfiguration } from "@/core/ConfigurationProvider";
-import fade from "@/core/ThemeProvider/utils/fade";
-import { useTextTransform, useDisplayNames } from "@/hooks";
+import { useTextTransform } from "@/hooks";
 import { formatDate } from "@/utils";
 import defaultStyles from "./EntityDetail.styles";
 import { useEdgeTypeConfig } from "@/core/ConfigurationProvider/useConfiguration";
@@ -37,20 +36,6 @@ const EdgeDetail = ({ edge, sourceVertex, targetVertex }: EdgeDetailProps) => {
 
   const edgeConfig = useEdgeTypeConfig(edge.type);
 
-  const sourceVertexConfig = useMemo(() => {
-    if (!sourceVertex) {
-      return;
-    }
-    return config?.getVertexTypeConfig(sourceVertex?.type);
-  }, [config, sourceVertex]);
-
-  const targetVertexConfig = useMemo(() => {
-    if (!targetVertex) {
-      return;
-    }
-    return config?.getVertexTypeConfig(targetVertex?.type);
-  }, [config, targetVertex]);
-
   const sortedAttributes = useMemo(() => {
     const attributes = clone(edgeConfig?.attributes);
     return (
@@ -61,9 +46,6 @@ const EdgeDetail = ({ edge, sourceVertex, targetVertex }: EdgeDetailProps) => {
   }, [edgeConfig?.attributes]);
 
   const textTransform = useTextTransform();
-  const getDisplayNames = useDisplayNames();
-  const { name: sourceName } = getDisplayNames(sourceVertex);
-  const { name: targetName } = getDisplayNames(targetVertex);
 
   return (
     <div className={styleWithTheme(defaultStyles(edgeConfig?.lineColor))}>
@@ -118,24 +100,7 @@ const EdgeDetail = ({ edge, sourceVertex, targetVertex }: EdgeDetailProps) => {
             <ArrowNone className={"source-arrow-type"} />
           )}
         </div>
-        {sourceVertexConfig?.iconUrl && (
-          <div
-            className={"icon"}
-            style={{
-              background: fade(sourceVertexConfig.color, 0.2),
-              color: sourceVertexConfig.color,
-            }}
-          >
-            <VertexIcon
-              iconUrl={sourceVertexConfig?.iconUrl}
-              iconImageType={sourceVertexConfig?.iconImageType}
-            />
-          </div>
-        )}
-        <div className={"content"}>
-          <div className={"title"}>{sourceName}</div>
-          <div>{textTransform(sourceVertex?.type || sourceVertex?.id)}</div>
-        </div>
+        <VertexRow vertex={sourceVertex} />
       </div>
       <div className={cn("header", "target-vertex")}>
         <div
@@ -176,24 +141,7 @@ const EdgeDetail = ({ edge, sourceVertex, targetVertex }: EdgeDetailProps) => {
             <ArrowNone className={"target-arrow-type"} />
           )}
         </div>
-        {targetVertexConfig?.iconUrl && (
-          <div
-            className={"icon"}
-            style={{
-              background: fade(targetVertexConfig.color, 0.2),
-              color: targetVertexConfig.color,
-            }}
-          >
-            <VertexIcon
-              iconUrl={targetVertexConfig?.iconUrl}
-              iconImageType={targetVertexConfig?.iconImageType}
-            />
-          </div>
-        )}
-        <div className={"content"}>
-          <div className={"title"}>{targetName}</div>
-          <div>{textTransform(targetVertex?.type || targetVertex?.id)}</div>
-        </div>
+        <VertexRow vertex={targetVertex} />
       </div>
       {edgeConfig && sortedAttributes.length > 0 && (
         <div className={"properties"}>
