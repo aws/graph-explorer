@@ -14,3 +14,9 @@ export const RELOAD_URL =
   import.meta.env.BASE_URL.substring(-1) !== "/"
     ? import.meta.env.BASE_URL + "/"
     : import.meta.env.BASE_URL;
+
+/** Default color for vertices */
+export const DEFAULT_VERTEX_COLOR = "#128EE5";
+
+/** Default icon for vertices */
+export const DEFAULT_ICON_IMAGE_TYPE = "image/svg+xml";

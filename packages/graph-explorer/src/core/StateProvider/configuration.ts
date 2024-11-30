@@ -17,7 +17,11 @@ import {
   VertexPreferences,
 } from "./userPreferences";
 import isDefaultValue from "./isDefaultValue";
-import { RESERVED_ID_PROPERTY } from "@/utils/constants";
+import {
+  DEFAULT_ICON_IMAGE_TYPE,
+  DEFAULT_VERTEX_COLOR,
+  RESERVED_ID_PROPERTY,
+} from "@/utils/constants";
 
 export const isStoreLoadedAtom = atom<boolean>({
   key: "store-loaded",
@@ -176,9 +180,9 @@ const mergeVertex = (
     // Defaults
     type: vt,
     displayLabel: sanitizeText(vt),
-    color: "#128EE5",
+    color: DEFAULT_VERTEX_COLOR,
     iconUrl: DEFAULT_ICON_URL,
-    iconImageType: "image/svg+xml",
+    iconImageType: DEFAULT_ICON_IMAGE_TYPE,
     displayNameAttribute: RESERVED_ID_PROPERTY,
     longDisplayNameAttribute: "types",
     // Automatic schema override
