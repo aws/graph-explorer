@@ -129,27 +129,28 @@ export function PanelHeaderCloseButton({
 }
 PanelHeaderCloseButton.displayName = "PanelHeaderCloseButton";
 
-export function PanelHeaderActionButton({
-  isDisabled,
-  label,
-  active,
-  color,
-  icon,
-  onActionClick,
-  ...props
-}: Action & IconButtonProps) {
-  return (
-    <IconButton
-      disabled={isDisabled}
-      tooltipText={label}
-      variant={active ? "filled" : "text"}
-      color={color}
-      icon={icon}
-      onClick={() => onActionClick()}
-      {...props}
-    />
-  );
-}
+export const PanelHeaderActionButton = React.forwardRef<
+  React.ElementRef<"button">,
+  Action & IconButtonProps
+>(
+  (
+    { isDisabled, label, active, color, icon, onActionClick, ...props },
+    ref
+  ) => {
+    return (
+      <IconButton
+        ref={ref}
+        disabled={isDisabled}
+        tooltipText={label}
+        variant={active ? "filled" : "text"}
+        color={color}
+        icon={icon}
+        onClick={() => onActionClick()}
+        {...props}
+      />
+    );
+  }
+);
 
 export type PanelHeaderActionsProps = React.PropsWithChildren<
   React.ComponentPropsWithoutRef<"div">
