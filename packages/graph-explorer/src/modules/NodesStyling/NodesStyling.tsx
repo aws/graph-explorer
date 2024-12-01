@@ -43,8 +43,9 @@ const NodesStyling = ({
               <SingleNodeStyling
                 vertexType={vertexType}
                 opened={customizeNodeType === vertexType}
-                onOpen={() => onNodeCustomize(vertexType)}
-                onClose={() => onNodeCustomize(undefined)}
+                onOpenChanged={open =>
+                  onNodeCustomize(open ? vertexType : undefined)
+                }
                 className="px-3 pb-3 pt-2"
               />
             </Fragment>

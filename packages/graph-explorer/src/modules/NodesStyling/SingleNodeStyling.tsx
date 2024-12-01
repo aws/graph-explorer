@@ -1,9 +1,17 @@
-import { FileButton, Modal } from "@mantine/core";
+import { FileButton } from "@mantine/core";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRecoilState, useResetRecoilState } from "recoil";
 import {
   Button,
   ComponentBaseProps,
+  Dialog,
+  DialogBody,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
   IconButton,
   Input,
   Select,
@@ -25,7 +33,6 @@ import useTranslations from "@/hooks/useTranslations";
 import { LINE_STYLE_OPTIONS } from "./lineStyling";
 import { NODE_SHAPE } from "./nodeShape";
 import defaultStyles from "./SingleNodeStyling.style";
-import modalDefaultStyles from "./SingleNodeStylingModal.style";
 import { useVertexTypeConfig } from "@/core/ConfigurationProvider/useConfiguration";
 import { useDebounceValue, usePrevious } from "@/hooks";
 import { cn } from "@/utils";
@@ -34,8 +41,7 @@ import { RESERVED_ID_PROPERTY } from "@/utils/constants";
 export type SingleNodeStylingProps = {
   vertexType: string;
   opened: boolean;
-  onOpen(): void;
-  onClose(): void;
+  onOpenChanged: (open: boolean) => void;
 } & ComponentBaseProps;
 
 const file2Base64 = (file: File): Promise<string> => {
@@ -50,8 +56,7 @@ const file2Base64 = (file: File): Promise<string> => {
 export default function SingleNodeStyling({
   vertexType,
   opened,
-  onOpen,
-  onClose,
+  onOpenChanged,
   className,
   ...rest
 }: SingleNodeStylingProps) {
@@ -142,168 +147,167 @@ export default function SingleNodeStyling({
           hideError={true}
           noMargin={true}
         />
-        <Button
-          icon={<StylingIcon />}
-          variant="text"
-          size="small"
-          onPress={onOpen}
-        >
-          Customize
-        </Button>
-      </div>
-      <Modal
-        opened={opened}
-        onClose={onClose}
-        centered={true}
-        title={
-          <div>
-            Customize <strong>{displayAs || vertexType}</strong>
-          </div>
-        }
-        className={styleWithTheme(modalDefaultStyles)}
-        overlayProps={{
-          backgroundOpacity: 0.1,
-        }}
-      >
-        <div className="modal-container">
-          <div>
-            <p>Display Attributes</p>
-            <div className="attrs-container">
-              <Select
-                label="Display Name Attribute"
-                labelPlacement="inner"
-                value={vtConfig.displayNameAttribute || ""}
-                onChange={value => {
-                  onUserPrefsChange({ displayNameAttribute: value as string });
-                }}
-                options={selectOptions}
-                hideError={true}
-                noMargin={true}
-              />
-              <Select
-                label="Display Description Attribute"
-                labelPlacement="inner"
-                value={vtConfig.longDisplayNameAttribute || ""}
-                onChange={value => {
-                  onUserPrefsChange({
-                    longDisplayNameAttribute: value as string,
-                  });
-                }}
-                options={selectOptions}
-                hideError={true}
-                noMargin={true}
-              />
-            </div>
-          </div>
-          <div>
-            <p>Shape and Icon</p>
-            <div className="flex flex-row items-center gap-2">
-              <Select
-                label="Style"
-                labelPlacement="inner"
-                value={nodePreferences?.shape || "ellipse"}
-                onChange={value =>
-                  onUserPrefsChange({ shape: value as ShapeStyle })
-                }
-                options={NODE_SHAPE}
-                hideError={true}
-                noMargin={true}
-                className="grow"
-              />
-              <FileButton
-                accept="image/*"
-                onChange={file => {
-                  file && convertImageToBase64AndSetNewIcon(file);
-                }}
-              >
-                {props => (
-                  <IconButton
-                    variant="filled"
-                    className="text-text-primary hover:text-text-primary group rounded-full border-0 bg-transparent p-0 hover:cursor-pointer hover:bg-gray-200"
-                    icon={
-                      <>
-                        <div className="hidden group-hover:flex">
-                          <UploadIcon />
-                        </div>
-                        <VertexSymbol
-                          vtConfig={vtConfig}
-                          className="size-full group-hover:hidden"
-                        />
-                      </>
-                    }
-                    tooltipText="Upload New Icon"
-                    tooltipPlacement="bottom-end"
-                    onClick={props.onClick}
+        <Dialog open={opened} onOpenChange={onOpenChanged}>
+          <DialogTrigger asChild>
+            <Button icon={<StylingIcon />} variant="text" size="small">
+              Customize
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Customize Node Style</DialogTitle>
+              <DialogDescription>
+                Customize styles for node type {displayAs || vertexType}
+              </DialogDescription>
+            </DialogHeader>
+            <DialogBody>
+              <div className="space-y-2">
+                <div className="font-medium">Display Attributes</div>
+                <div className="flex gap-2">
+                  <Select
+                    label={"Display Name Attribute"}
+                    labelPlacement={"inner"}
+                    value={vtConfig.displayNameAttribute || ""}
+                    onChange={value => {
+                      onUserPrefsChange({
+                        displayNameAttribute: value as string,
+                      });
+                    }}
+                    options={selectOptions}
+                    hideError={true}
+                    noMargin={true}
+                    className="w-full"
                   />
-                )}
-              </FileButton>
-            </div>
-          </div>
-          <div>
-            <p>Shape Styling</p>
-            <div className="attrs-container">
-              <ColorInput
-                label="Color"
-                labelPlacement="inner"
-                startColor={nodePreferences?.color || "#17457b"}
-                onChange={(color: string) => onUserPrefsChange({ color })}
-              />
-              <Input
-                label="Background Opacity"
-                labelPlacement="inner"
-                type="number"
-                min={0}
-                max={1}
-                step={0.1}
-                value={nodePreferences?.backgroundOpacity ?? 0.4}
-                onChange={(value: number) =>
-                  onUserPrefsChange({ backgroundOpacity: value })
-                }
-                hideError={true}
-                noMargin={true}
-              />
-            </div>
-          </div>
-          <div>
-            <div className="attrs-container">
-              <ColorInput
-                label="Border Color"
-                labelPlacement="inner"
-                startColor={nodePreferences?.borderColor || "#17457b"}
-                onChange={(color: string) =>
-                  onUserPrefsChange({ borderColor: color })
-                }
-              />
-              <Input
-                label="Border Width"
-                labelPlacement="inner"
-                type="number"
-                min={0}
-                value={nodePreferences?.borderWidth ?? 0}
-                onChange={(value: number) =>
-                  onUserPrefsChange({ borderWidth: value })
-                }
-                hideError={true}
-                noMargin={true}
-              />
-              <Select
-                label="Border Style"
-                labelPlacement="inner"
-                value={nodePreferences?.borderStyle || "solid"}
-                onChange={value =>
-                  onUserPrefsChange({ borderStyle: value as LineStyle })
-                }
-                options={LINE_STYLE_OPTIONS}
-                hideError={true}
-                noMargin={true}
-              />
-            </div>
-          </div>
-          <div className="actions">
-            <Button onPress={() => reset()}>Reset to Default</Button>
-          </div>
-        </div>
-      </Modal>
+                  <Select
+                    label={"Display Description Attribute"}
+                    labelPlacement={"inner"}
+                    value={vtConfig.longDisplayNameAttribute || ""}
+                    onChange={value => {
+                      onUserPrefsChange({
+                        longDisplayNameAttribute: value as string,
+                      });
+                    }}
+                    options={selectOptions}
+                    hideError={true}
+                    noMargin={true}
+                    className="w-full"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div className="font-medium">Shape and Icon</div>
+                <div className="flex flex-row items-center gap-2">
+                  <Select
+                    label="Style"
+                    labelPlacement="inner"
+                    value={nodePreferences?.shape || "ellipse"}
+                    onChange={value =>
+                      onUserPrefsChange({ shape: value as ShapeStyle })
+                    }
+                    options={NODE_SHAPE}
+                    hideError={true}
+                    noMargin={true}
+                    className="grow"
+                  />
+                  <FileButton
+                    accept="image/*"
+                    onChange={file => {
+                      file && convertImageToBase64AndSetNewIcon(file);
+                    }}
+                  >
+                    {props => (
+                      <IconButton
+                        variant="filled"
+                        className="text-text-primary hover:text-text-primary group rounded-full border-0 bg-transparent p-0 hover:cursor-pointer hover:bg-gray-200"
+                        icon={
+                          <>
+                            <div className="hidden group-hover:flex">
+                              <UploadIcon />
+                            </div>
+                            <VertexSymbol
+                              vtConfig={vtConfig}
+                              className="size-full group-hover:hidden"
+                            />
+                          </>
+                        }
+                        tooltipText="Upload New Icon"
+                        tooltipPlacement="bottom-end"
+                        onClick={props.onClick}
+                      />
+                    )}
+                  </FileButton>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div className="font-medium">Shape Styling</div>
+                <div className="flex gap-2">
+                  <ColorInput
+                    label="Color"
+                    labelPlacement="inner"
+                    startColor={nodePreferences?.color || "#17457b"}
+                    onChange={(color: string) => onUserPrefsChange({ color })}
+                    className="w-full"
+                  />
+                  <Input
+                    label={"Background Opacity"}
+                    labelPlacement={"inner"}
+                    type={"number"}
+                    min={0}
+                    max={1}
+                    step={0.1}
+                    value={nodePreferences?.backgroundOpacity ?? 0.4}
+                    onChange={(value: number) =>
+                      onUserPrefsChange({ backgroundOpacity: value })
+                    }
+                    hideError={true}
+                    noMargin={true}
+                    className="w-full"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <ColorInput
+                    label={"Border Color"}
+                    labelPlacement={"inner"}
+                    startColor={nodePreferences?.borderColor || "#17457b"}
+                    onChange={(color: string) =>
+                      onUserPrefsChange({ borderColor: color })
+                    }
+                    className="w-full"
+                  />
+                  <Input
+                    label={"Border Width"}
+                    labelPlacement={"inner"}
+                    type={"number"}
+                    min={0}
+                    value={nodePreferences?.borderWidth ?? 0}
+                    onChange={(value: number) =>
+                      onUserPrefsChange({ borderWidth: value })
+                    }
+                    hideError={true}
+                    noMargin={true}
+                    className="w-full"
+                  />
+                  <Select
+                    label={"Border Style"}
+                    labelPlacement={"inner"}
+                    value={nodePreferences?.borderStyle || "solid"}
+                    onChange={value =>
+                      onUserPrefsChange({ borderStyle: value as LineStyle })
+                    }
+                    options={LINE_STYLE_OPTIONS}
+                    hideError={true}
+                    noMargin={true}
+                    className="w-full"
+                  />
+                </div>
+              </div>
+            </DialogBody>
+            <DialogFooter>
+              <Button onPress={() => reset()}>Reset to Default</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
     </div>
   );
 }

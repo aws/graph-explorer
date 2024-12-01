@@ -54,6 +54,7 @@ const ColorInput: FC<ColorInputProps & ColorPickerProps> = ({
           onClose={() => setColorPickerOpen(false)}
           isOpen={colorPickerOpen}
           placement={"bottom-start"}
+          className="w-full"
         >
           <UseLayerTrigger>
             <Input

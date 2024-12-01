@@ -1,4 +1,3 @@
-import { Modal } from "@mantine/core";
 import { useCallback, useState } from "react";
 import {
   useRecoilCallback,
@@ -10,6 +9,7 @@ import {
   Chip,
   DatabaseIcon,
   DeleteIcon,
+  Dialog,
   EditIcon,
   NotInProduction,
   Panel,
@@ -36,6 +36,7 @@ import saveConfigurationToFile from "@/utils/saveConfigurationToFile";
 import CreateConnection from "@/modules/CreateConnection";
 import ConnectionData from "./ConnectionData";
 import defaultStyles from "./ConnectionDetail.styles";
+import { DialogTrigger } from "@radix-ui/react-dialog";
 
 export type ConnectionDetailProps = {
   isSync: boolean;
@@ -119,12 +120,21 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
             onActionClick={onConfigExport}
           />
           <PanelHeaderDivider />
-          <PanelHeaderActionButton
-            label="Edit connection"
-            icon={<EditIcon />}
-            isDisabled={isSync}
-            onActionClick={() => setEdit(true)}
-          />
+          <Dialog open={edit} onOpenChange={setEdit}>
+            <DialogTrigger asChild>
+              <PanelHeaderActionButton
+                label="Edit connection"
+                icon={<EditIcon />}
+                isDisabled={isSync}
+                onActionClick={() => {}}
+              />
+            </DialogTrigger>
+
+            <CreateConnection
+              onClose={() => setEdit(false)}
+              existingConfig={config}
+            />
+          </Dialog>
           <PanelHeaderActionButton
             label={isFileBased ? "File (read-only)" : "Delete connection"}
             icon={<DeleteIcon />}
@@ -186,17 +196,12 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
             className="p-6"
           />
         )}
-        <Modal
-          opened={edit}
-          onClose={() => setEdit(false)}
-          title="Update connection"
-          size="600px"
-        >
+        <Dialog open={edit} onOpenChange={setEdit}>
           <CreateConnection
             onClose={() => setEdit(false)}
             existingConfig={config}
           />
-        </Modal>
+        </Dialog>
       </PanelContent>
     </Panel>
   );

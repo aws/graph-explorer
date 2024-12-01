@@ -1,29 +1,39 @@
 import { cn } from "@/utils";
-import { FileButton, Modal } from "@mantine/core";
-import { useDisclosure } from "@mantine/hooks";
+import { FileButton } from "@mantine/core";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import localforage from "localforage";
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import {
   UploadIcon,
   ErrorIcon,
-  SectionTitle,
   Paragraph,
   LoaderIcon,
   Button,
-  CheckIcon,
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogIcon,
+  AlertDialogTitle,
 } from "@/components";
 import {
   readBackupDataFromFile,
   restoreBackup,
-  type SerializedBackup,
 } from "@/core/StateProvider/localDb";
 import { useDebounceValue } from "@/hooks";
 import { APP_NAME, RELOAD_URL } from "@/utils/constants";
+import { CheckCircle2Icon, FileIcon, TriangleAlertIcon } from "lucide-react";
+import {
+  AlertDialogCancel,
+  AlertDialogDescription,
+} from "@radix-ui/react-alert-dialog";
+import { VisuallyHidden } from "@react-aria/visually-hidden";
 
 export default function LoadConfigButton() {
   const [file, setFile] = useState<File | null>(null);
   const resetRef = useRef<() => void>(null);
+  const [openConfirmation, setOpenConfirmation] = useState(false);
 
   const backupFileQuery = useQuery({
     queryKey: ["backup", "file", file],
@@ -32,10 +42,17 @@ export default function LoadConfigButton() {
     staleTime: 0,
   });
 
-  const clearFile = () => {
+  useEffect(() => {
+    if (backupFileQuery.data) {
+      setOpenConfirmation(true);
+    }
+  }, [backupFileQuery.data]);
+
+  const resetState = useCallback(() => {
+    setOpenConfirmation(false);
     setFile(null);
     resetRef.current?.();
-  };
+  }, []);
 
   const load = useMutation({
     mutationFn: async () => {
@@ -45,7 +62,10 @@ export default function LoadConfigButton() {
       await restoreBackup(backupFileQuery.data, localforage);
     },
     onSuccess: () => {
-      clearFile();
+      resetState();
+    },
+    onError: () => {
+      setOpenConfirmation(false);
     },
   });
 
@@ -53,7 +73,10 @@ export default function LoadConfigButton() {
     <>
       <FileButton
         resetRef={resetRef}
-        onChange={file => setFile(file)}
+        onChange={file => {
+          setFile(file);
+          setOpenConfirmation(true);
+        }}
         accept="application/json"
         disabled={load.isPending}
       >
@@ -63,16 +86,18 @@ export default function LoadConfigButton() {
           </Button>
         )}
       </FileButton>
-      <ConfirmationModal
-        backupData={backupFileQuery.data}
-        fileName={file?.name}
-        onCancel={clearFile}
-        onConfirm={load.mutate}
-        isPending={load.isPending}
-      />
+      <AlertDialog open={openConfirmation} onOpenChange={setOpenConfirmation}>
+        <ConfirmationModal
+          fileName={file?.name}
+          onCancel={resetState}
+          onConfirm={load.mutate}
+          isPending={load.isPending}
+        />
+      </AlertDialog>
+
       <ParseFailureModal
-        error={backupFileQuery.error}
-        onCancel={clearFile}
+        error={backupFileQuery.error ?? load.error}
+        onCancel={resetState}
         fileName={file?.name}
       />
       <SuccessModal success={load.isSuccess} />
@@ -81,86 +106,63 @@ export default function LoadConfigButton() {
 }
 
 function ConfirmationModal({
-  backupData,
   fileName,
   onCancel,
   onConfirm,
   isPending,
 }: {
-  backupData: SerializedBackup | null | undefined;
   fileName?: string;
   onCancel: () => void;
   onConfirm: () => void;
   isPending: boolean;
 }) {
-  const [_, { close }] = useDisclosure(Boolean(backupData));
-
-  // Used to ensure the file name does not disappear while the modal is animating out
-  const debouncedFileName = useDebounceValue(fileName, 200);
-
-  const internalOnCancel = () => {
-    onCancel();
-    close();
-  };
-
   return (
-    <Modal
-      opened={Boolean(backupData)}
-      onClose={internalOnCancel}
-      withCloseButton={false}
-      size="lg"
-      centered={true}
-    >
-      <div className="flex flex-row items-start gap-8 p-2">
-        <div className="py-1">
-          <ErrorIcon className="text-warning-main size-16" />
+    <AlertDialogContent>
+      <AlertDialogHeader>
+        <AlertDialogTitle>Replace {APP_NAME} Configuration</AlertDialogTitle>
+        <VisuallyHidden>
+          <AlertDialogDescription>
+            Replace configuration data with contents of the chosen file
+          </AlertDialogDescription>
+        </VisuallyHidden>
+      </AlertDialogHeader>
+      <AlertDialogBody className="flex flex-row items-start">
+        <div className="gap-5">
+          <Paragraph>
+            This action will replace all configuration data within {APP_NAME},
+            including connections and custom styles, with the contents of the
+            config file selected.
+          </Paragraph>
+          <FileNameWell fileName={fileName} />
+          <Paragraph>
+            <i>Any connected graph databases will be unaffected.</i>
+          </Paragraph>
         </div>
-        <div className="flex grow flex-col gap-8">
-          <div>
-            <SectionTitle>Replace {APP_NAME} Configuration</SectionTitle>
-            <Paragraph>
-              This action will replace all configuration data within {APP_NAME},
-              including connections and custom styles, with the contents of the
-              config file selected.
-            </Paragraph>
-            <Paragraph className="my-4">
-              <b>{fileName ?? debouncedFileName ?? "No file selected"}</b>
-            </Paragraph>
-            <Paragraph>
-              <i>Any connected graph databases will be unaffected.</i>
-            </Paragraph>
+      </AlertDialogBody>
+      <AlertDialogFooter className="flex flex-row gap-2 self-end">
+        <Button isDisabled={isPending} onPress={onCancel}>
+          Cancel
+        </Button>
+        <Button
+          variant="danger"
+          onPress={onConfirm}
+          isDisabled={isPending}
+          className="relative transition-opacity"
+        >
+          <span className={cn(isPending && "opacity-0")}>
+            Replace {APP_NAME} Configuration
+          </span>
+          <div
+            className={cn(
+              "absolute inset-auto opacity-0",
+              isPending && "opacity-100"
+            )}
+          >
+            <LoaderIcon className="animate-spin" />
           </div>
-          <div className="flex flex-row gap-2 self-end">
-            <Button
-              size="large"
-              isDisabled={isPending}
-              onPress={internalOnCancel}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="danger"
-              size="large"
-              onPress={onConfirm}
-              isDisabled={isPending}
-              className="relative transition-opacity"
-            >
-              <span className={cn(isPending && "opacity-0")}>
-                Replace {APP_NAME} Configuration
-              </span>
-              <div
-                className={cn(
-                  "absolute inset-auto opacity-0",
-                  isPending && "opacity-100"
-                )}
-              >
-                <LoaderIcon className="animate-spin" />
-              </div>
-            </Button>
-          </div>
-        </div>
-      </div>
-    </Modal>
+        </Button>
+      </AlertDialogFooter>
+    </AlertDialogContent>
   );
 }
 
@@ -173,83 +175,96 @@ function ParseFailureModal({
   fileName?: string;
   onCancel: () => void;
 }) {
-  const [_, { close }] = useDisclosure(Boolean(error));
-
   // Used to ensure the file name does not disappear while the modal is animating out
   const debouncedFileName = useDebounceValue(fileName, 200);
+  const displayFileName = fileName ?? debouncedFileName ?? "No file selected";
 
-  const internalOnCancel = () => {
-    close();
-    onCancel();
-  };
+  if (!error) {
+    return null;
+  }
 
   return (
-    <Modal
-      opened={Boolean(error)}
-      onClose={internalOnCancel}
-      withCloseButton={false}
-      size="lg"
-      centered={true}
+    <AlertDialog
+      defaultOpen
+      onOpenChange={open => {
+        if (!open) {
+          onCancel();
+        }
+      }}
     >
-      <div className="flex flex-row items-start gap-8 p-2">
-        <div className="py-1">
-          <ErrorIcon className="text-warning-main size-16" />
-        </div>
-        <div className="flex grow flex-col gap-8">
-          <div>
-            <SectionTitle>Failed To Parse Config</SectionTitle>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Failed To Parse Config</AlertDialogTitle>
+          <VisuallyHidden>
+            <AlertDialogDescription>
+              Failed to parse the contents of the config file {displayFileName}
+            </AlertDialogDescription>
+          </VisuallyHidden>
+        </AlertDialogHeader>
+        <AlertDialogBody className="flex flex-row items-start">
+          <AlertDialogIcon className="text-warning-main pt-3">
+            <TriangleAlertIcon />
+          </AlertDialogIcon>
+          <div className="flex grow flex-col">
             <Paragraph>
               Could not parse the contents of the config file provided. Perhaps
               the file is not a config file from {APP_NAME} or the file is
               corrupted.
             </Paragraph>
-            <Paragraph>
-              <b>{fileName ?? debouncedFileName ?? "No file selected"}</b>
-            </Paragraph>
+            <FileNameWell fileName={fileName} />
           </div>
-          <Button size="large" onPress={internalOnCancel} className="self-end">
-            Cancel
-          </Button>
-        </div>
-      </div>
-    </Modal>
+        </AlertDialogBody>
+        <AlertDialogFooter className="sm:justify-end">
+          <AlertDialogCancel asChild>
+            <Button variant="filled" onPress={onCancel} className="self-end">
+              Close
+            </Button>
+          </AlertDialogCancel>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
 
 function SuccessModal({ success }: { success: boolean }) {
-  const [_, { close }] = useDisclosure(success);
+  if (!success) {
+    return null;
+  }
 
   return (
-    <Modal
-      opened={success}
-      onClose={close}
-      withCloseButton={false}
-      closeOnClickOutside={false}
-      closeOnEscape={false}
-      size="lg"
-      centered={true}
-    >
-      <div className="flex flex-row items-start gap-8 p-2">
-        <div className="py-1">
-          <CheckIcon className="text-success-main size-16" />
-        </div>
-        <div className="flex grow flex-col gap-8">
-          <div>
-            <SectionTitle>Restore Successful</SectionTitle>
-            <Paragraph className="w-full min-w-0">
-              All data was restored successfully. Please reload {APP_NAME}
-              to complete the process.
-            </Paragraph>
-          </div>
-
+    <AlertDialog defaultOpen>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Restore Successful</AlertDialogTitle>
+        </AlertDialogHeader>
+        <AlertDialogBody className="flex flex-row items-center">
+          <AlertDialogIcon className="text-success-main">
+            <CheckCircle2Icon />
+          </AlertDialogIcon>
+          <Paragraph className="w-full min-w-0 p-2">
+            All data was restored successfully. Please reload {APP_NAME} to
+            complete the process.
+          </Paragraph>
+        </AlertDialogBody>
+        <AlertDialogFooter className="sm:justify-end">
           {/* Force a full reload of the app in the browser */}
-          <a href={RELOAD_URL} className="self-end">
-            <Button variant="filled" size="large">
-              Reload {APP_NAME}
-            </Button>
+          <a href={RELOAD_URL}>
+            <Button variant="filled">Reload {APP_NAME}</Button>
           </a>
-        </div>
-      </div>
-    </Modal>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
+
+function FileNameWell({ fileName }: { fileName?: string }) {
+  // Used to ensure the file name does not disappear while the modal is animating out
+  const debouncedFileName = useDebounceValue(fileName, 200);
+  const displayFileName = fileName ?? debouncedFileName ?? "No file selected";
+  return (
+    <div className="bg-background-contrast/75 my-4 flex items-center gap-1.5 rounded-lg px-5 py-3">
+      <FileIcon className="size-6" />
+      <b>{displayFileName}</b>
+    </div>
   );
 }

@@ -1,7 +1,17 @@
 import { useCallback, useState } from "react";
 import { useRecoilCallback } from "recoil";
 import { v4 } from "uuid";
-import { InfoTooltip, TextArea } from "@/components";
+import {
+  DialogBody,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  InfoTooltip,
+  TextArea,
+} from "@/components";
 import Button from "@/components/Button";
 import Input from "@/components/Input";
 import Select from "@/components/Select";
@@ -17,13 +27,14 @@ import {
 } from "@/core/StateProvider/configuration";
 import { schemaAtom } from "@/core/StateProvider/schema";
 import useResetState from "@/core/StateProvider/useResetState";
-import { formatDate } from "@/utils";
+import { cn, formatDate } from "@/utils";
 import defaultStyles from "./CreateConnection.styles";
 import {
   DEFAULT_FETCH_TIMEOUT,
   DEFAULT_NODE_EXPAND_LIMIT,
 } from "@/utils/constants";
 import { Checkbox, Label } from "@/components/radix";
+import { VisuallyHidden } from "@react-aria/visually-hidden";
 
 type ConnectionForm = {
   name?: string;
@@ -227,186 +238,198 @@ const CreateConnection = ({
   }, [form, onClose, onSave, reset]);
 
   return (
-    <div className={styleWithTheme(defaultStyles)}>
-      <div className={"configuration-form"}>
-        <Input
-          label={"Name"}
-          value={form.name}
-          onChange={onFormChange("name")}
-          errorMessage={"Name is required"}
-          validationState={hasError && !form.name ? "invalid" : "valid"}
-          isDisabled={disabledFields.includes("name")}
-        />
-        <Select
-          label={"Graph Type"}
-          options={CONNECTIONS_OP}
-          value={form.queryEngine}
-          onChange={onFormChange("queryEngine")}
-          isDisabled={
-            disabledFields.includes("queryEngine") ||
-            form.serviceType === "neptune-graph"
-          }
-        />
-        <div className={"input-url"}>
-          <TextArea
-            data-autofocus={true}
-            label={
-              <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
-                Public or Proxy Endpoint
-                <InfoTooltip>
-                  Provide the endpoint URL for an open graph database, e.g.,
-                  Gremlin Server. If connecting to Amazon Neptune, then provide
-                  a proxy endpoint URL that is accessible from outside the VPC,
-                  e.g., EC2.
-                </InfoTooltip>
-              </div>
-            }
-            value={form.url}
-            onChange={onFormChange("url")}
-            errorMessage={"URL is required"}
-            placeholder={"https://example.com"}
-            validationState={hasError && !form.url ? "invalid" : "valid"}
-            isDisabled={disabledFields.includes("url")}
+    <DialogContent className="min-w-[500px]">
+      <DialogHeader>
+        <DialogTitle>
+          {existingConfig ? "Update connection" : "Add New Connection"}
+        </DialogTitle>
+        <VisuallyHidden>
+          <DialogDescription>
+            {existingConfig ? "Update connection" : "Add New Connection"}
+          </DialogDescription>
+        </VisuallyHidden>
+      </DialogHeader>
+      <DialogBody className={cn(styleWithTheme(defaultStyles))}>
+        <div className={"configuration-form"}>
+          <Input
+            label={"Name"}
+            value={form.name}
+            onChange={onFormChange("name")}
+            errorMessage={"Name is required"}
+            validationState={hasError && !form.name ? "invalid" : "valid"}
+            isDisabled={disabledFields.includes("name")}
           />
-        </div>
-        <div className={"input-url"}>
-          <Label className="cursor-pointer">
-            <Checkbox
-              value={"proxyConnection"}
-              checked={form.proxyConnection}
-              onCheckedChange={checked => {
-                onFormChange("proxyConnection")(checked);
-              }}
-            />
-            Using Proxy-Server
-          </Label>
-        </div>
-        {form.proxyConnection && (
+          <Select
+            label={"Graph Type"}
+            options={CONNECTIONS_OP}
+            value={form.queryEngine}
+            onChange={onFormChange("queryEngine")}
+            isDisabled={
+              disabledFields.includes("queryEngine") ||
+              form.serviceType === "neptune-graph"
+            }
+          />
           <div className={"input-url"}>
             <TextArea
-              data-autofocus={true}
-              label={"Graph Connection URL"}
-              value={form.graphDbUrl}
-              onChange={onFormChange("graphDbUrl")}
-              errorMessage={"URL is required"}
-              placeholder={"https://neptune-cluster.amazonaws.com"}
-              validationState={
-                hasError && !form.graphDbUrl ? "invalid" : "valid"
+              autoFocus={true}
+              label={
+                <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
+                  Public or Proxy Endpoint
+                  <InfoTooltip>
+                    Provide the endpoint URL for an open graph database, e.g.,
+                    Gremlin Server. If connecting to Amazon Neptune, then
+                    provide a proxy endpoint URL that is accessible from outside
+                    the VPC, e.g., EC2.
+                  </InfoTooltip>
+                </div>
               }
+              value={form.url}
+              onChange={onFormChange("url")}
+              errorMessage={"URL is required"}
+              placeholder={"https://example.com"}
+              validationState={hasError && !form.url ? "invalid" : "valid"}
+              isDisabled={disabledFields.includes("url")}
             />
           </div>
-        )}
-        {form.proxyConnection && (
           <div className={"input-url"}>
             <Label className="cursor-pointer">
               <Checkbox
-                value={"awsAuthEnabled"}
-                checked={form.awsAuthEnabled}
+                value={"proxyConnection"}
+                checked={form.proxyConnection}
                 onCheckedChange={checked => {
-                  onFormChange("awsAuthEnabled")(checked);
+                  onFormChange("proxyConnection")(checked);
                 }}
               />
-              AWS IAM Auth Enabled
+              Using Proxy-Server
             </Label>
           </div>
-        )}
-        {form.proxyConnection && form.awsAuthEnabled && (
-          <>
+          {form.proxyConnection && (
             <div className={"input-url"}>
-              <Input
-                data-autofocus={true}
-                label={"AWS Region"}
-                value={form.awsRegion}
-                onChange={onFormChange("awsRegion")}
-                errorMessage={"Region is required"}
-                placeholder={"us-east-1"}
+              <TextArea
+                autoFocus={true}
+                label={"Graph Connection URL"}
+                value={form.graphDbUrl}
+                onChange={onFormChange("graphDbUrl")}
+                errorMessage={"URL is required"}
+                placeholder={"https://neptune-cluster.amazonaws.com"}
                 validationState={
-                  hasError && !form.awsRegion ? "invalid" : "valid"
+                  hasError && !form.graphDbUrl ? "invalid" : "valid"
                 }
               />
             </div>
+          )}
+          {form.proxyConnection && (
             <div className={"input-url"}>
-              <Select
-                label={"Service Type"}
-                options={[
-                  { label: "Neptune DB", value: "neptune-db" },
-                  { label: "Neptune Graph", value: "neptune-graph" },
-                ]}
-                value={form.serviceType}
-                onChange={onFormChange("serviceType")}
-                isDisabled={disabledFields.includes("serviceType")}
+              <Label className="cursor-pointer">
+                <Checkbox
+                  value={"awsAuthEnabled"}
+                  checked={form.awsAuthEnabled}
+                  onCheckedChange={checked => {
+                    onFormChange("awsAuthEnabled")(checked);
+                  }}
+                />
+                AWS IAM Auth Enabled
+              </Label>
+            </div>
+          )}
+          {form.proxyConnection && form.awsAuthEnabled && (
+            <>
+              <div className={"input-url"}>
+                <Input
+                  autoFocus={true}
+                  label={"AWS Region"}
+                  value={form.awsRegion}
+                  onChange={onFormChange("awsRegion")}
+                  errorMessage={"Region is required"}
+                  placeholder={"us-east-1"}
+                  validationState={
+                    hasError && !form.awsRegion ? "invalid" : "valid"
+                  }
+                />
+              </div>
+              <div className={"input-url"}>
+                <Select
+                  label={"Service Type"}
+                  options={[
+                    { label: "Neptune DB", value: "neptune-db" },
+                    { label: "Neptune Graph", value: "neptune-graph" },
+                  ]}
+                  value={form.serviceType}
+                  onChange={onFormChange("serviceType")}
+                  isDisabled={disabledFields.includes("serviceType")}
+                />
+              </div>
+            </>
+          )}
+        </div>
+        <div className={"configuration-form"}>
+          <Label className="cursor-pointer">
+            <Checkbox
+              value={"fetchTimeoutEnabled"}
+              checked={form.fetchTimeoutEnabled}
+              onCheckedChange={checked => {
+                onFormChange("fetchTimeoutEnabled")(checked);
+              }}
+            />
+            <div className="flex items-center gap-2">
+              Enable Fetch Timeout
+              <InfoTooltip>
+                Large datasets may require a large amount of time to fetch. If
+                the timeout is exceeded, the request will be cancelled.
+              </InfoTooltip>
+            </div>
+          </Label>
+          {form.fetchTimeoutEnabled && (
+            <div className={"input-url"}>
+              <Input
+                label="Fetch Timeout (ms)"
+                type={"number"}
+                value={form.fetchTimeoutMs}
+                onChange={onFormChange("fetchTimeoutMs")}
+                min={0}
               />
             </div>
-          </>
-        )}
-      </div>
-      <div className={"configuration-form"}>
-        <Label className="cursor-pointer">
-          <Checkbox
-            value={"fetchTimeoutEnabled"}
-            checked={form.fetchTimeoutEnabled}
-            onCheckedChange={checked => {
-              onFormChange("fetchTimeoutEnabled")(checked);
-            }}
-          />
-          <div className="flex items-center gap-2">
-            Enable Fetch Timeout
-            <InfoTooltip>
-              Large datasets may require a large amount of time to fetch. If the
-              timeout is exceeded, the request will be cancelled.
-            </InfoTooltip>
-          </div>
-        </Label>
-        {form.fetchTimeoutEnabled && (
-          <div className={"input-url"}>
-            <Input
-              label="Fetch Timeout (ms)"
-              type={"number"}
-              value={form.fetchTimeoutMs}
-              onChange={onFormChange("fetchTimeoutMs")}
-              min={0}
+          )}
+        </div>
+        <div className={"configuration-form"}>
+          <Label className="cursor-pointer">
+            <Checkbox
+              value={"nodeExpansionLimitEnabled"}
+              checked={form.nodeExpansionLimitEnabled}
+              onCheckedChange={checked => {
+                onFormChange("nodeExpansionLimitEnabled")(checked);
+              }}
             />
-          </div>
-        )}
-      </div>
-      <div className={"configuration-form"}>
-        <Label className="cursor-pointer">
-          <Checkbox
-            value={"nodeExpansionLimitEnabled"}
-            checked={form.nodeExpansionLimitEnabled}
-            onCheckedChange={checked => {
-              onFormChange("nodeExpansionLimitEnabled")(checked);
-            }}
-          />
-          <div className="flex items-center gap-2">
-            Enable Node Expansion Limit
-            <InfoTooltip>
-              Large datasets may require a default limit to the amount of
-              neighbors that are returned during any single expansion.
-            </InfoTooltip>
-          </div>
-        </Label>
-        {form.nodeExpansionLimitEnabled && (
-          <div className={"input-url"}>
-            <Input
-              label="Node Expansion Limit"
-              type="number"
-              value={form.nodeExpansionLimit}
-              onChange={onFormChange("nodeExpansionLimit")}
-              min={0}
-            />
-          </div>
-        )}
-      </div>
-      <div className={"actions"}>
-        <Button variant={"default"} onPress={onClose}>
+            <div className="flex items-center gap-2">
+              Enable Node Expansion Limit
+              <InfoTooltip>
+                Large datasets may require a default limit to the amount of
+                neighbors that are returned during any single expansion.
+              </InfoTooltip>
+            </div>
+          </Label>
+          {form.nodeExpansionLimitEnabled && (
+            <div className={"input-url"}>
+              <Input
+                label="Node Expansion Limit"
+                type="number"
+                value={form.nodeExpansionLimit}
+                onChange={onFormChange("nodeExpansionLimit")}
+                min={0}
+              />
+            </div>
+          )}
+        </div>
+      </DialogBody>
+      <DialogFooter>
+        <Button variant="default" onPress={onClose}>
           Cancel
         </Button>
-        <Button variant={"filled"} onPress={onSubmit}>
+        <Button variant="filled" onPress={onSubmit}>
           {!configId ? "Add Connection" : "Update Connection"}
         </Button>
-      </div>
-    </div>
+      </DialogFooter>
+    </DialogContent>
   );
 };
 

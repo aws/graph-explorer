@@ -1,4 +1,3 @@
-import { Modal } from "@mantine/core";
 import { useCallback, useMemo, useState } from "react";
 import { useRecoilCallback } from "recoil";
 import {
@@ -6,16 +5,27 @@ import {
   AdvancedList,
   Button,
   DeleteIcon,
+  Dialog,
+  DialogBody,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTrigger,
+  DialogTitle,
+  EmptyState,
+  EmptyStateHeader,
+  EmptyStateIcon,
+  EmptyStateSubtitle,
+  EmptyStateTitle,
   IconButton,
   Input,
   NamespaceIcon,
-  PanelEmptyState,
   SaveIcon,
+  PanelFooter,
 } from "@/components";
-import { useConfiguration, useWithTheme } from "@/core";
+import { RawConfiguration, useConfiguration, useWithTheme } from "@/core";
 import { schemaAtom } from "@/core/StateProvider/schema";
 import defaultStyles from "./NsType.styles";
-import modalDefaultStyles from "./NsTypeModal.styles";
 
 type PrefixForm = {
   prefix: string;
@@ -80,6 +90,64 @@ const UserPrefixes = () => {
     );
   }, [config?.schema?.prefixes, onDeletePrefix]);
 
+  return (
+    <div className={styleWithTheme(defaultStyles)}>
+      {items.length === 0 && (
+        <EmptyState>
+          <EmptyStateIcon>
+            <NamespaceIcon />
+          </EmptyStateIcon>
+          <EmptyStateHeader>
+            <EmptyStateTitle>No Namespaces</EmptyStateTitle>
+            <EmptyStateSubtitle>No custom namespaces stored</EmptyStateSubtitle>
+          </EmptyStateHeader>
+          <Dialog open={opened} onOpenChange={setOpened}>
+            <DialogTrigger asChild>
+              <Button>Start creating a new namespace</Button>
+            </DialogTrigger>
+            <CreateNamespaceModal
+              config={config}
+              close={() => setOpened(false)}
+            />
+          </Dialog>
+        </EmptyState>
+      )}
+      {items.length > 0 && (
+        <AdvancedList
+          className={"advanced-list"}
+          searchPlaceholder={"Search for Namespaces or URIs"}
+          search={search}
+          onSearch={setSearch}
+          items={items}
+          emptyState={{
+            noSearchResultsTitle: "No Namespaces",
+          }}
+        />
+      )}
+      {items.length > 0 && (
+        <PanelFooter className="flex justify-end">
+          <Dialog open={opened} onOpenChange={setOpened}>
+            <DialogTrigger asChild>
+              <Button icon={<AddIcon />}>Create</Button>
+            </DialogTrigger>
+            <CreateNamespaceModal
+              config={config}
+              close={() => setOpened(false)}
+            />
+          </Dialog>
+        </PanelFooter>
+      )}
+    </div>
+  );
+};
+
+function CreateNamespaceModal({
+  config,
+  close,
+}: {
+  config?: RawConfiguration;
+  close: () => void;
+}) {
   const [hasError, setError] = useState(false);
   const [form, setForm] = useState<PrefixForm>({
     prefix: "",
@@ -129,78 +197,40 @@ const UserPrefixes = () => {
     onSave(form.prefix, form.uri);
     setForm({ prefix: "", uri: "" });
     setError(false);
-    setOpened(false);
-  }, [form.prefix, form.uri, onSave]);
+    close();
+  }, [close, form.prefix, form.uri, onSave]);
 
   return (
-    <div className={styleWithTheme(defaultStyles)}>
-      {items.length === 0 && (
-        <PanelEmptyState
-          title={"No Namespaces"}
-          subtitle={"No Custom Namespaces stored"}
-          icon={<NamespaceIcon />}
-          actionLabel={"Start creating a new namespace"}
-          onAction={() => setOpened(true)}
-          actionVariant="text"
+    <DialogContent className="min-w-[400px]">
+      <DialogHeader>
+        <DialogTitle>Create a new Namespace</DialogTitle>
+      </DialogHeader>
+      <DialogBody>
+        <Input
+          label={"Namespace"}
+          value={form.prefix}
+          onChange={onFormChange("prefix")}
+          placeholder={"Namespace"}
+          validationState={hasError && !form.prefix ? "invalid" : "valid"}
+          errorMessage={"Namespace is required"}
         />
-      )}
-      {items.length > 0 && (
-        <AdvancedList
-          className={"advanced-list"}
-          searchPlaceholder={"Search for Namespaces or URIs"}
-          search={search}
-          onSearch={setSearch}
-          items={items}
-          emptyState={{
-            noSearchResultsTitle: "No Namespaces",
-          }}
+        <Input
+          className={"input-uri"}
+          label={"URI"}
+          value={form.uri}
+          onChange={onFormChange("uri")}
+          placeholder={"URI"}
+          validationState={hasError && !form.uri ? "invalid" : "valid"}
+          errorMessage={"URI is required"}
         />
-      )}
-      {items.length > 0 && (
-        <div className={"actions"}>
-          <Button
-            icon={<AddIcon />}
-            variant={"filled"}
-            onPress={() => setOpened(true)}
-          >
-            Create
-          </Button>
-        </div>
-      )}
-      <Modal
-        opened={opened}
-        onClose={() => setOpened(false)}
-        centered={true}
-        title={"Create a new Namespace"}
-        className={styleWithTheme(modalDefaultStyles)}
-      >
-        <div>
-          <Input
-            label={"Namespace"}
-            value={form.prefix}
-            onChange={onFormChange("prefix")}
-            placeholder={"Namespace"}
-            validationState={hasError && !form.prefix ? "invalid" : "valid"}
-            errorMessage={"Namespace is required"}
-          />
-          <Input
-            className={"input-uri"}
-            label={"URI"}
-            value={form.uri}
-            onChange={onFormChange("uri")}
-            placeholder={"URI"}
-            validationState={hasError && !form.uri ? "invalid" : "valid"}
-            errorMessage={"URI is required"}
-          />
-        </div>
-        <div className={"actions"}>
-          <Button icon={<SaveIcon />} variant={"filled"} onPress={onSubmit}>
-            Save
-          </Button>
-        </div>
-      </Modal>
-    </div>
+      </DialogBody>
+      <DialogFooter className="sm:justify-end">
+        <Button icon={<SaveIcon />} variant="filled" onPress={onSubmit}>
+          Save
+        </Button>
+      </DialogFooter>
+    </DialogContent>
   );
-};
+}
 
 export default UserPrefixes;
