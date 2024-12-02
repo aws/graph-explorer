@@ -76,7 +76,7 @@ describe("mergedConfiguration", () => {
           displayLabel: sanitizeText(v.type),
           ...v,
         }))
-        .sort(byType),
+        .toSorted(byType),
       edges: schema.edges.map(e => {
         return {
           displayLabel: sanitizeText(e.type),
@@ -126,7 +126,7 @@ describe("mergedConfiguration", () => {
             ...style,
           };
         })
-        .sort(byType),
+        .toSorted(byType),
       edges: schema.edges.map(e => {
         const style = styling.edges?.find(s => s.type === e.type) ?? {};
         return {

@@ -104,7 +104,7 @@ export function mergeConfiguration(
 
       return mergeVertex(configVertex, schemaVertex, prefsVertex);
     })
-    .sort((a, b) => a.type.localeCompare(b.type));
+    .toSorted((a, b) => a.type.localeCompare(b.type));
 
   const configELabels = currentConfig.schema?.edges.map(v => v.type) || [];
   const schemaELabels = currentSchema?.edges?.map(v => v.type) || [];

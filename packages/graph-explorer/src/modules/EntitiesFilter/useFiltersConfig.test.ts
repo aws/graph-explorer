@@ -5,7 +5,7 @@ import {
   createRandomSchema,
   renderHookWithRecoilRoot,
 } from "@/utils/testing";
-import { sample, sortBy } from "lodash";
+import { sample } from "lodash";
 import { Schema } from "@/core";
 import {
   activeConfigurationAtom,
@@ -61,9 +61,14 @@ describe("useFiltersConfig", () => {
 
     const { result } = renderFilterConfigHook(schema);
 
-    expect(result.current.vertexTypes).toEqual(
-      sortBy(result.current.vertexTypes, vt => vt.text)
+    const actualVertexTypes = result.current.vertexTypes.map(
+      vt => vt.text as string
     );
+    const sortedExpectations = result.current.vertexTypes
+      .map(vt => vt.text as string)
+      .toSorted((a, b) => a.localeCompare(b));
+
+    expect(actualVertexTypes).toEqual(sortedExpectations);
   });
 
   it("should have all edges in checkboxes", () => {
@@ -82,9 +87,13 @@ describe("useFiltersConfig", () => {
 
     const { result } = renderFilterConfigHook(schema);
 
-    expect(result.current.connectionTypes).toEqual(
-      sortBy(result.current.connectionTypes, vt => vt.text)
+    const actualConnectionTypes = result.current.connectionTypes.map(
+      et => et.text as string
     );
+    const expectedConnectionTypes = actualConnectionTypes.toSorted((a, b) =>
+      a.localeCompare(b)
+    );
+    expect(actualConnectionTypes).toEqual(expectedConnectionTypes);
   });
 
   it("should unselect vertex when toggled", () => {

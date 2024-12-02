@@ -27,7 +27,7 @@ export default function useNeighborsOptions(vertex: Vertex): NeighborOption[] {
           config: vConfig,
         };
       })
-      .sort((a, b) => a.label.localeCompare(b.label));
+      .toSorted((a, b) => a.label.localeCompare(b.label));
   }, [
     config,
     textTransform,
