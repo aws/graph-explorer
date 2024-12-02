@@ -15,6 +15,11 @@
   ([#679](https://github.com/aws/graph-explorer/pull/679))
 - **Updated** documentation to reorganize and extend the troubleshooting tips
   ([#681](https://github.com/aws/graph-explorer/pull/681))
+- **Refactored** logic around the display of nodes and edges to a single
+  location for simplicity and consistency
+  ([#698](https://github.com/aws/graph-explorer/pull/698))
+- **Fixed** date rendering on Gremlin connections
+  ([#698](https://github.com/aws/graph-explorer/pull/698))
 - **Updated** dependencies, including Node v22
   ([#680](https://github.com/aws/graph-explorer/pull/680))
 
