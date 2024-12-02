@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from "react";
-import { AttributeConfig, useConfiguration } from "@/core";
+import { AttributeConfig, queryEngineSelector, useConfiguration } from "@/core";
 import useDebounceValue from "@/hooks/useDebounceValue";
 import useTextTransform, {
   textTransformSelector,
@@ -9,6 +9,7 @@ import {
   assembledConfigSelector,
   useVertexTypeConfigs,
 } from "@/core/ConfigurationProvider/useConfiguration";
+import { useQueryEngine } from "@/core";
 import { atom, selector, useRecoilState, useRecoilValue } from "recoil";
 
 export interface PromiseWithCancel<T> extends Promise<T> {
@@ -72,15 +73,11 @@ function getSearchableAttributesForSelectedVertexType(
 const attributeOptionsSelector = selector({
   key: "attributeOptions",
   get: ({ get }) => {
-    const config = get(assembledConfigSelector);
-    if (!config) {
-      return [];
-    }
     const selectedVertexType = get(selectedVertexTypeAtom);
     const textTransform = get(textTransformSelector);
 
     // Sparql uses rdfs:label, not ID
-    const allowsIdSearch = config?.connection?.queryEngine !== "sparql";
+    const allowsIdSearch = get(queryEngineSelector) !== "sparql";
 
     // Get searchable attributes for selected vertex type
     const allSearchableAttributes = get(searchableAttributesSelector);
@@ -112,7 +109,7 @@ const attributeOptionsSelector = selector({
 /** Manages all the state and gathers all required information to render the
  * keyword search sidebar. */
 export default function useKeywordSearch() {
-  const config = useConfiguration();
+  const queryEngine = useQueryEngine();
 
   const [searchTerm, setSearchTerm] = useRecoilState(searchTermAtom);
   const debouncedSearchTerm = useDebounceValue(searchTerm, 600);
@@ -145,13 +142,13 @@ export default function useKeywordSearch() {
 
   const attributesOptions = useRecoilValue(attributeOptionsSelector);
   const defaultSearchAttribute = useMemo(() => {
-    if (config?.connection?.queryEngine === "sparql") {
+    if (queryEngine === "sparql") {
       const rdfsLabel = attributesOptions.find(o => o.label === "rdfs:label");
       return rdfsLabel?.value ?? allAttributesValue;
     } else {
       return idAttributeValue;
     }
-  }, [config?.connection?.queryEngine, attributesOptions]);
+  }, [queryEngine, attributesOptions]);
 
   /** This is the selected attribute unless the attribute is not in the
    * attribute options list (for example, the selected vertex type changed). */

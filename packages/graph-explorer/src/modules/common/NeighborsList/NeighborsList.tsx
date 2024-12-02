@@ -1,12 +1,10 @@
 import { cn } from "@/utils";
 import { Vertex } from "@/@types/entities";
 import { Button, Chip, Tooltip, VertexIcon, VisibleIcon } from "@/components";
-import { useWithTheme } from "@/core";
+import { useQueryEngine, useWithTheme } from "@/core";
 import useNeighborsOptions from "@/hooks/useNeighborsOptions";
 import defaultStyles from "./NeighborsList.styles";
 import { useState } from "react";
-import { useRecoilValue } from "recoil";
-import { activeConnectionSelector } from "@/core/connector";
 
 export type NeighborsListProps = {
   vertex: Vertex;
@@ -81,9 +79,8 @@ function ExpandToggleButton({
   const hasMore = itemCount > MAX_NEIGHBOR_TYPE_ROWS;
   const extraCount = hasMore ? itemCount - MAX_NEIGHBOR_TYPE_ROWS : 0;
 
-  const connection = useRecoilValue(activeConnectionSelector);
-  const nodeTypeLabel =
-    connection?.queryEngine === "sparql" ? "classes" : "labels";
+  const queryEngine = useQueryEngine();
+  const nodeTypeLabel = queryEngine === "sparql" ? "classes" : "labels";
 
   if (!hasMore) {
     return null;

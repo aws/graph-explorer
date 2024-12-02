@@ -134,6 +134,18 @@ export function useEdgeTypeConfigs(edgeTypes?: string[]) {
   return useRecoilValue(edgeTypeConfigsSelector(types));
 }
 
+export const queryEngineSelector = selector({
+  key: "query-engine",
+  get: ({ get }) => {
+    const config = get(assembledConfigSelector);
+    return config?.connection?.queryEngine ?? "gremlin";
+  },
+});
+
+export function useQueryEngine() {
+  return useRecoilValue(queryEngineSelector);
+}
+
 /** Gets the fully merged and augmented configuration & schema */
 export default function useConfiguration() {
   return useRecoilValue(assembledConfigSelector);
