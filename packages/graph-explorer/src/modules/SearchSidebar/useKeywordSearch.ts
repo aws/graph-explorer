@@ -1,16 +1,14 @@
 import { useCallback, useMemo } from "react";
-import { AttributeConfig, queryEngineSelector, useConfiguration } from "@/core";
-import useDebounceValue from "@/hooks/useDebounceValue";
-import useTextTransform, {
-  textTransformSelector,
-} from "@/hooks/useTextTransform";
-import { useKeywordSearchQuery } from "../SearchSidebar/useKeywordSearchQuery";
 import {
-  assembledConfigSelector,
-  useVertexTypeConfigs,
-} from "@/core/ConfigurationProvider/useConfiguration";
-import { useQueryEngine } from "@/core";
+  displayVertexTypeConfigSelector,
+  displayVertexTypeConfigsSelector,
+  useDisplayVertexTypeConfigs,
+} from "@/core";
+import useDebounceValue from "@/hooks/useDebounceValue";
+import { useKeywordSearchQuery } from "../SearchSidebar/useKeywordSearchQuery";
+
 import { atom, selector, useRecoilState, useRecoilValue } from "recoil";
+import { queryEngineSelector, useQueryEngine } from "@/core/connector";
 
 export interface PromiseWithCancel<T> extends Promise<T> {
   cancel?: () => void;
@@ -31,60 +29,43 @@ export const selectedAttributeAtom = atom({
 });
 export const partialMatchAtom = atom({ key: "partialMatch", default: false });
 
-const searchableAttributesSelector = selector({
-  key: "searchableAttributes",
+/** Gets all searchable attributes across all vertex types */
+const combinedSearchableAttributesSelector = selector({
+  key: "combinedSearchableAttributes",
   get: ({ get }) => {
-    const config = get(assembledConfigSelector);
-    if (!config) {
-      return new Map<string, AttributeConfig[]>();
-    }
-    return new Map(
-      config.vertexTypes.map(vertexType => [
-        vertexType,
-        config.getVertexTypeSearchableAttributes(vertexType),
-      ])
+    const allVertexTypeConfigs = get(displayVertexTypeConfigsSelector);
+
+    // Get unique searchable attributes across all vertex types
+    const uniqueSearchableAttributes = new Map(
+      allVertexTypeConfigs
+        .values()
+        .flatMap(c => c.attributes)
+        .filter(a => a.isSearchable)
+        .map(a => [a.name, a])
+    )
+      .values()
+      .toArray();
+
+    // Sort by name
+    return uniqueSearchableAttributes.sort((a, b) =>
+      a.name.localeCompare(b.name)
     );
   },
 });
-
-/**
- * Searchable attributes for selected vertex type. If "All" is chosen, then
- * this is unique searchable attributes across all vertex types.
- */
-function getSearchableAttributesForSelectedVertexType(
-  selectedVertexType: string,
-  allSearchableAttributes: Map<string, AttributeConfig[]>
-) {
-  return selectedVertexType === allVerticesValue
-    ? new Map(
-        allSearchableAttributes
-          .values()
-          .flatMap(a => a)
-          .map(a => [a.name, a])
-      )
-        .values()
-        .toArray()
-        .sort((a, b) => a.name.localeCompare(b.name))
-    : (allSearchableAttributes.get(selectedVertexType) ?? []).sort((a, b) =>
-        a.name.localeCompare(b.name)
-      );
-}
 
 const attributeOptionsSelector = selector({
   key: "attributeOptions",
   get: ({ get }) => {
     const selectedVertexType = get(selectedVertexTypeAtom);
-    const textTransform = get(textTransformSelector);
 
     // Sparql uses rdfs:label, not ID
     const allowsIdSearch = get(queryEngineSelector) !== "sparql";
 
     // Get searchable attributes for selected vertex type
-    const allSearchableAttributes = get(searchableAttributesSelector);
-    const searchableAttributes = getSearchableAttributesForSelectedVertexType(
-      selectedVertexType,
-      allSearchableAttributes
-    );
+    const searchableAttributes =
+      selectedVertexType === allVerticesValue
+        ? get(combinedSearchableAttributesSelector)
+        : get(displayVertexTypeConfigSelector(selectedVertexType)).attributes;
 
     const attributeOptions = (() => {
       const defaultAttributes = allowsIdSearch
@@ -96,7 +77,7 @@ const attributeOptionsSelector = selector({
 
       const attributes = searchableAttributes.map(attr => ({
         value: attr.name,
-        label: attr.displayLabel || textTransform(attr.name),
+        label: attr.displayLabel,
       }));
 
       return [...defaultAttributes, ...attributes];
@@ -121,24 +102,22 @@ export default function useKeywordSearch() {
   );
   const [partialMatch, setPartialMatch] = useRecoilState(partialMatchAtom);
 
-  const textTransform = useTextTransform();
   const exactMatchOptions = [
     { label: "Exact", value: "Exact" },
     { label: "Partial", value: "Partial" },
   ];
 
-  const vtConfigs = useVertexTypeConfigs();
-  const vertexOptions = useMemo(() => {
-    const vertexOps =
-      vtConfigs
-        .map(vtConfig => ({
-          label: textTransform(vtConfig.displayLabel || vtConfig.type),
-          value: vtConfig.type,
-        }))
-        .sort((a, b) => a.label.localeCompare(b.label)) || [];
-
-    return [{ label: "All", value: allVerticesValue }, ...vertexOps];
-  }, [textTransform, vtConfigs]);
+  const vtConfigs = useDisplayVertexTypeConfigs();
+  const vertexOptions = useMemo(
+    () => [
+      { label: "All", value: allVerticesValue },
+      ...vtConfigs.values().map(vtConfig => ({
+        label: vtConfig.displayLabel,
+        value: vtConfig.type,
+      })),
+    ],
+    [vtConfigs]
+  );
 
   const attributesOptions = useRecoilValue(attributeOptionsSelector);
   const defaultSearchAttribute = useMemo(() => {

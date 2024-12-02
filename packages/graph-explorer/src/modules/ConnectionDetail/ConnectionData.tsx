@@ -13,69 +13,62 @@ import {
   VertexIcon,
 } from "@/components";
 import HumanReadableNumberFormatter from "@/components/HumanReadableNumberFormatter";
-import { fade, useWithTheme } from "@/core";
+import { fade, useDisplayVertexTypeConfigs, useWithTheme } from "@/core";
 import { useConfiguration } from "@/core/ConfigurationProvider";
 import useEntitiesCounts from "@/hooks/useEntitiesCounts";
-import useTextTransform from "@/hooks/useTextTransform";
 import useTranslations from "@/hooks/useTranslations";
 import defaultStyles from "./ConnectionDetail.styles";
-import { useVertexTypeConfigs } from "@/core/ConfigurationProvider/useConfiguration";
 
 const ConnectionData = () => {
   const config = useConfiguration();
-  const vtConfigs = useVertexTypeConfigs();
+  const vtConfigs = useDisplayVertexTypeConfigs();
   const navigate = useNavigate();
   const styleWithTheme = useWithTheme();
   const { totalNodes, totalEdges } = useEntitiesCounts();
-  const textTransform = useTextTransform();
   const t = useTranslations();
 
   const verticesByTypeItems = useMemo(() => {
     const items: AdvancedListItemType<any>[] = [];
     vtConfigs.forEach(vtConfig => {
-      const vt = vtConfig.type;
-      const displayLabel = vtConfig.displayLabel || vt;
-
       items.push({
-        id: vt,
-        title: displayLabel,
+        id: vtConfig.type,
+        title: vtConfig.displayLabel,
         titleComponent: (
           <div className="advanced-list-item-title">
-            <div className="node-title">{textTransform(displayLabel)}</div>
+            <div className="node-title">{vtConfig.displayLabel}</div>
           </div>
         ),
         icon: (
           <div
             style={{
-              color: vtConfig.color,
+              color: vtConfig.style.color,
             }}
           >
-            <VertexIcon
-              iconUrl={vtConfig.iconUrl}
-              iconImageType={vtConfig.iconImageType}
-            />
+            <VertexIcon vertexStyle={vtConfig.style} />
           </div>
         ),
         className: css`
           .start-adornment {
-            color: ${vtConfig.color}!important;
-            background: ${fade(vtConfig.color, 0.3)}!important;
+            color: ${vtConfig.style.color}!important;
+            background: ${fade(vtConfig.style.color, 0.3)}!important;
           }
         `,
         endAdornment: (
           <IconButton
-            tooltipText={`Explore ${textTransform(displayLabel)}`}
+            tooltipText={`Explore ${vtConfig.displayLabel}`}
             icon={<ChevronRightIcon />}
             variant="text"
             size="small"
-            onClick={() => navigate(`/data-explorer/${encodeURIComponent(vt)}`)}
+            onClick={() =>
+              navigate(`/data-explorer/${encodeURIComponent(vtConfig.type)}`)
+            }
           />
         ),
       });
     });
 
     return items;
-  }, [vtConfigs, textTransform, navigate]);
+  }, [vtConfigs, navigate]);
 
   const [search, setSearch] = useState("");
 

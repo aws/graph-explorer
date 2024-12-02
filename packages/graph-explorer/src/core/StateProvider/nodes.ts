@@ -1,4 +1,4 @@
-import { atom, selector } from "recoil";
+import { atom, selector, useRecoilValue } from "recoil";
 import type { Vertex, VertexId } from "@/types/entities";
 import isDefaultValue from "./isDefaultValue";
 
@@ -66,3 +66,13 @@ export const nodesTypesFilteredAtom = atom<Set<string>>({
   key: "nodes-types-filtered",
   default: new Set(),
 });
+
+export function useNode(id: VertexId) {
+  const node = useRecoilValue(nodesAtom).get(id);
+
+  if (!node) {
+    throw new Error(`Node with id ${id} not found in displayNodes`);
+  }
+
+  return node;
+}

@@ -1,12 +1,12 @@
 import { useState } from "react";
-import type { Vertex } from "@/types/entities";
+import type { Vertex, VertexId } from "@/types/entities";
 import { PanelError, PanelFooter, VertexRow } from "@/components";
 import Button from "@/components/Button";
 import ExpandGraphIcon from "@/components/icons/ExpandGraphIcon";
 import GraphIcon from "@/components/icons/GraphIcon";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import PanelEmptyState from "@/components/PanelEmptyState/PanelEmptyState";
-import { useWithTheme } from "@/core";
+import { DisplayVertex, useNode, useWithTheme } from "@/core";
 import { useExpandNode } from "@/hooks";
 import useNeighborsOptions, {
   NeighborOption,
@@ -20,7 +20,7 @@ import { useUpdateNodeCountsQuery } from "@/hooks/useUpdateNodeCounts";
 import { cn } from "@/utils";
 
 export type NodeExpandContentProps = {
-  vertex: Vertex;
+  vertex: DisplayVertex;
 };
 
 export default function NodeExpandContent({ vertex }: NodeExpandContentProps) {
@@ -31,12 +31,13 @@ export default function NodeExpandContent({ vertex }: NodeExpandContentProps) {
       className={cn(styleWithTheme(defaultStyles), "flex h-full grow flex-col")}
     >
       <VertexRow vertex={vertex} className="border-b p-3" />
-      <ExpandSidebarContent vertex={vertex} />
+      <ExpandSidebarContent id={vertex.id} />
     </div>
   );
 }
 
-function ExpandSidebarContent({ vertex }: { vertex: Vertex }) {
+function ExpandSidebarContent({ id }: { id: VertexId }) {
+  const vertex = useNode(id);
   const t = useTranslations();
   const query = useUpdateNodeCountsQuery(vertex.id, vertex.idType);
   const neighborsOptions = useNeighborsOptions(vertex);
@@ -63,7 +64,7 @@ function ExpandSidebarContent({ vertex }: { vertex: Vertex }) {
 
   return (
     <>
-      <NeighborsList vertex={vertex} />
+      <NeighborsList id={vertex.id} />
       <ExpansionOptions
         vertex={vertex}
         neighborsOptions={neighborsOptions}

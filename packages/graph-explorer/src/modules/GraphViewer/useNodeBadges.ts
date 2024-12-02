@@ -1,34 +1,17 @@
-import { useCallback, useMemo } from "react";
-import { useRecoilValue } from "recoil";
+import { useCallback } from "react";
 import { BadgeRenderer } from "@/components/Graph/hooks/useRenderBadges";
-import { useConfiguration } from "@/core";
-import { nodesAtom } from "@/core/StateProvider/nodes";
-import { useTextTransform, useDisplayNames } from "@/hooks";
 import { VertexId } from "@/@types/entities";
+import { useDisplayVerticesInCanvas } from "@/core";
 
 const useNodeBadges = () => {
-  const config = useConfiguration();
-  const textTransform = useTextTransform();
-  const getDisplayNames = useDisplayNames();
-  const nodes = useRecoilValue(nodesAtom);
-
-  const nodesCurrentNames = useMemo(() => {
-    return new Map(
-      nodes.entries().map(([id, node]) => {
-        const vtConfig = config?.getVertexTypeConfig(node.type);
-        const title = vtConfig?.displayLabel || textTransform(node.type);
-        const { name } = getDisplayNames(node);
-        return [id, { name, title }];
-      })
-    );
-  }, [config, getDisplayNames, nodes, textTransform]);
+  const displayNodes = useDisplayVerticesInCanvas();
 
   return useCallback(
     (outOfFocusIds: Set<VertexId>): BadgeRenderer =>
       (nodeData, boundingBox, { zoomLevel }) => {
         // Ensure we have the node name and title
-        const name = nodesCurrentNames.get(nodeData.id)?.name ?? "";
-        const title = nodesCurrentNames.get(nodeData.id)?.title ?? "";
+        const name = displayNodes.get(nodeData.id)?.displayName ?? "";
+        const title = displayNodes.get(nodeData.id)?.displayTypes ?? "";
 
         return [
           {
@@ -72,7 +55,7 @@ const useNodeBadges = () => {
           },
         ];
       },
-    [nodesCurrentNames]
+    [displayNodes]
   );
 };
 

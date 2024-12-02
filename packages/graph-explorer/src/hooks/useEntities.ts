@@ -16,7 +16,10 @@ import {
 } from "@/core/StateProvider/nodes";
 
 import useDeepMemo from "./useDeepMemo";
-import { assembledConfigSelector } from "@/core/ConfigurationProvider/useConfiguration";
+import {
+  allEdgeTypeConfigsSelector,
+  allVertexTypeConfigsSelector,
+} from "@/core/StateProvider/configuration";
 
 type ProcessedEntities = {
   nodes: Map<VertexId, Vertex>;
@@ -39,7 +42,10 @@ const useEntities = ({ disableFilters }: { disableFilters?: boolean } = {}): [
   const setEntities: SetterOrUpdater<Entities> = useRecoilCallback(
     ({ snapshot, set }) =>
       async valOrUpdater => {
-        const config = await snapshot.getPromise(assembledConfigSelector);
+        const vtConfigs = await snapshot.getPromise(
+          allVertexTypeConfigsSelector
+        );
+        const etConfigs = await snapshot.getPromise(allEdgeTypeConfigsSelector);
         const entities = await snapshot.getPromise(entitiesSelector);
         const nextEntities =
           typeof valOrUpdater === "function"
@@ -49,7 +55,7 @@ const useEntities = ({ disableFilters }: { disableFilters?: boolean } = {}): [
         // Filter nodes that are defined and not hidden
         const filteredNodes = new Map(
           nextEntities.nodes.entries().filter(([_id, node]) => {
-            return !config?.getVertexTypeConfig(node.type)?.hidden;
+            return !vtConfigs.get(node.type)?.hidden;
           })
         );
 
@@ -60,7 +66,7 @@ const useEntities = ({ disableFilters }: { disableFilters?: boolean } = {}): [
               node.neighborsCountByType
             ).reduce(
               (totalNeighborsCounts, [type, count]) => {
-                if (!config?.getVertexTypeConfig(node.type)?.hidden) {
+                if (!vtConfigs.get(node.type)?.hidden) {
                   totalNeighborsCounts[1][type] = count;
                 } else {
                   totalNeighborsCounts[0] -= count;
@@ -88,7 +94,7 @@ const useEntities = ({ disableFilters }: { disableFilters?: boolean } = {}): [
         // Filter edges that are defined and not hidden
         const filteredEdges = new Map(
           nextEntities.edges.entries().filter(([_id, edge]) => {
-            return !config?.getEdgeTypeConfig(edge.type)?.hidden;
+            return !etConfigs.get(edge.type)?.hidden;
           })
         );
 

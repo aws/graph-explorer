@@ -1,31 +1,18 @@
-import { AttributeConfig } from "@/core";
-import useTextTransform from "@/hooks/useTextTransform";
-import { formatDate } from "@/utils";
+import { DisplayAttribute } from "@/core";
 
 export type EntityAttributeProps = {
-  value: Date | string | number;
-  attribute: AttributeConfig;
+  attribute: DisplayAttribute;
 };
 
-const EntityAttribute = ({ value, attribute }: EntityAttributeProps) => {
-  const textTransform = useTextTransform();
-
+export default function EntityAttribute({ attribute }: EntityAttributeProps) {
   return (
     <div key={attribute.name} className={"attribute"}>
       <div>
         <div className={"attribute-name"}>
-          <div>{attribute.displayLabel || textTransform(attribute.name)}</div>
+          <div>{attribute.displayLabel}</div>
         </div>
-        {value == null && <div className={"attribute-value"}>---</div>}
-        {!["Date", "g:Date"].includes(attribute.dataType || "") && value && (
-          <div className={"attribute-value"}>{String(value)}</div>
-        )}
-        {["Date", "g:Date"].includes(attribute.dataType || "") && value && (
-          <div className={"attribute-value"}>{formatDate(new Date(value))}</div>
-        )}
+        <div className={"attribute-value"}>{attribute.displayValue}</div>
       </div>
     </div>
   );
-};
-
-export default EntityAttribute;
+}

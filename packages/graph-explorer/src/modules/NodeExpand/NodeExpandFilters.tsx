@@ -9,15 +9,14 @@ import {
   Select,
   SelectOption,
 } from "@/components";
-import { useConfiguration } from "@/core";
-import useTextTransform from "@/hooks/useTextTransform";
+import { useDisplayVertexTypeConfig } from "@/core";
 import useTranslations from "@/hooks/useTranslations";
-import { useVertexTypeConfig } from "@/core/ConfigurationProvider/useConfiguration";
 
 export type NodeExpandFilter = {
   name: string;
   value: string;
 };
+
 export type NodeExpandFiltersProps = {
   neighborsOptions: SelectOption[];
   selectedType: string;
@@ -37,23 +36,27 @@ const NodeExpandFilters = ({
   limit,
   onLimitChange,
 }: NodeExpandFiltersProps) => {
-  const config = useConfiguration();
   const t = useTranslations();
-  const textTransform = useTextTransform();
 
-  const vtConfig = useVertexTypeConfig(selectedType);
-  const searchableAttributes =
-    config?.getVertexTypeSearchableAttributes(selectedType);
+  const displayVertexTypeConfig = useDisplayVertexTypeConfig(selectedType);
+  const attributeSelectOptions: SelectOption[] =
+    displayVertexTypeConfig.attributes
+      .filter(a => a.isSearchable)
+      .map(attr => ({
+        label: attr.displayLabel,
+        value: attr.name,
+      }));
+  const hasSearchableAttributes = attributeSelectOptions.length > 0;
 
   const onFilterAdd = useCallback(() => {
     onFiltersChange([
       ...filters,
       {
-        name: vtConfig.attributes[0]?.name || "",
+        name: attributeSelectOptions[0]?.value || "",
         value: "",
       },
     ]);
-  }, [filters, onFiltersChange, vtConfig.attributes]);
+  }, [attributeSelectOptions, filters, onFiltersChange]);
 
   const onFilterDelete = useCallback(
     (filterIndex: number) => {
@@ -84,7 +87,7 @@ const NodeExpandFilters = ({
         }}
         options={neighborsOptions}
       />
-      {!!vtConfig.attributes.length && (
+      {hasSearchableAttributes && (
         <div className={"title"}>
           <div>Filter to narrow results</div>
           <IconButton
@@ -95,7 +98,7 @@ const NodeExpandFilters = ({
           />
         </div>
       )}
-      {!!searchableAttributes?.length && (
+      {filters.length > 0 && (
         <div className={"filters"}>
           {filters.map((filter, filterIndex) => (
             <div key={filterIndex} className={"single-filter"}>
@@ -105,10 +108,7 @@ const NodeExpandFilters = ({
                 onChange={value => {
                   onFilterChange(filterIndex, value as string, filter.value);
                 }}
-                options={searchableAttributes?.map(attr => ({
-                  label: attr.displayLabel || textTransform(attr.name),
-                  value: attr.name,
-                }))}
+                options={attributeSelectOptions}
                 hideError={true}
                 noMargin={true}
               />

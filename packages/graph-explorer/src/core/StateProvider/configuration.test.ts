@@ -6,22 +6,12 @@ import {
   createRandomVertexPreferences,
   createRandomVertexTypeConfig,
 } from "@/utils/testing";
-import { mergeConfiguration } from "./configuration";
+import { defaultVertexTypeConfig, mergeConfiguration } from "./configuration";
 import { RawConfiguration, VertexTypeConfig } from "../ConfigurationProvider";
-import DEFAULT_ICON_URL from "@/utils/defaultIconUrl";
 import { SchemaInference } from "./schema";
 import { UserStyling } from "./userPreferences";
 import { sanitizeText } from "@/utils";
-import { RESERVED_ID_PROPERTY } from "@/utils/constants";
 import { createRandomName } from "@shared/utils/testing";
-
-const defaultVertexStyle = {
-  color: "#128EE5",
-  iconUrl: DEFAULT_ICON_URL,
-  iconImageType: "image/svg+xml",
-  displayNameAttribute: RESERVED_ID_PROPERTY,
-  longDisplayNameAttribute: "types",
-};
 
 describe("mergedConfiguration", () => {
   it("should produce empty defaults when empty object is passed", () => {
@@ -72,7 +62,7 @@ describe("mergedConfiguration", () => {
       ...schema,
       vertices: schema.vertices
         .map(v => ({
-          ...defaultVertexStyle,
+          ...defaultVertexTypeConfig,
           displayLabel: sanitizeText(v.type),
           ...v,
         }))
@@ -120,7 +110,7 @@ describe("mergedConfiguration", () => {
         .map(v => {
           const style = styling.vertices?.find(s => s.type === v.type) ?? {};
           return {
-            ...defaultVertexStyle,
+            ...defaultVertexTypeConfig,
             displayLabel: sanitizeText(v.type),
             ...v,
             ...style,

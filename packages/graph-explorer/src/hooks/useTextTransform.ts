@@ -1,24 +1,29 @@
 import { sanitizeText } from "@/utils";
 import replacePrefixes from "@/utils/replacePrefixes";
 import { selector, useRecoilValue } from "recoil";
-import { assembledConfigSelector } from "@/core/ConfigurationProvider/useConfiguration";
+import { allNamespacePrefixesSelector } from "@/core/StateProvider/configuration";
+import { queryEngineSelector } from "@/core/connector";
+
+export type TextTransformer = (text?: string) => string;
 
 export const textTransformSelector = selector({
   key: "textTransform",
   get: ({ get }) => {
-    const config = get(assembledConfigSelector);
+    const queryEngine = get(queryEngineSelector);
+    const prefixes = get(allNamespacePrefixesSelector);
 
-    return (text?: string): string => {
+    const result: TextTransformer = text => {
       if (!text) {
         return "";
       }
 
-      if (config?.connection?.queryEngine === "sparql") {
-        return replacePrefixes(text, config?.schema?.prefixes);
+      if (queryEngine === "sparql") {
+        return replacePrefixes(text, prefixes);
       }
 
       return sanitizeText(text);
     };
+    return result;
   },
 });
 

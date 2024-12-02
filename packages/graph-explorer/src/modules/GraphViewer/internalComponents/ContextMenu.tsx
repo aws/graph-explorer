@@ -1,5 +1,5 @@
 import { cn } from "@/utils";
-import { RefObject, useCallback, useMemo } from "react";
+import { RefObject, useCallback } from "react";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import { Card, EdgeIcon, GraphIcon, ListItem, StylingIcon } from "@/components";
 import { GraphRef } from "@/components/Graph/Graph";
@@ -13,14 +13,18 @@ import {
   ZoomInIcon,
   ZoomOutIcon,
 } from "@/components/icons";
-import { useWithTheme } from "@/core";
+import {
+  useDisplayEdgesInCanvas,
+  useDisplayVerticesInCanvas,
+  useWithTheme,
+} from "@/core";
 import { edgesSelectedIdsAtom, toEdgeMap } from "@/core/StateProvider/edges";
 import { nodesSelectedIdsAtom, toNodeMap } from "@/core/StateProvider/nodes";
 import {
   SidebarItems,
   userLayoutAtom,
 } from "@/core/StateProvider/userPreferences";
-import { useDisplayNames, useEntities, useTranslations } from "@/hooks";
+import { useEntities, useTranslations } from "@/hooks";
 import useGraphGlobalActions from "../useGraphGlobalActions";
 import defaultStyles from "./ContextMenu.styles";
 import { EdgeId, VertexId } from "@/@types/entities";
@@ -47,7 +51,9 @@ const ContextMenu = ({
 }: ContextMenuProps) => {
   const styleWithTheme = useWithTheme();
   const t = useTranslations();
-  const [entities, setEntities] = useEntities();
+  const [_, setEntities] = useEntities();
+  const displayNodes = useDisplayVerticesInCanvas();
+  const displayEdges = useDisplayEdgesInCanvas();
   const [nodesSelectedIds, setNodesSelectedIds] =
     useRecoilState(nodesSelectedIdsAtom);
   const [edgesSelectedIds, setEdgesSelectedIds] =
@@ -178,22 +184,14 @@ const ContextMenu = ({
     affectedEdgesIds?.length === 0 &&
     nodesSelectedIds.size + edgesSelectedIds.size > 0;
 
-  const getDisplayNames = useDisplayNames();
-  const affectedNode = useMemo(() => {
-    if (!affectedNodesIds?.length) {
-      return;
-    }
-
-    return entities.nodes.get(affectedNodesIds[0]);
-  }, [affectedNodesIds, entities.nodes]);
-
-  const affectedEdge = useMemo(() => {
-    if (!affectedEdgesIds?.length) {
-      return;
-    }
-
-    return entities.edges.get(affectedEdgesIds[0]);
-  }, [affectedEdgesIds, entities.edges]);
+  const affectedNode =
+    affectedNodesIds?.length === 1
+      ? displayNodes.get(affectedNodesIds[0])
+      : undefined;
+  const affectedEdge =
+    affectedEdgesIds?.length === 1
+      ? displayEdges.get(affectedEdgesIds[0])
+      : undefined;
 
   if (affectedNode) {
     return (
@@ -205,7 +203,7 @@ const ContextMenu = ({
             className={cn("context-menu-list-item", "list-item-header")}
             startAdornment={<GraphIcon />}
           >
-            {getDisplayNames(affectedNode)?.name}
+            {affectedNode.displayName}
           </ListItem>
           <div className={"divider"} />
           <ListItem
@@ -228,7 +226,7 @@ const ContextMenu = ({
             className={"context-menu-list-item"}
             clickable={true}
             onClick={openSidebarPanel("nodes-styling", {
-              nodeType: affectedNode.type,
+              nodeType: affectedNode.typeConfig.type,
             })}
             startAdornment={<StylingIcon />}
           >
@@ -258,7 +256,7 @@ const ContextMenu = ({
             className={cn("context-menu-list-item", "list-item-header")}
             startAdornment={<EdgeIcon />}
           >
-            {getDisplayNames(affectedEdge)?.name}
+            {affectedEdge.displayTypes}
           </ListItem>
           <div className={"divider"} />
           <ListItem
@@ -273,7 +271,7 @@ const ContextMenu = ({
             className={"context-menu-list-item"}
             clickable={true}
             onClick={openSidebarPanel("edges-styling", {
-              edgeType: affectedEdge.type,
+              edgeType: affectedEdge.typeConfig.type,
             })}
             startAdornment={<StylingIcon />}
           >

@@ -35,15 +35,14 @@ import {
   nodesSelectedIdsAtom,
 } from "@/core/StateProvider/nodes";
 import { useEntities, useExpandNode } from "@/hooks";
-import useTextTransform from "@/hooks/useTextTransform";
 import ContextMenu from "./internalComponents/ContextMenu";
 import useContextMenu from "./useContextMenu";
 import useGraphGlobalActions from "./useGraphGlobalActions";
 import useGraphStyles from "./useGraphStyles";
 import useNodeBadges from "./useNodeBadges";
-import { useVertexTypeConfigs } from "@/core/ConfigurationProvider/useConfiguration";
 import { SelectedElements } from "@/components/Graph/Graph.model";
 import { useAutoOpenDetailsSidebar } from "./useAutoOpenDetailsSidebar";
+import { useDisplayVertexTypeConfigs } from "@/core";
 
 export type GraphViewerProps = {
   onNodeCustomize(nodeType?: string): void;
@@ -289,8 +288,7 @@ export default function GraphViewer({
 }
 
 function Legend({ onClose }: { onClose: () => void }) {
-  const textTransform = useTextTransform();
-  const vtConfigs = useVertexTypeConfigs();
+  const vtConfigs = useDisplayVertexTypeConfigs().values().toArray();
 
   return (
     <Card
@@ -308,17 +306,18 @@ function Legend({ onClose }: { onClose: () => void }) {
         />
       </div>
       <ul className="space-y-2 overflow-y-scroll">
-        {vtConfigs.map(vtConfig => {
-          return (
-            <li
-              key={vtConfig.type}
-              className="flex items-center gap-2 text-balance"
-            >
-              <VertexSymbol vtConfig={vtConfig} className="size-8 p-1.5" />
-              {vtConfig.displayLabel || textTransform(vtConfig.type)}
-            </li>
-          );
-        })}
+        {vtConfigs.map(vtConfig => (
+          <li
+            key={vtConfig.type}
+            className="flex items-center gap-2 text-balance"
+          >
+            <VertexSymbol
+              vertexStyle={vtConfig.style}
+              className="size-8 p-1.5"
+            />
+            {vtConfig.displayLabel}
+          </li>
+        ))}
       </ul>
     </Card>
   );

@@ -1,84 +1,44 @@
-import difference from "lodash/difference";
-import { useMemo } from "react";
-import type { Vertex } from "@/types/entities";
-import { useWithTheme } from "@/core";
-import { useConfiguration } from "@/core/ConfigurationProvider";
-import useTextTransform from "@/hooks/useTextTransform";
+import { DisplayVertex, useWithTheme } from "@/core";
 import useTranslations from "@/hooks/useTranslations";
 import NeighborsList from "@/modules/common/NeighborsList/NeighborsList";
 import EntityAttribute from "./EntityAttribute";
 import defaultStyles from "./EntityDetail.styles";
-import { useVertexTypeConfig } from "@/core/ConfigurationProvider/useConfiguration";
 import { RESERVED_ID_PROPERTY } from "@/utils/constants";
 import { VertexRow } from "@/components";
 
 export type VertexDetailProps = {
-  node: Vertex;
+  node: DisplayVertex;
 };
 
 export default function NodeDetail({ node }: VertexDetailProps) {
-  const config = useConfiguration();
   const t = useTranslations();
   const styleWithTheme = useWithTheme();
-  const textTransform = useTextTransform();
-
-  const vertexConfig = useVertexTypeConfig(node.type);
-
-  const sortedAttributes = useMemo(() => {
-    const attributes =
-      config?.getVertexTypeAttributes(node.types ?? [node.type]) || [];
-
-    // const attributes = clone(vertexConfig?.attributes) || [];
-    const unknownAttrKeys = difference(
-      Object.keys(node.attributes),
-      attributes.map(attr => attr.name)
-    ).map(attrName => ({
-      displayLabel: textTransform(attrName),
-      name: attrName,
-      dataType: "String",
-    }));
-
-    return [...attributes, ...unknownAttrKeys].sort((a, b) =>
-      a.displayLabel.localeCompare(b.displayLabel)
-    );
-  }, [config, node.types, node.type, node.attributes, textTransform]);
 
   return (
     <div className={styleWithTheme(defaultStyles())}>
       <VertexRow vertex={node} className="border-b p-3" />
-      <NeighborsList vertex={node} />
+      <NeighborsList id={node.id} />
       <div className={"properties"}>
         <div className={"title"}>Properties</div>
         <div className={"content"}>
           <EntityAttribute
-            value={
-              config?.connection?.queryEngine === "sparql"
-                ? textTransform(node.id)
-                : node.id
-            }
             attribute={{
               name: RESERVED_ID_PROPERTY,
-              displayLabel: node.__isBlank
+              displayLabel: node.isBlankNode
                 ? "Blank node ID"
                 : t("node-detail.node-id"),
+              displayValue: node.displayId,
             }}
           />
           <EntityAttribute
-            value={
-              vertexConfig.displayLabel ||
-              (node.types ?? [node.type]).map(textTransform).join(", ")
-            }
             attribute={{
               name: "types",
               displayLabel: t("node-detail.node-type"),
+              displayValue: node.displayTypes,
             }}
           />
-          {sortedAttributes.map(attribute => (
-            <EntityAttribute
-              key={attribute.name}
-              value={node.attributes[attribute.name]}
-              attribute={attribute}
-            />
+          {node.attributes.map(attribute => (
+            <EntityAttribute key={attribute.name} attribute={attribute} />
           ))}
         </div>
       </div>

@@ -34,7 +34,13 @@ import ExternalPaginationControl from "@/components/Tabular/controls/ExternalPag
 import Tabular from "@/components/Tabular/Tabular";
 import Workspace from "@/components/Workspace/Workspace";
 import type { KeywordSearchRequest } from "@/connector/useGEFetchTypes";
-import { useConfiguration, useWithTheme } from "@/core";
+import {
+  DisplayVertex,
+  useConfiguration,
+  useDisplayVertexTypeConfig,
+  useDisplayVerticesFromVertices,
+  useWithTheme,
+} from "@/core";
 import { explorerSelector } from "@/core/connector";
 import {
   userStylingAtom,
@@ -43,13 +49,16 @@ import {
 import { useEntities } from "@/hooks";
 import { useAddToGraph } from "@/hooks/useAddToGraph";
 import usePrefixesUpdater from "@/hooks/usePrefixesUpdater";
-import useTextTransform from "@/hooks/useTextTransform";
 import useTranslations from "@/hooks/useTranslations";
 import useUpdateVertexTypeCounts from "@/hooks/useUpdateVertexTypeCounts";
 import defaultStyles from "./DataExplorer.styles";
 import { searchQuery } from "@/connector/queries";
 import { useVertexTypeConfig } from "@/core/ConfigurationProvider/useConfiguration";
-import { APP_NAME, RESERVED_ID_PROPERTY } from "@/utils/constants";
+import {
+  APP_NAME,
+  MISSING_DISPLAY_VALUE,
+  RESERVED_ID_PROPERTY,
+} from "@/utils/constants";
 
 export type ConnectionsProps = {
   vertexType: string;
@@ -80,17 +89,19 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
   useUpdateVertexTypeCounts(vertexType);
 
   const vertexConfig = useVertexTypeConfig(vertexType);
+  const displayTypeConfig = useDisplayVertexTypeConfig(vertexType);
   const { pageIndex, pageSize, onPageIndexChange, onPageSizeChange } =
     usePagingOptions();
 
-  const tableRef = useRef<TabularInstance<Vertex> | null>(null);
-  const textTransform = useTextTransform();
+  const tableRef = useRef<TabularInstance<DisplayVertex> | null>(null);
   const columns = useColumnDefinitions(vertexType);
 
   const query = useDataExplorerQuery(vertexType, pageSize, pageIndex);
-
-  const vertexTypeDisplay =
-    vertexConfig?.displayLabel || textTransform(vertexType);
+  const displayVertices = useDisplayVerticesFromVertices(
+    query.data?.vertices ?? []
+  )
+    .values()
+    .toArray();
 
   return (
     <Workspace className={cn(styleWithTheme(defaultStyles), "data-explorer")}>
@@ -132,7 +143,7 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
           <PanelHeader>
             <PanelTitle>
               <div className={"container-header"}>
-                <div>{vertexTypeDisplay}</div>
+                <div>{displayTypeConfig.displayLabel}</div>
                 {query.isFetching && <LoadingSpinner className={"spinner"} />}
               </div>
             </PanelTitle>
@@ -140,7 +151,7 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
           <Tabular
             ref={tableRef}
             defaultColumn={DEFAULT_COLUMN}
-            data={query.data?.vertices || []}
+            data={displayVertices}
             columns={columns}
             fullWidth={true}
             pageIndex={pageIndex}
@@ -155,7 +166,7 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
               ) : null}
               {query.data?.vertices.length === 0 && (
                 <PlaceholderControl>
-                  {`No nodes found for "${vertexTypeDisplay}"`}
+                  {`No nodes found for "${displayTypeConfig.displayLabel}"`}
                 </PlaceholderControl>
               )}
             </TabularEmptyBodyControls>
@@ -180,15 +191,14 @@ function DisplayNameAndDescriptionOptions({
 }: {
   vertexType: string;
 }) {
-  const textTransform = useTextTransform();
   const t = useTranslations();
   const vertexConfig = useVertexTypeConfig(vertexType);
+  const displayConfig = useDisplayVertexTypeConfig(vertexType);
   const selectOptions = useMemo(() => {
-    const options =
-      vertexConfig?.attributes.map(attr => ({
-        value: attr.name,
-        label: attr.displayLabel || textTransform(attr.name),
-      })) || [];
+    const options = displayConfig.attributes.map(attr => ({
+      value: attr.name,
+      label: attr.displayLabel,
+    }));
 
     options.unshift({
       label: t("data-explorer.node-type"),
@@ -200,7 +210,7 @@ function DisplayNameAndDescriptionOptions({
     });
 
     return options;
-  }, [t, textTransform, vertexConfig?.attributes]);
+  }, [displayConfig.attributes, t]);
 
   const setUserStyling = useSetRecoilState(userStylingAtom);
   const onDisplayNameChange = useCallback(
@@ -281,27 +291,21 @@ function AddToExplorerButton({ vertex }: { vertex: Vertex }) {
 }
 
 function useColumnDefinitions(vertexType: string) {
-  const textTransform = useTextTransform();
   const t = useTranslations();
-  const vertexConfig = useVertexTypeConfig(vertexType);
-  const columns: ColumnDefinition<Vertex>[] = useMemo(() => {
-    const vtColumns: ColumnDefinition<Vertex>[] =
-      vertexConfig?.attributes
-        .map(attr => ({
-          id: attr.name,
-          label: attr.displayLabel || textTransform(attr.name),
-          accessor: (row: Vertex) => row.attributes[attr.name],
-          filterType:
-            attr.dataType === "String"
-              ? { name: "string" as const }
-              : undefined,
-        }))
-        .sort((a, b) => a.label.localeCompare(b.label)) || [];
-
+  const displayConfig = useDisplayVertexTypeConfig(vertexType);
+  const columns: ColumnDefinition<DisplayVertex>[] = useMemo(() => {
+    const vtColumns: ColumnDefinition<DisplayVertex>[] =
+      displayConfig.attributes.map(attr => ({
+        id: attr.name,
+        label: attr.displayLabel,
+        accessor: row =>
+          row.attributes.find(a => a.name === attr.name)?.displayValue ??
+          MISSING_DISPLAY_VALUE,
+      }));
     vtColumns.unshift({
       label: t("data-explorer.node-id"),
       id: "__id",
-      accessor: row => textTransform(row.id),
+      accessor: row => row.displayId,
       filterable: false,
     });
 
@@ -314,12 +318,12 @@ function useColumnDefinitions(vertexType: string) {
       width: 200,
       align: "right",
       cellComponent: ({ cell }) => (
-        <AddToExplorerButton vertex={cell.row.original} />
+        <AddToExplorerButton vertex={cell.row.original.original} />
       ),
     });
 
     return vtColumns;
-  }, [t, textTransform, vertexConfig?.attributes]);
+  }, [displayConfig.attributes, t]);
   return columns;
 }
 

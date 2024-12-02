@@ -1,6 +1,6 @@
 import { flatten } from "flat";
 import { useCallback } from "react";
-import { useQueryEngine } from "@/core";
+import { useQueryEngine } from "@/core/connector";
 
 import gremlinTs from "./translations/gremlin-translations.json";
 import sparqlTs from "./translations/sparql-translations.json";
