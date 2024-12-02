@@ -198,10 +198,13 @@ const mergeEdge = (
 ): EdgeTypeConfig => {
   const attributes = mergeAttributes(configEdge, schemaEdge);
 
+  const et =
+    preferences?.type || configEdge?.type || schemaEdge?.type || "unknown";
+
   return {
     // Defaults
-    type: "unknown",
-    displayLabel: "Unknown",
+    type: et,
+    displayLabel: sanitizeText(et),
     // Automatic schema override
     ...(schemaEdge || {}),
     // File-based override
