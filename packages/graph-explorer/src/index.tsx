@@ -6,7 +6,6 @@ import App from "./App";
 import { RawConfiguration } from "./core";
 import ConnectedProvider from "./core/ConnectedProvider";
 import "./index.css";
-// import "@mantine/core/styles.css";
 import { DEFAULT_SERVICE_TYPE } from "./utils/constants";
 import "core-js/full/iterator";
 
