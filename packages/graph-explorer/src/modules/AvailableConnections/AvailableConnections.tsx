@@ -1,10 +1,11 @@
-import { FileButton, Modal } from "@mantine/core";
+import { FileButton } from "@mantine/core";
 import { useRecoilCallback, useRecoilValue } from "recoil";
 import { v4 } from "uuid";
 import {
   AddIcon,
   Chip,
   DatabaseIcon,
+  Dialog,
   PanelHeaderActionButton,
   PanelHeaderActions,
   PanelHeader,
@@ -13,6 +14,7 @@ import {
   PanelHeaderDivider,
   Panel,
   PanelContent,
+  DialogTrigger,
 } from "@/components";
 import { useNotification } from "@/components/NotificationProvider";
 import Switch from "@/components/Switch";
@@ -127,11 +129,17 @@ const AvailableConnections = ({
             )}
           </FileButton>
           <PanelHeaderDivider />
-          <PanelHeaderActionButton
-            label="Add New Connection"
-            icon={<AddIcon />}
-            onActionClick={() => onModalChange(true)}
-          />
+          <Dialog open={isModalOpen} onOpenChange={onModalChange}>
+            <DialogTrigger asChild>
+              <PanelHeaderActionButton
+                label="Add New Connection"
+                icon={<AddIcon />}
+                onActionClick={() => {}}
+              />
+            </DialogTrigger>
+
+            <CreateConnection onClose={() => onModalChange(false)} />
+          </Dialog>
         </PanelHeaderActions>
       </PanelHeader>
 
@@ -149,14 +157,6 @@ const AvailableConnections = ({
             </div>
           )}
         />
-        <Modal
-          centered={true}
-          title="Add New Connection"
-          opened={isModalOpen}
-          onClose={() => onModalChange(false)}
-        >
-          <CreateConnection onClose={() => onModalChange(false)} />
-        </Modal>
       </PanelContent>
     </Panel>
   );

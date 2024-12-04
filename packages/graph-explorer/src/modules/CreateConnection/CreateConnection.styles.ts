@@ -2,10 +2,6 @@ import { css } from "@emotion/css";
 import { ActiveThemeType } from "@/core";
 
 const defaultStyles = ({ theme }: ActiveThemeType) => css`
-  .content {
-    background: ${theme.palette.background.default};
-  }
-
   .top-bar-title {
     font-weight: bold;
   }
@@ -16,8 +12,6 @@ const defaultStyles = ({ theme }: ActiveThemeType) => css`
 
   .configuration-form {
     width: 100%;
-    padding: ${theme.spacing["4x"]} ${theme.spacing.base};
-    background: ${theme.palette.background.default};
   }
 
   .actions {

@@ -60,6 +60,7 @@ export const Input = (
     noMargin = false,
     onClick,
     clearButton,
+    autoFocus,
     overrideInputProps,
     ...props
   }: InputProps,
@@ -136,6 +137,7 @@ export const Input = (
           min={isNumberInput(props) ? props.min : undefined}
           max={isNumberInput(props) ? props.max : undefined}
           step={isNumberInput(props) ? props.step : undefined}
+          autoFocus={autoFocus}
           ref={ref || localRef}
           {...inputProps}
           {...overrideInputProps}

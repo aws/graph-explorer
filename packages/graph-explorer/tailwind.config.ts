@@ -1,4 +1,5 @@
 import { type Config } from "tailwindcss";
+import plugin from "tailwindcss/plugin";
 import tailwindAnimate from "tailwindcss-animate";
 
 const black = "rgb(var(--color-black) / <alpha-value>)";
@@ -157,5 +158,17 @@ export default {
       },
     },
   },
-  plugins: [tailwindAnimate],
+  plugins: [
+    tailwindAnimate,
+    plugin(({ addVariant, addUtilities }) => {
+      addVariant("popover-open", "&:popover-open");
+      addVariant("starting", "@starting-style");
+
+      addUtilities({
+        ".transition-discrete": {
+          transitionBehavior: "allow-discrete",
+        },
+      });
+    }),
+  ],
 } satisfies Config;

@@ -47,6 +47,7 @@ export const TextArea = (
     onClick,
     clearButton,
     overrideInputProps,
+    autoFocus,
     ...props
   }: TextAreaProps,
   ref: ForwardedRef<HTMLTextAreaElement>
@@ -105,6 +106,7 @@ export const TextArea = (
             ["input-label-inner"]: labelPlacement === "inner",
           })}
           ref={ref || localRef}
+          autoFocus={autoFocus}
           {...inputProps}
           {...overrideInputProps}
         />
