@@ -86,9 +86,7 @@ const displayVertexSelector = selectorFamily({
         .join(", ");
 
       // Map all the attributes for displaying
-      const typeAttributes = get(
-        vertexTypeAttributesSelector(vertex.types ?? [vertex.type])
-      );
+      const typeAttributes = get(vertexTypeAttributesSelector(vertexTypes));
       const sortedAttributes = getSortedDisplayAttributes(
         vertex,
         typeAttributes,
