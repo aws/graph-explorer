@@ -6,6 +6,9 @@ export const DEFAULT_CONCURRENT_REQUESTS_LIMIT = 10;
 /** The name of the special property representing the node ID */
 export const RESERVED_ID_PROPERTY = "~id";
 
+/** The name of the property representing the list of types of the node */
+export const RESERVED_TYPES_PROPERTY = "types";
+
 /** The string "Graph Explorer". */
 export const APP_NAME = "Graph Explorer";
 

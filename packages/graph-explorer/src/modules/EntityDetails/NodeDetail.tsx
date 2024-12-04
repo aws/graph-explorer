@@ -3,7 +3,10 @@ import useTranslations from "@/hooks/useTranslations";
 import NeighborsList from "@/modules/common/NeighborsList/NeighborsList";
 import EntityAttribute from "./EntityAttribute";
 import defaultStyles from "./EntityDetail.styles";
-import { RESERVED_ID_PROPERTY } from "@/utils/constants";
+import {
+  RESERVED_ID_PROPERTY,
+  RESERVED_TYPES_PROPERTY,
+} from "@/utils/constants";
 import { VertexRow } from "@/components";
 
 export type VertexDetailProps = {
@@ -32,7 +35,7 @@ export default function NodeDetail({ node }: VertexDetailProps) {
           />
           <EntityAttribute
             attribute={{
-              name: "types",
+              name: RESERVED_TYPES_PROPERTY,
               displayLabel: t("node-detail.node-type"),
               displayValue: node.displayTypes,
             }}

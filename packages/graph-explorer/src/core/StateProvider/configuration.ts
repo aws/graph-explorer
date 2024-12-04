@@ -17,7 +17,10 @@ import {
   VertexPreferences,
 } from "./userPreferences";
 import isDefaultValue from "./isDefaultValue";
-import { RESERVED_ID_PROPERTY } from "@/utils/constants";
+import {
+  RESERVED_ID_PROPERTY,
+  RESERVED_TYPES_PROPERTY,
+} from "@/utils/constants";
 
 export const isStoreLoadedAtom = atom<boolean>({
   key: "store-loaded",
@@ -243,7 +246,7 @@ export const edgeTypesSelector = selector({
 export const defaultVertexTypeConfig = {
   attributes: [],
   displayNameAttribute: RESERVED_ID_PROPERTY,
-  longDisplayNameAttribute: "types",
+  longDisplayNameAttribute: RESERVED_TYPES_PROPERTY,
   color: "#128EE5",
   iconUrl: DEFAULT_ICON_URL,
   iconImageType: "image/svg+xml",

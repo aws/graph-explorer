@@ -28,7 +28,10 @@ import modalDefaultStyles from "./SingleNodeStylingModal.style";
 import { useVertexTypeConfig } from "@/core/ConfigurationProvider/useConfiguration";
 import { useDebounceValue, usePrevious } from "@/hooks";
 import { cn } from "@/utils";
-import { RESERVED_ID_PROPERTY } from "@/utils/constants";
+import {
+  RESERVED_ID_PROPERTY,
+  RESERVED_TYPES_PROPERTY,
+} from "@/utils/constants";
 
 export type SingleNodeStylingProps = {
   vertexType: string;
@@ -73,7 +76,7 @@ export default function SingleNodeStyling({
 
     options.unshift({
       label: t("nodes-styling.node-type"),
-      value: "types",
+      value: RESERVED_TYPES_PROPERTY,
     });
     options.unshift({
       label: t("nodes-styling.node-id"),

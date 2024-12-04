@@ -58,6 +58,7 @@ import {
   APP_NAME,
   MISSING_DISPLAY_VALUE,
   RESERVED_ID_PROPERTY,
+  RESERVED_TYPES_PROPERTY,
 } from "@/utils/constants";
 
 export type ConnectionsProps = {
@@ -202,7 +203,7 @@ function DisplayNameAndDescriptionOptions({
 
     options.unshift({
       label: t("data-explorer.node-type"),
-      value: "types",
+      value: RESERVED_TYPES_PROPERTY,
     });
     options.unshift({
       label: t("data-explorer.node-id"),

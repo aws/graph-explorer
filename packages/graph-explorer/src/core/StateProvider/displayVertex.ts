@@ -11,7 +11,11 @@ import {
   DisplayVertexTypeConfig,
   displayVertexTypeConfigSelector,
 } from "./displayTypeConfigs";
-import { MISSING_DISPLAY_VALUE, RESERVED_ID_PROPERTY } from "@/utils/constants";
+import {
+  MISSING_DISPLAY_VALUE,
+  RESERVED_ID_PROPERTY,
+  RESERVED_TYPES_PROPERTY,
+} from "@/utils/constants";
 import { queryEngineSelector } from "../connector";
 
 /** Represents a vertex's display information after all transformations have been applied. */
@@ -97,7 +101,7 @@ const displayVertexSelector = selectorFamily({
       function getDisplayAttributeValueByName(name: string | undefined) {
         if (name === RESERVED_ID_PROPERTY) {
           return displayId;
-        } else if (name === "types") {
+        } else if (name === RESERVED_TYPES_PROPERTY) {
           return displayTypes;
         } else if (name) {
           return (
