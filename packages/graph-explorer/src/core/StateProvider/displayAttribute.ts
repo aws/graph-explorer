@@ -2,6 +2,7 @@ import { Vertex, Edge } from "@/@types/entities";
 import { AttributeConfig } from "../ConfigurationProvider";
 import { formatDate } from "@/utils";
 import { MISSING_DISPLAY_VALUE } from "@/utils/constants";
+import { TextTransformer } from "@/hooks/useTextTransform";
 
 /** Represents an attribute's display information after all transformations have been applied. */
 export type DisplayAttribute = {
@@ -14,12 +15,12 @@ export type DisplayAttribute = {
 export function getSortedDisplayAttributes(
   entity: Vertex | Edge,
   typeAttributes: AttributeConfig[],
-  textTransform: (text?: string) => string
+  textTransform: TextTransformer
 ): DisplayAttribute[] {
-  const nodeAttributeNames = Object.keys(entity.attributes);
+  const entityAttributeNames = Object.keys(entity.attributes);
   const typeAttributeNames = typeAttributes.map(attr => attr.name);
   const uniqueAttributeNames = new Set([
-    ...nodeAttributeNames,
+    ...entityAttributeNames,
     ...typeAttributeNames,
   ]);
   const sortedAttributes = uniqueAttributeNames
