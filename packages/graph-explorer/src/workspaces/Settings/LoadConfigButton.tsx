@@ -5,7 +5,6 @@ import localforage from "localforage";
 import { useState, useRef, useCallback, useEffect } from "react";
 import {
   UploadIcon,
-  ErrorIcon,
   Paragraph,
   LoaderIcon,
   Button,
