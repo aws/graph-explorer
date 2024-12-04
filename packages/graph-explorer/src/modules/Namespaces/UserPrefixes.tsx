@@ -22,10 +22,12 @@ import {
   NamespaceIcon,
   SaveIcon,
   PanelFooter,
+  DialogDescription,
 } from "@/components";
 import { RawConfiguration, useConfiguration, useWithTheme } from "@/core";
 import { schemaAtom } from "@/core/StateProvider/schema";
 import defaultStyles from "./NsType.styles";
+import { VisuallyHidden } from "@react-aria/visually-hidden";
 
 type PrefixForm = {
   prefix: string;
@@ -204,6 +206,9 @@ function CreateNamespaceModal({
     <DialogContent className="min-w-[400px]">
       <DialogHeader>
         <DialogTitle>Create a new Namespace</DialogTitle>
+        <VisuallyHidden>
+          <DialogDescription>Namespaces help shorten URIs</DialogDescription>
+        </VisuallyHidden>
       </DialogHeader>
       <DialogBody>
         <Input

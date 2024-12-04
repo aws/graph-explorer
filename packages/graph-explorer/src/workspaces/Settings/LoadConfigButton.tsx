@@ -235,6 +235,11 @@ function SuccessModal({ success }: { success: boolean }) {
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Restore Successful</AlertDialogTitle>
+          <VisuallyHidden>
+            <AlertDialogDescription>
+              Successfully restored configuration from backup
+            </AlertDialogDescription>
+          </VisuallyHidden>
         </AlertDialogHeader>
         <AlertDialogBody className="flex flex-row items-center">
           <AlertDialogIcon className="text-success-main">
