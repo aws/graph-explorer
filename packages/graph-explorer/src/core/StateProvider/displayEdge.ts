@@ -46,22 +46,6 @@ export function useDisplayEdgesInCanvas() {
   return useRecoilValue(displayEdgesInCanvasSelector);
 }
 
-/** Finds the `DisplayEdge` instance for a give `EdgeId` within the edges added to the graph canvas. */
-export function useDisplayEdge(id: EdgeId) {
-  const edge = useRecoilValue(displayEdgesInCanvasSelector).get(id);
-
-  if (!edge) {
-    throw new Error(`Edge with id ${id} not found in displayEdges`);
-  }
-
-  return edge;
-}
-
-/** Maps a `Edge` instance to a `DisplayEdge` instance using the schema and any user preferences. */
-export function useDisplayEdgeFromEdge(edge: Edge) {
-  return useRecoilValue(displayEdgeSelector(edge));
-}
-
 /** Maps all `Edge` instances which are selected in the graph canvas to `DisplayEdge` instances. */
 export function useSelectedDisplayEdges() {
   const selectedIds = useRecoilValue(edgesSelectedIdsAtom);
