@@ -9,9 +9,10 @@ const useNodeBadges = () => {
   return useCallback(
     (outOfFocusIds: Set<VertexId>): BadgeRenderer =>
       (nodeData, boundingBox, { zoomLevel }) => {
+        const displayNode = displayNodes.get(nodeData.id);
         // Ensure we have the node name and title
-        const name = displayNodes.get(nodeData.id)?.displayName ?? "";
-        const title = displayNodes.get(nodeData.id)?.displayTypes ?? "";
+        const name = displayNode?.displayName ?? "";
+        const title = displayNode?.displayTypes ?? "";
 
         return [
           {
