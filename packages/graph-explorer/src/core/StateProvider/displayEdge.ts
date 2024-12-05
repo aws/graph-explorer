@@ -1,25 +1,22 @@
 import { Edge, EdgeId, VertexId } from "@/@types/entities";
 import { selector, selectorFamily, useRecoilValue } from "recoil";
-import { textTransformSelector } from "@/hooks/useTextTransform";
-import {
-  vertexTypeAttributesSelector,
-  vertexTypeConfigSelector,
-} from "../ConfigurationProvider/useConfiguration";
-import { edgesAtom, edgesSelectedIdsAtom } from "./edges";
-import {
-  DisplayAttribute,
-  getSortedDisplayAttributes,
-} from "./displayAttribute";
+import { textTransformSelector } from "@/hooks";
 import {
   DisplayEdgeTypeConfig,
   displayEdgeTypeConfigSelector,
-} from "./displayTypeConfigs";
-import { queryEngineSelector } from "../connector";
+  DisplayAttribute,
+  getSortedDisplayAttributes,
+  edgesAtom,
+  edgesSelectedIdsAtom,
+  vertexTypeAttributesSelector,
+  vertexTypeConfigSelector,
+  queryEngineSelector,
+} from "@/core";
 import {
   MISSING_DISPLAY_VALUE,
   RESERVED_ID_PROPERTY,
   RESERVED_TYPES_PROPERTY,
-} from "@/utils/constants";
+} from "@/utils";
 
 /** Represents an edge's display information after all transformations have been applied. */
 export type DisplayEdge = {

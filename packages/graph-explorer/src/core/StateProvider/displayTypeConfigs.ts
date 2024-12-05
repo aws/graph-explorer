@@ -4,23 +4,16 @@ import {
   allVertexTypeConfigsSelector,
   defaultEdgeTypeConfig,
   defaultVertexTypeConfig,
-} from "./configuration";
-import {
-  TextTransformer,
-  textTransformSelector,
-} from "@/hooks/useTextTransform";
-import {
   edgeTypeConfigSelector,
   vertexTypeConfigSelector,
-} from "../ConfigurationProvider/useConfiguration";
-import {
   AttributeConfig,
   EdgeTypeConfig,
   VertexTypeConfig,
-} from "../ConfigurationProvider";
-import { ArrowStyle, LineStyle } from "./userPreferences";
-import { sanitizeText } from "@/utils";
-import { RESERVED_TYPES_PROPERTY } from "@/utils/constants";
+  ArrowStyle,
+  LineStyle,
+} from "@/core";
+import { TextTransformer, textTransformSelector } from "@/hooks";
+import { RESERVED_TYPES_PROPERTY, sanitizeText } from "@/utils";
 
 export type DisplayVertexStyle = {
   color: string;

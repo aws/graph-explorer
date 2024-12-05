@@ -1,22 +1,21 @@
+import { selector, selectorFamily, useRecoilValue } from "recoil";
 import { Vertex, VertexId } from "@/@types/entities";
 import {
   DisplayAttribute,
   getSortedDisplayAttributes,
-} from "./displayAttribute";
-import { vertexTypeAttributesSelector } from "../ConfigurationProvider/useConfiguration";
-import { selector, selectorFamily, useRecoilValue } from "recoil";
-import { textTransformSelector } from "@/hooks/useTextTransform";
-import { nodesAtom, nodesSelectedIdsAtom } from "./nodes";
-import {
+  vertexTypeAttributesSelector,
+  nodesAtom,
+  nodesSelectedIdsAtom,
   DisplayVertexTypeConfig,
   displayVertexTypeConfigSelector,
-} from "./displayTypeConfigs";
+  queryEngineSelector,
+} from "@/core";
+import { textTransformSelector } from "@/hooks";
 import {
   MISSING_DISPLAY_VALUE,
   RESERVED_ID_PROPERTY,
   RESERVED_TYPES_PROPERTY,
-} from "@/utils/constants";
-import { queryEngineSelector } from "../connector";
+} from "@/utils";
 
 /** Represents a vertex's display information after all transformations have been applied. */
 export type DisplayVertex = {
