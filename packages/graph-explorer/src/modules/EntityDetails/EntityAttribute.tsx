@@ -1,18 +1,28 @@
 import { DisplayAttribute } from "@/core";
+import { cn } from "@/utils";
+import { ComponentPropsWithoutRef } from "react";
 
 export type EntityAttributeProps = {
   attribute: DisplayAttribute;
-};
+} & ComponentPropsWithoutRef<"li">;
 
-export default function EntityAttribute({ attribute }: EntityAttributeProps) {
+export default function EntityAttribute({
+  attribute,
+  className,
+  ...props
+}: EntityAttributeProps) {
   return (
-    <div key={attribute.name} className={"attribute"}>
-      <div>
-        <div className={"attribute-name"}>
-          <div>{attribute.displayLabel}</div>
-        </div>
-        <div className={"attribute-value"}>{attribute.displayValue}</div>
+    <li
+      key={attribute.name}
+      className={cn("space-y-0.5", className)}
+      {...props}
+    >
+      <div className="text-text-secondary text-balance break-words text-sm">
+        {attribute.displayLabel}
       </div>
-    </div>
+      <div className="text-text-primary text-balance break-words">
+        {attribute.displayValue}
+      </div>
+    </li>
   );
 }

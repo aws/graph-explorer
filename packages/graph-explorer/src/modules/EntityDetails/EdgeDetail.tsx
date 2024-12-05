@@ -14,20 +14,57 @@ import {
   VertexRow,
 } from "@/components";
 import EdgeIcon from "@/components/icons/EdgeIcon";
-import { DisplayEdge, useDisplayVertex, useWithTheme } from "@/core";
+import {
+  DisplayAttribute,
+  DisplayEdge,
+  useDisplayVertex,
+  useWithTheme,
+} from "@/core";
 import defaultStyles from "./EntityDetail.styles";
 import EntityAttribute from "./EntityAttribute";
+import { RESERVED_TYPES_PROPERTY } from "@/utils/constants";
+import { useTranslations } from "@/hooks";
 
 export type EdgeDetailProps = {
   edge: DisplayEdge;
 };
 
 const EdgeDetail = ({ edge }: EdgeDetailProps) => {
+  const t = useTranslations();
   const sourceVertex = useDisplayVertex(edge.source.id);
   const targetVertex = useDisplayVertex(edge.target.id);
 
   const styleWithTheme = useWithTheme();
   const style = edge.typeConfig.style;
+
+  const allAttributes: DisplayAttribute[] = [
+    {
+      name: RESERVED_TYPES_PROPERTY,
+      displayLabel: t("entities-tabular.edge-type"),
+      displayValue: edge.displayTypes,
+    },
+    {
+      name: "sourceVertex",
+      displayLabel: t("entities-tabular.source-id"),
+      displayValue: edge.source.displayId,
+    },
+    {
+      name: "sourceVertexType",
+      displayLabel: t("entities-tabular.source-type"),
+      displayValue: edge.source.displayTypes,
+    },
+    {
+      name: "targetVertex",
+      displayLabel: t("entities-tabular.target-id"),
+      displayValue: edge.target.displayId,
+    },
+    {
+      name: "targetVertexType",
+      displayLabel: t("entities-tabular.target-type"),
+      displayValue: edge.target.displayTypes,
+    },
+    ...edge.attributes,
+  ];
 
   return (
     <div className={styleWithTheme(defaultStyles(style.lineColor))}>
@@ -117,16 +154,14 @@ const EdgeDetail = ({ edge }: EdgeDetailProps) => {
         </div>
         <VertexRow vertex={targetVertex} />
       </div>
-      {edge.attributes.length > 0 && (
-        <div className={"properties"}>
-          <div className={"title"}>Properties</div>
-          <div className={"content"}>
-            {edge.attributes.map(attribute => (
-              <EntityAttribute key={attribute.name} attribute={attribute} />
-            ))}
-          </div>
-        </div>
-      )}
+      <div className="space-y-[1.125rem] p-3">
+        <div className="text-lg font-bold">Properties</div>
+        <ul className="space-y-[1.125rem]">
+          {allAttributes.map(attribute => (
+            <EntityAttribute key={attribute.name} attribute={attribute} />
+          ))}
+        </ul>
+      </div>
     </div>
   );
 };

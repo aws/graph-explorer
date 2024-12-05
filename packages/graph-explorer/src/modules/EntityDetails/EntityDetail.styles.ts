@@ -138,65 +138,6 @@ const defaultStyles =
         }
       }
     }
-
-    .properties {
-      padding: ${theme.spacing["4x"]} ${theme.spacing["3x"]};
-
-      .title {
-        font-weight: bold;
-      }
-
-      .content {
-        display: flex;
-        flex-direction: column;
-        margin-top: ${theme.spacing["2x"]};
-
-        .attribute {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: ${theme.spacing["2x"]} 0;
-
-          .attribute-select {
-            margin-bottom: 0;
-            width: auto;
-            min-width: 120px;
-            .select {
-              padding: ${theme.spacing.base} 0 ${theme.spacing.base}
-                ${theme.spacing["2x"]};
-              border-radius: 24px;
-            }
-            .option-selected {
-              background: ${theme.palette.primary.main};
-              color: ${theme.palette.primary.contrastText};
-            }
-            .selection,
-            .placeholder {
-              margin-right: 24px;
-            }
-          }
-
-          > div {
-            width: 100%;
-            .attribute-name {
-              display: flex;
-              align-items: center;
-              justify-content: space-between;
-              column-gap: ${theme.spacing.base};
-              font-size: ${theme.typography.sizes?.xs};
-
-              > * {
-                word-break: break-word;
-              }
-            }
-            .attribute-value {
-              word-break: break-word;
-              font-weight: bold;
-            }
-          }
-        }
-      }
-    }
   `;
 
 export default defaultStyles;

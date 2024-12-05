@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useDisplayVertexFromVertex } from "@/core";
+import EntityAttribute from "../EntityDetails/EntityAttribute";
 
 export function NodeSearchResult({ node }: { node: Vertex }) {
   const [expanded, setExpanded] = useState(false);
@@ -65,15 +66,11 @@ export function NodeSearchResult({ node }: { node: Vertex }) {
       <div className="border-background-secondary px-8 transition-all group-data-[expanded=false]:h-0 group-data-[expanded=true]:h-auto group-data-[expanded=true]:border-t">
         <ul>
           {displayNode.attributes.map(attr => (
-            <li
+            <EntityAttribute
               key={attr.name}
-              className="flex flex-col gap-1 border-b border-gray-200 px-3 py-2 last:border-0"
-            >
-              <div className="text-text-secondary text-sm">
-                {attr.displayLabel}
-              </div>
-              <div className="text-text-primary">{attr.displayValue}</div>
-            </li>
+              attribute={attr}
+              className="border-b border-gray-200 px-3 py-2 last:border-0"
+            />
           ))}
         </ul>
       </div>
