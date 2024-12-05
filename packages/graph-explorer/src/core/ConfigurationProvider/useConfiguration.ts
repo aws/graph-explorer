@@ -17,12 +17,12 @@ const assembledConfigSelector = selector<ConfigurationContextProps | undefined>(
         return;
       }
 
-      const vertexTypesMap = new Map(
-        configuration.schema?.vertices.map(v => [v.type, v])
+      const vertexTypesMap = new Set(
+        configuration.schema?.vertices.map(v => v.type)
       );
 
-      const edgeTypesMap = new Map(
-        configuration.schema?.edges.map(e => [e.type, e])
+      const edgeTypesMap = new Set(
+        configuration.schema?.edges.map(e => e.type)
       );
 
       return {
