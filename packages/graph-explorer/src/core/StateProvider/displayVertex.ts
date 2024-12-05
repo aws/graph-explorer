@@ -9,6 +9,7 @@ import {
   DisplayVertexTypeConfig,
   displayVertexTypeConfigSelector,
   queryEngineSelector,
+  nodeSelector,
 } from "@/core";
 import { textTransformSelector } from "@/hooks";
 import {
@@ -57,15 +58,23 @@ export function useDisplayVerticesFromVertices(vertices: Vertex[]) {
   return useRecoilValue(displayVerticesSelector(vertices));
 }
 
+const selectedDisplayVerticesSelector = selector({
+  key: "selected-display-vertices",
+  get: ({ get }) => {
+    const selectedIds = get(nodesSelectedIdsAtom);
+    return selectedIds
+      .values()
+      .map(id => get(nodeSelector(id)))
+      .filter(n => n != null)
+      .map(n => get(displayVertexSelector(n)))
+      .filter(n => n != null)
+      .toArray();
+  },
+});
+
 /** Maps all `Vertex` instances which are selected in the graph canvas to `DisplayVertex` instances. */
 export function useSelectedDisplayVertices() {
-  const selectedIds = useRecoilValue(nodesSelectedIdsAtom);
-  const displayVertices = useDisplayVerticesInCanvas();
-  return selectedIds
-    .values()
-    .map(id => displayVertices.get(id))
-    .filter(n => n != null)
-    .toArray();
+  return useRecoilValue(selectedDisplayVerticesSelector);
 }
 
 const displayVertexSelector = selectorFamily({

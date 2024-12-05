@@ -11,6 +11,7 @@ import {
   vertexTypeAttributesSelector,
   vertexTypeConfigSelector,
   queryEngineSelector,
+  edgeSelector,
 } from "@/core";
 import {
   MISSING_DISPLAY_VALUE,
@@ -43,15 +44,23 @@ export function useDisplayEdgesInCanvas() {
   return useRecoilValue(displayEdgesInCanvasSelector);
 }
 
+const selectedDisplayEdgesSelector = selector({
+  key: "selected-display-edges",
+  get: ({ get }) => {
+    const selectedIds = get(edgesSelectedIdsAtom);
+    return selectedIds
+      .values()
+      .map(id => get(edgeSelector(id)))
+      .filter(e => e != null)
+      .map(e => get(displayEdgeSelector(e)))
+      .filter(n => n != null)
+      .toArray();
+  },
+});
+
 /** Maps all `Edge` instances which are selected in the graph canvas to `DisplayEdge` instances. */
 export function useSelectedDisplayEdges() {
-  const selectedIds = useRecoilValue(edgesSelectedIdsAtom);
-  const displayEdges = useDisplayEdgesInCanvas();
-  return selectedIds
-    .values()
-    .map(id => displayEdges.get(id))
-    .filter(n => n != null)
-    .toArray();
+  return useRecoilValue(selectedDisplayEdgesSelector);
 }
 
 const displayEdgeSelector = selectorFamily({

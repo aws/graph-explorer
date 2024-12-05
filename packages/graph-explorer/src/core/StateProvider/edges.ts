@@ -1,4 +1,4 @@
-import { atom, selector } from "recoil";
+import { atom, selector, selectorFamily } from "recoil";
 import type { Edge, EdgeId } from "@/types/entities";
 import isDefaultValue from "./isDefaultValue";
 
@@ -43,6 +43,15 @@ export const edgesSelector = selector<Edges>({
       set(edgesOutOfFocusIdsAtom, cleanFn);
     get(edgesFilteredIdsAtom).size > 0 && set(edgesFilteredIdsAtom, cleanFn);
   },
+});
+
+export const edgeSelector = selectorFamily({
+  key: "edge-selector",
+  get:
+    (id: EdgeId) =>
+    ({ get }) => {
+      return get(edgesAtom).get(id) ?? null;
+    },
 });
 
 export const edgesSelectedIdsAtom = atom<Set<EdgeId>>({
