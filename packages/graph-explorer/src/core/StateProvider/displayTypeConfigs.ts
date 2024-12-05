@@ -20,6 +20,7 @@ import {
 } from "../ConfigurationProvider";
 import { ArrowStyle, LineStyle } from "./userPreferences";
 import { sanitizeText } from "@/utils";
+import { RESERVED_TYPES_PROPERTY } from "@/utils/constants";
 
 export type DisplayVertexStyle = {
   color: string;
@@ -47,6 +48,7 @@ export type DisplayEdgeTypeConfig = {
   displayLabel: string;
   attributes: DisplayConfigAttribute[];
   style: DisplayEdgeStyle;
+  displayNameAttribute: string;
 };
 
 export type DisplayConfigAttribute = {
@@ -195,6 +197,8 @@ export function mapToDisplayEdgeTypeConfig(
     displayLabel,
     attributes,
     style,
+    displayNameAttribute:
+      typeConfig.displayNameAttribute || RESERVED_TYPES_PROPERTY,
   };
   return result;
 }

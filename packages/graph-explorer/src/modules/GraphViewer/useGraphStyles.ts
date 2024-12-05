@@ -1,6 +1,6 @@
 import Color from "color";
 import { useEffect, useState } from "react";
-import { Edge } from "@/types/entities";
+import { EdgeId } from "@/types/entities";
 import type { GraphProps } from "@/components";
 import useTextTransform from "@/hooks/useTextTransform";
 import { renderNode } from "./renderNode";
@@ -8,6 +8,8 @@ import {
   useEdgeTypeConfigs,
   useVertexTypeConfigs,
 } from "@/core/ConfigurationProvider/useConfiguration";
+import { useDisplayEdgesInCanvas } from "@/core";
+import { MISSING_DISPLAY_VALUE } from "@/utils/constants";
 
 const LINE_PATTERN = {
   solid: undefined,
@@ -20,6 +22,7 @@ const useGraphStyles = () => {
   const etConfigs = useEdgeTypeConfigs();
   const textTransform = useTextTransform();
   const [styles, setStyles] = useState<GraphProps["styles"]>({});
+  const displayEdges = useDisplayEdgesInCanvas();
 
   useEffect(() => {
     (async () => {
@@ -61,16 +64,11 @@ const useGraphStyles = () => {
 
         styles[`edge[type="${et}"]`] = {
           label: (el: cytoscape.EdgeSingular) => {
-            const edgeData = el.data() as Edge;
-
-            let currentLabel = etConfig.displayLabel || label;
-
-            if (etConfig.displayNameAttribute) {
-              const attr = edgeData.attributes[etConfig.displayNameAttribute];
-              currentLabel = attr != null ? String(attr) : currentLabel;
-            }
-
-            return currentLabel;
+            const edgeId = el.id() as EdgeId;
+            const displayEdge = displayEdges.get(edgeId);
+            return displayEdge
+              ? displayEdge.displayName
+              : MISSING_DISPLAY_VALUE;
           },
           color: new Color(etConfig?.labelColor || "#17457b").isDark()
             ? "#FFFFFF"
@@ -98,7 +96,7 @@ const useGraphStyles = () => {
 
       setStyles(styles);
     })();
-  }, [etConfigs, textTransform, vtConfigs]);
+  }, [displayEdges, etConfigs, textTransform, vtConfigs]);
 
   return styles;
 };

@@ -37,7 +37,7 @@ const EdgeDetail = ({ edge }: EdgeDetailProps) => {
         </div>
         <div className={"content"}>
           <div className={"title"}>{edge.displayTypes}</div>
-          {edge.displayId && <div>{edge.displayId}</div>}
+          {edge.hasUniqueId ? <div>{edge.displayId}</div> : null}
         </div>
       </div>
       <div className={cn("header", "source-vertex")}>

@@ -2,7 +2,6 @@ import { Edge, EdgeId, VertexId } from "@/@types/entities";
 import { selector, selectorFamily, useRecoilValue } from "recoil";
 import { textTransformSelector } from "@/hooks/useTextTransform";
 import {
-  edgeTypeConfigSelector,
   vertexTypeAttributesSelector,
   vertexTypeConfigSelector,
 } from "../ConfigurationProvider/useConfiguration";
@@ -16,17 +15,24 @@ import {
   displayEdgeTypeConfigSelector,
 } from "./displayTypeConfigs";
 import { queryEngineSelector } from "../connector";
+import {
+  MISSING_DISPLAY_VALUE,
+  RESERVED_ID_PROPERTY,
+  RESERVED_TYPES_PROPERTY,
+} from "@/utils/constants";
 
 /** Represents an edge's display information after all transformations have been applied. */
 export type DisplayEdge = {
   entityType: "edge";
   id: EdgeId;
-  displayId: string | null;
+  displayId: string;
+  displayName: string;
   displayTypes: string;
   typeConfig: DisplayEdgeTypeConfig;
   source: EdgeVertex;
   target: EdgeVertex;
   attributes: DisplayAttribute[];
+  hasUniqueId: boolean;
 };
 
 type EdgeVertex = {
@@ -82,12 +88,11 @@ const displayEdgeSelector = selectorFamily({
       // List all edge types for displaying
       const edgeTypes = [edge.type];
       const displayTypes = edgeTypes
-        .map(
-          type =>
-            get(edgeTypeConfigSelector(type))?.displayLabel ||
-            textTransform(type)
-        )
+        .map(type => get(displayEdgeTypeConfigSelector(type)).displayLabel)
         .join(", ");
+
+      // For SPARQL, display the edge type as the ID
+      const displayId = isSparql ? displayTypes : edge.id;
 
       const typeAttributes = get(vertexTypeAttributesSelector(edgeTypes));
       const sortedAttributes = getSortedDisplayAttributes(
@@ -120,10 +125,31 @@ const displayEdgeSelector = selectorFamily({
         )
         .join(", ");
 
+      // Get the display name and description for the vertex
+      function getDisplayAttributeValueByName(name: string | undefined) {
+        if (name === RESERVED_ID_PROPERTY) {
+          return displayId;
+        } else if (name === RESERVED_TYPES_PROPERTY) {
+          return displayTypes;
+        } else if (name) {
+          return (
+            sortedAttributes.find(attr => attr.name === name)?.displayValue ??
+            MISSING_DISPLAY_VALUE
+          );
+        }
+
+        return MISSING_DISPLAY_VALUE;
+      }
+
+      const displayName = getDisplayAttributeValueByName(
+        typeConfig.displayNameAttribute
+      );
+
       const displayEdge: DisplayEdge = {
         entityType: "edge",
         id: edge.id,
-        displayId: isSparql ? null : edge.id,
+        displayId,
+        displayName,
         displayTypes,
         typeConfig,
         source: {
@@ -137,6 +163,8 @@ const displayEdgeSelector = selectorFamily({
           displayTypes: targetDisplayTypes,
         },
         attributes: sortedAttributes,
+        // SPARQL does not have unique ID values for predicates, so the UI should hide them
+        hasUniqueId: isSparql === false,
       };
       return displayEdge;
     },
