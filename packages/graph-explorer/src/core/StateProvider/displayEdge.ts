@@ -23,14 +23,13 @@ import {
 export type DisplayEdge = {
   entityType: "edge";
   id: EdgeId;
-  displayId: string;
+  displayId: string | null;
   displayName: string;
   displayTypes: string;
   typeConfig: DisplayEdgeTypeConfig;
   source: EdgeVertex;
   target: EdgeVertex;
   attributes: DisplayAttribute[];
-  hasUniqueId: boolean;
 };
 
 type EdgeVertex = {
@@ -82,7 +81,7 @@ const displayEdgeSelector = selectorFamily({
         .join(", ");
 
       // For SPARQL, display the edge type as the ID
-      const displayId = isSparql ? displayTypes : edge.id;
+      const displayId = isSparql ? null : edge.id;
 
       const typeAttributes = get(vertexTypeAttributesSelector(edgeTypes));
       const sortedAttributes = getSortedDisplayAttributes(
@@ -153,8 +152,6 @@ const displayEdgeSelector = selectorFamily({
           displayTypes: targetDisplayTypes,
         },
         attributes: sortedAttributes,
-        // SPARQL does not have unique ID values for predicates, so the UI should hide them
-        hasUniqueId: isSparql === false,
       };
       return displayEdge;
     },
