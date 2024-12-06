@@ -5,6 +5,9 @@
 - **Improved** consistency of rendering node information across search results,
   node details header, edge details header, and expand options header
   ([#697](https://github.com/aws/graph-explorer/pull/697))
+- **Improved** edge properties in the details sidebar, which now includes the
+  source and target vertex IDs and types
+  ([#698](https://github.com/aws/graph-explorer/pull/698))
 - **Improved** styling on icon buttons
   ([#675](https://github.com/aws/graph-explorer/pull/675))
 - **Improved** styling on checkboxes across the app, and specifically the export
