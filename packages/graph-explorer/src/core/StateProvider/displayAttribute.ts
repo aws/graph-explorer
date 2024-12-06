@@ -25,27 +25,35 @@ export function getSortedDisplayAttributes(
   const sortedAttributes = uniqueAttributeNames
     .values()
     .map(name => {
-      const config = typeAttributes.find(attr => attr.name === name);
-
-      // Format value for display
-      const isDate =
-        config?.dataType === "Date" || config?.dataType === "g:Date";
+      const config = typeAttributes.find(attr => attr.name === name) ?? null;
       const value = entity.attributes[name] ?? null;
-      const displayValue =
-        value === null
-          ? MISSING_DISPLAY_VALUE
-          : isDate
-            ? formatDate(new Date(value))
-            : String(value);
 
-      return {
-        name,
-        displayLabel: config?.displayLabel || textTransform(name),
-        displayValue,
-      } as DisplayAttribute;
+      return mapToDisplayAttribute(name, value, config, textTransform);
     })
     .toArray()
     .toSorted((a, b) => a.displayLabel.localeCompare(b.displayLabel));
 
   return sortedAttributes;
+}
+
+export function mapToDisplayAttribute(
+  name: string,
+  value: string | number | null,
+  config: AttributeConfig | null,
+  textTransform: TextTransformer
+): DisplayAttribute {
+  // Format value for display
+  const isDate = config?.dataType === "Date" || config?.dataType === "g:Date";
+  const displayValue =
+    value === null
+      ? MISSING_DISPLAY_VALUE
+      : isDate
+        ? formatDate(new Date(value))
+        : String(value);
+
+  return {
+    name,
+    displayLabel: config?.displayLabel || textTransform(name),
+    displayValue,
+  } as DisplayAttribute;
 }
