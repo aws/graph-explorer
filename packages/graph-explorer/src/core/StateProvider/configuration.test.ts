@@ -6,11 +6,14 @@ import {
   createRandomVertexPreferences,
   createRandomVertexTypeConfig,
 } from "@/utils/testing";
-import { defaultVertexTypeConfig, mergeConfiguration } from "./configuration";
+import {
+  defaultEdgeTypeConfig,
+  defaultVertexTypeConfig,
+  mergeConfiguration,
+} from "./configuration";
 import { RawConfiguration, VertexTypeConfig } from "../ConfigurationProvider";
 import { SchemaInference } from "./schema";
 import { UserStyling } from "./userPreferences";
-import { sanitizeText } from "@/utils";
 import { createRandomName } from "@shared/utils/testing";
 
 describe("mergedConfiguration", () => {
@@ -63,13 +66,12 @@ describe("mergedConfiguration", () => {
       vertices: schema.vertices
         .map(v => ({
           ...defaultVertexTypeConfig,
-          displayLabel: sanitizeText(v.type),
           ...v,
         }))
         .toSorted(byType),
       edges: schema.edges.map(e => {
         return {
-          displayLabel: sanitizeText(e.type),
+          ...defaultEdgeTypeConfig,
           ...e,
         };
       }),
@@ -111,7 +113,6 @@ describe("mergedConfiguration", () => {
           const style = styling.vertices?.find(s => s.type === v.type) ?? {};
           return {
             ...defaultVertexTypeConfig,
-            displayLabel: sanitizeText(v.type),
             ...v,
             ...style,
           };
@@ -120,7 +121,7 @@ describe("mergedConfiguration", () => {
       edges: schema.edges.map(e => {
         const style = styling.edges?.find(s => s.type === e.type) ?? {};
         return {
-          displayLabel: sanitizeText(e.type),
+          ...defaultEdgeTypeConfig,
           ...e,
           ...style,
         };
@@ -141,9 +142,8 @@ describe("mergedConfiguration", () => {
     });
   });
 
-  it("should use vertex type as display label when no display label is provided", () => {
-    const config: RawConfiguration = createRandomRawConfiguration();
-    delete config.schema;
+  it("should have undefined vertex display label when not provided", () => {
+    const config = createRandomRawConfiguration();
     const styling: UserStyling = {};
     const schema = createRandomSchema();
 
@@ -157,12 +157,11 @@ describe("mergedConfiguration", () => {
       v => v.type === vtConfig.type
     );
 
-    expect(actualVtConfig?.displayLabel).toEqual(sanitizeText(vtConfig.type));
+    expect(actualVtConfig?.displayLabel).toBeUndefined();
   });
 
-  it("should use edge type as display label when no display label is provided", () => {
+  it("should have undefined edge display label when not provided", () => {
     const config: RawConfiguration = createRandomRawConfiguration();
-    delete config.schema;
     const styling: UserStyling = {};
     const schema = createRandomSchema();
 
@@ -176,17 +175,16 @@ describe("mergedConfiguration", () => {
       e => e.type === etConfig.type
     );
 
-    expect(actualEtConfig?.displayLabel).toEqual(sanitizeText(etConfig.type));
+    expect(actualEtConfig?.displayLabel).toBeUndefined();
   });
 
   it("should prefer vertex styling display label", () => {
     const vtConfig = createRandomVertexTypeConfig();
-    delete vtConfig.displayLabel;
+    vtConfig.displayLabel = createRandomName("displayLabel");
 
     const customDisplayLabel = createRandomName("Display Label");
 
     const config: RawConfiguration = createRandomRawConfiguration();
-    delete config.schema;
     const styling: UserStyling = {
       vertices: [
         {
@@ -209,12 +207,11 @@ describe("mergedConfiguration", () => {
 
   it("should prefer edge styling display label", () => {
     const etConfig = createRandomEdgeTypeConfig();
-    delete etConfig.displayLabel;
+    etConfig.displayLabel = createRandomName("displayLabel");
 
     const customDisplayLabel = createRandomName("Display Label");
 
     const config: RawConfiguration = createRandomRawConfiguration();
-    delete config.schema;
     const styling: UserStyling = {
       edges: [
         {

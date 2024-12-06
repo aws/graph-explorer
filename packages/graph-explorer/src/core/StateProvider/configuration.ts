@@ -258,7 +258,6 @@ export function getDefaultVertexTypeConfig(
   return {
     ...defaultVertexTypeConfig,
     type: vertexType,
-    displayLabel: sanitizeText(vertexType),
   };
 }
 
@@ -274,7 +273,6 @@ export function getDefaultEdgeTypeConfig(edgeType: string): EdgeTypeConfig {
   return {
     ...defaultEdgeTypeConfig,
     type: edgeType,
-    displayLabel: sanitizeText(edgeType),
   };
 }
 

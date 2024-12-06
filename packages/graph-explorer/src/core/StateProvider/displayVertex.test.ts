@@ -6,7 +6,7 @@ import {
   renderHookWithRecoilRoot,
 } from "@/utils/testing";
 import { useDisplayVertexFromVertex } from "./displayVertex";
-import { Vertex } from "@/@types/entities";
+import { Vertex, VertexId } from "@/@types/entities";
 import { formatDate, sanitizeText } from "@/utils";
 import { Schema } from "../ConfigurationProvider";
 import { MutableSnapshot } from "recoil";
@@ -20,6 +20,7 @@ import { DisplayAttribute } from "./displayAttribute";
 import { createRandomDate } from "@shared/utils/testing";
 import { MISSING_DISPLAY_VALUE } from "@/utils/constants";
 import { mapToDisplayVertexTypeConfig } from "./displayTypeConfigs";
+import { ConnectionConfig } from "@shared/types";
 
 describe("useDisplayVertexFromVertex", () => {
   it("should keep the same ID", () => {
@@ -177,6 +178,30 @@ describe("useDisplayVertexFromVertex", () => {
     expect(actualAttributesMatchingConfig).toEqual(expected);
   });
 
+  it("should replace uri with prefixes when available", () => {
+    const vertex = createRandomVertex();
+    vertex.id = "http://www.example.com/resources#foo" as VertexId;
+    vertex.type = "http://www.example.com/class#bar";
+    const schema = createRandomSchema();
+    schema.prefixes = [
+      {
+        prefix: "example",
+        uri: "http://www.example.com/resources#",
+      },
+      {
+        prefix: "example-class",
+        uri: "http://www.example.com/class#",
+      },
+    ];
+
+    const displayVertex = act(
+      vertex,
+      withSchemaAndConnection(schema, "sparql")
+    );
+    expect(displayVertex.displayId).toEqual("example:foo");
+    expect(displayVertex.displayTypes).toEqual("example-class:bar");
+  });
+
   // Helpers
 
   function act(
@@ -192,6 +217,19 @@ describe("useDisplayVertexFromVertex", () => {
 
   function withSchema(schema: Schema) {
     const config = createRandomRawConfiguration();
+    return (snapshot: MutableSnapshot) => {
+      snapshot.set(configurationAtom, new Map([[config.id, config]]));
+      snapshot.set(schemaAtom, new Map([[config.id, schema]]));
+      snapshot.set(activeConfigurationAtom, config.id);
+    };
+  }
+
+  function withSchemaAndConnection(
+    schema: Schema,
+    queryEngine: ConnectionConfig["queryEngine"]
+  ) {
+    const config = createRandomRawConfiguration();
+    config.connection!.queryEngine = queryEngine;
     return (snapshot: MutableSnapshot) => {
       snapshot.set(configurationAtom, new Map([[config.id, config]]));
       snapshot.set(schemaAtom, new Map([[config.id, schema]]));

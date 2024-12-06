@@ -30,8 +30,8 @@ describe("useDisplayVertexTypeConfig", () => {
       expect(act(vtConfig.type).type).toBe(vtConfig.type);
     });
 
-    it("should have display label from the default config", () => {
-      expect(act(vtConfig.type).displayLabel).toBe(defaultConfig.displayLabel);
+    it("should have display label match the type transformed", () => {
+      expect(act(vtConfig.type).displayLabel).toBe(sanitizeText(vtConfig.type));
     });
 
     it("should have display name attribute from the default config", () => {
@@ -125,7 +125,7 @@ describe("useDisplayEdgeTypeConfig", () => {
     expect(act(type).type).toBe(type);
   });
 
-  it("should have display label from the default config", () => {
+  it("should have display label match the type transformed", () => {
     const type = createRandomName("type");
     expect(act(type).displayLabel).toBe(sanitizeText(type));
   });
