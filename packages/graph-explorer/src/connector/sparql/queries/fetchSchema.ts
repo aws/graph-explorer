@@ -1,14 +1,12 @@
 import { batchPromisesSerially } from "@/utils";
-import {
-  DEFAULT_CONCURRENT_REQUESTS_LIMIT,
-  RESERVED_ID_PROPERTY,
-} from "@/utils/constants";
+import { DEFAULT_CONCURRENT_REQUESTS_LIMIT } from "@/utils/constants";
 import type { SchemaResponse } from "@/connector/useGEFetchTypes";
 import classesWithCountsTemplates from "../templates/classesWithCountsTemplates";
 import predicatesByClassTemplate from "../templates/predicatesByClassTemplate";
 import predicatesWithCountsTemplate from "../templates/predicatesWithCountsTemplate";
 import { GraphSummary, RawValue, SparqlFetch } from "../types";
 import { LoggerConnector } from "@/connector/LoggerConnector";
+import { defaultVertexTypeConfig } from "@/core/StateProvider/configuration";
 
 type RawClassesWCountsResponse = {
   results: {
@@ -112,13 +110,13 @@ const fetchPredicatesByClass = async (
         .values()
         .map(c => attributes.get(c)?.name)
         .filter(n => n != null)
-        .next().value ?? RESERVED_ID_PROPERTY,
+        .next().value ?? defaultVertexTypeConfig.displayNameAttribute,
     longDisplayNameAttribute:
       displayDescCandidates
         .values()
         .map(c => attributes.get(c)?.name)
         .filter(n => n != null)
-        .next().value ?? "types",
+        .next().value ?? defaultVertexTypeConfig.longDisplayNameAttribute,
     attributes: attributes.values().toArray(),
   }));
 };

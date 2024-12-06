@@ -1,29 +1,20 @@
 import {
   createRandomEdgePreferences,
+  createRandomEdgeTypeConfig,
   createRandomRawConfiguration,
   createRandomSchema,
   createRandomVertexPreferences,
+  createRandomVertexTypeConfig,
 } from "@/utils/testing";
-import { mergeConfiguration } from "./configuration";
+import {
+  defaultEdgeTypeConfig,
+  defaultVertexTypeConfig,
+  mergeConfiguration,
+} from "./configuration";
 import { RawConfiguration, VertexTypeConfig } from "../ConfigurationProvider";
-import DEFAULT_ICON_URL from "@/utils/defaultIconUrl";
 import { SchemaInference } from "./schema";
 import { UserStyling } from "./userPreferences";
-import { sanitizeText } from "@/utils";
-import { RESERVED_ID_PROPERTY } from "@/utils/constants";
-
-const defaultVertexStyle = {
-  color: "#128EE5",
-  iconUrl: DEFAULT_ICON_URL,
-  iconImageType: "image/svg+xml",
-  displayNameAttribute: RESERVED_ID_PROPERTY,
-  longDisplayNameAttribute: "types",
-};
-
-const defaultEdgeStyle = {
-  type: "unknown",
-  displayLabel: "Unknown",
-};
+import { createRandomName } from "@shared/utils/testing";
 
 describe("mergedConfiguration", () => {
   it("should produce empty defaults when empty object is passed", () => {
@@ -74,14 +65,13 @@ describe("mergedConfiguration", () => {
       ...schema,
       vertices: schema.vertices
         .map(v => ({
-          ...defaultVertexStyle,
-          displayLabel: sanitizeText(v.type),
+          ...defaultVertexTypeConfig,
           ...v,
         }))
-        .sort(byType),
+        .toSorted(byType),
       edges: schema.edges.map(e => {
         return {
-          ...defaultEdgeStyle,
+          ...defaultEdgeTypeConfig,
           ...e,
         };
       }),
@@ -122,17 +112,16 @@ describe("mergedConfiguration", () => {
         .map(v => {
           const style = styling.vertices?.find(s => s.type === v.type) ?? {};
           return {
-            ...defaultVertexStyle,
-            displayLabel: sanitizeText(v.type),
+            ...defaultVertexTypeConfig,
             ...v,
             ...style,
           };
         })
-        .sort(byType),
+        .toSorted(byType),
       edges: schema.edges.map(e => {
         const style = styling.edges?.find(s => s.type === e.type) ?? {};
         return {
-          ...defaultEdgeStyle,
+          ...defaultEdgeTypeConfig,
           ...e,
           ...style,
         };
@@ -151,6 +140,96 @@ describe("mergedConfiguration", () => {
       },
       schema: expectedSchema,
     });
+  });
+
+  it("should have undefined vertex display label when not provided", () => {
+    const config = createRandomRawConfiguration();
+    const styling: UserStyling = {};
+    const schema = createRandomSchema();
+
+    const vtConfig = createRandomVertexTypeConfig();
+    delete vtConfig.displayLabel;
+    schema.vertices = [vtConfig];
+
+    const result = mergeConfiguration(schema, config, styling);
+
+    const actualVtConfig = result.schema?.vertices.find(
+      v => v.type === vtConfig.type
+    );
+
+    expect(actualVtConfig?.displayLabel).toBeUndefined();
+  });
+
+  it("should have undefined edge display label when not provided", () => {
+    const config: RawConfiguration = createRandomRawConfiguration();
+    const styling: UserStyling = {};
+    const schema = createRandomSchema();
+
+    const etConfig = createRandomEdgeTypeConfig();
+    delete etConfig.displayLabel;
+    schema.edges = [etConfig];
+
+    const result = mergeConfiguration(schema, config, styling);
+
+    const actualEtConfig = result.schema?.edges.find(
+      e => e.type === etConfig.type
+    );
+
+    expect(actualEtConfig?.displayLabel).toBeUndefined();
+  });
+
+  it("should prefer vertex styling display label", () => {
+    const vtConfig = createRandomVertexTypeConfig();
+    vtConfig.displayLabel = createRandomName("displayLabel");
+
+    const customDisplayLabel = createRandomName("Display Label");
+
+    const config: RawConfiguration = createRandomRawConfiguration();
+    const styling: UserStyling = {
+      vertices: [
+        {
+          type: vtConfig.type,
+          displayLabel: customDisplayLabel,
+        },
+      ],
+    };
+    const schema = createRandomSchema();
+    schema.vertices = [vtConfig];
+
+    const result = mergeConfiguration(schema, config, styling);
+
+    const actualVtConfig = result.schema?.vertices.find(
+      v => v.type === vtConfig.type
+    );
+
+    expect(actualVtConfig?.displayLabel).toEqual(customDisplayLabel);
+  });
+
+  it("should prefer edge styling display label", () => {
+    const etConfig = createRandomEdgeTypeConfig();
+    etConfig.displayLabel = createRandomName("displayLabel");
+
+    const customDisplayLabel = createRandomName("Display Label");
+
+    const config: RawConfiguration = createRandomRawConfiguration();
+    const styling: UserStyling = {
+      edges: [
+        {
+          type: etConfig.type,
+          displayLabel: customDisplayLabel,
+        },
+      ],
+    };
+    const schema = createRandomSchema();
+    schema.edges = [etConfig];
+
+    const result = mergeConfiguration(schema, config, styling);
+
+    const actualEtConfig = result.schema?.edges.find(
+      e => e.type === etConfig.type
+    );
+
+    expect(actualEtConfig?.displayLabel).toEqual(customDisplayLabel);
   });
 });
 

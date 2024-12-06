@@ -8,7 +8,7 @@ import { createGremlinExplorer } from "@/connector/gremlin/gremlinExplorer";
 import { createOpenCypherExplorer } from "@/connector/openCypher/openCypherExplorer";
 import { createSparqlExplorer } from "@/connector/sparql/sparqlExplorer";
 import { mergedConfigurationSelector } from "./StateProvider/configuration";
-import { selector } from "recoil";
+import { selector, useRecoilValue } from "recoil";
 import { equalSelector } from "@/utils/recoilState";
 import { ConnectionConfig } from "@shared/types";
 import { logger } from "@/utils";
@@ -67,6 +67,18 @@ export const explorerSelector = selector({
     }
   },
 });
+
+export const queryEngineSelector = selector({
+  key: "query-engine",
+  get: ({ get }) => {
+    const connection = get(activeConnectionSelector);
+    return connection?.queryEngine ?? "gremlin";
+  },
+});
+
+export function useQueryEngine() {
+  return useRecoilValue(queryEngineSelector);
+}
 
 /**
  * Logger based on the active connection proxy URL.

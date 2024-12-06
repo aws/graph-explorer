@@ -1,21 +1,21 @@
 import { cn } from "@/utils";
-import { Vertex } from "@/@types/entities";
+import { VertexId } from "@/@types/entities";
 import { Button, Chip, Tooltip, VertexIcon, VisibleIcon } from "@/components";
-import { useWithTheme } from "@/core";
+import { useNode, useWithTheme } from "@/core";
 import useNeighborsOptions from "@/hooks/useNeighborsOptions";
 import defaultStyles from "./NeighborsList.styles";
 import { useState } from "react";
-import { useRecoilValue } from "recoil";
-import { activeConnectionSelector } from "@/core/connector";
+import { useQueryEngine } from "@/core/connector";
 
 export type NeighborsListProps = {
-  vertex: Vertex;
+  id: VertexId;
 };
 
 const MAX_NEIGHBOR_TYPE_ROWS = 5;
 
-export default function NeighborsList({ vertex }: NeighborsListProps) {
+export default function NeighborsList({ id }: NeighborsListProps) {
   const styleWithTheme = useWithTheme();
+  const vertex = useNode(id);
   const neighborsOptions = useNeighborsOptions(vertex);
   const [showMore, setShowMore] = useState(false);
 
@@ -33,13 +33,10 @@ export default function NeighborsList({ vertex }: NeighborsListProps) {
               <div className={"vertex-type"}>
                 <div
                   style={{
-                    color: op.config?.color,
+                    color: op.config.style.color,
                   }}
                 >
-                  <VertexIcon
-                    iconUrl={op.config?.iconUrl}
-                    iconImageType={op.config?.iconImageType}
-                  />
+                  <VertexIcon vertexStyle={op.config.style} />
                 </div>
                 {op.label}
               </div>
@@ -81,9 +78,8 @@ function ExpandToggleButton({
   const hasMore = itemCount > MAX_NEIGHBOR_TYPE_ROWS;
   const extraCount = hasMore ? itemCount - MAX_NEIGHBOR_TYPE_ROWS : 0;
 
-  const connection = useRecoilValue(activeConnectionSelector);
-  const nodeTypeLabel =
-    connection?.queryEngine === "sparql" ? "classes" : "labels";
+  const queryEngine = useQueryEngine();
+  const nodeTypeLabel = queryEngine === "sparql" ? "classes" : "labels";
 
   if (!hasMore) {
     return null;

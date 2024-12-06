@@ -5,6 +5,9 @@
 - **Improved** consistency of rendering node information across search results,
   node details header, edge details header, and expand options header
   ([#697](https://github.com/aws/graph-explorer/pull/697))
+- **Improved** edge properties in the details sidebar, which now includes the
+  source and target vertex IDs and types
+  ([#698](https://github.com/aws/graph-explorer/pull/698))
 - **Improved** styling on icon buttons
   ([#675](https://github.com/aws/graph-explorer/pull/675))
 - **Improved** styling on checkboxes across the app, and specifically the export
@@ -15,6 +18,11 @@
   ([#679](https://github.com/aws/graph-explorer/pull/679))
 - **Updated** documentation to reorganize and extend the troubleshooting tips
   ([#681](https://github.com/aws/graph-explorer/pull/681))
+- **Refactored** logic around the display of nodes and edges to a single
+  location for simplicity and consistency
+  ([#698](https://github.com/aws/graph-explorer/pull/698))
+- **Fixed** date rendering on Gremlin connections
+  ([#698](https://github.com/aws/graph-explorer/pull/698))
 - **Updated** dependencies, including Node v22
   ([#680](https://github.com/aws/graph-explorer/pull/680))
 

@@ -154,8 +154,4 @@ export type ConfigurationContextProps = RawConfiguration & {
   vertexTypes: Array<string>;
   totalEdges: number;
   edgeTypes: Array<string>;
-  getVertexTypeConfig(vertexType: string): VertexTypeConfig;
-  getVertexTypeAttributes(vertexTypes: string[]): Array<AttributeConfig>;
-  getVertexTypeSearchableAttributes(vertexType: string): Array<AttributeConfig>;
-  getEdgeTypeConfig(edgeType: string): EdgeTypeConfig;
 };

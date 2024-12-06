@@ -4,7 +4,7 @@ export { default as useEntities } from "./useEntities";
 export { default as useExpandNode } from "./useExpandNode";
 export * from "./useAddToGraph";
 export * from "./useRemoveFromGraph";
-export { default as useDisplayNames } from "./useDisplayNames";
 export { default as useTextTransform } from "./useTextTransform";
+export * from "./useTextTransform";
 export { default as usePrevious } from "./usePrevious";
 export { default as useTranslations } from "./useTranslations";

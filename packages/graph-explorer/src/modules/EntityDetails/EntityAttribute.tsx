@@ -1,31 +1,28 @@
-import { AttributeConfig } from "@/core";
-import useTextTransform from "@/hooks/useTextTransform";
-import { formatDate } from "@/utils";
+import { DisplayAttribute } from "@/core";
+import { cn } from "@/utils";
+import { ComponentPropsWithoutRef } from "react";
 
 export type EntityAttributeProps = {
-  value: Date | string | number;
-  attribute: AttributeConfig;
-};
+  attribute: DisplayAttribute;
+} & ComponentPropsWithoutRef<"li">;
 
-const EntityAttribute = ({ value, attribute }: EntityAttributeProps) => {
-  const textTransform = useTextTransform();
-
+export default function EntityAttribute({
+  attribute,
+  className,
+  ...props
+}: EntityAttributeProps) {
   return (
-    <div key={attribute.name} className={"attribute"}>
-      <div>
-        <div className={"attribute-name"}>
-          <div>{attribute.displayLabel || textTransform(attribute.name)}</div>
-        </div>
-        {value == null && <div className={"attribute-value"}>---</div>}
-        {!["Date", "g:Date"].includes(attribute.dataType || "") && value && (
-          <div className={"attribute-value"}>{String(value)}</div>
-        )}
-        {["Date", "g:Date"].includes(attribute.dataType || "") && value && (
-          <div className={"attribute-value"}>{formatDate(new Date(value))}</div>
-        )}
+    <li
+      key={attribute.name}
+      className={cn("space-y-0.5", className)}
+      {...props}
+    >
+      <div className="text-text-secondary text-balance break-words text-sm">
+        {attribute.displayLabel}
       </div>
-    </div>
+      <div className="text-text-primary text-balance break-words">
+        {attribute.displayValue}
+      </div>
+    </li>
   );
-};
-
-export default EntityAttribute;
+}

@@ -19,7 +19,9 @@ import {
   randomlyUndefined,
 } from "@shared/utils/testing";
 import {
+  ArrowStyle,
   EdgePreferences,
+  LineStyle,
   UserStyling,
   VertexPreferences,
 } from "@/core/StateProvider/userPreferences";
@@ -70,6 +72,11 @@ export function createRandomEdgeTypeConfig(): EdgeTypeConfig {
     ...(displayLabel && { displayLabel }),
     ...(hidden && { hidden }),
     total: createRandomInteger(),
+    // style
+    lineColor: createRandomColor(),
+    lineStyle: createRandomLineStyle(),
+    sourceArrowStyle: createRandomArrowStyle(),
+    targetArrowStyle: createRandomArrowStyle(),
   };
 }
 
@@ -86,6 +93,10 @@ export function createRandomVertexTypeConfig(): VertexTypeConfig {
     ...(displayLabel && { displayLabel }),
     ...(hidden && { hidden }),
     total: createRandomInteger(),
+    // style
+    color: createRandomColor(),
+    iconImageType: createRandomName("iconImageType"),
+    iconUrl: createRandomUrlString(),
   };
 }
 
@@ -196,13 +207,19 @@ export function createRandomRawConfiguration(): RawConfiguration {
   const serviceType = randomlyUndefined(
     pickRandomElement(["neptune-db", "neptune-graph"] as const)
   );
+  const queryEngine = pickRandomElement([
+    "gremlin",
+    "openCypher",
+    "sparql",
+  ] as const);
+
   return {
     id: createRandomName("id"),
     displayLabel: createRandomName("displayLabel"),
     connection: {
       url: createRandomUrlString(),
       ...(isProxyConnection && { graphDbUrl: createRandomUrlString() }),
-      queryEngine: pickRandomElement(["gremlin", "openCypher", "sparql"]),
+      queryEngine,
       proxyConnection: isProxyConnection,
       ...(isIamEnabled && { awsAuthEnabled: createRandomBoolean() }),
       ...(isIamEnabled && {
@@ -270,4 +287,24 @@ export function createRandomFeatureFlags(): FeatureFlags {
     showDebugActions: createRandomBoolean(),
     allowLoggingDbQuery: createRandomBoolean(),
   };
+}
+
+export function createRandomLineStyle(): LineStyle {
+  return pickRandomElement(["solid", "dotted", "dashed"]);
+}
+
+export function createRandomArrowStyle(): ArrowStyle {
+  return pickRandomElement([
+    "triangle",
+    "triangle-tee",
+    "circle-triangle",
+    "triangle-cross",
+    "triangle-backcurve",
+    "tee",
+    "vee",
+    "square",
+    "circle",
+    "diamond",
+    "none",
+  ]);
 }

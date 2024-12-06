@@ -1,7 +1,6 @@
 import difference from "lodash/difference";
 import { forwardRef, useCallback, useMemo } from "react";
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import type { Edge } from "@/@types/entities";
+import { useRecoilState, useSetRecoilState } from "recoil";
 import { NonVisibleIcon, VisibleIcon } from "@/components";
 import type { ColumnDefinition, TabularInstance } from "@/components/Tabular";
 import { makeIconToggleCell } from "@/components/Tabular/builders";
@@ -11,23 +10,22 @@ import {
 } from "@/components/Tabular/controls";
 import Tabular from "@/components/Tabular/Tabular";
 import {
-  edgesAtom,
   edgesHiddenIdsAtom,
   edgesOutOfFocusIdsAtom,
   edgesSelectedIdsAtom,
 } from "@/core/StateProvider/edges";
 import { nodesSelectedIdsAtom } from "@/core/StateProvider/nodes";
 import { useDeepMemo } from "@/hooks";
-import useTextTransform from "@/hooks/useTextTransform";
 import useTranslations from "@/hooks/useTranslations";
 import { recoilDiffSets } from "@/utils/recoilState";
+import { DisplayEdge, useDisplayEdgesInCanvas } from "@/core";
 
-type ToggleEdge = Edge & { __is_visible: boolean };
+type ToggleEdge = DisplayEdge & { __is_visible: boolean };
 
 const EdgesTabular = forwardRef<TabularInstance<ToggleEdge>, any>(
   (_props, ref) => {
     const t = useTranslations();
-    const edges = useRecoilValue(edgesAtom);
+    const edges = useDisplayEdgesInCanvas();
     const setEdgesOut = useSetRecoilState(edgesOutOfFocusIdsAtom);
     const [hiddenEdgesIds, setHiddenEdgesIds] =
       useRecoilState(edgesHiddenIdsAtom);
@@ -40,8 +38,6 @@ const EdgesTabular = forwardRef<TabularInstance<ToggleEdge>, any>(
       },
       [setHiddenEdgesIds]
     );
-
-    const textTransform = useTextTransform();
 
     const columns: ColumnDefinition<ToggleEdge>[] = useMemo(() => {
       return [
@@ -62,36 +58,36 @@ const EdgesTabular = forwardRef<TabularInstance<ToggleEdge>, any>(
         },
         {
           id: "edge-type",
-          accessor: row => textTransform(row.type),
+          accessor: "displayTypes",
           label: t("entities-tabular.edge-type"),
           overflow: "ellipsis",
         },
         {
           id: "source-id",
-          accessor: row => textTransform(row.source),
+          accessor: row => row.source.displayId,
           label: t("entities-tabular.source-id"),
           overflow: "ellipsis",
         },
         {
           id: "source-type",
-          accessor: row => textTransform(row.sourceType),
+          accessor: row => row.source.displayTypes,
           label: t("entities-tabular.source-type"),
           overflow: "ellipsis",
         },
         {
           id: "target-id",
-          accessor: row => textTransform(row.target),
+          accessor: row => row.target.displayId,
           label: t("entities-tabular.target-id"),
           overflow: "ellipsis",
         },
         {
           id: "target-type",
-          accessor: row => textTransform(row.targetType),
+          accessor: row => row.target.displayTypes,
           label: t("entities-tabular.target-type"),
           overflow: "ellipsis",
         },
       ];
-    }, [t, onToggleVisibility, textTransform]);
+    }, [t, onToggleVisibility]);
 
     const data: ToggleEdge[] = useDeepMemo(() => {
       return edges

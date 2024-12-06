@@ -1,9 +1,4 @@
-import {
-  useVertexTypeConfig,
-  useVertexTypeConfigs,
-} from "@/core/ConfigurationProvider/useConfiguration";
-import { Vertex } from "@/@types/entities";
-import { useDisplayNames, useTextTransform } from "@/hooks";
+import { DisplayVertex } from "@/core";
 import { VertexSymbol } from ".";
 import { ComponentPropsWithoutRef } from "react";
 import { cn } from "@/utils";
@@ -12,30 +7,22 @@ export function VertexRow({
   vertex,
   className,
   ...props
-}: { vertex: Vertex } & ComponentPropsWithoutRef<"div">) {
-  const getDisplayNames = useDisplayNames();
-  const textTransform = useTextTransform();
-
-  const { name, longName } = getDisplayNames(vertex);
-
-  const vtConfigForStyling = useVertexTypeConfig(vertex.type);
-  const vertexTypeConfigs = useVertexTypeConfigs(vertex.types ?? [vertex.type]);
-  const vertexTypeDisplayLabels = vertexTypeConfigs
-    .map(vtConfig => vtConfig.displayLabel || textTransform(vtConfig.type))
-    .join(", ");
-
+}: { vertex: DisplayVertex } & ComponentPropsWithoutRef<"div">) {
   return (
     <div
       className={cn("flex flex-row items-center gap-3", className)}
       {...props}
     >
-      <VertexSymbol vtConfig={vtConfigForStyling} />
+      <VertexSymbol
+        vertexStyle={vertex.typeConfig.style}
+        className="size-11 p-[8px]"
+      />
       <div className="flex grow flex-col items-start">
         <div className="text-base font-bold leading-snug">
-          {vertexTypeDisplayLabels} &rsaquo; {name}
+          {vertex.displayTypes} &rsaquo; {vertex.displayName}
         </div>
         <div className="text-text-secondary/90 line-clamp-2 text-base leading-snug">
-          {longName}
+          {vertex.displayDescription}
         </div>
       </div>
     </div>

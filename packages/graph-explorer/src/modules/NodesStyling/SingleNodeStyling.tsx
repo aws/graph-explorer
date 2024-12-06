@@ -13,14 +13,13 @@ import {
 } from "@/components";
 import ColorInput from "@/components/ColorInput/ColorInput";
 import { useNotification } from "@/components/NotificationProvider";
-import { useWithTheme } from "@/core";
+import { useDisplayVertexTypeConfig, useWithTheme } from "@/core";
 import {
   LineStyle,
   ShapeStyle,
   userStylingNodeAtom,
   VertexPreferences,
 } from "@/core/StateProvider/userPreferences";
-import useTextTransform from "@/hooks/useTextTransform";
 import useTranslations from "@/hooks/useTranslations";
 import { LINE_STYLE_OPTIONS } from "./lineStyling";
 import { NODE_SHAPE } from "./nodeShape";
@@ -29,7 +28,10 @@ import modalDefaultStyles from "./SingleNodeStylingModal.style";
 import { useVertexTypeConfig } from "@/core/ConfigurationProvider/useConfiguration";
 import { useDebounceValue, usePrevious } from "@/hooks";
 import { cn } from "@/utils";
-import { RESERVED_ID_PROPERTY } from "@/utils/constants";
+import {
+  RESERVED_ID_PROPERTY,
+  RESERVED_TYPES_PROPERTY,
+} from "@/utils/constants";
 
 export type SingleNodeStylingProps = {
   vertexType: string;
@@ -61,22 +63,20 @@ export default function SingleNodeStyling({
   const [nodePreferences, setNodePreferences] = useRecoilState(
     userStylingNodeAtom(vertexType)
   );
-  const textTransform = useTextTransform();
+  const displayConfig = useDisplayVertexTypeConfig(vertexType);
   const vtConfig = useVertexTypeConfig(vertexType);
 
-  const [displayAs, setDisplayAs] = useState(
-    vtConfig.displayLabel || textTransform(vertexType)
-  );
+  const [displayAs, setDisplayAs] = useState(displayConfig.displayLabel);
 
   const selectOptions = useMemo(() => {
-    const options = vtConfig.attributes.map(attr => ({
+    const options = displayConfig.attributes.map(attr => ({
+      label: attr.displayLabel,
       value: attr.name,
-      label: attr.displayLabel || textTransform(attr.name),
     }));
 
     options.unshift({
       label: t("nodes-styling.node-type"),
-      value: "types",
+      value: RESERVED_TYPES_PROPERTY,
     });
     options.unshift({
       label: t("nodes-styling.node-id"),
@@ -84,7 +84,7 @@ export default function SingleNodeStyling({
     });
 
     return options;
-  }, [t, textTransform, vtConfig.attributes]);
+  }, [displayConfig.attributes, t]);
 
   const onUserPrefsChange = useCallback(
     (prefs: Omit<VertexPreferences, "type">) => {
@@ -157,7 +157,7 @@ export default function SingleNodeStyling({
         centered={true}
         title={
           <div>
-            Customize <strong>{displayAs || vertexType}</strong>
+            Customize <strong>{displayConfig.displayLabel}</strong>
           </div>
         }
         className={styleWithTheme(modalDefaultStyles)}
@@ -226,7 +226,7 @@ export default function SingleNodeStyling({
                           <UploadIcon />
                         </div>
                         <VertexSymbol
-                          vtConfig={vtConfig}
+                          vertexStyle={displayConfig.style}
                           className="size-full group-hover:hidden"
                         />
                       </>

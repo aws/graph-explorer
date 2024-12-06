@@ -1,7 +1,4 @@
 import { cn } from "@/utils";
-import { clone } from "lodash";
-import { useMemo } from "react";
-import type { Edge, Vertex } from "@/types/entities";
 import {
   ArrowCircle,
   ArrowDiamond,
@@ -17,156 +14,154 @@ import {
   VertexRow,
 } from "@/components";
 import EdgeIcon from "@/components/icons/EdgeIcon";
-import { useWithTheme } from "@/core";
-import { useConfiguration } from "@/core/ConfigurationProvider";
-import { useTextTransform } from "@/hooks";
-import { formatDate } from "@/utils";
+import {
+  DisplayAttribute,
+  DisplayEdge,
+  useDisplayVertex,
+  useWithTheme,
+} from "@/core";
 import defaultStyles from "./EntityDetail.styles";
-import { useEdgeTypeConfig } from "@/core/ConfigurationProvider/useConfiguration";
+import EntityAttribute from "./EntityAttribute";
+import { RESERVED_TYPES_PROPERTY } from "@/utils/constants";
+import { useTranslations } from "@/hooks";
 
 export type EdgeDetailProps = {
-  edge: Edge;
-  sourceVertex: Vertex;
-  targetVertex: Vertex;
+  edge: DisplayEdge;
 };
 
-const EdgeDetail = ({ edge, sourceVertex, targetVertex }: EdgeDetailProps) => {
-  const config = useConfiguration();
+const EdgeDetail = ({ edge }: EdgeDetailProps) => {
+  const t = useTranslations();
+  const sourceVertex = useDisplayVertex(edge.source.id);
+  const targetVertex = useDisplayVertex(edge.target.id);
+
   const styleWithTheme = useWithTheme();
+  const style = edge.typeConfig.style;
 
-  const edgeConfig = useEdgeTypeConfig(edge.type);
-
-  const sortedAttributes = useMemo(() => {
-    const attributes = clone(edgeConfig?.attributes);
-    return (
-      attributes?.sort((a, b) =>
-        a.displayLabel.localeCompare(b.displayLabel)
-      ) || []
-    );
-  }, [edgeConfig?.attributes]);
-
-  const textTransform = useTextTransform();
+  const allAttributes: DisplayAttribute[] = [
+    {
+      name: RESERVED_TYPES_PROPERTY,
+      displayLabel: t("entities-tabular.edge-type"),
+      displayValue: edge.displayTypes,
+    },
+    {
+      name: "sourceVertex",
+      displayLabel: t("entities-tabular.source-id"),
+      displayValue: edge.source.displayId,
+    },
+    {
+      name: "sourceVertexType",
+      displayLabel: t("entities-tabular.source-type"),
+      displayValue: edge.source.displayTypes,
+    },
+    {
+      name: "targetVertex",
+      displayLabel: t("entities-tabular.target-id"),
+      displayValue: edge.target.displayId,
+    },
+    {
+      name: "targetVertexType",
+      displayLabel: t("entities-tabular.target-type"),
+      displayValue: edge.target.displayTypes,
+    },
+    ...edge.attributes,
+  ];
 
   return (
-    <div className={styleWithTheme(defaultStyles(edgeConfig?.lineColor))}>
+    <div className={styleWithTheme(defaultStyles(style.lineColor))}>
       <div className={"header"}>
         <div className={"icon"}>
           <EdgeIcon />
         </div>
         <div className={"content"}>
-          <div className={"title"}>{textTransform(edge.type)}</div>
-          {config?.connection?.queryEngine !== "sparql" && <div>{edge.id}</div>}
+          <div className={"title"}>{edge.displayTypes}</div>
+          {edge.hasUniqueId ? <div>{edge.displayId}</div> : null}
         </div>
       </div>
       <div className={cn("header", "source-vertex")}>
-        <div
-          className={cn(
-            "start-line",
-            `line-${edgeConfig?.lineStyle || "solid"}`
-          )}
-        >
-          {edgeConfig?.sourceArrowStyle === "triangle" && (
+        <div className={cn("start-line", `line-${style.lineStyle || "solid"}`)}>
+          {style.sourceArrowStyle === "triangle" && (
             <ArrowTriangle className={"source-arrow-type"} />
           )}
-          {edgeConfig?.sourceArrowStyle === "triangle-tee" && (
+          {style.sourceArrowStyle === "triangle-tee" && (
             <ArrowTriangleTee className={"source-arrow-type"} />
           )}
-          {edgeConfig?.sourceArrowStyle === "circle-triangle" && (
+          {style.sourceArrowStyle === "circle-triangle" && (
             <ArrowTriangleCircle className={"source-arrow-type"} />
           )}
-          {edgeConfig?.sourceArrowStyle === "triangle-cross" && (
+          {style.sourceArrowStyle === "triangle-cross" && (
             <ArrowTriangleCross className={"source-arrow-type"} />
           )}
-          {edgeConfig?.sourceArrowStyle === "triangle-backcurve" && (
+          {style.sourceArrowStyle === "triangle-backcurve" && (
             <ArrowTriangleBackCurve className={"source-arrow-type"} />
           )}
-          {edgeConfig?.sourceArrowStyle === "tee" && (
+          {style.sourceArrowStyle === "tee" && (
             <ArrowTee className={"source-arrow-type"} />
           )}
-          {edgeConfig?.sourceArrowStyle === "vee" && (
+          {style.sourceArrowStyle === "vee" && (
             <ArrowVee className={"source-arrow-type"} />
           )}
-          {edgeConfig?.sourceArrowStyle === "square" && (
+          {style.sourceArrowStyle === "square" && (
             <ArrowSquare className={"source-arrow-type"} />
           )}
-          {edgeConfig?.sourceArrowStyle === "circle" && (
+          {style.sourceArrowStyle === "circle" && (
             <ArrowCircle className={"source-arrow-type"} />
           )}
-          {edgeConfig?.sourceArrowStyle === "diamond" && (
+          {style.sourceArrowStyle === "diamond" && (
             <ArrowDiamond className={"source-arrow-type"} />
           )}
-          {(edgeConfig?.sourceArrowStyle === "none" ||
-            !edgeConfig?.sourceArrowStyle) && (
+          {(style.sourceArrowStyle === "none" || !style.sourceArrowStyle) && (
             <ArrowNone className={"source-arrow-type"} />
           )}
         </div>
         <VertexRow vertex={sourceVertex} />
       </div>
       <div className={cn("header", "target-vertex")}>
-        <div
-          className={cn("end-line", `line-${edgeConfig?.lineStyle || "solid"}`)}
-        >
-          {(edgeConfig?.targetArrowStyle === "triangle" ||
-            !edgeConfig?.targetArrowStyle) && (
+        <div className={cn("end-line", `line-${style.lineStyle || "solid"}`)}>
+          {(style.targetArrowStyle === "triangle" ||
+            !style.targetArrowStyle) && (
             <ArrowTriangle className={"target-arrow-type"} />
           )}
-          {edgeConfig?.targetArrowStyle === "triangle-tee" && (
+          {style.targetArrowStyle === "triangle-tee" && (
             <ArrowTriangleTee className={"target-arrow-type"} />
           )}
-          {edgeConfig?.targetArrowStyle === "circle-triangle" && (
+          {style.targetArrowStyle === "circle-triangle" && (
             <ArrowTriangleCircle className={"target-arrow-type"} />
           )}
-          {edgeConfig?.targetArrowStyle === "triangle-cross" && (
+          {style.targetArrowStyle === "triangle-cross" && (
             <ArrowTriangleCross className={"target-arrow-type"} />
           )}
-          {edgeConfig?.targetArrowStyle === "triangle-backcurve" && (
+          {style.targetArrowStyle === "triangle-backcurve" && (
             <ArrowTriangleBackCurve className={"target-arrow-type"} />
           )}
-          {edgeConfig?.targetArrowStyle === "tee" && (
+          {style.targetArrowStyle === "tee" && (
             <ArrowTee className={"target-arrow-type"} />
           )}
-          {edgeConfig?.targetArrowStyle === "vee" && (
+          {style.targetArrowStyle === "vee" && (
             <ArrowVee className={"target-arrow-type"} />
           )}
-          {edgeConfig?.targetArrowStyle === "square" && (
+          {style.targetArrowStyle === "square" && (
             <ArrowSquare className={"target-arrow-type"} />
           )}
-          {edgeConfig?.targetArrowStyle === "circle" && (
+          {style.targetArrowStyle === "circle" && (
             <ArrowCircle className={"target-arrow-type"} />
           )}
-          {edgeConfig?.targetArrowStyle === "diamond" && (
+          {style.targetArrowStyle === "diamond" && (
             <ArrowDiamond className={"target-arrow-type"} />
           )}
-          {edgeConfig?.targetArrowStyle === "none" && (
+          {style.targetArrowStyle === "none" && (
             <ArrowNone className={"target-arrow-type"} />
           )}
         </div>
         <VertexRow vertex={targetVertex} />
       </div>
-      {edgeConfig && sortedAttributes.length > 0 && (
-        <div className={"properties"}>
-          <div className={"title"}>Properties</div>
-          <div className={"content"}>
-            {sortedAttributes.map(attribute => (
-              <div key={attribute.name} className={"attribute"}>
-                <div className={"attribute-name"}>{attribute.displayLabel}</div>
-                {attribute.dataType !== "Date" && (
-                  <div className={"attribute-value"}>
-                    {edge.attributes[attribute.name] == null
-                      ? "---"
-                      : String(edge.attributes[attribute.name])}
-                  </div>
-                )}
-                {attribute.dataType === "Date" && (
-                  <div className={"attribute-value"}>
-                    {formatDate(new Date(edge.attributes[attribute.name]))}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      <div className="space-y-[1.125rem] p-3">
+        <div className="text-lg font-bold">Properties</div>
+        <ul className="space-y-[1.125rem]">
+          {allAttributes.map(attribute => (
+            <EntityAttribute key={attribute.name} attribute={attribute} />
+          ))}
+        </ul>
+      </div>
     </div>
   );
 };

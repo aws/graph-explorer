@@ -1,7 +1,6 @@
 import difference from "lodash/difference";
 import { forwardRef, useCallback, useMemo } from "react";
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import type { Vertex } from "@/@types/entities";
+import { useRecoilState, useSetRecoilState } from "recoil";
 import { NonVisibleIcon, VisibleIcon } from "@/components";
 import type { ColumnDefinition, TabularInstance } from "@/components/Tabular";
 import { makeIconToggleCell } from "@/components/Tabular/builders";
@@ -10,31 +9,27 @@ import {
   TabularEmptyBodyControls,
 } from "@/components/Tabular/controls";
 import Tabular from "@/components/Tabular/Tabular";
-import { useConfiguration } from "@/core";
+import { DisplayVertex, useDisplayVerticesInCanvas } from "@/core";
 import { edgesSelectedIdsAtom } from "@/core/StateProvider/edges";
 import {
-  nodesAtom,
   nodesHiddenIdsAtom,
   nodesOutOfFocusIdsAtom,
   nodesSelectedIdsAtom,
 } from "@/core/StateProvider/nodes";
 
-import {
-  useDeepMemo,
-  useDisplayNames,
-  useTextTransform,
-  useTranslations,
-} from "@/hooks";
+import { useDeepMemo, useTranslations } from "@/hooks";
 import { recoilDiffSets } from "@/utils/recoilState";
 
-type ToggleVertex = Vertex & { __is_visible: boolean };
+type ToggleVertex = DisplayVertex & {
+  __is_visible: boolean;
+  neighborsCount: number;
+};
 
 const NodesTabular = forwardRef<TabularInstance<ToggleVertex>, any>(
   (_props, ref) => {
     const t = useTranslations();
-    const nodes = useRecoilValue(nodesAtom);
+    const displayNodes = useDisplayVerticesInCanvas();
     const setNodesOut = useSetRecoilState(nodesOutOfFocusIdsAtom);
-    const config = useConfiguration();
     const [hiddenNodesIds, setHiddenNodesIds] =
       useRecoilState(nodesHiddenIdsAtom);
     const [selectedNodesIds, setSelectedNodesIds] =
@@ -48,9 +43,6 @@ const NodesTabular = forwardRef<TabularInstance<ToggleVertex>, any>(
       [setHiddenNodesIds]
     );
 
-    const textTransform = useTextTransform();
-
-    const getDisplayNames = useDisplayNames();
     const columns: ColumnDefinition<ToggleVertex>[] = useMemo(() => {
       return [
         {
@@ -70,40 +62,33 @@ const NodesTabular = forwardRef<TabularInstance<ToggleVertex>, any>(
         },
         {
           id: "node-id",
-          accessor: row => textTransform(row.id),
+          accessor: "displayId",
           label: t("entities-tabular.node-id"),
           overflow: "ellipsis",
           oneLine: true,
         },
         {
           id: "node-type",
-          accessor: row =>
-            (row.types ?? [row.type])
-              .map(textTransform)
-              .filter(Boolean)
-              .join(", "),
+          accessor: row => row.displayTypes,
           label: t("entities-tabular.node-type"),
-          filter: (rows, _columnIds, filterValue) => {
-            return rows.filter(row => {
-              const vertex = row.original as Vertex;
-              return (vertex.types ?? [vertex.type]).find(t => {
-                const label = config?.getVertexTypeConfig(t)?.displayLabel || t;
-                return label.toLowerCase().match(filterValue.toLowerCase());
-              });
-            });
-          },
+          filter: (rows, _columnIds, filterValue) =>
+            rows.filter(row =>
+              row.original.displayTypes
+                .toLowerCase()
+                .match(filterValue.toLowerCase())
+            ),
           overflow: "ellipsis",
         },
         {
           id: "displayName",
-          accessor: row => getDisplayNames(row).name,
+          accessor: "displayName",
           label: "Display Name",
           overflow: "ellipsis",
           oneLine: true,
         },
         {
           id: "displayDescription",
-          accessor: row => getDisplayNames(row).longName,
+          accessor: "displayDescription",
           label: "Display Description",
           overflow: "ellipsis",
           oneLine: true,
@@ -122,17 +107,18 @@ const NodesTabular = forwardRef<TabularInstance<ToggleVertex>, any>(
           },
         },
       ] satisfies ColumnDefinition<ToggleVertex>[];
-    }, [config, getDisplayNames, t, onToggleVisibility, textTransform]);
+    }, [t, onToggleVisibility]);
 
     const data: ToggleVertex[] = useDeepMemo(() => {
-      return nodes
+      return displayNodes
         .values()
         .map(node => ({
           ...node,
           __is_visible: !hiddenNodesIds.has(node.id),
+          neighborsCount: node.original.neighborsCount ?? 0,
         }))
         .toArray();
-    }, [nodes, hiddenNodesIds]);
+    }, [hiddenNodesIds, displayNodes]);
 
     const onSelectRows = useCallback(
       (rowIndex: string) => {
@@ -164,7 +150,7 @@ const NodesTabular = forwardRef<TabularInstance<ToggleVertex>, any>(
         data={data}
         columns={columns}
         onDataFilteredChange={rows => {
-          const nodesIds = nodes.keys().toArray();
+          const nodesIds = displayNodes.keys().toArray();
           const ids = rows.map(row => row.original.id);
           setNodesOut(new Set(difference(nodesIds, ids)));
         }}

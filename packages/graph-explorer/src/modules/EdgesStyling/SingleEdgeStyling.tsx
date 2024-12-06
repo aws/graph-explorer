@@ -9,14 +9,13 @@ import {
   StylingIcon,
 } from "@/components";
 import ColorInput from "@/components/ColorInput/ColorInput";
-import { useWithTheme } from "@/core";
+import { useDisplayEdgeTypeConfig, useWithTheme } from "@/core";
 import {
   ArrowStyle,
   EdgePreferences,
   LineStyle,
   userStylingEdgeAtom,
 } from "@/core/StateProvider/userPreferences";
-import useTextTransform from "@/hooks/useTextTransform";
 import useTranslations from "@/hooks/useTranslations";
 import {
   SOURCE_ARROW_STYLE_OPTIONS,
@@ -50,19 +49,16 @@ export default function SingleEdgeStyling({
   const [edgePreferences, setEdgePreferences] = useRecoilState(
     userStylingEdgeAtom(edgeType)
   );
-  const textTransform = useTextTransform();
   const etConfig = useEdgeTypeConfig(edgeType);
+  const displayConfig = useDisplayEdgeTypeConfig(edgeType);
 
-  const [displayAs, setDisplayAs] = useState(
-    etConfig.displayLabel || textTransform(edgeType)
-  );
+  const [displayAs, setDisplayAs] = useState(displayConfig.displayLabel);
 
   const selectOptions = useMemo(() => {
-    const options =
-      etConfig?.attributes.map(attr => ({
-        value: attr.name,
-        label: attr.displayLabel || textTransform(attr.name),
-      })) || [];
+    const options = displayConfig.attributes.map(attr => ({
+      value: attr.name,
+      label: attr.displayLabel,
+    }));
 
     options.unshift({
       label: t("edges-styling.edge-type"),
@@ -70,7 +66,7 @@ export default function SingleEdgeStyling({
     });
 
     return options;
-  }, [t, textTransform, etConfig?.attributes]);
+  }, [displayConfig.attributes, t]);
 
   const onUserPrefsChange = useCallback(
     (prefs: Omit<EdgePreferences, "type">) => {
@@ -137,7 +133,7 @@ export default function SingleEdgeStyling({
               <Select
                 label={"Display Name Attribute"}
                 labelPlacement={"inner"}
-                value={etConfig?.displayNameAttribute || "type"}
+                value={etConfig.displayNameAttribute || "type"}
                 onChange={value =>
                   onUserPrefsChange({ displayNameAttribute: value as string })
                 }

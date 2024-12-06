@@ -6,6 +6,9 @@ export const DEFAULT_CONCURRENT_REQUESTS_LIMIT = 10;
 /** The name of the special property representing the node ID */
 export const RESERVED_ID_PROPERTY = "~id";
 
+/** The name of the property representing the list of types of the node */
+export const RESERVED_TYPES_PROPERTY = "types";
+
 /** The string "Graph Explorer". */
 export const APP_NAME = "Graph Explorer";
 
@@ -14,3 +17,6 @@ export const RELOAD_URL =
   import.meta.env.BASE_URL.substring(-1) !== "/"
     ? import.meta.env.BASE_URL + "/"
     : import.meta.env.BASE_URL;
+
+/** Shown when a value is missing */
+export const MISSING_DISPLAY_VALUE = "---";

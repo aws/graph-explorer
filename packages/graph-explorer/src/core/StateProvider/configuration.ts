@@ -17,7 +17,10 @@ import {
   VertexPreferences,
 } from "./userPreferences";
 import isDefaultValue from "./isDefaultValue";
-import { RESERVED_ID_PROPERTY } from "@/utils/constants";
+import {
+  RESERVED_ID_PROPERTY,
+  RESERVED_TYPES_PROPERTY,
+} from "@/utils/constants";
 
 export const isStoreLoadedAtom = atom<boolean>({
   key: "store-loaded",
@@ -100,7 +103,7 @@ export function mergeConfiguration(
 
       return mergeVertex(configVertex, schemaVertex, prefsVertex);
     })
-    .sort((a, b) => a.type.localeCompare(b.type));
+    .toSorted((a, b) => a.type.localeCompare(b.type));
 
   const configELabels = currentConfig.schema?.edges.map(v => v.type) || [];
   const schemaELabels = currentSchema?.edges?.map(v => v.type) || [];
@@ -174,13 +177,7 @@ const mergeVertex = (
 
   return {
     // Defaults
-    type: vt,
-    displayLabel: sanitizeText(vt),
-    color: "#128EE5",
-    iconUrl: DEFAULT_ICON_URL,
-    iconImageType: "image/svg+xml",
-    displayNameAttribute: RESERVED_ID_PROPERTY,
-    longDisplayNameAttribute: "types",
+    ...getDefaultVertexTypeConfig(vt),
     // Automatic schema override
     ...(schemaVertex || {}),
     // File-based override
@@ -198,10 +195,12 @@ const mergeEdge = (
 ): EdgeTypeConfig => {
   const attributes = mergeAttributes(configEdge, schemaEdge);
 
+  const et =
+    preferences?.type || configEdge?.type || schemaEdge?.type || "unknown";
+
   return {
     // Defaults
-    type: "unknown",
-    displayLabel: "Unknown",
+    ...getDefaultEdgeTypeConfig(et),
     // Automatic schema override
     ...(schemaEdge || {}),
     // File-based override
@@ -212,7 +211,22 @@ const mergeEdge = (
   };
 };
 
-/** Same as `useConfig().vertexTypes */
+export const allVertexTypeConfigsSelector = selector({
+  key: "all-vertex-type-configs",
+  get: ({ get }) => {
+    const configuration = get(mergedConfigurationSelector);
+    return new Map(configuration?.schema?.vertices.map(vt => [vt.type, vt]));
+  },
+});
+
+export const allEdgeTypeConfigsSelector = selector({
+  key: "all-edge-type-configs",
+  get: ({ get }) => {
+    const configuration = get(mergedConfigurationSelector);
+    return new Map(configuration?.schema?.edges.map(et => [et.type, et]));
+  },
+});
+
 export const vertexTypesSelector = selector({
   key: "config-vertex-types",
   get: ({ get }) => {
@@ -221,11 +235,51 @@ export const vertexTypesSelector = selector({
   },
 });
 
-/** Same as `useConfig().edgeTypes */
 export const edgeTypesSelector = selector({
   key: "config-edge-types",
   get: ({ get }) => {
     const configuration = get(mergedConfigurationSelector);
     return configuration?.schema?.edges?.map(vt => vt.type) || [];
+  },
+});
+
+export const defaultVertexTypeConfig = {
+  attributes: [],
+  displayNameAttribute: RESERVED_ID_PROPERTY,
+  longDisplayNameAttribute: RESERVED_TYPES_PROPERTY,
+  color: "#128EE5",
+  iconUrl: DEFAULT_ICON_URL,
+  iconImageType: "image/svg+xml",
+} satisfies Omit<VertexTypeConfig, "type">;
+
+export function getDefaultVertexTypeConfig(
+  vertexType: string
+): VertexTypeConfig {
+  return {
+    ...defaultVertexTypeConfig,
+    type: vertexType,
+  };
+}
+
+export const defaultEdgeTypeConfig = {
+  attributes: [],
+  sourceArrowStyle: "none",
+  targetArrowStyle: "triangle",
+  lineStyle: "solid",
+  lineColor: "#b3b3b3",
+} satisfies Omit<EdgeTypeConfig, "type">;
+
+export function getDefaultEdgeTypeConfig(edgeType: string): EdgeTypeConfig {
+  return {
+    ...defaultEdgeTypeConfig,
+    type: edgeType,
+  };
+}
+
+export const allNamespacePrefixesSelector = selector({
+  key: "all-namespace-prefixes",
+  get: ({ get }) => {
+    const configuration = get(mergedConfigurationSelector);
+    return configuration?.schema?.prefixes ?? [];
   },
 });

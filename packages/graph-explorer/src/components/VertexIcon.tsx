@@ -1,36 +1,29 @@
-import { fade, VertexTypeConfig } from "@/core";
+import { DisplayVertexStyle, fade } from "@/core";
 import SVG from "react-inlinesvg";
 import { cn } from "@/utils";
 
 interface Props {
-  iconUrl?: string;
-  iconImageType?: string;
+  vertexStyle: DisplayVertexStyle;
   className?: string;
 }
 
-function VertexIcon({ iconUrl, iconImageType, className }: Props) {
-  if (!iconUrl) {
-    return null;
+function VertexIcon({ vertexStyle, className }: Props) {
+  if (vertexStyle.iconImageType === "image/svg+xml") {
+    return (
+      <SVG src={vertexStyle.iconUrl} className={cn("size-6", className)} />
+    );
   }
 
-  if (iconImageType === "image/svg+xml") {
-    return <SVG src={iconUrl} className={cn("size-6", className)} />;
-  }
-
-  return <img src={iconUrl} className={cn("size-6", className)} />;
+  return <img src={vertexStyle.iconUrl} className={cn("size-6", className)} />;
 }
 
 export function VertexSymbol({
-  vtConfig,
+  vertexStyle,
   className,
 }: {
-  vtConfig: VertexTypeConfig;
+  vertexStyle: DisplayVertexStyle;
   className?: string;
 }) {
-  if (!vtConfig.iconUrl) {
-    return null;
-  }
-
   return (
     <div
       className={cn(
@@ -38,15 +31,11 @@ export function VertexSymbol({
         className
       )}
       style={{
-        background: fade(vtConfig.color, 0.2),
-        color: vtConfig.color,
+        background: fade(vertexStyle.color, 0.2),
+        color: vertexStyle.color,
       }}
     >
-      <VertexIcon
-        iconUrl={vtConfig.iconUrl}
-        iconImageType={vtConfig.iconImageType}
-        className="size-full"
-      />
+      <VertexIcon vertexStyle={vertexStyle} className="size-full" />
     </div>
   );
 }

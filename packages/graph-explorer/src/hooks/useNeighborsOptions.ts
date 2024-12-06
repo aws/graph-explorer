@@ -1,37 +1,31 @@
 import { useMemo } from "react";
 import { Vertex } from "@/types/entities";
-import {
-  useConfiguration,
-  VertexTypeConfig,
-} from "@/core/ConfigurationProvider";
-import useTextTransform from "./useTextTransform";
 import { SelectOption } from "@/components";
+import { DisplayVertexTypeConfig, useDisplayVertexTypeConfigs } from "@/core";
 
 export type NeighborOption = SelectOption & {
-  config?: VertexTypeConfig;
+  config: DisplayVertexTypeConfig;
 };
 
 export default function useNeighborsOptions(vertex: Vertex): NeighborOption[] {
-  const config = useConfiguration();
-  const textTransform = useTextTransform();
+  const vtConfigs = useDisplayVertexTypeConfigs();
 
   return useMemo(() => {
     return Object.keys(vertex.neighborsCountByType)
-      .map(vt => {
-        const vConfig = config?.getVertexTypeConfig(vt);
-
+      .map(type => vtConfigs.get(type))
+      .filter(vtConfig => vtConfig != null)
+      .map(vtConfig => {
         return {
-          label: vConfig?.displayLabel || textTransform(vt),
-          value: vt,
-          isDisabled: vertex.__unfetchedNeighborCounts?.[vt] === 0,
-          config: vConfig,
+          label: vtConfig.displayLabel,
+          value: vtConfig.type,
+          isDisabled: vertex.__unfetchedNeighborCounts?.[vtConfig.type] === 0,
+          config: vtConfig,
         };
       })
-      .sort((a, b) => a.label.localeCompare(b.label));
+      .toSorted((a, b) => a.label.localeCompare(b.label));
   }, [
-    config,
-    textTransform,
     vertex.neighborsCountByType,
     vertex.__unfetchedNeighborCounts,
+    vtConfigs,
   ]);
 }

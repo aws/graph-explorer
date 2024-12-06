@@ -1,6 +1,6 @@
 import { flatten } from "flat";
 import { useCallback } from "react";
-import { useConfiguration } from "@/core";
+import { useQueryEngine } from "@/core/connector";
 
 import gremlinTs from "./translations/gremlin-translations.json";
 import sparqlTs from "./translations/sparql-translations.json";
@@ -13,14 +13,13 @@ const ts: Record<string, Record<string, string>> = {
 };
 
 const useTranslations = () => {
-  const config = useConfiguration();
-  const engine = config?.connection?.queryEngine || "gremlin";
+  const queryEngine = useQueryEngine();
 
   return useCallback(
     (key: string, ns?: string) => {
-      return ts[ns || engine]?.[key] || key;
+      return ts[ns || queryEngine]?.[key] || key;
     },
-    [engine]
+    [queryEngine]
   );
 };
 

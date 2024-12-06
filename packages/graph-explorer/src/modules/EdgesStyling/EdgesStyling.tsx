@@ -9,7 +9,7 @@ import {
   PanelHeaderCloseButtonProps,
   PanelTitle,
 } from "@/components";
-import { useConfiguration } from "@/core";
+import { useDisplayEdgeTypeConfigs } from "@/core";
 import useTranslations from "@/hooks/useTranslations";
 import SingleEdgeStyling from "./SingleEdgeStyling";
 
@@ -23,7 +23,7 @@ const EdgesStyling = ({
   onEdgeCustomize,
   onClose,
 }: EdgesStylingProps) => {
-  const config = useConfiguration();
+  const etConfigs = useDisplayEdgeTypeConfigs().values().toArray();
   const t = useTranslations();
 
   return (
@@ -35,15 +35,15 @@ const EdgesStyling = ({
         </PanelHeaderActions>
       </PanelHeader>
       <PanelContent className="flex flex-col gap-2">
-        {config?.edgeTypes.map((edgeType, index) => {
+        {etConfigs.map((etConfig, index) => {
           return (
-            <Fragment key={edgeType}>
+            <Fragment key={etConfig.type}>
               {index !== 0 ? <Divider /> : null}
 
               <SingleEdgeStyling
-                edgeType={edgeType}
-                opened={customizeEdgeType === edgeType}
-                onOpen={() => onEdgeCustomize(edgeType)}
+                edgeType={etConfig.type}
+                opened={customizeEdgeType === etConfig.type}
+                onOpen={() => onEdgeCustomize(etConfig.type)}
                 onClose={() => onEdgeCustomize(undefined)}
                 className="px-3 pb-3 pt-2"
               />

@@ -1,4 +1,4 @@
-import { atom, selector } from "recoil";
+import { atom, selector, selectorFamily, useRecoilValue } from "recoil";
 import type { Vertex, VertexId } from "@/types/entities";
 import isDefaultValue from "./isDefaultValue";
 
@@ -42,6 +42,15 @@ export const nodesSelector = selector<Map<VertexId, Vertex>>({
   },
 });
 
+export const nodeSelector = selectorFamily({
+  key: "node-selector",
+  get:
+    (id: VertexId) =>
+    ({ get }) => {
+      return get(nodesAtom).get(id) ?? null;
+    },
+});
+
 export const nodesSelectedIdsAtom = atom<Set<VertexId>>({
   key: "nodes-selected-ids",
   default: new Set(),
@@ -66,3 +75,13 @@ export const nodesTypesFilteredAtom = atom<Set<string>>({
   key: "nodes-types-filtered",
   default: new Set(),
 });
+
+export function useNode(id: VertexId) {
+  const node = useRecoilValue(nodesAtom).get(id);
+
+  if (!node) {
+    throw new Error(`Node with id ${id} not found in displayNodes`);
+  }
+
+  return node;
+}

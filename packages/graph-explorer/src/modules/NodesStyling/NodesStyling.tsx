@@ -8,7 +8,7 @@ import {
   PanelHeaderCloseButtonProps,
   PanelTitle,
 } from "@/components";
-import { useConfiguration } from "@/core";
+import { useDisplayVertexTypeConfigs } from "@/core";
 import useTranslations from "@/hooks/useTranslations";
 import SingleNodeStyling from "./SingleNodeStyling";
 import { Fragment } from "react/jsx-runtime";
@@ -23,7 +23,7 @@ const NodesStyling = ({
   onNodeCustomize,
   onClose,
 }: NodesStylingProps) => {
-  const config = useConfiguration();
+  const vtConfigs = useDisplayVertexTypeConfigs().values().toArray();
   const t = useTranslations();
 
   return (
@@ -35,15 +35,15 @@ const NodesStyling = ({
         </PanelHeaderActions>
       </PanelHeader>
       <PanelContent className="gap-2">
-        {config?.vertexTypes.map((vertexType, index) => {
+        {vtConfigs.map((vtConfig, index) => {
           return (
-            <Fragment key={vertexType}>
+            <Fragment key={vtConfig.type}>
               {index !== 0 ? <Divider /> : null}
 
               <SingleNodeStyling
-                vertexType={vertexType}
-                opened={customizeNodeType === vertexType}
-                onOpen={() => onNodeCustomize(vertexType)}
+                vertexType={vtConfig.type}
+                opened={customizeNodeType === vtConfig.type}
+                onOpen={() => onNodeCustomize(vtConfig.type)}
                 onClose={() => onNodeCustomize(undefined)}
                 className="px-3 pb-3 pt-2"
               />
