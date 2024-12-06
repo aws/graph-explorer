@@ -207,13 +207,19 @@ export function createRandomRawConfiguration(): RawConfiguration {
   const serviceType = randomlyUndefined(
     pickRandomElement(["neptune-db", "neptune-graph"] as const)
   );
+  const queryEngine = pickRandomElement([
+    "gremlin",
+    "openCypher",
+    "sparql",
+  ] as const);
+
   return {
     id: createRandomName("id"),
     displayLabel: createRandomName("displayLabel"),
     connection: {
       url: createRandomUrlString(),
       ...(isProxyConnection && { graphDbUrl: createRandomUrlString() }),
-      queryEngine: pickRandomElement(["gremlin", "openCypher", "sparql"]),
+      queryEngine,
       proxyConnection: isProxyConnection,
       ...(isIamEnabled && { awsAuthEnabled: createRandomBoolean() }),
       ...(isIamEnabled && {

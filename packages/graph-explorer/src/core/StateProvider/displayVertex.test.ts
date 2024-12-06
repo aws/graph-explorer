@@ -64,31 +64,59 @@ describe("useDisplayVertexFromVertex", () => {
 
     const expectedTypeConfig = mapToDisplayVertexTypeConfig(vtConfig);
 
-    expect(act(vertex, withSchema(schema)).typeConfig).toEqual(
-      expectedTypeConfig
-    );
+    expect(
+      act(vertex, withSchemaAndConnection(schema, "gremlin")).typeConfig
+    ).toEqual(expectedTypeConfig);
   });
 
-  it("should have display types that list all types", () => {
+  it("should have display types that list all types in gremlin", () => {
     const vertex = createRandomVertex();
     const schema = createRandomSchema();
 
     const vtConfig1 = createRandomVertexTypeConfig();
+    delete vtConfig1.displayLabel;
     vtConfig1.type = vertex.type;
     schema.vertices.push(vtConfig1);
-    const vtConfigDisplayLabel =
-      vtConfig1.displayLabel || sanitizeText(vtConfig1.type);
 
     const vtConfig2 = createRandomVertexTypeConfig();
+    delete vtConfig2.displayLabel;
     schema.vertices.push(vtConfig2);
-    const vtConfig2DisplayLabel =
-      vtConfig2.displayLabel || sanitizeText(vtConfig2.type);
 
     vertex.types = [vtConfig1.type, vtConfig2.type];
 
-    expect(act(vertex, withSchema(schema)).displayTypes).toEqual(
-      `${vtConfigDisplayLabel}, ${vtConfig2DisplayLabel}`
+    expect(
+      act(vertex, withSchemaAndConnection(schema, "gremlin")).displayTypes
+    ).toEqual(
+      `${sanitizeText(vtConfig1.type)}, ${sanitizeText(vtConfig2.type)}`
     );
+  });
+
+  it("should have display types that list all types in sparql", () => {
+    const vertex = createRandomVertex();
+    vertex.type = "http://www.example.com/class#bar";
+    const schema = createRandomSchema();
+    schema.prefixes = [
+      {
+        prefix: "example-class",
+        uri: "http://www.example.com/class#",
+      },
+    ];
+
+    const vtConfig1 = createRandomVertexTypeConfig();
+    delete vtConfig1.displayLabel;
+    vtConfig1.type = vertex.type;
+    schema.vertices.push(vtConfig1);
+
+    const vtConfig2 = createRandomVertexTypeConfig();
+    vtConfig2.type = "http://www.example.com/class#baz";
+    delete vtConfig2.displayLabel;
+    schema.vertices.push(vtConfig2);
+
+    vertex.types = [vtConfig1.type, vtConfig2.type];
+
+    expect(
+      act(vertex, withSchemaAndConnection(schema, "sparql")).displayTypes
+    ).toEqual(`example-class:bar, example-class:baz`);
   });
 
   it("should have sorted attributes", () => {
