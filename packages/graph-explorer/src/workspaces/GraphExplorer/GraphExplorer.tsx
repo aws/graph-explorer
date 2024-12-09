@@ -145,7 +145,7 @@ const GraphExplorer = () => {
                 ? "Hide Graph View"
                 : "Show Graph View"
             }
-            tooltipPlacement={"bottom-center"}
+            tooltipPlacement="bottom-center"
             variant={toggles.has("graph-viewer") ? "filled" : "text"}
             icon={<GraphIcon />}
             onClick={toggleView("graph-viewer")}
@@ -154,17 +154,17 @@ const GraphExplorer = () => {
             tooltipText={
               toggles.has("table-view") ? "Hide Table View" : "Show Table View"
             }
-            tooltipPlacement={"bottom-center"}
+            tooltipPlacement="bottom-center"
             variant={toggles.has("table-view") ? "filled" : "text"}
             icon={<GridIcon />}
             onClick={toggleView("table-view")}
           />
-          <div className={"v-divider"} />
-          <Link to={"/connections"}>
+          <div className="v-divider" />
+          <Link to="/connections">
             <Button
-              className={"button"}
+              className="button"
               icon={<DatabaseIcon />}
-              variant={"filled"}
+              variant="filled"
             >
               Open Connections
             </Button>
@@ -177,10 +177,8 @@ const GraphExplorer = () => {
           <div style={{ width: "100%", flexGrow: 1 }}>
             <PanelEmptyState
               icon={<EmptyWidgetIcon />}
-              title={"No active views"}
-              subtitle={
-                "Use toggles in the top-right corner to show/hide views"
-              }
+              title="No active views"
+              subtitle="Use toggles in the top-right corner to show/hide views"
             />
           </div>
         )}
@@ -188,10 +186,8 @@ const GraphExplorer = () => {
           <div style={{ width: "100%", flexGrow: 1 }}>
             <PanelEmptyState
               icon={<EmptyWidgetIcon />}
-              title={"No active views"}
-              subtitle={
-                "Use toggles in the top-right corner to show/hide views"
-              }
+              title="No active views"
+              subtitle="Use toggles in the top-right corner to show/hide views"
             />
           </div>
         )}
@@ -222,7 +218,7 @@ const GraphExplorer = () => {
         )}
       </Workspace.Content>
 
-      <Workspace.SideBar direction={"row"}>
+      <Workspace.SideBar direction="row">
         <Workspace.SideBar.Button
           title="Search"
           icon={<SearchIcon />}

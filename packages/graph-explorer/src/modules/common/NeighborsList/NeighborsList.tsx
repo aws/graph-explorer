@@ -21,7 +21,7 @@ export default function NeighborsList({ id }: NeighborsListProps) {
 
   return (
     <div className={cn(styleWithTheme(defaultStyles), "section")}>
-      <div className={"title"}>Neighbors ({vertex.neighborsCount})</div>
+      <div className="title">Neighbors ({vertex.neighborsCount})</div>
       {neighborsOptions
         .slice(0, showMore ? undefined : MAX_NEIGHBOR_TYPE_ROWS)
         .map(op => {
@@ -29,8 +29,8 @@ export default function NeighborsList({ id }: NeighborsListProps) {
             vertex.neighborsCountByType[op.value] -
             (vertex.__unfetchedNeighborCounts?.[op.value] ?? 0);
           return (
-            <div key={op.value} className={"node-item"}>
-              <div className={"vertex-type"}>
+            <div key={op.value} className="node-item">
+              <div className="vertex-type">
                 <div
                   style={{
                     color: op.config.style.color,

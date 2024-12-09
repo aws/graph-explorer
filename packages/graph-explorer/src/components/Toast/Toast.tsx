@@ -49,11 +49,11 @@ export const Toast: FC<ToastProps> = ({
   return (
     <div className={cn(stylesWithTheme(defaultStyles), className)}>
       <Card className={cn("card", type)} transparent>
-        <div className={"icon"}>
+        <div className="icon">
           <Icon width={24} height={24} />
         </div>
-        <div className={"content"}>
-          {title && <div className={"title"}>{title}</div>}
+        <div className="content">
+          {title && <div className="title">{title}</div>}
           {children}
         </div>
         {closeable && (

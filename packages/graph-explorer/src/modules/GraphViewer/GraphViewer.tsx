@@ -292,9 +292,7 @@ function Legend({ onClose }: { onClose: () => void }) {
 
   return (
     <Card
-      className={
-        "z-panes absolute bottom-2 right-2 top-2 min-w-48 max-w-80 overflow-auto"
-      }
+      className="z-panes absolute bottom-2 right-2 top-2 min-w-48 max-w-80 overflow-auto"
     >
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-base font-bold">Legend</h1>

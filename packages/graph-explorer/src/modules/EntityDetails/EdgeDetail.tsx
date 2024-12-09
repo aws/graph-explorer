@@ -68,49 +68,49 @@ const EdgeDetail = ({ edge }: EdgeDetailProps) => {
 
   return (
     <div className={styleWithTheme(defaultStyles(style.lineColor))}>
-      <div className={"header"}>
-        <div className={"icon"}>
+      <div className="header">
+        <div className="icon">
           <EdgeIcon />
         </div>
-        <div className={"content"}>
-          <div className={"title"}>{edge.displayTypes}</div>
+        <div className="content">
+          <div className="title">{edge.displayTypes}</div>
           {edge.hasUniqueId ? <div>{edge.displayId}</div> : null}
         </div>
       </div>
       <div className={cn("header", "source-vertex")}>
         <div className={cn("start-line", `line-${style.lineStyle || "solid"}`)}>
           {style.sourceArrowStyle === "triangle" && (
-            <ArrowTriangle className={"source-arrow-type"} />
+            <ArrowTriangle className="source-arrow-type" />
           )}
           {style.sourceArrowStyle === "triangle-tee" && (
-            <ArrowTriangleTee className={"source-arrow-type"} />
+            <ArrowTriangleTee className="source-arrow-type" />
           )}
           {style.sourceArrowStyle === "circle-triangle" && (
-            <ArrowTriangleCircle className={"source-arrow-type"} />
+            <ArrowTriangleCircle className="source-arrow-type" />
           )}
           {style.sourceArrowStyle === "triangle-cross" && (
-            <ArrowTriangleCross className={"source-arrow-type"} />
+            <ArrowTriangleCross className="source-arrow-type" />
           )}
           {style.sourceArrowStyle === "triangle-backcurve" && (
-            <ArrowTriangleBackCurve className={"source-arrow-type"} />
+            <ArrowTriangleBackCurve className="source-arrow-type" />
           )}
           {style.sourceArrowStyle === "tee" && (
-            <ArrowTee className={"source-arrow-type"} />
+            <ArrowTee className="source-arrow-type" />
           )}
           {style.sourceArrowStyle === "vee" && (
-            <ArrowVee className={"source-arrow-type"} />
+            <ArrowVee className="source-arrow-type" />
           )}
           {style.sourceArrowStyle === "square" && (
-            <ArrowSquare className={"source-arrow-type"} />
+            <ArrowSquare className="source-arrow-type" />
           )}
           {style.sourceArrowStyle === "circle" && (
-            <ArrowCircle className={"source-arrow-type"} />
+            <ArrowCircle className="source-arrow-type" />
           )}
           {style.sourceArrowStyle === "diamond" && (
-            <ArrowDiamond className={"source-arrow-type"} />
+            <ArrowDiamond className="source-arrow-type" />
           )}
           {(style.sourceArrowStyle === "none" || !style.sourceArrowStyle) && (
-            <ArrowNone className={"source-arrow-type"} />
+            <ArrowNone className="source-arrow-type" />
           )}
         </div>
         <VertexRow vertex={sourceVertex} />
@@ -119,37 +119,37 @@ const EdgeDetail = ({ edge }: EdgeDetailProps) => {
         <div className={cn("end-line", `line-${style.lineStyle || "solid"}`)}>
           {(style.targetArrowStyle === "triangle" ||
             !style.targetArrowStyle) && (
-            <ArrowTriangle className={"target-arrow-type"} />
+            <ArrowTriangle className="target-arrow-type" />
           )}
           {style.targetArrowStyle === "triangle-tee" && (
-            <ArrowTriangleTee className={"target-arrow-type"} />
+            <ArrowTriangleTee className="target-arrow-type" />
           )}
           {style.targetArrowStyle === "circle-triangle" && (
-            <ArrowTriangleCircle className={"target-arrow-type"} />
+            <ArrowTriangleCircle className="target-arrow-type" />
           )}
           {style.targetArrowStyle === "triangle-cross" && (
-            <ArrowTriangleCross className={"target-arrow-type"} />
+            <ArrowTriangleCross className="target-arrow-type" />
           )}
           {style.targetArrowStyle === "triangle-backcurve" && (
-            <ArrowTriangleBackCurve className={"target-arrow-type"} />
+            <ArrowTriangleBackCurve className="target-arrow-type" />
           )}
           {style.targetArrowStyle === "tee" && (
-            <ArrowTee className={"target-arrow-type"} />
+            <ArrowTee className="target-arrow-type" />
           )}
           {style.targetArrowStyle === "vee" && (
-            <ArrowVee className={"target-arrow-type"} />
+            <ArrowVee className="target-arrow-type" />
           )}
           {style.targetArrowStyle === "square" && (
-            <ArrowSquare className={"target-arrow-type"} />
+            <ArrowSquare className="target-arrow-type" />
           )}
           {style.targetArrowStyle === "circle" && (
-            <ArrowCircle className={"target-arrow-type"} />
+            <ArrowCircle className="target-arrow-type" />
           )}
           {style.targetArrowStyle === "diamond" && (
-            <ArrowDiamond className={"target-arrow-type"} />
+            <ArrowDiamond className="target-arrow-type" />
           )}
           {style.targetArrowStyle === "none" && (
-            <ArrowNone className={"target-arrow-type"} />
+            <ArrowNone className="target-arrow-type" />
           )}
         </div>
         <VertexRow vertex={targetVertex} />

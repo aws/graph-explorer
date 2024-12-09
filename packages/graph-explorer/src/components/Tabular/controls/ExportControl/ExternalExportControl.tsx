@@ -134,7 +134,7 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
         <div className="flex flex-col gap-2">
           <Label>
             <Checkbox
-              aria-label={`Keep filtering and sorting`}
+              aria-label="Keep filtering and sorting"
               checked={options["include-filters"]}
               onCheckedChange={isSelected => {
                 setOptions(prev => ({
@@ -147,7 +147,7 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
           </Label>
           <Label>
             <Checkbox
-              aria-label={`Only current page`}
+              aria-label="Only current page"
               checked={options["only-page"]}
               onCheckedChange={isSelected => {
                 setOptions(prev => ({
@@ -179,7 +179,7 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
         <Label htmlFor="exportName">Save as</Label>
         <Input
           name="exportName"
-          aria-label={"Export name"}
+          aria-label="Export name"
           value={name}
           placeholder={`export-${new Date().getTime()}.${format}`}
           onChange={setName}

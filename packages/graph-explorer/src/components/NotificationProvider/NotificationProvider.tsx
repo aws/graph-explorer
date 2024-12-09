@@ -177,7 +177,7 @@ export const NotificationProvider: FC<NotificationProviderProps> = ({
                 nodeRef={nodeRef}
                 key={notification.id}
                 timeout={200}
-                classNames={"item"}
+                classNames="item"
                 style={{
                   pointerEvents: "all",
                   ...(notification.anchorOrigin

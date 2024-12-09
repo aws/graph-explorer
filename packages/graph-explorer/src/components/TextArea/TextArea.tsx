@@ -90,13 +90,13 @@ export const TextArea = (
       )}
     >
       {label && (
-        <label className={"input-label"} {...labelProps}>
+        <label className="input-label" {...labelProps}>
           {label}
         </label>
       )}
-      <div className={"input-container"}>
+      <div className="input-container">
         {!!startAdornment && (
-          <span className={"start-adornment"}>{startAdornment}</span>
+          <span className="start-adornment">{startAdornment}</span>
         )}
         <textarea
           {...clickHandlers}
@@ -109,11 +109,11 @@ export const TextArea = (
           {...overrideInputProps}
         />
         {!!endAdornment && (
-          <span className={"end-adornment"}>{endAdornment}</span>
+          <span className="end-adornment">{endAdornment}</span>
         )}
-        {!!clearButton && <span className={"clearButton"}>{clearButton}</span>}
+        {!!clearButton && <span className="clearButton">{clearButton}</span>}
         {validationState === "invalid" && !!errorMessage && !hideError && (
-          <div className={"input-error"}>{errorMessage}</div>
+          <div className="input-error">{errorMessage}</div>
         )}
       </div>
     </div>

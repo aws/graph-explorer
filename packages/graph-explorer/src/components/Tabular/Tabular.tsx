@@ -198,7 +198,7 @@ const TabularContent = <T extends object>({
       }}
     >
       {headerControlsChildren}
-      <div {...getTableProps()} className={"table"}>
+      <div {...getTableProps()} className="table">
         <div
           className={cn("headers", {
             ["headers-sticky"]: !disableStickyHeader,
@@ -217,7 +217,7 @@ const TabularContent = <T extends object>({
             />
           ))}
         </div>
-        <div {...getTableBodyProps()} className={"body"}>
+        <div {...getTableBodyProps()} className="body">
           {emptyBodyControlsChildren}
           {actualRows.map(row => {
             return (

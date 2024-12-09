@@ -198,7 +198,7 @@ const AdvancedList = <T extends object>(
             disableBorder
             title={
               hasHeader && (
-                <div className={"advanced-list-search-wrapper"}>
+                <div className="advanced-list-search-wrapper">
                   {children}
                   {onSearch && (
                     <SearchBar
@@ -239,7 +239,7 @@ const AdvancedList = <T extends object>(
               />
             )}
             {isPlainListVisible && (
-              <div className={"advanced-list-nogroup"}>
+              <div className="advanced-list-nogroup">
                 {!disableVirtualization && (
                   <Virtuoso
                     ref={ref}
@@ -286,7 +286,7 @@ const AdvancedList = <T extends object>(
                 {disableVirtualization &&
                   filteredItems.map((item, index) => (
                     <div
-                      className={"advanced-list-nogroup-item-wrapper"}
+                      className="advanced-list-nogroup-item-wrapper"
                       key={item.id}
                     >
                       <ElementsListItem
@@ -311,7 +311,7 @@ const AdvancedList = <T extends object>(
           </Section>
         )}
         {isLoading && (
-          <div className={"advanced-list-loading"}>
+          <div className="advanced-list-loading">
             <LoadingSpinner />
           </div>
         )}

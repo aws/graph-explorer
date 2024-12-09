@@ -29,17 +29,17 @@ const ModuleContainerTabularHeader = ({
     <div
       className={cn(styleWithTheme(defaultStyles), "entities-tabular-header")}
     >
-      <div className={"title"}>
+      <div className="title">
         {startAdornment ? (
-          <div className={"start-adornment"}>{startAdornment}</div>
+          <div className="start-adornment">{startAdornment}</div>
         ) : (
-          <GridIcon className={"icon"} />
+          <GridIcon className="icon" />
         )}
         {moduleName}
       </div>
-      <div className={"select-table"}>
+      <div className="select-table">
         <Select
-          aria-label={"Table"}
+          aria-label="Table"
           value={selectedTable}
           onChange={option => onTableChange(option as string)}
           options={tables}

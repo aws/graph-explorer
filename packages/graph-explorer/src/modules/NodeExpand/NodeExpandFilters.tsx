@@ -77,10 +77,10 @@ const NodeExpandFilters = ({
   );
 
   return (
-    <div className={"filters-section"}>
-      <div className={"title"}>{t("node-expand.neighbors-of-type")}</div>
+    <div className="filters-section">
+      <div className="title">{t("node-expand.neighbors-of-type")}</div>
       <Select
-        aria-label={"neighbor type"}
+        aria-label="neighbor type"
         value={selectedType}
         onChange={v => {
           onSelectedTypeChange(v as string);
@@ -88,22 +88,22 @@ const NodeExpandFilters = ({
         options={neighborsOptions}
       />
       {hasSearchableAttributes && (
-        <div className={"title"}>
+        <div className="title">
           <div>Filter to narrow results</div>
           <IconButton
             icon={<AddIcon />}
-            variant={"text"}
-            size={"small"}
+            variant="text"
+            size="small"
             onClick={onFilterAdd}
           />
         </div>
       )}
       {filters.length > 0 && (
-        <div className={"filters"}>
+        <div className="filters">
           {filters.map((filter, filterIndex) => (
-            <div key={filterIndex} className={"single-filter"}>
+            <div key={filterIndex} className="single-filter">
               <Select
-                aria-label={"Attribute"}
+                aria-label="Attribute"
                 value={filter.name}
                 onChange={value => {
                   onFilterChange(filterIndex, value as string, filter.value);

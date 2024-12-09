@@ -80,7 +80,7 @@ const TabularRow = <T extends object>({
             {cell.column.canResize && (
               <div
                 {...(cell.column.getResizerProps?.() || {})}
-                className={"cell-resizer"}
+                className="cell-resizer"
               />
             )}
           </div>

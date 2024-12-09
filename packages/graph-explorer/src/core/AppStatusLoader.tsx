@@ -136,7 +136,7 @@ const AppStatusLoader = ({
       !location.pathname.match(/\/connections/) &&
       !location.pathname.match(/\/settings/)
     ) {
-      return <Redirect to={"/connections"} />;
+      return <Redirect to="/connections" />;
     }
   }
 

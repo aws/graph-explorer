@@ -49,20 +49,20 @@ const ColorInput: FC<ColorInputProps & ColorPickerProps> = ({
 
   return (
     <div className={cn(styleWithTheme(defaultStyles), className)}>
-      <div className={"color-input"}>
+      <div className="color-input">
         <UseLayer
           onClose={() => setColorPickerOpen(false)}
           isOpen={colorPickerOpen}
-          placement={"bottom-start"}
+          placement="bottom-start"
         >
           <UseLayerTrigger>
             <Input
               label={label}
               labelPlacement={labelPlacement}
               aria-label="color-input"
-              className={"input"}
+              className="input"
               onClick={() => setColorPickerOpen(true)}
-              type={"text"}
+              type="text"
               value={color}
               onChange={(newColor: string) => setColor(newColor)}
               endAdornment={

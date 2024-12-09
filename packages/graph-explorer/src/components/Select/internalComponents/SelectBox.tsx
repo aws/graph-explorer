@@ -159,8 +159,8 @@ const SelectBox = (
         items.length > 0 && setMenuOpen(!menuOpen);
       }}
     >
-      {label && <label className={"input-label"}>{label}</label>}
-      <div className={"input-container"} aria-label={props["aria-label"]}>
+      {label && <label className="input-label">{label}</label>}
+      <div className="input-container" aria-label={props["aria-label"]}>
         <button
           ref={mergeRefs(triggerProps.ref, ref)}
           type="button"
@@ -170,16 +170,16 @@ const SelectBox = (
           })}
         >
           {selectedOptions !== "" ? (
-            <span className={"selection"}>{selectedOptions}</span>
+            <span className="selection">{selectedOptions}</span>
           ) : (
-            <span className={"placeholder"}>
+            <span className="placeholder">
               {props.placeholder || "Select an option..."}
             </span>
           )}
-          <span className={"dropdown-indicator"}>
+          <span className="dropdown-indicator">
             {clearable && selectedOptions !== "" && (
               <IconButton
-                className={"clear-button"}
+                className="clear-button"
                 variant="text"
                 icon={<CloseIcon />}
                 onClick={() => onSelectionChange?.(new Set())}
@@ -194,7 +194,7 @@ const SelectBox = (
           </span>
         </button>
         {validationState === "invalid" && !!errorMessage && !hideError && (
-          <div className={"input-error"}>{errorMessage}</div>
+          <div className="input-error">{errorMessage}</div>
         )}
       </div>
       {items.length > 0 &&

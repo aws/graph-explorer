@@ -228,17 +228,17 @@ const CreateConnection = ({
 
   return (
     <div className={styleWithTheme(defaultStyles)}>
-      <div className={"configuration-form"}>
+      <div className="configuration-form">
         <Input
-          label={"Name"}
+          label="Name"
           value={form.name}
           onChange={onFormChange("name")}
-          errorMessage={"Name is required"}
+          errorMessage="Name is required"
           validationState={hasError && !form.name ? "invalid" : "valid"}
           isDisabled={disabledFields.includes("name")}
         />
         <Select
-          label={"Graph Type"}
+          label="Graph Type"
           options={CONNECTIONS_OP}
           value={form.queryEngine}
           onChange={onFormChange("queryEngine")}
@@ -247,7 +247,7 @@ const CreateConnection = ({
             form.serviceType === "neptune-graph"
           }
         />
-        <div className={"input-url"}>
+        <div className="input-url">
           <TextArea
             data-autofocus={true}
             label={
@@ -263,16 +263,16 @@ const CreateConnection = ({
             }
             value={form.url}
             onChange={onFormChange("url")}
-            errorMessage={"URL is required"}
-            placeholder={"https://example.com"}
+            errorMessage="URL is required"
+            placeholder="https://example.com"
             validationState={hasError && !form.url ? "invalid" : "valid"}
             isDisabled={disabledFields.includes("url")}
           />
         </div>
-        <div className={"input-url"}>
+        <div className="input-url">
           <Label className="cursor-pointer">
             <Checkbox
-              value={"proxyConnection"}
+              value="proxyConnection"
               checked={form.proxyConnection}
               onCheckedChange={checked => {
                 onFormChange("proxyConnection")(checked);
@@ -282,14 +282,14 @@ const CreateConnection = ({
           </Label>
         </div>
         {form.proxyConnection && (
-          <div className={"input-url"}>
+          <div className="input-url">
             <TextArea
               data-autofocus={true}
-              label={"Graph Connection URL"}
+              label="Graph Connection URL"
               value={form.graphDbUrl}
               onChange={onFormChange("graphDbUrl")}
-              errorMessage={"URL is required"}
-              placeholder={"https://neptune-cluster.amazonaws.com"}
+              errorMessage="URL is required"
+              placeholder="https://neptune-cluster.amazonaws.com"
               validationState={
                 hasError && !form.graphDbUrl ? "invalid" : "valid"
               }
@@ -297,10 +297,10 @@ const CreateConnection = ({
           </div>
         )}
         {form.proxyConnection && (
-          <div className={"input-url"}>
+          <div className="input-url">
             <Label className="cursor-pointer">
               <Checkbox
-                value={"awsAuthEnabled"}
+                value="awsAuthEnabled"
                 checked={form.awsAuthEnabled}
                 onCheckedChange={checked => {
                   onFormChange("awsAuthEnabled")(checked);
@@ -312,22 +312,22 @@ const CreateConnection = ({
         )}
         {form.proxyConnection && form.awsAuthEnabled && (
           <>
-            <div className={"input-url"}>
+            <div className="input-url">
               <Input
                 data-autofocus={true}
-                label={"AWS Region"}
+                label="AWS Region"
                 value={form.awsRegion}
                 onChange={onFormChange("awsRegion")}
-                errorMessage={"Region is required"}
-                placeholder={"us-east-1"}
+                errorMessage="Region is required"
+                placeholder="us-east-1"
                 validationState={
                   hasError && !form.awsRegion ? "invalid" : "valid"
                 }
               />
             </div>
-            <div className={"input-url"}>
+            <div className="input-url">
               <Select
-                label={"Service Type"}
+                label="Service Type"
                 options={[
                   { label: "Neptune DB", value: "neptune-db" },
                   { label: "Neptune Graph", value: "neptune-graph" },
@@ -340,10 +340,10 @@ const CreateConnection = ({
           </>
         )}
       </div>
-      <div className={"configuration-form"}>
+      <div className="configuration-form">
         <Label className="cursor-pointer">
           <Checkbox
-            value={"fetchTimeoutEnabled"}
+            value="fetchTimeoutEnabled"
             checked={form.fetchTimeoutEnabled}
             onCheckedChange={checked => {
               onFormChange("fetchTimeoutEnabled")(checked);
@@ -358,10 +358,10 @@ const CreateConnection = ({
           </div>
         </Label>
         {form.fetchTimeoutEnabled && (
-          <div className={"input-url"}>
+          <div className="input-url">
             <Input
               label="Fetch Timeout (ms)"
-              type={"number"}
+              type="number"
               value={form.fetchTimeoutMs}
               onChange={onFormChange("fetchTimeoutMs")}
               min={0}
@@ -369,10 +369,10 @@ const CreateConnection = ({
           </div>
         )}
       </div>
-      <div className={"configuration-form"}>
+      <div className="configuration-form">
         <Label className="cursor-pointer">
           <Checkbox
-            value={"nodeExpansionLimitEnabled"}
+            value="nodeExpansionLimitEnabled"
             checked={form.nodeExpansionLimitEnabled}
             onCheckedChange={checked => {
               onFormChange("nodeExpansionLimitEnabled")(checked);
@@ -387,7 +387,7 @@ const CreateConnection = ({
           </div>
         </Label>
         {form.nodeExpansionLimitEnabled && (
-          <div className={"input-url"}>
+          <div className="input-url">
             <Input
               label="Node Expansion Limit"
               type="number"
@@ -398,11 +398,11 @@ const CreateConnection = ({
           </div>
         )}
       </div>
-      <div className={"actions"}>
-        <Button variant={"default"} onPress={onClose}>
+      <div className="actions">
+        <Button variant="default" onPress={onClose}>
           Cancel
         </Button>
-        <Button variant={"filled"} onPress={onSubmit}>
+        <Button variant="filled" onPress={onSubmit}>
           {!configId ? "Add Connection" : "Update Connection"}
         </Button>
       </div>

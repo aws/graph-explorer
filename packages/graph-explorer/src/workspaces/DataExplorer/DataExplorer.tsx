@@ -115,11 +115,11 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
           {__GRAPH_EXP_VERSION__}
         </Workspace.TopBar.Version>
         <Workspace.TopBar.AdditionalControls>
-          <Link to={"/graph-explorer"}>
+          <Link to="/graph-explorer">
             <Button
-              className={"button"}
+              className="button"
               icon={<ExplorerIcon />}
-              variant={"filled"}
+              variant="filled"
             >
               Open {APP_NAME}
             </Button>
@@ -143,9 +143,9 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
         <Panel>
           <PanelHeader>
             <PanelTitle>
-              <div className={"container-header"}>
+              <div className="container-header">
                 <div>{displayTypeConfig.displayLabel}</div>
-                {query.isFetching && <LoadingSpinner className={"spinner"} />}
+                {query.isFetching && <LoadingSpinner className="spinner" />}
               </div>
             </PanelTitle>
           </PanelHeader>
@@ -245,26 +245,26 @@ function DisplayNameAndDescriptionOptions({
   );
 
   return (
-    <div className={"header-children"}>
+    <div className="header-children">
       <Select
-        className={"header-select"}
+        className="header-select"
         value={vertexConfig?.displayNameAttribute || ""}
         onChange={onDisplayNameChange("name")}
         options={selectOptions}
         hideError={true}
         noMargin={true}
-        label={"Display Name"}
-        labelPlacement={"inner"}
+        label="Display Name"
+        labelPlacement="inner"
       />
       <Select
-        className={"header-select"}
+        className="header-select"
         value={vertexConfig?.longDisplayNameAttribute || ""}
         onChange={onDisplayNameChange("longName")}
         options={selectOptions}
         hideError={true}
         noMargin={true}
-        label={"Display Description"}
-        labelPlacement={"inner"}
+        label="Display Description"
+        labelPlacement="inner"
       />
     </div>
   );
@@ -280,9 +280,9 @@ function AddToExplorerButton({ vertex }: { vertex: Vertex }) {
       <Button
         isDisabled={isInExplorer}
         icon={isInExplorer ? <CheckIcon /> : <SendIcon />}
-        variant={"default"}
-        size={"small"}
-        iconPlacement={"start"}
+        variant="default"
+        size="small"
+        iconPlacement="start"
         onPress={addToGraph}
       >
         {isInExplorer ? "Sent to Explorer" : "Send to Explorer"}

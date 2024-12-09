@@ -11,7 +11,7 @@ export default function NavBarLogo({ className, ...rest }: ComponentBaseProps) {
       )}
       {...rest}
     >
-      <GraphExplorerIcon width={"2em"} height={"2em"} />
+      <GraphExplorerIcon width="2em" height="2em" />
     </div>
   );
 }

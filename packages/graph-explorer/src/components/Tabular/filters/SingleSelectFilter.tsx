@@ -51,7 +51,7 @@ export const SingleSelectFilter =
           size="sm"
           noMargin
           hideError
-          className={"menu-root"}
+          className="menu-root"
           value={column.filterValue || "all"}
           onChange={option =>
             option === "all" ? setFilter(undefined) : setFilter(option)

@@ -91,23 +91,23 @@ export const Section = ({
     );
     return (
       <div
-        className={"header-container"}
+        className="header-container"
         onClick={ev =>
           collapseAction === "all" && onCollapseChange?.(!isCollapse, ev)
         }
       >
         {collapsible && collapseIndicatorPosition === "start" && (
           <div
-            className={"collapse-action"}
+            className="collapse-action"
             onClick={ev => onCollapseChange?.(!isCollapse, ev)}
           >
             {collapseIndicator}
           </div>
         )}
-        <div className={"title"}>{title}</div>
+        <div className="title">{title}</div>
         {collapsible && collapseIndicatorPosition === "end" && (
           <div
-            className={"collapse-action"}
+            className="collapse-action"
             onClick={ev => onCollapseChange?.(!isCollapse, ev)}
           >
             {collapseIndicator}
@@ -151,7 +151,7 @@ export const Section = ({
     >
       {headerContainer}
       {Children.count(children) > 0 && (
-        <div className={"content"}>
+        <div className="content">
           {collapsible ? (
             <div
               className={cn("collapsible-container", {
