@@ -20,7 +20,7 @@ export default function EntityAttribute({
       <div className="text-text-secondary text-balance break-words text-sm">
         {attribute.displayLabel}
       </div>
-      <div className="text-text-primary text-balance break-words">
+      <div className="text-text-primary text-balance break-words font-medium">
         {attribute.displayValue}
       </div>
     </li>
