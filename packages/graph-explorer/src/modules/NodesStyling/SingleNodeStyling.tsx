@@ -232,7 +232,6 @@ export default function SingleNodeStyling({
                       </>
                     }
                     tooltipText="Upload New Icon"
-                    tooltipPlacement="bottom-end"
                     onClick={props.onClick}
                   />
                 )}

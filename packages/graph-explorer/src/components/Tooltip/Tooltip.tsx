@@ -1,103 +1,29 @@
+import * as React from "react";
+import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import { cn } from "@/utils";
-import { AnimatePresence, motion } from "framer-motion";
-import type { PropsWithChildren, ReactNode } from "react";
-import { cloneElement, useEffect } from "react";
-import { Arrow, useHover, useLayer } from "react-laag";
-import type { PlacementType } from "react-laag/dist/PlacementType";
-import { useWithTheme } from "@/core";
-import usePrevious from "@/hooks/usePrevious";
-import { tooltipStyles } from "./Tooltip.styles";
 
-function isReactText(children: ReactNode) {
-  return ["string", "number"].includes(typeof children);
-}
+const TooltipProvider = TooltipPrimitive.Provider;
 
-export type TooltipProps = {
-  text: ReactNode;
-  placement?: PlacementType;
-  delayEnter?: number;
-  delayLeave?: number;
-  triggerOffset?: number;
-  className?: string;
-  disabled?: boolean;
-  onHoverChange?: (isOver: boolean) => void;
-};
+const Tooltip = TooltipPrimitive.Root;
 
-export const Tooltip = ({
-  children,
-  text,
-  placement = "bottom-center",
-  delayEnter = 100,
-  delayLeave = 300,
-  triggerOffset = 8,
-  className,
-  disabled,
-  onHoverChange,
-}: PropsWithChildren<TooltipProps>) => {
-  const [isOver, hoverProps] = useHover({ delayEnter, delayLeave });
-  const [isOverTooltip, hoverTooltipProps] = useHover({
-    delayEnter,
-    delayLeave,
-  });
-  const { triggerProps, layerProps, arrowProps, renderLayer } = useLayer({
-    isOpen: !disabled && (isOver || isOverTooltip),
-    auto: true,
-    placement,
-    triggerOffset,
-  });
+const TooltipTrigger = TooltipPrimitive.Trigger;
 
-  const prevIsOver = usePrevious(isOver);
-
-  useEffect(() => {
-    if (prevIsOver !== isOver) onHoverChange?.(isOver);
-  }, [isOver, onHoverChange, prevIsOver]);
-  // when children equals text (string | number), we need to wrap it in an
-  // extra span-element in order to attach props
-  let trigger;
-  if (isReactText(children)) {
-    trigger = (
-      <div className="tooltip-text-wrapper" {...triggerProps} {...hoverProps}>
-        {children}
-      </div>
-    );
-  } else {
-    // In case of an react-element, we need to clone it in order to attach our own props
-    trigger = cloneElement(children as any, {
-      ...triggerProps,
-      ...hoverProps,
-    });
-  }
-
-  const stylesWithTheme = useWithTheme();
-
-  return (
-    <>
-      {trigger}
-      {renderLayer(
-        <AnimatePresence>
-          {!disabled && (isOver || isOverTooltip) && (
-            <motion.div
-              className={cn(stylesWithTheme(tooltipStyles), className)}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              transition={{ duration: 0.1 }}
-              {...layerProps}
-              style={{ pointerEvents: "none", ...layerProps.style }}
-            >
-              <span {...hoverTooltipProps}>{text}</span>
-              <Arrow
-                {...arrowProps}
-                backgroundColor="rgb(78, 78, 78)"
-                borderColor="transparent"
-                size={6}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
+const TooltipContent = React.forwardRef<
+  React.ElementRef<typeof TooltipPrimitive.Content>,
+  React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>
+>(({ className, sideOffset = 4, ...props }, ref) => (
+  <TooltipPrimitive.Portal>
+    <TooltipPrimitive.Content
+      ref={ref}
+      sideOffset={sideOffset}
+      className={cn(
+        "bg-text-primary text-background-default animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-tooltip max-w-96 overflow-hidden rounded-md px-3 py-1.5 text-sm",
+        className
       )}
-    </>
-  );
-};
+      {...props}
+    />
+  </TooltipPrimitive.Portal>
+));
+TooltipContent.displayName = TooltipPrimitive.Content.displayName;
 
-export default Tooltip;
+export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider };

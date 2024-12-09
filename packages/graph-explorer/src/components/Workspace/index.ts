@@ -12,4 +12,5 @@ export { default as WorkspaceTopBarTitle } from "./components/WorkspaceTopBarTit
 export type { WorkspaceTopBarTitleProps } from "./components/WorkspaceTopBarTitle";
 export { default as WorkspacesContent } from "./components/WorkspacesContent";
 export { default as WorkspaceSideBar } from "./components/WorkspaceSideBar";
+export * from "./components/SidebarButton";
 export { default as WorkspaceSideBarContent } from "./components/WorkspaceSideBarContent";

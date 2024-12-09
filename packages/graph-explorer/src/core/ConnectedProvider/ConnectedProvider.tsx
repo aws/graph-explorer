@@ -11,6 +11,7 @@ import { emotionTransform, MantineEmotionProvider } from "@mantine/emotion";
 import { ExpandNodeProvider } from "@/hooks/useExpandNode";
 import { ErrorBoundary } from "react-error-boundary";
 import AppErrorPage from "@/core/AppErrorPage";
+import { TooltipProvider } from "@/components";
 
 export type ConnectedProviderProps = {
   config?: RawConfiguration;
@@ -38,19 +39,21 @@ const ConnectedProvider = (
   return (
     <ErrorBoundary FallbackComponent={AppErrorPage}>
       <QueryClientProvider client={queryClient}>
-        <MantineProvider stylesTransform={emotionTransform}>
-          <MantineEmotionProvider>
-            <ThemeProvider>
-              <NotificationProvider component={Toast}>
-                <StateProvider>
-                  <AppStatusLoader config={config}>
-                    <ExpandNodeProvider>{children}</ExpandNodeProvider>
-                  </AppStatusLoader>
-                </StateProvider>
-              </NotificationProvider>
-            </ThemeProvider>
-          </MantineEmotionProvider>
-        </MantineProvider>
+        <TooltipProvider delayDuration={200}>
+          <MantineProvider stylesTransform={emotionTransform}>
+            <MantineEmotionProvider>
+              <ThemeProvider>
+                <NotificationProvider component={Toast}>
+                  <StateProvider>
+                    <AppStatusLoader config={config}>
+                      <ExpandNodeProvider>{children}</ExpandNodeProvider>
+                    </AppStatusLoader>
+                  </StateProvider>
+                </NotificationProvider>
+              </ThemeProvider>
+            </MantineEmotionProvider>
+          </MantineProvider>
+        </TooltipProvider>
       </QueryClientProvider>
     </ErrorBoundary>
   );

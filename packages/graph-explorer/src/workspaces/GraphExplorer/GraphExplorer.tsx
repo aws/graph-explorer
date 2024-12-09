@@ -20,7 +20,7 @@ import {
   SearchIcon,
 } from "@/components/icons";
 import GridIcon from "@/components/icons/GridIcon";
-import Workspace from "@/components/Workspace";
+import Workspace, { SidebarButton } from "@/components/Workspace";
 import { useConfiguration, useWithTheme } from "@/core";
 import { totalFilteredCount } from "@/core/StateProvider/filterCount";
 import {
@@ -145,7 +145,6 @@ const GraphExplorer = () => {
                 ? "Hide Graph View"
                 : "Show Graph View"
             }
-            tooltipPlacement="bottom-center"
             variant={toggles.has("graph-viewer") ? "filled" : "text"}
             icon={<GraphIcon />}
             onClick={toggleView("graph-viewer")}
@@ -154,7 +153,6 @@ const GraphExplorer = () => {
             tooltipText={
               toggles.has("table-view") ? "Hide Table View" : "Show Table View"
             }
-            tooltipPlacement="bottom-center"
             variant={toggles.has("table-view") ? "filled" : "text"}
             icon={<GridIcon />}
             onClick={toggleView("table-view")}
@@ -215,45 +213,45 @@ const GraphExplorer = () => {
       </Workspace.Content>
 
       <Workspace.SideBar direction="row">
-        <Workspace.SideBar.Button
+        <SidebarButton
           title="Search"
           icon={<SearchIcon />}
           onPressedChange={toggleSidebar("search")}
           pressed={userLayout.activeSidebarItem === "search"}
         />
-        <Workspace.SideBar.Button
+        <SidebarButton
           title="Details"
           icon={<DetailsIcon />}
           onPressedChange={toggleSidebar("details")}
           pressed={userLayout.activeSidebarItem === "details"}
         />
-        <Workspace.SideBar.Button
+        <SidebarButton
           title="Filters"
           icon={<FilterIcon />}
           onPressedChange={toggleSidebar("filters")}
           badge={filteredEntitiesCount > 0}
           pressed={userLayout.activeSidebarItem === "filters"}
         />
-        <Workspace.SideBar.Button
+        <SidebarButton
           title="Expand"
           icon={<ExpandGraphIcon />}
           onPressedChange={toggleSidebar("expand")}
           pressed={userLayout.activeSidebarItem === "expand"}
         />
-        <Workspace.SideBar.Button
+        <SidebarButton
           title={t("nodes-styling.title")}
           icon={<GraphIcon />}
           onPressedChange={toggleSidebar("nodes-styling")}
           pressed={userLayout.activeSidebarItem === "nodes-styling"}
         />
-        <Workspace.SideBar.Button
+        <SidebarButton
           title={t("edges-styling.title")}
           icon={<EdgeIcon />}
           onPressedChange={toggleSidebar("edges-styling")}
           pressed={userLayout.activeSidebarItem === "edges-styling"}
         />
         {hasNamespaces && (
-          <Workspace.SideBar.Button
+          <SidebarButton
             title="Namespaces"
             icon={<NamespaceIcon />}
             onPressedChange={toggleSidebar("namespaces")}
