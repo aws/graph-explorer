@@ -1,36 +1,33 @@
 import { cn } from "@/utils";
 import { ColorPicker, ColorPickerProps } from "@mantine/core";
-import { FC, useEffect, useState } from "react";
-import { useWithTheme } from "@/core";
+import { useEffect, useState } from "react";
 import {
   Input,
   InputProps,
-  UseLayer,
-  UseLayerOverlay,
-  UseLayerTrigger,
-} from "../index";
-import defaultStyles, { colorPickerStyle } from "./ColorInput.style";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components";
 
 const validHexColorRegex = /^#([0-9a-f]{3}){1,2}$/i;
 
-export type ColorInputProps = Pick<InputProps, "label" | "labelPlacement"> & {
+export interface ColorInputProps
+  extends Pick<InputProps, "label" | "labelPlacement">,
+    ColorPickerProps {
   startColor?: string;
   onChange(color: string): void;
-};
+}
 
-const ColorInput: FC<ColorInputProps & ColorPickerProps> = ({
+function ColorInput({
   className,
   startColor = "#128ee5",
   onChange,
   label,
   labelPlacement,
   ...props
-}) => {
-  const styleWithTheme = useWithTheme();
-
+}: ColorInputProps) {
   const [lastColor, setLastColor] = useState<string>(startColor);
   const [color, setColor] = useState<string>(startColor);
-  const [colorPickerOpen, setColorPickerOpen] = useState<boolean>(false);
 
   if (lastColor !== startColor) {
     setLastColor(startColor);
@@ -48,49 +45,36 @@ const ColorInput: FC<ColorInputProps & ColorPickerProps> = ({
   }, [startColor, color, lastColor, onChange]);
 
   return (
-    <div className={cn(styleWithTheme(defaultStyles), className)}>
-      <div className="color-input">
-        <UseLayer
-          onClose={() => setColorPickerOpen(false)}
-          isOpen={colorPickerOpen}
-          placement="bottom-start"
-        >
-          <UseLayerTrigger>
-            <Input
-              label={label}
-              labelPlacement={labelPlacement}
-              aria-label="color-input"
-              className="input"
-              onClick={() => setColorPickerOpen(true)}
-              type="text"
-              value={color}
-              onChange={(newColor: string) => setColor(newColor)}
-              endAdornment={
-                <div
-                  onClick={() => setColorPickerOpen(true)}
-                  style={{
-                    backgroundColor: startColor,
-                    height: "60%",
-                    aspectRatio: "1",
-                    borderRadius: "4px",
-                  }}
-                />
-              }
-            />
-          </UseLayerTrigger>
-          <UseLayerOverlay>
-            <div className={styleWithTheme(colorPickerStyle)}>
-              <ColorPicker
-                onChange={(newColor: string) => setColor(newColor)}
-                value={color}
-                {...props}
-              />
-            </div>
-          </UseLayerOverlay>
-        </UseLayer>
-      </div>
-    </div>
+    <Popover>
+      <PopoverTrigger asChild>
+        <div className={cn("relative", className)}>
+          <Input
+            label={label}
+            labelPlacement={labelPlacement}
+            aria-label="color-input"
+            type="text"
+            value={color}
+            noMargin
+            hideError
+            onChange={(newColor: string) => setColor(newColor)}
+          />
+          <div
+            className="pointer-events-none absolute inset-y-2.5 right-2.5 aspect-square rounded"
+            style={{
+              backgroundColor: startColor,
+            }}
+          />
+        </div>
+      </PopoverTrigger>
+      <PopoverContent side="bottom" align="start">
+        <ColorPicker
+          onChange={(newColor: string) => setColor(newColor)}
+          value={color}
+          {...props}
+        />
+      </PopoverContent>
+    </Popover>
   );
-};
+}
 
 export default ColorInput;

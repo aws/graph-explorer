@@ -54,9 +54,6 @@ export * from "./Select";
 export * from "./Tooltip";
 export * from "./Typography";
 
-export { default as UseLayer } from "./UseLayer";
-export * from "./UseLayer";
-
 export { default as VertexIcon } from "./VertexIcon";
 export * from "./VertexIcon";
 
