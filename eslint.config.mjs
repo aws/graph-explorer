@@ -71,6 +71,7 @@ export default [
       "react/react-in-jsx-scope": "off",
       "react/prop-types": "off",
       "react/display-name": "off",
+      "react/jsx-curly-brace-presence": "error",
 
       // Hooks
       "react-hooks/rules-of-hooks": "error",
