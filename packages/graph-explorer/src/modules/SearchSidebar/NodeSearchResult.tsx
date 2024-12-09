@@ -1,5 +1,11 @@
 import { Vertex } from "@/@types/entities";
-import { Button, Tooltip, VertexRow } from "@/components";
+import {
+  Button,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  VertexRow,
+} from "@/components";
 import {
   useAddToGraph,
   useHasNodeBeenAddedToGraph,
@@ -38,29 +44,31 @@ export function NodeSearchResult({ node }: { node: Vertex }) {
           <ChevronRightIcon className="text-primary-dark/50 size-5 transition-transform duration-200 ease-in-out group-data-[expanded=true]:rotate-90" />
         </div>
         <VertexRow vertex={displayNode} className="grow" />
-        <Tooltip
-          text={hasBeenAdded ? "Remove node from view" : "Add node to view"}
-          delayEnter={200}
-        >
-          <div className="flex size-8 shrink-0 items-center justify-center">
-            {hasBeenAdded ? (
-              <Button
-                icon={<MinusCircleIcon />}
-                variant="text"
-                onPress={removeFromGraph}
-              >
-                <span className="sr-only">Remove node from view</span>
-              </Button>
-            ) : (
-              <Button
-                icon={<PlusCircleIcon />}
-                variant="text"
-                onPress={addToGraph}
-              >
-                <span className="sr-only">Add node to view</span>
-              </Button>
-            )}
-          </div>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="flex size-8 shrink-0 items-center justify-center">
+              {hasBeenAdded ? (
+                <Button
+                  icon={<MinusCircleIcon />}
+                  variant="text"
+                  onPress={removeFromGraph}
+                >
+                  <span className="sr-only">Remove node from view</span>
+                </Button>
+              ) : (
+                <Button
+                  icon={<PlusCircleIcon />}
+                  variant="text"
+                  onPress={addToGraph}
+                >
+                  <span className="sr-only">Add node to view</span>
+                </Button>
+              )}
+            </div>
+          </TooltipTrigger>
+          <TooltipContent>
+            {hasBeenAdded ? "Remove node from view" : "Add node to view"}
+          </TooltipContent>
         </Tooltip>
       </div>
       <div className="border-background-secondary px-8 transition-all group-data-[expanded=false]:h-0 group-data-[expanded=true]:h-auto group-data-[expanded=true]:border-t">

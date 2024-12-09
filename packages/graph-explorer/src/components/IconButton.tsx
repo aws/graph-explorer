@@ -1,9 +1,9 @@
 import { cn } from "@/utils";
 import type { ComponentPropsWithoutRef, ForwardedRef, ReactNode } from "react";
 import { forwardRef } from "react";
-import type { TooltipProps } from "./Tooltip";
-import Tooltip from "./Tooltip/Tooltip";
 import { cva, type VariantProps } from "cva";
+import { Tooltip, TooltipContent } from "@/components";
+import { TooltipTrigger } from "@radix-ui/react-tooltip";
 
 const iconButtonVariants = cva({
   base: "focus-visible:ring-ring inline-flex shrink-0 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-1 disabled:pointer-events-none disabled:opacity-50 disabled:saturate-0 [&_svg]:pointer-events-none [&_svg]:shrink-0",
@@ -55,15 +55,13 @@ export interface IconButtonProps
   extends Omit<ComponentPropsWithoutRef<"button">, "color">,
     VariantProps<typeof iconButtonVariants> {
   icon: ReactNode;
-  tooltipText?: TooltipProps["text"];
-  tooltipPlacement?: TooltipProps["placement"];
+  tooltipText?: React.ReactNode;
 }
 
 export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
   (
     {
       tooltipText,
-      tooltipPlacement,
       variant,
       size,
       color,
@@ -86,12 +84,9 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
 
     if (tooltipText) {
       return (
-        <Tooltip
-          text={tooltipText}
-          placement={tooltipPlacement}
-          delayEnter={400}
-        >
-          {component}
+        <Tooltip>
+          <TooltipTrigger asChild>{component}</TooltipTrigger>
+          <TooltipContent>{tooltipText}</TooltipContent>
         </Tooltip>
       );
     }

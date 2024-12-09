@@ -26,7 +26,11 @@ export function ExternalExportControl<T extends Record<string, unknown>>({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <IconButton variant="text" icon={<TrayArrowIcon />} />
+        <IconButton
+          variant="text"
+          icon={<TrayArrowIcon />}
+          tooltipText="Export table"
+        />
       </PopoverTrigger>
       <PopoverContent side="right" className="w-72">
         <ExportOptionsModal
