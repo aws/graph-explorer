@@ -3,11 +3,9 @@ import type { PropsWithChildren, ReactElement } from "react";
 import { useMemo } from "react";
 import getChildOfType from "@/utils/getChildOfType";
 import getChildrenOfType from "@/utils/getChildrenOfType";
-import { SidebarButton } from "@/components/Workspace/components/SidebarButton";
 import WorkspaceSideBarContent from "./WorkspaceSideBarContent";
 
 interface WorkspaceSideBarComposition {
-  Button: typeof SidebarButton;
   Content: typeof WorkspaceSideBarContent;
 }
 
@@ -52,7 +50,6 @@ const WorkspaceSideBar = ({
 
 WorkspaceSideBar.displayName = "WorkspaceSideBar";
 
-WorkspaceSideBar.Button = SidebarButton;
 WorkspaceSideBar.Content = WorkspaceSideBarContent;
 
 export default WorkspaceSideBar as ((
