@@ -138,11 +138,7 @@ export const ColumnSettingsControl = <T extends Record<string, unknown>>({
                       })}
                       {provided.placeholder}
                       <div className="action-item">
-                        <Button
-                          variant="text"
-                          size="small"
-                          onPress={onReset}
-                        >
+                        <Button variant="text" size="small" onPress={onReset}>
                           Reset
                         </Button>
                       </div>

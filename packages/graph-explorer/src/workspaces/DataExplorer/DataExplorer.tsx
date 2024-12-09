@@ -116,11 +116,7 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
         </Workspace.TopBar.Version>
         <Workspace.TopBar.AdditionalControls>
           <Link to="/graph-explorer">
-            <Button
-              className="button"
-              icon={<ExplorerIcon />}
-              variant="filled"
-            >
+            <Button className="button" icon={<ExplorerIcon />} variant="filled">
               Open {APP_NAME}
             </Button>
           </Link>

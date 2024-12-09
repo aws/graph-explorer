@@ -161,11 +161,7 @@ const GraphExplorer = () => {
           />
           <div className="v-divider" />
           <Link to="/connections">
-            <Button
-              className="button"
-              icon={<DatabaseIcon />}
-              variant="filled"
-            >
+            <Button className="button" icon={<DatabaseIcon />} variant="filled">
               Open Connections
             </Button>
           </Link>
