@@ -28,7 +28,7 @@ export function ExternalExportControl<T extends Record<string, unknown>>({
       <PopoverTrigger asChild>
         <IconButton variant="text" icon={<TrayArrowIcon />} />
       </PopoverTrigger>
-      <PopoverContent side="right">
+      <PopoverContent side="right" className="w-72">
         <ExportOptionsModal
           instance={instance}
           omittedColumnsIds={omittedColumnsIds}
