@@ -81,7 +81,7 @@ const UseLayer = forwardRef<HTMLDivElement, PropsWithChildren<UseLayerProps>>(
         className={cn("layer-container", className)}
         style={{ display: "inline-block" }}
       >
-        <div {...triggerProps} className={"trigger-container"}>
+        <div {...triggerProps} className="trigger-container">
           {triggerChild}
         </div>
         {renderLayer(
@@ -91,10 +91,10 @@ const UseLayer = forwardRef<HTMLDivElement, PropsWithChildren<UseLayerProps>>(
               ...layerProps.style,
               zIndex: 9999,
             }}
-            className={"overlay-container"}
+            className="overlay-container"
           >
             {layerOptions.isOpen && (
-              <div className={"overlay-inner-container"}>
+              <div className="overlay-inner-container">
                 {showArrow && <Arrow {...layerArrowProps} {...arrowProps} />}
                 {overlayChild}
               </div>

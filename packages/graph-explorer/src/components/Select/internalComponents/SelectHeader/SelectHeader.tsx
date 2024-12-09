@@ -20,8 +20,8 @@ const SelectHeader = ({
   }
   return (
     <div className={cn(styleWithTheme(defaultStyles), className)}>
-      {title && <div className={"select-header-title"}>{title}</div>}
-      {subtitle && <div className={"select-header-subtitle"}>{subtitle}</div>}
+      {title && <div className="select-header-title">{title}</div>}
+      {subtitle && <div className="select-header-subtitle">{subtitle}</div>}
     </div>
   );
 };

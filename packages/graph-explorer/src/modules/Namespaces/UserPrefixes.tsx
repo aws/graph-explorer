@@ -67,9 +67,9 @@ const UserPrefixes = () => {
             subtitle: prefixConfig.uri,
             endAdornment: (
               <IconButton
-                variant={"text"}
-                size={"small"}
-                color={"error"}
+                variant="text"
+                size="small"
+                color="error"
                 icon={<DeleteIcon />}
                 onClick={onDeletePrefix(prefixConfig.prefix)}
               />
@@ -136,18 +136,18 @@ const UserPrefixes = () => {
     <div className={styleWithTheme(defaultStyles)}>
       {items.length === 0 && (
         <PanelEmptyState
-          title={"No Namespaces"}
-          subtitle={"No Custom Namespaces stored"}
+          title="No Namespaces"
+          subtitle="No Custom Namespaces stored"
           icon={<NamespaceIcon />}
-          actionLabel={"Start creating a new namespace"}
+          actionLabel="Start creating a new namespace"
           onAction={() => setOpened(true)}
           actionVariant="text"
         />
       )}
       {items.length > 0 && (
         <AdvancedList
-          className={"advanced-list"}
-          searchPlaceholder={"Search for Namespaces or URIs"}
+          className="advanced-list"
+          searchPlaceholder="Search for Namespaces or URIs"
           search={search}
           onSearch={setSearch}
           items={items}
@@ -157,10 +157,10 @@ const UserPrefixes = () => {
         />
       )}
       {items.length > 0 && (
-        <div className={"actions"}>
+        <div className="actions">
           <Button
             icon={<AddIcon />}
-            variant={"filled"}
+            variant="filled"
             onPress={() => setOpened(true)}
           >
             Create
@@ -171,30 +171,30 @@ const UserPrefixes = () => {
         opened={opened}
         onClose={() => setOpened(false)}
         centered={true}
-        title={"Create a new Namespace"}
+        title="Create a new Namespace"
         className={styleWithTheme(modalDefaultStyles)}
       >
         <div>
           <Input
-            label={"Namespace"}
+            label="Namespace"
             value={form.prefix}
             onChange={onFormChange("prefix")}
-            placeholder={"Namespace"}
+            placeholder="Namespace"
             validationState={hasError && !form.prefix ? "invalid" : "valid"}
-            errorMessage={"Namespace is required"}
+            errorMessage="Namespace is required"
           />
           <Input
-            className={"input-uri"}
-            label={"URI"}
+            className="input-uri"
+            label="URI"
             value={form.uri}
             onChange={onFormChange("uri")}
-            placeholder={"URI"}
+            placeholder="URI"
             validationState={hasError && !form.uri ? "invalid" : "valid"}
-            errorMessage={"URI is required"}
+            errorMessage="URI is required"
           />
         </div>
-        <div className={"actions"}>
-          <Button icon={<SaveIcon />} variant={"filled"} onPress={onSubmit}>
+        <div className="actions">
+          <Button icon={<SaveIcon />} variant="filled" onPress={onSubmit}>
             Save
           </Button>
         </div>

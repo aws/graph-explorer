@@ -101,8 +101,8 @@ export const ColumnSettingsControl = <T extends Record<string, unknown>>({
   return (
     <div id="columns-settings-control" className={rootStyles()}>
       <IconButton
-        variant={"text"}
-        size={"base"}
+        variant="text"
+        size="base"
         icon={<ManageColumnsIcon />}
         onClick={() => setIsContentVisible(visible => !visible)}
         {...triggerProps}
@@ -110,14 +110,14 @@ export const ColumnSettingsControl = <T extends Record<string, unknown>>({
       {renderLayer(
         <div {...layerProps} className={cn(defaultStyles(), className)}>
           {isContentVisible && (
-            <Card className={"card"}>
+            <Card className="card">
               <DragDropContext onDragEnd={onDragEnd}>
                 <Droppable droppableId="columns-list">
                   {provided => (
                     <div
                       ref={provided.innerRef}
                       {...provided.droppableProps}
-                      className={"columns-list"}
+                      className="columns-list"
                     >
                       {columnOrder.map((columnId, index) => {
                         const currentColumn = columns.find(
@@ -137,12 +137,8 @@ export const ColumnSettingsControl = <T extends Record<string, unknown>>({
                         );
                       })}
                       {provided.placeholder}
-                      <div className={"action-item"}>
-                        <Button
-                          variant={"text"}
-                          size={"small"}
-                          onPress={onReset}
-                        >
+                      <div className="action-item">
+                        <Button variant="text" size="small" onPress={onReset}>
                           Reset
                         </Button>
                       </div>

@@ -40,8 +40,8 @@ export const TextFilter =
         <div className={defaultStyles(activeTheme?.isDarkTheme)}>
           <Input
             aria-label={`filter by ${column.id}`}
-            className={"input-root"}
-            type={"text"}
+            className="input-root"
+            type="text"
             size="sm"
             noMargin
             hideError
@@ -55,7 +55,7 @@ export const TextFilter =
                 : column.setFilter(undefined);
             }}
             startAdornment={
-              <div className={"start-adornment"}>
+              <div className="start-adornment">
                 {startAdornment || <FilterIcon />}
               </div>
             }

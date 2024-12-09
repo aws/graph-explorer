@@ -25,22 +25,22 @@ const ColumnItem = <T extends object>({
         <div
           ref={provided.innerRef}
           {...provided.draggableProps}
-          className={"column-item"}
+          className="column-item"
         >
-          <div className={"column-item-switch"}>
+          <div className="column-item-switch">
             <Switch
-              size={"sm"}
+              size="sm"
               isSelected={visibleColumns[columnId] || false}
               onChange={() => toggleHideColumn(columnId)}
               isDisabled={column.definition?.unhideable}
             >
-              <div className={"column-item-label"}>
+              <div className="column-item-label">
                 {column.instance.render("Header")}
               </div>
             </Switch>
           </div>
           <div
-            className={"column-item-drag-handler"}
+            className="column-item-drag-handler"
             {...provided.dragHandleProps}
           >
             <DragIcon />

@@ -54,15 +54,15 @@ const EntityDetails = ({ onClose }: EntityDetailsProps) => {
         {isEmptySelection && (
           <PanelEmptyState
             icon={<GraphIcon />}
-            title={"Empty Selection"}
-            subtitle={"Select an entity to see its details"}
+            title="Empty Selection"
+            subtitle="Select an entity to see its details"
           />
         )}
         {isMultiSelection && (
           <PanelEmptyState
             icon={<GraphIcon />}
-            title={"Multiple Selection"}
-            subtitle={"Select a single entity to see its details"}
+            title="Multiple Selection"
+            subtitle="Select a single entity to see its details"
           />
         )}
         {!isMultiSelection && selectedNodes.length === 1 && selectedNode && (

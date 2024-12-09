@@ -14,7 +14,7 @@ export default function PanelError({
   const displayError = createDisplayError(error);
   return (
     <PanelEmptyState
-      variant={"error"}
+      variant="error"
       icon={<GraphIcon />}
       title={displayError.title}
       subtitle={displayError.message}

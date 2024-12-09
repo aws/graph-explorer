@@ -141,18 +141,18 @@ export const PaginationControl: FunctionComponent<PaginationControlProps> = ({
   return (
     <div className={cn(defaultStyles(), className)}>
       {totalRows > 0 && (
-        <div className={"pagination-totals"}>
+        <div className="pagination-totals">
           Displaying {pageRange} of{" "}
           <HumanReadableNumberFormatter value={totalRows} /> results
         </div>
       )}
-      {totalRows === 0 && <div className={"pagination-totals"}>No results</div>}
+      {totalRows === 0 && <div className="pagination-totals">No results</div>}
       {totalRows > 0 && (
-        <div className={"pagination-controls"}>
+        <div className="pagination-controls">
           <Select
             label="Page size:"
             labelPlacement="left"
-            className={"page-options-menu"}
+            className="page-options-menu"
             options={pageOptions.map(pageOption => ({
               label: pageOption.toString(),
               value: pageOption.toString(),
@@ -164,26 +164,26 @@ export const PaginationControl: FunctionComponent<PaginationControlProps> = ({
           />
           <IconButton
             disabled={pageIndex - 1 < 0}
-            variant={"text"}
-            size={"small"}
+            variant="text"
+            size="small"
             className={cn("page-button", "page-control")}
             icon={<SkipBackwardIcon />}
             onClick={() => onPageIndexChange(0)}
           />
           <IconButton
             disabled={pageIndex - 1 < 0}
-            variant={"text"}
-            size={"small"}
+            variant="text"
+            size="small"
             className={cn("page-button", "page-control")}
             icon={<BackwardIcon />}
             onClick={() => onPageIndexChange(pageIndex - 1)}
           />
-          <div className={"page-viz"}>
+          <div className="page-viz">
             {pagesToRender.map(page => {
               return (
                 <Button
                   key={page}
-                  className={"page-button"}
+                  className="page-button"
                   variant={
                     pageIndex === parseInt(page) - 1 ? "filled" : "default"
                   }
@@ -197,15 +197,15 @@ export const PaginationControl: FunctionComponent<PaginationControlProps> = ({
           </div>
           <IconButton
             disabled={pageIndex + 1 >= pageCount}
-            variant={"text"}
-            size={"small"}
+            variant="text"
+            size="small"
             className={cn("page-button", "page-control")}
             icon={<ForwardIcon />}
             onClick={() => onPageIndexChange(pageIndex + 1)}
           />
           <IconButton
             disabled={pageIndex + 1 >= pageCount}
-            variant={"text"}
+            variant="text"
             className={cn("page-button", "page-control")}
             icon={<SkipForwardIcon />}
             onClick={() => onPageIndexChange(pageCount - 1)}

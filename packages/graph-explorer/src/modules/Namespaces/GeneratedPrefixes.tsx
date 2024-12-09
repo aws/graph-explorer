@@ -33,14 +33,14 @@ const GeneratedPrefixes = () => {
     <div className={styleWithTheme(defaultStyles)}>
       {items.length === 0 && (
         <PanelEmptyState
-          title={"No Namespaces"}
-          subtitle={"No automatically generated Namespaces"}
+          title="No Namespaces"
+          subtitle="No automatically generated Namespaces"
           icon={<NamespaceIcon />}
         />
       )}
       {items.length > 0 && (
         <AdvancedList
-          searchPlaceholder={"Search for Namespaces or URIs"}
+          searchPlaceholder="Search for Namespaces or URIs"
           search={search}
           onSearch={setSearch}
           items={items}

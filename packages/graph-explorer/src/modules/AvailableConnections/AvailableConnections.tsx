@@ -115,7 +115,7 @@ const AvailableConnections = ({
         <PanelHeaderActions>
           <FileButton
             onChange={payload => payload && onConfigImport(payload)}
-            accept={"application/json"}
+            accept="application/json"
           >
             {props => (
               <PanelHeaderActionButton

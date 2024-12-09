@@ -81,11 +81,11 @@ export const ListItem = (
       {...allProps}
     >
       {startAdornment && (
-        <div className={"start-adornment"}>{startAdornment}</div>
+        <div className="start-adornment">{startAdornment}</div>
       )}
-      <div className={"content"}>
-        <div className={"primary"}>{children}</div>
-        <div className={"secondary"}>{secondary}</div>
+      <div className="content">
+        <div className="primary">{children}</div>
+        <div className="secondary">{secondary}</div>
       </div>
       {endAdornment && <div className="end-adornment">{endAdornment}</div>}
     </div>

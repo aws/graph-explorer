@@ -15,7 +15,7 @@ const TabularHeader = <T extends object>({
   const { key, ...otherProps } = headerGroup.getHeaderGroupProps();
 
   return (
-    <div key={key} {...otherProps} className={"row"}>
+    <div key={key} {...otherProps} className="row">
       {headerGroup.headers.map(column => {
         const { key, style, ...restHeaderProps } = column.getHeaderProps(
           column.getSortByToggleProps({
@@ -56,7 +56,7 @@ const TabularHeader = <T extends object>({
               </div>
               <div>
                 <div
-                  className={"header-label-sorter"}
+                  className="header-label-sorter"
                   style={{
                     opacity: column.isSorted ? 1 : 0,
                     transform: column.isSortedDesc ? "unset" : "rotate(180deg)",
@@ -67,12 +67,12 @@ const TabularHeader = <T extends object>({
               </div>
             </div>
             {column.canFilter && (
-              <div className={"header-filter"}>{column.render("Filter")}</div>
+              <div className="header-filter">{column.render("Filter")}</div>
             )}
             {column.canResize && (
               <div
                 {...(column.getResizerProps?.() || {})}
-                className={"col-resizer"}
+                className="col-resizer"
               />
             )}
           </div>

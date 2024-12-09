@@ -90,14 +90,14 @@ export default function SingleEdgeStyling({
 
   return (
     <div className={cn(styleWithTheme(defaultStyles), className)} {...rest}>
-      <div className={"title"}>
-        <div className={"edge-name"}>{edgeType}</div>
+      <div className="title">
+        <div className="edge-name">{edgeType}</div>
       </div>
-      <div className={"label-container"}>
+      <div className="label-container">
         <Input
-          className={"label-display"}
-          label={"Display As"}
-          labelPlacement={"inner"}
+          className="label-display"
+          label="Display As"
+          labelPlacement="inner"
           value={displayAs}
           onChange={setDisplayAs}
           hideError={true}
@@ -105,8 +105,8 @@ export default function SingleEdgeStyling({
         />
         <Button
           icon={<StylingIcon />}
-          variant={"text"}
-          size={"small"}
+          variant="text"
+          size="small"
           onPress={onOpen}
         >
           Customize
@@ -126,13 +126,13 @@ export default function SingleEdgeStyling({
           backgroundOpacity: 0.1,
         }}
       >
-        <div className={"modal-container"}>
+        <div className="modal-container">
           <div>
             <p>Display Attributes</p>
-            <div className={"attrs-container"}>
+            <div className="attrs-container">
               <Select
-                label={"Display Name Attribute"}
-                labelPlacement={"inner"}
+                label="Display Name Attribute"
+                labelPlacement="inner"
                 value={etConfig.displayNameAttribute || "type"}
                 onChange={value =>
                   onUserPrefsChange({ displayNameAttribute: value as string })
@@ -145,19 +145,19 @@ export default function SingleEdgeStyling({
           </div>
           <div>
             <p>Label Styling</p>
-            <div className={"attrs-container"}>
+            <div className="attrs-container">
               <ColorInput
-                label={"Color"}
-                labelPlacement={"inner"}
+                label="Color"
+                labelPlacement="inner"
                 startColor={edgePreferences?.labelColor || "#17457b"}
                 onChange={(color: string) =>
                   onUserPrefsChange({ labelColor: color })
                 }
               />
               <Input
-                label={"Background Opacity"}
-                labelPlacement={"inner"}
-                type={"number"}
+                label="Background Opacity"
+                labelPlacement="inner"
+                type="number"
                 min={0}
                 max={1}
                 step={0.1}
@@ -171,19 +171,19 @@ export default function SingleEdgeStyling({
             </div>
           </div>
           <div>
-            <div className={"attrs-container"}>
+            <div className="attrs-container">
               <ColorInput
-                label={"Border Color"}
-                labelPlacement={"inner"}
+                label="Border Color"
+                labelPlacement="inner"
                 startColor={edgePreferences?.labelBorderColor || "#17457b"}
                 onChange={(color: string) =>
                   onUserPrefsChange({ labelBorderColor: color })
                 }
               />
               <Input
-                label={"Border Width"}
-                labelPlacement={"inner"}
-                type={"number"}
+                label="Border Width"
+                labelPlacement="inner"
+                type="number"
                 min={0}
                 value={edgePreferences?.labelBorderWidth ?? 0}
                 onChange={(value: number) =>
@@ -193,8 +193,8 @@ export default function SingleEdgeStyling({
                 noMargin={true}
               />
               <Select
-                label={"Border Style"}
-                labelPlacement={"inner"}
+                label="Border Style"
+                labelPlacement="inner"
                 value={edgePreferences?.labelBorderStyle || "solid"}
                 onChange={value =>
                   onUserPrefsChange({ labelBorderStyle: value as LineStyle })
@@ -207,19 +207,19 @@ export default function SingleEdgeStyling({
           </div>
           <div>
             <p>Line Styling</p>
-            <div className={"attrs-container"}>
+            <div className="attrs-container">
               <ColorInput
-                label={"Color"}
-                labelPlacement={"inner"}
+                label="Color"
+                labelPlacement="inner"
                 startColor={edgePreferences?.lineColor || "#b3b3b3"}
                 onChange={(color: string) =>
                   onUserPrefsChange({ lineColor: color })
                 }
               />
               <Input
-                label={"Thickness"}
-                labelPlacement={"inner"}
-                type={"number"}
+                label="Thickness"
+                labelPlacement="inner"
+                type="number"
                 min={1}
                 value={edgePreferences?.lineThickness || 2}
                 onChange={(value: number) =>
@@ -229,8 +229,8 @@ export default function SingleEdgeStyling({
                 noMargin={true}
               />
               <Select
-                label={"Style"}
-                labelPlacement={"inner"}
+                label="Style"
+                labelPlacement="inner"
                 value={edgePreferences?.lineStyle || "solid"}
                 onChange={value =>
                   onUserPrefsChange({ lineStyle: value as LineStyle })
@@ -243,10 +243,10 @@ export default function SingleEdgeStyling({
           </div>
           <div>
             <p>Arrows Styling</p>
-            <div className={"attrs-container"}>
+            <div className="attrs-container">
               <Select
-                label={"Source"}
-                labelPlacement={"inner"}
+                label="Source"
+                labelPlacement="inner"
                 value={edgePreferences?.sourceArrowStyle || "none"}
                 onChange={value =>
                   onUserPrefsChange({ sourceArrowStyle: value as ArrowStyle })
@@ -256,8 +256,8 @@ export default function SingleEdgeStyling({
                 noMargin={true}
               />
               <Select
-                label={"Target"}
-                labelPlacement={"inner"}
+                label="Target"
+                labelPlacement="inner"
                 value={edgePreferences?.targetArrowStyle || "triangle"}
                 onChange={value =>
                   onUserPrefsChange({ targetArrowStyle: value as ArrowStyle })
@@ -268,7 +268,7 @@ export default function SingleEdgeStyling({
               />
             </div>
           </div>
-          <div className={"actions"}>
+          <div className="actions">
             <Button onPress={onUserPrefsReset}>Reset to Default</Button>
           </div>
         </div>

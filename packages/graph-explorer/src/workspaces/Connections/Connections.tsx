@@ -63,9 +63,9 @@ const Connections = () => {
             >
               <Button
                 isDisabled={!activeConfig || !config?.schema?.lastUpdate}
-                className={"button"}
+                className="button"
                 icon={<ExplorerIcon />}
-                variant={"filled"}
+                variant="filled"
               >
                 Open {APP_NAME}
               </Button>

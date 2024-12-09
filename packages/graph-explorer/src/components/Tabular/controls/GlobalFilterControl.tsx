@@ -41,13 +41,13 @@ export const GlobalFilterControl: FunctionComponent = () => {
   return (
     <div className={defaultStyles(isDarkTheme)}>
       <Input
-        aria-label={"global filter"}
-        className={"global-filter-input-root"}
-        type={"text"}
+        aria-label="global filter"
+        className="global-filter-input-root"
+        type="text"
         noMargin
         hideError
         size="sm"
-        placeholder={"Search..."}
+        placeholder="Search..."
         value={(instance?.globalFilter as string) || ""}
         onChange={value => {
           // do not use value || undefined because
@@ -57,7 +57,7 @@ export const GlobalFilterControl: FunctionComponent = () => {
             : instance?.setGlobalFilter(undefined);
         }}
         startAdornment={
-          <div className={"global-filter-start-adornment"}>
+          <div className="global-filter-start-adornment">
             <SearchIcon />
           </div>
         }

@@ -48,7 +48,7 @@ function ExpandSidebarContent({ id }: { id: VertexId }) {
 
   if (query.isPending) {
     return (
-      <PanelEmptyState icon={<LoadingSpinner />} title={"Loading Neighbors"} />
+      <PanelEmptyState icon={<LoadingSpinner />} title="Loading Neighbors" />
     );
   }
 
@@ -102,7 +102,7 @@ function ExpansionOptions({
   if (!hasUnfetchedNeighbors) {
     return (
       <PanelEmptyState
-        className={"empty-panel-state"}
+        className="empty-panel-state"
         icon={<GraphIcon />}
         title={t("node-expand.no-unfetched-title")}
         subtitle={t("node-expand.no-unfetched-subtitle")}
@@ -161,7 +161,7 @@ function ExpandButton({
           <ExpandGraphIcon />
         )
       }
-      variant={"filled"}
+      variant="filled"
       isDisabled={isPending || isDisabled}
       onPress={() => expandNode(vertex, filters)}
     >

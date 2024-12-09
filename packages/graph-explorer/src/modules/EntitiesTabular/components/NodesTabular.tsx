@@ -144,7 +144,7 @@ const NodesTabular = forwardRef<TabularInstance<ToggleVertex>, any>(
       <Tabular
         ref={ref}
         fullWidth
-        rowSelectionMode={"row"}
+        rowSelectionMode="row"
         selectedRowIds={selectedRowsIds}
         toggleRowSelected={onSelectRows}
         data={data}

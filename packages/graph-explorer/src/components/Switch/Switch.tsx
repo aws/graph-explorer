@@ -79,8 +79,8 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(
             }
           )}
         >
-          <div className={"switch-track"}>
-            <div className={"switch-handle"}>
+          <div className="switch-track">
+            <div className="switch-handle">
               {isSelected && onIcon} {!isSelected && offIcon}
             </div>
           </div>

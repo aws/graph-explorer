@@ -22,7 +22,7 @@ const CommonPrefixes = () => {
   return (
     <div className={styleWithTheme(defaultStyles)}>
       <AdvancedList
-        searchPlaceholder={"Search for Namespaces or URIs"}
+        searchPlaceholder="Search for Namespaces or URIs"
         search={search}
         onSearch={setSearch}
         items={COMMON_PREFIXES_ITEMS}

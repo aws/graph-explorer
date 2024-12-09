@@ -42,7 +42,7 @@ export const HumanReadableNumberFormatter = forwardRef<
         {!!unit && unitPlacement === "start" && (
           <div className={cn(unitStyles, `unit`)}>{unit}</div>
         )}
-        <div className={`number`}>{!noFormat ? formattedValue : value}</div>
+        <div className="number">{!noFormat ? formattedValue : value}</div>
         {!noFormat && symbol && (
           <div className={cn(symbolStyles, `symbol`)}>{symbol}</div>
         )}
