@@ -26,7 +26,7 @@ import defaultStyles from "./SingleEdgeStyling.style";
 import modalDefaultStyles from "./SingleEdgeStylingModal.style";
 import { useEdgeTypeConfig } from "@/core/ConfigurationProvider/useConfiguration";
 import { useDebounceValue, usePrevious } from "@/hooks";
-import { cn } from "@/utils";
+import { cn, RESERVED_TYPES_PROPERTY } from "@/utils";
 
 export type SingleEdgeStylingProps = {
   edgeType: string;
@@ -62,7 +62,7 @@ export default function SingleEdgeStyling({
 
     options.unshift({
       label: t("edges-styling.edge-type"),
-      value: "type",
+      value: RESERVED_TYPES_PROPERTY,
     });
 
     return options;
@@ -133,7 +133,7 @@ export default function SingleEdgeStyling({
               <Select
                 label="Display Name Attribute"
                 labelPlacement="inner"
-                value={etConfig.displayNameAttribute || "type"}
+                value={etConfig.displayNameAttribute || RESERVED_TYPES_PROPERTY}
                 onChange={value =>
                   onUserPrefsChange({ displayNameAttribute: value as string })
                 }
