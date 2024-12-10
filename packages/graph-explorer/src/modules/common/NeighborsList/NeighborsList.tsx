@@ -9,34 +9,43 @@ import {
   VertexIcon,
   VisibleIcon,
 } from "@/components";
-import { useNode, useWithTheme } from "@/core";
+import { useNode } from "@/core";
 import useNeighborsOptions, {
   NeighborOption,
 } from "@/hooks/useNeighborsOptions";
-import defaultStyles from "./NeighborsList.styles";
-import { useState } from "react";
+import { ComponentPropsWithoutRef, useState } from "react";
 import { useQueryEngine } from "@/core/connector";
 
 export type NeighborsListProps = {
   id: VertexId;
-};
+} & ComponentPropsWithoutRef<"div">;
 
 const MAX_NEIGHBOR_TYPE_ROWS = 5;
 
-export default function NeighborsList({ id }: NeighborsListProps) {
-  const styleWithTheme = useWithTheme();
+export default function NeighborsList({
+  id,
+  className,
+  ...props
+}: NeighborsListProps) {
   const vertex = useNode(id);
   const neighborsOptions = useNeighborsOptions(vertex);
   const [showMore, setShowMore] = useState(false);
 
   return (
-    <div className={cn(styleWithTheme(defaultStyles), "section")}>
-      <div className="title">Neighbors ({vertex.neighborsCount})</div>
-      {neighborsOptions
-        .slice(0, showMore ? undefined : MAX_NEIGHBOR_TYPE_ROWS)
-        .map(op => (
-          <NeighborTypeRow key={op.value} vertex={vertex} op={op} />
-        ))}
+    <div
+      className={cn("flex flex-col gap-3 border-b p-3", className)}
+      {...props}
+    >
+      <div className="font-bold">Neighbors ({vertex.neighborsCount})</div>
+      <ul className="flex flex-col gap-3">
+        {neighborsOptions
+          .slice(0, showMore ? undefined : MAX_NEIGHBOR_TYPE_ROWS)
+          .map(op => (
+            <li key={op.value}>
+              <NeighborTypeRow vertex={vertex} op={op} />
+            </li>
+          ))}
+      </ul>
 
       <ExpandToggleButton
         itemCount={neighborsOptions.length}
@@ -57,13 +66,14 @@ function NeighborTypeRow({
   const neighborsInView =
     vertex.neighborsCountByType[op.value] -
     (vertex.__unfetchedNeighborCounts?.[op.value] ?? 0);
+
   return (
-    <div key={op.value} className="node-item">
-      <div className="vertex-type">
+    <div className="flex items-center justify-between gap-2">
+      <div className="flex items-center gap-2 font-medium">
         <VertexIcon vertexStyle={op.config.style} />
         {op.label}
       </div>
-      <div className="vertex-totals">
+      <div className="flex items-center gap-2">
         <Tooltip>
           <TooltipTrigger asChild>
             <Chip className="min-w-12">
