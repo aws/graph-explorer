@@ -43,8 +43,8 @@ Gremlin.
   ([#681](https://github.com/aws/graph-explorer/pull/681))
 - **Updated** documentation to add a roadmap outline
   ([#696](https://github.com/aws/graph-explorer/pull/696))
-- **Updated** logic around the display of nodes and edges to a single location
-  for simplicity and consistency
+- **Consolidated** logic around the display of nodes and edges to a single
+  location for simplicity and consistency
   ([#698](https://github.com/aws/graph-explorer/pull/698))
 - **Updated** dependencies, including Node v22
   ([#680](https://github.com/aws/graph-explorer/pull/680))
