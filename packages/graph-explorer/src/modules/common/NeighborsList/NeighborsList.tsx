@@ -39,13 +39,7 @@ export default function NeighborsList({ id }: NeighborsListProps) {
           return (
             <div key={op.value} className="node-item">
               <div className="vertex-type">
-                <div
-                  style={{
-                    color: op.config.style.color,
-                  }}
-                >
-                  <VertexIcon vertexStyle={op.config.style} />
-                </div>
+                <VertexIcon vertexStyle={op.config.style} />
                 {op.label}
               </div>
               <div className="vertex-totals">
