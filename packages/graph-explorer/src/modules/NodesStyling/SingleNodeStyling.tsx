@@ -25,7 +25,6 @@ import { LINE_STYLE_OPTIONS } from "./lineStyling";
 import { NODE_SHAPE } from "./nodeShape";
 import defaultStyles from "./SingleNodeStyling.style";
 import modalDefaultStyles from "./SingleNodeStylingModal.style";
-import { useVertexTypeConfig } from "@/core/ConfigurationProvider/useConfiguration";
 import { useDebounceValue, usePrevious } from "@/hooks";
 import { cn } from "@/utils";
 import {
@@ -64,7 +63,6 @@ export default function SingleNodeStyling({
     userStylingNodeAtom(vertexType)
   );
   const displayConfig = useDisplayVertexTypeConfig(vertexType);
-  const vtConfig = useVertexTypeConfig(vertexType);
 
   const [displayAs, setDisplayAs] = useState(displayConfig.displayLabel);
 
@@ -172,7 +170,7 @@ export default function SingleNodeStyling({
               <Select
                 label="Display Name Attribute"
                 labelPlacement="inner"
-                value={vtConfig.displayNameAttribute || ""}
+                value={displayConfig.displayNameAttribute}
                 onChange={value => {
                   onUserPrefsChange({ displayNameAttribute: value as string });
                 }}
@@ -183,7 +181,7 @@ export default function SingleNodeStyling({
               <Select
                 label="Display Description Attribute"
                 labelPlacement="inner"
-                value={vtConfig.longDisplayNameAttribute || ""}
+                value={displayConfig.displayDescriptionAttribute}
                 onChange={value => {
                   onUserPrefsChange({
                     longDisplayNameAttribute: value as string,

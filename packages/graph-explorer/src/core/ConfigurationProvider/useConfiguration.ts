@@ -54,6 +54,24 @@ export const vertexTypeAttributesSelector = selectorFamily({
     },
 });
 
+export const edgeTypeAttributesSelector = selectorFamily({
+  key: "edge-type-attributes",
+  get:
+    (edgeTypes: string[]) =>
+    ({ get }) => {
+      const attributesByNameMap = new Map(
+        edgeTypes
+          .values()
+          .map(et => get(edgeTypeConfigSelector(et)))
+          .filter(et => et != null)
+          .flatMap(et => et.attributes)
+          .map(attr => [attr.name, attr])
+      );
+
+      return attributesByNameMap.values().toArray();
+    },
+});
+
 export const vertexTypeConfigSelector = selectorFamily({
   key: "vertex-type-config",
   get:
