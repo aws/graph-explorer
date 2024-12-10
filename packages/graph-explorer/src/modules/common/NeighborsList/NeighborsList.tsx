@@ -1,5 +1,5 @@
 import { cn } from "@/utils";
-import { VertexId } from "@/@types/entities";
+import { Vertex, VertexId } from "@/@types/entities";
 import {
   Button,
   Chip,
@@ -10,7 +10,9 @@ import {
   VisibleIcon,
 } from "@/components";
 import { useNode, useWithTheme } from "@/core";
-import useNeighborsOptions from "@/hooks/useNeighborsOptions";
+import useNeighborsOptions, {
+  NeighborOption,
+} from "@/hooks/useNeighborsOptions";
 import defaultStyles from "./NeighborsList.styles";
 import { useState } from "react";
 import { useQueryEngine } from "@/core/connector";
@@ -32,41 +34,51 @@ export default function NeighborsList({ id }: NeighborsListProps) {
       <div className="title">Neighbors ({vertex.neighborsCount})</div>
       {neighborsOptions
         .slice(0, showMore ? undefined : MAX_NEIGHBOR_TYPE_ROWS)
-        .map(op => {
-          const neighborsInView =
-            vertex.neighborsCountByType[op.value] -
-            (vertex.__unfetchedNeighborCounts?.[op.value] ?? 0);
-          return (
-            <div key={op.value} className="node-item">
-              <div className="vertex-type">
-                <VertexIcon vertexStyle={op.config.style} />
-                {op.label}
-              </div>
-              <div className="vertex-totals">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Chip className="min-w-12">
-                      <VisibleIcon />
-                      {neighborsInView}
-                    </Chip>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    {`${neighborsInView} ${op.label} in the Graph View`}
-                  </TooltipContent>
-                </Tooltip>
-                <Chip className="min-w-12">
-                  {vertex.neighborsCountByType[op.value]}
-                </Chip>
-              </div>
-            </div>
-          );
-        })}
+        .map(op => (
+          <NeighborTypeRow key={op.value} vertex={vertex} op={op} />
+        ))}
 
       <ExpandToggleButton
         itemCount={neighborsOptions.length}
         expanded={showMore}
         toggle={() => setShowMore(prev => !prev)}
       />
+    </div>
+  );
+}
+
+function NeighborTypeRow({
+  vertex,
+  op,
+}: {
+  vertex: Vertex;
+  op: NeighborOption;
+}) {
+  const neighborsInView =
+    vertex.neighborsCountByType[op.value] -
+    (vertex.__unfetchedNeighborCounts?.[op.value] ?? 0);
+  return (
+    <div key={op.value} className="node-item">
+      <div className="vertex-type">
+        <VertexIcon vertexStyle={op.config.style} />
+        {op.label}
+      </div>
+      <div className="vertex-totals">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Chip className="min-w-12">
+              <VisibleIcon />
+              {neighborsInView}
+            </Chip>
+          </TooltipTrigger>
+          <TooltipContent>
+            {`${neighborsInView} ${op.label} in the Graph View`}
+          </TooltipContent>
+        </Tooltip>
+        <Chip className="min-w-12">
+          {vertex.neighborsCountByType[op.value]}
+        </Chip>
+      </div>
     </div>
   );
 }
