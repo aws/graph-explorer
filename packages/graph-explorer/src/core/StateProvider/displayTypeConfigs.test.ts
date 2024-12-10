@@ -19,7 +19,7 @@ import {
   useDisplayVertexTypeConfig,
 } from "./displayTypeConfigs";
 import { createRandomName } from "@shared/utils/testing";
-import { sanitizeText } from "@/utils";
+import { RESERVED_TYPES_PROPERTY, sanitizeText } from "@/utils";
 
 describe("useDisplayVertexTypeConfig", () => {
   describe("when the vertex type is not in the schema", () => {
@@ -128,6 +128,11 @@ describe("useDisplayEdgeTypeConfig", () => {
   it("should have display label match the type transformed", () => {
     const type = createRandomName("type");
     expect(act(type).displayLabel).toBe(sanitizeText(type));
+  });
+
+  it("should have display name attribute for types", () => {
+    const type = createRandomName("type");
+    expect(act(type).displayNameAttribute).toBe(RESERVED_TYPES_PROPERTY);
   });
 
   it("should have style matching the default config", () => {

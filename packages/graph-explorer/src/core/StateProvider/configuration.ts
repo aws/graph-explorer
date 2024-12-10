@@ -267,6 +267,7 @@ export const defaultEdgeTypeConfig = {
   targetArrowStyle: "triangle",
   lineStyle: "solid",
   lineColor: "#b3b3b3",
+  displayNameAttribute: RESERVED_TYPES_PROPERTY,
 } satisfies Omit<EdgeTypeConfig, "type">;
 
 export function getDefaultEdgeTypeConfig(edgeType: string): EdgeTypeConfig {

@@ -8,10 +8,10 @@ import {
   getSortedDisplayAttributes,
   edgesAtom,
   edgesSelectedIdsAtom,
-  vertexTypeAttributesSelector,
   vertexTypeConfigSelector,
   queryEngineSelector,
   edgeSelector,
+  edgeTypeAttributesSelector,
 } from "@/core";
 import {
   MISSING_DISPLAY_VALUE,
@@ -63,6 +63,10 @@ export function useSelectedDisplayEdges() {
   return useRecoilValue(selectedDisplayEdgesSelector);
 }
 
+export function useDisplayEdgeFromEdge(edge: Edge) {
+  return useRecoilValue(displayEdgeSelector(edge));
+}
+
 const displayEdgeSelector = selectorFamily({
   key: "display-edge",
   get:
@@ -84,7 +88,7 @@ const displayEdgeSelector = selectorFamily({
       // For SPARQL, display the edge type as the ID
       const displayId = isSparql ? displayTypes : edge.id;
 
-      const typeAttributes = get(vertexTypeAttributesSelector(edgeTypes));
+      const typeAttributes = get(edgeTypeAttributesSelector(edgeTypes));
       const sortedAttributes = getSortedDisplayAttributes(
         edge,
         typeAttributes,
@@ -115,7 +119,7 @@ const displayEdgeSelector = selectorFamily({
         )
         .join(", ");
 
-      // Get the display name and description for the vertex
+      // Get the display name and description for the edge
       function getDisplayAttributeValueByName(name: string | undefined) {
         if (name === RESERVED_ID_PROPERTY) {
           return displayId;
