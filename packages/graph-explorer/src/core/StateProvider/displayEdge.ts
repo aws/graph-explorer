@@ -123,9 +123,7 @@ const displayEdgeSelector = selectorFamily({
       function getDisplayAttributeValueByName(name: string | undefined) {
         if (name === RESERVED_ID_PROPERTY) {
           return displayId;
-        } else if (name === RESERVED_TYPES_PROPERTY || name === "type") {
-          // The name === "type" is to fix a bug where the old default was
-          // incorrect and the value was written to storage
+        } else if (name === RESERVED_TYPES_PROPERTY) {
           return displayTypes;
         } else if (name) {
           return (
