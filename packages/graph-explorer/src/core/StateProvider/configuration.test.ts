@@ -15,6 +15,7 @@ import { RawConfiguration, VertexTypeConfig } from "../ConfigurationProvider";
 import { SchemaInference } from "./schema";
 import { UserStyling } from "./userPreferences";
 import { createRandomName } from "@shared/utils/testing";
+import { RESERVED_TYPES_PROPERTY } from "@/utils";
 
 describe("mergedConfiguration", () => {
   it("should produce empty defaults when empty object is passed", () => {
@@ -230,6 +231,32 @@ describe("mergedConfiguration", () => {
     );
 
     expect(actualEtConfig?.displayLabel).toEqual(customDisplayLabel);
+  });
+
+  it("should patch displayNameAttribute to be 'types' when it was 'type'", () => {
+    const etConfig = createRandomEdgeTypeConfig();
+
+    const config: RawConfiguration = createRandomRawConfiguration();
+    const styling: UserStyling = {
+      edges: [
+        {
+          type: etConfig.type,
+          displayNameAttribute: "type",
+        },
+      ],
+    };
+    const schema = createRandomSchema();
+    schema.edges = [etConfig];
+
+    const result = mergeConfiguration(schema, config, styling);
+
+    const actualEtConfig = result.schema?.edges.find(
+      e => e.type === etConfig.type
+    );
+
+    expect(actualEtConfig?.displayNameAttribute).toEqual(
+      RESERVED_TYPES_PROPERTY
+    );
   });
 });
 

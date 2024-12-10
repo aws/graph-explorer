@@ -198,7 +198,7 @@ const mergeEdge = (
   const et =
     preferences?.type || configEdge?.type || schemaEdge?.type || "unknown";
 
-  return {
+  const config: EdgeTypeConfig = {
     // Defaults
     ...getDefaultEdgeTypeConfig(et),
     // Automatic schema override
@@ -209,6 +209,15 @@ const mergeEdge = (
     ...(preferences || {}),
     attributes,
   };
+
+  if (config.displayNameAttribute === "type") {
+    // Patch displayNameAttribute to be "types" when it was "type" ensuring
+    // backwards compatibility if the user had customized the
+    // displayNameAttribute to be the edge type prior to this release.
+    config.displayNameAttribute = RESERVED_TYPES_PROPERTY;
+  }
+
+  return config;
 };
 
 export const allVertexTypeConfigsSelector = selector({
