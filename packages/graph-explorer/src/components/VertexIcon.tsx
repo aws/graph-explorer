@@ -12,7 +12,7 @@ function VertexIcon({ vertexStyle, className }: Props) {
     return (
       <SVG
         src={vertexStyle.iconUrl}
-        className={cn("size-6", className)}
+        className={cn("size-6 shrink-0", className)}
         style={{ color: vertexStyle.color }}
       />
     );
@@ -21,7 +21,7 @@ function VertexIcon({ vertexStyle, className }: Props) {
   return (
     <img
       src={vertexStyle.iconUrl}
-      className={cn("size-6", className)}
+      className={cn("size-6 shrink-0", className)}
       style={{ color: vertexStyle.color }}
     />
   );
