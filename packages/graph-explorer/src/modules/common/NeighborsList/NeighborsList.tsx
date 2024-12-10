@@ -1,6 +1,14 @@
 import { cn } from "@/utils";
 import { VertexId } from "@/@types/entities";
-import { Button, Chip, Tooltip, VertexIcon, VisibleIcon } from "@/components";
+import {
+  Button,
+  Chip,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  VertexIcon,
+  VisibleIcon,
+} from "@/components";
 import { useNode, useWithTheme } from "@/core";
 import useNeighborsOptions from "@/hooks/useNeighborsOptions";
 import defaultStyles from "./NeighborsList.styles";
@@ -41,13 +49,16 @@ export default function NeighborsList({ id }: NeighborsListProps) {
                 {op.label}
               </div>
               <div className="vertex-totals">
-                <Tooltip
-                  text={`${neighborsInView} ${op.label} in the Graph View`}
-                >
-                  <Chip className="min-w-12">
-                    <VisibleIcon />
-                    {neighborsInView}
-                  </Chip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Chip className="min-w-12">
+                      <VisibleIcon />
+                      {neighborsInView}
+                    </Chip>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {`${neighborsInView} ${op.label} in the Graph View`}
+                  </TooltipContent>
                 </Tooltip>
                 <Chip className="min-w-12">
                   {vertex.neighborsCountByType[op.value]}

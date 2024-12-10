@@ -202,7 +202,6 @@ export default function GraphViewer({
             />
             <IconButton
               tooltipText="Re-run Layout"
-              tooltipPlacement="bottom-center"
               icon={<ResetIcon />}
               variant="text"
               onClick={() => {
