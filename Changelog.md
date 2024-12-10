@@ -1,6 +1,21 @@
 # graph-explorer Change Log
 
-## Upcoming
+## Release 1.12.0
+
+This release is mostly a maintenance release, with a few new features and bug
+fixes.
+
+### Consistent node and edge information
+
+The biggest noticeable change is the consistency of node and edge information
+across the app. Previously, the node and edge information was rendered
+differently in the search results, node details, edge details, and expand
+options. Now, they are all consistent, with the same information displayed.
+
+These changes improve the support for multiple node labels and date values in
+Gremlin.
+
+### All changes
 
 - **Improved** consistency of rendering node information across search results,
   node details header, edge details header, and expand options header
@@ -8,20 +23,28 @@
 - **Improved** edge properties in the details sidebar, which now includes the
   source and target vertex IDs and types
   ([#698](https://github.com/aws/graph-explorer/pull/698))
-- **Improved** styling on icon buttons
-  ([#675](https://github.com/aws/graph-explorer/pull/675))
-- **Improved** styling on checkboxes across the app, and specifically the export
-  options popover and entity filters sidebar
-  ([#676](https://github.com/aws/graph-explorer/pull/676))
+- **Fixed** date rendering on Gremlin connections
+  ([#698](https://github.com/aws/graph-explorer/pull/698))
 - **Fixed** a bug where the automatic open details feature would not open the
   details sidebar when selecting nodes
   ([#679](https://github.com/aws/graph-explorer/pull/679))
+- **Improved** styling on checkboxes across the app, and specifically the export
+  options popover and entity filters sidebar
+  ([#676](https://github.com/aws/graph-explorer/pull/676))
+- **Improved** styling on icon buttons
+  ([#674](https://github.com/aws/graph-explorer/pull/674),
+  [#675](https://github.com/aws/graph-explorer/pull/675),
+  [#683](https://github.com/aws/graph-explorer/pull/683))
+- **Improved** styling & behavior on tooltips
+  ([#709](https://github.com/aws/graph-explorer/pull/709))
+- **Improved** styling & behavior color inputs
+  ([#707](https://github.com/aws/graph-explorer/pull/707))
 - **Updated** documentation to reorganize and extend the troubleshooting tips
   ([#681](https://github.com/aws/graph-explorer/pull/681))
-- **Refactored** logic around the display of nodes and edges to a single
+- **Updated** documentation to add a roadmap outline
+  ([#696](https://github.com/aws/graph-explorer/pull/696))
+- **Consolidated** logic around the display of nodes and edges to a single
   location for simplicity and consistency
-  ([#698](https://github.com/aws/graph-explorer/pull/698))
-- **Fixed** date rendering on Gremlin connections
   ([#698](https://github.com/aws/graph-explorer/pull/698))
 - **Updated** dependencies, including Node v22
   ([#680](https://github.com/aws/graph-explorer/pull/680))
