@@ -38,15 +38,7 @@ const ConnectionData = () => {
             <div className="node-title">{vtConfig.displayLabel}</div>
           </div>
         ),
-        icon: (
-          <div
-            style={{
-              color: vtConfig.style.color,
-            }}
-          >
-            <VertexIcon vertexStyle={vtConfig.style} />
-          </div>
-        ),
+        icon: <VertexIcon vertexStyle={vtConfig.style} />,
         className: css`
           .start-adornment {
             color: ${vtConfig.style.color}!important;

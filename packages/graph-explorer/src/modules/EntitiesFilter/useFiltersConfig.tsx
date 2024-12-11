@@ -120,15 +120,7 @@ const useFiltersConfig = () => {
         return {
           id: vertexConfig.type,
           text: vertexConfig.displayLabel,
-          endAdornment: (
-            <div
-              style={{
-                color: vertexConfig.style.color,
-              }}
-            >
-              <VertexIcon vertexStyle={vertexConfig.style} />
-            </div>
-          ),
+          endAdornment: <VertexIcon vertexStyle={vertexConfig.style} />,
         } as CheckboxListItemProps;
       })
       .toArray();

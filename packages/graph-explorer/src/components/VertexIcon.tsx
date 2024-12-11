@@ -10,11 +10,21 @@ interface Props {
 function VertexIcon({ vertexStyle, className }: Props) {
   if (vertexStyle.iconImageType === "image/svg+xml") {
     return (
-      <SVG src={vertexStyle.iconUrl} className={cn("size-6", className)} />
+      <SVG
+        src={vertexStyle.iconUrl}
+        className={cn("size-6 shrink-0", className)}
+        style={{ color: vertexStyle.color }}
+      />
     );
   }
 
-  return <img src={vertexStyle.iconUrl} className={cn("size-6", className)} />;
+  return (
+    <img
+      src={vertexStyle.iconUrl}
+      className={cn("size-6 shrink-0", className)}
+      style={{ color: vertexStyle.color }}
+    />
+  );
 }
 
 export function VertexSymbol({
@@ -32,7 +42,6 @@ export function VertexSymbol({
       )}
       style={{
         background: fade(vertexStyle.color, 0.2),
-        color: vertexStyle.color,
       }}
     >
       <VertexIcon vertexStyle={vertexStyle} className="size-full" />
