@@ -1,5 +1,10 @@
 # graph-explorer Change Log
 
+## Upcoming
+
+- **Updated** dependencies
+  ([#718](https://github.com/aws/graph-explorer/pull/718))
+
 ## Release 1.12.1
 
 - **Fixed** issue where the edge's display name value was not being displayed
