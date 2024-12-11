@@ -1,6 +1,6 @@
 import merge from "lodash/merge";
 import { PropsWithChildren, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation } from "react-router";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { LoadingSpinner, PanelEmptyState } from "@/components";
 import Redirect from "@/components/Redirect";

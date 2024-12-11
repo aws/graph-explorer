@@ -3,7 +3,8 @@
 ## Upcoming
 
 - **Updated** dependencies
-  ([#718](https://github.com/aws/graph-explorer/pull/718))
+  ([#718](https://github.com/aws/graph-explorer/pull/718),
+  [#720](https://github.com/aws/graph-explorer/pull/720))
 
 ## Release 1.12.1
 
