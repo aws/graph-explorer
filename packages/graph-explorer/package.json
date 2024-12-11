@@ -68,7 +68,6 @@
     "dedent": "^1.5.3",
     "file-saver": "^2.0.5",
     "flat": "^6.0.1",
-    "framer-motion": "^11.13.5",
     "localforage": "^1.10.0",
     "lodash": "^4.17.21",
     "lucide-react": "^0.460.0",
