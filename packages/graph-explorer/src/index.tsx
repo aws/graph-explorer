@@ -9,6 +9,7 @@ import "./index.css";
 import "@mantine/core/styles.css";
 import { DEFAULT_SERVICE_TYPE } from "./utils/constants";
 import "core-js/full/iterator";
+import { logger } from "./utils";
 
 const grabConfig = async (): Promise<RawConfiguration | undefined> => {
   const defaultConnectionPath = `${location.origin}/defaultConnection`;
@@ -30,23 +31,21 @@ const grabConfig = async (): Promise<RawConfiguration | undefined> => {
     defaultConnectionFile = await fetch(defaultConnectionPath);
 
     if (!defaultConnectionFile.ok) {
-      // eslint-disable-next-line no-console
-      console.log(
+      logger.debug(
         `Failed to find default connection file at .../defaultConnection, trying path for Sagemaker.`
       );
       defaultConnectionFile = await fetch(sagemakerConnectionPath);
       if (defaultConnectionFile.ok) {
-        // eslint-disable-next-line no-console
-        console.log(`Found file at ../proxy/9250/defaultConnection.`);
+        logger.log(
+          `Found default connection file at ../proxy/9250/defaultConnection.`
+        );
       } else {
-        // eslint-disable-next-line no-console
-        console.log(
-          `Did not find file at ../proxy/9250/defaultConnection. No defaultConnectionFile will be set.`
+        logger.debug(
+          `Did not find default connection file at ../proxy/9250/defaultConnection. No defaultConnectionFile will be set.`
         );
       }
     } else {
-      // eslint-disable-next-line no-console
-      console.log(`Found file at ../defaultConnection.`);
+      logger.log(`Found default connection file at ../defaultConnection.`);
     }
 
     const contentType = defaultConnectionFile.headers.get("content-type");
