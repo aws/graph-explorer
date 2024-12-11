@@ -1,7 +1,7 @@
 import { css } from "@emotion/css";
 import { cn } from "@/utils";
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import {
   AdvancedList,
   AdvancedListItemType,

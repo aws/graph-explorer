@@ -1,7 +1,7 @@
 import queryString from "query-string";
 import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
-import { HashRouter as Router } from "react-router-dom";
+import { HashRouter as Router } from "react-router";
 import App from "./App";
 import { RawConfiguration } from "./core";
 import ConnectedProvider from "./core/ConnectedProvider";
@@ -92,7 +92,7 @@ const BootstrapApp = () => {
 
   return (
     <React.StrictMode>
-      <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      <Router>
         <ConnectedProvider config={config}>
           <App />
         </ConnectedProvider>

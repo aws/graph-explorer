@@ -6,7 +6,7 @@ import {
   Panel,
   PanelContent,
 } from "@/components";
-import { Link, NavLink, Outlet, To } from "react-router-dom";
+import { Link, NavLink, Outlet, To } from "react-router";
 import { PropsWithChildren, Suspense } from "react";
 import AppLoadingPage from "@/core/AppLoadingPage";
 import { cn } from "@/utils";

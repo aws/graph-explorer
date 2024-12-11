@@ -1,6 +1,6 @@
 import { cn } from "@/utils";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { useRecoilValue } from "recoil";
 import Button from "@/components/Button";
 import { ExplorerIcon, GearIcon } from "@/components/icons";

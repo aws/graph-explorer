@@ -124,7 +124,6 @@
     "@types/react": "^18.3.14",
     "@types/react-beautiful-dnd": "^13.1.8",
     "@types/react-dom": "^18.3.3",
-    "@types/react-router-dom": "5.3.3",
     "@types/react-slick": "^0.23.13",
     "@types/react-table": "^7.7.20",
     "@types/react-transition-group": "^4.4.11",

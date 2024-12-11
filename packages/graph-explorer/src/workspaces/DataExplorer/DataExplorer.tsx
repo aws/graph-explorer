@@ -2,12 +2,7 @@ import { cn } from "@/utils";
 import clone from "lodash/clone";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import {
-  Link,
-  useNavigate,
-  useParams,
-  useSearchParams,
-} from "react-router-dom";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { Vertex } from "@/types/entities";
 import {
