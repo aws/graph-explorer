@@ -43,7 +43,8 @@ const file2Base64 = (file: File): Promise<string> => {
   return new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result?.toString() || "");
+    reader.onload = () =>
+      typeof reader.result === "string" ? resolve(reader.result) : resolve("");
     reader.onerror = reject;
   });
 };

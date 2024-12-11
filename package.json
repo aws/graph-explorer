@@ -4,10 +4,10 @@
   "description": "Graph Explorer",
   "author": "amazon",
   "license": "Apache-2.0",
-  "packageManager": "pnpm@9.13.0",
+  "packageManager": "pnpm@9.15.0",
   "engines": {
     "node": ">=22.11.0",
-    "pnpm": "9.13.0"
+    "pnpm": "9.15.0"
   },
   "private": true,
   "scripts": {
@@ -29,21 +29,21 @@
     "dev": "pnpm --stream -r run dev"
   },
   "devDependencies": {
-    "@eslint/compat": "^1.2.3",
-    "@eslint/js": "^9.15.0",
-    "@tanstack/eslint-plugin-query": "^5.60.1",
-    "@vitest/coverage-v8": "^2.1.5",
-    "eslint": "^9.15.0",
+    "@eslint/compat": "^1.2.4",
+    "@eslint/js": "^9.16.0",
+    "@tanstack/eslint-plugin-query": "^5.62.1",
+    "@vitest/coverage-v8": "^2.1.8",
+    "eslint": "^9.16.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-react": "^7.37.2",
-    "eslint-plugin-react-hooks": "^5.0.0",
-    "globals": "^15.12.0",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "globals": "^15.13.0",
     "husky": "^9.1.7",
-    "lint-staged": "^15.2.10",
-    "prettier": "3.3.3",
-    "typescript": "^5.6.3",
-    "typescript-eslint": "8.0.0-alpha.42",
-    "vitest": "^2.1.5"
+    "lint-staged": "^15.2.11",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.18.0",
+    "vitest": "^2.1.8"
   },
   "lint-staged": {
     "*.{js,ts,tsx}": [
