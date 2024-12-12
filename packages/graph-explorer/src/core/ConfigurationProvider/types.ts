@@ -130,12 +130,6 @@ export type RawConfiguration = {
   id: string;
   displayLabel?: string;
   /**
-   * Allow to fetch the configuration from a given URL.
-   * This will be merged with the rest of configuration with
-   * a higher priority.
-   */
-  remoteConfigFile?: string;
-  /**
    * Connection configuration
    */
   connection?: ConnectionConfig;

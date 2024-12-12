@@ -1,4 +1,3 @@
-import queryString from "query-string";
 import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { HashRouter as Router } from "react-router";
@@ -15,18 +14,6 @@ const grabConfig = async (): Promise<RawConfiguration | undefined> => {
   const defaultConnectionPath = `${location.origin}/defaultConnection`;
   const sagemakerConnectionPath = `${location.origin}/proxy/9250/defaultConnection`;
   let defaultConnectionFile;
-
-  const params = queryString.parse(location.search) as {
-    configFile?: string;
-  };
-
-  if (params.configFile) {
-    logger.debug("Found config file in URL params", params.configFile);
-    return {
-      id: params.configFile,
-      remoteConfigFile: params.configFile,
-    };
-  }
 
   try {
     logger.debug(
