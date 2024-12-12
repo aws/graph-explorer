@@ -2,6 +2,8 @@
 
 ## Upcoming
 
+- **Improved** app startup UI to be more consistent
+  ([#723](https://github.com/aws/graph-explorer/pull/723))
 - **Improved** error logs in the browser console
   ([#721](https://github.com/aws/graph-explorer/pull/721))
 - **Updated** dependencies
