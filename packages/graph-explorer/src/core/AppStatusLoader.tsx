@@ -18,17 +18,6 @@ export type AppLoadingProps = {
   config?: RawConfiguration;
 };
 
-const STATUS = {
-  STORE: {
-    title: "Preparing environment...",
-    subtitle: "We are loading all components",
-  },
-  CONFIG_FILE: {
-    title: "Reading configuration...",
-    subtitle: "We are loading the configuration from the file",
-  },
-};
-
 const AppStatusLoader = ({
   config,
   children,
@@ -111,8 +100,8 @@ const AppStatusLoader = ({
   if (!isStoreLoaded) {
     return (
       <PanelEmptyState
-        title={STATUS.STORE.title}
-        subtitle={STATUS.STORE.subtitle}
+        title="Preparing environment..."
+        subtitle="We are loading all components"
         icon={<LoadingSpinner />}
       />
     );
@@ -122,8 +111,8 @@ const AppStatusLoader = ({
   if (configuration.size === 0 && !!config) {
     return (
       <PanelEmptyState
-        title={STATUS.CONFIG_FILE.title}
-        subtitle={STATUS.CONFIG_FILE.subtitle}
+        title="Reading configuration..."
+        subtitle="We are loading the configuration from the file"
         icon={<LoadingSpinner />}
       />
     );
