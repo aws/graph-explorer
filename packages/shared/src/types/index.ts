@@ -1,3 +1,6 @@
+export const queryEngineOptions = ["gremlin", "sparql", "openCypher"] as const;
+export type QueryEngine = (typeof queryEngineOptions)[number];
+
 export type ConnectionConfig = {
   /**
    * Base URL to access to the database through HTTPs endpoints
@@ -7,7 +10,7 @@ export type ConnectionConfig = {
    * Choose between gremlin or sparQL engines.
    * By default, it uses gremlin
    */
-  queryEngine?: "gremlin" | "sparql" | "openCypher";
+  queryEngine?: QueryEngine;
   /**
    * If the service is Neptune,
    * all requests should be sent through the nodejs proxy-server.

@@ -4,6 +4,7 @@ import {
   EdgeTypeConfig,
   VertexTypeConfig,
 } from "@/core";
+import { queryEngineOptions } from "@shared/types";
 
 const isValidHttpUrl = (str: string) => {
   let url;
@@ -60,7 +61,7 @@ const isValidConfigurationFile = (
     !data.connection.url ||
     !data.connection.queryEngine ||
     !isValidHttpUrl(data.connection.url) ||
-    !["gremlin", "sparql", "openCypher"].includes(data.connection.queryEngine)
+    !queryEngineOptions.includes(data.connection.queryEngine)
   ) {
     return false;
   }

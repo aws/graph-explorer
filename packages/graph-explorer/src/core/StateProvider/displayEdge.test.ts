@@ -20,7 +20,7 @@ import {
 import { Schema } from "../ConfigurationProvider";
 import { MutableSnapshot } from "recoil";
 import { schemaAtom } from "./schema";
-import { ConnectionConfig } from "@shared/types";
+import { QueryEngine } from "@shared/types";
 
 describe("useDisplayEdgeFromEdge", () => {
   it("should keep the same ID", () => {
@@ -226,10 +226,7 @@ describe("useDisplayEdgeFromEdge", () => {
     };
   }
 
-  function withSchemaAndConnection(
-    schema: Schema,
-    queryEngine: ConnectionConfig["queryEngine"]
-  ) {
+  function withSchemaAndConnection(schema: Schema, queryEngine: QueryEngine) {
     const config = createRandomRawConfiguration();
     config.connection!.queryEngine = queryEngine;
     return (snapshot: MutableSnapshot) => {
