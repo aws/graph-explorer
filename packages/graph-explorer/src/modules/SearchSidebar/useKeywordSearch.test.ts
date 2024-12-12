@@ -1,5 +1,5 @@
 import useKeywordSearch from "./useKeywordSearch";
-import { ConnectionConfig } from "@shared/types";
+import { QueryEngine } from "@shared/types";
 import { createRandomSchema, renderHookWithRecoilRoot } from "@/utils/testing";
 import { createRandomRawConfiguration } from "@/utils/testing";
 import {
@@ -17,9 +17,7 @@ vi.mock("./useKeywordSearchQuery", () => ({
   }),
 }));
 
-function initializeConfigWithQueryEngine(
-  queryEngine: ConnectionConfig["queryEngine"]
-) {
+function initializeConfigWithQueryEngine(queryEngine: QueryEngine) {
   return (snapshot: MutableSnapshot) => {
     // Create config and setup schema
     const config = createRandomRawConfiguration();

@@ -20,7 +20,7 @@ import { DisplayAttribute } from "./displayAttribute";
 import { createRandomDate } from "@shared/utils/testing";
 import { MISSING_DISPLAY_VALUE } from "@/utils/constants";
 import { mapToDisplayVertexTypeConfig } from "./displayTypeConfigs";
-import { ConnectionConfig } from "@shared/types";
+import { QueryEngine } from "@shared/types";
 
 describe("useDisplayVertexFromVertex", () => {
   it("should keep the same ID", () => {
@@ -252,10 +252,7 @@ describe("useDisplayVertexFromVertex", () => {
     };
   }
 
-  function withSchemaAndConnection(
-    schema: Schema,
-    queryEngine: ConnectionConfig["queryEngine"]
-  ) {
+  function withSchemaAndConnection(schema: Schema, queryEngine: QueryEngine) {
     const config = createRandomRawConfiguration();
     config.connection!.queryEngine = queryEngine;
     return (snapshot: MutableSnapshot) => {

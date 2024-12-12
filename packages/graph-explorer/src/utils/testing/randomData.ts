@@ -27,6 +27,7 @@ import {
 } from "@/core/StateProvider/userPreferences";
 import { toNodeMap } from "@/core/StateProvider/nodes";
 import { toEdgeMap } from "@/core/StateProvider/edges";
+import { queryEngineOptions } from "@shared/types";
 
 /*
 
@@ -207,11 +208,7 @@ export function createRandomRawConfiguration(): RawConfiguration {
   const serviceType = randomlyUndefined(
     pickRandomElement(["neptune-db", "neptune-graph"] as const)
   );
-  const queryEngine = pickRandomElement([
-    "gremlin",
-    "openCypher",
-    "sparql",
-  ] as const);
+  const queryEngine = pickRandomElement([...queryEngineOptions]);
 
   return {
     id: createRandomName("id"),

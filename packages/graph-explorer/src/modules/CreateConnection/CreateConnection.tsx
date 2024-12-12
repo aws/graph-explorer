@@ -5,7 +5,7 @@ import { InfoTooltip, TextArea } from "@/components";
 import Button from "@/components/Button";
 import Input from "@/components/Input";
 import Select from "@/components/Select";
-import { ConnectionConfig } from "@shared/types";
+import { ConnectionConfig, QueryEngine } from "@shared/types";
 import {
   ConfigurationContextProps,
   RawConfiguration,
@@ -28,7 +28,7 @@ import { Checkbox, Label } from "@/components/radix";
 type ConnectionForm = {
   name?: string;
   url?: string;
-  queryEngine?: "gremlin" | "sparql" | "openCypher";
+  queryEngine?: QueryEngine;
   proxyConnection?: boolean;
   graphDbUrl?: string;
   awsAuthEnabled?: boolean;
@@ -42,7 +42,7 @@ type ConnectionForm = {
 
 export const CONNECTIONS_OP: {
   label: string;
-  value: NonNullable<ConnectionConfig["queryEngine"]>;
+  value: QueryEngine;
 }[] = [
   { label: "Gremlin - PG (Property Graph)", value: "gremlin" },
   { label: "OpenCypher - PG (Property Graph)", value: "openCypher" },
