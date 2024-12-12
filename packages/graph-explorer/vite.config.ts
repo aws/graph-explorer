@@ -7,6 +7,14 @@ import { coverageConfigDefaults, defineConfig } from "vitest/config";
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
 
+  // Construct the URL for the express server used by the Vite dev server
+  const expressServerUrl = (() => {
+    const httpPort = env.PROXY_SERVER_HTTP_PORT || 80;
+    const port = httpPort !== 80 ? `:${httpPort}` : "";
+    const baseUrl = `http://localhost${port}`;
+    return baseUrl;
+  })();
+
   const htmlPlugin = (): PluginOption => {
     return {
       name: "html-transform",
@@ -24,6 +32,13 @@ export default defineConfig(({ mode }) => {
   return {
     server: {
       host: true,
+      proxy: {
+        // Forward these requests to the express server when in dev mode
+        "/defaultConnection": {
+          target: expressServerUrl,
+          changeOrigin: true,
+        },
+      },
     },
     base: env.GRAPH_EXP_ENV_ROOT_FOLDER,
     envPrefix: "GRAPH_EXP",
