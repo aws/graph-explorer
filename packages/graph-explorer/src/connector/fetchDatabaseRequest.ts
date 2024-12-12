@@ -2,36 +2,18 @@ import { type ConnectionConfig } from "@shared/types";
 import { DEFAULT_SERVICE_TYPE } from "@/utils/constants";
 import { anySignal } from "./utils/anySignal";
 import { FeatureFlags } from "@/core";
+import { z } from "zod";
+import { logger } from "@/utils";
 
-type NeptuneError = {
-  code: string;
-  requestId: string;
-  detailedMessage: string;
-  message?: string;
-};
-
-function isNeptuneError(value: unknown): value is NeptuneError {
-  if (typeof value !== "object" || value == null) {
-    return false;
-  }
-
-  if (!("code" in value) || typeof value.code !== "string") {
-    return false;
-  }
-
-  if (
-    !("detailedMessage" in value) ||
-    typeof value.detailedMessage !== "string"
-  ) {
-    return false;
-  }
-
-  if (!("requestId" in value) || typeof value.requestId !== "string") {
-    return false;
-  }
-
-  return true;
-}
+const NeptuneErrorSchema = z.object({
+  code: z.string(),
+  errno: z.string().optional(),
+  requestId: z.string().optional(),
+  detailedMessage: z.string().optional(),
+  message: z.string().optional(),
+  status: z.number().optional(),
+  type: z.string().optional(),
+});
 
 /**
  * Attempts to decode the error response into a JSON object.
@@ -124,11 +106,26 @@ export async function fetchDatabaseRequest(
   const response = await fetch(uri, fetchOptions);
 
   if (!response.ok) {
+    const defaultMessage = "Network response was not OK";
     const error = await decodeErrorSafely(response);
-    if (isNeptuneError(error)) {
-      throw new Error(error.detailedMessage, { cause: error });
+
+    // Log the error to the console always
+    logger.error(`Response status ${response.status} received:`, error);
+
+    // Parse out neptune specific error messages
+    const parseNeptuneError = NeptuneErrorSchema.safeParse(error);
+    if (parseNeptuneError.success) {
+      const message =
+        parseNeptuneError.data.detailedMessage ??
+        parseNeptuneError.data.message ??
+        defaultMessage;
+
+      throw new Error(message, {
+        cause: parseNeptuneError.data,
+      });
     }
-    throw new Error("Network response was not OK", { cause: error });
+    // Or just throw a generic error
+    throw new Error(defaultMessage, { cause: error });
   }
 
   // A successful response is assumed to be JSON
