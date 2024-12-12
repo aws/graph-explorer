@@ -13,6 +13,7 @@ import {
 import { schemaAtom } from "./StateProvider/schema";
 import useLoadStore from "./StateProvider/useLoadStore";
 import { CONNECTIONS_OP } from "@/modules/CreateConnection/CreateConnection";
+import { logger } from "@/utils";
 
 export type AppLoadingProps = {
   config?: RawConfiguration;
@@ -33,10 +34,12 @@ const AppStatusLoader = ({
 
   useEffect(() => {
     if (!isStoreLoaded) {
+      logger.debug("Store not loaded, skipping config load");
       return;
     }
 
     if (activeConfig && configuration.get(activeConfig)) {
+      logger.debug("Active config exists, skipping config load");
       return;
     }
 
@@ -46,6 +49,10 @@ const AppStatusLoader = ({
       (async () => {
         let newConfig: RawConfiguration = config;
         if (config.remoteConfigFile) {
+          logger.debug(
+            "Config not in store, loading from file",
+            config.remoteConfigFile
+          );
           const remoteConfig = await fetchConfiguration(
             config.remoteConfigFile
           );
@@ -53,6 +60,7 @@ const AppStatusLoader = ({
         }
         newConfig.__fileBase = true;
         let activeConfigId = config.id;
+        logger.debug("Adding new config to store", newConfig);
         setConfiguration(prevConfigMap => {
           const updatedConfig = new Map(prevConfigMap);
           if (newConfig.connection?.queryEngine) {
@@ -85,6 +93,7 @@ const AppStatusLoader = ({
     // If the config file is stored,
     // only activate the configuration
     if (!!config && configuration.get(config.id)) {
+      logger.debug("Config exists in store, activating", config.id);
       setActiveConfig(config.id);
     }
   }, [
