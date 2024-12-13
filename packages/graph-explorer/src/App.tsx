@@ -9,7 +9,7 @@ import {
   SettingsRoot,
 } from "./workspaces/Settings";
 
-const App = () => {
+export default function App() {
   return (
     <Routes>
       <Route path="/connections" element={<Connections />} />
@@ -22,6 +22,4 @@ const App = () => {
       <Route path="*" element={<Redirect to="/graph-explorer" />} />
     </Routes>
   );
-};
-
-export default App;
+}

@@ -1,9 +1,9 @@
 import { env } from "@/utils";
 import type { RawConfiguration } from "./types";
 
-const fetchConfiguration = async (
+async function fetchConfiguration(
   configUrl: string
-): Promise<RawConfiguration | undefined> => {
+): Promise<RawConfiguration | undefined> {
   if (!configUrl) {
     return;
   }
@@ -17,6 +17,6 @@ const fetchConfiguration = async (
       console.error(e);
     }
   }
-};
+}
 
 export default fetchConfiguration;

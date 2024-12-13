@@ -18,7 +18,7 @@ import { APP_NAME } from "@/utils/constants";
 import { Panel, PanelContent, PanelEmptyState } from "@/components";
 import GraphExplorerIcon from "@/components/icons/GraphExplorerIcon";
 
-const Connections = () => {
+export default function Connections() {
   const styleWithTheme = useWithTheme();
 
   const config = useConfiguration();
@@ -93,7 +93,7 @@ const Connections = () => {
       </Workspace.Content>
     </Workspace>
   );
-};
+}
 
 function NoActiveConnectionPanel() {
   return (
@@ -108,5 +108,3 @@ function NoActiveConnectionPanel() {
     </Panel>
   );
 }
-
-export default Connections;

@@ -9,6 +9,7 @@ import "./index.css";
 import "@mantine/core/styles.css";
 import { DEFAULT_SERVICE_TYPE } from "./utils/constants";
 import "core-js/full/iterator";
+import { logger } from "./utils";
 
 const grabConfig = async (): Promise<RawConfiguration | undefined> => {
   const defaultConnectionPath = `${location.origin}/defaultConnection`;
@@ -20,6 +21,7 @@ const grabConfig = async (): Promise<RawConfiguration | undefined> => {
   };
 
   if (params.configFile) {
+    logger.debug("Found config file in URL params", params.configFile);
     return {
       id: params.configFile,
       remoteConfigFile: params.configFile,
@@ -27,35 +29,40 @@ const grabConfig = async (): Promise<RawConfiguration | undefined> => {
   }
 
   try {
+    logger.debug(
+      "Attempting to find default connection file at",
+      defaultConnectionPath
+    );
     defaultConnectionFile = await fetch(defaultConnectionPath);
 
     if (!defaultConnectionFile.ok) {
-      // eslint-disable-next-line no-console
-      console.log(
-        `Failed to find default connection file at .../defaultConnection, trying path for Sagemaker.`
+      logger.debug(
+        `Failed to find default connection file at .../defaultConnection, trying path for Sagemaker.`,
+        sagemakerConnectionPath
       );
       defaultConnectionFile = await fetch(sagemakerConnectionPath);
       if (defaultConnectionFile.ok) {
-        // eslint-disable-next-line no-console
-        console.log(`Found file at ../proxy/9250/defaultConnection.`);
+        logger.log(
+          `Found default connection file at ../proxy/9250/defaultConnection.`
+        );
       } else {
-        // eslint-disable-next-line no-console
-        console.log(
-          `Did not find file at ../proxy/9250/defaultConnection. No defaultConnectionFile will be set.`
+        logger.debug(
+          `Did not find default connection file at ../proxy/9250/defaultConnection. No defaultConnectionFile will be set.`
         );
       }
     } else {
-      // eslint-disable-next-line no-console
-      console.log(`Found file at ../defaultConnection.`);
+      logger.log(`Found default connection file at ../defaultConnection.`);
     }
 
     const contentType = defaultConnectionFile.headers.get("content-type");
     if (!contentType || !contentType.includes("application/json")) {
+      logger.debug(`Default config response is not JSON`);
       return;
     }
 
     const defaultConnectionData = await defaultConnectionFile.json();
-    return {
+    logger.debug("Default connection data", defaultConnectionData);
+    const config: RawConfiguration = {
       id: "Default Connection",
       displayLabel: "Default Connection",
       connection: {
@@ -73,6 +80,8 @@ const grabConfig = async (): Promise<RawConfiguration | undefined> => {
           defaultConnectionData.GRAPH_EXP_NODE_EXPANSION_LIMIT,
       },
     };
+    logger.debug("Default connection created", config);
+    return config;
   } catch (error) {
     console.error(
       `Error when trying to create connection: ${error instanceof Error ? error.message : "Unexpected error"}`
