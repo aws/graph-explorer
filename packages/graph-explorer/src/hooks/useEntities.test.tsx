@@ -34,7 +34,6 @@ describe("useEntities", () => {
       ...randomNode,
       neighborsCountByType: {},
       __unfetchedNeighborCounts: {},
-      __fetchedOutEdgeCount: 0,
       __fetchedInEdgeCount: 0,
       __unfetchedNeighborCount: 0,
     };
@@ -61,7 +60,6 @@ describe("useEntities", () => {
     expect(actualNode?.neighborsCount).toEqual(randomNode.neighborsCount);
     expect(actualNode?.neighborsCountByType).toEqual({});
     expect(actualNode?.__unfetchedNeighborCounts).toEqual({});
-    expect(actualNode?.__fetchedOutEdgeCount).toEqual(0);
     expect(actualNode?.__fetchedInEdgeCount).toEqual(0);
     expect(actualNode?.__unfetchedNeighborCount).toEqual(0);
   });
@@ -104,7 +102,6 @@ describe("useEntities", () => {
         neighborsCount: node1.neighborsCount,
         neighborsCountByType: {},
         __unfetchedNeighborCounts: {},
-        __fetchedOutEdgeCount: 0,
         __fetchedInEdgeCount: 0,
         __unfetchedNeighborCount: 0,
       },
@@ -117,7 +114,6 @@ describe("useEntities", () => {
         neighborsCount: node2.neighborsCount,
         neighborsCountByType: {},
         __unfetchedNeighborCounts: {},
-        __fetchedOutEdgeCount: 0,
         __fetchedInEdgeCount: 0,
         __unfetchedNeighborCount: 0,
       },
@@ -130,7 +126,6 @@ describe("useEntities", () => {
         neighborsCount: node3.neighborsCount,
         neighborsCountByType: {},
         __unfetchedNeighborCounts: {},
-        __fetchedOutEdgeCount: 0,
         __fetchedInEdgeCount: 0,
         __unfetchedNeighborCount: 0,
       },
@@ -159,7 +154,6 @@ describe("useEntities", () => {
     expect(actualNode1?.neighborsCount).toEqual(node1.neighborsCount);
     expect(actualNode1?.neighborsCountByType).toEqual({});
     expect(actualNode1?.__unfetchedNeighborCounts).toEqual({});
-    expect(actualNode1?.__fetchedOutEdgeCount).toEqual(0);
     expect(actualNode1?.__fetchedInEdgeCount).toEqual(0);
     expect(actualNode1?.__unfetchedNeighborCount).toEqual(0);
 
@@ -170,7 +164,6 @@ describe("useEntities", () => {
     expect(actualNode2?.neighborsCount).toEqual(node2.neighborsCount);
     expect(actualNode2?.neighborsCountByType).toEqual({});
     expect(actualNode2?.__unfetchedNeighborCounts).toEqual({});
-    expect(actualNode2?.__fetchedOutEdgeCount).toEqual(0);
     expect(actualNode2?.__fetchedInEdgeCount).toEqual(0);
     expect(actualNode2?.__unfetchedNeighborCount).toEqual(0);
 
@@ -181,7 +174,6 @@ describe("useEntities", () => {
     expect(actualNode3?.neighborsCount).toEqual(node3.neighborsCount);
     expect(actualNode3?.neighborsCountByType).toEqual({});
     expect(actualNode3?.__unfetchedNeighborCounts).toEqual({});
-    expect(actualNode3?.__fetchedOutEdgeCount).toEqual(0);
     expect(actualNode3?.__fetchedInEdgeCount).toEqual(0);
     expect(actualNode3?.__unfetchedNeighborCount).toEqual(0);
   });

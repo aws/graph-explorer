@@ -76,10 +76,6 @@ export type Vertex = {
    * Fetched incoming edges connected with the vertex
    */
   __fetchedInEdgeCount?: number;
-  /**
-   * Fetched outgoing edges connected with the vertex
-   */
-  __fetchedOutEdgeCount?: number;
 };
 
 export type Edge = {
