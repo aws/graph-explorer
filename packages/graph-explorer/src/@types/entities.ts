@@ -72,10 +72,6 @@ export type Vertex = {
    * Non-fetched neighbors by type
    */
   __unfetchedNeighborCounts?: Record<string, number>;
-  /**
-   * Fetched incoming edges connected with the vertex
-   */
-  __fetchedInEdgeCount?: number;
 };
 
 export type Edge = {

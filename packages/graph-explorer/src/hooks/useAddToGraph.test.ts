@@ -26,7 +26,6 @@ test("should add one node", async () => {
   const actual = result.current.entities.nodes.get(vertex.id);
   expect(actual).toEqual({
     ...vertex,
-    __fetchedInEdgeCount: 0,
     __unfetchedNeighborCount: 0,
     __unfetchedNeighborCounts: {},
   });
@@ -78,7 +77,6 @@ test("should add multiple nodes and edges", async () => {
     .values()
     .map(n => ({
       ...n,
-      __fetchedInEdgeCount: 2,
       __unfetchedNeighborCount: 0,
       __unfetchedNeighborCounts: {},
     }))
