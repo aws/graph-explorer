@@ -118,7 +118,6 @@ export function mergeConfiguration(
   return {
     id: currentConfig.id,
     displayLabel: currentConfig.displayLabel,
-    remoteConfigFile: currentConfig.remoteConfigFile,
     __fileBase: currentConfig.__fileBase,
     connection: {
       ...(currentConfig.connection || {}),

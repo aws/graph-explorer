@@ -2,6 +2,8 @@
 
 ## Upcoming
 
+- **Removed** URL parameter `configFile` support for the default connection
+  ([#724](https://github.com/aws/graph-explorer/pull/724))
 - **Improved** app startup UI to be more consistent
   ([#723](https://github.com/aws/graph-explorer/pull/723))
 - **Improved** error logs in the browser console

@@ -1,10 +1,9 @@
-import merge from "lodash/merge";
 import { PropsWithChildren, useEffect } from "react";
 import { useLocation } from "react-router";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { LoadingSpinner, PanelEmptyState } from "@/components";
 import Redirect from "@/components/Redirect";
-import { RawConfiguration, fetchConfiguration } from "./ConfigurationProvider";
+import { RawConfiguration } from "./ConfigurationProvider";
 import {
   activeConfigurationAtom,
   configurationAtom,
@@ -46,48 +45,35 @@ const AppStatusLoader = ({
     // If the config file is not in the store,
     // update configuration with the config file
     if (!!config && !configuration.get(config.id)) {
-      (async () => {
-        let newConfig: RawConfiguration = config;
-        if (config.remoteConfigFile) {
-          logger.debug(
-            "Config not in store, loading from file",
-            config.remoteConfigFile
-          );
-          const remoteConfig = await fetchConfiguration(
-            config.remoteConfigFile
-          );
-          newConfig = merge({}, config, remoteConfig);
-        }
-        newConfig.__fileBase = true;
-        let activeConfigId = config.id;
-        logger.debug("Adding new config to store", newConfig);
-        setConfiguration(prevConfigMap => {
-          const updatedConfig = new Map(prevConfigMap);
-          if (newConfig.connection?.queryEngine) {
-            updatedConfig.set(config.id, newConfig);
-          }
-          //Set a configuration for each connection if queryEngine is not set
-          if (!newConfig.connection?.queryEngine) {
-            CONNECTIONS_OP.forEach(connection => {
-              const connectionConfig = {
-                ...newConfig,
-                id: `${newConfig.id}-${connection.value}`,
-                connection: {
-                  ...newConfig.connection,
-                  url: newConfig.connection?.url || "",
-                  queryEngine: connection.value,
-                },
-              };
-              updatedConfig.set(connectionConfig.id, connectionConfig);
-            });
-            activeConfigId = `${newConfig.id}-${CONNECTIONS_OP[0].value}`;
-          }
-          return updatedConfig;
-        });
-        setActiveConfig(activeConfigId);
-      })();
+      const newConfig: RawConfiguration = config;
+      newConfig.__fileBase = true;
+      let activeConfigId = config.id;
 
-      return;
+      logger.debug("Adding new config to store", newConfig);
+      setConfiguration(prevConfigMap => {
+        const updatedConfig = new Map(prevConfigMap);
+        if (newConfig.connection?.queryEngine) {
+          updatedConfig.set(config.id, newConfig);
+        }
+        //Set a configuration for each connection if queryEngine is not set
+        if (!newConfig.connection?.queryEngine) {
+          CONNECTIONS_OP.forEach(connection => {
+            const connectionConfig = {
+              ...newConfig,
+              id: `${newConfig.id}-${connection.value}`,
+              connection: {
+                ...newConfig.connection,
+                url: newConfig.connection?.url || "",
+                queryEngine: connection.value,
+              },
+            };
+            updatedConfig.set(connectionConfig.id, connectionConfig);
+          });
+          activeConfigId = `${newConfig.id}-${CONNECTIONS_OP[0].value}`;
+        }
+        return updatedConfig;
+      });
+      setActiveConfig(activeConfigId);
     }
 
     // If the config file is stored,
