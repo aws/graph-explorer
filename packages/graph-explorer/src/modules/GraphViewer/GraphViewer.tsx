@@ -40,7 +40,7 @@ import useGraphStyles from "./useGraphStyles";
 import useNodeBadges from "./useNodeBadges";
 import { SelectedElements } from "@/components/Graph/Graph.model";
 import { useAutoOpenDetailsSidebar } from "./useAutoOpenDetailsSidebar";
-import { useDisplayVertexTypeConfigs } from "@/core";
+import { useDisplayVertexTypeConfigs, useNeighborsCallback } from "@/core";
 
 export type GraphViewerProps = {
   onNodeCustomize(nodeType?: string): void;
@@ -141,17 +141,17 @@ export default function GraphViewer({
   const getNodeBadges = useNodeBadges();
 
   const { expandNode } = useExpandNode();
+  const neighborCallback = useNeighborsCallback();
   const onNodeDoubleClick: ElementEventCallback<Vertex> = useCallback(
-    (_, vertex) => {
-      const offset = vertex.__unfetchedNeighborCount
-        ? Math.max(0, vertex.neighborsCount - vertex.__unfetchedNeighborCount)
-        : undefined;
+    async (_, vertex) => {
+      const neighborCount = await neighborCallback(vertex);
+      const offset = neighborCount ? neighborCount.fetched : undefined;
       expandNode(vertex, {
         limit: 10,
         offset,
       });
     },
-    [expandNode]
+    [expandNode, neighborCallback]
   );
 
   const [layout, setLayout] = useState("F_COSE");

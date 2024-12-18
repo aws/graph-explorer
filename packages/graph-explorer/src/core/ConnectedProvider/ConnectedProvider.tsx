@@ -7,7 +7,6 @@ import StateProvider from "@/core/StateProvider/StateProvider";
 import ThemeProvider from "@/core/ThemeProvider/ThemeProvider";
 import { MantineProvider } from "@mantine/core";
 import { emotionTransform, MantineEmotionProvider } from "@mantine/emotion";
-import { ExpandNodeProvider } from "@/hooks/useExpandNode";
 import { ErrorBoundary } from "react-error-boundary";
 import AppErrorPage from "@/core/AppErrorPage";
 import { TooltipProvider } from "@/components";
@@ -37,9 +36,7 @@ export default function ConnectedProvider({ children }: PropsWithChildren) {
               <ThemeProvider>
                 <NotificationProvider component={Toast}>
                   <StateProvider>
-                    <AppStatusLoader>
-                      <ExpandNodeProvider>{children}</ExpandNodeProvider>
-                    </AppStatusLoader>
+                    <AppStatusLoader>{children}</AppStatusLoader>
                   </StateProvider>
                 </NotificationProvider>
               </ThemeProvider>

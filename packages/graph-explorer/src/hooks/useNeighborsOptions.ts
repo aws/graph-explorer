@@ -1,7 +1,11 @@
 import { useMemo } from "react";
 import { Vertex } from "@/types/entities";
 import { SelectOption } from "@/components";
-import { DisplayVertexTypeConfig, useDisplayVertexTypeConfigs } from "@/core";
+import {
+  DisplayVertexTypeConfig,
+  useDisplayVertexTypeConfigs,
+  useNeighbors,
+} from "@/core";
 
 export type NeighborOption = SelectOption & {
   config: DisplayVertexTypeConfig;
@@ -9,23 +13,31 @@ export type NeighborOption = SelectOption & {
 
 export default function useNeighborsOptions(vertex: Vertex): NeighborOption[] {
   const vtConfigs = useDisplayVertexTypeConfigs();
+  const neighbors = useNeighbors(vertex);
 
   return useMemo(() => {
-    return Object.keys(vertex.neighborsCountByType)
-      .map(type => vtConfigs.get(type))
-      .filter(vtConfig => vtConfig != null)
-      .map(vtConfig => {
+    if (!neighbors) {
+      return [];
+    }
+
+    return neighbors.byType
+      .entries()
+      .map(([type, neighbors]) => {
+        const vtConfig = vtConfigs.get(type);
+
+        if (!vtConfig) {
+          return null;
+        }
+
         return {
           label: vtConfig.displayLabel,
           value: vtConfig.type,
-          isDisabled: vertex.__unfetchedNeighborCounts?.[vtConfig.type] === 0,
+          isDisabled: neighbors.unfetched === 0,
           config: vtConfig,
-        };
+        } satisfies NeighborOption;
       })
+      .filter(op => op != null)
+      .toArray()
       .toSorted((a, b) => a.label.localeCompare(b.label));
-  }, [
-    vertex.neighborsCountByType,
-    vertex.__unfetchedNeighborCounts,
-    vtConfigs,
-  ]);
+  }, [neighbors, vtConfigs]);
 }

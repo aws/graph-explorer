@@ -80,70 +80,6 @@ const entitiesSelector = selector<Entities>({
     // Remove duplicated edges by id
     const nonDupEdges = new Map([...prevEdges, ...newEntities.edges]);
 
-    // Get stats for each node
-    const nodesWithStats = new Map(
-      nonDupNodes.entries().map(([id, node]) => {
-        // Get all OUT connected edges: current node is source and target should exist
-        const outConnections = nonDupEdges
-          .values()
-          .filter(edge => edge.source === id && nonDupNodes.has(edge.target))
-          .toArray();
-
-        // Get all IN connected edges: current node is target and source should exist
-        const inConnections = nonDupEdges
-          .values()
-          .filter(edge => edge.target === id && nonDupNodes.has(edge.source))
-          .toArray();
-
-        // Re-mapping neighborsCountByType to only un-fetched counts
-        const __unfetchedNeighborCounts = Object.entries(
-          node.neighborsCountByType
-        ).reduce(
-          (counts, [type, count]) => {
-            // All edges FROM current node to TYPE that it is in the graph
-            const fetchedOutEdgesByType = outConnections.filter(
-              edge =>
-                edge.targetType.split("::").includes(type) &&
-                nonDupNodes.has(edge.target)
-            );
-
-            // All edges TO current node from TYPE that it is in the graph
-            const fetchedInEdgesByType = inConnections.filter(
-              edge =>
-                edge.sourceType.split("::").includes(type) &&
-                nonDupNodes.has(edge.source)
-            );
-
-            // Count only unique connected nodes
-            const distinctConnectedNodes = new Set([
-              ...fetchedOutEdgesByType.map(et => et.target),
-              ...fetchedInEdgesByType.map(et => et.source),
-            ]);
-
-            counts[type] = Math.max(0, count - distinctConnectedNodes.size);
-
-            return counts;
-          },
-          {} as Record<string, number>
-        );
-
-        return [
-          id,
-          <Vertex>{
-            ...node,
-            __unfetchedNeighborCounts,
-            __unfetchedNeighborCount: Math.max(
-              0,
-              Object.values(__unfetchedNeighborCounts).reduce(
-                (sum, count) => sum + count,
-                0
-              )
-            ),
-          },
-        ];
-      })
-    );
-
     // Remove all unconnected edges
     const nonUnconnectedEdges = new Map(
       nonDupEdges
@@ -207,22 +143,18 @@ const entitiesSelector = selector<Entities>({
     }
 
     // Avoid update the state if nodes are equal
-    const shouldUpdateNodes = !isEqualWith(
-      nodesWithStats,
-      prevNodes,
-      (a, b) => {
-        // Ignore these properties because they are added by a hook
-        // They never exists in raw data
-        if (a?.__isHiddenByCollapse !== b?.__isHiddenByCollapse) {
-          return true;
-        }
-        if (a?.__isCollapsed !== b?.__isCollapsed) {
-          return true;
-        }
-        return false;
+    const shouldUpdateNodes = !isEqualWith(nonDupNodes, prevNodes, (a, b) => {
+      // Ignore these properties because they are added by a hook
+      // They never exists in raw data
+      if (a?.__isHiddenByCollapse !== b?.__isHiddenByCollapse) {
+        return true;
       }
-    );
-    shouldUpdateNodes && set(nodesSelector, nodesWithStats);
+      if (a?.__isCollapsed !== b?.__isCollapsed) {
+        return true;
+      }
+      return false;
+    });
+    shouldUpdateNodes && set(nodesSelector, nonDupNodes);
 
     // Avoid update the state if edges are equal
     const shouldUpdateEdges = !isEqual(nonUnconnectedEdges, prevEdges);
@@ -235,7 +167,7 @@ const entitiesSelector = selector<Entities>({
     }
 
     set(updateSchemaFromEntitiesAtom, {
-      nodes: nodesWithStats,
+      nodes: nonDupNodes,
       edges: nonUnconnectedEdges,
     });
 

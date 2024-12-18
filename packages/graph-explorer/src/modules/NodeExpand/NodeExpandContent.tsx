@@ -6,7 +6,7 @@ import ExpandGraphIcon from "@/components/icons/ExpandGraphIcon";
 import GraphIcon from "@/components/icons/GraphIcon";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import PanelEmptyState from "@/components/PanelEmptyState/PanelEmptyState";
-import { DisplayVertex, useNode, useWithTheme } from "@/core";
+import { DisplayVertex, useNeighbors, useNode, useWithTheme } from "@/core";
 import { useExpandNode } from "@/hooks";
 import useNeighborsOptions, {
   NeighborOption,
@@ -82,6 +82,7 @@ function ExpansionOptions({
   neighborsOptions: NeighborOption[];
 }) {
   const t = useTranslations();
+  const neighbors = useNeighbors(vertex);
 
   const [selectedType, setSelectedType] = useState<string>(
     firstNeighborAvailableForExpansion(neighborsOptions)?.value ?? ""
@@ -89,8 +90,10 @@ function ExpansionOptions({
   const [filters, setFilters] = useState<Array<NodeExpandFilter>>([]);
   const [limit, setLimit] = useState<number | null>(null);
 
-  const hasUnfetchedNeighbors = Boolean(vertex.__unfetchedNeighborCount);
   const hasSelectedType = Boolean(selectedType);
+  const hasUnfetchedNeighbors = (neighbors?.unfetched ?? 0) > 0;
+  const expandOffset =
+    limit !== null && neighbors ? neighbors.fetched : undefined;
 
   // Reset filters when selected type changes
   const [prevSelectedType, setPrevSelectedType] = useState(selectedType);
@@ -133,11 +136,7 @@ function ExpansionOptions({
               value: filter.value,
             })),
             limit: limit || undefined,
-            offset:
-              limit !== null && vertex.__unfetchedNeighborCounts
-                ? vertex.neighborsCountByType[selectedType] -
-                  vertex.__unfetchedNeighborCounts[selectedType]
-                : undefined,
+            offset: expandOffset,
           }}
         />
       </PanelFooter>

@@ -9,7 +9,7 @@ import {
   VertexIcon,
   VisibleIcon,
 } from "@/components";
-import { useNode } from "@/core";
+import { useNeighborByType as useNeighborsByType, useNode } from "@/core";
 import useNeighborsOptions, {
   NeighborOption,
 } from "@/hooks/useNeighborsOptions";
@@ -63,9 +63,7 @@ function NeighborTypeRow({
   vertex: Vertex;
   op: NeighborOption;
 }) {
-  const neighborsInView =
-    vertex.neighborsCountByType[op.value] -
-    (vertex.__unfetchedNeighborCounts?.[op.value] ?? 0);
+  const neighbors = useNeighborsByType(vertex, op.value);
 
   return (
     <div className="flex items-center justify-between gap-2">
@@ -78,16 +76,14 @@ function NeighborTypeRow({
           <TooltipTrigger asChild>
             <Chip className="min-w-12">
               <VisibleIcon />
-              {neighborsInView}
+              {neighbors.fetched}
             </Chip>
           </TooltipTrigger>
           <TooltipContent>
-            {`${neighborsInView} ${op.label} in the Graph View`}
+            {`${neighbors.fetched} ${op.label} in the Graph View`}
           </TooltipContent>
         </Tooltip>
-        <Chip className="min-w-12">
-          {vertex.neighborsCountByType[op.value]}
-        </Chip>
+        <Chip className="min-w-12">{neighbors.all}</Chip>
       </div>
     </div>
   );

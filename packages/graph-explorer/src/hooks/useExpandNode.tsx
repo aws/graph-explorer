@@ -1,10 +1,4 @@
-import {
-  PropsWithChildren,
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-} from "react";
+import { useCallback, useEffect } from "react";
 import { useNotification } from "@/components/NotificationProvider";
 import type {
   NeighborsRequest,
@@ -19,20 +13,10 @@ import useEntities from "./useEntities";
 import { useRecoilValue } from "recoil";
 import { useMutation } from "@tanstack/react-query";
 import { Vertex } from "@/types/entities";
-import { useUpdateAllNodeCounts } from "./useUpdateNodeCounts";
 import { createDisplayError } from "@/utils/createDisplayError";
 import { toNodeMap } from "@/core/StateProvider/nodes";
 import { toEdgeMap } from "@/core/StateProvider/edges";
-
-/*
-
-# Developer Note
-
-Since the expand request could come from the GraphViewer or the sidebar, we must
-encapsulate the logic within a React context. This ensures the dependent queries
-will be run regardless if the view is unmounted.
-
-*/
+import { useNeighborsCallback } from "@/core";
 
 type ExpandNodeFilters = Omit<NeighborsRequest, "vertex" | "vertexType">;
 
@@ -41,17 +25,11 @@ export type ExpandNodeRequest = {
   filters?: ExpandNodeFilters;
 };
 
-export type ExpandNodeContextType = {
-  expandNode: (vertex: Vertex, filters?: ExpandNodeFilters) => void;
-  isPending: boolean;
-};
-
-const ExpandNodeContext = createContext<ExpandNodeContextType | null>(null);
-
-export function ExpandNodeProvider(props: PropsWithChildren) {
-  // Wires up node count query in response to new nodes in the graph
-  useUpdateAllNodeCounts();
-
+/**
+ * Provides a callback to submit a node expansion request, the query
+ * information, and a callback to reset the request state.
+ */
+export default function useExpandNode() {
   const explorer = useRecoilValue(explorerSelector);
   const [_, setEntities] = useEntities();
   const { enqueueNotification, clearNotification } = useNotification();
@@ -114,9 +92,19 @@ export function ExpandNodeProvider(props: PropsWithChildren) {
     return () => clearNotification(notificationId);
   }, [clearNotification, enqueueNotification, isPending]);
 
+  // Build the expand node callback
   const connection = useRecoilValue(activeConnectionSelector);
+  const neighborCallback = useNeighborsCallback();
   const expandNode = useCallback(
-    (vertex: Vertex, filters?: ExpandNodeFilters) => {
+    async (vertex: Vertex, filters?: ExpandNodeFilters) => {
+      const neighbor = await neighborCallback(vertex);
+      if (!neighbor) {
+        enqueueNotification({
+          title: "No neighbor information available",
+          message: "This vertex's neighbor data has not been retrieved yet.",
+        });
+        return;
+      }
       const request: ExpandNodeRequest = {
         vertex,
         filters: {
@@ -130,7 +118,7 @@ export function ExpandNodeProvider(props: PropsWithChildren) {
         return;
       }
 
-      if (vertex.__unfetchedNeighborCount === 0) {
+      if (neighbor.unfetched <= 0) {
         enqueueNotification({
           title: "No more neighbors",
           message:
@@ -141,29 +129,17 @@ export function ExpandNodeProvider(props: PropsWithChildren) {
 
       mutate(request);
     },
-    [connection?.nodeExpansionLimit, enqueueNotification, isPending, mutate]
+    [
+      connection?.nodeExpansionLimit,
+      enqueueNotification,
+      isPending,
+      mutate,
+      neighborCallback,
+    ]
   );
 
-  const value: ExpandNodeContextType = {
+  return {
     expandNode,
     isPending,
   };
-
-  return (
-    <ExpandNodeContext.Provider value={value}>
-      {props.children}
-    </ExpandNodeContext.Provider>
-  );
-}
-
-/**
- * Provides a callback to submit a node expansion request, the query
- * information, and a callback to reset the request state.
- */
-export default function useExpandNode() {
-  const value = useContext(ExpandNodeContext);
-  if (!value) {
-    throw new Error("useExpandNode must be used within <ExpandNodeProvider>");
-  }
-  return value;
 }

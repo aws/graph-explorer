@@ -19,6 +19,7 @@ import {
 
 import { useDeepMemo, useTranslations } from "@/hooks";
 import { recoilDiffSets } from "@/utils/recoilState";
+import { useAllNeighbors } from "@/core";
 
 type ToggleVertex = DisplayVertex & {
   __is_visible: boolean;
@@ -29,6 +30,7 @@ const NodesTabular = forwardRef<TabularInstance<ToggleVertex>, any>(
   (_props, ref) => {
     const t = useTranslations();
     const displayNodes = useDisplayVerticesInCanvas();
+    const neighborCounts = useAllNeighbors(displayNodes.values().toArray());
     const setNodesOut = useSetRecoilState(nodesOutOfFocusIdsAtom);
     const [hiddenNodesIds, setHiddenNodesIds] =
       useRecoilState(nodesFilteredIdsAtom);
@@ -95,7 +97,7 @@ const NodesTabular = forwardRef<TabularInstance<ToggleVertex>, any>(
           width: 300,
         },
         {
-          accessor: "neighborsCount",
+          accessor: row => neighborCounts.get(row.id)?.all ?? 0,
           label: "Total Neighbors",
           overflow: "ellipsis",
           oneLine: true,
@@ -107,7 +109,7 @@ const NodesTabular = forwardRef<TabularInstance<ToggleVertex>, any>(
           },
         },
       ] satisfies ColumnDefinition<ToggleVertex>[];
-    }, [t, onToggleVisibility]);
+    }, [t, onToggleVisibility, neighborCounts]);
 
     const data: ToggleVertex[] = useDeepMemo(() => {
       return displayNodes

@@ -64,14 +64,6 @@ export type Vertex = {
    * Internal flag to mark the resource as blank node in RDF.
    */
   __isBlank?: boolean;
-  /**
-   * Total number of non-fetched neighbors
-   */
-  __unfetchedNeighborCount?: number;
-  /**
-   * Non-fetched neighbors by type
-   */
-  __unfetchedNeighborCounts?: Record<string, number>;
 };
 
 export type Edge = {

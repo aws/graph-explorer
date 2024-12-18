@@ -24,11 +24,7 @@ test("should add one node", async () => {
   });
 
   const actual = result.current.entities.nodes.get(vertex.id);
-  expect(actual).toEqual({
-    ...vertex,
-    __unfetchedNeighborCount: 0,
-    __unfetchedNeighborCounts: {},
-  });
+  expect(actual).toEqual(vertex);
 });
 
 test("should add one edge", async () => {
@@ -73,14 +69,7 @@ test("should add multiple nodes and edges", async () => {
   });
 
   const actualNodes = result.current.entities.nodes.values().toArray();
-  const expectedNodes = randomEntities.nodes
-    .values()
-    .map(n => ({
-      ...n,
-      __unfetchedNeighborCount: 0,
-      __unfetchedNeighborCounts: {},
-    }))
-    .toArray();
+  const expectedNodes = randomEntities.nodes.values().toArray();
   expect(actualNodes).toEqual(expectedNodes);
 
   const actualEdges = result.current.entities.edges.values().toArray();
