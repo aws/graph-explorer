@@ -5,5 +5,6 @@ export * from "./displayTypeConfigs";
 export * from "./displayVertex";
 export * from "./edges";
 export * from "./entitiesSelector";
+export * from "./neighbors";
 export * from "./nodes";
 export * from "./userPreferences";
