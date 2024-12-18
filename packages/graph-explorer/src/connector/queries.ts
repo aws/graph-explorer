@@ -6,7 +6,7 @@ import {
   KeywordSearchResponse,
   NeighborsRequest,
   NeighborsResponse,
-  VertexIdType,
+  VertexIdAndType,
 } from "./useGEFetchTypes";
 import { VertexId } from "@/@types/entities";
 
@@ -67,18 +67,17 @@ export type NeighborCountsQueryResponse = {
  * @returns The count of neighbors for the given node as a total and per type.
  */
 export const neighborsCountQuery = (
-  id: VertexId,
-  idType: VertexIdType,
+  vertex: VertexIdAndType,
   limit: number | undefined,
   explorer: Explorer | null
 ) =>
   queryOptions({
-    queryKey: ["neighborsCount", id, idType, limit, explorer],
+    queryKey: ["neighborsCount", vertex.id, vertex.idType, limit, explorer],
     enabled: Boolean(explorer),
     queryFn: async (): Promise<NeighborCountsQueryResponse | undefined> => {
       const result = await explorer?.fetchNeighborsCount({
-        vertexId: id.toString(),
-        idType: idType,
+        vertexId: vertex.id,
+        idType: vertex.idType,
         limit,
       });
 
@@ -87,7 +86,7 @@ export const neighborsCountQuery = (
       }
 
       return {
-        nodeId: id,
+        nodeId: vertex.id,
         totalCount: result.totalCount,
         counts: result.counts,
       };
