@@ -53,15 +53,19 @@ export function neighborsCountQuery(
   return queryOptions({
     queryKey: ["neighborsCount", id, idType, limit, explorer],
     enabled: Boolean(explorer),
-    queryFn: async (): Promise<NeighborCountsQueryResponse | undefined> => {
-      const result = await explorer?.fetchNeighborsCount({
+    queryFn: async (): Promise<NeighborCountsQueryResponse> => {
+      if (!explorer) {
+        return {
+          nodeId: id,
+          totalCount: 0,
+          counts: {},
+        };
+      }
+
+      const result = await explorer.fetchNeighborsCount({
         vertex: { id, idType },
         limit,
       });
-
-      if (!result) {
-        return;
-      }
 
       return {
         nodeId: id,
