@@ -8,11 +8,12 @@ import { createGremlinExplorer } from "@/connector/gremlin/gremlinExplorer";
 import { createOpenCypherExplorer } from "@/connector/openCypher/openCypherExplorer";
 import { createSparqlExplorer } from "@/connector/sparql/sparqlExplorer";
 import { mergedConfigurationSelector } from "./StateProvider/configuration";
-import { selector, useRecoilValue } from "recoil";
+import { atom, selector, useRecoilValue } from "recoil";
 import { equalSelector } from "@/utils/recoilState";
 import { ConnectionConfig } from "@shared/types";
 import { logger } from "@/utils";
 import { featureFlagsSelector } from "./featureFlags";
+import { Explorer } from "@/connector/useGEFetchTypes";
 
 /**
  * Active connection where the value will only change when one of the
@@ -51,6 +52,12 @@ export const activeConnectionSelector = equalSelector({
 export const explorerSelector = selector({
   key: "explorer",
   get: ({ get }) => {
+    // Use this explorer override when testing
+    const explorerForTesting = get(explorerForTestingAtom);
+    if (explorerForTesting) {
+      return explorerForTesting;
+    }
+
     const connection = get(activeConnectionSelector);
     const featureFlags = get(featureFlagsSelector);
 
@@ -66,6 +73,12 @@ export const explorerSelector = selector({
         return createGremlinExplorer(connection, featureFlags);
     }
   },
+});
+
+/** CAUTION: This atom is only for testing purposes. */
+export const explorerForTestingAtom = atom<Explorer | null>({
+  key: "explorerForTesting",
+  default: null,
 });
 
 export const queryEngineSelector = selector({
