@@ -125,13 +125,9 @@ export type NeighborsResponse = MappedQueryResults;
 
 export type NeighborsCountRequest = {
   /**
-   * Source vertex ID.
+   * Source vertex ID & type.
    */
-  vertexId: string;
-  /**
-   * The type of the vertex ID.
-   */
-  idType: VertexIdType;
+  vertex: VertexIdAndType;
   /**
    * Limit the number of results.
    * 0 = No limit.
