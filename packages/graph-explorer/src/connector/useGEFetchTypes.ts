@@ -87,13 +87,9 @@ export type Criterion = {
 
 export type NeighborsRequest = {
   /**
-   * Source vertex ID.
+   * Source vertex ID & type.
    */
-  vertexId: string;
-  /**
-   * The type of the vertex ID.
-   */
-  idType: VertexIdType;
+  vertex: VertexIdAndType;
   /**
    * Source vertex type.
    */

@@ -1,6 +1,7 @@
 import globalMockFetch from "@/connector/testUtils/globalMockFetch";
 import mockGremlinFetch from "@/connector/testUtils/mockGremlinFetch";
 import fetchNeighbors from "./fetchNeighbors";
+import { VertexId } from "@/@types/entities";
 
 describe("Gremlin > fetchNeighbors", () => {
   beforeEach(globalMockFetch);
@@ -89,8 +90,7 @@ describe("Gremlin > fetchNeighbors", () => {
     ];
 
     const response = await fetchNeighbors(mockGremlinFetch(), {
-      vertexId: "2018",
-      idType: "string",
+      vertex: { id: "2018" as VertexId, idType: "string" },
       vertexType: "airport",
     });
 
@@ -224,8 +224,7 @@ describe("Gremlin > fetchNeighbors", () => {
     ];
 
     const response = await fetchNeighbors(mockGremlinFetch(), {
-      vertexId: "2018",
-      idType: "string",
+      vertex: { id: "2018" as VertexId, idType: "string" },
       vertexType: "airport",
       filterByVertexTypes: ["airport"],
       filterCriteria: [{ name: "code", value: "TF", operator: "LIKE" }],

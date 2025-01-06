@@ -34,10 +34,7 @@ will be run regardless if the view is unmounted.
 
 */
 
-type ExpandNodeFilters = Omit<
-  NeighborsRequest,
-  "vertexId" | "idType" | "vertexType"
->;
+type ExpandNodeFilters = Omit<NeighborsRequest, "vertex" | "vertexType">;
 
 export type ExpandNodeRequest = {
   vertex: Vertex;
@@ -66,8 +63,7 @@ export function ExpandNodeProvider(props: PropsWithChildren) {
     ): Promise<NeighborsResponse | null> => {
       // Perform the query when a request exists
       const request: NeighborsRequest | null = expandNodeRequest && {
-        vertexId: expandNodeRequest.vertex.id,
-        idType: expandNodeRequest.vertex.idType,
+        vertex: expandNodeRequest.vertex,
         vertexType:
           expandNodeRequest.vertex.types?.join("::") ??
           expandNodeRequest.vertex.type,

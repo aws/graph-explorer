@@ -1,11 +1,11 @@
 import { normalize } from "@/utils/testing";
 import oneHopTemplate from "./oneHopTemplate";
+import { VertexId } from "@/@types/entities";
 
 describe("OpenCypher > oneHopTemplate", () => {
   it("Should return a template for a simple vertex id", () => {
     const template = oneHopTemplate({
-      vertexId: "12",
-      idType: "string",
+      vertex: { id: "12" as VertexId, idType: "string" },
     });
 
     expect(normalize(template)).toEqual(
@@ -25,8 +25,7 @@ describe("OpenCypher > oneHopTemplate", () => {
 
   it("Should return a template with an offset and limit", () => {
     const template = oneHopTemplate({
-      vertexId: "12",
-      idType: "string",
+      vertex: { id: "12" as VertexId, idType: "string" },
       offset: 5,
       limit: 5,
     });
@@ -50,8 +49,7 @@ describe("OpenCypher > oneHopTemplate", () => {
 
   it("Should return a template for specific vertex type", () => {
     const template = oneHopTemplate({
-      vertexId: "12",
-      idType: "string",
+      vertex: { id: "12" as VertexId, idType: "string" },
       filterByVertexTypes: ["country"],
       offset: 5,
       limit: 10,
@@ -76,8 +74,7 @@ describe("OpenCypher > oneHopTemplate", () => {
 
   it("Should return a template for many vertex types", () => {
     const template = oneHopTemplate({
-      vertexId: "12",
-      idType: "string",
+      vertex: { id: "12" as VertexId, idType: "string" },
       filterByVertexTypes: ["country", "continent", "airport", "person"],
     });
 
@@ -98,8 +95,7 @@ describe("OpenCypher > oneHopTemplate", () => {
 
   it("Should return a template for specific edge type", () => {
     const template = oneHopTemplate({
-      vertexId: "12",
-      idType: "string",
+      vertex: { id: "12" as VertexId, idType: "string" },
       edgeTypes: ["locatedIn"],
       offset: 5,
       limit: 10,
@@ -124,8 +120,7 @@ describe("OpenCypher > oneHopTemplate", () => {
 
   it("Should return a template with specific filter criteria", () => {
     const template = oneHopTemplate({
-      vertexId: "12",
-      idType: "string",
+      vertex: { id: "12" as VertexId, idType: "string" },
       filterByVertexTypes: ["country"],
       filterCriteria: [
         { name: "longest", value: 10000, operator: "gte", dataType: "Number" },
