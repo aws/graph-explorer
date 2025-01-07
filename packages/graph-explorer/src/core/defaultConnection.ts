@@ -23,6 +23,7 @@ export const DefaultConnectionDataSchema = z.object({
 
 export type DefaultConnectionData = z.infer<typeof DefaultConnectionDataSchema>;
 
+/** Fetches the default connection from multiple possible locations and returns null on failure. */
 export async function fetchDefaultConnection(): Promise<RawConfiguration | null> {
   const defaultConnectionPath = `${location.origin}/defaultConnection`;
   const sagemakerConnectionPath = `${location.origin}/proxy/9250/defaultConnection`;
@@ -47,6 +48,7 @@ export async function fetchDefaultConnection(): Promise<RawConfiguration | null>
   }
 }
 
+/** Attempts to fetch a default connection from the given URL and returns null on a failure. */
 export async function fetchDefaultConnectionFor(
   url: string
 ): Promise<DefaultConnectionData | null> {
