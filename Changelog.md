@@ -1,6 +1,9 @@
 # graph-explorer Change Log
 
-## Upcoming
+## Release 1.13.0
+
+This release is a maintenance release with improvements to app startup, default
+connection handling, and Neptune error handling.
 
 - **Removed** URL parameter `configFile` support for the default connection
   ([#724](https://github.com/aws/graph-explorer/pull/724))
