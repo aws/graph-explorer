@@ -66,7 +66,16 @@ export async function fetchDefaultConnectionFor(
     }
     const data = await response.json();
     logger.debug("Default connection data for url", url, data);
-    return DefaultConnectionDataSchema.parse(data);
+    const result = DefaultConnectionDataSchema.safeParse(data);
+    if (result.success) {
+      return result.data;
+    } else {
+      logger.warn(
+        "Failed to parse default connection data",
+        result.error.flatten()
+      );
+      return null;
+    }
   } catch (error) {
     logger.warn("Failed to fetch default connection for path", url, error);
     return null;
