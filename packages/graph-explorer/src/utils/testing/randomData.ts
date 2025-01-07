@@ -27,7 +27,12 @@ import {
 } from "@/core/StateProvider/userPreferences";
 import { toNodeMap } from "@/core/StateProvider/nodes";
 import { toEdgeMap } from "@/core/StateProvider/edges";
-import { queryEngineOptions } from "@shared/types";
+import {
+  NeptuneServiceType,
+  neptuneServiceTypeOptions,
+  QueryEngine,
+  queryEngineOptions,
+} from "@shared/types";
 
 /*
 
@@ -205,10 +210,8 @@ export function createRandomRawConfiguration(): RawConfiguration {
   const isIamEnabled = createRandomBoolean();
   const fetchTimeoutMs = randomlyUndefined(createRandomInteger());
   const nodeExpansionLimit = randomlyUndefined(createRandomInteger());
-  const serviceType = randomlyUndefined(
-    pickRandomElement(["neptune-db", "neptune-graph"] as const)
-  );
-  const queryEngine = pickRandomElement([...queryEngineOptions]);
+  const serviceType = randomlyUndefined(createRandomServiceType());
+  const queryEngine = createRandomQueryEngine();
 
   return {
     id: createRandomName("id"),
@@ -220,13 +223,25 @@ export function createRandomRawConfiguration(): RawConfiguration {
       proxyConnection: isProxyConnection,
       ...(isIamEnabled && { awsAuthEnabled: createRandomBoolean() }),
       ...(isIamEnabled && {
-        awsRegion: pickRandomElement(["us-west-1", "us-west-2", "us-east-1"]),
+        awsRegion: createRandomAwsRegion(),
       }),
       ...(fetchTimeoutMs && { fetchTimeoutMs }),
       ...(nodeExpansionLimit && { nodeExpansionLimit }),
       ...(serviceType && { serviceType }),
     },
   };
+}
+
+export function createRandomQueryEngine(): QueryEngine {
+  return pickRandomElement([...queryEngineOptions]);
+}
+
+export function createRandomServiceType(): NeptuneServiceType {
+  return pickRandomElement([...neptuneServiceTypeOptions]);
+}
+
+export function createRandomAwsRegion(): string {
+  return pickRandomElement(["us-west-1", "us-west-2", "us-east-1"]);
 }
 
 export function createRandomVertexPreferences(): VertexPreferences {

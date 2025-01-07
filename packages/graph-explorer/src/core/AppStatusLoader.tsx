@@ -13,15 +13,10 @@ import { schemaAtom } from "./StateProvider/schema";
 import useLoadStore from "./StateProvider/useLoadStore";
 import { CONNECTIONS_OP } from "@/modules/CreateConnection/CreateConnection";
 import { logger } from "@/utils";
+import { useQuery } from "@tanstack/react-query";
+import { fetchDefaultConnection } from "./defaultConnection";
 
-export type AppLoadingProps = {
-  config?: RawConfiguration;
-};
-
-const AppStatusLoader = ({
-  config,
-  children,
-}: PropsWithChildren<AppLoadingProps>) => {
+const AppStatusLoader = ({ children }: PropsWithChildren) => {
   const location = useLocation();
   useLoadStore();
   const isStoreLoaded = useRecoilValue(isStoreLoadedAtom);
@@ -30,6 +25,16 @@ const AppStatusLoader = ({
   );
   const [configuration, setConfiguration] = useRecoilState(configurationAtom);
   const schema = useRecoilValue(schemaAtom);
+
+  const defaultConfigQuery = useQuery({
+    queryKey: ["default-connection"],
+    queryFn: fetchDefaultConnection,
+    staleTime: Infinity,
+    // Run the query only if the store is loaded and there are no configs
+    enabled: isStoreLoaded && configuration.size === 0,
+  });
+
+  const defaultConnectionConfig = defaultConfigQuery.data;
 
   useEffect(() => {
     if (!isStoreLoaded) {
@@ -44,16 +49,19 @@ const AppStatusLoader = ({
 
     // If the config file is not in the store,
     // update configuration with the config file
-    if (!!config && !configuration.get(config.id)) {
-      const newConfig: RawConfiguration = config;
+    if (
+      !!defaultConnectionConfig &&
+      !configuration.get(defaultConnectionConfig.id)
+    ) {
+      const newConfig: RawConfiguration = defaultConnectionConfig;
       newConfig.__fileBase = true;
-      let activeConfigId = config.id;
+      let activeConfigId = defaultConnectionConfig.id;
 
       logger.debug("Adding new config to store", newConfig);
       setConfiguration(prevConfigMap => {
         const updatedConfig = new Map(prevConfigMap);
         if (newConfig.connection?.queryEngine) {
-          updatedConfig.set(config.id, newConfig);
+          updatedConfig.set(defaultConnectionConfig.id, newConfig);
         }
         //Set a configuration for each connection if queryEngine is not set
         if (!newConfig.connection?.queryEngine) {
@@ -78,13 +86,19 @@ const AppStatusLoader = ({
 
     // If the config file is stored,
     // only activate the configuration
-    if (!!config && configuration.get(config.id)) {
-      logger.debug("Config exists in store, activating", config.id);
-      setActiveConfig(config.id);
+    if (
+      !!defaultConnectionConfig &&
+      configuration.get(defaultConnectionConfig.id)
+    ) {
+      logger.debug(
+        "Config exists in store, activating",
+        defaultConnectionConfig.id
+      );
+      setActiveConfig(defaultConnectionConfig.id);
     }
   }, [
     activeConfig,
-    config,
+    defaultConnectionConfig,
     configuration,
     isStoreLoaded,
     setActiveConfig,
@@ -102,8 +116,18 @@ const AppStatusLoader = ({
     );
   }
 
+  if (configuration.size === 0 && defaultConfigQuery.isLoading) {
+    return (
+      <PanelEmptyState
+        title="Loading default connection..."
+        subtitle="We are checking for a default connection"
+        icon={<LoadingSpinner />}
+      />
+    );
+  }
+
   // Loading from config file if exists
-  if (configuration.size === 0 && !!config) {
+  if (configuration.size === 0 && !!defaultConnectionConfig) {
     return (
       <PanelEmptyState
         title="Reading configuration..."
