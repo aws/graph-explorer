@@ -126,8 +126,6 @@ const entitiesSelector = selector<Entities>({
           <Vertex>{
             ...node,
             __unfetchedNeighborCounts,
-            __fetchedOutEdgeCount: outConnections.length,
-            __fetchedInEdgeCount: inConnections.length,
             __unfetchedNeighborCount: Math.max(
               0,
               Object.values(__unfetchedNeighborCounts).reduce(
