@@ -27,7 +27,7 @@ import {
 } from "@/core/StateProvider/userPreferences";
 import { toNodeMap } from "@/core/StateProvider/nodes";
 import { toEdgeMap } from "@/core/StateProvider/edges";
-import { queryEngineOptions } from "@shared/types";
+import { neptuneServiceTypeOptions, queryEngineOptions } from "@shared/types";
 
 /*
 
@@ -206,7 +206,7 @@ export function createRandomRawConfiguration(): RawConfiguration {
   const fetchTimeoutMs = randomlyUndefined(createRandomInteger());
   const nodeExpansionLimit = randomlyUndefined(createRandomInteger());
   const serviceType = randomlyUndefined(
-    pickRandomElement(["neptune-db", "neptune-graph"] as const)
+    pickRandomElement([...neptuneServiceTypeOptions])
   );
   const queryEngine = pickRandomElement([...queryEngineOptions]);
 

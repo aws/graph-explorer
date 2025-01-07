@@ -5,7 +5,11 @@ import { InfoTooltip, TextArea } from "@/components";
 import Button from "@/components/Button";
 import Input from "@/components/Input";
 import Select from "@/components/Select";
-import { ConnectionConfig, QueryEngine } from "@shared/types";
+import {
+  ConnectionConfig,
+  QueryEngine,
+  NeptuneServiceType,
+} from "@shared/types";
 import {
   ConfigurationContextProps,
   RawConfiguration,
@@ -32,7 +36,7 @@ type ConnectionForm = {
   proxyConnection?: boolean;
   graphDbUrl?: string;
   awsAuthEnabled?: boolean;
-  serviceType?: "neptune-db" | "neptune-graph";
+  serviceType?: NeptuneServiceType;
   awsRegion?: string;
   fetchTimeoutEnabled: boolean;
   fetchTimeoutMs?: number;

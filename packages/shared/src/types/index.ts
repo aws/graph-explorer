@@ -1,6 +1,12 @@
 export const queryEngineOptions = ["gremlin", "sparql", "openCypher"] as const;
 export type QueryEngine = (typeof queryEngineOptions)[number];
 
+export const neptuneServiceTypeOptions = [
+  "neptune-db",
+  "neptune-graph",
+] as const;
+export type NeptuneServiceType = (typeof neptuneServiceTypeOptions)[number];
+
 export type ConnectionConfig = {
   /**
    * Base URL to access to the database through HTTPs endpoints
@@ -27,7 +33,7 @@ export type ConnectionConfig = {
   /**
    * If it is Neptune, it could need authentication.
    */
-  serviceType?: "neptune-db" | "neptune-graph";
+  serviceType?: NeptuneServiceType;
   /**
    * AWS Region where the Neptune cluster is deployed.
    * It is needed to sign requests.
