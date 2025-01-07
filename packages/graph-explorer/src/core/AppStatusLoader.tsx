@@ -34,7 +34,7 @@ const AppStatusLoader = ({ children }: PropsWithChildren) => {
     enabled: isStoreLoaded && configuration.size === 0,
   });
 
-  const config = defaultConfigQuery.data;
+  const defaultConnectionConfig = defaultConfigQuery.data;
 
   useEffect(() => {
     if (!isStoreLoaded) {
@@ -49,16 +49,19 @@ const AppStatusLoader = ({ children }: PropsWithChildren) => {
 
     // If the config file is not in the store,
     // update configuration with the config file
-    if (!!config && !configuration.get(config.id)) {
-      const newConfig: RawConfiguration = config;
+    if (
+      !!defaultConnectionConfig &&
+      !configuration.get(defaultConnectionConfig.id)
+    ) {
+      const newConfig: RawConfiguration = defaultConnectionConfig;
       newConfig.__fileBase = true;
-      let activeConfigId = config.id;
+      let activeConfigId = defaultConnectionConfig.id;
 
       logger.debug("Adding new config to store", newConfig);
       setConfiguration(prevConfigMap => {
         const updatedConfig = new Map(prevConfigMap);
         if (newConfig.connection?.queryEngine) {
-          updatedConfig.set(config.id, newConfig);
+          updatedConfig.set(defaultConnectionConfig.id, newConfig);
         }
         //Set a configuration for each connection if queryEngine is not set
         if (!newConfig.connection?.queryEngine) {
@@ -83,13 +86,19 @@ const AppStatusLoader = ({ children }: PropsWithChildren) => {
 
     // If the config file is stored,
     // only activate the configuration
-    if (!!config && configuration.get(config.id)) {
-      logger.debug("Config exists in store, activating", config.id);
-      setActiveConfig(config.id);
+    if (
+      !!defaultConnectionConfig &&
+      configuration.get(defaultConnectionConfig.id)
+    ) {
+      logger.debug(
+        "Config exists in store, activating",
+        defaultConnectionConfig.id
+      );
+      setActiveConfig(defaultConnectionConfig.id);
     }
   }, [
     activeConfig,
-    config,
+    defaultConnectionConfig,
     configuration,
     isStoreLoaded,
     setActiveConfig,
@@ -118,7 +127,7 @@ const AppStatusLoader = ({ children }: PropsWithChildren) => {
   }
 
   // Loading from config file if exists
-  if (configuration.size === 0 && !!config) {
+  if (configuration.size === 0 && !!defaultConnectionConfig) {
     return (
       <PanelEmptyState
         title="Reading configuration..."
