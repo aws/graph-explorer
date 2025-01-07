@@ -4,8 +4,6 @@ import {
   Explorer,
   KeywordSearchRequest,
   KeywordSearchResponse,
-  NeighborsRequest,
-  NeighborsResponse,
   VertexRef,
 } from "./useGEFetchTypes";
 import { VertexId } from "@/@types/entities";
@@ -31,28 +29,6 @@ export function searchQuery(
     },
   });
 }
-
-/**
- * Retrieves the neighbor info for the given node using the provided filters to
- * limit the results.
- * @param request The node and filters.
- * @param explorer The service client to use for fetching the neighbors count.
- * @returns The nodes and edges for the neighbors or null.
- */
-export const neighborsQuery = (
-  request: NeighborsRequest | null,
-  explorer: Explorer | null
-) =>
-  queryOptions({
-    queryKey: ["neighbors", request, explorer],
-    enabled: Boolean(explorer) && Boolean(request),
-    queryFn: async (): Promise<NeighborsResponse | null> => {
-      if (!explorer || !request) {
-        return null;
-      }
-      return await explorer.fetchNeighbors(request);
-    },
-  });
 
 export type NeighborCountsQueryResponse = {
   nodeId: VertexId;
