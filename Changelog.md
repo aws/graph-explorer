@@ -8,6 +8,8 @@
   ([#723](https://github.com/aws/graph-explorer/pull/723))
 - **Improved** error logs in the browser console
   ([#721](https://github.com/aws/graph-explorer/pull/721))
+- **Improved** default connection handling, including fallbacks for invalid data
+  ([#734](https://github.com/aws/graph-explorer/pull/734))
 - **Updated** dependencies
   ([#718](https://github.com/aws/graph-explorer/pull/718),
   [#720](https://github.com/aws/graph-explorer/pull/720))
