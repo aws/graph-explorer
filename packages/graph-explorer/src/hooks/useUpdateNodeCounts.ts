@@ -6,9 +6,9 @@ import { useNotification } from "@/components/NotificationProvider";
 import { neighborsCountQuery } from "@/connector/queries";
 import { activeConnectionSelector, explorerSelector } from "@/core/connector";
 import useEntities from "./useEntities";
-import { VertexIdAndType } from "@/connector/useGEFetchTypes";
+import { VertexRef } from "@/connector/useGEFetchTypes";
 
-export function useUpdateNodeCountsQuery(vertex: VertexIdAndType) {
+export function useUpdateNodeCountsQuery(vertex: VertexRef) {
   const connection = useRecoilValue(activeConnectionSelector);
   const explorer = useRecoilValue(explorerSelector);
   return useQuery(

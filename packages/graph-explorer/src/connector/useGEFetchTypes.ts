@@ -16,7 +16,7 @@ export type QueryOptions = RequestInit & {
  */
 export type VertexIdType = "string" | "number";
 
-export type VertexIdAndType = {
+export type VertexRef = {
   id: VertexId;
   idType: VertexIdType;
 };
@@ -89,7 +89,7 @@ export type NeighborsRequest = {
   /**
    * Source vertex ID & type.
    */
-  vertex: VertexIdAndType;
+  vertex: VertexRef;
   /**
    * Source vertex type.
    */
@@ -123,7 +123,7 @@ export type NeighborsCountRequest = {
   /**
    * Source vertex ID & type.
    */
-  vertex: VertexIdAndType;
+  vertex: VertexRef;
   /**
    * Limit the number of results.
    * 0 = No limit.

@@ -6,7 +6,7 @@ import {
   KeywordSearchResponse,
   NeighborsRequest,
   NeighborsResponse,
-  VertexIdAndType,
+  VertexRef,
 } from "./useGEFetchTypes";
 import { VertexId } from "@/@types/entities";
 
@@ -67,7 +67,7 @@ export type NeighborCountsQueryResponse = {
  * @returns The count of neighbors for the given node as a total and per type.
  */
 export const neighborsCountQuery = (
-  vertex: VertexIdAndType,
+  vertex: VertexRef,
   limit: number | undefined,
   explorer: Explorer | null
 ) =>
