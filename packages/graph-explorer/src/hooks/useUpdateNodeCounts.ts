@@ -1,26 +1,18 @@
 import { useQueries, useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useRecoilValue } from "recoil";
-import { Vertex, VertexId } from "@/types/entities";
+import { Vertex } from "@/types/entities";
 import { useNotification } from "@/components/NotificationProvider";
 import { neighborsCountQuery } from "@/connector/queries";
 import { activeConnectionSelector, explorerSelector } from "@/core/connector";
 import useEntities from "./useEntities";
-import { VertexIdType } from "@/connector/useGEFetchTypes";
+import { VertexRef } from "@/connector/useGEFetchTypes";
 
-export function useUpdateNodeCountsQuery(
-  nodeId: VertexId,
-  nodeIdType: VertexIdType
-) {
+export function useUpdateNodeCountsQuery(vertex: VertexRef) {
   const connection = useRecoilValue(activeConnectionSelector);
   const explorer = useRecoilValue(explorerSelector);
   return useQuery(
-    neighborsCountQuery(
-      nodeId,
-      nodeIdType,
-      connection?.nodeExpansionLimit,
-      explorer
-    )
+    neighborsCountQuery(vertex, connection?.nodeExpansionLimit, explorer)
   );
 }
 
@@ -38,13 +30,8 @@ export function useUpdateAllNodeCounts() {
   const query = useQueries({
     queries: entities.nodes
       .values()
-      .map(node =>
-        neighborsCountQuery(
-          node.id,
-          node.idType,
-          connection?.nodeExpansionLimit,
-          explorer
-        )
+      .map(vertex =>
+        neighborsCountQuery(vertex, connection?.nodeExpansionLimit, explorer)
       )
       .toArray(),
     combine: results => {

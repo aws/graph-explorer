@@ -4,9 +4,7 @@ import {
   Explorer,
   KeywordSearchRequest,
   KeywordSearchResponse,
-  NeighborsRequest,
-  NeighborsResponse,
-  VertexIdType,
+  VertexRef,
 } from "./useGEFetchTypes";
 import { VertexId } from "@/@types/entities";
 
@@ -32,28 +30,6 @@ export function searchQuery(
   });
 }
 
-/**
- * Retrieves the neighbor info for the given node using the provided filters to
- * limit the results.
- * @param request The node and filters.
- * @param explorer The service client to use for fetching the neighbors count.
- * @returns The nodes and edges for the neighbors or null.
- */
-export const neighborsQuery = (
-  request: NeighborsRequest | null,
-  explorer: Explorer | null
-) =>
-  queryOptions({
-    queryKey: ["neighbors", request, explorer],
-    enabled: Boolean(explorer) && Boolean(request),
-    queryFn: async (): Promise<NeighborsResponse | null> => {
-      if (!explorer || !request) {
-        return null;
-      }
-      return await explorer.fetchNeighbors(request);
-    },
-  });
-
 export type NeighborCountsQueryResponse = {
   nodeId: VertexId;
   totalCount: number;
@@ -66,19 +42,20 @@ export type NeighborCountsQueryResponse = {
  * @param explorer The service client to use for fetching the neighbors count.
  * @returns The count of neighbors for the given node as a total and per type.
  */
-export const neighborsCountQuery = (
-  id: VertexId,
-  idType: VertexIdType,
+export function neighborsCountQuery(
+  vertex: VertexRef,
   limit: number | undefined,
   explorer: Explorer | null
-) =>
-  queryOptions({
+) {
+  // Ensure the query key remains stable by removing extra properties from the vertex
+  const { id, idType } = vertex;
+
+  return queryOptions({
     queryKey: ["neighborsCount", id, idType, limit, explorer],
     enabled: Boolean(explorer),
     queryFn: async (): Promise<NeighborCountsQueryResponse | undefined> => {
       const result = await explorer?.fetchNeighborsCount({
-        vertexId: id.toString(),
-        idType: idType,
+        vertex: { id, idType },
         limit,
       });
 
@@ -93,6 +70,7 @@ export const neighborsCountQuery = (
       };
     },
   });
+}
 
 /**
  * Retrieves the count of nodes for a specific node type.

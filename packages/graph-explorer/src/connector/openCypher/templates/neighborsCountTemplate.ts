@@ -16,12 +16,12 @@ import type { NeighborsCountRequest } from "@/connector/useGEFetchTypes";
  *
  */
 export default function neighborsCountTemplate({
-  vertexId,
+  vertex,
   limit = 0,
 }: NeighborsCountRequest) {
   return query`
       MATCH (v)-[]-(neighbor)
-      WHERE ID(v) = "${vertexId}" 
+      WHERE ID(v) = "${vertex.id}" 
       WITH DISTINCT neighbor
       ${limit > 0 ? `LIMIT ${limit}` : ``}
       RETURN labels(neighbor) AS vertexLabel, count(DISTINCT neighbor) AS count

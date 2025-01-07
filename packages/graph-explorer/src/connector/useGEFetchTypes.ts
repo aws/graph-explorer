@@ -5,6 +5,7 @@ import {
 } from "@/core";
 import { ConnectionConfig } from "@shared/types";
 import { MappedQueryResults } from "./gremlin/mappers/mapResults";
+import { VertexId } from "@/@types/entities";
 
 export type QueryOptions = RequestInit & {
   queryId?: string;
@@ -14,6 +15,11 @@ export type QueryOptions = RequestInit & {
  * The type of the vertex ID.
  */
 export type VertexIdType = "string" | "number";
+
+export type VertexRef = {
+  id: VertexId;
+  idType: VertexIdType;
+};
 
 export type VertexSchemaResponse = Pick<
   VertexTypeConfig,
@@ -81,13 +87,9 @@ export type Criterion = {
 
 export type NeighborsRequest = {
   /**
-   * Source vertex ID.
+   * Source vertex ID & type.
    */
-  vertexId: string;
-  /**
-   * The type of the vertex ID.
-   */
-  idType: VertexIdType;
+  vertex: VertexRef;
   /**
    * Source vertex type.
    */
@@ -119,13 +121,9 @@ export type NeighborsResponse = MappedQueryResults;
 
 export type NeighborsCountRequest = {
   /**
-   * Source vertex ID.
+   * Source vertex ID & type.
    */
-  vertexId: string;
-  /**
-   * The type of the vertex ID.
-   */
-  idType: VertexIdType;
+  vertex: VertexRef;
   /**
    * Limit the number of results.
    * 0 = No limit.

@@ -12,15 +12,14 @@ import type { NeighborsCountRequest } from "@/connector/useGEFetchTypes";
  *  .group().by(label).by(count())
  */
 export default function neighborsCountTemplate({
-  vertexId,
+  vertex,
   limit = 0,
-  idType,
 }: NeighborsCountRequest) {
   let template = "";
-  if (idType === "number") {
-    template = `g.V(${vertexId}L).both()`;
+  if (vertex.idType === "number") {
+    template = `g.V(${vertex.id}L).both()`;
   } else {
-    template = `g.V("${vertexId}").both()`;
+    template = `g.V("${vertex.id}").both()`;
   }
 
   if (limit > 0) {

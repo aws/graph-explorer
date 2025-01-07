@@ -103,7 +103,7 @@ const criterionTemplate = (criterion: Criterion): string => {
  * LIMIT 10
  */
 const oneHopTemplate = ({
-  vertexId,
+  vertex,
   filterByVertexTypes = [],
   edgeTypes = [],
   filterCriteria = [],
@@ -129,7 +129,7 @@ const oneHopTemplate = ({
 
   // Combine all the WHERE conditions
   const whereConditions = [
-    `ID(v) = "${vertexId}"`,
+    `ID(v) = "${vertex.id}"`,
     formattedVertexTypes,
     ...(filterCriteria?.map(criterionTemplate) ?? []),
   ]
