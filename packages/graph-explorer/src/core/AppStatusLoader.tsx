@@ -13,15 +13,10 @@ import { schemaAtom } from "./StateProvider/schema";
 import useLoadStore from "./StateProvider/useLoadStore";
 import { CONNECTIONS_OP } from "@/modules/CreateConnection/CreateConnection";
 import { logger } from "@/utils";
+import { useQuery } from "@tanstack/react-query";
+import { fetchDefaultConnection } from "./defaultConnection";
 
-export type AppLoadingProps = {
-  config?: RawConfiguration;
-};
-
-const AppStatusLoader = ({
-  config,
-  children,
-}: PropsWithChildren<AppLoadingProps>) => {
+const AppStatusLoader = ({ children }: PropsWithChildren) => {
   const location = useLocation();
   useLoadStore();
   const isStoreLoaded = useRecoilValue(isStoreLoadedAtom);
@@ -30,6 +25,16 @@ const AppStatusLoader = ({
   );
   const [configuration, setConfiguration] = useRecoilState(configurationAtom);
   const schema = useRecoilValue(schemaAtom);
+
+  const defaultConfigQuery = useQuery({
+    queryKey: ["default-connection"],
+    queryFn: fetchDefaultConnection,
+    staleTime: Infinity,
+    // Run the query only if the store is loaded and there are no configs
+    enabled: isStoreLoaded && configuration.size === 0,
+  });
+
+  const config = defaultConfigQuery.data;
 
   useEffect(() => {
     if (!isStoreLoaded) {
@@ -97,6 +102,16 @@ const AppStatusLoader = ({
       <PanelEmptyState
         title="Preparing environment..."
         subtitle="We are loading all components"
+        icon={<LoadingSpinner />}
+      />
+    );
+  }
+
+  if (configuration.size === 0 && defaultConfigQuery.isLoading) {
+    return (
+      <PanelEmptyState
+        title="Loading default connection..."
+        subtitle="We are checking for a default connection"
         icon={<LoadingSpinner />}
       />
     );
