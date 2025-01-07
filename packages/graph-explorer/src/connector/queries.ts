@@ -66,17 +66,20 @@ export type NeighborCountsQueryResponse = {
  * @param explorer The service client to use for fetching the neighbors count.
  * @returns The count of neighbors for the given node as a total and per type.
  */
-export const neighborsCountQuery = (
+export function neighborsCountQuery(
   vertex: VertexRef,
   limit: number | undefined,
   explorer: Explorer | null
-) =>
-  queryOptions({
-    queryKey: ["neighborsCount", vertex, limit, explorer],
+) {
+  // Ensure the query key remains stable by removing extra properties from the vertex
+  const { id, idType } = vertex;
+
+  return queryOptions({
+    queryKey: ["neighborsCount", id, idType, limit, explorer],
     enabled: Boolean(explorer),
     queryFn: async (): Promise<NeighborCountsQueryResponse | undefined> => {
       const result = await explorer?.fetchNeighborsCount({
-        vertex,
+        vertex: { id, idType },
         limit,
       });
 
@@ -85,12 +88,13 @@ export const neighborsCountQuery = (
       }
 
       return {
-        nodeId: vertex.id,
+        nodeId: id,
         totalCount: result.totalCount,
         counts: result.counts,
       };
     },
   });
+}
 
 /**
  * Retrieves the count of nodes for a specific node type.
