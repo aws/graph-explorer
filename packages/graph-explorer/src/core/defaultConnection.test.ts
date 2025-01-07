@@ -65,6 +65,21 @@ describe("DefaultConnectionDataSchema", () => {
     const actual = DefaultConnectionDataSchema.parse(data);
     expect(actual).toEqual({ ...data, GRAPH_EXP_SERVICE_TYPE: "neptune-db" });
   });
+
+  test("should handle invalid URLs", () => {
+    const data: any = createRandomDefaultConnectionData();
+    data.GRAPH_EXP_CONNECTION_URL = createRandomName("connectionURL");
+    data.GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT = createRandomName(
+      "publicOrProxyEndpoint"
+    );
+    // Make the enum less strict
+    const actual = DefaultConnectionDataSchema.parse(data);
+    expect(actual).toEqual({
+      ...data,
+      GRAPH_EXP_CONNECTION_URL: "",
+      GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT: "",
+    });
+  });
 });
 
 function createRandomDefaultConnectionData() {
