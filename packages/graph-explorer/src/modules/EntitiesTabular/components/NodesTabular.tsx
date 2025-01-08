@@ -23,7 +23,7 @@ import { useAllNeighbors } from "@/core";
 
 type ToggleVertex = DisplayVertex & {
   __is_visible: boolean;
-  neighborsCount: number;
+  neighborCounts: number;
 };
 
 const NodesTabular = forwardRef<TabularInstance<ToggleVertex>, any>(
@@ -97,7 +97,7 @@ const NodesTabular = forwardRef<TabularInstance<ToggleVertex>, any>(
           width: 300,
         },
         {
-          accessor: row => neighborCounts.get(row.id)?.all ?? 0,
+          accessor: "neighborCounts",
           label: "Total Neighbors",
           overflow: "ellipsis",
           oneLine: true,
@@ -109,7 +109,7 @@ const NodesTabular = forwardRef<TabularInstance<ToggleVertex>, any>(
           },
         },
       ] satisfies ColumnDefinition<ToggleVertex>[];
-    }, [t, onToggleVisibility, neighborCounts]);
+    }, [t, onToggleVisibility]);
 
     const data: ToggleVertex[] = useDeepMemo(() => {
       return displayNodes
@@ -117,10 +117,10 @@ const NodesTabular = forwardRef<TabularInstance<ToggleVertex>, any>(
         .map(node => ({
           ...node,
           __is_visible: !hiddenNodesIds.has(node.id),
-          neighborsCount: node.original.neighborsCount ?? 0,
+          neighborCounts: neighborCounts.get(node.id)?.all ?? 0,
         }))
         .toArray();
-    }, [hiddenNodesIds, displayNodes]);
+    }, [hiddenNodesIds, displayNodes, neighborCounts]);
 
     const onSelectRows = useCallback(
       (rowIndex: string) => {
