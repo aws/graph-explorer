@@ -18,15 +18,15 @@ export default function useEntities(): [
 ] {
   const setEntities = useSetRecoilState(entitiesSelector);
 
-  const preFilteredNodes = useRecoilValue(filteredNodesSelector);
-  const preFilteredEdges = useRecoilValue(filteredEdgesSelector);
+  const filteredNodes = useRecoilValue(filteredNodesSelector);
+  const filteredEdges = useRecoilValue(filteredEdgesSelector);
 
   const filteredEntities = useMemo(
     () => ({
-      nodes: preFilteredNodes,
-      edges: preFilteredEdges,
+      nodes: filteredNodes,
+      edges: filteredEdges,
     }),
-    [preFilteredEdges, preFilteredNodes]
+    [filteredEdges, filteredNodes]
   );
 
   return [filteredEntities, setEntities];
