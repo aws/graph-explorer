@@ -14,7 +14,6 @@ describe("schema", () => {
       const entity = createRandomVertex();
       const result = extractConfigFromEntity(entity);
       expect(result.type).toEqual(entity.type);
-      expect(result.hidden).toBeFalsy();
       expect(result.attributes).toHaveLength(
         Object.keys(entity.attributes).length
       );
@@ -26,7 +25,6 @@ describe("schema", () => {
       );
       const result = extractConfigFromEntity(entity);
       expect(result.type).toEqual(entity.type);
-      expect(result.hidden).toBeFalsy();
       expect(result.attributes).toHaveLength(
         Object.keys(entity.attributes).length
       );

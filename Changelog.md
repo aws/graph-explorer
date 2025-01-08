@@ -1,5 +1,10 @@
 # graph-explorer Change Log
 
+## Upcoming
+
+- **Removed** unused `hidden` flag from schema types
+  ([#737](https://github.com/aws/graph-explorer/pull/737))
+
 ## Release 1.13.0
 
 This release is a maintenance release with improvements to app startup, default
