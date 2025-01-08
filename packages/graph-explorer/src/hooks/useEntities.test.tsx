@@ -38,7 +38,7 @@ describe("useEntities", () => {
     };
 
     const { result } = renderHookWithRecoilRoot(() => {
-      const [entities, setEntities] = useEntities({ disableFilters: true });
+      const [entities, setEntities] = useEntities();
       return { entities, setEntities };
     });
 
@@ -127,7 +127,7 @@ describe("useEntities", () => {
     ]);
 
     const { result } = renderHookWithRecoilRoot(() => {
-      const [entities, setEntities] = useEntities({ disableFilters: true });
+      const [entities, setEntities] = useEntities();
       return { entities, setEntities };
     });
 
@@ -179,7 +179,7 @@ describe("useEntities", () => {
     const edge1to2 = createRandomEdge(node1, node2);
 
     const { result } = renderHookWithRecoilRoot(() => {
-      const [entities, setEntities] = useEntities({ disableFilters: true });
+      const [entities, setEntities] = useEntities();
       return { entities, setEntities };
     });
 

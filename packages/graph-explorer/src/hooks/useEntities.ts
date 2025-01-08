@@ -22,10 +22,7 @@ type ProcessedEntities = {
   edges: Map<EdgeId, Edge>;
 };
 
-const useEntities = ({ disableFilters }: { disableFilters?: boolean } = {}): [
-  ProcessedEntities,
-  SetterOrUpdater<Entities>,
-] => {
+const useEntities = (): [ProcessedEntities, SetterOrUpdater<Entities>] => {
   const filteredNodesIds = useRecoilValue(nodesFilteredIdsAtom);
   const filteredEdgesIds = useRecoilValue(edgesFilteredIdsAtom);
   const nodes = useRecoilValue(nodesSelector);
@@ -37,30 +34,27 @@ const useEntities = ({ disableFilters }: { disableFilters?: boolean } = {}): [
   const connectionTypes = useRecoilValue(edgesTypesFilteredAtom);
 
   const filteredEntitiesByGlobalFilters = useDeepMemo(() => {
-    let filteredNodes = nodes;
-    let filteredEdges = edges;
-    if (!disableFilters) {
-      filteredNodes = new Map(
-        nodes.entries().filter(([_id, node]) => {
-          return vertexTypes.has(node.type) === false;
-        })
-      );
+    const filteredNodes = new Map(
+      nodes.entries().filter(([_id, node]) => {
+        return vertexTypes.has(node.type) === false;
+      })
+    );
 
-      filteredEdges = new Map(
-        edges.entries().filter(([_id, edge]) => {
-          return (
-            connectionTypes.has(edge.type) === false &&
-            filteredNodes.has(edge.source) &&
-            filteredNodes.has(edge.target)
-          );
-        })
-      );
-    }
+    const filteredEdges = new Map(
+      edges.entries().filter(([_id, edge]) => {
+        return (
+          connectionTypes.has(edge.type) === false &&
+          filteredNodes.has(edge.source) &&
+          filteredNodes.has(edge.target)
+        );
+      })
+    );
+
     return {
       nodes: filteredNodes,
       edges: filteredEdges,
     };
-  }, [connectionTypes, disableFilters, edges, nodes, vertexTypes]);
+  }, [connectionTypes, edges, nodes, vertexTypes]);
 
   const filteredEntities = useMemo(() => {
     return <ProcessedEntities>{
