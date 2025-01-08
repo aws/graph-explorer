@@ -41,8 +41,7 @@ import {
   userStylingAtom,
   VertexPreferences,
 } from "@/core/StateProvider/userPreferences";
-import { useEntities } from "@/hooks";
-import { useAddToGraph } from "@/hooks/useAddToGraph";
+import { useAddToGraph, useHasVertexBeenAddedToGraph } from "@/hooks";
 import usePrefixesUpdater from "@/hooks/usePrefixesUpdater";
 import useTranslations from "@/hooks/useTranslations";
 import useUpdateVertexTypeCounts from "@/hooks/useUpdateVertexTypeCounts";
@@ -263,8 +262,7 @@ function DisplayNameAndDescriptionOptions({
 
 function AddToExplorerButton({ vertex }: { vertex: Vertex }) {
   const addToGraph = useAddToGraph(vertex);
-  const [entities] = useEntities({ disableFilters: true });
-  const isInExplorer = entities.nodes.has(vertex.id);
+  const isInExplorer = useHasVertexBeenAddedToGraph(vertex.id);
 
   return (
     <div style={{ display: "inline-block" }}>
