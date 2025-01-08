@@ -9,7 +9,11 @@ import {
   VertexIcon,
   VisibleIcon,
 } from "@/components";
-import { useNeighborByType as useNeighborsByType, useNode } from "@/core";
+import {
+  useNeighbors,
+  useNeighborByType as useNeighborsByType,
+  useNode,
+} from "@/core";
 import useNeighborsOptions, {
   NeighborOption,
 } from "@/hooks/useNeighborsOptions";
@@ -28,6 +32,7 @@ export default function NeighborsList({
   ...props
 }: NeighborsListProps) {
   const vertex = useNode(id);
+  const neighbors = useNeighbors(vertex);
   const neighborsOptions = useNeighborsOptions(vertex);
   const [showMore, setShowMore] = useState(false);
 
@@ -36,7 +41,7 @@ export default function NeighborsList({
       className={cn("flex flex-col gap-3 border-b p-3", className)}
       {...props}
     >
-      <div className="font-bold">Neighbors ({vertex.neighborsCount})</div>
+      <div className="font-bold">Neighbors ({neighbors.all})</div>
       <ul className="flex flex-col gap-3">
         {neighborsOptions
           .slice(0, showMore ? undefined : MAX_NEIGHBOR_TYPE_ROWS)
