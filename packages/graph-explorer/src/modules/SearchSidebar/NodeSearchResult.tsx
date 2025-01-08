@@ -8,7 +8,7 @@ import {
 } from "@/components";
 import {
   useAddToGraph,
-  useHasNodeBeenAddedToGraph,
+  useHasVertexBeenAddedToGraph,
   useRemoveNodeFromGraph,
 } from "@/hooks";
 import { cn } from "@/utils";
@@ -27,7 +27,7 @@ export function NodeSearchResult({ node }: { node: Vertex }) {
 
   const addToGraph = useAddToGraph(node);
   const removeFromGraph = useRemoveNodeFromGraph(node.id);
-  const hasBeenAdded = useHasNodeBeenAddedToGraph(node.id);
+  const hasBeenAdded = useHasVertexBeenAddedToGraph(node.id);
 
   return (
     <div
