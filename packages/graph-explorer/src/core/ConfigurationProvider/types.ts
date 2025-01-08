@@ -51,10 +51,6 @@ export type VertexTypeConfig = {
    */
   longDisplayNameAttribute?: string;
   /**
-   * If hidden is true, vertices of this types won't be rendered
-   */
-  hidden?: boolean;
-  /**
    * List of attributes for the vertex type
    */
   attributes: Array<AttributeConfig>;
@@ -77,10 +73,6 @@ export type EdgeTypeConfig = {
    * Vertex attribute to be used as label
    */
   displayNameAttribute?: string;
-  /**
-   * If hidden is true, edges of this types won't be rendered
-   */
-  hidden?: boolean;
   /**
    * List of attributes for the edge type
    */

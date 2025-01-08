@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { SetterOrUpdater, useRecoilCallback, useRecoilValue } from "recoil";
+import { SetterOrUpdater, useRecoilValue, useSetRecoilState } from "recoil";
 import type { Edge, EdgeId, Vertex, VertexId } from "@/types/entities";
 import {
   edgesFilteredIdsAtom,
@@ -16,10 +16,6 @@ import {
 } from "@/core/StateProvider/nodes";
 
 import useDeepMemo from "./useDeepMemo";
-import {
-  allEdgeTypeConfigsSelector,
-  allVertexTypeConfigsSelector,
-} from "@/core/StateProvider/configuration";
 
 type ProcessedEntities = {
   nodes: Map<VertexId, Vertex>;
@@ -35,79 +31,7 @@ const useEntities = ({ disableFilters }: { disableFilters?: boolean } = {}): [
   const nodes = useRecoilValue(nodesSelector);
   const edges = useRecoilValue(edgesSelector);
 
-  // Some nodes/edges are not defined in the schema or their types are hidden.
-  // Here these types are filtered before to set the updated state.
-  // We need to make a hook because these types are defined in the config that
-  // works using a hook.
-  const setEntities: SetterOrUpdater<Entities> = useRecoilCallback(
-    ({ snapshot, set }) =>
-      async valOrUpdater => {
-        const vtConfigs = await snapshot.getPromise(
-          allVertexTypeConfigsSelector
-        );
-        const etConfigs = await snapshot.getPromise(allEdgeTypeConfigsSelector);
-        const entities = await snapshot.getPromise(entitiesSelector);
-        const nextEntities =
-          typeof valOrUpdater === "function"
-            ? valOrUpdater(entities)
-            : valOrUpdater;
-
-        // Filter nodes that are defined and not hidden
-        const filteredNodes = new Map(
-          nextEntities.nodes.entries().filter(([_id, node]) => {
-            return !vtConfigs.get(node.type)?.hidden;
-          })
-        );
-
-        // Update counts filtering by defined and not hidden
-        const nodesWithoutHiddenCounts = new Map(
-          filteredNodes.entries().map(([id, node]) => {
-            const [totalNeighborCount, totalNeighborCounts] = Object.entries(
-              node.neighborsCountByType
-            ).reduce(
-              (totalNeighborsCounts, [type, count]) => {
-                if (!vtConfigs.get(node.type)?.hidden) {
-                  totalNeighborsCounts[1][type] = count;
-                } else {
-                  totalNeighborsCounts[0] -= count;
-                }
-
-                return totalNeighborsCounts;
-              },
-              [node.neighborsCount, {}] as [
-                number,
-                typeof node.neighborsCountByType,
-              ]
-            );
-
-            return [
-              id,
-              <Vertex>{
-                ...node,
-                neighborsCount: totalNeighborCount,
-                neighborsCountByType: totalNeighborCounts,
-              },
-            ];
-          })
-        );
-
-        // Filter edges that are defined and not hidden
-        const filteredEdges = new Map(
-          nextEntities.edges.entries().filter(([_id, edge]) => {
-            return !etConfigs.get(edge.type)?.hidden;
-          })
-        );
-
-        set(entitiesSelector, {
-          nodes: nodesWithoutHiddenCounts,
-          edges: filteredEdges,
-          preserveSelection: nextEntities.preserveSelection,
-          selectNewEntities: nextEntities.selectNewEntities,
-          forceSet: nextEntities.forceSet,
-        });
-      },
-    [] // Ensures this callback is memoized and not recreated on each render
-  );
+  const setEntities = useSetRecoilState(entitiesSelector);
 
   const vertexTypes = useRecoilValue(nodesTypesFilteredAtom);
   const connectionTypes = useRecoilValue(edgesTypesFilteredAtom);
