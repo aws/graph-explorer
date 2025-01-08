@@ -149,6 +149,10 @@ export type BlankNodeItem = {
   id: string;
   subQueryTemplate: string;
   vertex: Vertex;
+  neighborCounts: {
+    totalCount: number;
+    counts: Record<string, number>;
+  };
   neighbors?: {
     vertices: Array<Vertex>;
     edges: Array<Edge>;

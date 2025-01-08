@@ -159,8 +159,6 @@ export function createRandomVertex(): Vertex {
     idType: pickRandomElement(["number", "string"]),
     type: createRandomName("VertexType"),
     attributes: createRecord(3, createRandomEntityAttribute),
-    neighborsCount: 0,
-    neighborsCountByType: {},
   };
 }
 

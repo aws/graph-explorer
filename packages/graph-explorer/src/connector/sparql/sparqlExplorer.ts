@@ -47,6 +47,10 @@ const replaceBlankNodeFromSearch = (
         id: vertex.id,
         subQueryTemplate: keywordSearchBlankNodesIdsTemplate(request),
         vertex,
+        neighborCounts: {
+          totalCount: 0,
+          counts: {},
+        },
       });
     }
 
@@ -73,6 +77,10 @@ const replaceBlankNodeFromNeighbors = (
         id: vertex.id,
         subQueryTemplate: oneHopNeighborsBlankNodesIdsTemplate(request),
         vertex,
+        neighborCounts: {
+          totalCount: 0,
+          counts: {},
+        },
       });
     }
 
@@ -252,10 +260,7 @@ export function createSparqlExplorer(
       const bNode = blankNodes.get(req.vertex.id);
 
       if (bNode?.neighbors) {
-        return {
-          totalCount: bNode.vertex.neighborsCount,
-          counts: bNode.vertex.neighborsCountByType,
-        };
+        return bNode.neighborCounts;
       }
 
       if (bNode && !bNode.neighbors) {
@@ -270,10 +275,9 @@ export function createSparqlExplorer(
 
         blankNodes.set(req.vertex.id, {
           ...bNode,
-          vertex: {
-            ...bNode.vertex,
-            neighborsCount: response.totalCount,
-            neighborsCountByType: response.counts,
+          neighborCounts: {
+            totalCount: response.totalCount,
+            counts: response.counts,
           },
           neighbors: response.neighbors,
         });

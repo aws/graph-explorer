@@ -16,8 +16,6 @@ describe("Gremlin > keywordSearch", () => {
           id: "1",
           type: "airport",
           types: ["airport"],
-          neighborsCount: 0,
-          neighborsCountByType: {},
           attributes: {
             country: "US",
             longest: 12390,
@@ -50,8 +48,6 @@ describe("Gremlin > keywordSearch", () => {
           id: "836",
           type: "airport",
           types: ["airport"],
-          neighborsCount: 0,
-          neighborsCountByType: {},
           attributes: {
             country: "TN",
             longest: 9843,

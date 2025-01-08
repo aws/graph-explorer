@@ -37,12 +37,9 @@ describe("useEntities", () => {
     const randomNode = {
       id: Math.random().toString() as VertexId,
       type: "type1",
-      neighborsCount: Math.floor(Math.random() * 100),
-      neighborsCountByType: {},
     } as Vertex;
     const expectedRandomNodes: Vertex = {
       ...randomNode,
-      neighborsCountByType: {},
     };
 
     const { result } = renderHookWithRecoilRoot(() => {
@@ -64,8 +61,6 @@ describe("useEntities", () => {
     const actualNode = result.current.entities.nodes.get(randomNode.id);
     expect(actualNode?.id).toEqual(randomNode.id);
     expect(actualNode?.type).toEqual(randomNode.type);
-    expect(actualNode?.neighborsCount).toEqual(randomNode.neighborsCount);
-    expect(actualNode?.neighborsCountByType).toEqual({});
   });
 
   it("should handle multiple nodes correctly", async () => {
@@ -75,8 +70,6 @@ describe("useEntities", () => {
       idType: "string",
       type: "type1",
       attributes: {},
-      neighborsCount: 1,
-      neighborsCountByType: {},
     };
     const node2: Vertex = {
       entityType: "vertex",
@@ -84,8 +77,6 @@ describe("useEntities", () => {
       idType: "string",
       type: "type2",
       attributes: {},
-      neighborsCount: 2,
-      neighborsCountByType: {},
     };
     const node3: Vertex = {
       entityType: "vertex",
@@ -93,8 +84,6 @@ describe("useEntities", () => {
       idType: "string",
       type: "type3",
       attributes: {},
-      neighborsCount: 3,
-      neighborsCountByType: {},
     };
     const expectedNodes = toNodeMap([
       {
@@ -103,8 +92,6 @@ describe("useEntities", () => {
         idType: "string",
         type: node1.type,
         attributes: {},
-        neighborsCount: node1.neighborsCount,
-        neighborsCountByType: {},
       },
       {
         entityType: "vertex",
@@ -112,8 +99,6 @@ describe("useEntities", () => {
         idType: "string",
         type: node2.type,
         attributes: {},
-        neighborsCount: node2.neighborsCount,
-        neighborsCountByType: {},
       },
       {
         entityType: "vertex",
@@ -121,8 +106,6 @@ describe("useEntities", () => {
         idType: "string",
         type: node3.type,
         attributes: {},
-        neighborsCount: node3.neighborsCount,
-        neighborsCountByType: {},
       },
     ]);
 
@@ -146,22 +129,16 @@ describe("useEntities", () => {
     expect(actualNode1).not.toBeUndefined();
     expect(actualNode1?.id).toEqual(node1.id);
     expect(actualNode1?.type).toEqual(node1.type);
-    expect(actualNode1?.neighborsCount).toEqual(node1.neighborsCount);
-    expect(actualNode1?.neighborsCountByType).toEqual({});
 
     const actualNode2 = result.current.entities.nodes.get(node2.id);
     expect(actualNode2).not.toBeUndefined();
     expect(actualNode2?.id).toEqual(node2.id);
     expect(actualNode2?.type).toEqual(node2.type);
-    expect(actualNode2?.neighborsCount).toEqual(node2.neighborsCount);
-    expect(actualNode2?.neighborsCountByType).toEqual({});
 
     const actualNode3 = result.current.entities.nodes.get(node3.id);
     expect(actualNode3).not.toBeUndefined();
     expect(actualNode3?.id).toEqual(node3.id);
     expect(actualNode3?.type).toEqual(node3.type);
-    expect(actualNode3?.neighborsCount).toEqual(node3.neighborsCount);
-    expect(actualNode3?.neighborsCountByType).toEqual({});
   });
 
   it("should filter nodes by id", () => {

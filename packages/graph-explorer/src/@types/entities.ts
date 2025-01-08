@@ -40,19 +40,6 @@ export type Vertex = {
    * - For RDF, subjects can be connected to other subjects which are literals
    */
   attributes: Record<string, string | number>;
-  /**
-   * The total number of neighbors.
-   * - For PG, all connected nodes independently of their direction (in/out)
-   * - For RDF, all subjects which be compliant with:
-   *   1. <resourceURI> ?pred ?subject
-   *   2. ?subject ?pred <resourceURI>
-   *   3. FILTER(!isLiteral(?subject))
-   */
-  neighborsCount: number;
-  /**
-   * The total number of neighbors by type.
-   */
-  neighborsCountByType: Record<string, number>;
 
   // The following properties are computed on run-time
   /**

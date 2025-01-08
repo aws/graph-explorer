@@ -12,8 +12,6 @@ describe("Gremlin > fetchNeighbors", () => {
         id: "486",
         type: "airport",
         types: ["airport"],
-        neighborsCount: 107,
-        neighborsCountByType: { continent: 1, country: 1, airport: 105 },
         attributes: {
           country: "ES",
           longest: 10499,
@@ -33,8 +31,6 @@ describe("Gremlin > fetchNeighbors", () => {
         id: "228",
         type: "airport",
         types: ["airport"],
-        neighborsCount: 97,
-        neighborsCountByType: { continent: 1, country: 1, airport: 95 },
         attributes: {
           country: "ES",
           longest: 10171,
@@ -54,8 +50,6 @@ describe("Gremlin > fetchNeighbors", () => {
         id: "124",
         type: "airport",
         types: ["airport"],
-        neighborsCount: 28,
-        neighborsCountByType: { continent: 1, country: 1, airport: 26 },
         attributes: {
           country: "ES",
           longest: 11155,
@@ -75,16 +69,12 @@ describe("Gremlin > fetchNeighbors", () => {
         id: "3741",
         type: "continent",
         types: ["continent"],
-        neighborsCount: 605,
-        neighborsCountByType: { airport: 605 },
         attributes: { code: "EU", type: "continent", desc: "Europe" },
       },
       {
         id: "3701",
         type: "country",
         types: ["country"],
-        neighborsCount: 43,
-        neighborsCountByType: { airport: 43 },
         attributes: { code: "ES", type: "country", desc: "Spain" },
       },
     ];
@@ -95,11 +85,7 @@ describe("Gremlin > fetchNeighbors", () => {
     });
 
     expect(response).toMatchObject({
-      vertices: expectedVertices.map(v => ({
-        ...v,
-        neighborsCount: 0,
-        neighborsCountByType: {},
-      })),
+      vertices: expectedVertices,
       edges: [
         {
           id: "49540",
@@ -183,8 +169,6 @@ describe("Gremlin > fetchNeighbors", () => {
         id: "486",
         type: "airport",
         types: ["airport"],
-        neighborsCount: 107,
-        neighborsCountByType: { continent: 1, country: 1, airport: 105 },
         attributes: {
           country: "ES",
           longest: 10499,
@@ -204,8 +188,6 @@ describe("Gremlin > fetchNeighbors", () => {
         id: "124",
         type: "airport",
         types: ["airport"],
-        neighborsCount: 28,
-        neighborsCountByType: { continent: 1, country: 1, airport: 26 },
         attributes: {
           country: "ES",
           longest: 11155,
@@ -231,11 +213,7 @@ describe("Gremlin > fetchNeighbors", () => {
     });
 
     expect(response).toMatchObject({
-      vertices: expectedVertices.map(v => ({
-        ...v,
-        neighborsCount: 0,
-        neighborsCountByType: {},
-      })),
+      vertices: expectedVertices,
       edges: [
         {
           id: "49540",
