@@ -1,6 +1,6 @@
 import { useRecoilValue } from "recoil";
 import useEntities from "./useEntities";
-import { Vertex, VertexId } from "@/types/entities";
+import { Edge, Vertex, VertexId } from "@/types/entities";
 import {
   createRandomEdge,
   createRandomEntities,
@@ -15,8 +15,18 @@ import { renderHookWithRecoilRoot } from "@/utils/testing";
 import { waitForValueToChange } from "@/utils/testing/waitForValueToChange";
 import { vi } from "vitest";
 import { createRandomInteger, createRandomName } from "@shared/utils/testing";
-import { toNodeMap } from "@/core/StateProvider/nodes";
-import { toEdgeMap } from "@/core/StateProvider/edges";
+import {
+  nodesAtom,
+  nodesFilteredIdsAtom,
+  nodesTypesFilteredAtom,
+  toNodeMap,
+} from "@/core/StateProvider/nodes";
+import {
+  edgesAtom,
+  edgesFilteredIdsAtom,
+  edgesTypesFilteredAtom,
+  toEdgeMap,
+} from "@/core/StateProvider/edges";
 
 describe("useEntities", () => {
   beforeEach(() => {
@@ -168,6 +178,124 @@ describe("useEntities", () => {
     expect(actualNode3?.neighborsCountByType).toEqual({});
     expect(actualNode3?.__unfetchedNeighborCounts).toEqual({});
     expect(actualNode3?.__unfetchedNeighborCount).toEqual(0);
+  });
+
+  it("should filter nodes by id", () => {
+    const node1: Vertex = createRandomVertex();
+    const node2: Vertex = createRandomVertex();
+    const node3: Vertex = createRandomVertex();
+
+    const { result } = renderHookWithRecoilRoot(
+      () => {
+        const [entities, setEntities] = useEntities();
+        return { entities, setEntities };
+      },
+      snapshot => {
+        snapshot.set(nodesAtom, toNodeMap([node1, node2, node3]));
+        snapshot.set(nodesFilteredIdsAtom, new Set([node1.id, node2.id]));
+      }
+    );
+
+    expect(result.current.entities).toEqual({
+      nodes: toNodeMap([node3]),
+      edges: new Map(),
+    });
+  });
+
+  it("should filter nodes by type", () => {
+    const node1: Vertex = createRandomVertex();
+    const node2: Vertex = createRandomVertex();
+    const node3: Vertex = createRandomVertex();
+
+    const { result } = renderHookWithRecoilRoot(
+      () => {
+        const [entities, setEntities] = useEntities();
+        return { entities, setEntities };
+      },
+      snapshot => {
+        snapshot.set(nodesAtom, toNodeMap([node1, node2, node3]));
+        snapshot.set(nodesTypesFilteredAtom, new Set([node1.type]));
+      }
+    );
+
+    expect(result.current.entities).toEqual({
+      nodes: toNodeMap([node2, node3]),
+      edges: new Map(),
+    });
+  });
+
+  it("should filter edges by id", () => {
+    const node1: Vertex = createRandomVertex();
+    const node2: Vertex = createRandomVertex();
+    const edge1to2: Edge = createRandomEdge(node1, node2);
+    const edge2to1: Edge = createRandomEdge(node2, node1);
+
+    const { result } = renderHookWithRecoilRoot(
+      () => {
+        const [entities, setEntities] = useEntities();
+        return { entities, setEntities };
+      },
+      snapshot => {
+        snapshot.set(nodesAtom, toNodeMap([node1, node2]));
+        snapshot.set(edgesAtom, toEdgeMap([edge1to2, edge2to1]));
+        snapshot.set(edgesFilteredIdsAtom, new Set([edge1to2.id]));
+      }
+    );
+
+    expect(result.current.entities).toEqual({
+      nodes: toNodeMap([node1, node2]),
+      edges: toEdgeMap([edge2to1]),
+    });
+  });
+
+  it("should filter edges by type", () => {
+    const node1: Vertex = createRandomVertex();
+    const node2: Vertex = createRandomVertex();
+    const edge1to2: Edge = createRandomEdge(node1, node2);
+    const edge2to1: Edge = createRandomEdge(node2, node1);
+
+    const { result } = renderHookWithRecoilRoot(
+      () => {
+        const [entities, setEntities] = useEntities();
+        return { entities, setEntities };
+      },
+      snapshot => {
+        snapshot.set(nodesAtom, toNodeMap([node1, node2]));
+        snapshot.set(edgesAtom, toEdgeMap([edge1to2, edge2to1]));
+        snapshot.set(edgesTypesFilteredAtom, new Set([edge1to2.type]));
+      }
+    );
+
+    expect(result.current.entities).toEqual({
+      nodes: toNodeMap([node1, node2]),
+      edges: toEdgeMap([edge2to1]),
+    });
+  });
+
+  it("should filter edges if either source or target is filtered", () => {
+    const node1: Vertex = createRandomVertex();
+    const node2: Vertex = createRandomVertex();
+    const node3: Vertex = createRandomVertex();
+    const edge1to2: Edge = createRandomEdge(node1, node2);
+    const edge2to1: Edge = createRandomEdge(node2, node1);
+    const edge2to3: Edge = createRandomEdge(node2, node3);
+
+    const { result } = renderHookWithRecoilRoot(
+      () => {
+        const [entities, setEntities] = useEntities();
+        return { entities, setEntities };
+      },
+      snapshot => {
+        snapshot.set(nodesAtom, toNodeMap([node1, node2]));
+        snapshot.set(edgesAtom, toEdgeMap([edge1to2, edge2to1, edge2to3]));
+        snapshot.set(nodesFilteredIdsAtom, new Set([node1.id]));
+      }
+    );
+
+    expect(result.current.entities).toEqual({
+      nodes: toNodeMap([node2]),
+      edges: toEdgeMap([edge2to3]),
+    });
   });
 
   it("should calculate stats after adding new nodes and edges", async () => {
