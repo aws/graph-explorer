@@ -1,7 +1,6 @@
 import { useRecoilCallback } from "recoil";
 import {
   edgesAtom,
-  edgesFilteredIdsAtom,
   edgesHiddenIdsAtom,
   edgesOutOfFocusIdsAtom,
   edgesSelectedIdsAtom,
@@ -36,7 +35,6 @@ export default function useResetState() {
         reset(edgesSelectedIdsAtom);
         reset(edgesHiddenIdsAtom);
         reset(edgesOutOfFocusIdsAtom);
-        reset(edgesFilteredIdsAtom);
         reset(edgesTypesFilteredAtom);
         reset(searchTermAtom);
         reset(selectedVertexTypeAtom);

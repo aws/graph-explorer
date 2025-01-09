@@ -23,7 +23,7 @@ import {
 } from "@/core/StateProvider/nodes";
 import {
   edgesAtom,
-  edgesFilteredIdsAtom,
+  edgesHiddenIdsAtom,
   edgesTypesFilteredAtom,
   toEdgeMap,
 } from "@/core/StateProvider/edges";
@@ -238,7 +238,7 @@ describe("useEntities", () => {
       snapshot => {
         snapshot.set(nodesAtom, toNodeMap([node1, node2]));
         snapshot.set(edgesAtom, toEdgeMap([edge1to2, edge2to1]));
-        snapshot.set(edgesFilteredIdsAtom, new Set([edge1to2.id]));
+        snapshot.set(edgesHiddenIdsAtom, new Set([edge1to2.id]));
       }
     );
 

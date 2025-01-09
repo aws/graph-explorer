@@ -42,7 +42,6 @@ export const edgesSelector = selector<Edges>({
     get(edgesHiddenIdsAtom).size > 0 && set(edgesHiddenIdsAtom, cleanFn);
     get(edgesOutOfFocusIdsAtom).size > 0 &&
       set(edgesOutOfFocusIdsAtom, cleanFn);
-    get(edgesFilteredIdsAtom).size > 0 && set(edgesFilteredIdsAtom, cleanFn);
   },
 });
 
@@ -70,11 +69,6 @@ export const edgesOutOfFocusIdsAtom = atom<Set<EdgeId>>({
   default: new Set(),
 });
 
-export const edgesFilteredIdsAtom = atom<Set<EdgeId>>({
-  key: "edges-filtered-ids",
-  default: new Set(),
-});
-
 export const edgesTypesFilteredAtom = atom<Set<string>>({
   key: "edges-types-filtered",
   default: new Set(),
@@ -94,7 +88,7 @@ export const filteredEdgesSelector = selector<Map<EdgeId, Edge>>({
   key: "filtered-edges",
   get: ({ get }) => {
     const edges = get(edgesAtom);
-    const filteredEdgeIds = get(edgesFilteredIdsAtom);
+    const filteredEdgeIds = get(edgesHiddenIdsAtom);
     const filteredEdgeTypes = get(edgesTypesFilteredAtom);
     const filteredVertexIds = get(nodesFilteredIdsAtom);
     const filteredVertexTypes = get(nodesTypesFilteredAtom);
