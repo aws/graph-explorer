@@ -1,7 +1,7 @@
 import { atom, selector, selectorFamily } from "recoil";
 import type { Edge, EdgeId } from "@/types/entities";
 import isDefaultValue from "./isDefaultValue";
-import { nodesFilteredIdsAtom, nodesTypesFilteredAtom } from "./nodes";
+import { nodesHiddenIdsAtom, nodesTypesFilteredAtom } from "./nodes";
 
 export type Edges = Map<EdgeId, Edge>;
 
@@ -90,7 +90,7 @@ export const filteredEdgesSelector = selector<Map<EdgeId, Edge>>({
     const edges = get(edgesAtom);
     const filteredEdgeIds = get(edgesHiddenIdsAtom);
     const filteredEdgeTypes = get(edgesTypesFilteredAtom);
-    const filteredVertexIds = get(nodesFilteredIdsAtom);
+    const filteredVertexIds = get(nodesHiddenIdsAtom);
     const filteredVertexTypes = get(nodesTypesFilteredAtom);
 
     return new Map(

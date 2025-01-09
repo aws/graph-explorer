@@ -8,7 +8,6 @@ import {
 } from "./edges";
 import {
   nodesAtom,
-  nodesFilteredIdsAtom,
   nodesHiddenIdsAtom,
   nodesOutOfFocusIdsAtom,
   nodesSelectedIdsAtom,
@@ -29,7 +28,6 @@ export default function useResetState() {
         reset(nodesSelectedIdsAtom);
         reset(nodesHiddenIdsAtom);
         reset(nodesOutOfFocusIdsAtom);
-        reset(nodesFilteredIdsAtom);
         reset(nodesTypesFilteredAtom);
         reset(edgesAtom);
         reset(edgesSelectedIdsAtom);

@@ -2,7 +2,7 @@ import { createRandomVertex, renderHookWithRecoilRoot } from "@/utils/testing";
 import { useHasVertexBeenAddedToGraph } from "./useHasVertexBeenAddedToGraph";
 import {
   nodesAtom,
-  nodesFilteredIdsAtom,
+  nodesHiddenIdsAtom,
   nodesTypesFilteredAtom,
   toNodeMap,
 } from "@/core";
@@ -34,7 +34,7 @@ test("returns true if vertex has been added to graph and is filtered out by id",
     () => useHasVertexBeenAddedToGraph(vertex.id),
     snapshot => {
       snapshot.set(nodesAtom, toNodeMap([vertex]));
-      snapshot.set(nodesFilteredIdsAtom, new Set([vertex.id]));
+      snapshot.set(nodesHiddenIdsAtom, new Set([vertex.id]));
     }
   );
 

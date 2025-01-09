@@ -17,7 +17,7 @@ import { vi } from "vitest";
 import { createRandomInteger, createRandomName } from "@shared/utils/testing";
 import {
   nodesAtom,
-  nodesFilteredIdsAtom,
+  nodesHiddenIdsAtom,
   nodesTypesFilteredAtom,
   toNodeMap,
 } from "@/core/StateProvider/nodes";
@@ -192,7 +192,7 @@ describe("useEntities", () => {
       },
       snapshot => {
         snapshot.set(nodesAtom, toNodeMap([node1, node2, node3]));
-        snapshot.set(nodesFilteredIdsAtom, new Set([node1.id, node2.id]));
+        snapshot.set(nodesHiddenIdsAtom, new Set([node1.id, node2.id]));
       }
     );
 
@@ -288,7 +288,7 @@ describe("useEntities", () => {
       snapshot => {
         snapshot.set(nodesAtom, toNodeMap([node1, node2]));
         snapshot.set(edgesAtom, toEdgeMap([edge1to2, edge2to1, edge2to3]));
-        snapshot.set(nodesFilteredIdsAtom, new Set([node1.id]));
+        snapshot.set(nodesHiddenIdsAtom, new Set([node1.id]));
       }
     );
 
