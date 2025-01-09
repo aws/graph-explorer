@@ -12,13 +12,13 @@ issues linked below.
 
 ## Q2 2025
 
-- [Schema visualization](https://github.com/aws/graph-explorer/issues/685)
-- [Improved graph rendering](https://github.com/aws/graph-explorer/issues/691)
+- [Query editor for Gremlin](https://github.com/aws/graph-explorer/issues/686)
+- [Query editor for openCypher](https://github.com/aws/graph-explorer/issues/687)
 
 ## Q3 2025
 
-- [Query editor for Gremlin](https://github.com/aws/graph-explorer/issues/686)
-- [Query editor for openCypher](https://github.com/aws/graph-explorer/issues/687)
+- [Schema visualization](https://github.com/aws/graph-explorer/issues/685)
+- [Improved graph rendering](https://github.com/aws/graph-explorer/issues/691)
 
 ## Backlog
 
