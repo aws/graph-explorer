@@ -1,5 +1,14 @@
 import { VertexId } from "@/@types/entities";
-import { calculateNeighbors } from "./neighbors";
+import { calculateNeighbors, useNeighbors } from "./neighbors";
+import {
+  createRandomVertex,
+  DbState,
+  renderHookWithRecoilRoot,
+} from "@/utils/testing";
+import { explorerForTestingAtom } from "../connector";
+import { createMockExplorer } from "@/utils/testing/createMockExplorer";
+import { NeighborCountsQueryResponse } from "@/connector/queries";
+import { waitFor } from "@testing-library/react";
 
 describe("calculateNeighbors", () => {
   it("should calculate neighbors correctly", () => {
@@ -32,5 +41,61 @@ describe("calculateNeighbors", () => {
         ["type2", { all: 4, fetched: 2, unfetched: 2 }],
       ])
     );
+  });
+});
+
+describe("useNeighbors", () => {
+  it("should return default neighbors if no neighbors are found", () => {
+    const dbState = new DbState();
+    const vertex = createRandomVertex();
+    const explorer = createMockExplorer();
+
+    const { result } = renderHookWithRecoilRoot(
+      () => useNeighbors(vertex),
+      snapshot => {
+        dbState.applyTo(snapshot);
+        snapshot.set(explorerForTestingAtom, explorer);
+      }
+    );
+
+    expect(result.current).toEqual({
+      all: 0,
+      fetched: 0,
+      unfetched: 0,
+      byType: new Map(),
+    });
+  });
+
+  it("should return neighbor counts from query", async () => {
+    const dbState = new DbState();
+    const vertex = createRandomVertex();
+
+    const explorer = createMockExplorer();
+    const response: NeighborCountsQueryResponse = {
+      nodeId: vertex.id,
+      totalCount: 8,
+      counts: { nodeType1: 5, nodeType2: 3 },
+    };
+    vi.mocked(explorer.fetchNeighborsCount).mockResolvedValueOnce(response);
+
+    const { result } = renderHookWithRecoilRoot(
+      () => useNeighbors(vertex),
+      snapshot => {
+        dbState.applyTo(snapshot);
+        snapshot.set(explorerForTestingAtom, explorer);
+      }
+    );
+
+    await waitFor(() => {
+      expect(result.current).toEqual({
+        all: 8,
+        fetched: 0,
+        unfetched: 8,
+        byType: new Map([
+          ["nodeType1", { all: 5, fetched: 0, unfetched: 5 }],
+          ["nodeType2", { all: 3, fetched: 0, unfetched: 3 }],
+        ]),
+      });
+    });
   });
 });
