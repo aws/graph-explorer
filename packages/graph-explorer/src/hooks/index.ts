@@ -3,6 +3,7 @@ export { default as useDeepMemo } from "./useDeepMemo";
 export { default as useEntities } from "./useEntities";
 export { default as useExpandNode } from "./useExpandNode";
 export * from "./useAddToGraph";
+export * from "./useHasVertexBeenAddedToGraph";
 export * from "./useRemoveFromGraph";
 export { default as useTextTransform } from "./useTextTransform";
 export * from "./useTextTransform";

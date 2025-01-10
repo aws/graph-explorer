@@ -1,92 +1,33 @@
 import { useMemo } from "react";
 import { SetterOrUpdater, useRecoilValue, useSetRecoilState } from "recoil";
 import type { Edge, EdgeId, Vertex, VertexId } from "@/types/entities";
-import {
-  edgesFilteredIdsAtom,
-  edgesSelector,
-  edgesTypesFilteredAtom,
-} from "@/core/StateProvider/edges";
 import entitiesSelector, {
   Entities,
 } from "@/core/StateProvider/entitiesSelector";
-import {
-  nodesFilteredIdsAtom,
-  nodesSelector,
-  nodesTypesFilteredAtom,
-} from "@/core/StateProvider/nodes";
-
-import useDeepMemo from "./useDeepMemo";
+import { filteredNodesSelector, filteredEdgesSelector } from "@/core";
 
 type ProcessedEntities = {
   nodes: Map<VertexId, Vertex>;
   edges: Map<EdgeId, Edge>;
 };
 
-const useEntities = ({ disableFilters }: { disableFilters?: boolean } = {}): [
+/** Returns the current set of filtered entities. */
+export default function useEntities(): [
   ProcessedEntities,
   SetterOrUpdater<Entities>,
-] => {
-  const filteredNodesIds = useRecoilValue(nodesFilteredIdsAtom);
-  const filteredEdgesIds = useRecoilValue(edgesFilteredIdsAtom);
-  const nodes = useRecoilValue(nodesSelector);
-  const edges = useRecoilValue(edgesSelector);
-
+] {
   const setEntities = useSetRecoilState(entitiesSelector);
 
-  const vertexTypes = useRecoilValue(nodesTypesFilteredAtom);
-  const connectionTypes = useRecoilValue(edgesTypesFilteredAtom);
+  const filteredNodes = useRecoilValue(filteredNodesSelector);
+  const filteredEdges = useRecoilValue(filteredEdgesSelector);
 
-  const filteredEntitiesByGlobalFilters = useDeepMemo(() => {
-    let filteredNodes = nodes;
-    let filteredEdges = edges;
-    if (!disableFilters) {
-      filteredNodes = new Map(
-        nodes.entries().filter(([_id, node]) => {
-          return vertexTypes.has(node.type) === false;
-        })
-      );
-
-      filteredEdges = new Map(
-        edges.entries().filter(([_id, edge]) => {
-          return (
-            connectionTypes.has(edge.type) === false &&
-            filteredNodes.has(edge.source) &&
-            filteredNodes.has(edge.target)
-          );
-        })
-      );
-    }
-    return {
+  const filteredEntities = useMemo(
+    () => ({
       nodes: filteredNodes,
       edges: filteredEdges,
-    };
-  }, [connectionTypes, disableFilters, edges, nodes, vertexTypes]);
-
-  const filteredEntities = useMemo(() => {
-    return <ProcessedEntities>{
-      nodes: new Map(
-        filteredEntitiesByGlobalFilters.nodes
-          .entries()
-          .filter(([id, _node]) => {
-            return !filteredNodesIds.has(id);
-          })
-      ),
-      edges: new Map(
-        filteredEntitiesByGlobalFilters.edges
-          .entries()
-          .filter(([_id, edge]) => {
-            // Edges should not be in the filteredEdgesIds neither be unconnected
-            return (
-              !filteredEdgesIds.has(edge.id) &&
-              !filteredNodesIds.has(edge.source) &&
-              !filteredNodesIds.has(edge.target)
-            );
-          })
-      ),
-    };
-  }, [filteredEdgesIds, filteredEntitiesByGlobalFilters, filteredNodesIds]);
+    }),
+    [filteredEdges, filteredNodes]
+  );
 
   return [filteredEntities, setEntities];
-};
-
-export default useEntities;
+}
