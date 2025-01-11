@@ -5,7 +5,8 @@
 - **Removed** unused `hidden` flag from schema types
   ([#737](https://github.com/aws/graph-explorer/pull/737))
 - **Improved** entity filtering logic reducing re-renders
-  ([#739](https://github.com/aws/graph-explorer/pull/739))
+  ([#739](https://github.com/aws/graph-explorer/pull/739),
+  [741](https://github.com/aws/graph-explorer/pull/741))
 
 ## Release 1.13.0
 
