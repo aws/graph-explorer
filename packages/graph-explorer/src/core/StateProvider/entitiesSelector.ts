@@ -3,8 +3,14 @@ import isEqualWith from "lodash/isEqualWith";
 import type { GetRecoilValue, RecoilState, SetRecoilState } from "recoil";
 import { selector } from "recoil";
 import type { Edge, EdgeId, Vertex, VertexId } from "@/types/entities";
-import { edgesAtom, edgesSelectedIdsAtom, edgesSelector } from "./edges";
 import {
+  edgesAtom,
+  edgesSelectedIdsAtom,
+  edgesSelector,
+  filteredEdgesSelector,
+} from "./edges";
+import {
+  filteredNodesSelector,
   nodesAtom,
   nodesHiddenIdsAtom,
   nodesSelectedIdsAtom,
@@ -52,8 +58,8 @@ const entitiesSelector = selector<Entities>({
   key: "entities",
   get: ({ get }) => {
     return {
-      nodes: get(nodesAtom),
-      edges: get(edgesAtom),
+      nodes: get(filteredNodesSelector),
+      edges: get(filteredEdgesSelector),
     };
   },
   set: ({ get, set }, newEntities) => {
