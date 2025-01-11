@@ -20,12 +20,12 @@ import Button from "@/components/Button";
 import { ExplorerIcon } from "@/components/icons";
 import {
   ColumnDefinition,
+  PaginationControl,
   PlaceholderControl,
   TabularEmptyBodyControls,
   TabularFooterControls,
   TabularInstance,
 } from "@/components/Tabular";
-import ExternalPaginationControl from "@/components/Tabular/controls/ExternalPaginationControl";
 import Tabular from "@/components/Tabular/Tabular";
 import Workspace from "@/components/Workspace/Workspace";
 import type { KeywordSearchRequest } from "@/connector/useGEFetchTypes";
@@ -162,7 +162,7 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
               )}
             </TabularEmptyBodyControls>
             <TabularFooterControls>
-              <ExternalPaginationControl
+              <PaginationControl
                 pageIndex={pageIndex}
                 onPageIndexChange={onPageIndexChange}
                 pageSize={pageSize}

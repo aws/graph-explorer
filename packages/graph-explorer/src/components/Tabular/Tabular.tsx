@@ -237,12 +237,32 @@ const TabularContent = <T extends object>({
       {footerControlsChildren}
       {!footerControlsChildren && !disablePagination && (
         <TabularFooterControls variant={variant}>
-          <PaginationControl totalRows={rows.length} />
+          <Paging totalRows={rows.length} />
         </TabularFooterControls>
       )}
     </div>
   );
 };
+
+function Paging({ totalRows }: { totalRows: number }) {
+  const {
+    instance: { disablePagination, gotoPage, setPageSize, pageIndex, pageSize },
+  } = useTabularControl();
+
+  if (disablePagination) {
+    return null;
+  }
+
+  return (
+    <PaginationControl
+      pageIndex={pageIndex}
+      onPageIndexChange={index => gotoPage(index)}
+      pageSize={pageSize}
+      onPageSizeChange={size => setPageSize(size)}
+      totalRows={totalRows}
+    />
+  );
+}
 
 export default forwardRef(Tabular) as <T extends object>(
   props: PropsWithChildren<TabularProps<T>> & {

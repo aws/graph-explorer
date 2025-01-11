@@ -151,7 +151,7 @@ export default function GraphViewer({
         ? Math.max(0, vertex.neighborsCount - vertex.__unfetchedNeighborCount)
         : undefined;
       expandNode(vertex, {
-        limit: 10,
+        // limit: 10,
         offset,
       });
     },
