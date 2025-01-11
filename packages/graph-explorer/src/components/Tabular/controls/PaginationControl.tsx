@@ -1,9 +1,6 @@
-import { css } from "@emotion/css";
-import { cn } from "@/utils";
-
-import { FunctionComponent, useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import Button from "@/components/Button";
-import HumanReadableNumberFormatter from "@/components/HumanReadableNumberFormatter";
+import { toHumanString } from "@/components/HumanReadableNumberFormatter";
 import { IconButton } from "@/components";
 import {
   BackwardIcon,
@@ -12,105 +9,30 @@ import {
   SkipForwardIcon,
 } from "@/components/icons";
 import Select from "@/components/Select";
-import { useTabularControl } from "../TabularControlsProvider";
+import { Label } from "@/components/radix";
+import { cn } from "@/utils";
 
 export type PaginationControlProps = {
   className?: string;
   totalRows: number;
+  pageIndex: number;
+  onPageIndexChange(pageIndex: number): void;
+  pageSize: number;
+  onPageSizeChange(pageSize: number): void;
+  pageOptions?: number[];
 };
 
-const defaultStyles = () => css`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  .pagination-totals {
-    color: var(--palette-text-disabled, #838383);
-  }
-
-  .pagination-controls {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-
-    > * {
-      margin: 0 4px;
-    }
-
-    > *:last-child {
-      margin-right: 0;
-    }
-
-    .page-options-menu {
-      .select {
-        min-width: 30px;
-      }
-      .input-label {
-        width: 75px;
-        font-size: 14px;
-        margin: 0;
-      }
-    }
-
-    .page-viz {
-      display: flex;
-      align-items: center;
-      > * {
-        margin: 0 4px;
-      }
-    }
-
-    .page-button {
-      font-size: 14px;
-      min-width: 24px;
-      margin: 0 1px;
-      &.page-control {
-        > svg {
-          width: 24px;
-          height: 24px;
-        }
-        padding: 0;
-      }
-      &.toggle-button-inactive {
-        background-color: transparent;
-      }
-    }
-  }
-`;
-
-export const PaginationControl: FunctionComponent<PaginationControlProps> = ({
+const DEFAULT_PAGE_OPTIONS = [10, 20, 50];
+export function PaginationControl({
   className,
   totalRows,
-}) => {
-  const {
-    instance: {
-      disablePagination,
-      canPreviousPage,
-      canNextPage,
-      pageOptions,
-      pageCount,
-      gotoPage,
-      nextPage,
-      previousPage,
-      setPageSize,
-      pageIndex,
-      pageSize,
-    },
-  } = useTabularControl();
-
-  const [inputValue, setInputValue] = useState<number | null>(pageIndex + 1);
-
-  useEffect(() => {
-    if (inputValue === null) {
-      return;
-    }
-
-    gotoPage(inputValue - 1);
-  }, [gotoPage, inputValue]);
-
-  useEffect(() => {
-    setInputValue(pageIndex + 1);
-  }, [pageIndex]);
+  pageIndex,
+  pageSize,
+  onPageIndexChange,
+  onPageSizeChange,
+  pageOptions = DEFAULT_PAGE_OPTIONS,
+}: PaginationControlProps) {
+  const pageCount = Math.ceil(totalRows / pageSize);
 
   const pagesToRender = useMemo(() => {
     const pages: string[] = [];
@@ -142,24 +64,24 @@ export const PaginationControl: FunctionComponent<PaginationControlProps> = ({
     const to = pageIndex * pageSize + pageSize;
     return `${pageIndex * pageSize + 1}-${to < totalRows ? to : totalRows}`;
   }, [pageIndex, pageSize, totalRows]);
-  if (disablePagination) {
-    return null;
-  }
+
   return (
-    <div className={cn(defaultStyles(), className)}>
-      {totalRows > 0 && (
-        <div className="pagination-totals">
-          Displaying {pageRange} of{" "}
-          <HumanReadableNumberFormatter value={totalRows} /> results
-        </div>
+    <div
+      className={cn(
+        "flex w-full flex-wrap items-center justify-between gap-2",
+        className
       )}
-      {totalRows === 0 && <div className="pagination-totals">No results</div>}
+    >
+      <div className="text-text-secondary">
+        {totalRows > 0
+          ? `Displaying ${pageRange} of ${toHumanString(totalRows)} results`
+          : `No results`}
+      </div>
+
       {totalRows > 0 && (
-        <div className="pagination-controls">
+        <div className="flex flex-row items-center gap-1">
+          <Label className="shrink-0">Page size:</Label>
           <Select
-            label="Page size:"
-            labelPlacement="left"
-            className="page-options-menu"
             options={pageOptions.map(pageOption => ({
               label: pageOption.toString(),
               value: pageOption.toString(),
@@ -167,60 +89,49 @@ export const PaginationControl: FunctionComponent<PaginationControlProps> = ({
             noMargin
             hideError
             value={pageSize.toString()}
-            onChange={value => setPageSize(parseInt(value as string))}
+            onChange={value => onPageSizeChange(parseInt(value as string))}
           />
           <IconButton
-            disabled={!canPreviousPage}
+            disabled={pageIndex - 1 < 0}
             variant="text"
-            size="small"
-            className={cn("page-button", "page-control")}
             icon={<SkipBackwardIcon />}
-            onClick={() => gotoPage(0)}
+            onClick={() => onPageIndexChange(0)}
           />
           <IconButton
-            disabled={!canPreviousPage}
+            disabled={pageIndex - 1 < 0}
             variant="text"
-            size="small"
-            className={cn("page-button", "page-control")}
             icon={<BackwardIcon />}
-            onClick={previousPage}
+            onClick={() => onPageIndexChange(pageIndex - 1)}
           />
-          <div className="page-viz">
-            {pagesToRender.map(page => {
-              return (
-                <Button
-                  key={page}
-                  className="page-button"
-                  variant={
-                    pageIndex === parseInt(page) - 1 ? "filled" : "default"
-                  }
-                  onPress={() => gotoPage(parseInt(page) - 1)}
-                  size="small"
-                >
-                  {page}
-                </Button>
-              );
-            })}
-          </div>
+          {pagesToRender.map(page => {
+            return (
+              <Button
+                key={page}
+                variant={
+                  pageIndex === parseInt(page) - 1 ? "filled" : "default"
+                }
+                onPress={() => onPageIndexChange(parseInt(page) - 1)}
+              >
+                {page}
+              </Button>
+            );
+          })}
           <IconButton
-            disabled={!canNextPage}
+            disabled={pageIndex + 1 >= pageCount}
             variant="text"
-            size="small"
-            className={cn("page-button", "page-control")}
             icon={<ForwardIcon />}
-            onClick={nextPage}
+            onClick={() => onPageIndexChange(pageIndex + 1)}
           />
           <IconButton
-            disabled={!canNextPage}
+            disabled={pageIndex + 1 >= pageCount}
             variant="text"
-            className={cn("page-button", "page-control")}
             icon={<SkipForwardIcon />}
-            onClick={() => gotoPage(pageCount - 1)}
+            onClick={() => onPageIndexChange(pageCount - 1)}
           />
         </div>
       )}
     </div>
   );
-};
+}
 
 export default PaginationControl;
