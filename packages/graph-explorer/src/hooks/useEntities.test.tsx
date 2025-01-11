@@ -180,7 +180,7 @@ describe("useEntities", () => {
     expect(actualNode3?.__unfetchedNeighborCount).toEqual(0);
   });
 
-  it("should filter nodes by id", () => {
+  it("should not filter nodes by id", () => {
     const node1: Vertex = createRandomVertex();
     const node2: Vertex = createRandomVertex();
     const node3: Vertex = createRandomVertex();
@@ -197,7 +197,7 @@ describe("useEntities", () => {
     );
 
     expect(result.current.entities).toEqual({
-      nodes: toNodeMap([node3]),
+      nodes: toNodeMap([node1, node2, node3]),
       edges: new Map(),
     });
   });
@@ -224,7 +224,7 @@ describe("useEntities", () => {
     });
   });
 
-  it("should filter edges by id", () => {
+  it("should not filter edges by id", () => {
     const node1: Vertex = createRandomVertex();
     const node2: Vertex = createRandomVertex();
     const edge1to2: Edge = createRandomEdge(node1, node2);
@@ -244,7 +244,7 @@ describe("useEntities", () => {
 
     expect(result.current.entities).toEqual({
       nodes: toNodeMap([node1, node2]),
-      edges: toEdgeMap([edge2to1]),
+      edges: toEdgeMap([edge2to1, edge1to2]),
     });
   });
 
@@ -286,14 +286,14 @@ describe("useEntities", () => {
         return { entities, setEntities };
       },
       snapshot => {
-        snapshot.set(nodesAtom, toNodeMap([node1, node2]));
+        snapshot.set(nodesAtom, toNodeMap([node1, node2, node3]));
         snapshot.set(edgesAtom, toEdgeMap([edge1to2, edge2to1, edge2to3]));
-        snapshot.set(nodesHiddenIdsAtom, new Set([node1.id]));
+        snapshot.set(nodesTypesFilteredAtom, new Set([node1.type]));
       }
     );
 
     expect(result.current.entities).toEqual({
-      nodes: toNodeMap([node2]),
+      nodes: toNodeMap([node2, node3]),
       edges: toEdgeMap([edge2to3]),
     });
   });

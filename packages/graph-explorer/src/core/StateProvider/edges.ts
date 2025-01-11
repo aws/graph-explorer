@@ -1,7 +1,7 @@
 import { atom, selector, selectorFamily } from "recoil";
 import type { Edge, EdgeId } from "@/types/entities";
 import isDefaultValue from "./isDefaultValue";
-import { nodesHiddenIdsAtom, nodesTypesFilteredAtom } from "./nodes";
+import { filteredNodesSelector, nodesTypesFilteredAtom } from "./nodes";
 
 export type Edges = Map<EdgeId, Edge>;
 
@@ -79,8 +79,7 @@ export const edgesTypesFilteredAtom = atom<Set<string>>({
  *
  * - Edge types unselected in the filter sidebar
  * - Vertex types unselected in the filter sidebar
- * - Individual edges hidden using the table view
- * - Individual vertices hidden using the table view
+ * - Edges where the source or target vertex is filtered out
  *
  * If either the source or target vertex is hidden, the edge is also hidden.
  */
@@ -88,10 +87,9 @@ export const filteredEdgesSelector = selector<Map<EdgeId, Edge>>({
   key: "filtered-edges",
   get: ({ get }) => {
     const edges = get(edgesAtom);
-    const filteredEdgeIds = get(edgesHiddenIdsAtom);
     const filteredEdgeTypes = get(edgesTypesFilteredAtom);
-    const filteredVertexIds = get(nodesHiddenIdsAtom);
     const filteredVertexTypes = get(nodesTypesFilteredAtom);
+    const filteredNodes = get(filteredNodesSelector);
 
     return new Map(
       edges
@@ -99,9 +97,8 @@ export const filteredEdgesSelector = selector<Map<EdgeId, Edge>>({
         .filter(([_id, edge]) => !filteredEdgeTypes.has(edge.type))
         .filter(([_id, edge]) => !filteredVertexTypes.has(edge.sourceType))
         .filter(([_id, edge]) => !filteredVertexTypes.has(edge.targetType))
-        .filter(([_id, edge]) => !filteredEdgeIds.has(edge.id))
-        .filter(([_id, edge]) => !filteredVertexIds.has(edge.source))
-        .filter(([_id, edge]) => !filteredVertexIds.has(edge.target))
+        .filter(([_id, edge]) => filteredNodes.has(edge.source))
+        .filter(([_id, edge]) => filteredNodes.has(edge.target))
     );
   },
 });

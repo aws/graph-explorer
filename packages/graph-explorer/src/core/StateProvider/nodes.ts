@@ -71,22 +71,17 @@ export const nodesTypesFilteredAtom = atom<Set<string>>({
 });
 
 /**
- * Filters the nodes added to the graph by:
- *
- * - Vertex types unselected in the filter sidebar
- * - Individual nodes hidden using the table view
+ * Filters the nodes added to the graph by type when unchecked in the filter sidebar.
  */
 export const filteredNodesSelector = selector<Map<VertexId, Vertex>>({
   key: "filtered-nodes-selector",
   get: ({ get }) => {
-    const filteredIds = get(nodesHiddenIdsAtom);
     const filteredTypes = get(nodesTypesFilteredAtom);
 
     return new Map(
       get(nodesAtom)
         .entries()
         .filter(([_id, node]) => !filteredTypes.has(node.type))
-        .filter(([_id, node]) => !filteredIds.has(node.id))
     );
   },
 });
