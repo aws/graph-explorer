@@ -13,7 +13,6 @@ import {
 import { useConfiguration } from "@/core";
 import CommonPrefixes from "./CommonPrefixes";
 import GeneratedPrefixes from "./GeneratedPrefixes";
-import defaultStyles from "./Namespaces.style";
 import UserPrefixes from "./UserPrefixes";
 
 export type EdgesStylingProps = Pick<PanelHeaderCloseButtonProps, "onClose">;
@@ -64,7 +63,7 @@ const Namespaces = ({ onClose }: EdgesStylingProps) => {
         </PanelHeaderActions>
       </PanelHeader>
 
-      <PanelContent className={defaultStyles()}>
+      <PanelContent className="flex h-full flex-col">
         {nsType === "auto" && <GeneratedPrefixes />}
         {nsType === "custom" && <UserPrefixes />}
         {nsType === "common" && <CommonPrefixes />}

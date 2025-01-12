@@ -1,21 +1,31 @@
 import { Modal } from "@mantine/core";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 import { useRecoilCallback } from "recoil";
 import {
   AddIcon,
-  AdvancedList,
   Button,
   DeleteIcon,
   IconButton,
   Input,
+  ListRow,
+  ListRowContent,
+  ListRowSubtitle,
+  ListRowTitle,
   NamespaceIcon,
   PanelEmptyState,
+  PanelFooter,
   SaveIcon,
+  SearchBar,
+  useSearchItems,
 } from "@/components";
-import { useConfiguration, useWithTheme } from "@/core";
+import {
+  activeConfigurationAtom,
+  PrefixTypeConfig,
+  useConfiguration,
+} from "@/core";
 import { schemaAtom } from "@/core/StateProvider/schema";
-import defaultStyles from "./NsType.styles";
-import modalDefaultStyles from "./NsTypeModal.styles";
+import { Virtuoso } from "react-virtuoso";
+import React from "react";
 
 type PrefixForm = {
   prefix: string;
@@ -23,24 +33,114 @@ type PrefixForm = {
 };
 
 const UserPrefixes = () => {
-  const styleWithTheme = useWithTheme();
   const config = useConfiguration();
-  const [search, setSearch] = useState("");
+  const items =
+    config?.schema?.prefixes?.filter(
+      prefixConfig => prefixConfig.__inferred !== true
+    ) ?? [];
   const [opened, setOpened] = useState(false);
 
-  const onDeletePrefix = useRecoilCallback(
-    ({ set }) =>
-      (prefix: string) =>
-      () => {
-        if (!config?.id) {
+  return (
+    <div className="flex grow flex-col">
+      {items.length === 0 && <EmptyState onCreate={() => setOpened(true)} />}
+      {items.length > 0 && <SearchablePrefixes items={items} />}
+      {items.length > 0 && (
+        <PanelFooter className="flex flex-row justify-end">
+          <Button
+            icon={<AddIcon />}
+            variant="filled"
+            onPress={() => setOpened(true)}
+          >
+            Create
+          </Button>
+        </PanelFooter>
+      )}
+      <EditPrefixModal opened={opened} onClose={() => setOpened(false)} />
+    </div>
+  );
+};
+
+function SearchablePrefixes({ items }: { items: PrefixTypeConfig[] }) {
+  const { filteredItems, search, setSearch } = useSearchItems(
+    items,
+    config => `${config.prefix} ${config.uri}`
+  );
+
+  return (
+    <>
+      <div className="w-full px-3 py-2">
+        <SearchBar
+          search={search}
+          searchPlaceholder="Search for Namespaces or URIs"
+          onSearch={setSearch}
+        />
+      </div>
+      {filteredItems.length <= 0 ? (
+        <PanelEmptyState title="No Namespaces" />
+      ) : null}
+      {filteredItems.length > 0 ? (
+        <Virtuoso
+          className="h-full grow"
+          data={filteredItems}
+          itemContent={(_index, prefix) => <Row prefix={prefix} />}
+        />
+      ) : null}
+    </>
+  );
+}
+
+const Row = React.memo(({ prefix }: { prefix: PrefixTypeConfig }) => {
+  const onDeletePrefix = useDeletePrefixCallback(prefix.prefix);
+  return (
+    <div className="px-3 py-1.5">
+      <ListRow className="min-h-12">
+        <NamespaceIcon className="text-primary-main size-5 shrink-0" />
+        <ListRowContent>
+          <ListRowTitle>{prefix.prefix}</ListRowTitle>
+          <ListRowSubtitle className="break-all">{prefix.uri}</ListRowSubtitle>
+        </ListRowContent>
+        <IconButton
+          variant="text"
+          size="small"
+          color="error"
+          icon={<DeleteIcon />}
+          onClick={onDeletePrefix}
+        />
+      </ListRow>
+    </div>
+  );
+});
+
+function EmptyState({ onCreate }: { onCreate: () => void }) {
+  return (
+    <PanelEmptyState
+      title="No Namespaces"
+      subtitle="No Custom Namespaces stored"
+      icon={<NamespaceIcon />}
+      actionLabel="Start creating a new namespace"
+      onAction={() => onCreate()}
+      actionVariant="text"
+    />
+  );
+}
+
+function useDeletePrefixCallback(prefix: string) {
+  return useRecoilCallback(
+    ({ set, snapshot }) =>
+      async () => {
+        const activeConfigId = await snapshot.getPromise(
+          activeConfigurationAtom
+        );
+
+        if (!activeConfigId) {
           return;
         }
 
         set(schemaAtom, prevSchemas => {
           const updatedSchemas = new Map(prevSchemas);
-          const activeSchema = updatedSchemas.get(config.id);
+          const activeSchema = updatedSchemas.get(activeConfigId);
 
-          updatedSchemas.set(config.id, {
+          updatedSchemas.set(activeConfigId, {
             ...(activeSchema || {}),
             vertices: activeSchema?.vertices || [],
             edges: activeSchema?.edges || [],
@@ -52,33 +152,18 @@ const UserPrefixes = () => {
           return updatedSchemas;
         });
       },
-    [config?.id]
+    [prefix]
   );
+}
 
-  const items = useMemo(() => {
-    return (
-      config?.schema?.prefixes
-        ?.filter(prefixConfig => prefixConfig.__inferred !== true)
-        .map(prefixConfig => {
-          return {
-            id: prefixConfig.prefix,
-            title: `${prefixConfig.prefix} ${prefixConfig.uri}`,
-            titleComponent: prefixConfig.prefix,
-            subtitle: prefixConfig.uri,
-            endAdornment: (
-              <IconButton
-                variant="text"
-                size="small"
-                color="error"
-                icon={<DeleteIcon />}
-                onClick={onDeletePrefix(prefixConfig.prefix)}
-              />
-            ),
-          };
-        })
-        .sort((a, b) => a.title.localeCompare(b.title)) || []
-    );
-  }, [config?.schema?.prefixes, onDeletePrefix]);
+function EditPrefixModal({
+  opened,
+  onClose,
+}: {
+  opened: boolean;
+  onClose: () => void;
+}) {
+  const config = useConfiguration();
 
   const [hasError, setError] = useState(false);
   const [form, setForm] = useState<PrefixForm>({
@@ -129,78 +214,42 @@ const UserPrefixes = () => {
     onSave(form.prefix, form.uri);
     setForm({ prefix: "", uri: "" });
     setError(false);
-    setOpened(false);
-  }, [form.prefix, form.uri, onSave]);
+    onClose();
+  }, [form.prefix, form.uri, onClose, onSave]);
 
   return (
-    <div className={styleWithTheme(defaultStyles)}>
-      {items.length === 0 && (
-        <PanelEmptyState
-          title="No Namespaces"
-          subtitle="No Custom Namespaces stored"
-          icon={<NamespaceIcon />}
-          actionLabel="Start creating a new namespace"
-          onAction={() => setOpened(true)}
-          actionVariant="text"
+    <Modal
+      opened={opened}
+      onClose={onClose}
+      centered={true}
+      title="Create a new Namespace"
+    >
+      <div>
+        <Input
+          label="Namespace"
+          value={form.prefix}
+          onChange={onFormChange("prefix")}
+          placeholder="Namespace"
+          validationState={hasError && !form.prefix ? "invalid" : "valid"}
+          errorMessage="Namespace is required"
         />
-      )}
-      {items.length > 0 && (
-        <AdvancedList
-          className="advanced-list"
-          searchPlaceholder="Search for Namespaces or URIs"
-          search={search}
-          onSearch={setSearch}
-          items={items}
-          emptyState={{
-            noSearchResultsTitle: "No Namespaces",
-          }}
+        <Input
+          className="input-uri"
+          label="URI"
+          value={form.uri}
+          onChange={onFormChange("uri")}
+          placeholder="URI"
+          validationState={hasError && !form.uri ? "invalid" : "valid"}
+          errorMessage="URI is required"
         />
-      )}
-      {items.length > 0 && (
-        <div className="actions">
-          <Button
-            icon={<AddIcon />}
-            variant="filled"
-            onPress={() => setOpened(true)}
-          >
-            Create
-          </Button>
-        </div>
-      )}
-      <Modal
-        opened={opened}
-        onClose={() => setOpened(false)}
-        centered={true}
-        title="Create a new Namespace"
-        className={styleWithTheme(modalDefaultStyles)}
-      >
-        <div>
-          <Input
-            label="Namespace"
-            value={form.prefix}
-            onChange={onFormChange("prefix")}
-            placeholder="Namespace"
-            validationState={hasError && !form.prefix ? "invalid" : "valid"}
-            errorMessage="Namespace is required"
-          />
-          <Input
-            className="input-uri"
-            label="URI"
-            value={form.uri}
-            onChange={onFormChange("uri")}
-            placeholder="URI"
-            validationState={hasError && !form.uri ? "invalid" : "valid"}
-            errorMessage="URI is required"
-          />
-        </div>
-        <div className="actions">
-          <Button icon={<SaveIcon />} variant="filled" onPress={onSubmit}>
-            Save
-          </Button>
-        </div>
-      </Modal>
-    </div>
+      </div>
+      <div className="flex flex-row justify-end border-t pt-4">
+        <Button icon={<SaveIcon />} variant="filled" onPress={onSubmit}>
+          Save
+        </Button>
+      </div>
+    </Modal>
   );
-};
+}
 
 export default UserPrefixes;
