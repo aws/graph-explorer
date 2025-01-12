@@ -41,7 +41,7 @@ const getInnerLabelStyles = (
 `;
 
 type containerStylesParams = {
-  labelPlacement: "top" | "left" | "inner";
+  labelPlacement: "top" | "inner";
   size: "sm" | "md";
   validationState?: "invalid" | "valid";
   hideError?: boolean;

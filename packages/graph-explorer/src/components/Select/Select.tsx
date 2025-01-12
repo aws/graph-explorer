@@ -24,7 +24,7 @@ export type SelectProps = {
   onChange: (value: string | string[]) => void;
   label?: ReactNode;
   ["aria-label"]?: string;
-  labelPlacement?: "top" | "left" | "inner";
+  labelPlacement?: "top" | "inner";
   className?: string;
   placeholder?: string;
   errorMessage?: string;

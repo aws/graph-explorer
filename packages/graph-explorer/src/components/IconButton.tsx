@@ -17,7 +17,7 @@ const iconButtonVariants = cva({
       error: "",
     },
     size: {
-      small: "h-[24px] px-1 text-sm [&_svg]:size-[16px]",
+      small: "h-[24px] px-1 text-sm [&_svg]:size-[20px]",
       base: "size-[30px] text-base [&_svg]:size-[22px]",
       large: "h-[42px] px-4 text-lg [&_svg]:size-[26px]",
     },
