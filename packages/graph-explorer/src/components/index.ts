@@ -1,8 +1,5 @@
 import { ComponentProps, JSXElementConstructor } from "react";
 
-export { default as AdvancedList } from "./AdvancedList";
-export * from "./AdvancedList";
-
 export { default as Button } from "./Button";
 export * from "./Button";
 
@@ -37,6 +34,8 @@ export * from "./TextArea";
 export { default as ListItem } from "./ListItem";
 export * from "./ListItem";
 
+export * from "./ListRow";
+
 export { default as LoadingSpinner } from "./LoadingSpinner";
 export * from "./LoadingSpinner";
 
@@ -45,8 +44,8 @@ export * from "./Popover";
 
 export { default as NotInProduction } from "./NotInProduction";
 
-export { default as Section } from "./Section";
-export * from "./Section";
+export { default as SearchBar } from "./SearchBar";
+export * from "./SearchBar";
 
 export { default as Select } from "./Select";
 export * from "./Select";

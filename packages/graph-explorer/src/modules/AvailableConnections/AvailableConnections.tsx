@@ -13,6 +13,10 @@ import {
   PanelHeaderDivider,
   Panel,
   PanelContent,
+  ListRow,
+  ListRowSubtitle,
+  ListRowTitle,
+  ListRowContent,
 } from "@/components";
 import { useNotification } from "@/components/NotificationProvider";
 import Switch from "@/components/Switch";
@@ -28,6 +32,7 @@ import isValidConfigurationFile from "@/utils/isValidConfigurationFile";
 import CreateConnection from "@/modules/CreateConnection";
 import { fromFileToJson } from "@/utils/fileData";
 import { Virtuoso } from "react-virtuoso";
+import React from "react";
 
 export type ConnectionDetailProps = {
   isSync: boolean;
@@ -42,19 +47,125 @@ const AvailableConnections = ({
 }: ConnectionDetailProps) => {
   const activeConfig = useRecoilValue(activeConfigurationAtom);
   const configuration = useRecoilValue(configurationAtom);
+  const onConfigImport = useImportConfigFileCallback();
 
+  return (
+    <Panel>
+      <PanelHeader>
+        <PanelTitle>Available connections</PanelTitle>
+        <PanelHeaderActions>
+          <FileButton
+            onChange={payload => payload && onConfigImport(payload)}
+            accept="application/json"
+          >
+            {props => (
+              <PanelHeaderActionButton
+                label="Import Connection"
+                isDisabled={isSync}
+                onActionClick={props.onClick}
+                icon={<TrayArrowIcon style={{ transform: "rotate(180deg)" }} />}
+              />
+            )}
+          </FileButton>
+          <PanelHeaderDivider />
+          <PanelHeaderActionButton
+            label="Add New Connection"
+            icon={<AddIcon />}
+            onActionClick={() => onModalChange(true)}
+          />
+        </PanelHeaderActions>
+      </PanelHeader>
+
+      <PanelContent className="py-1.5">
+        <Virtuoso
+          data={[...configuration.values()]}
+          itemContent={(_index, config) => (
+            <ConfigRow
+              config={config}
+              isSelected={activeConfig === config.id}
+              isDisabled={isSync}
+            />
+          )}
+        />
+        <Modal
+          centered={true}
+          title="Add New Connection"
+          opened={isModalOpen}
+          onClose={() => onModalChange(false)}
+        >
+          <CreateConnection onClose={() => onModalChange(false)} />
+        </Modal>
+      </PanelContent>
+    </Panel>
+  );
+};
+
+const ConfigRow = React.memo(
+  ({
+    config,
+    isSelected,
+    isDisabled,
+  }: {
+    config: RawConfiguration;
+    isSelected: boolean;
+    isDisabled: boolean;
+  }) => {
+    const t = useTranslations();
+    const setActiveConfig = useSetActiveConfigCallback(config.id);
+
+    return (
+      <div className="px-3 py-1.5">
+        <ListRow
+          isDisabled={isDisabled}
+          onClick={setActiveConfig}
+          className="hover:cursor-pointer"
+        >
+          <DatabaseIcon className="text-primary-main size-6 shrink-0" />
+          <ListRowContent>
+            <ListRowTitle>{config.displayLabel || config.id}</ListRowTitle>
+            {config.connection ? (
+              <ListRowSubtitle>{config.connection.url}</ListRowSubtitle>
+            ) : null}
+          </ListRowContent>
+          <div className="flex items-center gap-2">
+            <Chip variant="info">
+              {t(
+                "available-connections.graph-type",
+                config.connection?.queryEngine || "gremlin"
+              )}
+            </Chip>
+            <Switch
+              className="item-switch"
+              labelPosition="left"
+              isSelected={isSelected}
+              onChange={setActiveConfig}
+              isDisabled={isDisabled}
+            >
+              {isSelected ? "Active" : "Inactive"}
+            </Switch>
+          </div>
+        </ListRow>
+      </div>
+    );
+  }
+);
+
+function useSetActiveConfigCallback(configId: string) {
   const resetState = useResetState();
-  const onActiveConfigChange = useRecoilCallback(
+  return useRecoilCallback(
     ({ set }) =>
-      (value: string | string[]) => {
-        set(activeConfigurationAtom, value as string);
+      () => {
+        set(activeConfigurationAtom, configId);
         resetState();
       },
-    [resetState]
+    [configId, resetState]
   );
+}
 
+function useImportConfigFileCallback() {
+  const resetState = useResetState();
   const { enqueueNotification } = useNotification();
-  const onConfigImport = useRecoilCallback(
+  return useRecoilCallback(
     ({ set }) =>
       async (file: File) => {
         const fileContent = await fromFileToJson(file);
@@ -106,109 +217,6 @@ const AvailableConnections = ({
         });
       },
     [enqueueNotification, resetState]
-  );
-
-  return (
-    <Panel>
-      <PanelHeader>
-        <PanelTitle>Available connections</PanelTitle>
-        <PanelHeaderActions>
-          <FileButton
-            onChange={payload => payload && onConfigImport(payload)}
-            accept="application/json"
-          >
-            {props => (
-              <PanelHeaderActionButton
-                label="Import Connection"
-                isDisabled={isSync}
-                onActionClick={props.onClick}
-                icon={<TrayArrowIcon style={{ transform: "rotate(180deg)" }} />}
-              />
-            )}
-          </FileButton>
-          <PanelHeaderDivider />
-          <PanelHeaderActionButton
-            label="Add New Connection"
-            icon={<AddIcon />}
-            onActionClick={() => onModalChange(true)}
-          />
-        </PanelHeaderActions>
-      </PanelHeader>
-
-      <PanelContent className="py-1.5">
-        <Virtuoso
-          data={[...configuration.values()]}
-          itemContent={(_index, config) => (
-            <div className="px-3 py-1.5">
-              <ConfigRow
-                config={config}
-                isSelected={activeConfig === config.id}
-                isDisabled={isSync}
-                makeSelected={() => onActiveConfigChange(config.id)}
-              />
-            </div>
-          )}
-        />
-        <Modal
-          centered={true}
-          title="Add New Connection"
-          opened={isModalOpen}
-          onClose={() => onModalChange(false)}
-        >
-          <CreateConnection onClose={() => onModalChange(false)} />
-        </Modal>
-      </PanelContent>
-    </Panel>
-  );
-};
-
-function ConfigRow({
-  config,
-  isSelected,
-  isDisabled,
-  makeSelected,
-}: {
-  config: RawConfiguration;
-  isSelected: boolean;
-  isDisabled: boolean;
-  makeSelected: () => void;
-}) {
-  const t = useTranslations();
-
-  return (
-    <div
-      className="bg-background-secondary hover:ring-primary-dark has-[:checked]:ring-primary-dark flex items-center gap-4 rounded-lg px-3 py-1.5 ring-1 ring-transparent transition-shadow duration-200 hover:cursor-pointer hover:ring-1"
-      onClick={() => !isDisabled && makeSelected()}
-    >
-      <DatabaseIcon className="text-primary-main size-6 shrink-0" />
-      <div className="grow">
-        <div className="text-text-primary font-bold">
-          {config.displayLabel || config.id}
-        </div>
-        {config.connection ? (
-          <div className="text-text-secondary text-sm">
-            {config.connection.url}
-          </div>
-        ) : null}
-      </div>
-      <div className="flex items-center gap-2">
-        <Chip variant="info">
-          {t(
-            "available-connections.graph-type",
-            config.connection?.queryEngine || "gremlin"
-          )}
-        </Chip>
-        <Switch
-          className="item-switch"
-          labelPosition="left"
-          isSelected={isSelected}
-          onChange={makeSelected}
-          isDisabled={isDisabled}
-        >
-          {isSelected ? "Active" : "Inactive"}
-        </Switch>
-      </div>
-    </div>
   );
 }
 

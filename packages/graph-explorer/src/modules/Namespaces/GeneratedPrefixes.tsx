@@ -1,56 +1,80 @@
-import { useMemo, useState } from "react";
-import { AdvancedList, NamespaceIcon, PanelEmptyState } from "@/components";
-import { useConfiguration, useWithTheme } from "@/core";
-import defaultStyles from "./NsType.styles";
+import { useMemo } from "react";
+import {
+  ListRow,
+  ListRowContent,
+  ListRowSubtitle,
+  ListRowTitle,
+  NamespaceIcon,
+  SearchBar,
+  useSearchItems,
+} from "@/components";
+import { PrefixTypeConfig, useConfiguration } from "@/core";
+import { Virtuoso } from "react-virtuoso";
+import React from "react";
 
 const GeneratedPrefixes = () => {
-  const styleWithTheme = useWithTheme();
   const config = useConfiguration();
-  const [search, setSearch] = useState("");
 
   const items = useMemo(() => {
-    return (
-      config?.schema?.prefixes
-        ?.filter(
-          prefixConfig =>
-            prefixConfig.__inferred === true &&
-            prefixConfig.__matches &&
-            prefixConfig.__matches.size > 1
-        )
-        .map(prefixConfig => {
-          return {
-            id: prefixConfig.prefix,
-            title: `${prefixConfig.prefix} ${prefixConfig.uri}`,
-            titleComponent: prefixConfig.prefix,
-            subtitle: prefixConfig.uri,
-          };
-        })
-        .sort((a, b) => a.title.localeCompare(b.title)) || []
-    );
+    return (config?.schema?.prefixes || [])
+      .filter(
+        prefixConfig =>
+          prefixConfig.__inferred === true &&
+          prefixConfig.__matches &&
+          prefixConfig.__matches.size > 1
+      )
+      .map(mapToPrefixData)
+      .toSorted((a, b) => a.title.localeCompare(b.title));
   }, [config?.schema?.prefixes]);
 
+  const { filteredItems, search, setSearch } = useSearchItems(
+    items,
+    prefix => prefix.title
+  );
+
   return (
-    <div className={styleWithTheme(defaultStyles)}>
-      {items.length === 0 && (
-        <PanelEmptyState
-          title="No Namespaces"
-          subtitle="No automatically generated Namespaces"
-          icon={<NamespaceIcon />}
-        />
-      )}
-      {items.length > 0 && (
-        <AdvancedList
-          searchPlaceholder="Search for Namespaces or URIs"
+    <>
+      <div className="w-full px-3 py-2">
+        <SearchBar
           search={search}
+          searchPlaceholder="Search for Namespaces or URIs"
           onSearch={setSearch}
-          items={items}
-          emptyState={{
-            noSearchResultsTitle: "No Namespaces",
-          }}
         />
-      )}
-    </div>
+      </div>
+      <Virtuoso
+        className="h-full grow"
+        data={filteredItems}
+        itemContent={(_index, prefix) => <Row prefix={prefix} />}
+      />
+    </>
   );
 };
+
+function mapToPrefixData(prefixConfig: PrefixTypeConfig) {
+  return {
+    id: prefixConfig.prefix,
+    title: `${prefixConfig.prefix} ${prefixConfig.uri}`,
+    titleComponent: prefixConfig.prefix,
+    subtitle: prefixConfig.uri,
+  };
+}
+
+type PrefixData = ReturnType<typeof mapToPrefixData>;
+
+const Row = React.memo(({ prefix }: { prefix: PrefixData }) => {
+  return (
+    <div className="px-3 py-1.5">
+      <ListRow className="min-h-12">
+        <NamespaceIcon className="text-primary-main size-5 shrink-0" />
+        <ListRowContent>
+          <ListRowTitle>{prefix.titleComponent}</ListRowTitle>
+          <ListRowSubtitle className="break-all">
+            {prefix.subtitle}
+          </ListRowSubtitle>
+        </ListRowContent>
+      </ListRow>
+    </div>
+  );
+});
 
 export default GeneratedPrefixes;

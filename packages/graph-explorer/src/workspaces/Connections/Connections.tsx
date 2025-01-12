@@ -1,11 +1,10 @@
-import { cn } from "@/utils";
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { useRecoilValue } from "recoil";
 import Button from "@/components/Button";
 import { ExplorerIcon, GearIcon } from "@/components/icons";
 import Workspace from "@/components/Workspace/Workspace";
-import { useConfiguration, useWithTheme } from "@/core";
+import { useConfiguration } from "@/core";
 import {
   activeConfigurationAtom,
   configurationAtom,
@@ -13,14 +12,11 @@ import {
 import useSchemaSync from "@/hooks/useSchemaSync";
 import AvailableConnections from "@/modules/AvailableConnections";
 import ConnectionDetail from "@/modules/ConnectionDetail";
-import defaultStyles from "./Connections.styles";
 import { APP_NAME } from "@/utils/constants";
 import { Panel, PanelContent, PanelEmptyState } from "@/components";
 import GraphExplorerIcon from "@/components/icons/GraphExplorerIcon";
 
 export default function Connections() {
-  const styleWithTheme = useWithTheme();
-
   const config = useConfiguration();
   const activeConfig = useRecoilValue(activeConfigurationAtom);
   const configuration = useRecoilValue(configurationAtom);
@@ -39,7 +35,7 @@ export default function Connections() {
   }, [activeConfig, config?.schema?.triedToSync, updateSchema]);
 
   return (
-    <Workspace className={cn(styleWithTheme(defaultStyles), "connections")}>
+    <Workspace>
       <Workspace.TopBar logoVisible>
         <Workspace.TopBar.Title
           title="Connections Details"

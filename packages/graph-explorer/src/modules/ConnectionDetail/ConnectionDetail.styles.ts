@@ -49,20 +49,6 @@ const defaultStyles: ThemeStyleFn = ({ theme }) => css`
     }
   }
 
-  .advanced-list-item-title {
-    display: flex;
-    gap: ${theme.spacing["4x"]};
-
-    .node-title {
-      min-width: 200px;
-      font-weight: ${theme.typography.weight?.bold};
-    }
-    .nodes-count {
-      color: ${theme.palette.text.secondary};
-      font-weight: ${theme.typography.weight?.base};
-    }
-  }
-
   .prefixes-list {
     min-height: 400px;
   }

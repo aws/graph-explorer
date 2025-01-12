@@ -81,13 +81,21 @@ export const ListItem = (
       {...allProps}
     >
       {startAdornment && (
-        <div className="start-adornment">{startAdornment}</div>
+        <div className="start-adornment flex min-w-[32px] items-center justify-center">
+          {startAdornment}
+        </div>
       )}
-      <div className="content">
-        <div className="primary">{children}</div>
-        <div className="secondary">{secondary}</div>
+      <div className="text-text-primary flex min-h-[48px] grow flex-col justify-center px-3 py-1">
+        <div className="text-text-primary line-clamp-1">{children}</div>
+        <div className="text-text-secondary line-clamp-2 break-all text-sm">
+          {secondary}
+        </div>
       </div>
-      {endAdornment && <div className="end-adornment">{endAdornment}</div>}
+      {endAdornment && (
+        <div className="end-adornment mx-2 flex min-w-[32px] flex-row items-center justify-center">
+          {endAdornment}
+        </div>
+      )}
     </div>
   );
 };
