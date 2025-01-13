@@ -35,7 +35,6 @@ export type SelectProps = {
   isReadOnly?: boolean;
   isDisabled?: boolean;
   variant?: "default" | "text";
-  allowDeselect?: boolean;
   menuWidth?: number;
 };
 

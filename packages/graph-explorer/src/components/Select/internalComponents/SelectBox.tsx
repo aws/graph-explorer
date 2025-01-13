@@ -110,7 +110,7 @@ const SelectBox = (
   const handleChange: MultipleSelection["onSelectionChange"] = useCallback(
     (value: any) => {
       const selection = [...value];
-      if (selection.length === 0 && !props.allowDeselect) {
+      if (selection.length === 0) {
         close();
         return;
       }
@@ -118,7 +118,7 @@ const SelectBox = (
       onSelectionChange?.(value);
       close();
     },
-    [props.allowDeselect, onSelectionChange, close]
+    [onSelectionChange, close]
   );
 
   return (
