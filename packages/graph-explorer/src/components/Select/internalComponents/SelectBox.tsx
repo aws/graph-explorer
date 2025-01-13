@@ -9,13 +9,20 @@ import {
   useMemo,
   useState,
 } from "react";
-import { mergeRefs, useLayer } from "react-laag";
+import { useLayer } from "react-laag";
 import { useWithTheme } from "@/core";
-import { ChevronDownIcon } from "@/components/icons";
 import type { SelectOption, SelectProps } from "../Select";
 import styles from "../Select.styles";
 import SelectListBox from "./SelectListBox";
 import SelectPopover from "./SelectPopover";
+import {
+  Select as NewSelect,
+  SelectItem,
+  SelectContent,
+  SelectTrigger,
+  SelectValue,
+  Label,
+} from "@/components/radix";
 
 export { Item, Section } from "@react-stately/collections";
 
@@ -24,10 +31,10 @@ type SelectBoxProps<T> = ListProps<T> &
     items: Array<SelectOption>;
   };
 
-const SelectBox = (
-  { onSelectionChange, ...props }: SelectBoxProps<SelectOption>,
-  ref: ForwardedRef<HTMLButtonElement>
-) => {
+const SelectBox = ({
+  onSelectionChange,
+  ...props
+}: SelectBoxProps<SelectOption>) => {
   const {
     label,
     isDisabled,
@@ -45,81 +52,81 @@ const SelectBox = (
   const styleWithTheme = useWithTheme();
 
   const [menuOpen, setMenuOpen] = useState(false);
-  const { triggerProps, layerProps, renderLayer, triggerBounds } = useLayer({
-    isOpen: items.length > 0 && menuOpen,
-    auto: true,
-    placement: "bottom-start",
-    possiblePlacements: ["bottom-start", "top-start", "bottom-end", "top-end"],
-    triggerOffset: 6,
-    onOutsideClick: () => setMenuOpen(false),
-    onDisappear: () => setMenuOpen(false),
-    onParentClose: () => setMenuOpen(false),
-  });
+  // const { triggerProps, layerProps, renderLayer, triggerBounds } = useLayer({
+  //   isOpen: items.length > 0 && menuOpen,
+  //   auto: true,
+  //   placement: "bottom-start",
+  //   possiblePlacements: ["bottom-start", "top-start", "bottom-end", "top-end"],
+  //   triggerOffset: 6,
+  //   onOutsideClick: () => setMenuOpen(false),
+  //   onDisappear: () => setMenuOpen(false),
+  //   onParentClose: () => setMenuOpen(false),
+  // });
 
-  const close = useCallback(() => {
-    setMenuOpen(false);
-  }, [setMenuOpen]);
+  // const close = useCallback(() => {
+  //   setMenuOpen(false);
+  // }, [setMenuOpen]);
 
-  const selectedOptions = useMemo(() => {
-    if (!props.selectedKeys) {
-      return "";
-    }
+  // const selectedOptions = useMemo(() => {
+  //   if (!props.selectedKeys) {
+  //     return "";
+  //   }
 
-    if (props.selectedKeys === "all") {
-      return "All";
-    }
-    const selection = [...props.selectedKeys];
+  //   if (props.selectedKeys === "all") {
+  //     return "All";
+  //   }
+  //   const selection = [...props.selectedKeys];
 
-    if (props.selectedKeys !== "all") {
-      const selectedValue = selection.length ? selection[0] : undefined;
-      const item = props.items.find(item => item.value === selectedValue);
-      if (!item) {
-        return "";
-      }
-      return selectedValue !== undefined
-        ? item.render
-          ? item.render(item)
-          : (item.label ?? "")
-        : "";
-    }
+  //   if (props.selectedKeys !== "all") {
+  //     const selectedValue = selection.length ? selection[0] : undefined;
+  //     const item = props.items.find(item => item.value === selectedValue);
+  //     if (!item) {
+  //       return "";
+  //     }
+  //     return selectedValue !== undefined
+  //       ? item.render
+  //         ? item.render(item)
+  //         : (item.label ?? "")
+  //       : "";
+  //   }
 
-    const selectedValues = selection.map(selectedValue => {
-      const item = props.items.find(item => item.value === selectedValue);
-      if (!item) {
-        return "";
-      }
-      return selectedValue !== undefined
-        ? item.render
-          ? item.render(item)
-          : (item.label ?? "")
-        : "";
-    });
-    if (!selectedValues.length) {
-      return "";
-    }
+  //   const selectedValues = selection.map(selectedValue => {
+  //     const item = props.items.find(item => item.value === selectedValue);
+  //     if (!item) {
+  //       return "";
+  //     }
+  //     return selectedValue !== undefined
+  //       ? item.render
+  //         ? item.render(item)
+  //         : (item.label ?? "")
+  //       : "";
+  //   });
+  //   if (!selectedValues.length) {
+  //     return "";
+  //   }
 
-    return selectedValues.every(val => typeof val === "string") ? (
-      selectedValues.join(", ")
-    ) : (
-      <div className={styleWithTheme(styles.multipleSelectedValuesWrapper)}>
-        {selectedValues}
-      </div>
-    );
-  }, [props.selectedKeys, props.items, styleWithTheme]);
+  //   return selectedValues.every(val => typeof val === "string") ? (
+  //     selectedValues.join(", ")
+  //   ) : (
+  //     <div className={styleWithTheme(styles.multipleSelectedValuesWrapper)}>
+  //       {selectedValues}
+  //     </div>
+  //   );
+  // }, [props.selectedKeys, props.items, styleWithTheme]);
 
-  const handleChange: MultipleSelection["onSelectionChange"] = useCallback(
-    (value: any) => {
-      const selection = [...value];
-      if (selection.length === 0) {
-        close();
-        return;
-      }
+  // const handleChange: MultipleSelection["onSelectionChange"] = useCallback(
+  //   (value: any) => {
+  //     const selection = [...value];
+  //     if (selection.length === 0) {
+  //       close();
+  //       return;
+  //     }
 
-      onSelectionChange?.(value);
-      close();
-    },
-    [onSelectionChange, close]
-  );
+  //     onSelectionChange?.(value);
+  //     close();
+  //   },
+  //   [onSelectionChange, close]
+  // );
 
   return (
     <div
@@ -149,9 +156,39 @@ const SelectBox = (
         items.length > 0 && setMenuOpen(!menuOpen);
       }}
     >
-      {label && <label className="input-label">{label}</label>}
+      {/* {label && (
+        <Label
+          className={cn(
+            labelPlacement === "inner" &&
+              "absolute left-3 top-0.5 z-10 line-clamp-1 text-xs"
+          )}
+        >
+          {label}
+        </Label>
+      )} */}
       <div className="input-container" aria-label={props["aria-label"]}>
-        <button
+        <NewSelect>
+          <SelectTrigger
+            className={
+              labelPlacement === "inner"
+                ? "flex h-auto flex-col items-start justify-start py-0"
+                : ""
+            }
+          >
+            <Label className="text-xs">{label}</Label>
+            <SelectValue
+              placeholder={props.placeholder || "Select an option..."}
+            />
+          </SelectTrigger>
+          <SelectContent>
+            {items.map(item => (
+              <SelectItem key={item.value} value={item.value}>
+                {item.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </NewSelect>
+        {/* <button
           ref={mergeRefs(triggerProps.ref, ref)}
           type="button"
           className={cn("select", {
@@ -174,12 +211,12 @@ const SelectBox = (
               />
             )}
           </span>
-        </button>
+        </button> */}
         {validationState === "invalid" && !!errorMessage && !hideError && (
           <div className="input-error">{errorMessage}</div>
         )}
       </div>
-      {items.length > 0 &&
+      {/* {items.length > 0 &&
         menuOpen &&
         renderLayer(
           <SelectPopover
@@ -193,7 +230,7 @@ const SelectBox = (
           >
             <SelectListBox {...props} onSelectionChange={handleChange} />
           </SelectPopover>
-        )}
+        )} */}
     </div>
   );
 };
