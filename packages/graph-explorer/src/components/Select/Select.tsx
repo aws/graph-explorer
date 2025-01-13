@@ -35,7 +35,6 @@ export type SelectProps = {
   selectionMode?: "single" | "multiple";
   isReadOnly?: boolean;
   isDisabled?: boolean;
-  searchable?: boolean;
   clearable?: boolean;
   variant?: "default" | "text";
   allowDeselect?: boolean;
