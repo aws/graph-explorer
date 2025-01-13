@@ -44,7 +44,6 @@ const SelectBox = (
     variant = "default",
     clearable,
     menuStyleOverride,
-    menuWidth,
     items,
   } = props;
   const styleWithTheme = useWithTheme();
@@ -202,7 +201,7 @@ const SelectBox = (
             {...layerProps}
             style={{
               ...layerProps.style,
-              width: menuWidth || triggerBounds?.width,
+              width: triggerBounds?.width,
             }}
             onClose={close}
           >
