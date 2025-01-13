@@ -11,9 +11,7 @@ import {
 } from "react";
 import { mergeRefs, useLayer } from "react-laag";
 import { useWithTheme } from "@/core";
-import { IconButton } from "@/components";
 import { ChevronDownIcon } from "@/components/icons";
-import CloseIcon from "@/components/icons/CloseIcon";
 import type { SelectOption, SelectProps } from "../Select";
 import styles from "../Select.styles";
 import SelectListBox from "./SelectListBox";
@@ -42,7 +40,6 @@ const SelectBox = (
     className,
     errorMessage,
     variant = "default",
-    clearable,
     items,
   } = props;
   const styleWithTheme = useWithTheme();
@@ -135,7 +132,6 @@ const SelectBox = (
             hideError,
             noMargin,
             variant,
-            clearable,
           })
         ),
         `select-label-${labelPlacement}`,
@@ -171,14 +167,6 @@ const SelectBox = (
             </span>
           )}
           <span className="dropdown-indicator">
-            {clearable && selectedOptions !== "" && (
-              <IconButton
-                className="clear-button"
-                variant="text"
-                icon={<CloseIcon />}
-                onClick={() => onSelectionChange?.(new Set())}
-              />
-            )}
             {items.length > 0 && (
               <ChevronDownIcon
                 style={{ width: 18, height: 18 }}

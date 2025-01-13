@@ -34,7 +34,6 @@ export type SelectProps = {
   noMargin?: boolean;
   isReadOnly?: boolean;
   isDisabled?: boolean;
-  clearable?: boolean;
   variant?: "default" | "text";
   allowDeselect?: boolean;
   menuWidth?: number;

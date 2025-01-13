@@ -15,18 +15,13 @@ const getPaddingBySize = (size: "sm" | "md", activeTheme: ActiveThemeType) => {
 const getPaddingBySizeAndAdornment = (
   activeTheme: ActiveThemeType,
   size: "sm" | "md",
-  hasInnerLabel?: boolean,
-  clearable?: boolean
+  hasInnerLabel?: boolean
 ) => {
   const padding = getPaddingBySize(size, activeTheme);
   if (hasInnerLabel) {
-    return `calc(${padding} + 4px) calc(${padding} + ${
-      clearable ? "30px" : "20px"
-    }) calc(${padding} - 4px) ${padding}`;
+    return `calc(${padding} + 4px) calc(${padding} + "20px") calc(${padding} - 4px) ${padding}`;
   }
-  return `${padding} calc(${padding} + ${
-    clearable ? "30px" : "20px"
-  }) ${padding} ${padding}`;
+  return `${padding} calc(${padding} + "20px") ${padding} ${padding}`;
 };
 
 const getInnerLabelStyles = (
@@ -48,7 +43,6 @@ type containerStylesParams = {
   noMargin?: boolean;
   variant: "default" | "text";
   minWidth?: number;
-  clearable?: boolean;
 };
 
 export const getStylesByVariantAndValidationState =
@@ -104,7 +98,6 @@ export const selectContainerStyles =
     noMargin,
     validationState,
     variant,
-    clearable,
   }: containerStylesParams) =>
   (activeTheme: ActiveThemeType) => {
     const { theme } = activeTheme;
@@ -168,8 +161,7 @@ export const selectContainerStyles =
         padding: ${getPaddingBySizeAndAdornment(
           activeTheme,
           size,
-          labelPlacement === "inner",
-          clearable
+          labelPlacement === "inner"
         )};
         flex: 1;
 
