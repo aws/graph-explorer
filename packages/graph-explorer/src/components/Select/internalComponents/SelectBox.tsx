@@ -43,7 +43,6 @@ const SelectBox = (
     errorMessage,
     variant = "default",
     clearable,
-    menuStyleOverride,
     items,
   } = props;
   const styleWithTheme = useWithTheme();
@@ -196,7 +195,6 @@ const SelectBox = (
         menuOpen &&
         renderLayer(
           <SelectPopover
-            menuStyleOverride={menuStyleOverride}
             isOpen={menuOpen}
             {...layerProps}
             style={{
