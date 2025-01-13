@@ -75,7 +75,7 @@ const SelectBox = (
     }
     const selection = [...props.selectedKeys];
 
-    if (props.selectionMode === "single" && props.selectedKeys !== "all") {
+    if (props.selectedKeys !== "all") {
       const selectedValue = selection.length ? selection[0] : undefined;
       const item = props.items.find(item => item.value === selectedValue);
       if (!item) {
@@ -110,25 +110,20 @@ const SelectBox = (
         {selectedValues}
       </div>
     );
-  }, [props.selectedKeys, props.selectionMode, props.items, styleWithTheme]);
+  }, [props.selectedKeys, props.items, styleWithTheme]);
 
   const handleChange: MultipleSelection["onSelectionChange"] = useCallback(
     (value: any) => {
-      if (props.selectionMode === "single") {
-        const selection = [...value];
-        if (selection.length === 0 && !props.allowDeselect) {
-          close();
-          return;
-        }
-
-        onSelectionChange?.(value);
+      const selection = [...value];
+      if (selection.length === 0 && !props.allowDeselect) {
         close();
         return;
       }
 
       onSelectionChange?.(value);
+      close();
     },
-    [props.selectionMode, props.allowDeselect, onSelectionChange, close]
+    [props.allowDeselect, onSelectionChange, close]
   );
 
   return (

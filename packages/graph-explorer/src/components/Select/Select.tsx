@@ -32,7 +32,6 @@ export type SelectProps = {
   validationState?: "valid" | "invalid";
   size?: "sm" | "md";
   noMargin?: boolean;
-  selectionMode?: "single" | "multiple";
   isReadOnly?: boolean;
   isDisabled?: boolean;
   clearable?: boolean;
@@ -47,13 +46,7 @@ export type SelectProps = {
 };
 
 const Select = (
-  {
-    options = [],
-    value,
-    onChange,
-    selectionMode = "single",
-    ...props
-  }: SelectProps,
+  { options = [], value, onChange, ...props }: SelectProps,
   ref: ForwardedRef<HTMLButtonElement>
 ) => {
   const optionsValues = useMemo(() => {
@@ -85,18 +78,13 @@ const Select = (
     <SelectBox
       ref={ref}
       {...props}
-      selectionMode={selectionMode}
       onSelectionChange={(value: Selection) => {
-        if (selectionMode === "single" && value !== "all") {
+        if (value !== "all") {
           onChange([...value][0] as string);
           return;
-        }
-
-        if (value === "all") {
+        } else {
           return [value];
         }
-
-        onChange([...value] as string[]);
       }}
       items={options}
       selectedKeys={currentValue}
