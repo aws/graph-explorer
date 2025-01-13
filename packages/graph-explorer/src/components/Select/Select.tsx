@@ -39,10 +39,6 @@ export type SelectProps = {
   allowDeselect?: boolean;
   menuStyleOverride?: CSSProperties;
   menuWidth?: number;
-  menuHeader?: {
-    title: string;
-    subtitle?: string;
-  };
 };
 
 const Select = (

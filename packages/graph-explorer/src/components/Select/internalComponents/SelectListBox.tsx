@@ -3,7 +3,6 @@ import { ListProps, useListState } from "@react-stately/list";
 import { useRef } from "react";
 import type { SelectOption, SelectProps } from "../Select";
 import ListBox from "./ListBox";
-import SelectHeader from "./SelectHeader/SelectHeader";
 
 type ListBoxProps<T> = ListProps<T> &
   Omit<SelectProps, "options" | "value" | "onChange"> & {
@@ -20,14 +19,11 @@ const SelectListBox = (props: ListBoxProps<SelectOption>) => {
   const { listBoxProps } = useListBox(props, state, listBoxRef);
 
   return (
-    <>
-      {!!props.menuHeader && <SelectHeader {...props.menuHeader} />}
-      <ListBox
-        {...(listBoxProps as AriaListBoxOptions<unknown>)}
-        state={state}
-        ref={listBoxRef}
-      />
-    </>
+    <ListBox
+      {...(listBoxProps as AriaListBoxOptions<unknown>)}
+      state={state}
+      ref={listBoxRef}
+    />
   );
 };
 
