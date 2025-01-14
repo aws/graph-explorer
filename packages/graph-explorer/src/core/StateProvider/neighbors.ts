@@ -6,11 +6,12 @@ import {
   useAllNeighborCountsQuery,
   useUpdateNodeCountsQuery,
 } from "@/hooks/useUpdateNodeCounts";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { neighborsCountQuery } from "@/connector/queries";
 import { activeConnectionSelector, explorerSelector } from "../connector";
 import { VertexRef } from "@/connector/useGEFetchTypes";
+import { useNotification } from "@/components/NotificationProvider";
 
 export type NeighborCounts = {
   all: number;
@@ -104,10 +105,37 @@ export function useAllNeighbors(vertices: VertexRef[]) {
   );
   const query = useAllNeighborCountsQuery(vertices);
 
-  const results = new Map(
-    query
+  const { enqueueNotification, clearNotification } = useNotification();
+
+  // Show loading notification
+  useEffect(() => {
+    if (!query.pending) {
+      return;
+    }
+    const notificationId = enqueueNotification({
+      title: "Updating Neighbors",
+      message: `Updating neighbor counts for new nodes`,
+      autoHideDuration: null,
+    });
+    return () => clearNotification(notificationId);
+  }, [clearNotification, query.pending, enqueueNotification]);
+
+  // Show error notification
+  useEffect(() => {
+    if (query.pending || !query.hasErrors) {
+      return;
+    }
+    const notificationId = enqueueNotification({
+      title: "Some Errors Occurred",
+      message: `While requesting counts for neighboring nodes, some errors occurred.`,
+      type: "error",
+    });
+    return () => clearNotification(notificationId);
+  }, [clearNotification, query.pending, query.hasErrors, enqueueNotification]);
+
+  return new Map(
+    query.data
       .values()
-      .map(q => q.data)
       .filter(d => d != null)
       .map(data => {
         const neighbors = fetchedNeighbors.get(data.nodeId) ?? [];
@@ -121,8 +149,6 @@ export function useAllNeighbors(vertices: VertexRef[]) {
         ];
       })
   );
-
-  return results;
 }
 
 /**

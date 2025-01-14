@@ -15,9 +15,16 @@ export function useUpdateNodeCountsQuery(vertex: VertexRef) {
 export function useAllNeighborCountsQuery(vertexIds: VertexRef[]) {
   const connection = useRecoilValue(activeConnectionSelector);
   const explorer = useRecoilValue(explorerSelector);
+
   return useQueries({
     queries: vertexIds.map(vertex =>
       neighborsCountQuery(vertex, connection?.nodeExpansionLimit, explorer)
     ),
+    combine: results => ({
+      data: results.map(result => result.data),
+      pending: results.some(result => result.isPending),
+      errors: results.map(result => result.error),
+      hasErrors: results.some(result => result.isError),
+    }),
   });
 }
