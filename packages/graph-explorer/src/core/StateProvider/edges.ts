@@ -1,7 +1,7 @@
 import { atom, selector, selectorFamily } from "recoil";
 import type { Edge, EdgeId } from "@/types/entities";
 import isDefaultValue from "./isDefaultValue";
-import { nodesHiddenIdsAtom, nodesTypesFilteredAtom } from "./nodes";
+import { nodesFilteredIdsAtom, nodesTypesFilteredAtom } from "./nodes";
 
 export type Edges = Map<EdgeId, Edge>;
 
@@ -39,9 +39,9 @@ export const edgesSelector = selector<Edges>({
     };
     // Clean all dependent states
     get(edgesSelectedIdsAtom).size > 0 && set(edgesSelectedIdsAtom, cleanFn);
-    get(edgesHiddenIdsAtom).size > 0 && set(edgesHiddenIdsAtom, cleanFn);
     get(edgesOutOfFocusIdsAtom).size > 0 &&
       set(edgesOutOfFocusIdsAtom, cleanFn);
+    get(edgesFilteredIdsAtom).size > 0 && set(edgesFilteredIdsAtom, cleanFn);
   },
 });
 
@@ -59,13 +59,13 @@ export const edgesSelectedIdsAtom = atom<Set<EdgeId>>({
   default: new Set(),
 });
 
-export const edgesHiddenIdsAtom = atom<Set<EdgeId>>({
-  key: "edges-hidden-ids",
+export const edgesOutOfFocusIdsAtom = atom<Set<EdgeId>>({
+  key: "edges-out-of-focus-ids",
   default: new Set(),
 });
 
-export const edgesOutOfFocusIdsAtom = atom<Set<EdgeId>>({
-  key: "edges-out-of-focus-ids",
+export const edgesFilteredIdsAtom = atom<Set<EdgeId>>({
+  key: "edges-filtered-ids",
   default: new Set(),
 });
 
@@ -88,9 +88,9 @@ export const filteredEdgesSelector = selector<Map<EdgeId, Edge>>({
   key: "filtered-edges",
   get: ({ get }) => {
     const edges = get(edgesAtom);
-    const filteredEdgeIds = get(edgesHiddenIdsAtom);
+    const filteredEdgeIds = get(edgesFilteredIdsAtom);
     const filteredEdgeTypes = get(edgesTypesFilteredAtom);
-    const filteredVertexIds = get(nodesHiddenIdsAtom);
+    const filteredVertexIds = get(nodesFilteredIdsAtom);
     const filteredVertexTypes = get(nodesTypesFilteredAtom);
 
     return new Map(

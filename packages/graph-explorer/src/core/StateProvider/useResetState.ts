@@ -1,14 +1,14 @@
 import { useRecoilCallback } from "recoil";
 import {
   edgesAtom,
-  edgesHiddenIdsAtom,
+  edgesFilteredIdsAtom,
   edgesOutOfFocusIdsAtom,
   edgesSelectedIdsAtom,
   edgesTypesFilteredAtom,
 } from "./edges";
 import {
   nodesAtom,
-  nodesHiddenIdsAtom,
+  nodesFilteredIdsAtom,
   nodesOutOfFocusIdsAtom,
   nodesSelectedIdsAtom,
   nodesTypesFilteredAtom,
@@ -26,13 +26,13 @@ export default function useResetState() {
       () => {
         reset(nodesAtom);
         reset(nodesSelectedIdsAtom);
-        reset(nodesHiddenIdsAtom);
         reset(nodesOutOfFocusIdsAtom);
+        reset(nodesFilteredIdsAtom);
         reset(nodesTypesFilteredAtom);
         reset(edgesAtom);
         reset(edgesSelectedIdsAtom);
-        reset(edgesHiddenIdsAtom);
         reset(edgesOutOfFocusIdsAtom);
+        reset(edgesFilteredIdsAtom);
         reset(edgesTypesFilteredAtom);
         reset(searchTermAtom);
         reset(selectedVertexTypeAtom);

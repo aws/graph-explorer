@@ -35,9 +35,9 @@ export const nodesSelector = selector<Map<VertexId, Vertex>>({
     };
     // Clean all dependent states
     get(nodesSelectedIdsAtom).size > 0 && set(nodesSelectedIdsAtom, cleanFn);
-    get(nodesHiddenIdsAtom).size > 0 && set(nodesHiddenIdsAtom, cleanFn);
     get(nodesOutOfFocusIdsAtom).size > 0 &&
       set(nodesOutOfFocusIdsAtom, cleanFn);
+    get(nodesFilteredIdsAtom).size > 0 && set(nodesFilteredIdsAtom, cleanFn);
   },
 });
 
@@ -55,13 +55,13 @@ export const nodesSelectedIdsAtom = atom<Set<VertexId>>({
   default: new Set(),
 });
 
-export const nodesHiddenIdsAtom = atom<Set<VertexId>>({
-  key: "nodes-hidden-ids",
+export const nodesOutOfFocusIdsAtom = atom<Set<VertexId>>({
+  key: "nodes-out-of-focus-ids",
   default: new Set(),
 });
 
-export const nodesOutOfFocusIdsAtom = atom<Set<VertexId>>({
-  key: "nodes-out-of-focus-ids",
+export const nodesFilteredIdsAtom = atom<Set<VertexId>>({
+  key: "nodes-filtered-ids",
   default: new Set(),
 });
 
@@ -79,7 +79,7 @@ export const nodesTypesFilteredAtom = atom<Set<string>>({
 export const filteredNodesSelector = selector<Map<VertexId, Vertex>>({
   key: "filtered-nodes-selector",
   get: ({ get }) => {
-    const filteredIds = get(nodesHiddenIdsAtom);
+    const filteredIds = get(nodesFilteredIdsAtom);
     const filteredTypes = get(nodesTypesFilteredAtom);
 
     return new Map(

@@ -10,7 +10,7 @@ import {
 } from "@/components/Tabular/controls";
 import Tabular from "@/components/Tabular/Tabular";
 import {
-  edgesHiddenIdsAtom,
+  edgesFilteredIdsAtom,
   edgesOutOfFocusIdsAtom,
   edgesSelectedIdsAtom,
 } from "@/core/StateProvider/edges";
@@ -28,7 +28,7 @@ const EdgesTabular = forwardRef<TabularInstance<ToggleEdge>, any>(
     const edges = useDisplayEdgesInCanvas();
     const setEdgesOut = useSetRecoilState(edgesOutOfFocusIdsAtom);
     const [hiddenEdgesIds, setHiddenEdgesIds] =
-      useRecoilState(edgesHiddenIdsAtom);
+      useRecoilState(edgesFilteredIdsAtom);
     const setSelectedNodesIds = useSetRecoilState(nodesSelectedIdsAtom);
     const [selectedEdgesIds, setSelectedEdgesIds] =
       useRecoilState(edgesSelectedIdsAtom);

@@ -17,13 +17,13 @@ import { vi } from "vitest";
 import { createRandomInteger, createRandomName } from "@shared/utils/testing";
 import {
   nodesAtom,
-  nodesHiddenIdsAtom,
+  nodesFilteredIdsAtom,
   nodesTypesFilteredAtom,
   toNodeMap,
 } from "@/core/StateProvider/nodes";
 import {
   edgesAtom,
-  edgesHiddenIdsAtom,
+  edgesFilteredIdsAtom,
   edgesTypesFilteredAtom,
   toEdgeMap,
 } from "@/core/StateProvider/edges";
@@ -192,7 +192,7 @@ describe("useEntities", () => {
       },
       snapshot => {
         snapshot.set(nodesAtom, toNodeMap([node1, node2, node3]));
-        snapshot.set(nodesHiddenIdsAtom, new Set([node1.id, node2.id]));
+        snapshot.set(nodesFilteredIdsAtom, new Set([node1.id, node2.id]));
       }
     );
 
@@ -238,7 +238,7 @@ describe("useEntities", () => {
       snapshot => {
         snapshot.set(nodesAtom, toNodeMap([node1, node2]));
         snapshot.set(edgesAtom, toEdgeMap([edge1to2, edge2to1]));
-        snapshot.set(edgesHiddenIdsAtom, new Set([edge1to2.id]));
+        snapshot.set(edgesFilteredIdsAtom, new Set([edge1to2.id]));
       }
     );
 
@@ -288,7 +288,7 @@ describe("useEntities", () => {
       snapshot => {
         snapshot.set(nodesAtom, toNodeMap([node1, node2]));
         snapshot.set(edgesAtom, toEdgeMap([edge1to2, edge2to1, edge2to3]));
-        snapshot.set(nodesHiddenIdsAtom, new Set([node1.id]));
+        snapshot.set(nodesFilteredIdsAtom, new Set([node1.id]));
       }
     );
 

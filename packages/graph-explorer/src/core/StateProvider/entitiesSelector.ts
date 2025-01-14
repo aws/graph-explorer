@@ -12,7 +12,7 @@ import {
 import {
   filteredNodesSelector,
   nodesAtom,
-  nodesHiddenIdsAtom,
+  nodesFilteredIdsAtom,
   nodesSelectedIdsAtom,
   nodesSelector,
 } from "./nodes";
@@ -164,7 +164,7 @@ const entitiesSelector = selector<Entities>({
 
     // When a node is removed, we should delete its id from other nodes-state sets
     if (deletedNodesIds.size > 0) {
-      [nodesSelectedIdsAtom, nodesHiddenIdsAtom].forEach(selector => {
+      [nodesSelectedIdsAtom, nodesFilteredIdsAtom].forEach(selector => {
         removeFromSetIfDeleted(
           {
             get,
