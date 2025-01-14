@@ -12,7 +12,7 @@ import Tabular from "@/components/Tabular/Tabular";
 import { DisplayVertex, useDisplayVerticesInCanvas } from "@/core";
 import { edgesSelectedIdsAtom } from "@/core/StateProvider/edges";
 import {
-  nodesHiddenIdsAtom,
+  nodesFilteredIdsAtom,
   nodesOutOfFocusIdsAtom,
   nodesSelectedIdsAtom,
 } from "@/core/StateProvider/nodes";
@@ -31,7 +31,7 @@ const NodesTabular = forwardRef<TabularInstance<ToggleVertex>, any>(
     const displayNodes = useDisplayVerticesInCanvas();
     const setNodesOut = useSetRecoilState(nodesOutOfFocusIdsAtom);
     const [hiddenNodesIds, setHiddenNodesIds] =
-      useRecoilState(nodesHiddenIdsAtom);
+      useRecoilState(nodesFilteredIdsAtom);
     const [selectedNodesIds, setSelectedNodesIds] =
       useRecoilState(nodesSelectedIdsAtom);
     const setSelectedEdgesIds = useSetRecoilState(edgesSelectedIdsAtom);

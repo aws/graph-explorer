@@ -39,7 +39,6 @@ export const edgesSelector = selector<Edges>({
     };
     // Clean all dependent states
     get(edgesSelectedIdsAtom).size > 0 && set(edgesSelectedIdsAtom, cleanFn);
-    get(edgesHiddenIdsAtom).size > 0 && set(edgesHiddenIdsAtom, cleanFn);
     get(edgesOutOfFocusIdsAtom).size > 0 &&
       set(edgesOutOfFocusIdsAtom, cleanFn);
     get(edgesFilteredIdsAtom).size > 0 && set(edgesFilteredIdsAtom, cleanFn);
@@ -57,11 +56,6 @@ export const edgeSelector = selectorFamily({
 
 export const edgesSelectedIdsAtom = atom<Set<EdgeId>>({
   key: "edges-selected-ids",
-  default: new Set(),
-});
-
-export const edgesHiddenIdsAtom = atom<Set<EdgeId>>({
-  key: "edges-hidden-ids",
   default: new Set(),
 });
 

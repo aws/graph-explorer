@@ -1,5 +1,4 @@
 import cytoscape from "cytoscape";
-import isEqual from "lodash/isEqual";
 import { useEffect, useRef } from "react";
 import type { CytoscapeType, GraphNode } from "../Graph.model";
 import { runLayout } from "../helpers/layout";
@@ -27,22 +26,19 @@ function useUpdateLayout({
   mounted,
   nodes,
 }: UseUpdateLayout) {
-  const previousNodesRef = useRef<typeof nodes>([]);
+  const previousNodesRef = useRef(new Set<string>());
   const previousLayoutRef = useRef(layout);
+  const previousGraphStructureVersionRef = useRef(graphStructureVersion);
 
   useEffect(() => {
     if (cy && layout && mounted && cy.nodes().length) {
-      const prevIds: string[] = previousNodesRef.current.map(node => {
-        return node.data.id;
-      });
-
       const shouldLock =
         previousLayoutRef.current === layout &&
-        !isEqual(previousNodesRef.current, nodes);
+        previousGraphStructureVersionRef.current !== graphStructureVersion;
 
       if (shouldLock) {
         cy.nodes()
-          .filter(cyNode => prevIds.includes(cyNode.data().id))
+          .filter(cyNode => previousNodesRef.current.has(cyNode.data().id))
           .forEach(node => {
             node.lock();
           });
@@ -53,13 +49,13 @@ function useUpdateLayout({
 
       if (shouldLock) {
         cy.nodes()
-          .filter(cyNode => prevIds.includes(cyNode.data().id))
+          .filter(cyNode => previousNodesRef.current.has(cyNode.data().id))
           .forEach(node => {
             node.unlock();
           });
       }
 
-      previousNodesRef.current = nodes;
+      previousNodesRef.current = new Set(nodes.map(node => node.data.id));
       previousLayoutRef.current = layout;
     }
     // nodes variable is not a dependency because

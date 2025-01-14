@@ -35,7 +35,6 @@ export const nodesSelector = selector<Map<VertexId, Vertex>>({
     };
     // Clean all dependent states
     get(nodesSelectedIdsAtom).size > 0 && set(nodesSelectedIdsAtom, cleanFn);
-    get(nodesHiddenIdsAtom).size > 0 && set(nodesHiddenIdsAtom, cleanFn);
     get(nodesOutOfFocusIdsAtom).size > 0 &&
       set(nodesOutOfFocusIdsAtom, cleanFn);
     get(nodesFilteredIdsAtom).size > 0 && set(nodesFilteredIdsAtom, cleanFn);
@@ -53,11 +52,6 @@ export const nodeSelector = selectorFamily({
 
 export const nodesSelectedIdsAtom = atom<Set<VertexId>>({
   key: "nodes-selected-ids",
-  default: new Set(),
-});
-
-export const nodesHiddenIdsAtom = atom<Set<VertexId>>({
-  key: "nodes-hidden-ids",
   default: new Set(),
 });
 

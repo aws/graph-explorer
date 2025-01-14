@@ -3,10 +3,16 @@ import isEqualWith from "lodash/isEqualWith";
 import type { GetRecoilValue, RecoilState, SetRecoilState } from "recoil";
 import { selector } from "recoil";
 import type { Edge, EdgeId, Vertex, VertexId } from "@/types/entities";
-import { edgesAtom, edgesSelectedIdsAtom, edgesSelector } from "./edges";
 import {
+  edgesAtom,
+  edgesSelectedIdsAtom,
+  edgesSelector,
+  filteredEdgesSelector,
+} from "./edges";
+import {
+  filteredNodesSelector,
   nodesAtom,
-  nodesHiddenIdsAtom,
+  nodesFilteredIdsAtom,
   nodesSelectedIdsAtom,
   nodesSelector,
 } from "./nodes";
@@ -52,8 +58,8 @@ const entitiesSelector = selector<Entities>({
   key: "entities",
   get: ({ get }) => {
     return {
-      nodes: get(nodesAtom),
-      edges: get(edgesAtom),
+      nodes: get(filteredNodesSelector),
+      edges: get(filteredEdgesSelector),
     };
   },
   set: ({ get, set }, newEntities) => {
@@ -158,7 +164,7 @@ const entitiesSelector = selector<Entities>({
 
     // When a node is removed, we should delete its id from other nodes-state sets
     if (deletedNodesIds.size > 0) {
-      [nodesSelectedIdsAtom, nodesHiddenIdsAtom].forEach(selector => {
+      [nodesSelectedIdsAtom, nodesFilteredIdsAtom].forEach(selector => {
         removeFromSetIfDeleted(
           {
             get,

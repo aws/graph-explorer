@@ -25,12 +25,10 @@ import InfoIcon from "@/components/icons/InfoIcon";
 import ScreenshotIcon from "@/components/icons/ScreenshotIcon";
 import Select from "@/components/Select";
 import {
-  edgesHiddenIdsAtom,
   edgesOutOfFocusIdsAtom,
   edgesSelectedIdsAtom,
 } from "@/core/StateProvider/edges";
 import {
-  nodesHiddenIdsAtom,
   nodesOutOfFocusIdsAtom,
   nodesSelectedIdsAtom,
 } from "@/core/StateProvider/nodes";
@@ -99,11 +97,9 @@ export default function GraphViewer({
 
   const [nodesSelectedIds, setNodesSelectedIds] =
     useRecoilState(nodesSelectedIdsAtom);
-  const hiddenNodesIds = useRecoilValue(nodesHiddenIdsAtom);
 
   const [edgesSelectedIds, setEdgesSelectedIds] =
     useRecoilState(edgesSelectedIdsAtom);
-  const hiddenEdgesIds = useRecoilValue(edgesHiddenIdsAtom);
   const nodesOutIds = useRecoilValue(nodesOutOfFocusIdsAtom);
   const edgesOutIds = useRecoilValue(edgesOutOfFocusIdsAtom);
 
@@ -250,9 +246,7 @@ export default function GraphViewer({
             badgesEnabled={false}
             getNodeBadges={getNodeBadges(nodesOutIds)}
             selectedNodesIds={nodesSelectedIds}
-            hiddenNodesIds={hiddenNodesIds}
             selectedEdgesIds={edgesSelectedIds}
-            hiddenEdgesIds={hiddenEdgesIds}
             outOfFocusNodesIds={nodesOutIds}
             outOfFocusEdgesIds={edgesOutIds}
             onSelectedElementIdsChange={onSelectedElementIdsChange}
