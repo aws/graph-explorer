@@ -2,6 +2,8 @@
 
 ## Upcoming
 
+- **Improved** neighbor count retrieval to be more efficient
+  ([#744](https://github.com/aws/graph-explorer/pull/744))
 - **Removed** unused `hidden` flag from schema types
   ([#737](https://github.com/aws/graph-explorer/pull/737))
 - **Improved** entity filtering logic reducing re-renders
