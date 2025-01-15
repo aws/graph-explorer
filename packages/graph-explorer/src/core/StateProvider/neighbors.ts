@@ -163,20 +163,27 @@ export function calculateNeighbors(
   totalByType: Map<string, number>,
   fetchedNeighbors: NeighborStub[]
 ): NeighborCounts {
-  const fetchedTotal = new Set(fetchedNeighbors.map(n => n.id)).size;
+  const fetchNeighborsMap = new Map(fetchedNeighbors.map(n => [n.id, n]));
+
+  const fetchedTotal = fetchNeighborsMap.size;
   const totals = {
     all: total,
     fetched: fetchedTotal,
     unfetched: total - fetchedTotal,
   };
 
-  const fetchedNeighborsByType = Map.groupBy(fetchedNeighbors, n => n.type);
+  const fetchedNeighborsByType = fetchNeighborsMap
+    .values()
+    .reduce((map, neighbor) => {
+      const type = neighbor.type;
+      const fetched = map.get(type) ?? 0;
+      return map.set(type, fetched + 1);
+    }, new Map<string, number>());
 
   const byType = new Map(
     totalByType.entries().map(([type, count]) => {
       // Count of unique neighbors that have been fetched
-      const fetched = new Set(fetchedNeighborsByType.get(type)?.map(n => n.id))
-        .size;
+      const fetched = fetchedNeighborsByType.get(type) ?? 0;
 
       // Total neighbors minus the fetched neighbors
       const unfetched = count - fetched;
