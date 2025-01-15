@@ -5,10 +5,10 @@ import type {
   SchemaResponse,
   VertexSchemaResponse,
 } from "@/connector/useGEFetchTypes";
-import edgeLabelsTemplate from "../templates/edgeLabelsTemplate";
-import edgesSchemaTemplate from "../templates/edgesSchemaTemplate";
-import vertexLabelsTemplate from "../templates/vertexLabelsTemplate";
-import verticesSchemaTemplate from "../templates/verticesSchemaTemplate";
+import edgeLabelsTemplate from "./edgeLabelsTemplate";
+import edgesSchemaTemplate from "./edgesSchemaTemplate";
+import vertexLabelsTemplate from "./vertexLabelsTemplate";
+import verticesSchemaTemplate from "./verticesSchemaTemplate";
 import type { OCEdge, OCVertex } from "../types";
 import { GraphSummary, OpenCypherFetch } from "../types";
 import { LoggerConnector } from "@/connector/LoggerConnector";

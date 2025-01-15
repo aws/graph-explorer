@@ -2,7 +2,7 @@ import type {
   NeighborsCountRequest,
   NeighborsCountResponse,
 } from "@/connector/useGEFetchTypes";
-import neighborsCountTemplate from "../templates/neighborsCountTemplate";
+import neighborsCountTemplate from "./neighborsCountTemplate";
 import { OpenCypherFetch } from "../types";
 
 type RawNeighborsCountResponse = {

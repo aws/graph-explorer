@@ -1,8 +1,8 @@
-import fetchNeighbors from "./queries/fetchNeighbors";
-import fetchNeighborsCount from "./queries/fetchNeighborsCount";
-import fetchVertexTypeCounts from "./queries/fetchVertexTypeCounts";
-import keywordSearch from "./queries/keywordSearch";
-import fetchSchema from "./queries/fetchSchema";
+import fetchNeighbors from "./fetchNeighbors";
+import fetchNeighborsCount from "./fetchNeighborsCount";
+import fetchVertexTypeCounts from "./fetchVertexTypeCounts";
+import keywordSearch from "./keywordSearch";
+import fetchSchema from "./fetchSchema";
 import { GraphSummary } from "./types";
 import { fetchDatabaseRequest } from "../fetchDatabaseRequest";
 import { ConnectionConfig } from "@shared/types";
