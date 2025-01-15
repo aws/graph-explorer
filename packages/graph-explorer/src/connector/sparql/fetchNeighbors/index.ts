@@ -9,8 +9,8 @@ import mapOutgoingToEdge, {
   OutgoingPredicate,
 } from "../mappers/mapOutgoingToEdge";
 import mapRawResultToVertex from "../mappers/mapRawResultToVertex";
-import oneHopNeighborsTemplate from "../templates/oneHopNeighbors/oneHopNeighborsTemplate";
-import subjectPredicatesTemplate from "../templates/subjectPredicates/subjectPredicatesTemplate";
+import oneHopNeighborsTemplate from "./oneHopNeighborsTemplate";
+import subjectPredicatesTemplate from "./subjectPredicatesTemplate";
 import {
   RawResult,
   RawValue,

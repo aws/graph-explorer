@@ -1,9 +1,9 @@
 import { batchPromisesSerially } from "@/utils";
 import { DEFAULT_CONCURRENT_REQUESTS_LIMIT } from "@/utils/constants";
 import type { SchemaResponse } from "@/connector/useGEFetchTypes";
-import classesWithCountsTemplates from "../templates/classesWithCountsTemplates";
-import predicatesByClassTemplate from "../templates/predicatesByClassTemplate";
-import predicatesWithCountsTemplate from "../templates/predicatesWithCountsTemplate";
+import classesWithCountsTemplates from "./classesWithCountsTemplates";
+import predicatesByClassTemplate from "./predicatesByClassTemplate";
+import predicatesWithCountsTemplate from "./predicatesWithCountsTemplate";
 import { GraphSummary, RawValue, SparqlFetch } from "../types";
 import { LoggerConnector } from "@/connector/LoggerConnector";
 import { defaultVertexTypeConfig } from "@/core/StateProvider/configuration";

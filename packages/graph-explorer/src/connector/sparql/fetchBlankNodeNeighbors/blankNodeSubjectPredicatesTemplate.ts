@@ -1,5 +1,5 @@
 import { query } from "@/utils";
-import { SPARQLBlankNodeNeighborsPredicatesRequest } from "../../types";
+import { SPARQLBlankNodeNeighborsPredicatesRequest } from "../types";
 
 /**
  * Fetch all predicates and their direction of a pairs of subjects

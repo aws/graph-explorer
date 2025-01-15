@@ -1,5 +1,5 @@
 import { query } from "@/utils";
-import { SPARQLKeywordSearchRequest } from "../../types";
+import { SPARQLKeywordSearchRequest } from "../types";
 import {
   getFilterObject,
   getFilterPredicates,

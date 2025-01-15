@@ -1,6 +1,6 @@
 import { logger } from "@/utils";
 import type { NeighborsCountResponse } from "@/connector/useGEFetchTypes";
-import neighborsCountTemplate from "../templates/neighborsCount/neighborsCountTemplate";
+import neighborsCountTemplate from "./neighborsCountTemplate";
 import { SparqlFetch, SPARQLNeighborsCountRequest } from "../types";
 
 type RawNeighborCount = {

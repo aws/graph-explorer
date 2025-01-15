@@ -1,5 +1,6 @@
-import { query } from "@/utils";
 import { SPARQLNeighborsRequest } from "../types";
+import { getFilters, getLimit, getSubjectClasses } from "./helpers";
+import { query } from "@/utils";
 
 /**
  * Fetch all neighbors and their predicates, values, and classes.
@@ -57,38 +58,6 @@ export default function oneHopNeighborsTemplate({
   limit = 0,
   offset = 0,
 }: SPARQLNeighborsRequest): string {
-  const getSubjectClasses = () => {
-    if (!subjectClasses?.length) {
-      return "";
-    }
-
-    let classesValues = "VALUES ?subjectClass {";
-    subjectClasses.forEach(c => {
-      classesValues += ` <${c}>`;
-    });
-    classesValues += " }";
-    return classesValues;
-  };
-
-  const getFilters = () => {
-    if (!filterCriteria?.length) {
-      return "";
-    }
-
-    let filter = "FILTER(";
-    filterCriteria.forEach((criterion, cI) => {
-      filter += `(?sPred=<${criterion.predicate}> && regex(str(?sValue), "${criterion.object}", "i"))`;
-
-      if (cI < filterCriteria.length - 1) {
-        filter += " || ";
-      }
-    });
-    filter += ")";
-    return filter;
-  };
-
-  const limitTemplate = limit > 0 ? `LIMIT ${limit} OFFSET ${offset}` : "";
-
   return query`
     # Fetch all neighbors and their predicates, values, and classes
     SELECT ?subject ?pred ?value ?subjectClass ?pToSubject ?pFromSubject {
@@ -96,22 +65,22 @@ export default function oneHopNeighborsTemplate({
                ?pred ?value {
         SELECT DISTINCT ?subject ?pToSubject ?pFromSubject {
           BIND(<${resourceURI}> AS ?argument)
-          ${getSubjectClasses()}
+          ${getSubjectClasses(subjectClasses)}
           {
             ?argument ?pToSubject ?subject.
             ?subject a         ?subjectClass;
                      ?sPred    ?sValue .
-            ${getFilters()}
+            ${getFilters(filterCriteria)}
           }
           UNION
           {
             ?subject ?pFromSubject ?argument;
                      a         ?subjectClass;
                      ?sPred    ?sValue .
-           ${getFilters()}
+           ${getFilters(filterCriteria)}
           }
         }
-        ${limitTemplate}
+        ${getLimit(limit, offset)}
       }
       FILTER(isLiteral(?value))
     }

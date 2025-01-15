@@ -28,10 +28,10 @@ import { SPARQLNeighborsPredicatesRequest } from "../types";
  *   }
  * }
  */
-export default function subjectPredicatesTemplate({
+const subjectPredicatesTemplate = ({
   resourceURI,
   subjectURIs = [],
-}: SPARQLNeighborsPredicatesRequest): string {
+}: SPARQLNeighborsPredicatesRequest): string => {
   const getSubjectURIs = () => {
     if (!subjectURIs?.length) {
       return "";
@@ -61,4 +61,6 @@ export default function subjectPredicatesTemplate({
       }
     }
   `;
-}
+};
+
+export default subjectPredicatesTemplate;

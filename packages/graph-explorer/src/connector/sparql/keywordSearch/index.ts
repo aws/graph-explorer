@@ -2,7 +2,7 @@ import { logger } from "@/utils";
 import type { ErrorResponse, KeywordSearchResponse } from "@/connector";
 import isErrorResponse from "@/connector/utils/isErrorResponse";
 import mapRawResultToVertex from "../mappers/mapRawResultToVertex";
-import keywordSearchTemplate from "../templates/keywordSearch/keywordSearchTemplate";
+import keywordSearchTemplate from "./keywordSearchTemplate";
 import {
   RawResult,
   RawValue,

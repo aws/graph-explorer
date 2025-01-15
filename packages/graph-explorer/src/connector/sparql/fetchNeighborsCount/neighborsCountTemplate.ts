@@ -1,5 +1,5 @@
 import { query } from "@/utils";
-import { SPARQLNeighborsCountRequest } from "../../types";
+import { SPARQLNeighborsCountRequest } from "../types";
 
 /**
  * Count neighbors by class which are related with the given subject URI.

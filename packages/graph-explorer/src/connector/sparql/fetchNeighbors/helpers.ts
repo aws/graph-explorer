@@ -1,4 +1,4 @@
-import { SPARQLCriterion } from "../../types";
+import { SPARQLCriterion } from "../types";
 
 export const getSubjectClasses = (subjectClasses: string[]) => {
   if (!subjectClasses?.length) {
