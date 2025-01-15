@@ -5,7 +5,7 @@ import type {
 } from "@/connector/useGEFetchTypes";
 import isErrorResponse from "@/connector/utils/isErrorResponse";
 import mapApiVertex from "../mappers/mapApiVertex";
-import keywordSearchTemplate from "../templates/keywordSearchTemplate";
+import keywordSearchTemplate from "./keywordSearchTemplate";
 import type { GVertexList } from "../types";
 import { GremlinFetch } from "../types";
 

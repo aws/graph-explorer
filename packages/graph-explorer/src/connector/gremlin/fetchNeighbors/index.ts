@@ -4,7 +4,7 @@ import type {
 } from "@/connector/useGEFetchTypes";
 import mapApiEdge from "../mappers/mapApiEdge";
 import mapApiVertex from "../mappers/mapApiVertex";
-import oneHopTemplate from "../templates/oneHopTemplate";
+import oneHopTemplate from "./oneHopTemplate";
 import type { GEdgeList, GVertex } from "../types";
 import { GremlinFetch } from "../types";
 

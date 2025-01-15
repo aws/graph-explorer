@@ -1,6 +1,6 @@
 import globalMockFetch from "@/connector/testUtils/globalMockFetch";
 import mockGremlinFetch from "@/connector/testUtils/mockGremlinFetch";
-import fetchSchema from "./fetchSchema";
+import fetchSchema from ".";
 import { ClientLoggerConnector } from "@/connector/LoggerConnector";
 
 describe("Gremlin > fetchSchema", () => {

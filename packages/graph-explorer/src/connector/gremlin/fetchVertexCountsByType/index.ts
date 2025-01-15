@@ -2,7 +2,7 @@ import type {
   CountsByTypeRequest,
   CountsByTypeResponse,
 } from "@/connector/useGEFetchTypes";
-import vertexTypeCountTemplate from "../templates/vertexTypeCountTemplate";
+import vertexTypeCountTemplate from "./vertexTypeCountTemplate";
 import { GInt64, GremlinFetch } from "../types";
 
 type RawCountsByTypeResponse = {

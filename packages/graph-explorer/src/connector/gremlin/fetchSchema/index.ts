@@ -1,9 +1,9 @@
 import { sanitizeText } from "@/utils";
 import type { SchemaResponse } from "@/connector/useGEFetchTypes";
-import edgeLabelsTemplate from "../templates/edgeLabelsTemplate";
-import edgesSchemaTemplate from "../templates/edgesSchemaTemplate";
-import vertexLabelsTemplate from "../templates/vertexLabelsTemplate";
-import verticesSchemaTemplate from "../templates/verticesSchemaTemplate";
+import edgeLabelsTemplate from "./edgeLabelsTemplate";
+import edgesSchemaTemplate from "./edgesSchemaTemplate";
+import vertexLabelsTemplate from "./vertexLabelsTemplate";
+import verticesSchemaTemplate from "./verticesSchemaTemplate";
 import type { GEdge, GInt64, GVertex } from "../types";
 import { GraphSummary, GremlinFetch } from "../types";
 import { chunk } from "lodash";

@@ -1,6 +1,6 @@
 import globalMockFetch from "@/connector/testUtils/globalMockFetch";
 import mockGremlinFetch from "@/connector/testUtils/mockGremlinFetch";
-import fetchNeighborsCount from "./fetchNeighborsCount";
+import fetchNeighborsCount from ".";
 import { VertexId } from "@/@types/entities";
 
 describe("Gremlin > fetchNeighborsCount", () => {
