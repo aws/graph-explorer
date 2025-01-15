@@ -35,7 +35,6 @@ export type NeighborStub = {
 
 /**
  * Provides a callback to fetch the neighbor counts for a given vertex.
- * @param id The vertex id for which to fetch the neighbor counts.
  * @returns The neighbor counts for the given vertex.
  */
 export function useNeighborsCallback() {
@@ -63,7 +62,7 @@ export function useNeighborsCallback() {
 
 /**
  * Provides the neighbor counts for a given vertex.
- * @param id The vertex id for which to fetch the neighbor counts.
+ * @param vertex The vertex for which to fetch the neighbor counts.
  * @returns The neighbor counts for the given vertex.
  */
 export function useNeighbors(vertex: VertexRef) {
@@ -87,7 +86,7 @@ export function useNeighbors(vertex: VertexRef) {
 
 /**
  * Provides the neighbor counts for a given vertex and neighbor type.
- * @param id The vertex id for which to fetch the neighbors counts.
+ * @param vertex The vertex for which to fetch the neighbors counts.
  * @param type The neighbor type for which to fetch the neighbors counts.
  * @returns The neighbor counts for the given vertex and neighbor type.
  */
