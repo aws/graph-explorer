@@ -7,7 +7,7 @@ import {
 } from "@/utils/testing";
 import { explorerForTestingAtom } from "../connector";
 import { createMockExplorer } from "@/utils/testing/createMockExplorer";
-import { NeighborCountsQueryResponse } from "@/connector/queries";
+import { NeighborCountsQueryResponse } from "@/connector";
 import { waitFor } from "@testing-library/react";
 
 describe("calculateNeighbors", () => {

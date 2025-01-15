@@ -8,9 +8,8 @@ import {
 } from "@/hooks/useUpdateNodeCounts";
 import { useEffect, useMemo } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { neighborsCountQuery } from "@/connector/queries";
+import { neighborsCountQuery, VertexRef } from "@/connector";
 import { activeConnectionSelector, explorerSelector } from "../connector";
-import { VertexRef } from "@/connector/useGEFetchTypes";
 import { useNotification } from "@/components/NotificationProvider";
 
 export type NeighborCounts = {

@@ -1,8 +1,7 @@
 import { useQueries, useQuery } from "@tanstack/react-query";
 import { useRecoilValue } from "recoil";
-import { neighborsCountQuery } from "@/connector/queries";
+import { neighborsCountQuery, VertexRef } from "@/connector";
 import { activeConnectionSelector, explorerSelector } from "@/core/connector";
-import { VertexRef } from "@/connector/useGEFetchTypes";
 
 export function useUpdateNodeCountsQuery(vertex: VertexRef) {
   const connection = useRecoilValue(activeConnectionSelector);
