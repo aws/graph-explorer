@@ -14,7 +14,7 @@ import { Entities } from "@/core/StateProvider/entitiesSelector";
 import { renderHookWithRecoilRoot } from "@/utils/testing";
 import { waitForValueToChange } from "@/utils/testing/waitForValueToChange";
 import { vi } from "vitest";
-import { createRandomInteger, createRandomName } from "@shared/utils/testing";
+import { createRandomName } from "@shared/utils/testing";
 import {
   nodesAtom,
   nodesFilteredIdsAtom,
@@ -37,14 +37,9 @@ describe("useEntities", () => {
     const randomNode = {
       id: Math.random().toString() as VertexId,
       type: "type1",
-      neighborsCount: Math.floor(Math.random() * 100),
-      neighborsCountByType: {},
     } as Vertex;
     const expectedRandomNodes: Vertex = {
       ...randomNode,
-      neighborsCountByType: {},
-      __unfetchedNeighborCounts: {},
-      __unfetchedNeighborCount: 0,
     };
 
     const { result } = renderHookWithRecoilRoot(() => {
@@ -66,10 +61,6 @@ describe("useEntities", () => {
     const actualNode = result.current.entities.nodes.get(randomNode.id);
     expect(actualNode?.id).toEqual(randomNode.id);
     expect(actualNode?.type).toEqual(randomNode.type);
-    expect(actualNode?.neighborsCount).toEqual(randomNode.neighborsCount);
-    expect(actualNode?.neighborsCountByType).toEqual({});
-    expect(actualNode?.__unfetchedNeighborCounts).toEqual({});
-    expect(actualNode?.__unfetchedNeighborCount).toEqual(0);
   });
 
   it("should handle multiple nodes correctly", async () => {
@@ -79,8 +70,6 @@ describe("useEntities", () => {
       idType: "string",
       type: "type1",
       attributes: {},
-      neighborsCount: 1,
-      neighborsCountByType: {},
     };
     const node2: Vertex = {
       entityType: "vertex",
@@ -88,8 +77,6 @@ describe("useEntities", () => {
       idType: "string",
       type: "type2",
       attributes: {},
-      neighborsCount: 2,
-      neighborsCountByType: {},
     };
     const node3: Vertex = {
       entityType: "vertex",
@@ -97,8 +84,6 @@ describe("useEntities", () => {
       idType: "string",
       type: "type3",
       attributes: {},
-      neighborsCount: 3,
-      neighborsCountByType: {},
     };
     const expectedNodes = toNodeMap([
       {
@@ -107,10 +92,6 @@ describe("useEntities", () => {
         idType: "string",
         type: node1.type,
         attributes: {},
-        neighborsCount: node1.neighborsCount,
-        neighborsCountByType: {},
-        __unfetchedNeighborCounts: {},
-        __unfetchedNeighborCount: 0,
       },
       {
         entityType: "vertex",
@@ -118,10 +99,6 @@ describe("useEntities", () => {
         idType: "string",
         type: node2.type,
         attributes: {},
-        neighborsCount: node2.neighborsCount,
-        neighborsCountByType: {},
-        __unfetchedNeighborCounts: {},
-        __unfetchedNeighborCount: 0,
       },
       {
         entityType: "vertex",
@@ -129,10 +106,6 @@ describe("useEntities", () => {
         idType: "string",
         type: node3.type,
         attributes: {},
-        neighborsCount: node3.neighborsCount,
-        neighborsCountByType: {},
-        __unfetchedNeighborCounts: {},
-        __unfetchedNeighborCount: 0,
       },
     ]);
 
@@ -156,28 +129,16 @@ describe("useEntities", () => {
     expect(actualNode1).not.toBeUndefined();
     expect(actualNode1?.id).toEqual(node1.id);
     expect(actualNode1?.type).toEqual(node1.type);
-    expect(actualNode1?.neighborsCount).toEqual(node1.neighborsCount);
-    expect(actualNode1?.neighborsCountByType).toEqual({});
-    expect(actualNode1?.__unfetchedNeighborCounts).toEqual({});
-    expect(actualNode1?.__unfetchedNeighborCount).toEqual(0);
 
     const actualNode2 = result.current.entities.nodes.get(node2.id);
     expect(actualNode2).not.toBeUndefined();
     expect(actualNode2?.id).toEqual(node2.id);
     expect(actualNode2?.type).toEqual(node2.type);
-    expect(actualNode2?.neighborsCount).toEqual(node2.neighborsCount);
-    expect(actualNode2?.neighborsCountByType).toEqual({});
-    expect(actualNode2?.__unfetchedNeighborCounts).toEqual({});
-    expect(actualNode2?.__unfetchedNeighborCount).toEqual(0);
 
     const actualNode3 = result.current.entities.nodes.get(node3.id);
     expect(actualNode3).not.toBeUndefined();
     expect(actualNode3?.id).toEqual(node3.id);
     expect(actualNode3?.type).toEqual(node3.type);
-    expect(actualNode3?.neighborsCount).toEqual(node3.neighborsCount);
-    expect(actualNode3?.neighborsCountByType).toEqual({});
-    expect(actualNode3?.__unfetchedNeighborCounts).toEqual({});
-    expect(actualNode3?.__unfetchedNeighborCount).toEqual(0);
   });
 
   it("should filter nodes by id", () => {
@@ -296,75 +257,6 @@ describe("useEntities", () => {
       nodes: toNodeMap([node2]),
       edges: toEdgeMap([edge2to3]),
     });
-  });
-
-  it("should calculate stats after adding new nodes and edges", async () => {
-    const node1 = createRandomVertex();
-    const node2 = createRandomVertex();
-    const randomNeighborCount = createRandomInteger(500);
-    node1.neighborsCount = randomNeighborCount;
-    node1.neighborsCountByType[node2.type] = randomNeighborCount;
-    const edge1to2 = createRandomEdge(node1, node2);
-
-    const { result } = renderHookWithRecoilRoot(() => {
-      const [entities, setEntities] = useEntities();
-      return { entities, setEntities };
-    });
-
-    result.current.setEntities({
-      nodes: toNodeMap([node1, node2]),
-      edges: toEdgeMap([edge1to2]),
-    });
-
-    await waitForValueToChange(() => result.current.entities);
-
-    const actualNode1 = result.current.entities.nodes.get(node1.id)!;
-    expect(actualNode1.__unfetchedNeighborCount).toEqual(
-      randomNeighborCount - 1
-    );
-    expect(actualNode1.__unfetchedNeighborCounts![node2.type]).toEqual(
-      randomNeighborCount - 1
-    );
-  });
-
-  it("should return original entities before any filters were applied", () => {
-    // Define newNode and newEdge
-    const newNode = {
-      id: "1",
-      type: "type1",
-      neighborsCount: 1,
-      neighborsCountByType: {},
-    };
-    const newEdge = {
-      id: "1",
-      source: "1",
-      target: "2",
-      type: "type1",
-    };
-
-    // Define originalEntities
-    const originalEntities = {
-      nodes: [newNode],
-      edges: [newEdge],
-    };
-
-    // Mock the useEntities hook
-    const useEntitiesMock = vi.fn();
-    useEntitiesMock.mockReturnValue([
-      originalEntities,
-      vi.fn(),
-      originalEntities,
-    ]);
-
-    // Override the useEntities function in the module
-    vi.doMock("../../src/hooks/useEntities", () => useEntitiesMock);
-
-    // Render the hook
-    const { result } = renderHookWithRecoilRoot(() => useEntitiesMock());
-
-    // Since we have mocked useEntitiesMock, it should return the originalEntities immediately
-    expect(result.current[0]).toEqual(originalEntities);
-    expect(result.current[2]).toEqual(originalEntities);
   });
 
   it("should update the schema with new node types", async () => {

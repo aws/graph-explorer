@@ -17,11 +17,13 @@ import {
   RESERVED_ID_PROPERTY,
   RESERVED_TYPES_PROPERTY,
 } from "@/utils";
+import { VertexIdType } from "@/connector/useGEFetchTypes";
 
 /** Represents a vertex's display information after all transformations have been applied. */
 export type DisplayVertex = {
   entityType: "vertex";
   id: VertexId;
+  idType: VertexIdType;
   displayId: string;
   displayTypes: string;
   displayName: string;
@@ -131,6 +133,7 @@ const displayVertexSelector = selectorFamily({
       const result: DisplayVertex = {
         entityType: "vertex",
         id: vertex.id,
+        idType: vertex.idType,
         displayId,
         displayTypes,
         displayName,

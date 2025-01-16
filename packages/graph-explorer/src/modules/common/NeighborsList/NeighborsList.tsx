@@ -9,7 +9,11 @@ import {
   VertexIcon,
   VisibleIcon,
 } from "@/components";
-import { useNode } from "@/core";
+import {
+  useNeighbors,
+  useNeighborByType as useNeighborsByType,
+  useNode,
+} from "@/core";
 import useNeighborsOptions, {
   NeighborOption,
 } from "@/hooks/useNeighborsOptions";
@@ -28,6 +32,7 @@ export default function NeighborsList({
   ...props
 }: NeighborsListProps) {
   const vertex = useNode(id);
+  const neighbors = useNeighbors(vertex);
   const neighborsOptions = useNeighborsOptions(vertex);
   const [showMore, setShowMore] = useState(false);
 
@@ -36,7 +41,7 @@ export default function NeighborsList({
       className={cn("flex flex-col gap-3 border-b p-3", className)}
       {...props}
     >
-      <div className="font-bold">Neighbors ({vertex.neighborsCount})</div>
+      <div className="font-bold">Neighbors ({neighbors.all})</div>
       <ul className="flex flex-col gap-3">
         {neighborsOptions
           .slice(0, showMore ? undefined : MAX_NEIGHBOR_TYPE_ROWS)
@@ -63,9 +68,7 @@ function NeighborTypeRow({
   vertex: Vertex;
   op: NeighborOption;
 }) {
-  const neighborsInView =
-    vertex.neighborsCountByType[op.value] -
-    (vertex.__unfetchedNeighborCounts?.[op.value] ?? 0);
+  const neighbors = useNeighborsByType(vertex, op.value);
 
   return (
     <div className="flex items-center justify-between gap-2">
@@ -78,16 +81,14 @@ function NeighborTypeRow({
           <TooltipTrigger asChild>
             <Chip className="min-w-12">
               <VisibleIcon />
-              {neighborsInView}
+              {neighbors.fetched}
             </Chip>
           </TooltipTrigger>
           <TooltipContent>
-            {`${neighborsInView} ${op.label} in the Graph View`}
+            {`${neighbors.fetched} ${op.label} in the Graph View`}
           </TooltipContent>
         </Tooltip>
-        <Chip className="min-w-12">
-          {vertex.neighborsCountByType[op.value]}
-        </Chip>
+        <Chip className="min-w-12">{neighbors.all}</Chip>
       </div>
     </div>
   );

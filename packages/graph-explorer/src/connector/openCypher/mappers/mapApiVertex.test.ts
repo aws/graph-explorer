@@ -1,4 +1,3 @@
-import { createRandomInteger, createRandomName } from "@shared/utils/testing";
 import mapApiVertex from "./mapApiVertex";
 import { Vertex, VertexId } from "@/@types/entities";
 
@@ -18,35 +17,6 @@ test("maps empty vertex", () => {
     type: "",
     types: [],
     attributes: {},
-    neighborsCount: 0,
-    neighborsCountByType: {},
-  } satisfies Vertex);
-});
-
-test("applies the given counts", () => {
-  const input = {
-    "~labels": [],
-    "~entityType": "node",
-    "~id": "",
-    "~properties": {},
-  };
-  const counts = {
-    totalCount: createRandomInteger(),
-    counts: {
-      [`${createRandomName("label")}`]: createRandomInteger(),
-    },
-  };
-  const result = mapApiVertex(input, counts);
-
-  expect(result).toEqual({
-    entityType: "vertex",
-    id: "" as VertexId,
-    idType: "string",
-    type: "",
-    types: [],
-    attributes: {},
-    neighborsCount: counts.totalCount,
-    neighborsCountByType: counts.counts,
   } satisfies Vertex);
 });
 
@@ -93,7 +63,5 @@ test("maps airport node", () => {
       runways: 5,
       type: "airport",
     },
-    neighborsCount: 0,
-    neighborsCountByType: {},
   } satisfies Vertex);
 });
