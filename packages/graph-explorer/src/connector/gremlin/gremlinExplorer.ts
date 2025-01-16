@@ -2,7 +2,7 @@ import { ConnectionConfig } from "@shared/types";
 import fetchNeighbors from "./fetchNeighbors";
 import fetchNeighborsCount from "./fetchNeighborsCount";
 import fetchSchema from "./fetchSchema";
-import fetchVertexTypeCounts from "./fetchVertexCountsByType";
+import fetchVertexTypeCounts from "./fetchVertexTypeCounts";
 import keywordSearch from "./keywordSearch";
 import { fetchDatabaseRequest } from "../fetchDatabaseRequest";
 import { GraphSummary, GremlinFetch } from "./types";
