@@ -9,6 +9,10 @@
 - **Improved** entity filtering logic reducing re-renders
   ([#739](https://github.com/aws/graph-explorer/pull/739),
   [741](https://github.com/aws/graph-explorer/pull/741))
+- **Added** attribute count to node labels list in the connection screen
+  ([#743](https://github.com/aws/graph-explorer/pull/743))
+- **Improved** layout and style of searchable lists across the UI
+  ([#743](https://github.com/aws/graph-explorer/pull/743))
 
 ## Release 1.13.0
 

@@ -1,7 +1,13 @@
-import { cn } from "@/utils";
 import { RefObject, useCallback } from "react";
 import { useRecoilState, useSetRecoilState } from "recoil";
-import { Card, EdgeIcon, GraphIcon, ListItem, StylingIcon } from "@/components";
+import {
+  Card,
+  Divider,
+  EdgeIcon,
+  GraphIcon,
+  ListItem,
+  StylingIcon,
+} from "@/components";
 import { GraphRef } from "@/components/Graph/Graph";
 import {
   CenterGraphIcon,
@@ -13,11 +19,7 @@ import {
   ZoomInIcon,
   ZoomOutIcon,
 } from "@/components/icons";
-import {
-  useDisplayEdgesInCanvas,
-  useDisplayVerticesInCanvas,
-  useWithTheme,
-} from "@/core";
+import { useDisplayEdgesInCanvas, useDisplayVerticesInCanvas } from "@/core";
 import { edgesSelectedIdsAtom, toEdgeMap } from "@/core/StateProvider/edges";
 import { nodesSelectedIdsAtom, toNodeMap } from "@/core/StateProvider/nodes";
 import {
@@ -26,12 +28,10 @@ import {
 } from "@/core/StateProvider/userPreferences";
 import { useEntities, useTranslations } from "@/hooks";
 import useGraphGlobalActions from "../useGraphGlobalActions";
-import defaultStyles from "./ContextMenu.styles";
 import { EdgeId, VertexId } from "@/@types/entities";
 import { MinusCircleIcon } from "lucide-react";
 
 export type ContextMenuProps = {
-  className?: string;
   affectedNodesIds?: VertexId[];
   affectedEdgesIds?: EdgeId[];
   graphRef: RefObject<GraphRef | null>;
@@ -41,7 +41,6 @@ export type ContextMenuProps = {
 };
 
 const ContextMenu = ({
-  className,
   affectedNodesIds,
   affectedEdgesIds,
   graphRef,
@@ -49,7 +48,6 @@ const ContextMenu = ({
   onNodeCustomize,
   onEdgeCustomize,
 }: ContextMenuProps) => {
-  const styleWithTheme = useWithTheme();
   const t = useTranslations();
   const [_, setEntities] = useEntities();
   const displayNodes = useDisplayVerticesInCanvas();
@@ -195,179 +193,113 @@ const ContextMenu = ({
 
   if (affectedNode) {
     return (
-      <div
-        className={cn(styleWithTheme(defaultStyles), "context-menu", className)}
-      >
-        <Card className="card-root">
-          <ListItem
-            className={cn("context-menu-list-item", "list-item-header")}
-            startAdornment={<GraphIcon />}
-          >
-            {affectedNode.displayName}
-          </ListItem>
-          <div className="divider" />
-          <ListItem
-            className="context-menu-list-item"
-            clickable={true}
-            onClick={openSidebarPanel("details")}
-            startAdornment={<DetailsIcon />}
-          >
-            Details panel
-          </ListItem>
-          <ListItem
-            className="context-menu-list-item"
-            clickable={true}
-            onClick={openSidebarPanel("expand")}
-            startAdornment={<ExpandGraphIcon />}
-          >
-            Expand panel
-          </ListItem>
-          <ListItem
-            className="context-menu-list-item"
-            clickable={true}
-            onClick={openSidebarPanel("nodes-styling", {
-              nodeType: affectedNode.typeConfig.type,
-            })}
-            startAdornment={<StylingIcon />}
-          >
-            Customize panel
-          </ListItem>
-          <div className="divider" />
-          <ListItem
-            className="context-menu-list-item"
-            clickable={true}
-            onClick={handleRemoveFromCanvas([affectedNode.id], [])}
-            startAdornment={<MinusCircleIcon className="size-5" />}
-          >
-            Remove {t("graph-viewer.node").toLowerCase()} from view
-          </ListItem>
-        </Card>
-      </div>
+      <Card className="p-1">
+        <ListItem className="font-bold">
+          <GraphIcon />
+          {affectedNode.displayName}
+        </ListItem>
+        <Divider />
+        <ListItem onClick={openSidebarPanel("details")}>
+          <DetailsIcon />
+          Details panel
+        </ListItem>
+        <ListItem onClick={openSidebarPanel("expand")}>
+          <ExpandGraphIcon />
+          Expand panel
+        </ListItem>
+        <ListItem
+          onClick={openSidebarPanel("nodes-styling", {
+            nodeType: affectedNode.typeConfig.type,
+          })}
+        >
+          <StylingIcon />
+          Customize panel
+        </ListItem>
+        <Divider />
+        <ListItem onClick={handleRemoveFromCanvas([affectedNode.id], [])}>
+          <MinusCircleIcon className="size-5" color="red" />
+          Remove {t("graph-viewer.node").toLowerCase()} from view
+        </ListItem>
+      </Card>
     );
   }
 
   if (affectedEdge) {
     return (
-      <div
-        className={cn(styleWithTheme(defaultStyles), "context-menu", className)}
-      >
-        <Card className="card-root">
-          <ListItem
-            className={cn("context-menu-list-item", "list-item-header")}
-            startAdornment={<EdgeIcon />}
-          >
-            {affectedEdge.displayTypes}
-          </ListItem>
-          <div className="divider" />
-          <ListItem
-            className="context-menu-list-item"
-            clickable={true}
-            onClick={openSidebarPanel("details")}
-            startAdornment={<DetailsIcon />}
-          >
-            Details Panel
-          </ListItem>
-          <ListItem
-            className="context-menu-list-item"
-            clickable={true}
-            onClick={openSidebarPanel("edges-styling", {
-              edgeType: affectedEdge.typeConfig.type,
-            })}
-            startAdornment={<StylingIcon />}
-          >
-            Customize Panel
-          </ListItem>
-          <div className="divider" />
-          <ListItem
-            className="context-menu-list-item"
-            clickable={true}
-            onClick={handleRemoveFromCanvas([], [affectedEdge.id])}
-            startAdornment={<RemoveFromCanvasIcon color="red" />}
-          >
-            Remove {t("graph-viewer.edge")} from canvas
-          </ListItem>
-        </Card>
-      </div>
+      <Card className="p-1">
+        <ListItem className="font-bold">
+          <EdgeIcon />
+          {affectedEdge.displayTypes}
+        </ListItem>
+        <Divider />
+        <ListItem onClick={openSidebarPanel("details")}>
+          <DetailsIcon />
+          Details Panel
+        </ListItem>
+        <ListItem
+          onClick={openSidebarPanel("edges-styling", {
+            edgeType: affectedEdge.typeConfig.type,
+          })}
+        >
+          <StylingIcon />
+          Customize Panel
+        </ListItem>
+        <Divider />
+        <ListItem onClick={handleRemoveFromCanvas([], [affectedEdge.id])}>
+          <RemoveFromCanvasIcon color="red" />
+          Remove {t("graph-viewer.edge")} from canvas
+        </ListItem>
+      </Card>
     );
   }
 
   return (
-    <div
-      className={cn(styleWithTheme(defaultStyles), "context-menu", className)}
-    >
-      <Card className="card-root">
-        <ListItem
-          className="context-menu-list-item"
-          clickable={true}
-          onClick={handleFitToFrame}
-          startAdornment={<FitToFrameIcon />}
-        >
-          {nonEmptySelection ? "Fit Selection to Frame" : "Fit to Frame"}
-        </ListItem>
-        <ListItem
-          className="context-menu-list-item"
-          clickable={true}
-          onClick={handleCenter}
-          startAdornment={<CenterGraphIcon />}
-        >
-          {nonEmptySelection ? "Center Selection" : "Center"}
-        </ListItem>
-        <ListItem
-          className="context-menu-list-item"
-          clickable={true}
-          onClick={handleDownloadScreenshot}
-          startAdornment={<ScreenshotIcon />}
-        >
-          Download Screenshot
-        </ListItem>
-        <div className="divider" />
-        <ListItem
-          className="context-menu-list-item"
-          clickable={true}
-          onClick={handleZoomIn}
-          startAdornment={<ZoomInIcon />}
-        >
-          Zoom in
-        </ListItem>
-        <ListItem
-          className="context-menu-list-item"
-          clickable={true}
-          onClick={handleZoomOut}
-          startAdornment={<ZoomOutIcon />}
-        >
-          Zoom out
-        </ListItem>
-        {selectedButNoAffected && (
-          <>
-            <div className="divider" />
-            <ListItem
-              className="context-menu-list-item"
-              clickable={true}
-              onClick={handleRemoveFromCanvas(
-                Array.from(nodesSelectedIds),
-                Array.from(edgesSelectedIds)
-              )}
-              startAdornment={<RemoveFromCanvasIcon color="red" />}
-            >
-              Remove selection from canvas
-            </ListItem>
-          </>
-        )}
-        {noSelectionOrNotAffected && (
-          <>
-            <div className="divider" />
-            <ListItem
-              className="context-menu-list-item"
-              clickable={true}
-              onClick={handleRemoveAllFromCanvas}
-              startAdornment={<RemoveFromCanvasIcon color="red" />}
-            >
-              Clear canvas
-            </ListItem>
-          </>
-        )}
-      </Card>
-    </div>
+    <Card className="p-1">
+      <ListItem onClick={handleFitToFrame}>
+        <FitToFrameIcon />
+        {nonEmptySelection ? "Fit Selection to Frame" : "Fit to Frame"}
+      </ListItem>
+      <ListItem onClick={handleCenter}>
+        <CenterGraphIcon />
+        {nonEmptySelection ? "Center Selection" : "Center"}
+      </ListItem>
+      <ListItem onClick={handleDownloadScreenshot}>
+        <ScreenshotIcon />
+        Download Screenshot
+      </ListItem>
+      <Divider />
+      <ListItem onClick={handleZoomIn}>
+        <ZoomInIcon />
+        Zoom in
+      </ListItem>
+      <ListItem onClick={handleZoomOut}>
+        <ZoomOutIcon />
+        Zoom out
+      </ListItem>
+      {selectedButNoAffected && (
+        <>
+          <Divider />
+          <ListItem
+            onClick={handleRemoveFromCanvas(
+              Array.from(nodesSelectedIds),
+              Array.from(edgesSelectedIds)
+            )}
+          >
+            <RemoveFromCanvasIcon color="red" />
+            Remove selection from canvas
+          </ListItem>
+        </>
+      )}
+      {noSelectionOrNotAffected && (
+        <>
+          <Divider />
+          <ListItem onClick={handleRemoveAllFromCanvas}>
+            <RemoveFromCanvasIcon color="red" />
+            Clear canvas
+          </ListItem>
+        </>
+      )}
+    </Card>
   );
 };
 
