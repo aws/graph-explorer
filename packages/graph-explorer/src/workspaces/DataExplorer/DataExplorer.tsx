@@ -28,7 +28,7 @@ import {
 import ExternalPaginationControl from "@/components/Tabular/controls/ExternalPaginationControl";
 import Tabular from "@/components/Tabular/Tabular";
 import Workspace from "@/components/Workspace/Workspace";
-import type { KeywordSearchRequest } from "@/connector/useGEFetchTypes";
+import { KeywordSearchRequest, searchQuery } from "@/connector";
 import {
   DisplayVertex,
   useConfiguration,
@@ -46,7 +46,6 @@ import usePrefixesUpdater from "@/hooks/usePrefixesUpdater";
 import useTranslations from "@/hooks/useTranslations";
 import useUpdateVertexTypeCounts from "@/hooks/useUpdateVertexTypeCounts";
 import defaultStyles from "./DataExplorer.styles";
-import { searchQuery } from "@/connector/queries";
 import { useVertexTypeConfig } from "@/core/ConfigurationProvider/useConfiguration";
 import {
   APP_NAME,

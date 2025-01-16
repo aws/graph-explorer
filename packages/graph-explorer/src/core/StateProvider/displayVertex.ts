@@ -17,7 +17,7 @@ import {
   RESERVED_ID_PROPERTY,
   RESERVED_TYPES_PROPERTY,
 } from "@/utils";
-import { VertexIdType } from "@/connector/useGEFetchTypes";
+import { VertexIdType } from "@/connector";
 
 /** Represents a vertex's display information after all transformations have been applied. */
 export type DisplayVertex = {

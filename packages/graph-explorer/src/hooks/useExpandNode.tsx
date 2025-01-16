@@ -1,9 +1,6 @@
 import { useCallback, useEffect } from "react";
 import { useNotification } from "@/components/NotificationProvider";
-import type {
-  NeighborsRequest,
-  NeighborsResponse,
-} from "@/connector/useGEFetchTypes";
+import type { NeighborsRequest, NeighborsResponse } from "@/connector";
 import {
   activeConnectionSelector,
   explorerSelector,

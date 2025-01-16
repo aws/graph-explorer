@@ -2,7 +2,7 @@ import {
   EdgeSchemaResponse,
   SchemaResponse,
   VertexSchemaResponse,
-} from "@/connector/useGEFetchTypes";
+} from "@/connector";
 import { createRandomAttributeConfig } from "./randomData";
 import {
   createArray,

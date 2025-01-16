@@ -6,7 +6,7 @@ import {
   Button,
   PanelFooter,
 } from "@/components";
-import { KeywordSearchResponse } from "@/connector/useGEFetchTypes";
+import { KeywordSearchResponse } from "@/connector";
 import { UseQueryResult } from "@tanstack/react-query";
 import { useCancelKeywordSearch } from "./useKeywordSearchQuery";
 import { NodeSearchResult } from "./NodeSearchResult";

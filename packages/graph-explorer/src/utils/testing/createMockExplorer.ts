@@ -1,4 +1,4 @@
-import { Explorer } from "@/connector/useGEFetchTypes";
+import { Explorer } from "@/connector";
 import { createRandomRawConfiguration } from "./randomData";
 
 export function createMockExplorer(): Explorer {

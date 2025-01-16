@@ -1,9 +1,9 @@
 import { ConnectionConfig } from "@shared/types";
-import fetchNeighbors from "./queries/fetchNeighbors";
-import fetchNeighborsCount from "./queries/fetchNeighborsCount";
-import fetchSchema from "./queries/fetchSchema";
-import fetchVertexTypeCounts from "./queries/fetchVertexTypeCounts";
-import keywordSearch from "./queries/keywordSearch";
+import fetchNeighbors from "./fetchNeighbors";
+import fetchNeighborsCount from "./fetchNeighborsCount";
+import fetchSchema from "./fetchSchema";
+import fetchVertexTypeCounts from "./fetchVertexTypeCounts";
+import keywordSearch from "./keywordSearch";
 import { fetchDatabaseRequest } from "../fetchDatabaseRequest";
 import { GraphSummary, GremlinFetch } from "./types";
 import { v4 } from "uuid";

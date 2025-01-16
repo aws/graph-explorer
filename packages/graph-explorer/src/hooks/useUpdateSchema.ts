@@ -1,5 +1,5 @@
 import { useSetRecoilState } from "recoil";
-import type { SchemaResponse } from "@/connector/useGEFetchTypes";
+import type { SchemaResponse } from "@/connector";
 import { activeSchemaSelector } from "@/core/StateProvider/schema";
 import { useCallback } from "react";
 

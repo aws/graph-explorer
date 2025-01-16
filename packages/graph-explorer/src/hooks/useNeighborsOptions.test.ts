@@ -11,7 +11,7 @@ import {
   renderHookWithRecoilRoot,
 } from "@/utils/testing";
 import { schemaAtom } from "@/core/StateProvider/schema";
-import { NeighborCountsQueryResponse } from "@/connector/queries";
+import { NeighborCountsQueryResponse } from "@/connector";
 import {
   edgesAtom,
   explorerForTestingAtom,

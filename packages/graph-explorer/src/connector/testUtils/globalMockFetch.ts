@@ -1,7 +1,7 @@
 import { vi } from "vitest";
 import { shortHash } from "./shortHash";
 
-const GREMLIN = "../gremlin/queries/__mock";
+const GREMLIN = "../gremlin/__mock";
 const RESPONSES_FILES_MAP: Record<string, string> = {
   "6281d1a5": `${GREMLIN}/vertices-schema.json`,
   "186857e1": `${GREMLIN}/vertices-labels-and-counts.json`,
