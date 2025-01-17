@@ -4,9 +4,9 @@ export type EdgeId = Branded<string, "EdgeId">;
 export type VertexId = Branded<string, "VertexId">;
 
 /**
- * The type of the vertex ID.
+ * The type of the vertex or edge ID.
  */
-export type VertexIdType = "string" | "number";
+export type EntityIdType = "string" | "number";
 
 export type Vertex = {
   /**

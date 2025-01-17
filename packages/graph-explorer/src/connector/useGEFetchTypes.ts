@@ -5,7 +5,7 @@ import {
 } from "@/core";
 import { ConnectionConfig } from "@shared/types";
 import { MappedQueryResults } from "./gremlin/mappers/mapResults";
-import { VertexId, VertexIdType } from "@/@types/entities";
+import { VertexId, EntityIdType } from "@/@types/entities";
 
 export type QueryOptions = RequestInit & {
   queryId?: string;
@@ -13,7 +13,7 @@ export type QueryOptions = RequestInit & {
 
 export type VertexRef = {
   id: VertexId;
-  idType: VertexIdType;
+  idType: EntityIdType;
 };
 
 export type VertexSchemaResponse = Pick<
