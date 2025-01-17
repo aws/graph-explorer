@@ -24,7 +24,7 @@ export type Vertex = {
    * - For Gremlin, could be string or number
    * - For openCypher and SPARQL, always string
    */
-  idType: "string" | "number";
+  idType: EntityIdType;
   /**
    * Single vertex type.
    * - For PG, the node label
