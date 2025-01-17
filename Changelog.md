@@ -13,6 +13,8 @@
   ([#743](https://github.com/aws/graph-explorer/pull/743))
 - **Improved** layout and style of searchable lists across the UI
   ([#743](https://github.com/aws/graph-explorer/pull/743))
+- **Improved** pagination controls by using a single shared component
+  ([#742](https://github.com/aws/graph-explorer/pull/742))
 
 ## Release 1.13.0
 
