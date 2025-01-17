@@ -3,6 +3,11 @@ import { Branded } from "@/utils";
 export type EdgeId = Branded<string, "EdgeId">;
 export type VertexId = Branded<string, "VertexId">;
 
+/**
+ * The type of the vertex ID.
+ */
+export type VertexIdType = "string" | "number";
+
 export type Vertex = {
   /**
    * Indicates the type in order to discriminate from the `Edge` type in unions.

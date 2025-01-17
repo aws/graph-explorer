@@ -1,5 +1,5 @@
 import { selector, selectorFamily, useRecoilValue } from "recoil";
-import { Vertex, VertexId } from "@/@types/entities";
+import { Vertex, VertexId, VertexIdType } from "@/@types/entities";
 import {
   DisplayAttribute,
   getSortedDisplayAttributes,
@@ -17,7 +17,6 @@ import {
   RESERVED_ID_PROPERTY,
   RESERVED_TYPES_PROPERTY,
 } from "@/utils";
-import { VertexIdType } from "@/connector";
 
 /** Represents a vertex's display information after all transformations have been applied. */
 export type DisplayVertex = {
