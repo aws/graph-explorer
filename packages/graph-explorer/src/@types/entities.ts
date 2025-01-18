@@ -71,6 +71,12 @@ export type Edge = {
    */
   id: EdgeId;
   /**
+   * Data type for the edge id.
+   * - For Gremlin, could be string or number
+   * - For openCypher and SPARQL, always string
+   */
+  idType: EntityIdType;
+  /**
    * Edge type.
    * - For PG, the label which identifies the relation type
    * - For RDF, the predicate

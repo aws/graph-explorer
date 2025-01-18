@@ -15,6 +15,7 @@ const mapIncomingToEdge = (
   return {
     entityType: "edge",
     id: `${result.subject.value}-[${result.predFromSubject.value}]->${resourceURI}` as EdgeId,
+    idType: "string",
     type: result.predFromSubject.value,
     source: result.subject.value as VertexId,
     sourceType: result.subjectClass.value,

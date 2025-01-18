@@ -170,6 +170,7 @@ export function createRandomEdge(source: Vertex, target: Vertex): Edge {
   return {
     entityType: "edge",
     id: createRandomName("EdgeId") as EdgeId,
+    idType: pickRandomElement(["number", "string"]),
     type: createRandomName("EdgeType"),
     attributes: createRecord(3, createRandomEntityAttribute),
     source: source.id,

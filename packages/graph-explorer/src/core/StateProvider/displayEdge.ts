@@ -1,4 +1,4 @@
-import { Edge, EdgeId, VertexId } from "@/@types/entities";
+import { Edge, EdgeId, EntityIdType, VertexId } from "@/@types/entities";
 import { selector, selectorFamily, useRecoilValue } from "recoil";
 import { textTransformSelector } from "@/hooks";
 import {
@@ -23,6 +23,7 @@ import {
 export type DisplayEdge = {
   entityType: "edge";
   id: EdgeId;
+  idType: EntityIdType;
   displayId: string;
   displayName: string;
   displayTypes: string;
@@ -142,6 +143,7 @@ const displayEdgeSelector = selectorFamily({
       const displayEdge: DisplayEdge = {
         entityType: "edge",
         id: edge.id,
+        idType: edge.idType,
         displayId,
         displayName,
         displayTypes,
