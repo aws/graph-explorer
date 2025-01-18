@@ -1,6 +1,6 @@
 import { GInt64, JanusID } from "../types";
 
-const isJanusID = (id: any): id is JanusID => {
+export const isJanusID = (id: any): id is JanusID => {
   return (
     typeof id === "object" &&
     "@type" in id &&
