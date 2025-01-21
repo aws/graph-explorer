@@ -113,5 +113,13 @@ export function createGremlinExplorer(
         req
       );
     },
+    async vertexDetails(req, options) {
+      remoteLogger.info("[Gremlin Explorer] Fetching vertex details...");
+      throw new Error("Vertex details explorer function is not implemented");
+    },
+    async edgeDetails(req, options) {
+      remoteLogger.info("[Gremlin Explorer] Fetching edge details...");
+      throw new Error("Edge details explorer function is not implemented");
+    },
   } satisfies Explorer;
 }

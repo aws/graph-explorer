@@ -1,10 +1,14 @@
 import { queryOptions } from "@tanstack/react-query";
 import {
   CountsByTypeResponse,
+  EdgeDetailsRequest,
+  EdgeDetailsResponse,
   EdgeRef,
   Explorer,
   KeywordSearchRequest,
   KeywordSearchResponse,
+  VertexDetailsRequest,
+  VertexDetailsResponse,
   VertexRef,
 } from "./useGEFetchTypes";
 import { VertexId } from "@/@types/entities";
@@ -96,6 +100,37 @@ export const nodeCountByNodeTypeQuery = (
   });
 const nodeCountByNodeTypeEmptyResponse: CountsByTypeResponse = { total: 0 };
 
+export function vertexDetailsQuery(
+  request: VertexDetailsRequest,
+  explorer: Explorer | null
+) {
+  const ref = extractStableEntityRef(request.vertex);
+  return queryOptions({
+    queryKey: ["db", "vertex", "details", ref, explorer],
+    queryFn: async ({ signal }): Promise<VertexDetailsResponse> => {
+      if (!explorer) {
+        return { vertex: null };
+      }
+      return await explorer.vertexDetails({ vertex: ref }, { signal });
+    },
+  });
+}
+
+export function edgeDetailsQuery(
+  request: EdgeDetailsRequest,
+  explorer: Explorer | null
+) {
+  const ref = extractStableEntityRef(request.edge);
+  return queryOptions({
+    queryKey: ["db", "edge", "details", ref, explorer],
+    queryFn: async ({ signal }): Promise<EdgeDetailsResponse> => {
+      if (!explorer) {
+        return { edge: null };
+      }
+      return await explorer.edgeDetails({ edge: ref }, { signal });
+    },
+  });
+}
 
 /**
  * Ensures the input does not contain any extra properties so that TanStack

@@ -205,5 +205,13 @@ export function createSparqlExplorer(
 
       return { vertices, edges: [], scalars: [] };
     },
+    async vertexDetails(req, options) {
+      remoteLogger.info("[SPARQL Explorer] Fetching vertex details...");
+      throw new Error("Vertex details explorer function is not implemented");
+    },
+    edgeDetails(_req, _options) {
+      remoteLogger.info("[SPARQL Explorer] Fetching edge details...");
+      throw new Error("Edge details explorer function is not implemented");
+    },
   } satisfies Explorer;
 }
