@@ -11,6 +11,8 @@ import { Explorer, ExplorerRequestOptions } from "../useGEFetchTypes";
 import { logger } from "@/utils";
 import { createLoggerFromConnection } from "@/core/connector";
 import { FeatureFlags } from "@/core";
+import { vertexDetails } from "./vertexDetails";
+import { edgeDetails } from "./edgeDetails";
 
 function _gremlinFetch(
   connection: ConnectionConfig,
@@ -114,12 +116,26 @@ export function createGremlinExplorer(
       );
     },
     async vertexDetails(req, options) {
+      options ??= {};
+      options.queryId = v4();
+
       remoteLogger.info("[Gremlin Explorer] Fetching vertex details...");
-      throw new Error("Vertex details explorer function is not implemented");
+      const result = await vertexDetails(
+        _gremlinFetch(connection, featureFlags, options),
+        req
+      );
+      return result;
     },
     async edgeDetails(req, options) {
+      options ??= {};
+      options.queryId = v4();
+
       remoteLogger.info("[Gremlin Explorer] Fetching edge details...");
-      throw new Error("Edge details explorer function is not implemented");
+      const result = await edgeDetails(
+        _gremlinFetch(connection, featureFlags, options),
+        req
+      );
+      return result;
     },
   } satisfies Explorer;
 }
