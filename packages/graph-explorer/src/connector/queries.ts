@@ -1,6 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 import {
   CountsByTypeResponse,
+  EdgeRef,
   Explorer,
   KeywordSearchRequest,
   KeywordSearchResponse,
@@ -47,28 +48,27 @@ export function neighborsCountQuery(
   limit: number | undefined,
   explorer: Explorer | null
 ) {
-  // Ensure the query key remains stable by removing extra properties from the vertex
-  const { id, idType } = vertex;
+  const ref = extractStableEntityRef(vertex);
 
   return queryOptions({
-    queryKey: ["neighborsCount", id, idType, limit, explorer],
+    queryKey: ["neighborsCount", ref, limit, explorer],
     enabled: Boolean(explorer),
     queryFn: async (): Promise<NeighborCountsQueryResponse> => {
       if (!explorer) {
         return {
-          nodeId: id,
+          nodeId: ref.id,
           totalCount: 0,
           counts: {},
         };
       }
 
       const result = await explorer.fetchNeighborsCount({
-        vertex: { id, idType },
+        vertex: ref,
         limit,
       });
 
       return {
-        nodeId: id,
+        nodeId: ref.id,
         totalCount: result.totalCount,
         counts: result.counts,
       };
@@ -95,3 +95,14 @@ export const nodeCountByNodeTypeQuery = (
       }) ?? nodeCountByNodeTypeEmptyResponse,
   });
 const nodeCountByNodeTypeEmptyResponse: CountsByTypeResponse = { total: 0 };
+
+
+/**
+ * Ensures the input does not contain any extra properties so that TanStack
+ * Query can properly dedupe queries.
+ */
+function extractStableEntityRef<TRef extends VertexRef | EdgeRef>(
+  ref: TRef
+): TRef {
+  return { id: ref.id, idType: ref.idType } as TRef;
+}
