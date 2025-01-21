@@ -1,4 +1,4 @@
-import { queryOptions } from "@tanstack/react-query";
+import { QueryClient, queryOptions } from "@tanstack/react-query";
 import {
   CountsByTypeResponse,
   EdgeDetailsRequest,
@@ -21,16 +21,21 @@ import { VertexId } from "@/@types/entities";
  */
 export function searchQuery(
   request: KeywordSearchRequest,
-  explorer: Explorer | null
+  explorer: Explorer | null,
+  queryClient: QueryClient
 ) {
   return queryOptions({
-    queryKey: ["keyword-search", request, explorer],
+    queryKey: ["keyword-search", request, explorer, queryClient],
     enabled: Boolean(explorer),
     queryFn: async ({ signal }): Promise<KeywordSearchResponse | null> => {
       if (!explorer || !request) {
         return { vertices: [], edges: [], scalars: [] };
       }
-      return await explorer.keywordSearch(request, { signal });
+      const results = await explorer.keywordSearch(request, { signal });
+
+      updateVertexDetailsCache(explorer, queryClient, results.vertices);
+
+      return results;
     },
   });
 }
@@ -130,6 +135,33 @@ export function edgeDetailsQuery(
       return await explorer.edgeDetails({ edge: ref }, { signal });
     },
   });
+}
+
+/** Sets the vertex details cache for the given vertices. */
+export function updateVertexDetailsCache(
+  explorer: Explorer,
+  queryClient: QueryClient,
+  vertices: VertexRef[]
+) {
+  for (const vertex of vertices) {
+    const ref = extractStableEntityRef(vertex);
+    queryClient.setQueryData(
+      ["db", "vertex", "details", ref, explorer],
+      vertex
+    );
+  }
+}
+
+/** Sets the edge details cache for the given edges. */
+export function updateEdgeDetailsCache(
+  explorer: Explorer,
+  queryClient: QueryClient,
+  edges: EdgeRef[]
+) {
+  for (const edge of edges) {
+    const ref = extractStableEntityRef(edge);
+    queryClient.setQueryData(["db", "edge", "details", ref, explorer], edge);
+  }
 }
 
 /**

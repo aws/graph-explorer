@@ -1,7 +1,11 @@
 import { cn } from "@/utils";
 import clone from "lodash/clone";
 import { useCallback, useEffect, useMemo, useRef } from "react";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { Vertex } from "@/types/entities";
@@ -370,6 +374,7 @@ function useDataExplorerQuery(
   pageIndex: number
 ) {
   const explorer = useRecoilValue(explorerSelector);
+  const queryClient = useQueryClient();
 
   const updatePrefixes = usePrefixesUpdater();
 
@@ -379,7 +384,7 @@ function useDataExplorerQuery(
     offset: pageIndex * pageSize,
   };
   const query = useQuery({
-    ...searchQuery(searchRequest, explorer),
+    ...searchQuery(searchRequest, explorer, queryClient),
     placeholderData: keepPreviousData,
   });
 

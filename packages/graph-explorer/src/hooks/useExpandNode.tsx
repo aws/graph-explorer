@@ -1,6 +1,11 @@
 import { useCallback, useEffect } from "react";
 import { useNotification } from "@/components/NotificationProvider";
-import type { NeighborsRequest, NeighborsResponse } from "@/connector";
+import {
+  updateEdgeDetailsCache,
+  updateVertexDetailsCache,
+  type NeighborsRequest,
+  type NeighborsResponse,
+} from "@/connector";
 import {
   activeConnectionSelector,
   explorerSelector,
@@ -8,7 +13,7 @@ import {
 } from "@/core/connector";
 import useEntities from "./useEntities";
 import { useRecoilValue } from "recoil";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Vertex } from "@/types/entities";
 import { createDisplayError } from "@/utils/createDisplayError";
 import { toNodeMap } from "@/core/StateProvider/nodes";
@@ -27,6 +32,7 @@ export type ExpandNodeRequest = {
  * information, and a callback to reset the request state.
  */
 export default function useExpandNode() {
+  const queryClient = useQueryClient();
   const explorer = useRecoilValue(explorerSelector);
   const [_, setEntities] = useEntities();
   const { enqueueNotification, clearNotification } = useNotification();
@@ -52,9 +58,14 @@ export default function useExpandNode() {
       return await explorer.fetchNeighbors(request);
     },
     onSuccess: data => {
-      if (!data) {
+      if (!data || !explorer) {
         return;
       }
+
+      // Update the vertex and edge details caches
+      updateVertexDetailsCache(explorer, queryClient, data.vertices);
+      updateEdgeDetailsCache(explorer, queryClient, data.edges);
+
       // Update nodes and edges in the graph
       setEntities({
         nodes: toNodeMap(data.vertices),

@@ -19,6 +19,7 @@ export function useKeywordSearchQuery({
   exactMatch,
 }: SearchQueryRequest) {
   const explorer = useRecoilValue(explorerSelector);
+  const queryClient = useQueryClient();
   const updatePrefixes = usePrefixesUpdater();
 
   const request: KeywordSearchRequest = {
@@ -29,7 +30,7 @@ export function useKeywordSearchQuery({
     searchByAttributes: debouncedSearchTerm ? searchByAttributes : undefined,
     exactMatch: debouncedSearchTerm ? exactMatch : undefined,
   };
-  const query = useQuery(searchQuery(request, explorer));
+  const query = useQuery(searchQuery(request, explorer, queryClient));
 
   // Sync sparql prefixes
   useEffect(() => {
