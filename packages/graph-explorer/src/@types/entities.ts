@@ -3,6 +3,11 @@ import { Branded } from "@/utils";
 export type EdgeId = Branded<string, "EdgeId">;
 export type VertexId = Branded<string, "VertexId">;
 
+/**
+ * The type of the vertex or edge ID.
+ */
+export type EntityIdType = "string" | "number";
+
 export type Vertex = {
   /**
    * Indicates the type in order to discriminate from the `Edge` type in unions.
@@ -19,7 +24,7 @@ export type Vertex = {
    * - For Gremlin, could be string or number
    * - For openCypher and SPARQL, always string
    */
-  idType: "string" | "number";
+  idType: EntityIdType;
   /**
    * Single vertex type.
    * - For PG, the node label
@@ -65,6 +70,12 @@ export type Edge = {
    *   So, a synthetic id is created using <source URI>-[predicate]-><target URI>
    */
   id: EdgeId;
+  /**
+   * Data type for the edge id.
+   * - For Gremlin, could be string or number
+   * - For openCypher and SPARQL, always string
+   */
+  idType: EntityIdType;
   /**
    * Edge type.
    * - For PG, the label which identifies the relation type
