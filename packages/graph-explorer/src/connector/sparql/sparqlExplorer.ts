@@ -24,6 +24,8 @@ import { FeatureFlags } from "@/core";
 import { replaceBlankNodeFromNeighbors } from "./fetchNeighbors/replaceBlankNodeFromNeighbors";
 import { storedBlankNodeNeighborsRequest } from "./fetchNeighbors/storedBlankNodeNeighborsRequest";
 import { replaceBlankNodeFromSearch } from "./keywordSearch/replaceBlankNodeFromSearch";
+import { vertexDetails } from "./vertexDetails";
+import { edgeDetails } from "./edgeDetails";
 
 function _sparqlFetch(
   connection: ConnectionConfig,
@@ -207,11 +209,17 @@ export function createSparqlExplorer(
     },
     async vertexDetails(req, options) {
       remoteLogger.info("[SPARQL Explorer] Fetching vertex details...");
-      throw new Error("Vertex details explorer function is not implemented");
+      return await vertexDetails(
+        _sparqlFetch(connection, featureFlags, options),
+        req
+      );
     },
-    edgeDetails(_req, _options) {
+    async edgeDetails(req, options) {
       remoteLogger.info("[SPARQL Explorer] Fetching edge details...");
-      throw new Error("Edge details explorer function is not implemented");
+      return await edgeDetails(
+        _sparqlFetch(connection, featureFlags, options),
+        req
+      );
     },
   } satisfies Explorer;
 }
