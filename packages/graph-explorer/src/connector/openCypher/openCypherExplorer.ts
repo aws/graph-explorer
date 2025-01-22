@@ -11,6 +11,8 @@ import { Explorer, ExplorerRequestOptions } from "../useGEFetchTypes";
 import { env, logger } from "@/utils";
 import { createLoggerFromConnection } from "@/core/connector";
 import { FeatureFlags } from "@/core";
+import { vertexDetails } from "./vertexDetails";
+import { edgeDetails } from "./edgeDetails";
 
 function _openCypherFetch(
   connection: ConnectionConfig,
@@ -89,11 +91,17 @@ export function createOpenCypherExplorer(
     },
     async vertexDetails(req, options) {
       remoteLogger.info("[openCypher Explorer] Fetching vertex details...");
-      throw new Error("Vertex details explorer function is not implemented");
+      return vertexDetails(
+        _openCypherFetch(connection, featureFlags, options),
+        req
+      );
     },
     async edgeDetails(req, options) {
       remoteLogger.info("[openCypher Explorer] Fetching edge details...");
-      throw new Error("Edge details explorer function is not implemented");
+      return edgeDetails(
+        _openCypherFetch(connection, featureFlags, options),
+        req
+      );
     },
   } satisfies Explorer;
 }
