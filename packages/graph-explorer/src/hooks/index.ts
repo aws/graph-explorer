@@ -9,3 +9,5 @@ export { default as useTextTransform } from "./useTextTransform";
 export * from "./useTextTransform";
 export { default as usePrevious } from "./usePrevious";
 export { default as useTranslations } from "./useTranslations";
+export * from "./useEdgeDetailsQuery";
+export * from "./useVertexDetailsQuery";
