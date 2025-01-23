@@ -3,24 +3,18 @@ import {
   PanelContent,
   PanelHeader,
   PanelHeaderActions,
-  PanelHeaderCloseButton,
-  PanelHeaderCloseButtonProps,
   PanelTitle,
 } from "@/components";
 import { FilterSearchTabContent } from "./FilterSearchTabContent";
+import { SidebarCloseButton } from "../SidebarCloseButton";
 
-export type SearchSidebarPanelProps = Pick<
-  PanelHeaderCloseButtonProps,
-  "onClose"
->;
-
-export function SearchSidebarPanel({ onClose }: SearchSidebarPanelProps) {
+export function SearchSidebarPanel() {
   return (
     <Panel variant="sidebar">
       <PanelHeader>
         <PanelTitle>Search</PanelTitle>
         <PanelHeaderActions>
-          <PanelHeaderCloseButton onClose={onClose} />
+          <SidebarCloseButton />
         </PanelHeaderActions>
       </PanelHeader>
       <PanelContent>

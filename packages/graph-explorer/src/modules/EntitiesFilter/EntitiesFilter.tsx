@@ -1,4 +1,3 @@
-import type { PanelHeaderCloseButtonProps } from "@/components";
 import {
   CheckboxList,
   Divider,
@@ -6,16 +5,14 @@ import {
   PanelContent,
   PanelHeader,
   PanelHeaderActions,
-  PanelHeaderCloseButton,
   PanelTitle,
 } from "@/components";
 import useTranslations from "@/hooks/useTranslations";
 import useFiltersConfig from "./useFiltersConfig";
 import { PropsWithChildren } from "react";
+import { SidebarCloseButton } from "../SidebarCloseButton";
 
-export type EntitiesFilterProps = Pick<PanelHeaderCloseButtonProps, "onClose">;
-
-const EntitiesFilter = ({ onClose }: EntitiesFilterProps) => {
+function EntitiesFilter() {
   const t = useTranslations();
 
   const {
@@ -34,7 +31,7 @@ const EntitiesFilter = ({ onClose }: EntitiesFilterProps) => {
       <PanelHeader>
         <PanelTitle>Entities Filter</PanelTitle>
         <PanelHeaderActions>
-          <PanelHeaderCloseButton onClose={onClose} />
+          <SidebarCloseButton />
         </PanelHeaderActions>
       </PanelHeader>
       <PanelContent>
@@ -64,7 +61,7 @@ const EntitiesFilter = ({ onClose }: EntitiesFilterProps) => {
       </PanelContent>
     </Panel>
   );
-};
+}
 
 function CheckboxListContainer(props: PropsWithChildren) {
   return <div className="w-full px-3 py-2">{props.children}</div>;

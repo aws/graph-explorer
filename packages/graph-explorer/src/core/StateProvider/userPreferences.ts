@@ -1,5 +1,6 @@
-import { atom, DefaultValue, selectorFamily } from "recoil";
+import { atom, DefaultValue, selectorFamily, useSetRecoilState } from "recoil";
 import localForageEffect from "./localForageEffect";
+import { useCallback } from "react";
 
 export type ShapeStyle =
   | "rectangle"
@@ -212,3 +213,13 @@ export const userLayoutAtom = atom<UserPreferences["layout"]>({
   },
   effects: [localForageEffect()],
 });
+
+export function useCloseSidebar() {
+  const setUserLayout = useSetRecoilState(userLayoutAtom);
+  return useCallback(() => {
+    setUserLayout(prev => ({
+      ...prev,
+      activeSidebarItem: null,
+    }));
+  }, [setUserLayout]);
+}

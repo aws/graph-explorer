@@ -5,24 +5,22 @@ import {
   PanelContent,
   PanelHeader,
   PanelHeaderActions,
-  PanelHeaderCloseButton,
-  PanelHeaderCloseButtonProps,
   PanelTitle,
 } from "@/components";
 import { useDisplayEdgeTypeConfigs } from "@/core";
 import useTranslations from "@/hooks/useTranslations";
 import SingleEdgeStyling from "./SingleEdgeStyling";
+import { SidebarCloseButton } from "../SidebarCloseButton";
 
-export type EdgesStylingProps = Pick<PanelHeaderCloseButtonProps, "onClose"> & {
+export type EdgesStylingProps = {
   onEdgeCustomize(edgeType?: string): void;
   customizeEdgeType?: string;
 };
 
-const EdgesStyling = ({
+function EdgesStyling({
   customizeEdgeType,
   onEdgeCustomize,
-  onClose,
-}: EdgesStylingProps) => {
+}: EdgesStylingProps) {
   const etConfigs = useDisplayEdgeTypeConfigs().values().toArray();
   const t = useTranslations();
 
@@ -31,7 +29,7 @@ const EdgesStyling = ({
       <PanelHeader>
         <PanelTitle>{t("edges-styling.title")}</PanelTitle>
         <PanelHeaderActions>
-          <PanelHeaderCloseButton onClose={onClose} />
+          <SidebarCloseButton />
         </PanelHeaderActions>
       </PanelHeader>
       <PanelContent className="flex flex-col gap-2">
@@ -53,6 +51,6 @@ const EdgesStyling = ({
       </PanelContent>
     </Panel>
   );
-};
+}
 
 export default EdgesStyling;

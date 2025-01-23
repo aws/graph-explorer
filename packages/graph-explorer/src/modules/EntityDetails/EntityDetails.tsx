@@ -1,5 +1,4 @@
 import { useRecoilState } from "recoil";
-import type { PanelHeaderCloseButtonProps } from "@/components";
 import {
   AutoFitLeftIcon,
   Panel,
@@ -7,7 +6,6 @@ import {
   PanelHeader,
   PanelHeaderActionButton,
   PanelHeaderActions,
-  PanelHeaderCloseButton,
   PanelHeaderDivider,
   PanelTitle,
 } from "@/components";
@@ -17,10 +15,9 @@ import { userLayoutAtom } from "@/core/StateProvider/userPreferences";
 import EdgeDetail from "./EdgeDetail";
 import NodeDetail from "./NodeDetail";
 import { useSelectedDisplayEdges, useSelectedDisplayVertices } from "@/core";
+import { SidebarCloseButton } from "../SidebarCloseButton";
 
-export type EntityDetailsProps = Pick<PanelHeaderCloseButtonProps, "onClose">;
-
-const EntityDetails = ({ onClose }: EntityDetailsProps) => {
+function EntityDetails() {
   const [userLayout, setUserLayout] = useRecoilState(userLayoutAtom);
   const selectedNodes = useSelectedDisplayVertices();
   const selectedNode = selectedNodes[0];
@@ -47,7 +44,7 @@ const EntityDetails = ({ onClose }: EntityDetailsProps) => {
             }
           />
           <PanelHeaderDivider />
-          <PanelHeaderCloseButton onClose={onClose} />
+          <SidebarCloseButton />
         </PanelHeaderActions>
       </PanelHeader>
       <PanelContent>
@@ -74,6 +71,6 @@ const EntityDetails = ({ onClose }: EntityDetailsProps) => {
       </PanelContent>
     </Panel>
   );
-};
+}
 
 export default EntityDetails;
