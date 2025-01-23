@@ -43,7 +43,8 @@ Which will result in the following URLs:
 ### HTTP Only
 
 If you do not want to use SSL and HTTPS, you can disable it by setting the
-following [environment variables](../development.md#environment-variables):
+following
+[environment variables](/additionaldocs/development.md#environment-variables):
 
 ```
 PROXY_SERVER_HTTPS_CONNECTION=false
