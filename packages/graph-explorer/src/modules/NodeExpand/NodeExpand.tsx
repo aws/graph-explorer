@@ -1,11 +1,9 @@
 import { useRecoilValue } from "recoil";
-import type { PanelHeaderCloseButtonProps } from "@/components";
 import {
   Panel,
   PanelContent,
   PanelHeader,
   PanelHeaderActions,
-  PanelHeaderCloseButton,
   PanelTitle,
 } from "@/components";
 import GraphIcon from "@/components/icons/GraphIcon";
@@ -14,10 +12,9 @@ import { edgesSelectedIdsAtom } from "@/core/StateProvider/edges";
 import useTranslations from "@/hooks/useTranslations";
 import NodeExpandContent from "./NodeExpandContent";
 import { useSelectedDisplayVertices } from "@/core";
+import { SidebarCloseButton } from "../SidebarCloseButton";
 
-export type NodeExpandProps = Pick<PanelHeaderCloseButtonProps, "onClose">;
-
-const NodeExpand = ({ onClose }: NodeExpandProps) => {
+function NodeExpand() {
   const t = useTranslations();
   const edgesSelectedIds = useRecoilValue(edgesSelectedIdsAtom);
   const selectedNodes = useSelectedDisplayVertices();
@@ -28,7 +25,7 @@ const NodeExpand = ({ onClose }: NodeExpandProps) => {
       <PanelHeader>
         <PanelTitle>Expand</PanelTitle>
         <PanelHeaderActions>
-          <PanelHeaderCloseButton onClose={onClose} />
+          <SidebarCloseButton />
         </PanelHeaderActions>
       </PanelHeader>
       <PanelContent>
@@ -59,6 +56,6 @@ const NodeExpand = ({ onClose }: NodeExpandProps) => {
       </PanelContent>
     </Panel>
   );
-};
+}
 
 export default NodeExpand;

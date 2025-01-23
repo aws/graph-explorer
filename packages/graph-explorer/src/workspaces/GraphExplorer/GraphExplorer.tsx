@@ -60,13 +60,6 @@ const GraphExplorer = () => {
 
   const filteredEntitiesCount = useRecoilValue(totalFilteredCount);
 
-  const closeSidebar = useCallback(() => {
-    setUserLayout(prev => ({
-      ...prev,
-      activeSidebarItem: null,
-    }));
-  }, [setUserLayout]);
-
   const toggleSidebar = useCallback(
     (item: SidebarItems) => () => {
       setUserLayout(prev => {
@@ -266,35 +259,23 @@ const GraphExplorer = () => {
               : userLayout.activeSidebarItem !== null
           }
         >
-          {userLayout.activeSidebarItem === "search" && (
-            <SearchSidebarPanel onClose={closeSidebar} />
-          )}
-          {userLayout.activeSidebarItem === "details" && (
-            <EntityDetails onClose={closeSidebar} />
-          )}
-          {userLayout.activeSidebarItem === "expand" && (
-            <NodeExpand onClose={closeSidebar} />
-          )}
-          {userLayout.activeSidebarItem === "filters" && (
-            <EntitiesFilter onClose={closeSidebar} />
-          )}
+          {userLayout.activeSidebarItem === "search" && <SearchSidebarPanel />}
+          {userLayout.activeSidebarItem === "details" && <EntityDetails />}
+          {userLayout.activeSidebarItem === "expand" && <NodeExpand />}
+          {userLayout.activeSidebarItem === "filters" && <EntitiesFilter />}
           {userLayout.activeSidebarItem === "nodes-styling" && (
             <NodesStyling
-              onClose={closeSidebar}
               customizeNodeType={customizeNodeType}
               onNodeCustomize={setCustomizeNodeType}
             />
           )}
           {userLayout.activeSidebarItem === "edges-styling" && (
             <EdgesStyling
-              onClose={closeSidebar}
               customizeEdgeType={customizeEdgeType}
               onEdgeCustomize={setCustomizeEdgeType}
             />
           )}
-          {userLayout.activeSidebarItem === "namespaces" && (
-            <Namespaces onClose={closeSidebar} />
-          )}
+          {userLayout.activeSidebarItem === "namespaces" && <Namespaces />}
         </Workspace.SideBar.Content>
       </Workspace.SideBar>
     </Workspace>

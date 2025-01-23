@@ -4,8 +4,6 @@ import {
   PanelContent,
   PanelHeader,
   PanelHeaderActions,
-  PanelHeaderCloseButton,
-  PanelHeaderCloseButtonProps,
   PanelHeaderDivider,
   PanelTitle,
   Select,
@@ -14,10 +12,9 @@ import { useConfiguration } from "@/core";
 import CommonPrefixes from "./CommonPrefixes";
 import GeneratedPrefixes from "./GeneratedPrefixes";
 import UserPrefixes from "./UserPrefixes";
+import { SidebarCloseButton } from "../SidebarCloseButton";
 
-export type EdgesStylingProps = Pick<PanelHeaderCloseButtonProps, "onClose">;
-
-const Namespaces = ({ onClose }: EdgesStylingProps) => {
+function Namespaces() {
   const config = useConfiguration();
   const [nsType, setNsType] = useState("auto");
 
@@ -54,12 +51,8 @@ const Namespaces = ({ onClose }: EdgesStylingProps) => {
             noMargin={true}
             size="sm"
           />
-          {onClose ? (
-            <>
-              <PanelHeaderDivider />
-              <PanelHeaderCloseButton onClose={onClose} />
-            </>
-          ) : null}
+          <PanelHeaderDivider />
+          <SidebarCloseButton />
         </PanelHeaderActions>
       </PanelHeader>
 
@@ -70,6 +63,6 @@ const Namespaces = ({ onClose }: EdgesStylingProps) => {
       </PanelContent>
     </Panel>
   );
-};
+}
 
 export default Namespaces;

@@ -4,25 +4,23 @@ import {
   PanelContent,
   PanelHeader,
   PanelHeaderActions,
-  PanelHeaderCloseButton,
-  PanelHeaderCloseButtonProps,
   PanelTitle,
 } from "@/components";
 import { useDisplayVertexTypeConfigs } from "@/core";
 import useTranslations from "@/hooks/useTranslations";
 import SingleNodeStyling from "./SingleNodeStyling";
 import { Fragment } from "react/jsx-runtime";
+import { SidebarCloseButton } from "../SidebarCloseButton";
 
-export type NodesStylingProps = Pick<PanelHeaderCloseButtonProps, "onClose"> & {
+export type NodesStylingProps = {
   onNodeCustomize(nodeType?: string): void;
   customizeNodeType?: string;
 };
 
-const NodesStyling = ({
+function NodesStyling({
   customizeNodeType,
   onNodeCustomize,
-  onClose,
-}: NodesStylingProps) => {
+}: NodesStylingProps) {
   const vtConfigs = useDisplayVertexTypeConfigs().values().toArray();
   const t = useTranslations();
 
@@ -31,7 +29,7 @@ const NodesStyling = ({
       <PanelHeader>
         <PanelTitle>{t("nodes-styling.title")}</PanelTitle>
         <PanelHeaderActions>
-          <PanelHeaderCloseButton onClose={onClose} />
+          <SidebarCloseButton />
         </PanelHeaderActions>
       </PanelHeader>
       <PanelContent className="gap-2">
@@ -53,6 +51,6 @@ const NodesStyling = ({
       </PanelContent>
     </Panel>
   );
-};
+}
 
 export default NodesStyling;
