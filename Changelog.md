@@ -15,6 +15,8 @@
   ([#743](https://github.com/aws/graph-explorer/pull/743))
 - **Improved** pagination controls by using a single shared component
   ([#742](https://github.com/aws/graph-explorer/pull/742))
+- **Updated** dependencies
+  ([#764](https://github.com/aws/graph-explorer/pull/764))
 
 ## Release 1.13.0
 
