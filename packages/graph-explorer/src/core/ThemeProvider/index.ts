@@ -1,7 +1,6 @@
 export { default as ThemeProvider } from "./ThemeProvider";
 export { default as useTheme } from "./useTheme";
 export { default as useWithTheme } from "./useWithTheme";
-export { default as useIsDarkTheme } from "./useIsDarkTheme";
 
 // Color utils
 export { default as contrastColor } from "./utils/contrastColor";
