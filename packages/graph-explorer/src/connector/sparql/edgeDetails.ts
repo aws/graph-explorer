@@ -40,7 +40,7 @@ export async function edgeDetails(
   // Fetch the edge details
   const response = await sparqlFetch(template);
   if (isErrorResponse(response)) {
-    logger.error("Vertex details request failed", request, response);
+    logger.error("Edge details request failed", request, response);
     throw new Error("Vertex details request failed", {
       cause: response,
     });
