@@ -1,21 +1,27 @@
 import { logger, query } from "@/utils";
 import {
+  ErrorResponse,
   VertexDetailsRequest,
   VertexDetailsResponse,
 } from "../useGEFetchTypes";
-import {
-  GremlinFetch,
-  gremlinListSchema,
-  gremlinResponseSchema,
-  gremlinVertexSchema,
-} from "./types";
+import { GremlinFetch, GVertex } from "./types";
 import { mapResults } from "./mappers/mapResults";
 import isErrorResponse from "../utils/isErrorResponse";
 import { idParam } from "./idParam";
 
-const responseSchema = gremlinResponseSchema(
-  gremlinListSchema(gremlinVertexSchema)
-);
+type Response = {
+  requestId: string;
+  status: {
+    message: string;
+    code: number;
+  };
+  result: {
+    data: {
+      "@type": "g:List";
+      "@value": Array<GVertex>;
+    };
+  };
+};
 
 export async function vertexDetails(
   gremlinFetch: GremlinFetch,
@@ -26,23 +32,13 @@ export async function vertexDetails(
   `;
 
   // Fetch the vertex details
-  const data = await gremlinFetch(template);
+  const data = await gremlinFetch<Response | ErrorResponse>(template);
   if (isErrorResponse(data)) {
     throw new Error(data.detailedMessage);
   }
 
-  // Parse the response
-  const parsed = responseSchema.safeParse(data);
-
-  if (!parsed.success) {
-    logger.error("Failed to parse gremlin response", data, parsed.error.issues);
-    throw new Error("Failed to parse gremlin response", {
-      cause: parsed.error,
-    });
-  }
-
   // Map the results
-  const entities = mapResults(parsed.data.result.data as any);
+  const entities = mapResults(data.result.data);
   const vertex = entities.vertices.length > 0 ? entities.vertices[0] : null;
   if (!vertex) {
     logger.warn("Vertex not found", request.vertex);

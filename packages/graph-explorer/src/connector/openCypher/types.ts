@@ -1,5 +1,3 @@
-import { z } from "zod";
-
 export type OCVertex = {
   "~id": string;
   "~entityType": string;
@@ -34,28 +32,3 @@ export type GraphSummary = {
   totalNodePropertyValues: number;
   totalEdgePropertyValues: number;
 };
-
-export const ocIdSchema = z.string();
-export const ocValueSchema = z.union([z.string(), z.number()]);
-
-export const ocEdgeSchema = z.object({
-  "~id": ocIdSchema,
-  "~entityType": z.literal("relationship"),
-  "~start": ocIdSchema,
-  "~end": ocIdSchema,
-  "~type": z.string(),
-  "~properties": z.record(z.string(), ocValueSchema),
-});
-
-export const ocVertexSchema = z.object({
-  "~id": ocIdSchema,
-  "~entityType": z.literal("node"),
-  "~labels": z.array(z.string()),
-  "~properties": z.record(z.string(), ocValueSchema),
-});
-
-export function ocResponseSchema<T extends z.ZodTypeAny>(resultsSchema: T) {
-  return z.object({
-    results: z.array(resultsSchema),
-  });
-}

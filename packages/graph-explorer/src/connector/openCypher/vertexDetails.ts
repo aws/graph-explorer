@@ -1,18 +1,20 @@
 import {
+  ErrorResponse,
   VertexDetailsRequest,
   VertexDetailsResponse,
 } from "@/connector/useGEFetchTypes";
-import { ocResponseSchema, ocVertexSchema, OpenCypherFetch } from "./types";
+import { OCVertex, OpenCypherFetch } from "./types";
 import isErrorResponse from "@/connector/utils/isErrorResponse";
 import mapApiVertex from "./mappers/mapApiVertex";
-import { logger, query } from "@/utils";
-import { z } from "zod";
+import { query } from "@/utils";
 
-const responseSchema = ocResponseSchema(
-  z.object({
-    vertex: ocVertexSchema,
-  })
-);
+type Response = {
+  results: [
+    {
+      vertex: OCVertex;
+    },
+  ];
+};
 
 export async function vertexDetails(
   openCypherFetch: OpenCypherFetch,
@@ -24,27 +26,13 @@ export async function vertexDetails(
   `;
 
   // Fetch the vertex details
-  const data = await openCypherFetch(template);
+  const data = await openCypherFetch<Response | ErrorResponse>(template);
   if (isErrorResponse(data)) {
     throw new Error(data.detailedMessage);
   }
 
-  // Parse the response
-  const parsed = responseSchema.safeParse(data);
-
-  if (!parsed.success) {
-    logger.error(
-      "Failed to parse openCypher response",
-      data,
-      parsed.error.issues
-    );
-    throw new Error("Failed to parse openCypher response", {
-      cause: parsed.error,
-    });
-  }
-
   // Map the results
-  const ocVertex = parsed.data.results[0]?.vertex;
+  const ocVertex = data.results[0]?.vertex;
 
   if (!ocVertex) {
     console.warn("Vertex not found", req.vertex);
