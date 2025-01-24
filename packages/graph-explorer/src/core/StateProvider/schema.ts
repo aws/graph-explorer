@@ -7,7 +7,7 @@ import {
 import localForageEffect from "./localForageEffect";
 import { activeConfigurationAtom } from "./configuration";
 import isDefaultValue from "./isDefaultValue";
-import { Edge, Vertex } from "@/@types/entities";
+import { Edge, Vertex } from "@/core";
 import { sanitizeText } from "@/utils";
 import { Entities } from "./entitiesSelector";
 

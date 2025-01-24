@@ -1,5 +1,5 @@
 import { atom, selector, selectorFamily } from "recoil";
-import type { Edge, EdgeId } from "@/types/entities";
+import type { Edge, EdgeId } from "@/core";
 import isDefaultValue from "./isDefaultValue";
 import { nodesFilteredIdsAtom, nodesTypesFilteredAtom } from "./nodes";
 

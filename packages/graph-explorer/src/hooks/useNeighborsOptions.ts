@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Vertex } from "@/types/entities";
+import { Vertex } from "@/core";
 import { SelectOption } from "@/components";
 import {
   DisplayVertexTypeConfig,

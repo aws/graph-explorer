@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { BadgeRenderer } from "@/components/Graph/hooks/useRenderBadges";
-import { VertexId } from "@/@types/entities";
+import { VertexId } from "@/core";
 import { useDisplayVerticesInCanvas } from "@/core";
 import { useAllNeighbors } from "@/core";
 

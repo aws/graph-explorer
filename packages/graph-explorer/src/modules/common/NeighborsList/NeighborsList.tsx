@@ -1,5 +1,5 @@
 import { cn } from "@/utils";
-import { Vertex, VertexId } from "@/@types/entities";
+import { Vertex, VertexId } from "@/core";
 import {
   Button,
   Chip,

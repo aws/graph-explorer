@@ -6,7 +6,7 @@ import {
   renderHookWithRecoilRoot,
 } from "@/utils/testing";
 import { useDisplayVertexFromVertex } from "./displayVertex";
-import { Vertex, VertexId } from "@/@types/entities";
+import { Vertex, VertexId } from "@/core";
 import { formatDate, sanitizeText } from "@/utils";
 import { Schema } from "../ConfigurationProvider";
 import { MutableSnapshot } from "recoil";

@@ -1,6 +1,6 @@
 import Color from "color";
 import { useEffect, useState } from "react";
-import { EdgeId } from "@/types/entities";
+import { EdgeId } from "@/core";
 import type { GraphProps } from "@/components";
 import useTextTransform from "@/hooks/useTextTransform";
 import { renderNode } from "./renderNode";

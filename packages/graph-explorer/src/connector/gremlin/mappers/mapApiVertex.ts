@@ -1,4 +1,4 @@
-import type { Vertex, VertexId } from "@/@types/entities";
+import type { Vertex, VertexId } from "@/core";
 import type { GVertex } from "../types";
 import { detectIdType } from "./detectIdType";
 import parsePropertiesValues from "./parsePropertiesValues";

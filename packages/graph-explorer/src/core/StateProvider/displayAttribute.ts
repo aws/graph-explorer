@@ -1,4 +1,4 @@
-import { Vertex, Edge } from "@/@types/entities";
+import { Vertex, Edge } from "@/core";
 import { MISSING_DISPLAY_VALUE, formatDate } from "@/utils";
 import { TextTransformer } from "@/hooks";
 import { AttributeConfig } from "@/core";

@@ -1,4 +1,4 @@
-import { Vertex } from "@/@types/entities";
+import { Vertex } from "@/core";
 import {
   activeConfigurationAtom,
   configurationAtom,

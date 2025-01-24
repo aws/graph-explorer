@@ -1,4 +1,4 @@
-import { Edge, Vertex } from "@/types/entities";
+import { Edge, Vertex } from "@/core";
 import { toNodeMap } from "@/core/StateProvider/nodes";
 import { toEdgeMap } from "@/core/StateProvider/edges";
 import entitiesSelector from "@/core/StateProvider/entitiesSelector";

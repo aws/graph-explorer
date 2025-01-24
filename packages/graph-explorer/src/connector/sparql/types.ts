@@ -1,4 +1,4 @@
-import { Edge, EdgeId, Vertex, VertexId } from "@/types/entities";
+import { Edge, EdgeId, Vertex, VertexId } from "@/core";
 import type { NeighborsCountResponse } from "../useGEFetchTypes";
 import { z } from "zod";
 import { logger } from "@/utils";

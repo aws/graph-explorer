@@ -1,4 +1,4 @@
-import { Vertex, Edge } from "@/@types/entities";
+import { Vertex, Edge } from "@/core";
 import { GAnyValue } from "../types";
 import mapApiEdge from "./mapApiEdge";
 import mapApiVertex from "./mapApiVertex";

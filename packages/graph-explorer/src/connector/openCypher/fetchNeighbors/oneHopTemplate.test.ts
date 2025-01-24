@@ -1,6 +1,6 @@
 import { normalize } from "@/utils/testing";
 import oneHopTemplate from "./oneHopTemplate";
-import { VertexId } from "@/@types/entities";
+import { VertexId } from "@/core";
 
 describe("OpenCypher > oneHopTemplate", () => {
   it("Should return a template for a simple vertex id", () => {

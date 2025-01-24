@@ -1,6 +1,6 @@
 import { MouseEvent, useCallback, useMemo, useRef, useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
-import { EdgeId, Vertex, VertexId } from "@/types/entities";
+import { EdgeId, Vertex, VertexId } from "@/core";
 import {
   Panel,
   PanelContent,

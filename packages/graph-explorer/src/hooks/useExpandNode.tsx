@@ -14,7 +14,7 @@ import {
 import useEntities from "./useEntities";
 import { useRecoilValue } from "recoil";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Vertex } from "@/types/entities";
+import { Vertex } from "@/core";
 import { createDisplayError } from "@/utils/createDisplayError";
 import { toNodeMap } from "@/core/StateProvider/nodes";
 import { toEdgeMap } from "@/core/StateProvider/edges";

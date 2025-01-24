@@ -1,4 +1,4 @@
-import { Edge, EdgeId, VertexId } from "@/@types/entities";
+import { Edge, EdgeId, VertexId } from "@/core";
 import { RawValue } from "../types";
 
 export type IncomingPredicate = {

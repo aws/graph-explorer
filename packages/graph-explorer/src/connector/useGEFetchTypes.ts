@@ -5,13 +5,7 @@ import {
 } from "@/core";
 import { ConnectionConfig } from "@shared/types";
 import { MappedQueryResults } from "./gremlin/mappers/mapResults";
-import {
-  Edge,
-  EdgeId,
-  Vertex,
-  VertexId,
-  EntityIdType,
-} from "@/@types/entities";
+import { Edge, EdgeId, Vertex, VertexId, EntityIdType } from "@/core";
 
 export type QueryOptions = RequestInit & {
   queryId?: string;

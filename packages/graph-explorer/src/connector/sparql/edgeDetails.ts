@@ -1,4 +1,4 @@
-import { Edge } from "@/@types/entities";
+import { Edge } from "@/core";
 import { EdgeDetailsRequest, EdgeDetailsResponse } from "../useGEFetchTypes";
 import {
   parseEdgeId,

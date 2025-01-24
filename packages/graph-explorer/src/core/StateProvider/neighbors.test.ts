@@ -1,4 +1,4 @@
-import { VertexId } from "@/@types/entities";
+import { VertexId } from "@/core";
 import { calculateNeighbors, useNeighbors } from "./neighbors";
 import {
   createRandomVertex,

@@ -1,5 +1,5 @@
 import { selector, selectorFamily, useRecoilValue } from "recoil";
-import { Vertex, VertexId, EntityIdType } from "@/@types/entities";
+import { Vertex, VertexId, EntityIdType } from "@/core";
 import {
   DisplayAttribute,
   getSortedDisplayAttributes,

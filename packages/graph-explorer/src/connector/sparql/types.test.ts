@@ -1,4 +1,4 @@
-import { EdgeId } from "@/@types/entities";
+import { EdgeId } from "@/core";
 import { parseEdgeId } from "./types";
 
 test("parseEdgeId", () => {

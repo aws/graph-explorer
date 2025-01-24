@@ -1,6 +1,6 @@
 import { normalize } from "@/utils/testing";
 import neighborsCountTemplate from "./neighborsCountTemplate";
-import { VertexId } from "@/@types/entities";
+import { VertexId } from "@/core";
 
 describe("OpenCypher > neighborsCountTemplate", () => {
   it("Should return a template for the given vertex id", () => {
