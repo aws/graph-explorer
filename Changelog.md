@@ -2,6 +2,8 @@
 
 ## Upcoming
 
+- **Updated** UI labels to refer to node & edge "labels" instead of "types"
+  ([#766](https://github.com/aws/graph-explorer/pull/766))
 - **Improved** neighbor count retrieval to be more efficient
   ([#744](https://github.com/aws/graph-explorer/pull/744))
 - **Removed** unused `hidden` flag from schema types
