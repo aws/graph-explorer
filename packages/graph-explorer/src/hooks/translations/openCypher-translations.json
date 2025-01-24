@@ -10,62 +10,63 @@
     "graph-type": "PG-openCypher",
     "nodes": "Nodes",
     "edges": "Edges",
-    "search-placeholder": "Search for Node Type",
-    "no-search-title": "No Nodes Types",
-    "no-search-subtitle": "No Nodes Types found with searched criteria",
+    "search-placeholder": "Search for node label",
+    "no-search-title": "No Node Labels",
+    "no-search-subtitle": "No node labels found with searched criteria",
     "no-elements-title": "No Nodes",
-    "no-elements-subtitle": "No Nodes found to be shown in this list"
+    "no-elements-subtitle": "No nodes found to be shown in this list"
   },
   "nodes-styling": {
-    "title": "Nodes Styling",
+    "title": "Node Styling",
     "node-id": "Node Id",
-    "node-type": "Node Type"
+    "node-type": "Node Label"
   },
   "edges-styling": {
-    "title": "Edges Styling",
-    "edge-type": "Edge Type"
+    "title": "Edge Styling",
+    "edge-type": "Edge Label"
   },
   "node-detail": {
     "node-id": "Node Id",
-    "node-type": "Node Type"
+    "node-type": "Node Label"
   },
   "keyword-search": {
-    "node-type": "Node Type",
+    "node-type": "Node label",
+    "node-type-placeholder": "Select a node label",
     "node-attribute": "Attribute",
-    "node-exact-match": "Match Precision"
+    "node-attribute-placeholder": "Select an attribute"
   },
   "entities-filter": {
-    "node-types": "Node Types",
-    "edge-types": "Edge Types"
+    "node-types": "Node Labels",
+    "edge-types": "Edge Labels"
   },
   "node-expand": {
     "edge-selection-title": "Edge Selection",
-    "edge-selection-subtitle": "Select a Node to expand its connections",
+    "edge-selection-subtitle": "Select a node to expand its connections",
     "no-selection-title": "No Selection",
-    "no-selection-subtitle": "Select a Node to expand its connections",
+    "no-selection-subtitle": "Select a node to expand its connections",
     "multi-selection-title": "Multiple Selection",
-    "multi-selection-subtitle": "Select a single Node to expand its connections",
+    "multi-selection-subtitle": "Select a single node to expand its connections",
     "no-connections-title": "Unconnected Node",
     "no-connections-subtitle": "This node has no connection. Therefore, it is not expandable",
     "no-unfetched-title": "Nothing to Expand",
     "no-unfetched-subtitle": "This node has been completely expanded",
-    "neighbors-of-type": "Expand Neighbors of type"
+    "neighbors-of-type": "Expand neighbors with label"
   },
   "entities-tabular": {
     "all-nodes": "All Nodes",
     "all-edges": "All Edges",
     "node-id": "Node Id",
-    "node-type": "Node Type",
-    "nodes-placeholder": "Add a node in the Graph View see its data",
-    "edge-type": "Edge Type",
+    "node-type": "Node Label",
+    "nodes-placeholder": "Add a node in the Graph View to see its data",
+    "edge-type": "Edge Label",
     "source-id": "Source Id",
-    "source-type": "Source Type",
+    "source-type": "Source Label",
     "target-id": "Target Id",
-    "target-type": "Target Type",
-    "edges-placeholder": "Add a node in the Graph View see its connections"
+    "target-type": "Target Label",
+    "edges-placeholder": "Add a node in the Graph View to see its connections"
   },
   "data-explorer": {
     "node-id": "Node Id",
-    "node-type": "Node Type"
+    "node-type": "Node Label"
   }
 }

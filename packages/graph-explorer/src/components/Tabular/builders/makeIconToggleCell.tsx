@@ -5,6 +5,7 @@ import { IconButton } from "@/components";
 import type { CellComponentProps } from "../useTabular";
 
 type IconActionCellProps<T extends object> = {
+  title: string;
   on: ReactNode;
   off: ReactNode;
   getValue: (props: CellComponentProps<T>) => boolean;
@@ -30,11 +31,18 @@ const styles = () => css`
 `;
 
 export const makeIconActionCell =
-  <T extends object>({ on, off, getValue, onPress }: IconActionCellProps<T>) =>
+  <T extends object>({
+    title,
+    on,
+    off,
+    getValue,
+    onPress,
+  }: IconActionCellProps<T>) =>
   (props: CellComponentProps<T>) => {
     return (
       <div className={styles()}>
         <IconButton
+          title={title}
           icon={getValue(props) ? on : off}
           size="small"
           variant="text"
