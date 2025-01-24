@@ -5,7 +5,13 @@ import {
 } from "@/core";
 import { ConnectionConfig } from "@shared/types";
 import { MappedQueryResults } from "./gremlin/mappers/mapResults";
-import { VertexId, EntityIdType } from "@/@types/entities";
+import {
+  Edge,
+  EdgeId,
+  Vertex,
+  VertexId,
+  EntityIdType,
+} from "@/@types/entities";
 
 export type QueryOptions = RequestInit & {
   queryId?: string;
@@ -13,6 +19,11 @@ export type QueryOptions = RequestInit & {
 
 export type VertexRef = {
   id: VertexId;
+  idType: EntityIdType;
+};
+
+export type EdgeRef = {
+  id: EdgeId;
   idType: EntityIdType;
 };
 
@@ -182,6 +193,22 @@ export type ExplorerRequestOptions = RequestInit & {
   queryId?: string;
 };
 
+export type VertexDetailsRequest = {
+  vertex: VertexRef;
+};
+
+export type VertexDetailsResponse = {
+  vertex: Vertex | null;
+};
+
+export type EdgeDetailsRequest = {
+  edge: EdgeRef;
+};
+
+export type EdgeDetailsResponse = {
+  edge: Edge | null;
+};
+
 /**
  * Abstracted interface to the common database queries used by
  * Graph Explorer.
@@ -205,4 +232,12 @@ export type Explorer = {
     req: KeywordSearchRequest,
     options?: ExplorerRequestOptions
   ) => Promise<KeywordSearchResponse>;
+  vertexDetails: (
+    req: VertexDetailsRequest,
+    options?: ExplorerRequestOptions
+  ) => Promise<VertexDetailsResponse>;
+  edgeDetails: (
+    req: EdgeDetailsRequest,
+    options?: ExplorerRequestOptions
+  ) => Promise<EdgeDetailsResponse>;
 };

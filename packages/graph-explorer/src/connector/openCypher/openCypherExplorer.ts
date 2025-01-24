@@ -11,6 +11,8 @@ import { Explorer, ExplorerRequestOptions } from "../useGEFetchTypes";
 import { env, logger } from "@/utils";
 import { createLoggerFromConnection } from "@/core/connector";
 import { FeatureFlags } from "@/core";
+import { vertexDetails } from "./vertexDetails";
+import { edgeDetails } from "./edgeDetails";
 
 function _openCypherFetch(
   connection: ConnectionConfig,
@@ -83,6 +85,20 @@ export function createOpenCypherExplorer(
     async keywordSearch(req, options) {
       remoteLogger.info("[openCypher Explorer] Fetching keyword search...");
       return keywordSearch(
+        _openCypherFetch(connection, featureFlags, options),
+        req
+      );
+    },
+    async vertexDetails(req, options) {
+      remoteLogger.info("[openCypher Explorer] Fetching vertex details...");
+      return vertexDetails(
+        _openCypherFetch(connection, featureFlags, options),
+        req
+      );
+    },
+    async edgeDetails(req, options) {
+      remoteLogger.info("[openCypher Explorer] Fetching edge details...");
+      return edgeDetails(
         _openCypherFetch(connection, featureFlags, options),
         req
       );

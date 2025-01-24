@@ -1,5 +1,7 @@
-import { Edge, Vertex } from "@/types/entities";
+import { Edge, EdgeId, Vertex, VertexId } from "@/types/entities";
 import type { NeighborsCountResponse } from "../useGEFetchTypes";
+import { z } from "zod";
+import { logger } from "@/utils";
 
 export type SparqlFetch = <TResult = any>(
   queryTemplate: string
@@ -169,3 +171,78 @@ export type GraphSummary = {
   classes: Array<string>;
   predicates: Array<Record<string, number>>;
 };
+
+export const rdfTypeUri = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
+
+export const sparqlResponseHeadSchema = z.object({
+  vars: z.array(z.string()),
+});
+
+export const sparqlStringValueSchema = z.object({
+  type: z.literal("literal"),
+  value: z.string(),
+});
+
+export const sparqlDateTimeValueSchema = z.object({
+  datatype: z.literal("http://www.w3.org/2001/XMLSchema#dateTime"),
+  type: z.literal("literal"),
+  value: z.string(),
+});
+
+export const sparqlUriValueSchema = z.object({
+  type: z.literal("uri"),
+  value: z.string().url(),
+});
+
+export const sparqlBlankNodeSchema = z.object({
+  type: z.literal("bnode"),
+  value: z.string(),
+});
+
+export const sparqlNumberValueSchema = z.object({
+  datatype: z.literal("http://www.w3.org/2001/XMLSchema#integer"),
+  type: z.literal("literal"),
+  value: z.string(),
+});
+
+export const sparqlValueSchema = z.object({
+  datatype: z.string().optional(),
+  type: z.string(),
+  value: z.string(),
+});
+export type SparqlValue = z.infer<typeof sparqlValueSchema>;
+
+export function sparqlResponseSchema<T extends z.ZodTypeAny>(
+  bindingsSchema: T
+) {
+  return z.object({
+    head: sparqlResponseHeadSchema,
+    results: z.object({
+      bindings: z.array(bindingsSchema),
+    }),
+  });
+}
+/**
+ * Parses out the source, target, and predicate from the edge ID.
+ *
+ * @param edgeId a synthetic id created using <source URI>-[predicate]-><target URI>
+ */
+export function parseEdgeId(edgeId: EdgeId): {
+  source: VertexId;
+  target: VertexId;
+  predicate: string;
+} {
+  const regex = /^(.*?)-\[(.*?)\]->(.*)$/;
+  const match = edgeId.match(regex);
+
+  if (!match) {
+    logger.error("Couldn't parse SPARQL edge ID", edgeId);
+    throw new Error("Invalid edge ID");
+  }
+
+  return {
+    source: match[1].trim() as VertexId,
+    predicate: match[2].trim(),
+    target: match[3].trim() as VertexId,
+  };
+}

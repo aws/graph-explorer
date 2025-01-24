@@ -1,9 +1,14 @@
-import { queryOptions } from "@tanstack/react-query";
+import { QueryClient, queryOptions } from "@tanstack/react-query";
 import {
   CountsByTypeResponse,
+  EdgeDetailsRequest,
+  EdgeDetailsResponse,
+  EdgeRef,
   Explorer,
   KeywordSearchRequest,
   KeywordSearchResponse,
+  VertexDetailsRequest,
+  VertexDetailsResponse,
   VertexRef,
 } from "./useGEFetchTypes";
 import { VertexId } from "@/@types/entities";
@@ -16,16 +21,21 @@ import { VertexId } from "@/@types/entities";
  */
 export function searchQuery(
   request: KeywordSearchRequest,
-  explorer: Explorer | null
+  explorer: Explorer | null,
+  queryClient: QueryClient
 ) {
   return queryOptions({
-    queryKey: ["keyword-search", request, explorer],
+    queryKey: ["keyword-search", request, explorer, queryClient],
     enabled: Boolean(explorer),
     queryFn: async ({ signal }): Promise<KeywordSearchResponse | null> => {
       if (!explorer || !request) {
         return { vertices: [], edges: [], scalars: [] };
       }
-      return await explorer.keywordSearch(request, { signal });
+      const results = await explorer.keywordSearch(request, { signal });
+
+      updateVertexDetailsCache(explorer, queryClient, results.vertices);
+
+      return results;
     },
   });
 }
@@ -47,28 +57,27 @@ export function neighborsCountQuery(
   limit: number | undefined,
   explorer: Explorer | null
 ) {
-  // Ensure the query key remains stable by removing extra properties from the vertex
-  const { id, idType } = vertex;
+  const ref = extractStableEntityRef(vertex);
 
   return queryOptions({
-    queryKey: ["neighborsCount", id, idType, limit, explorer],
+    queryKey: ["neighborsCount", ref, limit, explorer],
     enabled: Boolean(explorer),
     queryFn: async (): Promise<NeighborCountsQueryResponse> => {
       if (!explorer) {
         return {
-          nodeId: id,
+          nodeId: ref.id,
           totalCount: 0,
           counts: {},
         };
       }
 
       const result = await explorer.fetchNeighborsCount({
-        vertex: { id, idType },
+        vertex: ref,
         limit,
       });
 
       return {
-        nodeId: id,
+        nodeId: ref.id,
         totalCount: result.totalCount,
         counts: result.counts,
       };
@@ -95,3 +104,72 @@ export const nodeCountByNodeTypeQuery = (
       }) ?? nodeCountByNodeTypeEmptyResponse,
   });
 const nodeCountByNodeTypeEmptyResponse: CountsByTypeResponse = { total: 0 };
+
+export function vertexDetailsQuery(
+  request: VertexDetailsRequest,
+  explorer: Explorer | null
+) {
+  const ref = extractStableEntityRef(request.vertex);
+  return queryOptions({
+    queryKey: ["db", "vertex", "details", ref, explorer],
+    queryFn: async ({ signal }): Promise<VertexDetailsResponse> => {
+      if (!explorer) {
+        return { vertex: null };
+      }
+      return await explorer.vertexDetails({ vertex: ref }, { signal });
+    },
+  });
+}
+
+export function edgeDetailsQuery(
+  request: EdgeDetailsRequest,
+  explorer: Explorer | null
+) {
+  const ref = extractStableEntityRef(request.edge);
+  return queryOptions({
+    queryKey: ["db", "edge", "details", ref, explorer],
+    queryFn: async ({ signal }): Promise<EdgeDetailsResponse> => {
+      if (!explorer) {
+        return { edge: null };
+      }
+      return await explorer.edgeDetails({ edge: ref }, { signal });
+    },
+  });
+}
+
+/** Sets the vertex details cache for the given vertices. */
+export function updateVertexDetailsCache(
+  explorer: Explorer,
+  queryClient: QueryClient,
+  vertices: VertexRef[]
+) {
+  for (const vertex of vertices) {
+    const ref = extractStableEntityRef(vertex);
+    queryClient.setQueryData(
+      ["db", "vertex", "details", ref, explorer],
+      vertex
+    );
+  }
+}
+
+/** Sets the edge details cache for the given edges. */
+export function updateEdgeDetailsCache(
+  explorer: Explorer,
+  queryClient: QueryClient,
+  edges: EdgeRef[]
+) {
+  for (const edge of edges) {
+    const ref = extractStableEntityRef(edge);
+    queryClient.setQueryData(["db", "edge", "details", ref, explorer], edge);
+  }
+}
+
+/**
+ * Ensures the input does not contain any extra properties so that TanStack
+ * Query can properly dedupe queries.
+ */
+function extractStableEntityRef<TRef extends VertexRef | EdgeRef>(
+  ref: TRef
+): TRef {
+  return { id: ref.id, idType: ref.idType } as TRef;
+}

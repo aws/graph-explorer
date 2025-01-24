@@ -24,6 +24,8 @@ import { FeatureFlags } from "@/core";
 import { replaceBlankNodeFromNeighbors } from "./fetchNeighbors/replaceBlankNodeFromNeighbors";
 import { storedBlankNodeNeighborsRequest } from "./fetchNeighbors/storedBlankNodeNeighborsRequest";
 import { replaceBlankNodeFromSearch } from "./keywordSearch/replaceBlankNodeFromSearch";
+import { vertexDetails } from "./vertexDetails";
+import { edgeDetails } from "./edgeDetails";
 
 function _sparqlFetch(
   connection: ConnectionConfig,
@@ -204,6 +206,20 @@ export function createSparqlExplorer(
       );
 
       return { vertices, edges: [], scalars: [] };
+    },
+    async vertexDetails(req, options) {
+      remoteLogger.info("[SPARQL Explorer] Fetching vertex details...");
+      return await vertexDetails(
+        _sparqlFetch(connection, featureFlags, options),
+        req
+      );
+    },
+    async edgeDetails(req, options) {
+      remoteLogger.info("[SPARQL Explorer] Fetching edge details...");
+      return await edgeDetails(
+        _sparqlFetch(connection, featureFlags, options),
+        req
+      );
     },
   } satisfies Explorer;
 }
