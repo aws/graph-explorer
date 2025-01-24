@@ -54,6 +54,7 @@ const NodesTabular = forwardRef<TabularInstance<ToggleVertex>, any>(
           label: "Visibility",
           accessor: "__is_visible",
           cellComponent: makeIconToggleCell<ToggleVertex>({
+            title: "Toggle Visibility",
             on: <NonVisibleIcon style={{ color: "#FA8500" }} />,
             off: <VisibleIcon />,
             getValue: ({ cell }) => !cell.value,
@@ -84,21 +85,21 @@ const NodesTabular = forwardRef<TabularInstance<ToggleVertex>, any>(
         {
           id: "displayName",
           accessor: "displayName",
-          label: "Display Name",
+          label: "Name",
           overflow: "ellipsis",
           oneLine: true,
         },
         {
           id: "displayDescription",
           accessor: "displayDescription",
-          label: "Display Description",
+          label: "Description",
           overflow: "ellipsis",
           oneLine: true,
           width: 300,
         },
         {
           accessor: "neighborCounts",
-          label: "Total Neighbors",
+          label: "Neighbors",
           overflow: "ellipsis",
           oneLine: true,
           filterType: {

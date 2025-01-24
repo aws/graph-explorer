@@ -12,8 +12,10 @@ import {
 import { Input } from "@/components/radix/Input";
 import { Label } from "@/components/radix/Label";
 import { FormItem } from "@/components/radix/Form";
+import { useTranslations } from "@/hooks";
 
 export function FilterSearchTabContent() {
+  const t = useTranslations();
   const {
     query,
     onSearchTermChange,
@@ -34,14 +36,16 @@ export function FilterSearchTabContent() {
       <div className="border-divider flex flex-col gap-4 border-b p-3">
         <div className="grid w-full grid-cols-2 gap-4">
           <FormItem>
-            <Label htmlFor="nodeType">Node type</Label>
+            <Label htmlFor="nodeType">{t("keyword-search.node-type")}</Label>
             <Select
               name="nodeType"
               value={selectedVertexType}
               onValueChange={onVertexOptionChange}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select a node type" />
+                <SelectValue
+                  placeholder={t("keyword-search.node-type-placeholder")}
+                />
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
@@ -55,14 +59,18 @@ export function FilterSearchTabContent() {
             </Select>
           </FormItem>
           <div className="space-y-1">
-            <Label htmlFor="attribute">Attribute</Label>
+            <Label htmlFor="attribute">
+              {t("keyword-search.node-attribute")}
+            </Label>
             <Select
               name="attribute"
               value={selectedAttribute}
               onValueChange={onAttributeOptionChange}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select an attribute" />
+                <SelectValue
+                  placeholder={t("keyword-search.node-attribute-placeholder")}
+                />
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>

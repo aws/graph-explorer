@@ -78,8 +78,8 @@ function SearchableVertexTypesList() {
   if (!vtConfigs.length) {
     return (
       <PanelEmptyState
-        title={t("connection-detail.no-types-title")}
-        subtitle={t("connection-detail.no-types-subtitle")}
+        title={t("connection-detail.no-elements-title")}
+        subtitle={t("connection-detail.no-elements-subtitle")}
       />
     );
   }

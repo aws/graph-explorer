@@ -10,19 +10,19 @@
     "graph-type": "RDF-SPARQL",
     "nodes": "Resources",
     "edges": "Predicates",
-    "search-placeholder": "Search for Classes",
-    "no-search-title": "No Classes",
-    "no-search-subtitle": "No Classes found with searched criteria",
+    "search-placeholder": "Search for resource classes",
+    "no-search-title": "No Resource Classes",
+    "no-search-subtitle": "No resource classes found with searched criteria",
     "no-elements-title": "No Resources",
-    "no-elements-subtitle": "No Resources found to be shown in this list"
+    "no-elements-subtitle": "No resources found to be shown in this list"
   },
   "nodes-styling": {
-    "title": "Resources Styling",
+    "title": "Resource Styling",
     "node-id": "Resource URI",
     "node-type": "Class"
   },
   "edges-styling": {
-    "title": "Predicates Styling",
+    "title": "Predicate Styling",
     "edge-type": "Predicate"
   },
   "node-detail": {
@@ -31,38 +31,39 @@
   },
   "keyword-search": {
     "node-type": "Class",
+    "node-type-placeholder": "Select a resource class",
     "node-attribute": "Predicate",
-    "node-exact-match": "Match Precision"
+    "node-attribute-placeholder": "Select a predicate"
   },
   "entities-filter": {
-    "node-types": "Resource Types",
-    "edge-types": "Predicates Types"
+    "node-types": "Resource Classes",
+    "edge-types": "Predicate Classes"
   },
   "node-expand": {
     "edge-selection-title": "Predicate Selection",
-    "edge-selection-subtitle": "Select a Resource to expand its connections",
+    "edge-selection-subtitle": "Select a resource to expand its connections",
     "no-selection-title": "No Selection",
-    "no-selection-subtitle": "Select a Resource to expand its connections",
+    "no-selection-subtitle": "Select a resource to expand its connections",
     "multi-selection-title": "Multiple Selection",
-    "multi-selection-subtitle": "Select a single Resource to expand its connections",
+    "multi-selection-subtitle": "Select a single resource to expand its connections",
     "no-connections-title": "Unconnected Resource",
     "no-connections-subtitle": "This resource has no connection. Therefore, it is not expandable",
     "no-unfetched-title": "Nothing to Expand",
     "no-unfetched-subtitle": "This resource has been completely expanded",
-    "neighbors-of-type": "Expand Neighbors of class"
+    "neighbors-of-type": "Expand neighbors of class"
   },
   "entities-tabular": {
     "all-nodes": "All Resources",
     "all-edges": "All Predicates",
-    "node-id": "Resource URI",
+    "node-id": "URI",
     "node-type": "Class",
-    "nodes-placeholder": "Add resources in the Graph View see their information",
+    "nodes-placeholder": "Add resources in the Graph View to see their information",
     "edge-type": "Predicate",
     "source-id": "Source URI",
     "source-type": "Source Class",
     "target-id": "Target URI",
     "target-type": "Target Class",
-    "edges-placeholder": "Add resources in the Graph View see their predicates"
+    "edges-placeholder": "Add resources in the Graph View to see their predicates"
   },
   "data-explorer": {
     "node-id": "Resource URI",
