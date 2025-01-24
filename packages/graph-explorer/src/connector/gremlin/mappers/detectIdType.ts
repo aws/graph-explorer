@@ -1,4 +1,4 @@
-import { EntityIdType } from "@/@types/entities";
+import { EntityIdType } from "@/core";
 import { GInt64, JanusID } from "../types";
 import { isJanusID } from "./toStringId";
 

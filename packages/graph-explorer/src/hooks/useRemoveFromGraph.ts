@@ -1,4 +1,4 @@
-import { EdgeId, VertexId } from "@/types/entities";
+import { EdgeId, VertexId } from "@/core";
 import useEntities from "./useEntities";
 
 export function useRemoveNodeFromGraph(nodeId: VertexId) {

@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { Vertex } from "@/@types/entities";
+import { Vertex } from "@/core";
 import { DrawBoxWithAdornmentOptions } from "@/components/utils";
 import drawBoxWithAdornment from "@/components/utils/canvas/drawBoxWithAdornment";
 import type {

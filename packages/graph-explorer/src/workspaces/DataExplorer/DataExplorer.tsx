@@ -8,7 +8,7 @@ import {
 } from "@tanstack/react-query";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router";
 import { useRecoilValue, useSetRecoilState } from "recoil";
-import { Vertex } from "@/types/entities";
+import { Vertex } from "@/core";
 import {
   CheckIcon,
   ChevronLeftIcon,

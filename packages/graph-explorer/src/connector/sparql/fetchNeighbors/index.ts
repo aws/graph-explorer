@@ -1,5 +1,5 @@
 import groupBy from "lodash/groupBy";
-import { Edge } from "@/@types/entities";
+import { Edge } from "@/core";
 import type { NeighborsResponse } from "@/connector/useGEFetchTypes";
 import mapIncomingToEdge, {
   IncomingPredicate,

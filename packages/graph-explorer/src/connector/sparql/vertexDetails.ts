@@ -12,7 +12,7 @@ import {
   SparqlValue,
 } from "./types";
 import { z } from "zod";
-import { Vertex, VertexId } from "@/@types/entities";
+import { Vertex, VertexId } from "@/core";
 import isErrorResponse from "../utils/isErrorResponse";
 
 const bindingSchema = z.object({

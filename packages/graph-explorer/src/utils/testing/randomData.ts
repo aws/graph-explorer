@@ -6,7 +6,7 @@ import {
   Schema,
   VertexTypeConfig,
 } from "@/core";
-import { Edge, EdgeId, Vertex, VertexId } from "@/types/entities";
+import { Edge, EdgeId, Vertex, VertexId } from "@/core";
 import { Entities } from "@/core/StateProvider/entitiesSelector";
 import {
   createArray,

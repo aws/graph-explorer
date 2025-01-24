@@ -2,7 +2,7 @@ import isEqual from "lodash/isEqual";
 import isEqualWith from "lodash/isEqualWith";
 import type { GetRecoilValue, RecoilState, SetRecoilState } from "recoil";
 import { selector } from "recoil";
-import type { Edge, EdgeId, Vertex, VertexId } from "@/types/entities";
+import type { Edge, EdgeId, Vertex, VertexId } from "@/core";
 import {
   edgesAtom,
   edgesSelectedIdsAtom,

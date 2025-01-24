@@ -1,6 +1,6 @@
 import { useRecoilValue } from "recoil";
 import useEntities from "./useEntities";
-import { Edge, Vertex, VertexId } from "@/types/entities";
+import { Edge, Vertex, VertexId } from "@/core";
 import {
   createRandomEdge,
   createRandomEntities,

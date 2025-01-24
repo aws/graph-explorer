@@ -1,5 +1,5 @@
 import { atom, selector, selectorFamily, useRecoilValue } from "recoil";
-import type { Vertex, VertexId } from "@/types/entities";
+import type { Vertex, VertexId } from "@/core";
 import isDefaultValue from "./isDefaultValue";
 
 export function toNodeMap(nodes: Vertex[]): Map<VertexId, Vertex> {

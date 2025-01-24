@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from "react";
 import { useLayer, useMousePositionAsTrigger } from "react-laag";
-import type { Edge, EdgeId, Vertex, VertexId } from "@/types/entities";
+import type { Edge, EdgeId, Vertex, VertexId } from "@/core";
 import type {
   ElementEventCallback,
   GraphEventCallback,

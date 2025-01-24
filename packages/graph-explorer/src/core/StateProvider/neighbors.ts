@@ -1,4 +1,4 @@
-import { VertexId } from "@/@types/entities";
+import { VertexId } from "@/core";
 import { selectorFamily, useRecoilCallback, useRecoilValue } from "recoil";
 import { edgesAtom } from "./edges";
 import { nodesAtom } from "./nodes";

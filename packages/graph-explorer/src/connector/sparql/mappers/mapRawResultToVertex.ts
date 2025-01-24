@@ -1,4 +1,4 @@
-import { Vertex, VertexId } from "@/@types/entities";
+import { Vertex, VertexId } from "@/core";
 import { RawResult } from "../types";
 
 const mapRawResultToVertex = (rawResult: RawResult): Vertex => {

@@ -1,5 +1,5 @@
 import mapApiVertex from "./mapApiVertex";
-import { Vertex, VertexId } from "@/@types/entities";
+import { Vertex, VertexId } from "@/core";
 
 test("maps empty vertex", () => {
   const input = {

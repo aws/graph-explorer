@@ -1,4 +1,4 @@
-import type { Vertex, VertexId } from "@/@types/entities";
+import type { Vertex, VertexId } from "@/core";
 import type { OCVertex } from "../types";
 
 export default function mapApiVertex(apiVertex: OCVertex): Vertex {

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { Vertex, VertexId } from "@/types/entities";
+import type { Vertex, VertexId } from "@/core";
 import { PanelError, PanelFooter, VertexRow } from "@/components";
 import Button from "@/components/Button";
 import ExpandGraphIcon from "@/components/icons/ExpandGraphIcon";

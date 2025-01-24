@@ -28,7 +28,7 @@ import {
 } from "@/core/StateProvider/userPreferences";
 import { useEntities, useTranslations } from "@/hooks";
 import useGraphGlobalActions from "../useGraphGlobalActions";
-import { EdgeId, VertexId } from "@/@types/entities";
+import { EdgeId, VertexId } from "@/core";
 import { MinusCircleIcon } from "lucide-react";
 
 export type ContextMenuProps = {

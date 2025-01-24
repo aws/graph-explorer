@@ -1,4 +1,4 @@
-import { Edge, EdgeId, EntityIdType, VertexId } from "@/@types/entities";
+import { Edge, EdgeId, EntityIdType, VertexId } from "@/core";
 import { selector, selectorFamily, useRecoilValue } from "recoil";
 import { textTransformSelector } from "@/hooks";
 import {

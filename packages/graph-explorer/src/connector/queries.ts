@@ -11,7 +11,7 @@ import {
   VertexDetailsResponse,
   VertexRef,
 } from "./useGEFetchTypes";
-import { VertexId } from "@/@types/entities";
+import { VertexId } from "@/core";
 
 /**
  * Performs a search with the provided parameters.
