@@ -14,6 +14,7 @@ import {
 import { z } from "zod";
 import { Vertex, VertexId } from "@/core";
 import isErrorResponse from "../utils/isErrorResponse";
+import { idParam } from "./idParam";
 
 const bindingSchema = z.object({
   label: sparqlUriValueSchema,
@@ -26,8 +27,6 @@ export async function vertexDetails(
   sparqlFetch: SparqlFetch,
   request: VertexDetailsRequest
 ): Promise<VertexDetailsResponse> {
-  const idTemplate = `<${request.vertex.id}>`;
-
   const template = query`
     # Get the resource attributes and class
     SELECT * 
@@ -36,7 +35,7 @@ export async function vertexDetails(
         # Get the resource attributes
         SELECT ?label ?value
         WHERE {
-          ${idTemplate} ?label ?value .
+          ${idParam(request.vertex.id)} ?label ?value .
           FILTER(isLiteral(?value))
         }
       }
@@ -45,7 +44,7 @@ export async function vertexDetails(
         # Get the resource type
         SELECT ?label ?value
         WHERE {
-          ${idTemplate} a ?value .
+          ${idParam(request.vertex.id)} a ?value .
           BIND(IRI("${rdfTypeUri}") AS ?label)
         }
       }

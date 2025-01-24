@@ -1,6 +1,7 @@
 import { query } from "@/utils";
 import { SPARQLNeighborsRequest } from "../types";
 import { getFilters, getLimit, getSubjectClasses } from "./helpers";
+import { idParam } from "../idParam";
 
 /**
  * Generate a template with the same constraints that oneHopNeighborsTemplate
@@ -18,7 +19,7 @@ export default function oneHopNeighborsBlankNodesIdsTemplate({
   return query`
     # Sub-query to fetch blank node ids for one hop neighbors
     SELECT DISTINCT (?subject AS ?bNode) {
-      BIND(<${resourceURI}> AS ?argument)
+      BIND(${idParam(resourceURI)} AS ?argument)
       ${getSubjectClasses(subjectClasses)}
       {
         ?argument ?pToSubject ?subject.

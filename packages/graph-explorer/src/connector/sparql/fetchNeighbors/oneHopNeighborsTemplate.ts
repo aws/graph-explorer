@@ -1,3 +1,4 @@
+import { idParam } from "../idParam";
 import { SPARQLNeighborsRequest } from "../types";
 import { getFilters, getLimit, getSubjectClasses } from "./helpers";
 import { query } from "@/utils";
@@ -64,7 +65,7 @@ export default function oneHopNeighborsTemplate({
       ?subject a     ?subjectClass;
                ?pred ?value {
         SELECT DISTINCT ?subject ?pToSubject ?pFromSubject {
-          BIND(<${resourceURI}> AS ?argument)
+          BIND(${idParam(resourceURI)} AS ?argument)
           ${getSubjectClasses(subjectClasses)}
           {
             ?argument ?pToSubject ?subject.

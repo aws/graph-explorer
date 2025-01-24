@@ -12,16 +12,16 @@ export const isJanusID = (id: any): id is JanusID => {
   );
 };
 
-const toStringId = (id: string | GInt64 | JanusID): string => {
+export function extractRawId(id: string | GInt64 | JanusID): string | number {
+  if (isJanusID(id)) {
+    const relationId = id["@value"]["relationId"];
+    return relationId;
+  }
+
   if (typeof id === "string") {
     return id;
   }
 
-  if (isJanusID(id)) {
-    return id["@value"]["relationId"];
-  }
-
-  return String(id["@value"]);
-};
-
-export default toStringId;
+  const value = id["@value"];
+  return value;
+}

@@ -1,5 +1,6 @@
 import { query } from "@/utils";
 import { SPARQLNeighborsPredicatesRequest } from "../types";
+import { idParam } from "../idParam";
 
 /**
  * Fetch all predicates and their direction of a pairs of subjects
@@ -32,24 +33,15 @@ const subjectPredicatesTemplate = ({
   resourceURI,
   subjectURIs = [],
 }: SPARQLNeighborsPredicatesRequest): string => {
-  const getSubjectURIs = () => {
-    if (!subjectURIs?.length) {
-      return "";
-    }
-
-    let classesValues = "VALUES ?subject {";
-    subjectURIs.forEach(sURI => {
-      classesValues += ` <${sURI}>`;
-    });
-    classesValues += "}";
-    return classesValues;
-  };
+  const subjectUriTemplate = subjectURIs.length
+    ? `VALUES ?subject { ${subjectURIs.map(idParam).join(" ")} }`
+    : "";
 
   return query`
     # Fetch all predicates and their direction of a pairs of subjects
     SELECT ?subject ?subjectClass ?predToSubject ?predFromSubject {
-      BIND(<${resourceURI}> AS ?argument)
-      ${getSubjectURIs()}
+      BIND(${idParam(resourceURI)} AS ?argument)
+      ${subjectUriTemplate}
       { 
         ?argument ?predToSubject ?subject.
         ?subject a ?subjectClass.

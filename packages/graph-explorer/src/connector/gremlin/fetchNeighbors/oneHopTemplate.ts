@@ -1,5 +1,6 @@
 import { query } from "@/utils";
 import type { Criterion, NeighborsRequest } from "@/connector/useGEFetchTypes";
+import { idParam } from "../idParam";
 
 function criterionNumberTemplate({
   name,
@@ -134,8 +135,7 @@ export default function oneHopTemplate({
   limit = 0,
   offset = 0,
 }: Omit<NeighborsRequest, "vertexType">): string {
-  const idTemplate =
-    vertex.idType === "number" ? `${vertex.id}L` : `"${vertex.id}"`;
+  const idTemplate = idParam(vertex.id);
   const range = limit > 0 ? `.range(${offset}, ${offset + limit})` : "";
 
   const vertexTypes = filterByVertexTypes.flatMap(type => type.split("::"));

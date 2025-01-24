@@ -1,10 +1,10 @@
-import { Vertex, VertexId } from "@/core";
+import { createVertexId, Vertex } from "@/core";
 import { RawResult } from "../types";
 
 const mapRawResultToVertex = (rawResult: RawResult): Vertex => {
   return {
     entityType: "vertex",
-    id: rawResult.uri as VertexId,
+    id: createVertexId(rawResult.uri),
     idType: "string",
     type: rawResult.class,
     attributes: rawResult.attributes,

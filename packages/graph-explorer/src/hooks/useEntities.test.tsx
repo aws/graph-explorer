@@ -1,6 +1,13 @@
 import { useRecoilValue } from "recoil";
 import useEntities from "./useEntities";
-import { Edge, Vertex, VertexId } from "@/core";
+import {
+  createVertexId,
+  Edge,
+  Entities,
+  Schema,
+  Vertex,
+  VertexId,
+} from "@/core";
 import {
   createRandomEdge,
   createRandomEntities,
@@ -9,8 +16,6 @@ import {
 } from "@/utils/testing";
 import { schemaAtom } from "@/core/StateProvider/schema";
 import { activeConfigurationAtom } from "@/core/StateProvider/configuration";
-import { Schema } from "@/core";
-import { Entities } from "@/core/StateProvider/entitiesSelector";
 import { renderHookWithRecoilRoot } from "@/utils/testing";
 import { waitForValueToChange } from "@/utils/testing/waitForValueToChange";
 import { vi } from "vitest";
@@ -66,21 +71,21 @@ describe("useEntities", () => {
   it("should handle multiple nodes correctly", async () => {
     const node1: Vertex = {
       entityType: "vertex",
-      id: "1" as VertexId,
+      id: createVertexId("1"),
       idType: "string",
       type: "type1",
       attributes: {},
     };
     const node2: Vertex = {
       entityType: "vertex",
-      id: "2" as VertexId,
+      id: createVertexId("2"),
       idType: "string",
       type: "type2",
       attributes: {},
     };
     const node3: Vertex = {
       entityType: "vertex",
-      id: "3" as VertexId,
+      id: createVertexId("3"),
       idType: "string",
       type: "type3",
       attributes: {},

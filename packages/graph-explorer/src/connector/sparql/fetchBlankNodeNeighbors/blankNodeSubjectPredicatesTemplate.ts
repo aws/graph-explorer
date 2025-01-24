@@ -1,5 +1,6 @@
 import { query } from "@/utils";
 import { SPARQLBlankNodeNeighborsPredicatesRequest } from "../types";
+import { idParam } from "../idParam";
 
 /**
  * Fetch all predicates and their direction of a pairs of subjects
@@ -18,7 +19,7 @@ const blankNodeSubjectPredicatesTemplate = ({
 
     let classesValues = "VALUES ?subject {";
     subjectURIs.forEach(sURI => {
-      classesValues += ` <${sURI}>`;
+      classesValues += ` ${idParam(sURI)}`;
     });
     classesValues += "}";
     return classesValues;

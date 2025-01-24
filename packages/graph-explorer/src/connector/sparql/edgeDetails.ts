@@ -9,6 +9,7 @@ import {
 import { logger, query } from "@/utils";
 import { z } from "zod";
 import isErrorResponse from "../utils/isErrorResponse";
+import { idParam } from "./idParam";
 
 const responseSchema = sparqlResponseSchema(
   z.object({
@@ -23,8 +24,8 @@ export async function edgeDetails(
 ): Promise<EdgeDetailsResponse> {
   const { source, target, predicate } = parseEdgeId(request.edge.id);
 
-  const sourceIdTemplate = `<${source}>`;
-  const targetIdTemplate = `<${target}>`;
+  const sourceIdTemplate = idParam(source);
+  const targetIdTemplate = idParam(target);
 
   const template = query`
     # Get the resource types of source and target

@@ -1,6 +1,7 @@
-import { EdgeRef, VertexRef } from "../useGEFetchTypes";
+import { EdgeId, getRawId, VertexId } from "@/core";
 
 /** Formats the ID parameter for a gremlin query based on the ID type. */
-export function idParam(entity: VertexRef | EdgeRef) {
-  return entity.idType === "number" ? `${entity.id}L` : `"${entity.id}"`;
+export function idParam(entityId: VertexId | EdgeId) {
+  const rawId = getRawId(entityId);
+  return typeof rawId === "number" ? `${rawId}L` : `"${rawId}"`;
 }

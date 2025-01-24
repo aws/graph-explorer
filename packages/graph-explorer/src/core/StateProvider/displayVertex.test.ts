@@ -5,10 +5,15 @@ import {
   createRandomVertexTypeConfig,
   renderHookWithRecoilRoot,
 } from "@/utils/testing";
-import { useDisplayVertexFromVertex } from "./displayVertex";
-import { Vertex, VertexId } from "@/core";
+import {
+  createVertexId,
+  DisplayAttribute,
+  getRawId,
+  Schema,
+  useDisplayVertexFromVertex,
+  Vertex,
+} from "@/core";
 import { formatDate, sanitizeText } from "@/utils";
-import { Schema } from "../ConfigurationProvider";
 import { MutableSnapshot } from "recoil";
 import { schemaAtom } from "./schema";
 import {
@@ -16,7 +21,6 @@ import {
   configurationAtom,
   getDefaultVertexTypeConfig,
 } from "./configuration";
-import { DisplayAttribute } from "./displayAttribute";
 import { createRandomDate } from "@shared/utils/testing";
 import { MISSING_DISPLAY_VALUE } from "@/utils/constants";
 import { mapToDisplayVertexTypeConfig } from "./displayTypeConfigs";
@@ -35,12 +39,12 @@ describe("useDisplayVertexFromVertex", () => {
 
   it("should have a display ID equal to the vertex ID", () => {
     const vertex = createRandomVertex();
-    expect(act(vertex).displayId).toEqual(vertex.id);
+    expect(act(vertex).displayId).toEqual(getRawId(vertex.id));
   });
 
   it("should have the display name be the sanitized vertex ID", () => {
     const vertex = createRandomVertex();
-    expect(act(vertex).displayName).toEqual(vertex.id);
+    expect(act(vertex).displayName).toEqual(getRawId(vertex.id));
   });
 
   it("should have the display description be the sanitized vertex type", () => {
@@ -208,7 +212,7 @@ describe("useDisplayVertexFromVertex", () => {
 
   it("should replace uri with prefixes when available", () => {
     const vertex = createRandomVertex();
-    vertex.id = "http://www.example.com/resources#foo" as VertexId;
+    vertex.id = createVertexId("http://www.example.com/resources#foo");
     vertex.type = "http://www.example.com/class#bar";
     const schema = createRandomSchema();
     schema.prefixes = [

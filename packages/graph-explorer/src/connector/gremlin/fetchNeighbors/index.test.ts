@@ -1,7 +1,7 @@
 import globalMockFetch from "@/connector/testUtils/globalMockFetch";
 import mockGremlinFetch from "@/connector/testUtils/mockGremlinFetch";
 import fetchNeighbors from ".";
-import { VertexId } from "@/core";
+import { createEdgeId, createVertexId } from "@/core";
 
 describe("Gremlin > fetchNeighbors", () => {
   beforeEach(globalMockFetch);
@@ -9,7 +9,7 @@ describe("Gremlin > fetchNeighbors", () => {
   it("Should return all neighbors from node 2018", async () => {
     const expectedVertices = [
       {
-        id: "486",
+        id: createVertexId("486"),
         type: "airport",
         types: ["airport"],
         attributes: {
@@ -28,7 +28,7 @@ describe("Gremlin > fetchNeighbors", () => {
         },
       },
       {
-        id: "228",
+        id: createVertexId("228"),
         type: "airport",
         types: ["airport"],
         attributes: {
@@ -47,7 +47,7 @@ describe("Gremlin > fetchNeighbors", () => {
         },
       },
       {
-        id: "124",
+        id: createVertexId("124"),
         type: "airport",
         types: ["airport"],
         attributes: {
@@ -66,13 +66,13 @@ describe("Gremlin > fetchNeighbors", () => {
         },
       },
       {
-        id: "3741",
+        id: createVertexId("3741"),
         type: "continent",
         types: ["continent"],
         attributes: { code: "EU", type: "continent", desc: "Europe" },
       },
       {
-        id: "3701",
+        id: createVertexId("3701"),
         type: "country",
         types: ["country"],
         attributes: { code: "ES", type: "country", desc: "Spain" },
@@ -80,7 +80,7 @@ describe("Gremlin > fetchNeighbors", () => {
     ];
 
     const response = await fetchNeighbors(mockGremlinFetch(), {
-      vertex: { id: "2018" as VertexId, idType: "string" },
+      vertex: { id: createVertexId("2018"), idType: "string" },
       vertexType: "airport",
     });
 
@@ -88,74 +88,74 @@ describe("Gremlin > fetchNeighbors", () => {
       vertices: expectedVertices,
       edges: [
         {
-          id: "49540",
+          id: createEdgeId("49540"),
           type: "route",
-          source: "2018",
+          source: createVertexId("2018"),
           sourceType: "airport",
-          target: "486",
+          target: createVertexId("486"),
           targetType: "airport",
           attributes: { dist: 82 },
         },
         {
-          id: "33133",
+          id: createEdgeId("33133"),
           type: "route",
-          source: "486",
+          source: createVertexId("486"),
           sourceType: "airport",
-          target: "2018",
+          target: createVertexId("2018"),
           targetType: "airport",
           attributes: { dist: 82 },
         },
         {
-          id: "49539",
+          id: createEdgeId("49539"),
           type: "route",
-          source: "2018",
+          source: createVertexId("2018"),
           sourceType: "airport",
-          target: "228",
+          target: createVertexId("228"),
           targetType: "airport",
           attributes: { dist: 153 },
         },
         {
-          id: "24860",
+          id: createEdgeId("24860"),
           type: "route",
-          source: "228",
+          source: createVertexId("228"),
           sourceType: "airport",
-          target: "2018",
+          target: createVertexId("2018"),
           targetType: "airport",
           attributes: { dist: 153 },
         },
         {
-          id: "49538",
+          id: createEdgeId("49538"),
           type: "route",
-          source: "2018",
+          source: createVertexId("2018"),
           sourceType: "airport",
-          target: "124",
+          target: createVertexId("124"),
           targetType: "airport",
           attributes: { dist: 105 },
         },
         {
-          id: "18665",
+          id: createEdgeId("18665"),
           type: "route",
-          source: "124",
+          source: createVertexId("124"),
           sourceType: "airport",
-          target: "2018",
+          target: createVertexId("2018"),
           targetType: "airport",
           attributes: { dist: 105 },
         },
         {
-          id: "59800",
+          id: createEdgeId("59800"),
           type: "contains",
-          source: "3741",
+          source: createVertexId("3741"),
           sourceType: "continent",
-          target: "2018",
+          target: createVertexId("2018"),
           targetType: "airport",
           attributes: {},
         },
         {
-          id: "56297",
+          id: createEdgeId("56297"),
           type: "contains",
-          source: "3701",
+          source: createVertexId("3701"),
           sourceType: "country",
-          target: "2018",
+          target: createVertexId("2018"),
           targetType: "airport",
           attributes: {},
         },
@@ -166,7 +166,7 @@ describe("Gremlin > fetchNeighbors", () => {
   it("Should return filtered neighbors from node 2018", async () => {
     const expectedVertices = [
       {
-        id: "486",
+        id: createVertexId("486"),
         type: "airport",
         types: ["airport"],
         attributes: {
@@ -185,7 +185,7 @@ describe("Gremlin > fetchNeighbors", () => {
         },
       },
       {
-        id: "124",
+        id: createVertexId("124"),
         type: "airport",
         types: ["airport"],
         attributes: {
@@ -206,7 +206,7 @@ describe("Gremlin > fetchNeighbors", () => {
     ];
 
     const response = await fetchNeighbors(mockGremlinFetch(), {
-      vertex: { id: "2018" as VertexId, idType: "string" },
+      vertex: { id: createVertexId("2018"), idType: "string" },
       vertexType: "airport",
       filterByVertexTypes: ["airport"],
       filterCriteria: [{ name: "code", value: "TF", operator: "LIKE" }],
@@ -216,38 +216,38 @@ describe("Gremlin > fetchNeighbors", () => {
       vertices: expectedVertices,
       edges: [
         {
-          id: "49540",
+          id: createEdgeId("49540"),
           type: "route",
-          source: "2018",
+          source: createVertexId("2018"),
           sourceType: "airport",
-          target: "486",
+          target: createVertexId("486"),
           targetType: "airport",
           attributes: { dist: 82 },
         },
         {
-          id: "33133",
+          id: createEdgeId("33133"),
           type: "route",
-          source: "486",
+          source: createVertexId("486"),
           sourceType: "airport",
-          target: "2018",
+          target: createVertexId("2018"),
           targetType: "airport",
           attributes: { dist: 82 },
         },
         {
-          id: "49538",
+          id: createEdgeId("49538"),
           type: "route",
-          source: "2018",
+          source: createVertexId("2018"),
           sourceType: "airport",
-          target: "124",
+          target: createVertexId("124"),
           targetType: "airport",
           attributes: { dist: 105 },
         },
         {
-          id: "18665",
+          id: createEdgeId("18665"),
           type: "route",
-          source: "124",
+          source: createVertexId("124"),
           sourceType: "airport",
-          target: "2018",
+          target: createVertexId("2018"),
           targetType: "airport",
           attributes: { dist: 105 },
         },

@@ -1,5 +1,6 @@
 import { query } from "@/utils";
 import type { Criterion, NeighborsRequest } from "@/connector/useGEFetchTypes";
+import { idParam } from "../idParam";
 
 const criterionNumberTemplate = ({
   name,
@@ -129,7 +130,7 @@ const oneHopTemplate = ({
 
   // Combine all the WHERE conditions
   const whereConditions = [
-    `ID(v) = "${vertex.id}"`,
+    `ID(v) = ${idParam(vertex.id)}`,
     formattedVertexTypes,
     ...(filterCriteria?.map(criterionTemplate) ?? []),
   ]

@@ -1,6 +1,7 @@
 import globalMockFetch from "@/connector/testUtils/globalMockFetch";
 import mockGremlinFetch from "@/connector/testUtils/mockGremlinFetch";
 import keywordSearch from ".";
+import { createVertexId } from "@/core";
 
 describe("Gremlin > keywordSearch", () => {
   beforeEach(globalMockFetch);
@@ -13,7 +14,7 @@ describe("Gremlin > keywordSearch", () => {
     expect(keywordResponse).toMatchObject({
       vertices: [
         {
-          id: "1",
+          id: createVertexId("1"),
           type: "airport",
           types: ["airport"],
           attributes: {
@@ -45,7 +46,7 @@ describe("Gremlin > keywordSearch", () => {
     expect(keywordResponse).toMatchObject({
       vertices: [
         {
-          id: "836",
+          id: createVertexId("836"),
           type: "airport",
           types: ["airport"],
           attributes: {
