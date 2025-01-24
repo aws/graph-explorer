@@ -1,11 +1,11 @@
-import { VertexId } from "@/core";
+import { createVertexId } from "@/core";
 import neighborsCountTemplate from "./neighborsCountTemplate";
 import { normalizeWithNoSpace as normalize } from "@/utils/testing";
 
 describe("Gremlin > neighborsCountTemplate", () => {
   it("Should return a template for the given vertex id", () => {
     const template = neighborsCountTemplate({
-      vertex: { id: "12" as VertexId, idType: "string" },
+      vertex: { id: createVertexId("12"), idType: "string" },
     });
 
     expect(normalize(template)).toBe(
@@ -17,7 +17,7 @@ describe("Gremlin > neighborsCountTemplate", () => {
 
   it("Should return a template for the given vertex id with number type", () => {
     const template = neighborsCountTemplate({
-      vertex: { id: "12" as VertexId, idType: "number" },
+      vertex: { id: createVertexId(12), idType: "number" },
     });
 
     expect(normalize(template)).toBe(
@@ -29,7 +29,7 @@ describe("Gremlin > neighborsCountTemplate", () => {
 
   it("Should return a template for the given vertex id with defined limit", () => {
     const template = neighborsCountTemplate({
-      vertex: { id: "12" as VertexId, idType: "string" },
+      vertex: { id: createVertexId("12"), idType: "string" },
       limit: 20,
     });
 
@@ -42,7 +42,7 @@ describe("Gremlin > neighborsCountTemplate", () => {
 
   it("Should return a template for the given vertex id with no limit", () => {
     const template = neighborsCountTemplate({
-      vertex: { id: "12" as VertexId, idType: "string" },
+      vertex: { id: createVertexId("12"), idType: "string" },
       limit: 0,
     });
 

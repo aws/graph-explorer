@@ -1,13 +1,23 @@
 import {
+  ArrowStyle,
   AttributeConfig,
+  createEdgeId,
+  createVertexId,
+  Edge,
+  EdgeId,
+  EdgePreferences,
   EdgeTypeConfig,
+  Entities,
   FeatureFlags,
+  LineStyle,
   RawConfiguration,
   Schema,
+  UserStyling,
+  Vertex,
+  VertexId,
+  VertexPreferences,
   VertexTypeConfig,
 } from "@/core";
-import { Edge, EdgeId, Vertex, VertexId } from "@/core";
-import { Entities } from "@/core/StateProvider/entitiesSelector";
 import {
   createArray,
   createRandomBoolean,
@@ -18,13 +28,6 @@ import {
   createRecord,
   randomlyUndefined,
 } from "@shared/utils/testing";
-import {
-  ArrowStyle,
-  EdgePreferences,
-  LineStyle,
-  UserStyling,
-  VertexPreferences,
-} from "@/core/StateProvider/userPreferences";
 import { toNodeMap } from "@/core/StateProvider/nodes";
 import { toEdgeMap } from "@/core/StateProvider/edges";
 import {
@@ -148,6 +151,16 @@ export function createRandomEntities(): Entities {
   return { nodes: toNodeMap(nodes), edges: toEdgeMap(edges) };
 }
 
+/** Creates a random vertex ID. */
+export function createRandomVertexId(): VertexId {
+  return createVertexId(createRandomName("VertexId"));
+}
+
+/** Creates a random edge ID. */
+export function createRandomEdgeId(): EdgeId {
+  return createEdgeId(createRandomName("EdgeId"));
+}
+
 /**
  * Creates a random vertex.
  * @returns A random Vertex object.
@@ -155,7 +168,7 @@ export function createRandomEntities(): Entities {
 export function createRandomVertex(): Vertex {
   return {
     entityType: "vertex",
-    id: createRandomName("VertexId") as VertexId,
+    id: createRandomVertexId(),
     idType: pickRandomElement(["number", "string"]),
     type: createRandomName("VertexType"),
     attributes: createRecord(3, createRandomEntityAttribute),
@@ -169,7 +182,7 @@ export function createRandomVertex(): Vertex {
 export function createRandomEdge(source: Vertex, target: Vertex): Edge {
   return {
     entityType: "edge",
-    id: createRandomName("EdgeId") as EdgeId,
+    id: createRandomEdgeId(),
     idType: pickRandomElement(["number", "string"]),
     type: createRandomName("EdgeType"),
     attributes: createRecord(3, createRandomEntityAttribute),

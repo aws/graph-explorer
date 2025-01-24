@@ -28,7 +28,7 @@ export async function edgeDetails(
   request: EdgeDetailsRequest
 ): Promise<EdgeDetailsResponse> {
   const template = query`
-    g.E(${idParam(request.edge)})
+    g.E(${idParam(request.edge.id)})
   `;
 
   // Fetch the vertex details

@@ -1,5 +1,6 @@
 import { query } from "@/utils";
 import { SPARQLNeighborsCountRequest } from "../types";
+import { idParam } from "../idParam";
 
 /**
  * Count neighbors by class which are related with the given subject URI.
@@ -29,9 +30,9 @@ export default function neighborsCountTemplate({
       ?subject a ?class {
         SELECT DISTINCT ?subject ?class {
           ?subject a ?class .
-          { ?subject ?p <${resourceURI}> }
+          { ?subject ?p ${idParam(resourceURI)} }
           UNION
-          { <${resourceURI}> ?p ?subject }
+          { ${idParam(resourceURI)} ?p ?subject }
         }
         ${limit > 0 ? `LIMIT ${limit}` : ""}
       }

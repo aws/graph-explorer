@@ -1,5 +1,5 @@
 import mapApiVertex from "./mapApiVertex";
-import { Vertex, VertexId } from "@/core";
+import { createVertexId, Vertex } from "@/core";
 
 test("maps empty vertex", () => {
   const input = {
@@ -12,7 +12,7 @@ test("maps empty vertex", () => {
 
   expect(result).toEqual({
     entityType: "vertex",
-    id: "" as VertexId,
+    id: createVertexId(""),
     idType: "string",
     type: "",
     types: [],
@@ -45,7 +45,7 @@ test("maps airport node", () => {
 
   expect(result).toEqual({
     entityType: "vertex",
-    id: "1" as VertexId,
+    id: createVertexId("1"),
     idType: "string",
     type: "airport",
     types: ["airport"],

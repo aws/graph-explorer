@@ -1,4 +1,4 @@
-import { Edge, EdgeId, EntityIdType, VertexId } from "@/core";
+import { Edge, EdgeId, EntityIdType, getRawId, VertexId } from "@/core";
 import { selector, selectorFamily, useRecoilValue } from "recoil";
 import { textTransformSelector } from "@/hooks";
 import {
@@ -87,7 +87,8 @@ const displayEdgeSelector = selectorFamily({
         .join(", ");
 
       // For SPARQL, display the edge type as the ID
-      const displayId = isSparql ? displayTypes : edge.id;
+      const rawStringId = String(getRawId(edge.id));
+      const displayId = isSparql ? displayTypes : rawStringId;
 
       const typeAttributes = get(edgeTypeAttributesSelector(edgeTypes));
       const sortedAttributes = getSortedDisplayAttributes(
@@ -96,12 +97,14 @@ const displayEdgeSelector = selectorFamily({
         textTransform
       );
 
+      const sourceRawStringId = String(getRawId(edge.source));
+      const targetRawStringId = String(getRawId(edge.target));
       const sourceDisplayId = isSparql
-        ? textTransform(edge.source)
-        : edge.source;
+        ? textTransform(sourceRawStringId)
+        : sourceRawStringId;
       const targetDisplayId = isSparql
-        ? textTransform(edge.target)
-        : edge.target;
+        ? textTransform(targetRawStringId)
+        : targetRawStringId;
 
       const sourceDisplayTypes = edge.sourceType
         .split("::")

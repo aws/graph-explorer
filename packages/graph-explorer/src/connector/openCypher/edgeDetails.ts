@@ -7,6 +7,7 @@ import { OCEdge, OpenCypherFetch } from "./types";
 import isErrorResponse from "@/connector/utils/isErrorResponse";
 import { logger, query } from "@/utils";
 import mapApiEdge from "./mappers/mapApiEdge";
+import { idParam } from "./idParam";
 
 type Response = {
   results: [
@@ -24,7 +25,7 @@ export async function edgeDetails(
 ): Promise<EdgeDetailsResponse> {
   const template = query`
     MATCH ()-[edge]-()
-    WHERE ID(edge) = "${String(req.edge.id)}" 
+    WHERE ID(edge) = ${idParam(req.edge.id)}
     RETURN edge, labels(startNode(edge)) as sourceLabels, labels(endNode(edge)) as targetLabels
   `;
   const data = await openCypherFetch<Response | ErrorResponse>(template);

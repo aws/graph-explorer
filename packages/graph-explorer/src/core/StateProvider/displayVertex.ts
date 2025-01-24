@@ -1,5 +1,4 @@
 import { selector, selectorFamily, useRecoilValue } from "recoil";
-import { Vertex, VertexId, EntityIdType } from "@/core";
 import {
   DisplayAttribute,
   getSortedDisplayAttributes,
@@ -10,6 +9,10 @@ import {
   displayVertexTypeConfigSelector,
   queryEngineSelector,
   nodeSelector,
+  EntityIdType,
+  getRawId,
+  Vertex,
+  VertexId,
 } from "@/core";
 import { textTransformSelector } from "@/hooks";
 import {
@@ -87,7 +90,8 @@ const displayVertexSelector = selectorFamily({
       const queryEngine = get(queryEngineSelector);
       const isSparql = queryEngine === "sparql";
 
-      const displayId = isSparql ? textTransform(vertex.id) : vertex.id;
+      const rawStringId = String(getRawId(vertex.id));
+      const displayId = isSparql ? textTransform(rawStringId) : rawStringId;
 
       // One type config used for shape, color, icon, etc.
       const typeConfig = get(displayVertexTypeConfigSelector(vertex.type));

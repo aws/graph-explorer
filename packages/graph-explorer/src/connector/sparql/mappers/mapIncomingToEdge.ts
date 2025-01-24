@@ -1,4 +1,4 @@
-import { Edge, EdgeId, VertexId } from "@/core";
+import { createEdgeId, createVertexId, Edge, getRawId, VertexId } from "@/core";
 import { RawValue } from "../types";
 
 export type IncomingPredicate = {
@@ -8,18 +8,21 @@ export type IncomingPredicate = {
 };
 
 const mapIncomingToEdge = (
-  resourceURI: string,
+  resourceURI: VertexId,
   resourceClass: string,
   result: IncomingPredicate
 ): Edge => {
+  const sourceUri = result.subject.value;
+  const predicate = result.predFromSubject.value;
+
   return {
     entityType: "edge",
-    id: `${result.subject.value}-[${result.predFromSubject.value}]->${resourceURI}` as EdgeId,
+    id: createEdgeId(`${sourceUri}-[${predicate}]->${getRawId(resourceURI)}`),
     idType: "string",
-    type: result.predFromSubject.value,
-    source: result.subject.value as VertexId,
+    type: predicate,
+    source: createVertexId(sourceUri),
     sourceType: result.subjectClass.value,
-    target: resourceURI as VertexId,
+    target: resourceURI,
     targetType: resourceClass,
     attributes: {},
   };

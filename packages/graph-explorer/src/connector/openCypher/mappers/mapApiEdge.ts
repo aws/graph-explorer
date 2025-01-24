@@ -1,4 +1,4 @@
-import type { Edge, EdgeId, VertexId } from "@/core";
+import { createEdgeId, createVertexId, type Edge } from "@/core";
 import type { OCEdge } from "../types";
 
 const mapApiEdge = (
@@ -8,12 +8,12 @@ const mapApiEdge = (
 ): Edge => {
   return {
     entityType: "edge",
-    id: apiEdge["~id"] as EdgeId,
+    id: createEdgeId(apiEdge["~id"]),
     idType: "string",
     type: apiEdge["~type"],
-    source: apiEdge["~start"] as VertexId,
+    source: createVertexId(apiEdge["~start"]),
     sourceType: sourceType,
-    target: apiEdge["~end"] as VertexId,
+    target: createVertexId(apiEdge["~end"]),
     targetType: targetType,
     attributes: apiEdge["~properties"] || {},
   };

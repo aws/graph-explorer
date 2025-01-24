@@ -1,11 +1,11 @@
 import { normalizeWithNoSpace as normalize } from "@/utils/testing";
 import oneHopTemplate from "./oneHopTemplate";
-import { VertexId } from "@/core";
+import { createVertexId } from "@/core";
 
 describe("Gremlin > oneHopTemplate", () => {
   it("Should return a template for a simple vertex id", () => {
     const template = oneHopTemplate({
-      vertex: { id: "12" as VertexId, idType: "string" },
+      vertex: { id: createVertexId("12"), idType: "string" },
     });
 
     expect(normalize(template)).toBe(
@@ -25,7 +25,7 @@ describe("Gremlin > oneHopTemplate", () => {
 
   it("Should return a template for a simple vertex id with number type", () => {
     const template = oneHopTemplate({
-      vertex: { id: "12" as VertexId, idType: "number" },
+      vertex: { id: createVertexId(12), idType: "number" },
     });
 
     expect(normalize(template)).toBe(
@@ -45,7 +45,7 @@ describe("Gremlin > oneHopTemplate", () => {
 
   it("Should return a template with an offset and limit", () => {
     const template = oneHopTemplate({
-      vertex: { id: "12" as VertexId, idType: "string" },
+      vertex: { id: createVertexId("12"), idType: "string" },
       offset: 5,
       limit: 5,
     });
@@ -67,7 +67,7 @@ describe("Gremlin > oneHopTemplate", () => {
 
   it("Should return a template for specific vertex type", () => {
     const template = oneHopTemplate({
-      vertex: { id: "12" as VertexId, idType: "string" },
+      vertex: { id: createVertexId("12"), idType: "string" },
       filterByVertexTypes: ["country"],
       offset: 5,
       limit: 10,
@@ -90,7 +90,7 @@ describe("Gremlin > oneHopTemplate", () => {
 
   it("Should return a template for multiple vertex type", () => {
     const template = oneHopTemplate({
-      vertex: { id: "12" as VertexId, idType: "string" },
+      vertex: { id: createVertexId("12"), idType: "string" },
       filterByVertexTypes: ["country", "airport", "continent"],
       offset: 5,
       limit: 10,
@@ -113,7 +113,7 @@ describe("Gremlin > oneHopTemplate", () => {
 
   it("Should return a template with specific filter criteria", () => {
     const template = oneHopTemplate({
-      vertex: { id: "12" as VertexId, idType: "string" },
+      vertex: { id: createVertexId("12"), idType: "string" },
       filterByVertexTypes: ["country"],
       filterCriteria: [
         { name: "longest", value: 10000, operator: "gte", dataType: "Number" },

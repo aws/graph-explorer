@@ -21,6 +21,7 @@ import { Schema } from "../ConfigurationProvider";
 import { MutableSnapshot } from "recoil";
 import { schemaAtom } from "./schema";
 import { QueryEngine } from "@shared/types";
+import { getRawId } from "@/core";
 
 describe("useDisplayEdgeFromEdge", () => {
   it("should keep the same ID", () => {
@@ -35,7 +36,7 @@ describe("useDisplayEdgeFromEdge", () => {
 
   it("should have a display ID equal to the edge ID", () => {
     const edge = createEdge();
-    expect(act(edge).displayId).toEqual(edge.id);
+    expect(act(edge).displayId).toEqual(getRawId(edge.id));
   });
 
   it("should have the display name be the types", () => {

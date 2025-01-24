@@ -35,7 +35,7 @@ export type SPARQLNeighborsRequest = {
   /**
    * Resource URI.
    */
-  resourceURI: string;
+  resourceURI: VertexId;
   /**
    * Resource Class.
    */
@@ -63,11 +63,11 @@ export type SPARQLNeighborsPredicatesRequest = {
   /**
    * Resource URI.
    */
-  resourceURI: string;
+  resourceURI: VertexId;
   /**
    * All subjects URIs that are related to the resourceURI.
    */
-  subjectURIs: string[];
+  subjectURIs: VertexId[];
 };
 
 export type SPARQLBlankNodeNeighborsPredicatesRequest = {
@@ -78,14 +78,14 @@ export type SPARQLBlankNodeNeighborsPredicatesRequest = {
   /**
    * All subjects URIs that are related to the resourceURI.
    */
-  subjectURIs: string[];
+  subjectURIs: VertexId[];
 };
 
 export type SPARQLNeighborsCountRequest = {
   /**
    * Resource URI.
    */
-  resourceURI: string;
+  resourceURI: VertexId;
   /**
    * Limit the number of results.
    * 0 = No limit.
@@ -135,7 +135,7 @@ export type SPARQLKeywordSearchRequest = {
 };
 
 export type SPARQLBlankNodeNeighborsRequest = {
-  resourceURI: string;
+  resourceURI: VertexId;
   resourceClass: string;
   subQuery: string;
 };
@@ -148,7 +148,7 @@ export type SPARQLBlankNodeNeighborsResponse = NeighborsCountResponse & {
 };
 
 export type BlankNodeItem = {
-  id: string;
+  id: VertexId;
   subQueryTemplate: string;
   vertex: Vertex;
   neighborCounts: {
