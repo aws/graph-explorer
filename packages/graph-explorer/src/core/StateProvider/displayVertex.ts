@@ -9,7 +9,6 @@ import {
   displayVertexTypeConfigSelector,
   queryEngineSelector,
   nodeSelector,
-  EntityIdType,
   getRawId,
   Vertex,
   VertexId,
@@ -25,7 +24,6 @@ import {
 export type DisplayVertex = {
   entityType: "vertex";
   id: VertexId;
-  idType: EntityIdType;
   displayId: string;
   displayTypes: string;
   displayName: string;
@@ -136,7 +134,6 @@ const displayVertexSelector = selectorFamily({
       const result: DisplayVertex = {
         entityType: "vertex",
         id: vertex.id,
-        idType: vertex.idType,
         displayId,
         displayTypes,
         displayName,

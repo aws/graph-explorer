@@ -17,7 +17,6 @@ const mapOutgoingToEdge = (
   return {
     entityType: "edge",
     id: createEdgeId(`${getRawId(resourceURI)}-[${predicate}]->${targetUri}`),
-    idType: "string",
     type: predicate,
     source: resourceURI,
     sourceType: resourceClass,

@@ -9,7 +9,6 @@ const mapApiEdge = (
   return {
     entityType: "edge",
     id: createEdgeId(apiEdge["~id"]),
-    idType: "string",
     type: apiEdge["~type"],
     source: createVertexId(apiEdge["~start"]),
     sourceType: sourceType,

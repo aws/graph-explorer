@@ -1,6 +1,6 @@
 import { GInt64, JanusID } from "../types";
 
-export const isJanusID = (id: any): id is JanusID => {
+function isJanusID(id: any): id is JanusID {
   return (
     typeof id === "object" &&
     "@type" in id &&
@@ -10,7 +10,7 @@ export const isJanusID = (id: any): id is JanusID => {
     "relationId" in id["@value"] &&
     typeof id["@value"]["relationId"] === "string"
   );
-};
+}
 
 export function extractRawId(id: string | GInt64 | JanusID): string | number {
   if (isJanusID(id)) {

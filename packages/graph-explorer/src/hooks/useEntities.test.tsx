@@ -1,13 +1,6 @@
 import { useRecoilValue } from "recoil";
 import useEntities from "./useEntities";
-import {
-  createVertexId,
-  Edge,
-  Entities,
-  Schema,
-  Vertex,
-  VertexId,
-} from "@/core";
+import { createVertexId, Edge, Entities, Schema, Vertex } from "@/core";
 import {
   createRandomEdge,
   createRandomEntities,
@@ -32,6 +25,7 @@ import {
   edgesTypesFilteredAtom,
   toEdgeMap,
 } from "@/core/StateProvider/edges";
+import { cloneDeep } from "lodash";
 
 describe("useEntities", () => {
   beforeEach(() => {
@@ -39,13 +33,8 @@ describe("useEntities", () => {
   });
 
   it("should handle single node data correctly", async () => {
-    const randomNode = {
-      id: Math.random().toString() as VertexId,
-      type: "type1",
-    } as Vertex;
-    const expectedRandomNodes: Vertex = {
-      ...randomNode,
-    };
+    const randomNode = createRandomVertex();
+    const expectedRandomNodes = cloneDeep(randomNode);
 
     const { result } = renderHookWithRecoilRoot(() => {
       const [entities, setEntities] = useEntities();
@@ -72,21 +61,18 @@ describe("useEntities", () => {
     const node1: Vertex = {
       entityType: "vertex",
       id: createVertexId("1"),
-      idType: "string",
       type: "type1",
       attributes: {},
     };
     const node2: Vertex = {
       entityType: "vertex",
       id: createVertexId("2"),
-      idType: "string",
       type: "type2",
       attributes: {},
     };
     const node3: Vertex = {
       entityType: "vertex",
       id: createVertexId("3"),
-      idType: "string",
       type: "type3",
       attributes: {},
     };
@@ -94,21 +80,18 @@ describe("useEntities", () => {
       {
         entityType: "vertex",
         id: node1.id,
-        idType: "string",
         type: node1.type,
         attributes: {},
       },
       {
         entityType: "vertex",
         id: node2.id,
-        idType: "string",
         type: node2.type,
         attributes: {},
       },
       {
         entityType: "vertex",
         id: node3.id,
-        idType: "string",
         type: node3.type,
         attributes: {},
       },

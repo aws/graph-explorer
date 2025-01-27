@@ -13,7 +13,6 @@ test("maps empty vertex", () => {
   expect(result).toEqual({
     entityType: "vertex",
     id: createVertexId(""),
-    idType: "string",
     type: "",
     types: [],
     attributes: {},
@@ -46,7 +45,6 @@ test("maps airport node", () => {
   expect(result).toEqual({
     entityType: "vertex",
     id: createVertexId("1"),
-    idType: "string",
     type: "airport",
     types: ["airport"],
     attributes: {

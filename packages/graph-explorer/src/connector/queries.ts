@@ -171,5 +171,5 @@ export function updateEdgeDetailsCache(
 function extractStableEntityRef<TRef extends VertexRef | EdgeRef>(
   ref: TRef
 ): TRef {
-  return { id: ref.id, idType: ref.idType } as TRef;
+  return { id: ref.id } as TRef;
 }
