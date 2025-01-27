@@ -1,5 +1,5 @@
 import groupBy from "lodash/groupBy";
-import { Edge } from "@/core";
+import { Edge, VertexId } from "@/core";
 import type { NeighborsResponse } from "@/connector/useGEFetchTypes";
 import mapIncomingToEdge, {
   IncomingPredicate,
@@ -103,9 +103,9 @@ const fetchOneHopNeighbors = async (
 
 export const fetchNeighborsPredicates = async (
   sparqlFetch: SparqlFetch,
-  resourceURI: string,
+  resourceURI: VertexId,
   resourceClass: string,
-  subjectURIs: string[]
+  subjectURIs: VertexId[]
 ) => {
   const template = subjectPredicatesTemplate({
     resourceURI,

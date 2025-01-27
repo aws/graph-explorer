@@ -1,19 +1,20 @@
-import type { Edge, EdgeId, VertexId } from "@/core";
+import { createEdgeId, createVertexId, type Edge } from "@/core";
 import type { GEdge } from "../types";
 import parseEdgePropertiesValues from "./parseEdgePropertiesValues";
-import toStringId from "./toStringId";
+
 import { detectIdType } from "./detectIdType";
+import { extractRawId } from "./extractRawId";
 
 const mapApiEdge = (apiEdge: GEdge): Edge => {
   const isFragment = apiEdge["@value"].properties == null;
   return {
     entityType: "edge",
-    id: toStringId(apiEdge["@value"].id) as EdgeId,
+    id: createEdgeId(extractRawId(apiEdge["@value"].id)),
     idType: detectIdType(apiEdge["@value"].id),
     type: apiEdge["@value"].label,
-    source: toStringId(apiEdge["@value"].outV) as VertexId,
+    source: createVertexId(extractRawId(apiEdge["@value"].outV)),
     sourceType: apiEdge["@value"].outVLabel,
-    target: toStringId(apiEdge["@value"].inV) as VertexId,
+    target: createVertexId(extractRawId(apiEdge["@value"].inV)),
     targetType: apiEdge["@value"].inVLabel,
     attributes: parseEdgePropertiesValues(apiEdge["@value"].properties || {}),
     __isFragment: isFragment,

@@ -1,5 +1,6 @@
 import { query } from "@/utils";
 import type { NeighborsCountRequest } from "@/connector/useGEFetchTypes";
+import { idParam } from "../idParam";
 
 /**
  * Given a single nodes id, it returns an OpenCypher template with
@@ -21,7 +22,7 @@ export default function neighborsCountTemplate({
 }: NeighborsCountRequest) {
   return query`
       MATCH (v)-[]-(neighbor)
-      WHERE ID(v) = "${vertex.id}" 
+      WHERE ID(v) = ${idParam(vertex.id)}
       WITH DISTINCT neighbor
       ${limit > 0 ? `LIMIT ${limit}` : ``}
       RETURN labels(neighbor) AS vertexLabel, count(DISTINCT neighbor) AS count

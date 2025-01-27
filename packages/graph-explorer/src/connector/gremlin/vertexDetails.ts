@@ -28,7 +28,7 @@ export async function vertexDetails(
   request: VertexDetailsRequest
 ): Promise<VertexDetailsResponse> {
   const template = query`
-    g.V(${idParam(request.vertex)})
+    g.V(${idParam(request.vertex.id)})
   `;
 
   // Fetch the vertex details

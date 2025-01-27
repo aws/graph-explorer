@@ -19,6 +19,7 @@ import {
   SparqlFetch,
 } from "../types";
 import { logger } from "@/utils";
+import { VertexId } from "@/core";
 
 type RawBlankNodeNeighborsResponse = {
   results: {
@@ -43,9 +44,9 @@ type RawNeighborsPredicatesResponse = {
 async function fetchBlankNodeNeighborsPredicates(
   sparqlFetch: SparqlFetch,
   subQuery: string,
-  resourceURI: string,
+  resourceURI: VertexId,
   resourceClass: string,
-  subjectURIs: string[]
+  subjectURIs: VertexId[]
 ) {
   const template = blankNodeSubjectPredicatesTemplate({
     subQuery,

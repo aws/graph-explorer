@@ -1,6 +1,6 @@
 import { EntityIdType } from "@/core";
 import { GInt64, JanusID } from "../types";
-import { isJanusID } from "./toStringId";
+import { isJanusID } from "./extractRawId";
 
 /**
  * This function will detect the type of the id value passed in.
