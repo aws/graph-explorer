@@ -22,7 +22,7 @@ export async function edgeDetails(
   sparqlFetch: SparqlFetch,
   request: EdgeDetailsRequest
 ): Promise<EdgeDetailsResponse> {
-  const { source, target, predicate } = parseEdgeId(request.edge.id);
+  const { source, target, predicate } = parseEdgeId(request.edgeId);
 
   const sourceIdTemplate = idParam(source);
   const targetIdTemplate = idParam(target);
@@ -63,7 +63,7 @@ export async function edgeDetails(
 
   // Map the results
   if (parsed.data.results.bindings.length === 0) {
-    logger.warn("Edge not found", request.edge, response);
+    logger.warn("Edge not found", request.edgeId, response);
     return { edge: null };
   }
 
@@ -80,7 +80,7 @@ export async function edgeDetails(
 
   const edge = <Edge>{
     entityType: "edge",
-    id: request.edge.id,
+    id: request.edgeId,
     idType: "string",
     type: predicate,
     source: source,

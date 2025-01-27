@@ -8,9 +8,7 @@ describe("Gremlin > fetchNeighborsCount", () => {
 
   it("Should return neighbors counts for node 2018", async () => {
     const response = await fetchNeighborsCount(mockGremlinFetch(), {
-      vertex: {
-        id: createVertexId("123"),
-      },
+      vertexId: createVertexId("123"),
     });
 
     expect(response).toMatchObject({

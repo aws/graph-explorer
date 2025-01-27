@@ -51,7 +51,7 @@ describe("useNeighbors", () => {
     const explorer = createMockExplorer();
 
     const { result } = renderHookWithRecoilRoot(
-      () => useNeighbors(vertex),
+      () => useNeighbors(vertex.id),
       snapshot => {
         dbState.applyTo(snapshot);
         snapshot.set(explorerForTestingAtom, explorer);
@@ -79,7 +79,7 @@ describe("useNeighbors", () => {
     vi.mocked(explorer.fetchNeighborsCount).mockResolvedValueOnce(response);
 
     const { result } = renderHookWithRecoilRoot(
-      () => useNeighbors(vertex),
+      () => useNeighbors(vertex.id),
       snapshot => {
         dbState.applyTo(snapshot);
         snapshot.set(explorerForTestingAtom, explorer);

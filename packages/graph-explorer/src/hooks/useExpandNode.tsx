@@ -20,7 +20,10 @@ import { toNodeMap } from "@/core/StateProvider/nodes";
 import { toEdgeMap } from "@/core/StateProvider/edges";
 import { useNeighborsCallback } from "@/core";
 
-type ExpandNodeFilters = Omit<NeighborsRequest, "vertex" | "vertexType">;
+export type ExpandNodeFilters = Omit<
+  NeighborsRequest,
+  "vertexId" | "vertexType"
+>;
 
 export type ExpandNodeRequest = {
   vertex: Vertex;
@@ -44,7 +47,7 @@ export default function useExpandNode() {
     ): Promise<NeighborsResponse | null> => {
       // Perform the query when a request exists
       const request: NeighborsRequest | null = expandNodeRequest && {
-        vertex: expandNodeRequest.vertex,
+        vertexId: expandNodeRequest.vertex.id,
         vertexType:
           expandNodeRequest.vertex.types?.join("::") ??
           expandNodeRequest.vertex.type,
@@ -105,7 +108,7 @@ export default function useExpandNode() {
   const neighborCallback = useNeighborsCallback();
   const expandNode = useCallback(
     async (vertex: Vertex, filters?: ExpandNodeFilters) => {
-      const neighbor = await neighborCallback(vertex);
+      const neighbor = await neighborCallback(vertex.id);
       if (!neighbor) {
         enqueueNotification({
           title: "No neighbor information available",

@@ -144,7 +144,7 @@ export default function GraphViewer({
   const neighborCallback = useNeighborsCallback();
   const onNodeDoubleClick: ElementEventCallback<Vertex> = useCallback(
     async (_, vertex) => {
-      const neighborCount = await neighborCallback(vertex);
+      const neighborCount = await neighborCallback(vertex.id);
       const offset = neighborCount ? neighborCount.fetched : undefined;
       expandNode(vertex, {
         limit: 10,

@@ -28,7 +28,7 @@ export async function edgeDetails(
   request: EdgeDetailsRequest
 ): Promise<EdgeDetailsResponse> {
   const template = query`
-    g.E(${idParam(request.edge.id)})
+    g.E(${idParam(request.edgeId)})
   `;
 
   // Fetch the vertex details
@@ -42,7 +42,7 @@ export async function edgeDetails(
   const entities = mapResults(data.result.data);
   const edge = entities.edges.length > 0 ? entities.edges[0] : null;
   if (!edge) {
-    logger.warn("Edge not found", request.edge);
+    logger.warn("Edge not found", request.edgeId);
   }
 
   return { edge };

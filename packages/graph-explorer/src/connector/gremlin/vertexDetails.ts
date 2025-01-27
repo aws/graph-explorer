@@ -28,7 +28,7 @@ export async function vertexDetails(
   request: VertexDetailsRequest
 ): Promise<VertexDetailsResponse> {
   const template = query`
-    g.V(${idParam(request.vertex.id)})
+    g.V(${idParam(request.vertexId)})
   `;
 
   // Fetch the vertex details
@@ -41,7 +41,7 @@ export async function vertexDetails(
   const entities = mapResults(data.result.data);
   const vertex = entities.vertices.length > 0 ? entities.vertices[0] : null;
   if (!vertex) {
-    logger.warn("Vertex not found", request.vertex);
+    logger.warn("Vertex not found", request.vertexId);
   }
 
   return { vertex };

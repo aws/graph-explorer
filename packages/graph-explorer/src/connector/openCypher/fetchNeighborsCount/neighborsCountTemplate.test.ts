@@ -5,7 +5,7 @@ import { createVertexId } from "@/core";
 describe("OpenCypher > neighborsCountTemplate", () => {
   it("Should return a template for the given vertex id", () => {
     const template = neighborsCountTemplate({
-      vertex: { id: createVertexId("12") },
+      vertexId: createVertexId("12"),
     });
 
     expect(normalize(template)).toBe(
@@ -22,7 +22,7 @@ describe("OpenCypher > neighborsCountTemplate", () => {
 
   it("Should return a template for the given vertex id with defined limit", () => {
     const template = neighborsCountTemplate({
-      vertex: { id: createVertexId("12") },
+      vertexId: createVertexId("12"),
       limit: 20,
     });
 
@@ -41,7 +41,7 @@ describe("OpenCypher > neighborsCountTemplate", () => {
 
   it("Should return a template for the given vertex id with no limit", () => {
     const template = neighborsCountTemplate({
-      vertex: { id: createVertexId("12") },
+      vertexId: createVertexId("12"),
       limit: 0,
     });
 

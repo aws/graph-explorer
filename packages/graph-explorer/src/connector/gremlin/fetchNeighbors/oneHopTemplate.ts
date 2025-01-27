@@ -128,14 +128,14 @@ function criterionTemplate(criterion: Criterion): string {
  *  )
  */
 export default function oneHopTemplate({
-  vertex,
+  vertexId,
   filterByVertexTypes = [],
   edgeTypes = [],
   filterCriteria = [],
   limit = 0,
   offset = 0,
 }: Omit<NeighborsRequest, "vertexType">): string {
-  const idTemplate = idParam(vertex.id);
+  const idTemplate = idParam(vertexId);
   const range = limit > 0 ? `.range(${offset}, ${offset + limit})` : "";
 
   const vertexTypes = filterByVertexTypes.flatMap(type => type.split("::"));

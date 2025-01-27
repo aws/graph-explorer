@@ -11,14 +11,6 @@ export type QueryOptions = RequestInit & {
   queryId?: string;
 };
 
-export type VertexRef = {
-  id: VertexId;
-};
-
-export type EdgeRef = {
-  id: EdgeId;
-};
-
 export type VertexSchemaResponse = Pick<
   VertexTypeConfig,
   | "type"
@@ -87,7 +79,7 @@ export type NeighborsRequest = {
   /**
    * Source vertex ID & type.
    */
-  vertex: VertexRef;
+  vertexId: VertexId;
   /**
    * Source vertex type.
    */
@@ -121,7 +113,7 @@ export type NeighborsCountRequest = {
   /**
    * Source vertex ID & type.
    */
-  vertex: VertexRef;
+  vertexId: VertexId;
   /**
    * Limit the number of results.
    * 0 = No limit.
@@ -186,7 +178,7 @@ export type ExplorerRequestOptions = RequestInit & {
 };
 
 export type VertexDetailsRequest = {
-  vertex: VertexRef;
+  vertexId: VertexId;
 };
 
 export type VertexDetailsResponse = {
@@ -194,7 +186,7 @@ export type VertexDetailsResponse = {
 };
 
 export type EdgeDetailsRequest = {
-  edge: EdgeRef;
+  edgeId: EdgeId;
 };
 
 export type EdgeDetailsResponse = {

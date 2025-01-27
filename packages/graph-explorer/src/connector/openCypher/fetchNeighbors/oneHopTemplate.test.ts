@@ -5,7 +5,7 @@ import { createVertexId } from "@/core";
 describe("OpenCypher > oneHopTemplate", () => {
   it("Should return a template for a simple vertex id", () => {
     const template = oneHopTemplate({
-      vertex: { id: createVertexId("12") },
+      vertexId: createVertexId("12"),
     });
 
     expect(normalize(template)).toEqual(
@@ -25,7 +25,7 @@ describe("OpenCypher > oneHopTemplate", () => {
 
   it("Should return a template with an offset and limit", () => {
     const template = oneHopTemplate({
-      vertex: { id: createVertexId("12") },
+      vertexId: createVertexId("12"),
       offset: 5,
       limit: 5,
     });
@@ -49,7 +49,7 @@ describe("OpenCypher > oneHopTemplate", () => {
 
   it("Should return a template for specific vertex type", () => {
     const template = oneHopTemplate({
-      vertex: { id: createVertexId("12") },
+      vertexId: createVertexId("12"),
       filterByVertexTypes: ["country"],
       offset: 5,
       limit: 10,
@@ -74,7 +74,7 @@ describe("OpenCypher > oneHopTemplate", () => {
 
   it("Should return a template for many vertex types", () => {
     const template = oneHopTemplate({
-      vertex: { id: createVertexId("12") },
+      vertexId: createVertexId("12"),
       filterByVertexTypes: ["country", "continent", "airport", "person"],
     });
 
@@ -95,7 +95,7 @@ describe("OpenCypher > oneHopTemplate", () => {
 
   it("Should return a template for specific edge type", () => {
     const template = oneHopTemplate({
-      vertex: { id: createVertexId("12") },
+      vertexId: createVertexId("12"),
       edgeTypes: ["locatedIn"],
       offset: 5,
       limit: 10,
@@ -120,7 +120,7 @@ describe("OpenCypher > oneHopTemplate", () => {
 
   it("Should return a template with specific filter criteria", () => {
     const template = oneHopTemplate({
-      vertex: { id: createVertexId("12") },
+      vertexId: createVertexId("12"),
       filterByVertexTypes: ["country"],
       filterCriteria: [
         { name: "longest", value: 10000, operator: "gte", dataType: "Number" },

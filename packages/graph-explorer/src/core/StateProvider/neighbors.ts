@@ -8,7 +8,7 @@ import {
 } from "@/hooks/useUpdateNodeCounts";
 import { useEffect, useMemo } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { neighborsCountQuery, VertexRef } from "@/connector";
+import { neighborsCountQuery } from "@/connector";
 import { activeConnectionSelector, explorerSelector } from "../connector";
 import { useNotification } from "@/components/NotificationProvider";
 
@@ -39,14 +39,14 @@ export type NeighborStub = {
 export function useNeighborsCallback() {
   const queryClient = useQueryClient();
 
-  return useRecoilCallback(({ snapshot }) => async (vertex: VertexRef) => {
+  return useRecoilCallback(({ snapshot }) => async (vertexId: VertexId) => {
     const fetchedNeighbors = await snapshot.getPromise(
-      fetchedNeighborsSelector(vertex.id)
+      fetchedNeighborsSelector(vertexId)
     );
     const explorer = await snapshot.getPromise(explorerSelector);
     const connection = await snapshot.getPromise(activeConnectionSelector);
     const response = await queryClient.ensureQueryData(
-      neighborsCountQuery(vertex, connection?.nodeExpansionLimit, explorer)
+      neighborsCountQuery(vertexId, connection?.nodeExpansionLimit, explorer)
     );
 
     const neighbors = calculateNeighbors(
@@ -60,13 +60,13 @@ export function useNeighborsCallback() {
 }
 
 /**
- * Provides the neighbor counts for a given vertex.
- * @param vertex The vertex for which to fetch the neighbor counts.
+ * Provides the neighbor counts for a given vertex ID.
+ * @param vertexId The vertex ID for which to fetch the neighbor counts.
  * @returns The neighbor counts for the given vertex.
  */
-export function useNeighbors(vertex: VertexRef) {
-  const fetchedNeighbors = useRecoilValue(fetchedNeighborsSelector(vertex.id));
-  const query = useUpdateNodeCountsQuery(vertex);
+export function useNeighbors(vertexId: VertexId) {
+  const fetchedNeighbors = useRecoilValue(fetchedNeighborsSelector(vertexId));
+  const query = useUpdateNodeCountsQuery(vertexId);
 
   return useMemo(() => {
     if (!query.data) {
@@ -84,22 +84,22 @@ export function useNeighbors(vertex: VertexRef) {
 }
 
 /**
- * Provides the neighbor counts for a given vertex and neighbor type.
- * @param vertex The vertex for which to fetch the neighbors counts.
+ * Provides the neighbor counts for a given vertex ID and neighbor type.
+ * @param vertexId The vertex ID for which to fetch the neighbors counts.
  * @param type The neighbor type for which to fetch the neighbors counts.
  * @returns The neighbor counts for the given vertex and neighbor type.
  */
-export function useNeighborByType(vertex: VertexRef, type: string) {
-  const neighbors = useNeighbors(vertex)?.byType.get(type);
+export function useNeighborByType(vertexId: VertexId, type: string) {
+  const neighbors = useNeighbors(vertexId)?.byType.get(type);
   if (!neighbors) {
     return { all: 0, fetched: 0, unfetched: 0 };
   }
   return neighbors;
 }
 
-export function useAllNeighbors(vertices: VertexRef[]) {
+export function useAllNeighbors(vertices: VertexId[]) {
   const fetchedNeighbors = useRecoilValue(
-    allFetchedNeighborsSelector(vertices.map(v => v.id))
+    allFetchedNeighborsSelector(vertices)
   );
   const query = useAllNeighborCountsQuery(vertices);
 

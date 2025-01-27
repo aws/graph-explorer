@@ -3,20 +3,19 @@ import {
   CountsByTypeResponse,
   EdgeDetailsRequest,
   EdgeDetailsResponse,
-  EdgeRef,
   Explorer,
   KeywordSearchRequest,
   KeywordSearchResponse,
   VertexDetailsRequest,
   VertexDetailsResponse,
-  VertexRef,
 } from "./useGEFetchTypes";
-import { VertexId } from "@/core";
+import { Edge, Vertex, VertexId } from "@/core";
 
 /**
  * Performs a search with the provided parameters.
  * @param request The search parameters to use for the query.
  * @param explorer The service client to use for fetching the neighbors count.
+ * @param queryClient The query client to use for updating the cache.
  * @returns A list of nodes that match the search parameters.
  */
 export function searchQuery(
@@ -48,36 +47,35 @@ export type NeighborCountsQueryResponse = {
 
 /**
  * Retrieves the number of neighbors for a given node and their types.
- * @param id The node id for which to fetch the neighbors count.
+ * @param vertexId The node id for which to fetch the neighbors count.
+ * @param limit The limit for the neighbors count query.
  * @param explorer The service client to use for fetching the neighbors count.
  * @returns The count of neighbors for the given node as a total and per type.
  */
 export function neighborsCountQuery(
-  vertex: VertexRef,
+  vertexId: VertexId,
   limit: number | undefined,
   explorer: Explorer | null
 ) {
-  const ref = extractStableEntityRef(vertex);
-
   return queryOptions({
-    queryKey: ["neighborsCount", ref, limit, explorer],
+    queryKey: ["neighborsCount", vertexId, limit, explorer],
     enabled: Boolean(explorer),
     queryFn: async (): Promise<NeighborCountsQueryResponse> => {
       if (!explorer) {
         return {
-          nodeId: ref.id,
+          nodeId: vertexId,
           totalCount: 0,
           counts: {},
         };
       }
 
       const result = await explorer.fetchNeighborsCount({
-        vertex: ref,
+        vertexId,
         limit,
       });
 
       return {
-        nodeId: ref.id,
+        nodeId: vertexId,
         totalCount: result.totalCount,
         counts: result.counts,
       };
@@ -109,14 +107,14 @@ export function vertexDetailsQuery(
   request: VertexDetailsRequest,
   explorer: Explorer | null
 ) {
-  const ref = extractStableEntityRef(request.vertex);
+  const vertexId = request.vertexId;
   return queryOptions({
-    queryKey: ["db", "vertex", "details", ref, explorer],
+    queryKey: ["db", "vertex", "details", vertexId, explorer],
     queryFn: async ({ signal }): Promise<VertexDetailsResponse> => {
       if (!explorer) {
         return { vertex: null };
       }
-      return await explorer.vertexDetails({ vertex: ref }, { signal });
+      return await explorer.vertexDetails({ vertexId }, { signal });
     },
   });
 }
@@ -125,14 +123,14 @@ export function edgeDetailsQuery(
   request: EdgeDetailsRequest,
   explorer: Explorer | null
 ) {
-  const ref = extractStableEntityRef(request.edge);
+  const edgeId = request.edgeId;
   return queryOptions({
-    queryKey: ["db", "edge", "details", ref, explorer],
+    queryKey: ["db", "edge", "details", edgeId, explorer],
     queryFn: async ({ signal }): Promise<EdgeDetailsResponse> => {
       if (!explorer) {
         return { edge: null };
       }
-      return await explorer.edgeDetails({ edge: ref }, { signal });
+      return await explorer.edgeDetails({ edgeId }, { signal });
     },
   });
 }
@@ -141,12 +139,11 @@ export function edgeDetailsQuery(
 export function updateVertexDetailsCache(
   explorer: Explorer,
   queryClient: QueryClient,
-  vertices: VertexRef[]
+  vertices: Vertex[]
 ) {
   for (const vertex of vertices) {
-    const ref = extractStableEntityRef(vertex);
     queryClient.setQueryData(
-      ["db", "vertex", "details", ref, explorer],
+      ["db", "vertex", "details", vertex.id, explorer],
       vertex
     );
   }
@@ -156,20 +153,12 @@ export function updateVertexDetailsCache(
 export function updateEdgeDetailsCache(
   explorer: Explorer,
   queryClient: QueryClient,
-  edges: EdgeRef[]
+  edges: Edge[]
 ) {
   for (const edge of edges) {
-    const ref = extractStableEntityRef(edge);
-    queryClient.setQueryData(["db", "edge", "details", ref, explorer], edge);
+    queryClient.setQueryData(
+      ["db", "edge", "details", edge.id, explorer],
+      edge
+    );
   }
-}
-
-/**
- * Ensures the input does not contain any extra properties so that TanStack
- * Query can properly dedupe queries.
- */
-function extractStableEntityRef<TRef extends VertexRef | EdgeRef>(
-  ref: TRef
-): TRef {
-  return { id: ref.id } as TRef;
 }

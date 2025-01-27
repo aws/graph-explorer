@@ -1,5 +1,5 @@
 import { cn } from "@/utils";
-import { Vertex, VertexId } from "@/core";
+import { VertexId } from "@/core";
 import {
   Button,
   Chip,
@@ -9,11 +9,7 @@ import {
   VertexIcon,
   VisibleIcon,
 } from "@/components";
-import {
-  useNeighbors,
-  useNeighborByType as useNeighborsByType,
-  useNode,
-} from "@/core";
+import { useNeighbors, useNeighborByType as useNeighborsByType } from "@/core";
 import useNeighborsOptions, {
   NeighborOption,
 } from "@/hooks/useNeighborsOptions";
@@ -21,19 +17,18 @@ import { ComponentPropsWithoutRef, useState } from "react";
 import { useQueryEngine } from "@/core/connector";
 
 export type NeighborsListProps = {
-  id: VertexId;
+  vertexId: VertexId;
 } & ComponentPropsWithoutRef<"div">;
 
 const MAX_NEIGHBOR_TYPE_ROWS = 5;
 
 export default function NeighborsList({
-  id,
+  vertexId,
   className,
   ...props
 }: NeighborsListProps) {
-  const vertex = useNode(id);
-  const neighbors = useNeighbors(vertex);
-  const neighborsOptions = useNeighborsOptions(vertex);
+  const neighbors = useNeighbors(vertexId);
+  const neighborsOptions = useNeighborsOptions(vertexId);
   const [showMore, setShowMore] = useState(false);
 
   return (
@@ -47,7 +42,7 @@ export default function NeighborsList({
           .slice(0, showMore ? undefined : MAX_NEIGHBOR_TYPE_ROWS)
           .map(op => (
             <li key={op.value}>
-              <NeighborTypeRow vertex={vertex} op={op} />
+              <NeighborTypeRow vertexId={vertexId} op={op} />
             </li>
           ))}
       </ul>
@@ -62,13 +57,13 @@ export default function NeighborsList({
 }
 
 function NeighborTypeRow({
-  vertex,
+  vertexId,
   op,
 }: {
-  vertex: Vertex;
+  vertexId: VertexId;
   op: NeighborOption;
 }) {
-  const neighbors = useNeighborsByType(vertex, op.value);
+  const neighbors = useNeighborsByType(vertexId, op.value);
 
   return (
     <div className="flex items-center justify-between gap-2">

@@ -47,7 +47,7 @@ describe("useNeighborsOptions", () => {
     vi.mocked(mockExplorer.fetchNeighborsCount).mockResolvedValueOnce(response);
 
     const { result } = renderHookWithRecoilRoot(
-      () => useNeighborsOptions(vertex),
+      () => useNeighborsOptions(vertex.id),
       snapshot => {
         const config = createRandomRawConfiguration();
         const schema = createRandomSchema();
