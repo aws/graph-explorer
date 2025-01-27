@@ -13,14 +13,14 @@ import { nodesAtom, toNodeMap } from "@/core/StateProvider/nodes";
 test("should add one node", async () => {
   const vertex = createRandomVertex();
   const { result } = renderHookWithRecoilRoot(() => {
-    const callback = useAddToGraph(vertex);
+    const callback = useAddToGraph();
     const [entities] = useEntities();
 
     return { callback, entities };
   });
 
   await act(async () => {
-    result.current.callback();
+    result.current.callback({ vertices: [vertex] });
   });
 
   const actual = result.current.entities.nodes.get(vertex.id);
@@ -34,7 +34,7 @@ test("should add one edge", async () => {
 
   const { result } = renderHookWithRecoilRoot(
     () => {
-      const callback = useAddToGraph(edge);
+      const callback = useAddToGraph();
       const [entities] = useEntities();
 
       return { callback, entities };
@@ -45,7 +45,7 @@ test("should add one edge", async () => {
   );
 
   await act(async () => {
-    result.current.callback();
+    result.current.callback({ edges: [edge] });
   });
 
   const actual = result.current.entities.edges.get(edge.id);
@@ -55,17 +55,17 @@ test("should add one edge", async () => {
 test("should add multiple nodes and edges", async () => {
   const randomEntities = createRandomEntities();
   const { result } = renderHookWithRecoilRoot(() => {
-    const callback = useAddToGraph(
-      ...randomEntities.nodes.values(),
-      ...randomEntities.edges.values()
-    );
+    const callback = useAddToGraph();
     const [entities] = useEntities();
 
     return { callback, entities };
   });
 
   await act(async () => {
-    result.current.callback();
+    result.current.callback({
+      vertices: [...randomEntities.nodes.values()],
+      edges: [...randomEntities.edges.values()],
+    });
   });
 
   const actualNodes = result.current.entities.nodes.values().toArray();

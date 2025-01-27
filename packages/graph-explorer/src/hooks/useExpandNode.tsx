@@ -7,14 +7,12 @@ import {
   type NeighborsResponse,
 } from "@/connector";
 import { loggerSelector, useExplorer } from "@/core/connector";
-import useEntities from "./useEntities";
 import { useRecoilValue } from "recoil";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Vertex } from "@/core";
 import { createDisplayError } from "@/utils/createDisplayError";
-import { toNodeMap } from "@/core/StateProvider/nodes";
-import { toEdgeMap } from "@/core/StateProvider/edges";
 import { useNeighborsCallback } from "@/core";
+import { useAddToGraph } from "./useAddToGraph";
 
 export type ExpandNodeFilters = Omit<
   NeighborsRequest,
@@ -33,7 +31,7 @@ export type ExpandNodeRequest = {
 export default function useExpandNode() {
   const queryClient = useQueryClient();
   const explorer = useExplorer();
-  const [_, setEntities] = useEntities();
+  const addToGraph = useAddToGraph();
   const { enqueueNotification, clearNotification } = useNotification();
   const remoteLogger = useRecoilValue(loggerSelector);
 
@@ -82,10 +80,7 @@ export default function useExpandNode() {
       updateEdgeDetailsCache(explorer, queryClient, data.edges);
 
       // Update nodes and edges in the graph
-      setEntities({
-        nodes: toNodeMap(data.vertices),
-        edges: toEdgeMap(data.edges),
-      });
+      addToGraph(data);
     },
     onError: error => {
       remoteLogger.error(`Failed to expand node: ${error.message}`);

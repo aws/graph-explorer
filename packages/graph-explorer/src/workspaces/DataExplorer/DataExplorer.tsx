@@ -45,7 +45,7 @@ import {
   userStylingAtom,
   VertexPreferences,
 } from "@/core/StateProvider/userPreferences";
-import { useAddToGraph, useHasVertexBeenAddedToGraph } from "@/hooks";
+import { useAddVertexToGraph, useHasVertexBeenAddedToGraph } from "@/hooks";
 import usePrefixesUpdater from "@/hooks/usePrefixesUpdater";
 import useTranslations from "@/hooks/useTranslations";
 import useUpdateVertexTypeCounts from "@/hooks/useUpdateVertexTypeCounts";
@@ -264,7 +264,7 @@ function DisplayNameAndDescriptionOptions({
 }
 
 function AddToExplorerButton({ vertex }: { vertex: Vertex }) {
-  const addToGraph = useAddToGraph(vertex);
+  const addToGraph = useAddVertexToGraph(vertex);
   const isInExplorer = useHasVertexBeenAddedToGraph(vertex.id);
 
   return (

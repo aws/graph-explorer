@@ -60,7 +60,7 @@ export function SearchResultsList({
 }
 
 function LoadedResults({ vertices, edges, scalars }: MappedQueryResults) {
-  const sendToGraph = useAddToGraph(...vertices, ...edges);
+  const sendToGraph = useAddToGraph();
   const canSendToGraph = vertices.length > 0 || edges.length > 0;
 
   const counts = [
@@ -89,7 +89,7 @@ function LoadedResults({ vertices, edges, scalars }: MappedQueryResults) {
       <PanelFooter className="sticky bottom-0 flex flex-row items-center justify-between">
         <Button
           icon={<PlusCircleIcon />}
-          onPress={sendToGraph}
+          onPress={() => sendToGraph({ vertices, edges })}
           isDisabled={!canSendToGraph}
         >
           Add all

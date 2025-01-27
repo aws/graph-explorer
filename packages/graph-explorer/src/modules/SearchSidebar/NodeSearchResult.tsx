@@ -7,7 +7,7 @@ import {
   VertexRow,
 } from "@/components";
 import {
-  useAddToGraph,
+  useAddVertexToGraph,
   useHasVertexBeenAddedToGraph,
   useRemoveNodeFromGraph,
 } from "@/hooks";
@@ -25,7 +25,7 @@ export function NodeSearchResult({ node }: { node: Vertex }) {
   const [expanded, setExpanded] = useState(false);
   const displayNode = useDisplayVertexFromVertex(node);
 
-  const addToGraph = useAddToGraph(node);
+  const addToGraph = useAddVertexToGraph(node);
   const removeFromGraph = useRemoveNodeFromGraph(node.id);
   const hasBeenAdded = useHasVertexBeenAddedToGraph(node.id);
 
