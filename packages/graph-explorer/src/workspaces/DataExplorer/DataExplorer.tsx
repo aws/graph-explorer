@@ -337,9 +337,7 @@ function usePagingOptions() {
         { replace: true }
       );
     },
-    // setSearchParams is not memoized and causes infinite loop
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    [setSearchParams]
   );
 
   const onPageSizeChange = useCallback(
@@ -355,9 +353,7 @@ function usePagingOptions() {
         { replace: true }
       );
     },
-    // setSearchParams is not memoized and causes infinite loop
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    [setSearchParams]
   );
 
   return {
