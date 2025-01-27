@@ -48,6 +48,7 @@ const EdgesTabular = forwardRef<TabularInstance<ToggleEdge>, any>(
           label: "Visibility",
           accessor: "__is_visible",
           cellComponent: makeIconToggleCell<ToggleEdge>({
+            title: "Toggle Visibility",
             on: <VisibleIcon />,
             off: <NonVisibleIcon style={{ color: "#FA8500" }} />,
             getValue: ({ cell }) => !!cell.value,
@@ -127,7 +128,7 @@ const EdgesTabular = forwardRef<TabularInstance<ToggleEdge>, any>(
         selectedRowIds={selectedRowsIds}
         toggleRowSelected={onSelectRows}
         data={data}
-        columns={columns as any[]}
+        columns={columns}
         onDataFilteredChange={rows => {
           const edgesIds = edges.keys().toArray();
           const ids = rows.map(row => row.original.id);
