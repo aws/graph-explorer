@@ -9,7 +9,7 @@ import {
 import { useEffect, useMemo } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { neighborsCountQuery } from "@/connector";
-import { activeConnectionSelector, explorerSelector } from "../connector";
+import { explorerSelector } from "../connector";
 import { useNotification } from "@/components/NotificationProvider";
 
 export type NeighborCounts = {
@@ -44,9 +44,8 @@ export function useNeighborsCallback() {
       fetchedNeighborsSelector(vertexId)
     );
     const explorer = await snapshot.getPromise(explorerSelector);
-    const connection = await snapshot.getPromise(activeConnectionSelector);
     const response = await queryClient.ensureQueryData(
-      neighborsCountQuery(vertexId, connection?.nodeExpansionLimit, explorer)
+      neighborsCountQuery(vertexId, explorer)
     );
 
     const neighbors = calculateNeighbors(

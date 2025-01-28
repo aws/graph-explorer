@@ -146,6 +146,7 @@ export default function GraphViewer({
     async (_, vertex) => {
       const neighborCount = await neighborCallback(vertex.id);
       const offset = neighborCount ? neighborCount.fetched : undefined;
+
       expandNode(vertex, {
         limit: 10,
         offset,

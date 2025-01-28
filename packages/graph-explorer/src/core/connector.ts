@@ -19,7 +19,7 @@ import { Explorer } from "@/connector/useGEFetchTypes";
  * Active connection where the value will only change when one of the
  * properties we care about are changed.
  */
-export const activeConnectionSelector = equalSelector({
+const activeConnectionSelector = equalSelector({
   key: "activeConnection",
   get: ({ get }) => {
     const config = get(mergedConfigurationSelector);
