@@ -7,7 +7,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router";
-import { useRecoilValue, useSetRecoilState } from "recoil";
+import { useSetRecoilState } from "recoil";
 import { Vertex } from "@/core";
 import {
   CheckIcon,
@@ -40,7 +40,7 @@ import {
   useDisplayVerticesFromVertices,
   useWithTheme,
 } from "@/core";
-import { explorerSelector } from "@/core/connector";
+import { useExplorer } from "@/core/connector";
 import {
   userStylingAtom,
   VertexPreferences,
@@ -373,7 +373,7 @@ function useDataExplorerQuery(
   pageSize: number,
   pageIndex: number
 ) {
-  const explorer = useRecoilValue(explorerSelector);
+  const explorer = useExplorer();
   const queryClient = useQueryClient();
 
   const updatePrefixes = usePrefixesUpdater();

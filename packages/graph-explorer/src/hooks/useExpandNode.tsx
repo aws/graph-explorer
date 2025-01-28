@@ -8,8 +8,8 @@ import {
 } from "@/connector";
 import {
   activeConnectionSelector,
-  explorerSelector,
   loggerSelector,
+  useExplorer,
 } from "@/core/connector";
 import useEntities from "./useEntities";
 import { useRecoilValue } from "recoil";
@@ -36,7 +36,7 @@ export type ExpandNodeRequest = {
  */
 export default function useExpandNode() {
   const queryClient = useQueryClient();
-  const explorer = useRecoilValue(explorerSelector);
+  const explorer = useExplorer();
   const [_, setEntities] = useEntities();
   const { enqueueNotification, clearNotification } = useNotification();
   const remoteLogger = useRecoilValue(loggerSelector);

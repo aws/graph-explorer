@@ -1,13 +1,11 @@
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { explorerSelector } from "@/core/connector";
+import { useExplorer } from "@/core";
 import useUpdateSchema from "./useUpdateSchema";
-import { useRecoilValue } from "recoil";
 import { nodeCountByNodeTypeQuery } from "@/connector";
 
 export default function useUpdateVertexTypeCounts(vertexType: string) {
-  const explorer = useRecoilValue(explorerSelector);
-
+  const explorer = useExplorer();
   const query = useQuery(nodeCountByNodeTypeQuery(vertexType, explorer));
 
   // Sync the result over to the schema in Recoil state

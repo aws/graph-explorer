@@ -1,12 +1,12 @@
 import { useQueries, useQuery } from "@tanstack/react-query";
 import { useRecoilValue } from "recoil";
 import { neighborsCountQuery } from "@/connector";
-import { activeConnectionSelector, explorerSelector } from "@/core/connector";
+import { activeConnectionSelector, useExplorer } from "@/core/connector";
 import { VertexId } from "@/core";
 
 export function useUpdateNodeCountsQuery(vertexId: VertexId) {
   const connection = useRecoilValue(activeConnectionSelector);
-  const explorer = useRecoilValue(explorerSelector);
+  const explorer = useExplorer();
   return useQuery(
     neighborsCountQuery(vertexId, connection?.nodeExpansionLimit, explorer)
   );
@@ -14,7 +14,7 @@ export function useUpdateNodeCountsQuery(vertexId: VertexId) {
 
 export function useAllNeighborCountsQuery(vertexIds: VertexId[]) {
   const connection = useRecoilValue(activeConnectionSelector);
-  const explorer = useRecoilValue(explorerSelector);
+  const explorer = useExplorer();
 
   return useQueries({
     queries: vertexIds.map(vertex =>
