@@ -17,6 +17,15 @@
   ([#743](https://github.com/aws/graph-explorer/pull/743))
 - **Improved** pagination controls by using a single shared component
   ([#742](https://github.com/aws/graph-explorer/pull/742))
+- **Updated** graph foundations to accommodate loading a graph from a set of IDs
+  ([#756](https://github.com/aws/graph-explorer/pull/756),
+  [#758](https://github.com/aws/graph-explorer/pull/758),
+  [#761](https://github.com/aws/graph-explorer/pull/761),
+  [#762](https://github.com/aws/graph-explorer/pull/762),
+  [#767](https://github.com/aws/graph-explorer/pull/767),
+  [#768](https://github.com/aws/graph-explorer/pull/768),
+  [#769](https://github.com/aws/graph-explorer/pull/769),
+  [#770](https://github.com/aws/graph-explorer/pull/770))
 - **Updated** dependencies
   ([#764](https://github.com/aws/graph-explorer/pull/764))
 
