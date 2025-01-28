@@ -20,13 +20,13 @@ import {
   ZoomOutIcon,
 } from "@/components/icons";
 import { useDisplayEdgesInCanvas, useDisplayVerticesInCanvas } from "@/core";
-import { edgesSelectedIdsAtom, toEdgeMap } from "@/core/StateProvider/edges";
-import { nodesSelectedIdsAtom, toNodeMap } from "@/core/StateProvider/nodes";
+import { edgesSelectedIdsAtom } from "@/core/StateProvider/edges";
+import { nodesSelectedIdsAtom } from "@/core/StateProvider/nodes";
 import {
   SidebarItems,
   userLayoutAtom,
 } from "@/core/StateProvider/userPreferences";
-import { useEntities, useTranslations } from "@/hooks";
+import { useClearGraph, useRemoveFromGraph, useTranslations } from "@/hooks";
 import useGraphGlobalActions from "../useGraphGlobalActions";
 import { EdgeId, VertexId } from "@/core";
 import { MinusCircleIcon } from "lucide-react";
@@ -49,7 +49,6 @@ const ContextMenu = ({
   onEdgeCustomize,
 }: ContextMenuProps) => {
   const t = useTranslations();
-  const [_, setEntities] = useEntities();
   const displayNodes = useDisplayVerticesInCanvas();
   const displayEdges = useDisplayEdgesInCanvas();
   const [nodesSelectedIds, setNodesSelectedIds] =
@@ -135,41 +134,20 @@ const ContextMenu = ({
     onClose?.();
   }, [onClose, onZoomOut]);
 
+  const removeFromGraph = useRemoveFromGraph();
   const handleRemoveFromCanvas = useCallback(
     (nodesIds: VertexId[], edgesIds: EdgeId[]) => () => {
-      setEntities(prev => {
-        // const newNodes = new Map(prev.nodes);
-        // nodesIds.forEach(id => newNodes.delete(id));
-        return {
-          // nodes: newNodes,
-          nodes: toNodeMap(
-            prev.nodes
-              .values()
-              .filter(n => !nodesIds.includes(n.id))
-              .toArray()
-          ),
-          edges: toEdgeMap(
-            prev.edges
-              .values()
-              .filter(e => !edgesIds.includes(e.id))
-              .toArray()
-          ),
-          forceSet: true,
-        };
-      });
+      removeFromGraph({ vertices: nodesIds, edges: edgesIds });
       onClose?.();
     },
-    [onClose, setEntities]
+    [onClose, removeFromGraph]
   );
 
+  const clearGraph = useClearGraph();
   const handleRemoveAllFromCanvas = useCallback(() => {
-    setEntities({
-      nodes: new Map(),
-      edges: new Map(),
-      forceSet: true,
-    });
+    clearGraph();
     onClose?.();
-  }, [onClose, setEntities]);
+  }, [onClose, clearGraph]);
 
   const noSelectionOrNotAffected =
     affectedNodesIds?.length === 0 &&

@@ -32,7 +32,7 @@ import {
   nodesOutOfFocusIdsAtom,
   nodesSelectedIdsAtom,
 } from "@/core/StateProvider/nodes";
-import { useEntities, useExpandNode } from "@/hooks";
+import { useClearGraph, useEntities, useExpandNode } from "@/hooks";
 import ContextMenu from "./internalComponents/ContextMenu";
 import useContextMenu from "./useContextMenu";
 import useGraphGlobalActions from "./useGraphGlobalActions";
@@ -93,7 +93,7 @@ export default function GraphViewer({
   onEdgeCustomize,
 }: GraphViewerProps) {
   const graphRef = useRef<GraphRef | null>(null);
-  const [entities, setEntities] = useEntities();
+  const [entities] = useEntities();
 
   const [nodesSelectedIds, setNodesSelectedIds] =
     useRecoilState(nodesSelectedIdsAtom);
@@ -155,13 +155,7 @@ export default function GraphViewer({
   );
 
   const [layout, setLayout] = useState("F_COSE");
-  const onClearCanvas = useCallback(() => {
-    setEntities({
-      nodes: new Map(),
-      edges: new Map(),
-      forceSet: true,
-    });
-  }, [setEntities]);
+  const onClearGraph = useClearGraph();
 
   const nodes = useMemo(
     () =>
@@ -226,7 +220,7 @@ export default function GraphViewer({
               label="Clear canvas"
               icon={<RemoveFromCanvasIcon />}
               color="error"
-              onActionClick={onClearCanvas}
+              onActionClick={onClearGraph}
             />
             <PanelHeaderActionButton
               label="Legend"
