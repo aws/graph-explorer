@@ -1,4 +1,4 @@
-import { VertexId } from "@/core";
+import { useDisplayVerticesInCanvas, VertexId } from "@/core";
 import { selectorFamily, useRecoilCallback, useRecoilValue } from "recoil";
 import { edgesAtom } from "./edges";
 import { nodesAtom } from "./nodes";
@@ -96,11 +96,14 @@ export function useNeighborByType(vertexId: VertexId, type: string) {
   return neighbors;
 }
 
-export function useAllNeighbors(vertices: VertexId[]) {
+export function useAllNeighbors() {
+  const vertices = useDisplayVerticesInCanvas();
+  const vertexIds = useMemo(() => vertices.keys().toArray(), [vertices]);
+
   const fetchedNeighbors = useRecoilValue(
-    allFetchedNeighborsSelector(vertices)
+    allFetchedNeighborsSelector(vertexIds)
   );
-  const query = useAllNeighborCountsQuery(vertices);
+  const query = useAllNeighborCountsQuery(vertexIds);
 
   const { enqueueNotification, clearNotification } = useNotification();
 
