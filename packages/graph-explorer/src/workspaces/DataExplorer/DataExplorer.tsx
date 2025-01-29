@@ -393,7 +393,10 @@ function useDataExplorerQuery(
       return;
     }
 
-    updatePrefixes(query.data.vertices.map(v => v.id));
+    const vertexIds = query.data.vertices
+      .map(v => v.id)
+      .filter(id => typeof id === "string");
+    updatePrefixes(vertexIds);
   }, [query.data, updatePrefixes]);
 
   return query;
