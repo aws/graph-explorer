@@ -18,7 +18,6 @@ const mapIncomingToEdge = (
   return {
     entityType: "edge",
     id: createEdgeId(`${sourceUri}-[${predicate}]->${getRawId(resourceURI)}`),
-    idType: "string",
     type: predicate,
     source: createVertexId(sourceUri),
     sourceType: result.subjectClass.value,

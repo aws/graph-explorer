@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { Vertex, VertexId } from "@/core";
+import type { VertexId } from "@/core";
 import { PanelError, PanelFooter, VertexRow } from "@/components";
 import Button from "@/components/Button";
 import ExpandGraphIcon from "@/components/icons/ExpandGraphIcon";
@@ -15,7 +15,7 @@ import useTranslations from "@/hooks/useTranslations";
 import NeighborsList from "@/modules/common/NeighborsList/NeighborsList";
 import defaultStyles from "./NodeExpandContent.styles";
 import NodeExpandFilters, { NodeExpandFilter } from "./NodeExpandFilters";
-import { ExpandNodeRequest } from "@/hooks/useExpandNode";
+import { ExpandNodeFilters } from "@/hooks/useExpandNode";
 import { useUpdateNodeCountsQuery } from "@/hooks/useUpdateNodeCounts";
 import { cn } from "@/utils";
 
@@ -31,16 +31,15 @@ export default function NodeExpandContent({ vertex }: NodeExpandContentProps) {
       className={cn(styleWithTheme(defaultStyles), "flex h-full grow flex-col")}
     >
       <VertexRow vertex={vertex} className="border-b p-3" />
-      <ExpandSidebarContent id={vertex.id} />
+      <ExpandSidebarContent vertexId={vertex.id} />
     </div>
   );
 }
 
-function ExpandSidebarContent({ id }: { id: VertexId }) {
-  const vertex = useNode(id);
+function ExpandSidebarContent({ vertexId }: { vertexId: VertexId }) {
   const t = useTranslations();
-  const query = useUpdateNodeCountsQuery(vertex);
-  const neighborsOptions = useNeighborsOptions(vertex);
+  const query = useUpdateNodeCountsQuery(vertexId);
+  const neighborsOptions = useNeighborsOptions(vertexId);
 
   if (query.isError) {
     return <PanelError error={query.error} onRetry={query.refetch} />;
@@ -64,9 +63,9 @@ function ExpandSidebarContent({ id }: { id: VertexId }) {
 
   return (
     <>
-      <NeighborsList id={vertex.id} />
+      <NeighborsList vertexId={vertexId} />
       <ExpansionOptions
-        vertex={vertex}
+        vertexId={vertexId}
         neighborsOptions={neighborsOptions}
         key={neighborsOptions.map(o => o.value).join()}
       />
@@ -75,14 +74,14 @@ function ExpandSidebarContent({ id }: { id: VertexId }) {
 }
 
 function ExpansionOptions({
-  vertex,
+  vertexId,
   neighborsOptions,
 }: {
-  vertex: Vertex;
+  vertexId: VertexId;
   neighborsOptions: NeighborOption[];
 }) {
   const t = useTranslations();
-  const neighbors = useNeighbors(vertex);
+  const neighbors = useNeighbors(vertexId);
 
   const [selectedType, setSelectedType] = useState<string>(
     firstNeighborAvailableForExpansion(neighborsOptions)?.value ?? ""
@@ -127,7 +126,7 @@ function ExpansionOptions({
       <PanelFooter className="flex flex-row justify-end">
         <ExpandButton
           isDisabled={!hasUnfetchedNeighbors || !hasSelectedType}
-          vertex={vertex}
+          vertexId={vertexId}
           filters={{
             filterByVertexTypes: [selectedType],
             filterCriteria: filters.map(filter => ({
@@ -145,10 +144,15 @@ function ExpansionOptions({
 }
 
 function ExpandButton({
+  vertexId,
   isDisabled,
-  vertex,
   filters,
-}: ExpandNodeRequest & { isDisabled: boolean }) {
+}: {
+  vertexId: VertexId;
+  isDisabled: boolean;
+  filters: ExpandNodeFilters;
+}) {
+  const vertex = useNode(vertexId);
   const { expandNode, isPending } = useExpandNode();
 
   return (

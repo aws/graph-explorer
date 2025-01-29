@@ -35,7 +35,7 @@ export async function vertexDetails(
         # Get the resource attributes
         SELECT ?label ?value
         WHERE {
-          ${idParam(request.vertex.id)} ?label ?value .
+          ${idParam(request.vertexId)} ?label ?value .
           FILTER(isLiteral(?value))
         }
       }
@@ -44,7 +44,7 @@ export async function vertexDetails(
         # Get the resource type
         SELECT ?label ?value
         WHERE {
-          ${idParam(request.vertex.id)} a ?value .
+          ${idParam(request.vertexId)} a ?value .
           BIND(IRI("${rdfTypeUri}") AS ?label)
         }
       }
@@ -76,11 +76,11 @@ export async function vertexDetails(
 
   // Map the results
   if (parsed.data.results.bindings.length === 0) {
-    logger.warn("Vertex not found", request.vertex, response);
+    logger.warn("Vertex not found", request.vertexId, response);
     return { vertex: null };
   }
 
-  const vertex = mapToVertex(request.vertex.id, parsed.data.results.bindings);
+  const vertex = mapToVertex(request.vertexId, parsed.data.results.bindings);
 
   return { vertex };
 }

@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Vertex } from "@/core";
+import { VertexId } from "@/core";
 import { SelectOption } from "@/components";
 import {
   DisplayVertexTypeConfig,
@@ -11,9 +11,11 @@ export type NeighborOption = SelectOption & {
   config: DisplayVertexTypeConfig;
 };
 
-export default function useNeighborsOptions(vertex: Vertex): NeighborOption[] {
+export default function useNeighborsOptions(
+  vertexId: VertexId
+): NeighborOption[] {
   const vtConfigs = useDisplayVertexTypeConfigs();
-  const neighbors = useNeighbors(vertex);
+  const neighbors = useNeighbors(vertexId);
 
   return useMemo(() => {
     if (!neighbors) {

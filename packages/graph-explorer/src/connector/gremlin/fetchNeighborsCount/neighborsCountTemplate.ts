@@ -13,10 +13,10 @@ import { idParam } from "../idParam";
  *  .group().by(label).by(count())
  */
 export default function neighborsCountTemplate({
-  vertex,
+  vertexId,
   limit = 0,
 }: NeighborsCountRequest) {
-  let template = `g.V(${idParam(vertex.id)}).both()`;
+  let template = `g.V(${idParam(vertexId)}).both()`;
 
   if (limit > 0) {
     template += `.limit(${limit})`;

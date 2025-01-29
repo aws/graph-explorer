@@ -25,7 +25,7 @@ export async function edgeDetails(
 ): Promise<EdgeDetailsResponse> {
   const template = query`
     MATCH ()-[edge]-()
-    WHERE ID(edge) = ${idParam(req.edge.id)}
+    WHERE ID(edge) = ${idParam(req.edgeId)}
     RETURN edge, labels(startNode(edge)) as sourceLabels, labels(endNode(edge)) as targetLabels
   `;
   const data = await openCypherFetch<Response | ErrorResponse>(template);
@@ -33,7 +33,7 @@ export async function edgeDetails(
   if (isErrorResponse(data)) {
     logger.error(
       "Failed to fetch edge details",
-      req.edge,
+      req.edgeId,
       data.detailedMessage
     );
     throw new Error(data.detailedMessage);
@@ -42,7 +42,7 @@ export async function edgeDetails(
   const value = data.results[0];
 
   if (!value) {
-    console.warn("Edge not found", req.edge);
+    console.warn("Edge not found", req.edgeId);
     return { edge: null };
   }
 

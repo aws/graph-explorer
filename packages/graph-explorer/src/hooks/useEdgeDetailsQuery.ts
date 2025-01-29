@@ -1,10 +1,10 @@
-import { edgeDetailsQuery, EdgeRef } from "@/connector";
-import { explorerSelector } from "@/core";
+import { edgeDetailsQuery } from "@/connector";
+import { EdgeId, explorerSelector } from "@/core";
 import { useQuery } from "@tanstack/react-query";
 import { useRecoilValue } from "recoil";
 
-export function useEdgeDetailsQuery(edge: EdgeRef) {
+export function useEdgeDetailsQuery(edgeId: EdgeId) {
   const explorer = useRecoilValue(explorerSelector);
-  const query = useQuery(edgeDetailsQuery({ edge }, explorer));
+  const query = useQuery(edgeDetailsQuery({ edgeId }, explorer));
   return query;
 }

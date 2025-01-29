@@ -80,7 +80,7 @@ describe("Gremlin > fetchNeighbors", () => {
     ];
 
     const response = await fetchNeighbors(mockGremlinFetch(), {
-      vertex: { id: createVertexId("2018"), idType: "string" },
+      vertexId: createVertexId("2018"),
       vertexType: "airport",
     });
 
@@ -206,7 +206,7 @@ describe("Gremlin > fetchNeighbors", () => {
     ];
 
     const response = await fetchNeighbors(mockGremlinFetch(), {
-      vertex: { id: createVertexId("2018"), idType: "string" },
+      vertexId: createVertexId("2018"),
       vertexType: "airport",
       filterByVertexTypes: ["airport"],
       filterCriteria: [{ name: "code", value: "TF", operator: "LIKE" }],

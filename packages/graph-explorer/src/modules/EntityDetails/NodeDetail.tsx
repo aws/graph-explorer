@@ -36,7 +36,7 @@ export default function NodeDetail({ node }: VertexDetailProps) {
   return (
     <div className={styleWithTheme(defaultStyles())}>
       <VertexRow vertex={node} className="border-b p-3" />
-      <NeighborsList id={node.id} />
+      <NeighborsList vertexId={node.id} />
       <div className="space-y-[1.125rem] p-3">
         <div className="text-lg font-bold">Properties</div>
         <ul className="space-y-[1.125rem]">

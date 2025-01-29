@@ -2,7 +2,6 @@ import { createEdgeId, createVertexId, type Edge } from "@/core";
 import type { GEdge } from "../types";
 import parseEdgePropertiesValues from "./parseEdgePropertiesValues";
 
-import { detectIdType } from "./detectIdType";
 import { extractRawId } from "./extractRawId";
 
 const mapApiEdge = (apiEdge: GEdge): Edge => {
@@ -10,7 +9,6 @@ const mapApiEdge = (apiEdge: GEdge): Edge => {
   return {
     entityType: "edge",
     id: createEdgeId(extractRawId(apiEdge["@value"].id)),
-    idType: detectIdType(apiEdge["@value"].id),
     type: apiEdge["@value"].label,
     source: createVertexId(extractRawId(apiEdge["@value"].outV)),
     sourceType: apiEdge["@value"].outVLabel,

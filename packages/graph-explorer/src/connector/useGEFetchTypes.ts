@@ -5,20 +5,10 @@ import {
 } from "@/core";
 import { ConnectionConfig } from "@shared/types";
 import { MappedQueryResults } from "./gremlin/mappers/mapResults";
-import { Edge, EdgeId, Vertex, VertexId, EntityIdType } from "@/core";
+import { Edge, EdgeId, Vertex, VertexId } from "@/core";
 
 export type QueryOptions = RequestInit & {
   queryId?: string;
-};
-
-export type VertexRef = {
-  id: VertexId;
-  idType: EntityIdType;
-};
-
-export type EdgeRef = {
-  id: EdgeId;
-  idType: EntityIdType;
 };
 
 export type VertexSchemaResponse = Pick<
@@ -89,7 +79,7 @@ export type NeighborsRequest = {
   /**
    * Source vertex ID & type.
    */
-  vertex: VertexRef;
+  vertexId: VertexId;
   /**
    * Source vertex type.
    */
@@ -123,7 +113,7 @@ export type NeighborsCountRequest = {
   /**
    * Source vertex ID & type.
    */
-  vertex: VertexRef;
+  vertexId: VertexId;
   /**
    * Limit the number of results.
    * 0 = No limit.
@@ -188,7 +178,7 @@ export type ExplorerRequestOptions = RequestInit & {
 };
 
 export type VertexDetailsRequest = {
-  vertex: VertexRef;
+  vertexId: VertexId;
 };
 
 export type VertexDetailsResponse = {
@@ -196,7 +186,7 @@ export type VertexDetailsResponse = {
 };
 
 export type EdgeDetailsRequest = {
-  edge: EdgeRef;
+  edgeId: EdgeId;
 };
 
 export type EdgeDetailsResponse = {

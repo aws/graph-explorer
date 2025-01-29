@@ -5,7 +5,6 @@ const mapRawResultToVertex = (rawResult: RawResult): Vertex => {
   return {
     entityType: "vertex",
     id: createVertexId(rawResult.uri),
-    idType: "string",
     type: rawResult.class,
     attributes: rawResult.attributes,
     __isBlank: rawResult.isBlank,

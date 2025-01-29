@@ -1,4 +1,4 @@
-import { VertexId } from "@/core";
+import { createVertexId } from "@/core";
 import { calculateNeighbors, useNeighbors } from "./neighbors";
 import {
   createRandomVertex,
@@ -20,10 +20,10 @@ describe("calculateNeighbors", () => {
       ]),
     };
     const fetchedNeighbors = [
-      { id: "1" as VertexId, type: "type1" },
-      { id: "2" as VertexId, type: "type2" },
-      { id: "3" as VertexId, type: "type1" },
-      { id: "4" as VertexId, type: "type2" },
+      { id: createVertexId("1"), type: "type1" },
+      { id: createVertexId("2"), type: "type2" },
+      { id: createVertexId("3"), type: "type1" },
+      { id: createVertexId("4"), type: "type2" },
     ];
 
     const result = calculateNeighbors(
@@ -51,7 +51,7 @@ describe("useNeighbors", () => {
     const explorer = createMockExplorer();
 
     const { result } = renderHookWithRecoilRoot(
-      () => useNeighbors(vertex),
+      () => useNeighbors(vertex.id),
       snapshot => {
         dbState.applyTo(snapshot);
         snapshot.set(explorerForTestingAtom, explorer);
@@ -79,7 +79,7 @@ describe("useNeighbors", () => {
     vi.mocked(explorer.fetchNeighborsCount).mockResolvedValueOnce(response);
 
     const { result } = renderHookWithRecoilRoot(
-      () => useNeighbors(vertex),
+      () => useNeighbors(vertex.id),
       snapshot => {
         dbState.applyTo(snapshot);
         snapshot.set(explorerForTestingAtom, explorer);

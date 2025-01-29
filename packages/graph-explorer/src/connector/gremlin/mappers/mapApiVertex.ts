@@ -1,6 +1,5 @@
 import { createVertexId, type Vertex } from "@/core";
 import type { GVertex } from "../types";
-import { detectIdType } from "./detectIdType";
 import parsePropertiesValues from "./parsePropertiesValues";
 import { extractRawId } from "./extractRawId";
 
@@ -12,7 +11,6 @@ const mapApiVertex = (apiVertex: GVertex): Vertex => {
   return {
     entityType: "vertex",
     id: createVertexId(extractRawId(apiVertex["@value"].id)),
-    idType: detectIdType(apiVertex["@value"].id),
     type: vt,
     types: labels,
     attributes: parsePropertiesValues(apiVertex["@value"].properties ?? {}),

@@ -8,7 +8,6 @@ export default function mapApiVertex(apiVertex: OCVertex): Vertex {
   return {
     entityType: "vertex",
     id: createVertexId(apiVertex["~id"]),
-    idType: "string",
     type: vt,
     types: labels,
     attributes: apiVertex["~properties"],

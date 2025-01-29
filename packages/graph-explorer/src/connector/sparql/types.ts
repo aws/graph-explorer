@@ -1,4 +1,12 @@
-import { Edge, EdgeId, Vertex, VertexId } from "@/core";
+import {
+  createEdgeId,
+  createVertexId,
+  Edge,
+  EdgeId,
+  getRawId,
+  Vertex,
+  VertexId,
+} from "@/core";
 import type { NeighborsCountResponse } from "../useGEFetchTypes";
 import { z } from "zod";
 import { logger } from "@/utils";
@@ -232,8 +240,14 @@ export function parseEdgeId(edgeId: EdgeId): {
   target: VertexId;
   predicate: string;
 } {
+  const rawEdgeId = getRawId(edgeId);
+  if (typeof rawEdgeId !== "string") {
+    logger.error("SPARQL EdgeId values must be of type string");
+    throw new Error("SPARQL EdgeId values must be of type string");
+  }
+
   const regex = /^(.*?)-\[(.*?)\]->(.*)$/;
-  const match = edgeId.match(regex);
+  const match = rawEdgeId.match(regex);
 
   if (!match) {
     logger.error("Couldn't parse SPARQL edge ID", edgeId);
@@ -241,8 +255,8 @@ export function parseEdgeId(edgeId: EdgeId): {
   }
 
   return {
-    source: match[1].trim() as VertexId,
-    predicate: match[2].trim(),
-    target: match[3].trim() as VertexId,
+    source: createVertexId(match[1].trim()),
+    predicate: createEdgeId(match[2].trim()),
+    target: createVertexId(match[3].trim()),
   };
 }

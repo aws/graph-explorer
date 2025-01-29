@@ -112,7 +112,7 @@ export function createSparqlExplorer(
     async fetchNeighbors(req, options) {
       remoteLogger.info("[SPARQL Explorer] Fetching neighbors...");
       const request: SPARQLNeighborsRequest = {
-        resourceURI: req.vertex.id,
+        resourceURI: req.vertexId,
         resourceClass: req.vertexType,
         subjectClasses: req.filterByVertexTypes,
         filterCriteria: req.filterCriteria?.map((c: Criterion) => ({
@@ -123,7 +123,7 @@ export function createSparqlExplorer(
         offset: req.offset,
       };
 
-      const bNode = blankNodes.get(req.vertex.id);
+      const bNode = blankNodes.get(req.vertexId);
       if (bNode?.neighbors) {
         return storedBlankNodeNeighborsRequest(blankNodes, request);
       }
@@ -141,7 +141,7 @@ export function createSparqlExplorer(
     },
     async fetchNeighborsCount(req, options) {
       remoteLogger.info("[SPARQL Explorer] Fetching neighbors count...");
-      const bNode = blankNodes.get(req.vertex.id);
+      const bNode = blankNodes.get(req.vertexId);
 
       if (bNode?.neighbors) {
         return bNode.neighborCounts;
@@ -157,7 +157,7 @@ export function createSparqlExplorer(
           }
         );
 
-        blankNodes.set(req.vertex.id, {
+        blankNodes.set(req.vertexId, {
           ...bNode,
           neighborCounts: {
             totalCount: response.totalCount,
@@ -175,7 +175,7 @@ export function createSparqlExplorer(
       return fetchNeighborsCount(
         _sparqlFetch(connection, featureFlags, options),
         {
-          resourceURI: req.vertex.id,
+          resourceURI: req.vertexId,
           limit: req.limit,
         }
       );

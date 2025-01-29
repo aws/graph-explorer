@@ -22,7 +22,7 @@ export async function vertexDetails(
   req: VertexDetailsRequest
 ): Promise<VertexDetailsResponse> {
   const template = query`
-    MATCH (vertex) WHERE ID(vertex) = ${idParam(req.vertex.id)} RETURN vertex
+    MATCH (vertex) WHERE ID(vertex) = ${idParam(req.vertexId)} RETURN vertex
   `;
 
   // Fetch the vertex details
@@ -35,7 +35,7 @@ export async function vertexDetails(
   const ocVertex = data.results[0]?.vertex;
 
   if (!ocVertex) {
-    console.warn("Vertex not found", req.vertex);
+    console.warn("Vertex not found", req.vertexId);
     return { vertex: null };
   }
 
