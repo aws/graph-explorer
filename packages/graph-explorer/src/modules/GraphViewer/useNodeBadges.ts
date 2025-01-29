@@ -1,6 +1,6 @@
 import { useCallback } from "react";
-import { BadgeRenderer } from "@/components/Graph/hooks/useRenderBadges";
-import { VertexId } from "@/core";
+import { Badge, BadgeRenderer } from "@/components/Graph/hooks/useRenderBadges";
+import { getVertexIdFromRenderedVertexId, RenderedVertexId } from "@/core";
 import { useDisplayVerticesInCanvas } from "@/core";
 import { useAllNeighbors } from "@/core";
 
@@ -9,10 +9,11 @@ const useNodeBadges = () => {
   const neighborCounts = useAllNeighbors();
 
   return useCallback(
-    (outOfFocusIds: Set<VertexId>): BadgeRenderer =>
+    (outOfFocusIds: Set<RenderedVertexId>): BadgeRenderer =>
       (nodeData, boundingBox, { zoomLevel }) => {
-        const displayNode = displayNodes.get(nodeData.id);
-        const neighbors = neighborCounts.get(nodeData.id);
+        const vertexId = getVertexIdFromRenderedVertexId(nodeData.id);
+        const displayNode = displayNodes.get(vertexId);
+        const neighbors = neighborCounts.get(vertexId);
         // Ensure we have the node name and title
         const name = displayNode?.displayName ?? "";
         const title = displayNode?.displayTypes ?? "";
@@ -38,7 +39,7 @@ const useNodeBadges = () => {
               width: "auto",
               height: "auto",
             },
-          },
+          } satisfies Badge,
           {
             hidden:
               zoomLevel === "small" ||

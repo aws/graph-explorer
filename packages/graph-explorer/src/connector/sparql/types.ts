@@ -1,5 +1,4 @@
 import {
-  createEdgeId,
   createVertexId,
   Edge,
   EdgeId,
@@ -256,7 +255,7 @@ export function parseEdgeId(edgeId: EdgeId): {
 
   return {
     source: createVertexId(match[1].trim()),
-    predicate: createEdgeId(match[2].trim()),
+    predicate: match[2].trim(),
     target: createVertexId(match[3].trim()),
   };
 }

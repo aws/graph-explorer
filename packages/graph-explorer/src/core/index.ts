@@ -5,3 +5,4 @@ export * from "./StateProvider";
 export * from "./connector";
 export * from "./entityIdType";
 export * from "./entities";
+export * from "./renderedEntities";

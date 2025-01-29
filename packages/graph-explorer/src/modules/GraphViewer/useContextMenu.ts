@@ -1,6 +1,13 @@
 import { useCallback, useRef, useState } from "react";
 import { useLayer, useMousePositionAsTrigger } from "react-laag";
-import type { Edge, EdgeId, Vertex, VertexId } from "@/core";
+import {
+  getEdgeIdFromRenderedEdgeId,
+  getVertexIdFromRenderedVertexId,
+  type RenderedEdge,
+  type RenderedVertex,
+  type EdgeId,
+  type VertexId,
+} from "@/core";
 import type {
   ElementEventCallback,
   GraphEventCallback,
@@ -48,44 +55,46 @@ const useContextMenu = () => {
       onOutsideClick: clearAllLayers,
     });
 
-  const onNodeRightClick: ElementEventCallback<Vertex> = useCallback(
-    (event, node, bounds) => {
-      const parentBounds = parentRef.current?.getBoundingClientRect() || {
-        top: 0,
-        left: 0,
-      };
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      handleMouseEvent({
-        ...event.originalEvent,
-        // Override the event position to node bounds and parent offsets
-        clientY: parentBounds.top + bounds.top + bounds.height / 2,
-        clientX: parentBounds.left + bounds.left + bounds.width,
-      });
-      setContextNodeId(node.id);
-    },
-    [handleMouseEvent]
-  );
+  const onNodeRightClick: ElementEventCallback<RenderedVertex["data"]> =
+    useCallback(
+      (event, node, bounds) => {
+        const parentBounds = parentRef.current?.getBoundingClientRect() || {
+          top: 0,
+          left: 0,
+        };
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        handleMouseEvent({
+          ...event.originalEvent,
+          // Override the event position to node bounds and parent offsets
+          clientY: parentBounds.top + bounds.top + bounds.height / 2,
+          clientX: parentBounds.left + bounds.left + bounds.width,
+        });
+        setContextNodeId(getVertexIdFromRenderedVertexId(node.id));
+      },
+      [handleMouseEvent]
+    );
 
-  const onEdgeRightClick: ElementEventCallback<Edge> = useCallback(
-    (event, edge) => {
-      const parentBounds = parentRef.current?.getBoundingClientRect() || {
-        top: 0,
-        left: 0,
-      };
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      handleMouseEvent({
-        ...event.originalEvent,
-        // Override the event position to event position and parent offsets
-        clientY: event.renderedPosition.y + parentBounds.top,
-        clientX: event.renderedPosition.x + parentBounds.left,
-      });
-      setContextEdgeId(edge.id);
-      event.preventDefault();
-    },
-    [handleMouseEvent]
-  );
+  const onEdgeRightClick: ElementEventCallback<RenderedEdge["data"]> =
+    useCallback(
+      (event, edge) => {
+        const parentBounds = parentRef.current?.getBoundingClientRect() || {
+          top: 0,
+          left: 0,
+        };
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        handleMouseEvent({
+          ...event.originalEvent,
+          // Override the event position to event position and parent offsets
+          clientY: event.renderedPosition.y + parentBounds.top,
+          clientX: event.renderedPosition.x + parentBounds.left,
+        });
+        setContextEdgeId(getEdgeIdFromRenderedEdgeId(edge.id));
+        event.preventDefault();
+      },
+      [handleMouseEvent]
+    );
 
   const onGraphRightClick: GraphEventCallback = useCallback(
     (event, position) => {
