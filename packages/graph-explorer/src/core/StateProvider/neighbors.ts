@@ -45,7 +45,7 @@ export function useNeighborsCallback() {
     );
     const explorer = await snapshot.getPromise(explorerSelector);
     const response = await queryClient.ensureQueryData(
-      neighborsCountQuery(vertexId, explorer)
+      neighborsCountQuery({ vertexId }, explorer)
     );
 
     const neighbors = calculateNeighbors(
