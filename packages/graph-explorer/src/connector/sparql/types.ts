@@ -169,7 +169,7 @@ export type BlankNodeItem = {
   };
 };
 
-export type BlankNodesMap = Map<string, BlankNodeItem>;
+export type BlankNodesMap = Map<VertexId, BlankNodeItem>;
 
 export type GraphSummary = {
   numDistinctSubjects: number;
