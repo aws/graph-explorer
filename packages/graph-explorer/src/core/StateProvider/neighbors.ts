@@ -1,4 +1,4 @@
-import { VertexId } from "@/core";
+import { useDisplayVerticesInCanvas, VertexId } from "@/core";
 import { selectorFamily, useRecoilCallback, useRecoilValue } from "recoil";
 import { edgesAtom } from "./edges";
 import { nodesAtom } from "./nodes";
@@ -9,7 +9,7 @@ import {
 import { useEffect, useMemo } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { neighborsCountQuery } from "@/connector";
-import { activeConnectionSelector, explorerSelector } from "../connector";
+import { explorerSelector } from "../connector";
 import { useNotification } from "@/components/NotificationProvider";
 
 export type NeighborCounts = {
@@ -44,9 +44,8 @@ export function useNeighborsCallback() {
       fetchedNeighborsSelector(vertexId)
     );
     const explorer = await snapshot.getPromise(explorerSelector);
-    const connection = await snapshot.getPromise(activeConnectionSelector);
     const response = await queryClient.ensureQueryData(
-      neighborsCountQuery(vertexId, connection?.nodeExpansionLimit, explorer)
+      neighborsCountQuery(vertexId, explorer)
     );
 
     const neighbors = calculateNeighbors(
@@ -97,11 +96,14 @@ export function useNeighborByType(vertexId: VertexId, type: string) {
   return neighbors;
 }
 
-export function useAllNeighbors(vertices: VertexId[]) {
+export function useAllNeighbors() {
+  const vertices = useDisplayVerticesInCanvas();
+  const vertexIds = useMemo(() => vertices.keys().toArray(), [vertices]);
+
   const fetchedNeighbors = useRecoilValue(
-    allFetchedNeighborsSelector(vertices)
+    allFetchedNeighborsSelector(vertexIds)
   );
-  const query = useAllNeighborCountsQuery(vertices);
+  const query = useAllNeighborCountsQuery(vertexIds);
 
   const { enqueueNotification, clearNotification } = useNotification();
 

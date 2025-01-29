@@ -6,20 +6,32 @@ import { useCallback } from "react";
 import { useSetRecoilState } from "recoil";
 
 /** Returns a callback that adds an array of nodes and edges to the graph. */
-export function useAddToGraph(...entitiesToAdd: (Vertex | Edge)[]) {
+export function useAddToGraph() {
   const setEntities = useSetRecoilState(entitiesSelector);
 
-  return useCallback(() => {
-    const nodes = entitiesToAdd.filter(e => e.entityType === "vertex");
-    const edges = entitiesToAdd.filter(e => e.entityType === "edge");
+  return useCallback(
+    (entities: { vertices?: Vertex[]; edges?: Edge[] }) => {
+      const vertices = entities.vertices ?? [];
+      const edges = entities.edges ?? [];
 
-    if (nodes.length === 0 && edges.length === 0) {
-      return;
-    }
+      if (vertices.length === 0 && edges.length === 0) {
+        return;
+      }
 
-    setEntities({
-      nodes: toNodeMap(nodes),
-      edges: toEdgeMap(edges),
-    });
-  }, [entitiesToAdd, setEntities]);
+      setEntities({
+        nodes: toNodeMap(vertices),
+        edges: toEdgeMap(edges),
+      });
+    },
+    [setEntities]
+  );
+}
+
+/** Returns a callback the given vertex to the graph. */
+export function useAddVertexToGraph(vertex: Vertex) {
+  const callback = useAddToGraph();
+  return useCallback(
+    () => callback({ vertices: [vertex] }),
+    [callback, vertex]
+  );
 }

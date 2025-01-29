@@ -19,7 +19,7 @@ import { Explorer } from "@/connector/useGEFetchTypes";
  * Active connection where the value will only change when one of the
  * properties we care about are changed.
  */
-export const activeConnectionSelector = equalSelector({
+const activeConnectionSelector = equalSelector({
   key: "activeConnection",
   get: ({ get }) => {
     const config = get(mergedConfigurationSelector);
@@ -74,6 +74,14 @@ export const explorerSelector = selector({
     }
   },
 });
+
+export function useExplorer() {
+  const explorer = useRecoilValue(explorerSelector);
+  if (!explorer) {
+    throw new Error("No explorer found");
+  }
+  return explorer;
+}
 
 /** CAUTION: This atom is only for testing purposes. */
 export const explorerForTestingAtom = atom<Explorer | null>({

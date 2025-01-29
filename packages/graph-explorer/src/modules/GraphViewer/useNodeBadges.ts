@@ -6,12 +6,7 @@ import { useAllNeighbors } from "@/core";
 
 const useNodeBadges = () => {
   const displayNodes = useDisplayVerticesInCanvas();
-  const neighborCounts = useAllNeighbors(
-    displayNodes
-      .values()
-      .map(v => v.id)
-      .toArray()
-  );
+  const neighborCounts = useAllNeighbors();
 
   return useCallback(
     (outOfFocusIds: Set<VertexId>): BadgeRenderer =>

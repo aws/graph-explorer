@@ -1,8 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { explorerSelector } from "@/core/connector";
+import { useExplorer } from "@/core/connector";
 import usePrefixesUpdater from "@/hooks/usePrefixesUpdater";
 import { useCallback, useEffect } from "react";
-import { useRecoilValue } from "recoil";
 import { KeywordSearchRequest, searchQuery } from "@/connector";
 
 export type SearchQueryRequest = {
@@ -18,7 +17,7 @@ export function useKeywordSearchQuery({
   searchByAttributes,
   exactMatch,
 }: SearchQueryRequest) {
-  const explorer = useRecoilValue(explorerSelector);
+  const explorer = useExplorer();
   const queryClient = useQueryClient();
   const updatePrefixes = usePrefixesUpdater();
 

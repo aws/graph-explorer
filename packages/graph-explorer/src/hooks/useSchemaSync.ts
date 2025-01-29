@@ -1,7 +1,7 @@
 import { useCallback, useRef } from "react";
 import { useNotification } from "@/components/NotificationProvider";
 import { useConfiguration } from "@/core/ConfigurationProvider";
-import { explorerSelector, loggerSelector } from "@/core/connector";
+import { loggerSelector, useExplorer } from "@/core/connector";
 import usePrefixesUpdater from "./usePrefixesUpdater";
 import useUpdateSchema from "./useUpdateSchema";
 import { createDisplayError } from "@/utils/createDisplayError";
@@ -9,7 +9,7 @@ import { useRecoilValue } from "recoil";
 
 const useSchemaSync = (onSyncChange?: (isSyncing: boolean) => void) => {
   const config = useConfiguration();
-  const explorer = useRecoilValue(explorerSelector);
+  const explorer = useExplorer();
   const remoteLogger = useRecoilValue(loggerSelector);
 
   const updatePrefixes = usePrefixesUpdater();

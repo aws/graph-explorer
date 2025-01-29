@@ -6,19 +6,13 @@ import {
   type NeighborsRequest,
   type NeighborsResponse,
 } from "@/connector";
-import {
-  activeConnectionSelector,
-  explorerSelector,
-  loggerSelector,
-} from "@/core/connector";
-import useEntities from "./useEntities";
+import { loggerSelector, useExplorer } from "@/core/connector";
 import { useRecoilValue } from "recoil";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Vertex } from "@/core";
 import { createDisplayError } from "@/utils/createDisplayError";
-import { toNodeMap } from "@/core/StateProvider/nodes";
-import { toEdgeMap } from "@/core/StateProvider/edges";
 import { useNeighborsCallback } from "@/core";
+import { useAddToGraph } from "./useAddToGraph";
 
 export type ExpandNodeFilters = Omit<
   NeighborsRequest,
@@ -36,8 +30,8 @@ export type ExpandNodeRequest = {
  */
 export default function useExpandNode() {
   const queryClient = useQueryClient();
-  const explorer = useRecoilValue(explorerSelector);
-  const [_, setEntities] = useEntities();
+  const explorer = useExplorer();
+  const addToGraph = useAddToGraph();
   const { enqueueNotification, clearNotification } = useNotification();
   const remoteLogger = useRecoilValue(loggerSelector);
 
@@ -45,6 +39,21 @@ export default function useExpandNode() {
     mutationFn: async (
       expandNodeRequest: ExpandNodeRequest
     ): Promise<NeighborsResponse | null> => {
+      // Calculate the expansion limit based on the connection limit and the request limit
+      const limit = (() => {
+        if (!explorer.connection.nodeExpansionLimit) {
+          return expandNodeRequest.filters?.limit;
+        }
+        if (!expandNodeRequest.filters?.limit) {
+          return explorer.connection.nodeExpansionLimit;
+        }
+        // If both exists then use the smaller of the two
+        return Math.min(
+          explorer.connection.nodeExpansionLimit,
+          expandNodeRequest.filters.limit
+        );
+      })();
+
       // Perform the query when a request exists
       const request: NeighborsRequest | null = expandNodeRequest && {
         vertexId: expandNodeRequest.vertex.id,
@@ -52,6 +61,7 @@ export default function useExpandNode() {
           expandNodeRequest.vertex.types?.join("::") ??
           expandNodeRequest.vertex.type,
         ...expandNodeRequest.filters,
+        limit,
       };
 
       if (!explorer || !request) {
@@ -70,10 +80,7 @@ export default function useExpandNode() {
       updateEdgeDetailsCache(explorer, queryClient, data.edges);
 
       // Update nodes and edges in the graph
-      setEntities({
-        nodes: toNodeMap(data.vertices),
-        edges: toEdgeMap(data.edges),
-      });
+      addToGraph(data);
     },
     onError: error => {
       remoteLogger.error(`Failed to expand node: ${error.message}`);
@@ -92,10 +99,8 @@ export default function useExpandNode() {
     if (!isPending) {
       return;
     }
-    // const displayName = getDisplayNames(expandNodeRequest.vertex);
     const notificationId = enqueueNotification({
       title: "Expanding Node",
-      // message: `Expanding the node ${displayName.name}`,
       message: "Expanding neighbors for the given node.",
       stackable: true,
     });
@@ -104,7 +109,6 @@ export default function useExpandNode() {
   }, [clearNotification, enqueueNotification, isPending]);
 
   // Build the expand node callback
-  const connection = useRecoilValue(activeConnectionSelector);
   const neighborCallback = useNeighborsCallback();
   const expandNode = useCallback(
     async (vertex: Vertex, filters?: ExpandNodeFilters) => {
@@ -118,10 +122,7 @@ export default function useExpandNode() {
       }
       const request: ExpandNodeRequest = {
         vertex,
-        filters: {
-          ...filters,
-          limit: filters?.limit || connection?.nodeExpansionLimit,
-        },
+        filters,
       };
 
       // Only allow expansion if we are not busy with another expansion
@@ -140,13 +141,7 @@ export default function useExpandNode() {
 
       mutate(request);
     },
-    [
-      connection?.nodeExpansionLimit,
-      enqueueNotification,
-      isPending,
-      mutate,
-      neighborCallback,
-    ]
+    [enqueueNotification, isPending, mutate, neighborCallback]
   );
 
   return {

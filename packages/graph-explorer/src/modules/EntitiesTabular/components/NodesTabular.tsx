@@ -30,12 +30,7 @@ const NodesTabular = forwardRef<TabularInstance<ToggleVertex>, any>(
   (_props, ref) => {
     const t = useTranslations();
     const displayNodes = useDisplayVerticesInCanvas();
-    const neighborCounts = useAllNeighbors(
-      displayNodes
-        .values()
-        .map(v => v.id)
-        .toArray()
-    );
+    const neighborCounts = useAllNeighbors();
     const setNodesOut = useSetRecoilState(nodesOutOfFocusIdsAtom);
     const [hiddenNodesIds, setHiddenNodesIds] =
       useRecoilState(nodesFilteredIdsAtom);

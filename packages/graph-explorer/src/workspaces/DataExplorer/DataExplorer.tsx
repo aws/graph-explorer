@@ -7,7 +7,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router";
-import { useRecoilValue, useSetRecoilState } from "recoil";
+import { useSetRecoilState } from "recoil";
 import { Vertex } from "@/core";
 import {
   CheckIcon,
@@ -40,12 +40,12 @@ import {
   useDisplayVerticesFromVertices,
   useWithTheme,
 } from "@/core";
-import { explorerSelector } from "@/core/connector";
+import { useExplorer } from "@/core/connector";
 import {
   userStylingAtom,
   VertexPreferences,
 } from "@/core/StateProvider/userPreferences";
-import { useAddToGraph, useHasVertexBeenAddedToGraph } from "@/hooks";
+import { useAddVertexToGraph, useHasVertexBeenAddedToGraph } from "@/hooks";
 import usePrefixesUpdater from "@/hooks/usePrefixesUpdater";
 import useTranslations from "@/hooks/useTranslations";
 import useUpdateVertexTypeCounts from "@/hooks/useUpdateVertexTypeCounts";
@@ -264,7 +264,7 @@ function DisplayNameAndDescriptionOptions({
 }
 
 function AddToExplorerButton({ vertex }: { vertex: Vertex }) {
-  const addToGraph = useAddToGraph(vertex);
+  const addToGraph = useAddVertexToGraph(vertex);
   const isInExplorer = useHasVertexBeenAddedToGraph(vertex.id);
 
   return (
@@ -373,7 +373,7 @@ function useDataExplorerQuery(
   pageSize: number,
   pageIndex: number
 ) {
-  const explorer = useRecoilValue(explorerSelector);
+  const explorer = useExplorer();
   const queryClient = useQueryClient();
 
   const updatePrefixes = usePrefixesUpdater();
