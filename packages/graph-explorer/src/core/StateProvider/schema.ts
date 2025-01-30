@@ -1,4 +1,4 @@
-import { atom, selector } from "recoil";
+import { atom, DefaultValue, selector } from "recoil";
 import {
   EdgeTypeConfig,
   PrefixTypeConfig,
@@ -44,7 +44,7 @@ export const activeSchemaSelector = selector({
       const updatedSchemaMap = new Map(prevSchemaMap);
 
       // Handle reset value
-      if (!newValue || isDefaultValue(newValue)) {
+      if (newValue instanceof DefaultValue || !newValue) {
         updatedSchemaMap.delete(schemaId);
         return updatedSchemaMap;
       }
