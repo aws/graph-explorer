@@ -65,7 +65,7 @@ describe("createDisplayError", () => {
   });
 
   it("Should handle AbortError", () => {
-    const result = createDisplayError({ name: "AbortError" });
+    const result = createDisplayError(new FakeError("AbortError", "Aborted"));
     expect(result).toStrictEqual({
       title: "Request cancelled",
       message: "The request exceeded the configured timeout length.",
@@ -89,4 +89,32 @@ describe("createDisplayError", () => {
         "The executed query was rejected by the database. It is possible the query structure is not supported by your database.",
     });
   });
+
+  it("Should handle TimeoutError", () => {
+    const result = createDisplayError(
+      new FakeError("TimeoutError", "Timed out")
+    );
+    expect(result).toStrictEqual({
+      title: "Fetch Timeout Exceeded",
+      message: "The request exceeded the configured fetch timeout.",
+    });
+  });
+
+  it("Should handle failed to fetch error", () => {
+    const result = createDisplayError(
+      new FakeError("TypeError", "Failed to fetch")
+    );
+    expect(result).toStrictEqual({
+      title: "Connection Error",
+      message: "Please check your connection and try again.",
+    });
+  });
 });
+
+/** Used to create errors for test code. */
+class FakeError extends Error {
+  constructor(name: string, message: string) {
+    super(message);
+    this.name = name;
+  }
+}

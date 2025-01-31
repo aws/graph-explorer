@@ -33,12 +33,21 @@ export function createDisplayError(error: any): DisplayError {
         message: "Please check your connection and try again.",
       };
     }
-
-    // Server timeout
+    if (
+      error?.code === "ERR_INVALID_URL" ||
+      error?.cause?.code === "ERR_INVALID_URL"
+    ) {
+      return {
+        title: "Invalid URL",
+        message:
+          "Please check the database URL in the connection and try again.",
+      };
+    }
     if (
       error?.code === "TimeLimitExceededException" ||
       error?.cause?.code === "TimeLimitExceededException"
     ) {
+      // Server timeout
       return {
         title: "Deadline exceeded",
         message:
@@ -58,12 +67,28 @@ export function createDisplayError(error: any): DisplayError {
       };
     }
 
-    // Fetch timeout
-    if (error?.name === "AbortError") {
-      return {
-        title: "Request cancelled",
-        message: "The request exceeded the configured timeout length.",
-      };
+    if (error instanceof Error) {
+      // Fetch timeout
+      if (error.name === "AbortError") {
+        return {
+          title: "Request cancelled",
+          message: "The request exceeded the configured timeout length.",
+        };
+      }
+      if (error.name === "TimeoutError") {
+        return {
+          title: "Fetch Timeout Exceeded",
+          message: "The request exceeded the configured fetch timeout.",
+        };
+      }
+
+      // Internet issues
+      if (error.name === "TypeError" && error.message === "Failed to fetch") {
+        return {
+          title: "Connection Error",
+          message: "Please check your connection and try again.",
+        };
+      }
     }
   }
   return defaultDisplayError;
