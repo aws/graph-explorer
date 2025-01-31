@@ -2,17 +2,16 @@ import { useCallback } from "react";
 import { useSetRecoilState } from "recoil";
 import { useNotification } from "@/components/NotificationProvider";
 import { useConfiguration } from "@/core";
-import { schemaAtom } from "@/core/StateProvider/schema";
+import { activeSchemaSelector } from "@/core/StateProvider/schema";
 import generatePrefixes from "@/utils/generatePrefixes";
 
 const usePrefixesUpdater = () => {
   const config = useConfiguration();
-  const setSchema = useSetRecoilState(schemaAtom);
+  const setActiveSchema = useSetRecoilState(activeSchemaSelector);
   const { enqueueNotification } = useNotification();
 
   const supportsPrefixes = config?.connection?.queryEngine === "sparql";
   const existingPrefixes = config?.schema?.prefixes;
-  const activeConfigId = config?.id;
 
   return useCallback(
     (ids: Array<string>) => {
@@ -25,23 +24,15 @@ const usePrefixesUpdater = () => {
         return;
       }
 
-      setSchema(prevSchemaMap => {
-        if (!activeConfigId) {
-          return prevSchemaMap;
+      setActiveSchema(prev => {
+        if (!prev) {
+          return prev;
         }
 
-        const updatedSchema = new Map(prevSchemaMap);
-        const schema = updatedSchema.get(activeConfigId);
-        updatedSchema.set(activeConfigId, {
-          // Update prefixes does not affect to sync last update date
-          lastUpdate: schema?.lastUpdate,
-          vertices: schema?.vertices || [],
-          edges: schema?.edges || [],
-          prefixes: genPrefixes || [],
-          lastSyncFail: schema?.lastSyncFail,
-          triedToSync: schema?.triedToSync,
-        });
-        return updatedSchema;
+        return {
+          ...prev,
+          prefixes: genPrefixes,
+        };
       });
 
       const oldPrefixesSize = existingPrefixes?.length ?? 0;
@@ -62,13 +53,7 @@ const usePrefixesUpdater = () => {
         });
       }
     },
-    [
-      supportsPrefixes,
-      existingPrefixes,
-      setSchema,
-      activeConfigId,
-      enqueueNotification,
-    ]
+    [supportsPrefixes, existingPrefixes, setActiveSchema, enqueueNotification]
   );
 };
 
