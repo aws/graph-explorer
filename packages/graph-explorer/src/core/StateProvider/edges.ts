@@ -1,5 +1,10 @@
 import { atom, selector, selectorFamily } from "recoil";
-import type { Edge, EdgeId } from "@/core";
+import {
+  createRenderedEdgeId,
+  getEdgeIdFromRenderedEdgeId,
+  type Edge,
+  type EdgeId,
+} from "@/core";
 import isDefaultValue from "./isDefaultValue";
 import { nodesFilteredIdsAtom, nodesTypesFilteredAtom } from "./nodes";
 
@@ -59,9 +64,43 @@ export const edgesSelectedIdsAtom = atom<Set<EdgeId>>({
   default: new Set(),
 });
 
+export const edgesSelectedRenderedIdsAtom = selector({
+  key: "edges-selected-rendered-ids",
+  get: ({ get }) =>
+    new Set(get(edgesSelectedIdsAtom).values().map(createRenderedEdgeId)),
+  set: ({ set }, newValue) => {
+    if (isDefaultValue(newValue)) {
+      set(edgesSelectedIdsAtom, newValue);
+      return;
+    }
+
+    set(
+      edgesSelectedIdsAtom,
+      new Set(newValue.values().map(getEdgeIdFromRenderedEdgeId))
+    );
+  },
+});
+
 export const edgesOutOfFocusIdsAtom = atom<Set<EdgeId>>({
   key: "edges-out-of-focus-ids",
   default: new Set(),
+});
+
+export const edgesOutOfFocusRenderedIdsAtom = selector({
+  key: "edges-out-of-focus-rendered-ids",
+  get: ({ get }) =>
+    new Set(get(edgesOutOfFocusIdsAtom).values().map(createRenderedEdgeId)),
+  set: ({ set }, newValue) => {
+    if (isDefaultValue(newValue)) {
+      set(edgesOutOfFocusIdsAtom, newValue);
+      return;
+    }
+
+    set(
+      edgesOutOfFocusIdsAtom,
+      new Set(newValue.values().map(getEdgeIdFromRenderedEdgeId))
+    );
+  },
 });
 
 export const edgesFilteredIdsAtom = atom<Set<EdgeId>>({

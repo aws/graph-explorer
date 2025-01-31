@@ -1,7 +1,7 @@
 import { Branded } from "@/utils";
 
-export type EdgeId = Branded<string, "EdgeId">;
-export type VertexId = Branded<string, "VertexId">;
+export type EdgeId = Branded<string | number, "EdgeId">;
+export type VertexId = Branded<string | number, "VertexId">;
 
 export type Vertex = {
   /**

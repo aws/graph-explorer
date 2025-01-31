@@ -1,6 +1,16 @@
-import { MouseEvent, useCallback, useMemo, useRef, useState } from "react";
+import { MouseEvent, useCallback, useRef, useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
-import { EdgeId, Vertex, VertexId } from "@/core";
+import {
+  createVertexFromRenderedVertex,
+  getVertexIdFromRenderedVertexId,
+  type RenderedEdgeId,
+  type RenderedVertex,
+  type RenderedVertexId,
+  useDisplayVertexTypeConfigs,
+  useNeighborsCallback,
+  useRenderedEdges,
+  useRenderedVertices,
+} from "@/core";
 import {
   Panel,
   PanelContent,
@@ -25,14 +35,14 @@ import InfoIcon from "@/components/icons/InfoIcon";
 import ScreenshotIcon from "@/components/icons/ScreenshotIcon";
 import Select from "@/components/Select";
 import {
-  edgesOutOfFocusIdsAtom,
-  edgesSelectedIdsAtom,
+  edgesOutOfFocusRenderedIdsAtom,
+  edgesSelectedRenderedIdsAtom,
 } from "@/core/StateProvider/edges";
 import {
-  nodesOutOfFocusIdsAtom,
-  nodesSelectedIdsAtom,
+  nodesOutOfFocusRenderedIdsAtom,
+  nodesSelectedRenderedIdsAtom,
 } from "@/core/StateProvider/nodes";
-import { useClearGraph, useEntities, useExpandNode } from "@/hooks";
+import { useClearGraph, useExpandNode } from "@/hooks";
 import ContextMenu from "./internalComponents/ContextMenu";
 import useContextMenu from "./useContextMenu";
 import useGraphGlobalActions from "./useGraphGlobalActions";
@@ -40,7 +50,6 @@ import useGraphStyles from "./useGraphStyles";
 import useNodeBadges from "./useNodeBadges";
 import { SelectedElements } from "@/components/Graph/Graph.model";
 import { useAutoOpenDetailsSidebar } from "./useAutoOpenDetailsSidebar";
-import { useDisplayVertexTypeConfigs, useNeighborsCallback } from "@/core";
 
 export type GraphViewerProps = {
   onNodeCustomize(nodeType?: string): void;
@@ -93,22 +102,23 @@ export default function GraphViewer({
   onEdgeCustomize,
 }: GraphViewerProps) {
   const graphRef = useRef<GraphRef | null>(null);
-  const [entities] = useEntities();
 
-  const [nodesSelectedIds, setNodesSelectedIds] =
-    useRecoilState(nodesSelectedIdsAtom);
+  const [nodesSelectedIds, setNodesSelectedIds] = useRecoilState(
+    nodesSelectedRenderedIdsAtom
+  );
 
-  const [edgesSelectedIds, setEdgesSelectedIds] =
-    useRecoilState(edgesSelectedIdsAtom);
-  const nodesOutIds = useRecoilValue(nodesOutOfFocusIdsAtom);
-  const edgesOutIds = useRecoilValue(edgesOutOfFocusIdsAtom);
+  const [edgesSelectedIds, setEdgesSelectedIds] = useRecoilState(
+    edgesSelectedRenderedIdsAtom
+  );
+  const nodesOutIds = useRecoilValue(nodesOutOfFocusRenderedIdsAtom);
+  const edgesOutIds = useRecoilValue(edgesOutOfFocusRenderedIdsAtom);
 
   const autoOpenDetails = useAutoOpenDetailsSidebar();
 
   const onSelectedElementIdsChange = useCallback(
     ({ nodeIds, edgeIds }: SelectedElements) => {
-      setNodesSelectedIds(nodeIds as Set<VertexId>);
-      setEdgesSelectedIds(edgeIds as Set<EdgeId>);
+      setNodesSelectedIds(nodeIds as Set<RenderedVertexId>);
+      setEdgesSelectedIds(edgeIds as Set<RenderedEdgeId>);
 
       if (
         (nodeIds.size === 1 && edgeIds.size === 0) ||
@@ -142,38 +152,26 @@ export default function GraphViewer({
 
   const { expandNode } = useExpandNode();
   const neighborCallback = useNeighborsCallback();
-  const onNodeDoubleClick: ElementEventCallback<Vertex> = useCallback(
-    async (_, vertex) => {
-      const neighborCount = await neighborCallback(vertex.id);
-      const offset = neighborCount ? neighborCount.fetched : undefined;
+  const onNodeDoubleClick: ElementEventCallback<RenderedVertex["data"]> =
+    useCallback(
+      async (_, vertex) => {
+        const vertexId = getVertexIdFromRenderedVertexId(vertex.id);
+        const neighborCount = await neighborCallback(vertexId);
+        const offset = neighborCount ? neighborCount.fetched : undefined;
 
-      expandNode(vertex, {
-        limit: 10,
-        offset,
-      });
-    },
-    [expandNode, neighborCallback]
-  );
+        expandNode(createVertexFromRenderedVertex({ data: vertex }), {
+          limit: 10,
+          offset,
+        });
+      },
+      [expandNode, neighborCallback]
+    );
 
   const [layout, setLayout] = useState("F_COSE");
   const onClearGraph = useClearGraph();
 
-  const nodes = useMemo(
-    () =>
-      entities.nodes
-        .values()
-        .map(n => ({ data: n }))
-        .toArray(),
-    [entities]
-  );
-  const edges = useMemo(
-    () =>
-      entities.edges
-        .values()
-        .map(e => ({ data: e }))
-        .toArray(),
-    [entities]
-  );
+  const nodes = useRenderedVertices();
+  const edges = useRenderedEdges();
 
   return (
     <div className="relative size-full grow" onContextMenu={onContextMenu}>

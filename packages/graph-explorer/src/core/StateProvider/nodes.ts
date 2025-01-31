@@ -1,5 +1,10 @@
 import { atom, selector, selectorFamily, useRecoilValue } from "recoil";
-import type { Vertex, VertexId } from "@/core";
+import {
+  createRenderedVertexId,
+  getVertexIdFromRenderedVertexId,
+  type Vertex,
+  type VertexId,
+} from "@/core";
 import isDefaultValue from "./isDefaultValue";
 
 export function toNodeMap(nodes: Vertex[]): Map<VertexId, Vertex> {
@@ -55,9 +60,43 @@ export const nodesSelectedIdsAtom = atom<Set<VertexId>>({
   default: new Set(),
 });
 
+export const nodesSelectedRenderedIdsAtom = selector({
+  key: "nodes-selected-rendered-ids",
+  get: ({ get }) =>
+    new Set(get(nodesSelectedIdsAtom).values().map(createRenderedVertexId)),
+  set: ({ set }, newValue) => {
+    if (isDefaultValue(newValue)) {
+      set(nodesSelectedIdsAtom, newValue);
+      return;
+    }
+
+    set(
+      nodesSelectedIdsAtom,
+      new Set(newValue.values().map(getVertexIdFromRenderedVertexId))
+    );
+  },
+});
+
 export const nodesOutOfFocusIdsAtom = atom<Set<VertexId>>({
   key: "nodes-out-of-focus-ids",
   default: new Set(),
+});
+
+export const nodesOutOfFocusRenderedIdsAtom = selector({
+  key: "nodes-out-of-focus-rendered-ids",
+  get: ({ get }) =>
+    new Set(get(nodesOutOfFocusIdsAtom).values().map(createRenderedVertexId)),
+  set: ({ set }, newValue) => {
+    if (isDefaultValue(newValue)) {
+      set(nodesOutOfFocusIdsAtom, newValue);
+      return;
+    }
+
+    set(
+      nodesOutOfFocusIdsAtom,
+      new Set(newValue.values().map(getVertexIdFromRenderedVertexId))
+    );
+  },
 });
 
 export const nodesFilteredIdsAtom = atom<Set<VertexId>>({

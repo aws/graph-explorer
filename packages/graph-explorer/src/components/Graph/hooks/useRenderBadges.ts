@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { Vertex } from "@/core";
+import { RenderedVertex } from "@/core";
 import { DrawBoxWithAdornmentOptions } from "@/components/utils";
 import drawBoxWithAdornment from "@/components/utils/canvas/drawBoxWithAdornment";
 import type {
@@ -17,7 +17,7 @@ export type Badge = DrawBoxWithAdornmentOptions & {
 };
 
 export type BadgeRenderer = (
-  nodeData: Vertex,
+  nodeData: RenderedVertex["data"],
   boundingBox: BoundingBox,
   options: {
     context: CanvasRenderingContext2D;
@@ -113,7 +113,7 @@ const useRenderBadges = ({
         // Draw model elements
         cy.nodes().forEach(node => {
           const zoomLevel = getZoomLevel(cy);
-          const nodeData = node.data() as Vertex;
+          const nodeData = node.data() as RenderedVertex["data"];
 
           if (
             node.style("display") === "none" ||

@@ -39,6 +39,10 @@ export function searchQuery(
   });
 }
 
+export type NeighborCountsQueryRequest = {
+  vertexId: VertexId;
+};
+
 export type NeighborCountsQueryResponse = {
   nodeId: VertexId;
   totalCount: number;
@@ -53,16 +57,15 @@ export type NeighborCountsQueryResponse = {
  * @returns The count of neighbors for the given node as a total and per type.
  */
 export function neighborsCountQuery(
-  vertexId: VertexId,
+  request: NeighborCountsQueryRequest,
   explorer: Explorer | null
 ) {
   return queryOptions({
-    queryKey: ["neighborsCount", vertexId, explorer],
-    enabled: Boolean(explorer),
+    queryKey: ["neighborsCount", request, explorer],
     queryFn: async (): Promise<NeighborCountsQueryResponse> => {
       if (!explorer) {
         return {
-          nodeId: vertexId,
+          nodeId: request.vertexId,
           totalCount: 0,
           counts: {},
         };
@@ -71,12 +74,12 @@ export function neighborsCountQuery(
       const limit = explorer.connection.nodeExpansionLimit;
 
       const result = await explorer.fetchNeighborsCount({
-        vertexId,
+        vertexId: request.vertexId,
         limit,
       });
 
       return {
-        nodeId: vertexId,
+        nodeId: request.vertexId,
         totalCount: result.totalCount,
         counts: result.counts,
       };
@@ -108,14 +111,13 @@ export function vertexDetailsQuery(
   request: VertexDetailsRequest,
   explorer: Explorer | null
 ) {
-  const vertexId = request.vertexId;
   return queryOptions({
-    queryKey: ["db", "vertex", "details", vertexId, explorer],
+    queryKey: ["db", "vertex", "details", request, explorer],
     queryFn: async ({ signal }): Promise<VertexDetailsResponse> => {
       if (!explorer) {
         return { vertex: null };
       }
-      return await explorer.vertexDetails({ vertexId }, { signal });
+      return await explorer.vertexDetails(request, { signal });
     },
   });
 }
@@ -124,14 +126,13 @@ export function edgeDetailsQuery(
   request: EdgeDetailsRequest,
   explorer: Explorer | null
 ) {
-  const edgeId = request.edgeId;
   return queryOptions({
-    queryKey: ["db", "edge", "details", edgeId, explorer],
+    queryKey: ["db", "edge", "details", request, explorer],
     queryFn: async ({ signal }): Promise<EdgeDetailsResponse> => {
       if (!explorer) {
         return { edge: null };
       }
-      return await explorer.edgeDetails({ edgeId }, { signal });
+      return await explorer.edgeDetails(request, { signal });
     },
   });
 }

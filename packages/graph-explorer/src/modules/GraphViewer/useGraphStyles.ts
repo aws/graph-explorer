@@ -1,6 +1,6 @@
 import Color from "color";
 import { useEffect, useState } from "react";
-import { EdgeId } from "@/core";
+import { getEdgeIdFromRenderedEdgeId, RenderedEdgeId } from "@/core";
 import type { GraphProps } from "@/components";
 import useTextTransform from "@/hooks/useTextTransform";
 import { renderNode } from "./renderNode";
@@ -64,8 +64,10 @@ const useGraphStyles = () => {
 
         styles[`edge[type="${et}"]`] = {
           label: (el: cytoscape.EdgeSingular) => {
-            const edgeId = el.id() as EdgeId;
-            const displayEdge = displayEdges.get(edgeId);
+            const edgeId = el.id() as RenderedEdgeId;
+            const displayEdge = displayEdges.get(
+              getEdgeIdFromRenderedEdgeId(edgeId)
+            );
             return displayEdge
               ? displayEdge.displayName
               : MISSING_DISPLAY_VALUE;
