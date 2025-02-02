@@ -1,6 +1,5 @@
 import { QueryClient, queryOptions } from "@tanstack/react-query";
 import {
-  CountsByTypeResponse,
   EdgeDetailsRequest,
   EdgeDetailsResponse,
   Explorer,
@@ -20,14 +19,13 @@ import { Edge, Vertex, VertexId } from "@/core";
  */
 export function searchQuery(
   request: KeywordSearchRequest,
-  explorer: Explorer | null,
+  explorer: Explorer,
   queryClient: QueryClient
 ) {
   return queryOptions({
     queryKey: ["keyword-search", request, explorer, queryClient],
-    enabled: Boolean(explorer),
-    queryFn: async ({ signal }): Promise<KeywordSearchResponse | null> => {
-      if (!explorer || !request) {
+    queryFn: async ({ signal }): Promise<KeywordSearchResponse> => {
+      if (!request) {
         return { vertices: [], edges: [], scalars: [] };
       }
       const results = await explorer.keywordSearch(request, { signal });
@@ -58,19 +56,11 @@ export type NeighborCountsQueryResponse = {
  */
 export function neighborsCountQuery(
   request: NeighborCountsQueryRequest,
-  explorer: Explorer | null
+  explorer: Explorer
 ) {
   return queryOptions({
     queryKey: ["neighborsCount", request, explorer],
     queryFn: async (): Promise<NeighborCountsQueryResponse> => {
-      if (!explorer) {
-        return {
-          nodeId: request.vertexId,
-          totalCount: 0,
-          counts: {},
-        };
-      }
-
       const limit = explorer.connection.nodeExpansionLimit;
 
       const result = await explorer.fetchNeighborsCount({
@@ -95,45 +85,35 @@ export function neighborsCountQuery(
  */
 export const nodeCountByNodeTypeQuery = (
   nodeType: string,
-  explorer: Explorer | null
+  explorer: Explorer
 ) =>
   queryOptions({
     queryKey: ["node-count-by-node-type", nodeType, explorer],
-    enabled: Boolean(explorer),
     queryFn: () =>
-      explorer?.fetchVertexCountsByType({
+      explorer.fetchVertexCountsByType({
         label: nodeType,
-      }) ?? nodeCountByNodeTypeEmptyResponse,
+      }),
   });
-const nodeCountByNodeTypeEmptyResponse: CountsByTypeResponse = { total: 0 };
 
 export function vertexDetailsQuery(
   request: VertexDetailsRequest,
-  explorer: Explorer | null
+  explorer: Explorer
 ) {
   return queryOptions({
     queryKey: ["db", "vertex", "details", request, explorer],
-    queryFn: async ({ signal }): Promise<VertexDetailsResponse> => {
-      if (!explorer) {
-        return { vertex: null };
-      }
-      return await explorer.vertexDetails(request, { signal });
-    },
+    queryFn: ({ signal }): Promise<VertexDetailsResponse> =>
+      explorer.vertexDetails(request, { signal }),
   });
 }
 
 export function edgeDetailsQuery(
   request: EdgeDetailsRequest,
-  explorer: Explorer | null
+  explorer: Explorer
 ) {
   return queryOptions({
     queryKey: ["db", "edge", "details", request, explorer],
-    queryFn: async ({ signal }): Promise<EdgeDetailsResponse> => {
-      if (!explorer) {
-        return { edge: null };
-      }
-      return await explorer.edgeDetails(request, { signal });
-    },
+    queryFn: ({ signal }): Promise<EdgeDetailsResponse> =>
+      explorer.edgeDetails(request, { signal }),
   });
 }
 

@@ -18,7 +18,7 @@ const useSchemaSync = (onSyncChange?: (isSyncing: boolean) => void) => {
 
   const { replaceSchema, setSyncFailure } = useUpdateSchema();
   return useCallback(async () => {
-    if (!config || !explorer) {
+    if (!config) {
       return;
     }
 

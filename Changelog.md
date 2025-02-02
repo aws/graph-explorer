@@ -25,7 +25,8 @@
   [#767](https://github.com/aws/graph-explorer/pull/767),
   [#768](https://github.com/aws/graph-explorer/pull/768),
   [#769](https://github.com/aws/graph-explorer/pull/769),
-  [#770](https://github.com/aws/graph-explorer/pull/770))
+  [#770](https://github.com/aws/graph-explorer/pull/770),
+  [#775](https://github.com/aws/graph-explorer/pull/775),
 - **Updated** dependencies
   ([#764](https://github.com/aws/graph-explorer/pull/764))
 

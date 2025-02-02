@@ -64,14 +64,14 @@ export default function useExpandNode() {
         limit,
       };
 
-      if (!explorer || !request) {
+      if (!request) {
         return null;
       }
 
       return await explorer.fetchNeighbors(request);
     },
     onSuccess: data => {
-      if (!data || !explorer) {
+      if (!data) {
         return;
       }
 
