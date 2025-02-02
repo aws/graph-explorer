@@ -15,7 +15,6 @@
   "author": "amazon",
   "license": "Apache-2.0",
   "dependencies": {
-    "@emotion/cache": "^11.14.0",
     "@emotion/css": "^11.13.5",
     "@emotion/react": "^11.14.0",
     "@graph-explorer/shared": "workspace:*",

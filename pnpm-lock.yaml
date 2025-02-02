@@ -73,9 +73,6 @@ importers:
 
   packages/graph-explorer:
     dependencies:
-      '@emotion/cache':
-        specifier: ^11.14.0
-        version: 11.14.0
       '@emotion/css':
         specifier: ^11.13.5
         version: 11.13.5
