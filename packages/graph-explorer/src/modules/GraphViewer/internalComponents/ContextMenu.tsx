@@ -1,7 +1,6 @@
-import { RefObject, useCallback } from "react";
+import { PropsWithChildren, RefObject, useCallback } from "react";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import {
-  Card,
   Divider,
   EdgeIcon,
   GraphIcon,
@@ -171,7 +170,7 @@ const ContextMenu = ({
 
   if (affectedNode) {
     return (
-      <Card className="p-1">
+      <Layout>
         <ListItem className="font-bold">
           <GraphIcon />
           {affectedNode.displayName}
@@ -198,13 +197,13 @@ const ContextMenu = ({
           <MinusCircleIcon className="size-5" color="red" />
           Remove {t("graph-viewer.node").toLowerCase()} from view
         </ListItem>
-      </Card>
+      </Layout>
     );
   }
 
   if (affectedEdge) {
     return (
-      <Card className="p-1">
+      <Layout>
         <ListItem className="font-bold">
           <EdgeIcon />
           {affectedEdge.displayTypes}
@@ -227,12 +226,12 @@ const ContextMenu = ({
           <RemoveFromCanvasIcon color="red" />
           Remove {t("graph-viewer.edge")} from canvas
         </ListItem>
-      </Card>
+      </Layout>
     );
   }
 
   return (
-    <Card className="p-1">
+    <Layout>
       <ListItem onClick={handleFitToFrame}>
         <FitToFrameIcon />
         {nonEmptySelection ? "Fit Selection to Frame" : "Fit to Frame"}
@@ -277,8 +276,16 @@ const ContextMenu = ({
           </ListItem>
         </>
       )}
-    </Card>
+    </Layout>
   );
 };
+
+function Layout({ children }: PropsWithChildren) {
+  return (
+    <div className="bg-background-default rounded-lg p-1 shadow-lg">
+      {children}
+    </div>
+  );
+}
 
 export default ContextMenu;
