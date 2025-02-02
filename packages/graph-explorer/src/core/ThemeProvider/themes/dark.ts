@@ -109,7 +109,8 @@ const DARK_THEME: ProcessedTheme = {
     panes: 1100,
     modal: 1200,
     popover: 1300,
-    tooltip: 1400,
+    menu: 1400,
+    tooltip: 1500,
   },
   typography: {
     fontSize: "14px",

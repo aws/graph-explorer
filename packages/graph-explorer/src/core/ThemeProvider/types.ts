@@ -52,6 +52,7 @@ export type ZIndex = {
   popover?: number;
   appBar?: number;
   panes?: number;
+  menu?: number;
 };
 
 export type Grey = {
