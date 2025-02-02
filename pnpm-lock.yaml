@@ -142,9 +142,6 @@ importers:
       '@react-aria/radio':
         specifier: ^3.10.11
         version: 3.10.11(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@react-aria/searchfield':
-        specifier: 3.7.10
-        version: 3.7.10(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@react-aria/switch':
         specifier: ^3.6.11
         version: 3.6.11(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -2174,11 +2171,6 @@ packages:
       react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
       react-dom: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
 
-  '@react-aria/searchfield@3.7.10':
-    resolution: {integrity: sha512-1XTYh2dycedaK1tgpHAHcu8PTK1wG3dv53yLziu07JsBe9tX6O8jIFBhZK8SpfNnP8pEOI3PIlVEjaarLwgWzQ==}
-    peerDependencies:
-      react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0
-
   '@react-aria/selection@3.22.0':
     resolution: {integrity: sha512-XFOrK525HX2eeWeLZcZscUAs5qsuC1ZxsInDXMjvLeAaUPtQNEhUKHj3psDAl6XDU4VV1IJo0qCmFTVqTTMZSg==}
     peerDependencies:
@@ -2244,11 +2236,6 @@ packages:
     peerDependencies:
       react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
 
-  '@react-stately/searchfield@3.5.9':
-    resolution: {integrity: sha512-7/aO/oLJ4czKEji0taI/lbHKqPJRag9p3YmRaZ4yqjIMpKxzmJCWQcov5lzWeFhG/1hINKndYlxFnVIKV/urpg==}
-    peerDependencies:
-      react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
-
   '@react-stately/selection@3.19.0':
     resolution: {integrity: sha512-AvbUqnWjqVQC48RD39S9BpMKMLl55Zo5l/yx5JQFPl55cFwe9Tpku1KY0wzt3fXXiXWaqjDn/7Gkg1VJYy8esQ==}
     peerDependencies:
@@ -2291,11 +2278,6 @@ packages:
 
   '@react-types/radio@3.8.6':
     resolution: {integrity: sha512-woTQYdRFjPzuml4qcIf+2zmycRuM5w3fDS5vk6CQmComVUjOFPtD28zX3Z9kc9lSNzaBQz9ONZfFqkZ1gqfICA==}
-    peerDependencies:
-      react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
-
-  '@react-types/searchfield@3.5.11':
-    resolution: {integrity: sha512-MX8d9pgvxZxmgDwI0tiDaf6ijOY8XcRj0HM8Ocfttlk7PEFJK44p51WsUC+fPX1GmZni2JpFkx/haPOSLUECdw==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
 
@@ -7967,20 +7949,6 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@react-aria/searchfield@3.7.10(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
-    dependencies:
-      '@react-aria/i18n': 3.12.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@react-aria/textfield': 3.14.10(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@react-aria/utils': 3.27.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@react-stately/searchfield': 3.5.9(react@18.3.1)
-      '@react-types/button': 3.10.2(react@18.3.1)
-      '@react-types/searchfield': 3.5.11(react@18.3.1)
-      '@react-types/shared': 3.27.0(react@18.3.1)
-      '@swc/helpers': 0.5.15
-      react: 18.3.1
-    transitivePeerDependencies:
-      - react-dom
-
   '@react-aria/selection@3.22.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@react-aria/focus': 3.19.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -8092,13 +8060,6 @@ snapshots:
       '@swc/helpers': 0.5.15
       react: 18.3.1
 
-  '@react-stately/searchfield@3.5.9(react@18.3.1)':
-    dependencies:
-      '@react-stately/utils': 3.10.5(react@18.3.1)
-      '@react-types/searchfield': 3.5.11(react@18.3.1)
-      '@swc/helpers': 0.5.15
-      react: 18.3.1
-
   '@react-stately/selection@3.19.0(react@18.3.1)':
     dependencies:
       '@react-stately/collections': 3.12.1(react@18.3.1)
@@ -8148,12 +8109,6 @@ snapshots:
   '@react-types/radio@3.8.6(react@18.3.1)':
     dependencies:
       '@react-types/shared': 3.27.0(react@18.3.1)
-      react: 18.3.1
-
-  '@react-types/searchfield@3.5.11(react@18.3.1)':
-    dependencies:
-      '@react-types/shared': 3.27.0(react@18.3.1)
-      '@react-types/textfield': 3.11.0(react@18.3.1)
       react: 18.3.1
 
   '@react-types/shared@3.27.0(react@18.3.1)':
