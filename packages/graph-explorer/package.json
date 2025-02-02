@@ -37,7 +37,6 @@
     "@react-aria/i18n": "^3.12.5",
     "@react-aria/listbox": "3.13.5",
     "@react-aria/overlays": "3.23.4",
-    "@react-aria/radio": "^3.10.11",
     "@react-aria/switch": "^3.6.11",
     "@react-aria/textfield": "3.14.10",
     "@react-aria/utils": "^3.27.0",
