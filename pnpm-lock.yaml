@@ -82,9 +82,6 @@ importers:
       '@emotion/react':
         specifier: ^11.14.0
         version: 11.14.0(@types/react@18.3.18)(react@18.3.1)
-      '@emotion/utils':
-        specifier: ^1.4.2
-        version: 1.4.2
       '@graph-explorer/shared':
         specifier: workspace:*
         version: link:../shared
