@@ -44,7 +44,6 @@
     "@react-aria/utils": "^3.27.0",
     "@react-aria/visually-hidden": "^3.8.19",
     "@react-stately/collections": "^3.12.1",
-    "@react-stately/combobox": "^3.10.2",
     "@react-stately/list": "^3.11.2",
     "@tanstack/react-query": "^5.64.2",
     "@tanstack/react-query-devtools": "^5.64.2",
