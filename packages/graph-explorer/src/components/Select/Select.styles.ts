@@ -287,8 +287,7 @@ const popoverWrapperStyles = (activeTheme: ActiveThemeType) => {
 
   return css`
     position: absolute;
-    // TODO - review zIndexes when Select is inside a popover
-    z-index: 9999999999;
+    z-index: ${activeTheme.theme.zIndex.menu};
     width: 100%;
     border: 1px solid ${themeWithDefault.list?.borderColor};
     border-radius: ${themeWithDefault.list?.borderRadius};

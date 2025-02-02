@@ -254,7 +254,8 @@ export default function GraphViewer({
             renderContextLayer(
               <div
                 {...contextLayerProps}
-                style={{ ...contextLayerProps.style, zIndex: 999999 }}
+                style={contextLayerProps.style}
+                className="z-menu"
               >
                 <ContextMenu
                   graphRef={graphRef}
