@@ -83,7 +83,7 @@ const SelectContent = React.forwardRef<
     >
       <SelectPrimitive.Viewport
         className={cn(
-          "p-2",
+          "p-1",
           position === "popper" &&
             "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]"
         )}
@@ -116,7 +116,7 @@ const SelectItem = React.forwardRef<
   <SelectPrimitive.Item
     ref={ref}
     className={cn(
-      "focus:bg-primary-main relative flex w-full cursor-default select-none items-center rounded py-1.5 pl-3 pr-9 text-base outline-none focus:text-white data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "focus:bg-background-secondary relative flex w-full cursor-default select-none items-center rounded py-1.5 pl-3 pr-9 text-base outline-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className
     )}
     {...props}

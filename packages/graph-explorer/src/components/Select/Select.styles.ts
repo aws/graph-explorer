@@ -291,7 +291,6 @@ const popoverWrapperStyles = (activeTheme: ActiveThemeType) => {
     width: 100%;
     border: 1px solid ${themeWithDefault.list?.borderColor};
     border-radius: ${themeWithDefault.list?.borderRadius};
-    box-shadow: ${themeWithDefault.list?.boxShadow};
     background: ${themeWithDefault.list?.background};
   `;
 };

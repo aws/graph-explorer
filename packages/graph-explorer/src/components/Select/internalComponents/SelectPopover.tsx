@@ -5,6 +5,7 @@ import { forwardRef } from "react";
 import type { Styles } from "react-laag/dist/types";
 import { useWithTheme } from "@/core";
 import popoverStyles from "../Select.styles";
+import { cn } from "@/utils";
 
 interface PopoverProps {
   children: React.ReactNode;
@@ -37,7 +38,10 @@ const SelectPopover = (
   return (
     <FocusScope autoFocus>
       <div
-        className={styleWithTheme(popoverStyles.popoverWrapperStyles)}
+        className={cn(
+          styleWithTheme(popoverStyles.popoverWrapperStyles),
+          "shadow-md"
+        )}
         {...overlayProps}
         style={{ ...style, ...menuStyleOverride }}
         ref={ref}
