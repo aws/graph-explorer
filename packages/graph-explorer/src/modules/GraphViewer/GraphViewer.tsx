@@ -17,6 +17,7 @@ import {
   PanelHeader,
   PanelHeaderActionButton,
   PanelHeaderActions,
+  PanelHeaderCloseButton,
   PanelHeaderDivider,
   PanelTitle,
   RemoveFromCanvasIcon,
@@ -25,12 +26,10 @@ import {
   ZoomInIcon,
   ZoomOutIcon,
 } from "@/components";
-import Card from "@/components/Card";
 import Graph from "@/components/Graph";
 import { GraphRef } from "@/components/Graph/Graph";
 import { ElementEventCallback } from "@/components/Graph/hooks/useAddClickEvents";
 import { IconButton } from "@/components";
-import CloseIcon from "@/components/icons/CloseIcon";
 import InfoIcon from "@/components/icons/InfoIcon";
 import ScreenshotIcon from "@/components/icons/ScreenshotIcon";
 import Select from "@/components/Select";
@@ -278,30 +277,24 @@ function Legend({ onClose }: { onClose: () => void }) {
   const vtConfigs = useDisplayVertexTypeConfigs().values().toArray();
 
   return (
-    <Card className="z-panes absolute bottom-2 right-2 top-2 min-w-48 max-w-80 overflow-auto">
-      <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-base font-bold">Legend</h1>
-        <IconButton
-          icon={<CloseIcon />}
-          onClick={onClose}
-          variant="text"
-          size="small"
-        />
-      </div>
-      <ul className="space-y-2 overflow-y-scroll">
-        {vtConfigs.map(vtConfig => (
-          <li
-            key={vtConfig.type}
-            className="flex items-center gap-2 text-balance"
-          >
-            <VertexSymbol
-              vertexStyle={vtConfig.style}
-              className="size-8 p-1.5"
-            />
-            {vtConfig.displayLabel}
-          </li>
-        ))}
-      </ul>
-    </Card>
+    <Panel className="z-panes absolute bottom-2 right-2 top-2 h-auto min-w-48 max-w-80 rounded-md">
+      <PanelHeader className="flex items-center justify-between">
+        <PanelTitle className="text-base font-bold">Legend</PanelTitle>
+        <PanelHeaderCloseButton onClose={onClose} />
+      </PanelHeader>
+      <PanelContent className="p-3">
+        <ul className="space-y-3">
+          {vtConfigs.map(vtConfig => (
+            <li
+              key={vtConfig.type}
+              className="flex items-center gap-3 text-balance text-base font-medium"
+            >
+              <VertexSymbol vertexStyle={vtConfig.style} className="size-9" />
+              {vtConfig.displayLabel}
+            </li>
+          ))}
+        </ul>
+      </PanelContent>
+    </Panel>
   );
 }
