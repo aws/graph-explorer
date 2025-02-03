@@ -3,9 +3,6 @@ import { ComponentProps, JSXElementConstructor } from "react";
 export { default as Button } from "./Button";
 export * from "./Button";
 
-export { default as Card } from "./Card";
-export * from "./Card";
-
 export { default as CheckboxList } from "./CheckboxList";
 export * from "./CheckboxList";
 
