@@ -14,6 +14,7 @@ import { ConnectionConfig } from "@shared/types";
 import { logger } from "@/utils";
 import { featureFlagsSelector } from "./featureFlags";
 import { Explorer } from "@/connector/useGEFetchTypes";
+import { emptyExplorer } from "@/connector/emptyExplorer";
 
 /**
  * Active connection where the value will only change when one of the
@@ -62,7 +63,7 @@ export const explorerSelector = selector({
     const featureFlags = get(featureFlagsSelector);
 
     if (!connection) {
-      return null;
+      return emptyExplorer;
     }
     switch (connection.queryEngine) {
       case "openCypher":
@@ -77,9 +78,6 @@ export const explorerSelector = selector({
 
 export function useExplorer() {
   const explorer = useRecoilValue(explorerSelector);
-  if (!explorer) {
-    throw new Error("No explorer found");
-  }
   return explorer;
 }
 
