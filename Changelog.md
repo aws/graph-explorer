@@ -13,8 +13,6 @@
   [741](https://github.com/aws/graph-explorer/pull/741))
 - **Added** attribute count to node labels list in the connection screen
   ([#743](https://github.com/aws/graph-explorer/pull/743))
-- **Improved** layout and style of searchable lists across the UI
-  ([#743](https://github.com/aws/graph-explorer/pull/743))
 - **Improved** pagination controls by using a single shared component
   ([#742](https://github.com/aws/graph-explorer/pull/742))
 - **Updated** graph foundations to accommodate loading a graph from a set of IDs
@@ -26,7 +24,16 @@
   [#768](https://github.com/aws/graph-explorer/pull/768),
   [#769](https://github.com/aws/graph-explorer/pull/769),
   [#770](https://github.com/aws/graph-explorer/pull/770),
-  [#775](https://github.com/aws/graph-explorer/pull/775),
+  [#775](https://github.com/aws/graph-explorer/pull/775))
+- **Updated** styling across the app
+  ([#777](https://github.com/aws/graph-explorer/pull/777),
+  [#743](https://github.com/aws/graph-explorer/pull/743))
+  - Rounded style for search inputs
+  - Searchable list items style consistent with connection style
+  - Softer grays
+  - More consistent shadows
+  - More consistent menus (context menus, select dropdowns, etc.)
+  - Graph legend is now consistent with other panels
 - **Updated** dependencies and remove unused dependencies
   ([#764](https://github.com/aws/graph-explorer/pull/764),
   [#776](https://github.com/aws/graph-explorer/pull/776))
