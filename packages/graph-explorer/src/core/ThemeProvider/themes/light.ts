@@ -2,7 +2,7 @@ import type { ProcessedTheme } from "@/core/ThemeProvider/types";
 
 const spacing = (scale: number) => `${scale * 4}px`;
 
-const grey = {
+const gray = {
   100: "rgb(var(--color-gray-100))",
   200: "rgb(var(--color-gray-200))",
   300: "rgb(var(--color-gray-300))",
@@ -20,55 +20,55 @@ const palette: DeepRequired<ProcessedTheme["palette"]> = {
     black: "rgb(var(--color-black))",
   },
   primary: {
-    light: "hsl(var(--color-brand-300))",
-    main: "hsl(var(--color-brand-500))",
-    dark: "hsl(var(--color-brand-800))",
-    contrastText: "#ffffff",
+    light: "hsl(var(--color-primary-light))",
+    main: "hsl(var(--color-primary-main))",
+    dark: "hsl(var(--color-primary-dark))",
+    contrastText: "rgb(var(--color-white))",
   },
   secondary: {
     light: "rgb(var(--color-secondary-light))",
     main: "rgb(var(--color-secondary-main))",
     dark: "rgb(var(--color-secondary-dark))",
-    contrastText: "#ffffff",
+    contrastText: "rgb(var(--color-white))",
   },
   info: {
     light: "rgb(var(--color-info-light))",
     main: "rgb(var(--color-info-main))",
     dark: "rgb(var(--color-info-dark))",
-    contrastText: "#ffffff",
+    contrastText: "rgb(var(--color-white))",
   },
   error: {
     light: "rgb(var(--color-error-light))",
     main: "rgb(var(--color-error-main))",
     dark: "rgb(var(--color-error-dark))",
-    contrastText: "#ffffff",
+    contrastText: "rgb(var(--color-white))",
   },
   success: {
     light: "rgb(var(--color-success-light))",
     main: "rgb(var(--color-success-main))",
     dark: "rgb(var(--color-success-dark))",
-    contrastText: "#ffffff",
+    contrastText: "rgb(var(--color-white))",
   },
   warning: {
     light: "rgb(var(--color-warning-light))",
     main: "rgb(var(--color-warning-main))",
     dark: "rgb(var(--color-warning-dark))",
-    contrastText: "#ffffff",
+    contrastText: "rgb(var(--color-white))",
   },
   text: {
     primary: "rgb(var(--color-text-primary))",
     secondary: "rgb(var(--color-text-secondary))",
     disabled: "rgb(var(--color-text-disabled))",
   },
-  divider: grey["200"],
-  border: grey["200"],
+  divider: "rgb(var(--color-divider))",
+  border: "rgb(var(--color-border))",
   background: {
     default: "rgb(var(--color-background-default))",
     secondary: "rgb(var(--color-background-secondary))",
     contrast: "rgb(var(--color-background-contrast))",
     contrastSecondary: "rgb(var(--color-background-contrast-secondary))",
   },
-  grey,
+  grey: gray,
 };
 
 const LIGHT_THEME: ProcessedTheme = {
