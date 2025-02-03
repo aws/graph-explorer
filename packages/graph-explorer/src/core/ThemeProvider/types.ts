@@ -80,18 +80,6 @@ export type Spacing = {
   "6x"?: string;
 };
 
-export type Shadows = {
-  sm?: string;
-  base?: string;
-  md?: string;
-  lg?: string;
-  xl?: string;
-  inner?: string;
-  none?: string;
-  left?: string;
-  right?: string;
-};
-
 export type FormBaseTheme = {
   background: string;
   color: string;
@@ -155,6 +143,5 @@ export type ProcessedTheme = {
   typography: DeepRequired<Typography>;
   shape: DeepRequired<Shape>;
   spacing: DeepRequired<Spacing>;
-  shadow: DeepRequired<Shadows>;
   forms?: FormBaseTheme;
 };

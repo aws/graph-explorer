@@ -92,17 +92,6 @@ const DARK_THEME: ProcessedTheme = {
     "5x": spacing(5),
     "6x": spacing(6),
   },
-  shadow: {
-    sm: "none",
-    base: "none",
-    md: "none",
-    lg: "none",
-    xl: "none",
-    inner: "inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)",
-    none: "none",
-    left: "none",
-    right: "none",
-  },
   palette,
   zIndex: {
     appBar: 1000,
