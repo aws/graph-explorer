@@ -20,7 +20,11 @@ export const LoadingSpinner = ({
   const themedStyle = useWithTheme();
   return (
     <div
-      className={cn(themedStyle(defaultStyles(color)), className)}
+      className={cn(
+        themedStyle(defaultStyles(color)),
+        "animate-spin",
+        className
+      )}
       {...props}
     >
       <div>{loadingIcon || <LoaderIcon />}</div>
