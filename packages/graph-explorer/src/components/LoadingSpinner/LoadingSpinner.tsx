@@ -4,6 +4,7 @@ import { useWithTheme } from "@/core";
 import { LoaderIcon } from "@/components/icons";
 
 import defaultStyles from "./LoadingSpinner.styles";
+import { IconBaseProps } from "../icons/IconBase";
 
 export interface LoadingSpinnerProps
   extends React.HTMLAttributes<HTMLDivElement> {
@@ -31,5 +32,14 @@ export const LoadingSpinner = ({
     </div>
   );
 };
+
+/*
+ * Dev Note: This simle spinner will replace the LoadingSpinner eventually.
+ */
+
+/** Basic spinner */
+export function Spinner({ className, ...props }: IconBaseProps) {
+  return <LoaderIcon className={cn(className, "animate-spin")} {...props} />;
+}
 
 export default LoadingSpinner;
