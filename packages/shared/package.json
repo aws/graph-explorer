@@ -19,6 +19,6 @@
     "@types/uuid": "^10.0.0",
     "@vitest/coverage-v8": "^2.1.8",
     "rimraf": "^6.0.1",
-    "vitest": "^2.1.8"
+    "vitest": "^2.1.9"
   }
 }
