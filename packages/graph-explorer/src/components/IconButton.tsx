@@ -17,8 +17,8 @@ const iconButtonVariants = cva({
       error: "",
     },
     size: {
-      small: "h-[24px] px-1 text-sm [&_svg]:size-[20px]",
-      base: "size-[30px] text-base [&_svg]:size-[22px]",
+      small: "h-[24px] px-1 text-sm [&_svg]:size-[18px]",
+      base: "size-[30px] text-base [&_svg]:size-[20px]",
       large: "h-[42px] px-4 text-lg [&_svg]:size-[26px]",
     },
   },
@@ -26,22 +26,26 @@ const iconButtonVariants = cva({
     {
       variant: "filled",
       color: "primary",
-      className: "bg-primary-main hover:bg-primary-light",
+      className:
+        "bg-primary-main hover:bg-primary-light data-[state=open]:bg-primary-light",
     },
     {
       variant: "filled",
       color: "error",
-      className: "bg-error-main hover:bg-error-light",
+      className:
+        "bg-error-main hover:bg-error-light data-[state=open]:bg-error-light",
     },
     {
       variant: "text",
       color: "primary",
-      className: "text-primary-dark hover:bg-background-secondary-subtle",
+      className:
+        "text-primary-dark hover:bg-background-secondary-subtle data-[state=open]:bg-background-secondary",
     },
     {
       variant: "text",
       color: "error",
-      className: "text-error-main hover:bg-error-light/20",
+      className:
+        "text-error-main hover:bg-error-light/20 data-[state=open]:bg-background-secondary",
     },
   ],
   defaultVariants: {
