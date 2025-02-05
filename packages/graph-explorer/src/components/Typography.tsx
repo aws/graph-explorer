@@ -45,7 +45,7 @@ export function ImportantBlock({
   return (
     <div
       className={cn(
-        "border-info-main bg-info-light/20 text-info-dark rounded border-l-4 px-4 py-1",
+        "border-info-main bg-info-light/20 text-info-dark rounded-md border-l-4 px-4 py-2",
         className
       )}
       {...props}
