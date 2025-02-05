@@ -36,7 +36,7 @@ const iconButtonVariants = cva({
     {
       variant: "text",
       color: "primary",
-      className: "text-primary-dark hover:bg-background-secondary/50",
+      className: "text-primary-dark hover:bg-background-secondary-subtle",
     },
     {
       variant: "text",

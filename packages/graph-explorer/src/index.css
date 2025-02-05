@@ -115,6 +115,10 @@
 }
 
 @layer utilities {
+  .bg-background-secondary-subtle {
+    @apply bg-background-secondary/60;
+  }
+
   .stack {
     display: grid;
   }

@@ -11,7 +11,7 @@ export function ListRow({
   return (
     <div
       className={cn(
-        "bg-background-secondary hover:ring-primary-dark has-[:checked]:ring-primary-dark flex items-center gap-4 overflow-hidden rounded-lg px-3 py-1.5 ring-1 ring-transparent transition-shadow duration-200 hover:ring-1",
+        "bg-background-secondary-subtle hover:ring-primary-dark/50 has-[:checked]:ring-primary-dark/50 flex items-center gap-4 overflow-hidden rounded-lg px-3 py-1.5 ring-1 ring-transparent transition-shadow duration-150 hover:ring-1",
         isDisabled && "pointer-events-none",
         className
       )}
