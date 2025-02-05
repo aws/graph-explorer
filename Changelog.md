@@ -27,8 +27,9 @@
   [#775](https://github.com/aws/graph-explorer/pull/775))
 - **Updated** styling across the app
   ([#777](https://github.com/aws/graph-explorer/pull/777),
-  [#743](https://github.com/aws/graph-explorer/pull/743))
-  - Rounded style for search inputs
+  [#743](https://github.com/aws/graph-explorer/pull/743),
+  [#780](https://github.com/aws/graph-explorer/pull/780))
+  - Rounded style for search inputs, panels, toast notifications, and more
   - Searchable list items style consistent with connection style
   - Softer grays
   - More consistent shadows
