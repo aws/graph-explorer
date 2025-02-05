@@ -52,6 +52,7 @@ export type ZIndex = {
   popover?: number;
   appBar?: number;
   panes?: number;
+  menu?: number;
 };
 
 export type Grey = {
@@ -77,18 +78,6 @@ export type Spacing = {
   "4x"?: string;
   "5x"?: string;
   "6x"?: string;
-};
-
-export type Shadows = {
-  sm?: string;
-  base?: string;
-  md?: string;
-  lg?: string;
-  xl?: string;
-  inner?: string;
-  none?: string;
-  left?: string;
-  right?: string;
 };
 
 export type FormBaseTheme = {
@@ -154,6 +143,5 @@ export type ProcessedTheme = {
   typography: DeepRequired<Typography>;
   shape: DeepRequired<Shape>;
   spacing: DeepRequired<Spacing>;
-  shadow: DeepRequired<Shadows>;
   forms?: FormBaseTheme;
 };

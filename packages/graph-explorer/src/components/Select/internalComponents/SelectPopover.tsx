@@ -3,8 +3,7 @@ import { DismissButton, useOverlay } from "@react-aria/overlays";
 import type { CSSProperties, ForwardedRef, RefObject } from "react";
 import { forwardRef } from "react";
 import type { Styles } from "react-laag/dist/types";
-import { useWithTheme } from "@/core";
-import popoverStyles from "../Select.styles";
+import { cn } from "@/utils";
 
 interface PopoverProps {
   children: React.ReactNode;
@@ -19,7 +18,6 @@ const SelectPopover = (
   ref: ForwardedRef<HTMLDivElement>
 ) => {
   const { onClose, children, style, menuStyleOverride } = props;
-  const styleWithTheme = useWithTheme();
 
   // Handle events that should cause the popup to close,
   // e.g. blur, clicking outside, or pressing the escape key.
@@ -37,7 +35,9 @@ const SelectPopover = (
   return (
     <FocusScope autoFocus>
       <div
-        className={styleWithTheme(popoverStyles.popoverWrapperStyles)}
+        className={cn(
+          "z-menu bg-background-default absolute w-full rounded-md border shadow-md"
+        )}
         {...overlayProps}
         style={{ ...style, ...menuStyleOverride }}
         ref={ref}

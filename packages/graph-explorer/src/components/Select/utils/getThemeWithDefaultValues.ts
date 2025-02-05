@@ -123,7 +123,6 @@ export const getSelectThemeWithDefaults = memoize(
             : background.default,
           borderColor: "transparent",
           borderRadius: theme.shape.borderRadius,
-          boxShadow: theme.shadow.md,
           search: {
             background: isDarkTheme ? background.secondary : background.default,
           },

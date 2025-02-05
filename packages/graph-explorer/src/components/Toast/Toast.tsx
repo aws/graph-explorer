@@ -1,7 +1,6 @@
 import { cn } from "@/utils";
 import { FC, PropsWithChildren } from "react";
 import { useWithTheme } from "@/core";
-import Card from "../Card";
 
 import { CheckIcon, CloseIcon, ErrorIcon, InfoIcon } from "@/components/icons";
 import defaultStyles from "./Toast.styles";
@@ -48,7 +47,12 @@ export const Toast: FC<ToastProps> = ({
   const Icon = icons[type];
   return (
     <div className={cn(stylesWithTheme(defaultStyles), className)}>
-      <Card className={cn("card", type)} transparent>
+      <div
+        className={cn(
+          "fle-row flex overflow-hidden rounded-md shadow-lg",
+          type
+        )}
+      >
         <div className="icon">
           <Icon width={24} height={24} />
         </div>
@@ -67,7 +71,7 @@ export const Toast: FC<ToastProps> = ({
             </div>
           </div>
         )}
-      </Card>
+      </div>
     </div>
   );
 };

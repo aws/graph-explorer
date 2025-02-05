@@ -15,7 +15,6 @@ export type {
   Grey,
   Palette,
   ProcessedTheme,
-  Shadows,
   Shape,
   Spacing,
   TextPalette,

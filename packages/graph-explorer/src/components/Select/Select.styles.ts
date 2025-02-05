@@ -210,64 +210,6 @@ export const selectContainerStyles =
     `;
   };
 
-const listStyles = () => css`
-  max-height: 300px;
-  overflow: auto;
-  list-style: none;
-  padding: 0;
-  margin: 2px 0;
-  outline: none;
-`;
-
-const listItemStyles = () => (activeTheme: ActiveThemeType) => {
-  const themeWithDefault = getSelectThemeWithDefaults(
-    activeTheme,
-    "valid"
-  )("default");
-
-  const { theme } = activeTheme;
-  return css`
-    background: ${themeWithDefault.list?.item?.background};
-    color: ${themeWithDefault.list?.item?.color};
-    padding: 8px;
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    outline: none;
-
-    &:focus:not(.select-list-item-selected),
-    &.select-list-item-focused {
-      background: ${themeWithDefault.list?.item?.hover?.background};
-      color: ${themeWithDefault.list?.item?.hover?.color};
-    }
-
-    &:hover {
-      background: ${themeWithDefault.list?.item?.hover?.background};
-      color: ${themeWithDefault.list?.item?.hover?.color};
-    }
-
-    &.select-list-item-selected {
-      background: ${themeWithDefault.list?.item?.selected?.background};
-      color: ${themeWithDefault.list?.item?.selected?.color};
-      &:hover {
-        background: ${themeWithDefault.list?.item?.selected?.background};
-        color: ${themeWithDefault.list?.item?.selected?.color};
-      }
-    }
-
-    &.select-list-item-disabled {
-      pointer-events: none;
-      filter: opacity(${theme.forms?.disabledOpacity || "40%"});
-    }
-  `;
-};
-
-const itemStyles = () => css`
-  display: flex;
-  align-items: center;
-  width: 100%;
-`;
-
 const searchInputStyles = (activeTheme: ActiveThemeType) => {
   const themeWithDefault = getSelectThemeWithDefaults(
     activeTheme,
@@ -276,24 +218,6 @@ const searchInputStyles = (activeTheme: ActiveThemeType) => {
   return css`
     padding: 8px;
     background-color: ${themeWithDefault.list?.search?.background};
-  `;
-};
-
-const popoverWrapperStyles = (activeTheme: ActiveThemeType) => {
-  const themeWithDefault = getSelectThemeWithDefaults(
-    activeTheme,
-    "valid"
-  )("default");
-
-  return css`
-    position: absolute;
-    // TODO - review zIndexes when Select is inside a popover
-    z-index: 9999999999;
-    width: 100%;
-    border: 1px solid ${themeWithDefault.list?.borderColor};
-    border-radius: ${themeWithDefault.list?.borderRadius};
-    box-shadow: ${themeWithDefault.list?.boxShadow};
-    background: ${themeWithDefault.list?.background};
   `;
 };
 
@@ -307,11 +231,7 @@ const multipleSelectedValuesWrapper = ({ theme }: ActiveThemeType) => css`
 
 const styles = {
   selectContainerStyles,
-  listStyles,
-  listItemStyles,
-  itemStyles,
   searchInputStyles,
-  popoverWrapperStyles,
   multipleSelectedValuesWrapper,
 };
 

@@ -41,14 +41,6 @@ const defaultStyles: ThemeStyleFn = ({ theme }) => css`
     }
   }
 
-  .card {
-    flex-grow: 1;
-    display: flex;
-    padding: 0;
-    overflow: hidden;
-    flex-direction: row;
-  }
-
   .content {
     margin: ${theme.spacing["2x"]};
     display: flex;

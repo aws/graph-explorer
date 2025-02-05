@@ -157,12 +157,10 @@ export const NotificationProvider: FC<NotificationProviderProps> = ({
         {children}
         <div
           style={{
-            position: "fixed",
-            zIndex: 9999999,
-            pointerEvents: "none",
             ...anchorOriginStyleMap[actualAnchorOrigin.horizontal],
             ...anchorOriginStyleMap[actualAnchorOrigin.vertical],
           }}
+          className="z-menu pointer-events-none fixed"
         >
           <TransitionGroup
             style={{

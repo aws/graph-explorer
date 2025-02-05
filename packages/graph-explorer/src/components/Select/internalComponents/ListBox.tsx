@@ -5,8 +5,8 @@ import type { ListState } from "@react-stately/list";
 import type { Node } from "@react-types/shared";
 import type { ForwardedRef, RefObject } from "react";
 import { forwardRef, useRef } from "react";
-import { useWithTheme } from "@/core";
-import styles from "../Select.styles";
+import ListItem from "@/components/ListItem";
+import { CheckIcon } from "lucide-react";
 
 interface OptionProps<T> {
   item: Node<T>;
@@ -21,8 +21,6 @@ const ListBox = forwardRef(
   <T,>(props: ListBoxProps<T>, ref: ForwardedRef<HTMLUListElement | null>) => {
     const { state } = props;
 
-    const styleWithTheme = useWithTheme();
-
     const { listBoxProps } = useListBox(
       props,
       state,
@@ -31,7 +29,9 @@ const ListBox = forwardRef(
 
     return (
       <ul
-        className={styleWithTheme(styles.listStyles)}
+        className={cn(
+          "max-h-[300px] list-none overflow-auto p-0 p-1 outline-none"
+        )}
         {...listBoxProps}
         ref={ref}
       >
@@ -44,12 +44,11 @@ const ListBox = forwardRef(
 );
 
 const OptionItem = <T,>({ item, state }: OptionProps<T>) => {
-  const ref = useRef<HTMLLIElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
 
   const itemDisabled = state.disabledKeys.has(item.key);
-  const styleWithTheme = useWithTheme();
 
-  const { optionProps, isSelected, isFocused, isDisabled } = useOption(
+  const { optionProps, isSelected, isDisabled } = useOption(
     {
       isDisabled: itemDisabled,
       key: item.key,
@@ -60,25 +59,17 @@ const OptionItem = <T,>({ item, state }: OptionProps<T>) => {
   );
 
   return (
-    <li
+    <ListItem
+      ref={ref}
       className={cn(
-        styleWithTheme(styles.listItemStyles()),
-        "select-list-item-wrapper",
-        {
-          ["select-list-item-disabled"]: isDisabled,
-          ["select-list-item-selected"]: isSelected,
-          ["select-list-item-focused"]: isFocused,
-        }
+        "focus:bg-background-secondary flex flex-row justify-between outline-none",
+        isDisabled && "pointer-events-none opacity-50"
       )}
       {...optionProps}
-      ref={ref}
     >
-      <div
-        className={cn(styleWithTheme(styles.itemStyles), "select-list-item")}
-      >
-        {item.rendered}
-      </div>
-    </li>
+      {item.rendered}
+      {isSelected ? <CheckIcon className="text-text-primary size-5" /> : null}
+    </ListItem>
   );
 };
 

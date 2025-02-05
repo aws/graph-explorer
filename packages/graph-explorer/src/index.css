@@ -7,18 +7,20 @@
     --color-white: 255 255 255;
     --color-black: 0 0 0;
 
-    --color-gray-100: 248 248 248;
-    --color-gray-200: 238 238 238;
-    --color-gray-300: 224 224 224;
-    --color-gray-400: 189 189 189;
-    --color-gray-500: 158 158 158;
-    --color-gray-600: 117 117 117;
-    --color-gray-700: 97 97 97;
-    --color-gray-800: 66 66 66;
-    --color-gray-900: 33 33 33;
+    --color-gray-50: 250 250 250;
+    --color-gray-100: 245 245 245;
+    --color-gray-200: 229 229 229;
+    --color-gray-300: 212 212 212;
+    --color-gray-400: 163 163 163;
+    --color-gray-500: 115 115 115;
+    --color-gray-600: 82 82 82;
+    --color-gray-700: 64 64 64;
+    --color-gray-800: 38 38 38;
+    --color-gray-900: 23 23 23;
+    --color-gray-950: 10 10 10;
 
-    --color-input-background: var(--color-gray-100);
-    --color-input-hover: var(--color-gray-200);
+    --color-input-background: var(--color-gray-50);
+    --color-input-hover: var(--color-gray-100);
 
     --color-text-primary: 33 33 33;
     --color-text-secondary: 102 102 102;
@@ -26,8 +28,8 @@
 
     --color-background-default: var(--color-white);
     --color-background-secondary: 224 233 246;
-    --color-background-contrast: var(--color-gray-200);
-    --color-background-contrast-secondary: var(--color-gray-300);
+    --color-background-contrast: var(--color-gray-100);
+    --color-background-contrast-secondary: var(--color-gray-200);
 
     --color-brand-50: 205deg 87% 95%;
     --color-brand-100: 205deg 87% 93%;
@@ -40,6 +42,10 @@
     --color-brand-800: 205deg 92% 24%;
     --color-brand-900: 205deg 95% 12%;
     --color-brand-950: 205deg 98% 6%;
+
+    --color-primary-light: var(--color-brand-300);
+    --color-primary-main: var(--color-brand-500);
+    --color-primary-dark: var(--color-brand-800);
 
     --color-secondary-light: 255 184 46;
     --color-secondary-main: 250 133 0;
@@ -61,8 +67,8 @@
     --color-warning-main: 250 133 0;
     --color-warning-dark: 228 96 0;
 
-    --color-divider: var(--color-gray-300);
-    --color-border: var(--color-gray-300);
+    --color-divider: var(--color-gray-200);
+    --color-border: var(--color-gray-200);
 
     /* Allow animating intrinsic values like height */
     interpolate-size: allow-keywords;
@@ -109,6 +115,10 @@
 }
 
 @layer utilities {
+  .bg-background-secondary-subtle {
+    @apply bg-background-secondary/60;
+  }
+
   .stack {
     display: grid;
   }
