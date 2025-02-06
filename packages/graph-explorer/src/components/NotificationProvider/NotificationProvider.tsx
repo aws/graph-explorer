@@ -48,10 +48,17 @@ export const NotificationContext = createContext<NotificationContextValue>({
   clearNotification: voidFn,
 });
 
+export type NotificationType =
+  | "error"
+  | "warning"
+  | "info"
+  | "success"
+  | "loading";
+
 export type NotificationComponentProps = PropsWithChildren<{
   message: string;
   title?: string;
-  type?: "error" | "warning" | "info" | "success";
+  type?: NotificationType;
 
   /**
    * Enable or disable the possibility to close the notification manually

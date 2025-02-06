@@ -3,11 +3,13 @@ import { cn } from "@/utils";
 import { CheckIcon, CloseIcon, ErrorIcon, InfoIcon } from "@/components/icons";
 import { cva } from "cva";
 import { IconButton } from "../IconButton";
+import { Spinner } from "../LoadingSpinner";
+import { NotificationType } from "../NotificationProvider/NotificationProvider";
 
 export type NotificationComponentProps = PropsWithChildren<{
   message: string;
   title?: string;
-  type?: "error" | "warning" | "info" | "success";
+  type?: NotificationType;
 
   /**
    * Enable or disable the possibility to close the notification manually
@@ -25,13 +27,13 @@ export interface ToastProps
   className?: string;
 }
 
-const icons: Record<"error" | "warning" | "info" | "success", typeof InfoIcon> =
-  {
-    error: ErrorIcon,
-    warning: ErrorIcon,
-    info: InfoIcon,
-    success: CheckIcon,
-  };
+const icons: Record<NotificationType, typeof InfoIcon> = {
+  error: ErrorIcon,
+  warning: ErrorIcon,
+  info: InfoIcon,
+  success: CheckIcon,
+  loading: Spinner,
+};
 
 const notificationTypeStyles = cva({
   base: "fle-row flex max-w-[448px] gap-3 overflow-hidden rounded-md p-3 shadow-lg",
@@ -41,6 +43,7 @@ const notificationTypeStyles = cva({
       success: "bg-success-main text-white",
       warning: "bg-warning-main text-white",
       error: "bg-error-main text-white",
+      loading: "bg-primary-main text-white",
     },
   },
 });
