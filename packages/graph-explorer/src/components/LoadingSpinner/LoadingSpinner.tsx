@@ -33,10 +33,6 @@ export const LoadingSpinner = ({
   );
 };
 
-/*
- * Dev Note: This simle spinner will replace the LoadingSpinner eventually.
- */
-
 /** Basic spinner */
 export function Spinner({ className, ...props }: IconBaseProps) {
   return <LoaderIcon className={cn(className, "animate-spin")} {...props} />;
