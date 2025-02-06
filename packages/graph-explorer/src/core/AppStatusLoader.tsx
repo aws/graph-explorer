@@ -15,6 +15,7 @@ import { CONNECTIONS_OP } from "@/modules/CreateConnection/CreateConnection";
 import { logger } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
 import { fetchDefaultConnection } from "./defaultConnection";
+import { cloneDeep } from "lodash";
 
 const AppStatusLoader = ({ children }: PropsWithChildren) => {
   const location = useLocation();
@@ -53,7 +54,7 @@ const AppStatusLoader = ({ children }: PropsWithChildren) => {
       !!defaultConnectionConfig &&
       !configuration.get(defaultConnectionConfig.id)
     ) {
-      const newConfig: RawConfiguration = defaultConnectionConfig;
+      const newConfig: RawConfiguration = cloneDeep(defaultConnectionConfig);
       newConfig.__fileBase = true;
       let activeConfigId = defaultConnectionConfig.id;
 

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { GraphProps } from "../Graph";
 import { Config, CytoscapeType } from "../Graph.model";
+import { useDeepMemo } from "@/hooks";
 
 export interface UseInitCytoscapeProps
   extends Required<
@@ -27,7 +28,9 @@ const useInitCytoscape = ({
 }: UseInitCytoscapeProps) => {
   const [cy, setCy] = useState<CytoscapeType | undefined>();
 
-  const { autolock, userZoomingEnabled, userPanningEnabled } = config;
+  const memoizedConfig = useDeepMemo(() => config, [config]);
+
+  const { autolock, userZoomingEnabled, userPanningEnabled } = memoizedConfig;
   const layoutGraphConfig = useRef({
     autolock,
     userZoomingEnabled,
@@ -62,7 +65,7 @@ const useInitCytoscape = ({
       const cy = cytoscape({
         container: wrapper,
         style: [],
-        ...config,
+        ...memoizedConfig,
       });
 
       cy.on("layoutstart", () => {
@@ -102,8 +105,7 @@ const useInitCytoscape = ({
       };
     }
     // since this is to init cytoscape, this should only run when wrapper is set
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [wrapper]);
+  }, [memoizedConfig, wrapper]);
 
   return cy;
 };
