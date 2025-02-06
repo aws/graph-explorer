@@ -38,6 +38,7 @@
 - **Updated** dependencies and remove unused dependencies
   ([#764](https://github.com/aws/graph-explorer/pull/764),
   [#776](https://github.com/aws/graph-explorer/pull/776),
+  [#782](https://github.com/aws/graph-explorer/pull/782),
   [#783](https://github.com/aws/graph-explorer/pull/783))
 
 ## Release 1.13.0
