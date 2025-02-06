@@ -20,18 +20,12 @@ import {
   PanelHeaderCloseButton,
   PanelHeaderDivider,
   PanelTitle,
-  RemoveFromCanvasIcon,
-  ResetIcon,
   VertexSymbol,
-  ZoomInIcon,
-  ZoomOutIcon,
 } from "@/components";
 import Graph from "@/components/Graph";
 import { GraphRef } from "@/components/Graph/Graph";
 import { ElementEventCallback } from "@/components/Graph/hooks/useAddClickEvents";
 import { IconButton } from "@/components";
-import InfoIcon from "@/components/icons/InfoIcon";
-import ScreenshotIcon from "@/components/icons/ScreenshotIcon";
 import Select from "@/components/Select";
 import {
   edgesOutOfFocusRenderedIdsAtom,
@@ -49,6 +43,14 @@ import useGraphStyles from "./useGraphStyles";
 import useNodeBadges from "./useNodeBadges";
 import { SelectedElements } from "@/components/Graph/Graph.model";
 import { useAutoOpenDetailsSidebar } from "./useAutoOpenDetailsSidebar";
+import {
+  BadgeInfoIcon,
+  CircleSlash2,
+  ImageDownIcon,
+  RefreshCwIcon,
+  ZoomInIcon,
+  ZoomOutIcon,
+} from "lucide-react";
 
 export type GraphViewerProps = {
   onNodeCustomize(nodeType?: string): void;
@@ -190,7 +192,7 @@ export default function GraphViewer({
             />
             <IconButton
               tooltipText="Re-run Layout"
-              icon={<ResetIcon />}
+              icon={<RefreshCwIcon />}
               variant="text"
               onClick={() => {
                 graphRef.current?.runLayout();
@@ -199,7 +201,7 @@ export default function GraphViewer({
             <div className="grow" />
             <PanelHeaderActionButton
               label="Download Screenshot"
-              icon={<ScreenshotIcon />}
+              icon={<ImageDownIcon />}
               onActionClick={onSaveScreenshot}
             />
             <PanelHeaderDivider />
@@ -216,13 +218,13 @@ export default function GraphViewer({
             <PanelHeaderDivider />
             <PanelHeaderActionButton
               label="Clear canvas"
-              icon={<RemoveFromCanvasIcon />}
+              icon={<CircleSlash2 />}
               color="error"
               onActionClick={onClearGraph}
             />
             <PanelHeaderActionButton
               label="Legend"
-              icon={<InfoIcon />}
+              icon={<BadgeInfoIcon />}
               onActionClick={() => setLegendOpen(open => !open)}
             />
           </PanelHeaderActions>
