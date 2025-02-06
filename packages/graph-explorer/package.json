@@ -43,6 +43,7 @@
     "@react-stately/list": "^3.11.2",
     "@tanstack/react-query": "^5.64.2",
     "@tanstack/react-query-devtools": "^5.64.2",
+    "@types/wicg-file-system-access": "^2023.10.5",
     "clsx": "^2.1.1",
     "color": "^4.2.3",
     "crypto-js": "^4.2.0",
