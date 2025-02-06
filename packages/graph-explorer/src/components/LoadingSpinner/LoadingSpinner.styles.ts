@@ -17,17 +17,7 @@ const defaultStyles =
       align-items: center;
       background: transparent;
       position: relative;
-      animation: spin 2s linear infinite;
       color: ${color ?? theme.palette.primary.contrastText};
-
-      @keyframes spin {
-        from {
-          transform: rotate(0deg);
-        }
-        to {
-          transform: rotate(359deg);
-        }
-      }
     }
   `;
 

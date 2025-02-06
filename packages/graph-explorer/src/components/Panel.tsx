@@ -48,7 +48,7 @@ export type Action = {
   onlyPinnedVisible?: boolean;
   isDisabled?: boolean;
   collapsedItems?: React.ReactElement;
-  onActionClick: () => void;
+  onActionClick?: () => void;
 };
 
 const PanelHeader = React.forwardRef<
@@ -103,7 +103,7 @@ const PanelHeaderDivider = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("bg-divider h-5 w-[1px]", className)}
+    className={cn("bg-divider mx-1 h-5 w-[1px]", className)}
     {...props}
   />
 ));
@@ -129,27 +129,20 @@ export function PanelHeaderCloseButton({
 }
 PanelHeaderCloseButton.displayName = "PanelHeaderCloseButton";
 
-export function PanelHeaderActionButton({
-  isDisabled,
-  label,
-  active,
-  color,
-  icon,
-  onActionClick,
-  ...props
-}: Action & IconButtonProps) {
-  return (
-    <IconButton
-      disabled={isDisabled}
-      tooltipText={label}
-      variant={active ? "filled" : "text"}
-      color={color}
-      icon={icon}
-      onClick={() => onActionClick()}
-      {...props}
-    />
-  );
-}
+export const PanelHeaderActionButton = React.forwardRef<
+  HTMLButtonElement,
+  Action & IconButtonProps
+>(({ isDisabled, label, active, onActionClick, ...props }, ref) => (
+  <IconButton
+    ref={ref}
+    disabled={isDisabled}
+    tooltipText={label}
+    variant={active ? "filled" : "text"}
+    {...(onActionClick && { onClick: onActionClick })}
+    {...props}
+  />
+));
+PanelHeaderActionButton.displayName = "PanelHeaderActionButton";
 
 export type PanelHeaderActionsProps = React.PropsWithChildren<
   React.ComponentPropsWithoutRef<"div">
@@ -163,7 +156,7 @@ function PanelHeaderActions({
   return (
     <div
       className={cn(
-        "flex grow flex-row items-center justify-end gap-1",
+        "flex grow flex-row items-center justify-end gap-1.5",
         className
       )}
       {...props}

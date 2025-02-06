@@ -58,7 +58,7 @@ export function FilterSearchTabContent() {
               </SelectContent>
             </Select>
           </FormItem>
-          <div className="space-y-1">
+          <FormItem>
             <Label htmlFor="attribute">
               {t("keyword-search.node-attribute")}
             </Label>
@@ -82,7 +82,7 @@ export function FilterSearchTabContent() {
                 </SelectGroup>
               </SelectContent>
             </Select>
-          </div>
+          </FormItem>
         </div>
 
         <FormItem>

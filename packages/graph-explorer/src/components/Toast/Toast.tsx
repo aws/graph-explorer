@@ -1,14 +1,15 @@
+import { PropsWithChildren } from "react";
 import { cn } from "@/utils";
-import { FC, PropsWithChildren } from "react";
-import { useWithTheme } from "@/core";
-
 import { CheckIcon, CloseIcon, ErrorIcon, InfoIcon } from "@/components/icons";
-import defaultStyles from "./Toast.styles";
+import { cva } from "cva";
+import { IconButton } from "../IconButton";
+import { Spinner } from "../LoadingSpinner";
+import { NotificationType } from "../NotificationProvider/NotificationProvider";
 
 export type NotificationComponentProps = PropsWithChildren<{
   message: string;
   title?: string;
-  type?: "error" | "warning" | "info" | "success";
+  type?: NotificationType;
 
   /**
    * Enable or disable the possibility to close the notification manually
@@ -26,54 +27,55 @@ export interface ToastProps
   className?: string;
 }
 
-const icons: Record<"error" | "warning" | "info" | "success", typeof InfoIcon> =
-  {
-    error: ErrorIcon,
-    warning: ErrorIcon,
-    info: InfoIcon,
-    success: CheckIcon,
-  };
+const icons: Record<NotificationType, typeof InfoIcon> = {
+  error: ErrorIcon,
+  warning: ErrorIcon,
+  info: InfoIcon,
+  success: CheckIcon,
+  loading: Spinner,
+};
 
-export const Toast: FC<ToastProps> = ({
+const notificationTypeStyles = cva({
+  base: "fle-row flex max-w-[448px] gap-3 overflow-hidden rounded-md p-3 shadow-lg",
+  variants: {
+    type: {
+      info: "bg-primary-main text-white",
+      success: "bg-success-main text-white",
+      warning: "bg-warning-main text-white",
+      error: "bg-error-main text-white",
+      loading: "bg-primary-main text-white",
+    },
+  },
+});
+
+export function Toast({
   children,
   className,
   type = "info",
   title,
   closeable = true,
   onClose,
-}) => {
-  const stylesWithTheme = useWithTheme();
-
+}: ToastProps) {
   const Icon = icons[type];
   return (
-    <div className={cn(stylesWithTheme(defaultStyles), className)}>
-      <div
-        className={cn(
-          "fle-row flex overflow-hidden rounded-md shadow-lg",
-          type
-        )}
-      >
-        <div className="icon">
-          <Icon width={24} height={24} />
-        </div>
-        <div className="content">
-          {title && <div className="title">{title}</div>}
+    <div className={cn("relative w-fit", className)}>
+      <div className={notificationTypeStyles({ type })}>
+        <Icon className="size-10 shrink-0" />
+        <div className="flex flex-col gap-2">
+          {title && <div className="text-lg font-bold">{title}</div>}
           {children}
         </div>
         {closeable && (
-          <div
-            className={cn("close-container", {
-              ["close-container-no-title"]: !title,
-            })}
-          >
-            <div onClick={onClose} style={{ height: 16 }}>
-              <CloseIcon width={16} height={16} />
-            </div>
-          </div>
+          <IconButton
+            icon={<CloseIcon />}
+            onClick={onClose}
+            variant="text"
+            className="text-white"
+          />
         )}
       </div>
     </div>
   );
-};
+}
 
 export default Toast;
