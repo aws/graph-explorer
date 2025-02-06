@@ -57,10 +57,11 @@ function useUpdateLayout({
             node.unlock();
           });
       }
-
-      previousNodesRef.current = new Set(nodesInGraph.map(node => node.id()));
       previousLayoutRef.current = layout;
     }
+
+    // Ensure the previousNodesRef is updated on every run
+    previousNodesRef.current = new Set(nodesInGraph.map(node => node.id()));
   }, [
     cy,
     layout,
