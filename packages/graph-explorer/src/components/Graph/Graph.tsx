@@ -359,7 +359,6 @@ export const Graph = (
     additionalLayoutsConfig,
     graphStructureVersion,
     mounted,
-    nodes,
   });
 
   useImperativeHandle(

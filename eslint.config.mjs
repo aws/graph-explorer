@@ -4,6 +4,7 @@ import tseslint from "typescript-eslint";
 import reactLint from "eslint-plugin-react";
 import reactHooksLint from "eslint-plugin-react-hooks";
 import tanstackQueryLint from "@tanstack/eslint-plugin-query";
+import reactCompiler from "eslint-plugin-react-compiler";
 import eslintConfigPrettier from "eslint-config-prettier";
 import { fixupPluginRules, includeIgnoreFile } from "@eslint/compat";
 import path from "node:path";
@@ -51,6 +52,14 @@ export default tseslint.config(
     },
     rules: {
       ...tanstackQueryLint.configs.recommended.rules,
+    },
+  },
+  {
+    plugins: {
+      "react-compiler": reactCompiler,
+    },
+    rules: {
+      "react-compiler/react-compiler": "error",
     },
   },
   eslintConfigPrettier,

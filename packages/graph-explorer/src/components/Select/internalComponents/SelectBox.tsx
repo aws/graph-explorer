@@ -1,3 +1,4 @@
+/* eslint-disable react-compiler/react-compiler */
 import { cn } from "@/utils";
 import type { ListProps } from "@react-stately/list";
 import type { MultipleSelection } from "@react-types/shared/src/selection";
