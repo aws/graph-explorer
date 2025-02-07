@@ -3,7 +3,7 @@ FROM amazonlinux:2023
 ARG NEPTUNE_NOTEBOOK
 
 ENV NVM_DIR=/root/.nvm
-ENV NODE_VERSION=v22.11.0
+ENV NODE_VERSION=v22.13.1
 ENV NEPTUNE_NOTEBOOK=$NEPTUNE_NOTEBOOK
 ENV HOME=/graph-explorer
 
@@ -37,11 +37,12 @@ WORKDIR /graph-explorer
 RUN yum update -y && \
     yum install -y tar gzip git findutils openssl && \
     mkdir -p $NVM_DIR && \
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash && \
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash && \
     source $NVM_DIR/nvm.sh && \
     nvm install $NODE_VERSION && \
     nvm alias default $NODE_VERSION && \
     nvm use $NODE_VERSION && \
+    npm install --global corepack@latest && \
     corepack enable && \
     pnpm install && \
     pnpm build && pnpm clean:dep && pnpm install --prod --ignore-scripts && \

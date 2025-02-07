@@ -37,7 +37,8 @@
   - Graph legend is now consistent with other panels
 - **Updated** dependencies and remove unused dependencies
   ([#764](https://github.com/aws/graph-explorer/pull/764),
-  [#776](https://github.com/aws/graph-explorer/pull/776))
+  [#776](https://github.com/aws/graph-explorer/pull/776),
+  [#783](https://github.com/aws/graph-explorer/pull/783))
 
 ## Release 1.13.0
 

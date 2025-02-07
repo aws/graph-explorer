@@ -3,7 +3,7 @@
   "version": "1.13.0",
   "description": "Graph Explorer",
   "engines": {
-    "node": ">=22.11.0"
+    "node": ">=22.13.1"
   },
   "type": "module",
   "scripts": {
