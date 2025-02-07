@@ -19,12 +19,6 @@ import {
 import { updateSchemaFromEntitiesAtom } from "./schema";
 
 export type Entities = {
-  /**
-   * forceSet prevents merging entities with existing (previous) stored entities
-   */
-  forceSet?: boolean;
-  preserveSelection?: boolean;
-  selectNewEntities?: boolean | "nodes" | "edges";
   nodes: Map<VertexId, Vertex>;
   edges: Map<EdgeId, Edge>;
 };
@@ -67,12 +61,8 @@ const entitiesSelector = selector<Entities>({
       return;
     }
 
-    const prevNodes = newEntities.forceSet
-      ? new Map<VertexId, Vertex>()
-      : get(nodesAtom);
-    const prevEdges = newEntities.forceSet
-      ? new Map<EdgeId, Edge>()
-      : get(edgesAtom);
+    const prevNodes = get(nodesAtom);
+    const prevEdges = get(edgesAtom);
 
     // Remove duplicated nodes by id
     const nonDupNodes = new Map([...prevNodes, ...newEntities.nodes]);
@@ -170,35 +160,6 @@ const entitiesSelector = selector<Entities>({
       nodes: nonDupNodes,
       edges: nonUnconnectedEdges,
     });
-
-    // Select new entities preserving selected ones by default
-    const selectedNodesIds =
-      newEntities.preserveSelection === false
-        ? new Set<VertexId>()
-        : new Set(get(nodesSelectedIdsAtom));
-    const selectedEdgesIds =
-      newEntities.preserveSelection === false
-        ? new Set<EdgeId>()
-        : new Set(get(edgesSelectedIdsAtom));
-
-    if (
-      newEntities.selectNewEntities === true ||
-      newEntities.selectNewEntities === "nodes"
-    ) {
-      newEntities.nodes.forEach(node => {
-        selectedNodesIds.add(node.id);
-      });
-      set(nodesSelectedIdsAtom, selectedNodesIds);
-    }
-    if (
-      newEntities.selectNewEntities === true ||
-      newEntities.selectNewEntities === "edges"
-    ) {
-      newEntities.edges.forEach(edge => {
-        selectedEdgesIds.add(edge.id);
-      });
-      set(edgesSelectedIdsAtom, selectedEdgesIds);
-    }
   },
 });
 
