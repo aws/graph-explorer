@@ -56,6 +56,25 @@ describe("createCompletionNotification", () => {
     );
   });
 
+  it("should create a completion notification when all nodes and edges were not found", () => {
+    const fetchResult = createRandomFetchEntityDetailsResult();
+    fetchResult.entities.vertices = [];
+    fetchResult.entities.edges = [];
+    fetchResult.counts.notFound.vertices = createRandomInteger();
+    fetchResult.counts.notFound.edges = createRandomInteger();
+    fetchResult.counts.notFound.total =
+      fetchResult.counts.notFound.vertices + fetchResult.counts.notFound.edges;
+    const nodeCount = fetchResult.counts.notFound.vertices.toLocaleString();
+    const edgeCount = fetchResult.counts.notFound.edges.toLocaleString();
+
+    const notification = createCompletionNotification(fetchResult);
+
+    expect(notification.type).toBe("info");
+    expect(notification.message).toBe(
+      `Finished loading the graph, but ${nodeCount} nodes and ${edgeCount} edges were not found.`
+    );
+  });
+
   it("should create a completion notification when some nodes and edges had errors", () => {
     const fetchResult = createRandomFetchEntityDetailsResult();
     fetchResult.counts.errors.vertices = createRandomInteger();

@@ -154,15 +154,6 @@ export function createCompletionNotification(
     };
   }
 
-  const anyImported =
-    result.entities.vertices.length + result.entities.edges.length > 0;
-  if (!anyImported) {
-    return {
-      message: `Finished loading the graph, but no nodes or edges were loaded.`,
-      type: "error",
-    };
-  }
-
   if (result.counts.notFound.total > 0) {
     const errorMessage = formatCount(
       result.counts.notFound.vertices,
@@ -171,6 +162,15 @@ export function createCompletionNotification(
     return {
       message: `Finished loading the graph, but ${errorMessage} were not found.`,
       type: "info",
+    };
+  }
+
+  const anyImported =
+    result.entities.vertices.length + result.entities.edges.length > 0;
+  if (!anyImported) {
+    return {
+      message: `Finished loading the graph, but no nodes or edges were loaded.`,
+      type: "error",
     };
   }
 
