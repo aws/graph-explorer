@@ -42,6 +42,7 @@ RUN yum update -y && \
     nvm install $NODE_VERSION && \
     nvm alias default $NODE_VERSION && \
     nvm use $NODE_VERSION && \
+    npm install --global corepack@latest && \
     corepack enable && \
     pnpm install && \
     pnpm build && pnpm clean:dep && pnpm install --prod --ignore-scripts && \
