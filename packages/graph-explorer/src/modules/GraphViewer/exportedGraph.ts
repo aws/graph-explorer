@@ -1,6 +1,10 @@
 import { createVertexId, createEdgeId, EdgeId, VertexId } from "@/core";
 import { APP_NAME } from "@/utils";
-import { ConnectionConfig, queryEngineOptions } from "@shared/types";
+import {
+  ConnectionConfig,
+  QueryEngine,
+  queryEngineOptions,
+} from "@shared/types";
 import { z } from "zod";
 
 export const exportedGraphSchema = z.object({
@@ -75,4 +79,30 @@ export function isMatchingConnection(
     compareTo.dbUrl === exportedConnection.dbUrl &&
     compareTo.queryEngine === exportedConnection.queryEngine
   );
+}
+
+export function createFileSafeTimestamp() {
+  const now = new Date();
+
+  // Format the date as YYYYMMDDHHMMSS
+  const timestamp = now
+    .toISOString()
+    .replace(/[^0-9]/g, "")
+    .slice(0, 14);
+
+  return timestamp;
+}
+
+/** Creates a default file name for the given connection. */
+export function createDefaultFileName(connectionName: string) {
+  // Replace spaces with dashes, remove special characters other than hyphen, and convert to lowercase
+  const modifiedConnectionName = connectionName
+    .replace(/[^a-zA-Z0-9\s+]/g, "")
+    .trim()
+    .replace(/\s+/g, "-")
+    .toLowerCase();
+
+  const timestamp = createFileSafeTimestamp();
+
+  return `${modifiedConnectionName}.${timestamp}.graph.json`;
 }

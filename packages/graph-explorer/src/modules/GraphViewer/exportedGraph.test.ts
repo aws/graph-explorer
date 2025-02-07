@@ -5,10 +5,12 @@ import {
   createRandomVertexId,
 } from "@/utils/testing";
 import {
+  createDefaultFileName,
   createExportedConnection,
   createExportedGraph,
   ExportedGraph,
   ExportedGraphConnection,
+  createFileSafeTimestamp,
   isMatchingConnection,
 } from "./exportedGraph";
 import {
@@ -148,5 +150,65 @@ describe("isMatchingConnection", () => {
     exportedConnection.queryEngine = connection.queryEngine!;
 
     expect(isMatchingConnection(connection, exportedConnection)).toBeFalsy();
+  });
+});
+
+describe("getSafeTimestamp", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("should return a file safe timestamp", () => {
+    vi.setSystemTime(new Date("2025-02-07T01:01:01.000Z"));
+    const timestamp = createFileSafeTimestamp();
+    expect(timestamp).toBe("20250207010101");
+  });
+});
+
+describe("createDefaultFileName", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2025-02-07T01:01:01.000Z"));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("should create a default file name with a connection name", () => {
+    const fileName = createDefaultFileName("default");
+    expect(fileName).toBe(`default.20250207010101.graph.json`);
+  });
+
+  it("should replace spaces with dashes", () => {
+    const fileName = createDefaultFileName("My Connection to the Database");
+    expect(fileName).toBe(
+      `my-connection-to-the-database.20250207010101.graph.json`
+    );
+  });
+
+  it("should remove special characters", () => {
+    const connectionName = "connection !@#$%^&*()";
+    const fileName = createDefaultFileName(connectionName);
+
+    expect(fileName).toBe(`connection.20250207010101.graph.json`);
+  });
+
+  it("should convert to lowercase", () => {
+    const connectionName = "CONnECtiOn";
+    const fileName = createDefaultFileName(connectionName);
+
+    expect(fileName).toBe(`connection.20250207010101.graph.json`);
+  });
+
+  it("should remove hyphens from connection name", () => {
+    const connectionName = "connection - gremlin";
+    const fileName = createDefaultFileName(connectionName);
+
+    expect(fileName).toBe(`connection-gremlin.20250207010101.graph.json`);
   });
 });
