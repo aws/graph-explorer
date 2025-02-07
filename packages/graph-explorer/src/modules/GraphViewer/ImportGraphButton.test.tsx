@@ -23,7 +23,7 @@ describe("createCompletionNotification", () => {
 
     expect(notification.type).toBe("success");
     expect(notification.message).toBe(
-      "Finished importing 1 node and 1 edge from the graph file."
+      "Finished loading 1 node and 1 edge from the graph file."
     );
   });
 
@@ -35,7 +35,7 @@ describe("createCompletionNotification", () => {
 
     expect(notification.type).toBe("success");
     expect(notification.message).toBe(
-      `Finished importing ${nodeCount} nodes and ${edgeCount} edges from the graph file.`
+      `Finished loading ${nodeCount} nodes and ${edgeCount} edges from the graph file.`
     );
   });
 
@@ -52,7 +52,7 @@ describe("createCompletionNotification", () => {
 
     expect(notification.type).toBe("info");
     expect(notification.message).toBe(
-      `Finished importing the graph, but ${nodeCount} nodes and ${edgeCount} edges were not found.`
+      `Finished loading the graph, but ${nodeCount} nodes and ${edgeCount} edges were not found.`
     );
   });
 
@@ -69,7 +69,7 @@ describe("createCompletionNotification", () => {
 
     expect(notification.type).toBe("error");
     expect(notification.message).toBe(
-      `Finished importing the graph, but ${nodeCount} nodes and ${edgeCount} edges encountered an error.`
+      `Finished loading the graph, but ${nodeCount} nodes and ${edgeCount} edges encountered an error.`
     );
   });
 
@@ -81,7 +81,7 @@ describe("createCompletionNotification", () => {
 
     expect(notification.type).toBe("error");
     expect(notification.message).toBe(
-      `Finished importing the graph, but no nodes or edges were imported.`
+      `Finished loading the graph, but no nodes or edges were loaded.`
     );
   });
 });
@@ -96,7 +96,7 @@ describe("createErrorNotification", () => {
 
     expect(notification.type).toBe("error");
     expect(notification.message).toBe(
-      "Failed to import the graph because an error occurred."
+      "Failed to load the graph because an error occurred."
     );
   });
 
@@ -109,7 +109,7 @@ describe("createErrorNotification", () => {
 
     expect(notification.type).toBe("error");
     expect(notification.message).toBe(
-      `Parsing the file "${file.name}" failed. Please ensure the file was exported from Graph Explorer and is not corrupt.`
+      `Parsing the file "${file.name}" failed. Please ensure the file was originally saved from Graph Explorer and is not corrupt.`
     );
   });
 

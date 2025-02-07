@@ -71,7 +71,7 @@ function useImportGraphMutation() {
 
   const { enqueueNotification, clearNotification } = useNotification();
 
-  const notificationTitle = "Importing Graph";
+  const notificationTitle = "Loading Graph";
 
   const mutation = useMutation({
     mutationFn: async (file: File) => {
@@ -94,7 +94,7 @@ function useImportGraphMutation() {
 
       const progressNotificationId = enqueueNotification({
         title: notificationTitle,
-        message: `Importing the graph with ${entityCountMessage} from the file "${file.name}"`,
+        message: `Loading the graph with ${entityCountMessage} from the file "${file.name}"`,
         type: "loading",
         autoHideDuration: null,
       });
@@ -149,7 +149,7 @@ export function createCompletionNotification(
     );
 
     return {
-      message: `Finished importing the graph, but ${errorMessage} encountered an error.`,
+      message: `Finished loading the graph, but ${errorMessage} encountered an error.`,
       type: "error",
     };
   }
@@ -158,7 +158,7 @@ export function createCompletionNotification(
     result.entities.vertices.length + result.entities.edges.length > 0;
   if (!anyImported) {
     return {
-      message: `Finished importing the graph, but no nodes or edges were imported.`,
+      message: `Finished loading the graph, but no nodes or edges were loaded.`,
       type: "error",
     };
   }
@@ -169,7 +169,7 @@ export function createCompletionNotification(
       result.counts.notFound.edges
     );
     return {
-      message: `Finished importing the graph, but ${errorMessage} were not found.`,
+      message: `Finished loading the graph, but ${errorMessage} were not found.`,
       type: "info",
     };
   }
@@ -179,7 +179,7 @@ export function createCompletionNotification(
     result.entities.edges.length
   );
   return {
-    message: `Finished importing ${entityCountMessage} from the graph file.`,
+    message: `Finished loading ${entityCountMessage} from the graph file.`,
     type: "success",
   };
 }
@@ -193,7 +193,7 @@ export function createErrorNotification(
     // Parsing has failed
     logger.error(`Failed to parse the file "${file.name}"`, error.format());
     return {
-      message: `Parsing the file "${file.name}" failed. Please ensure the file was exported from Graph Explorer and is not corrupt.`,
+      message: `Parsing the file "${file.name}" failed. Please ensure the file was originally saved from Graph Explorer and is not corrupt.`,
       type: "error",
     };
   } else if (error instanceof InvalidConnectionError) {
@@ -223,7 +223,7 @@ export function createErrorNotification(
     }
   }
   return {
-    message: `Failed to import the graph because an error occurred.`,
+    message: `Failed to load the graph because an error occurred.`,
     type: "error",
   };
 }
