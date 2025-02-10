@@ -1,6 +1,5 @@
 import { FileButton, Modal } from "@mantine/core";
 import { useRecoilCallback, useRecoilValue } from "recoil";
-import { v4 } from "uuid";
 import {
   AddIcon,
   Chip,
@@ -20,7 +19,11 @@ import {
 } from "@/components";
 import { useNotification } from "@/components/NotificationProvider";
 import Switch from "@/components/Switch";
-import { RawConfiguration } from "@/core";
+import {
+  ConfigurationId,
+  createNewConfigurationId,
+  RawConfiguration,
+} from "@/core";
 import {
   activeConfigurationAtom,
   configurationAtom,
@@ -150,7 +153,7 @@ const ConfigRow = React.memo(
   }
 );
 
-function useSetActiveConfigCallback(configId: string) {
+function useSetActiveConfigCallback(configId: ConfigurationId) {
   const resetState = useResetState();
   return useRecoilCallback(
     ({ set }) =>
@@ -181,7 +184,7 @@ function useImportConfigFileCallback() {
         }
 
         // Create new id to avoid collisions
-        const newId = v4();
+        const newId = createNewConfigurationId();
         set(configurationAtom, prevConfig => {
           const updatedConfig = new Map(prevConfig);
           updatedConfig.set(newId, {

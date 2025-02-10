@@ -9,6 +9,7 @@ import {
   EdgeId,
   toNodeMap,
   toEdgeMap,
+  ConnectionWithId,
 } from "@/core";
 import { logger } from "@/utils";
 import { fromFileToJson } from "@/utils/fileData";
@@ -28,7 +29,6 @@ import { useNotification } from "@/components/NotificationProvider";
 import { ZodError } from "zod";
 import { startTransition } from "react";
 import { Notification } from "@/components/NotificationProvider/reducer";
-import { ConnectionWithId } from "@shared/types";
 import { getTranslation } from "@/hooks/useTranslations";
 
 export function ImportGraphButton() {

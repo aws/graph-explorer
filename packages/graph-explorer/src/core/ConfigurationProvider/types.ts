@@ -2,7 +2,15 @@ import {
   EdgePreferences,
   VertexPreferences,
 } from "@/core/StateProvider/userPreferences";
+import { Branded } from "@/utils";
 import { ConnectionConfig } from "@shared/types";
+import { v4 } from "uuid";
+
+export type ConfigurationId = Branded<string, "ConfigurationId">;
+
+export function createNewConfigurationId() {
+  return v4() as ConfigurationId;
+}
 
 export type AttributeConfig = {
   /**
@@ -119,7 +127,7 @@ export type RawConfiguration = {
   /**
    * Unique identifier for this config
    */
-  id: string;
+  id: ConfigurationId;
   displayLabel?: string;
   /**
    * Connection configuration
@@ -140,4 +148,17 @@ export type ConfigurationContextProps = RawConfiguration & {
   vertexTypes: Array<string>;
   totalEdges: number;
   edgeTypes: Array<string>;
+};
+
+/**
+ * Represents a connection config with the ID and display label integrated in to
+ * the type.
+ *
+ * This makes it a bit easier to deal with compared to the connection inside the
+ * `RawConfiguration` type since that one has a bunch of other properties and
+ * the connection is optional.
+ */
+export type ConnectionWithId = ConnectionConfig & {
+  id: ConfigurationId;
+  displayLabel?: string;
 };

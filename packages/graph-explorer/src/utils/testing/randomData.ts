@@ -1,7 +1,9 @@
 import {
   ArrowStyle,
   AttributeConfig,
+  ConnectionWithId,
   createEdgeId,
+  createNewConfigurationId,
   createVertexId,
   Edge,
   EdgeId,
@@ -31,7 +33,6 @@ import {
 import { toNodeMap } from "@/core/StateProvider/nodes";
 import { toEdgeMap } from "@/core/StateProvider/edges";
 import {
-  ConnectionWithId,
   NeptuneServiceType,
   neptuneServiceTypeOptions,
   QueryEngine,
@@ -239,7 +240,7 @@ export function createRandomConnectionWithId(): ConnectionWithId {
   const queryEngine = createRandomQueryEngine();
 
   return {
-    id: createRandomName("id"),
+    id: createNewConfigurationId(),
     displayLabel: createRandomName("displayLabel"),
     url: createRandomUrlString(),
     ...(isProxyConnection && { graphDbUrl: createRandomUrlString() }),

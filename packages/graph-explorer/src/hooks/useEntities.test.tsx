@@ -1,6 +1,13 @@
 import { useRecoilValue } from "recoil";
 import useEntities from "./useEntities";
-import { createVertexId, Edge, Entities, Schema, Vertex } from "@/core";
+import {
+  createNewConfigurationId,
+  createVertexId,
+  Edge,
+  Entities,
+  Schema,
+  Vertex,
+} from "@/core";
 import {
   createRandomEdge,
   createRandomEntities,
@@ -12,7 +19,6 @@ import { activeConfigurationAtom } from "@/core/StateProvider/configuration";
 import { renderHookWithRecoilRoot } from "@/utils/testing";
 import { waitForValueToChange } from "@/utils/testing/waitForValueToChange";
 import { vi } from "vitest";
-import { createRandomName } from "@shared/utils/testing";
 import {
   nodesAtom,
   nodesFilteredIdsAtom,
@@ -348,7 +354,7 @@ async function setupAndPerformSetEntities(
   initialSchema: Schema,
   updatedEntities: Entities
 ) {
-  const configId = createRandomName("configId");
+  const configId = createNewConfigurationId();
   const { result } = renderHookWithRecoilRoot(
     () => {
       const [entities, setEntities] = useEntities();

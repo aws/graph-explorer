@@ -13,6 +13,7 @@ import { act } from "@testing-library/react";
 import { useRecoilValue } from "recoil";
 import { schemaAtom, SchemaInference } from "@/core/StateProvider/schema";
 import { activeConfigurationAtom } from "@/core/StateProvider/configuration";
+import { createNewConfigurationId } from "@/core";
 
 describe("useUpdateSchema", () => {
   describe("setSyncFailure", () => {
@@ -24,7 +25,7 @@ describe("useUpdateSchema", () => {
     });
 
     it("should update existing schema", () => {
-      const configId = createRandomName("ConfigId");
+      const configId = createNewConfigurationId();
       const existingSchema = createRandomSchema();
       const { result } = renderHookWithRecoilRoot(render, snapshot => {
         snapshot.set(activeConfigurationAtom, configId);
@@ -51,7 +52,7 @@ describe("useUpdateSchema", () => {
     });
 
     it("should set schema when none set", () => {
-      const configId = createRandomName("ConfigId");
+      const configId = createNewConfigurationId();
       const schemaResponse = createRandomSchemaResponse();
 
       const { result } = renderHookWithRecoilRoot(render, snapshot => {
@@ -70,7 +71,7 @@ describe("useUpdateSchema", () => {
     });
 
     it("should update existing schema", () => {
-      const configId = createRandomName("ConfigId");
+      const configId = createNewConfigurationId();
       const existingSchema = createRandomSchema();
       const schemaResponse = createRandomSchemaResponse();
 
@@ -91,7 +92,7 @@ describe("useUpdateSchema", () => {
 
   describe("updateVertexTotal", () => {
     it("should do nothing if no schema exists", () => {
-      const configId = createRandomName("ConfigId");
+      const configId = createNewConfigurationId();
       const vertexType = createRandomName("VertexType");
       const vertexTotal = createRandomInteger();
 
@@ -105,7 +106,7 @@ describe("useUpdateSchema", () => {
     });
 
     it("should update total on given vertex type", () => {
-      const configId = createRandomName("ConfigId");
+      const configId = createNewConfigurationId();
       const vertexType = createRandomName("VertexType");
       const vertexTotal = createRandomInteger();
       const existingSchema = createRandomSchema();
