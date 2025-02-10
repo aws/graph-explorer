@@ -19,37 +19,6 @@ export const edgesAtom = atom<Edges>({
   default: new Map(),
 });
 
-export const edgesSelector = selector<Edges>({
-  key: "edges-selector",
-  get: ({ get }) => {
-    return get(edgesAtom);
-  },
-  set: ({ get, set }, newValue) => {
-    if (isDefaultValue(newValue)) {
-      set(edgesAtom, newValue);
-      return;
-    }
-
-    set(edgesAtom, newValue);
-
-    const cleanFn = (curr: Set<EdgeId>) => {
-      const existingEdgesIds = new Set<EdgeId>();
-      curr.forEach(eId => {
-        const exist = newValue.has(eId);
-        if (exist) {
-          existingEdgesIds.add(eId);
-        }
-      });
-      return existingEdgesIds;
-    };
-    // Clean all dependent states
-    get(edgesSelectedIdsAtom).size > 0 && set(edgesSelectedIdsAtom, cleanFn);
-    get(edgesOutOfFocusIdsAtom).size > 0 &&
-      set(edgesOutOfFocusIdsAtom, cleanFn);
-    get(edgesFilteredIdsAtom).size > 0 && set(edgesFilteredIdsAtom, cleanFn);
-  },
-});
-
 export const edgeSelector = selectorFamily({
   key: "edge-selector",
   get:

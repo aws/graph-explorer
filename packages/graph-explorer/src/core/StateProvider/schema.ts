@@ -7,9 +7,8 @@ import {
 import localForageEffect from "./localForageEffect";
 import { activeConfigurationAtom } from "./configuration";
 import isDefaultValue from "./isDefaultValue";
-import { Edge, Vertex } from "@/core";
+import { Edge, Entities, Vertex } from "@/core";
 import { sanitizeText } from "@/utils";
-import { Entities } from "./entitiesSelector";
 
 export type SchemaInference = {
   vertices: VertexTypeConfig[];
