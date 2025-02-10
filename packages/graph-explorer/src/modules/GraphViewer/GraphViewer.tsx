@@ -43,6 +43,8 @@ import useGraphStyles from "./useGraphStyles";
 import useNodeBadges from "./useNodeBadges";
 import { SelectedElements } from "@/components/Graph/Graph.model";
 import { useAutoOpenDetailsSidebar } from "./useAutoOpenDetailsSidebar";
+import { ImportGraphButton } from "./ImportGraphButton";
+import { ExportGraphButton } from "./ExportGraphButton";
 import {
   BadgeInfoIcon,
   CircleSlash2,
@@ -204,6 +206,8 @@ export default function GraphViewer({
               icon={<ImageDownIcon />}
               onActionClick={onSaveScreenshot}
             />
+            <ExportGraphButton />
+            <ImportGraphButton />
             <PanelHeaderDivider />
             <PanelHeaderActionButton
               label="Zoom in"

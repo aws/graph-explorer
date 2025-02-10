@@ -2,6 +2,18 @@
 
 ## Upcoming
 
+- **Added** ability to save the rendered graph to a file, allowing for reloading
+  the graph later or sharing the graph with other users who have the same
+  connection ([#756](https://github.com/aws/graph-explorer/pull/756),
+  [#758](https://github.com/aws/graph-explorer/pull/758),
+  [#761](https://github.com/aws/graph-explorer/pull/761),
+  [#762](https://github.com/aws/graph-explorer/pull/762),
+  [#767](https://github.com/aws/graph-explorer/pull/767),
+  [#768](https://github.com/aws/graph-explorer/pull/768),
+  [#769](https://github.com/aws/graph-explorer/pull/769),
+  [#770](https://github.com/aws/graph-explorer/pull/770),
+  [#775](https://github.com/aws/graph-explorer/pull/775),
+  [#781](https://github.com/aws/graph-explorer/pull/781))
 - **Updated** UI labels to refer to node & edge "labels" instead of "types"
   ([#766](https://github.com/aws/graph-explorer/pull/766))
 - **Improved** neighbor count retrieval to be more efficient
@@ -15,16 +27,6 @@
   ([#743](https://github.com/aws/graph-explorer/pull/743))
 - **Improved** pagination controls by using a single shared component
   ([#742](https://github.com/aws/graph-explorer/pull/742))
-- **Updated** graph foundations to accommodate loading a graph from a set of IDs
-  ([#756](https://github.com/aws/graph-explorer/pull/756),
-  [#758](https://github.com/aws/graph-explorer/pull/758),
-  [#761](https://github.com/aws/graph-explorer/pull/761),
-  [#762](https://github.com/aws/graph-explorer/pull/762),
-  [#767](https://github.com/aws/graph-explorer/pull/767),
-  [#768](https://github.com/aws/graph-explorer/pull/768),
-  [#769](https://github.com/aws/graph-explorer/pull/769),
-  [#770](https://github.com/aws/graph-explorer/pull/770),
-  [#775](https://github.com/aws/graph-explorer/pull/775))
 - **Updated** styling across the app
   ([#777](https://github.com/aws/graph-explorer/pull/777),
   [#743](https://github.com/aws/graph-explorer/pull/743),

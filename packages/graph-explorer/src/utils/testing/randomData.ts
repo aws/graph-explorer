@@ -31,11 +31,13 @@ import {
 import { toNodeMap } from "@/core/StateProvider/nodes";
 import { toEdgeMap } from "@/core/StateProvider/edges";
 import {
+  ConnectionWithId,
   NeptuneServiceType,
   neptuneServiceTypeOptions,
   QueryEngine,
   queryEngineOptions,
 } from "@shared/types";
+import { ExportedGraphConnection } from "@/modules/GraphViewer/exportedGraph";
 
 /*
 
@@ -211,11 +213,24 @@ function pickRandomElement<T>(array: T[]): T {
   return array[Math.floor(Math.random() * array.length)];
 }
 
-/**
- * Creates a random RawConfiguration object.
- * @returns A random RawConfiguration object.
- */
-export function createRandomRawConfiguration(): RawConfiguration {
+export function createRandomExportedGraphConnection(): ExportedGraphConnection {
+  const dbUrl = createRandomUrlString();
+  const queryEngine = createRandomQueryEngine();
+  return {
+    dbUrl,
+    queryEngine,
+  };
+}
+
+export function createRandomFile(): File {
+  const fileName = createRandomName("File");
+  const contentsString = createRandomName("Contents");
+  const fileContent = new Blob([contentsString], { type: "text/plain" });
+  const file = new File([fileContent], fileName, { type: "text/plain" });
+  return file;
+}
+
+export function createRandomConnectionWithId(): ConnectionWithId {
   const isProxyConnection = createRandomBoolean();
   const isIamEnabled = createRandomBoolean();
   const fetchTimeoutMs = randomlyUndefined(createRandomInteger());
@@ -226,19 +241,31 @@ export function createRandomRawConfiguration(): RawConfiguration {
   return {
     id: createRandomName("id"),
     displayLabel: createRandomName("displayLabel"),
-    connection: {
-      url: createRandomUrlString(),
-      ...(isProxyConnection && { graphDbUrl: createRandomUrlString() }),
-      queryEngine,
-      proxyConnection: isProxyConnection,
-      ...(isIamEnabled && { awsAuthEnabled: createRandomBoolean() }),
-      ...(isIamEnabled && {
-        awsRegion: createRandomAwsRegion(),
-      }),
-      ...(fetchTimeoutMs && { fetchTimeoutMs }),
-      ...(nodeExpansionLimit && { nodeExpansionLimit }),
-      ...(serviceType && { serviceType }),
-    },
+    url: createRandomUrlString(),
+    ...(isProxyConnection && { graphDbUrl: createRandomUrlString() }),
+    queryEngine,
+    proxyConnection: isProxyConnection,
+    ...(isIamEnabled && { awsAuthEnabled: createRandomBoolean() }),
+    ...(isIamEnabled && {
+      awsRegion: createRandomAwsRegion(),
+    }),
+    ...(fetchTimeoutMs && { fetchTimeoutMs }),
+    ...(nodeExpansionLimit && { nodeExpansionLimit }),
+    ...(serviceType && { serviceType }),
+  };
+}
+
+/**
+ * Creates a random RawConfiguration object.
+ * @returns A random RawConfiguration object.
+ */
+export function createRandomRawConfiguration(): RawConfiguration {
+  const { id, displayLabel, ...connection } = createRandomConnectionWithId();
+
+  return {
+    id,
+    displayLabel,
+    connection,
   };
 }
 

@@ -15,6 +15,8 @@ export { default as PanelError } from "./PanelError";
 
 export { default as Divider } from "./Divider";
 
+export * from "./FileButton";
+
 export { default as Graph } from "./Graph";
 export * from "./Graph";
 
