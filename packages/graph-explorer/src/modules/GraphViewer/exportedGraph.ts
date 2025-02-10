@@ -1,10 +1,6 @@
 import { createVertexId, createEdgeId, EdgeId, VertexId } from "@/core";
 import { APP_NAME } from "@/utils";
-import {
-  ConnectionConfig,
-  QueryEngine,
-  queryEngineOptions,
-} from "@shared/types";
+import { ConnectionConfig, queryEngineOptions } from "@shared/types";
 import { z } from "zod";
 
 export const exportedGraphSchema = z.object({
