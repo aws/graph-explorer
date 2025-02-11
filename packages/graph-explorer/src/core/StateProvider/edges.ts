@@ -6,7 +6,7 @@ import {
   type EdgeId,
 } from "@/core";
 import isDefaultValue from "./isDefaultValue";
-import { nodesFilteredIdsAtom, nodesTypesFilteredAtom } from "./nodes";
+import { filteredNodesSelector } from "./nodes";
 
 export type Edges = Map<EdgeId, Edge>;
 
@@ -98,18 +98,17 @@ export const filteredEdgesSelector = selector<Map<EdgeId, Edge>>({
     const edges = get(edgesAtom);
     const filteredEdgeIds = get(edgesFilteredIdsAtom);
     const filteredEdgeTypes = get(edgesTypesFilteredAtom);
-    const filteredVertexIds = get(nodesFilteredIdsAtom);
-    const filteredVertexTypes = get(nodesTypesFilteredAtom);
+
+    // Get the IDs of the existing vertices
+    const existingVertexIds = new Set(get(filteredNodesSelector).keys());
 
     return new Map(
       edges
         .entries()
         .filter(([_id, edge]) => !filteredEdgeTypes.has(edge.type))
-        .filter(([_id, edge]) => !filteredVertexTypes.has(edge.sourceType))
-        .filter(([_id, edge]) => !filteredVertexTypes.has(edge.targetType))
         .filter(([_id, edge]) => !filteredEdgeIds.has(edge.id))
-        .filter(([_id, edge]) => !filteredVertexIds.has(edge.source))
-        .filter(([_id, edge]) => !filteredVertexIds.has(edge.target))
+        .filter(([_id, edge]) => existingVertexIds.has(edge.source))
+        .filter(([_id, edge]) => existingVertexIds.has(edge.target))
     );
   },
 });

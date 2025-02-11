@@ -213,7 +213,7 @@ describe("useRenderedEdges", () => {
     });
   });
 
-  it("should return only edges that have both source and target vertices", async () => {
+  it("should filter out edges where source or target vertex is filtered out", async () => {
     const dbState = new DbState();
     dbState.addVertexToGraph(createRandomVertex());
     dbState.addVertexToGraph(createRandomVertex());
@@ -238,6 +238,42 @@ describe("useRenderedEdges", () => {
     const expectedRenderedEdges = [
       createRenderedEdgeId(dbState.edges[2].id),
       createRenderedEdgeId(dbState.edges[3].id),
+    ];
+
+    const { result } = renderHookWithRecoilRoot(
+      () => useRenderedEntities(),
+      snapshot => dbState.applyTo(snapshot)
+    );
+
+    await waitFor(() => {
+      const edgeIds = result.current.edges.map(e => e.data.id);
+      expect(edgeIds).toEqual(expectedRenderedEdges);
+    });
+  });
+
+  it("should filter out edges where source or target vertex doesn't exist", async () => {
+    const dbState = new DbState();
+    const missingVertex = createRandomVertex();
+    dbState.addVertexToGraph(createRandomVertex());
+    dbState.addVertexToGraph(createRandomVertex());
+
+    dbState.addEdgeToGraph(
+      createRandomEdge(dbState.vertices[0], dbState.vertices[1])
+    );
+    dbState.addEdgeToGraph(
+      createRandomEdge(dbState.vertices[1], dbState.vertices[0])
+    );
+    dbState.addEdgeToGraph(
+      createRandomEdge(dbState.vertices[0], missingVertex)
+    );
+    dbState.addEdgeToGraph(
+      createRandomEdge(missingVertex, dbState.vertices[0])
+    );
+
+    // Only expect the edges connected to vertex indices 0 and 2
+    const expectedRenderedEdges = [
+      createRenderedEdgeId(dbState.edges[0].id),
+      createRenderedEdgeId(dbState.edges[1].id),
     ];
 
     const { result } = renderHookWithRecoilRoot(
