@@ -192,7 +192,7 @@ test("should add missing attributes to the schema when adding a node", async () 
   });
 });
 
-test("should ad missing attributes to the schema when adding an edge", async () => {
+test("should add missing attributes to the schema when adding an edge", async () => {
   const node1 = createRandomVertex();
   const node2 = createRandomVertex();
   const edge = createRandomEdge(node1, node2);
