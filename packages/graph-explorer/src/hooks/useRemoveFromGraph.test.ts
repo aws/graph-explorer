@@ -110,7 +110,7 @@ test("should remove one edge", async () => {
   });
 });
 
-test("should remove associate edges when a node is removed", async () => {
+test("should remove associated edges when a node is removed", async () => {
   const node1 = createRandomVertex();
   const node2 = createRandomVertex();
   const edge1 = createRandomEdge(node1, node2);
