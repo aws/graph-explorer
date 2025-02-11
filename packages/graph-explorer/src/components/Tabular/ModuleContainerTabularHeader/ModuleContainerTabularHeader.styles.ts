@@ -12,7 +12,6 @@ const defaultStyles: ThemeStyleFn = ({ theme }) => {
       height: 48px;
       min-height: 48px;
       padding: 0 ${theme.spacing["3x"]};
-      border-bottom: solid 1px ${palette.divider};
       background-color: ${palette.background.default};
       color: ${palette.text.primary};
 
