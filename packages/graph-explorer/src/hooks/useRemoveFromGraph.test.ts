@@ -96,14 +96,16 @@ test("should remove one edge", async () => {
   });
 
   await waitFor(() => {
-    expect(result.current.edges.has(edge1.id)).toBeFalsy();
-    expect(result.current.edges.has(edge2.id)).toBeTruthy();
+    // Ensure that the edge1 is removed from all graph state
     expect(result.current.edges.has(edge1.id)).toBeFalsy();
     expect(result.current.selected.has(edge1.id)).toBeFalsy();
-    expect(result.current.selected.has(edge2.id)).toBeTruthy();
     expect(result.current.outOfFocus.has(edge1.id)).toBeFalsy();
-    expect(result.current.outOfFocus.has(edge2.id)).toBeTruthy();
     expect(result.current.filtered.has(edge1.id)).toBeFalsy();
+
+    // Ensure the other edge was untouched
+    expect(result.current.edges.has(edge2.id)).toBeTruthy();
+    expect(result.current.selected.has(edge2.id)).toBeTruthy();
+    expect(result.current.outOfFocus.has(edge2.id)).toBeTruthy();
     expect(result.current.filtered.has(edge2.id)).toBeTruthy();
   });
 });
@@ -203,6 +205,7 @@ test("should remove all nodes and edges", async () => {
     expect(result.current.nodesSelected.size).toBe(0);
     expect(result.current.nodesOutOfFocus.size).toBe(0);
     expect(result.current.nodesFiltered.size).toBe(0);
+
     expect(result.current.edges.size).toBe(0);
     expect(result.current.edgesSelected.size).toBe(0);
     expect(result.current.edgesOutOfFocus.size).toBe(0);
