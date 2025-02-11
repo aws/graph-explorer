@@ -1,0 +1,58 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: graph-explorer
+  labels:
+    app: graph-explorer
+spec:
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 20%
+      maxSurge: 50%
+  selector:
+    matchLabels:
+      app: graph-explorer
+  template:
+    metadata:
+      name: graph-explorer
+      labels:
+        app: graph-explorer
+    spec:
+      containers:
+      - name: graph-explorer
+        env:
+        - name: HOST
+          value: localhost
+        image: yros/graph-explorer:latest
+        imagePullPolicy: IfNotPresent
+        readinessProbe:
+          tcpSocket:
+            port: 443
+          initialDelaySeconds: 10
+          failureThreshold: 5
+          timeoutSeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: 443
+          initialDelaySeconds: 30
+          failureThreshold: 5
+          timeoutSeconds: 10
+          periodSeconds: 30
+        ports:
+        - containerPort: 443
+        resources:
+          requests:
+            cpu: 300m
+            memory: 512Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+      terminationGracePeriodSeconds: 30
+      restartPolicy: Always
+      dnsConfig:
+        options:
+        - name: ndots
+          value: "1"
+      dnsPolicy: ClusterFirst
