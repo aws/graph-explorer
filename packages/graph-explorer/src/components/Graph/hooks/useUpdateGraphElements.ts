@@ -1,6 +1,6 @@
 import cytoscape from "cytoscape";
 import cloneDeep from "lodash/cloneDeep";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import type { CytoscapeType, GraphEdge, GraphNode } from "../Graph.model";
 
 export interface UseUpdateGraphElementsProps {
@@ -15,21 +15,13 @@ function wereElementsAddedOrRemoved(
   cyElements: cytoscape.EdgeCollection | cytoscape.NodeCollection,
   elements: GraphNode[]
 ) {
-  if (cyElements.length !== elements.length) {
-    return true;
-  }
+  const cyElementsIds = new Set(cyElements.map(e => e.data("id")));
+  const elementsIds = new Set(elements.map(e => e.data.id));
 
-  // see if any element ids are different
-  const set = new Set(elements.map((e: GraphNode) => e.data.id));
-  let result = false;
-  cyElements.forEach((e: cytoscape.NodeSingular | cytoscape.EdgeSingular) => {
-    const id = e.data().id;
-    if (!set.has(id)) {
-      result = true;
-      return false;
-    }
-  });
-  return result;
+  return (
+    cyElementsIds.size !== elementsIds.size ||
+    !cyElementsIds.isSubsetOf(elementsIds)
+  );
 }
 
 const useUpdateGraphElements = ({
@@ -38,36 +30,8 @@ const useUpdateGraphElements = ({
   edges,
   lockedNodesIds,
   disableLockOnChange,
-}: UseUpdateGraphElementsProps): number => {
+}: UseUpdateGraphElementsProps) => {
   const [graphStructureVersion, setGraphStructureVersion] = useState(0);
-
-  const unlockNodes = useCallback(() => {
-    if (!cy) {
-      return;
-    }
-
-    cy.batch(() => {
-      cy.nodes().forEach(node => {
-        const id = node.data("id");
-        if (!lockedNodesIds.has(id)) {
-          node.unlock();
-        }
-      });
-    });
-  }, [cy, lockedNodesIds]);
-
-  useEffect(() => {
-    if (!cy) {
-      return;
-    }
-
-    // When layout is ready, unlock all nodes locked during the addition
-    cy.on("layoutready", unlockNodes);
-
-    return () => {
-      cy.off("layoutready", unlockNodes);
-    };
-  }, [cy, unlockNodes]);
 
   useEffect(() => {
     if (!cy) {
@@ -80,11 +44,6 @@ const useUpdateGraphElements = ({
 
     if (structureChanged) {
       setGraphStructureVersion(v => v + 1);
-    }
-
-    if (structureChanged && !disableLockOnChange) {
-      // If change, lock all nodes before add new nodes
-      cy.nodes().lock();
     }
 
     // Cytoscape edits node and edge objects in-memory, which can screw up any of our earlier logic

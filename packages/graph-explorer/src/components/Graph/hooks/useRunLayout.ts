@@ -15,6 +15,11 @@ interface UseUpdateLayout {
   mounted: boolean;
 }
 
+/**
+ * Performs a layout on the graph when new nodes or edges are added or removed.
+ *
+ * Existing nodes are locked when the layout is run, and unlocked when the layout is complete.
+ */
 function useUpdateLayout({
   cy,
   layout,
@@ -29,39 +34,51 @@ function useUpdateLayout({
   const previousGraphStructureVersionRef = useRef(graphStructureVersion);
 
   useEffect(() => {
-    if (!cy || !layout || !mounted) {
+    // Ensure Cytoscape is mounted and skip the first graph structure version
+    if (!cy || !layout || !mounted || graphStructureVersion === 0) {
       return;
     }
 
+    // Only lock the previous nodes if the layout is the same, the graph has been updated, and there is at least one node.
+    const shouldLock =
+      previousLayoutRef.current === layout &&
+      previousGraphStructureVersionRef.current !== graphStructureVersion &&
+      previousNodesRef.current.size > 0;
+
+    // Reduce the number of iterations over the node collection
     const nodesInGraph = cy.nodes();
-    if (nodesInGraph.length) {
-      const shouldLock =
-        previousLayoutRef.current === layout &&
-        previousGraphStructureVersionRef.current !== graphStructureVersion;
+    const nodesToLock = shouldLock
+      ? nodesInGraph.filter(cyNode =>
+          previousNodesRef.current.has(cyNode.data().id)
+        )
+      : [];
 
-      if (shouldLock) {
-        nodesInGraph
-          .filter(cyNode => previousNodesRef.current.has(cyNode.data().id))
-          .forEach(node => {
-            node.lock();
-          });
-      }
-
-      runLayout(cy, layout, additionalLayoutsConfig, useAnimation);
-      onLayoutUpdated?.(cy, layout);
-
-      if (shouldLock) {
-        nodesInGraph
-          .filter(cyNode => previousNodesRef.current.has(cyNode.data().id))
-          .forEach(node => {
-            node.unlock();
-          });
-      }
-      previousLayoutRef.current = layout;
+    if (shouldLock) {
+      // Lock all the previous nodes
+      cy.batch(() => {
+        nodesToLock.forEach(node => {
+          node.lock();
+        });
+      });
     }
 
-    // Ensure the previousNodesRef is updated on every run
+    // Perform the layout for any new nodes
+    runLayout(cy, layout, additionalLayoutsConfig, useAnimation);
+    onLayoutUpdated?.(cy, layout);
+
+    if (shouldLock) {
+      // Unlock all the previous nodes
+      cy.batch(() => {
+        nodesToLock.forEach(node => {
+          node.unlock();
+        });
+      });
+    }
+
+    // Update the refs for previous state so we can compare the next time the graph is updated
+    previousLayoutRef.current = layout;
     previousNodesRef.current = new Set(nodesInGraph.map(node => node.id()));
+    previousGraphStructureVersionRef.current = graphStructureVersion;
   }, [
     cy,
     layout,
