@@ -13,7 +13,8 @@
   [#769](https://github.com/aws/graph-explorer/pull/769),
   [#770](https://github.com/aws/graph-explorer/pull/770),
   [#775](https://github.com/aws/graph-explorer/pull/775),
-  [#781](https://github.com/aws/graph-explorer/pull/781))
+  [#781](https://github.com/aws/graph-explorer/pull/781),
+  [#786](https://github.com/aws/graph-explorer/pull/786))
 - **Updated** UI labels to refer to node & edge "labels" instead of "types"
   ([#766](https://github.com/aws/graph-explorer/pull/766))
 - **Improved** neighbor count retrieval to be more efficient

@@ -4,10 +4,11 @@ import { sanitizeText } from "@/utils";
 import DEFAULT_ICON_URL from "@/utils/defaultIconUrl";
 import type {
   AttributeConfig,
+  ConfigurationId,
   EdgeTypeConfig,
   RawConfiguration,
   VertexTypeConfig,
-} from "../ConfigurationProvider";
+} from "@/core";
 import localForageEffect from "./localForageEffect";
 import { activeSchemaSelector, SchemaInference } from "./schema";
 import {
@@ -27,13 +28,13 @@ export const isStoreLoadedAtom = atom<boolean>({
   default: false,
 });
 
-export const activeConfigurationAtom = atom<string | null>({
+export const activeConfigurationAtom = atom<ConfigurationId | null>({
   key: "active-configuration",
   default: null,
   effects: [localForageEffect()],
 });
 
-export const configurationAtom = atom<Map<string, RawConfiguration>>({
+export const configurationAtom = atom<Map<ConfigurationId, RawConfiguration>>({
   key: "configuration",
   default: new Map(),
   effects: [localForageEffect()],

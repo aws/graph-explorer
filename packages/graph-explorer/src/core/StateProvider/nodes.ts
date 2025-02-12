@@ -16,36 +16,6 @@ export const nodesAtom = atom<Map<VertexId, Vertex>>({
   default: new Map(),
 });
 
-export const nodesSelector = selector<Map<VertexId, Vertex>>({
-  key: "nodes-selector",
-  get: ({ get }) => {
-    return get(nodesAtom);
-  },
-  set: ({ get, set }, newValue) => {
-    if (isDefaultValue(newValue)) {
-      set(nodesAtom, newValue);
-      return;
-    }
-
-    set(nodesAtom, newValue);
-    const cleanFn = (curr: Set<VertexId>) => {
-      const existingNodesIds = new Set<VertexId>();
-      curr.forEach(nId => {
-        const exist = newValue.get(nId);
-        if (exist) {
-          existingNodesIds.add(nId);
-        }
-      });
-      return existingNodesIds;
-    };
-    // Clean all dependent states
-    get(nodesSelectedIdsAtom).size > 0 && set(nodesSelectedIdsAtom, cleanFn);
-    get(nodesOutOfFocusIdsAtom).size > 0 &&
-      set(nodesOutOfFocusIdsAtom, cleanFn);
-    get(nodesFilteredIdsAtom).size > 0 && set(nodesFilteredIdsAtom, cleanFn);
-  },
-});
-
 export const nodeSelector = selectorFamily({
   key: "node-selector",
   get:

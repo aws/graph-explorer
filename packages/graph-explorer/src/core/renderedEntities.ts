@@ -40,6 +40,12 @@ export function useRenderedEdges(): RenderedEdge[] {
   );
 }
 
+export function useRenderedEntities() {
+  const vertices = useRenderedVertices();
+  const edges = useRenderedEdges();
+  return { vertices, edges };
+}
+
 /**
  * Maps a rendered vertex back to a regular vertex.
  * @param renderedVertex The rendered vertex

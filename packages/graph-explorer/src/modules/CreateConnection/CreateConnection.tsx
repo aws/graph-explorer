@@ -1,6 +1,5 @@
 import { useCallback, useState } from "react";
 import { useRecoilCallback } from "recoil";
-import { v4 } from "uuid";
 import { InfoTooltip, TextArea } from "@/components";
 import Button from "@/components/Button";
 import Input from "@/components/Input";
@@ -12,6 +11,7 @@ import {
 } from "@shared/types";
 import {
   ConfigurationContextProps,
+  createNewConfigurationId,
   RawConfiguration,
   useWithTheme,
 } from "@/core";
@@ -99,7 +99,7 @@ const CreateConnection = ({
     ({ set }) =>
       (data: Required<ConnectionForm>) => {
         if (!configId) {
-          const newConfigId = v4();
+          const newConfigId = createNewConfigurationId();
           const newConfig: RawConfiguration = {
             id: newConfigId,
             displayLabel: data.name,

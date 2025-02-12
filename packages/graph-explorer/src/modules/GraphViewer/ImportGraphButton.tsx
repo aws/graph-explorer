@@ -2,13 +2,10 @@ import { FileButton, PanelHeaderActionButton, Spinner } from "@/components";
 import { vertexDetailsQuery, edgeDetailsQuery, Explorer } from "@/connector";
 import {
   useExplorer,
-  nodesAtom,
-  edgesAtom,
   configurationAtom,
   VertexId,
   EdgeId,
-  toNodeMap,
-  toEdgeMap,
+  ConnectionWithId,
 } from "@/core";
 import { logger } from "@/utils";
 import { fromFileToJson } from "@/utils/fileData";
@@ -18,7 +15,7 @@ import {
   QueryClient,
 } from "@tanstack/react-query";
 import { FolderOpenIcon } from "lucide-react";
-import { useRecoilValue, useSetRecoilState } from "recoil";
+import { useRecoilValue } from "recoil";
 import {
   ExportedGraphConnection,
   exportedGraphSchema,
@@ -26,10 +23,9 @@ import {
 } from "./exportedGraph";
 import { useNotification } from "@/components/NotificationProvider";
 import { ZodError } from "zod";
-import { startTransition } from "react";
 import { Notification } from "@/components/NotificationProvider/reducer";
-import { ConnectionWithId } from "@shared/types";
 import { getTranslation } from "@/hooks/useTranslations";
+import { useAddToGraph } from "@/hooks";
 
 export function ImportGraphButton() {
   const importGraph = useImportGraphMutation();
@@ -52,8 +48,7 @@ export function ImportGraphButton() {
 function useImportGraphMutation() {
   const queryClient = useQueryClient();
   const explorer = useExplorer();
-  const setVerticesAdded = useSetRecoilState(nodesAtom);
-  const setEdgesAdded = useSetRecoilState(edgesAtom);
+  const addToGraph = useAddToGraph();
   const allConfigs = useRecoilValue(configurationAtom);
   const allConnections = allConfigs
     .values()
@@ -112,14 +107,7 @@ function useImportGraphMutation() {
     },
     onSuccess: result => {
       // 4. Update Graph Explorer state
-      startTransition(() => {
-        setVerticesAdded(
-          prev => new Map([...prev, ...toNodeMap(result.entities.vertices)])
-        );
-        setEdgesAdded(
-          prev => new Map([...prev, ...toEdgeMap(result.entities.edges)])
-        );
-      });
+      addToGraph(result.entities);
 
       // 5. Notify user of completion
       const finalNotification = createCompletionNotification(result);

@@ -3,7 +3,7 @@ import { useLocation } from "react-router";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { LoadingSpinner, PanelEmptyState } from "@/components";
 import Redirect from "@/components/Redirect";
-import { RawConfiguration } from "./ConfigurationProvider";
+import { ConfigurationId, RawConfiguration } from "./ConfigurationProvider";
 import {
   activeConfigurationAtom,
   configurationAtom,
@@ -69,7 +69,7 @@ const AppStatusLoader = ({ children }: PropsWithChildren) => {
           CONNECTIONS_OP.forEach(connection => {
             const connectionConfig = {
               ...newConfig,
-              id: `${newConfig.id}-${connection.value}`,
+              id: `${newConfig.id}-${connection.value}` as ConfigurationId,
               connection: {
                 ...newConfig.connection,
                 url: newConfig.connection?.url || "",
@@ -78,7 +78,8 @@ const AppStatusLoader = ({ children }: PropsWithChildren) => {
             };
             updatedConfig.set(connectionConfig.id, connectionConfig);
           });
-          activeConfigId = `${newConfig.id}-${CONNECTIONS_OP[0].value}`;
+          activeConfigId =
+            `${newConfig.id}-${CONNECTIONS_OP[0].value}` as ConfigurationId;
         }
         return updatedConfig;
       });

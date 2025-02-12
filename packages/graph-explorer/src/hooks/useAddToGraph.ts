@@ -1,29 +1,56 @@
 import { Edge, Vertex } from "@/core";
-import { toNodeMap } from "@/core/StateProvider/nodes";
-import { toEdgeMap } from "@/core/StateProvider/edges";
-import entitiesSelector from "@/core/StateProvider/entitiesSelector";
-import { useCallback } from "react";
+import { nodesAtom, toNodeMap } from "@/core/StateProvider/nodes";
+import { edgesAtom, toEdgeMap } from "@/core/StateProvider/edges";
+import { startTransition, useCallback } from "react";
 import { useSetRecoilState } from "recoil";
+import {
+  activeSchemaSelector,
+  updateSchemaFromEntities,
+} from "@/core/StateProvider/schema";
 
 /** Returns a callback that adds an array of nodes and edges to the graph. */
 export function useAddToGraph() {
-  const setEntities = useSetRecoilState(entitiesSelector);
+  const setVertices = useSetRecoilState(nodesAtom);
+  const setEdges = useSetRecoilState(edgesAtom);
+  const setActiveSchema = useSetRecoilState(activeSchemaSelector);
 
   return useCallback(
     (entities: { vertices?: Vertex[]; edges?: Edge[] }) => {
       const vertices = entities.vertices ?? [];
       const edges = entities.edges ?? [];
 
+      // Ensure there is something to add
       if (vertices.length === 0 && edges.length === 0) {
         return;
       }
 
-      setEntities({
-        nodes: toNodeMap(vertices),
-        edges: toEdgeMap(edges),
+      const newVerticesMap = toNodeMap(vertices);
+      const newEdgesMap = toEdgeMap(edges);
+
+      startTransition(() => {
+        // Add new vertices to the graph
+        if (newVerticesMap.size > 0) {
+          setVertices(prev => new Map([...prev, ...newVerticesMap]));
+        }
+
+        // Add new edges to the graph
+        if (newEdgesMap.size > 0) {
+          setEdges(prev => new Map([...prev, ...newEdgesMap]));
+        }
+
+        // Update the schema with any new vertex or edge types or attributes
+        setActiveSchema(prev => {
+          if (!prev) {
+            return prev;
+          }
+          return updateSchemaFromEntities(
+            { nodes: newVerticesMap, edges: newEdgesMap },
+            prev
+          );
+        });
       });
     },
-    [setEntities]
+    [setActiveSchema, setEdges, setVertices]
   );
 }
 

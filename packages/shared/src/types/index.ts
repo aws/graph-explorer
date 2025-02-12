@@ -50,16 +50,3 @@ export type ConnectionConfig = {
    */
   nodeExpansionLimit?: number;
 };
-
-/**
- * Represents a connection config with the ID and display label integrated in to
- * the type.
- *
- * This makes it a bit easier to deal with compared to the connection inside the
- * `RawConfiguration` type since that one has a bunch of other properties and
- * the connection is optional.
- */
-export type ConnectionWithId = ConnectionConfig & {
-  id: string;
-  displayLabel?: string;
-};

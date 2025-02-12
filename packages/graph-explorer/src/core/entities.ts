@@ -93,3 +93,8 @@ export type Edge = {
    */
   __isFragment?: boolean;
 };
+
+export type Entities = {
+  nodes: Map<VertexId, Vertex>;
+  edges: Map<EdgeId, Edge>;
+};

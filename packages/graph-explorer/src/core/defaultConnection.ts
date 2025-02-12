@@ -1,7 +1,7 @@
 import { logger, DEFAULT_SERVICE_TYPE } from "@/utils";
 import { queryEngineOptions, neptuneServiceTypeOptions } from "@shared/types";
 import { z } from "zod";
-import { RawConfiguration } from "./ConfigurationProvider";
+import { ConfigurationId, RawConfiguration } from "./ConfigurationProvider";
 
 export const DefaultConnectionDataSchema = z.object({
   // Connection info
@@ -84,7 +84,7 @@ export async function fetchDefaultConnectionFor(
 
 export function mapToConnection(data: DefaultConnectionData): RawConfiguration {
   const config: RawConfiguration = {
-    id: "Default Connection",
+    id: "Default Connection" as ConfigurationId,
     displayLabel: "Default Connection",
     connection: {
       url: data.GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT,
