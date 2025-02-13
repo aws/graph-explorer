@@ -148,8 +148,9 @@ export function createCompletionNotification(
       result.counts.notFound.vertices,
       result.counts.notFound.edges
     );
+    const verb = result.counts.notFound.total > 1 ? "were" : "was";
     return {
-      message: `Finished loading the graph, but ${errorMessage} were not found.`,
+      message: `Finished loading the graph, but ${errorMessage} ${verb} not found.`,
       type: "info",
     };
   }
