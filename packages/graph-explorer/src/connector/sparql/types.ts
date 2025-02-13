@@ -229,6 +229,7 @@ export function sparqlResponseSchema<T extends z.ZodTypeAny>(
     }),
   });
 }
+
 /**
  * Parses out the source, target, and predicate from the edge ID.
  *
@@ -245,17 +246,31 @@ export function parseEdgeId(edgeId: EdgeId): {
     throw new Error("SPARQL EdgeId values must be of type string");
   }
 
-  const regex = /^(.*?)-\[(.*?)\]->(.*)$/;
-  const match = rawEdgeId.match(regex);
+  const result = parseRdfEdgeIdString(rawEdgeId);
 
-  if (!match) {
+  if (!result) {
     logger.error("Couldn't parse SPARQL edge ID", edgeId);
-    throw new Error("Invalid edge ID");
+    throw new Error("Invalid RDF edge ID");
   }
 
   return {
-    source: createVertexId(match[1].trim()),
-    predicate: match[2].trim(),
-    target: createVertexId(match[3].trim()),
+    source: createVertexId(result.source),
+    predicate: result.predicate,
+    target: createVertexId(result.target),
   };
+}
+
+export function parseRdfEdgeIdString(value: string) {
+  const regex = /^(.*?)-\[(.*?)\]->(.*)$/;
+  const match = value.match(regex);
+
+  if (!match || match.length !== 4) {
+    return null;
+  }
+
+  const source = match[1].trim();
+  const predicate = match[2].trim();
+  const target = match[3].trim();
+
+  return { source, predicate, target };
 }

@@ -1,24 +1,31 @@
 import {
   createRandomConnectionWithId,
   createRandomEdgeId,
+  createRandomExportedGraph,
   createRandomExportedGraphConnection,
+  createRandomExportedGraphForRdf,
   createRandomVertexId,
 } from "@/utils/testing";
 import {
   createDefaultFileName,
   createExportedConnection,
   createExportedGraph,
-  ExportedGraph,
+  ExportedGraphFile,
   ExportedGraphConnection,
   createFileSafeTimestamp,
   isMatchingConnection,
+  exportedGraphSchema,
+  parseExportedGraph,
 } from "./exportedGraph";
 import {
   createArray,
   createRandomDate,
   createRandomInteger,
+  createRandomName,
   createRandomUrlString,
 } from "@shared/utils/testing";
+import { EdgeId, VertexId } from "@/core";
+import { escapeString } from "@/utils";
 
 describe("createExportedGraph", () => {
   let timestamp: Date;
@@ -53,7 +60,7 @@ describe("createExportedGraph", () => {
       timestamp: timestamp,
       source: "Graph Explorer",
       sourceVersion: appVersion,
-    } satisfies ExportedGraph["meta"];
+    } satisfies ExportedGraphFile["meta"];
 
     const graph = createExportedGraph(vertexIds, edgeIds, connection);
 
@@ -102,6 +109,140 @@ describe("createExportedConnection", () => {
       dbUrl: connection.graphDbUrl,
       queryEngine: "gremlin",
     } satisfies ExportedGraphConnection);
+  });
+});
+
+describe("parseExportedGraph", () => {
+  it("should parse exported graph for property graphs", async () => {
+    const exportedGraph = createRandomExportedGraph();
+    const expected = {
+      connection: exportedGraph.data.connection,
+      vertices: new Set(exportedGraph.data.vertices),
+      edges: new Set(exportedGraph.data.edges),
+    };
+    const parsed = await parseExportedGraph(exportedGraph);
+    expect(parsed).toEqual(expected);
+  });
+
+  it("should parse exported graph for RDF", async () => {
+    const exportedGraph = createRandomExportedGraphForRdf();
+    const expected = {
+      connection: exportedGraph.data.connection,
+      vertices: new Set(exportedGraph.data.vertices),
+      edges: new Set(exportedGraph.data.edges),
+    };
+    const parsed = await parseExportedGraph(exportedGraph);
+    expect(parsed).toEqual(expected);
+  });
+
+  it("should skip empty IDs", async () => {
+    const exportedGraph = createRandomExportedGraph();
+    exportedGraph.data.vertices.push("");
+    exportedGraph.data.edges.push("");
+
+    const parsed = await parseExportedGraph(exportedGraph);
+
+    expect(parsed.vertices.has("" as VertexId)).toBeFalsy();
+    expect(parsed.edges.has("" as EdgeId)).toBeFalsy();
+  });
+
+  it("should escape strings with double quotes", async () => {
+    const exportedGraph = createRandomExportedGraph();
+    const maliciousVertexId = `${createRandomName("VertexId")}").constant("Hello, World!"`;
+    const maliciousEdgeId = `${createRandomName("EdgeId")}").constant("Hello, World!"`;
+    exportedGraph.data.vertices.push(maliciousVertexId);
+    exportedGraph.data.edges.push(maliciousEdgeId);
+
+    const parsed = await parseExportedGraph(exportedGraph);
+
+    expect(parsed.vertices.has(maliciousVertexId as VertexId)).toBeFalsy();
+    expect(parsed.edges.has(maliciousEdgeId as EdgeId)).toBeFalsy();
+    expect(
+      parsed.vertices.has(escapeString(maliciousVertexId) as VertexId)
+    ).toBeTruthy();
+    expect(
+      parsed.edges.has(escapeString(maliciousEdgeId) as EdgeId)
+    ).toBeTruthy();
+  });
+
+  it("should trim leading and trailing whitespace", async () => {
+    const exportedGraph = createRandomExportedGraph();
+    const vertexIdWithWhitespace = `  ${createRandomName("VertexId")} `;
+    const edgeIdWithWhitespace = `  ${createRandomName("EdgeId")} `;
+    exportedGraph.data.vertices.push(vertexIdWithWhitespace);
+    exportedGraph.data.edges.push(edgeIdWithWhitespace);
+
+    const parsed = await parseExportedGraph(exportedGraph);
+
+    expect(parsed.vertices.has(vertexIdWithWhitespace as VertexId)).toBeFalsy();
+    expect(parsed.edges.has(edgeIdWithWhitespace as EdgeId)).toBeFalsy();
+    expect(
+      parsed.vertices.has(vertexIdWithWhitespace.trim() as VertexId)
+    ).toBeTruthy();
+    expect(
+      parsed.edges.has(edgeIdWithWhitespace.trim() as EdgeId)
+    ).toBeTruthy();
+  });
+
+  it("should skip invalid RDF edge IDs", async () => {
+    const exportedGraph = createRandomExportedGraphForRdf();
+    // Missing the brackets
+    exportedGraph.data.edges.push(
+      "http://example.com/foo-http://example.com/foo-http://example.com/foo"
+    );
+    const expected = {
+      connection: exportedGraph.data.connection,
+      vertices: new Set(exportedGraph.data.vertices),
+      edges: new Set(exportedGraph.data.edges.slice(0, -1)),
+    };
+    const parsed = await parseExportedGraph(exportedGraph);
+    expect(parsed).toEqual(expected);
+  });
+
+  it("should skip malicious RDF edge IDs", async () => {
+    const exportedGraph = createRandomExportedGraphForRdf();
+    exportedGraph.data.edges.push(
+      "http://example.com/foo-[http://example.com/foo]->http://example.com/foo> . { ?s ?p ?o }#"
+    );
+    const expected = {
+      connection: exportedGraph.data.connection,
+      vertices: new Set(exportedGraph.data.vertices),
+      edges: new Set(exportedGraph.data.edges.slice(0, -1)),
+    };
+    const parsed = await parseExportedGraph(exportedGraph);
+    expect(parsed).toEqual(expected);
+  });
+});
+
+describe("exportedGraphSchema", () => {
+  it("should validate exported graph schema", () => {
+    const exportedGraph = createRandomExportedGraph();
+    expect(exportedGraphSchema.safeParse(exportedGraph).success).toBeTruthy();
+  });
+
+  it("should validate exported graph with empty vertices and edges", () => {
+    const exportedGraph = createRandomExportedGraph();
+    exportedGraph.data.vertices = [];
+    exportedGraph.data.edges = [];
+    expect(exportedGraphSchema.safeParse(exportedGraph).success).toBeTruthy();
+  });
+
+  it("should not validate exported graph schema with invalid vertices", () => {
+    const exportedGraph = createRandomExportedGraph();
+    exportedGraph.data.vertices = [false, true] as any;
+    expect(exportedGraphSchema.safeParse(exportedGraph).success).toBeFalsy();
+  });
+
+  it("should not validate exported graph schema with invalid edges", () => {
+    const exportedGraph = createRandomExportedGraph();
+    exportedGraph.data.edges = [false, true] as any;
+    expect(exportedGraphSchema.safeParse(exportedGraph).success).toBeFalsy();
+  });
+
+  it("should not validate exported graph with different meta kind value", () => {
+    const exportedGraph = createRandomExportedGraph();
+    exportedGraph.meta.kind = "not-graph-export" as any;
+    expect(exportedGraphSchema.safeParse(exportedGraph).success).toBeFalsy();
   });
 });
 

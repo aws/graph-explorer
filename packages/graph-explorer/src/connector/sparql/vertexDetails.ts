@@ -107,7 +107,6 @@ function mapToVertex(
   const result = <Vertex>{
     entityType: "vertex",
     id,
-    idType: "string",
     type: typeUri,
     attributes,
   };

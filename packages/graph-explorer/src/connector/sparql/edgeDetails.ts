@@ -81,7 +81,6 @@ export async function edgeDetails(
   const edge = <Edge>{
     entityType: "edge",
     id: request.edgeId,
-    idType: "string",
     type: predicate,
     source: source,
     sourceType,

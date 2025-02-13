@@ -1,6 +1,11 @@
-import { createVertexId, createEdgeId, EdgeId, VertexId } from "@/core";
-import { APP_NAME } from "@/utils";
-import { ConnectionConfig, queryEngineOptions } from "@shared/types";
+import { parseRdfEdgeIdString } from "@/connector/sparql/types";
+import { createEdgeId, createVertexId, EdgeId, VertexId } from "@/core";
+import { APP_NAME, escapeString, logger } from "@/utils";
+import {
+  ConnectionConfig,
+  QueryEngine,
+  queryEngineOptions,
+} from "@shared/types";
 import { z } from "zod";
 
 export const exportedGraphSchema = z.object({
@@ -16,24 +21,20 @@ export const exportedGraphSchema = z.object({
       dbUrl: z.string(),
       queryEngine: z.enum(queryEngineOptions),
     }),
-    vertices: z
-      .array(z.union([z.string(), z.number()]))
-      .transform(ids => ids.map(id => createVertexId(id))),
-    edges: z
-      .array(z.union([z.string(), z.number()]))
-      .transform(ids => ids.map(id => createEdgeId(id))),
+    vertices: z.array(z.union([z.string(), z.number()])),
+    edges: z.array(z.union([z.string(), z.number()])),
   }),
 });
 
-export type ExportedGraph = z.infer<typeof exportedGraphSchema>;
-export type ExportedGraphConnection = ExportedGraph["data"]["connection"];
+export type ExportedGraphFile = z.infer<typeof exportedGraphSchema>;
+export type ExportedGraphConnection = ExportedGraphFile["data"]["connection"];
 
 /** Creates an exported graph suitable for saving to a file. */
 export function createExportedGraph(
   vertexIds: VertexId[],
   edgeIds: EdgeId[],
   connection: ConnectionConfig
-): ExportedGraph {
+): ExportedGraphFile {
   return {
     meta: {
       kind: "graph-export",
@@ -63,6 +64,104 @@ export function createExportedConnection(
     dbUrl: dbUrl,
     queryEngine: queryEngine,
   };
+}
+
+export async function parseExportedGraph(data: unknown) {
+  const parsed = await exportedGraphSchema.parseAsync(data);
+
+  const connection = parsed.data.connection;
+
+  // Do some basic validation and skip any invalid IDs
+  const vertices = new Set(
+    parsed.data.vertices
+      .values()
+      .map(trimIfString)
+      .filter(isNotEmptyIfString)
+      .filter(isNotMaliciousIfSparql(connection.queryEngine))
+      .map(escapeIfPropertyGraphAndString(connection.queryEngine))
+      .map(createVertexId)
+  );
+
+  // Do some basic validation and skip any invalid IDs
+  const edges = new Set(
+    parsed.data.edges
+      .values()
+      .map(trimIfString)
+      .filter(isNotEmptyIfString)
+      .filter(isValidRdfEdgeIdIfSparql(connection.queryEngine))
+      .map(escapeIfPropertyGraphAndString(connection.queryEngine))
+      .map(createEdgeId)
+  );
+
+  return { connection, vertices, edges };
+}
+
+function isNotEmptyIfString(value: string | number) {
+  if (typeof value !== "string" || !value.length) {
+    logger.warn("Skipping empty ID value", value);
+    return false;
+  }
+  return true;
+}
+
+function isNotMaliciousIfSparql(queryEngine: QueryEngine) {
+  // Ensure the ID is not malicious
+  return (value: string | number) => {
+    if (
+      queryEngine !== "sparql" ||
+      typeof value !== "string" ||
+      !value.includes(">")
+    ) {
+      return true;
+    }
+
+    logger.warn("Skipping edge ID because it includes angle brackets", value);
+    return false;
+  };
+}
+
+function isValidRdfEdgeIdIfSparql(queryEngine: QueryEngine) {
+  return (value: string | number) => {
+    // Do nothing for numbers and property graph connections
+    if (typeof value !== "string" || queryEngine !== "sparql") {
+      return true;
+    }
+
+    // Try to parse the edge ID
+    const parsed = parseRdfEdgeIdString(value);
+
+    // Ensure we can parse the edge ID
+    if (!parsed) {
+      logger.warn("Skipping edge ID because parsing failed", value);
+      return false;
+    }
+
+    // Ensure the edge ID is not malicious
+    if (
+      parsed.source.includes(">") ||
+      parsed.target.includes(">") ||
+      parsed.predicate.includes(">")
+    ) {
+      logger.warn("Skipping edge ID because it includes angle brackets", {
+        original: value,
+        parsed,
+      });
+      return false;
+    }
+
+    return true;
+  };
+}
+
+function trimIfString(value: string | number) {
+  return typeof value === "string" ? value.trim() : value;
+}
+
+function escapeIfPropertyGraphAndString(queryEngine: QueryEngine) {
+  return (value: string | number) =>
+    queryEngine === "sparql" || typeof value !== "string"
+      ? value
+      : escapeString(value);
 }
 
 /** Compares the connection config to the exported connection. */
