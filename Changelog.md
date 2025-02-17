@@ -1,6 +1,36 @@
 # graph-explorer Change Log
 
-## Upcoming
+## Upcoming Release
+
+## Release v1.14.0
+
+This release includes a major new feature: the ability to load and save graphs.
+It required a massive effort to update the data management logic to allow this
+feature to exist. Some of these changes made the graph rendering logic slightly
+more efficient, so you may notice some small performance improvements.
+
+### Saving and Loading Graphs
+
+Graph Explorer now supports saving and loading graphs as files. To save the
+current graph, click the "Save graph to file" button in the graph toolbar. You
+can load a previously saved graph file by clicking the "Load graph from file"
+button in the graph toolbar and choosing the file to load.
+
+Graph Explorer will verify that you are currently connected to the right
+database and then read all the node & edge IDs in the file. It will then execute
+the required queries to get up to date information from the database and load
+the nodes & edges in to the graph. Any existing nodes & edges in your graph will
+be unchanged.
+
+#### File Contents
+
+The saved graph file contains the following information in plain JSON format:
+
+- The active connection database URL and query engine
+- The list of node & edge IDs that are currently rendered
+- Some metadata to identify the file type, source, and version
+
+### All Changes
 
 - **Added** ability to save the rendered graph to a file, allowing for reloading
   the graph later or sharing the graph with other users who have the same
