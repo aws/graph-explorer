@@ -19,8 +19,8 @@ button in the graph toolbar and choosing the file to load.
 Graph Explorer will verify that you are currently connected to the right
 database and then read all the node & edge IDs in the file. It will then execute
 the required queries to get up to date information from the database and load
-the nodes and edges in to the graph. Any existing nodes and edges in your graph
-will be unchanged.
+the nodes & edges in to the graph. Any existing nodes & edges in your graph will
+be unchanged.
 
 #### File Contents
 
