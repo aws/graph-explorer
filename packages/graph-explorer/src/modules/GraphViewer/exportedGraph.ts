@@ -123,9 +123,13 @@ function isNotMaliciousIfSparql(queryEngine: QueryEngine) {
 
 function isValidRdfEdgeIdIfSparql(queryEngine: QueryEngine) {
   return (value: string | number) => {
-    // Do nothing for numbers and property graph connections
-    if (typeof value !== "string" || queryEngine !== "sparql") {
+    if (queryEngine !== "sparql") {
       return true;
+    }
+
+    if (typeof value !== "string") {
+      logger.warn("Skipping edge ID because it is not a string", value);
+      return false;
     }
 
     // Try to parse the edge ID
