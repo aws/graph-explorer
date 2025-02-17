@@ -11,23 +11,24 @@ more efficient, so you may notice some small performance improvements.
 
 ### Saving and Loading Graphs
 
-Graph Explorer now supports saving and loading graphs. You can find it in the
-Graph View UI, where you can click the "Save Graph" button to save the current
-graph state. You can load a previously saved graph by clicking the "Load Graph"
-button and choosing the saved graph file to load. Graph Explorer will execute
-the required queries to get the information from the database needed to recreate
-the graph. The data will be merged with any existing graph data currently
-rendered.
+Graph Explorer now supports saving and loading graphs as files. To save the
+current graph, click the "Save graph to file" button in the graph toolbar. You
+can load a previously saved graph file by clicking the "Load graph from file"
+button in the graph toolbar and choosing the file to load.
 
-The file contains the following information in plain JSON format:
+Graph Explorer will verify that you are currently connected to the right
+database and then read all the node and edge IDs in the file. It will then
+execute the required queries to get up to date information from the database and
+load the nodes and edges in to the graph. Any existing nodes and edges in your
+graph will be unchanged.
+
+#### File Contents
+
+The saved graph file contains the following information in plain JSON format:
 
 - The active connection database URL and query engine
 - The list of node IDs and edge IDs that are currently rendered
 - Some metadata to identify the file type, source, and version
-
-Graph Explorer will verify that the graph you are loading is for the currently
-active connection, and if it is not, it will show you an error message
-describing the correct connection to use.
 
 ### All Changes
 
