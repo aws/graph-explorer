@@ -38,7 +38,11 @@ import {
   QueryEngine,
   queryEngineOptions,
 } from "@shared/types";
-import { ExportedGraphConnection } from "@/modules/GraphViewer/exportedGraph";
+import {
+  createExportedGraph,
+  ExportedGraphConnection,
+} from "@/modules/GraphViewer/exportedGraph";
+import { createRdfEdgeId } from "@/connector/sparql/createRdfEdgeId";
 
 /*
 
@@ -154,6 +158,21 @@ export function createRandomEntities(): Entities {
   return { nodes: toNodeMap(nodes), edges: toEdgeMap(edges) };
 }
 
+export function createRandomEntitiesForRdf(): Entities {
+  const nodes = createArray(3, createRandomVertexForRdf);
+  const edges = [
+    createRandomEdgeForRdf(nodes[0], nodes[1]),
+    createRandomEdgeForRdf(nodes[0], nodes[2]),
+    createRandomEdgeForRdf(nodes[1], nodes[2]),
+
+    // Reverse edges
+    createRandomEdgeForRdf(nodes[1], nodes[0]),
+    createRandomEdgeForRdf(nodes[2], nodes[0]),
+    createRandomEdgeForRdf(nodes[2], nodes[1]),
+  ];
+  return { nodes: toNodeMap(nodes), edges: toEdgeMap(edges) };
+}
+
 /** Creates a random vertex ID. */
 export function createRandomVertexId(): VertexId {
   return createVertexId(createRandomName("VertexId"));
@@ -177,6 +196,16 @@ export function createRandomVertex(): Vertex {
   };
 }
 
+export function createRandomVertexForRdf(): Vertex {
+  const label = createRandomUrlString();
+  return {
+    entityType: "vertex",
+    id: createVertexId(createRandomUrlString()),
+    type: label,
+    attributes: createRecord(3, createRandomEntityAttributeForRdf),
+  };
+}
+
 /**
  * Creates a random edge.
  * @returns A random Edge object.
@@ -194,16 +223,36 @@ export function createRandomEdge(source: Vertex, target: Vertex): Edge {
   };
 }
 
+export function createRandomEdgeForRdf(source: Vertex, target: Vertex): Edge {
+  const predicate = createRandomUrlString();
+  return {
+    entityType: "edge",
+    id: createRdfEdgeId(source.id, predicate, target.id),
+    type: predicate,
+    attributes: {},
+    source: source.id,
+    sourceType: source.type,
+    target: target.id,
+    targetType: target.type,
+  };
+}
+
 /**
  * Creates a random entity (vertex or edge) attribute.
  * @returns A random entity attribute object.
  */
-export function createRandomEntityAttribute(): {
-  key: string;
-  value: string | number;
-} {
+export function createRandomEntityAttribute() {
   return {
     key: createRandomName("EntityAttribute"),
+    value: createRandomBoolean()
+      ? createRandomName("StringValue")
+      : createRandomInteger(),
+  };
+}
+
+export function createRandomEntityAttributeForRdf() {
+  return {
+    key: createRandomUrlString(),
     value: createRandomBoolean()
       ? createRandomName("StringValue")
       : createRandomInteger(),
@@ -221,6 +270,34 @@ export function createRandomExportedGraphConnection(): ExportedGraphConnection {
     dbUrl,
     queryEngine,
   };
+}
+
+export function createRandomVersion(): string {
+  return `${createRandomInteger()}.${createRandomInteger()}.${createRandomInteger()}`;
+}
+
+export function createRandomExportedGraph() {
+  const entities = createRandomEntities();
+  const vertexIds = entities.nodes.keys().toArray();
+  const edgeIds = entities.edges.keys().toArray();
+  const connection = createRandomConnectionWithId();
+  connection.queryEngine = pickRandomElement(
+    queryEngineOptions.filter(e => e !== "sparql")
+  );
+  const result = createExportedGraph(vertexIds, edgeIds, connection);
+  result.meta.sourceVersion = createRandomVersion();
+  return result;
+}
+
+export function createRandomExportedGraphForRdf() {
+  const entities = createRandomEntitiesForRdf();
+  const vertexIds = entities.nodes.keys().toArray();
+  const edgeIds = entities.edges.keys().toArray();
+  const connection = createRandomConnectionWithId();
+  connection.queryEngine = "sparql";
+  const result = createExportedGraph(vertexIds, edgeIds, connection);
+  result.meta.sourceVersion = createRandomVersion();
+  return result;
 }
 
 export function createRandomFile(): File {

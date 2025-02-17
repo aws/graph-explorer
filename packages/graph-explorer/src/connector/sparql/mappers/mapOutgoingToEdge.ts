@@ -1,5 +1,6 @@
-import { createEdgeId, createVertexId, Edge, getRawId, VertexId } from "@/core";
+import { createVertexId, Edge, VertexId } from "@/core";
 import { RawValue } from "../types";
+import { createRdfEdgeId } from "../createRdfEdgeId";
 
 export type OutgoingPredicate = {
   subject: RawValue;
@@ -16,7 +17,7 @@ const mapOutgoingToEdge = (
   const predicate = result.predToSubject.value;
   return {
     entityType: "edge",
-    id: createEdgeId(`${getRawId(resourceURI)}-[${predicate}]->${targetUri}`),
+    id: createRdfEdgeId(resourceURI, predicate, targetUri),
     type: predicate,
     source: resourceURI,
     sourceType: resourceClass,

@@ -18,8 +18,8 @@ import { FolderOpenIcon } from "lucide-react";
 import { useRecoilValue } from "recoil";
 import {
   ExportedGraphConnection,
-  exportedGraphSchema,
   isMatchingConnection,
+  parseExportedGraph,
 } from "./exportedGraph";
 import { useNotification } from "@/components/NotificationProvider";
 import { ZodError } from "zod";
@@ -72,20 +72,21 @@ function useImportGraphMutation() {
     mutationFn: async (file: File) => {
       // 1. Parse the file
       const data = await fromFileToJson(file);
-      const parsed = await exportedGraphSchema.parseAsync(data);
+      const graph = await parseExportedGraph(data);
 
       // 2. Check connection
-      if (!isMatchingConnection(explorer.connection, parsed.data.connection)) {
+      if (!isMatchingConnection(explorer.connection, graph.connection)) {
         throw new InvalidConnectionError(
           "Connection must match active connection",
-          parsed.data.connection
+          graph.connection
         );
       }
 
       // 3. Get the vertex and edge details from the database
-      const vertices = new Set(parsed.data.vertices);
-      const edges = new Set(parsed.data.edges);
-      const entityCountMessage = formatCount(vertices.size, edges.size);
+      const entityCountMessage = formatCount(
+        graph.vertices.size,
+        graph.edges.size
+      );
 
       const progressNotificationId = enqueueNotification({
         title: notificationTitle,
@@ -95,8 +96,8 @@ function useImportGraphMutation() {
       });
 
       const result = await fetchEntityDetails(
-        vertices,
-        edges,
+        graph.vertices,
+        graph.edges,
         queryClient,
         explorer
       );
@@ -147,8 +148,9 @@ export function createCompletionNotification(
       result.counts.notFound.vertices,
       result.counts.notFound.edges
     );
+    const verb = result.counts.notFound.total > 1 ? "were" : "was";
     return {
-      message: `Finished loading the graph, but ${errorMessage} were not found.`,
+      message: `Finished loading the graph, but ${errorMessage} ${verb} not found.`,
       type: "info",
     };
   }
