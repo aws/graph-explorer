@@ -97,11 +97,12 @@ export async function parseExportedGraph(data: unknown) {
 }
 
 function isNotEmptyIfString(value: string | number) {
-  if (typeof value !== "string" || !value.length) {
-    logger.warn("Skipping empty ID value", value);
-    return false;
+  if (typeof value !== "string" || value.length > 0) {
+    return true;
   }
-  return true;
+
+  logger.warn("Skipping empty ID value", value);
+  return false;
 }
 
 function isNotMaliciousIfSparql(queryEngine: QueryEngine) {

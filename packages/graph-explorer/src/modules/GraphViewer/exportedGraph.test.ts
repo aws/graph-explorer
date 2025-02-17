@@ -146,6 +146,19 @@ describe("parseExportedGraph", () => {
     expect(parsed.edges.has("" as EdgeId)).toBeFalsy();
   });
 
+  it("should allow number IDs", async () => {
+    const exportedGraph = createRandomExportedGraph();
+    const vertexId = createRandomInteger();
+    const edgeId = createRandomInteger();
+    exportedGraph.data.vertices.push(vertexId);
+    exportedGraph.data.edges.push(edgeId);
+
+    const parsed = await parseExportedGraph(exportedGraph);
+
+    expect(parsed.vertices.has(vertexId as VertexId)).toBeTruthy();
+    expect(parsed.edges.has(edgeId as EdgeId)).toBeTruthy();
+  });
+
   it("should escape strings with double quotes", async () => {
     const exportedGraph = createRandomExportedGraph();
     const maliciousVertexId = `${createRandomName("VertexId")}").constant("Hello, World!"`;
