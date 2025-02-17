@@ -17,17 +17,17 @@ can load a previously saved graph file by clicking the "Load graph from file"
 button in the graph toolbar and choosing the file to load.
 
 Graph Explorer will verify that you are currently connected to the right
-database and then read all the node and edge IDs in the file. It will then
-execute the required queries to get up to date information from the database and
-load the nodes and edges in to the graph. Any existing nodes and edges in your
-graph will be unchanged.
+database and then read all the node & edge IDs in the file. It will then execute
+the required queries to get up to date information from the database and load
+the nodes and edges in to the graph. Any existing nodes and edges in your graph
+will be unchanged.
 
 #### File Contents
 
 The saved graph file contains the following information in plain JSON format:
 
 - The active connection database URL and query engine
-- The list of node IDs and edge IDs that are currently rendered
+- The list of node & edge IDs that are currently rendered
 - Some metadata to identify the file type, source, and version
 
 ### All Changes
