@@ -26,6 +26,7 @@ import { NODE_SHAPE } from "./nodeShape";
 import modalDefaultStyles from "./SingleNodeStylingModal.style";
 import { useDebounceValue, usePrevious } from "@/hooks";
 import {
+  MISSING_DISPLAY_TYPE,
   RESERVED_ID_PROPERTY,
   RESERVED_TYPES_PROPERTY,
 } from "@/utils/constants";
@@ -126,7 +127,11 @@ export default function SingleNodeStyling({
 
   return (
     <FormItem {...rest}>
-      <Label>{vertexType}</Label>
+      {vertexType ? (
+        <Label>{vertexType}</Label>
+      ) : (
+        <Label>{MISSING_DISPLAY_TYPE}</Label>
+      )}
 
       <div className="flex flex-row items-center gap-2">
         <Input
