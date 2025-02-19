@@ -111,10 +111,14 @@ export default function useKeywordSearch() {
   const vertexOptions = useMemo(
     () => [
       { label: "All", value: allVerticesValue },
-      ...vtConfigs.values().map(vtConfig => ({
-        label: vtConfig.displayLabel,
-        value: vtConfig.type,
-      })),
+      ...vtConfigs
+        .values()
+        // Filtering out empty types because the queries need to be updated to support them
+        .filter(vtConfig => vtConfig.type !== "")
+        .map(vtConfig => ({
+          label: vtConfig.displayLabel,
+          value: vtConfig.type,
+        })),
     ],
     [vtConfigs]
   );
