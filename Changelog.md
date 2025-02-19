@@ -2,6 +2,9 @@
 
 ## Upcoming Release
 
+- **Fixed** issue where nodes and edges without any labels were causing the app
+  to crash ([#799](https://github.com/aws/graph-explorer/pull/799))
+
 ## Release v1.14.0
 
 This release includes a major new feature: the ability to load and save graphs.
