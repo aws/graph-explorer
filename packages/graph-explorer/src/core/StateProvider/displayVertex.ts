@@ -95,7 +95,8 @@ const displayVertexSelector = selectorFamily({
       const typeConfig = get(displayVertexTypeConfigSelector(vertex.type));
 
       // List all vertex types for displaying
-      const vertexTypes = vertex.types ?? [vertex.type];
+      const vertexTypes =
+        vertex.types && vertex.types.length > 0 ? vertex.types : [vertex.type];
       const displayTypes = vertexTypes
         .map(type => get(displayVertexTypeConfigSelector(type)).displayLabel)
         .join(", ");
