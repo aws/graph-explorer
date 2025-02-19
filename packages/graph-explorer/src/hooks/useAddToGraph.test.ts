@@ -123,6 +123,37 @@ test("should update schema when adding a node", async () => {
   });
 });
 
+test("should update schema when adding a node with no label", async () => {
+  const vertex = createRandomVertex();
+  vertex.type = "";
+  vertex.types = [];
+  const expectedVertexType = extractConfigFromEntity(vertex);
+  const dbState = new DbState();
+
+  const { result } = renderHookWithRecoilRoot(
+    () => {
+      const callback = useAddToGraph();
+      const vertices = useRecoilValue(nodesAtom);
+      const edges = useRecoilValue(edgesAtom);
+      const schema = useRecoilValue(activeSchemaSelector);
+
+      return { callback, vertices, edges, schema };
+    },
+    snapshot => dbState.applyTo(snapshot)
+  );
+
+  act(() => {
+    result.current.callback({ vertices: [vertex] });
+  });
+
+  await waitFor(() => {
+    const vtConfig = result.current.schema?.vertices.find(
+      v => v.type === vertex.type
+    );
+    expect(vtConfig).toEqual(expectedVertexType);
+  });
+});
+
 test("should update schema when adding an edge", async () => {
   const node1 = createRandomVertex();
   const node2 = createRandomVertex();
