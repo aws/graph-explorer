@@ -19,7 +19,11 @@ import {
   useDisplayVertexTypeConfig,
 } from "./displayTypeConfigs";
 import { createRandomName } from "@shared/utils/testing";
-import { RESERVED_TYPES_PROPERTY, sanitizeText } from "@/utils";
+import {
+  MISSING_DISPLAY_TYPE,
+  RESERVED_TYPES_PROPERTY,
+  sanitizeText,
+} from "@/utils";
 
 describe("useDisplayVertexTypeConfig", () => {
   describe("when the vertex type is not in the schema", () => {
@@ -32,6 +36,10 @@ describe("useDisplayVertexTypeConfig", () => {
 
     it("should have display label match the type transformed", () => {
       expect(act(vtConfig.type).displayLabel).toBe(sanitizeText(vtConfig.type));
+    });
+
+    it("should use empty label constant when the type is empty", () => {
+      expect(act("").displayLabel).toBe(MISSING_DISPLAY_TYPE);
     });
 
     it("should have display name attribute from the default config", () => {
@@ -128,6 +136,10 @@ describe("useDisplayEdgeTypeConfig", () => {
   it("should have display label match the type transformed", () => {
     const type = createRandomName("type");
     expect(act(type).displayLabel).toBe(sanitizeText(type));
+  });
+
+  it("should use empty label constant when the type is empty", () => {
+    expect(act("").displayLabel).toBe(MISSING_DISPLAY_TYPE);
   });
 
   it("should have display name attribute for types", () => {

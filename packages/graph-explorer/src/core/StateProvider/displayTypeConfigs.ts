@@ -13,7 +13,11 @@ import {
   LineStyle,
 } from "@/core";
 import { TextTransformer, textTransformSelector } from "@/hooks";
-import { RESERVED_TYPES_PROPERTY, sanitizeText } from "@/utils";
+import {
+  MISSING_DISPLAY_TYPE,
+  RESERVED_TYPES_PROPERTY,
+  sanitizeText,
+} from "@/utils";
 
 export type DisplayVertexStyle = {
   color: string;
@@ -131,7 +135,9 @@ export function mapToDisplayVertexTypeConfig(
   textTransform: TextTransformer = sanitizeText
 ): DisplayVertexTypeConfig {
   const displayLabel =
-    typeConfig.displayLabel || textTransform(typeConfig.type);
+    typeConfig.displayLabel ||
+    textTransform(typeConfig.type) ||
+    MISSING_DISPLAY_TYPE;
 
   const attributes: DisplayConfigAttribute[] = typeConfig.attributes
     .map(attr => ({
@@ -166,7 +172,9 @@ export function mapToDisplayEdgeTypeConfig(
   textTransform: TextTransformer = sanitizeText
 ): DisplayEdgeTypeConfig {
   const displayLabel =
-    typeConfig.displayLabel || textTransform(typeConfig.type);
+    typeConfig.displayLabel ||
+    textTransform(typeConfig.type) ||
+    MISSING_DISPLAY_TYPE;
 
   const attributes: DisplayConfigAttribute[] = typeConfig.attributes
     .map(attr => ({

@@ -22,10 +22,10 @@ import {
   TARGET_ARROW_STYLE_OPTIONS,
 } from "./arrowsStyling";
 import { LINE_STYLE_OPTIONS } from "./lineStyling";
-import defaultStyles from "./SingleEdgeStyling.style";
 import modalDefaultStyles from "./SingleEdgeStylingModal.style";
 import { useDebounceValue, usePrevious } from "@/hooks";
-import { cn, RESERVED_TYPES_PROPERTY } from "@/utils";
+import { MISSING_DISPLAY_TYPE, RESERVED_TYPES_PROPERTY } from "@/utils";
+import { FormItem, Label } from "@/components/radix";
 
 export type SingleEdgeStylingProps = {
   edgeType: string;
@@ -39,7 +39,6 @@ export default function SingleEdgeStyling({
   opened,
   onOpen,
   onClose,
-  className,
   ...rest
 }: SingleEdgeStylingProps) {
   const t = useTranslations();
@@ -87,13 +86,15 @@ export default function SingleEdgeStyling({
   }, [debouncedDisplayAs, prevDisplayAs, onUserPrefsChange]);
 
   return (
-    <div className={cn(styleWithTheme(defaultStyles), className)} {...rest}>
-      <div className="title">
-        <div className="edge-name">{edgeType}</div>
-      </div>
-      <div className="label-container">
+    <FormItem {...rest}>
+      {edgeType ? (
+        <Label>{edgeType}</Label>
+      ) : (
+        <Label>{MISSING_DISPLAY_TYPE}</Label>
+      )}
+      <div className="flex flex-row items-center gap-2">
         <Input
-          className="label-display"
+          className="grow"
           label="Display As"
           labelPlacement="inner"
           value={displayAs}
@@ -106,6 +107,7 @@ export default function SingleEdgeStyling({
           variant="text"
           size="small"
           onPress={onOpen}
+          className="shrink-0"
         >
           Customize
         </Button>
@@ -271,6 +273,6 @@ export default function SingleEdgeStyling({
           </div>
         </div>
       </Modal>
-    </div>
+    </FormItem>
   );
 }

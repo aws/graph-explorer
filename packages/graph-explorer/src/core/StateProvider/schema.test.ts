@@ -104,5 +104,40 @@ describe("schema", () => {
         ])
       );
     });
+
+    it("should add entities with no type to the schema", () => {
+      const originalSchema = createRandomSchema();
+      originalSchema.vertices = [];
+      originalSchema.edges = [];
+
+      const newNodes = createArray(3, () => createRandomVertex()).map(
+        vertex => ({ ...vertex, type: "", types: [] })
+      );
+      const newEdges = createArray(3, () =>
+        createRandomEdge(createRandomVertex(), createRandomVertex())
+      ).map(edge => ({ ...edge, type: "" }));
+
+      const result = updateSchemaFromEntities(
+        {
+          nodes: toNodeMap(newNodes),
+          edges: toEdgeMap(newEdges),
+        },
+        originalSchema
+      );
+
+      expect(result).toEqual({
+        ...originalSchema,
+        vertices: [
+          ...originalSchema.vertices,
+          ...newNodes.map(extractConfigFromEntity),
+        ],
+        edges: [
+          ...originalSchema.edges,
+          ...newEdges.map(extractConfigFromEntity),
+        ],
+      });
+      expect(result.vertices[0].type).toBe("");
+      expect(result.edges[0].type).toBe("");
+    });
   });
 });

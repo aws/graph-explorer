@@ -20,3 +20,6 @@ export const RELOAD_URL =
 
 /** Shown when a value is missing */
 export const MISSING_DISPLAY_VALUE = "---";
+
+/** Shown when a type is missing  */
+export const MISSING_DISPLAY_TYPE = "---";

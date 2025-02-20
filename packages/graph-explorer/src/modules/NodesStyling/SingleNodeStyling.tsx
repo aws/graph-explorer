@@ -23,14 +23,14 @@ import {
 import useTranslations from "@/hooks/useTranslations";
 import { LINE_STYLE_OPTIONS } from "./lineStyling";
 import { NODE_SHAPE } from "./nodeShape";
-import defaultStyles from "./SingleNodeStyling.style";
 import modalDefaultStyles from "./SingleNodeStylingModal.style";
 import { useDebounceValue, usePrevious } from "@/hooks";
-import { cn } from "@/utils";
 import {
+  MISSING_DISPLAY_TYPE,
   RESERVED_ID_PROPERTY,
   RESERVED_TYPES_PROPERTY,
 } from "@/utils/constants";
+import { FormItem, Label } from "@/components/radix";
 
 export type SingleNodeStylingProps = {
   vertexType: string;
@@ -54,7 +54,6 @@ export default function SingleNodeStyling({
   opened,
   onOpen,
   onClose,
-  className,
   ...rest
 }: SingleNodeStylingProps) {
   const t = useTranslations();
@@ -127,13 +126,16 @@ export default function SingleNodeStyling({
   }, [debouncedDisplayAs, prevDisplayAs, onUserPrefsChange]);
 
   return (
-    <div className={cn(styleWithTheme(defaultStyles), className)} {...rest}>
-      <div className="title">
-        <div className="vertex-name">{vertexType}</div>
-      </div>
-      <div className="label-container">
+    <FormItem {...rest}>
+      {vertexType ? (
+        <Label>{vertexType}</Label>
+      ) : (
+        <Label>{MISSING_DISPLAY_TYPE}</Label>
+      )}
+
+      <div className="flex flex-row items-center gap-2">
         <Input
-          className="label-display"
+          className="grow"
           label="Display As"
           labelPlacement="inner"
           value={displayAs}
@@ -146,6 +148,7 @@ export default function SingleNodeStyling({
           variant="text"
           size="small"
           onPress={onOpen}
+          className="shrink-0"
         >
           Customize
         </Button>
@@ -302,6 +305,6 @@ export default function SingleNodeStyling({
           </div>
         </div>
       </Modal>
-    </div>
+    </FormItem>
   );
 }
