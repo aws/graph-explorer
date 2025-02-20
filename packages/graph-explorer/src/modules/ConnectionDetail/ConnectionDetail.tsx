@@ -96,7 +96,6 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
 
   const lastSyncUpdate = config?.schema?.lastUpdate;
   const lastSyncFail = config?.schema?.lastSyncFail === true;
-  const isFileBased = config.__fileBase === true;
 
   return (
     <Panel className={cn(styleWithTheme(defaultStyles))}>
@@ -126,10 +125,10 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
             onActionClick={() => setEdit(true)}
           />
           <PanelHeaderActionButton
-            label={isFileBased ? "File (read-only)" : "Delete connection"}
+            label="Delete connection"
             icon={<DeleteIcon />}
             color="error"
-            isDisabled={isFileBased || isSync}
+            isDisabled={isSync}
             onActionClick={onConfigDelete}
           />
         </PanelHeaderActions>
