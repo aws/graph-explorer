@@ -2,6 +2,8 @@
 
 ## Upcoming Release
 
+- **Changed** to allow editing and deleting default connections
+  ([#801](https://github.com/aws/graph-explorer/pull/801))
 - **Fixed** issue where nodes and edges without any labels were causing the app
   to crash ([#799](https://github.com/aws/graph-explorer/pull/799))
 
