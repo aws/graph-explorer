@@ -119,7 +119,6 @@ export function mergeConfiguration(
   return {
     id: currentConfig.id,
     displayLabel: currentConfig.displayLabel,
-    __fileBase: currentConfig.__fileBase,
     connection: {
       ...(currentConfig.connection || {}),
       // Remove trailing slash

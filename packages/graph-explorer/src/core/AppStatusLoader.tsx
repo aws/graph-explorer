@@ -55,7 +55,6 @@ const AppStatusLoader = ({ children }: PropsWithChildren) => {
       !configuration.get(defaultConnectionConfig.id)
     ) {
       const newConfig: RawConfiguration = cloneDeep(defaultConnectionConfig);
-      newConfig.__fileBase = true;
       let activeConfigId = defaultConnectionConfig.id;
 
       logger.debug("Adding new config to store", newConfig);

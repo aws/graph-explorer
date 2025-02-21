@@ -137,10 +137,6 @@ export type RawConfiguration = {
    * Database schema: types, names, labels, icons, ...
    */
   schema?: Schema;
-  /**
-   * Mark as created from a file
-   */
-  __fileBase?: boolean;
 };
 
 export type ConfigurationContextProps = RawConfiguration & {
