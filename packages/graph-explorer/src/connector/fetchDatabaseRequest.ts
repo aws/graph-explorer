@@ -3,7 +3,7 @@ import { DEFAULT_SERVICE_TYPE } from "@/utils/constants";
 import { anySignal } from "./utils/anySignal";
 import { FeatureFlags } from "@/core";
 import { z } from "zod";
-import { logger } from "@/utils";
+import { logger, NetworkError } from "@/utils";
 
 const NeptuneErrorSchema = z.object({
   code: z.string(),
@@ -119,12 +119,10 @@ export async function fetchDatabaseRequest(
         parseNeptuneError.data.message ??
         defaultMessage;
 
-      throw new Error(message, {
-        cause: parseNeptuneError.data,
-      });
+      throw new NetworkError(message, response.status, parseNeptuneError.data);
     }
     // Or just throw a generic error
-    throw new Error(defaultMessage, { cause: error });
+    throw new NetworkError(defaultMessage, response.status, error);
   }
 
   // A successful response is assumed to be JSON

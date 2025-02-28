@@ -1,4 +1,5 @@
 import { createDisplayError } from "./createDisplayError";
+import { NetworkError } from "./NetworkError";
 
 const defaultResult = {
   title: "Something went wrong",
@@ -107,6 +108,26 @@ describe("createDisplayError", () => {
     expect(result).toStrictEqual({
       title: "Connection Error",
       message: "Please check your connection and try again.",
+    });
+  });
+
+  it("Should handle too many requests error", () => {
+    const result = createDisplayError(
+      new NetworkError("Network error", 429, null)
+    );
+    expect(result).toStrictEqual({
+      title: "Too Many Requests",
+      message: "The database is currently overloaded. Please try again later.",
+    });
+  });
+
+  it("Should handle network error", () => {
+    const result = createDisplayError(
+      new NetworkError("Network error", 500, { message: "Some error" })
+    );
+    expect(result).toStrictEqual({
+      title: "Network Response 500",
+      message: "Some error",
     });
   });
 });

@@ -1,3 +1,5 @@
+import { NetworkError } from "./NetworkError";
+
 export type DisplayError = {
   title: string;
   message: string;
@@ -90,6 +92,34 @@ export function createDisplayError(error: any): DisplayError {
         };
       }
     }
+
+    if (error instanceof NetworkError) {
+      if (error.statusCode === 429) {
+        return {
+          title: "Too Many Requests",
+          message:
+            "The database is currently overloaded. Please try again later.",
+        };
+      }
+
+      return {
+        title: `Network Response ${error.statusCode}`,
+        message:
+          extractMessageFromData(error.data) ?? defaultDisplayError.message,
+      };
+    }
   }
   return defaultDisplayError;
+}
+
+function extractMessageFromData(data: any): string | null {
+  if (Boolean(data) === false) {
+    return null;
+  }
+  if (typeof data === "string") {
+    return data;
+  } else if (typeof data === "object") {
+    return data.message ?? data.error ?? null;
+  }
+  return null;
 }
