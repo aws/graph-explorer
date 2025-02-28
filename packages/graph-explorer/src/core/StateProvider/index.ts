@@ -7,3 +7,4 @@ export * from "./edges";
 export * from "./neighbors";
 export * from "./nodes";
 export * from "./userPreferences";
+export * from "./schema";

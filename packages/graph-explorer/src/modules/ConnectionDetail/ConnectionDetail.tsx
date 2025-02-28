@@ -15,6 +15,7 @@ import {
   Panel,
   PanelContent,
   PanelEmptyState,
+  PanelError,
   PanelHeader,
   PanelHeaderActionButton,
   PanelHeaderActions,
@@ -23,40 +24,39 @@ import {
   SyncIcon,
   TrayArrowIcon,
 } from "@/components";
-import { showDebugActionsAtom, useConfiguration, useWithTheme } from "@/core";
+import {
+  ConfigurationContextProps,
+  showDebugActionsAtom,
+  useWithTheme,
+} from "@/core";
 import {
   activeConfigurationAtom,
   configurationAtom,
 } from "@/core/StateProvider/configuration";
 import { activeSchemaSelector, schemaAtom } from "@/core/StateProvider/schema";
-import useSchemaSync from "@/hooks/useSchemaSync";
+import { useSchemaSync } from "@/hooks/useSchemaSync";
 import useTranslations from "@/hooks/useTranslations";
 import { cn, formatDate, logger } from "@/utils";
 import saveConfigurationToFile from "@/utils/saveConfigurationToFile";
 import CreateConnection from "@/modules/CreateConnection";
 import ConnectionData from "./ConnectionData";
 import defaultStyles from "./ConnectionDetail.styles";
+import { useQueryClient } from "@tanstack/react-query";
 
 export type ConnectionDetailProps = {
-  isSync: boolean;
-  onSyncChange(isSync: boolean): void;
+  config: ConfigurationContextProps;
 };
 
-const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
+function ConnectionDetail({ config }: ConnectionDetailProps) {
   const styleWithTheme = useWithTheme();
-  const config = useConfiguration();
   const t = useTranslations();
   const [edit, setEdit] = useState(false);
 
-  const updateSchema = useSchemaSync();
-  const onConfigSync = useCallback(async () => {
-    onSyncChange(true);
-    try {
-      await updateSchema();
-    } finally {
-      onSyncChange(false);
-    }
-  }, [onSyncChange, updateSchema]);
+  const {
+    refetch: syncSchema,
+    isFetching: isSync,
+    error: syncError,
+  } = useSchemaSync();
 
   const onConfigExport = useCallback(() => {
     if (!config?.id) {
@@ -90,12 +90,8 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
     [config?.id]
   );
 
-  if (!config) {
-    return null;
-  }
-
-  const lastSyncUpdate = config?.schema?.lastUpdate;
-  const lastSyncFail = config?.schema?.lastSyncFail === true;
+  const lastSyncUpdate = config.schema?.lastUpdate;
+  const lastSyncFail = config.schema?.lastSyncFail === true;
 
   return (
     <Panel className={cn(styleWithTheme(defaultStyles))}>
@@ -109,7 +105,7 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
             label="Synchronize Database"
             icon={<SyncIcon className={isSync ? "animate-spin" : ""} />}
             isDisabled={isSync}
-            onActionClick={onConfigSync}
+            onActionClick={syncSchema}
           />
           <PanelHeaderActionButton
             label="Export Connection"
@@ -164,14 +160,17 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
           </NotInProduction>
         </div>
         {!isSync && !!lastSyncUpdate && <ConnectionData />}
-        {!lastSyncUpdate && !isSync && (
+        {!lastSyncUpdate && !isSync && syncError && (
+          <PanelError error={syncError} onRetry={syncSchema} className="p-6" />
+        )}
+        {!lastSyncUpdate && !isSync && !syncError && (
           <PanelEmptyState
             variant="error"
             icon={<SyncIcon />}
             title="Synchronization Required"
             subtitle="It is necessary to synchronize the connection to be able to work with the database."
             actionLabel="Start synchronization"
-            onAction={onConfigSync}
+            onAction={syncSchema}
             actionVariant="text"
             className="p-6"
           />
@@ -199,15 +198,19 @@ const ConnectionDetail = ({ isSync, onSyncChange }: ConnectionDetailProps) => {
       </PanelContent>
     </Panel>
   );
-};
+}
 
 function DebugActions() {
   const setActiveSchema = useSetRecoilState(activeSchemaSelector);
   const resetActiveSchema = useResetRecoilState(activeSchemaSelector);
+  const queryClient = useQueryClient();
 
   const deleteSchema = () => {
     logger.log("Deleting schema");
     resetActiveSchema();
+    queryClient.invalidateQueries({
+      queryKey: ["schema"],
+    });
   };
   const resetSchemaLastUpdated = () => {
     logger.log("Resetting schema last updated");

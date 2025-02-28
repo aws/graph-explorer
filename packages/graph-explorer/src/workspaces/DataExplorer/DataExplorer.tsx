@@ -1,6 +1,6 @@
 import { cn } from "@/utils";
 import clone from "lodash/clone";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import {
   keepPreviousData,
   useQuery,
@@ -8,7 +8,7 @@ import {
 } from "@tanstack/react-query";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router";
 import { useSetRecoilState } from "recoil";
-import { Vertex } from "@/core";
+import { useUpdateSchemaFromEntities, Vertex } from "@/core";
 import {
   CheckIcon,
   ChevronLeftIcon,
@@ -46,7 +46,6 @@ import {
   VertexPreferences,
 } from "@/core/StateProvider/userPreferences";
 import { useAddVertexToGraph, useHasVertexBeenAddedToGraph } from "@/hooks";
-import usePrefixesUpdater from "@/hooks/usePrefixesUpdater";
 import useTranslations from "@/hooks/useTranslations";
 import useUpdateVertexTypeCounts from "@/hooks/useUpdateVertexTypeCounts";
 import defaultStyles from "./DataExplorer.styles";
@@ -371,8 +370,7 @@ function useDataExplorerQuery(
 ) {
   const explorer = useExplorer();
   const queryClient = useQueryClient();
-
-  const updatePrefixes = usePrefixesUpdater();
+  const updateSchema = useUpdateSchemaFromEntities();
 
   const searchRequest: KeywordSearchRequest = {
     vertexTypes: [vertexType],
@@ -380,20 +378,9 @@ function useDataExplorerQuery(
     offset: pageIndex * pageSize,
   };
   const query = useQuery({
-    ...searchQuery(searchRequest, explorer, queryClient),
+    ...searchQuery(searchRequest, updateSchema, explorer, queryClient),
     placeholderData: keepPreviousData,
   });
-
-  useEffect(() => {
-    if (!query.data) {
-      return;
-    }
-
-    const vertexIds = query.data.vertices
-      .map(v => v.id)
-      .filter(id => typeof id === "string");
-    updatePrefixes(vertexIds);
-  }, [query.data, updatePrefixes]);
 
   return query;
 }

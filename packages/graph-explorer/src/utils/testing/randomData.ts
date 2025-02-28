@@ -12,6 +12,7 @@ import {
   Entities,
   FeatureFlags,
   LineStyle,
+  PrefixTypeConfig,
   RawConfiguration,
   Schema,
   UserStyling,
@@ -113,6 +114,13 @@ export function createRandomVertexTypeConfig(): VertexTypeConfig {
     color: createRandomColor(),
     iconImageType: createRandomName("iconImageType"),
     iconUrl: createRandomUrlString(),
+  };
+}
+
+export function createRandomPrefixTypeConfig(): PrefixTypeConfig {
+  return {
+    prefix: createRandomName("prefix"),
+    uri: createRandomUrlString(),
   };
 }
 

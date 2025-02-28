@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router";
 import { useRecoilValue } from "recoil";
 import Button from "@/components/Button";
@@ -9,7 +9,7 @@ import {
   activeConfigurationAtom,
   configurationAtom,
 } from "@/core/StateProvider/configuration";
-import useSchemaSync from "@/hooks/useSchemaSync";
+import { useIsSyncing } from "@/hooks/useSchemaSync";
 import AvailableConnections from "@/modules/AvailableConnections";
 import ConnectionDetail from "@/modules/ConnectionDetail";
 import { APP_NAME } from "@/utils/constants";
@@ -21,18 +21,18 @@ export default function Connections() {
   const activeConfig = useRecoilValue(activeConfigurationAtom);
   const configuration = useRecoilValue(configurationAtom);
   const [isModalOpen, setModal] = useState(configuration.size === 0);
-  const [isSyncing, setSyncing] = useState(false);
+  const isSyncing = useIsSyncing();
 
   // Every time that the active connection changes,
   // if it was not synchronized yet, try to sync it
-  const updateSchema = useSchemaSync(setSyncing);
-  useEffect(() => {
-    if (config?.schema?.triedToSync === true) {
-      return;
-    }
+  // const updateSchema = useSchemaSync();
+  // useEffect(() => {
+  //   if (config?.schema?.triedToSync === true) {
+  //     return;
+  //   }
 
-    updateSchema();
-  }, [activeConfig, config?.schema?.triedToSync, updateSchema]);
+  //   updateSchema();
+  // }, [activeConfig, config?.schema?.triedToSync, updateSchema]);
 
   return (
     <Workspace>
@@ -78,9 +78,9 @@ export default function Connections() {
               onModalChange={setModal}
             />
           </div>
-          {activeConfig ? (
+          {activeConfig && config ? (
             <div className="h-full grow">
-              <ConnectionDetail isSync={isSyncing} onSyncChange={setSyncing} />
+              <ConnectionDetail config={config} />
             </div>
           ) : (
             <NoActiveConnectionPanel />

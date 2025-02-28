@@ -1,12 +1,19 @@
 import {
   createRandomEdge,
+  createRandomEntities,
   createRandomSchema,
   createRandomVertex,
 } from "@/utils/testing";
-import { extractConfigFromEntity, updateSchemaFromEntities } from "./schema";
-import { createArray } from "@shared/utils/testing";
+import {
+  extractConfigFromEntity,
+  shouldUpdateSchemaFromEntities,
+  updateSchemaFromEntities,
+  updateSchemaPrefixes,
+} from "./schema";
+import { createArray, createRandomName } from "@shared/utils/testing";
 import { toNodeMap } from "./nodes";
 import { toEdgeMap } from "./edges";
+import { PrefixTypeConfig } from "../ConfigurationProvider";
 
 describe("schema", () => {
   describe("extractConfigFromEntity", () => {
@@ -138,6 +145,129 @@ describe("schema", () => {
       });
       expect(result.vertices[0].type).toBe("");
       expect(result.edges[0].type).toBe("");
+    });
+  });
+
+  describe("updateSchemaPrefixes", () => {
+    it("should do nothing when there are no URIs to process", () => {
+      const schema = createRandomSchema();
+      delete schema.prefixes;
+      schema.vertices = [];
+      schema.edges = [];
+
+      const result = updateSchemaPrefixes(schema);
+
+      expect(result.prefixes).toBeUndefined();
+    });
+
+    it("should generate prefixes for a single URI", () => {
+      const schema = createRandomSchema();
+      schema.vertices.forEach(v => {
+        v.type = "http://abcdefg.com/vertex#" + encodeURIComponent(v.type);
+      });
+      schema.edges.forEach(e => {
+        e.type = "http://abcdefg.com/edge#" + encodeURIComponent(e.type);
+      });
+      const result = updateSchemaPrefixes(schema);
+
+      expect(result.prefixes).toBeDefined();
+      expect(result.prefixes).toEqual([
+        {
+          prefix: "ver",
+          uri: "http://abcdefg.com/vertex#",
+          __inferred: true,
+          __matches: new Set(schema.vertices.map(v => v.type)),
+        },
+        {
+          prefix: "edg",
+          uri: "http://abcdefg.com/edge#",
+          __inferred: true,
+          __matches: new Set(schema.edges.map(e => e.type)),
+        },
+      ] satisfies PrefixTypeConfig[]);
+    });
+  });
+
+  describe("shouldUpdateSchemaFromEntities", () => {
+    it("should return false when no entities are provided", () => {
+      const result = shouldUpdateSchemaFromEntities(
+        { vertices: [], edges: [] },
+        createRandomSchema()
+      );
+      expect(result).toBeFalsy();
+    });
+
+    it("should return true when entities are provided", () => {
+      const entities = createRandomEntities();
+      const result = shouldUpdateSchemaFromEntities(
+        {
+          vertices: entities.nodes.values().toArray(),
+          edges: entities.edges.values().toArray(),
+        },
+        createRandomSchema()
+      );
+      expect(result).toBeTruthy();
+    });
+
+    it("should return false when the vertex has an existing type", () => {
+      const schema = createRandomSchema();
+      const vertex = createRandomVertex();
+      vertex.type = schema.vertices[0].type;
+      vertex.attributes = schema.vertices[0].attributes.reduce(
+        (acc, attr) => {
+          acc[attr.name] = createRandomName("value");
+          return acc;
+        },
+        {} as Record<string, string | number>
+      );
+      const result = shouldUpdateSchemaFromEntities(
+        {
+          vertices: [vertex],
+          edges: [],
+        },
+        schema
+      );
+      expect(result).toBeFalsy();
+    });
+
+    it("should return false when the edge is an existing type", () => {
+      const schema = createRandomSchema();
+      const source = createRandomVertex();
+      const target = createRandomVertex();
+      source.type = schema.vertices[0].type;
+      source.attributes = schema.vertices[0].attributes.reduce(
+        (acc, attr) => {
+          acc[attr.name] = createRandomName("value");
+          return acc;
+        },
+        {} as Record<string, string | number>
+      );
+      target.type = schema.vertices[1].type;
+      target.attributes = schema.vertices[1].attributes.reduce(
+        (acc, attr) => {
+          acc[attr.name] = createRandomName("value");
+          return acc;
+        },
+        {} as Record<string, string | number>
+      );
+      const edge = createRandomEdge(source, target);
+      edge.type = schema.edges[0].type;
+      edge.attributes = schema.edges[0].attributes.reduce(
+        (acc, attr) => {
+          acc[attr.name] = createRandomName("value");
+          return acc;
+        },
+        {} as Record<string, string | number>
+      );
+
+      const result = shouldUpdateSchemaFromEntities(
+        {
+          vertices: [source, target],
+          edges: [edge],
+        },
+        schema
+      );
+      expect(result).toBeFalsy();
     });
   });
 });
