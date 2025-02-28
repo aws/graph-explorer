@@ -28,32 +28,31 @@ async function decodeErrorSafely(response: Response): Promise<any> {
   const isJson =
     !contentTypeHasValue || contentType.includes("application/json");
 
+  // Extract the raw text from the response
+  const rawText = await response.text();
+
+  // Check for empty response
+  if (!rawText) {
+    return undefined;
+  }
+
   if (isJson) {
     try {
-      const data = await response.json();
+      // Try parsing the response as JSON
+      const data = JSON.parse(rawText);
 
       // Flatten the error if it contains an error object
       return data?.error ?? data;
     } catch (error) {
       console.error("Failed to decode the error response as JSON", {
         error,
-        response,
+        rawText,
       });
-      return undefined;
+      return rawText;
     }
   }
 
-  try {
-    const message = await response.text();
-    return { message };
-  } catch (error) {
-    console.error("Failed to decode the error response as text", {
-      error,
-      response,
-    });
-  }
-
-  return undefined;
+  return { message: rawText };
 }
 
 // Construct the request headers based on the connection settings
