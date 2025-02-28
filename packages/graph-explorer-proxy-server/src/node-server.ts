@@ -13,6 +13,7 @@ import { logger as proxyLogger, requestLoggingMiddleware } from "./logging.js";
 import { clientRoot, proxyServerRoot } from "./paths.js";
 import { errorHandlingMiddleware, handleError } from "./error-handler.js";
 import { BooleanStringSchema, env } from "./env.js";
+import { pipeline } from "stream";
 
 const app = express();
 
@@ -93,6 +94,7 @@ const retryFetch = async (
       method: options.method,
       body: options.body ?? undefined,
       headers: options.headers,
+      compress: false, // prevent automatic decompression
     };
 
     try {
@@ -138,9 +140,24 @@ async function fetchData(
       region,
       serviceType
     );
-    const data = await response.json();
+
+    // Set the headers from the fetch response to the client response
     res.status(response.status);
-    res.send(data);
+    for (const [key, value] of response.headers.entries()) {
+      res.setHeader(key, value);
+    }
+
+    // Pipe the raw fetch response body directly to the client response
+    if (response.body) {
+      pipeline(response.body, res, err => {
+        if (err) {
+          console.error("Pipeline failed", err);
+          res.status(500).send("Stream error");
+        }
+      });
+    } else {
+      res.end();
+    }
   } catch (error) {
     next(error);
   }
