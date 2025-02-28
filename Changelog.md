@@ -4,6 +4,8 @@
 
 - **Changed** to allow editing and deleting default connections
   ([#801](https://github.com/aws/graph-explorer/pull/801))
+- **Changed** service type label to be "Neptune Analytics"
+  ([#811](https://github.com/aws/graph-explorer/pull/811))
 - **Fixed** issue where nodes and edges without any labels were causing the app
   to crash ([#799](https://github.com/aws/graph-explorer/pull/799))
 

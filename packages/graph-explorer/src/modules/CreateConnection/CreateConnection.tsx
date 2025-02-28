@@ -326,7 +326,7 @@ const CreateConnection = ({
                 label="Service Type"
                 options={[
                   { label: "Neptune DB", value: "neptune-db" },
-                  { label: "Neptune Graph", value: "neptune-graph" },
+                  { label: "Neptune Analytics", value: "neptune-graph" },
                 ]}
                 value={form.serviceType}
                 onChange={onFormChange("serviceType")}
