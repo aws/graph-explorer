@@ -21,7 +21,7 @@ const GeneratedPrefixes = () => {
         prefixConfig =>
           prefixConfig.__inferred === true &&
           prefixConfig.__matches &&
-          prefixConfig.__matches.size > 1
+          prefixConfig.__matches.size > 0
       )
       .map(mapToPrefixData)
       .toSorted((a, b) => a.title.localeCompare(b.title));

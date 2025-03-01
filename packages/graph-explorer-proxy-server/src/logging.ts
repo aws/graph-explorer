@@ -45,11 +45,15 @@ function logLevelFromStatusCode(statusCode: number): LogLevel {
   return "debug";
 }
 
+export function getRequestLoggerPrefix(req: Request) {
+  return `${req.method} ${req.path}`;
+}
+
 /** Logs the request path and response status using the given logger. */
 export function logRequestAndResponse(req: Request, res: Response) {
   const logLevel = logLevelFromStatusCode(res.statusCode);
 
-  const requestMessage = `[${req.method} ${req.path}] Response ${res.statusCode} ${res.statusMessage}`;
+  const requestMessage = `[${getRequestLoggerPrefix(req)}] Response ${res.statusCode} ${res.statusMessage}`;
 
   switch (logLevel) {
     case "debug":

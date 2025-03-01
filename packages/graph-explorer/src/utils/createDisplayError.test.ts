@@ -1,4 +1,5 @@
 import { createDisplayError } from "./createDisplayError";
+import { NetworkError } from "./NetworkError";
 
 const defaultResult = {
   title: "Something went wrong",
@@ -65,7 +66,7 @@ describe("createDisplayError", () => {
   });
 
   it("Should handle AbortError", () => {
-    const result = createDisplayError({ name: "AbortError" });
+    const result = createDisplayError(new FakeError("AbortError", "Aborted"));
     expect(result).toStrictEqual({
       title: "Request cancelled",
       message: "The request exceeded the configured timeout length.",
@@ -89,4 +90,52 @@ describe("createDisplayError", () => {
         "The executed query was rejected by the database. It is possible the query structure is not supported by your database.",
     });
   });
+
+  it("Should handle TimeoutError", () => {
+    const result = createDisplayError(
+      new FakeError("TimeoutError", "Timed out")
+    );
+    expect(result).toStrictEqual({
+      title: "Fetch Timeout Exceeded",
+      message: "The request exceeded the configured fetch timeout.",
+    });
+  });
+
+  it("Should handle failed to fetch error", () => {
+    const result = createDisplayError(
+      new FakeError("TypeError", "Failed to fetch")
+    );
+    expect(result).toStrictEqual({
+      title: "Connection Error",
+      message: "Please check your connection and try again.",
+    });
+  });
+
+  it("Should handle too many requests error", () => {
+    const result = createDisplayError(
+      new NetworkError("Network error", 429, null)
+    );
+    expect(result).toStrictEqual({
+      title: "Too Many Requests",
+      message: "The database is currently overloaded. Please try again later.",
+    });
+  });
+
+  it("Should handle network error", () => {
+    const result = createDisplayError(
+      new NetworkError("Network error", 500, { message: "Some error" })
+    );
+    expect(result).toStrictEqual({
+      title: "Network Response 500",
+      message: "Some error",
+    });
+  });
 });
+
+/** Used to create errors for test code. */
+class FakeError extends Error {
+  constructor(name: string, message: string) {
+    super(message);
+    this.name = name;
+  }
+}

@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { logger } from "./logging.js";
+import { getRequestLoggerPrefix, logger } from "./logging.js";
 
 /**
  * Global error handler
@@ -14,7 +14,7 @@ export function handleError(error: unknown) {
 export function errorHandlingMiddleware() {
   return (
     error: unknown,
-    _request: Request,
+    request: Request,
     response: Response,
     _next: NextFunction
   ) => {
@@ -25,6 +25,16 @@ export function errorHandlingMiddleware() {
     response.send({
       error: errorInfo,
     });
+    // Log the headers of the request
+    logger.error(
+      `[${getRequestLoggerPrefix(request)}] Request headers: %s`,
+      Object.entries(request.headers)
+        .map(
+          ([key, value]) =>
+            `\n\t- ${key}: ${Array.isArray(value) ? value.join(", ") : value}`
+        )
+        .join("")
+    );
 
     handleError(error);
   };
