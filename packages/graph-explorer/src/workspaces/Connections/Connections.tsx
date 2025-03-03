@@ -23,17 +23,6 @@ export default function Connections() {
   const [isModalOpen, setModal] = useState(configuration.size === 0);
   const isSyncing = useIsSyncing();
 
-  // Every time that the active connection changes,
-  // if it was not synchronized yet, try to sync it
-  // const updateSchema = useSchemaSync();
-  // useEffect(() => {
-  //   if (config?.schema?.triedToSync === true) {
-  //     return;
-  //   }
-
-  //   updateSchema();
-  // }, [activeConfig, config?.schema?.triedToSync, updateSchema]);
-
   return (
     <Workspace>
       <Workspace.TopBar logoVisible>
