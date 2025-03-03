@@ -1,113 +1,45 @@
-import { useCallback, useRef } from "react";
-import { useNotification } from "@/components/NotificationProvider";
-import { useConfiguration } from "@/core/ConfigurationProvider";
-import { loggerSelector, useExplorer } from "@/core/connector";
-import usePrefixesUpdater from "./usePrefixesUpdater";
+import { useEffect, useMemo } from "react";
+import { useResolvedConfig } from "@/core/ConfigurationProvider";
+import { useExplorer } from "@/core/connector";
 import useUpdateSchema from "./useUpdateSchema";
-import { createDisplayError } from "@/utils/createDisplayError";
-import { useRecoilValue } from "recoil";
+import { useIsFetching, useQuery } from "@tanstack/react-query";
+import { schemaSyncQuery } from "@/connector";
 
-const useSchemaSync = (onSyncChange?: (isSyncing: boolean) => void) => {
-  const config = useConfiguration();
+export function useIsSyncing() {
+  return useIsFetching({ queryKey: ["schema"] }) > 0;
+}
+
+export function useSchemaSync() {
+  const config = useResolvedConfig();
   const explorer = useExplorer();
-  const remoteLogger = useRecoilValue(loggerSelector);
-
-  const updatePrefixes = usePrefixesUpdater();
-  const { enqueueNotification, clearNotification } = useNotification();
-  const notificationId = useRef<string | null>(null);
 
   const { replaceSchema, setSyncFailure } = useUpdateSchema();
-  return useCallback(async () => {
-    if (!config) {
-      return;
-    }
 
-    onSyncChange?.(true);
-    try {
-      notificationId.current = enqueueNotification({
-        title: config.displayLabel || config.id,
-        message: "Updating the Database schema",
-        type: "info",
-      });
+  // Check if the schema has ever been properly synced before providing initial data
+  const initialData = useMemo(() => {
+    return config.schema &&
+      config.schema.lastUpdate &&
+      config.schema.triedToSync
+      ? config.schema
+      : undefined;
+  }, [config]);
 
-      const schema = await explorer.fetchSchema();
+  const query = useQuery({
+    ...schemaSyncQuery(replaceSchema, explorer),
+    initialData: initialData,
+    enabled: !initialData || config.schema?.lastSyncFail === true,
+  });
+  const { data, isFetching, status, error, refetch } = query;
 
-      if (!schema.vertices.length) {
-        notificationId.current && clearNotification(notificationId.current);
-        enqueueNotification({
-          title: config.displayLabel || config.id,
-          message: "This connection has no data available",
-          type: "info",
-          stackable: true,
-        });
-        remoteLogger.info(
-          `[${
-            config.displayLabel || config.id
-          }] This connection has no data available: ${JSON.stringify(
-            config.connection
-          )}`
-        );
-      }
-
-      replaceSchema(schema);
-      onSyncChange?.(false);
-
-      notificationId.current && clearNotification(notificationId.current);
-      enqueueNotification({
-        title: config.displayLabel || config.id,
-        message: "Connection successfully synchronized",
-        type: "success",
-        stackable: true,
-      });
-      remoteLogger.info(
-        `[${
-          config.displayLabel || config.id
-        }] Connection successfully synchronized: ${JSON.stringify(
-          config.connection
-        )}`
-      );
-
-      const ids = schema.vertices.flatMap(v => [
-        v.type,
-        ...v.attributes.map(attr => attr.name),
-      ]);
-      ids.push(...schema.edges.map(e => e.type));
-      updatePrefixes(ids);
-    } catch (e) {
-      notificationId.current && clearNotification(notificationId.current);
-      const displayError = createDisplayError(e);
-      enqueueNotification({
-        ...displayError,
-        type: "error",
-        stackable: true,
-      });
-      if (e instanceof Error && e.name === "AbortError") {
-        remoteLogger.error(
-          `[${
-            config.displayLabel || config.id
-          }] Fetch aborted, reached max time out ${config.connection?.fetchTimeoutMs} MS`
-        );
-      } else {
-        remoteLogger.error(
-          `[${
-            config.displayLabel || config.id
-          }] Error while fetching schema: ${e instanceof Error ? e.message : "Unexpected error"}`
-        );
-      }
+  // If the schema sync fails, set the schema to a failed state
+  useEffect(() => {
+    if (status === "error") {
       setSyncFailure();
-      onSyncChange?.(false);
     }
-  }, [
-    config,
-    explorer,
-    onSyncChange,
-    enqueueNotification,
-    replaceSchema,
-    clearNotification,
-    remoteLogger,
-    updatePrefixes,
-    setSyncFailure,
-  ]);
-};
+  }, [setSyncFailure, status]);
 
-export default useSchemaSync;
+  return useMemo(
+    () => ({ refetch, data, error, isFetching }),
+    [data, isFetching, refetch, error]
+  );
+}

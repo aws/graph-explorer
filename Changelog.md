@@ -2,6 +2,8 @@
 
 ## Upcoming Release
 
+- **Improved** reliability of schema syncing, retrying on failure
+  ([#813](https://github.com/aws/graph-explorer/pull/813))
 - **Improved** handling of errors when fetching data from the database
   ([#812](https://github.com/aws/graph-explorer/pull/812))
 - **Changed** to allow editing and deleting default connections

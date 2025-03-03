@@ -5,10 +5,38 @@ import {
   Explorer,
   KeywordSearchRequest,
   KeywordSearchResponse,
+  SchemaResponse,
   VertexDetailsRequest,
   VertexDetailsResponse,
 } from "./useGEFetchTypes";
 import { Edge, Vertex, VertexId } from "@/core";
+import { updateSchemaPrefixes } from "@/core/StateProvider/schema";
+
+/**
+ * Fetches the schema from the given explorer and updates the local cache with the new schema.
+ * @param updateLocalCache The function to replace the schema in the cache.
+ * @param updatePrefixes The function to update the prefixes in the cache.
+ * @param explorer The explorer to use for fetching the schema.
+ */
+export function schemaSyncQuery(
+  updateLocalCache: (schema: SchemaResponse) => void,
+  explorer: Explorer
+) {
+  return queryOptions({
+    queryKey: ["schema", explorer],
+    queryFn: async () => {
+      let schema = await explorer.fetchSchema();
+
+      // Update the prefixes for sparql connections
+      schema = updateSchemaPrefixes(schema);
+
+      // Update the schema in the cache
+      updateLocalCache(schema);
+
+      return schema;
+    },
+  });
+}
 
 /**
  * Performs a search with the provided parameters.
@@ -19,6 +47,10 @@ import { Edge, Vertex, VertexId } from "@/core";
  */
 export function searchQuery(
   request: KeywordSearchRequest,
+  updateSchema: (entities: {
+    vertices: Vertex[];
+    edges: Edge[];
+  }) => Promise<void>,
   explorer: Explorer,
   queryClient: QueryClient
 ) {
@@ -31,6 +63,7 @@ export function searchQuery(
       const results = await explorer.keywordSearch(request, { signal });
 
       updateVertexDetailsCache(explorer, queryClient, results.vertices);
+      await updateSchema(results);
 
       return results;
     },

@@ -1,8 +1,8 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useExplorer } from "@/core/connector";
-import usePrefixesUpdater from "@/hooks/usePrefixesUpdater";
-import { useCallback, useEffect } from "react";
+import { useCallback } from "react";
 import { KeywordSearchRequest, searchQuery } from "@/connector";
+import { useUpdateSchemaFromEntities } from "@/core";
 
 export type SearchQueryRequest = {
   debouncedSearchTerm: string;
@@ -19,7 +19,7 @@ export function useKeywordSearchQuery({
 }: SearchQueryRequest) {
   const explorer = useExplorer();
   const queryClient = useQueryClient();
-  const updatePrefixes = usePrefixesUpdater();
+  const updateSchema = useUpdateSchemaFromEntities();
 
   const request: KeywordSearchRequest = {
     searchTerm: debouncedSearchTerm,
@@ -29,18 +29,9 @@ export function useKeywordSearchQuery({
     searchByAttributes: debouncedSearchTerm ? searchByAttributes : undefined,
     exactMatch: debouncedSearchTerm ? exactMatch : undefined,
   };
-  const query = useQuery(searchQuery(request, explorer, queryClient));
-
-  // Sync sparql prefixes
-  useEffect(() => {
-    if (!query.data) {
-      return;
-    }
-    const vertexIds = query.data.vertices
-      .map(v => v.id)
-      .filter(id => typeof id === "string");
-    updatePrefixes(vertexIds);
-  }, [query.data, updatePrefixes]);
+  const query = useQuery(
+    searchQuery(request, updateSchema, explorer, queryClient)
+  );
 
   return query;
 }
