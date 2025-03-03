@@ -89,7 +89,7 @@ const PanelTitle = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "text-text-primary inline-flex shrink-0 gap-2 whitespace-nowrap text-base font-bold leading-none",
+      "text-text-primary inline-flex shrink-0 items-center gap-2 whitespace-nowrap text-base font-bold leading-none",
       className
     )}
     {...props}
