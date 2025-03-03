@@ -5,10 +5,7 @@ import Button from "@/components/Button";
 import { ExplorerIcon, GearIcon } from "@/components/icons";
 import Workspace from "@/components/Workspace/Workspace";
 import { useConfiguration } from "@/core";
-import {
-  activeConfigurationAtom,
-  configurationAtom,
-} from "@/core/StateProvider/configuration";
+import { configurationAtom } from "@/core/StateProvider/configuration";
 import { useIsSyncing } from "@/hooks/useSchemaSync";
 import AvailableConnections from "@/modules/AvailableConnections";
 import ConnectionDetail from "@/modules/ConnectionDetail";
@@ -18,7 +15,6 @@ import GraphExplorerIcon from "@/components/icons/GraphExplorerIcon";
 
 export default function Connections() {
   const config = useConfiguration();
-  const activeConfig = useRecoilValue(activeConfigurationAtom);
   const configuration = useRecoilValue(configurationAtom);
   const [isModalOpen, setModal] = useState(configuration.size === 0);
   const isSyncing = useIsSyncing();
@@ -41,13 +37,11 @@ export default function Connections() {
 
             <Link
               to={
-                !activeConfig || !config?.schema?.lastUpdate
-                  ? "/connections"
-                  : "/graph-explorer"
+                !config?.schema?.lastUpdate ? "/connections" : "/graph-explorer"
               }
             >
               <Button
-                isDisabled={!activeConfig || !config?.schema?.lastUpdate}
+                isDisabled={!config?.schema?.lastUpdate}
                 className="button"
                 icon={<ExplorerIcon />}
                 variant="filled"
@@ -67,7 +61,7 @@ export default function Connections() {
               onModalChange={setModal}
             />
           </div>
-          {activeConfig && config ? (
+          {config ? (
             <div className="h-full grow">
               <ConnectionDetail config={config} />
             </div>
