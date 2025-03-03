@@ -10,6 +10,17 @@ export function handleError(error: unknown) {
   logger.error(error);
 }
 
+/** List of headers that can be logged safely without accidentally logging sensitive information. */
+const HEADER_WHITE_LIST = [
+  "host",
+  "user-agent",
+  "graph-db-connection-url",
+  "db-query-logging-enabled",
+  "accept",
+  "content-type",
+  "origin",
+];
+
 /** Handles any errors thrown within Express routes. */
 export function errorHandlingMiddleware() {
   return (
@@ -29,6 +40,7 @@ export function errorHandlingMiddleware() {
     logger.error(
       `[${getRequestLoggerPrefix(request)}] Request headers: %s`,
       Object.entries(request.headers)
+        .filter(([key]) => HEADER_WHITE_LIST.includes(key))
         .map(
           ([key, value]) =>
             `\n\t- ${key}: ${Array.isArray(value) ? value.join(", ") : value}`
