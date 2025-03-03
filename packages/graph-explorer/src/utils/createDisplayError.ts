@@ -18,26 +18,29 @@ const defaultDisplayError: DisplayError = {
  * @returns A `DisplayError` that contains a title and message.
  */
 export function createDisplayError(error: any): DisplayError {
-  if (typeof error === "object") {
+  const data =
+    error instanceof NetworkError
+      ? error.data
+      : typeof error === "object"
+        ? error
+        : null;
+  if (data !== null) {
     // Bad connection configuration
-    if (
-      error?.code === "ECONNREFUSED" ||
-      error?.cause?.code === "ECONNREFUSED"
-    ) {
+    if (data.code === "ECONNREFUSED" || data.cause?.code === "ECONNREFUSED") {
       return {
         title: "Connection refused",
         message: "Please check your connection and try again.",
       };
     }
-    if (error?.code === "ECONNRESET" || error?.cause?.code === "ECONNRESET") {
+    if (data.code === "ECONNRESET" || data.cause?.code === "ECONNRESET") {
       return {
         title: "Connection reset",
         message: "Please check your connection and try again.",
       };
     }
     if (
-      error?.code === "ERR_INVALID_URL" ||
-      error?.cause?.code === "ERR_INVALID_URL"
+      data.code === "ERR_INVALID_URL" ||
+      data.cause?.code === "ERR_INVALID_URL"
     ) {
       return {
         title: "Invalid URL",
@@ -46,8 +49,8 @@ export function createDisplayError(error: any): DisplayError {
       };
     }
     if (
-      error?.code === "TimeLimitExceededException" ||
-      error?.cause?.code === "TimeLimitExceededException"
+      data.code === "TimeLimitExceededException" ||
+      data.cause?.code === "TimeLimitExceededException"
     ) {
       // Server timeout
       return {
@@ -59,8 +62,8 @@ export function createDisplayError(error: any): DisplayError {
 
     // Malformed query
     if (
-      error?.code === "MalformedQueryException" ||
-      error?.cause?.code === "MalformedQueryException"
+      data.code === "MalformedQueryException" ||
+      data.cause?.code === "MalformedQueryException"
     ) {
       return {
         title: "Malformed Query",
@@ -68,46 +71,46 @@ export function createDisplayError(error: any): DisplayError {
           "The executed query was rejected by the database. It is possible the query structure is not supported by your database.",
       };
     }
+  }
 
-    if (error instanceof Error) {
-      // Fetch timeout
-      if (error.name === "AbortError") {
-        return {
-          title: "Request cancelled",
-          message: "The request exceeded the configured timeout length.",
-        };
-      }
-      if (error.name === "TimeoutError") {
-        return {
-          title: "Fetch Timeout Exceeded",
-          message: "The request exceeded the configured fetch timeout.",
-        };
-      }
-
-      // Internet issues
-      if (error.name === "TypeError" && error.message === "Failed to fetch") {
-        return {
-          title: "Connection Error",
-          message: "Please check your connection and try again.",
-        };
-      }
-    }
-
-    if (error instanceof NetworkError) {
-      if (error.statusCode === 429) {
-        return {
-          title: "Too Many Requests",
-          message:
-            "The database is currently overloaded. Please try again later.",
-        };
-      }
-
+  if (error instanceof Error) {
+    // Fetch timeout
+    if (error.name === "AbortError") {
       return {
-        title: `Network Response ${error.statusCode}`,
-        message:
-          extractMessageFromData(error.data) ?? defaultDisplayError.message,
+        title: "Request cancelled",
+        message: "The request exceeded the configured timeout length.",
       };
     }
+    if (error.name === "TimeoutError") {
+      return {
+        title: "Fetch Timeout Exceeded",
+        message: "The request exceeded the configured fetch timeout.",
+      };
+    }
+
+    // Internet issues
+    if (error.name === "TypeError" && error.message === "Failed to fetch") {
+      return {
+        title: "Connection Error",
+        message: "Please check your connection and try again.",
+      };
+    }
+  }
+
+  if (error instanceof NetworkError) {
+    if (error.statusCode === 429) {
+      return {
+        title: "Too Many Requests",
+        message:
+          "The database is currently overloaded. Please try again later.",
+      };
+    }
+
+    return {
+      title: `Network Response ${error.statusCode}`,
+      message:
+        extractMessageFromData(error.data) ?? defaultDisplayError.message,
+    };
   }
   return defaultDisplayError;
 }
