@@ -13,7 +13,7 @@ const Panel = React.forwardRef<React.ElementRef<"div">, PanelProps>(
     <div
       ref={ref}
       className={cn(
-        "bg-background-default flex h-full flex-col overflow-hidden",
+        "bg-background-default @container/panel flex h-full flex-col overflow-hidden",
         variant === "default" && "shadow-primary-dark/20 rounded-lg shadow",
         className
       )}

@@ -11,7 +11,8 @@ export function ListRow({
   return (
     <div
       className={cn(
-        "bg-background-secondary-subtle hover:ring-primary-dark/50 has-[:checked]:ring-primary-dark/50 flex items-center gap-4 overflow-hidden rounded-lg px-3 py-1.5 ring-1 ring-transparent transition-shadow duration-150 hover:ring-1",
+        "bg-background-secondary-subtle text-primary-dark ring-primary-main flex items-center gap-4 overflow-hidden rounded-lg px-4 py-2 hover:ring-1",
+        "has-[:checked]:ring-primary-main has-[:checked]:bg-background-secondary-subtle has-[:checked]:border-primary-main has-[:checked]:ring-[1.5px]",
         isDisabled && "pointer-events-none",
         className
       )}
@@ -27,7 +28,10 @@ export function ListRowTitle({
 }: ComponentPropsWithoutRef<"div">) {
   return (
     <div
-      className={cn("text-primary-dark line-clamp-1 font-bold", className)}
+      className={cn(
+        "line-clamp-1 text-base font-bold leading-6 text-current",
+        className
+      )}
       {...props}
     />
   );
@@ -39,7 +43,10 @@ export function ListRowSubtitle({
 }: ComponentPropsWithoutRef<"div">) {
   return (
     <div
-      className={cn("text-primary-dark/85 line-clamp-2 text-sm", className)}
+      className={cn(
+        "line-clamp-2 text-base leading-6 text-current opacity-75",
+        className
+      )}
       {...props}
     />
   );
