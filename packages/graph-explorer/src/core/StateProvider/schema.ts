@@ -98,7 +98,6 @@ function merge<T extends VertexTypeConfig | EdgeTypeConfig>(
 
     // No attributes to update
     if (!newConfig) {
-      logger.debug(`No new type config for ${config.type}`);
       return config;
     }
 
@@ -106,19 +105,11 @@ function merge<T extends VertexTypeConfig | EdgeTypeConfig>(
     const existingAttributes = new Set(
       config.attributes.map(attr => attr.name)
     );
-    const newAttributes = new Set(newConfig.attributes.map(attr => attr.name));
-    const missingAttributeName = newAttributes.difference(existingAttributes);
     const missingAttributes = newConfig.attributes.filter(
       newAttr => !existingAttributes.has(newAttr.name)
     );
 
     if (missingAttributes.length === 0) {
-      logger.debug(
-        `No missing attributes for ${config.type}`,
-        existingAttributes,
-        newAttributes,
-        missingAttributeName
-      );
       return config;
     }
 
@@ -138,7 +129,6 @@ function merge<T extends VertexTypeConfig | EdgeTypeConfig>(
   const missing = newConfigs.filter(vt => !existingTypes.has(vt.type));
 
   if (missing.length === 0) {
-    logger.debug("No missing type configs");
     return updated;
   }
 
