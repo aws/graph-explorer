@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { logger } from "./logging.js";
+import { getRequestLoggerPrefix, logger } from "./logging.js";
 
 /**
  * Global error handler
@@ -10,11 +10,22 @@ export function handleError(error: unknown) {
   logger.error(error);
 }
 
+/** List of headers that can be logged safely without accidentally logging sensitive information. */
+const HEADER_WHITE_LIST = [
+  "host",
+  "user-agent",
+  "graph-db-connection-url",
+  "db-query-logging-enabled",
+  "accept",
+  "content-type",
+  "origin",
+];
+
 /** Handles any errors thrown within Express routes. */
 export function errorHandlingMiddleware() {
   return (
     error: unknown,
-    _request: Request,
+    request: Request,
     response: Response,
     _next: NextFunction
   ) => {
@@ -25,6 +36,17 @@ export function errorHandlingMiddleware() {
     response.send({
       error: errorInfo,
     });
+    // Log the headers of the request
+    logger.error(
+      `[${getRequestLoggerPrefix(request)}] Request headers: %s`,
+      Object.entries(request.headers)
+        .filter(([key]) => HEADER_WHITE_LIST.includes(key.toLowerCase()))
+        .map(
+          ([key, value]) =>
+            `\n\t- ${key}: ${Array.isArray(value) ? value.join(", ") : value}`
+        )
+        .join("")
+    );
 
     handleError(error);
   };

@@ -2,6 +2,8 @@
 
 ## Upcoming Release
 
+- **Improved** handling of errors when fetching data from the database
+  ([#812](https://github.com/aws/graph-explorer/pull/812))
 - **Changed** to allow editing and deleting default connections
   ([#801](https://github.com/aws/graph-explorer/pull/801))
 - **Changed** service type label to be "Neptune Analytics"

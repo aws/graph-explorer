@@ -53,7 +53,7 @@ export class ServerLoggerConnector implements LoggerConnector {
         level,
         message: JSON.stringify(message),
       },
-    });
+    }).catch(err => logger.error("Failed to send log to server", err));
   }
 }
 
