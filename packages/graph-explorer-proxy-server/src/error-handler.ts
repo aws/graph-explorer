@@ -40,7 +40,7 @@ export function errorHandlingMiddleware() {
     logger.error(
       `[${getRequestLoggerPrefix(request)}] Request headers: %s`,
       Object.entries(request.headers)
-        .filter(([key]) => HEADER_WHITE_LIST.includes(key))
+        .filter(([key]) => HEADER_WHITE_LIST.includes(key.toLowerCase()))
         .map(
           ([key, value]) =>
             `\n\t- ${key}: ${Array.isArray(value) ? value.join(", ") : value}`
