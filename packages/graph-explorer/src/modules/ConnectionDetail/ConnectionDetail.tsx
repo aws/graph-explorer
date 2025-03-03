@@ -4,9 +4,10 @@ import { useResetRecoilState, useSetRecoilState } from "recoil";
 import {
   Button,
   Chip,
-  DatabaseIcon,
   DeleteIcon,
+  EdgeIcon,
   EditIcon,
+  GraphIcon,
   NotInProduction,
   Panel,
   PanelContent,
@@ -17,23 +18,42 @@ import {
   PanelHeaderActions,
   PanelHeaderDivider,
   PanelTitle,
+  Spinner,
   SyncIcon,
+  toHumanString,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
   TrayArrowIcon,
 } from "@/components";
 import {
+  activeSchemaSelector,
   ConfigurationContextProps,
   showDebugActionsAtom,
-  useWithTheme,
 } from "@/core";
-import { activeSchemaSelector } from "@/core/StateProvider/schema";
-import { useSchemaSync } from "@/hooks/useSchemaSync";
+
+import { useIsSyncing, useSchemaSync } from "@/hooks/useSchemaSync";
 import useTranslations from "@/hooks/useTranslations";
-import { cn, formatDate, logger } from "@/utils";
+import {
+  formatDate,
+  formatRelativeDate,
+  logger,
+  MISSING_DISPLAY_VALUE,
+} from "@/utils";
 import saveConfigurationToFile from "@/utils/saveConfigurationToFile";
 import CreateConnection from "@/modules/CreateConnection";
 import ConnectionData from "./ConnectionData";
-import defaultStyles from "./ConnectionDetail.styles";
 import { useQueryClient } from "@tanstack/react-query";
+import useEntitiesCounts from "@/hooks/useEntitiesCounts";
+import {
+  InfoBar,
+  InfoItem,
+  InfoItemContent,
+  InfoItemIcon,
+  InfoItemLabel,
+  InfoItemValue,
+} from "./InfoBar";
+import { ClockIcon, DatabaseIcon, GlobeIcon, LinkIcon } from "lucide-react";
 import { useDeleteActiveConfiguration } from "@/hooks/useDeleteConfig";
 
 export type ConnectionDetailProps = {
@@ -41,34 +61,28 @@ export type ConnectionDetailProps = {
 };
 
 function ConnectionDetail({ config }: ConnectionDetailProps) {
-  const styleWithTheme = useWithTheme();
   const t = useTranslations();
   const [edit, setEdit] = useState(false);
 
-  const {
-    refetch: syncSchema,
-    isFetching: isSync,
-    error: syncError,
-  } = useSchemaSync();
+  const { refetch: syncSchema, isFetching: isSync } = useSchemaSync();
 
   const onConfigExport = useCallback(() => {
-    if (!config?.id) {
-      return;
-    }
-
     saveConfigurationToFile(config);
   }, [config]);
 
   const deleteActiveConfig = useDeleteActiveConfiguration();
 
-  const lastSyncUpdate = config.schema?.lastUpdate;
-  const lastSyncFail = config.schema?.lastSyncFail === true;
+  const dbUrl = config.connection
+    ? config.connection.proxyConnection
+      ? config.connection.graphDbUrl
+      : config.connection.url
+    : MISSING_DISPLAY_VALUE;
 
   return (
-    <Panel className={cn(styleWithTheme(defaultStyles))}>
+    <Panel>
       <PanelHeader>
         <PanelTitle>
-          <DatabaseIcon />
+          <DatabaseIcon className="size-5" />
           {config.displayLabel || config.id}
         </PanelTitle>
         <PanelHeaderActions>
@@ -101,60 +115,56 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
         </PanelHeaderActions>
       </PanelHeader>
       <PanelContent>
-        <div className="info-bar">
-          <div className="item">
-            <div className="tag">Type</div>
-            <div className="value">{t("connection-detail.graph-type")}</div>
-          </div>
-          <div className="item">
-            <div className="tag">URL</div>
-            <div className="value">{config.connection?.url}</div>
-          </div>
-          {!!lastSyncUpdate && (
-            <div className="item">
-              <div className="tag">
-                <div>Last Synchronization</div>
-              </div>
-              {!lastSyncFail && (
-                <div className="value">{formatDate(lastSyncUpdate)}</div>
-              )}
-              {!lastSyncUpdate && !lastSyncFail && (
-                <Chip variant="warning">Not Synchronized</Chip>
-              )}
-              {lastSyncFail && (
-                <Chip variant="error">Synchronization Failed</Chip>
-              )}
-            </div>
-          )}
-          <NotInProduction featureFlag={showDebugActionsAtom}>
+        <InfoBar className="@sm:flex hidden">
+          <InfoItem className="shrink-0">
+            <InfoItemIcon>
+              <GlobeIcon />
+            </InfoItemIcon>
+            <InfoItemContent>
+              <InfoItemLabel>Graph Type</InfoItemLabel>
+              <InfoItemValue>{t("connection-detail.graph-type")}</InfoItemValue>
+            </InfoItemContent>
+          </InfoItem>
+          <InfoItem>
+            <InfoItemIcon>
+              <LinkIcon />
+            </InfoItemIcon>
+
+            <InfoItemContent>
+              <InfoItemLabel>Database URL</InfoItemLabel>
+              <InfoItemValue>{dbUrl}</InfoItemValue>
+            </InfoItemContent>
+          </InfoItem>
+        </InfoBar>
+        <InfoBar className="@sm:flex hidden">
+          <InfoItem>
+            <InfoItemIcon>
+              <GraphIcon />
+            </InfoItemIcon>
+            <VertexCounts />
+          </InfoItem>
+          <InfoItem>
+            <InfoItemIcon>
+              <EdgeIcon />
+            </InfoItemIcon>
+            <EdgeCounts />
+          </InfoItem>
+          <InfoItem>
+            <InfoItemIcon>
+              <ClockIcon />
+            </InfoItemIcon>
+            <InfoItemContent>
+              <InfoItemLabel>Last Synchronization</InfoItemLabel>
+              <LastSyncInfo config={config} />
+            </InfoItemContent>
+          </InfoItem>
+        </InfoBar>
+        <NotInProduction featureFlag={showDebugActionsAtom}>
+          <InfoBar>
             <DebugActions />
-          </NotInProduction>
-        </div>
-        {!isSync && !!lastSyncUpdate && <ConnectionData />}
-        {!lastSyncUpdate && !isSync && syncError && (
-          <PanelError error={syncError} onRetry={syncSchema} className="p-6" />
-        )}
-        {!lastSyncUpdate && !isSync && !syncError && (
-          <PanelEmptyState
-            variant="error"
-            icon={<SyncIcon />}
-            title="Synchronization Required"
-            subtitle="It is necessary to synchronize the connection to be able to work with the database."
-            actionLabel="Start synchronization"
-            onAction={syncSchema}
-            actionVariant="text"
-            className="p-6"
-          />
-        )}
-        {isSync && (
-          <PanelEmptyState
-            variant="info"
-            icon={<SyncIcon className="animate-spin" />}
-            title="Synchronizing..."
-            subtitle="The connection is being synchronized."
-            className="p-6"
-          />
-        )}
+          </InfoBar>
+        </NotInProduction>
+        <MainContentLayout />
         <Modal
           opened={edit}
           onClose={() => setEdit(false)}
@@ -168,6 +178,111 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
         </Modal>
       </PanelContent>
     </Panel>
+  );
+}
+
+/** Shows the vertex list, loading, or error state. */
+function MainContentLayout() {
+  const schemaSyncQuery = useSchemaSync();
+
+  if (schemaSyncQuery.isFetching) {
+    return (
+      <PanelEmptyState
+        variant="info"
+        icon={<SyncIcon className="animate-spin" />}
+        title="Synchronizing..."
+        subtitle="The connection is being synchronized."
+        className="p-6"
+      />
+    );
+  }
+
+  if (schemaSyncQuery.error) {
+    return (
+      <PanelError
+        error={schemaSyncQuery.error}
+        onRetry={schemaSyncQuery.refetch}
+        className="p-6"
+      />
+    );
+  }
+
+  return <ConnectionData />;
+}
+
+function LastSyncInfo({ config }: { config: ConfigurationContextProps }) {
+  const isSyncing = useIsSyncing();
+
+  if (isSyncing) {
+    return (
+      <InfoItemValue>
+        <Spinner />
+        Synchronizing...
+      </InfoItemValue>
+    );
+  }
+
+  const lastSyncFail = config.schema?.lastSyncFail === true;
+  if (lastSyncFail) {
+    // return <Chip variant="error">Synchronization Failed</Chip>;
+    return <InfoItemValue>Synchronization Failed</InfoItemValue>;
+  }
+
+  const lastSyncUpdate = config.schema?.lastUpdate;
+  if (!lastSyncUpdate) {
+    return <Chip variant="warning">Not Synchronized</Chip>;
+  }
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <InfoItemValue>
+          {/* <ClockIcon className="size-4" /> */}
+          {formatRelativeDate(lastSyncUpdate)}
+        </InfoItemValue>
+      </TooltipTrigger>
+      <TooltipContent>{formatDate(lastSyncUpdate)}</TooltipContent>
+    </Tooltip>
+  );
+}
+
+function VertexCounts() {
+  const { totalNodes } = useEntitiesCounts();
+  const t = useTranslations();
+
+  const humanReadable =
+    totalNodes == null ? MISSING_DISPLAY_VALUE : toHumanString(totalNodes);
+
+  return (
+    <InfoItem>
+      <InfoItemContent>
+        <InfoItemLabel>{t("connection-detail.nodes")}</InfoItemLabel>
+        <InfoItemValue>
+          {/* <GraphIcon /> */}
+          {humanReadable}
+        </InfoItemValue>
+      </InfoItemContent>
+    </InfoItem>
+  );
+}
+
+function EdgeCounts() {
+  const { totalEdges } = useEntitiesCounts();
+  const t = useTranslations();
+
+  const humanReadable =
+    totalEdges == null ? MISSING_DISPLAY_VALUE : toHumanString(totalEdges);
+
+  return (
+    <InfoItem>
+      <InfoItemContent>
+        <InfoItemLabel>{t("connection-detail.edges")}</InfoItemLabel>
+        <InfoItemValue>
+          {/* <EdgeIcon /> */}
+          {humanReadable}
+        </InfoItemValue>
+      </InfoItemContent>
+    </InfoItem>
   );
 }
 
@@ -247,9 +362,9 @@ function DebugActions() {
   };
 
   return (
-    <div className="item">
-      <div className="tag">Debug Actions</div>
-      <div className="flex flex-wrap gap-2">
+    <InfoItem>
+      <InfoItemLabel>Debug Actions</InfoItemLabel>
+      <InfoItemValue className="flex flex-wrap gap-2">
         <Button onPress={() => deleteSchema()}>Delete Schema</Button>
         <Button onPress={() => resetSchemaLastUpdated()}>
           Reset Last Updated
@@ -257,8 +372,8 @@ function DebugActions() {
         <Button onPress={() => setSchemaSyncFailed()}>Last Sync Failed</Button>
         <Button onPress={() => resetVertexTotals()}>Reset Vertex Totals</Button>
         <Button onPress={() => resetAllTotals()}>Reset All Totals</Button>
-      </div>
-    </div>
+      </InfoItemValue>
+    </InfoItem>
   );
 }
 

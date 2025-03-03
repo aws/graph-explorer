@@ -2,8 +2,6 @@ import { FileButton, Modal } from "@mantine/core";
 import { useRecoilCallback, useRecoilValue } from "recoil";
 import {
   AddIcon,
-  Chip,
-  DatabaseIcon,
   PanelHeaderActionButton,
   PanelHeaderActions,
   PanelHeader,
@@ -12,13 +10,11 @@ import {
   PanelHeaderDivider,
   Panel,
   PanelContent,
-  ListRow,
   ListRowSubtitle,
   ListRowTitle,
   ListRowContent,
 } from "@/components";
 import { useNotification } from "@/components/NotificationProvider";
-import Switch from "@/components/Switch";
 import {
   ConfigurationId,
   createNewConfigurationId,
@@ -34,8 +30,10 @@ import useTranslations from "@/hooks/useTranslations";
 import isValidConfigurationFile from "@/utils/isValidConfigurationFile";
 import CreateConnection from "@/modules/CreateConnection";
 import { fromFileToJson } from "@/utils/fileData";
+import React, { useMemo } from "react";
+import { DatabaseIcon } from "lucide-react";
+import { cn } from "@/utils";
 import { Virtuoso } from "react-virtuoso";
-import React from "react";
 
 export type ConnectionDetailProps = {
   isSync: boolean;
@@ -49,12 +47,12 @@ const AvailableConnections = ({
   onModalChange,
 }: ConnectionDetailProps) => {
   const activeConfig = useRecoilValue(activeConfigurationAtom);
-  const configuration = useRecoilValue(configurationAtom);
+  const allConfigurations = useAllConfigurations();
   const onConfigImport = useImportConfigFileCallback();
 
   return (
     <Panel>
-      <PanelHeader>
+      <PanelHeader className="">
         <PanelTitle>Available connections</PanelTitle>
         <PanelHeaderActions>
           <FileButton
@@ -79,15 +77,28 @@ const AvailableConnections = ({
         </PanelHeaderActions>
       </PanelHeader>
 
-      <PanelContent className="py-1.5">
+      <PanelContent>
         <Virtuoso
-          data={[...configuration.values()]}
+          data={allConfigurations}
           itemContent={(_index, config) => (
-            <ConfigRow
-              config={config}
-              isSelected={activeConfig === config.id}
-              isDisabled={isSync}
-            />
+            <div
+              className={cn(
+                "px-3 py-1.5",
+                _index === 0 && "pt-3",
+                _index === allConfigurations.length - 1 && "pb-3"
+              )}
+            >
+              <div
+                key={config.id}
+                className="has-[:checked]:bg-background-secondary-subtle has-[:checked]:ring-primary-main group rounded-lg ring-1 ring-gray-200 has-[:checked]:ring-2"
+              >
+                <ConfigRow
+                  config={config}
+                  isSelected={activeConfig === config.id}
+                  isDisabled={isSync}
+                />
+              </div>
+            </div>
           )}
         />
         <Modal
@@ -116,42 +127,63 @@ const ConfigRow = React.memo(
     const t = useTranslations();
     const setActiveConfig = useSetActiveConfigCallback(config.id);
 
+    const dbUrl = config.connection
+      ? config.connection.proxyConnection
+        ? config.connection.graphDbUrl
+        : config.connection.url
+      : null;
+
+    const graphType = t(
+      "available-connections.graph-type",
+      config.connection?.queryEngine || "gremlin"
+    );
+
     return (
-      <div className="px-3 py-1.5">
-        <ListRow
-          isDisabled={isDisabled}
-          onClick={setActiveConfig}
-          className="hover:cursor-pointer"
-        >
-          <DatabaseIcon className="text-primary-main size-6 shrink-0" />
-          <ListRowContent>
-            <ListRowTitle>{config.displayLabel || config.id}</ListRowTitle>
-            {config.connection ? (
-              <ListRowSubtitle>{config.connection.url}</ListRowSubtitle>
-            ) : null}
-          </ListRowContent>
-          <div className="flex items-center gap-2">
-            <Chip variant="info">
-              {t(
-                "available-connections.graph-type",
-                config.connection?.queryEngine || "gremlin"
-              )}
-            </Chip>
-            <Switch
-              className="item-switch"
-              labelPosition="left"
-              isSelected={isSelected}
-              onChange={setActiveConfig}
-              isDisabled={isDisabled}
-            >
-              {isSelected ? "Active" : "Inactive"}
-            </Switch>
-          </div>
-        </ListRow>
+      <div
+        onClick={setActiveConfig}
+        className="flex flex-row items-center gap-4 px-6 py-4 hover:cursor-pointer"
+      >
+        <DatabaseIcon className="text-primary-main @md:block hidden size-8 shrink-0" />
+        <ListRowContent>
+          <ListRowTitle className="inline-flex items-center gap-1">
+            {config.displayLabel || config.id}
+          </ListRowTitle>
+          <ListRowSubtitle>
+            <span className="">{graphType}</span>
+            {dbUrl ? <span> &bull; {dbUrl}</span> : null}
+          </ListRowSubtitle>
+        </ListRowContent>
+        <RadioButton
+          checked={isSelected}
+          onChange={setActiveConfig}
+          disabled={isDisabled}
+          className="hidden"
+        />
       </div>
     );
   }
 );
+
+function RadioButton({
+  className,
+  ...props
+}: Omit<React.ComponentPropsWithoutRef<"input">, "type">) {
+  return (
+    <input
+      type="radio"
+      className={cn(
+        "accent-primary-main bg-primary-main size-5 shrink-0",
+        className
+      )}
+      {...props}
+    />
+  );
+}
+
+function useAllConfigurations() {
+  const configMap = useRecoilValue(configurationAtom);
+  return useMemo(() => configMap.values().toArray(), [configMap]);
+}
 
 function useSetActiveConfigCallback(configId: ConfigurationId) {
   const resetState = useResetState();
