@@ -24,7 +24,7 @@ export function createDisplayError(error: any): DisplayError {
       : typeof error === "object"
         ? error
         : null;
-  if (data !== null) {
+  if (data != null) {
     // Bad connection configuration
     if (data.code === "ECONNREFUSED" || data.cause?.code === "ECONNREFUSED") {
       return {

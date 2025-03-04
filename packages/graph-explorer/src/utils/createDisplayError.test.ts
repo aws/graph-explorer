@@ -130,6 +130,16 @@ describe("createDisplayError", () => {
       message: "Some error",
     });
   });
+
+  it("Should handle network error with no data", () => {
+    const result = createDisplayError(
+      new NetworkError("Network error", 500, undefined)
+    );
+    expect(result).toStrictEqual({
+      title: "Network Response 500",
+      message: "An error occurred. Please try again.",
+    });
+  });
 });
 
 /** Used to create errors for test code. */
