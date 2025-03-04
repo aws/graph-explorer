@@ -1,5 +1,6 @@
 import { atom, DefaultValue, selector, useRecoilCallback } from "recoil";
 import {
+  AttributeConfig,
   EdgeTypeConfig,
   PrefixTypeConfig,
   VertexTypeConfig,
@@ -224,70 +225,58 @@ export function shouldUpdateSchemaFromEntities(
   schema: SchemaInference
 ) {
   if (entities.vertices.length > 0) {
-    // Check if the vertex types are the same
-    const newVertexTypes = new Set(entities.vertices.map(n => n.type));
-    const existingVertexTypes = new Set(schema.vertices.map(v => v.type));
+    // Check if the vertex types and attributes are the same
+    const fromEntities = getUniqueTypesAndAttributes(entities.vertices);
+    const fromSchema = getUniqueTypesAndAttributes(schema.vertices);
 
-    if (!existingVertexTypes.isSupersetOf(newVertexTypes)) {
+    if (!fromSchema.isSupersetOf(fromEntities)) {
       logger.debug(
-        "Found new vertex types:",
-        newVertexTypes.difference(existingVertexTypes)
-      );
-      return true;
-    }
-
-    // Check if the vertex attributes are the same
-    const newVertexAttributes = new Set(
-      entities.vertices.flatMap(n =>
-        Object.keys(n.attributes).map(a => `${n.type}.${a}`)
-      )
-    );
-
-    const existingVertexAttributes = new Set(
-      schema.vertices.flatMap(v => v.attributes.map(a => `${v.type}.${a.name}`))
-    );
-
-    if (!existingVertexAttributes.isSupersetOf(newVertexAttributes)) {
-      logger.debug(
-        "Found new vertex attributes:",
-        newVertexAttributes.difference(existingVertexAttributes)
+        "Found new vertex types or attributes:",
+        fromEntities.difference(fromSchema)
       );
       return true;
     }
   }
 
   if (entities.edges.length > 0) {
-    // Check if the edge types are the same
-    const newEdgeTypes = new Set(entities.edges.map(e => e.type));
-    const existingEdgeTypes = new Set(schema.edges.map(e => e.type));
+    // Check if the edge types and attributes are the same
+    const fromEntities = getUniqueTypesAndAttributes(entities.edges);
+    const fromSchema = getUniqueTypesAndAttributes(schema.edges);
 
-    if (!existingEdgeTypes.isSupersetOf(newEdgeTypes)) {
+    if (!fromSchema.isSupersetOf(fromEntities)) {
       logger.debug(
-        "Found new edge types:",
-        newEdgeTypes.difference(existingEdgeTypes)
-      );
-      return true;
-    }
-
-    // Check if the edge attributes are the same
-    const newEdgeAttributes = new Set(
-      entities.edges.flatMap(e =>
-        Object.keys(e.attributes).map(a => `${e.type}.${a}`)
-      )
-    );
-
-    const existingEdgeAttributes = new Set(
-      schema.edges.flatMap(e => e.attributes.map(a => `${e.type}.${a.name}`))
-    );
-
-    if (!existingEdgeAttributes.isSupersetOf(newEdgeAttributes)) {
-      logger.debug(
-        "Found new edge attributes:",
-        newEdgeAttributes.difference(existingEdgeAttributes)
+        "Found new edge types or attributes:",
+        fromEntities.difference(fromSchema)
       );
       return true;
     }
   }
 
   return false;
+}
+
+/**
+ * Creates a set of unique types and attribute names as a set of strings in order to be used for comparisons.
+ *
+ * The entries in the set will be in the format of `vertexType.attributeName` or `edgeType.attributeName`.
+ */
+function getUniqueTypesAndAttributes(
+  entities: (Vertex | Edge | VertexTypeConfig | EdgeTypeConfig)[]
+) {
+  return new Set(
+    entities.flatMap(e => {
+      return [
+        e.type,
+        ...getAttributeNames(e.attributes).map(a => `${e.type}.${a}`),
+      ];
+    })
+  );
+}
+
+function getAttributeNames(
+  attributes: Record<string, string | number> | AttributeConfig[]
+) {
+  return Array.isArray(attributes)
+    ? attributes.map(a => a.name)
+    : Object.keys(attributes);
 }
