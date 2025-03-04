@@ -1,10 +1,6 @@
 import { Modal } from "@mantine/core";
 import { useCallback, useState } from "react";
-import {
-  useRecoilCallback,
-  useResetRecoilState,
-  useSetRecoilState,
-} from "recoil";
+import { useResetRecoilState, useSetRecoilState } from "recoil";
 import {
   Button,
   Chip,
@@ -29,11 +25,7 @@ import {
   showDebugActionsAtom,
   useWithTheme,
 } from "@/core";
-import {
-  activeConfigurationAtom,
-  configurationAtom,
-} from "@/core/StateProvider/configuration";
-import { activeSchemaSelector, schemaAtom } from "@/core/StateProvider/schema";
+import { activeSchemaSelector } from "@/core/StateProvider/schema";
 import { useSchemaSync } from "@/hooks/useSchemaSync";
 import useTranslations from "@/hooks/useTranslations";
 import { cn, formatDate, logger } from "@/utils";
@@ -42,6 +34,7 @@ import CreateConnection from "@/modules/CreateConnection";
 import ConnectionData from "./ConnectionData";
 import defaultStyles from "./ConnectionDetail.styles";
 import { useQueryClient } from "@tanstack/react-query";
+import { useDeleteActiveConfiguration } from "@/hooks/useDeleteConfig";
 
 export type ConnectionDetailProps = {
   config: ConfigurationContextProps;
@@ -66,29 +59,7 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
     saveConfigurationToFile(config);
   }, [config]);
 
-  const onConfigDelete = useRecoilCallback(
-    ({ set }) =>
-      () => {
-        if (!config?.id) {
-          return;
-        }
-
-        set(activeConfigurationAtom, null);
-
-        set(configurationAtom, prevConfigs => {
-          const updatedConfigs = new Map(prevConfigs);
-          updatedConfigs.delete(config.id);
-          return updatedConfigs;
-        });
-
-        set(schemaAtom, prevSchemas => {
-          const updatedSchemas = new Map(prevSchemas);
-          updatedSchemas.delete(config.id);
-          return updatedSchemas;
-        });
-      },
-    [config?.id]
-  );
+  const deleteActiveConfig = useDeleteActiveConfiguration();
 
   const lastSyncUpdate = config.schema?.lastUpdate;
   const lastSyncFail = config.schema?.lastSyncFail === true;
@@ -125,7 +96,7 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
             icon={<DeleteIcon />}
             color="error"
             isDisabled={isSync}
-            onActionClick={onConfigDelete}
+            onActionClick={deleteActiveConfig}
           />
         </PanelHeaderActions>
       </PanelHeader>
