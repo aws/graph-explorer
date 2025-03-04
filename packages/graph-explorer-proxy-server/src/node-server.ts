@@ -45,15 +45,19 @@ interface LoggerIncomingHttpHeaders extends IncomingHttpHeaders {
 
 app.use(requestLoggingMiddleware());
 
-
 // Function to check if the credentials are valid.
 function areCredentialsValid(creds: AwsCredentials): boolean {
-  return creds.expiration ? new Date(creds.expiration).getTime() - Date.now() > 5 * 60 * 1000 : true;
+  return creds.expiration
+    ? new Date(creds.expiration).getTime() - Date.now() > 5 * 60 * 1000
+    : true;
 }
 
-
 // Function to get IAM headers for AWS4 signing process.
-async function getIAMHeaders(options: string | aws4.Request, region: string | undefined, awsAssumeRoleArn: string | undefined) {
+async function getIAMHeaders(
+  options: string | aws4.Request,
+  region: string | undefined,
+  awsAssumeRoleArn: string | undefined
+) {
   const credentialProvider = fromNodeProviderChain();
   const creds = await credentialProvider();
   if (creds === undefined) {
@@ -63,11 +67,16 @@ async function getIAMHeaders(options: string | aws4.Request, region: string | un
   }
 
   if (awsAssumeRoleArn !== undefined && awsAssumeRoleArn !== "") {
-    if (credentialCache[awsAssumeRoleArn] && areCredentialsValid(credentialCache[awsAssumeRoleArn])) {
+    if (
+      credentialCache[awsAssumeRoleArn] &&
+      areCredentialsValid(credentialCache[awsAssumeRoleArn])
+    ) {
       return aws4.sign(options, {
         accessKeyId: credentialCache[awsAssumeRoleArn].accessKeyId,
         secretAccessKey: credentialCache[awsAssumeRoleArn].secretAccessKey,
-        ...(credentialCache[awsAssumeRoleArn].sessionToken && { sessionToken: credentialCache[awsAssumeRoleArn].sessionToken }),
+        ...(credentialCache[awsAssumeRoleArn].sessionToken && {
+          sessionToken: credentialCache[awsAssumeRoleArn].sessionToken,
+        }),
       });
     }
 
@@ -79,11 +88,20 @@ async function getIAMHeaders(options: string | aws4.Request, region: string | un
       const stsClient = new STSClient({ region: region });
       const { Credentials } = await stsClient.send(command);
 
-      if (!Credentials || !Credentials.AccessKeyId || !Credentials.SecretAccessKey || !Credentials.SessionToken) {
+      if (
+        !Credentials ||
+        !Credentials.AccessKeyId ||
+        !Credentials.SecretAccessKey ||
+        !Credentials.SessionToken
+      ) {
         throw new Error("Failed to assume role, no credentials returned");
       }
 
-      proxyLogger.debug("Assumed role successfully using the provided role ARN %s, it will expire at: %s", awsAssumeRoleArn, Credentials.Expiration);
+      proxyLogger.debug(
+        "Assumed role successfully using the provided role ARN %s, it will expire at: %s",
+        awsAssumeRoleArn,
+        Credentials.Expiration
+      );
       credentialCache[awsAssumeRoleArn] = {
         accessKeyId: Credentials.AccessKeyId,
         secretAccessKey: Credentials.SecretAccessKey,
@@ -94,13 +112,18 @@ async function getIAMHeaders(options: string | aws4.Request, region: string | un
       return aws4.sign(options, {
         accessKeyId: Credentials?.AccessKeyId,
         secretAccessKey: Credentials?.SecretAccessKey,
-        ...(Credentials?.SessionToken && { sessionToken: Credentials?.SessionToken }),
+        ...(Credentials?.SessionToken && {
+          sessionToken: Credentials?.SessionToken,
+        }),
       });
-    }
-    catch (error) {
-      proxyLogger.error("IAM is enabled but credentials cannot be assumed using the provided role ARN: %s, Error: %s", awsAssumeRoleArn, error);
+    } catch (error) {
+      proxyLogger.error(
+        "IAM is enabled but credentials cannot be assumed using the provided role ARN: %s, Error: %s",
+        awsAssumeRoleArn,
+        error
+      );
       throw new Error(
-        "IAM is enabled but credentials cannot be assumed using the provided role ARN: %s, Error: %s" + awsAssumeRoleArn + error
+        "IAM is enabled but credentials cannot be assumed using the provided role ARN"
       );
     }
   }
@@ -125,15 +148,19 @@ const retryFetch = async (
 ) => {
   for (let i = 0; i < refetchMaxRetries; i++) {
     if (isIamEnabled) {
-      const data = await getIAMHeaders({
-        host: url.hostname,
-        port: url.port,
-        path: url.pathname + url.search,
-        service: serviceType,
+      const data = await getIAMHeaders(
+        {
+          host: url.hostname,
+          port: url.port,
+          path: url.pathname + url.search,
+          service: serviceType,
+          region,
+          method: options.method,
+          body: options.body ?? undefined,
+        },
         region,
-        method: options.method,
-        body: options.body ?? undefined,
-      }, region, awsAssumeRoleArn);
+        awsAssumeRoleArn
+      );
 
       options = {
         host: url.hostname,

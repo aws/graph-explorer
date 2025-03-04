@@ -339,12 +339,15 @@ const CreateConnection = ({
               <Input
                 data-autofocus={true}
                 label={
-                  <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
+                  <div
+                    style={{ display: "flex", alignItems: "center", gap: 2 }}
+                  >
                     AWS Assume Role ARN
                     <InfoTooltip>
-                      ARN of the role that the proxy-server should assume to sign requests. This is only required if
-                      the connector is running outside of the AWS account that
-                      hosts the Neptune resources.
+                      ARN of the role that the proxy-server should assume to
+                      sign requests. This is only required if the connector is
+                      running outside of the AWS account that hosts the Neptune
+                      resources.
                     </InfoTooltip>
                   </div>
                 }

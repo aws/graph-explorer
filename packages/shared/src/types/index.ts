@@ -40,8 +40,8 @@ export type ConnectionConfig = {
    */
   awsRegion?: string;
   /**
-  * ARN of the role that the proxy-server should assume to sign requests.
-  */
+   * ARN of the role that the proxy-server should assume to sign requests.
+   */
   awsAssumeRoleArn?: string;
   /**
    * Number of milliseconds before aborting a request.
