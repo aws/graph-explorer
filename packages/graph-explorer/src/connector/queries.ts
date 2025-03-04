@@ -15,7 +15,6 @@ import { updateSchemaPrefixes } from "@/core/StateProvider/schema";
 /**
  * Fetches the schema from the given explorer and updates the local cache with the new schema.
  * @param updateLocalCache The function to replace the schema in the cache.
- * @param updatePrefixes The function to update the prefixes in the cache.
  * @param explorer The explorer to use for fetching the schema.
  */
 export function schemaSyncQuery(
