@@ -143,7 +143,7 @@ const retryFetch = async (
         region,
         method: options.method,
         body: options.body ?? undefined,
-        headers: data?.headers,
+        headers: data.headers,
       };
     }
     options = {
