@@ -181,6 +181,7 @@ const retryFetch = async (
       method: options.method,
       body: options.body ?? undefined,
       headers: options.headers,
+      compress: false, // prevent automatic decompression
     };
 
     try {
