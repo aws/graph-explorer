@@ -2,6 +2,9 @@
 
 ## Upcoming Release
 
+
+**Improved** accessing neptune using assume role
+  ([#813](https://github.com/aws/graph-explorer/pull/818))
 - **Improved** handling of errors when fetching data from the database
   ([#812](https://github.com/aws/graph-explorer/pull/812))
 - **Changed** to allow editing and deleting default connections
