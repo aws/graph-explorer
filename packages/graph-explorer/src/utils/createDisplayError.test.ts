@@ -44,7 +44,7 @@ describe("createDisplayError", () => {
   });
 
   it("Should handle connection refused as inner error", () => {
-    const error = new Error("Some error message string", {
+    const error = new NetworkError("Some error message string", 500, {
       cause: { code: "ECONNREFUSED" },
     });
     const result = createDisplayError(error);
@@ -55,7 +55,7 @@ describe("createDisplayError", () => {
   });
 
   it("Should handle connection reset as inner error", () => {
-    const error = new Error("Some error message string", {
+    const error = new NetworkError("Some error message string", 500, {
       cause: { code: "ECONNRESET" },
     });
     const result = createDisplayError(error);
@@ -128,6 +128,16 @@ describe("createDisplayError", () => {
     expect(result).toStrictEqual({
       title: "Network Response 500",
       message: "Some error",
+    });
+  });
+
+  it("Should handle network error with no data", () => {
+    const result = createDisplayError(
+      new NetworkError("Network error", 500, undefined)
+    );
+    expect(result).toStrictEqual({
+      title: "Network Response 500",
+      message: "An error occurred. Please try again.",
     });
   });
 });

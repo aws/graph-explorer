@@ -1,14 +1,16 @@
-import { atom, DefaultValue, selector } from "recoil";
+import { atom, DefaultValue, selector, useRecoilCallback } from "recoil";
 import {
+  AttributeConfig,
   EdgeTypeConfig,
   PrefixTypeConfig,
   VertexTypeConfig,
 } from "@/core/ConfigurationProvider";
 import localForageEffect from "./localForageEffect";
 import { activeConfigurationAtom } from "./configuration";
-import isDefaultValue from "./isDefaultValue";
-import { Edge, Entities, Vertex } from "@/core";
-import { sanitizeText } from "@/utils";
+import { Edge, Entities, toEdgeMap, toNodeMap, Vertex } from "@/core";
+import { logger, sanitizeText } from "@/utils";
+import generatePrefixes from "@/utils/generatePrefixes";
+import { startTransition } from "react";
 
 export type SchemaInference = {
   vertices: VertexTypeConfig[];
@@ -59,20 +61,6 @@ export const activeSchemaSelector = selector({
 
 type SchemaEntities = Pick<Entities, "nodes" | "edges">;
 
-/** Write only atom that updates the schema based on the given nodes and edges. */
-export const updateSchemaFromEntitiesAtom = selector<SchemaEntities>({
-  key: "update-schema-from-entities",
-  get: () => ({ nodes: new Map(), edges: new Map() }),
-  set({ set }, newValue) {
-    set(activeSchemaSelector, prev => {
-      if (!prev || isDefaultValue(newValue)) {
-        return prev;
-      }
-      return updateSchemaFromEntities(newValue, prev);
-    });
-  },
-});
-
 /** Updates the schema based on the given nodes and edges. */
 export function updateSchemaFromEntities(
   entities: SchemaEntities,
@@ -87,11 +75,17 @@ export function updateSchemaFromEntities(
     .map(extractConfigFromEntity)
     .toArray();
 
-  return {
+  let newSchema = {
     ...schema,
     vertices: merge(schema.vertices, newVertexConfigs),
     edges: merge(schema.edges, newEdgeConfigs),
   } satisfies SchemaInference;
+
+  // Update the generated prefixes in the schema
+  newSchema = updateSchemaPrefixes(newSchema);
+
+  logger.debug("Updated schema:", newSchema);
+  return newSchema;
 }
 
 /** Merges new node or edge configs in to a set of existing node or edge configs. */
@@ -109,8 +103,20 @@ function merge<T extends VertexTypeConfig | EdgeTypeConfig>(
     }
 
     // Find missing attributes
+    const existingAttributes = new Set(
+      config.attributes.map(attr => attr.name)
+    );
     const missingAttributes = newConfig.attributes.filter(
-      newAttr => !config.attributes.find(attr => attr.name === newAttr.name)
+      newAttr => !existingAttributes.has(newAttr.name)
+    );
+
+    if (missingAttributes.length === 0) {
+      return config;
+    }
+
+    logger.debug(
+      `Adding missing attributes to ${config.type}:`,
+      missingAttributes
     );
 
     return {
@@ -122,6 +128,12 @@ function merge<T extends VertexTypeConfig | EdgeTypeConfig>(
   // Find missing vertex type configs
   const existingTypes = new Set(updated.map(vt => vt.type));
   const missing = newConfigs.filter(vt => !existingTypes.has(vt.type));
+
+  if (missing.length === 0) {
+    return updated;
+  }
+
+  logger.debug(`Adding missing types:`, missing);
 
   // Combine all together
   return [...updated, ...missing];
@@ -140,4 +152,131 @@ export function extractConfigFromEntity<Entity extends Vertex | Edge>(
       hidden: false,
     })),
   };
+}
+
+/** Generate RDF prefixes for all the resource URIs in the schema. */
+export function updateSchemaPrefixes(schema: SchemaInference): SchemaInference {
+  const existingPrefixes = schema.prefixes ?? [];
+
+  // Get all the resource URIs from the vertex and edge type configs
+  const resourceUris = schema.vertices
+    .flatMap(v => [v.type, ...v.attributes.map(attr => attr.name)])
+    .concat(schema.edges.map(e => e.type));
+
+  if (resourceUris.length === 0) {
+    return schema;
+  }
+
+  const genPrefixes = generatePrefixes(resourceUris, existingPrefixes);
+  if (!genPrefixes?.length) {
+    return schema;
+  }
+
+  logger.debug("Updating schema with prefixes:", genPrefixes);
+
+  return {
+    ...schema,
+    prefixes: genPrefixes,
+  };
+}
+
+/** Updates the schema with any new vertex or edge types, any new attributes, and updates the generated prefixes for sparql connections. */
+export function useUpdateSchemaFromEntities() {
+  return useRecoilCallback(
+    ({ snapshot, set }) =>
+      async (entities: { vertices: Vertex[]; edges: Edge[] }) => {
+        const activeSchema = await snapshot.getPromise(activeSchemaSelector);
+        if (entities.vertices.length === 0 && entities.edges.length === 0) {
+          return;
+        }
+        if (!activeSchema) {
+          return;
+        }
+        if (!shouldUpdateSchemaFromEntities(entities, activeSchema)) {
+          logger.debug("Schema is already up to date with the given entities");
+          return;
+        }
+        startTransition(() => {
+          logger.debug("Updating schema from entities");
+          set(activeSchemaSelector, prev => {
+            if (!prev) {
+              return prev;
+            }
+            return updateSchemaFromEntities(
+              {
+                nodes: toNodeMap(entities.vertices),
+                edges: toEdgeMap(entities.edges),
+              },
+              prev
+            );
+          });
+        });
+      },
+    []
+  );
+}
+
+/** Attempts to efficiently detect if the schema should be updated. */
+export function shouldUpdateSchemaFromEntities(
+  entities: {
+    vertices: Vertex[];
+    edges: Edge[];
+  },
+  schema: SchemaInference
+) {
+  if (entities.vertices.length > 0) {
+    // Check if the vertex types and attributes are the same
+    const fromEntities = getUniqueTypesAndAttributes(entities.vertices);
+    const fromSchema = getUniqueTypesAndAttributes(schema.vertices);
+
+    if (!fromSchema.isSupersetOf(fromEntities)) {
+      logger.debug(
+        "Found new vertex types or attributes:",
+        fromEntities.difference(fromSchema)
+      );
+      return true;
+    }
+  }
+
+  if (entities.edges.length > 0) {
+    // Check if the edge types and attributes are the same
+    const fromEntities = getUniqueTypesAndAttributes(entities.edges);
+    const fromSchema = getUniqueTypesAndAttributes(schema.edges);
+
+    if (!fromSchema.isSupersetOf(fromEntities)) {
+      logger.debug(
+        "Found new edge types or attributes:",
+        fromEntities.difference(fromSchema)
+      );
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
+ * Creates a set of unique types and attribute names as a set of strings in order to be used for comparisons.
+ *
+ * The entries in the set will be in the format of `vertexType.attributeName` or `edgeType.attributeName`.
+ */
+function getUniqueTypesAndAttributes(
+  entities: (Vertex | Edge | VertexTypeConfig | EdgeTypeConfig)[]
+) {
+  return new Set(
+    entities.flatMap(e => {
+      return [
+        e.type,
+        ...getAttributeNames(e.attributes).map(a => `${e.type}.${a}`),
+      ];
+    })
+  );
+}
+
+function getAttributeNames(
+  attributes: Record<string, string | number> | AttributeConfig[]
+) {
+  return Array.isArray(attributes)
+    ? attributes.map(a => a.name)
+    : Object.keys(attributes);
 }

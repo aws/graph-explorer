@@ -1,15 +1,12 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router";
 import { useRecoilValue } from "recoil";
 import Button from "@/components/Button";
 import { ExplorerIcon, GearIcon } from "@/components/icons";
 import Workspace from "@/components/Workspace/Workspace";
 import { useConfiguration } from "@/core";
-import {
-  activeConfigurationAtom,
-  configurationAtom,
-} from "@/core/StateProvider/configuration";
-import useSchemaSync from "@/hooks/useSchemaSync";
+import { configurationAtom } from "@/core/StateProvider/configuration";
+import { useIsSyncing } from "@/hooks/useSchemaSync";
 import AvailableConnections from "@/modules/AvailableConnections";
 import ConnectionDetail from "@/modules/ConnectionDetail";
 import { APP_NAME } from "@/utils/constants";
@@ -18,21 +15,9 @@ import GraphExplorerIcon from "@/components/icons/GraphExplorerIcon";
 
 export default function Connections() {
   const config = useConfiguration();
-  const activeConfig = useRecoilValue(activeConfigurationAtom);
   const configuration = useRecoilValue(configurationAtom);
   const [isModalOpen, setModal] = useState(configuration.size === 0);
-  const [isSyncing, setSyncing] = useState(false);
-
-  // Every time that the active connection changes,
-  // if it was not synchronized yet, try to sync it
-  const updateSchema = useSchemaSync(setSyncing);
-  useEffect(() => {
-    if (config?.schema?.triedToSync === true) {
-      return;
-    }
-
-    updateSchema();
-  }, [activeConfig, config?.schema?.triedToSync, updateSchema]);
+  const isSyncing = useIsSyncing();
 
   return (
     <Workspace>
@@ -52,13 +37,11 @@ export default function Connections() {
 
             <Link
               to={
-                !activeConfig || !config?.schema?.lastUpdate
-                  ? "/connections"
-                  : "/graph-explorer"
+                !config?.schema?.lastUpdate ? "/connections" : "/graph-explorer"
               }
             >
               <Button
-                isDisabled={!activeConfig || !config?.schema?.lastUpdate}
+                isDisabled={!config?.schema?.lastUpdate}
                 className="button"
                 icon={<ExplorerIcon />}
                 variant="filled"
@@ -78,9 +61,9 @@ export default function Connections() {
               onModalChange={setModal}
             />
           </div>
-          {activeConfig ? (
+          {config ? (
             <div className="h-full grow">
-              <ConnectionDetail isSync={isSyncing} onSyncChange={setSyncing} />
+              <ConnectionDetail config={config} />
             </div>
           ) : (
             <NoActiveConnectionPanel />
