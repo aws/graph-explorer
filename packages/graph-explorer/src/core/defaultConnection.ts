@@ -23,8 +23,8 @@ export const DefaultConnectionDataSchema = z.object({
 
 export type DefaultConnectionData = z.infer<typeof DefaultConnectionDataSchema>;
 
-/** Fetches the default connection from multiple possible locations and returns null on failure. */
-export async function fetchDefaultConnection(): Promise<RawConfiguration | null> {
+/** Fetches the default connections from multiple possible locations and returns an empty array on failure. */
+export async function fetchDefaultConnection() {
   const defaultConnectionPath = `${location.origin}/defaultConnection`;
   const sagemakerConnectionPath = `${location.origin}/proxy/9250/defaultConnection`;
 
@@ -34,17 +34,33 @@ export async function fetchDefaultConnection(): Promise<RawConfiguration | null>
       (await fetchDefaultConnectionFor(sagemakerConnectionPath));
     if (!defaultConnection) {
       logger.debug("No default connection found");
-      return null;
+      return [];
     }
     const config = mapToConnection(defaultConnection);
-    logger.debug("Default connection created", config);
 
-    return config;
+    // A specific query engine was specified, so just return that
+    if (config.connection?.queryEngine) {
+      return [config];
+    }
+
+    // No query engine was specified, so return all the possible ones
+    const configs = queryEngineOptions.map(queryEngine => {
+      return <RawConfiguration>{
+        ...config,
+        id: `${config.id}-${queryEngine}` as ConfigurationId,
+        connection: {
+          ...config.connection,
+          queryEngine: queryEngine,
+        },
+      };
+    });
+
+    return configs;
   } catch (error) {
     logger.error(
       `Error when trying to create connection: ${error instanceof Error ? error.message : "Unexpected error"}`
     );
-    return null;
+    return [];
   }
 }
 

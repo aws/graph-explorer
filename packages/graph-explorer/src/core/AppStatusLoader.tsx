@@ -1,9 +1,8 @@
-import { PropsWithChildren, useEffect } from "react";
+import { PropsWithChildren, startTransition, useEffect } from "react";
 import { useLocation } from "react-router";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { LoadingSpinner, PanelEmptyState } from "@/components";
 import Redirect from "@/components/Redirect";
-import { ConfigurationId, RawConfiguration } from "./ConfigurationProvider";
 import {
   activeConfigurationAtom,
   configurationAtom,
@@ -11,11 +10,9 @@ import {
 } from "./StateProvider/configuration";
 import { schemaAtom } from "./StateProvider/schema";
 import useLoadStore from "./StateProvider/useLoadStore";
-import { CONNECTIONS_OP } from "@/modules/CreateConnection/CreateConnection";
 import { logger } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
 import { fetchDefaultConnection } from "./defaultConnection";
-import { cloneDeep } from "lodash";
 
 const AppStatusLoader = ({ children }: PropsWithChildren) => {
   const location = useLocation();
@@ -35,75 +32,44 @@ const AppStatusLoader = ({ children }: PropsWithChildren) => {
     enabled: isStoreLoaded && configuration.size === 0,
   });
 
-  const defaultConnectionConfig = defaultConfigQuery.data;
+  const defaultConnectionConfigs = defaultConfigQuery.data;
 
   useEffect(() => {
     if (!isStoreLoaded) {
-      logger.debug("Store not loaded, skipping config load");
+      logger.debug("Store not loaded, skipping default connection load");
       return;
     }
 
-    if (activeConfig && configuration.get(activeConfig)) {
-      logger.debug("Active config exists, skipping config load");
+    if (configuration.size > 0) {
+      logger.debug(
+        "Connections already exist, skipping default connection load"
+      );
       return;
     }
 
-    // If the config file is not in the store,
-    // update configuration with the config file
-    if (
-      !!defaultConnectionConfig &&
-      !configuration.get(defaultConnectionConfig.id)
-    ) {
-      const newConfig: RawConfiguration = cloneDeep(defaultConnectionConfig);
-      let activeConfigId = defaultConnectionConfig.id;
+    if (!defaultConnectionConfigs?.length) {
+      logger.debug("No default connections found");
+      return;
+    }
 
-      logger.debug("Adding new config to store", newConfig);
-      setConfiguration(prevConfigMap => {
-        const updatedConfig = new Map(prevConfigMap);
-        if (newConfig.connection?.queryEngine) {
-          updatedConfig.set(defaultConnectionConfig.id, newConfig);
-        }
-        //Set a configuration for each connection if queryEngine is not set
-        if (!newConfig.connection?.queryEngine) {
-          CONNECTIONS_OP.forEach(connection => {
-            const connectionConfig = {
-              ...newConfig,
-              id: `${newConfig.id}-${connection.value}` as ConfigurationId,
-              connection: {
-                ...newConfig.connection,
-                url: newConfig.connection?.url || "",
-                queryEngine: connection.value,
-              },
-            };
-            updatedConfig.set(connectionConfig.id, connectionConfig);
-          });
-          activeConfigId =
-            `${newConfig.id}-${CONNECTIONS_OP[0].value}` as ConfigurationId;
-        }
+    startTransition(() => {
+      logger.debug("Adding default connections", defaultConnectionConfigs);
+      setConfiguration(prev => {
+        const updatedConfig = new Map(prev);
+        defaultConnectionConfigs.forEach(config => {
+          updatedConfig.set(config.id, config);
+        });
         return updatedConfig;
       });
-      setActiveConfig(activeConfigId);
-    }
-
-    // If the config file is stored,
-    // only activate the configuration
-    if (
-      !!defaultConnectionConfig &&
-      configuration.get(defaultConnectionConfig.id)
-    ) {
-      logger.debug(
-        "Config exists in store, activating",
-        defaultConnectionConfig.id
-      );
-      setActiveConfig(defaultConnectionConfig.id);
-    }
+      setActiveConfig(defaultConnectionConfigs[0].id);
+    });
   }, [
     activeConfig,
-    defaultConnectionConfig,
     configuration,
     isStoreLoaded,
     setActiveConfig,
     setConfiguration,
+    defaultConnectionConfigs,
   ]);
 
   // Wait until state is recovered from the indexed DB
@@ -128,7 +94,11 @@ const AppStatusLoader = ({ children }: PropsWithChildren) => {
   }
 
   // Loading from config file if exists
-  if (configuration.size === 0 && !!defaultConnectionConfig) {
+  if (
+    configuration.size === 0 &&
+    defaultConnectionConfigs &&
+    defaultConnectionConfigs.length > 0
+  ) {
     return (
       <PanelEmptyState
         title="Reading configuration..."

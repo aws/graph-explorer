@@ -1,4 +1,4 @@
-export const queryEngineOptions = ["gremlin", "sparql", "openCypher"] as const;
+export const queryEngineOptions = ["gremlin", "openCypher", "sparql"] as const;
 export type QueryEngine = (typeof queryEngineOptions)[number];
 
 export const neptuneServiceTypeOptions = [

@@ -10,7 +10,8 @@ schema sync errors to aid in diagnosing issues.
 - **Improved** handling of errors when fetching data from the database
   ([#812](https://github.com/aws/graph-explorer/pull/812))
 - **Changed** to allow editing and deleting default connections
-  ([#801](https://github.com/aws/graph-explorer/pull/801))
+  ([#801](https://github.com/aws/graph-explorer/pull/801),
+  [#821](https://github.com/aws/graph-explorer/pull/821))
 - **Changed** service type label to be "Neptune Analytics"
   ([#811](https://github.com/aws/graph-explorer/pull/811))
 - **Fixed** issue where nodes and edges without any labels were causing the app

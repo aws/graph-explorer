@@ -44,7 +44,7 @@ type ConnectionForm = {
   nodeExpansionLimit?: number;
 };
 
-export const CONNECTIONS_OP: {
+const CONNECTIONS_OP: {
   label: string;
   value: QueryEngine;
 }[] = [
