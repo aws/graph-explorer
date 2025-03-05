@@ -1,5 +1,11 @@
 # graph-explorer Change Log
 
+## Upcoming
+
+- **Fixed** issue with long node titles or descriptions pushing the "add to
+  graph" button off the screen
+  ([#824](https://github.com/aws/graph-explorer/pull/824))
+
 ## Release v1.14.1
 
 This release is a minor bug fix release, with a primary focus on surfacing
