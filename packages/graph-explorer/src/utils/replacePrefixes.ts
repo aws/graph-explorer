@@ -22,7 +22,7 @@ const replacePrefixes = (
   // 3. automatically generated
   const customPrefixes = prefixes.filter(p => !p.__inferred);
   const generatedPrefixes = prefixes.filter(
-    p => p.__inferred === true && p.__matches && p.__matches.size > 1
+    p => p.__inferred === true && p.__matches && p.__matches.size > 0
   );
   const allPrefixes = [
     ...customPrefixes,
@@ -30,15 +30,20 @@ const replacePrefixes = (
     ...generatedPrefixes,
   ];
 
+  // Find matching prefix ignoring case
   const prefixConfig = allPrefixes.find(prefixConfig =>
-    uri.match(new RegExp(`^${prefixConfig.uri}`))
+    uri.match(new RegExp(`^${prefixConfig.uri}`, "i"))
   );
 
   if (!prefixConfig) {
     return uri;
   }
 
-  return uri.replace(prefixConfig.uri, `${prefixConfig.prefix}:`);
+  // Replace the matching part of the URI with the prefix, ignoring case
+  return uri.replace(
+    new RegExp(`^${prefixConfig.uri}`, "i"),
+    `${prefixConfig.prefix}:`
+  );
 };
 
 export default replacePrefixes;
