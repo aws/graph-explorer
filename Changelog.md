@@ -15,6 +15,8 @@ schema sync errors to aid in diagnosing issues.
   ([#811](https://github.com/aws/graph-explorer/pull/811))
 - **Fixed** issue where nodes and edges without any labels were causing the app
   to crash ([#799](https://github.com/aws/graph-explorer/pull/799))
+- **Fixed** broken link in documentation (thanks @ssheladiya,
+  [#803](https://github.com/aws/graph-explorer/pull/803))
 
 ## Release v1.14.0
 
