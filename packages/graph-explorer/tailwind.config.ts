@@ -1,6 +1,7 @@
 import { type Config } from "tailwindcss";
 import colors from "tailwindcss/colors";
 import tailwindAnimate from "tailwindcss-animate";
+import tailwindContainerQueries from "@tailwindcss/container-queries";
 
 const black = "rgb(var(--color-black) / <alpha-value>)";
 const white = "rgb(var(--color-white) / <alpha-value>)";
@@ -137,5 +138,5 @@ export default {
       },
     },
   },
-  plugins: [tailwindAnimate],
+  plugins: [tailwindAnimate, tailwindContainerQueries],
 } satisfies Config;
