@@ -1,6 +1,9 @@
 # graph-explorer Change Log
 
-## Upcoming Release
+## Release v1.14.1
+
+This release is a minor bug fix release, with a primary focus on surfacing
+schema sync errors to aid in diagnosing issues.
 
 - **Improved** reliability of schema syncing, retrying on failure
   ([#813](https://github.com/aws/graph-explorer/pull/813))
