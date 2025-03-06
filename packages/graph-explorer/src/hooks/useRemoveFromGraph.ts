@@ -12,6 +12,7 @@ import {
 } from "@/core";
 import { useRecoilValue, useResetRecoilState, useSetRecoilState } from "recoil";
 import { startTransition, useCallback } from "react";
+import { logger } from "@/utils";
 
 export function useRemoveFromGraph() {
   const setVertices = useSetRecoilState(nodesAtom);
@@ -114,6 +115,7 @@ export function useClearGraph() {
   const resetFilteredEdges = useResetRecoilState(edgesFilteredIdsAtom);
 
   return useCallback(() => {
+    logger.log("Clearing graph state...");
     resetVertices();
     resetEdges();
     resetSelectedVertices();
