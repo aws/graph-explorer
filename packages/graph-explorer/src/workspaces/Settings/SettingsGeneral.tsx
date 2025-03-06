@@ -1,6 +1,7 @@
 import { useRecoilState } from "recoil";
 import {
   allowLoggingDbQueryAtom,
+  allowRestorePreviousSessionAtom,
   showDebugActionsAtom,
   showRecoilStateLoggingAtom,
 } from "@/core";
@@ -32,11 +33,27 @@ export default function SettingsGeneral() {
     allowLoggingDbQueryAtom
   );
 
+  const [allowRestorePreviousSession, setAllowRestorePreviousSession] =
+    useRecoilState(allowRestorePreviousSessionAtom);
+
   return (
     <>
       <PageHeading>General Settings</PageHeading>
 
       <SettingsSectionContainer>
+        <SettingsSection className="items-start">
+          <SectionTitle>Graph</SectionTitle>
+          <CheckboxSetting
+            id="isRestorePreviousSessionEnabled"
+            checked={allowRestorePreviousSession}
+            onCheckedChange={isSelected => {
+              setAllowRestorePreviousSession(Boolean(isSelected));
+            }}
+            label="Restore graph from previous session"
+            description="Allows you to continue where you left off in the previous session."
+          />
+        </SettingsSection>
+
         <SettingsSection className="items-start">
           <SectionTitle>Logging</SectionTitle>
           <Paragraph className="max-w-paragraph">
