@@ -13,11 +13,11 @@
   "author": "amazon",
   "license": "Apache-2.0",
   "dependencies": {
-    "@aws-sdk/credential-providers": "^3.734.0",
+    "@aws-sdk/credential-providers": "^3.758.0",
     "@graph-explorer/shared": "workspace:*",
     "aws4": "^1.13.2",
     "body-parser": "^1.20.3",
-    "compression": "^1.7.5",
+    "compression": "^1.8.0",
     "cors": "^2.8.5",
     "crypto-js": "^4.2.0",
     "date-fns": "^4.1.0",
@@ -28,7 +28,7 @@
     "node-fetch": "^3.3.2",
     "pino": "^9.6.0",
     "pino-pretty": "^13.0.0",
-    "zod": "^3.24.1"
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "@types/aws4": "^1.11.6",
@@ -36,11 +36,11 @@
     "@types/compression": "^1.7.5",
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
-    "@types/node": "^22.10.10",
-    "@vitest/coverage-v8": "^3.0.5",
+    "@types/node": "^22.13.9",
+    "@vitest/coverage-v8": "^3.0.8",
     "memfs": "^4.17.0",
     "rimraf": "^6.0.1",
-    "tsx": "^4.19.2",
-    "vitest": "^3.0.5"
+    "tsx": "^4.19.3",
+    "vitest": "^3.0.8"
   }
 }
