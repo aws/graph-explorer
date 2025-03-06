@@ -1,5 +1,6 @@
 import {
   activeConfigurationAtom,
+  allGraphSessionsAtom,
   configurationAtom,
   ConfigurationId,
   schemaAtom,
@@ -30,6 +31,12 @@ export function useDeleteConfig() {
           const updatedSchemas = new Map(prevSchemas);
           updatedSchemas.delete(id);
           return updatedSchemas;
+        });
+
+        set(allGraphSessionsAtom, prev => {
+          const updatedGraphs = new Map(prev);
+          updatedGraphs.delete(id);
+          return updatedGraphs;
         });
       },
     []

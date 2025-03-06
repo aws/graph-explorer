@@ -1,27 +1,24 @@
 import {
+  activeConfigurationAtom,
+  allGraphSessionsAtom,
+  configurationAtom,
   Edge,
   EdgeId,
   edgesAtom,
   edgesFilteredIdsAtom,
   edgesTypesFilteredAtom,
+  extractConfigFromEntity,
+  nodesAtom,
   nodesFilteredIdsAtom,
   nodesTypesFilteredAtom,
+  RawConfiguration,
+  Schema,
+  schemaAtom,
   toEdgeMap,
+  toNodeMap,
   Vertex,
   VertexId,
 } from "@/core";
-import {
-  activeConfigurationAtom,
-  configurationAtom,
-  nodesAtom,
-  RawConfiguration,
-  Schema,
-  toNodeMap,
-} from "@/core";
-import {
-  extractConfigFromEntity,
-  schemaAtom,
-} from "@/core/StateProvider/schema";
 import { MutableSnapshot } from "recoil";
 import {
   createRandomSchema,
@@ -112,5 +109,19 @@ export class DbState {
     snapshot.set(edgesAtom, toEdgeMap(this.edges));
     snapshot.set(edgesFilteredIdsAtom, this.filteredEdges);
     snapshot.set(edgesTypesFilteredAtom, this.filteredEdgeTypes);
+
+    // Graph Storage
+    snapshot.set(
+      allGraphSessionsAtom,
+      new Map([
+        [
+          this.activeConfig.id,
+          {
+            vertices: new Set(this.vertices.map(v => v.id)),
+            edges: new Set(this.edges.map(e => e.id)),
+          },
+        ],
+      ])
+    );
   }
 }

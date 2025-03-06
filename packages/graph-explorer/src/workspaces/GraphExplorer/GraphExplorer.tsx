@@ -39,6 +39,7 @@ import NodesStyling from "@/modules/NodesStyling/NodesStyling";
 import defaultStyles from "./GraphExplorer.styles";
 import { APP_NAME } from "@/utils/constants";
 import { SearchSidebarPanel } from "@/modules/SearchSidebar";
+import { RestoreGraphSession } from "./RestoreGraphSession";
 
 const RESIZE_ENABLE_TOP = {
   top: true,
@@ -160,49 +161,51 @@ const GraphExplorer = () => {
       </Workspace.TopBar>
 
       <Workspace.Content>
-        {toggles.size === 0 && (
-          <div style={{ width: "100%", flexGrow: 1 }}>
-            <PanelEmptyState
-              icon={<EmptyWidgetIcon />}
-              title="No active views"
-              subtitle="Use toggles in the top-right corner to show/hide views"
-            />
-          </div>
-        )}
-        {toggles.size === 0 && (
-          <div style={{ width: "100%", flexGrow: 1 }}>
-            <PanelEmptyState
-              icon={<EmptyWidgetIcon />}
-              title="No active views"
-              subtitle="Use toggles in the top-right corner to show/hide views"
-            />
-          </div>
-        )}
-        {toggles.has("graph-viewer") && (
-          <div className="relative w-full grow">
-            <GraphViewer
-              onNodeCustomize={setCustomizeNodeType}
-              onEdgeCustomize={setCustomizeEdgeType}
-            />
-          </div>
-        )}
-        {toggles.has("table-view") && (
-          <Resizable
-            enable={RESIZE_ENABLE_TOP}
-            size={{
-              width: "100%",
-              height: !toggles.has("graph-viewer")
-                ? "100%"
-                : userLayout.tableView?.height || 300,
-            }}
-            minHeight={300}
-            onResizeStop={onTableViewResizeStop}
-          >
-            <div style={{ width: "100%", height: "100%", flexGrow: 1 }}>
-              <EntitiesTabular />
+        <RestoreGraphSession>
+          {toggles.size === 0 && (
+            <div style={{ width: "100%", flexGrow: 1 }}>
+              <PanelEmptyState
+                icon={<EmptyWidgetIcon />}
+                title="No active views"
+                subtitle="Use toggles in the top-right corner to show/hide views"
+              />
             </div>
-          </Resizable>
-        )}
+          )}
+          {toggles.size === 0 && (
+            <div style={{ width: "100%", flexGrow: 1 }}>
+              <PanelEmptyState
+                icon={<EmptyWidgetIcon />}
+                title="No active views"
+                subtitle="Use toggles in the top-right corner to show/hide views"
+              />
+            </div>
+          )}
+          {toggles.has("graph-viewer") && (
+            <div className="relative w-full grow">
+              <GraphViewer
+                onNodeCustomize={setCustomizeNodeType}
+                onEdgeCustomize={setCustomizeEdgeType}
+              />
+            </div>
+          )}
+          {toggles.has("table-view") && (
+            <Resizable
+              enable={RESIZE_ENABLE_TOP}
+              size={{
+                width: "100%",
+                height: !toggles.has("graph-viewer")
+                  ? "100%"
+                  : userLayout.tableView?.height || 300,
+              }}
+              minHeight={300}
+              onResizeStop={onTableViewResizeStop}
+            >
+              <div style={{ width: "100%", height: "100%", flexGrow: 1 }}>
+                <EntitiesTabular />
+              </div>
+            </Resizable>
+          )}
+        </RestoreGraphSession>
       </Workspace.Content>
 
       <Workspace.SideBar direction="row">
