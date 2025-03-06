@@ -23,7 +23,12 @@ import {
   schemaAtom,
 } from "@/core/StateProvider/schema";
 import { MutableSnapshot } from "recoil";
-import { createRandomSchema, createRandomRawConfiguration } from "./randomData";
+import {
+  createRandomSchema,
+  createRandomRawConfiguration,
+  createRandomVertex,
+  createRandomEdge,
+} from "./randomData";
 
 /**
  * Helps build up the state of the recoil database with common data.
@@ -54,6 +59,11 @@ export class DbState {
     this.activeSchema.vertices.push(extractConfigFromEntity(vertex));
   }
 
+  /** Creates a new randome vertex and adds it to the graph. */
+  createVertexInGraph() {
+    this.addVertexToGraph(createRandomVertex());
+  }
+
   filterVertex(vertexId: VertexId) {
     this.filteredVertices.add(vertexId);
   }
@@ -65,6 +75,11 @@ export class DbState {
   addEdgeToGraph(edge: Edge) {
     this.edges.push(edge);
     this.activeSchema.edges.push(extractConfigFromEntity(edge));
+  }
+
+  /** Creates a new random edge with the given source and target, and adds it to the graph. */
+  createEdgeInGraph(source: Vertex, target: Vertex) {
+    this.addEdgeToGraph(createRandomEdge(source, target));
   }
 
   filterEdge(edgeId: EdgeId) {
