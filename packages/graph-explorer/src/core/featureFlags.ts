@@ -22,18 +22,10 @@ export const allowLoggingDbQueryAtom = atom({
   effects: [asyncLocalForageEffect("allowLoggingDbQuery")],
 });
 
-/**  */
-export const allowRestorePreviousSessionAtom = atom({
-  key: "feature-flag-restore-previous-session",
-  default: true,
-  effects: [asyncLocalForageEffect("allowRestorePreviousSession")],
-});
-
 export type FeatureFlags = {
   showRecoilStateLogging: boolean;
   showDebugActions: boolean;
   allowLoggingDbQuery: boolean;
-  allowRestorePreviousSession: boolean;
 };
 
 export const featureFlagsSelector = selector<FeatureFlags>({
@@ -43,7 +35,6 @@ export const featureFlagsSelector = selector<FeatureFlags>({
       showRecoilStateLogging: get(showRecoilStateLoggingAtom),
       showDebugActions: get(showDebugActionsAtom),
       allowLoggingDbQuery: get(allowLoggingDbQueryAtom),
-      allowRestorePreviousSession: get(allowRestorePreviousSessionAtom),
     } satisfies FeatureFlags;
   },
 });

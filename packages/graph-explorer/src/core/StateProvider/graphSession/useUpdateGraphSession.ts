@@ -2,7 +2,11 @@ import { logger } from "@/utils";
 import { useRecoilCallback } from "recoil";
 import { edgesAtom } from "../edges";
 import { nodesAtom } from "../nodes";
-import { GraphSessionStorageModel, activeGraphSessionAtom } from "./storage";
+import {
+  GraphSessionStorageModel,
+  activeGraphSessionAtom,
+  isRestorePreviousSessionAvailableAtom,
+} from "./storage";
 
 /**
  * Returns a callback that can be used to trigger an update of the graph
@@ -43,6 +47,7 @@ export function useUpdateGraphSession() {
         // Update the session
         logger.debug("Updating graph session", graphSession);
         set(activeGraphSessionAtom, graphSession);
+        set(isRestorePreviousSessionAvailableAtom, false);
       },
     []
   );

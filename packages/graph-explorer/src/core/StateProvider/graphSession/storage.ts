@@ -10,6 +10,11 @@ export type GraphSessionStorageModel = {
   edges: Set<EdgeId>;
 };
 
+export const isRestorePreviousSessionAvailableAtom = atom({
+  key: "is-restore-previous-session-available",
+  default: true,
+});
+
 /** Stores the graph session data for each connection. */
 export const allGraphSessionsAtom = atom({
   key: "graph-sessions",

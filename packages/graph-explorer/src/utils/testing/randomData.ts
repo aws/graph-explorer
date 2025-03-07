@@ -421,7 +421,6 @@ export function createRandomFeatureFlags(): FeatureFlags {
     showRecoilStateLogging: createRandomBoolean(),
     showDebugActions: createRandomBoolean(),
     allowLoggingDbQuery: createRandomBoolean(),
-    allowRestorePreviousSession: createRandomBoolean(),
   };
 }
 

@@ -1,12 +1,64 @@
+import { Button } from "@/components";
 import { SearchIcon } from "@/components/icons";
 import { PanelEmptyState } from "@/components/PanelEmptyState";
-import { PlusCircleIcon } from "lucide-react";
+import {
+  GraphSessionStorageModel,
+  useAvailablePreviousSession,
+  useRestoreGraphSession,
+} from "@/core";
+import { formatEntityCounts } from "@/utils";
+import { PlusCircleIcon, RotateCwIcon } from "lucide-react";
 
-const EmptyState = () => {
+function EmptyState() {
+  const availablePrevSession = useAvailablePreviousSession();
+
+  if (availablePrevSession) {
+    return (
+      <RestorePreviousSessionEmptyState prevSession={availablePrevSession} />
+    );
+  }
+  return <DefaultEmptyState />;
+}
+
+function RestorePreviousSessionEmptyState({
+  prevSession,
+}: {
+  prevSession: GraphSessionStorageModel;
+}) {
+  const restore = useRestoreGraphSession();
+
+  const entityCounts = formatEntityCounts(
+    prevSession.vertices.size,
+    prevSession.edges.size
+  );
+
   return (
-    <div className="pointer-events-none absolute inset-0 flex select-none flex-col items-center justify-center bg-gray-100/60 p-4">
+    <div className="z-panes absolute inset-0 flex flex-col items-center justify-center p-4">
       <PanelEmptyState
-        className=""
+        icon={<SearchIcon />}
+        title="Start a search or restore session"
+        subtitle={`To get started, use the search sidebar panel to filter the graph data or restore your previous session (${entityCounts}).`}
+      >
+        <Button
+          variant="filled"
+          className="mt-4"
+          onPress={() => {
+            restore.mutate(prevSession);
+          }}
+          isDisabled={restore.isPending}
+        >
+          <RotateCwIcon />
+          Restore Previous Session
+        </Button>
+      </PanelEmptyState>
+    </div>
+  );
+}
+
+function DefaultEmptyState() {
+  return (
+    <div className="pointer-events-none absolute inset-0 flex select-none flex-col items-center justify-center p-4">
+      <PanelEmptyState
         icon={<SearchIcon />}
         title="Add nodes from search"
         subtitle={
@@ -24,6 +76,6 @@ const EmptyState = () => {
       />
     </div>
   );
-};
+}
 
 export default EmptyState;
