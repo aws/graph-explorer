@@ -13,7 +13,7 @@ const Panel = React.forwardRef<React.ElementRef<"div">, PanelProps>(
     <div
       ref={ref}
       className={cn(
-        "bg-background-default flex h-full flex-col overflow-hidden",
+        "bg-background-default @container/panel flex h-full flex-col overflow-hidden",
         variant === "default" && "shadow-primary-dark/20 rounded-lg shadow",
         className
       )}
@@ -89,7 +89,7 @@ const PanelTitle = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "text-text-primary inline-flex shrink-0 gap-2 whitespace-nowrap text-base font-bold leading-none",
+      "text-text-primary inline-flex shrink-0 items-center gap-2 whitespace-nowrap text-base font-bold leading-none",
       className
     )}
     {...props}

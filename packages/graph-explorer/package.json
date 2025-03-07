@@ -93,6 +93,7 @@
     "@react-types/radio": "^3.8.7",
     "@react-types/shared": "^3.28.0",
     "@react-types/switch": "^3.5.9",
+    "@tailwindcss/container-queries": "^0.1.1",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
