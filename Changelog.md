@@ -3,7 +3,7 @@
 ## Upcoming
 
 - **Improved** accessing neptune using assume role
-  ([#813](https://github.com/aws/graph-explorer/pull/818))
+  ([#818](https://github.com/aws/graph-explorer/pull/818))
 - **Fixed** issue with long node titles or descriptions pushing the "add to
   graph" button off the screen
   ([#824](https://github.com/aws/graph-explorer/pull/824))
