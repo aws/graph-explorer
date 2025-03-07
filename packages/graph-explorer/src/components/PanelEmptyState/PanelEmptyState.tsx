@@ -43,7 +43,7 @@ const PanelEmptyState = ({
   return (
     <div
       className={cn(
-        "max-w-paragraph relative flex h-full w-full flex-col items-center justify-center",
+        "relative flex h-full w-full flex-col items-center justify-center",
         className
       )}
     >
@@ -59,7 +59,7 @@ const PanelEmptyState = ({
           </div>
         </div>
       )}
-      <div className="flex flex-col items-center justify-center gap-4">
+      <div className="max-w-paragraph flex flex-col items-center justify-center gap-4">
         <div className="flex flex-col items-center justify-center gap-1 text-center">
           {title && (
             <h1 className="text-text-primary text-balance text-lg font-bold">
