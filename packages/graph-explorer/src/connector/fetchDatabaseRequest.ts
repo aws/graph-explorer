@@ -71,6 +71,7 @@ function getAuthHeaders(
   if (connection?.awsAuthEnabled) {
     headers["aws-neptune-region"] = connection.awsRegion || "";
     headers["service-type"] = connection.serviceType || DEFAULT_SERVICE_TYPE;
+    headers["aws-assume-role-arn"] = connection.awsAssumeRoleArn || "";
   }
 
   return { ...headers, ...typeHeaders };

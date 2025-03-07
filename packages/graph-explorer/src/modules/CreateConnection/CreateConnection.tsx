@@ -38,6 +38,7 @@ type ConnectionForm = {
   awsAuthEnabled?: boolean;
   serviceType?: NeptuneServiceType;
   awsRegion?: string;
+  awsAssumeRoleArn?: string;
   fetchTimeoutEnabled: boolean;
   fetchTimeoutMs?: number;
   nodeExpansionLimitEnabled: boolean;
@@ -67,6 +68,7 @@ function mapToConnection(data: Required<ConnectionForm>): ConnectionConfig {
     awsAuthEnabled: data.awsAuthEnabled,
     serviceType: data.serviceType,
     awsRegion: data.awsRegion,
+    awsAssumeRoleArn: data.awsAssumeRoleArn,
     fetchTimeoutMs: data.fetchTimeoutEnabled ? data.fetchTimeoutMs : undefined,
     nodeExpansionLimit: data.nodeExpansionLimitEnabled
       ? data.nodeExpansionLimit
@@ -159,6 +161,7 @@ const CreateConnection = ({
     awsAuthEnabled: initialData?.awsAuthEnabled || false,
     serviceType: initialData?.serviceType || "neptune-db",
     awsRegion: initialData?.awsRegion || "",
+    awsAssumeRoleArn: initialData?.awsAssumeRoleArn || "",
     fetchTimeoutEnabled: initialData?.fetchTimeoutEnabled || false,
     fetchTimeoutMs: initialData?.fetchTimeoutMs,
     nodeExpansionLimitEnabled: initialData?.nodeExpansionLimitEnabled || false,
@@ -330,6 +333,25 @@ const CreateConnection = ({
                 ]}
                 value={form.serviceType}
                 onChange={onFormChange("serviceType")}
+              />
+            </div>
+            <div className="input-url">
+              <Input
+                data-autofocus={true}
+                label={
+                  <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
+                    AWS Assume Role ARN
+                    <InfoTooltip>
+                      ARN of the role that the proxy-server should assume to sign requests. This is only required if
+                      the connector is running outside of the AWS account that
+                      hosts the Neptune resources.
+                    </InfoTooltip>
+                  </div>
+                }
+                value={form.awsAssumeRoleArn}
+                onChange={onFormChange("awsAssumeRoleArn")}
+                placeholder="arn:aws:iam::aws-account-no:role/role-name"
+                errorMessage="Invalid ARN"
               />
             </div>
           </>
