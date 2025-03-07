@@ -1,19 +1,14 @@
 import { FileButton, PanelHeaderActionButton, Spinner } from "@/components";
-import { vertexDetailsQuery, edgeDetailsQuery, Explorer } from "@/connector";
 import {
   useExplorer,
   configurationAtom,
-  VertexId,
-  EdgeId,
   ConnectionWithId,
+  fetchEntityDetails,
+  createFetchEntityDetailsCompletionNotification,
 } from "@/core";
-import { logger } from "@/utils";
+import { logger, formatEntityCounts } from "@/utils";
 import { fromFileToJson } from "@/utils/fileData";
-import {
-  useQueryClient,
-  useMutation,
-  QueryClient,
-} from "@tanstack/react-query";
+import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { FolderOpenIcon } from "lucide-react";
 import { useRecoilValue } from "recoil";
 import {
@@ -83,7 +78,7 @@ function useImportGraphMutation() {
       }
 
       // 3. Get the vertex and edge details from the database
-      const entityCountMessage = formatCount(
+      const entityCountMessage = formatEntityCounts(
         graph.vertices.size,
         graph.edges.size
       );
@@ -111,7 +106,8 @@ function useImportGraphMutation() {
       addToGraph(result.entities);
 
       // 5. Notify user of completion
-      const finalNotification = createCompletionNotification(result);
+      const finalNotification =
+        createFetchEntityDetailsCompletionNotification(result);
       enqueueNotification({
         ...finalNotification,
         title: notificationTitle,
@@ -126,52 +122,6 @@ function useImportGraphMutation() {
     },
   });
   return mutation;
-}
-
-export function createCompletionNotification(
-  result: FetchEntityDetailsResult
-): Notification {
-  if (result.counts.errors.total > 0) {
-    const errorMessage = formatCount(
-      result.counts.errors.vertices,
-      result.counts.errors.edges
-    );
-
-    return {
-      message: `Finished loading the graph, but ${errorMessage} encountered an error.`,
-      type: "error",
-    };
-  }
-
-  if (result.counts.notFound.total > 0) {
-    const errorMessage = formatCount(
-      result.counts.notFound.vertices,
-      result.counts.notFound.edges
-    );
-    const verb = result.counts.notFound.total > 1 ? "were" : "was";
-    return {
-      message: `Finished loading the graph, but ${errorMessage} ${verb} not found.`,
-      type: "info",
-    };
-  }
-
-  const anyImported =
-    result.entities.vertices.length + result.entities.edges.length > 0;
-  if (!anyImported) {
-    return {
-      message: `Finished loading the graph, but no nodes or edges were loaded.`,
-      type: "error",
-    };
-  }
-
-  const entityCountMessage = formatCount(
-    result.entities.vertices.length,
-    result.entities.edges.length
-  );
-  return {
-    message: `Finished loading ${entityCountMessage} from the graph file.`,
-    type: "success",
-  };
 }
 
 export function createErrorNotification(
@@ -216,104 +166,6 @@ export function createErrorNotification(
     message: `Failed to load the graph because an error occurred.`,
     type: "error",
   };
-}
-
-async function fetchEntityDetails(
-  vertices: Set<VertexId>,
-  edges: Set<EdgeId>,
-  queryClient: QueryClient,
-  explorer: Explorer
-) {
-  const vertexResults = await Promise.allSettled(
-    vertices
-      .values()
-      .map(id =>
-        queryClient.ensureQueryData(
-          vertexDetailsQuery({ vertexId: id }, explorer)
-        )
-      )
-  );
-  const edgeResults = await Promise.allSettled(
-    edges
-      .values()
-      .map(id =>
-        queryClient.ensureQueryData(edgeDetailsQuery({ edgeId: id }, explorer))
-      )
-  );
-
-  const vertexDetails = vertexResults
-    .filter(result => result.status === "fulfilled")
-    .map(result => result.value.vertex)
-    .filter(v => v != null);
-  const edgeDetails = edgeResults
-    .filter(result => result.status === "fulfilled")
-    .map(result => result.value.edge)
-    .filter(e => e != null);
-
-  const countOfVertexErrors = vertexResults.reduce((sum, item) => {
-    return sum + (item.status === "rejected" ? 1 : 0);
-  }, 0);
-  const countOfEdgeErrors = edgeResults.reduce((sum, item) => {
-    return sum + (item.status === "rejected" ? 1 : 0);
-  }, 0);
-
-  const countOfVertexNotFound = vertexResults.reduce((sum, item) => {
-    return (
-      sum + (item.status === "fulfilled" && item.value.vertex == null ? 1 : 0)
-    );
-  }, 0);
-  const countOfEdgeNotFound = edgeResults.reduce((sum, item) => {
-    return (
-      sum + (item.status === "fulfilled" && item.value.edge == null ? 1 : 0)
-    );
-  }, 0);
-
-  return {
-    entities: {
-      vertices: vertexDetails,
-      edges: edgeDetails,
-    },
-    counts: {
-      notFound: {
-        vertices: countOfVertexNotFound,
-        edges: countOfEdgeNotFound,
-        total: countOfVertexNotFound + countOfEdgeNotFound,
-      },
-      errors: {
-        vertices: countOfVertexErrors,
-        edges: countOfEdgeErrors,
-        total: countOfVertexErrors + countOfEdgeErrors,
-      },
-    },
-  };
-}
-
-export type FetchEntityDetailsResult = Awaited<
-  ReturnType<typeof fetchEntityDetails>
->;
-
-function formatCount(vertexCount: number, edgeCount: number) {
-  return [formatVertexCount(vertexCount), formatEdgeCount(edgeCount)]
-    .filter(message => message != null)
-    .join(" and ");
-}
-
-function formatVertexCount(count: number) {
-  if (count === 0) {
-    return null;
-  }
-  return count > 1
-    ? `${count.toLocaleString()} nodes`
-    : `${count.toLocaleString()} node`;
-}
-
-function formatEdgeCount(count: number) {
-  if (count === 0) {
-    return null;
-  }
-  return count > 1
-    ? `${count.toLocaleString()} edges`
-    : `${count.toLocaleString()} edge`;
 }
 
 export class InvalidConnectionError extends Error {

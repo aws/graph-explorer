@@ -1,18 +1,23 @@
-import { Edge, Vertex } from "@/core";
-import { nodesAtom, toNodeMap } from "@/core/StateProvider/nodes";
-import { edgesAtom, toEdgeMap } from "@/core/StateProvider/edges";
-import { startTransition, useCallback } from "react";
-import { useSetRecoilState } from "recoil";
 import {
   activeSchemaSelector,
+  Edge,
+  edgesAtom,
+  nodesAtom,
+  toEdgeMap,
+  toNodeMap,
   updateSchemaFromEntities,
-} from "@/core/StateProvider/schema";
+  useUpdateGraphSession,
+  Vertex,
+} from "@/core";
+import { startTransition, useCallback } from "react";
+import { useSetRecoilState } from "recoil";
 
 /** Returns a callback that adds an array of nodes and edges to the graph. */
 export function useAddToGraph() {
   const setVertices = useSetRecoilState(nodesAtom);
   const setEdges = useSetRecoilState(edgesAtom);
   const setActiveSchema = useSetRecoilState(activeSchemaSelector);
+  const updateGraphStorage = useUpdateGraphSession();
 
   return useCallback(
     (entities: { vertices?: Vertex[]; edges?: Edge[] }) => {
@@ -48,9 +53,11 @@ export function useAddToGraph() {
             prev
           );
         });
+
+        updateGraphStorage();
       });
     },
-    [setActiveSchema, setEdges, setVertices]
+    [setActiveSchema, setEdges, setVertices, updateGraphStorage]
   );
 }
 

@@ -6,3 +6,4 @@ export * from "./connector";
 export * from "./entityIdType";
 export * from "./entities";
 export * from "./renderedEntities";
+export * from "./fetchEntityDetails";

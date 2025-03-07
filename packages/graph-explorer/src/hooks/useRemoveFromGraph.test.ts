@@ -1,31 +1,33 @@
 import {
   createRandomEdge,
   createRandomVertex,
+  DbState,
   renderHookWithRecoilRoot,
 } from "@/utils/testing";
 import { act } from "react";
 import {
-  nodesAtom,
-  nodesFilteredIdsAtom,
-  nodesOutOfFocusIdsAtom,
-  nodesSelectedIdsAtom,
-  toNodeMap,
-} from "@/core/StateProvider/nodes";
-import {
   useClearGraph,
   useRemoveEdgeFromGraph,
+  useRemoveFromGraph,
   useRemoveNodeFromGraph,
 } from "./useRemoveFromGraph";
+import { createArray } from "@shared/utils/testing";
+import { useRecoilValue } from "recoil";
+import { waitFor } from "@testing-library/react";
 import {
+  activeGraphSessionAtom,
   edgesAtom,
   edgesFilteredIdsAtom,
   edgesOutOfFocusIdsAtom,
   edgesSelectedIdsAtom,
+  GraphSessionStorageModel,
+  nodesAtom,
+  nodesFilteredIdsAtom,
+  nodesOutOfFocusIdsAtom,
+  nodesSelectedIdsAtom,
   toEdgeMap,
-} from "@/core/StateProvider/edges";
-import { createArray } from "@shared/utils/testing";
-import { useRecoilValue } from "recoil";
-import { waitFor } from "@testing-library/react";
+  toNodeMap,
+} from "@/core";
 
 test("should remove one node", async () => {
   const vertex = createRandomVertex();
@@ -157,10 +159,11 @@ test("should remove associated edges when a node is removed", async () => {
 });
 
 test("should remove all nodes and edges", async () => {
-  const node1 = createRandomVertex();
-  const node2 = createRandomVertex();
-  const edge1 = createRandomEdge(node1, node2);
-  const edge2 = createRandomEdge(node2, node1);
+  const dbState = new DbState();
+  dbState.createVertexInGraph();
+  dbState.createVertexInGraph();
+  dbState.createEdgeInGraph(dbState.vertices[0], dbState.vertices[1]);
+  dbState.createEdgeInGraph(dbState.vertices[1], dbState.vertices[0]);
 
   const { result } = renderHookWithRecoilRoot(
     () => {
@@ -178,6 +181,8 @@ test("should remove all nodes and edges", async () => {
       const edgesOutOfFocus = useRecoilValue(edgesOutOfFocusIdsAtom);
       const edgesFiltered = useRecoilValue(edgesFilteredIdsAtom);
 
+      const graph = useRecoilValue(activeGraphSessionAtom);
+
       return {
         callback,
         nodes,
@@ -188,11 +193,11 @@ test("should remove all nodes and edges", async () => {
         edgesSelected,
         edgesOutOfFocus,
         edgesFiltered,
+        graph,
       };
     },
     snapshot => {
-      snapshot.set(nodesAtom, toNodeMap([node1, node2]));
-      snapshot.set(edgesAtom, toEdgeMap([edge1, edge2]));
+      dbState.applyTo(snapshot);
     }
   );
 
@@ -210,5 +215,49 @@ test("should remove all nodes and edges", async () => {
     expect(result.current.edgesSelected.size).toBe(0);
     expect(result.current.edgesOutOfFocus.size).toBe(0);
     expect(result.current.edgesFiltered.size).toBe(0);
+
+    expect(result.current.graph).toBe(null);
+  });
+});
+
+test("should update graph session", async () => {
+  const dbState = new DbState();
+
+  const node1 = createRandomVertex();
+  const node2 = createRandomVertex();
+  const edge1 = createRandomEdge(node1, node2);
+  const edge2 = createRandomEdge(node2, node1);
+
+  dbState.addVertexToGraph(node1);
+  dbState.addVertexToGraph(node2);
+  dbState.addEdgeToGraph(edge1);
+  dbState.addEdgeToGraph(edge2);
+
+  const { result } = renderHookWithRecoilRoot(
+    () => {
+      const callback = useRemoveFromGraph();
+      const graph = useRecoilValue(activeGraphSessionAtom);
+
+      return {
+        callback,
+        graph,
+      };
+    },
+    snapshot => {
+      dbState.applyTo(snapshot);
+    }
+  );
+
+  act(() => {
+    result.current.callback({ vertices: [node1.id] });
+  });
+
+  const expected: GraphSessionStorageModel = {
+    vertices: new Set([node2.id]),
+    edges: new Set(),
+  };
+
+  await waitFor(() => {
+    expect(result.current.graph).toEqual(expected);
   });
 });

@@ -2,6 +2,8 @@
 
 ## Upcoming
 
+- **Added** ability to restore the graph from the previous session
+  ([#826](https://github.com/aws/graph-explorer/pull/826))
 - **Fixed** issue with long node titles or descriptions pushing the "add to
   graph" button off the screen
   ([#824](https://github.com/aws/graph-explorer/pull/824))

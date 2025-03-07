@@ -19,6 +19,7 @@ import { saveLocalForageToFile } from "@/core/StateProvider/localDb";
 import localforage from "localforage";
 import LoadConfigButton from "./LoadConfigButton";
 import { APP_NAME } from "@/utils/constants";
+import { ComponentPropsWithoutRef } from "react";
 
 export default function SettingsGeneral() {
   const [isStateLoggingEnabled, setIsStateLoggingEnabled] = useRecoilState(
@@ -47,16 +48,16 @@ export default function SettingsGeneral() {
             However, the node & edge labels, ID values, and any value filters
             will be present in the queries.
           </ImportantBlock>
-          <Label>
-            <Checkbox
-              value="isLoggingDbQueryEnabled"
-              checked={allowLoggingDbQuery}
-              onCheckedChange={isSelected => {
-                setAllowLoggingDbQuery(Boolean(isSelected));
-              }}
-            />
-            Enable database query logging on proxy server
-          </Label>
+          <CheckboxSetting
+            id="isLoggingDbQueryEnabled"
+            value="isLoggingDbQueryEnabled"
+            checked={allowLoggingDbQuery}
+            onCheckedChange={isSelected => {
+              setAllowLoggingDbQuery(Boolean(isSelected));
+            }}
+            label="Enable database query logging on proxy server"
+            description="Logs the generated database queries to the servers logger."
+          />
         </SettingsSection>
 
         <SettingsSection className="items-start">
@@ -96,30 +97,58 @@ export default function SettingsGeneral() {
               </Paragraph>
             </div>
             <div className="flex flex-col gap-4">
-              <Label>
-                <Checkbox
-                  value="isStateLoggingEnabled"
-                  checked={isStateLoggingEnabled}
-                  onCheckedChange={isSelected => {
-                    setIsStateLoggingEnabled(Boolean(isSelected));
-                  }}
-                />
-                Enable Recoil state logging
-              </Label>
-              <Label>
-                <Checkbox
-                  value="isDebugOptionsEnabled"
-                  checked={isDebugOptionsEnabled}
-                  onCheckedChange={isSelected => {
-                    setIsDebugOptionsEnabled(Boolean(isSelected));
-                  }}
-                />
-                Show debug actions
-              </Label>
+              <CheckboxSetting
+                id="isStateLoggingEnabled"
+                value="isStateLoggingEnabled"
+                checked={isStateLoggingEnabled}
+                onCheckedChange={isSelected => {
+                  setIsStateLoggingEnabled(Boolean(isSelected));
+                }}
+                label="Enable Recoil state logging"
+                description="Logs all state changes to the browser console."
+              />
+              <CheckboxSetting
+                id="isDebugOptionsEnabled"
+                value="isDebugOptionsEnabled"
+                checked={isDebugOptionsEnabled}
+                onCheckedChange={isSelected => {
+                  setIsDebugOptionsEnabled(Boolean(isSelected));
+                }}
+                label="Show debug actions"
+                description="Shows debug actions in various places around the app such as buttons to delete the schema or reset the last sync time."
+              />
             </div>
           </SettingsSection>
         </NotInProduction>
       </SettingsSectionContainer>
     </>
+  );
+}
+
+function CheckboxSetting(
+  props: ComponentPropsWithoutRef<typeof Checkbox> & {
+    label: string;
+    description?: string;
+  }
+) {
+  return (
+    <div className="max-w-paragraph flex flex-row gap-3">
+      <div className="flex h-7 items-center">
+        <Checkbox {...props} />
+      </div>
+      <div className="flex flex-col gap-1">
+        <Label
+          htmlFor={props.id}
+          className="text-text-primary min-h-7 text-pretty text-base"
+        >
+          {props.label}
+        </Label>
+        {props.description ? (
+          <p className="text-text-secondary text-pretty text-base">
+            {props.description}
+          </p>
+        ) : null}
+      </div>
+    </div>
   );
 }

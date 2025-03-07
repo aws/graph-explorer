@@ -1,29 +1,31 @@
 import {
+  activeConfigurationAtom,
+  allGraphSessionsAtom,
+  configurationAtom,
   Edge,
   EdgeId,
   edgesAtom,
   edgesFilteredIdsAtom,
   edgesTypesFilteredAtom,
+  extractConfigFromEntity,
+  nodesAtom,
   nodesFilteredIdsAtom,
   nodesTypesFilteredAtom,
+  RawConfiguration,
+  Schema,
+  schemaAtom,
   toEdgeMap,
+  toNodeMap,
   Vertex,
   VertexId,
 } from "@/core";
-import {
-  activeConfigurationAtom,
-  configurationAtom,
-  nodesAtom,
-  RawConfiguration,
-  Schema,
-  toNodeMap,
-} from "@/core";
-import {
-  extractConfigFromEntity,
-  schemaAtom,
-} from "@/core/StateProvider/schema";
 import { MutableSnapshot } from "recoil";
-import { createRandomSchema, createRandomRawConfiguration } from "./randomData";
+import {
+  createRandomSchema,
+  createRandomRawConfiguration,
+  createRandomVertex,
+  createRandomEdge,
+} from "./randomData";
 
 /**
  * Helps build up the state of the recoil database with common data.
@@ -54,6 +56,11 @@ export class DbState {
     this.activeSchema.vertices.push(extractConfigFromEntity(vertex));
   }
 
+  /** Creates a new randome vertex and adds it to the graph. */
+  createVertexInGraph() {
+    this.addVertexToGraph(createRandomVertex());
+  }
+
   filterVertex(vertexId: VertexId) {
     this.filteredVertices.add(vertexId);
   }
@@ -65,6 +72,11 @@ export class DbState {
   addEdgeToGraph(edge: Edge) {
     this.edges.push(edge);
     this.activeSchema.edges.push(extractConfigFromEntity(edge));
+  }
+
+  /** Creates a new random edge with the given source and target, and adds it to the graph. */
+  createEdgeInGraph(source: Vertex, target: Vertex) {
+    this.addEdgeToGraph(createRandomEdge(source, target));
   }
 
   filterEdge(edgeId: EdgeId) {
@@ -97,5 +109,19 @@ export class DbState {
     snapshot.set(edgesAtom, toEdgeMap(this.edges));
     snapshot.set(edgesFilteredIdsAtom, this.filteredEdges);
     snapshot.set(edgesTypesFilteredAtom, this.filteredEdgeTypes);
+
+    // Graph Storage
+    snapshot.set(
+      allGraphSessionsAtom,
+      new Map([
+        [
+          this.activeConfig.id,
+          {
+            vertices: new Set(this.vertices.map(v => v.id)),
+            edges: new Set(this.edges.map(e => e.id)),
+          },
+        ],
+      ])
+    );
   }
 }

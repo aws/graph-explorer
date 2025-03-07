@@ -19,6 +19,7 @@ import {
   selectedAttributeAtom,
   selectedVertexTypeAtom,
 } from "@/modules/SearchSidebar/useKeywordSearch";
+import { isRestorePreviousSessionAvailableAtom } from "./graphSession";
 
 export default function useResetState() {
   return useRecoilCallback(
@@ -43,6 +44,9 @@ export default function useResetState() {
         reset(selectedVertexTypeAtom);
         reset(selectedAttributeAtom);
         reset(partialMatchAtom);
+
+        // Previous session
+        reset(isRestorePreviousSessionAvailableAtom);
       },
     []
   );

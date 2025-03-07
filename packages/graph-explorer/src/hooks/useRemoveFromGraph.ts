@@ -1,4 +1,5 @@
 import {
+  activeGraphSessionAtom,
   EdgeId,
   edgesAtom,
   edgesFilteredIdsAtom,
@@ -8,10 +9,12 @@ import {
   nodesFilteredIdsAtom,
   nodesOutOfFocusIdsAtom,
   nodesSelectedIdsAtom,
+  useUpdateGraphSession,
   VertexId,
 } from "@/core";
 import { useRecoilValue, useResetRecoilState, useSetRecoilState } from "recoil";
 import { startTransition, useCallback } from "react";
+import { logger } from "@/utils";
 
 export function useRemoveFromGraph() {
   const setVertices = useSetRecoilState(nodesAtom);
@@ -24,6 +27,8 @@ export function useRemoveFromGraph() {
   const setFilteredEdges = useSetRecoilState(edgesFilteredIdsAtom);
 
   const allEdges = useRecoilValue(edgesAtom);
+
+  const updateGraphStorage = useUpdateGraphSession();
 
   return useCallback(
     (entities: { vertices?: VertexId[]; edges?: EdgeId[] }) => {
@@ -63,10 +68,13 @@ export function useRemoveFromGraph() {
           setOutOfFocusEdges(prev => prev.difference(edgesToRemove));
           setFilteredEdges(prev => prev.difference(edgesToRemove));
         }
+
+        updateGraphStorage();
       });
     },
     [
       allEdges,
+      updateGraphStorage,
       setVertices,
       setSelectedVertices,
       setOutOfFocusVertices,
@@ -112,8 +120,10 @@ export function useClearGraph() {
   const resetOutOfFocusEdges = useResetRecoilState(edgesOutOfFocusIdsAtom);
   const resetFilteredVertices = useResetRecoilState(nodesFilteredIdsAtom);
   const resetFilteredEdges = useResetRecoilState(edgesFilteredIdsAtom);
+  const resetActiveGraph = useResetRecoilState(activeGraphSessionAtom);
 
   return useCallback(() => {
+    logger.log("Clearing graph state...");
     resetVertices();
     resetEdges();
     resetSelectedVertices();
@@ -122,6 +132,7 @@ export function useClearGraph() {
     resetOutOfFocusEdges();
     resetFilteredVertices();
     resetFilteredEdges();
+    resetActiveGraph();
   }, [
     resetVertices,
     resetEdges,
@@ -131,5 +142,6 @@ export function useClearGraph() {
     resetOutOfFocusEdges,
     resetFilteredVertices,
     resetFilteredEdges,
+    resetActiveGraph,
   ]);
 }

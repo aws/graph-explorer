@@ -1,7 +1,14 @@
-import { activeConfigurationAtom, configurationAtom, schemaAtom } from "@/core";
+import {
+  activeConfigurationAtom,
+  allGraphSessionsAtom,
+  configurationAtom,
+  schemaAtom,
+} from "@/core";
 import {
   createRandomRawConfiguration,
   createRandomSchema,
+  createRandomVertex,
+  DbState,
   renderHookWithRecoilRoot,
 } from "@/utils/testing";
 import { waitFor } from "@testing-library/react";
@@ -60,5 +67,30 @@ test("should delete the active schema", async () => {
 
   await waitFor(() => {
     expect(result.current.allSchemas.size).toBe(0);
+  });
+});
+
+test("should delete the graph session for the active connection", async () => {
+  const dbState = new DbState();
+  dbState.addVertexToGraph(createRandomVertex());
+
+  const { result } = renderHookWithRecoilRoot(
+    () => {
+      const callback = useDeleteActiveConfiguration();
+      const allGraphs = useRecoilValue(allGraphSessionsAtom);
+
+      return { callback, allGraphs };
+    },
+    snapshot => {
+      dbState.applyTo(snapshot);
+    }
+  );
+
+  act(() => {
+    result.current.callback();
+  });
+
+  await waitFor(() => {
+    expect(result.current.allGraphs.size).toBe(0);
   });
 });
