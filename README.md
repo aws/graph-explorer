@@ -288,7 +288,7 @@ Pass the `config.json` file path to the `docker run` command.
 docker run -p 80:80 -p 443:443 \
  --env HOST={hostname-or-ip-address} \
  -v /path/to/config.json:/graph-explorer/config.json \
- graph-explorer
+ public.ecr.aws/neptune/graph-explorer
 ```
 
 #### Environment Variable Approach
@@ -309,7 +309,7 @@ docker run -p 80:80 -p 443:443 \
  --env PROXY_SERVER_HTTPS_CONNECTION=true \
  --env GRAPH_EXP_FETCH_REQUEST_TIMEOUT=240000 \
  --env GRAPH_EXP_NODE_EXPANSION_LIMIT=500 \
- graph-explorer
+ public.ecr.aws/neptune/graph-explorer
 ```
 
 ## Development
