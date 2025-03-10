@@ -16,3 +16,4 @@ export * from "./set";
 export * from "./env";
 export * from "./constants";
 export * from "./NetworkError";
+export * from "./formatEntityCounts";
