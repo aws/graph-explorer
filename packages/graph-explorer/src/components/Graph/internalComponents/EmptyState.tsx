@@ -33,7 +33,7 @@ function RestorePreviousSessionEmptyState({
   );
 
   return (
-    <div className="z-panes absolute inset-0 flex flex-col items-center justify-center p-4">
+    <div className="absolute inset-0 z-20 flex flex-col items-center justify-center p-4">
       <PanelEmptyState
         icon={<SearchIcon />}
         title="Start a search or restore session"
