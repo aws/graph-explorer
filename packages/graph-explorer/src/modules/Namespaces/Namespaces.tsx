@@ -1,65 +1,51 @@
-import { useMemo, useState } from "react";
 import {
   Panel,
   PanelContent,
   PanelHeader,
   PanelHeaderActions,
-  PanelHeaderDivider,
   PanelTitle,
-  Select,
 } from "@/components";
-import { useConfiguration } from "@/core";
 import CommonPrefixes from "./CommonPrefixes";
 import GeneratedPrefixes from "./GeneratedPrefixes";
 import UserPrefixes from "./UserPrefixes";
 import { SidebarCloseButton } from "../SidebarCloseButton";
+import { Tabs, TabsContent, TabsTrigger } from "@/components/Tabs";
+import { TabsList } from "@radix-ui/react-tabs";
 
 function Namespaces() {
-  const config = useConfiguration();
-  const [nsType, setNsType] = useState("auto");
-
-  const nsOptions = useMemo(() => {
-    const totalCustom =
-      config?.schema?.prefixes?.filter(
-        prefixConfig => prefixConfig.__inferred !== true
-      ).length || 0;
-
-    const totalAuto =
-      config?.schema?.prefixes?.filter(
-        prefixConfig => prefixConfig.__inferred === true
-      ).length || 0;
-
-    return [
-      { label: `Auto-Generated (${totalAuto})`, value: "auto" },
-      { label: `Custom (${totalCustom})`, value: "custom" },
-      { label: "Common", value: "common" },
-    ];
-  }, [config?.schema?.prefixes]);
-
   return (
     <Panel variant="sidebar">
       <PanelHeader>
         <PanelTitle>Namespaces</PanelTitle>
 
         <PanelHeaderActions>
-          <Select
-            aria-label="Namespace type"
-            options={nsOptions}
-            value={nsType}
-            onChange={v => setNsType(v as string)}
-            hideError={true}
-            noMargin={true}
-            size="sm"
-          />
-          <PanelHeaderDivider />
           <SidebarCloseButton />
         </PanelHeaderActions>
       </PanelHeader>
 
-      <PanelContent className="flex h-full flex-col">
-        {nsType === "auto" && <GeneratedPrefixes />}
-        {nsType === "custom" && <UserPrefixes />}
-        {nsType === "common" && <CommonPrefixes />}
+      <PanelContent className="flex h-full flex-col overflow-hidden">
+        <Tabs defaultValue="auto" className="relative flex h-full flex-col">
+          <TabsList className="flex w-full flex-row">
+            <TabsTrigger value="auto" className="grow">
+              Auto-Generated
+            </TabsTrigger>
+            <TabsTrigger value="custom" className="grow">
+              Custom
+            </TabsTrigger>
+            <TabsTrigger value="common" className="grow">
+              Common
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="auto" className="h-full grow">
+            <GeneratedPrefixes />
+          </TabsContent>
+          <TabsContent value="custom" className="h-full grow">
+            <UserPrefixes />
+          </TabsContent>
+          <TabsContent value="common" className="h-full grow">
+            <CommonPrefixes />
+          </TabsContent>
+        </Tabs>
       </PanelContent>
     </Panel>
   );
