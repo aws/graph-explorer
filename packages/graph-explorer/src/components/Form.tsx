@@ -1,11 +1,3 @@
-// const FormItem = React.forwardRef<
-//   HTMLDivElement,
-//   React.HTMLAttributes<HTMLDivElement>
-// >(({ className, ...props }, ref) => {
-//   return <div ref={ref} className={cn("space-y-1", className)} {...props} />;
-// });
-// FormItem.displayName = "FormItem";
-
 import * as React from "react";
 import * as LabelPrimitive from "@radix-ui/react-label";
 import { Slot } from "@radix-ui/react-slot";
@@ -19,7 +11,7 @@ import {
 } from "react-hook-form";
 
 import { cn } from "@/utils";
-import { Label } from "@/components/radix";
+import { Label } from "@/components";
 
 const Form = FormProvider;
 

@@ -4,7 +4,9 @@ import { useRecoilState, useResetRecoilState } from "recoil";
 import {
   Button,
   ComponentBaseProps,
+  FormItem,
   Input,
+  Label,
   SelectField,
   StylingIcon,
 } from "@/components";
@@ -25,7 +27,6 @@ import { LINE_STYLE_OPTIONS } from "./lineStyling";
 import modalDefaultStyles from "./SingleEdgeStylingModal.style";
 import { useDebounceValue, usePrevious } from "@/hooks";
 import { MISSING_DISPLAY_TYPE, RESERVED_TYPES_PROPERTY } from "@/utils";
-import { FormItem, Label } from "@/components/radix";
 
 export type SingleEdgeStylingProps = {
   edgeType: string;

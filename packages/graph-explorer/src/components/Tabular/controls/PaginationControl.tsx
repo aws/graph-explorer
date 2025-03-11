@@ -1,15 +1,17 @@
 import { useMemo } from "react";
-import Button from "@/components/Button";
-import { toHumanString } from "@/components/HumanReadableNumberFormatter";
-import { IconButton } from "@/components";
+import {
+  Button,
+  IconButton,
+  Label,
+  SelectField,
+  toHumanString,
+} from "@/components";
 import {
   BackwardIcon,
   ForwardIcon,
   SkipBackwardIcon,
   SkipForwardIcon,
 } from "@/components/icons";
-import SelectField from "@/components/SelectField";
-import { Label } from "@/components/radix";
 import { cn } from "@/utils";
 
 export type PaginationControlProps = {

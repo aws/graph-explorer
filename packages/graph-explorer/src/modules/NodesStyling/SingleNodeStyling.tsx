@@ -4,8 +4,10 @@ import { useRecoilState, useResetRecoilState } from "recoil";
 import {
   Button,
   ComponentBaseProps,
+  FormItem,
   IconButton,
   Input,
+  Label,
   SelectField,
   StylingIcon,
   UploadIcon,
@@ -30,7 +32,6 @@ import {
   RESERVED_ID_PROPERTY,
   RESERVED_TYPES_PROPERTY,
 } from "@/utils/constants";
-import { FormItem, Label } from "@/components/radix";
 
 export type SingleNodeStylingProps = {
   vertexType: string;

@@ -1,9 +1,14 @@
 import { useCallback, useState } from "react";
 import { useRecoilCallback } from "recoil";
-import { InfoTooltip, TextArea } from "@/components";
-import Button from "@/components/Button";
-import Input from "@/components/Input";
-import SelectField from "@/components/SelectField";
+import {
+  Button,
+  Checkbox,
+  InfoTooltip,
+  Input,
+  Label,
+  SelectField,
+  TextArea,
+} from "@/components";
 import {
   ConnectionConfig,
   QueryEngine,
@@ -27,7 +32,6 @@ import {
   DEFAULT_FETCH_TIMEOUT,
   DEFAULT_NODE_EXPAND_LIMIT,
 } from "@/utils/constants";
-import { Checkbox, Label } from "@/components/radix";
 
 type ConnectionForm = {
   name?: string;

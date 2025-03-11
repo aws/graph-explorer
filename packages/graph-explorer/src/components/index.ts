@@ -3,6 +3,8 @@ import { ComponentProps, JSXElementConstructor } from "react";
 export { default as Button } from "./Button";
 export * from "./Button";
 
+export * from "./Checkbox";
+
 export { default as CheckboxList } from "./CheckboxList";
 export * from "./CheckboxList";
 
@@ -16,6 +18,7 @@ export { default as PanelError } from "./PanelError";
 export { default as Divider } from "./Divider";
 
 export * from "./FileButton";
+export * from "./Form";
 
 export { default as Graph } from "./Graph";
 export * from "./Graph";
@@ -31,6 +34,8 @@ export * from "./Input";
 
 export { default as TextArea } from "./TextArea";
 export * from "./TextArea";
+
+export * from "./Label";
 
 export { default as ListItem } from "./ListItem";
 export * from "./ListItem";
@@ -48,6 +53,7 @@ export { default as NotInProduction } from "./NotInProduction";
 export { default as SearchBar } from "./SearchBar";
 export * from "./SearchBar";
 
+export * from "./Select";
 export { default as SelectField } from "./SelectField";
 export * from "./SelectField";
 

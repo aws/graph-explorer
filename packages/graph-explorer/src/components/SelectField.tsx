@@ -5,17 +5,17 @@ import type {
   ReactNode,
 } from "react";
 import { forwardRef } from "react";
-import {
-  FormItem,
-  Label,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "./radix";
 import React from "react";
 import { cn } from "@/utils";
+import { Label } from "./Label";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "./Select";
+import { FormItem } from "./Form";
 
 export type SelectOption = {
   label: string;
@@ -27,8 +27,6 @@ export type SelectOption = {
     isDisabled?: boolean;
   }) => ReactNode;
 };
-
-export { Item, Section } from "@react-stately/collections";
 
 export type SelectFieldProps = {
   options: Array<SelectOption>;

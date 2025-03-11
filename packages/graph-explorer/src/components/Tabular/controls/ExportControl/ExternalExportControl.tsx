@@ -1,18 +1,23 @@
 import { saveAs } from "file-saver";
 import { useCallback, useState } from "react";
 import { Row } from "react-table";
-
-import { Button, Input, SelectField } from "@/components";
-import { Checkbox, Label } from "@/components/radix";
-import { IconButton } from "@/components";
-
+import {
+  Button,
+  Checkbox,
+  IconButton,
+  Input,
+  Label,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  SelectField,
+} from "@/components";
 import { TrayArrowIcon } from "@/components/icons";
 import { TabularInstance } from "@/components/Tabular/helpers/tableInstanceToTabularInstance";
 
 import transformToCsv from "./transfomerToCsv";
 import transformToJson from "./transfomerToJson";
 import { toCsvFileData, toJsonFileData } from "@/utils/fileData";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components";
 
 type ExportControlProps<T extends Record<string, unknown>> = {
   omittedColumnsIds?: string[];
