@@ -1,9 +1,7 @@
 import { FileButton, Modal } from "@mantine/core";
-import { useRecoilCallback, useRecoilValue } from "recoil";
+import { useRecoilValue } from "recoil";
 import {
   AddIcon,
-  Chip,
-  DatabaseIcon,
   PanelHeaderActionButton,
   PanelHeaderActions,
   PanelHeader,
@@ -12,30 +10,17 @@ import {
   PanelHeaderDivider,
   Panel,
   PanelContent,
-  ListRow,
-  ListRowSubtitle,
-  ListRowTitle,
-  ListRowContent,
 } from "@/components";
-import { useNotification } from "@/components/NotificationProvider";
-import Switch from "@/components/Switch";
-import {
-  ConfigurationId,
-  createNewConfigurationId,
-  RawConfiguration,
-} from "@/core";
 import {
   activeConfigurationAtom,
   configurationAtom,
 } from "@/core/StateProvider/configuration";
-import { schemaAtom } from "@/core/StateProvider/schema";
-import useResetState from "@/core/StateProvider/useResetState";
-import useTranslations from "@/hooks/useTranslations";
-import isValidConfigurationFile from "@/utils/isValidConfigurationFile";
 import CreateConnection from "@/modules/CreateConnection";
-import { fromFileToJson } from "@/utils/fileData";
+import { useMemo } from "react";
+import { cn } from "@/utils";
 import { Virtuoso } from "react-virtuoso";
-import React from "react";
+import { ConnectionRow } from "./ConnectionRow";
+import { useImportConnectionFile } from "./useImportConnectionFile";
 
 export type ConnectionDetailProps = {
   isSync: boolean;
@@ -48,9 +33,9 @@ const AvailableConnections = ({
   isModalOpen,
   onModalChange,
 }: ConnectionDetailProps) => {
-  const activeConfig = useRecoilValue(activeConfigurationAtom);
-  const configuration = useRecoilValue(configurationAtom);
-  const onConfigImport = useImportConfigFileCallback();
+  const activeConnectionId = useRecoilValue(activeConfigurationAtom);
+  const allConnections = useAllConnections();
+  const importConnectionFile = useImportConnectionFile();
 
   return (
     <Panel>
@@ -58,7 +43,7 @@ const AvailableConnections = ({
         <PanelTitle>Available connections</PanelTitle>
         <PanelHeaderActions>
           <FileButton
-            onChange={payload => payload && onConfigImport(payload)}
+            onChange={payload => payload && importConnectionFile(payload)}
             accept="application/json"
           >
             {props => (
@@ -79,15 +64,28 @@ const AvailableConnections = ({
         </PanelHeaderActions>
       </PanelHeader>
 
-      <PanelContent className="py-1.5">
+      <PanelContent>
         <Virtuoso
-          data={[...configuration.values()]}
-          itemContent={(_index, config) => (
-            <ConfigRow
-              config={config}
-              isSelected={activeConfig === config.id}
-              isDisabled={isSync}
-            />
+          data={allConnections}
+          itemContent={(index, connection) => (
+            <div
+              className={cn(
+                "px-3 py-1.5",
+                index === 0 && "pt-3",
+                index === allConnections.length - 1 && "pb-3"
+              )}
+            >
+              <div
+                key={connection.id}
+                className="has-[:checked]:bg-background-secondary-subtle has-[:checked]:ring-primary-main group rounded-lg ring-1 ring-gray-200 has-[:checked]:ring-2"
+              >
+                <ConnectionRow
+                  connection={connection}
+                  isSelected={activeConnectionId === connection.id}
+                  isDisabled={isSync}
+                />
+              </div>
+            </div>
           )}
         />
         <Modal
@@ -103,124 +101,9 @@ const AvailableConnections = ({
   );
 };
 
-const ConfigRow = React.memo(
-  ({
-    config,
-    isSelected,
-    isDisabled,
-  }: {
-    config: RawConfiguration;
-    isSelected: boolean;
-    isDisabled: boolean;
-  }) => {
-    const t = useTranslations();
-    const setActiveConfig = useSetActiveConfigCallback(config.id);
-
-    return (
-      <div className="px-3 py-1.5">
-        <ListRow
-          isDisabled={isDisabled}
-          onClick={setActiveConfig}
-          className="hover:cursor-pointer"
-        >
-          <DatabaseIcon className="text-primary-main size-6 shrink-0" />
-          <ListRowContent>
-            <ListRowTitle>{config.displayLabel || config.id}</ListRowTitle>
-            {config.connection ? (
-              <ListRowSubtitle>{config.connection.url}</ListRowSubtitle>
-            ) : null}
-          </ListRowContent>
-          <div className="flex items-center gap-2">
-            <Chip variant="info">
-              {t(
-                "available-connections.graph-type",
-                config.connection?.queryEngine || "gremlin"
-              )}
-            </Chip>
-            <Switch
-              className="item-switch"
-              labelPosition="left"
-              isSelected={isSelected}
-              onChange={setActiveConfig}
-              isDisabled={isDisabled}
-            >
-              {isSelected ? "Active" : "Inactive"}
-            </Switch>
-          </div>
-        </ListRow>
-      </div>
-    );
-  }
-);
-
-function useSetActiveConfigCallback(configId: ConfigurationId) {
-  const resetState = useResetState();
-  return useRecoilCallback(
-    ({ set }) =>
-      () => {
-        set(activeConfigurationAtom, configId);
-        resetState();
-      },
-    [configId, resetState]
-  );
-}
-
-function useImportConfigFileCallback() {
-  const resetState = useResetState();
-  const { enqueueNotification } = useNotification();
-  return useRecoilCallback(
-    ({ set }) =>
-      async (file: File) => {
-        const fileContent = await fromFileToJson(file);
-
-        if (!isValidConfigurationFile(fileContent)) {
-          enqueueNotification({
-            title: "Invalid File",
-            message: "The connection file is not valid",
-            type: "error",
-            stackable: true,
-          });
-          return;
-        }
-
-        // Create new id to avoid collisions
-        const newId = createNewConfigurationId();
-        set(configurationAtom, prevConfig => {
-          const updatedConfig = new Map(prevConfig);
-          updatedConfig.set(newId, {
-            id: newId,
-            displayLabel: fileContent.displayLabel,
-            connection: fileContent.connection,
-          });
-          return updatedConfig;
-        });
-        set(schemaAtom, prevSchema => {
-          const updatedSchema = new Map(prevSchema);
-          updatedSchema.set(newId, {
-            vertices: fileContent.schema?.vertices || [],
-            edges: fileContent.schema?.edges || [],
-            prefixes: fileContent.schema?.prefixes?.map(prefix => ({
-              ...prefix,
-              __matches: new Set(prefix.__matches || []),
-            })),
-            lastUpdate: fileContent.schema?.lastUpdate
-              ? new Date(fileContent.schema?.lastUpdate)
-              : undefined,
-          });
-          return updatedSchema;
-        });
-        set(activeConfigurationAtom, newId);
-
-        resetState();
-        enqueueNotification({
-          title: "File imported",
-          message: "Connection file successfully imported",
-          type: "success",
-          stackable: true,
-        });
-      },
-    [enqueueNotification, resetState]
-  );
+function useAllConnections() {
+  const connectionMap = useRecoilValue(configurationAtom);
+  return useMemo(() => connectionMap.values().toArray(), [connectionMap]);
 }
 
 export default AvailableConnections;

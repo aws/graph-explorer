@@ -4,10 +4,12 @@
 
 - **Added** ability to restore the graph from the previous session
   ([#826](https://github.com/aws/graph-explorer/pull/826))
+- **Updated** styling of the connections screen
+  ([#828](https://github.com/aws/graph-explorer/pull/828))
 - **Fixed** issue with long node titles or descriptions pushing the "add to
   graph" button off the screen
   ([#824](https://github.com/aws/graph-explorer/pull/824))
-- **Update** dependencies
+- **Updated** dependencies
   ([#827](https://github.com/aws/graph-explorer/pull/827))
 
 ## Release v1.14.1

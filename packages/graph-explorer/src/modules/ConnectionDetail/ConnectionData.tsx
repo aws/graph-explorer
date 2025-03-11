@@ -2,10 +2,6 @@ import { cn } from "@/utils";
 import { Link } from "react-router";
 import {
   ChevronRightIcon,
-  Chip,
-  EdgeIcon,
-  GraphIcon,
-  ListRow,
   ListRowContent,
   ListRowSubtitle,
   ListRowTitle,
@@ -14,58 +10,12 @@ import {
   useSearchItems,
   VertexIcon,
 } from "@/components";
-import HumanReadableNumberFormatter from "@/components/HumanReadableNumberFormatter";
-import {
-  DisplayVertexTypeConfig,
-  useDisplayVertexTypeConfigs,
-  useWithTheme,
-} from "@/core";
-import useEntitiesCounts from "@/hooks/useEntitiesCounts";
+import { DisplayVertexTypeConfig, useDisplayVertexTypeConfigs } from "@/core";
 import useTranslations from "@/hooks/useTranslations";
-import defaultStyles from "./ConnectionDetail.styles";
 import { Virtuoso } from "react-virtuoso";
-import React from "react";
+import React, { ComponentPropsWithoutRef } from "react";
 
-const ConnectionData = () => {
-  const styleWithTheme = useWithTheme();
-  const { totalNodes, totalEdges } = useEntitiesCounts();
-  const t = useTranslations();
-
-  return (
-    <div className={cn(styleWithTheme(defaultStyles), "flex grow flex-col")}>
-      <div className="info-bar">
-        <div className="item">
-          <div className="tag">{t("connection-detail.nodes")}</div>
-          <div className="value">
-            <Chip className="value-chip">
-              <GraphIcon />
-              {totalNodes != null && (
-                <HumanReadableNumberFormatter value={totalNodes} />
-              )}
-              {totalNodes == null && "Unknown"}
-            </Chip>
-          </div>
-        </div>
-        <div className="item">
-          <div className="tag">{t("connection-detail.edges")}</div>
-          <div className="value">
-            <Chip className="value-chip">
-              <EdgeIcon />
-              {totalEdges != null && (
-                <HumanReadableNumberFormatter value={totalEdges} />
-              )}
-              {totalEdges == null && "Unknown"}
-            </Chip>
-          </div>
-        </div>
-      </div>
-
-      <SearchableVertexTypesList />
-    </div>
-  );
-};
-
-function SearchableVertexTypesList() {
+export default function ConnectionData() {
   const vtConfigs = useDisplayVertexTypeConfigs().values().toArray();
 
   const { filteredItems, search, setSearch } = useSearchItems(
@@ -77,16 +27,18 @@ function SearchableVertexTypesList() {
 
   if (!vtConfigs.length) {
     return (
-      <PanelEmptyState
-        title={t("connection-detail.no-elements-title")}
-        subtitle={t("connection-detail.no-elements-subtitle")}
-      />
+      <Layout>
+        <PanelEmptyState
+          title={t("connection-detail.no-elements-title")}
+          subtitle={t("connection-detail.no-elements-subtitle")}
+        />
+      </Layout>
     );
   }
 
   return (
-    <>
-      <div className="w-full px-3 py-2">
+    <Layout>
+      <div className="w-full px-3 pb-1.5 pt-3">
         <SearchBar
           search={search}
           searchPlaceholder={t("connection-detail.search-placeholder")}
@@ -94,8 +46,12 @@ function SearchableVertexTypesList() {
         />
       </div>
       <VertexTypeList vtConfigs={filteredItems} />
-    </>
+    </Layout>
   );
+}
+
+function Layout({ className, ...props }: ComponentPropsWithoutRef<"div">) {
+  return <div className={cn("flex grow flex-col", className)} {...props} />;
 }
 
 function VertexTypeList({
@@ -104,39 +60,52 @@ function VertexTypeList({
   vtConfigs: DisplayVertexTypeConfig[];
 }) {
   const t = useTranslations();
-  if (!vtConfigs.length) {
-    return (
-      <PanelEmptyState
-        title={t("connection-detail.no-search-title")}
-        subtitle={t("connection-detail.no-search-subtitle")}
-      />
-    );
-  }
 
   return (
     <Virtuoso
       className="h-full grow"
       data={vtConfigs}
-      itemContent={(_index, config) => <Row config={config} />}
+      components={{
+        EmptyPlaceholder: props => (
+          <PanelEmptyState
+            title={t("connection-detail.no-search-title")}
+            subtitle={t("connection-detail.no-search-subtitle")}
+            {...props}
+          />
+        ),
+      }}
+      itemContent={(index, config) => (
+        <div
+          className={cn(
+            "px-3",
+            index === 0 && "pt-3",
+            index === vtConfigs.length - 1 && "pb-3"
+          )}
+        >
+          <div
+            className={cn(
+              "border-x border-b",
+              index === 0 && "rounded-t-lg border-t",
+              index === vtConfigs.length - 1 && "rounded-b-lg"
+            )}
+          >
+            <Row config={config} />
+          </div>
+        </div>
+      )}
     />
   );
 }
 
 const Row = React.memo(({ config }: { config: DisplayVertexTypeConfig }) => (
-  <div className="px-3 py-1.5">
-    <Link to={`/data-explorer/${encodeURIComponent(config.type)}`}>
-      <ListRow className="min-h-12 hover:cursor-pointer">
-        <VertexIcon vertexStyle={config.style} />
-        <ListRowContent>
-          <ListRowTitle>{config.displayLabel}</ListRowTitle>
-          <ListRowSubtitle>
-            {config.attributes.length} attributes
-          </ListRowSubtitle>
-        </ListRowContent>
-        <ChevronRightIcon className="text-text-secondary size-5" />
-      </ListRow>
-    </Link>
-  </div>
+  <Link to={`/data-explorer/${encodeURIComponent(config.type)}`}>
+    <div className="flex min-h-12 items-center gap-4 px-4 py-2 hover:cursor-pointer">
+      <VertexIcon vertexStyle={config.style} />
+      <ListRowContent>
+        <ListRowTitle>{config.displayLabel}</ListRowTitle>
+        <ListRowSubtitle>{config.attributes.length} attributes</ListRowSubtitle>
+      </ListRowContent>
+      <ChevronRightIcon className="text-text-secondary size-5" />
+    </div>
+  </Link>
 ));
-
-export default ConnectionData;
