@@ -10,8 +10,8 @@ import {
   FormItem,
   Label,
   Checkbox,
+  Input,
 } from "@/components";
-import { Input } from "@/components/radix";
 
 import { useTranslations } from "@/hooks";
 

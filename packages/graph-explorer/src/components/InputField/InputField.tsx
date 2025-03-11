@@ -44,9 +44,9 @@ interface NumberInputProps extends BaseInputProps, ValueBase<number> {
   step?: number;
 }
 
-export type InputProps = TextInputProps | NumberInputProps;
+export type InputFieldProps = TextInputProps | NumberInputProps;
 
-const isNumberInput = (props: InputProps): props is NumberInputProps =>
+const isNumberInput = (props: InputFieldProps): props is NumberInputProps =>
   props.type === "number";
 
 export const InputField = (
@@ -62,7 +62,7 @@ export const InputField = (
     clearButton,
     overrideInputProps,
     ...props
-  }: InputProps,
+  }: InputFieldProps,
   ref: ForwardedRef<HTMLInputElement>
 ) => {
   const {
@@ -153,4 +153,4 @@ export const InputField = (
   );
 };
 
-export default forwardRef<HTMLInputElement, InputProps>(InputField);
+export default forwardRef<HTMLInputElement, InputFieldProps>(InputField);

@@ -3,7 +3,7 @@ import { ColorPicker, ColorPickerProps } from "@mantine/core";
 import { useEffect, useState } from "react";
 import {
   InputField,
-  InputProps,
+  InputFieldProps,
   Popover,
   PopoverContent,
   PopoverTrigger,
@@ -12,7 +12,7 @@ import {
 const validHexColorRegex = /^#([0-9a-f]{3}){1,2}$/i;
 
 export interface ColorInputProps
-  extends Pick<InputProps, "label" | "labelPlacement">,
+  extends Pick<InputFieldProps, "label" | "labelPlacement">,
     ColorPickerProps {
   startColor?: string;
   onChange(color: string): void;

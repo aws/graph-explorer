@@ -29,6 +29,7 @@ export * from "./IconButton";
 
 export * from "./icons";
 
+export * from "./Input";
 export { default as InputField } from "./InputField";
 export * from "./InputField";
 
