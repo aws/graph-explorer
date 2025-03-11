@@ -51,6 +51,8 @@ export * from "./SearchBar";
 export { default as Select } from "./Select";
 export * from "./Select";
 
+export * from "./SidebarTabs";
+
 export * from "./Tooltip";
 export * from "./Typography";
 

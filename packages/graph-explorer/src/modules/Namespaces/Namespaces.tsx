@@ -4,13 +4,15 @@ import {
   PanelHeader,
   PanelHeaderActions,
   PanelTitle,
+  SidebarTabs,
+  SidebarTabsContent,
+  SidebarTabsList,
+  SidebarTabsTrigger,
 } from "@/components";
 import CommonPrefixes from "./CommonPrefixes";
 import GeneratedPrefixes from "./GeneratedPrefixes";
 import UserPrefixes from "./UserPrefixes";
 import { SidebarCloseButton } from "../SidebarCloseButton";
-import { Tabs, TabsContent, TabsTrigger } from "@/components/Tabs";
-import { TabsList } from "@radix-ui/react-tabs";
 
 function Namespaces() {
   return (
@@ -24,28 +26,22 @@ function Namespaces() {
       </PanelHeader>
 
       <PanelContent className="flex h-full flex-col overflow-hidden">
-        <Tabs defaultValue="auto" className="relative flex h-full flex-col">
-          <TabsList className="flex w-full flex-row">
-            <TabsTrigger value="auto" className="grow">
-              Auto-Generated
-            </TabsTrigger>
-            <TabsTrigger value="custom" className="grow">
-              Custom
-            </TabsTrigger>
-            <TabsTrigger value="common" className="grow">
-              Common
-            </TabsTrigger>
-          </TabsList>
-          <TabsContent value="auto" className="h-full grow">
+        <SidebarTabs defaultValue="auto">
+          <SidebarTabsList>
+            <SidebarTabsTrigger value="auto">Auto-Generated</SidebarTabsTrigger>
+            <SidebarTabsTrigger value="custom">Custom</SidebarTabsTrigger>
+            <SidebarTabsTrigger value="common">Common</SidebarTabsTrigger>
+          </SidebarTabsList>
+          <SidebarTabsContent value="auto">
             <GeneratedPrefixes />
-          </TabsContent>
-          <TabsContent value="custom" className="h-full grow">
+          </SidebarTabsContent>
+          <SidebarTabsContent value="custom">
             <UserPrefixes />
-          </TabsContent>
-          <TabsContent value="common" className="h-full grow">
+          </SidebarTabsContent>
+          <SidebarTabsContent value="common">
             <CommonPrefixes />
-          </TabsContent>
-        </Tabs>
+          </SidebarTabsContent>
+        </SidebarTabs>
       </PanelContent>
     </Panel>
   );
