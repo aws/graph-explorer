@@ -4,6 +4,7 @@ import {
   ListRowSubtitle,
   ListRowTitle,
   NamespaceIcon,
+  PanelEmptyState,
   SearchBar,
   useSearchItems,
 } from "@/components";
@@ -31,22 +32,35 @@ const CommonPrefixes = () => {
   );
 
   return (
-    <>
-      <div className="w-full px-3 py-2">
+    <div className="flex h-full grow flex-col">
+      <div className="w-full shrink-0 px-3 py-2">
         <SearchBar
           search={search}
-          searchPlaceholder="Search for Namespaces or URIs"
+          searchPlaceholder="Search for namespaces or URIs"
           onSearch={setSearch}
         />
       </div>
       <Virtuoso
-        className="h-full grow"
+        components={{
+          EmptyPlaceholder: NoSearchResults,
+        }}
         data={filteredItems}
         itemContent={(_index, prefix) => <Row prefix={prefix} />}
       />
-    </>
+    </div>
   );
 };
+
+function NoSearchResults() {
+  return (
+    <PanelEmptyState
+      className="p-6"
+      title="No Namespaces Found"
+      subtitle="No common namespaces found matching your search"
+      icon={<NamespaceIcon />}
+    />
+  );
+}
 
 const Row = React.memo(({ prefix }: { prefix: PrefixData }) => (
   <div className="px-3 py-1.5">

@@ -6,6 +6,8 @@
   ([#826](https://github.com/aws/graph-explorer/pull/826))
 - **Updated** styling of the connections screen
   ([#828](https://github.com/aws/graph-explorer/pull/828))
+- **Updated** namespaces sidebar to use tabs instead of dropdown
+  ([#830](https://github.com/aws/graph-explorer/pull/830))
 - **Fixed** issue with long node titles or descriptions pushing the "add to
   graph" button off the screen
   ([#824](https://github.com/aws/graph-explorer/pull/824))

@@ -1,10 +1,11 @@
-import { useMemo } from "react";
+import { ComponentPropsWithoutRef, useMemo } from "react";
 import {
   ListRow,
   ListRowContent,
   ListRowSubtitle,
   ListRowTitle,
   NamespaceIcon,
+  PanelEmptyState,
   SearchBar,
   useSearchItems,
 } from "@/components";
@@ -13,9 +14,49 @@ import { Virtuoso } from "react-virtuoso";
 import React from "react";
 
 const GeneratedPrefixes = () => {
+  const items = useGeneratedPrefixes();
+
+  const { filteredItems, search, setSearch } = useSearchItems(
+    items,
+    prefix => prefix.title
+  );
+
+  if (items.length === 0) {
+    return (
+      <Layout>
+        <NoGeneratedPrefixes />
+      </Layout>
+    );
+  }
+
+  return (
+    <Layout>
+      <div className="w-full shrink-0 px-3 py-2">
+        <SearchBar
+          search={search}
+          searchPlaceholder="Search for Namespaces or URIs"
+          onSearch={setSearch}
+        />
+      </div>
+      <Virtuoso
+        data={filteredItems}
+        components={{
+          EmptyPlaceholder: NoSearchResults,
+        }}
+        itemContent={(_index, prefix) => <Row prefix={prefix} />}
+      />
+    </Layout>
+  );
+};
+
+function Layout(props: ComponentPropsWithoutRef<"div">) {
+  return <div className="flex h-full grow flex-col" {...props} />;
+}
+
+function useGeneratedPrefixes() {
   const config = useConfiguration();
 
-  const items = useMemo(() => {
+  return useMemo(() => {
     return (config?.schema?.prefixes || [])
       .filter(
         prefixConfig =>
@@ -26,29 +67,29 @@ const GeneratedPrefixes = () => {
       .map(mapToPrefixData)
       .toSorted((a, b) => a.title.localeCompare(b.title));
   }, [config?.schema?.prefixes]);
+}
 
-  const { filteredItems, search, setSearch } = useSearchItems(
-    items,
-    prefix => prefix.title
-  );
-
+function NoGeneratedPrefixes() {
   return (
-    <>
-      <div className="w-full px-3 py-2">
-        <SearchBar
-          search={search}
-          searchPlaceholder="Search for Namespaces or URIs"
-          onSearch={setSearch}
-        />
-      </div>
-      <Virtuoso
-        className="h-full grow"
-        data={filteredItems}
-        itemContent={(_index, prefix) => <Row prefix={prefix} />}
-      />
-    </>
+    <PanelEmptyState
+      className="p-6"
+      title="No Namespaces"
+      subtitle="No auto-generated namespaces stored"
+      icon={<NamespaceIcon />}
+    />
   );
-};
+}
+
+function NoSearchResults() {
+  return (
+    <PanelEmptyState
+      className="p-6"
+      title="No Namespaces Found"
+      subtitle="No auto-generated namespaces found matching your search"
+      icon={<NamespaceIcon />}
+    />
+  );
+}
 
 function mapToPrefixData(prefixConfig: PrefixTypeConfig) {
   return {
