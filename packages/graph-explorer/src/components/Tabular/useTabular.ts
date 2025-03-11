@@ -55,9 +55,6 @@ export type TabularFilterType =
       options?: {
         operator: DefaultFilterTypes;
       };
-    }
-  | {
-      name: "single-select";
     };
 
 export type ColumnDefinition<T extends object> = Pick<

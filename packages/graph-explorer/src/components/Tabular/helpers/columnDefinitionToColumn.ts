@@ -1,7 +1,7 @@
 import { Column, ColumnGroup, ColumnInterfaceBasedOnValue } from "react-table";
 import type { ActiveThemeType } from "@/core";
 
-import { numericFilter, singleSelectionFilter } from "../filters";
+import { numericFilter } from "../filters";
 import type { ColumnDefinition } from "../useTabular";
 
 const resolverFilterType = <T extends object>(
@@ -25,13 +25,6 @@ const resolverFilterType = <T extends object>(
     return {
       ...restColumnsProps,
       ...numericFilter<T>(activeTheme)(filterType.options?.operator || "="),
-    };
-  }
-
-  if (filterType.name === "single-select") {
-    return {
-      ...restColumnsProps,
-      ...singleSelectionFilter<T>(activeTheme)(),
     };
   }
 
