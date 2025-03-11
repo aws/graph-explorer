@@ -7,7 +7,7 @@ import {
 } from "@/components";
 import { FilterSearchTabContent } from "./FilterSearchTabContent";
 import { SidebarCloseButton } from "../SidebarCloseButton";
-import { useQueryEngine } from "@/core";
+import { useFeatureFlags, useQueryEngine } from "@/core";
 import {
   SidebarTabs,
   SidebarTabsContent,
@@ -19,34 +19,36 @@ import { CodeIcon, ListFilterIcon } from "lucide-react";
 
 export function SearchSidebarPanel() {
   const queryEngine = useQueryEngine();
+  const featureFlags = useFeatureFlags();
 
-  if (queryEngine === "gremlin") {
+  // Hide tabs when not gremlin or the query editor feature is turned off
+  if (queryEngine !== "gremlin" || !featureFlags.showQueryEditor) {
     return (
       <Layout>
-        <SidebarTabs defaultValue="filter">
-          <SidebarTabsList>
-            <SidebarTabsTrigger value="filter">
-              <ListFilterIcon /> Filter
-            </SidebarTabsTrigger>
-            <SidebarTabsTrigger value="query">
-              <CodeIcon />
-              Query
-            </SidebarTabsTrigger>
-          </SidebarTabsList>
-          <SidebarTabsContent value="filter">
-            <FilterSearchTabContent />
-          </SidebarTabsContent>
-          <SidebarTabsContent value="query">
-            <QuerySearchTabContent />
-          </SidebarTabsContent>
-        </SidebarTabs>
+        <FilterSearchTabContent />
       </Layout>
     );
   }
 
   return (
     <Layout>
-      <FilterSearchTabContent />
+      <SidebarTabs defaultValue="filter">
+        <SidebarTabsList>
+          <SidebarTabsTrigger value="filter">
+            <ListFilterIcon /> Filter
+          </SidebarTabsTrigger>
+          <SidebarTabsTrigger value="query">
+            <CodeIcon />
+            Query
+          </SidebarTabsTrigger>
+        </SidebarTabsList>
+        <SidebarTabsContent value="filter">
+          <FilterSearchTabContent />
+        </SidebarTabsContent>
+        <SidebarTabsContent value="query">
+          <QuerySearchTabContent />
+        </SidebarTabsContent>
+      </SidebarTabs>
     </Layout>
   );
 }
