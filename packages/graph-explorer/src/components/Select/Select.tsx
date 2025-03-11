@@ -1,9 +1,21 @@
-import { Item } from "@react-stately/collections";
-import type { Selection } from "@react-types/shared";
-import type { ForwardedRef, ReactNode } from "react";
-import { Key } from "@react-types/shared";
-import { forwardRef, useMemo } from "react";
-import SelectBox from "./internalComponents/SelectBox";
+import type {
+  ComponentProps,
+  ComponentPropsWithoutRef,
+  ForwardedRef,
+  ReactNode,
+} from "react";
+import { forwardRef } from "react";
+import {
+  FormItem,
+  Label,
+  Select as RadixSelect,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../radix";
+import React from "react";
+import { cn } from "@/utils";
 
 export type SelectOption = {
   label: string;
@@ -20,82 +32,98 @@ export { Item, Section } from "@react-stately/collections";
 
 export type SelectProps = {
   options: Array<SelectOption>;
-  value?: string | string[];
-  onChange: (value: string | string[]) => void;
   label?: ReactNode;
-  ["aria-label"]?: string;
   labelPlacement?: "top" | "inner";
-  className?: string;
   placeholder?: string;
-  errorMessage?: string;
-  hideError?: boolean;
-  validationState?: "valid" | "invalid";
-  size?: "sm" | "md";
-  noMargin?: boolean;
-  isReadOnly?: boolean;
-  isDisabled?: boolean;
-  variant?: "default" | "text";
-  menuWidth?: number;
-};
+  ["aria-label"]?: string;
+} & Pick<ComponentProps<typeof RadixSelect>, "value" | "onValueChange"> &
+  ComponentPropsWithoutRef<typeof SelectTrigger>;
 
-const Select = (
-  { options = [], value, onChange, ...props }: SelectProps,
+function Select(
+  {
+    options = [],
+    value,
+    onValueChange,
+    label,
+    labelPlacement,
+    className,
+    ...props
+  }: SelectProps,
   ref: ForwardedRef<HTMLButtonElement>
-) => {
-  const optionsValues = useMemo(() => {
-    return options.map(option => option.value);
-  }, [options]);
+) {
+  const selectedOption = options.find(option => option.value === value);
 
-  // check if value is in the options
-  const currentValue = useMemo<Iterable<Key>>(() => {
-    if (value === undefined || value === null) {
-      return new Set();
-    }
-    if (Array.isArray(value)) {
-      return new Set(value.filter(val => optionsValues.includes(val)));
-    }
+  if (labelPlacement === "inner") {
+    return (
+      <RadixSelect value={value} onValueChange={onValueChange}>
+        <SelectTrigger ref={ref} className={cn("h-11", className)} {...props}>
+          <div className="flex flex-col items-start justify-center gap-0">
+            <div className="text-text-secondary text-xs leading-none">
+              {label}
+            </div>
+            <SelectValue>
+              {selectedOption ? (
+                <RenderItem item={selectedOption} />
+              ) : (
+                (props.placeholder ?? "Select a value")
+              )}
+            </SelectValue>
+          </div>
+        </SelectTrigger>
+        <SelectContent>
+          {options.map(option => (
+            <SelectItem
+              value={option.value}
+              key={option.value}
+              disabled={option.isDisabled}
+            >
+              <RenderItem item={option} />
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </RadixSelect>
+    );
+  }
 
-    return optionsValues.includes(value) ? new Set([value]) : new Set();
-  }, [value, optionsValues]);
-
-  const disabledKeys = useMemo(() => {
-    const disabledKeys: string[] = [];
-    options.forEach(option => {
-      if (option.isDisabled) {
-        disabledKeys.push(option.value);
-      }
-    });
-    return disabledKeys;
-  }, [options]);
   return (
-    <SelectBox
-      ref={ref}
-      {...props}
-      onSelectionChange={(value: Selection) => {
-        if (value !== "all") {
-          onChange([...value][0] as string);
-          return;
-        } else {
-          return [value];
-        }
-      }}
-      items={options}
-      selectedKeys={currentValue}
-      disabledKeys={disabledKeys}
-    >
-      {item => (
-        <Item key={item.value} textValue={item.label}>
-          {item.render
-            ? item.render({
-                label: item.label,
-                value: item.value,
-                isDisabled: item.isDisabled,
-              })
-            : item.label}
-        </Item>
-      )}
-    </SelectBox>
+    <FormItem>
+      {label ? <Label>{label}</Label> : null}
+      <RadixSelect value={value} onValueChange={onValueChange}>
+        <SelectTrigger>
+          <SelectValue>
+            {selectedOption ? (
+              <RenderItem item={selectedOption} />
+            ) : (
+              (props.placeholder ?? "Select a value")
+            )}
+          </SelectValue>
+        </SelectTrigger>
+        <SelectContent>
+          {options.map(option => (
+            <SelectItem
+              value={option.value}
+              key={option.value}
+              disabled={option.isDisabled}
+            >
+              <RenderItem item={option} />
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </RadixSelect>
+    </FormItem>
   );
-};
+}
+
+const RenderItem = React.memo(function ({ item }: { item: SelectOption }) {
+  if (!item.render) {
+    return item.label;
+  }
+
+  return item.render({
+    label: item.label,
+    value: item.value,
+    isDisabled: item.isDisabled,
+  });
+});
 
 export default forwardRef<HTMLButtonElement, SelectProps>(Select);

@@ -41,9 +41,8 @@ const ModuleContainerTabularHeader = ({
         <Select
           aria-label="Table"
           value={selectedTable}
-          onChange={option => onTableChange(option as string)}
+          onValueChange={onTableChange}
           options={tables}
-          hideError={true}
         />
       </div>
       <div className="grow" />

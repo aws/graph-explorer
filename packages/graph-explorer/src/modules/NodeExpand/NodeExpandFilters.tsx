@@ -82,9 +82,7 @@ const NodeExpandFilters = ({
       <Select
         aria-label="neighbor type"
         value={selectedType}
-        onChange={v => {
-          onSelectedTypeChange(v as string);
-        }}
+        onValueChange={onSelectedTypeChange}
         options={neighborsOptions}
       />
       {hasSearchableAttributes && (
@@ -105,12 +103,10 @@ const NodeExpandFilters = ({
               <Select
                 aria-label="Attribute"
                 value={filter.name}
-                onChange={value => {
-                  onFilterChange(filterIndex, value as string, filter.value);
+                onValueChange={value => {
+                  onFilterChange(filterIndex, value, filter.value);
                 }}
                 options={attributeSelectOptions}
-                hideError={true}
-                noMargin={true}
               />
               <Input
                 aria-label="Filter"

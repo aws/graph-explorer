@@ -175,25 +175,21 @@ export default function SingleNodeStyling({
                 label="Display Name Attribute"
                 labelPlacement="inner"
                 value={displayConfig.displayNameAttribute}
-                onChange={value => {
-                  onUserPrefsChange({ displayNameAttribute: value as string });
+                onValueChange={value => {
+                  onUserPrefsChange({ displayNameAttribute: value });
                 }}
                 options={selectOptions}
-                hideError={true}
-                noMargin={true}
               />
               <Select
                 label="Display Description Attribute"
                 labelPlacement="inner"
                 value={displayConfig.displayDescriptionAttribute}
-                onChange={value => {
+                onValueChange={value => {
                   onUserPrefsChange({
-                    longDisplayNameAttribute: value as string,
+                    longDisplayNameAttribute: value,
                   });
                 }}
                 options={selectOptions}
-                hideError={true}
-                noMargin={true}
               />
             </div>
           </div>
@@ -204,12 +200,10 @@ export default function SingleNodeStyling({
                 label="Style"
                 labelPlacement="inner"
                 value={nodePreferences?.shape || "ellipse"}
-                onChange={value =>
+                onValueChange={value =>
                   onUserPrefsChange({ shape: value as ShapeStyle })
                 }
                 options={NODE_SHAPE}
-                hideError={true}
-                noMargin={true}
                 className="grow"
               />
               <FileButton
@@ -291,12 +285,10 @@ export default function SingleNodeStyling({
                 label="Border Style"
                 labelPlacement="inner"
                 value={nodePreferences?.borderStyle || "solid"}
-                onChange={value =>
+                onValueChange={value =>
                   onUserPrefsChange({ borderStyle: value as LineStyle })
                 }
                 options={LINE_STYLE_OPTIONS}
-                hideError={true}
-                noMargin={true}
               />
             </div>
           </div>

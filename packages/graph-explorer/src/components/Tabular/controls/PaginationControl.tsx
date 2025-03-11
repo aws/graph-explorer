@@ -86,10 +86,8 @@ export function PaginationControl({
               label: pageOption.toString(),
               value: pageOption.toString(),
             }))}
-            noMargin
-            hideError
             value={pageSize.toString()}
-            onChange={value => onPageSizeChange(parseInt(value as string))}
+            onValueChange={value => onPageSizeChange(parseInt(value))}
           />
           <IconButton
             disabled={pageIndex - 1 < 0}

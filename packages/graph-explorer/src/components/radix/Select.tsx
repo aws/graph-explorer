@@ -24,7 +24,7 @@ const SelectTrigger = React.forwardRef<
   >
     {children}
     <SelectPrimitive.Icon asChild>
-      <ChevronDownIcon className="size-5" />
+      <ChevronDownIcon className="ml-2 size-5" />
     </SelectPrimitive.Icon>
   </SelectPrimitive.Trigger>
 ));

@@ -186,11 +186,9 @@ export default function GraphViewer({
               className="min-w-auto max-w-64"
               label="Layout"
               labelPlacement="inner"
-              hideError={true}
               options={LAYOUT_OPTIONS}
               value={layout}
-              noMargin
-              onChange={v => setLayout(v as string)}
+              onValueChange={setLayout}
             />
             <IconButton
               tooltipText="Re-run Layout"

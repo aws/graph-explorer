@@ -168,8 +168,7 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
         <Label>Format</Label>
         <Select
           value={format}
-          onChange={f => setFormat(f as string)}
-          noMargin
+          onValueChange={setFormat}
           options={[
             {
               label: "CSV",

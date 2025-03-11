@@ -121,9 +121,6 @@ const defaultStyles = ({ theme }: ActiveThemeType) => css`
       justify-content: flex-end;
       align-items: center;
       gap: ${theme.spacing["2x"]};
-      .header-select {
-        width: 200px;
-      }
     }
   }
 `;

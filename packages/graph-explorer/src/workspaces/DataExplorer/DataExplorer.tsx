@@ -239,22 +239,18 @@ function DisplayNameAndDescriptionOptions({
   return (
     <div className="header-children">
       <Select
-        className="header-select"
+        className="w-[200px]"
         value={vertexConfig?.displayNameAttribute || ""}
-        onChange={onDisplayNameChange("name")}
+        onValueChange={onDisplayNameChange("name")}
         options={selectOptions}
-        hideError={true}
-        noMargin={true}
         label="Display Name"
         labelPlacement="inner"
       />
       <Select
-        className="header-select"
+        className="w-[200px]"
         value={vertexConfig?.longDisplayNameAttribute || ""}
-        onChange={onDisplayNameChange("longName")}
+        onValueChange={onDisplayNameChange("longName")}
         options={selectOptions}
-        hideError={true}
-        noMargin={true}
         label="Display Description"
         labelPlacement="inner"
       />

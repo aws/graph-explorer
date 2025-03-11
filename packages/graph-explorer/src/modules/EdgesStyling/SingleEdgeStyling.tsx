@@ -134,12 +134,10 @@ export default function SingleEdgeStyling({
                 label="Display Name Attribute"
                 labelPlacement="inner"
                 value={displayConfig.displayNameAttribute}
-                onChange={value =>
-                  onUserPrefsChange({ displayNameAttribute: value as string })
+                onValueChange={value =>
+                  onUserPrefsChange({ displayNameAttribute: value })
                 }
                 options={selectOptions}
-                hideError={true}
-                noMargin={true}
               />
             </div>
           </div>
@@ -196,12 +194,10 @@ export default function SingleEdgeStyling({
                 label="Border Style"
                 labelPlacement="inner"
                 value={edgePreferences?.labelBorderStyle || "solid"}
-                onChange={value =>
+                onValueChange={value =>
                   onUserPrefsChange({ labelBorderStyle: value as LineStyle })
                 }
                 options={LINE_STYLE_OPTIONS}
-                hideError={true}
-                noMargin={true}
               />
             </div>
           </div>
@@ -232,12 +228,10 @@ export default function SingleEdgeStyling({
                 label="Style"
                 labelPlacement="inner"
                 value={edgePreferences?.lineStyle || "solid"}
-                onChange={value =>
+                onValueChange={value =>
                   onUserPrefsChange({ lineStyle: value as LineStyle })
                 }
                 options={LINE_STYLE_OPTIONS}
-                hideError={true}
-                noMargin={true}
               />
             </div>
           </div>
@@ -248,23 +242,19 @@ export default function SingleEdgeStyling({
                 label="Source"
                 labelPlacement="inner"
                 value={edgePreferences?.sourceArrowStyle || "none"}
-                onChange={value =>
+                onValueChange={value =>
                   onUserPrefsChange({ sourceArrowStyle: value as ArrowStyle })
                 }
                 options={SOURCE_ARROW_STYLE_OPTIONS}
-                hideError={true}
-                noMargin={true}
               />
               <Select
                 label="Target"
                 labelPlacement="inner"
                 value={edgePreferences?.targetArrowStyle || "triangle"}
-                onChange={value =>
+                onValueChange={value =>
                   onUserPrefsChange({ targetArrowStyle: value as ArrowStyle })
                 }
                 options={TARGET_ARROW_STYLE_OPTIONS}
-                hideError={true}
-                noMargin={true}
               />
             </div>
           </div>

@@ -241,8 +241,8 @@ const CreateConnection = ({
           label="Graph Type"
           options={CONNECTIONS_OP}
           value={form.queryEngine}
-          onChange={onFormChange("queryEngine")}
-          isDisabled={form.serviceType === "neptune-graph"}
+          onValueChange={onFormChange("queryEngine")}
+          disabled={form.serviceType === "neptune-graph"}
         />
         <div className="input-url">
           <TextArea
@@ -329,7 +329,7 @@ const CreateConnection = ({
                   { label: "Neptune Analytics", value: "neptune-graph" },
                 ]}
                 value={form.serviceType}
-                onChange={onFormChange("serviceType")}
+                onValueChange={onFormChange("serviceType")}
               />
             </div>
           </>
