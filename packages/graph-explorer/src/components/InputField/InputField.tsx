@@ -11,7 +11,7 @@ import type {
 } from "react";
 import { forwardRef, useRef } from "react";
 import { useWithTheme } from "@/core";
-import { inputContainerStyles } from "./Input.styles";
+import { inputContainerStyles } from "./InputField.styles";
 
 export interface BaseInputProps
   extends Omit<
@@ -49,7 +49,7 @@ export type InputProps = TextInputProps | NumberInputProps;
 const isNumberInput = (props: InputProps): props is NumberInputProps =>
   props.type === "number";
 
-export const Input = (
+export const InputField = (
   {
     labelPlacement = "top",
     size = "md",
@@ -153,4 +153,4 @@ export const Input = (
   );
 };
 
-export default forwardRef<HTMLInputElement, InputProps>(Input);
+export default forwardRef<HTMLInputElement, InputProps>(InputField);

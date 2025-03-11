@@ -6,7 +6,7 @@ import {
   ComponentBaseProps,
   FormItem,
   IconButton,
-  Input,
+  InputField,
   Label,
   SelectField,
   StylingIcon,
@@ -135,7 +135,7 @@ export default function SingleNodeStyling({
       )}
 
       <div className="flex flex-row items-center gap-2">
-        <Input
+        <InputField
           className="grow"
           label="Display As"
           labelPlacement="inner"
@@ -244,7 +244,7 @@ export default function SingleNodeStyling({
                 startColor={nodePreferences?.color || "#17457b"}
                 onChange={(color: string) => onUserPrefsChange({ color })}
               />
-              <Input
+              <InputField
                 label="Background Opacity"
                 labelPlacement="inner"
                 type="number"
@@ -270,7 +270,7 @@ export default function SingleNodeStyling({
                   onUserPrefsChange({ borderColor: color })
                 }
               />
-              <Input
+              <InputField
                 label="Border Width"
                 labelPlacement="inner"
                 type="number"

@@ -5,7 +5,7 @@ import {
   Button,
   Checkbox,
   IconButton,
-  Input,
+  InputField,
   Label,
   Popover,
   PopoverContent,
@@ -185,7 +185,7 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
       </div>
       <div className="space-y-1">
         <Label htmlFor="exportName">Save as</Label>
-        <Input
+        <InputField
           name="exportName"
           aria-label="Export name"
           value={name}

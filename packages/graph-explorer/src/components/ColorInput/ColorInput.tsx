@@ -2,7 +2,7 @@ import { cn } from "@/utils";
 import { ColorPicker, ColorPickerProps } from "@mantine/core";
 import { useEffect, useState } from "react";
 import {
-  Input,
+  InputField,
   InputProps,
   Popover,
   PopoverContent,
@@ -48,7 +48,7 @@ function ColorInput({
     <Popover>
       <PopoverTrigger asChild>
         <div className={cn("relative", className)}>
-          <Input
+          <InputField
             label={label}
             labelPlacement={labelPlacement}
             aria-label="color-input"

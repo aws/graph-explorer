@@ -5,7 +5,7 @@ import {
   DeleteIcon,
   IconButton,
   InfoTooltip,
-  Input,
+  InputField,
   SelectField,
   SelectOption,
 } from "@/components";
@@ -108,7 +108,7 @@ const NodeExpandFilters = ({
                 }}
                 options={attributeSelectOptions}
               />
-              <Input
+              <InputField
                 aria-label="Filter"
                 className="input"
                 value={filter.value}
@@ -146,7 +146,7 @@ const NodeExpandFilters = ({
       </div>
       {limit !== null && (
         <div className="limit">
-          <Input
+          <InputField
             aria-label="limit"
             className="input"
             type="number"

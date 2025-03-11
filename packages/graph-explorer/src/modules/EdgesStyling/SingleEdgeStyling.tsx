@@ -5,7 +5,7 @@ import {
   Button,
   ComponentBaseProps,
   FormItem,
-  Input,
+  InputField,
   Label,
   SelectField,
   StylingIcon,
@@ -94,7 +94,7 @@ export default function SingleEdgeStyling({
         <Label>{MISSING_DISPLAY_TYPE}</Label>
       )}
       <div className="flex flex-row items-center gap-2">
-        <Input
+        <InputField
           className="grow"
           label="Display As"
           labelPlacement="inner"
@@ -153,7 +153,7 @@ export default function SingleEdgeStyling({
                   onUserPrefsChange({ labelColor: color })
                 }
               />
-              <Input
+              <InputField
                 label="Background Opacity"
                 labelPlacement="inner"
                 type="number"
@@ -179,7 +179,7 @@ export default function SingleEdgeStyling({
                   onUserPrefsChange({ labelBorderColor: color })
                 }
               />
-              <Input
+              <InputField
                 label="Border Width"
                 labelPlacement="inner"
                 type="number"
@@ -213,7 +213,7 @@ export default function SingleEdgeStyling({
                   onUserPrefsChange({ lineColor: color })
                 }
               />
-              <Input
+              <InputField
                 label="Thickness"
                 labelPlacement="inner"
                 type="number"

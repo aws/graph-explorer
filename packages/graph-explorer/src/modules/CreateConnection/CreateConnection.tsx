@@ -4,7 +4,7 @@ import {
   Button,
   Checkbox,
   InfoTooltip,
-  Input,
+  InputField,
   Label,
   SelectField,
   TextArea,
@@ -234,7 +234,7 @@ const CreateConnection = ({
   return (
     <div className={styleWithTheme(defaultStyles)}>
       <div className="configuration-form">
-        <Input
+        <InputField
           label="Name"
           value={form.name}
           onChange={onFormChange("name")}
@@ -313,7 +313,7 @@ const CreateConnection = ({
         {form.proxyConnection && form.awsAuthEnabled && (
           <>
             <div className="input-url">
-              <Input
+              <InputField
                 data-autofocus={true}
                 label="AWS Region"
                 value={form.awsRegion}
@@ -358,7 +358,7 @@ const CreateConnection = ({
         </Label>
         {form.fetchTimeoutEnabled && (
           <div className="input-url">
-            <Input
+            <InputField
               label="Fetch Timeout (ms)"
               type="number"
               value={form.fetchTimeoutMs}
@@ -387,7 +387,7 @@ const CreateConnection = ({
         </Label>
         {form.nodeExpansionLimitEnabled && (
           <div className="input-url">
-            <Input
+            <InputField
               label="Node Expansion Limit"
               type="number"
               value={form.nodeExpansionLimit}

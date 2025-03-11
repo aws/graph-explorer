@@ -6,7 +6,7 @@ import type { ActiveThemeType } from "@/core";
 import { cssVar } from "@/core/ThemeProvider/utils/lib";
 
 import { FilterIcon } from "@/components/icons";
-import Input from "@/components/Input";
+import { InputField } from "@/components";
 
 const defaultStyles = (isDarkTheme?: boolean) => css`
   width: 100%;
@@ -38,7 +38,7 @@ export const TextFilter =
     return ({ column }: { column: ColumnInstance<T> }) => {
       return (
         <div className={defaultStyles(activeTheme?.isDarkTheme)}>
-          <Input
+          <InputField
             aria-label={`filter by ${column.id}`}
             className="input-root"
             type="text"
