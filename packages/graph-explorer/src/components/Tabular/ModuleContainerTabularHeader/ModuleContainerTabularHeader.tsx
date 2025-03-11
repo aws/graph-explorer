@@ -3,7 +3,7 @@ import { ReactNode } from "react";
 
 import { useWithTheme } from "@/core";
 import { GridIcon } from "@/components/icons";
-import Select from "@/components/Select";
+import SelectField from "@/components/SelectField";
 import { ExportControl } from "../controls";
 
 import defaultStyles from "./ModuleContainerTabularHeader.styles";
@@ -38,7 +38,7 @@ const ModuleContainerTabularHeader = ({
         {moduleName}
       </div>
       <div className="select-table">
-        <Select
+        <SelectField
           aria-label="Table"
           value={selectedTable}
           onValueChange={onTableChange}

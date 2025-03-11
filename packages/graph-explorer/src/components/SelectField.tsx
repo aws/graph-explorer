@@ -8,12 +8,12 @@ import { forwardRef } from "react";
 import {
   FormItem,
   Label,
-  Select as RadixSelect,
+  Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../radix";
+} from "./radix";
 import React from "react";
 import { cn } from "@/utils";
 
@@ -30,16 +30,16 @@ export type SelectOption = {
 
 export { Item, Section } from "@react-stately/collections";
 
-export type SelectProps = {
+export type SelectFieldProps = {
   options: Array<SelectOption>;
   label?: ReactNode;
   labelPlacement?: "top" | "inner";
   placeholder?: string;
   ["aria-label"]?: string;
-} & Pick<ComponentProps<typeof RadixSelect>, "value" | "onValueChange"> &
+} & Pick<ComponentProps<typeof Select>, "value" | "onValueChange"> &
   ComponentPropsWithoutRef<typeof SelectTrigger>;
 
-function Select(
+function SelectField(
   {
     options = [],
     value,
@@ -48,14 +48,14 @@ function Select(
     labelPlacement,
     className,
     ...props
-  }: SelectProps,
+  }: SelectFieldProps,
   ref: ForwardedRef<HTMLButtonElement>
 ) {
   const selectedOption = options.find(option => option.value === value);
 
   if (labelPlacement === "inner") {
     return (
-      <RadixSelect value={value} onValueChange={onValueChange}>
+      <Select value={value} onValueChange={onValueChange}>
         <SelectTrigger ref={ref} className={cn("h-11", className)} {...props}>
           <div className="flex flex-col items-start justify-center gap-0">
             <div className="text-text-secondary text-xs leading-none">
@@ -81,14 +81,14 @@ function Select(
             </SelectItem>
           ))}
         </SelectContent>
-      </RadixSelect>
+      </Select>
     );
   }
 
   return (
     <FormItem>
       {label ? <Label>{label}</Label> : null}
-      <RadixSelect value={value} onValueChange={onValueChange}>
+      <Select value={value} onValueChange={onValueChange}>
         <SelectTrigger>
           <SelectValue>
             {selectedOption ? (
@@ -109,7 +109,7 @@ function Select(
             </SelectItem>
           ))}
         </SelectContent>
-      </RadixSelect>
+      </Select>
     </FormItem>
   );
 }
@@ -126,4 +126,4 @@ const RenderItem = React.memo(function ({ item }: { item: SelectOption }) {
   });
 });
 
-export default forwardRef<HTMLButtonElement, SelectProps>(Select);
+export default forwardRef<HTMLButtonElement, SelectFieldProps>(SelectField);

@@ -8,7 +8,7 @@ import {
   SkipBackwardIcon,
   SkipForwardIcon,
 } from "@/components/icons";
-import Select from "@/components/Select";
+import SelectField from "@/components/SelectField";
 import { Label } from "@/components/radix";
 import { cn } from "@/utils";
 
@@ -81,7 +81,7 @@ export function PaginationControl({
       {totalRows > 0 && (
         <div className="flex flex-row items-center gap-1">
           <Label className="shrink-0">Page size:</Label>
-          <Select
+          <SelectField
             options={pageOptions.map(pageOption => ({
               label: pageOption.toString(),
               value: pageOption.toString(),

@@ -26,7 +26,7 @@ import Graph from "@/components/Graph";
 import { GraphRef } from "@/components/Graph/Graph";
 import { ElementEventCallback } from "@/components/Graph/hooks/useAddClickEvents";
 import { IconButton } from "@/components";
-import Select from "@/components/Select";
+import SelectField from "@/components/SelectField";
 import {
   edgesOutOfFocusRenderedIdsAtom,
   edgesSelectedRenderedIdsAtom,
@@ -182,7 +182,7 @@ export default function GraphViewer({
         <PanelHeader>
           <PanelTitle>Graph View</PanelTitle>
           <PanelHeaderActions>
-            <Select
+            <SelectField
               className="min-w-auto max-w-64"
               label="Layout"
               labelPlacement="inner"

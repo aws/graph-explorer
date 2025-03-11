@@ -6,7 +6,7 @@ import {
   IconButton,
   InfoTooltip,
   Input,
-  Select,
+  SelectField,
   SelectOption,
 } from "@/components";
 import { useDisplayVertexTypeConfig } from "@/core";
@@ -79,7 +79,7 @@ const NodeExpandFilters = ({
   return (
     <div className="filters-section">
       <div className="title">{t("node-expand.neighbors-of-type")}</div>
-      <Select
+      <SelectField
         aria-label="neighbor type"
         value={selectedType}
         onValueChange={onSelectedTypeChange}
@@ -100,7 +100,7 @@ const NodeExpandFilters = ({
         <div className="filters">
           {filters.map((filter, filterIndex) => (
             <div key={filterIndex} className="single-filter">
-              <Select
+              <SelectField
                 aria-label="Attribute"
                 value={filter.name}
                 onValueChange={value => {

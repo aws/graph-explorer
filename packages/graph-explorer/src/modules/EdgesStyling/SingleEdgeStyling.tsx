@@ -5,7 +5,7 @@ import {
   Button,
   ComponentBaseProps,
   Input,
-  Select,
+  SelectField,
   StylingIcon,
 } from "@/components";
 import ColorInput from "@/components/ColorInput/ColorInput";
@@ -130,7 +130,7 @@ export default function SingleEdgeStyling({
           <div>
             <p>Display Attributes</p>
             <div className="attrs-container">
-              <Select
+              <SelectField
                 label="Display Name Attribute"
                 labelPlacement="inner"
                 value={displayConfig.displayNameAttribute}
@@ -190,7 +190,7 @@ export default function SingleEdgeStyling({
                 hideError={true}
                 noMargin={true}
               />
-              <Select
+              <SelectField
                 label="Border Style"
                 labelPlacement="inner"
                 value={edgePreferences?.labelBorderStyle || "solid"}
@@ -224,7 +224,7 @@ export default function SingleEdgeStyling({
                 hideError={true}
                 noMargin={true}
               />
-              <Select
+              <SelectField
                 label="Style"
                 labelPlacement="inner"
                 value={edgePreferences?.lineStyle || "solid"}
@@ -238,7 +238,7 @@ export default function SingleEdgeStyling({
           <div>
             <p>Arrows Styling</p>
             <div className="attrs-container">
-              <Select
+              <SelectField
                 label="Source"
                 labelPlacement="inner"
                 value={edgePreferences?.sourceArrowStyle || "none"}
@@ -247,7 +247,7 @@ export default function SingleEdgeStyling({
                 }
                 options={SOURCE_ARROW_STYLE_OPTIONS}
               />
-              <Select
+              <SelectField
                 label="Target"
                 labelPlacement="inner"
                 value={edgePreferences?.targetArrowStyle || "triangle"}

@@ -17,7 +17,7 @@ import {
   PanelError,
   PanelHeader,
   PanelTitle,
-  Select,
+  SelectField,
   SendIcon,
 } from "@/components";
 import Button from "@/components/Button";
@@ -238,7 +238,7 @@ function DisplayNameAndDescriptionOptions({
 
   return (
     <div className="header-children">
-      <Select
+      <SelectField
         className="w-[200px]"
         value={vertexConfig?.displayNameAttribute || ""}
         onValueChange={onDisplayNameChange("name")}
@@ -246,7 +246,7 @@ function DisplayNameAndDescriptionOptions({
         label="Display Name"
         labelPlacement="inner"
       />
-      <Select
+      <SelectField
         className="w-[200px]"
         value={vertexConfig?.longDisplayNameAttribute || ""}
         onValueChange={onDisplayNameChange("longName")}

@@ -3,7 +3,7 @@ import { useRecoilCallback } from "recoil";
 import { InfoTooltip, TextArea } from "@/components";
 import Button from "@/components/Button";
 import Input from "@/components/Input";
-import Select from "@/components/Select";
+import SelectField from "@/components/SelectField";
 import {
   ConnectionConfig,
   QueryEngine,
@@ -237,7 +237,7 @@ const CreateConnection = ({
           errorMessage="Name is required"
           validationState={hasError && !form.name ? "invalid" : "valid"}
         />
-        <Select
+        <SelectField
           label="Graph Type"
           options={CONNECTIONS_OP}
           value={form.queryEngine}
@@ -322,7 +322,7 @@ const CreateConnection = ({
               />
             </div>
             <div className="input-url">
-              <Select
+              <SelectField
                 label="Service Type"
                 options={[
                   { label: "Neptune DB", value: "neptune-db" },

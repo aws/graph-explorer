@@ -2,7 +2,7 @@ import { saveAs } from "file-saver";
 import { useCallback, useState } from "react";
 import { Row } from "react-table";
 
-import { Button, Input, Select } from "@/components";
+import { Button, Input, SelectField } from "@/components";
 import { Checkbox, Label } from "@/components/radix";
 import { IconButton } from "@/components";
 
@@ -166,7 +166,7 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
       </div>
       <div className="space-y-1">
         <Label>Format</Label>
-        <Select
+        <SelectField
           value={format}
           onValueChange={setFormat}
           options={[

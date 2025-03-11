@@ -6,7 +6,7 @@ import {
   ComponentBaseProps,
   IconButton,
   Input,
-  Select,
+  SelectField,
   StylingIcon,
   UploadIcon,
   VertexSymbol,
@@ -171,7 +171,7 @@ export default function SingleNodeStyling({
           <div>
             <p>Display Attributes</p>
             <div className="attrs-container">
-              <Select
+              <SelectField
                 label="Display Name Attribute"
                 labelPlacement="inner"
                 value={displayConfig.displayNameAttribute}
@@ -180,7 +180,7 @@ export default function SingleNodeStyling({
                 }}
                 options={selectOptions}
               />
-              <Select
+              <SelectField
                 label="Display Description Attribute"
                 labelPlacement="inner"
                 value={displayConfig.displayDescriptionAttribute}
@@ -196,7 +196,7 @@ export default function SingleNodeStyling({
           <div>
             <p>Shape and Icon</p>
             <div className="flex flex-row items-center gap-2">
-              <Select
+              <SelectField
                 label="Style"
                 labelPlacement="inner"
                 value={nodePreferences?.shape || "ellipse"}
@@ -281,7 +281,7 @@ export default function SingleNodeStyling({
                 hideError={true}
                 noMargin={true}
               />
-              <Select
+              <SelectField
                 label="Border Style"
                 labelPlacement="inner"
                 value={nodePreferences?.borderStyle || "solid"}
