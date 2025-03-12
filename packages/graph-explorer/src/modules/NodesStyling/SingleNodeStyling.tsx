@@ -4,9 +4,11 @@ import { useRecoilState, useResetRecoilState } from "recoil";
 import {
   Button,
   ComponentBaseProps,
+  FormItem,
   IconButton,
-  Input,
-  Select,
+  InputField,
+  Label,
+  SelectField,
   StylingIcon,
   UploadIcon,
   VertexSymbol,
@@ -30,7 +32,6 @@ import {
   RESERVED_ID_PROPERTY,
   RESERVED_TYPES_PROPERTY,
 } from "@/utils/constants";
-import { FormItem, Label } from "@/components/radix";
 
 export type SingleNodeStylingProps = {
   vertexType: string;
@@ -134,14 +135,12 @@ export default function SingleNodeStyling({
       )}
 
       <div className="flex flex-row items-center gap-2">
-        <Input
+        <InputField
           className="grow"
           label="Display As"
           labelPlacement="inner"
           value={displayAs}
           onChange={setDisplayAs}
-          hideError={true}
-          noMargin={true}
         />
         <Button
           icon={<StylingIcon />}
@@ -157,6 +156,7 @@ export default function SingleNodeStyling({
         opened={opened}
         onClose={onClose}
         centered={true}
+        size="auto"
         title={
           <div>
             Customize <strong>{displayConfig.displayLabel}</strong>
@@ -171,45 +171,39 @@ export default function SingleNodeStyling({
           <div>
             <p>Display Attributes</p>
             <div className="attrs-container">
-              <Select
+              <SelectField
                 label="Display Name Attribute"
                 labelPlacement="inner"
                 value={displayConfig.displayNameAttribute}
-                onChange={value => {
-                  onUserPrefsChange({ displayNameAttribute: value as string });
+                onValueChange={value => {
+                  onUserPrefsChange({ displayNameAttribute: value });
                 }}
                 options={selectOptions}
-                hideError={true}
-                noMargin={true}
               />
-              <Select
+              <SelectField
                 label="Display Description Attribute"
                 labelPlacement="inner"
                 value={displayConfig.displayDescriptionAttribute}
-                onChange={value => {
+                onValueChange={value => {
                   onUserPrefsChange({
-                    longDisplayNameAttribute: value as string,
+                    longDisplayNameAttribute: value,
                   });
                 }}
                 options={selectOptions}
-                hideError={true}
-                noMargin={true}
               />
             </div>
           </div>
           <div>
             <p>Shape and Icon</p>
             <div className="flex flex-row items-center gap-2">
-              <Select
+              <SelectField
                 label="Style"
                 labelPlacement="inner"
                 value={nodePreferences?.shape || "ellipse"}
-                onChange={value =>
+                onValueChange={value =>
                   onUserPrefsChange({ shape: value as ShapeStyle })
                 }
                 options={NODE_SHAPE}
-                hideError={true}
-                noMargin={true}
                 className="grow"
               />
               <FileButton
@@ -249,7 +243,7 @@ export default function SingleNodeStyling({
                 startColor={nodePreferences?.color || "#17457b"}
                 onChange={(color: string) => onUserPrefsChange({ color })}
               />
-              <Input
+              <InputField
                 label="Background Opacity"
                 labelPlacement="inner"
                 type="number"
@@ -260,8 +254,6 @@ export default function SingleNodeStyling({
                 onChange={(value: number) =>
                   onUserPrefsChange({ backgroundOpacity: value })
                 }
-                hideError={true}
-                noMargin={true}
               />
             </div>
           </div>
@@ -275,7 +267,7 @@ export default function SingleNodeStyling({
                   onUserPrefsChange({ borderColor: color })
                 }
               />
-              <Input
+              <InputField
                 label="Border Width"
                 labelPlacement="inner"
                 type="number"
@@ -284,19 +276,15 @@ export default function SingleNodeStyling({
                 onChange={(value: number) =>
                   onUserPrefsChange({ borderWidth: value })
                 }
-                hideError={true}
-                noMargin={true}
               />
-              <Select
+              <SelectField
                 label="Border Style"
                 labelPlacement="inner"
                 value={nodePreferences?.borderStyle || "solid"}
-                onChange={value =>
+                onValueChange={value =>
                   onUserPrefsChange({ borderStyle: value as LineStyle })
                 }
                 options={LINE_STYLE_OPTIONS}
-                hideError={true}
-                noMargin={true}
               />
             </div>
           </div>

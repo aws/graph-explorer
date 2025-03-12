@@ -30,7 +30,6 @@ import {
   UseSortByColumnOptions,
   useTable,
 } from "react-table";
-import { useTheme } from "@/core";
 import { useDeepMemo } from "@/hooks";
 import TextFilter from "./filters/TextFilter";
 import columnDefinitionToColumn from "./helpers/columnDefinitionToColumn";
@@ -55,9 +54,6 @@ export type TabularFilterType =
       options?: {
         operator: DefaultFilterTypes;
       };
-    }
-  | {
-      name: "single-select";
     };
 
 export type ColumnDefinition<T extends object> = Pick<
@@ -291,8 +287,6 @@ export interface TabularOptions<T extends object> {
 }
 
 export const useTabular = <T extends object>(options: TabularOptions<T>) => {
-  const activeTheme = useTheme();
-
   const {
     data,
     columns,
@@ -316,10 +310,10 @@ export const useTabular = <T extends object>(options: TabularOptions<T>) => {
       ({
         minWidth: 60,
         width: 100,
-        Filter: TextFilter(activeTheme)({}),
+        Filter: TextFilter({}),
         ...columnDefinitionToColumn(options.defaultColumn || {}),
       }) as Column<T>,
-    [activeTheme, options.defaultColumn]
+    [options.defaultColumn]
   );
 
   const skipPageResetRef = useRef(false);
@@ -397,9 +391,8 @@ export const useTabular = <T extends object>(options: TabularOptions<T>) => {
       disableSortBy: disableSorting,
       disableMultiSort: disableMultiSorting,
       columns: useDeepMemo(
-        () =>
-          columns.map(column => columnDefinitionToColumn(column, activeTheme)),
-        [columns, activeTheme]
+        () => columns.map(column => columnDefinitionToColumn(column)),
+        [columns]
       ),
       initialState: {
         sortBy: initialSorting || [],

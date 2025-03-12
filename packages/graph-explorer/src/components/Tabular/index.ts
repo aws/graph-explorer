@@ -5,10 +5,7 @@ export {
   default as TabularControlsProvider,
   useTabularControl,
 } from "./TabularControlsProvider";
-export {
-  numericFilter as tabularNumericFilter,
-  singleSelectionFilter as tabularSingleSelectionFilter,
-} from "./filters";
+export { numericFilter as tabularNumericFilter } from "./filters";
 export * from "./controls";
 export * from "./builders";
 export * from "./ModuleContainerTabularHeader";

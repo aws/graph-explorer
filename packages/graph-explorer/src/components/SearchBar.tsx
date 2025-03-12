@@ -1,6 +1,6 @@
 import { memo, useMemo, useState } from "react";
 import SearchIcon from "@/components/icons/SearchIcon";
-import { Input } from "@/components/radix";
+import { Input } from "@/components";
 import { cn } from "@/utils";
 import { useDebounceValue } from "@/hooks";
 

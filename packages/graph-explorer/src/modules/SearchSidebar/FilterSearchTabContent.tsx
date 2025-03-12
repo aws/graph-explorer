@@ -1,6 +1,5 @@
 import useKeywordSearch from "./useKeywordSearch";
 import { SearchResultsList } from "./SearchResultsList";
-import { Checkbox } from "@/components/radix/Checkbox";
 import {
   Select,
   SelectTrigger,
@@ -8,10 +7,12 @@ import {
   SelectContent,
   SelectGroup,
   SelectItem,
-} from "@/components/radix/Select";
-import { Input } from "@/components/radix/Input";
-import { Label } from "@/components/radix/Label";
-import { FormItem } from "@/components/radix/Form";
+  FormItem,
+  Label,
+  Checkbox,
+  Input,
+} from "@/components";
+
 import { useTranslations } from "@/hooks";
 
 export function FilterSearchTabContent() {

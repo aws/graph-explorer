@@ -1,18 +1,23 @@
 import { saveAs } from "file-saver";
 import { useCallback, useState } from "react";
 import { Row } from "react-table";
-
-import { Button, Input, Select } from "@/components";
-import { Checkbox, Label } from "@/components/radix";
-import { IconButton } from "@/components";
-
+import {
+  Button,
+  Checkbox,
+  IconButton,
+  InputField,
+  Label,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  SelectField,
+} from "@/components";
 import { TrayArrowIcon } from "@/components/icons";
 import { TabularInstance } from "@/components/Tabular/helpers/tableInstanceToTabularInstance";
 
 import transformToCsv from "./transfomerToCsv";
 import transformToJson from "./transfomerToJson";
 import { toCsvFileData, toJsonFileData } from "@/utils/fileData";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components";
 
 type ExportControlProps<T extends Record<string, unknown>> = {
   omittedColumnsIds?: string[];
@@ -166,10 +171,9 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
       </div>
       <div className="space-y-1">
         <Label>Format</Label>
-        <Select
+        <SelectField
           value={format}
-          onChange={f => setFormat(f as string)}
-          noMargin
+          onValueChange={setFormat}
           options={[
             {
               label: "CSV",
@@ -181,13 +185,12 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
       </div>
       <div className="space-y-1">
         <Label htmlFor="exportName">Save as</Label>
-        <Input
+        <InputField
           name="exportName"
           aria-label="Export name"
           value={name}
           placeholder={`export-${new Date().getTime()}.${format}`}
           onChange={setName}
-          noMargin
         />
       </div>
       <div className="">

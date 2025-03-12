@@ -1,7 +1,6 @@
 import { ReactNode } from "react";
 import type { IdType, Row } from "react-table";
 
-import type { ActiveThemeType } from "@/core";
 import {
   EqualsIcon,
   GreaterOrEqualThanIcon,
@@ -72,12 +71,13 @@ const filtersComponentMap: Record<string, ReactNode> = {
   "<=": <LessOrEqualThanIcon />,
 };
 
-export const numericFilter =
-  <T extends object>(activeTheme?: ActiveThemeType) =>
-  (operator: string, props: TextFilterProps = {}) => ({
-    filter: filtersMap[operator]<T>(),
-    filterComponent: TextFilter<T>(activeTheme)({
-      placeholder: props.placeholder || placeholdersMap[operator],
-      startAdornment: props.startAdornment || filtersComponentMap[operator],
-    }),
-  });
+export const numericFilter = <T extends object>(
+  operator: string,
+  props: TextFilterProps = {}
+) => ({
+  filter: filtersMap[operator]<T>(),
+  filterComponent: TextFilter<T>({
+    placeholder: props.placeholder || placeholdersMap[operator],
+    startAdornment: props.startAdornment || filtersComponentMap[operator],
+  }),
+});

@@ -53,15 +53,6 @@ const defaultStyles: ThemeStyleFn = ({ theme }) => css`
       flex-direction: column;
       gap: ${theme.spacing["4x"]};
       margin-bottom: ${theme.spacing["4x"]};
-      .single-filter {
-        display: flex;
-        align-items: center;
-        gap: ${theme.spacing["2x"]};
-        .input {
-          flex-grow: 1;
-          width: 100%;
-        }
-      }
     }
 
     .limit {

@@ -2,8 +2,8 @@ import { cn } from "@/utils";
 import { ColorPicker, ColorPickerProps } from "@mantine/core";
 import { useEffect, useState } from "react";
 import {
-  Input,
-  InputProps,
+  InputField,
+  InputFieldProps,
   Popover,
   PopoverContent,
   PopoverTrigger,
@@ -12,7 +12,7 @@ import {
 const validHexColorRegex = /^#([0-9a-f]{3}){1,2}$/i;
 
 export interface ColorInputProps
-  extends Pick<InputProps, "label" | "labelPlacement">,
+  extends Pick<InputFieldProps, "label" | "labelPlacement">,
     ColorPickerProps {
   startColor?: string;
   onChange(color: string): void;
@@ -48,18 +48,16 @@ function ColorInput({
     <Popover>
       <PopoverTrigger asChild>
         <div className={cn("relative", className)}>
-          <Input
+          <InputField
             label={label}
             labelPlacement={labelPlacement}
             aria-label="color-input"
             type="text"
             value={color}
-            noMargin
-            hideError
             onChange={(newColor: string) => setColor(newColor)}
           />
           <div
-            className="pointer-events-none absolute inset-y-2.5 right-2.5 aspect-square rounded"
+            className="pointer-events-none absolute inset-y-2 right-2 aspect-square rounded"
             style={{
               backgroundColor: startColor,
             }}
