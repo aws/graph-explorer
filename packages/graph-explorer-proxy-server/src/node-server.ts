@@ -52,34 +52,17 @@ function areCredentialsValid(creds: AwsCredentials): boolean {
     : true;
 }
 
-// Function to get IAM headers for AWS4 signing process.
-async function getIAMHeaders(
-  options: string | aws4.Request,
-  region: string | undefined,
-  awsAssumeRoleArn: string | undefined
+async function getCredentials(
+  awsAssumeRoleArn: string | undefined,
+  region: string | undefined
 ) {
-  const credentialProvider = fromNodeProviderChain();
-  const creds = await credentialProvider();
-  if (creds === undefined) {
-    throw new Error(
-      "IAM is enabled but credentials cannot be found on the credential provider chain."
-    );
-  }
-
   if (awsAssumeRoleArn !== undefined && awsAssumeRoleArn !== "") {
     if (
       credentialCache[awsAssumeRoleArn] &&
       areCredentialsValid(credentialCache[awsAssumeRoleArn])
     ) {
-      return aws4.sign(options, {
-        accessKeyId: credentialCache[awsAssumeRoleArn].accessKeyId,
-        secretAccessKey: credentialCache[awsAssumeRoleArn].secretAccessKey,
-        ...(credentialCache[awsAssumeRoleArn].sessionToken && {
-          sessionToken: credentialCache[awsAssumeRoleArn].sessionToken,
-        }),
-      });
+      return credentialCache[awsAssumeRoleArn];
     }
-
     try {
       const command = new AssumeRoleCommand({
         RoleArn: awsAssumeRoleArn,
@@ -109,25 +92,45 @@ async function getIAMHeaders(
         expiration: Credentials.Expiration,
       };
 
-      return aws4.sign(options, {
-        accessKeyId: Credentials?.AccessKeyId,
-        secretAccessKey: Credentials?.SecretAccessKey,
-        ...(Credentials?.SessionToken && {
-          sessionToken: Credentials?.SessionToken,
-        }),
-      });
+      return credentialCache[awsAssumeRoleArn];
     } catch (error) {
       proxyLogger.error(
         "IAM is enabled but credentials cannot be assumed using the provided role ARN: %s, Error: %s",
         awsAssumeRoleArn,
         error
       );
-      throw new Error(
-        "IAM is enabled but credentials cannot be assumed using the provided role ARN"
-      );
+      return undefined;
     }
   }
 
+  const credentialProvider = fromNodeProviderChain();
+  const creds = await credentialProvider();
+  if (creds === undefined) {
+    proxyLogger.error(
+      "IAM is enabled but credentials cannot be found on the credential provider chain."
+    );
+    return undefined;
+  }
+
+  return {
+    accessKeyId: creds.accessKeyId,
+    secretAccessKey: creds.secretAccessKey,
+    sessionToken: creds.sessionToken,
+  };
+}
+
+// Function to get IAM headers for AWS4 signing process.
+async function getIAMHeaders(
+  options: string | aws4.Request,
+  region: string | undefined,
+  awsAssumeRoleArn: string | undefined
+) {
+  const creds = await getCredentials(awsAssumeRoleArn, region);
+  if (!creds) {
+    throw new Error(
+      "IAM is enabled but credentials cannot be found or assumed."
+    );
+  }
   return aws4.sign(options, {
     accessKeyId: creds.accessKeyId,
     secretAccessKey: creds.secretAccessKey,
