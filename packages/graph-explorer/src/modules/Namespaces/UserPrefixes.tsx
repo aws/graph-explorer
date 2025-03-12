@@ -1,5 +1,5 @@
 import { Modal } from "@mantine/core";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useRecoilCallback } from "recoil";
 import {
   AddIcon,
@@ -33,59 +33,77 @@ type PrefixForm = {
 };
 
 const UserPrefixes = () => {
-  const config = useConfiguration();
-  const items =
-    config?.schema?.prefixes?.filter(
-      prefixConfig => prefixConfig.__inferred !== true
-    ) ?? [];
+  const items = useCustomPrefixes();
   const [opened, setOpened] = useState(false);
 
   return (
-    <div className="flex grow flex-col">
-      {items.length === 0 && <EmptyState onCreate={() => setOpened(true)} />}
-      {items.length > 0 && <SearchablePrefixes items={items} />}
-      {items.length > 0 && (
-        <PanelFooter className="flex flex-row justify-end">
-          <Button
-            icon={<AddIcon />}
-            variant="filled"
-            onPress={() => setOpened(true)}
-          >
-            Create
-          </Button>
-        </PanelFooter>
+    <div className="flex h-full grow flex-col">
+      {items.length > 0 ? (
+        <SearchablePrefixes items={items} onOpen={() => setOpened(true)} />
+      ) : (
+        <EmptyState onCreate={() => setOpened(true)} />
       )}
       <EditPrefixModal opened={opened} onClose={() => setOpened(false)} />
     </div>
   );
 };
 
-function SearchablePrefixes({ items }: { items: PrefixTypeConfig[] }) {
+function useCustomPrefixes() {
+  const config = useConfiguration();
+  return useMemo(() => {
+    return (config?.schema?.prefixes || []).filter(
+      prefixConfig => prefixConfig.__inferred !== true
+    );
+  }, [config?.schema?.prefixes]);
+}
+
+function SearchablePrefixes({
+  items,
+  onOpen,
+}: {
+  items: PrefixTypeConfig[];
+  onOpen: () => void;
+}) {
   const { filteredItems, search, setSearch } = useSearchItems(
     items,
     config => `${config.prefix} ${config.uri}`
   );
 
   return (
-    <>
-      <div className="w-full px-3 py-2">
+    <div className="flex h-full grow flex-col">
+      <div className="w-full shrink-0 px-3 py-2">
         <SearchBar
           search={search}
           searchPlaceholder="Search for Namespaces or URIs"
           onSearch={setSearch}
         />
       </div>
-      {filteredItems.length <= 0 ? (
-        <PanelEmptyState title="No Namespaces" />
-      ) : null}
-      {filteredItems.length > 0 ? (
-        <Virtuoso
-          className="h-full grow"
-          data={filteredItems}
-          itemContent={(_index, prefix) => <Row prefix={prefix} />}
-        />
-      ) : null}
-    </>
+      <SearchResults filteredItems={filteredItems} className="grow" />
+      <PanelFooter className="flex shrink-0 flex-row justify-end">
+        <Button icon={<AddIcon />} variant="filled" onPress={onOpen}>
+          Create
+        </Button>
+      </PanelFooter>
+    </div>
+  );
+}
+
+function SearchResults({
+  filteredItems,
+  className,
+}: {
+  className?: string;
+  filteredItems: PrefixTypeConfig[];
+}) {
+  return (
+    <Virtuoso
+      className={className}
+      components={{
+        EmptyPlaceholder: NoSearchResults,
+      }}
+      data={filteredItems}
+      itemContent={(_index, prefix) => <Row prefix={prefix} />}
+    />
   );
 }
 
@@ -111,15 +129,26 @@ const Row = React.memo(({ prefix }: { prefix: PrefixTypeConfig }) => {
   );
 });
 
+function NoSearchResults() {
+  return (
+    <PanelEmptyState
+      className="p-6"
+      title="No Namespaces Found"
+      subtitle="No custom namespaces found matching your search"
+      icon={<NamespaceIcon />}
+    />
+  );
+}
+
 function EmptyState({ onCreate }: { onCreate: () => void }) {
   return (
     <PanelEmptyState
+      className="p-6"
       title="No Namespaces"
-      subtitle="No Custom Namespaces stored"
+      subtitle="No custom namespaces stored"
       icon={<NamespaceIcon />}
-      actionLabel="Start creating a new namespace"
-      onAction={() => onCreate()}
-      actionVariant="text"
+      actionLabel="Create a new namespace"
+      onAction={onCreate}
     />
   );
 }

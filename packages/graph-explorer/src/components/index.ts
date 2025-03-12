@@ -20,6 +20,8 @@ export * from "./FileButton";
 export { default as Graph } from "./Graph";
 export * from "./Graph";
 
+export * from "./HumanReadableNumberFormatter";
+
 export * from "./IconButton";
 
 export * from "./icons";
@@ -48,6 +50,8 @@ export * from "./SearchBar";
 
 export { default as Select } from "./Select";
 export * from "./Select";
+
+export * from "./SidebarTabs";
 
 export * from "./Tooltip";
 export * from "./Typography";
