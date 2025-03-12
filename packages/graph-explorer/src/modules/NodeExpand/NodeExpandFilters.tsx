@@ -5,7 +5,7 @@ import {
   DeleteIcon,
   IconButton,
   InfoTooltip,
-  InputField,
+  Input,
   SelectField,
   SelectOption,
 } from "@/components";
@@ -99,7 +99,7 @@ const NodeExpandFilters = ({
       {filters.length > 0 && (
         <div className="filters">
           {filters.map((filter, filterIndex) => (
-            <div key={filterIndex} className="single-filter">
+            <div key={filterIndex} className="flex w-full items-center gap-2">
               <SelectField
                 aria-label="Attribute"
                 value={filter.name}
@@ -108,15 +108,13 @@ const NodeExpandFilters = ({
                 }}
                 options={attributeSelectOptions}
               />
-              <InputField
+              <Input
                 aria-label="Filter"
-                className="input"
+                className="grow"
                 value={filter.value}
-                onChange={value => {
-                  onFilterChange(filterIndex, filter.name, value);
+                onChange={e => {
+                  onFilterChange(filterIndex, filter.name, e.target.value);
                 }}
-                hideError={true}
-                noMargin={true}
               />
               <IconButton
                 icon={<DeleteIcon />}
@@ -130,7 +128,7 @@ const NodeExpandFilters = ({
         </div>
       )}
       <div className="title">
-        <div style={{ display: "flex", gap: 2, alignItems: "center" }}>
+        <div className="inline-flex items-center gap-2">
           Limit returned neighbors to
           <InfoTooltip>
             Please use full expansion if all the expected nodes are not returned
@@ -145,17 +143,15 @@ const NodeExpandFilters = ({
         />
       </div>
       {limit !== null && (
-        <div className="limit">
-          <InputField
+        <div className="flex w-full items-center gap-2">
+          <Input
             aria-label="limit"
-            className="input"
+            className="grow"
             type="number"
             min={1}
             step={1}
             value={limit}
-            onChange={(v: number | null) => onLimitChange(v ?? 0)}
-            hideError={true}
-            noMargin={true}
+            onChange={e => onLimitChange(parseInt(e.target.value) ?? 0)}
           />
           <IconButton
             icon={<DeleteIcon />}

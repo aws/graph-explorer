@@ -141,8 +141,6 @@ export default function SingleNodeStyling({
           labelPlacement="inner"
           value={displayAs}
           onChange={setDisplayAs}
-          hideError={true}
-          noMargin={true}
         />
         <Button
           icon={<StylingIcon />}
@@ -158,6 +156,7 @@ export default function SingleNodeStyling({
         opened={opened}
         onClose={onClose}
         centered={true}
+        size="auto"
         title={
           <div>
             Customize <strong>{displayConfig.displayLabel}</strong>
@@ -255,8 +254,6 @@ export default function SingleNodeStyling({
                 onChange={(value: number) =>
                   onUserPrefsChange({ backgroundOpacity: value })
                 }
-                hideError={true}
-                noMargin={true}
               />
             </div>
           </div>
@@ -279,8 +276,6 @@ export default function SingleNodeStyling({
                 onChange={(value: number) =>
                   onUserPrefsChange({ borderWidth: value })
                 }
-                hideError={true}
-                noMargin={true}
               />
               <SelectField
                 label="Border Style"

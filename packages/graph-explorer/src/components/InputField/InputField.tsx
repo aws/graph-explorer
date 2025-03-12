@@ -10,8 +10,9 @@ import type {
   RefObject,
 } from "react";
 import { forwardRef, useRef } from "react";
-import { useWithTheme } from "@/core";
-import { inputContainerStyles } from "./InputField.styles";
+import { Label } from "../Label";
+import { FormError, FormItem } from "../Form";
+import { Input } from "../Input";
 
 export interface BaseInputProps
   extends Omit<
@@ -22,15 +23,8 @@ export interface BaseInputProps
   labelPlacement?: "top" | "left" | "inner";
   className?: string;
   errorMessage?: string;
-  fullWidth?: boolean;
-  hideError?: boolean;
   autocomplete?: "off" | "new-password";
-  size?: "sm" | "md";
-  startAdornment?: ReactNode;
-  endAdornment?: ReactNode;
-  noMargin?: boolean;
   onClick?: MouseEventHandler;
-  clearButton?: ReactNode;
   overrideInputProps?: InputHTMLAttributes<HTMLInputElement>;
 }
 
@@ -52,28 +46,13 @@ const isNumberInput = (props: InputFieldProps): props is NumberInputProps =>
 export const InputField = (
   {
     labelPlacement = "top",
-    size = "md",
-    fullWidth = false,
-    hideError = false,
-    startAdornment,
-    endAdornment,
-    noMargin = false,
     onClick,
-    clearButton,
     overrideInputProps,
     ...props
   }: InputFieldProps,
   ref: ForwardedRef<HTMLInputElement>
 ) => {
-  const {
-    label,
-    className,
-    validationState,
-    errorMessage,
-    isDisabled,
-    isReadOnly,
-  } = props;
-  const styleWithTheme = useWithTheme();
+  const { label, className, validationState, errorMessage, isDisabled } = props;
   const localRef = useRef<HTMLInputElement>(null);
   const { labelProps, inputProps } = useTextField(
     {
@@ -96,60 +75,54 @@ export const InputField = (
   );
 
   const clickHandlers = onClick ? { onClick } : {};
-  return (
-    <div
-      className={cn(
-        styleWithTheme(
-          inputContainerStyles(
-            labelPlacement,
-            size,
-            isDisabled,
-            validationState,
-            fullWidth,
-            hideError,
-            isReadOnly,
-            startAdornment,
-            endAdornment,
-            noMargin
-          )
-        ),
-        `input-label-${labelPlacement}`,
-        "input-wrapper",
-        className
-      )}
-    >
-      {label && (
-        <label className="input-label" {...labelProps}>
-          {label}
-        </label>
-      )}
-      <div className="input-container">
-        {!!startAdornment && (
-          <span className="start-adornment">{startAdornment}</span>
-        )}
-        <input
-          {...clickHandlers}
-          className={cn("input", {
-            ["input-disabled"]: isDisabled,
-            ["input-label-inner"]: labelPlacement === "inner",
-          })}
-          min={isNumberInput(props) ? props.min : undefined}
-          max={isNumberInput(props) ? props.max : undefined}
-          step={isNumberInput(props) ? props.step : undefined}
-          ref={ref || localRef}
-          {...inputProps}
-          {...overrideInputProps}
-        />
 
-        {!!endAdornment && (
-          <span className="end-adornment">{endAdornment}</span>
+  if (labelPlacement === "inner") {
+    return (
+      <FormItem className={className}>
+        <div className="relative">
+          <Input
+            {...clickHandlers}
+            className={cn("h-11 pt-4")}
+            min={isNumberInput(props) ? props.min : undefined}
+            max={isNumberInput(props) ? props.max : undefined}
+            step={isNumberInput(props) ? props.step : undefined}
+            ref={ref || localRef}
+            disabled={isDisabled}
+            {...inputProps}
+            {...overrideInputProps}
+          />
+          <div className="text-text-secondary absolute left-3 top-1.5 text-xs leading-none">
+            {label}
+          </div>
+        </div>
+        {validationState === "invalid" && !!errorMessage && (
+          <p className="text-error-main text-sm font-medium">{errorMessage}</p>
         )}
-        {!!clearButton && <span className="clearButton">{clearButton}</span>}
-        {validationState === "invalid" && !!errorMessage && !hideError && (
-          <div className="input-error">{errorMessage}</div>
+      </FormItem>
+    );
+  }
+
+  return (
+    <FormItem>
+      {label && <Label {...labelProps}>{label}</Label>}
+      <Input
+        {...clickHandlers}
+        className={cn(
+          validationState === "invalid" && "ring-error-main ring-1"
         )}
-      </div>
-    </div>
+        disabled={isDisabled}
+        min={isNumberInput(props) ? props.min : undefined}
+        max={isNumberInput(props) ? props.max : undefined}
+        step={isNumberInput(props) ? props.step : undefined}
+        ref={ref || localRef}
+        {...inputProps}
+        {...overrideInputProps}
+      />
+
+      {validationState === "invalid" && errorMessage ? (
+        <FormError>{errorMessage}</FormError>
+      ) : null}
+    </FormItem>
   );
 };
 

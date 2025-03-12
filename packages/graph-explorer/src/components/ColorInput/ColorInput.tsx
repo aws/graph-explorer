@@ -54,12 +54,10 @@ function ColorInput({
             aria-label="color-input"
             type="text"
             value={color}
-            noMargin
-            hideError
             onChange={(newColor: string) => setColor(newColor)}
           />
           <div
-            className="pointer-events-none absolute inset-y-2.5 right-2.5 aspect-square rounded"
+            className="pointer-events-none absolute inset-y-2 right-2 aspect-square rounded"
             style={{
               backgroundColor: startColor,
             }}

@@ -100,8 +100,6 @@ export default function SingleEdgeStyling({
           labelPlacement="inner"
           value={displayAs}
           onChange={setDisplayAs}
-          hideError={true}
-          noMargin={true}
         />
         <Button
           icon={<StylingIcon />}
@@ -117,6 +115,7 @@ export default function SingleEdgeStyling({
         opened={opened}
         onClose={onClose}
         centered={true}
+        size="auto"
         title={
           <div>
             Customize <strong>{displayConfig.displayLabel}</strong>
@@ -164,8 +163,6 @@ export default function SingleEdgeStyling({
                 onChange={(value: number) =>
                   onUserPrefsChange({ labelBackgroundOpacity: value })
                 }
-                hideError={true}
-                noMargin={true}
               />
             </div>
           </div>
@@ -188,8 +185,6 @@ export default function SingleEdgeStyling({
                 onChange={(value: number) =>
                   onUserPrefsChange({ labelBorderWidth: value })
                 }
-                hideError={true}
-                noMargin={true}
               />
               <SelectField
                 label="Border Style"
@@ -222,8 +217,6 @@ export default function SingleEdgeStyling({
                 onChange={(value: number) =>
                   onUserPrefsChange({ lineThickness: value })
                 }
-                hideError={true}
-                noMargin={true}
               />
               <SelectField
                 label="Style"

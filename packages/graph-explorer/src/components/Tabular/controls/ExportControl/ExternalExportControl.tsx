@@ -191,7 +191,6 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
           value={name}
           placeholder={`export-${new Date().getTime()}.${format}`}
           onChange={setName}
-          noMargin
         />
       </div>
       <div className="">

@@ -93,6 +93,7 @@ const AvailableConnections = ({
           title="Add New Connection"
           opened={isModalOpen}
           onClose={() => onModalChange(false)}
+          size="600px"
         >
           <CreateConnection onClose={() => onModalChange(false)} />
         </Modal>

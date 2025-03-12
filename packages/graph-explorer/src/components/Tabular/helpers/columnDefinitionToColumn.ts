@@ -1,12 +1,9 @@
 import { Column, ColumnGroup, ColumnInterfaceBasedOnValue } from "react-table";
-import type { ActiveThemeType } from "@/core";
-
 import { numericFilter } from "../filters";
 import type { ColumnDefinition } from "../useTabular";
 
 const resolverFilterType = <T extends object>(
-  column: ColumnDefinition<T>,
-  activeTheme?: ActiveThemeType
+  column: ColumnDefinition<T>
 ): ColumnDefinition<T> => {
   const { filterType, ...restColumnsProps } = column;
 
@@ -24,7 +21,7 @@ const resolverFilterType = <T extends object>(
   if (filterType.name === "number") {
     return {
       ...restColumnsProps,
-      ...numericFilter<T>(activeTheme)(filterType.options?.operator || "="),
+      ...numericFilter<T>(filterType.options?.operator || "="),
     };
   }
 
@@ -41,12 +38,11 @@ const resolverFilterType = <T extends object>(
  * every property that has been redefined to its corresponding name.
  */
 const columnDefinitionToColumn = <T extends object>(
-  columnDefinition: ColumnDefinition<T>,
-  activeTheme?: ActiveThemeType
+  columnDefinition: ColumnDefinition<T>
 ): Column<T> => {
   const mergedColumnDefinition = {
     ...columnDefinition,
-    ...resolverFilterType(columnDefinition, activeTheme),
+    ...resolverFilterType(columnDefinition),
   };
 
   const {
@@ -85,7 +81,7 @@ const columnDefinitionToColumn = <T extends object>(
 
   if (columns) {
     (column as ColumnGroup<T>).columns = columns.map(column =>
-      columnDefinitionToColumn(column, activeTheme)
+      columnDefinitionToColumn(column)
     );
   }
 
