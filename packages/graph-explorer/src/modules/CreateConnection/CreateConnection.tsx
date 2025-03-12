@@ -262,8 +262,6 @@ const CreateConnection = ({
               endpoint URL that is accessible from outside the VPC, e.g., EC2.
             </InfoTooltip>
           </Label>
-        </FormItem>
-        <FormItem>
           <TextArea
             data-autofocus={true}
             value={form.url}
