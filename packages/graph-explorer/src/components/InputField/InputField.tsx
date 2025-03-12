@@ -2,13 +2,7 @@ import { cn } from "@/utils";
 import type { AriaTextFieldOptions } from "@react-aria/textfield";
 import { useTextField } from "@react-aria/textfield";
 import type { ValueBase } from "@react-types/shared";
-import type {
-  ForwardedRef,
-  InputHTMLAttributes,
-  MouseEventHandler,
-  ReactNode,
-  RefObject,
-} from "react";
+import type { ForwardedRef, ReactNode, RefObject } from "react";
 import { forwardRef, useRef } from "react";
 import { Label } from "../Label";
 import { FormError, FormItem } from "../Form";
@@ -20,12 +14,9 @@ export interface BaseInputProps
     "value" | "defaultValue" | "onChange"
   > {
   label?: ReactNode;
-  labelPlacement?: "top" | "left" | "inner";
+  labelPlacement?: "top" | "inner";
   className?: string;
   errorMessage?: string;
-  autocomplete?: "off" | "new-password";
-  onClick?: MouseEventHandler;
-  overrideInputProps?: InputHTMLAttributes<HTMLInputElement>;
 }
 
 interface TextInputProps extends BaseInputProps, ValueBase<string> {}
@@ -44,12 +35,7 @@ const isNumberInput = (props: InputFieldProps): props is NumberInputProps =>
   props.type === "number";
 
 export const InputField = (
-  {
-    labelPlacement = "top",
-    onClick,
-    overrideInputProps,
-    ...props
-  }: InputFieldProps,
+  { labelPlacement = "top", ...props }: InputFieldProps,
   ref: ForwardedRef<HTMLInputElement>
 ) => {
   const { label, className, validationState, errorMessage, isDisabled } = props;
@@ -74,14 +60,11 @@ export const InputField = (
     (ref as RefObject<HTMLInputElement>) || localRef
   );
 
-  const clickHandlers = onClick ? { onClick } : {};
-
   if (labelPlacement === "inner") {
     return (
       <FormItem className={className}>
         <div className="relative">
           <Input
-            {...clickHandlers}
             className={cn("h-11 pt-4")}
             min={isNumberInput(props) ? props.min : undefined}
             max={isNumberInput(props) ? props.max : undefined}
@@ -89,14 +72,13 @@ export const InputField = (
             ref={ref || localRef}
             disabled={isDisabled}
             {...inputProps}
-            {...overrideInputProps}
           />
           <div className="text-text-secondary absolute left-3 top-1.5 text-xs leading-none">
             {label}
           </div>
         </div>
         {validationState === "invalid" && !!errorMessage && (
-          <p className="text-error-main text-sm font-medium">{errorMessage}</p>
+          <FormError>{errorMessage}</FormError>
         )}
       </FormItem>
     );
@@ -106,7 +88,6 @@ export const InputField = (
     <FormItem>
       {label && <Label {...labelProps}>{label}</Label>}
       <Input
-        {...clickHandlers}
         className={cn(
           validationState === "invalid" && "ring-error-main ring-1"
         )}
@@ -116,7 +97,6 @@ export const InputField = (
         step={isNumberInput(props) ? props.step : undefined}
         ref={ref || localRef}
         {...inputProps}
-        {...overrideInputProps}
       />
 
       {validationState === "invalid" && errorMessage ? (
