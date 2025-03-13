@@ -40,6 +40,7 @@ const activeConnectionSelector = equalSelector({
       "graphDbUrl",
       "awsAuthEnabled",
       "awsRegion",
+      "awsAssumeRoleArn",
       "fetchTimeoutMs",
       "nodeExpansionLimit",
     ] as (keyof ConnectionConfig)[];
