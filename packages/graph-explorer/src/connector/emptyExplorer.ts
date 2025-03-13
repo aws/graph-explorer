@@ -54,4 +54,11 @@ export const emptyExplorer: Explorer = {
       edge: null,
     };
   },
+  rawQuery: async () => {
+    return {
+      vertices: [],
+      edges: [],
+      scalars: [],
+    };
+  },
 };
