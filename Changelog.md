@@ -13,6 +13,8 @@
 - **Fixed** issue with long node titles or descriptions pushing the "add to
   graph" button off the screen
   ([#824](https://github.com/aws/graph-explorer/pull/824))
+- **Updated** styling of input, textarea, and select fields
+  ([#832](https://github.com/aws/graph-explorer/pull/832))
 - **Updated** dependencies
   ([#827](https://github.com/aws/graph-explorer/pull/827))
 

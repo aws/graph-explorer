@@ -1,15 +1,17 @@
 import { useMemo } from "react";
-import Button from "@/components/Button";
-import { toHumanString } from "@/components/HumanReadableNumberFormatter";
-import { IconButton } from "@/components";
+import {
+  Button,
+  IconButton,
+  Label,
+  SelectField,
+  toHumanString,
+} from "@/components";
 import {
   BackwardIcon,
   ForwardIcon,
   SkipBackwardIcon,
   SkipForwardIcon,
 } from "@/components/icons";
-import Select from "@/components/Select";
-import { Label } from "@/components/radix";
 import { cn } from "@/utils";
 
 export type PaginationControlProps = {
@@ -81,15 +83,13 @@ export function PaginationControl({
       {totalRows > 0 && (
         <div className="flex flex-row items-center gap-1">
           <Label className="shrink-0">Page size:</Label>
-          <Select
+          <SelectField
             options={pageOptions.map(pageOption => ({
               label: pageOption.toString(),
               value: pageOption.toString(),
             }))}
-            noMargin
-            hideError
             value={pageSize.toString()}
-            onChange={value => onPageSizeChange(parseInt(value as string))}
+            onValueChange={value => onPageSizeChange(parseInt(value))}
           />
           <IconButton
             disabled={pageIndex - 1 < 0}

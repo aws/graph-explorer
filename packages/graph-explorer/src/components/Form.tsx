@@ -1,11 +1,3 @@
-// const FormItem = React.forwardRef<
-//   HTMLDivElement,
-//   React.HTMLAttributes<HTMLDivElement>
-// >(({ className, ...props }, ref) => {
-//   return <div ref={ref} className={cn("space-y-1", className)} {...props} />;
-// });
-// FormItem.displayName = "FormItem";
-
 import * as React from "react";
 import * as LabelPrimitive from "@radix-ui/react-label";
 import { Slot } from "@radix-ui/react-slot";
@@ -19,7 +11,7 @@ import {
 } from "react-hook-form";
 
 import { cn } from "@/utils";
-import { Label } from "@/components/radix";
+import { Label } from "@/components";
 
 const Form = FormProvider;
 
@@ -86,7 +78,7 @@ const FormItem = React.forwardRef<
 
   return (
     <FormItemContext.Provider value={{ id }}>
-      <div ref={ref} className={cn("space-y-2", className)} {...props} />
+      <div ref={ref} className={cn("space-y-1", className)} {...props} />
     </FormItemContext.Provider>
   );
 });
@@ -152,7 +144,7 @@ FormDescription.displayName = "FormDescription";
 const FormMessage = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
->(({ className, children, ...props }, ref) => {
+>(({ children, ...props }, ref) => {
   const { error, formMessageId } = useFormField();
   const body = error ? String(error?.message) : children;
 
@@ -161,17 +153,28 @@ const FormMessage = React.forwardRef<
   }
 
   return (
-    <p
-      ref={ref}
-      id={formMessageId}
-      className={cn("text-error-main text-sm font-medium", className)}
-      {...props}
-    >
+    <FormError ref={ref} id={formMessageId} {...props}>
       {body}
-    </p>
+    </FormError>
   );
 });
 FormMessage.displayName = "FormMessage";
+
+const FormError = React.forwardRef<
+  HTMLParagraphElement,
+  React.HTMLAttributes<HTMLParagraphElement>
+>(({ className, children, ...props }, ref) => {
+  return (
+    <p
+      ref={ref}
+      className={cn("text-error-main text-sm font-medium", className)}
+      {...props}
+    >
+      {children}
+    </p>
+  );
+});
+FormError.displayName = "FormError";
 
 export {
   useFormField,
@@ -181,5 +184,6 @@ export {
   FormControl,
   FormDescription,
   FormMessage,
+  FormError,
   FormField,
 };

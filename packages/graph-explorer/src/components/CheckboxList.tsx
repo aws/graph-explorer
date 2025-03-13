@@ -1,7 +1,8 @@
 import { cn } from "@/utils";
 import { ReactNode } from "react";
-import { Checkbox, Label } from "./radix";
 import Divider from "./Divider";
+import { Label } from "./Label";
+import { Checkbox } from "./Checkbox";
 
 export type CheckboxListItemProps = {
   id: string;

@@ -26,7 +26,7 @@ import Graph from "@/components/Graph";
 import { GraphRef } from "@/components/Graph/Graph";
 import { ElementEventCallback } from "@/components/Graph/hooks/useAddClickEvents";
 import { IconButton } from "@/components";
-import Select from "@/components/Select";
+import SelectField from "@/components/SelectField";
 import {
   edgesOutOfFocusRenderedIdsAtom,
   edgesSelectedRenderedIdsAtom,
@@ -182,15 +182,13 @@ export default function GraphViewer({
         <PanelHeader>
           <PanelTitle>Graph View</PanelTitle>
           <PanelHeaderActions>
-            <Select
+            <SelectField
               className="min-w-auto max-w-64"
               label="Layout"
               labelPlacement="inner"
-              hideError={true}
               options={LAYOUT_OPTIONS}
               value={layout}
-              noMargin
-              onChange={v => setLayout(v as string)}
+              onValueChange={setLayout}
             />
             <IconButton
               tooltipText="Re-run Layout"

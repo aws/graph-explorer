@@ -6,7 +6,7 @@ import {
   Button,
   DeleteIcon,
   IconButton,
-  Input,
+  InputField,
   ListRow,
   ListRowContent,
   ListRowSubtitle,
@@ -254,7 +254,7 @@ function EditPrefixModal({
       title="Create a new Namespace"
     >
       <div>
-        <Input
+        <InputField
           label="Namespace"
           value={form.prefix}
           onChange={onFormChange("prefix")}
@@ -262,7 +262,7 @@ function EditPrefixModal({
           validationState={hasError && !form.prefix ? "invalid" : "valid"}
           errorMessage="Namespace is required"
         />
-        <Input
+        <InputField
           className="input-uri"
           label="URI"
           value={form.uri}

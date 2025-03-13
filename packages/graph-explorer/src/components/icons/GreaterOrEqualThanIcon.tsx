@@ -3,12 +3,11 @@ import IconBase from "./IconBase";
 
 export const GreaterOrEqualThanIcon = (props: IconBaseProps) => {
   return (
-    <IconBase {...props}>
+    <IconBase viewBox="0 0 448 512" {...props}>
+      {/* Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc. */}
       <path
         fill="currentColor"
-        d="M5.1,6.1l7.1,2.8l-7.1,2.7c-0.7,0.2-1.1,1-0.9,1.7l0.5,1.2c0.3,0.7,1.1,1,1.8,0.8l12.2-4.8c0.6-0.2,0.9-0.7,0.9-1.2V8.6
-	c0-0.5-0.4-1-0.9-1.2L6.6,2.5C5.9,2.2,5,2.6,4.8,3.3L4.3,4.5C4,5.1,4.4,5.9,5.1,6.1z M20,17.9H3.9c-0.5,0-1,0.4-1,1v1.9
-	c0,0.5,0.4,1,1,1H20c0.5,0,1-0.4,1-1v-1.9C21,18.4,20.6,17.9,20,17.9z"
+        d="M52.1 93.7C35.7 87.1 27.7 68.5 34.3 52.1s25.2-24.4 41.6-17.8l320 128C408 167.1 416 178.9 416 192s-8 24.9-20.1 29.7l-320 128c-16.4 6.6-35-1.4-41.6-17.8s1.4-35 17.8-41.6L297.8 192 52.1 93.7zM416 416c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 480c-17.7 0-32-14.3-32-32s14.3-32 32-32l384 0z"
       />
     </IconBase>
   );

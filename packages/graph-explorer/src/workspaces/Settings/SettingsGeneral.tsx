@@ -12,8 +12,9 @@ import {
   SaveIcon,
   ImportantBlock,
   NotInProduction,
+  Checkbox,
+  Label,
 } from "@/components";
-import { Checkbox, Label } from "@/components/radix";
 import { SettingsSection, SettingsSectionContainer } from "./SettingsSection";
 import { saveLocalForageToFile } from "@/core/StateProvider/localDb";
 import localforage from "localforage";

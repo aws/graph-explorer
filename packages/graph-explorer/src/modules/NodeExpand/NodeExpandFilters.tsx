@@ -6,7 +6,7 @@ import {
   IconButton,
   InfoTooltip,
   Input,
-  Select,
+  SelectField,
   SelectOption,
 } from "@/components";
 import { useDisplayVertexTypeConfig } from "@/core";
@@ -79,12 +79,10 @@ const NodeExpandFilters = ({
   return (
     <div className="filters-section">
       <div className="title">{t("node-expand.neighbors-of-type")}</div>
-      <Select
+      <SelectField
         aria-label="neighbor type"
         value={selectedType}
-        onChange={v => {
-          onSelectedTypeChange(v as string);
-        }}
+        onValueChange={onSelectedTypeChange}
         options={neighborsOptions}
       />
       {hasSearchableAttributes && (
@@ -101,26 +99,22 @@ const NodeExpandFilters = ({
       {filters.length > 0 && (
         <div className="filters">
           {filters.map((filter, filterIndex) => (
-            <div key={filterIndex} className="single-filter">
-              <Select
+            <div key={filterIndex} className="flex w-full items-center gap-2">
+              <SelectField
                 aria-label="Attribute"
                 value={filter.name}
-                onChange={value => {
-                  onFilterChange(filterIndex, value as string, filter.value);
+                onValueChange={value => {
+                  onFilterChange(filterIndex, value, filter.value);
                 }}
                 options={attributeSelectOptions}
-                hideError={true}
-                noMargin={true}
               />
               <Input
                 aria-label="Filter"
-                className="input"
+                className="grow"
                 value={filter.value}
-                onChange={value => {
-                  onFilterChange(filterIndex, filter.name, value);
+                onChange={e => {
+                  onFilterChange(filterIndex, filter.name, e.target.value);
                 }}
-                hideError={true}
-                noMargin={true}
               />
               <IconButton
                 icon={<DeleteIcon />}
@@ -134,7 +128,7 @@ const NodeExpandFilters = ({
         </div>
       )}
       <div className="title">
-        <div style={{ display: "flex", gap: 2, alignItems: "center" }}>
+        <div className="inline-flex items-center gap-2">
           Limit returned neighbors to
           <InfoTooltip>
             Please use full expansion if all the expected nodes are not returned
@@ -149,17 +143,15 @@ const NodeExpandFilters = ({
         />
       </div>
       {limit !== null && (
-        <div className="limit">
+        <div className="flex w-full items-center gap-2">
           <Input
             aria-label="limit"
-            className="input"
+            className="grow"
             type="number"
             min={1}
             step={1}
             value={limit}
-            onChange={(v: number | null) => onLimitChange(v ?? 0)}
-            hideError={true}
-            noMargin={true}
+            onChange={e => onLimitChange(parseInt(e.target.value) ?? 0)}
           />
           <IconButton
             icon={<DeleteIcon />}

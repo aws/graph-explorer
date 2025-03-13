@@ -4,8 +4,10 @@ import { useRecoilState, useResetRecoilState } from "recoil";
 import {
   Button,
   ComponentBaseProps,
-  Input,
-  Select,
+  FormItem,
+  InputField,
+  Label,
+  SelectField,
   StylingIcon,
 } from "@/components";
 import ColorInput from "@/components/ColorInput/ColorInput";
@@ -25,7 +27,6 @@ import { LINE_STYLE_OPTIONS } from "./lineStyling";
 import modalDefaultStyles from "./SingleEdgeStylingModal.style";
 import { useDebounceValue, usePrevious } from "@/hooks";
 import { MISSING_DISPLAY_TYPE, RESERVED_TYPES_PROPERTY } from "@/utils";
-import { FormItem, Label } from "@/components/radix";
 
 export type SingleEdgeStylingProps = {
   edgeType: string;
@@ -93,14 +94,12 @@ export default function SingleEdgeStyling({
         <Label>{MISSING_DISPLAY_TYPE}</Label>
       )}
       <div className="flex flex-row items-center gap-2">
-        <Input
+        <InputField
           className="grow"
           label="Display As"
           labelPlacement="inner"
           value={displayAs}
           onChange={setDisplayAs}
-          hideError={true}
-          noMargin={true}
         />
         <Button
           icon={<StylingIcon />}
@@ -116,6 +115,7 @@ export default function SingleEdgeStyling({
         opened={opened}
         onClose={onClose}
         centered={true}
+        size="auto"
         title={
           <div>
             Customize <strong>{displayConfig.displayLabel}</strong>
@@ -130,16 +130,14 @@ export default function SingleEdgeStyling({
           <div>
             <p>Display Attributes</p>
             <div className="attrs-container">
-              <Select
+              <SelectField
                 label="Display Name Attribute"
                 labelPlacement="inner"
                 value={displayConfig.displayNameAttribute}
-                onChange={value =>
-                  onUserPrefsChange({ displayNameAttribute: value as string })
+                onValueChange={value =>
+                  onUserPrefsChange({ displayNameAttribute: value })
                 }
                 options={selectOptions}
-                hideError={true}
-                noMargin={true}
               />
             </div>
           </div>
@@ -154,7 +152,7 @@ export default function SingleEdgeStyling({
                   onUserPrefsChange({ labelColor: color })
                 }
               />
-              <Input
+              <InputField
                 label="Background Opacity"
                 labelPlacement="inner"
                 type="number"
@@ -165,8 +163,6 @@ export default function SingleEdgeStyling({
                 onChange={(value: number) =>
                   onUserPrefsChange({ labelBackgroundOpacity: value })
                 }
-                hideError={true}
-                noMargin={true}
               />
             </div>
           </div>
@@ -180,7 +176,7 @@ export default function SingleEdgeStyling({
                   onUserPrefsChange({ labelBorderColor: color })
                 }
               />
-              <Input
+              <InputField
                 label="Border Width"
                 labelPlacement="inner"
                 type="number"
@@ -189,19 +185,15 @@ export default function SingleEdgeStyling({
                 onChange={(value: number) =>
                   onUserPrefsChange({ labelBorderWidth: value })
                 }
-                hideError={true}
-                noMargin={true}
               />
-              <Select
+              <SelectField
                 label="Border Style"
                 labelPlacement="inner"
                 value={edgePreferences?.labelBorderStyle || "solid"}
-                onChange={value =>
+                onValueChange={value =>
                   onUserPrefsChange({ labelBorderStyle: value as LineStyle })
                 }
                 options={LINE_STYLE_OPTIONS}
-                hideError={true}
-                noMargin={true}
               />
             </div>
           </div>
@@ -216,7 +208,7 @@ export default function SingleEdgeStyling({
                   onUserPrefsChange({ lineColor: color })
                 }
               />
-              <Input
+              <InputField
                 label="Thickness"
                 labelPlacement="inner"
                 type="number"
@@ -225,46 +217,38 @@ export default function SingleEdgeStyling({
                 onChange={(value: number) =>
                   onUserPrefsChange({ lineThickness: value })
                 }
-                hideError={true}
-                noMargin={true}
               />
-              <Select
+              <SelectField
                 label="Style"
                 labelPlacement="inner"
                 value={edgePreferences?.lineStyle || "solid"}
-                onChange={value =>
+                onValueChange={value =>
                   onUserPrefsChange({ lineStyle: value as LineStyle })
                 }
                 options={LINE_STYLE_OPTIONS}
-                hideError={true}
-                noMargin={true}
               />
             </div>
           </div>
           <div>
             <p>Arrows Styling</p>
             <div className="attrs-container">
-              <Select
+              <SelectField
                 label="Source"
                 labelPlacement="inner"
                 value={edgePreferences?.sourceArrowStyle || "none"}
-                onChange={value =>
+                onValueChange={value =>
                   onUserPrefsChange({ sourceArrowStyle: value as ArrowStyle })
                 }
                 options={SOURCE_ARROW_STYLE_OPTIONS}
-                hideError={true}
-                noMargin={true}
               />
-              <Select
+              <SelectField
                 label="Target"
                 labelPlacement="inner"
                 value={edgePreferences?.targetArrowStyle || "triangle"}
-                onChange={value =>
+                onValueChange={value =>
                   onUserPrefsChange({ targetArrowStyle: value as ArrowStyle })
                 }
                 options={TARGET_ARROW_STYLE_OPTIONS}
-                hideError={true}
-                noMargin={true}
               />
             </div>
           </div>
