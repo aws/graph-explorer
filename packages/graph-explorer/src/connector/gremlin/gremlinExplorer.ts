@@ -137,5 +137,9 @@ export function createGremlinExplorer(
       );
       return result;
     },
+    async rawQuery(_req, _options) {
+      remoteLogger.info("[Gremlin Explorer] Fetching raw query...");
+      throw new Error("Raw query functionality is not implemented for Gremlin");
+    },
   } satisfies Explorer;
 }

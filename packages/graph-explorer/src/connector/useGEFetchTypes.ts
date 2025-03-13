@@ -199,6 +199,12 @@ export type EdgeDetailsResponse = {
   edge: Edge | null;
 };
 
+export type RawQueryRequest = {
+  query: string;
+};
+
+export type RawQueryResponse = MappedQueryResults;
+
 /**
  * Abstracted interface to the common database queries used by
  * Graph Explorer.
@@ -230,4 +236,8 @@ export type Explorer = {
     req: EdgeDetailsRequest,
     options?: ExplorerRequestOptions
   ) => Promise<EdgeDetailsResponse>;
+  rawQuery: (
+    req: RawQueryRequest,
+    options?: ExplorerRequestOptions
+  ) => Promise<RawQueryResponse>;
 };
