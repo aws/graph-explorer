@@ -14,10 +14,20 @@ import { clientRoot, proxyServerRoot } from "./paths.js";
 import { errorHandlingMiddleware, handleError } from "./error-handler.js";
 import { BooleanStringSchema, env } from "./env.js";
 import { pipeline } from "stream";
+import { AssumeRoleCommand, STSClient } from "@aws-sdk/client-sts";
 
 const app = express();
 
 const DEFAULT_SERVICE_TYPE = "neptune-db";
+
+interface AwsCredentials {
+  accessKeyId: string;
+  secretAccessKey: string;
+  sessionToken?: string;
+  expiration?: Date;
+}
+
+const credentialCache: { [roleArn: string]: AwsCredentials } = {};
 
 interface DbQueryIncomingHttpHeaders extends IncomingHttpHeaders {
   queryid?: string;
@@ -25,6 +35,7 @@ interface DbQueryIncomingHttpHeaders extends IncomingHttpHeaders {
   "aws-neptune-region"?: string;
   "service-type"?: string;
   "db-query-logging-enabled"?: string;
+  "aws-assume-role-arn"?: string;
 }
 
 interface LoggerIncomingHttpHeaders extends IncomingHttpHeaders {
@@ -34,23 +45,97 @@ interface LoggerIncomingHttpHeaders extends IncomingHttpHeaders {
 
 app.use(requestLoggingMiddleware());
 
-// Function to get IAM headers for AWS4 signing process.
-async function getIAMHeaders(options: string | aws4.Request) {
+// Function to check if the credentials are valid.
+function areCredentialsValid(creds: AwsCredentials): boolean {
+  return creds.expiration
+    ? new Date(creds.expiration).getTime() - Date.now() > 5 * 60 * 1000
+    : true;
+}
+
+async function getCredentials(
+  awsAssumeRoleArn: string | undefined,
+  region: string | undefined
+) {
+  if (awsAssumeRoleArn !== undefined && awsAssumeRoleArn !== "") {
+    if (
+      credentialCache[awsAssumeRoleArn] &&
+      areCredentialsValid(credentialCache[awsAssumeRoleArn])
+    ) {
+      return credentialCache[awsAssumeRoleArn];
+    }
+    try {
+      const command = new AssumeRoleCommand({
+        RoleArn: awsAssumeRoleArn,
+        RoleSessionName: "GraphExplorerProxyServer",
+      });
+      const stsClient = new STSClient({ region: region });
+      const { Credentials } = await stsClient.send(command);
+
+      if (
+        !Credentials ||
+        !Credentials.AccessKeyId ||
+        !Credentials.SecretAccessKey ||
+        !Credentials.SessionToken
+      ) {
+        throw new Error("Failed to assume role, no credentials returned");
+      }
+
+      proxyLogger.debug(
+        "Assumed role successfully using the provided role ARN %s, it will expire at: %s",
+        awsAssumeRoleArn,
+        Credentials.Expiration
+      );
+      credentialCache[awsAssumeRoleArn] = {
+        accessKeyId: Credentials.AccessKeyId,
+        secretAccessKey: Credentials.SecretAccessKey,
+        sessionToken: Credentials.SessionToken,
+        expiration: Credentials.Expiration,
+      };
+
+      return credentialCache[awsAssumeRoleArn];
+    } catch (error) {
+      proxyLogger.error(
+        "IAM is enabled but credentials cannot be assumed using the provided role ARN: %s, Error: %s",
+        awsAssumeRoleArn,
+        error
+      );
+      return undefined;
+    }
+  }
+
   const credentialProvider = fromNodeProviderChain();
   const creds = await credentialProvider();
   if (creds === undefined) {
-    throw new Error(
+    proxyLogger.error(
       "IAM is enabled but credentials cannot be found on the credential provider chain."
     );
+    return undefined;
   }
 
-  const headers = aws4.sign(options, {
+  return {
+    accessKeyId: creds.accessKeyId,
+    secretAccessKey: creds.secretAccessKey,
+    sessionToken: creds.sessionToken,
+  };
+}
+
+// Function to get IAM headers for AWS4 signing process.
+async function getIAMHeaders(
+  options: string | aws4.Request,
+  region: string | undefined,
+  awsAssumeRoleArn: string | undefined
+) {
+  const creds = await getCredentials(awsAssumeRoleArn, region);
+  if (!creds) {
+    throw new Error(
+      "IAM is enabled but credentials cannot be found or assumed."
+    );
+  }
+  return aws4.sign(options, {
     accessKeyId: creds.accessKeyId,
     secretAccessKey: creds.secretAccessKey,
     ...(creds.sessionToken && { sessionToken: creds.sessionToken }),
   });
-
-  return headers;
 }
 
 // Function to retry fetch requests with exponential backoff.
@@ -60,20 +145,25 @@ const retryFetch = async (
   isIamEnabled: boolean,
   region: string | undefined,
   serviceType: string,
+  awsAssumeRoleArn: string | undefined,
   retryDelay = 10000,
   refetchMaxRetries = 1
 ) => {
   for (let i = 0; i < refetchMaxRetries; i++) {
     if (isIamEnabled) {
-      const data = await getIAMHeaders({
-        host: url.hostname,
-        port: url.port,
-        path: url.pathname + url.search,
-        service: serviceType,
+      const data = await getIAMHeaders(
+        {
+          host: url.hostname,
+          port: url.port,
+          path: url.pathname + url.search,
+          service: serviceType,
+          region,
+          method: options.method,
+          body: options.body ?? undefined,
+        },
         region,
-        method: options.method,
-        body: options.body ?? undefined,
-      });
+        awsAssumeRoleArn
+      );
 
       options = {
         host: url.hostname,
@@ -130,7 +220,8 @@ async function fetchData(
   options: RequestInit,
   isIamEnabled: boolean,
   region: string | undefined,
-  serviceType: string
+  serviceType: string,
+  awsAssumeRoleArn: string | undefined
 ) {
   try {
     const response = await retryFetch(
@@ -138,7 +229,8 @@ async function fetchData(
       options,
       isIamEnabled,
       region,
-      serviceType
+      serviceType,
+      awsAssumeRoleArn
     );
 
     // Set the headers from the fetch response to the client response
@@ -201,6 +293,7 @@ app.post("/sparql", (req, res, next) => {
   const serviceType = isIamEnabled
     ? (headers["service-type"] ?? DEFAULT_SERVICE_TYPE)
     : "";
+  const awsAssumeRoleArn = isIamEnabled ? headers["aws-assume-role-arn"] : "";
 
   /// Function to cancel long running queries if the client disappears before completion
   async function cancelQuery() {
@@ -221,7 +314,8 @@ app.post("/sparql", (req, res, next) => {
         },
         isIamEnabled,
         region,
-        serviceType
+        serviceType,
+        awsAssumeRoleArn
       );
     } catch (err) {
       // Not really an error
@@ -275,7 +369,8 @@ app.post("/sparql", (req, res, next) => {
     requestOptions,
     isIamEnabled,
     region,
-    serviceType
+    serviceType,
+    awsAssumeRoleArn
   );
 });
 
@@ -293,6 +388,7 @@ app.post("/gremlin", (req, res, next) => {
   const serviceType = isIamEnabled
     ? (headers["service-type"] ?? DEFAULT_SERVICE_TYPE)
     : "";
+  const awsAssumeRoleArn = isIamEnabled ? headers["aws-assume-role-arn"] : "";
 
   // Validate the input before making any external calls.
   const queryString = req.body.query;
@@ -320,7 +416,8 @@ app.post("/gremlin", (req, res, next) => {
         { method: "GET" },
         isIamEnabled,
         region,
-        serviceType
+        serviceType,
+        awsAssumeRoleArn
       );
     } catch (err) {
       // Not really an error
@@ -360,7 +457,8 @@ app.post("/gremlin", (req, res, next) => {
     requestOptions,
     isIamEnabled,
     region,
-    serviceType
+    serviceType,
+    awsAssumeRoleArn
   );
 });
 
@@ -398,6 +496,7 @@ app.post("/openCypher", (req, res, next) => {
   const serviceType = isIamEnabled
     ? (headers["service-type"] ?? DEFAULT_SERVICE_TYPE)
     : "";
+  const awsAssumeRoleArn = isIamEnabled ? headers["aws-assume-role-arn"] : "";
 
   return fetchData(
     res,
@@ -406,7 +505,8 @@ app.post("/openCypher", (req, res, next) => {
     requestOptions,
     isIamEnabled,
     region,
-    serviceType
+    serviceType,
+    awsAssumeRoleArn
   );
 });
 
@@ -424,6 +524,7 @@ app.get("/summary", (req, res, next) => {
   };
 
   const region = isIamEnabled ? headers["aws-neptune-region"] : "";
+  const awsAssumeRoleArn = isIamEnabled ? headers["aws-assume-role-arn"] : "";
 
   fetchData(
     res,
@@ -432,7 +533,8 @@ app.get("/summary", (req, res, next) => {
     requestOptions,
     isIamEnabled,
     region,
-    serviceType
+    serviceType,
+    awsAssumeRoleArn
   );
 });
 
@@ -450,6 +552,7 @@ app.get("/pg/statistics/summary", (req, res, next) => {
   };
 
   const region = isIamEnabled ? headers["aws-neptune-region"] : "";
+  const awsAssumeRoleArn = isIamEnabled ? headers["aws-assume-role-arn"] : "";
 
   fetchData(
     res,
@@ -458,7 +561,8 @@ app.get("/pg/statistics/summary", (req, res, next) => {
     requestOptions,
     isIamEnabled,
     region,
-    serviceType
+    serviceType,
+    awsAssumeRoleArn
   );
 });
 
@@ -476,6 +580,7 @@ app.get("/rdf/statistics/summary", (req, res, next) => {
   };
 
   const region = isIamEnabled ? headers["aws-neptune-region"] : "";
+  const awsAssumeRoleArn = isIamEnabled ? headers["aws-assume-role-arn"] : "";
 
   fetchData(
     res,
@@ -484,7 +589,8 @@ app.get("/rdf/statistics/summary", (req, res, next) => {
     requestOptions,
     isIamEnabled,
     region,
-    serviceType
+    serviceType,
+    awsAssumeRoleArn
   );
 });
 

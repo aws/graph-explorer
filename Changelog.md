@@ -2,6 +2,8 @@
 
 ## Upcoming
 
+- **Improved** accessing neptune using assume role
+  ([#818](https://github.com/aws/graph-explorer/pull/818))
 - **Added** ability to restore the graph from the previous session
   ([#826](https://github.com/aws/graph-explorer/pull/826))
 - **Updated** styling of the connections screen
