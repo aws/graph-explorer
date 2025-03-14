@@ -238,6 +238,7 @@ const CreateConnection = ({
         <FormItem>
           <Label>Name</Label>
           <InputField
+            aria-label="Name"
             value={form.name}
             onChange={onFormChange("name")}
             errorMessage="Name is required"
@@ -263,6 +264,7 @@ const CreateConnection = ({
             </InfoTooltip>
           </Label>
           <TextArea
+            aria-label="Public or Proxy Endpoint"
             data-autofocus={true}
             value={form.url}
             onChange={onFormChange("url")}
@@ -286,6 +288,7 @@ const CreateConnection = ({
           <FormItem>
             <Label>Graph Connection URL</Label>
             <TextArea
+              aria-label="Graph Connection URL"
               data-autofocus={true}
               value={form.graphDbUrl}
               onChange={onFormChange("graphDbUrl")}
@@ -314,6 +317,7 @@ const CreateConnection = ({
             <FormItem>
               <Label>AWS Region</Label>
               <InputField
+                aria-label="AWS Region"
                 data-autofocus={true}
                 value={form.awsRegion}
                 onChange={onFormChange("awsRegion")}
@@ -359,6 +363,7 @@ const CreateConnection = ({
           <FormItem>
             <Label>Fetch Timeout (ms)</Label>
             <InputField
+              aria-label="Fetch Timeout (ms)"
               type="number"
               value={form.fetchTimeoutMs}
               onChange={onFormChange("fetchTimeoutMs")}
@@ -388,6 +393,7 @@ const CreateConnection = ({
           <FormItem>
             <Label>Node Expansion Limit</Label>
             <InputField
+              aria-label="Node Expansion Limit"
               type="number"
               value={form.nodeExpansionLimit}
               onChange={onFormChange("nodeExpansionLimit")}
