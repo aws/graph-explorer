@@ -12,7 +12,8 @@
   graph" button off the screen
   ([#824](https://github.com/aws/graph-explorer/pull/824))
 - **Updated** styling of input, textarea, and select fields
-  ([#832](https://github.com/aws/graph-explorer/pull/832))
+  ([#832](https://github.com/aws/graph-explorer/pull/832),
+  [#834](https://github.com/aws/graph-explorer/pull/834))
 - **Updated** dependencies
   ([#827](https://github.com/aws/graph-explorer/pull/827))
 

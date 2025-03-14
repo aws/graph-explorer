@@ -115,6 +115,9 @@ export default {
       extraBold: "700",
     },
     extend: {
+      aria: {
+        invalid: 'invalid="true"',
+      },
       transitionProperty: {
         width: "width",
       },
