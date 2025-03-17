@@ -88,9 +88,6 @@ export const InputField = (
     <FormItem>
       {label && <Label {...labelProps}>{label}</Label>}
       <Input
-        className={cn(
-          validationState === "invalid" && "ring-error-main ring-1"
-        )}
         disabled={isDisabled}
         min={isNumberInput(props) ? props.min : undefined}
         max={isNumberInput(props) ? props.max : undefined}
