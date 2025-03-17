@@ -488,6 +488,10 @@ app.get("/rdf/statistics/summary", (req, res, next) => {
   );
 });
 
+app.get("/status", (_req, res) => {
+  res.send("OK");
+});
+
 app.post("/logger", (req, res, next) => {
   const headers = req.headers as LoggerIncomingHttpHeaders;
   let message;
