@@ -214,6 +214,7 @@ describe("useDisplayVertexFromVertex", () => {
     const vertex = createRandomVertex();
     vertex.id = createVertexId("http://www.example.com/resources#foo");
     vertex.type = "http://www.example.com/class#bar";
+    vertex.types = ["http://www.example.com/class#bar"];
     const schema = createRandomSchema();
     schema.prefixes = [
       {
