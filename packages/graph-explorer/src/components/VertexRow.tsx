@@ -17,11 +17,7 @@ export function VertexRow({
         vertexStyle={vertex.typeConfig.style}
         className="size-11 p-[8px]"
       />
-      <div
-        className={cn(
-          "inline-block text-pretty text-base leading-snug [word-break:break-word]"
-        )}
-      >
+      <div className="inline-block text-pretty text-base leading-snug [word-break:break-word]">
         <div className="font-bold">
           {vertex.displayTypes}&nbsp;&rsaquo; {vertex.displayName}
         </div>

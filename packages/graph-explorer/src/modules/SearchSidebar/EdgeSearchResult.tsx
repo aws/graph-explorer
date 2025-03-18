@@ -1,15 +1,22 @@
-import { useDisplayVertexFromVertex, Vertex } from "@/core";
+import {
+  DisplayEdge,
+  DisplayVertex,
+  Edge,
+  useDisplayEdgeFromEdge,
+  useDisplayVertexFromVertex,
+  Vertex,
+} from "@/core";
 import {
   Button,
+  EdgeRow,
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-  VertexRow,
 } from "@/components";
 import {
-  useAddVertexToGraph,
-  useHasVertexBeenAddedToGraph,
-  useRemoveNodeFromGraph,
+  useAddEdgeToGraph,
+  useHasEdgeBeenAddedToGraph,
+  useRemoveEdgeFromGraph,
 } from "@/hooks";
 import { cn } from "@/utils";
 import {
@@ -20,13 +27,15 @@ import {
 import { useState } from "react";
 import EntityAttribute from "../EntityDetails/EntityAttribute";
 
-export function NodeSearchResult({ node }: { node: Vertex }) {
+export function EdgeSearchResult({ edge }: { edge: Edge }) {
   const [expanded, setExpanded] = useState(false);
-  const displayNode = useDisplayVertexFromVertex(node);
+  const displayEdge = useDisplayEdgeFromEdge(edge);
+  const sourceVertex = useDisplayForEdgeVertex(displayEdge.source);
+  const targetVertex = useDisplayForEdgeVertex(displayEdge.target);
 
-  const addToGraph = useAddVertexToGraph(node);
-  const removeFromGraph = useRemoveNodeFromGraph(node.id);
-  const hasBeenAdded = useHasVertexBeenAddedToGraph(node.id);
+  const addToGraph = useAddEdgeToGraph(edge);
+  const removeFromGraph = useRemoveEdgeFromGraph(edge.id);
+  const hasBeenAdded = useHasEdgeBeenAddedToGraph(edge.id);
 
   return (
     <div
@@ -42,7 +51,12 @@ export function NodeSearchResult({ node }: { node: Vertex }) {
         <div>
           <ChevronRightIcon className="text-primary-dark/50 size-5 transition-transform duration-200 ease-in-out group-data-[expanded=true]:rotate-90" />
         </div>
-        <VertexRow vertex={displayNode} className="grow" />
+        <EdgeRow
+          edge={displayEdge}
+          source={sourceVertex}
+          target={targetVertex}
+          className="grow"
+        />
         <Tooltip>
           <TooltipTrigger asChild>
             <div className="flex size-8 shrink-0 items-center justify-center">
@@ -52,7 +66,7 @@ export function NodeSearchResult({ node }: { node: Vertex }) {
                   variant="text"
                   onPress={removeFromGraph}
                 >
-                  <span className="sr-only">Remove node from view</span>
+                  <span className="sr-only">Remove edge from view</span>
                 </Button>
               ) : (
                 <Button
@@ -60,19 +74,19 @@ export function NodeSearchResult({ node }: { node: Vertex }) {
                   variant="text"
                   onPress={addToGraph}
                 >
-                  <span className="sr-only">Add node to view</span>
+                  <span className="sr-only">Add edge to view</span>
                 </Button>
               )}
             </div>
           </TooltipTrigger>
           <TooltipContent>
-            {hasBeenAdded ? "Remove node from view" : "Add node to view"}
+            {hasBeenAdded ? "Remove edge from view" : "Add edge to view"}
           </TooltipContent>
         </Tooltip>
       </div>
       <div className="border-background-secondary px-8 transition-all group-data-[expanded=false]:h-0 group-data-[expanded=true]:h-auto group-data-[expanded=true]:border-t">
         <ul>
-          {displayNode.attributes.map(attr => (
+          {displayEdge.attributes.map(attr => (
             <EntityAttribute
               key={attr.name}
               attribute={attr}
@@ -83,4 +97,29 @@ export function NodeSearchResult({ node }: { node: Vertex }) {
       </div>
     </div>
   );
+}
+
+/**
+ * Creates a fragment vertex in order to get a DisplayVertex instance for the
+ * edge vertex.
+ *
+ * NOTE: This should be replaced by logic that fetches the full vertex details.
+ */
+function useDisplayForEdgeVertex(
+  edgeVertex: DisplayEdge["source"]
+): DisplayVertex {
+  // TODO: Fetch the vertex details to display the proper display name in the EdgeRow
+  const fragment: Vertex = {
+    entityType: "vertex",
+    id: edgeVertex.id,
+    type: edgeVertex.types[0] ?? "",
+    types: edgeVertex.types,
+    attributes: {},
+    __isFragment: true,
+  };
+  const result = useDisplayVertexFromVertex(fragment);
+  return {
+    ...result,
+    displayName: edgeVertex.displayId,
+  };
 }
