@@ -9,18 +9,19 @@ import {
 import { loggerSelector, useExplorer } from "@/core/connector";
 import { useRecoilValue } from "recoil";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Vertex } from "@/core";
+import { Vertex, VertexId } from "@/core";
 import { createDisplayError } from "@/utils/createDisplayError";
 import { useNeighborsCallback } from "@/core";
 import { useAddToGraph } from "./useAddToGraph";
 
 export type ExpandNodeFilters = Omit<
   NeighborsRequest,
-  "vertexId" | "vertexType"
+  "vertexId" | "vertexTypes"
 >;
 
 export type ExpandNodeRequest = {
-  vertex: Vertex;
+  vertexId: NeighborsRequest["vertexId"];
+  vertexTypes: NeighborsRequest["vertexTypes"];
   filters?: ExpandNodeFilters;
 };
 
@@ -56,10 +57,8 @@ export default function useExpandNode() {
 
       // Perform the query when a request exists
       const request: NeighborsRequest | null = expandNodeRequest && {
-        vertexId: expandNodeRequest.vertex.id,
-        vertexType:
-          expandNodeRequest.vertex.types?.join("::") ??
-          expandNodeRequest.vertex.type,
+        vertexId: expandNodeRequest.vertexId,
+        vertexTypes: expandNodeRequest.vertexTypes,
         ...expandNodeRequest.filters,
         limit,
       };
@@ -111,8 +110,12 @@ export default function useExpandNode() {
   // Build the expand node callback
   const neighborCallback = useNeighborsCallback();
   const expandNode = useCallback(
-    async (vertex: Vertex, filters?: ExpandNodeFilters) => {
-      const neighbor = await neighborCallback(vertex.id);
+    async (
+      vertexId: VertexId,
+      vertexTypes: Vertex["types"],
+      filters?: ExpandNodeFilters
+    ) => {
+      const neighbor = await neighborCallback(vertexId);
       if (!neighbor) {
         enqueueNotification({
           title: "No neighbor information available",
@@ -121,7 +124,8 @@ export default function useExpandNode() {
         return;
       }
       const request: ExpandNodeRequest = {
-        vertex,
+        vertexId,
+        vertexTypes,
         filters,
       };
 

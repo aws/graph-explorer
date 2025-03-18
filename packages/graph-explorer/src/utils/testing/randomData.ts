@@ -196,10 +196,12 @@ export function createRandomEdgeId(): EdgeId {
  * @returns A random Vertex object.
  */
 export function createRandomVertex(): Vertex {
+  const label = createRandomName("VertexType");
   return {
     entityType: "vertex",
     id: createRandomVertexId(),
-    type: createRandomName("VertexType"),
+    type: label,
+    types: [label],
     attributes: createRecord(3, createRandomEntityAttribute),
   };
 }
@@ -210,6 +212,7 @@ export function createRandomVertexForRdf(): Vertex {
     entityType: "vertex",
     id: createVertexId(createRandomUrlString()),
     type: label,
+    types: [label],
     attributes: createRecord(3, createRandomEntityAttributeForRdf),
   };
 }

@@ -104,10 +104,11 @@ function mapToVertex(
     throw new Error("Vertex type not found in bindings");
   }
 
-  const result = <Vertex>{
+  const result: Vertex = {
     entityType: "vertex",
     id,
     type: typeUri,
+    types: [typeUri],
     attributes,
   };
 

@@ -27,7 +27,7 @@ export type Vertex = {
    * "John Doe" can be a "person" and a "worker"
    * types = ["person", "worker"]
    */
-  types?: string[];
+  types: string[];
   /**
    * List of attributes associated to the vertex.
    * - For PG, nodes can contain attributes.

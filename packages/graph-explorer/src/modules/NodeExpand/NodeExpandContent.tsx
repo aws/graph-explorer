@@ -166,7 +166,7 @@ function ExpandButton({
       }
       variant="filled"
       isDisabled={isPending || isDisabled}
-      onPress={() => expandNode(vertex, filters)}
+      onPress={() => expandNode(vertexId, vertex.types, filters)}
     >
       Expand
     </Button>
