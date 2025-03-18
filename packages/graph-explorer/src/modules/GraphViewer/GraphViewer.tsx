@@ -1,7 +1,6 @@
 import { MouseEvent, useCallback, useRef, useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import {
-  createVertexFromRenderedVertex,
   getVertexIdFromRenderedVertexId,
   type RenderedEdgeId,
   type RenderedVertex,
@@ -161,8 +160,11 @@ export default function GraphViewer({
         const vertexId = getVertexIdFromRenderedVertexId(vertex.id);
         const neighborCount = await neighborCallback(vertexId);
         const offset = neighborCount ? neighborCount.fetched : undefined;
+        const vertexType = vertex.types?.length
+          ? vertex.types.join("::")
+          : vertex.type;
 
-        expandNode(createVertexFromRenderedVertex({ data: vertex }), {
+        expandNode(vertexId, vertexType, {
           limit: 10,
           offset,
         });

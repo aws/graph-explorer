@@ -47,20 +47,6 @@ export function useRenderedEntities() {
 }
 
 /**
- * Maps a rendered vertex back to a regular vertex.
- * @param renderedVertex The rendered vertex
- * @returns A vertex instance
- */
-export function createVertexFromRenderedVertex(
-  renderedVertex: RenderedVertex
-): Vertex {
-  return {
-    ...renderedVertex.data,
-    id: getVertexIdFromRenderedVertexId(renderedVertex.data.id),
-  };
-}
-
-/**
  * Maps a rendered edge back to a regular edge.
  * @param renderedEdge The rendered edge
  * @returns An edge instance
