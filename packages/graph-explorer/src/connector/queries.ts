@@ -5,6 +5,8 @@ import {
   Explorer,
   KeywordSearchRequest,
   KeywordSearchResponse,
+  RawQueryRequest,
+  RawQueryResponse,
   SchemaResponse,
   VertexDetailsRequest,
   VertexDetailsResponse,
@@ -149,13 +151,37 @@ export function edgeDetailsQuery(
   });
 }
 
+export function rawQueryQuery(
+  request: RawQueryRequest,
+  updateSchema: (entities: {
+    vertices: Vertex[];
+    edges: Edge[];
+  }) => Promise<void>,
+  explorer: Explorer,
+  queryClient: QueryClient
+) {
+  return queryOptions({
+    queryKey: ["db", "raw-query", request, explorer, queryClient],
+    queryFn: async ({ signal }): Promise<RawQueryResponse> => {
+      const results = await explorer.rawQuery(request, { signal });
+
+      // Update the schema and the cache
+      updateVertexDetailsCache(explorer, queryClient, results.vertices);
+      updateEdgeDetailsCache(explorer, queryClient, results.edges);
+      await updateSchema(results);
+
+      return results;
+    },
+  });
+}
+
 /** Sets the vertex details cache for the given vertices. */
 export function updateVertexDetailsCache(
   explorer: Explorer,
   queryClient: QueryClient,
   vertices: Vertex[]
 ) {
-  for (const vertex of vertices) {
+  for (const vertex of vertices.filter(v => !v.__isFragment)) {
     queryClient.setQueryData(
       ["db", "vertex", "details", vertex.id, explorer],
       vertex
@@ -169,7 +195,7 @@ export function updateEdgeDetailsCache(
   queryClient: QueryClient,
   edges: Edge[]
 ) {
-  for (const edge of edges) {
+  for (const edge of edges.filter(e => !e.__isFragment)) {
     queryClient.setQueryData(
       ["db", "edge", "details", edge.id, explorer],
       edge
