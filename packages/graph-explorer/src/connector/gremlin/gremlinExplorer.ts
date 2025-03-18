@@ -13,6 +13,7 @@ import { createLoggerFromConnection } from "@/core/connector";
 import { FeatureFlags } from "@/core";
 import { vertexDetails } from "./vertexDetails";
 import { edgeDetails } from "./edgeDetails";
+import { rawQuery } from "./rawQuery";
 
 function _gremlinFetch(
   connection: ConnectionConfig,
@@ -137,9 +138,15 @@ export function createGremlinExplorer(
       );
       return result;
     },
-    async rawQuery(_req, _options) {
+    async rawQuery(req, options) {
+      options ??= {};
+      options.queryId = v4();
       remoteLogger.info("[Gremlin Explorer] Fetching raw query...");
-      throw new Error("Raw query functionality is not implemented for Gremlin");
+      const result = await rawQuery(
+        _gremlinFetch(connection, featureFlags, options),
+        req
+      );
+      return result;
     },
   } satisfies Explorer;
 }
