@@ -81,7 +81,7 @@ describe("Gremlin > fetchNeighbors", () => {
 
     const response = await fetchNeighbors(mockGremlinFetch(), {
       vertexId: createVertexId("2018"),
-      vertexType: "airport",
+      vertexTypes: ["airport"],
     });
 
     expect(response).toMatchObject({
@@ -207,7 +207,7 @@ describe("Gremlin > fetchNeighbors", () => {
 
     const response = await fetchNeighbors(mockGremlinFetch(), {
       vertexId: createVertexId("2018"),
-      vertexType: "airport",
+      vertexTypes: ["airport"],
       filterByVertexTypes: ["airport"],
       filterCriteria: [{ name: "code", value: "TF", operator: "LIKE" }],
     });

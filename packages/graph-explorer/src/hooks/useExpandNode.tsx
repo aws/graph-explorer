@@ -9,19 +9,19 @@ import {
 import { loggerSelector, useExplorer } from "@/core/connector";
 import { useRecoilValue } from "recoil";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { VertexId } from "@/core";
+import { Vertex, VertexId } from "@/core";
 import { createDisplayError } from "@/utils/createDisplayError";
 import { useNeighborsCallback } from "@/core";
 import { useAddToGraph } from "./useAddToGraph";
 
 export type ExpandNodeFilters = Omit<
   NeighborsRequest,
-  "vertexId" | "vertexType"
+  "vertexId" | "vertexTypes"
 >;
 
 export type ExpandNodeRequest = {
-  vertexId: VertexId;
-  vertexType: string;
+  vertexId: NeighborsRequest["vertexId"];
+  vertexTypes: NeighborsRequest["vertexTypes"];
   filters?: ExpandNodeFilters;
 };
 
@@ -58,7 +58,7 @@ export default function useExpandNode() {
       // Perform the query when a request exists
       const request: NeighborsRequest | null = expandNodeRequest && {
         vertexId: expandNodeRequest.vertexId,
-        vertexType: expandNodeRequest.vertexType,
+        vertexTypes: expandNodeRequest.vertexTypes,
         ...expandNodeRequest.filters,
         limit,
       };
@@ -112,7 +112,7 @@ export default function useExpandNode() {
   const expandNode = useCallback(
     async (
       vertexId: VertexId,
-      vertexType: string,
+      vertexTypes: Vertex["types"],
       filters?: ExpandNodeFilters
     ) => {
       const neighbor = await neighborCallback(vertexId);
@@ -125,7 +125,7 @@ export default function useExpandNode() {
       }
       const request: ExpandNodeRequest = {
         vertexId,
-        vertexType,
+        vertexTypes,
         filters,
       };
 

@@ -154,9 +154,6 @@ function ExpandButton({
 }) {
   const vertex = useNode(vertexId);
   const { expandNode, isPending } = useExpandNode();
-  const vertexType = vertex.types?.length
-    ? vertex.types.join("::")
-    : vertex.type;
 
   return (
     <Button
@@ -169,7 +166,7 @@ function ExpandButton({
       }
       variant="filled"
       isDisabled={isPending || isDisabled}
-      onPress={() => expandNode(vertexId, vertexType, filters)}
+      onPress={() => expandNode(vertexId, vertex.types, filters)}
     >
       Expand
     </Button>

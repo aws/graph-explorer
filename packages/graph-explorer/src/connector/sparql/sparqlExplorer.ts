@@ -113,7 +113,7 @@ export function createSparqlExplorer(
       remoteLogger.info("[SPARQL Explorer] Fetching neighbors...");
       const request: SPARQLNeighborsRequest = {
         resourceURI: req.vertexId,
-        resourceClass: req.vertexType,
+        resourceClass: req.vertexTypes.join("::"),
         subjectClasses: req.filterByVertexTypes,
         filterCriteria: req.filterCriteria?.map((c: Criterion) => ({
           predicate: c.name,

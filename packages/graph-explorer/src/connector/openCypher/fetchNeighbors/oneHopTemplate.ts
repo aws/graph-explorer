@@ -110,7 +110,7 @@ const oneHopTemplate = ({
   filterCriteria = [],
   limit = 0,
   offset = 0,
-}: Omit<NeighborsRequest, "vertexType">): string => {
+}: Omit<NeighborsRequest, "vertexTypes">): string => {
   // List of possible vertex types
   const formattedVertexTypes =
     filterByVertexTypes.length > 1

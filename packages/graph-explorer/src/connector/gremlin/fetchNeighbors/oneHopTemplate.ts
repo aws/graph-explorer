@@ -134,7 +134,7 @@ export default function oneHopTemplate({
   filterCriteria = [],
   limit = 0,
   offset = 0,
-}: Omit<NeighborsRequest, "vertexType">): string {
+}: Omit<NeighborsRequest, "vertexTypes">): string {
   const idTemplate = idParam(vertexId);
   const range = limit > 0 ? `.range(${offset}, ${offset + limit})` : "";
 

@@ -160,11 +160,8 @@ export default function GraphViewer({
         const vertexId = getVertexIdFromRenderedVertexId(vertex.id);
         const neighborCount = await neighborCallback(vertexId);
         const offset = neighborCount ? neighborCount.fetched : undefined;
-        const vertexType = vertex.types?.length
-          ? vertex.types.join("::")
-          : vertex.type;
 
-        expandNode(vertexId, vertexType, {
+        expandNode(vertexId, vertex.types, {
           limit: 10,
           offset,
         });
