@@ -1,5 +1,6 @@
 import { type Config } from "tailwindcss";
 import colors from "tailwindcss/colors";
+import plugin from "tailwindcss/plugin";
 import tailwindAnimate from "tailwindcss-animate";
 import tailwindContainerQueries from "@tailwindcss/container-queries";
 
@@ -141,5 +142,29 @@ export default {
       },
     },
   },
-  plugins: [tailwindAnimate, tailwindContainerQueries],
+  plugins: [
+    tailwindAnimate,
+    tailwindContainerQueries,
+    plugin(({ addUtilities, matchUtilities, theme }) => {
+      addUtilities({
+        ".content-auto": {
+          "content-visibility": "auto",
+        },
+        ".content-hidden": {
+          "content-visibility": "hidden",
+        },
+        ".content-visible": {
+          "content-visibility": "visible",
+        },
+      });
+      matchUtilities(
+        {
+          "intrinsic-size": value => ({
+            "contain-intrinsic-size": value,
+          }),
+        },
+        { values: theme("spacing") }
+      );
+    }),
+  ],
 } satisfies Config;
