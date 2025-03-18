@@ -80,7 +80,12 @@ const EdgeDetail = ({ edge }: EdgeDetailProps) => {
 
   return (
     <div className={styleWithTheme(defaultStyles(style.lineColor))}>
-      <EdgeRow edge={edge} className="px-3 py-3" />
+      <EdgeRow
+        edge={edge}
+        source={sourceVertex}
+        target={targetVertex}
+        className="px-3 py-3"
+      />
       <div className={cn("source-vertex")}>
         <div className={cn("start-line", `line-${style.lineStyle || "solid"}`)}>
           {style.sourceArrowStyle === "triangle" && (

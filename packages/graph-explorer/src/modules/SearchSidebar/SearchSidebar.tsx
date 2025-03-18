@@ -16,11 +16,18 @@ import {
 } from "@/components/SidebarTabs";
 import { QuerySearchTabContent } from "./QuerySearchTabContent";
 import { CodeIcon, ListFilterIcon } from "lucide-react";
+import { atom, useRecoilState } from "recoil";
 import { cn } from "@/utils";
+
+export const selectedTabAtom = atom({
+  key: "search-sidebar-selected-tab",
+  default: "filter",
+});
 
 export function SearchSidebarPanel() {
   const queryEngine = useQueryEngine();
   const featureFlags = useFeatureFlags();
+  const [selectedTab, setSelectedTab] = useRecoilState(selectedTabAtom);
 
   // Hide tabs when not gremlin or the query editor feature is turned off
   if (queryEngine !== "gremlin" || !featureFlags.showQueryEditor) {
@@ -33,7 +40,7 @@ export function SearchSidebarPanel() {
 
   return (
     <Layout>
-      <SidebarTabs defaultValue="filter">
+      <SidebarTabs defaultValue={selectedTab} onValueChange={setSelectedTab}>
         <SidebarTabsList>
           <SidebarTabsTrigger value="filter">
             <ListFilterIcon /> Filter
