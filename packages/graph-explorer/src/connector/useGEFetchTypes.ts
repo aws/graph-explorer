@@ -83,7 +83,11 @@ export type NeighborsRequest = {
   /**
    * Source vertex type.
    *
-   * Used only by the SPARQL implementation to patch the edges returned with the source vertex type.
+   * Used only by the SPARQL implementation to patch the edges returned with the
+   * source vertex type.
+   *
+   * NOTE: This should be removed once the SPARQL queries are updated to
+   * retrieve the resource class from the database.
    */
   vertexType: string;
   /**
