@@ -32,6 +32,9 @@ export default defineConfig(({ mode }) => {
   return {
     server: {
       host: true,
+      watch: {
+        ignored: ["**/*.test.ts", "**/*.test.tsx"],
+      },
       proxy: {
         // Forward these requests to the express server when in dev mode
         "/defaultConnection": {
