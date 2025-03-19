@@ -28,9 +28,8 @@ describe("mapApiVertex", () => {
     const vertex = createRandomVertex();
     vertex.__isFragment = false;
     vertex.type = "";
-    vertex.types = [""];
+    vertex.types = [];
     const gVertex = createGVertex(vertex);
-    gVertex["@value"].label = "";
 
     const mappedVertex = mapApiVertex(gVertex);
 

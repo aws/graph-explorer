@@ -4,7 +4,8 @@ import parsePropertiesValues from "./parsePropertiesValues";
 import { extractRawId } from "./extractRawId";
 
 const mapApiVertex = (apiVertex: GVertex): Vertex => {
-  const labels = apiVertex["@value"].label.split("::");
+  // Split multi-label from Neptune and filter out empty strings
+  const labels = apiVertex["@value"].label.split("::").filter(Boolean);
 
   // Check for empty labels, which is possible with some databases
   const vt = labels[0] ?? "";
