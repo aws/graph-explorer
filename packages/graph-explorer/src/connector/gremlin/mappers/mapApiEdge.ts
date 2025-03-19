@@ -5,6 +5,8 @@ import parseEdgePropertiesValues from "./parseEdgePropertiesValues";
 import { extractRawId } from "./extractRawId";
 
 const mapApiEdge = (apiEdge: GEdge): Edge => {
+  // TODO: Is this problematic for edges that naturally have no properties? Is
+  // there another way to tell if the Edge actually has zero properties?
   const isFragment = apiEdge["@value"].properties == null;
 
   // Since Gremlin does not natively support multi-label nodes, we need to
