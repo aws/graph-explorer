@@ -7,7 +7,8 @@ import { extractRawId } from "./extractRawId";
 const mapApiEdge = (apiEdge: GEdge): Edge => {
   const isFragment = apiEdge["@value"].properties == null;
 
-  // Since Gremlin does not natively support multi-label nodes, we need to extract the individual labels by splitting the string
+  // Since Gremlin does not natively support multi-label nodes, we need to
+  // extract the individual labels by splitting the string
   const outVLabels = apiEdge["@value"].outVLabel.split("::");
   const inVLabels = apiEdge["@value"].inVLabel.split("::");
 

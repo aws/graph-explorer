@@ -176,7 +176,7 @@ export function calculateNeighbors(
     .values()
     .reduce((map, neighbor) => {
       // Uses the primary type until we can support neighbor counts in a multi-label world
-      const type = neighbor.types[0];
+      const type = neighbor.types[0] ?? "";
       const fetched = map.get(type) ?? 0;
       return map.set(type, fetched + 1);
     }, new Map<string, number>());

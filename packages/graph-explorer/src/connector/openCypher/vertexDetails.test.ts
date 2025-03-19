@@ -5,7 +5,6 @@ import { Vertex } from "@/core";
 describe("vertexDetails", () => {
   it("should return the vertex details", async () => {
     const vertex = createRandomVertex();
-    vertex.types = [vertex.type];
 
     const response = createResponseFromVertex(vertex);
     const mockFetch = vi

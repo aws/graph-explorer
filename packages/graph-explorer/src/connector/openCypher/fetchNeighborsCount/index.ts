@@ -28,7 +28,8 @@ const fetchNeighborsCount = async (
 
   for (let i = 0; i < results.length; i++) {
     totalCount += results[i].count;
-    counts[results[i].vertexLabel[0]] = results[i].count;
+    const label = results[i].vertexLabel[0] ?? "";
+    counts[label] = results[i].count;
   }
 
   return {
