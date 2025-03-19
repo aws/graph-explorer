@@ -16,6 +16,7 @@ import {
   NeptuneServiceType,
 } from "@shared/types";
 import {
+  allGraphSessionsAtom,
   ConfigurationContextProps,
   createNewConfigurationId,
   RawConfiguration,
@@ -133,6 +134,7 @@ const CreateConnection = ({
         const typeChange = initialData?.queryEngine !== data.queryEngine;
 
         if (urlChange || typeChange) {
+          // Force a sync of the schema
           set(schemaAtom, prevSchemaMap => {
             const updatedSchema = new Map(prevSchemaMap);
             const currentSchema = updatedSchema.get(configId);
@@ -147,6 +149,13 @@ const CreateConnection = ({
             });
 
             return updatedSchema;
+          });
+
+          // Delete previous session data
+          set(allGraphSessionsAtom, prev => {
+            const updatedGraphs = new Map(prev);
+            updatedGraphs.delete(configId);
+            return updatedGraphs;
           });
         }
       },
