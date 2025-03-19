@@ -111,7 +111,7 @@ const oneHopTemplate = ({
   limit = 0,
   offset = 0,
 }: Omit<NeighborsRequest, "vertexTypes">): string => {
-  // List of possible vertex types
+  // List of possible vertex labels when there are multiple (single label is handled elsewhere)
   const formattedVertexTypes =
     filterByVertexTypes.length > 1
       ? `(${filterByVertexTypes
