@@ -5,7 +5,8 @@
 - **Added** add /status endpoint to verify proxy health
   ([#833](https://github.com/aws/graph-explorer/pull/833))
 - **Added** ability to restore the graph from the previous session
-  ([#826](https://github.com/aws/graph-explorer/pull/826))
+  ([#826](https://github.com/aws/graph-explorer/pull/826),
+  [#840](https://github.com/aws/graph-explorer/pull/840))
 - **Updated** styling of the connections screen
   ([#828](https://github.com/aws/graph-explorer/pull/828))
 - **Updated** namespaces sidebar to use tabs instead of dropdown
