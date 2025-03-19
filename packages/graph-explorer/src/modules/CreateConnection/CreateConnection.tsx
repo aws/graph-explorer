@@ -131,9 +131,10 @@ const CreateConnection = ({
         });
 
         const urlChange = initialData?.url !== data.url;
+        const dbUrlChange = initialData?.graphDbUrl !== data.graphDbUrl;
         const typeChange = initialData?.queryEngine !== data.queryEngine;
 
-        if (urlChange || typeChange) {
+        if (urlChange || dbUrlChange || typeChange) {
           // Force a sync of the schema
           set(schemaAtom, prevSchemaMap => {
             const updatedSchema = new Map(prevSchemaMap);
@@ -159,7 +160,12 @@ const CreateConnection = ({
           });
         }
       },
-    [configId, initialData?.url, initialData?.queryEngine]
+    [
+      configId,
+      initialData?.url,
+      initialData?.graphDbUrl,
+      initialData?.queryEngine,
+    ]
   );
 
   const [form, setForm] = useState<ConnectionForm>({
