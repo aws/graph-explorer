@@ -17,7 +17,7 @@ describe("OpenCypher > oneHopTemplate", () => {
         MATCH (v)-[e]-(tgt)
         WITH
           collect(DISTINCT tgt) AS vObjects,
-          collect({ edge: e, sourceType: labels(startNode(e)), targetType: labels(endNode(e)) }) AS eObjects
+          collect({ edge: e, sourceTypes: labels(startNode(e)), targetTypes: labels(endNode(e)) }) AS eObjects
         RETURN vObjects, eObjects
       `)
     );
@@ -41,7 +41,7 @@ describe("OpenCypher > oneHopTemplate", () => {
         MATCH (v)-[e]-(tgt)
         WITH 
           collect(DISTINCT tgt) AS vObjects, 
-          collect({ edge: e, sourceType: labels(startNode(e)), targetType: labels(endNode(e)) }) AS eObjects 
+          collect({ edge: e, sourceTypes: labels(startNode(e)), targetTypes: labels(endNode(e)) }) AS eObjects 
         RETURN vObjects, eObjects
       `)
     );
@@ -66,7 +66,7 @@ describe("OpenCypher > oneHopTemplate", () => {
         MATCH (v)-[e]-(tgt)
         WITH 
           collect(DISTINCT tgt) AS vObjects, 
-          collect({ edge: e, sourceType: labels(startNode(e)), targetType: labels(endNode(e)) }) AS eObjects 
+          collect({ edge: e, sourceTypes: labels(startNode(e)), targetTypes: labels(endNode(e)) }) AS eObjects 
         RETURN vObjects, eObjects
       `)
     );
@@ -87,7 +87,7 @@ describe("OpenCypher > oneHopTemplate", () => {
         MATCH (v)-[e]-(tgt)
         WITH
           collect(DISTINCT tgt) AS vObjects,
-          collect({ edge: e, sourceType: labels(startNode(e)), targetType: labels(endNode(e)) }) AS eObjects
+          collect({ edge: e, sourceTypes: labels(startNode(e)), targetTypes: labels(endNode(e)) }) AS eObjects
         RETURN vObjects, eObjects
       `)
     );
@@ -112,7 +112,7 @@ describe("OpenCypher > oneHopTemplate", () => {
         MATCH (v)-[e:locatedIn]-(tgt)
         WITH 
           collect(DISTINCT tgt) AS vObjects, 
-          collect({ edge: e, sourceType: labels(startNode(e)), targetType: labels(endNode(e)) }) AS eObjects 
+          collect({ edge: e, sourceTypes: labels(startNode(e)), targetTypes: labels(endNode(e)) }) AS eObjects 
         RETURN vObjects, eObjects
       `)
     );
@@ -141,7 +141,7 @@ describe("OpenCypher > oneHopTemplate", () => {
         MATCH (v)-[e]-(tgt)
         WITH 
           collect(DISTINCT tgt) AS vObjects, 
-          collect({ edge: e, sourceType: labels(startNode(e)), targetType: labels(endNode(e)) }) AS eObjects 
+          collect({ edge: e, sourceTypes: labels(startNode(e)), targetTypes: labels(endNode(e)) }) AS eObjects 
         RETURN vObjects, eObjects
       `)
     );

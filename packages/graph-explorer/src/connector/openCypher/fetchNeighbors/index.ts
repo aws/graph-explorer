@@ -15,8 +15,8 @@ type RawOneHopRequest = {
       eObjects: [
         {
           edge: OCEdge;
-          sourceType: string[];
-          targetType: string[];
+          sourceTypes: string[];
+          targetTypes: string[];
         },
       ];
     },
@@ -32,7 +32,7 @@ const fetchNeighbors = async (
     await openCypherFetch<RawOneHopRequest>(openCypherTemplate);
 
   const edges = oneHopData.results[0].eObjects.map(edgeInfo =>
-    mapApiEdge(edgeInfo.edge, edgeInfo.sourceType, edgeInfo.targetType)
+    mapApiEdge(edgeInfo.edge, edgeInfo.sourceTypes, edgeInfo.targetTypes)
   );
 
   const vertices: NeighborsResponse["vertices"] =
