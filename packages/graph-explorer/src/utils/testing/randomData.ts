@@ -228,9 +228,9 @@ export function createRandomEdge(source: Vertex, target: Vertex): Edge {
     type: createRandomName("EdgeType"),
     attributes: createRecord(3, createRandomEntityAttribute),
     source: source.id,
-    sourceType: source.type,
+    sourceTypes: source.types,
     target: target.id,
-    targetType: target.type,
+    targetTypes: target.types,
   };
 }
 
@@ -242,9 +242,9 @@ export function createRandomEdgeForRdf(source: Vertex, target: Vertex): Edge {
     type: predicate,
     attributes: {},
     source: source.id,
-    sourceType: source.type,
+    sourceTypes: source.types,
     target: target.id,
-    targetType: target.type,
+    targetTypes: target.types,
   };
 }
 

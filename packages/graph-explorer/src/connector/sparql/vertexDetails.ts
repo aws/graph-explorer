@@ -89,26 +89,26 @@ function mapToVertex(
   id: VertexId,
   detailsBinding: VertexDetailsBinding[]
 ): Vertex {
-  let typeUri: string = "";
+  const typeUri: string[] = [];
   const attributes: Record<string, string | number> = {};
 
   for (const result of detailsBinding) {
     if (result.label.value === rdfTypeUri) {
-      typeUri = result.value.value;
+      typeUri.push(result.value.value);
     } else {
       attributes[result.label.value] = mapToValue(result.value);
     }
   }
 
-  if (!typeUri) {
+  if (!typeUri.length) {
     throw new Error("Vertex type not found in bindings");
   }
 
   const result: Vertex = {
     entityType: "vertex",
     id,
-    type: typeUri,
-    types: [typeUri],
+    type: typeUri[0],
+    types: typeUri,
     attributes,
   };
 

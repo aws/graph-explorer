@@ -98,7 +98,7 @@ const criterionTemplate = (criterion: Criterion): string => {
  *
  * MATCH (v)-[edge:route]->(v:airport)
  * WHERE ID(v) = "124"
- * WITH collect(DISTINCT tgt) AS vObjects, collect({edge: e, sourceType: labels(v), targetType: labels(tgt)}) AS eObjects
+ * WITH collect(DISTINCT tgt) AS vObjects, collect({edge: e, sourceTypes: labels(v), targetTypes: labels(tgt)}) AS eObjects
  * RETURN vObjects, eObjects
  * SKIP 0
  * LIMIT 10
@@ -111,7 +111,7 @@ const oneHopTemplate = ({
   limit = 0,
   offset = 0,
 }: Omit<NeighborsRequest, "vertexTypes">): string => {
-  // List of possible vertex types
+  // List of possible vertex labels when there are multiple (single label is handled elsewhere)
   const formattedVertexTypes =
     filterByVertexTypes.length > 1
       ? `(${filterByVertexTypes
@@ -147,7 +147,7 @@ const oneHopTemplate = ({
     MATCH (v)-[${edgeMatch}]-(tgt)
     WITH
       collect(DISTINCT tgt) AS vObjects, 
-      collect({ edge: e, sourceType: labels(startNode(e)), targetType: labels(endNode(e)) }) AS eObjects
+      collect({ edge: e, sourceTypes: labels(startNode(e)), targetTypes: labels(endNode(e)) }) AS eObjects
     RETURN vObjects, eObjects
   `;
 };

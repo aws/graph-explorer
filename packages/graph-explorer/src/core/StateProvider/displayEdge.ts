@@ -105,16 +105,14 @@ const displayEdgeSelector = selectorFamily({
         ? textTransform(targetRawStringId)
         : targetRawStringId;
 
-      const sourceDisplayTypes = edge.sourceType
-        .split("::")
+      const sourceDisplayTypes = edge.sourceTypes
         .map(
           type =>
             get(vertexTypeConfigSelector(type))?.displayLabel ||
             textTransform(type)
         )
         .join(", ");
-      const targetDisplayTypes = edge.targetType
-        .split("::")
+      const targetDisplayTypes = edge.targetTypes
         .map(
           type =>
             get(vertexTypeConfigSelector(type))?.displayLabel ||
