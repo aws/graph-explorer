@@ -6,7 +6,7 @@ import { extractRawId } from "./extractRawId";
 const mapApiVertex = (apiVertex: GVertex): Vertex => {
   const labels = apiVertex["@value"].label.split("::");
 
-  // Check for empty labels, which is possible with Neptune when set via openCypher
+  // Check for empty labels, which is possible with some databases
   const vt = labels[0] ?? "";
   const isFragment = apiVertex["@value"].properties == null;
 
