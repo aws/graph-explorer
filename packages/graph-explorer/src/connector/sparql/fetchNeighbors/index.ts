@@ -1,5 +1,5 @@
 import groupBy from "lodash/groupBy";
-import { Edge, VertexId } from "@/core";
+import { Edge, Vertex, VertexId } from "@/core";
 import type { NeighborsResponse } from "@/connector/useGEFetchTypes";
 import mapIncomingToEdge, {
   IncomingPredicate,
@@ -61,7 +61,7 @@ const fetchOneHopNeighbors = async (
   Object.entries(groupBySubject).forEach(([uri, result]) => {
     // Create outgoing predicates to blank nodes
     if (isBlank(result[0].subject) && result[0].pToSubject) {
-      const edge = mapOutgoingToEdge(req.resourceURI, req.resourceClass, {
+      const edge = mapOutgoingToEdge(req.resourceURI, req.resourceClasses, {
         subject: result[0].subject,
         subjectClass: result[0].subjectClass,
         predToSubject: result[0].pToSubject,
@@ -71,7 +71,7 @@ const fetchOneHopNeighbors = async (
 
     // Create incoming predicates from blank nodes
     if (isBlank(result[0].subject) && result[0].pFromSubject) {
-      const edge = mapIncomingToEdge(req.resourceURI, req.resourceClass, {
+      const edge = mapIncomingToEdge(req.resourceURI, req.resourceClasses, {
         subject: result[0].subject,
         subjectClass: result[0].subjectClass,
         predFromSubject: result[0].pFromSubject,
@@ -104,7 +104,7 @@ const fetchOneHopNeighbors = async (
 export const fetchNeighborsPredicates = async (
   sparqlFetch: SparqlFetch,
   resourceURI: VertexId,
-  resourceClass: string,
+  resourceClasses: Vertex["types"],
   subjectURIs: VertexId[]
 ) => {
   const template = subjectPredicatesTemplate({
@@ -114,16 +114,16 @@ export const fetchNeighborsPredicates = async (
 
   logger.log("[SPARQL Explorer] Fetching neighbor predicates...", {
     resourceURI,
-    resourceClass,
+    resourceClasses,
     subjectURIs,
   });
   const response = await sparqlFetch<RawNeighborsPredicatesResponse>(template);
   return response.results.bindings.map(result => {
     if (isIncomingPredicate(result)) {
-      return mapIncomingToEdge(resourceURI, resourceClass, result);
+      return mapIncomingToEdge(resourceURI, resourceClasses, result);
     }
 
-    return mapOutgoingToEdge(resourceURI, resourceClass, result);
+    return mapOutgoingToEdge(resourceURI, resourceClasses, result);
   });
 };
 
@@ -153,7 +153,7 @@ const fetchNeighbors = async (
   const edges = await fetchNeighborsPredicates(
     sparqlFetch,
     req.resourceURI,
-    req.resourceClass,
+    req.resourceClasses,
     subjectsURIs
   );
 

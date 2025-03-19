@@ -44,9 +44,9 @@ export type SPARQLNeighborsRequest = {
    */
   resourceURI: VertexId;
   /**
-   * Resource Class.
+   * Resource classes.
    */
-  resourceClass: string;
+  resourceClasses: Vertex["types"];
   /**
    * Filter by subject classes
    */
@@ -143,7 +143,7 @@ export type SPARQLKeywordSearchRequest = {
 
 export type SPARQLBlankNodeNeighborsRequest = {
   resourceURI: VertexId;
-  resourceClass: string;
+  resourceClasses: Vertex["types"];
   subQuery: string;
 };
 

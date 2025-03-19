@@ -67,25 +67,25 @@ export async function edgeDetails(
     return { edge: null };
   }
 
-  const sourceType = parsed.data.results.bindings.find(
-    binding => binding.resource.value === source
-  )?.type.value;
-  const targetType = parsed.data.results.bindings.find(
-    binding => binding.resource.value === target
-  )?.type.value;
+  const sourceTypes = parsed.data.results.bindings
+    .filter(binding => binding.resource.value === source)
+    .map(binding => binding.type.value);
+  const targetTypes = parsed.data.results.bindings
+    .filter(binding => binding.resource.value === target)
+    .map(binding => binding.type.value);
 
-  if (!sourceType || !targetType) {
+  if (!sourceTypes.length || !targetTypes.length) {
     throw new Error("Edge type not found in bindings");
   }
 
-  const edge = <Edge>{
+  const edge: Edge = {
     entityType: "edge",
     id: request.edgeId,
     type: predicate,
-    source: source,
-    sourceType,
-    target: target,
-    targetType,
+    source,
+    sourceTypes,
+    target,
+    targetTypes,
     attributes: {},
   };
   return { edge };

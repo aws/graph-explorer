@@ -28,8 +28,8 @@ function createResponseFromEdge(edge: Edge) {
           "~end": edge.target,
           "~properties": edge.attributes,
         },
-        sourceLabels: [edge.sourceType],
-        targetLabels: [edge.targetType],
+        sourceLabels: edge.sourceTypes,
+        targetLabels: edge.targetTypes,
       },
     ],
   };

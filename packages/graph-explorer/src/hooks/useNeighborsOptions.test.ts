@@ -33,6 +33,7 @@ describe("useNeighborsOptions", () => {
     const nodeType1Neighbors = createArray(5, () => {
       const neighbors = createRandomVertex();
       neighbors.type = "nodeType1";
+      neighbors.types = ["nodeType1"];
       return neighbors;
     });
     const edges = nodeType1Neighbors.map(neighbor =>

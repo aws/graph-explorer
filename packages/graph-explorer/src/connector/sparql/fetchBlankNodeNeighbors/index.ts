@@ -19,7 +19,7 @@ import {
   SparqlFetch,
 } from "../types";
 import { logger } from "@/utils";
-import { VertexId } from "@/core";
+import { Vertex, VertexId } from "@/core";
 
 type RawBlankNodeNeighborsResponse = {
   results: {
@@ -45,7 +45,7 @@ async function fetchBlankNodeNeighborsPredicates(
   sparqlFetch: SparqlFetch,
   subQuery: string,
   resourceURI: VertexId,
-  resourceClass: string,
+  resourceClasses: Vertex["types"],
   subjectURIs: VertexId[]
 ) {
   const template = blankNodeSubjectPredicatesTemplate({
@@ -56,16 +56,16 @@ async function fetchBlankNodeNeighborsPredicates(
   logger.log("[SPARQL Explorer] Fetching blank node neighbor predicates...", {
     subQuery,
     resourceURI,
-    resourceClass,
+    resourceClasses,
     subjectURIs,
   });
   const response = await sparqlFetch<RawNeighborsPredicatesResponse>(template);
   return response.results.bindings.map(result => {
     if (isIncomingPredicate(result)) {
-      return mapIncomingToEdge(resourceURI, resourceClass, result);
+      return mapIncomingToEdge(resourceURI, resourceClasses, result);
     }
 
-    return mapOutgoingToEdge(resourceURI, resourceClass, result);
+    return mapOutgoingToEdge(resourceURI, resourceClasses, result);
   });
 }
 
@@ -123,7 +123,7 @@ export default async function fetchBlankNodeNeighbors(
     sparqlFetch,
     req.subQuery,
     req.resourceURI,
-    req.resourceClass,
+    req.resourceClasses,
     subjectsURIs
   );
 

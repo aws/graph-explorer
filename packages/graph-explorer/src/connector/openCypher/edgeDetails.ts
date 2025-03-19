@@ -46,8 +46,8 @@ export async function edgeDetails(
     return { edge: null };
   }
 
-  const sourceLabels = value.sourceLabels.join("::");
-  const targetLabels = value.targetLabels.join("::");
+  const sourceLabels = value.sourceLabels;
+  const targetLabels = value.targetLabels;
 
   const edge = mapApiEdge(value.edge, sourceLabels, targetLabels);
 

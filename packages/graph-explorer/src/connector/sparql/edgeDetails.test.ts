@@ -82,26 +82,26 @@ function createResponseFromEdge(edge: Edge) {
     },
     results: {
       bindings: [
-        {
+        ...edge.sourceTypes.map(sourceType => ({
           resource: {
             type: "uri",
             value: source,
           },
           type: {
             type: "uri",
-            value: edge.sourceType,
+            value: sourceType,
           },
-        },
-        {
+        })),
+        ...edge.targetTypes.map(targetType => ({
           resource: {
             type: "uri",
             value: target,
           },
           type: {
             type: "uri",
-            value: edge.targetType,
+            value: targetType,
           },
-        },
+        })),
       ],
     },
   };

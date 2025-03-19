@@ -70,17 +70,17 @@ export type Edge = {
    */
   source: VertexId;
   /**
-   * Source vertex type
+   * Source vertex types
    */
-  sourceType: string;
+  sourceTypes: Vertex["types"];
   /**
    * Target vertex id
    */
   target: VertexId;
   /**
-   * Target vertex type
+   * Target vertex types
    */
-  targetType: string;
+  targetTypes: Vertex["types"];
   /**
    * Only for PG, attributes associated to the edge.
    * For RDF, predicates do not have more properties than the predicate itself.

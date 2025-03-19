@@ -20,10 +20,10 @@ describe("calculateNeighbors", () => {
       ]),
     };
     const fetchedNeighbors = [
-      { id: createVertexId("1"), type: "type1" },
-      { id: createVertexId("2"), type: "type2" },
-      { id: createVertexId("3"), type: "type1" },
-      { id: createVertexId("4"), type: "type2" },
+      { id: createVertexId("1"), types: ["type1"] },
+      { id: createVertexId("2"), types: ["type2"] },
+      { id: createVertexId("3"), types: ["type1"] },
+      { id: createVertexId("4"), types: ["type2"] },
     ];
 
     const result = calculateNeighbors(

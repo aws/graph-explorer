@@ -1,4 +1,4 @@
-import { createVertexId, Edge, VertexId } from "@/core";
+import { createVertexId, Edge, Vertex, VertexId } from "@/core";
 import { RawValue } from "../types";
 import { createRdfEdgeId } from "../createRdfEdgeId";
 
@@ -10,7 +10,7 @@ export type OutgoingPredicate = {
 
 const mapOutgoingToEdge = (
   resourceURI: VertexId,
-  resourceClass: string,
+  resourceClasses: Vertex["types"],
   result: OutgoingPredicate
 ): Edge => {
   const targetUri = result.subject.value;
@@ -20,9 +20,9 @@ const mapOutgoingToEdge = (
     id: createRdfEdgeId(resourceURI, predicate, targetUri),
     type: predicate,
     source: resourceURI,
-    sourceType: resourceClass,
+    sourceTypes: resourceClasses,
     target: createVertexId(targetUri),
-    targetType: result.subjectClass.value,
+    targetTypes: [result.subjectClass.value],
     attributes: {},
   };
 };

@@ -29,7 +29,7 @@ const defaultNeighborCounts: NeighborCounts = {
 /** Represents the minimum information needed about a neighbor to calculate the neighbor counts. */
 export type NeighborStub = {
   id: VertexId;
-  type: string;
+  types: string[];
 };
 
 /**
@@ -175,7 +175,7 @@ export function calculateNeighbors(
   const fetchedNeighborsByType = fetchNeighborsMap
     .values()
     .reduce((map, neighbor) => {
-      const type = neighbor.type;
+      const type = neighbor.types[0];
       const fetched = map.get(type) ?? 0;
       return map.set(type, fetched + 1);
     }, new Map<string, number>());
@@ -218,11 +218,11 @@ const fetchedNeighborsSelector = selectorFamily({
         .map(edge => {
           // Get all OUT connected edges: current node is source and target should exist
           if (edge.source === id && nodes.has(edge.target)) {
-            return { id: edge.target, type: edge.targetType };
+            return { id: edge.target, types: edge.targetTypes };
           }
           // Get all IN connected edges: current node is target and source should exist
           if (edge.target === id && nodes.has(edge.source)) {
-            return { id: edge.source, type: edge.sourceType };
+            return { id: edge.source, types: edge.sourceTypes };
           }
           return null;
         })
