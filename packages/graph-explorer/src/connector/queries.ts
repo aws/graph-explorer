@@ -182,10 +182,10 @@ export function updateVertexDetailsCache(
   vertices: Vertex[]
 ) {
   for (const vertex of vertices.filter(v => !v.__isFragment)) {
-    queryClient.setQueryData(
-      ["db", "vertex", "details", vertex.id, explorer],
-      vertex
-    );
+    const request: VertexDetailsRequest = {
+      vertexId: vertex.id,
+    };
+    queryClient.setQueriesData(vertexDetailsQuery(request, explorer), vertex);
   }
 }
 
@@ -196,9 +196,9 @@ export function updateEdgeDetailsCache(
   edges: Edge[]
 ) {
   for (const edge of edges.filter(e => !e.__isFragment)) {
-    queryClient.setQueryData(
-      ["db", "edge", "details", edge.id, explorer],
-      edge
-    );
+    const request: EdgeDetailsRequest = {
+      edgeId: edge.id,
+    };
+    queryClient.setQueriesData(edgeDetailsQuery(request, explorer), edge);
   }
 }
