@@ -11,9 +11,9 @@ import {
   ArrowTriangleCross,
   ArrowTriangleTee,
   ArrowVee,
+  EdgeRow,
   VertexRow,
 } from "@/components";
-import EdgeIcon from "@/components/icons/EdgeIcon";
 import {
   DisplayAttribute,
   DisplayEdge,
@@ -80,16 +80,8 @@ const EdgeDetail = ({ edge }: EdgeDetailProps) => {
 
   return (
     <div className={styleWithTheme(defaultStyles(style.lineColor))}>
-      <div className="header">
-        <div className="icon">
-          <EdgeIcon />
-        </div>
-        <div className="content">
-          <div className="title">{edge.displayTypes}</div>
-          {edge.hasUniqueId ? <div>{edge.displayId}</div> : null}
-        </div>
-      </div>
-      <div className={cn("header", "source-vertex")}>
+      <EdgeRow edge={edge} className="px-3 py-3" />
+      <div className={cn("source-vertex")}>
         <div className={cn("start-line", `line-${style.lineStyle || "solid"}`)}>
           {style.sourceArrowStyle === "triangle" && (
             <ArrowTriangle className="source-arrow-type" />
@@ -125,9 +117,9 @@ const EdgeDetail = ({ edge }: EdgeDetailProps) => {
             <ArrowNone className="source-arrow-type" />
           )}
         </div>
-        <VertexRow vertex={sourceVertex} />
+        <VertexRow vertex={sourceVertex} className="py-3" />
       </div>
-      <div className={cn("header", "target-vertex")}>
+      <div className={cn("target-vertex")}>
         <div className={cn("end-line", `line-${style.lineStyle || "solid"}`)}>
           {(style.targetArrowStyle === "triangle" ||
             !style.targetArrowStyle) && (
@@ -164,7 +156,7 @@ const EdgeDetail = ({ edge }: EdgeDetailProps) => {
             <ArrowNone className="target-arrow-type" />
           )}
         </div>
-        <VertexRow vertex={targetVertex} />
+        <VertexRow vertex={targetVertex} className="py-3" />
       </div>
       <div className="space-y-[1.125rem] p-3">
         <div className="text-lg font-bold">Properties</div>
