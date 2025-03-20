@@ -16,14 +16,15 @@ import { useAddToGraph } from "./useAddToGraph";
 
 export type ExpandNodeFilters = Omit<
   NeighborsRequest,
-  "vertexId" | "vertexTypes"
+  "vertexId" | "vertexTypes" | "excludedVertices"
 >;
 
-export type ExpandNodeRequest = {
+export interface ExpandNodeRequest {
   vertexId: NeighborsRequest["vertexId"];
   vertexTypes: NeighborsRequest["vertexTypes"];
+  excludedVertices: NeighborsRequest["excludedVertices"];
   filters?: ExpandNodeFilters;
-};
+}
 
 /**
  * Provides a callback to submit a node expansion request, the query
@@ -59,6 +60,7 @@ export default function useExpandNode() {
       const request: NeighborsRequest | null = expandNodeRequest && {
         vertexId: expandNodeRequest.vertexId,
         vertexTypes: expandNodeRequest.vertexTypes,
+        excludedVertices: expandNodeRequest.excludedVertices,
         ...expandNodeRequest.filters,
         limit,
       };
@@ -113,6 +115,7 @@ export default function useExpandNode() {
     async (
       vertexId: VertexId,
       vertexTypes: Vertex["types"],
+      excludedVertices: NeighborsRequest["excludedVertices"],
       filters?: ExpandNodeFilters
     ) => {
       const neighbor = await neighborCallback(vertexId);
@@ -126,6 +129,7 @@ export default function useExpandNode() {
       const request: ExpandNodeRequest = {
         vertexId,
         vertexTypes,
+        excludedVertices,
         filters,
       };
 
