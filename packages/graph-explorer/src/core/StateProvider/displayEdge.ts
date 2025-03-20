@@ -1,4 +1,4 @@
-import { Edge, EdgeId, getRawId, VertexId } from "@/core";
+import { Edge, EdgeId, getRawId, Vertex, VertexId } from "@/core";
 import { selector, selectorFamily, useRecoilValue } from "recoil";
 import { textTransformSelector } from "@/hooks";
 import {
@@ -37,6 +37,7 @@ type EdgeVertex = {
   id: VertexId;
   displayId: string;
   displayTypes: string;
+  types: Vertex["types"];
 };
 
 /** Maps all `Edge` instances in the graph canvas to `DisplayEdge` instances. */
@@ -151,11 +152,13 @@ const displayEdgeSelector = selectorFamily({
           id: edge.source,
           displayId: sourceDisplayId,
           displayTypes: sourceDisplayTypes,
+          types: edge.sourceTypes,
         },
         target: {
           id: edge.target,
           displayId: targetDisplayId,
           displayTypes: targetDisplayTypes,
+          types: edge.targetTypes,
         },
         attributes: sortedAttributes,
         // SPARQL does not have unique ID values for predicates, so the UI should hide them
