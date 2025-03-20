@@ -7,7 +7,8 @@
 - **Added** ability to restore the graph from the previous session
   ([#826](https://github.com/aws/graph-explorer/pull/826))
 - **Added** query editor for Gremlin connections
-  ([#842](https://github.com/aws/graph-explorer/pull/842),
+  ([#843](https://github.com/aws/graph-explorer/pull/843),
+  [#842](https://github.com/aws/graph-explorer/pull/842),
   [#839](https://github.com/aws/graph-explorer/pull/839),
   [#837](https://github.com/aws/graph-explorer/pull/837),
   [#838](https://github.com/aws/graph-explorer/pull/838))
