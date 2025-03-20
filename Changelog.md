@@ -6,6 +6,11 @@
   ([#833](https://github.com/aws/graph-explorer/pull/833))
 - **Added** ability to restore the graph from the previous session
   ([#826](https://github.com/aws/graph-explorer/pull/826))
+- **Added** query editor for Gremlin connections
+  ([#842](https://github.com/aws/graph-explorer/pull/842),
+  [#839](https://github.com/aws/graph-explorer/pull/839),
+  [#837](https://github.com/aws/graph-explorer/pull/837),
+  [#838](https://github.com/aws/graph-explorer/pull/838))
 - **Updated** styling of the connections screen
   ([#828](https://github.com/aws/graph-explorer/pull/828))
 - **Updated** namespaces sidebar to use tabs instead of dropdown
@@ -18,6 +23,8 @@
 - **Updated** styling of input, textarea, and select fields
   ([#832](https://github.com/aws/graph-explorer/pull/832),
   [#834](https://github.com/aws/graph-explorer/pull/834))
+- **Updated** HMR behavior to ignore test files
+  ([#835](https://github.com/aws/graph-explorer/pull/835))
 - **Updated** dependencies
   ([#827](https://github.com/aws/graph-explorer/pull/827))
 
