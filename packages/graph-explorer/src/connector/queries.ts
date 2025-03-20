@@ -8,6 +8,7 @@ import {
   RawQueryRequest,
   RawQueryResponse,
   SchemaResponse,
+  toMappedQueryResults,
   VertexDetailsRequest,
   VertexDetailsResponse,
 } from "./useGEFetchTypes";
@@ -59,7 +60,7 @@ export function searchQuery(
     queryKey: ["keyword-search", request, explorer, queryClient],
     queryFn: async ({ signal }): Promise<KeywordSearchResponse> => {
       if (!request) {
-        return { vertices: [], edges: [], scalars: [] };
+        return toMappedQueryResults({});
       }
       const results = await explorer.keywordSearch(request, { signal });
 

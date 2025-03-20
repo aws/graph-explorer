@@ -1,7 +1,8 @@
-import type {
-  Criterion,
-  Explorer,
-  ExplorerRequestOptions,
+import {
+  toMappedQueryResults,
+  type Criterion,
+  type Explorer,
+  type ExplorerRequestOptions,
 } from "../useGEFetchTypes";
 import { fetchDatabaseRequest } from "../fetchDatabaseRequest";
 import fetchBlankNodeNeighbors from "./fetchBlankNodeNeighbors";
@@ -137,7 +138,7 @@ export function createSparqlExplorer(
         request,
         response
       );
-      return { vertices, edges: response.edges, scalars: [] };
+      return toMappedQueryResults({ vertices, edges: response.edges });
     },
     async fetchNeighborsCount(req, options) {
       remoteLogger.info("[SPARQL Explorer] Fetching neighbors count...");
@@ -205,7 +206,7 @@ export function createSparqlExplorer(
         response
       );
 
-      return { vertices, edges: [], scalars: [] };
+      return toMappedQueryResults({ vertices });
     },
     async vertexDetails(req, options) {
       remoteLogger.info("[SPARQL Explorer] Fetching vertex details...");

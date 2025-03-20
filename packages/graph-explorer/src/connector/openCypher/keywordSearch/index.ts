@@ -1,8 +1,9 @@
 import { Vertex } from "@/core";
-import type {
-  ErrorResponse,
-  KeywordSearchRequest,
-  KeywordSearchResponse,
+import {
+  toMappedQueryResults,
+  type ErrorResponse,
+  type KeywordSearchRequest,
+  type KeywordSearchResponse,
 } from "@/connector/useGEFetchTypes";
 import isErrorResponse from "@/connector/utils/isErrorResponse";
 import mapApiVertex from "../mappers/mapApiVertex";
@@ -24,7 +25,7 @@ const keywordSearch = async (
 ): Promise<KeywordSearchResponse> => {
   const vertices = await vertexKeywordSearch(openCypherFetch, req);
 
-  return { vertices: vertices, edges: [], scalars: [] };
+  return toMappedQueryResults({ vertices });
 };
 
 const vertexKeywordSearch = async (

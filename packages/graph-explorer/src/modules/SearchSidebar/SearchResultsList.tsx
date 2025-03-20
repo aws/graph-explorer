@@ -6,12 +6,11 @@ import {
   Button,
   PanelFooter,
 } from "@/components";
-import { KeywordSearchResponse } from "@/connector";
+import { KeywordSearchResponse, MappedQueryResults } from "@/connector";
 import { UseQueryResult } from "@tanstack/react-query";
 import { useCancelKeywordSearch } from "./useKeywordSearchQuery";
 import { NodeSearchResult } from "./NodeSearchResult";
 import { useAddToGraph } from "@/hooks/useAddToGraph";
-import { MappedQueryResults } from "@/connector/gremlin/mappers/mapResults";
 import { PlusCircleIcon } from "lucide-react";
 import { EdgeSearchResult } from "./EdgeSearchResult";
 import { ScalarSearchResult } from "./ScalarSearchResult";
