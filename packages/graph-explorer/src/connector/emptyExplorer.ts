@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/require-await */
-import { Explorer } from "./useGEFetchTypes";
+import { Explorer, toMappedQueryResults } from "./useGEFetchTypes";
 
 /**
  * Empty explorer for when there is no connection.
@@ -24,26 +24,14 @@ export const emptyExplorer: Explorer = {
       total: 0,
     };
   },
-  fetchNeighbors: async () => {
-    return {
-      vertices: [],
-      edges: [],
-      scalars: [],
-    };
-  },
+  fetchNeighbors: async () => toMappedQueryResults({}),
   fetchNeighborsCount: async () => {
     return {
       totalCount: 0,
       counts: {},
     };
   },
-  keywordSearch: async () => {
-    return {
-      vertices: [],
-      edges: [],
-      scalars: [],
-    };
-  },
+  keywordSearch: async () => toMappedQueryResults({}),
   vertexDetails: async () => {
     return {
       vertex: null,
@@ -54,11 +42,5 @@ export const emptyExplorer: Explorer = {
       edge: null,
     };
   },
-  rawQuery: async () => {
-    return {
-      vertices: [],
-      edges: [],
-      scalars: [],
-    };
-  },
+  rawQuery: async () => toMappedQueryResults({}),
 };

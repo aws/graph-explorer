@@ -1,6 +1,7 @@
-import type {
-  NeighborsRequest,
-  NeighborsResponse,
+import {
+  toMappedQueryResults,
+  type NeighborsRequest,
+  type NeighborsResponse,
 } from "@/connector/useGEFetchTypes";
 import mapApiEdge from "../mappers/mapApiEdge";
 import mapApiVertex from "../mappers/mapApiVertex";
@@ -39,11 +40,10 @@ const fetchNeighbors = async (
   const vertices = verticesResponse.map(r => r.vertex);
   const edges = verticesResponse.flatMap(r => r.edges);
 
-  return {
+  return toMappedQueryResults({
     vertices,
     edges,
-    scalars: [],
-  };
+  });
 };
 
 export default fetchNeighbors;

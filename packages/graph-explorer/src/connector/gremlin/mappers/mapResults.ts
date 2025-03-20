@@ -2,24 +2,7 @@ import { Vertex, Edge, toNodeMap, toEdgeMap } from "@/core";
 import { GAnyValue } from "../types";
 import mapApiEdge from "./mapApiEdge";
 import mapApiVertex from "./mapApiVertex";
-
-export type ScalarValue = number | string | Date;
-
-export type MappedQueryResults = {
-  vertices: Vertex[];
-  edges: Edge[];
-  scalars: ScalarValue[];
-};
-
-export function toMappedQueryResults(
-  value: Partial<MappedQueryResults>
-): MappedQueryResults {
-  return {
-    vertices: value.vertices ?? [],
-    edges: value.edges ?? [],
-    scalars: value.scalars ?? [],
-  };
-}
+import { toMappedQueryResults } from "@/connector";
 
 export function mapResults(data: GAnyValue) {
   const values = mapAnyValue(data);

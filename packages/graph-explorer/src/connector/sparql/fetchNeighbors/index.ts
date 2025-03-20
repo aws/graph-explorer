@@ -1,6 +1,9 @@
 import groupBy from "lodash/groupBy";
 import { Edge, Vertex, VertexId } from "@/core";
-import type { NeighborsResponse } from "@/connector/useGEFetchTypes";
+import {
+  toMappedQueryResults,
+  type NeighborsResponse,
+} from "@/connector/useGEFetchTypes";
 import mapIncomingToEdge, {
   IncomingPredicate,
   isIncomingPredicate,
@@ -157,11 +160,10 @@ const fetchNeighbors = async (
     subjectsURIs
   );
 
-  return {
+  return toMappedQueryResults({
     vertices,
     edges: [...edges, ...bNodesEdges],
-    scalars: [],
-  };
+  });
 };
 
 export default fetchNeighbors;

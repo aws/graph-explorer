@@ -3,6 +3,7 @@ import {
   ErrorResponse,
   RawQueryRequest,
   RawQueryResponse,
+  toMappedQueryResults,
 } from "../useGEFetchTypes";
 import { GAnyValue, GremlinFetch } from "./types";
 import { mapResults } from "./mappers/mapResults";
@@ -26,11 +27,7 @@ export async function rawQuery(
   const template = query`${request.query}`;
 
   if (template.length <= 0) {
-    return {
-      scalars: [],
-      vertices: [],
-      edges: [],
-    };
+    return toMappedQueryResults({});
   }
 
   // Fetch the results

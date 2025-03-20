@@ -1,5 +1,5 @@
 import { createEdgeId, createVertexId } from "@/core";
-import { mapResults, toMappedQueryResults } from "./mapResults";
+import { mapResults } from "./mapResults";
 import {
   createGEdge,
   createGList,
@@ -7,6 +7,7 @@ import {
   createRandomEdge,
   createRandomVertex,
 } from "@/utils/testing";
+import { toMappedQueryResults } from "@/connector";
 
 describe("mapResults", () => {
   it("should handle empty g:List", () => {
