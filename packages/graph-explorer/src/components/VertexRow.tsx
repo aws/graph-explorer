@@ -19,7 +19,7 @@ export function VertexRow({
       />
       <div
         className={cn(
-          "inline-block text-pretty break-words text-base leading-snug [word-break:break-word]"
+          "inline-block text-pretty text-base leading-snug [word-break:break-word]"
         )}
       >
         <div className="font-bold">
