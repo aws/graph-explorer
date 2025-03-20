@@ -16,18 +16,6 @@ const defaultStyles =
       column-gap: ${theme.spacing["2x"]};
       border-bottom: solid 1px ${theme.palette.border};
 
-      .icon {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background: ${fade(theme.palette.primary.main, 0.2)};
-        color: ${theme.palette.primary.main};
-        font-size: 2em;
-        border-radius: 24px;
-        min-width: 36px;
-        min-height: 36px;
-      }
-
       .content {
         word-break: break-word;
         .title {

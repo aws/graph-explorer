@@ -16,6 +16,7 @@ import {
 } from "@/components/SidebarTabs";
 import { QuerySearchTabContent } from "./QuerySearchTabContent";
 import { CodeIcon, ListFilterIcon } from "lucide-react";
+import { cn } from "@/utils";
 
 export function SearchSidebarPanel() {
   const queryEngine = useQueryEngine();
@@ -24,7 +25,7 @@ export function SearchSidebarPanel() {
   // Hide tabs when not gremlin or the query editor feature is turned off
   if (queryEngine !== "gremlin" || !featureFlags.showQueryEditor) {
     return (
-      <Layout>
+      <Layout className="overflow-y-auto">
         <FilterSearchTabContent />
       </Layout>
     );
@@ -53,7 +54,10 @@ export function SearchSidebarPanel() {
   );
 }
 
-function Layout(props: React.ComponentPropsWithoutRef<"div">) {
+function Layout({
+  className,
+  ...props
+}: React.ComponentPropsWithoutRef<"div">) {
   return (
     <Panel variant="sidebar">
       <PanelHeader>
@@ -63,7 +67,7 @@ function Layout(props: React.ComponentPropsWithoutRef<"div">) {
         </PanelHeaderActions>
       </PanelHeader>
       <PanelContent
-        className="flex h-full flex-col overflow-hidden"
+        className={cn("flex h-full flex-col overflow-hidden", className)}
         {...props}
       />
     </Panel>
