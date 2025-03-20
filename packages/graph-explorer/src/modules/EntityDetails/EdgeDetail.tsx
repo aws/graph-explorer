@@ -22,7 +22,10 @@ import {
 } from "@/core";
 import defaultStyles from "./EntityDetail.styles";
 import EntityAttribute from "./EntityAttribute";
-import { RESERVED_TYPES_PROPERTY } from "@/utils/constants";
+import {
+  RESERVED_ID_PROPERTY,
+  RESERVED_TYPES_PROPERTY,
+} from "@/utils/constants";
 import { useTranslations } from "@/hooks";
 
 export type EdgeDetailProps = {
@@ -38,6 +41,15 @@ const EdgeDetail = ({ edge }: EdgeDetailProps) => {
   const style = edge.typeConfig.style;
 
   const allAttributes: DisplayAttribute[] = [
+    ...(edge.hasUniqueId
+      ? [
+          {
+            name: RESERVED_ID_PROPERTY,
+            displayLabel: "Edge ID",
+            displayValue: edge.displayId,
+          },
+        ]
+      : []),
     {
       name: RESERVED_TYPES_PROPERTY,
       displayLabel: t("entities-tabular.edge-type"),
