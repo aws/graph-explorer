@@ -1,4 +1,7 @@
-import { NeighborsResponse } from "@/connector/useGEFetchTypes";
+import {
+  NeighborsResponse,
+  toMappedQueryResults,
+} from "@/connector/useGEFetchTypes";
 import { BlankNodesMap, SPARQLNeighborsRequest } from "../types";
 
 /**
@@ -12,11 +15,7 @@ export const storedBlankNodeNeighborsRequest = (
   return new Promise<NeighborsResponse>(resolve => {
     const bNode = blankNodes.get(req.resourceURI);
     if (!bNode?.neighbors) {
-      resolve({
-        vertices: [],
-        edges: [],
-        scalars: [],
-      });
+      resolve(toMappedQueryResults({}));
       return;
     }
 
@@ -46,13 +45,14 @@ export const storedBlankNodeNeighborsRequest = (
       return true;
     });
 
-    resolve({
-      vertices: filteredVertices.slice(
-        req.offset ?? 0,
-        req.limit ? req.limit + (req.offset ?? 0) : undefined
-      ),
-      edges: bNode.neighbors.edges,
-      scalars: [],
-    });
+    resolve(
+      toMappedQueryResults({
+        vertices: filteredVertices.slice(
+          req.offset ?? 0,
+          req.limit ? req.limit + (req.offset ?? 0) : undefined
+        ),
+        edges: bNode.neighbors.edges,
+      })
+    );
   });
 };

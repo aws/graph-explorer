@@ -1,14 +1,25 @@
-import { GInt64, GVertex } from "@/connector/gremlin/types";
-import { getRawId, Vertex } from "@/core";
+import {
+  GAnyValue,
+  GEdge,
+  GInt64,
+  GList,
+  GProperty,
+  GVertex,
+} from "@/connector/gremlin/types";
+import { Edge, EdgeId, getRawId, Vertex, VertexId } from "@/core";
 
 export function createGremlinResponseFromVertex(vertex: Vertex) {
   return {
     result: {
-      data: {
-        "@type": "g:List",
-        "@value": [createGVertex(vertex)],
-      },
+      data: createGList([createGVertex(vertex)]),
     },
+  };
+}
+
+export function createGList(items: GAnyValue[]): GList {
+  return {
+    "@type": "g:List",
+    "@value": items,
   };
 }
 
@@ -32,12 +43,27 @@ export function createGVertex(vertex: Vertex): GVertex {
     "@value": {
       id,
       label: vertex.types.join("::"),
-      properties: createProperties(vertex.attributes),
+      properties: createGVertexProperties(vertex.attributes),
     },
   };
 }
 
-function createProperties(
+export function createGEdge(edge: Edge): GEdge {
+  return {
+    "@type": "g:Edge",
+    "@value": {
+      id: createIdValue(edge.id),
+      label: edge.type,
+      inVLabel: edge.targetTypes.join("::"),
+      outVLabel: edge.sourceTypes.join("::"),
+      inV: createIdValue(edge.target),
+      outV: createIdValue(edge.source),
+      properties: createGProperties(edge.attributes),
+    },
+  };
+}
+
+function createGVertexProperties(
   attributes: Vertex["attributes"]
 ): GVertex["@value"]["properties"] {
   const mapped = Object.entries(attributes).map(([key, value]) => ({
@@ -60,4 +86,46 @@ function createProperties(
   });
 
   return result;
+}
+
+function createGProperties(
+  attributes: Edge["attributes"]
+): Record<string, GProperty> {
+  return Object.entries(attributes)
+    .map(
+      ([key, value]) =>
+        ({
+          "@type": "g:Property",
+          "@value": {
+            key,
+            value:
+              typeof value === "string"
+                ? value
+                : {
+                    "@type": "g:Int64",
+                    "@value": value,
+                  },
+          },
+        }) satisfies GProperty
+    )
+    .reduce(
+      (result, curr) => {
+        result[curr["@value"].key] = curr;
+        return result;
+      },
+      {} as Record<string, GProperty>
+    );
+}
+
+function createIdValue(id: VertexId | EdgeId) {
+  const rawId = getRawId(id);
+
+  if (typeof rawId === "string") {
+    return rawId;
+  }
+
+  return {
+    "@type": "g:Int64",
+    "@value": rawId,
+  } satisfies GInt64;
 }

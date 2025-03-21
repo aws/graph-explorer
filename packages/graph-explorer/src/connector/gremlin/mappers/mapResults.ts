@@ -1,26 +1,25 @@
-import { Vertex, Edge } from "@/core";
+import { Vertex, Edge, toNodeMap, toEdgeMap } from "@/core";
 import { GAnyValue } from "../types";
 import mapApiEdge from "./mapApiEdge";
 import mapApiVertex from "./mapApiVertex";
-
-export type ScalarValue = number | string | Date;
-
-export type MappedQueryResults = {
-  vertices: Vertex[];
-  edges: Edge[];
-  scalars: ScalarValue[];
-};
+import { toMappedQueryResults } from "@/connector";
 
 export function mapResults(data: GAnyValue) {
   const values = mapAnyValue(data);
 
-  const result: MappedQueryResults = {
-    vertices: values.filter(e => "vertex" in e).map(e => e.vertex),
-    edges: values.filter(e => "edge" in e).map(e => e.edge),
-    scalars: values.filter(s => "scalar" in s).map(s => s.scalar),
-  };
+  // Use maps to deduplicate vertices and edges
+  const vertexMap = toNodeMap(
+    values.filter(e => "vertex" in e).map(e => e.vertex)
+  );
+  const edgeMap = toEdgeMap(values.filter(e => "edge" in e).map(e => e.edge));
 
-  return result;
+  const vertices = vertexMap.values().toArray();
+  const edges = edgeMap.values().toArray();
+
+  // Scalars should not be deduplicated
+  const scalars = values.filter(s => "scalar" in s).map(s => s.scalar);
+
+  return toMappedQueryResults({ vertices, edges, scalars });
 }
 
 function mapAnyValue(

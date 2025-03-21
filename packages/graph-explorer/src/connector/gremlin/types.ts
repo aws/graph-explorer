@@ -39,7 +39,7 @@ export type GVertexProperty = {
 export type GProperty = {
   "@type": "g:Property";
   "@value": {
-    id: GInt32;
+    id?: GInt32;
     key: string;
     value: GScalar;
   };

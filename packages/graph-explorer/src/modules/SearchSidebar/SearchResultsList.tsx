@@ -6,13 +6,14 @@ import {
   Button,
   PanelFooter,
 } from "@/components";
-import { KeywordSearchResponse } from "@/connector";
+import { KeywordSearchResponse, MappedQueryResults } from "@/connector";
 import { UseQueryResult } from "@tanstack/react-query";
 import { useCancelKeywordSearch } from "./useKeywordSearchQuery";
 import { NodeSearchResult } from "./NodeSearchResult";
 import { useAddToGraph } from "@/hooks/useAddToGraph";
-import { MappedQueryResults } from "@/connector/gremlin/mappers/mapResults";
 import { PlusCircleIcon } from "lucide-react";
+import { EdgeSearchResult } from "./EdgeSearchResult";
+import { ScalarSearchResult } from "./ScalarSearchResult";
 
 export function SearchResultsList({
   query,
@@ -73,14 +74,30 @@ function LoadedResults({ vertices, edges, scalars }: MappedQueryResults) {
 
   return (
     <>
-      <div className="bg-background-contrast/35 grow p-3">
+      <div className="bg-background-contrast/35 flex grow flex-col p-3">
         <ul className="border-divider flex flex-col overflow-hidden rounded-xl border shadow">
           {vertices.map(entity => (
             <li
               key={`node:${entity.type}:${entity.id}`}
-              className="border-divider border-b last:border-0"
+              className="border-divider content-auto intrinsic-size-16 border-b last:border-0"
             >
               <NodeSearchResult node={entity} />
+            </li>
+          ))}
+          {edges.map(entity => (
+            <li
+              key={`edge:${entity.type}:${entity.id}`}
+              className="border-divider content-auto intrinsic-size-16 border-b last:border-0"
+            >
+              <EdgeSearchResult edge={entity} />
+            </li>
+          ))}
+          {scalars.map((entity, index) => (
+            <li
+              key={`scalar:${String(entity)}:${index}`}
+              className="border-divider content-auto intrinsic-size-16 border-b last:border-0"
+            >
+              <ScalarSearchResult scalar={entity} />
             </li>
           ))}
         </ul>

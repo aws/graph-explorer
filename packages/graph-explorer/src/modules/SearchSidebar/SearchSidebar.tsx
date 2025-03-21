@@ -16,15 +16,23 @@ import {
 } from "@/components/SidebarTabs";
 import { QuerySearchTabContent } from "./QuerySearchTabContent";
 import { CodeIcon, ListFilterIcon } from "lucide-react";
+import { atom, useRecoilState } from "recoil";
+import { cn } from "@/utils";
+
+export const selectedTabAtom = atom({
+  key: "search-sidebar-selected-tab",
+  default: "filter",
+});
 
 export function SearchSidebarPanel() {
   const queryEngine = useQueryEngine();
   const featureFlags = useFeatureFlags();
+  const [selectedTab, setSelectedTab] = useRecoilState(selectedTabAtom);
 
   // Hide tabs when not gremlin or the query editor feature is turned off
   if (queryEngine !== "gremlin" || !featureFlags.showQueryEditor) {
     return (
-      <Layout>
+      <Layout className="overflow-y-auto">
         <FilterSearchTabContent />
       </Layout>
     );
@@ -32,7 +40,7 @@ export function SearchSidebarPanel() {
 
   return (
     <Layout>
-      <SidebarTabs defaultValue="filter">
+      <SidebarTabs defaultValue={selectedTab} onValueChange={setSelectedTab}>
         <SidebarTabsList>
           <SidebarTabsTrigger value="filter">
             <ListFilterIcon /> Filter
@@ -53,7 +61,10 @@ export function SearchSidebarPanel() {
   );
 }
 
-function Layout(props: React.ComponentPropsWithoutRef<"div">) {
+function Layout({
+  className,
+  ...props
+}: React.ComponentPropsWithoutRef<"div">) {
   return (
     <Panel variant="sidebar">
       <PanelHeader>
@@ -63,7 +74,7 @@ function Layout(props: React.ComponentPropsWithoutRef<"div">) {
         </PanelHeaderActions>
       </PanelHeader>
       <PanelContent
-        className="flex h-full flex-col overflow-hidden"
+        className={cn("flex h-full flex-col overflow-hidden", className)}
         {...props}
       />
     </Panel>

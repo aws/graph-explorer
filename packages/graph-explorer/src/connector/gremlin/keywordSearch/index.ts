@@ -1,7 +1,8 @@
-import type {
-  ErrorResponse,
-  KeywordSearchRequest,
-  KeywordSearchResponse,
+import {
+  toMappedQueryResults,
+  type ErrorResponse,
+  type KeywordSearchRequest,
+  type KeywordSearchResponse,
 } from "@/connector/useGEFetchTypes";
 import isErrorResponse from "@/connector/utils/isErrorResponse";
 import mapApiVertex from "../mappers/mapApiVertex";
@@ -37,7 +38,7 @@ const keywordSearch = async (
     return mapApiVertex(value);
   });
 
-  return { vertices, edges: [], scalars: [] };
+  return toMappedQueryResults({ vertices });
 };
 
 export default keywordSearch;
