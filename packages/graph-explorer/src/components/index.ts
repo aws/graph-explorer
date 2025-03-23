@@ -19,6 +19,7 @@ export { default as Divider } from "./Divider";
 
 export * from "./EdgeRow";
 export * from "./EdgeSymbol";
+export * from "./EmptyState";
 
 export * from "./FileButton";
 export * from "./Form";
