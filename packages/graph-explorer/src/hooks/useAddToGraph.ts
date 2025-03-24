@@ -69,3 +69,9 @@ export function useAddVertexToGraph(vertex: Vertex) {
     [callback, vertex]
   );
 }
+
+/** Returns a callback the given edge to the graph. */
+export function useAddEdgeToGraph(edge: Edge) {
+  const callback = useAddToGraph();
+  return useCallback(() => callback({ edges: [edge] }), [callback, edge]);
+}

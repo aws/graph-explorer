@@ -5,7 +5,10 @@ import {
   Explorer,
   KeywordSearchRequest,
   KeywordSearchResponse,
+  RawQueryRequest,
+  RawQueryResponse,
   SchemaResponse,
+  toMappedQueryResults,
   VertexDetailsRequest,
   VertexDetailsResponse,
 } from "./useGEFetchTypes";
@@ -57,7 +60,7 @@ export function searchQuery(
     queryKey: ["keyword-search", request, explorer, queryClient],
     queryFn: async ({ signal }): Promise<KeywordSearchResponse> => {
       if (!request) {
-        return { vertices: [], edges: [], scalars: [] };
+        return toMappedQueryResults({});
       }
       const results = await explorer.keywordSearch(request, { signal });
 
@@ -149,17 +152,41 @@ export function edgeDetailsQuery(
   });
 }
 
+export function rawQueryQuery(
+  request: RawQueryRequest,
+  updateSchema: (entities: {
+    vertices: Vertex[];
+    edges: Edge[];
+  }) => Promise<void>,
+  explorer: Explorer,
+  queryClient: QueryClient
+) {
+  return queryOptions({
+    queryKey: ["db", "raw-query", request, explorer, queryClient],
+    queryFn: async ({ signal }): Promise<RawQueryResponse> => {
+      const results = await explorer.rawQuery(request, { signal });
+
+      // Update the schema and the cache
+      updateVertexDetailsCache(explorer, queryClient, results.vertices);
+      updateEdgeDetailsCache(explorer, queryClient, results.edges);
+      await updateSchema(results);
+
+      return results;
+    },
+  });
+}
+
 /** Sets the vertex details cache for the given vertices. */
 export function updateVertexDetailsCache(
   explorer: Explorer,
   queryClient: QueryClient,
   vertices: Vertex[]
 ) {
-  for (const vertex of vertices) {
-    queryClient.setQueryData(
-      ["db", "vertex", "details", vertex.id, explorer],
-      vertex
-    );
+  for (const vertex of vertices.filter(v => !v.__isFragment)) {
+    const request: VertexDetailsRequest = {
+      vertexId: vertex.id,
+    };
+    queryClient.setQueriesData(vertexDetailsQuery(request, explorer), vertex);
   }
 }
 
@@ -169,10 +196,10 @@ export function updateEdgeDetailsCache(
   queryClient: QueryClient,
   edges: Edge[]
 ) {
-  for (const edge of edges) {
-    queryClient.setQueryData(
-      ["db", "edge", "details", edge.id, explorer],
-      edge
-    );
+  for (const edge of edges.filter(e => !e.__isFragment)) {
+    const request: EdgeDetailsRequest = {
+      edgeId: edge.id,
+    };
+    queryClient.setQueriesData(edgeDetailsQuery(request, explorer), edge);
   }
 }

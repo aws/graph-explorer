@@ -1,18 +1,24 @@
-import { DisplayEdge, useDisplayVertex } from "@/core";
+import { DisplayEdge, DisplayVertex } from "@/core";
 import { ComponentPropsWithoutRef } from "react";
 import { EdgeSymbol } from "./EdgeSymbol";
 import { cn } from "@/utils";
 
+/**
+ * Visually represents an edge from the graph database.
+ *
+ * Used in the header of edge details and in search results lists.
+ */
 export function EdgeRow({
   edge,
+  source,
+  target,
   className,
   ...props
 }: {
   edge: DisplayEdge;
+  source: DisplayVertex;
+  target: DisplayVertex;
 } & ComponentPropsWithoutRef<"div">) {
-  const source = useDisplayVertex(edge.source.id);
-  const target = useDisplayVertex(edge.target.id);
-
   const title =
     edge.displayTypes === edge.displayName
       ? edge.displayTypes
@@ -24,11 +30,9 @@ export function EdgeRow({
       {...props}
     >
       <EdgeSymbol className="size-11 p-[8px]" />
-      <div className="flex grow flex-col items-start">
-        <div className="break-word text-balance text-base font-bold leading-snug">
-          {title}
-        </div>
-        <div className="text-text-secondary/90 break-word line-clamp-2 inline-flex items-center gap-1 text-balance text-base leading-snug">
+      <div className="inline-block text-pretty text-base leading-snug [word-break:break-word]">
+        <div className="font-bold">{title}</div>
+        <div className="text-text-secondary/90 line-clamp-2">
           {source.displayName}&nbsp;&rarr; {target.displayName}
         </div>
       </div>
