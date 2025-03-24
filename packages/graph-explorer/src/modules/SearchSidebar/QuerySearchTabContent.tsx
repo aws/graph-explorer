@@ -69,7 +69,7 @@ export function QuerySearchTabContent() {
                   <TextArea
                     {...field}
                     aria-label="Query"
-                    className="h-full w-full"
+                    className="h-full min-h-[5lh] w-full font-mono"
                     onKeyDown={e => {
                       if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
                         e.preventDefault();
