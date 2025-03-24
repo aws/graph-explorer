@@ -46,15 +46,6 @@ export type Background = {
   contrastSecondary?: string;
 };
 
-export type ZIndex = {
-  modal?: number;
-  tooltip?: number;
-  popover?: number;
-  appBar?: number;
-  panes?: number;
-  menu?: number;
-};
-
 export type Grey = {
   100?: string;
   200?: string;
@@ -80,44 +71,6 @@ export type Spacing = {
   "6x"?: string;
 };
 
-export type FormBaseTheme = {
-  background: string;
-  color: string;
-  placeholderColor: string;
-  border: string;
-  borderRadius: string;
-  disabledOpacity: string;
-  startAdornment: {
-    color: string;
-  };
-  endAdornment: {
-    color: string;
-  };
-  focus: {
-    outlineColor: string;
-    background: string;
-    color: string;
-  };
-  hover: {
-    background: string;
-    color: string;
-  };
-  label: {
-    color: string;
-  };
-  error: {
-    labelColor: string;
-    errorColor: string;
-    background: string;
-    color: string;
-    placeholderColor: string;
-    border: string;
-    focus: {
-      outlineColor: string;
-    };
-  };
-};
-
 export type ProcessedTheme = {
   name: string;
   mode: "dark" | "light"; // Primary and Secondary colors are defined as fallback of other colors in order
@@ -128,20 +81,13 @@ export type ProcessedTheme = {
       black: string;
     };
     primary: DeepRequired<Palette>;
-    secondary: DeepRequired<Palette>;
-    info: DeepRequired<Palette>;
-    error: DeepRequired<Palette>;
-    warning: DeepRequired<Palette>;
-    success: DeepRequired<Palette>;
     text: DeepRequired<TextPalette>;
     background: DeepRequired<Background>;
     divider: string;
     border: string;
     grey: DeepRequired<Grey>;
   };
-  zIndex: DeepRequired<ZIndex>;
   typography: DeepRequired<Typography>;
   shape: DeepRequired<Shape>;
   spacing: DeepRequired<Spacing>;
-  forms?: FormBaseTheme;
 };

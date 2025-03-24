@@ -25,36 +25,6 @@ const palette: DeepRequired<ProcessedTheme["palette"]> = {
     dark: "#128ee5",
     contrastText: "#ffffff",
   },
-  secondary: {
-    light: "#ffb82e",
-    main: "#fa8500",
-    dark: "#e46000",
-    contrastText: "#ffffff",
-  },
-  info: {
-    light: "#64c7ff",
-    main: "#128ee5",
-    dark: "#17457b",
-    contrastText: "#ffffff",
-  },
-  error: {
-    main: "#eb4e4c",
-    light: "#ff9077",
-    dark: "#a41c1b",
-    contrastText: "#ffffff",
-  },
-  success: {
-    main: "#66bb6a",
-    light: "#81c784",
-    dark: "#388e3c",
-    contrastText: "#ffffff",
-  },
-  warning: {
-    light: "#ffb82e",
-    main: "#fa8500",
-    dark: "#e46000",
-    contrastText: "#ffffff",
-  },
   text: {
     primary: "#f0f0f0",
     secondary: "#d0d0d0",
@@ -93,14 +63,6 @@ const DARK_THEME: ProcessedTheme = {
     "6x": spacing(6),
   },
   palette,
-  zIndex: {
-    appBar: 1000,
-    panes: 1100,
-    modal: 1200,
-    popover: 1300,
-    menu: 1400,
-    tooltip: 1500,
-  },
   typography: {
     fontSize: "14px",
     fontFamily: `"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI",

@@ -22,5 +22,4 @@ export type {
   ThemeStyleFn,
   ThemedStyle,
   Typography,
-  ZIndex,
 } from "./types";
