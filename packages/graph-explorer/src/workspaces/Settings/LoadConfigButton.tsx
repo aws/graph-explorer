@@ -139,7 +139,8 @@ function ConfirmationModal({
               Cancel
             </Button>
             <Button
-              variant="danger"
+              variant="filled"
+              color="danger"
               size="large"
               onPress={onConfirm}
               isDisabled={isPending}

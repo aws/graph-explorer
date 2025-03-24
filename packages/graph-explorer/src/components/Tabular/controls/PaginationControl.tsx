@@ -1,11 +1,5 @@
 import { useMemo } from "react";
-import {
-  Button,
-  IconButton,
-  Label,
-  SelectField,
-  toHumanString,
-} from "@/components";
+import { IconButton, Label, SelectField, toHumanString } from "@/components";
 import {
   BackwardIcon,
   ForwardIcon,
@@ -94,37 +88,42 @@ export function PaginationControl({
           <IconButton
             disabled={pageIndex - 1 < 0}
             variant="text"
+            size="small"
             icon={<SkipBackwardIcon />}
             onClick={() => onPageIndexChange(0)}
           />
           <IconButton
             disabled={pageIndex - 1 < 0}
             variant="text"
+            size="small"
             icon={<BackwardIcon />}
             onClick={() => onPageIndexChange(pageIndex - 1)}
           />
           {pagesToRender.map(page => {
             return (
-              <Button
+              <IconButton
                 key={page}
+                size="small"
                 variant={
                   pageIndex === parseInt(page) - 1 ? "filled" : "default"
                 }
                 onPress={() => onPageIndexChange(parseInt(page) - 1)}
               >
                 {page}
-              </Button>
+              </IconButton>
             );
           })}
           <IconButton
             disabled={pageIndex + 1 >= pageCount}
             variant="text"
+            size="small"
             icon={<ForwardIcon />}
             onClick={() => onPageIndexChange(pageIndex + 1)}
           />
           <IconButton
             disabled={pageIndex + 1 >= pageCount}
             variant="text"
+            size="small"
             icon={<SkipForwardIcon />}
             onClick={() => onPageIndexChange(pageCount - 1)}
           />

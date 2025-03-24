@@ -1,5 +1,5 @@
 import { type PropsWithChildren, type ReactNode } from "react";
-import Button, { ButtonProps } from "../Button/Button";
+import { Button, ButtonProps } from "../Button/Button";
 import {
   EmptyState,
   EmptyStateIcon,

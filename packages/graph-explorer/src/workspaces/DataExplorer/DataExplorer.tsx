@@ -6,10 +6,12 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { Link, useNavigate, useParams, useSearchParams } from "react-router";
+import { Link, useParams, useSearchParams } from "react-router";
 import { useSetRecoilState } from "recoil";
 import { useUpdateSchemaFromEntities, Vertex } from "@/core";
 import {
+  Button,
+  buttonStyles,
   CheckIcon,
   ChevronLeftIcon,
   LoadingSpinner,
@@ -20,7 +22,6 @@ import {
   SelectField,
   SendIcon,
 } from "@/components";
-import Button from "@/components/Button";
 import { ExplorerIcon } from "@/components/icons";
 import {
   ColumnDefinition,
@@ -78,7 +79,6 @@ export default function DataExplorer() {
 
 function DataExplorerContent({ vertexType }: ConnectionsProps) {
   const styleWithTheme = useWithTheme();
-  const navigate = useNavigate();
 
   const config = useConfiguration();
 
@@ -111,21 +111,21 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
           {__GRAPH_EXP_VERSION__}
         </Workspace.TopBar.Version>
         <Workspace.TopBar.AdditionalControls>
-          <Link to="/graph-explorer">
-            <Button className="button" icon={<ExplorerIcon />} variant="filled">
-              Open {APP_NAME}
-            </Button>
+          <Link
+            to="/graph-explorer"
+            className={cn(buttonStyles({ variant: "filled" }))}
+          >
+            <ExplorerIcon />
+            Open {APP_NAME}
           </Link>
         </Workspace.TopBar.AdditionalControls>
       </Workspace.TopBar>
       <Workspace.TopBar>
         <Workspace.TopBar.Title>
-          <Button
-            icon={<ChevronLeftIcon />}
-            onPress={() => navigate("/connections")}
-          >
+          <Link to="/connections" className={cn(buttonStyles())}>
+            <ChevronLeftIcon />
             Back to all Data
-          </Button>
+          </Link>
         </Workspace.TopBar.Title>
         <Workspace.TopBar.AdditionalControls>
           <DisplayNameAndDescriptionOptions vertexType={vertexType} />
@@ -269,7 +269,6 @@ function AddToExplorerButton({ vertex }: { vertex: Vertex }) {
         icon={isInExplorer ? <CheckIcon /> : <SendIcon />}
         variant="default"
         size="small"
-        iconPlacement="start"
         onPress={addToGraph}
       >
         {isInExplorer ? "Sent to Explorer" : "Send to Explorer"}

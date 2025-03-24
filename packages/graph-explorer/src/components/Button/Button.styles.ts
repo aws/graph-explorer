@@ -77,7 +77,6 @@ export const baseStyles = (
 type StylesProps = {
   variant: "filled" | "default" | "text" | "danger";
   size: "small" | "base" | "large";
-  rounded?: boolean;
   isDisabled?: boolean;
 };
 

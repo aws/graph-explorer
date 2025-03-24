@@ -40,13 +40,10 @@ PanelContent.displayName = "PanelContent";
 
 export type Action = {
   label: string;
-  icon: React.ReactNode;
-  color?: "success" | "error" | "warning" | "info" | "primary";
   keepOpenOnSelect?: boolean;
   alwaysVisible?: boolean;
   active?: boolean;
   onlyPinnedVisible?: boolean;
-  isDisabled?: boolean;
   collapsedItems?: React.ReactElement;
   onActionClick?: () => void;
 };
@@ -132,10 +129,9 @@ PanelHeaderCloseButton.displayName = "PanelHeaderCloseButton";
 export const PanelHeaderActionButton = React.forwardRef<
   HTMLButtonElement,
   Action & IconButtonProps
->(({ isDisabled, label, active, onActionClick, ...props }, ref) => (
+>(({ label, active, onActionClick, ...props }, ref) => (
   <IconButton
     ref={ref}
-    disabled={isDisabled}
     tooltipText={label}
     variant={active ? "filled" : "text"}
     {...(onActionClick && { onClick: onActionClick })}
@@ -156,7 +152,7 @@ function PanelHeaderActions({
   return (
     <div
       className={cn(
-        "flex grow flex-row items-center justify-end gap-1.5",
+        "flex grow flex-row items-center justify-end gap-0.5",
         className
       )}
       {...props}

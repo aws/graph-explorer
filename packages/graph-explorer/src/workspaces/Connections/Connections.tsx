@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router";
 import { useRecoilValue } from "recoil";
-import Button from "@/components/Button";
+import { buttonStyles } from "@/components";
 import { ExplorerIcon, GearIcon } from "@/components/icons";
 import Workspace from "@/components/Workspace/Workspace";
 import { useConfiguration } from "@/core";
@@ -12,6 +12,7 @@ import ConnectionDetail from "@/modules/ConnectionDetail";
 import { APP_NAME } from "@/utils/constants";
 import { Panel, PanelContent, PanelEmptyState } from "@/components";
 import GraphExplorerIcon from "@/components/icons/GraphExplorerIcon";
+import { cn } from "@/utils";
 
 export default function Connections() {
   const config = useConfiguration();
@@ -31,23 +32,23 @@ export default function Connections() {
         </Workspace.TopBar.Version>
         <Workspace.TopBar.AdditionalControls>
           <div className="flex gap-2">
-            <Link to="/settings/general">
-              <Button icon={<GearIcon />}>Settings</Button>
+            <Link
+              to="/settings/general"
+              className={cn(buttonStyles({ variant: "default" }))}
+            >
+              <GearIcon />
+              Settings
             </Link>
 
             <Link
               to={
                 !config?.schema?.lastUpdate ? "/connections" : "/graph-explorer"
               }
+              className={cn(buttonStyles({ variant: "filled" }))}
+              aria-disabled={!config?.schema?.lastUpdate}
             >
-              <Button
-                isDisabled={!config?.schema?.lastUpdate}
-                className="button"
-                icon={<ExplorerIcon />}
-                variant="filled"
-              >
-                Open {APP_NAME}
-              </Button>
+              <ExplorerIcon />
+              Open {APP_NAME}
             </Link>
           </div>
         </Workspace.TopBar.AdditionalControls>

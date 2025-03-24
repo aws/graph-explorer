@@ -101,13 +101,7 @@ export default function SingleEdgeStyling({
           value={displayAs}
           onChange={setDisplayAs}
         />
-        <Button
-          icon={<StylingIcon />}
-          variant="text"
-          size="small"
-          onPress={onOpen}
-          className="shrink-0"
-        >
+        <Button icon={<StylingIcon />} variant="text" onClick={onOpen}>
           Customize
         </Button>
       </div>

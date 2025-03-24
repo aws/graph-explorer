@@ -1,63 +1,112 @@
 import { cn } from "@/utils";
-import { useButton } from "@react-aria/button";
-import type { AriaButtonProps } from "@react-types/button";
-import type { ElementType, ForwardedRef, ReactNode, RefObject } from "react";
+import type { ForwardedRef, ReactNode } from "react";
 import { forwardRef } from "react";
-import { useWithTheme } from "@/core";
-import { defaultStyles } from "./Button.styles";
+import { cva, VariantProps } from "cva";
+import { Slot } from "@radix-ui/react-slot";
+
+export const buttonStyles = cva({
+  base: "inline-flex items-center justify-center gap-2 font-medium focus-visible:outline-none focus-visible:ring-1 disabled:pointer-events-none disabled:opacity-50 disabled:saturate-0 aria-disabled:pointer-events-none aria-disabled:opacity-50 aria-disabled:saturate-0 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+  variants: {
+    variant: {
+      filled: "",
+      default: "",
+      text: "",
+    },
+    color: {
+      primary: "",
+      danger: "",
+    },
+    size: {
+      small: "h-8 rounded px-1 text-base [&_svg]:size-5",
+      base: "h-10 rounded-md px-3 text-base [&_svg]:size-5",
+      large: "h-12 rounded-md px-4 text-lg [&_svg]:size-6",
+    },
+  },
+  compoundVariants: [
+    {
+      variant: "filled",
+      color: "primary",
+      className:
+        "bg-brand hover:bg-brand-hover data-open:bg-brand-hover text-white",
+    },
+    {
+      variant: "filled",
+      color: "danger",
+      className:
+        "bg-danger hover:bg-danger-hover data-open:bg-danger-hover text-white",
+    },
+    {
+      variant: "default",
+      color: "primary",
+      className:
+        "text-text-primary data-open:bg-gray-200 bg-gray-100 hover:bg-gray-200",
+    },
+    {
+      variant: "default",
+      color: "danger",
+      className:
+        "bg-danger-subtle text-danger hover:bg-danger-subtle-hover data-open:bg-danger-subtle-hover",
+    },
+    {
+      variant: "text",
+      color: "primary",
+      className: "text-brand hover:bg-brand-subtle data-open:bg-brand-subtle",
+    },
+    {
+      variant: "text",
+      color: "danger",
+      className:
+        "text-danger hover:bg-danger-subtle data-open:bg-danger-subtle",
+    },
+  ],
+  defaultVariants: {
+    variant: "default",
+    color: "primary",
+    size: "base",
+  },
+});
 
 export interface ButtonProps
-  extends Omit<AriaButtonProps<ElementType>, "elementType"> {
-  className?: string;
-  variant?: "filled" | "default" | "text" | "danger";
-  size?: "small" | "base" | "large";
-  rounded?: boolean;
+  extends VariantProps<typeof buttonStyles>,
+    VariantProps<typeof buttonStyles>,
+    Omit<React.ComponentPropsWithoutRef<"button">, "color"> {
   icon?: ReactNode;
-  iconPlacement?: "start" | "end";
-  as?: ElementType;
+  asChild?: boolean;
+  isDisabled?: boolean;
+  onPress?: () => void;
 }
 
-export const Button = (
-  props: ButtonProps,
-  ref: ForwardedRef<HTMLButtonElement>
-) => {
-  const styleWithTheme = useWithTheme();
-  const { buttonProps } = useButton(
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    props,
-    ref as RefObject<HTMLButtonElement>
-  );
-  const {
-    children,
-    icon,
-    iconPlacement = "start",
-    className,
-    variant = "default",
-    size = "base",
-    rounded = false,
-    as,
-  } = props;
-  const Component: ElementType = as ? as : "button";
+const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+  (
+    {
+      className,
+      icon,
+      variant = "default",
+      size,
+      color,
+      children,
+      asChild = false,
+      isDisabled,
+      onPress,
+      ...props
+    }: ButtonProps,
+    ref: ForwardedRef<HTMLButtonElement>
+  ) => {
+    const Component = asChild ? (Slot as any) : "button";
+    return (
+      <Component
+        ref={ref}
+        className={cn(buttonStyles({ size, variant, color }), className)}
+        disabled={isDisabled}
+        onClick={onPress}
+        {...props}
+      >
+        {icon && icon}
+        {children}
+      </Component>
+    );
+  }
+);
+Button.displayName = "Button";
 
-  return (
-    <Component
-      ref={ref}
-      {...buttonProps}
-      className={cn(
-        styleWithTheme(defaultStyles({ variant, size, rounded })),
-        "inline-flex items-center gap-1.5",
-        size === "small" && "[&_svg]:size-4",
-        size === "base" && "[&_svg]:size-5",
-        size === "large" && "[&_svg]:size-6",
-        className
-      )}
-    >
-      {icon && iconPlacement === "start" && icon}
-      {children}
-      {icon && iconPlacement === "end" && icon}
-    </Component>
-  );
-};
-
-export default forwardRef<HTMLButtonElement, ButtonProps>(Button);
+export { Button };

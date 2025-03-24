@@ -1,6 +1,5 @@
 import { ComponentProps, JSXElementConstructor } from "react";
 
-export { default as Button } from "./Button";
 export * from "./Button";
 
 export * from "./Checkbox";

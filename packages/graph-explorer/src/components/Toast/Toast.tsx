@@ -48,6 +48,19 @@ const notificationTypeStyles = cva({
   },
 });
 
+const toastButtonStyles = cva({
+  base: "text-white",
+  variants: {
+    type: {
+      info: "hover:bg-primary-dark/50",
+      success: "hover:bg-success-dark/50",
+      warning: "hover:bg-warning-dark/50",
+      error: "hover:bg-error-dark/50",
+      loading: "hover:bg-primary-dark/50",
+    },
+  },
+});
+
 export function Toast({
   children,
   className,
@@ -70,7 +83,7 @@ export function Toast({
             icon={<CloseIcon />}
             onClick={onClose}
             variant="text"
-            className="text-white"
+            className={cn(toastButtonStyles({ type }))}
           />
         )}
       </div>
