@@ -1,11 +1,24 @@
-import { LoadingSpinner, PanelEmptyState } from "@/components";
+import {
+  EmptyState,
+  EmptyStateContent,
+  EmptyStateDescription,
+  EmptyStateIcon,
+  EmptyStateTitle,
+} from "@/components";
+import { LoaderCircleIcon } from "lucide-react";
 
 export default function AppLoadingPage() {
   return (
-    <PanelEmptyState
-      title="Preparing environment..."
-      subtitle="We are loading all components"
-      icon={<LoadingSpinner />}
-    />
+    <EmptyState>
+      <EmptyStateIcon>
+        <LoaderCircleIcon className="animate-spin" />
+      </EmptyStateIcon>
+      <EmptyStateContent>
+        <EmptyStateTitle>Preparing environment...</EmptyStateTitle>
+        <EmptyStateDescription>
+          We are loading all components
+        </EmptyStateDescription>
+      </EmptyStateContent>
+    </EmptyState>
   );
 }

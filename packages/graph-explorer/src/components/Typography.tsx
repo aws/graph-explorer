@@ -28,10 +28,7 @@ export function SectionTitle({ className, ...props }: ComponentProps<"h2">) {
 export function Paragraph({ className, ...props }: ComponentProps<"p">) {
   return (
     <p
-      className={cn(
-        "text-text-secondary text-text-secondary-dark my-2 text-lg font-light",
-        className
-      )}
+      className={cn("text-text-secondary my-2 text-lg font-light", className)}
       {...props}
     />
   );

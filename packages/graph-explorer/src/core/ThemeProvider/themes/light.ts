@@ -25,36 +25,6 @@ const palette: DeepRequired<ProcessedTheme["palette"]> = {
     dark: "hsl(var(--color-primary-dark))",
     contrastText: "rgb(var(--color-white))",
   },
-  secondary: {
-    light: "rgb(var(--color-secondary-light))",
-    main: "rgb(var(--color-secondary-main))",
-    dark: "rgb(var(--color-secondary-dark))",
-    contrastText: "rgb(var(--color-white))",
-  },
-  info: {
-    light: "rgb(var(--color-info-light))",
-    main: "rgb(var(--color-info-main))",
-    dark: "rgb(var(--color-info-dark))",
-    contrastText: "rgb(var(--color-white))",
-  },
-  error: {
-    light: "rgb(var(--color-error-light))",
-    main: "rgb(var(--color-error-main))",
-    dark: "rgb(var(--color-error-dark))",
-    contrastText: "rgb(var(--color-white))",
-  },
-  success: {
-    light: "rgb(var(--color-success-light))",
-    main: "rgb(var(--color-success-main))",
-    dark: "rgb(var(--color-success-dark))",
-    contrastText: "rgb(var(--color-white))",
-  },
-  warning: {
-    light: "rgb(var(--color-warning-light))",
-    main: "rgb(var(--color-warning-main))",
-    dark: "rgb(var(--color-warning-dark))",
-    contrastText: "rgb(var(--color-white))",
-  },
   text: {
     primary: "rgb(var(--color-text-primary))",
     secondary: "rgb(var(--color-text-secondary))",
@@ -83,14 +53,6 @@ const LIGHT_THEME: ProcessedTheme = {
     "6x": spacing(6),
   },
   palette,
-  zIndex: {
-    appBar: 1000,
-    panes: 1100,
-    modal: 1200,
-    popover: 1300,
-    menu: 1400,
-    tooltip: 1500,
-  },
   typography: {
     fontSize: "14px",
     fontFamily: `"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI",

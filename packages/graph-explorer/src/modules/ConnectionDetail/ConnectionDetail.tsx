@@ -114,7 +114,7 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
           <PanelHeaderActionButton
             label="Delete connection"
             icon={<DeleteIcon />}
-            color="error"
+            color="danger"
             isDisabled={isSync}
             onActionClick={deleteActiveConfig}
           />

@@ -20,8 +20,9 @@
   ([#824](https://github.com/aws/graph-explorer/pull/824))
 - **Fixed** issue representing an edge connecting nodes with multiple labels
   ([#839](https://github.com/aws/graph-explorer/pull/839))
-- **Updated** styling of input, textarea, and select fields
-  ([#832](https://github.com/aws/graph-explorer/pull/832),
+- **Updated** styling of buttons, input, textarea, and select fields
+  ([#847](https://github.com/aws/graph-explorer/pull/847),
+  [#832](https://github.com/aws/graph-explorer/pull/832),
   [#834](https://github.com/aws/graph-explorer/pull/834))
 - **Updated** HMR behavior to ignore test files
   ([#835](https://github.com/aws/graph-explorer/pull/835))

@@ -1,9 +1,9 @@
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
-import Button from "./Button";
+import { Button } from "./Button";
 
 export interface FileButtonProps
-  extends React.ComponentPropsWithoutRef<typeof Button> {
+  extends Omit<React.ComponentPropsWithoutRef<typeof Button>, "onChange"> {
   asChild?: boolean;
   onChange?: (files: FileList | null) => void;
   accept?: string;

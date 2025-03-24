@@ -1,18 +1,12 @@
 import { useMemo } from "react";
-import {
-  Button,
-  IconButton,
-  Label,
-  SelectField,
-  toHumanString,
-} from "@/components";
-import {
-  BackwardIcon,
-  ForwardIcon,
-  SkipBackwardIcon,
-  SkipForwardIcon,
-} from "@/components/icons";
+import { IconButton, Label, SelectField, toHumanString } from "@/components";
 import { cn } from "@/utils";
+import {
+  ChevronFirstIcon,
+  ChevronLastIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+} from "lucide-react";
 
 export type PaginationControlProps = {
   className?: string;
@@ -94,40 +88,49 @@ export function PaginationControl({
           <IconButton
             disabled={pageIndex - 1 < 0}
             variant="text"
-            icon={<SkipBackwardIcon />}
+            size="small"
             onClick={() => onPageIndexChange(0)}
-          />
+          >
+            <ChevronFirstIcon />
+          </IconButton>
           <IconButton
             disabled={pageIndex - 1 < 0}
             variant="text"
-            icon={<BackwardIcon />}
+            size="small"
             onClick={() => onPageIndexChange(pageIndex - 1)}
-          />
+          >
+            <ChevronLeftIcon />
+          </IconButton>
           {pagesToRender.map(page => {
             return (
-              <Button
+              <IconButton
                 key={page}
+                size="small"
                 variant={
                   pageIndex === parseInt(page) - 1 ? "filled" : "default"
                 }
                 onPress={() => onPageIndexChange(parseInt(page) - 1)}
               >
                 {page}
-              </Button>
+              </IconButton>
             );
           })}
           <IconButton
             disabled={pageIndex + 1 >= pageCount}
             variant="text"
-            icon={<ForwardIcon />}
+            size="small"
             onClick={() => onPageIndexChange(pageIndex + 1)}
-          />
+          >
+            <ChevronRightIcon />
+          </IconButton>
           <IconButton
             disabled={pageIndex + 1 >= pageCount}
             variant="text"
-            icon={<SkipForwardIcon />}
+            size="small"
             onClick={() => onPageIndexChange(pageCount - 1)}
-          />
+          >
+            <ChevronLastIcon />
+          </IconButton>
         </div>
       )}
     </div>

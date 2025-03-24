@@ -220,7 +220,7 @@ export default function GraphViewer({
             <PanelHeaderActionButton
               label="Clear canvas"
               icon={<CircleSlash2 />}
-              color="error"
+              color="danger"
               onActionClick={onClearGraph}
             />
             <PanelHeaderActionButton

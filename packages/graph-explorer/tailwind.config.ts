@@ -4,9 +4,6 @@ import plugin from "tailwindcss/plugin";
 import tailwindAnimate from "tailwindcss-animate";
 import tailwindContainerQueries from "@tailwindcss/container-queries";
 
-const black = "rgb(var(--color-black) / <alpha-value>)";
-const white = "rgb(var(--color-white) / <alpha-value>)";
-
 const blue = {
   50: "hsl(var(--color-brand-50) / <alpha-value>)",
   100: "hsl(var(--color-brand-100) / <alpha-value>)",
@@ -28,10 +25,11 @@ export default {
     colors: {
       transparent: "transparent",
       current: "currentColor",
-      black,
-      white,
+      black: colors.black,
+      white: colors.white,
       gray: colors.neutral,
       brand: blue,
+      red: colors.red,
       input: {
         background: "rgb(var(--color-input-background) / <alpha-value>)",
         hover: "rgb(var(--color-input-hover) / <alpha-value>)",
@@ -40,37 +38,37 @@ export default {
         light: "hsl(var(--color-primary-light) / <alpha-value>)",
         main: "hsl(var(--color-primary-main) / <alpha-value>)",
         dark: "hsl(var(--color-primary-dark) / <alpha-value>)",
-        contrastText: white,
+        contrastText: colors.white,
       },
       secondary: {
         light: "rgb(var(--color-secondary-light) / <alpha-value>)",
         main: "rgb(var(--color-secondary-main) / <alpha-value>)",
         dark: "rgb(var(--color-secondary-dark) / <alpha-value>)",
-        contrastText: white,
+        contrastText: colors.white,
       },
       info: {
         light: "rgb(var(--color-info-light) / <alpha-value>)",
         main: "rgb(var(--color-info-main) / <alpha-value>)",
         dark: "rgb(var(--color-info-dark) / <alpha-value>)",
-        contrastText: white,
+        contrastText: colors.white,
       },
       error: {
         light: "rgb(var(--color-error-light) / <alpha-value>)",
         main: "rgb(var(--color-error-main) / <alpha-value>)",
         dark: "rgb(var(--color-error-dark) / <alpha-value>)",
-        contrastText: white,
+        contrastText: colors.white,
       },
       success: {
         light: "rgb(var(--color-success-light) / <alpha-value>)",
         main: "rgb(var(--color-success-main) / <alpha-value>)",
         dark: "rgb(var(--color-success-dark) / <alpha-value>)",
-        contrastText: white,
+        contrastText: colors.white,
       },
       warning: {
         light: "rgb(var(--color-warning-light) / <alpha-value>)",
         main: "rgb(var(--color-warning-main) / <alpha-value>)",
         dark: "rgb(var(--color-warning-dark) / <alpha-value>)",
-        contrastText: white,
+        contrastText: colors.white,
       },
       background: {
         default: "rgb(var(--color-background-default) / <alpha-value>)",
@@ -116,8 +114,38 @@ export default {
       extraBold: "700",
     },
     extend: {
+      backgroundColor: {
+        default: "rgb(var(--color-background-default) / <alpha-value>)",
+        secondary: "rgb(var(--color-background-secondary) / <alpha-value>)",
+        contrast: "rgb(var(--color-background-contrast) / <alpha-value>)",
+        "contrast-secondary":
+          "rgb(var(--color-background-contrast-secondary) / <alpha-value>)",
+        brand: {
+          DEFAULT: "hsl(var(--color-brand-500) / <alpha-value>)",
+          hover: "hsl(var(--color-brand-600) / <alpha-value>)",
+          subtle: "hsl(var(--color-brand-50) / <alpha-value>)",
+          "subtle-hover": "hsl(var(--color-brand-100) / <alpha-value>)",
+        },
+        danger: {
+          DEFAULT: colors.red[500],
+          hover: colors.red[600],
+          subtle: colors.red[50],
+          "subtle-hover": colors.red[100],
+        },
+      },
+      textColor: {
+        // TODO: Need to rename primary-main, primary-light, etc. because this overwrites them.
+        // primary: "rgb(var(--color-text-primary) / <alpha-value>)",
+        secondary: "rgb(var(--color-text-secondary) / <alpha-value>)",
+        disabled: "rgb(var(--color-text-disabled) / <alpha-value>)",
+        danger: colors.red[700],
+        brand: "hsl(var(--color-brand-700) / <alpha-value>)",
+      },
       aria: {
         invalid: 'invalid="true"',
+      },
+      data: {
+        open: 'state="open"',
       },
       transitionProperty: {
         width: "width",

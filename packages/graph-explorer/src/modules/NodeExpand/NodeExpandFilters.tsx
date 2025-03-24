@@ -119,7 +119,7 @@ const NodeExpandFilters = ({
               <IconButton
                 icon={<DeleteIcon />}
                 variant="text"
-                color="error"
+                color="danger"
                 tooltipText="Remove Filter"
                 onClick={() => onFilterDelete(filterIndex)}
               />
@@ -156,7 +156,7 @@ const NodeExpandFilters = ({
           <IconButton
             icon={<DeleteIcon />}
             variant="text"
-            color="error"
+            color="danger"
             tooltipText="Remove Limit"
             onClick={() => onLimitChange(null)}
           />

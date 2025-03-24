@@ -1,7 +1,6 @@
 import { useState } from "react";
 import type { VertexId } from "@/core";
-import { PanelError, PanelFooter, VertexRow } from "@/components";
-import Button from "@/components/Button";
+import { Button, PanelError, PanelFooter, VertexRow } from "@/components";
 import ExpandGraphIcon from "@/components/icons/ExpandGraphIcon";
 import GraphIcon from "@/components/icons/GraphIcon";
 import LoadingSpinner from "@/components/LoadingSpinner";

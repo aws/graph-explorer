@@ -1,6 +1,6 @@
 import Workspace from "@/components/Workspace/Workspace";
 import {
-  Button,
+  buttonStyles,
   DatabaseIcon,
   ForwardIcon,
   Panel,
@@ -21,10 +21,12 @@ export default function SettingsRoot() {
           {__GRAPH_EXP_VERSION__}
         </Workspace.TopBar.Version>
         <Workspace.TopBar.AdditionalControls>
-          <Link to="/connections">
-            <Button icon={<DatabaseIcon />} variant="filled">
-              Open Connections
-            </Button>
+          <Link
+            to="/connections"
+            className={cn(buttonStyles({ variant: "filled" }))}
+          >
+            <DatabaseIcon />
+            Open Connections
           </Link>
         </Workspace.TopBar.AdditionalControls>
       </Workspace.TopBar>

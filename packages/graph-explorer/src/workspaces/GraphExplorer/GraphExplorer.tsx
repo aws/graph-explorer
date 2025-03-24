@@ -4,7 +4,7 @@ import { useCallback, useState } from "react";
 import { Link } from "react-router";
 import { useRecoilState, useRecoilValue } from "recoil";
 import {
-  Button,
+  buttonStyles,
   EdgeIcon,
   IconButton,
   NamespaceIcon,
@@ -151,10 +151,12 @@ const GraphExplorer = () => {
             onClick={toggleView("table-view")}
           />
           <div className="v-divider" />
-          <Link to="/connections">
-            <Button className="button" icon={<DatabaseIcon />} variant="filled">
-              Open Connections
-            </Button>
+          <Link
+            to="/connections"
+            className={cn(buttonStyles({ variant: "filled" }))}
+          >
+            <DatabaseIcon />
+            Open Connections
           </Link>
         </Workspace.TopBar.AdditionalControls>
       </Workspace.TopBar>

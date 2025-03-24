@@ -1,6 +1,5 @@
 import { ComponentProps, JSXElementConstructor } from "react";
 
-export { default as Button } from "./Button";
 export * from "./Button";
 
 export * from "./Checkbox";
@@ -19,6 +18,7 @@ export { default as Divider } from "./Divider";
 
 export * from "./EdgeRow";
 export * from "./EdgeSymbol";
+export * from "./EmptyState";
 
 export * from "./FileButton";
 export * from "./Form";

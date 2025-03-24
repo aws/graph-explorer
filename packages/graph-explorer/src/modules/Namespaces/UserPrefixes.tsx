@@ -120,7 +120,7 @@ const Row = React.memo(({ prefix }: { prefix: PrefixTypeConfig }) => {
         <IconButton
           variant="text"
           size="small"
-          color="error"
+          color="danger"
           icon={<DeleteIcon />}
           onClick={onDeletePrefix}
         />
