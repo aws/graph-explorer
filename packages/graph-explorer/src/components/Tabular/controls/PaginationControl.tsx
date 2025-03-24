@@ -1,12 +1,12 @@
 import { useMemo } from "react";
 import { IconButton, Label, SelectField, toHumanString } from "@/components";
-import {
-  BackwardIcon,
-  ForwardIcon,
-  SkipBackwardIcon,
-  SkipForwardIcon,
-} from "@/components/icons";
 import { cn } from "@/utils";
+import {
+  ChevronFirstIcon,
+  ChevronLastIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+} from "lucide-react";
 
 export type PaginationControlProps = {
   className?: string;
@@ -89,16 +89,18 @@ export function PaginationControl({
             disabled={pageIndex - 1 < 0}
             variant="text"
             size="small"
-            icon={<SkipBackwardIcon />}
             onClick={() => onPageIndexChange(0)}
-          />
+          >
+            <ChevronFirstIcon />
+          </IconButton>
           <IconButton
             disabled={pageIndex - 1 < 0}
             variant="text"
             size="small"
-            icon={<BackwardIcon />}
             onClick={() => onPageIndexChange(pageIndex - 1)}
-          />
+          >
+            <ChevronLeftIcon />
+          </IconButton>
           {pagesToRender.map(page => {
             return (
               <IconButton
@@ -117,16 +119,18 @@ export function PaginationControl({
             disabled={pageIndex + 1 >= pageCount}
             variant="text"
             size="small"
-            icon={<ForwardIcon />}
             onClick={() => onPageIndexChange(pageIndex + 1)}
-          />
+          >
+            <ChevronRightIcon />
+          </IconButton>
           <IconButton
             disabled={pageIndex + 1 >= pageCount}
             variant="text"
             size="small"
-            icon={<SkipForwardIcon />}
             onClick={() => onPageIndexChange(pageCount - 1)}
-          />
+          >
+            <ChevronLastIcon />
+          </IconButton>
         </div>
       )}
     </div>
