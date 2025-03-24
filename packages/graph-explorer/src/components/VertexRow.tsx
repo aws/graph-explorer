@@ -17,11 +17,15 @@ export function VertexRow({
         vertexStyle={vertex.typeConfig.style}
         className="size-11 p-[8px]"
       />
-      <div className="flex grow flex-col items-start">
-        <div className="text-balance break-all text-base font-bold leading-snug">
-          {vertex.displayTypes} &rsaquo; {vertex.displayName}
+      <div
+        className={cn(
+          "inline-block text-pretty text-base leading-snug [word-break:break-word]"
+        )}
+      >
+        <div className="font-bold">
+          {vertex.displayTypes}&nbsp;&rsaquo; {vertex.displayName}
         </div>
-        <div className="text-text-secondary/90 line-clamp-2 text-balance break-all text-base leading-snug">
+        <div className="text-text-secondary/90 line-clamp-2">
           {vertex.displayDescription}
         </div>
       </div>
