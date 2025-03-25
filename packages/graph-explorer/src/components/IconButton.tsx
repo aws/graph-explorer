@@ -24,7 +24,7 @@ export interface IconButtonProps extends ButtonProps {
 
 export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
   (
-    { tooltipText, size, className, ...props }: IconButtonProps,
+    { tooltipText, size, className, children, ...props }: IconButtonProps,
     ref: ForwardedRef<HTMLButtonElement>
   ) => {
     const component = (
@@ -33,7 +33,10 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
         size={size}
         className={cn(iconButtonStyles({ size }), className)}
         {...props}
-      />
+      >
+        {children}
+        <span className="sr-only">{tooltipText}</span>
+      </Button>
     );
 
     if (tooltipText) {

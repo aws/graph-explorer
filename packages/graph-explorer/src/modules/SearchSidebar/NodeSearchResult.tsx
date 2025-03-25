@@ -1,6 +1,7 @@
 import { useDisplayVertexFromVertex, Vertex } from "@/core";
 import {
   Button,
+  stopPropagation,
   Tooltip,
   TooltipContent,
   TooltipTrigger,
@@ -50,7 +51,7 @@ export function NodeSearchResult({ node }: { node: Vertex }) {
                 <Button
                   icon={<MinusCircleIcon />}
                   variant="text"
-                  onPress={removeFromGraph}
+                  onClick={stopPropagation(removeFromGraph)}
                 >
                   <span className="sr-only">Remove node from view</span>
                 </Button>
@@ -58,7 +59,7 @@ export function NodeSearchResult({ node }: { node: Vertex }) {
                 <Button
                   icon={<PlusCircleIcon />}
                   variant="text"
-                  onPress={addToGraph}
+                  onClick={stopPropagation(addToGraph)}
                 >
                   <span className="sr-only">Add node to view</span>
                 </Button>

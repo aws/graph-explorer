@@ -186,7 +186,11 @@ export function updateVertexDetailsCache(
     const request: VertexDetailsRequest = {
       vertexId: vertex.id,
     };
-    queryClient.setQueriesData(vertexDetailsQuery(request, explorer), vertex);
+    const response: VertexDetailsResponse = {
+      vertex,
+    };
+    const queryKey = vertexDetailsQuery(request, explorer).queryKey;
+    queryClient.setQueryData(queryKey, response);
   }
 }
 
@@ -200,6 +204,10 @@ export function updateEdgeDetailsCache(
     const request: EdgeDetailsRequest = {
       edgeId: edge.id,
     };
-    queryClient.setQueriesData(edgeDetailsQuery(request, explorer), edge);
+    const response: EdgeDetailsResponse = {
+      edge,
+    };
+    const queryKey = edgeDetailsQuery(request, explorer).queryKey;
+    queryClient.setQueryData(queryKey, response);
   }
 }

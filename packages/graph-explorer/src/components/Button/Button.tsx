@@ -112,4 +112,12 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 );
 Button.displayName = "Button";
 
+/** Wrap an action to stop button click propagation. */
+export function stopPropagation(action: () => void) {
+  return (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+    action();
+  };
+}
+
 export { Button };

@@ -7,7 +7,7 @@ import {
   createRandomVertex,
   renderHookWithRecoilRoot,
 } from "@/utils/testing";
-import { useDisplayEdgeFromEdge } from "./displayEdge";
+import { DisplayEdge, useDisplayEdgeFromEdge } from "./displayEdge";
 import { formatDate, sanitizeText } from "@/utils";
 import { createRandomDate } from "@shared/utils/testing";
 import { DisplayAttribute } from "./displayAttribute";
@@ -42,6 +42,26 @@ describe("useDisplayEdgeFromEdge", () => {
   it("should have the display name be the types", () => {
     const edge = createEdge();
     expect(act(edge).displayName).toEqual(sanitizeText(edge.type));
+  });
+
+  it("should contain info about the source vertex", () => {
+    const edge = createEdge();
+    expect(act(edge).source).toEqual({
+      displayId: String(edge.source),
+      displayTypes: edge.sourceTypes.map(sanitizeText).join(", "),
+      id: edge.source,
+      types: edge.sourceTypes,
+    } satisfies DisplayEdge["source"]);
+  });
+
+  it("should contain info about the target vertex", () => {
+    const edge = createEdge();
+    expect(act(edge).target).toEqual({
+      displayId: String(edge.target),
+      displayTypes: edge.targetTypes.map(sanitizeText).join(", "),
+      id: edge.target,
+      types: edge.targetTypes,
+    } satisfies DisplayEdge["target"]);
   });
 
   it("should have display name that matches the attribute value", () => {
