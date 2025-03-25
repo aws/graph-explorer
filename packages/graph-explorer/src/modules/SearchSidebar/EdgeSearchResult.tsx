@@ -9,6 +9,7 @@ import {
 import {
   Button,
   EdgeRow,
+  stopPropagation,
   Tooltip,
   TooltipContent,
   TooltipTrigger,
@@ -64,7 +65,7 @@ export function EdgeSearchResult({ edge }: { edge: Edge }) {
                 <Button
                   icon={<MinusCircleIcon />}
                   variant="text"
-                  onPress={removeFromGraph}
+                  onClick={stopPropagation(removeFromGraph)}
                 >
                   <span className="sr-only">Remove edge from view</span>
                 </Button>
@@ -72,7 +73,7 @@ export function EdgeSearchResult({ edge }: { edge: Edge }) {
                 <Button
                   icon={<PlusCircleIcon />}
                   variant="text"
-                  onPress={addToGraph}
+                  onClick={stopPropagation(addToGraph)}
                 >
                   <span className="sr-only">Add edge to view</span>
                 </Button>
