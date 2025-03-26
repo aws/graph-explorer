@@ -1,4 +1,4 @@
-import { createVertexId, Edge, Vertex, VertexId } from "@/core";
+import { createEdge, Vertex, VertexId } from "@/core";
 import { RawValue } from "../types";
 import { createRdfEdgeId } from "../createRdfEdgeId";
 
@@ -8,30 +8,30 @@ export type IncomingPredicate = {
   predFromSubject: RawValue;
 };
 
-const mapIncomingToEdge = (
+export default function mapIncomingToEdge(
   resourceURI: VertexId,
   resourceClasses: Vertex["types"],
   result: IncomingPredicate
-): Edge => {
+) {
   const sourceUri = result.subject.value;
   const predicate = result.predFromSubject.value;
 
-  return {
-    entityType: "edge",
+  return createEdge({
     id: createRdfEdgeId(sourceUri, predicate, resourceURI),
     type: predicate,
-    source: createVertexId(sourceUri),
-    sourceTypes: [result.subjectClass.value],
-    target: resourceURI,
-    targetTypes: resourceClasses,
+    source: {
+      id: sourceUri,
+      types: [result.subjectClass.value],
+    },
+    target: {
+      id: resourceURI,
+      types: resourceClasses,
+    },
+    // Ensure this edge is not a fragment since SPARQL edges can not have attributes
     attributes: {},
-  };
-};
+  });
+}
 
-export default mapIncomingToEdge;
-
-export const isIncomingPredicate = (
-  result: any
-): result is IncomingPredicate => {
+export function isIncomingPredicate(result: any): result is IncomingPredicate {
   return !!result.predFromSubject;
-};
+}

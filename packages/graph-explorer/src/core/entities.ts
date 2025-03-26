@@ -1,5 +1,5 @@
 import { Branded } from "@/utils";
-import { createVertexId } from "./entityIdType";
+import { createEdgeId, createVertexId } from "./entityIdType";
 
 export type EdgeId = Branded<string | number, "EdgeId">;
 export type VertexId = Branded<string | number, "VertexId">;
@@ -92,7 +92,7 @@ export type Edge = {
    * Sometimes the edge response does not include the properties, so this flag
    * indicates that another query must be executed to get the properties.
    */
-  __isFragment?: boolean;
+  __isFragment: boolean;
 };
 
 export type Entities = {
@@ -100,12 +100,18 @@ export type Entities = {
   edges: Map<EdgeId, Edge>;
 };
 
-export function createVertex(options: {
+type CreateEntityAttributeOptions =
+  | Map<string, string | number>
+  | Record<string, string | number>;
+
+type CreateVertexOptions = {
   id: string | number;
   types: string[];
-  attributes?: Map<string, string | number> | Record<string, string | number>;
+  attributes?: CreateEntityAttributeOptions;
   isBlankNode?: boolean;
-}): Vertex {
+};
+
+export function createVertex(options: CreateVertexOptions): Vertex {
   return {
     entityType: "vertex",
     id: createVertexId(options.id),
@@ -118,8 +124,31 @@ export function createVertex(options: {
   };
 }
 
+export function createEdge(options: {
+  id: string | number;
+  type: string;
+  source: CreateVertexOptions;
+  target: CreateVertexOptions;
+  attributes?: CreateEntityAttributeOptions;
+}): Edge {
+  const source = createVertex(options.source);
+  const target = createVertex(options.target);
+  return {
+    entityType: "edge",
+    id: createEdgeId(options.id),
+    type: options.type,
+    source: source.id,
+    sourceTypes: source.types,
+    target: target.id,
+    targetTypes: target.types,
+    attributes:
+      options.attributes != null ? createAttributes(options.attributes) : {},
+    __isFragment: options.attributes == null,
+  };
+}
+
 function createAttributes(
-  attributes: Map<string, string | number> | Record<string, string | number>
+  attributes: CreateEntityAttributeOptions
 ): Vertex["attributes"] {
   if (attributes instanceof Map) {
     return attributes.entries().reduce(

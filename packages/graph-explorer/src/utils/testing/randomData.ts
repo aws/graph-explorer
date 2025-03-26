@@ -2,11 +2,11 @@ import {
   ArrowStyle,
   AttributeConfig,
   ConnectionWithId,
+  createEdge,
   createEdgeId,
   createNewConfigurationId,
   createVertex,
   createVertexId,
-  Edge,
   EdgeId,
   EdgePreferences,
   EdgeTypeConfig,
@@ -218,31 +218,37 @@ export function createRandomVertexForRdf() {
  * Creates a random edge.
  * @returns A random Edge object.
  */
-export function createRandomEdge(source: Vertex, target: Vertex): Edge {
-  return {
-    entityType: "edge",
+export function createRandomEdge(source: Vertex, target: Vertex) {
+  return createEdge({
     id: createRandomEdgeId(),
     type: createRandomName("EdgeType"),
     attributes: createRecord(3, createRandomEntityAttribute),
-    source: source.id,
-    sourceTypes: source.types,
-    target: target.id,
-    targetTypes: target.types,
-  };
+    source: {
+      id: source.id,
+      types: source.types,
+    },
+    target: {
+      id: target.id,
+      types: target.types,
+    },
+  });
 }
 
-export function createRandomEdgeForRdf(source: Vertex, target: Vertex): Edge {
+export function createRandomEdgeForRdf(source: Vertex, target: Vertex) {
   const predicate = createRandomUrlString();
-  return {
-    entityType: "edge",
+  return createEdge({
     id: createRdfEdgeId(source.id, predicate, target.id),
     type: predicate,
     attributes: {},
-    source: source.id,
-    sourceTypes: source.types,
-    target: target.id,
-    targetTypes: target.types,
-  };
+    source: {
+      id: source.id,
+      types: source.types,
+    },
+    target: {
+      id: target.id,
+      types: target.types,
+    },
+  });
 }
 
 /**

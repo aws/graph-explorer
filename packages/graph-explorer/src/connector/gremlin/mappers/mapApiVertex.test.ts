@@ -4,7 +4,6 @@ import mapApiVertex from "./mapApiVertex";
 describe("mapApiVertex", () => {
   it("should map a graphSON vertex to a vertex", () => {
     const vertex = createRandomVertex();
-    vertex.__isFragment = false;
     const gVertex = createGVertex(vertex);
 
     const mappedVertex = mapApiVertex(gVertex);
@@ -26,7 +25,6 @@ describe("mapApiVertex", () => {
 
   it("should map a graphSON vertex without labels", () => {
     const vertex = createRandomVertex();
-    vertex.__isFragment = false;
     vertex.type = "";
     vertex.types = [];
     const gVertex = createGVertex(vertex);
