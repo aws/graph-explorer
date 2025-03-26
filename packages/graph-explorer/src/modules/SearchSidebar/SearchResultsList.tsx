@@ -1,19 +1,22 @@
 import {
+  Button,
+  ButtonProps,
   PanelEmptyState,
   LoadingSpinner,
   PanelError,
   SearchSadIcon,
-  Button,
   PanelFooter,
+  Spinner,
 } from "@/components";
 import { KeywordSearchResponse, MappedQueryResults } from "@/connector";
 import { UseQueryResult } from "@tanstack/react-query";
 import { useCancelKeywordSearch } from "./useKeywordSearchQuery";
 import { NodeSearchResult } from "./NodeSearchResult";
-import { useAddToGraph } from "@/hooks/useAddToGraph";
+import { useAddToGraphMutation } from "@/hooks/useAddToGraph";
 import { PlusCircleIcon } from "lucide-react";
 import { EdgeSearchResult } from "./EdgeSearchResult";
 import { ScalarSearchResult } from "./ScalarSearchResult";
+import { Edge, Vertex } from "@/core";
 
 export function SearchResultsList({
   query,
@@ -61,9 +64,6 @@ export function SearchResultsList({
 }
 
 function LoadedResults({ vertices, edges, scalars }: MappedQueryResults) {
-  const sendToGraph = useAddToGraph();
-  const canSendToGraph = vertices.length > 0 || edges.length > 0;
-
   const counts = [
     vertices.length ? `${vertices.length} nodes` : null,
     edges.length ? `${edges.length} edges` : null,
@@ -104,13 +104,7 @@ function LoadedResults({ vertices, edges, scalars }: MappedQueryResults) {
       </div>
 
       <PanelFooter className="sticky bottom-0 flex flex-row items-center justify-between">
-        <Button
-          icon={<PlusCircleIcon />}
-          onPress={() => sendToGraph({ vertices, edges })}
-          isDisabled={!canSendToGraph}
-        >
-          Add all
-        </Button>
+        <AddAllToGraphButton vertices={vertices} edges={edges} />
         <div className="flex items-center gap-2">
           <div className="text-text-secondary text-sm">
             {counts || "No results"}
@@ -118,5 +112,25 @@ function LoadedResults({ vertices, edges, scalars }: MappedQueryResults) {
         </div>
       </PanelFooter>
     </>
+  );
+}
+
+function AddAllToGraphButton({
+  vertices,
+  edges,
+  ...props
+}: ButtonProps & { vertices: Vertex[]; edges: Edge[] }) {
+  const mutation = useAddToGraphMutation();
+  const canSendToGraph = vertices.length > 0 || edges.length > 0;
+
+  return (
+    <Button
+      onClick={() => mutation.mutate({ vertices, edges })}
+      disabled={!canSendToGraph || mutation.isPending}
+      {...props}
+    >
+      {mutation.isPending ? <Spinner /> : <PlusCircleIcon />}
+      Add all
+    </Button>
   );
 }

@@ -91,12 +91,21 @@ describe("mapResults", () => {
 
   it("should remove duplicate vertices", () => {
     const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
+    const sourceFragment = createVertex({
+      id: edge.source,
+      types: edge.sourceTypes,
+    });
+    const targetFragment = createVertex({
+      id: edge.target,
+      types: edge.targetTypes,
+    });
     const gEdge = createGEdge(edge);
     const gList = createGList([gEdge, gEdge]);
     const results = mapResults(gList);
     expect(results).toEqual(
       toMappedQueryResults({
         edges: [edge],
+        vertices: [sourceFragment, targetFragment],
       })
     );
   });
@@ -148,6 +157,10 @@ describe("mapResults", () => {
               since: 20200101,
             },
           }),
+        ],
+        vertices: [
+          createVertex({ id: "2", types: ["Person"] }),
+          createVertex({ id: "1", types: ["Person"] }),
         ],
       })
     );
