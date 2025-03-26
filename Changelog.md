@@ -30,7 +30,8 @@
 - **Updated** HMR behavior to ignore test files
   ([#835](https://github.com/aws/graph-explorer/pull/835))
 - **Updated** dependencies
-  ([#827](https://github.com/aws/graph-explorer/pull/827))
+  ([#827](https://github.com/aws/graph-explorer/pull/827),
+  [#849](https://github.com/aws/graph-explorer/pull/849))
 
 ## Release v1.14.1
 
