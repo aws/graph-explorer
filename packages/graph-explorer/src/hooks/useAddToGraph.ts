@@ -1,5 +1,4 @@
 import { useNotification } from "@/components/NotificationProvider";
-import { vertexDetailsQuery, VertexDetailsRequest } from "@/connector";
 import {
   activeSchemaSelector,
   createVertex,
@@ -9,16 +8,15 @@ import {
   toEdgeMap,
   toNodeMap,
   updateSchemaFromEntities,
-  useExplorer,
   useUpdateGraphSession,
   Vertex,
-  VertexId,
 } from "@/core";
 import { logger } from "@/utils";
 import { createDisplayError } from "@/utils/createDisplayError";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { startTransition, useCallback } from "react";
 import { useSetRecoilState } from "recoil";
+import { useMaterializeVertices } from "./useMaterializeVertices";
 
 /** Returns a callback that adds an array of nodes and edges to the graph. */
 export function useAddToGraph() {
@@ -90,34 +88,6 @@ export function useAddToGraph() {
       setVertices,
       updateGraphStorage,
     ]
-  );
-}
-
-/** Fetch the details if the vertex is a fragment. */
-function useMaterializeVertices() {
-  const queryClient = useQueryClient();
-  const explorer = useExplorer();
-
-  return useCallback(
-    async (vertices: Map<VertexId, Vertex>) => {
-      const responses = await Promise.all(
-        vertices.values().map(async vertex => {
-          if (!vertex.__isFragment) {
-            return vertex;
-          }
-
-          const request: VertexDetailsRequest = {
-            vertexId: vertex.id,
-          };
-          const response = await queryClient.ensureQueryData(
-            vertexDetailsQuery(request, explorer)
-          );
-          return response.vertex;
-        })
-      );
-      return toNodeMap(responses.filter(vertex => vertex != null));
-    },
-    [queryClient, explorer]
   );
 }
 
