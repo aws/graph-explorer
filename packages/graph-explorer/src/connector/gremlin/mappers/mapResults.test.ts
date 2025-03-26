@@ -152,4 +152,21 @@ describe("mapResults", () => {
       })
     );
   });
+
+  it("should be fragment when no properties exist", () => {
+    const vertex = createRandomVertex();
+    vertex.__isFragment = true;
+    vertex.attributes = {};
+    const gVertex = createGVertex(vertex);
+    const result = mapResults(gVertex);
+    expect(result).toEqual(toMappedQueryResults({ vertices: [vertex] }));
+  });
+
+  it("should not be fragment when some properties exist", () => {
+    const vertex = createRandomVertex();
+    vertex.__isFragment = false;
+    const gVertex = createGVertex(vertex);
+    const result = mapResults(gVertex);
+    expect(result).toEqual(toMappedQueryResults({ vertices: [vertex] }));
+  });
 });
