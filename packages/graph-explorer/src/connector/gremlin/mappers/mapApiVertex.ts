@@ -1,24 +1,22 @@
-import { createVertexId, type Vertex } from "@/core";
+import { createVertex } from "@/core";
 import type { GVertex } from "../types";
 import parsePropertiesValues from "./parsePropertiesValues";
 import { extractRawId } from "./extractRawId";
 
-const mapApiVertex = (apiVertex: GVertex): Vertex => {
+const mapApiVertex = (apiVertex: GVertex) => {
   // Split multi-label from Neptune and filter out empty strings
-  const labels = apiVertex["@value"].label.split("::").filter(Boolean);
+  const types = apiVertex["@value"].label.split("::").filter(Boolean);
 
-  // Check for empty labels, which is possible with some databases
-  const vt = labels[0] ?? "";
-  const isFragment = apiVertex["@value"].properties == null;
+  // If the properties are null then the vertex is a fragment
+  const attributes = apiVertex["@value"].properties
+    ? parsePropertiesValues(apiVertex["@value"].properties)
+    : undefined;
 
-  return {
-    entityType: "vertex",
-    id: createVertexId(extractRawId(apiVertex["@value"].id)),
-    type: vt,
-    types: labels,
-    attributes: parsePropertiesValues(apiVertex["@value"].properties ?? {}),
-    __isFragment: isFragment,
-  };
+  return createVertex({
+    id: extractRawId(apiVertex["@value"].id),
+    types,
+    attributes,
+  });
 };
 
 export default mapApiVertex;

@@ -1,10 +1,10 @@
 import {
+  createVertex,
   DisplayEdge,
   DisplayVertex,
   Edge,
   useDisplayEdgeFromEdge,
   useDisplayVertexFromVertex,
-  Vertex,
 } from "@/core";
 import {
   Button,
@@ -110,14 +110,7 @@ function useDisplayForEdgeVertex(
   edgeVertex: DisplayEdge["source"]
 ): DisplayVertex {
   // TODO: Fetch the vertex details to display the proper display name in the EdgeRow
-  const fragment: Vertex = {
-    entityType: "vertex",
-    id: edgeVertex.id,
-    type: edgeVertex.types[0] ?? "",
-    types: edgeVertex.types,
-    attributes: {},
-    __isFragment: true,
-  };
+  const fragment = createVertex(edgeVertex);
   const result = useDisplayVertexFromVertex(fragment);
   return {
     ...result,

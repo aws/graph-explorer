@@ -4,6 +4,7 @@ import {
   ConnectionWithId,
   createEdgeId,
   createNewConfigurationId,
+  createVertex,
   createVertexId,
   Edge,
   EdgeId,
@@ -195,26 +196,22 @@ export function createRandomEdgeId(): EdgeId {
  * Creates a random vertex.
  * @returns A random Vertex object.
  */
-export function createRandomVertex(): Vertex {
+export function createRandomVertex() {
   const label = createRandomName("VertexType");
-  return {
-    entityType: "vertex",
+  return createVertex({
     id: createRandomVertexId(),
-    type: label,
     types: [label],
     attributes: createRecord(3, createRandomEntityAttribute),
-  };
+  });
 }
 
-export function createRandomVertexForRdf(): Vertex {
+export function createRandomVertexForRdf() {
   const label = createRandomUrlString();
-  return {
-    entityType: "vertex",
-    id: createVertexId(createRandomUrlString()),
-    type: label,
+  return createVertex({
+    id: createRandomUrlString(),
     types: [label],
     attributes: createRecord(3, createRandomEntityAttributeForRdf),
-  };
+  });
 }
 
 /**

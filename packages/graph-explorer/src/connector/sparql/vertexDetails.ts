@@ -12,7 +12,7 @@ import {
   SparqlValue,
 } from "./types";
 import { z } from "zod";
-import { Vertex, VertexId } from "@/core";
+import { createVertex, VertexId } from "@/core";
 import isErrorResponse from "../utils/isErrorResponse";
 import { idParam } from "./idParam";
 
@@ -85,34 +85,27 @@ export async function vertexDetails(
   return { vertex };
 }
 
-function mapToVertex(
-  id: VertexId,
-  detailsBinding: VertexDetailsBinding[]
-): Vertex {
-  const typeUri: string[] = [];
+function mapToVertex(id: VertexId, detailsBinding: VertexDetailsBinding[]) {
+  const types: string[] = [];
   const attributes: Record<string, string | number> = {};
 
   for (const result of detailsBinding) {
     if (result.label.value === rdfTypeUri) {
-      typeUri.push(result.value.value);
+      types.push(result.value.value);
     } else {
       attributes[result.label.value] = mapToValue(result.value);
     }
   }
 
-  if (!typeUri.length) {
+  if (!types.length) {
     throw new Error("Vertex type not found in bindings");
   }
 
-  const result: Vertex = {
-    entityType: "vertex",
+  return createVertex({
     id,
-    type: typeUri[0],
-    types: typeUri,
+    types,
     attributes,
-  };
-
-  return result;
+  });
 }
 
 function mapToValue(value: SparqlValue): string | number {

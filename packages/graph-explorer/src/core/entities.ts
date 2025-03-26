@@ -1,4 +1,5 @@
 import { Branded } from "@/utils";
+import { createVertexId } from "./entityIdType";
 
 export type EdgeId = Branded<string | number, "EdgeId">;
 export type VertexId = Branded<string | number, "VertexId">;
@@ -40,7 +41,7 @@ export type Vertex = {
    * Sometimes the vertex response does not include the properties, so this flag
    * indicates that another query must be executed to get the properties.
    */
-  __isFragment?: boolean;
+  __isFragment: boolean;
   /**
    * Internal flag to mark the resource as blank node in RDF.
    */
@@ -98,3 +99,37 @@ export type Entities = {
   nodes: Map<VertexId, Vertex>;
   edges: Map<EdgeId, Edge>;
 };
+
+export function createVertex(options: {
+  id: string | number;
+  types: string[];
+  attributes?: Map<string, string | number> | Record<string, string | number>;
+  isBlankNode?: boolean;
+}): Vertex {
+  return {
+    entityType: "vertex",
+    id: createVertexId(options.id),
+    type: options.types[0] ?? "",
+    types: options.types,
+    attributes:
+      options.attributes != null ? createAttributes(options.attributes) : {},
+    __isFragment: options.attributes == null,
+    __isBlank: options.isBlankNode ?? false,
+  };
+}
+
+function createAttributes(
+  attributes: Map<string, string | number> | Record<string, string | number>
+): Vertex["attributes"] {
+  if (attributes instanceof Map) {
+    return attributes.entries().reduce(
+      (prev, [key, value]) => {
+        prev[key] = value;
+        return prev;
+      },
+      {} as Vertex["attributes"]
+    );
+  }
+
+  return attributes;
+}

@@ -1,4 +1,4 @@
-import { createEdgeId, createVertexId } from "@/core";
+import { createEdgeId, createVertex, createVertexId } from "@/core";
 import { mapResults } from "./mapResults";
 import {
   createGEdge,
@@ -65,16 +65,13 @@ describe("mapResults", () => {
     expect(results).toEqual(
       toMappedQueryResults({
         vertices: [
-          {
-            entityType: "vertex",
-            id: createVertexId("1"),
-            type: "Person",
+          createVertex({
+            id: "1",
             types: ["Person"],
             attributes: {
               name: "Alice",
             },
-            __isFragment: false,
-          },
+          }),
         ],
       })
     );

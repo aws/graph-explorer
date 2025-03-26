@@ -1,17 +1,15 @@
 import globalMockFetch from "@/connector/testUtils/globalMockFetch";
 import mockGremlinFetch from "@/connector/testUtils/mockGremlinFetch";
 import fetchNeighbors from ".";
-import { createEdgeId, createVertexId, Edge, Vertex } from "@/core";
+import { createEdgeId, createVertex, createVertexId, Edge } from "@/core";
 
 describe("Gremlin > fetchNeighbors", () => {
   beforeEach(globalMockFetch);
 
   it("Should return all neighbors from node 2018", async () => {
-    const expectedVertices: Vertex[] = [
-      {
-        entityType: "vertex",
-        id: createVertexId("486"),
-        type: "airport",
+    const expectedVertices = [
+      createVertex({
+        id: "486",
         types: ["airport"],
         attributes: {
           country: "ES",
@@ -27,11 +25,9 @@ describe("Gremlin > fetchNeighbors", () => {
           lat: 28.044500351,
           desc: "Tenerife South Airport",
         },
-      },
-      {
-        entityType: "vertex",
-        id: createVertexId("228"),
-        type: "airport",
+      }),
+      createVertex({
+        id: "228",
         types: ["airport"],
         attributes: {
           country: "ES",
@@ -47,11 +43,9 @@ describe("Gremlin > fetchNeighbors", () => {
           lat: 27.9319000244141,
           desc: "Gran Canaria Airport",
         },
-      },
-      {
-        entityType: "vertex",
-        id: createVertexId("124"),
-        type: "airport",
+      }),
+      createVertex({
+        id: "124",
         types: ["airport"],
         attributes: {
           country: "ES",
@@ -67,21 +61,17 @@ describe("Gremlin > fetchNeighbors", () => {
           lat: 28.4827003479,
           desc: "Tenerife Norte Airport",
         },
-      },
-      {
-        entityType: "vertex",
-        id: createVertexId("3741"),
-        type: "continent",
+      }),
+      createVertex({
+        id: "3741",
         types: ["continent"],
         attributes: { code: "EU", type: "continent", desc: "Europe" },
-      },
-      {
-        entityType: "vertex",
-        id: createVertexId("3701"),
-        type: "country",
+      }),
+      createVertex({
+        id: "3701",
         types: ["country"],
         attributes: { code: "ES", type: "country", desc: "Spain" },
-      },
+      }),
     ];
 
     const response = await fetchNeighbors(mockGremlinFetch(), {
@@ -177,11 +167,9 @@ describe("Gremlin > fetchNeighbors", () => {
   });
 
   it("Should return filtered neighbors from node 2018", async () => {
-    const expectedVertices: Vertex[] = [
-      {
-        entityType: "vertex",
-        id: createVertexId("486"),
-        type: "airport",
+    const expectedVertices = [
+      createVertex({
+        id: "486",
         types: ["airport"],
         attributes: {
           country: "ES",
@@ -197,11 +185,9 @@ describe("Gremlin > fetchNeighbors", () => {
           lat: 28.044500351,
           desc: "Tenerife South Airport",
         },
-      },
-      {
-        entityType: "vertex",
-        id: createVertexId("124"),
-        type: "airport",
+      }),
+      createVertex({
+        id: "124",
         types: ["airport"],
         attributes: {
           country: "ES",
@@ -217,7 +203,7 @@ describe("Gremlin > fetchNeighbors", () => {
           lat: 28.4827003479,
           desc: "Tenerife Norte Airport",
         },
-      },
+      }),
     ];
 
     const response = await fetchNeighbors(mockGremlinFetch(), {
