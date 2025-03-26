@@ -44,7 +44,7 @@ export type Vertex = {
   /**
    * Internal flag to mark the resource as blank node in RDF.
    */
-  __isBlank?: boolean;
+  __isBlank: boolean;
 };
 
 export type Edge = {
