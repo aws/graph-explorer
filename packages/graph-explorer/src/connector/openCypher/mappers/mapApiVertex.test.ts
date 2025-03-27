@@ -1,5 +1,5 @@
 import mapApiVertex from "./mapApiVertex";
-import { createVertexId, Vertex } from "@/core";
+import { createVertex } from "@/core";
 
 test("maps empty vertex", () => {
   const input = {
@@ -10,13 +10,13 @@ test("maps empty vertex", () => {
   };
   const result = mapApiVertex(input);
 
-  expect(result).toEqual({
-    entityType: "vertex",
-    id: createVertexId(""),
-    type: "",
-    types: [],
-    attributes: {},
-  } satisfies Vertex);
+  expect(result).toEqual(
+    createVertex({
+      id: "",
+      types: [],
+      attributes: {},
+    })
+  );
 });
 
 test("maps airport node", () => {
@@ -42,24 +42,24 @@ test("maps airport node", () => {
 
   const result = mapApiVertex(input);
 
-  expect(result).toEqual({
-    entityType: "vertex",
-    id: createVertexId("1"),
-    type: "airport",
-    types: ["airport"],
-    attributes: {
-      city: "Atlanta",
-      code: "ATL",
-      country: "US",
-      desc: "Hartsfield - Jackson Atlanta International Airport",
-      elev: 1026,
-      icao: "KATL",
-      lat: 33.6366996765137,
-      lon: -84.4281005859375,
-      longest: 12390,
-      region: "US-GA",
-      runways: 5,
-      type: "airport",
-    },
-  } satisfies Vertex);
+  expect(result).toEqual(
+    createVertex({
+      id: "1",
+      types: ["airport"],
+      attributes: {
+        city: "Atlanta",
+        code: "ATL",
+        country: "US",
+        desc: "Hartsfield - Jackson Atlanta International Airport",
+        elev: 1026,
+        icao: "KATL",
+        lat: 33.6366996765137,
+        lon: -84.4281005859375,
+        longest: 12390,
+        region: "US-GA",
+        runways: 5,
+        type: "airport",
+      },
+    })
+  );
 });

@@ -43,7 +43,9 @@ export function createGVertex(vertex: Vertex): GVertex {
     "@value": {
       id,
       label: vertex.types.join("::"),
-      properties: createGVertexProperties(vertex.attributes),
+      properties: vertex.__isFragment
+        ? undefined
+        : createGVertexProperties(vertex.attributes),
     },
   };
 }
@@ -58,7 +60,9 @@ export function createGEdge(edge: Edge): GEdge {
       outVLabel: edge.sourceTypes.join("::"),
       inV: createIdValue(edge.target),
       outV: createIdValue(edge.source),
-      properties: createGProperties(edge.attributes),
+      properties: edge.__isFragment
+        ? undefined
+        : createGProperties(edge.attributes),
     },
   };
 }

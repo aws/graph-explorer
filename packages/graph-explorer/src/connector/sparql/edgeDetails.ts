@@ -1,4 +1,4 @@
-import { Edge } from "@/core";
+import { createEdge } from "@/core";
 import { EdgeDetailsRequest, EdgeDetailsResponse } from "../useGEFetchTypes";
 import {
   parseEdgeId,
@@ -78,15 +78,19 @@ export async function edgeDetails(
     throw new Error("Edge type not found in bindings");
   }
 
-  const edge: Edge = {
-    entityType: "edge",
+  const edge = createEdge({
     id: request.edgeId,
     type: predicate,
-    source,
-    sourceTypes,
-    target,
-    targetTypes,
+    source: {
+      id: source,
+      types: sourceTypes,
+    },
+    target: {
+      id: target,
+      types: targetTypes,
+    },
+    // Ensure this edge is not a fragment since SPARQL edges can not have attributes
     attributes: {},
-  };
+  });
   return { edge };
 }

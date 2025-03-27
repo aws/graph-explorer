@@ -5,7 +5,6 @@ import { Edge } from "@/core";
 describe("edgeDetails", () => {
   it("should return the correct edge details", async () => {
     const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
-    edge.__isFragment = false;
     const response = createGremlinResponseFromEdge(edge);
     const mockFetch = vi
       .fn()

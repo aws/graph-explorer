@@ -1,4 +1,4 @@
-import { createEdgeId, createVertexId } from "@/core";
+import { createEdge, createVertex } from "@/core";
 import { mapResults } from "./mapResults";
 import {
   createGEdge,
@@ -65,16 +65,13 @@ describe("mapResults", () => {
     expect(results).toEqual(
       toMappedQueryResults({
         vertices: [
-          {
-            entityType: "vertex",
-            id: createVertexId("1"),
-            type: "Person",
+          createVertex({
+            id: "1",
             types: ["Person"],
             attributes: {
               name: "Alice",
             },
-            __isFragment: false,
-          },
+          }),
         ],
       })
     );
@@ -82,7 +79,6 @@ describe("mapResults", () => {
 
   it("should remove duplicate vertices", () => {
     const vertex = createRandomVertex();
-    vertex.__isFragment = false;
     const gVertex = createGVertex(vertex);
     const gList = createGList([gVertex, gVertex]);
     const results = mapResults(gList);
@@ -95,7 +91,6 @@ describe("mapResults", () => {
 
   it("should remove duplicate vertices", () => {
     const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
-    edge.__isFragment = false;
     const gEdge = createGEdge(edge);
     const gList = createGList([gEdge, gEdge]);
     const results = mapResults(gList);
@@ -138,21 +133,40 @@ describe("mapResults", () => {
     expect(results).toEqual(
       toMappedQueryResults({
         edges: [
-          {
-            entityType: "edge",
-            id: createEdgeId("3"),
+          createEdge({
+            id: "3",
             type: "knows",
-            source: createVertexId("2"),
-            target: createVertexId("1"),
-            sourceTypes: ["Person"],
-            targetTypes: ["Person"],
+            source: {
+              id: "2",
+              types: ["Person"],
+            },
+            target: {
+              id: "1",
+              types: ["Person"],
+            },
             attributes: {
               since: 20200101,
             },
-            __isFragment: false,
-          },
+          }),
         ],
       })
     );
+  });
+
+  it("should be fragment when no properties exist", () => {
+    const vertex = createRandomVertex();
+    vertex.__isFragment = true;
+    vertex.attributes = {};
+    const gVertex = createGVertex(vertex);
+    const result = mapResults(gVertex);
+    expect(result).toEqual(toMappedQueryResults({ vertices: [vertex] }));
+  });
+
+  it("should not be fragment when some properties exist", () => {
+    const vertex = createRandomVertex();
+    vertex.__isFragment = false;
+    const gVertex = createGVertex(vertex);
+    const result = mapResults(gVertex);
+    expect(result).toEqual(toMappedQueryResults({ vertices: [vertex] }));
   });
 });
