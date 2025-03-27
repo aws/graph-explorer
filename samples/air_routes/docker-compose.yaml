@@ -1,0 +1,22 @@
+services:
+  app:
+    image: public.ecr.aws/neptune/graph-explorer:latest
+    ports:
+      - "8080:80"
+    environment:
+      - HOST=localhost
+      - PUBLIC_OR_PROXY_ENDPOINT=http://localhost:8080
+      - GRAPH_TYPE=gremlin
+      - USING_PROXY_SERVER=true
+      - PROXY_SERVER_HTTPS_CONNECTION=false
+      - GRAPH_CONNECTION_URL=http://database:8182
+
+  database:
+    image: janusgraph/janusgraph:latest
+    environment:
+      - gremlinserver.channelizer=org.apache.tinkerpop.gremlin.server.channel.HttpChannelizer
+      - janusgraph.storage.directory=/data/graph
+      - janusgraph.index.search.directory=/data/searchindex
+    volumes:
+      - ./data/graph:/data/graph
+      - ./data/searchindex:/data/searchindex
