@@ -8,7 +8,8 @@
   ([#826](https://github.com/aws/graph-explorer/pull/826),
   [#840](https://github.com/aws/graph-explorer/pull/840))
 - **Added** query editor for Gremlin connections
-  ([#853](https://github.com/aws/graph-explorer/pull/853),
+  ([#848](https://github.com/aws/graph-explorer/pull/848),
+  [#853](https://github.com/aws/graph-explorer/pull/853),
   [#850](https://github.com/aws/graph-explorer/pull/850),
   [#843](https://github.com/aws/graph-explorer/pull/843),
   [#842](https://github.com/aws/graph-explorer/pull/842),
