@@ -1,5 +1,5 @@
 import useKeywordSearch from "./useKeywordSearch";
-import { LoadedResults } from "./SearchResultsList";
+import { LoadedResults } from "./LoadedResults";
 import {
   Select,
   SelectTrigger,

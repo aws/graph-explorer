@@ -20,7 +20,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { logger } from "@/utils";
 import { atom, useRecoilState } from "recoil";
-import { LoadedResults } from "./SearchResultsList";
+import { LoadedResults } from "./LoadedResults";
 import { updateEdgeDetailsCache, updateVertexDetailsCache } from "@/connector";
 
 const formDataSchema = z.object({
