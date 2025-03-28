@@ -11,3 +11,4 @@ export { default as usePrevious } from "./usePrevious";
 export { default as useTranslations } from "./useTranslations";
 export * from "./useEdgeDetailsQuery";
 export * from "./useVertexDetailsQuery";
+export * from "./useDisplayVertexFromFragment";

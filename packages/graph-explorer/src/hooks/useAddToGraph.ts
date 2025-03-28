@@ -1,5 +1,7 @@
+import { useNotification } from "@/components/NotificationProvider";
 import {
   activeSchemaSelector,
+  createVertex,
   Edge,
   edgesAtom,
   nodesAtom,
@@ -9,8 +11,12 @@ import {
   useUpdateGraphSession,
   Vertex,
 } from "@/core";
+import { logger } from "@/utils";
+import { createDisplayError } from "@/utils/createDisplayError";
+import { useMutation } from "@tanstack/react-query";
 import { startTransition, useCallback } from "react";
 import { useSetRecoilState } from "recoil";
+import { useMaterializeVertices } from "./useMaterializeVertices";
 
 /** Returns a callback that adds an array of nodes and edges to the graph. */
 export function useAddToGraph() {
@@ -18,19 +24,37 @@ export function useAddToGraph() {
   const setEdges = useSetRecoilState(edgesAtom);
   const setActiveSchema = useSetRecoilState(activeSchemaSelector);
   const updateGraphStorage = useUpdateGraphSession();
+  const materializeVertices = useMaterializeVertices();
 
   return useCallback(
-    (entities: { vertices?: Vertex[]; edges?: Edge[] }) => {
-      const vertices = entities.vertices ?? [];
-      const edges = entities.edges ?? [];
+    async (entities: { vertices?: Vertex[]; edges?: Edge[] }) => {
+      const vertices = toNodeMap(entities.vertices ?? []);
+      const edges = toEdgeMap(entities.edges ?? []);
 
-      // Ensure there is something to add
-      if (vertices.length === 0 && edges.length === 0) {
-        return;
+      // Add fragment vertices from the edges if they are missing
+      for (const edge of edges.values()) {
+        if (!vertices.has(edge.source)) {
+          vertices.set(
+            edge.source,
+            createVertex({ id: edge.source, types: edge.sourceTypes })
+          );
+        }
+
+        if (!vertices.has(edge.target)) {
+          vertices.set(
+            edge.target,
+            createVertex({ id: edge.target, types: edge.targetTypes })
+          );
+        }
       }
 
-      const newVerticesMap = toNodeMap(vertices);
-      const newEdgesMap = toEdgeMap(edges);
+      // Ensure all fragments are materialized
+      const newVerticesMap = await materializeVertices(vertices);
+
+      // Ensure there is something to add
+      if (newVerticesMap.size === 0 && edges.size === 0) {
+        return;
+      }
 
       startTransition(() => {
         // Add new vertices to the graph
@@ -39,8 +63,8 @@ export function useAddToGraph() {
         }
 
         // Add new edges to the graph
-        if (newEdgesMap.size > 0) {
-          setEdges(prev => new Map([...prev, ...newEdgesMap]));
+        if (edges.size > 0) {
+          setEdges(prev => new Map([...prev, ...edges]));
         }
 
         // Update the schema with any new vertex or edge types or attributes
@@ -49,7 +73,7 @@ export function useAddToGraph() {
             return prev;
           }
           return updateSchemaFromEntities(
-            { nodes: newVerticesMap, edges: newEdgesMap },
+            { nodes: newVerticesMap, edges: edges },
             prev
           );
         });
@@ -57,7 +81,13 @@ export function useAddToGraph() {
         updateGraphStorage();
       });
     },
-    [setActiveSchema, setEdges, setVertices, updateGraphStorage]
+    [
+      materializeVertices,
+      setActiveSchema,
+      setEdges,
+      setVertices,
+      updateGraphStorage,
+    ]
   );
 }
 
@@ -74,4 +104,25 @@ export function useAddVertexToGraph(vertex: Vertex) {
 export function useAddEdgeToGraph(edge: Edge) {
   const callback = useAddToGraph();
   return useCallback(() => callback({ edges: [edge] }), [callback, edge]);
+}
+
+/**
+ * Wraps sendToGraph in a mutation which allows monitoring progress and error state.
+ *
+ * On error, a toast notification will be shown.
+ */
+export function useAddToGraphMutation() {
+  const { enqueueNotification } = useNotification();
+  const sendToGraph = useAddToGraph();
+  return useMutation({
+    mutationFn: sendToGraph,
+    onError: error => {
+      const displayError = createDisplayError(error);
+      enqueueNotification({
+        ...displayError,
+        type: "error",
+      });
+      logger.error("Failed to add all to graph", error);
+    },
+  });
 }
