@@ -21,7 +21,7 @@ import {
   DialogTrigger,
 } from "./Dialog";
 import { Label } from "./Label";
-import { FormField, FormItem } from "./Form";
+import { FormItem } from "./Form";
 
 export default function PanelError({
   error,
@@ -72,11 +72,15 @@ function ErrorDetailsButton({ error }: { error: Error }) {
         <DialogBody>
           <FormItem>
             <Label>Error name</Label>
-            <div>{error.name}</div>
+            <div className="text-pretty text-base leading-snug [word-break:break-word]">
+              {error.name}
+            </div>
           </FormItem>
           <FormItem>
             <Label>Error message</Label>
-            <div>{error.message}</div>
+            <div className="text-pretty text-base leading-snug [word-break:break-word]">
+              {error.message}
+            </div>
           </FormItem>
         </DialogBody>
         <DialogFooter>
