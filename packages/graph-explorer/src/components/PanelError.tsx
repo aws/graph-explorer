@@ -1,6 +1,27 @@
 import { createDisplayError } from "@/utils/createDisplayError";
-import { PanelEmptyState } from "./PanelEmptyState";
 import { GraphIcon } from "./icons";
+import { Button } from "./Button";
+import {
+  EmptyState,
+  EmptyStateIcon,
+  EmptyStateContent,
+  EmptyStateTitle,
+  EmptyStateDescription,
+  EmptyStateActions,
+} from "./EmptyState";
+import { InfoIcon, RotateCcwIcon } from "lucide-react";
+import {
+  Dialog,
+  DialogBody,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "./Dialog";
+import { Label } from "./Label";
+import { FormField, FormItem } from "./Form";
 
 export default function PanelError({
   error,
@@ -13,14 +34,57 @@ export default function PanelError({
 }) {
   const displayError = createDisplayError(error);
   return (
-    <PanelEmptyState
-      variant="error"
-      icon={<GraphIcon />}
-      title={displayError.title}
-      subtitle={displayError.message}
-      onAction={onRetry}
-      actionLabel={onRetry ? "Retry" : undefined}
-      className={className}
-    />
+    <EmptyState className={className}>
+      <EmptyStateIcon variant="error">
+        <GraphIcon />
+      </EmptyStateIcon>
+      <EmptyStateContent>
+        <EmptyStateTitle>{displayError.title}</EmptyStateTitle>
+        <EmptyStateDescription>{displayError.message}</EmptyStateDescription>
+
+        <EmptyStateActions>
+          <ErrorDetailsButton error={error} />
+          {onRetry ? (
+            <Button onPress={onRetry}>
+              <RotateCcwIcon />
+              Retry
+            </Button>
+          ) : null}
+        </EmptyStateActions>
+      </EmptyStateContent>
+    </EmptyState>
+  );
+}
+
+function ErrorDetailsButton({ error }: { error: Error }) {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button>
+          <InfoIcon />
+          Error Details
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Error Details</DialogTitle>
+        </DialogHeader>
+        <DialogBody>
+          <FormItem>
+            <Label>Error name</Label>
+            <div>{error.name}</div>
+          </FormItem>
+          <FormItem>
+            <Label>Error message</Label>
+            <div>{error.message}</div>
+          </FormItem>
+        </DialogBody>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button variant="filled">Close</Button>
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
