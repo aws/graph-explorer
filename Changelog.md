@@ -7,6 +7,8 @@
 - **Added** ability to restore the graph from the previous session
   ([#826](https://github.com/aws/graph-explorer/pull/826),
   [#840](https://github.com/aws/graph-explorer/pull/840))
+- **Added** ability to see full error details from errors in the UI
+  ([#858](https://github.com/aws/graph-explorer/pull/858))
 - **Added** query editor for Gremlin connections
   ([#848](https://github.com/aws/graph-explorer/pull/848),
   [#853](https://github.com/aws/graph-explorer/pull/853),
