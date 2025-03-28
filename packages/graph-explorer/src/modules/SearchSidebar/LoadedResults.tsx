@@ -1,16 +1,5 @@
-import {
-  Button,
-  ButtonProps,
-  PanelEmptyState,
-  LoadingSpinner,
-  PanelError,
-  SearchSadIcon,
-  PanelFooter,
-  Spinner,
-} from "@/components";
-import { KeywordSearchResponse, MappedQueryResults } from "@/connector";
-import { UseQueryResult } from "@tanstack/react-query";
-import { useCancelKeywordSearch } from "./useKeywordSearchQuery";
+import { Button, ButtonProps, PanelFooter, Spinner } from "@/components";
+import { MappedQueryResults } from "@/connector";
 import { NodeSearchResult } from "./NodeSearchResult";
 import { useAddToGraphMutation } from "@/hooks/useAddToGraph";
 import { PlusCircleIcon } from "lucide-react";
@@ -18,52 +7,11 @@ import { EdgeSearchResult } from "./EdgeSearchResult";
 import { ScalarSearchResult } from "./ScalarSearchResult";
 import { Edge, Vertex } from "@/core";
 
-export function SearchResultsList({
-  query,
-}: {
-  query: UseQueryResult<KeywordSearchResponse | null, Error>;
-}) {
-  const cancelAll = useCancelKeywordSearch();
-
-  if (query.isLoading) {
-    return (
-      <PanelEmptyState
-        title="Searching..."
-        subtitle="Looking for matching results"
-        actionLabel="Cancel"
-        onAction={() => cancelAll()}
-        icon={<LoadingSpinner />}
-        className="p-8"
-      />
-    );
-  }
-
-  if (query.isError && !query.data) {
-    return (
-      <PanelError error={query.error} onRetry={query.refetch} className="p-8" />
-    );
-  }
-
-  if (
-    !query.data ||
-    (query.data.vertices.length === 0 &&
-      query.data.edges.length === 0 &&
-      query.data.scalars.length === 0)
-  ) {
-    return (
-      <PanelEmptyState
-        title="No Results"
-        subtitle="Your criteria does not match with any record"
-        icon={<SearchSadIcon />}
-        className="p-8"
-      />
-    );
-  }
-
-  return <LoadedResults {...query.data} />;
-}
-
-function LoadedResults({ vertices, edges, scalars }: MappedQueryResults) {
+export function LoadedResults({
+  vertices,
+  edges,
+  scalars,
+}: MappedQueryResults) {
   const counts = [
     vertices.length ? `${vertices.length} nodes` : null,
     edges.length ? `${edges.length} edges` : null,
