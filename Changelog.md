@@ -5,7 +5,8 @@
 ### Other changes
 
 - **Added** query editor for Gremlin connections
-  ([#878](https://github.com/aws/graph-explorer/pull/878))
+  ([#878](https://github.com/aws/graph-explorer/pull/878),
+  [#855](https://github.com/aws/graph-explorer/pull/855))
 - **Added** ability to customize default neighbor expansion limit
   ([#925](https://github.com/aws/graph-explorer/pull/925))
 - **Added** ability to resize the sidebar
