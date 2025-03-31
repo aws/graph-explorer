@@ -45,6 +45,7 @@ const NodesTabular = forwardRef<TabularInstance<ToggleVertex>, any>(
       [setHiddenNodesIds]
     );
 
+    // NOTE: Only use string accessors so that the export process continues to work
     const columns: ColumnDefinition<ToggleVertex>[] = useMemo(() => {
       return [
         {

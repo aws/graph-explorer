@@ -55,6 +55,7 @@ const EdgesTabular = forwardRef<TabularInstance<ToggleEdge>, any>(
       [setHiddenEdgesIds]
     );
 
+    // NOTE: Only use string accessors so that the export process continues to work
     const columns: ColumnDefinition<ToggleEdge>[] = useMemo(() => {
       return [
         {
