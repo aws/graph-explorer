@@ -1,5 +1,5 @@
 import dedent from "dedent";
-import { transformToCsv } from "./transfomerToCsv";
+import { transformToCsv } from "./transformToCsv";
 import { TabularColumnInstance } from "../../helpers/tableInstanceToTabularInstance";
 
 describe("transformToCsv", () => {
