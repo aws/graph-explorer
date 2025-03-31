@@ -102,7 +102,7 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
         <div className="flex flex-col gap-2">
           {columnOrder.map(columnId =>
             !visibleColumns[columnId] ? null : (
-              <Label key={columnId}>
+              <Label key={columnId} className="text-text-primary">
                 <Checkbox
                   aria-label={`choose ${columnId}`}
                   checked={selectedColumns[columnId]}
@@ -123,7 +123,7 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
       <div className="space-y-3">
         <div className="text-base font-medium">Options</div>
         <div className="flex flex-col gap-2">
-          <Label>
+          <Label className="text-text-primary">
             <Checkbox
               aria-label="Keep filtering and sorting"
               checked={options["include-filters"]}
@@ -136,7 +136,7 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
             />
             Keep filtering and sorting
           </Label>
-          <Label>
+          <Label className="text-text-primary">
             <Checkbox
               aria-label="Only current page"
               checked={options["only-page"]}
