@@ -69,11 +69,20 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
       .filter(c => c != null);
 
     // Map the data from the rows, if needed
-    const dataToExport = options["include-filters"]
-      ? options["only-page"]
-        ? rows.map(r => r.original)
-        : page.map(r => r.original)
-      : data;
+    const dataToExport = (() => {
+      // Rows are filtered data
+      if (options["include-filters"]) {
+        return rows.map(r => r.original);
+      }
+
+      // Page contains only the visible page
+      if (options["only-page"]) {
+        return page.map(r => r.original);
+      }
+
+      // Unfiltered data
+      return data;
+    })();
 
     const exportName = name || `export-${new Date().getTime()}`;
 
