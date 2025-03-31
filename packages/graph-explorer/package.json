@@ -23,6 +23,7 @@
     "@mantine/emotion": "^7.17.1",
     "@mantine/hooks": "^7.17.1",
     "@radix-ui/react-checkbox": "^1.1.4",
+    "@radix-ui/react-dialog": "^1.1.6",
     "@radix-ui/react-form": "^0.1.2",
     "@radix-ui/react-label": "^2.1.2",
     "@radix-ui/react-popover": "^1.1.6",
