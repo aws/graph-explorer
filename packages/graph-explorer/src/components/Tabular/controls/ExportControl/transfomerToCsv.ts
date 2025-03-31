@@ -1,53 +1,20 @@
 import { unparse } from "papaparse";
-import type { Row } from "react-table";
 import type { TabularColumnInstance } from "@/components/Tabular/helpers/tableInstanceToTabularInstance";
-import getNestedObjectValue from "./getNestedObjectValue";
 
-export default function transformToCsv<T extends object>(
-  currentDataSource: readonly T[] | Row<T>[],
-  selectedColumns: Record<string, boolean>,
+export function transformToCsv<T extends object>(
+  data: readonly T[],
   columns: TabularColumnInstance<T>[]
 ) {
-  const filteredRows = currentDataSource
-    .map(row => (row as Row<T>).original || row)
-    .map(row => {
-      return Object.entries(selectedColumns).reduce(
-        (cells, [columnId, shouldExport]) => {
-          if (shouldExport) {
-            const colDef = columns.find(
-              colDef => colDef.instance.id === columnId
-            )?.definition;
-
-            if (typeof colDef?.accessor === "string") {
-              cells.push(getNestedObjectValue(row, columnId.split(".")));
-            } else {
-              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-              // @ts-ignore
-              cells.push(colDef?.accessor?.(row));
-            }
-          }
-
-          return cells;
-        },
-        [] as (string | number)[]
-      );
-    }, []);
-
-  const headers = Object.entries(selectedColumns).reduce<string[]>(
-    (header, [columnId, shouldExport]) => {
-      if (!shouldExport) {
-        return header;
+  const csvRows = data.map(row =>
+    columns.map(col => {
+      const accessor = col.definition?.accessor;
+      if (accessor == null || typeof accessor !== "string") {
+        return null;
       }
-
-      const label =
-        columns.find(colDef => colDef.instance.id === columnId)?.definition
-          ?.label || columnId;
-
-      header.push(label);
-      return header;
-    },
-    []
+      return (row as any)[accessor];
+    })
   );
+  const headers = columns.map(col => col.definition?.label || col.instance.id);
 
-  return unparse([headers, ...filteredRows], { header: false });
+  return unparse([headers, ...csvRows], { header: false });
 }

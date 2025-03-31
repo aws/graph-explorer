@@ -1,6 +1,5 @@
 import { saveAs } from "file-saver";
 import { useCallback, useState } from "react";
-import { Row } from "react-table";
 import {
   Button,
   Checkbox,
@@ -15,17 +14,15 @@ import {
 import { TrayArrowIcon } from "@/components/icons";
 import { TabularInstance } from "@/components/Tabular/helpers/tableInstanceToTabularInstance";
 
-import transformToCsv from "./transfomerToCsv";
-import transformToJson from "./transfomerToJson";
+import { transformToCsv } from "./transfomerToCsv";
+import { transformToJson } from "./transfomerToJson";
 import { toCsvFileData, toJsonFileData } from "@/utils/fileData";
 
 type ExportControlProps<T extends Record<string, unknown>> = {
-  omittedColumnsIds?: string[];
   instance: TabularInstance<T>;
 };
 
 export function ExternalExportControl<T extends Record<string, unknown>>({
-  omittedColumnsIds,
   instance,
 }: ExportControlProps<T>) {
   return (
@@ -40,7 +37,6 @@ export function ExternalExportControl<T extends Record<string, unknown>>({
       <PopoverContent side="right" className="w-72">
         <ExportOptionsModal
           instance={instance}
-          omittedColumnsIds={omittedColumnsIds}
         />
       </PopoverContent>
     </Popover>
@@ -57,59 +53,46 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
   const [options, setOptions] = useState<Record<string, boolean>>({});
   const [selectedColumns, setSelectedColumns] = useState(
     columnOrder.reduce<Record<string, boolean>>((init, col) => {
-      init[col] = !omittedColumnsIds?.includes(col) && visibleColumns[col];
+      init[col] = visibleColumns[col];
       return init;
     }, {})
   );
 
   const onExport = useCallback(() => {
-    let currentDataSource: readonly T[] | Row<T>[] = data;
+    // Filter down to only the columns that are selected
+    const columnsToExport = Object.entries(selectedColumns)
+      .filter(([, isSelected]) => isSelected)
+      .map(([id]) => columns.find(c => c.instance.id === id))
+      .filter(c => c != null);
 
-    // Rows are filtered data
-    if (options["include-filters"]) {
-      currentDataSource = rows;
-    }
-
-    // Page contains only the visible page
-    if (options["only-page"]) {
-      currentDataSource = page;
-    }
+    // Map the data from the rows, if needed
+    const dataToExport = options["include-filters"]
+      ? options["only-page"]
+        ? rows.map(r => r.original)
+        : page.map(r => r.original)
+      : data;
 
     const exportName = name || `export-${new Date().getTime()}`;
-    const exportableColumns = columns.filter(column =>
-      omittedColumnsIds ? !omittedColumnsIds.includes(column.instance.id) : true
-    );
+
     if (format === "csv") {
-      const csvData = transformToCsv(
-        currentDataSource,
-        selectedColumns,
-        exportableColumns
-      );
-
-      const fileToSave = toCsvFileData(csvData);
+      const csvDataNew = transformToCsv(dataToExport, columnsToExport);
+      const fileToSave = toCsvFileData(csvDataNew);
       saveAs(fileToSave, `${exportName.replace(/\.csv$/i, "")}.${format}`);
-
-      return;
+    } else {
+      const jsonData = transformToJson(dataToExport, columnsToExport);
+      const fileToSave = toJsonFileData(jsonData);
+      saveAs(fileToSave, `${exportName.replace(/\.json$/i, "")}.${format}`);
     }
 
-    const jsonData = transformToJson(
-      currentDataSource,
-      selectedColumns,
-      exportableColumns
-    );
-
-    const fileToSave = toJsonFileData(jsonData);
-    saveAs(fileToSave, `${exportName.replace(/\.json$/i, "")}.${format}`);
   }, [
-    data,
+    selectedColumns,
     options,
+    rows,
+    page,
+    data,
     name,
     format,
     columns,
-    selectedColumns,
-    rows,
-    page,
-    omittedColumnsIds,
   ]);
 
   return (
@@ -118,7 +101,6 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
         <div className="text-base font-medium">Export columns</div>
         <div className="flex flex-col gap-2">
           {columnOrder.map(columnId =>
-            omittedColumnsIds?.includes(columnId) ||
             !visibleColumns[columnId] ? null : (
               <Label key={columnId}>
                 <Checkbox

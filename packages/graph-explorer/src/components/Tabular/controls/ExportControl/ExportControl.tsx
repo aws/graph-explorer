@@ -5,7 +5,6 @@ import { ExternalExportControl } from "./ExternalExportControl";
 
 type ExportControlProps = {
   className?: string;
-  omittedColumnsIds?: string[];
 };
 
 export const ExportControl: FunctionComponent<ExportControlProps> = props => {

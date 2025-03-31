@@ -1,39 +1,27 @@
-import type { Row } from "react-table";
 import { TabularColumnInstance } from "@/components/Tabular/helpers/tableInstanceToTabularInstance";
 
-import getNestedObjectValue from "./getNestedObjectValue";
-
-const transformToJson = (
-  currentDataSource: readonly any[],
-  selectedColumns: Record<string, boolean>,
-  columns: TabularColumnInstance<any>[]
-) => {
-  return currentDataSource.map((row: Row<any>) => {
-    return Object.entries(selectedColumns).reduce(
-      (cells, [columnId, shouldExport]) => {
-        if (shouldExport) {
-          const pathParts = columnId.split(".");
-          const colDef = columns.find(
-            colDef => colDef.instance.id === columnId
-          )?.definition;
-
-          if (typeof colDef?.accessor === "string") {
-            cells[colDef?.label || pathParts[pathParts.length - 1]] =
-              getNestedObjectValue(row.original || row, columnId.split("."));
-          } else {
-            cells[
-              colDef?.label || pathParts[pathParts.length - 1]
-              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-              // @ts-ignore
-            ] = colDef?.accessor?.(row);
-          }
+export function transformToJson<T extends object>(
+  data: readonly T[],
+  columns: TabularColumnInstance<T>[]
+) {
+  return data.map(row =>
+    columns
+      .map(col => {
+        const accessor = col.definition?.accessor;
+        if (accessor == null || typeof accessor !== "string") {
+          return null;
         }
-
-        return cells;
-      },
-      {} as Record<string, string | number>
-    );
-  }, []);
-};
-
-export default transformToJson;
+        const value = (row as any)[accessor] as string | number;
+        const label = col.definition?.label || col.instance.id;
+        return [label, value] as const;
+      })
+      .filter(item => item != null)
+      .reduce(
+        (acc, [label, value]) => {
+          acc[label] = value;
+          return acc;
+        },
+        {} as Record<string, string | number>
+      )
+  );
+}

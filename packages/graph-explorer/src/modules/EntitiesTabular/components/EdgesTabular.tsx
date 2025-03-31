@@ -20,7 +20,23 @@ import useTranslations from "@/hooks/useTranslations";
 import { recoilDiffSets } from "@/utils/recoilState";
 import { DisplayEdge, useDisplayEdgesInCanvas } from "@/core";
 
-type ToggleEdge = DisplayEdge & { __is_visible: boolean };
+/** Creates the model for the table data */
+function createEdgeForTable(edge: DisplayEdge) {
+  return {
+    id: edge.id,
+    displayTypes: edge.displayTypes,
+    displayName: edge.displayName,
+    sourceDisplayId: edge.source.displayId,
+    sourceDisplayTypes: edge.source.displayTypes,
+    targetDisplayId: edge.target.displayId,
+    targetDisplayTypes: edge.target.displayTypes,
+  };
+}
+
+/** Table data type with visibility flag */
+type ToggleEdge = ReturnType<typeof createEdgeForTable> & {
+  __is_visible: boolean;
+};
 
 const EdgesTabular = forwardRef<TabularInstance<ToggleEdge>, any>(
   (_props, ref) => {
@@ -65,25 +81,25 @@ const EdgesTabular = forwardRef<TabularInstance<ToggleEdge>, any>(
         },
         {
           id: "source-id",
-          accessor: row => row.source.displayId,
+          accessor: "sourceDisplayId",
           label: t("entities-tabular.source-id"),
           overflow: "ellipsis",
         },
         {
           id: "source-type",
-          accessor: row => row.source.displayTypes,
+          accessor: "sourceDisplayTypes",
           label: t("entities-tabular.source-type"),
           overflow: "ellipsis",
         },
         {
           id: "target-id",
-          accessor: row => row.target.displayId,
+          accessor: "targetDisplayId",
           label: t("entities-tabular.target-id"),
           overflow: "ellipsis",
         },
         {
           id: "target-type",
-          accessor: row => row.target.displayTypes,
+          accessor: "targetDisplayTypes",
           label: t("entities-tabular.target-type"),
           overflow: "ellipsis",
         },
@@ -94,7 +110,7 @@ const EdgesTabular = forwardRef<TabularInstance<ToggleEdge>, any>(
       return edges
         .values()
         .map(edge => ({
-          ...edge,
+          ...createEdgeForTable(edge),
           __is_visible: !hiddenEdgesIds.has(edge.id),
         }))
         .toArray();
