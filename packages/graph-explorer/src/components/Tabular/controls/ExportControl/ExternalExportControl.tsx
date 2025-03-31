@@ -25,8 +25,10 @@ type ExportControlProps<T extends Record<string, unknown>> = {
 export function ExternalExportControl<T extends Record<string, unknown>>({
   instance,
 }: ExportControlProps<T>) {
+  const [opened, setOpened] = useState(false);
+
   return (
-    <Popover>
+    <Popover open={opened} onOpenChange={open => setOpened(open)}>
       <PopoverTrigger asChild>
         <IconButton
           variant="text"
@@ -37,6 +39,7 @@ export function ExternalExportControl<T extends Record<string, unknown>>({
       <PopoverContent side="right" className="w-72">
         <ExportOptionsModal
           instance={instance}
+          onClose={() => setOpened(false)}
         />
       </PopoverContent>
     </Popover>
@@ -45,8 +48,8 @@ export function ExternalExportControl<T extends Record<string, unknown>>({
 
 function ExportOptionsModal<T extends Record<string, unknown>>({
   instance,
-  omittedColumnsIds,
-}: ExportControlProps<T>) {
+  onClose,
+}: ExportControlProps<T> & { onClose: () => void }) {
   const { rows, data, page, columns, columnOrder, visibleColumns } = instance;
   const [format, setFormat] = useState("csv");
   const [name, setName] = useState<string>("");
@@ -84,6 +87,8 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
       saveAs(fileToSave, `${exportName.replace(/\.json$/i, "")}.${format}`);
     }
 
+    // Closes the popover
+    onClose();
   }, [
     selectedColumns,
     options,
@@ -92,6 +97,7 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
     data,
     name,
     format,
+    onClose,
     columns,
   ]);
 
