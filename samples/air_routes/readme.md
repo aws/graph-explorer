@@ -10,6 +10,8 @@ This sample contains example Air Routes data imported from [here](https://github
 
 From terminal run...
 
-```docker compose up```
+```
+docker compose up
+```
 
 From browser navigate to [http://localhost:8080/explorer](http://localhost:8080/explorer).
