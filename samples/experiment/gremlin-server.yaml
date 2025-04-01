@@ -1,0 +1,23 @@
+graphs: {
+  graph: {
+    class: org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph,
+    storage: {
+      backend: memory
+    }
+  }
+}
+
+scriptEngines: {
+  gremlin-groovy: {
+    plugins: {
+      org.apache.tinkerpop.gremlin.server.jsr223.GremlinServerGremlinPlugin: {},
+      org.apache.tinkerpop.gremlin.tinkergraph.jsr223.TinkerGraphGremlinPlugin: {},
+      org.apache.tinkerpop.gremlin.server.jsr223.GremlinServerScriptEnginePlugin: {}
+    }
+  }
+}
+
+serializers: [
+  { className: "org.apache.tinkerpop.gremlin.util.ser.GraphBinaryMessageSerializerV1"},
+  { className: "org.apache.tinkerpop.gremlin.util.ser.GraphSONMessageSerializerV3"}
+]

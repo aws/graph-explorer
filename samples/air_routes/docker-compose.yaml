@@ -10,13 +10,11 @@ services:
       - USING_PROXY_SERVER=true
       - PROXY_SERVER_HTTPS_CONNECTION=false
       - GRAPH_CONNECTION_URL=http://database:8182
-
+      
   database:
-    image: janusgraph/janusgraph:latest
-    environment:
-      - gremlinserver.channelizer=org.apache.tinkerpop.gremlin.server.channel.HttpChannelizer
-      - janusgraph.storage.directory=/data/graph
-      - janusgraph.index.search.directory=/data/searchindex
+    image: tinkerpop/gremlin-server:latest
+    ports: 
+     - "8182:8182"
     volumes:
-      - ./data/graph:/data/graph
-      - ./data/searchindex:/data/searchindex
+      - ./sample:/opt/gremlin-server/sample
+    command: /opt/gremlin-server/sample/conf/gremlin-server-air-routes.yaml
