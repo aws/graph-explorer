@@ -33,6 +33,75 @@ describe("transformToCsv", () => {
     );
   });
 
+  it("should handle data with commas", () => {
+    const result = transformToCsv(
+      [
+        {
+          name: "LastName, FirstName",
+          age: 10,
+        },
+      ],
+      [createColumn("name"), createColumn("age")]
+    );
+    expect(csv(result)).toEqual(
+      csv(`
+        name,age
+        "LastName, FirstName",10
+      `)
+    );
+  });
+
+  it("should transform data to csv and only include provided columns", () => {
+    const result = transformToCsv(
+      [
+        {
+          id: "1",
+          name: "test",
+          age: 10,
+          gender: "male",
+        },
+      ],
+      [createColumn("name"), createColumn("age")]
+    );
+    expect(csv(result)).toEqual(
+      csv(`
+        name,age
+        test,10
+      `)
+    );
+  });
+
+  it("should ignore missing properties in data", () => {
+    const result = transformToCsv(
+      [
+        {
+          id: "1",
+          name: "test",
+          age: 10,
+          gender: "male",
+        },
+        {
+          id: "2",
+          name: "other test",
+          gender: "female",
+        },
+      ],
+      [
+        createColumn("id"),
+        createColumn("name"),
+        createColumn("age"),
+        createColumn("gender"),
+      ]
+    );
+    expect(csv(result)).toEqual(
+      csv(`
+        id,name,age,gender
+        1,test,10,male
+        2,other test,,female
+      `)
+    );
+  });
+
   it("should transform data to csv with data that contains 'original' property", () => {
     const result = transformToCsv(
       [
@@ -66,15 +135,14 @@ describe("transformToCsv", () => {
 });
 
 function createColumn<T extends object>(
-  key: keyof T,
-  accessor?: (row: T) => string | number | undefined
+  key: keyof T
 ): TabularColumnInstance<T> {
   return {
     instance: {
       id: key,
     },
     definition: {
-      accessor: accessor ?? key,
+      accessor: key,
     },
   } as any;
 }
