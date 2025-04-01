@@ -90,7 +90,7 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
       const csvData = transformToCsv(dataToExport, columnsToExport);
       const fileToSave = toCsvFileData(csvData);
       saveAs(fileToSave, `${exportName.replace(/\.csv$/i, "")}.${format}`);
-    } else {
+    } else if (format === "json") {
       const jsonData = transformToJson(dataToExport, columnsToExport);
       const fileToSave = toJsonFileData(jsonData);
       saveAs(fileToSave, `${exportName.replace(/\.json$/i, "")}.${format}`);
