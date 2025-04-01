@@ -45,6 +45,7 @@ const NodesTabular = forwardRef<TabularInstance<ToggleVertex>, any>(
       [setHiddenNodesIds]
     );
 
+    // NOTE: Only use string accessors so that the export process continues to work
     const columns: ColumnDefinition<ToggleVertex>[] = useMemo(() => {
       return [
         {
@@ -72,7 +73,7 @@ const NodesTabular = forwardRef<TabularInstance<ToggleVertex>, any>(
         },
         {
           id: "node-type",
-          accessor: row => row.displayTypes,
+          accessor: "displayTypes",
           label: t("entities-tabular.node-type"),
           filter: (rows, _columnIds, filterValue) =>
             rows.filter(row =>
