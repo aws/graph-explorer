@@ -5,8 +5,6 @@ import {
   Explorer,
   KeywordSearchRequest,
   KeywordSearchResponse,
-  RawQueryRequest,
-  RawQueryResponse,
   SchemaResponse,
   toMappedQueryResults,
   VertexDetailsRequest,
@@ -149,30 +147,6 @@ export function edgeDetailsQuery(
     queryKey: ["db", "edge", "details", request, explorer],
     queryFn: ({ signal }): Promise<EdgeDetailsResponse> =>
       explorer.edgeDetails(request, { signal }),
-  });
-}
-
-export function rawQueryQuery(
-  request: RawQueryRequest,
-  updateSchema: (entities: {
-    vertices: Vertex[];
-    edges: Edge[];
-  }) => Promise<void>,
-  explorer: Explorer,
-  queryClient: QueryClient
-) {
-  return queryOptions({
-    queryKey: ["db", "raw-query", request, explorer, queryClient],
-    queryFn: async ({ signal }): Promise<RawQueryResponse> => {
-      const results = await explorer.rawQuery(request, { signal });
-
-      // Update the schema and the cache
-      updateVertexDetailsCache(explorer, queryClient, results.vertices);
-      updateEdgeDetailsCache(explorer, queryClient, results.edges);
-      await updateSchema(results);
-
-      return results;
-    },
   });
 }
 
