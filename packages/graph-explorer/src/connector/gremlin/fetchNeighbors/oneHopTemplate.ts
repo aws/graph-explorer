@@ -129,6 +129,7 @@ function criterionTemplate(criterion: Criterion): string {
  */
 export default function oneHopTemplate({
   vertexId,
+  excludedVertices,
   filterByVertexTypes = [],
   edgeTypes = [],
   filterCriteria = [],
@@ -158,9 +159,24 @@ export default function oneHopTemplate({
 
   const edgeTypesTemplate = edgeTypes.map(type => `"${type}"`).join(",");
 
+  const excludedList = excludedVertices
+    .values()
+    .map(id => idParam(id))
+    .toArray()
+    .join(",");
+  const excludedTemplate = excludedList
+    ? `.filter(__.not(__.hasId(${excludedList})))`
+    : ``;
+
   return query`
     g.V(${idTemplate})
-      .both()${nodeFiltersTemplate}.dedup().order().by(id())${range}.as("v")
+      .both()
+      ${nodeFiltersTemplate}
+      ${excludedTemplate}
+      .dedup()
+      .order().by(id())
+      ${range}
+      .as("v")
       .project("vertex", "edges")
         .by()
         .by(
