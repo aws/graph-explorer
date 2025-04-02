@@ -1,17 +1,12 @@
-import { createVertexId, type Vertex } from "@/core";
+import { createVertex } from "@/core";
 import type { OCVertex } from "../types";
 
-export default function mapApiVertex(apiVertex: OCVertex): Vertex {
+export default function mapApiVertex(apiVertex: OCVertex) {
   const labels = apiVertex["~labels"];
 
-  // Check for empty labels, which is possible with some databases
-  const vt = labels[0] ?? "";
-
-  return {
-    entityType: "vertex",
-    id: createVertexId(apiVertex["~id"]),
-    type: vt,
+  return createVertex({
+    id: apiVertex["~id"],
     types: labels,
     attributes: apiVertex["~properties"],
-  };
+  });
 }

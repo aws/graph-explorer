@@ -42,7 +42,10 @@ export async function vertexDetails(
   const vertex = entities.vertices.length > 0 ? entities.vertices[0] : null;
   if (!vertex) {
     logger.warn("Vertex not found", request.vertexId);
+    return { vertex: null };
   }
 
+  // Always false for vertexDetails query, even if the vertex has no properties
+  vertex.__isFragment = false;
   return { vertex };
 }

@@ -1,21 +1,14 @@
+import { Edge, useDisplayEdgeFromEdge } from "@/core";
 import {
-  DisplayEdge,
-  DisplayVertex,
-  Edge,
-  useDisplayEdgeFromEdge,
-  useDisplayVertexFromVertex,
-  Vertex,
-} from "@/core";
-import {
-  Button,
+  ButtonProps,
   EdgeRow,
+  IconButton,
+  Spinner,
   stopPropagation,
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
 } from "@/components";
 import {
-  useAddEdgeToGraph,
+  useAddToGraphMutation,
+  useDisplayVertexFromFragment,
   useHasEdgeBeenAddedToGraph,
   useRemoveEdgeFromGraph,
 } from "@/hooks";
@@ -31,12 +24,14 @@ import EntityAttribute from "../EntityDetails/EntityAttribute";
 export function EdgeSearchResult({ edge }: { edge: Edge }) {
   const [expanded, setExpanded] = useState(false);
   const displayEdge = useDisplayEdgeFromEdge(edge);
-  const sourceVertex = useDisplayForEdgeVertex(displayEdge.source);
-  const targetVertex = useDisplayForEdgeVertex(displayEdge.target);
-
-  const addToGraph = useAddEdgeToGraph(edge);
-  const removeFromGraph = useRemoveEdgeFromGraph(edge.id);
-  const hasBeenAdded = useHasEdgeBeenAddedToGraph(edge.id);
+  const source = useDisplayVertexFromFragment(
+    displayEdge.source.id,
+    displayEdge.source.types
+  );
+  const target = useDisplayVertexFromFragment(
+    displayEdge.target.id,
+    displayEdge.target.types
+  );
 
   return (
     <div
@@ -54,36 +49,11 @@ export function EdgeSearchResult({ edge }: { edge: Edge }) {
         </div>
         <EdgeRow
           edge={displayEdge}
-          source={sourceVertex}
-          target={targetVertex}
+          source={source}
+          target={target}
           className="grow"
         />
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div className="flex size-8 shrink-0 items-center justify-center">
-              {hasBeenAdded ? (
-                <Button
-                  icon={<MinusCircleIcon />}
-                  variant="text"
-                  onClick={stopPropagation(removeFromGraph)}
-                >
-                  <span className="sr-only">Remove edge from view</span>
-                </Button>
-              ) : (
-                <Button
-                  icon={<PlusCircleIcon />}
-                  variant="text"
-                  onClick={stopPropagation(addToGraph)}
-                >
-                  <span className="sr-only">Add edge to view</span>
-                </Button>
-              )}
-            </div>
-          </TooltipTrigger>
-          <TooltipContent>
-            {hasBeenAdded ? "Remove edge from view" : "Add edge to view"}
-          </TooltipContent>
-        </Tooltip>
+        <AddOrRemoveButton edge={edge} />
       </div>
       <div className="border-background-secondary px-8 transition-all group-data-[expanded=false]:h-0 group-data-[expanded=true]:h-auto group-data-[expanded=true]:border-t">
         <ul>
@@ -100,27 +70,36 @@ export function EdgeSearchResult({ edge }: { edge: Edge }) {
   );
 }
 
-/**
- * Creates a fragment vertex in order to get a DisplayVertex instance for the
- * edge vertex.
- *
- * NOTE: This should be replaced by logic that fetches the full vertex details.
- */
-function useDisplayForEdgeVertex(
-  edgeVertex: DisplayEdge["source"]
-): DisplayVertex {
-  // TODO: Fetch the vertex details to display the proper display name in the EdgeRow
-  const fragment: Vertex = {
-    entityType: "vertex",
-    id: edgeVertex.id,
-    type: edgeVertex.types[0] ?? "",
-    types: edgeVertex.types,
-    attributes: {},
-    __isFragment: true,
-  };
-  const result = useDisplayVertexFromVertex(fragment);
-  return {
-    ...result,
-    displayName: edgeVertex.displayId,
-  };
+function AddOrRemoveButton({ edge, ...props }: ButtonProps & { edge: Edge }) {
+  const mutation = useAddToGraphMutation();
+  const removeFromGraph = useRemoveEdgeFromGraph(edge.id);
+  const hasBeenAdded = useHasEdgeBeenAddedToGraph(edge.id);
+
+  if (hasBeenAdded) {
+    return (
+      <IconButton
+        icon={<MinusCircleIcon />}
+        variant="text"
+        className="rounded-full"
+        size="small"
+        onClick={stopPropagation(removeFromGraph)}
+        tooltipText="Remove edge from view"
+        {...props}
+      />
+    );
+  }
+
+  return (
+    <IconButton
+      variant="text"
+      className="rounded-full"
+      size="small"
+      onClick={stopPropagation(() => mutation.mutate({ edges: [edge] }))}
+      disabled={mutation.isPending}
+      tooltipText="Add edge to view"
+      {...props}
+    >
+      {mutation.isPending ? <Spinner /> : <PlusCircleIcon />}
+    </IconButton>
+  );
 }

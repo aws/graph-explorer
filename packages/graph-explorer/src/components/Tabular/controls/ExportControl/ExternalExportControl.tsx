@@ -1,6 +1,5 @@
 import { saveAs } from "file-saver";
 import { useCallback, useState } from "react";
-import { Row } from "react-table";
 import {
   Button,
   Checkbox,
@@ -15,21 +14,21 @@ import {
 import { TrayArrowIcon } from "@/components/icons";
 import { TabularInstance } from "@/components/Tabular/helpers/tableInstanceToTabularInstance";
 
-import transformToCsv from "./transfomerToCsv";
-import transformToJson from "./transfomerToJson";
+import { transformToCsv } from "./transformToCsv";
+import { transformToJson } from "./transformToJson";
 import { toCsvFileData, toJsonFileData } from "@/utils/fileData";
 
 type ExportControlProps<T extends Record<string, unknown>> = {
-  omittedColumnsIds?: string[];
   instance: TabularInstance<T>;
 };
 
 export function ExternalExportControl<T extends Record<string, unknown>>({
-  omittedColumnsIds,
   instance,
 }: ExportControlProps<T>) {
+  const [opened, setOpened] = useState(false);
+
   return (
-    <Popover>
+    <Popover open={opened} onOpenChange={open => setOpened(open)}>
       <PopoverTrigger asChild>
         <IconButton
           variant="text"
@@ -40,7 +39,7 @@ export function ExternalExportControl<T extends Record<string, unknown>>({
       <PopoverContent side="right" className="w-72">
         <ExportOptionsModal
           instance={instance}
-          omittedColumnsIds={omittedColumnsIds}
+          onClose={() => setOpened(false)}
         />
       </PopoverContent>
     </Popover>
@@ -49,67 +48,66 @@ export function ExternalExportControl<T extends Record<string, unknown>>({
 
 function ExportOptionsModal<T extends Record<string, unknown>>({
   instance,
-  omittedColumnsIds,
-}: ExportControlProps<T>) {
+  onClose,
+}: ExportControlProps<T> & { onClose: () => void }) {
   const { rows, data, page, columns, columnOrder, visibleColumns } = instance;
   const [format, setFormat] = useState("csv");
   const [name, setName] = useState<string>("");
   const [options, setOptions] = useState<Record<string, boolean>>({});
   const [selectedColumns, setSelectedColumns] = useState(
     columnOrder.reduce<Record<string, boolean>>((init, col) => {
-      init[col] = !omittedColumnsIds?.includes(col) && visibleColumns[col];
+      init[col] = visibleColumns[col];
       return init;
     }, {})
   );
 
   const onExport = useCallback(() => {
-    let currentDataSource: readonly T[] | Row<T>[] = data;
+    // Filter down to only the columns that are selected
+    const columnsToExport = Object.entries(selectedColumns)
+      .filter(([, isSelected]) => isSelected)
+      .map(([id]) => columns.find(c => c.instance.id === id))
+      .filter(c => c != null);
 
-    // Rows are filtered data
-    if (options["include-filters"]) {
-      currentDataSource = rows;
-    }
+    // Map the data from the rows, if needed
+    const dataToExport = (() => {
+      // Rows are filtered data
+      if (options["include-filters"]) {
+        return rows.map(r => r.original);
+      }
 
-    // Page contains only the visible page
-    if (options["only-page"]) {
-      currentDataSource = page;
-    }
+      // Page contains only the visible page
+      if (options["only-page"]) {
+        return page.map(r => r.original);
+      }
+
+      // Unfiltered data
+      return data;
+    })();
 
     const exportName = name || `export-${new Date().getTime()}`;
-    const exportableColumns = columns.filter(column =>
-      omittedColumnsIds ? !omittedColumnsIds.includes(column.instance.id) : true
-    );
-    if (format === "csv") {
-      const csvData = transformToCsv(
-        currentDataSource,
-        selectedColumns,
-        exportableColumns
-      );
 
+    if (format === "csv") {
+      const csvData = transformToCsv(dataToExport, columnsToExport);
       const fileToSave = toCsvFileData(csvData);
       saveAs(fileToSave, `${exportName.replace(/\.csv$/i, "")}.${format}`);
-
-      return;
+    } else if (format === "json") {
+      const jsonData = transformToJson(dataToExport, columnsToExport);
+      const fileToSave = toJsonFileData(jsonData);
+      saveAs(fileToSave, `${exportName.replace(/\.json$/i, "")}.${format}`);
     }
 
-    const jsonData = transformToJson(
-      currentDataSource,
-      selectedColumns,
-      exportableColumns
-    );
-
-    const fileToSave = toJsonFileData(jsonData);
-    saveAs(fileToSave, `${exportName.replace(/\.json$/i, "")}.${format}`);
+    // Closes the popover
+    onClose();
   }, [
-    data,
-    options,
-    name,
-    format,
-    columns,
     selectedColumns,
+    options,
     rows,
     page,
-    omittedColumnsIds,
+    data,
+    name,
+    format,
+    onClose,
+    columns,
   ]);
 
   return (
@@ -118,9 +116,8 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
         <div className="text-base font-medium">Export columns</div>
         <div className="flex flex-col gap-2">
           {columnOrder.map(columnId =>
-            omittedColumnsIds?.includes(columnId) ||
             !visibleColumns[columnId] ? null : (
-              <Label key={columnId}>
+              <Label key={columnId} className="text-text-primary">
                 <Checkbox
                   aria-label={`choose ${columnId}`}
                   checked={selectedColumns[columnId]}
@@ -141,7 +138,7 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
       <div className="space-y-3">
         <div className="text-base font-medium">Options</div>
         <div className="flex flex-col gap-2">
-          <Label>
+          <Label className="text-text-primary">
             <Checkbox
               aria-label="Keep filtering and sorting"
               checked={options["include-filters"]}
@@ -154,7 +151,7 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
             />
             Keep filtering and sorting
           </Label>
-          <Label>
+          <Label className="text-text-primary">
             <Checkbox
               aria-label="Only current page"
               checked={options["only-page"]}
