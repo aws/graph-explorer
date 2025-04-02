@@ -43,7 +43,10 @@ export async function edgeDetails(
   const edge = entities.edges.length > 0 ? entities.edges[0] : null;
   if (!edge) {
     logger.warn("Edge not found", request.edgeId);
+    return { edge: null };
   }
 
+  // Always false for edgeDetails query, even if the edge has no properties
+  edge.__isFragment = false;
   return { edge };
 }

@@ -7,8 +7,12 @@
 - **Added** ability to restore the graph from the previous session
   ([#826](https://github.com/aws/graph-explorer/pull/826),
   [#840](https://github.com/aws/graph-explorer/pull/840))
+- **Added** ability to see full error details from errors in the UI
+  ([#858](https://github.com/aws/graph-explorer/pull/858))
 - **Added** query editor for Gremlin connections
-  ([#850](https://github.com/aws/graph-explorer/pull/850),
+  ([#848](https://github.com/aws/graph-explorer/pull/848),
+  [#853](https://github.com/aws/graph-explorer/pull/853),
+  [#850](https://github.com/aws/graph-explorer/pull/850),
   [#843](https://github.com/aws/graph-explorer/pull/843),
   [#842](https://github.com/aws/graph-explorer/pull/842),
   [#839](https://github.com/aws/graph-explorer/pull/839),
@@ -18,6 +22,8 @@
   ([#828](https://github.com/aws/graph-explorer/pull/828))
 - **Updated** namespaces sidebar to use tabs instead of dropdown
   ([#830](https://github.com/aws/graph-explorer/pull/830))
+- **Fixed** issue with table exports
+  ([#860](https://github.com/aws/graph-explorer/pull/860))
 - **Fixed** issue with long node titles or descriptions pushing the "add to
   graph" button off the screen
   ([#824](https://github.com/aws/graph-explorer/pull/824))

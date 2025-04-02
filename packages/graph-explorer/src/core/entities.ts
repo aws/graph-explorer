@@ -40,11 +40,11 @@ export type Vertex = {
    * Sometimes the vertex response does not include the properties, so this flag
    * indicates that another query must be executed to get the properties.
    */
-  __isFragment?: boolean;
+  __isFragment: boolean;
   /**
    * Internal flag to mark the resource as blank node in RDF.
    */
-  __isBlank?: boolean;
+  __isBlank: boolean;
 };
 
 export type Edge = {
@@ -91,7 +91,7 @@ export type Edge = {
    * Sometimes the edge response does not include the properties, so this flag
    * indicates that another query must be executed to get the properties.
    */
-  __isFragment?: boolean;
+  __isFragment: boolean;
 };
 
 export type Entities = {

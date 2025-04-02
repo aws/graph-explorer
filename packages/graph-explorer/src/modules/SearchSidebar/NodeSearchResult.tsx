@@ -1,18 +1,17 @@
 import { useDisplayVertexFromVertex, Vertex } from "@/core";
 import {
-  Button,
+  ButtonProps,
+  IconButton,
+  Spinner,
   stopPropagation,
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
   VertexRow,
 } from "@/components";
 import {
-  useAddVertexToGraph,
+  useAddToGraphMutation,
   useHasVertexBeenAddedToGraph,
   useRemoveNodeFromGraph,
+  useVertexDetailsQuery,
 } from "@/hooks";
-import { cn } from "@/utils";
 import {
   ChevronRightIcon,
   MinusCircleIcon,
@@ -23,17 +22,14 @@ import EntityAttribute from "../EntityDetails/EntityAttribute";
 
 export function NodeSearchResult({ node }: { node: Vertex }) {
   const [expanded, setExpanded] = useState(false);
-  const displayNode = useDisplayVertexFromVertex(node);
 
-  const addToGraph = useAddVertexToGraph(node);
-  const removeFromGraph = useRemoveNodeFromGraph(node.id);
-  const hasBeenAdded = useHasVertexBeenAddedToGraph(node.id);
+  const { data: detailsResponse } = useVertexDetailsQuery(node.id);
+  const preferredNode = detailsResponse?.vertex ?? node;
+  const displayNode = useDisplayVertexFromVertex(preferredNode);
 
   return (
     <div
-      className={cn(
-        "bg-background-default group w-full overflow-hidden transition-all"
-      )}
+      className="bg-background-default group w-full overflow-hidden transition-all"
       data-expanded={expanded}
     >
       <div
@@ -44,32 +40,7 @@ export function NodeSearchResult({ node }: { node: Vertex }) {
           <ChevronRightIcon className="text-primary-dark/50 size-5 transition-transform duration-200 ease-in-out group-data-[expanded=true]:rotate-90" />
         </div>
         <VertexRow vertex={displayNode} className="grow" />
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div className="flex size-8 shrink-0 items-center justify-center">
-              {hasBeenAdded ? (
-                <Button
-                  icon={<MinusCircleIcon />}
-                  variant="text"
-                  onClick={stopPropagation(removeFromGraph)}
-                >
-                  <span className="sr-only">Remove node from view</span>
-                </Button>
-              ) : (
-                <Button
-                  icon={<PlusCircleIcon />}
-                  variant="text"
-                  onClick={stopPropagation(addToGraph)}
-                >
-                  <span className="sr-only">Add node to view</span>
-                </Button>
-              )}
-            </div>
-          </TooltipTrigger>
-          <TooltipContent>
-            {hasBeenAdded ? "Remove node from view" : "Add node to view"}
-          </TooltipContent>
-        </Tooltip>
+        <AddOrRemoveButton vertex={preferredNode} />
       </div>
       <div className="border-background-secondary px-8 transition-all group-data-[expanded=false]:h-0 group-data-[expanded=true]:h-auto group-data-[expanded=true]:border-t">
         <ul>
@@ -83,5 +54,42 @@ export function NodeSearchResult({ node }: { node: Vertex }) {
         </ul>
       </div>
     </div>
+  );
+}
+
+function AddOrRemoveButton({
+  vertex,
+  ...props
+}: ButtonProps & { vertex: Vertex }) {
+  const mutation = useAddToGraphMutation();
+  const removeFromGraph = useRemoveNodeFromGraph(vertex.id);
+  const hasBeenAdded = useHasVertexBeenAddedToGraph(vertex.id);
+
+  if (hasBeenAdded) {
+    return (
+      <IconButton
+        icon={<MinusCircleIcon />}
+        variant="text"
+        className="rounded-full"
+        size="small"
+        onClick={stopPropagation(removeFromGraph)}
+        tooltipText="Remove node from view"
+        {...props}
+      />
+    );
+  }
+
+  return (
+    <IconButton
+      variant="text"
+      className="rounded-full"
+      size="small"
+      onClick={stopPropagation(() => mutation.mutate({ vertices: [vertex] }))}
+      disabled={mutation.isPending}
+      tooltipText="Add node to view"
+      {...props}
+    >
+      {mutation.isPending ? <Spinner /> : <PlusCircleIcon />}
+    </IconButton>
   );
 }

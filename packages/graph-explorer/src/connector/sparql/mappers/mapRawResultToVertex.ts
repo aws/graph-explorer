@@ -1,15 +1,13 @@
-import { createVertexId, Vertex } from "@/core";
+import { createVertex } from "@/core";
 import { RawResult } from "../types";
 
-const mapRawResultToVertex = (rawResult: RawResult): Vertex => {
-  return {
-    entityType: "vertex",
-    id: createVertexId(rawResult.uri),
-    type: rawResult.class,
+const mapRawResultToVertex = (rawResult: RawResult) => {
+  return createVertex({
+    id: rawResult.uri,
     types: [rawResult.class],
     attributes: rawResult.attributes,
-    __isBlank: rawResult.isBlank,
-  };
+    isBlankNode: rawResult.isBlank,
+  });
 };
 
 export default mapRawResultToVertex;

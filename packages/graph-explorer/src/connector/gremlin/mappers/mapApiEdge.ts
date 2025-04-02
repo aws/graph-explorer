@@ -1,30 +1,33 @@
-import { createEdgeId, createVertexId, type Edge } from "@/core";
+import { createEdge } from "@/core";
 import type { GEdge } from "../types";
 import parseEdgePropertiesValues from "./parseEdgePropertiesValues";
 
 import { extractRawId } from "./extractRawId";
 
-const mapApiEdge = (apiEdge: GEdge): Edge => {
-  // TODO: Is this problematic for edges that naturally have no properties? Is
-  // there another way to tell if the Edge actually has zero properties?
-  const isFragment = apiEdge["@value"].properties == null;
-
+export default function mapApiEdge(apiEdge: GEdge) {
   // Since Gremlin does not natively support multi-label nodes, we need to
   // extract the individual labels by splitting the string
   const outVLabels = apiEdge["@value"].outVLabel.split("::");
   const inVLabels = apiEdge["@value"].inVLabel.split("::");
 
-  return {
-    entityType: "edge",
-    id: createEdgeId(extractRawId(apiEdge["@value"].id)),
-    type: apiEdge["@value"].label,
-    source: createVertexId(extractRawId(apiEdge["@value"].outV)),
-    sourceTypes: outVLabels,
-    target: createVertexId(extractRawId(apiEdge["@value"].inV)),
-    targetTypes: inVLabels,
-    attributes: parseEdgePropertiesValues(apiEdge["@value"].properties || {}),
-    __isFragment: isFragment,
-  };
-};
+  // If the properties are null then the edge is a fragment, which will cause a
+  // fetch for the full edge details
+  const attributes =
+    apiEdge["@value"].properties != null
+      ? parseEdgePropertiesValues(apiEdge["@value"].properties)
+      : undefined;
 
-export default mapApiEdge;
+  return createEdge({
+    id: extractRawId(apiEdge["@value"].id),
+    type: apiEdge["@value"].label,
+    source: {
+      id: extractRawId(apiEdge["@value"].outV),
+      types: outVLabels,
+    },
+    target: {
+      id: extractRawId(apiEdge["@value"].inV),
+      types: inVLabels,
+    },
+    attributes,
+  });
+}
