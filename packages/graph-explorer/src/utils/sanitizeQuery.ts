@@ -7,3 +7,10 @@ export function query(
 ) {
   return dedent(literals, ...placeholders).replace(/^\s*\n/gm, "");
 }
+
+export function indentLinesBeyondFirst(str: string, indent: string) {
+  return str
+    .split("\n")
+    .map((line, index) => (index > 0 ? indent + line : line))
+    .join("\n");
+}

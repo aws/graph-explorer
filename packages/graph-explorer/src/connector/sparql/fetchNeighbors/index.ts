@@ -1,134 +1,12 @@
-import groupBy from "lodash/groupBy";
-import { Edge, Vertex, VertexId } from "@/core";
 import {
   toMappedQueryResults,
   type NeighborsResponse,
 } from "@/connector/useGEFetchTypes";
-import mapIncomingToEdge, {
-  IncomingPredicate,
-  isIncomingPredicate,
-} from "../mappers/mapIncomingToEdge";
-import mapOutgoingToEdge, {
-  OutgoingPredicate,
-} from "../mappers/mapOutgoingToEdge";
-import mapRawResultToVertex from "../mappers/mapRawResultToVertex";
-import oneHopNeighborsTemplate from "./oneHopNeighborsTemplate";
-import subjectPredicatesTemplate from "./subjectPredicatesTemplate";
-import {
-  RawResult,
-  RawValue,
-  SparqlFetch,
-  SPARQLNeighborsRequest,
-} from "../types";
+import { oneHopNeighborsTemplate } from "./oneHopNeighborsTemplate";
+
+import { SparqlFetch, SPARQLNeighborsRequest } from "../types";
 import { logger } from "@/utils";
-
-type RawOneHopNeighborsResponse = {
-  results: {
-    bindings: Array<{
-      subject: RawValue;
-      pred: RawValue;
-      value: RawValue;
-      subjectClass: RawValue;
-      pToSubject?: RawValue;
-      pFromSubject?: RawValue;
-    }>;
-  };
-};
-
-type RawNeighborsPredicatesResponse = {
-  results: {
-    bindings: Array<OutgoingPredicate | IncomingPredicate>;
-  };
-};
-
-const isBlank = (result: RawValue) => {
-  return result.type === "bnode";
-};
-
-const fetchOneHopNeighbors = async (
-  sparqlFetch: SparqlFetch,
-  req: SPARQLNeighborsRequest
-) => {
-  const oneHopTemplate = oneHopNeighborsTemplate(req);
-  logger.log("[SPARQL Explorer] Fetching oneHopNeighbors...", req);
-  const data = await sparqlFetch<RawOneHopNeighborsResponse>(oneHopTemplate);
-
-  const groupBySubject = groupBy(
-    data.results.bindings,
-    result => result.subject.value
-  );
-
-  const mappedResults: Record<string, RawResult> = {};
-  const bNodesEdges: Edge[] = [];
-
-  Object.entries(groupBySubject).forEach(([uri, result]) => {
-    // Create outgoing predicates to blank nodes
-    if (isBlank(result[0].subject) && result[0].pToSubject) {
-      const edge = mapOutgoingToEdge(req.resourceURI, req.resourceClasses, {
-        subject: result[0].subject,
-        subjectClass: result[0].subjectClass,
-        predToSubject: result[0].pToSubject,
-      });
-      bNodesEdges.push(edge);
-    }
-
-    // Create incoming predicates from blank nodes
-    if (isBlank(result[0].subject) && result[0].pFromSubject) {
-      const edge = mapIncomingToEdge(req.resourceURI, req.resourceClasses, {
-        subject: result[0].subject,
-        subjectClass: result[0].subjectClass,
-        predFromSubject: result[0].pFromSubject,
-      });
-      bNodesEdges.push(edge);
-    }
-
-    mappedResults[uri] = {
-      uri: uri,
-      class: result[0].subjectClass.value,
-      isBlank: isBlank(result[0].subject),
-      attributes: {},
-    };
-
-    result.forEach(attr => {
-      mappedResults[uri].attributes[attr.pred.value] = attr.value.value;
-    });
-  });
-
-  const vertices = Object.values(mappedResults).map(result => {
-    return mapRawResultToVertex(result);
-  });
-
-  return {
-    vertices,
-    bNodesEdges,
-  };
-};
-
-export const fetchNeighborsPredicates = async (
-  sparqlFetch: SparqlFetch,
-  resourceURI: VertexId,
-  resourceClasses: Vertex["types"],
-  subjectURIs: VertexId[]
-) => {
-  const template = subjectPredicatesTemplate({
-    resourceURI,
-    subjectURIs,
-  });
-
-  logger.log("[SPARQL Explorer] Fetching neighbor predicates...", {
-    resourceURI,
-    resourceClasses,
-    subjectURIs,
-  });
-  const response = await sparqlFetch<RawNeighborsPredicatesResponse>(template);
-  return response.results.bindings.map(result => {
-    if (isIncomingPredicate(result)) {
-      return mapIncomingToEdge(resourceURI, resourceClasses, result);
-    }
-
-    return mapOutgoingToEdge(resourceURI, resourceClasses, result);
-  });
-};
+import { mapToResults, RawOneHopNeighborsResponse } from "./mapToResults";
 
 /**
  * Given a subject URI, it returns a set of subjects (with their properties)
@@ -144,26 +22,20 @@ export const fetchNeighborsPredicates = async (
  *
  * It does not return neighbors counts.
  */
-const fetchNeighbors = async (
+export default async function fetchNeighbors(
   sparqlFetch: SparqlFetch,
   req: SPARQLNeighborsRequest
-): Promise<NeighborsResponse> => {
-  const { vertices, bNodesEdges } = await fetchOneHopNeighbors(
-    sparqlFetch,
-    req
-  );
-  const subjectsURIs = vertices.map(v => v.id);
-  const edges = await fetchNeighborsPredicates(
-    sparqlFetch,
-    req.resourceURI,
-    req.resourceClasses,
-    subjectsURIs
-  );
+): Promise<NeighborsResponse> {
+  const oneHopTemplate = oneHopNeighborsTemplate(req);
+  logger.log("[SPARQL Explorer] Fetching oneHopNeighbors...", req);
+  const data = await sparqlFetch<RawOneHopNeighborsResponse>(oneHopTemplate);
+  logger.log("[SPARQL Explorer] Fetched oneHopNeighbors", data);
+
+  const results = mapToResults(data.results.bindings);
 
   return toMappedQueryResults({
-    vertices,
-    edges: [...edges, ...bNodesEdges],
+    // Filter out the source vertex since it is already in the graph and this one is missing the attributes
+    vertices: results.vertices.filter(v => v.id !== req.resourceURI),
+    edges: results.edges,
   });
-};
-
-export default fetchNeighbors;
+}

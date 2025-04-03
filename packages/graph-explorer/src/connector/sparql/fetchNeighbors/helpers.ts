@@ -1,4 +1,6 @@
+import dedent from "dedent";
 import { SPARQLCriterion } from "../types";
+import { indentLinesBeyondFirst } from "@/utils";
 
 export const getSubjectClasses = (subjectClasses: string[]) => {
   if (!subjectClasses?.length) {
@@ -18,16 +20,17 @@ export const getFilters = (filterCriteria: SPARQLCriterion[]) => {
     return "";
   }
 
-  let filter = "FILTER(";
-  filterCriteria.forEach((criterion, cI) => {
-    filter += `(?sPred=<${criterion.predicate}> && regex(str(?sValue), "${criterion.object}", "i"))`;
+  const filtersTemplate = filterCriteria
+    .map(
+      c =>
+        `(?sPred=<${c.predicate}> && regex(str(?sValue), "${c.object}", "i"))`
+    )
+    .join(" ||\n");
 
-    if (cI < filterCriteria.length - 1) {
-      filter += " || ";
-    }
-  });
-  filter += ")";
-  return filter;
+  return dedent`
+  FILTER (
+    ${indentLinesBeyondFirst(filtersTemplate, "    ")}
+  )`;
 };
 
 export const getLimit = (limit?: number, offset?: number) => {

@@ -22,21 +22,34 @@ import { idParam } from "../idParam";
  */
 export default function neighborsCountTemplate({
   resourceURI,
-  limit = 0,
+  limit,
 }: SPARQLNeighborsCountRequest) {
+  const resourceTemplate = idParam(resourceURI);
+  const limitTemplate = limit ? `LIMIT ${limit}` : "";
+
   return query`
     # Count neighbors by class which are related with the given subject URI
-    SELECT ?class (COUNT(?class) AS ?count) {
-      ?subject a ?class {
-        SELECT DISTINCT ?subject ?class {
-          ?subject a ?class .
-          { ?subject ?p ${idParam(resourceURI)} }
-          UNION
-          { ${idParam(resourceURI)} ?p ?subject }
-        }
-        ${limit > 0 ? `LIMIT ${limit}` : ""}
+    SELECT ?class (COUNT(DISTINCT ?neighbor) as ?count)
+    WHERE {
+      BIND(${resourceTemplate} AS ?source)
+      {
+        # Incoming neighbors
+        ?neighbor ?pIncoming ?source . 
+      }
+      UNION
+      { 
+        # Outgoing neighbors
+        ?source ?pOutgoing ?neighbor . 
+      }
+
+      ?neighbor a ?class .
+
+      # Remove any classes from the list of neighbors
+      FILTER NOT EXISTS {
+        ?anySubject a ?neighbor .
       }
     }
     GROUP BY ?class
+    ${limitTemplate}
   `;
 }
