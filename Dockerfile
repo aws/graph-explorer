@@ -35,7 +35,7 @@ WORKDIR /graph-explorer
 # Keeping all the RUN commands on a single line reduces the number of layers and,
 # as a result, significantly reduces the final image size.
 RUN yum update -y && \
-    yum install -y tar gzip git findutils openssl && \
+    yum install -y tar git findutils openssl && \
     mkdir -p $NVM_DIR && \
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash && \
     source $NVM_DIR/nvm.sh && \
