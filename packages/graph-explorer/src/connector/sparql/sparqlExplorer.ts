@@ -120,6 +120,7 @@ export function createSparqlExplorer(
           predicate: c.name,
           object: c.value,
         })),
+        excludedVertices: req.excludedVertices,
         limit: req.limit,
         offset: req.offset,
       };

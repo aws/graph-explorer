@@ -112,23 +112,29 @@ function criterionTemplate(criterion: Criterion): string {
  *   { name: "longest", dataType: "Int", operator: "gt", value: 10000 },
  *   { name: "country", dataType: "String", operator: "like", value: "ES" }
  * ]
+ * excludedVertices = new Set(["256"])
  * limit = 10
  * offset = 0
  *
  * g.V("124")
- *  .project("vertices", "edges")
- *  .by(
- *    both().hasLabel("airport").and(
- *      has("longest", gt(10000)),
- *      has("country", containing("ES"))
- *    ).dedup().range(0,10).fold()
- *  )
- *  .by(
- *    bothE("route").dedup().fold()
- *  )
+ *  .both()
+ *  .hasLabel("airport").and(has("longest",gt(10000)), has("country",containing("ES")))
+ *  .filter(__.not(__.hasId("256")))
+ *  .dedup()
+ *  .order().by(id())
+ *  .range(0, 10)
+ *  .as("v")
+ *  .project("vertex", "edges")
+ *    .by()
+ *    .by(
+ *      __.select("v").bothE()
+ *        .where(otherV().id().is("124"))
+ *        .dedup().fold()
+ *    )
  */
 export default function oneHopTemplate({
   vertexId,
+  excludedVertices = new Set(),
   filterByVertexTypes = [],
   edgeTypes = [],
   filterCriteria = [],
@@ -158,9 +164,24 @@ export default function oneHopTemplate({
 
   const edgeTypesTemplate = edgeTypes.map(type => `"${type}"`).join(",");
 
+  const excludedList = excludedVertices
+    .values()
+    .map(id => idParam(id))
+    .toArray()
+    .join(",");
+  const excludedTemplate = excludedList
+    ? `.filter(__.not(__.hasId(${excludedList})))`
+    : ``;
+
   return query`
     g.V(${idTemplate})
-      .both()${nodeFiltersTemplate}.dedup().order().by(id())${range}.as("v")
+      .both()
+      ${nodeFiltersTemplate}
+      ${excludedTemplate}
+      .dedup()
+      .order().by(id())
+      ${range}
+      .as("v")
       .project("vertex", "edges")
         .by()
         .by(

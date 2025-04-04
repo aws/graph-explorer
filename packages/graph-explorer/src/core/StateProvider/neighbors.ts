@@ -6,7 +6,7 @@ import {
   useAllNeighborCountsQuery,
   useUpdateNodeCountsQuery,
 } from "@/hooks/useUpdateNodeCounts";
-import { useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { neighborsCountQuery } from "@/connector";
 import { explorerSelector } from "../connector";
@@ -233,6 +233,23 @@ const fetchedNeighborsSelector = selectorFamily({
       return neighbors;
     },
 });
+
+export function useFetchedNeighborsCallback() {
+  const nodes = useRecoilValue(nodesAtom);
+  const edges = useRecoilValue(edgesAtom);
+
+  return useCallback(
+    (id: VertexId) =>
+      new Set(
+        edges
+          .values()
+          .filter(edge => edge.source === id || edge.target === id)
+          .filter(edge => nodes.has(edge.source) && nodes.has(edge.target))
+          .map(edge => (edge.source === id ? edge.target : edge.source))
+      ),
+    [nodes, edges]
+  );
+}
 
 const allFetchedNeighborsSelector = selectorFamily({
   key: "all-fetched-neighbors",

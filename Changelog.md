@@ -29,6 +29,8 @@
   ([#830](https://github.com/aws/graph-explorer/pull/830))
 - **Fixed** issues with filtered neighbor expansion and neighbor counts in RDF
   databases ([#870](https://github.com/aws/graph-explorer/pull/870))
+- **Fixed** issue where double click expansion was inconsistent
+  ([#841](https://github.com/aws/graph-explorer/pull/841))
 - **Fixed** issue with table exports
   ([#860](https://github.com/aws/graph-explorer/pull/860))
 - **Fixed** issue with long node titles or descriptions pushing the "add to

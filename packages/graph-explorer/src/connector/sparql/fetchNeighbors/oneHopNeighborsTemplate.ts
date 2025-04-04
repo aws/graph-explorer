@@ -83,6 +83,7 @@ export function oneHopNeighborsTemplate({
   resourceURI,
   subjectClasses = [],
   filterCriteria = [],
+  excludedVertices = new Set(),
   limit = 0,
   offset = 0,
 }: SPARQLNeighborsRequest): string {
@@ -118,6 +119,15 @@ export function oneHopNeighborsTemplate({
   const limitTemplate = getLimit(limit, offset);
   const rdfTypeUriTemplate = idParam(rdfTypeUri);
 
+  // Excluded vertices
+  const excludedVerticesTemplate = excludedVertices.size
+    ? query`FILTER NOT EXISTS {
+        VALUES ?neighbor {
+          ${excludedVertices.values().map(idParam).toArray().join(" ")}
+        }
+      }`
+    : "";
+
   return query`
     SELECT DISTINCT ?subject ?p ?value
     WHERE {
@@ -139,6 +149,7 @@ export function oneHopNeighborsTemplate({
           ${classBindingTemplate}
           ${valueBindingTemplate}
           ${filterTemplate}
+          ${excludedVerticesTemplate}
           # Remove any classes from the list of neighbors
           FILTER NOT EXISTS {
             ?anySubject a ?neighbor .

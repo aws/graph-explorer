@@ -6,7 +6,6 @@ import {
   type RenderedVertex,
   type RenderedVertexId,
   useDisplayVertexTypeConfigs,
-  useNeighborsCallback,
   useRenderedEdges,
   useRenderedVertices,
 } from "@/core";
@@ -153,20 +152,16 @@ export default function GraphViewer({
   const getNodeBadges = useNodeBadges();
 
   const { expandNode } = useExpandNode();
-  const neighborCallback = useNeighborsCallback();
   const onNodeDoubleClick: ElementEventCallback<RenderedVertex["data"]> =
     useCallback(
-      async (_, vertex) => {
+      (_, vertex) => {
         const vertexId = getVertexIdFromRenderedVertexId(vertex.id);
-        const neighborCount = await neighborCallback(vertexId);
-        const offset = neighborCount ? neighborCount.fetched : undefined;
 
         expandNode(vertexId, vertex.types, {
           limit: 10,
-          offset,
         });
       },
-      [expandNode, neighborCallback]
+      [expandNode]
     );
 
   const [layout, setLayout] = useState("F_COSE");

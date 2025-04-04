@@ -23,6 +23,27 @@ describe("OpenCypher > oneHopTemplate", () => {
     );
   });
 
+  it("Should filter out excluded vertices", () => {
+    const template = oneHopTemplate({
+      vertexId: createVertexId("12"),
+      excludedVertices: new Set([createVertexId("256")]),
+    });
+
+    expect(normalize(template)).toEqual(
+      normalize(`
+        MATCH (v)-[e]-(tgt)
+        WHERE ID(v) = "12" AND NOT ID(tgt) IN ["256"]
+        WITH DISTINCT v, tgt 
+        ORDER BY toInteger(ID(tgt)) 
+        MATCH (v)-[e]-(tgt)
+        WITH
+          collect(DISTINCT tgt) AS vObjects,
+          collect({ edge: e, sourceTypes: labels(startNode(e)), targetTypes: labels(endNode(e)) }) AS eObjects
+        RETURN vObjects, eObjects
+      `)
+    );
+  });
+
   it("Should return a template with an offset and limit", () => {
     const template = oneHopTemplate({
       vertexId: createVertexId("12"),
