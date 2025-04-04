@@ -1,12 +1,11 @@
-import globalMockFetch from "@/connector/testUtils/globalMockFetch";
+import { globalMockFetch } from "@/connector/testUtils/globalMockFetch";
 import mockGremlinFetch from "@/connector/testUtils/mockGremlinFetch";
 import fetchNeighborsCount from ".";
 import { createVertexId } from "@/core";
 
 describe("Gremlin > fetchNeighborsCount", () => {
-  beforeEach(globalMockFetch);
-
   it("Should return neighbors counts for node 2018", async () => {
+    globalMockFetch("should-return-neighbors-counts-for-node-123.json");
     const response = await fetchNeighborsCount(mockGremlinFetch(), {
       vertexId: createVertexId("123"),
     });

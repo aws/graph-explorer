@@ -1,12 +1,11 @@
-import globalMockFetch from "@/connector/testUtils/globalMockFetch";
+import { globalMockFetch } from "@/connector/testUtils/globalMockFetch";
 import mockGremlinFetch from "@/connector/testUtils/mockGremlinFetch";
 import fetchNeighbors from ".";
 import { createEdge, createVertex, createVertexId } from "@/core";
 
 describe("Gremlin > fetchNeighbors", () => {
-  beforeEach(globalMockFetch);
-
   it("Should return all neighbors from node 2018", async () => {
+    globalMockFetch("should-return-all-neighbors-from-node-2018.json");
     const expectedVertices = [
       createVertex({
         id: "486",
@@ -189,6 +188,7 @@ describe("Gremlin > fetchNeighbors", () => {
   });
 
   it("Should return filtered neighbors from node 2018", async () => {
+    globalMockFetch("should-return-filtered-neighbors-from-node-2018.json");
     const expectedVertices = [
       createVertex({
         id: "486",

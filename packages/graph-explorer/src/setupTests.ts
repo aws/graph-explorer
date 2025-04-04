@@ -12,6 +12,7 @@ expect.extend(matchers);
 afterEach(() => {
   cleanup();
   vi.unstubAllEnvs();
+  vi.unstubAllGlobals();
 });
 
 beforeEach(() => {
