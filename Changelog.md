@@ -39,7 +39,8 @@
   ([#868](https://github.com/aws/graph-explorer/pull/868))
 - **Updated** dependencies
   ([#827](https://github.com/aws/graph-explorer/pull/827),
-  [#849](https://github.com/aws/graph-explorer/pull/849))
+  [#849](https://github.com/aws/graph-explorer/pull/849),
+  [#866](https://github.com/aws/graph-explorer/pull/866))
 
 ## Release v1.14.1
 
