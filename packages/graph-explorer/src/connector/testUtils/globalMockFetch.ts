@@ -1,7 +1,7 @@
 import { vi } from "vitest";
 
 const GREMLIN = "../gremlin/__mock";
-const RESPONSES_FILES_MAP_NEW = {
+const RESPONSES_FILES_MAP = {
   "vertices-schema.json": `${GREMLIN}/vertices-schema.json`,
   "vertices-labels-and-counts.json": `${GREMLIN}/vertices-labels-and-counts.json`,
   "edges-schema.json": `${GREMLIN}/edges-schema.json`,
@@ -14,7 +14,7 @@ const RESPONSES_FILES_MAP_NEW = {
   "should-return-filtered-neighbors-from-node-2018-counts.json": `${GREMLIN}/should-return-filtered-neighbors-from-node-2018-counts.json`,
   "should-return-neighbors-counts-for-node-123.json": `${GREMLIN}/should-return-neighbors-counts-for-node-123.json`,
 };
-type FileName = keyof typeof RESPONSES_FILES_MAP_NEW;
+type FileName = keyof typeof RESPONSES_FILES_MAP;
 
 /**
  * Stubs out the fetch function and returns the contents of the given file or files.
@@ -27,7 +27,7 @@ export function globalMockFetch(...fileNames: FileName[]) {
   // Add a response for each file given
   for (const fileName of fileNames) {
     // Respond with the contents of the file
-    const filePath = RESPONSES_FILES_MAP_NEW[fileName];
+    const filePath = RESPONSES_FILES_MAP[fileName];
 
     // Only respond once with this response
     mockFetch.mockImplementationOnce(async () => {
