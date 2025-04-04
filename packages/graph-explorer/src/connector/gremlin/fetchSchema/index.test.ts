@@ -1,12 +1,16 @@
-import globalMockFetch from "@/connector/testUtils/globalMockFetch";
+import { globalMockFetch } from "@/connector/testUtils/globalMockFetch";
 import mockGremlinFetch from "@/connector/testUtils/mockGremlinFetch";
 import fetchSchema from ".";
 import { ClientLoggerConnector } from "@/connector/LoggerConnector";
 
 describe("Gremlin > fetchSchema", () => {
-  beforeEach(globalMockFetch);
-
   it("Should return an inferred schema", async () => {
+    globalMockFetch(
+      "vertices-labels-and-counts.json",
+      "vertices-schema.json",
+      "edges-labels-and-counts.json",
+      "edges-schema.json"
+    );
     const schemaResponse = await fetchSchema(
       mockGremlinFetch(),
       new ClientLoggerConnector()

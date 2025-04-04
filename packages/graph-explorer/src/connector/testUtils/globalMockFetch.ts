@@ -1,39 +1,44 @@
 import { vi } from "vitest";
-import { shortHash } from "./shortHash";
 
 const GREMLIN = "../gremlin/__mock";
-const RESPONSES_FILES_MAP: Record<string, string> = {
-  "6281d1a5": `${GREMLIN}/vertices-schema.json`,
-  "186857e1": `${GREMLIN}/vertices-labels-and-counts.json`,
-  "2c38e2dd": `${GREMLIN}/edges-schema.json`,
-  "7062d2e": `${GREMLIN}/edges-labels-and-counts.json`,
-  "35be2501": `${GREMLIN}/should-return-1-random-node.json`,
-  "4b332677": `${GREMLIN}/should-return-airports-whose-code-matches-with-SFA.json`,
-  "1559ced5": `${GREMLIN}/should-return-all-neighbors-from-node-2018.json`,
-  "37e14b1": `${GREMLIN}/should-return-all-neighbors-from-node-2018-counts.json`,
-  "7afef36": `${GREMLIN}/should-return-filtered-neighbors-from-node-2018.json`,
-  "40a4690b": `${GREMLIN}/should-return-filtered-neighbors-from-node-2018-counts.json`,
-  "59bc2d43": `${GREMLIN}/should-return-neighbors-counts-for-node-123.json`,
+const RESPONSES_FILES_MAP = {
+  "vertices-schema.json": `${GREMLIN}/vertices-schema.json`,
+  "vertices-labels-and-counts.json": `${GREMLIN}/vertices-labels-and-counts.json`,
+  "edges-schema.json": `${GREMLIN}/edges-schema.json`,
+  "edges-labels-and-counts.json": `${GREMLIN}/edges-labels-and-counts.json`,
+  "should-return-1-random-node.json": `${GREMLIN}/should-return-1-random-node.json`,
+  "should-return-airports-whose-code-matches-with-SFA.json": `${GREMLIN}/should-return-airports-whose-code-matches-with-SFA.json`,
+  "should-return-all-neighbors-from-node-2018.json": `${GREMLIN}/should-return-all-neighbors-from-node-2018.json`,
+  "should-return-all-neighbors-from-node-2018-counts.json": `${GREMLIN}/should-return-all-neighbors-from-node-2018-counts.json`,
+  "should-return-filtered-neighbors-from-node-2018.json": `${GREMLIN}/should-return-filtered-neighbors-from-node-2018.json`,
+  "should-return-filtered-neighbors-from-node-2018-counts.json": `${GREMLIN}/should-return-filtered-neighbors-from-node-2018-counts.json`,
+  "should-return-neighbors-counts-for-node-123.json": `${GREMLIN}/should-return-neighbors-counts-for-node-123.json`,
 };
+type FileName = keyof typeof RESPONSES_FILES_MAP;
 
-export default function globalMockFetch() {
-  vi.stubGlobal(
-    "fetch",
-    vi.fn(async (url: string) => {
-      const key = shortHash(url);
-      const filePath = RESPONSES_FILES_MAP[key];
-      if (!filePath) {
-        throw new Error(
-          `Failed to find a response file in the map for key '${key}' and URL '${url}'`,
-          { cause: { url } }
-        );
-      }
+/**
+ * Stubs out the fetch function and returns the contents of the given file or files.
+ *
+ * @param fileNames The file to use for a response. The order of files corresponds to the order of calls to the mock.
+ */
+export function globalMockFetch(...fileNames: FileName[]) {
+  const mockFetch = vi.fn();
+
+  // Add a response for each file given
+  for (const fileName of fileNames) {
+    // Respond with the contents of the file
+    const filePath = RESPONSES_FILES_MAP[fileName];
+
+    // Only respond once with this response
+    mockFetch.mockImplementationOnce(async () => {
       const response = await import(filePath);
       return Promise.resolve({
         json: () => {
           return Promise.resolve(response);
         },
       });
-    })
-  );
+    });
+  }
+
+  vi.stubGlobal("fetch", mockFetch);
 }

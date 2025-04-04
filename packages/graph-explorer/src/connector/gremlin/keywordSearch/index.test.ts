@@ -1,12 +1,11 @@
-import globalMockFetch from "@/connector/testUtils/globalMockFetch";
+import { globalMockFetch } from "@/connector/testUtils/globalMockFetch";
 import mockGremlinFetch from "@/connector/testUtils/mockGremlinFetch";
 import keywordSearch from ".";
 import { createVertexId } from "@/core";
 
 describe("Gremlin > keywordSearch", () => {
-  beforeEach(globalMockFetch);
-
   it("Should return 1 random node", async () => {
+    globalMockFetch("should-return-1-random-node.json");
     const keywordResponse = await keywordSearch(mockGremlinFetch(), {
       limit: 1,
     });
@@ -37,6 +36,7 @@ describe("Gremlin > keywordSearch", () => {
   });
 
   it("Should return airports whose code matches with SFA", async () => {
+    globalMockFetch("should-return-airports-whose-code-matches-with-SFA.json");
     const keywordResponse = await keywordSearch(mockGremlinFetch(), {
       searchTerm: "SFA",
       vertexTypes: ["airport"],
