@@ -33,6 +33,8 @@
   ([#847](https://github.com/aws/graph-explorer/pull/847),
   [#832](https://github.com/aws/graph-explorer/pull/832),
   [#834](https://github.com/aws/graph-explorer/pull/834))
+- **Updated** tests to be less fragile
+  ([865](https://github.com/aws/graph-explorer/pull/865))
 - **Updated** HMR behavior to ignore test files
   ([#835](https://github.com/aws/graph-explorer/pull/835))
 - **Fix** Docker build by not removing gzip
