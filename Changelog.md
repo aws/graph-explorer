@@ -9,8 +9,9 @@
   [#840](https://github.com/aws/graph-explorer/pull/840))
 - **Added** ability to see full error details from errors in the UI
   ([#858](https://github.com/aws/graph-explorer/pull/858))
-- **Added** query editor for Gremlin connections
-  ([#848](https://github.com/aws/graph-explorer/pull/848),
+- **Updated** graph manipulation logic to lay foundations for query editor
+  ([#864](https://github.com/aws/graph-explorer/pull/864),
+  [#848](https://github.com/aws/graph-explorer/pull/848),
   [#853](https://github.com/aws/graph-explorer/pull/853),
   [#850](https://github.com/aws/graph-explorer/pull/850),
   [#843](https://github.com/aws/graph-explorer/pull/843),

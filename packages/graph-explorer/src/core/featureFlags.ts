@@ -22,18 +22,10 @@ export const allowLoggingDbQueryAtom = atom({
   effects: [asyncLocalForageEffect("allowLoggingDbQuery")],
 });
 
-/**  */
-export const showQueryEditorAtom = atom({
-  key: "feature-flag-show-query-editor",
-  default: false,
-  effects: [asyncLocalForageEffect("showQueryEditor")],
-});
-
 export type FeatureFlags = {
   showRecoilStateLogging: boolean;
   showDebugActions: boolean;
   allowLoggingDbQuery: boolean;
-  showQueryEditor: boolean;
 };
 
 export const featureFlagsSelector = selector<FeatureFlags>({
@@ -43,7 +35,6 @@ export const featureFlagsSelector = selector<FeatureFlags>({
       showRecoilStateLogging: get(showRecoilStateLoggingAtom),
       showDebugActions: get(showDebugActionsAtom),
       allowLoggingDbQuery: get(allowLoggingDbQueryAtom),
-      showQueryEditor: get(showQueryEditorAtom),
     } satisfies FeatureFlags;
   },
 });

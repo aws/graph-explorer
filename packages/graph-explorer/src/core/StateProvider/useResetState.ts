@@ -20,8 +20,6 @@ import {
   selectedVertexTypeAtom,
 } from "@/modules/SearchSidebar/useKeywordSearch";
 import { isRestorePreviousSessionAvailableAtom } from "./graphSession";
-import { selectedTabAtom } from "@/modules/SearchSidebar";
-import { queryTextAtom } from "@/modules/SearchSidebar/QuerySearchTabContent";
 
 export default function useResetState() {
   return useRecoilCallback(
@@ -46,8 +44,6 @@ export default function useResetState() {
         reset(selectedVertexTypeAtom);
         reset(selectedAttributeAtom);
         reset(partialMatchAtom);
-        reset(selectedTabAtom);
-        reset(queryTextAtom);
 
         // Previous session
         reset(isRestorePreviousSessionAvailableAtom);

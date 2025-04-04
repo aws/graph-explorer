@@ -103,13 +103,6 @@ export function createOpenCypherExplorer(
         req
       );
     },
-    // eslint-disable-next-line @typescript-eslint/require-await
-    async rawQuery(_req, _options) {
-      remoteLogger.info("[openCypher Explorer] Fetching raw query...");
-      throw new Error(
-        "Raw query functionality is not implemented for openCypher"
-      );
-    },
   } satisfies Explorer;
 }
 
