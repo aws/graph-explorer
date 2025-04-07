@@ -29,27 +29,29 @@ export default function neighborsCountTemplate({
 
   return query`
     # Count neighbors by class which are related with the given subject URI
-    SELECT ?class (COUNT(DISTINCT ?neighbor) as ?count)
-    WHERE {
-      BIND(${resourceTemplate} AS ?source)
-      {
-        # Incoming neighbors
-        ?neighbor ?pIncoming ?source . 
-      }
-      UNION
-      { 
-        # Outgoing neighbors
-        ?source ?pOutgoing ?neighbor . 
-      }
+    SELECT ?class (COUNT(?neighbor) as ?count) {
+      SELECT DISTINCT ?class ?neighbor
+      WHERE {
+        BIND(${resourceTemplate} AS ?source)
+        {
+          # Incoming neighbors
+          ?neighbor ?pIncoming ?source . 
+        }
+        UNION
+        { 
+          # Outgoing neighbors
+          ?source ?pOutgoing ?neighbor . 
+        }
 
-      ?neighbor a ?class .
+        ?neighbor a ?class .
 
-      # Remove any classes from the list of neighbors
-      FILTER NOT EXISTS {
-        ?anySubject a ?neighbor .
+        # Remove any classes from the list of neighbors
+        FILTER NOT EXISTS {
+          ?anySubject a ?neighbor .
+        }
       }
+      ${limitTemplate}
     }
     GROUP BY ?class
-    ${limitTemplate}
   `;
 }
