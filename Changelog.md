@@ -25,6 +25,8 @@
   ([#828](https://github.com/aws/graph-explorer/pull/828))
 - **Updated** namespaces sidebar to use tabs instead of dropdown
   ([#830](https://github.com/aws/graph-explorer/pull/830))
+- **Fixed** issues with filtered neighbor expansion and neighbor counts in RDF
+  databases ([#870](https://github.com/aws/graph-explorer/pull/870))
 - **Fixed** issue with table exports
   ([#860](https://github.com/aws/graph-explorer/pull/860))
 - **Fixed** issue with long node titles or descriptions pushing the "add to
