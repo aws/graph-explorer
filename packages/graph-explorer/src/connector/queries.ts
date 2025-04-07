@@ -24,8 +24,8 @@ export function schemaSyncQuery(
 ) {
   return queryOptions({
     queryKey: ["schema", explorer],
-    queryFn: async () => {
-      let schema = await explorer.fetchSchema();
+    queryFn: async ({ signal }) => {
+      let schema = await explorer.fetchSchema({ signal });
 
       // Update the prefixes for sparql connections
       schema = updateSchemaPrefixes(schema);

@@ -1,12 +1,22 @@
-import { useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { useResolvedConfig } from "@/core/ConfigurationProvider";
 import { useExplorer } from "@/core/connector";
 import useUpdateSchema from "./useUpdateSchema";
-import { useIsFetching, useQuery } from "@tanstack/react-query";
+import { useIsFetching, useQuery, useQueryClient } from "@tanstack/react-query";
 import { schemaSyncQuery } from "@/connector";
 
 export function useIsSyncing() {
   return useIsFetching({ queryKey: ["schema"] }) > 0;
+}
+
+export function useCancelSchemaSync() {
+  const queryClient = useQueryClient();
+  const { replaceSchema } = useUpdateSchema();
+  const explorer = useExplorer();
+  return useCallback(
+    () => queryClient.cancelQueries(schemaSyncQuery(replaceSchema, explorer)),
+    [replaceSchema, queryClient, explorer]
+  );
 }
 
 export function useSchemaSync() {
