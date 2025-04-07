@@ -1,7 +1,6 @@
 import { createEdge } from "@/core";
 import { EdgeDetailsRequest, EdgeDetailsResponse } from "../useGEFetchTypes";
 import {
-  parseEdgeId,
   SparqlFetch,
   sparqlResponseSchema,
   sparqlUriValueSchema,
@@ -10,6 +9,7 @@ import { logger, query } from "@/utils";
 import { z } from "zod";
 import isErrorResponse from "../utils/isErrorResponse";
 import { idParam } from "./idParam";
+import { parseEdgeId } from "./parseEdgeId";
 
 const responseSchema = sparqlResponseSchema(
   z.object({
