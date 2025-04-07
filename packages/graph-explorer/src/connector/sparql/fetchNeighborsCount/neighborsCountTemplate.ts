@@ -9,12 +9,23 @@ import { idParam } from "../idParam";
  * resourceURI = "http://kelvinlawrence.net/air-routes/resource/2018"
  * limit = 10
  *
- * SELECT ?class (COUNT(?class) AS ?count) {
- *   SELECT DISTINCT ?subject ?class {
- *     ?subject a ?class .
- *     { ?subject ?p <http://kelvinlawrence.net/air-routes/resource/2018> }
+ * SELECT ?class (COUNT(?neighbor) as ?count) {
+ *   SELECT DISTINCT ?class ?neighbor
+ *   WHERE {
+ *     BIND(<http://kelvinlawrence.net/air-routes/resource/2018> AS ?source)
+ *     {
+ *       # Incoming neighbors
+ *       ?neighbor ?pIncoming ?source .
+ *     }
  *     UNION
- *     { <http://kelvinlawrence.net/air-routes/resource/2018> ?p ?subject }
+ *     {
+ *       # Outgoing neighbors
+ *       ?source ?pOutgoing ?neighbor .
+ *     }
+ *     ?neighbor a ?class .
+ *     FILTER NOT EXISTS {
+ *       ?anySubject a ?neighbor .
+ *     }
  *   }
  *   LIMIT 10
  * }

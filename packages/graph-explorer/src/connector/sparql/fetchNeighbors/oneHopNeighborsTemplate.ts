@@ -18,39 +18,65 @@ import { getLimit } from "./helpers";
  * limit = 2
  * offset = 0
  *
- * SELECT ?subject ?pred ?value ?subjectClass ?pToSubject ?pFromSubject {
- *   ?subject a     ?subjectClass;
- *            ?pred ?value {
- *     SELECT DISTINCT ?subject ?pToSubject ?pFromSubject {
- *       BIND(<http://www.example.com/soccer/resource#EPL> AS ?argument)
- *       VALUES ?subjectClass {
- *         <http://www.example.com/soccer/ontology/Team>
- *       }
+ * SELECT DISTINCT ?subject ?p ?value
+ * WHERE {
+ *   {
+ *     SELECT DISTINCT ?neighbor
+ *     WHERE {
+ *       BIND(<http://www.example.com/soccer/resource#EPL> AS ?source)
+ *       VALUES ?class { <http://www.example.com/soccer/ontology/Team> }
  *       {
- *         ?argument ?pToSubject ?subject.
- *         ?subject a            ?subjectClass;
- *                  ?sPred       ?sValue .
- *         FILTER (
- *           (?sPred=<http://www.example.com/soccer/ontology/teamName> && regex(str(?sValue), "Arsenal", "i")) ||
- *           (?sPred=<http://www.example.com/soccer/ontology/nickname> && regex(str(?sValue), "Gunners", "i"))
- *         )
+ *         ?neighbor ?pIncoming ?source .
  *       }
  *       UNION
  *       {
- *         ?subject ?pFromSubject ?argument;
- *                  a             ?subjectClass;
- *                  ?sPred        ?sValue .
- *        FILTER (
- *           (?sPred=<http://www.example.com/soccer/ontology/teamName> && regex(str(?sValue), "Arsenal", "i")) ||
- *           (?sPred=<http://www.example.com/soccer/ontology/nickname> && regex(str(?sValue), "Gunners", "i"))
+ *         ?source ?pOutgoing ?neighbor .
+ *       }
+ *       ?neighbor a ?class .
+ *       ?neighbor ?pValue ?value .
+ *       FILTER(
+ *         isLiteral(?value) && (
+ *           (?pValue=<http://www.example.com/soccer/ontology/teamName> && regex(str(?value), "Arsenal", "i")) ||
+ *           (?pValue=<http://www.example.com/soccer/ontology/nickname> && regex(str(?value), "Gunners", "i"))
  *         )
+ *       )
+ *       FILTER NOT EXISTS {
+ *         ?anySubject a ?neighbor .
  *       }
  *     }
- *     LIMIT 2
- *     OFFSET 0
+ *     ORDER BY ?neighbor
+ *     LIMIT 2 OFFSET 0
  *   }
- *   FILTER(isLiteral(?value))
+ *   {
+ *     BIND(<http://www.example.com/soccer/resource#EPL> AS ?source)
+ *     ?neighbor ?pToSource ?source
+ *     BIND(?neighbor as ?subject)
+ *     BIND(?pToSource as ?p)
+ *     BIND(?source as ?value)
+ *   }
+ *   UNION
+ *   {
+ *     BIND(<http://www.example.com/soccer/resource#EPL> AS ?source)
+ *     ?source ?pFromSource ?neighbor
+ *     BIND(?neighbor as ?value)
+ *     BIND(?pFromSource as ?p)
+ *     BIND(?source as ?subject)
+ *   }
+ *   UNION
+ *   {
+ *     ?neighbor ?p ?value
+ *     FILTER(isLiteral(?value) || ?p = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+ *     BIND(?neighbor as ?subject)
+ *   }
+ *   UNION
+ *   {
+ *     BIND(<http://www.example.com/soccer/resource#EPL> AS ?source)
+ *     ?source ?p ?value
+ *     FILTER(?p = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+ *     BIND(?source as ?subject)
+ *   }
  * }
+ * ORDER BY ?subject
  */
 
 export function oneHopNeighborsTemplate({
