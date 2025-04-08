@@ -97,9 +97,12 @@ export function mapToResults(bindings: Bindings): MappedQueryResults {
   // Get edge related triples
   const edges = bindings
     .values()
-    .filter(triple => triple.p.value !== rdfTypeUri)
-    .filter(triple => ["uri", "bnode"].includes(triple.subject.type))
-    .filter(triple => ["uri", "bnode"].includes(triple.value.type))
+    .filter(
+      triple =>
+        triple.p.value !== rdfTypeUri &&
+        (triple.subject.type === "uri" || triple.subject.type === "bnode") &&
+        (triple.value.type === "uri" || triple.value.type === "bnode")
+    )
     .map(
       triple =>
         ({
