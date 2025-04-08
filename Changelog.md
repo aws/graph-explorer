@@ -9,6 +9,8 @@
   [#840](https://github.com/aws/graph-explorer/pull/840))
 - **Added** ability to see full error details from errors in the UI
   ([#858](https://github.com/aws/graph-explorer/pull/858))
+- **Added** ability to cancel a long running schema sync
+  ([#869](https://github.com/aws/graph-explorer/pull/869))
 - **Updated** graph manipulation logic to lay foundations for query editor
   ([#864](https://github.com/aws/graph-explorer/pull/864),
   [#848](https://github.com/aws/graph-explorer/pull/848),

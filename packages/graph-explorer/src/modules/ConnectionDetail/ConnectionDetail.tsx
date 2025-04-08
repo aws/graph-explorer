@@ -32,7 +32,11 @@ import {
   showDebugActionsAtom,
 } from "@/core";
 
-import { useIsSyncing, useSchemaSync } from "@/hooks/useSchemaSync";
+import {
+  useCancelSchemaSync,
+  useIsSyncing,
+  useSchemaSync,
+} from "@/hooks/useSchemaSync";
 import useTranslations from "@/hooks/useTranslations";
 import {
   formatDate,
@@ -178,6 +182,7 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
 /** Shows the vertex list, loading, or error state. */
 function MainContentLayout() {
   const schemaSyncQuery = useSchemaSync();
+  const cancel = useCancelSchemaSync();
 
   if (schemaSyncQuery.isFetching) {
     return (
@@ -187,6 +192,8 @@ function MainContentLayout() {
         title="Synchronizing..."
         subtitle="The connection is being synchronized."
         className="p-6"
+        onAction={() => cancel()}
+        actionLabel="Cancel Sync"
       />
     );
   }
