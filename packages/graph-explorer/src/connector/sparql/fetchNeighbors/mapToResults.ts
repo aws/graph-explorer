@@ -3,7 +3,7 @@ import {
   toMappedQueryResults,
 } from "@/connector/useGEFetchTypes";
 import { RawValue, rdfTypeUri } from "../types";
-import { createEdge, createVertex } from "@/core";
+import { createEdge, createVertex, Vertex } from "@/core";
 import { createRdfEdgeId } from "../createRdfEdgeId";
 
 export type RawOneHopNeighborsResponse = {
@@ -17,81 +17,46 @@ export type RawOneHopNeighborsResponse = {
 };
 type Bindings = RawOneHopNeighborsResponse["results"]["bindings"];
 
-type DraftRdfNode = {
-  uri: string;
-  classes?: string[];
-  isBlankNode?: boolean;
-  attributes?: { predicate: string; value: string | number }[];
-};
-
-type DraftRdfEdge = {
-  uri: string;
-  source?: string;
-  sourceClasses?: string[];
-  target?: string;
-  targetClasses?: string[];
-};
-
 export function mapToResults(bindings: Bindings): MappedQueryResults {
   // Get types map
   const typesMap = getTypesMap(bindings);
 
   // Get node related triples
-  const drafts = bindings
+  const vertices = bindings
     .values()
+    // Filter out type triples
     .filter(triple => triple.p.value !== rdfTypeUri)
-    .reduce((draftsMap, current) => {
-      const updated = new Map(draftsMap);
+    // Filter out non-literal values
+    .filter(triple => triple.value.type === "literal")
+    .reduce((vertices, current) => {
+      // Get the types for the current node
       const uri = current.subject.value;
       const classes = typesMap.get(uri);
-      const isBlankNode = current.subject.type === "bnode";
-      const attribute =
-        current.value.type === "literal"
-          ? {
-              predicate: current.p.value,
-              value:
-                current.value.datatype ===
-                "http://www.w3.org/2001/XMLSchema#integer"
-                  ? Number(current.value.value)
-                  : current.value.value,
-            }
-          : null;
 
-      const existingDraft = updated.get(uri);
+      if (!classes?.length) {
+        // Nodes are only valid if they include at least one class
+        return vertices;
+      }
 
-      const draft: DraftRdfNode = {
-        ...existingDraft,
-        uri,
-        classes,
-        isBlankNode,
-        attributes: [
-          ...(existingDraft?.attributes ?? []),
-          ...(attribute ? [attribute] : []),
-        ],
-      };
+      // Get existing vertex or create a new one
+      const vertex =
+        vertices.get(uri) ??
+        createVertex({
+          id: uri,
+          types: classes,
+          isBlankNode: current.subject.type === "bnode",
+          attributes: {},
+        });
 
-      updated.set(uri, draft);
-      return updated;
-    }, new Map<string, DraftRdfNode>());
+      // Add the attribute to the vertex
+      vertex.attributes[current.p.value] =
+        current.value.datatype === "http://www.w3.org/2001/XMLSchema#integer"
+          ? Number(current.value.value)
+          : current.value.value;
 
-  const vertices = drafts
+      return vertices.set(uri, vertex);
+    }, new Map<string, Vertex>())
     .values()
-    .map(draft => {
-      if (!draft.classes?.length) {
-        return null;
-      }
-      const attributes: Record<string, string | number> = {};
-      for (const attribute of draft.attributes ?? []) {
-        attributes[attribute.predicate] = attribute.value;
-      }
-      return createVertex({
-        id: draft.uri,
-        types: draft.classes,
-        isBlankNode: draft.isBlankNode,
-        attributes: attributes,
-      });
-    })
-    .filter(raw => raw != null)
     .toArray();
 
   // Get edge related triples
@@ -103,31 +68,29 @@ export function mapToResults(bindings: Bindings): MappedQueryResults {
         (triple.subject.type === "uri" || triple.subject.type === "bnode") &&
         (triple.value.type === "uri" || triple.value.type === "bnode")
     )
-    .map(
-      triple =>
-        ({
-          uri: triple.p.value,
-          source: triple.subject.value,
-          target: triple.value.value,
-          sourceClasses: typesMap.get(triple.subject.value),
-          targetClasses: typesMap.get(triple.value.value),
-        }) satisfies DraftRdfEdge
-    )
-    .map(draft => {
-      if (!draft.sourceClasses?.length || !draft.targetClasses?.length) {
+    .map(triple => {
+      const sourceClasses = typesMap.get(triple.subject.value);
+      const targetClasses = typesMap.get(triple.value.value);
+
+      if (!sourceClasses?.length || !targetClasses?.length) {
         return null;
       }
+
+      const source = triple.subject.value;
+      const target = triple.value.value;
+      const uri = triple.p.value;
+
       return createEdge({
-        id: createRdfEdgeId(draft.source, draft.uri, draft.target),
+        id: createRdfEdgeId(source, uri, target),
         source: createVertex({
-          id: draft.source,
-          types: draft.sourceClasses,
+          id: source,
+          types: sourceClasses,
         }),
         target: createVertex({
-          id: draft.target,
-          types: draft.targetClasses,
+          id: target,
+          types: targetClasses,
         }),
-        type: draft.uri,
+        type: uri,
         attributes: {},
       });
     })
