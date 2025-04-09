@@ -28,7 +28,7 @@ def globals = [:]
 // note that the name of the key in the "global" map is unimportant.
 globals << [hook : [
   onStartUp: { ctx ->
-    ctx.logger.info("Loading graph data from data/air-routes-small-latest.graphml.")
+    ctx.logger.info('Loading graph data from data/air-routes-small-latest.graphml.')
 
     // An example of an initialization script that can be configured to run in Gremlin Server.
     def gLoader = traversal().withEmbedded(graph)
