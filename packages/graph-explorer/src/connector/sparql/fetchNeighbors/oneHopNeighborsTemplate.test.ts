@@ -216,6 +216,7 @@ describe("oneHopNeighborsTemplate", () => {
       resourceClasses: [],
       excludedVertices: new Set([
         createVertexId("http://www.example.com/soccer/resource#EFL"),
+        createVertexId("http://www.example.com/soccer/resource#EFL2"),
       ]),
     });
 
@@ -236,7 +237,7 @@ describe("oneHopNeighborsTemplate", () => {
               }
               FILTER NOT EXISTS {
                 VALUES ?neighbor {
-                  <http://www.example.com/soccer/resource#EFL>
+                  <http://www.example.com/soccer/resource#EFL> <http://www.example.com/soccer/resource#EFL2>
                 }
               }
               FILTER NOT EXISTS {

@@ -26,13 +26,13 @@ describe("OpenCypher > oneHopTemplate", () => {
   it("Should filter out excluded vertices", () => {
     const template = oneHopTemplate({
       vertexId: createVertexId("12"),
-      excludedVertices: new Set([createVertexId("256")]),
+      excludedVertices: new Set([createVertexId("256"), createVertexId("512")]),
     });
 
     expect(normalize(template)).toEqual(
       normalize(`
         MATCH (v)-[e]-(tgt)
-        WHERE ID(v) = "12" AND NOT ID(tgt) IN ["256"]
+        WHERE ID(v) = "12" AND NOT ID(tgt) IN ["256", "512"]
         WITH DISTINCT v, tgt 
         ORDER BY toInteger(ID(tgt)) 
         MATCH (v)-[e]-(tgt)

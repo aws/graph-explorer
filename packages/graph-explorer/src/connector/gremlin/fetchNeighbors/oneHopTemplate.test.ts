@@ -61,14 +61,14 @@ describe("Gremlin > oneHopTemplate", () => {
   it("should filter out excluded vertices", () => {
     const template = oneHopTemplate({
       vertexId: createVertexId("12"),
-      excludedVertices: new Set([createVertexId("256")]),
+      excludedVertices: new Set([createVertexId("256"), createVertexId("512")]),
     });
 
     expect(normalize(template)).toBe(
       normalize(`
         g.V("12")
           .both()
-          .filter(__.not(__.hasId("256")))
+          .filter(__.not(__.hasId("256", "512")))
           .dedup().order().by(id()).as("v")
           .project("vertex", "edges")
             .by()
