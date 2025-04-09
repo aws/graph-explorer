@@ -108,9 +108,15 @@ const oneHopTemplate = ({
   filterByVertexTypes = [],
   edgeTypes = [],
   filterCriteria = [],
+  excludedVertices = new Set(),
   limit = 0,
   offset = 0,
 }: Omit<NeighborsRequest, "vertexTypes">): string => {
+  const formattedExcludedVertices =
+    excludedVertices.size > 0
+      ? `NOT ID(tgt) IN [${excludedVertices.values().map(idParam).toArray().join(", ")}]`
+      : "";
+
   // List of possible vertex labels when there are multiple (single label is handled elsewhere)
   const formattedVertexTypes =
     filterByVertexTypes.length > 1
@@ -131,6 +137,7 @@ const oneHopTemplate = ({
   // Combine all the WHERE conditions
   const whereConditions = [
     `ID(v) = ${idParam(vertexId)}`,
+    formattedExcludedVertices,
     formattedVertexTypes,
     ...(filterCriteria?.map(criterionTemplate) ?? []),
   ]

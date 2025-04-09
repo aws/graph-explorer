@@ -9,14 +9,14 @@ import {
 import { loggerSelector, useExplorer } from "@/core/connector";
 import { useRecoilValue } from "recoil";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Vertex, VertexId } from "@/core";
+import { useFetchedNeighborsCallback, Vertex, VertexId } from "@/core";
 import { createDisplayError } from "@/utils/createDisplayError";
 import { useNeighborsCallback } from "@/core";
 import { useAddToGraph } from "./useAddToGraph";
 
 export type ExpandNodeFilters = Omit<
   NeighborsRequest,
-  "vertexId" | "vertexTypes"
+  "vertexId" | "vertexTypes" | "excludedVertices"
 >;
 
 export type ExpandNodeRequest = {
@@ -33,6 +33,7 @@ export default function useExpandNode() {
   const queryClient = useQueryClient();
   const explorer = useExplorer();
   const addToGraph = useAddToGraph();
+  const getFetchedNeighbors = useFetchedNeighborsCallback();
   const { enqueueNotification, clearNotification } = useNotification();
   const remoteLogger = useRecoilValue(loggerSelector);
 
@@ -40,6 +41,9 @@ export default function useExpandNode() {
     mutationFn: async (
       expandNodeRequest: ExpandNodeRequest
     ): Promise<NeighborsResponse | null> => {
+      // Get neighbors that have already been added so they can be excluded
+      const excludedNeighbors = getFetchedNeighbors(expandNodeRequest.vertexId);
+
       // Calculate the expansion limit based on the connection limit and the request limit
       const limit = (() => {
         if (!explorer.connection.nodeExpansionLimit) {
@@ -59,6 +63,7 @@ export default function useExpandNode() {
       const request: NeighborsRequest | null = expandNodeRequest && {
         vertexId: expandNodeRequest.vertexId,
         vertexTypes: expandNodeRequest.vertexTypes,
+        excludedVertices: excludedNeighbors,
         ...expandNodeRequest.filters,
         limit,
       };

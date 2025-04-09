@@ -48,6 +48,10 @@ export type SPARQLNeighborsRequest = {
    */
   filterCriteria?: Array<SPARQLCriterion>;
   /**
+   * Exclude vertices from the results.
+   */
+  excludedVertices?: Set<VertexId>;
+  /**
    * Limit the number of results.
    * 0 = No limit.
    */

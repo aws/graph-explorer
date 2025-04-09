@@ -3,6 +3,41 @@ import oneHopTemplate from "./oneHopTemplate";
 import { createVertexId } from "@/core";
 
 describe("Gremlin > oneHopTemplate", () => {
+  it("should produce documentation example", () => {
+    // This represents the filter criteria used in the example documentation
+    const template = oneHopTemplate({
+      vertexId: createVertexId("124"),
+      filterByVertexTypes: ["airport"],
+      filterCriteria: [
+        { name: "longest", dataType: "Number", operator: "gt", value: 10000 },
+        { name: "country", dataType: "String", operator: "like", value: "ES" },
+      ],
+      excludedVertices: new Set([createVertexId("256")]),
+      limit: 10,
+      offset: 0,
+    });
+
+    expect(normalize(template)).toEqual(
+      normalize(`
+        g.V("124")
+          .both()
+          .hasLabel("airport").and(has("longest",gt(10000)), has("country",containing("ES")))
+          .filter(__.not(__.hasId("256")))
+          .dedup()
+          .order().by(id())
+          .range(0, 10)
+          .as("v")
+          .project("vertex", "edges")
+            .by()
+            .by(
+              __.select("v").bothE()
+                .where(otherV().id().is("124"))
+                .dedup().fold()
+            )
+      `)
+    );
+  });
+
   it("Should return a template for a simple vertex id", () => {
     const template = oneHopTemplate({
       vertexId: createVertexId("12"),
@@ -12,6 +47,29 @@ describe("Gremlin > oneHopTemplate", () => {
       normalize(`
         g.V("12")
           .both().dedup().order().by(id()).as("v")
+          .project("vertex", "edges")
+            .by()
+            .by(
+              __.select("v").bothE()
+                .where(otherV().id().is("12"))
+                .dedup().fold()
+            )
+      `)
+    );
+  });
+
+  it("should filter out excluded vertices", () => {
+    const template = oneHopTemplate({
+      vertexId: createVertexId("12"),
+      excludedVertices: new Set([createVertexId("256"), createVertexId("512")]),
+    });
+
+    expect(normalize(template)).toBe(
+      normalize(`
+        g.V("12")
+          .both()
+          .filter(__.not(__.hasId("256", "512")))
+          .dedup().order().by(id()).as("v")
           .project("vertex", "edges")
             .by()
             .by(

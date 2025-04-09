@@ -209,6 +209,49 @@ describe("oneHopNeighborsTemplate", () => {
       `)
     );
   });
+
+  it("should produce query excluding resources", () => {
+    const template = oneHopNeighborsTemplate({
+      resourceURI: createVertexId("http://www.example.com/soccer/resource#EPL"),
+      resourceClasses: [],
+      excludedVertices: new Set([
+        createVertexId("http://www.example.com/soccer/resource#EFL"),
+        createVertexId("http://www.example.com/soccer/resource#EFL2"),
+      ]),
+    });
+
+    expect(normalize(template)).toEqual(
+      normalize(query`
+        SELECT DISTINCT ?subject ?p ?value
+        WHERE {
+          {
+            SELECT DISTINCT ?neighbor
+            WHERE {
+              BIND(<http://www.example.com/soccer/resource#EPL> AS ?source)
+              {
+                ?neighbor ?pIncoming ?source .
+              }
+              UNION
+              {
+                ?source ?pOutgoing ?neighbor .
+              }
+              FILTER NOT EXISTS {
+                VALUES ?neighbor {
+                  <http://www.example.com/soccer/resource#EFL> <http://www.example.com/soccer/resource#EFL2>
+                }
+              }
+              FILTER NOT EXISTS {
+                ?anySubject a ?neighbor .
+              }
+            }
+            ORDER BY ?neighbor
+          }
+          ${commonPartOfQuery("http://www.example.com/soccer/resource#EPL")}
+        }
+        ORDER BY ?subject
+      `)
+    );
+  });
 });
 
 /**

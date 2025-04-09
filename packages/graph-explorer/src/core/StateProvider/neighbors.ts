@@ -6,7 +6,7 @@ import {
   useAllNeighborCountsQuery,
   useUpdateNodeCountsQuery,
 } from "@/hooks/useUpdateNodeCounts";
-import { useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { neighborsCountQuery } from "@/connector";
 import { explorerSelector } from "../connector";
@@ -233,6 +233,30 @@ const fetchedNeighborsSelector = selectorFamily({
       return neighbors;
     },
 });
+
+/**
+ * Provides a callback for getting the unique set of neighbors for a given vertex ID.
+ * @returns A callback that returns the unique set of neighbors for a given vertex ID.
+ */
+export function useFetchedNeighborsCallback() {
+  const nodes = useRecoilValue(nodesAtom);
+  const edges = useRecoilValue(edgesAtom);
+
+  return useCallback(
+    (id: VertexId) =>
+      new Set(
+        edges
+          .values()
+          // Find edges matching the given vertex ID
+          .filter(edge => edge.source === id || edge.target === id)
+          // Filter out edges where the source or target vertex is not in the graph
+          .filter(edge => nodes.has(edge.source) && nodes.has(edge.target))
+          // Get the source or target vertex ID depending on the edge direction
+          .map(edge => (edge.source === id ? edge.target : edge.source))
+      ),
+    [nodes, edges]
+  );
+}
 
 const allFetchedNeighborsSelector = selectorFamily({
   key: "all-fetched-neighbors",

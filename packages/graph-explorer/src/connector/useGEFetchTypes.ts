@@ -114,6 +114,14 @@ export type NeighborsRequest = {
    * retrieve the resource class from the database.
    */
   vertexTypes: Vertex["types"];
+
+  /**
+   * Vertices to exclude from the results.
+   *
+   * Useful to exclude vertices already in the graph.
+   */
+  excludedVertices?: Set<VertexId>;
+
   /**
    * Filter by vertex types.
    */
