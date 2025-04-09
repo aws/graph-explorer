@@ -49,7 +49,7 @@ export default function neighborsCountTemplate({
           ?neighbor ?pIncoming ?source . 
         }
         UNION
-        { 
+        {
           # Outgoing neighbors
           ?source ?pOutgoing ?neighbor . 
         }

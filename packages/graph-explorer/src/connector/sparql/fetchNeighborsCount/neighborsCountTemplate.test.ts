@@ -54,7 +54,7 @@ describe("neighborsCountTemplate", () => {
               ?neighbor ?pIncoming ?source . 
             }
             UNION
-            { 
+            {
               # Outgoing neighbors
               ?source ?pOutgoing ?neighbor . 
             }

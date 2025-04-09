@@ -5,10 +5,16 @@ export function query(
   literals: TemplateStringsArray,
   ...placeholders: string[]
 ) {
-  // First make sure any parameters are properly indented
+  // Ensure any parameters are properly indented
   const indented = indentTemplate(literals, ...placeholders);
-  // Then remove leading space and empty lines
-  return dedent(indented).replace(/^\s*\n/gm, "");
+  return (
+    // Remove leading space
+    dedent(indented)
+      // Remove empty lines
+      .replace(/^\s*\n/gm, "")
+      // Remove trailing whitespace
+      .replace(/\s+$/gm, "")
+  );
 }
 
 /** Ensures that all multi-line template values match the indentation of the line where they are used. */
