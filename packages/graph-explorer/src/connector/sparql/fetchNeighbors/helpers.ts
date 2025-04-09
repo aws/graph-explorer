@@ -1,7 +1,7 @@
 import { SPARQLCriterion } from "../types";
 import { query } from "@/utils";
 
-export const getSubjectClasses = (subjectClasses: string[]) => {
+export function getSubjectClasses(subjectClasses: string[]) {
   if (!subjectClasses?.length) {
     return "";
   }
@@ -12,9 +12,9 @@ export const getSubjectClasses = (subjectClasses: string[]) => {
   });
   classesValues += " }";
   return classesValues;
-};
+}
 
-export const getFilters = (filterCriteria: SPARQLCriterion[]) => {
+export function getFilters(filterCriteria: SPARQLCriterion[]) {
   if (!filterCriteria?.length) {
     return "";
   }
@@ -27,10 +27,11 @@ export const getFilters = (filterCriteria: SPARQLCriterion[]) => {
     .join(" ||\n");
 
   return query`
-  FILTER (
-    ${filtersTemplate}
-  )`;
-};
+    FILTER (
+      ${filtersTemplate}
+    )
+  `;
+}
 
 export const getLimit = (limit?: number, offset?: number) => {
   if (limit === 0) {
