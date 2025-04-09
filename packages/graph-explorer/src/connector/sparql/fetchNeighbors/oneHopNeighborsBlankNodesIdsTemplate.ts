@@ -1,7 +1,8 @@
 import { query } from "@/utils";
 import { SPARQLNeighborsRequest } from "../types";
-import { getFilters, getLimit, getSubjectClasses } from "./helpers";
+import { getFilters, getSubjectClasses } from "./helpers";
 import { idParam } from "../idParam";
+import { getLimit } from "../getLimit";
 
 /**
  * Generate a template with the same constraints that oneHopNeighborsTemplate

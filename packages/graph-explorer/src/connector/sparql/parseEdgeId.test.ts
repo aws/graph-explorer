@@ -1,5 +1,5 @@
 import { createEdgeId, createVertexId } from "@/core";
-import { parseEdgeId } from "./types";
+import { parseEdgeId } from "./parseEdgeId";
 
 test("parseEdgeId", () => {
   const edgeId = createEdgeId(

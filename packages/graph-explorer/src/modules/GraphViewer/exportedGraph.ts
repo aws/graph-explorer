@@ -1,4 +1,4 @@
-import { parseRdfEdgeIdString } from "@/connector/sparql/types";
+import { parseRdfEdgeIdString } from "@/connector/sparql/parseEdgeId";
 import { createEdgeId, createVertexId, EdgeId, VertexId } from "@/core";
 import { APP_NAME, escapeString, logger } from "@/utils";
 import {

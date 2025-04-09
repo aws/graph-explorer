@@ -1,6 +1,7 @@
 import { query } from "@/utils";
 import { SPARQLNeighborsCountRequest } from "../types";
 import { idParam } from "../idParam";
+import { getLimit } from "../getLimit";
 
 /**
  * Count neighbors by class which are related with the given subject URI.
@@ -9,12 +10,23 @@ import { idParam } from "../idParam";
  * resourceURI = "http://kelvinlawrence.net/air-routes/resource/2018"
  * limit = 10
  *
- * SELECT ?class (COUNT(?class) AS ?count) {
- *   SELECT DISTINCT ?subject ?class {
- *     ?subject a ?class .
- *     { ?subject ?p <http://kelvinlawrence.net/air-routes/resource/2018> }
+ * SELECT ?class (COUNT(?neighbor) as ?count) {
+ *   SELECT DISTINCT ?class ?neighbor
+ *   WHERE {
+ *     BIND(<http://kelvinlawrence.net/air-routes/resource/2018> AS ?source)
+ *     {
+ *       # Incoming neighbors
+ *       ?neighbor ?pIncoming ?source .
+ *     }
  *     UNION
- *     { <http://kelvinlawrence.net/air-routes/resource/2018> ?p ?subject }
+ *     {
+ *       # Outgoing neighbors
+ *       ?source ?pOutgoing ?neighbor .
+ *     }
+ *     ?neighbor a ?class .
+ *     FILTER NOT EXISTS {
+ *       ?anySubject a ?neighbor .
+ *     }
  *   }
  *   LIMIT 10
  * }
@@ -22,20 +34,34 @@ import { idParam } from "../idParam";
  */
 export default function neighborsCountTemplate({
   resourceURI,
-  limit = 0,
+  limit,
 }: SPARQLNeighborsCountRequest) {
+  const resourceTemplate = idParam(resourceURI);
+
   return query`
     # Count neighbors by class which are related with the given subject URI
-    SELECT ?class (COUNT(?class) AS ?count) {
-      ?subject a ?class {
-        SELECT DISTINCT ?subject ?class {
-          ?subject a ?class .
-          { ?subject ?p ${idParam(resourceURI)} }
-          UNION
-          { ${idParam(resourceURI)} ?p ?subject }
+    SELECT ?class (COUNT(?neighbor) as ?count) {
+      SELECT DISTINCT ?class ?neighbor
+      WHERE {
+        BIND(${resourceTemplate} AS ?source)
+        {
+          # Incoming neighbors
+          ?neighbor ?pIncoming ?source . 
         }
-        ${limit > 0 ? `LIMIT ${limit}` : ""}
+        UNION
+        {
+          # Outgoing neighbors
+          ?source ?pOutgoing ?neighbor . 
+        }
+
+        ?neighbor a ?class .
+
+        # Remove any classes from the list of neighbors
+        FILTER NOT EXISTS {
+          ?anySubject a ?neighbor .
+        }
       }
+      ${getLimit(limit)}
     }
     GROUP BY ?class
   `;

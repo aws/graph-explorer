@@ -1,6 +1,7 @@
 import { SPARQLCriterion } from "../types";
+import { query } from "@/utils";
 
-export const getSubjectClasses = (subjectClasses: string[]) => {
+export function getSubjectClasses(subjectClasses: string[]) {
   if (!subjectClasses?.length) {
     return "";
   }
@@ -11,28 +12,23 @@ export const getSubjectClasses = (subjectClasses: string[]) => {
   });
   classesValues += " }";
   return classesValues;
-};
+}
 
-export const getFilters = (filterCriteria: SPARQLCriterion[]) => {
+export function getFilters(filterCriteria: SPARQLCriterion[]) {
   if (!filterCriteria?.length) {
     return "";
   }
 
-  let filter = "FILTER(";
-  filterCriteria.forEach((criterion, cI) => {
-    filter += `(?sPred=<${criterion.predicate}> && regex(str(?sValue), "${criterion.object}", "i"))`;
+  const filtersTemplate = filterCriteria
+    .map(
+      c =>
+        `(?sPred=<${c.predicate}> && regex(str(?sValue), "${c.object}", "i"))`
+    )
+    .join(" ||\n");
 
-    if (cI < filterCriteria.length - 1) {
-      filter += " || ";
-    }
-  });
-  filter += ")";
-  return filter;
-};
-
-export const getLimit = (limit?: number, offset?: number) => {
-  if (limit === 0) {
-    return "";
-  }
-  return `LIMIT ${limit} OFFSET ${offset}`;
-};
+  return query`
+    FILTER (
+      ${filtersTemplate}
+    )
+  `;
+}

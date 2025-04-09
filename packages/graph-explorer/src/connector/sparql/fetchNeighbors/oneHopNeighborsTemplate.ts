@@ -1,7 +1,7 @@
-import { idParam } from "../idParam";
-import { SPARQLNeighborsRequest } from "../types";
-import { getFilters, getLimit, getSubjectClasses } from "./helpers";
 import { query } from "@/utils";
+import { idParam } from "../idParam";
+import { rdfTypeUri, SPARQLNeighborsRequest } from "../types";
+import { getLimit } from "../getLimit";
 
 /**
  * Fetch all neighbors and their predicates, values, and classes.
@@ -18,72 +18,177 @@ import { query } from "@/utils";
  * limit = 2
  * offset = 0
  *
- * SELECT ?subject ?pred ?value ?subjectClass ?pToSubject ?pFromSubject {
- *   ?subject a     ?subjectClass;
- *            ?pred ?value {
- *     SELECT DISTINCT ?subject ?pToSubject ?pFromSubject {
- *       BIND(<http://www.example.com/soccer/resource#EPL> AS ?argument)
- *       VALUES ?subjectClass {
- *         <http://www.example.com/soccer/ontology/Team>
- *       }
+ * SELECT DISTINCT ?subject ?p ?value
+ * WHERE {
+ *   {
+ *     SELECT DISTINCT ?neighbor
+ *     WHERE {
+ *       BIND(<http://www.example.com/soccer/resource#EPL> AS ?source)
+ *       VALUES ?class { <http://www.example.com/soccer/ontology/Team> }
  *       {
- *         ?argument ?pToSubject ?subject.
- *         ?subject a            ?subjectClass;
- *                  ?sPred       ?sValue .
- *         FILTER (
- *           (?sPred=<http://www.example.com/soccer/ontology/teamName> && regex(str(?sValue), "Arsenal", "i")) ||
- *           (?sPred=<http://www.example.com/soccer/ontology/nickname> && regex(str(?sValue), "Gunners", "i"))
- *         )
+ *         ?neighbor ?pIncoming ?source .
  *       }
  *       UNION
  *       {
- *         ?subject ?pFromSubject ?argument;
- *                  a             ?subjectClass;
- *                  ?sPred        ?sValue .
- *        FILTER (
- *           (?sPred=<http://www.example.com/soccer/ontology/teamName> && regex(str(?sValue), "Arsenal", "i")) ||
- *           (?sPred=<http://www.example.com/soccer/ontology/nickname> && regex(str(?sValue), "Gunners", "i"))
+ *         ?source ?pOutgoing ?neighbor .
+ *       }
+ *       ?neighbor a ?class .
+ *       ?neighbor ?pValue ?value .
+ *       FILTER(
+ *         isLiteral(?value) && (
+ *           (?pValue=<http://www.example.com/soccer/ontology/teamName> && regex(str(?value), "Arsenal", "i")) ||
+ *           (?pValue=<http://www.example.com/soccer/ontology/nickname> && regex(str(?value), "Gunners", "i"))
  *         )
+ *       )
+ *       FILTER NOT EXISTS {
+ *         ?anySubject a ?neighbor .
  *       }
  *     }
- *     LIMIT 2
- *     OFFSET 0
+ *     ORDER BY ?neighbor
+ *     LIMIT 2 OFFSET 0
  *   }
- *   FILTER(isLiteral(?value))
+ *   {
+ *     BIND(<http://www.example.com/soccer/resource#EPL> AS ?source)
+ *     ?neighbor ?pToSource ?source
+ *     BIND(?neighbor as ?subject)
+ *     BIND(?pToSource as ?p)
+ *     BIND(?source as ?value)
+ *   }
+ *   UNION
+ *   {
+ *     BIND(<http://www.example.com/soccer/resource#EPL> AS ?source)
+ *     ?source ?pFromSource ?neighbor
+ *     BIND(?neighbor as ?value)
+ *     BIND(?pFromSource as ?p)
+ *     BIND(?source as ?subject)
+ *   }
+ *   UNION
+ *   {
+ *     ?neighbor ?p ?value
+ *     FILTER(isLiteral(?value) || ?p = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+ *     BIND(?neighbor as ?subject)
+ *   }
+ *   UNION
+ *   {
+ *     BIND(<http://www.example.com/soccer/resource#EPL> AS ?source)
+ *     ?source ?p ?value
+ *     FILTER(?p = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+ *     BIND(?source as ?subject)
+ *   }
  * }
+ * ORDER BY ?subject
  */
-export default function oneHopNeighborsTemplate({
+
+export function oneHopNeighborsTemplate({
   resourceURI,
   subjectClasses = [],
   filterCriteria = [],
   limit = 0,
   offset = 0,
 }: SPARQLNeighborsRequest): string {
+  const resourceTemplate = idParam(resourceURI);
+
+  // templates for filtering by value
+  const hasFilters = filterCriteria.length > 0;
+  const filterCriteriaTemplate = filterCriteria
+    .map(
+      c =>
+        `(?pValue=${idParam(c.predicate)} && regex(str(?value), "${c.object}", "i"))`
+    )
+    .join(" ||\n");
+  const filterTemplate = hasFilters
+    ? query`
+        FILTER(
+          isLiteral(?value) && (
+            ${filterCriteriaTemplate}
+          )
+        )
+      `
+    : "";
+  const valueBindingTemplate = hasFilters ? `?neighbor ?pValue ?value .` : "";
+
+  // templates for filtering by class
+  const subjectClassesTemplate = subjectClasses.length
+    ? `VALUES ?class { ${subjectClasses.map(idParam).join(" ")} }`
+    : "";
+  const classBindingTemplate = subjectClasses.length
+    ? `?neighbor a ?class .`
+    : "";
+
+  const limitTemplate = getLimit(limit, offset);
+  const rdfTypeUriTemplate = idParam(rdfTypeUri);
+
   return query`
-    # Fetch all neighbors and their predicates, values, and classes
-    SELECT ?subject ?pred ?value ?subjectClass ?pToSubject ?pFromSubject {
-      ?subject a     ?subjectClass;
-               ?pred ?value {
-        SELECT DISTINCT ?subject ?pToSubject ?pFromSubject {
-          BIND(${idParam(resourceURI)} AS ?argument)
-          ${getSubjectClasses(subjectClasses)}
+    SELECT DISTINCT ?subject ?p ?value
+    WHERE {
+      {
+        # This sub-query will give us all unique neighbors within the given limit
+        SELECT DISTINCT ?neighbor
+        WHERE {
+          BIND(${resourceTemplate} AS ?source)
+          ${subjectClassesTemplate}
           {
-            ?argument ?pToSubject ?subject.
-            ?subject a         ?subjectClass;
-                     ?sPred    ?sValue .
-            ${getFilters(filterCriteria)}
+            # Incoming neighbors
+            ?neighbor ?pIncoming ?source .
           }
           UNION
           {
-            ?subject ?pFromSubject ?argument;
-                     a         ?subjectClass;
-                     ?sPred    ?sValue .
-           ${getFilters(filterCriteria)}
+            # Outgoing neighbors
+            ?source ?pOutgoing ?neighbor .
+          }
+          ${classBindingTemplate}
+          ${valueBindingTemplate}
+          ${filterTemplate}
+          # Remove any classes from the list of neighbors
+          FILTER NOT EXISTS {
+            ?anySubject a ?neighbor .
           }
         }
-        ${getLimit(limit, offset)}
+        ORDER BY ?neighbor
+        ${limitTemplate}
       }
-      FILTER(isLiteral(?value))
+
+      # Using the ?neighbor gathered above we can start getting
+      # the information we are really interested in
+      #
+      # - predicate to source from neighbor
+      # - predicate from source to neighbor
+      # - neighbor class
+      # - neighbor values
+
+      {
+        # Incoming connection predicate
+        BIND(${resourceTemplate} AS ?source)
+        ?neighbor ?pToSource ?source
+        BIND(?neighbor as ?subject)
+        BIND(?pToSource as ?p)
+        BIND(?source as ?value)
+      }
+      UNION
+      {
+        # Outgoing connection predicate
+        BIND(${resourceTemplate} AS ?source)
+        ?source ?pFromSource ?neighbor
+        BIND(?neighbor as ?value)
+        BIND(?pFromSource as ?p)
+        BIND(?source as ?subject)
+      }
+      UNION
+      {
+        # Values and types
+        ?neighbor ?p ?value
+        FILTER(isLiteral(?value) || ?p = ${rdfTypeUriTemplate})
+        BIND(?neighbor as ?subject)
+      }
+      UNION
+      {
+        # Source types
+        BIND(${resourceTemplate} AS ?source)
+        ?source ?p ?value
+        FILTER(?p = ${rdfTypeUriTemplate})
+        BIND(?source as ?subject)
+      }
     }
+    ORDER BY ?subject
   `;
 }
