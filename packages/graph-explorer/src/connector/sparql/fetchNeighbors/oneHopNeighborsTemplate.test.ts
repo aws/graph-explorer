@@ -55,34 +55,7 @@ describe("oneHopNeighborsTemplate", () => {
             ORDER BY ?neighbor
             LIMIT 2 OFFSET 0
           }
-          {
-            BIND(<http://www.example.com/soccer/resource#EPL> AS ?source)
-            ?neighbor ?pToSource ?source
-            BIND(?neighbor as ?subject)
-            BIND(?pToSource as ?p)
-            BIND(?source as ?value)
-          }
-          UNION
-          {
-            BIND(<http://www.example.com/soccer/resource#EPL> AS ?source)
-            ?source ?pFromSource ?neighbor
-            BIND(?neighbor as ?value)
-            BIND(?pFromSource as ?p)
-            BIND(?source as ?subject)
-          }
-          UNION
-          {
-            ?neighbor ?p ?value
-            FILTER(isLiteral(?value) || ?p = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
-            BIND(?neighbor as ?subject)
-          }
-          UNION
-          {
-            BIND(<http://www.example.com/soccer/resource#EPL> AS ?source)
-            ?source ?p ?value
-            FILTER(?p = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
-            BIND(?source as ?subject)
-          }
+          ${commonPartOfQuery("http://www.example.com/soccer/resource#EPL")}
         }
         ORDER BY ?subject
       `)
@@ -90,7 +63,6 @@ describe("oneHopNeighborsTemplate", () => {
   });
 
   it("should produce query for resource", () => {
-    // This represents the filter criteria used in the example documentation
     const template = oneHopNeighborsTemplate({
       resourceURI: createVertexId("http://www.example.com/soccer/resource#EPL"),
       resourceClasses: [],
@@ -120,37 +92,158 @@ describe("oneHopNeighborsTemplate", () => {
             ORDER BY ?neighbor
             LIMIT 10 OFFSET 0
           }
+          ${commonPartOfQuery("http://www.example.com/soccer/resource#EPL")}
+        }
+        ORDER BY ?subject
+      `)
+    );
+  });
+
+  it("should produce query for multiple subject classes", () => {
+    const template = oneHopNeighborsTemplate({
+      resourceURI: createVertexId("http://www.example.com/soccer/resource#EPL"),
+      resourceClasses: [],
+      subjectClasses: [
+        "http://www.example.com/soccer/ontology/Team",
+        "http://www.example.com/soccer/ontology/Player",
+      ],
+    });
+    expect(normalize(template)).toEqual(
+      normalize(query`
+        SELECT DISTINCT ?subject ?p ?value
+        WHERE {
           {
-            BIND(<http://www.example.com/soccer/resource#EPL> AS ?source)
-            ?neighbor ?pToSource ?source
-            BIND(?neighbor as ?subject)
-            BIND(?pToSource as ?p)
-            BIND(?source as ?value)
+            SELECT DISTINCT ?neighbor
+            WHERE {
+              BIND(<http://www.example.com/soccer/resource#EPL> AS ?source)
+              VALUES ?class { <http://www.example.com/soccer/ontology/Team> <http://www.example.com/soccer/ontology/Player> }
+              {
+                ?neighbor ?pIncoming ?source .
+              }
+              UNION
+              {
+                ?source ?pOutgoing ?neighbor .
+              }
+              ?neighbor a ?class .
+              FILTER NOT EXISTS {
+                ?anySubject a ?neighbor .
+              }
+            }
+            ORDER BY ?neighbor
           }
-          UNION
+          ${commonPartOfQuery("http://www.example.com/soccer/resource#EPL")}
+        }
+        ORDER BY ?subject
+      `)
+    );
+  });
+
+  it("should produce query with limit of zero", () => {
+    const template = oneHopNeighborsTemplate({
+      resourceURI: createVertexId("http://www.example.com/soccer/resource#EPL"),
+      resourceClasses: [],
+      limit: 0,
+    });
+
+    expect(normalize(template)).toEqual(
+      normalize(query`
+        SELECT DISTINCT ?subject ?p ?value
+        WHERE {
           {
-            BIND(<http://www.example.com/soccer/resource#EPL> AS ?source)
-            ?source ?pFromSource ?neighbor
-            BIND(?neighbor as ?value)
-            BIND(?pFromSource as ?p)
-            BIND(?source as ?subject)
+            SELECT DISTINCT ?neighbor
+            WHERE {
+              BIND(<http://www.example.com/soccer/resource#EPL> AS ?source)
+              {
+                ?neighbor ?pIncoming ?source .
+              }
+              UNION
+              {
+                ?source ?pOutgoing ?neighbor .
+              }
+              FILTER NOT EXISTS {
+                ?anySubject a ?neighbor .
+              }
+            }
+            ORDER BY ?neighbor
           }
-          UNION
+          ${commonPartOfQuery("http://www.example.com/soccer/resource#EPL")}
+        }
+        ORDER BY ?subject
+      `)
+    );
+  });
+
+  it("should produce query with limit and offset", () => {
+    const template = oneHopNeighborsTemplate({
+      resourceURI: createVertexId("http://www.example.com/soccer/resource#EPL"),
+      resourceClasses: [],
+      limit: 10,
+      offset: 5,
+    });
+
+    expect(normalize(template)).toEqual(
+      normalize(query`
+        SELECT DISTINCT ?subject ?p ?value
+        WHERE {
           {
-            ?neighbor ?p ?value
-            FILTER(isLiteral(?value) || ?p = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
-            BIND(?neighbor as ?subject)
+            SELECT DISTINCT ?neighbor
+            WHERE {
+              BIND(<http://www.example.com/soccer/resource#EPL> AS ?source)
+              {
+                ?neighbor ?pIncoming ?source .
+              }
+              UNION
+              {
+                ?source ?pOutgoing ?neighbor .
+              }
+              FILTER NOT EXISTS {
+                ?anySubject a ?neighbor .
+              }
+            }
+            ORDER BY ?neighbor
+            LIMIT 10 OFFSET 5
           }
-          UNION
-          {
-            BIND(<http://www.example.com/soccer/resource#EPL> AS ?source)
-            ?source ?p ?value
-            FILTER(?p = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
-            BIND(?source as ?subject)
-          }
+          ${commonPartOfQuery("http://www.example.com/soccer/resource#EPL")}
         }
         ORDER BY ?subject
       `)
     );
   });
 });
+
+/**
+ * This part of the query is very repetitive and makes it tough to see which
+ * parts of the query change from test to test.
+ */
+function commonPartOfQuery(resourceURI: string) {
+  return query`
+    {
+      BIND(<${resourceURI}> AS ?source)
+      ?neighbor ?pToSource ?source
+      BIND(?neighbor as ?subject)
+      BIND(?pToSource as ?p)
+      BIND(?source as ?value)
+    }
+    UNION
+    {
+      BIND(<${resourceURI}> AS ?source)
+      ?source ?pFromSource ?neighbor
+      BIND(?neighbor as ?value)
+      BIND(?pFromSource as ?p)
+      BIND(?source as ?subject)
+    }
+    UNION
+    {
+      ?neighbor ?p ?value
+      FILTER(isLiteral(?value) || ?p = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+      BIND(?neighbor as ?subject)
+    }
+    UNION
+    {
+      BIND(<${resourceURI}> AS ?source)
+      ?source ?p ?value
+      FILTER(?p = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+      BIND(?source as ?subject)
+    }
+  `;
+}
