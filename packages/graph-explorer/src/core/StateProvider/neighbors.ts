@@ -234,6 +234,10 @@ const fetchedNeighborsSelector = selectorFamily({
     },
 });
 
+/**
+ * Provides a callback for getting the unique set of neighbors for a given vertex ID.
+ * @returns A callback that returns the unique set of neighbors for a given vertex ID.
+ */
 export function useFetchedNeighborsCallback() {
   const nodes = useRecoilValue(nodesAtom);
   const edges = useRecoilValue(edgesAtom);
@@ -243,8 +247,11 @@ export function useFetchedNeighborsCallback() {
       new Set(
         edges
           .values()
+          // Find edges matching the given vertex ID
           .filter(edge => edge.source === id || edge.target === id)
+          // Filter out edges where the source or target vertex is not in the graph
           .filter(edge => nodes.has(edge.source) && nodes.has(edge.target))
+          // Get the source or target vertex ID depending on the edge direction
           .map(edge => (edge.source === id ? edge.target : edge.source))
       ),
     [nodes, edges]
