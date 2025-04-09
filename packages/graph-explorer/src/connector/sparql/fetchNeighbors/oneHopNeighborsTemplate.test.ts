@@ -53,7 +53,7 @@ describe("oneHopNeighborsTemplate", () => {
               }
             }
             ORDER BY ?neighbor
-            LIMIT 2 OFFSET 0
+            LIMIT 2
           }
           ${commonPartOfQuery("http://www.example.com/soccer/resource#EPL")}
         }
@@ -90,7 +90,7 @@ describe("oneHopNeighborsTemplate", () => {
               }
             }
             ORDER BY ?neighbor
-            LIMIT 10 OFFSET 0
+            LIMIT 10
           }
           ${commonPartOfQuery("http://www.example.com/soccer/resource#EPL")}
         }

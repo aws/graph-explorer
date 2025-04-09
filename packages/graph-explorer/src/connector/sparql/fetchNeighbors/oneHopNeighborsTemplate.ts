@@ -1,7 +1,7 @@
 import { query } from "@/utils";
 import { idParam } from "../idParam";
 import { rdfTypeUri, SPARQLNeighborsRequest } from "../types";
-import { getLimit } from "./helpers";
+import { getLimit } from "../getLimit";
 
 /**
  * Fetch all neighbors and their predicates, values, and classes.

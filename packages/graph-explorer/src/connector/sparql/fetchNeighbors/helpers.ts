@@ -32,10 +32,3 @@ export function getFilters(filterCriteria: SPARQLCriterion[]) {
     )
   `;
 }
-
-export const getLimit = (limit?: number, offset?: number) => {
-  if (limit === 0) {
-    return "";
-  }
-  return `LIMIT ${limit} OFFSET ${offset}`;
-};
