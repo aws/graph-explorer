@@ -19,11 +19,11 @@ export type ExpandNodeFilters = Omit<
   "vertexId" | "vertexTypes" | "excludedVertices"
 >;
 
-export interface ExpandNodeRequest {
+export type ExpandNodeRequest = {
   vertexId: NeighborsRequest["vertexId"];
   vertexTypes: NeighborsRequest["vertexTypes"];
   filters?: ExpandNodeFilters;
-}
+};
 
 /**
  * Provides a callback to submit a node expansion request, the query
