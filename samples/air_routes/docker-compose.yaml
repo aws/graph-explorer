@@ -10,11 +10,11 @@ services:
       - USING_PROXY_SERVER=true
       - PROXY_SERVER_HTTPS_CONNECTION=false
       - GRAPH_CONNECTION_URL=http://database:8182
-      
+
   database:
     image: tinkerpop/gremlin-server:latest
-    ports: 
-     - "8182:8182"
+    ports:
+      - "8182:8182"
     volumes:
       - ./sample:/opt/gremlin-server/sample
     command: /opt/gremlin-server/sample/conf/gremlin-server-air-routes.yaml

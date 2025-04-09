@@ -1,6 +1,7 @@
 # Air Routes Sample
 
-This sample contains example Air Routes data imported from [here](https://github.com/krlawrence/graph/blob/main/sample-data/air-routes-latest.graphml).
+This sample contains example Air Routes data imported from
+[here](https://github.com/krlawrence/graph/blob/main/sample-data/air-routes-latest.graphml).
 
 ## Prerequisites
 
@@ -14,4 +15,5 @@ From terminal run...
 docker compose up
 ```
 
-From browser navigate to [http://localhost:8080/explorer](http://localhost:8080/explorer).
+From browser navigate to
+[http://localhost:8080/explorer](http://localhost:8080/explorer).
