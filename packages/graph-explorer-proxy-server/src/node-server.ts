@@ -149,11 +149,10 @@ async function fetchData(
 
     // Pipe the raw fetch response body directly to the client response
     if (response.body) {
-      // TODO: this doesn't seem to work right with cancelling requests
       pipeline(response.body, res, err => {
         if (err) {
-          console.error("Pipeline failed", err);
-          res.status(500).send("Stream error");
+          // Log the error as a warning, but otherwise ignore it
+          proxyLogger.warn("Pipeline error %o", err);
         }
       });
     } else {

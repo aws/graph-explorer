@@ -38,6 +38,8 @@
   ([#824](https://github.com/aws/graph-explorer/pull/824))
 - **Fixed** issue representing an edge connecting nodes with multiple labels
   ([#839](https://github.com/aws/graph-explorer/pull/839))
+- **Fixed** proxy server error when a request is aborted mid-stream
+  ([#873](https://github.com/aws/graph-explorer/pull/873))
 - **Updated** styling of buttons, input, textarea, and select fields
   ([#847](https://github.com/aws/graph-explorer/pull/847),
   [#832](https://github.com/aws/graph-explorer/pull/832),
