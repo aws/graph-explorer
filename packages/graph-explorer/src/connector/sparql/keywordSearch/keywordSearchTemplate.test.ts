@@ -52,7 +52,7 @@ describe("SPARQL > keywordSearchTemplate", () => {
             SELECT DISTINCT ?subject ?class { 
               ?subject a ?class ; ?predicate ?value . 
             } 
-            LIMIT 10 OFFSET 0 
+            LIMIT 10
           } 
           FILTER(isLiteral(?value)) 
         }

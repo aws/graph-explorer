@@ -5,6 +5,7 @@ import {
   getFilterPredicates,
   getSubjectClasses,
 } from "./helpers";
+import { getLimit } from "../getLimit";
 
 /**
  * This generates a template to get all blank nodes ids from
@@ -31,7 +32,7 @@ export default function keywordSearchBlankNodesIdsTemplate({
             ${getSubjectClasses(subjectClasses)}
             ${getFilterObject(exactMatch, searchTerm)}
         }
-        ${limit ? `LIMIT ${limit} OFFSET ${offset}` : ""}
+        ${getLimit(limit, offset)}
       }
       FILTER(isLiteral(?value))
       FILTER(isBlank(?bNode))

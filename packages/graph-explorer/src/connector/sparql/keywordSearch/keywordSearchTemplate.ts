@@ -5,6 +5,7 @@ import {
   getFilterPredicates,
   getSubjectClasses,
 } from "./helpers";
+import { getLimit } from "../getLimit";
 
 /**
  * Fetch nodes matching the given search parameters
@@ -57,7 +58,7 @@ export default function keywordSearchTemplate({
             ${getSubjectClasses(subjectClasses)}
             ${getFilterObject(exactMatch, searchTerm)}
         }
-        ${limit ? `LIMIT ${limit} OFFSET ${offset}` : ""}
+        ${getLimit(limit, offset)}
       }
       FILTER(isLiteral(?value))
     }
