@@ -1,0 +1,20 @@
+services:
+  app:
+    image: public.ecr.aws/neptune/graph-explorer:latest
+    ports:
+      - "8080:80"
+    environment:
+      - HOST=localhost
+      - PUBLIC_OR_PROXY_ENDPOINT=http://localhost:8080
+      - GRAPH_TYPE=gremlin
+      - USING_PROXY_SERVER=true
+      - PROXY_SERVER_HTTPS_CONNECTION=false
+      - GRAPH_CONNECTION_URL=http://database:8182
+
+  database:
+    image: tinkerpop/gremlin-server:latest
+    ports:
+      - "8182:8182"
+    volumes:
+      - ./sample:/opt/gremlin-server/sample
+    command: /opt/gremlin-server/sample/conf/gremlin-server-air-routes.yaml
