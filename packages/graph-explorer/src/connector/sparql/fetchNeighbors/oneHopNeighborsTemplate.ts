@@ -1,4 +1,4 @@
-import { indentLinesBeyondFirst, query } from "@/utils";
+import { query } from "@/utils";
 import { idParam } from "../idParam";
 import { rdfTypeUri, SPARQLNeighborsRequest } from "../types";
 import { getLimit } from "./helpers";
@@ -95,7 +95,7 @@ export function oneHopNeighborsTemplate({
       c =>
         `(?pValue=${idParam(c.predicate)} && regex(str(?value), "${c.object}", "i"))`
     )
-    .join(" ||\n            ");
+    .join(" ||\n");
   const filterTemplate = hasFilters
     ? query`
         FILTER(
@@ -138,7 +138,7 @@ export function oneHopNeighborsTemplate({
           }
           ${classBindingTemplate}
           ${valueBindingTemplate}
-          ${indentLinesBeyondFirst(filterTemplate, "          ")}
+          ${filterTemplate}
           # Remove any classes from the list of neighbors
           FILTER NOT EXISTS {
             ?anySubject a ?neighbor .

@@ -1,6 +1,5 @@
-import dedent from "dedent";
 import { SPARQLCriterion } from "../types";
-import { indentLinesBeyondFirst } from "@/utils";
+import { query } from "@/utils";
 
 export const getSubjectClasses = (subjectClasses: string[]) => {
   if (!subjectClasses?.length) {
@@ -27,9 +26,9 @@ export const getFilters = (filterCriteria: SPARQLCriterion[]) => {
     )
     .join(" ||\n");
 
-  return dedent`
+  return query`
   FILTER (
-    ${indentLinesBeyondFirst(filtersTemplate, "    ")}
+    ${filtersTemplate}
   )`;
 };
 
