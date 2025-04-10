@@ -4,15 +4,31 @@
 
 ## Release v1.15.0
 
-- **Added** add /status endpoint to verify proxy health
-  ([#833](https://github.com/aws/graph-explorer/pull/833))
+This release expands on the last release by adding the ability to reload the
+graph you were working on in your last session. Now if you refresh your browser
+or close and reopen the app, you can pick up exactly where you left off.
+
+It also resolves a couple of long standing issues. The first is that double
+click expansion is now much more reliable and consistent across all three query
+languages. The second is that SPARQL neighbor counts and expansion is much more
+accurate and reliable.
+
+And as always, there are many additional small fixes and improvements.
+
+### New Features
+
 - **Added** ability to restore the graph from the previous session
   ([#826](https://github.com/aws/graph-explorer/pull/826),
   [#840](https://github.com/aws/graph-explorer/pull/840))
+- **Added** add /status endpoint to verify proxy health (thanks @ssheladiya,
+  [#833](https://github.com/aws/graph-explorer/pull/833))
 - **Added** ability to see full error details from errors in the UI
   ([#858](https://github.com/aws/graph-explorer/pull/858))
 - **Added** ability to cancel a long running schema sync
   ([#869](https://github.com/aws/graph-explorer/pull/869))
+
+### Bug Fixes and Minor Changes
+
 - **Updated** graph manipulation logic to lay foundations for query editor
   ([#864](https://github.com/aws/graph-explorer/pull/864),
   [#848](https://github.com/aws/graph-explorer/pull/848),
