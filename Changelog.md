@@ -4,15 +4,32 @@
 
 ## Release v1.15.0
 
-- **Added** add /status endpoint to verify proxy health
-  ([#833](https://github.com/aws/graph-explorer/pull/833))
+No longer must you start with an empty graph when you open Graph Explorer. In
+this release you can choose to restore the graph from your previous session with
+a single button click. This will fetch the details for all nodes and edges that
+were in your graph ensuring you have the most up to date information.
+
+This release also resolves a couple of long standing issues. The first is that
+double click expansion is now much more reliable and consistent across all three
+query languages. The second is that SPARQL neighbor counts and expansion is much
+more accurate and reliable.
+
+And as always, there are many additional small fixes and improvements.
+
+### New Features
+
 - **Added** ability to restore the graph from the previous session
   ([#826](https://github.com/aws/graph-explorer/pull/826),
   [#840](https://github.com/aws/graph-explorer/pull/840))
+- **Added** add /status endpoint to verify proxy health (thanks @ssheladiya,
+  [#833](https://github.com/aws/graph-explorer/pull/833))
 - **Added** ability to see full error details from errors in the UI
   ([#858](https://github.com/aws/graph-explorer/pull/858))
 - **Added** ability to cancel a long running schema sync
   ([#869](https://github.com/aws/graph-explorer/pull/869))
+
+### Other changes
+
 - **Updated** graph manipulation logic to lay foundations for query editor
   ([#864](https://github.com/aws/graph-explorer/pull/864),
   [#848](https://github.com/aws/graph-explorer/pull/848),
@@ -48,7 +65,7 @@
   ([865](https://github.com/aws/graph-explorer/pull/865))
 - **Updated** HMR behavior to ignore test files
   ([#835](https://github.com/aws/graph-explorer/pull/835))
-- **Fix** Docker build by not removing gzip
+- **Fixed** Docker build by not removing gzip
   ([#868](https://github.com/aws/graph-explorer/pull/868))
 - **Updated** dependencies
   ([#827](https://github.com/aws/graph-explorer/pull/827),
