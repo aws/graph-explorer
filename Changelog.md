@@ -6,6 +6,8 @@
 
 - **Added** ability to customize default neighbor expansion limit
   ([#925](https://github.com/aws/graph-explorer/pull/925))
+- **Improved** and more consistent styles for all dialogs across the app
+  ([#699](https://github.com/aws/graph-explorer/pull/699))
 - **Improved** Improved connection details by moving the sync button near the
   last sync timestamp (thanks @enumura1,
   [#901](https://github.com/aws/graph-explorer/pull/901),
