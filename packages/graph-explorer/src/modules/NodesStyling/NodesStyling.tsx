@@ -41,8 +41,9 @@ function NodesStyling({
               <SingleNodeStyling
                 vertexType={vtConfig.type}
                 opened={customizeNodeType === vtConfig.type}
-                onOpen={() => onNodeCustomize(vtConfig.type)}
-                onClose={() => onNodeCustomize(undefined)}
+                onOpenChanged={open =>
+                  onNodeCustomize(open ? vtConfig.type : undefined)
+                }
                 className="px-3 pb-3 pt-2"
               />
             </Fragment>
