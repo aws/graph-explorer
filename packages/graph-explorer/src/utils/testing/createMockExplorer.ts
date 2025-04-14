@@ -11,5 +11,6 @@ export function createMockExplorer(): Explorer {
     fetchSchema: vi.fn(),
     edgeDetails: vi.fn(),
     vertexDetails: vi.fn(),
+    rawQuery: vi.fn(),
   };
 }
