@@ -2,6 +2,8 @@
 
 ## Upcoming
 
+- **Added** query editor for Gremlin connections
+
 ## Release v1.15.0
 
 Graph Explorer now offers session persistence, allowing you to seamlessly
