@@ -43,4 +43,5 @@ export const emptyExplorer: Explorer = {
       edge: null,
     };
   },
+  rawQuery: async () => toMappedQueryResults({}),
 };
