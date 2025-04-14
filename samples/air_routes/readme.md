@@ -1,8 +1,8 @@
 # Air Routes Sample
 
-| Data Source  | Graph Type | Database         |
-| ------------ | ---------- | ---------------- |
-| [Air Routes] | [Gremlin]  | [Gremlin Server] |
+| Data Source  | Query Language | Database         |
+| ------------ | -------------- | ---------------- |
+| [Air Routes] | [Gremlin]      | [Gremlin Server] |
 
 [Air Routes]:
   https://github.com/krlawrence/graph/blob/main/sample-data/air-routes-latest.graphml
@@ -15,7 +15,7 @@ sample data and shows how to configure Graph Explorer to connect to it
 automatically with a default connection.
 
 > [!NOTE]  
-> The data is not persisted between restarts of the Docker Compose file.
+> The data is not persisted between restarts of the Docker container.
 
 ## Prerequisites
 
