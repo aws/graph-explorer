@@ -4,15 +4,33 @@
 
 ## Release v1.15.0
 
-- **Added** add /status endpoint to verify proxy health
-  ([#833](https://github.com/aws/graph-explorer/pull/833))
+Graph Explorer now offers session persistence, allowing you to seamlessly
+continue your work. With a single click, you can restore your previous graph
+visualization instead of starting from scratch. This feature retrieves the most
+current information for all nodes and edges from your last session, ensuring
+you're working with up-to-date data.
+
+This release also resolves a couple of long standing issues. The first is that
+double click expansion is now much more reliable and consistent across all three
+query languages. The second is that SPARQL neighbor counts and expansion is much
+more accurate and reliable.
+
+And as always, there are many additional small fixes and improvements.
+
+### New Features
+
 - **Added** ability to restore the graph from the previous session
   ([#826](https://github.com/aws/graph-explorer/pull/826),
   [#840](https://github.com/aws/graph-explorer/pull/840))
+- **Added** add /status endpoint to verify proxy health (thanks @ssheladiya,
+  [#833](https://github.com/aws/graph-explorer/pull/833))
 - **Added** ability to see full error details from errors in the UI
   ([#858](https://github.com/aws/graph-explorer/pull/858))
 - **Added** ability to cancel a long running schema sync
   ([#869](https://github.com/aws/graph-explorer/pull/869))
+
+### Other changes
+
 - **Updated** graph manipulation logic to lay foundations for query editor
   ([#864](https://github.com/aws/graph-explorer/pull/864),
   [#848](https://github.com/aws/graph-explorer/pull/848),
@@ -48,7 +66,7 @@
   ([865](https://github.com/aws/graph-explorer/pull/865))
 - **Updated** HMR behavior to ignore test files
   ([#835](https://github.com/aws/graph-explorer/pull/835))
-- **Fix** Docker build by not removing gzip
+- **Fixed** Docker build by not removing gzip
   ([#868](https://github.com/aws/graph-explorer/pull/868))
 - **Updated** dependencies
   ([#827](https://github.com/aws/graph-explorer/pull/827),

@@ -31,6 +31,8 @@ databases and Graph Explorer, we recommend that you check out the
   A quick start guide building the Docker image from source code.
 - [Troubleshooting](./additionaldocs/troubleshooting.md) - A collection of
   helpful tips if you run in to issues while setting up Graph Explorer.
+- [Samples](./samples) - A collection of Docker Compose files that show various
+  ways to configure and use Graph Explorer.
 
 ### Minimum Recommended Versions
 
@@ -311,10 +313,6 @@ docker run -p 80:80 -p 443:443 \
  --env GRAPH_EXP_NODE_EXPANSION_LIMIT=500 \
  public.ecr.aws/neptune/graph-explorer
 ```
-
-## Samples
-
-Choose from one of our samples, see [Samples](./samples/samples.md).
 
 ## Development
 
