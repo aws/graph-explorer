@@ -4,10 +4,11 @@
 
 ## Release v1.15.0
 
-No longer must you start with an empty graph when you open Graph Explorer. In
-this release you can choose to restore the graph from your previous session with
-a single button click. This will fetch the details for all nodes and edges that
-were in your graph ensuring you have the most up to date information.
+Graph Explorer now offers session persistence, allowing you to seamlessly
+continue your work. With a single click, you can restore your previous graph
+visualization instead of starting from scratch. This feature retrieves the most
+current information for all nodes and edges from your last session, ensuring
+you're working with up-to-date data.
 
 This release also resolves a couple of long standing issues. The first is that
 double click expansion is now much more reliable and consistent across all three
