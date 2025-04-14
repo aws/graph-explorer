@@ -1,8 +1,8 @@
 # Air Routes Sample
 
-| Data Source  | Query Language | Database         |
-| ------------ | -------------- | ---------------- |
-| [Air Routes] | [Gremlin]      | [Gremlin Server] |
+| Database         | Query Language | Data Source  |
+| ---------------- | -------------- | ------------ |
+| [Gremlin Server] | [Gremlin]      | [Air Routes] |
 
 [Air Routes]:
   https://github.com/krlawrence/graph/blob/main/sample-data/air-routes-latest.graphml
