@@ -1,10 +1,19 @@
-import { Modal } from "@mantine/core";
 import { useCallback, useMemo, useState } from "react";
 import { useRecoilCallback } from "recoil";
 import {
   AddIcon,
   Button,
   DeleteIcon,
+  Dialog,
+  DialogBody,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTrigger,
+  DialogTitle,
+  EmptyState,
+  EmptyStateIcon,
+  EmptyStateTitle,
   IconButton,
   InputField,
   ListRow,
@@ -12,20 +21,25 @@ import {
   ListRowSubtitle,
   ListRowTitle,
   NamespaceIcon,
-  PanelEmptyState,
   PanelFooter,
+  DialogDescription,
   SaveIcon,
   SearchBar,
   useSearchItems,
+  EmptyStateContent,
+  EmptyStateDescription,
+  EmptyStateActions,
 } from "@/components";
 import {
   activeConfigurationAtom,
   PrefixTypeConfig,
+  RawConfiguration,
   useConfiguration,
 } from "@/core";
 import { schemaAtom } from "@/core/StateProvider/schema";
 import { Virtuoso } from "react-virtuoso";
 import React from "react";
+import { VisuallyHidden } from "@react-aria/visually-hidden";
 
 type PrefixForm = {
   prefix: string;
@@ -33,17 +47,30 @@ type PrefixForm = {
 };
 
 const UserPrefixes = () => {
+  const config = useConfiguration();
   const items = useCustomPrefixes();
   const [opened, setOpened] = useState(false);
 
   return (
     <div className="flex h-full grow flex-col">
-      {items.length > 0 ? (
-        <SearchablePrefixes items={items} onOpen={() => setOpened(true)} />
-      ) : (
-        <EmptyState onCreate={() => setOpened(true)} />
+      {items.length === 0 && <NoPrefixes />}
+      {items.length > 0 && (
+        <PanelFooter className="flex justify-end">
+          <Dialog open={opened} onOpenChange={setOpened}>
+            <DialogTrigger asChild>
+              <SearchablePrefixes
+                items={items}
+                onOpen={() => setOpened(true)}
+              />
+              <Button icon={<AddIcon />}>Create</Button>
+            </DialogTrigger>
+            <CreateNamespaceModal
+              config={config}
+              close={() => setOpened(false)}
+            />
+          </Dialog>
+        </PanelFooter>
       )}
-      <EditPrefixModal opened={opened} onClose={() => setOpened(false)} />
     </div>
   );
 };
@@ -99,7 +126,7 @@ function SearchResults({
     <Virtuoso
       className={className}
       components={{
-        EmptyPlaceholder: NoSearchResults,
+        EmptyPlaceholder: NoPrefixes,
       }}
       data={filteredItems}
       itemContent={(_index, prefix) => <Row prefix={prefix} />}
@@ -129,27 +156,33 @@ const Row = React.memo(({ prefix }: { prefix: PrefixTypeConfig }) => {
   );
 });
 
-function NoSearchResults() {
-  return (
-    <PanelEmptyState
-      className="p-6"
-      title="No Namespaces Found"
-      subtitle="No custom namespaces found matching your search"
-      icon={<NamespaceIcon />}
-    />
-  );
-}
+function NoPrefixes() {
+  const [opened, setOpened] = useState(false);
+  const config = useConfiguration();
 
-function EmptyState({ onCreate }: { onCreate: () => void }) {
   return (
-    <PanelEmptyState
-      className="p-6"
-      title="No Namespaces"
-      subtitle="No custom namespaces stored"
-      icon={<NamespaceIcon />}
-      actionLabel="Create a new namespace"
-      onAction={onCreate}
-    />
+    <EmptyState>
+      <EmptyStateIcon>
+        <NamespaceIcon />
+      </EmptyStateIcon>
+      <EmptyStateContent>
+        <EmptyStateTitle>No Namespaces</EmptyStateTitle>
+        <EmptyStateDescription>
+          No custom namespaces stored
+        </EmptyStateDescription>
+        <EmptyStateActions>
+          <Dialog open={opened} onOpenChange={setOpened}>
+            <DialogTrigger asChild>
+              <Button>Start creating a new namespace</Button>
+            </DialogTrigger>
+            <CreateNamespaceModal
+              config={config}
+              close={() => setOpened(false)}
+            />
+          </Dialog>
+        </EmptyStateActions>
+      </EmptyStateContent>
+    </EmptyState>
   );
 }
 
@@ -185,15 +218,13 @@ function useDeletePrefixCallback(prefix: string) {
   );
 }
 
-function EditPrefixModal({
-  opened,
-  onClose,
+function CreateNamespaceModal({
+  config,
+  close,
 }: {
-  opened: boolean;
-  onClose: () => void;
+  config?: RawConfiguration;
+  close: () => void;
 }) {
-  const config = useConfiguration();
-
   const [hasError, setError] = useState(false);
   const [form, setForm] = useState<PrefixForm>({
     prefix: "",
@@ -243,17 +274,18 @@ function EditPrefixModal({
     onSave(form.prefix, form.uri);
     setForm({ prefix: "", uri: "" });
     setError(false);
-    onClose();
-  }, [form.prefix, form.uri, onClose, onSave]);
+    close();
+  }, [close, form.prefix, form.uri, onSave]);
 
   return (
-    <Modal
-      opened={opened}
-      onClose={onClose}
-      centered={true}
-      title="Create a new Namespace"
-    >
-      <div>
+    <DialogContent className="min-w-[400px]">
+      <DialogHeader>
+        <DialogTitle>Create a new Namespace</DialogTitle>
+        <VisuallyHidden>
+          <DialogDescription>Namespaces help shorten URIs</DialogDescription>
+        </VisuallyHidden>
+      </DialogHeader>
+      <DialogBody>
         <InputField
           label="Namespace"
           value={form.prefix}
@@ -271,13 +303,13 @@ function EditPrefixModal({
           validationState={hasError && !form.uri ? "invalid" : "valid"}
           errorMessage="URI is required"
         />
-      </div>
-      <div className="flex flex-row justify-end border-t pt-4">
+      </DialogBody>
+      <DialogFooter className="sm:justify-end">
         <Button icon={<SaveIcon />} variant="filled" onPress={onSubmit}>
           Save
         </Button>
-      </div>
-    </Modal>
+      </DialogFooter>
+    </DialogContent>
   );
 }
 

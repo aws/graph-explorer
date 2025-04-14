@@ -175,7 +175,14 @@ export default {
   plugins: [
     tailwindAnimate,
     tailwindContainerQueries,
-    plugin(({ addUtilities, matchUtilities, theme }) => {
+    plugin(({ addUtilities, addVariant, matchUtilities, theme }) => {
+      addVariant("popover-open", "&:popover-open");
+      addVariant("starting", "@starting-style");
+      addUtilities({
+        ".transition-discrete": {
+          transitionBehavior: "allow-discrete",
+        },
+      });
       addUtilities({
         ".content-auto": {
           "content-visibility": "auto",

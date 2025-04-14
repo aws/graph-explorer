@@ -1,17 +1,24 @@
-import { Modal } from "@mantine/core";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRecoilState, useResetRecoilState } from "recoil";
 import {
   Button,
   ComponentBaseProps,
   FormItem,
+  DialogBody,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
   InputField,
   Label,
   SelectField,
   StylingIcon,
+  Dialog,
+  DialogTrigger,
 } from "@/components";
 import ColorInput from "@/components/ColorInput/ColorInput";
-import { useDisplayEdgeTypeConfig, useWithTheme } from "@/core";
+import { useDisplayEdgeTypeConfig } from "@/core";
 import {
   ArrowStyle,
   EdgePreferences,
@@ -24,26 +31,22 @@ import {
   TARGET_ARROW_STYLE_OPTIONS,
 } from "./arrowsStyling";
 import { LINE_STYLE_OPTIONS } from "./lineStyling";
-import modalDefaultStyles from "./SingleEdgeStylingModal.style";
 import { useDebounceValue, usePrevious } from "@/hooks";
 import { MISSING_DISPLAY_TYPE, RESERVED_TYPES_PROPERTY } from "@/utils";
 
 export type SingleEdgeStylingProps = {
   edgeType: string;
   opened: boolean;
-  onOpen(): void;
-  onClose(): void;
+  onOpenChanged(open: boolean): void;
 } & ComponentBaseProps;
 
 export default function SingleEdgeStyling({
   edgeType,
   opened,
-  onOpen,
-  onClose,
+  onOpenChanged,
   ...rest
 }: SingleEdgeStylingProps) {
   const t = useTranslations();
-  const styleWithTheme = useWithTheme();
 
   const [edgePreferences, setEdgePreferences] = useRecoilState(
     userStylingEdgeAtom(edgeType)
@@ -101,156 +104,160 @@ export default function SingleEdgeStyling({
           value={displayAs}
           onChange={setDisplayAs}
         />
-        <Button icon={<StylingIcon />} variant="text" onClick={onOpen}>
-          Customize
-        </Button>
+        <Dialog open={opened} onOpenChange={onOpenChanged}>
+          <DialogTrigger asChild>
+            <Button icon={<StylingIcon />} variant="text" size="small">
+              Customize
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Customize Edge Style</DialogTitle>
+              <DialogDescription>
+                Customize styles for edge type {displayAs || edgeType}
+              </DialogDescription>
+            </DialogHeader>
+            <DialogBody>
+              <div className="space-y-2">
+                <div className="font-medium">Display Attributes</div>
+                <div className="flex justify-between gap-2">
+                  <SelectField
+                    label="Display Name Attribute"
+                    labelPlacement="inner"
+                    value={displayConfig.displayNameAttribute}
+                    onValueChange={value =>
+                      onUserPrefsChange({
+                        displayNameAttribute: value,
+                      })
+                    }
+                    options={selectOptions}
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div className="font-medium">Label Styling</div>
+                <div className="grid grid-cols-2 gap-2">
+                  <ColorInput
+                    label="Color"
+                    labelPlacement="inner"
+                    startColor={edgePreferences?.labelColor || "#17457b"}
+                    onChange={(color: string) =>
+                      onUserPrefsChange({ labelColor: color })
+                    }
+                    className="grow"
+                  />
+                  <InputField
+                    label="Background Opacity"
+                    labelPlacement="inner"
+                    type="number"
+                    min={0}
+                    max={1}
+                    step={0.1}
+                    value={edgePreferences?.labelBackgroundOpacity ?? 0.7}
+                    onChange={(value: number) =>
+                      onUserPrefsChange({ labelBackgroundOpacity: value })
+                    }
+                    className="grow"
+                  />
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  <ColorInput
+                    label="Border Color"
+                    labelPlacement="inner"
+                    startColor={edgePreferences?.labelBorderColor || "#17457b"}
+                    onChange={(color: string) =>
+                      onUserPrefsChange({ labelBorderColor: color })
+                    }
+                  />
+                  <InputField
+                    label="Border Width"
+                    labelPlacement="inner"
+                    type="number"
+                    min={0}
+                    value={edgePreferences?.labelBorderWidth ?? 0}
+                    onChange={(value: number) =>
+                      onUserPrefsChange({ labelBorderWidth: value })
+                    }
+                  />
+                  <SelectField
+                    label="Border Style"
+                    labelPlacement="inner"
+                    value={edgePreferences?.labelBorderStyle || "solid"}
+                    onValueChange={value =>
+                      onUserPrefsChange({
+                        labelBorderStyle: value as LineStyle,
+                      })
+                    }
+                    options={LINE_STYLE_OPTIONS}
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div className="font-medium">Line Styling</div>
+                <div className="grid grid-cols-3 gap-2">
+                  <ColorInput
+                    label="Color"
+                    labelPlacement="inner"
+                    startColor={edgePreferences?.lineColor || "#b3b3b3"}
+                    onChange={(color: string) =>
+                      onUserPrefsChange({ lineColor: color })
+                    }
+                  />
+                  <InputField
+                    label="Thickness"
+                    labelPlacement="inner"
+                    type="number"
+                    min={1}
+                    value={edgePreferences?.lineThickness || 2}
+                    onChange={(value: number) =>
+                      onUserPrefsChange({ lineThickness: value })
+                    }
+                  />
+                  <SelectField
+                    label="Style"
+                    labelPlacement="inner"
+                    value={edgePreferences?.lineStyle || "solid"}
+                    onValueChange={value =>
+                      onUserPrefsChange({ lineStyle: value as LineStyle })
+                    }
+                    options={LINE_STYLE_OPTIONS}
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div className="font-medium">Arrows Styling</div>
+                <div className="flex justify-between gap-2">
+                  <SelectField
+                    label="Source"
+                    labelPlacement="inner"
+                    value={edgePreferences?.sourceArrowStyle || "none"}
+                    onValueChange={value =>
+                      onUserPrefsChange({
+                        sourceArrowStyle: value as ArrowStyle,
+                      })
+                    }
+                    options={SOURCE_ARROW_STYLE_OPTIONS}
+                  />
+                  <SelectField
+                    label="Target"
+                    labelPlacement="inner"
+                    value={edgePreferences?.targetArrowStyle || "triangle"}
+                    onValueChange={value =>
+                      onUserPrefsChange({
+                        targetArrowStyle: value as ArrowStyle,
+                      })
+                    }
+                    options={TARGET_ARROW_STYLE_OPTIONS}
+                  />
+                </div>
+              </div>
+            </DialogBody>
+            <DialogFooter>
+              <Button onPress={onUserPrefsReset}>Reset to Default</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
-      <Modal
-        opened={opened}
-        onClose={onClose}
-        centered={true}
-        size="auto"
-        title={
-          <div>
-            Customize <strong>{displayConfig.displayLabel}</strong>
-          </div>
-        }
-        className={styleWithTheme(modalDefaultStyles)}
-        overlayProps={{
-          backgroundOpacity: 0.1,
-        }}
-      >
-        <div className="modal-container">
-          <div>
-            <p>Display Attributes</p>
-            <div className="attrs-container">
-              <SelectField
-                label="Display Name Attribute"
-                labelPlacement="inner"
-                value={displayConfig.displayNameAttribute}
-                onValueChange={value =>
-                  onUserPrefsChange({ displayNameAttribute: value })
-                }
-                options={selectOptions}
-              />
-            </div>
-          </div>
-          <div>
-            <p>Label Styling</p>
-            <div className="attrs-container">
-              <ColorInput
-                label="Color"
-                labelPlacement="inner"
-                startColor={edgePreferences?.labelColor || "#17457b"}
-                onChange={(color: string) =>
-                  onUserPrefsChange({ labelColor: color })
-                }
-              />
-              <InputField
-                label="Background Opacity"
-                labelPlacement="inner"
-                type="number"
-                min={0}
-                max={1}
-                step={0.1}
-                value={edgePreferences?.labelBackgroundOpacity ?? 0.7}
-                onChange={(value: number) =>
-                  onUserPrefsChange({ labelBackgroundOpacity: value })
-                }
-              />
-            </div>
-          </div>
-          <div>
-            <div className="attrs-container">
-              <ColorInput
-                label="Border Color"
-                labelPlacement="inner"
-                startColor={edgePreferences?.labelBorderColor || "#17457b"}
-                onChange={(color: string) =>
-                  onUserPrefsChange({ labelBorderColor: color })
-                }
-              />
-              <InputField
-                label="Border Width"
-                labelPlacement="inner"
-                type="number"
-                min={0}
-                value={edgePreferences?.labelBorderWidth ?? 0}
-                onChange={(value: number) =>
-                  onUserPrefsChange({ labelBorderWidth: value })
-                }
-              />
-              <SelectField
-                label="Border Style"
-                labelPlacement="inner"
-                value={edgePreferences?.labelBorderStyle || "solid"}
-                onValueChange={value =>
-                  onUserPrefsChange({ labelBorderStyle: value as LineStyle })
-                }
-                options={LINE_STYLE_OPTIONS}
-              />
-            </div>
-          </div>
-          <div>
-            <p>Line Styling</p>
-            <div className="attrs-container">
-              <ColorInput
-                label="Color"
-                labelPlacement="inner"
-                startColor={edgePreferences?.lineColor || "#b3b3b3"}
-                onChange={(color: string) =>
-                  onUserPrefsChange({ lineColor: color })
-                }
-              />
-              <InputField
-                label="Thickness"
-                labelPlacement="inner"
-                type="number"
-                min={1}
-                value={edgePreferences?.lineThickness || 2}
-                onChange={(value: number) =>
-                  onUserPrefsChange({ lineThickness: value })
-                }
-              />
-              <SelectField
-                label="Style"
-                labelPlacement="inner"
-                value={edgePreferences?.lineStyle || "solid"}
-                onValueChange={value =>
-                  onUserPrefsChange({ lineStyle: value as LineStyle })
-                }
-                options={LINE_STYLE_OPTIONS}
-              />
-            </div>
-          </div>
-          <div>
-            <p>Arrows Styling</p>
-            <div className="attrs-container">
-              <SelectField
-                label="Source"
-                labelPlacement="inner"
-                value={edgePreferences?.sourceArrowStyle || "none"}
-                onValueChange={value =>
-                  onUserPrefsChange({ sourceArrowStyle: value as ArrowStyle })
-                }
-                options={SOURCE_ARROW_STYLE_OPTIONS}
-              />
-              <SelectField
-                label="Target"
-                labelPlacement="inner"
-                value={edgePreferences?.targetArrowStyle || "triangle"}
-                onValueChange={value =>
-                  onUserPrefsChange({ targetArrowStyle: value as ArrowStyle })
-                }
-                options={TARGET_ARROW_STYLE_OPTIONS}
-              />
-            </div>
-          </div>
-          <div className="actions">
-            <Button onPress={onUserPrefsReset}>Reset to Default</Button>
-          </div>
-        </div>
-      </Modal>
     </FormItem>
   );
 }

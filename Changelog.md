@@ -2,6 +2,9 @@
 
 ## Upcoming
 
+- **Improved** and more consistent styles for all dialogs across the app
+  ([#699](https://github.com/aws/graph-explorer/pull/699))
+
 ## Release v1.15.0
 
 - **Added** add /status endpoint to verify proxy health

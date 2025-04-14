@@ -41,8 +41,9 @@ function EdgesStyling({
               <SingleEdgeStyling
                 edgeType={etConfig.type}
                 opened={customizeEdgeType === etConfig.type}
-                onOpen={() => onEdgeCustomize(etConfig.type)}
-                onClose={() => onEdgeCustomize(undefined)}
+                onOpenChanged={open =>
+                  onEdgeCustomize(open ? etConfig.type : undefined)
+                }
                 className="px-3 pb-3 pt-2"
               />
             </Fragment>
