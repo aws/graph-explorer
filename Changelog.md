@@ -3,6 +3,7 @@
 ## Upcoming
 
 - **Added** query editor for Gremlin connections
+  ([#878](https://github.com/aws/graph-explorer/pull/878))
 
 ## Release v1.15.0
 
