@@ -10,8 +10,9 @@
 [Gremlin Server]:
   https://tinkerpop.apache.org/docs/current/reference/#gremlin-server
 
-This sample uses Gremlin Server as the database and shows how to configure Graph
-Explorer to connect to it automatically with a default connection.
+This sample uses Gremlin Server as the database pre-loaded with the air routes
+sample data and shows how to configure Graph Explorer to connect to it
+automatically with a default connection.
 
 > [!NOTE]  
 > The data is not persisted between restarts of the Docker Compose file.

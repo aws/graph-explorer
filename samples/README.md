@@ -5,7 +5,8 @@ using open source databases.
 
 ## Air Routes with Gremlin Server
 
-This sample uses Gremlin Server as the database and shows how to configure Graph
-Explorer to connect to it automatically with a default connection.
+This sample uses Gremlin Server as the database pre-loaded with the air routes
+sample data and shows how to configure Graph Explorer to connect to it
+automatically with a default connection.
 
 [Air Routes](./air_routes/readme.md)
