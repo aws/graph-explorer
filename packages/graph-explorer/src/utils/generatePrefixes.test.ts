@@ -4,6 +4,32 @@ import generatePrefixes, {
 } from "./generatePrefixes";
 
 describe("generatePrefixes", () => {
+  it("should return null when nothing is updated", () => {
+    const existing = [
+      {
+        prefix: "owl",
+        uri: "https://www.w3.org/2002/07/owl#",
+        __matches: new Set(["https://www.w3.org/2002/07/owl#ObjectProperty"]),
+      },
+      {
+        prefix: "rdf",
+        uri: "https://www.w3.org/2000/01/rdf-schema#",
+        __matches: new Set([
+          "https://www.w3.org/2000/01/rdf-schema#subClassOf",
+        ]),
+      },
+    ];
+
+    const uris = new Set([
+      "https://www.w3.org/2002/07/owl#ObjectProperty",
+      "https://www.w3.org/2000/01/rdf-schema#subClassOf",
+    ]);
+
+    const result = generatePrefixes(uris, existing);
+
+    expect(result).toBeNull();
+  });
+
   it("Should generate prefixes for URLs which contain a #", () => {
     const urisWithConfig = {
       "https://www.w3.org/2002/07/owl#ObjectProperty": {
@@ -76,14 +102,14 @@ describe("generatePrefixes", () => {
 
   it("Should generate only non-matching prefixes and update counts", () => {
     const updatedPrefixes = generatePrefixes(
-      [
+      new Set([
         "https://www.w3.org/2002/07/owl#ObjectProperty",
         "https://dbpedia.org/resource/Qualifying_Rounds",
         "http://www.example.com/soccer/ontology/League",
         "http://www.example.com/soccer/resource#EPL",
         "http://www.example.com/location/resource#London",
         "http://www.example.com/location/resource#Manchester",
-      ],
+      ]),
       [
         { prefix: "owl", uri: "https://www.w3.org/2002/07/owl#" },
         { prefix: "dbr", uri: "https://dbpedia.org/resource/" },
@@ -135,11 +161,11 @@ describe("generatePrefixes", () => {
 
   it("Should update existing prefixes when casing doesn't match", () => {
     const updatedPrefixes = generatePrefixes(
-      [
+      new Set([
         "http://SecretSpyOrg/entity/quantity",
         "http://SecretSpyOrg/entity/other",
         "http://SecretSpyOrg/data/hasText",
-      ],
+      ]),
       [
         {
           __inferred: true,
