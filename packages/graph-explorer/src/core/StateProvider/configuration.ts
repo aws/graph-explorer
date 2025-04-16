@@ -23,11 +23,6 @@ import {
   RESERVED_TYPES_PROPERTY,
 } from "@/utils/constants";
 
-export const isStoreLoadedAtom = atom<boolean>({
-  key: "store-loaded",
-  default: false,
-});
-
 export const activeConfigurationAtom = atom<ConfigurationId | null>({
   key: "active-configuration",
   default: null,

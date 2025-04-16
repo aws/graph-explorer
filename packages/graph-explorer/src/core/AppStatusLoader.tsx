@@ -1,4 +1,4 @@
-import { PropsWithChildren, startTransition, useEffect } from "react";
+import { PropsWithChildren, startTransition, Suspense, useEffect } from "react";
 import { useLocation } from "react-router";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { LoadingSpinner, PanelEmptyState } from "@/components";
@@ -6,18 +6,23 @@ import Redirect from "@/components/Redirect";
 import {
   activeConfigurationAtom,
   configurationAtom,
-  isStoreLoadedAtom,
 } from "./StateProvider/configuration";
 import { schemaAtom } from "./StateProvider/schema";
-import useLoadStore from "./StateProvider/useLoadStore";
 import { logger } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
 import { fetchDefaultConnection } from "./defaultConnection";
 
-const AppStatusLoader = ({ children }: PropsWithChildren) => {
+function AppStatusLoader({ children }: PropsWithChildren) {
+  return (
+    <Suspense fallback={<PreparingEnvironment />}>
+      <LoadDefaultConfig>{children}</LoadDefaultConfig>
+    </Suspense>
+  );
+}
+
+function LoadDefaultConfig({ children }: PropsWithChildren) {
   const location = useLocation();
-  useLoadStore();
-  const isStoreLoaded = useRecoilValue(isStoreLoadedAtom);
+
   const [activeConfig, setActiveConfig] = useRecoilState(
     activeConfigurationAtom
   );
@@ -29,17 +34,12 @@ const AppStatusLoader = ({ children }: PropsWithChildren) => {
     queryFn: fetchDefaultConnection,
     staleTime: Infinity,
     // Run the query only if the store is loaded and there are no configs
-    enabled: isStoreLoaded && configuration.size === 0,
+    enabled: configuration.size === 0,
   });
 
   const defaultConnectionConfigs = defaultConfigQuery.data;
 
   useEffect(() => {
-    if (!isStoreLoaded) {
-      logger.debug("Store not loaded, skipping default connection load");
-      return;
-    }
-
     if (configuration.size > 0) {
       logger.debug(
         "Connections already exist, skipping default connection load"
@@ -66,22 +66,10 @@ const AppStatusLoader = ({ children }: PropsWithChildren) => {
   }, [
     activeConfig,
     configuration,
-    isStoreLoaded,
     setActiveConfig,
     setConfiguration,
     defaultConnectionConfigs,
   ]);
-
-  // Wait until state is recovered from the indexed DB
-  if (!isStoreLoaded) {
-    return (
-      <PanelEmptyState
-        title="Preparing environment..."
-        subtitle="We are loading all components"
-        icon={<LoadingSpinner />}
-      />
-    );
-  }
 
   if (configuration.size === 0 && defaultConfigQuery.isLoading) {
     return (
@@ -120,6 +108,16 @@ const AppStatusLoader = ({ children }: PropsWithChildren) => {
   }
 
   return <>{children}</>;
-};
+}
+
+function PreparingEnvironment() {
+  return (
+    <PanelEmptyState
+      title="Preparing environment..."
+      subtitle="We are loading all components"
+      icon={<LoadingSpinner />}
+    />
+  );
+}
 
 export default AppStatusLoader;
