@@ -7,11 +7,6 @@ localForage.config({
   storeName: "graph-explorer",
 });
 
-// The first time that the atom is loaded from the store,
-// mark as loaded to avoid side effect on asynchronous events
-// that can load the atom state before it is recovered from the store
-export const loadedAtoms: Set<string> = new Set();
-
 /**
  * Loads and sets data asynchronously to localForage. Must be used within a
  * Suspense and ErrorBoundary.
