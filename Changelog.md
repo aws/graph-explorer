@@ -2,6 +2,9 @@
 
 ## Upcoming
 
+- **Updated** localForage Recoil integration to be async and use Suspense
+  ([#883](https://github.com/aws/graph-explorer/pull/883))
+
 ## Release v1.15.0
 
 Graph Explorer now offers session persistence, allowing you to seamlessly
