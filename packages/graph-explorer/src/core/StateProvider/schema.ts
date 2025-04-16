@@ -5,7 +5,7 @@ import {
   PrefixTypeConfig,
   VertexTypeConfig,
 } from "@/core/ConfigurationProvider";
-import localForageEffect from "./localForageEffect";
+import { localForageEffect } from "./localForageEffect";
 import { activeConfigurationAtom } from "./configuration";
 import { Edge, Entities, toEdgeMap, toNodeMap, Vertex } from "@/core";
 import { logger, sanitizeText } from "@/utils";
@@ -26,7 +26,7 @@ export type SchemaInference = {
 export const schemaAtom = atom<Map<string, SchemaInference>>({
   key: "schema",
   default: new Map(),
-  effects: [localForageEffect()],
+  effects: [localForageEffect("schema")],
 });
 
 export const activeSchemaSelector = selector({
