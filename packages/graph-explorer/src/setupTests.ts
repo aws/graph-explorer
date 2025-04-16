@@ -54,3 +54,12 @@ vi.mock("localforage", () => {
     },
   };
 });
+
+// Mock the Recoil local forage effect, disabling it entirely. The switch to
+// async local forage access made the tests fail in spectacular ways that I
+// could not easily resolve.
+vi.mock("@/core/StateProvider/localForageEffect", () => {
+  return {
+    localForageEffect: vi.fn().mockReturnValue(() => vi.fn()),
+  };
+});

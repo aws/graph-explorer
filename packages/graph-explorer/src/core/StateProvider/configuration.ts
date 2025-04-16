@@ -9,7 +9,7 @@ import type {
   RawConfiguration,
   VertexTypeConfig,
 } from "@/core";
-import localForageEffect from "./localForageEffect";
+import { localForageEffect } from "./localForageEffect";
 import { activeSchemaSelector, SchemaInference } from "./schema";
 import {
   EdgePreferences,
@@ -31,13 +31,13 @@ export const isStoreLoadedAtom = atom<boolean>({
 export const activeConfigurationAtom = atom<ConfigurationId | null>({
   key: "active-configuration",
   default: null,
-  effects: [localForageEffect()],
+  effects: [localForageEffect("active-configuration")],
 });
 
 export const configurationAtom = atom<Map<ConfigurationId, RawConfiguration>>({
   key: "configuration",
   default: new Map(),
-  effects: [localForageEffect()],
+  effects: [localForageEffect("configuration")],
 });
 
 /** Gets or sets the config that is currently active. */
