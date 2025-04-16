@@ -33,11 +33,24 @@ vi.mock("@/utils/logger", () => ({
 
 // Mock localforage
 vi.mock("localforage", () => {
+  const store = new Map<string, any>();
+
   return {
     default: {
       config: vi.fn(),
-      getItem: vi.fn(),
-      setItem: vi.fn(),
+      getItem: vi.fn((key: string) => Promise.resolve(store.get(key))),
+      setItem: vi.fn((key: string, value: any) => {
+        store.set(key, value);
+        return Promise.resolve(value);
+      }),
+      removeItem: vi.fn((key: string) => {
+        store.delete(key);
+        return Promise.resolve();
+      }),
+      clear: vi.fn(() => {
+        store.clear();
+        return Promise.resolve();
+      }),
     },
   };
 });
