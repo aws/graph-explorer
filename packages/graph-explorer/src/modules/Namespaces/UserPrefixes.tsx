@@ -1,5 +1,5 @@
 import { Modal } from "@mantine/core";
-import { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { useRecoilCallback } from "recoil";
 import {
   AddIcon,
@@ -25,7 +25,6 @@ import {
 } from "@/core";
 import { schemaAtom } from "@/core/StateProvider/schema";
 import { Virtuoso } from "react-virtuoso";
-import React from "react";
 
 type PrefixForm = {
   prefix: string;

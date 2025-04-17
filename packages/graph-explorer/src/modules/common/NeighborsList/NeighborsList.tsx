@@ -1,5 +1,9 @@
 import { cn } from "@/utils";
-import { VertexId } from "@/core";
+import {
+  VertexId,
+  useNeighbors,
+  useNeighborByType as useNeighborsByType,
+} from "@/core";
 import {
   Button,
   Chip,
@@ -9,7 +13,6 @@ import {
   VertexIcon,
   VisibleIcon,
 } from "@/components";
-import { useNeighbors, useNeighborByType as useNeighborsByType } from "@/core";
 import useNeighborsOptions, {
   NeighborOption,
 } from "@/hooks/useNeighborsOptions";

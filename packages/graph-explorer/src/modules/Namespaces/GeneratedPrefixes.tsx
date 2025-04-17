@@ -1,4 +1,4 @@
-import { ComponentPropsWithoutRef, useMemo } from "react";
+import React, { ComponentPropsWithoutRef, useMemo } from "react";
 import {
   ListRow,
   ListRowContent,
@@ -11,7 +11,6 @@ import {
 } from "@/components";
 import { PrefixTypeConfig, useConfiguration } from "@/core";
 import { Virtuoso } from "react-virtuoso";
-import React from "react";
 
 const GeneratedPrefixes = () => {
   const items = useGeneratedPrefixes();

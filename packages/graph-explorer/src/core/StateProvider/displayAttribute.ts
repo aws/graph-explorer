@@ -1,7 +1,6 @@
-import { Vertex, Edge } from "@/core";
+import { Vertex, Edge, AttributeConfig } from "@/core";
 import { MISSING_DISPLAY_VALUE, formatDate } from "@/utils";
 import { TextTransformer } from "@/hooks";
-import { AttributeConfig } from "@/core";
 
 /** Represents an attribute's display information after all transformations have been applied. */
 export type DisplayAttribute = {

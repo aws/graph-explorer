@@ -2,9 +2,12 @@ import {
   ConfigurationContextProps,
   EdgeTypeConfig,
   VertexTypeConfig,
+  Edge,
+  EdgeId,
+  Vertex,
+  VertexId,
 } from "@/core";
 import { ConnectionConfig } from "@shared/types";
-import { Edge, EdgeId, Vertex, VertexId } from "@/core";
 
 export type QueryOptions = RequestInit & {
   queryId?: string;

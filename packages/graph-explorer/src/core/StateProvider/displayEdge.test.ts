@@ -1,4 +1,4 @@
-import { Edge } from "@/core";
+import { Edge, getRawId } from "@/core";
 import {
   createRandomEdge,
   createRandomEdgeTypeConfig,
@@ -21,7 +21,6 @@ import { Schema } from "../ConfigurationProvider";
 import { MutableSnapshot } from "recoil";
 import { schemaAtom } from "./schema";
 import { QueryEngine } from "@shared/types";
-import { getRawId } from "@/core";
 
 describe("useDisplayEdgeFromEdge", () => {
   it("should keep the same ID", () => {

@@ -19,11 +19,11 @@ import {
   PanelHeaderDivider,
   PanelTitle,
   VertexSymbol,
+  IconButton,
 } from "@/components";
 import Graph from "@/components/Graph";
 import { GraphRef } from "@/components/Graph/Graph";
 import { ElementEventCallback } from "@/components/Graph/hooks/useAddClickEvents";
-import { IconButton } from "@/components";
 import SelectField from "@/components/SelectField";
 import {
   edgesOutOfFocusRenderedIdsAtom,

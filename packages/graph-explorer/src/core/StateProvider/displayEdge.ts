@@ -1,7 +1,9 @@
-import { Edge, EdgeId, getRawId, Vertex, VertexId } from "@/core";
-import { selector, selectorFamily, useRecoilValue } from "recoil";
-import { textTransformSelector } from "@/hooks";
 import {
+  Edge,
+  EdgeId,
+  getRawId,
+  Vertex,
+  VertexId,
   DisplayEdgeTypeConfig,
   displayEdgeTypeConfigSelector,
   DisplayAttribute,
@@ -13,6 +15,8 @@ import {
   edgeSelector,
   edgeTypeAttributesSelector,
 } from "@/core";
+import { selector, selectorFamily, useRecoilValue } from "recoil";
+import { textTransformSelector } from "@/hooks";
 import {
   MISSING_DISPLAY_VALUE,
   RESERVED_ID_PROPERTY,

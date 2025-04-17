@@ -1,8 +1,11 @@
 import { useCallback } from "react";
 import { Badge, BadgeRenderer } from "@/components/Graph/hooks/useRenderBadges";
-import { getVertexIdFromRenderedVertexId, RenderedVertexId } from "@/core";
-import { useDisplayVerticesInCanvas } from "@/core";
-import { useAllNeighbors } from "@/core";
+import {
+  getVertexIdFromRenderedVertexId,
+  RenderedVertexId,
+  useDisplayVerticesInCanvas,
+  useAllNeighbors,
+} from "@/core";
 
 const useNodeBadges = () => {
   const displayNodes = useDisplayVerticesInCanvas();

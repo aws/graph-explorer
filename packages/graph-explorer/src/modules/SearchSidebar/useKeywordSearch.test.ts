@@ -1,7 +1,10 @@
 import useKeywordSearch from "./useKeywordSearch";
 import { QueryEngine } from "@shared/types";
-import { createRandomSchema, renderHookWithRecoilRoot } from "@/utils/testing";
-import { createRandomRawConfiguration } from "@/utils/testing";
+import {
+  createRandomSchema,
+  renderHookWithRecoilRoot,
+  createRandomRawConfiguration,
+} from "@/utils/testing";
 import {
   activeConfigurationAtom,
   configurationAtom,
