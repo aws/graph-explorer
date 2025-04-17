@@ -1,5 +1,5 @@
 import { atom, DefaultValue, selectorFamily, useSetRecoilState } from "recoil";
-import localForageEffect from "./localForageEffect";
+import { localForageEffect } from "./localForageEffect";
 import { useCallback } from "react";
 
 export type ShapeStyle =
@@ -120,7 +120,7 @@ export type SidebarItems = UserPreferences["layout"]["activeSidebarItem"];
 export const userStylingAtom = atom<UserStyling>({
   key: "user-styling",
   default: {},
-  effects: [localForageEffect()],
+  effects: [localForageEffect("user-styling")],
 });
 
 export const userStylingNodeAtom = selectorFamily({
@@ -211,7 +211,7 @@ export const userLayoutAtom = atom<UserPreferences["layout"]>({
       height: 300,
     },
   },
-  effects: [localForageEffect()],
+  effects: [localForageEffect("user-layout")],
 });
 
 export function useCloseSidebar() {
