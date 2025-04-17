@@ -159,11 +159,9 @@ export function updateSchemaPrefixes(schema: SchemaInference): SchemaInference {
   const existingPrefixes = schema.prefixes ?? [];
 
   // Get all the resource URIs from the vertex and edge type configs
-  const resourceUris = schema.vertices
-    .flatMap(v => [v.type, ...v.attributes.map(attr => attr.name)])
-    .concat(schema.edges.map(e => e.type));
+  const resourceUris = getResourceUris(schema);
 
-  if (resourceUris.length === 0) {
+  if (resourceUris.size === 0) {
     return schema;
   }
 
@@ -178,6 +176,23 @@ export function updateSchemaPrefixes(schema: SchemaInference): SchemaInference {
     ...schema,
     prefixes: genPrefixes,
   };
+}
+
+/** A performant way to construct the set of resource URIs from the schema. */
+function getResourceUris(schema: SchemaInference) {
+  const result = new Set<string>();
+
+  schema.vertices.forEach(v => {
+    result.add(v.type);
+    v.attributes.forEach(attr => {
+      result.add(attr.name);
+    });
+  });
+  schema.edges.forEach(e => {
+    result.add(e.type);
+  });
+
+  return result;
 }
 
 /** Updates the schema with any new vertex or edge types, any new attributes, and updates the generated prefixes for sparql connections. */

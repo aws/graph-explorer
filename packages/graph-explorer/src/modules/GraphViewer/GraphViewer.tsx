@@ -52,11 +52,6 @@ import {
   ZoomOutIcon,
 } from "lucide-react";
 
-export type GraphViewerProps = {
-  onNodeCustomize(nodeType?: string): void;
-  onEdgeCustomize(edgeType?: string): void;
-};
-
 const LAYOUT_OPTIONS = [
   {
     label: "Force Directed  (F0Cose)",
@@ -98,10 +93,7 @@ function onContextMenu(e: MouseEvent<HTMLDivElement>) {
   e.stopPropagation();
 }
 
-export default function GraphViewer({
-  onNodeCustomize,
-  onEdgeCustomize,
-}: GraphViewerProps) {
+export default function GraphViewer() {
   const graphRef = useRef<GraphRef | null>(null);
 
   const [nodesSelectedIds, setNodesSelectedIds] = useRecoilState(
@@ -259,8 +251,6 @@ export default function GraphViewer({
                   onClose={clearAllLayers}
                   affectedNodesIds={contextNodeId ? [contextNodeId] : []}
                   affectedEdgesIds={contextEdgeId ? [contextEdgeId] : []}
-                  onNodeCustomize={onNodeCustomize}
-                  onEdgeCustomize={onEdgeCustomize}
                 />
               </div>
             )}

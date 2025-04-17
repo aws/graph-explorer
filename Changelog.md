@@ -45,6 +45,9 @@ And as always, there are many additional small fixes and improvements.
   ([#828](https://github.com/aws/graph-explorer/pull/828))
 - **Updated** namespaces sidebar to use tabs instead of dropdown
   ([#830](https://github.com/aws/graph-explorer/pull/830))
+- **Fixed** rendering performance issues adding to the graph and showing the
+  entity filters or node & edge style sidebars
+  ([#892](https://github.com/aws/graph-explorer/pull/892))
 - **Fixed** issues with filtered neighbor expansion and neighbor counts in RDF
   databases ([#870](https://github.com/aws/graph-explorer/pull/870))
 - **Fixed** issue where double click expansion was inconsistent
