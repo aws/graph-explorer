@@ -1,30 +1,21 @@
 import {
   CheckboxList,
-  Divider,
   Panel,
   PanelContent,
   PanelHeader,
   PanelHeaderActions,
   PanelTitle,
+  SidebarTabs,
+  SidebarTabsContent,
+  SidebarTabsList,
+  SidebarTabsTrigger,
 } from "@/components";
-import useTranslations from "@/hooks/useTranslations";
 import useFiltersConfig from "./useFiltersConfig";
-import { PropsWithChildren } from "react";
 import { SidebarCloseButton } from "../SidebarCloseButton";
+import { useTranslations } from "@/hooks";
 
 function EntitiesFilter() {
   const t = useTranslations();
-
-  const {
-    selectedVertexTypes,
-    vertexTypes,
-    onChangeVertexTypes,
-    onChangeAllVertexTypes,
-    selectedConnectionTypes,
-    connectionTypes,
-    onChangeConnectionTypes,
-    onChangeAllConnectionTypes,
-  } = useFiltersConfig();
 
   return (
     <Panel variant="sidebar">
@@ -35,36 +26,61 @@ function EntitiesFilter() {
         </PanelHeaderActions>
       </PanelHeader>
       <PanelContent>
-        {connectionTypes.length > 0 && (
-          <CheckboxListContainer>
-            <CheckboxList
-              title={t("entities-filter.edge-types")}
-              selectedIds={selectedConnectionTypes}
-              checkboxes={connectionTypes}
-              onChange={onChangeConnectionTypes}
-              onChangeAll={onChangeAllConnectionTypes}
-            />
-          </CheckboxListContainer>
-        )}
-        <Divider />
-        {vertexTypes.length > 0 && (
-          <CheckboxListContainer>
-            <CheckboxList
-              title={t("entities-filter.node-types")}
-              selectedIds={selectedVertexTypes}
-              checkboxes={vertexTypes}
-              onChange={onChangeVertexTypes}
-              onChangeAll={onChangeAllVertexTypes}
-            />
-          </CheckboxListContainer>
-        )}
+        <SidebarTabs defaultValue="vertex">
+          <SidebarTabsList>
+            <SidebarTabsTrigger value="vertex">
+              {t("entities-filter.node-types")}
+            </SidebarTabsTrigger>
+            <SidebarTabsTrigger value="edge">
+              {t("entities-filter.edge-types")}
+            </SidebarTabsTrigger>
+          </SidebarTabsList>
+          <SidebarTabsContent value="vertex">
+            <VertexFiltersTabContent />
+          </SidebarTabsContent>
+          <SidebarTabsContent value="edge">
+            <EdgeFiltersTabContent />
+          </SidebarTabsContent>
+        </SidebarTabs>
       </PanelContent>
     </Panel>
   );
 }
 
-function CheckboxListContainer(props: PropsWithChildren) {
-  return <div className="w-full px-3 py-2">{props.children}</div>;
+function EdgeFiltersTabContent() {
+  const {
+    selectedConnectionTypes,
+    connectionTypes,
+    onChangeConnectionTypes,
+    onChangeAllConnectionTypes,
+  } = useFiltersConfig();
+
+  return (
+    <CheckboxList
+      selectedIds={selectedConnectionTypes}
+      checkboxes={connectionTypes}
+      onChange={onChangeConnectionTypes}
+      onChangeAll={onChangeAllConnectionTypes}
+    />
+  );
+}
+
+function VertexFiltersTabContent() {
+  const {
+    selectedVertexTypes,
+    vertexTypes,
+    onChangeVertexTypes,
+    onChangeAllVertexTypes,
+  } = useFiltersConfig();
+
+  return (
+    <CheckboxList
+      selectedIds={selectedVertexTypes}
+      checkboxes={vertexTypes}
+      onChange={onChangeVertexTypes}
+      onChangeAll={onChangeAllVertexTypes}
+    />
+  );
 }
 
 export default EntitiesFilter;
