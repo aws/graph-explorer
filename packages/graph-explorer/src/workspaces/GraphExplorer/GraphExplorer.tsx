@@ -1,6 +1,6 @@
 import { cn } from "@/utils";
 import { Resizable } from "re-resizable";
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { Link } from "react-router";
 import { useRecoilState, useRecoilValue } from "recoil";
 import {
@@ -35,7 +35,7 @@ import EntityDetails from "@/modules/EntityDetails";
 import GraphViewer from "@/modules/GraphViewer";
 import Namespaces from "@/modules/Namespaces/Namespaces";
 import NodeExpand from "@/modules/NodeExpand";
-import NodesStyling from "@/modules/NodesStyling/NodesStyling";
+import { NodesStyling } from "@/modules/NodesStyling";
 import defaultStyles from "./GraphExplorer.styles";
 import { APP_NAME } from "@/utils/constants";
 import { SearchSidebarPanel } from "@/modules/SearchSidebar";
@@ -114,12 +114,6 @@ const GraphExplorer = () => {
   );
 
   const toggles = userLayout.activeToggles;
-  const [customizeNodeType, setCustomizeNodeType] = useState<
-    string | undefined
-  >();
-  const [customizeEdgeType, setCustomizeEdgeType] = useState<
-    string | undefined
-  >();
 
   return (
     <Workspace className={cn(styleWithTheme(defaultStyles), "graph-explorer")}>
@@ -182,10 +176,7 @@ const GraphExplorer = () => {
         )}
         {toggles.has("graph-viewer") && (
           <div className="relative w-full grow">
-            <GraphViewer
-              onNodeCustomize={setCustomizeNodeType}
-              onEdgeCustomize={setCustomizeEdgeType}
-            />
+            <GraphViewer />
           </div>
         )}
         {toggles.has("table-view") && (
@@ -265,18 +256,8 @@ const GraphExplorer = () => {
           {userLayout.activeSidebarItem === "details" && <EntityDetails />}
           {userLayout.activeSidebarItem === "expand" && <NodeExpand />}
           {userLayout.activeSidebarItem === "filters" && <EntitiesFilter />}
-          {userLayout.activeSidebarItem === "nodes-styling" && (
-            <NodesStyling
-              customizeNodeType={customizeNodeType}
-              onNodeCustomize={setCustomizeNodeType}
-            />
-          )}
-          {userLayout.activeSidebarItem === "edges-styling" && (
-            <EdgesStyling
-              customizeEdgeType={customizeEdgeType}
-              onEdgeCustomize={setCustomizeEdgeType}
-            />
-          )}
+          {userLayout.activeSidebarItem === "nodes-styling" && <NodesStyling />}
+          {userLayout.activeSidebarItem === "edges-styling" && <EdgesStyling />}
           {userLayout.activeSidebarItem === "namespaces" && <Namespaces />}
         </Workspace.SideBar.Content>
       </Workspace.SideBar>

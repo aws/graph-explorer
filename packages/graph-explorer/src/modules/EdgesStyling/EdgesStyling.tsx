@@ -11,17 +11,16 @@ import { useDisplayEdgeTypeConfigs } from "@/core";
 import useTranslations from "@/hooks/useTranslations";
 import SingleEdgeStyling from "./SingleEdgeStyling";
 import { SidebarCloseButton } from "../SidebarCloseButton";
+import EdgeStyleDialog from "./EdgeStyleDialog";
+import { useMemo } from "react";
+import { Virtuoso } from "react-virtuoso";
 
-export type EdgesStylingProps = {
-  onEdgeCustomize(edgeType?: string): void;
-  customizeEdgeType?: string;
-};
-
-function EdgesStyling({
-  customizeEdgeType,
-  onEdgeCustomize,
-}: EdgesStylingProps) {
-  const etConfigs = useDisplayEdgeTypeConfigs().values().toArray();
+function EdgesStyling() {
+  const etConfigMap = useDisplayEdgeTypeConfigs();
+  const etConfigs = useMemo(
+    () => etConfigMap.values().toArray(),
+    [etConfigMap]
+  );
   const t = useTranslations();
 
   return (
@@ -33,21 +32,21 @@ function EdgesStyling({
         </PanelHeaderActions>
       </PanelHeader>
       <PanelContent className="flex flex-col gap-2">
-        {etConfigs.map((etConfig, index) => {
-          return (
+        <Virtuoso
+          className="h-full grow"
+          data={etConfigs}
+          itemContent={(index, etConfig) => (
             <Fragment key={etConfig.type}>
               {index !== 0 ? <Divider /> : null}
 
               <SingleEdgeStyling
                 edgeType={etConfig.type}
-                opened={customizeEdgeType === etConfig.type}
-                onOpen={() => onEdgeCustomize(etConfig.type)}
-                onClose={() => onEdgeCustomize(undefined)}
                 className="px-3 pb-3 pt-2"
               />
             </Fragment>
-          );
-        })}
+          )}
+        />
+        <EdgeStyleDialog />
       </PanelContent>
     </Panel>
   );

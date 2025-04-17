@@ -29,14 +29,14 @@ import { useClearGraph, useRemoveFromGraph, useTranslations } from "@/hooks";
 import useGraphGlobalActions from "../useGraphGlobalActions";
 import { EdgeId, VertexId } from "@/core";
 import { MinusCircleIcon } from "lucide-react";
+import { customizeNodeTypeAtom } from "@/modules/NodesStyling";
+import { customizeEdgeTypeAtom } from "@/modules/EdgesStyling";
 
 export type ContextMenuProps = {
   affectedNodesIds?: VertexId[];
   affectedEdgesIds?: EdgeId[];
   graphRef: RefObject<GraphRef | null>;
   onClose?(): void;
-  onNodeCustomize(nodeType?: string): void;
-  onEdgeCustomize(edgeType?: string): void;
 };
 
 const ContextMenu = ({
@@ -44,8 +44,6 @@ const ContextMenu = ({
   affectedEdgesIds,
   graphRef,
   onClose,
-  onNodeCustomize,
-  onEdgeCustomize,
 }: ContextMenuProps) => {
   const t = useTranslations();
   const displayNodes = useDisplayVerticesInCanvas();
@@ -68,6 +66,9 @@ const ContextMenu = ({
   const nonEmptySelection =
     nodesSelectedIds.size >= 1 || edgesSelectedIds.size >= 1;
 
+  const setCustomizeNodeType = useSetRecoilState(customizeNodeTypeAtom);
+  const setCustomizeEdgeType = useSetRecoilState(customizeEdgeTypeAtom);
+
   const openSidebarPanel = useCallback(
     (
       panelName: SidebarItems,
@@ -87,20 +88,20 @@ const ContextMenu = ({
           setNodesSelectedIds(prev => (prev.size === 0 ? prev : new Set([])));
         }
 
-        props?.nodeType && onNodeCustomize(props.nodeType);
-        props?.edgeType && onEdgeCustomize(props.edgeType);
+        props?.nodeType && setCustomizeNodeType(props.nodeType);
+        props?.edgeType && setCustomizeEdgeType(props.edgeType);
 
         onClose?.();
       },
     [
-      affectedEdgesIds,
+      setUserLayout,
       affectedNodesIds,
+      affectedEdgesIds,
+      setCustomizeNodeType,
+      setCustomizeEdgeType,
       onClose,
-      onNodeCustomize,
-      onEdgeCustomize,
       setEdgesSelectedIds,
       setNodesSelectedIds,
-      setUserLayout,
     ]
   );
 
