@@ -24,11 +24,6 @@ export const customizeEdgeTypeAtom = atom<string | undefined>({
   default: undefined,
 });
 
-export type SingleEdgeStylingProps = {
-  edgeType: string;
-  opened: boolean;
-};
-
 export default function EdgeStyleDialog() {
   const styleWithTheme = useWithTheme();
 
