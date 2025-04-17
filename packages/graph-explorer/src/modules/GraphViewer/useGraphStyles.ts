@@ -1,6 +1,10 @@
 import Color from "color";
 import { useEffect, useState } from "react";
-import { getEdgeIdFromRenderedEdgeId, RenderedEdgeId } from "@/core";
+import {
+  getEdgeIdFromRenderedEdgeId,
+  RenderedEdgeId,
+  useDisplayEdgesInCanvas,
+} from "@/core";
 import type { GraphProps } from "@/components";
 import useTextTransform from "@/hooks/useTextTransform";
 import { renderNode } from "./renderNode";
@@ -8,7 +12,6 @@ import {
   useEdgeTypeConfigs,
   useVertexTypeConfigs,
 } from "@/core/ConfigurationProvider/useConfiguration";
-import { useDisplayEdgesInCanvas } from "@/core";
 import { MISSING_DISPLAY_VALUE } from "@/utils/constants";
 
 const LINE_PATTERN = {

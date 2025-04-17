@@ -9,7 +9,11 @@ import {
   TabularEmptyBodyControls,
 } from "@/components/Tabular/controls";
 import Tabular from "@/components/Tabular/Tabular";
-import { DisplayVertex, useDisplayVerticesInCanvas } from "@/core";
+import {
+  DisplayVertex,
+  useDisplayVerticesInCanvas,
+  useAllNeighbors,
+} from "@/core";
 import { edgesSelectedIdsAtom } from "@/core/StateProvider/edges";
 import {
   nodesFilteredIdsAtom,
@@ -19,7 +23,6 @@ import {
 
 import { useDeepMemo, useTranslations } from "@/hooks";
 import { recoilDiffSets } from "@/utils/recoilState";
-import { useAllNeighbors } from "@/core";
 
 type ToggleVertex = DisplayVertex & {
   __is_visible: boolean;

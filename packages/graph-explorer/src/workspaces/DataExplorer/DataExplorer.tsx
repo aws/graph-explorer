@@ -8,7 +8,15 @@ import {
 } from "@tanstack/react-query";
 import { Link, useParams, useSearchParams } from "react-router";
 import { useSetRecoilState } from "recoil";
-import { useUpdateSchemaFromEntities, Vertex } from "@/core";
+import {
+  useUpdateSchemaFromEntities,
+  Vertex,
+  DisplayVertex,
+  useConfiguration,
+  useDisplayVertexTypeConfig,
+  useDisplayVerticesFromVertices,
+  useWithTheme,
+} from "@/core";
 import {
   Button,
   buttonStyles,
@@ -34,13 +42,6 @@ import {
 import Tabular from "@/components/Tabular/Tabular";
 import Workspace from "@/components/Workspace/Workspace";
 import { KeywordSearchRequest, searchQuery } from "@/connector";
-import {
-  DisplayVertex,
-  useConfiguration,
-  useDisplayVertexTypeConfig,
-  useDisplayVerticesFromVertices,
-  useWithTheme,
-} from "@/core";
 import { useExplorer } from "@/core/connector";
 import {
   userStylingAtom,

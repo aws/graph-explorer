@@ -1,7 +1,6 @@
-import { cn } from "@/utils";
+import { cn, getChildrenOfType } from "@/utils";
 import type { PropsWithChildren, ReactElement } from "react";
 import { useMemo } from "react";
-import { getChildrenOfType } from "@/utils";
 import getChildOfType from "@/utils/getChildOfType";
 import WorkspaceFooter from "./components/WorkspaceFooter";
 import WorkspaceNavBar from "./components/WorkspaceNavBar";

@@ -1,4 +1,4 @@
-import { cn } from "@/utils";
+import { cn, getChildOfType } from "@/utils";
 import {
   ForwardedRef,
   forwardRef,
@@ -13,7 +13,6 @@ import useDeepCompareEffect from "use-deep-compare-effect";
 
 import { useWithTheme } from "@/core";
 import { useDeepMemo } from "@/hooks";
-import { getChildOfType } from "@/utils";
 
 import {
   PaginationControl,

@@ -1,7 +1,12 @@
 import { useState } from "react";
 import { Link } from "react-router";
 import { useRecoilValue } from "recoil";
-import { buttonStyles } from "@/components";
+import {
+  buttonStyles,
+  Panel,
+  PanelContent,
+  PanelEmptyState,
+} from "@/components";
 import { ExplorerIcon, GearIcon } from "@/components/icons";
 import Workspace from "@/components/Workspace/Workspace";
 import { useConfiguration } from "@/core";
@@ -10,7 +15,6 @@ import { useIsSyncing } from "@/hooks/useSchemaSync";
 import AvailableConnections from "@/modules/AvailableConnections";
 import ConnectionDetail from "@/modules/ConnectionDetail";
 import { APP_NAME } from "@/utils/constants";
-import { Panel, PanelContent, PanelEmptyState } from "@/components";
 import GraphExplorerIcon from "@/components/icons/GraphExplorerIcon";
 import { cn } from "@/utils";
 

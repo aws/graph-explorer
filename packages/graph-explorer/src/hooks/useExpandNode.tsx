@@ -9,9 +9,13 @@ import {
 import { loggerSelector, useExplorer } from "@/core/connector";
 import { useRecoilValue } from "recoil";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useFetchedNeighborsCallback, Vertex, VertexId } from "@/core";
+import {
+  useFetchedNeighborsCallback,
+  Vertex,
+  VertexId,
+  useNeighborsCallback,
+} from "@/core";
 import { createDisplayError } from "@/utils/createDisplayError";
-import { useNeighborsCallback } from "@/core";
 import { useAddToGraph } from "./useAddToGraph";
 
 export type ExpandNodeFilters = Omit<

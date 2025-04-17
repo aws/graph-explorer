@@ -18,7 +18,12 @@ import {
   ZoomInIcon,
   ZoomOutIcon,
 } from "@/components/icons";
-import { useDisplayEdgesInCanvas, useDisplayVerticesInCanvas } from "@/core";
+import {
+  useDisplayEdgesInCanvas,
+  useDisplayVerticesInCanvas,
+  EdgeId,
+  VertexId,
+} from "@/core";
 import { edgesSelectedIdsAtom } from "@/core/StateProvider/edges";
 import { nodesSelectedIdsAtom } from "@/core/StateProvider/nodes";
 import {
@@ -27,7 +32,6 @@ import {
 } from "@/core/StateProvider/userPreferences";
 import { useClearGraph, useRemoveFromGraph, useTranslations } from "@/hooks";
 import useGraphGlobalActions from "../useGraphGlobalActions";
-import { EdgeId, VertexId } from "@/core";
 import { MinusCircleIcon } from "lucide-react";
 import { customizeNodeTypeAtom } from "@/modules/NodesStyling";
 import { customizeEdgeTypeAtom } from "@/modules/EdgesStyling";

@@ -1,11 +1,11 @@
 import { useMemo } from "react";
-import { VertexId } from "@/core";
-import { SelectOption } from "@/components";
 import {
+  VertexId,
   DisplayVertexTypeConfig,
   useDisplayVertexTypeConfigs,
   useNeighbors,
 } from "@/core";
+import { SelectOption } from "@/components";
 
 export type NeighborOption = SelectOption & {
   config: DisplayVertexTypeConfig;
