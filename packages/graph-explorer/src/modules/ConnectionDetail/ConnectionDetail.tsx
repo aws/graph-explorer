@@ -26,6 +26,7 @@ import {
   TooltipTrigger,
   TrayArrowIcon,
 } from "@/components";
+import { LinkButton } from "@/components/Button";
 import {
   activeSchemaSelector,
   ConfigurationContextProps,
@@ -74,7 +75,7 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
   const t = useTranslations();
   const [edit, setEdit] = useState(false);
 
-  const { refetch: syncSchema, isFetching: isSync } = useSchemaSync();
+  const { isFetching: isSync } = useSchemaSync();
 
   const onConfigExport = useCallback(() => {
     saveConfigurationToFile(config);
@@ -96,12 +97,6 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
           {config.displayLabel || config.id}
         </PanelTitle>
         <PanelHeaderActions>
-          <PanelHeaderActionButton
-            label="Synchronize Database"
-            icon={<SyncIcon className={isSync ? "animate-spin" : ""} />}
-            isDisabled={isSync}
-            onActionClick={syncSchema}
-          />
           <PanelHeaderActionButton
             label="Export Connection"
             icon={<TrayArrowIcon />}
@@ -213,6 +208,7 @@ function MainContentLayout() {
 
 function LastSyncInfo({ config }: { config: ConfigurationContextProps }) {
   const isSyncing = useIsSyncing();
+  const { refetch: syncSchema } = useSchemaSync();
 
   if (isSyncing) {
     return (
@@ -225,18 +221,31 @@ function LastSyncInfo({ config }: { config: ConfigurationContextProps }) {
 
   const lastSyncFail = config.schema?.lastSyncFail === true;
   if (lastSyncFail) {
-    return <InfoItemValue>Synchronization Failed</InfoItemValue>;
+    return (
+      <InfoItemValue className="flex items-center gap-2">
+        <span>Synchronization Failed</span>
+        <LinkButton onClick={() => syncSchema()}>Refresh</LinkButton>
+      </InfoItemValue>
+    );
   }
 
   const lastSyncUpdate = config.schema?.lastUpdate;
   if (!lastSyncUpdate) {
-    return <Chip variant="warning">Not Synchronized</Chip>;
+    return (
+      <InfoItemValue className="flex items-center gap-2">
+        <Chip variant="warning">Not Synchronized</Chip>
+        <LinkButton onClick={() => syncSchema()}>Refresh</LinkButton>
+      </InfoItemValue>
+    );
   }
 
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <InfoItemValue>{formatRelativeDate(lastSyncUpdate)}</InfoItemValue>
+        <InfoItemValue className="flex items-center gap-2">
+          <span>{formatRelativeDate(lastSyncUpdate)}</span>
+          <LinkButton onClick={() => syncSchema()}>Refresh</LinkButton>
+        </InfoItemValue>
       </TooltipTrigger>
       <TooltipContent>{formatDate(lastSyncUpdate)}</TooltipContent>
     </Tooltip>
