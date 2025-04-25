@@ -14,6 +14,19 @@ describe("decodeErrorSafely", () => {
     expect(decoded).toBeUndefined();
   });
 
+  it("should ignore xml responses", async () => {
+    const response = new Response("<xml></xml>", {
+      status: 500,
+      headers: {
+        "Content-Type": "text/xml",
+      },
+    });
+
+    const decoded = await decodeErrorSafely(response);
+
+    expect(decoded).toBeUndefined();
+  });
+
   it("should return the error message inside the JSON response", async () => {
     const response = new Response(
       JSON.stringify({
