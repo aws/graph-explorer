@@ -13,10 +13,6 @@ import {
   DetailsIcon,
   ExpandGraphIcon,
   FitToFrameIcon,
-  RemoveFromCanvasIcon,
-  ScreenshotIcon,
-  ZoomInIcon,
-  ZoomOutIcon,
 } from "@/components/icons";
 import {
   useDisplayEdgesInCanvas,
@@ -32,7 +28,13 @@ import {
 } from "@/core/StateProvider/userPreferences";
 import { useClearGraph, useRemoveFromGraph, useTranslations } from "@/hooks";
 import useGraphGlobalActions from "../useGraphGlobalActions";
-import { MinusCircleIcon } from "lucide-react";
+import {
+  CircleSlash2,
+  ImageDownIcon,
+  MinusCircleIcon,
+  ZoomInIcon,
+  ZoomOutIcon,
+} from "lucide-react";
 import { customizeNodeTypeAtom } from "@/modules/NodesStyling";
 import { customizeEdgeTypeAtom } from "@/modules/EdgesStyling";
 
@@ -199,7 +201,7 @@ const ContextMenu = ({
         </ListItem>
         <Divider />
         <ListItem onClick={handleRemoveFromCanvas([affectedNode.id], [])}>
-          <MinusCircleIcon className="size-5" color="red" />
+          <MinusCircleIcon color="red" />
           Remove {t("graph-viewer.node").toLowerCase()} from view
         </ListItem>
       </Layout>
@@ -228,7 +230,7 @@ const ContextMenu = ({
         </ListItem>
         <Divider />
         <ListItem onClick={handleRemoveFromCanvas([], [affectedEdge.id])}>
-          <RemoveFromCanvasIcon color="red" />
+          <MinusCircleIcon color="red" />
           Remove {t("graph-viewer.edge")} from canvas
         </ListItem>
       </Layout>
@@ -246,7 +248,7 @@ const ContextMenu = ({
         {nonEmptySelection ? "Center Selection" : "Center"}
       </ListItem>
       <ListItem onClick={handleDownloadScreenshot}>
-        <ScreenshotIcon />
+        <ImageDownIcon />
         Download Screenshot
       </ListItem>
       <Divider />
@@ -267,7 +269,7 @@ const ContextMenu = ({
               Array.from(edgesSelectedIds)
             )}
           >
-            <RemoveFromCanvasIcon color="red" />
+            <CircleSlash2 color="red" />
             Remove selection from canvas
           </ListItem>
         </>
@@ -276,7 +278,7 @@ const ContextMenu = ({
         <>
           <Divider />
           <ListItem onClick={handleRemoveAllFromCanvas}>
-            <RemoveFromCanvasIcon color="red" />
+            <CircleSlash2 color="red" />
             Clear canvas
           </ListItem>
         </>
