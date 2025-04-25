@@ -50,6 +50,9 @@ And as always, there are many additional small fixes and improvements.
   ([#892](https://github.com/aws/graph-explorer/pull/892))
 - **Fixed** issues with filtered neighbor expansion and neighbor counts in RDF
   databases ([#870](https://github.com/aws/graph-explorer/pull/870))
+- **Fixed** issue representing metadata classes as valid instance types during
+  schema sync in RDF databases
+  ([#903](https://github.com/aws/graph-explorer/pull/903))
 - **Fixed** issue where double click expansion was inconsistent
   ([#841](https://github.com/aws/graph-explorer/pull/841))
 - **Fixed** issue with table exports
