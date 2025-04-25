@@ -2,6 +2,14 @@
 
 ## Upcoming
 
+### Other changes
+
+- **Improved** UI by moving sync functionality from header to LastSyncInfo
+  component
+  - Removed "Synchronize Database" button from header
+  - Added a link-styled “Refresh” button to the LastSyncInfo component for
+    better UX
+
 ## Release v1.15.0
 
 Graph Explorer now offers session persistence, allowing you to seamlessly
