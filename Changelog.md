@@ -57,6 +57,8 @@ And as always, there are many additional small fixes and improvements.
 - **Fixed** issue with long node titles or descriptions pushing the "add to
   graph" button off the screen
   ([#824](https://github.com/aws/graph-explorer/pull/824))
+- **Fixed** issue rendering search results with really long titles
+  ([#904](https://github.com/aws/graph-explorer/pull/904))
 - **Fixed** issue representing an edge connecting nodes with multiple labels
   ([#839](https://github.com/aws/graph-explorer/pull/839))
 - **Fixed** proxy server error when a request is aborted mid-stream
