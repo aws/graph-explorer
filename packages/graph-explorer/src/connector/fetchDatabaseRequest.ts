@@ -27,6 +27,7 @@ async function decodeErrorSafely(response: Response): Promise<any> {
   // Assume missing content type is JSON
   const isJson =
     !contentTypeHasValue || contentType.includes("application/json");
+  const isHtml = contentTypeHasValue && contentType.includes("text/html");
 
   // Extract the raw text from the response
   const rawText = await response.text();
@@ -34,9 +35,7 @@ async function decodeErrorSafely(response: Response): Promise<any> {
   // Check for empty response
   if (!rawText) {
     return undefined;
-  }
-
-  if (isJson) {
+  } else if (isJson) {
     try {
       // Try parsing the response as JSON
       const data = JSON.parse(rawText);
@@ -50,6 +49,9 @@ async function decodeErrorSafely(response: Response): Promise<any> {
       });
       return rawText;
     }
+  } else if (isHtml) {
+    // Ignore the content of HTML responses
+    return undefined;
   }
 
   return { message: rawText };
