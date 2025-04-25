@@ -51,6 +51,11 @@ const TYPE_MAP: Record<string, string> = {
   "http://www.w3.org/2001/XMLSchema#dateTime": "Date",
 };
 
+const metadataClassBaseUris = [
+  "http://www.w3.org/2000/01/rdf-schema",
+  "http://www.w3.org/2002/07/owl",
+];
+
 const rdfsLabel = "http://www.w3.org/2000/01/rdf-schema#label";
 const skosPrefLabel = "http://www.w3.org/2004/02/skos/core#prefLabel";
 const skosAltLabel = "http://www.w3.org/2004/02/skos/core#altLabel";
@@ -132,12 +137,17 @@ const fetchClassesSchema = async (
 
   const classes: Array<string> = [];
   const countsByClass: Record<string, number> = {};
-  classesCounts.results.bindings.forEach(classResult => {
-    classes.push(classResult.class.value);
-    countsByClass[classResult.class.value] = Number(
-      classResult.instancesCount.value
-    );
-  });
+  classesCounts.results.bindings
+    // Exclude classes that start with one of the metadata class base URIs
+    .filter(
+      c => !metadataClassBaseUris.some(uri => c.class.value.startsWith(uri))
+    )
+    .forEach(classResult => {
+      classes.push(classResult.class.value);
+      countsByClass[classResult.class.value] = Number(
+        classResult.instancesCount.value
+      );
+    });
 
   return fetchPredicatesByClass(
     sparqlFetch,
@@ -218,10 +228,15 @@ const fetchSchema = async (
     };
   }
 
+  // Exclude classes that start with one of the metadata class base URIs
+  const classes = summary.classes.filter(
+    c => !metadataClassBaseUris.some(uri => c.startsWith(uri))
+  );
+
   const vertices = await fetchPredicatesByClass(
     sparqlFetch,
     remoteLogger,
-    summary.classes,
+    classes,
     {}
   );
   const edges = summary.predicates.flatMap(pred => {
