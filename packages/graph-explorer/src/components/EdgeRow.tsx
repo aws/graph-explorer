@@ -31,8 +31,8 @@ export function EdgeRow({
     >
       <EdgeSymbol className="size-11 p-[8px]" />
       <div className="inline-block text-pretty text-base leading-snug [word-break:break-word]">
-        <div className="font-bold">{title}</div>
-        <div className="text-text-secondary/90 line-clamp-2">
+        <div className="line-clamp-3 font-bold">{title}</div>
+        <div className="text-text-secondary/90 line-clamp-3">
           {source.displayName}&nbsp;&rarr; {target.displayName}
         </div>
       </div>

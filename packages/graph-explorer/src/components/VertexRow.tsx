@@ -18,10 +18,10 @@ export function VertexRow({
         className="size-11 p-[8px]"
       />
       <div className="inline-block text-pretty text-base leading-snug [word-break:break-word]">
-        <div className="font-bold">
+        <div className="line-clamp-3 font-bold">
           {vertex.displayTypes}&nbsp;&rsaquo; {vertex.displayName}
         </div>
-        <div className="text-text-secondary/90 line-clamp-2">
+        <div className="text-text-secondary/90 line-clamp-3">
           {vertex.displayDescription}
         </div>
       </div>
