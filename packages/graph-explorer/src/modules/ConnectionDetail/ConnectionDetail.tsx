@@ -224,7 +224,7 @@ function LastSyncInfo({ config }: { config: ConfigurationContextProps }) {
     return (
       <InfoItemValue className="flex items-center gap-2">
         <span>Synchronization Failed</span>
-        <LinkButton onClick={() => syncSchema()}>Refresh</LinkButton>
+        <LinkButton onClick={() => syncSchema()}>Retry</LinkButton>
       </InfoItemValue>
     );
   }
@@ -234,7 +234,7 @@ function LastSyncInfo({ config }: { config: ConfigurationContextProps }) {
     return (
       <InfoItemValue className="flex items-center gap-2">
         <Chip variant="warning">Not Synchronized</Chip>
-        <LinkButton onClick={() => syncSchema()}>Refresh</LinkButton>
+        <LinkButton onClick={() => syncSchema()}>Synchronize</LinkButton>
       </InfoItemValue>
     );
   }
