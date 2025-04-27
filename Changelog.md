@@ -4,11 +4,8 @@
 
 ### Other changes
 
-- **Improved** UI by moving sync functionality from header to LastSyncInfo
-  component
-  - The sync button has been removed from the header.
-  - Added a link-styled “Refresh” button to the LastSyncInfo component for
-    better UX
+- **Improved** Improved connection details by moving the sync button near the
+  last sync timestamp ([#901](https://github.com/aws/graph-explorer/pull/901))
 
 ## Release v1.15.0
 
