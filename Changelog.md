@@ -66,6 +66,8 @@ And as always, there are many additional small fixes and improvements.
   ([#839](https://github.com/aws/graph-explorer/pull/839))
 - **Fixed** proxy server error when a request is aborted mid-stream
   ([#873](https://github.com/aws/graph-explorer/pull/873))
+- **Updated** icons in context menu to be more consistent
+  ([#906](https://github.com/aws/graph-explorer/pull/906))
 - **Updated** styling of buttons, input, textarea, and select fields
   ([#847](https://github.com/aws/graph-explorer/pull/847),
   [#832](https://github.com/aws/graph-explorer/pull/832),
