@@ -2,6 +2,7 @@ import { useRecoilState } from "recoil";
 import {
   allowLoggingDbQueryAtom,
   showDebugActionsAtom,
+  showQueryEditorAtom,
   showRecoilStateLoggingAtom,
 } from "@/core";
 import {
@@ -32,6 +33,9 @@ export default function SettingsGeneral() {
   const [allowLoggingDbQuery, setAllowLoggingDbQuery] = useRecoilState(
     allowLoggingDbQueryAtom
   );
+
+  const [showQueryEditor, setShowQueryEditor] =
+    useRecoilState(showQueryEditorAtom);
 
   return (
     <>
@@ -88,6 +92,26 @@ export default function SettingsGeneral() {
         </SettingsSection>
 
         <NotInProduction>
+          <SettingsSection>
+            <div className="max-w-paragraph">
+              <SectionTitle>Experimental</SectionTitle>
+              <Paragraph>
+                These options are only available in development mode since they
+                are under active development.
+              </Paragraph>
+            </div>
+            <div className="flex flex-col gap-4">
+              <CheckboxSetting
+                id="showQueryEditor"
+                checked={showQueryEditor}
+                onCheckedChange={isSelected => {
+                  setShowQueryEditor(Boolean(isSelected));
+                }}
+                label="Show query editor"
+                description="Shows the query editor UI in the search sidebar."
+              />
+            </div>
+          </SettingsSection>
           <SettingsSection>
             <div className="max-w-paragraph">
               <SectionTitle>Debug Options</SectionTitle>

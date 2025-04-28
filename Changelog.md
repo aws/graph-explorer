@@ -2,6 +2,10 @@
 
 ## Upcoming
 
+- **Added** query editor for Gremlin connections
+  ([#878](https://github.com/aws/graph-explorer/pull/878),
+  [#855](https://github.com/aws/graph-explorer/pull/855))
+
 ## Release v1.15.0
 
 Graph Explorer now offers session persistence, allowing you to seamlessly
