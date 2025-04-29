@@ -1,16 +1,18 @@
-import { atom, DefaultValue, selector, useRecoilCallback } from "recoil";
 import {
   AttributeConfig,
   EdgeTypeConfig,
   PrefixTypeConfig,
   VertexTypeConfig,
 } from "@/core/ConfigurationProvider";
-import { localForageEffect } from "./localForageEffect";
+import { atomWithLocalForage } from "./localForageEffect";
 import { activeConfigurationAtom } from "./configuration";
 import { Edge, Entities, toEdgeMap, toNodeMap, Vertex } from "@/core";
 import { logger, sanitizeText } from "@/utils";
 import generatePrefixes from "@/utils/generatePrefixes";
-import { startTransition } from "react";
+import { startTransition, useCallback } from "react";
+import { atom } from "jotai";
+import { RESET, useAtomCallback } from "jotai/utils";
+import { SetStateActionWithReset } from "@/utils/jotai";
 
 export type SchemaInference = {
   vertices: VertexTypeConfig[];
@@ -23,30 +25,34 @@ export type SchemaInference = {
   totalEdges?: number;
 };
 
-export const schemaAtom = atom<Map<string, SchemaInference>>({
-  key: "schema",
-  default: new Map(),
-  effects: [localForageEffect("schema")],
-});
+export const schemaAtom = atomWithLocalForage(
+  new Map<string, SchemaInference>(),
+  "schema"
+);
 
-export const activeSchemaSelector = selector({
-  key: "active-schema",
-  get({ get }) {
+export const activeSchemaSelector = atom(
+  get => {
     const schemaMap = get(schemaAtom);
     const id = get(activeConfigurationAtom);
     const activeSchema = id ? schemaMap.get(id) : null;
     return activeSchema;
   },
-  set({ get, set }, newValue) {
+  async (
+    get,
+    set,
+    update: SetStateActionWithReset<SchemaInference | undefined>
+  ) => {
     const schemaId = get(activeConfigurationAtom);
     if (!schemaId) {
       return;
     }
-    set(schemaAtom, prevSchemaMap => {
-      const updatedSchemaMap = new Map(prevSchemaMap);
+    await set(schemaAtom, async prevSchemaMap => {
+      const updatedSchemaMap = new Map(await prevSchemaMap);
+      const prev = updatedSchemaMap.get(schemaId);
+      const newValue = typeof update === "function" ? update(prev) : update;
 
-      // Handle reset value
-      if (newValue instanceof DefaultValue || !newValue) {
+      // Handle reset value or undefined
+      if (newValue === RESET || !newValue) {
         updatedSchemaMap.delete(schemaId);
         return updatedSchemaMap;
       }
@@ -56,8 +62,8 @@ export const activeSchemaSelector = selector({
 
       return updatedSchemaMap;
     });
-  },
-});
+  }
+);
 
 type SchemaEntities = Pick<Entities, "nodes" | "edges">;
 
@@ -197,37 +203,35 @@ function getResourceUris(schema: SchemaInference) {
 
 /** Updates the schema with any new vertex or edge types, any new attributes, and updates the generated prefixes for sparql connections. */
 export function useUpdateSchemaFromEntities() {
-  return useRecoilCallback(
-    ({ snapshot, set }) =>
-      async (entities: { vertices: Vertex[]; edges: Edge[] }) => {
-        const activeSchema = await snapshot.getPromise(activeSchemaSelector);
-        if (entities.vertices.length === 0 && entities.edges.length === 0) {
-          return;
-        }
-        if (!activeSchema) {
-          return;
-        }
-        if (!shouldUpdateSchemaFromEntities(entities, activeSchema)) {
-          logger.debug("Schema is already up to date with the given entities");
-          return;
-        }
-        startTransition(() => {
-          logger.debug("Updating schema from entities");
-          set(activeSchemaSelector, prev => {
-            if (!prev) {
-              return prev;
-            }
-            return updateSchemaFromEntities(
-              {
-                nodes: toNodeMap(entities.vertices),
-                edges: toEdgeMap(entities.edges),
-              },
-              prev
-            );
-          });
+  return useAtomCallback(
+    useCallback((get, set, entities: { vertices: Vertex[]; edges: Edge[] }) => {
+      const activeSchema = get(activeSchemaSelector);
+      if (entities.vertices.length === 0 && entities.edges.length === 0) {
+        return;
+      }
+      if (!activeSchema) {
+        return;
+      }
+      if (!shouldUpdateSchemaFromEntities(entities, activeSchema)) {
+        logger.debug("Schema is already up to date with the given entities");
+        return;
+      }
+      startTransition(() => {
+        logger.debug("Updating schema from entities");
+        set(activeSchemaSelector, prev => {
+          if (!prev) {
+            return prev;
+          }
+          return updateSchemaFromEntities(
+            {
+              nodes: toNodeMap(entities.vertices),
+              edges: toEdgeMap(entities.edges),
+            },
+            prev
+          );
         });
-      },
-    []
+      });
+    }, [])
   );
 }
 

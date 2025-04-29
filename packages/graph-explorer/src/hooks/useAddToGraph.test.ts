@@ -8,7 +8,6 @@ import {
 } from "@/utils/testing";
 import { useAddToGraph } from "./useAddToGraph";
 import { act } from "react";
-import { useRecoilValue } from "recoil";
 import {
   activeGraphSessionAtom,
   activeSchemaSelector,
@@ -23,6 +22,7 @@ import {
 import { waitFor } from "@testing-library/react";
 import { useMaterializeVertices } from "./useMaterializeVertices";
 import { cloneDeep } from "lodash";
+import { useAtomValue } from "jotai";
 
 vi.mock("./useMaterializeVertices", () => ({
   useMaterializeVertices: vi.fn(),
@@ -41,8 +41,8 @@ test("should add one node", async () => {
 
   const { result } = renderHookWithRecoilRoot(() => {
     const callback = useAddToGraph();
-    const vertices = useRecoilValue(nodesAtom);
-    const edges = useRecoilValue(edgesAtom);
+    const vertices = useAtomValue(nodesAtom);
+    const edges = useAtomValue(edgesAtom);
 
     return { callback, vertices, edges };
   });
@@ -69,8 +69,8 @@ test("should materialize fragment vertices", async () => {
 
   const { result } = renderHookWithRecoilRoot(() => {
     const callback = useAddToGraph();
-    const vertices = useRecoilValue(nodesAtom);
-    const edges = useRecoilValue(edgesAtom);
+    const vertices = useAtomValue(nodesAtom);
+    const edges = useAtomValue(edgesAtom);
 
     return { callback, vertices, edges };
   });
@@ -97,8 +97,8 @@ test("should add one edge", async () => {
   const { result } = renderHookWithRecoilRoot(
     () => {
       const callback = useAddToGraph();
-      const vertices = useRecoilValue(nodesAtom);
-      const edges = useRecoilValue(edgesAtom);
+      const vertices = useAtomValue(nodesAtom);
+      const edges = useAtomValue(edgesAtom);
 
       return { callback, vertices, edges };
     },
@@ -126,8 +126,8 @@ test("should add multiple nodes and edges", async () => {
 
   const { result } = renderHookWithRecoilRoot(() => {
     const callback = useAddToGraph();
-    const vertices = useRecoilValue(nodesAtom);
-    const edges = useRecoilValue(edgesAtom);
+    const vertices = useAtomValue(nodesAtom);
+    const edges = useAtomValue(edgesAtom);
 
     return { callback, vertices, edges };
   });
@@ -162,9 +162,9 @@ test("should update schema when adding a node", async () => {
   const { result } = renderHookWithRecoilRoot(
     () => {
       const callback = useAddToGraph();
-      const vertices = useRecoilValue(nodesAtom);
-      const edges = useRecoilValue(edgesAtom);
-      const schema = useRecoilValue(activeSchemaSelector);
+      const vertices = useAtomValue(nodesAtom);
+      const edges = useAtomValue(edgesAtom);
+      const schema = useAtomValue(activeSchemaSelector);
 
       return { callback, vertices, edges, schema };
     },
@@ -197,9 +197,9 @@ test("should update schema when adding a node with no label", async () => {
   const { result } = renderHookWithRecoilRoot(
     () => {
       const callback = useAddToGraph();
-      const vertices = useRecoilValue(nodesAtom);
-      const edges = useRecoilValue(edgesAtom);
-      const schema = useRecoilValue(activeSchemaSelector);
+      const vertices = useAtomValue(nodesAtom);
+      const edges = useAtomValue(edgesAtom);
+      const schema = useAtomValue(activeSchemaSelector);
 
       return { callback, vertices, edges, schema };
     },
@@ -234,9 +234,9 @@ test("should update schema when adding an edge", async () => {
   const { result } = renderHookWithRecoilRoot(
     () => {
       const callback = useAddToGraph();
-      const vertices = useRecoilValue(nodesAtom);
-      const edges = useRecoilValue(edgesAtom);
-      const schema = useRecoilValue(activeSchemaSelector);
+      const vertices = useAtomValue(nodesAtom);
+      const edges = useAtomValue(edgesAtom);
+      const schema = useAtomValue(activeSchemaSelector);
 
       return { callback, vertices, edges, schema };
     },
@@ -274,9 +274,9 @@ test("should add missing attributes to the schema when adding a node", async () 
   const { result } = renderHookWithRecoilRoot(
     () => {
       const callback = useAddToGraph();
-      const vertices = useRecoilValue(nodesAtom);
-      const edges = useRecoilValue(edgesAtom);
-      const schema = useRecoilValue(activeSchemaSelector);
+      const vertices = useAtomValue(nodesAtom);
+      const edges = useAtomValue(edgesAtom);
+      const schema = useAtomValue(activeSchemaSelector);
 
       return { callback, vertices, edges, schema };
     },
@@ -318,9 +318,9 @@ test("should add missing attributes to the schema when adding an edge", async ()
   const { result } = renderHookWithRecoilRoot(
     () => {
       const callback = useAddToGraph();
-      const vertices = useRecoilValue(nodesAtom);
-      const edges = useRecoilValue(edgesAtom);
-      const schema = useRecoilValue(activeSchemaSelector);
+      const vertices = useAtomValue(nodesAtom);
+      const edges = useAtomValue(edgesAtom);
+      const schema = useAtomValue(activeSchemaSelector);
 
       return { callback, vertices, edges, schema };
     },
@@ -350,7 +350,7 @@ test("should update graph storage when adding a node", async () => {
   const { result } = renderHookWithRecoilRoot(
     () => {
       const callback = useAddToGraph();
-      const graph = useRecoilValue(activeGraphSessionAtom);
+      const graph = useAtomValue(activeGraphSessionAtom);
       return { callback, graph };
     },
     snapshot => dbState.applyTo(snapshot)
@@ -386,7 +386,7 @@ test("should update graph storage when adding an edge", async () => {
   const { result } = renderHookWithRecoilRoot(
     () => {
       const callback = useAddToGraph();
-      const graph = useRecoilValue(activeGraphSessionAtom);
+      const graph = useAtomValue(activeGraphSessionAtom);
       return { callback, graph };
     },
     snapshot => dbState.applyTo(snapshot)
@@ -421,7 +421,7 @@ test("should ignore blank nodes when updating graph storage", async () => {
   const { result } = renderHookWithRecoilRoot(
     () => {
       const callback = useAddToGraph();
-      const graph = useRecoilValue(activeGraphSessionAtom);
+      const graph = useAtomValue(activeGraphSessionAtom);
       return { callback, graph };
     },
     snapshot => dbState.applyTo(snapshot)

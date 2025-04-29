@@ -1,6 +1,5 @@
 import { FileButton, Modal } from "@mantine/core";
 import { useCallback, useMemo } from "react";
-import { atom, useRecoilState, useResetRecoilState } from "recoil";
 import {
   Button,
   IconButton,
@@ -26,11 +25,10 @@ import {
   RESERVED_ID_PROPERTY,
   RESERVED_TYPES_PROPERTY,
 } from "@/utils/constants";
+import { atom, useAtom } from "jotai";
+import { useResetAtom } from "jotai/utils";
 
-export const customizeNodeTypeAtom = atom<string | undefined>({
-  key: "customize-node-type",
-  default: undefined,
-});
+export const customizeNodeTypeAtom = atom<string | undefined>(undefined);
 
 const file2Base64 = (file: File): Promise<string> => {
   return new Promise<string>((resolve, reject) => {
@@ -45,7 +43,7 @@ const file2Base64 = (file: File): Promise<string> => {
 export default function NodeStyleDialog() {
   const styleWithTheme = useWithTheme();
 
-  const [customizeNodeType, setCustomizeNodeType] = useRecoilState(
+  const [customizeNodeType, setCustomizeNodeType] = useAtom(
     customizeNodeTypeAtom
   );
 
@@ -82,7 +80,7 @@ function DialogTitle({ vertexType }: { vertexType: string }) {
 function Content({ vertexType }: { vertexType: string }) {
   const t = useTranslations();
 
-  const [nodePreferences, setNodePreferences] = useRecoilState(
+  const [nodePreferences, setNodePreferences] = useAtom(
     userStylingNodeAtom(vertexType)
   );
   const displayConfig = useDisplayVertexTypeConfig(vertexType);
@@ -112,7 +110,7 @@ function Content({ vertexType }: { vertexType: string }) {
     [setNodePreferences, vertexType]
   );
 
-  const reset = useResetRecoilState(userStylingNodeAtom(vertexType));
+  const reset = useResetAtom(userStylingNodeAtom(vertexType));
 
   const { enqueueNotification } = useNotification();
   const convertImageToBase64AndSetNewIcon = useCallback(

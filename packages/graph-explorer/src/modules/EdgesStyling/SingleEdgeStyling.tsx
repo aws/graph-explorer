@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from "react";
-import { useSetRecoilState } from "recoil";
 import {
   Button,
   ComponentBaseProps,
@@ -16,6 +15,7 @@ import {
 import { useDebounceValue, usePrevious } from "@/hooks";
 import { MISSING_DISPLAY_TYPE } from "@/utils";
 import { customizeEdgeTypeAtom } from "./EdgeStyleDialog";
+import { useSetAtom } from "jotai";
 
 export type SingleEdgeStylingProps = {
   edgeType: string;
@@ -26,8 +26,8 @@ export default function SingleEdgeStyling({
 
   ...rest
 }: SingleEdgeStylingProps) {
-  const setEdgePreferences = useSetRecoilState(userStylingEdgeAtom(edgeType));
-  const setCustomizeEdgeType = useSetRecoilState(customizeEdgeTypeAtom);
+  const setEdgePreferences = useSetAtom(userStylingEdgeAtom(edgeType));
+  const setCustomizeEdgeType = useSetAtom(customizeEdgeTypeAtom);
   const displayConfig = useDisplayEdgeTypeConfig(edgeType);
 
   const [displayAs, setDisplayAs] = useState(displayConfig.displayLabel);

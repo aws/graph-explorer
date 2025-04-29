@@ -1,6 +1,5 @@
 import { PropsWithChildren, startTransition, Suspense, useEffect } from "react";
 import { useLocation } from "react-router";
-import { useRecoilState, useRecoilValue } from "recoil";
 import { LoadingSpinner, PanelEmptyState } from "@/components";
 import Redirect from "@/components/Redirect";
 import {
@@ -11,6 +10,7 @@ import { schemaAtom } from "./StateProvider/schema";
 import { logger } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
 import { fetchDefaultConnection } from "./defaultConnection";
+import { useAtom, useAtomValue } from "jotai";
 
 function AppStatusLoader({ children }: PropsWithChildren) {
   return (
@@ -23,11 +23,9 @@ function AppStatusLoader({ children }: PropsWithChildren) {
 function LoadDefaultConfig({ children }: PropsWithChildren) {
   const location = useLocation();
 
-  const [activeConfig, setActiveConfig] = useRecoilState(
-    activeConfigurationAtom
-  );
-  const [configuration, setConfiguration] = useRecoilState(configurationAtom);
-  const schema = useRecoilValue(schemaAtom);
+  const [activeConfig, setActiveConfig] = useAtom(activeConfigurationAtom);
+  const [configuration, setConfiguration] = useAtom(configurationAtom);
+  const schema = useAtomValue(schemaAtom);
 
   const defaultConfigQuery = useQuery({
     queryKey: ["default-connection"],
@@ -54,8 +52,8 @@ function LoadDefaultConfig({ children }: PropsWithChildren) {
 
     startTransition(() => {
       logger.debug("Adding default connections", defaultConnectionConfigs);
-      setConfiguration(prev => {
-        const updatedConfig = new Map(prev);
+      setConfiguration(async prev => {
+        const updatedConfig = new Map(await prev);
         defaultConnectionConfigs.forEach(config => {
           updatedConfig.set(config.id, config);
         });

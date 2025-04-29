@@ -1,5 +1,4 @@
 import { MouseEvent, useCallback, useRef, useState } from "react";
-import { useRecoilState, useRecoilValue } from "recoil";
 import {
   getVertexIdFromRenderedVertexId,
   type RenderedEdgeId,
@@ -27,7 +26,7 @@ import { ElementEventCallback } from "@/components/Graph/hooks/useAddClickEvents
 import SelectField from "@/components/SelectField";
 import {
   edgesOutOfFocusRenderedIdsAtom,
-  edgesSelectedRenderedIdsAtom,
+  edgesSelectedIdsRenderedAtom,
 } from "@/core/StateProvider/edges";
 import {
   nodesOutOfFocusRenderedIdsAtom,
@@ -51,6 +50,7 @@ import {
   ZoomInIcon,
   ZoomOutIcon,
 } from "lucide-react";
+import { useAtom, useAtomValue } from "jotai";
 
 const LAYOUT_OPTIONS = [
   {
@@ -96,15 +96,15 @@ function onContextMenu(e: MouseEvent<HTMLDivElement>) {
 export default function GraphViewer() {
   const graphRef = useRef<GraphRef | null>(null);
 
-  const [nodesSelectedIds, setNodesSelectedIds] = useRecoilState(
+  const [nodesSelectedIds, setNodesSelectedIds] = useAtom(
     nodesSelectedRenderedIdsAtom
   );
 
-  const [edgesSelectedIds, setEdgesSelectedIds] = useRecoilState(
-    edgesSelectedRenderedIdsAtom
+  const [edgesSelectedIds, setEdgesSelectedIds] = useAtom(
+    edgesSelectedIdsRenderedAtom
   );
-  const nodesOutIds = useRecoilValue(nodesOutOfFocusRenderedIdsAtom);
-  const edgesOutIds = useRecoilValue(edgesOutOfFocusRenderedIdsAtom);
+  const nodesOutIds = useAtomValue(nodesOutOfFocusRenderedIdsAtom);
+  const edgesOutIds = useAtomValue(edgesOutOfFocusRenderedIdsAtom);
 
   const autoOpenDetails = useAutoOpenDetailsSidebar();
 

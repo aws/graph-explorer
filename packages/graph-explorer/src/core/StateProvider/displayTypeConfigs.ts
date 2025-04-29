@@ -1,4 +1,3 @@
-import { selector, selectorFamily, useRecoilValue } from "recoil";
 import {
   allEdgeTypeConfigsSelector,
   allVertexTypeConfigsSelector,
@@ -18,6 +17,8 @@ import {
   RESERVED_TYPES_PROPERTY,
   sanitizeText,
 } from "@/utils";
+import { atomFamily } from "jotai/utils";
+import { atom, useAtomValue } from "jotai";
 
 export type DisplayVertexStyle = {
   color: string;
@@ -56,78 +57,66 @@ export type DisplayConfigAttribute = {
 
 /** Gets the matching vertex type config or a generated default value. */
 export function useDisplayVertexTypeConfig(type: string) {
-  return useRecoilValue(displayVertexTypeConfigSelector(type));
+  return useAtomValue(displayVertexTypeConfigSelector(type));
 }
 
 /** All vertex types sorted by display label */
 export function useDisplayVertexTypeConfigs() {
-  return useRecoilValue(displayVertexTypeConfigsSelector);
+  return useAtomValue(displayVertexTypeConfigsSelector);
 }
 
 /** Gets the matching edge type config or a generated default value. */
 export function useDisplayEdgeTypeConfig(type: string) {
-  return useRecoilValue(displayEdgeTypeConfigSelector(type));
+  return useAtomValue(displayEdgeTypeConfigSelector(type));
 }
 
 /** All edge types sorted by display label */
 export function useDisplayEdgeTypeConfigs() {
-  return useRecoilValue(displayEdgeTypeConfigsSelector);
+  return useAtomValue(displayEdgeTypeConfigsSelector);
 }
 
 /** Gets the matching vertex type config or a generated default value. */
-export const displayVertexTypeConfigSelector = selectorFamily({
-  key: "display-vertex-type-config",
-  get:
-    (type: string) =>
-    ({ get }) => {
-      const textTransform = get(textTransformSelector);
-      const typeConfig = get(vertexTypeConfigSelector(type));
-      return mapToDisplayVertexTypeConfig(typeConfig, textTransform);
-    },
-});
+export const displayVertexTypeConfigSelector = atomFamily((type: string) =>
+  atom(get => {
+    const textTransform = get(textTransformSelector);
+    const typeConfig = get(vertexTypeConfigSelector(type));
+    return mapToDisplayVertexTypeConfig(typeConfig, textTransform);
+  })
+);
 
 /** All vertex types sorted by display label */
-export const displayVertexTypeConfigsSelector = selector({
-  key: "display-vertex-type-configs",
-  get: ({ get }) => {
-    const textTransform = get(textTransformSelector);
-    return new Map(
-      get(allVertexTypeConfigsSelector)
-        .values()
-        .map(vtConfig => mapToDisplayVertexTypeConfig(vtConfig, textTransform))
-        .toArray()
-        .toSorted((a, b) => a.displayLabel.localeCompare(b.displayLabel))
-        .map(vtConfig => [vtConfig.type, vtConfig])
-    );
-  },
+export const displayVertexTypeConfigsSelector = atom(get => {
+  const textTransform = get(textTransformSelector);
+  return new Map(
+    get(allVertexTypeConfigsSelector)
+      .values()
+      .map(vtConfig => mapToDisplayVertexTypeConfig(vtConfig, textTransform))
+      .toArray()
+      .toSorted((a, b) => a.displayLabel.localeCompare(b.displayLabel))
+      .map(vtConfig => [vtConfig.type, vtConfig])
+  );
 });
 
 /** Gets the matching edge type config or a generated default value. */
-export const displayEdgeTypeConfigSelector = selectorFamily({
-  key: "display-edge-type-config",
-  get:
-    (type: string) =>
-    ({ get }) => {
-      const textTransform = get(textTransformSelector);
-      const typeConfig = get(edgeTypeConfigSelector(type));
-      return mapToDisplayEdgeTypeConfig(typeConfig, textTransform);
-    },
-});
+export const displayEdgeTypeConfigSelector = atomFamily((type: string) =>
+  atom(get => {
+    const textTransform = get(textTransformSelector);
+    const typeConfig = get(edgeTypeConfigSelector(type));
+    return mapToDisplayEdgeTypeConfig(typeConfig, textTransform);
+  })
+);
 
 /** All edge types sorted by display label */
-export const displayEdgeTypeConfigsSelector = selector({
-  key: "display-edge-type-configs",
-  get: ({ get }) => {
-    const textTransform = get(textTransformSelector);
-    return new Map(
-      get(allEdgeTypeConfigsSelector)
-        .values()
-        .map(etConfig => mapToDisplayEdgeTypeConfig(etConfig, textTransform))
-        .toArray()
-        .toSorted((a, b) => a.displayLabel.localeCompare(b.displayLabel))
-        .map(etConfig => [etConfig.type, etConfig])
-    );
-  },
+export const displayEdgeTypeConfigsSelector = atom(get => {
+  const textTransform = get(textTransformSelector);
+  return new Map(
+    get(allEdgeTypeConfigsSelector)
+      .values()
+      .map(etConfig => mapToDisplayEdgeTypeConfig(etConfig, textTransform))
+      .toArray()
+      .toSorted((a, b) => a.displayLabel.localeCompare(b.displayLabel))
+      .map(etConfig => [etConfig.type, etConfig])
+  );
 });
 
 export function mapToDisplayVertexTypeConfig(

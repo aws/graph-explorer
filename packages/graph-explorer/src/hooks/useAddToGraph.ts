@@ -15,14 +15,14 @@ import { logger } from "@/utils";
 import { createDisplayError } from "@/utils/createDisplayError";
 import { useMutation } from "@tanstack/react-query";
 import { startTransition, useCallback } from "react";
-import { useSetRecoilState } from "recoil";
 import { useMaterializeVertices } from "./useMaterializeVertices";
+import { useSetAtom } from "jotai";
 
 /** Returns a callback that adds an array of nodes and edges to the graph. */
 export function useAddToGraph() {
-  const setVertices = useSetRecoilState(nodesAtom);
-  const setEdges = useSetRecoilState(edgesAtom);
-  const setActiveSchema = useSetRecoilState(activeSchemaSelector);
+  const setVertices = useSetAtom(nodesAtom);
+  const setEdges = useSetAtom(edgesAtom);
+  const setActiveSchema = useSetAtom(activeSchemaSelector);
   const updateGraphStorage = useUpdateGraphSession();
   const materializeVertices = useMaterializeVertices();
 

@@ -1,4 +1,6 @@
-import { SetterOrUpdater } from "recoil";
+import { SetStateAction } from "jotai";
+
+type SetterOrUpdater<T> = (valOrUpdater: SetStateAction<T>) => void;
 
 const recoilDiffSets = <T>(
   stateSetter: SetterOrUpdater<Set<T>>,

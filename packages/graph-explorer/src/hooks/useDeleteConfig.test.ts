@@ -13,8 +13,8 @@ import {
 } from "@/utils/testing";
 import { waitFor } from "@testing-library/react";
 import { act } from "react";
-import { useRecoilValue } from "recoil";
 import { useDeleteActiveConfiguration } from "./useDeleteConfig";
+import { useAtomValue } from "jotai";
 
 test("should delete the active configuration", async () => {
   const config1 = createRandomRawConfiguration();
@@ -22,8 +22,8 @@ test("should delete the active configuration", async () => {
   const { result } = renderHookWithRecoilRoot(
     () => {
       const callback = useDeleteActiveConfiguration();
-      const allConfigs = useRecoilValue(configurationAtom);
-      const activeConfig = useRecoilValue(activeConfigurationAtom);
+      const allConfigs = useAtomValue(configurationAtom);
+      const activeConfig = useAtomValue(activeConfigurationAtom);
 
       return { callback, allConfigs, activeConfig };
     },
@@ -50,7 +50,7 @@ test("should delete the active schema", async () => {
   const { result } = renderHookWithRecoilRoot(
     () => {
       const callback = useDeleteActiveConfiguration();
-      const allSchemas = useRecoilValue(schemaAtom);
+      const allSchemas = useAtomValue(schemaAtom);
 
       return { callback, allSchemas };
     },
@@ -77,7 +77,7 @@ test("should delete the graph session for the active connection", async () => {
   const { result } = renderHookWithRecoilRoot(
     () => {
       const callback = useDeleteActiveConfiguration();
-      const allGraphs = useRecoilValue(allGraphSessionsAtom);
+      const allGraphs = useAtomValue(allGraphSessionsAtom);
 
       return { callback, allGraphs };
     },

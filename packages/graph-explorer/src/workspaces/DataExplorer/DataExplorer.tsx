@@ -7,7 +7,6 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { Link, useParams, useSearchParams } from "react-router";
-import { useSetRecoilState } from "recoil";
 import {
   useUpdateSchemaFromEntities,
   Vertex,
@@ -58,6 +57,7 @@ import {
   RESERVED_ID_PROPERTY,
   RESERVED_TYPES_PROPERTY,
 } from "@/utils/constants";
+import { useSetAtom } from "jotai";
 
 export type ConnectionsProps = {
   vertexType: string;
@@ -206,12 +206,13 @@ function DisplayNameAndDescriptionOptions({
     return options;
   }, [displayConfig.attributes, t]);
 
-  const setUserStyling = useSetRecoilState(userStylingAtom);
+  const setUserStyling = useSetAtom(userStylingAtom);
   const onDisplayNameChange = useCallback(
-    (field: "name" | "longName") => (value: string | string[]) => {
-      setUserStyling(prevStyling => {
+    (field: "name" | "longName") => async (value: string | string[]) => {
+      await setUserStyling(async prevStyling => {
+        const prevValue = await prevStyling;
         const vtItem =
-          clone(prevStyling.vertices?.find(v => v.type === vertexType)) ||
+          clone(prevValue.vertices?.find(v => v.type === vertexType)) ||
           ({} as VertexPreferences);
 
         if (field === "name") {
@@ -223,9 +224,9 @@ function DisplayNameAndDescriptionOptions({
         }
 
         return {
-          ...prevStyling,
+          ...prevValue,
           vertices: [
-            ...(prevStyling.vertices || []).filter(v => v.type !== vertexType),
+            ...(prevValue.vertices || []).filter(v => v.type !== vertexType),
             {
               ...(vtItem || {}),
               type: vertexType,

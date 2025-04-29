@@ -9,29 +9,28 @@ import {
   createRandomInteger,
 } from "@shared/utils/testing";
 import useUpdateSchema from "./useUpdateSchema";
-import { act } from "@testing-library/react";
-import { useRecoilValue } from "recoil";
+import { act } from "react";
 import { schemaAtom, SchemaInference } from "@/core/StateProvider/schema";
 import { activeConfigurationAtom } from "@/core/StateProvider/configuration";
 import { createNewConfigurationId } from "@/core";
+import { useAtomValue } from "jotai";
 
 describe("useUpdateSchema", () => {
   describe("setSyncFailure", () => {
-    it("should do nothing if no schema exists", () => {
-      const { result } = renderHookWithRecoilRoot(render);
-      act(() => result.current.setSyncFailure());
-
+    it("should do nothing if no schema exists", async () => {
+      const { result } = renderHookWithRecoilRoot(useTestSetup);
+      await act(async () => await result.current.setSyncFailure());
       expect(result.current.schemas).toHaveLength(0);
     });
 
-    it("should update existing schema", () => {
+    it("should update existing schema", async () => {
       const configId = createNewConfigurationId();
       const existingSchema = createRandomSchema();
-      const { result } = renderHookWithRecoilRoot(render, snapshot => {
+      const { result } = renderHookWithRecoilRoot(useTestSetup, snapshot => {
         snapshot.set(activeConfigurationAtom, configId);
         snapshot.set(schemaAtom, new Map([[configId, existingSchema]]));
       });
-      act(() => result.current.setSyncFailure());
+      await act(async () => await result.current.setSyncFailure());
 
       const schema = result.current.schemas.get(configId);
       expect(schema).toEqual({
@@ -51,15 +50,15 @@ describe("useUpdateSchema", () => {
       vi.useRealTimers();
     });
 
-    it("should set schema when none set", () => {
+    it("should set schema when none set", async () => {
       const configId = createNewConfigurationId();
       const schemaResponse = createRandomSchemaResponse();
 
-      const { result } = renderHookWithRecoilRoot(render, snapshot => {
+      const { result } = renderHookWithRecoilRoot(useTestSetup, snapshot => {
         snapshot.set(activeConfigurationAtom, configId);
       });
 
-      act(() => result.current.replaceSchema(schemaResponse));
+      await act(async () => await result.current.replaceSchema(schemaResponse));
 
       const schema = result.current.schemas.get(configId);
       expect(schema).toStrictEqual({
@@ -70,16 +69,16 @@ describe("useUpdateSchema", () => {
       } satisfies SchemaInference);
     });
 
-    it("should update existing schema", () => {
+    it("should update existing schema", async () => {
       const configId = createNewConfigurationId();
       const existingSchema = createRandomSchema();
       const schemaResponse = createRandomSchemaResponse();
 
-      const { result } = renderHookWithRecoilRoot(render, snapshot => {
+      const { result } = renderHookWithRecoilRoot(useTestSetup, snapshot => {
         snapshot.set(activeConfigurationAtom, configId);
         snapshot.set(schemaAtom, new Map([[configId, existingSchema]]));
       });
-      act(() => result.current.replaceSchema(schemaResponse));
+      await act(async () => await result.current.replaceSchema(schemaResponse));
 
       expect(result.current.schemas.get(configId)).toEqual({
         ...schemaResponse,
@@ -91,33 +90,39 @@ describe("useUpdateSchema", () => {
   });
 
   describe("updateVertexTotal", () => {
-    it("should do nothing if no schema exists", () => {
+    it("should do nothing if no schema exists", async () => {
       const configId = createNewConfigurationId();
       const vertexType = createRandomName("VertexType");
       const vertexTotal = createRandomInteger();
 
-      const { result } = renderHookWithRecoilRoot(render, snapshot => {
+      const { result } = renderHookWithRecoilRoot(useTestSetup, snapshot => {
         snapshot.set(activeConfigurationAtom, configId);
       });
 
-      act(() => result.current.updateVertexTotal(vertexType, vertexTotal));
+      await act(
+        async () =>
+          await result.current.updateVertexTotal(vertexType, vertexTotal)
+      );
 
       expect(result.current.schemas).toHaveLength(0);
     });
 
-    it("should update total on given vertex type", () => {
+    it("should update total on given vertex type", async () => {
       const configId = createNewConfigurationId();
       const vertexType = createRandomName("VertexType");
       const vertexTotal = createRandomInteger();
       const existingSchema = createRandomSchema();
       existingSchema.vertices[0].type = vertexType;
 
-      const { result } = renderHookWithRecoilRoot(render, snapshot => {
+      const { result } = renderHookWithRecoilRoot(useTestSetup, snapshot => {
         snapshot.set(activeConfigurationAtom, configId);
         snapshot.set(schemaAtom, new Map([[configId, existingSchema]]));
       });
 
-      act(() => result.current.updateVertexTotal(vertexType, vertexTotal));
+      await act(
+        async () =>
+          await result.current.updateVertexTotal(vertexType, vertexTotal)
+      );
 
       const schema = result.current.schemas.get(configId)!;
       const vtConfig = schema.vertices.find(v => v.type === vertexType);
@@ -126,10 +131,8 @@ describe("useUpdateSchema", () => {
   });
 });
 
-function render() {
-  // eslint-disable-next-line react-hooks/rules-of-hooks
+function useTestSetup() {
   const actions = useUpdateSchema();
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const schemas = useRecoilValue(schemaAtom);
+  const schemas = useAtomValue(schemaAtom);
   return { schemas, ...actions };
 }

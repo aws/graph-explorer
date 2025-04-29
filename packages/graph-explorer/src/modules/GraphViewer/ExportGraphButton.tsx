@@ -1,10 +1,10 @@
 import { useCallback } from "react";
-import { useRecoilValue } from "recoil";
 import { SaveIcon } from "lucide-react";
 import { nodesAtom, edgesAtom, useExplorer, useConfiguration } from "@/core";
 import { saveFile, toJsonFileData } from "@/utils/fileData";
 import { PanelHeaderActionButton } from "@/components";
 import { createDefaultFileName, createExportedGraph } from "./exportedGraph";
+import { useAtomValue } from "jotai";
 
 export function ExportGraphButton() {
   const exportGraph = useExportGraph();
@@ -19,8 +19,8 @@ export function ExportGraphButton() {
 }
 
 export function useExportGraph() {
-  const vertexIds = useRecoilValue(nodesAtom).keys().toArray();
-  const edgeIds = useRecoilValue(edgesAtom).keys().toArray();
+  const vertexIds = useAtomValue(nodesAtom).keys().toArray();
+  const edgeIds = useAtomValue(edgesAtom).keys().toArray();
   const connection = useExplorer().connection;
   const config = useConfiguration();
 

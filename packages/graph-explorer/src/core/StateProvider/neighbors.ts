@@ -1,5 +1,6 @@
 import { useDisplayVerticesInCanvas, VertexId } from "@/core";
-import { selectorFamily, useRecoilCallback, useRecoilValue } from "recoil";
+import { atom, useAtomValue } from "jotai";
+import { atomFamily, useAtomCallback } from "jotai/utils";
 import { edgesAtom } from "./edges";
 import { nodesAtom } from "./nodes";
 import {
@@ -9,7 +10,7 @@ import {
 import { useCallback, useEffect, useMemo } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { neighborsCountQuery } from "@/connector";
-import { explorerSelector } from "../connector";
+import { useExplorer } from "../connector";
 import { useNotification } from "@/components/NotificationProvider";
 
 export type NeighborCounts = {
@@ -38,24 +39,27 @@ export type NeighborStub = {
  */
 export function useNeighborsCallback() {
   const queryClient = useQueryClient();
+  const explorer = useExplorer();
 
-  return useRecoilCallback(({ snapshot }) => async (vertexId: VertexId) => {
-    const fetchedNeighbors = await snapshot.getPromise(
-      fetchedNeighborsSelector(vertexId)
-    );
-    const explorer = await snapshot.getPromise(explorerSelector);
-    const response = await queryClient.ensureQueryData(
-      neighborsCountQuery({ vertexId }, explorer)
-    );
+  return useAtomCallback(
+    useCallback(
+      async (get, _set, vertexId: VertexId) => {
+        const fetchedNeighbors = get(fetchedNeighborsSelector(vertexId));
+        const response = await queryClient.ensureQueryData(
+          neighborsCountQuery({ vertexId }, explorer)
+        );
 
-    const neighbors = calculateNeighbors(
-      response.totalCount,
-      new Map(Object.entries(response.counts)),
-      fetchedNeighbors
-    );
+        const neighbors = calculateNeighbors(
+          response.totalCount,
+          new Map(Object.entries(response.counts)),
+          fetchedNeighbors
+        );
 
-    return neighbors;
-  });
+        return neighbors;
+      },
+      [explorer, queryClient]
+    )
+  );
 }
 
 /**
@@ -64,7 +68,7 @@ export function useNeighborsCallback() {
  * @returns The neighbor counts for the given vertex.
  */
 export function useNeighbors(vertexId: VertexId) {
-  const fetchedNeighbors = useRecoilValue(fetchedNeighborsSelector(vertexId));
+  const fetchedNeighbors = useAtomValue(fetchedNeighborsSelector(vertexId));
   const query = useUpdateNodeCountsQuery(vertexId);
 
   return useMemo(() => {
@@ -100,9 +104,7 @@ export function useAllNeighbors() {
   const vertices = useDisplayVerticesInCanvas();
   const vertexIds = useMemo(() => vertices.keys().toArray(), [vertices]);
 
-  const fetchedNeighbors = useRecoilValue(
-    allFetchedNeighborsSelector(vertexIds)
-  );
+  const fetchedNeighbors = useAtomValue(allFetchedNeighborsSelector(vertexIds));
   const query = useAllNeighborCountsQuery(vertexIds);
 
   const { enqueueNotification, clearNotification } = useNotification();
@@ -206,41 +208,38 @@ export function calculateNeighbors(
   };
 }
 
-const fetchedNeighborsSelector = selectorFamily({
-  key: "fetched-neighbors",
-  get:
-    (id: VertexId) =>
-    ({ get }) => {
-      const nodes = get(nodesAtom);
-      const edges = get(edgesAtom);
+const fetchedNeighborsSelector = atomFamily((id: VertexId) =>
+  atom(get => {
+    const nodes = get(nodesAtom);
+    const edges = get(edgesAtom);
 
-      const neighbors = edges
-        .values()
-        .map(edge => {
-          // Get all OUT connected edges: current node is source and target should exist
-          if (edge.source === id && nodes.has(edge.target)) {
-            return { id: edge.target, types: edge.targetTypes };
-          }
-          // Get all IN connected edges: current node is target and source should exist
-          if (edge.target === id && nodes.has(edge.source)) {
-            return { id: edge.source, types: edge.sourceTypes };
-          }
-          return null;
-        })
-        .filter(neighbor => neighbor !== null)
-        .toArray();
+    const neighbors = edges
+      .values()
+      .map(edge => {
+        // Get all OUT connected edges: current node is source and target should exist
+        if (edge.source === id && nodes.has(edge.target)) {
+          return { id: edge.target, types: edge.targetTypes };
+        }
+        // Get all IN connected edges: current node is target and source should exist
+        if (edge.target === id && nodes.has(edge.source)) {
+          return { id: edge.source, types: edge.sourceTypes };
+        }
+        return null;
+      })
+      .filter(neighbor => neighbor !== null)
+      .toArray();
 
-      return neighbors;
-    },
-});
+    return neighbors;
+  })
+);
 
 /**
  * Provides a callback for getting the unique set of neighbors for a given vertex ID.
  * @returns A callback that returns the unique set of neighbors for a given vertex ID.
  */
 export function useFetchedNeighborsCallback() {
-  const nodes = useRecoilValue(nodesAtom);
-  const edges = useRecoilValue(edgesAtom);
+  const nodes = useAtomValue(nodesAtom);
+  const edges = useAtomValue(edgesAtom);
 
   return useCallback(
     (id: VertexId) =>
@@ -258,11 +257,8 @@ export function useFetchedNeighborsCallback() {
   );
 }
 
-const allFetchedNeighborsSelector = selectorFamily({
-  key: "all-fetched-neighbors",
-  get:
-    (ids: VertexId[]) =>
-    ({ get }) => {
-      return new Map(ids.map(id => [id, get(fetchedNeighborsSelector(id))]));
-    },
-});
+const allFetchedNeighborsSelector = atomFamily((ids: VertexId[]) =>
+  atom(get => {
+    return new Map(ids.map(id => [id, get(fetchedNeighborsSelector(id))]));
+  })
+);

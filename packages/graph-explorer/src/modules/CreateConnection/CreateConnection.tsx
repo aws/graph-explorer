@@ -1,5 +1,4 @@
 import { useCallback, useState } from "react";
-import { useRecoilCallback } from "recoil";
 import {
   Button,
   Checkbox,
@@ -34,6 +33,7 @@ import {
   DEFAULT_FETCH_TIMEOUT,
   DEFAULT_NODE_EXPAND_LIMIT,
 } from "@/utils/constants";
+import { useAtomCallback } from "jotai/utils";
 
 type ConnectionForm = {
   name?: string;
@@ -98,9 +98,9 @@ const CreateConnection = ({
       }
     : undefined;
 
-  const onSave = useRecoilCallback(
-    ({ set }) =>
-      (data: Required<ConnectionForm>) => {
+  const onSave = useAtomCallback(
+    useCallback(
+      async (_get, set, data: Required<ConnectionForm>) => {
         if (!configId) {
           const newConfigId = createNewConfigurationId();
           const newConfig: RawConfiguration = {
@@ -108,8 +108,8 @@ const CreateConnection = ({
             displayLabel: data.name,
             connection: mapToConnection(data),
           };
-          set(configurationAtom, prevConfigMap => {
-            const updatedConfig = new Map(prevConfigMap);
+          await set(configurationAtom, async prevConfigMap => {
+            const updatedConfig = new Map(await prevConfigMap);
             updatedConfig.set(newConfigId, newConfig);
             return updatedConfig;
           });
@@ -117,8 +117,8 @@ const CreateConnection = ({
           return;
         }
 
-        set(configurationAtom, prevConfigMap => {
-          const updatedConfig = new Map(prevConfigMap);
+        await set(configurationAtom, async prevConfigMap => {
+          const updatedConfig = new Map(await prevConfigMap);
           const currentConfig = updatedConfig.get(configId);
 
           updatedConfig.set(configId, {
@@ -136,8 +136,8 @@ const CreateConnection = ({
 
         if (urlChange || dbUrlChange || typeChange) {
           // Force a sync of the schema
-          set(schemaAtom, prevSchemaMap => {
-            const updatedSchema = new Map(prevSchemaMap);
+          await set(schemaAtom, async prevSchemaMap => {
+            const updatedSchema = new Map(await prevSchemaMap);
             const currentSchema = updatedSchema.get(configId);
             updatedSchema.set(configId, {
               vertices: currentSchema?.vertices || [],
@@ -153,19 +153,20 @@ const CreateConnection = ({
           });
 
           // Delete previous session data
-          set(allGraphSessionsAtom, prev => {
-            const updatedGraphs = new Map(prev);
+          await set(allGraphSessionsAtom, async prev => {
+            const updatedGraphs = new Map(await prev);
             updatedGraphs.delete(configId);
             return updatedGraphs;
           });
         }
       },
-    [
-      configId,
-      initialData?.url,
-      initialData?.graphDbUrl,
-      initialData?.queryEngine,
-    ]
+      [
+        configId,
+        initialData?.url,
+        initialData?.graphDbUrl,
+        initialData?.queryEngine,
+      ]
+    )
   );
 
   const [form, setForm] = useState<ConnectionForm>({

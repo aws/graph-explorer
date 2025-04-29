@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Link } from "react-router";
-import { useRecoilValue } from "recoil";
 import {
   buttonStyles,
   Panel,
@@ -17,10 +16,11 @@ import ConnectionDetail from "@/modules/ConnectionDetail";
 import { APP_NAME } from "@/utils/constants";
 import GraphExplorerIcon from "@/components/icons/GraphExplorerIcon";
 import { cn } from "@/utils";
+import { useAtomValue } from "jotai";
 
 export default function Connections() {
   const config = useConfiguration();
-  const configuration = useRecoilValue(configurationAtom);
+  const configuration = useAtomValue(configurationAtom);
   const [isModalOpen, setModal] = useState(configuration.size === 0);
   const isSyncing = useIsSyncing();
 

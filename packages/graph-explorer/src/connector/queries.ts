@@ -47,10 +47,7 @@ export function schemaSyncQuery(
  */
 export function searchQuery(
   request: KeywordSearchRequest,
-  updateSchema: (entities: {
-    vertices: Vertex[];
-    edges: Edge[];
-  }) => Promise<void>,
+  updateSchema: (entities: { vertices: Vertex[]; edges: Edge[] }) => void,
   explorer: Explorer,
   queryClient: QueryClient
 ) {
@@ -63,7 +60,7 @@ export function searchQuery(
       const results = await explorer.keywordSearch(request, { signal });
 
       updateVertexDetailsCache(explorer, queryClient, results.vertices);
-      await updateSchema(results);
+      updateSchema(results);
 
       return results;
     },

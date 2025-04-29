@@ -1,8 +1,9 @@
-import { atom, DefaultValue, selector } from "recoil";
+import { atom } from "jotai";
 import { EdgeId, VertexId } from "../../entities";
 import { activeConfigurationAtom } from "../configuration";
 import { ConfigurationId } from "../../ConfigurationProvider";
-import { localForageEffect } from "../localForageEffect";
+import { atomWithLocalForage } from "../localForageEffect";
+import { atomWithReset, RESET } from "jotai/utils";
 
 /** A model for the graph data that is stored in local storage. */
 export type GraphSessionStorageModel = {
@@ -10,22 +11,17 @@ export type GraphSessionStorageModel = {
   edges: Set<EdgeId>;
 };
 
-export const isRestorePreviousSessionAvailableAtom = atom({
-  key: "is-restore-previous-session-available",
-  default: true,
-});
+export const isRestorePreviousSessionAvailableAtom = atomWithReset(true);
 
 /** Stores the graph session data for each connection. */
-export const allGraphSessionsAtom = atom({
-  key: "graph-sessions",
-  default: new Map<ConfigurationId, GraphSessionStorageModel>(),
-  effects: [localForageEffect("graph-sessions")],
-});
+export const allGraphSessionsAtom = atomWithLocalForage(
+  new Map<ConfigurationId, GraphSessionStorageModel>(),
+  "graph-sessions"
+);
 
 /** Gets or sets the active connection's graph session data. */
-export const activeGraphSessionAtom = selector({
-  key: "active-graph-session",
-  get: ({ get }) => {
+export const activeGraphSessionAtom = atom(
+  get => {
     const connectionId = get(activeConfigurationAtom);
 
     if (!connectionId) {
@@ -35,7 +31,7 @@ export const activeGraphSessionAtom = selector({
     const graphs = get(allGraphSessionsAtom);
     return graphs.get(connectionId) ?? null;
   },
-  set: ({ get, set }, newValue) => {
+  (get, set, newValue: GraphSessionStorageModel | typeof RESET) => {
     const graphs = get(allGraphSessionsAtom);
     const connectionId = get(activeConfigurationAtom);
 
@@ -47,7 +43,7 @@ export const activeGraphSessionAtom = selector({
     const newGraphs = new Map(graphs);
 
     // Delete the active graph if we receive a default value
-    if (newValue instanceof DefaultValue || !newValue) {
+    if (newValue === RESET || !newValue) {
       newGraphs.delete(connectionId);
       set(allGraphSessionsAtom, newGraphs);
       return;
@@ -55,5 +51,5 @@ export const activeGraphSessionAtom = selector({
 
     newGraphs.set(connectionId, newValue);
     set(allGraphSessionsAtom, newGraphs);
-  },
-});
+  }
+);

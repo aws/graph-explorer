@@ -7,7 +7,6 @@ import {
   type NeighborsResponse,
 } from "@/connector";
 import { loggerSelector, useExplorer } from "@/core/connector";
-import { useRecoilValue } from "recoil";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   useFetchedNeighborsCallback,
@@ -17,6 +16,7 @@ import {
 } from "@/core";
 import { createDisplayError } from "@/utils/createDisplayError";
 import { useAddToGraph } from "./useAddToGraph";
+import { useAtomValue } from "jotai";
 
 export type ExpandNodeFilters = Omit<
   NeighborsRequest,
@@ -39,7 +39,7 @@ export default function useExpandNode() {
   const addToGraph = useAddToGraph();
   const getFetchedNeighbors = useFetchedNeighborsCallback();
   const { enqueueNotification, clearNotification } = useNotification();
-  const remoteLogger = useRecoilValue(loggerSelector);
+  const remoteLogger = useAtomValue(loggerSelector);
 
   const { isPending, mutate } = useMutation({
     mutationFn: async (

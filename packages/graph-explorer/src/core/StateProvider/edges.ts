@@ -1,44 +1,30 @@
-import { atom, selector, selectorFamily } from "recoil";
+import { atom } from "jotai";
+import { atomFamily, atomWithReset, RESET } from "jotai/utils";
 import {
   createRenderedEdgeId,
   getEdgeIdFromRenderedEdgeId,
+  RenderedEdgeId,
   type Edge,
   type EdgeId,
 } from "@/core";
-import isDefaultValue from "./isDefaultValue";
 import { filteredNodesSelector } from "./nodes";
 
-export type Edges = Map<EdgeId, Edge>;
-
-export function toEdgeMap(edges: Edge[]): Edges {
+export function toEdgeMap(edges: Edge[]): Map<EdgeId, Edge> {
   return new Map(edges.map(e => [e.id, e]));
 }
 
-export const edgesAtom = atom<Edges>({
-  key: "edges",
-  default: new Map(),
-});
+export const edgesAtom = atomWithReset(new Map<EdgeId, Edge>());
 
-export const edgeSelector = selectorFamily({
-  key: "edge-selector",
-  get:
-    (id: EdgeId) =>
-    ({ get }) => {
-      return get(edgesAtom).get(id) ?? null;
-    },
-});
+export const edgeSelector = atomFamily((id: EdgeId) =>
+  atom(get => get(edgesAtom).get(id) ?? null)
+);
 
-export const edgesSelectedIdsAtom = atom<Set<EdgeId>>({
-  key: "edges-selected-ids",
-  default: new Set(),
-});
+export const edgesSelectedIdsAtom = atomWithReset(new Set<EdgeId>());
 
-export const edgesSelectedRenderedIdsAtom = selector({
-  key: "edges-selected-rendered-ids",
-  get: ({ get }) =>
-    new Set(get(edgesSelectedIdsAtom).values().map(createRenderedEdgeId)),
-  set: ({ set }, newValue) => {
-    if (isDefaultValue(newValue)) {
+export const edgesSelectedIdsRenderedAtom = atom(
+  get => new Set(get(edgesSelectedIdsAtom).values().map(createRenderedEdgeId)),
+  (_get, set, newValue: Set<RenderedEdgeId> | typeof RESET) => {
+    if (newValue === RESET) {
       set(edgesSelectedIdsAtom, newValue);
       return;
     }
@@ -47,20 +33,16 @@ export const edgesSelectedRenderedIdsAtom = selector({
       edgesSelectedIdsAtom,
       new Set(newValue.values().map(getEdgeIdFromRenderedEdgeId))
     );
-  },
-});
+  }
+);
 
-export const edgesOutOfFocusIdsAtom = atom<Set<EdgeId>>({
-  key: "edges-out-of-focus-ids",
-  default: new Set(),
-});
+export const edgesOutOfFocusIdsAtom = atomWithReset(new Set<EdgeId>());
 
-export const edgesOutOfFocusRenderedIdsAtom = selector({
-  key: "edges-out-of-focus-rendered-ids",
-  get: ({ get }) =>
+export const edgesOutOfFocusRenderedIdsAtom = atom(
+  get =>
     new Set(get(edgesOutOfFocusIdsAtom).values().map(createRenderedEdgeId)),
-  set: ({ set }, newValue) => {
-    if (isDefaultValue(newValue)) {
+  (_get, set, newValue: Set<RenderedEdgeId> | typeof RESET) => {
+    if (newValue === RESET) {
       set(edgesOutOfFocusIdsAtom, newValue);
       return;
     }
@@ -69,18 +51,11 @@ export const edgesOutOfFocusRenderedIdsAtom = selector({
       edgesOutOfFocusIdsAtom,
       new Set(newValue.values().map(getEdgeIdFromRenderedEdgeId))
     );
-  },
-});
+  }
+);
 
-export const edgesFilteredIdsAtom = atom<Set<EdgeId>>({
-  key: "edges-filtered-ids",
-  default: new Set(),
-});
-
-export const edgesTypesFilteredAtom = atom<Set<string>>({
-  key: "edges-types-filtered",
-  default: new Set(),
-});
+export const edgesFilteredIdsAtom = atomWithReset(new Set<EdgeId>());
+export const edgesTypesFilteredAtom = atomWithReset(new Set<string>());
 
 /**
  * Filters the edges added to the graph by:
@@ -92,23 +67,20 @@ export const edgesTypesFilteredAtom = atom<Set<string>>({
  *
  * If either the source or target vertex is hidden, the edge is also hidden.
  */
-export const filteredEdgesSelector = selector<Map<EdgeId, Edge>>({
-  key: "filtered-edges",
-  get: ({ get }) => {
-    const edges = get(edgesAtom);
-    const filteredEdgeIds = get(edgesFilteredIdsAtom);
-    const filteredEdgeTypes = get(edgesTypesFilteredAtom);
+export const filteredEdgesSelector = atom(get => {
+  const edges = get(edgesAtom);
+  const filteredEdgeIds = get(edgesFilteredIdsAtom);
+  const filteredEdgeTypes = get(edgesTypesFilteredAtom);
 
-    // Get the IDs of the existing vertices
-    const existingVertexIds = new Set(get(filteredNodesSelector).keys());
+  // Get the IDs of the existing vertices
+  const existingVertexIds = new Set(get(filteredNodesSelector).keys());
 
-    return new Map(
-      edges
-        .entries()
-        .filter(([_id, edge]) => !filteredEdgeTypes.has(edge.type))
-        .filter(([_id, edge]) => !filteredEdgeIds.has(edge.id))
-        .filter(([_id, edge]) => existingVertexIds.has(edge.source))
-        .filter(([_id, edge]) => existingVertexIds.has(edge.target))
-    );
-  },
+  return new Map(
+    edges
+      .entries()
+      .filter(([_id, edge]) => !filteredEdgeTypes.has(edge.type))
+      .filter(([_id, edge]) => !filteredEdgeIds.has(edge.id))
+      .filter(([_id, edge]) => existingVertexIds.has(edge.source))
+      .filter(([_id, edge]) => existingVertexIds.has(edge.target))
+  );
 });

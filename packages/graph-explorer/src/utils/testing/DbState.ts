@@ -19,16 +19,16 @@ import {
   Vertex,
   VertexId,
 } from "@/core";
-import { MutableSnapshot } from "recoil";
 import {
   createRandomSchema,
   createRandomRawConfiguration,
   createRandomVertex,
   createRandomEdge,
 } from "./randomData";
+import { JotaiSnapshot } from "./renderHookWithRecoilRoot";
 
 /**
- * Helps build up the state of the recoil database with common data.
+ * Helps build up the state of the Jotai database with common data.
  */
 export class DbState {
   activeSchema: Schema;
@@ -87,8 +87,8 @@ export class DbState {
     this.filteredEdgeTypes.add(edgeType);
   }
 
-  /** Applies the state to the given Recoil snapshot. */
-  applyTo(snapshot: MutableSnapshot) {
+  /** Applies the state to the given Jotai snapshot. */
+  applyTo(snapshot: JotaiSnapshot) {
     // Config
     snapshot.set(
       configurationAtom,

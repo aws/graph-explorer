@@ -1,6 +1,5 @@
 import difference from "lodash/difference";
 import { forwardRef, useCallback, useMemo } from "react";
-import { useRecoilState, useSetRecoilState } from "recoil";
 import { NonVisibleIcon, VisibleIcon } from "@/components";
 import type { ColumnDefinition, TabularInstance } from "@/components/Tabular";
 import { makeIconToggleCell } from "@/components/Tabular/builders";
@@ -19,6 +18,7 @@ import { useDeepMemo } from "@/hooks";
 import useTranslations from "@/hooks/useTranslations";
 import { recoilDiffSets } from "@/utils/recoilState";
 import { DisplayEdge, useDisplayEdgesInCanvas } from "@/core";
+import { useAtom, useSetAtom } from "jotai";
 
 /** Creates the model for the table data */
 function createEdgeForTable(edge: DisplayEdge) {
@@ -42,12 +42,11 @@ const EdgesTabular = forwardRef<TabularInstance<ToggleEdge>, any>(
   (_props, ref) => {
     const t = useTranslations();
     const edges = useDisplayEdgesInCanvas();
-    const setEdgesOut = useSetRecoilState(edgesOutOfFocusIdsAtom);
-    const [hiddenEdgesIds, setHiddenEdgesIds] =
-      useRecoilState(edgesFilteredIdsAtom);
-    const setSelectedNodesIds = useSetRecoilState(nodesSelectedIdsAtom);
+    const setEdgesOut = useSetAtom(edgesOutOfFocusIdsAtom);
+    const [hiddenEdgesIds, setHiddenEdgesIds] = useAtom(edgesFilteredIdsAtom);
+    const setSelectedNodesIds = useSetAtom(nodesSelectedIdsAtom);
     const [selectedEdgesIds, setSelectedEdgesIds] =
-      useRecoilState(edgesSelectedIdsAtom);
+      useAtom(edgesSelectedIdsAtom);
     const onToggleVisibility = useCallback(
       (item: ToggleEdge) => {
         recoilDiffSets(setHiddenEdgesIds, new Set([item.id]));

@@ -1,4 +1,4 @@
-import { act } from "@testing-library/react";
+import { act } from "react";
 import useFiltersConfig from "./useFiltersConfig";
 import {
   createRandomRawConfiguration,

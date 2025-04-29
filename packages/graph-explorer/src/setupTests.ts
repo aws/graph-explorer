@@ -6,6 +6,7 @@ import { expect, afterEach, vi } from "vitest";
 import { cleanup } from "@testing-library/react";
 import * as matchers from "@testing-library/jest-dom/matchers";
 import "core-js/full/iterator";
+import localforage from "localforage";
 
 expect.extend(matchers);
 
@@ -18,6 +19,7 @@ afterEach(() => {
 beforeEach(() => {
   vi.stubEnv("DEV", true);
   vi.stubEnv("PROD", false);
+  localforage.clear();
 });
 
 // Mock logger
@@ -52,14 +54,5 @@ vi.mock("localforage", () => {
         return Promise.resolve();
       }),
     },
-  };
-});
-
-// Mock the Recoil local forage effect, disabling it entirely. The switch to
-// async local forage access made the tests fail in spectacular ways that I
-// could not easily resolve.
-vi.mock("@/core/StateProvider/localForageEffect", () => {
-  return {
-    localForageEffect: vi.fn().mockReturnValue(() => vi.fn()),
   };
 });

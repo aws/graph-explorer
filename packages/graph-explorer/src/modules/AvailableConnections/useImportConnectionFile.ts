@@ -1,4 +1,3 @@
-import { useRecoilCallback } from "recoil";
 import { useNotification } from "@/components/NotificationProvider";
 import {
   createNewConfigurationId,
@@ -9,13 +8,15 @@ import {
 import useResetState from "@/core/StateProvider/useResetState";
 import { fromFileToJson } from "@/utils/fileData";
 import isValidConfigurationFile from "@/utils/isValidConfigurationFile";
+import { useAtomCallback } from "jotai/utils";
+import { useCallback } from "react";
 
 export function useImportConnectionFile() {
   const resetState = useResetState();
   const { enqueueNotification } = useNotification();
-  return useRecoilCallback(
-    ({ set }) =>
-      async (file: File) => {
+  return useAtomCallback(
+    useCallback(
+      async (_get, set, file: File) => {
         const fileContent = await fromFileToJson(file);
 
         if (!isValidConfigurationFile(fileContent)) {
@@ -30,8 +31,8 @@ export function useImportConnectionFile() {
 
         // Create new id to avoid collisions
         const newId = createNewConfigurationId();
-        set(configurationAtom, prevConfig => {
-          const updatedConfig = new Map(prevConfig);
+        await set(configurationAtom, async prevConfig => {
+          const updatedConfig = new Map(await prevConfig);
           updatedConfig.set(newId, {
             id: newId,
             displayLabel: fileContent.displayLabel,
@@ -39,8 +40,8 @@ export function useImportConnectionFile() {
           });
           return updatedConfig;
         });
-        set(schemaAtom, prevSchema => {
-          const updatedSchema = new Map(prevSchema);
+        await set(schemaAtom, async prevSchema => {
+          const updatedSchema = new Map(await prevSchema);
           updatedSchema.set(newId, {
             vertices: fileContent.schema?.vertices || [],
             edges: fileContent.schema?.edges || [],
@@ -64,6 +65,7 @@ export function useImportConnectionFile() {
           stackable: true,
         });
       },
-    [enqueueNotification, resetState]
+      [enqueueNotification, resetState]
+    )
   );
 }

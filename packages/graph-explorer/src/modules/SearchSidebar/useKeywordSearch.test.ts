@@ -4,12 +4,12 @@ import {
   createRandomSchema,
   renderHookWithRecoilRoot,
   createRandomRawConfiguration,
+  JotaiSnapshot,
 } from "@/utils/testing";
 import {
   activeConfigurationAtom,
   configurationAtom,
 } from "@/core/StateProvider/configuration";
-import { MutableSnapshot } from "recoil";
 import { vi } from "vitest";
 import { schemaAtom } from "@/core/StateProvider/schema";
 
@@ -21,7 +21,7 @@ vi.mock("./useKeywordSearchQuery", () => ({
 }));
 
 function initializeConfigWithQueryEngine(queryEngine: QueryEngine) {
-  return (snapshot: MutableSnapshot) => {
+  return (snapshot: JotaiSnapshot) => {
     // Create config and setup schema
     const config = createRandomRawConfiguration();
     config.connection!.queryEngine = queryEngine;
@@ -117,7 +117,7 @@ describe("useKeywordSearch", () => {
   });
 
   describe("SPARQL", () => {
-    function initializeConfigWithRdfLabel(snapshot: MutableSnapshot) {
+    function initializeConfigWithRdfLabel(snapshot: JotaiSnapshot) {
       // Create config and setup schema
       const config = createRandomRawConfiguration();
       const schema = createRandomSchema();

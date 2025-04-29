@@ -1,6 +1,8 @@
-import { atom, DefaultValue, selectorFamily, useSetRecoilState } from "recoil";
-import { localForageEffect } from "./localForageEffect";
 import { useCallback } from "react";
+import { atomWithLocalForage } from "./localForageEffect";
+import { atomFamily, RESET } from "jotai/utils";
+import { atom, useSetAtom } from "jotai";
+import { SetStateActionWithReset } from "@/utils/jotai";
 
 export type ShapeStyle =
   | "rectangle"
@@ -117,31 +119,34 @@ export type UserPreferences = {
 };
 export type SidebarItems = UserPreferences["layout"]["activeSidebarItem"];
 
-export const userStylingAtom = atom<UserStyling>({
-  key: "user-styling",
-  default: {},
-  effects: [localForageEffect("user-styling")],
-});
+export const userStylingAtom = atomWithLocalForage<UserStyling>(
+  {},
+  "user-styling"
+);
 
-export const userStylingNodeAtom = selectorFamily({
-  key: "user-styling-node",
-  get:
-    (nodeType: string) =>
-    ({ get }) => {
+export const userStylingNodeAtom = atomFamily((nodeType: string) =>
+  atom(
+    get => {
       return get(userStylingAtom).vertices?.find(
         node => node.type === nodeType
       );
     },
-  set:
-    (nodeType: string) =>
-    ({ set }, newValue) => {
-      set(userStylingAtom, prev => {
-        let newNodes = Array.from(prev.vertices ?? []);
+
+    async (
+      _get,
+      set,
+      update: SetStateActionWithReset<VertexPreferences | undefined>
+    ) => {
+      await set(userStylingAtom, async prevUserStyling => {
+        let newNodes = Array.from((await prevUserStyling).vertices ?? []);
         const existingIndex = newNodes.findIndex(
           node => node.type === nodeType
         );
+        const prev = existingIndex !== -1 ? newNodes[existingIndex] : undefined;
 
-        if (newValue instanceof DefaultValue || !newValue) {
+        const newValue = typeof update === "function" ? update(prev) : update;
+
+        if (newValue === RESET || !newValue) {
           // Remove the entry from user styles
           newNodes = newNodes.filter(node => node.type !== nodeType);
         } else if (existingIndex === -1) {
@@ -160,26 +165,31 @@ export const userStylingNodeAtom = selectorFamily({
           vertices: newNodes,
         };
       });
-    },
-});
+    }
+  )
+);
 
-export const userStylingEdgeAtom = selectorFamily({
-  key: "user-styling-edge",
-  get:
-    (edgeType: string) =>
-    ({ get }) => {
+export const userStylingEdgeAtom = atomFamily((edgeType: string) =>
+  atom(
+    get => {
       return get(userStylingAtom).edges?.find(edge => edge.type === edgeType);
     },
-  set:
-    (edgeType: string) =>
-    ({ set }, newValue) => {
-      set(userStylingAtom, prev => {
-        let newEdges = Array.from(prev.edges ?? []);
+    async (
+      _get,
+      set,
+      update: SetStateActionWithReset<EdgePreferences | undefined>
+    ) => {
+      await set(userStylingAtom, async prev => {
+        let newEdges = Array.from((await prev).edges ?? []);
         const existingIndex = newEdges.findIndex(
           edge => edge.type === edgeType
         );
+        const prevValue =
+          existingIndex !== -1 ? newEdges[existingIndex] : undefined;
+        const newValue =
+          typeof update === "function" ? update(prevValue) : update;
 
-        if (newValue instanceof DefaultValue || !newValue) {
+        if (newValue === RESET || !newValue) {
           // Remove the entry from user styles
           newEdges = newEdges.filter(edge => edge.type !== edgeType);
         } else if (existingIndex === -1) {
@@ -198,12 +208,12 @@ export const userStylingEdgeAtom = selectorFamily({
           edges: newEdges,
         };
       });
-    },
-});
+    }
+  )
+);
 
-export const userLayoutAtom = atom<UserPreferences["layout"]>({
-  key: "user-layout",
-  default: {
+export const userLayoutAtom = atomWithLocalForage<UserPreferences["layout"]>(
+  {
     activeToggles: new Set(["graph-viewer", "table-view"]),
     activeSidebarItem: "search",
     detailsAutoOpenOnSelection: true,
@@ -211,11 +221,11 @@ export const userLayoutAtom = atom<UserPreferences["layout"]>({
       height: 300,
     },
   },
-  effects: [localForageEffect("user-layout")],
-});
+  "user-layout"
+);
 
 export function useCloseSidebar() {
-  const setUserLayout = useSetRecoilState(userLayoutAtom);
+  const setUserLayout = useSetAtom(userLayoutAtom);
   return useCallback(() => {
     setUserLayout(prev => ({
       ...prev,

@@ -1,4 +1,3 @@
-import { useRecoilState } from "recoil";
 import {
   AutoFitLeftIcon,
   Panel,
@@ -16,9 +15,10 @@ import EdgeDetail from "./EdgeDetail";
 import NodeDetail from "./NodeDetail";
 import { useSelectedDisplayEdges, useSelectedDisplayVertices } from "@/core";
 import { SidebarCloseButton } from "../SidebarCloseButton";
+import { useAtom } from "jotai";
 
 function EntityDetails() {
-  const [userLayout, setUserLayout] = useRecoilState(userLayoutAtom);
+  const [userLayout, setUserLayout] = useAtom(userLayoutAtom);
   const selectedNodes = useSelectedDisplayVertices();
   const selectedNode = selectedNodes[0];
   const selectedEdges = useSelectedDisplayEdges();
@@ -37,10 +37,14 @@ function EntityDetails() {
             icon={<AutoFitLeftIcon />}
             active={userLayout.detailsAutoOpenOnSelection}
             onActionClick={() =>
-              setUserLayout(prev => ({
-                ...prev,
-                detailsAutoOpenOnSelection: !prev.detailsAutoOpenOnSelection,
-              }))
+              setUserLayout(async prev => {
+                const prevValue = await prev;
+                return {
+                  ...prevValue,
+                  detailsAutoOpenOnSelection:
+                    !prevValue.detailsAutoOpenOnSelection,
+                };
+              })
             }
           />
           <PanelHeaderDivider />

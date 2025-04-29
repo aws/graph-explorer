@@ -1,5 +1,4 @@
 import { PropsWithChildren, RefObject, useCallback } from "react";
-import { useRecoilState, useSetRecoilState } from "recoil";
 import {
   Divider,
   EdgeIcon,
@@ -37,6 +36,7 @@ import {
 } from "lucide-react";
 import { customizeNodeTypeAtom } from "@/modules/NodesStyling";
 import { customizeEdgeTypeAtom } from "@/modules/EdgesStyling";
+import { useAtom, useSetAtom } from "jotai";
 
 export type ContextMenuProps = {
   affectedNodesIds?: VertexId[];
@@ -54,11 +54,9 @@ const ContextMenu = ({
   const t = useTranslations();
   const displayNodes = useDisplayVerticesInCanvas();
   const displayEdges = useDisplayEdgesInCanvas();
-  const [nodesSelectedIds, setNodesSelectedIds] =
-    useRecoilState(nodesSelectedIdsAtom);
-  const [edgesSelectedIds, setEdgesSelectedIds] =
-    useRecoilState(edgesSelectedIdsAtom);
-  const setUserLayout = useSetRecoilState(userLayoutAtom);
+  const [nodesSelectedIds, setNodesSelectedIds] = useAtom(nodesSelectedIdsAtom);
+  const [edgesSelectedIds, setEdgesSelectedIds] = useAtom(edgesSelectedIdsAtom);
+  const setUserLayout = useSetAtom(userLayoutAtom);
 
   const {
     onFitToCanvas,
@@ -72,19 +70,22 @@ const ContextMenu = ({
   const nonEmptySelection =
     nodesSelectedIds.size >= 1 || edgesSelectedIds.size >= 1;
 
-  const setCustomizeNodeType = useSetRecoilState(customizeNodeTypeAtom);
-  const setCustomizeEdgeType = useSetRecoilState(customizeEdgeTypeAtom);
+  const setCustomizeNodeType = useSetAtom(customizeNodeTypeAtom);
+  const setCustomizeEdgeType = useSetAtom(customizeEdgeTypeAtom);
 
   const openSidebarPanel = useCallback(
     (
       panelName: SidebarItems,
       props?: { nodeType?: string; edgeType?: string }
     ) =>
-      () => {
-        setUserLayout(prev => ({
-          ...prev,
-          activeSidebarItem: panelName,
-        }));
+      async () => {
+        await setUserLayout(async prev => {
+          const prevValue = await prev;
+          return {
+            ...prevValue,
+            activeSidebarItem: panelName,
+          };
+        });
         if (affectedNodesIds?.length) {
           setEdgesSelectedIds(prev => (prev.size === 0 ? prev : new Set([])));
           setNodesSelectedIds(new Set(affectedNodesIds ?? []));
