@@ -2,6 +2,11 @@
 
 ## Upcoming
 
+### Other changes
+
+- **Improved** Improved connection details by moving the sync button near the
+  last sync timestamp ([#901](https://github.com/aws/graph-explorer/pull/901))
+
 ## Release v1.15.0
 
 Graph Explorer now offers session persistence, allowing you to seamlessly
