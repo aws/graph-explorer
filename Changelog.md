@@ -5,7 +5,9 @@
 ### Other changes
 
 - **Improved** Improved connection details by moving the sync button near the
-  last sync timestamp ([#901](https://github.com/aws/graph-explorer/pull/901))
+  last sync timestamp (thanks @enumura1,
+  [#901](https://github.com/aws/graph-explorer/pull/901),
+  [#908](https://github.com/aws/graph-explorer/pull/908))
 
 ## Release v1.15.0
 
