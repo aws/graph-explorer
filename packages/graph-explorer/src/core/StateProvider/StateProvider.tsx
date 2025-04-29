@@ -1,11 +1,8 @@
 import { PropsWithChildren, Suspense } from "react";
 import { RecoilRoot } from "recoil";
-import StateDebug from "./StateDebug";
 import { ErrorBoundary } from "react-error-boundary";
 import AppErrorPage from "@/core/AppErrorPage";
 import AppLoadingPage from "@/core/AppLoadingPage";
-import { NotInProduction } from "@/components";
-import { showRecoilStateLoggingAtom } from "@/core/featureFlags";
 
 export default function StateProvider({
   children,
@@ -13,12 +10,7 @@ export default function StateProvider({
   return (
     <RecoilRoot>
       <ErrorBoundary FallbackComponent={AppErrorPage}>
-        <Suspense fallback={<AppLoadingPage />}>
-          {children}
-          <NotInProduction featureFlag={showRecoilStateLoggingAtom}>
-            <StateDebug />
-          </NotInProduction>
-        </Suspense>
+        <Suspense fallback={<AppLoadingPage />}>{children}</Suspense>
       </ErrorBoundary>
     </RecoilRoot>
   );
