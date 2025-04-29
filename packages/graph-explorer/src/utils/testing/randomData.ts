@@ -424,7 +424,6 @@ export function createRandomUserStyling(): UserStyling {
 
 export function createRandomFeatureFlags(): FeatureFlags {
   return {
-    showRecoilStateLogging: createRandomBoolean(),
     showDebugActions: createRandomBoolean(),
     allowLoggingDbQuery: createRandomBoolean(),
   };

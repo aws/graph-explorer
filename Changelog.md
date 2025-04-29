@@ -10,6 +10,8 @@
   [#908](https://github.com/aws/graph-explorer/pull/908))
 - **Updated** localForage Recoil integration to be async and use Suspense
   ([#883](https://github.com/aws/graph-explorer/pull/883))
+- **Removed** Recoil state debugging tool that was never used
+  ([#909](https://github.com/aws/graph-explorer/pull/909))
 
 ## Release v1.15.0
 

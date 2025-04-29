@@ -1,13 +1,6 @@
 import { atom, selector, useRecoilValue } from "recoil";
 import { localForageEffect } from "./StateProvider/localForageEffect";
 
-/** Shows Recoil diff logs in the browser console. */
-export const showRecoilStateLoggingAtom = atom({
-  key: "feature-flag-recoil-state-logging",
-  default: false,
-  effects: [localForageEffect("showRecoilStateLogging")],
-});
-
 /** Shows debug actions in various places around the app. */
 export const showDebugActionsAtom = atom({
   key: "feature-flag-debug-actions",
@@ -23,7 +16,6 @@ export const allowLoggingDbQueryAtom = atom({
 });
 
 export type FeatureFlags = {
-  showRecoilStateLogging: boolean;
   showDebugActions: boolean;
   allowLoggingDbQuery: boolean;
 };
@@ -32,7 +24,6 @@ export const featureFlagsSelector = selector<FeatureFlags>({
   key: "feature-flags",
   get: ({ get }) => {
     return {
-      showRecoilStateLogging: get(showRecoilStateLoggingAtom),
       showDebugActions: get(showDebugActionsAtom),
       allowLoggingDbQuery: get(allowLoggingDbQueryAtom),
     } satisfies FeatureFlags;

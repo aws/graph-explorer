@@ -1,9 +1,5 @@
 import { useRecoilState } from "recoil";
-import {
-  allowLoggingDbQueryAtom,
-  showDebugActionsAtom,
-  showRecoilStateLoggingAtom,
-} from "@/core";
+import { allowLoggingDbQueryAtom, showDebugActionsAtom } from "@/core";
 import {
   Button,
   PageHeading,
@@ -23,9 +19,6 @@ import { APP_NAME } from "@/utils/constants";
 import { ComponentPropsWithoutRef } from "react";
 
 export default function SettingsGeneral() {
-  const [isStateLoggingEnabled, setIsStateLoggingEnabled] = useRecoilState(
-    showRecoilStateLoggingAtom
-  );
   const [isDebugOptionsEnabled, setIsDebugOptionsEnabled] =
     useRecoilState(showDebugActionsAtom);
 
@@ -98,16 +91,6 @@ export default function SettingsGeneral() {
               </Paragraph>
             </div>
             <div className="flex flex-col gap-4">
-              <CheckboxSetting
-                id="isStateLoggingEnabled"
-                value="isStateLoggingEnabled"
-                checked={isStateLoggingEnabled}
-                onCheckedChange={isSelected => {
-                  setIsStateLoggingEnabled(Boolean(isSelected));
-                }}
-                label="Enable Recoil state logging"
-                description="Logs all state changes to the browser console."
-              />
               <CheckboxSetting
                 id="isDebugOptionsEnabled"
                 value="isDebugOptionsEnabled"
