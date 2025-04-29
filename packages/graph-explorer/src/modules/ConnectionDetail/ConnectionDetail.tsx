@@ -222,7 +222,7 @@ function LastSyncInfo({ config }: { config: ConfigurationContextProps }) {
   const lastSyncFail = config.schema?.lastSyncFail === true;
   if (lastSyncFail) {
     return (
-      <InfoItemValue className="inline-flex items-center gap-2">
+      <InfoItemValue className="inline items-center gap-2">
         <span>Synchronization Failed</span>
         <LinkButton onClick={() => syncSchema()}>Retry</LinkButton>
       </InfoItemValue>
@@ -232,7 +232,7 @@ function LastSyncInfo({ config }: { config: ConfigurationContextProps }) {
   const lastSyncUpdate = config.schema?.lastUpdate;
   if (!lastSyncUpdate) {
     return (
-      <InfoItemValue className="inline-flex items-center gap-2">
+      <InfoItemValue className="inline items-center gap-2">
         <Chip variant="warning">Not Synchronized</Chip>
         <LinkButton onClick={() => syncSchema()}>Synchronize</LinkButton>
       </InfoItemValue>
@@ -242,7 +242,7 @@ function LastSyncInfo({ config }: { config: ConfigurationContextProps }) {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <InfoItemValue className="inline-flex items-center gap-2">
+        <InfoItemValue className="inline items-center gap-2">
           <span>{formatRelativeDate(lastSyncUpdate)}</span>
           <LinkButton onClick={() => syncSchema()}>Refresh</LinkButton>
         </InfoItemValue>
