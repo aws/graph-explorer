@@ -280,88 +280,11 @@ app.post("/sparql", (req, res, next) => {
 });
 
 // POST endpoint for Gremlin queries.
-app.post("/gremlin", (req, res, next) => {
-  // Gather info from the headers
-  const headers = req.headers as DbQueryIncomingHttpHeaders;
-  const queryId = headers["queryid"];
-  const graphDbConnectionUrl = headers["graph-db-connection-url"];
-  const shouldLogDbQuery = BooleanStringSchema.default("false").parse(
-    headers["db-query-logging-enabled"]
-  );
-  const isIamEnabled = !!headers["aws-neptune-region"];
-  const region = isIamEnabled ? headers["aws-neptune-region"] : "";
-  const serviceType = isIamEnabled
-    ? (headers["service-type"] ?? DEFAULT_SERVICE_TYPE)
-    : "";
-
-  // Validate the input before making any external calls.
-  const queryString = req.body.query;
-  if (!queryString) {
-    return res
-      .status(400)
-      .send({ error: "[Proxy] Gremlin: query not provided" });
-  }
-
-  if (shouldLogDbQuery) {
-    proxyLogger.debug("[Gremlin] Received database query:\n%s", queryString);
-  }
-
-  /// Function to cancel long running queries if the client disappears before completion
-  async function cancelQuery() {
-    if (!queryId) {
-      return;
-    }
-    proxyLogger.debug(`Cancelling request ${queryId}...`);
-    try {
-      await retryFetch(
-        new URL(
-          `${graphDbConnectionUrl}/gremlin/status?cancelQuery&queryId=${encodeURIComponent(queryId)}`
-        ),
-        { method: "GET" },
-        isIamEnabled,
-        region,
-        serviceType
-      );
-    } catch (err) {
-      // Not really an error
-      proxyLogger.warn("Failed to cancel the query: %o", err);
-    }
-  }
-
-  // Watch for a cancelled or aborted connection
-  req.on("close", async () => {
-    if (req.complete) {
-      return;
-    }
-    await cancelQuery();
-  });
-  res.on("close", async () => {
-    if (res.writableFinished) {
-      return;
-    }
-    await cancelQuery();
-  });
-
-  const body = { gremlin: queryString, queryId };
-  const rawUrl = `${graphDbConnectionUrl}/gremlin`;
-  const requestOptions = {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/vnd.gremlin-v3.0+json",
-    },
-    body: JSON.stringify(body),
-  };
-
-  return fetchData(
-    res,
-    next,
-    rawUrl,
-    requestOptions,
-    isIamEnabled,
-    region,
-    serviceType
-  );
+app.post("/gremlin", (_req, res, _next) => {
+  // Respond with a 500 and html content
+  return res
+    .status(500)
+    .send("<html><body>500 Internal Server Error</body></html>");
 });
 
 // POST endpoint for openCypher queries.

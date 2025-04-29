@@ -15,36 +15,60 @@ const NeptuneErrorSchema = z.object({
   type: z.string().optional(),
 });
 
+interface ErrorDataResponse {
+  content: "data";
+  data: any;
+}
+
+interface ErrorTextResponse {
+  content: "text";
+  text: string;
+}
+
+interface ErrorEmptyResponse {
+  content: "empty";
+}
+
+type ErrorResponse = {
+  status: number;
+  contentType: string | null;
+} & (ErrorDataResponse | ErrorTextResponse | ErrorEmptyResponse);
+
 /**
  * Attempts to decode the error response into a JSON object.
  *
  * @param response The fetch response that should be decoded
  * @returns The decoded response or undefined if it fails to decode
  */
-export async function decodeErrorSafely(response: Response): Promise<any> {
-  const contentType = response.headers.get("Content-Type");
-  if (
-    !contentType ||
-    (!contentType.includes("application/json") &&
-      !contentType.includes("text/plain"))
-  ) {
-    return undefined;
-  }
+export async function decodeErrorSafely(
+  response: Response
+): Promise<ErrorResponse> {
+  const contentType = response.headers.get("Content-Type") ?? null;
+  const status = response.status;
 
   // Extract the raw text from the response
   const rawText = await response.text();
   if (!rawText) {
-    return undefined;
+    return {
+      status,
+      contentType,
+      content: "empty",
+    };
   }
 
-  // Parse JSON
-  if (contentType.includes("application/json")) {
+  // Attempt to parse JSON
+  if (contentType?.includes("application/json")) {
     try {
       // Try parsing the response as JSON
       const data = JSON.parse(rawText);
 
       // Flatten the error if it contains an error object
-      return data?.error ?? data;
+      return {
+        status,
+        contentType,
+        content: "data",
+        data: data?.error ?? data,
+      };
     } catch (error) {
       // Log the error and fallthrough to return the raw text
       logger.warn("Failed to decode the error response as JSON", {
@@ -55,7 +79,7 @@ export async function decodeErrorSafely(response: Response): Promise<any> {
   }
 
   // Just return the whole response as the error
-  return { message: rawText };
+  return { status, contentType, content: "text", text: rawText };
 }
 
 // Construct the request headers based on the connection settings
@@ -114,6 +138,11 @@ export async function fetchDatabaseRequest(
     // Log the error to the console always
     logger.error(`Response status ${response.status} received:`, error);
 
+    if (error.content === "text") {
+      if (error.contentType?.includes("text/plain")) {
+      }
+    }
+
     // Parse out neptune specific error messages
     const parseNeptuneError = NeptuneErrorSchema.safeParse(error);
     if (parseNeptuneError.success) {
@@ -131,4 +160,63 @@ export async function fetchDatabaseRequest(
   // A successful response is assumed to be JSON
   const data = await response.json();
   return data;
+}
+
+function getNeptuneErrorMessage(data: unknown) {
+  // Parse out neptune specific error messages
+  const parseNeptuneError = NeptuneErrorSchema.safeParse(data);
+  if (!parseNeptuneError.success) {
+    return null;
+  }
+
+  // Prefer the detailed message if it exists
+  const message =
+    parseNeptuneError.data.detailedMessage ??
+    parseNeptuneError.data.message ??
+    null;
+  return message;
+}
+
+function getDataOrText(response: Response) {
+  const contentType = response.headers.get("Content-Type") ?? null;
+  
+  const rawText = await response.text();
+  if (!rawText) {
+    return null;
+  }
+
+  if (contentType?.includes("application/json")) {
+    try {
+      // Try parsing the response as JSON
+      return JSON.parse(rawText);
+    } catch (error) {
+      // Ignore the error and return the raw text
+      return rawText;
+    }
+  }
+
+  return rawText
+}
+
+function createNetworkErrorFromResponse(response: Response) {
+  const error = decodeErrorSafely(response);
+  const contentType = response.headers.get("Content-Type") ?? null;
+  const textOrData = 
+
+  // Log the error to the console always
+  logger.error(`Response status ${response.status} received:`, {
+    error,
+    contentType,
+  });
+
+  if (!contentType) {
+    throw new NetworkError("Network response was not OK", response.status, null);
+  }
+
+  if (contentType) {
+    throw new NetworkError(
+      "Network response was not OK",
+      response.status,
+      error
+    );
 }
