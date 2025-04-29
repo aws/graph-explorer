@@ -8,6 +8,8 @@
   last sync timestamp (thanks @enumura1,
   [#901](https://github.com/aws/graph-explorer/pull/901),
   [#908](https://github.com/aws/graph-explorer/pull/908))
+- **Updated** localForage Recoil integration to be async and use Suspense
+  ([#883](https://github.com/aws/graph-explorer/pull/883))
 
 ## Release v1.15.0
 

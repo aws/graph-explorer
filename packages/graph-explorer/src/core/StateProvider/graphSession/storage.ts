@@ -2,7 +2,7 @@ import { atom, DefaultValue, selector } from "recoil";
 import { EdgeId, VertexId } from "../../entities";
 import { activeConfigurationAtom } from "../configuration";
 import { ConfigurationId } from "../../ConfigurationProvider";
-import localForageEffect from "../localForageEffect";
+import { localForageEffect } from "../localForageEffect";
 
 /** A model for the graph data that is stored in local storage. */
 export type GraphSessionStorageModel = {
@@ -19,7 +19,7 @@ export const isRestorePreviousSessionAvailableAtom = atom({
 export const allGraphSessionsAtom = atom({
   key: "graph-sessions",
   default: new Map<ConfigurationId, GraphSessionStorageModel>(),
-  effects: [localForageEffect()],
+  effects: [localForageEffect("graph-sessions")],
 });
 
 /** Gets or sets the active connection's graph session data. */
