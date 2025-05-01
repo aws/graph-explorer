@@ -21,7 +21,7 @@ export const edgeSelector = atomFamily((id: EdgeId) =>
 
 export const edgesSelectedIdsAtom = atomWithReset(new Set<EdgeId>());
 
-export const edgesSelectedIdsRenderedAtom = atom(
+export const edgesSelectedRenderedIdsAtom = atom(
   get => new Set(get(edgesSelectedIdsAtom).values().map(createRenderedEdgeId)),
   (_get, set, newValue: Set<RenderedEdgeId> | typeof RESET) => {
     if (newValue === RESET) {

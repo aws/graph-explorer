@@ -26,7 +26,7 @@ import { ElementEventCallback } from "@/components/Graph/hooks/useAddClickEvents
 import SelectField from "@/components/SelectField";
 import {
   edgesOutOfFocusRenderedIdsAtom,
-  edgesSelectedIdsRenderedAtom,
+  edgesSelectedRenderedIdsAtom,
 } from "@/core/StateProvider/edges";
 import {
   nodesOutOfFocusRenderedIdsAtom,
@@ -101,7 +101,7 @@ export default function GraphViewer() {
   );
 
   const [edgesSelectedIds, setEdgesSelectedIds] = useAtom(
-    edgesSelectedIdsRenderedAtom
+    edgesSelectedRenderedIdsAtom
   );
   const nodesOutIds = useAtomValue(nodesOutOfFocusRenderedIdsAtom);
   const edgesOutIds = useAtomValue(edgesOutOfFocusRenderedIdsAtom);
