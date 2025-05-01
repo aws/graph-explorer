@@ -4,7 +4,7 @@ import { useCallback } from "react";
 
 export function useAutoOpenDetailsSidebar() {
   return useAtomCallback(
-    useCallback((get, set) => {
+    useCallback(async (get, set) => {
       const userLayout = get(userLayoutAtom);
 
       // If feature is disabled then do nothing
@@ -18,10 +18,12 @@ export function useAutoOpenDetailsSidebar() {
       }
 
       // Sidebar is closed, so open it to details
-      set(userLayoutAtom, prevState => ({
-        ...prevState,
-        activeSidebarItem: "details" as const,
-      }));
+      await set(userLayoutAtom, async prevState => {
+        return {
+          ...(await prevState),
+          activeSidebarItem: "details" as const,
+        };
+      });
     }, [])
   );
 }
