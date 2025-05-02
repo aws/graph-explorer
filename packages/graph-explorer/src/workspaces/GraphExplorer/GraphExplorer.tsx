@@ -2,7 +2,6 @@ import { cn } from "@/utils";
 import { Resizable } from "re-resizable";
 import { useCallback } from "react";
 import { Link } from "react-router";
-import { useRecoilState, useRecoilValue } from "recoil";
 import {
   buttonStyles,
   EdgeIcon,
@@ -39,6 +38,7 @@ import { NodesStyling } from "@/modules/NodesStyling";
 import defaultStyles from "./GraphExplorer.styles";
 import { APP_NAME } from "@/utils/constants";
 import { SearchSidebarPanel } from "@/modules/SearchSidebar";
+import { useAtom, useAtomValue } from "jotai";
 
 const RESIZE_ENABLE_TOP = {
   top: true,
@@ -56,22 +56,23 @@ const GraphExplorer = () => {
   const config = useConfiguration();
   const t = useTranslations();
   const hasNamespaces = config?.connection?.queryEngine === "sparql";
-  const [userLayout, setUserLayout] = useRecoilState(userLayoutAtom);
+  const [userLayout, setUserLayout] = useAtom(userLayoutAtom);
 
-  const filteredEntitiesCount = useRecoilValue(totalFilteredCount);
+  const filteredEntitiesCount = useAtomValue(totalFilteredCount);
 
   const toggleSidebar = useCallback(
-    (item: SidebarItems) => () => {
-      setUserLayout(prev => {
-        if (prev.activeSidebarItem === item) {
+    (item: SidebarItems) => async () => {
+      await setUserLayout(async prev => {
+        const prevValue = await prev;
+        if (prevValue.activeSidebarItem === item) {
           return {
-            ...prev,
+            ...prevValue,
             activeSidebarItem: null,
           };
         }
 
         return {
-          ...prev,
+          ...prevValue,
           activeSidebarItem: item,
         };
       });
@@ -80,9 +81,10 @@ const GraphExplorer = () => {
   );
 
   const toggleView = useCallback(
-    (item: string) => () => {
-      setUserLayout(prev => {
-        const toggles = new Set(prev.activeToggles);
+    (item: string) => async () => {
+      await setUserLayout(async prev => {
+        const prevValue = await prev;
+        const toggles = new Set(prevValue.activeToggles);
         if (toggles.has(item)) {
           toggles.delete(item);
         } else {
@@ -90,7 +92,7 @@ const GraphExplorer = () => {
         }
 
         return {
-          ...prev,
+          ...prevValue,
           activeToggles: toggles,
         };
       });
@@ -99,13 +101,19 @@ const GraphExplorer = () => {
   );
 
   const onTableViewResizeStop = useCallback(
-    (_e: unknown, _dir: unknown, _ref: unknown, delta: { height: number }) => {
-      setUserLayout(prev => {
+    async (
+      _e: unknown,
+      _dir: unknown,
+      _ref: unknown,
+      delta: { height: number }
+    ) => {
+      await setUserLayout(async prev => {
+        const prevValue = await prev;
         return {
-          ...prev,
+          ...prevValue,
           tableView: {
-            ...(prev.tableView || {}),
-            height: (prev.tableView?.height ?? 300) + delta.height,
+            ...(prevValue.tableView || {}),
+            height: (prevValue.tableView?.height ?? 300) + delta.height,
           },
         };
       });

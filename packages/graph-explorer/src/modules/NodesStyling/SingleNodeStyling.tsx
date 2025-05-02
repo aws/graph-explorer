@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from "react";
-import { useSetRecoilState } from "recoil";
 import {
   Button,
   ComponentBaseProps,
@@ -16,6 +15,7 @@ import {
 import { useDebounceValue, usePrevious } from "@/hooks";
 import { MISSING_DISPLAY_TYPE } from "@/utils/constants";
 import { customizeNodeTypeAtom } from "./NodeStyleDialog";
+import { useSetAtom } from "jotai";
 
 export type SingleNodeStylingProps = {
   vertexType: string;
@@ -26,12 +26,12 @@ export default function SingleNodeStyling({
 
   ...rest
 }: SingleNodeStylingProps) {
-  const setNodePreferences = useSetRecoilState(userStylingNodeAtom(vertexType));
+  const setNodePreferences = useSetAtom(userStylingNodeAtom(vertexType));
   const displayConfig = useDisplayVertexTypeConfig(vertexType);
 
   const [displayAs, setDisplayAs] = useState(displayConfig.displayLabel);
 
-  const setCustomizeNodeType = useSetRecoilState(customizeNodeTypeAtom);
+  const setCustomizeNodeType = useSetAtom(customizeNodeTypeAtom);
 
   const onUserPrefsChange = useCallback(
     (prefs: Omit<VertexPreferences, "type">) => {

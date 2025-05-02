@@ -1,5 +1,4 @@
 import { FileButton, Modal } from "@mantine/core";
-import { useRecoilValue } from "recoil";
 import {
   AddIcon,
   PanelHeaderActionButton,
@@ -21,6 +20,7 @@ import { cn } from "@/utils";
 import { Virtuoso } from "react-virtuoso";
 import { ConnectionRow } from "./ConnectionRow";
 import { useImportConnectionFile } from "./useImportConnectionFile";
+import { useAtomValue } from "jotai";
 
 export type ConnectionDetailProps = {
   isSync: boolean;
@@ -33,7 +33,7 @@ const AvailableConnections = ({
   isModalOpen,
   onModalChange,
 }: ConnectionDetailProps) => {
-  const activeConnectionId = useRecoilValue(activeConfigurationAtom);
+  const activeConnectionId = useAtomValue(activeConfigurationAtom);
   const allConnections = useAllConnections();
   const importConnectionFile = useImportConnectionFile();
 
@@ -103,7 +103,7 @@ const AvailableConnections = ({
 };
 
 function useAllConnections() {
-  const connectionMap = useRecoilValue(configurationAtom);
+  const connectionMap = useAtomValue(configurationAtom);
   return useMemo(() => connectionMap.values().toArray(), [connectionMap]);
 }
 

@@ -1,5 +1,4 @@
 import { MouseEvent, useCallback, useRef, useState } from "react";
-import { useRecoilState, useRecoilValue } from "recoil";
 import {
   getVertexIdFromRenderedVertexId,
   type RenderedEdgeId,
@@ -51,6 +50,7 @@ import {
   ZoomInIcon,
   ZoomOutIcon,
 } from "lucide-react";
+import { useAtom, useAtomValue } from "jotai";
 
 const LAYOUT_OPTIONS = [
   {
@@ -96,15 +96,15 @@ function onContextMenu(e: MouseEvent<HTMLDivElement>) {
 export default function GraphViewer() {
   const graphRef = useRef<GraphRef | null>(null);
 
-  const [nodesSelectedIds, setNodesSelectedIds] = useRecoilState(
+  const [nodesSelectedIds, setNodesSelectedIds] = useAtom(
     nodesSelectedRenderedIdsAtom
   );
 
-  const [edgesSelectedIds, setEdgesSelectedIds] = useRecoilState(
+  const [edgesSelectedIds, setEdgesSelectedIds] = useAtom(
     edgesSelectedRenderedIdsAtom
   );
-  const nodesOutIds = useRecoilValue(nodesOutOfFocusRenderedIdsAtom);
-  const edgesOutIds = useRecoilValue(edgesOutOfFocusRenderedIdsAtom);
+  const nodesOutIds = useAtomValue(nodesOutOfFocusRenderedIdsAtom);
+  const edgesOutIds = useAtomValue(edgesOutOfFocusRenderedIdsAtom);
 
   const autoOpenDetails = useAutoOpenDetailsSidebar();
 

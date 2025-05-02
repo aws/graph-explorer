@@ -1,5 +1,4 @@
-import React from "react";
-import { useRecoilCallback } from "recoil";
+import React, { useCallback } from "react";
 import { DatabaseIcon } from "lucide-react";
 import { ListRowContent, ListRowTitle, ListRowSubtitle } from "@/components";
 import {
@@ -9,6 +8,8 @@ import {
 } from "@/core";
 import useResetState from "@/core/StateProvider/useResetState";
 import { useTranslations } from "@/hooks";
+import { useAtomCallback } from "jotai/utils";
+import { logger } from "@/utils";
 
 const ConnectionRow = React.memo(
   ({
@@ -63,13 +64,15 @@ const ConnectionRow = React.memo(
 
 function useSetActiveConfigCallback(configId: ConfigurationId) {
   const resetState = useResetState();
-  return useRecoilCallback(
-    ({ set }) =>
-      () => {
-        set(activeConfigurationAtom, configId);
+  return useAtomCallback(
+    useCallback(
+      async (_get, set) => {
+        logger.debug("Setting active connection to", configId);
+        await set(activeConfigurationAtom, configId);
         resetState();
       },
-    [configId, resetState]
+      [configId, resetState]
+    )
   );
 }
 

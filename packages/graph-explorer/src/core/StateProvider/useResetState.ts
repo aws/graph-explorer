@@ -1,4 +1,3 @@
-import { useRecoilCallback } from "recoil";
 import {
   edgesAtom,
   edgesFilteredIdsAtom,
@@ -20,34 +19,34 @@ import {
   selectedVertexTypeAtom,
 } from "@/modules/SearchSidebar/useKeywordSearch";
 import { isRestorePreviousSessionAvailableAtom } from "./graphSession";
+import { RESET, useAtomCallback } from "jotai/utils";
+import { useCallback } from "react";
 
 export default function useResetState() {
-  return useRecoilCallback(
-    ({ reset }) =>
-      () => {
-        // Nodes
-        reset(nodesAtom);
-        reset(nodesSelectedIdsAtom);
-        reset(nodesOutOfFocusIdsAtom);
-        reset(nodesFilteredIdsAtom);
-        reset(nodesTypesFilteredAtom);
+  return useAtomCallback(
+    useCallback((_get, set) => {
+      // Nodes
+      set(nodesAtom, RESET);
+      set(nodesSelectedIdsAtom, RESET);
+      set(nodesOutOfFocusIdsAtom, RESET);
+      set(nodesFilteredIdsAtom, RESET);
+      set(nodesTypesFilteredAtom, RESET);
 
-        // Edges
-        reset(edgesAtom);
-        reset(edgesSelectedIdsAtom);
-        reset(edgesOutOfFocusIdsAtom);
-        reset(edgesFilteredIdsAtom);
-        reset(edgesTypesFilteredAtom);
+      // Edges
+      set(edgesAtom, RESET);
+      set(edgesSelectedIdsAtom, RESET);
+      set(edgesOutOfFocusIdsAtom, RESET);
+      set(edgesFilteredIdsAtom, RESET);
+      set(edgesTypesFilteredAtom, RESET);
 
-        // Search related
-        reset(searchTermAtom);
-        reset(selectedVertexTypeAtom);
-        reset(selectedAttributeAtom);
-        reset(partialMatchAtom);
+      // Search related
+      set(searchTermAtom, RESET);
+      set(selectedVertexTypeAtom, RESET);
+      set(selectedAttributeAtom, RESET);
+      set(partialMatchAtom, RESET);
 
-        // Previous session
-        reset(isRestorePreviousSessionAvailableAtom);
-      },
-    []
+      // Previous session
+      set(isRestorePreviousSessionAvailableAtom, RESET);
+    }, [])
   );
 }

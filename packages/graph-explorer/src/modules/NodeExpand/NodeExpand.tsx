@@ -1,4 +1,3 @@
-import { useRecoilValue } from "recoil";
 import {
   Panel,
   PanelContent,
@@ -13,10 +12,11 @@ import useTranslations from "@/hooks/useTranslations";
 import NodeExpandContent from "./NodeExpandContent";
 import { useSelectedDisplayVertices } from "@/core";
 import { SidebarCloseButton } from "../SidebarCloseButton";
+import { useAtomValue } from "jotai";
 
 function NodeExpand() {
   const t = useTranslations();
-  const edgesSelectedIds = useRecoilValue(edgesSelectedIdsAtom);
+  const edgesSelectedIds = useAtomValue(edgesSelectedIdsAtom);
   const selectedNodes = useSelectedDisplayVertices();
   const selectedNode = selectedNodes[0];
 

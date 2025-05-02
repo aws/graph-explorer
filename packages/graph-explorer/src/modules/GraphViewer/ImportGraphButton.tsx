@@ -10,7 +10,6 @@ import { logger, formatEntityCounts } from "@/utils";
 import { fromFileToJson } from "@/utils/fileData";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { FolderOpenIcon } from "lucide-react";
-import { useRecoilValue } from "recoil";
 import {
   ExportedGraphConnection,
   isMatchingConnection,
@@ -21,6 +20,7 @@ import { ZodError } from "zod";
 import { Notification } from "@/components/NotificationProvider/reducer";
 import { getTranslation } from "@/hooks/useTranslations";
 import { useAddToGraph } from "@/hooks";
+import { useAtomValue } from "jotai";
 
 export function ImportGraphButton() {
   const importGraph = useImportGraphMutation();
@@ -44,7 +44,7 @@ function useImportGraphMutation() {
   const queryClient = useQueryClient();
   const explorer = useExplorer();
   const addToGraph = useAddToGraph();
-  const allConfigs = useRecoilValue(configurationAtom);
+  const allConfigs = useAtomValue(configurationAtom);
   const allConnections = allConfigs
     .values()
     .map(config =>
@@ -101,9 +101,9 @@ function useImportGraphMutation() {
 
       return result;
     },
-    onSuccess: result => {
+    onSuccess: async result => {
       // 4. Update Graph Explorer state
-      addToGraph(result.entities);
+      await addToGraph(result.entities);
 
       // 5. Notify user of completion
       const finalNotification =

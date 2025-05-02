@@ -1,23 +1,18 @@
 import { PropsWithChildren } from "react";
 import { env } from "@/utils";
-import { atom, RecoilValue, useRecoilValue } from "recoil";
+import { Atom, atom, useAtomValue } from "jotai";
 
 type Props = {
-  /** Optionally check an additional feature flag from Recoil state. */
-  featureFlag?: RecoilValue<boolean>;
+  /** Optionally check an additional feature flag from Jotai state. */
+  featureFlag?: Atom<boolean>;
 };
 
 /** Always enabled feature flag. */
-const defaultFeatureFlagAtom = atom({
-  key: "feature-flag-always-enabled",
-  default: true,
-});
+const defaultFeatureFlagAtom = atom(true);
 
 /** Returns null if `MODE == PRODUCTION` or the feature flag is false. */
 export default function NotInProduction(props: PropsWithChildren<Props>) {
-  const featureFlag = useRecoilValue(
-    props.featureFlag ?? defaultFeatureFlagAtom
-  );
+  const featureFlag = useAtomValue(props.featureFlag ?? defaultFeatureFlagAtom);
 
   if (env.PROD || !featureFlag) {
     return null;

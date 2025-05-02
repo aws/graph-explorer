@@ -1,5 +1,5 @@
 import { uniq } from "lodash";
-import { atom, selector } from "recoil";
+import { atom } from "jotai";
 import { sanitizeText } from "@/utils";
 import DEFAULT_ICON_URL from "@/utils/defaultIconUrl";
 import type {
@@ -9,7 +9,7 @@ import type {
   RawConfiguration,
   VertexTypeConfig,
 } from "@/core";
-import { localForageEffect } from "./localForageEffect";
+import { atomWithLocalForage } from "./localForageEffect";
 import { activeSchemaSelector, SchemaInference } from "./schema";
 import {
   EdgePreferences,
@@ -17,43 +17,37 @@ import {
   userStylingAtom,
   VertexPreferences,
 } from "./userPreferences";
-import isDefaultValue from "./isDefaultValue";
 import {
   RESERVED_ID_PROPERTY,
   RESERVED_TYPES_PROPERTY,
 } from "@/utils/constants";
+import { RESET } from "jotai/utils";
 
-export const activeConfigurationAtom = atom<ConfigurationId | null>({
-  key: "active-configuration",
-  default: null,
-  effects: [localForageEffect("active-configuration")],
-});
+export const activeConfigurationAtom =
+  atomWithLocalForage<ConfigurationId | null>(null, "active-configuration");
 
-export const configurationAtom = atom<Map<ConfigurationId, RawConfiguration>>({
-  key: "configuration",
-  default: new Map(),
-  effects: [localForageEffect("configuration")],
-});
+export const configurationAtom = atomWithLocalForage<
+  Map<ConfigurationId, RawConfiguration>
+>(new Map(), "configuration");
 
 /** Gets or sets the config that is currently active. */
-export const activeConfigSelector = selector({
-  key: "active-config-selector",
-  get({ get }) {
+export const activeConfigSelector = atom(
+  get => {
     const configMap = get(configurationAtom);
     const id = get(activeConfigurationAtom);
     const activeConfig = id ? configMap.get(id) : null;
     return activeConfig;
   },
-  set({ get, set }, newValue) {
+  async (get, set, newValue: RawConfiguration | typeof RESET) => {
     const configId = get(activeConfigurationAtom);
     if (!configId) {
       return;
     }
-    set(configurationAtom, prevConfigMap => {
-      const updatedConfigMap = new Map(prevConfigMap);
+    await set(configurationAtom, async prevConfigMap => {
+      const updatedConfigMap = new Map(await prevConfigMap);
 
       // Handle reset value
-      if (!newValue || isDefaultValue(newValue)) {
+      if (!newValue || newValue === RESET) {
         updatedConfigMap.delete(configId);
         return updatedConfigMap;
       }
@@ -63,22 +57,19 @@ export const activeConfigSelector = selector({
 
       return updatedConfigMap;
     });
-  },
-});
+  }
+);
 
-export const mergedConfigurationSelector = selector<RawConfiguration | null>({
-  key: "merged-configuration",
-  get: ({ get }) => {
-    const currentConfig = get(activeConfigSelector);
-    if (!currentConfig) {
-      return null;
-    }
+export const mergedConfigurationSelector = atom(get => {
+  const currentConfig = get(activeConfigSelector);
+  if (!currentConfig) {
+    return null;
+  }
 
-    const currentSchema = get(activeSchemaSelector);
-    const userStyling = get(userStylingAtom);
+  const currentSchema = get(activeSchemaSelector);
+  const userStyling = get(userStylingAtom);
 
-    return mergeConfiguration(currentSchema, currentConfig, userStyling);
-  },
+  return mergeConfiguration(currentSchema, currentConfig, userStyling);
 });
 
 export function mergeConfiguration(
@@ -214,36 +205,24 @@ const mergeEdge = (
   return config;
 };
 
-export const allVertexTypeConfigsSelector = selector({
-  key: "all-vertex-type-configs",
-  get: ({ get }) => {
-    const configuration = get(mergedConfigurationSelector);
-    return new Map(configuration?.schema?.vertices.map(vt => [vt.type, vt]));
-  },
+export const allVertexTypeConfigsSelector = atom(get => {
+  const configuration = get(mergedConfigurationSelector);
+  return new Map(configuration?.schema?.vertices.map(vt => [vt.type, vt]));
 });
 
-export const allEdgeTypeConfigsSelector = selector({
-  key: "all-edge-type-configs",
-  get: ({ get }) => {
-    const configuration = get(mergedConfigurationSelector);
-    return new Map(configuration?.schema?.edges.map(et => [et.type, et]));
-  },
+export const allEdgeTypeConfigsSelector = atom(get => {
+  const configuration = get(mergedConfigurationSelector);
+  return new Map(configuration?.schema?.edges.map(et => [et.type, et]));
 });
 
-export const vertexTypesSelector = selector({
-  key: "config-vertex-types",
-  get: ({ get }) => {
-    const configuration = get(mergedConfigurationSelector);
-    return configuration?.schema?.vertices?.map(vt => vt.type) || [];
-  },
+export const vertexTypesSelector = atom(get => {
+  const configuration = get(mergedConfigurationSelector);
+  return configuration?.schema?.vertices?.map(vt => vt.type) || [];
 });
 
-export const edgeTypesSelector = selector({
-  key: "config-edge-types",
-  get: ({ get }) => {
-    const configuration = get(mergedConfigurationSelector);
-    return configuration?.schema?.edges?.map(vt => vt.type) || [];
-  },
+export const edgeTypesSelector = atom(get => {
+  const configuration = get(mergedConfigurationSelector);
+  return configuration?.schema?.edges?.map(vt => vt.type) || [];
 });
 
 export const defaultVertexTypeConfig = {
@@ -280,10 +259,7 @@ export function getDefaultEdgeTypeConfig(edgeType: string): EdgeTypeConfig {
   };
 }
 
-export const allNamespacePrefixesSelector = selector({
-  key: "all-namespace-prefixes",
-  get: ({ get }) => {
-    const configuration = get(mergedConfigurationSelector);
-    return configuration?.schema?.prefixes ?? [];
-  },
+export const allNamespacePrefixesSelector = atom(get => {
+  const configuration = get(mergedConfigurationSelector);
+  return configuration?.schema?.prefixes ?? [];
 });

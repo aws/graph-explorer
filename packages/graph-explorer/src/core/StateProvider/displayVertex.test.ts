@@ -3,6 +3,7 @@ import {
   createRandomSchema,
   createRandomVertex,
   createRandomVertexTypeConfig,
+  JotaiSnapshot,
   renderHookWithRecoilRoot,
 } from "@/utils/testing";
 import {
@@ -14,7 +15,6 @@ import {
   Vertex,
 } from "@/core";
 import { formatDate, sanitizeText } from "@/utils";
-import { MutableSnapshot } from "recoil";
 import { schemaAtom } from "./schema";
 import {
   activeConfigurationAtom,
@@ -239,7 +239,7 @@ describe("useDisplayVertexFromVertex", () => {
 
   function act(
     vertex: Vertex,
-    initializeState?: (mutableSnapshot: MutableSnapshot) => void
+    initializeState?: (mutableSnapshot: JotaiSnapshot) => void
   ) {
     const { result } = renderHookWithRecoilRoot(
       () => useDisplayVertexFromVertex(vertex),
@@ -250,7 +250,7 @@ describe("useDisplayVertexFromVertex", () => {
 
   function withSchema(schema: Schema) {
     const config = createRandomRawConfiguration();
-    return (snapshot: MutableSnapshot) => {
+    return (snapshot: JotaiSnapshot) => {
       snapshot.set(configurationAtom, new Map([[config.id, config]]));
       snapshot.set(schemaAtom, new Map([[config.id, schema]]));
       snapshot.set(activeConfigurationAtom, config.id);
@@ -260,7 +260,7 @@ describe("useDisplayVertexFromVertex", () => {
   function withSchemaAndConnection(schema: Schema, queryEngine: QueryEngine) {
     const config = createRandomRawConfiguration();
     config.connection!.queryEngine = queryEngine;
-    return (snapshot: MutableSnapshot) => {
+    return (snapshot: JotaiSnapshot) => {
       snapshot.set(configurationAtom, new Map([[config.id, config]]));
       snapshot.set(schemaAtom, new Map([[config.id, schema]]));
       snapshot.set(activeConfigurationAtom, config.id);

@@ -1,6 +1,5 @@
 import { Modal } from "@mantine/core";
 import React, { useCallback, useMemo, useState } from "react";
-import { useRecoilCallback } from "recoil";
 import {
   AddIcon,
   Button,
@@ -25,6 +24,7 @@ import {
 } from "@/core";
 import { schemaAtom } from "@/core/StateProvider/schema";
 import { Virtuoso } from "react-virtuoso";
+import { useAtomCallback } from "jotai/utils";
 
 type PrefixForm = {
   prefix: string;
@@ -153,19 +153,17 @@ function EmptyState({ onCreate }: { onCreate: () => void }) {
 }
 
 function useDeletePrefixCallback(prefix: string) {
-  return useRecoilCallback(
-    ({ set, snapshot }) =>
-      async () => {
-        const activeConfigId = await snapshot.getPromise(
-          activeConfigurationAtom
-        );
+  return useAtomCallback(
+    useCallback(
+      async (get, set) => {
+        const activeConfigId = get(activeConfigurationAtom);
 
         if (!activeConfigId) {
           return;
         }
 
-        set(schemaAtom, prevSchemas => {
-          const updatedSchemas = new Map(prevSchemas);
+        await set(schemaAtom, async prevSchemas => {
+          const updatedSchemas = new Map(await prevSchemas);
           const activeSchema = updatedSchemas.get(activeConfigId);
 
           updatedSchemas.set(activeConfigId, {
@@ -180,7 +178,8 @@ function useDeletePrefixCallback(prefix: string) {
           return updatedSchemas;
         });
       },
-    [prefix]
+      [prefix]
+    )
   );
 }
 
@@ -209,15 +208,15 @@ function EditPrefixModal({
     []
   );
 
-  const onSave = useRecoilCallback(
-    ({ set }) =>
-      (prefix: string, uri: string) => {
+  const onSave = useAtomCallback(
+    useCallback(
+      async (_get, set, prefix: string, uri: string) => {
         if (!config?.id) {
           return;
         }
 
-        set(schemaAtom, prevSchemas => {
-          const updatedSchemas = new Map(prevSchemas);
+        await set(schemaAtom, async prevSchemas => {
+          const updatedSchemas = new Map(await prevSchemas);
           const activeSchema = updatedSchemas.get(config.id);
 
           updatedSchemas.set(config.id, {
@@ -230,7 +229,8 @@ function EditPrefixModal({
           return updatedSchemas;
         });
       },
-    [config?.id]
+      [config?.id]
+    )
   );
 
   const onSubmit = useCallback(() => {

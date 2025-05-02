@@ -1,5 +1,4 @@
 import { useCallback, useMemo } from "react";
-import { selector, useRecoilValue, useSetRecoilState } from "recoil";
 import { EdgeIcon } from "@/components/icons";
 import VertexIcon from "@/components/VertexIcon";
 import { edgesTypesFilteredAtom } from "@/core/StateProvider/edges";
@@ -10,36 +9,31 @@ import {
 } from "@/core/StateProvider/configuration";
 import { CheckboxListItemProps } from "@/components";
 import { useDisplayEdgeTypeConfigs, useDisplayVertexTypeConfigs } from "@/core";
+import { atom, useAtomValue, useSetAtom } from "jotai";
 
-const selectedVerticesSelector = selector({
-  key: "filters-selected-vertices",
-  get: ({ get }) => {
-    const filteredNodeTypes = get(nodesTypesFilteredAtom);
-    const allNodeTypes = get(vertexTypesSelector);
-    return new Set(
-      [...allNodeTypes].filter(n => filteredNodeTypes.has(n) === false)
-    );
-  },
+const selectedVerticesSelector = atom(get => {
+  const filteredNodeTypes = get(nodesTypesFilteredAtom);
+  const allNodeTypes = get(vertexTypesSelector);
+  return new Set(
+    [...allNodeTypes].filter(n => filteredNodeTypes.has(n) === false)
+  );
 });
 
-const selectedEdgesSelector = selector({
-  key: "filters-selected-edges",
-  get: ({ get }) => {
-    const filteredEdgeTypes = get(edgesTypesFilteredAtom);
-    const allEdgeTypes = get(edgeTypesSelector);
-    return new Set(
-      [...allEdgeTypes].filter(n => filteredEdgeTypes.has(n) === false)
-    );
-  },
+const selectedEdgesSelector = atom(get => {
+  const filteredEdgeTypes = get(edgesTypesFilteredAtom);
+  const allEdgeTypes = get(edgeTypesSelector);
+  return new Set(
+    [...allEdgeTypes].filter(n => filteredEdgeTypes.has(n) === false)
+  );
 });
 
 const useFiltersConfig = () => {
   const vtConfigs = useDisplayVertexTypeConfigs();
   const etConfigs = useDisplayEdgeTypeConfigs();
-  const setNodesTypesFiltered = useSetRecoilState(nodesTypesFilteredAtom);
-  const setEdgesTypesFiltered = useSetRecoilState(edgesTypesFilteredAtom);
-  const selectedVertexTypes = useRecoilValue(selectedVerticesSelector);
-  const selectedConnectionTypes = useRecoilValue(selectedEdgesSelector);
+  const setNodesTypesFiltered = useSetAtom(nodesTypesFilteredAtom);
+  const setEdgesTypesFiltered = useSetAtom(edgesTypesFilteredAtom);
+  const selectedVertexTypes = useAtomValue(selectedVerticesSelector);
+  const selectedConnectionTypes = useAtomValue(selectedEdgesSelector);
 
   const addVertex = useCallback(
     (vertex: string) => {

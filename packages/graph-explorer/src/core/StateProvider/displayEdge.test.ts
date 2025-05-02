@@ -5,6 +5,7 @@ import {
   createRandomRawConfiguration,
   createRandomSchema,
   createRandomVertex,
+  JotaiSnapshot,
   renderHookWithRecoilRoot,
 } from "@/utils/testing";
 import { DisplayEdge, useDisplayEdgeFromEdge } from "./displayEdge";
@@ -18,7 +19,6 @@ import {
   getDefaultEdgeTypeConfig,
 } from "./configuration";
 import { Schema } from "../ConfigurationProvider";
-import { MutableSnapshot } from "recoil";
 import { schemaAtom } from "./schema";
 import { QueryEngine } from "@shared/types";
 
@@ -228,7 +228,7 @@ describe("useDisplayEdgeFromEdge", () => {
 
   function act(
     edge: Edge,
-    initializeState?: (mutableSnapshot: MutableSnapshot) => void
+    initializeState?: (mutableSnapshot: JotaiSnapshot) => void
   ) {
     const { result } = renderHookWithRecoilRoot(
       () => useDisplayEdgeFromEdge(edge),
@@ -239,7 +239,7 @@ describe("useDisplayEdgeFromEdge", () => {
 
   function withSchema(schema: Schema) {
     const config = createRandomRawConfiguration();
-    return (snapshot: MutableSnapshot) => {
+    return (snapshot: JotaiSnapshot) => {
       snapshot.set(configurationAtom, new Map([[config.id, config]]));
       snapshot.set(schemaAtom, new Map([[config.id, schema]]));
       snapshot.set(activeConfigurationAtom, config.id);
@@ -249,7 +249,7 @@ describe("useDisplayEdgeFromEdge", () => {
   function withSchemaAndConnection(schema: Schema, queryEngine: QueryEngine) {
     const config = createRandomRawConfiguration();
     config.connection!.queryEngine = queryEngine;
-    return (snapshot: MutableSnapshot) => {
+    return (snapshot: JotaiSnapshot) => {
       snapshot.set(configurationAtom, new Map([[config.id, config]]));
       snapshot.set(schemaAtom, new Map([[config.id, schema]]));
       snapshot.set(activeConfigurationAtom, config.id);

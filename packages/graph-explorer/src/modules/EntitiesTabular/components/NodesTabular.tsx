@@ -1,6 +1,5 @@
 import difference from "lodash/difference";
 import { forwardRef, useCallback, useMemo } from "react";
-import { useRecoilState, useSetRecoilState } from "recoil";
 import { NonVisibleIcon, VisibleIcon } from "@/components";
 import type { ColumnDefinition, TabularInstance } from "@/components/Tabular";
 import { makeIconToggleCell } from "@/components/Tabular/builders";
@@ -23,6 +22,7 @@ import {
 
 import { useDeepMemo, useTranslations } from "@/hooks";
 import { recoilDiffSets } from "@/utils/recoilState";
+import { useAtom, useSetAtom } from "jotai";
 
 type ToggleVertex = DisplayVertex & {
   __is_visible: boolean;
@@ -34,12 +34,11 @@ const NodesTabular = forwardRef<TabularInstance<ToggleVertex>, any>(
     const t = useTranslations();
     const displayNodes = useDisplayVerticesInCanvas();
     const neighborCounts = useAllNeighbors();
-    const setNodesOut = useSetRecoilState(nodesOutOfFocusIdsAtom);
-    const [hiddenNodesIds, setHiddenNodesIds] =
-      useRecoilState(nodesFilteredIdsAtom);
+    const setNodesOut = useSetAtom(nodesOutOfFocusIdsAtom);
+    const [hiddenNodesIds, setHiddenNodesIds] = useAtom(nodesFilteredIdsAtom);
     const [selectedNodesIds, setSelectedNodesIds] =
-      useRecoilState(nodesSelectedIdsAtom);
-    const setSelectedEdgesIds = useSetRecoilState(edgesSelectedIdsAtom);
+      useAtom(nodesSelectedIdsAtom);
+    const setSelectedEdgesIds = useSetAtom(edgesSelectedIdsAtom);
 
     const onToggleVisibility = useCallback(
       (item: ToggleVertex) => {

@@ -8,7 +8,7 @@ export default function useUpdateVertexTypeCounts(vertexType: string) {
   const explorer = useExplorer();
   const query = useQuery(nodeCountByNodeTypeQuery(vertexType, explorer));
 
-  // Sync the result over to the schema in Recoil state
+  // Sync the result over to the schema in Jotai state
   const { updateVertexTotal } = useUpdateSchema();
   useEffect(() => {
     if (!query.data) {

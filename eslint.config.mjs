@@ -99,12 +99,7 @@ export default tseslint.config(
 
       // Hooks
       "react-hooks/rules-of-hooks": "error",
-      "react-hooks/exhaustive-deps": [
-        "error",
-        {
-          additionalHooks: "(useRecoilCallback|useRecoilTransaction_UNSTABLE)",
-        },
-      ],
+      "react-hooks/exhaustive-deps": "error",
 
       // TanStack Query
       "@tanstack/query/exhaustive-deps": "error",

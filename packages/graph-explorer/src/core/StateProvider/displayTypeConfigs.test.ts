@@ -3,9 +3,9 @@ import {
   createRandomRawConfiguration,
   createRandomSchema,
   createRandomVertexTypeConfig,
+  JotaiSnapshot,
   renderHookWithRecoilRoot,
 } from "@/utils/testing";
-import { MutableSnapshot } from "recoil";
 import {
   activeConfigurationAtom,
   configurationAtom,
@@ -119,7 +119,7 @@ describe("useDisplayVertexTypeConfig", () => {
 
   function withSchema(schema: Schema) {
     const config = createRandomRawConfiguration();
-    return (snapshot: MutableSnapshot) => {
+    return (snapshot: JotaiSnapshot) => {
       snapshot.set(configurationAtom, new Map([[config.id, config]]));
       snapshot.set(schemaAtom, new Map([[config.id, schema]]));
       snapshot.set(activeConfigurationAtom, config.id);
@@ -197,7 +197,7 @@ describe("useDisplayEdgeTypeConfig", () => {
 
   function withSchema(schema: Schema) {
     const config = createRandomRawConfiguration();
-    return (snapshot: MutableSnapshot) => {
+    return (snapshot: JotaiSnapshot) => {
       snapshot.set(configurationAtom, new Map([[config.id, config]]));
       snapshot.set(schemaAtom, new Map([[config.id, schema]]));
       snapshot.set(activeConfigurationAtom, config.id);

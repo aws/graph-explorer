@@ -1,4 +1,3 @@
-import { MutableSnapshot } from "recoil";
 import {
   activeConfigurationAtom,
   configurationAtom,
@@ -6,13 +5,14 @@ import {
 import {
   createRandomRawConfiguration,
   createRandomSchema,
+  JotaiSnapshot,
   renderHookWithRecoilRoot,
 } from "@/utils/testing";
 import useTextTransform from "./useTextTransform";
 import { vi } from "vitest";
 import { schemaAtom } from "@/core/StateProvider/schema";
 
-function initializeConfigWithPrefix(snapshot: MutableSnapshot) {
+function initializeConfigWithPrefix(snapshot: JotaiSnapshot) {
   // Create config and setup schema
   const config = createRandomRawConfiguration();
   const schema = createRandomSchema();

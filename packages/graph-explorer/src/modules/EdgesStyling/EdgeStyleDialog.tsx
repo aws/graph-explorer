@@ -1,6 +1,5 @@
 import { Modal } from "@mantine/core";
 import { useCallback, useMemo } from "react";
-import { atom, useRecoilState, useResetRecoilState } from "recoil";
 import { Button, InputField, SelectField } from "@/components";
 import ColorInput from "@/components/ColorInput/ColorInput";
 import { useDisplayEdgeTypeConfig, useWithTheme } from "@/core";
@@ -18,16 +17,15 @@ import {
 import { LINE_STYLE_OPTIONS } from "./lineStyling";
 import modalDefaultStyles from "./SingleEdgeStylingModal.style";
 import { RESERVED_TYPES_PROPERTY } from "@/utils";
+import { atom, useAtom } from "jotai";
+import { useResetAtom } from "jotai/utils";
 
-export const customizeEdgeTypeAtom = atom<string | undefined>({
-  key: "customize-edge-type",
-  default: undefined,
-});
+export const customizeEdgeTypeAtom = atom<string | undefined>(undefined);
 
 export default function EdgeStyleDialog() {
   const styleWithTheme = useWithTheme();
 
-  const [customizeEdgeType, setCustomizeEdgeType] = useRecoilState(
+  const [customizeEdgeType, setCustomizeEdgeType] = useAtom(
     customizeEdgeTypeAtom
   );
 
@@ -63,7 +61,7 @@ function Content({ edgeType }: { edgeType: string }) {
   const displayConfig = useDisplayEdgeTypeConfig(edgeType);
   const t = useTranslations();
 
-  const [edgePreferences, setEdgePreferences] = useRecoilState(
+  const [edgePreferences, setEdgePreferences] = useAtom(
     userStylingEdgeAtom(edgeType)
   );
 
@@ -88,7 +86,7 @@ function Content({ edgeType }: { edgeType: string }) {
     [edgeType, setEdgePreferences]
   );
 
-  const onUserPrefsReset = useResetRecoilState(userStylingEdgeAtom(edgeType));
+  const onUserPrefsReset = useResetAtom(userStylingEdgeAtom(edgeType));
 
   return (
     <div className="modal-container">

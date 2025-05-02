@@ -1,7 +1,7 @@
 import { EdgeId, edgesAtom } from "@/core";
-import { useRecoilValue } from "recoil";
+import { useAtomValue } from "jotai";
 
 /** Returns true if the given edge has been added to the graph. */
 export function useHasEdgeBeenAddedToGraph(id: EdgeId) {
-  return useRecoilValue(edgesAtom).has(id);
+  return useAtomValue(edgesAtom).has(id);
 }

@@ -49,7 +49,7 @@ export function useRestoreGraphSession() {
       clearNotification(progressNotificationId);
 
       // Update Graph Explorer state
-      addToGraph(result.entities);
+      await addToGraph(result.entities);
 
       // Notify user of completion
       const finalNotification =

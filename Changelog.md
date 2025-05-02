@@ -12,6 +12,8 @@
   ([#883](https://github.com/aws/graph-explorer/pull/883))
 - **Removed** Recoil state debugging tool that was never used
   ([#909](https://github.com/aws/graph-explorer/pull/909))
+- **Updated** the state management layer to use Jotai instead of Recoil
+  ([#896](https://github.com/aws/graph-explorer/pull/896))
 
 ## Release v1.15.0
 

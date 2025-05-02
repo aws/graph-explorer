@@ -1,6 +1,5 @@
 import { Modal } from "@mantine/core";
 import { useCallback, useState } from "react";
-import { useResetRecoilState, useSetRecoilState } from "recoil";
 import {
   Button,
   Chip,
@@ -66,6 +65,8 @@ import {
   LinkIcon,
 } from "lucide-react";
 import { useDeleteActiveConfiguration } from "@/hooks/useDeleteConfig";
+import { useSetAtom } from "jotai";
+import { RESET } from "jotai/utils";
 
 export type ConnectionDetailProps = {
   config: ConfigurationContextProps;
@@ -293,13 +294,12 @@ function EdgeCounts() {
 }
 
 function DebugActions() {
-  const setActiveSchema = useSetRecoilState(activeSchemaSelector);
-  const resetActiveSchema = useResetRecoilState(activeSchemaSelector);
+  const setActiveSchema = useSetAtom(activeSchemaSelector);
   const queryClient = useQueryClient();
 
   const deleteSchema = () => {
     logger.log("Deleting schema");
-    resetActiveSchema();
+    setActiveSchema(RESET);
     queryClient.invalidateQueries({
       queryKey: ["schema"],
     });

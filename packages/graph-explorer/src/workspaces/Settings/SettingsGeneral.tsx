@@ -1,4 +1,4 @@
-import { useRecoilState } from "recoil";
+import { useAtom } from "jotai";
 import { allowLoggingDbQueryAtom, showDebugActionsAtom } from "@/core";
 import {
   Button,
@@ -20,9 +20,9 @@ import { ComponentPropsWithoutRef } from "react";
 
 export default function SettingsGeneral() {
   const [isDebugOptionsEnabled, setIsDebugOptionsEnabled] =
-    useRecoilState(showDebugActionsAtom);
+    useAtom(showDebugActionsAtom);
 
-  const [allowLoggingDbQuery, setAllowLoggingDbQuery] = useRecoilState(
+  const [allowLoggingDbQuery, setAllowLoggingDbQuery] = useAtom(
     allowLoggingDbQueryAtom
   );
 

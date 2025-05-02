@@ -1,4 +1,4 @@
-import { act } from "@testing-library/react";
+import { act } from "react";
 import useFiltersConfig from "./useFiltersConfig";
 import {
   createRandomRawConfiguration,
@@ -108,9 +108,7 @@ describe("useFiltersConfig", () => {
     );
 
     // Deselect vertex
-    act(() => {
-      result.current.onChangeVertexTypes(changingVertex.type, false);
-    });
+    act(() => result.current.onChangeVertexTypes(changingVertex.type, false));
 
     // Ensure vertex is no longer selected
     expect(result.current.selectedVertexTypes.has(changingVertex.type)).toEqual(
@@ -130,9 +128,7 @@ describe("useFiltersConfig", () => {
     ).toEqual(true);
 
     // Deselect edge
-    act(() => {
-      result.current.onChangeConnectionTypes(changingEdge.type, false);
-    });
+    act(() => result.current.onChangeConnectionTypes(changingEdge.type, false));
 
     // Ensure edge is no longer selected
     expect(

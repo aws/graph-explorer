@@ -1,34 +1,31 @@
 import { sanitizeText } from "@/utils";
 import replacePrefixes from "@/utils/replacePrefixes";
-import { selector, useRecoilValue } from "recoil";
 import { allNamespacePrefixesSelector } from "@/core/StateProvider/configuration";
 import { queryEngineSelector } from "@/core/connector";
+import { atom, useAtomValue } from "jotai";
 
 export type TextTransformer = (text?: string) => string;
 
-export const textTransformSelector = selector({
-  key: "textTransform",
-  get: ({ get }) => {
-    const queryEngine = get(queryEngineSelector);
-    const prefixes = get(allNamespacePrefixesSelector);
+export const textTransformSelector = atom(get => {
+  const queryEngine = get(queryEngineSelector);
+  const prefixes = get(allNamespacePrefixesSelector);
 
-    const result: TextTransformer = text => {
-      if (!text) {
-        return "";
-      }
+  const result: TextTransformer = text => {
+    if (!text) {
+      return "";
+    }
 
-      if (queryEngine === "sparql") {
-        return replacePrefixes(text, prefixes);
-      }
+    if (queryEngine === "sparql") {
+      return replacePrefixes(text, prefixes);
+    }
 
-      return sanitizeText(text);
-    };
-    return result;
-  },
+    return sanitizeText(text);
+  };
+  return result;
 });
 
-const useTextTransform = () => {
-  return useRecoilValue(textTransformSelector);
-};
+function useTextTransform() {
+  return useAtomValue(textTransformSelector);
+}
 
 export default useTextTransform;

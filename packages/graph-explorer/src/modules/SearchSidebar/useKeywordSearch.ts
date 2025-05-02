@@ -7,8 +7,9 @@ import {
 import useDebounceValue from "@/hooks/useDebounceValue";
 import { useKeywordSearchQuery } from "../SearchSidebar/useKeywordSearchQuery";
 
-import { atom, selector, useRecoilState, useRecoilValue } from "recoil";
 import { queryEngineSelector, useQueryEngine } from "@/core/connector";
+import { atom, useAtom, useAtomValue } from "jotai";
+import { atomWithReset } from "jotai/utils";
 
 export interface PromiseWithCancel<T> extends Promise<T> {
   cancel?: () => void;
@@ -18,73 +19,61 @@ const allVerticesValue = "__all";
 const allAttributesValue = "__all";
 const idAttributeValue = "__id";
 
-export const searchTermAtom = atom({ key: "searchTerm", default: "" });
-export const selectedVertexTypeAtom = atom({
-  key: "selectedVertexType",
-  default: allVerticesValue,
-});
-export const selectedAttributeAtom = atom({
-  key: "selectedAttribute",
-  default: idAttributeValue,
-});
-export const partialMatchAtom = atom({ key: "partialMatch", default: false });
+export const searchTermAtom = atomWithReset("");
+export const selectedVertexTypeAtom = atomWithReset(allVerticesValue);
+export const selectedAttributeAtom = atomWithReset(idAttributeValue);
+export const partialMatchAtom = atomWithReset(false);
 
 /** Gets all searchable attributes across all vertex types */
-const combinedSearchableAttributesSelector = selector({
-  key: "combinedSearchableAttributes",
-  get: ({ get }) => {
-    const allVertexTypeConfigs = get(displayVertexTypeConfigsSelector);
+const combinedSearchableAttributesSelector = atom(get => {
+  const allVertexTypeConfigs = get(displayVertexTypeConfigsSelector);
 
-    // Get unique searchable attributes across all vertex types
-    const uniqueSearchableAttributes = new Map(
-      allVertexTypeConfigs
-        .values()
-        .flatMap(c => c.attributes)
-        .filter(a => a.isSearchable)
-        .map(a => [a.name, a])
-    )
+  // Get unique searchable attributes across all vertex types
+  const uniqueSearchableAttributes = new Map(
+    allVertexTypeConfigs
       .values()
-      .toArray();
+      .flatMap(c => c.attributes)
+      .filter(a => a.isSearchable)
+      .map(a => [a.name, a])
+  )
+    .values()
+    .toArray();
 
-    // Sort by name
-    return uniqueSearchableAttributes.sort((a, b) =>
-      a.name.localeCompare(b.name)
-    );
-  },
+  // Sort by name
+  return uniqueSearchableAttributes.sort((a, b) =>
+    a.name.localeCompare(b.name)
+  );
 });
 
-const attributeOptionsSelector = selector({
-  key: "attributeOptions",
-  get: ({ get }) => {
-    const selectedVertexType = get(selectedVertexTypeAtom);
+const attributeOptionsSelector = atom(get => {
+  const selectedVertexType = get(selectedVertexTypeAtom);
 
-    // Sparql uses rdfs:label, not ID
-    const allowsIdSearch = get(queryEngineSelector) !== "sparql";
+  // Sparql uses rdfs:label, not ID
+  const allowsIdSearch = get(queryEngineSelector) !== "sparql";
 
-    // Get searchable attributes for selected vertex type
-    const searchableAttributes =
-      selectedVertexType === allVerticesValue
-        ? get(combinedSearchableAttributesSelector)
-        : get(displayVertexTypeConfigSelector(selectedVertexType)).attributes;
+  // Get searchable attributes for selected vertex type
+  const searchableAttributes =
+    selectedVertexType === allVerticesValue
+      ? get(combinedSearchableAttributesSelector)
+      : get(displayVertexTypeConfigSelector(selectedVertexType)).attributes;
 
-    const attributeOptions = (() => {
-      const defaultAttributes = allowsIdSearch
-        ? [
-            { label: "All", value: allAttributesValue },
-            { label: "ID", value: idAttributeValue },
-          ]
-        : [{ label: "All", value: allAttributesValue }];
+  const attributeOptions = (() => {
+    const defaultAttributes = allowsIdSearch
+      ? [
+          { label: "All", value: allAttributesValue },
+          { label: "ID", value: idAttributeValue },
+        ]
+      : [{ label: "All", value: allAttributesValue }];
 
-      const attributes = searchableAttributes.map(attr => ({
-        value: attr.name,
-        label: attr.displayLabel,
-      }));
+    const attributes = searchableAttributes.map(attr => ({
+      value: attr.name,
+      label: attr.displayLabel,
+    }));
 
-      return [...defaultAttributes, ...attributes];
-    })();
+    return [...defaultAttributes, ...attributes];
+  })();
 
-    return attributeOptions;
-  },
+  return attributeOptions;
 });
 
 /** Manages all the state and gathers all required information to render the
@@ -92,15 +81,15 @@ const attributeOptionsSelector = selector({
 export default function useKeywordSearch() {
   const queryEngine = useQueryEngine();
 
-  const [searchTerm, setSearchTerm] = useRecoilState(searchTermAtom);
+  const [searchTerm, setSearchTerm] = useAtom(searchTermAtom);
   const debouncedSearchTerm = useDebounceValue(searchTerm, 600);
-  const [selectedVertexType, setSelectedVertexType] = useRecoilState(
+  const [selectedVertexType, setSelectedVertexType] = useAtom(
     selectedVertexTypeAtom
   );
-  const [selectedAttribute, setSelectedAttribute] = useRecoilState(
+  const [selectedAttribute, setSelectedAttribute] = useAtom(
     selectedAttributeAtom
   );
-  const [partialMatch, setPartialMatch] = useRecoilState(partialMatchAtom);
+  const [partialMatch, setPartialMatch] = useAtom(partialMatchAtom);
 
   const exactMatchOptions = [
     { label: "Exact", value: "Exact" },
@@ -123,7 +112,7 @@ export default function useKeywordSearch() {
     [vtConfigs]
   );
 
-  const attributesOptions = useRecoilValue(attributeOptionsSelector);
+  const attributesOptions = useAtomValue(attributeOptionsSelector);
   const defaultSearchAttribute = useMemo(() => {
     if (queryEngine === "sparql") {
       const rdfsLabel = attributesOptions.find(o => o.label === "rdfs:label");
