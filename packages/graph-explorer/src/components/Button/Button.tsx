@@ -113,10 +113,10 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 Button.displayName = "Button";
 
 /** Wrap an action to stop button click propagation. */
-export function stopPropagation(action: () => void) {
-  return (event: React.MouseEvent<HTMLButtonElement>) => {
+export function stopPropagation(action: () => void | Promise<void>) {
+  return async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
-    action();
+    await action();
   };
 }
 

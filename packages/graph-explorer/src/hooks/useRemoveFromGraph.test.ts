@@ -51,9 +51,7 @@ test("should remove one node", async () => {
     }
   );
 
-  act(() => {
-    result.current.callback();
-  });
+  await act(() => result.current.callback());
 
   await waitFor(() => {
     expect(result.current.nodes.has(vertex.id)).toBeFalsy();
@@ -93,9 +91,7 @@ test("should remove one edge", async () => {
     }
   );
 
-  act(() => {
-    result.current.callback();
-  });
+  await act(() => result.current.callback());
 
   await waitFor(() => {
     // Ensure that the edge1 is removed from all graph state
@@ -145,9 +141,7 @@ test("should remove associated edges when a node is removed", async () => {
     }
   );
 
-  act(() => {
-    result.current.callback();
-  });
+  await act(() => result.current.callback());
 
   await waitFor(() => {
     // Should remove all edges since they were associated with the removed node
@@ -201,9 +195,7 @@ test("should remove all nodes and edges", async () => {
     }
   );
 
-  act(() => {
-    result.current.callback();
-  });
+  await act(() => result.current.callback());
 
   await waitFor(() => {
     expect(result.current.nodes.size).toBe(0);
@@ -248,9 +240,7 @@ test("should update graph session", async () => {
     }
   );
 
-  act(() => {
-    result.current.callback({ vertices: [node1.id] });
-  });
+  await act(() => result.current.callback({ vertices: [node1.id] }));
 
   const expected: GraphSessionStorageModel = {
     vertices: new Set([node2.id]),

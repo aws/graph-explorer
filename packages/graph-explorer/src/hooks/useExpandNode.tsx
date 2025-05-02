@@ -78,7 +78,7 @@ export default function useExpandNode() {
 
       return await explorer.fetchNeighbors(request);
     },
-    onSuccess: data => {
+    onSuccess: async data => {
       if (!data) {
         return;
       }
@@ -88,7 +88,7 @@ export default function useExpandNode() {
       updateEdgeDetailsCache(explorer, queryClient, data.edges);
 
       // Update nodes and edges in the graph
-      addToGraph(data);
+      await addToGraph(data);
     },
     onError: error => {
       remoteLogger.error(`Failed to expand node: ${error.message}`);

@@ -12,7 +12,7 @@ import {
   useUpdateGraphSession,
   VertexId,
 } from "@/core";
-import { startTransition, useCallback } from "react";
+import { useCallback } from "react";
 import { logger } from "@/utils";
 import { RESET, useAtomCallback } from "jotai/utils";
 import { useAtomValue, useSetAtom } from "jotai";
@@ -32,7 +32,7 @@ export function useRemoveFromGraph() {
   const updateGraphStorage = useUpdateGraphSession();
 
   return useCallback(
-    (entities: { vertices?: VertexId[]; edges?: EdgeId[] }) => {
+    async (entities: { vertices?: VertexId[]; edges?: EdgeId[] }) => {
       const vertices = new Set(entities.vertices ?? []);
       const edges = new Set(entities.edges ?? []);
 
@@ -53,25 +53,23 @@ export function useRemoveFromGraph() {
       );
       const edgesToRemove = edges.union(associatedEdges);
 
-      startTransition(() => {
-        // Remove vertices
-        if (vertices.size > 0) {
-          setVertices(prev => deleteFromMap(prev, vertices));
-          setSelectedVertices(prev => prev.difference(vertices));
-          setOutOfFocusVertices(prev => prev.difference(vertices));
-          setFilteredVertices(prev => prev.difference(vertices));
-        }
+      // Remove vertices
+      if (vertices.size > 0) {
+        setVertices(prev => deleteFromMap(prev, vertices));
+        setSelectedVertices(prev => prev.difference(vertices));
+        setOutOfFocusVertices(prev => prev.difference(vertices));
+        setFilteredVertices(prev => prev.difference(vertices));
+      }
 
-        // Remove edges
-        if (edgesToRemove.size > 0) {
-          setEdges(prev => deleteFromMap(prev, edgesToRemove));
-          setSelectedEdges(prev => prev.difference(edgesToRemove));
-          setOutOfFocusEdges(prev => prev.difference(edgesToRemove));
-          setFilteredEdges(prev => prev.difference(edgesToRemove));
-        }
+      // Remove edges
+      if (edgesToRemove.size > 0) {
+        setEdges(prev => deleteFromMap(prev, edgesToRemove));
+        setSelectedEdges(prev => prev.difference(edgesToRemove));
+        setOutOfFocusEdges(prev => prev.difference(edgesToRemove));
+        setFilteredEdges(prev => prev.difference(edgesToRemove));
+      }
 
-        updateGraphStorage();
-      });
+      await updateGraphStorage();
     },
     [
       allEdges,
@@ -99,22 +97,24 @@ function deleteFromMap<Key, Value>(map: Map<Key, Value>, keys: Set<Key>) {
 export function useRemoveNodeFromGraph(nodeId: VertexId) {
   const removeFromGraph = useRemoveFromGraph();
 
-  return useCallback(() => {
-    removeFromGraph({ vertices: [nodeId] });
-  }, [nodeId, removeFromGraph]);
+  return useCallback(
+    () => removeFromGraph({ vertices: [nodeId] }),
+    [nodeId, removeFromGraph]
+  );
 }
 
 export function useRemoveEdgeFromGraph(edgeId: EdgeId) {
   const removeFromGraph = useRemoveFromGraph();
 
-  return useCallback(() => {
-    removeFromGraph({ edges: [edgeId] });
-  }, [edgeId, removeFromGraph]);
+  return useCallback(
+    () => removeFromGraph({ edges: [edgeId] }),
+    [edgeId, removeFromGraph]
+  );
 }
 
 export function useClearGraph() {
   return useAtomCallback(
-    useCallback((_get, set) => {
+    useCallback(async (_get, set) => {
       logger.log("Clearing graph state...");
       set(nodesAtom, RESET);
       set(edgesAtom, RESET);
@@ -124,7 +124,7 @@ export function useClearGraph() {
       set(edgesOutOfFocusIdsAtom, RESET);
       set(nodesFilteredIdsAtom, RESET);
       set(edgesFilteredIdsAtom, RESET);
-      set(activeGraphSessionAtom, RESET);
+      await set(activeGraphSessionAtom, RESET);
     }, [])
   );
 }

@@ -31,7 +31,7 @@ export const activeGraphSessionAtom = atom(
     const graphs = get(allGraphSessionsAtom);
     return graphs.get(connectionId) ?? null;
   },
-  (get, set, newValue: GraphSessionStorageModel | typeof RESET) => {
+  async (get, set, newValue: GraphSessionStorageModel | typeof RESET) => {
     const graphs = get(allGraphSessionsAtom);
     const connectionId = get(activeConfigurationAtom);
 
@@ -50,6 +50,6 @@ export const activeGraphSessionAtom = atom(
     }
 
     newGraphs.set(connectionId, newValue);
-    set(allGraphSessionsAtom, newGraphs);
+    await set(allGraphSessionsAtom, newGraphs);
   }
 );

@@ -101,9 +101,9 @@ function useImportGraphMutation() {
 
       return result;
     },
-    onSuccess: result => {
+    onSuccess: async result => {
       // 4. Update Graph Explorer state
-      addToGraph(result.entities);
+      await addToGraph(result.entities);
 
       // 5. Notify user of completion
       const finalNotification =

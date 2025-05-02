@@ -143,16 +143,16 @@ const ContextMenu = ({
 
   const removeFromGraph = useRemoveFromGraph();
   const handleRemoveFromCanvas = useCallback(
-    (nodesIds: VertexId[], edgesIds: EdgeId[]) => () => {
-      removeFromGraph({ vertices: nodesIds, edges: edgesIds });
+    (nodesIds: VertexId[], edgesIds: EdgeId[]) => async () => {
+      await removeFromGraph({ vertices: nodesIds, edges: edgesIds });
       onClose?.();
     },
     [onClose, removeFromGraph]
   );
 
   const clearGraph = useClearGraph();
-  const handleRemoveAllFromCanvas = useCallback(() => {
-    clearGraph();
+  const handleRemoveAllFromCanvas = useCallback(async () => {
+    await clearGraph();
     onClose?.();
   }, [onClose, clearGraph]);
 

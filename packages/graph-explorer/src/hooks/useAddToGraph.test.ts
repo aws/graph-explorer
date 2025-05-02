@@ -47,9 +47,7 @@ test("should add one node", async () => {
     return { callback, vertices, edges };
   });
 
-  act(() => {
-    result.current.callback({ vertices: [vertex] });
-  });
+  await act(() => result.current.callback({ vertices: [vertex] }));
 
   await waitFor(() => {
     const actual = result.current.vertices.get(vertex.id);
@@ -75,9 +73,7 @@ test("should materialize fragment vertices", async () => {
     return { callback, vertices, edges };
   });
 
-  act(() => {
-    result.current.callback({ vertices: [vertex] });
-  });
+  await act(() => result.current.callback({ vertices: [vertex] }));
 
   await waitFor(() => {
     const actual = result.current.vertices.get(vertex.id);
@@ -107,9 +103,7 @@ test("should add one edge", async () => {
     }
   );
 
-  act(() => {
-    result.current.callback({ edges: [edge] });
-  });
+  await act(() => result.current.callback({ edges: [edge] }));
 
   await waitFor(() => {
     const actual = result.current.edges.get(edge.id);
@@ -132,12 +126,12 @@ test("should add multiple nodes and edges", async () => {
     return { callback, vertices, edges };
   });
 
-  act(() => {
+  await act(() =>
     result.current.callback({
       vertices: [...randomEntities.nodes.values()],
       edges: [...randomEntities.edges.values()],
-    });
-  });
+    })
+  );
 
   await waitFor(() => {
     const actualNodes = result.current.vertices.values().toArray();
@@ -171,9 +165,7 @@ test("should update schema when adding a node", async () => {
     snapshot => dbState.applyTo(snapshot)
   );
 
-  act(() => {
-    result.current.callback({ vertices: [vertex] });
-  });
+  await act(() => result.current.callback({ vertices: [vertex] }));
 
   await waitFor(() => {
     const vtConfig = result.current.schema?.vertices.find(
@@ -206,9 +198,7 @@ test("should update schema when adding a node with no label", async () => {
     snapshot => dbState.applyTo(snapshot)
   );
 
-  act(() => {
-    result.current.callback({ vertices: [vertex] });
-  });
+  await act(() => result.current.callback({ vertices: [vertex] }));
 
   await waitFor(() => {
     const vtConfig = result.current.schema?.vertices.find(
@@ -243,9 +233,7 @@ test("should update schema when adding an edge", async () => {
     snapshot => dbState.applyTo(snapshot)
   );
 
-  act(() => {
-    result.current.callback({ edges: [edge] });
-  });
+  await act(() => result.current.callback({ edges: [edge] }));
 
   await waitFor(() => {
     const etConfig = result.current.schema?.edges.find(
@@ -283,9 +271,7 @@ test("should add missing attributes to the schema when adding a node", async () 
     snapshot => dbState.applyTo(snapshot)
   );
 
-  act(() => {
-    result.current.callback({ vertices: [vertex] });
-  });
+  await act(() => result.current.callback({ vertices: [vertex] }));
 
   await waitFor(() => {
     const vtConfig = result.current.schema?.vertices.find(
@@ -327,9 +313,7 @@ test("should add missing attributes to the schema when adding an edge", async ()
     snapshot => dbState.applyTo(snapshot)
   );
 
-  act(() => {
-    result.current.callback({ edges: [edge] });
-  });
+  await act(() => result.current.callback({ edges: [edge] }));
 
   await waitFor(() => {
     const etConfig = result.current.schema?.edges.find(
@@ -356,9 +340,7 @@ test("should update graph storage when adding a node", async () => {
     snapshot => dbState.applyTo(snapshot)
   );
 
-  act(() => {
-    result.current.callback({ vertices: [vertex] });
-  });
+  await act(() => result.current.callback({ vertices: [vertex] }));
 
   const expectedGraph: GraphSessionStorageModel = {
     vertices: new Set([vertex.id]),
@@ -392,9 +374,7 @@ test("should update graph storage when adding an edge", async () => {
     snapshot => dbState.applyTo(snapshot)
   );
 
-  act(() => {
-    result.current.callback({ edges: [edge] });
-  });
+  await act(() => result.current.callback({ edges: [edge] }));
 
   const expectedGraph: GraphSessionStorageModel = {
     vertices: new Set([node1.id, node2.id]),
@@ -427,9 +407,9 @@ test("should ignore blank nodes when updating graph storage", async () => {
     snapshot => dbState.applyTo(snapshot)
   );
 
-  act(() => {
-    result.current.callback({ vertices: [vertex, blankNode], edges: [edge] });
-  });
+  await act(() =>
+    result.current.callback({ vertices: [vertex, blankNode], edges: [edge] })
+  );
 
   const expectedGraph: GraphSessionStorageModel = {
     vertices: new Set([vertex.id]),
