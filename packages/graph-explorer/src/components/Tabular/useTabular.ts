@@ -1,4 +1,4 @@
-/* eslint-disable react-compiler/react-compiler */
+/* eslint-disable react-hooks/react-compiler */
 import { MouseEvent, useEffect, useMemo, useRef, useState } from "react";
 
 import {
