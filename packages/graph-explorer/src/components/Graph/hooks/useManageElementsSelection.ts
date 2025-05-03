@@ -1,6 +1,6 @@
 import debounce from "lodash/debounce";
 import differenceBy from "lodash/differenceBy";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useRef } from "react";
 
 import { CytoscapeType, Selection } from "../Graph.model";
 
@@ -84,9 +84,8 @@ export default function useManageElementsSelection(
   }: UseManageElementsSelection,
   options?: Options
 ) {
-  const isSelectionDisabled = useMemo(() => {
-    return options?.disableSelectionEvents || !!options?.autounselectify;
-  }, [options?.autounselectify, options?.disableSelectionEvents]);
+  const isSelectionDisabled =
+    options?.disableSelectionEvents || !!options?.autounselectify;
 
   // Init cytoscape Select and unselect event handlers
   const handlers = useRef<Handlers>(<Handlers>{

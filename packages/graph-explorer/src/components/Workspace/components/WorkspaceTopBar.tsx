@@ -1,6 +1,5 @@
 import { cn, groupChildrenByType } from "@/utils";
 import type { PropsWithChildren, ReactElement } from "react";
-import { useMemo } from "react";
 import NavBarLogo from "./NavBarLogo";
 import WorkspaceTopBarAdditionalControls from "./WorkspaceTopBarAdditionalControls";
 import WorkspaceTopBarContent from "./WorkspaceTopBarContent";
@@ -24,21 +23,18 @@ const WorkspaceTopBar = ({
   children,
   logoVisible,
 }: PropsWithChildren<WorkspaceTopBarProps>) => {
-  const childrenByType = useMemo(
-    () =>
-      groupChildrenByType(
-        children,
-        [
-          WorkspaceTopBarTitle.displayName || WorkspaceTopBarTitle.name,
-          WorkspaceTopBarContent.displayName || WorkspaceTopBarContent.name,
-          WorkspaceTopBarAdditionalControls.displayName ||
-            WorkspaceTopBarAdditionalControls.name,
-          WorkspaceTopBarVersion.displayName || WorkspaceTopBarVersion.name,
-        ],
-        "rest"
-      ),
-    [children]
+  const childrenByType = groupChildrenByType(
+    children,
+    [
+      WorkspaceTopBarTitle.displayName || WorkspaceTopBarTitle.name,
+      WorkspaceTopBarContent.displayName || WorkspaceTopBarContent.name,
+      WorkspaceTopBarAdditionalControls.displayName ||
+        WorkspaceTopBarAdditionalControls.name,
+      WorkspaceTopBarVersion.displayName || WorkspaceTopBarVersion.name,
+    ],
+    "rest"
   );
+
   return (
     <div
       className={cn(

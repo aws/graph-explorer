@@ -1,4 +1,4 @@
-import React, { ComponentPropsWithoutRef, useMemo } from "react";
+import React, { ComponentPropsWithoutRef } from "react";
 import {
   ListRow,
   ListRowContent,
@@ -55,17 +55,15 @@ function Layout(props: ComponentPropsWithoutRef<"div">) {
 function useGeneratedPrefixes() {
   const config = useConfiguration();
 
-  return useMemo(() => {
-    return (config?.schema?.prefixes || [])
-      .filter(
-        prefixConfig =>
-          prefixConfig.__inferred === true &&
-          prefixConfig.__matches &&
-          prefixConfig.__matches.size > 0
-      )
-      .map(mapToPrefixData)
-      .toSorted((a, b) => a.title.localeCompare(b.title));
-  }, [config?.schema?.prefixes]);
+  return (config?.schema?.prefixes || [])
+    .filter(
+      prefixConfig =>
+        prefixConfig.__inferred === true &&
+        prefixConfig.__matches &&
+        prefixConfig.__matches.size > 0
+    )
+    .map(mapToPrefixData)
+    .toSorted((a, b) => a.title.localeCompare(b.title));
 }
 
 function NoGeneratedPrefixes() {

@@ -7,7 +7,7 @@ import {
   useAllNeighborCountsQuery,
   useUpdateNodeCountsQuery,
 } from "@/hooks/useUpdateNodeCounts";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { neighborsCountQuery } from "@/connector";
 import { useExplorer } from "../connector";
@@ -71,19 +71,17 @@ export function useNeighbors(vertexId: VertexId) {
   const fetchedNeighbors = useAtomValue(fetchedNeighborsSelector(vertexId));
   const query = useUpdateNodeCountsQuery(vertexId);
 
-  return useMemo(() => {
-    if (!query.data) {
-      return defaultNeighborCounts;
-    }
+  if (!query.data) {
+    return defaultNeighborCounts;
+  }
 
-    const neighbors = calculateNeighbors(
-      query.data.totalCount,
-      new Map(Object.entries(query.data.counts)),
-      fetchedNeighbors
-    );
+  const neighbors = calculateNeighbors(
+    query.data.totalCount,
+    new Map(Object.entries(query.data.counts)),
+    fetchedNeighbors
+  );
 
-    return neighbors;
-  }, [query.data, fetchedNeighbors]);
+  return neighbors;
 }
 
 /**
@@ -102,7 +100,7 @@ export function useNeighborByType(vertexId: VertexId, type: string) {
 
 export function useAllNeighbors() {
   const vertices = useDisplayVerticesInCanvas();
-  const vertexIds = useMemo(() => vertices.keys().toArray(), [vertices]);
+  const vertexIds = vertices.keys().toArray();
 
   const fetchedNeighbors = useAtomValue(allFetchedNeighborsSelector(vertexIds));
   const query = useAllNeighborCountsQuery(vertexIds);
@@ -241,20 +239,17 @@ export function useFetchedNeighborsCallback() {
   const nodes = useAtomValue(nodesAtom);
   const edges = useAtomValue(edgesAtom);
 
-  return useCallback(
-    (id: VertexId) =>
-      new Set(
-        edges
-          .values()
-          // Find edges matching the given vertex ID
-          .filter(edge => edge.source === id || edge.target === id)
-          // Filter out edges where the source or target vertex is not in the graph
-          .filter(edge => nodes.has(edge.source) && nodes.has(edge.target))
-          // Get the source or target vertex ID depending on the edge direction
-          .map(edge => (edge.source === id ? edge.target : edge.source))
-      ),
-    [nodes, edges]
-  );
+  return (id: VertexId) =>
+    new Set(
+      edges
+        .values()
+        // Find edges matching the given vertex ID
+        .filter(edge => edge.source === id || edge.target === id)
+        // Filter out edges where the source or target vertex is not in the graph
+        .filter(edge => nodes.has(edge.source) && nodes.has(edge.target))
+        // Get the source or target vertex ID depending on the edge direction
+        .map(edge => (edge.source === id ? edge.target : edge.source))
+    );
 }
 
 const allFetchedNeighborsSelector = atomFamily((ids: VertexId[]) =>

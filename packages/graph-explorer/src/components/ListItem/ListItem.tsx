@@ -5,7 +5,7 @@ import type {
   MouseEvent,
   PropsWithChildren,
 } from "react";
-import { forwardRef, useCallback } from "react";
+import { forwardRef } from "react";
 
 export interface ListItemProps extends HTMLAttributes<HTMLDivElement> {
   isDisabled?: boolean;
@@ -22,16 +22,13 @@ export const ListItem = (
   ref: ForwardedRef<HTMLDivElement>
 ) => {
   const clickable = onClick != null;
-  const actualOnClick = useCallback(
-    (ev: MouseEvent<HTMLDivElement>) => {
-      if (!clickable) {
-        return;
-      }
+  const actualOnClick = (ev: MouseEvent<HTMLDivElement>) => {
+    if (!clickable) {
+      return;
+    }
 
-      onClick?.(ev);
-    },
-    [onClick, clickable]
-  );
+    onClick?.(ev);
+  };
 
   return (
     <div

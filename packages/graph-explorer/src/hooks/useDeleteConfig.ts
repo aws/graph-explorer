@@ -47,11 +47,11 @@ export function useDeleteActiveConfiguration() {
   const activeConfigId = useAtomValue(activeConfigurationAtom);
   const deleteConfig = useDeleteConfig();
 
-  return useCallback(async () => {
+  return async () => {
     if (!activeConfigId) {
       return;
     }
 
     await deleteConfig(activeConfigId);
-  }, [activeConfigId, deleteConfig]);
+  };
 }

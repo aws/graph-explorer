@@ -15,7 +15,6 @@ import {
   configurationAtom,
 } from "@/core/StateProvider/configuration";
 import CreateConnection from "@/modules/CreateConnection";
-import { useMemo } from "react";
 import { cn } from "@/utils";
 import { Virtuoso } from "react-virtuoso";
 import { ConnectionRow } from "./ConnectionRow";
@@ -104,7 +103,7 @@ const AvailableConnections = ({
 
 function useAllConnections() {
   const connectionMap = useAtomValue(configurationAtom);
-  return useMemo(() => connectionMap.values().toArray(), [connectionMap]);
+  return connectionMap.values().toArray();
 }
 
 export default AvailableConnections;

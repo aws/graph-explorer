@@ -1,4 +1,4 @@
-import { PropsWithChildren, RefObject, useCallback } from "react";
+import { PropsWithChildren, RefObject } from "react";
 import {
   Divider,
   EdgeIcon,
@@ -73,88 +73,75 @@ const ContextMenu = ({
   const setCustomizeNodeType = useSetAtom(customizeNodeTypeAtom);
   const setCustomizeEdgeType = useSetAtom(customizeEdgeTypeAtom);
 
-  const openSidebarPanel = useCallback(
+  const openSidebarPanel =
     (
       panelName: SidebarItems,
       props?: { nodeType?: string; edgeType?: string }
     ) =>
-      async () => {
-        await setUserLayout(async prev => {
-          const prevValue = await prev;
-          return {
-            ...prevValue,
-            activeSidebarItem: panelName,
-          };
-        });
-        if (affectedNodesIds?.length) {
-          setEdgesSelectedIds(prev => (prev.size === 0 ? prev : new Set([])));
-          setNodesSelectedIds(new Set(affectedNodesIds ?? []));
-        }
-        if (affectedEdgesIds?.length) {
-          setEdgesSelectedIds(new Set(affectedEdgesIds ?? []));
-          setNodesSelectedIds(prev => (prev.size === 0 ? prev : new Set([])));
-        }
+    async () => {
+      await setUserLayout(async prev => {
+        const prevValue = await prev;
+        return {
+          ...prevValue,
+          activeSidebarItem: panelName,
+        };
+      });
+      if (affectedNodesIds?.length) {
+        setEdgesSelectedIds(prev => (prev.size === 0 ? prev : new Set([])));
+        setNodesSelectedIds(new Set(affectedNodesIds ?? []));
+      }
+      if (affectedEdgesIds?.length) {
+        setEdgesSelectedIds(new Set(affectedEdgesIds ?? []));
+        setNodesSelectedIds(prev => (prev.size === 0 ? prev : new Set([])));
+      }
 
-        props?.nodeType && setCustomizeNodeType(props.nodeType);
-        props?.edgeType && setCustomizeEdgeType(props.edgeType);
+      props?.nodeType && setCustomizeNodeType(props.nodeType);
+      props?.edgeType && setCustomizeEdgeType(props.edgeType);
 
-        onClose?.();
-      },
-    [
-      setUserLayout,
-      affectedNodesIds,
-      affectedEdgesIds,
-      setCustomizeNodeType,
-      setCustomizeEdgeType,
-      onClose,
-      setEdgesSelectedIds,
-      setNodesSelectedIds,
-    ]
-  );
+      onClose?.();
+    };
 
-  const handleFitToFrame = useCallback(() => {
+  const handleFitToFrame = () => {
     onFitToCanvas();
     onClose?.();
-  }, [onClose, onFitToCanvas]);
+  };
 
-  const handleCenter = useCallback(() => {
+  const handleCenter = () => {
     if (nonEmptySelection) {
       onCenterSelectedGraph();
     } else {
       onCenterGraph();
     }
     onClose?.();
-  }, [nonEmptySelection, onCenterGraph, onCenterSelectedGraph, onClose]);
+  };
 
-  const handleDownloadScreenshot = useCallback(() => {
+  const handleDownloadScreenshot = () => {
     onSaveScreenshot();
     onClose?.();
-  }, [onClose, onSaveScreenshot]);
+  };
 
-  const handleZoomIn = useCallback(() => {
+  const handleZoomIn = () => {
     onZoomIn();
     onClose?.();
-  }, [onClose, onZoomIn]);
+  };
 
-  const handleZoomOut = useCallback(() => {
+  const handleZoomOut = () => {
     onZoomOut();
     onClose?.();
-  }, [onClose, onZoomOut]);
+  };
 
   const removeFromGraph = useRemoveFromGraph();
-  const handleRemoveFromCanvas = useCallback(
+  const handleRemoveFromCanvas =
     (nodesIds: VertexId[], edgesIds: EdgeId[]) => async () => {
       await removeFromGraph({ vertices: nodesIds, edges: edgesIds });
       onClose?.();
-    },
-    [onClose, removeFromGraph]
-  );
+    };
 
   const clearGraph = useClearGraph();
-  const handleRemoveAllFromCanvas = useCallback(async () => {
+  const handleRemoveAllFromCanvas = async () => {
     await clearGraph();
     onClose?.();
-  }, [onClose, clearGraph]);
+  };
 
   const noSelectionOrNotAffected =
     affectedNodesIds?.length === 0 &&

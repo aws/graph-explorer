@@ -8,7 +8,6 @@ import {
 } from "@/core";
 import { Branded } from "@/utils";
 import { useAtomValue } from "jotai";
-import { useMemo } from "react";
 
 /** A string representation of a vertex ID that encodes the original type. Cytoscape requires IDs to be strings. */
 export type RenderedVertexId = Branded<string, "RenderedVertexId">;
@@ -25,19 +24,13 @@ export type RenderedEdge = ReturnType<typeof createRenderedEdge>;
 /** Returns the filtered array of `RenderedVertex` instances for use by Cytoscape. */
 export function useRenderedVertices(): RenderedVertex[] {
   const vertices = useAtomValue(filteredNodesSelector);
-  return useMemo(
-    () => vertices.values().map(createRenderedVertex).toArray(),
-    [vertices]
-  );
+  return vertices.values().map(createRenderedVertex).toArray();
 }
 
 /** Returns the filtered array of `RenderedEdge` instances for use by Cytoscape. */
 export function useRenderedEdges(): RenderedEdge[] {
   const edges = useAtomValue(filteredEdgesSelector);
-  return useMemo(
-    () => edges.values().map(createRenderedEdge).toArray(),
-    [edges]
-  );
+  return edges.values().map(createRenderedEdge).toArray();
 }
 
 export function useRenderedEntities() {

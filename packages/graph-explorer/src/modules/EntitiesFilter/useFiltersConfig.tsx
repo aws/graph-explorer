@@ -1,4 +1,3 @@
-import { useCallback, useMemo } from "react";
 import { EdgeIcon } from "@/components/icons";
 import VertexIcon from "@/components/VertexIcon";
 import { edgesTypesFilteredAtom } from "@/core/StateProvider/edges";
@@ -35,103 +34,76 @@ const useFiltersConfig = () => {
   const selectedVertexTypes = useAtomValue(selectedVerticesSelector);
   const selectedConnectionTypes = useAtomValue(selectedEdgesSelector);
 
-  const addVertex = useCallback(
-    (vertex: string) => {
-      setNodesTypesFiltered(
-        prevVertexList => new Set([...prevVertexList, vertex])
-      );
-    },
-    [setNodesTypesFiltered]
-  );
+  const addVertex = (vertex: string) => {
+    setNodesTypesFiltered(
+      prevVertexList => new Set([...prevVertexList, vertex])
+    );
+  };
 
-  const deleteVertex = useCallback(
-    (vertex: string) => {
-      setNodesTypesFiltered(
-        prevVertexList =>
-          new Set(
-            [...prevVertexList].filter(prevVertex => prevVertex !== vertex)
+  const deleteVertex = (vertex: string) => {
+    setNodesTypesFiltered(
+      prevVertexList =>
+        new Set([...prevVertexList].filter(prevVertex => prevVertex !== vertex))
+    );
+  };
+
+  const addConnection = (connection: string) => {
+    setEdgesTypesFiltered(
+      prevConnectionList => new Set([...prevConnectionList, connection])
+    );
+  };
+
+  const deleteConnection = (connection: string) => {
+    setEdgesTypesFiltered(
+      prevConnectionList =>
+        new Set(
+          [...prevConnectionList].filter(
+            prevConnection => prevConnection !== connection
           )
-      );
-    },
-    [setNodesTypesFiltered]
-  );
+        )
+    );
+  };
 
-  const addConnection = useCallback(
-    (connection: string) => {
-      setEdgesTypesFiltered(
-        prevConnectionList => new Set([...prevConnectionList, connection])
-      );
-    },
-    [setEdgesTypesFiltered]
-  );
+  const onChangeVertexTypes = (vertexId: string, isSelected: boolean): void => {
+    isSelected ? deleteVertex(vertexId) : addVertex(vertexId);
+  };
 
-  const deleteConnection = useCallback(
-    (connection: string) => {
-      setEdgesTypesFiltered(
-        prevConnectionList =>
-          new Set(
-            [...prevConnectionList].filter(
-              prevConnection => prevConnection !== connection
-            )
-          )
-      );
-    },
-    [setEdgesTypesFiltered]
-  );
+  const onChangeAllVertexTypes = (isSelected: boolean): void => {
+    setNodesTypesFiltered(isSelected ? new Set() : new Set(vtConfigs.keys()));
+  };
 
-  const onChangeVertexTypes = useCallback(
-    (vertexId: string, isSelected: boolean): void => {
-      isSelected ? deleteVertex(vertexId) : addVertex(vertexId);
-    },
-    [addVertex, deleteVertex]
-  );
+  const onChangeConnectionTypes = (
+    connectionId: string,
+    isSelected: boolean
+  ): void => {
+    isSelected ? deleteConnection(connectionId) : addConnection(connectionId);
+  };
 
-  const onChangeAllVertexTypes = useCallback(
-    (isSelected: boolean): void => {
-      setNodesTypesFiltered(isSelected ? new Set() : new Set(vtConfigs.keys()));
-    },
-    [setNodesTypesFiltered, vtConfigs]
-  );
+  const onChangeAllConnectionTypes = (isSelected: boolean): void => {
+    setEdgesTypesFiltered(isSelected ? new Set() : new Set(etConfigs.keys()));
+  };
 
-  const onChangeConnectionTypes = useCallback(
-    (connectionId: string, isSelected: boolean): void => {
-      isSelected ? deleteConnection(connectionId) : addConnection(connectionId);
-    },
-    [addConnection, deleteConnection]
-  );
+  const vertexTypesCheckboxes = vtConfigs
+    .values()
+    .map(vertexConfig => {
+      return {
+        id: vertexConfig.type,
+        text: vertexConfig.displayLabel,
+        endAdornment: <VertexIcon vertexStyle={vertexConfig.style} />,
+      } as CheckboxListItemProps;
+    })
+    .toArray();
 
-  const onChangeAllConnectionTypes = useCallback(
-    (isSelected: boolean): void => {
-      setEdgesTypesFiltered(isSelected ? new Set() : new Set(etConfigs.keys()));
-    },
-    [etConfigs, setEdgesTypesFiltered]
-  );
-
-  const vertexTypesCheckboxes = useMemo(() => {
-    return vtConfigs
-      .values()
-      .map(vertexConfig => {
-        return {
-          id: vertexConfig.type,
-          text: vertexConfig.displayLabel,
-          endAdornment: <VertexIcon vertexStyle={vertexConfig.style} />,
-        } as CheckboxListItemProps;
-      })
-      .toArray();
-  }, [vtConfigs]);
-
-  const connectionTypesCheckboxes = useMemo(() => {
-    return etConfigs
-      .values()
-      .map(edgeConfig => {
-        return {
-          id: edgeConfig.type,
-          text: edgeConfig.displayLabel,
-          endAdornment: <EdgeIcon />,
-        } as CheckboxListItemProps;
-      })
-      .toArray();
-  }, [etConfigs]);
+  const connectionTypesCheckboxes = etConfigs
+    .values()
+    .map(edgeConfig => {
+      return {
+        id: edgeConfig.type,
+        text: edgeConfig.displayLabel,
+        endAdornment: <EdgeIcon />,
+      } as CheckboxListItemProps;
+    })
+    .toArray();
 
   return {
     selectedVertexTypes,

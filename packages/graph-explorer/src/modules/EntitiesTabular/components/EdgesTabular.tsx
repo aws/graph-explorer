@@ -1,5 +1,5 @@
 import difference from "lodash/difference";
-import { forwardRef, useCallback, useMemo } from "react";
+import { forwardRef } from "react";
 import { NonVisibleIcon, VisibleIcon } from "@/components";
 import type { ColumnDefinition, TabularInstance } from "@/components/Tabular";
 import { makeIconToggleCell } from "@/components/Tabular/builders";
@@ -47,64 +47,59 @@ const EdgesTabular = forwardRef<TabularInstance<ToggleEdge>, any>(
     const setSelectedNodesIds = useSetAtom(nodesSelectedIdsAtom);
     const [selectedEdgesIds, setSelectedEdgesIds] =
       useAtom(edgesSelectedIdsAtom);
-    const onToggleVisibility = useCallback(
-      (item: ToggleEdge) => {
-        recoilDiffSets(setHiddenEdgesIds, new Set([item.id]));
-      },
-      [setHiddenEdgesIds]
-    );
+    const onToggleVisibility = (item: ToggleEdge) => {
+      recoilDiffSets(setHiddenEdgesIds, new Set([item.id]));
+    };
 
     // NOTE: Only use string accessors so that the export process continues to work
-    const columns: ColumnDefinition<ToggleEdge>[] = useMemo(() => {
-      return [
-        {
-          unhideable: true,
-          resizable: false,
-          filterable: false,
-          label: "Visibility",
-          accessor: "__is_visible",
-          cellComponent: makeIconToggleCell<ToggleEdge>({
-            title: "Toggle Visibility",
-            on: <VisibleIcon />,
-            off: <NonVisibleIcon style={{ color: "#FA8500" }} />,
-            getValue: ({ cell }) => !!cell.value,
-            onPress: ({ cell }) => {
-              onToggleVisibility(cell.row.original);
-            },
-          }),
-        },
-        {
-          id: "edge-type",
-          accessor: "displayTypes",
-          label: t("entities-tabular.edge-type"),
-          overflow: "ellipsis",
-        },
-        {
-          id: "source-id",
-          accessor: "sourceDisplayId",
-          label: t("entities-tabular.source-id"),
-          overflow: "ellipsis",
-        },
-        {
-          id: "source-type",
-          accessor: "sourceDisplayTypes",
-          label: t("entities-tabular.source-type"),
-          overflow: "ellipsis",
-        },
-        {
-          id: "target-id",
-          accessor: "targetDisplayId",
-          label: t("entities-tabular.target-id"),
-          overflow: "ellipsis",
-        },
-        {
-          id: "target-type",
-          accessor: "targetDisplayTypes",
-          label: t("entities-tabular.target-type"),
-          overflow: "ellipsis",
-        },
-      ];
-    }, [t, onToggleVisibility]);
+    const columns: ColumnDefinition<ToggleEdge>[] = [
+      {
+        unhideable: true,
+        resizable: false,
+        filterable: false,
+        label: "Visibility",
+        accessor: "__is_visible",
+        cellComponent: makeIconToggleCell<ToggleEdge>({
+          title: "Toggle Visibility",
+          on: <VisibleIcon />,
+          off: <NonVisibleIcon style={{ color: "#FA8500" }} />,
+          getValue: ({ cell }) => !!cell.value,
+          onPress: ({ cell }) => {
+            onToggleVisibility(cell.row.original);
+          },
+        }),
+      },
+      {
+        id: "edge-type",
+        accessor: "displayTypes",
+        label: t("entities-tabular.edge-type"),
+        overflow: "ellipsis",
+      },
+      {
+        id: "source-id",
+        accessor: "sourceDisplayId",
+        label: t("entities-tabular.source-id"),
+        overflow: "ellipsis",
+      },
+      {
+        id: "source-type",
+        accessor: "sourceDisplayTypes",
+        label: t("entities-tabular.source-type"),
+        overflow: "ellipsis",
+      },
+      {
+        id: "target-id",
+        accessor: "targetDisplayId",
+        label: t("entities-tabular.target-id"),
+        overflow: "ellipsis",
+      },
+      {
+        id: "target-type",
+        accessor: "targetDisplayTypes",
+        label: t("entities-tabular.target-type"),
+        overflow: "ellipsis",
+      },
+    ];
 
     const data: ToggleEdge[] = useDeepMemo(() => {
       return edges
@@ -116,14 +111,11 @@ const EdgesTabular = forwardRef<TabularInstance<ToggleEdge>, any>(
         .toArray();
     }, [edges, hiddenEdgesIds]);
 
-    const onSelectRows = useCallback(
-      (rowIndex: string) => {
-        const entityId = data[Number(rowIndex)].id;
-        setSelectedEdgesIds(new Set([entityId]));
-        setSelectedNodesIds(new Set([]));
-      },
-      [data, setSelectedEdgesIds, setSelectedNodesIds]
-    );
+    const onSelectRows = (rowIndex: string) => {
+      const entityId = data[Number(rowIndex)].id;
+      setSelectedEdgesIds(new Set([entityId]));
+      setSelectedNodesIds(new Set([]));
+    };
 
     const selectedRowsIds: Record<string, boolean> = useDeepMemo(() => {
       const selectedRows: Record<string, boolean> = {};

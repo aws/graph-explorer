@@ -5,7 +5,6 @@ import {
   PropsWithChildren,
   useEffect,
   useImperativeHandle,
-  useMemo,
   useState,
 } from "react";
 import type { TableInstance } from "react-table";
@@ -154,26 +153,20 @@ const TabularContent = <T extends object>({
     return page;
   }, [disablePagination, rows, page]);
 
-  const headerControlsChildren = useMemo(() => {
-    return getChildOfType(
-      children,
-      TabularHeaderControls.displayName || TabularHeaderControls.name
-    );
-  }, [children]);
+  const headerControlsChildren = getChildOfType(
+    children,
+    TabularHeaderControls.displayName || TabularHeaderControls.name
+  );
 
-  const footerControlsChildren = useMemo(() => {
-    return getChildOfType(
-      children,
-      TabularFooterControls.displayName || TabularFooterControls.name
-    );
-  }, [children]);
+  const footerControlsChildren = getChildOfType(
+    children,
+    TabularFooterControls.displayName || TabularFooterControls.name
+  );
 
-  const emptyBodyControlsChildren = useMemo(() => {
-    return getChildOfType(
-      children,
-      TabularEmptyBodyControls.displayName || TabularEmptyBodyControls.name
-    );
-  }, [children]);
+  const emptyBodyControlsChildren = getChildOfType(
+    children,
+    TabularEmptyBodyControls.displayName || TabularEmptyBodyControls.name
+  );
 
   useEffect(() => {
     if (!headerControlsRef.current || headerControlsPosition !== "sticky") {

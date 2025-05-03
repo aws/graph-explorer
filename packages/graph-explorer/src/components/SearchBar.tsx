@@ -1,4 +1,4 @@
-import { memo, useMemo, useState } from "react";
+import { memo, useState } from "react";
 import SearchIcon from "@/components/icons/SearchIcon";
 import { Input } from "@/components";
 import { cn } from "@/utils";
@@ -36,17 +36,13 @@ export function useSearchItems<TItem>(
 ) {
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounceValue(search, 300);
-  const filteredItems = useMemo(() => {
-    if (!debouncedSearch) {
-      return items;
-    }
-
-    return items.filter(item =>
-      searchPredicate(item)
-        .toLowerCase()
-        .includes(debouncedSearch.toLowerCase())
-    );
-  }, [debouncedSearch, items, searchPredicate]);
+  const filteredItems = !debouncedSearch
+    ? items
+    : items.filter(item =>
+        searchPredicate(item)
+          .toLowerCase()
+          .includes(debouncedSearch.toLowerCase())
+      );
 
   return {
     filteredItems,

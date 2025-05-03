@@ -1,4 +1,3 @@
-import { useMemo } from "react";
 import {
   VertexId,
   DisplayVertexTypeConfig,
@@ -17,29 +16,27 @@ export default function useNeighborsOptions(
   const vtConfigs = useDisplayVertexTypeConfigs();
   const neighbors = useNeighbors(vertexId);
 
-  return useMemo(() => {
-    if (!neighbors) {
-      return [];
-    }
+  if (!neighbors) {
+    return [];
+  }
 
-    return neighbors.byType
-      .entries()
-      .map(([type, neighbors]) => {
-        const vtConfig = vtConfigs.get(type);
+  return neighbors.byType
+    .entries()
+    .map(([type, neighbors]) => {
+      const vtConfig = vtConfigs.get(type);
 
-        if (!vtConfig) {
-          return null;
-        }
+      if (!vtConfig) {
+        return null;
+      }
 
-        return {
-          label: vtConfig.displayLabel,
-          value: vtConfig.type,
-          isDisabled: neighbors.unfetched === 0,
-          config: vtConfig,
-        } satisfies NeighborOption;
-      })
-      .filter(op => op != null)
-      .toArray()
-      .toSorted((a, b) => a.label.localeCompare(b.label));
-  }, [neighbors, vtConfigs]);
+      return {
+        label: vtConfig.displayLabel,
+        value: vtConfig.type,
+        isDisabled: neighbors.unfetched === 0,
+        config: vtConfig,
+      } satisfies NeighborOption;
+    })
+    .filter(op => op != null)
+    .toArray()
+    .toSorted((a, b) => a.label.localeCompare(b.label));
 }

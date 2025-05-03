@@ -1,4 +1,3 @@
-import { useCallback, useMemo } from "react";
 import {
   displayVertexTypeConfigSelector,
   displayVertexTypeConfigsSelector,
@@ -97,30 +96,24 @@ export default function useKeywordSearch() {
   ];
 
   const vtConfigs = useDisplayVertexTypeConfigs();
-  const vertexOptions = useMemo(
-    () => [
-      { label: "All", value: allVerticesValue },
-      ...vtConfigs
-        .values()
-        // Filtering out empty types because the queries need to be updated to support them
-        .filter(vtConfig => vtConfig.type !== "")
-        .map(vtConfig => ({
-          label: vtConfig.displayLabel,
-          value: vtConfig.type,
-        })),
-    ],
-    [vtConfigs]
-  );
+  const vertexOptions = [
+    { label: "All", value: allVerticesValue },
+    ...vtConfigs
+      .values()
+      // Filtering out empty types because the queries need to be updated to support them
+      .filter(vtConfig => vtConfig.type !== "")
+      .map(vtConfig => ({
+        label: vtConfig.displayLabel,
+        value: vtConfig.type,
+      })),
+  ];
 
   const attributesOptions = useAtomValue(attributeOptionsSelector);
-  const defaultSearchAttribute = useMemo(() => {
-    if (queryEngine === "sparql") {
-      const rdfsLabel = attributesOptions.find(o => o.label === "rdfs:label");
-      return rdfsLabel?.value ?? allAttributesValue;
-    } else {
-      return idAttributeValue;
-    }
-  }, [queryEngine, attributesOptions]);
+  const defaultSearchAttribute =
+    queryEngine === "sparql"
+      ? (attributesOptions.find(o => o.label === "rdfs:label")?.value ??
+        allAttributesValue)
+      : idAttributeValue;
 
   /** This is the selected attribute unless the attribute is not in the
    * attribute options list (for example, the selected vertex type changed). */
@@ -128,46 +121,22 @@ export default function useKeywordSearch() {
     attributesOptions.find(opt => opt.value === selectedAttribute)?.value ??
     defaultSearchAttribute;
 
-  const onSearchTermChange = useCallback(
-    (value: string) => {
-      setSearchTerm(value);
-    },
-    [setSearchTerm]
-  );
+  const onSearchTermChange = (value: string) => setSearchTerm(value);
+  const onVertexOptionChange = (value: string) => setSelectedVertexType(value);
+  const onAttributeOptionChange = (value: string) =>
+    setSelectedAttribute(value);
 
-  const onVertexOptionChange = useCallback(
-    (value: string) => {
-      setSelectedVertexType(value);
-    },
-    [setSelectedVertexType]
-  );
+  const onPartialMatchChange = (value: boolean) => setPartialMatch(value);
 
-  const onAttributeOptionChange = useCallback(
-    (value: string) => {
-      setSelectedAttribute(value);
-    },
-    [setSelectedAttribute]
-  );
-
-  const onPartialMatchChange = useCallback(
-    (value: boolean) => {
-      setPartialMatch(value);
-    },
-    [setPartialMatch]
-  );
-
-  const searchPlaceholder = useMemo(() => {
-    const attributes =
-      safeSelectedAttribute === allAttributesValue
-        ? attributesOptions
-            .filter(attr => attr.value !== allAttributesValue)
-            .map(attr => attr.label)
-            .join(", ")
-        : (attributesOptions.find(opt => opt.value === safeSelectedAttribute)
-            ?.label ?? safeSelectedAttribute);
-
-    return `Search by ${attributes}`;
-  }, [attributesOptions, safeSelectedAttribute]);
+  const attributes =
+    safeSelectedAttribute === allAttributesValue
+      ? attributesOptions
+          .filter(attr => attr.value !== allAttributesValue)
+          .map(attr => attr.label)
+          .join(", ")
+      : (attributesOptions.find(opt => opt.value === safeSelectedAttribute)
+          ?.label ?? safeSelectedAttribute);
+  const searchPlaceholder = `Search by ${attributes}`;
 
   const vertexTypes =
     selectedVertexType === allVerticesValue ? [] : [selectedVertexType];

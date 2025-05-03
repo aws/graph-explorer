@@ -1,6 +1,5 @@
 import { cn } from "@/utils";
 import type { PropsWithChildren, ReactElement } from "react";
-import { useMemo } from "react";
 import getChildOfType from "@/utils/getChildOfType";
 import getChildrenOfType from "@/utils/getChildrenOfType";
 import WorkspaceSideBarContent from "./WorkspaceSideBarContent";
@@ -17,20 +16,16 @@ const WorkspaceSideBar = ({
   children,
   direction = "row",
 }: PropsWithChildren<WorkspaceSideBarProps>) => {
-  const sidebarContent = useMemo(() => {
-    return getChildOfType(
-      children,
-      WorkspaceSideBarContent.displayName || WorkspaceSideBarContent.name
-    );
-  }, [children]);
+  const sidebarContent = getChildOfType(
+    children,
+    WorkspaceSideBarContent.displayName || WorkspaceSideBarContent.name
+  );
 
-  const sidebarActions = useMemo(() => {
-    return getChildrenOfType(
-      children,
-      WorkspaceSideBarContent.displayName || WorkspaceSideBarContent.name,
-      true
-    );
-  }, [children]);
+  const sidebarActions = getChildrenOfType(
+    children,
+    WorkspaceSideBarContent.displayName || WorkspaceSideBarContent.name,
+    true
+  );
 
   return (
     <div
