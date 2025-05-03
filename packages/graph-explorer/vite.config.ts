@@ -52,7 +52,22 @@ export default defineConfig(({ mode }) => {
     define: {
       __GRAPH_EXP_VERSION__: JSON.stringify(process.env.npm_package_version),
     },
-    plugins: [tsconfigPaths(), htmlPlugin(), react()],
+    plugins: [
+      tsconfigPaths(),
+      htmlPlugin(),
+      react({
+        babel: {
+          plugins: [
+            [
+              "babel-plugin-react-compiler",
+              {
+                target: "18", // '17' | '18' | '19'
+              },
+            ],
+          ],
+        },
+      }),
+    ],
     test: {
       environment: "happy-dom",
       globals: true,
