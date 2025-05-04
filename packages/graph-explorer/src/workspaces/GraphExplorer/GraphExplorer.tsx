@@ -3,6 +3,7 @@ import { Resizable } from "re-resizable";
 import { Link } from "react-router";
 import {
   buttonStyles,
+  Divider,
   EdgeIcon,
   IconButton,
   NamespaceIcon,
@@ -19,7 +20,7 @@ import {
 } from "@/components/icons";
 import GridIcon from "@/components/icons/GridIcon";
 import Workspace, { SidebarButton } from "@/components/Workspace";
-import { useConfiguration, useWithTheme } from "@/core";
+import { useConfiguration } from "@/core";
 import { totalFilteredCount } from "@/core/StateProvider/filterCount";
 import {
   SidebarItems,
@@ -34,7 +35,7 @@ import GraphViewer from "@/modules/GraphViewer";
 import Namespaces from "@/modules/Namespaces/Namespaces";
 import NodeExpand from "@/modules/NodeExpand";
 import { NodesStyling } from "@/modules/NodesStyling";
-import defaultStyles from "./GraphExplorer.styles";
+
 import { APP_NAME } from "@/utils/constants";
 import { SearchSidebarPanel } from "@/modules/SearchSidebar";
 import { useAtom, useAtomValue } from "jotai";
@@ -51,7 +52,6 @@ const RESIZE_ENABLE_TOP = {
 };
 
 const GraphExplorer = () => {
-  const styleWithTheme = useWithTheme();
   const config = useConfiguration();
   const t = useTranslations();
   const hasNamespaces = config?.connection?.queryEngine === "sparql";
@@ -114,7 +114,7 @@ const GraphExplorer = () => {
   const toggles = userLayout.activeToggles;
 
   return (
-    <Workspace className={cn(styleWithTheme(defaultStyles), "graph-explorer")}>
+    <Workspace>
       <Workspace.TopBar logoVisible>
         <Workspace.TopBar.Title
           title={APP_NAME}
@@ -142,7 +142,7 @@ const GraphExplorer = () => {
             icon={<GridIcon />}
             onClick={toggleView("table-view")}
           />
-          <div className="v-divider" />
+          <Divider axis="vertical" className="mx-2 h-[50%]" />
           <Link
             to="/connections"
             className={cn(buttonStyles({ variant: "filled" }))}

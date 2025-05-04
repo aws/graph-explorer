@@ -14,20 +14,19 @@ import {
   useConfiguration,
   useDisplayVertexTypeConfig,
   useDisplayVerticesFromVertices,
-  useWithTheme,
 } from "@/core";
 import {
   Button,
   buttonStyles,
   CheckIcon,
   ChevronLeftIcon,
-  LoadingSpinner,
   Panel,
   PanelError,
   PanelHeader,
   PanelTitle,
   SelectField,
   SendIcon,
+  Spinner,
 } from "@/components";
 import { ExplorerIcon } from "@/components/icons";
 import {
@@ -49,7 +48,6 @@ import {
 import { useAddVertexToGraph, useHasVertexBeenAddedToGraph } from "@/hooks";
 import useTranslations from "@/hooks/useTranslations";
 import useUpdateVertexTypeCounts from "@/hooks/useUpdateVertexTypeCounts";
-import defaultStyles from "./DataExplorer.styles";
 import { useVertexTypeConfig } from "@/core/ConfigurationProvider/useConfiguration";
 import {
   APP_NAME,
@@ -79,8 +77,6 @@ export default function DataExplorer() {
 }
 
 function DataExplorerContent({ vertexType }: ConnectionsProps) {
-  const styleWithTheme = useWithTheme();
-
   const config = useConfiguration();
 
   // Automatically updates counts if needed
@@ -102,7 +98,7 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
     .toArray();
 
   return (
-    <Workspace className={cn(styleWithTheme(defaultStyles), "data-explorer")}>
+    <Workspace>
       <Workspace.TopBar logoVisible>
         <Workspace.TopBar.Title
           title="Data Explorer"
@@ -135,11 +131,9 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
       <Workspace.Content>
         <Panel>
           <PanelHeader>
-            <PanelTitle>
-              <div className="container-header">
-                <div>{displayTypeConfig.displayLabel}</div>
-                {query.isFetching && <LoadingSpinner className="spinner" />}
-              </div>
+            <PanelTitle className="flex flex-row">
+              {displayTypeConfig.displayLabel}{" "}
+              {query.isFetching ? <Spinner /> : null}
             </PanelTitle>
           </PanelHeader>
           <Tabular
@@ -237,7 +231,7 @@ function DisplayNameAndDescriptionOptions({
     };
 
   return (
-    <div className="header-children">
+    <div className="flex flex-wrap gap-2">
       <SelectField
         className="w-[200px]"
         value={vertexConfig?.displayNameAttribute || ""}
