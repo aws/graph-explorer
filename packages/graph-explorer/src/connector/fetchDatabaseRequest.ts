@@ -21,22 +21,24 @@ const NeptuneErrorSchema = z.object({
  * @param response The fetch response that should be decoded
  * @returns The decoded response or undefined if it fails to decode
  */
-async function decodeErrorSafely(response: Response): Promise<any> {
+export async function decodeErrorSafely(response: Response): Promise<any> {
   const contentType = response.headers.get("Content-Type");
-  const contentTypeHasValue = contentType !== null && contentType.length > 0;
-  // Assume missing content type is JSON
-  const isJson =
-    !contentTypeHasValue || contentType.includes("application/json");
+  if (
+    !contentType ||
+    (!contentType.includes("application/json") &&
+      !contentType.includes("text/plain"))
+  ) {
+    return undefined;
+  }
 
   // Extract the raw text from the response
   const rawText = await response.text();
-
-  // Check for empty response
   if (!rawText) {
     return undefined;
   }
 
-  if (isJson) {
+  // Parse JSON
+  if (contentType.includes("application/json")) {
     try {
       // Try parsing the response as JSON
       const data = JSON.parse(rawText);
@@ -44,14 +46,15 @@ async function decodeErrorSafely(response: Response): Promise<any> {
       // Flatten the error if it contains an error object
       return data?.error ?? data;
     } catch (error) {
-      console.error("Failed to decode the error response as JSON", {
+      // Log the error and fallthrough to return the raw text
+      logger.warn("Failed to decode the error response as JSON", {
         error,
         rawText,
       });
-      return rawText;
     }
   }
 
+  // Just return the whole response as the error
   return { message: rawText };
 }
 
