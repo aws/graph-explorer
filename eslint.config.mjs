@@ -2,7 +2,7 @@ import globals from "globals";
 import pluginJs from "@eslint/js";
 import tseslint from "typescript-eslint";
 import reactLint from "eslint-plugin-react";
-import * as reactHooks from 'eslint-plugin-react-hooks';
+import * as reactHooks from "eslint-plugin-react-hooks";
 import tanstackQueryLint from "@tanstack/eslint-plugin-query";
 import eslintConfigPrettier from "eslint-config-prettier";
 import { fixupPluginRules, includeIgnoreFile } from "@eslint/compat";
@@ -88,7 +88,7 @@ export default tseslint.config(
       // Hooks
       "react-hooks/rules-of-hooks": "error",
       "react-hooks/exhaustive-deps": "error",
-      'react-hooks/react-compiler': 'error',
+      "react-hooks/react-compiler": "error",
 
       // TanStack Query
       "@tanstack/query/exhaustive-deps": "error",
