@@ -1,4 +1,4 @@
-import React, { ComponentPropsWithoutRef } from "react";
+import { ComponentPropsWithoutRef } from "react";
 import {
   ListRow,
   ListRowContent,
@@ -99,7 +99,7 @@ function mapToPrefixData(prefixConfig: PrefixTypeConfig) {
 
 type PrefixData = ReturnType<typeof mapToPrefixData>;
 
-const Row = React.memo(({ prefix }: { prefix: PrefixData }) => {
+function Row({ prefix }: { prefix: PrefixData }) {
   return (
     <div className="px-3 py-1.5">
       <ListRow className="min-h-12">
@@ -113,6 +113,6 @@ const Row = React.memo(({ prefix }: { prefix: PrefixData }) => {
       </ListRow>
     </div>
   );
-});
+}
 
 export default GeneratedPrefixes;

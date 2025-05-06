@@ -1,4 +1,4 @@
-import { memo, useState } from "react";
+import { useState } from "react";
 import SearchIcon from "@/components/icons/SearchIcon";
 import { Input } from "@/components";
 import { cn } from "@/utils";
@@ -11,7 +11,7 @@ type SearchBarProps = {
   className?: string;
 };
 
-function SearchBar({
+export default function SearchBar({
   search,
   searchPlaceholder,
   onSearch,
@@ -50,5 +50,3 @@ export function useSearchItems<TItem>(
     setSearch,
   };
 }
-
-export default memo(SearchBar);

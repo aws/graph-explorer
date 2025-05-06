@@ -1,5 +1,5 @@
 import { Modal } from "@mantine/core";
-import React, { useCallback, useState } from "react";
+import { useCallback, useState } from "react";
 import {
   AddIcon,
   Button,
@@ -104,7 +104,7 @@ function SearchResults({
   );
 }
 
-const Row = React.memo(({ prefix }: { prefix: PrefixTypeConfig }) => {
+function Row({ prefix }: { prefix: PrefixTypeConfig }) {
   const onDeletePrefix = useDeletePrefixCallback(prefix.prefix);
   return (
     <div className="px-3 py-1.5">
@@ -124,7 +124,7 @@ const Row = React.memo(({ prefix }: { prefix: PrefixTypeConfig }) => {
       </ListRow>
     </div>
   );
-});
+}
 
 function NoSearchResults() {
   return (

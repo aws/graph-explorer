@@ -4,7 +4,7 @@ import type {
   ForwardedRef,
   ReactNode,
 } from "react";
-import React, { forwardRef } from "react";
+import { forwardRef } from "react";
 import { cn } from "@/utils";
 import { Label } from "./Label";
 import {
@@ -115,7 +115,7 @@ function SelectField(
   );
 }
 
-const RenderItem = React.memo(function ({ item }: { item: SelectOption }) {
+function RenderItem({ item }: { item: SelectOption }) {
   if (!item.render) {
     return item.label;
   }
@@ -125,6 +125,6 @@ const RenderItem = React.memo(function ({ item }: { item: SelectOption }) {
     value: item.value,
     isDisabled: item.isDisabled,
   });
-});
+}
 
 export default forwardRef<HTMLButtonElement, SelectFieldProps>(SelectField);
