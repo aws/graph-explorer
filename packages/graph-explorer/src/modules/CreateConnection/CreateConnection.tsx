@@ -187,47 +187,43 @@ const CreateConnection = ({
   });
 
   const [hasError, setError] = useState(false);
-  const onFormChange = useCallback(
+  const onFormChange =
     (attribute: keyof ConnectionForm) =>
-      (value: number | string | string[] | boolean) => {
-        if (attribute === "serviceType" && value === "neptune-graph") {
-          setForm(prev => ({
-            ...prev,
-            [attribute]: value,
-            ["queryEngine"]: "openCypher",
-          }));
-        } else if (
-          attribute === "fetchTimeoutEnabled" &&
-          typeof value === "boolean"
-        ) {
-          setForm(prev => ({
-            ...prev,
-            [attribute]: value,
-            ["fetchTimeoutMs"]: value ? DEFAULT_FETCH_TIMEOUT : undefined,
-          }));
-        } else if (
-          attribute === "nodeExpansionLimitEnabled" &&
-          typeof value === "boolean"
-        ) {
-          setForm(prev => ({
-            ...prev,
-            [attribute]: value,
-            ["nodeExpansionLimit"]: value
-              ? DEFAULT_NODE_EXPAND_LIMIT
-              : undefined,
-          }));
-        } else {
-          setForm(prev => ({
-            ...prev,
-            [attribute]: value,
-          }));
-        }
-      },
-    []
-  );
+    (value: number | string | string[] | boolean) => {
+      if (attribute === "serviceType" && value === "neptune-graph") {
+        setForm(prev => ({
+          ...prev,
+          [attribute]: value,
+          ["queryEngine"]: "openCypher",
+        }));
+      } else if (
+        attribute === "fetchTimeoutEnabled" &&
+        typeof value === "boolean"
+      ) {
+        setForm(prev => ({
+          ...prev,
+          [attribute]: value,
+          ["fetchTimeoutMs"]: value ? DEFAULT_FETCH_TIMEOUT : undefined,
+        }));
+      } else if (
+        attribute === "nodeExpansionLimitEnabled" &&
+        typeof value === "boolean"
+      ) {
+        setForm(prev => ({
+          ...prev,
+          [attribute]: value,
+          ["nodeExpansionLimit"]: value ? DEFAULT_NODE_EXPAND_LIMIT : undefined,
+        }));
+      } else {
+        setForm(prev => ({
+          ...prev,
+          [attribute]: value,
+        }));
+      }
+    };
 
   const reset = useResetState();
-  const onSubmit = useCallback(() => {
+  const onSubmit = () => {
     if (!form.name || !form.url || !form.queryEngine) {
       setError(true);
       return;
@@ -246,7 +242,7 @@ const CreateConnection = ({
     onSave(form as Required<ConnectionForm>);
     reset();
     onClose();
-  }, [form, onClose, onSave, reset]);
+  };
 
   return (
     <div className={cn(styleWithTheme(defaultStyles), "flex flex-col gap-6")}>

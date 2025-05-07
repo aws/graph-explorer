@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Panel } from "@/components";
 import type { TabularInstance } from "@/components/Tabular";
 import { ModuleContainerTabularHeader } from "@/components/Tabular";
@@ -22,31 +22,28 @@ const EntitiesTabular = () => {
   const [edgeInstance, setEdgeInstance] = useState<TabularInstance<any> | null>(
     null
   );
-  const tableList = useMemo(
-    () => [
-      {
-        id: TableId.nodes,
-        component: (
-          <NodesTabular
-            ref={ref => {
-              setNodeInstance(ref);
-            }}
-          />
-        ),
-      },
-      {
-        id: TableId.edges,
-        component: (
-          <EdgesTabular
-            ref={ref => {
-              setEdgeInstance(ref);
-            }}
-          />
-        ),
-      },
-    ],
-    []
-  );
+  const tableList = [
+    {
+      id: TableId.nodes,
+      component: (
+        <NodesTabular
+          ref={ref => {
+            setNodeInstance(ref);
+          }}
+        />
+      ),
+    },
+    {
+      id: TableId.edges,
+      component: (
+        <EdgesTabular
+          ref={ref => {
+            setEdgeInstance(ref);
+          }}
+        />
+      ),
+    },
+  ];
 
   const selectedTabularInstance =
     TableId.nodes === selectedTable ? nodeInstance : edgeInstance;

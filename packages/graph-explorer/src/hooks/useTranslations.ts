@@ -1,5 +1,4 @@
 import { flatten } from "flat";
-import { useCallback } from "react";
 import { useQueryEngine } from "@/core/connector";
 
 import gremlinTs from "./translations/gremlin-translations.json";
@@ -27,11 +26,8 @@ export function getTranslation(
 export default function useTranslations() {
   const queryEngine = useQueryEngine();
 
-  return useCallback(
-    (key: TranslationPaths, ns?: QueryEngine) =>
-      getTranslation(key, ns || queryEngine),
-    [queryEngine]
-  );
+  return (key: TranslationPaths, ns?: QueryEngine) =>
+    getTranslation(key, ns || queryEngine);
 }
 
 /*

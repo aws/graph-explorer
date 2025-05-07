@@ -1,6 +1,5 @@
 import { cn } from "@/utils";
 import { Resizable } from "re-resizable";
-import { useCallback } from "react";
 import { Link } from "react-router";
 import {
   buttonStyles,
@@ -60,66 +59,57 @@ const GraphExplorer = () => {
 
   const filteredEntitiesCount = useAtomValue(totalFilteredCount);
 
-  const toggleSidebar = useCallback(
-    (item: SidebarItems) => async () => {
-      await setUserLayout(async prev => {
-        const prevValue = await prev;
-        if (prevValue.activeSidebarItem === item) {
-          return {
-            ...prevValue,
-            activeSidebarItem: null,
-          };
-        }
-
+  const toggleSidebar = (item: SidebarItems) => async () => {
+    await setUserLayout(async prev => {
+      const prevValue = await prev;
+      if (prevValue.activeSidebarItem === item) {
         return {
           ...prevValue,
-          activeSidebarItem: item,
+          activeSidebarItem: null,
         };
-      });
-    },
-    [setUserLayout]
-  );
+      }
 
-  const toggleView = useCallback(
-    (item: string) => async () => {
-      await setUserLayout(async prev => {
-        const prevValue = await prev;
-        const toggles = new Set(prevValue.activeToggles);
-        if (toggles.has(item)) {
-          toggles.delete(item);
-        } else {
-          toggles.add(item);
-        }
+      return {
+        ...prevValue,
+        activeSidebarItem: item,
+      };
+    });
+  };
 
-        return {
-          ...prevValue,
-          activeToggles: toggles,
-        };
-      });
-    },
-    [setUserLayout]
-  );
+  const toggleView = (item: string) => async () => {
+    await setUserLayout(async prev => {
+      const prevValue = await prev;
+      const toggles = new Set(prevValue.activeToggles);
+      if (toggles.has(item)) {
+        toggles.delete(item);
+      } else {
+        toggles.add(item);
+      }
 
-  const onTableViewResizeStop = useCallback(
-    async (
-      _e: unknown,
-      _dir: unknown,
-      _ref: unknown,
-      delta: { height: number }
-    ) => {
-      await setUserLayout(async prev => {
-        const prevValue = await prev;
-        return {
-          ...prevValue,
-          tableView: {
-            ...(prevValue.tableView || {}),
-            height: (prevValue.tableView?.height ?? 300) + delta.height,
-          },
-        };
-      });
-    },
-    [setUserLayout]
-  );
+      return {
+        ...prevValue,
+        activeToggles: toggles,
+      };
+    });
+  };
+
+  const onTableViewResizeStop = async (
+    _e: unknown,
+    _dir: unknown,
+    _ref: unknown,
+    delta: { height: number }
+  ) => {
+    await setUserLayout(async prev => {
+      const prevValue = await prev;
+      return {
+        ...prevValue,
+        tableView: {
+          ...(prevValue.tableView || {}),
+          height: (prevValue.tableView?.height ?? 300) + delta.height,
+        },
+      };
+    });
+  };
 
   const toggles = userLayout.activeToggles;
 

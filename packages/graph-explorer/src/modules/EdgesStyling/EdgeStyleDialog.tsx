@@ -1,5 +1,4 @@
 import { Modal } from "@mantine/core";
-import { useCallback, useMemo } from "react";
 import { Button, InputField, SelectField } from "@/components";
 import ColorInput from "@/components/ColorInput/ColorInput";
 import { useDisplayEdgeTypeConfig, useWithTheme } from "@/core";
@@ -65,7 +64,7 @@ function Content({ edgeType }: { edgeType: string }) {
     userStylingEdgeAtom(edgeType)
   );
 
-  const selectOptions = useMemo(() => {
+  const selectOptions = (() => {
     const options = displayConfig.attributes.map(attr => ({
       value: attr.name,
       label: attr.displayLabel,
@@ -77,14 +76,11 @@ function Content({ edgeType }: { edgeType: string }) {
     });
 
     return options;
-  }, [displayConfig.attributes, t]);
+  })();
 
-  const onUserPrefsChange = useCallback(
-    (prefs: Omit<EdgePreferences, "type">) => {
-      setEdgePreferences({ type: edgeType, ...prefs });
-    },
-    [edgeType, setEdgePreferences]
-  );
+  const onUserPrefsChange = (prefs: Omit<EdgePreferences, "type">) => {
+    setEdgePreferences({ type: edgeType, ...prefs });
+  };
 
   const onUserPrefsReset = useResetAtom(userStylingEdgeAtom(edgeType));
 

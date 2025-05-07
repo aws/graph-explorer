@@ -1,4 +1,3 @@
-import { useMemo } from "react";
 import { IconButton, Label, SelectField, toHumanString } from "@/components";
 import { cn } from "@/utils";
 import {
@@ -30,7 +29,7 @@ export function PaginationControl({
 }: PaginationControlProps) {
   const pageCount = Math.ceil(totalRows / pageSize);
 
-  const pagesToRender = useMemo(() => {
+  const pagesToRender = (() => {
     const pages: string[] = [];
     let startIndex = pageIndex - 2;
     let endIndex = pageIndex + 2;
@@ -54,12 +53,12 @@ export function PaginationControl({
     }
 
     return pages;
-  }, [pageIndex, pageCount]);
+  })();
 
-  const pageRange = useMemo(() => {
+  const pageRange = (() => {
     const to = pageIndex * pageSize + pageSize;
     return `${pageIndex * pageSize + 1}-${to < totalRows ? to : totalRows}`;
-  }, [pageIndex, pageSize, totalRows]);
+  })();
 
   return (
     <div

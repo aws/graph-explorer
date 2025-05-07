@@ -1,5 +1,5 @@
 import { saveAs } from "file-saver";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import {
   Button,
   Checkbox,
@@ -61,7 +61,7 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
     }, {})
   );
 
-  const onExport = useCallback(() => {
+  const onExport = () => {
     // Filter down to only the columns that are selected
     const columnsToExport = Object.entries(selectedColumns)
       .filter(([, isSelected]) => isSelected)
@@ -98,17 +98,7 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
 
     // Closes the popover
     onClose();
-  }, [
-    selectedColumns,
-    options,
-    rows,
-    page,
-    data,
-    name,
-    format,
-    onClose,
-    columns,
-  ]);
+  };
 
   return (
     <div className="flex flex-col gap-4">

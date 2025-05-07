@@ -1,4 +1,3 @@
-import { useMemo } from "react";
 import { useConfiguration } from "@/core";
 import {
   useEdgeTypeConfigs,
@@ -15,7 +14,7 @@ const useEntitiesCounts = () => {
 
   const hasSyncedSchema = Boolean(config?.schema?.lastUpdate);
 
-  const totalNodes = useMemo(() => {
+  const totalNodes = (() => {
     if (!hasSyncedSchema) {
       return null;
     }
@@ -41,9 +40,9 @@ const useEntitiesCounts = () => {
     }
 
     return total;
-  }, [hasSyncedSchema, preCalculatedTotalNodes, vtConfigs]);
+  })();
 
-  const totalEdges = useMemo(() => {
+  const totalEdges = (() => {
     if (!hasSyncedSchema) {
       return null;
     }
@@ -68,7 +67,7 @@ const useEntitiesCounts = () => {
     }
 
     return total;
-  }, [etConfigs, hasSyncedSchema, preCalculatedTotalEdges]);
+  })();
 
   return { totalNodes, totalEdges };
 };

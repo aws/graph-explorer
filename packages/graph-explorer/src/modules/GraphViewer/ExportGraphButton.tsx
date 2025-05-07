@@ -1,4 +1,3 @@
-import { useCallback } from "react";
 import { SaveIcon } from "lucide-react";
 import { nodesAtom, edgesAtom, useExplorer, useConfiguration } from "@/core";
 import { saveFile, toJsonFileData } from "@/utils/fileData";
@@ -24,14 +23,14 @@ export function useExportGraph() {
   const connection = useExplorer().connection;
   const config = useConfiguration();
 
-  const exportGraph = useCallback(async () => {
+  const exportGraph = async () => {
     const fileName = createDefaultFileName(
       config?.displayLabel ?? "Connection"
     );
     const exportData = createExportedGraph(vertexIds, edgeIds, connection);
     const fileToSave = toJsonFileData(exportData);
     await saveFile(fileToSave, fileName);
-  }, [config?.displayLabel, connection, vertexIds, edgeIds]);
+  };
 
   return exportGraph;
 }

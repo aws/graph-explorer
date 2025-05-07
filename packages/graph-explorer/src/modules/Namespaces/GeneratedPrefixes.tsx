@@ -1,4 +1,4 @@
-import React, { ComponentPropsWithoutRef, useMemo } from "react";
+import { ComponentPropsWithoutRef } from "react";
 import {
   ListRow,
   ListRowContent,
@@ -55,17 +55,15 @@ function Layout(props: ComponentPropsWithoutRef<"div">) {
 function useGeneratedPrefixes() {
   const config = useConfiguration();
 
-  return useMemo(() => {
-    return (config?.schema?.prefixes || [])
-      .filter(
-        prefixConfig =>
-          prefixConfig.__inferred === true &&
-          prefixConfig.__matches &&
-          prefixConfig.__matches.size > 0
-      )
-      .map(mapToPrefixData)
-      .toSorted((a, b) => a.title.localeCompare(b.title));
-  }, [config?.schema?.prefixes]);
+  return (config?.schema?.prefixes || [])
+    .filter(
+      prefixConfig =>
+        prefixConfig.__inferred === true &&
+        prefixConfig.__matches &&
+        prefixConfig.__matches.size > 0
+    )
+    .map(mapToPrefixData)
+    .toSorted((a, b) => a.title.localeCompare(b.title));
 }
 
 function NoGeneratedPrefixes() {
@@ -101,7 +99,7 @@ function mapToPrefixData(prefixConfig: PrefixTypeConfig) {
 
 type PrefixData = ReturnType<typeof mapToPrefixData>;
 
-const Row = React.memo(({ prefix }: { prefix: PrefixData }) => {
+function Row({ prefix }: { prefix: PrefixData }) {
   return (
     <div className="px-3 py-1.5">
       <ListRow className="min-h-12">
@@ -115,6 +113,6 @@ const Row = React.memo(({ prefix }: { prefix: PrefixData }) => {
       </ListRow>
     </div>
   );
-});
+}
 
 export default GeneratedPrefixes;

@@ -1,5 +1,4 @@
 import { clone } from "lodash";
-import { useCallback } from "react";
 import {
   AddIcon,
   DeleteIcon,
@@ -48,7 +47,7 @@ const NodeExpandFilters = ({
       }));
   const hasSearchableAttributes = attributeSelectOptions.length > 0;
 
-  const onFilterAdd = useCallback(() => {
+  const onFilterAdd = () => {
     onFiltersChange([
       ...filters,
       {
@@ -56,25 +55,23 @@ const NodeExpandFilters = ({
         value: "",
       },
     ]);
-  }, [attributeSelectOptions, filters, onFiltersChange]);
+  };
 
-  const onFilterDelete = useCallback(
-    (filterIndex: number) => {
-      const updatedFilters = filters.filter((_, i) => i !== filterIndex);
-      onFiltersChange(updatedFilters);
-    },
-    [filters, onFiltersChange]
-  );
+  const onFilterDelete = (filterIndex: number) => {
+    const updatedFilters = filters.filter((_, i) => i !== filterIndex);
+    onFiltersChange(updatedFilters);
+  };
 
-  const onFilterChange = useCallback(
-    (filterIndex: number, name?: string, value?: string) => {
-      const currFilters = clone(filters);
-      currFilters[filterIndex].name = name || currFilters[filterIndex].name;
-      currFilters[filterIndex].value = value ?? currFilters[filterIndex].value;
-      onFiltersChange(currFilters);
-    },
-    [filters, onFiltersChange]
-  );
+  const onFilterChange = (
+    filterIndex: number,
+    name?: string,
+    value?: string
+  ) => {
+    const currFilters = clone(filters);
+    currFilters[filterIndex].name = name || currFilters[filterIndex].name;
+    currFilters[filterIndex].value = value ?? currFilters[filterIndex].value;
+    onFiltersChange(currFilters);
+  };
 
   return (
     <div className="filters-section">

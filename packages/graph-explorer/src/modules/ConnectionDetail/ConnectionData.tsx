@@ -13,7 +13,7 @@ import {
 import { DisplayVertexTypeConfig, useDisplayVertexTypeConfigs } from "@/core";
 import useTranslations from "@/hooks/useTranslations";
 import { Virtuoso } from "react-virtuoso";
-import React, { ComponentPropsWithoutRef } from "react";
+import { ComponentPropsWithoutRef } from "react";
 
 export default function ConnectionData() {
   const vtConfigs = useDisplayVertexTypeConfigs().values().toArray();
@@ -97,15 +97,19 @@ function VertexTypeList({
   );
 }
 
-const Row = React.memo(({ config }: { config: DisplayVertexTypeConfig }) => (
-  <Link to={`/data-explorer/${encodeURIComponent(config.type)}`}>
-    <div className="flex min-h-12 items-center gap-4 px-4 py-2 hover:cursor-pointer">
-      <VertexIcon vertexStyle={config.style} />
-      <ListRowContent>
-        <ListRowTitle>{config.displayLabel}</ListRowTitle>
-        <ListRowSubtitle>{config.attributes.length} attributes</ListRowSubtitle>
-      </ListRowContent>
-      <ChevronRightIcon className="text-text-secondary size-5" />
-    </div>
-  </Link>
-));
+function Row({ config }: { config: DisplayVertexTypeConfig }) {
+  return (
+    <Link to={`/data-explorer/${encodeURIComponent(config.type)}`}>
+      <div className="flex min-h-12 items-center gap-4 px-4 py-2 hover:cursor-pointer">
+        <VertexIcon vertexStyle={config.style} />
+        <ListRowContent>
+          <ListRowTitle>{config.displayLabel}</ListRowTitle>
+          <ListRowSubtitle>
+            {config.attributes.length} attributes
+          </ListRowSubtitle>
+        </ListRowContent>
+        <ChevronRightIcon className="text-text-secondary size-5" />
+      </div>
+    </Link>
+  );
+}

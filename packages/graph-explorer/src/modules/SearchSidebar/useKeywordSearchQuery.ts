@@ -1,6 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useExplorer } from "@/core/connector";
-import { useCallback } from "react";
 import { KeywordSearchRequest, searchQuery } from "@/connector";
 import { useUpdateSchemaFromEntities } from "@/core";
 
@@ -39,12 +38,10 @@ export function useKeywordSearchQuery({
 export function useCancelKeywordSearch() {
   const queryClient = useQueryClient();
 
-  const cancelAll = useCallback(async () => {
+  return async () => {
     await queryClient.cancelQueries({
       queryKey: ["keyword-search"],
       exact: false,
     });
-  }, [queryClient]);
-
-  return cancelAll;
+  };
 }

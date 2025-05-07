@@ -1,5 +1,5 @@
 import { Modal } from "@mantine/core";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import {
   Button,
   Chip,
@@ -78,9 +78,7 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
 
   const { isFetching: isSync } = useSchemaSync();
 
-  const onConfigExport = useCallback(() => {
-    saveConfigurationToFile(config);
-  }, [config]);
+  const onConfigExport = () => saveConfigurationToFile(config);
 
   const deleteActiveConfig = useDeleteActiveConfiguration();
 

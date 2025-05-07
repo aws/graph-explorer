@@ -1,6 +1,6 @@
 import { cn } from "@/utils";
 import clone from "lodash/clone";
-import { useCallback, useMemo, useRef } from "react";
+import { useRef } from "react";
 import {
   keepPreviousData,
   useQuery,
@@ -188,7 +188,7 @@ function DisplayNameAndDescriptionOptions({
   const t = useTranslations();
   const vertexConfig = useVertexTypeConfig(vertexType);
   const displayConfig = useDisplayVertexTypeConfig(vertexType);
-  const selectOptions = useMemo(() => {
+  const selectOptions = (() => {
     const options = displayConfig.attributes.map(attr => ({
       value: attr.name,
       label: attr.displayLabel,
@@ -204,10 +204,10 @@ function DisplayNameAndDescriptionOptions({
     });
 
     return options;
-  }, [displayConfig.attributes, t]);
+  })();
 
   const setUserStyling = useSetAtom(userStylingAtom);
-  const onDisplayNameChange = useCallback(
+  const onDisplayNameChange =
     (field: "name" | "longName") => async (value: string | string[]) => {
       await setUserStyling(async prevStyling => {
         const prevValue = await prevStyling;
@@ -234,9 +234,7 @@ function DisplayNameAndDescriptionOptions({
           ],
         };
       });
-    },
-    [setUserStyling, vertexType]
-  );
+    };
 
   return (
     <div className="header-children">
@@ -282,7 +280,7 @@ function AddToExplorerButton({ vertex }: { vertex: Vertex }) {
 function useColumnDefinitions(vertexType: string) {
   const t = useTranslations();
   const displayConfig = useDisplayVertexTypeConfig(vertexType);
-  const columns: ColumnDefinition<DisplayVertex>[] = useMemo(() => {
+  const columns: ColumnDefinition<DisplayVertex>[] = (() => {
     const vtColumns: ColumnDefinition<DisplayVertex>[] =
       displayConfig.attributes.map(attr => ({
         id: attr.name,
@@ -312,7 +310,7 @@ function useColumnDefinitions(vertexType: string) {
     });
 
     return vtColumns;
-  }, [displayConfig.attributes, t]);
+  })();
   return columns;
 }
 
@@ -320,37 +318,31 @@ function usePagingOptions() {
   const [searchParams, setSearchParams] = useSearchParams();
   const pageIndex = Number(searchParams.get("page") || 1) - 1;
   const pageSize = Number(searchParams.get("pageSize") || 20);
-  const onPageIndexChange = useCallback(
-    (pageIndex: number) => {
-      setSearchParams(
-        prevState => {
-          const currPageSize = Number(prevState.get("pageSize") || 20);
-          return {
-            page: String(pageIndex + 1),
-            pageSize: String(currPageSize),
-          };
-        },
-        { replace: true }
-      );
-    },
-    [setSearchParams]
-  );
+  const onPageIndexChange = (pageIndex: number) => {
+    setSearchParams(
+      prevState => {
+        const currPageSize = Number(prevState.get("pageSize") || 20);
+        return {
+          page: String(pageIndex + 1),
+          pageSize: String(currPageSize),
+        };
+      },
+      { replace: true }
+    );
+  };
 
-  const onPageSizeChange = useCallback(
-    (pageSize: number) => {
-      setSearchParams(
-        prevState => {
-          const currPageIndex = Number(prevState.get("page") || 1);
-          return {
-            page: String(currPageIndex),
-            pageSize: String(pageSize),
-          };
-        },
-        { replace: true }
-      );
-    },
-    [setSearchParams]
-  );
+  const onPageSizeChange = (pageSize: number) => {
+    setSearchParams(
+      prevState => {
+        const currPageIndex = Number(prevState.get("page") || 1);
+        return {
+          page: String(currPageIndex),
+          pageSize: String(pageSize),
+        };
+      },
+      { replace: true }
+    );
+  };
 
   return {
     pageIndex,

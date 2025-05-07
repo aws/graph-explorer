@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useLayer, useMousePositionAsTrigger } from "react-laag";
 import {
   getEdgeIdFromRenderedEdgeId,
@@ -30,11 +30,11 @@ const useContextMenu = () => {
       preventDefault: false,
     });
 
-  const clearAllLayers = useCallback(() => {
+  const clearAllLayers = () => {
     setContextNodeId(null);
     setContextEdgeId(null);
     setContextPosition(null);
-  }, []);
+  };
 
   useClickOutside({
     ref: parentRef,
@@ -55,67 +55,63 @@ const useContextMenu = () => {
       onOutsideClick: clearAllLayers,
     });
 
-  const onNodeRightClick: ElementEventCallback<RenderedVertex["data"]> =
-    useCallback(
-      (event, node, bounds) => {
-        const parentBounds = parentRef.current?.getBoundingClientRect() || {
-          top: 0,
-          left: 0,
-        };
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        handleMouseEvent({
-          ...event.originalEvent,
-          // Override the event position to node bounds and parent offsets
-          clientY: parentBounds.top + bounds.top + bounds.height / 2,
-          clientX: parentBounds.left + bounds.left + bounds.width,
-        });
-        setContextNodeId(getVertexIdFromRenderedVertexId(node.id));
-      },
-      [handleMouseEvent]
-    );
+  const onNodeRightClick: ElementEventCallback<RenderedVertex["data"]> = (
+    event,
+    node,
+    bounds
+  ) => {
+    const parentBounds = parentRef.current?.getBoundingClientRect() || {
+      top: 0,
+      left: 0,
+    };
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    handleMouseEvent({
+      ...event.originalEvent,
+      // Override the event position to node bounds and parent offsets
+      clientY: parentBounds.top + bounds.top + bounds.height / 2,
+      clientX: parentBounds.left + bounds.left + bounds.width,
+    });
+    setContextNodeId(getVertexIdFromRenderedVertexId(node.id));
+  };
 
-  const onEdgeRightClick: ElementEventCallback<RenderedEdge["data"]> =
-    useCallback(
-      (event, edge) => {
-        const parentBounds = parentRef.current?.getBoundingClientRect() || {
-          top: 0,
-          left: 0,
-        };
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        handleMouseEvent({
-          ...event.originalEvent,
-          // Override the event position to event position and parent offsets
-          clientY: event.renderedPosition.y + parentBounds.top,
-          clientX: event.renderedPosition.x + parentBounds.left,
-        });
-        setContextEdgeId(getEdgeIdFromRenderedEdgeId(edge.id));
-        event.preventDefault();
-      },
-      [handleMouseEvent]
-    );
+  const onEdgeRightClick: ElementEventCallback<RenderedEdge["data"]> = (
+    event,
+    edge
+  ) => {
+    const parentBounds = parentRef.current?.getBoundingClientRect() || {
+      top: 0,
+      left: 0,
+    };
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    handleMouseEvent({
+      ...event.originalEvent,
+      // Override the event position to event position and parent offsets
+      clientY: event.renderedPosition.y + parentBounds.top,
+      clientX: event.renderedPosition.x + parentBounds.left,
+    });
+    setContextEdgeId(getEdgeIdFromRenderedEdgeId(edge.id));
+    event.preventDefault();
+  };
 
-  const onGraphRightClick: GraphEventCallback = useCallback(
-    (event, position) => {
-      event.originalEvent.preventDefault();
-      event.originalEvent.stopPropagation();
-      event.originalEvent.cancelBubble = true;
-      event.preventDefault();
-      event.stopPropagation();
+  const onGraphRightClick: GraphEventCallback = (event, position) => {
+    event.originalEvent.preventDefault();
+    event.originalEvent.stopPropagation();
+    event.originalEvent.cancelBubble = true;
+    event.preventDefault();
+    event.stopPropagation();
 
-      clearAllLayers();
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      handleMouseEvent({
-        ...event.originalEvent,
-        clientY: position.top,
-        clientX: position.left,
-      });
-      setContextPosition(position);
-    },
-    [clearAllLayers, handleMouseEvent]
-  );
+    clearAllLayers();
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    handleMouseEvent({
+      ...event.originalEvent,
+      clientY: position.top,
+      clientX: position.left,
+    });
+    setContextPosition(position);
+  };
 
   const isContextOpen =
     (Boolean(contextNodeId) ||

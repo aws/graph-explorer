@@ -31,59 +31,45 @@ export function useRemoveFromGraph() {
 
   const updateGraphStorage = useUpdateGraphSession();
 
-  return useCallback(
-    async (entities: { vertices?: VertexId[]; edges?: EdgeId[] }) => {
-      const vertices = new Set(entities.vertices ?? []);
-      const edges = new Set(entities.edges ?? []);
+  return async (entities: { vertices?: VertexId[]; edges?: EdgeId[] }) => {
+    const vertices = new Set(entities.vertices ?? []);
+    const edges = new Set(entities.edges ?? []);
 
-      // Ensure there is something to remove
-      if (vertices.size === 0 && edges.size === 0) {
-        return;
-      }
+    // Ensure there is something to remove
+    if (vertices.size === 0 && edges.size === 0) {
+      return;
+    }
 
-      // Find associated edges for removed vertices
-      const associatedEdges = new Set(
-        allEdges
-          .entries()
-          .filter(
-            ([_id, edge]) =>
-              vertices.has(edge.source) || vertices.has(edge.target)
-          )
-          .map(([id]) => id)
-      );
-      const edgesToRemove = edges.union(associatedEdges);
+    // Find associated edges for removed vertices
+    const associatedEdges = new Set(
+      allEdges
+        .entries()
+        .filter(
+          ([_id, edge]) =>
+            vertices.has(edge.source) || vertices.has(edge.target)
+        )
+        .map(([id]) => id)
+    );
+    const edgesToRemove = edges.union(associatedEdges);
 
-      // Remove vertices
-      if (vertices.size > 0) {
-        setVertices(prev => deleteFromMap(prev, vertices));
-        setSelectedVertices(prev => prev.difference(vertices));
-        setOutOfFocusVertices(prev => prev.difference(vertices));
-        setFilteredVertices(prev => prev.difference(vertices));
-      }
+    // Remove vertices
+    if (vertices.size > 0) {
+      setVertices(prev => deleteFromMap(prev, vertices));
+      setSelectedVertices(prev => prev.difference(vertices));
+      setOutOfFocusVertices(prev => prev.difference(vertices));
+      setFilteredVertices(prev => prev.difference(vertices));
+    }
 
-      // Remove edges
-      if (edgesToRemove.size > 0) {
-        setEdges(prev => deleteFromMap(prev, edgesToRemove));
-        setSelectedEdges(prev => prev.difference(edgesToRemove));
-        setOutOfFocusEdges(prev => prev.difference(edgesToRemove));
-        setFilteredEdges(prev => prev.difference(edgesToRemove));
-      }
+    // Remove edges
+    if (edgesToRemove.size > 0) {
+      setEdges(prev => deleteFromMap(prev, edgesToRemove));
+      setSelectedEdges(prev => prev.difference(edgesToRemove));
+      setOutOfFocusEdges(prev => prev.difference(edgesToRemove));
+      setFilteredEdges(prev => prev.difference(edgesToRemove));
+    }
 
-      await updateGraphStorage();
-    },
-    [
-      allEdges,
-      updateGraphStorage,
-      setVertices,
-      setSelectedVertices,
-      setOutOfFocusVertices,
-      setFilteredVertices,
-      setEdges,
-      setSelectedEdges,
-      setOutOfFocusEdges,
-      setFilteredEdges,
-    ]
-  );
+    await updateGraphStorage();
+  };
 }
 
 function deleteFromMap<Key, Value>(map: Map<Key, Value>, keys: Set<Key>) {
@@ -97,19 +83,13 @@ function deleteFromMap<Key, Value>(map: Map<Key, Value>, keys: Set<Key>) {
 export function useRemoveNodeFromGraph(nodeId: VertexId) {
   const removeFromGraph = useRemoveFromGraph();
 
-  return useCallback(
-    () => removeFromGraph({ vertices: [nodeId] }),
-    [nodeId, removeFromGraph]
-  );
+  return () => removeFromGraph({ vertices: [nodeId] });
 }
 
 export function useRemoveEdgeFromGraph(edgeId: EdgeId) {
   const removeFromGraph = useRemoveFromGraph();
 
-  return useCallback(
-    () => removeFromGraph({ edges: [edgeId] }),
-    [edgeId, removeFromGraph]
-  );
+  return () => removeFromGraph({ edges: [edgeId] });
 }
 
 export function useClearGraph() {

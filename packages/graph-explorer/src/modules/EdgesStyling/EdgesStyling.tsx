@@ -12,15 +12,11 @@ import useTranslations from "@/hooks/useTranslations";
 import SingleEdgeStyling from "./SingleEdgeStyling";
 import { SidebarCloseButton } from "../SidebarCloseButton";
 import EdgeStyleDialog from "./EdgeStyleDialog";
-import { useMemo } from "react";
 import { Virtuoso } from "react-virtuoso";
 
 function EdgesStyling() {
   const etConfigMap = useDisplayEdgeTypeConfigs();
-  const etConfigs = useMemo(
-    () => etConfigMap.values().toArray(),
-    [etConfigMap]
-  );
+  const etConfigs = etConfigMap.values().toArray();
   const t = useTranslations();
 
   return (

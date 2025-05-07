@@ -1,4 +1,3 @@
-import { useCallback } from "react";
 import { atomWithLocalForage } from "./localForageEffect";
 import { atomFamily, RESET } from "jotai/utils";
 import { atom, useSetAtom } from "jotai";
@@ -226,10 +225,10 @@ export const userLayoutAtom = atomWithLocalForage<UserPreferences["layout"]>(
 
 export function useCloseSidebar() {
   const setUserLayout = useSetAtom(userLayoutAtom);
-  return useCallback(() => {
+  return () => {
     setUserLayout(prev => ({
       ...prev,
       activeSidebarItem: null,
     }));
-  }, [setUserLayout]);
+  };
 }

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { useResolvedConfig } from "@/core/ConfigurationProvider";
 import { useExplorer } from "@/core/connector";
 import useUpdateSchema from "./useUpdateSchema";
@@ -13,10 +13,8 @@ export function useCancelSchemaSync() {
   const queryClient = useQueryClient();
   const { replaceSchema } = useUpdateSchema();
   const explorer = useExplorer();
-  return useCallback(
-    () => queryClient.cancelQueries(schemaSyncQuery(replaceSchema, explorer)),
-    [replaceSchema, queryClient, explorer]
-  );
+  return () =>
+    queryClient.cancelQueries(schemaSyncQuery(replaceSchema, explorer));
 }
 
 export function useSchemaSync() {
@@ -26,13 +24,10 @@ export function useSchemaSync() {
   const { replaceSchema, setSyncFailure } = useUpdateSchema();
 
   // Check if the schema has ever been properly synced before providing initial data
-  const initialData = useMemo(() => {
-    return config.schema &&
-      config.schema.lastUpdate &&
-      config.schema.triedToSync
+  const initialData =
+    config.schema && config.schema.lastUpdate && config.schema.triedToSync
       ? config.schema
       : undefined;
-  }, [config]);
 
   const query = useQuery({
     ...schemaSyncQuery(replaceSchema, explorer),
@@ -48,8 +43,5 @@ export function useSchemaSync() {
     }
   }, [setSyncFailure, status]);
 
-  return useMemo(
-    () => ({ refetch, data, error, isFetching }),
-    [data, isFetching, refetch, error]
-  );
+  return { refetch, data, error, isFetching };
 }

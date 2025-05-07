@@ -1,4 +1,4 @@
-import { MouseEvent, useCallback, useRef, useState } from "react";
+import { MouseEvent, useRef, useState } from "react";
 import {
   getVertexIdFromRenderedVertexId,
   type RenderedEdgeId,
@@ -108,20 +108,20 @@ export default function GraphViewer() {
 
   const autoOpenDetails = useAutoOpenDetailsSidebar();
 
-  const onSelectedElementIdsChange = useCallback(
-    ({ nodeIds, edgeIds }: SelectedElements) => {
-      setNodesSelectedIds(nodeIds as Set<RenderedVertexId>);
-      setEdgesSelectedIds(edgeIds as Set<RenderedEdgeId>);
+  const onSelectedElementIdsChange = ({
+    nodeIds,
+    edgeIds,
+  }: SelectedElements) => {
+    setNodesSelectedIds(nodeIds as Set<RenderedVertexId>);
+    setEdgesSelectedIds(edgeIds as Set<RenderedEdgeId>);
 
-      if (
-        (nodeIds.size === 1 && edgeIds.size === 0) ||
-        (nodeIds.size === 0 && edgeIds.size === 1)
-      ) {
-        autoOpenDetails();
-      }
-    },
-    [autoOpenDetails, setEdgesSelectedIds, setNodesSelectedIds]
-  );
+    if (
+      (nodeIds.size === 1 && edgeIds.size === 0) ||
+      (nodeIds.size === 0 && edgeIds.size === 1)
+    ) {
+      autoOpenDetails();
+    }
+  };
 
   const [legendOpen, setLegendOpen] = useState(false);
   const { onZoomIn, onZoomOut, onSaveScreenshot } =
@@ -144,17 +144,16 @@ export default function GraphViewer() {
   const getNodeBadges = useNodeBadges();
 
   const { expandNode } = useExpandNode();
-  const onNodeDoubleClick: ElementEventCallback<RenderedVertex["data"]> =
-    useCallback(
-      (_, vertex) => {
-        const vertexId = getVertexIdFromRenderedVertexId(vertex.id);
+  const onNodeDoubleClick: ElementEventCallback<RenderedVertex["data"]> = (
+    _,
+    vertex
+  ) => {
+    const vertexId = getVertexIdFromRenderedVertexId(vertex.id);
 
-        expandNode(vertexId, vertex.types, {
-          limit: 10,
-        });
-      },
-      [expandNode]
-    );
+    expandNode(vertexId, vertex.types, {
+      limit: 10,
+    });
+  };
 
   const [layout, setLayout] = useState("F_COSE");
   const onClearGraph = useClearGraph();

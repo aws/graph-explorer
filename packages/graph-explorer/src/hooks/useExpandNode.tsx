@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from "react";
+import { useEffect } from "react";
 import { useNotification } from "@/components/NotificationProvider";
 import {
   updateEdgeDetailsCache,
@@ -118,44 +118,41 @@ export default function useExpandNode() {
 
   // Build the expand node callback
   const neighborCallback = useNeighborsCallback();
-  const expandNode = useCallback(
-    async (
-      vertexId: VertexId,
-      vertexTypes: Vertex["types"],
-      filters?: ExpandNodeFilters
-    ) => {
-      const neighbor = await neighborCallback(vertexId);
-      if (!neighbor) {
-        enqueueNotification({
-          title: "No neighbor information available",
-          message: "This vertex's neighbor data has not been retrieved yet.",
-        });
-        return;
-      }
-      const request: ExpandNodeRequest = {
-        vertexId,
-        vertexTypes,
-        filters,
-      };
+  const expandNode = async (
+    vertexId: VertexId,
+    vertexTypes: Vertex["types"],
+    filters?: ExpandNodeFilters
+  ) => {
+    const neighbor = await neighborCallback(vertexId);
+    if (!neighbor) {
+      enqueueNotification({
+        title: "No neighbor information available",
+        message: "This vertex's neighbor data has not been retrieved yet.",
+      });
+      return;
+    }
+    const request: ExpandNodeRequest = {
+      vertexId,
+      vertexTypes,
+      filters,
+    };
 
-      // Only allow expansion if we are not busy with another expansion
-      if (isPending) {
-        return;
-      }
+    // Only allow expansion if we are not busy with another expansion
+    if (isPending) {
+      return;
+    }
 
-      if (neighbor.unfetched <= 0) {
-        enqueueNotification({
-          title: "No more neighbors",
-          message:
-            "This vertex has been fully expanded or it does not have connections",
-        });
-        return;
-      }
+    if (neighbor.unfetched <= 0) {
+      enqueueNotification({
+        title: "No more neighbors",
+        message:
+          "This vertex has been fully expanded or it does not have connections",
+      });
+      return;
+    }
 
-      mutate(request);
-    },
-    [enqueueNotification, isPending, mutate, neighborCallback]
-  );
+    mutate(request);
+  };
 
   return {
     expandNode,

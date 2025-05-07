@@ -14,7 +14,6 @@ import {
 import { logger } from "@/utils";
 import { createDisplayError } from "@/utils/createDisplayError";
 import { useMutation } from "@tanstack/react-query";
-import { useCallback } from "react";
 import { useMaterializeVertices } from "./useMaterializeVertices";
 import { useSetAtom } from "jotai";
 
@@ -26,82 +25,70 @@ export function useAddToGraph() {
   const updateGraphStorage = useUpdateGraphSession();
   const materializeVertices = useMaterializeVertices();
 
-  return useCallback(
-    async (entities: { vertices?: Vertex[]; edges?: Edge[] }) => {
-      const vertices = toNodeMap(entities.vertices ?? []);
-      const edges = toEdgeMap(entities.edges ?? []);
+  return async (entities: { vertices?: Vertex[]; edges?: Edge[] }) => {
+    const vertices = toNodeMap(entities.vertices ?? []);
+    const edges = toEdgeMap(entities.edges ?? []);
 
-      // Add fragment vertices from the edges if they are missing
-      for (const edge of edges.values()) {
-        if (!vertices.has(edge.source)) {
-          vertices.set(
-            edge.source,
-            createVertex({ id: edge.source, types: edge.sourceTypes })
-          );
-        }
-
-        if (!vertices.has(edge.target)) {
-          vertices.set(
-            edge.target,
-            createVertex({ id: edge.target, types: edge.targetTypes })
-          );
-        }
-      }
-
-      // Ensure all fragments are materialized
-      const newVerticesMap = await materializeVertices(vertices);
-
-      // Ensure there is something to add
-      if (newVerticesMap.size === 0 && edges.size === 0) {
-        return;
-      }
-
-      // Add new vertices to the graph
-      if (newVerticesMap.size > 0) {
-        setVertices(prev => new Map([...prev, ...newVerticesMap]));
-      }
-
-      // Add new edges to the graph
-      if (edges.size > 0) {
-        setEdges(prev => new Map([...prev, ...edges]));
-      }
-
-      // Update the schema with any new vertex or edge types or attributes
-      setActiveSchema(prev => {
-        if (!prev) {
-          return prev;
-        }
-        return updateSchemaFromEntities(
-          { nodes: newVerticesMap, edges: edges },
-          prev
+    // Add fragment vertices from the edges if they are missing
+    for (const edge of edges.values()) {
+      if (!vertices.has(edge.source)) {
+        vertices.set(
+          edge.source,
+          createVertex({ id: edge.source, types: edge.sourceTypes })
         );
-      });
+      }
 
-      await updateGraphStorage();
-    },
-    [
-      materializeVertices,
-      setActiveSchema,
-      setEdges,
-      setVertices,
-      updateGraphStorage,
-    ]
-  );
+      if (!vertices.has(edge.target)) {
+        vertices.set(
+          edge.target,
+          createVertex({ id: edge.target, types: edge.targetTypes })
+        );
+      }
+    }
+
+    // Ensure all fragments are materialized
+    const newVerticesMap = await materializeVertices(vertices);
+
+    // Ensure there is something to add
+    if (newVerticesMap.size === 0 && edges.size === 0) {
+      return;
+    }
+
+    // Add new vertices to the graph
+    if (newVerticesMap.size > 0) {
+      setVertices(prev => new Map([...prev, ...newVerticesMap]));
+    }
+
+    // Add new edges to the graph
+    if (edges.size > 0) {
+      setEdges(prev => new Map([...prev, ...edges]));
+    }
+
+    // Update the schema with any new vertex or edge types or attributes
+    setActiveSchema(prev => {
+      if (!prev) {
+        return prev;
+      }
+      return updateSchemaFromEntities(
+        { nodes: newVerticesMap, edges: edges },
+        prev
+      );
+    });
+
+    await updateGraphStorage();
+  };
 }
 
 /** Returns a callback the given vertex to the graph. */
 export function useAddVertexToGraph(vertex: Vertex) {
   const callback = useAddToGraph();
-  return useCallback(
-    () => callback({ vertices: [vertex] }),
-    [callback, vertex]
-  );
+  return () => callback({ vertices: [vertex] });
 }
 
 /** Returns a callback the given edge to the graph. */
 export function useAddEdgeToGraph(edge: Edge) {
   const callback = useAddToGraph();
-  return useCallback(() => callback({ edges: [edge] }), [callback, edge]);
+  return () => callback({ edges: [edge] });
 }
 
 /**

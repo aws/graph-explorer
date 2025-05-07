@@ -2,9 +2,8 @@ import globals from "globals";
 import pluginJs from "@eslint/js";
 import tseslint from "typescript-eslint";
 import reactLint from "eslint-plugin-react";
-import reactHooksLint from "eslint-plugin-react-hooks";
+import * as reactHooks from "eslint-plugin-react-hooks";
 import tanstackQueryLint from "@tanstack/eslint-plugin-query";
-import reactCompiler from "eslint-plugin-react-compiler";
 import eslintConfigPrettier from "eslint-config-prettier";
 import { fixupPluginRules, includeIgnoreFile } from "@eslint/compat";
 import path from "node:path";
@@ -42,24 +41,13 @@ export default tseslint.config(
   pluginJs.configs.recommended,
   tseslint.configs.recommendedTypeChecked,
   reactLint.configs.flat.recommended,
-  {
-    plugins: { "react-hooks": fixupPluginRules(reactHooksLint) },
-    rules: { ...reactHooksLint.configs.recommended.rules },
-  },
+  reactHooks.configs.recommended,
   {
     plugins: {
       "@tanstack/query": fixupPluginRules(tanstackQueryLint),
     },
     rules: {
       ...tanstackQueryLint.configs.recommended.rules,
-    },
-  },
-  {
-    plugins: {
-      "react-compiler": reactCompiler,
-    },
-    rules: {
-      "react-compiler/react-compiler": "error",
     },
   },
   eslintConfigPrettier,
@@ -100,6 +88,7 @@ export default tseslint.config(
       // Hooks
       "react-hooks/rules-of-hooks": "error",
       "react-hooks/exhaustive-deps": "error",
+      "react-hooks/react-compiler": "error",
 
       // TanStack Query
       "@tanstack/query/exhaustive-deps": "error",

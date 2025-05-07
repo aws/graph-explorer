@@ -1,5 +1,5 @@
 import difference from "lodash/difference";
-import { forwardRef, useCallback, useMemo } from "react";
+import { forwardRef } from "react";
 import { NonVisibleIcon, VisibleIcon } from "@/components";
 import type { ColumnDefinition, TabularInstance } from "@/components/Tabular";
 import { makeIconToggleCell } from "@/components/Tabular/builders";
@@ -40,80 +40,75 @@ const NodesTabular = forwardRef<TabularInstance<ToggleVertex>, any>(
       useAtom(nodesSelectedIdsAtom);
     const setSelectedEdgesIds = useSetAtom(edgesSelectedIdsAtom);
 
-    const onToggleVisibility = useCallback(
-      (item: ToggleVertex) => {
-        recoilDiffSets(setHiddenNodesIds, new Set([item.id]));
-      },
-      [setHiddenNodesIds]
-    );
+    const onToggleVisibility = (item: ToggleVertex) => {
+      recoilDiffSets(setHiddenNodesIds, new Set([item.id]));
+    };
 
     // NOTE: Only use string accessors so that the export process continues to work
-    const columns: ColumnDefinition<ToggleVertex>[] = useMemo(() => {
-      return [
-        {
-          unhideable: true,
-          resizable: false,
-          filterable: false,
-          label: "Visibility",
-          accessor: "__is_visible",
-          cellComponent: makeIconToggleCell<ToggleVertex>({
-            title: "Toggle Visibility",
-            on: <NonVisibleIcon style={{ color: "#FA8500" }} />,
-            off: <VisibleIcon />,
-            getValue: ({ cell }) => !cell.value,
-            onPress: ({ cell }) => {
-              onToggleVisibility(cell.row.original);
-            },
-          }),
-        },
-        {
-          id: "node-id",
-          accessor: "displayId",
-          label: t("entities-tabular.node-id"),
-          overflow: "ellipsis",
-          oneLine: true,
-        },
-        {
-          id: "node-type",
-          accessor: "displayTypes",
-          label: t("entities-tabular.node-type"),
-          filter: (rows, _columnIds, filterValue) =>
-            rows.filter(row =>
-              row.original.displayTypes
-                .toLowerCase()
-                .match(filterValue.toLowerCase())
-            ),
-          overflow: "ellipsis",
-        },
-        {
-          id: "displayName",
-          accessor: "displayName",
-          label: "Name",
-          overflow: "ellipsis",
-          oneLine: true,
-        },
-        {
-          id: "displayDescription",
-          accessor: "displayDescription",
-          label: "Description",
-          overflow: "ellipsis",
-          oneLine: true,
-          width: 300,
-        },
-        {
-          accessor: "neighborCounts",
-          label: "Neighbors",
-          overflow: "ellipsis",
-          oneLine: true,
-          filterType: {
-            name: "number",
-            options: {
-              operator: ">=",
-            },
+    const columns: ColumnDefinition<ToggleVertex>[] = [
+      {
+        unhideable: true,
+        resizable: false,
+        filterable: false,
+        label: "Visibility",
+        accessor: "__is_visible",
+        cellComponent: makeIconToggleCell<ToggleVertex>({
+          title: "Toggle Visibility",
+          on: <NonVisibleIcon style={{ color: "#FA8500" }} />,
+          off: <VisibleIcon />,
+          getValue: ({ cell }) => !cell.value,
+          onPress: ({ cell }) => {
+            onToggleVisibility(cell.row.original);
+          },
+        }),
+      },
+      {
+        id: "node-id",
+        accessor: "displayId",
+        label: t("entities-tabular.node-id"),
+        overflow: "ellipsis",
+        oneLine: true,
+      },
+      {
+        id: "node-type",
+        accessor: "displayTypes",
+        label: t("entities-tabular.node-type"),
+        filter: (rows, _columnIds, filterValue) =>
+          rows.filter(row =>
+            row.original.displayTypes
+              .toLowerCase()
+              .match(filterValue.toLowerCase())
+          ),
+        overflow: "ellipsis",
+      },
+      {
+        id: "displayName",
+        accessor: "displayName",
+        label: "Name",
+        overflow: "ellipsis",
+        oneLine: true,
+      },
+      {
+        id: "displayDescription",
+        accessor: "displayDescription",
+        label: "Description",
+        overflow: "ellipsis",
+        oneLine: true,
+        width: 300,
+      },
+      {
+        accessor: "neighborCounts",
+        label: "Neighbors",
+        overflow: "ellipsis",
+        oneLine: true,
+        filterType: {
+          name: "number",
+          options: {
+            operator: ">=",
           },
         },
-      ] satisfies ColumnDefinition<ToggleVertex>[];
-    }, [t, onToggleVisibility]);
+      },
+    ] satisfies ColumnDefinition<ToggleVertex>[];
 
     const data: ToggleVertex[] = useDeepMemo(() => {
       return displayNodes
@@ -126,14 +121,11 @@ const NodesTabular = forwardRef<TabularInstance<ToggleVertex>, any>(
         .toArray();
     }, [hiddenNodesIds, displayNodes, neighborCounts]);
 
-    const onSelectRows = useCallback(
-      (rowIndex: string) => {
-        const entityId = data[Number(rowIndex)].id;
-        setSelectedNodesIds(new Set([entityId]));
-        setSelectedEdgesIds(new Set([]));
-      },
-      [data, setSelectedEdgesIds, setSelectedNodesIds]
-    );
+    const onSelectRows = (rowIndex: string) => {
+      const entityId = data[Number(rowIndex)].id;
+      setSelectedNodesIds(new Set([entityId]));
+      setSelectedEdgesIds(new Set([]));
+    };
 
     const selectedRowsIds: Record<string, boolean> = useDeepMemo(() => {
       const selectedRows: Record<string, boolean> = {};

@@ -1,4 +1,4 @@
-/* eslint-disable react-compiler/react-compiler */
+/* eslint-disable react-hooks/react-compiler */
 import { MouseEvent, useEffect, useMemo, useRef, useState } from "react";
 
 import {
@@ -305,16 +305,12 @@ export const useTabular = <T extends object>(options: TabularOptions<T>) => {
   } = options;
 
   // Default defaultColumn if it's not defined in options
-  const defaultColumn = useMemo(
-    () =>
-      ({
-        minWidth: 60,
-        width: 100,
-        Filter: TextFilter({}),
-        ...columnDefinitionToColumn(options.defaultColumn || {}),
-      }) as Column<T>,
-    [options.defaultColumn]
-  );
+  const defaultColumn = {
+    minWidth: 60,
+    width: 100,
+    Filter: TextFilter({}),
+    ...columnDefinitionToColumn(options.defaultColumn || {}),
+  } as Column<T>;
 
   const skipPageResetRef = useRef(false);
   const [updatedData, setUpdatedData] = useState(data);

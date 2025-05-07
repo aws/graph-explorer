@@ -9,7 +9,6 @@ import {
   useSearchItems,
 } from "@/components";
 import commonPrefixes from "@/utils/common-prefixes.json";
-import React from "react";
 import { Virtuoso } from "react-virtuoso";
 
 const COMMON_PREFIXES_ITEMS = Object.entries(commonPrefixes)
@@ -62,18 +61,20 @@ function NoSearchResults() {
   );
 }
 
-const Row = React.memo(({ prefix }: { prefix: PrefixData }) => (
-  <div className="px-3 py-1.5">
-    <ListRow className="min-h-12">
-      <NamespaceIcon className="text-primary-main size-5 shrink-0" />
-      <ListRowContent>
-        <ListRowTitle>{prefix.titleComponent}</ListRowTitle>
-        <ListRowSubtitle className="break-all">
-          {prefix.subtitle}
-        </ListRowSubtitle>
-      </ListRowContent>
-    </ListRow>
-  </div>
-));
+function Row({ prefix }: { prefix: PrefixData }) {
+  return (
+    <div className="px-3 py-1.5">
+      <ListRow className="min-h-12">
+        <NamespaceIcon className="text-primary-main size-5 shrink-0" />
+        <ListRowContent>
+          <ListRowTitle>{prefix.titleComponent}</ListRowTitle>
+          <ListRowSubtitle className="break-all">
+            {prefix.subtitle}
+          </ListRowSubtitle>
+        </ListRowContent>
+      </ListRow>
+    </div>
+  );
+}
 
 export default CommonPrefixes;

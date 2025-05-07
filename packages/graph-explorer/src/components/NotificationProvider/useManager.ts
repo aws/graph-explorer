@@ -51,22 +51,19 @@ const useManager = () => {
     };
   }, []);
 
-  const cancelTimeout = useCallback((notification: ProcessedNotification) => {
+  const cancelTimeout = (notification: ProcessedNotification) => {
     const timeout = timeoutRefs.current[notification.id]?.timeout;
     timeout && clearTimeout(timeout);
     delete timeoutRefs.current[notification.id];
-  }, []);
+  };
 
-  const resumeTimeout = useCallback(
-    (notification: ProcessedNotification) => {
-      if (timeoutRefs.current[notification.id]) {
-        return;
-      }
+  const resumeTimeout = (notification: ProcessedNotification) => {
+    if (timeoutRefs.current[notification.id]) {
+      return;
+    }
 
-      createTimeout(notification);
-    },
-    [createTimeout]
-  );
+    createTimeout(notification);
+  };
 
   return { state, dispatchNotification, cancelTimeout, resumeTimeout };
 };

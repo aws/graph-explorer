@@ -1,5 +1,5 @@
 import { Modal } from "@mantine/core";
-import React, { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 import {
   AddIcon,
   Button,
@@ -49,11 +49,9 @@ const UserPrefixes = () => {
 
 function useCustomPrefixes() {
   const config = useConfiguration();
-  return useMemo(() => {
-    return (config?.schema?.prefixes || []).filter(
-      prefixConfig => prefixConfig.__inferred !== true
-    );
-  }, [config?.schema?.prefixes]);
+  return (config?.schema?.prefixes || []).filter(
+    prefixConfig => prefixConfig.__inferred !== true
+  );
 }
 
 function SearchablePrefixes({
@@ -106,7 +104,7 @@ function SearchResults({
   );
 }
 
-const Row = React.memo(({ prefix }: { prefix: PrefixTypeConfig }) => {
+function Row({ prefix }: { prefix: PrefixTypeConfig }) {
   const onDeletePrefix = useDeletePrefixCallback(prefix.prefix);
   return (
     <div className="px-3 py-1.5">
@@ -126,7 +124,7 @@ const Row = React.memo(({ prefix }: { prefix: PrefixTypeConfig }) => {
       </ListRow>
     </div>
   );
-});
+}
 
 function NoSearchResults() {
   return (
@@ -198,15 +196,12 @@ function EditPrefixModal({
     uri: "",
   });
 
-  const onFormChange = useCallback(
-    (attribute: "prefix" | "uri") => (value: string) => {
-      setForm(prev => ({
-        ...prev,
-        [attribute]: value,
-      }));
-    },
-    []
-  );
+  const onFormChange = (attribute: "prefix" | "uri") => (value: string) => {
+    setForm(prev => ({
+      ...prev,
+      [attribute]: value,
+    }));
+  };
 
   const onSave = useAtomCallback(
     useCallback(
@@ -233,7 +228,7 @@ function EditPrefixModal({
     )
   );
 
-  const onSubmit = useCallback(() => {
+  const onSubmit = () => {
     if (!form.prefix || !form.uri) {
       setError(true);
       return;
@@ -243,7 +238,7 @@ function EditPrefixModal({
     setForm({ prefix: "", uri: "" });
     setError(false);
     onClose();
-  }, [form.prefix, form.uri, onClose, onSave]);
+  };
 
   return (
     <Modal

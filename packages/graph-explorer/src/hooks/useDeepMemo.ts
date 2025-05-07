@@ -1,4 +1,3 @@
-/* eslint-disable react-compiler/react-compiler */
 // Gracefully copied from
 // https://github.com/apollographql/react-apollo/blob/4aff75b4a073ff7c816738af867ad7b5f2e96407/packages/hooks/src/utils/useDeepMemo.ts
 

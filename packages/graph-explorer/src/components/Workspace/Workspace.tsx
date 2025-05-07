@@ -1,6 +1,5 @@
 import { cn, getChildrenOfType } from "@/utils";
 import type { PropsWithChildren, ReactElement } from "react";
-import { useMemo } from "react";
 import getChildOfType from "@/utils/getChildOfType";
 import WorkspaceFooter from "./components/WorkspaceFooter";
 import WorkspaceNavBar from "./components/WorkspaceNavBar";
@@ -26,38 +25,28 @@ const Workspace = ({
   children,
   className,
 }: PropsWithChildren<WorkspaceProps>) => {
-  const topBarSection = useMemo(() => {
-    return getChildrenOfType(
-      children,
-      WorkspaceTopBar.displayName || WorkspaceTopBar.name
-    );
-  }, [children]);
+  const topBarSection = getChildrenOfType(
+    children,
+    WorkspaceTopBar.displayName || WorkspaceTopBar.name
+  );
 
-  const contentSection = useMemo(() => {
-    return getChildOfType(
-      children,
-      WorkspacesContent.displayName || WorkspacesContent.name
-    );
-  }, [children]);
-  const sidebarSection = useMemo(() => {
-    return getChildOfType(
-      children,
-      WorkspaceSideBar.displayName || WorkspaceSideBar.name
-    );
-  }, [children]);
-  const navBarSection = useMemo(() => {
-    return getChildOfType(
-      children,
-      WorkspaceNavBar.displayName || WorkspaceNavBar.name
-    );
-  }, [children]);
+  const contentSection = getChildOfType(
+    children,
+    WorkspacesContent.displayName || WorkspacesContent.name
+  );
+  const sidebarSection = getChildOfType(
+    children,
+    WorkspaceSideBar.displayName || WorkspaceSideBar.name
+  );
+  const navBarSection = getChildOfType(
+    children,
+    WorkspaceNavBar.displayName || WorkspaceNavBar.name
+  );
 
-  const footerSection = useMemo(() => {
-    return getChildOfType(
-      children,
-      WorkspaceFooter.displayName || WorkspaceFooter.name
-    );
-  }, [children]);
+  const footerSection = getChildOfType(
+    children,
+    WorkspaceFooter.displayName || WorkspaceFooter.name
+  );
 
   return (
     <div

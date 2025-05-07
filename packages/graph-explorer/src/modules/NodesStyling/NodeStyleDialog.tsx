@@ -1,5 +1,4 @@
 import { FileButton, Modal } from "@mantine/core";
-import { useCallback, useMemo } from "react";
 import {
   Button,
   IconButton,
@@ -85,7 +84,7 @@ function Content({ vertexType }: { vertexType: string }) {
   );
   const displayConfig = useDisplayVertexTypeConfig(vertexType);
 
-  const selectOptions = useMemo(() => {
+  const selectOptions = (() => {
     const options = displayConfig.attributes.map(attr => ({
       label: attr.displayLabel,
       value: attr.name,
@@ -101,37 +100,31 @@ function Content({ vertexType }: { vertexType: string }) {
     });
 
     return options;
-  }, [displayConfig.attributes, t]);
+  })();
 
-  const onUserPrefsChange = useCallback(
-    (prefs: Omit<VertexPreferences, "type">) => {
-      setNodePreferences({ type: vertexType, ...prefs });
-    },
-    [setNodePreferences, vertexType]
-  );
+  const onUserPrefsChange = (prefs: Omit<VertexPreferences, "type">) => {
+    setNodePreferences({ type: vertexType, ...prefs });
+  };
 
   const reset = useResetAtom(userStylingNodeAtom(vertexType));
 
   const { enqueueNotification } = useNotification();
-  const convertImageToBase64AndSetNewIcon = useCallback(
-    async (file: File) => {
-      if (file.size > 50 * 1024) {
-        enqueueNotification({
-          title: "Invalid file",
-          message: "File size too large. Maximum 50Kb",
-          type: "error",
-        });
-        return;
-      }
-      try {
-        const result = await file2Base64(file);
-        onUserPrefsChange({ iconUrl: result, iconImageType: file.type });
-      } catch (error) {
-        console.error("Unable to convert uploaded image to base64: ", error);
-      }
-    },
-    [enqueueNotification, onUserPrefsChange]
-  );
+  const convertImageToBase64AndSetNewIcon = async (file: File) => {
+    if (file.size > 50 * 1024) {
+      enqueueNotification({
+        title: "Invalid file",
+        message: "File size too large. Maximum 50Kb",
+        type: "error",
+      });
+      return;
+    }
+    try {
+      const result = await file2Base64(file);
+      onUserPrefsChange({ iconUrl: result, iconImageType: file.type });
+    } catch (error) {
+      console.error("Unable to convert uploaded image to base64: ", error);
+    }
+  };
 
   return (
     <div className="modal-container">
