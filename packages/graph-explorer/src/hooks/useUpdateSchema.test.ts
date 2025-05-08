@@ -1,7 +1,7 @@
 import {
   createRandomSchema,
   createRandomSchemaResponse,
-  renderHookWithRecoilRoot,
+  renderHookWithJotai,
 } from "@/utils/testing";
 import {
   createRandomName,
@@ -18,7 +18,7 @@ import { useAtomValue } from "jotai";
 describe("useUpdateSchema", () => {
   describe("setSyncFailure", () => {
     it("should do nothing if no schema exists", async () => {
-      const { result } = renderHookWithRecoilRoot(useTestSetup);
+      const { result } = renderHookWithJotai(useTestSetup);
       await act(async () => await result.current.setSyncFailure());
       expect(result.current.schemas).toHaveLength(0);
     });
@@ -26,7 +26,7 @@ describe("useUpdateSchema", () => {
     it("should update existing schema", async () => {
       const configId = createNewConfigurationId();
       const existingSchema = createRandomSchema();
-      const { result } = renderHookWithRecoilRoot(useTestSetup, snapshot => {
+      const { result } = renderHookWithJotai(useTestSetup, snapshot => {
         snapshot.set(activeConfigurationAtom, configId);
         snapshot.set(schemaAtom, new Map([[configId, existingSchema]]));
       });
@@ -54,7 +54,7 @@ describe("useUpdateSchema", () => {
       const configId = createNewConfigurationId();
       const schemaResponse = createRandomSchemaResponse();
 
-      const { result } = renderHookWithRecoilRoot(useTestSetup, snapshot => {
+      const { result } = renderHookWithJotai(useTestSetup, snapshot => {
         snapshot.set(activeConfigurationAtom, configId);
       });
 
@@ -74,7 +74,7 @@ describe("useUpdateSchema", () => {
       const existingSchema = createRandomSchema();
       const schemaResponse = createRandomSchemaResponse();
 
-      const { result } = renderHookWithRecoilRoot(useTestSetup, snapshot => {
+      const { result } = renderHookWithJotai(useTestSetup, snapshot => {
         snapshot.set(activeConfigurationAtom, configId);
         snapshot.set(schemaAtom, new Map([[configId, existingSchema]]));
       });
@@ -95,7 +95,7 @@ describe("useUpdateSchema", () => {
       const vertexType = createRandomName("VertexType");
       const vertexTotal = createRandomInteger();
 
-      const { result } = renderHookWithRecoilRoot(useTestSetup, snapshot => {
+      const { result } = renderHookWithJotai(useTestSetup, snapshot => {
         snapshot.set(activeConfigurationAtom, configId);
       });
 
@@ -114,7 +114,7 @@ describe("useUpdateSchema", () => {
       const existingSchema = createRandomSchema();
       existingSchema.vertices[0].type = vertexType;
 
-      const { result } = renderHookWithRecoilRoot(useTestSetup, snapshot => {
+      const { result } = renderHookWithJotai(useTestSetup, snapshot => {
         snapshot.set(activeConfigurationAtom, configId);
         snapshot.set(schemaAtom, new Map([[configId, existingSchema]]));
       });

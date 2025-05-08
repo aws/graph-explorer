@@ -25,7 +25,7 @@ import {
   createRandomVertex,
   createRandomEdge,
 } from "./randomData";
-import { JotaiSnapshot } from "./renderHookWithRecoilRoot";
+import { JotaiSnapshot } from "./renderHookWithJotai";
 
 /**
  * Helps build up the state of the Jotai database with common data.

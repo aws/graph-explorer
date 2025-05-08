@@ -2,7 +2,7 @@ import useKeywordSearch from "./useKeywordSearch";
 import { QueryEngine } from "@shared/types";
 import {
   createRandomSchema,
-  renderHookWithRecoilRoot,
+  renderHookWithJotai,
   createRandomRawConfiguration,
   JotaiSnapshot,
 } from "@/utils/testing";
@@ -36,7 +36,7 @@ function initializeConfigWithQueryEngine(queryEngine: QueryEngine) {
 describe("useKeywordSearch", () => {
   describe("Gremlin", () => {
     it("Should default to precision match exact", () => {
-      const { result } = renderHookWithRecoilRoot(
+      const { result } = renderHookWithJotai(
         () => useKeywordSearch(),
         initializeConfigWithQueryEngine("gremlin")
       );
@@ -45,7 +45,7 @@ describe("useKeywordSearch", () => {
     });
 
     it("Should default to attribute ID", () => {
-      const { result } = renderHookWithRecoilRoot(
+      const { result } = renderHookWithJotai(
         () => useKeywordSearch(),
         initializeConfigWithQueryEngine("gremlin")
       );
@@ -54,7 +54,7 @@ describe("useKeywordSearch", () => {
     });
 
     it("Should default to node type All", () => {
-      const { result } = renderHookWithRecoilRoot(
+      const { result } = renderHookWithJotai(
         () => useKeywordSearch(),
         initializeConfigWithQueryEngine("gremlin")
       );
@@ -63,7 +63,7 @@ describe("useKeywordSearch", () => {
     });
 
     it("Should have all searchable attributes", () => {
-      const { result } = renderHookWithRecoilRoot(
+      const { result } = renderHookWithJotai(
         () => useKeywordSearch(),
         initializeConfigWithQueryEngine("gremlin")
       );
@@ -77,7 +77,7 @@ describe("useKeywordSearch", () => {
 
   describe("OpenCypher", () => {
     it("Should default to precision match exact", () => {
-      const { result } = renderHookWithRecoilRoot(
+      const { result } = renderHookWithJotai(
         () => useKeywordSearch(),
         initializeConfigWithQueryEngine("openCypher")
       );
@@ -86,7 +86,7 @@ describe("useKeywordSearch", () => {
     });
 
     it("Should default to attribute ID", () => {
-      const { result } = renderHookWithRecoilRoot(
+      const { result } = renderHookWithJotai(
         () => useKeywordSearch(),
         initializeConfigWithQueryEngine("openCypher")
       );
@@ -95,7 +95,7 @@ describe("useKeywordSearch", () => {
     });
 
     it("Should default to node type All", () => {
-      const { result } = renderHookWithRecoilRoot(
+      const { result } = renderHookWithJotai(
         () => useKeywordSearch(),
         initializeConfigWithQueryEngine("openCypher")
       );
@@ -104,7 +104,7 @@ describe("useKeywordSearch", () => {
     });
 
     it("Should have all searchable attributes", () => {
-      const { result } = renderHookWithRecoilRoot(
+      const { result } = renderHookWithJotai(
         () => useKeywordSearch(),
         initializeConfigWithQueryEngine("openCypher")
       );
@@ -137,7 +137,7 @@ describe("useKeywordSearch", () => {
     }
 
     it("Should default to precision match exact", () => {
-      const { result } = renderHookWithRecoilRoot(
+      const { result } = renderHookWithJotai(
         () => useKeywordSearch(),
         initializeConfigWithRdfLabel
       );
@@ -146,7 +146,7 @@ describe("useKeywordSearch", () => {
     });
 
     it("Should default to attribute rdfs:label", () => {
-      const { result } = renderHookWithRecoilRoot(
+      const { result } = renderHookWithJotai(
         () => useKeywordSearch(),
         initializeConfigWithRdfLabel
       );
@@ -155,7 +155,7 @@ describe("useKeywordSearch", () => {
     });
 
     it("Should default to node type All", () => {
-      const { result } = renderHookWithRecoilRoot(
+      const { result } = renderHookWithJotai(
         () => useKeywordSearch(),
         initializeConfigWithRdfLabel
       );
@@ -164,7 +164,7 @@ describe("useKeywordSearch", () => {
     });
 
     it("Should have all searchable attributes", () => {
-      const { result } = renderHookWithRecoilRoot(
+      const { result } = renderHookWithJotai(
         () => useKeywordSearch(),
         initializeConfigWithRdfLabel
       );
@@ -178,7 +178,7 @@ describe("useKeywordSearch", () => {
 
   describe("SPARQL without rdfs:label", () => {
     it("Should default to precision match exact", () => {
-      const { result } = renderHookWithRecoilRoot(
+      const { result } = renderHookWithJotai(
         () => useKeywordSearch(),
         initializeConfigWithQueryEngine("sparql")
       );
@@ -187,7 +187,7 @@ describe("useKeywordSearch", () => {
     });
 
     it("Should default to attribute All", () => {
-      const { result } = renderHookWithRecoilRoot(
+      const { result } = renderHookWithJotai(
         () => useKeywordSearch(),
         initializeConfigWithQueryEngine("sparql")
       );
@@ -196,7 +196,7 @@ describe("useKeywordSearch", () => {
     });
 
     it("Should default to node type All", () => {
-      const { result } = renderHookWithRecoilRoot(
+      const { result } = renderHookWithJotai(
         () => useKeywordSearch(),
         initializeConfigWithQueryEngine("sparql")
       );
@@ -205,7 +205,7 @@ describe("useKeywordSearch", () => {
     });
 
     it("Should have all searchable attributes", () => {
-      const { result } = renderHookWithRecoilRoot(
+      const { result } = renderHookWithJotai(
         () => useKeywordSearch(),
         initializeConfigWithQueryEngine("sparql")
       );

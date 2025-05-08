@@ -2,7 +2,7 @@ import {
   createRandomEdge,
   createRandomVertex,
   DbState,
-  renderHookWithRecoilRoot,
+  renderHookWithJotai,
 } from "@/utils/testing";
 import { createEdgeId, createVertexId } from "./entityIdType";
 import {
@@ -95,7 +95,7 @@ describe("useRenderedVertices", () => {
       createRenderedVertexId(dbState.vertices[2].id),
     ];
 
-    const { result } = renderHookWithRecoilRoot(
+    const { result } = renderHookWithJotai(
       () => useRenderedEntities(),
       snapshot => dbState.applyTo(snapshot)
     );
@@ -121,7 +121,7 @@ describe("useRenderedVertices", () => {
       createRenderedVertexId(dbState.vertices[2].id),
     ];
 
-    const { result } = renderHookWithRecoilRoot(
+    const { result } = renderHookWithJotai(
       () => useRenderedEntities(),
       snapshot => dbState.applyTo(snapshot)
     );
@@ -162,7 +162,7 @@ describe("useRenderedEdges", () => {
       createRenderedEdgeId(dbState.edges[3].id),
     ];
 
-    const { result } = renderHookWithRecoilRoot(
+    const { result } = renderHookWithJotai(
       () => useRenderedEntities(),
       snapshot => dbState.applyTo(snapshot)
     );
@@ -202,7 +202,7 @@ describe("useRenderedEdges", () => {
       createRenderedEdgeId(dbState.edges[3].id),
     ];
 
-    const { result } = renderHookWithRecoilRoot(
+    const { result } = renderHookWithJotai(
       () => useRenderedEntities(),
       snapshot => dbState.applyTo(snapshot)
     );
@@ -240,7 +240,7 @@ describe("useRenderedEdges", () => {
       createRenderedEdgeId(dbState.edges[3].id),
     ];
 
-    const { result } = renderHookWithRecoilRoot(
+    const { result } = renderHookWithJotai(
       () => useRenderedEntities(),
       snapshot => dbState.applyTo(snapshot)
     );
@@ -276,7 +276,7 @@ describe("useRenderedEdges", () => {
       createRenderedEdgeId(dbState.edges[1].id),
     ];
 
-    const { result } = renderHookWithRecoilRoot(
+    const { result } = renderHookWithJotai(
       () => useRenderedEntities(),
       snapshot => dbState.applyTo(snapshot)
     );
