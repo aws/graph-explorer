@@ -16,6 +16,9 @@
   ([#896](https://github.com/aws/graph-explorer/pull/896))
 - **Updated** to use the React Compiler to improve performance and simplify code
   ([#916](https://github.com/aws/graph-explorer/pull/916))
+- **Fixed** issue where a schema sync would not automatically run when a
+  connection was changed
+  ([#919](https://github.com/aws/graph-explorer/pull/919))
 
 ## Release v1.15.0
 
