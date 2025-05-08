@@ -34,6 +34,7 @@ import {
   DEFAULT_NODE_EXPAND_LIMIT,
 } from "@/utils/constants";
 import { useAtomCallback } from "jotai/utils";
+import { useQueryClient } from "@tanstack/react-query";
 
 type ConnectionForm = {
   name?: string;
@@ -85,6 +86,7 @@ const CreateConnection = ({
   onClose,
 }: CreateConnectionProps) => {
   const styleWithTheme = useWithTheme();
+  const queryClient = useQueryClient();
 
   const configId = existingConfig?.id;
   const initialData: ConnectionForm | undefined = existingConfig
@@ -158,6 +160,8 @@ const CreateConnection = ({
             updatedGraphs.delete(configId);
             return updatedGraphs;
           });
+
+          await queryClient.resetQueries();
         }
       },
       [
@@ -165,6 +169,7 @@ const CreateConnection = ({
         initialData?.url,
         initialData?.graphDbUrl,
         initialData?.queryEngine,
+        queryClient,
       ]
     )
   );
