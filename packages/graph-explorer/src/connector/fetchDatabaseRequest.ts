@@ -1,7 +1,6 @@
-import { type ConnectionConfig } from "@shared/types";
 import { DEFAULT_SERVICE_TYPE } from "@/utils/constants";
 import { anySignal } from "./utils/anySignal";
-import { FeatureFlags } from "@/core";
+import { FeatureFlags, NormalizedConnection } from "@/core";
 import { z } from "zod";
 import { logger, NetworkError } from "@/utils";
 
@@ -57,18 +56,18 @@ async function decodeErrorSafely(response: Response): Promise<any> {
 
 // Construct the request headers based on the connection settings
 function getAuthHeaders(
-  connection: ConnectionConfig | undefined,
+  connection: NormalizedConnection,
   featureFlags: FeatureFlags,
   typeHeaders: HeadersInit | undefined
 ) {
   const headers: HeadersInit = {};
-  if (connection?.proxyConnection) {
+  if (connection.proxyConnection) {
     headers["graph-db-connection-url"] = connection.graphDbUrl || "";
     headers["db-query-logging-enabled"] = String(
       featureFlags.allowLoggingDbQuery
     );
   }
-  if (connection?.awsAuthEnabled) {
+  if (connection.awsAuthEnabled) {
     headers["aws-neptune-region"] = connection.awsRegion || "";
     headers["service-type"] = connection.serviceType || DEFAULT_SERVICE_TYPE;
   }
@@ -77,8 +76,8 @@ function getAuthHeaders(
 }
 
 // Construct an AbortSignal for the fetch timeout if configured
-function getFetchTimeoutSignal(connection: ConnectionConfig | undefined) {
-  if (!connection?.fetchTimeoutMs) {
+function getFetchTimeoutSignal(connection: NormalizedConnection) {
+  if (!connection.fetchTimeoutMs) {
     return null;
   }
 
@@ -90,7 +89,7 @@ function getFetchTimeoutSignal(connection: ConnectionConfig | undefined) {
 }
 
 export async function fetchDatabaseRequest(
-  connection: ConnectionConfig | undefined,
+  connection: NormalizedConnection,
   featureFlags: FeatureFlags,
   uri: URL | RequestInfo,
   options: RequestInit

@@ -5,17 +5,16 @@ import keywordSearch from "./keywordSearch";
 import fetchSchema from "./fetchSchema";
 import { GraphSummary } from "./types";
 import { fetchDatabaseRequest } from "../fetchDatabaseRequest";
-import { ConnectionConfig } from "@shared/types";
 import { DEFAULT_SERVICE_TYPE } from "@/utils/constants";
 import { Explorer, ExplorerRequestOptions } from "../useGEFetchTypes";
 import { env, logger } from "@/utils";
 import { createLoggerFromConnection } from "@/core/connector";
-import { FeatureFlags } from "@/core";
+import { FeatureFlags, NormalizedConnection } from "@/core";
 import { vertexDetails } from "./vertexDetails";
 import { edgeDetails } from "./edgeDetails";
 
 function _openCypherFetch(
-  connection: ConnectionConfig,
+  connection: NormalizedConnection,
   featureFlags: FeatureFlags,
   options?: ExplorerRequestOptions
 ) {
@@ -38,13 +37,13 @@ function _openCypherFetch(
 }
 
 export function createOpenCypherExplorer(
-  connection: ConnectionConfig,
+  connection: NormalizedConnection,
   featureFlags: FeatureFlags
 ): Explorer {
   const remoteLogger = createLoggerFromConnection(connection);
   const serviceType = connection.serviceType || DEFAULT_SERVICE_TYPE;
   return {
-    connection: connection,
+    connection,
     async fetchSchema(options) {
       remoteLogger.info("[openCypher Explorer] Fetching schema...");
       const summary = await fetchSummary(
@@ -108,7 +107,7 @@ export function createOpenCypherExplorer(
 
 async function fetchSummary(
   serviceType: string,
-  connection: ConnectionConfig,
+  connection: NormalizedConnection,
   featureFlags: FeatureFlags,
   options?: RequestInit
 ) {
