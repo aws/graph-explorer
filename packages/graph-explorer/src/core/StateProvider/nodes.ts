@@ -1,4 +1,4 @@
-import { atom, useAtomValue } from "jotai";
+import { atom, useAtomValue, useSetAtom } from "jotai";
 import { atomFamily, atomWithReset, RESET } from "jotai/utils";
 import {
   createRenderedVertexId,
@@ -56,6 +56,22 @@ export const nodesOutOfFocusRenderedIdsAtom = atom(
 
 export const nodesFilteredIdsAtom = atomWithReset(new Set<VertexId>());
 export const nodesTypesFilteredAtom = atomWithReset(new Set<string>());
+
+const toggleFilteredNodeAtom = atom(null, (_get, set, vertexId: VertexId) => {
+  set(nodesFilteredIdsAtom, prev => {
+    const newSet = new Set(prev);
+    if (prev.has(vertexId)) {
+      newSet.delete(vertexId);
+    } else {
+      newSet.add(vertexId);
+    }
+    return newSet;
+  });
+});
+
+export function useToggleFilteredNode() {
+  return useSetAtom(toggleFilteredNodeAtom);
+}
 
 /**
  * Filters the nodes added to the graph by:
