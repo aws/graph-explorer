@@ -3,7 +3,7 @@ import dedent from "dedent";
 /** Removes leading space evenly across all lines and removes empty lines. */
 export function query(
   literals: TemplateStringsArray,
-  ...placeholders: string[]
+  ...placeholders: unknown[]
 ) {
   // Ensure any parameters are properly indented
   const indented = indentTemplate(literals, ...placeholders);
