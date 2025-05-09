@@ -64,6 +64,8 @@ export * from "./SelectField";
 
 export * from "./SidebarTabs";
 
+export * from "./Switch";
+
 export * from "./Tooltip";
 export * from "./Typography";
 
