@@ -4,7 +4,7 @@ import {
   createRandomVertex,
   createRandomVertexTypeConfig,
   JotaiSnapshot,
-  renderHookWithRecoilRoot,
+  renderHookWithJotai,
 } from "@/utils/testing";
 import {
   createVertexId,
@@ -241,7 +241,7 @@ describe("useDisplayVertexFromVertex", () => {
     vertex: Vertex,
     initializeState?: (mutableSnapshot: JotaiSnapshot) => void
   ) {
-    const { result } = renderHookWithRecoilRoot(
+    const { result } = renderHookWithJotai(
       () => useDisplayVertexFromVertex(vertex),
       initializeState
     );

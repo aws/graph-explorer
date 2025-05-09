@@ -3,5 +3,5 @@ export * from "./graphsonHelpers";
 export * from "./normalize";
 export * from "./randomData";
 export * from "./randomSchemaResponse";
-export * from "./renderHookWithRecoilRoot";
+export * from "./renderHookWithJotai";
 export * from "./waitForValueToChange";

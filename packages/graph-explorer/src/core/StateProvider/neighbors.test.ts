@@ -3,7 +3,7 @@ import { calculateNeighbors, useNeighbors } from "./neighbors";
 import {
   createRandomVertex,
   DbState,
-  renderHookWithRecoilRoot,
+  renderHookWithJotai,
 } from "@/utils/testing";
 import { explorerForTestingAtom } from "../connector";
 import { createMockExplorer } from "@/utils/testing/createMockExplorer";
@@ -50,7 +50,7 @@ describe("useNeighbors", () => {
     const vertex = createRandomVertex();
     const explorer = createMockExplorer();
 
-    const { result } = renderHookWithRecoilRoot(
+    const { result } = renderHookWithJotai(
       () => useNeighbors(vertex.id),
       snapshot => {
         dbState.applyTo(snapshot);
@@ -78,7 +78,7 @@ describe("useNeighbors", () => {
     };
     vi.mocked(explorer.fetchNeighborsCount).mockResolvedValueOnce(response);
 
-    const { result } = renderHookWithRecoilRoot(
+    const { result } = renderHookWithJotai(
       () => useNeighbors(vertex.id),
       snapshot => {
         dbState.applyTo(snapshot);

@@ -1,4 +1,4 @@
-import { createRandomVertex, renderHookWithRecoilRoot } from "@/utils/testing";
+import { createRandomVertex, renderHookWithJotai } from "@/utils/testing";
 import { useHasVertexBeenAddedToGraph } from "./useHasVertexBeenAddedToGraph";
 import {
   nodesAtom,
@@ -9,7 +9,7 @@ import {
 
 test("returns false if vertex has not been added to graph", () => {
   const vertex = createRandomVertex();
-  const { result } = renderHookWithRecoilRoot(() =>
+  const { result } = renderHookWithJotai(() =>
     useHasVertexBeenAddedToGraph(vertex.id)
   );
 
@@ -18,7 +18,7 @@ test("returns false if vertex has not been added to graph", () => {
 
 test("returns true if vertex has been added to graph", () => {
   const vertex = createRandomVertex();
-  const { result } = renderHookWithRecoilRoot(
+  const { result } = renderHookWithJotai(
     () => useHasVertexBeenAddedToGraph(vertex.id),
     snapshot => {
       snapshot.set(nodesAtom, toNodeMap([vertex]));
@@ -30,7 +30,7 @@ test("returns true if vertex has been added to graph", () => {
 
 test("returns true if vertex has been added to graph and is filtered out by id", () => {
   const vertex = createRandomVertex();
-  const { result } = renderHookWithRecoilRoot(
+  const { result } = renderHookWithJotai(
     () => useHasVertexBeenAddedToGraph(vertex.id),
     snapshot => {
       snapshot.set(nodesAtom, toNodeMap([vertex]));
@@ -43,7 +43,7 @@ test("returns true if vertex has been added to graph and is filtered out by id",
 
 test("returns true if vertex has been added to graph and is filtered out by type", () => {
   const vertex = createRandomVertex();
-  const { result } = renderHookWithRecoilRoot(
+  const { result } = renderHookWithJotai(
     () => useHasVertexBeenAddedToGraph(vertex.id),
     snapshot => {
       snapshot.set(nodesAtom, toNodeMap([vertex]));

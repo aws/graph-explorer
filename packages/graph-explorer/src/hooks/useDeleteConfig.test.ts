@@ -9,7 +9,7 @@ import {
   createRandomSchema,
   createRandomVertex,
   DbState,
-  renderHookWithRecoilRoot,
+  renderHookWithJotai,
 } from "@/utils/testing";
 import { waitFor } from "@testing-library/react";
 import { act } from "react";
@@ -19,7 +19,7 @@ import { useAtomValue } from "jotai";
 test("should delete the active configuration", async () => {
   const config1 = createRandomRawConfiguration();
 
-  const { result } = renderHookWithRecoilRoot(
+  const { result } = renderHookWithJotai(
     () => {
       const callback = useDeleteActiveConfiguration();
       const allConfigs = useAtomValue(configurationAtom);
@@ -45,7 +45,7 @@ test("should delete the active schema", async () => {
   const config1 = createRandomRawConfiguration();
   const schema1 = createRandomSchema();
 
-  const { result } = renderHookWithRecoilRoot(
+  const { result } = renderHookWithJotai(
     () => {
       const callback = useDeleteActiveConfiguration();
       const allSchemas = useAtomValue(schemaAtom);
@@ -70,7 +70,7 @@ test("should delete the graph session for the active connection", async () => {
   const dbState = new DbState();
   dbState.addVertexToGraph(createRandomVertex());
 
-  const { result } = renderHookWithRecoilRoot(
+  const { result } = renderHookWithJotai(
     () => {
       const callback = useDeleteActiveConfiguration();
       const allGraphs = useAtomValue(allGraphSessionsAtom);

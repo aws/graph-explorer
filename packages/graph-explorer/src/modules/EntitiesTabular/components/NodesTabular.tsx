@@ -18,11 +18,11 @@ import {
   nodesFilteredIdsAtom,
   nodesOutOfFocusIdsAtom,
   nodesSelectedIdsAtom,
+  useToggleFilteredNode,
 } from "@/core/StateProvider/nodes";
 
 import { useDeepMemo, useTranslations } from "@/hooks";
-import { recoilDiffSets } from "@/utils/recoilState";
-import { useAtom, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 
 type ToggleVertex = DisplayVertex & {
   __is_visible: boolean;
@@ -35,14 +35,11 @@ const NodesTabular = forwardRef<TabularInstance<ToggleVertex>, any>(
     const displayNodes = useDisplayVerticesInCanvas();
     const neighborCounts = useAllNeighbors();
     const setNodesOut = useSetAtom(nodesOutOfFocusIdsAtom);
-    const [hiddenNodesIds, setHiddenNodesIds] = useAtom(nodesFilteredIdsAtom);
+    const filteredNodes = useAtomValue(nodesFilteredIdsAtom);
+    const toggleFilteredNode = useToggleFilteredNode();
     const [selectedNodesIds, setSelectedNodesIds] =
       useAtom(nodesSelectedIdsAtom);
     const setSelectedEdgesIds = useSetAtom(edgesSelectedIdsAtom);
-
-    const onToggleVisibility = (item: ToggleVertex) => {
-      recoilDiffSets(setHiddenNodesIds, new Set([item.id]));
-    };
 
     // NOTE: Only use string accessors so that the export process continues to work
     const columns: ColumnDefinition<ToggleVertex>[] = [
@@ -57,9 +54,7 @@ const NodesTabular = forwardRef<TabularInstance<ToggleVertex>, any>(
           on: <NonVisibleIcon style={{ color: "#FA8500" }} />,
           off: <VisibleIcon />,
           getValue: ({ cell }) => !cell.value,
-          onPress: ({ cell }) => {
-            onToggleVisibility(cell.row.original);
-          },
+          onPress: ({ cell }) => toggleFilteredNode(cell.row.original.id),
         }),
       },
       {
@@ -115,11 +110,11 @@ const NodesTabular = forwardRef<TabularInstance<ToggleVertex>, any>(
         .values()
         .map(node => ({
           ...node,
-          __is_visible: !hiddenNodesIds.has(node.id),
+          __is_visible: !filteredNodes.has(node.id),
           neighborCounts: neighborCounts.get(node.id)?.all ?? 0,
         }))
         .toArray();
-    }, [hiddenNodesIds, displayNodes, neighborCounts]);
+    }, [filteredNodes, displayNodes, neighborCounts]);
 
     const onSelectRows = (rowIndex: string) => {
       const entityId = data[Number(rowIndex)].id;

@@ -48,7 +48,7 @@ export function createJotaiSnapshot(): JotaiSnapshot {
   };
 }
 
-export function renderHookWithRecoilRoot<TResult>(
+export function renderHookWithJotai<TResult>(
   callback: () => TResult,
   initializeState?: (snapshot: JotaiSnapshot) => void
 ) {

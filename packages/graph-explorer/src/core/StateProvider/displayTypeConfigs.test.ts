@@ -4,7 +4,7 @@ import {
   createRandomSchema,
   createRandomVertexTypeConfig,
   JotaiSnapshot,
-  renderHookWithRecoilRoot,
+  renderHookWithJotai,
 } from "@/utils/testing";
 import {
   activeConfigurationAtom,
@@ -110,7 +110,7 @@ describe("useDisplayVertexTypeConfig", () => {
   // Helpers
 
   function act(vertexConfigType: string, schema?: Schema) {
-    const { result } = renderHookWithRecoilRoot(
+    const { result } = renderHookWithJotai(
       () => useDisplayVertexTypeConfig(vertexConfigType),
       schema ? withSchema(schema) : undefined
     );
@@ -188,7 +188,7 @@ describe("useDisplayEdgeTypeConfig", () => {
   // Helpers
 
   function act(edgeConfigType: string, schema?: Schema) {
-    const { result } = renderHookWithRecoilRoot(
+    const { result } = renderHookWithJotai(
       () => useDisplayEdgeTypeConfig(edgeConfigType),
       schema ? withSchema(schema) : undefined
     );

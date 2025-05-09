@@ -6,7 +6,7 @@ import {
   createRandomRawConfiguration,
   createRandomSchema,
   createRandomVertexTypeConfig,
-  renderHookWithRecoilRoot,
+  renderHookWithJotai,
 } from "@/utils/testing";
 import {
   activeConfigurationAtom,
@@ -16,7 +16,7 @@ import { schemaAtom } from "@/core/StateProvider/schema";
 import { createRandomInteger } from "@shared/utils/testing";
 
 function renderUseEntitiesHook(config: RawConfiguration, schema: Schema) {
-  return renderHookWithRecoilRoot(
+  return renderHookWithJotai(
     () => useEntitiesCounts(),
     snapshot => {
       snapshot.set(schemaAtom, new Map([[config.id, schema]]));

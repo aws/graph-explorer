@@ -4,7 +4,7 @@ import {
   createRandomVertex,
   createRandomVertexForRdf,
   DbState,
-  renderHookWithRecoilRoot,
+  renderHookWithJotai,
 } from "@/utils/testing";
 import { useAddToGraph } from "./useAddToGraph";
 import { act } from "react";
@@ -39,7 +39,7 @@ test("should add one node", async () => {
     Promise.resolve(toNodeMap([vertex]))
   );
 
-  const { result } = renderHookWithRecoilRoot(() => {
+  const { result } = renderHookWithJotai(() => {
     const callback = useAddToGraph();
     const vertices = useAtomValue(nodesAtom);
     const edges = useAtomValue(edgesAtom);
@@ -65,7 +65,7 @@ test("should materialize fragment vertices", async () => {
     Promise.resolve(toNodeMap([clonedVertex]))
   );
 
-  const { result } = renderHookWithRecoilRoot(() => {
+  const { result } = renderHookWithJotai(() => {
     const callback = useAddToGraph();
     const vertices = useAtomValue(nodesAtom);
     const edges = useAtomValue(edgesAtom);
@@ -90,7 +90,7 @@ test("should add one edge", async () => {
     Promise.resolve(toNodeMap([node1, node2]))
   );
 
-  const { result } = renderHookWithRecoilRoot(
+  const { result } = renderHookWithJotai(
     () => {
       const callback = useAddToGraph();
       const vertices = useAtomValue(nodesAtom);
@@ -118,7 +118,7 @@ test("should add multiple nodes and edges", async () => {
     Promise.resolve(randomEntities.nodes)
   );
 
-  const { result } = renderHookWithRecoilRoot(() => {
+  const { result } = renderHookWithJotai(() => {
     const callback = useAddToGraph();
     const vertices = useAtomValue(nodesAtom);
     const edges = useAtomValue(edgesAtom);
@@ -153,7 +153,7 @@ test("should update schema when adding a node", async () => {
     Promise.resolve(toNodeMap([vertex]))
   );
 
-  const { result } = renderHookWithRecoilRoot(
+  const { result } = renderHookWithJotai(
     () => {
       const callback = useAddToGraph();
       const vertices = useAtomValue(nodesAtom);
@@ -186,7 +186,7 @@ test("should update schema when adding a node with no label", async () => {
     Promise.resolve(toNodeMap([vertex]))
   );
 
-  const { result } = renderHookWithRecoilRoot(
+  const { result } = renderHookWithJotai(
     () => {
       const callback = useAddToGraph();
       const vertices = useAtomValue(nodesAtom);
@@ -221,7 +221,7 @@ test("should update schema when adding an edge", async () => {
     Promise.resolve(toNodeMap([node1, node2]))
   );
 
-  const { result } = renderHookWithRecoilRoot(
+  const { result } = renderHookWithJotai(
     () => {
       const callback = useAddToGraph();
       const vertices = useAtomValue(nodesAtom);
@@ -259,7 +259,7 @@ test("should add missing attributes to the schema when adding a node", async () 
     Promise.resolve(toNodeMap([vertex]))
   );
 
-  const { result } = renderHookWithRecoilRoot(
+  const { result } = renderHookWithJotai(
     () => {
       const callback = useAddToGraph();
       const vertices = useAtomValue(nodesAtom);
@@ -301,7 +301,7 @@ test("should add missing attributes to the schema when adding an edge", async ()
     Promise.resolve(toNodeMap([node1, node2]))
   );
 
-  const { result } = renderHookWithRecoilRoot(
+  const { result } = renderHookWithJotai(
     () => {
       const callback = useAddToGraph();
       const vertices = useAtomValue(nodesAtom);
@@ -331,7 +331,7 @@ test("should update graph storage when adding a node", async () => {
     Promise.resolve(toNodeMap([vertex]))
   );
 
-  const { result } = renderHookWithRecoilRoot(
+  const { result } = renderHookWithJotai(
     () => {
       const callback = useAddToGraph();
       const graph = useAtomValue(activeGraphSessionAtom);
@@ -365,7 +365,7 @@ test("should update graph storage when adding an edge", async () => {
     Promise.resolve(toNodeMap([node1, node2]))
   );
 
-  const { result } = renderHookWithRecoilRoot(
+  const { result } = renderHookWithJotai(
     () => {
       const callback = useAddToGraph();
       const graph = useAtomValue(activeGraphSessionAtom);
@@ -398,7 +398,7 @@ test("should ignore blank nodes when updating graph storage", async () => {
     Promise.resolve(toNodeMap([vertex, blankNode]))
   );
 
-  const { result } = renderHookWithRecoilRoot(
+  const { result } = renderHookWithJotai(
     () => {
       const callback = useAddToGraph();
       const graph = useAtomValue(activeGraphSessionAtom);
