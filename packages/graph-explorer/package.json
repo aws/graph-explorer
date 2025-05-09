@@ -66,6 +66,7 @@
     "localforage": "^1.10.0",
     "lodash": "^4.17.21",
     "lucide-react": "^0.460.0",
+    "motion": "^12.10.5",
     "papaparse": "^5.5.2",
     "re-resizable": "^6.11.2",
     "react": "^18.3.1",
