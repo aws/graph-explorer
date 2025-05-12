@@ -23,6 +23,7 @@ import {
 } from "@/utils";
 import { atom, useAtomValue } from "jotai";
 import { atomFamily } from "jotai/utils";
+import { isEqual } from "lodash";
 
 /** Represents an edge's display information after all transformations have been applied. */
 export type DisplayEdge = {
@@ -70,101 +71,103 @@ export function useDisplayEdgeFromEdge(edge: Edge) {
   return useAtomValue(displayEdgeSelector(edge));
 }
 
-const displayEdgeSelector = atomFamily((edge: Edge) =>
-  atom(get => {
-    const textTransform = get(textTransformSelector);
-    const queryEngine = get(queryEngineSelector);
-    const isSparql = queryEngine === "sparql";
+const displayEdgeSelector = atomFamily(
+  (edge: Edge) =>
+    atom(get => {
+      const textTransform = get(textTransformSelector);
+      const queryEngine = get(queryEngineSelector);
+      const isSparql = queryEngine === "sparql";
 
-    // One type config used for shape, color, icon, etc.
-    const typeConfig = get(displayEdgeTypeConfigSelector(edge.type));
+      // One type config used for shape, color, icon, etc.
+      const typeConfig = get(displayEdgeTypeConfigSelector(edge.type));
 
-    // List all edge types for displaying
-    const edgeTypes = [edge.type];
-    const displayTypes = edgeTypes
-      .map(type => get(displayEdgeTypeConfigSelector(type)).displayLabel)
-      .join(", ");
+      // List all edge types for displaying
+      const edgeTypes = [edge.type];
+      const displayTypes = edgeTypes
+        .map(type => get(displayEdgeTypeConfigSelector(type)).displayLabel)
+        .join(", ");
 
-    // For SPARQL, display the edge type as the ID
-    const rawStringId = String(getRawId(edge.id));
-    const displayId = isSparql ? displayTypes : rawStringId;
+      // For SPARQL, display the edge type as the ID
+      const rawStringId = String(getRawId(edge.id));
+      const displayId = isSparql ? displayTypes : rawStringId;
 
-    const typeAttributes = get(edgeTypeAttributesSelector(edgeTypes));
-    const sortedAttributes = getSortedDisplayAttributes(
-      edge,
-      typeAttributes,
-      textTransform
-    );
+      const typeAttributes = get(edgeTypeAttributesSelector(edgeTypes));
+      const sortedAttributes = getSortedDisplayAttributes(
+        edge,
+        typeAttributes,
+        textTransform
+      );
 
-    const sourceRawStringId = String(getRawId(edge.source));
-    const targetRawStringId = String(getRawId(edge.target));
-    const sourceDisplayId = isSparql
-      ? textTransform(sourceRawStringId)
-      : sourceRawStringId;
-    const targetDisplayId = isSparql
-      ? textTransform(targetRawStringId)
-      : targetRawStringId;
+      const sourceRawStringId = String(getRawId(edge.source));
+      const targetRawStringId = String(getRawId(edge.target));
+      const sourceDisplayId = isSparql
+        ? textTransform(sourceRawStringId)
+        : sourceRawStringId;
+      const targetDisplayId = isSparql
+        ? textTransform(targetRawStringId)
+        : targetRawStringId;
 
-    const sourceDisplayTypes = edge.sourceTypes
-      .map(
-        type =>
-          get(vertexTypeConfigSelector(type))?.displayLabel ||
-          textTransform(type)
-      )
-      .join(", ");
-    const targetDisplayTypes = edge.targetTypes
-      .map(
-        type =>
-          get(vertexTypeConfigSelector(type))?.displayLabel ||
-          textTransform(type)
-      )
-      .join(", ");
+      const sourceDisplayTypes = edge.sourceTypes
+        .map(
+          type =>
+            get(vertexTypeConfigSelector(type))?.displayLabel ||
+            textTransform(type)
+        )
+        .join(", ");
+      const targetDisplayTypes = edge.targetTypes
+        .map(
+          type =>
+            get(vertexTypeConfigSelector(type))?.displayLabel ||
+            textTransform(type)
+        )
+        .join(", ");
 
-    // Get the display name and description for the edge
-    function getDisplayAttributeValueByName(name: string | undefined) {
-      if (name === RESERVED_ID_PROPERTY) {
-        return displayId;
-      } else if (name === RESERVED_TYPES_PROPERTY) {
-        return displayTypes;
-      } else if (name) {
-        return (
-          sortedAttributes.find(attr => attr.name === name)?.displayValue ??
-          MISSING_DISPLAY_VALUE
-        );
+      // Get the display name and description for the edge
+      function getDisplayAttributeValueByName(name: string | undefined) {
+        if (name === RESERVED_ID_PROPERTY) {
+          return displayId;
+        } else if (name === RESERVED_TYPES_PROPERTY) {
+          return displayTypes;
+        } else if (name) {
+          return (
+            sortedAttributes.find(attr => attr.name === name)?.displayValue ??
+            MISSING_DISPLAY_VALUE
+          );
+        }
+
+        return MISSING_DISPLAY_VALUE;
       }
 
-      return MISSING_DISPLAY_VALUE;
-    }
+      const displayName = getDisplayAttributeValueByName(
+        typeConfig.displayNameAttribute
+      );
 
-    const displayName = getDisplayAttributeValueByName(
-      typeConfig.displayNameAttribute
-    );
-
-    const displayEdge: DisplayEdge = {
-      entityType: "edge",
-      id: edge.id,
-      displayId,
-      displayName,
-      displayTypes,
-      typeConfig,
-      source: {
-        id: edge.source,
-        displayId: sourceDisplayId,
-        displayTypes: sourceDisplayTypes,
-        types: edge.sourceTypes,
-      },
-      target: {
-        id: edge.target,
-        displayId: targetDisplayId,
-        displayTypes: targetDisplayTypes,
-        types: edge.targetTypes,
-      },
-      attributes: sortedAttributes,
-      // SPARQL does not have unique ID values for predicates, so the UI should hide them
-      hasUniqueId: isSparql === false,
-    };
-    return displayEdge;
-  })
+      const displayEdge: DisplayEdge = {
+        entityType: "edge",
+        id: edge.id,
+        displayId,
+        displayName,
+        displayTypes,
+        typeConfig,
+        source: {
+          id: edge.source,
+          displayId: sourceDisplayId,
+          displayTypes: sourceDisplayTypes,
+          types: edge.sourceTypes,
+        },
+        target: {
+          id: edge.target,
+          displayId: targetDisplayId,
+          displayTypes: targetDisplayTypes,
+          types: edge.targetTypes,
+        },
+        attributes: sortedAttributes,
+        // SPARQL does not have unique ID values for predicates, so the UI should hide them
+        hasUniqueId: isSparql === false,
+      };
+      return displayEdge;
+    }),
+  isEqual
 );
 
 const displayEdgesInCanvasSelector = atom(get => {
