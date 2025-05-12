@@ -1,7 +1,6 @@
 import { query } from "@/utils";
 import { SPARQLNeighborsCountRequest } from "../types";
 import { idParam } from "../idParam";
-import { getLimit } from "../getLimit";
 
 /**
  * Count neighbors by class which are related with the given subject URI.
@@ -34,7 +33,6 @@ import { getLimit } from "../getLimit";
  */
 export default function neighborsCountTemplate({
   resourceURI,
-  limit,
 }: SPARQLNeighborsCountRequest) {
   const resourceTemplate = idParam(resourceURI);
 
@@ -61,7 +59,6 @@ export default function neighborsCountTemplate({
           ?anySubject a ?neighbor .
         }
       }
-      ${getLimit(limit)}
     }
     GROUP BY ?class
   `;

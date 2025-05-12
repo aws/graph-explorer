@@ -178,7 +178,6 @@ export function createSparqlExplorer(
         _sparqlFetch(connection, featureFlags, options),
         {
           resourceURI: req.vertexId,
-          limit: req.limit,
         }
       );
     },

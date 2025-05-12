@@ -155,11 +155,6 @@ export type NeighborsCountRequest = {
    * Source vertex ID & type.
    */
   vertexId: VertexId;
-  /**
-   * Limit the number of results.
-   * 0 = No limit.
-   */
-  limit?: number;
 };
 
 export type NeighborsCountResponse = {
