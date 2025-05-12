@@ -3,7 +3,7 @@ import useFiltersConfig from "./useFiltersConfig";
 import {
   createRandomRawConfiguration,
   createRandomSchema,
-  renderHookWithRecoilRoot,
+  renderHookWithJotai,
 } from "@/utils/testing";
 import { sample } from "lodash";
 import { Schema } from "@/core";
@@ -15,7 +15,7 @@ import { vi } from "vitest";
 
 /** Creates a config with the schema and makes it active, then renders the `useFiltersConfig` hook. */
 function renderFilterConfigHook(schema: Schema) {
-  return renderHookWithRecoilRoot(
+  return renderHookWithJotai(
     () => useFiltersConfig(),
     snapshot => {
       // Initialize the configuration atom with a test config

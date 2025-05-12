@@ -12,13 +12,13 @@ import {
   edgesFilteredIdsAtom,
   edgesOutOfFocusIdsAtom,
   edgesSelectedIdsAtom,
+  useToggleFilteredEdge,
 } from "@/core/StateProvider/edges";
 import { nodesSelectedIdsAtom } from "@/core/StateProvider/nodes";
 import { useDeepMemo } from "@/hooks";
 import useTranslations from "@/hooks/useTranslations";
-import { recoilDiffSets } from "@/utils/recoilState";
 import { DisplayEdge, useDisplayEdgesInCanvas } from "@/core";
-import { useAtom, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 
 /** Creates the model for the table data */
 function createEdgeForTable(edge: DisplayEdge) {
@@ -43,13 +43,11 @@ const EdgesTabular = forwardRef<TabularInstance<ToggleEdge>, any>(
     const t = useTranslations();
     const edges = useDisplayEdgesInCanvas();
     const setEdgesOut = useSetAtom(edgesOutOfFocusIdsAtom);
-    const [hiddenEdgesIds, setHiddenEdgesIds] = useAtom(edgesFilteredIdsAtom);
+    const filteredEdges = useAtomValue(edgesFilteredIdsAtom);
+    const toggleFilteredEdge = useToggleFilteredEdge();
     const setSelectedNodesIds = useSetAtom(nodesSelectedIdsAtom);
     const [selectedEdgesIds, setSelectedEdgesIds] =
       useAtom(edgesSelectedIdsAtom);
-    const onToggleVisibility = (item: ToggleEdge) => {
-      recoilDiffSets(setHiddenEdgesIds, new Set([item.id]));
-    };
 
     // NOTE: Only use string accessors so that the export process continues to work
     const columns: ColumnDefinition<ToggleEdge>[] = [
@@ -64,9 +62,7 @@ const EdgesTabular = forwardRef<TabularInstance<ToggleEdge>, any>(
           on: <VisibleIcon />,
           off: <NonVisibleIcon style={{ color: "#FA8500" }} />,
           getValue: ({ cell }) => !!cell.value,
-          onPress: ({ cell }) => {
-            onToggleVisibility(cell.row.original);
-          },
+          onPress: ({ cell }) => toggleFilteredEdge(cell.row.original.id),
         }),
       },
       {
@@ -106,10 +102,10 @@ const EdgesTabular = forwardRef<TabularInstance<ToggleEdge>, any>(
         .values()
         .map(edge => ({
           ...createEdgeForTable(edge),
-          __is_visible: !hiddenEdgesIds.has(edge.id),
+          __is_visible: !filteredEdges.has(edge.id),
         }))
         .toArray();
-    }, [edges, hiddenEdgesIds]);
+    }, [edges, filteredEdges]);
 
     const onSelectRows = (rowIndex: string) => {
       const entityId = data[Number(rowIndex)].id;

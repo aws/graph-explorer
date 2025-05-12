@@ -6,7 +6,7 @@ import {
   createRandomSchema,
   createRandomVertex,
   JotaiSnapshot,
-  renderHookWithRecoilRoot,
+  renderHookWithJotai,
 } from "@/utils/testing";
 import { DisplayEdge, useDisplayEdgeFromEdge } from "./displayEdge";
 import { formatDate, sanitizeText } from "@/utils";
@@ -230,7 +230,7 @@ describe("useDisplayEdgeFromEdge", () => {
     edge: Edge,
     initializeState?: (mutableSnapshot: JotaiSnapshot) => void
   ) {
-    const { result } = renderHookWithRecoilRoot(
+    const { result } = renderHookWithJotai(
       () => useDisplayEdgeFromEdge(edge),
       initializeState
     );

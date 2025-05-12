@@ -8,7 +8,7 @@ import {
   createRandomRawConfiguration,
   createRandomSchema,
   createRandomVertex,
-  renderHookWithRecoilRoot,
+  renderHookWithJotai,
 } from "@/utils/testing";
 import { schemaAtom } from "@/core/StateProvider/schema";
 import { NeighborCountsQueryResponse } from "@/connector";
@@ -47,7 +47,7 @@ describe("useNeighborsOptions", () => {
     };
     vi.mocked(mockExplorer.fetchNeighborsCount).mockResolvedValueOnce(response);
 
-    const { result } = renderHookWithRecoilRoot(
+    const { result } = renderHookWithJotai(
       () => useNeighborsOptions(vertex.id),
       snapshot => {
         const config = createRandomRawConfiguration();

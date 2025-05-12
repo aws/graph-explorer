@@ -1,4 +1,4 @@
-import { atom } from "jotai";
+import { atom, useSetAtom } from "jotai";
 import { atomFamily, atomWithReset, RESET } from "jotai/utils";
 import {
   createRenderedEdgeId,
@@ -56,6 +56,22 @@ export const edgesOutOfFocusRenderedIdsAtom = atom(
 
 export const edgesFilteredIdsAtom = atomWithReset(new Set<EdgeId>());
 export const edgesTypesFilteredAtom = atomWithReset(new Set<string>());
+
+const toggleFilteredEdgeAtom = atom(null, (_get, set, edgeId: EdgeId) => {
+  set(edgesFilteredIdsAtom, prev => {
+    const newSet = new Set(prev);
+    if (prev.has(edgeId)) {
+      newSet.delete(edgeId);
+    } else {
+      newSet.add(edgeId);
+    }
+    return newSet;
+  });
+});
+
+export function useToggleFilteredEdge() {
+  return useSetAtom(toggleFilteredEdgeAtom);
+}
 
 /**
  * Filters the edges added to the graph by:
