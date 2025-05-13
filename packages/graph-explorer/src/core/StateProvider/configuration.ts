@@ -1,13 +1,13 @@
-import { uniq } from "lodash";
+import { isEqual, uniq } from "lodash";
 import { atom } from "jotai";
 import { sanitizeText } from "@/utils";
 import DEFAULT_ICON_URL from "@/utils/defaultIconUrl";
-import type {
-  AttributeConfig,
-  ConfigurationId,
-  EdgeTypeConfig,
-  RawConfiguration,
-  VertexTypeConfig,
+import {
+  type AttributeConfig,
+  type ConfigurationId,
+  type EdgeTypeConfig,
+  type RawConfiguration,
+  type VertexTypeConfig,
 } from "@/core";
 import { atomWithLocalForage } from "./localForageEffect";
 import { activeSchemaSelector, SchemaInference } from "./schema";
@@ -21,7 +21,8 @@ import {
   RESERVED_ID_PROPERTY,
   RESERVED_TYPES_PROPERTY,
 } from "@/utils/constants";
-import { RESET } from "jotai/utils";
+import { ConnectionConfig } from "@shared/types";
+import { selectAtom } from "jotai/utils";
 
 export const activeConfigurationAtom =
   atomWithLocalForage<ConfigurationId | null>(null, "active-configuration");
@@ -30,35 +31,23 @@ export const configurationAtom = atomWithLocalForage<
   Map<ConfigurationId, RawConfiguration>
 >(new Map(), "configuration");
 
-/** Gets or sets the config that is currently active. */
-export const activeConfigSelector = atom(
-  get => {
-    const configMap = get(configurationAtom);
-    const id = get(activeConfigurationAtom);
-    const activeConfig = id ? configMap.get(id) : null;
-    return activeConfig;
-  },
-  async (get, set, newValue: RawConfiguration | typeof RESET) => {
-    const configId = get(activeConfigurationAtom);
-    if (!configId) {
-      return;
-    }
-    await set(configurationAtom, async prevConfigMap => {
-      const updatedConfigMap = new Map(await prevConfigMap);
+/** Gets the currently active config. */
+export const activeConfigSelector = atom(get => {
+  const configMap = get(configurationAtom);
+  const id = get(activeConfigurationAtom);
+  const activeConfig = id ? configMap.get(id) : null;
+  return activeConfig;
+});
 
-      // Handle reset value
-      if (!newValue || newValue === RESET) {
-        updatedConfigMap.delete(configId);
-        return updatedConfigMap;
-      }
-
-      // Update the map
-      updatedConfigMap.set(configId, newValue);
-
-      return updatedConfigMap;
-    });
+export const activeConnectionAtom = atom(get => {
+  const connection = get(
+    selectAtom(activeConfigSelector, c => c?.connection, isEqual)
+  );
+  if (!connection) {
+    return null;
   }
-);
+  return normalizeConnection(connection);
+});
 
 export const mergedConfigurationSelector = atom(get => {
   const currentConfig = get(activeConfigSelector);
@@ -105,14 +94,7 @@ export function mergeConfiguration(
   return {
     id: currentConfig.id,
     displayLabel: currentConfig.displayLabel,
-    connection: {
-      ...(currentConfig.connection || {}),
-      // Remove trailing slash
-      url: currentConfig.connection?.url?.replace(/\/$/, "") || "",
-      queryEngine: currentConfig.connection?.queryEngine || "gremlin",
-      graphDbUrl:
-        currentConfig.connection?.graphDbUrl?.replace(/\/$/, "") || "",
-    },
+    connection: normalizeConnection(currentConfig.connection || { url: "" }),
     schema: {
       vertices: mergedVertices,
       edges: mergedEdges,
@@ -128,6 +110,20 @@ export function mergeConfiguration(
     },
   };
 }
+
+function normalizeConnection(connection: ConnectionConfig) {
+  return {
+    ...connection,
+    // Remove trailing slash
+    url: connection.url.replace(/\/$/, "") || "",
+    queryEngine: connection.queryEngine || "gremlin",
+    graphDbUrl: connection.graphDbUrl?.replace(/\/$/, "") || "",
+    proxyConnection:
+      connection.proxyConnection ?? connection.graphDbUrl != null,
+    awsAuthEnabled: connection.awsAuthEnabled ?? false,
+  };
+}
+export type NormalizedConnection = ReturnType<typeof normalizeConnection>;
 
 const mergeAttributes = (
   config?: VertexTypeConfig | EdgeTypeConfig,

@@ -1,4 +1,3 @@
-import { ConnectionConfig } from "@shared/types";
 import fetchNeighbors from "./fetchNeighbors";
 import fetchNeighborsCount from "./fetchNeighborsCount";
 import fetchSchema from "./fetchSchema";
@@ -10,12 +9,12 @@ import { v4 } from "uuid";
 import { Explorer, ExplorerRequestOptions } from "../useGEFetchTypes";
 import { logger } from "@/utils";
 import { createLoggerFromConnection } from "@/core/connector";
-import { FeatureFlags } from "@/core";
+import { FeatureFlags, NormalizedConnection } from "@/core";
 import { vertexDetails } from "./vertexDetails";
 import { edgeDetails } from "./edgeDetails";
 
 function _gremlinFetch(
-  connection: ConnectionConfig,
+  connection: NormalizedConnection,
   featureFlags: FeatureFlags,
   options?: ExplorerRequestOptions
 ): GremlinFetch {
@@ -45,7 +44,7 @@ function _gremlinFetch(
 }
 
 async function fetchSummary(
-  connection: ConnectionConfig,
+  connection: NormalizedConnection,
   featureFlags: FeatureFlags,
   options?: RequestInit
 ) {
@@ -69,7 +68,7 @@ async function fetchSummary(
 }
 
 export function createGremlinExplorer(
-  connection: ConnectionConfig,
+  connection: NormalizedConnection,
   featureFlags: FeatureFlags
 ): Explorer {
   const remoteLogger = createLoggerFromConnection(connection);

@@ -7,6 +7,7 @@ import { Explorer, toMappedQueryResults } from "./useGEFetchTypes";
 export const emptyExplorer: Explorer = {
   connection: {
     url: "",
+    graphDbUrl: "",
     queryEngine: "gremlin",
     proxyConnection: false,
     awsAuthEnabled: false,

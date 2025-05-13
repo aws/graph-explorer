@@ -6,8 +6,8 @@ import {
   EdgeId,
   Vertex,
   VertexId,
+  NormalizedConnection,
 } from "@/core";
-import { ConnectionConfig } from "@shared/types";
 
 export type QueryOptions = RequestInit & {
   queryId?: string;
@@ -239,7 +239,7 @@ export type EdgeDetailsResponse = {
  * Graph Explorer.
  */
 export type Explorer = {
-  connection: ConnectionConfig;
+  connection: NormalizedConnection;
   fetchSchema: (options?: ExplorerRequestOptions) => Promise<SchemaResponse>;
   fetchVertexCountsByType: (
     req: CountsByTypeRequest,

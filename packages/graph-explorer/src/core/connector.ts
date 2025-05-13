@@ -1,4 +1,3 @@
-import { every, isEqual } from "lodash";
 import {
   ClientLoggerConnector,
   LoggerConnector,
@@ -7,8 +6,10 @@ import {
 import { createGremlinExplorer } from "@/connector/gremlin/gremlinExplorer";
 import { createOpenCypherExplorer } from "@/connector/openCypher/openCypherExplorer";
 import { createSparqlExplorer } from "@/connector/sparql/sparqlExplorer";
-import { mergedConfigurationSelector } from "./StateProvider/configuration";
-import { ConnectionConfig } from "@shared/types";
+import {
+  activeConnectionAtom,
+  NormalizedConnection,
+} from "./StateProvider/configuration";
 import { logger } from "@/utils";
 import { featureFlagsSelector } from "./featureFlags";
 import { Explorer } from "@/connector/useGEFetchTypes";
@@ -16,46 +17,12 @@ import { emptyExplorer } from "@/connector/emptyExplorer";
 import { atom, useAtomValue } from "jotai";
 import { selectAtom } from "jotai/utils";
 
-/**
- * Active connection where the value will only change when one of the
- * properties we care about are changed.
- */
-const activeConnectionSelector = atom(get => {
-  return get(
-    selectAtom(
-      mergedConfigurationSelector,
-      config => config?.connection,
-      (latest, prior) => {
-        if (Object.is(latest, prior)) {
-          return true;
-        }
-        if (latest == null || prior == null) {
-          return false;
-        }
-        const attrs: (keyof ConnectionConfig)[] = [
-          "url",
-          "queryEngine",
-          "proxyConnection",
-          "graphDbUrl",
-          "awsAuthEnabled",
-          "awsRegion",
-          "fetchTimeoutMs",
-          "nodeExpansionLimit",
-        ];
-        return every(attrs, attr =>
-          isEqual(latest[attr] as string, prior[attr])
-        );
-      }
-    )
-  );
-});
-
 const explorerAtom = atom(get => {
   const explorerForTesting = get(explorerForTestingAtom);
   if (explorerForTesting) {
     return explorerForTesting;
   }
-  const connection = get(activeConnectionSelector);
+  const connection = get(activeConnectionAtom);
   if (!connection) {
     return emptyExplorer;
   }
@@ -66,7 +33,7 @@ const explorerAtom = atom(get => {
       return createOpenCypherExplorer(connection, featureFlags);
     case "sparql":
       return createSparqlExplorer(connection, featureFlags, new Map());
-    default:
+    case "gremlin":
       return createGremlinExplorer(connection, featureFlags);
   }
 });
@@ -83,7 +50,7 @@ export const explorerForTestingAtom = atom<Explorer | null>(null);
 
 export const queryEngineSelector = atom(get =>
   get(
-    selectAtom(activeConnectionSelector, c =>
+    selectAtom(activeConnectionAtom, c =>
       c && c.queryEngine ? c.queryEngine : "gremlin"
     )
   )
@@ -97,13 +64,13 @@ export function useQueryEngine() {
  * Logger based on the active connection proxy URL.
  */
 export const loggerSelector = atom(get =>
-  createLoggerFromConnection(get(activeConnectionSelector))
+  createLoggerFromConnection(get(activeConnectionAtom))
 );
 
 /** Creates a logger instance that will be remote if the connection is using the
  * proxy server. Otherwise it will be a client only logger. */
 export function createLoggerFromConnection(
-  connection?: ConnectionConfig
+  connection: NormalizedConnection | null
 ): LoggerConnector {
   // Check for a url and that we are using the proxy server
   if (!connection || !connection.url || connection.proxyConnection !== true) {

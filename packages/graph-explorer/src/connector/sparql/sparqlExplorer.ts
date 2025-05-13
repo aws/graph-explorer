@@ -17,11 +17,10 @@ import {
   SPARQLKeywordSearchRequest,
   SPARQLNeighborsRequest,
 } from "./types";
-import { ConnectionConfig } from "@shared/types";
 import { v4 } from "uuid";
 import { env, logger } from "@/utils";
 import { createLoggerFromConnection } from "@/core/connector";
-import { FeatureFlags } from "@/core";
+import { FeatureFlags, NormalizedConnection } from "@/core";
 import { replaceBlankNodeFromNeighbors } from "./fetchNeighbors/replaceBlankNodeFromNeighbors";
 import { storedBlankNodeNeighborsRequest } from "./fetchNeighbors/storedBlankNodeNeighborsRequest";
 import { replaceBlankNodeFromSearch } from "./keywordSearch/replaceBlankNodeFromSearch";
@@ -29,7 +28,7 @@ import { vertexDetails } from "./vertexDetails";
 import { edgeDetails } from "./edgeDetails";
 
 function _sparqlFetch(
-  connection: ConnectionConfig,
+  connection: NormalizedConnection,
   featureFlags: FeatureFlags,
   options?: ExplorerRequestOptions
 ) {
@@ -63,7 +62,7 @@ function _sparqlFetch(
 }
 
 async function fetchSummary(
-  connection: ConnectionConfig,
+  connection: NormalizedConnection,
   featureFlags: FeatureFlags,
   options?: RequestInit
 ) {
@@ -87,7 +86,7 @@ async function fetchSummary(
 }
 
 export function createSparqlExplorer(
-  connection: ConnectionConfig,
+  connection: NormalizedConnection,
   featureFlags: FeatureFlags,
   blankNodes: BlankNodesMap
 ): Explorer {

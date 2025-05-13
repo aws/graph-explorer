@@ -11,4 +11,12 @@ module.exports = {
     "@babel/preset-react",
     "@babel/preset-typescript",
   ],
+  plugins: [
+    [
+      "babel-plugin-react-compiler",
+      {
+        target: "18", // '17' | '18' | '19'
+      },
+    ],
+  ],
 };
