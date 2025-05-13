@@ -10,6 +10,7 @@ import {
   defaultEdgeTypeConfig,
   defaultVertexTypeConfig,
   mergeConfiguration,
+  NormalizedConnection,
 } from "./configuration";
 import { RawConfiguration, VertexTypeConfig } from "../ConfigurationProvider";
 import { SchemaInference } from "./schema";
@@ -17,17 +18,22 @@ import { UserStyling } from "./userPreferences";
 import { createRandomName } from "@shared/utils/testing";
 import { RESERVED_TYPES_PROPERTY } from "@/utils";
 
+/** The default empty connection values when no value is provided. */
+const defaultEmptyConnection: NormalizedConnection = {
+  url: "",
+  graphDbUrl: "",
+  queryEngine: "gremlin",
+  proxyConnection: false,
+  awsAuthEnabled: false,
+};
+
 describe("mergedConfiguration", () => {
   it("should produce empty defaults when empty object is passed", () => {
     const config = {} as RawConfiguration;
     const result = mergeConfiguration(null, config, {});
 
     expect(result).toEqual({
-      connection: {
-        graphDbUrl: "",
-        queryEngine: "gremlin",
-        url: "",
-      },
+      connection: defaultEmptyConnection,
       schema: {
         edges: [],
         vertices: [],
@@ -44,8 +50,7 @@ describe("mergedConfiguration", () => {
     expect(result).toEqual({
       ...config,
       connection: {
-        url: "",
-        graphDbUrl: "",
+        ...defaultEmptyConnection,
         ...config.connection,
       },
       schema: {
@@ -84,6 +89,7 @@ describe("mergedConfiguration", () => {
     expect(result).toEqual({
       ...config,
       connection: {
+        ...defaultEmptyConnection,
         ...config.connection,
         url: config.connection?.url ?? "",
         graphDbUrl: config.connection?.graphDbUrl ?? "",
@@ -135,6 +141,7 @@ describe("mergedConfiguration", () => {
     expect(result).toEqual({
       ...config,
       connection: {
+        ...defaultEmptyConnection,
         ...config.connection,
         url: config.connection?.url ?? "",
         graphDbUrl: config.connection?.graphDbUrl ?? "",
