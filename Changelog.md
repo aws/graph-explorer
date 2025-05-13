@@ -20,6 +20,8 @@
 - **Fixed** issue where a schema sync would not automatically run when a
   connection was changed
   ([#919](https://github.com/aws/graph-explorer/pull/919))
+- **Updated** dependencies and minor refactoring of code
+  ([#922](https://github.com/aws/graph-explorer/pull/922))
 
 ## Release v1.15.0
 
