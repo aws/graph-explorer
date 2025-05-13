@@ -160,7 +160,7 @@ export default {
         DEFAULT: "rgb(var(--color-border) / <alpha-value>)",
       },
       maxWidth: {
-        paragraph: "40rem",
+        paragraph: "36rem",
       },
       zIndex: {
         appBar: "1000",
