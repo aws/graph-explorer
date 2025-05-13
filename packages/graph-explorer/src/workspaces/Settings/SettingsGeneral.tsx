@@ -1,10 +1,18 @@
 import { useAtom } from "jotai";
-import { allowLoggingDbQueryAtom, showDebugActionsAtom } from "@/core";
+import {
+  allowLoggingDbQueryAtom,
+  defaultNeighborExpansionLimitAtom,
+  defaultNeighborExpansionLimitEnabledAtom,
+  showDebugActionsAtom,
+} from "@/core";
 import {
   Button,
   PageHeading,
   ImportantBlock,
   NotInProduction,
+  Label,
+  FormItem,
+  Input,
   SettingsSectionContainer,
   SettingsSection,
   ToggleSetting,
@@ -13,6 +21,8 @@ import {
 import { saveLocalForageToFile } from "@/core/StateProvider/localDb";
 import localforage from "localforage";
 import LoadConfigButton from "./LoadConfigButton";
+import { AnimatePresence, motion } from "motion/react";
+import { addRemoveAnimationProps } from "@/components/CommonAnimationProps";
 import { SaveAllIcon } from "lucide-react";
 
 export default function SettingsGeneral() {
@@ -23,10 +33,52 @@ export default function SettingsGeneral() {
     allowLoggingDbQueryAtom
   );
 
+  const [defaultNeighborExpansionLimit, setDefaultNeighborExpansionLimit] =
+    useAtom(defaultNeighborExpansionLimitAtom);
+
+  const [
+    defaultNeighborExpansionLimitEnabled,
+    setDefaultNeighborExpansionLimitEnabled,
+  ] = useAtom(defaultNeighborExpansionLimitEnabledAtom);
+
   return (
     <SettingsSectionContainer>
       <PageHeading>General Settings</PageHeading>
       <SettingsSection>
+        <ToggleSetting
+          label="Default limit for neighbor expansion"
+          description="Applies when expanding nodes with double click or with the expand button. This value can be overridden at the connection level and in the expand sidebar."
+          id="defaultNeighborExpansionLimitEnabled"
+          value="defaultNeighborExpansionLimitEnabled"
+          checked={defaultNeighborExpansionLimitEnabled}
+          onCheckedChange={isSelected => {
+            setDefaultNeighborExpansionLimitEnabled(Boolean(isSelected));
+          }}
+        />
+        <AnimatePresence initial={false}>
+          {defaultNeighborExpansionLimitEnabled ? (
+            <motion.div {...addRemoveAnimationProps} key="defaultNeighborLimit">
+              <FormItem>
+                <Label className="text-text-primary text-pretty text-base font-medium leading-none">
+                  Neighbor expansion limit
+                </Label>
+                <Input
+                  aria-label="Default neighbor expansion limit"
+                  className="max-w-64"
+                  type="number"
+                  value={defaultNeighborExpansionLimit}
+                  onChange={e =>
+                    setDefaultNeighborExpansionLimit(
+                      parseInt(e.target.value) ?? 0
+                    )
+                  }
+                  min={0}
+                />
+              </FormItem>
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
+
         <LabelledSetting
           label="Save configuration data"
           description="You can save your current configuration to a file, including all connections, styles, loaded schemas, etc."

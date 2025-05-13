@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { useNotification } from "@/components/NotificationProvider";
 import {
   updateEdgeDetailsCache,
@@ -10,24 +9,38 @@ import { loggerSelector, useExplorer } from "@/core/connector";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   useFetchedNeighborsCallback,
-  Vertex,
-  VertexId,
   useNeighborsCallback,
+  activeConnectionAtom,
+  defaultNeighborExpansionLimitAtom,
+  defaultNeighborExpansionLimitEnabledAtom,
 } from "@/core";
 import { createDisplayError } from "@/utils/createDisplayError";
 import { useAddToGraph } from "./useAddToGraph";
-import { useAtomValue } from "jotai";
+import { atom, useAtomValue } from "jotai";
 
 export type ExpandNodeFilters = Omit<
   NeighborsRequest,
   "vertexId" | "vertexTypes" | "excludedVertices"
 >;
 
-export type ExpandNodeRequest = {
-  vertexId: NeighborsRequest["vertexId"];
-  vertexTypes: NeighborsRequest["vertexTypes"];
-  filters?: ExpandNodeFilters;
-};
+const defaultExpansionLimitAtom = atom(get => {
+  // Check for a connection override
+  const connection = get(activeConnectionAtom);
+  if (connection && connection.nodeExpansionLimit) {
+    return connection.nodeExpansionLimit;
+  }
+
+  // Check for a default limit
+  const defaultLimitEnabled = get(defaultNeighborExpansionLimitEnabledAtom);
+  const defaultLimit = get(defaultNeighborExpansionLimitAtom);
+
+  return defaultLimitEnabled ? defaultLimit : null;
+});
+
+/** Returns the default neighbor expansion limit if it is enabled. */
+export function useDefaultNeighborExpansionLimit() {
+  return useAtomValue(defaultExpansionLimitAtom);
+}
 
 /**
  * Provides a callback to submit a node expansion request, the query
@@ -40,122 +53,81 @@ export default function useExpandNode() {
   const getFetchedNeighbors = useFetchedNeighborsCallback();
   const { enqueueNotification, clearNotification } = useNotification();
   const remoteLogger = useAtomValue(loggerSelector);
+  const neighborCallback = useNeighborsCallback();
+  const notificationTitle = "Expanding Node";
 
   const { isPending, mutate } = useMutation({
+    scope: {
+      // Enforces only one expand node mutation is executed at a time
+      id: "expandNode",
+    },
     mutationFn: async (
-      expandNodeRequest: ExpandNodeRequest
+      request: NeighborsRequest
     ): Promise<NeighborsResponse | null> => {
-      // Get neighbors that have already been added so they can be excluded
-      const excludedNeighbors = getFetchedNeighbors(expandNodeRequest.vertexId);
-
-      // Calculate the expansion limit based on the connection limit and the request limit
-      const limit = (() => {
-        if (!explorer.connection.nodeExpansionLimit) {
-          return expandNodeRequest.filters?.limit;
-        }
-        if (!expandNodeRequest.filters?.limit) {
-          return explorer.connection.nodeExpansionLimit;
-        }
-        // If both exists then use the smaller of the two
-        return Math.min(
-          explorer.connection.nodeExpansionLimit,
-          expandNodeRequest.filters.limit
-        );
-      })();
-
-      // Perform the query when a request exists
-      const request: NeighborsRequest | null = expandNodeRequest && {
-        vertexId: expandNodeRequest.vertexId,
-        vertexTypes: expandNodeRequest.vertexTypes,
-        excludedVertices: excludedNeighbors,
-        ...expandNodeRequest.filters,
-        limit,
-      };
-
-      if (!request) {
+      const neighbor = await neighborCallback(request.vertexId);
+      if (!neighbor) {
+        enqueueNotification({
+          title: "No neighbor information available",
+          message: "This vertex's neighbor data has not been retrieved yet.",
+        });
         return null;
       }
 
-      return await explorer.fetchNeighbors(request);
-    },
-    onSuccess: async data => {
-      if (!data) {
-        return;
+      if (neighbor.unfetched <= 0) {
+        enqueueNotification({
+          title: "No more neighbors",
+          message:
+            "This vertex has been fully expanded or it does not have connections",
+        });
+        return null;
       }
 
-      // Update the vertex and edge details caches
-      updateVertexDetailsCache(explorer, queryClient, data.vertices);
-      updateEdgeDetailsCache(explorer, queryClient, data.edges);
-
-      // Update nodes and edges in the graph
-      await addToGraph(data);
-    },
-    onError: error => {
-      remoteLogger.error(`Failed to expand node: ${error.message}`);
-      const displayError = createDisplayError(error);
-      // Notify the user of the error
-      enqueueNotification({
-        title: "Expanding Node Failed",
-        message: displayError.message,
-        type: "error",
+      // Show progress
+      const progressNotificationId = enqueueNotification({
+        title: notificationTitle,
+        message: "Expanding neighbors for the given node.",
+        type: "loading",
+        autoHideDuration: null,
       });
+
+      try {
+        // Get neighbors that have already been added so they can be excluded
+        const excludedNeighbors = getFetchedNeighbors(request.vertexId);
+
+        // Perform the query when a request exists
+        const result = await explorer.fetchNeighbors({
+          ...request,
+          excludedVertices: excludedNeighbors,
+        });
+
+        // Update the vertex and edge details caches
+        updateVertexDetailsCache(explorer, queryClient, result.vertices);
+        updateEdgeDetailsCache(explorer, queryClient, result.edges);
+
+        // Update nodes and edges in the graph
+        await addToGraph(result);
+
+        return result;
+      } catch (error) {
+        remoteLogger.error(
+          `Failed to expand node: ${(error as Error)?.message ?? "Unknown error"}`
+        );
+        const displayError = createDisplayError(error);
+        // Notify the user of the error
+        enqueueNotification({
+          title: "Expanding Node Failed",
+          message: displayError.message,
+          type: "error",
+        });
+        throw error;
+      } finally {
+        clearNotification(progressNotificationId);
+      }
     },
   });
 
-  // Show a loading message to the user
-  useEffect(() => {
-    if (!isPending) {
-      return;
-    }
-    const notificationId = enqueueNotification({
-      title: "Expanding Node",
-      message: "Expanding neighbors for the given node.",
-      stackable: true,
-    });
-
-    return () => clearNotification(notificationId);
-  }, [clearNotification, enqueueNotification, isPending]);
-
-  // Build the expand node callback
-  const neighborCallback = useNeighborsCallback();
-  const expandNode = async (
-    vertexId: VertexId,
-    vertexTypes: Vertex["types"],
-    filters?: ExpandNodeFilters
-  ) => {
-    const neighbor = await neighborCallback(vertexId);
-    if (!neighbor) {
-      enqueueNotification({
-        title: "No neighbor information available",
-        message: "This vertex's neighbor data has not been retrieved yet.",
-      });
-      return;
-    }
-    const request: ExpandNodeRequest = {
-      vertexId,
-      vertexTypes,
-      filters,
-    };
-
-    // Only allow expansion if we are not busy with another expansion
-    if (isPending) {
-      return;
-    }
-
-    if (neighbor.unfetched <= 0) {
-      enqueueNotification({
-        title: "No more neighbors",
-        message:
-          "This vertex has been fully expanded or it does not have connections",
-      });
-      return;
-    }
-
-    mutate(request);
-  };
-
   return {
-    expandNode,
+    expandNode: mutate,
     isPending,
   };
 }

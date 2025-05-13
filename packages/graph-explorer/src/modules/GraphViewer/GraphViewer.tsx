@@ -51,6 +51,7 @@ import {
   ZoomOutIcon,
 } from "lucide-react";
 import { useAtom, useAtomValue } from "jotai";
+import { useDefaultNeighborExpansionLimit } from "@/hooks/useExpandNode";
 
 const LAYOUT_OPTIONS = [
   {
@@ -144,14 +145,17 @@ export default function GraphViewer() {
   const getNodeBadges = useNodeBadges();
 
   const { expandNode } = useExpandNode();
+  const defaultNeighborExpansionLimit = useDefaultNeighborExpansionLimit();
   const onNodeDoubleClick: ElementEventCallback<RenderedVertex["data"]> = (
     _,
     vertex
   ) => {
     const vertexId = getVertexIdFromRenderedVertexId(vertex.id);
 
-    expandNode(vertexId, vertex.types, {
-      limit: 10,
+    expandNode({
+      vertexId,
+      vertexTypes: vertex.types,
+      limit: defaultNeighborExpansionLimit ?? undefined,
     });
   };
 

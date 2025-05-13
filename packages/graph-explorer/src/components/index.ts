@@ -12,6 +12,8 @@ export * from "./Chip";
 
 export * from "./CommonAnimationProps";
 
+export * from "./DefaultQueryErrorBoundary";
+
 export { PanelEmptyState } from "./PanelEmptyState";
 export * from "./PanelEmptyState";
 export { default as PanelError } from "./PanelError";
