@@ -188,7 +188,7 @@ if (staticFilesVirtualPath) {
 }
 
 // POST endpoint for SPARQL queries.
-app.post("/sparql", (req, res, next) => {
+app.post("/sparql", async (req, res, next) => {
   // Gather info from the headers
   const headers = req.headers as DbQueryIncomingHttpHeaders;
   const queryId = headers["queryid"];
@@ -247,7 +247,8 @@ app.post("/sparql", (req, res, next) => {
   // Validate the input before making any external calls.
   const queryString = req.body.query;
   if (!queryString) {
-    return res.status(400).send({ error: "[Proxy]SPARQL: Query not provided" });
+    res.status(400).send({ error: "[Proxy]SPARQL: Query not provided" });
+    return;
   }
 
   if (shouldLogDbQuery) {
@@ -268,7 +269,7 @@ app.post("/sparql", (req, res, next) => {
     body,
   };
 
-  return fetchData(
+  await fetchData(
     res,
     next,
     rawUrl,
@@ -280,7 +281,7 @@ app.post("/sparql", (req, res, next) => {
 });
 
 // POST endpoint for Gremlin queries.
-app.post("/gremlin", (req, res, next) => {
+app.post("/gremlin", async (req, res, next) => {
   // Gather info from the headers
   const headers = req.headers as DbQueryIncomingHttpHeaders;
   const queryId = headers["queryid"];
@@ -297,9 +298,8 @@ app.post("/gremlin", (req, res, next) => {
   // Validate the input before making any external calls.
   const queryString = req.body.query;
   if (!queryString) {
-    return res
-      .status(400)
-      .send({ error: "[Proxy] Gremlin: query not provided" });
+    res.status(400).send({ error: "[Proxy] Gremlin: query not provided" });
+    return;
   }
 
   if (shouldLogDbQuery) {
@@ -353,7 +353,7 @@ app.post("/gremlin", (req, res, next) => {
     body: JSON.stringify(body),
   };
 
-  return fetchData(
+  await fetchData(
     res,
     next,
     rawUrl,
@@ -365,7 +365,7 @@ app.post("/gremlin", (req, res, next) => {
 });
 
 // POST endpoint for openCypher queries.
-app.post("/openCypher", (req, res, next) => {
+app.post("/openCypher", async (req, res, next) => {
   const headers = req.headers as DbQueryIncomingHttpHeaders;
   const shouldLogDbQuery = BooleanStringSchema.default("false").parse(
     headers["db-query-logging-enabled"]
@@ -374,9 +374,8 @@ app.post("/openCypher", (req, res, next) => {
   const queryString = req.body.query;
   // Validate the input before making any external calls.
   if (!queryString) {
-    return res
-      .status(400)
-      .send({ error: "[Proxy]OpenCypher: query not provided" });
+    res.status(400).send({ error: "[Proxy]OpenCypher: query not provided" });
+    return;
   }
 
   if (shouldLogDbQuery) {
@@ -399,7 +398,7 @@ app.post("/openCypher", (req, res, next) => {
     ? (headers["service-type"] ?? DEFAULT_SERVICE_TYPE)
     : "";
 
-  return fetchData(
+  await fetchData(
     res,
     next,
     rawUrl,
@@ -411,7 +410,7 @@ app.post("/openCypher", (req, res, next) => {
 });
 
 // GET endpoint to retrieve PropertyGraph statistics summary for Neptune Analytics.
-app.get("/summary", (req, res, next) => {
+app.get("/summary", async (req, res, next) => {
   const headers = req.headers as DbQueryIncomingHttpHeaders;
   const isIamEnabled = !!headers["aws-neptune-region"];
   const serviceType = isIamEnabled
@@ -425,7 +424,7 @@ app.get("/summary", (req, res, next) => {
 
   const region = isIamEnabled ? headers["aws-neptune-region"] : "";
 
-  fetchData(
+  await fetchData(
     res,
     next,
     rawUrl,
@@ -437,7 +436,7 @@ app.get("/summary", (req, res, next) => {
 });
 
 // GET endpoint to retrieve PropertyGraph statistics summary for Neptune DB.
-app.get("/pg/statistics/summary", (req, res, next) => {
+app.get("/pg/statistics/summary", async (req, res, next) => {
   const headers = req.headers as DbQueryIncomingHttpHeaders;
   const isIamEnabled = !!headers["aws-neptune-region"];
   const serviceType = isIamEnabled
@@ -451,7 +450,7 @@ app.get("/pg/statistics/summary", (req, res, next) => {
 
   const region = isIamEnabled ? headers["aws-neptune-region"] : "";
 
-  fetchData(
+  await fetchData(
     res,
     next,
     rawUrl,
@@ -463,7 +462,7 @@ app.get("/pg/statistics/summary", (req, res, next) => {
 });
 
 // GET endpoint to retrieve RDF statistics summary.
-app.get("/rdf/statistics/summary", (req, res, next) => {
+app.get("/rdf/statistics/summary", async (req, res, next) => {
   const headers = req.headers as DbQueryIncomingHttpHeaders;
   const isIamEnabled = !!headers["aws-neptune-region"];
   const serviceType = isIamEnabled
@@ -477,7 +476,7 @@ app.get("/rdf/statistics/summary", (req, res, next) => {
 
   const region = isIamEnabled ? headers["aws-neptune-region"] : "";
 
-  fetchData(
+  await fetchData(
     res,
     next,
     rawUrl,
