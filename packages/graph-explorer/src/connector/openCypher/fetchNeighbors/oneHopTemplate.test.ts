@@ -151,4 +151,29 @@ describe("OpenCypher > oneHopTemplate", () => {
       `
     );
   });
+
+  it("should return template for the example documentation", () => {
+    const template = oneHopTemplate({
+      vertexId: createVertexId("124"),
+      filterByVertexTypes: ["airport"],
+      edgeTypes: ["route"],
+      limit: 10,
+      offset: 10,
+    });
+
+    expect(template).toBe(
+      query`
+        MATCH (v)-[e:route]-(tgt:airport) 
+        WHERE ID(v) = "124"
+        WITH DISTINCT v, tgt 
+        ORDER BY toInteger(ID(tgt)) 
+        SKIP 10
+        LIMIT 10
+        MATCH (v)-[e:route]-(tgt)
+        RETURN 
+          collect(DISTINCT tgt) AS vObjects, 
+          collect({ edge: e, sourceTypes: labels(startNode(e)), targetTypes: labels(endNode(e)) }) AS eObjects 
+      `
+    );
+  });
 });
