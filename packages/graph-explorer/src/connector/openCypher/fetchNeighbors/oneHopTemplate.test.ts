@@ -1,6 +1,6 @@
-import { normalize } from "@/utils/testing";
 import oneHopTemplate from "./oneHopTemplate";
 import { createVertexId } from "@/core";
+import { query } from "@/utils";
 
 describe("OpenCypher > oneHopTemplate", () => {
   it("Should return a template for a simple vertex id", () => {
@@ -8,18 +8,14 @@ describe("OpenCypher > oneHopTemplate", () => {
       vertexId: createVertexId("12"),
     });
 
-    expect(normalize(template)).toEqual(
-      normalize(`
+    expect(template).toEqual(
+      query`
         MATCH (v)-[e]-(tgt)
         WHERE ID(v) = "12"
-        WITH DISTINCT v, tgt 
-        ORDER BY toInteger(ID(tgt)) 
-        MATCH (v)-[e]-(tgt)
-        WITH
+        RETURN
           collect(DISTINCT tgt) AS vObjects,
           collect({ edge: e, sourceTypes: labels(startNode(e)), targetTypes: labels(endNode(e)) }) AS eObjects
-        RETURN vObjects, eObjects
-      `)
+      `
     );
   });
 
@@ -29,18 +25,14 @@ describe("OpenCypher > oneHopTemplate", () => {
       excludedVertices: new Set([createVertexId("256"), createVertexId("512")]),
     });
 
-    expect(normalize(template)).toEqual(
-      normalize(`
+    expect(template).toEqual(
+      query`
         MATCH (v)-[e]-(tgt)
         WHERE ID(v) = "12" AND NOT ID(tgt) IN ["256", "512"]
-        WITH DISTINCT v, tgt 
-        ORDER BY toInteger(ID(tgt)) 
-        MATCH (v)-[e]-(tgt)
-        WITH
+        RETURN
           collect(DISTINCT tgt) AS vObjects,
           collect({ edge: e, sourceTypes: labels(startNode(e)), targetTypes: labels(endNode(e)) }) AS eObjects
-        RETURN vObjects, eObjects
-      `)
+      `
     );
   });
 
@@ -51,8 +43,8 @@ describe("OpenCypher > oneHopTemplate", () => {
       limit: 5,
     });
 
-    expect(normalize(template)).toBe(
-      normalize(`
+    expect(template).toBe(
+      query`
         MATCH (v)-[e]-(tgt) 
         WHERE ID(v) = "12" 
         WITH DISTINCT v, tgt 
@@ -60,11 +52,10 @@ describe("OpenCypher > oneHopTemplate", () => {
         SKIP 5 
         LIMIT 5
         MATCH (v)-[e]-(tgt)
-        WITH 
+        RETURN 
           collect(DISTINCT tgt) AS vObjects, 
           collect({ edge: e, sourceTypes: labels(startNode(e)), targetTypes: labels(endNode(e)) }) AS eObjects 
-        RETURN vObjects, eObjects
-      `)
+      `
     );
   });
 
@@ -76,8 +67,8 @@ describe("OpenCypher > oneHopTemplate", () => {
       limit: 10,
     });
 
-    expect(normalize(template)).toBe(
-      normalize(`
+    expect(template).toBe(
+      query`
         MATCH (v)-[e]-(tgt:country) 
         WHERE ID(v) = "12" 
         WITH DISTINCT v, tgt 
@@ -85,11 +76,10 @@ describe("OpenCypher > oneHopTemplate", () => {
         SKIP 5 
         LIMIT 10
         MATCH (v)-[e]-(tgt)
-        WITH 
+        RETURN 
           collect(DISTINCT tgt) AS vObjects, 
           collect({ edge: e, sourceTypes: labels(startNode(e)), targetTypes: labels(endNode(e)) }) AS eObjects 
-        RETURN vObjects, eObjects
-      `)
+      `
     );
   });
 
@@ -99,18 +89,14 @@ describe("OpenCypher > oneHopTemplate", () => {
       filterByVertexTypes: ["country", "continent", "airport", "person"],
     });
 
-    expect(normalize(template)).toBe(
-      normalize(`
+    expect(template).toBe(
+      query`
         MATCH (v)-[e]-(tgt)
         WHERE ID(v) = "12" AND (v:country OR v:continent OR v:airport OR v:person)
-        WITH DISTINCT v, tgt 
-        ORDER BY toInteger(ID(tgt)) 
-        MATCH (v)-[e]-(tgt)
-        WITH
+        RETURN
           collect(DISTINCT tgt) AS vObjects,
           collect({ edge: e, sourceTypes: labels(startNode(e)), targetTypes: labels(endNode(e)) }) AS eObjects
-        RETURN vObjects, eObjects
-      `)
+      `
     );
   });
 
@@ -122,8 +108,8 @@ describe("OpenCypher > oneHopTemplate", () => {
       limit: 10,
     });
 
-    expect(normalize(template)).toBe(
-      normalize(`
+    expect(template).toBe(
+      query`
         MATCH (v)-[e:locatedIn]-(tgt) 
         WHERE ID(v) = "12" 
         WITH DISTINCT v, tgt 
@@ -131,11 +117,10 @@ describe("OpenCypher > oneHopTemplate", () => {
         SKIP 5 
         LIMIT 10
         MATCH (v)-[e:locatedIn]-(tgt)
-        WITH 
+        RETURN 
           collect(DISTINCT tgt) AS vObjects, 
           collect({ edge: e, sourceTypes: labels(startNode(e)), targetTypes: labels(endNode(e)) }) AS eObjects 
-        RETURN vObjects, eObjects
-      `)
+      `
     );
   });
 
@@ -151,8 +136,8 @@ describe("OpenCypher > oneHopTemplate", () => {
       limit: 10,
     });
 
-    expect(normalize(template)).toBe(
-      normalize(`
+    expect(template).toBe(
+      query`
         MATCH (v)-[e]-(tgt:country) 
         WHERE ID(v) = "12" AND tgt.longest >= 10000 AND tgt.country CONTAINS "ES" 
         WITH DISTINCT v, tgt 
@@ -160,11 +145,35 @@ describe("OpenCypher > oneHopTemplate", () => {
         SKIP 5 
         LIMIT 10
         MATCH (v)-[e]-(tgt)
-        WITH 
+        RETURN 
           collect(DISTINCT tgt) AS vObjects, 
           collect({ edge: e, sourceTypes: labels(startNode(e)), targetTypes: labels(endNode(e)) }) AS eObjects 
-        RETURN vObjects, eObjects
-      `)
+      `
+    );
+  });
+
+  it("should return template for the example documentation", () => {
+    const template = oneHopTemplate({
+      vertexId: createVertexId("124"),
+      filterByVertexTypes: ["airport"],
+      edgeTypes: ["route"],
+      limit: 10,
+      offset: 10,
+    });
+
+    expect(template).toBe(
+      query`
+        MATCH (v)-[e:route]-(tgt:airport) 
+        WHERE ID(v) = "124"
+        WITH DISTINCT v, tgt 
+        ORDER BY toInteger(ID(tgt)) 
+        SKIP 10
+        LIMIT 10
+        MATCH (v)-[e:route]-(tgt)
+        RETURN 
+          collect(DISTINCT tgt) AS vObjects, 
+          collect({ edge: e, sourceTypes: labels(startNode(e)), targetTypes: labels(endNode(e)) }) AS eObjects 
+      `
     );
   });
 });

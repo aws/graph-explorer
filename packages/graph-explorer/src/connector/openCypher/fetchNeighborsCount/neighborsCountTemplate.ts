@@ -18,13 +18,11 @@ import { idParam } from "../idParam";
  */
 export default function neighborsCountTemplate({
   vertexId,
-  limit = 0,
 }: NeighborsCountRequest) {
   return query`
       MATCH (v)-[]-(neighbor)
       WHERE ID(v) = ${idParam(vertexId)}
       WITH DISTINCT neighbor
-      ${limit > 0 ? `LIMIT ${limit}` : ``}
       RETURN labels(neighbor) AS vertexLabel, count(DISTINCT neighbor) AS count
     `;
 }

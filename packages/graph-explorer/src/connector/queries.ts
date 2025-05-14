@@ -91,11 +91,8 @@ export function neighborsCountQuery(
   return queryOptions({
     queryKey: ["neighborsCount", request, explorer],
     queryFn: async (): Promise<NeighborCountsQueryResponse> => {
-      const limit = explorer.connection.nodeExpansionLimit;
-
       const result = await explorer.fetchNeighborsCount({
         vertexId: request.vertexId,
-        limit,
       });
 
       return {

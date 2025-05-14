@@ -94,14 +94,18 @@ const criterionTemplate = (criterion: Criterion): string => {
  * vertexTypes = ["airport"]
  * edgeTypes = ["route"]
  * limit = 10
- * offset = 0
+ * offset = 10
  *
- * MATCH (v)-[edge:route]->(v:airport)
+ * MATCH (v)-[e:route]-(tgt:airport)
  * WHERE ID(v) = "124"
- * WITH collect(DISTINCT tgt) AS vObjects, collect({edge: e, sourceTypes: labels(v), targetTypes: labels(tgt)}) AS eObjects
- * RETURN vObjects, eObjects
- * SKIP 0
+ * WITH DISTINCT v, tgt
+ * ORDER BY toInteger(ID(tgt))
+ * SKIP 10
  * LIMIT 10
+ * MATCH (v)-[e:route]-(tgt)
+ * RETURN
+ *   collect(DISTINCT tgt) AS vObjects,
+ *   collect({ edge: e, sourceTypes: labels(startNode(e)), targetTypes: labels(endNode(e)) }) AS eObjects
  */
 const oneHopTemplate = ({
   vertexId,
@@ -144,18 +148,29 @@ const oneHopTemplate = ({
     .filter(Boolean)
     .join(" AND ");
 
+  if (limit > 0) {
+    // When applying a limit, we must apply it to the set of distinct neighbors, which requires some additional steps
+    return query`
+      MATCH (v)-[${edgeMatch}]-(${targetMatch})
+      WHERE ${whereConditions}
+      WITH DISTINCT v, tgt
+      ORDER BY toInteger(ID(tgt))
+      ${offset > 0 ? `SKIP ${offset}` : ``}
+      LIMIT ${limit}
+      MATCH (v)-[${edgeMatch}]-(tgt)
+      RETURN
+        collect(DISTINCT tgt) AS vObjects, 
+        collect({ edge: e, sourceTypes: labels(startNode(e)), targetTypes: labels(endNode(e)) }) AS eObjects
+    `;
+  }
+
+  // Much faster and shorter query when no limit is provided
   return query`
     MATCH (v)-[${edgeMatch}]-(${targetMatch})
     WHERE ${whereConditions}
-    WITH DISTINCT v, tgt
-    ORDER BY toInteger(ID(tgt))
-    ${limit > 0 && offset > 0 ? `SKIP ${offset}` : ``}
-    ${limit > 0 ? `LIMIT ${limit}` : ``}
-    MATCH (v)-[${edgeMatch}]-(tgt)
-    WITH
+    RETURN
       collect(DISTINCT tgt) AS vObjects, 
       collect({ edge: e, sourceTypes: labels(startNode(e)), targetTypes: labels(endNode(e)) }) AS eObjects
-    RETURN vObjects, eObjects
   `;
 };
 

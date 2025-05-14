@@ -89,11 +89,6 @@ export type SPARQLNeighborsCountRequest = {
    * Resource URI.
    */
   resourceURI: VertexId;
-  /**
-   * Limit the number of results.
-   * 0 = No limit.
-   */
-  limit?: number;
 };
 
 export type SPARQLBlankNodeNeighborsCountRequest = {

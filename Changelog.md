@@ -8,6 +8,10 @@
   last sync timestamp (thanks @enumura1,
   [#901](https://github.com/aws/graph-explorer/pull/901),
   [#908](https://github.com/aws/graph-explorer/pull/908))
+- **Updated** openCypher expand neighbor query to be faster when no limit is
+  provided ([#924](https://github.com/aws/graph-explorer/pull/924))
+- **Removed** limit on neighbor count query in order to always show the full
+  count of neighbors ([#924](https://github.com/aws/graph-explorer/pull/924))
 - **Updated** localForage Recoil integration to be async and use Suspense
   ([#883](https://github.com/aws/graph-explorer/pull/883))
 - **Removed** Recoil state debugging tool that was never used
