@@ -44,7 +44,7 @@ export type Action = {
   alwaysVisible?: boolean;
   active?: boolean;
   onlyPinnedVisible?: boolean;
-  collapsedItems?: React.ReactElement;
+  collapsedItems?: React.ReactElement<any>;
   onActionClick?: () => void;
 };
 

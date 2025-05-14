@@ -85,5 +85,5 @@ Workspace.Footer = WorkspaceFooter;
 
 export default Workspace as ((
   props: PropsWithChildren<WorkspaceProps>
-) => ReactElement) &
+) => ReactElement<any>) &
   WorkspaceComposition;
