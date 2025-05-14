@@ -1,10 +1,7 @@
-import { ComponentPropsWithRef, useCallback, useEffect, useState } from "react";
+import { ComponentPropsWithRef, useEffect, useState } from "react";
 import { Button, FormItem, InputField, Label, StylingIcon } from "@/components";
 import { useDisplayEdgeTypeConfig } from "@/core";
-import {
-  EdgePreferences,
-  userStylingEdgeAtom,
-} from "@/core/StateProvider/userPreferences";
+import { useEdgeStyling } from "@/core/StateProvider/userPreferences";
 import { useDebounceValue, usePrevious } from "@/hooks";
 import { MISSING_DISPLAY_TYPE } from "@/utils";
 import { customizeEdgeTypeAtom } from "./EdgeStyleDialog";
@@ -16,21 +13,13 @@ export type SingleEdgeStylingProps = {
 
 export default function SingleEdgeStyling({
   edgeType,
-
   ...rest
 }: SingleEdgeStylingProps) {
-  const setEdgePreferences = useSetAtom(userStylingEdgeAtom(edgeType));
+  const { setEdgeStyle } = useEdgeStyling(edgeType);
   const setCustomizeEdgeType = useSetAtom(customizeEdgeTypeAtom);
   const displayConfig = useDisplayEdgeTypeConfig(edgeType);
 
   const [displayAs, setDisplayAs] = useState(displayConfig.displayLabel);
-
-  const onUserPrefsChange = useCallback(
-    (prefs: Omit<EdgePreferences, "type">) => {
-      setEdgePreferences({ type: edgeType, ...prefs });
-    },
-    [edgeType, setEdgePreferences]
-  );
 
   // Delayed update of display name to prevent input lag
   const debouncedDisplayAs = useDebounceValue(displayAs, 400);
@@ -40,8 +29,8 @@ export default function SingleEdgeStyling({
     if (prevDisplayAs === null || prevDisplayAs === debouncedDisplayAs) {
       return;
     }
-    onUserPrefsChange({ displayLabel: debouncedDisplayAs });
-  }, [debouncedDisplayAs, prevDisplayAs, onUserPrefsChange]);
+    void setEdgeStyle({ displayLabel: debouncedDisplayAs });
+  }, [debouncedDisplayAs, prevDisplayAs, setEdgeStyle]);
 
   return (
     <FormItem {...rest}>

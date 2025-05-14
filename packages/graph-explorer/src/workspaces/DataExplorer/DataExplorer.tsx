@@ -1,5 +1,4 @@
 import { cn } from "@/utils";
-import clone from "lodash/clone";
 import { useRef } from "react";
 import {
   keepPreviousData,
@@ -42,10 +41,7 @@ import Tabular from "@/components/Tabular/Tabular";
 import Workspace from "@/components/Workspace/Workspace";
 import { KeywordSearchRequest, searchQuery } from "@/connector";
 import { useExplorer } from "@/core/connector";
-import {
-  userStylingAtom,
-  VertexPreferences,
-} from "@/core/StateProvider/userPreferences";
+import { useVertexStyling } from "@/core/StateProvider/userPreferences";
 import { useAddVertexToGraph, useHasVertexBeenAddedToGraph } from "@/hooks";
 import useTranslations from "@/hooks/useTranslations";
 import useUpdateVertexTypeCounts from "@/hooks/useUpdateVertexTypeCounts";
@@ -57,7 +53,6 @@ import {
   RESERVED_ID_PROPERTY,
   RESERVED_TYPES_PROPERTY,
 } from "@/utils/constants";
-import { useSetAtom } from "jotai";
 
 export type ConnectionsProps = {
   vertexType: string;
@@ -206,34 +201,16 @@ function DisplayNameAndDescriptionOptions({
     return options;
   })();
 
-  const setUserStyling = useSetAtom(userStylingAtom);
+  const { setVertexStyle: setPreferences } = useVertexStyling(vertexType);
   const onDisplayNameChange =
     (field: "name" | "longName") => async (value: string | string[]) => {
-      await setUserStyling(async prevStyling => {
-        const prevValue = await prevStyling;
-        const vtItem =
-          clone(prevValue.vertices?.find(v => v.type === vertexType)) ||
-          ({} as VertexPreferences);
+      if (field === "name") {
+        await setPreferences({ displayNameAttribute: value as string });
+      }
 
-        if (field === "name") {
-          vtItem.displayNameAttribute = value as string;
-        }
-
-        if (field === "longName") {
-          vtItem.longDisplayNameAttribute = value as string;
-        }
-
-        return {
-          ...prevValue,
-          vertices: [
-            ...(prevValue.vertices || []).filter(v => v.type !== vertexType),
-            {
-              ...(vtItem || {}),
-              type: vertexType,
-            },
-          ],
-        };
-      });
+      if (field === "longName") {
+        await setPreferences({ longDisplayNameAttribute: value as string });
+      }
     };
 
   return (

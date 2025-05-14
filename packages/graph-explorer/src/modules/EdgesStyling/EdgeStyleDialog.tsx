@@ -4,9 +4,8 @@ import ColorInput from "@/components/ColorInput/ColorInput";
 import { useDisplayEdgeTypeConfig, useWithTheme } from "@/core";
 import {
   ArrowStyle,
-  EdgePreferences,
   LineStyle,
-  userStylingEdgeAtom,
+  useEdgeStyling,
 } from "@/core/StateProvider/userPreferences";
 import useTranslations from "@/hooks/useTranslations";
 import {
@@ -17,7 +16,6 @@ import { LINE_STYLE_OPTIONS } from "./lineStyling";
 import modalDefaultStyles from "./SingleEdgeStylingModal.style";
 import { RESERVED_TYPES_PROPERTY } from "@/utils";
 import { atom, useAtom } from "jotai";
-import { useResetAtom } from "jotai/utils";
 
 export const customizeEdgeTypeAtom = atom<string | undefined>(undefined);
 
@@ -60,9 +58,7 @@ function Content({ edgeType }: { edgeType: string }) {
   const displayConfig = useDisplayEdgeTypeConfig(edgeType);
   const t = useTranslations();
 
-  const [edgePreferences, setEdgePreferences] = useAtom(
-    userStylingEdgeAtom(edgeType)
-  );
+  const { edgeStyle, setEdgeStyle, resetEdgeStyle } = useEdgeStyling(edgeType);
 
   const selectOptions = (() => {
     const options = displayConfig.attributes.map(attr => ({
@@ -78,12 +74,6 @@ function Content({ edgeType }: { edgeType: string }) {
     return options;
   })();
 
-  const onUserPrefsChange = (prefs: Omit<EdgePreferences, "type">) => {
-    setEdgePreferences({ type: edgeType, ...prefs });
-  };
-
-  const onUserPrefsReset = useResetAtom(userStylingEdgeAtom(edgeType));
-
   return (
     <div className="modal-container">
       <div>
@@ -94,7 +84,7 @@ function Content({ edgeType }: { edgeType: string }) {
             labelPlacement="inner"
             value={displayConfig.displayNameAttribute}
             onValueChange={value =>
-              onUserPrefsChange({ displayNameAttribute: value })
+              setEdgeStyle({ displayNameAttribute: value })
             }
             options={selectOptions}
           />
@@ -106,10 +96,8 @@ function Content({ edgeType }: { edgeType: string }) {
           <ColorInput
             label="Color"
             labelPlacement="inner"
-            startColor={edgePreferences?.labelColor || "#17457b"}
-            onChange={(color: string) =>
-              onUserPrefsChange({ labelColor: color })
-            }
+            startColor={edgeStyle?.labelColor || "#17457b"}
+            onChange={(color: string) => setEdgeStyle({ labelColor: color })}
           />
           <InputField
             label="Background Opacity"
@@ -118,9 +106,9 @@ function Content({ edgeType }: { edgeType: string }) {
             min={0}
             max={1}
             step={0.1}
-            value={edgePreferences?.labelBackgroundOpacity ?? 0.7}
+            value={edgeStyle?.labelBackgroundOpacity ?? 0.7}
             onChange={(value: number) =>
-              onUserPrefsChange({ labelBackgroundOpacity: value })
+              setEdgeStyle({ labelBackgroundOpacity: value })
             }
           />
         </div>
@@ -130,9 +118,9 @@ function Content({ edgeType }: { edgeType: string }) {
           <ColorInput
             label="Border Color"
             labelPlacement="inner"
-            startColor={edgePreferences?.labelBorderColor || "#17457b"}
+            startColor={edgeStyle?.labelBorderColor || "#17457b"}
             onChange={(color: string) =>
-              onUserPrefsChange({ labelBorderColor: color })
+              setEdgeStyle({ labelBorderColor: color })
             }
           />
           <InputField
@@ -140,17 +128,17 @@ function Content({ edgeType }: { edgeType: string }) {
             labelPlacement="inner"
             type="number"
             min={0}
-            value={edgePreferences?.labelBorderWidth ?? 0}
+            value={edgeStyle?.labelBorderWidth ?? 0}
             onChange={(value: number) =>
-              onUserPrefsChange({ labelBorderWidth: value })
+              setEdgeStyle({ labelBorderWidth: value })
             }
           />
           <SelectField
             label="Border Style"
             labelPlacement="inner"
-            value={edgePreferences?.labelBorderStyle || "solid"}
+            value={edgeStyle?.labelBorderStyle || "solid"}
             onValueChange={value =>
-              onUserPrefsChange({ labelBorderStyle: value as LineStyle })
+              setEdgeStyle({ labelBorderStyle: value as LineStyle })
             }
             options={LINE_STYLE_OPTIONS}
           />
@@ -162,27 +150,23 @@ function Content({ edgeType }: { edgeType: string }) {
           <ColorInput
             label="Color"
             labelPlacement="inner"
-            startColor={edgePreferences?.lineColor || "#b3b3b3"}
-            onChange={(color: string) =>
-              onUserPrefsChange({ lineColor: color })
-            }
+            startColor={edgeStyle?.lineColor || "#b3b3b3"}
+            onChange={(color: string) => setEdgeStyle({ lineColor: color })}
           />
           <InputField
             label="Thickness"
             labelPlacement="inner"
             type="number"
             min={1}
-            value={edgePreferences?.lineThickness || 2}
-            onChange={(value: number) =>
-              onUserPrefsChange({ lineThickness: value })
-            }
+            value={edgeStyle?.lineThickness || 2}
+            onChange={(value: number) => setEdgeStyle({ lineThickness: value })}
           />
           <SelectField
             label="Style"
             labelPlacement="inner"
-            value={edgePreferences?.lineStyle || "solid"}
+            value={edgeStyle?.lineStyle || "solid"}
             onValueChange={value =>
-              onUserPrefsChange({ lineStyle: value as LineStyle })
+              setEdgeStyle({ lineStyle: value as LineStyle })
             }
             options={LINE_STYLE_OPTIONS}
           />
@@ -194,25 +178,25 @@ function Content({ edgeType }: { edgeType: string }) {
           <SelectField
             label="Source"
             labelPlacement="inner"
-            value={edgePreferences?.sourceArrowStyle || "none"}
+            value={edgeStyle?.sourceArrowStyle || "none"}
             onValueChange={value =>
-              onUserPrefsChange({ sourceArrowStyle: value as ArrowStyle })
+              setEdgeStyle({ sourceArrowStyle: value as ArrowStyle })
             }
             options={SOURCE_ARROW_STYLE_OPTIONS}
           />
           <SelectField
             label="Target"
             labelPlacement="inner"
-            value={edgePreferences?.targetArrowStyle || "triangle"}
+            value={edgeStyle?.targetArrowStyle || "triangle"}
             onValueChange={value =>
-              onUserPrefsChange({ targetArrowStyle: value as ArrowStyle })
+              setEdgeStyle({ targetArrowStyle: value as ArrowStyle })
             }
             options={TARGET_ARROW_STYLE_OPTIONS}
           />
         </div>
       </div>
       <div className="actions">
-        <Button onPress={onUserPrefsReset}>Reset to Default</Button>
+        <Button onPress={resetEdgeStyle}>Reset to Default</Button>
       </div>
     </div>
   );

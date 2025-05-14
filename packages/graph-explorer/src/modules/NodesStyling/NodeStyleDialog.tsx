@@ -13,8 +13,7 @@ import { useDisplayVertexTypeConfig, useWithTheme } from "@/core";
 import {
   LineStyle,
   ShapeStyle,
-  userStylingNodeAtom,
-  VertexPreferences,
+  useVertexStyling,
 } from "@/core/StateProvider/userPreferences";
 import useTranslations from "@/hooks/useTranslations";
 import { LINE_STYLE_OPTIONS } from "./lineStyling";
@@ -25,7 +24,6 @@ import {
   RESERVED_TYPES_PROPERTY,
 } from "@/utils/constants";
 import { atom, useAtom } from "jotai";
-import { useResetAtom } from "jotai/utils";
 
 export const customizeNodeTypeAtom = atom<string | undefined>(undefined);
 
@@ -79,9 +77,8 @@ function DialogTitle({ vertexType }: { vertexType: string }) {
 function Content({ vertexType }: { vertexType: string }) {
   const t = useTranslations();
 
-  const [nodePreferences, setNodePreferences] = useAtom(
-    userStylingNodeAtom(vertexType)
-  );
+  const { vertexStyle, setVertexStyle, resetVertexStyle } =
+    useVertexStyling(vertexType);
   const displayConfig = useDisplayVertexTypeConfig(vertexType);
 
   const selectOptions = (() => {
@@ -102,12 +99,6 @@ function Content({ vertexType }: { vertexType: string }) {
     return options;
   })();
 
-  const onUserPrefsChange = (prefs: Omit<VertexPreferences, "type">) => {
-    setNodePreferences({ type: vertexType, ...prefs });
-  };
-
-  const reset = useResetAtom(userStylingNodeAtom(vertexType));
-
   const { enqueueNotification } = useNotification();
   const convertImageToBase64AndSetNewIcon = async (file: File) => {
     if (file.size > 50 * 1024) {
@@ -120,7 +111,7 @@ function Content({ vertexType }: { vertexType: string }) {
     }
     try {
       const result = await file2Base64(file);
-      onUserPrefsChange({ iconUrl: result, iconImageType: file.type });
+      await setVertexStyle({ iconUrl: result, iconImageType: file.type });
     } catch (error) {
       console.error("Unable to convert uploaded image to base64: ", error);
     }
@@ -135,8 +126,8 @@ function Content({ vertexType }: { vertexType: string }) {
             label="Display Name Attribute"
             labelPlacement="inner"
             value={displayConfig.displayNameAttribute}
-            onValueChange={value => {
-              onUserPrefsChange({ displayNameAttribute: value });
+            onValueChange={async value => {
+              await setVertexStyle({ displayNameAttribute: value });
             }}
             options={selectOptions}
           />
@@ -144,8 +135,8 @@ function Content({ vertexType }: { vertexType: string }) {
             label="Display Description Attribute"
             labelPlacement="inner"
             value={displayConfig.displayDescriptionAttribute}
-            onValueChange={value => {
-              onUserPrefsChange({
+            onValueChange={async value => {
+              await setVertexStyle({
                 longDisplayNameAttribute: value,
               });
             }}
@@ -159,9 +150,9 @@ function Content({ vertexType }: { vertexType: string }) {
           <SelectField
             label="Style"
             labelPlacement="inner"
-            value={nodePreferences?.shape || "ellipse"}
-            onValueChange={value =>
-              onUserPrefsChange({ shape: value as ShapeStyle })
+            value={vertexStyle?.shape || "ellipse"}
+            onValueChange={async value =>
+              await setVertexStyle({ shape: value as ShapeStyle })
             }
             options={NODE_SHAPE}
             className="grow"
@@ -200,8 +191,8 @@ function Content({ vertexType }: { vertexType: string }) {
           <ColorInput
             label="Color"
             labelPlacement="inner"
-            startColor={nodePreferences?.color || "#17457b"}
-            onChange={(color: string) => onUserPrefsChange({ color })}
+            startColor={vertexStyle?.color || "#17457b"}
+            onChange={async (color: string) => await setVertexStyle({ color })}
           />
           <InputField
             label="Background Opacity"
@@ -210,9 +201,9 @@ function Content({ vertexType }: { vertexType: string }) {
             min={0}
             max={1}
             step={0.1}
-            value={nodePreferences?.backgroundOpacity ?? 0.4}
-            onChange={(value: number) =>
-              onUserPrefsChange({ backgroundOpacity: value })
+            value={vertexStyle?.backgroundOpacity ?? 0.4}
+            onChange={async (value: number) =>
+              await setVertexStyle({ backgroundOpacity: value })
             }
           />
         </div>
@@ -222,9 +213,9 @@ function Content({ vertexType }: { vertexType: string }) {
           <ColorInput
             label="Border Color"
             labelPlacement="inner"
-            startColor={nodePreferences?.borderColor || "#17457b"}
-            onChange={(color: string) =>
-              onUserPrefsChange({ borderColor: color })
+            startColor={vertexStyle?.borderColor || "#17457b"}
+            onChange={async (color: string) =>
+              await setVertexStyle({ borderColor: color })
             }
           />
           <InputField
@@ -232,24 +223,26 @@ function Content({ vertexType }: { vertexType: string }) {
             labelPlacement="inner"
             type="number"
             min={0}
-            value={nodePreferences?.borderWidth ?? 0}
-            onChange={(value: number) =>
-              onUserPrefsChange({ borderWidth: value })
+            value={vertexStyle?.borderWidth ?? 0}
+            onChange={async (value: number) =>
+              await setVertexStyle({ borderWidth: value })
             }
           />
           <SelectField
             label="Border Style"
             labelPlacement="inner"
-            value={nodePreferences?.borderStyle || "solid"}
-            onValueChange={value =>
-              onUserPrefsChange({ borderStyle: value as LineStyle })
+            value={vertexStyle?.borderStyle || "solid"}
+            onValueChange={async value =>
+              await setVertexStyle({ borderStyle: value as LineStyle })
             }
             options={LINE_STYLE_OPTIONS}
           />
         </div>
       </div>
       <div className="actions">
-        <Button onPress={() => reset()}>Reset to Default</Button>
+        <Button onPress={async () => await resetVertexStyle()}>
+          Reset to Default
+        </Button>
       </div>
     </div>
   );
