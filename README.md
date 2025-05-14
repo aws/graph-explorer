@@ -55,6 +55,10 @@ out our [roadmap](./ROADMAP.md) and participate in the discussions.
 
 #### General Settings
 
+- **Default Neighbor Expansion Limit:** This setting will allow you to enable or
+  disable the default limit applied during neighbor expansion. This applies to
+  both double click expansion and the expand sidebar. This setting can be
+  overridden by a similar setting on the connection itself.
 - **Save Configuration:** This action will export all the configuration data
   within the Graph Explorer local database. This will not store any data from
   the connected graph databases. However, the export may contain the shape of
@@ -99,6 +103,8 @@ to add a new connection. You can also edit and delete connections.
   - **AWS Region:** Specify the AWS region where the Neptune cluster is hosted
     (e.g., us-east-1)
   - **Fetch Timeout:** Specify the timeout for the fetch request
+  - **Neighbor Expansion Limit:** Specify the default limit for neighbor
+    expansion. This will override the app setting for neighbor expansion.
 
 - **Available Connections:** Once a connection is created, this section will
   appear as a left-hand pane. When you create more than one connection to a
