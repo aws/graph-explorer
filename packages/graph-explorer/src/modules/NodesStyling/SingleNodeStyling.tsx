@@ -1,10 +1,7 @@
-import { ComponentPropsWithRef, useCallback, useEffect, useState } from "react";
+import { ComponentPropsWithRef, useEffect, useState } from "react";
 import { Button, FormItem, InputField, Label, StylingIcon } from "@/components";
 import { useDisplayVertexTypeConfig } from "@/core";
-import {
-  userStylingNodeAtom,
-  VertexPreferences,
-} from "@/core/StateProvider/userPreferences";
+import { useVertexStyling } from "@/core/StateProvider/userPreferences";
 import { useDebounceValue, usePrevious } from "@/hooks";
 import { MISSING_DISPLAY_TYPE } from "@/utils/constants";
 import { customizeNodeTypeAtom } from "./NodeStyleDialog";
@@ -16,22 +13,14 @@ export type SingleNodeStylingProps = {
 
 export default function SingleNodeStyling({
   vertexType,
-
   ...rest
 }: SingleNodeStylingProps) {
-  const setNodePreferences = useSetAtom(userStylingNodeAtom(vertexType));
+  const { setVertexStyle } = useVertexStyling(vertexType);
   const displayConfig = useDisplayVertexTypeConfig(vertexType);
 
   const [displayAs, setDisplayAs] = useState(displayConfig.displayLabel);
 
   const setCustomizeNodeType = useSetAtom(customizeNodeTypeAtom);
-
-  const onUserPrefsChange = useCallback(
-    (prefs: Omit<VertexPreferences, "type">) => {
-      setNodePreferences({ type: vertexType, ...prefs });
-    },
-    [setNodePreferences, vertexType]
-  );
 
   // Delayed update of display name to prevent input lag
   const debouncedDisplayAs = useDebounceValue(displayAs, 400);
@@ -41,8 +30,8 @@ export default function SingleNodeStyling({
     if (prevDisplayAs === null || prevDisplayAs === debouncedDisplayAs) {
       return;
     }
-    onUserPrefsChange({ displayLabel: debouncedDisplayAs });
-  }, [debouncedDisplayAs, prevDisplayAs, onUserPrefsChange]);
+    void setVertexStyle({ displayLabel: debouncedDisplayAs });
+  }, [debouncedDisplayAs, prevDisplayAs, setVertexStyle]);
 
   return (
     <FormItem {...rest}>
@@ -63,6 +52,7 @@ export default function SingleNodeStyling({
         <Button
           icon={<StylingIcon />}
           variant="text"
+          // disabled={pending}
           onClick={() => setCustomizeNodeType(vertexType)}
         >
           Customize

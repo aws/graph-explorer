@@ -1,7 +1,6 @@
 import { atomWithLocalForage } from "./localForageEffect";
-import { atomFamily, RESET } from "jotai/utils";
-import { atom, useSetAtom } from "jotai";
-import { SetStateActionWithReset } from "@/utils/jotai";
+import { useAtom, useSetAtom } from "jotai";
+import { clone } from "lodash";
 
 export type ShapeStyle =
   | "rectangle"
@@ -123,93 +122,117 @@ export const userStylingAtom = atomWithLocalForage<UserStyling>(
   "user-styling"
 );
 
-export const userStylingNodeAtom = atomFamily((nodeType: string) =>
-  atom(
-    get => {
-      return get(userStylingAtom).vertices?.find(
-        node => node.type === nodeType
-      );
-    },
+type UpdatedVertexStyle = Omit<VertexPreferences, "type">;
 
-    async (
-      _get,
-      set,
-      update: SetStateActionWithReset<VertexPreferences | undefined>
-    ) => {
-      await set(userStylingAtom, async prevUserStyling => {
-        let newNodes = Array.from((await prevUserStyling).vertices ?? []);
-        const existingIndex = newNodes.findIndex(
-          node => node.type === nodeType
-        );
-        const prev = existingIndex !== -1 ? newNodes[existingIndex] : undefined;
+/**
+ * Provides the necessary functions for managing vertex styles.
+ *
+ * @param type The vertex type
+ * @returns The vertex style if it exists, an update function, and a reset function
+ */
+export function useVertexStyling(type: string) {
+  const [allStyling, setAllStyling] = useAtom(userStylingAtom);
 
-        const newValue = typeof update === "function" ? update(prev) : update;
+  const vertexStyle = allStyling.vertices?.find(v => v.type === type);
 
-        if (newValue === RESET || !newValue) {
-          // Remove the entry from user styles
-          newNodes = newNodes.filter(node => node.type !== nodeType);
-        } else if (existingIndex === -1) {
-          // Add it because it doesn't exist
-          newNodes.push(newValue);
-        } else {
-          // Replace the existing entry
-          newNodes[existingIndex] = {
-            ...newNodes[existingIndex],
-            ...newValue,
-          };
-        }
+  const setVertexStyle = async (updatedStyle: UpdatedVertexStyle) => {
+    await setAllStyling(async prevPromise => {
+      // Shallow clone so React re-renders properly
+      const prev = clone(await prevPromise);
 
-        return {
-          ...prev,
-          vertices: newNodes,
-        };
-      });
-    }
-  )
-);
+      const hasEntry = prev.vertices?.some(v => v.type === type);
+      if (hasEntry) {
+        // Update the existing entry, merging the updates with the existing style
+        prev.vertices = prev.vertices?.map(existing => {
+          if (existing.type === type) {
+            return {
+              ...existing,
+              ...updatedStyle,
+            };
+          }
+          return existing;
+        });
+      } else {
+        // Add the new entry
+        prev.vertices = (prev.vertices ?? []).concat({
+          type,
+          ...updatedStyle,
+        });
+      }
 
-export const userStylingEdgeAtom = atomFamily((edgeType: string) =>
-  atom(
-    get => {
-      return get(userStylingAtom).edges?.find(edge => edge.type === edgeType);
-    },
-    async (
-      _get,
-      set,
-      update: SetStateActionWithReset<EdgePreferences | undefined>
-    ) => {
-      await set(userStylingAtom, async prev => {
-        let newEdges = Array.from((await prev).edges ?? []);
-        const existingIndex = newEdges.findIndex(
-          edge => edge.type === edgeType
-        );
-        const prevValue =
-          existingIndex !== -1 ? newEdges[existingIndex] : undefined;
-        const newValue =
-          typeof update === "function" ? update(prevValue) : update;
+      return prev;
+    });
+  };
 
-        if (newValue === RESET || !newValue) {
-          // Remove the entry from user styles
-          newEdges = newEdges.filter(edge => edge.type !== edgeType);
-        } else if (existingIndex === -1) {
-          // Add it because it doesn't exist
-          newEdges.push(newValue);
-        } else {
-          // Replace the existing entry
-          newEdges[existingIndex] = {
-            ...newEdges[existingIndex],
-            ...newValue,
-          };
-        }
+  const resetVertexStyle = async () =>
+    await setAllStyling(async prevPromise => {
+      const prev = clone(await prevPromise);
+      prev.vertices = prev.vertices?.filter(v => v.type !== type);
+      return prev;
+    });
 
-        return {
-          ...prev,
-          edges: newEdges,
-        };
-      });
-    }
-  )
-);
+  return {
+    vertexStyle,
+    setVertexStyle,
+    resetVertexStyle,
+  };
+}
+
+type UpdatedEdgeStyle = Omit<EdgePreferences, "type">;
+
+/**
+ * Provides the necessary functions for managing edge styles.
+ *
+ * @param type The edge type
+ * @returns The edge style if it exists, an update function, and a reset function
+ */
+export function useEdgeStyling(type: string) {
+  const [allStyling, setAllStyling] = useAtom(userStylingAtom);
+
+  const edgeStyle = allStyling.edges?.find(v => v.type === type);
+
+  const setEdgeStyle = async (updatedStyle: UpdatedEdgeStyle) => {
+    await setAllStyling(async prevPromise => {
+      // Shallow clone so React re-renders properly
+      const prev = clone(await prevPromise);
+
+      const hasEntry = prev.edges?.some(v => v.type === type);
+      if (hasEntry) {
+        // Update the existing entry, merging the updates with the existing style
+        prev.edges = prev.edges?.map(existing => {
+          if (existing.type === type) {
+            return {
+              ...existing,
+              ...updatedStyle,
+            };
+          }
+          return existing;
+        });
+      } else {
+        // Add the new entry
+        prev.edges = (prev.edges ?? []).concat({
+          type,
+          ...updatedStyle,
+        });
+      }
+
+      return prev;
+    });
+  };
+
+  const resetEdgeStyle = async () =>
+    await setAllStyling(async prevPromise => {
+      const prev = clone(await prevPromise);
+      prev.edges = prev.edges?.filter(v => v.type !== type);
+      return prev;
+    });
+
+  return {
+    edgeStyle,
+    setEdgeStyle,
+    resetEdgeStyle,
+  };
+}
 
 export const userLayoutAtom = atomWithLocalForage<UserPreferences["layout"]>(
   {
