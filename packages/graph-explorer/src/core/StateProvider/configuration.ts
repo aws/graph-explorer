@@ -1,5 +1,5 @@
 import { isEqual, uniq } from "lodash";
-import { atom } from "jotai";
+import { atom, useAtomValue } from "jotai";
 import { sanitizeText } from "@/utils";
 import DEFAULT_ICON_URL from "@/utils/defaultIconUrl";
 import {
@@ -205,11 +205,17 @@ export const allVertexTypeConfigsSelector = atom(get => {
   const configuration = get(mergedConfigurationSelector);
   return new Map(configuration?.schema?.vertices.map(vt => [vt.type, vt]));
 });
+export function useAllVertexTypeConfigs() {
+  return useAtomValue(allVertexTypeConfigsSelector);
+}
 
 export const allEdgeTypeConfigsSelector = atom(get => {
   const configuration = get(mergedConfigurationSelector);
   return new Map(configuration?.schema?.edges.map(et => [et.type, et]));
 });
+export function useAllEdgeTypeConfigs() {
+  return useAtomValue(allEdgeTypeConfigsSelector);
+}
 
 export const vertexTypesSelector = atom(get => {
   const configuration = get(mergedConfigurationSelector);

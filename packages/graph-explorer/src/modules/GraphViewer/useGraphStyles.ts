@@ -3,15 +3,13 @@ import { useEffect, useState } from "react";
 import {
   getEdgeIdFromRenderedEdgeId,
   RenderedEdgeId,
+  useAllEdgeTypeConfigs,
+  useAllVertexTypeConfigs,
   useDisplayEdgesInCanvas,
 } from "@/core";
 import type { GraphProps } from "@/components";
 import useTextTransform from "@/hooks/useTextTransform";
 import { renderNode } from "./renderNode";
-import {
-  useEdgeTypeConfigs,
-  useVertexTypeConfigs,
-} from "@/core/ConfigurationProvider/useConfiguration";
 import { MISSING_DISPLAY_VALUE } from "@/utils/constants";
 
 const LINE_PATTERN = {
@@ -21,8 +19,8 @@ const LINE_PATTERN = {
 };
 
 const useGraphStyles = () => {
-  const vtConfigs = useVertexTypeConfigs();
-  const etConfigs = useEdgeTypeConfigs();
+  const vtConfigs = useAllVertexTypeConfigs();
+  const etConfigs = useAllEdgeTypeConfigs();
   const textTransform = useTextTransform();
   const [styles, setStyles] = useState<GraphProps["styles"]>({});
   const displayEdges = useDisplayEdgesInCanvas();
@@ -31,7 +29,7 @@ const useGraphStyles = () => {
     (async () => {
       const styles: GraphProps["styles"] = {};
 
-      for (const vtConfig of vtConfigs) {
+      for (const vtConfig of vtConfigs.values()) {
         const vt = vtConfig.type;
 
         // Process the image data or SVG
@@ -51,7 +49,7 @@ const useGraphStyles = () => {
         };
       }
 
-      for (const etConfig of etConfigs) {
+      for (const etConfig of etConfigs.values()) {
         const et = etConfig?.type;
 
         let label = textTransform(et);
