@@ -15,7 +15,7 @@ const isDescendant = (element: HTMLElement, parentId: string | string[]) => {
 };
 
 interface UseOnClickOutsideProps {
-  ref: React.RefObject<HTMLElement>;
+  ref: React.RefObject<HTMLElement | null>;
   onClickOutside: (e: MouseEvent) => void;
   id: string | string[];
   disabledEvents?: string[];

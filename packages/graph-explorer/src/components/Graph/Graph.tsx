@@ -9,6 +9,7 @@ import {
   ForwardedRef,
   forwardRef,
   memo,
+  ReactNode,
   useCallback,
   useImperativeHandle,
   useState,
@@ -57,7 +58,7 @@ export interface GraphProps<
 > extends Config,
     Selection,
     Omit<UseAddClickEvents<TNode, TEdge>, "cy"> {
-  children?: (graphRef: CytoscapeType) => JSX.Element;
+  children?: (graphRef: CytoscapeType) => ReactNode;
   //Data inputs
   nodes: GraphNode[];
   edges: GraphEdge[];

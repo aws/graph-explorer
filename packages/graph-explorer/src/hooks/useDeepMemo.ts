@@ -15,7 +15,7 @@ export const useDeepMemo = <TKey, TValue>(
   memoFn: () => TValue,
   key: TKey
 ): TValue => {
-  const ref = useRef<{ key: TKey; value: TValue }>();
+  const ref = useRef<{ key: TKey; value: TValue } | null>(null);
 
   if (!ref.current || !isEqual(key, ref.current.key)) {
     ref.current = { key, value: memoFn() };

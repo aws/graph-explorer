@@ -21,7 +21,7 @@ export default function useManageElementsVisibility({
   graphStructureVersion,
   hideEdges,
 }: UseManageElementsSelection) {
-  const removedEntities = useRef<CollectionReturnValue | undefined>();
+  const removedEntities = useRef<CollectionReturnValue | null>(null);
   // manage hidden nodes and edges
   useEffect(() => {
     if (!cy) {

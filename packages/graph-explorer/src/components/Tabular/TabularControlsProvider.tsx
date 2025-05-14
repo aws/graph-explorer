@@ -11,9 +11,9 @@ import {
 import type { TabularInstance } from "./helpers/tableInstanceToTabularInstance";
 
 type TabularContextValue<T extends object> = {
-  tableRef: RefObject<HTMLDivElement>;
+  tableRef: RefObject<HTMLDivElement | null>;
   instance: TabularInstance<T>;
-  headerControlsRef: RefObject<HTMLDivElement>;
+  headerControlsRef: RefObject<HTMLDivElement | null>;
   headerControlsPosition?: string;
   setHeaderControlsPosition(position: CSSProperties["position"]): void;
   disablePagination?: boolean;
@@ -31,8 +31,8 @@ const TabularControlsProvider = <T extends object>({
   tabularInstance,
   children,
 }: PropsWithChildren<{ tabularInstance: TabularInstance<T> }>) => {
-  const tableRef = useRef<HTMLDivElement>(null);
-  const headerControlsRef = useRef<HTMLDivElement>(null);
+  const tableRef = useRef<HTMLDivElement | null>(null);
+  const headerControlsRef = useRef<HTMLDivElement | null>(null);
   const [headerControlsPosition, setHeaderControlsPosition] =
     useState<CSSProperties["position"]>();
 

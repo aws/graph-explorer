@@ -1,5 +1,3 @@
-import { ComponentProps, JSXElementConstructor } from "react";
-
 export * from "./Button";
 
 export * from "./Checkbox";
@@ -82,7 +80,3 @@ export * from "./VertexRow";
 
 export { default as Workspace } from "./Workspace";
 export * from "./Workspace";
-
-export type ComponentBaseProps<
-  T extends keyof JSX.IntrinsicElements | JSXElementConstructor<any> = "div",
-> = Omit<ComponentProps<T>, "children">;
