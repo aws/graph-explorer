@@ -1,5 +1,5 @@
 import { atom, useAtomValue, useSetAtom } from "jotai";
-import { atomFamily, atomWithReset, RESET } from "jotai/utils";
+import { atomWithReset, RESET } from "jotai/utils";
 import {
   createRenderedVertexId,
   getVertexIdFromRenderedVertexId,
@@ -13,10 +13,6 @@ export function toNodeMap(nodes: Vertex[]): Map<VertexId, Vertex> {
 }
 
 export const nodesAtom = atomWithReset(new Map<VertexId, Vertex>());
-
-export const nodeSelector = atomFamily((id: VertexId) =>
-  atom(get => get(nodesAtom).get(id) ?? null)
-);
 
 export const nodesSelectedIdsAtom = atomWithReset(new Set<VertexId>());
 

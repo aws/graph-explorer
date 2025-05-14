@@ -7,7 +7,6 @@ import {
   DisplayVertexTypeConfig,
   displayVertexTypeConfigSelector,
   queryEngineSelector,
-  nodeSelector,
   getRawId,
   Vertex,
   VertexId,
@@ -64,9 +63,10 @@ export function useDisplayVerticesFromVertices(vertices: Vertex[]) {
 
 const selectedDisplayVerticesSelector = atom(get => {
   const selectedIds = get(nodesSelectedIdsAtom);
+  const nodes = get(nodesAtom);
   return selectedIds
     .values()
-    .map(id => get(nodeSelector(id)))
+    .map(id => nodes.get(id))
     .filter(n => n != null)
     .map(n => get(displayVertexSelector(n)))
     .filter(n => n != null)
