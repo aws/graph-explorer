@@ -20,7 +20,8 @@
   ([#909](https://github.com/aws/graph-explorer/pull/909))
 - **Updated** the state management layer to use Jotai instead of Recoil
   ([#896](https://github.com/aws/graph-explorer/pull/896),
-  [#920](https://github.com/aws/graph-explorer/pull/920))
+  [#920](https://github.com/aws/graph-explorer/pull/920),
+  [#921](https://github.com/aws/graph-explorer/pull/921))
 - **Updated** to use the React Compiler to improve performance and simplify code
   ([#916](https://github.com/aws/graph-explorer/pull/916))
 - **Fixed** issue where a schema sync would not automatically run when a
