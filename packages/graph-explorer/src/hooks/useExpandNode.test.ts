@@ -8,6 +8,9 @@ import {
 describe("useDefaultNeighborExpansionLimit", () => {
   it("should return the app limit when defined", () => {
     const dbState = new DbState();
+    if (dbState.activeConfig.connection) {
+      delete dbState.activeConfig.connection.nodeExpansionLimit;
+    }
     const { result } = renderHookWithJotai(
       () => useDefaultNeighborExpansionLimit(),
       snapshot => {
