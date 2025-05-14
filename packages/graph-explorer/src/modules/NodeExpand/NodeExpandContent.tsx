@@ -1,56 +1,58 @@
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import type { VertexId } from "@/core";
-import { Button, PanelError, PanelFooter, VertexRow } from "@/components";
+import {
+  Button,
+  DefaultQueryErrorBoundary,
+  PanelFooter,
+  VertexRow,
+} from "@/components";
 import ExpandGraphIcon from "@/components/icons/ExpandGraphIcon";
 import GraphIcon from "@/components/icons/GraphIcon";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import PanelEmptyState from "@/components/PanelEmptyState/PanelEmptyState";
-import { DisplayVertex, useNeighbors, useNode, useWithTheme } from "@/core";
+import { DisplayVertex, useNeighbors, useNode } from "@/core";
 import { useExpandNode } from "@/hooks";
 import useNeighborsOptions, {
   NeighborOption,
 } from "@/hooks/useNeighborsOptions";
 import useTranslations from "@/hooks/useTranslations";
 import NeighborsList from "@/modules/common/NeighborsList/NeighborsList";
-import defaultStyles from "./NodeExpandContent.styles";
 import NodeExpandFilters, { NodeExpandFilter } from "./NodeExpandFilters";
-import { ExpandNodeFilters } from "@/hooks/useExpandNode";
-import { useUpdateNodeCountsQuery } from "@/hooks/useUpdateNodeCounts";
-import { cn } from "@/utils";
+import {
+  ExpandNodeFilters,
+  useDefaultNeighborExpansionLimit,
+} from "@/hooks/useExpandNode";
+import { useUpdateNodeCountsSuspenseQuery } from "@/hooks/useUpdateNodeCounts";
 
 export type NodeExpandContentProps = {
   vertex: DisplayVertex;
 };
 
 export default function NodeExpandContent({ vertex }: NodeExpandContentProps) {
-  const styleWithTheme = useWithTheme();
-
   return (
-    <div
-      className={cn(styleWithTheme(defaultStyles), "flex h-full grow flex-col")}
-    >
+    <div className="flex h-full grow flex-col">
       <VertexRow vertex={vertex} className="border-b p-3" />
-      <ExpandSidebarContent vertexId={vertex.id} />
+      <DefaultQueryErrorBoundary>
+        <Suspense fallback={<Loading />}>
+          <ExpandSidebarContent vertexId={vertex.id} />
+        </Suspense>
+      </DefaultQueryErrorBoundary>
     </div>
+  );
+}
+
+function Loading() {
+  return (
+    <PanelEmptyState icon={<LoadingSpinner />} title="Loading Neighbors" />
   );
 }
 
 function ExpandSidebarContent({ vertexId }: { vertexId: VertexId }) {
   const t = useTranslations();
-  const query = useUpdateNodeCountsQuery(vertexId);
+  const { data } = useUpdateNodeCountsSuspenseQuery(vertexId);
   const neighborsOptions = useNeighborsOptions(vertexId);
 
-  if (query.isError) {
-    return <PanelError error={query.error} onRetry={query.refetch} />;
-  }
-
-  if (query.isPending) {
-    return (
-      <PanelEmptyState icon={<LoadingSpinner />} title="Loading Neighbors" />
-    );
-  }
-
-  if (!query.data || query.data?.totalCount <= 0) {
+  if (data.totalCount <= 0) {
     return (
       <PanelEmptyState
         icon={<GraphIcon />}
@@ -81,17 +83,17 @@ function ExpansionOptions({
 }) {
   const t = useTranslations();
   const neighbors = useNeighbors(vertexId);
+  const defaultLimit = useDefaultNeighborExpansionLimit();
 
   const [selectedType, setSelectedType] = useState<string>(
     firstNeighborAvailableForExpansion(neighborsOptions)?.value ?? ""
   );
   const [filters, setFilters] = useState<Array<NodeExpandFilter>>([]);
-  const [limit, setLimit] = useState<number | null>(null);
+  const [limitEnabled, setLimitEnabled] = useState(Boolean(defaultLimit));
+  const [limit, setLimit] = useState<number>(defaultLimit ?? 100);
 
   const hasSelectedType = Boolean(selectedType);
   const hasUnfetchedNeighbors = (neighbors?.unfetched ?? 0) > 0;
-  const expandOffset =
-    limit !== null && neighbors ? neighbors.fetched : undefined;
 
   // Reset filters when selected type changes
   const [prevSelectedType, setPrevSelectedType] = useState(selectedType);
@@ -103,7 +105,6 @@ function ExpansionOptions({
   if (!hasUnfetchedNeighbors) {
     return (
       <PanelEmptyState
-        className="empty-panel-state"
         icon={<GraphIcon />}
         title={t("node-expand.no-unfetched-title")}
         subtitle={t("node-expand.no-unfetched-subtitle")}
@@ -121,8 +122,10 @@ function ExpansionOptions({
         onFiltersChange={setFilters}
         limit={limit}
         onLimitChange={setLimit}
+        limitEnabled={limitEnabled}
+        onLimitEnabledToggle={setLimitEnabled}
       />
-      <PanelFooter className="flex flex-row justify-end">
+      <PanelFooter className="sticky bottom-0 flex flex-row justify-end">
         <ExpandButton
           isDisabled={!hasUnfetchedNeighbors || !hasSelectedType}
           vertexId={vertexId}
@@ -133,8 +136,7 @@ function ExpansionOptions({
               operator: "LIKE",
               value: filter.value,
             })),
-            limit: limit || undefined,
-            offset: expandOffset,
+            limit: limitEnabled && limit ? limit : undefined,
           }}
         />
       </PanelFooter>
@@ -165,7 +167,9 @@ function ExpandButton({
       }
       variant="filled"
       isDisabled={isPending || isDisabled}
-      onPress={() => expandNode(vertexId, vertex.types, filters)}
+      onPress={() =>
+        expandNode({ vertexId, vertexTypes: vertex.types, ...filters })
+      }
     >
       Expand
     </Button>

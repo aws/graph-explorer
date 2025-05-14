@@ -10,6 +10,10 @@ export * from "./CheckboxList";
 export { default as Chip } from "./Chip";
 export * from "./Chip";
 
+export * from "./CommonAnimationProps";
+
+export * from "./DefaultQueryErrorBoundary";
+
 export { PanelEmptyState } from "./PanelEmptyState";
 export * from "./PanelEmptyState";
 export { default as PanelError } from "./PanelError";
@@ -62,7 +66,11 @@ export * from "./Select";
 export { default as SelectField } from "./SelectField";
 export * from "./SelectField";
 
+export * from "./SettingsSection";
+
 export * from "./SidebarTabs";
+
+export * from "./Switch";
 
 export * from "./Tooltip";
 export * from "./Typography";

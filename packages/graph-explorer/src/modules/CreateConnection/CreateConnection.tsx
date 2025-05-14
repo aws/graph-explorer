@@ -398,7 +398,7 @@ const CreateConnection = ({
               }}
             />
             <span className="flex items-center gap-2">
-              Enable Node Expansion Limit
+              Override Default Neighbor Expansion Limit
               <InfoTooltip>
                 Large datasets may require a default limit to the amount of
                 neighbors that are returned during any single expansion.

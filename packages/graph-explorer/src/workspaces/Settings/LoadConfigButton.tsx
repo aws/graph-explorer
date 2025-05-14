@@ -5,9 +5,8 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import localforage from "localforage";
 import { useState, useRef } from "react";
 import {
-  UploadIcon,
   ErrorIcon,
-  SectionTitle,
+  SettingsSectionTitle,
   Paragraph,
   LoaderIcon,
   Button,
@@ -20,6 +19,7 @@ import {
 } from "@/core/StateProvider/localDb";
 import { useDebounceValue } from "@/hooks";
 import { APP_NAME, RELOAD_URL } from "@/utils/constants";
+import { FolderOpenIcon } from "lucide-react";
 
 export default function LoadConfigButton() {
   const [file, setFile] = useState<File | null>(null);
@@ -58,8 +58,8 @@ export default function LoadConfigButton() {
         disabled={load.isPending}
       >
         {props => (
-          <Button icon={<UploadIcon />} {...props}>
-            Load Configuration
+          <Button icon={<FolderOpenIcon />} className="min-w-28" {...props}>
+            Load
           </Button>
         )}
       </FileButton>
@@ -117,7 +117,9 @@ function ConfirmationModal({
         </div>
         <div className="flex grow flex-col gap-8">
           <div>
-            <SectionTitle>Replace {APP_NAME} Configuration</SectionTitle>
+            <SettingsSectionTitle>
+              Replace {APP_NAME} Configuration
+            </SettingsSectionTitle>
             <Paragraph>
               This action will replace all configuration data within {APP_NAME},
               including connections and custom styles, with the contents of the
@@ -198,7 +200,7 @@ function ParseFailureModal({
         </div>
         <div className="flex grow flex-col gap-8">
           <div>
-            <SectionTitle>Failed To Parse Config</SectionTitle>
+            <SettingsSectionTitle>Failed To Parse Config</SettingsSectionTitle>
             <Paragraph>
               Could not parse the contents of the config file provided. Perhaps
               the file is not a config file from {APP_NAME} or the file is
@@ -236,7 +238,7 @@ function SuccessModal({ success }: { success: boolean }) {
         </div>
         <div className="flex grow flex-col gap-8">
           <div>
-            <SectionTitle>Restore Successful</SectionTitle>
+            <SettingsSectionTitle>Restore Successful</SettingsSectionTitle>
             <Paragraph className="w-full min-w-0">
               All data was restored successfully. Please reload {APP_NAME}
               to complete the process.

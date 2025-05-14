@@ -47,6 +47,8 @@ export type ConnectionConfig = {
   /**
    * A default limit on the number of nodes that can be expanded in one query.
    * By default, undefined.
+   *
+   * This value overrides the app wide default limit.
    */
   nodeExpansionLimit?: number;
 };

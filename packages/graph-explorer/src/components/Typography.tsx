@@ -5,19 +5,7 @@ export function PageHeading({ className, ...props }: ComponentProps<"h1">) {
   return (
     <h1
       className={cn(
-        "font-extraBold text-text-primary mb-2 text-4xl leading-relaxed",
-        className
-      )}
-      {...props}
-    />
-  );
-}
-
-export function SectionTitle({ className, ...props }: ComponentProps<"h2">) {
-  return (
-    <h2
-      className={cn(
-        "text-text-secondary text-xl font-bold leading-loose",
+        "font-extraBold text-text-primary text-4xl leading-snug",
         className
       )}
       {...props}
@@ -28,7 +16,10 @@ export function SectionTitle({ className, ...props }: ComponentProps<"h2">) {
 export function Paragraph({ className, ...props }: ComponentProps<"p">) {
   return (
     <p
-      className={cn("text-text-secondary my-2 text-lg font-light", className)}
+      className={cn(
+        "text-text-secondary my-2 text-pretty text-base font-light",
+        className
+      )}
       {...props}
     />
   );

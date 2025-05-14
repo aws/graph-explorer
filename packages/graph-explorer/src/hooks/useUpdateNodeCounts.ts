@@ -1,4 +1,4 @@
-import { useQueries, useQuery } from "@tanstack/react-query";
+import { useQueries, useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { neighborsCountQuery } from "@/connector";
 import { useExplorer } from "@/core/connector";
 import { VertexId } from "@/core";
@@ -6,6 +6,11 @@ import { VertexId } from "@/core";
 export function useUpdateNodeCountsQuery(vertexId: VertexId) {
   const explorer = useExplorer();
   return useQuery(neighborsCountQuery({ vertexId }, explorer));
+}
+
+export function useUpdateNodeCountsSuspenseQuery(vertexId: VertexId) {
+  const explorer = useExplorer();
+  return useSuspenseQuery(neighborsCountQuery({ vertexId }, explorer));
 }
 
 export function useAllNeighborCountsQuery(vertexIds: VertexId[]) {

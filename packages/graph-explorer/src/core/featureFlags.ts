@@ -28,3 +28,19 @@ export const featureFlagsSelector = atom(get => {
 export function useFeatureFlags() {
   return useAtomValue(featureFlagsSelector);
 }
+
+/*
+ * General App Settings
+ */
+
+/** Setting that enables/disables the default limit for neighbor expansion. */
+export const defaultNeighborExpansionLimitEnabledAtom = atomWithLocalForage(
+  true,
+  "defaultNeighborExpansionLimitEnabled"
+);
+
+/** Setting that defines the default limit for neighbor expansion. */
+export const defaultNeighborExpansionLimitAtom = atomWithLocalForage(
+  10,
+  "defaultNeighborExpansionLimit"
+);
