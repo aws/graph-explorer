@@ -130,7 +130,6 @@
     "lint-staged": "^16.0.0",
     "postcss": "^8.5.3",
     "prettier-plugin-tailwindcss": "^0.6.11",
-    "react-test-renderer": "^19.1.0",
     "rimraf": "^6.0.1",
     "serve": "^14.2.4",
     "tailwindcss": "^3.4.17",
