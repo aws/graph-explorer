@@ -12,6 +12,7 @@ import { createLoggerFromConnection } from "@/core/connector";
 import { FeatureFlags, NormalizedConnection } from "@/core";
 import { vertexDetails } from "./vertexDetails";
 import { edgeDetails } from "./edgeDetails";
+import { rawQuery } from "./rawQuery";
 
 function _gremlinFetch(
   connection: NormalizedConnection,
@@ -131,6 +132,16 @@ export function createGremlinExplorer(
 
       remoteLogger.info("[Gremlin Explorer] Fetching edge details...");
       const result = await edgeDetails(
+        _gremlinFetch(connection, featureFlags, options),
+        req
+      );
+      return result;
+    },
+    async rawQuery(req, options) {
+      options ??= {};
+      options.queryId = v4();
+      remoteLogger.info("[Gremlin Explorer] Fetching raw query...");
+      const result = await rawQuery(
         _gremlinFetch(connection, featureFlags, options),
         req
       );
