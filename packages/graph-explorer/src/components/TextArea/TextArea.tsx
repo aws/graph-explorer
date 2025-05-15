@@ -24,7 +24,7 @@ export const TextArea = (
   const localRef = useRef<HTMLTextAreaElement>(null);
   const { inputProps } = useTextField(
     props,
-    (ref as RefObject<HTMLTextAreaElement>) || localRef
+    (ref as RefObject<HTMLTextAreaElement | null>) || localRef
   );
 
   return (

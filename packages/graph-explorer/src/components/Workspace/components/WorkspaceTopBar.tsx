@@ -87,5 +87,5 @@ WorkspaceTopBar.Version = WorkspaceTopBarVersion;
 
 export default WorkspaceTopBar as ((
   props: PropsWithChildren<WorkspaceTopBarProps>
-) => ReactElement) &
+) => ReactElement<any>) &
   WorkspaceTopBarComposition & { displayName: string };

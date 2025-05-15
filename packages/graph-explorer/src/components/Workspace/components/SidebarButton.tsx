@@ -6,7 +6,7 @@ import { cn } from "@/utils";
 const SidebarButton = React.forwardRef<
   React.ElementRef<typeof TogglePrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof TogglePrimitive.Root> & {
-    icon: React.ReactElement;
+    icon: React.ReactElement<any>;
     title: React.ReactNode;
     badge?: boolean;
   }

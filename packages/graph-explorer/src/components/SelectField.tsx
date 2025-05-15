@@ -1,10 +1,8 @@
 import type {
-  ComponentProps,
   ComponentPropsWithoutRef,
-  ForwardedRef,
+  ComponentPropsWithRef,
   ReactNode,
 } from "react";
-import { forwardRef } from "react";
 import { cn } from "@/utils";
 import { Label } from "./Label";
 import {
@@ -33,31 +31,24 @@ export type SelectFieldProps = {
   labelPlacement?: "top" | "inner";
   placeholder?: string;
   ["aria-label"]?: string;
-} & Pick<ComponentProps<typeof Select>, "value" | "onValueChange"> &
-  ComponentPropsWithoutRef<typeof SelectTrigger>;
+} & Pick<ComponentPropsWithoutRef<typeof Select>, "value" | "onValueChange"> &
+  ComponentPropsWithRef<typeof SelectTrigger>;
 
-function SelectField(
-  {
-    options = [],
-    value,
-    onValueChange,
-    label,
-    labelPlacement,
-    className,
-    ...props
-  }: SelectFieldProps,
-  ref: ForwardedRef<HTMLButtonElement>
-) {
+function SelectField({
+  options = [],
+  value,
+  onValueChange,
+  label,
+  labelPlacement,
+  className,
+  ...props
+}: SelectFieldProps) {
   const selectedOption = options.find(option => option.value === value);
 
   if (labelPlacement === "inner") {
     return (
       <Select value={value} onValueChange={onValueChange}>
-        <SelectTrigger
-          ref={ref}
-          className={cn("h-11 py-1", className)}
-          {...props}
-        >
+        <SelectTrigger className={cn("h-11 py-1", className)} {...props}>
           <div className="flex flex-col items-start justify-center gap-0">
             <div className="text-text-secondary text-xs leading-none">
               {label}
@@ -127,4 +118,4 @@ function RenderItem({ item }: { item: SelectOption }) {
   });
 }
 
-export default forwardRef<HTMLButtonElement, SelectFieldProps>(SelectField);
+export default SelectField;

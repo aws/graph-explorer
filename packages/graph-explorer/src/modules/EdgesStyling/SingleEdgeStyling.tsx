@@ -1,12 +1,5 @@
-import { useCallback, useEffect, useState } from "react";
-import {
-  Button,
-  ComponentBaseProps,
-  FormItem,
-  InputField,
-  Label,
-  StylingIcon,
-} from "@/components";
+import { ComponentPropsWithRef, useCallback, useEffect, useState } from "react";
+import { Button, FormItem, InputField, Label, StylingIcon } from "@/components";
 import { useDisplayEdgeTypeConfig } from "@/core";
 import {
   EdgePreferences,
@@ -19,7 +12,7 @@ import { useSetAtom } from "jotai";
 
 export type SingleEdgeStylingProps = {
   edgeType: string;
-} & ComponentBaseProps;
+} & ComponentPropsWithRef<typeof FormItem>;
 
 export default function SingleEdgeStyling({
   edgeType,

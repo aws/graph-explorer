@@ -14,9 +14,9 @@ import type {
 } from "@/components/Graph/hooks/useAddClickEvents";
 import { useClickOutside } from "@/utils";
 
-const useContextMenu = () => {
+function useContextMenu() {
   // Bounding container used to position the layer correctly
-  const parentRef = useRef<HTMLDivElement>(null);
+  const parentRef = useRef<HTMLDivElement | null>(null);
 
   const [contextNodeId, setContextNodeId] = useState<VertexId | null>(null);
   const [contextEdgeId, setContextEdgeId] = useState<EdgeId | null>(null);
@@ -131,6 +131,6 @@ const useContextMenu = () => {
     contextEdgeId,
     clearAllLayers,
   };
-};
+}
 
 export default useContextMenu;

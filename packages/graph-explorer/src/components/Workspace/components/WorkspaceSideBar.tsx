@@ -49,5 +49,5 @@ WorkspaceSideBar.Content = WorkspaceSideBarContent;
 
 export default WorkspaceSideBar as ((
   props: PropsWithChildren<WorkspaceSideBarProps>
-) => ReactElement) &
+) => ReactElement<any>) &
   WorkspaceSideBarComposition & { displayName: string };

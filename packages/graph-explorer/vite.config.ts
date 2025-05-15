@@ -61,7 +61,7 @@ export default defineConfig(({ mode }) => {
             [
               "babel-plugin-react-compiler",
               {
-                target: "18", // '17' | '18' | '19'
+                target: "19", // '17' | '18' | '19'
               },
             ],
           ],
