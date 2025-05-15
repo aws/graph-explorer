@@ -2,6 +2,12 @@ import { useCallback, useState } from "react";
 import {
   Button,
   Checkbox,
+  DialogBody,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
   FormItem,
   InfoTooltip,
   InputField,
@@ -19,7 +25,6 @@ import {
   ConfigurationContextProps,
   createNewConfigurationId,
   RawConfiguration,
-  useWithTheme,
 } from "@/core";
 import {
   activeConfigurationAtom,
@@ -27,14 +32,14 @@ import {
 } from "@/core/StateProvider/configuration";
 import { schemaAtom } from "@/core/StateProvider/schema";
 import useResetState from "@/core/StateProvider/useResetState";
-import { cn, formatDate } from "@/utils";
-import defaultStyles from "./CreateConnection.styles";
+import { formatDate } from "@/utils";
 import {
   DEFAULT_FETCH_TIMEOUT,
   DEFAULT_NODE_EXPAND_LIMIT,
 } from "@/utils/constants";
 import { useAtomCallback } from "jotai/utils";
 import { useQueryClient } from "@tanstack/react-query";
+import { VisuallyHidden } from "@mantine/core";
 
 type ConnectionForm = {
   name?: string;
@@ -85,7 +90,6 @@ const CreateConnection = ({
   existingConfig,
   onClose,
 }: CreateConnectionProps) => {
-  const styleWithTheme = useWithTheme();
   const queryClient = useQueryClient();
 
   const configId = existingConfig?.id;
@@ -250,8 +254,18 @@ const CreateConnection = ({
   };
 
   return (
-    <div className={cn(styleWithTheme(defaultStyles), "flex flex-col gap-6")}>
-      <div className="space-y-6">
+    <DialogContent className="min-w-[500px]">
+      <DialogHeader>
+        <DialogTitle>
+          {existingConfig ? "Update connection" : "Add New Connection"}
+        </DialogTitle>
+        <VisuallyHidden>
+          <DialogDescription>
+            {existingConfig ? "Update connection" : "Add New Connection"}
+          </DialogDescription>
+        </VisuallyHidden>
+      </DialogHeader>
+      <DialogBody>
         <FormItem>
           <Label>Name</Label>
           <InputField
@@ -358,24 +372,22 @@ const CreateConnection = ({
             </FormItem>
           </>
         )}
-        <FormItem>
-          <Label className="cursor-pointer">
-            <Checkbox
-              value="fetchTimeoutEnabled"
-              checked={form.fetchTimeoutEnabled}
-              onCheckedChange={checked => {
-                onFormChange("fetchTimeoutEnabled")(checked);
-              }}
-            />
-            <span className="flex items-center gap-2">
-              Enable Fetch Timeout
-              <InfoTooltip>
-                Large datasets may require a large amount of time to fetch. If
-                the timeout is exceeded, the request will be cancelled.
-              </InfoTooltip>
-            </span>
-          </Label>
-        </FormItem>
+        <Label className="cursor-pointer">
+          <Checkbox
+            value="fetchTimeoutEnabled"
+            checked={form.fetchTimeoutEnabled}
+            onCheckedChange={checked => {
+              onFormChange("fetchTimeoutEnabled")(checked);
+            }}
+          />
+          <span className="flex items-center gap-2">
+            Enable Fetch Timeout
+            <InfoTooltip>
+              Large datasets may require a large amount of time to fetch. If the
+              timeout is exceeded, the request will be cancelled.
+            </InfoTooltip>
+          </span>
+        </Label>
         {form.fetchTimeoutEnabled && (
           <FormItem>
             <Label>Fetch Timeout (ms)</Label>
@@ -388,24 +400,22 @@ const CreateConnection = ({
             />
           </FormItem>
         )}
-        <FormItem>
-          <Label className="cursor-pointer">
-            <Checkbox
-              value="nodeExpansionLimitEnabled"
-              checked={form.nodeExpansionLimitEnabled}
-              onCheckedChange={checked => {
-                onFormChange("nodeExpansionLimitEnabled")(checked);
-              }}
-            />
-            <span className="flex items-center gap-2">
-              Override Default Neighbor Expansion Limit
-              <InfoTooltip>
-                Large datasets may require a default limit to the amount of
-                neighbors that are returned during any single expansion.
-              </InfoTooltip>
-            </span>
-          </Label>
-        </FormItem>
+        <Label className="cursor-pointer">
+          <Checkbox
+            value="nodeExpansionLimitEnabled"
+            checked={form.nodeExpansionLimitEnabled}
+            onCheckedChange={checked => {
+              onFormChange("nodeExpansionLimitEnabled")(checked);
+            }}
+          />
+          <span className="flex items-center gap-2">
+            Override Default Neighbor Expansion Limit
+            <InfoTooltip>
+              Large datasets may require a default limit to the amount of
+              neighbors that are returned during any single expansion.
+            </InfoTooltip>
+          </span>
+        </Label>
         {form.nodeExpansionLimitEnabled && (
           <FormItem>
             <Label>Node Expansion Limit</Label>
@@ -418,16 +428,16 @@ const CreateConnection = ({
             />
           </FormItem>
         )}
-      </div>
-      <div className="flex justify-between border-t pt-4">
+      </DialogBody>
+      <DialogFooter>
         <Button variant="default" onPress={onClose}>
           Cancel
         </Button>
         <Button variant="filled" onPress={onSubmit}>
           {!configId ? "Add Connection" : "Update Connection"}
         </Button>
-      </div>
-    </div>
+      </DialogFooter>
+    </DialogContent>
   );
 };
 

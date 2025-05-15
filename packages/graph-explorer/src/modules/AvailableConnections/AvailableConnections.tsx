@@ -1,4 +1,3 @@
-import { Modal } from "@mantine/core";
 import {
   AddIcon,
   PanelHeaderActionButton,
@@ -10,6 +9,8 @@ import {
   Panel,
   PanelContent,
   FileButton,
+  Dialog,
+  DialogTrigger,
 } from "@/components";
 import {
   activeConfigurationAtom,
@@ -54,6 +55,16 @@ const AvailableConnections = ({
             />
           </FileButton>
           <PanelHeaderDivider />
+          <Dialog open={isModalOpen} onOpenChange={onModalChange}>
+            <DialogTrigger asChild>
+              <PanelHeaderActionButton
+                label="Sync"
+                icon={<TrayArrowIcon />}
+                onActionClick={() => {}}
+              />
+            </DialogTrigger>
+            <CreateConnection onClose={() => onModalChange(false)} />
+          </Dialog>
           <PanelHeaderActionButton
             label="Add New Connection"
             icon={<AddIcon />}
@@ -86,15 +97,6 @@ const AvailableConnections = ({
             </div>
           )}
         />
-        <Modal
-          centered={true}
-          title="Add New Connection"
-          opened={isModalOpen}
-          onClose={() => onModalChange(false)}
-          size="600px"
-        >
-          <CreateConnection onClose={() => onModalChange(false)} />
-        </Modal>
       </PanelContent>
     </Panel>
   );

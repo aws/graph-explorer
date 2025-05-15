@@ -1,9 +1,10 @@
-import { Modal } from "@mantine/core";
 import { useState } from "react";
 import {
   Button,
   Chip,
   DeleteIcon,
+  Dialog,
+  DialogTrigger,
   EdgeIcon,
   EditIcon,
   GraphIcon,
@@ -103,12 +104,19 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
             onActionClick={onConfigExport}
           />
           <PanelHeaderDivider />
-          <PanelHeaderActionButton
-            label="Edit connection"
-            icon={<EditIcon />}
-            isDisabled={isSync}
-            onActionClick={() => setEdit(true)}
-          />
+          <Dialog open={edit} onOpenChange={setEdit}>
+            <DialogTrigger asChild>
+              <PanelHeaderActionButton
+                label="Edit connection"
+                icon={<EditIcon />}
+                isDisabled={isSync}
+              />
+            </DialogTrigger>
+            <CreateConnection
+              onClose={() => setEdit(false)}
+              existingConfig={config}
+            />
+          </Dialog>
           <PanelHeaderActionButton
             label="Delete connection"
             icon={<DeleteIcon />}
@@ -157,17 +165,6 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
           <DebugActions />
         </NotInProduction>
         <MainContentLayout />
-        <Modal
-          opened={edit}
-          onClose={() => setEdit(false)}
-          title="Update connection"
-          size="600px"
-        >
-          <CreateConnection
-            onClose={() => setEdit(false)}
-            existingConfig={config}
-          />
-        </Modal>
       </PanelContent>
     </Panel>
   );
