@@ -19,11 +19,20 @@ const EnvironmentValuesSchema = z.object({
     .enum(["fatal", "error", "warn", "info", "debug", "trace", "silent"])
     .default("debug"),
   LOG_STYLE: z.enum(["cloudwatch", "default"]).default("default"),
+  CONFIGURATION_FOLDER_PATH: z.coerce.string().default(clientRoot),
 });
+
+const defaultConnectionFolderPath = process.env.CONFIGURATION_FOLDER_PATH
+  ? process.env.CONFIGURATION_FOLDER_PATH
+  : clientRoot;
 
 // Load environment variables from .env file.
 dotenv.config({
-  path: [path.join(clientRoot, ".env.local"), path.join(clientRoot, ".env")],
+  path: [
+    path.join(clientRoot, ".env.local"),
+    path.join(clientRoot, ".env"),
+    path.join(defaultConnectionFolderPath, ".env"),
+  ],
 });
 
 // Parse the environment values from the process
