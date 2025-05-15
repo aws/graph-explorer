@@ -22,15 +22,16 @@ const EnvironmentValuesSchema = z.object({
   CONFIGURATION_FOLDER_PATH: z.coerce.string().default(clientRoot),
 });
 
-const defaultConnectionFolderPath = process.env.CONFIGURATION_FOLDER_PATH ?
-  process.env.CONFIGURATION_FOLDER_PATH : clientRoot
+const defaultConnectionFolderPath = process.env.CONFIGURATION_FOLDER_PATH
+  ? process.env.CONFIGURATION_FOLDER_PATH
+  : clientRoot;
 
 // Load environment variables from .env file.
 dotenv.config({
   path: [
     path.join(clientRoot, ".env.local"),
     path.join(clientRoot, ".env"),
-    path.join(defaultConnectionFolderPath, ".env")
+    path.join(defaultConnectionFolderPath, ".env"),
   ],
 });
 

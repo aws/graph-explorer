@@ -163,8 +163,9 @@ async function fetchData(
   }
 }
 
-const defaultConnectionFolderPath = env.CONFIGURATION_FOLDER_PATH ?
-  env.CONFIGURATION_FOLDER_PATH : clientRoot
+const defaultConnectionFolderPath = env.CONFIGURATION_FOLDER_PATH
+  ? env.CONFIGURATION_FOLDER_PATH
+  : clientRoot;
 
 app.use(compression()); // Use compression middleware
 app.use(cors());
@@ -172,7 +173,9 @@ app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
 app.use(
   "/defaultConnection",
-  express.static(path.join(defaultConnectionFolderPath, "defaultConnection.json"))
+  express.static(
+    path.join(defaultConnectionFolderPath, "defaultConnection.json")
+  )
 );
 
 // Host the Graph Explorer UI static files
