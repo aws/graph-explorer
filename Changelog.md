@@ -1,5 +1,14 @@
 # graph-explorer Change Log
 
+## Upcoming
+
+### New features
+
+- **Added** query editor for Gremlin connections
+  ([#949](https://github.com/aws/graph-explorer/pull/949))
+
+### Other changes
+
 ## Release v1.16.0
 
 This release of Graph Explorer introduces significant usability improvements and
