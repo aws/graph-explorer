@@ -4,6 +4,8 @@
 
 ### Other changes
 
+- **Added** query editor for Gremlin connections
+  ([#878](https://github.com/aws/graph-explorer/pull/878))
 - **Added** ability to customize default neighbor expansion limit
   ([#925](https://github.com/aws/graph-explorer/pull/925))
 - **Improved** Improved connection details by moving the sync button near the

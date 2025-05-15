@@ -221,5 +221,10 @@ export function createSparqlExplorer(
         req
       );
     },
+    // eslint-disable-next-line @typescript-eslint/require-await
+    async rawQuery(_req, _options) {
+      remoteLogger.info("[SPARQL Explorer] Fetching raw query...");
+      throw new Error("Raw query functionality is not implemented for SPARQL");
+    },
   } satisfies Explorer;
 }
