@@ -7,7 +7,7 @@ import {
   InputField,
   Label,
   SelectField,
-  TextArea,
+  TextAreaField,
 } from "@/components";
 import {
   ConnectionConfig,
@@ -280,7 +280,7 @@ const CreateConnection = ({
               endpoint URL that is accessible from outside the VPC, e.g., EC2.
             </InfoTooltip>
           </Label>
-          <TextArea
+          <TextAreaField
             aria-label="Public or Proxy Endpoint"
             data-autofocus={true}
             value={form.url}
@@ -304,7 +304,7 @@ const CreateConnection = ({
         {form.proxyConnection && (
           <FormItem>
             <Label>Graph Connection URL</Label>
-            <TextArea
+            <TextAreaField
               aria-label="Graph Connection URL"
               data-autofocus={true}
               value={form.graphDbUrl}
