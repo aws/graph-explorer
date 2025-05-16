@@ -67,6 +67,8 @@ export * from "./SidebarTabs";
 
 export * from "./Switch";
 
+export * from "./TextArea";
+
 export { default as TextAreaField } from "./TextAreaField";
 export * from "./TextAreaField";
 
