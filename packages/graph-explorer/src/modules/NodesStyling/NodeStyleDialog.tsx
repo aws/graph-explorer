@@ -1,6 +1,13 @@
-import { Modal } from "@mantine/core";
 import {
   Button,
+  Dialog,
+  DialogBody,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
   FileButton,
   IconButton,
   InputField,
@@ -10,7 +17,7 @@ import {
 } from "@/components";
 import ColorInput from "@/components/ColorInput/ColorInput";
 import { useNotification } from "@/components/NotificationProvider";
-import { useDisplayVertexTypeConfig, useWithTheme } from "@/core";
+import { useDisplayVertexTypeConfig } from "@/core";
 import {
   LineStyle,
   ShapeStyle,
@@ -19,7 +26,6 @@ import {
 import useTranslations from "@/hooks/useTranslations";
 import { LINE_STYLE_OPTIONS } from "./lineStyling";
 import { NODE_SHAPE } from "./nodeShape";
-import modalDefaultStyles from "./SingleNodeStylingModal.style";
 import {
   RESERVED_ID_PROPERTY,
   RESERVED_TYPES_PROPERTY,
@@ -39,39 +45,23 @@ const file2Base64 = (file: File): Promise<string> => {
 };
 
 export default function NodeStyleDialog() {
-  const styleWithTheme = useWithTheme();
-
   const [customizeNodeType, setCustomizeNodeType] = useAtom(
     customizeNodeTypeAtom
   );
 
   return (
-    <Modal
-      opened={Boolean(customizeNodeType)}
-      onClose={() => setCustomizeNodeType(undefined)}
-      centered={true}
-      size="auto"
-      title={
-        customizeNodeType ? (
-          <DialogTitle vertexType={customizeNodeType} />
-        ) : null
-      }
-      className={styleWithTheme(modalDefaultStyles)}
-      overlayProps={{
-        backgroundOpacity: 0.1,
+    <Dialog
+      open={Boolean(customizeNodeType)}
+      onOpenChange={opened => {
+        if (!opened) {
+          setCustomizeNodeType(undefined);
+        }
       }}
     >
-      {customizeNodeType ? <Content vertexType={customizeNodeType} /> : null}
-    </Modal>
-  );
-}
-
-function DialogTitle({ vertexType }: { vertexType: string }) {
-  const displayConfig = useDisplayVertexTypeConfig(vertexType);
-  return (
-    <div>
-      Customize <strong>{displayConfig.displayLabel}</strong>
-    </div>
+      <DialogContent>
+        {customizeNodeType ? <Content vertexType={customizeNodeType} /> : null}
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -119,124 +109,144 @@ function Content({ vertexType }: { vertexType: string }) {
   };
 
   return (
-    <div className="modal-container">
-      <div>
-        <p>Display Attributes</p>
-        <div className="attrs-container">
-          <SelectField
-            label="Display Name Attribute"
-            labelPlacement="inner"
-            value={displayConfig.displayNameAttribute}
-            onValueChange={value =>
-              setVertexStyle({ displayNameAttribute: value })
-            }
-            options={selectOptions}
-          />
-          <SelectField
-            label="Display Description Attribute"
-            labelPlacement="inner"
-            value={displayConfig.displayDescriptionAttribute}
-            onValueChange={value =>
-              setVertexStyle({
-                longDisplayNameAttribute: value,
-              })
-            }
-            options={selectOptions}
-          />
-        </div>
-      </div>
-      <div>
-        <p>Shape and Icon</p>
-        <div className="flex flex-row items-center gap-2">
-          <SelectField
-            label="Style"
-            labelPlacement="inner"
-            value={vertexStyle?.shape || "ellipse"}
-            onValueChange={value =>
-              setVertexStyle({ shape: value as ShapeStyle })
-            }
-            options={NODE_SHAPE}
-            className="grow"
-          />
-          <FileButton
-            accept="image/*"
-            onChange={file => {
-              file && convertImageToBase64AndSetNewIcon(file);
-            }}
-            asChild
-          >
-            <IconButton
-              variant="filled"
-              className="text-text-primary hover:text-text-primary group rounded-full border-0 bg-transparent p-0 hover:cursor-pointer hover:bg-gray-200"
-              icon={
-                <>
-                  <div className="hidden group-hover:flex">
-                    <UploadIcon />
-                  </div>
-                  <VertexSymbol
-                    vertexStyle={displayConfig.style}
-                    className="size-full group-hover:hidden"
-                  />
-                </>
+    <>
+      <DialogHeader>
+        <DialogTitle>Customize Node Style</DialogTitle>
+        <DialogDescription>
+          Customize styles for node type {displayConfig.displayLabel}
+        </DialogDescription>
+      </DialogHeader>
+      <DialogBody>
+        <div className="space-y-4">
+          <div className="font-medium leading-none">Display Attributes</div>
+          <div className="flex gap-4">
+            <SelectField
+              label="Display Name Attribute"
+              labelPlacement="inner"
+              value={displayConfig.displayNameAttribute}
+              onValueChange={value =>
+                setVertexStyle({ displayNameAttribute: value })
               }
-              tooltipText="Upload New Icon"
+              options={selectOptions}
+              className="w-full"
             />
-          </FileButton>
+            <SelectField
+              label="Display Description Attribute"
+              labelPlacement="inner"
+              value={displayConfig.displayDescriptionAttribute}
+              onValueChange={value =>
+                setVertexStyle({
+                  longDisplayNameAttribute: value,
+                })
+              }
+              options={selectOptions}
+              className="w-full"
+            />
+          </div>
         </div>
-      </div>
-      <div>
-        <p>Shape Styling</p>
-        <div className="attrs-container">
-          <ColorInput
-            label="Color"
-            labelPlacement="inner"
-            color={vertexStyle?.color || "#17457b"}
-            onChange={(color: string) => setVertexStyle({ color })}
-          />
-          <InputField
-            label="Background Opacity"
-            labelPlacement="inner"
-            type="number"
-            min={0}
-            max={1}
-            step={0.1}
-            value={vertexStyle?.backgroundOpacity ?? 0.4}
-            onChange={(value: number) =>
-              setVertexStyle({ backgroundOpacity: value })
-            }
-          />
+        <div className="space-y-4">
+          <div className="font-medium leading-none">Shape and Icon</div>
+          <div className="flex flex-row items-center gap-4">
+            <SelectField
+              label="Style"
+              labelPlacement="inner"
+              value={vertexStyle?.shape || "ellipse"}
+              onValueChange={value =>
+                setVertexStyle({ shape: value as ShapeStyle })
+              }
+              options={NODE_SHAPE}
+              className="grow"
+            />
+            <FileButton
+              accept="image/*"
+              onChange={file => {
+                file && convertImageToBase64AndSetNewIcon(file);
+              }}
+              asChild
+            >
+              <IconButton
+                variant="filled"
+                className="text-text-primary hover:text-text-primary group rounded-full border-0 bg-transparent p-0 hover:cursor-pointer hover:bg-gray-200"
+                icon={
+                  <>
+                    <div className="hidden group-hover:flex">
+                      <UploadIcon />
+                    </div>
+                    <VertexSymbol
+                      vertexStyle={displayConfig.style}
+                      className="size-full group-hover:hidden"
+                    />
+                  </>
+                }
+                tooltipText="Upload New Icon"
+              />
+            </FileButton>
+          </div>
         </div>
-      </div>
-      <div>
-        <div className="attrs-container">
-          <ColorInput
-            label="Border Color"
-            labelPlacement="inner"
-            color={vertexStyle?.borderColor || "#17457b"}
-            onChange={(color: string) => setVertexStyle({ borderColor: color })}
-          />
-          <InputField
-            label="Border Width"
-            labelPlacement="inner"
-            type="number"
-            min={0}
-            value={vertexStyle?.borderWidth ?? 0}
-            onChange={(value: number) => setVertexStyle({ borderWidth: value })}
-          />
-          <SelectField
-            label="Border Style"
-            labelPlacement="inner"
-            value={vertexStyle?.borderStyle || "solid"}
-            onValueChange={value =>
-              setVertexStyle({ borderStyle: value as LineStyle })
-            }
-            options={LINE_STYLE_OPTIONS}
-          />
+        <div className="space-y-4">
+          <div className="font-medium leading-none">Shape Styling</div>
+          <div className="flex gap-4">
+            <ColorInput
+              label="Color"
+              labelPlacement="inner"
+              color={vertexStyle?.color || "#17457b"}
+              onChange={(color: string) => setVertexStyle({ color })}
+              className="w-full"
+            />
+            <InputField
+              label="Background Opacity"
+              labelPlacement="inner"
+              type="number"
+              min={0}
+              max={1}
+              step={0.1}
+              value={vertexStyle?.backgroundOpacity ?? 0.4}
+              onChange={(value: number) =>
+                setVertexStyle({ backgroundOpacity: value })
+              }
+              className="w-full"
+            />
+          </div>
+          <div className="flex gap-4">
+            <ColorInput
+              label="Border Color"
+              labelPlacement="inner"
+              color={vertexStyle?.borderColor || "#17457b"}
+              onChange={(color: string) =>
+                setVertexStyle({ borderColor: color })
+              }
+              className="w-full"
+            />
+            <InputField
+              label="Border Width"
+              labelPlacement="inner"
+              type="number"
+              min={0}
+              value={vertexStyle?.borderWidth ?? 0}
+              onChange={(value: number) =>
+                setVertexStyle({ borderWidth: value })
+              }
+              className="w-full"
+            />
+            <SelectField
+              label="Border Style"
+              labelPlacement="inner"
+              value={vertexStyle?.borderStyle || "solid"}
+              onValueChange={value =>
+                setVertexStyle({ borderStyle: value as LineStyle })
+              }
+              options={LINE_STYLE_OPTIONS}
+              className="w-full"
+            />
+          </div>
         </div>
-      </div>
-      <div className="actions">
-        <Button onClick={resetVertexStyle}>Reset to Default</Button>
-      </div>
-    </div>
+      </DialogBody>
+      <DialogFooter className="sm:justify-between">
+        <Button onPress={() => resetVertexStyle()}>Reset to Default</Button>
+        <DialogClose asChild>
+          <Button variant="filled">Done</Button>
+        </DialogClose>
+      </DialogFooter>
+    </>
   );
 }
