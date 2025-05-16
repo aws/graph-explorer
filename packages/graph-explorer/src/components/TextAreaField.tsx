@@ -16,7 +16,7 @@ export interface TextAreaProps
   errorMessage?: string;
 }
 
-const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
+const TextAreaField = forwardRef<HTMLTextAreaElement, TextAreaProps>(
   ({ ...props }: TextAreaProps, ref: ForwardedRef<HTMLTextAreaElement>) => {
     const { className, validationState, errorMessage } = props;
     const localRef = useRef<HTMLTextAreaElement>(null);
@@ -43,4 +43,4 @@ const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
   }
 );
 
-export default TextArea;
+export default TextAreaField;
