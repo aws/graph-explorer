@@ -8,6 +8,7 @@ import {
 import type { ConfigurationContextProps } from "./types";
 import { atomFamily } from "jotai/utils";
 import { atom, useAtomValue } from "jotai";
+import { isEqual } from "lodash";
 
 const assembledConfigSelector = atom(get => {
   const configuration = get(mergedConfigurationSelector);
@@ -44,22 +45,25 @@ export const vertexTypeAttributesSelector = atomFamily(
       );
 
       return attributesByNameMap.values().toArray();
-    })
+    }),
+  isEqual
 );
 
-export const edgeTypeAttributesSelector = atomFamily((edgeTypes: string[]) =>
-  atom(get => {
-    const attributesByNameMap = new Map(
-      edgeTypes
-        .values()
-        .map(et => get(edgeTypeConfigSelector(et)))
-        .filter(et => et != null)
-        .flatMap(et => et.attributes)
-        .map(attr => [attr.name, attr])
-    );
+export const edgeTypeAttributesSelector = atomFamily(
+  (edgeTypes: string[]) =>
+    atom(get => {
+      const attributesByNameMap = new Map(
+        edgeTypes
+          .values()
+          .map(et => get(edgeTypeConfigSelector(et)))
+          .filter(et => et != null)
+          .flatMap(et => et.attributes)
+          .map(attr => [attr.name, attr])
+      );
 
-    return attributesByNameMap.values().toArray();
-  })
+      return attributesByNameMap.values().toArray();
+    }),
+  isEqual
 );
 
 export const vertexTypeConfigSelector = atomFamily((vertexType: string) =>
@@ -75,16 +79,18 @@ export function useVertexTypeConfig(vertexType: string) {
   return useAtomValue(vertexTypeConfigSelector(vertexType));
 }
 
-const vertexTypeConfigsSelector = atomFamily((vertexTypes?: string[]) =>
-  atom(get => {
-    const allConfigs = get(allVertexTypeConfigsSelector);
-    if (!vertexTypes) {
-      return allConfigs.values().toArray();
-    }
-    return vertexTypes.map(
-      type => allConfigs.get(type) ?? getDefaultVertexTypeConfig(type)
-    );
-  })
+const vertexTypeConfigsSelector = atomFamily(
+  (vertexTypes?: string[]) =>
+    atom(get => {
+      const allConfigs = get(allVertexTypeConfigsSelector);
+      if (!vertexTypes) {
+        return allConfigs.values().toArray();
+      }
+      return vertexTypes.map(
+        type => allConfigs.get(type) ?? getDefaultVertexTypeConfig(type)
+      );
+    }),
+  isEqual
 );
 
 /** Gets the matching vertex type configs or the generated default values. */
@@ -105,16 +111,18 @@ export function useEdgeTypeConfig(edgeType: string) {
   return useAtomValue(edgeTypeConfigSelector(edgeType));
 }
 
-const edgeTypeConfigsSelector = atomFamily((edgeTypes?: string[]) =>
-  atom(get => {
-    const allConfigs = get(allEdgeTypeConfigsSelector);
-    if (!edgeTypes) {
-      return allConfigs.values().toArray();
-    }
-    return edgeTypes.map(
-      type => allConfigs.get(type) ?? getDefaultEdgeTypeConfig(type)
-    );
-  })
+const edgeTypeConfigsSelector = atomFamily(
+  (edgeTypes?: string[]) =>
+    atom(get => {
+      const allConfigs = get(allEdgeTypeConfigsSelector);
+      if (!edgeTypes) {
+        return allConfigs.values().toArray();
+      }
+      return edgeTypes.map(
+        type => allConfigs.get(type) ?? getDefaultEdgeTypeConfig(type)
+      );
+    }),
+  isEqual
 );
 
 /** Gets the matching edge type configs or the generated default values. */

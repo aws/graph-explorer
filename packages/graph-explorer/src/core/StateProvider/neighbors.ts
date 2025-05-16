@@ -12,6 +12,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { neighborsCountQuery } from "@/connector";
 import { useExplorer } from "../connector";
 import { useNotification } from "@/components/NotificationProvider";
+import { isEqual } from "lodash";
 
 export type NeighborCounts = {
   all: number;
@@ -252,8 +253,10 @@ export function useFetchedNeighborsCallback() {
     );
 }
 
-const allFetchedNeighborsSelector = atomFamily((ids: VertexId[]) =>
-  atom(get => {
-    return new Map(ids.map(id => [id, get(fetchedNeighborsSelector(id))]));
-  })
+const allFetchedNeighborsSelector = atomFamily(
+  (ids: VertexId[]) =>
+    atom(get => {
+      return new Map(ids.map(id => [id, get(fetchedNeighborsSelector(id))]));
+    }),
+  isEqual
 );
