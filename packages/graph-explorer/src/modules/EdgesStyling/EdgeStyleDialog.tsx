@@ -106,7 +106,7 @@ function Content({ edgeType }: { edgeType: string }) {
           <ColorInput
             label="Color"
             labelPlacement="inner"
-            startColor={edgePreferences?.labelColor || "#17457b"}
+            color={edgePreferences?.labelColor || "#17457b"}
             onChange={(color: string) =>
               onUserPrefsChange({ labelColor: color })
             }
@@ -130,7 +130,7 @@ function Content({ edgeType }: { edgeType: string }) {
           <ColorInput
             label="Border Color"
             labelPlacement="inner"
-            startColor={edgePreferences?.labelBorderColor || "#17457b"}
+            color={edgePreferences?.labelBorderColor || "#17457b"}
             onChange={(color: string) =>
               onUserPrefsChange({ labelBorderColor: color })
             }
@@ -162,7 +162,7 @@ function Content({ edgeType }: { edgeType: string }) {
           <ColorInput
             label="Color"
             labelPlacement="inner"
-            startColor={edgePreferences?.lineColor || "#b3b3b3"}
+            color={edgePreferences?.lineColor || "#b3b3b3"}
             onChange={(color: string) =>
               onUserPrefsChange({ lineColor: color })
             }

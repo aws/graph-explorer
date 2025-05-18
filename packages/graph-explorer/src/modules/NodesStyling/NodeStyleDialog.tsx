@@ -200,7 +200,7 @@ function Content({ vertexType }: { vertexType: string }) {
           <ColorInput
             label="Color"
             labelPlacement="inner"
-            startColor={nodePreferences?.color || "#17457b"}
+            color={nodePreferences?.color || "#17457b"}
             onChange={(color: string) => onUserPrefsChange({ color })}
           />
           <InputField
@@ -222,7 +222,7 @@ function Content({ vertexType }: { vertexType: string }) {
           <ColorInput
             label="Border Color"
             labelPlacement="inner"
-            startColor={nodePreferences?.borderColor || "#17457b"}
+            color={nodePreferences?.borderColor || "#17457b"}
             onChange={(color: string) =>
               onUserPrefsChange({ borderColor: color })
             }
