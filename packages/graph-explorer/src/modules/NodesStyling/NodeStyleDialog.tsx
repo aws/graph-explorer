@@ -1,6 +1,7 @@
-import { FileButton, Modal } from "@mantine/core";
+import { Modal } from "@mantine/core";
 import {
   Button,
+  FileButton,
   IconButton,
   InputField,
   SelectField,
@@ -171,26 +172,24 @@ function Content({ vertexType }: { vertexType: string }) {
             onChange={file => {
               file && convertImageToBase64AndSetNewIcon(file);
             }}
+            asChild
           >
-            {props => (
-              <IconButton
-                variant="filled"
-                className="text-text-primary hover:text-text-primary group rounded-full border-0 bg-transparent p-0 hover:cursor-pointer hover:bg-gray-200"
-                icon={
-                  <>
-                    <div className="hidden group-hover:flex">
-                      <UploadIcon />
-                    </div>
-                    <VertexSymbol
-                      vertexStyle={displayConfig.style}
-                      className="size-full group-hover:hidden"
-                    />
-                  </>
-                }
-                tooltipText="Upload New Icon"
-                onClick={props.onClick}
-              />
-            )}
+            <IconButton
+              variant="filled"
+              className="text-text-primary hover:text-text-primary group rounded-full border-0 bg-transparent p-0 hover:cursor-pointer hover:bg-gray-200"
+              icon={
+                <>
+                  <div className="hidden group-hover:flex">
+                    <UploadIcon />
+                  </div>
+                  <VertexSymbol
+                    vertexStyle={displayConfig.style}
+                    className="size-full group-hover:hidden"
+                  />
+                </>
+              }
+              tooltipText="Upload New Icon"
+            />
           </FileButton>
         </div>
       </div>

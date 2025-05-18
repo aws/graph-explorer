@@ -2,13 +2,31 @@ import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { Button } from "./Button";
 
-export interface FileButtonProps
-  extends Omit<React.ComponentPropsWithoutRef<typeof Button>, "onChange"> {
+type FilesProps =
+  | {
+      multiple: true;
+      onChange?: (files: FileList | null) => void;
+    }
+  | {
+      multiple?: false;
+      onChange?: (file: File | null) => void;
+    };
+
+type ButtonProps = Omit<
+  React.ComponentPropsWithRef<typeof Button>,
+  "onChange" | "onClick" | "onPress" | "onActionClick"
+>;
+
+export type FileButtonHandle = {
+  reset: () => void;
+};
+
+export type FileButtonProps = {
+  resetRef?: React.RefObject<FileButtonHandle | null>;
   asChild?: boolean;
-  onChange?: (files: FileList | null) => void;
   accept?: string;
-  multiple?: boolean;
-}
+} & ButtonProps &
+  FilesProps;
 
 /**
  * A wrapper around whatever button you want to open a file dialog. It will
@@ -19,44 +37,69 @@ export interface FileButtonProps
  *   <Button>Open File</Button>
  * </FileButton>
  */
-export const FileButton = React.forwardRef<HTMLButtonElement, FileButtonProps>(
-  (
-    { asChild, onChange, accept, multiple, isDisabled, children, ...props },
-    ref
-  ) => {
-    const inputRef = React.useRef<HTMLInputElement | null>(null);
+export const FileButton = ({
+  asChild,
+  resetRef,
+  onChange,
+  accept,
+  multiple,
+  disabled,
+  children,
+  ...props
+}: FileButtonProps) => {
+  const inputRef = React.useRef<HTMLInputElement | null>(null);
 
-    const handleClick = () => {
-      !isDisabled && inputRef.current?.click();
-    };
+  const handleClick = () => {
+    !disabled && inputRef.current?.click();
+  };
 
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-      const files = event.target.files;
+  // Calls onChange with the selected file or files
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (multiple) {
       onChange?.(files);
-      // Reset the input value to allow selecting the same file again
-      event.target.value = "";
-    };
+    } else {
+      const file = files?.[0] ?? null;
+      onChange?.(file);
+    }
+    // Reset the input value to allow selecting the same file again
+    event.target.value = "";
+  };
 
-    const Component = asChild ? (Slot as any) : Button;
+  // Provides a way for the consumer to reset the input value
+  React.useImperativeHandle(resetRef, () => ({
+    reset: () => {
+      if (inputRef.current) {
+        inputRef.current.value = "";
+      }
+    },
+  }));
 
-    return (
-      <>
-        <Component ref={ref} type="button" onClick={handleClick} {...props}>
-          {children}
-        </Component>
-        <input
-          ref={inputRef}
-          type="file"
-          accept={accept}
-          multiple={multiple}
-          onChange={handleChange}
-          disabled={isDisabled}
-          className="hidden"
-          aria-hidden
-        />
-      </>
-    );
-  }
-);
+  // Use the child as the component, or fall back to a button
+  const Component = asChild ? (Slot as any) : Button;
+
+  return (
+    <>
+      <Component
+        type="button"
+        disabled={disabled}
+        onClick={handleClick}
+        {...props}
+      >
+        {children}
+      </Component>
+      <input
+        ref={inputRef}
+        type="file"
+        accept={accept}
+        multiple={multiple}
+        onChange={handleChange}
+        disabled={disabled}
+        className="hidden"
+        aria-hidden
+      />
+    </>
+  );
+};
 
 FileButton.displayName = "FileButton";
