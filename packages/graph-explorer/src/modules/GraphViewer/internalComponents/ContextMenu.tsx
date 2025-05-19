@@ -18,13 +18,11 @@ import {
   useDisplayVerticesInCanvas,
   EdgeId,
   VertexId,
+  userLayoutAtom,
+  SidebarItems,
 } from "@/core";
 import { edgesSelectedIdsAtom } from "@/core/StateProvider/edges";
 import { nodesSelectedIdsAtom } from "@/core/StateProvider/nodes";
-import {
-  SidebarItems,
-  userLayoutAtom,
-} from "@/core/StateProvider/userPreferences";
 import { useClearGraph, useRemoveFromGraph, useTranslations } from "@/hooks";
 import useGraphGlobalActions from "../useGraphGlobalActions";
 import {

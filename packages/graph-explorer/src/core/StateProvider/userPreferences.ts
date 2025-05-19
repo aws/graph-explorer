@@ -1,5 +1,5 @@
 import { atomWithLocalForage } from "./localForageEffect";
-import { useAtom, useSetAtom } from "jotai";
+import { useAtom } from "jotai";
 import { clone } from "lodash";
 
 export type ShapeStyle =
@@ -95,27 +95,6 @@ export type UserStyling = {
   vertices?: Array<VertexPreferences>;
   edges?: Array<EdgePreferences>;
 };
-
-export type UserPreferences = {
-  layout: {
-    activeToggles: Set<string>;
-    activeSidebarItem:
-      | "search"
-      | "details"
-      | "filters"
-      | "expand"
-      | "nodes-styling"
-      | "edges-styling"
-      | "namespaces"
-      | null;
-    tableView?: {
-      height: number;
-    };
-    detailsAutoOpenOnSelection?: boolean;
-  };
-  styling: UserStyling;
-};
-export type SidebarItems = UserPreferences["layout"]["activeSidebarItem"];
 
 export const userStylingAtom = atomWithLocalForage<UserStyling>(
   {},
@@ -231,27 +210,5 @@ export function useEdgeStyling(type: string) {
     edgeStyle,
     setEdgeStyle,
     resetEdgeStyle,
-  };
-}
-
-export const userLayoutAtom = atomWithLocalForage<UserPreferences["layout"]>(
-  {
-    activeToggles: new Set(["graph-viewer", "table-view"]),
-    activeSidebarItem: "search",
-    detailsAutoOpenOnSelection: true,
-    tableView: {
-      height: 300,
-    },
-  },
-  "user-layout"
-);
-
-export function useCloseSidebar() {
-  const setUserLayout = useSetAtom(userLayoutAtom);
-  return () => {
-    setUserLayout(prev => ({
-      ...prev,
-      activeSidebarItem: null,
-    }));
   };
 }

@@ -1,4 +1,4 @@
-import { userLayoutAtom } from "@/core/StateProvider/userPreferences";
+import { userLayoutAtom } from "@/core";
 import { useAtomCallback } from "jotai/utils";
 import { useCallback } from "react";
 
