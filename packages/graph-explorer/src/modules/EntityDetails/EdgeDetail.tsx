@@ -1,4 +1,3 @@
-import { cn } from "@/utils";
 import {
   ArrowCircle,
   ArrowDiamond,
@@ -15,18 +14,20 @@ import {
   VertexRow,
 } from "@/components";
 import {
+  ArrowStyle,
   DisplayAttribute,
   DisplayEdge,
+  LineStyle,
   useDisplayVertex,
-  useWithTheme,
 } from "@/core";
-import defaultStyles from "./EntityDetail.styles";
 import EntityAttribute from "./EntityAttribute";
 import {
   RESERVED_ID_PROPERTY,
   RESERVED_TYPES_PROPERTY,
 } from "@/utils/constants";
 import { useTranslations } from "@/hooks";
+import { IconBaseProps } from "@/components/icons/IconBase";
+import { CSSProperties } from "react";
 
 export type EdgeDetailProps = {
   edge: DisplayEdge;
@@ -37,7 +38,6 @@ const EdgeDetail = ({ edge }: EdgeDetailProps) => {
   const sourceVertex = useDisplayVertex(edge.source.id);
   const targetVertex = useDisplayVertex(edge.target.id);
 
-  const styleWithTheme = useWithTheme();
   const style = edge.typeConfig.style;
 
   const allAttributes: DisplayAttribute[] = [
@@ -79,91 +79,36 @@ const EdgeDetail = ({ edge }: EdgeDetailProps) => {
   ];
 
   return (
-    <div className={styleWithTheme(defaultStyles(style.lineColor))}>
-      <EdgeRow
-        edge={edge}
-        source={sourceVertex}
-        target={targetVertex}
-        className="px-3 py-3"
-      />
-      <div className={cn("source-vertex")}>
-        <div className={cn("start-line", `line-${style.lineStyle || "solid"}`)}>
-          {style.sourceArrowStyle === "triangle" && (
-            <ArrowTriangle className="source-arrow-type" />
-          )}
-          {style.sourceArrowStyle === "triangle-tee" && (
-            <ArrowTriangleTee className="source-arrow-type" />
-          )}
-          {style.sourceArrowStyle === "circle-triangle" && (
-            <ArrowTriangleCircle className="source-arrow-type" />
-          )}
-          {style.sourceArrowStyle === "triangle-cross" && (
-            <ArrowTriangleCross className="source-arrow-type" />
-          )}
-          {style.sourceArrowStyle === "triangle-backcurve" && (
-            <ArrowTriangleBackCurve className="source-arrow-type" />
-          )}
-          {style.sourceArrowStyle === "tee" && (
-            <ArrowTee className="source-arrow-type" />
-          )}
-          {style.sourceArrowStyle === "vee" && (
-            <ArrowVee className="source-arrow-type" />
-          )}
-          {style.sourceArrowStyle === "square" && (
-            <ArrowSquare className="source-arrow-type" />
-          )}
-          {style.sourceArrowStyle === "circle" && (
-            <ArrowCircle className="source-arrow-type" />
-          )}
-          {style.sourceArrowStyle === "diamond" && (
-            <ArrowDiamond className="source-arrow-type" />
-          )}
-          {(style.sourceArrowStyle === "none" || !style.sourceArrowStyle) && (
-            <ArrowNone className="source-arrow-type" />
-          )}
+    <div className="space-y-6 p-3">
+      {/* Uses a grid with the first column width matching the size of the edge icon */}
+      <div className="grid grid-cols-[2.75rem_1fr] gap-3">
+        <EdgeRow
+          edge={edge}
+          source={sourceVertex}
+          target={targetVertex}
+          className="col-span-2"
+        />
+        <div
+          className="row-span-2 flex flex-col items-center"
+          style={{ color: style.lineColor || DEFAULT_LINE_COLOR }}
+        >
+          <Arrow
+            kind={style.sourceArrowStyle || "none"}
+            className="-mb-[1px] size-[24px] shrink-0 -rotate-90 transform"
+          />
+          <div
+            className="h-full w-[2px]"
+            style={styleForLineStyle(style.lineStyle || "solid")}
+          ></div>
+          <Arrow
+            kind={style.targetArrowStyle || "triangle"}
+            className="-mt-[1px] size-[24px] shrink-0 rotate-90 transform"
+          />
         </div>
-        <VertexRow vertex={sourceVertex} className="py-3" />
+        <VertexRow vertex={sourceVertex} />
+        <VertexRow vertex={targetVertex} />
       </div>
-      <div className={cn("target-vertex")}>
-        <div className={cn("end-line", `line-${style.lineStyle || "solid"}`)}>
-          {(style.targetArrowStyle === "triangle" ||
-            !style.targetArrowStyle) && (
-            <ArrowTriangle className="target-arrow-type" />
-          )}
-          {style.targetArrowStyle === "triangle-tee" && (
-            <ArrowTriangleTee className="target-arrow-type" />
-          )}
-          {style.targetArrowStyle === "circle-triangle" && (
-            <ArrowTriangleCircle className="target-arrow-type" />
-          )}
-          {style.targetArrowStyle === "triangle-cross" && (
-            <ArrowTriangleCross className="target-arrow-type" />
-          )}
-          {style.targetArrowStyle === "triangle-backcurve" && (
-            <ArrowTriangleBackCurve className="target-arrow-type" />
-          )}
-          {style.targetArrowStyle === "tee" && (
-            <ArrowTee className="target-arrow-type" />
-          )}
-          {style.targetArrowStyle === "vee" && (
-            <ArrowVee className="target-arrow-type" />
-          )}
-          {style.targetArrowStyle === "square" && (
-            <ArrowSquare className="target-arrow-type" />
-          )}
-          {style.targetArrowStyle === "circle" && (
-            <ArrowCircle className="target-arrow-type" />
-          )}
-          {style.targetArrowStyle === "diamond" && (
-            <ArrowDiamond className="target-arrow-type" />
-          )}
-          {style.targetArrowStyle === "none" && (
-            <ArrowNone className="target-arrow-type" />
-          )}
-        </div>
-        <VertexRow vertex={targetVertex} className="py-3" />
-      </div>
-      <div className="space-y-[1.125rem] p-3">
+      <div className="space-y-[1.125rem]">
         <div className="text-lg font-bold">Properties</div>
         <ul className="space-y-[1.125rem]">
           {allAttributes.map(attribute => (
@@ -174,5 +119,57 @@ const EdgeDetail = ({ edge }: EdgeDetailProps) => {
     </div>
   );
 };
+
+const DEFAULT_LINE_COLOR = "#b3b3b3";
+
+/** Maps the line style to the CSS properties for the line representation. */
+function styleForLineStyle(style: LineStyle): CSSProperties {
+  if (style === "solid") {
+    return {
+      background: "currentColor",
+    };
+  }
+
+  if (style === "dashed") {
+    return {
+      backgroundImage:
+        "linear-gradient(currentColor 70%, rgba(255, 255, 255, 0) 0%)",
+      backgroundPosition: "right",
+      backgroundSize: "2px 10px",
+      backgroundRepeat: "repeat-y",
+    };
+  }
+
+  if (style === "dotted") {
+    return {
+      backgroundImage:
+        "linear-gradient(currentColor 50%, rgba(255, 255, 255, 0) 0%)",
+      backgroundPosition: "right",
+      backgroundSize: "2px 6px",
+      backgroundRepeat: "repeat-y",
+    };
+  }
+
+  return {};
+}
+
+/** Renders the right SVG icon for the given arrow style. */
+function Arrow({ kind, ...props }: { kind: ArrowStyle } & IconBaseProps) {
+  return (
+    <>
+      {kind === "triangle" && <ArrowTriangle {...props} />}
+      {kind === "triangle-tee" && <ArrowTriangleTee {...props} />}
+      {kind === "circle-triangle" && <ArrowTriangleCircle {...props} />}
+      {kind === "triangle-cross" && <ArrowTriangleCross {...props} />}
+      {kind === "triangle-backcurve" && <ArrowTriangleBackCurve {...props} />}
+      {kind === "tee" && <ArrowTee {...props} />}
+      {kind === "vee" && <ArrowVee {...props} />}
+      {kind === "square" && <ArrowSquare {...props} />}
+      {kind === "circle" && <ArrowCircle {...props} />}
+      {kind === "diamond" && <ArrowDiamond {...props} />}
+      {kind === "none" && <ArrowNone {...props} />}
+    </>
+  );
+}
 
 export default EdgeDetail;
