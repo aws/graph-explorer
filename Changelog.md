@@ -28,7 +28,8 @@
   ([#919](https://github.com/aws/graph-explorer/pull/919))
 - **Updated** dependencies and minor refactoring of code
   ([#922](https://github.com/aws/graph-explorer/pull/922),
-  [#926](https://github.com/aws/graph-explorer/pull/926))
+  [#926](https://github.com/aws/graph-explorer/pull/926),
+  [#931](https://github.com/aws/graph-explorer/pull/931))
 
 ## Release v1.15.0
 

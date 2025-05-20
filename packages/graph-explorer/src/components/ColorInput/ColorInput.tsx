@@ -1,49 +1,29 @@
 import { cn } from "@/utils";
-import { ColorPicker, ColorPickerProps } from "@mantine/core";
-import { useEffect, useState } from "react";
+import { ComponentPropsWithoutRef } from "react";
 import {
   InputField,
   InputFieldProps,
+  inputStyles,
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components";
-
-const validHexColorRegex = /^#([0-9a-f]{3}){1,2}$/i;
+import { HexColorPicker, HexColorInput } from "react-colorful";
 
 export interface ColorInputProps
   extends Pick<InputFieldProps, "label" | "labelPlacement">,
-    ColorPickerProps {
-  startColor?: string;
-  onChange(color: string): void;
-}
+    ComponentPropsWithoutRef<typeof HexColorPicker> {}
+
+const DEFAULT_COLOR = "#128ee5";
 
 function ColorInput({
   className,
-  startColor = "#128ee5",
+  color = DEFAULT_COLOR,
   onChange,
   label,
   labelPlacement,
   ...props
 }: ColorInputProps) {
-  const [lastColor, setLastColor] = useState<string>(startColor);
-  const [color, setColor] = useState<string>(startColor);
-
-  if (lastColor !== startColor) {
-    setLastColor(startColor);
-    setColor(startColor);
-  }
-
-  useEffect(() => {
-    if (
-      startColor !== color &&
-      lastColor === startColor &&
-      validHexColorRegex.test(color)
-    ) {
-      onChange(color);
-    }
-  }, [startColor, color, lastColor, onChange]);
-
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -54,22 +34,24 @@ function ColorInput({
             aria-label="color-input"
             type="text"
             value={color}
-            onChange={(newColor: string) => setColor(newColor)}
+            isReadOnly
           />
           <div
             className="pointer-events-none absolute inset-y-2 right-2 aspect-square rounded"
             style={{
-              backgroundColor: startColor,
+              backgroundColor: color,
             }}
           />
         </div>
       </PopoverTrigger>
-      <PopoverContent side="bottom" align="start">
-        <ColorPicker
-          onChange={(newColor: string) => setColor(newColor)}
-          value={color}
-          {...props}
+      <PopoverContent side="bottom" align="start" className="space-y-4">
+        <HexColorInput
+          color={color}
+          onChange={onChange}
+          className={cn(inputStyles())}
+          autoFocus
         />
+        <HexColorPicker onChange={onChange} color={color} {...props} />
       </PopoverContent>
     </Popover>
   );
