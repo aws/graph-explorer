@@ -1,4 +1,4 @@
-import { FileButton, Modal } from "@mantine/core";
+import { Modal } from "@mantine/core";
 import {
   AddIcon,
   PanelHeaderActionButton,
@@ -9,6 +9,7 @@ import {
   PanelHeaderDivider,
   Panel,
   PanelContent,
+  FileButton,
 } from "@/components";
 import {
   activeConfigurationAtom,
@@ -44,15 +45,13 @@ const AvailableConnections = ({
           <FileButton
             onChange={payload => payload && importConnectionFile(payload)}
             accept="application/json"
+            asChild
           >
-            {props => (
-              <PanelHeaderActionButton
-                label="Import Connection"
-                isDisabled={isSync}
-                onActionClick={props.onClick}
-                icon={<TrayArrowIcon style={{ transform: "rotate(180deg)" }} />}
-              />
-            )}
+            <PanelHeaderActionButton
+              label="Import Connection"
+              isDisabled={isSync}
+              icon={<TrayArrowIcon style={{ transform: "rotate(180deg)" }} />}
+            />
           </FileButton>
           <PanelHeaderDivider />
           <PanelHeaderActionButton

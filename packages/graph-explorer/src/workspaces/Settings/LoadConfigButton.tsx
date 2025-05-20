@@ -1,5 +1,5 @@
 import { cn } from "@/utils";
-import { FileButton, Modal } from "@mantine/core";
+import { Modal } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import localforage from "localforage";
@@ -11,6 +11,8 @@ import {
   LoaderIcon,
   Button,
   CheckIcon,
+  FileButton,
+  FileButtonHandle,
 } from "@/components";
 import {
   readBackupDataFromFile,
@@ -23,7 +25,7 @@ import { FolderOpenIcon } from "lucide-react";
 
 export default function LoadConfigButton() {
   const [file, setFile] = useState<File | null>(null);
-  const resetRef = useRef<() => void>(null);
+  const resetRef = useRef<FileButtonHandle | null>(null);
 
   const backupFileQuery = useQuery({
     queryKey: ["backup", "file", file],
@@ -34,7 +36,7 @@ export default function LoadConfigButton() {
 
   const clearFile = () => {
     setFile(null);
-    resetRef.current?.();
+    resetRef.current?.reset();
   };
 
   const load = useMutation({
@@ -56,12 +58,11 @@ export default function LoadConfigButton() {
         onChange={file => setFile(file)}
         accept="application/json"
         disabled={load.isPending}
+        asChild
       >
-        {props => (
-          <Button icon={<FolderOpenIcon />} className="min-w-28" {...props}>
-            Load
-          </Button>
-        )}
+        <Button icon={<FolderOpenIcon />} className="min-w-28">
+          Load
+        </Button>
       </FileButton>
       <ConfirmationModal
         backupData={backupFileQuery.data}

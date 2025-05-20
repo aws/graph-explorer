@@ -27,7 +27,7 @@ export function ImportGraphButton() {
 
   return (
     <FileButton
-      onChange={payload => payload && importGraph.mutate(payload[0])}
+      onChange={payload => payload && importGraph.mutate(payload)}
       accept="application/json"
       asChild
     >
