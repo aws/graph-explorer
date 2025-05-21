@@ -16,6 +16,9 @@ type UserLayout = {
   tableView?: {
     height: number;
   };
+  sidebar?: {
+    width: number;
+  };
   detailsAutoOpenOnSelection?: boolean;
 };
 
@@ -78,4 +81,30 @@ export function useSidebar() {
     toggleSidebar,
     shouldShowNamespaces,
   };
+}
+
+export const DEFAULT_SIDEBAR_WIDTH = 400;
+export const CLOSED_SIDEBAR_WIDTH = 50;
+
+export function useSidebarSize() {
+  const [userLayout, setUserLayout] = useAtom(userLayoutAtom);
+
+  const sidebarWidth = userLayout.sidebar?.width ?? DEFAULT_SIDEBAR_WIDTH;
+
+  /** Sets the sidebar width to the current with + the given delta */
+  const setSidebarWidth = (deltaWidth: number) => {
+    setUserLayout(async prevPromise => {
+      const prev = await prevPromise;
+      const prevWidth = prev.sidebar?.width ?? DEFAULT_SIDEBAR_WIDTH;
+      return {
+        ...prev,
+        sidebar: {
+          ...prev.sidebar,
+          width: prevWidth + deltaWidth,
+        },
+      };
+    });
+  };
+
+  return [sidebarWidth, setSidebarWidth] as const;
 }

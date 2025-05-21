@@ -1,30 +1,19 @@
 import { cn } from "@/utils";
-import type { PropsWithChildren } from "react";
+import type { ComponentPropsWithRef } from "react";
 
 export type WorkspaceSideBarContentProps = {
   className?: string;
-  isOpen?: boolean;
-  defaultWidth?: number | string;
 };
 
 const WorkspaceSideBarContent = ({
   className,
-  children,
-  isOpen,
-  defaultWidth = 350,
-}: PropsWithChildren<WorkspaceSideBarContentProps>) => {
+  ...props
+}: ComponentPropsWithRef<"div">) => {
   return (
     <div
-      className={cn(
-        "transition-width h-full overflow-x-hidden duration-200 ease-in-out",
-        className
-      )}
-      style={{
-        width: isOpen ? defaultWidth : 0,
-      }}
-    >
-      {children}
-    </div>
+      className={cn("h-full w-full overflow-x-hidden", className)}
+      {...props}
+    />
   );
 };
 
