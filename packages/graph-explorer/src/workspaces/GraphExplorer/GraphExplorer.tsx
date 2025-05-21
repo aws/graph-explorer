@@ -20,12 +20,8 @@ import {
 } from "@/components/icons";
 import GridIcon from "@/components/icons/GridIcon";
 import Workspace, { SidebarButton } from "@/components/Workspace";
-import { useConfiguration } from "@/core";
+import { SidebarItems, useConfiguration, userLayoutAtom } from "@/core";
 import { totalFilteredCount } from "@/core/StateProvider/filterCount";
-import {
-  SidebarItems,
-  userLayoutAtom,
-} from "@/core/StateProvider/userPreferences";
 import useTranslations from "@/hooks/useTranslations";
 import EdgesStyling from "@/modules/EdgesStyling/EdgesStyling";
 import EntitiesFilter from "@/modules/EntitiesFilter";

@@ -7,7 +7,8 @@ import { showDebugActionsAtom, allowLoggingDbQueryAtom } from "../featureFlags";
 import { activeConfigurationAtom, configurationAtom } from "./configuration";
 import { allGraphSessionsAtom } from "./graphSession";
 import { schemaAtom } from "./schema";
-import { userStylingAtom, userLayoutAtom } from "./userPreferences";
+import { userStylingAtom } from "./userPreferences";
+import { userLayoutAtom } from "./userLayout";
 
 export default function StateProvider({
   children,

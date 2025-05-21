@@ -9,3 +9,4 @@ export * from "./nodes";
 export * from "./userPreferences";
 export * from "./schema";
 export * from "./graphSession";
+export * from "./userLayout";

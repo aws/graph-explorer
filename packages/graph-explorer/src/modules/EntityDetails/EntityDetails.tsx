@@ -10,10 +10,13 @@ import {
 } from "@/components";
 import GraphIcon from "@/components/icons/GraphIcon";
 import PanelEmptyState from "@/components/PanelEmptyState/PanelEmptyState";
-import { userLayoutAtom } from "@/core/StateProvider/userPreferences";
 import EdgeDetail from "./EdgeDetail";
 import NodeDetail from "./NodeDetail";
-import { useSelectedDisplayEdges, useSelectedDisplayVertices } from "@/core";
+import {
+  userLayoutAtom,
+  useSelectedDisplayEdges,
+  useSelectedDisplayVertices,
+} from "@/core";
 import { SidebarCloseButton } from "../SidebarCloseButton";
 import { useAtom } from "jotai";
 
