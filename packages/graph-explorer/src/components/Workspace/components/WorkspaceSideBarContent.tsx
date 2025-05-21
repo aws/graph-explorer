@@ -9,12 +9,7 @@ const WorkspaceSideBarContent = ({
   className,
   ...props
 }: ComponentPropsWithRef<"div">) => {
-  return (
-    <div
-      className={cn("h-full w-full overflow-x-hidden", className)}
-      {...props}
-    />
-  );
+  return <div className={cn("h-full w-full", className)} {...props} />;
 };
 
 WorkspaceSideBarContent.displayName = "WorkspaceSideBarContent";
