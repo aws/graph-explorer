@@ -151,19 +151,13 @@ const GraphExplorer = () => {
 
       <Workspace.Content>
         {toggles.size === 0 && (
-          <div style={{ width: "100%", flexGrow: 1 }}>
-            <PanelEmptyState
-              icon={<EmptyWidgetIcon />}
-              title="No active views"
-              subtitle="Use toggles in the top-right corner to show/hide views"
-            />
-          </div>
+          <PanelEmptyState
+            icon={<EmptyWidgetIcon />}
+            title="No active views"
+            subtitle="Use toggles in the top-right corner to show/hide views"
+          />
         )}
-        {toggles.has("graph-viewer") && (
-          <div className="relative w-full grow">
-            <GraphViewer />
-          </div>
-        )}
+        {toggles.has("graph-viewer") && <GraphViewer />}
         {toggles.has("table-view") && (
           <Resizable
             enable={RESIZE_ENABLE_TOP}
@@ -176,9 +170,7 @@ const GraphExplorer = () => {
             minHeight={300}
             onResizeStop={onTableViewResizeStop}
           >
-            <div style={{ width: "100%", height: "100%", flexGrow: 1 }}>
-              <EntitiesTabular />
-            </div>
+            <EntitiesTabular />
           </Resizable>
         )}
       </Workspace.Content>
