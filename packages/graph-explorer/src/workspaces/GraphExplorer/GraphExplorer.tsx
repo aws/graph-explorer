@@ -159,15 +159,6 @@ const GraphExplorer = () => {
             />
           </div>
         )}
-        {toggles.size === 0 && (
-          <div style={{ width: "100%", flexGrow: 1 }}>
-            <PanelEmptyState
-              icon={<EmptyWidgetIcon />}
-              title="No active views"
-              subtitle="Use toggles in the top-right corner to show/hide views"
-            />
-          </div>
-        )}
         {toggles.has("graph-viewer") && (
           <div className="relative w-full grow">
             <GraphViewer />
