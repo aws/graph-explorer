@@ -20,7 +20,7 @@ import {
 } from "@/components/icons";
 import GridIcon from "@/components/icons/GridIcon";
 import Workspace, { SidebarButton } from "@/components/Workspace";
-import { SidebarItems, useConfiguration, userLayoutAtom } from "@/core";
+import { useConfiguration, userLayoutAtom, useSidebar } from "@/core";
 import { totalFilteredCount } from "@/core/StateProvider/filterCount";
 import useTranslations from "@/hooks/useTranslations";
 import EdgesStyling from "@/modules/EdgesStyling/EdgesStyling";
@@ -50,27 +50,12 @@ const RESIZE_ENABLE_TOP = {
 const GraphExplorer = () => {
   const config = useConfiguration();
   const t = useTranslations();
-  const hasNamespaces = config?.connection?.queryEngine === "sparql";
   const [userLayout, setUserLayout] = useAtom(userLayoutAtom);
 
   const filteredEntitiesCount = useAtomValue(totalFilteredCount);
 
-  const toggleSidebar = (item: SidebarItems) => async () => {
-    await setUserLayout(async prev => {
-      const prevValue = await prev;
-      if (prevValue.activeSidebarItem === item) {
-        return {
-          ...prevValue,
-          activeSidebarItem: null,
-        };
-      }
-
-      return {
-        ...prevValue,
-        activeSidebarItem: item,
-      };
-    });
-  };
+  const { activeSidebarItem, toggleSidebar, shouldShowNamespaces } =
+    useSidebar();
 
   const toggleView = (item: string) => async () => {
     await setUserLayout(async prev => {
@@ -179,63 +164,57 @@ const GraphExplorer = () => {
         <SidebarButton
           title="Search"
           icon={<SearchIcon />}
-          onPressedChange={toggleSidebar("search")}
-          pressed={userLayout.activeSidebarItem === "search"}
+          onPressedChange={() => toggleSidebar("search")}
+          pressed={activeSidebarItem === "search"}
         />
         <SidebarButton
           title="Details"
           icon={<DetailsIcon />}
-          onPressedChange={toggleSidebar("details")}
-          pressed={userLayout.activeSidebarItem === "details"}
+          onPressedChange={() => toggleSidebar("details")}
+          pressed={activeSidebarItem === "details"}
         />
         <SidebarButton
           title="Filters"
           icon={<FilterIcon />}
-          onPressedChange={toggleSidebar("filters")}
+          onPressedChange={() => toggleSidebar("filters")}
           badge={filteredEntitiesCount > 0}
-          pressed={userLayout.activeSidebarItem === "filters"}
+          pressed={activeSidebarItem === "filters"}
         />
         <SidebarButton
           title="Expand"
           icon={<ExpandGraphIcon />}
-          onPressedChange={toggleSidebar("expand")}
-          pressed={userLayout.activeSidebarItem === "expand"}
+          onPressedChange={() => toggleSidebar("expand")}
+          pressed={activeSidebarItem === "expand"}
         />
         <SidebarButton
           title={t("nodes-styling.title")}
           icon={<GraphIcon />}
-          onPressedChange={toggleSidebar("nodes-styling")}
-          pressed={userLayout.activeSidebarItem === "nodes-styling"}
+          onPressedChange={() => toggleSidebar("nodes-styling")}
+          pressed={activeSidebarItem === "nodes-styling"}
         />
         <SidebarButton
           title={t("edges-styling.title")}
           icon={<EdgeIcon />}
-          onPressedChange={toggleSidebar("edges-styling")}
-          pressed={userLayout.activeSidebarItem === "edges-styling"}
+          onPressedChange={() => toggleSidebar("edges-styling")}
+          pressed={activeSidebarItem === "edges-styling"}
         />
-        {hasNamespaces && (
+        {shouldShowNamespaces && (
           <SidebarButton
             title="Namespaces"
             icon={<NamespaceIcon />}
-            onPressedChange={toggleSidebar("namespaces")}
-            pressed={userLayout.activeSidebarItem === "namespaces"}
+            onPressedChange={() => toggleSidebar("namespaces")}
+            pressed={activeSidebarItem === "namespaces"}
           />
         )}
 
-        <Workspace.SideBar.Content
-          isOpen={
-            !hasNamespaces && userLayout.activeSidebarItem === "namespaces"
-              ? false
-              : userLayout.activeSidebarItem !== null
-          }
-        >
-          {userLayout.activeSidebarItem === "search" && <SearchSidebarPanel />}
-          {userLayout.activeSidebarItem === "details" && <EntityDetails />}
-          {userLayout.activeSidebarItem === "expand" && <NodeExpand />}
-          {userLayout.activeSidebarItem === "filters" && <EntitiesFilter />}
-          {userLayout.activeSidebarItem === "nodes-styling" && <NodesStyling />}
-          {userLayout.activeSidebarItem === "edges-styling" && <EdgesStyling />}
-          {userLayout.activeSidebarItem === "namespaces" && <Namespaces />}
+        <Workspace.SideBar.Content>
+          {activeSidebarItem === "search" && <SearchSidebarPanel />}
+          {activeSidebarItem === "details" && <EntityDetails />}
+          {activeSidebarItem === "expand" && <NodeExpand />}
+          {activeSidebarItem === "filters" && <EntitiesFilter />}
+          {activeSidebarItem === "nodes-styling" && <NodesStyling />}
+          {activeSidebarItem === "edges-styling" && <EdgesStyling />}
+          {activeSidebarItem === "namespaces" && <Namespaces />}
         </Workspace.SideBar.Content>
       </Workspace.SideBar>
     </Workspace>

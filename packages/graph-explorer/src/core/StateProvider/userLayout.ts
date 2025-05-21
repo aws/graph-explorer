@@ -1,5 +1,6 @@
-import { useSetAtom } from "jotai";
+import { useAtom } from "jotai";
 import { atomWithLocalForage } from "./localForageEffect";
+import { useQueryEngine } from "../connector";
 
 type UserLayout = {
   activeToggles: Set<string>;
@@ -32,12 +33,49 @@ export const userLayoutAtom = atomWithLocalForage<UserLayout>(
   "user-layout"
 );
 
-export function useCloseSidebar() {
-  const setUserLayout = useSetAtom(userLayoutAtom);
-  return () => {
-    setUserLayout(prev => ({
-      ...prev,
-      activeSidebarItem: null,
-    }));
+export function useSidebar() {
+  const [userLayout, setUserLayout] = useAtom(userLayoutAtom);
+  const queryEngine = useQueryEngine();
+
+  // If the sidebar item is namespaces, but we are not in a RDF connection, the sidebar should be closed
+  const activeSidebarItem =
+    userLayout.activeSidebarItem === "namespaces" && queryEngine !== "sparql"
+      ? null
+      : userLayout.activeSidebarItem;
+
+  const isSidebarOpen = activeSidebarItem !== null;
+
+  const shouldShowNamespaces = queryEngine === "sparql";
+
+  /** Closes the sidebar */
+  const closeSidebar = () =>
+    setUserLayout(async prevPromise => {
+      const prev = await prevPromise;
+      return {
+        ...prev,
+        activeSidebarItem: null,
+      };
+    });
+
+  /**
+   * Sets the active sidebar item to the given item, or closes the sidebar if the
+   * item is the same as the current active item.
+   */
+  const toggleSidebar = (item: SidebarItems) =>
+    setUserLayout(async prevPromise => {
+      const prev = await prevPromise;
+
+      return {
+        ...prev,
+        activeSidebarItem: prev.activeSidebarItem === item ? null : item,
+      };
+    });
+
+  return {
+    activeSidebarItem,
+    isSidebarOpen,
+    closeSidebar,
+    toggleSidebar,
+    shouldShowNamespaces,
   };
 }
