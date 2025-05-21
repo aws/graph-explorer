@@ -52,7 +52,6 @@ export default function SingleNodeStyling({
         <Button
           icon={<StylingIcon />}
           variant="text"
-          // disabled={pending}
           onClick={() => setCustomizeNodeType(vertexType)}
         >
           Customize
