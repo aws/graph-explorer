@@ -30,7 +30,8 @@
   ([#922](https://github.com/aws/graph-explorer/pull/922),
   [#926](https://github.com/aws/graph-explorer/pull/926),
   [#931](https://github.com/aws/graph-explorer/pull/931),
-  [#932](https://github.com/aws/graph-explorer/pull/932))
+  [#932](https://github.com/aws/graph-explorer/pull/932),
+  [#933](https://github.com/aws/graph-explorer/pull/933))
 
 ## Release v1.15.0
 

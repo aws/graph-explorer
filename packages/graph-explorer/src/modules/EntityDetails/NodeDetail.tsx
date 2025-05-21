@@ -1,8 +1,7 @@
-import { DisplayAttribute, DisplayVertex, useWithTheme } from "@/core";
+import { DisplayAttribute, DisplayVertex } from "@/core";
 import useTranslations from "@/hooks/useTranslations";
 import NeighborsList from "@/modules/common/NeighborsList/NeighborsList";
 import EntityAttribute from "./EntityAttribute";
-import defaultStyles from "./EntityDetail.styles";
 import {
   RESERVED_ID_PROPERTY,
   RESERVED_TYPES_PROPERTY,
@@ -15,7 +14,6 @@ export type VertexDetailProps = {
 
 export default function NodeDetail({ node }: VertexDetailProps) {
   const t = useTranslations();
-  const styleWithTheme = useWithTheme();
 
   const allAttributes: DisplayAttribute[] = [
     {
@@ -34,7 +32,7 @@ export default function NodeDetail({ node }: VertexDetailProps) {
   ];
 
   return (
-    <div className={styleWithTheme(defaultStyles())}>
+    <div>
       <VertexRow vertex={node} className="border-b p-3" />
       <NeighborsList vertexId={node.id} />
       <div className="space-y-[1.125rem] p-3">
