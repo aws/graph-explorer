@@ -8,6 +8,8 @@
   ([#925](https://github.com/aws/graph-explorer/pull/925))
 - **Added** ability to resize the sidebar
   ([#938](https://github.com/aws/graph-explorer/pull/938))
+- **Improved** and more consistent styles for all dialogs across the app
+  ([#699](https://github.com/aws/graph-explorer/pull/699))
 - **Improved** Improved connection details by moving the sync button near the
   last sync timestamp (thanks @enumura1,
   [#901](https://github.com/aws/graph-explorer/pull/901),
