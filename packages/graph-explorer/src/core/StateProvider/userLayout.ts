@@ -1,5 +1,6 @@
-import { useSetAtom } from "jotai";
+import { useAtom } from "jotai";
 import { atomWithLocalForage } from "./localForageEffect";
+import { useQueryEngine } from "../connector";
 
 type UserLayout = {
   activeToggles: Set<string>;
@@ -14,6 +15,9 @@ type UserLayout = {
     | null;
   tableView?: {
     height: number;
+  };
+  sidebar?: {
+    width: number;
   };
   detailsAutoOpenOnSelection?: boolean;
 };
@@ -32,12 +36,76 @@ export const userLayoutAtom = atomWithLocalForage<UserLayout>(
   "user-layout"
 );
 
-export function useCloseSidebar() {
-  const setUserLayout = useSetAtom(userLayoutAtom);
-  return () => {
-    setUserLayout(prev => ({
-      ...prev,
-      activeSidebarItem: null,
-    }));
+export function useSidebar() {
+  const [userLayout, setUserLayout] = useAtom(userLayoutAtom);
+  const queryEngine = useQueryEngine();
+
+  // The namespace sidebar panel is hidden for property graph connections
+  const shouldShowNamespaces = queryEngine === "sparql";
+
+  // If the namespace panel is hidden and the active item is namespaces, the sidebar should be closed
+  const activeSidebarItem =
+    userLayout.activeSidebarItem === "namespaces" && !shouldShowNamespaces
+      ? null
+      : userLayout.activeSidebarItem;
+
+  const isSidebarOpen = activeSidebarItem !== null;
+
+  /** Closes the sidebar */
+  const closeSidebar = () =>
+    setUserLayout(async prevPromise => {
+      const prev = await prevPromise;
+      return {
+        ...prev,
+        activeSidebarItem: null,
+      };
+    });
+
+  /**
+   * Sets the active sidebar item to the given item, or closes the sidebar if the
+   * item is the same as the current active item.
+   */
+  const toggleSidebar = (item: SidebarItems) =>
+    setUserLayout(async prevPromise => {
+      const prev = await prevPromise;
+
+      return {
+        ...prev,
+        activeSidebarItem: prev.activeSidebarItem === item ? null : item,
+      };
+    });
+
+  return {
+    activeSidebarItem,
+    isSidebarOpen,
+    closeSidebar,
+    toggleSidebar,
+    shouldShowNamespaces,
   };
+}
+
+export const DEFAULT_SIDEBAR_WIDTH = 400;
+export const CLOSED_SIDEBAR_WIDTH = 50;
+
+export function useSidebarSize() {
+  const [userLayout, setUserLayout] = useAtom(userLayoutAtom);
+
+  const sidebarWidth = userLayout.sidebar?.width ?? DEFAULT_SIDEBAR_WIDTH;
+
+  /** Sets the sidebar width to the current with + the given delta */
+  const setSidebarWidth = (deltaWidth: number) => {
+    setUserLayout(async prevPromise => {
+      const prev = await prevPromise;
+      const prevWidth = prev.sidebar?.width ?? DEFAULT_SIDEBAR_WIDTH;
+      return {
+        ...prev,
+        sidebar: {
+          ...prev.sidebar,
+          width: prevWidth + deltaWidth,
+        },
+      };
+    });
+  };
+
+  return [sidebarWidth, setSidebarWidth] as const;
 }

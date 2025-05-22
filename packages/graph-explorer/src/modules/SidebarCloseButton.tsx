@@ -1,8 +1,8 @@
 import { PanelHeaderCloseButton } from "@/components";
-import { useCloseSidebar } from "@/core";
+import { useSidebar } from "@/core";
 
 export function SidebarCloseButton() {
-  const closeSidebar = useCloseSidebar();
+  const { closeSidebar } = useSidebar();
 
   return <PanelHeaderCloseButton onClose={closeSidebar} />;
 }
