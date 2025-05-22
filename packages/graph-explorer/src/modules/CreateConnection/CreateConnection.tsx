@@ -254,7 +254,7 @@ const CreateConnection = ({
   };
 
   return (
-    <DialogContent className="min-w-[500px]">
+    <DialogContent className="w-[550px]">
       <DialogHeader>
         <DialogTitle>
           {existingConfig ? "Update connection" : "Add New Connection"}

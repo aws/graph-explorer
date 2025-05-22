@@ -58,7 +58,7 @@ export default function NodeStyleDialog() {
         }
       }}
     >
-      <DialogContent>
+      <DialogContent className="w-[500px]">
         {customizeNodeType ? <Content vertexType={customizeNodeType} /> : null}
       </DialogContent>
     </Dialog>

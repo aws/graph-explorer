@@ -43,7 +43,7 @@ export default function EdgeStyleDialog() {
         }
       }}
     >
-      <DialogContent>
+      <DialogContent className="w-[500px]">
         {customizeEdgeType ? <Content edgeType={customizeEdgeType} /> : null}
       </DialogContent>
     </Dialog>
