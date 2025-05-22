@@ -40,15 +40,16 @@ export function useSidebar() {
   const [userLayout, setUserLayout] = useAtom(userLayoutAtom);
   const queryEngine = useQueryEngine();
 
-  // If the sidebar item is namespaces, but we are not in a RDF connection, the sidebar should be closed
+  // The namespace sidebar panel is hidden for property graph connections
+  const shouldShowNamespaces = queryEngine === "sparql";
+
+  // If the namespace panel is hidden and the active item is namespaces, the sidebar should be closed
   const activeSidebarItem =
-    userLayout.activeSidebarItem === "namespaces" && queryEngine !== "sparql"
+    userLayout.activeSidebarItem === "namespaces" && !shouldShowNamespaces
       ? null
       : userLayout.activeSidebarItem;
 
   const isSidebarOpen = activeSidebarItem !== null;
-
-  const shouldShowNamespaces = queryEngine === "sparql";
 
   /** Closes the sidebar */
   const closeSidebar = () =>
