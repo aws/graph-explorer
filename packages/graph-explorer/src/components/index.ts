@@ -39,9 +39,6 @@ export * from "./Input";
 export { default as InputField } from "./InputField";
 export * from "./InputField";
 
-export { default as TextArea } from "./TextArea";
-export * from "./TextArea";
-
 export * from "./Label";
 
 export { default as ListItem } from "./ListItem";
@@ -69,6 +66,11 @@ export * from "./SettingsSection";
 export * from "./SidebarTabs";
 
 export * from "./Switch";
+
+export * from "./TextArea";
+
+export { default as TextAreaField } from "./TextAreaField";
+export * from "./TextAreaField";
 
 export * from "./Tooltip";
 export * from "./Typography";

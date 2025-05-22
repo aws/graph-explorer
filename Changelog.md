@@ -32,6 +32,7 @@
 - **Updated** dependencies and minor refactoring of code
   ([#922](https://github.com/aws/graph-explorer/pull/922),
   [#926](https://github.com/aws/graph-explorer/pull/926),
+  [#930](https://github.com/aws/graph-explorer/pull/930),
   [#931](https://github.com/aws/graph-explorer/pull/931),
   [#932](https://github.com/aws/graph-explorer/pull/932),
   [#933](https://github.com/aws/graph-explorer/pull/933))
