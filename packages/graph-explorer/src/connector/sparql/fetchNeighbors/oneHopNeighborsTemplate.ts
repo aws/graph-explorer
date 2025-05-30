@@ -158,46 +158,50 @@ export function oneHopNeighborsTemplate({
         ORDER BY ?neighbor
         ${limitTemplate}
       }
+      {
+        # Using the ?neighbor gathered above we can start getting
+        # the information we are really interested in
+        #
+        # - predicate to source from neighbor
+        # - predicate from source to neighbor
+        # - neighbor class
+        # - neighbor values
 
-      # Using the ?neighbor gathered above we can start getting
-      # the information we are really interested in
-      #
-      # - predicate to source from neighbor
-      # - predicate from source to neighbor
-      # - neighbor class
-      # - neighbor values
-
-      {
-        # Incoming connection predicate
-        BIND(${resourceTemplate} AS ?source)
-        ?neighbor ?pToSource ?source
-        BIND(?neighbor as ?subject)
-        BIND(?pToSource as ?p)
-        BIND(?source as ?value)
-      }
-      UNION
-      {
-        # Outgoing connection predicate
-        BIND(${resourceTemplate} AS ?source)
-        ?source ?pFromSource ?neighbor
-        BIND(?neighbor as ?value)
-        BIND(?pFromSource as ?p)
-        BIND(?source as ?subject)
-      }
-      UNION
-      {
-        # Values and types
-        ?neighbor ?p ?value
-        FILTER(isLiteral(?value) || ?p = ${rdfTypeUriTemplate})
-        BIND(?neighbor as ?subject)
-      }
-      UNION
-      {
-        # Source types
-        BIND(${resourceTemplate} AS ?source)
-        ?source ?p ?value
-        FILTER(?p = ${rdfTypeUriTemplate})
-        BIND(?source as ?subject)
+        SELECT *
+        WHERE {
+          {
+            # Incoming connection predicate
+            BIND(${resourceTemplate} AS ?source)
+            ?neighbor ?pToSource ?source
+            BIND(?neighbor as ?subject)
+            BIND(?pToSource as ?p)
+            BIND(?source as ?value)
+          }
+          UNION
+          {
+            # Outgoing connection predicate
+            BIND(${resourceTemplate} AS ?source)
+            ?source ?pFromSource ?neighbor
+            BIND(?neighbor as ?value)
+            BIND(?pFromSource as ?p)
+            BIND(?source as ?subject)
+          }
+          UNION
+          {
+            # Values and types
+            ?neighbor ?p ?value
+            FILTER(isLiteral(?value) || ?p = ${rdfTypeUriTemplate})
+            BIND(?neighbor as ?subject)
+          }
+          UNION
+          {
+            # Source types
+            BIND(${resourceTemplate} AS ?source)
+            ?source ?p ?value
+            FILTER(?p = ${rdfTypeUriTemplate})
+            BIND(?source as ?subject)
+          }
+        }
       }
     }
     ORDER BY ?subject
