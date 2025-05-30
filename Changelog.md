@@ -12,6 +12,8 @@
   last sync timestamp (thanks @enumura1,
   [#901](https://github.com/aws/graph-explorer/pull/901),
   [#908](https://github.com/aws/graph-explorer/pull/908))
+- **Improved** performance of neighbor expansion in RDF datasets
+  ([#942](https://github.com/aws/graph-explorer/pull/942))
 - **Updated** openCypher expand neighbor query to be faster when no limit is
   provided ([#924](https://github.com/aws/graph-explorer/pull/924))
 - **Removed** limit on neighbor count query in order to always show the full
