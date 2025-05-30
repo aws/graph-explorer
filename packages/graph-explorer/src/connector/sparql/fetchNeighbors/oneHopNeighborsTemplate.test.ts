@@ -261,32 +261,37 @@ describe("oneHopNeighborsTemplate", () => {
 function commonPartOfQuery(resourceURI: string) {
   return query`
     {
-      BIND(<${resourceURI}> AS ?source)
-      ?neighbor ?pToSource ?source
-      BIND(?neighbor as ?subject)
-      BIND(?pToSource as ?p)
-      BIND(?source as ?value)
-    }
-    UNION
-    {
-      BIND(<${resourceURI}> AS ?source)
-      ?source ?pFromSource ?neighbor
-      BIND(?neighbor as ?value)
-      BIND(?pFromSource as ?p)
-      BIND(?source as ?subject)
-    }
-    UNION
-    {
-      ?neighbor ?p ?value
-      FILTER(isLiteral(?value) || ?p = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
-      BIND(?neighbor as ?subject)
-    }
-    UNION
-    {
-      BIND(<${resourceURI}> AS ?source)
-      ?source ?p ?value
-      FILTER(?p = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
-      BIND(?source as ?subject)
+      SELECT *
+      WHERE {
+        {
+          BIND(<${resourceURI}> AS ?source)
+          ?neighbor ?pToSource ?source
+          BIND(?neighbor as ?subject)
+          BIND(?pToSource as ?p)
+          BIND(?source as ?value)
+        }
+        UNION
+        {
+          BIND(<${resourceURI}> AS ?source)
+          ?source ?pFromSource ?neighbor
+          BIND(?neighbor as ?value)
+          BIND(?pFromSource as ?p)
+          BIND(?source as ?subject)
+        }
+        UNION
+        {
+          ?neighbor ?p ?value
+          FILTER(isLiteral(?value) || ?p = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+          BIND(?neighbor as ?subject)
+        }
+        UNION
+        {
+          BIND(<${resourceURI}> AS ?source)
+          ?source ?p ?value
+          FILTER(?p = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+          BIND(?source as ?subject)
+        }
+      }
     }
   `;
 }
