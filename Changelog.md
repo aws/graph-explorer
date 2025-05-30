@@ -1,6 +1,22 @@
 # graph-explorer Change Log
 
-## Upcoming
+## Release v1.16.0
+
+This release of Graph Explorer introduces significant usability improvements and
+performance enhancements. Users now have greater control over their exploration
+experience with the ability to customize default neighbor expansion limits and
+resize the sidebar. The connection interface has been refined with more
+intuitive placement of the sync button near the last sync timestamp.
+
+Performance has been enhanced across multiple areas, particularly for RDF
+datasets where neighbor expansion is now faster. The openCypher expand neighbor
+query has been optimized for scenarios without limits, and the neighbor count
+query now shows the full count of neighbors without restrictions. Under the
+hood, the application has undergone significant architectural improvements,
+transitioning from Recoil to Jotai for state management and implementing the
+React Compiler to boost overall rendering performance. These technical updates,
+along with numerous dependency updates and bug fixes, result in a more
+responsive and reliable experience.
 
 ### Other changes
 
@@ -14,10 +30,13 @@
   [#908](https://github.com/aws/graph-explorer/pull/908))
 - **Improved** performance of neighbor expansion in RDF datasets
   ([#942](https://github.com/aws/graph-explorer/pull/942))
-- **Updated** openCypher expand neighbor query to be faster when no limit is
+- **Improved** openCypher expand neighbor query to be faster when no limit is
   provided ([#924](https://github.com/aws/graph-explorer/pull/924))
 - **Removed** limit on neighbor count query in order to always show the full
   count of neighbors ([#924](https://github.com/aws/graph-explorer/pull/924))
+- **Fixed** issue where a schema sync would not automatically run when a
+  connection was changed
+  ([#919](https://github.com/aws/graph-explorer/pull/919))
 - **Updated** localForage Recoil integration to be async and use Suspense
   ([#883](https://github.com/aws/graph-explorer/pull/883))
 - **Removed** Recoil state debugging tool that was never used
@@ -28,9 +47,6 @@
   [#934](https://github.com/aws/graph-explorer/pull/934))
 - **Updated** to use the React Compiler to improve performance and simplify code
   ([#916](https://github.com/aws/graph-explorer/pull/916))
-- **Fixed** issue where a schema sync would not automatically run when a
-  connection was changed
-  ([#919](https://github.com/aws/graph-explorer/pull/919))
 - **Updated** dependencies and minor refactoring of code
   ([#922](https://github.com/aws/graph-explorer/pull/922),
   [#926](https://github.com/aws/graph-explorer/pull/926),
