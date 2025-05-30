@@ -18,12 +18,15 @@ React Compiler to boost overall rendering performance. These technical updates,
 along with numerous dependency updates and bug fixes, result in a more
 responsive and reliable experience.
 
-### Other changes
+### New Features
 
 - **Added** ability to customize default neighbor expansion limit
   ([#925](https://github.com/aws/graph-explorer/pull/925))
 - **Added** ability to resize the sidebar
   ([#938](https://github.com/aws/graph-explorer/pull/938))
+
+### Other changes
+
 - **Improved** Improved connection details by moving the sync button near the
   last sync timestamp (thanks @enumura1,
   [#901](https://github.com/aws/graph-explorer/pull/901),
