@@ -40,13 +40,23 @@ export function SearchResultsList(results: MappedQueryResults) {
 }
 
 function ResultCounts({ results }: { results: MappedQueryResults }) {
-  /** Create a string of counts for the number of results of each type */
+  /** Simple algorithm to add an 's' to unit if not equal to 1. */
+  function pluralizeUnitIfNeeded(count: number, singularUnit: string) {
+    if (count <= 0) {
+      return null;
+    }
+    return count === 1
+      ? `${count} ${singularUnit}`
+      : `${count} ${singularUnit}s`;
+  }
+
+  // Create a string of counts for the number of results of each type
   const counts = [
-    results.vertices.length ? `${results.vertices.length} nodes` : null,
-    results.edges.length ? `${results.edges.length} edges` : null,
-    results.scalars.length ? `${results.scalars.length} values` : null,
+    pluralizeUnitIfNeeded(results.vertices.length, "node"),
+    pluralizeUnitIfNeeded(results.edges.length, "edge"),
+    pluralizeUnitIfNeeded(results.scalars.length, "scalar"),
   ]
-    .filter(Boolean)
+    .filter(c => c != null)
     .join(" • ");
 
   return (
