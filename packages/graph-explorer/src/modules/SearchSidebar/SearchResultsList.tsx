@@ -1,118 +1,90 @@
-import {
-  Button,
-  ButtonProps,
-  PanelEmptyState,
-  LoadingSpinner,
-  PanelError,
-  SearchSadIcon,
-  PanelFooter,
-  Spinner,
-} from "@/components";
-import { KeywordSearchResponse, MappedQueryResults } from "@/connector";
-import { UseQueryResult } from "@tanstack/react-query";
-import { useCancelKeywordSearch } from "./useKeywordSearchQuery";
+import { Button, ButtonProps, PanelFooter, Spinner } from "@/components";
+import { MappedQueryResults } from "@/connector";
 import { NodeSearchResult } from "./NodeSearchResult";
 import { useAddToGraphMutation } from "@/hooks/useAddToGraph";
-import { PlusCircleIcon } from "lucide-react";
 import { EdgeSearchResult } from "./EdgeSearchResult";
 import { ScalarSearchResult } from "./ScalarSearchResult";
 import { Edge, Vertex } from "@/core";
+import { cn } from "@/utils";
 
-export function SearchResultsList({
-  query,
-}: {
-  query: UseQueryResult<KeywordSearchResponse | null, Error>;
-}) {
-  const cancelAll = useCancelKeywordSearch();
-
-  if (query.isLoading) {
-    return (
-      <PanelEmptyState
-        title="Searching..."
-        subtitle="Looking for matching results"
-        actionLabel="Cancel"
-        onAction={() => cancelAll()}
-        icon={<LoadingSpinner />}
-        className="p-8"
-      />
-    );
-  }
-
-  if (query.isError && !query.data) {
-    return (
-      <PanelError error={query.error} onRetry={query.refetch} className="p-8" />
-    );
-  }
-
-  if (
-    !query.data ||
-    (query.data.vertices.length === 0 &&
-      query.data.edges.length === 0 &&
-      query.data.scalars.length === 0)
-  ) {
-    return (
-      <PanelEmptyState
-        title="No Results"
-        subtitle="Your criteria does not match with any record"
-        icon={<SearchSadIcon />}
-        className="p-8"
-      />
-    );
-  }
-
-  return <LoadedResults {...query.data} />;
-}
-
-function LoadedResults({ vertices, edges, scalars }: MappedQueryResults) {
-  const counts = [
-    vertices.length ? `${vertices.length} nodes` : null,
-    edges.length ? `${edges.length} edges` : null,
-    scalars.length ? `${scalars.length} values` : null,
-  ]
-    .filter(Boolean)
-    .join(" • ");
+export function SearchResultsList(results: MappedQueryResults) {
+  // Combine all result types into a single list
+  const allRows = createRows(results);
 
   return (
     <>
       <div className="bg-background-contrast/35 flex grow flex-col p-3">
         <ul className="border-divider flex flex-col overflow-hidden rounded-xl border shadow">
-          {vertices.map(entity => (
+          {allRows.map(row => (
             <li
-              key={`node:${entity.type}:${entity.id}`}
+              key={row.key}
               className="border-divider content-auto intrinsic-size-16 border-b last:border-0"
             >
-              <NodeSearchResult node={entity} />
-            </li>
-          ))}
-          {edges.map(entity => (
-            <li
-              key={`edge:${entity.type}:${entity.id}`}
-              className="border-divider content-auto intrinsic-size-16 border-b last:border-0"
-            >
-              <EdgeSearchResult edge={entity} />
-            </li>
-          ))}
-          {scalars.map((entity, index) => (
-            <li
-              key={`scalar:${String(entity)}:${index}`}
-              className="border-divider content-auto intrinsic-size-16 border-b last:border-0"
-            >
-              <ScalarSearchResult scalar={entity} />
+              {row.render()}
             </li>
           ))}
         </ul>
       </div>
 
-      <PanelFooter className="sticky bottom-0 flex flex-row items-center justify-between">
-        <AddAllToGraphButton vertices={vertices} edges={edges} />
+      <PanelFooter className="sticky bottom-0 flex flex-row items-center justify-between gap-2">
+        <AddAllToGraphButton
+          vertices={results.vertices}
+          edges={results.edges}
+        />
         <div className="flex items-center gap-2">
-          <div className="text-text-secondary text-sm">
-            {counts || "No results"}
-          </div>
+          <ResultCounts results={results} />
         </div>
       </PanelFooter>
     </>
   );
+}
+
+function ResultCounts({ results }: { results: MappedQueryResults }) {
+  /** Simple algorithm to add an 's' to unit if not equal to 1. */
+  function pluralizeUnitIfNeeded(count: number, singularUnit: string) {
+    if (count <= 0) {
+      return null;
+    }
+    return count === 1
+      ? `${count} ${singularUnit}`
+      : `${count} ${singularUnit}s`;
+  }
+
+  // Create a string of counts for the number of results of each type
+  const counts = [
+    pluralizeUnitIfNeeded(results.vertices.length, "node"),
+    pluralizeUnitIfNeeded(results.edges.length, "edge"),
+    pluralizeUnitIfNeeded(results.scalars.length, "scalar"),
+  ]
+    .filter(c => c != null)
+    .join(" • ");
+
+  return (
+    <p className="text-text-secondary text-pretty text-sm">
+      {counts || "No results"}
+    </p>
+  );
+}
+
+/** Create a list of functions that render a row for each result type */
+function createRows({ vertices, edges, scalars }: MappedQueryResults) {
+  return vertices
+    .map(entity => ({
+      key: `node:${entity.type}:${entity.id}`,
+      render: () => <NodeSearchResult node={entity} />,
+    }))
+    .concat(
+      edges.map(entity => ({
+        key: `edge:${entity.type}:${entity.id}`,
+        render: () => <EdgeSearchResult edge={entity} />,
+      }))
+    )
+    .concat(
+      scalars.map((entity, index) => ({
+        key: `scalar:${String(entity)}:${index}`,
+        render: () => <ScalarSearchResult scalar={entity} />,
+      }))
+    );
 }
 
 function AddAllToGraphButton({
@@ -122,15 +94,27 @@ function AddAllToGraphButton({
 }: ButtonProps & { vertices: Vertex[]; edges: Edge[] }) {
   const mutation = useAddToGraphMutation();
   const canSendToGraph = vertices.length > 0 || edges.length > 0;
+  const counts = vertices.length + edges.length;
+
+  if (counts === 0) {
+    return null;
+  }
 
   return (
     <Button
       onClick={() => mutation.mutate({ vertices, edges })}
       disabled={!canSendToGraph || mutation.isPending}
+      className="stack shrink-0 items-center justify-center"
       {...props}
     >
-      {mutation.isPending ? <Spinner /> : <PlusCircleIcon />}
-      Add all
+      <span className={cn("visible", mutation.isPending && "invisible")}>
+        Add All ({counts})
+      </span>
+      <span
+        className={cn("invisible", mutation.isPending && "visible mx-auto")}
+      >
+        <Spinner />
+      </span>
     </Button>
   );
 }
