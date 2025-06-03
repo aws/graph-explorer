@@ -1,21 +1,47 @@
-import { Button, ButtonProps, PanelFooter, Spinner } from "@/components";
+import {
+  Button,
+  ButtonProps,
+  IconButton,
+  PanelFooter,
+  Spinner,
+} from "@/components";
 import { MappedQueryResults } from "@/connector";
 import { NodeSearchResult } from "./NodeSearchResult";
 import { useAddToGraphMutation } from "@/hooks/useAddToGraph";
+import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { EdgeSearchResult } from "./EdgeSearchResult";
 import { ScalarSearchResult } from "./ScalarSearchResult";
 import { Edge, Vertex } from "@/core";
+import { useState } from "react";
 import { cn } from "@/utils";
 
 export function SearchResultsList(results: MappedQueryResults) {
+  // Hard coding the page size for now. Only trying to improve rendering
+  // performance for large results.
+  const pageSize = 100;
+  const [page, setPage] = useState(0);
+
   // Combine all result types into a single list
   const allRows = createRows(results);
+
+  // Only show paging controls when over the page size
+  const isPagingNecessary = allRows.length > pageSize;
+
+  // Disable the previous button on the first page
+  const disablePrevButton = page === 0;
+  const handlePrevious = () => setPage(page - 1);
+
+  // Disable the next button on last page
+  const disableNextButton = (page + 1) * pageSize >= allRows.length;
+  const handleNext = () => setPage(page + 1);
+
+  const currentPageRows = allRows.slice(page * pageSize, (page + 1) * pageSize);
 
   return (
     <>
       <div className="bg-background-contrast/35 flex grow flex-col p-3">
         <ul className="border-divider flex flex-col overflow-hidden rounded-xl border shadow">
-          {allRows.map(row => (
+          {currentPageRows.map(row => (
             <li
               key={row.key}
               className="border-divider content-auto intrinsic-size-16 border-b last:border-0"
@@ -33,6 +59,22 @@ export function SearchResultsList(results: MappedQueryResults) {
         />
         <div className="flex items-center gap-2">
           <ResultCounts results={results} />
+          {isPagingNecessary ? (
+            <div className="flex">
+              <IconButton
+                icon={<ChevronLeftIcon />}
+                className="rounded-r-none"
+                onClick={handlePrevious}
+                disabled={disablePrevButton}
+              />
+              <IconButton
+                icon={<ChevronRightIcon />}
+                className="rounded-l-none"
+                onClick={handleNext}
+                disabled={disableNextButton}
+              />
+            </div>
+          ) : null}
         </div>
       </PanelFooter>
     </>
