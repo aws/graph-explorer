@@ -27,7 +27,7 @@ export function SearchResultsList(results: MappedQueryResults) {
   // Only show paging controls when over the page size
   const isPagingNecessary = allRows.length > pageSize;
 
-  // Diable the previous button on the first page
+  // Disable the previous button on the first page
   const disablePrevButton = page === 0;
   const handlePrevious = () => setPage(page - 1);
 
