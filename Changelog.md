@@ -6,7 +6,8 @@
 
 - **Added** query editor for Gremlin connections
   ([#949](https://github.com/aws/graph-explorer/pull/949),
-  [#947](https://github.com/aws/graph-explorer/pull/947))
+  [#947](https://github.com/aws/graph-explorer/pull/947),
+  [#956](https://github.com/aws/graph-explorer/pull/956))
 
 ### Other changes
 

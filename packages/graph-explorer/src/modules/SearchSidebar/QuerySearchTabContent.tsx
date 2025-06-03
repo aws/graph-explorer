@@ -49,14 +49,17 @@ export function QuerySearchTabContent() {
   });
 
   // Execute the query when the form is submitted
-  const onSubmit = (data: FormData) => {
+  const onSubmit = async (data: FormData) => {
     logger.debug("Executing query:", data);
     setQueryText(data.query);
-    mutation.mutate(data.query);
+    await mutation.mutateAsync(data.query);
   };
 
   // Submit the form when the user presses cmd+enter or ctrl+enter
   const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (form.formState.isSubmitting) {
+      return;
+    }
     if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
       e.preventDefault();
       form.handleSubmit(onSubmit)();
@@ -88,7 +91,12 @@ export function QuerySearchTabContent() {
             )}
           />
           <div className="flex gap-3">
-            <Button className="w-full" variant="filled" type="submit">
+            <Button
+              className="w-full"
+              variant="filled"
+              type="submit"
+              disabled={form.formState.isSubmitting}
+            >
               <CornerDownRightIcon />
               Run query
             </Button>
