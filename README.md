@@ -222,6 +222,21 @@ different browsers and operating systems will have slightly different steps.
 > To get rid of the “Not Secure” warning, see
 [Using self-signed certificates on Chrome](./additionaldocs/development.md#using-self-signed-certificates-on-chrome).
 
+## Permissions
+
+Graph Explorer does not provide any mechanisms for controlling user permissions.
+If you are using Graph Explorer with AWS, Neptune permissions can be controlled
+through IAM roles.
+
+For information about what permissions Graph Explorer requires check out the
+documentation on
+[SageMaker configuration](./additionaldocs/sagemaker/README.md#minimum-database-permissions).
+
+<!-- prettier-ignore -->
+> [!CAUTION] 
+> 
+> By default, a Neptune Notebook will have full read & write access to Neptune data.
+
 ## Authentication
 
 Authentication for Amazon Neptune connections is enabled using the
