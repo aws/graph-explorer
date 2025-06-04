@@ -106,28 +106,92 @@ expand the first-order neighbors of a node.
 - **Legend (i):** This displays an informational list of icons, colors, and
   display names available.
 
-### Right-hand Pane UI
+### Sidebar Panel UI
 
 The pane on the right of the graph provides various actions, configuration, and
 details about the open graph.
 
-- **Search View** allows you to search for specific nodes by filtering on node
-  types and attributes and then adding nodes to the graph view.
-- **Details View** shows details about a selected node/edge such as properties
-  etc.
-- **Entities Filter** is used to control the display of nodes and edges that are
-  already expanded in the Graph View; click to hide or show nodes/edges.
-- **Expand** is used when expanding will result in 10+ neighbors and control the
-  meaningful expansion. You will need to select a number as the limit to expand
-  to. You can also add text filters for expansion.
-- **Node Styling** of node display options (e.g., color, icon, the property to
-  use for the displayed name).
-- **Edge Styling** of edge display options (e.g., color, icon, the property to
-  use for the displayed name).
-- **Namespaces (RDF only)** allows you to shorten the display of Resource URIs
-  within the app based on auto-generated prefixes, commonly-used prefix
-  libraries, or custom prefixes set by the user. Order of priority is set to
-  Custom > Common > Auto-generated.
+- [**Search panel**](#search-panel) allows you to search for specific nodes by
+  filtering on node types & attributes or executing a database query then adding
+  nodes & edges to the graph Panel.
+- [**Details panel**](#details-panel) shows details about a selected node/edge
+  such as properties etc.
+- [**Entities filter panel**](#entities-filter-panel) is used to control the
+  display of nodes and edges that are already expanded in the Graph View; click
+  to hide or show nodes/edges.
+- [**Expand panel**](#expand-panel) is used when expanding will result in 10+
+  neighbors and control the meaningful expansion. You will need to select a
+  number as the limit to expand to. You can also add text filters for expansion.
+- [**Node styling panel**](#node-styling-panel) of node display options (e.g.,
+  color, icon, the property to use for the displayed name).
+- [**Edge styling panel**](#edge-styling-panel) of edge display options (e.g.,
+  color, icon, the property to use for the displayed name).
+- [**Namespaces panel (RDF only)**](#namespace-panel) allows you to shorten the
+  display of Resource URIs within the app based on auto-generated prefixes,
+  commonly-used prefix libraries, or custom prefixes set by the user. Order of
+  priority is set to Custom > Common > Auto-generated.
+
+#### Search Panel
+
+Graph Explorer Search UI provides two powerful ways to search and interact with
+your graph database:
+
+##### Filter Search
+
+- Enables faceted filtering of nodes based on:
+  - Node labels (or rdf:type for RDF databases)
+  - Node attribute values
+- Supports partial text matching
+- Search results can be added to the graph individually or all at once
+- Supports cancellation of long-running queries
+
+##### Query Search
+
+- Available for the Gremlin connections
+- Allows execution of any valid database query, including mutations
+- When adding an edge, its connected nodes are automatically included
+- Displays scalar values in results (though these cannot be added to the graph)
+- Paginates results over 100 items
+- Results can be added to the graph individually or all at once
+- Supports cancellation of long-running queries
+
+#### Details Panel
+
+- Displays attributes and values for node or edge selections
+- Displays neighbor counts by label for node selections
+- Displays relationship information for edge selections
+
+#### Expand Panel
+
+- Enables faceted filtered expansion of neighbors based on:
+  - Node labels (or rdf:type for RDF databases)
+  - Node attribute values
+- Support limiting the result set of neighbors
+
+#### Entities Filter Panel
+
+- Allows filtering entire node or edge labels from the visualization
+
+#### Node Styling Panel
+
+- Allows quickly customizing the display label for each node type
+- Supports defining the display name and description attributes
+- Allows customizing the colors and shape of the node visualization
+- Allows uploading a custom SVG icon to be shown in the node
+
+#### Edge Styling Panel
+
+- Allows quickly customizing the display label for each edge type
+- Supports defining the display name attribute
+- Allows customizing the colors of the edge and label
+- Allows customizing the arrow style
+
+#### Namespace Panel
+
+- Only visible in RDF connections
+- Displays any automatically generated namespace prefixes for the connection
+- Displays all the common prefixes that are built-in
+- Allows creation and management of any custom namespace prefixes
 
 ### Table View UI
 
