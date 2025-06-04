@@ -1,12 +1,12 @@
 # Graph Explorer
 
-The Graph Explorer project provides a React-based web application that enables
-users to visualize both property graph and RDF data and explore connections
-between data without having to write graph queries. You can connect to a graph
-database that supports the
-[W3C RDF/SPARQL](https://www.w3.org/TR/sparql11-overview/) open standard, the
-[openCypher](https://opencypher.org) open source specification, or the open
-source [Apache TinkerPop Gremlin Server](https://tinkerpop.apache.org/).
+Graph Explorer project provides a React-based web application that enables users
+to visualize both property graph and RDF data and explore connections between
+data without having to write graph queries. You can connect to a graph database
+that supports the [W3C RDF/SPARQL](https://www.w3.org/TR/sparql11-overview/)
+open standard, the [openCypher](https://opencypher.org) open source
+specification, or the open source
+[Apache TinkerPop Gremlin Server](https://tinkerpop.apache.org/).
 
 To get started, you can deploy Graph Explorer on a local machine using
 [Docker Desktop](https://www.docker.com/products/docker-desktop/), or in the
@@ -74,20 +74,19 @@ If you're interested in our future development plans, check out our
 
 ## Connections
 
-The Graph Explorer supports visualizing both **property graphs** and **RDF
-graphs**. You can connect to Amazon Neptune or you can also connect to open
-graph databases that implement an Apache TinkerPop Gremlin Server endpoint or
-the SPARQL 1.1 protocol, such as Blazegraph. For additional details on
-connecting to different graph databases, see
-[Connections](./additionaldocs/connections.md).
+Graph Explorer supports visualizing both **property graphs** and **RDF graphs**.
+You can connect to Amazon Neptune or you can also connect to open graph
+databases that implement an Apache TinkerPop Gremlin Server endpoint or the
+SPARQL 1.1 protocol, such as Blazegraph. For additional details on connecting to
+different graph databases, see [Connections](./additionaldocs/connections.md).
 
 ### Providing a Default Connection
 
-To provide a default connection such that initial loads of the graph explorer
-always result with the same starting connection, modify the `docker run ...`
-command to either take in a JSON configuration or runtime environment variables.
-If you provide both a JSON configuration and environmental variables, the JSON
-will be prioritized.
+To provide a default connection such that initial loads of Graph Explorer always
+result with the same starting connection, modify the `docker run ...` command to
+either take in a JSON configuration or runtime environment variables. If you
+provide both a JSON configuration and environmental variables, the JSON will be
+prioritized.
 
 #### Environment Variables
 
@@ -103,8 +102,8 @@ defaults, and their descriptions.
     [Add a New Connection](#connections-ui)
   - `USING_PROXY_SERVER` - `False` - See [Add a New Connection](#connections-ui)
   - `IAM` - `False` - See [Add a New Connection](#connections-ui)
-  - `GRAPH_EXP_HTTPS_CONNECTION` - `True` - Controls whether the Graph Explorer
-    uses SSL or not
+  - `GRAPH_EXP_HTTPS_CONNECTION` - `True` - Controls whether Graph Explorer uses
+    SSL or not
   - `PROXY_SERVER_HTTPS_CONNECTION` - `True` - Controls whether the server uses
     SSL or not
   - `GRAPH_EXP_FETCH_REQUEST_TIMEOUT` - `240000` - Controls the timeout for the
@@ -180,9 +179,9 @@ For development guidance, see [Development](./additionaldocs/development.md).
 
 ## Security
 
-You can use the Graph Explorer to connect to a publicly accessible graph
-database endpoint, or connect to a proxy endpoint that redirects to a private
-graph database endpoint.
+You can use Graph Explorer to connect to a publicly accessible graph database
+endpoint, or connect to a proxy endpoint that redirects to a private graph
+database endpoint.
 
 Graph Explorer supports the HTTPS protocol by default and provides a self-signed
 certificate as part of the Docker image. You can choose to use HTTP instead by
@@ -191,7 +190,7 @@ changing the
 
 ### HTTPS Connections
 
-If either of the Graph Explorer or the proxy-server are served over an HTTPS
+If either of Graph Explorer or the proxy-server are served over an HTTPS
 connection (which it is by default), you will have to bypass the warning message
 from the browser due to the included certificate being a self-signed
 certificate. You can bypass by manually ignoring them from the browser or
