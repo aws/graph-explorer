@@ -15,6 +15,7 @@ import { logger } from "@/utils";
 import { createDisplayError } from "@/utils/createDisplayError";
 import { useMutation } from "@tanstack/react-query";
 import { useMaterializeVertices } from "./useMaterializeVertices";
+import { useMaterializeEdges } from "./useMaterializeEdges";
 import { useSetAtom } from "jotai";
 
 /** Returns a callback that adds an array of nodes and edges to the graph. */
@@ -24,6 +25,7 @@ export function useAddToGraph() {
   const setActiveSchema = useSetAtom(activeSchemaSelector);
   const updateGraphStorage = useUpdateGraphSession();
   const materializeVertices = useMaterializeVertices();
+  const materializeEdges = useMaterializeEdges();
 
   return async (entities: { vertices?: Vertex[]; edges?: Edge[] }) => {
     const vertices = toNodeMap(entities.vertices ?? []);
@@ -48,9 +50,10 @@ export function useAddToGraph() {
 
     // Ensure all fragments are materialized
     const newVerticesMap = await materializeVertices(vertices);
+    const newEdgesMap = await materializeEdges(edges);
 
     // Ensure there is something to add
-    if (newVerticesMap.size === 0 && edges.size === 0) {
+    if (newVerticesMap.size === 0 && newEdgesMap.size === 0) {
       return;
     }
 
@@ -60,8 +63,8 @@ export function useAddToGraph() {
     }
 
     // Add new edges to the graph
-    if (edges.size > 0) {
-      setEdges(prev => new Map([...prev, ...edges]));
+    if (newEdgesMap.size > 0) {
+      setEdges(prev => new Map([...prev, ...newEdgesMap]));
     }
 
     // Update the schema with any new vertex or edge types or attributes
@@ -70,7 +73,7 @@ export function useAddToGraph() {
         return prev;
       }
       return updateSchemaFromEntities(
-        { nodes: newVerticesMap, edges: edges },
+        { nodes: newVerticesMap, edges: newEdgesMap },
         prev
       );
     });
