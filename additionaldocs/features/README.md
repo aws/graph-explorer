@@ -1,4 +1,4 @@
-# Features Overview
+# Features
 
 If you are interested in where Graph Explorer is headed in the future then check
 out our [roadmap](../../ROADMAP.md) and participate in the discussions.
