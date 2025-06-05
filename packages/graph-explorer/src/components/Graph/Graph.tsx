@@ -19,6 +19,7 @@ import type {
   CytoscapeType,
   GraphEdge,
   GraphNode,
+  LayoutName,
   Selection,
 } from "./Graph.model";
 import { runLayout } from "./helpers/layout";
@@ -69,7 +70,7 @@ export interface GraphProps<
   };
   useAnimation?: boolean;
   // internal state of the graph
-  layout?: string;
+  layout?: LayoutName;
   additionalLayoutsConfig?: { [key: string]: Partial<cytoscape.LayoutOptions> };
   loading?: boolean;
   onLayoutUpdated?: (cy: CytoscapeType, layout: string) => any;

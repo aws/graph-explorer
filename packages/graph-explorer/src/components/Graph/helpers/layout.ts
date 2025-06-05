@@ -1,5 +1,5 @@
 import type { CytoscapeType } from "../Graph.model";
-import { availableLayoutsConfig } from "./layoutConfig";
+import { availableLayoutsConfig, LayoutName } from "./layoutConfig";
 
 type ExpandedCytoscapeLayoutOptions = {
   fixedNodeConstraint?: {
@@ -9,7 +9,7 @@ type ExpandedCytoscapeLayoutOptions = {
 };
 export const runLayout = (
   cyReference: CytoscapeType,
-  layoutName: string,
+  layoutName: LayoutName,
   additionalLayoutsConfig: {
     [layoutName: string]: Partial<
       cytoscape.LayoutOptions & ExpandedCytoscapeLayoutOptions
@@ -34,7 +34,7 @@ export const runLayout = (
         position: node.position(),
       }));
     }
-    const layout = cyReference.layout(_layout);
+    const layout = cyReference.layout(_layout as cytoscape.LayoutOptions);
     layout.run();
     return;
   }
