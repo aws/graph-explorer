@@ -58,7 +58,11 @@ databases:
   - Custom query execution and visualization
   - Customizable styling options
   - Detailed node/edge information
-  - Tabular representation with filtering and export options
+- **Tabular View** - Interact with nodes & edges that have been added to the
+  graph view
+  - Show or hide individual nodes & edges
+  - Filtered nodes and edges will fade in the graph view
+  - Export table to CSV or JSON file
 - **Data Explorer** - Examine specific node types and send nodes to the graph
   view
 
