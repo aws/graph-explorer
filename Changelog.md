@@ -8,7 +8,8 @@
   ([#949](https://github.com/aws/graph-explorer/pull/949),
   [#947](https://github.com/aws/graph-explorer/pull/947),
   [#956](https://github.com/aws/graph-explorer/pull/956),
-  [#957](https://github.com/aws/graph-explorer/pull/957))
+  [#957](https://github.com/aws/graph-explorer/pull/957),
+  [#974](https://github.com/aws/graph-explorer/pull/974))
 
 ### Other changes
 
