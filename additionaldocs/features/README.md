@@ -191,8 +191,8 @@ Each node type can be customized in a variety of ways.
 
 Each edge type can be customized in a variety of ways.
 
-- **Display label** allows you to change how the edge label (or rdf:type) is
-  represented
+- **Display label** allows you to change how the edge label (or predicate in RDF
+  databases) is represented
 - **Display name attribute** allows you to choose the attribute on the edge that
   is used to uniquely label the edge in the graph visualization and search
 - **Arrow symbol** can be chosen for both source and target variations
