@@ -108,7 +108,7 @@ expand the first-order neighbors of a node.
 
 ### Sidebar Panel UI
 
-The pane on the right of the graph provides various actions, configuration, and
+The panel on the right of the graph provides various actions, configuration, and
 details about the open graph.
 
 - [**Search panel**](#search-panel) allows you to search for specific nodes by
