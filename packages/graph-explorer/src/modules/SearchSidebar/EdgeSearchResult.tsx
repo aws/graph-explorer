@@ -9,6 +9,7 @@ import {
 import {
   useAddToGraphMutation,
   useDisplayVertexFromFragment,
+  useEdgeDetailsQuery,
   useHasEdgeBeenAddedToGraph,
   useRemoveEdgeFromGraph,
 } from "@/hooks";
@@ -23,7 +24,13 @@ import EntityAttribute from "../EntityDetails/EntityAttribute";
 
 export function EdgeSearchResult({ edge }: { edge: Edge }) {
   const [expanded, setExpanded] = useState(false);
-  const displayEdge = useDisplayEdgeFromEdge(edge);
+
+  // Ensure the edge is fully materialized
+  const { data: detailsResponse } = useEdgeDetailsQuery(edge.id);
+  const preferredEdge = detailsResponse?.edge ?? edge;
+  const displayEdge = useDisplayEdgeFromEdge(preferredEdge);
+
+  // Get the display vertices
   const source = useDisplayVertexFromFragment(
     displayEdge.source.id,
     displayEdge.source.types

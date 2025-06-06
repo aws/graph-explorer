@@ -16,6 +16,7 @@ import {
   extractConfigFromEntity,
   GraphSessionStorageModel,
   nodesAtom,
+  toEdgeMap,
   toNodeMap,
   VertexTypeConfig,
 } from "@/core";
@@ -23,13 +24,27 @@ import { waitFor } from "@testing-library/react";
 import { useMaterializeVertices } from "./useMaterializeVertices";
 import { cloneDeep } from "lodash";
 import { useAtomValue } from "jotai";
+import { useMaterializeEdges } from "./useMaterializeEdges";
 
 vi.mock("./useMaterializeVertices", () => ({
   useMaterializeVertices: vi.fn(),
 }));
 
+vi.mock("./useMaterializeEdges", () => ({
+  useMaterializeEdges: vi.fn(),
+}));
+
 beforeEach(() => {
   vi.resetAllMocks();
+
+  // Default mock responses
+  vi.mocked(useMaterializeVertices).mockReturnValue(() =>
+    Promise.resolve(toNodeMap([]))
+  );
+
+  vi.mocked(useMaterializeEdges).mockReturnValue(() =>
+    Promise.resolve(toEdgeMap([]))
+  );
 });
 
 test("should add one node", async () => {
@@ -81,6 +96,32 @@ test("should materialize fragment vertices", async () => {
   });
 });
 
+test("should materialize fragment edges", async () => {
+  const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
+  const clonedEdge = cloneDeep(edge);
+  edge.__isFragment = true;
+  edge.attributes = {};
+
+  vi.mocked(useMaterializeEdges).mockReturnValue(() =>
+    Promise.resolve(toEdgeMap([clonedEdge]))
+  );
+
+  const { result } = renderHookWithJotai(() => {
+    const callback = useAddToGraph();
+    const vertices = useAtomValue(nodesAtom);
+    const edges = useAtomValue(edgesAtom);
+
+    return { callback, vertices, edges };
+  });
+
+  await act(() => result.current.callback({ edges: [edge] }));
+
+  await waitFor(() => {
+    const actual = result.current.edges.get(edge.id);
+    expect(actual).toEqual(clonedEdge);
+  });
+});
+
 test("should add one edge", async () => {
   const node1 = createRandomVertex();
   const node2 = createRandomVertex();
@@ -88,6 +129,10 @@ test("should add one edge", async () => {
 
   vi.mocked(useMaterializeVertices).mockReturnValue(() =>
     Promise.resolve(toNodeMap([node1, node2]))
+  );
+
+  vi.mocked(useMaterializeEdges).mockReturnValue(() =>
+    Promise.resolve(toEdgeMap([edge]))
   );
 
   const { result } = renderHookWithJotai(
@@ -116,6 +161,9 @@ test("should add multiple nodes and edges", async () => {
 
   vi.mocked(useMaterializeVertices).mockReturnValue(() =>
     Promise.resolve(randomEntities.nodes)
+  );
+  vi.mocked(useMaterializeEdges).mockReturnValue(() =>
+    Promise.resolve(randomEntities.edges)
   );
 
   const { result } = renderHookWithJotai(() => {
@@ -220,6 +268,9 @@ test("should update schema when adding an edge", async () => {
   vi.mocked(useMaterializeVertices).mockReturnValue(() =>
     Promise.resolve(toNodeMap([node1, node2]))
   );
+  vi.mocked(useMaterializeEdges).mockReturnValue(() =>
+    Promise.resolve(toEdgeMap([edge]))
+  );
 
   const { result } = renderHookWithJotai(
     () => {
@@ -300,6 +351,9 @@ test("should add missing attributes to the schema when adding an edge", async ()
   vi.mocked(useMaterializeVertices).mockReturnValue(() =>
     Promise.resolve(toNodeMap([node1, node2]))
   );
+  vi.mocked(useMaterializeEdges).mockReturnValue(() =>
+    Promise.resolve(toEdgeMap([edge]))
+  );
 
   const { result } = renderHookWithJotai(
     () => {
@@ -363,6 +417,9 @@ test("should update graph storage when adding an edge", async () => {
 
   vi.mocked(useMaterializeVertices).mockReturnValue(() =>
     Promise.resolve(toNodeMap([node1, node2]))
+  );
+  vi.mocked(useMaterializeEdges).mockReturnValue(() =>
+    Promise.resolve(toEdgeMap([edge]))
   );
 
   const { result } = renderHookWithJotai(

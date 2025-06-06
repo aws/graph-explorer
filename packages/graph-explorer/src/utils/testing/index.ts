@@ -1,3 +1,4 @@
+export * from "./createMockExplorer";
 export * from "./DbState";
 export * from "./graphsonHelpers";
 export * from "./normalize";
