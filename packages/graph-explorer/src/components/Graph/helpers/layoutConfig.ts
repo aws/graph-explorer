@@ -248,11 +248,11 @@ const cose = {
   initialEnergyOnIncremental: 1,
 };
 
-const klayLayout = {
+const klayLayoutLeftToRight = {
   name: "klay",
   nodeDimensionsIncludeLabels: false, // Boolean which changes whether label dimensions are included when calculating node dimensions
   fit: true, // Whether to fit
-  padding: 20, // Padding on fit
+  padding: 30, // Padding on fit
   animate: true, // Whether to transition the node positions
   animateFilter: function () {
     return true;
@@ -313,6 +313,14 @@ const klayLayout = {
   }, // Edges with a non-nil value are skipped when greedy edge cycle breaking is enabled
 };
 
+const klayLayoutTopToBottom = {
+  ...klayLayoutLeftToRight,
+  klay: {
+    ...klayLayoutLeftToRight.klay,
+    direction: "DOWN",
+  },
+};
+
 export const availableLayoutsConfig = {
   CONCENTRIC: concentricLayout,
   DAGRE_TB: dagreLayoutTopToBottom,
@@ -321,7 +329,8 @@ export const availableLayoutsConfig = {
   DAGRE_RL: dagreLayoutRightToLeft,
   F_COSE: cose,
   D3: d3force,
-  KLAY: klayLayout,
+  KLAY_LR: klayLayoutLeftToRight,
+  KLAY_TB: klayLayoutTopToBottom,
   SUBWAY_TB: subwayLayoutTopToBottom,
   SUBWAY_BT: subwayLayoutBottomToTop,
   SUBWAY_LR: subwayLayoutLeftToRight,

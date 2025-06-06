@@ -37,8 +37,13 @@ export function SelectLayout({
       <SelectContent>
         <SelectItem value="F_COSE">Force Directed (F0Cose)</SelectItem>
         <SelectItem value="D3">Force Directed (D3)</SelectItem>
-        <SelectItem value="KLAY">Klay</SelectItem>
         <SelectItem value="CONCENTRIC">Concentric</SelectItem>
+        <SelectSeparator />
+        <SelectGroup>
+          <SelectLabel>Klay</SelectLabel>
+          <SelectItem value="KLAY_LR">Left to Right</SelectItem>
+          <SelectItem value="KLAY_TB">Top to Bottom</SelectItem>
+        </SelectGroup>
         <SelectSeparator />
         <SelectGroup>
           <SelectLabel>Hierarchical</SelectLabel>
