@@ -31,7 +31,7 @@ https://graph-explorer-notebook-name.notebook.us-west-2.sagemaker.aws/proxy/9250
 ## Minimum Database Permissions
 
 By default, the permission policy for the IAM role of the SageMaker instance
-will have full access to the Neptune or Neptune Analytics instance. This means
+will have full access to the Neptune Database or Neptune Analytics instance. This means
 queries executed within Graph Explorer could contain mutations.
 
 To restrict Graph Explorer access for its most basic functionality you can use
