@@ -2,10 +2,11 @@
 
 Graph Explorer provides a React-based web application that enables users to
 visualize both property graph and RDF data and explore connections between data
-without having to write graph queries. You can connect to a graph database that
-supports the [W3C RDF/SPARQL](https://www.w3.org/TR/sparql11-overview/) open
-standard, the [openCypher](https://opencypher.org) open source specification, or
-the open source [Apache TinkerPop Gremlin](https://tinkerpop.apache.org/).
+without having to write graph queries. You can connect to a graph database over
+HTTP that supports the
+[W3C RDF/SPARQL](https://www.w3.org/TR/sparql11-overview/) open standard, the
+[openCypher](https://opencypher.org) open source specification, or the open
+source [Apache TinkerPop Gremlin](https://tinkerpop.apache.org/).
 
 To get started, you can deploy Graph Explorer on a local machine using
 [Docker Desktop](https://www.docker.com/products/docker-desktop/), or in the
