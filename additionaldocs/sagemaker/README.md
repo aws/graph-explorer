@@ -47,6 +47,10 @@ these minimum permissions.
 > 
 > If you are using the standard notebook setup, these policies will apply to both the Jupyter graph notebooks as well as Graph Explorer.
 
+If a user attempts to execute a mutation query inside of Graph Explorer, they
+will be presented with an error that informs them they are not authorized for
+that request.
+
 **Neptune DB**
 
 ```json

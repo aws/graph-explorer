@@ -119,9 +119,8 @@ details about the open graph.
 - [**Entities filter panel**](#entities-filter-panel) is used to control the
   display of nodes and edges that are already expanded in the Graph View; click
   to hide or show nodes/edges.
-- [**Expand panel**](#expand-panel) is used when expanding will result in 10+
-  neighbors and control the meaningful expansion. You will need to select a
-  number as the limit to expand to. You can also add text filters for expansion.
+- [**Expand panel**](#expand-panel) provides controls and filters to help focus
+  large neighbor expansions.
 - [**Node styling panel**](#node-styling-panel) of node display options (e.g.,
   color, icon, the property to use for the displayed name).
 - [**Edge styling panel**](#edge-styling-panel) of edge display options (e.g.,
@@ -147,11 +146,11 @@ your graph database:
 
 ##### Query Search
 
-- Available for the Gremlin connections
+- Available for Gremlin connections
 - Allows execution of any valid database query, including mutations
 - When adding an edge, its connected nodes are automatically included
 - Displays scalar values in results (though these cannot be added to the graph)
-- Paginates results over 100 items
+- Paginates large result sets
 - Results can be added to the graph individually or all at once
 - Supports cancellation of long-running queries
 
@@ -163,28 +162,42 @@ your graph database:
 
 #### Expand Panel
 
-- Enables faceted filtered expansion of neighbors based on:
-  - Node labels (or rdf:type for RDF databases)
-  - Node attribute values
-- Support limiting the result set of neighbors
+Provides fine grained control over neighbor expansions
+
+- Filter by node label (or rdf:type for RDF databases)
+- Filter by attribute value
+- Limit results to a maximum size
 
 #### Entities Filter Panel
 
-- Allows filtering entire node or edge labels from the visualization
+Provides the ability to filter nodes or edges from the visualization by label
+(or rdf:type for RDF databases)
 
 #### Node Styling Panel
 
-- Allows quickly customizing the display label for each node type
-- Supports defining the display name and description attributes
-- Allows customizing the colors and shape of the node visualization
-- Allows uploading a custom SVG icon to be shown in the node
+Each node type can be customized in a variety of ways.
+
+- **Display label** allows you to change how the node label (or rdf:type) is
+  represented
+- **Display name attribute** allows you to choose the attribute on the node that
+  is used to uniquely label the node in the graph visualization and search
+- **Display description attribute** allows you to choose the attribute on the
+  node that is used to describe the node in search
+- **Custom symbol** can be uploaded in the form of an SVG icon
+- **Colors and borders** can be customized to visually distinguish from other
+  node types
 
 #### Edge Styling Panel
 
-- Allows quickly customizing the display label for each edge type
-- Supports defining the display name attribute
-- Allows customizing the colors of the edge and label
-- Allows customizing the arrow style
+Each edge type can be customized in a variety of ways.
+
+- **Display label** allows you to change how the edge label (or rdf:type) is
+  represented
+- **Display name attribute** allows you to choose the attribute on the edge that
+  is used to uniquely label the edge in the graph visualization and search
+- **Arrow symbol** can be chosen for both source and target variations
+- **Colors and borders** can be customized for the edge label and the line
+- **Line style** can be solid, dotted, or dashed
 
 #### Namespace Panel
 

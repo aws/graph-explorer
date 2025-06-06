@@ -1,12 +1,11 @@
 # Graph Explorer
 
-Graph Explorer project provides a React-based web application that enables users
-to visualize both property graph and RDF data and explore connections between
-data without having to write graph queries. You can connect to a graph database
-that supports the [W3C RDF/SPARQL](https://www.w3.org/TR/sparql11-overview/)
-open standard, the [openCypher](https://opencypher.org) open source
-specification, or the open source
-[Apache TinkerPop Gremlin Server](https://tinkerpop.apache.org/).
+Graph Explorer provides a React-based web application that enables users to
+visualize both property graph and RDF data and explore connections between data
+without having to write graph queries. You can connect to a graph database that
+supports the [W3C RDF/SPARQL](https://www.w3.org/TR/sparql11-overview/) open
+standard, the [openCypher](https://opencypher.org) open source specification, or
+the open source [Apache TinkerPop Gremlin](https://tinkerpop.apache.org/).
 
 To get started, you can deploy Graph Explorer on a local machine using
 [Docker Desktop](https://www.docker.com/products/docker-desktop/), or in the
@@ -76,9 +75,9 @@ If you're interested in our future development plans, check out our
 
 Graph Explorer supports visualizing both **property graphs** and **RDF graphs**.
 You can connect to Amazon Neptune or you can also connect to open graph
-databases that implement an Apache TinkerPop Gremlin Server endpoint or the
-SPARQL 1.1 protocol, such as Blazegraph. For additional details on connecting to
-different graph databases, see [Connections](./additionaldocs/connections.md).
+databases that implement an Apache TinkerPop Gremlin endpoint or the SPARQL 1.1
+protocol, such as Blazegraph. For additional details on connecting to different
+graph databases, see [Connections](./additionaldocs/connections.md).
 
 ### Providing a Default Connection
 
@@ -190,14 +189,14 @@ changing the
 
 ### HTTPS Connections
 
-If either of Graph Explorer or the proxy-server are served over an HTTPS
-connection (which it is by default), you will have to bypass the warning message
-from the browser due to the included certificate being a self-signed
-certificate. You can bypass by manually ignoring them from the browser or
-downloading the correct certificate and configuring them to be trusted.
-Alternatively, you can provide your own certificate. The following instructions
-can be used as an example to bypass the warnings for Chrome, but note that
-different browsers and operating systems will have slightly different steps.
+If either Graph Explorer or the proxy-server are served over an HTTPS connection
+(which it is by default), you will have to bypass the warning message from the
+browser due to the included certificate being a self-signed certificate. You can
+bypass by manually ignoring them from the browser or downloading the correct
+certificate and configuring them to be trusted. Alternatively, you can provide
+your own certificate. The following instructions can be used as an example to
+bypass the warnings for Chrome, but note that different browsers and operating
+systems will have slightly different steps.
 
 1. Download the certificate directly from the browser. For example, if using
    Google Chrome, click the “Not Secure” section on the left of the URL bar and
