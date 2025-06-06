@@ -113,7 +113,7 @@ details about the open graph.
 
 - [**Search panel**](#search-panel) allows you to search for specific nodes by
   filtering on node types & attributes or executing a database query then adding
-  nodes & edges to the graph Panel.
+  nodes & edges to the graph panel.
 - [**Details panel**](#details-panel) shows details about a selected node/edge
   such as properties etc.
 - [**Entities filter panel**](#entities-filter-panel) is used to control the
