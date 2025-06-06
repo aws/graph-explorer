@@ -1,11 +1,11 @@
 import cytoscape from "cytoscape";
 import { useEffect, useRef } from "react";
-import type { CytoscapeType } from "../Graph.model";
+import type { CytoscapeType, LayoutName } from "../Graph.model";
 import { runLayout } from "../helpers/layout";
 
 interface UseUpdateLayout {
   cy?: CytoscapeType;
-  layout?: string;
+  layout?: LayoutName;
   useAnimation?: boolean;
   additionalLayoutsConfig?: {
     [layoutName: string]: Partial<cytoscape.LayoutOptions>;

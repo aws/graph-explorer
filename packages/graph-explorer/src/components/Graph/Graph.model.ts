@@ -54,15 +54,7 @@ export type Selection = {
   onSelectedEdgesIdsChange?(edgesIds: Array<string> | Set<string>): void;
 };
 
-export type LayoutName =
-  | "CONCENTRIC"
-  | "DAGRE_HORIZONTAL"
-  | "DAGRE_VERTICAL"
-  | "F_COSE"
-  | "D3"
-  | "KLAY"
-  | "SUBWAY_HORIZONTAL"
-  | "SUBWAY_VERTICAL";
+export type { LayoutName } from "./helpers/layoutConfig";
 
 export type GraphNode = {
   data: {

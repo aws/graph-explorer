@@ -23,7 +23,6 @@ import {
 import Graph from "@/components/Graph";
 import { GraphRef } from "@/components/Graph/Graph";
 import { ElementEventCallback } from "@/components/Graph/hooks/useAddClickEvents";
-import SelectField from "@/components/SelectField";
 import {
   edgesOutOfFocusRenderedIdsAtom,
   edgesSelectedRenderedIdsAtom,
@@ -52,41 +51,7 @@ import {
 } from "lucide-react";
 import { useAtom, useAtomValue } from "jotai";
 import { useDefaultNeighborExpansionLimit } from "@/hooks/useExpandNode";
-
-const LAYOUT_OPTIONS = [
-  {
-    label: "Force Directed  (F0Cose)",
-    value: "F_COSE",
-  },
-  {
-    label: "Force Directed (D3)",
-    value: "D3",
-  },
-  {
-    label: "Hierarchical - Vertical",
-    value: "DAGRE_VERTICAL",
-  },
-  {
-    label: "Hierarchical - Horizontal",
-    value: "DAGRE_HORIZONTAL",
-  },
-  {
-    label: "Subway - Vertical",
-    value: "SUBWAY_VERTICAL",
-  },
-  {
-    label: "Subway - Horizontal",
-    value: "SUBWAY_HORIZONTAL",
-  },
-  {
-    label: "Klay",
-    value: "KLAY",
-  },
-  {
-    label: "Concentric",
-    value: "CONCENTRIC",
-  },
-];
+import { graphLayoutSelectionAtom, SelectLayout } from "./SelectLayout";
 
 // Prevent open context menu on Windows
 function onContextMenu(e: MouseEvent<HTMLDivElement>) {
@@ -159,7 +124,7 @@ export default function GraphViewer() {
     });
   };
 
-  const [layout, setLayout] = useState("F_COSE");
+  const layout = useAtomValue(graphLayoutSelectionAtom);
   const onClearGraph = useClearGraph();
 
   const nodes = useRenderedVertices();
@@ -171,14 +136,7 @@ export default function GraphViewer() {
         <PanelHeader>
           <PanelTitle>Graph View</PanelTitle>
           <PanelHeaderActions>
-            <SelectField
-              className="min-w-auto max-w-64"
-              label="Layout"
-              labelPlacement="inner"
-              options={LAYOUT_OPTIONS}
-              value={layout}
-              onValueChange={setLayout}
-            />
+            <SelectLayout className="min-w-auto max-w-64" />
             <IconButton
               tooltipText="Re-run Layout"
               icon={<RefreshCwIcon />}

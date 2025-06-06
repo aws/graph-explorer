@@ -44,7 +44,7 @@ export const concentricLayout = {
   }, // transform a given node position. Useful for changing flow direction in discrete layouts
 };
 
-export const dagreLayoutHorizontal = {
+export const dagreLayoutTopToBottom = {
   name: "dagre",
 
   // dagre algo options, uses default value on undefined
@@ -85,12 +85,22 @@ export const dagreLayoutHorizontal = {
   // stop: function () {}, // on layoutstop
 };
 
-export const dagreLayoutVertical = {
-  ...dagreLayoutHorizontal,
+export const dagreLayoutBottomToTop = {
+  ...dagreLayoutTopToBottom,
+  rankDir: "BT",
+};
+
+export const dagreLayoutLeftToRight = {
+  ...dagreLayoutTopToBottom,
   rankDir: "LR",
 };
 
-export const subwayLayoutHorizontal = {
+export const dagreLayoutRightToLeft = {
+  ...dagreLayoutTopToBottom,
+  rankDir: "RL",
+};
+
+export const subwayLayoutTopToBottom = {
   name: "dagre",
 
   // dagre algo options, uses default value on undefined
@@ -125,9 +135,19 @@ export const subwayLayoutHorizontal = {
   // stop: function () {}, // on layoutstop
 };
 
-export const subwayLayoutVertical = {
-  ...subwayLayoutHorizontal,
+export const subwayLayoutLeftToRight = {
+  ...subwayLayoutTopToBottom,
   rankDir: "LR",
+};
+
+export const subwayLayoutRightToLeft = {
+  ...subwayLayoutTopToBottom,
+  rankDir: "RL",
+};
+
+export const subwayLayoutBottomToTop = {
+  ...subwayLayoutTopToBottom,
+  rankDir: "BT",
 };
 
 const d3force = {
@@ -228,11 +248,11 @@ const cose = {
   initialEnergyOnIncremental: 1,
 };
 
-const klayLayout = {
+const klayLayoutLeftToRight = {
   name: "klay",
   nodeDimensionsIncludeLabels: false, // Boolean which changes whether label dimensions are included when calculating node dimensions
   fit: true, // Whether to fit
-  padding: 20, // Padding on fit
+  padding: 30, // Padding on fit
   animate: true, // Whether to transition the node positions
   animateFilter: function () {
     return true;
@@ -293,13 +313,28 @@ const klayLayout = {
   }, // Edges with a non-nil value are skipped when greedy edge cycle breaking is enabled
 };
 
-export const availableLayoutsConfig: Record<string, any> = {
+const klayLayoutTopToBottom = {
+  ...klayLayoutLeftToRight,
+  klay: {
+    ...klayLayoutLeftToRight.klay,
+    direction: "DOWN",
+  },
+};
+
+export const availableLayoutsConfig = {
   CONCENTRIC: concentricLayout,
-  DAGRE_HORIZONTAL: dagreLayoutHorizontal,
-  DAGRE_VERTICAL: dagreLayoutVertical,
+  DAGRE_TB: dagreLayoutTopToBottom,
+  DAGRE_BT: dagreLayoutBottomToTop,
+  DAGRE_LR: dagreLayoutLeftToRight,
+  DAGRE_RL: dagreLayoutRightToLeft,
   F_COSE: cose,
   D3: d3force,
-  KLAY: klayLayout,
-  SUBWAY_HORIZONTAL: subwayLayoutHorizontal,
-  SUBWAY_VERTICAL: subwayLayoutVertical,
+  KLAY_LR: klayLayoutLeftToRight,
+  KLAY_TB: klayLayoutTopToBottom,
+  SUBWAY_TB: subwayLayoutTopToBottom,
+  SUBWAY_BT: subwayLayoutBottomToTop,
+  SUBWAY_LR: subwayLayoutLeftToRight,
+  SUBWAY_RL: subwayLayoutRightToLeft,
 };
+
+export type LayoutName = keyof typeof availableLayoutsConfig;
