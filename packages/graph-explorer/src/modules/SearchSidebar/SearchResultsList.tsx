@@ -49,7 +49,7 @@ export function SearchResultsList({
 
       <PanelFooter className="sticky bottom-0 flex flex-row items-center justify-between gap-2">
         <AddAllToGraphButton entities={results} />
-        <div className="flex min-h-10 items-center gap-2">
+        <div className="flex min-h-10 grow items-center justify-end gap-2">
           <ResultCounts results={results} />
           {isPagingNecessary ? (
             <div className="flex">
