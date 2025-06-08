@@ -13,6 +13,8 @@
 - **Updated** graph layout options to include better descriptions and new
   directions for hierarchical and subway
   ([#973](https://github.com/aws/graph-explorer/pull/973))
+- **Fix** multiple selection box behavior
+  ([#987](https://github.com/aws/graph-explorer/pull/987))
 
 ### Other changes
 
