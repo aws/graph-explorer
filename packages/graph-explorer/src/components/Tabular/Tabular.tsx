@@ -137,6 +137,15 @@ const TabularContent = <T extends object>({
 }: PropsWithChildren<
   TabularProps<T> & { tableInstance: TableInstance<T> }
 >) => {
+  /*
+   * DEV NOTE: This react table is refusing to refusing to re-render when the
+   * column width is being resized by the user. Disabling React Compiler here
+   * fixes the issue. We can likely revisit this when we upgrade to the newest
+   * React Table version.
+   */
+  // eslint-disable-next-line react-hooks/react-compiler
+  "use no memo";
+
   const { tableRef, headerControlsRef, headerControlsPosition } =
     useTabularControl();
   const [stickyHeaderTop, setStickyHeaderTop] = useState(0);
