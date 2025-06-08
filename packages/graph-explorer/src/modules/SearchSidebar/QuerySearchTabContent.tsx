@@ -15,7 +15,11 @@ import {
   TooltipTrigger,
 } from "@/components";
 import { useExplorer, useUpdateSchemaFromEntities } from "@/core";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useMutationState,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { SendHorizonalIcon } from "lucide-react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -24,7 +28,11 @@ import { logger } from "@/utils";
 import { useAtom } from "jotai";
 import { SearchResultsList } from "./SearchResultsList";
 import { atomWithReset } from "jotai/utils";
-import { updateEdgeDetailsCache, updateVertexDetailsCache } from "@/connector";
+import {
+  MappedQueryResults,
+  updateEdgeDetailsCache,
+  updateVertexDetailsCache,
+} from "@/connector";
 import { useRef } from "react";
 
 const formDataSchema = z.object({
@@ -43,7 +51,7 @@ export const queryTextAtom = atomWithReset("");
 
 export function QuerySearchTabContent() {
   const [queryText, setQueryText] = useAtom(queryTextAtom);
-  const { mutation, cancel } = useRawQueryMutation();
+  const { executeQuery, cancel } = useRawQueryMutation();
 
   const form = useForm({
     resolver: zodResolver(formDataSchema),
@@ -56,7 +64,7 @@ export function QuerySearchTabContent() {
   const onSubmit = async (data: FormData) => {
     logger.debug("Executing query:", data);
     setQueryText(data.query);
-    await mutation.mutateAsync(data.query);
+    await executeQuery(data.query);
   };
 
   // Submit the form when the user presses cmd+enter or ctrl+enter
@@ -118,62 +126,105 @@ export function QuerySearchTabContent() {
       </Form>
 
       <SearchResultsListContainer
-        mutation={mutation}
         cancel={cancel}
-        retry={() => mutation.mutate(queryText)}
+        retry={() => executeQuery(queryText)}
       />
     </div>
   );
 }
 
 function SearchResultsListContainer({
-  mutation,
   cancel,
   retry,
 }: {
-  mutation: RawQueryMutationResult;
   cancel: () => void;
   retry: () => void;
 }) {
-  if (mutation.isPending) {
-    return (
-      <PanelEmptyState
-        title="Executing query..."
-        icon={<LoadingSpinner />}
-        className="p-8"
-        actionLabel="Cancel"
-        onAction={() => cancel()}
-      />
-    );
+  /*
+   * DEV NOTE: This is a bit hacky. We use the mutation key to retrieve the
+   * cached results of all mutations that have run before. The last one is the
+   * most recent. So we use that to display results.
+   *
+   * This is necessary to restore query results if the component is unmounted
+   * and re-mounted. For example if the user switches sidebar tabs or closes the
+   * sidebar.
+   */
+  const { mutationKey } = useRawQueryMutation();
+  const mutations = useMutationState({
+    filters: {
+      mutationKey,
+    },
+  });
+  // Gets the last mutation from the array
+  const mutation = mutations.at(-1);
+
+  // Empty state
+  if (!mutation) {
+    return <QueryTabEmptyState />;
   }
 
-  if (
-    mutation.isError &&
-    !mutation.data &&
-    mutation.error.name !== "AbortError"
-  ) {
+  // Loading
+  if (mutation.status === "pending") {
+    return <QueryTabLoading cancel={cancel} />;
+  }
+
+  // Error
+  if (mutation.status === "error" && !mutation.data && mutation.error) {
+    // Cancellation should lead to empty state
+    if (mutation.error.name === "AbortError") {
+      return <QueryTabEmptyState />;
+    }
     return (
       <PanelError error={mutation.error} onRetry={retry} className="p-8" />
     );
   }
 
+  const mappedResults = mutation.data as MappedQueryResults;
+
+  // No results
   if (
-    !mutation.data ||
-    (mutation.data.vertices.length === 0 &&
-      mutation.data.edges.length === 0 &&
-      mutation.data.scalars.length === 0)
+    mappedResults.vertices.length === 0 &&
+    mappedResults.edges.length === 0 &&
+    mappedResults.scalars.length === 0
   ) {
-    return (
-      <PanelEmptyState
-        title="No Results"
-        subtitle="Your query does not produce any results"
-        icon={<SearchSadIcon />}
-        className="p-8"
-      />
-    );
+    return <QueryTabNoResults />;
   }
 
-  return <SearchResultsList {...mutation.data} />;
+  return <SearchResultsList {...mappedResults} />;
+}
+
+function QueryTabLoading({ cancel }: { cancel: () => void }) {
+  return (
+    <PanelEmptyState
+      title="Executing query..."
+      icon={<LoadingSpinner />}
+      className="p-8"
+      actionLabel="Cancel"
+      onAction={cancel}
+    />
+  );
+}
+
+function QueryTabEmptyState() {
+  return (
+    <PanelEmptyState
+      title="Search Query"
+      subtitle="Run a query to see results"
+      icon={<SendHorizonalIcon />}
+      className="p-8"
+    />
+  );
+}
+
+function QueryTabNoResults() {
+  return (
+    <PanelEmptyState
+      title="No Results"
+      subtitle="Your query does not produce any results"
+      icon={<SearchSadIcon />}
+      className="p-8"
+    />
+  );
 }
 
 /**
@@ -197,7 +248,12 @@ function useRawQueryMutation() {
     abortControllerRef.current?.abort();
   };
 
+  // This key ensures we can access the cached results
+  const mutationKey = ["db", "raw-query", explorer];
   const mutation = useMutation({
+    mutationKey: mutationKey,
+    gcTime: Infinity,
+    scope: { id: "raw-query" },
     mutationFn: async (query: string) => {
       // Create the abort controller and assign to the ref so the request can be cancelled
       const abortController = new AbortController();
@@ -217,12 +273,11 @@ function useRawQueryMutation() {
     },
   });
 
+  const executeQuery = (query: string) => mutation.mutateAsync(query);
+
   return {
-    mutation,
+    executeQuery,
     cancel,
+    mutationKey,
   };
 }
-
-type RawQueryMutationResult = ReturnType<
-  typeof useRawQueryMutation
->["mutation"];
