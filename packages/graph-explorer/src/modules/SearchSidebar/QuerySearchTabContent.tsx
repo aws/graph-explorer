@@ -4,15 +4,19 @@ import {
   FormControl,
   FormField,
   FormItem,
+  KeyboardKey,
   LoadingSpinner,
   PanelEmptyState,
   PanelError,
   SearchSadIcon,
   TextArea,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
 } from "@/components";
 import { useExplorer, useUpdateSchemaFromEntities } from "@/core";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { CornerDownRightIcon } from "lucide-react";
+import { SendHorizonalIcon } from "lucide-react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -90,16 +94,25 @@ export function QuerySearchTabContent() {
               </FormItem>
             )}
           />
-          <div className="flex gap-3">
-            <Button
-              className="w-full"
-              variant="filled"
-              type="submit"
-              disabled={form.formState.isSubmitting}
-            >
-              <CornerDownRightIcon />
-              Run query
-            </Button>
+          <div className="flex justify-end gap-3">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="default"
+                  type="submit"
+                  disabled={form.formState.isSubmitting}
+                >
+                  Run Query
+                  <SendHorizonalIcon />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <KeyboardKey>Cmd</KeyboardKey> +{" "}
+                <KeyboardKey>Enter</KeyboardKey> or{" "}
+                <KeyboardKey>Ctrl</KeyboardKey> +{" "}
+                <KeyboardKey>Enter</KeyboardKey>
+              </TooltipContent>
+            </Tooltip>
           </div>
         </form>
       </Form>

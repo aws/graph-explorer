@@ -39,6 +39,8 @@ export * from "./Input";
 export { default as InputField } from "./InputField";
 export * from "./InputField";
 
+export * from "./KeyboardKey";
+
 export * from "./Label";
 
 export { default as ListItem } from "./ListItem";

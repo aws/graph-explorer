@@ -20,6 +20,7 @@ export function SelectLayout({
   ...selectTriggerProps
 }: ComponentPropsWithRef<typeof SelectTrigger>) {
   const [value, setValue] = useAtom(graphLayoutSelectionAtom);
+
   return (
     <Select
       value={value}
@@ -41,24 +42,24 @@ export function SelectLayout({
         <SelectSeparator />
         <SelectGroup>
           <SelectLabel>Klay</SelectLabel>
-          <SelectItem value="KLAY_LR">Left to Right</SelectItem>
-          <SelectItem value="KLAY_TB">Top to Bottom</SelectItem>
+          <SelectItem value="KLAY_LR">Klay (Left to Right)</SelectItem>
+          <SelectItem value="KLAY_TB">Klay (Top to Bottom)</SelectItem>
         </SelectGroup>
         <SelectSeparator />
         <SelectGroup>
           <SelectLabel>Hierarchical</SelectLabel>
-          <SelectItem value="DAGRE_LR">Left to Right</SelectItem>
-          <SelectItem value="DAGRE_RL">Right to Left</SelectItem>
-          <SelectItem value="DAGRE_TB">Top to Bottom</SelectItem>
-          <SelectItem value="DAGRE_BT">Bottom to Top</SelectItem>
+          <SelectItem value="DAGRE_LR">Hierarchical (Left to Right)</SelectItem>
+          <SelectItem value="DAGRE_RL">Hierarchical (Right to Left)</SelectItem>
+          <SelectItem value="DAGRE_TB">Hierarchical (Top to Bottom)</SelectItem>
+          <SelectItem value="DAGRE_BT">Hierarchical (Bottom to Top)</SelectItem>
         </SelectGroup>
         <SelectSeparator />
         <SelectGroup>
           <SelectLabel>Subway</SelectLabel>
-          <SelectItem value="SUBWAY_LR">Left to Right</SelectItem>
-          <SelectItem value="SUBWAY_RL">Right to Left</SelectItem>
-          <SelectItem value="SUBWAY_TB">Top to Bottom</SelectItem>
-          <SelectItem value="SUBWAY_BT">Bottom to Top</SelectItem>
+          <SelectItem value="SUBWAY_LR">Subway (Left to Right)</SelectItem>
+          <SelectItem value="SUBWAY_RL">Subway (Right to Left)</SelectItem>
+          <SelectItem value="SUBWAY_TB">Subway (Top to Bottom)</SelectItem>
+          <SelectItem value="SUBWAY_BT">Subway (Bottom to Top)</SelectItem>
         </SelectGroup>
       </SelectContent>
     </Select>

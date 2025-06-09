@@ -8,7 +8,7 @@ import {
 import { MappedQueryResults } from "@/connector";
 import { NodeSearchResult } from "./NodeSearchResult";
 import { useAddToGraphMutation } from "@/hooks/useAddToGraph";
-import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import { ChevronLeftIcon, ChevronRightIcon, ListPlusIcon } from "lucide-react";
 import { EdgeSearchResult } from "./EdgeSearchResult";
 import { ScalarSearchResult } from "./ScalarSearchResult";
 import { Edge, Vertex } from "@/core";
@@ -57,7 +57,7 @@ export function SearchResultsList(results: MappedQueryResults) {
           vertices={results.vertices}
           edges={results.edges}
         />
-        <div className="flex items-center gap-2">
+        <div className="flex min-h-10 items-center gap-2">
           <ResultCounts results={results} />
           {isPagingNecessary ? (
             <div className="flex">
@@ -135,22 +135,29 @@ function AddAllToGraphButton({
   ...props
 }: ButtonProps & { vertices: Vertex[]; edges: Edge[] }) {
   const mutation = useAddToGraphMutation();
-  const canSendToGraph = vertices.length > 0 || edges.length > 0;
-  const counts = vertices.length + edges.length;
 
-  if (counts === 0) {
+  // Ensure there are entities that can be added to the graph
+  const canSendToGraph = vertices.length + edges.length > 0;
+  if (!canSendToGraph) {
     return null;
   }
 
   return (
     <Button
+      variant="filled"
       onClick={() => mutation.mutate({ vertices, edges })}
-      disabled={!canSendToGraph || mutation.isPending}
+      disabled={mutation.isPending}
       className="stack shrink-0 items-center justify-center"
       {...props}
     >
-      <span className={cn("visible", mutation.isPending && "invisible")}>
-        Add All ({counts})
+      <span
+        className={cn(
+          "visible inline-flex items-center gap-2",
+          mutation.isPending && "invisible"
+        )}
+      >
+        <ListPlusIcon />
+        Add All
       </span>
       <span
         className={cn("invisible", mutation.isPending && "visible mx-auto")}
