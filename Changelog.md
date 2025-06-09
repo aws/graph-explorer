@@ -16,6 +16,8 @@
   ([#973](https://github.com/aws/graph-explorer/pull/973))
 - **Fix** multiple selection box behavior
   ([#987](https://github.com/aws/graph-explorer/pull/987))
+- **Fixed** resizing columns in table view
+  ([#988](https://github.com/aws/graph-explorer/pull/988))
 
 ### Other changes
 
