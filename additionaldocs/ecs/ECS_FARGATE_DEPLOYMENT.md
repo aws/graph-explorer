@@ -309,5 +309,5 @@ using the name of the alias record that you created in the above step.
 ### Accessing Graph Explorer
 
 Enter the URL you created in the Route53 section into a browser to access the
-endpoint for the Graph Explorer
-(ex.`https://graphexplorer.example.com/explorer`). You should now be connected.
+endpoint for Graph Explorer (ex.`https://graphexplorer.example.com/explorer`).
+You should now be connected.

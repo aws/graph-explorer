@@ -1,4 +1,4 @@
-## Launching Graph Explorer using Amazon SageMaker
+# Launching Graph Explorer using Amazon SageMaker
 
 Graph Explorer can be hosted and launched on Amazon SageMaker Notebooks via a
 lifecycle configuration script. To learn more about lifecycle configurations and
@@ -26,4 +26,59 @@ URL. The Graph Explorer link should look something like:
 
 ```
 https://graph-explorer-notebook-name.notebook.us-west-2.sagemaker.aws/proxy/9250/explorer/
+```
+
+## Minimum Database Permissions
+
+By default, the permission policy for the IAM role of the SageMaker instance
+will have full access to the Neptune Database or Neptune Analytics instance.
+This means queries executed within Graph Explorer could contain mutations.
+
+To restrict Graph Explorer access for its most basic functionality you can use
+these minimum permissions.
+
+- Read data via queries
+- Get the graph summary information (used for schema sync)
+- Cancel query
+
+<!-- prettier-ignore -->
+> [!CAUTION
+] 
+> 
+> If you are using the standard notebook setup, these policies will apply to both the Jupyter graph notebooks as well as Graph Explorer.
+
+If a user attempts to execute a mutation query inside of Graph Explorer, they
+will be presented with an error that informs them they are not authorized for
+that request.
+
+**Neptune DB**
+
+```json
+{
+    "Effect": "Allow",
+    "Action": [
+        "neptune-db:CancelQuery",
+        "neptune-db:ReadDataViaQuery",
+        "neptune-db:GetGraphSummary"
+    ],
+    "Resource": [
+        "arn:[AWS_PARTITION]:neptune-db:[AWS_REGION]:[AWS_ACCOUNT_ID]:[NEPTUNE_CLUSTER_RESOURCE_ID]/*"
+    ]
+},
+```
+
+**Neptune Analytics**
+
+```json
+{
+  "Effect": "Allow",
+  "Action": [
+    "neptune-graph:CancelQuery",
+    "neptune-graph:GetGraphSummary",
+    "neptune-graph:ReadDataViaQuery"
+  ],
+  "Resource": [
+    "arn:[AWS_PARTITION]:neptune-graph:[AWS_REGION]:[AWS_ACCOUNT_ID]:graph/[NEPTUNE_GRAPH_RESOURCE_ID]"
+  ]
+}
 ```

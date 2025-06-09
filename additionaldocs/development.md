@@ -162,7 +162,7 @@ Example: `localhost`
 
 #### `GRAPH_EXP_HTTPS_CONNECTION`
 
-Uses the self-signed certificate to serve the Graph Explorer over https if true.
+Uses the self-signed certificate to serve Graph Explorer over https if true.
 
 - Optional
 - Default `true`
