@@ -102,7 +102,7 @@ export function createDisplayError(error: any): DisplayError {
       return {
         title: "Too Many Requests",
         message:
-          "The database is currently overloaded. Please try again later.",
+          "Requests are currently being throttled. Please try again later.",
       };
     }
 

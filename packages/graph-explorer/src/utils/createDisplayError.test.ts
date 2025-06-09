@@ -117,7 +117,8 @@ describe("createDisplayError", () => {
     );
     expect(result).toStrictEqual({
       title: "Too Many Requests",
-      message: "The database is currently overloaded. Please try again later.",
+      message:
+        "Requests are currently being throttled. Please try again later.",
     });
   });
 
