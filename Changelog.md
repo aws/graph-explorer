@@ -11,7 +11,8 @@
   [#957](https://github.com/aws/graph-explorer/pull/957),
   [#974](https://github.com/aws/graph-explorer/pull/974),
   [#958](https://github.com/aws/graph-explorer/pull/958),
-  [#989](https://github.com/aws/graph-explorer/pull/989))
+  [#989](https://github.com/aws/graph-explorer/pull/989),
+  [#991](https://github.com/aws/graph-explorer/pull/991))
 - **Updated** graph layout options to include better descriptions and new
   directions for hierarchical and subway
   ([#973](https://github.com/aws/graph-explorer/pull/973))
