@@ -17,8 +17,9 @@ import {
   RESERVED_TYPES_PROPERTY,
   sanitizeText,
 } from "@/utils";
-import { atomFamily } from "jotai/utils";
+import { atomFamily, useAtomCallback } from "jotai/utils";
 import { atom, useAtomValue } from "jotai";
+import { useCallback } from "react";
 
 export type DisplayVertexStyle = {
   color: string;
@@ -63,6 +64,16 @@ export function useDisplayVertexTypeConfig(type: string) {
 /** All vertex types sorted by display label */
 export function useDisplayVertexTypeConfigs() {
   return useAtomValue(displayVertexTypeConfigsSelector);
+}
+
+/** Gets a callback that can retrieve the given type config or generate a default value. */
+export function useDisplayVertexTypeConfigCallback() {
+  return useAtomCallback(
+    useCallback(
+      (get, _set, type: string) => get(displayVertexTypeConfigSelector(type)),
+      []
+    )
+  );
 }
 
 /** Gets the matching edge type config or a generated default value. */

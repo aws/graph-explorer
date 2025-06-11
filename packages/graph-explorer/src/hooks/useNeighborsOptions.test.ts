@@ -1,99 +1,123 @@
 import useNeighborsOptions from "./useNeighborsOptions";
 import {
-  activeConfigurationAtom,
-  configurationAtom,
-} from "@/core/StateProvider/configuration";
-import {
   createRandomEdge,
-  createRandomRawConfiguration,
-  createRandomSchema,
   createRandomVertex,
-  renderHookWithJotai,
+  DbState,
+  renderHookWithState,
 } from "@/utils/testing";
-import { schemaAtom } from "@/core/StateProvider/schema";
 import { NeighborCountsQueryResponse } from "@/connector";
-import {
-  edgesAtom,
-  explorerForTestingAtom,
-  nodesAtom,
-  toEdgeMap,
-  toNodeMap,
-} from "@/core";
 import { waitFor } from "@testing-library/react";
-import { createArray } from "@shared/utils/testing";
-import { createMockExplorer } from "@/utils/testing/createMockExplorer";
 
 describe("useNeighborsOptions", () => {
   afterEach(() => {
     vi.clearAllMocks();
   });
 
-  it("should return neighbors options correctly", async () => {
+  it("should return an empty list when no response", () => {
+    const dbState = new DbState();
     const vertex = createRandomVertex();
-    const nodeType1Neighbors = createArray(5, () => {
-      const neighbors = createRandomVertex();
-      neighbors.type = "nodeType1";
-      neighbors.types = ["nodeType1"];
-      return neighbors;
-    });
-    const edges = nodeType1Neighbors.map(neighbor =>
-      createRandomEdge(vertex, neighbor)
+
+    const { result } = renderHookWithState(
+      () => useNeighborsOptions(vertex.id),
+      dbState
     );
-    const mockExplorer = createMockExplorer();
+
+    expect(result.current).toHaveLength(0);
+  });
+
+  it("should return an empty list when response is empty", () => {
+    const dbState = new DbState();
+    const vertex = createRandomVertex();
+
+    const response: NeighborCountsQueryResponse = {
+      nodeId: vertex.id,
+      totalCount: 0,
+      counts: {},
+    };
+    vi.mocked(dbState.explorer.fetchNeighborsCount).mockResolvedValueOnce(
+      response
+    );
+
+    const { result } = renderHookWithState(
+      () => useNeighborsOptions(vertex.id),
+      dbState
+    );
+
+    expect(result.current).toHaveLength(0);
+  });
+
+  it("should return list of neighbor types", async () => {
+    const dbState = new DbState();
+    const vertex = createRandomVertex();
+    dbState.addVertexToGraph(vertex);
+
     const response: NeighborCountsQueryResponse = {
       nodeId: vertex.id,
       totalCount: 8,
       counts: { nodeType1: 5, nodeType2: 3 },
     };
-    vi.mocked(mockExplorer.fetchNeighborsCount).mockResolvedValueOnce(response);
+    vi.mocked(dbState.explorer.fetchNeighborsCount).mockResolvedValueOnce(
+      response
+    );
 
-    const { result } = renderHookWithJotai(
+    const { result } = renderHookWithState(
       () => useNeighborsOptions(vertex.id),
-      snapshot => {
-        const config = createRandomRawConfiguration();
-        const schema = createRandomSchema();
-        schema.vertices = [
-          {
-            type: "nodeType1",
-            displayLabel: "Label nodeType1",
-            attributes: [],
-          },
-          {
-            type: "nodeType2",
-            displayLabel: "Label nodeType2",
-            attributes: [],
-          },
-        ];
-        snapshot.set(configurationAtom, new Map([[config.id, config]]));
-        snapshot.set(schemaAtom, new Map([[config.id, schema]]));
-        snapshot.set(activeConfigurationAtom, config.id);
-        snapshot.set(explorerForTestingAtom, mockExplorer);
-        snapshot.set(nodesAtom, toNodeMap([vertex, ...nodeType1Neighbors]));
-        snapshot.set(edgesAtom, toEdgeMap(edges));
-      }
+      dbState
     );
 
-    await waitFor(() =>
-      expect(
-        result.current.map(option => ({
-          ...option,
-          // We only care about verifying the displayLabel property
-          config: { displayLabel: option.config?.displayLabel },
-        }))
-      ).toEqual([
-        {
-          label: "Label nodeType1",
-          value: "nodeType1",
-          isDisabled: true,
-          config: { displayLabel: "Label nodeType1" },
-        },
-        {
-          label: "Label nodeType2",
-          value: "nodeType2",
-          isDisabled: false,
-          config: { displayLabel: "Label nodeType2" },
-        },
-      ])
+    await waitFor(() => {
+      expect(dbState.explorer.fetchNeighborsCount).toHaveBeenCalledTimes(1);
+      expect(result.current).toHaveLength(2);
+
+      const firstResult = result.current[0];
+      expect(firstResult.label).toEqual("nodeType1");
+      expect(firstResult.value).toEqual("nodeType1");
+      expect(firstResult.isDisabled).toEqual(false);
+
+      const secondResult = result.current[1];
+      expect(secondResult.label).toEqual("nodeType2");
+      expect(secondResult.value).toEqual("nodeType2");
+      expect(secondResult.isDisabled).toEqual(false);
+    });
+  });
+
+  it("should disable neighbor when all neighbors in graph already", async () => {
+    const dbState = new DbState();
+
+    // Add source and neighbor vertex to graph
+    const vertex = createRandomVertex();
+    dbState.addVertexToGraph(vertex);
+
+    const neighbor = createRandomVertex();
+    neighbor.type = "nodeType1";
+    neighbor.types = ["nodeType1"];
+    dbState.addVertexToGraph(neighbor);
+
+    const edge = createRandomEdge(vertex, neighbor);
+    dbState.addEdgeToGraph(edge);
+
+    const response: NeighborCountsQueryResponse = {
+      nodeId: vertex.id,
+      totalCount: 1,
+      counts: { nodeType1: 1 },
+    };
+    vi.mocked(dbState.explorer.fetchNeighborsCount).mockResolvedValueOnce(
+      response
     );
+
+    const { result } = renderHookWithState(
+      () => useNeighborsOptions(vertex.id),
+      dbState
+    );
+
+    await waitFor(() => {
+      expect(dbState.explorer.fetchNeighborsCount).toHaveBeenCalledTimes(1);
+      expect(result.current).toHaveLength(1);
+
+      const firstResult = result.current[0];
+      expect(firstResult.label).toEqual("nodeType1");
+      expect(firstResult.value).toEqual("nodeType1");
+      expect(firstResult.isDisabled).toEqual(true);
+    });
   });
 });
