@@ -1,22 +1,26 @@
 import { Edge, getRawId } from "@/core";
 import {
   createRandomEdge,
+  createRandomEdgePreferences,
   createRandomEdgeTypeConfig,
   createRandomRawConfiguration,
   createRandomSchema,
   createRandomVertex,
+  DbState,
   JotaiSnapshot,
   renderHookWithJotai,
+  renderHookWithState,
 } from "@/utils/testing";
 import { DisplayEdge, useDisplayEdgeFromEdge } from "./displayEdge";
-import { formatDate, sanitizeText } from "@/utils";
-import { createRandomDate } from "@shared/utils/testing";
+import { formatDate } from "@/utils";
+import { createRandomDate, createRandomName } from "@shared/utils/testing";
 import { DisplayAttribute } from "./displayAttribute";
 import { mapToDisplayEdgeTypeConfig } from "./displayTypeConfigs";
 import {
   activeConfigurationAtom,
   configurationAtom,
   getDefaultEdgeTypeConfig,
+  patchToRemoveDisplayLabel,
 } from "./configuration";
 import { Schema } from "../ConfigurationProvider";
 import { schemaAtom } from "./schema";
@@ -40,14 +44,14 @@ describe("useDisplayEdgeFromEdge", () => {
 
   it("should have the display name be the types", () => {
     const edge = createEdge();
-    expect(act(edge).displayName).toEqual(sanitizeText(edge.type));
+    expect(act(edge).displayName).toEqual(edge.type);
   });
 
   it("should contain info about the source vertex", () => {
     const edge = createEdge();
     expect(act(edge).source).toEqual({
       displayId: String(edge.source),
-      displayTypes: edge.sourceTypes.map(sanitizeText).join(", "),
+      displayTypes: edge.sourceTypes.join(", "),
       id: edge.source,
       types: edge.sourceTypes,
     } satisfies DisplayEdge["source"]);
@@ -57,7 +61,7 @@ describe("useDisplayEdgeFromEdge", () => {
     const edge = createEdge();
     expect(act(edge).target).toEqual({
       displayId: String(edge.target),
-      displayTypes: edge.targetTypes.map(sanitizeText).join(", "),
+      displayTypes: edge.targetTypes.join(", "),
       id: edge.target,
       types: edge.targetTypes,
     } satisfies DisplayEdge["target"]);
@@ -87,20 +91,19 @@ describe("useDisplayEdgeFromEdge", () => {
     const schema = createRandomSchema();
 
     const etConfig = createRandomEdgeTypeConfig();
-    delete etConfig.displayLabel;
     etConfig.type = edge.type;
     etConfig.displayNameAttribute = "type";
     schema.edges.push(etConfig);
 
     expect(
       act(edge, withSchemaAndConnection(schema, "gremlin")).displayName
-    ).toEqual(sanitizeText(edge.type));
+    ).toEqual(edge.type);
   });
 
   it("should have the default type config when edge type is not in the schema", () => {
     const edge = createEdge();
     const etConfig = getDefaultEdgeTypeConfig(edge.type);
-    const displayConfig = mapToDisplayEdgeTypeConfig(etConfig);
+    const displayConfig = mapToDisplayEdgeTypeConfig(etConfig, t => t);
     expect(act(edge).typeConfig).toEqual(displayConfig);
   });
 
@@ -111,11 +114,53 @@ describe("useDisplayEdgeFromEdge", () => {
     const schema = createRandomSchema();
     schema.edges.push(etConfig);
 
-    const expectedTypeConfig = mapToDisplayEdgeTypeConfig(etConfig);
+    const expectedTypeConfig = mapToDisplayEdgeTypeConfig(
+      patchToRemoveDisplayLabel(etConfig),
+      t => t
+    );
 
     expect(
       act(edge, withSchemaAndConnection(schema, "gremlin")).typeConfig
     ).toEqual(expectedTypeConfig);
+  });
+
+  it("should ignore display label from schema", () => {
+    const dbState = new DbState();
+    const edge = createEdge();
+
+    const etConfig = createRandomEdgeTypeConfig();
+    etConfig.type = edge.type;
+    etConfig.displayLabel = createRandomName("schema");
+    dbState.activeSchema.edges.push(etConfig);
+
+    const { result } = renderHookWithState(
+      () => useDisplayEdgeFromEdge(edge),
+      dbState
+    );
+
+    expect(result.current.displayTypes).toEqual(edge.type);
+  });
+
+  it("should use display label from user preferences", () => {
+    const dbState = new DbState();
+    const edge = createEdge();
+
+    const etConfig = createRandomEdgeTypeConfig();
+    etConfig.type = edge.type;
+    etConfig.displayLabel = createRandomName("schema");
+    dbState.activeSchema.edges.push(etConfig);
+
+    const edgePrefs = createRandomEdgePreferences();
+    edgePrefs.type = edge.type;
+    edgePrefs.displayLabel = createRandomName("prefs");
+    dbState.activeStyling.edges?.push(edgePrefs);
+
+    const { result } = renderHookWithState(
+      () => useDisplayEdgeFromEdge(edge),
+      dbState
+    );
+
+    expect(result.current.displayTypes).toEqual(edgePrefs.displayLabel);
   });
 
   it("should have display types that list all types in gremlin", () => {
@@ -123,7 +168,6 @@ describe("useDisplayEdgeFromEdge", () => {
     const schema = createRandomSchema();
 
     const etConfig = createRandomEdgeTypeConfig();
-    delete etConfig.displayLabel;
     etConfig.type = edge.type;
     schema.edges.push(etConfig);
 
@@ -131,7 +175,7 @@ describe("useDisplayEdgeFromEdge", () => {
 
     expect(
       act(edge, withSchemaAndConnection(schema, "gremlin")).displayTypes
-    ).toEqual(`${sanitizeText(etConfig.type)}`);
+    ).toEqual(etConfig.type);
   });
 
   it("should have display types that list all types in sparql", () => {
@@ -146,7 +190,6 @@ describe("useDisplayEdgeFromEdge", () => {
     ];
 
     const etConfig = createRandomEdgeTypeConfig();
-    delete etConfig.displayLabel;
     etConfig.type = edge.type;
     schema.edges.push(etConfig);
 
@@ -162,7 +205,7 @@ describe("useDisplayEdgeFromEdge", () => {
     const attributes: DisplayAttribute[] = Object.entries(edge.attributes)
       .map(([key, value]) => ({
         name: key,
-        displayLabel: sanitizeText(key),
+        displayLabel: key,
         displayValue: String(value),
       }))
       .toSorted((a, b) => a.displayLabel.localeCompare(b.displayLabel));
@@ -177,7 +220,6 @@ describe("useDisplayEdgeFromEdge", () => {
     etConfig.type = edge.type;
     etConfig.attributes.push({
       name: "created",
-      displayLabel: sanitizeText("created"),
       dataType: "Date",
     });
     schema.edges.push(etConfig);
@@ -202,7 +244,6 @@ describe("useDisplayEdgeFromEdge", () => {
     etConfig.type = edge.type;
     etConfig.attributes.push({
       name: "created",
-      displayLabel: sanitizeText("created"),
       dataType: "g:Date",
     });
     schema.edges.push(etConfig);

@@ -3,8 +3,10 @@ import {
   createRandomRawConfiguration,
   createRandomSchema,
   createRandomVertexTypeConfig,
+  DbState,
   JotaiSnapshot,
   renderHookWithJotai,
+  renderHookWithState,
 } from "@/utils/testing";
 import {
   activeConfigurationAtom,
@@ -19,11 +21,7 @@ import {
   useDisplayVertexTypeConfig,
 } from "./displayTypeConfigs";
 import { createRandomName } from "@shared/utils/testing";
-import {
-  MISSING_DISPLAY_TYPE,
-  RESERVED_TYPES_PROPERTY,
-  sanitizeText,
-} from "@/utils";
+import { MISSING_DISPLAY_TYPE, RESERVED_TYPES_PROPERTY } from "@/utils";
 
 describe("useDisplayVertexTypeConfig", () => {
   describe("when the vertex type is not in the schema", () => {
@@ -35,7 +33,7 @@ describe("useDisplayVertexTypeConfig", () => {
     });
 
     it("should have display label match the type transformed", () => {
-      expect(act(vtConfig.type).displayLabel).toBe(sanitizeText(vtConfig.type));
+      expect(act(vtConfig.type).displayLabel).toBe(vtConfig.type);
     });
 
     it("should use empty label constant when the type is empty", () => {
@@ -63,13 +61,33 @@ describe("useDisplayVertexTypeConfig", () => {
     });
   });
 
-  it("should have display label from the config", () => {
+  it("should ignore display label from schema", () => {
+    const dbState = new DbState();
     const vtConfig = createRandomVertexTypeConfig();
     vtConfig.displayLabel = createRandomName("displayLabel");
-    const schema = createRandomSchema();
-    schema.vertices.push(vtConfig);
+    dbState.activeSchema.vertices.push(vtConfig);
 
-    expect(act(vtConfig.type, schema).displayLabel).toBe(vtConfig.displayLabel);
+    const { result } = renderHookWithState(
+      () => useDisplayVertexTypeConfig(vtConfig.type),
+      dbState
+    );
+
+    expect(result.current.displayLabel).toBe(vtConfig.type);
+  });
+
+  it("should use display label from user preferences", () => {
+    const dbState = new DbState();
+    const vtConfig = createRandomVertexTypeConfig();
+    vtConfig.displayLabel = createRandomName("displayLabel");
+    dbState.activeSchema.vertices.push(vtConfig);
+    dbState.activeStyling.vertices?.push(vtConfig);
+
+    const { result } = renderHookWithState(
+      () => useDisplayVertexTypeConfig(vtConfig.type),
+      dbState
+    );
+
+    expect(result.current.displayLabel).toBe(vtConfig.displayLabel);
   });
 
   it("should have display name attribute from the config", () => {
@@ -133,9 +151,9 @@ describe("useDisplayEdgeTypeConfig", () => {
     expect(act(type).type).toBe(type);
   });
 
-  it("should have display label match the type transformed", () => {
+  it("should have display label match the type", () => {
     const type = createRandomName("type");
-    expect(act(type).displayLabel).toBe(sanitizeText(type));
+    expect(act(type).displayLabel).toBe(type);
   });
 
   it("should use empty label constant when the type is empty", () => {
@@ -160,13 +178,33 @@ describe("useDisplayEdgeTypeConfig", () => {
     expect(act(type).style.lineStyle).toBe(defaultEdgeTypeConfig.lineStyle);
   });
 
-  it("should have display label from the config", () => {
+  it("should ignore display label from the config", () => {
+    const dbState = new DbState();
     const etConfig = createRandomEdgeTypeConfig();
     etConfig.displayLabel = createRandomName("displayLabel");
-    const schema = createRandomSchema();
-    schema.edges.push(etConfig);
+    dbState.activeSchema.edges.push(etConfig);
 
-    expect(act(etConfig.type, schema).displayLabel).toBe(etConfig.displayLabel);
+    const { result } = renderHookWithState(
+      () => useDisplayEdgeTypeConfig(etConfig.type),
+      dbState
+    );
+
+    expect(result.current.displayLabel).toBe(etConfig.type);
+  });
+
+  it("should use display label from the user preferences", () => {
+    const dbState = new DbState();
+    const etConfig = createRandomEdgeTypeConfig();
+    etConfig.displayLabel = createRandomName("displayLabel");
+    dbState.activeSchema.edges.push(etConfig);
+    dbState.activeStyling.edges?.push(etConfig);
+
+    const { result } = renderHookWithState(
+      () => useDisplayEdgeTypeConfig(etConfig.type),
+      dbState
+    );
+
+    expect(result.current.displayLabel).toBe(etConfig.displayLabel);
   });
 
   it("should have style matching the config", () => {

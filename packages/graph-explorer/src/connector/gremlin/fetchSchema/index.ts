@@ -1,4 +1,3 @@
-import { sanitizeText } from "@/utils";
 import type { SchemaResponse } from "@/connector/useGEFetchTypes";
 import edgeLabelsTemplate from "./edgeLabelsTemplate";
 import edgesSchemaTemplate from "./edgesSchemaTemplate";
@@ -147,13 +146,11 @@ const fetchVerticesAttributes = async (
       const properties = vertex["@value"].properties ?? {};
       vertices.push({
         type: label,
-        displayLabel: sanitizeText(label),
         total: countsByLabel[label],
         attributes: Object.entries(properties || {}).map(([name, prop]) => {
           const value = prop[0]?.["@value"].value;
           return {
             name,
-            displayLabel: sanitizeText(name),
             dataType:
               typeof value === "string"
                 ? "String"
@@ -236,13 +233,11 @@ const fetchEdgesAttributes = async (
       const properties = vertex["@value"].properties;
       edges.push({
         type: label,
-        displayLabel: sanitizeText(label),
         total: countsByLabel[label],
         attributes: Object.entries(properties || {}).map(([name, prop]) => {
           const value = prop["@value"].value;
           return {
             name,
-            displayLabel: sanitizeText(name),
             dataType: typeof value === "string" ? "String" : value["@type"],
           };
         }),

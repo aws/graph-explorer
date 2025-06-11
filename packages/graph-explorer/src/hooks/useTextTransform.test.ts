@@ -44,11 +44,10 @@ describe("useTextTransform", () => {
     expect(result.current(text)).toEqual(expected);
   });
 
-  it("should sanitize text", () => {
+  it("should not modify text", () => {
     const text = "this is a test";
-    const expected = "This Is A Test";
     const { result } = renderHookWithJotai(() => useTextTransform());
-    expect(result.current(text)).toBe(expected);
+    expect(result.current(text)).toBe(text);
   });
 
   it("should return the original text if no transformation is needed", () => {
@@ -65,9 +64,8 @@ describe("useTextTransform", () => {
 
   it("should handle strings with invalid characters", () => {
     const input = "str\u{1F600}";
-    const expected = "Str\u{1F600}";
     const { result } = renderHookWithJotai(() => useTextTransform());
-    expect(result.current(input)).toBe(expected);
+    expect(result.current(input)).toBe(input);
   });
 
   // Boundary cases
@@ -94,8 +92,7 @@ describe("useTextTransform", () => {
   // Random data
   it("should handle random data", () => {
     const input = "str\u{1F600}abcdef";
-    const expected = "Str\u{1F600}abcdef";
     const { result } = renderHookWithJotai(() => useTextTransform());
-    expect(result.current(input)).toBe(expected);
+    expect(result.current(input)).toBe(input);
   });
 });

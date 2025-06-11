@@ -7,7 +7,6 @@ import { createRandomAttributeConfig } from "./randomData";
 import {
   createArray,
   createRandomName,
-  randomlyUndefined,
   createRandomInteger,
 } from "@shared/utils/testing";
 
@@ -35,7 +34,6 @@ function createRandomEdgeTypeConfig(): EdgeSchemaResponse {
   return {
     type: createRandomName("type"),
     attributes: createArray(6, createRandomAttributeConfig),
-    displayLabel: randomlyUndefined(createRandomName("displayLabel")),
     total: createRandomInteger(),
   };
 }
@@ -44,7 +42,6 @@ function createRandomVertexTypeConfig(): VertexSchemaResponse {
   return {
     type: createRandomName("type"),
     attributes: createArray(6, createRandomAttributeConfig),
-    displayLabel: randomlyUndefined(createRandomName("displayLabel")),
     total: createRandomInteger(),
   };
 }

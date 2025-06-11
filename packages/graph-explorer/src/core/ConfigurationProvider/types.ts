@@ -18,10 +18,6 @@ export type AttributeConfig = {
    */
   name: string;
   /**
-   * Name to be printed
-   */
-  displayLabel: string;
-  /**
    * If hidden is true, the attribute won't be rendered
    */
   hidden?: boolean;

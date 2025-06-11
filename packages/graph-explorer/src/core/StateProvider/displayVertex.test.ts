@@ -2,9 +2,12 @@ import {
   createRandomRawConfiguration,
   createRandomSchema,
   createRandomVertex,
+  createRandomVertexPreferences,
   createRandomVertexTypeConfig,
+  DbState,
   JotaiSnapshot,
   renderHookWithJotai,
+  renderHookWithState,
 } from "@/utils/testing";
 import {
   createVertexId,
@@ -14,14 +17,15 @@ import {
   useDisplayVertexFromVertex,
   Vertex,
 } from "@/core";
-import { formatDate, sanitizeText } from "@/utils";
+import { formatDate } from "@/utils";
 import { schemaAtom } from "./schema";
 import {
   activeConfigurationAtom,
   configurationAtom,
   getDefaultVertexTypeConfig,
+  patchToRemoveDisplayLabel,
 } from "./configuration";
-import { createRandomDate } from "@shared/utils/testing";
+import { createRandomDate, createRandomName } from "@shared/utils/testing";
 import { MISSING_DISPLAY_VALUE } from "@/utils/constants";
 import { mapToDisplayVertexTypeConfig } from "./displayTypeConfigs";
 import { QueryEngine } from "@shared/types";
@@ -47,30 +51,60 @@ describe("useDisplayVertexFromVertex", () => {
     expect(act(vertex).displayName).toEqual(getRawId(vertex.id));
   });
 
-  it("should have the display description be the sanitized vertex type", () => {
+  it("should have the display description be the vertex type", () => {
     const vertex = createRandomVertex();
-    expect(act(vertex).displayDescription).toEqual(sanitizeText(vertex.type));
+    expect(act(vertex).displayDescription).toEqual(vertex.type);
   });
 
   it("should have the default type config when vertex type is not in the schema", () => {
     const vertex = createRandomVertex();
     const vtConfig = getDefaultVertexTypeConfig(vertex.type);
-    const displayConfig = mapToDisplayVertexTypeConfig(vtConfig);
+    const displayConfig = mapToDisplayVertexTypeConfig(vtConfig, t => t);
     expect(act(vertex).typeConfig).toEqual(displayConfig);
   });
 
   it("should use the type config from the merged schema", () => {
+    const dbState = new DbState();
     const vertex = createRandomVertex();
     const vtConfig = createRandomVertexTypeConfig();
     vtConfig.type = vertex.type;
-    const schema = createRandomSchema();
-    schema.vertices.push(vtConfig);
+    dbState.activeSchema.vertices.push(vtConfig);
 
-    const expectedTypeConfig = mapToDisplayVertexTypeConfig(vtConfig);
+    const expectedTypeConfig = mapToDisplayVertexTypeConfig(
+      patchToRemoveDisplayLabel(vtConfig),
+      t => t
+    );
 
-    expect(
-      act(vertex, withSchemaAndConnection(schema, "gremlin")).typeConfig
-    ).toEqual(expectedTypeConfig);
+    const { result } = renderHookWithState(
+      () => useDisplayVertexFromVertex(vertex),
+      dbState
+    );
+
+    expect(result.current.typeConfig).toEqual(expectedTypeConfig);
+  });
+
+  it("should use the display label from user preferences", () => {
+    const dbState = new DbState();
+    const vertex = createRandomVertex();
+
+    // Schema vertex config
+    const vtConfig = createRandomVertexTypeConfig();
+    vtConfig.type = vertex.type;
+    vtConfig.displayLabel = createRandomName("schema");
+    dbState.activeSchema.vertices.push(vtConfig);
+
+    // User vertex preferences
+    const userPrefs = createRandomVertexPreferences();
+    userPrefs.type = vertex.type;
+    userPrefs.displayLabel = createRandomName("userPrefs");
+    dbState.activeStyling.vertices?.push(userPrefs);
+
+    const { result } = renderHookWithState(
+      () => useDisplayVertexFromVertex(vertex),
+      dbState
+    );
+
+    expect(result.current.displayTypes).toEqual(userPrefs.displayLabel);
   });
 
   it("should have display types that list all types in gremlin", () => {
@@ -78,21 +112,17 @@ describe("useDisplayVertexFromVertex", () => {
     const schema = createRandomSchema();
 
     const vtConfig1 = createRandomVertexTypeConfig();
-    delete vtConfig1.displayLabel;
     vtConfig1.type = vertex.type;
     schema.vertices.push(vtConfig1);
 
     const vtConfig2 = createRandomVertexTypeConfig();
-    delete vtConfig2.displayLabel;
     schema.vertices.push(vtConfig2);
 
     vertex.types = [vtConfig1.type, vtConfig2.type];
 
     expect(
       act(vertex, withSchemaAndConnection(schema, "gremlin")).displayTypes
-    ).toEqual(
-      `${sanitizeText(vtConfig1.type)}, ${sanitizeText(vtConfig2.type)}`
-    );
+    ).toEqual(`${vtConfig1.type}, ${vtConfig2.type}`);
   });
 
   it("should have display types that list all types in sparql", () => {
@@ -128,7 +158,7 @@ describe("useDisplayVertexFromVertex", () => {
     const attributes: DisplayAttribute[] = Object.entries(vertex.attributes)
       .map(([key, value]) => ({
         name: key,
-        displayLabel: sanitizeText(key),
+        displayLabel: key,
         displayValue: String(value),
       }))
       .toSorted((a, b) => a.displayLabel.localeCompare(b.displayLabel));
@@ -143,7 +173,6 @@ describe("useDisplayVertexFromVertex", () => {
     vtConfig.type = vertex.type;
     vtConfig.attributes.push({
       name: "created",
-      displayLabel: sanitizeText("created"),
       dataType: "Date",
     });
     schema.vertices.push(vtConfig);
@@ -168,7 +197,6 @@ describe("useDisplayVertexFromVertex", () => {
     vtConfig.type = vertex.type;
     vtConfig.attributes.push({
       name: "created",
-      displayLabel: sanitizeText("created"),
       dataType: "g:Date",
     });
     schema.vertices.push(vtConfig);
@@ -200,11 +228,14 @@ describe("useDisplayVertexFromVertex", () => {
     ).attributes.filter(a => configAttributeNames.includes(a.name));
 
     const expected = vtConfig.attributes
-      .map(attr => ({
-        name: attr.name,
-        displayLabel: attr.displayLabel,
-        displayValue: MISSING_DISPLAY_VALUE,
-      }))
+      .map(
+        attr =>
+          <DisplayAttribute>{
+            name: attr.name,
+            displayLabel: attr.name,
+            displayValue: MISSING_DISPLAY_VALUE,
+          }
+      )
       .toSorted((a, b) => a.displayLabel.localeCompare(b.displayLabel));
 
     expect(actualAttributesMatchingConfig).toEqual(expected);

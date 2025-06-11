@@ -15,11 +15,7 @@ export type QueryOptions = RequestInit & {
 
 export type VertexSchemaResponse = Pick<
   VertexTypeConfig,
-  | "type"
-  | "displayLabel"
-  | "attributes"
-  | "displayNameAttribute"
-  | "longDisplayNameAttribute"
+  "type" | "attributes" | "displayNameAttribute" | "longDisplayNameAttribute"
 > & {
   total?: number;
 };
@@ -31,10 +27,7 @@ export type CountsByTypeResponse = {
   total: number;
 };
 
-export type EdgeSchemaResponse = Pick<
-  EdgeTypeConfig,
-  "type" | "displayLabel" | "attributes"
-> & {
+export type EdgeSchemaResponse = Pick<EdgeTypeConfig, "type" | "attributes"> & {
   total?: number;
 };
 
