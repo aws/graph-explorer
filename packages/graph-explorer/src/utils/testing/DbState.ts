@@ -8,6 +8,7 @@ import {
   edgesAtom,
   edgesFilteredIdsAtom,
   edgesTypesFilteredAtom,
+  explorerForTestingAtom,
   extractConfigFromEntity,
   nodesAtom,
   nodesFilteredIdsAtom,
@@ -31,6 +32,8 @@ import {
   createRandomUserStyling,
 } from "./randomData";
 import { JotaiSnapshot } from "./renderHookWithJotai";
+import { createMockExplorer } from "./createMockExplorer";
+import { Explorer } from "@/connector";
 
 /**
  * Helps build up the state of the Jotai database with common data.
@@ -39,6 +42,8 @@ export class DbState {
   activeSchema: Schema;
   activeConfig: RawConfiguration;
   activeStyling: UserStyling;
+
+  explorer: Explorer;
 
   vertices: Vertex[] = [];
   filteredVertices: Set<VertexId> = new Set();
@@ -56,6 +61,8 @@ export class DbState {
     this.activeConfig = config;
 
     this.activeStyling = createRandomUserStyling();
+
+    this.explorer = createMockExplorer();
   }
 
   /** Adds the vertex to the graph and updates the schema to include the type config. */
@@ -170,5 +177,8 @@ export class DbState {
         ],
       ])
     );
+
+    // Explorer
+    snapshot.set(explorerForTestingAtom, this.explorer);
   }
 }
