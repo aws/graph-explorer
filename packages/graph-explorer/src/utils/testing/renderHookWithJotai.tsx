@@ -3,6 +3,7 @@ import { renderHook } from "@testing-library/react";
 import { Provider, WritableAtom } from "jotai";
 import { useHydrateAtoms } from "jotai/utils";
 import { ReactNode } from "react";
+import { DbState } from "./DbState";
 
 type AnyWritableAtom = WritableAtom<unknown, unknown[], unknown>;
 
@@ -46,6 +47,18 @@ export function createJotaiSnapshot(): JotaiSnapshot {
     },
     values: () => map,
   };
+}
+
+export function renderHookWithState<TResult>(
+  callback: () => TResult,
+  state?: DbState
+) {
+  // Create default DbState if none passed
+  state ??= new DbState();
+
+  return renderHookWithJotai(callback, snapshot => {
+    state.applyTo(snapshot);
+  });
 }
 
 export function renderHookWithJotai<TResult>(
