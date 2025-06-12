@@ -22,6 +22,8 @@
   ([#988](https://github.com/aws/graph-explorer/pull/988))
 - **Updated** too many requests error message for accuracy
   ([#990](https://github.com/aws/graph-explorer/pull/990))
+- **Fixed** search result row separators to ensure they are always rendered
+  properly ([#997](https://github.com/aws/graph-explorer/pull/997))
 
 ### Other changes
 
