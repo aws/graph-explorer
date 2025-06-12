@@ -2,6 +2,25 @@
 
 ## Release v2.0.0
 
+Graph Explorer v2.0.0 marks a significant milestone with the introduction of the
+new query editor for Gremlin connections. This powerful feature allows users to
+enter any valid Gremlin query and visualize the returned nodes, edges, and
+scalar values directly from the database. For Neptune users concerned about data
+integrity, the readme now includes instructions on configuring IAM permissions
+to restrict mutations, ensuring users can perform read-only operations. This
+major addition transforms Graph Explorer into a more versatile and powerful tool
+for database interaction.
+
+The release also includes important improvements to data representation and
+visualization. Node and edge label strategies have been updated to better
+reflect true database names, providing a more intuitive and accurate
+representation of your data. Additionally, graph layout options now feature
+enhanced descriptions and new directional capabilities for hierarchical, subway,
+and klay layouts, giving users more control over how their graph data is
+visualized. Several bug fixes have also been implemented, addressing issues with
+multiple selection behavior, table view column resizing, error messaging, and
+search result rendering.
+
 ### New features & major changes
 
 - **Added** query editor for Gremlin connections
