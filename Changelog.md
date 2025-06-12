@@ -3,13 +3,15 @@
 ## Release v2.0.0
 
 Graph Explorer v2.0.0 marks a significant milestone with the introduction of the
-new query editor for Gremlin connections. This powerful feature allows users to
-enter any valid Gremlin query and visualize the returned nodes, edges, and
-scalar values directly from the database. For Neptune users concerned about data
-integrity, the readme now includes instructions on configuring IAM permissions
-to restrict mutations, ensuring users can perform read-only operations. This
-major addition transforms Graph Explorer into a more versatile and powerful tool
-for database interaction.
+new
+[query editor for Gremlin connections](https://github.com/aws/graph-explorer/issues/686).
+This powerful feature allows users to enter any valid Gremlin query and
+visualize the returned nodes, edges, and scalar values directly from the
+database. For Neptune users concerned about data integrity, the README now
+includes
+[instructions on configuring IAM permissions to restrict mutations](https://github.com/aws/graph-explorer/issues/686),
+ensuring users can perform read-only operations. This major addition transforms
+Graph Explorer into a more versatile and powerful tool for database interaction.
 
 The release also includes important improvements to data representation and
 visualization. Node and edge label strategies have been updated to better
