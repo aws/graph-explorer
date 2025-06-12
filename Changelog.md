@@ -1,8 +1,8 @@
 # graph-explorer Change Log
 
-## Upcoming
+## Release v2.0.0
 
-### New features
+### New features & major changes
 
 - **Added** query editor for Gremlin connections
   ([#949](https://github.com/aws/graph-explorer/pull/949),
@@ -18,7 +18,10 @@
 - **Updated** graph layout options to include better descriptions and new
   directions for hierarchical and subway
   ([#973](https://github.com/aws/graph-explorer/pull/973))
-- **Fix** multiple selection box behavior
+
+### Other changes
+
+- **Fixed** multiple selection box behavior
   ([#987](https://github.com/aws/graph-explorer/pull/987))
 - **Fixed** resizing columns in table view
   ([#988](https://github.com/aws/graph-explorer/pull/988))
@@ -26,8 +29,6 @@
   ([#990](https://github.com/aws/graph-explorer/pull/990))
 - **Fixed** search result row separators to ensure they are always rendered
   properly ([#997](https://github.com/aws/graph-explorer/pull/997))
-
-### Other changes
 
 ## Release v1.16.0
 
