@@ -40,12 +40,9 @@ export function SearchResultsList(results: MappedQueryResults) {
   return (
     <>
       <div className="bg-background-contrast/35 flex grow flex-col p-3">
-        <ul className="border-divider flex flex-col overflow-hidden rounded-xl border shadow">
+        <ul className="border-divider divide-border flex flex-col divide-y overflow-hidden rounded-xl border shadow">
           {currentPageRows.map(row => (
-            <li
-              key={row.key}
-              className="border-divider content-auto intrinsic-size-16 border-b last:border-0"
-            >
+            <li key={row.key} className="content-auto intrinsic-size-16">
               {row.render()}
             </li>
           ))}

@@ -79,9 +79,9 @@ const EdgeDetail = ({ edge }: EdgeDetailProps) => {
   ];
 
   return (
-    <div className="space-y-6 p-3">
+    <div className="divide-border divide-y">
       {/* Uses a grid with the first column width matching the size of the edge icon */}
-      <div className="grid grid-cols-[2.75rem_1fr] gap-3">
+      <div className="grid grid-cols-[2.75rem_1fr] gap-3 p-3">
         <EdgeRow
           edge={edge}
           source={sourceVertex}
@@ -108,7 +108,7 @@ const EdgeDetail = ({ edge }: EdgeDetailProps) => {
         <VertexRow vertex={sourceVertex} />
         <VertexRow vertex={targetVertex} />
       </div>
-      <div className="space-y-[1.125rem]">
+      <div className="space-y-[1.125rem] p-3">
         <div className="text-lg font-bold">Properties</div>
         <ul className="space-y-[1.125rem]">
           {allAttributes.map(attribute => (
