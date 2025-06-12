@@ -42,13 +42,13 @@ export function NodeSearchResult({ node }: { node: Vertex }) {
         <VertexRow vertex={displayNode} className="grow" />
         <AddOrRemoveButton vertex={preferredNode} />
       </div>
-      <div className="border-background-secondary px-8 transition-all group-data-[expanded=false]:h-0 group-data-[expanded=true]:h-auto group-data-[expanded=true]:border-t">
-        <ul>
+      <div className="border-border pl-8 transition-all group-data-[expanded=false]:h-0 group-data-[expanded=true]:h-auto group-data-[expanded=true]:border-t">
+        <ul className="divide-y divide-gray-200">
           {displayNode.attributes.map(attr => (
             <EntityAttribute
               key={attr.name}
               attribute={attr}
-              className="border-b border-gray-200 px-3 py-2 last:border-0"
+              className="px-3 py-2"
             />
           ))}
         </ul>

@@ -36,11 +36,11 @@ export default function NeighborsList({
 
   return (
     <div
-      className={cn("flex flex-col gap-3 border-b p-3", className)}
+      className={cn("space-y-[1.125rem] border-b p-3", className)}
       {...props}
     >
-      <div className="font-bold">Neighbors ({neighbors.all})</div>
-      <ul className="flex flex-col gap-3">
+      <div className="text-lg font-bold">Neighbors ({neighbors.all})</div>
+      <ul className="space-y-3">
         {neighborsOptions
           .slice(0, showMore ? undefined : MAX_NEIGHBOR_TYPE_ROWS)
           .map(op => (
