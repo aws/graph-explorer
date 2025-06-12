@@ -1,4 +1,4 @@
-import { batchPromisesSerially, sanitizeText } from "@/utils";
+import { batchPromisesSerially } from "@/utils";
 import { DEFAULT_CONCURRENT_REQUESTS_LIMIT } from "@/utils/constants";
 import type {
   EdgeSchemaResponse,
@@ -131,13 +131,11 @@ const fetchVerticesAttributes = async (
       const properties = vertex["~properties"];
       const vertexSchema: VertexSchemaResponse = {
         type: label,
-        displayLabel: sanitizeText(label),
         total: countsByLabel[label],
         attributes: Object.entries(properties || {}).map(([name, prop]) => {
           const value = prop;
           return {
             name,
-            displayLabel: sanitizeText(name),
             dataType: typeof value === "string" ? "String" : "Number",
           };
         }),
@@ -250,13 +248,11 @@ const fetchEdgesAttributes = async (
       const properties = edge["~properties"];
       const edgeSchema: EdgeSchemaResponse = {
         type: type,
-        displayLabel: sanitizeText(type),
         total: countsByLabel[label],
         attributes: Object.entries(properties || {}).map(([name, prop]) => {
           const value = prop;
           return {
             name,
-            displayLabel: sanitizeText(name),
             dataType: typeof value === "string" ? "String" : "Number",
           };
         }),

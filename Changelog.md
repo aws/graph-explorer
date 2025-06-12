@@ -13,6 +13,8 @@
   [#958](https://github.com/aws/graph-explorer/pull/958),
   [#989](https://github.com/aws/graph-explorer/pull/989),
   [#991](https://github.com/aws/graph-explorer/pull/991))
+- **Changed** node & edge label strategy to better represent true database names
+  ([#996](https://github.com/aws/graph-explorer/pull/996))
 - **Updated** graph layout options to include better descriptions and new
   directions for hierarchical and subway
   ([#973](https://github.com/aws/graph-explorer/pull/973))

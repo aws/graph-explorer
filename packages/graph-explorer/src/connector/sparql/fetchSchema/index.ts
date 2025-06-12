@@ -91,7 +91,6 @@ const fetchPredicatesByClass = async (
         predicatesResponse.results.bindings
           .map(item => ({
             name: item.pred.value,
-            displayLabel: "",
             searchable: true,
             hidden: false,
             dataType: TYPE_MAP[item.sample.datatype || ""] || "String",
@@ -108,7 +107,6 @@ const fetchPredicatesByClass = async (
 
   return responses.map(({ attributes, resourceClass }) => ({
     type: resourceClass,
-    displayLabel: "",
     total: countsByClass[resourceClass],
     displayNameAttribute:
       displayNameCandidates
@@ -183,7 +181,6 @@ const fetchPredicatesSchema = async (
   return Object.entries(allLabels).map(([label, count]) => {
     return {
       type: label,
-      displayLabel: "",
       total: count,
       attributes: [],
     };
@@ -243,7 +240,6 @@ const fetchSchema = async (
     return Object.entries(pred).map(([type, count]) => {
       return {
         type,
-        displayLabel: "",
         total: count,
         attributes: [],
       };

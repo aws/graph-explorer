@@ -7,7 +7,7 @@ import {
 import { atomWithLocalForage } from "./localForageEffect";
 import { activeConfigurationAtom } from "./configuration";
 import { Edge, Entities, toEdgeMap, toNodeMap, Vertex } from "@/core";
-import { logger, sanitizeText } from "@/utils";
+import { logger } from "@/utils";
 import generatePrefixes from "@/utils/generatePrefixes";
 import { startTransition, useCallback } from "react";
 import { atom } from "jotai";
@@ -151,12 +151,13 @@ export function extractConfigFromEntity<Entity extends Vertex | Edge>(
 ): Entity extends Vertex ? VertexTypeConfig : EdgeTypeConfig {
   return {
     type: entity.type,
-    displayLabel: "",
-    attributes: Object.keys(entity.attributes).map(attr => ({
-      name: attr,
-      displayLabel: sanitizeText(attr),
-      hidden: false,
-    })),
+    attributes: Object.keys(entity.attributes).map(
+      attr =>
+        <AttributeConfig>{
+          name: attr,
+          hidden: false,
+        }
+    ),
   };
 }
 

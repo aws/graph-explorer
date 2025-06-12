@@ -1,8 +1,8 @@
 import {
   VertexId,
   DisplayVertexTypeConfig,
-  useDisplayVertexTypeConfigs,
   useNeighbors,
+  useDisplayVertexTypeConfigCallback,
 } from "@/core";
 import { SelectOption } from "@/components";
 
@@ -13,7 +13,7 @@ export type NeighborOption = SelectOption & {
 export default function useNeighborsOptions(
   vertexId: VertexId
 ): NeighborOption[] {
-  const vtConfigs = useDisplayVertexTypeConfigs();
+  const getVtConfig = useDisplayVertexTypeConfigCallback();
   const neighbors = useNeighbors(vertexId);
 
   if (!neighbors) {
@@ -23,20 +23,15 @@ export default function useNeighborsOptions(
   return neighbors.byType
     .entries()
     .map(([type, neighbors]) => {
-      const vtConfig = vtConfigs.get(type);
+      const vtConfig = getVtConfig(type);
 
-      if (!vtConfig) {
-        return null;
-      }
-
-      return {
+      return <NeighborOption>{
         label: vtConfig.displayLabel,
         value: vtConfig.type,
         isDisabled: neighbors.unfetched === 0,
         config: vtConfig,
-      } satisfies NeighborOption;
+      };
     })
-    .filter(op => op != null)
     .toArray()
     .toSorted((a, b) => a.label.localeCompare(b.label));
 }

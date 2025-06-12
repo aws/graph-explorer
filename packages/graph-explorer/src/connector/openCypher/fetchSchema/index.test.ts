@@ -27,17 +27,14 @@ describe("OpenCypher > fetchSchema", () => {
           attributes: [
             {
               dataType: "Number",
-              displayLabel: "Dist",
               name: "dist",
             },
           ],
-          displayLabel: "Route",
           total: 101064,
           type: "route",
         },
         {
           attributes: [],
-          displayLabel: "Contains",
           total: 14012,
           type: "contains",
         },
@@ -49,71 +46,57 @@ describe("OpenCypher > fetchSchema", () => {
           attributes: [
             {
               dataType: "String",
-              displayLabel: "Desc",
               name: "desc",
             },
             {
               dataType: "Number",
-              displayLabel: "Lon",
               name: "lon",
             },
             {
               dataType: "Number",
-              displayLabel: "Runways",
               name: "runways",
             },
             {
               dataType: "String",
-              displayLabel: "Type",
               name: "type",
             },
             {
               dataType: "String",
-              displayLabel: "Last Update",
               name: "lastUpdate",
             },
             {
               dataType: "String",
-              displayLabel: "Region",
               name: "region",
             },
             {
               dataType: "String",
-              displayLabel: "Country",
               name: "country",
             },
             {
               dataType: "Number",
-              displayLabel: "Lat",
               name: "lat",
             },
             {
               dataType: "Number",
-              displayLabel: "Elev",
               name: "elev",
             },
             {
               dataType: "String",
-              displayLabel: "Icao",
               name: "icao",
             },
             {
               dataType: "String",
-              displayLabel: "City",
               name: "city",
             },
             {
               dataType: "String",
-              displayLabel: "Code",
               name: "code",
             },
             {
               dataType: "Number",
-              displayLabel: "Longest",
               name: "longest",
             },
           ],
-          displayLabel: "Airport",
           total: 3497,
           type: "airport",
         },

@@ -11,6 +11,7 @@ import {
   defaultVertexTypeConfig,
   mergeConfiguration,
   NormalizedConnection,
+  patchToRemoveDisplayLabel,
 } from "./configuration";
 import { RawConfiguration, VertexTypeConfig } from "../ConfigurationProvider";
 import { SchemaInference } from "./schema";
@@ -74,13 +75,14 @@ describe("mergedConfiguration", () => {
           ...defaultVertexTypeConfig,
           ...v,
         }))
+        .map(patchToRemoveDisplayLabel)
         .toSorted(byType),
-      edges: schema.edges.map(e => {
-        return {
+      edges: schema.edges
+        .map(e => ({
           ...defaultEdgeTypeConfig,
           ...e,
-        };
-      }),
+        }))
+        .map(patchToRemoveDisplayLabel),
     } satisfies SchemaInference;
 
     expect(result.schema?.vertices).toEqual(expectedSchema.vertices);
@@ -116,6 +118,7 @@ describe("mergedConfiguration", () => {
     const expectedSchema = {
       ...schema,
       vertices: schema.vertices
+        .map(patchToRemoveDisplayLabel)
         .map(v => {
           const style = styling.vertices?.find(s => s.type === v.type) ?? {};
           return {
@@ -125,7 +128,7 @@ describe("mergedConfiguration", () => {
           };
         })
         .toSorted(byType),
-      edges: schema.edges.map(e => {
+      edges: schema.edges.map(patchToRemoveDisplayLabel).map(e => {
         const style = styling.edges?.find(s => s.type === e.type) ?? {};
         return {
           ...defaultEdgeTypeConfig,
@@ -271,3 +274,19 @@ describe("mergedConfiguration", () => {
 function byType(a: VertexTypeConfig, b: VertexTypeConfig) {
   return a.type.localeCompare(b.type);
 }
+
+describe("patchToRemoveDisplayLabel", () => {
+  it("should remove displayLabel", () => {
+    const config = createRandomVertexTypeConfig();
+    config.displayLabel = createRandomName("displayLabel");
+    config.attributes.forEach(
+      a => ((a as any).displayLabel = createRandomName("displayLabel"))
+    );
+    const result = patchToRemoveDisplayLabel(config);
+
+    expect(result).not.toHaveProperty("displayLabel");
+    for (const attr of result.attributes) {
+      expect(attr).not.toHaveProperty("displayLabel");
+    }
+  });
+});

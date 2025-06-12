@@ -68,12 +68,25 @@ export function createRandomAttributeConfig(): AttributeConfig {
   const dataType = randomlyUndefined(createRandomName("dataType"));
   const hidden = randomlyUndefined(createRandomBoolean());
   const searchable = randomlyUndefined(createRandomBoolean());
+  const displayLabel = randomlyUndefined(createRandomName("displayLabel"));
+
   return {
     name: createRandomName("name"),
-    displayLabel: createRandomName("displayLabel"),
+    ...(displayLabel && { displayLabel }),
     ...(dataType && { dataType }),
     ...(hidden && { hidden }),
     ...(searchable && { searchable }),
+  };
+}
+
+/**
+ * Creates a random AttributeConfig object with a URL as the name.
+ * @returns A random AttributeConfig object.
+ */
+export function createRandomAttributeConfigForRdf(): AttributeConfig {
+  return {
+    ...createRandomAttributeConfig(),
+    name: createRandomUrlString(),
   };
 }
 
@@ -99,6 +112,18 @@ export function createRandomEdgeTypeConfig(): EdgeTypeConfig {
 }
 
 /**
+ * Creates a random EdgeTypeConfig object with a URL as the type.
+ * @returns A random EdgeTypeConfig object.
+ */
+export function createRandomEdgeTypeConfigForRdf(): EdgeTypeConfig {
+  return {
+    ...createRandomEdgeTypeConfig(),
+    type: createRandomUrlString(),
+    attributes: createArray(6, createRandomAttributeConfigForRdf),
+  };
+}
+
+/**
  * Creates a random VertexTypeConfig object.
  * @returns A random VertexTypeConfig object.
  */
@@ -115,6 +140,18 @@ export function createRandomVertexTypeConfig(): VertexTypeConfig {
     color: createRandomColor(),
     iconImageType: createRandomName("iconImageType"),
     iconUrl: createRandomUrlString(),
+  };
+}
+
+/**
+ * Creates a random VertexTypeConfig object with a URL as the type.
+ * @returns A random VertexTypeConfig object.
+ */
+export function createRandomVertexTypeConfigForRdf(): VertexTypeConfig {
+  return {
+    ...createRandomVertexTypeConfig(),
+    type: createRandomUrlString(),
+    attributes: createArray(6, createRandomAttributeConfigForRdf),
   };
 }
 

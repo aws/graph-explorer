@@ -52,7 +52,7 @@ export function mapToDisplayAttribute(
 
   return {
     name,
-    displayLabel: config?.displayLabel || textTransform(name),
+    displayLabel: textTransform(name),
     displayValue,
   } as DisplayAttribute;
 }

@@ -11,7 +11,7 @@ import {
   createRandomInteger,
   createRandomName,
 } from "@shared/utils/testing";
-import { formatDate, MISSING_DISPLAY_VALUE, sanitizeText } from "@/utils";
+import { formatDate, MISSING_DISPLAY_VALUE } from "@/utils";
 
 describe("mapToDisplayAttribute", () => {
   it("should map string value", () => {
@@ -24,11 +24,11 @@ describe("mapToDisplayAttribute", () => {
       name,
       value,
       config,
-      sanitizeText
+      transformNoOp
     );
     expect(displayAttribute).toEqual({
       name,
-      displayLabel: config.displayLabel,
+      displayLabel: name,
       displayValue: value,
     });
   });
@@ -43,11 +43,11 @@ describe("mapToDisplayAttribute", () => {
       name,
       value,
       config,
-      sanitizeText
+      transformNoOp
     );
     expect(displayAttribute).toEqual({
       name,
-      displayLabel: config.displayLabel,
+      displayLabel: name,
       displayValue: String(value),
     });
   });
@@ -62,11 +62,11 @@ describe("mapToDisplayAttribute", () => {
       name,
       value.toISOString(),
       config,
-      sanitizeText
+      transformNoOp
     );
     expect(displayAttribute).toEqual({
       name,
-      displayLabel: config.displayLabel,
+      displayLabel: name,
       displayValue: formatDate(value),
     });
   });
@@ -78,11 +78,11 @@ describe("mapToDisplayAttribute", () => {
       name,
       value,
       null,
-      sanitizeText
+      transformNoOp
     );
     expect(displayAttribute).toEqual({
       name,
-      displayLabel: sanitizeText(name),
+      displayLabel: name,
       displayValue: value,
     });
   });
@@ -97,12 +97,30 @@ describe("mapToDisplayAttribute", () => {
       name,
       value,
       config,
-      sanitizeText
+      transformNoOp
     );
     expect(displayAttribute).toEqual({
       name,
-      displayLabel: config.displayLabel,
+      displayLabel: name,
       displayValue: MISSING_DISPLAY_VALUE,
+    });
+  });
+
+  it("should use the transformer for display name", () => {
+    const value = createRandomName("value");
+    const config = createRandomAttributeConfig();
+    config.dataType = "string";
+    const transform = () => "prefixed value";
+    const displayAttribute = mapToDisplayAttribute(
+      config.name,
+      value,
+      config,
+      transform
+    );
+    expect(displayAttribute).toEqual({
+      name: config.name,
+      displayLabel: "prefixed value",
+      displayValue: value,
     });
   });
 });
@@ -127,7 +145,7 @@ describe("getSortedDisplayAttributes", () => {
     const sortedDisplayAttributes = getSortedDisplayAttributes(
       vertex,
       configAttributes,
-      sanitizeText
+      transformNoOp
     );
 
     const expected = [
@@ -135,18 +153,23 @@ describe("getSortedDisplayAttributes", () => {
       ...configAttributes
         .filter(({ name }) => name !== matchedName)
         .map(config =>
-          mapToDisplayAttribute(config.name, null, config, sanitizeText)
+          mapToDisplayAttribute(config.name, null, config, transformNoOp)
         ),
       // All the non-matched vertex attributes value values
       ...Object.entries(vertex.attributes)
         .filter(([name]) => name !== matchedName)
         .map(([name, value]) =>
-          mapToDisplayAttribute(name, value, null, sanitizeText)
+          mapToDisplayAttribute(name, value, null, transformNoOp)
         ),
       // The matched attribute config type and value
-      mapToDisplayAttribute(matchedName, value, matchedConfig, sanitizeText),
+      mapToDisplayAttribute(matchedName, value, matchedConfig, transformNoOp),
     ].toSorted((a, b) => a.displayLabel.localeCompare(b.displayLabel));
 
     expect(sortedDisplayAttributes).toEqual(expected);
   });
 });
+
+/** Returns the text as is */
+function transformNoOp(text: string) {
+  return text;
+}

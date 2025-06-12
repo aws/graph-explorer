@@ -1,6 +1,5 @@
-import { isEqual, uniq } from "lodash";
+import { cloneDeep, isEqual, uniq } from "lodash";
 import { atom } from "jotai";
-import { sanitizeText } from "@/utils";
 import DEFAULT_ICON_URL from "@/utils/defaultIconUrl";
 import {
   type AttributeConfig,
@@ -126,8 +125,8 @@ function normalizeConnection(connection: ConnectionConfig) {
 export type NormalizedConnection = ReturnType<typeof normalizeConnection>;
 
 const mergeAttributes = (
-  config?: VertexTypeConfig | EdgeTypeConfig,
-  schema?: VertexTypeConfig | EdgeTypeConfig
+  config: VertexTypeConfig | EdgeTypeConfig | null,
+  schema: VertexTypeConfig | EdgeTypeConfig | null
 ): AttributeConfig[] => {
   const configAttrLabels = config?.attributes.map(attr => attr.name) || [];
   const schemaAttrLabels = schema?.attributes.map(attr => attr.name) || [];
@@ -139,7 +138,6 @@ const mergeAttributes = (
 
     return {
       name: attrName,
-      displayLabel: sanitizeText(attrName),
       ...(schemaAttr || {}),
       ...(configAttr || {}),
     };
@@ -151,7 +149,15 @@ const mergeVertex = (
   schemaVertex?: VertexTypeConfig,
   preferences?: VertexPreferences
 ): VertexTypeConfig => {
-  const attributes = mergeAttributes(configVertex, schemaVertex);
+  // Ignore the displayLabel from schema & config
+  const patchedSchema = schemaVertex
+    ? patchToRemoveDisplayLabel(schemaVertex)
+    : null;
+  const patchedConfig = configVertex
+    ? patchToRemoveDisplayLabel(configVertex)
+    : null;
+
+  const attributes = mergeAttributes(patchedConfig, patchedSchema);
 
   const vt =
     preferences?.type || configVertex?.type || schemaVertex?.type || "unknown";
@@ -160,9 +166,9 @@ const mergeVertex = (
     // Defaults
     ...getDefaultVertexTypeConfig(vt),
     // Automatic schema override
-    ...(schemaVertex || {}),
+    ...(patchedSchema || {}),
     // File-based override
-    ...(configVertex || {}),
+    ...(patchedConfig || {}),
     // User preferences override
     ...(preferences || {}),
     attributes,
@@ -174,7 +180,15 @@ const mergeEdge = (
   schemaEdge?: EdgeTypeConfig,
   preferences?: EdgePreferences
 ): EdgeTypeConfig => {
-  const attributes = mergeAttributes(configEdge, schemaEdge);
+  // Ignore the displayLabel from schema & config
+  const patchedSchema = schemaEdge
+    ? patchToRemoveDisplayLabel(schemaEdge)
+    : null;
+  const patchedConfig = configEdge
+    ? patchToRemoveDisplayLabel(configEdge)
+    : null;
+
+  const attributes = mergeAttributes(patchedConfig, patchedSchema);
 
   const et =
     preferences?.type || configEdge?.type || schemaEdge?.type || "unknown";
@@ -183,9 +197,9 @@ const mergeEdge = (
     // Defaults
     ...getDefaultEdgeTypeConfig(et),
     // Automatic schema override
-    ...(schemaEdge || {}),
+    ...(patchedSchema || {}),
     // File-based override
-    ...(configEdge || {}),
+    ...(patchedConfig || {}),
     // User preferences override
     ...(preferences || {}),
     attributes,
@@ -259,3 +273,27 @@ export const allNamespacePrefixesSelector = atom(get => {
   const configuration = get(mergedConfigurationSelector);
   return configuration?.schema?.prefixes ?? [];
 });
+
+/**
+ * Removes the displayLabel property from a vertex or edge config and any
+ * attributes.
+ *
+ * This is to ensure cached schema values that have been persisted do not impact
+ * displayLabel behavior going forward.
+ * @param config The config without any displayLabel values
+ */
+export function patchToRemoveDisplayLabel<
+  TypeConfig extends VertexTypeConfig | EdgeTypeConfig,
+>(config: TypeConfig): TypeConfig {
+  const cloned = cloneDeep(config);
+
+  delete cloned.displayLabel;
+
+  // Remove any displayLabel values that were cached in old versions of Graph Explorer
+  for (const attr of cloned.attributes) {
+    // Cast to `any` since the type no longer has `displayLabel` defined
+    delete (attr as any).displayLabel;
+  }
+
+  return cloned;
+}

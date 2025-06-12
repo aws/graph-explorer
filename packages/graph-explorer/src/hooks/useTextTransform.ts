@@ -1,10 +1,9 @@
-import { sanitizeText } from "@/utils";
 import replacePrefixes from "@/utils/replacePrefixes";
 import { allNamespacePrefixesSelector } from "@/core/StateProvider/configuration";
 import { queryEngineSelector } from "@/core/connector";
 import { atom, useAtomValue } from "jotai";
 
-export type TextTransformer = (text?: string) => string;
+export type TextTransformer = (text: string) => string;
 
 export const textTransformSelector = atom(get => {
   const queryEngine = get(queryEngineSelector);
@@ -19,7 +18,7 @@ export const textTransformSelector = atom(get => {
       return replacePrefixes(text, prefixes);
     }
 
-    return sanitizeText(text);
+    return text;
   };
   return result;
 });

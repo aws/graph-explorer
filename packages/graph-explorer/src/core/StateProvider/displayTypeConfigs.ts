@@ -12,13 +12,10 @@ import {
   LineStyle,
 } from "@/core";
 import { TextTransformer, textTransformSelector } from "@/hooks";
-import {
-  MISSING_DISPLAY_TYPE,
-  RESERVED_TYPES_PROPERTY,
-  sanitizeText,
-} from "@/utils";
-import { atomFamily } from "jotai/utils";
+import { MISSING_DISPLAY_TYPE, RESERVED_TYPES_PROPERTY } from "@/utils";
+import { atomFamily, useAtomCallback } from "jotai/utils";
 import { atom, useAtomValue } from "jotai";
+import { useCallback } from "react";
 
 export type DisplayVertexStyle = {
   color: string;
@@ -63,6 +60,16 @@ export function useDisplayVertexTypeConfig(type: string) {
 /** All vertex types sorted by display label */
 export function useDisplayVertexTypeConfigs() {
   return useAtomValue(displayVertexTypeConfigsSelector);
+}
+
+/** Gets a callback that can retrieve the given type config or generate a default value. */
+export function useDisplayVertexTypeConfigCallback() {
+  return useAtomCallback(
+    useCallback(
+      (get, _set, type: string) => get(displayVertexTypeConfigSelector(type)),
+      []
+    )
+  );
 }
 
 /** Gets the matching edge type config or a generated default value. */
@@ -121,7 +128,7 @@ export const displayEdgeTypeConfigsSelector = atom(get => {
 
 export function mapToDisplayVertexTypeConfig(
   typeConfig: VertexTypeConfig,
-  textTransform: TextTransformer = sanitizeText
+  textTransform: TextTransformer
 ): DisplayVertexTypeConfig {
   const displayLabel =
     typeConfig.displayLabel ||
@@ -131,7 +138,7 @@ export function mapToDisplayVertexTypeConfig(
   const attributes: DisplayConfigAttribute[] = typeConfig.attributes
     .map(attr => ({
       name: attr.name,
-      displayLabel: attr.displayLabel || textTransform(attr.name),
+      displayLabel: textTransform(attr.name),
       isSearchable: isAttributeSearchable(attr),
     }))
     .toSorted((a, b) => a.name.localeCompare(b.name));
@@ -158,7 +165,7 @@ export function mapToDisplayVertexTypeConfig(
 
 export function mapToDisplayEdgeTypeConfig(
   typeConfig: EdgeTypeConfig,
-  textTransform: TextTransformer = sanitizeText
+  textTransform: TextTransformer
 ): DisplayEdgeTypeConfig {
   const displayLabel =
     typeConfig.displayLabel ||
@@ -168,7 +175,7 @@ export function mapToDisplayEdgeTypeConfig(
   const attributes: DisplayConfigAttribute[] = typeConfig.attributes
     .map(attr => ({
       name: attr.name,
-      displayLabel: attr.displayLabel || textTransform(attr.name),
+      displayLabel: textTransform(attr.name),
       isSearchable: isAttributeSearchable(attr),
     }))
     .toSorted((a, b) => a.name.localeCompare(b.name));
