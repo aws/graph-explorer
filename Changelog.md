@@ -1,6 +1,6 @@
 # graph-explorer Change Log
 
-## Upcoming
+## Release v2.0.0
 
 ### New features
 
