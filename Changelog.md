@@ -2,7 +2,7 @@
 
 ## Release v2.0.0
 
-### New feature & major changes
+### New features & major changes
 
 - **Added** query editor for Gremlin connections
   ([#949](https://github.com/aws/graph-explorer/pull/949),
