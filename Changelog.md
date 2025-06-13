@@ -1,27 +1,27 @@
-# graph-explorer Change Log
+# Graph Explorer Change Log
 
-## Release v2.0.0
+## Release v2.0
 
-Graph Explorer v2.0.0 marks a significant milestone with the introduction of the
+Graph Explorer v2.0 marks a significant milestone with the introduction of the
 new
 [query editor for Gremlin connections](https://github.com/aws/graph-explorer/issues/686).
 This powerful feature allows users to enter any valid Gremlin query and
 visualize the returned nodes, edges, and scalar values directly from the
-database. For Neptune users concerned about data integrity, the README now
-includes
-[instructions on configuring IAM permissions to restrict mutations](https://github.com/aws/graph-explorer/issues/686),
-ensuring users can perform read-only operations. This major addition transforms
-Graph Explorer into a more versatile and powerful tool for database interaction.
+database. You can review the results in the sidebar and choose to add all nodes
+& edges to the graph or add results individually.
 
-The release also includes important improvements to data representation and
-visualization. Node and edge label strategies have been updated to better
-reflect true database names, providing a more intuitive and accurate
-representation of your data. Additionally, graph layout options now feature
-enhanced descriptions and new directional capabilities for hierarchical, subway,
-and klay layouts, giving users more control over how their graph data is
-visualized. Several bug fixes have also been implemented, addressing issues with
-multiple selection behavior, table view column resizing, error messaging, and
-search result rendering.
+For Neptune users concerned about data integrity,
+[the README](https://github.com/aws/graph-explorer) now includes
+[instructions on configuring IAM permissions to restrict mutations](https://github.com/aws/graph-explorer?tab=readme-ov-file#permissions),
+ensuring users can enforce read-only operations.
+
+The release also changes the default strategy for representing node & edge
+labels in the UI. The app no longer performs any transformations on these names,
+providing a more intuitive and accurate representation of your data. For RDF
+datasets, namespace prefixes will continue to be substituted.
+
+Additionally, graph layout options now have a more intuitive organization, and
+new directions have been added for hierarchical, subway, and klay layouts.
 
 ### New features & major changes
 
@@ -42,12 +42,12 @@ search result rendering.
 
 ### Other changes
 
+- **Updated** too many requests error message for accuracy
+  ([#990](https://github.com/aws/graph-explorer/pull/990))
 - **Fixed** multiple selection box behavior
   ([#987](https://github.com/aws/graph-explorer/pull/987))
 - **Fixed** resizing columns in table view
   ([#988](https://github.com/aws/graph-explorer/pull/988))
-- **Updated** too many requests error message for accuracy
-  ([#990](https://github.com/aws/graph-explorer/pull/990))
 - **Fixed** search result row separators to ensure they are always rendered
   properly ([#997](https://github.com/aws/graph-explorer/pull/997))
 
