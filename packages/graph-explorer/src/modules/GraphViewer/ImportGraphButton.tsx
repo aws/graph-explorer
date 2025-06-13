@@ -93,8 +93,7 @@ function useImportGraphMutation() {
       const result = await fetchEntityDetails(
         graph.vertices,
         graph.edges,
-        queryClient,
-        explorer
+        queryClient
       );
 
       clearNotification(progressNotificationId);

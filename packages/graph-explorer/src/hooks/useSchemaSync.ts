@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import { useResolvedConfig } from "@/core/ConfigurationProvider";
-import { useExplorer } from "@/core/connector";
 import useUpdateSchema from "./useUpdateSchema";
 import { useIsFetching, useQuery, useQueryClient } from "@tanstack/react-query";
 import { schemaSyncQuery } from "@/connector";
@@ -12,14 +11,11 @@ export function useIsSyncing() {
 export function useCancelSchemaSync() {
   const queryClient = useQueryClient();
   const { replaceSchema } = useUpdateSchema();
-  const explorer = useExplorer();
-  return () =>
-    queryClient.cancelQueries(schemaSyncQuery(replaceSchema, explorer));
+  return () => queryClient.cancelQueries(schemaSyncQuery(replaceSchema));
 }
 
 export function useSchemaSync() {
   const config = useResolvedConfig();
-  const explorer = useExplorer();
 
   const { replaceSchema, setSyncFailure } = useUpdateSchema();
 
@@ -30,7 +26,7 @@ export function useSchemaSync() {
       : undefined;
 
   const query = useQuery({
-    ...schemaSyncQuery(replaceSchema, explorer),
+    ...schemaSyncQuery(replaceSchema),
     initialData: initialData,
     enabled: !initialData || config.schema?.lastSyncFail === true,
   });

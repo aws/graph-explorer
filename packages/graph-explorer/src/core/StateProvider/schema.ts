@@ -236,6 +236,10 @@ export function useUpdateSchemaFromEntities() {
   );
 }
 
+export type UpdateSchemaHandler = ReturnType<
+  typeof useUpdateSchemaFromEntities
+>;
+
 /** Attempts to efficiently detect if the schema should be updated. */
 export function shouldUpdateSchemaFromEntities(
   entities: {
