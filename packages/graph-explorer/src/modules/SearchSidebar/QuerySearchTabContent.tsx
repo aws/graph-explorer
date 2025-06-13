@@ -282,8 +282,8 @@ function useRawQueryMutation() {
       );
 
       // Update the schema and the cache
-      updateVertexDetailsCache(explorer, queryClient, results.vertices);
-      updateEdgeDetailsCache(explorer, queryClient, results.edges);
+      updateVertexDetailsCache(queryClient, results.vertices);
+      updateEdgeDetailsCache(queryClient, results.edges);
       updateSchema(results);
 
       return results;

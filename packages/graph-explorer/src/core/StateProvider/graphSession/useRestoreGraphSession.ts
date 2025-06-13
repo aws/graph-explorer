@@ -1,5 +1,4 @@
 import { useNotification } from "@/components/NotificationProvider";
-import { useExplorer } from "@/core/connector";
 import {
   fetchEntityDetails,
   createFetchEntityDetailsCompletionNotification,
@@ -14,7 +13,6 @@ import { GraphSessionStorageModel } from "./storage";
  */
 export function useRestoreGraphSession() {
   const queryClient = useQueryClient();
-  const explorer = useExplorer();
   const addToGraph = useAddToGraph();
 
   const { enqueueNotification, clearNotification } = useNotification();
@@ -42,8 +40,7 @@ export function useRestoreGraphSession() {
       const result = await fetchEntityDetails(
         graph.vertices,
         graph.edges,
-        queryClient,
-        explorer
+        queryClient
       );
 
       clearNotification(progressNotificationId);
