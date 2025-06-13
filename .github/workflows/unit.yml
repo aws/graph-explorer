@@ -15,9 +15,9 @@ jobs:
     strategy:
       matrix:
         node-version:
-          - 22.13.1
+          - 24.2.0
         pnpm-version:
-          - 9.15.0
+          - 10.12.1
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

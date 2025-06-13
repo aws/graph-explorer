@@ -1,5 +1,10 @@
 # Graph Explorer Change Log
 
+## Release v2.1
+
+- **Updated** dependencies to latest versions
+  ([#1014](https://github.com/aws/graph-explorer/pull/1014))
+
 ## Release v2.0
 
 Graph Explorer v2.0 marks a significant milestone with the introduction of the
