@@ -1,11 +1,33 @@
-# graph-explorer Change Log
+# Graph Explorer Change Log
 
-## Release v2.0.0
+## Release v2.0
+
+Graph Explorer v2.0 marks a significant milestone with the introduction of the
+new
+[query editor for Gremlin connections](./additionaldocs/features/README.md#query-search).
+This powerful feature allows users to enter any valid Gremlin query and
+visualize the returned nodes, edges, and scalar values directly from the
+database. You can review the results in the sidebar and choose to add all nodes
+& edges to the graph or add results individually.
+
+For Neptune users concerned about data integrity, [the README](./README.md) now
+includes
+[instructions on configuring IAM permissions to restrict mutations](./README.md#permissions),
+ensuring users can enforce read-only operations.
+
+The release also changes the default strategy for representing node & edge
+labels in the UI. The app no longer performs any transformations on these names,
+providing a more intuitive and accurate representation of your data. For RDF
+datasets, namespace prefixes will continue to be substituted.
+
+Additionally, graph layout options now have a more intuitive organization, and
+new directions have been added for hierarchical, subway, and klay layouts.
 
 ### New features & major changes
 
 - **Added** query editor for Gremlin connections
-  ([#949](https://github.com/aws/graph-explorer/pull/949),
+  ([#686](https://github.com/aws/graph-explorer/issues/686),
+  [#949](https://github.com/aws/graph-explorer/pull/949),
   [#947](https://github.com/aws/graph-explorer/pull/947),
   [#956](https://github.com/aws/graph-explorer/pull/956),
   [#957](https://github.com/aws/graph-explorer/pull/957),
@@ -21,12 +43,12 @@
 
 ### Other changes
 
+- **Updated** too many requests error message for accuracy
+  ([#990](https://github.com/aws/graph-explorer/pull/990))
 - **Fixed** multiple selection box behavior
   ([#987](https://github.com/aws/graph-explorer/pull/987))
 - **Fixed** resizing columns in table view
   ([#988](https://github.com/aws/graph-explorer/pull/988))
-- **Updated** too many requests error message for accuracy
-  ([#990](https://github.com/aws/graph-explorer/pull/990))
 - **Fixed** search result row separators to ensure they are always rendered
   properly ([#997](https://github.com/aws/graph-explorer/pull/997))
 
