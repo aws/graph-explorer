@@ -1,11 +1,10 @@
 import { EdgeDetailsRequest, edgeDetailsQuery } from "@/connector";
-import { useExplorer, Edge, toEdgeMap, EdgeId } from "@/core";
+import { Edge, toEdgeMap, EdgeId } from "@/core";
 import { useQueryClient } from "@tanstack/react-query";
 
 /** Fetch the details if the edge is a fragment */
 export function useMaterializeEdges() {
   const queryClient = useQueryClient();
-  const explorer = useExplorer();
 
   return async (edges: Map<EdgeId, Edge>) => {
     const responses = await Promise.all(
@@ -18,7 +17,7 @@ export function useMaterializeEdges() {
           edgeId: edge.id,
         };
         const response = await queryClient.ensureQueryData(
-          edgeDetailsQuery(request, explorer)
+          edgeDetailsQuery(request)
         );
         return response.edge;
       })

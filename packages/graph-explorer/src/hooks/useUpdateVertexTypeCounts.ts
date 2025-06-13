@@ -1,12 +1,10 @@
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useExplorer } from "@/core";
 import useUpdateSchema from "./useUpdateSchema";
 import { nodeCountByNodeTypeQuery } from "@/connector";
 
 export default function useUpdateVertexTypeCounts(vertexType: string) {
-  const explorer = useExplorer();
-  const query = useQuery(nodeCountByNodeTypeQuery(vertexType, explorer));
+  const query = useQuery(nodeCountByNodeTypeQuery(vertexType));
 
   // Sync the result over to the schema in Jotai state
   const { updateVertexTotal } = useUpdateSchema();
