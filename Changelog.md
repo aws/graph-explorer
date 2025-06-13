@@ -1,5 +1,10 @@
 # Graph Explorer Change Log
 
+## Release v2.2
+
+- **Updated** Tanstack Query logic to simplify query construction
+  ([#1015](https://github.com/aws/graph-explorer/pull/1015))
+
 ## Release v2.1
 
 This release continues the momentum of the last release, **introducing query
