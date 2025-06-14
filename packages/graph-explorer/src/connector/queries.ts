@@ -1,13 +1,11 @@
 import { QueryClient, queryOptions } from "@tanstack/react-query";
 import {
-  EdgeDetailsRequest,
   EdgeDetailsResponse,
   KeywordSearchRequest,
   SchemaResponse,
-  VertexDetailsRequest,
   VertexDetailsResponse,
 } from "./useGEFetchTypes";
-import { Edge, Vertex, VertexId } from "@/core";
+import { Edge, EdgeId, Vertex, VertexId } from "@/core";
 import {
   UpdateSchemaHandler,
   updateSchemaPrefixes,
@@ -125,7 +123,9 @@ export function nodeCountByNodeTypeQuery(nodeType: string) {
   });
 }
 
-export function vertexDetailsQuery(request: VertexDetailsRequest) {
+export function vertexDetailsQuery(vertexId: VertexId) {
+  const request = { vertexId };
+
   return queryOptions({
     queryKey: ["db", "vertex", "details", request],
     queryFn: ({ signal, meta }) => {
@@ -135,7 +135,9 @@ export function vertexDetailsQuery(request: VertexDetailsRequest) {
   });
 }
 
-export function edgeDetailsQuery(request: EdgeDetailsRequest) {
+export function edgeDetailsQuery(edgeId: EdgeId) {
+  const request = { edgeId };
+
   return queryOptions({
     queryKey: ["db", "edge", "details", request],
     queryFn: ({ signal, meta }) => {
@@ -151,13 +153,10 @@ export function updateVertexDetailsCache(
   vertices: Vertex[]
 ) {
   for (const vertex of vertices.filter(v => !v.__isFragment)) {
-    const request: VertexDetailsRequest = {
-      vertexId: vertex.id,
-    };
     const response: VertexDetailsResponse = {
       vertex,
     };
-    const queryKey = vertexDetailsQuery(request).queryKey;
+    const queryKey = vertexDetailsQuery(vertex.id).queryKey;
     queryClient.setQueryData(queryKey, response);
   }
 }
@@ -168,13 +167,10 @@ export function updateEdgeDetailsCache(
   edges: Edge[]
 ) {
   for (const edge of edges.filter(e => !e.__isFragment)) {
-    const request: EdgeDetailsRequest = {
-      edgeId: edge.id,
-    };
     const response: EdgeDetailsResponse = {
       edge,
     };
-    const queryKey = edgeDetailsQuery(request).queryKey;
+    const queryKey = edgeDetailsQuery(edge.id).queryKey;
     queryClient.setQueryData(queryKey, response);
   }
 }
