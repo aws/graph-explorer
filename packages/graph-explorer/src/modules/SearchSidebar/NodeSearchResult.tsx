@@ -10,7 +10,6 @@ import {
   useAddToGraphMutation,
   useHasVertexBeenAddedToGraph,
   useRemoveNodeFromGraph,
-  useVertexDetailsQuery,
 } from "@/hooks";
 import {
   ChevronRightIcon,
@@ -19,11 +18,13 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import EntityAttribute from "../EntityDetails/EntityAttribute";
+import { vertexDetailsQuery } from "@/connector";
+import { useQuery } from "@tanstack/react-query";
 
 export function NodeSearchResult({ node }: { node: Vertex }) {
   const [expanded, setExpanded] = useState(false);
 
-  const { data: detailsResponse } = useVertexDetailsQuery(node.id);
+  const { data: detailsResponse } = useQuery(vertexDetailsQuery(node.id));
   const preferredNode = detailsResponse?.vertex ?? node;
   const displayNode = useDisplayVertexFromVertex(preferredNode);
 

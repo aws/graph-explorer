@@ -1,4 +1,4 @@
-import { EdgeDetailsRequest, edgeDetailsQuery } from "@/connector";
+import { edgeDetailsQuery } from "@/connector";
 import { Edge, toEdgeMap, EdgeId } from "@/core";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -13,11 +13,8 @@ export function useMaterializeEdges() {
           return edge;
         }
 
-        const request: EdgeDetailsRequest = {
-          edgeId: edge.id,
-        };
         const response = await queryClient.ensureQueryData(
-          edgeDetailsQuery(request)
+          edgeDetailsQuery(edge.id)
         );
         return response.edge;
       })
