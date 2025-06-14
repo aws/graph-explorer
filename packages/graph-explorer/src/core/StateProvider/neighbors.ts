@@ -10,7 +10,6 @@ import {
 import { useCallback, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { neighborsCountQuery } from "@/connector";
-import { useExplorer } from "../connector";
 import { useNotification } from "@/components/NotificationProvider";
 
 export type NeighborCounts = {
@@ -39,14 +38,13 @@ export type NeighborStub = {
  */
 export function useNeighborsCallback() {
   const queryClient = useQueryClient();
-  const explorer = useExplorer();
 
   return useAtomCallback(
     useCallback(
       async (get, _set, vertexId: VertexId) => {
         const fetchedNeighbors = get(fetchedNeighborsSelector(vertexId));
         const response = await queryClient.ensureQueryData(
-          neighborsCountQuery({ vertexId }, explorer)
+          neighborsCountQuery({ vertexId })
         );
 
         const neighbors = calculateNeighbors(
@@ -57,7 +55,7 @@ export function useNeighborsCallback() {
 
         return neighbors;
       },
-      [explorer, queryClient]
+      [queryClient]
     )
   );
 }

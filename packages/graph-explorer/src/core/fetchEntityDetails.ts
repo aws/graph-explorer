@@ -1,4 +1,4 @@
-import { edgeDetailsQuery, Explorer, vertexDetailsQuery } from "@/connector";
+import { edgeDetailsQuery, vertexDetailsQuery } from "@/connector";
 import { VertexId, EdgeId } from "@/core";
 import { formatEntityCounts } from "@/utils";
 import { QueryClient } from "@tanstack/react-query";
@@ -13,24 +13,15 @@ import { Notification } from "@/components/NotificationProvider";
 export async function fetchEntityDetails(
   vertices: Set<VertexId>,
   edges: Set<EdgeId>,
-  queryClient: QueryClient,
-  explorer: Explorer
+  queryClient: QueryClient
 ) {
   const vertexResults = await Promise.allSettled(
     vertices
       .values()
-      .map(id =>
-        queryClient.ensureQueryData(
-          vertexDetailsQuery({ vertexId: id }, explorer)
-        )
-      )
+      .map(id => queryClient.ensureQueryData(vertexDetailsQuery(id)))
   );
   const edgeResults = await Promise.allSettled(
-    edges
-      .values()
-      .map(id =>
-        queryClient.ensureQueryData(edgeDetailsQuery({ edgeId: id }, explorer))
-      )
+    edges.values().map(id => queryClient.ensureQueryData(edgeDetailsQuery(id)))
   );
 
   const vertexDetails = vertexResults

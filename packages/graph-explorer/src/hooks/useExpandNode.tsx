@@ -101,8 +101,8 @@ export default function useExpandNode() {
         });
 
         // Update the vertex and edge details caches
-        updateVertexDetailsCache(explorer, queryClient, result.vertices);
-        updateEdgeDetailsCache(explorer, queryClient, result.edges);
+        updateVertexDetailsCache(queryClient, result.vertices);
+        updateEdgeDetailsCache(queryClient, result.edges);
 
         // Update nodes and edges in the graph
         await addToGraph(result);
