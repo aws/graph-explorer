@@ -26,8 +26,12 @@ export function SearchSidebarPanel() {
   const queryEngine = useQueryEngine();
   const [selectedTab, setSelectedTab] = useAtom(selectedTabAtom);
 
-  // Hide tabs when not gremlin or the query editor feature is turned off
-  if (queryEngine !== "gremlin") {
+  // Only show query editor for Gremlin and openCypher
+  const shouldShowQueryEditor =
+    queryEngine === "gremlin" || queryEngine === "openCypher";
+
+  // Hide query editor tabs
+  if (!shouldShowQueryEditor) {
     return (
       <Layout className="overflow-y-auto">
         <FilterSearchTabContent />
