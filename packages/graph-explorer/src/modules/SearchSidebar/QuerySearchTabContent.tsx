@@ -14,7 +14,11 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components";
-import { useExplorer, useUpdateSchemaFromEntities } from "@/core";
+import {
+  useExplorer,
+  useQueryEngine,
+  useUpdateSchemaFromEntities,
+} from "@/core";
 import {
   useMutation,
   useMutationState,
@@ -52,6 +56,7 @@ export const queryTextAtom = atomWithReset("");
 export function QuerySearchTabContent() {
   const [queryText, setQueryText] = useAtom(queryTextAtom);
   const { executeQuery, cancel } = useRawQueryMutation();
+  const queryEngine = useQueryEngine();
 
   const form = useForm({
     resolver: zodResolver(formDataSchema),
@@ -78,6 +83,18 @@ export function QuerySearchTabContent() {
     }
   };
 
+  // Create an appropriate placeholder to use in the query editor
+  const queryPlaceholder = (() => {
+    switch (queryEngine) {
+      case "gremlin":
+        return "e.g. g.V().limit(10)";
+      case "openCypher":
+        return "e.g. MATCH (n) RETURN n LIMIT 10";
+      case "sparql":
+        return "Not supported";
+    }
+  })();
+
   return (
     <div className="bg-background-default flex h-full flex-col">
       <Form {...form}>
@@ -95,7 +112,7 @@ export function QuerySearchTabContent() {
                     {...field}
                     aria-label="Query"
                     className="h-full min-h-[5lh] w-full font-mono text-sm"
-                    placeholder="e.g. g.V().limit(10)"
+                    placeholder={queryPlaceholder}
                     onKeyDown={onKeyDown}
                   />
                 </FormControl>
