@@ -1,3 +1,4 @@
+import { ZodError } from "zod";
 import { NetworkError } from "./NetworkError";
 
 export type DisplayError = {
@@ -112,6 +113,14 @@ export function createDisplayError(error: any): DisplayError {
         extractMessageFromData(error.data) ?? defaultDisplayError.message,
     };
   }
+
+  if (error instanceof ZodError) {
+    return {
+      title: "Unrecognized Result Format",
+      message: "The data returned did not match the expected format.",
+    };
+  }
+
   return defaultDisplayError;
 }
 
