@@ -1,3 +1,4 @@
+import { z } from "zod";
 import { createDisplayError } from "./createDisplayError";
 import { NetworkError } from "./NetworkError";
 
@@ -139,6 +140,17 @@ describe("createDisplayError", () => {
     expect(result).toStrictEqual({
       title: "Network Response 500",
       message: "An error occurred. Please try again.",
+    });
+  });
+
+  it("Should handle zod validation errors", () => {
+    const schema = z.object({ name: z.string(), age: z.number() });
+    const result = createDisplayError(
+      schema.safeParse({ nameWrong: "Bob", ageWrong: 42 }).error
+    );
+    expect(result).toStrictEqual({
+      title: "Unrecognized Result Format",
+      message: "The data returned did not match the expected format.",
     });
   });
 });

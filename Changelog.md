@@ -2,6 +2,8 @@
 
 ## Release v2.1
 
+- **Added** support for openCypher in the query editor
+  ([#1016](https://github.com/aws/graph-explorer/pull/1016))
 - **Updated** dependencies to latest versions
   ([#1014](https://github.com/aws/graph-explorer/pull/1014))
 

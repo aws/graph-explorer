@@ -12,6 +12,7 @@ import { createLoggerFromConnection } from "@/core/connector";
 import { FeatureFlags, NormalizedConnection } from "@/core";
 import { vertexDetails } from "./vertexDetails";
 import { edgeDetails } from "./edgeDetails";
+import { rawQuery } from "./rawQuery";
 
 function _openCypherFetch(
   connection: NormalizedConnection,
@@ -102,12 +103,9 @@ export function createOpenCypherExplorer(
         req
       );
     },
-    // eslint-disable-next-line @typescript-eslint/require-await
     async rawQuery(_req, _options) {
       remoteLogger.info("[openCypher Explorer] Fetching raw query...");
-      throw new Error(
-        "Raw query functionality is not implemented for openCypher"
-      );
+      return rawQuery(_openCypherFetch(connection, featureFlags), _req);
     },
   } satisfies Explorer;
 }
