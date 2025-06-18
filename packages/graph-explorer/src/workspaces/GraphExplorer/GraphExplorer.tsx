@@ -20,7 +20,13 @@ import {
 } from "@/components/icons";
 import GridIcon from "@/components/icons/GridIcon";
 import Workspace, { SidebarButton } from "@/components/Workspace";
-import { useConfiguration, userLayoutAtom, useSidebar } from "@/core";
+import {
+  DEFAULT_TABLE_VIEW_HEIGHT,
+  useConfiguration,
+  userLayoutAtom,
+  useSidebar,
+  useTableViewSize,
+} from "@/core";
 import { totalFilteredCount } from "@/core/StateProvider/filterCount";
 import useTranslations from "@/hooks/useTranslations";
 import EdgesStyling from "@/modules/EdgesStyling/EdgesStyling";
@@ -57,6 +63,8 @@ const GraphExplorer = () => {
   const { activeSidebarItem, toggleSidebar, shouldShowNamespaces } =
     useSidebar();
 
+  const [tableViewHeight, setTableViewHeight] = useTableViewSize();
+
   const toggleView = (item: string) => async () => {
     await setUserLayout(async prev => {
       const prevValue = await prev;
@@ -70,24 +78,6 @@ const GraphExplorer = () => {
       return {
         ...prevValue,
         activeToggles: toggles,
-      };
-    });
-  };
-
-  const onTableViewResizeStop = async (
-    _e: unknown,
-    _dir: unknown,
-    _ref: unknown,
-    delta: { height: number }
-  ) => {
-    await setUserLayout(async prev => {
-      const prevValue = await prev;
-      return {
-        ...prevValue,
-        tableView: {
-          ...(prevValue.tableView || {}),
-          height: (prevValue.tableView?.height ?? 300) + delta.height,
-        },
       };
     });
   };
@@ -148,12 +138,12 @@ const GraphExplorer = () => {
             enable={RESIZE_ENABLE_TOP}
             size={{
               width: "100%",
-              height: !toggles.has("graph-viewer")
-                ? "100%"
-                : userLayout.tableView?.height || 300,
+              height: tableViewHeight,
             }}
-            minHeight={300}
-            onResizeStop={onTableViewResizeStop}
+            minHeight={DEFAULT_TABLE_VIEW_HEIGHT}
+            onResizeStop={(_e, _dir, _ref, delta) =>
+              setTableViewHeight(delta.height)
+            }
           >
             <EntitiesTabular />
           </Resizable>
