@@ -44,7 +44,7 @@ export function useViewToggles() {
   const [userLayout, setUserLayout] = useAtom(userLayoutAtom);
 
   const isGraphVisible = userLayout.activeToggles.has("graph-viewer");
-  const isTableViewVisible = userLayout.activeToggles.has("table-view");
+  const isTableVisible = userLayout.activeToggles.has("table-view");
 
   const toggleView = (item: ToggleableView) =>
     setUserLayout(async prev => {
@@ -63,13 +63,13 @@ export function useViewToggles() {
     });
 
   const toggleGraphVisibility = () => toggleView("graph-viewer");
-  const toggleTableViewVisibility = () => toggleView("table-view");
+  const toggleTableVisibility = () => toggleView("table-view");
 
   return {
     isGraphVisible,
-    isTableViewVisible,
+    isTableVisible,
     toggleGraphVisibility,
-    toggleTableViewVisibility,
+    toggleTableVisibility,
   };
 }
 

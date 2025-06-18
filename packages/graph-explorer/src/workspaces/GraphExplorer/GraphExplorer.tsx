@@ -61,10 +61,11 @@ const GraphExplorer = () => {
 
   const {
     isGraphVisible,
-    isTableViewVisible,
+    isTableVisible,
     toggleGraphVisibility,
-    toggleTableViewVisibility,
+    toggleTableVisibility,
   } = useViewToggles();
+
   const { activeSidebarItem, toggleSidebar, shouldShowNamespaces } =
     useSidebar();
 
@@ -88,12 +89,10 @@ const GraphExplorer = () => {
             onClick={toggleGraphVisibility}
           />
           <IconButton
-            tooltipText={
-              isTableViewVisible ? "Hide Table View" : "Show Table View"
-            }
-            variant={isTableViewVisible ? "filled" : "text"}
+            tooltipText={isTableVisible ? "Hide Table View" : "Show Table View"}
+            variant={isTableVisible ? "filled" : "text"}
             icon={<GridIcon />}
-            onClick={toggleTableViewVisibility}
+            onClick={toggleTableVisibility}
           />
           <Divider axis="vertical" className="mx-2 h-[50%]" />
           <Link
@@ -107,7 +106,7 @@ const GraphExplorer = () => {
       </Workspace.TopBar>
 
       <Workspace.Content>
-        {!isGraphVisible && !isTableViewVisible && (
+        {!isGraphVisible && !isTableVisible && (
           <PanelEmptyState
             icon={<EmptyWidgetIcon />}
             title="No active views"
@@ -115,7 +114,7 @@ const GraphExplorer = () => {
           />
         )}
         {isGraphVisible && <GraphViewer />}
-        {isTableViewVisible && (
+        {isTableVisible && (
           <Resizable
             enable={RESIZE_ENABLE_TOP}
             size={{

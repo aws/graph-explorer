@@ -117,9 +117,9 @@ function EntitiesTabular() {
 }
 
 function CloseButton() {
-  const { toggleTableViewVisibility } = useViewToggles();
+  const { toggleTableVisibility } = useViewToggles();
 
-  return <PanelHeaderCloseButton onClose={toggleTableViewVisibility} />;
+  return <PanelHeaderCloseButton onClose={toggleTableVisibility} />;
 }
 
 export default EntitiesTabular;
