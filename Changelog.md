@@ -8,7 +8,8 @@
 - **Updated** dependencies to latest versions and some minor refactorings
   ([#1014](https://github.com/aws/graph-explorer/pull/1014),
   [#1023](https://github.com/aws/graph-explorer/pull/1023),
-  [#1025](https://github.com/aws/graph-explorer/pull/1025))
+  [#1025](https://github.com/aws/graph-explorer/pull/1025),
+  [#1027](https://github.com/aws/graph-explorer/pull/1027))
 
 ## Release v2.0
 
