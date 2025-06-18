@@ -1,5 +1,5 @@
 import { cn } from "@/utils";
-import type { ReactNode } from "react";
+import type { PropsWithChildren, ReactNode } from "react";
 import { useWithTheme } from "@/core";
 import { LoaderIcon } from "@/components/icons";
 
@@ -33,9 +33,34 @@ export const LoadingSpinner = ({
   );
 };
 
+interface SpinnerProps extends PropsWithChildren<IconBaseProps> {
+  loading?: boolean;
+}
+
 /** Basic spinner */
-export function Spinner({ className, ...props }: IconBaseProps) {
-  return <LoaderIcon className={cn(className, "animate-spin")} {...props} />;
+export function Spinner({
+  className,
+  loading,
+  children,
+  ...props
+}: SpinnerProps) {
+  if (!children) {
+    return <LoaderIcon className={cn(className, "animate-spin")} {...props} />;
+  }
+
+  return (
+    <span className="stack">
+      <LoaderIcon
+        className={cn(
+          "invisible",
+          loading && "visible animate-spin",
+          className
+        )}
+        {...props}
+      />
+      <span className={cn("visible", loading && "invisible")}>{children}</span>
+    </span>
+  );
 }
 
 export default LoadingSpinner;
