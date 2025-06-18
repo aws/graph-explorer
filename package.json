@@ -23,7 +23,7 @@
     "check:types": "tsc --build --force",
     "checks": "pnpm run '/^check:.*/'",
     "start": "pnpm --filter \"graph-explorer-proxy-server\" run start",
-    "clean": "pnpm --stream -r run clean",
+    "clean": "tsc --build --clean && pnpm --stream -r run clean",
     "clean:dep": "rm -rf node_modules && pnpm -r exec rm -rf node_modules",
     "build": "pnpm --stream -r run build",
     "dev": "pnpm --stream -r run dev"
