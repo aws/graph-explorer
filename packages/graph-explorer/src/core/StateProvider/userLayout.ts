@@ -2,8 +2,10 @@ import { useAtom } from "jotai";
 import { atomWithLocalForage } from "./localForageEffect";
 import { useQueryEngine } from "../connector";
 
+type ToggleableView = "graph-viewer" | "table-view";
+
 type UserLayout = {
-  activeToggles: Set<string>;
+  activeToggles: Set<ToggleableView>;
   activeSidebarItem:
     | "search"
     | "details"
@@ -37,6 +39,39 @@ export const userLayoutAtom = atomWithLocalForage<UserLayout>(
   },
   "user-layout"
 );
+
+export function useViewToggles() {
+  const [userLayout, setUserLayout] = useAtom(userLayoutAtom);
+
+  const isGraphVisible = userLayout.activeToggles.has("graph-viewer");
+  const isTableViewVisible = userLayout.activeToggles.has("table-view");
+
+  const toggleView = (item: ToggleableView) =>
+    setUserLayout(async prev => {
+      const prevValue = await prev;
+      const toggles = new Set(prevValue.activeToggles);
+      if (toggles.has(item)) {
+        toggles.delete(item);
+      } else {
+        toggles.add(item);
+      }
+
+      return {
+        ...prevValue,
+        activeToggles: toggles,
+      };
+    });
+
+  const toggleGraphVisibility = () => toggleView("graph-viewer");
+  const toggleTableViewVisibility = () => toggleView("table-view");
+
+  return {
+    isGraphVisible,
+    isTableViewVisible,
+    toggleGraphVisibility,
+    toggleTableViewVisibility,
+  };
+}
 
 export function useTableViewSize() {
   const [userLayout, setUserLayout] = useAtom(userLayoutAtom);
