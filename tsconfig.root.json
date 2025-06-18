@@ -1,7 +1,7 @@
 {
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "noEmit": true,
+    "noEmit": true
   },
-  "files": ["./vitest.config.ts"],
+  "files": ["./vitest.config.ts"]
 }
