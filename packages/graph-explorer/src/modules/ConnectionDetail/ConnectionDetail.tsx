@@ -88,6 +88,8 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
       : config.connection.url
     : MISSING_DISPLAY_VALUE;
 
+  const isSyncing = useIsSyncing();
+
   return (
     <Panel>
       <PanelHeader>
@@ -145,7 +147,9 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
           <EdgeCounts />
           <InfoItem>
             <InfoItemIcon>
-              <ClockIcon />
+              <Spinner loading={isSyncing}>
+                <ClockIcon />
+              </Spinner>
             </InfoItemIcon>
             <InfoItemContent>
               <InfoItemLabel>Last Synchronization</InfoItemLabel>
@@ -210,12 +214,7 @@ function LastSyncInfo({ config }: { config: ConfigurationContextProps }) {
   const { refetch: syncSchema } = useSchemaSync();
 
   if (isSyncing) {
-    return (
-      <InfoItemValue>
-        <Spinner />
-        Synchronizing...
-      </InfoItemValue>
-    );
+    return <InfoItemValue>Synchronizing...</InfoItemValue>;
   }
 
   const lastSyncFail = config.schema?.lastSyncFail === true;
