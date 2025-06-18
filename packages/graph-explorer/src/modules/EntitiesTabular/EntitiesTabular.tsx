@@ -1,7 +1,18 @@
 import { useState } from "react";
-import { Panel } from "@/components";
+import {
+  GridIcon,
+  Panel,
+  PanelHeader,
+  PanelHeaderActions,
+  PanelTitle,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components";
 import type { TabularInstance } from "@/components/Tabular";
-import { ModuleContainerTabularHeader } from "@/components/Tabular";
+import { ExportControl } from "@/components/Tabular";
 import TabularControlsProvider from "@/components/Tabular/TabularControlsProvider";
 import useTranslations from "@/hooks/useTranslations";
 import { EdgesTabular, NodesTabular } from "./components";
@@ -11,7 +22,7 @@ enum TableId {
   nodes = "nodes",
 }
 
-const EntitiesTabular = () => {
+function EntitiesTabular() {
   const t = useTranslations();
 
   const [selectedTable, setSelectedTable] = useState<TableId>(TableId.nodes);
@@ -52,22 +63,35 @@ const EntitiesTabular = () => {
     <Panel>
       {nodeInstance && edgeInstance && selectedTabularInstance && (
         <TabularControlsProvider tabularInstance={selectedTabularInstance}>
-          <ModuleContainerTabularHeader
-            tables={[
-              {
-                value: TableId.nodes,
-                label: t("entities-tabular.all-nodes"),
-              },
-              {
-                value: TableId.edges,
-                label: t("entities-tabular.all-edges"),
-              },
-            ]}
-            selectedTable={selectedTable}
-            onTableChange={tableId => {
-              setSelectedTable(tableId as TableId);
-            }}
-          />
+          <PanelHeader>
+            <PanelTitle>
+              <GridIcon className="icon" />
+              Table View
+            </PanelTitle>
+            <PanelHeaderActions>
+              <Select
+                aria-label="Table"
+                value={selectedTable}
+                onValueChange={tableId => {
+                  setSelectedTable(tableId as TableId);
+                }}
+              >
+                <SelectTrigger className="w-36">
+                  <SelectValue placeholder="Select an entity type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={TableId.nodes}>
+                    {t("entities-tabular.all-nodes")}
+                  </SelectItem>
+                  <SelectItem value={TableId.edges}>
+                    {t("entities-tabular.all-edges")}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+              <div className="grow" />
+              <ExportControl />
+            </PanelHeaderActions>
+          </PanelHeader>
         </TabularControlsProvider>
       )}
       {tableList.map(table => (
@@ -85,6 +109,6 @@ const EntitiesTabular = () => {
       ))}
     </Panel>
   );
-};
+}
 
 export default EntitiesTabular;

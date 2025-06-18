@@ -8,6 +8,5 @@ export {
 export { numericFilter as tabularNumericFilter } from "./filters";
 export * from "./controls";
 export * from "./builders";
-export * from "./ModuleContainerTabularHeader";
 export type { TabularProps, TabularVariantType } from "./Tabular";
 export type { TabularInstance } from "./helpers/tableInstanceToTabularInstance";
