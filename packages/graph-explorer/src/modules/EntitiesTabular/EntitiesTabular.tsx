@@ -4,6 +4,8 @@ import {
   Panel,
   PanelHeader,
   PanelHeaderActions,
+  PanelHeaderCloseButton,
+  PanelHeaderDivider,
   PanelTitle,
   Select,
   SelectContent,
@@ -16,6 +18,7 @@ import { ExportControl } from "@/components/Tabular";
 import TabularControlsProvider from "@/components/Tabular/TabularControlsProvider";
 import useTranslations from "@/hooks/useTranslations";
 import { EdgesTabular, NodesTabular } from "./components";
+import { useViewToggles } from "@/core";
 
 enum TableId {
   edges = "edges",
@@ -90,6 +93,8 @@ function EntitiesTabular() {
               </Select>
               <div className="grow" />
               <ExportControl />
+              <PanelHeaderDivider />
+              <CloseButton />
             </PanelHeaderActions>
           </PanelHeader>
         </TabularControlsProvider>
@@ -109,6 +114,12 @@ function EntitiesTabular() {
       ))}
     </Panel>
   );
+}
+
+function CloseButton() {
+  const { toggleTableViewVisibility } = useViewToggles();
+
+  return <PanelHeaderCloseButton onClose={toggleTableViewVisibility} />;
 }
 
 export default EntitiesTabular;
