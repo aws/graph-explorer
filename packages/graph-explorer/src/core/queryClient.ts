@@ -49,7 +49,7 @@ export function createQueryClient({ explorer }: { explorer: Explorer }) {
           return true;
         },
         retryDelay: exponentialBackoff,
-        staleTime: 1000 * 60 * 5, // 1 minute cache
+        staleTime: 1000 * 60 * 5, // 5 minute cache
         refetchOnWindowFocus: false,
       },
     },
