@@ -1,6 +1,50 @@
-import { DbState, renderHookWithJotai } from "@/utils/testing";
-import { userLayoutAtom, useSidebar } from "./userLayout";
+import {
+  DbState,
+  renderHookWithJotai,
+  renderHookWithState,
+} from "@/utils/testing";
+import { userLayoutAtom, useSidebar, useViewToggles } from "./userLayout";
 import { act } from "react";
+import { ExtractAtomValue } from "jotai";
+
+type UserLayout = ExtractAtomValue<typeof userLayoutAtom>;
+
+describe("useViewToggles", () => {
+  it("should default to both views open", () => {
+    const { result } = renderHookWithState(() => useViewToggles());
+
+    expect(result.current.isGraphVisible).toBeTruthy();
+    expect(result.current.isTableVisible).toBeTruthy();
+  });
+
+  it("should toggle graph view", async () => {
+    const { result } = renderHookWithState(() => useViewToggles());
+
+    await act(() => result.current.toggleGraphVisibility());
+
+    expect(result.current.isGraphVisible).toBeFalsy();
+    expect(result.current.isTableVisible).toBeTruthy();
+
+    await act(() => result.current.toggleGraphVisibility());
+
+    expect(result.current.isGraphVisible).toBeTruthy();
+    expect(result.current.isTableVisible).toBeTruthy();
+  });
+
+  it("should toggle table view", async () => {
+    const { result } = renderHookWithState(() => useViewToggles());
+
+    await act(() => result.current.toggleTableVisibility());
+
+    expect(result.current.isGraphVisible).toBeTruthy();
+    expect(result.current.isTableVisible).toBeFalsy();
+
+    await act(() => result.current.toggleTableVisibility());
+
+    expect(result.current.isGraphVisible).toBeTruthy();
+    expect(result.current.isTableVisible).toBeTruthy();
+  });
+});
 
 describe("useSidebar", () => {
   it("should default to sidebar open", () => {
@@ -27,8 +71,8 @@ describe("useSidebar", () => {
       snapshot =>
         snapshot.set(userLayoutAtom, {
           activeSidebarItem: "details",
-          activeToggles: new Set<string>(),
-        })
+          activeToggles: new Set(),
+        } satisfies UserLayout)
     );
 
     await act(() => result.current.toggleSidebar("details"));
@@ -55,8 +99,8 @@ describe("useSidebar", () => {
         dbState.applyTo(snapshot);
         snapshot.set(userLayoutAtom, {
           activeSidebarItem: "namespaces",
-          activeToggles: new Set<string>(),
-        });
+          activeToggles: new Set(),
+        } satisfies UserLayout);
       }
     );
 
@@ -75,8 +119,8 @@ describe("useSidebar", () => {
         dbState.applyTo(snapshot);
         snapshot.set(userLayoutAtom, {
           activeSidebarItem: "namespaces",
-          activeToggles: new Set<string>(),
-        });
+          activeToggles: new Set(),
+        } satisfies UserLayout);
       }
     );
 

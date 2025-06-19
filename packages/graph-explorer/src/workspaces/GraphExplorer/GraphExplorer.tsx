@@ -20,7 +20,13 @@ import {
 } from "@/components/icons";
 import GridIcon from "@/components/icons/GridIcon";
 import Workspace, { SidebarButton } from "@/components/Workspace";
-import { useConfiguration, userLayoutAtom, useSidebar } from "@/core";
+import {
+  DEFAULT_TABLE_VIEW_HEIGHT,
+  useConfiguration,
+  useSidebar,
+  useTableViewSize,
+  useViewToggles,
+} from "@/core";
 import { totalFilteredCount } from "@/core/StateProvider/filterCount";
 import useTranslations from "@/hooks/useTranslations";
 import EdgesStyling from "@/modules/EdgesStyling/EdgesStyling";
@@ -34,7 +40,7 @@ import { NodesStyling } from "@/modules/NodesStyling";
 
 import { APP_NAME } from "@/utils/constants";
 import { SearchSidebarPanel } from "@/modules/SearchSidebar";
-import { useAtom, useAtomValue } from "jotai";
+import { useAtomValue } from "jotai";
 
 const RESIZE_ENABLE_TOP = {
   top: true,
@@ -50,49 +56,20 @@ const RESIZE_ENABLE_TOP = {
 const GraphExplorer = () => {
   const config = useConfiguration();
   const t = useTranslations();
-  const [userLayout, setUserLayout] = useAtom(userLayoutAtom);
 
   const filteredEntitiesCount = useAtomValue(totalFilteredCount);
+
+  const {
+    isGraphVisible,
+    isTableVisible,
+    toggleGraphVisibility,
+    toggleTableVisibility,
+  } = useViewToggles();
 
   const { activeSidebarItem, toggleSidebar, shouldShowNamespaces } =
     useSidebar();
 
-  const toggleView = (item: string) => async () => {
-    await setUserLayout(async prev => {
-      const prevValue = await prev;
-      const toggles = new Set(prevValue.activeToggles);
-      if (toggles.has(item)) {
-        toggles.delete(item);
-      } else {
-        toggles.add(item);
-      }
-
-      return {
-        ...prevValue,
-        activeToggles: toggles,
-      };
-    });
-  };
-
-  const onTableViewResizeStop = async (
-    _e: unknown,
-    _dir: unknown,
-    _ref: unknown,
-    delta: { height: number }
-  ) => {
-    await setUserLayout(async prev => {
-      const prevValue = await prev;
-      return {
-        ...prevValue,
-        tableView: {
-          ...(prevValue.tableView || {}),
-          height: (prevValue.tableView?.height ?? 300) + delta.height,
-        },
-      };
-    });
-  };
-
-  const toggles = userLayout.activeToggles;
+  const [tableViewHeight, setTableViewHeight] = useTableViewSize();
 
   return (
     <Workspace>
@@ -106,22 +83,16 @@ const GraphExplorer = () => {
         </Workspace.TopBar.Version>
         <Workspace.TopBar.AdditionalControls>
           <IconButton
-            tooltipText={
-              toggles.has("graph-viewer")
-                ? "Hide Graph View"
-                : "Show Graph View"
-            }
-            variant={toggles.has("graph-viewer") ? "filled" : "text"}
+            tooltipText={isGraphVisible ? "Hide Graph View" : "Show Graph View"}
+            variant={isGraphVisible ? "filled" : "text"}
             icon={<GraphIcon />}
-            onClick={toggleView("graph-viewer")}
+            onClick={toggleGraphVisibility}
           />
           <IconButton
-            tooltipText={
-              toggles.has("table-view") ? "Hide Table View" : "Show Table View"
-            }
-            variant={toggles.has("table-view") ? "filled" : "text"}
+            tooltipText={isTableVisible ? "Hide Table View" : "Show Table View"}
+            variant={isTableVisible ? "filled" : "text"}
             icon={<GridIcon />}
-            onClick={toggleView("table-view")}
+            onClick={toggleTableVisibility}
           />
           <Divider axis="vertical" className="mx-2 h-[50%]" />
           <Link
@@ -135,25 +106,25 @@ const GraphExplorer = () => {
       </Workspace.TopBar>
 
       <Workspace.Content>
-        {toggles.size === 0 && (
+        {!isGraphVisible && !isTableVisible && (
           <PanelEmptyState
             icon={<EmptyWidgetIcon />}
             title="No active views"
             subtitle="Use toggles in the top-right corner to show/hide views"
           />
         )}
-        {toggles.has("graph-viewer") && <GraphViewer />}
-        {toggles.has("table-view") && (
+        {isGraphVisible && <GraphViewer />}
+        {isTableVisible && (
           <Resizable
             enable={RESIZE_ENABLE_TOP}
             size={{
               width: "100%",
-              height: !toggles.has("graph-viewer")
-                ? "100%"
-                : userLayout.tableView?.height || 300,
+              height: tableViewHeight,
             }}
-            minHeight={300}
-            onResizeStop={onTableViewResizeStop}
+            minHeight={DEFAULT_TABLE_VIEW_HEIGHT}
+            onResizeStop={(_e, _dir, _ref, delta) =>
+              setTableViewHeight(delta.height)
+            }
           >
             <EntitiesTabular />
           </Resizable>

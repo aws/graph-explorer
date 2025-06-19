@@ -2,8 +2,10 @@ import { useAtom } from "jotai";
 import { atomWithLocalForage } from "./localForageEffect";
 import { useQueryEngine } from "../connector";
 
+type ToggleableView = "graph-viewer" | "table-view";
+
 type UserLayout = {
-  activeToggles: Set<string>;
+  activeToggles: Set<ToggleableView>;
   activeSidebarItem:
     | "search"
     | "details"
@@ -24,17 +26,76 @@ type UserLayout = {
 
 export type SidebarItems = UserLayout["activeSidebarItem"];
 
+export const DEFAULT_TABLE_VIEW_HEIGHT = 300;
+
 export const userLayoutAtom = atomWithLocalForage<UserLayout>(
   {
     activeToggles: new Set(["graph-viewer", "table-view"]),
     activeSidebarItem: "search",
     detailsAutoOpenOnSelection: true,
     tableView: {
-      height: 300,
+      height: DEFAULT_TABLE_VIEW_HEIGHT,
     },
   },
   "user-layout"
 );
+
+export function useViewToggles() {
+  const [userLayout, setUserLayout] = useAtom(userLayoutAtom);
+
+  const isGraphVisible = userLayout.activeToggles.has("graph-viewer");
+  const isTableVisible = userLayout.activeToggles.has("table-view");
+
+  const toggleView = (item: ToggleableView) =>
+    setUserLayout(async prev => {
+      const prevValue = await prev;
+      const toggles = new Set(prevValue.activeToggles);
+      if (toggles.has(item)) {
+        toggles.delete(item);
+      } else {
+        toggles.add(item);
+      }
+
+      return {
+        ...prevValue,
+        activeToggles: toggles,
+      };
+    });
+
+  const toggleGraphVisibility = () => toggleView("graph-viewer");
+  const toggleTableVisibility = () => toggleView("table-view");
+
+  return {
+    isGraphVisible,
+    isTableVisible,
+    toggleGraphVisibility,
+    toggleTableVisibility,
+  };
+}
+
+export function useTableViewSize() {
+  const [userLayout, setUserLayout] = useAtom(userLayoutAtom);
+
+  const tableViewHeight = !userLayout.activeToggles.has("graph-viewer")
+    ? "100%"
+    : userLayout.tableView?.height || DEFAULT_TABLE_VIEW_HEIGHT;
+
+  /** Sets the table view height to the current height + the given delta */
+  const setTableViewHeight = (deltaHeight: number) =>
+    setUserLayout(async prevPromise => {
+      const prev = await prevPromise;
+      const prevHeight = prev.tableView?.height ?? DEFAULT_TABLE_VIEW_HEIGHT;
+      return {
+        ...prev,
+        tableView: {
+          ...(prev.tableView || {}),
+          height: prevHeight + deltaHeight,
+        },
+      };
+    });
+
+  return [tableViewHeight, setTableViewHeight] as const;
+}
 
 export function useSidebar() {
   const [userLayout, setUserLayout] = useAtom(userLayoutAtom);
