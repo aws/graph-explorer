@@ -8,7 +8,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --force",
-    "clean": "tsc --build --clean && rimraf dist coverage",
+    "clean": "rimraf dist coverage",
     "vite-build": "NODE_OPTIONS=--max_old_space_size=6144 vite build",
     "build": "pnpm vite-build -- --mode production"
   },
