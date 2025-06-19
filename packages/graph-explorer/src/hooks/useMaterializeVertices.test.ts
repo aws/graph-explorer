@@ -1,19 +1,17 @@
 import {
-  createMockExplorer,
   createRandomVertex,
-  renderHookWithJotai,
+  DbState,
+  renderHookWithState,
 } from "@/utils/testing";
-import { explorerForTestingAtom, toNodeMap } from "@/core";
+import { toNodeMap } from "@/core";
 import { useMaterializeVertices } from "./useMaterializeVertices";
 import { cloneDeep } from "lodash";
 
 test("should return vertex when already materialized", async () => {
-  const explorer = createMockExplorer();
-  const { result } = renderHookWithJotai(
+  const dbState = new DbState();
+  const { result } = renderHookWithState(
     () => useMaterializeVertices(),
-    snapshot => {
-      snapshot.set(explorerForTestingAtom, explorer);
-    }
+    dbState
   );
 
   const vertex = createRandomVertex();
@@ -23,16 +21,14 @@ test("should return vertex when already materialized", async () => {
   const actual = await result.current(nodeMap);
 
   expect(actual).toEqual(nodeMap);
-  expect(explorer.vertexDetails).not.toBeCalled();
+  expect(dbState.explorer.vertexDetails).not.toBeCalled();
 });
 
 test("should fetch vertex details when fragment", async () => {
-  const explorer = createMockExplorer();
-  const { result } = renderHookWithJotai(
+  const dbState = new DbState();
+  const { result } = renderHookWithState(
     () => useMaterializeVertices(),
-    snapshot => {
-      snapshot.set(explorerForTestingAtom, explorer);
-    }
+    dbState
   );
 
   const vertex = createRandomVertex();
@@ -41,12 +37,12 @@ test("should fetch vertex details when fragment", async () => {
   vertex.__isFragment = true;
   vertex.attributes = {};
 
-  vi.mocked(explorer.vertexDetails).mockResolvedValue({
+  vi.mocked(dbState.explorer.vertexDetails).mockResolvedValue({
     vertex: expectedVertex,
   });
 
   const actual = await result.current(toNodeMap([vertex]));
 
   expect(actual).toEqual(toNodeMap([expectedVertex]));
-  expect(explorer.vertexDetails).toBeCalledTimes(1);
+  expect(dbState.explorer.vertexDetails).toBeCalledTimes(1);
 });

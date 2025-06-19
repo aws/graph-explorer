@@ -4,6 +4,7 @@ import { Provider, WritableAtom } from "jotai";
 import { useHydrateAtoms } from "jotai/utils";
 import { ReactNode } from "react";
 import { DbState } from "./DbState";
+import { createQueryClient } from "@/core/queryClient";
 
 type AnyWritableAtom = WritableAtom<unknown, unknown[], unknown>;
 
@@ -56,8 +57,24 @@ export function renderHookWithState<TResult>(
   // Create default DbState if none passed
   state ??= new DbState();
 
-  return renderHookWithJotai(callback, snapshot => {
-    state.applyTo(snapshot);
+  // Set values on the Jotai snapshot
+  const snapshot = createJotaiSnapshot();
+  state.applyTo(snapshot);
+
+  // Create the query client using the mock explorer
+  const queryClient = createQueryClient({ explorer: state.explorer });
+
+  // Call the standard testing hook with TanStack Query and Jotai setup
+  return renderHook(callback, {
+    wrapper: ({ children }) => {
+      return (
+        <QueryClientProvider client={queryClient}>
+          <TestProvider initialValues={snapshot.values()}>
+            {children}
+          </TestProvider>
+        </QueryClientProvider>
+      );
+    },
   });
 }
 
