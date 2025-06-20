@@ -121,7 +121,7 @@ describe("Gremlin > fetchSchema", () => {
           attributes: [
             {
               name: "dist",
-              dataType: "g:Int32",
+              dataType: "Number",
             },
           ],
         },
