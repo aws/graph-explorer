@@ -4,7 +4,8 @@
 
 - **Added** support for openCypher in the query editor
   ([#1016](https://github.com/aws/graph-explorer/pull/1016),
-  [#1024](https://github.com/aws/graph-explorer/pull/1024))
+  [#1024](https://github.com/aws/graph-explorer/pull/1024),
+  [#1035](https://github.com/aws/graph-explorer/pull/1035))
 - **Added** close button to table view
   ([#1026](https://github.com/aws/graph-explorer/pull/1026))
 - **Updated** dependencies to latest versions and some minor refactorings
