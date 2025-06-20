@@ -5,6 +5,10 @@ const parseProperty = (property: GVertexProperty): string | number => {
     return property["@value"].value;
   }
 
+  if (typeof property["@value"].value === "boolean") {
+    return String(property["@value"].value);
+  }
+
   return property["@value"].value["@value"];
 };
 
