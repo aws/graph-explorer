@@ -4,6 +4,7 @@ import {
   GInt64,
   GList,
   GProperty,
+  GScalar,
   GVertex,
 } from "@/connector/gremlin/types";
 import { Edge, EdgeId, getRawId, Vertex, VertexId } from "@/core";
@@ -74,13 +75,7 @@ function createGVertexProperties(
     "@type": "g:VertexProperty",
     "@value": {
       label: key,
-      value:
-        typeof value === "string"
-          ? value
-          : {
-              "@type": "g:Int64",
-              "@value": value,
-            },
+      value: createGValue(value),
     },
   }));
 
@@ -90,6 +85,25 @@ function createGVertexProperties(
   });
 
   return result;
+}
+
+function createGValue(value: string | number): GScalar {
+  if (typeof value === "string") {
+    if (value.toLowerCase() === "true") {
+      return true;
+    }
+
+    if (value.toLowerCase() === "false") {
+      return false;
+    }
+
+    return value;
+  }
+
+  return {
+    "@type": "g:Int64",
+    "@value": value,
+  };
 }
 
 function createGProperties(
@@ -102,13 +116,7 @@ function createGProperties(
           "@type": "g:Property",
           "@value": {
             key,
-            value:
-              typeof value === "string"
-                ? value
-                : {
-                    "@type": "g:Int64",
-                    "@value": value,
-                  },
+            value: createGValue(value),
           },
         }) satisfies GProperty
     )

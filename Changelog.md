@@ -7,6 +7,8 @@
   [#1024](https://github.com/aws/graph-explorer/pull/1024))
 - **Added** close button to table view
   ([#1026](https://github.com/aws/graph-explorer/pull/1026))
+- **Fixed** Rendering boolean values for Gremlin connections
+  ([#1034](https://github.com/aws/graph-explorer/pull/1034))
 - **Updated** dependencies to latest versions and some minor refactorings
   ([#1014](https://github.com/aws/graph-explorer/pull/1014),
   [#1023](https://github.com/aws/graph-explorer/pull/1023),
