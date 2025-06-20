@@ -7,6 +7,8 @@
   [#1024](https://github.com/aws/graph-explorer/pull/1024))
 - **Added** close button to table view
   ([#1026](https://github.com/aws/graph-explorer/pull/1026))
+- **Updated** label for properties count in connection detail
+  ([#1030](https://github.com/aws/graph-explorer/pull/1030))
 - **Updated** dependencies to latest versions and some minor refactorings
   ([#1014](https://github.com/aws/graph-explorer/pull/1014),
   [#1023](https://github.com/aws/graph-explorer/pull/1023),
