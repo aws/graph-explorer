@@ -10,7 +10,11 @@ import {
   useSearchItems,
   VertexIcon,
 } from "@/components";
-import { DisplayVertexTypeConfig, useDisplayVertexTypeConfigs } from "@/core";
+import {
+  DisplayVertexTypeConfig,
+  useDisplayVertexTypeConfigs,
+  useQueryEngine,
+} from "@/core";
 import useTranslations from "@/hooks/useTranslations";
 import { Virtuoso } from "react-virtuoso";
 import { ComponentPropsWithoutRef } from "react";
@@ -98,6 +102,16 @@ function VertexTypeList({
 }
 
 function Row({ config }: { config: DisplayVertexTypeConfig }) {
+  const queryEngine = useQueryEngine();
+  const unit =
+    config.attributes.length === 1
+      ? queryEngine === "sparql"
+        ? "predicate"
+        : "property"
+      : queryEngine === "sparql"
+        ? "predicates"
+        : "properties";
+
   return (
     <Link to={`/data-explorer/${encodeURIComponent(config.type)}`}>
       <div className="flex min-h-12 items-center gap-4 px-4 py-2 hover:cursor-pointer">
@@ -105,7 +119,7 @@ function Row({ config }: { config: DisplayVertexTypeConfig }) {
         <ListRowContent>
           <ListRowTitle>{config.displayLabel}</ListRowTitle>
           <ListRowSubtitle>
-            {config.attributes.length} attributes
+            {config.attributes.length} {unit}
           </ListRowSubtitle>
         </ListRowContent>
         <ChevronRightIcon className="text-text-secondary size-5" />
