@@ -235,8 +235,8 @@ function QueryTabEmptyState() {
 function QueryTabNoResults() {
   return (
     <PanelEmptyState
-      title="No Results"
-      subtitle="Your query executed successfully, but no results were included in the response."
+      title="Empty Results"
+      subtitle="Your query executed successfully, but the result was empty."
       icon={<ListIcon />}
       className="p-8"
     />
