@@ -8,7 +8,6 @@ import {
   LoadingSpinner,
   PanelEmptyState,
   PanelError,
-  SearchSadIcon,
   TextArea,
   Tooltip,
   TooltipContent,
@@ -24,7 +23,7 @@ import {
   useMutationState,
   useQueryClient,
 } from "@tanstack/react-query";
-import { SendHorizonalIcon } from "lucide-react";
+import { ListIcon, SendHorizonalIcon } from "lucide-react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -236,9 +235,9 @@ function QueryTabEmptyState() {
 function QueryTabNoResults() {
   return (
     <PanelEmptyState
-      title="No Results"
-      subtitle="Your query does not produce any results"
-      icon={<SearchSadIcon />}
+      title="Empty Results"
+      subtitle="Your query executed successfully, but the result was empty."
+      icon={<ListIcon />}
       className="p-8"
     />
   );
