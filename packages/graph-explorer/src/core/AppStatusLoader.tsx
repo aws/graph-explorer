@@ -3,8 +3,8 @@ import { useLocation } from "react-router";
 import { LoadingSpinner, PanelEmptyState } from "@/components";
 import Redirect from "@/components/Redirect";
 import {
-  activeConfigurationAtom,
-  configurationAtom,
+  activeConfigurationAsyncAtom,
+  configurationAsyncAtom,
 } from "./StateProvider/configuration";
 import { schemaAtom } from "./StateProvider/schema";
 import { logger } from "@/utils";
@@ -23,8 +23,8 @@ function AppStatusLoader({ children }: PropsWithChildren) {
 function LoadDefaultConfig({ children }: PropsWithChildren) {
   const location = useLocation();
 
-  const [activeConfig, setActiveConfig] = useAtom(activeConfigurationAtom);
-  const [configuration, setConfiguration] = useAtom(configurationAtom);
+  const [activeConfig, setActiveConfig] = useAtom(activeConfigurationAsyncAtom);
+  const [configuration, setConfiguration] = useAtom(configurationAsyncAtom);
   const schema = useAtomValue(schemaAtom);
 
   const defaultConfigQuery = useQuery({

@@ -4,7 +4,10 @@ import AppErrorPage from "@/core/AppErrorPage";
 import AppLoadingPage from "@/core/AppLoadingPage";
 import { useAtomValue } from "jotai";
 import { showDebugActionsAtom, allowLoggingDbQueryAtom } from "../featureFlags";
-import { activeConfigurationAtom, configurationAtom } from "./configuration";
+import {
+  activeConfigurationAsyncAtom,
+  configurationAsyncAtom,
+} from "./configuration";
 import { allGraphSessionsAtom } from "./graphSession";
 import { schemaAtom } from "./schema";
 import { userStylingAtom } from "./userPreferences";
@@ -33,8 +36,8 @@ function PreloadLocalForageData(props: PropsWithChildren) {
   useAtomValue(userStylingAtom);
   useAtomValue(userLayoutAtom);
 
-  useAtomValue(activeConfigurationAtom);
-  useAtomValue(configurationAtom);
+  useAtomValue(activeConfigurationAsyncAtom);
+  useAtomValue(configurationAsyncAtom);
   useAtomValue(schemaAtom);
   useAtomValue(showDebugActionsAtom);
   useAtomValue(allowLoggingDbQueryAtom);

@@ -8,7 +8,7 @@ import {
   type RawConfiguration,
   type VertexTypeConfig,
 } from "@/core";
-import { atomWithLocalForage } from "./localForageEffect";
+import { atomWithLocalForageAsync } from "./localForageEffect";
 import { activeSchemaSelector, SchemaInference } from "./schema";
 import {
   EdgePreferences,
@@ -23,12 +23,17 @@ import {
 import { ConnectionConfig } from "@shared/types";
 import { selectAtom } from "jotai/utils";
 
-export const activeConfigurationAtom =
-  atomWithLocalForage<ConfigurationId | null>(null, "active-configuration");
+export const [activeConfigurationAtom, activeConfigurationAsyncAtom] =
+  atomWithLocalForageAsync<ConfigurationId | null>(
+    null,
+    "active-configuration"
+  );
 
-export const configurationAtom = atomWithLocalForage<
-  Map<ConfigurationId, RawConfiguration>
->(new Map(), "configuration");
+export const [configurationAtom, configurationAsyncAtom] =
+  atomWithLocalForageAsync<Map<ConfigurationId, RawConfiguration>>(
+    new Map(),
+    "configuration"
+  );
 
 /** Gets the currently active config. */
 export const activeConfigSelector = atom(get => {
