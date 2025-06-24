@@ -6,6 +6,7 @@ import {
 } from "@/utils/testing";
 import parseProperty from "./parseProperty";
 import {
+  createRandomBoolean,
   createRandomDouble,
   createRandomInteger,
   createRandomName,
@@ -24,6 +25,13 @@ describe("parseProperty", () => {
     const actual = parseProperty(
       createGVertexProperty("value", createGInt32(value))
     );
+
+    expect(actual).toBe(value);
+  });
+
+  it("should parse a boolean value", () => {
+    const value = createRandomBoolean();
+    const actual = parseProperty(createGVertexProperty("value", value));
 
     expect(actual).toBe(value);
   });

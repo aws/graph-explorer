@@ -12,6 +12,8 @@ export function mapResults(data: GAnyValue) {
 function mapAnyValue(data: GAnyValue): MapValueResult[] {
   if (typeof data === "string") {
     return [{ scalar: data }];
+  } else if (typeof data === "boolean") {
+    return [{ scalar: data }];
   } else if (
     data["@type"] === "g:Int32" ||
     data["@type"] === "g:Int64" ||

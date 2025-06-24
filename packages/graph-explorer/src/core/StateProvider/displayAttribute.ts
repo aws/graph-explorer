@@ -56,6 +56,10 @@ function mapToDisplayValue(
     return MISSING_DISPLAY_VALUE;
   }
 
+  if (typeof value === "boolean") {
+    return String(value);
+  }
+
   const isDate = config?.dataType === "Date" || config?.dataType === "g:Date";
   if (isDate) {
     return formatDate(new Date(value));

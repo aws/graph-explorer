@@ -110,6 +110,7 @@ describe("createVertex", () => {
       attributes: new Map<string, EntityPropertyValue>([
         ["name", "Alice"],
         ["age", 30],
+        ["isMarried", true],
       ]),
     });
 
@@ -121,6 +122,7 @@ describe("createVertex", () => {
       attributes: {
         name: "Alice",
         age: 30,
+        isMarried: true,
       },
       __isFragment: false,
       __isBlank: false,
@@ -314,6 +316,8 @@ describe("createEdge", () => {
       attributes: new Map<string, EntityPropertyValue>([
         ["since", "2020-01-01"],
         ["until", "2020-01-02"],
+        ["years", 11],
+        ["sameDept", true],
       ]),
     });
 
@@ -328,6 +332,8 @@ describe("createEdge", () => {
       attributes: {
         since: "2020-01-01",
         until: "2020-01-02",
+        years: 11,
+        sameDept: true,
       },
       __isFragment: false,
     });

@@ -8,6 +8,7 @@ import {
 } from "@/utils/testing";
 import mapApiVertex from "./mapApiVertex";
 import {
+  createRandomBoolean,
   createRandomDate,
   createRandomDouble,
   createRandomInteger,
@@ -31,6 +32,7 @@ describe("mapApiVertex", () => {
       stringValue: createRandomName("stringValue"),
       integerValue: createRandomInteger(),
       doubleValue: createRandomDouble(),
+      booleanValue: createRandomBoolean(),
       dateValue: createRandomDate(),
     };
     gVertex["@value"].properties = {
@@ -48,6 +50,9 @@ describe("mapApiVertex", () => {
           "doubleValue",
           createGDouble(expectedProperties.doubleValue)
         ),
+      ],
+      booleanValue: [
+        createGVertexProperty("booleanValue", expectedProperties.booleanValue),
       ],
       dateValue: [
         createGVertexProperty(

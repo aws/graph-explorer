@@ -293,7 +293,7 @@ export function createRandomEdgeForRdf(source: Vertex, target: Vertex) {
  * @returns A random entity attribute object.
  */
 export function createRandomEntityAttribute() {
-  const valueTypes = ["string", "number"];
+  const valueTypes = ["string", "number", "boolean"];
   const valueType = pickRandomElement(valueTypes);
   const value = (() => {
     switch (valueType) {
@@ -301,6 +301,8 @@ export function createRandomEntityAttribute() {
         return createRandomName("StringValue");
       case "number":
         return createRandomInteger();
+      case "boolean":
+        return createRandomBoolean();
       default:
         return createRandomName("StringValue");
     }

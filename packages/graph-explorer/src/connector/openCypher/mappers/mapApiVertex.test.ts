@@ -1,4 +1,5 @@
 import {
+  createRandomBoolean,
   createRandomDate,
   createRandomDouble,
   createRandomInteger,
@@ -34,6 +35,7 @@ test("maps known property types", () => {
     "~properties": {
       stringValue: createRandomName("stringValue"),
       integerValue: createRandomInteger(),
+      booleanValue: createRandomBoolean(),
       doubleValue: createRandomDouble(),
       dateValue: createRandomDate().toISOString(),
     },
@@ -46,6 +48,7 @@ test("maps known property types", () => {
       attributes: {
         stringValue: input["~properties"].stringValue,
         integerValue: input["~properties"].integerValue,
+        booleanValue: input["~properties"].booleanValue,
         doubleValue: input["~properties"].doubleValue,
         dateValue: input["~properties"].dateValue,
       },

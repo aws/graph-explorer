@@ -5,6 +5,7 @@ import { createRandomEdge, createRandomVertex } from "@/utils/testing";
 import {
   createRandomName,
   createRandomInteger,
+  createRandomBoolean,
   createRandomDouble,
   createRandomDate,
 } from "@shared/utils/testing";
@@ -46,6 +47,7 @@ describe("mapApiEdge", () => {
       "~properties": {
         stringValue: createRandomName("stringValue"),
         integerValue: createRandomInteger(),
+        booleanValue: createRandomBoolean(),
         doubleValue: createRandomDouble(),
         dateValue: createRandomDate().toISOString(),
       },

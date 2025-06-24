@@ -63,6 +63,14 @@ const rdfValue = {
         value: String(value),
       };
     }
+
+    if (typeof value === "boolean") {
+      return {
+        type: "literal",
+        value: String(value),
+      };
+    }
+
     return { type: "literal", value };
   },
 };

@@ -1,6 +1,12 @@
 import { ScalarValue } from "@/connector";
 import { cn } from "@/utils";
-import { CalendarIcon, HashIcon, QuoteIcon } from "lucide-react";
+import {
+  CalendarIcon,
+  HashIcon,
+  QuoteIcon,
+  ToggleLeftIcon,
+  ToggleRightIcon,
+} from "lucide-react";
 import { ComponentPropsWithoutRef } from "react";
 
 function getDisplayValue(scalar: ScalarValue) {
@@ -8,6 +14,8 @@ function getDisplayValue(scalar: ScalarValue) {
     return scalar;
   } else if (typeof scalar === "number") {
     return new Intl.NumberFormat().format(scalar);
+  } else if (typeof scalar === "boolean") {
+    return String(scalar);
   } else if (scalar instanceof Date) {
     return new Intl.DateTimeFormat().format(scalar);
   }
@@ -18,6 +26,12 @@ function getIcon(scalar: ScalarValue) {
     return <QuoteIcon className="size-5" />;
   } else if (typeof scalar === "number") {
     return <HashIcon className="size-5" />;
+  } else if (typeof scalar === "boolean") {
+    return scalar ? (
+      <ToggleRightIcon className="size-5" />
+    ) : (
+      <ToggleLeftIcon className="size-5" />
+    );
   } else if (scalar instanceof Date) {
     return <CalendarIcon className="size-5" />;
   }

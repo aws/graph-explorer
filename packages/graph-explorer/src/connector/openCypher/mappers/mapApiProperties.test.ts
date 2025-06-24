@@ -1,4 +1,5 @@
 import {
+  createRandomBoolean,
   createRandomDate,
   createRandomDouble,
   createRandomInteger,
@@ -21,6 +22,12 @@ describe("mapApiProperties", () => {
 
   it("should map double value", () => {
     const value = createRandomDouble();
+    const actual = mapApiProperties({ value });
+    expect(actual).toEqual({ value });
+  });
+
+  it("should map boolean value", () => {
+    const value = createRandomBoolean();
     const actual = mapApiProperties({ value });
     expect(actual).toEqual({ value });
   });

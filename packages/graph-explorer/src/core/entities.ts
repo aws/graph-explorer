@@ -4,7 +4,7 @@ export type EntityRawId = string | number;
 export type EdgeId = Branded<EntityRawId, "EdgeId">;
 export type VertexId = Branded<EntityRawId, "VertexId">;
 
-export type EntityPropertyValue = string | number;
+export type EntityPropertyValue = string | number | boolean;
 export type EntityProperties = Record<string, EntityPropertyValue>;
 
 export type Vertex = {

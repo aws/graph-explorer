@@ -1,4 +1,4 @@
-export type OCProperties = Record<string, string | number>;
+export type OCProperties = Record<string, string | number | boolean>;
 
 export type OCVertex = {
   "~id": string;

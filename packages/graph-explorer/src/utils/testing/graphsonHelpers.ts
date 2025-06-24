@@ -111,6 +111,10 @@ function createGValue(value: EntityPropertyValue): GScalar {
     return value;
   }
 
+  if (typeof value === "boolean") {
+    return value;
+  }
+
   return {
     "@type": "g:Int64",
     "@value": value,
