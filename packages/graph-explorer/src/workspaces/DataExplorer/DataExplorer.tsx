@@ -1,10 +1,6 @@
 import { cn } from "@/utils";
 import { useRef } from "react";
-import {
-  keepPreviousData,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { Link, useParams, useSearchParams } from "react-router";
 import {
   useUpdateSchemaFromEntities,
@@ -39,7 +35,6 @@ import {
 import Tabular from "@/components/Tabular/Tabular";
 import Workspace from "@/components/Workspace/Workspace";
 import { KeywordSearchRequest, searchQuery } from "@/connector";
-import { useExplorer } from "@/core/connector";
 import { useVertexStyling } from "@/core/StateProvider/userPreferences";
 import { useAddVertexToGraph, useHasVertexBeenAddedToGraph } from "@/hooks";
 import useTranslations from "@/hooks/useTranslations";
@@ -328,8 +323,6 @@ function useDataExplorerQuery(
   pageSize: number,
   pageIndex: number
 ) {
-  const explorer = useExplorer();
-  const queryClient = useQueryClient();
   const updateSchema = useUpdateSchemaFromEntities();
 
   const searchRequest: KeywordSearchRequest = {
@@ -338,7 +331,7 @@ function useDataExplorerQuery(
     offset: pageIndex * pageSize,
   };
   const query = useQuery({
-    ...searchQuery(searchRequest, updateSchema, explorer, queryClient),
+    ...searchQuery(searchRequest, updateSchema),
     placeholderData: keepPreviousData,
   });
 

@@ -24,6 +24,8 @@ ensuring that users can enforce read-only operations.
   ([#1026](https://github.com/aws/graph-explorer/pull/1026))
 - **Updated** label for properties count in connection detail
   ([#1030](https://github.com/aws/graph-explorer/pull/1030))
+- **Updated** Tanstack Query logic to simplify query construction
+  ([#1015](https://github.com/aws/graph-explorer/pull/1015))
 - **Updated** dependencies to latest versions and some minor refactorings
   ([#1014](https://github.com/aws/graph-explorer/pull/1014),
   [#1023](https://github.com/aws/graph-explorer/pull/1023),

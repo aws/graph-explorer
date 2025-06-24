@@ -4,7 +4,8 @@ import {
   createVertex,
   useDisplayVertexFromVertex,
 } from "@/core";
-import { useVertexDetailsQuery } from "./useVertexDetailsQuery";
+import { vertexDetailsQuery } from "@/connector";
+import { useQuery } from "@tanstack/react-query";
 
 /**
  * Returns a `DisplayVertex` instance for a given `VertexId` and `type`.
@@ -16,7 +17,7 @@ export function useDisplayVertexFromFragment(
   id: VertexId,
   types: Vertex["types"]
 ) {
-  const query = useVertexDetailsQuery(id);
+  const query = useQuery(vertexDetailsQuery(id));
   const vertex = query.data?.vertex ?? createVertex({ id, types });
   return useDisplayVertexFromVertex(vertex);
 }

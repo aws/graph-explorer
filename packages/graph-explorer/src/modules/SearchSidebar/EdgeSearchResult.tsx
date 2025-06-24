@@ -9,7 +9,6 @@ import {
 import {
   useAddToGraphMutation,
   useDisplayVertexFromFragment,
-  useEdgeDetailsQuery,
   useHasEdgeBeenAddedToGraph,
   useRemoveEdgeFromGraph,
 } from "@/hooks";
@@ -21,12 +20,14 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import EntityAttribute from "../EntityDetails/EntityAttribute";
+import { edgeDetailsQuery } from "@/connector";
+import { useQuery } from "@tanstack/react-query";
 
 export function EdgeSearchResult({ edge }: { edge: Edge }) {
   const [expanded, setExpanded] = useState(false);
 
   // Ensure the edge is fully materialized
-  const { data: detailsResponse } = useEdgeDetailsQuery(edge.id);
+  const { data: detailsResponse } = useQuery(edgeDetailsQuery(edge.id));
   const preferredEdge = detailsResponse?.edge ?? edge;
   const displayEdge = useDisplayEdgeFromEdge(preferredEdge);
 

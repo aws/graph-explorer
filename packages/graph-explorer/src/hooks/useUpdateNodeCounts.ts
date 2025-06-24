@@ -1,25 +1,18 @@
 import { useQueries, useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { neighborsCountQuery } from "@/connector";
-import { useExplorer } from "@/core/connector";
 import { VertexId } from "@/core";
 
 export function useUpdateNodeCountsQuery(vertexId: VertexId) {
-  const explorer = useExplorer();
-  return useQuery(neighborsCountQuery({ vertexId }, explorer));
+  return useQuery(neighborsCountQuery({ vertexId }));
 }
 
 export function useUpdateNodeCountsSuspenseQuery(vertexId: VertexId) {
-  const explorer = useExplorer();
-  return useSuspenseQuery(neighborsCountQuery({ vertexId }, explorer));
+  return useSuspenseQuery(neighborsCountQuery({ vertexId }));
 }
 
 export function useAllNeighborCountsQuery(vertexIds: VertexId[]) {
-  const explorer = useExplorer();
-
   return useQueries({
-    queries: vertexIds.map(vertexId =>
-      neighborsCountQuery({ vertexId }, explorer)
-    ),
+    queries: vertexIds.map(vertexId => neighborsCountQuery({ vertexId })),
     combine: results => ({
       data: results.map(result => result.data),
       pending: results.some(result => result.isPending),

@@ -3,10 +3,8 @@ import { calculateNeighbors, useNeighbors } from "./neighbors";
 import {
   createRandomVertex,
   DbState,
-  renderHookWithJotai,
+  renderHookWithState,
 } from "@/utils/testing";
-import { explorerForTestingAtom } from "../connector";
-import { createMockExplorer } from "@/utils/testing/createMockExplorer";
 import { NeighborCountsQueryResponse } from "@/connector";
 import { waitFor } from "@testing-library/react";
 
@@ -48,14 +46,10 @@ describe("useNeighbors", () => {
   it("should return default neighbors if no neighbors are found", () => {
     const dbState = new DbState();
     const vertex = createRandomVertex();
-    const explorer = createMockExplorer();
 
-    const { result } = renderHookWithJotai(
+    const { result } = renderHookWithState(
       () => useNeighbors(vertex.id),
-      snapshot => {
-        dbState.applyTo(snapshot);
-        snapshot.set(explorerForTestingAtom, explorer);
-      }
+      dbState
     );
 
     expect(result.current).toEqual({
@@ -70,20 +64,18 @@ describe("useNeighbors", () => {
     const dbState = new DbState();
     const vertex = createRandomVertex();
 
-    const explorer = createMockExplorer();
     const response: NeighborCountsQueryResponse = {
       nodeId: vertex.id,
       totalCount: 8,
       counts: { nodeType1: 5, nodeType2: 3 },
     };
-    vi.mocked(explorer.fetchNeighborsCount).mockResolvedValueOnce(response);
+    vi.mocked(dbState.explorer.fetchNeighborsCount).mockResolvedValueOnce(
+      response
+    );
 
-    const { result } = renderHookWithJotai(
+    const { result } = renderHookWithState(
       () => useNeighbors(vertex.id),
-      snapshot => {
-        dbState.applyTo(snapshot);
-        snapshot.set(explorerForTestingAtom, explorer);
-      }
+      dbState
     );
 
     await waitFor(() => {

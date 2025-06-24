@@ -1,5 +1,4 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useExplorer } from "@/core/connector";
 import { KeywordSearchRequest, searchQuery } from "@/connector";
 import { useUpdateSchemaFromEntities } from "@/core";
 
@@ -16,8 +15,6 @@ export function useKeywordSearchQuery({
   searchByAttributes,
   exactMatch,
 }: SearchQueryRequest) {
-  const explorer = useExplorer();
-  const queryClient = useQueryClient();
   const updateSchema = useUpdateSchemaFromEntities();
 
   const request: KeywordSearchRequest = {
@@ -28,9 +25,7 @@ export function useKeywordSearchQuery({
     searchByAttributes: debouncedSearchTerm ? searchByAttributes : undefined,
     exactMatch: debouncedSearchTerm ? exactMatch : undefined,
   };
-  const query = useQuery(
-    searchQuery(request, updateSchema, explorer, queryClient)
-  );
+  const query = useQuery(searchQuery(request, updateSchema));
 
   return query;
 }

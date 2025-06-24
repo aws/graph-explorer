@@ -1,21 +1,16 @@
 import {
-  createMockExplorer,
   createRandomEdge,
   createRandomVertex,
-  renderHookWithJotai,
+  DbState,
+  renderHookWithState,
 } from "@/utils/testing";
-import { explorerForTestingAtom, toEdgeMap } from "@/core";
+import { toEdgeMap } from "@/core";
 import { useMaterializeEdges } from "./useMaterializeEdges";
 import { cloneDeep } from "lodash";
 
 test("should return edge when already materialized", async () => {
-  const explorer = createMockExplorer();
-  const { result } = renderHookWithJotai(
-    () => useMaterializeEdges(),
-    snapshot => {
-      snapshot.set(explorerForTestingAtom, explorer);
-    }
-  );
+  const dbState = new DbState();
+  const { result } = renderHookWithState(() => useMaterializeEdges(), dbState);
 
   const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
   edge.__isFragment = false;
@@ -27,13 +22,8 @@ test("should return edge when already materialized", async () => {
 });
 
 test("should fetch edge details when fragment", async () => {
-  const explorer = createMockExplorer();
-  const { result } = renderHookWithJotai(
-    () => useMaterializeEdges(),
-    snapshot => {
-      snapshot.set(explorerForTestingAtom, explorer);
-    }
-  );
+  const dbState = new DbState();
+  const { result } = renderHookWithState(() => useMaterializeEdges(), dbState);
 
   const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
   const expectedEdge = cloneDeep(edge);
@@ -41,12 +31,12 @@ test("should fetch edge details when fragment", async () => {
   edge.__isFragment = true;
   edge.attributes = {};
 
-  vi.mocked(explorer.edgeDetails).mockResolvedValue({
+  vi.mocked(dbState.explorer.edgeDetails).mockResolvedValue({
     edge: expectedEdge,
   });
 
   const actual = await result.current(toEdgeMap([edge]));
 
   expect(actual).toEqual(toEdgeMap([expectedEdge]));
-  expect(explorer.edgeDetails).toBeCalledTimes(1);
+  expect(dbState.explorer.edgeDetails).toBeCalledTimes(1);
 });
