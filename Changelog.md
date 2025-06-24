@@ -2,10 +2,24 @@
 
 ## Release v2.1
 
+This release continues the momentum of the last release, **introducing query
+editor support for openCypher connections**. This enables the use of the query
+editor with Neptune Analytics for the first time.
+
+As before, if you are a Neptune user concerned about data integrity, check out
+the
+[instructions on configuring IAM permissions to restrict mutations](./README.md#permissions),
+ensuring that users can enforce read-only operations.
+
+### New features & major changes
+
 - **Added** support for openCypher in the query editor
   ([#1016](https://github.com/aws/graph-explorer/pull/1016),
   [#1024](https://github.com/aws/graph-explorer/pull/1024),
   [#1035](https://github.com/aws/graph-explorer/pull/1035))
+
+### Other Changes
+
 - **Added** close button to table view
   ([#1026](https://github.com/aws/graph-explorer/pull/1026))
 - **Updated** label for properties count in connection detail
