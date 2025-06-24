@@ -1,8 +1,10 @@
+export type OCProperties = Record<string, string | number>;
+
 export type OCVertex = {
   "~id": string;
   "~entityType": string;
   "~labels": Array<string>;
-  "~properties": Record<string, string | number>;
+  "~properties": OCProperties;
 };
 
 export type OCEdge = {
@@ -11,7 +13,7 @@ export type OCEdge = {
   "~start": string;
   "~end": string;
   "~type": string;
-  "~properties": Record<string, string | number>;
+  "~properties": OCProperties;
 };
 
 export type OpenCypherFetch = <TResult = any>(

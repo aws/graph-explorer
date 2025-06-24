@@ -1,5 +1,18 @@
-import { createGVertex, createRandomVertex } from "@/utils/testing";
+import {
+  createGDate,
+  createGDouble,
+  createGInt32,
+  createGVertex,
+  createGVertexProperty,
+  createRandomVertex,
+} from "@/utils/testing";
 import mapApiVertex from "./mapApiVertex";
+import {
+  createRandomDate,
+  createRandomDouble,
+  createRandomInteger,
+  createRandomName,
+} from "@shared/utils/testing";
 
 describe("mapApiVertex", () => {
   it("should map a graphSON vertex to a vertex", () => {
@@ -9,6 +22,48 @@ describe("mapApiVertex", () => {
     const mappedVertex = mapApiVertex(gVertex);
 
     expect(mappedVertex).toEqual(vertex);
+  });
+
+  it("should map a properties to Vertex attributes", () => {
+    const vertex = createRandomVertex();
+    const gVertex = createGVertex(vertex);
+    const expectedProperties = {
+      stringValue: createRandomName("stringValue"),
+      integerValue: createRandomInteger(),
+      doubleValue: createRandomDouble(),
+      dateValue: createRandomDate(),
+    };
+    gVertex["@value"].properties = {
+      stringValue: [
+        createGVertexProperty("stringValue", expectedProperties.stringValue),
+      ],
+      integerValue: [
+        createGVertexProperty(
+          "integerValue",
+          createGInt32(expectedProperties.integerValue)
+        ),
+      ],
+      doubleValue: [
+        createGVertexProperty(
+          "doubleValue",
+          createGDouble(expectedProperties.doubleValue)
+        ),
+      ],
+      dateValue: [
+        createGVertexProperty(
+          "dateValue",
+          createGDate(expectedProperties.dateValue)
+        ),
+      ],
+    };
+
+    const mappedVertex = mapApiVertex(gVertex);
+
+    expect(mappedVertex.attributes).toEqual({
+      ...expectedProperties,
+      // Keeps dates as numbers
+      dateValue: expectedProperties.dateValue.getTime(),
+    });
   });
 
   it("should map a graphSON vertex to a fragment", () => {

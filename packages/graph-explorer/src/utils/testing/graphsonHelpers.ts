@@ -1,12 +1,25 @@
 import {
   GAnyValue,
+  GDate,
+  GDouble,
   GEdge,
+  GInt32,
   GInt64,
   GList,
   GProperty,
+  GScalar,
   GVertex,
+  GVertexProperty,
 } from "@/connector/gremlin/types";
-import { Edge, EdgeId, getRawId, Vertex, VertexId } from "@/core";
+import {
+  Edge,
+  EdgeId,
+  EntityPropertyValue,
+  getRawId,
+  Vertex,
+  VertexId,
+} from "@/core";
+import { createRandomInteger } from "@shared/utils/testing";
 
 export function createGremlinResponseFromVertex(vertex: Vertex) {
   return {
@@ -70,19 +83,9 @@ export function createGEdge(edge: Edge): GEdge {
 function createGVertexProperties(
   attributes: Vertex["attributes"]
 ): GVertex["@value"]["properties"] {
-  const mapped = Object.entries(attributes).map(([key, value]) => ({
-    "@type": "g:VertexProperty",
-    "@value": {
-      label: key,
-      value:
-        typeof value === "string"
-          ? value
-          : {
-              "@type": "g:Int64",
-              "@value": value,
-            },
-    },
-  }));
+  const mapped = Object.entries(attributes).map(([key, value]) =>
+    createGVertexProperty(key, createGValue(value))
+  );
 
   const result = {} as Record<string, any>;
   mapped.forEach(prop => {
@@ -90,6 +93,28 @@ function createGVertexProperties(
   });
 
   return result;
+}
+
+export function createGVertexProperty(label: string, gValue: GAnyValue) {
+  return {
+    "@type": "g:VertexProperty",
+    "@value": {
+      id: createGInt32(createRandomInteger()),
+      label,
+      value: gValue,
+    },
+  } as GVertexProperty;
+}
+
+function createGValue(value: EntityPropertyValue): GScalar {
+  if (typeof value === "string") {
+    return value;
+  }
+
+  return {
+    "@type": "g:Int64",
+    "@value": value,
+  };
 }
 
 function createGProperties(
@@ -102,13 +127,7 @@ function createGProperties(
           "@type": "g:Property",
           "@value": {
             key,
-            value:
-              typeof value === "string"
-                ? value
-                : {
-                    "@type": "g:Int64",
-                    "@value": value,
-                  },
+            value: createGValue(value),
           },
         }) satisfies GProperty
     )
@@ -132,4 +151,32 @@ function createIdValue(id: VertexId | EdgeId) {
     "@type": "g:Int64",
     "@value": rawId,
   } satisfies GInt64;
+}
+
+export function createGInt64(value: number): GInt64 {
+  return {
+    "@type": "g:Int64",
+    "@value": value,
+  };
+}
+
+export function createGInt32(value: number): GInt32 {
+  return {
+    "@type": "g:Int32",
+    "@value": value,
+  };
+}
+
+export function createGDouble(value: number): GDouble {
+  return {
+    "@type": "g:Double",
+    "@value": value,
+  };
+}
+
+export function createGDate(value: Date): GDate {
+  return {
+    "@type": "g:Date",
+    "@value": value.getTime(),
+  };
 }

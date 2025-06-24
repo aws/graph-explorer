@@ -3,7 +3,7 @@ import edgeLabelsTemplate from "./edgeLabelsTemplate";
 import edgesSchemaTemplate from "./edgesSchemaTemplate";
 import vertexLabelsTemplate from "./vertexLabelsTemplate";
 import verticesSchemaTemplate from "./verticesSchemaTemplate";
-import type { GEdge, GInt64, GVertex } from "../types";
+import type { GEdge, GInt64, GScalar, GVertex } from "../types";
 import { GraphSummary, GremlinFetch } from "../types";
 import { chunk } from "lodash";
 import { LoggerConnector } from "@/connector/LoggerConnector";
@@ -149,13 +149,8 @@ const fetchVerticesAttributes = async (
         total: countsByLabel[label],
         attributes: Object.entries(properties || {}).map(([name, prop]) => {
           const value = prop[0]?.["@value"].value;
-          return {
-            name,
-            dataType:
-              typeof value === "string"
-                ? "String"
-                : TYPE_MAP[value["@type"]] || "String",
-          };
+          const dataType = mapValueToDataType(value);
+          return { name, dataType };
         }),
       });
     }
@@ -236,10 +231,9 @@ const fetchEdgesAttributes = async (
         total: countsByLabel[label],
         attributes: Object.entries(properties || {}).map(([name, prop]) => {
           const value = prop["@value"].value;
-          return {
-            name,
-            dataType: typeof value === "string" ? "String" : value["@type"],
-          };
+          const dataType = mapValueToDataType(value);
+
+          return { name, dataType };
         }),
       });
     }
@@ -251,6 +245,14 @@ const fetchEdgesAttributes = async (
 
   return edges;
 };
+
+function mapValueToDataType(value: GScalar) {
+  if (typeof value === "string") {
+    return "String";
+  }
+
+  return TYPE_MAP[value["@type"]] || "String";
+}
 
 const fetchEdgesSchema = async (
   gremlinFetch: GremlinFetch,

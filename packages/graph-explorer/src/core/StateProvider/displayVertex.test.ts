@@ -186,7 +186,7 @@ describe("useDisplayVertexFromVertex", () => {
       attr => attr.name === "created"
     );
     expect(actualAttribute?.displayValue).toEqual(
-      formatDate(new Date(vertex.attributes.created))
+      formatDate(new Date(vertex.attributes.created as any))
     );
   });
 
@@ -210,7 +210,7 @@ describe("useDisplayVertexFromVertex", () => {
       attr => attr.name === "created"
     );
     expect(actualAttribute?.displayValue).toEqual(
-      formatDate(new Date(vertex.attributes.created))
+      formatDate(new Date(vertex.attributes.created as any))
     );
   });
 

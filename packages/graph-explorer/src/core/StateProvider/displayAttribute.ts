@@ -1,4 +1,4 @@
-import { Vertex, Edge, AttributeConfig } from "@/core";
+import { Vertex, Edge, AttributeConfig, EntityPropertyValue } from "@/core";
 import { MISSING_DISPLAY_VALUE, formatDate } from "@/utils";
 import { TextTransformer } from "@/hooks";
 
@@ -37,22 +37,33 @@ export function getSortedDisplayAttributes(
 
 export function mapToDisplayAttribute(
   name: string,
-  value: string | number | null,
+  value: EntityPropertyValue | null,
   config: AttributeConfig | null,
   textTransform: TextTransformer
 ): DisplayAttribute {
-  // Format value for display
-  const isDate = config?.dataType === "Date" || config?.dataType === "g:Date";
-  const displayValue =
-    value === null
-      ? MISSING_DISPLAY_VALUE
-      : isDate
-        ? formatDate(new Date(value))
-        : String(value);
-
   return {
     name,
     displayLabel: textTransform(name),
-    displayValue,
-  } as DisplayAttribute;
+    displayValue: mapToDisplayValue(value, config),
+  } satisfies DisplayAttribute;
+}
+
+function mapToDisplayValue(
+  value: EntityPropertyValue | null,
+  config: AttributeConfig | null
+) {
+  if (value === null) {
+    return MISSING_DISPLAY_VALUE;
+  }
+
+  const isDate = config?.dataType === "Date" || config?.dataType === "g:Date";
+  if (isDate) {
+    return formatDate(new Date(value));
+  }
+
+  if (typeof value === "number") {
+    return String(value);
+  }
+
+  return value;
 }

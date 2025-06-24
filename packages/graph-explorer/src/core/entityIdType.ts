@@ -1,10 +1,10 @@
-import { VertexId, EdgeId } from "@/core";
+import { VertexId, EdgeId, EntityRawId } from "@/core";
 
 /**
  * Creates a VertexId from the given database ID.
  * @param id The original database ID
  */
-export function createVertexId(id: string | number): VertexId {
+export function createVertexId(id: EntityRawId): VertexId {
   return id as VertexId;
 }
 
@@ -12,7 +12,7 @@ export function createVertexId(id: string | number): VertexId {
  * Creates an EdgeId from the given database ID.
  * @param id The original database ID
  */
-export function createEdgeId(id: string | number): EdgeId {
+export function createEdgeId(id: EntityRawId): EdgeId {
   return id as EdgeId;
 }
 
@@ -21,6 +21,6 @@ export function createEdgeId(id: string | number): EdgeId {
  * @param id The original database ID
  * @returns The original database ID without the ID type prefix
  */
-export function getRawId(id: VertexId | EdgeId): string | number {
+export function getRawId(id: VertexId | EdgeId): EntityRawId {
   return id;
 }

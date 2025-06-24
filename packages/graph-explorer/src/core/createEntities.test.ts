@@ -1,4 +1,5 @@
 import { createEdge, createVertex } from "./createEntities";
+import { EntityPropertyValue } from "./entities";
 
 describe("createVertex", () => {
   it("should create a vertex with a single type", () => {
@@ -106,7 +107,7 @@ describe("createVertex", () => {
     const vertex = createVertex({
       id: "1",
       types: ["Person"],
-      attributes: new Map<string, string | number>([
+      attributes: new Map<string, EntityPropertyValue>([
         ["name", "Alice"],
         ["age", 30],
       ]),
@@ -310,7 +311,7 @@ describe("createEdge", () => {
         id: "2",
         types: ["Person"],
       },
-      attributes: new Map<string, string | number>([
+      attributes: new Map<string, EntityPropertyValue>([
         ["since", "2020-01-01"],
         ["until", "2020-01-02"],
       ]),

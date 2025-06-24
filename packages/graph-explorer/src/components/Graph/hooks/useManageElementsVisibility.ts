@@ -1,13 +1,14 @@
 import type { CollectionReturnValue } from "cytoscape";
 import { useEffect, useRef } from "react";
 import type { CytoscapeType } from "../Graph.model";
+import { EntityRawId } from "@/core";
 
 interface UseManageElementsSelection {
   cy?: CytoscapeType;
-  hiddenEdgesIds: Set<string | number>;
-  hiddenNodesIds: Set<string | number>;
-  outOfFocusNodesIds: Set<string | number>;
-  outOfFocusEdgesIds: Set<string | number>;
+  hiddenEdgesIds: Set<EntityRawId>;
+  hiddenNodesIds: Set<EntityRawId>;
+  outOfFocusNodesIds: Set<EntityRawId>;
+  outOfFocusEdgesIds: Set<EntityRawId>;
   graphStructureVersion: number;
   hideEdges?: boolean;
 }

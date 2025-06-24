@@ -12,7 +12,7 @@ import {
   SparqlValue,
 } from "./types";
 import { z } from "zod";
-import { createVertex, VertexId } from "@/core";
+import { createVertex, EntityProperties, VertexId } from "@/core";
 import isErrorResponse from "../utils/isErrorResponse";
 import { idParam } from "./idParam";
 
@@ -87,7 +87,7 @@ export async function vertexDetails(
 
 function mapToVertex(id: VertexId, detailsBinding: VertexDetailsBinding[]) {
   const types: string[] = [];
-  const attributes: Record<string, string | number> = {};
+  const attributes: EntityProperties = {};
 
   for (const result of detailsBinding) {
     if (result.label.value === rdfTypeUri) {

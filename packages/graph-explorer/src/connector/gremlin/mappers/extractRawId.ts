@@ -1,3 +1,4 @@
+import { EntityRawId } from "@/core";
 import { GInt64, JanusID } from "../types";
 
 function isJanusID(id: any): id is JanusID {
@@ -12,7 +13,7 @@ function isJanusID(id: any): id is JanusID {
   );
 }
 
-export function extractRawId(id: string | GInt64 | JanusID): string | number {
+export function extractRawId(id: string | GInt64 | JanusID): EntityRawId {
   if (isJanusID(id)) {
     const relationId = id["@value"]["relationId"];
     return relationId;

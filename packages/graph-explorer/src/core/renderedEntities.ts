@@ -3,6 +3,7 @@ import {
   type EdgeId,
   filteredEdgesSelector,
   filteredNodesSelector,
+  EntityRawId,
   type Vertex,
   type VertexId,
 } from "@/core";
@@ -90,7 +91,7 @@ export function getEdgeIdFromRenderedEdgeId(id: RenderedEdgeId): EdgeId {
 const ID_TYPE_NUM_PREFIX = "(num)";
 const ID_TYPE_STR_PREFIX = "(str)";
 
-function prefixIdWithType(id: string | number): string {
+function prefixIdWithType(id: EntityRawId): string {
   if (typeof id === "number") {
     return `${ID_TYPE_NUM_PREFIX}${id}`;
   }

@@ -1,5 +1,11 @@
 import { parseRdfEdgeIdString } from "@/connector/sparql/parseEdgeId";
-import { createEdgeId, createVertexId, EdgeId, VertexId } from "@/core";
+import {
+  createEdgeId,
+  createVertexId,
+  EdgeId,
+  EntityRawId,
+  VertexId,
+} from "@/core";
 import { APP_NAME, escapeString, logger } from "@/utils";
 import {
   ConnectionConfig,
@@ -96,7 +102,7 @@ export async function parseExportedGraph(data: unknown) {
   return { connection, vertices, edges };
 }
 
-function isNotEmptyIfString(value: string | number) {
+function isNotEmptyIfString(value: EntityRawId) {
   if (typeof value !== "string" || value.length > 0) {
     return true;
   }
@@ -107,7 +113,7 @@ function isNotEmptyIfString(value: string | number) {
 
 function isNotMaliciousIfSparql(queryEngine: QueryEngine) {
   // Ensure the ID is not malicious
-  return (value: string | number) => {
+  return (value: EntityRawId) => {
     if (
       queryEngine !== "sparql" ||
       typeof value !== "string" ||
@@ -122,7 +128,7 @@ function isNotMaliciousIfSparql(queryEngine: QueryEngine) {
 }
 
 function isValidRdfEdgeIdIfSparql(queryEngine: QueryEngine) {
-  return (value: string | number) => {
+  return (value: EntityRawId) => {
     if (queryEngine !== "sparql") {
       return true;
     }
@@ -158,12 +164,12 @@ function isValidRdfEdgeIdIfSparql(queryEngine: QueryEngine) {
   };
 }
 
-function trimIfString(value: string | number) {
+function trimIfString(value: EntityRawId) {
   return typeof value === "string" ? value.trim() : value;
 }
 
 function escapeIfPropertyGraphAndString(queryEngine: QueryEngine) {
-  return (value: string | number) =>
+  return (value: EntityRawId) =>
     queryEngine === "sparql" || typeof value !== "string"
       ? value
       : escapeString(value);

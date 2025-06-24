@@ -41,6 +41,20 @@ export function createRandomInteger(max: number = 100000): number {
 }
 
 /**
+ * Creates a random double.
+ * @param min The minimum value the random double can have. Defaults to 0.
+ * @param max The maximum value the random double can have. Defaults to 1000.
+ * @returns A random double value from the min to the max.
+ */
+export function createRandomDouble(min?: number, max?: number) {
+  if (min !== undefined && max !== undefined) {
+    return Math.random() * (max - min) + min;
+  } else {
+    return Math.random() * createRandomInteger();
+  }
+}
+
+/**
  * Randomly creates a hex value for an RGB color.
  * @returns The hex string of the random color.
  */
