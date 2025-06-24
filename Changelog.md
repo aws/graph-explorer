@@ -3,7 +3,8 @@
 ## Release v2.2
 
 - **Updated** Tanstack Query logic to simplify query construction
-  ([#1015](https://github.com/aws/graph-explorer/pull/1015))
+  ([#1015](https://github.com/aws/graph-explorer/pull/1015),
+  [#1040](https://github.com/aws/graph-explorer/pull/1040))
 
 ## Release v2.1
 
