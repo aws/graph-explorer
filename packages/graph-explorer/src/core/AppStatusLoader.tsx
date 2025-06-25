@@ -38,14 +38,12 @@ function LoadDefaultConfig({ children }: PropsWithChildren) {
   const defaultConnectionConfigs = defaultConfigQuery.data;
 
   useEffect(() => {
-    if (configuration.size > 0) {
-      logger.debug(
-        "Connections already exist, skipping default connection load"
-      );
+    if (!defaultConnectionConfigs) {
+      // Query hasn't run yet
       return;
     }
 
-    if (!defaultConnectionConfigs?.length) {
+    if (!defaultConnectionConfigs.length) {
       logger.debug("No default connections found");
       return;
     }
