@@ -190,7 +190,7 @@ function MainContentLayout() {
         title="Synchronizing..."
         subtitle="The connection is being synchronized."
         className="p-6"
-        onAction={() => cancel()}
+        onAction={cancel}
         actionLabel="Cancel Sync"
       />
     );

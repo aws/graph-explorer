@@ -10,14 +10,17 @@ import { emotionTransform, MantineEmotionProvider } from "@mantine/emotion";
 import { ErrorBoundary } from "react-error-boundary";
 import AppErrorPage from "@/core/AppErrorPage";
 import { TooltipProvider } from "@/components";
-import { useAtomValue } from "jotai";
-import { queryClientAtom } from "../connector";
+import { createQueryClient } from "../queryClient";
+import { emptyExplorer } from "@/connector/emptyExplorer";
+import { ExplorerInjector } from "../ExplorerInjector";
+
+const queryClient = createQueryClient({ explorer: emptyExplorer });
 
 export default function ConnectedProvider({ children }: PropsWithChildren) {
-  const queryClient = useAtomValue(queryClientAtom);
   return (
     <ErrorBoundary FallbackComponent={AppErrorPage}>
       <QueryClientProvider client={queryClient}>
+        <ExplorerInjector />
         <TooltipProvider delayDuration={200}>
           <MantineProvider stylesTransform={emotionTransform}>
             <MantineEmotionProvider>
