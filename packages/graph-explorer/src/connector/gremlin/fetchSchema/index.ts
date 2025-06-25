@@ -252,7 +252,7 @@ function mapValueToDataType(value: GScalar) {
   }
 
   if (typeof value === "boolean") {
-    return "String";
+    return "Boolean";
   }
 
   return TYPE_MAP[value["@type"]] || "String";

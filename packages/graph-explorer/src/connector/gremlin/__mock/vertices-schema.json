@@ -290,6 +290,19 @@
                         "label": "desc"
                       }
                     }
+                  ],
+                  "active": [
+                    {
+                      "@type": "g:VertexProperty",
+                      "@value": {
+                        "id": {
+                          "@type": "g:Int32",
+                          "@value": -1422750863
+                        },
+                        "value": true,
+                        "label": "active"
+                      }
+                    }
                   ]
                 }
               }
