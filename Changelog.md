@@ -4,7 +4,8 @@
 
 - **Updated** Tanstack Query logic to simplify query construction
   ([#1015](https://github.com/aws/graph-explorer/pull/1015),
-  [#1040](https://github.com/aws/graph-explorer/pull/1040))
+  [#1040](https://github.com/aws/graph-explorer/pull/1040),
+  [#1042](https://github.com/aws/graph-explorer/pull/1042))
 - **Fixed** Rendering boolean values for Gremlin connections
   ([#1034](https://github.com/aws/graph-explorer/pull/1034))
 
