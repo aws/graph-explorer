@@ -14,6 +14,7 @@ import {
   TooltipTrigger,
 } from "@/components";
 import {
+  fetchEntityDetails,
   useExplorer,
   useQueryEngine,
   useUpdateSchemaFromEntities,
@@ -33,6 +34,7 @@ import { SearchResultsList } from "./SearchResultsList";
 import { atomWithReset } from "jotai/utils";
 import {
   MappedQueryResults,
+  toMappedQueryResults,
   updateEdgeDetailsCache,
   updateVertexDetailsCache,
 } from "@/connector";
@@ -283,9 +285,24 @@ function useRawQueryMutation() {
       // Update the schema and the cache
       updateVertexDetailsCache(queryClient, results.vertices);
       updateEdgeDetailsCache(queryClient, results.edges);
-      updateSchema(results);
 
-      return results;
+      // Fetch any details for fragments
+      const details = await fetchEntityDetails(
+        results.vertices.map(v => v.id),
+        results.edges.map(e => e.id),
+        queryClient
+      );
+
+      // Recombine results with full details
+      const combinedResults = toMappedQueryResults({
+        ...results,
+        vertices: details.entities.vertices,
+        edges: details.entities.edges,
+      });
+
+      updateSchema(combinedResults);
+
+      return combinedResults;
     },
   });
 

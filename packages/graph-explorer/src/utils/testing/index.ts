@@ -1,5 +1,6 @@
 export * from "./createMockExplorer";
 export * from "./DbState";
+export * from "./FakeExplorer";
 export * from "./graphsonHelpers";
 export * from "./normalize";
 export * from "./randomData";

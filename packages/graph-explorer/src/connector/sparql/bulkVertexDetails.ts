@@ -1,7 +1,7 @@
 import { logger, query } from "@/utils";
 import {
-  VertexDetailsRequest,
-  VertexDetailsResponse,
+  BulkVertexDetailsRequest,
+  BulkVertexDetailsResponse,
 } from "../useGEFetchTypes";
 import {
   rdfTypeUri,
@@ -14,6 +14,7 @@ import {
 import { z } from "zod";
 import {
   createVertex,
+  createVertexId,
   EntityProperties,
   EntityPropertyValue,
   VertexId,
@@ -22,34 +23,39 @@ import isErrorResponse from "../utils/isErrorResponse";
 import { idParam } from "./idParam";
 
 const bindingSchema = z.object({
+  resource: sparqlUriValueSchema,
   label: sparqlUriValueSchema,
   value: sparqlValueSchema,
 });
 type VertexDetailsBinding = z.infer<typeof bindingSchema>;
 const vertexDetailsResponseSchema = sparqlResponseSchema(bindingSchema);
 
-export async function vertexDetails(
+export async function bulkVertexDetails(
   sparqlFetch: SparqlFetch,
-  request: VertexDetailsRequest
-): Promise<VertexDetailsResponse> {
+  request: BulkVertexDetailsRequest
+): Promise<BulkVertexDetailsResponse> {
   const template = query`
     # Get the resource attributes and class
-    SELECT * 
+    SELECT ?resource ?label ?value
     WHERE {
+      VALUES ?resource {
+        ${request.vertexIds.map(idParam).join("\n")}
+      }
+
       {
         # Get the resource attributes
-        SELECT ?label ?value
+        SELECT ?resource ?label ?value
         WHERE {
-          ${idParam(request.vertexId)} ?label ?value .
+          ?resource ?label ?value .
           FILTER(isLiteral(?value))
         }
       }
       UNION
       {
         # Get the resource type
-        SELECT ?label ?value
+        SELECT ?resource ?label ?value
         WHERE {
-          ${idParam(request.vertexId)} a ?value .
+          ?resource a ?value .
           BIND(IRI("${rdfTypeUri}") AS ?label)
         }
       }
@@ -81,13 +87,19 @@ export async function vertexDetails(
 
   // Map the results
   if (parsed.data.results.bindings.length === 0) {
-    logger.warn("Vertex not found", request.vertexId, response);
-    return { vertex: null };
+    logger.warn("No matching vertices found", request.vertexIds, response);
+    return { vertices: [] };
   }
 
-  const vertex = mapToVertex(request.vertexId, parsed.data.results.bindings);
+  // Group by resource URI and map to vertex
+  const vertices = Map.groupBy(parsed.data.results.bindings, b =>
+    createVertexId(b.resource.value)
+  )
+    .entries()
+    .map(([id, bindings]) => mapToVertex(id, bindings))
+    .toArray();
 
-  return { vertex };
+  return { vertices };
 }
 
 function mapToVertex(id: VertexId, detailsBinding: VertexDetailsBinding[]) {
