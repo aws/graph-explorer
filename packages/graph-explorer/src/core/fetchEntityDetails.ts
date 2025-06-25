@@ -1,4 +1,4 @@
-import { edgeDetailsQuery, vertexDetailsQuery } from "@/connector";
+import { bulkVertexDetailsQuery, edgeDetailsQuery } from "@/connector";
 import { VertexId, EdgeId } from "@/core";
 import { formatEntityCounts } from "@/utils";
 import { QueryClient } from "@tanstack/react-query";
@@ -15,36 +15,30 @@ export async function fetchEntityDetails(
   edges: Set<EdgeId>,
   queryClient: QueryClient
 ) {
-  const vertexResults = await Promise.allSettled(
-    vertices
-      .values()
-      .map(id => queryClient.ensureQueryData(vertexDetailsQuery(id)))
+  const vertexResults = await queryClient.ensureQueryData(
+    bulkVertexDetailsQuery(vertices.values().toArray())
   );
   const edgeResults = await Promise.allSettled(
     edges.values().map(id => queryClient.ensureQueryData(edgeDetailsQuery(id)))
   );
 
-  const vertexDetails = vertexResults
-    .filter(result => result.status === "fulfilled")
-    .map(result => result.value.vertex)
-    .filter(v => v != null);
+  const vertexDetails = vertexResults.vertices;
   const edgeDetails = edgeResults
     .filter(result => result.status === "fulfilled")
     .map(result => result.value.edge)
     .filter(e => e != null);
 
-  const countOfVertexErrors = vertexResults.reduce((sum, item) => {
-    return sum + (item.status === "rejected" ? 1 : 0);
-  }, 0);
+  // TODO: Remove error counting after edge details are updated
+  // Any error will be thrown by the bulk vertex details request so this code won't be hit.
+  const countOfVertexErrors = 0;
   const countOfEdgeErrors = edgeResults.reduce((sum, item) => {
     return sum + (item.status === "rejected" ? 1 : 0);
   }, 0);
 
-  const countOfVertexNotFound = vertexResults.reduce((sum, item) => {
-    return (
-      sum + (item.status === "fulfilled" && item.value.vertex == null ? 1 : 0)
-    );
-  }, 0);
+  const countOfVertexNotFound = vertices
+    .values()
+    .filter(id => vertexResults.vertices.find(v => v.id === id) == null)
+    .toArray().length;
   const countOfEdgeNotFound = edgeResults.reduce((sum, item) => {
     return (
       sum + (item.status === "fulfilled" && item.value.edge == null ? 1 : 0)

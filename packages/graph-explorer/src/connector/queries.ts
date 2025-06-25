@@ -1,5 +1,6 @@
 import { QueryClient, queryOptions } from "@tanstack/react-query";
 import {
+  BulkVertexDetailsResponse,
   EdgeDetailsResponse,
   KeywordSearchRequest,
   SchemaResponse,
@@ -10,9 +11,10 @@ import {
   UpdateSchemaHandler,
   updateSchemaPrefixes,
 } from "@/core/StateProvider/schema";
-import { logger } from "@/utils";
+import { DEFAULT_BATCH_REQUEST_SIZE, logger } from "@/utils";
 import { emptyExplorer } from "./emptyExplorer";
 import { GraphExplorerMeta } from "@/core/queryClient";
+import { chunk } from "lodash";
 
 /**
  * Fetches the schema from the given explorer and updates the local cache with the new schema.
@@ -123,14 +125,55 @@ export function nodeCountByNodeTypeQuery(nodeType: string) {
   });
 }
 
-export function vertexDetailsQuery(vertexId: VertexId) {
-  const request = { vertexId };
-
+export function bulkVertexDetailsQuery(vertexIds: VertexId[]) {
   return queryOptions({
-    queryKey: ["db", "vertex", "details", request],
+    queryKey: ["vertices", vertexIds],
+    queryFn: async ({
+      client,
+      meta,
+      signal,
+    }): Promise<BulkVertexDetailsResponse> => {
+      const explorer = getExplorer(meta);
+
+      // Check for cached vertices first
+      const cachedVertices = vertexIds
+        .values()
+        .map(id => client.getQueryData(vertexDetailsQuery(id).queryKey))
+        .map(response => response?.vertex)
+        .filter(vertex => vertex != null)
+        .toArray();
+
+      const cachedIds = new Set(cachedVertices.map(v => v.id));
+      const missingIds = new Set(vertexIds).difference(cachedIds);
+
+      // Bail early if all vertices are cached
+      if (missingIds.size === 0) {
+        return { vertices: cachedVertices };
+      }
+
+      // Fetch any missing vertices
+      const batches = chunk(Array.from(missingIds), DEFAULT_BATCH_REQUEST_SIZE);
+      const vertices: Array<Vertex> = [];
+      for (const batch of batches) {
+        const request = { vertexIds: batch };
+        const response = await explorer.bulkVertexDetails(request, { signal });
+        vertices.push(...response.vertices);
+      }
+
+      // Update the cache
+      updateVertexDetailsCache(client, vertices);
+
+      return { vertices: cachedVertices.concat(vertices) };
+    },
+  });
+}
+
+export function vertexDetailsQuery(vertexId: VertexId) {
+  return queryOptions({
+    queryKey: ["vertex", vertexId],
     queryFn: ({ signal, meta }) => {
       const explorer = getExplorer(meta);
-      return explorer.vertexDetails(request, { signal });
+      return explorer.vertexDetails({ vertexId }, { signal });
     },
   });
 }

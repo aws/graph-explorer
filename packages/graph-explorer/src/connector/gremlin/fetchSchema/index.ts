@@ -7,8 +7,7 @@ import type { GEdge, GInt64, GScalar, GVertex } from "../types";
 import { GraphSummary, GremlinFetch } from "../types";
 import { chunk } from "lodash";
 import { LoggerConnector } from "@/connector/LoggerConnector";
-
-const BATCH_SIZE = 100;
+import { DEFAULT_BATCH_REQUEST_SIZE } from "@/utils";
 
 type RawVertexLabelsResponse = {
   requestId: string;
@@ -128,7 +127,7 @@ const fetchVerticesAttributes = async (
   }
 
   // Batch in to sets of 100
-  const batches = chunk(labels, BATCH_SIZE);
+  const batches = chunk(labels, DEFAULT_BATCH_REQUEST_SIZE);
 
   remoteLogger.info("[Gremlin Explorer] Fetching vertices attributes...");
   for (const batch of batches) {
@@ -211,7 +210,7 @@ const fetchEdgesAttributes = async (
   }
 
   // Batch in to sets of 100
-  const batches = chunk(labels, BATCH_SIZE);
+  const batches = chunk(labels, DEFAULT_BATCH_REQUEST_SIZE);
 
   remoteLogger.info("[Gremlin Explorer] Fetching edges attributes...");
   for (const batch of batches) {

@@ -2,6 +2,8 @@
 
 ## Release v2.2
 
+- **Updated** the retrieval of full vertex details in batches to improve
+  performance ([#1044](https://github.com/aws/graph-explorer/pull/1044))
 - **Updated** Tanstack Query logic to simplify query construction
   ([#1015](https://github.com/aws/graph-explorer/pull/1015),
   [#1040](https://github.com/aws/graph-explorer/pull/1040),
