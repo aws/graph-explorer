@@ -6,7 +6,7 @@ import {
   activeConfigurationAsyncAtom,
   configurationAsyncAtom,
 } from "./StateProvider/configuration";
-import { schemaAtom } from "./StateProvider/schema";
+import { schemaAsyncAtom } from "./StateProvider/schema";
 import { logger } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
 import { fetchDefaultConnection } from "./defaultConnection";
@@ -25,7 +25,7 @@ function LoadDefaultConfig({ children }: PropsWithChildren) {
 
   const [activeConfig, setActiveConfig] = useAtom(activeConfigurationAsyncAtom);
   const [configuration, setConfiguration] = useAtom(configurationAsyncAtom);
-  const schema = useAtomValue(schemaAtom);
+  const schema = useAtomValue(schemaAsyncAtom);
 
   const defaultConfigQuery = useQuery({
     queryKey: ["default-connection"],
@@ -99,6 +99,11 @@ function LoadDefaultConfig({ children }: PropsWithChildren) {
       !location.pathname.match(/\/connections/) &&
       !location.pathname.match(/\/settings/)
     ) {
+      logger.debug("Redirecting to connections because no config is active", {
+        activeConfig,
+        schema,
+      });
+
       return <Redirect to="/connections" />;
     }
   }

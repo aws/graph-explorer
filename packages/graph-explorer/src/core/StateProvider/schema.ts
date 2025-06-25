@@ -4,7 +4,7 @@ import {
   PrefixTypeConfig,
   VertexTypeConfig,
 } from "@/core/ConfigurationProvider";
-import { atomWithLocalForage } from "./localForageEffect";
+import { atomWithLocalForageAsync } from "./localForageEffect";
 import { activeConfigurationAtom } from "./configuration";
 import {
   Edge,
@@ -32,7 +32,7 @@ export type SchemaInference = {
   totalEdges?: number;
 };
 
-export const schemaAtom = atomWithLocalForage(
+export const [schemaAtom, schemaAsyncAtom] = atomWithLocalForageAsync(
   new Map<string, SchemaInference>(),
   "schema"
 );
