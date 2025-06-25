@@ -27,7 +27,10 @@ export const explorerAtom = atom(get => {
     return emptyExplorer;
   }
   const featureFlags = get(featureFlagsSelector);
-  logger.debug("Creating explorer for connection:", connection);
+  logger.debug("Creating explorer for connection:", {
+    connection,
+    featureFlags,
+  });
   switch (connection.queryEngine) {
     case "openCypher":
       return createOpenCypherExplorer(connection, featureFlags);
