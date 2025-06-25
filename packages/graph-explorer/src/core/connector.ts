@@ -17,7 +17,7 @@ import { emptyExplorer } from "@/connector/emptyExplorer";
 import { atom, useAtomValue } from "jotai";
 import { selectAtom } from "jotai/utils";
 
-const explorerAtom = atom(get => {
+export const explorerAtom = atom(get => {
   const explorerForTesting = get(explorerForTestingAtom);
   if (explorerForTesting) {
     return explorerForTesting;

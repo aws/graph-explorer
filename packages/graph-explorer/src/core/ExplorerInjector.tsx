@@ -1,26 +1,25 @@
-import { usePrevious } from "@/hooks";
 import { logger } from "@/utils";
 import { useQueryClient } from "@tanstack/react-query";
-import { useExplorer } from "./connector";
-import { createDefaultOptions } from "./queryClient";
+import { defaultOptionsAtom } from "./queryClient";
+import { useAtomValue } from "jotai";
+import { useRef } from "react";
 
 /**
  * Ensures the query client has the correct explorer for the connection injected
  * in to the `meta` object. It also clears the cache when the explorer changes.
  */
 export function ExplorerInjector() {
-  const explorer = useExplorer();
-  const previousExplorer = usePrevious(explorer);
   const queryClient = useQueryClient();
+  const defaultOptions = useAtomValue(defaultOptionsAtom);
+  const prevDefaultOptions = useRef(defaultOptions);
 
-  if (explorer !== previousExplorer) {
-    logger.log("Clearing cache because connection changed");
-    queryClient.clear();
-    logger.debug(
-      "Setting default options for query client with explorer:",
-      explorer
+  if (prevDefaultOptions.current !== defaultOptions) {
+    prevDefaultOptions.current = defaultOptions;
+    logger.log(
+      "Clearing cache and updating query default options due to connection change"
     );
-    queryClient.setDefaultOptions(createDefaultOptions(explorer));
+    queryClient.clear();
+    queryClient.setDefaultOptions(defaultOptions);
   }
 
   return null;
