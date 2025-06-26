@@ -32,7 +32,9 @@ import { useAtom } from "jotai";
 import { SearchResultsList } from "./SearchResultsList";
 import { atomWithReset } from "jotai/utils";
 import {
+  bulkVertexDetailsQuery,
   MappedQueryResults,
+  toMappedQueryResults,
   updateEdgeDetailsCache,
   updateVertexDetailsCache,
 } from "@/connector";
@@ -283,9 +285,23 @@ function useRawQueryMutation() {
       // Update the schema and the cache
       updateVertexDetailsCache(queryClient, results.vertices);
       updateEdgeDetailsCache(queryClient, results.edges);
-      updateSchema(results);
 
-      return results;
+      // Fetch any details for fragments
+      const vertices = (
+        await queryClient.ensureQueryData(
+          bulkVertexDetailsQuery(results.vertices.map(v => v.id))
+        )
+      ).vertices;
+
+      // Recombine results with full details
+      const combinedResults = toMappedQueryResults({
+        ...results,
+        vertices,
+      });
+
+      updateSchema(combinedResults);
+
+      return combinedResults;
     },
   });
 

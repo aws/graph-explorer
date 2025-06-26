@@ -13,6 +13,7 @@ import { FeatureFlags, NormalizedConnection } from "@/core";
 import { vertexDetails } from "./vertexDetails";
 import { edgeDetails } from "./edgeDetails";
 import { rawQuery } from "./rawQuery";
+import { bulkVertexDetails } from "./bulkVertexDetails";
 
 function _gremlinFetch(
   connection: NormalizedConnection,
@@ -114,6 +115,17 @@ export function createGremlinExplorer(
         _gremlinFetch(connection, featureFlags, options),
         req
       );
+    },
+    async bulkVertexDetails(req, options) {
+      options ??= {};
+      options.queryId = v4();
+
+      remoteLogger.info("[Gremlin Explorer] Fetching bulk vertex details...");
+      const result = await bulkVertexDetails(
+        _gremlinFetch(connection, featureFlags, options),
+        req
+      );
+      return result;
     },
     async vertexDetails(req, options) {
       options ??= {};

@@ -26,6 +26,7 @@ import { storedBlankNodeNeighborsRequest } from "./fetchNeighbors/storedBlankNod
 import { replaceBlankNodeFromSearch } from "./keywordSearch/replaceBlankNodeFromSearch";
 import { vertexDetails } from "./vertexDetails";
 import { edgeDetails } from "./edgeDetails";
+import { bulkVertexDetails } from "./bulkVertexDetails";
 
 function _sparqlFetch(
   connection: NormalizedConnection,
@@ -225,6 +226,16 @@ export function createSparqlExplorer(
     async rawQuery(_req, _options) {
       remoteLogger.info("[SPARQL Explorer] Fetching raw query...");
       throw new Error("Raw query functionality is not implemented for SPARQL");
+    },
+    async bulkVertexDetails(req, options) {
+      options ??= {};
+      options.queryId = v4();
+
+      remoteLogger.info("[SPARQL Explorer] Fetching bulk vertex details...");
+      return bulkVertexDetails(
+        _sparqlFetch(connection, featureFlags, options),
+        req
+      );
     },
   } satisfies Explorer;
 }

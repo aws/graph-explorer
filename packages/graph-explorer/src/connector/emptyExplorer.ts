@@ -44,4 +44,5 @@ export const emptyExplorer: Explorer = {
     };
   },
   rawQuery: async () => toMappedQueryResults({}),
+  bulkVertexDetails: async () => ({ vertices: [] }),
 };
