@@ -16,9 +16,8 @@ import { Explorer } from "@/connector/useGEFetchTypes";
 import { emptyExplorer } from "@/connector/emptyExplorer";
 import { atom, useAtomValue } from "jotai";
 import { selectAtom } from "jotai/utils";
-import { createQueryClient } from "./queryClient";
 
-const explorerAtom = atom(get => {
+export const explorerAtom = atom(get => {
   const explorerForTesting = get(explorerForTestingAtom);
   if (explorerForTesting) {
     return explorerForTesting;
@@ -28,7 +27,10 @@ const explorerAtom = atom(get => {
     return emptyExplorer;
   }
   const featureFlags = get(featureFlagsSelector);
-  logger.debug("Creating explorer for connection:", connection);
+  logger.debug("Creating explorer for connection:", {
+    connection,
+    featureFlags,
+  });
   switch (connection.queryEngine) {
     case "openCypher":
       return createOpenCypherExplorer(connection, featureFlags);
@@ -55,15 +57,6 @@ export const queryEngineSelector = atom(get =>
       c && c.queryEngine ? c.queryEngine : "gremlin"
     )
   )
-);
-
-/**
- * The query client used for the app, tied to a specific explorer instance.
- *
- * This should only get created when the explorer instance changes (on connection change).
- */
-export const queryClientAtom = atom(get =>
-  createQueryClient({ explorer: get(explorerAtom) })
 );
 
 export function useQueryEngine() {

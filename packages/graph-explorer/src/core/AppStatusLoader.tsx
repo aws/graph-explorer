@@ -3,10 +3,10 @@ import { useLocation } from "react-router";
 import { LoadingSpinner, PanelEmptyState } from "@/components";
 import Redirect from "@/components/Redirect";
 import {
-  activeConfigurationAtom,
-  configurationAtom,
+  activeConfigurationAsyncAtom,
+  configurationAsyncAtom,
 } from "./StateProvider/configuration";
-import { schemaAtom } from "./StateProvider/schema";
+import { schemaAsyncAtom } from "./StateProvider/schema";
 import { logger } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
 import { fetchDefaultConnection } from "./defaultConnection";
@@ -23,9 +23,9 @@ function AppStatusLoader({ children }: PropsWithChildren) {
 function LoadDefaultConfig({ children }: PropsWithChildren) {
   const location = useLocation();
 
-  const [activeConfig, setActiveConfig] = useAtom(activeConfigurationAtom);
-  const [configuration, setConfiguration] = useAtom(configurationAtom);
-  const schema = useAtomValue(schemaAtom);
+  const [activeConfig, setActiveConfig] = useAtom(activeConfigurationAsyncAtom);
+  const [configuration, setConfiguration] = useAtom(configurationAsyncAtom);
+  const schema = useAtomValue(schemaAsyncAtom);
 
   const defaultConfigQuery = useQuery({
     queryKey: ["default-connection"],
@@ -38,14 +38,12 @@ function LoadDefaultConfig({ children }: PropsWithChildren) {
   const defaultConnectionConfigs = defaultConfigQuery.data;
 
   useEffect(() => {
-    if (configuration.size > 0) {
-      logger.debug(
-        "Connections already exist, skipping default connection load"
-      );
+    if (!defaultConnectionConfigs) {
+      // Query hasn't run yet
       return;
     }
 
-    if (!defaultConnectionConfigs?.length) {
+    if (!defaultConnectionConfigs.length) {
       logger.debug("No default connections found");
       return;
     }
@@ -101,6 +99,11 @@ function LoadDefaultConfig({ children }: PropsWithChildren) {
       !location.pathname.match(/\/connections/) &&
       !location.pathname.match(/\/settings/)
     ) {
+      logger.debug("Redirecting to connections because no config is active", {
+        activeConfig,
+        schema,
+      });
+
       return <Redirect to="/connections" />;
     }
   }

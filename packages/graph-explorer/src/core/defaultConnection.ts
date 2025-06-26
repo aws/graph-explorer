@@ -32,10 +32,11 @@ export async function fetchDefaultConnection() {
     const defaultConnection =
       (await fetchDefaultConnectionFor(defaultConnectionPath)) ??
       (await fetchDefaultConnectionFor(sagemakerConnectionPath));
+
     if (!defaultConnection) {
-      logger.debug("No default connection found");
       return [];
     }
+
     const config = mapToConnection(defaultConnection);
 
     // A specific query engine was specified, so just return that
