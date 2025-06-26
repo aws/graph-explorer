@@ -1,9 +1,10 @@
+import { EntityRawId } from "@/core";
 import type { CytoscapeType } from "../Graph.model";
 import { availableLayoutsConfig, LayoutName } from "./layoutConfig";
 
 type ExpandedCytoscapeLayoutOptions = {
   fixedNodeConstraint?: {
-    nodeId: string | number;
+    nodeId: EntityRawId;
     position: { x: number; y: number };
   }[];
 };

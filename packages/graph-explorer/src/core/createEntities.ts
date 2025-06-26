@@ -1,12 +1,18 @@
-import { Vertex, Edge } from "./entities";
+import {
+  Vertex,
+  Edge,
+  EntityProperties,
+  EntityRawId,
+  EntityPropertyValue,
+} from "./entities";
 import { createVertexId, createEdgeId } from "./entityIdType";
 
 type CreateEntityAttributeOptions =
-  | Map<string, string | number>
-  | Record<string, string | number>;
+  | Map<string, EntityPropertyValue>
+  | EntityProperties;
 
 type CreateVertexOptions = {
-  id: string | number;
+  id: EntityRawId;
   types: string[];
   attributes?: CreateEntityAttributeOptions;
   isBlankNode?: boolean;
@@ -28,7 +34,7 @@ export function createVertex(options: CreateVertexOptions): Vertex {
 
 /** Constructs an Edge instance from the given values. */
 export function createEdge(options: {
-  id: string | number;
+  id: EntityRawId;
   type: string;
   source: CreateVertexOptions;
   target: CreateVertexOptions;
@@ -52,15 +58,12 @@ export function createEdge(options: {
 
 function createAttributes(
   attributes: CreateEntityAttributeOptions
-): Vertex["attributes"] {
+): EntityProperties {
   if (attributes instanceof Map) {
-    return attributes.entries().reduce(
-      (prev, [key, value]) => {
-        prev[key] = value;
-        return prev;
-      },
-      {} as Vertex["attributes"]
-    );
+    return attributes.entries().reduce((prev, [key, value]) => {
+      prev[key] = value;
+      return prev;
+    }, {} as EntityProperties);
   }
 
   return attributes;

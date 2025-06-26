@@ -78,7 +78,7 @@ function mapValue(value: CypherValue): MapValueResult[] {
   }
 
   if (typeof value === "boolean") {
-    return [{ scalar: String(value) }];
+    return [{ scalar: value }];
   }
 
   if (Array.isArray(value)) {

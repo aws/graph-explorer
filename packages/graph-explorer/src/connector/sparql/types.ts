@@ -1,4 +1,4 @@
-import { Edge, Vertex, VertexId } from "@/core";
+import { Edge, EntityProperties, Vertex, VertexId } from "@/core";
 import type { NeighborsCountResponse } from "../useGEFetchTypes";
 import { z } from "zod";
 
@@ -15,7 +15,7 @@ export type RawValue = {
 export type RawResult = {
   uri: string;
   class: string;
-  attributes: Record<string, string | number>;
+  attributes: EntityProperties;
   isBlank: boolean;
 };
 

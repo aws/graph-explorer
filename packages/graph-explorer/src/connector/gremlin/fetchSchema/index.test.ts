@@ -106,6 +106,10 @@ describe("Gremlin > fetchSchema", () => {
               name: "desc",
               dataType: "String",
             },
+            {
+              name: "active",
+              dataType: "Boolean",
+            },
           ],
         },
       ],
@@ -121,7 +125,7 @@ describe("Gremlin > fetchSchema", () => {
           attributes: [
             {
               name: "dist",
-              dataType: "g:Int32",
+              dataType: "Number",
             },
           ],
         },

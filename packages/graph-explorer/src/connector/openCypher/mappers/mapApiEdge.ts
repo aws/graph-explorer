@@ -1,5 +1,6 @@
 import { createEdge, Vertex } from "@/core";
 import type { OCEdge } from "../types";
+import { mapApiProperties } from "./mapApiProperties";
 
 export default function mapApiEdge(
   apiEdge: OCEdge,
@@ -17,6 +18,6 @@ export default function mapApiEdge(
       id: apiEdge["~end"],
       types: targetTypes,
     },
-    attributes: apiEdge["~properties"] || {},
+    attributes: mapApiProperties(apiEdge["~properties"]),
   });
 }

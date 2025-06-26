@@ -1,5 +1,6 @@
 import { createVertex } from "@/core";
 import type { OCVertex } from "../types";
+import { mapApiProperties } from "./mapApiProperties";
 
 export default function mapApiVertex(apiVertex: OCVertex) {
   const labels = apiVertex["~labels"];
@@ -7,6 +8,6 @@ export default function mapApiVertex(apiVertex: OCVertex) {
   return createVertex({
     id: apiVertex["~id"],
     types: labels,
-    attributes: apiVertex["~properties"],
+    attributes: mapApiProperties(apiVertex["~properties"]),
   });
 }

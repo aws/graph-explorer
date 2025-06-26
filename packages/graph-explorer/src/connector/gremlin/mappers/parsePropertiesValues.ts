@@ -1,15 +1,14 @@
 import parseProperty from "./parseProperty";
 import type { GVertexProperty } from "../types";
+import { EntityProperties } from "@/core";
 
-const parsePropertiesValues = (
+export default function parsePropertiesValues(
   properties: Record<string, GVertexProperty[]>
-): Record<string, string | number> => {
-  const parsedProps: Record<string, string | number> = {};
+): EntityProperties {
+  const parsedProps: EntityProperties = {};
   Object.values(properties || {}).forEach(propertyArr => {
     parsedProps[propertyArr[0]["@value"].label] = parseProperty(propertyArr[0]);
   });
 
   return parsedProps;
-};
-
-export default parsePropertiesValues;
+}

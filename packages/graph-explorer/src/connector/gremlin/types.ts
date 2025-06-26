@@ -18,7 +18,7 @@ export type GDate = {
   "@value": number;
 };
 
-export type GScalar = GInt32 | GInt64 | GDouble | GDate | string;
+export type GScalar = GInt32 | GInt64 | GDouble | GDate | string | boolean;
 
 export type JanusID = {
   "@type": "janusgraph:RelationIdentifier";

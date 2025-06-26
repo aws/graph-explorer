@@ -14,6 +14,7 @@ import { createArray, createRandomName } from "@shared/utils/testing";
 import { toNodeMap } from "./nodes";
 import { toEdgeMap } from "./edges";
 import { PrefixTypeConfig } from "../ConfigurationProvider";
+import { EntityProperties } from "../entities";
 
 describe("schema", () => {
   describe("extractConfigFromEntity", () => {
@@ -213,13 +214,10 @@ describe("schema", () => {
       const schema = createRandomSchema();
       const vertex = createRandomVertex();
       vertex.type = schema.vertices[0].type;
-      vertex.attributes = schema.vertices[0].attributes.reduce(
-        (acc, attr) => {
-          acc[attr.name] = createRandomName("value");
-          return acc;
-        },
-        {} as Record<string, string | number>
-      );
+      vertex.attributes = schema.vertices[0].attributes.reduce((acc, attr) => {
+        acc[attr.name] = createRandomName("value");
+        return acc;
+      }, {} as EntityProperties);
       const result = shouldUpdateSchemaFromEntities(
         {
           vertices: [vertex],
@@ -235,30 +233,21 @@ describe("schema", () => {
       const source = createRandomVertex();
       const target = createRandomVertex();
       source.type = schema.vertices[0].type;
-      source.attributes = schema.vertices[0].attributes.reduce(
-        (acc, attr) => {
-          acc[attr.name] = createRandomName("value");
-          return acc;
-        },
-        {} as Record<string, string | number>
-      );
+      source.attributes = schema.vertices[0].attributes.reduce((acc, attr) => {
+        acc[attr.name] = createRandomName("value");
+        return acc;
+      }, {} as EntityProperties);
       target.type = schema.vertices[1].type;
-      target.attributes = schema.vertices[1].attributes.reduce(
-        (acc, attr) => {
-          acc[attr.name] = createRandomName("value");
-          return acc;
-        },
-        {} as Record<string, string | number>
-      );
+      target.attributes = schema.vertices[1].attributes.reduce((acc, attr) => {
+        acc[attr.name] = createRandomName("value");
+        return acc;
+      }, {} as EntityProperties);
       const edge = createRandomEdge(source, target);
       edge.type = schema.edges[0].type;
-      edge.attributes = schema.edges[0].attributes.reduce(
-        (acc, attr) => {
-          acc[attr.name] = createRandomName("value");
-          return acc;
-        },
-        {} as Record<string, string | number>
-      );
+      edge.attributes = schema.edges[0].attributes.reduce((acc, attr) => {
+        acc[attr.name] = createRandomName("value");
+        return acc;
+      }, {} as EntityProperties);
 
       const result = shouldUpdateSchemaFromEntities(
         {

@@ -1,15 +1,14 @@
-import parseEdgeProperty from "./parseEdgeProperty";
+import parseProperty from "./parseProperty";
 import type { GProperty } from "../types";
+import { EntityProperties } from "@/core";
 
-const parseEdgePropertiesValues = (
+export default function parseEdgePropertiesValues(
   properties?: Record<string, GProperty>
-): Record<string, string | number> => {
-  const parsedProps: Record<string, string | number> = {};
+): EntityProperties {
+  const parsedProps: EntityProperties = {};
   Object.values(properties || {}).forEach(property => {
-    parsedProps[property["@value"].key] = parseEdgeProperty(property);
+    parsedProps[property["@value"].key] = parseProperty(property);
   });
 
   return parsedProps;
-};
-
-export default parseEdgePropertiesValues;
+}

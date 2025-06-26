@@ -7,6 +7,7 @@ import {
   mapToDisplayAttribute,
 } from "./displayAttribute";
 import {
+  createRandomBoolean,
   createRandomDate,
   createRandomInteger,
   createRandomName,
@@ -39,6 +40,25 @@ describe("mapToDisplayAttribute", () => {
     const config = createRandomAttributeConfig();
     config.name = name;
     config.dataType = "number";
+    const displayAttribute = mapToDisplayAttribute(
+      name,
+      value,
+      config,
+      transformNoOp
+    );
+    expect(displayAttribute).toEqual({
+      name,
+      displayLabel: name,
+      displayValue: String(value),
+    });
+  });
+
+  it("should map boolean value", () => {
+    const name = createRandomName("name");
+    const value = createRandomBoolean();
+    const config = createRandomAttributeConfig();
+    config.name = name;
+    config.dataType = "boolean";
     const displayAttribute = mapToDisplayAttribute(
       name,
       value,

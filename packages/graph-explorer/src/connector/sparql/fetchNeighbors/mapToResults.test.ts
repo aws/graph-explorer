@@ -1,6 +1,6 @@
 import { toMappedQueryResults } from "@/connector";
 import { mapToResults } from "./mapToResults";
-import { Edge, Vertex } from "@/core";
+import { Edge, EntityPropertyValue, Vertex } from "@/core";
 import {
   createRandomEdgeForRdf,
   createRandomEntitiesForRdf,
@@ -55,7 +55,7 @@ const rdfValue = {
   blank(value: string) {
     return { type: "bnode", value };
   },
-  literal(value: string | number) {
+  literal(value: EntityPropertyValue) {
     if (typeof value === "number") {
       return {
         type: "literal",
@@ -63,6 +63,14 @@ const rdfValue = {
         value: String(value),
       };
     }
+
+    if (typeof value === "boolean") {
+      return {
+        type: "literal",
+        value: String(value),
+      };
+    }
+
     return { type: "literal", value };
   },
 };

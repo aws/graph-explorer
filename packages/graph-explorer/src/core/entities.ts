@@ -1,7 +1,11 @@
 import { Branded } from "@/utils";
 
-export type EdgeId = Branded<string | number, "EdgeId">;
-export type VertexId = Branded<string | number, "VertexId">;
+export type EntityRawId = string | number;
+export type EdgeId = Branded<EntityRawId, "EdgeId">;
+export type VertexId = Branded<EntityRawId, "VertexId">;
+
+export type EntityPropertyValue = string | number | boolean;
+export type EntityProperties = Record<string, EntityPropertyValue>;
 
 export type Vertex = {
   /**
@@ -33,7 +37,7 @@ export type Vertex = {
    * - For PG, nodes can contain attributes.
    * - For RDF, subjects can be connected to other subjects which are literals
    */
-  attributes: Record<string, string | number>;
+  attributes: EntityProperties;
 
   // The following properties are computed on run-time
   /**
@@ -85,7 +89,7 @@ export type Edge = {
    * Only for PG, attributes associated to the edge.
    * For RDF, predicates do not have more properties than the predicate itself.
    */
-  attributes: Record<string, string | number>;
+  attributes: EntityProperties;
 
   /**
    * Sometimes the edge response does not include the properties, so this flag

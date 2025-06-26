@@ -233,7 +233,7 @@ describe("useDisplayEdgeFromEdge", () => {
       attr => attr.name === "created"
     );
     expect(actualAttribute?.displayValue).toEqual(
-      formatDate(new Date(edge.attributes.created))
+      formatDate(new Date(edge.attributes.created as any))
     );
   });
 
@@ -257,7 +257,7 @@ describe("useDisplayEdgeFromEdge", () => {
       attr => attr.name === "created"
     );
     expect(actualAttribute?.displayValue).toEqual(
-      formatDate(new Date(edge.attributes.created))
+      formatDate(new Date(edge.attributes.created as any))
     );
   });
 

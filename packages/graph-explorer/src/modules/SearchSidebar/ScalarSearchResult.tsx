@@ -1,6 +1,12 @@
 import { ScalarValue } from "@/connector";
 import { cn } from "@/utils";
-import { CalendarIcon, HashIcon, QuoteIcon } from "lucide-react";
+import {
+  CalendarIcon,
+  CircleCheckIcon,
+  CircleIcon,
+  HashIcon,
+  QuoteIcon,
+} from "lucide-react";
 import { ComponentPropsWithoutRef } from "react";
 
 function getDisplayValue(scalar: ScalarValue) {
@@ -8,6 +14,8 @@ function getDisplayValue(scalar: ScalarValue) {
     return scalar;
   } else if (typeof scalar === "number") {
     return new Intl.NumberFormat().format(scalar);
+  } else if (typeof scalar === "boolean") {
+    return String(scalar);
   } else if (scalar instanceof Date) {
     return new Intl.DateTimeFormat().format(scalar);
   }
@@ -18,12 +26,24 @@ function getIcon(scalar: ScalarValue) {
     return <QuoteIcon className="size-5" />;
   } else if (typeof scalar === "number") {
     return <HashIcon className="size-5" />;
+  } else if (typeof scalar === "boolean") {
+    return scalar ? (
+      <CircleCheckIcon className="size-5" />
+    ) : (
+      <CircleIcon className="size-5" />
+    );
   } else if (scalar instanceof Date) {
     return <CalendarIcon className="size-5" />;
   }
 }
 
-export function ScalarSearchResult({ scalar }: { scalar: ScalarValue }) {
+export function ScalarSearchResult({
+  scalar,
+  resultsHaveExpandableRows,
+}: {
+  scalar: ScalarValue;
+  resultsHaveExpandableRows: boolean;
+}) {
   const displayValue = getDisplayValue(scalar);
   const Icon = getIcon(scalar);
 
@@ -34,7 +54,13 @@ export function ScalarSearchResult({ scalar }: { scalar: ScalarValue }) {
       )}
     >
       <div className="flex w-full flex-row items-center gap-2 p-3 text-left ring-0">
-        <div className="flex grow flex-row items-center gap-3">
+        <div className="flex grow flex-row items-center gap-2">
+          <div
+            className={cn(resultsHaveExpandableRows ? "invisible" : "hidden")}
+          >
+            {/* Just here to align with node & edge results. This is never visible. */}
+            <div className="size-5" />
+          </div>
           <ScalarSymbol>{Icon}</ScalarSymbol>
           <div className="inline-block text-pretty text-base leading-snug [word-break:break-word]">
             <div className="font-bold">{displayValue}</div>

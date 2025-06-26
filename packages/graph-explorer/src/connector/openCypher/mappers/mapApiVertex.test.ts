@@ -1,5 +1,13 @@
+import {
+  createRandomBoolean,
+  createRandomDate,
+  createRandomDouble,
+  createRandomInteger,
+  createRandomName,
+} from "@shared/utils/testing";
 import mapApiVertex from "./mapApiVertex";
 import { createVertex } from "@/core";
+import { OCVertex } from "../types";
 
 test("maps empty vertex", () => {
   const input = {
@@ -15,6 +23,35 @@ test("maps empty vertex", () => {
       id: "",
       types: [],
       attributes: {},
+    })
+  );
+});
+
+test("maps known property types", () => {
+  const input = {
+    "~id": "1",
+    "~entityType": "node",
+    "~labels": ["airport"],
+    "~properties": {
+      stringValue: createRandomName("stringValue"),
+      integerValue: createRandomInteger(),
+      booleanValue: createRandomBoolean(),
+      doubleValue: createRandomDouble(),
+      dateValue: createRandomDate().toISOString(),
+    },
+  } satisfies OCVertex;
+  const result = mapApiVertex(input);
+  expect(result).toEqual(
+    createVertex({
+      id: "1",
+      types: ["airport"],
+      attributes: {
+        stringValue: input["~properties"].stringValue,
+        integerValue: input["~properties"].integerValue,
+        booleanValue: input["~properties"].booleanValue,
+        doubleValue: input["~properties"].doubleValue,
+        dateValue: input["~properties"].dateValue,
+      },
     })
   );
 });

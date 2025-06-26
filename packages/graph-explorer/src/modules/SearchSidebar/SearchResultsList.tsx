@@ -107,6 +107,10 @@ function ResultCounts({ results }: { results: MappedQueryResults }) {
 
 /** Create a list of functions that render a row for each result type */
 function createRows({ vertices, edges, scalars }: MappedQueryResults) {
+  // When true, the scalar value will render with extra space on the left to
+  // align with the node and edge results properly
+  const resultsHaveExpandableRows = vertices.length + edges.length > 0;
+
   return vertices
     .map(entity => ({
       key: `node:${entity.type}:${entity.id}`,
@@ -121,7 +125,12 @@ function createRows({ vertices, edges, scalars }: MappedQueryResults) {
     .concat(
       scalars.map((entity, index) => ({
         key: `scalar:${String(entity)}:${index}`,
-        render: () => <ScalarSearchResult scalar={entity} />,
+        render: () => (
+          <ScalarSearchResult
+            scalar={entity}
+            resultsHaveExpandableRows={resultsHaveExpandableRows}
+          />
+        ),
       }))
     );
 }

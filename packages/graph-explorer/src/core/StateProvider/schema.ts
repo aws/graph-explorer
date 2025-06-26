@@ -6,7 +6,14 @@ import {
 } from "@/core/ConfigurationProvider";
 import { atomWithLocalForage } from "./localForageEffect";
 import { activeConfigurationAtom } from "./configuration";
-import { Edge, Entities, toEdgeMap, toNodeMap, Vertex } from "@/core";
+import {
+  Edge,
+  Entities,
+  EntityProperties,
+  toEdgeMap,
+  toNodeMap,
+  Vertex,
+} from "@/core";
 import { logger } from "@/utils";
 import generatePrefixes from "@/utils/generatePrefixes";
 import { startTransition, useCallback } from "react";
@@ -297,9 +304,7 @@ function getUniqueTypesAndAttributes(
   );
 }
 
-function getAttributeNames(
-  attributes: Record<string, string | number> | AttributeConfig[]
-) {
+function getAttributeNames(attributes: EntityProperties | AttributeConfig[]) {
   return Array.isArray(attributes)
     ? attributes.map(a => a.name)
     : Object.keys(attributes);
