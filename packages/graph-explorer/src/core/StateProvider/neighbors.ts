@@ -43,7 +43,7 @@ export function useNeighborsCallback() {
     useCallback(
       async (get, _set, vertexId: VertexId) => {
         const fetchedNeighbors = get(fetchedNeighborsSelector(vertexId));
-        const response = await queryClient.ensureQueryData(
+        const response = await queryClient.fetchQuery(
           neighborsCountQuery({ vertexId })
         );
 

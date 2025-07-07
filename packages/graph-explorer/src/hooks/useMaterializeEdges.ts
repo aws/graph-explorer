@@ -13,7 +13,7 @@ export function useMaterializeEdges() {
           return edge;
         }
 
-        const response = await queryClient.ensureQueryData(
+        const response = await queryClient.fetchQuery(
           edgeDetailsQuery(edge.id)
         );
         return response.edge;

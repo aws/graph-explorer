@@ -13,7 +13,7 @@ export function useMaterializeVertices() {
           return vertex;
         }
 
-        const response = await queryClient.ensureQueryData(
+        const response = await queryClient.fetchQuery(
           vertexDetailsQuery(vertex.id)
         );
         return response.vertex;
