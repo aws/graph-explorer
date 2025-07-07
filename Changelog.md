@@ -8,6 +8,8 @@
   [#1042](https://github.com/aws/graph-explorer/pull/1042))
 - **Fixed** Rendering boolean values for Gremlin connections
   ([#1034](https://github.com/aws/graph-explorer/pull/1034))
+- **Updated** GitHub Action workflows to ignore markdown and test files for the
+  Docker image builds ([#1043](https://github.com/aws/graph-explorer/pull/1043))
 
 ## Release v2.1
 
