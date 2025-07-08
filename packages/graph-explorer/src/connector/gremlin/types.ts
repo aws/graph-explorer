@@ -90,6 +90,11 @@ export type GList = {
   "@value": Array<GAnyValue>;
 };
 
+export type GMapWithValue<Key, Value> = {
+  "@type": "g:Map";
+  "@value": Array<Key | Value>;
+};
+
 export type GMap = {
   "@type": "g:Map";
   "@value": Array<GAnyValue>;

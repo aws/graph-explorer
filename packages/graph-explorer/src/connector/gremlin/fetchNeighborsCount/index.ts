@@ -1,6 +1,6 @@
 import type {
-  NeighborsCountRequest,
-  NeighborsCountResponse,
+  NeighborCountsRequest,
+  NeighborCountsResponse,
 } from "@/connector/useGEFetchTypes";
 import neighborsCountTemplate from "./neighborsCountTemplate";
 import type { GInt64 } from "../types";
@@ -25,8 +25,8 @@ type RawNeighborsCountResponse = {
 
 const fetchNeighborsCount = async (
   gremlinFetch: GremlinFetch,
-  req: NeighborsCountRequest
-): Promise<NeighborsCountResponse> => {
+  req: NeighborCountsRequest
+): Promise<NeighborCountsResponse> => {
   const gremlinTemplate = neighborsCountTemplate(req);
   const data = await gremlinFetch<RawNeighborsCountResponse>(gremlinTemplate);
 
@@ -42,6 +42,7 @@ const fetchNeighborsCount = async (
   }
 
   return {
+    vertexId: req.vertexId,
     totalCount,
     counts,
   };

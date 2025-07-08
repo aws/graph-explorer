@@ -13,6 +13,7 @@ import { FeatureFlags, NormalizedConnection } from "@/core";
 import { vertexDetails } from "./vertexDetails";
 import { edgeDetails } from "./edgeDetails";
 import { rawQuery } from "./rawQuery";
+import { bulkNeighborCounts } from "./bulkNeighborCounts";
 
 function _openCypherFetch(
   connection: NormalizedConnection,
@@ -71,6 +72,15 @@ export function createOpenCypherExplorer(
     async fetchNeighbors(req, options) {
       remoteLogger.info("[openCypher Explorer] Fetching neighbors...");
       return fetchNeighbors(
+        _openCypherFetch(connection, featureFlags, options),
+        req
+      );
+    },
+    async bulkNeighborCounts(req, options) {
+      remoteLogger.info(
+        "[openCypher Explorer] Fetching bulk neighbor counts..."
+      );
+      return bulkNeighborCounts(
         _openCypherFetch(connection, featureFlags, options),
         req
       );

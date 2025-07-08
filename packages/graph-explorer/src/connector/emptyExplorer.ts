@@ -26,8 +26,10 @@ export const emptyExplorer: Explorer = {
     };
   },
   fetchNeighbors: async () => toMappedQueryResults({}),
-  fetchNeighborsCount: async () => {
+  bulkNeighborCounts: async () => ({ counts: [] }),
+  fetchNeighborsCount: async req => {
     return {
+      vertexId: req.vertexId,
       totalCount: 0,
       counts: {},
     };

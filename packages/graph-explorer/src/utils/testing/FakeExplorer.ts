@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/require-await */
 import {
+  BulkNeighborCountRequest,
   CountsByTypeResponse,
   EdgeDetailsRequest,
   Explorer,
   MappedQueryResults,
-  NeighborsCountRequest,
-  NeighborsCountResponse,
+  NeighborCountsRequest,
+  NeighborCountsResponse,
   NeighborsResponse,
   RawQueryResponse,
   VertexDetailsRequest,
@@ -79,8 +80,8 @@ export class FakeExplorer implements Explorer {
   }
 
   async fetchNeighborsCount(
-    request: NeighborsCountRequest
-  ): Promise<NeighborsCountResponse> {
+    request: NeighborCountsRequest
+  ): Promise<NeighborCountsResponse> {
     const neighbors = this.findNeighbors(request.vertexId);
     const counts: Record<string, number> = {};
     let totalCount = 0;
@@ -93,9 +94,10 @@ export class FakeExplorer implements Explorer {
     });
 
     return {
+      vertexId: request.vertexId,
       counts,
       totalCount,
-    } satisfies NeighborsCountResponse;
+    } satisfies NeighborCountsResponse;
   }
 
   async keywordSearch(): Promise<MappedQueryResults> {
@@ -122,6 +124,14 @@ export class FakeExplorer implements Explorer {
     throw new Error(
       "rawQuery can never have a fake implmentation. Use mocking instead."
     );
+  }
+
+  async bulkNeighborCounts(req: BulkNeighborCountRequest) {
+    return {
+      counts: await Promise.all(
+        req.vertexIds.map(vertexId => this.fetchNeighborsCount({ vertexId }))
+      ),
+    };
   }
 
   findNeighbors(vertexId: VertexId) {

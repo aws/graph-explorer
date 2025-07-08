@@ -45,12 +45,7 @@ const cypherQueryResultSchema = z.object({
   results: z.array(z.record(cypherValueSchema)),
 });
 
-/**
- * Maps the raw results from an OpenCypher query to the expected format
- * @param data The raw data from the OpenCypher query fetch
- * @returns The mapped results
- */
-export function mapResults(data: unknown) {
+export function parseResults(data: unknown) {
   const parsed = cypherQueryResultSchema.safeParse(data);
 
   if (!parsed.success) {
@@ -58,8 +53,17 @@ export function mapResults(data: unknown) {
     throw parsed.error;
   }
 
-  const values = parsed.data.results.flatMap(mapValue);
+  return parsed.data.results;
+}
 
+/**
+ * Maps the raw results from an OpenCypher query to the expected format
+ * @param data The raw data from the OpenCypher query fetch
+ * @returns The mapped results
+ */
+export function mapResults(data: unknown) {
+  const results = parseResults(data);
+  const values = results.flatMap(mapValue);
   return mapValuesToQueryResults(values);
 }
 

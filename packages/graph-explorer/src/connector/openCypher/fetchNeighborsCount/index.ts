@@ -1,6 +1,6 @@
 import type {
-  NeighborsCountRequest,
-  NeighborsCountResponse,
+  NeighborCountsRequest,
+  NeighborCountsResponse,
 } from "@/connector/useGEFetchTypes";
 import neighborsCountTemplate from "./neighborsCountTemplate";
 import { OpenCypherFetch } from "../types";
@@ -16,8 +16,8 @@ type RawNeighborsCountResponse = {
 
 const fetchNeighborsCount = async (
   openCypherFetch: OpenCypherFetch,
-  req: NeighborsCountRequest
-): Promise<NeighborsCountResponse> => {
+  req: NeighborCountsRequest
+): Promise<NeighborCountsResponse> => {
   const openCypherTemplate = neighborsCountTemplate(req);
   const data =
     await openCypherFetch<RawNeighborsCountResponse>(openCypherTemplate);
@@ -33,6 +33,7 @@ const fetchNeighborsCount = async (
   }
 
   return {
+    vertexId: req.vertexId,
     totalCount,
     counts,
   };

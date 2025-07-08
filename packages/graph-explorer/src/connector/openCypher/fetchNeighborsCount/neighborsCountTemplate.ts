@@ -1,5 +1,5 @@
 import { query } from "@/utils";
-import type { NeighborsCountRequest } from "@/connector/useGEFetchTypes";
+import type { NeighborCountsRequest } from "@/connector/useGEFetchTypes";
 import { idParam } from "../idParam";
 
 /**
@@ -18,7 +18,7 @@ import { idParam } from "../idParam";
  */
 export default function neighborsCountTemplate({
   vertexId,
-}: NeighborsCountRequest) {
+}: NeighborCountsRequest) {
   return query`
       MATCH (v)-[]-(neighbor)
       WHERE ID(v) = ${idParam(vertexId)}

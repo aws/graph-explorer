@@ -2,6 +2,7 @@ import { QueryClient, queryOptions } from "@tanstack/react-query";
 import {
   EdgeDetailsResponse,
   KeywordSearchRequest,
+  NeighborCountsResponse,
   SchemaResponse,
 } from "./useGEFetchTypes";
 import { Edge, EdgeId, Vertex, VertexId } from "@/core";
@@ -64,15 +65,58 @@ export function searchQuery(
   });
 }
 
-export type NeighborCountsQueryRequest = {
-  vertexId: VertexId;
-};
+export function bulkNeighborCountsQuery(
+  vertexIds: VertexId[],
+  queryClient: QueryClient
+) {
+  return queryOptions({
+    queryKey: ["vertices", vertexIds, "neighbor", "count"],
+    queryFn: async ({ signal, meta, client }) => {
+      // Bail early if request is empty
+      if (!vertexIds.length) {
+        return [];
+      }
 
-export type NeighborCountsQueryResponse = {
-  nodeId: VertexId;
-  totalCount: number;
-  counts: Record<string, number>;
-};
+      const explorer = getExplorer(meta);
+
+      // Get cached and missing IDs in one pass
+      const responses: NeighborCountsResponse[] = [];
+      const missingIds: VertexId[] = [];
+
+      for (const id of vertexIds) {
+        const cached = client.getQueryData(neighborsCountQuery(id).queryKey);
+        if (cached) {
+          responses.push(cached);
+        } else {
+          missingIds.push(id);
+        }
+      }
+
+      // Bail early if all responses are cached
+      if (!missingIds.length) {
+        return responses;
+      }
+
+      // Fetch missing neighbor counts in batches
+      const newResponses = await Promise.all(
+        chunk(missingIds, DEFAULT_BATCH_REQUEST_SIZE).map(batch =>
+          explorer
+            .bulkNeighborCounts({ vertexIds: batch }, { signal })
+            .then(response => response.counts)
+        )
+      ).then(results => results.flat());
+
+      // Update cache and combine responses
+      updateNeighborCountCache(client, newResponses);
+      responses.push(...newResponses);
+
+      return responses;
+    },
+    placeholderData: vertexIds
+      .map(id => queryClient.getQueryData(neighborsCountQuery(id).queryKey))
+      .filter(c => c != null),
+  });
+}
 
 /**
  * Retrieves the number of neighbors for a given node and their types.
@@ -81,23 +125,12 @@ export type NeighborCountsQueryResponse = {
  * @param explorer The service client to use for fetching the neighbors count.
  * @returns The count of neighbors for the given node as a total and per type.
  */
-export function neighborsCountQuery(request: NeighborCountsQueryRequest) {
+export function neighborsCountQuery(vertexId: VertexId) {
   return queryOptions({
-    queryKey: ["neighborsCount", request],
+    queryKey: ["vertex", vertexId, "neighbor", "count"],
     queryFn: async ({ signal, meta }) => {
       const explorer = getExplorer(meta);
-      const result = await explorer.fetchNeighborsCount(
-        {
-          vertexId: request.vertexId,
-        },
-        { signal }
-      );
-
-      return {
-        nodeId: request.vertexId,
-        totalCount: result.totalCount,
-        counts: result.counts,
-      };
+      return await explorer.fetchNeighborsCount({ vertexId }, { signal });
     },
   });
 }
@@ -221,6 +254,17 @@ export function updateEdgeDetailsCache(
     };
     const queryKey = edgeDetailsQuery(edge.id).queryKey;
     queryClient.setQueryData(queryKey, response);
+  }
+}
+
+/** Sets the neighbor count cache for the given vertex. */
+export function updateNeighborCountCache(
+  queryClient: QueryClient,
+  neighborCounts: NeighborCountsResponse[]
+) {
+  for (const neighborCount of neighborCounts) {
+    const queryKey = neighborsCountQuery(neighborCount.vertexId).queryKey;
+    queryClient.setQueryData(queryKey, neighborCount);
   }
 }
 

@@ -1,5 +1,5 @@
 import { Edge, EntityProperties, Vertex, VertexId } from "@/core";
-import type { NeighborsCountResponse } from "../useGEFetchTypes";
+import type { NeighborCountsResponse } from "../useGEFetchTypes";
 import { z } from "zod";
 
 export type SparqlFetch = <TResult = any>(
@@ -138,7 +138,7 @@ export type SPARQLBlankNodeNeighborsRequest = {
   subQuery: string;
 };
 
-export type SPARQLBlankNodeNeighborsResponse = NeighborsCountResponse & {
+export type SPARQLBlankNodeNeighborsResponse = NeighborCountsResponse & {
   neighbors: {
     vertices: Array<Vertex>;
     edges: Array<Edge>;

@@ -5,7 +5,7 @@ import {
   DbState,
   renderHookWithState,
 } from "@/utils/testing";
-import { NeighborCountsQueryResponse } from "@/connector";
+import { NeighborCountsResponse } from "@/connector";
 import { waitFor } from "@testing-library/react";
 
 describe("calculateNeighbors", () => {
@@ -64,8 +64,8 @@ describe("useNeighbors", () => {
     const dbState = new DbState();
     const vertex = createRandomVertex();
 
-    const response: NeighborCountsQueryResponse = {
-      nodeId: vertex.id,
+    const response: NeighborCountsResponse = {
+      vertexId: vertex.id,
       totalCount: 8,
       counts: { nodeType1: 5, nodeType2: 3 },
     };

@@ -26,6 +26,7 @@ import { storedBlankNodeNeighborsRequest } from "./fetchNeighbors/storedBlankNod
 import { replaceBlankNodeFromSearch } from "./keywordSearch/replaceBlankNodeFromSearch";
 import { vertexDetails } from "./vertexDetails";
 import { edgeDetails } from "./edgeDetails";
+import { bulkNeighborCounts } from "./bulkNeighborCounts";
 
 function _sparqlFetch(
   connection: NormalizedConnection,
@@ -140,12 +141,22 @@ export function createSparqlExplorer(
       );
       return toMappedQueryResults({ vertices, edges: response.edges });
     },
+    async bulkNeighborCounts(req, options) {
+      remoteLogger.info("[SPARQL Explorer] Fetching bulk neighbor counts...");
+      return bulkNeighborCounts(
+        _sparqlFetch(connection, featureFlags, options),
+        req
+      );
+    },
     async fetchNeighborsCount(req, options) {
       remoteLogger.info("[SPARQL Explorer] Fetching neighbors count...");
       const bNode = blankNodes.get(req.vertexId);
 
       if (bNode?.neighbors) {
-        return bNode.neighborCounts;
+        return {
+          vertexId: req.vertexId,
+          ...bNode.neighborCounts,
+        };
       }
 
       if (bNode && !bNode.neighbors) {
@@ -168,6 +179,7 @@ export function createSparqlExplorer(
         });
 
         return {
+          vertexId: req.vertexId,
           totalCount: response.totalCount,
           counts: response.counts,
         };

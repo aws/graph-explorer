@@ -1,4 +1,4 @@
-import type { NeighborsCountRequest } from "@/connector/useGEFetchTypes";
+import type { NeighborCountsRequest } from "@/connector/useGEFetchTypes";
 import { idParam } from "../idParam";
 
 /**
@@ -14,6 +14,6 @@ import { idParam } from "../idParam";
  */
 export default function neighborsCountTemplate({
   vertexId,
-}: NeighborsCountRequest) {
+}: NeighborCountsRequest) {
   return `g.V(${idParam(vertexId)}).both().dedup().group().by(label).by(count())`;
 }

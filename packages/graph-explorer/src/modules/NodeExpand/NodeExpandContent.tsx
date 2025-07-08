@@ -22,7 +22,8 @@ import {
   ExpandNodeFilters,
   useDefaultNeighborExpansionLimit,
 } from "@/hooks/useExpandNode";
-import { useUpdateNodeCountsSuspenseQuery } from "@/hooks/useUpdateNodeCounts";
+import { neighborsCountQuery } from "@/connector";
+import { useSuspenseQuery } from "@tanstack/react-query";
 
 export type NodeExpandContentProps = {
   vertex: DisplayVertex;
@@ -49,7 +50,7 @@ function Loading() {
 
 function ExpandSidebarContent({ vertexId }: { vertexId: VertexId }) {
   const t = useTranslations();
-  const { data } = useUpdateNodeCountsSuspenseQuery(vertexId);
+  const { data } = useSuspenseQuery(neighborsCountQuery(vertexId));
   const neighborsOptions = useNeighborsOptions(vertexId);
 
   if (data.totalCount <= 0) {

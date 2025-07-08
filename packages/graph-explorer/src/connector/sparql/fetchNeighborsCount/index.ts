@@ -1,5 +1,5 @@
 import { logger } from "@/utils";
-import type { NeighborsCountResponse } from "@/connector/useGEFetchTypes";
+import type { NeighborCountsResponse } from "@/connector/useGEFetchTypes";
 import neighborsCountTemplate from "./neighborsCountTemplate";
 import { SparqlFetch, SPARQLNeighborsCountRequest } from "../types";
 
@@ -25,7 +25,7 @@ type RawNeighborCount = {
 const fetchNeighborsCount = async (
   sparqlFetch: SparqlFetch,
   req: SPARQLNeighborsCountRequest
-): Promise<NeighborsCountResponse> => {
+): Promise<NeighborCountsResponse> => {
   let totalCount = 0;
   const counts: Record<string, number> = {};
 
@@ -39,6 +39,7 @@ const fetchNeighborsCount = async (
   });
 
   return {
+    vertexId: req.resourceURI,
     totalCount,
     counts,
   };

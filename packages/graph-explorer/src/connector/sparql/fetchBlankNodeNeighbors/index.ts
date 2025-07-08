@@ -128,6 +128,7 @@ export default async function fetchBlankNodeNeighbors(
   );
 
   return {
+    vertexId: req.resourceURI,
     totalCount: vertices.length,
     counts: Object.entries(groupBy(vertices, v => v.type)).reduce(
       (counts, [group, vs]) => {

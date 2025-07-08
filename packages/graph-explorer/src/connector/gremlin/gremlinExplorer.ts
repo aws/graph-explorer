@@ -13,6 +13,7 @@ import { FeatureFlags, NormalizedConnection } from "@/core";
 import { vertexDetails } from "./vertexDetails";
 import { edgeDetails } from "./edgeDetails";
 import { rawQuery } from "./rawQuery";
+import { bulkNeighborCounts } from "./bulkNeighborCounts";
 
 function _gremlinFetch(
   connection: NormalizedConnection,
@@ -94,6 +95,13 @@ export function createGremlinExplorer(
     async fetchNeighbors(req, options) {
       remoteLogger.info("[Gremlin Explorer] Fetching neighbors...");
       return fetchNeighbors(
+        _gremlinFetch(connection, featureFlags, options),
+        req
+      );
+    },
+    async bulkNeighborCounts(req, options) {
+      remoteLogger.info("[Gremlin Explorer] Fetching bulk neighbor counts...");
+      return bulkNeighborCounts(
         _gremlinFetch(connection, featureFlags, options),
         req
       );

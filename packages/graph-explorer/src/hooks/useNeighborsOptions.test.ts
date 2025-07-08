@@ -5,7 +5,7 @@ import {
   DbState,
   renderHookWithState,
 } from "@/utils/testing";
-import { NeighborCountsQueryResponse } from "@/connector";
+import { NeighborCountsResponse } from "@/connector";
 import { waitFor } from "@testing-library/react";
 
 describe("useNeighborsOptions", () => {
@@ -29,8 +29,8 @@ describe("useNeighborsOptions", () => {
     const dbState = new DbState();
     const vertex = createRandomVertex();
 
-    const response: NeighborCountsQueryResponse = {
-      nodeId: vertex.id,
+    const response: NeighborCountsResponse = {
+      vertexId: vertex.id,
       totalCount: 0,
       counts: {},
     };
@@ -51,8 +51,8 @@ describe("useNeighborsOptions", () => {
     const vertex = createRandomVertex();
     dbState.addVertexToGraph(vertex);
 
-    const response: NeighborCountsQueryResponse = {
-      nodeId: vertex.id,
+    const response: NeighborCountsResponse = {
+      vertexId: vertex.id,
       totalCount: 8,
       counts: { nodeType1: 5, nodeType2: 3 },
     };
@@ -96,8 +96,8 @@ describe("useNeighborsOptions", () => {
     const edge = createRandomEdge(vertex, neighbor);
     dbState.addEdgeToGraph(edge);
 
-    const response: NeighborCountsQueryResponse = {
-      nodeId: vertex.id,
+    const response: NeighborCountsResponse = {
+      vertexId: vertex.id,
       totalCount: 1,
       counts: { nodeType1: 1 },
     };
