@@ -1,13 +1,12 @@
 /* eslint-disable @typescript-eslint/require-await */
 import {
-  BulkNeighborCountRequest,
   BulkVertexDetailsRequest,
   CountsByTypeResponse,
   EdgeDetailsRequest,
   Explorer,
   MappedQueryResults,
-  NeighborCountsRequest,
-  NeighborCountsResponse,
+  NeighborsCountRequest,
+  NeighborsCountResponse,
   NeighborsResponse,
   RawQueryResponse,
   VertexDetailsRequest,
@@ -81,8 +80,8 @@ export class FakeExplorer implements Explorer {
   }
 
   async fetchNeighborsCount(
-    request: NeighborCountsRequest
-  ): Promise<NeighborCountsResponse> {
+    request: NeighborsCountRequest
+  ): Promise<NeighborsCountResponse> {
     const neighbors = this.findNeighbors(request.vertexId);
     const counts: Record<string, number> = {};
     let totalCount = 0;
@@ -95,10 +94,9 @@ export class FakeExplorer implements Explorer {
     });
 
     return {
-      vertexId: request.vertexId,
       counts,
       totalCount,
-    } satisfies NeighborCountsResponse;
+    } satisfies NeighborsCountResponse;
   }
 
   async keywordSearch(): Promise<MappedQueryResults> {
@@ -132,14 +130,6 @@ export class FakeExplorer implements Explorer {
       vertices: request.vertexIds
         .map(id => this.vertexMap.get(id))
         .filter(v => v != null),
-    };
-  }
-
-  async bulkNeighborCounts(req: BulkNeighborCountRequest) {
-    return {
-      counts: await Promise.all(
-        req.vertexIds.map(vertexId => this.fetchNeighborsCount({ vertexId }))
-      ),
     };
   }
 
