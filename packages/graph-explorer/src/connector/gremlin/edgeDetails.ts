@@ -27,8 +27,14 @@ export async function edgeDetails(
   gremlinFetch: GremlinFetch,
   request: EdgeDetailsRequest
 ): Promise<EdgeDetailsResponse> {
+  // Bail early if request is empty
+  if (!request.edgeIds.length) {
+    return { edges: [] };
+  }
+
+  const ids = request.edgeIds.map(idParam).join(",");
   const template = query`
-    g.E(${idParam(request.edgeId)})
+    g.E(${ids})
   `;
 
   // Fetch the vertex details
@@ -40,13 +46,21 @@ export async function edgeDetails(
 
   // Map the results
   const entities = mapResults(data.result.data);
-  const edge = entities.edges.length > 0 ? entities.edges[0] : null;
-  if (!edge) {
-    logger.warn("Edge not found", request.edgeId);
-    return { edge: null };
+  const edges = entities.edges;
+
+  // Log a warning if some nodes are missing
+  const missing = new Set(request.edgeIds).difference(
+    new Set(edges.map(e => e.id))
+  );
+  if (missing.size) {
+    logger.warn("Did not find all requested edges", {
+      requested: request.edgeIds,
+      missing: missing.values().toArray(),
+      data,
+    });
   }
 
   // Always false for edgeDetails query, even if the edge has no properties
-  edge.__isFragment = false;
-  return { edge };
+  edges.forEach(edge => (edge.__isFragment = false));
+  return { edges };
 }

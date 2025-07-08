@@ -18,15 +18,11 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import EntityAttribute from "../EntityDetails/EntityAttribute";
-import { vertexDetailsQuery } from "@/connector";
-import { useQuery } from "@tanstack/react-query";
 
-export function NodeSearchResult({ node }: { node: Vertex }) {
+export function VertexSearchResult({ vertex }: { vertex: Vertex }) {
   const [expanded, setExpanded] = useState(false);
 
-  const { data: detailsResponse } = useQuery(vertexDetailsQuery(node.id));
-  const preferredNode = detailsResponse?.vertex ?? node;
-  const displayNode = useDisplayVertexFromVertex(preferredNode);
+  const displayNode = useDisplayVertexFromVertex(vertex);
 
   return (
     <div
@@ -41,7 +37,7 @@ export function NodeSearchResult({ node }: { node: Vertex }) {
           <ChevronRightIcon className="text-primary-dark/50 size-5 transition-transform duration-200 ease-in-out group-data-[expanded=true]:rotate-90" />
         </div>
         <VertexRow vertex={displayNode} className="grow" />
-        <AddOrRemoveButton vertex={preferredNode} />
+        <AddOrRemoveButton vertex={vertex} />
       </div>
       <div className="border-border pl-8 transition-all group-data-[expanded=false]:h-0 group-data-[expanded=true]:h-auto group-data-[expanded=true]:border-t">
         <ul className="divide-y divide-gray-200">

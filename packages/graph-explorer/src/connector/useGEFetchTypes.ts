@@ -217,11 +217,11 @@ export type VertexDetailsResponse = {
 };
 
 export type EdgeDetailsRequest = {
-  edgeId: EdgeId;
+  edgeIds: EdgeId[];
 };
 
 export type EdgeDetailsResponse = {
-  edge: Edge | null;
+  edges: Edge[];
 };
 
 export type RawQueryRequest = {

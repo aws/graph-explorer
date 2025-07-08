@@ -113,10 +113,10 @@ export class FakeExplorer implements Explorer {
   }
 
   async edgeDetails(request: EdgeDetailsRequest) {
-    const edge = this.edgeMap.get(request.edgeId);
-
     return {
-      edge: edge ?? null,
+      edges: request.edgeIds
+        .map(id => this.edgeMap.get(id))
+        .filter(v => v != null),
     };
   }
 

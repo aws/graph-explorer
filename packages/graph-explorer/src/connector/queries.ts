@@ -1,6 +1,5 @@
 import { QueryClient, queryOptions } from "@tanstack/react-query";
 import {
-  EdgeDetailsResponse,
   KeywordSearchRequest,
   NeighborCountsResponse,
   SchemaResponse,
@@ -201,6 +200,45 @@ export function bulkVertexDetailsQuery(vertexIds: VertexId[]) {
   });
 }
 
+export function bulkEdgeDetailsQuery(edgeIds: EdgeId[]) {
+  return queryOptions({
+    queryKey: ["edges", edgeIds],
+    queryFn: async ({ client, meta, signal }) => {
+      const explorer = getExplorer(meta);
+
+      // Check for cached edges first
+      const cachedEdges = edgeIds
+        .values()
+        .map(id => client.getQueryData(edgeDetailsQuery(id).queryKey))
+        .map(response => response?.edge)
+        .filter(edge => edge != null)
+        .toArray();
+
+      const cachedIds = new Set(cachedEdges.map(v => v.id));
+      const missingIds = new Set(edgeIds).difference(cachedIds);
+
+      // Bail early if all edges are cached
+      if (missingIds.size === 0) {
+        return { edges: cachedEdges };
+      }
+
+      // Fetch any missing edges
+      const batches = chunk(Array.from(missingIds), DEFAULT_BATCH_REQUEST_SIZE);
+      const edges: Array<Edge> = cachedEdges;
+      for (const batch of batches) {
+        const request = { edgeIds: batch };
+        const response = await explorer.edgeDetails(request, { signal });
+        edges.push(...response.edges);
+      }
+
+      // Update the cache
+      updateEdgeDetailsCache(client, edges);
+
+      return { edges };
+    },
+  });
+}
+
 export function vertexDetailsQuery(vertexId: VertexId) {
   return queryOptions({
     queryKey: ["vertex", vertexId],
@@ -221,13 +259,20 @@ export function vertexDetailsQuery(vertexId: VertexId) {
 }
 
 export function edgeDetailsQuery(edgeId: EdgeId) {
-  const request = { edgeId };
-
   return queryOptions({
-    queryKey: ["db", "edge", "details", request],
-    queryFn: ({ signal, meta }) => {
+    queryKey: ["edge", edgeId],
+    queryFn: async ({ signal, meta }) => {
       const explorer = getExplorer(meta);
-      return explorer.edgeDetails(request, { signal });
+      const results = await explorer.edgeDetails(
+        { edgeIds: [edgeId] },
+        { signal }
+      );
+
+      if (!results.edges.length) {
+        return { edge: null };
+      }
+
+      return { edge: results.edges[0] };
     },
   });
 }
@@ -249,11 +294,8 @@ export function updateEdgeDetailsCache(
   edges: Edge[]
 ) {
   for (const edge of edges.filter(e => !e.__isFragment)) {
-    const response: EdgeDetailsResponse = {
-      edge,
-    };
     const queryKey = edgeDetailsQuery(edge.id).queryKey;
-    queryClient.setQueryData(queryKey, response);
+    queryClient.setQueryData(queryKey, { edge });
   }
 }
 

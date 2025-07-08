@@ -13,13 +13,19 @@ export type MapValueResult =
   | { edge: Edge }
   | { scalar: EntityPropertyValue };
 
-export function mapValuesToQueryResults(values: MapValueResult[]) {
+export function mapValuesToQueryResults(values: Iterable<MapValueResult>) {
   // Use maps to deduplicate vertices and edges
   const vertexMap = toNodeMap(
-    values.filter(e => "vertex" in e).map(e => e.vertex)
+    Iterator.from(values)
+      .filter(e => "vertex" in e)
+      .map(e => e.vertex)
   );
 
-  const edgeMap = toEdgeMap(values.filter(e => "edge" in e).map(e => e.edge));
+  const edgeMap = toEdgeMap(
+    Iterator.from(values)
+      .filter(e => "edge" in e)
+      .map(e => e.edge)
+  );
 
   // Add fragment vertices from the edges if they are missing
   for (const edge of edgeMap.values()) {
@@ -42,7 +48,10 @@ export function mapValuesToQueryResults(values: MapValueResult[]) {
   const edges = edgeMap.values().toArray();
 
   // Scalars should not be deduplicated
-  const scalars = values.filter(s => "scalar" in s).map(s => s.scalar);
+  const scalars = Iterator.from(values)
+    .filter(s => "scalar" in s)
+    .map(s => s.scalar)
+    .toArray();
 
   return toMappedQueryResults({ vertices, edges, scalars });
 }

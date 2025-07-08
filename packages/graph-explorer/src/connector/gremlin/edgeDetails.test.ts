@@ -1,66 +1,70 @@
-import { createRandomEdge, createRandomVertex } from "@/utils/testing";
+import {
+  createGEdge,
+  createRandomEdge,
+  createRandomVertex,
+} from "@/utils/testing";
 import { edgeDetails } from "./edgeDetails";
 import { Edge } from "@/core";
 
 describe("edgeDetails", () => {
-  it("should return the correct edge details", async () => {
-    const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
-    const response = createGremlinResponseFromEdge(edge);
-    const mockFetch = vi
-      .fn()
-      .mockImplementation(() => Promise.resolve(response));
+  it("should return empty when request is empty", async () => {
+    const mockFetch = vi.fn();
 
     const result = await edgeDetails(mockFetch, {
-      edgeId: edge.id,
+      edgeIds: [],
     });
 
-    expect(result.edge).toEqual(edge);
+    expect(result.edges).toEqual([]);
+    expect(mockFetch).not.toHaveBeenCalled();
+  });
+
+  it("should return the correct edge details", async () => {
+    const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
+    const response = createGremlinResponseFromEdges(edge);
+    const mockFetch = vi.fn().mockResolvedValue(response);
+
+    const result = await edgeDetails(mockFetch, {
+      edgeIds: [edge.id],
+    });
+
+    expect(result.edges).toEqual([edge]);
+  });
+
+  it("should return multiple details when request includes multiple IDs", async () => {
+    const edge1 = createRandomEdge(createRandomVertex(), createRandomVertex());
+    const edge2 = createRandomEdge(createRandomVertex(), createRandomVertex());
+    const response = createGremlinResponseFromEdges(edge1, edge2);
+    const mockFetch = vi.fn().mockResolvedValue(response);
+
+    const result = await edgeDetails(mockFetch, {
+      edgeIds: [edge1.id, edge2.id],
+    });
+
+    expect(result.edges).toEqual([edge1, edge2]);
+  });
+
+  it("should not be fragment if the response does not include the properties", async () => {
+    const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
+    edge.attributes = {};
+    edge.__isFragment = true;
+    const response = createGremlinResponseFromEdges(edge);
+    const mockFetch = vi.fn().mockResolvedValue(response);
+
+    const result = await edgeDetails(mockFetch, {
+      edgeIds: [edge.id],
+    });
+
+    expect(result.edges[0]?.__isFragment).toBe(false);
   });
 });
 
-function createGremlinResponseFromEdge(edge: Edge) {
+function createGremlinResponseFromEdges(...edges: Edge[]) {
   return {
     result: {
       data: {
         "@type": "g:List",
-        "@value": [
-          {
-            "@type": "g:Edge",
-            "@value": {
-              id: edge.id,
-              label: edge.type,
-              inV: edge.target,
-              outV: edge.source,
-              inVLabel: edge.targetTypes.join("::"),
-              outVLabel: edge.sourceTypes.join("::"),
-              properties: createProperties(edge.attributes),
-            },
-          },
-        ],
+        "@value": edges.map(createGEdge),
       },
     },
   };
-}
-
-function createProperties(attributes: Edge["attributes"]) {
-  const mapped = Object.entries(attributes).map(([key, value]) => ({
-    "@type": "g:EdgeProperty",
-    "@value": {
-      key,
-      value:
-        typeof value === "string"
-          ? value
-          : {
-              "@type": "g:Int64",
-              "@value": value,
-            },
-    },
-  }));
-
-  const result = {} as Record<string, any>;
-  mapped.forEach(prop => {
-    result[prop["@value"].key] = prop;
-  });
-
-  return result;
 }
