@@ -135,35 +135,39 @@ export function bulkVertexDetailsQuery(vertexIds: VertexId[]) {
     }): Promise<BulkVertexDetailsResponse> => {
       const explorer = getExplorer(meta);
 
-      // Check for cached vertices first
-      const cachedVertices = vertexIds
-        .values()
-        .map(id => client.getQueryData(vertexDetailsQuery(id).queryKey))
-        .map(response => response?.vertex)
-        .filter(vertex => vertex != null)
-        .toArray();
+      // Get cached and missing vertices in one pass
+      const cachedVertices: Vertex[] = [];
+      const missingIds: VertexId[] = [];
 
-      const cachedIds = new Set(cachedVertices.map(v => v.id));
-      const missingIds = new Set(vertexIds).difference(cachedIds);
+      for (const id of vertexIds) {
+        const cached = client.getQueryData(
+          vertexDetailsQuery(id).queryKey
+        )?.vertex;
+        if (cached) {
+          cachedVertices.push(cached);
+        } else {
+          missingIds.push(id);
+        }
+      }
 
-      // Bail early if all vertices are cached
-      if (missingIds.size === 0) {
+      // Return early if all vertices are cached
+      if (!missingIds.length) {
         return { vertices: cachedVertices };
       }
 
-      // Fetch any missing vertices
-      const batches = chunk(Array.from(missingIds), DEFAULT_BATCH_REQUEST_SIZE);
-      const vertices: Array<Vertex> = [];
-      for (const batch of batches) {
-        const request = { vertexIds: batch };
-        const response = await explorer.bulkVertexDetails(request, { signal });
-        vertices.push(...response.vertices);
-      }
+      // Fetch missing vertices in batches
+      const vertices = await Promise.all(
+        chunk(missingIds, DEFAULT_BATCH_REQUEST_SIZE).map(batch =>
+          explorer
+            .bulkVertexDetails({ vertexIds: batch }, { signal })
+            .then(response => response.vertices)
+        )
+      ).then(results => results.flat());
 
-      // Update the cache
+      // Update cache
       updateVertexDetailsCache(client, vertices);
 
-      return { vertices: cachedVertices.concat(vertices) };
+      return { vertices: [...cachedVertices, ...vertices] };
     },
   });
 }
