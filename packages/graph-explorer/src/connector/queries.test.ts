@@ -142,7 +142,8 @@ describe("bulkVertexDetailsQuery", () => {
     const queryClient = createQueryClient({ explorer });
 
     const vertices = createArray(
-      DEFAULT_BATCH_REQUEST_SIZE * 3,
+      // 3 full batches plus 1 additional, to make 4
+      DEFAULT_BATCH_REQUEST_SIZE * 3 + 1,
       createRandomVertex
     );
     vertices.forEach(v => explorer.addVertex(v));
@@ -152,7 +153,7 @@ describe("bulkVertexDetailsQuery", () => {
     );
 
     expect(result.vertices).toEqual(vertices);
-    expect(bulkVertexDetailsSpy).toBeCalledTimes(3);
+    expect(bulkVertexDetailsSpy).toBeCalledTimes(4);
 
     // Ensure all are added to the cache
     for (const vertex of vertices) {
