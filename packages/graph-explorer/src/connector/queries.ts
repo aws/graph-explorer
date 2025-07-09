@@ -128,6 +128,8 @@ export function nodeCountByNodeTypeQuery(nodeType: string) {
 export function bulkVertexDetailsQuery(vertexIds: VertexId[]) {
   return queryOptions({
     queryKey: ["vertices", vertexIds],
+    staleTime: 0,
+    gcTime: 0,
     queryFn: async ({
       client,
       meta,
