@@ -70,6 +70,8 @@ export function bulkNeighborCountsQuery(
 ) {
   return queryOptions({
     queryKey: ["vertices", vertexIds, "neighbor", "count"],
+    staleTime: 0,
+    gcTime: 0,
     queryFn: async ({ signal, meta, client }) => {
       // Bail early if request is empty
       if (!vertexIds.length) {
@@ -203,6 +205,8 @@ export function bulkVertexDetailsQuery(vertexIds: VertexId[]) {
 export function bulkEdgeDetailsQuery(edgeIds: EdgeId[]) {
   return queryOptions({
     queryKey: ["edges", edgeIds],
+    staleTime: 0,
+    gcTime: 0,
     queryFn: async ({ client, meta, signal }) => {
       const explorer = getExplorer(meta);
 
