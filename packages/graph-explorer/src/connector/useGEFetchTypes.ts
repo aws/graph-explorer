@@ -208,11 +208,11 @@ export type ExplorerRequestOptions = RequestInit & {
 };
 
 export type VertexDetailsRequest = {
-  vertexId: VertexId;
+  vertexIds: VertexId[];
 };
 
 export type VertexDetailsResponse = {
-  vertex: Vertex | null;
+  vertices: Vertex[];
 };
 
 export type EdgeDetailsRequest = {

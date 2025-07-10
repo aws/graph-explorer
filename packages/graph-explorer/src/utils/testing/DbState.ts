@@ -53,7 +53,7 @@ export class DbState {
   filteredEdges: Set<EdgeId> = new Set();
   filteredEdgeTypes: Set<string> = new Set();
 
-  constructor() {
+  constructor(explorer: Explorer = createMockExplorer()) {
     this.activeSchema = createRandomSchema();
 
     const config = createRandomRawConfiguration();
@@ -62,7 +62,7 @@ export class DbState {
 
     this.activeStyling = createRandomUserStyling();
 
-    this.explorer = createMockExplorer();
+    this.explorer = explorer;
   }
 
   /** Adds the vertex to the graph and updates the schema to include the type config. */

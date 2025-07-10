@@ -33,11 +33,7 @@ export const emptyExplorer: Explorer = {
     };
   },
   keywordSearch: async () => toMappedQueryResults({}),
-  vertexDetails: async () => {
-    return {
-      vertex: null,
-    };
-  },
+  vertexDetails: async () => ({ vertices: [] }),
   edgeDetails: async () => {
     return {
       edge: null,

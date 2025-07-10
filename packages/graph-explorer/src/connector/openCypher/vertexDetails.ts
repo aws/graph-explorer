@@ -1,44 +1,52 @@
+import { logger, query } from "@/utils";
 import {
-  ErrorResponse,
   VertexDetailsRequest,
   VertexDetailsResponse,
-} from "@/connector/useGEFetchTypes";
-import { OCVertex, OpenCypherFetch } from "./types";
-import isErrorResponse from "@/connector/utils/isErrorResponse";
-import mapApiVertex from "./mappers/mapApiVertex";
-import { query } from "@/utils";
+} from "../useGEFetchTypes";
+import { OpenCypherFetch } from "./types";
+import { mapResults } from "./mappers/mapResults";
+import isErrorResponse from "../utils/isErrorResponse";
 import { idParam } from "./idParam";
-
-type Response = {
-  results: [
-    {
-      vertex: OCVertex;
-    },
-  ];
-};
 
 export async function vertexDetails(
   openCypherFetch: OpenCypherFetch,
-  req: VertexDetailsRequest
+  request: VertexDetailsRequest
 ): Promise<VertexDetailsResponse> {
+  // Bail early if request is empty
+  if (!request.vertexIds.length) {
+    return { vertices: [] };
+  }
+
+  const ids = request.vertexIds.map(idParam).join(",");
   const template = query`
-    MATCH (vertex) WHERE ID(vertex) = ${idParam(req.vertexId)} RETURN vertex
+    MATCH (vertex) 
+    WHERE ID(vertex) in [${ids}] 
+    RETURN vertex
   `;
 
   // Fetch the vertex details
-  const data = await openCypherFetch<Response | ErrorResponse>(template);
+  const data = await openCypherFetch(template);
   if (isErrorResponse(data)) {
     throw new Error(data.detailedMessage);
   }
 
   // Map the results
-  const ocVertex = data.results[0]?.vertex;
+  const vertices = mapResults(data).vertices;
 
-  if (!ocVertex) {
-    console.warn("Vertex not found", req.vertexId);
-    return { vertex: null };
+  // Log a warning if some nodes are missing
+  const missing = new Set(request.vertexIds).difference(
+    new Set(vertices.map(v => v.id))
+  );
+  if (missing.size) {
+    logger.warn("Did not find all requested vertices", {
+      requested: request.vertexIds,
+      missing: missing.values().toArray(),
+      data,
+    });
   }
 
-  const vertex = mapApiVertex(ocVertex);
-  return { vertex };
+  // Always false for vertexDetails query, even if the vertex has no properties
+  vertices.forEach(vertex => (vertex.__isFragment = false));
+
+  return { vertices };
 }

@@ -2,6 +2,7 @@ export const DEFAULT_SERVICE_TYPE = "neptune-db";
 export const DEFAULT_FETCH_TIMEOUT = 240000;
 export const DEFAULT_NODE_EXPAND_LIMIT = 500;
 export const DEFAULT_CONCURRENT_REQUESTS_LIMIT = 10;
+export const DEFAULT_BATCH_REQUEST_SIZE = 100;
 
 /** The name of the special property representing the node ID */
 export const RESERVED_ID_PROPERTY = "~id";

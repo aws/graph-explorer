@@ -4,7 +4,8 @@ import {
   createRandomVertex,
   createRandomVertexForRdf,
   DbState,
-  renderHookWithJotai,
+  FakeExplorer,
+  renderHookWithState,
 } from "@/utils/testing";
 import { useAddToGraph } from "./useAddToGraph";
 import { act } from "react";
@@ -16,51 +17,26 @@ import {
   extractConfigFromEntity,
   GraphSessionStorageModel,
   nodesAtom,
-  toEdgeMap,
-  toNodeMap,
   VertexTypeConfig,
 } from "@/core";
 import { waitFor } from "@testing-library/react";
-import { useMaterializeVertices } from "./useMaterializeVertices";
 import { cloneDeep } from "lodash";
 import { useAtomValue } from "jotai";
-import { useMaterializeEdges } from "./useMaterializeEdges";
-
-vi.mock("./useMaterializeVertices", () => ({
-  useMaterializeVertices: vi.fn(),
-}));
-
-vi.mock("./useMaterializeEdges", () => ({
-  useMaterializeEdges: vi.fn(),
-}));
-
-beforeEach(() => {
-  vi.resetAllMocks();
-
-  // Default mock responses
-  vi.mocked(useMaterializeVertices).mockReturnValue(() =>
-    Promise.resolve(toNodeMap([]))
-  );
-
-  vi.mocked(useMaterializeEdges).mockReturnValue(() =>
-    Promise.resolve(toEdgeMap([]))
-  );
-});
 
 test("should add one node", async () => {
+  const explorer = new FakeExplorer();
+  const dbState = new DbState(explorer);
+
   const vertex = createRandomVertex();
+  explorer.addVertex(vertex);
 
-  vi.mocked(useMaterializeVertices).mockReturnValue(() =>
-    Promise.resolve(toNodeMap([vertex]))
-  );
-
-  const { result } = renderHookWithJotai(() => {
+  const { result } = renderHookWithState(() => {
     const callback = useAddToGraph();
     const vertices = useAtomValue(nodesAtom);
     const edges = useAtomValue(edgesAtom);
 
     return { callback, vertices, edges };
-  });
+  }, dbState);
 
   await act(() => result.current.callback({ vertices: [vertex] }));
 
@@ -71,82 +47,76 @@ test("should add one node", async () => {
 });
 
 test("should materialize fragment vertices", async () => {
+  const explorer = new FakeExplorer();
+  const dbState = new DbState(explorer);
+
   const vertex = createRandomVertex();
   const clonedVertex = cloneDeep(vertex);
   vertex.__isFragment = true;
   vertex.attributes = {};
 
-  vi.mocked(useMaterializeVertices).mockReturnValue(() =>
-    Promise.resolve(toNodeMap([clonedVertex]))
-  );
+  explorer.addVertex(clonedVertex);
 
-  const { result } = renderHookWithJotai(() => {
+  const { result } = renderHookWithState(() => {
     const callback = useAddToGraph();
     const vertices = useAtomValue(nodesAtom);
     const edges = useAtomValue(edgesAtom);
 
     return { callback, vertices, edges };
-  });
+  }, dbState);
 
   await act(() => result.current.callback({ vertices: [vertex] }));
 
-  await waitFor(() => {
-    const actual = result.current.vertices.get(vertex.id);
-    expect(actual).toEqual(clonedVertex);
-  });
+  const actual = result.current.vertices.get(vertex.id);
+  expect(actual).toEqual(clonedVertex);
 });
 
 test("should materialize fragment edges", async () => {
+  const explorer = new FakeExplorer();
+  const dbState = new DbState(explorer);
+
   const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
   const clonedEdge = cloneDeep(edge);
   edge.__isFragment = true;
   edge.attributes = {};
 
-  vi.mocked(useMaterializeEdges).mockReturnValue(() =>
-    Promise.resolve(toEdgeMap([clonedEdge]))
-  );
+  explorer.addEdge(clonedEdge);
 
-  const { result } = renderHookWithJotai(() => {
+  const { result } = renderHookWithState(() => {
     const callback = useAddToGraph();
     const vertices = useAtomValue(nodesAtom);
     const edges = useAtomValue(edgesAtom);
 
     return { callback, vertices, edges };
-  });
+  }, dbState);
 
   await act(() => result.current.callback({ edges: [edge] }));
 
-  await waitFor(() => {
-    const actual = result.current.edges.get(edge.id);
-    expect(actual).toEqual(clonedEdge);
-  });
+  const actual = result.current.edges.get(edge.id);
+  expect(actual).toEqual(clonedEdge);
 });
 
 test("should add one edge", async () => {
+  const explorer = new FakeExplorer();
+  const dbState = new DbState(explorer);
+
   const node1 = createRandomVertex();
   const node2 = createRandomVertex();
   const edge = createRandomEdge(node1, node2);
 
-  vi.mocked(useMaterializeVertices).mockReturnValue(() =>
-    Promise.resolve(toNodeMap([node1, node2]))
-  );
+  explorer.addEdge(edge);
 
-  vi.mocked(useMaterializeEdges).mockReturnValue(() =>
-    Promise.resolve(toEdgeMap([edge]))
-  );
+  // Add the nodes to the graph
+  dbState.addVertexToGraph(node1);
+  dbState.addVertexToGraph(node2);
 
-  const { result } = renderHookWithJotai(
-    () => {
-      const callback = useAddToGraph();
-      const vertices = useAtomValue(nodesAtom);
-      const edges = useAtomValue(edgesAtom);
+  const { result } = renderHookWithState(() => {
+    const callback = useAddToGraph();
+    const vertices = useAtomValue(nodesAtom);
+    const edges = useAtomValue(edgesAtom);
 
-      return { callback, vertices, edges };
-    },
-    snapshot => {
-      snapshot.set(nodesAtom, toNodeMap([node1, node2]));
-    }
-  );
+    return { callback, vertices, edges };
+  }, dbState);
 
   await act(() => result.current.callback({ edges: [edge] }));
 
@@ -157,22 +127,20 @@ test("should add one edge", async () => {
 });
 
 test("should add multiple nodes and edges", async () => {
+  const explorer = new FakeExplorer();
+  const dbState = new DbState(explorer);
+
   const randomEntities = createRandomEntities();
+  randomEntities.nodes.forEach(v => explorer.addVertex(v));
+  randomEntities.edges.forEach(e => explorer.addEdge(e));
 
-  vi.mocked(useMaterializeVertices).mockReturnValue(() =>
-    Promise.resolve(randomEntities.nodes)
-  );
-  vi.mocked(useMaterializeEdges).mockReturnValue(() =>
-    Promise.resolve(randomEntities.edges)
-  );
-
-  const { result } = renderHookWithJotai(() => {
+  const { result } = renderHookWithState(() => {
     const callback = useAddToGraph();
     const vertices = useAtomValue(nodesAtom);
     const edges = useAtomValue(edgesAtom);
 
     return { callback, vertices, edges };
-  });
+  }, dbState);
 
   await act(() =>
     result.current.callback({
@@ -181,123 +149,106 @@ test("should add multiple nodes and edges", async () => {
     })
   );
 
-  await waitFor(() => {
-    const actualNodes = result.current.vertices.values().toArray();
-    const expectedNodes = randomEntities.nodes.values().toArray();
-    expect(actualNodes).toEqual(expectedNodes);
+  const actualNodes = result.current.vertices.values().toArray();
+  const expectedNodes = randomEntities.nodes.values().toArray();
+  expect(actualNodes).toEqual(expectedNodes);
 
-    const actualEdges = result.current.edges.values().toArray();
-    const expectedEdges = randomEntities.edges.values().toArray();
-    expect(actualEdges).toEqual(expectedEdges);
-  });
+  const actualEdges = result.current.edges.values().toArray();
+  const expectedEdges = randomEntities.edges.values().toArray();
+  expect(actualEdges).toEqual(expectedEdges);
 });
 
 test("should update schema when adding a node", async () => {
+  const explorer = new FakeExplorer();
+  const dbState = new DbState(explorer);
+
   const vertex = createRandomVertex();
   const expectedVertexType = extractConfigFromEntity(vertex);
-  const dbState = new DbState();
 
-  vi.mocked(useMaterializeVertices).mockReturnValue(() =>
-    Promise.resolve(toNodeMap([vertex]))
-  );
+  explorer.addVertex(vertex);
 
-  const { result } = renderHookWithJotai(
-    () => {
-      const callback = useAddToGraph();
-      const vertices = useAtomValue(nodesAtom);
-      const edges = useAtomValue(edgesAtom);
-      const schema = useAtomValue(activeSchemaSelector);
+  const { result } = renderHookWithState(() => {
+    const callback = useAddToGraph();
+    const vertices = useAtomValue(nodesAtom);
+    const edges = useAtomValue(edgesAtom);
+    const schema = useAtomValue(activeSchemaSelector);
 
-      return { callback, vertices, edges, schema };
-    },
-    snapshot => dbState.applyTo(snapshot)
-  );
+    return { callback, vertices, edges, schema };
+  }, dbState);
 
   await act(() => result.current.callback({ vertices: [vertex] }));
 
-  await waitFor(() => {
-    const vtConfig = result.current.schema?.vertices.find(
-      v => v.type === vertex.type
-    );
-    expect(vtConfig).toEqual(expectedVertexType);
-  });
+  const vtConfig = result.current.schema?.vertices.find(
+    v => v.type === vertex.type
+  );
+  expect(vtConfig).toEqual(expectedVertexType);
 });
 
 test("should update schema when adding a node with no label", async () => {
+  const explorer = new FakeExplorer();
+  const dbState = new DbState(explorer);
+
   const vertex = createRandomVertex();
   vertex.type = "";
   vertex.types = [];
   const expectedVertexType = extractConfigFromEntity(vertex);
-  const dbState = new DbState();
 
-  vi.mocked(useMaterializeVertices).mockReturnValue(() =>
-    Promise.resolve(toNodeMap([vertex]))
-  );
+  explorer.addVertex(vertex);
 
-  const { result } = renderHookWithJotai(
-    () => {
-      const callback = useAddToGraph();
-      const vertices = useAtomValue(nodesAtom);
-      const edges = useAtomValue(edgesAtom);
-      const schema = useAtomValue(activeSchemaSelector);
+  const { result } = renderHookWithState(() => {
+    const callback = useAddToGraph();
+    const vertices = useAtomValue(nodesAtom);
+    const edges = useAtomValue(edgesAtom);
+    const schema = useAtomValue(activeSchemaSelector);
 
-      return { callback, vertices, edges, schema };
-    },
-    snapshot => dbState.applyTo(snapshot)
-  );
+    return { callback, vertices, edges, schema };
+  }, dbState);
 
   await act(() => result.current.callback({ vertices: [vertex] }));
 
-  await waitFor(() => {
-    const vtConfig = result.current.schema?.vertices.find(
-      v => v.type === vertex.type
-    );
-    expect(vtConfig).toEqual(expectedVertexType);
-  });
+  const vtConfig = result.current.schema?.vertices.find(
+    v => v.type === vertex.type
+  );
+  expect(vtConfig).toEqual(expectedVertexType);
 });
 
 test("should update schema when adding an edge", async () => {
+  const explorer = new FakeExplorer();
+  const dbState = new DbState(explorer);
+
   const node1 = createRandomVertex();
   const node2 = createRandomVertex();
   const edge = createRandomEdge(node1, node2);
   const expectedEdgeType = extractConfigFromEntity(edge);
-  const dbState = new DbState();
+
   dbState.addVertexToGraph(node1);
   dbState.addVertexToGraph(node2);
 
-  vi.mocked(useMaterializeVertices).mockReturnValue(() =>
-    Promise.resolve(toNodeMap([node1, node2]))
-  );
-  vi.mocked(useMaterializeEdges).mockReturnValue(() =>
-    Promise.resolve(toEdgeMap([edge]))
-  );
+  explorer.addVertex(node1);
+  explorer.addVertex(node2);
+  explorer.addEdge(edge);
 
-  const { result } = renderHookWithJotai(
-    () => {
-      const callback = useAddToGraph();
-      const vertices = useAtomValue(nodesAtom);
-      const edges = useAtomValue(edgesAtom);
-      const schema = useAtomValue(activeSchemaSelector);
+  const { result } = renderHookWithState(() => {
+    const callback = useAddToGraph();
+    const vertices = useAtomValue(nodesAtom);
+    const edges = useAtomValue(edgesAtom);
+    const schema = useAtomValue(activeSchemaSelector);
 
-      return { callback, vertices, edges, schema };
-    },
-    snapshot => dbState.applyTo(snapshot)
-  );
+    return { callback, vertices, edges, schema };
+  }, dbState);
 
   await act(() => result.current.callback({ edges: [edge] }));
 
-  await waitFor(() => {
-    const etConfig = result.current.schema?.edges.find(
-      e => e.type === edge.type
-    );
-    expect(etConfig).toEqual(expectedEdgeType);
-  });
+  const etConfig = result.current.schema?.edges.find(e => e.type === edge.type);
+  expect(etConfig).toEqual(expectedEdgeType);
 });
 
 test("should add missing attributes to the schema when adding a node", async () => {
+  const explorer = new FakeExplorer();
+  const dbState = new DbState(explorer);
+
   const vertex = createRandomVertex();
   const expectedVertexType = extractConfigFromEntity(vertex);
-  const dbState = new DbState();
 
   // Clear out the attributes in the initial schema
   const initialVtConfig: VertexTypeConfig = {
@@ -306,38 +257,34 @@ test("should add missing attributes to the schema when adding a node", async () 
   };
   dbState.activeSchema.vertices.push(initialVtConfig);
 
-  vi.mocked(useMaterializeVertices).mockReturnValue(() =>
-    Promise.resolve(toNodeMap([vertex]))
-  );
+  explorer.addVertex(vertex);
 
-  const { result } = renderHookWithJotai(
-    () => {
-      const callback = useAddToGraph();
-      const vertices = useAtomValue(nodesAtom);
-      const edges = useAtomValue(edgesAtom);
-      const schema = useAtomValue(activeSchemaSelector);
+  const { result } = renderHookWithState(() => {
+    const callback = useAddToGraph();
+    const vertices = useAtomValue(nodesAtom);
+    const edges = useAtomValue(edgesAtom);
+    const schema = useAtomValue(activeSchemaSelector);
 
-      return { callback, vertices, edges, schema };
-    },
-    snapshot => dbState.applyTo(snapshot)
-  );
+    return { callback, vertices, edges, schema };
+  }, dbState);
 
   await act(() => result.current.callback({ vertices: [vertex] }));
 
-  await waitFor(() => {
-    const vtConfig = result.current.schema?.vertices.find(
-      v => v.type === vertex.type
-    );
-    expect(vtConfig).toEqual(expectedVertexType);
-  });
+  const vtConfig = result.current.schema?.vertices.find(
+    v => v.type === vertex.type
+  );
+  expect(vtConfig).toEqual(expectedVertexType);
 });
 
 test("should add missing attributes to the schema when adding an edge", async () => {
+  const explorer = new FakeExplorer();
+  const dbState = new DbState(explorer);
+
   const node1 = createRandomVertex();
   const node2 = createRandomVertex();
   const edge = createRandomEdge(node1, node2);
   const expectedEdgeType = extractConfigFromEntity(edge);
-  const dbState = new DbState();
+
   dbState.addVertexToGraph(node1);
   dbState.addVertexToGraph(node2);
 
@@ -348,51 +295,38 @@ test("should add missing attributes to the schema when adding an edge", async ()
   };
   dbState.activeSchema.edges.push(initialEtConfig);
 
-  vi.mocked(useMaterializeVertices).mockReturnValue(() =>
-    Promise.resolve(toNodeMap([node1, node2]))
-  );
-  vi.mocked(useMaterializeEdges).mockReturnValue(() =>
-    Promise.resolve(toEdgeMap([edge]))
-  );
+  explorer.addVertex(node1);
+  explorer.addVertex(node2);
+  explorer.addEdge(edge);
 
-  const { result } = renderHookWithJotai(
-    () => {
-      const callback = useAddToGraph();
-      const vertices = useAtomValue(nodesAtom);
-      const edges = useAtomValue(edgesAtom);
-      const schema = useAtomValue(activeSchemaSelector);
+  const { result } = renderHookWithState(() => {
+    const callback = useAddToGraph();
+    const vertices = useAtomValue(nodesAtom);
+    const edges = useAtomValue(edgesAtom);
+    const schema = useAtomValue(activeSchemaSelector);
 
-      return { callback, vertices, edges, schema };
-    },
-    snapshot => dbState.applyTo(snapshot)
-  );
+    return { callback, vertices, edges, schema };
+  }, dbState);
 
   await act(() => result.current.callback({ edges: [edge] }));
 
-  await waitFor(() => {
-    const etConfig = result.current.schema?.edges.find(
-      e => e.type === edge.type
-    );
-    expect(etConfig).toEqual(expectedEdgeType);
-  });
+  const etConfig = result.current.schema?.edges.find(e => e.type === edge.type);
+  expect(etConfig).toEqual(expectedEdgeType);
 });
 
 test("should update graph storage when adding a node", async () => {
+  const explorer = new FakeExplorer();
+  const dbState = new DbState(explorer);
+
   const vertex = createRandomVertex();
-  const dbState = new DbState();
 
-  vi.mocked(useMaterializeVertices).mockReturnValue(() =>
-    Promise.resolve(toNodeMap([vertex]))
-  );
+  explorer.addVertex(vertex);
 
-  const { result } = renderHookWithJotai(
-    () => {
-      const callback = useAddToGraph();
-      const graph = useAtomValue(activeGraphSessionAtom);
-      return { callback, graph };
-    },
-    snapshot => dbState.applyTo(snapshot)
-  );
+  const { result } = renderHookWithState(() => {
+    const callback = useAddToGraph();
+    const graph = useAtomValue(activeGraphSessionAtom);
+    return { callback, graph };
+  }, dbState);
 
   await act(() => result.current.callback({ vertices: [vertex] }));
 
@@ -401,35 +335,29 @@ test("should update graph storage when adding a node", async () => {
     edges: new Set(),
   };
 
-  await waitFor(() => {
-    expect(result.current.graph).toEqual(expectedGraph);
-  });
+  expect(result.current.graph).toEqual(expectedGraph);
 });
 
 test("should update graph storage when adding an edge", async () => {
+  const explorer = new FakeExplorer();
+  const dbState = new DbState(explorer);
+
   const node1 = createRandomVertex();
   const node2 = createRandomVertex();
   const edge = createRandomEdge(node1, node2);
 
-  const dbState = new DbState();
   dbState.addVertexToGraph(node1);
   dbState.addVertexToGraph(node2);
 
-  vi.mocked(useMaterializeVertices).mockReturnValue(() =>
-    Promise.resolve(toNodeMap([node1, node2]))
-  );
-  vi.mocked(useMaterializeEdges).mockReturnValue(() =>
-    Promise.resolve(toEdgeMap([edge]))
-  );
+  explorer.addVertex(node1);
+  explorer.addVertex(node2);
+  explorer.addEdge(edge);
 
-  const { result } = renderHookWithJotai(
-    () => {
-      const callback = useAddToGraph();
-      const graph = useAtomValue(activeGraphSessionAtom);
-      return { callback, graph };
-    },
-    snapshot => dbState.applyTo(snapshot)
-  );
+  const { result } = renderHookWithState(() => {
+    const callback = useAddToGraph();
+    const graph = useAtomValue(activeGraphSessionAtom);
+    return { callback, graph };
+  }, dbState);
 
   await act(() => result.current.callback({ edges: [edge] }));
 
@@ -438,31 +366,26 @@ test("should update graph storage when adding an edge", async () => {
     edges: new Set([edge.id]),
   };
 
-  await waitFor(() => {
-    expect(result.current.graph).toEqual(expectedGraph);
-  });
+  expect(result.current.graph).toEqual(expectedGraph);
 });
 
 test("should ignore blank nodes when updating graph storage", async () => {
+  const explorer = new FakeExplorer();
+  const dbState = new DbState(explorer);
+
   const vertex = createRandomVertexForRdf();
   const blankNode = createRandomVertexForRdf();
   blankNode.__isBlank = true;
   const edge = createRandomEdge(vertex, blankNode);
 
-  const dbState = new DbState();
+  explorer.addVertex(vertex);
+  explorer.addVertex(blankNode);
 
-  vi.mocked(useMaterializeVertices).mockReturnValue(() =>
-    Promise.resolve(toNodeMap([vertex, blankNode]))
-  );
-
-  const { result } = renderHookWithJotai(
-    () => {
-      const callback = useAddToGraph();
-      const graph = useAtomValue(activeGraphSessionAtom);
-      return { callback, graph };
-    },
-    snapshot => dbState.applyTo(snapshot)
-  );
+  const { result } = renderHookWithState(() => {
+    const callback = useAddToGraph();
+    const graph = useAtomValue(activeGraphSessionAtom);
+    return { callback, graph };
+  }, dbState);
 
   await act(() =>
     result.current.callback({ vertices: [vertex, blankNode], edges: [edge] })
@@ -473,7 +396,5 @@ test("should ignore blank nodes when updating graph storage", async () => {
     edges: new Set(),
   };
 
-  await waitFor(() => {
-    expect(result.current.graph).toEqual(expectedGraph);
-  });
+  expect(result.current.graph).toEqual(expectedGraph);
 });

@@ -27,8 +27,14 @@ export async function vertexDetails(
   gremlinFetch: GremlinFetch,
   request: VertexDetailsRequest
 ): Promise<VertexDetailsResponse> {
+  // Bail early if request is empty
+  if (!request.vertexIds.length) {
+    return { vertices: [] };
+  }
+
+  const ids = request.vertexIds.map(idParam).join(",");
   const template = query`
-    g.V(${idParam(request.vertexId)})
+    g.V(${ids})
   `;
 
   // Fetch the vertex details
@@ -39,13 +45,22 @@ export async function vertexDetails(
 
   // Map the results
   const entities = mapResults(data.result.data);
-  const vertex = entities.vertices.length > 0 ? entities.vertices[0] : null;
-  if (!vertex) {
-    logger.warn("Vertex not found", request.vertexId);
-    return { vertex: null };
+  const vertices = entities.vertices;
+
+  // Log a warning if some nodes are missing
+  const missing = new Set(request.vertexIds).difference(
+    new Set(vertices.map(v => v.id))
+  );
+  if (missing.size) {
+    logger.warn("Did not find all requested vertices", {
+      requested: request.vertexIds,
+      missing: missing.values().toArray(),
+      data,
+    });
   }
 
   // Always false for vertexDetails query, even if the vertex has no properties
-  vertex.__isFragment = false;
-  return { vertex };
+  vertices.forEach(vertex => (vertex.__isFragment = false));
+
+  return { vertices };
 }

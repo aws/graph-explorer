@@ -3,16 +3,16 @@ import {
   EdgeDetailsResponse,
   KeywordSearchRequest,
   SchemaResponse,
-  VertexDetailsResponse,
 } from "./useGEFetchTypes";
 import { Edge, EdgeId, Vertex, VertexId } from "@/core";
 import {
   UpdateSchemaHandler,
   updateSchemaPrefixes,
 } from "@/core/StateProvider/schema";
-import { logger } from "@/utils";
+import { DEFAULT_BATCH_REQUEST_SIZE, logger } from "@/utils";
 import { emptyExplorer } from "./emptyExplorer";
 import { GraphExplorerMeta } from "@/core/queryClient";
+import { chunk } from "lodash";
 
 /**
  * Fetches the schema from the given explorer and updates the local cache with the new schema.
@@ -123,14 +123,66 @@ export function nodeCountByNodeTypeQuery(nodeType: string) {
   });
 }
 
-export function vertexDetailsQuery(vertexId: VertexId) {
-  const request = { vertexId };
-
+export function bulkVertexDetailsQuery(vertexIds: VertexId[]) {
   return queryOptions({
-    queryKey: ["db", "vertex", "details", request],
-    queryFn: ({ signal, meta }) => {
+    queryKey: ["vertices", vertexIds],
+    staleTime: 0,
+    gcTime: 0,
+    queryFn: async ({ client, meta, signal }) => {
       const explorer = getExplorer(meta);
-      return explorer.vertexDetails(request, { signal });
+
+      // Get cached and missing vertices in one pass
+      const cachedVertices: Vertex[] = [];
+      const missingIds: VertexId[] = [];
+
+      for (const id of vertexIds) {
+        const cached = client.getQueryData(
+          vertexDetailsQuery(id).queryKey
+        )?.vertex;
+        if (cached) {
+          cachedVertices.push(cached);
+        } else {
+          missingIds.push(id);
+        }
+      }
+
+      // Return early if all vertices are cached
+      if (!missingIds.length) {
+        return { vertices: cachedVertices };
+      }
+
+      // Fetch missing vertices in batches
+      const vertices = await Promise.all(
+        chunk(missingIds, DEFAULT_BATCH_REQUEST_SIZE).map(batch =>
+          explorer
+            .vertexDetails({ vertexIds: batch }, { signal })
+            .then(response => response.vertices)
+        )
+      ).then(results => results.flat());
+
+      // Update cache
+      updateVertexDetailsCache(client, vertices);
+
+      return { vertices: [...cachedVertices, ...vertices] };
+    },
+  });
+}
+
+export function vertexDetailsQuery(vertexId: VertexId) {
+  return queryOptions({
+    queryKey: ["vertex", vertexId],
+    queryFn: async ({ signal, meta }) => {
+      const explorer = getExplorer(meta);
+      const results = await explorer.vertexDetails(
+        { vertexIds: [vertexId] },
+        { signal }
+      );
+
+      if (!results.vertices.length) {
+        return { vertex: null };
+      }
+
+      return { vertex: results.vertices[0] };
     },
   });
 }
@@ -153,11 +205,8 @@ export function updateVertexDetailsCache(
   vertices: Vertex[]
 ) {
   for (const vertex of vertices.filter(v => !v.__isFragment)) {
-    const response: VertexDetailsResponse = {
-      vertex,
-    };
     const queryKey = vertexDetailsQuery(vertex.id).queryKey;
-    queryClient.setQueryData(queryKey, response);
+    queryClient.setQueryData(queryKey, { vertex });
   }
 }
 

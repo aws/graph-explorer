@@ -115,7 +115,7 @@ export function mergeConfiguration(
   };
 }
 
-function normalizeConnection(connection: ConnectionConfig) {
+export function normalizeConnection(connection: ConnectionConfig) {
   return {
     ...connection,
     // Remove trailing slash
