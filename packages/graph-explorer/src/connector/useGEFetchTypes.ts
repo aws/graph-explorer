@@ -148,10 +148,10 @@ export type NeighborCountsRequest = {
   /**
    * Source vertex ID & type.
    */
-  vertexId: VertexId;
+  vertexIds: VertexId[];
 };
 
-export type NeighborCountsResponse = {
+export type NeighborCount = {
   vertexId: VertexId;
   /**
    * Number of connected vertices.
@@ -160,7 +160,13 @@ export type NeighborCountsResponse = {
   /**
    * Number of connected vertices by vertex type.
    */
-  counts: { [vertexType: string]: number };
+  counts: {
+    [vertexType: string]: number;
+  };
+};
+
+export type NeighborCountsResponse = {
+  counts: Array<NeighborCount>;
 };
 
 export type KeywordSearchRequest = {
@@ -230,14 +236,6 @@ export type RawQueryRequest = {
 
 export type RawQueryResponse = MappedQueryResults;
 
-export type BulkNeighborCountRequest = {
-  vertexIds: VertexId[];
-};
-
-export type BulkNeighborCountResponse = {
-  counts: Array<NeighborCountsResponse>;
-};
-
 /**
  * Abstracted interface to the common database queries used by
  * Graph Explorer.
@@ -261,10 +259,6 @@ export type Explorer = {
     req: KeywordSearchRequest,
     options?: ExplorerRequestOptions
   ) => Promise<KeywordSearchResponse>;
-  bulkNeighborCounts: (
-    req: BulkNeighborCountRequest,
-    options?: ExplorerRequestOptions
-  ) => Promise<BulkNeighborCountResponse>;
   vertexDetails: (
     req: VertexDetailsRequest,
     options?: ExplorerRequestOptions

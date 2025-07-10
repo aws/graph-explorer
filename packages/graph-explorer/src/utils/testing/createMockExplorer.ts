@@ -3,7 +3,6 @@ import { createRandomRawConfiguration } from "./randomData";
 
 export function createMockExplorer(): Explorer {
   return <Explorer>{
-    bulkNeighborCounts: vi.fn(),
     fetchNeighborsCount: vi.fn(),
     keywordSearch: vi.fn(),
     fetchNeighbors: vi.fn(),

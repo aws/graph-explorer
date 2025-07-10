@@ -26,14 +26,7 @@ export const emptyExplorer: Explorer = {
     };
   },
   fetchNeighbors: async () => toMappedQueryResults({}),
-  bulkNeighborCounts: async () => ({ counts: [] }),
-  fetchNeighborsCount: async req => {
-    return {
-      vertexId: req.vertexId,
-      totalCount: 0,
-      counts: {},
-    };
-  },
+  fetchNeighborsCount: async () => ({ counts: [] }),
   keywordSearch: async () => toMappedQueryResults({}),
   vertexDetails: async () => ({ vertices: [] }),
   edgeDetails: async () => ({ edges: [] }),

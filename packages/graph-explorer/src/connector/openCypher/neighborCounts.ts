@@ -1,7 +1,7 @@
 import { query } from "@/utils";
 import {
-  BulkNeighborCountRequest,
-  BulkNeighborCountResponse,
+  NeighborCount,
+  NeighborCountsRequest,
   NeighborCountsResponse,
 } from "../useGEFetchTypes";
 import { idParam } from "./idParam";
@@ -10,10 +10,15 @@ import isErrorResponse from "../utils/isErrorResponse";
 import { parseResults } from "./mappers/mapResults";
 import { createVertexId, EntityRawId } from "@/core";
 
-export async function bulkNeighborCounts(
+export async function neighborCounts(
   openCypherFetch: OpenCypherFetch,
-  request: BulkNeighborCountRequest
-): Promise<BulkNeighborCountResponse> {
+  request: NeighborCountsRequest
+): Promise<NeighborCountsResponse> {
+  // Bail early if request is empty
+  if (!request.vertexIds.length) {
+    return { counts: [] };
+  }
+
   const ids = request.vertexIds.map(idParam).join(",");
   const template = query`
     MATCH (source)--(neighbor)
@@ -35,7 +40,7 @@ export async function bulkNeighborCounts(
   // Map the results
   const vertices = parseResults(data);
 
-  const counts: NeighborCountsResponse[] = [];
+  const counts: NeighborCount[] = [];
   for (const result of vertices) {
     const rawId = result["id"] as EntityRawId;
     const rawCounts = result["counts"] as Array<{

@@ -5,10 +5,8 @@ import {
   type ExplorerRequestOptions,
 } from "../useGEFetchTypes";
 import { fetchDatabaseRequest } from "../fetchDatabaseRequest";
-import fetchBlankNodeNeighbors from "./fetchBlankNodeNeighbors";
 import fetchClassCounts from "./fetchVertexCountsByType";
 import fetchNeighbors from "./fetchNeighbors";
-import fetchNeighborsCount from "./fetchNeighborsCount";
 import fetchSchema from "./fetchSchema";
 import keywordSearch from "./keywordSearch";
 import {
@@ -26,7 +24,7 @@ import { storedBlankNodeNeighborsRequest } from "./fetchNeighbors/storedBlankNod
 import { replaceBlankNodeFromSearch } from "./keywordSearch/replaceBlankNodeFromSearch";
 import { vertexDetails } from "./vertexDetails";
 import { edgeDetails } from "./edgeDetails";
-import { bulkNeighborCounts } from "./bulkNeighborCounts";
+import { neighborCounts } from "./neighborCounts";
 
 function _sparqlFetch(
   connection: NormalizedConnection,
@@ -141,55 +139,12 @@ export function createSparqlExplorer(
       );
       return toMappedQueryResults({ vertices, edges: response.edges });
     },
-    async bulkNeighborCounts(req, options) {
-      remoteLogger.info("[SPARQL Explorer] Fetching bulk neighbor counts...");
-      return bulkNeighborCounts(
-        _sparqlFetch(connection, featureFlags, options),
-        req
-      );
-    },
     async fetchNeighborsCount(req, options) {
-      remoteLogger.info("[SPARQL Explorer] Fetching neighbors count...");
-      const bNode = blankNodes.get(req.vertexId);
-
-      if (bNode?.neighbors) {
-        return {
-          vertexId: req.vertexId,
-          ...bNode.neighborCounts,
-        };
-      }
-
-      if (bNode && !bNode.neighbors) {
-        const response = await fetchBlankNodeNeighbors(
-          _sparqlFetch(connection, featureFlags, options),
-          {
-            resourceURI: bNode.vertex.id,
-            resourceClasses: bNode.vertex.types,
-            subQuery: bNode.subQueryTemplate,
-          }
-        );
-
-        blankNodes.set(req.vertexId, {
-          ...bNode,
-          neighborCounts: {
-            totalCount: response.totalCount,
-            counts: response.counts,
-          },
-          neighbors: response.neighbors,
-        });
-
-        return {
-          vertexId: req.vertexId,
-          totalCount: response.totalCount,
-          counts: response.counts,
-        };
-      }
-
-      return fetchNeighborsCount(
+      remoteLogger.info("[SPARQL Explorer] Fetching neighbor counts...");
+      return neighborCounts(
         _sparqlFetch(connection, featureFlags, options),
-        {
-          resourceURI: req.vertexId,
-        }
+        req,
+        blankNodes
       );
     },
     async keywordSearch(req, options) {

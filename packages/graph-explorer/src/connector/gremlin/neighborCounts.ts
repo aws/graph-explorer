@@ -1,8 +1,8 @@
 import { query } from "@/utils";
 import {
-  BulkNeighborCountRequest,
-  BulkNeighborCountResponse,
   ErrorResponse,
+  NeighborCountsRequest,
+  NeighborCountsResponse,
 } from "../useGEFetchTypes";
 import { GInt64, GremlinFetch } from "./types";
 import isErrorResponse from "../utils/isErrorResponse";
@@ -35,10 +35,10 @@ type Response = {
   };
 };
 
-export async function bulkNeighborCounts(
+export async function neighborCounts(
   gremlinFetch: GremlinFetch,
-  request: BulkNeighborCountRequest
-): Promise<BulkNeighborCountResponse> {
+  request: NeighborCountsRequest
+): Promise<NeighborCountsResponse> {
   const ids = request.vertexIds.map(idParam).join(",");
   const template = query`
     g.V(${ids})

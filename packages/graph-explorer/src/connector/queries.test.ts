@@ -13,7 +13,7 @@ import {
   neighborsCountQuery,
   vertexDetailsQuery,
 } from "./queries";
-import { NeighborCountsResponse } from "./useGEFetchTypes";
+import { NeighborCount } from "./useGEFetchTypes";
 import { createQueryClient } from "@/core/queryClient";
 import { createArray } from "@shared/utils/testing";
 import { DEFAULT_BATCH_REQUEST_SIZE } from "@/utils";
@@ -317,7 +317,7 @@ describe("bulkEdgeDetailsQuery", () => {
 describe("bulkNeighborCountsQuery", () => {
   it("should return nothing when input is empty", async () => {
     const explorer = new FakeExplorer();
-    const bulkNeighborCountsSpy = vi.spyOn(explorer, "bulkNeighborCounts");
+    const bulkNeighborCountsSpy = vi.spyOn(explorer, "fetchNeighborsCount");
     const queryClient = createQueryClient({ explorer });
 
     const result = await queryClient.fetchQuery(
@@ -330,13 +330,13 @@ describe("bulkNeighborCountsQuery", () => {
 
   it("should return cached when input is cached", async () => {
     const explorer = new FakeExplorer();
-    const bulkNeighborCountsSpy = vi.spyOn(explorer, "bulkNeighborCounts");
+    const bulkNeighborCountsSpy = vi.spyOn(explorer, "fetchNeighborsCount");
     const queryClient = createQueryClient({ explorer });
 
     const vertex = createRandomVertex();
 
     // Add counts to cache
-    const cachedResponse: NeighborCountsResponse = {
+    const cachedResponse: NeighborCount = {
       vertexId: vertex.id,
       counts: { inCount: 1, outCount: 2 },
       totalCount: 3,
@@ -361,11 +361,11 @@ describe("bulkNeighborCountsQuery", () => {
 
   it("should fetch counts for input", async () => {
     const explorer = new FakeExplorer();
-    const bulkNeighborCountsSpy = vi.spyOn(explorer, "bulkNeighborCounts");
+    const bulkNeighborCountsSpy = vi.spyOn(explorer, "fetchNeighborsCount");
     const queryClient = createQueryClient({ explorer });
 
     const vertex = createRandomVertex();
-    const expected: NeighborCountsResponse = {
+    const expected: NeighborCount = {
       vertexId: vertex.id,
       counts: { inCount: 1, outCount: 2 },
       totalCount: 3,
@@ -391,12 +391,12 @@ describe("bulkNeighborCountsQuery", () => {
 
   it("should combine cached and fetched", async () => {
     const explorer = new FakeExplorer();
-    const bulkNeighborCountsSpy = vi.spyOn(explorer, "bulkNeighborCounts");
+    const bulkNeighborCountsSpy = vi.spyOn(explorer, "fetchNeighborsCount");
     const queryClient = createQueryClient({ explorer });
 
     // Add counts to cache
     const vertexCached = createRandomVertex();
-    const cachedResponse: NeighborCountsResponse = {
+    const cachedResponse: NeighborCount = {
       vertexId: vertexCached.id,
       counts: { inCount: 1, outCount: 2 },
       totalCount: 3,
@@ -408,7 +408,7 @@ describe("bulkNeighborCountsQuery", () => {
 
     // Mock fetch response
     const vertexFetched = createRandomVertex();
-    const fetchedResponse: NeighborCountsResponse = {
+    const fetchedResponse: NeighborCount = {
       vertexId: vertexFetched.id,
       counts: { inCount: 1, outCount: 2 },
       totalCount: 3,
@@ -435,7 +435,7 @@ describe("bulkNeighborCountsQuery", () => {
 
   it("should batch fetches for input", async () => {
     const explorer = new FakeExplorer();
-    const bulkNeighborCountsSpy = vi.spyOn(explorer, "bulkNeighborCounts");
+    const bulkNeighborCountsSpy = vi.spyOn(explorer, "fetchNeighborsCount");
     const queryClient = createQueryClient({ explorer });
 
     const vertices = createArray(

@@ -1,10 +1,12 @@
 import { logger, query } from "@/utils";
 import {
-  BulkNeighborCountRequest,
-  BulkNeighborCountResponse,
+  NeighborCount,
+  NeighborCountsRequest,
   NeighborCountsResponse,
 } from "../useGEFetchTypes";
 import {
+  BlankNodeItem,
+  BlankNodesMap,
   SparqlFetch,
   sparqlResponseSchema,
   sparqlUriValueSchema,
@@ -14,6 +16,7 @@ import { idParam } from "./idParam";
 import isErrorResponse from "../utils/isErrorResponse";
 import { z } from "zod";
 import { createVertexId, VertexId } from "@/core";
+import fetchBlankNodeNeighbors from "./fetchBlankNodeNeighbors";
 
 const bindingSchema = z.object({
   resource: sparqlUriValueSchema,
@@ -22,17 +25,44 @@ const bindingSchema = z.object({
 });
 const responseSchema = sparqlResponseSchema(bindingSchema);
 
-export async function bulkNeighborCounts(
+export async function neighborCounts(
   sparqlFetch: SparqlFetch,
-  request: BulkNeighborCountRequest
-): Promise<BulkNeighborCountResponse> {
+  request: NeighborCountsRequest,
+  blankNodes: BlankNodesMap
+): Promise<NeighborCountsResponse> {
+  const blankNodeResponses = await fetchBlankNodeNeighborCounts(
+    sparqlFetch,
+    request,
+    blankNodes
+  );
+
+  const nonBlankNodeResponses = await fetchNeighborCounts(
+    sparqlFetch,
+    request,
+    blankNodes
+  );
+
+  return {
+    counts: [...blankNodeResponses.counts, ...nonBlankNodeResponses.counts],
+  };
+}
+
+async function fetchNeighborCounts(
+  sparqlFetch: SparqlFetch,
+  request: NeighborCountsRequest,
+  blankNodes: BlankNodesMap
+): Promise<NeighborCountsResponse> {
+  const nonBlankNodeVertexIds = request.vertexIds.filter(
+    id => !blankNodes.has(id)
+  );
+
   const template = query`
     # Count neighbors by class which are related with the given subject URI
     SELECT ?resource ?class (COUNT(?neighbor) as ?count) {
       SELECT DISTINCT ?resource ?class ?neighbor
       WHERE {
         VALUES ?resource {
-          ${request.vertexIds.map(idParam).join("\n")}
+          ${nonBlankNodeVertexIds.map(idParam).join("\n")}
         }
 
         {
@@ -80,7 +110,7 @@ export async function bulkNeighborCounts(
   }
 
   // Add empty values for all request IDs
-  const groupedResults = new Map<VertexId, NeighborCountsResponse>();
+  const groupedResults = new Map<VertexId, NeighborCount>();
   for (const id of request.vertexIds) {
     groupedResults.set(id, {
       vertexId: id,
@@ -112,4 +142,70 @@ export async function bulkNeighborCounts(
   }
 
   return { counts: Array.from(groupedResults.values()) };
+}
+
+async function fetchBlankNodeNeighborCounts(
+  sparqlFetch: SparqlFetch,
+  request: NeighborCountsRequest,
+  blankNodes: BlankNodesMap
+) {
+  const counts: NeighborCount[] = [];
+  const missing: Map<VertexId, BlankNodeItem> = new Map();
+
+  // Find cached and missing blank node neighbor counts
+  for (const vertexId of request.vertexIds) {
+    const bNode = blankNodes.get(vertexId);
+    if (!bNode) {
+      continue;
+    }
+
+    if (bNode.neighbors) {
+      counts.push({
+        vertexId,
+        ...bNode.neighborCounts,
+      });
+    } else {
+      missing.set(vertexId, bNode);
+    }
+  }
+
+  // Fetch any missing blank node neighbor counts
+  const blankNodeResponses = await Promise.all(
+    missing.entries().map(async ([vertexId, bNode]) => {
+      const response = await fetchBlankNodeNeighbors(sparqlFetch, {
+        resourceURI: bNode.vertex.id,
+        resourceClasses: bNode.vertex.types,
+        subQuery: bNode.subQueryTemplate,
+      });
+
+      return {
+        ...response,
+        bNode,
+        vertexId,
+      };
+    })
+  );
+
+  for (const response of blankNodeResponses) {
+    // Cache the neighbor counts
+    blankNodes.set(response.vertexId, {
+      ...response.bNode,
+      neighborCounts: {
+        totalCount: response.totalCount,
+        counts: response.counts,
+      },
+      neighbors: response.neighbors,
+    });
+
+    // Add to the result set
+    counts.push({
+      vertexId: response.vertexId,
+      totalCount: response.totalCount,
+      counts: response.counts,
+    });
+  }
+
+  return {
+    counts: counts,
+  };
 }

@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/require-await */
 import {
-  BulkNeighborCountRequest,
   CountsByTypeResponse,
   EdgeDetailsRequest,
   Explorer,
   MappedQueryResults,
+  NeighborCount,
   NeighborCountsRequest,
   NeighborCountsResponse,
   NeighborsResponse,
@@ -82,22 +82,26 @@ export class FakeExplorer implements Explorer {
   async fetchNeighborsCount(
     request: NeighborCountsRequest
   ): Promise<NeighborCountsResponse> {
-    const neighbors = this.findNeighbors(request.vertexId);
-    const counts: Record<string, number> = {};
-    let totalCount = 0;
-
-    // Count neighbors by type
-    neighbors.forEach(neighbor => {
-      const neighborType = neighbor.type;
-      counts[neighborType] = (counts[neighborType] || 0) + 1;
-      totalCount++;
-    });
-
     return {
-      vertexId: request.vertexId,
-      counts,
-      totalCount,
-    } satisfies NeighborCountsResponse;
+      counts: request.vertexIds.map(vertexId => {
+        const neighbors = this.findNeighbors(vertexId);
+        const counts: Record<string, number> = {};
+        let totalCount = 0;
+
+        // Count neighbors by type
+        neighbors.forEach(neighbor => {
+          const neighborType = neighbor.type;
+          counts[neighborType] = (counts[neighborType] || 0) + 1;
+          totalCount++;
+        });
+
+        return {
+          vertexId,
+          counts,
+          totalCount,
+        } satisfies NeighborCount;
+      }),
+    };
   }
 
   async keywordSearch(): Promise<MappedQueryResults> {
@@ -124,14 +128,6 @@ export class FakeExplorer implements Explorer {
     throw new Error(
       "rawQuery can never have a fake implmentation. Use mocking instead."
     );
-  }
-
-  async bulkNeighborCounts(req: BulkNeighborCountRequest) {
-    return {
-      counts: await Promise.all(
-        req.vertexIds.map(vertexId => this.fetchNeighborsCount({ vertexId }))
-      ),
-    };
   }
 
   findNeighbors(vertexId: VertexId) {

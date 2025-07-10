@@ -5,7 +5,7 @@ import {
   DbState,
   renderHookWithState,
 } from "@/utils/testing";
-import { NeighborCountsResponse } from "@/connector";
+import { NeighborCount } from "@/connector";
 import { waitFor } from "@testing-library/react";
 
 describe("useNeighborsOptions", () => {
@@ -29,14 +29,14 @@ describe("useNeighborsOptions", () => {
     const dbState = new DbState();
     const vertex = createRandomVertex();
 
-    const response: NeighborCountsResponse = {
+    const response: NeighborCount = {
       vertexId: vertex.id,
       totalCount: 0,
       counts: {},
     };
-    vi.mocked(dbState.explorer.fetchNeighborsCount).mockResolvedValueOnce(
-      response
-    );
+    vi.mocked(dbState.explorer.fetchNeighborsCount).mockResolvedValueOnce({
+      counts: [response],
+    });
 
     const { result } = renderHookWithState(
       () => useNeighborsOptions(vertex.id),
@@ -51,14 +51,14 @@ describe("useNeighborsOptions", () => {
     const vertex = createRandomVertex();
     dbState.addVertexToGraph(vertex);
 
-    const response: NeighborCountsResponse = {
+    const response: NeighborCount = {
       vertexId: vertex.id,
       totalCount: 8,
       counts: { nodeType1: 5, nodeType2: 3 },
     };
-    vi.mocked(dbState.explorer.fetchNeighborsCount).mockResolvedValueOnce(
-      response
-    );
+    vi.mocked(dbState.explorer.fetchNeighborsCount).mockResolvedValueOnce({
+      counts: [response],
+    });
 
     const { result } = renderHookWithState(
       () => useNeighborsOptions(vertex.id),
@@ -96,14 +96,14 @@ describe("useNeighborsOptions", () => {
     const edge = createRandomEdge(vertex, neighbor);
     dbState.addEdgeToGraph(edge);
 
-    const response: NeighborCountsResponse = {
+    const response: NeighborCount = {
       vertexId: vertex.id,
       totalCount: 1,
       counts: { nodeType1: 1 },
     };
-    vi.mocked(dbState.explorer.fetchNeighborsCount).mockResolvedValueOnce(
-      response
-    );
+    vi.mocked(dbState.explorer.fetchNeighborsCount).mockResolvedValueOnce({
+      counts: [response],
+    });
 
     const { result } = renderHookWithState(
       () => useNeighborsOptions(vertex.id),

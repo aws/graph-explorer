@@ -1,7 +1,7 @@
 import { QueryClient, queryOptions } from "@tanstack/react-query";
 import {
   KeywordSearchRequest,
-  NeighborCountsResponse,
+  NeighborCount,
   SchemaResponse,
 } from "./useGEFetchTypes";
 import { Edge, EdgeId, Vertex, VertexId } from "@/core";
@@ -81,7 +81,7 @@ export function bulkNeighborCountsQuery(
       const explorer = getExplorer(meta);
 
       // Get cached and missing IDs in one pass
-      const responses: NeighborCountsResponse[] = [];
+      const responses: NeighborCount[] = [];
       const missingIds: VertexId[] = [];
 
       for (const id of vertexIds) {
@@ -102,7 +102,7 @@ export function bulkNeighborCountsQuery(
       const newResponses = await Promise.all(
         chunk(missingIds, DEFAULT_BATCH_REQUEST_SIZE).map(batch =>
           explorer
-            .bulkNeighborCounts({ vertexIds: batch }, { signal })
+            .fetchNeighborsCount({ vertexIds: batch }, { signal })
             .then(response => response.counts)
         )
       ).then(results => results.flat());
@@ -129,9 +129,22 @@ export function bulkNeighborCountsQuery(
 export function neighborsCountQuery(vertexId: VertexId) {
   return queryOptions({
     queryKey: ["vertex", vertexId, "neighbor", "count"],
-    queryFn: async ({ signal, meta }) => {
+    queryFn: async ({ signal, meta }): Promise<NeighborCount> => {
       const explorer = getExplorer(meta);
-      return await explorer.fetchNeighborsCount({ vertexId }, { signal });
+      const results = await explorer.fetchNeighborsCount(
+        { vertexIds: [vertexId] },
+        { signal }
+      );
+
+      if (!results.counts.length) {
+        return {
+          vertexId: vertexId,
+          totalCount: 0,
+          counts: {},
+        };
+      }
+
+      return results.counts[0];
     },
   });
 }
@@ -306,11 +319,11 @@ export function updateEdgeDetailsCache(
 /** Sets the neighbor count cache for the given vertex. */
 export function updateNeighborCountCache(
   queryClient: QueryClient,
-  neighborCounts: NeighborCountsResponse[]
+  neighborCounts: NeighborCount[]
 ) {
-  for (const neighborCount of neighborCounts) {
-    const queryKey = neighborsCountQuery(neighborCount.vertexId).queryKey;
-    queryClient.setQueryData(queryKey, neighborCount);
+  for (const count of neighborCounts) {
+    const queryKey = neighborsCountQuery(count.vertexId).queryKey;
+    queryClient.setQueryData(queryKey, count);
   }
 }
 
