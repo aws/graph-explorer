@@ -14,6 +14,7 @@ import {
 import { z } from "zod";
 import {
   createVertex,
+  createVertexId,
   EntityProperties,
   EntityPropertyValue,
   VertexId,
@@ -22,6 +23,7 @@ import isErrorResponse from "../utils/isErrorResponse";
 import { idParam } from "./idParam";
 
 const bindingSchema = z.object({
+  resource: sparqlUriValueSchema,
   label: sparqlUriValueSchema,
   value: sparqlValueSchema,
 });
@@ -32,24 +34,33 @@ export async function vertexDetails(
   sparqlFetch: SparqlFetch,
   request: VertexDetailsRequest
 ): Promise<VertexDetailsResponse> {
+  // Bail early if request is empty
+  if (!request.vertexIds.length) {
+    return { vertices: [] };
+  }
+
   const template = query`
     # Get the resource attributes and class
-    SELECT * 
+    SELECT ?resource ?label ?value
     WHERE {
+      VALUES ?resource {
+        ${request.vertexIds.map(idParam).join("\n")}
+      }
+
       {
         # Get the resource attributes
-        SELECT ?label ?value
+        SELECT ?resource ?label ?value
         WHERE {
-          ${idParam(request.vertexId)} ?label ?value .
+          ?resource ?label ?value .
           FILTER(isLiteral(?value))
         }
       }
       UNION
       {
         # Get the resource type
-        SELECT ?label ?value
+        SELECT ?resource ?label ?value
         WHERE {
-          ${idParam(request.vertexId)} a ?value .
+          ?resource a ?value .
           BIND(IRI("${rdfTypeUri}") AS ?label)
         }
       }
@@ -79,15 +90,27 @@ export async function vertexDetails(
     });
   }
 
-  // Map the results
-  if (parsed.data.results.bindings.length === 0) {
-    logger.warn("Vertex not found", request.vertexId, response);
-    return { vertex: null };
+  // Group by resource URI and map to vertex
+  const vertices = Map.groupBy(parsed.data.results.bindings, b =>
+    createVertexId(b.resource.value)
+  )
+    .entries()
+    .map(([id, bindings]) => mapToVertex(id, bindings))
+    .toArray();
+
+  // Log a warning if some nodes are missing
+  const missing = new Set(request.vertexIds).difference(
+    new Set(vertices.map(v => v.id))
+  );
+  if (missing.size) {
+    logger.warn("Did not find all requested vertices", {
+      requested: request.vertexIds,
+      missing: missing.values().toArray(),
+      response,
+    });
   }
 
-  const vertex = mapToVertex(request.vertexId, parsed.data.results.bindings);
-
-  return { vertex };
+  return { vertices };
 }
 
 function mapToVertex(id: VertexId, detailsBinding: VertexDetailsBinding[]) {

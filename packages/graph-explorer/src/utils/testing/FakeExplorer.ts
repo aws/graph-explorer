@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/require-await */
 import {
-  BulkVertexDetailsRequest,
   CountsByTypeResponse,
   EdgeDetailsRequest,
   Explorer,
@@ -104,10 +103,10 @@ export class FakeExplorer implements Explorer {
   }
 
   async vertexDetails(request: VertexDetailsRequest) {
-    const vertex = this.vertexMap.get(request.vertexId);
-
     return {
-      vertex: vertex ?? null,
+      vertices: request.vertexIds
+        .map(id => this.vertexMap.get(id))
+        .filter(v => v != null),
     };
   }
 
@@ -123,14 +122,6 @@ export class FakeExplorer implements Explorer {
     throw new Error(
       "rawQuery can never have a fake implmentation. Use mocking instead."
     );
-  }
-
-  async bulkVertexDetails(request: BulkVertexDetailsRequest) {
-    return {
-      vertices: request.vertexIds
-        .map(id => this.vertexMap.get(id))
-        .filter(v => v != null),
-    };
   }
 
   findNeighbors(vertexId: VertexId) {

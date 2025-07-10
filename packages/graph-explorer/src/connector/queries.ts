@@ -1,10 +1,8 @@
 import { QueryClient, queryOptions } from "@tanstack/react-query";
 import {
-  BulkVertexDetailsResponse,
   EdgeDetailsResponse,
   KeywordSearchRequest,
   SchemaResponse,
-  VertexDetailsResponse,
 } from "./useGEFetchTypes";
 import { Edge, EdgeId, Vertex, VertexId } from "@/core";
 import {
@@ -130,11 +128,7 @@ export function bulkVertexDetailsQuery(vertexIds: VertexId[]) {
     queryKey: ["vertices", vertexIds],
     staleTime: 0,
     gcTime: 0,
-    queryFn: async ({
-      client,
-      meta,
-      signal,
-    }): Promise<BulkVertexDetailsResponse> => {
+    queryFn: async ({ client, meta, signal }) => {
       const explorer = getExplorer(meta);
 
       // Get cached and missing vertices in one pass
@@ -161,7 +155,7 @@ export function bulkVertexDetailsQuery(vertexIds: VertexId[]) {
       const vertices = await Promise.all(
         chunk(missingIds, DEFAULT_BATCH_REQUEST_SIZE).map(batch =>
           explorer
-            .bulkVertexDetails({ vertexIds: batch }, { signal })
+            .vertexDetails({ vertexIds: batch }, { signal })
             .then(response => response.vertices)
         )
       ).then(results => results.flat());
@@ -177,9 +171,18 @@ export function bulkVertexDetailsQuery(vertexIds: VertexId[]) {
 export function vertexDetailsQuery(vertexId: VertexId) {
   return queryOptions({
     queryKey: ["vertex", vertexId],
-    queryFn: ({ signal, meta }) => {
+    queryFn: async ({ signal, meta }) => {
       const explorer = getExplorer(meta);
-      return explorer.vertexDetails({ vertexId }, { signal });
+      const results = await explorer.vertexDetails(
+        { vertexIds: [vertexId] },
+        { signal }
+      );
+
+      if (!results.vertices.length) {
+        return { vertex: null };
+      }
+
+      return { vertex: results.vertices[0] };
     },
   });
 }
@@ -202,11 +205,8 @@ export function updateVertexDetailsCache(
   vertices: Vertex[]
 ) {
   for (const vertex of vertices.filter(v => !v.__isFragment)) {
-    const response: VertexDetailsResponse = {
-      vertex,
-    };
     const queryKey = vertexDetailsQuery(vertex.id).queryKey;
-    queryClient.setQueryData(queryKey, response);
+    queryClient.setQueryData(queryKey, { vertex });
   }
 }
 

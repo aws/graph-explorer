@@ -207,20 +207,12 @@ export type ExplorerRequestOptions = RequestInit & {
   queryId?: string;
 };
 
-export type BulkVertexDetailsRequest = {
+export type VertexDetailsRequest = {
   vertexIds: VertexId[];
 };
 
-export type BulkVertexDetailsResponse = {
-  vertices: Vertex[];
-};
-
-export type VertexDetailsRequest = {
-  vertexId: VertexId;
-};
-
 export type VertexDetailsResponse = {
-  vertex: Vertex | null;
+  vertices: Vertex[];
 };
 
 export type EdgeDetailsRequest = {
@@ -260,10 +252,6 @@ export type Explorer = {
     req: KeywordSearchRequest,
     options?: ExplorerRequestOptions
   ) => Promise<KeywordSearchResponse>;
-  bulkVertexDetails: (
-    req: BulkVertexDetailsRequest,
-    options?: ExplorerRequestOptions
-  ) => Promise<BulkVertexDetailsResponse>;
   vertexDetails: (
     req: VertexDetailsRequest,
     options?: ExplorerRequestOptions

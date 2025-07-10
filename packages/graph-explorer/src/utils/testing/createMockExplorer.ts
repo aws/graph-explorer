@@ -9,7 +9,6 @@ export function createMockExplorer(): Explorer {
     fetchVertexCountsByType: vi.fn(),
     connection: createRandomRawConfiguration().connection!,
     fetchSchema: vi.fn(),
-    bulkVertexDetails: vi.fn(),
     edgeDetails: vi.fn(),
     vertexDetails: vi.fn(),
     rawQuery: vi.fn(),

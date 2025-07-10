@@ -21,10 +21,10 @@ import {
 } from "@/core";
 import { createRandomInteger } from "@shared/utils/testing";
 
-export function createGremlinResponseFromVertex(vertex: Vertex) {
+export function createGremlinResponseFromVertices(...vertices: Vertex[]) {
   return {
     result: {
-      data: createGList([createGVertex(vertex)]),
+      data: createGList(vertices.map(createGVertex)),
     },
   };
 }

@@ -4,7 +4,6 @@ import {
   FakeExplorer,
 } from "@/utils/testing";
 import { bulkVertexDetailsQuery, vertexDetailsQuery } from "./queries";
-import { VertexDetailsResponse } from "./useGEFetchTypes";
 import { createQueryClient } from "@/core/queryClient";
 import { createArray } from "@shared/utils/testing";
 import { DEFAULT_BATCH_REQUEST_SIZE } from "@/utils";
@@ -41,37 +40,33 @@ describe("vertexDetailsQuery", () => {
 describe("bulkVertexDetailsQuery", () => {
   it("should return nothing when input is empty", async () => {
     const explorer = new FakeExplorer();
-    const bulkVertexDetailsSpy = vi.spyOn(explorer, "bulkVertexDetails");
+    const vertexDetailsSpy = vi.spyOn(explorer, "vertexDetails");
     const queryClient = createQueryClient({ explorer });
 
     const result = await queryClient.fetchQuery(bulkVertexDetailsQuery([]));
 
     expect(result.vertices).toEqual([]);
-    expect(bulkVertexDetailsSpy).toBeCalledTimes(0);
+    expect(vertexDetailsSpy).toBeCalledTimes(0);
   });
 
   it("should return cached when input is cached", async () => {
     const explorer = new FakeExplorer();
-    const bulkVertexDetailsSpy = vi.spyOn(explorer, "bulkVertexDetails");
+    const vertexDetailsSpy = vi.spyOn(explorer, "vertexDetails");
     const queryClient = createQueryClient({ explorer });
 
     const vertex = createRandomVertex();
 
     // Add vertices to cache
-    const cachedResponse: VertexDetailsResponse = {
+    queryClient.setQueryData(vertexDetailsQuery(vertex.id).queryKey, {
       vertex,
-    };
-    queryClient.setQueryData(
-      vertexDetailsQuery(vertex.id).queryKey,
-      cachedResponse
-    );
+    });
 
     const result = await queryClient.fetchQuery(
       bulkVertexDetailsQuery([vertex.id])
     );
 
     expect(result.vertices).toEqual([vertex]);
-    expect(bulkVertexDetailsSpy).toBeCalledTimes(0);
+    expect(vertexDetailsSpy).toBeCalledTimes(0);
 
     // Ensure vertex is still in the cache
     expect(
@@ -81,7 +76,7 @@ describe("bulkVertexDetailsQuery", () => {
 
   it("should fetch details for input", async () => {
     const explorer = new FakeExplorer();
-    const bulkVertexDetailsSpy = vi.spyOn(explorer, "bulkVertexDetails");
+    const vertexDetailsSpy = vi.spyOn(explorer, "vertexDetails");
     const queryClient = createQueryClient({ explorer });
 
     const vertex = createRandomVertex();
@@ -92,7 +87,7 @@ describe("bulkVertexDetailsQuery", () => {
     );
 
     expect(result.vertices).toEqual([vertex]);
-    expect(bulkVertexDetailsSpy).toBeCalledTimes(1);
+    expect(vertexDetailsSpy).toBeCalledTimes(1);
 
     // Ensure vertex is added to the cache
     expect(
@@ -102,19 +97,15 @@ describe("bulkVertexDetailsQuery", () => {
 
   it("should combine cached and fetched results", async () => {
     const explorer = new FakeExplorer();
-    const bulkVertexDetailsSpy = vi.spyOn(explorer, "bulkVertexDetails");
+    const vertexDetailsSpy = vi.spyOn(explorer, "vertexDetails");
     const queryClient = createQueryClient({ explorer });
 
     const vertexCached = createRandomVertex();
 
     // Add vertices to cache
-    const cachedResponse: VertexDetailsResponse = {
+    queryClient.setQueryData(vertexDetailsQuery(vertexCached.id).queryKey, {
       vertex: vertexCached,
-    };
-    queryClient.setQueryData(
-      vertexDetailsQuery(vertexCached.id).queryKey,
-      cachedResponse
-    );
+    });
 
     // Add vertex to explorer
     const vertexFetched = createRandomVertex();
@@ -125,7 +116,7 @@ describe("bulkVertexDetailsQuery", () => {
     );
 
     expect(result.vertices).toEqual([vertexCached, vertexFetched]);
-    expect(bulkVertexDetailsSpy).toBeCalledTimes(1);
+    expect(vertexDetailsSpy).toBeCalledTimes(1);
 
     // Ensure both vertices are added to the cache
     expect(
@@ -138,7 +129,7 @@ describe("bulkVertexDetailsQuery", () => {
 
   it("should batch fetches for input", async () => {
     const explorer = new FakeExplorer();
-    const bulkVertexDetailsSpy = vi.spyOn(explorer, "bulkVertexDetails");
+    const vertexDetailsSpy = vi.spyOn(explorer, "vertexDetails");
     const queryClient = createQueryClient({ explorer });
 
     const vertices = createArray(
@@ -153,7 +144,7 @@ describe("bulkVertexDetailsQuery", () => {
     );
 
     expect(result.vertices).toEqual(vertices);
-    expect(bulkVertexDetailsSpy).toBeCalledTimes(4);
+    expect(vertexDetailsSpy).toBeCalledTimes(4);
 
     // Ensure all are added to the cache
     for (const vertex of vertices) {

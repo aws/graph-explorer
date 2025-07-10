@@ -13,7 +13,6 @@ import { FeatureFlags, NormalizedConnection } from "@/core";
 import { vertexDetails } from "./vertexDetails";
 import { edgeDetails } from "./edgeDetails";
 import { rawQuery } from "./rawQuery";
-import { bulkVertexDetails } from "./bulkVertexDetails";
 
 function _openCypherFetch(
   connection: NormalizedConnection,
@@ -107,15 +106,6 @@ export function createOpenCypherExplorer(
     async rawQuery(req, options) {
       remoteLogger.info("[openCypher Explorer] Fetching raw query...");
       return rawQuery(_openCypherFetch(connection, featureFlags, options), req);
-    },
-    async bulkVertexDetails(req, options) {
-      remoteLogger.info(
-        "[openCypher Explorer] Fetching bulk vertex details..."
-      );
-      return bulkVertexDetails(
-        _openCypherFetch(connection, featureFlags, options),
-        req
-      );
     },
   } satisfies Explorer;
 }
