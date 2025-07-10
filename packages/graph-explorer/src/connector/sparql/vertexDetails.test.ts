@@ -24,6 +24,24 @@ describe("vertexDetails", () => {
     expect(result.vertices).toEqual([vertex]);
   });
 
+  it("should not be fragment when no properties exist", async () => {
+    const vertex = createRandomVertexForRdf();
+    vertex.attributes = {};
+    vertex.__isFragment = true;
+    const response = createResponseFromVertices(vertex);
+    const mockFetch = vi
+      .fn()
+      .mockImplementation(() => Promise.resolve(response));
+
+    const result = await vertexDetails(mockFetch, { vertexIds: [vertex.id] });
+
+    expect(result.vertices).toHaveLength(1);
+
+    for (const actual of result.vertices) {
+      expect(actual.__isFragment).toEqual(false);
+    }
+  });
+
   it("should return multiple vertex details", async () => {
     const vertices = [createRandomVertexForRdf(), createRandomVertexForRdf()];
     const responses = createResponseFromVertices(...vertices);
