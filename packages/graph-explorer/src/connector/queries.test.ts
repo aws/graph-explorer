@@ -13,10 +13,7 @@ import {
   neighborsCountQuery,
   vertexDetailsQuery,
 } from "./queries";
-import {
-  VertexDetailsResponse,
-  NeighborCountsResponse,
-} from "./useGEFetchTypes";
+import { NeighborCountsResponse } from "./useGEFetchTypes";
 import { createQueryClient } from "@/core/queryClient";
 import { createArray } from "@shared/utils/testing";
 import { DEFAULT_BATCH_REQUEST_SIZE } from "@/utils";
@@ -200,18 +197,18 @@ describe("bulkVertexDetailsQuery", () => {
 describe("bulkEdgeDetailsQuery", () => {
   it("should return nothing when input is empty", async () => {
     const explorer = new FakeExplorer();
-    const bulkEdgeDetailsSpy = vi.spyOn(explorer, "bulkEdgeDetails");
+    const edgeDetailsSpy = vi.spyOn(explorer, "edgeDetails");
     const queryClient = createQueryClient({ explorer });
 
     const result = await queryClient.fetchQuery(bulkEdgeDetailsQuery([]));
 
     expect(result.edges).toEqual([]);
-    expect(bulkEdgeDetailsSpy).toBeCalledTimes(0);
+    expect(edgeDetailsSpy).toBeCalledTimes(0);
   });
 
   it("should return cached when input is cached", async () => {
     const explorer = new FakeExplorer();
-    const bulkEdgeDetailsSpy = vi.spyOn(explorer, "bulkEdgeDetails");
+    const edgeDetailsSpy = vi.spyOn(explorer, "edgeDetails");
     const queryClient = createQueryClient({ explorer });
 
     const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
@@ -224,7 +221,7 @@ describe("bulkEdgeDetailsQuery", () => {
     );
 
     expect(result.edges).toEqual([edge]);
-    expect(bulkEdgeDetailsSpy).toBeCalledTimes(0);
+    expect(edgeDetailsSpy).toBeCalledTimes(0);
 
     // Ensure edge is still in the cache
     expect(
@@ -234,7 +231,7 @@ describe("bulkEdgeDetailsQuery", () => {
 
   it("should fetch details for input", async () => {
     const explorer = new FakeExplorer();
-    const bulkEdgeDetailsSpy = vi.spyOn(explorer, "bulkEdgeDetails");
+    const edgeDetailsSpy = vi.spyOn(explorer, "edgeDetails");
     const queryClient = createQueryClient({ explorer });
 
     const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
@@ -245,7 +242,7 @@ describe("bulkEdgeDetailsQuery", () => {
     );
 
     expect(result.edges).toEqual([edge]);
-    expect(bulkEdgeDetailsSpy).toBeCalledTimes(1);
+    expect(edgeDetailsSpy).toBeCalledTimes(1);
 
     // Ensure edge is added to the cache
     expect(
@@ -255,7 +252,7 @@ describe("bulkEdgeDetailsQuery", () => {
 
   it("should combine cached and fetched results", async () => {
     const explorer = new FakeExplorer();
-    const bulkEdgeDetailsSpy = vi.spyOn(explorer, "bulkEdgeDetails");
+    const edgeDetailsSpy = vi.spyOn(explorer, "edgeDetails");
     const queryClient = createQueryClient({ explorer });
 
     const edgeCached = createRandomEdge(
@@ -280,7 +277,7 @@ describe("bulkEdgeDetailsQuery", () => {
     );
 
     expect(result.edges).toEqual([edgeCached, edgeFetched]);
-    expect(bulkEdgeDetailsSpy).toBeCalledTimes(1);
+    expect(edgeDetailsSpy).toBeCalledTimes(1);
 
     // Ensure both edges are added to the cache
     expect(
@@ -293,7 +290,7 @@ describe("bulkEdgeDetailsQuery", () => {
 
   it("should batch fetches for input", async () => {
     const explorer = new FakeExplorer();
-    const bulkEdgeDetailsSpy = vi.spyOn(explorer, "bulkEdgeDetails");
+    const edgeDetailsSpy = vi.spyOn(explorer, "edgeDetails");
     const queryClient = createQueryClient({ explorer });
 
     const edges = createArray(DEFAULT_BATCH_REQUEST_SIZE * 3, () =>
@@ -306,7 +303,7 @@ describe("bulkEdgeDetailsQuery", () => {
     );
 
     expect(result.edges).toEqual(edges);
-    expect(bulkEdgeDetailsSpy).toBeCalledTimes(3);
+    expect(edgeDetailsSpy).toBeCalledTimes(3);
 
     // Ensure all are added to the cache
     for (const edge of edges) {
