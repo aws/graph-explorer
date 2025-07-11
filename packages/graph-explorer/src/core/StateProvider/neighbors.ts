@@ -3,13 +3,9 @@ import { atom, useAtomValue } from "jotai";
 import { atomFamily, useAtomCallback } from "jotai/utils";
 import { edgesAtom } from "./edges";
 import { nodesAtom } from "./nodes";
-import {
-  useAllNeighborCountsQuery,
-  useUpdateNodeCountsQuery,
-} from "@/hooks/useUpdateNodeCounts";
-import { useCallback, useEffect } from "react";
-import { useQueryClient } from "@tanstack/react-query";
-import { neighborsCountQuery } from "@/connector";
+import { useCallback, useEffect, useMemo } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { bulkNeighborCountsQuery, neighborsCountQuery } from "@/connector";
 import { useNotification } from "@/components/NotificationProvider";
 
 export type NeighborCounts = {
@@ -44,7 +40,7 @@ export function useNeighborsCallback() {
       async (get, _set, vertexId: VertexId) => {
         const fetchedNeighbors = get(fetchedNeighborsSelector(vertexId));
         const response = await queryClient.fetchQuery(
-          neighborsCountQuery({ vertexId })
+          neighborsCountQuery(vertexId)
         );
 
         const neighbors = calculateNeighbors(
@@ -67,7 +63,7 @@ export function useNeighborsCallback() {
  */
 export function useNeighbors(vertexId: VertexId) {
   const fetchedNeighbors = useAtomValue(fetchedNeighborsSelector(vertexId));
-  const query = useUpdateNodeCountsQuery(vertexId);
+  const query = useQuery(neighborsCountQuery(vertexId));
 
   if (!query.data) {
     return defaultNeighborCounts;
@@ -98,16 +94,19 @@ export function useNeighborByType(vertexId: VertexId, type: string) {
 
 export function useAllNeighbors() {
   const vertices = useDisplayVerticesInCanvas();
-  const vertexIds = vertices.keys().toArray();
+  const vertexIds = useMemo(() => vertices.keys().toArray(), [vertices]);
 
+  const queryClient = useQueryClient();
   const fetchedNeighbors = useAtomValue(allFetchedNeighborsSelector(vertexIds));
-  const query = useAllNeighborCountsQuery(vertexIds);
+  const { isLoading, error, data } = useQuery(
+    bulkNeighborCountsQuery(vertexIds, queryClient)
+  );
 
   const { enqueueNotification, clearNotification } = useNotification();
 
   // Show loading notification
   useEffect(() => {
-    if (!query.pending) {
+    if (!isLoading) {
       return;
     }
     const notificationId = enqueueNotification({
@@ -116,11 +115,11 @@ export function useAllNeighbors() {
       autoHideDuration: null,
     });
     return () => clearNotification(notificationId);
-  }, [clearNotification, query.pending, enqueueNotification]);
+  }, [clearNotification, isLoading, enqueueNotification]);
 
   // Show error notification
   useEffect(() => {
-    if (query.pending || !query.hasErrors) {
+    if (isLoading || !error) {
       return;
     }
     const notificationId = enqueueNotification({
@@ -129,24 +128,30 @@ export function useAllNeighbors() {
       type: "error",
     });
     return () => clearNotification(notificationId);
-  }, [clearNotification, query.pending, query.hasErrors, enqueueNotification]);
+  }, [clearNotification, isLoading, error, enqueueNotification]);
 
-  return new Map(
-    query.data
-      .values()
-      .filter(d => d != null)
-      .map(data => {
-        const neighbors = fetchedNeighbors.get(data.nodeId) ?? [];
-        return [
-          data.nodeId,
-          calculateNeighbors(
-            data.totalCount,
-            new Map(Object.entries(data.counts)),
-            neighbors
-          ),
-        ];
-      })
-  );
+  return useMemo(() => {
+    if (!data) {
+      return new Map(vertexIds.map(id => [id, defaultNeighborCounts]));
+    }
+
+    return new Map(
+      data
+        .values()
+        .filter(d => d != null)
+        .map(data => {
+          const neighbors = fetchedNeighbors.get(data.vertexId) ?? [];
+          return [
+            data.vertexId,
+            calculateNeighbors(
+              data.totalCount,
+              new Map(Object.entries(data.counts)),
+              neighbors
+            ),
+          ];
+        })
+    );
+  }, [data, fetchedNeighbors, vertexIds]);
 }
 
 /**

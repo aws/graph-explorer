@@ -8,8 +8,8 @@ import {
   type VertexId,
 } from "@/core";
 
-export function toNodeMap(nodes: Vertex[]): Map<VertexId, Vertex> {
-  return new Map(nodes.map(n => [n.id, n]));
+export function toNodeMap(nodes: Iterable<Vertex>): Map<VertexId, Vertex> {
+  return new Map(Iterator.from(nodes).map(n => [n.id, n]));
 }
 
 export const nodesAtom = atomWithReset(new Map<VertexId, Vertex>());

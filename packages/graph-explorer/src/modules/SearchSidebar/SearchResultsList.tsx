@@ -6,7 +6,7 @@ import {
   Spinner,
 } from "@/components";
 import { MappedQueryResults } from "@/connector";
-import { NodeSearchResult } from "./NodeSearchResult";
+import { VertexSearchResult } from "./VertexSearchResult";
 import { useAddToGraphMutation } from "@/hooks/useAddToGraph";
 import { ChevronLeftIcon, ChevronRightIcon, ListPlusIcon } from "lucide-react";
 import { EdgeSearchResult } from "./EdgeSearchResult";
@@ -114,7 +114,7 @@ function createRows({ vertices, edges, scalars }: MappedQueryResults) {
   return vertices
     .map(entity => ({
       key: `node:${entity.type}:${entity.id}`,
-      render: () => <NodeSearchResult node={entity} />,
+      render: () => <VertexSearchResult vertex={entity} />,
     }))
     .concat(
       edges.map(entity => ({

@@ -1,0 +1,63 @@
+import { createRandomVertexId } from "@/utils/testing";
+import { NeighborCount } from "../useGEFetchTypes";
+import { neighborCounts } from "./neighborCounts";
+import { query } from "@/utils";
+import { createVertexId } from "@/core";
+
+describe("neighborCounts", () => {
+  it("should return empty for empty request", async () => {
+    const mockFetch = vi.fn();
+    const result = await neighborCounts(mockFetch, { vertexIds: [] });
+    expect(result).toEqual({ counts: [] });
+    expect(mockFetch).not.toHaveBeenCalled();
+  });
+
+  it("should generate template", async () => {
+    const vertexId = createVertexId("123");
+    const mockFetch = vi.fn();
+    await neighborCounts(mockFetch, {
+      vertexIds: [vertexId],
+    }).catch(() => null);
+    expect(mockFetch).toHaveBeenCalledWith(
+      query`
+        MATCH (source)--(neighbor)
+        WHERE id(source) IN ["123"]
+        WITH DISTINCT source, neighbor
+        WITH 
+          id(source) AS id, 
+          labels(neighbor) AS neighborLabels, 
+          count(labels(neighbor)) AS neighborCount
+        RETURN id, collect({ label: neighborLabels, count: neighborCount }) as counts
+      `
+    );
+  });
+
+  it("should return neighbor counts", async () => {
+    const expected: NeighborCount = {
+      vertexId: createRandomVertexId(),
+      totalCount: 12,
+      counts: {
+        label1: 3,
+        label2: 9,
+      },
+    };
+    const response = createResponse(expected);
+    const mockFetch = vi.fn().mockResolvedValue(response);
+    const result = await neighborCounts(mockFetch, {
+      vertexIds: [expected.vertexId],
+    });
+    expect(result.counts).toEqual([expected]);
+  });
+});
+
+function createResponse(...counts: NeighborCount[]) {
+  return {
+    results: counts.map(count => ({
+      id: String(count.vertexId),
+      counts: Object.entries(count.counts).map(([type, count]) => ({
+        label: [type],
+        count,
+      })),
+    })),
+  };
+}

@@ -1,13 +1,14 @@
+import { logger, query } from "@/utils";
 import {
   EdgeDetailsRequest,
   EdgeDetailsResponse,
   ErrorResponse,
-} from "@/connector/useGEFetchTypes";
+} from "../useGEFetchTypes";
 import { OCEdge, OpenCypherFetch } from "./types";
-import isErrorResponse from "@/connector/utils/isErrorResponse";
-import { logger, query } from "@/utils";
-import mapApiEdge from "./mappers/mapApiEdge";
 import { idParam } from "./idParam";
+import isErrorResponse from "../utils/isErrorResponse";
+import mapApiEdge from "./mappers/mapApiEdge";
+import { mapValuesToQueryResults } from "../mapping";
 
 type Response = {
   results: [
@@ -21,11 +22,17 @@ type Response = {
 
 export async function edgeDetails(
   openCypherFetch: OpenCypherFetch,
-  req: EdgeDetailsRequest
+  request: EdgeDetailsRequest
 ): Promise<EdgeDetailsResponse> {
+  // Bail early if request is empty
+  if (!request.edgeIds.length) {
+    return { edges: [] };
+  }
+
+  const ids = request.edgeIds.map(idParam).join(",");
   const template = query`
     MATCH ()-[edge]-()
-    WHERE ID(edge) = ${idParam(req.edgeId)}
+    WHERE ID(edge) in [${ids}]
     RETURN edge, labels(startNode(edge)) as sourceLabels, labels(endNode(edge)) as targetLabels
   `;
   const data = await openCypherFetch<Response | ErrorResponse>(template);
@@ -33,23 +40,29 @@ export async function edgeDetails(
   if (isErrorResponse(data)) {
     logger.error(
       "Failed to fetch edge details",
-      req.edgeId,
+      request.edgeIds,
       data.detailedMessage
     );
     throw new Error(data.detailedMessage);
   }
 
-  const value = data.results[0];
+  const edges = mapValuesToQueryResults(
+    data.results.map(result => ({
+      edge: mapApiEdge(result.edge, result.sourceLabels, result.targetLabels),
+    }))
+  ).edges;
 
-  if (!value) {
-    console.warn("Edge not found", req.edgeId);
-    return { edge: null };
+  // Log a warning if some nodes are missing
+  const missing = new Set(request.edgeIds).difference(
+    new Set(edges.map(e => e.id))
+  );
+  if (missing.size) {
+    logger.warn("Did not find all requested edges", {
+      requested: request.edgeIds,
+      missing: missing.values().toArray(),
+      data,
+    });
   }
 
-  const sourceLabels = value.sourceLabels;
-  const targetLabels = value.targetLabels;
-
-  const edge = mapApiEdge(value.edge, sourceLabels, targetLabels);
-
-  return { edge };
+  return { edges };
 }

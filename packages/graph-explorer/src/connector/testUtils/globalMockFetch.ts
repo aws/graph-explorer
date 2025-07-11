@@ -12,7 +12,6 @@ const RESPONSES_FILES_MAP = {
   "should-return-all-neighbors-from-node-2018-counts.json": `${GREMLIN}/should-return-all-neighbors-from-node-2018-counts.json`,
   "should-return-filtered-neighbors-from-node-2018.json": `${GREMLIN}/should-return-filtered-neighbors-from-node-2018.json`,
   "should-return-filtered-neighbors-from-node-2018-counts.json": `${GREMLIN}/should-return-filtered-neighbors-from-node-2018-counts.json`,
-  "should-return-neighbors-counts-for-node-123.json": `${GREMLIN}/should-return-neighbors-counts-for-node-123.json`,
 };
 type FileName = keyof typeof RESPONSES_FILES_MAP;
 

@@ -1,7 +1,7 @@
 import { QueryClient, queryOptions } from "@tanstack/react-query";
 import {
-  EdgeDetailsResponse,
   KeywordSearchRequest,
+  NeighborCount,
   SchemaResponse,
 } from "./useGEFetchTypes";
 import { Edge, EdgeId, Vertex, VertexId } from "@/core";
@@ -64,15 +64,60 @@ export function searchQuery(
   });
 }
 
-export type NeighborCountsQueryRequest = {
-  vertexId: VertexId;
-};
+export function bulkNeighborCountsQuery(
+  vertexIds: VertexId[],
+  queryClient: QueryClient
+) {
+  return queryOptions({
+    queryKey: ["vertices", vertexIds, "neighbor", "count"],
+    staleTime: 0,
+    gcTime: 0,
+    queryFn: async ({ signal, meta, client }) => {
+      // Bail early if request is empty
+      if (!vertexIds.length) {
+        return [];
+      }
 
-export type NeighborCountsQueryResponse = {
-  nodeId: VertexId;
-  totalCount: number;
-  counts: Record<string, number>;
-};
+      const explorer = getExplorer(meta);
+
+      // Get cached and missing IDs in one pass
+      const responses: NeighborCount[] = [];
+      const missingIds: VertexId[] = [];
+
+      for (const id of vertexIds) {
+        const cached = client.getQueryData(neighborsCountQuery(id).queryKey);
+        if (cached) {
+          responses.push(cached);
+        } else {
+          missingIds.push(id);
+        }
+      }
+
+      // Bail early if all responses are cached
+      if (!missingIds.length) {
+        return responses;
+      }
+
+      // Fetch missing neighbor counts in batches
+      const newResponses = await Promise.all(
+        chunk(missingIds, DEFAULT_BATCH_REQUEST_SIZE).map(batch =>
+          explorer
+            .fetchNeighborsCount({ vertexIds: batch }, { signal })
+            .then(response => response.counts)
+        )
+      ).then(results => results.flat());
+
+      // Update cache and combine responses
+      updateNeighborCountCache(client, newResponses);
+      responses.push(...newResponses);
+
+      return responses;
+    },
+    placeholderData: vertexIds
+      .map(id => queryClient.getQueryData(neighborsCountQuery(id).queryKey))
+      .filter(c => c != null),
+  });
+}
 
 /**
  * Retrieves the number of neighbors for a given node and their types.
@@ -81,23 +126,25 @@ export type NeighborCountsQueryResponse = {
  * @param explorer The service client to use for fetching the neighbors count.
  * @returns The count of neighbors for the given node as a total and per type.
  */
-export function neighborsCountQuery(request: NeighborCountsQueryRequest) {
+export function neighborsCountQuery(vertexId: VertexId) {
   return queryOptions({
-    queryKey: ["neighborsCount", request],
-    queryFn: async ({ signal, meta }) => {
+    queryKey: ["vertex", vertexId, "neighbor", "count"],
+    queryFn: async ({ signal, meta }): Promise<NeighborCount> => {
       const explorer = getExplorer(meta);
-      const result = await explorer.fetchNeighborsCount(
-        {
-          vertexId: request.vertexId,
-        },
+      const results = await explorer.fetchNeighborsCount(
+        { vertexIds: [vertexId] },
         { signal }
       );
 
-      return {
-        nodeId: request.vertexId,
-        totalCount: result.totalCount,
-        counts: result.counts,
-      };
+      if (!results.counts.length) {
+        return {
+          vertexId: vertexId,
+          totalCount: 0,
+          counts: {},
+        };
+      }
+
+      return results.counts[0];
     },
   });
 }
@@ -168,6 +215,47 @@ export function bulkVertexDetailsQuery(vertexIds: VertexId[]) {
   });
 }
 
+export function bulkEdgeDetailsQuery(edgeIds: EdgeId[]) {
+  return queryOptions({
+    queryKey: ["edges", edgeIds],
+    staleTime: 0,
+    gcTime: 0,
+    queryFn: async ({ client, meta, signal }) => {
+      const explorer = getExplorer(meta);
+
+      // Check for cached edges first
+      const cachedEdges = edgeIds
+        .values()
+        .map(id => client.getQueryData(edgeDetailsQuery(id).queryKey))
+        .map(response => response?.edge)
+        .filter(edge => edge != null)
+        .toArray();
+
+      const cachedIds = new Set(cachedEdges.map(v => v.id));
+      const missingIds = new Set(edgeIds).difference(cachedIds);
+
+      // Bail early if all edges are cached
+      if (missingIds.size === 0) {
+        return { edges: cachedEdges };
+      }
+
+      // Fetch any missing edges
+      const batches = chunk(Array.from(missingIds), DEFAULT_BATCH_REQUEST_SIZE);
+      const edges: Array<Edge> = cachedEdges;
+      for (const batch of batches) {
+        const request = { edgeIds: batch };
+        const response = await explorer.edgeDetails(request, { signal });
+        edges.push(...response.edges);
+      }
+
+      // Update the cache
+      updateEdgeDetailsCache(client, edges);
+
+      return { edges };
+    },
+  });
+}
+
 export function vertexDetailsQuery(vertexId: VertexId) {
   return queryOptions({
     queryKey: ["vertex", vertexId],
@@ -188,13 +276,20 @@ export function vertexDetailsQuery(vertexId: VertexId) {
 }
 
 export function edgeDetailsQuery(edgeId: EdgeId) {
-  const request = { edgeId };
-
   return queryOptions({
-    queryKey: ["db", "edge", "details", request],
-    queryFn: ({ signal, meta }) => {
+    queryKey: ["edge", edgeId],
+    queryFn: async ({ signal, meta }) => {
       const explorer = getExplorer(meta);
-      return explorer.edgeDetails(request, { signal });
+      const results = await explorer.edgeDetails(
+        { edgeIds: [edgeId] },
+        { signal }
+      );
+
+      if (!results.edges.length) {
+        return { edge: null };
+      }
+
+      return { edge: results.edges[0] };
     },
   });
 }
@@ -216,11 +311,19 @@ export function updateEdgeDetailsCache(
   edges: Edge[]
 ) {
   for (const edge of edges.filter(e => !e.__isFragment)) {
-    const response: EdgeDetailsResponse = {
-      edge,
-    };
     const queryKey = edgeDetailsQuery(edge.id).queryKey;
-    queryClient.setQueryData(queryKey, response);
+    queryClient.setQueryData(queryKey, { edge });
+  }
+}
+
+/** Sets the neighbor count cache for the given vertex. */
+export function updateNeighborCountCache(
+  queryClient: QueryClient,
+  neighborCounts: NeighborCount[]
+) {
+  for (const count of neighborCounts) {
+    const queryKey = neighborsCountQuery(count.vertexId).queryKey;
+    queryClient.setQueryData(queryKey, count);
   }
 }
 

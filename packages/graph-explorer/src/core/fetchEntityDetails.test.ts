@@ -103,24 +103,6 @@ describe("createCompletionNotification", () => {
     );
   });
 
-  it("should create a completion notification when some nodes and edges had errors", () => {
-    const fetchResult = createRandomFetchEntityDetailsResult();
-    fetchResult.counts.errors.vertices = createRandomInteger();
-    fetchResult.counts.errors.edges = createRandomInteger();
-    fetchResult.counts.errors.total =
-      fetchResult.counts.errors.vertices + fetchResult.counts.errors.edges;
-    const nodeCount = fetchResult.counts.errors.vertices.toLocaleString();
-    const edgeCount = fetchResult.counts.errors.edges.toLocaleString();
-
-    const notification =
-      createFetchEntityDetailsCompletionNotification(fetchResult);
-
-    expect(notification.type).toBe("error");
-    expect(notification.message).toBe(
-      `Finished loading the graph, but ${nodeCount} nodes and ${edgeCount} edges encountered an error.`
-    );
-  });
-
   it("should create a completion notification when no nodes or edges were imported", () => {
     const fetchResult = createRandomFetchEntityDetailsResult();
     fetchResult.entities.vertices = [];
@@ -144,11 +126,6 @@ function createRandomFetchEntityDetailsResult(): FetchEntityDetailsResult {
     },
     counts: {
       notFound: {
-        vertices: 0,
-        edges: 0,
-        total: 0,
-      },
-      errors: {
         vertices: 0,
         edges: 0,
         total: 0,

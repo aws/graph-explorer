@@ -9,8 +9,8 @@ import {
 } from "@/core";
 import { filteredNodesSelector } from "./nodes";
 
-export function toEdgeMap(edges: Edge[]): Map<EdgeId, Edge> {
-  return new Map(edges.map(e => [e.id, e]));
+export function toEdgeMap(edges: Iterable<Edge>): Map<EdgeId, Edge> {
+  return new Map(Iterator.from(edges).map(e => [e.id, e]));
 }
 
 export const edgesAtom = atomWithReset(new Map<EdgeId, Edge>());
