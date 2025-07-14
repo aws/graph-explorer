@@ -48,7 +48,7 @@ export async function edgeDetails(
   const entities = mapResults(data.result.data);
   const edges = entities.edges;
 
-  // Log a warning if some nodes are missing
+  // Log a warning if some edges are missing
   const missing = new Set(request.edgeIds).difference(
     new Set(edges.map(e => e.id))
   );
