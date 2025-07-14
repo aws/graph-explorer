@@ -6,6 +6,7 @@ import {
   sparqlUriValueSchema,
 } from "./types";
 import { z } from "zod";
+import { fromError } from "zod-validation-error";
 import { createEdge, Edge } from "@/core";
 import isErrorResponse from "../utils/isErrorResponse";
 import { idParam } from "./idParam";
@@ -66,14 +67,13 @@ export async function edgeDetails(
   const parsed = responseSchema.safeParse(response);
 
   if (!parsed.success) {
+    const validationError = fromError(parsed.error);
     logger.error(
       "Failed to parse sparql response",
-      response,
-      parsed.error.issues
+      validationError.toString(),
+      response
     );
-    throw new Error("Failed to parse sparql response", {
-      cause: parsed.error,
-    });
+    throw validationError;
   }
 
   // Map the results

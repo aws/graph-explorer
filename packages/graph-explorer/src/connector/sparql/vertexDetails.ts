@@ -21,6 +21,7 @@ import {
 } from "@/core";
 import isErrorResponse from "../utils/isErrorResponse";
 import { idParam } from "./idParam";
+import { fromError } from "zod-validation-error";
 
 const bindingSchema = z.object({
   resource: sparqlUriValueSchema,
@@ -80,14 +81,13 @@ export async function vertexDetails(
   const parsed = vertexDetailsResponseSchema.safeParse(response);
 
   if (!parsed.success) {
+    const validationError = fromError(parsed.error);
     logger.error(
       "Failed to parse sparql response",
-      response,
-      parsed.error.issues
+      validationError.toString(),
+      response
     );
-    throw new Error("Failed to parse sparql response", {
-      cause: parsed.error,
-    });
+    throw validationError;
   }
 
   // Group by resource URI and map to vertex

@@ -1,5 +1,6 @@
 import { logger } from "@/utils";
 import { z } from "zod";
+import { fromError } from "zod-validation-error";
 import mapApiVertex from "./mapApiVertex";
 import mapApiEdge from "./mapApiEdge";
 import { MapValueResult, mapValuesToQueryResults } from "@/connector/mapping";
@@ -49,8 +50,9 @@ export function parseResults(data: unknown) {
   const parsed = cypherQueryResultSchema.safeParse(data);
 
   if (!parsed.success) {
-    logger.error("Failed to parse results", parsed.error);
-    throw parsed.error;
+    const validationError = fromError(parsed.error);
+    logger.error("Failed to parse results", validationError.toString(), data);
+    throw validationError;
   }
 
   return parsed.data.results;

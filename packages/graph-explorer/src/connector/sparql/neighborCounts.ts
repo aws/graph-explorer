@@ -15,6 +15,7 @@ import {
 import { idParam } from "./idParam";
 import isErrorResponse from "../utils/isErrorResponse";
 import { z } from "zod";
+import { fromError } from "zod-validation-error/v3";
 import { createVertexId, VertexId } from "@/core";
 import fetchBlankNodeNeighbors from "./fetchBlankNodeNeighbors";
 
@@ -99,14 +100,13 @@ async function fetchNeighborCounts(
   const parsed = responseSchema.safeParse(response);
 
   if (!parsed.success) {
+    const validationError = fromError(parsed.error);
     logger.error(
       "Failed to parse sparql response",
-      response,
-      parsed.error.issues
+      validationError.toString(),
+      response
     );
-    throw new Error("Failed to parse sparql response", {
-      cause: parsed.error,
-    });
+    throw validationError;
   }
 
   // Add empty values for all request IDs
