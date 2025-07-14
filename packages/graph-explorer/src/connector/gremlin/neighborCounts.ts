@@ -39,6 +39,11 @@ export async function neighborCounts(
   gremlinFetch: GremlinFetch,
   request: NeighborCountsRequest
 ): Promise<NeighborCountsResponse> {
+  // Bail early if request is empty
+  if (!request.vertexIds.length) {
+    return { counts: [] };
+  }
+
   const ids = request.vertexIds.map(idParam).join(",");
   const template = query`
     g.V(${ids})
@@ -56,9 +61,9 @@ export async function neighborCounts(
   }
 
   // Map the results
-  const vertexMap = data.result.data["@value"][0];
+  const valueMap = data.result.data["@value"][0];
 
-  const map = parseGMap<GIdentifier, GNeighborCountsByType>(vertexMap);
+  const map = parseGMap<GIdentifier, GNeighborCountsByType>(valueMap);
 
   const counts = map
     .entries()
