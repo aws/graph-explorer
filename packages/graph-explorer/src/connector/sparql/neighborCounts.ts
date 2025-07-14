@@ -62,6 +62,10 @@ async function fetchNeighborCounts(
     id => !blankNodes.has(id)
   );
 
+  if (!nonBlankNodeVertexIds.length) {
+    return { counts: [] };
+  }
+
   const template = query`
     # Count neighbors by class which are related with the given subject URI
     SELECT ?resource ?class (COUNT(?neighbor) as ?count) {
@@ -164,6 +168,7 @@ async function fetchBlankNodeNeighborCounts(
       continue;
     }
 
+    // the neighbors property will be undefined if the neighbors have not been fetched yet
     if (bNode.neighbors) {
       counts.push({
         vertexId,
@@ -172,6 +177,10 @@ async function fetchBlankNodeNeighborCounts(
     } else {
       missing.set(vertexId, bNode);
     }
+  }
+
+  if (!missing.size) {
+    return { counts };
   }
 
   // Fetch any missing blank node neighbor counts

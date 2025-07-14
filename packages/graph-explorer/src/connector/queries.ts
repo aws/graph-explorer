@@ -101,9 +101,11 @@ export function bulkNeighborCountsQuery(
       // Fetch missing neighbor counts in batches
       const newResponses = await Promise.all(
         chunk(missingIds, DEFAULT_BATCH_REQUEST_SIZE).map(batch =>
-          explorer.neighborCounts({ vertexIds: batch }, { signal })
+          explorer
+            .neighborCounts({ vertexIds: batch }, { signal })
+            .then(r => r.counts)
         )
-      ).then(results => results.flatMap(r => r.counts));
+      ).then(results => results.flat());
 
       // Update cache and combine responses
       updateNeighborCountCache(client, newResponses);
@@ -135,7 +137,7 @@ export function neighborsCountQuery(vertexId: VertexId) {
 
       if (!results.counts.length) {
         return {
-          vertexId: vertexId,
+          vertexId,
           totalCount: 0,
           counts: {},
         };
@@ -198,9 +200,11 @@ export function bulkVertexDetailsQuery(vertexIds: VertexId[]) {
       // Fetch missing vertices in batches
       const vertices = await Promise.all(
         chunk(missingIds, DEFAULT_BATCH_REQUEST_SIZE).map(batch =>
-          explorer.vertexDetails({ vertexIds: batch }, { signal })
+          explorer
+            .vertexDetails({ vertexIds: batch }, { signal })
+            .then(r => r.vertices)
         )
-      ).then(results => results.flatMap(r => r.vertices));
+      ).then(results => results.flat());
 
       // Update cache
       updateVertexDetailsCache(client, vertices);
@@ -239,9 +243,11 @@ export function bulkEdgeDetailsQuery(edgeIds: EdgeId[]) {
       // Fetch missing edges in batches
       const edges = await Promise.all(
         chunk(missingIds, DEFAULT_BATCH_REQUEST_SIZE).map(batch =>
-          explorer.edgeDetails({ edgeIds: batch }, { signal })
+          explorer
+            .edgeDetails({ edgeIds: batch }, { signal })
+            .then(r => r.edges)
         )
-      ).then(results => results.flatMap(r => r.edges));
+      ).then(results => results.flat());
 
       // Update cache
       updateEdgeDetailsCache(client, edges);

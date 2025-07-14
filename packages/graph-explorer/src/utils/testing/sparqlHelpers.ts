@@ -7,6 +7,13 @@ export function createUriValue(value: string): SparqlValue {
   };
 }
 
+export function createBNodeValue(value: string): SparqlValue {
+  return {
+    type: "bnode",
+    value,
+  };
+}
+
 export function createLiteralValue(
   value: string | number | boolean
 ): SparqlValue {
