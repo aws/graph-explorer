@@ -101,17 +101,14 @@ export function bulkNeighborCountsQuery(
       // Fetch missing neighbor counts in batches
       const newResponses = await Promise.all(
         chunk(missingIds, DEFAULT_BATCH_REQUEST_SIZE).map(batch =>
-          explorer
-            .neighborCounts({ vertexIds: batch }, { signal })
-            .then(response => response.counts)
+          explorer.neighborCounts({ vertexIds: batch }, { signal })
         )
-      ).then(results => results.flat());
+      ).then(results => results.flatMap(r => r.counts));
 
       // Update cache and combine responses
       updateNeighborCountCache(client, newResponses);
-      responses.push(...newResponses);
 
-      return responses;
+      return [...responses, ...newResponses];
     },
     placeholderData: vertexIds
       .map(id => queryClient.getQueryData(neighborsCountQuery(id).queryKey))
@@ -201,11 +198,9 @@ export function bulkVertexDetailsQuery(vertexIds: VertexId[]) {
       // Fetch missing vertices in batches
       const vertices = await Promise.all(
         chunk(missingIds, DEFAULT_BATCH_REQUEST_SIZE).map(batch =>
-          explorer
-            .vertexDetails({ vertexIds: batch }, { signal })
-            .then(response => response.vertices)
+          explorer.vertexDetails({ vertexIds: batch }, { signal })
         )
-      ).then(results => results.flat());
+      ).then(results => results.flatMap(r => r.vertices));
 
       // Update cache
       updateVertexDetailsCache(client, vertices);
@@ -223,35 +218,35 @@ export function bulkEdgeDetailsQuery(edgeIds: EdgeId[]) {
     queryFn: async ({ client, meta, signal }) => {
       const explorer = getExplorer(meta);
 
-      // Check for cached edges first
-      const cachedEdges = edgeIds
-        .values()
-        .map(id => client.getQueryData(edgeDetailsQuery(id).queryKey))
-        .map(response => response?.edge)
-        .filter(edge => edge != null)
-        .toArray();
+      // Get cached and missing edges in one pass
+      const cachedEdges: Edge[] = [];
+      const missingIds: EdgeId[] = [];
 
-      const cachedIds = new Set(cachedEdges.map(v => v.id));
-      const missingIds = new Set(edgeIds).difference(cachedIds);
+      for (const id of edgeIds) {
+        const cached = client.getQueryData(edgeDetailsQuery(id).queryKey)?.edge;
+        if (cached) {
+          cachedEdges.push(cached);
+        } else {
+          missingIds.push(id);
+        }
+      }
 
-      // Bail early if all edges are cached
-      if (missingIds.size === 0) {
+      // Return early if all edges are cached
+      if (!missingIds.length) {
         return { edges: cachedEdges };
       }
 
-      // Fetch any missing edges
-      const batches = chunk(Array.from(missingIds), DEFAULT_BATCH_REQUEST_SIZE);
-      const edges: Array<Edge> = cachedEdges;
-      for (const batch of batches) {
-        const request = { edgeIds: batch };
-        const response = await explorer.edgeDetails(request, { signal });
-        edges.push(...response.edges);
-      }
+      // Fetch missing edges in batches
+      const edges = await Promise.all(
+        chunk(missingIds, DEFAULT_BATCH_REQUEST_SIZE).map(batch =>
+          explorer.edgeDetails({ edgeIds: batch }, { signal })
+        )
+      ).then(results => results.flatMap(r => r.edges));
 
-      // Update the cache
+      // Update cache
       updateEdgeDetailsCache(client, edges);
 
-      return { edges };
+      return { edges: [...cachedEdges, ...edges] };
     },
   });
 }
