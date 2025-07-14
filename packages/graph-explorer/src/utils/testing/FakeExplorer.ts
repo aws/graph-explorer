@@ -79,7 +79,7 @@ export class FakeExplorer implements Explorer {
     throw new Error("Not implemented");
   }
 
-  async fetchNeighborsCount(
+  async neighborCounts(
     request: NeighborCountsRequest
   ): Promise<NeighborCountsResponse> {
     return {

@@ -139,7 +139,7 @@ export function createSparqlExplorer(
       );
       return toMappedQueryResults({ vertices, edges: response.edges });
     },
-    async fetchNeighborsCount(req, options) {
+    async neighborCounts(req, options) {
       remoteLogger.info("[SPARQL Explorer] Fetching neighbor counts...");
       return neighborCounts(
         _sparqlFetch(connection, featureFlags, options),

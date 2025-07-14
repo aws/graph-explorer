@@ -102,7 +102,7 @@ export function bulkNeighborCountsQuery(
       const newResponses = await Promise.all(
         chunk(missingIds, DEFAULT_BATCH_REQUEST_SIZE).map(batch =>
           explorer
-            .fetchNeighborsCount({ vertexIds: batch }, { signal })
+            .neighborCounts({ vertexIds: batch }, { signal })
             .then(response => response.counts)
         )
       ).then(results => results.flat());
@@ -131,7 +131,7 @@ export function neighborsCountQuery(vertexId: VertexId) {
     queryKey: ["vertex", vertexId, "neighbor", "count"],
     queryFn: async ({ signal, meta }): Promise<NeighborCount> => {
       const explorer = getExplorer(meta);
-      const results = await explorer.fetchNeighborsCount(
+      const results = await explorer.neighborCounts(
         { vertexIds: [vertexId] },
         { signal }
       );

@@ -26,7 +26,7 @@ export const emptyExplorer: Explorer = {
     };
   },
   fetchNeighbors: async () => toMappedQueryResults({}),
-  fetchNeighborsCount: async () => ({ counts: [] }),
+  neighborCounts: async () => ({ counts: [] }),
   keywordSearch: async () => toMappedQueryResults({}),
   vertexDetails: async () => ({ vertices: [] }),
   edgeDetails: async () => ({ edges: [] }),

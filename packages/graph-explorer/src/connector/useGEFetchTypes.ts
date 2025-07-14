@@ -251,7 +251,7 @@ export type Explorer = {
     req: NeighborsRequest,
     options?: ExplorerRequestOptions
   ) => Promise<NeighborsResponse>;
-  fetchNeighborsCount: (
+  neighborCounts: (
     req: NeighborCountsRequest,
     options?: ExplorerRequestOptions
   ) => Promise<NeighborCountsResponse>;

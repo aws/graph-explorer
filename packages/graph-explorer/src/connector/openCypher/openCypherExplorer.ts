@@ -75,7 +75,7 @@ export function createOpenCypherExplorer(
         req
       );
     },
-    async fetchNeighborsCount(req, options) {
+    async neighborCounts(req, options) {
       remoteLogger.info("[openCypher Explorer] Fetching neighbors count...");
       return neighborCounts(
         _openCypherFetch(connection, featureFlags, options),

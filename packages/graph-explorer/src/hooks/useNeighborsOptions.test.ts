@@ -34,7 +34,7 @@ describe("useNeighborsOptions", () => {
       totalCount: 0,
       counts: {},
     };
-    vi.mocked(dbState.explorer.fetchNeighborsCount).mockResolvedValueOnce({
+    vi.mocked(dbState.explorer.neighborCounts).mockResolvedValueOnce({
       counts: [response],
     });
 
@@ -56,7 +56,7 @@ describe("useNeighborsOptions", () => {
       totalCount: 8,
       counts: { nodeType1: 5, nodeType2: 3 },
     };
-    vi.mocked(dbState.explorer.fetchNeighborsCount).mockResolvedValueOnce({
+    vi.mocked(dbState.explorer.neighborCounts).mockResolvedValueOnce({
       counts: [response],
     });
 
@@ -66,7 +66,7 @@ describe("useNeighborsOptions", () => {
     );
 
     await waitFor(() => {
-      expect(dbState.explorer.fetchNeighborsCount).toHaveBeenCalledTimes(1);
+      expect(dbState.explorer.neighborCounts).toHaveBeenCalledTimes(1);
       expect(result.current).toHaveLength(2);
 
       const firstResult = result.current[0];
@@ -101,7 +101,7 @@ describe("useNeighborsOptions", () => {
       totalCount: 1,
       counts: { nodeType1: 1 },
     };
-    vi.mocked(dbState.explorer.fetchNeighborsCount).mockResolvedValueOnce({
+    vi.mocked(dbState.explorer.neighborCounts).mockResolvedValueOnce({
       counts: [response],
     });
 
@@ -111,7 +111,7 @@ describe("useNeighborsOptions", () => {
     );
 
     await waitFor(() => {
-      expect(dbState.explorer.fetchNeighborsCount).toHaveBeenCalledTimes(1);
+      expect(dbState.explorer.neighborCounts).toHaveBeenCalledTimes(1);
       expect(result.current).toHaveLength(1);
 
       const firstResult = result.current[0];

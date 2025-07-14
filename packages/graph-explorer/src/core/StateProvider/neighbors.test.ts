@@ -69,7 +69,7 @@ describe("useNeighbors", () => {
       totalCount: 8,
       counts: { nodeType1: 5, nodeType2: 3 },
     };
-    vi.mocked(dbState.explorer.fetchNeighborsCount).mockResolvedValueOnce({
+    vi.mocked(dbState.explorer.neighborCounts).mockResolvedValueOnce({
       counts: [response],
     });
 

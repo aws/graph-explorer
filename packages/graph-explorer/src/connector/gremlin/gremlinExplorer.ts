@@ -98,7 +98,7 @@ export function createGremlinExplorer(
         req
       );
     },
-    async fetchNeighborsCount(req, options) {
+    async neighborCounts(req, options) {
       remoteLogger.info("[Gremlin Explorer] Fetching neighbors count...");
       return neighborCounts(
         _gremlinFetch(connection, featureFlags, options),

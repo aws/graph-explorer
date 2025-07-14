@@ -42,7 +42,7 @@ to mock the neighbors request using in-memory results.
 At the same time, if any resource of non-blank nodes is a blank node, it will
 store the **ID** and the **query** used to find the blank node when needed.
 
-### fetchNeighborsCount
+### neighborCounts
 
 It will fetch the total number of connected non-literal objects and the total
 number of them grouped by resource class. It does not fetch resources associated
