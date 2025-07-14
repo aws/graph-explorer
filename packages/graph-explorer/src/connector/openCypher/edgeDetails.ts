@@ -3,10 +3,10 @@ import {
   EdgeDetailsRequest,
   EdgeDetailsResponse,
   ErrorResponse,
-} from "../useGEFetchTypes";
+} from "@/connector";
 import { OCEdge, OpenCypherFetch } from "./types";
 import { idParam } from "./idParam";
-import isErrorResponse from "../utils/isErrorResponse";
+import isErrorResponse from "@/connector/utils/isErrorResponse";
 import mapApiEdge from "./mappers/mapApiEdge";
 import { mapValuesToQueryResults } from "../mapping";
 
