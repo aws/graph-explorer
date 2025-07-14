@@ -19,7 +19,7 @@ export function parseGMap<Key, Value>(
     const key = gMap["@value"][i] as Key;
     const value = gMap["@value"][i + 1] as Value;
 
-    if (key != null || value != null) {
+    if (key == null || value == null) {
       logger.warn("Did not find a matching pair of values in the g:Map", {
         key,
         value,
