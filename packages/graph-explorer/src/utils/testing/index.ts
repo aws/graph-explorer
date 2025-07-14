@@ -7,4 +7,5 @@ export * from "./ocHelpers";
 export * from "./randomData";
 export * from "./randomSchemaResponse";
 export * from "./renderHookWithJotai";
+export * from "./sparqlHelpers";
 export * from "./waitForValueToChange";

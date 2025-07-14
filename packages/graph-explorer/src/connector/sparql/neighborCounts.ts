@@ -31,6 +31,11 @@ export async function neighborCounts(
   request: NeighborCountsRequest,
   blankNodes: BlankNodesMap
 ): Promise<NeighborCountsResponse> {
+  // Bail early if request is empty
+  if (!request.vertexIds.length) {
+    return { counts: [] };
+  }
+
   const blankNodeResponses = await fetchBlankNodeNeighborCounts(
     sparqlFetch,
     request,
