@@ -1,6 +1,16 @@
 import { logger } from "@/utils";
 import { GMapWithValue } from "../types";
 
+/**
+ * Parses a gremlin map type in to a JavaScript Map object.
+ *
+ * Gremlin g:Map values are an array where the key and value are in the array as
+ * pairs, so you must parse two items at a time.
+ *
+ * If either the key or the value does not exist it will be skipped.
+ *
+ * i.e. [key, value, key, value, key, value]
+ */
 export function parseGMap<Key, Value>(
   gMap: GMapWithValue<Key, Value>
 ): Map<Key, Value> {
@@ -9,7 +19,7 @@ export function parseGMap<Key, Value>(
     const key = gMap["@value"][i] as Key;
     const value = gMap["@value"][i + 1] as Value;
 
-    if (!key || !value) {
+    if (key != null || value != null) {
       logger.warn("Did not find a matching pair of values in the g:Map", {
         key,
         value,
