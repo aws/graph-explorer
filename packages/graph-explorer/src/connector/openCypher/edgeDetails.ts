@@ -52,7 +52,7 @@ export async function edgeDetails(
     }))
   ).edges;
 
-  // Log a warning if some nodes are missing
+  // Log a warning if some edges are missing
   const missing = new Set(request.edgeIds).difference(
     new Set(edges.map(e => e.id))
   );
