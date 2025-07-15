@@ -9,7 +9,6 @@ export function mapAttributeValue(value: SparqlValue): EntityPropertyValue {
     if (value.datatype === "http://www.w3.org/2001/XMLSchema#decimal") {
       return parseFloat(value.value);
     }
-    return value.value;
   }
   return value.value;
 }
