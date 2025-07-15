@@ -1,9 +1,25 @@
 # syntax=docker/dockerfile:1
-FROM amazonlinux:2023
+FROM amazonlinux:2023 AS base
+ENV NVM_DIR=/root/.nvm
+ENV NODE_VERSION=v24.4.0
+
+RUN yum update -y && \
+    yum install -y tar git findutils openssl && \
+    mkdir -p $NVM_DIR && \
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash && \
+    source $NVM_DIR/nvm.sh && \
+    nvm install $NODE_VERSION && \
+    nvm alias default $NODE_VERSION && \
+    nvm use $NODE_VERSION && \
+    npm install --global corepack@latest && \
+    corepack enable && \
+    yum clean all && \
+    yum remove -y tar findutils git && \
+    rm -rf /var/cache/yum
+
+FROM base
 ARG NEPTUNE_NOTEBOOK
 
-ENV NVM_DIR=/root/.nvm
-ENV NODE_VERSION=v24.2.0
 ENV NEPTUNE_NOTEBOOK=$NEPTUNE_NOTEBOOK
 ENV HOME=/graph-explorer
 
@@ -28,34 +44,19 @@ ENV PROXY_SERVER_HTTP_PORT=${PROXY_SERVER_HTTP_PORT:-80}
 ENV LOG_STYLE=${NEPTUNE_NOTEBOOK:+cloudwatch}
 ENV LOG_STYLE=${LOG_STYLE:-default}
 
+# Set node/npm in path so it can be used by the app when the container is run
+ENV NODE_PATH=$NVM_DIR/versions/node/$NODE_VERSION/lib/node_modules
+ENV PATH=$NVM_DIR/versions/node/$NODE_VERSION/bin:$PATH
+
 WORKDIR /
 COPY . /graph-explorer/
 WORKDIR /graph-explorer
 
-# Keeping all the RUN commands on a single line reduces the number of layers and,
-# as a result, significantly reduces the final image size.
-RUN yum update -y && \
-    yum install -y tar git findutils openssl && \
-    mkdir -p $NVM_DIR && \
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash && \
-    source $NVM_DIR/nvm.sh && \
-    nvm install $NODE_VERSION && \
-    nvm alias default $NODE_VERSION && \
-    nvm use $NODE_VERSION && \
-    npm install --global corepack@latest && \
-    corepack enable && \
-    pnpm install && \
+RUN pnpm install && \
     pnpm build && pnpm clean:dep && pnpm install --prod --ignore-scripts && \
-    yum clean all && \
-    yum remove -y tar findutils git && \
-    rm -rf /var/cache/yum && \
     rm -rf $HOME/.local && \
     chmod a+x ./process-environment.sh && \
     chmod a+x ./docker-entrypoint.sh
-
-# Set node/npm in path so it can be used by the app when the container is run
-ENV NODE_PATH=$NVM_DIR/versions/node/$NODE_VERSION/lib/node_modules
-ENV PATH=$NVM_DIR/versions/node/$NODE_VERSION/bin:$PATH
 
 EXPOSE 443
 EXPOSE 80
