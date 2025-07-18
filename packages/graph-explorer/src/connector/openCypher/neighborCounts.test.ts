@@ -49,6 +49,29 @@ describe("neighborCounts", () => {
     expect(result.counts).toEqual([expected]);
   });
 
+  it("should return neighbor counts", async () => {
+    const expected: NeighborCount = {
+      vertexId: createRandomVertexId(),
+      totalCount: 12,
+      counts: {
+        label1: 3,
+        label2: 9,
+      },
+    };
+    const response = createResponse({
+      ...expected,
+      counts: {
+        label1: expected.counts.label1,
+        "label2::label3": expected.counts.label2,
+      },
+    });
+    const mockFetch = vi.fn().mockResolvedValue(response);
+    const result = await neighborCounts(mockFetch, {
+      vertexIds: [expected.vertexId],
+    });
+    expect(result.counts).toEqual([expected]);
+  });
+
   it("should return multiple neighbor counts", async () => {
     const expected1: NeighborCount = {
       vertexId: createRandomVertexId(),
@@ -80,7 +103,7 @@ function createResponse(...counts: NeighborCount[]) {
     results: counts.map(count => ({
       id: String(count.vertexId),
       counts: Object.entries(count.counts).map(([type, count]) => ({
-        label: [type],
+        label: type.split("::"),
         count,
       })),
     })),

@@ -80,7 +80,11 @@ export async function neighborCounts(
         }))
         .reduce(
           (acc, curr) => {
-            acc[curr.type] = curr.count;
+            // TODO: In a future set of changes we should pass the full lsit of types
+            // up to the UI so that it can list them out properly, but since this is a
+            // rather large change I am defering that work.
+            const type = curr.type.split("::")[0] ?? "";
+            acc[type] = curr.count;
             return acc;
           },
           {} as Record<string, number>
