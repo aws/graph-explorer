@@ -26,7 +26,7 @@ describe("neighborCounts", () => {
         WITH 
           id(source) AS id, 
           labels(neighbor) AS neighborLabels, 
-          count(labels(neighbor)) AS neighborCount
+          count(neighbor) AS neighborCount
         RETURN id, collect({ label: neighborLabels, count: neighborCount }) as counts
       `
     );
