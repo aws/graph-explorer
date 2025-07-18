@@ -10,6 +10,10 @@ import { GMapWithValue } from "../types";
  * If either the key or the value does not exist it will be skipped.
  *
  * i.e. [key, value, key, value, key, value]
+ *
+ * NOTE: The map key and value are not parsed. This is simply pairing up the
+ * values and casting them to the right type before adding them to the JS Map
+ * object.
  */
 export function parseGMap<Key, Value>(
   gMap: GMapWithValue<Key, Value>
