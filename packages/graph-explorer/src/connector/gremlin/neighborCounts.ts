@@ -62,6 +62,9 @@ export async function neighborCounts(
 
   // Map the results
   const valueMap = data.result.data["@value"][0];
+  if (!valueMap) {
+    return { counts: [] };
+  }
 
   const map = parseGMap<GIdentifier, GNeighborCountsByType>(valueMap);
 
