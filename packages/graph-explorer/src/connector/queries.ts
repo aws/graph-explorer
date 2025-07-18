@@ -121,8 +121,6 @@ export function bulkNeighborCountsQuery(
 /**
  * Retrieves the number of neighbors for a given node and their types.
  * @param vertexId The node id for which to fetch the neighbors count.
- * @param limit The limit for the neighbors count query.
- * @param explorer The service client to use for fetching the neighbors count.
  * @returns The count of neighbors for the given node as a total and per type.
  */
 export function neighborsCountQuery(vertexId: VertexId) {
