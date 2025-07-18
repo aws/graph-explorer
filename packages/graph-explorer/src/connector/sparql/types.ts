@@ -1,5 +1,5 @@
 import { Edge, EntityProperties, Vertex, VertexId } from "@/core";
-import type { NeighborsCountResponse } from "../useGEFetchTypes";
+import type { NeighborCount } from "../useGEFetchTypes";
 import { z } from "zod";
 
 export type SparqlFetch = <TResult = any>(
@@ -84,13 +84,6 @@ export type SPARQLBlankNodeNeighborsPredicatesRequest = {
   subjectURIs: VertexId[];
 };
 
-export type SPARQLNeighborsCountRequest = {
-  /**
-   * Resource URI.
-   */
-  resourceURI: VertexId;
-};
-
 export type SPARQLBlankNodeNeighborsCountRequest = {
   /**
    * Sub-query where the blank node was found.
@@ -138,7 +131,7 @@ export type SPARQLBlankNodeNeighborsRequest = {
   subQuery: string;
 };
 
-export type SPARQLBlankNodeNeighborsResponse = NeighborsCountResponse & {
+export type SPARQLBlankNodeNeighborsResponse = NeighborCount & {
   neighbors: {
     vertices: Array<Vertex>;
     edges: Array<Edge>;

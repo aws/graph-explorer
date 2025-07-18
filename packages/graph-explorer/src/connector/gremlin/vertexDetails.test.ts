@@ -19,9 +19,7 @@ describe("vertexDetails", () => {
   it("should return the correct vertex details", async () => {
     const vertex = createRandomVertex();
     const response = createGremlinResponseFromVertices(vertex);
-    const mockFetch = vi
-      .fn()
-      .mockImplementation(() => Promise.resolve(response));
+    const mockFetch = vi.fn().mockResolvedValue(response);
 
     const result = await vertexDetails(mockFetch, {
       vertexIds: [vertex.id],
@@ -34,9 +32,7 @@ describe("vertexDetails", () => {
     const vertex1 = createRandomVertex();
     const vertex2 = createRandomVertex();
     const response = createGremlinResponseFromVertices(vertex1, vertex2);
-    const mockFetch = vi
-      .fn()
-      .mockImplementation(() => Promise.resolve(response));
+    const mockFetch = vi.fn().mockResolvedValue(response);
 
     const result = await vertexDetails(mockFetch, {
       vertexIds: [vertex1.id, vertex2.id],
@@ -50,9 +46,7 @@ describe("vertexDetails", () => {
     vertex.attributes = {};
     vertex.__isFragment = true;
     const response = createGremlinResponseFromVertices(vertex);
-    const mockFetch = vi
-      .fn()
-      .mockImplementation(() => Promise.resolve(response));
+    const mockFetch = vi.fn().mockResolvedValue(response);
 
     const result = await vertexDetails(mockFetch, {
       vertexIds: [vertex.id],

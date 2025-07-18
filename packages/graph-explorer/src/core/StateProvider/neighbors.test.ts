@@ -5,7 +5,7 @@ import {
   DbState,
   renderHookWithState,
 } from "@/utils/testing";
-import { NeighborCountsQueryResponse } from "@/connector";
+import { NeighborCount } from "@/connector";
 import { waitFor } from "@testing-library/react";
 
 describe("calculateNeighbors", () => {
@@ -64,14 +64,14 @@ describe("useNeighbors", () => {
     const dbState = new DbState();
     const vertex = createRandomVertex();
 
-    const response: NeighborCountsQueryResponse = {
-      nodeId: vertex.id,
+    const response: NeighborCount = {
+      vertexId: vertex.id,
       totalCount: 8,
       counts: { nodeType1: 5, nodeType2: 3 },
     };
-    vi.mocked(dbState.explorer.fetchNeighborsCount).mockResolvedValueOnce(
-      response
-    );
+    vi.mocked(dbState.explorer.neighborCounts).mockResolvedValueOnce({
+      counts: [response],
+    });
 
     const { result } = renderHookWithState(
       () => useNeighbors(vertex.id),

@@ -26,18 +26,9 @@ export const emptyExplorer: Explorer = {
     };
   },
   fetchNeighbors: async () => toMappedQueryResults({}),
-  fetchNeighborsCount: async () => {
-    return {
-      totalCount: 0,
-      counts: {},
-    };
-  },
+  neighborCounts: async () => ({ counts: [] }),
   keywordSearch: async () => toMappedQueryResults({}),
   vertexDetails: async () => ({ vertices: [] }),
-  edgeDetails: async () => {
-    return {
-      edge: null,
-    };
-  },
+  edgeDetails: async () => ({ edges: [] }),
   rawQuery: async () => toMappedQueryResults({}),
 };

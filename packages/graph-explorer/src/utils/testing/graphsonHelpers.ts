@@ -6,6 +6,7 @@ import {
   GInt32,
   GInt64,
   GList,
+  GMap,
   GProperty,
   GScalar,
   GVertex,
@@ -22,9 +23,15 @@ import {
 import { createRandomInteger } from "@shared/utils/testing";
 
 export function createGremlinResponseFromVertices(...vertices: Vertex[]) {
+  return createGremlinResponse(...vertices.map(createGVertex));
+}
+
+export function createGremlinResponse<Value extends GAnyValue>(
+  ...values: Value[]
+) {
   return {
     result: {
-      data: createGList(vertices.map(createGVertex)),
+      data: createGList(values),
     },
   };
 }
@@ -34,6 +41,33 @@ export function createGList(items: GAnyValue[]): GList {
     "@type": "g:List",
     "@value": items,
   };
+}
+
+export function createGMap<Value extends EntityPropertyValue | GAnyValue>(
+  values: Record<string, Value>
+): GMap {
+  const mapItems: GAnyValue[] = [];
+  for (const [key, value] of Object.entries(values)) {
+    mapItems.push(key);
+    if (
+      typeof value === "boolean" ||
+      typeof value === "string" ||
+      typeof value === "number"
+    ) {
+      mapItems.push(createGValue(value));
+    } else if (typeof value === "object" && "@type" in value) {
+      mapItems.push(value);
+    } else {
+      throw new Error(
+        "Automatic mapping to GAnyValue not yet supported. Update the logic to support this type"
+      );
+    }
+  }
+  const result: GMap = {
+    "@type": "g:Map",
+    "@value": mapItems,
+  };
+  return result;
 }
 
 export function createGVertex(vertex: Vertex): GVertex {

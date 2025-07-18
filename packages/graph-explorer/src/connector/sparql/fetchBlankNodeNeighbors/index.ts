@@ -20,6 +20,7 @@ import {
 } from "../types";
 import { logger } from "@/utils";
 import { Vertex, VertexId } from "@/core";
+import { mapAttributeValue } from "../mappers/mapAttributeValue";
 
 type RawBlankNodeNeighborsResponse = {
   results: {
@@ -86,7 +87,9 @@ export function mapOneHop(data: RawBlankNodeNeighborsResponse) {
     };
 
     result.forEach(attr => {
-      mappedResults[uri].attributes[attr.pred.value] = attr.value.value;
+      mappedResults[uri].attributes[attr.pred.value] = mapAttributeValue(
+        attr.value
+      );
     });
   });
 
@@ -128,6 +131,7 @@ export default async function fetchBlankNodeNeighbors(
   );
 
   return {
+    vertexId: req.resourceURI,
     totalCount: vertices.length,
     counts: Object.entries(groupBy(vertices, v => v.type)).reduce(
       (counts, [group, vs]) => {

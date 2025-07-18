@@ -20,16 +20,11 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import EntityAttribute from "../EntityDetails/EntityAttribute";
-import { edgeDetailsQuery } from "@/connector";
-import { useQuery } from "@tanstack/react-query";
 
 export function EdgeSearchResult({ edge }: { edge: Edge }) {
   const [expanded, setExpanded] = useState(false);
 
-  // Ensure the edge is fully materialized
-  const { data: detailsResponse } = useQuery(edgeDetailsQuery(edge.id));
-  const preferredEdge = detailsResponse?.edge ?? edge;
-  const displayEdge = useDisplayEdgeFromEdge(preferredEdge);
+  const displayEdge = useDisplayEdgeFromEdge(edge);
 
   // Get the display vertices
   const source = useDisplayVertexFromFragment(

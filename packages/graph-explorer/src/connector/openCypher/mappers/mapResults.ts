@@ -1,5 +1,6 @@
 import { logger } from "@/utils";
 import { z } from "zod";
+import { fromError } from "zod-validation-error";
 import mapApiVertex from "./mapApiVertex";
 import mapApiEdge from "./mapApiEdge";
 import { MapValueResult, mapValuesToQueryResults } from "@/connector/mapping";
@@ -45,21 +46,26 @@ const cypherQueryResultSchema = z.object({
   results: z.array(z.record(cypherValueSchema)),
 });
 
+export function parseResults(data: unknown) {
+  const parsed = cypherQueryResultSchema.safeParse(data);
+
+  if (!parsed.success) {
+    const validationError = fromError(parsed.error);
+    logger.error("Failed to parse results", validationError.toString(), data);
+    throw validationError;
+  }
+
+  return parsed.data.results;
+}
+
 /**
  * Maps the raw results from an OpenCypher query to the expected format
  * @param data The raw data from the OpenCypher query fetch
  * @returns The mapped results
  */
 export function mapResults(data: unknown) {
-  const parsed = cypherQueryResultSchema.safeParse(data);
-
-  if (!parsed.success) {
-    logger.error("Failed to parse results", parsed.error);
-    throw parsed.error;
-  }
-
-  const values = parsed.data.results.flatMap(mapValue);
-
+  const results = parseResults(data);
+  const values = results.flatMap(mapValue);
   return mapValuesToQueryResults(values);
 }
 

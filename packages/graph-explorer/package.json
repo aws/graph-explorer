@@ -84,7 +84,8 @@
     "tailwindcss-animate": "^1.0.7",
     "use-deep-compare-effect": "^1.8.1",
     "uuid": "^11.1.0",
-    "zod": "^3.25.64"
+    "zod": "^3.25.64",
+    "zod-validation-error": "^3.5.3"
   },
   "devDependencies": {
     "@babel/core": "^7.27.4",

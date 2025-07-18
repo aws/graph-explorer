@@ -144,14 +144,15 @@ export type NeighborsRequest = {
 
 export type NeighborsResponse = MappedQueryResults;
 
-export type NeighborsCountRequest = {
+export type NeighborCountsRequest = {
   /**
    * Source vertex ID & type.
    */
-  vertexId: VertexId;
+  vertexIds: VertexId[];
 };
 
-export type NeighborsCountResponse = {
+export type NeighborCount = {
+  vertexId: VertexId;
   /**
    * Number of connected vertices.
    */
@@ -159,7 +160,13 @@ export type NeighborsCountResponse = {
   /**
    * Number of connected vertices by vertex type.
    */
-  counts: { [vertexType: string]: number };
+  counts: {
+    [vertexType: string]: number;
+  };
+};
+
+export type NeighborCountsResponse = {
+  counts: Array<NeighborCount>;
 };
 
 export type KeywordSearchRequest = {
@@ -216,11 +223,11 @@ export type VertexDetailsResponse = {
 };
 
 export type EdgeDetailsRequest = {
-  edgeId: EdgeId;
+  edgeIds: EdgeId[];
 };
 
 export type EdgeDetailsResponse = {
-  edge: Edge | null;
+  edges: Edge[];
 };
 
 export type RawQueryRequest = {
@@ -244,10 +251,10 @@ export type Explorer = {
     req: NeighborsRequest,
     options?: ExplorerRequestOptions
   ) => Promise<NeighborsResponse>;
-  fetchNeighborsCount: (
-    req: NeighborsCountRequest,
+  neighborCounts: (
+    req: NeighborCountsRequest,
     options?: ExplorerRequestOptions
-  ) => Promise<NeighborsCountResponse>;
+  ) => Promise<NeighborCountsResponse>;
   keywordSearch: (
     req: KeywordSearchRequest,
     options?: ExplorerRequestOptions

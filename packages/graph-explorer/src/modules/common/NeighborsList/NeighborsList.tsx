@@ -40,11 +40,11 @@ export default function NeighborsList({
       {...props}
     >
       <div className="text-lg font-bold">Neighbors ({neighbors.all})</div>
-      <ul className="space-y-3">
+      <ul className="grid grid-cols-[1fr_auto_auto] gap-x-2 gap-y-3">
         {neighborsOptions
           .slice(0, showMore ? undefined : MAX_NEIGHBOR_TYPE_ROWS)
           .map(op => (
-            <li key={op.value}>
+            <li key={op.value} className="contents">
               <NeighborTypeRow vertexId={vertexId} op={op} />
             </li>
           ))}
@@ -69,26 +69,24 @@ function NeighborTypeRow({
   const neighbors = useNeighborsByType(vertexId, op.value);
 
   return (
-    <div className="flex items-center justify-between gap-2">
-      <div className="flex items-center gap-2 font-medium">
+    <>
+      <span className="flex items-center gap-2 break-all font-medium">
         <VertexIcon vertexStyle={op.config.style} />
         {op.label}
-      </div>
-      <div className="flex items-center gap-2">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Chip className="min-w-12">
-              <VisibleIcon />
-              {neighbors.fetched}
-            </Chip>
-          </TooltipTrigger>
-          <TooltipContent>
-            {`${neighbors.fetched} ${op.label} in the Graph View`}
-          </TooltipContent>
-        </Tooltip>
-        <Chip className="min-w-12">{neighbors.all}</Chip>
-      </div>
-    </div>
+      </span>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Chip className="min-w-12">
+            <VisibleIcon />
+            {neighbors.fetched}
+          </Chip>
+        </TooltipTrigger>
+        <TooltipContent>
+          {`${neighbors.fetched} ${op.label} in the Graph View`}
+        </TooltipContent>
+      </Tooltip>
+      <Chip className="min-w-12">{neighbors.all}</Chip>
+    </>
   );
 }
 

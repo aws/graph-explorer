@@ -4,8 +4,9 @@ import {
   EdgeDetailsRequest,
   Explorer,
   MappedQueryResults,
-  NeighborsCountRequest,
-  NeighborsCountResponse,
+  NeighborCount,
+  NeighborCountsRequest,
+  NeighborCountsResponse,
   NeighborsResponse,
   RawQueryResponse,
   VertexDetailsRequest,
@@ -78,24 +79,29 @@ export class FakeExplorer implements Explorer {
     throw new Error("Not implemented");
   }
 
-  async fetchNeighborsCount(
-    request: NeighborsCountRequest
-  ): Promise<NeighborsCountResponse> {
-    const neighbors = this.findNeighbors(request.vertexId);
-    const counts: Record<string, number> = {};
-    let totalCount = 0;
-
-    // Count neighbors by type
-    neighbors.forEach(neighbor => {
-      const neighborType = neighbor.type;
-      counts[neighborType] = (counts[neighborType] || 0) + 1;
-      totalCount++;
-    });
-
+  async neighborCounts(
+    request: NeighborCountsRequest
+  ): Promise<NeighborCountsResponse> {
     return {
-      counts,
-      totalCount,
-    } satisfies NeighborsCountResponse;
+      counts: request.vertexIds.map(vertexId => {
+        const neighbors = this.findNeighbors(vertexId);
+        const counts: Record<string, number> = {};
+        let totalCount = 0;
+
+        // Count neighbors by type
+        neighbors.forEach(neighbor => {
+          const neighborType = neighbor.type;
+          counts[neighborType] = (counts[neighborType] || 0) + 1;
+          totalCount++;
+        });
+
+        return {
+          vertexId,
+          counts,
+          totalCount,
+        } satisfies NeighborCount;
+      }),
+    };
   }
 
   async keywordSearch(): Promise<MappedQueryResults> {
@@ -111,10 +117,10 @@ export class FakeExplorer implements Explorer {
   }
 
   async edgeDetails(request: EdgeDetailsRequest) {
-    const edge = this.edgeMap.get(request.edgeId);
-
     return {
-      edge: edge ?? null,
+      edges: request.edgeIds
+        .map(id => this.edgeMap.get(id))
+        .filter(v => v != null),
     };
   }
 
