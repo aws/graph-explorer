@@ -2,11 +2,33 @@
 
 ## Release v2.2
 
+This release brings significant performance improvements for the query editor,
+restoring graph session, and other operations that typically need to query for
+details about many nodes & edges all at once.
+
+In prior releases, this would manifest in multiple queries per node or edge,
+which could bog down the browser and overload the servers. With this release,
+similar types of requests are now batched together to reduce the number of
+requests down to around 3 requests in typical situations. This leads to better
+utilization of network bandwidth, reduces the load on both browser and server,
+and results in a more responsive UI.
+
+### Major changes
+
+- **Updated** query logic to prefer batching similar requests in groups of 100
+  instead of individual requests
+  ([#1044](https://github.com/aws/graph-explorer/pull/1044),
+  [#1048](https://github.com/aws/graph-explorer/pull/1048))
+
+### Other changes
+
+- **Updated** imperative query logic to check for a cache value first
+  ([#1047](https://github.com/aws/graph-explorer/pull/1047))
 - **Updated** Tanstack Query logic to simplify query construction
   ([#1015](https://github.com/aws/graph-explorer/pull/1015),
   [#1040](https://github.com/aws/graph-explorer/pull/1040),
   [#1042](https://github.com/aws/graph-explorer/pull/1042))
-- **Fixed** Rendering boolean values for Gremlin connections
+- **Fixed** rendering boolean values for Gremlin connections
   ([#1034](https://github.com/aws/graph-explorer/pull/1034))
 
 ## Release v2.1
@@ -27,7 +49,7 @@ ensuring that users can enforce read-only operations.
   [#1024](https://github.com/aws/graph-explorer/pull/1024),
   [#1035](https://github.com/aws/graph-explorer/pull/1035))
 
-### Other Changes
+### Other changes
 
 - **Added** close button to table view
   ([#1026](https://github.com/aws/graph-explorer/pull/1026))
