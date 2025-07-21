@@ -7,11 +7,11 @@ restoring graph session, etc. These operations will typically need to query for
 details about many nodes & edges all at once.
 
 In prior releases, this would manifest in multiple queries per node or edge,
-which can bog down the browser and overload the servers. With this release,
-those types of requests are now batched together to reduce the number of
+which could bog down the browser and overload the servers. With this release,
+similar types of requests are now batched together to reduce the number of
 requests down to around 3 requests in typical situations. This leads to better
-utilization of the network bandwidth, reduces the load on the browser and on the
-server, and leads to a more responsive feeling in the UI.
+utilization of network bandwidth, reduces the load on both browser and server,
+and results in a more responsive UI.
 
 ### Major changes
 
