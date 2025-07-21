@@ -125,7 +125,7 @@ To resolve this issue:
 For example:
 
 ```
-# if the current page is
+# if the current browser page URL is
 https://graph-explorer.mydomain.com/explorer/#/connections
 
 # the proxy server URL should be
