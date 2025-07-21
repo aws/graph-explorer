@@ -128,7 +128,7 @@ For example:
 # if the current browser page URL is
 https://graph-explorer.mydomain.com/explorer/#/connections
 
-# the proxy server URL should be
+# the connection setting's proxy server URL should be
 https://graph-explorer.mydomain.com
 ```
 
