@@ -118,7 +118,7 @@ current browser URL, the request will be blocked.
 To resolve this issue:
 
 1. Check your connection settings
-2. Ensure the proxy server URL matches exactly the domain portion of your
+2. Ensure the proxy server URL matches the domain portion of your
    current browser URL
 3. Update the connection if necessary
 
