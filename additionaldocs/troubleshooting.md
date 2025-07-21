@@ -102,6 +102,35 @@ slightly different steps.
 
 This can happen for many reasons. Below are a few of the common ones.
 
+### Mismatched Proxy Server URL
+
+When running a schema sync, a common cause of failures is a mismatch between the
+proxy server URL in your connection settings and the URL currently loaded in
+your browser. This mismatch can trigger a "Connection Error" message in Graph
+Explorer.
+
+Modern browsers enforce a security policy called Same-Origin Policy, which
+requires API requests to be sent to the same domain as the page you're viewing.
+If your connection settings specify a different domain than your current browser
+URL, the request will be blocked.
+
+To resolve this issue:
+
+1. Check your connection settings
+2. Ensure the proxy server URL matches exactly the domain portion of your
+   current browser URL
+3. Update the connection if necessary
+
+For example:
+
+```
+# if the current page is
+https://graph-explorer.mydomain.com/explorer/#/connections
+
+# the proxy server URL should be
+https://graph-explorer.mydomain.com
+```
+
 ### Timeout
 
 There are multiple sources of timeouts.
