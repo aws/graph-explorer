@@ -1,6 +1,6 @@
 {
   "name": "graph-explorer",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Graph Explorer",
   "engines": {
     "node": ">=24.2.0"
