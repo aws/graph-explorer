@@ -109,10 +109,11 @@ proxy server URL in your connection settings and the URL currently loaded in
 your browser. This mismatch can trigger a "Connection Error" message in Graph
 Explorer.
 
-Modern browsers enforce a security policy called Same-Origin Policy, which
-requires API requests to be sent to the same domain as the page you're viewing.
-If your connection settings specify a different domain than your current browser
-URL, the request will be blocked.
+Modern browsers enforce a security policy called
+[Same-Origin Policy](https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy),
+which requires API requests to be sent to the same domain as the page you're
+viewing. If your connection settings specify a different domain than your
+current browser URL, the request will be blocked.
 
 To resolve this issue:
 
