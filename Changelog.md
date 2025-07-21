@@ -3,7 +3,7 @@
 ## Release v2.2
 
 This release brings significant performance improvements for the query editor,
-restoring graph session, etc. These operations will typically need to query for
+restoring graph session, and other operations that typically need to query for
 details about many nodes & edges all at once.
 
 In prior releases, this would manifest in multiple queries per node or edge,
