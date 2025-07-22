@@ -31,16 +31,19 @@ describe("oneHopNeighborsTemplate", () => {
           {
             SELECT DISTINCT ?neighbor
             WHERE {
-              BIND(<http://www.example.com/soccer/resource#EPL> AS ?source)
+              BIND(<http://www.example.com/soccer/resource#EPL> AS ?resource)
               VALUES ?class { <http://www.example.com/soccer/ontology/Team> }
               {
-                ?neighbor ?pIncoming ?source .
+                ?neighbor ?pIncoming ?resource .
+                ?neighbor a ?class .
+                FILTER NOT EXISTS { ?anySubject a ?neighbor }
               }
               UNION
               {
-                ?source ?pOutgoing ?neighbor .
+                ?resource ?pOutgoing ?neighbor .
+                ?neighbor a ?class .
+                FILTER NOT EXISTS { ?anySubject a ?neighbor }
               }
-              ?neighbor a ?class .
               ?neighbor ?pValue ?value .
               FILTER(
                 isLiteral(?value) && (
@@ -48,16 +51,13 @@ describe("oneHopNeighborsTemplate", () => {
                   (?pValue=<http://www.example.com/soccer/ontology/nickname> && regex(str(?value), "Gunners", "i"))
                 )
               )
-              FILTER NOT EXISTS {
-                ?anySubject a ?neighbor .
-              }
             }
             ORDER BY ?neighbor
             LIMIT 2
           }
           ${commonPartOfQuery("http://www.example.com/soccer/resource#EPL")}
         }
-        ORDER BY ?subject
+        ORDER BY ?subject ?p ?value
       `)
     );
   });
@@ -77,16 +77,17 @@ describe("oneHopNeighborsTemplate", () => {
           {
             SELECT DISTINCT ?neighbor
             WHERE {
-              BIND(<http://www.example.com/soccer/resource#EPL> AS ?source)
+              BIND(<http://www.example.com/soccer/resource#EPL> AS ?resource)
               {
-                ?neighbor ?pIncoming ?source .
+                ?neighbor ?pIncoming ?resource .
+                ?neighbor a ?class .
+                FILTER NOT EXISTS { ?anySubject a ?neighbor }
               }
               UNION
               {
-                ?source ?pOutgoing ?neighbor .
-              }
-              FILTER NOT EXISTS {
-                ?anySubject a ?neighbor .
+                ?resource ?pOutgoing ?neighbor .
+                ?neighbor a ?class .
+                FILTER NOT EXISTS { ?anySubject a ?neighbor }
               }
             }
             ORDER BY ?neighbor
@@ -94,7 +95,7 @@ describe("oneHopNeighborsTemplate", () => {
           }
           ${commonPartOfQuery("http://www.example.com/soccer/resource#EPL")}
         }
-        ORDER BY ?subject
+        ORDER BY ?subject ?p ?value
       `)
     );
   });
@@ -115,25 +116,25 @@ describe("oneHopNeighborsTemplate", () => {
           {
             SELECT DISTINCT ?neighbor
             WHERE {
-              BIND(<http://www.example.com/soccer/resource#EPL> AS ?source)
+              BIND(<http://www.example.com/soccer/resource#EPL> AS ?resource)
               VALUES ?class { <http://www.example.com/soccer/ontology/Team> <http://www.example.com/soccer/ontology/Player> }
               {
-                ?neighbor ?pIncoming ?source .
+                ?neighbor ?pIncoming ?resource .
+                ?neighbor a ?class .
+                FILTER NOT EXISTS { ?anySubject a ?neighbor }
               }
               UNION
               {
-                ?source ?pOutgoing ?neighbor .
-              }
-              ?neighbor a ?class .
-              FILTER NOT EXISTS {
-                ?anySubject a ?neighbor .
+                ?resource ?pOutgoing ?neighbor .
+                ?neighbor a ?class .
+                FILTER NOT EXISTS { ?anySubject a ?neighbor }
               }
             }
             ORDER BY ?neighbor
           }
           ${commonPartOfQuery("http://www.example.com/soccer/resource#EPL")}
         }
-        ORDER BY ?subject
+        ORDER BY ?subject ?p ?value
       `)
     );
   });
@@ -152,23 +153,24 @@ describe("oneHopNeighborsTemplate", () => {
           {
             SELECT DISTINCT ?neighbor
             WHERE {
-              BIND(<http://www.example.com/soccer/resource#EPL> AS ?source)
+              BIND(<http://www.example.com/soccer/resource#EPL> AS ?resource)
               {
-                ?neighbor ?pIncoming ?source .
+                ?neighbor ?pIncoming ?resource .
+                ?neighbor a ?class .
+                FILTER NOT EXISTS { ?anySubject a ?neighbor }
               }
               UNION
               {
-                ?source ?pOutgoing ?neighbor .
-              }
-              FILTER NOT EXISTS {
-                ?anySubject a ?neighbor .
+                ?resource ?pOutgoing ?neighbor .
+                ?neighbor a ?class .
+                FILTER NOT EXISTS { ?anySubject a ?neighbor }
               }
             }
             ORDER BY ?neighbor
           }
           ${commonPartOfQuery("http://www.example.com/soccer/resource#EPL")}
         }
-        ORDER BY ?subject
+        ORDER BY ?subject ?p ?value
       `)
     );
   });
@@ -188,16 +190,17 @@ describe("oneHopNeighborsTemplate", () => {
           {
             SELECT DISTINCT ?neighbor
             WHERE {
-              BIND(<http://www.example.com/soccer/resource#EPL> AS ?source)
+              BIND(<http://www.example.com/soccer/resource#EPL> AS ?resource)
               {
-                ?neighbor ?pIncoming ?source .
+                ?neighbor ?pIncoming ?resource .
+                ?neighbor a ?class .
+                FILTER NOT EXISTS { ?anySubject a ?neighbor }
               }
               UNION
               {
-                ?source ?pOutgoing ?neighbor .
-              }
-              FILTER NOT EXISTS {
-                ?anySubject a ?neighbor .
+                ?resource ?pOutgoing ?neighbor .
+                ?neighbor a ?class .
+                FILTER NOT EXISTS { ?anySubject a ?neighbor }
               }
             }
             ORDER BY ?neighbor
@@ -205,7 +208,7 @@ describe("oneHopNeighborsTemplate", () => {
           }
           ${commonPartOfQuery("http://www.example.com/soccer/resource#EPL")}
         }
-        ORDER BY ?subject
+        ORDER BY ?subject ?p ?value
       `)
     );
   });
@@ -227,28 +230,29 @@ describe("oneHopNeighborsTemplate", () => {
           {
             SELECT DISTINCT ?neighbor
             WHERE {
-              BIND(<http://www.example.com/soccer/resource#EPL> AS ?source)
+              BIND(<http://www.example.com/soccer/resource#EPL> AS ?resource)
               {
-                ?neighbor ?pIncoming ?source .
+                ?neighbor ?pIncoming ?resource .
+                ?neighbor a ?class .
+                FILTER NOT EXISTS { ?anySubject a ?neighbor }
               }
               UNION
               {
-                ?source ?pOutgoing ?neighbor .
+                ?resource ?pOutgoing ?neighbor .
+                ?neighbor a ?class .
+                FILTER NOT EXISTS { ?anySubject a ?neighbor }
               }
               FILTER NOT EXISTS {
                 VALUES ?neighbor {
                   <http://www.example.com/soccer/resource#EFL> <http://www.example.com/soccer/resource#EFL2>
                 }
               }
-              FILTER NOT EXISTS {
-                ?anySubject a ?neighbor .
-              }
             }
             ORDER BY ?neighbor
           }
           ${commonPartOfQuery("http://www.example.com/soccer/resource#EPL")}
         }
-        ORDER BY ?subject
+        ORDER BY ?subject ?p ?value
       `)
     );
   });
@@ -259,39 +263,34 @@ describe("oneHopNeighborsTemplate", () => {
  * parts of the query change from test to test.
  */
 function commonPartOfQuery(resourceURI: string) {
-  return query`
+  return query`  
     {
-      SELECT *
-      WHERE {
-        {
-          BIND(<${resourceURI}> AS ?source)
-          ?neighbor ?pToSource ?source
-          BIND(?neighbor as ?subject)
-          BIND(?pToSource as ?p)
-          BIND(?source as ?value)
-        }
-        UNION
-        {
-          BIND(<${resourceURI}> AS ?source)
-          ?source ?pFromSource ?neighbor
-          BIND(?neighbor as ?value)
-          BIND(?pFromSource as ?p)
-          BIND(?source as ?subject)
-        }
-        UNION
-        {
-          ?neighbor ?p ?value
-          FILTER(isLiteral(?value) || ?p = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
-          BIND(?neighbor as ?subject)
-        }
-        UNION
-        {
-          BIND(<${resourceURI}> AS ?source)
-          ?source ?p ?value
-          FILTER(?p = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
-          BIND(?source as ?subject)
-        }
-      }
+      BIND(<${resourceURI}> AS ?resource)
+      ?neighbor ?pToSource ?resource
+      BIND(?neighbor as ?subject)
+      BIND(?pToSource as ?p)
+      BIND(?resource as ?value)
+    }
+    UNION
+    {
+      BIND(<${resourceURI}> AS ?resource)
+      ?resource ?pFromSource ?neighbor
+      BIND(?neighbor as ?value)
+      BIND(?pFromSource as ?p)
+      BIND(?resource as ?subject)
+    }
+    UNION
+    {
+      ?neighbor ?p ?value
+      FILTER(isLiteral(?value) || ?p = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+      BIND(?neighbor as ?subject)
+    }
+    UNION
+    {
+      BIND(<${resourceURI}> AS ?resource)
+      ?resource ?p ?value
+      FILTER(?p = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+      BIND(?resource as ?subject)
     }
   `;
 }
