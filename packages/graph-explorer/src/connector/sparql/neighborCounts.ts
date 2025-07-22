@@ -78,18 +78,23 @@ async function fetchNeighborCounts(
         {
           # Incoming neighbors
           ?neighbor ?pIncoming ?resource . 
+          
+          # Get the neighbor's class
+          ?neighbor a ?class .
+
+          # Remove any classes from the list of neighbors
+          FILTER NOT EXISTS { ?anySubject a ?neighbor }
         }
         UNION
         {
           # Outgoing neighbors
           ?resource ?pOutgoing ?neighbor . 
-        }
+          
+          # Get the neighbor's class
+          ?neighbor a ?class .
 
-        ?neighbor a ?class .
-
-        # Remove any classes from the list of neighbors
-        FILTER NOT EXISTS {
-          ?anySubject a ?neighbor .
+          # Remove any classes from the list of neighbors
+          FILTER NOT EXISTS { ?anySubject a ?neighbor }
         }
       }
     }
