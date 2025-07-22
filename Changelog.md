@@ -18,7 +18,8 @@ and results in a more responsive UI.
 - **Updated** query logic to prefer batching similar requests in groups of 100
   instead of individual requests
   ([#1044](https://github.com/aws/graph-explorer/pull/1044),
-  [#1048](https://github.com/aws/graph-explorer/pull/1048))
+  [#1048](https://github.com/aws/graph-explorer/pull/1048),
+  [#1065](https://github.com/aws/graph-explorer/pull/1065))
 
 ### Other changes
 
