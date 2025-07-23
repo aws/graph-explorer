@@ -110,7 +110,15 @@ export type GEntityList = {
   "@value": Array<GVertex | GEdge>;
 };
 
-export type GAnyValue = GList | GMap | GSet | GPath | GVertex | GEdge | GScalar;
+export type GAnyValue =
+  | GList
+  | GMap
+  | GSet
+  | GPath
+  | GVertex
+  | GEdge
+  | GScalar
+  | null;
 
 export type GremlinFetch = <TResult = any>(
   queryTemplate: string
