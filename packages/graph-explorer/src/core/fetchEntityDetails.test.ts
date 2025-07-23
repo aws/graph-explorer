@@ -35,8 +35,8 @@ describe("createCompletionNotification", () => {
 
   it("should create a completion notification when some nodes and edges were not found", () => {
     const fetchResult = createRandomFetchEntityDetailsResult();
-    fetchResult.counts.notFound.vertices = createRandomInteger();
-    fetchResult.counts.notFound.edges = createRandomInteger();
+    fetchResult.counts.notFound.vertices = createRandomInteger({ min: 2 });
+    fetchResult.counts.notFound.edges = createRandomInteger({ min: 2 });
     fetchResult.counts.notFound.total =
       fetchResult.counts.notFound.vertices + fetchResult.counts.notFound.edges;
     const nodeCount = fetchResult.counts.notFound.vertices.toLocaleString();
@@ -87,8 +87,8 @@ describe("createCompletionNotification", () => {
     const fetchResult = createRandomFetchEntityDetailsResult();
     fetchResult.entities.vertices = [];
     fetchResult.entities.edges = [];
-    fetchResult.counts.notFound.vertices = createRandomInteger();
-    fetchResult.counts.notFound.edges = createRandomInteger();
+    fetchResult.counts.notFound.vertices = createRandomInteger({ min: 2 });
+    fetchResult.counts.notFound.edges = createRandomInteger({ min: 2 });
     fetchResult.counts.notFound.total =
       fetchResult.counts.notFound.vertices + fetchResult.counts.notFound.edges;
     const nodeCount = fetchResult.counts.notFound.vertices.toLocaleString();

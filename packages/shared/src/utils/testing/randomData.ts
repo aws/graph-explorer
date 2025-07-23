@@ -33,11 +33,19 @@ export function createRandomBoolean(): boolean {
 
 /**
  * Creates a random integer.
- * @param max The maximum value the random integer can have. Defaults to 100,000.
+ * @param options The options for the random integer.
+ * @param options.min The minimum value the random integer can have (inclusive). Defaults to 0.
+ * @param options.max The maximum value the random integer can have (inclusive). Defaults to 100000.
  * @returns A random integer value from 0 to the max.
  */
-export function createRandomInteger(max: number = 100000): number {
-  return Math.floor(Math.random() * max);
+export function createRandomInteger(options?: {
+  min?: number;
+  max?: number;
+}): number {
+  const min = options?.min ?? 0;
+  const max = options?.max ?? 100000;
+
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 /**
@@ -74,7 +82,10 @@ export function createRandomColor(): string {
 export function createRandomUrlString(): string {
   const scheme = pickRandomElement(["http", "https"]);
   const host = createRandomName("host");
-  const port = pickRandomElement(["", `:${createRandomInteger(30000)}`]);
+  const port = pickRandomElement([
+    "",
+    `:${createRandomInteger({ max: 30000 })}`,
+  ]);
   const path = pickRandomElement(["", `/${createRandomName("path")}`]);
   return `${scheme}://${host}${port}${path}`;
 }

@@ -453,7 +453,7 @@ export function createRandomEdgePreferences(): EdgePreferences {
   const lineColor = randomlyUndefined(createRandomColor());
   const labelColor = randomlyUndefined(createRandomColor());
   const labelBorderColor = randomlyUndefined(createRandomColor());
-  const lineThickness = randomlyUndefined(createRandomInteger(25));
+  const lineThickness = randomlyUndefined(createRandomInteger({ max: 25 }));
   return {
     type: createRandomName("EdgeType"),
     ...(displayLabel && { displayLabel }),
