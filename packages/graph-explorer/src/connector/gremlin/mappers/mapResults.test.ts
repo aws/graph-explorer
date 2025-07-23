@@ -8,6 +8,7 @@ import {
   createRandomVertex,
 } from "@/utils/testing";
 import { toMappedQueryResults } from "@/connector";
+import { MISSING_DISPLAY_VALUE } from "@/utils";
 
 describe("mapResults", () => {
   it("should handle empty g:List", () => {
@@ -181,5 +182,15 @@ describe("mapResults", () => {
     const gVertex = createGVertex(vertex);
     const result = mapResults(gVertex);
     expect(result).toEqual(toMappedQueryResults({ vertices: [vertex] }));
+  });
+
+  it("should handle g:List with null", () => {
+    const results = mapResults({
+      "@type": "g:List",
+      "@value": [null],
+    });
+    expect(results).toEqual(
+      toMappedQueryResults({ scalars: [MISSING_DISPLAY_VALUE] })
+    );
   });
 });
