@@ -19,7 +19,8 @@ and results in a more responsive UI.
   instead of individual requests
   ([#1044](https://github.com/aws/graph-explorer/pull/1044),
   [#1048](https://github.com/aws/graph-explorer/pull/1048),
-  [#1065](https://github.com/aws/graph-explorer/pull/1065))
+  [#1065](https://github.com/aws/graph-explorer/pull/1065),
+  [#1068](https://github.com/aws/graph-explorer/pull/1068))
 
 ### Other changes
 
