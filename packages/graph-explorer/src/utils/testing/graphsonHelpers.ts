@@ -48,6 +48,11 @@ export function createGMap<Value extends EntityPropertyValue | GAnyValue>(
 ): GMap {
   const mapItems: GAnyValue[] = [];
   for (const [key, value] of Object.entries(values)) {
+    // Skip any null values, since that's how Gremlin behaves
+    if (value === null) {
+      continue;
+    }
+
     mapItems.push(key);
     if (
       typeof value === "boolean" ||

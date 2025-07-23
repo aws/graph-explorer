@@ -1,4 +1,4 @@
-import { logger } from "@/utils";
+import { logger, MISSING_DISPLAY_VALUE } from "@/utils";
 import { z } from "zod";
 import { fromError } from "zod-validation-error";
 import mapApiVertex from "./mapApiVertex";
@@ -6,7 +6,12 @@ import mapApiEdge from "./mapApiEdge";
 import { MapValueResult, mapValuesToQueryResults } from "@/connector/mapping";
 import { OCEdge, OCVertex } from "../types";
 
-const cypherScalarValueSchema = z.union([z.number(), z.string(), z.boolean()]);
+const cypherScalarValueSchema = z.union([
+  z.number(),
+  z.string(),
+  z.boolean(),
+  z.null(),
+]);
 
 const cypherNodeSchema: z.ZodType<OCVertex> = z.object({
   "~entityType": z.literal("node"),
@@ -89,6 +94,11 @@ function mapValue(value: CypherValue): MapValueResult[] {
 
   if (Array.isArray(value)) {
     return value.flatMap(mapValue);
+  }
+
+  // Skip nulls
+  if (value === null) {
+    return [{ scalar: MISSING_DISPLAY_VALUE }];
   }
 
   // Map record types

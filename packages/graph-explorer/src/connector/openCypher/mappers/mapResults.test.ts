@@ -3,6 +3,7 @@ import { mapResults } from "./mapResults";
 import { createRandomEdge, createRandomVertex } from "@/utils/testing";
 import { createRandomInteger } from "@shared/utils/testing";
 import { OCEdge, OCVertex } from "../types";
+import { MISSING_DISPLAY_VALUE } from "@/utils";
 
 describe("mapResults", () => {
   it("should map empty results", () => {
@@ -58,14 +59,16 @@ describe("mapResults", () => {
           total: expectedValue,
           name: "total",
           list: [expectedValue],
+          nullValue: null,
         },
       ],
     });
 
-    expect(result.scalars).toHaveLength(3);
+    expect(result.scalars).toHaveLength(4);
     expect(result.scalars[0]).toEqual(expectedValue);
     expect(result.scalars[1]).toEqual("total");
     expect(result.scalars[2]).toEqual(expectedValue);
+    expect(result.scalars[3]).toEqual(MISSING_DISPLAY_VALUE);
   });
 
   it("should map vertex in array", () => {
