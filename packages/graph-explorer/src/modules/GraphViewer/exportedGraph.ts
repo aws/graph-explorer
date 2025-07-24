@@ -5,7 +5,7 @@ import {
   EdgeId,
   EntityRawId,
   VertexId,
-} from "@/core";
+} from "@/core/entities";
 import { APP_NAME, escapeString, logger } from "@/utils";
 import {
   ConnectionConfig,

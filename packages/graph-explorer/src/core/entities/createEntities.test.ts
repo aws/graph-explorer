@@ -1,5 +1,5 @@
 import { createEdge, createVertex } from "./createEntities";
-import { EntityPropertyValue } from "./entities";
+import { EntityPropertyValue } from ".";
 
 describe("createVertex", () => {
   it("should create a vertex with a single type", () => {

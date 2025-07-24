@@ -1,4 +1,6 @@
-import { VertexId, EdgeId, EntityRawId } from "@/core";
+import { EdgeId } from "./edge";
+import { EntityRawId } from "./shared";
+import { VertexId } from "./vertex";
 
 /**
  * Creates a VertexId from the given database ID.
