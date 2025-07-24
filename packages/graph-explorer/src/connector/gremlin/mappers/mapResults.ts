@@ -1,8 +1,8 @@
-import { MISSING_DISPLAY_VALUE } from "@/utils";
 import { GAnyValue } from "../types";
 import mapApiEdge from "./mapApiEdge";
 import mapApiVertex from "./mapApiVertex";
 import { MapValueResult, mapValuesToQueryResults } from "@/connector/mapping";
+import { createScalar } from "@/core";
 
 export function mapResults(data: GAnyValue) {
   const values = mapAnyValue(data);
@@ -11,22 +11,18 @@ export function mapResults(data: GAnyValue) {
 }
 
 function mapAnyValue(data: GAnyValue): MapValueResult[] {
-  if (typeof data === "string") {
-    return [{ scalar: data }];
-  } else if (typeof data === "boolean") {
-    return [{ scalar: data }];
-  } else if (data === null) {
-    return [{ scalar: MISSING_DISPLAY_VALUE }];
+  if (typeof data === "string" || typeof data === "boolean" || data === null) {
+    return [createScalar(data)];
   } else if (
     data["@type"] === "g:Int32" ||
     data["@type"] === "g:Int64" ||
     data["@type"] === "g:Double"
   ) {
-    return [{ scalar: data["@value"] }];
+    return [createScalar(data["@value"])];
   } else if (data["@type"] === "g:Edge") {
-    return [{ edge: mapApiEdge(data) }];
+    return [mapApiEdge(data)];
   } else if (data["@type"] === "g:Vertex") {
-    return [{ vertex: mapApiVertex(data) }];
+    return [mapApiVertex(data)];
   } else if (data["@type"] === "g:Path") {
     return mapAnyValue(data["@value"].objects);
   } else if (

@@ -1,10 +1,11 @@
-import { logger, MISSING_DISPLAY_VALUE } from "@/utils";
+import { logger } from "@/utils";
 import { z } from "zod";
 import { fromError } from "zod-validation-error";
 import mapApiVertex from "./mapApiVertex";
 import mapApiEdge from "./mapApiEdge";
 import { MapValueResult, mapValuesToQueryResults } from "@/connector/mapping";
 import { OCEdge, OCVertex } from "../types";
+import { createScalar } from "@/core";
 
 const cypherScalarValueSchema = z.union([
   z.number(),
@@ -80,37 +81,29 @@ export function mapResults(data: unknown) {
  * @returns The mapped value
  */
 function mapValue(value: CypherValue): MapValueResult[] {
-  if (typeof value === "number") {
-    return [{ scalar: value }];
-  }
-
-  if (typeof value === "string") {
-    return [{ scalar: value }];
-  }
-
-  if (typeof value === "boolean") {
-    return [{ scalar: value }];
+  if (
+    value === null ||
+    typeof value === "number" ||
+    typeof value === "string" ||
+    typeof value === "boolean"
+  ) {
+    return [createScalar(value)];
   }
 
   if (Array.isArray(value)) {
     return value.flatMap(mapValue);
   }
 
-  // Skip nulls
-  if (value === null) {
-    return [{ scalar: MISSING_DISPLAY_VALUE }];
-  }
-
   // Map record types
   if (typeof value === "object") {
     if (value["~entityType"] === "node") {
-      return [{ vertex: mapApiVertex(value as OCVertex) }];
+      return [mapApiVertex(value as OCVertex)];
     }
 
     if (value["~entityType"] === "relationship") {
       const edge = mapApiEdge(value as OCEdge, [], []);
       edge.__isFragment = true;
-      return [{ edge: edge }];
+      return [edge];
     }
     return Object.values(value).flatMap(mapValue);
   }

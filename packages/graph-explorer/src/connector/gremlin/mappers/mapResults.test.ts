@@ -1,4 +1,4 @@
-import { createEdge, createVertex } from "@/core";
+import { createEdge, createScalar, createVertex } from "@/core";
 import { mapResults } from "./mapResults";
 import {
   createGEdge,
@@ -190,7 +190,9 @@ describe("mapResults", () => {
       "@value": [null],
     });
     expect(results).toEqual(
-      toMappedQueryResults({ scalars: [MISSING_DISPLAY_VALUE] })
+      toMappedQueryResults({
+        scalars: [createScalar(MISSING_DISPLAY_VALUE)],
+      })
     );
   });
 });
