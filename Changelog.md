@@ -24,6 +24,8 @@ and results in a more responsive UI.
 
 ### Other changes
 
+- **Updated** roadmap to move SPARQL query editor up in priority
+  ([#1066](https://github.com/aws/graph-explorer/pull/1066))
 - **Updated** imperative query logic to check for a cache value first
   ([#1047](https://github.com/aws/graph-explorer/pull/1047))
 - **Updated** Tanstack Query logic to simplify query construction
@@ -32,6 +34,10 @@ and results in a more responsive UI.
   [#1042](https://github.com/aws/graph-explorer/pull/1042))
 - **Fixed** rendering boolean values for Gremlin connections
   ([#1034](https://github.com/aws/graph-explorer/pull/1034))
+- **Added** troubleshooting steps for mismatched proxy server to documentation
+  ([#1062](https://github.com/aws/graph-explorer/pull/1062))
+- **Fixed** brittleness of some tests
+  ([#1070](https://github.com/aws/graph-explorer/pull/1070))
 
 ## Release v2.1
 
