@@ -19,7 +19,7 @@ nvm use
 ```
 
 Otherwise, use whatever method you use to install
-[Node v20](https://nodejs.org/en/download).
+[Node v24.4.0](https://nodejs.org/en/download).
 
 #### Node Corepack
 
