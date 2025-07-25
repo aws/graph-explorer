@@ -1,6 +1,7 @@
-import { ScalarValue } from "@/connector";
-import { cn } from "@/utils";
+import { Scalar } from "@/core";
+import { cn, MISSING_DISPLAY_VALUE } from "@/utils";
 import {
+  BanIcon,
   CalendarIcon,
   CircleCheckIcon,
   CircleIcon,
@@ -9,31 +10,37 @@ import {
 } from "lucide-react";
 import { ComponentPropsWithoutRef } from "react";
 
-function getDisplayValue(scalar: ScalarValue) {
-  if (typeof scalar === "string") {
-    return scalar;
-  } else if (typeof scalar === "number") {
-    return new Intl.NumberFormat().format(scalar);
-  } else if (typeof scalar === "boolean") {
-    return String(scalar);
-  } else if (scalar instanceof Date) {
-    return new Intl.DateTimeFormat().format(scalar);
+function getDisplayValue(scalar: Scalar) {
+  switch (scalar.type) {
+    case "string":
+      return scalar.value;
+    case "number":
+      return new Intl.NumberFormat().format(scalar.value);
+    case "boolean":
+      return String(scalar.value);
+    case "date":
+      return new Intl.DateTimeFormat().format(scalar.value);
+    case "null":
+      return MISSING_DISPLAY_VALUE;
   }
 }
 
-function getIcon(scalar: ScalarValue) {
-  if (typeof scalar === "string") {
-    return <QuoteIcon className="size-5" />;
-  } else if (typeof scalar === "number") {
-    return <HashIcon className="size-5" />;
-  } else if (typeof scalar === "boolean") {
-    return scalar ? (
-      <CircleCheckIcon className="size-5" />
-    ) : (
-      <CircleIcon className="size-5" />
-    );
-  } else if (scalar instanceof Date) {
-    return <CalendarIcon className="size-5" />;
+function getIcon(scalar: Scalar) {
+  switch (scalar.type) {
+    case "string":
+      return <QuoteIcon className="size-5" />;
+    case "number":
+      return <HashIcon className="size-5" />;
+    case "boolean":
+      return scalar.value ? (
+        <CircleCheckIcon className="size-5" />
+      ) : (
+        <CircleIcon className="size-5" />
+      );
+    case "date":
+      return <CalendarIcon className="size-5" />;
+    case "null":
+      return <BanIcon className="size-5" />;
   }
 }
 
@@ -41,7 +48,7 @@ export function ScalarSearchResult({
   scalar,
   resultsHaveExpandableRows,
 }: {
-  scalar: ScalarValue;
+  scalar: Scalar;
   resultsHaveExpandableRows: boolean;
 }) {
   const displayValue = getDisplayValue(scalar);

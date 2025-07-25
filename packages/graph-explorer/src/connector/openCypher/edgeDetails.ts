@@ -47,9 +47,9 @@ export async function edgeDetails(
   }
 
   const edges = mapValuesToQueryResults(
-    data.results.map(result => ({
-      edge: mapApiEdge(result.edge, result.sourceLabels, result.targetLabels),
-    }))
+    data.results.map(result =>
+      mapApiEdge(result.edge, result.sourceLabels, result.targetLabels)
+    )
   ).edges;
 
   // Log a warning if some edges are missing

@@ -6,6 +6,7 @@ export * from "./displayVertex";
 export * from "./edges";
 export * from "./neighbors";
 export * from "./nodes";
+export * from "./renderedEntities";
 export * from "./userPreferences";
 export * from "./schema";
 export * from "./graphSession";

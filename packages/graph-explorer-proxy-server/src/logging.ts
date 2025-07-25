@@ -34,7 +34,7 @@ function createLogger() {
 }
 
 /** Chooses an log level appropriate for the given status code. */
-function logLevelFromStatusCode(statusCode: number): LogLevel {
+function logLevelFromStatusCode(statusCode: number) {
   if (statusCode >= 400 && statusCode < 500) {
     return "warn";
   } else if (statusCode >= 500) {

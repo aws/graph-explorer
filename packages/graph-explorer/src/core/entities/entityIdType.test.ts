@@ -1,4 +1,4 @@
-import { VertexId } from "./entities";
+import { VertexId } from "./vertex";
 import { createEdgeId, createVertexId, getRawId } from "./entityIdType";
 
 describe("createVertexId", () => {

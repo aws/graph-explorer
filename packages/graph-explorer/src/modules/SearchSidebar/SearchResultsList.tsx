@@ -124,7 +124,7 @@ function createRows({ vertices, edges, scalars }: MappedQueryResults) {
     )
     .concat(
       scalars.map((entity, index) => ({
-        key: `scalar:${String(entity)}:${index}`,
+        key: `scalar:${String(entity.value)}:${index}`,
         render: () => (
           <ScalarSearchResult
             scalar={entity}

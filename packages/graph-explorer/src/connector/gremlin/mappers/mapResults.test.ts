@@ -1,4 +1,4 @@
-import { createEdge, createVertex } from "@/core";
+import { createEdge, createScalar, createVertex } from "@/core";
 import { mapResults } from "./mapResults";
 import {
   createGEdge,
@@ -8,7 +8,6 @@ import {
   createRandomVertex,
 } from "@/utils/testing";
 import { toMappedQueryResults } from "@/connector";
-import { MISSING_DISPLAY_VALUE } from "@/utils";
 
 describe("mapResults", () => {
   it("should handle empty g:List", () => {
@@ -190,7 +189,9 @@ describe("mapResults", () => {
       "@value": [null],
     });
     expect(results).toEqual(
-      toMappedQueryResults({ scalars: [MISSING_DISPLAY_VALUE] })
+      toMappedQueryResults({
+        scalars: [createScalar(null)],
+      })
     );
   });
 });

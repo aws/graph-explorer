@@ -1,4 +1,4 @@
-import { createEdgeId, createVertexId } from "@/core";
+import { createEdgeId, createVertexId } from "@/core/entities";
 import { parseEdgeId } from "./parseEdgeId";
 
 test("parseEdgeId", () => {

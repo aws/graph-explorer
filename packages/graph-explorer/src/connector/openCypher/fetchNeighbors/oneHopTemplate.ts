@@ -83,6 +83,7 @@ const criterionTemplate = (criterion: Criterion): string => {
     case "Date":
       return criterionDateTemplate(criterion);
     case "String":
+    case undefined:
     default:
       return criterionStringTemplate(criterion);
   }

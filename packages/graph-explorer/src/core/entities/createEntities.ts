@@ -1,11 +1,7 @@
-import {
-  Vertex,
-  Edge,
-  EntityProperties,
-  EntityRawId,
-  EntityPropertyValue,
-} from "./entities";
+import { Edge } from "./edge";
 import { createVertexId, createEdgeId } from "./entityIdType";
+import { EntityPropertyValue, EntityProperties, EntityRawId } from "./shared";
+import { Vertex } from "./vertex";
 
 type CreateEntityAttributeOptions =
   | Map<string, EntityPropertyValue>
