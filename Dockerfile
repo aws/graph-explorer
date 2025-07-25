@@ -1,20 +1,18 @@
 # syntax=docker/dockerfile:1
 FROM amazonlinux:2023 AS base
-ENV NVM_DIR=/root/.nvm
-ENV NODE_VERSION=v24.4.0
+ENV NODE_VERSION=24.4.0
 
 RUN yum update -y && \
-    yum install -y tar git findutils openssl && \
-    mkdir -p $NVM_DIR && \
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash && \
-    source $NVM_DIR/nvm.sh && \
-    nvm install $NODE_VERSION && \
-    nvm alias default $NODE_VERSION && \
-    nvm use $NODE_VERSION && \
+    yum install -y tar xz && \
+    ARCH=$(uname -m) && \
+    if [ "$ARCH" = "x86_64" ]; then NODE_ARCH="x64"; \
+    elif [ "$ARCH" = "aarch64" ]; then NODE_ARCH="arm64"; \
+    else echo "Unsupported architecture: $ARCH" && exit 1; fi && \
+    curl -fsSL https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-${NODE_ARCH}.tar.xz | tar -xJ -C /usr/local --strip-components=1 && \
     npm install --global corepack@latest && \
     corepack enable && \
+    yum remove -y tar xz && \
     yum clean all && \
-    yum remove -y tar findutils git && \
     rm -rf /var/cache/yum
 
 FROM base
@@ -44,9 +42,7 @@ ENV PROXY_SERVER_HTTP_PORT=${PROXY_SERVER_HTTP_PORT:-80}
 ENV LOG_STYLE=${NEPTUNE_NOTEBOOK:+cloudwatch}
 ENV LOG_STYLE=${LOG_STYLE:-default}
 
-# Set node/npm in path so it can be used by the app when the container is run
-ENV NODE_PATH=$NVM_DIR/versions/node/$NODE_VERSION/lib/node_modules
-ENV PATH=$NVM_DIR/versions/node/$NODE_VERSION/bin:$PATH
+# Node.js is already in PATH from /usr/local/bin
 
 WORKDIR /
 COPY . /graph-explorer/
