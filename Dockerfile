@@ -42,14 +42,14 @@ ENV PROXY_SERVER_HTTP_PORT=${PROXY_SERVER_HTTP_PORT:-80}
 ENV LOG_STYLE=${NEPTUNE_NOTEBOOK:+cloudwatch}
 ENV LOG_STYLE=${LOG_STYLE:-default}
 
-# Node.js is already in PATH from /usr/local/bin
-
 WORKDIR /
 COPY . /graph-explorer/
 WORKDIR /graph-explorer
 
 RUN pnpm install && \
-    pnpm build && pnpm clean:dep && pnpm install --prod --ignore-scripts && \
+    pnpm build && \
+    pnpm clean:dep && \
+    pnpm install --prod --ignore-scripts && \
     rm -rf $HOME/.local && \
     chmod a+x ./process-environment.sh && \
     chmod a+x ./docker-entrypoint.sh
