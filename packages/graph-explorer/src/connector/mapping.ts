@@ -1,16 +1,7 @@
-import {
-  createVertex,
-  Edge,
-  Scalar,
-  toEdgeMap,
-  toNodeMap,
-  Vertex,
-} from "@/core";
+import { createVertex, Entity, toEdgeMap, toNodeMap } from "@/core";
 import { toMappedQueryResults } from "./useGEFetchTypes";
 
-export type MapValueResult = Vertex | Edge | Scalar;
-
-export function mapValuesToQueryResults(values: MapValueResult[]) {
+export function mapValuesToQueryResults(values: Entity[]) {
   // Use maps to deduplicate vertices and edges
   const vertexMap = toNodeMap(values.filter(v => v.entityType === "vertex"));
 

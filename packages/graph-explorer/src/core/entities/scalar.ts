@@ -9,12 +9,17 @@ type ScalarTypedValue =
 
 export type Scalar = {
   entityType: "scalar";
+  name?: string;
 } & ScalarTypedValue;
 
 /** Constructs a Scalar instance from the given values. */
-export function createScalar(value: EntityPropertyValue | Date | null): Scalar {
+export function createScalar(
+  value: EntityPropertyValue | Date | null,
+  name?: string
+): Scalar {
   return {
     entityType: "scalar" as const,
+    name,
     ...createTypedValue(value),
   };
 }

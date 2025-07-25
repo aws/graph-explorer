@@ -7,22 +7,22 @@ import {
   createRandomEdge,
   createRandomVertex,
 } from "@/utils/testing";
+import {
+  createGDate,
+  createGInt32,
+  createGMap,
+  createGType,
+} from "@/utils/testing/graphsonHelpers";
 import { toMappedQueryResults } from "@/connector";
 
 describe("mapResults", () => {
   it("should handle empty g:List", () => {
-    const results = mapResults({
-      "@type": "g:List",
-      "@value": [],
-    });
+    const results = mapResults(createGList([]));
     expect(results).toEqual(toMappedQueryResults({}));
   });
 
   it("should handle empty g:Map", () => {
-    const results = mapResults({
-      "@type": "g:Map",
-      "@value": [],
-    });
+    const results = mapResults(createGMap({}));
     expect(results).toEqual(toMappedQueryResults({}));
   });
 
@@ -184,13 +184,89 @@ describe("mapResults", () => {
   });
 
   it("should handle g:List with null", () => {
-    const results = mapResults({
-      "@type": "g:List",
-      "@value": [null],
-    });
+    const results = mapResults(createGList([null]));
     expect(results).toEqual(
       toMappedQueryResults({
         scalars: [createScalar(null)],
+      })
+    );
+  });
+
+  it("should add names to scalars from g:Map keys", () => {
+    const results = mapResults(
+      createGMap({
+        count: createGInt32(42),
+        name: "John",
+        active: true,
+        time: createGDate(new Date("2020-01-01T00:00:00.000Z")),
+      })
+    );
+    expect(results).toEqual(
+      toMappedQueryResults({
+        scalars: [
+          createScalar(42, "count"),
+          createScalar("John", "name"),
+          createScalar(true, "active"),
+          createScalar(new Date("2020-01-01T00:00:00.000Z"), "time"),
+        ],
+      })
+    );
+  });
+
+  it("should handle g:Map with non-string keys (no names)", () => {
+    const results = mapResults({
+      "@type": "g:Map",
+      "@value": [createGInt32(1), "value1", createGInt32(2), "value2"],
+    });
+    expect(results).toEqual(
+      toMappedQueryResults({
+        scalars: [
+          createScalar("value1"), // No name since key is not a string
+          createScalar("value2"), // No name since key is not a string
+        ],
+      })
+    );
+  });
+
+  it("should handle nested g:Map in g:List", () => {
+    const results = mapResults(
+      createGList([
+        createGMap({
+          total: createGInt32(100),
+          message: "success",
+        }),
+      ])
+    );
+    expect(results).toEqual(
+      toMappedQueryResults({
+        scalars: [
+          createScalar(100, "total"),
+          createScalar("success", "message"),
+        ],
+      })
+    );
+  });
+
+  it("should handle g:Map with null values", () => {
+    const results = mapResults({
+      "@type": "g:Map",
+      "@value": ["data", null, "count", createGInt32(5)],
+    });
+    expect(results).toEqual(
+      toMappedQueryResults({
+        scalars: [createScalar(null, "data"), createScalar(5, "count")],
+      })
+    );
+  });
+
+  it("should handle g:Map with id and label values", () => {
+    const results = mapResults({
+      "@type": "g:Map",
+      "@value": [createGType("id"), "1", createGType("label"), "Foo::Bar"],
+    });
+    expect(results).toEqual(
+      toMappedQueryResults({
+        scalars: [createScalar("1", "id"), createScalar("Foo::Bar", "label")],
       })
     );
   });

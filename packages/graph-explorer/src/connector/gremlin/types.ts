@@ -18,7 +18,14 @@ export type GDate = {
   "@value": number;
 };
 
-export type GScalar = GInt32 | GInt64 | GDouble | GDate | string | boolean;
+export type GScalar =
+  | GInt32
+  | GInt64
+  | GDouble
+  | GType
+  | GDate
+  | string
+  | boolean;
 
 export type JanusID = {
   "@type": "janusgraph:RelationIdentifier";
@@ -110,6 +117,11 @@ export type GEntityList = {
   "@value": Array<GVertex | GEdge>;
 };
 
+export type GType = {
+  "@type": "g:T";
+  "@value": string;
+};
+
 export type GAnyValue =
   | GList
   | GMap
@@ -118,6 +130,7 @@ export type GAnyValue =
   | GVertex
   | GEdge
   | GScalar
+  | GType
   | null;
 
 export type GremlinFetch = <TResult = any>(

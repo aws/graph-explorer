@@ -53,6 +53,7 @@ export function ScalarSearchResult({
 }) {
   const displayValue = getDisplayValue(scalar);
   const Icon = getIcon(scalar);
+  const subtitle = scalar.name ?? "Scalar value";
 
   return (
     <div
@@ -72,7 +73,7 @@ export function ScalarSearchResult({
           <div className="inline-block text-pretty text-base leading-snug [word-break:break-word]">
             <div className="font-bold">{displayValue}</div>
             <div className="text-text-secondary/90 line-clamp-2">
-              Scalar value
+              {subtitle}
             </div>
           </div>
         </div>

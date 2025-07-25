@@ -107,11 +107,12 @@ const fetchVertexLabels = async (
 };
 
 const TYPE_MAP = {
-  "g:Date": "Date",
-  "g:Int32": "Number",
-  "g:Int64": "Number",
-  "g:Double": "Number",
-  "g:Float": "Number",
+  "g:Date": "Date" as const,
+  "g:Int32": "Number" as const,
+  "g:Int64": "Number" as const,
+  "g:Double": "Number" as const,
+  "g:Float": "Number" as const,
+  "g:T": "String" as const,
 };
 
 const fetchVerticesAttributes = async (
