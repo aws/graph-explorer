@@ -1,9 +1,8 @@
-import { Edge, getRawId, Vertex } from "@/core";
+import { createScalar, Edge, getRawId, Vertex } from "@/core";
 import { mapResults } from "./mapResults";
 import { createRandomEdge, createRandomVertex } from "@/utils/testing";
 import { createRandomInteger } from "@shared/utils/testing";
 import { OCEdge, OCVertex } from "../types";
-import { MISSING_DISPLAY_VALUE } from "@/utils";
 
 describe("mapResults", () => {
   it("should map empty results", () => {
@@ -65,10 +64,10 @@ describe("mapResults", () => {
     });
 
     expect(result.scalars).toHaveLength(4);
-    expect(result.scalars[0]).toEqual(expectedValue);
-    expect(result.scalars[1]).toEqual("total");
-    expect(result.scalars[2]).toEqual(expectedValue);
-    expect(result.scalars[3]).toEqual(MISSING_DISPLAY_VALUE);
+    expect(result.scalars[0]).toEqual(createScalar(expectedValue));
+    expect(result.scalars[1]).toEqual(createScalar("total"));
+    expect(result.scalars[2]).toEqual(createScalar(expectedValue));
+    expect(result.scalars[3]).toEqual(createScalar(null));
   });
 
   it("should map vertex in array", () => {
@@ -117,7 +116,7 @@ describe("mapResults", () => {
     });
 
     expect(result.scalars).toHaveLength(1);
-    expect(result.scalars[0]).toEqual(expectedValue);
+    expect(result.scalars[0]).toEqual(createScalar(expectedValue));
   });
 
   it("should map nested objects", () => {
@@ -248,7 +247,7 @@ describe("mapResults", () => {
     });
 
     expect(result.scalars).toHaveLength(1);
-    expect(result.scalars[0]).toEqual(expectedValue);
+    expect(result.scalars[0]).toEqual(createScalar(expectedValue));
   });
 
   it("should map collect with array of records", () => {
@@ -263,7 +262,7 @@ describe("mapResults", () => {
     });
 
     expect(result.scalars).toHaveLength(1);
-    expect(result.scalars[0]).toEqual(expectedValue);
+    expect(result.scalars[0]).toEqual(createScalar(expectedValue));
   });
 });
 

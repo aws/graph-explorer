@@ -8,7 +8,6 @@ import {
   createRandomVertex,
 } from "@/utils/testing";
 import { toMappedQueryResults } from "@/connector";
-import { MISSING_DISPLAY_VALUE } from "@/utils";
 
 describe("mapResults", () => {
   it("should handle empty g:List", () => {
@@ -191,7 +190,7 @@ describe("mapResults", () => {
     });
     expect(results).toEqual(
       toMappedQueryResults({
-        scalars: [createScalar(MISSING_DISPLAY_VALUE)],
+        scalars: [createScalar(null)],
       })
     );
   });
