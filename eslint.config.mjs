@@ -57,6 +57,7 @@ export default tseslint.config(
       "no-console": ["error", { allow: ["warn", "error"] }],
 
       // TypeScript
+      "@typescript-eslint/switch-exhaustiveness-check": "error",
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-unsafe-member-access": "off",
       "@typescript-eslint/no-unsafe-assignment": "off",
