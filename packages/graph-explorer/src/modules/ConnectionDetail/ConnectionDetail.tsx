@@ -1,4 +1,11 @@
-import { Modal } from "@mantine/core";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogBody,
+  DialogDescription,
+} from "@/components/Dialog";
 import { useState } from "react";
 import {
   Button,
@@ -90,12 +97,14 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
 
   const isSyncing = useIsSyncing();
 
+  const connectionName = config.displayLabel || config.id;
+
   return (
     <Panel>
       <PanelHeader>
         <PanelTitle>
           <DatabaseIcon className="size-5" />
-          {config.displayLabel || config.id}
+          {connectionName}
         </PanelTitle>
         <PanelHeaderActions>
           <PanelHeaderActionButton
@@ -161,17 +170,22 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
           <DebugActions />
         </NotInProduction>
         <MainContentLayout />
-        <Modal
-          opened={edit}
-          onClose={() => setEdit(false)}
-          title="Update connection"
-          size="600px"
-        >
-          <CreateConnection
-            onClose={() => setEdit(false)}
-            existingConfig={config}
-          />
-        </Modal>
+        <Dialog open={edit} onOpenChange={setEdit}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Update connection</DialogTitle>
+              <DialogDescription>
+                Update the connection details for {connectionName}.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogBody>
+              <CreateConnection
+                onClose={() => setEdit(false)}
+                existingConfig={config}
+              />
+            </DialogBody>
+          </DialogContent>
+        </Dialog>
       </PanelContent>
     </Panel>
   );

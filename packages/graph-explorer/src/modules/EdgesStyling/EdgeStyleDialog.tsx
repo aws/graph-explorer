@@ -1,4 +1,11 @@
-import { Modal } from "@mantine/core";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogBody,
+  DialogDescription,
+} from "@/components/Dialog";
 import { Button, InputField, SelectField } from "@/components";
 import ColorInput from "@/components/ColorInput/ColorInput";
 import { useDisplayEdgeTypeConfig, useWithTheme } from "@/core";
@@ -27,30 +34,35 @@ export default function EdgeStyleDialog() {
   );
 
   return (
-    <Modal
-      opened={Boolean(customizeEdgeType)}
-      onClose={() => setCustomizeEdgeType(undefined)}
-      centered={true}
-      size="auto"
-      title={
-        customizeEdgeType ? <DialogTitle edgeType={customizeEdgeType} /> : null
-      }
-      className={styleWithTheme(modalDefaultStyles)}
-      overlayProps={{
-        backgroundOpacity: 0.1,
-      }}
+    <Dialog
+      open={Boolean(customizeEdgeType)}
+      onOpenChange={open => !open && setCustomizeEdgeType(undefined)}
     >
-      {customizeEdgeType ? <Content edgeType={customizeEdgeType} /> : null}
-    </Modal>
+      <DialogContent className={styleWithTheme(modalDefaultStyles)}>
+        {customizeEdgeType ? (
+          <>
+            <EdgeDialogTitle edgeType={customizeEdgeType} />
+            <DialogBody>
+              <Content edgeType={customizeEdgeType} />
+            </DialogBody>
+          </>
+        ) : null}
+      </DialogContent>
+    </Dialog>
   );
 }
 
-function DialogTitle({ edgeType }: { edgeType: string }) {
+function EdgeDialogTitle({ edgeType }: { edgeType: string }) {
   const displayConfig = useDisplayEdgeTypeConfig(edgeType);
+  const t = useTranslations();
+
   return (
-    <div>
-      Customize <strong>{displayConfig.displayLabel}</strong>
-    </div>
+    <DialogHeader>
+      <DialogTitle>{t("edges-styling.title")}</DialogTitle>
+      <DialogDescription>
+        Customize styling for {displayConfig.displayLabel}
+      </DialogDescription>
+    </DialogHeader>
   );
 }
 

@@ -1,18 +1,21 @@
 import { cn } from "@/utils";
-import { Modal } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import localforage from "localforage";
 import { useState, useRef } from "react";
 import {
   ErrorIcon,
-  SettingsSectionTitle,
   Paragraph,
   LoaderIcon,
   Button,
   CheckIcon,
   FileButton,
   FileButtonHandle,
+  Dialog,
+  DialogBody,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
 } from "@/components";
 import {
   readBackupDataFromFile,
@@ -105,66 +108,67 @@ function ConfirmationModal({
   };
 
   return (
-    <Modal
-      opened={Boolean(backupData)}
-      onClose={internalOnCancel}
-      withCloseButton={false}
-      size="lg"
-      centered={true}
+    <Dialog
+      open={Boolean(backupData)}
+      onOpenChange={open => !open && internalOnCancel()}
     >
-      <div className="flex flex-row items-start gap-8 p-2">
-        <div className="py-1">
-          <ErrorIcon className="text-warning-main size-16" />
-        </div>
-        <div className="flex grow flex-col gap-8">
-          <div>
-            <SettingsSectionTitle>
-              Replace {APP_NAME} Configuration
-            </SettingsSectionTitle>
-            <Paragraph>
-              This action will replace all configuration data within {APP_NAME},
-              including connections and custom styles, with the contents of the
-              config file selected.
-            </Paragraph>
-            <Paragraph className="my-4">
-              <b>{fileName ?? debouncedFileName ?? "No file selected"}</b>
-            </Paragraph>
-            <Paragraph>
-              <i>Any connected graph databases will be unaffected.</i>
-            </Paragraph>
-          </div>
-          <div className="flex flex-row gap-2 self-end">
-            <Button
-              size="large"
-              isDisabled={isPending}
-              onPress={internalOnCancel}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="filled"
-              color="danger"
-              size="large"
-              onPress={onConfirm}
-              isDisabled={isPending}
-              className="relative transition-opacity"
-            >
-              <span className={cn(isPending && "opacity-0")}>
-                Replace {APP_NAME} Configuration
-              </span>
-              <div
-                className={cn(
-                  "absolute inset-auto opacity-0",
-                  isPending && "opacity-100"
-                )}
-              >
-                <LoaderIcon className="animate-spin" />
+      <DialogContent className="w-[588px]">
+        <DialogHeader>
+          <DialogTitle>Replace {APP_NAME} Configuration</DialogTitle>
+        </DialogHeader>
+        <DialogBody>
+          <div className="flex flex-row items-start gap-8">
+            <div className="py-1">
+              <ErrorIcon className="text-warning-main size-16" />
+            </div>
+            <div className="flex grow flex-col gap-8">
+              <div>
+                <Paragraph>
+                  This action will replace all configuration data within{" "}
+                  {APP_NAME}, including connections and custom styles, with the
+                  contents of the config file selected.
+                </Paragraph>
+                <Paragraph className="my-4">
+                  <b>{fileName ?? debouncedFileName ?? "No file selected"}</b>
+                </Paragraph>
+                <Paragraph>
+                  <i>Any connected graph databases will be unaffected.</i>
+                </Paragraph>
               </div>
-            </Button>
+              <div className="flex flex-row gap-2 self-end">
+                <Button
+                  size="large"
+                  isDisabled={isPending}
+                  onPress={internalOnCancel}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="filled"
+                  color="danger"
+                  size="large"
+                  onPress={onConfirm}
+                  isDisabled={isPending}
+                  className="relative transition-opacity"
+                >
+                  <span className={cn(isPending && "opacity-0")}>
+                    Replace {APP_NAME} Configuration
+                  </span>
+                  <div
+                    className={cn(
+                      "absolute inset-auto opacity-0",
+                      isPending && "opacity-100"
+                    )}
+                  >
+                    <LoaderIcon className="animate-spin" />
+                  </div>
+                </Button>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-    </Modal>
+        </DialogBody>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -188,72 +192,75 @@ function ParseFailureModal({
   };
 
   return (
-    <Modal
-      opened={Boolean(error)}
-      onClose={internalOnCancel}
-      withCloseButton={false}
-      size="lg"
-      centered={true}
+    <Dialog
+      open={Boolean(error)}
+      onOpenChange={open => !open && internalOnCancel()}
     >
-      <div className="flex flex-row items-start gap-8 p-2">
-        <div className="py-1">
-          <ErrorIcon className="text-warning-main size-16" />
-        </div>
-        <div className="flex grow flex-col gap-8">
-          <div>
-            <SettingsSectionTitle>Failed To Parse Config</SettingsSectionTitle>
-            <Paragraph>
-              Could not parse the contents of the config file provided. Perhaps
-              the file is not a config file from {APP_NAME} or the file is
-              corrupted.
-            </Paragraph>
-            <Paragraph>
-              <b>{fileName ?? debouncedFileName ?? "No file selected"}</b>
-            </Paragraph>
+      <DialogContent className="w-[588px]">
+        <DialogHeader>
+          <DialogTitle>Failed To Parse Config</DialogTitle>
+        </DialogHeader>
+        <DialogBody>
+          <div className="flex flex-row items-start gap-8">
+            <div className="py-1">
+              <ErrorIcon className="text-warning-main size-16" />
+            </div>
+            <div className="flex grow flex-col gap-8">
+              <div>
+                <Paragraph>
+                  Could not parse the contents of the config file provided.
+                  Perhaps the file is not a config file from {APP_NAME} or the
+                  file is corrupted.
+                </Paragraph>
+                <Paragraph>
+                  <b>{fileName ?? debouncedFileName ?? "No file selected"}</b>
+                </Paragraph>
+              </div>
+              <Button
+                size="large"
+                onPress={internalOnCancel}
+                className="self-end"
+              >
+                Cancel
+              </Button>
+            </div>
           </div>
-          <Button size="large" onPress={internalOnCancel} className="self-end">
-            Cancel
-          </Button>
-        </div>
-      </div>
-    </Modal>
+        </DialogBody>
+      </DialogContent>
+    </Dialog>
   );
 }
 
 function SuccessModal({ success }: { success: boolean }) {
-  const [_, { close }] = useDisclosure(success);
-
   return (
-    <Modal
-      opened={success}
-      onClose={close}
-      withCloseButton={false}
-      closeOnClickOutside={false}
-      closeOnEscape={false}
-      size="lg"
-      centered={true}
-    >
-      <div className="flex flex-row items-start gap-8 p-2">
-        <div className="py-1">
-          <CheckIcon className="text-success-main size-16" />
-        </div>
-        <div className="flex grow flex-col gap-8">
-          <div>
-            <SettingsSectionTitle>Restore Successful</SettingsSectionTitle>
-            <Paragraph className="w-full min-w-0">
-              All data was restored successfully. Please reload {APP_NAME}
-              to complete the process.
-            </Paragraph>
-          </div>
+    <Dialog open={success}>
+      <DialogContent className="w-[588px]">
+        <DialogHeader>
+          <DialogTitle>Restore Successful</DialogTitle>
+        </DialogHeader>
+        <DialogBody>
+          <div className="flex flex-row items-start gap-8">
+            <div className="py-1">
+              <CheckIcon className="text-success-main size-16" />
+            </div>
+            <div className="flex grow flex-col gap-8">
+              <div>
+                <Paragraph className="w-full min-w-0">
+                  All data was restored successfully. Please reload {APP_NAME}
+                  to complete the process.
+                </Paragraph>
+              </div>
 
-          {/* Force a full reload of the app in the browser */}
-          <a href={RELOAD_URL} className="self-end">
-            <Button variant="filled" size="large">
-              Reload {APP_NAME}
-            </Button>
-          </a>
-        </div>
-      </div>
-    </Modal>
+              {/* Force a full reload of the app in the browser */}
+              <a href={RELOAD_URL} className="self-end">
+                <Button variant="filled" size="large">
+                  Reload {APP_NAME}
+                </Button>
+              </a>
+            </div>
+          </div>
+        </DialogBody>
+      </DialogContent>
+    </Dialog>
   );
 }

@@ -1,4 +1,11 @@
-import { Modal } from "@mantine/core";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogBody,
+  DialogDescription,
+} from "@/components/Dialog";
 import {
   AddIcon,
   PanelHeaderActionButton,
@@ -86,15 +93,19 @@ const AvailableConnections = ({
             </div>
           )}
         />
-        <Modal
-          centered={true}
-          title="Add New Connection"
-          opened={isModalOpen}
-          onClose={() => onModalChange(false)}
-          size="600px"
-        >
-          <CreateConnection onClose={() => onModalChange(false)} />
-        </Modal>
+        <Dialog open={isModalOpen} onOpenChange={onModalChange}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add New Connection</DialogTitle>
+              <DialogDescription>
+                Enter the details of the new connection.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogBody>
+              <CreateConnection onClose={() => onModalChange(false)} />
+            </DialogBody>
+          </DialogContent>
+        </Dialog>
       </PanelContent>
     </Panel>
   );

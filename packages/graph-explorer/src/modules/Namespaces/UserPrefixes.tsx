@@ -1,4 +1,11 @@
-import { Modal } from "@mantine/core";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogBody,
+  DialogFooter,
+} from "@/components/Dialog";
 import { useCallback, useState } from "react";
 import {
   AddIcon,
@@ -25,6 +32,7 @@ import {
 import { schemaAtom } from "@/core/StateProvider/schema";
 import { Virtuoso } from "react-virtuoso";
 import { useAtomCallback } from "jotai/utils";
+import { DialogDescription } from "@radix-ui/react-dialog";
 
 type PrefixForm = {
   prefix: string;
@@ -241,37 +249,38 @@ function EditPrefixModal({
   };
 
   return (
-    <Modal
-      opened={opened}
-      onClose={onClose}
-      centered={true}
-      title="Create a new Namespace"
-    >
-      <div>
-        <InputField
-          label="Namespace"
-          value={form.prefix}
-          onChange={onFormChange("prefix")}
-          placeholder="Namespace"
-          validationState={hasError && !form.prefix ? "invalid" : "valid"}
-          errorMessage="Namespace is required"
-        />
-        <InputField
-          className="input-uri"
-          label="URI"
-          value={form.uri}
-          onChange={onFormChange("uri")}
-          placeholder="URI"
-          validationState={hasError && !form.uri ? "invalid" : "valid"}
-          errorMessage="URI is required"
-        />
-      </div>
-      <div className="flex flex-row justify-end border-t pt-4">
-        <Button icon={<SaveIcon />} variant="filled" onPress={onSubmit}>
-          Save
-        </Button>
-      </div>
-    </Modal>
+    <Dialog open={opened} onOpenChange={onClose}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Create Namespace</DialogTitle>
+          <DialogDescription>Create a new SPARQL namespace</DialogDescription>
+        </DialogHeader>
+        <DialogBody>
+          <InputField
+            label="Namespace"
+            value={form.prefix}
+            onChange={onFormChange("prefix")}
+            placeholder="Namespace"
+            validationState={hasError && !form.prefix ? "invalid" : "valid"}
+            errorMessage="Namespace is required"
+          />
+          <InputField
+            className="input-uri"
+            label="URI"
+            value={form.uri}
+            onChange={onFormChange("uri")}
+            placeholder="URI"
+            validationState={hasError && !form.uri ? "invalid" : "valid"}
+            errorMessage="URI is required"
+          />
+        </DialogBody>
+        <DialogFooter>
+          <Button icon={<SaveIcon />} variant="filled" onPress={onSubmit}>
+            Save
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
