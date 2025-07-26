@@ -1,5 +1,4 @@
 import { cn } from "@/utils";
-import { useDisclosure } from "@mantine/hooks";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import localforage from "localforage";
 import { useState, useRef } from "react";
@@ -97,20 +96,13 @@ function ConfirmationModal({
   onConfirm: () => void;
   isPending: boolean;
 }) {
-  const [_, { close }] = useDisclosure(Boolean(backupData));
-
   // Used to ensure the file name does not disappear while the modal is animating out
   const debouncedFileName = useDebounceValue(fileName, 200);
-
-  const internalOnCancel = () => {
-    onCancel();
-    close();
-  };
 
   return (
     <Dialog
       open={Boolean(backupData)}
-      onOpenChange={open => !open && internalOnCancel()}
+      onOpenChange={open => !open && onCancel()}
     >
       <DialogContent className="w-[588px]">
         <DialogHeader>
@@ -139,7 +131,9 @@ function ConfirmationModal({
                 <Button
                   size="large"
                   isDisabled={isPending}
-                  onPress={internalOnCancel}
+                  onPress={() => {
+                    onCancel();
+                  }}
                 >
                   Cancel
                 </Button>
@@ -181,21 +175,11 @@ function ParseFailureModal({
   fileName?: string;
   onCancel: () => void;
 }) {
-  const [_, { close }] = useDisclosure(Boolean(error));
-
   // Used to ensure the file name does not disappear while the modal is animating out
   const debouncedFileName = useDebounceValue(fileName, 200);
 
-  const internalOnCancel = () => {
-    close();
-    onCancel();
-  };
-
   return (
-    <Dialog
-      open={Boolean(error)}
-      onOpenChange={open => !open && internalOnCancel()}
-    >
+    <Dialog open={Boolean(error)} onOpenChange={open => !open && onCancel()}>
       <DialogContent className="w-[588px]">
         <DialogHeader>
           <DialogTitle>Failed To Parse Config</DialogTitle>
@@ -218,7 +202,9 @@ function ParseFailureModal({
               </div>
               <Button
                 size="large"
-                onPress={internalOnCancel}
+                onPress={() => {
+                  onCancel();
+                }}
                 className="self-end"
               >
                 Cancel
