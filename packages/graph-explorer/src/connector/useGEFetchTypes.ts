@@ -8,6 +8,7 @@ import {
   VertexId,
   NormalizedConnection,
   EntityPropertyValue,
+  Scalar,
 } from "@/core";
 
 export type QueryOptions = RequestInit & {
@@ -82,7 +83,7 @@ export type ScalarValue = EntityPropertyValue | Date;
 export type MappedQueryResults = {
   vertices: Vertex[];
   edges: Edge[];
-  scalars: ScalarValue[];
+  scalars: Scalar[];
 };
 
 /** Constructs a `MappedQueryResults` instance without providing all values. */

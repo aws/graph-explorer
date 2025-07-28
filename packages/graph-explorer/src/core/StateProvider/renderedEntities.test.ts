@@ -4,7 +4,7 @@ import {
   DbState,
   renderHookWithJotai,
 } from "@/utils/testing";
-import { createEdgeId, createVertexId } from "./entityIdType";
+import { createEdgeId, createVertexId } from "@/core/entities";
 import {
   createRenderedEdgeId,
   createRenderedVertexId,
