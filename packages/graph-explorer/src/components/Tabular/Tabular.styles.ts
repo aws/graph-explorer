@@ -5,7 +5,7 @@ import baseTheme from "./baseTheme";
 
 const defaultStyles =
   (variant: "bordered" | "noBorders" = "bordered"): ThemeStyleFn =>
-  ({ theme }) => {
+  theme => {
     const { palette } = theme;
 
     return css`

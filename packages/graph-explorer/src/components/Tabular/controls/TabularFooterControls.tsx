@@ -19,7 +19,7 @@ export type TabularFooterControlsProps = PropsWithChildren<{
 
 const defaultStyles =
   (variant?: TabularVariantType): ThemeStyleFn =>
-  ({ theme }) => {
+  theme => {
     const { palette } = theme;
 
     return css`

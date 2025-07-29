@@ -3,9 +3,7 @@ import type { PropsWithChildren } from "react";
 import { createContext, useContext } from "react";
 import DEFAULT_LIGHT_THEME from "./themes/light";
 
-export type ActiveThemeType = {
-  theme: typeof DEFAULT_LIGHT_THEME;
-};
+export type ActiveThemeType = typeof DEFAULT_LIGHT_THEME;
 
 export type ThemeStyleFn = (theme: ActiveThemeType) => string;
 export type ThemedStyle = (styles: ThemeStyleFn) => string;
@@ -22,9 +20,7 @@ export function ThemeProvider({
   className,
   children,
 }: PropsWithChildren<ThemeProviderProps>) {
-  const theme = {
-    theme: DEFAULT_LIGHT_THEME,
-  };
+  const theme = DEFAULT_LIGHT_THEME;
 
   return (
     <ThemeContext.Provider value={theme}>

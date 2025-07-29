@@ -1,7 +1,7 @@
 import { css } from "@emotion/css";
-import { ActiveThemeType } from "@/core";
+import { ThemeStyleFn } from "@/core";
 
-const defaultStyles = ({ theme }: ActiveThemeType) => css`
+const defaultStyles: ThemeStyleFn = theme => css`
   .content {
     background: ${theme.palette.background.default};
   }
