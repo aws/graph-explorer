@@ -3,16 +3,16 @@ import type { PropsWithChildren } from "react";
 import { createContext, useContext } from "react";
 import DEFAULT_LIGHT_THEME from "./themes/light";
 
-export type ActiveThemeType = typeof DEFAULT_LIGHT_THEME;
+type Theme = typeof DEFAULT_LIGHT_THEME;
 
-export type ThemeStyleFn = (theme: ActiveThemeType) => string;
-export type ThemedStyle = (styles: ThemeStyleFn) => string;
+export type ThemeStyleFn = (theme: Theme) => string;
+type ThemedStyle = (styles: ThemeStyleFn) => string;
 
 // This any should be replaced by a generic type that should detect the type of
 // the current active theme. Need to do research to achieve it
-export const ThemeContext = createContext<ActiveThemeType>(undefined!);
+const ThemeContext = createContext<Theme | null>(null);
 
-export type ThemeProviderProps = {
+type ThemeProviderProps = {
   className?: string;
 };
 
@@ -30,7 +30,11 @@ export function ThemeProvider({
 }
 
 export function useTheme() {
-  return useContext(ThemeContext);
+  const theme = useContext(ThemeContext);
+  if (!theme) {
+    throw new Error("useTheme must be used within a ThemeProvider");
+  }
+  return theme;
 }
 
 export function useWithTheme(): ThemedStyle {
