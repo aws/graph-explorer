@@ -21,7 +21,7 @@ export type TabularHeaderControlsProps = PropsWithChildren<{
 
 const defaultStyles =
   (variant?: TabularVariantType): ThemeStyleFn =>
-  ({ isDarkTheme }) => css`
+  () => css`
     &.header-controls {
       position: sticky;
       left: 0;
@@ -34,7 +34,7 @@ const defaultStyles =
       background: ${cssVar(
         "--tabular-header-controls-background",
         "--tabular-header-background",
-        isDarkTheme ? "--palette-grey-800" : "--palette-background-contrast"
+        "--palette-background-contrast"
       )};
       color: ${cssVar(
         "--tabular-header-controls-color",

@@ -1,7 +1,5 @@
 export type ActiveThemeType = {
   theme: ProcessedTheme;
-  themeName: string;
-  isDarkTheme?: boolean;
 };
 
 export type ThemeContextType = ActiveThemeType;
@@ -72,8 +70,6 @@ export type Spacing = {
 };
 
 export type ProcessedTheme = {
-  name: string;
-  mode: "dark" | "light"; // Primary and Secondary colors are defined as fallback of other colors in order
   // to avoid duplication of colors everywhere.
   palette: {
     common: {

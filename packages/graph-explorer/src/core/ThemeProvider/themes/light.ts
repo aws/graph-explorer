@@ -42,8 +42,6 @@ const palette: DeepRequired<ProcessedTheme["palette"]> = {
 };
 
 const LIGHT_THEME: ProcessedTheme = {
-  name: "DEFAULT",
-  mode: "light",
   spacing: {
     base: spacing(1),
     "2x": spacing(2),
