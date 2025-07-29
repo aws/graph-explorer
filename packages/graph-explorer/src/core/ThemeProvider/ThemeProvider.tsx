@@ -1,4 +1,3 @@
-import { cn } from "@/utils";
 import type { PropsWithChildren } from "react";
 import { createContext, useContext } from "react";
 import DEFAULT_LIGHT_THEME from "./themes/light";
@@ -12,19 +11,12 @@ type ThemedStyle = (styles: ThemeStyleFn) => string;
 // the current active theme. Need to do research to achieve it
 const ThemeContext = createContext<Theme | null>(null);
 
-type ThemeProviderProps = {
-  className?: string;
-};
-
-export function ThemeProvider({
-  className,
-  children,
-}: PropsWithChildren<ThemeProviderProps>) {
+export function ThemeProvider(props: PropsWithChildren) {
   const theme = DEFAULT_LIGHT_THEME;
 
   return (
     <ThemeContext.Provider value={theme}>
-      <div className={cn(`light-wrapper h-full`, className)}>{children}</div>
+      {props.children}
     </ThemeContext.Provider>
   );
 }
