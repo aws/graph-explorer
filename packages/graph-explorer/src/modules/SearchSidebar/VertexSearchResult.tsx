@@ -2,6 +2,8 @@ import { useDisplayVertexFromVertex, Vertex } from "@/core";
 import {
   ButtonProps,
   IconButton,
+  SearchResult,
+  SearchResultExpandChevron,
   Spinner,
   stopPropagation,
   VertexRow,
@@ -11,11 +13,7 @@ import {
   useHasVertexBeenAddedToGraph,
   useRemoveNodeFromGraph,
 } from "@/hooks";
-import {
-  ChevronRightIcon,
-  MinusCircleIcon,
-  PlusCircleIcon,
-} from "lucide-react";
+import { MinusCircleIcon, PlusCircleIcon } from "lucide-react";
 import { useState } from "react";
 import EntityAttribute from "../EntityDetails/EntityAttribute";
 
@@ -25,17 +23,12 @@ export function VertexSearchResult({ vertex }: { vertex: Vertex }) {
   const displayNode = useDisplayVertexFromVertex(vertex);
 
   return (
-    <div
-      className="bg-background-default group w-full overflow-hidden transition-all"
-      data-expanded={expanded}
-    >
+    <SearchResult data-expanded={expanded}>
       <div
         onClick={() => setExpanded(e => !e)}
         className="group-data-[expanded=true]:border-background-secondary group flex w-full flex-row items-center gap-2 p-3 text-left ring-0 hover:cursor-pointer"
       >
-        <div>
-          <ChevronRightIcon className="text-primary-dark/50 size-5 transition-transform duration-200 ease-in-out group-data-[expanded=true]:rotate-90" />
-        </div>
+        <SearchResultExpandChevron />
         <VertexRow vertex={displayNode} className="grow" />
         <AddOrRemoveButton vertex={vertex} />
       </div>
@@ -50,7 +43,7 @@ export function VertexSearchResult({ vertex }: { vertex: Vertex }) {
           ))}
         </ul>
       </div>
-    </div>
+    </SearchResult>
   );
 }
 

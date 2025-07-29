@@ -61,6 +61,8 @@ export { default as NotInProduction } from "./NotInProduction";
 export { default as SearchBar } from "./SearchBar";
 export * from "./SearchBar";
 
+export * from "./SearchResult";
+
 export * from "./Select";
 export { default as SelectField } from "./SelectField";
 export * from "./SelectField";

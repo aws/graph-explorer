@@ -1,3 +1,8 @@
+import {
+  SearchResult,
+  SearchResultSubtitle,
+  SearchResultTitle,
+} from "@/components";
 import { Scalar } from "@/core";
 import { cn, MISSING_DISPLAY_VALUE } from "@/utils";
 import {
@@ -56,11 +61,7 @@ export function ScalarSearchResult({
   const subtitle = scalar.name ?? "Scalar value";
 
   return (
-    <div
-      className={cn(
-        "bg-background-default w-full overflow-hidden transition-all"
-      )}
-    >
+    <SearchResult>
       <div className="flex w-full flex-row items-center gap-2 p-3 text-left ring-0">
         <div className="flex grow flex-row items-center gap-2">
           <div
@@ -70,15 +71,13 @@ export function ScalarSearchResult({
             <div className="size-5" />
           </div>
           <ScalarSymbol>{Icon}</ScalarSymbol>
-          <div className="inline-block text-pretty text-base leading-snug [word-break:break-word]">
-            <div className="font-bold">{displayValue}</div>
-            <div className="text-text-secondary/90 line-clamp-2">
-              {subtitle}
-            </div>
+          <div>
+            <SearchResultTitle>{displayValue}</SearchResultTitle>
+            <SearchResultSubtitle>{subtitle}</SearchResultSubtitle>
           </div>
         </div>
       </div>
-    </div>
+    </SearchResult>
   );
 }
 export function ScalarSymbol({

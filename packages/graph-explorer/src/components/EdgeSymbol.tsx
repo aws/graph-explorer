@@ -1,6 +1,7 @@
 import { cn } from "@/utils";
 import { EdgeIcon } from "./icons";
 import { ComponentPropsWithoutRef } from "react";
+import { SearchResultSymbol } from "./SearchResult";
 
 /** Icon representing an edge in the graph. */
 export function EdgeSymbol({
@@ -8,14 +9,11 @@ export function EdgeSymbol({
   ...props
 }: ComponentPropsWithoutRef<"div">) {
   return (
-    <div
-      className={cn(
-        "text-primary-main bg-primary-main/20 grid size-[36px] shrink-0 place-content-center rounded-full p-2 text-[2em]",
-        className
-      )}
+    <SearchResultSymbol
+      className={cn("text-primary-main bg-primary-main/20", className)}
       {...props}
     >
       <EdgeIcon className="size-full" />
-    </div>
+    </SearchResultSymbol>
   );
 }
