@@ -148,6 +148,7 @@ export default {
       },
       data: {
         open: 'state="open"',
+        closed: 'state="closed"',
       },
       transitionProperty: {
         width: "width",
