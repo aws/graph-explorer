@@ -4,7 +4,7 @@ import { FC, PropsWithChildren } from "react";
 import { useWithTheme } from "@/core";
 import type { TabularVariantType } from "../Tabular";
 
-import type { ThemeStyleFn } from "@/core/ThemeProvider/types";
+import type { ThemeStyleFn } from "@/core/ThemeProvider";
 import baseTheme from "../baseTheme";
 
 export type TabularFooterControlsProps = PropsWithChildren<{
