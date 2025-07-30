@@ -159,6 +159,7 @@ export default {
       },
       borderColor: {
         DEFAULT: "rgb(var(--color-border) / <alpha-value>)",
+        input: "rgb(var(--color-input-border) / <alpha-value>)",
       },
       maxWidth: {
         paragraph: "36rem",
