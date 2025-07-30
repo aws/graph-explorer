@@ -10,6 +10,9 @@ import localforage from "localforage";
 
 expect.extend(matchers);
 
+// Set the test environment timezone so it is consistent across machines
+process.env.TZ = "UTC";
+
 afterEach(() => {
   cleanup();
   vi.unstubAllEnvs();
