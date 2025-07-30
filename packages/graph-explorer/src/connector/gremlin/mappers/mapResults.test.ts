@@ -187,7 +187,7 @@ describe("mapResults", () => {
     const results = mapResults(createGList([null]));
     expect(results).toEqual(
       toMappedQueryResults({
-        scalars: [createScalar(null)],
+        scalars: [createScalar({ value: null })],
       })
     );
   });
@@ -204,10 +204,13 @@ describe("mapResults", () => {
     expect(results).toEqual(
       toMappedQueryResults({
         scalars: [
-          createScalar(42, "count"),
-          createScalar("John", "name"),
-          createScalar(true, "active"),
-          createScalar(new Date("2020-01-01T00:00:00.000Z"), "time"),
+          createScalar({ value: 42, name: "count" }),
+          createScalar({ value: "John", name: "name" }),
+          createScalar({ value: true, name: "active" }),
+          createScalar({
+            value: new Date("2020-01-01T00:00:00.000Z"),
+            name: "time",
+          }),
         ],
       })
     );
@@ -221,8 +224,8 @@ describe("mapResults", () => {
     expect(results).toEqual(
       toMappedQueryResults({
         scalars: [
-          createScalar("value1"), // No name since key is not a string
-          createScalar("value2"), // No name since key is not a string
+          createScalar({ value: "value1" }), // No name since key is not a string
+          createScalar({ value: "value2" }), // No name since key is not a string
         ],
       })
     );
@@ -240,8 +243,8 @@ describe("mapResults", () => {
     expect(results).toEqual(
       toMappedQueryResults({
         scalars: [
-          createScalar(100, "total"),
-          createScalar("success", "message"),
+          createScalar({ value: 100, name: "total" }),
+          createScalar({ value: "success", name: "message" }),
         ],
       })
     );
@@ -254,7 +257,10 @@ describe("mapResults", () => {
     });
     expect(results).toEqual(
       toMappedQueryResults({
-        scalars: [createScalar(null, "data"), createScalar(5, "count")],
+        scalars: [
+          createScalar({ value: null, name: "data" }),
+          createScalar({ value: 5, name: "count" }),
+        ],
       })
     );
   });
@@ -266,7 +272,10 @@ describe("mapResults", () => {
     });
     expect(results).toEqual(
       toMappedQueryResults({
-        scalars: [createScalar("1", "id"), createScalar("Foo::Bar", "label")],
+        scalars: [
+          createScalar({ value: "1", name: "id" }),
+          createScalar({ value: "Foo::Bar", name: "label" }),
+        ],
       })
     );
   });

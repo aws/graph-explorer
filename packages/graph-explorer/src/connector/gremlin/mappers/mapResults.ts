@@ -12,16 +12,16 @@ export function mapResults(data: GAnyValue) {
 
 function mapAnyValue(data: GAnyValue, name?: string): Entity[] {
   if (typeof data === "string" || typeof data === "boolean" || data === null) {
-    return [createScalar(data, name)];
+    return [createScalar({ value: data, name })];
   } else if (
     data["@type"] === "g:Int32" ||
     data["@type"] === "g:Int64" ||
     data["@type"] === "g:Double" ||
     data["@type"] === "g:T"
   ) {
-    return [createScalar(data["@value"], name)];
+    return [createScalar({ value: data["@value"], name })];
   } else if (data["@type"] === "g:Date") {
-    return [createScalar(new Date(data["@value"]), name)];
+    return [createScalar({ value: new Date(data["@value"]), name })];
   } else if (data["@type"] === "g:Edge") {
     return [mapApiEdge(data)];
   } else if (data["@type"] === "g:Vertex") {

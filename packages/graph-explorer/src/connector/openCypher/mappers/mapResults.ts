@@ -90,7 +90,7 @@ function mapValue(value: CypherValue, name?: string): Entity[] {
     typeof value === "string" ||
     typeof value === "boolean"
   ) {
-    return [createScalar(value, name)];
+    return [createScalar({ value, name })];
   }
 
   if (Array.isArray(value)) {
