@@ -128,13 +128,7 @@ function ConfirmationModal({
                 </Paragraph>
               </div>
               <div className="flex flex-row gap-2 self-end">
-                <Button
-                  size="large"
-                  isDisabled={isPending}
-                  onPress={() => {
-                    onCancel();
-                  }}
-                >
+                <Button size="large" isDisabled={isPending} onPress={onCancel}>
                   Cancel
                 </Button>
                 <Button
@@ -200,13 +194,7 @@ function ParseFailureModal({
                   <b>{fileName ?? debouncedFileName ?? "No file selected"}</b>
                 </Paragraph>
               </div>
-              <Button
-                size="large"
-                onPress={() => {
-                  onCancel();
-                }}
-                className="self-end"
-              >
+              <Button size="large" onPress={onCancel} className="self-end">
                 Cancel
               </Button>
             </div>
