@@ -39,8 +39,8 @@ export function SearchResultsList(results: MappedQueryResults) {
 
   return (
     <>
-      <div className="bg-background-contrast/35 flex grow flex-col p-3">
-        <ul className="border-divider divide-border flex flex-col divide-y overflow-hidden rounded-xl border shadow">
+      <div className="grow p-3">
+        <ul className="flex flex-col space-y-4 overflow-hidden">
           {currentPageRows.map(row => (
             <li key={row.key} className="content-auto intrinsic-size-16">
               {row.render()}

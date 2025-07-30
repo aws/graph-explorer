@@ -3,8 +3,8 @@ import {
   SearchResultSubtitle,
   SearchResultTitle,
 } from "@/components";
-import { Scalar } from "@/core";
-import { cn, MISSING_DISPLAY_VALUE } from "@/utils";
+import { getDisplayValueForScalar, Scalar } from "@/core";
+import { cn } from "@/utils";
 import {
   BanIcon,
   CalendarIcon,
@@ -14,21 +14,6 @@ import {
   QuoteIcon,
 } from "lucide-react";
 import { ComponentPropsWithoutRef } from "react";
-
-function getDisplayValue(scalar: Scalar) {
-  switch (scalar.type) {
-    case "string":
-      return scalar.value;
-    case "number":
-      return new Intl.NumberFormat().format(scalar.value);
-    case "boolean":
-      return String(scalar.value);
-    case "date":
-      return new Intl.DateTimeFormat().format(scalar.value);
-    case "null":
-      return MISSING_DISPLAY_VALUE;
-  }
-}
 
 function getIcon(scalar: Scalar) {
   switch (scalar.type) {
@@ -51,31 +36,22 @@ function getIcon(scalar: Scalar) {
 
 export function ScalarSearchResult({
   scalar,
-  resultsHaveExpandableRows,
 }: {
   scalar: Scalar;
   resultsHaveExpandableRows: boolean;
 }) {
-  const displayValue = getDisplayValue(scalar);
   const Icon = getIcon(scalar);
-  const subtitle = scalar.name ?? "Scalar value";
+  const title = scalar.name ?? "Scalar value";
+  const subtitle = getDisplayValueForScalar(scalar);
 
   return (
-    <SearchResult>
-      <div className="flex w-full flex-row items-center gap-2 p-3 text-left ring-0">
-        <div className="flex grow flex-row items-center gap-2">
-          <div
-            className={cn(resultsHaveExpandableRows ? "invisible" : "hidden")}
-          >
-            {/* Just here to align with node & edge results. This is never visible. */}
-            <div className="size-5" />
-          </div>
-          <ScalarSymbol>{Icon}</ScalarSymbol>
-          <div>
-            <SearchResultTitle>{displayValue}</SearchResultTitle>
-            <SearchResultSubtitle>{subtitle}</SearchResultSubtitle>
-          </div>
-        </div>
+    <SearchResult className="flex w-full flex-row items-center gap-2 p-3">
+      <ScalarSymbol>{Icon}</ScalarSymbol>
+      <div>
+        <SearchResultTitle>{title}</SearchResultTitle>
+        <SearchResultSubtitle className="line-clamp-none">
+          {subtitle}
+        </SearchResultSubtitle>
       </div>
     </SearchResult>
   );
