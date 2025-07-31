@@ -126,33 +126,3 @@
     grid-area: 1 / 1 / 2 / 2;
   }
 }
-
-@layer utilities {
-  .CollapsibleContent {
-    overflow: hidden;
-  }
-  .CollapsibleContent[data-state="open"] {
-    animation: collapsibleSlideDown 150ms ease-out;
-  }
-  .CollapsibleContent[data-state="closed"] {
-    animation: collapsibleSlideUp 150ms ease-out;
-  }
-
-  @keyframes collapsibleSlideDown {
-    from {
-      height: 0;
-    }
-    to {
-      height: var(--radix-collapsible-content-height);
-    }
-  }
-
-  @keyframes collapsibleSlideUp {
-    from {
-      height: var(--radix-collapsible-content-height);
-    }
-    to {
-      height: 0;
-    }
-  }
-}

@@ -171,6 +171,28 @@ export default {
         menu: "1400",
         tooltip: "1500",
       },
+      keyframes: {
+        expand: {
+          from: {
+            height: "0",
+          },
+          to: {
+            height: "auto",
+          },
+        },
+        collapse: {
+          from: {
+            height: "auto",
+          },
+          to: {
+            height: "0",
+          },
+        },
+      },
+      animation: {
+        expand: "expand 0.2s cubic-bezier(0.87, 0, 0.13, 1)",
+        collapse: "collapse 0.2s cubic-bezier(0.87, 0, 0.13, 1)",
+      },
     },
   },
   plugins: [
