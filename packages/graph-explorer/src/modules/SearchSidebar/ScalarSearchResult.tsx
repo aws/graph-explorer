@@ -1,10 +1,10 @@
 import {
   SearchResult,
   SearchResultSubtitle,
+  SearchResultSymbol,
   SearchResultTitle,
 } from "@/components";
 import { getDisplayValueForScalar, Scalar } from "@/core";
-import { cn } from "@/utils";
 import {
   BanIcon,
   CalendarIcon,
@@ -13,7 +13,6 @@ import {
   HashIcon,
   QuoteIcon,
 } from "lucide-react";
-import { ComponentPropsWithoutRef } from "react";
 
 function getIcon(scalar: Scalar) {
   switch (scalar.type) {
@@ -34,19 +33,16 @@ function getIcon(scalar: Scalar) {
   }
 }
 
-export function ScalarSearchResult({
-  scalar,
-}: {
-  scalar: Scalar;
-  resultsHaveExpandableRows: boolean;
-}) {
+export function ScalarSearchResult({ scalar }: { scalar: Scalar }) {
   const Icon = getIcon(scalar);
   const title = scalar.name ?? "Scalar value";
   const subtitle = getDisplayValueForScalar(scalar);
 
   return (
     <SearchResult className="flex w-full flex-row items-center gap-2 p-3">
-      <ScalarSymbol>{Icon}</ScalarSymbol>
+      <SearchResultSymbol className="text-primary-main bg-primary-main/20 rounded-lg">
+        {Icon}
+      </SearchResultSymbol>
       <div>
         <SearchResultTitle>{title}</SearchResultTitle>
         <SearchResultSubtitle className="line-clamp-none">
@@ -54,19 +50,5 @@ export function ScalarSearchResult({
         </SearchResultSubtitle>
       </div>
     </SearchResult>
-  );
-}
-export function ScalarSymbol({
-  className,
-  ...props
-}: ComponentPropsWithoutRef<"div">) {
-  return (
-    <div
-      className={cn(
-        "text-primary-main bg-primary-main/20 grid size-[36px] shrink-0 place-content-center rounded-lg p-2 text-[2em]",
-        className
-      )}
-      {...props}
-    />
   );
 }
