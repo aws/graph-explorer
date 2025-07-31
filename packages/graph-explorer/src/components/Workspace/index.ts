@@ -1,7 +1,5 @@
 export { default } from "./Workspace";
 export type { WorkspaceProps } from "./Workspace";
-export { default as WorkspaceFooter } from "./components/WorkspaceFooter";
-export { default as WorkspaceNavBar } from "./components/WorkspaceNavBar";
 export { default as WorkspaceTopBar } from "./components/WorkspaceTopBar";
 export type { WorkspaceTopBarProps } from "./components/WorkspaceTopBar";
 export { default as WorkspaceTopBarAdditionalControls } from "./components/WorkspaceTopBarAdditionalControls";

@@ -4,7 +4,7 @@ import { FC, PropsWithChildren } from "react";
 import { useWithTheme } from "@/core";
 import type { TabularVariantType } from "../Tabular";
 
-import type { ThemeStyleFn } from "@/core/ThemeProvider/types";
+import type { ThemeStyleFn } from "@/core/ThemeProvider";
 import baseTheme from "../baseTheme";
 
 export type TabularFooterControlsProps = PropsWithChildren<{
@@ -19,7 +19,7 @@ export type TabularFooterControlsProps = PropsWithChildren<{
 
 const defaultStyles =
   (variant?: TabularVariantType): ThemeStyleFn =>
-  ({ theme, isDarkTheme }) => {
+  theme => {
     const { palette } = theme;
 
     return css`
@@ -31,9 +31,7 @@ const defaultStyles =
         justify-content: space-between;
         align-items: center;
         flex-wrap: wrap;
-        background: ${isDarkTheme
-          ? palette.grey[800]
-          : palette.background.default};
+        background: ${palette.background.default};
         color: ${palette.text.primary};
         padding: ${baseTheme.footer.controls.padding};
         border: solid 1px ${palette.border};

@@ -1,5 +1,3 @@
-import type { ProcessedTheme } from "@/core/ThemeProvider/types";
-
 const spacing = (scale: number) => `${scale * 4}px`;
 
 const gray = {
@@ -14,7 +12,7 @@ const gray = {
   900: "rgb(var(--color-gray-900))",
 };
 
-const palette: DeepRequired<ProcessedTheme["palette"]> = {
+const palette = {
   common: {
     white: "rgb(var(--color-white))",
     black: "rgb(var(--color-black))",
@@ -41,9 +39,7 @@ const palette: DeepRequired<ProcessedTheme["palette"]> = {
   grey: gray,
 };
 
-const LIGHT_THEME: ProcessedTheme = {
-  name: "DEFAULT",
-  mode: "light",
+const LIGHT_THEME = {
   spacing: {
     base: spacing(1),
     "2x": spacing(2),

@@ -4,7 +4,7 @@ import { NotificationProvider } from "@/components/NotificationProvider";
 import Toast from "@/components/Toast";
 import AppStatusLoader from "@/core/AppStatusLoader";
 import StateProvider from "@/core/StateProvider/StateProvider";
-import ThemeProvider from "@/core/ThemeProvider/ThemeProvider";
+import { ThemeProvider } from "@/core/ThemeProvider";
 import { MantineProvider } from "@mantine/core";
 import { emotionTransform, MantineEmotionProvider } from "@mantine/emotion";
 import { ErrorBoundary } from "react-error-boundary";

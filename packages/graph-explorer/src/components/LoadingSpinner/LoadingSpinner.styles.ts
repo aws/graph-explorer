@@ -3,7 +3,7 @@ import type { ThemeStyleFn } from "@/core";
 
 const defaultStyles =
   (color?: string): ThemeStyleFn =>
-  ({ theme }) => css`
+  theme => css`
     overflow: hidden;
     width: 3rem;
     height: 3rem;

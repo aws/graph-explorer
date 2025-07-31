@@ -5,7 +5,7 @@ import baseTheme from "./baseTheme";
 
 const defaultStyles =
   (variant: "bordered" | "noBorders" = "bordered"): ThemeStyleFn =>
-  ({ theme, isDarkTheme }) => {
+  theme => {
     const { palette } = theme;
 
     return css`
@@ -31,9 +31,7 @@ const defaultStyles =
         box-sizing: border-box;
         width: fit-content;
         min-width: 100%;
-        background: ${isDarkTheme
-          ? palette.grey[800]
-          : palette.background.contrast};
+        background: ${palette.background.contrast};
         color: ${palette.text.secondary};
         border: solid 1px ${palette.border};
         ${variant === "noBorders" && `border-right: none; border-left: none;`}
@@ -64,9 +62,7 @@ const defaultStyles =
         }
 
         :hover {
-          background: ${isDarkTheme
-            ? palette.grey[800]
-            : palette.background.contrast};
+          background: ${palette.background.contrast};
           color: ${palette.text.primary};
         }
 
@@ -101,9 +97,7 @@ const defaultStyles =
         border-right: ${variant === "bordered"
           ? `1px solid ${palette.border}`
           : "none"};
-        background: ${isDarkTheme
-          ? palette.grey[800]
-          : palette.background.contrast};
+        background: ${palette.background.contrast};
         color: ${baseTheme.header.color};
         transition:
           background 250ms ease-in,

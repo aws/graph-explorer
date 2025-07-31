@@ -1,48 +1,33 @@
-import { cn } from "@/utils";
 import type { PropsWithChildren } from "react";
-import { createContext } from "react";
-import DEFAULT_DARK_THEME from "./themes/dark";
+import { createContext, useContext } from "react";
 import DEFAULT_LIGHT_THEME from "./themes/light";
-import type { ThemeContextType } from "./types";
 
-// This any should be replaced by a generic type that should detect the type of
-// the current active theme. Need to do research to achieve it
-export const ThemeContext = createContext<ThemeContextType>(undefined!);
+type Theme = typeof DEFAULT_LIGHT_THEME;
 
-export type ThemeProviderProps = {
-  className?: string;
-  initialTheme?: string;
-};
+export type ThemeStyleFn = (theme: Theme) => string;
+type ThemedStyle = (styles: ThemeStyleFn) => string;
 
-function ThemeProvider({
-  className,
-  initialTheme = "light",
-  children,
-}: PropsWithChildren<ThemeProviderProps>) {
-  const theme = (() => {
-    const composedTheme =
-      initialTheme === "dark" ? DEFAULT_DARK_THEME : DEFAULT_LIGHT_THEME;
+const ThemeContext = createContext<Theme | null>(null);
 
-    return {
-      themeName: initialTheme,
-      theme: composedTheme,
-      isDarkTheme: composedTheme.mode === "dark",
-    } as ThemeContextType;
-  })();
+export function ThemeProvider(props: PropsWithChildren) {
+  const theme = DEFAULT_LIGHT_THEME;
 
   return (
     <ThemeContext.Provider value={theme}>
-      <div
-        className={cn(
-          `${theme.themeName}-wrapper h-full`,
-          theme.isDarkTheme && "dark",
-          className
-        )}
-      >
-        {children}
-      </div>
+      {props.children}
     </ThemeContext.Provider>
   );
 }
 
-export default ThemeProvider;
+export function useTheme() {
+  const theme = useContext(ThemeContext);
+  if (!theme) {
+    throw new Error("useTheme must be used within a ThemeProvider");
+  }
+  return theme;
+}
+
+export function useWithTheme(): ThemedStyle {
+  const theme = useTheme();
+  return styles => styles(theme);
+}
