@@ -108,7 +108,7 @@ export function SearchResultAttribute({
     <div
       {...props}
       className={cn(
-        "flex w-full flex-wrap justify-between gap-2 rounded-xl border border-gray-200 px-4 py-2 shadow-sm",
+        "flex w-full flex-wrap justify-between gap-2 rounded-xl border px-4 py-2 shadow-sm",
         level % 2 === 0 ? "bg-default" : "bg-gray-50",
         className
       )}
@@ -124,7 +124,7 @@ export function SearchResultAttributeName({
     <div
       {...props}
       className={cn(
-        "text-secondary flex-[1 1 150px] text-pretty text-base leading-snug [word-break:break-word]",
+        "text-secondary flex-[1 1 150px] min-w-0 text-pretty break-words text-base leading-snug [word-break:break-word]",
         className
       )}
     />
@@ -139,7 +139,7 @@ export function SearchResultAttributeValue({
     <div
       {...props}
       className={cn(
-        "text-text-primary flex-[2 1 150px] text-pretty text-base leading-snug [word-break:break-word]",
+        "text-text-primary flex-[2 1 150px] min-w-0 text-pretty break-words text-base leading-snug [word-break:break-word]",
         className
       )}
     />
