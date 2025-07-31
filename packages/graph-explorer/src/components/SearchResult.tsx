@@ -12,7 +12,7 @@ export function SearchResult({
     <div
       {...props}
       className={cn(
-        "content-auto intrinsic-size-[4.75rem] rounded-xl border border-gray-200 shadow-sm",
+        "content-auto intrinsic-size-[4.75rem] rounded-xl border shadow-sm",
         isEven(level) ? "bg-gray-50" : "bg-default",
         className
       )}
@@ -29,7 +29,7 @@ export function SearchResultCollapsible({
     <Collapsible
       {...props}
       className={cn(
-        "content-auto intrinsic-size-[4.75rem] rounded-xl border border-gray-200 shadow-sm",
+        "content-auto intrinsic-size-[4.75rem] rounded-xl border shadow-sm",
         isEven(level) ? "bg-gray-50" : "bg-default",
         className
       )}
