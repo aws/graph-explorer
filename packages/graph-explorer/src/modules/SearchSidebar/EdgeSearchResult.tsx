@@ -45,7 +45,7 @@ export function EdgeSearchResult({
       <CollapsibleTrigger asChild>
         <div
           role="button"
-          className="group flex w-full flex-row items-center gap-2 p-3 text-left hover:cursor-pointer"
+          className="flex w-full flex-row items-center gap-2 p-3 text-left hover:cursor-pointer"
         >
           <SearchResultExpandChevron />
           <EdgeRow
