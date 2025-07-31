@@ -2,7 +2,7 @@ import { GAnyValue } from "../types";
 import mapApiEdge from "./mapApiEdge";
 import mapApiVertex from "./mapApiVertex";
 import { mapValuesToQueryResults } from "@/connector/mapping";
-import { createScalar, Entity } from "@/core";
+import { createScalar, Entity, getDisplayValueForScalar } from "@/core";
 
 export function mapResults(data: GAnyValue) {
   const values = mapAnyValue(data);
@@ -41,10 +41,11 @@ function mapAnyValue(data: GAnyValue, name?: string): Entity[] {
           // Try mapping and see if it comes out as a scalar
           const mapped = mapAnyValue(key);
           const firstScalar = mapped.filter(m => m.entityType === "scalar")[0];
-          // Only use string scalar values as name
-          return firstScalar && firstScalar.type === "string"
-            ? firstScalar.value
+          const displayValue = firstScalar
+            ? getDisplayValueForScalar(firstScalar)
             : undefined;
+          // Only use string scalar values as name
+          return displayValue;
         })();
 
         results.push(...mapAnyValue(value, scalarName));

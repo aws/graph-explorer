@@ -216,16 +216,16 @@ describe("mapResults", () => {
     );
   });
 
-  it("should handle g:Map with non-string keys (no names)", () => {
+  it("should handle g:Map with non-string keys", () => {
     const results = mapResults({
       "@type": "g:Map",
-      "@value": [createGInt32(1), "value1", createGInt32(2), "value2"],
+      "@value": [createGInt32(1), "value1", createGType("ID"), "value2"],
     });
     expect(results).toEqual(
       toMappedQueryResults({
         scalars: [
-          createScalar({ value: "value1" }), // No name since key is not a string
-          createScalar({ value: "value2" }), // No name since key is not a string
+          createScalar({ value: "value1", name: "1" }),
+          createScalar({ value: "value2", name: "ID" }),
         ],
       })
     );
