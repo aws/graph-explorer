@@ -45,7 +45,7 @@ export function SearchResultTitle({
     <div
       {...props}
       className={cn(
-        "text-text-primary line-clamp-2 text-pretty break-words text-base font-bold leading-snug [word-break:break-word]",
+        "text-text-primary line-clamp-2 min-w-0 text-pretty break-words text-base font-bold leading-snug [word-break:break-word]",
         className
       )}
     />
