@@ -121,11 +121,11 @@ describe("scalar", () => {
     });
 
     it("should return number for integer scalar", () => {
-      const scalar = createScalar({ value: 123 });
+      const scalar = createScalar({ value: 123456 });
 
       const result = getDisplayValueForScalar(scalar);
 
-      expect(result).toBe("123");
+      expect(result).toBe("123,456");
     });
 
     it("should return number for double scalar", () => {
