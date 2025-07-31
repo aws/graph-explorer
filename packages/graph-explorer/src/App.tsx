@@ -8,12 +8,12 @@ import {
   SettingsGeneral,
   SettingsRoot,
 } from "./workspaces/Settings";
-import ConnectedProvider from "./core/ConnectedProvider";
+import DefaultLayout from "./workspaces/DefaultLayout";
 
 export default function App() {
   return (
     <Routes>
-      <Route element={<ConnectedProvider />}>
+      <Route element={<DefaultLayout />}>
         <Route path="/connections" element={<Connections />} />
         <Route path="/data-explorer/:vertexType" element={<DataExplorer />} />
         <Route path="/graph-explorer" element={<GraphExplorer />} />
