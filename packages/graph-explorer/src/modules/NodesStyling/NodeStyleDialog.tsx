@@ -1,4 +1,11 @@
-import { Modal } from "@mantine/core";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogBody,
+  DialogDescription,
+} from "@/components/Dialog";
 import {
   Button,
   FileButton,
@@ -24,6 +31,7 @@ import {
   RESERVED_ID_PROPERTY,
   RESERVED_TYPES_PROPERTY,
 } from "@/utils/constants";
+import { cn } from "@/utils";
 import { atom, useAtom } from "jotai";
 
 export const customizeNodeTypeAtom = atom<string | undefined>(undefined);
@@ -46,32 +54,37 @@ export default function NodeStyleDialog() {
   );
 
   return (
-    <Modal
-      opened={Boolean(customizeNodeType)}
-      onClose={() => setCustomizeNodeType(undefined)}
-      centered={true}
-      size="auto"
-      title={
-        customizeNodeType ? (
-          <DialogTitle vertexType={customizeNodeType} />
-        ) : null
-      }
-      className={styleWithTheme(modalDefaultStyles)}
-      overlayProps={{
-        backgroundOpacity: 0.1,
-      }}
+    <Dialog
+      open={Boolean(customizeNodeType)}
+      onOpenChange={open => !open && setCustomizeNodeType(undefined)}
     >
-      {customizeNodeType ? <Content vertexType={customizeNodeType} /> : null}
-    </Modal>
+      <DialogContent
+        className={cn("max-w-2xl", styleWithTheme(modalDefaultStyles))}
+      >
+        {customizeNodeType ? (
+          <>
+            <NodeDialogTitle vertexType={customizeNodeType} />
+            <DialogBody>
+              <Content vertexType={customizeNodeType} />
+            </DialogBody>
+          </>
+        ) : null}
+      </DialogContent>
+    </Dialog>
   );
 }
 
-function DialogTitle({ vertexType }: { vertexType: string }) {
+function NodeDialogTitle({ vertexType }: { vertexType: string }) {
   const displayConfig = useDisplayVertexTypeConfig(vertexType);
+  const t = useTranslations();
+
   return (
-    <div>
-      Customize <strong>{displayConfig.displayLabel}</strong>
-    </div>
+    <DialogHeader>
+      <DialogTitle>{t("nodes-styling.title")}</DialogTitle>
+      <DialogDescription>
+        Customize styling for {displayConfig.displayLabel}
+      </DialogDescription>
+    </DialogHeader>
   );
 }
 

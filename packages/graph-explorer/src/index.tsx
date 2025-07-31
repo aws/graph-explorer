@@ -6,7 +6,6 @@ import ConnectedProvider from "./core/ConnectedProvider";
 import "core-js/full/iterator";
 
 import "./index.css";
-import "@mantine/core/styles.css";
 
 const BootstrapApp = () => {
   return (
