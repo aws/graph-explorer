@@ -7,8 +7,6 @@ type Theme = typeof DEFAULT_LIGHT_THEME;
 export type ThemeStyleFn = (theme: Theme) => string;
 type ThemedStyle = (styles: ThemeStyleFn) => string;
 
-// This any should be replaced by a generic type that should detect the type of
-// the current active theme. Need to do research to achieve it
 const ThemeContext = createContext<Theme | null>(null);
 
 export function ThemeProvider(props: PropsWithChildren) {
