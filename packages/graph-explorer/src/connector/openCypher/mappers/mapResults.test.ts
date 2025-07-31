@@ -344,7 +344,6 @@ describe("mapResults", () => {
     });
 
     expect(result.scalars).toHaveLength(5);
-    // Array elements don't get names
     expect(result.scalars[0]).toEqual(
       createScalar({ value: 1, name: "numbers" })
     );
