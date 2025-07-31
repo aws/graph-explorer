@@ -1,14 +1,14 @@
 import { Route, Routes } from "react-router";
 import Redirect from "./components/Redirect";
-import Connections from "./workspaces/Connections";
-import DataExplorer from "./workspaces/DataExplorer";
-import GraphExplorer from "./workspaces/GraphExplorer";
+import Connections from "./routes/Connections";
+import DataExplorer from "./routes/DataExplorer";
+import GraphExplorer from "./routes/GraphExplorer";
 import {
   SettingsAbout,
   SettingsGeneral,
   SettingsRoot,
-} from "./workspaces/Settings";
-import DefaultLayout from "./workspaces/DefaultLayout";
+} from "./routes/Settings";
+import DefaultLayout from "./routes/DefaultLayout";
 
 export default function App() {
   return (
