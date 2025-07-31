@@ -10,7 +10,7 @@ import localforage from "localforage";
 
 expect.extend(matchers);
 
-// Set the test environment timezone so it is consistent across machines
+// Set the test environment timezone & locale so it is consistent across machines
 const defaultLocale = "en-US";
 process.env.TZ = "UTC";
 process.env.LC_ALL = `${defaultLocale}.UTF-8`;
