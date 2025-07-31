@@ -76,7 +76,7 @@ describe("mapResults", () => {
     );
     expect(result.scalars[2]).toEqual(
       createScalar({ value: expectedValue, name: "list" })
-    ); // Array values don't get names
+    );
     expect(result.scalars[3]).toEqual(
       createScalar({ value: null, name: "nullValue" })
     );
@@ -327,7 +327,6 @@ describe("mapResults", () => {
     });
 
     expect(result.scalars).toHaveLength(2);
-    // Scalars from nested objects don't get names since they're flattened
     expect(result.scalars[0]).toEqual(
       createScalar({ value: "John", name: "name" })
     );
