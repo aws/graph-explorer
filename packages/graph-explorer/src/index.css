@@ -20,7 +20,6 @@
     --color-gray-950: 10 10 10;
 
     --color-input-background: var(--color-white);
-    --color-input-hover: var(--color-white);
     --color-input-border: var(--color-gray-300);
 
     --color-text-primary: 33 33 33;
@@ -80,7 +79,6 @@
     --color-black: 15 15 15;
 
     --color-input-background: var(--color-gray-900);
-    --color-input-hover: var(--color-gray-800);
 
     --color-text-primary: var(--color-white);
     --color-text-secondary: 224 224 224;

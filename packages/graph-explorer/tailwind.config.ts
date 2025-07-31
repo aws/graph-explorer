@@ -33,7 +33,6 @@ export default {
       red: colors.red,
       input: {
         background: "rgb(var(--color-input-background) / <alpha-value>)",
-        hover: "rgb(var(--color-input-hover) / <alpha-value>)",
       },
       primary: {
         light: "hsl(var(--color-primary-light) / <alpha-value>)",
