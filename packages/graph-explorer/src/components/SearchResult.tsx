@@ -29,7 +29,7 @@ export function SearchResultCollapsible({
     <Collapsible
       {...props}
       className={cn(
-        "content-auto intrinsic-size-[4.75rem] rounded-xl border shadow-sm",
+        "content-auto intrinsic-size-[4.75rem] group rounded-xl border shadow-sm",
         isEven(level) ? "bg-gray-50" : "bg-default",
         className
       )}
@@ -84,14 +84,12 @@ export function SearchResultSymbol({
 
 export function SearchResultExpandChevron({
   className,
-  open,
   ...props
-}: ComponentPropsWithRef<typeof ChevronRightIcon> & { open: boolean }) {
+}: ComponentPropsWithRef<typeof ChevronRightIcon>) {
   return (
     <ChevronRightIcon
       className={cn(
-        "text-primary-dark/50 size-5 shrink-0 transition-transform duration-200 ease-in-out",
-        open && "rotate-90",
+        "text-primary-dark/50 group-data-open:rotate-90 group-data-closed:rotate-0 size-5 shrink-0 transition-transform duration-200 ease-in-out",
         className
       )}
       {...props}

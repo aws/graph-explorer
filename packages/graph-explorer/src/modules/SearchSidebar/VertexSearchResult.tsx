@@ -19,7 +19,6 @@ import {
   useRemoveNodeFromGraph,
 } from "@/hooks";
 import { MinusCircleIcon, PlusCircleIcon } from "lucide-react";
-import { useState } from "react";
 
 export function VertexSearchResult({
   vertex,
@@ -28,21 +27,16 @@ export function VertexSearchResult({
   vertex: Vertex;
   level?: number;
 }) {
-  const [expanded, setExpanded] = useState(false);
   const displayNode = useDisplayVertexFromVertex(vertex);
 
   return (
-    <SearchResultCollapsible
-      level={level}
-      open={expanded}
-      onOpenChange={setExpanded}
-    >
+    <SearchResultCollapsible level={level}>
       <CollapsibleTrigger asChild>
         <div
           role="button"
           className="flex w-full flex-row items-center gap-2 p-3 text-left hover:cursor-pointer"
         >
-          <SearchResultExpandChevron open={expanded} />
+          <SearchResultExpandChevron />
           <VertexRow vertex={displayNode} className="grow" />
           <AddOrRemoveButton vertex={vertex} />
         </div>

@@ -20,7 +20,6 @@ import {
   useRemoveEdgeFromGraph,
 } from "@/hooks";
 import { MinusCircleIcon, PlusCircleIcon } from "lucide-react";
-import { useState } from "react";
 
 export function EdgeSearchResult({
   edge,
@@ -29,8 +28,6 @@ export function EdgeSearchResult({
   edge: Edge;
   level?: number;
 }) {
-  const [expanded, setExpanded] = useState(false);
-
   const displayEdge = useDisplayEdgeFromEdge(edge);
 
   // Get the display vertices
@@ -44,17 +41,13 @@ export function EdgeSearchResult({
   );
 
   return (
-    <SearchResultCollapsible
-      level={level}
-      open={expanded}
-      onOpenChange={setExpanded}
-    >
+    <SearchResultCollapsible level={level}>
       <CollapsibleTrigger asChild>
         <div
           role="button"
           className="group flex w-full flex-row items-center gap-2 p-3 text-left hover:cursor-pointer"
         >
-          <SearchResultExpandChevron open={expanded} />
+          <SearchResultExpandChevron />
           <EdgeRow
             edge={displayEdge}
             source={source}
