@@ -8,6 +8,8 @@ export * from "./CheckboxList";
 export { default as Chip } from "./Chip";
 export * from "./Chip";
 
+export * from "./Collapsible";
+
 export * from "./CommonAnimationProps";
 
 export * from "./DefaultQueryErrorBoundary";
@@ -58,6 +60,8 @@ export { default as NotInProduction } from "./NotInProduction";
 
 export { default as SearchBar } from "./SearchBar";
 export * from "./SearchBar";
+
+export * from "./SearchResult";
 
 export * from "./Select";
 export { default as SelectField } from "./SelectField";

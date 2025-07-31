@@ -33,7 +33,6 @@ export default {
       red: colors.red,
       input: {
         background: "rgb(var(--color-input-background) / <alpha-value>)",
-        hover: "rgb(var(--color-input-hover) / <alpha-value>)",
       },
       primary: {
         light: "hsl(var(--color-primary-light) / <alpha-value>)",
@@ -148,6 +147,7 @@ export default {
       },
       data: {
         open: 'state="open"',
+        closed: 'state="closed"',
       },
       transitionProperty: {
         width: "width",
@@ -158,6 +158,7 @@ export default {
       },
       borderColor: {
         DEFAULT: "rgb(var(--color-border) / <alpha-value>)",
+        input: "rgb(var(--color-input-border) / <alpha-value>)",
       },
       maxWidth: {
         paragraph: "36rem",
@@ -169,6 +170,28 @@ export default {
         popover: "1300",
         menu: "1400",
         tooltip: "1500",
+      },
+      keyframes: {
+        expand: {
+          from: {
+            height: "0",
+          },
+          to: {
+            height: "auto",
+          },
+        },
+        collapse: {
+          from: {
+            height: "auto",
+          },
+          to: {
+            height: "0",
+          },
+        },
+      },
+      animation: {
+        expand: "expand 0.2s cubic-bezier(0.87, 0, 0.13, 1)",
+        collapse: "collapse 0.2s cubic-bezier(0.87, 0, 0.13, 1)",
       },
     },
   },

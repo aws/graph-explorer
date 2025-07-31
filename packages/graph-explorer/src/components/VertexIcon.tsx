@@ -1,6 +1,7 @@
 import { DisplayVertexStyle, fade } from "@/core";
 import SVG from "react-inlinesvg";
 import { cn } from "@/utils";
+import { SearchResultSymbol } from "./SearchResult";
 
 interface Props {
   vertexStyle: DisplayVertexStyle;
@@ -35,17 +36,14 @@ export function VertexSymbol({
   className?: string;
 }) {
   return (
-    <div
-      className={cn(
-        "text-primary-main bg-primary-main/20 grid size-[36px] shrink-0 place-content-center rounded-full p-2 text-[2em]",
-        className
-      )}
+    <SearchResultSymbol
+      className={cn("text-primary-main bg-primary-main/20", className)}
       style={{
         background: fade(vertexStyle.color, 0.2),
       }}
     >
       <VertexIcon vertexStyle={vertexStyle} className="size-full" />
-    </div>
+    </SearchResultSymbol>
   );
 }
 

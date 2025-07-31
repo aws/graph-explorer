@@ -12,6 +12,7 @@ describe("mapResults", () => {
 
     expect(result.vertices).toHaveLength(0);
     expect(result.edges).toHaveLength(0);
+    expect(result.scalars).toHaveLength(0);
   });
 
   it("should map vertex value", () => {
@@ -26,6 +27,8 @@ describe("mapResults", () => {
 
     expect(result.vertices).toHaveLength(1);
     expect(result.vertices[0]).toEqual(vertex);
+    expect(result.edges).toHaveLength(0);
+    expect(result.scalars).toHaveLength(0);
   });
 
   it("should map edge value", () => {
@@ -47,6 +50,7 @@ describe("mapResults", () => {
       targetTypes: [],
     } satisfies Edge);
     expect(result.vertices).toHaveLength(2);
+    expect(result.scalars).toHaveLength(0);
   });
 
   it("should map scalar value", () => {
@@ -64,10 +68,20 @@ describe("mapResults", () => {
     });
 
     expect(result.scalars).toHaveLength(4);
-    expect(result.scalars[0]).toEqual(createScalar(expectedValue));
-    expect(result.scalars[1]).toEqual(createScalar("total"));
-    expect(result.scalars[2]).toEqual(createScalar(expectedValue));
-    expect(result.scalars[3]).toEqual(createScalar(null));
+    expect(result.scalars[0]).toEqual(
+      createScalar({ value: expectedValue, name: "total" })
+    );
+    expect(result.scalars[1]).toEqual(
+      createScalar({ value: "total", name: "name" })
+    );
+    expect(result.scalars[2]).toEqual(
+      createScalar({ value: expectedValue, name: "list" })
+    );
+    expect(result.scalars[3]).toEqual(
+      createScalar({ value: null, name: "nullValue" })
+    );
+    expect(result.vertices).toHaveLength(0);
+    expect(result.edges).toHaveLength(0);
   });
 
   it("should map vertex in array", () => {
@@ -82,6 +96,8 @@ describe("mapResults", () => {
 
     expect(result.vertices).toHaveLength(1);
     expect(result.vertices[0]).toEqual(vertex);
+    expect(result.edges).toHaveLength(0);
+    expect(result.scalars).toHaveLength(0);
   });
 
   it("should map edge in array", () => {
@@ -116,7 +132,9 @@ describe("mapResults", () => {
     });
 
     expect(result.scalars).toHaveLength(1);
-    expect(result.scalars[0]).toEqual(createScalar(expectedValue));
+    expect(result.scalars[0]).toEqual(
+      createScalar({ value: expectedValue, name: "n" })
+    );
   });
 
   it("should map nested objects", () => {
@@ -247,7 +265,9 @@ describe("mapResults", () => {
     });
 
     expect(result.scalars).toHaveLength(1);
-    expect(result.scalars[0]).toEqual(createScalar(expectedValue));
+    expect(result.scalars[0]).toEqual(
+      createScalar({ value: expectedValue, name: "collect" })
+    );
   });
 
   it("should map collect with array of records", () => {
@@ -262,7 +282,83 @@ describe("mapResults", () => {
     });
 
     expect(result.scalars).toHaveLength(1);
-    expect(result.scalars[0]).toEqual(createScalar(expectedValue));
+    expect(result.scalars[0]).toEqual(
+      createScalar({ value: expectedValue, name: "values" })
+    );
+  });
+
+  it("should preserve scalar names from top-level keys", () => {
+    const result = mapResults({
+      results: [
+        {
+          count: 42,
+          message: "hello",
+          isActive: true,
+          data: null,
+        },
+      ],
+    });
+
+    expect(result.scalars).toHaveLength(4);
+    expect(result.scalars[0]).toEqual(
+      createScalar({ value: 42, name: "count" })
+    );
+    expect(result.scalars[1]).toEqual(
+      createScalar({ value: "hello", name: "message" })
+    );
+    expect(result.scalars[2]).toEqual(
+      createScalar({ value: true, name: "isActive" })
+    );
+    expect(result.scalars[3]).toEqual(
+      createScalar({ value: null, name: "data" })
+    );
+  });
+
+  it("should preserve names for scalars in nested objects", () => {
+    const result = mapResults({
+      results: [
+        {
+          user: {
+            name: "John",
+            age: 30,
+          },
+        },
+      ],
+    });
+
+    expect(result.scalars).toHaveLength(2);
+    expect(result.scalars[0]).toEqual(
+      createScalar({ value: "John", name: "name" })
+    );
+    expect(result.scalars[1]).toEqual(createScalar({ value: 30, name: "age" }));
+  });
+
+  it("should preserve names for scalars in arrays", () => {
+    const result = mapResults({
+      results: [
+        {
+          numbers: [1, 2, 3],
+          strings: ["a", "b"],
+        },
+      ],
+    });
+
+    expect(result.scalars).toHaveLength(5);
+    expect(result.scalars[0]).toEqual(
+      createScalar({ value: 1, name: "numbers" })
+    );
+    expect(result.scalars[1]).toEqual(
+      createScalar({ value: 2, name: "numbers" })
+    );
+    expect(result.scalars[2]).toEqual(
+      createScalar({ value: 3, name: "numbers" })
+    );
+    expect(result.scalars[3]).toEqual(
+      createScalar({ value: "a", name: "strings" })
+    );
+    expect(result.scalars[4]).toEqual(
+      createScalar({ value: "b", name: "strings" })
+    );
   });
 });
 

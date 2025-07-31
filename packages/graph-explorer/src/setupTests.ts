@@ -10,6 +10,26 @@ import localforage from "localforage";
 
 expect.extend(matchers);
 
+// Set the test environment timezone & locale so it is consistent across machines
+const defaultLocale = "en-US";
+process.env.TZ = "UTC";
+process.env.LC_ALL = `${defaultLocale}.UTF-8`;
+process.env.LANG = `${defaultLocale}.UTF-8`;
+process.env.LANGUAGE = defaultLocale;
+
+// Also mock Intl to ensure consistency
+const originalIntl = global.Intl;
+
+vi.stubGlobal("Intl", {
+  ...originalIntl,
+  NumberFormat: function (locale = defaultLocale, options) {
+    return new originalIntl.NumberFormat(locale, options);
+  } as typeof originalIntl.NumberFormat,
+  DateTimeFormat: function (locale = defaultLocale, options) {
+    return new originalIntl.DateTimeFormat(locale, options);
+  } as typeof originalIntl.DateTimeFormat,
+});
+
 afterEach(() => {
   cleanup();
   vi.unstubAllEnvs();

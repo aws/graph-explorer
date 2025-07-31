@@ -1,3 +1,4 @@
+import { formatDate, MISSING_DISPLAY_VALUE } from "@/utils";
 import { EntityPropertyValue } from "./shared";
 
 type ScalarTypedValue =
@@ -9,12 +10,20 @@ type ScalarTypedValue =
 
 export type Scalar = {
   entityType: "scalar";
+  name?: string;
 } & ScalarTypedValue;
 
 /** Constructs a Scalar instance from the given values. */
-export function createScalar(value: EntityPropertyValue | Date | null): Scalar {
+export function createScalar({
+  value,
+  name,
+}: {
+  value: EntityPropertyValue | Date | null;
+  name?: string;
+}): Scalar {
   return {
     entityType: "scalar" as const,
+    name,
     ...createTypedValue(value),
   };
 }
@@ -34,5 +43,20 @@ function createTypedValue(
     return { type: "boolean" as const, value };
   } else {
     return { type: "string" as const, value: String(value) };
+  }
+}
+
+export function getDisplayValueForScalar(scalar: Scalar) {
+  switch (scalar.type) {
+    case "string":
+      return scalar.value;
+    case "number":
+      return new Intl.NumberFormat().format(scalar.value);
+    case "boolean":
+      return String(scalar.value);
+    case "date":
+      return formatDate(scalar.value);
+    case "null":
+      return MISSING_DISPLAY_VALUE;
   }
 }

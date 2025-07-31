@@ -1,8 +1,15 @@
 import { Edge, useDisplayEdgeFromEdge } from "@/core";
 import {
   ButtonProps,
+  CollapsibleContent,
+  CollapsibleTrigger,
   EdgeRow,
   IconButton,
+  SearchResultAttribute,
+  SearchResultAttributeName,
+  SearchResultAttributeValue,
+  SearchResultCollapsible,
+  SearchResultExpandChevron,
   Spinner,
   stopPropagation,
 } from "@/components";
@@ -12,18 +19,15 @@ import {
   useHasEdgeBeenAddedToGraph,
   useRemoveEdgeFromGraph,
 } from "@/hooks";
-import { cn } from "@/utils";
-import {
-  ChevronRightIcon,
-  MinusCircleIcon,
-  PlusCircleIcon,
-} from "lucide-react";
-import { useState } from "react";
-import EntityAttribute from "../EntityDetails/EntityAttribute";
+import { MinusCircleIcon, PlusCircleIcon } from "lucide-react";
 
-export function EdgeSearchResult({ edge }: { edge: Edge }) {
-  const [expanded, setExpanded] = useState(false);
-
+export function EdgeSearchResult({
+  edge,
+  level = 0,
+}: {
+  edge: Edge;
+  level?: number;
+}) {
   const displayEdge = useDisplayEdgeFromEdge(edge);
 
   // Get the display vertices
@@ -37,39 +41,39 @@ export function EdgeSearchResult({ edge }: { edge: Edge }) {
   );
 
   return (
-    <div
-      className={cn(
-        "bg-background-default group w-full overflow-hidden transition-all"
-      )}
-      data-expanded={expanded}
-    >
-      <div
-        onClick={() => setExpanded(e => !e)}
-        className="group-data-[expanded=true]:border-background-secondary group flex w-full flex-row items-center gap-2 p-3 text-left ring-0 hover:cursor-pointer"
-      >
-        <div>
-          <ChevronRightIcon className="text-primary-dark/50 size-5 transition-transform duration-200 ease-in-out group-data-[expanded=true]:rotate-90" />
+    <SearchResultCollapsible level={level}>
+      <CollapsibleTrigger asChild>
+        <div
+          role="button"
+          className="flex w-full flex-row items-center gap-2 p-3 text-left hover:cursor-pointer"
+        >
+          <SearchResultExpandChevron />
+          <EdgeRow
+            edge={displayEdge}
+            source={source}
+            target={target}
+            className="grow"
+          />
+          <AddOrRemoveButton edge={edge} />
         </div>
-        <EdgeRow
-          edge={displayEdge}
-          source={source}
-          target={target}
-          className="grow"
-        />
-        <AddOrRemoveButton edge={edge} />
-      </div>
-      <div className="border-border pl-8 transition-all group-data-[expanded=false]:h-0 group-data-[expanded=true]:h-auto group-data-[expanded=true]:border-t">
-        <ul className="divide-y divide-gray-200">
+      </CollapsibleTrigger>
+      <CollapsibleContent>
+        <ul className="space-y-3 p-3">
           {displayEdge.attributes.map(attr => (
-            <EntityAttribute
-              key={attr.name}
-              attribute={attr}
-              className="px-3 py-2"
-            />
+            <li key={attr.name} className="w-full">
+              <SearchResultAttribute>
+                <SearchResultAttributeName>
+                  {attr.name}
+                </SearchResultAttributeName>
+                <SearchResultAttributeValue>
+                  {attr.displayValue}
+                </SearchResultAttributeValue>
+              </SearchResultAttribute>
+            </li>
           ))}
         </ul>
-      </div>
-    </div>
+      </CollapsibleContent>
+    </SearchResultCollapsible>
   );
 }
 

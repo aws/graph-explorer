@@ -9,6 +9,7 @@ import {
   GMap,
   GProperty,
   GScalar,
+  GType,
   GVertex,
   GVertexProperty,
 } from "@/connector/gremlin/types";
@@ -221,5 +222,12 @@ export function createGDate(value: Date): GDate {
   return {
     "@type": "g:Date",
     "@value": value.getTime(),
+  };
+}
+
+export function createGType(name: string): GType {
+  return {
+    "@type": "g:T" as const,
+    "@value": name,
   };
 }

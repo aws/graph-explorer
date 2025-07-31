@@ -3,9 +3,9 @@ import { z } from "zod";
 import { fromError } from "zod-validation-error";
 import mapApiVertex from "./mapApiVertex";
 import mapApiEdge from "./mapApiEdge";
-import { MapValueResult, mapValuesToQueryResults } from "@/connector/mapping";
+import { mapValuesToQueryResults } from "@/connector/mapping";
 import { OCEdge, OCVertex } from "../types";
-import { createScalar } from "@/core";
+import { createScalar, Entity } from "@/core";
 
 const cypherScalarValueSchema = z.union([
   z.number(),
@@ -71,27 +71,30 @@ export function parseResults(data: unknown) {
  */
 export function mapResults(data: unknown) {
   const results = parseResults(data);
-  const values = results.flatMap(mapValue);
+  const values = results.flatMap(result =>
+    Object.entries(result).flatMap(([key, value]) => mapValue(value, key))
+  );
   return mapValuesToQueryResults(values);
 }
 
 /**
  * Recursively maps a value from the OpenCypher query to the expected format
  * @param value The value to map
+ * @param name The name/key for the value (used for scalar naming)
  * @returns The mapped value
  */
-function mapValue(value: CypherValue): MapValueResult[] {
+function mapValue(value: CypherValue, name?: string): Entity[] {
   if (
     value === null ||
     typeof value === "number" ||
     typeof value === "string" ||
     typeof value === "boolean"
   ) {
-    return [createScalar(value)];
+    return [createScalar({ value, name })];
   }
 
   if (Array.isArray(value)) {
-    return value.flatMap(mapValue);
+    return value.flatMap(v => mapValue(v, name));
   }
 
   // Map record types
@@ -105,7 +108,9 @@ function mapValue(value: CypherValue): MapValueResult[] {
       edge.__isFragment = true;
       return [edge];
     }
-    return Object.values(value).flatMap(mapValue);
+    return Object.entries(value).flatMap(([key, value]) =>
+      mapValue(value, key)
+    );
   }
 
   // Unsupported type

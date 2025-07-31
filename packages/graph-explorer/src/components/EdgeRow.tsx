@@ -2,6 +2,7 @@ import { DisplayEdge, DisplayVertex } from "@/core";
 import { ComponentPropsWithoutRef } from "react";
 import { EdgeSymbol } from "./EdgeSymbol";
 import { cn } from "@/utils";
+import { SearchResultSubtitle, SearchResultTitle } from "./SearchResult";
 
 /**
  * Visually represents an edge from the graph database.
@@ -29,12 +30,12 @@ export function EdgeRow({
       className={cn("flex flex-row items-center gap-3", className)}
       {...props}
     >
-      <EdgeSymbol className="size-11 p-[8px]" />
-      <div className="inline-block text-pretty text-base leading-snug [word-break:break-word]">
-        <div className="line-clamp-3 font-bold">{title}</div>
-        <div className="text-text-secondary/90 line-clamp-3">
+      <EdgeSymbol />
+      <div>
+        <SearchResultTitle>{title}</SearchResultTitle>
+        <SearchResultSubtitle>
           {source.displayName}&nbsp;&rarr; {target.displayName}
-        </div>
+        </SearchResultSubtitle>
       </div>
     </div>
   );

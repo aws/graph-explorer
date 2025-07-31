@@ -7,7 +7,6 @@ import {
   Vertex,
   VertexId,
   NormalizedConnection,
-  EntityPropertyValue,
   Scalar,
 } from "@/core";
 
@@ -71,8 +70,6 @@ export type Criterion = {
    */
   dataType?: "String" | "Number" | "Date";
 };
-
-export type ScalarValue = EntityPropertyValue | Date;
 
 /**
  * Results from any query.

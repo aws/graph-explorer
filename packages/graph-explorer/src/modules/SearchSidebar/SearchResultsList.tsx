@@ -39,12 +39,10 @@ export function SearchResultsList(results: MappedQueryResults) {
 
   return (
     <>
-      <div className="bg-background-contrast/35 flex grow flex-col p-3">
-        <ul className="border-divider divide-border flex flex-col divide-y overflow-hidden rounded-xl border shadow">
+      <div className="grow p-3">
+        <ul className="flex flex-col space-y-4">
           {currentPageRows.map(row => (
-            <li key={row.key} className="content-auto intrinsic-size-16">
-              {row.render()}
-            </li>
+            <li key={row.key}>{row.render()}</li>
           ))}
         </ul>
       </div>
@@ -107,10 +105,6 @@ function ResultCounts({ results }: { results: MappedQueryResults }) {
 
 /** Create a list of functions that render a row for each result type */
 function createRows({ vertices, edges, scalars }: MappedQueryResults) {
-  // When true, the scalar value will render with extra space on the left to
-  // align with the node and edge results properly
-  const resultsHaveExpandableRows = vertices.length + edges.length > 0;
-
   return vertices
     .map(entity => ({
       key: `node:${entity.type}:${entity.id}`,
@@ -125,12 +119,7 @@ function createRows({ vertices, edges, scalars }: MappedQueryResults) {
     .concat(
       scalars.map((entity, index) => ({
         key: `scalar:${String(entity.value)}:${index}`,
-        render: () => (
-          <ScalarSearchResult
-            scalar={entity}
-            resultsHaveExpandableRows={resultsHaveExpandableRows}
-          />
-        ),
+        render: () => <ScalarSearchResult scalar={entity} />,
       }))
     );
 }
