@@ -40,11 +40,9 @@ export function SearchResultsList(results: MappedQueryResults) {
   return (
     <>
       <div className="grow p-3">
-        <ul className="flex flex-col space-y-4 overflow-hidden">
+        <ul className="flex flex-col space-y-4">
           {currentPageRows.map(row => (
-            <li key={row.key} className="content-auto intrinsic-size-16">
-              {row.render()}
-            </li>
+            <li key={row.key}>{row.render()}</li>
           ))}
         </ul>
       </div>
