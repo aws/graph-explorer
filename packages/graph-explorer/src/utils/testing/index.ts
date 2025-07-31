@@ -9,3 +9,4 @@ export * from "./randomSchemaResponse";
 export * from "./renderHookWithJotai";
 export * from "./sparqlHelpers";
 export * from "./waitForValueToChange";
+export * from "./createCancelledError";
