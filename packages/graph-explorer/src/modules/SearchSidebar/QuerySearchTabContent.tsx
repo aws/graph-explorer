@@ -13,32 +13,17 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components";
-import {
-  fetchEntityDetails,
-  useExplorer,
-  useQueryEngine,
-  useUpdateSchemaFromEntities,
-} from "@/core";
-import {
-  useMutation,
-  useMutationState,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useQueryEngine, useUpdateSchemaFromEntities } from "@/core";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ListIcon, SendHorizonalIcon } from "lucide-react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { logger } from "@/utils";
-import { useAtom } from "jotai";
+import { isCancellationError, logger } from "@/utils";
+import { useAtom, useAtomValue } from "jotai";
 import { SearchResultsList } from "./SearchResultsList";
 import { atomWithReset } from "jotai/utils";
-import {
-  MappedQueryResults,
-  toMappedQueryResults,
-  updateEdgeDetailsCache,
-  updateVertexDetailsCache,
-} from "@/connector";
-import { useRef } from "react";
+import { executeQuery } from "@/connector";
 
 const formDataSchema = z.object({
   query: z.string().default(""),
@@ -56,7 +41,7 @@ export const queryTextAtom = atomWithReset("");
 
 export function QuerySearchTabContent() {
   const [queryText, setQueryText] = useAtom(queryTextAtom);
-  const { executeQuery, cancel } = useRawQueryMutation();
+  const { submitQuery, cancel } = useExecuteQuery();
   const queryEngine = useQueryEngine();
 
   const form = useForm({
@@ -70,7 +55,15 @@ export function QuerySearchTabContent() {
   const onSubmit = async (data: FormData) => {
     logger.debug("Executing query:", data);
     setQueryText(data.query);
-    await executeQuery(data.query);
+    try {
+      await submitQuery(data.query);
+    } catch (error) {
+      if (isCancellationError(error)) {
+        logger.debug("Query execution was cancelled, ignoring the error");
+        return;
+      }
+      logger.error("Failed to execute query", { query: data.query, error });
+    }
   };
 
   // Submit the form when the user presses cmd+enter or ctrl+enter
@@ -143,21 +136,12 @@ export function QuerySearchTabContent() {
         </form>
       </Form>
 
-      <SearchResultsListContainer
-        cancel={cancel}
-        retry={() => executeQuery(queryText)}
-      />
+      <SearchResultsListContainer cancel={cancel} />
     </div>
   );
 }
 
-function SearchResultsListContainer({
-  cancel,
-  retry,
-}: {
-  cancel: () => void;
-  retry: () => void;
-}) {
+function SearchResultsListContainer({ cancel }: { cancel: () => void }) {
   /*
    * DEV NOTE: This is a bit hacky. We use the mutation key to retrieve the
    * cached results of all mutations that have run before. The last one is the
@@ -167,37 +151,30 @@ function SearchResultsListContainer({
    * and re-mounted. For example if the user switches sidebar tabs or closes the
    * sidebar.
    */
-  const { mutationKey } = useRawQueryMutation();
-  const mutations = useMutationState({
-    filters: {
-      mutationKey,
-    },
-  });
-  // Gets the last mutation from the array
-  const mutation = mutations.at(-1);
+  const queryText = useAtomValue(queryTextAtom);
+  const updateSchema = useUpdateSchemaFromEntities();
 
-  // Empty state
-  if (!mutation) {
-    return <QueryTabEmptyState />;
-  }
+  // This query is disabled and can only be fired manually
+  const query = useQuery(executeQuery(queryText, updateSchema));
 
   // Loading
-  if (mutation.status === "pending") {
+  if (query.isLoading) {
     return <QueryTabLoading cancel={cancel} />;
   }
 
-  // Error
-  if (mutation.status === "error" && !mutation.data && mutation.error) {
-    // Cancellation should lead to empty state
-    if (mutation.error.name === "AbortError") {
-      return <QueryTabEmptyState />;
-    }
+  // Error (other than cancellation)
+  if (query.isError && !isCancellationError(query.error)) {
     return (
-      <PanelError error={mutation.error} onRetry={retry} className="p-8" />
+      <PanelError error={query.error} onRetry={query.refetch} className="p-8" />
     );
   }
 
-  const mappedResults = mutation.data as MappedQueryResults;
+  // Empty state
+  if (!query.data) {
+    return <QueryTabEmptyState />;
+  }
+
+  const mappedResults = query.data;
 
   // No results
   if (
@@ -245,72 +222,24 @@ function QueryTabNoResults() {
   );
 }
 
-/**
- * Execute raw queries against the database using a mutation.
- *
- * This is implemented as a mutation to prevent accidental duplicate query
- * execution due to React re-renders or cache miss. This is important because
- * mutations can be executed and if they are executed more than once, could lead
- * to undesirable outcomes.
- */
-function useRawQueryMutation() {
-  const explorer = useExplorer();
+function useExecuteQuery() {
   const queryClient = useQueryClient();
   const updateSchema = useUpdateSchemaFromEntities();
 
-  const abortControllerRef = useRef<AbortController | null>(null);
-
-  /** Cancels the active request */
+  /** Cancels the active query request */
   const cancel = () => {
     logger.debug("Cancelling query");
-    abortControllerRef.current?.abort();
+    queryClient
+      .cancelQueries({ queryKey: ["execute"] })
+      .catch(err => logger.error("Failed to cancel query", err));
   };
 
-  // This key ensures we can access the cached results
-  const mutationKey = ["db", "raw-query", explorer];
-  const mutation = useMutation({
-    mutationKey: mutationKey,
-    gcTime: Infinity,
-    scope: { id: "raw-query" },
-    mutationFn: async (query: string) => {
-      // Create the abort controller and assign to the ref so the request can be cancelled
-      const abortController = new AbortController();
-      abortControllerRef.current = abortController;
+  // Execute the query, ignoring any cached values
+  const submitQuery = (query: string) =>
+    queryClient.fetchQuery({
+      ...executeQuery(query, updateSchema),
+      staleTime: 0,
+    });
 
-      const results = await explorer.rawQuery(
-        { query },
-        { signal: abortController.signal }
-      );
-
-      // Update the schema and the cache
-      updateVertexDetailsCache(queryClient, results.vertices);
-      updateEdgeDetailsCache(queryClient, results.edges);
-
-      // Fetch any details for fragments
-      const details = await fetchEntityDetails(
-        results.vertices.map(v => v.id),
-        results.edges.map(e => e.id),
-        queryClient
-      );
-
-      // Recombine results with full details
-      const combinedResults = toMappedQueryResults({
-        ...results,
-        vertices: details.entities.vertices,
-        edges: details.entities.edges,
-      });
-
-      updateSchema(combinedResults);
-
-      return combinedResults;
-    },
-  });
-
-  const executeQuery = (query: string) => mutation.mutateAsync(query);
-
-  return {
-    executeQuery,
-    cancel,
-    mutationKey,
-  };
+  return { cancel, submitQuery };
 }
