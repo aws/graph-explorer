@@ -15,7 +15,11 @@ import { Edge, Vertex } from "@/core";
 import { useState } from "react";
 import { cn } from "@/utils";
 
-export function SearchResultsList(results: MappedQueryResults) {
+export function SearchResultsList({
+  results,
+}: {
+  results: MappedQueryResults;
+}) {
   // Hard coding the page size for now. Only trying to improve rendering
   // performance for large results.
   const pageSize = 100;

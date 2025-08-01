@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { createDisplayError } from "./createDisplayError";
 import { NetworkError } from "./NetworkError";
+import { createCancelledError } from "./testing";
 
 const defaultResult = {
   title: "Something went wrong",
@@ -66,11 +67,25 @@ describe("createDisplayError", () => {
     });
   });
 
-  it("Should handle AbortError", () => {
-    const result = createDisplayError(new FakeError("AbortError", "Aborted"));
+  it("should handle cancelled error", async () => {
+    const error = await createCancelledError();
+    const result = createDisplayError(error);
     expect(result).toStrictEqual({
       title: "Request cancelled",
-      message: "The request exceeded the configured timeout length.",
+      message:
+        "The request exceeded the configured timeout length or was cancelled by the user.",
+    });
+  });
+
+  it("Should handle AbortError", () => {
+    const controller = new AbortController();
+    controller.abort();
+    const error = controller.signal.reason;
+    const result = createDisplayError(error);
+    expect(result).toStrictEqual({
+      title: "Request cancelled",
+      message:
+        "The request exceeded the configured timeout length or was cancelled by the user.",
     });
   });
 

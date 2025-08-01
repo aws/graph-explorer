@@ -1,5 +1,6 @@
 import { ZodError } from "zod";
 import { NetworkError } from "./NetworkError";
+import { isCancellationError } from "./isCancellationError";
 
 export type DisplayError = {
   title: string;
@@ -74,14 +75,17 @@ export function createDisplayError(error: any): DisplayError {
     }
   }
 
+  // Cancellation errors
+  if (isCancellationError(error)) {
+    return {
+      title: "Request cancelled",
+      message:
+        "The request exceeded the configured timeout length or was cancelled by the user.",
+    };
+  }
+
   if (error instanceof Error) {
     // Fetch timeout
-    if (error.name === "AbortError") {
-      return {
-        title: "Request cancelled",
-        message: "The request exceeded the configured timeout length.",
-      };
-    }
     if (error.name === "TimeoutError") {
       return {
         title: "Fetch Timeout Exceeded",
