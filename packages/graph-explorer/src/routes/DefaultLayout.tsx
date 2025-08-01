@@ -1,4 +1,3 @@
-import { type PropsWithChildren } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { NotificationProvider } from "@/components/NotificationProvider";
 import Toast from "@/components/Toast";
@@ -8,13 +7,18 @@ import { ThemeProvider } from "@/core/ThemeProvider";
 import { ErrorBoundary } from "react-error-boundary";
 import AppErrorPage from "@/core/AppErrorPage";
 import { TooltipProvider } from "@/components";
-import { createQueryClient } from "../queryClient";
+import { createQueryClient } from "../core/queryClient";
 import { emptyExplorer } from "@/connector/emptyExplorer";
-import { ExplorerInjector } from "../ExplorerInjector";
+import { ExplorerInjector } from "../core/ExplorerInjector";
+import { Outlet } from "react-router";
 
 const queryClient = createQueryClient({ explorer: emptyExplorer });
 
-export default function ConnectedProvider({ children }: PropsWithChildren) {
+/**
+ * The default layout for the app, which sets up the query client, a global
+ * error boundary, and other app wide services.
+ */
+export default function DefaultLayout() {
   return (
     <ErrorBoundary FallbackComponent={AppErrorPage}>
       <QueryClientProvider client={queryClient}>
@@ -23,7 +27,9 @@ export default function ConnectedProvider({ children }: PropsWithChildren) {
           <ThemeProvider>
             <NotificationProvider component={Toast}>
               <StateProvider>
-                <AppStatusLoader>{children}</AppStatusLoader>
+                <AppStatusLoader>
+                  <Outlet />
+                </AppStatusLoader>
               </StateProvider>
             </NotificationProvider>
           </ThemeProvider>
