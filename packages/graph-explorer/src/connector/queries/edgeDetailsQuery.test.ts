@@ -1,0 +1,37 @@
+import {
+  createRandomEdge,
+  createRandomEdgeId,
+  createRandomVertex,
+  FakeExplorer,
+} from "@/utils/testing";
+import { edgeDetailsQuery } from "./edgeDetailsQuery";
+import { createQueryClient } from "@/core/queryClient";
+
+describe("edgeDetailsQuery", () => {
+  it("should return null when edge is not found", async () => {
+    const explorer = new FakeExplorer();
+    const edgeDetailsSpy = vi.spyOn(explorer, "edgeDetails");
+    const queryClient = createQueryClient({ explorer });
+
+    const result = await queryClient.fetchQuery(
+      edgeDetailsQuery(createRandomEdgeId())
+    );
+
+    expect(result.edge).toBeNull();
+    expect(edgeDetailsSpy).toBeCalledTimes(1);
+  });
+
+  it("should fetch details for input", async () => {
+    const explorer = new FakeExplorer();
+    const edgeDetailsSpy = vi.spyOn(explorer, "edgeDetails");
+    const queryClient = createQueryClient({ explorer });
+
+    const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
+    explorer.addEdge(edge);
+
+    const result = await queryClient.fetchQuery(edgeDetailsQuery(edge.id));
+
+    expect(result.edge).toEqual(edge);
+    expect(edgeDetailsSpy).toBeCalledTimes(1);
+  });
+});
