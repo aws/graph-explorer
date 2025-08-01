@@ -3,14 +3,14 @@ import {
   KeywordSearchRequest,
   NeighborCount,
   SchemaResponse,
-} from "./useGEFetchTypes";
+} from "../useGEFetchTypes";
 import { Edge, EdgeId, Vertex, VertexId } from "@/core";
 import {
   UpdateSchemaHandler,
   updateSchemaPrefixes,
 } from "@/core/StateProvider/schema";
 import { DEFAULT_BATCH_REQUEST_SIZE, logger } from "@/utils";
-import { emptyExplorer } from "./emptyExplorer";
+import { emptyExplorer } from "../emptyExplorer";
 import { GraphExplorerMeta } from "@/core/queryClient";
 import { chunk } from "lodash";
 

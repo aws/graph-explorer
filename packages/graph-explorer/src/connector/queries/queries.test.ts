@@ -13,7 +13,7 @@ import {
   neighborsCountQuery,
   vertexDetailsQuery,
 } from "./queries";
-import { NeighborCount } from "./useGEFetchTypes";
+import { NeighborCount } from "../useGEFetchTypes";
 import { createQueryClient } from "@/core/queryClient";
 import { createArray } from "@shared/utils/testing";
 import { DEFAULT_BATCH_REQUEST_SIZE } from "@/utils";
