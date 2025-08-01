@@ -162,5 +162,5 @@ function SearchResultsListContainer({
     );
   }
 
-  return <SearchResultsList {...query.data} />;
+  return <SearchResultsList results={query.data} />;
 }

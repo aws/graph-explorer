@@ -1,9 +1,22 @@
+import { UpdateSchemaHandler, fetchEntityDetails } from "@/core";
+import { keepPreviousData, queryOptions } from "@tanstack/react-query";
+import { updateVertexDetailsCache, updateEdgeDetailsCache } from "../queries";
+import { toMappedQueryResults } from "../useGEFetchTypes";
+import { getExplorer } from "./helpers";
+
 export function executeQuery(query: string, updateSchema: UpdateSchemaHandler) {
   return queryOptions({
-    queryKey: ["execute", query],
+    /*
+     * DEV NOTE:
+     * I'm intentionally leaving the query string out of the query key. This ensures the same cache entry is replaced when a new `fetchQuery` is executed.
+     */
+    // eslint-disable-next-line @tanstack/query/exhaustive-deps
+    queryKey: ["execute"],
     enabled: false,
+    // Don't mark cached values as stale
     staleTime: Infinity,
-    gcTime: Infinity,
+    // Keep the query results around for 5 minutes if the user happens to be on another tab
+    gcTime: 1000 /* ms */ * 60 /* sec */ * 5 /* min */,
     queryFn: async ({ signal, meta, client }) => {
       const explorer = getExplorer(meta);
       const results = await explorer.rawQuery({ query }, { signal });
