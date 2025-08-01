@@ -158,13 +158,15 @@ function SearchResultsListContainer({ cancel }: { cancel: () => void }) {
   const query = useQuery(executeQuery(queryText, updateSchema));
 
   // Loading
-  if (query.isLoading) {
+  if (query.isFetching) {
     return <QueryTabLoading cancel={cancel} />;
   }
 
-  // Error (other than cancellation)
-  if (query.isError && !isCancellationError(query.error)) {
-    return (
+  // Error
+  if (query.isError) {
+    return isCancellationError(query.error) ? (
+      <QueryTabEmptyState />
+    ) : (
       <PanelError error={query.error} onRetry={query.refetch} className="p-8" />
     );
   }
@@ -185,7 +187,7 @@ function SearchResultsListContainer({ cancel }: { cancel: () => void }) {
     return <QueryTabNoResults />;
   }
 
-  return <SearchResultsList {...mappedResults} />;
+  return <SearchResultsList results={mappedResults} />;
 }
 
 function QueryTabLoading({ cancel }: { cancel: () => void }) {
