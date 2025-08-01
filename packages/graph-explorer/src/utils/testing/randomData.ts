@@ -7,6 +7,7 @@ import {
   createNewConfigurationId,
   createVertex,
   createVertexId,
+  Edge,
   EdgeId,
   EdgePreferences,
   EdgeTypeConfig,
@@ -286,6 +287,15 @@ export function createRandomEdgeForRdf(source: Vertex, target: Vertex) {
       types: target.types,
     },
   });
+}
+
+/** Creates a copy of the provided vertex without any attributes and the `__isFragment` flag true. */
+export function makeFragment<T extends Vertex | Edge>(entity: T): T {
+  return {
+    ...entity,
+    attributes: {},
+    __isFragment: true,
+  };
 }
 
 /**
