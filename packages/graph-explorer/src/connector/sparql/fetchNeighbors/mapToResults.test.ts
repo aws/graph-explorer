@@ -15,13 +15,10 @@ describe("mapToResults", () => {
   });
   it("should map vertices to results", () => {
     const entities = createRandomEntitiesForRdf();
-    const bindings = createBindings(
-      entities.nodes.values().toArray(),
-      entities.edges.values().toArray()
-    );
+    const bindings = createBindings(entities.vertices, entities.edges);
     const result = mapToResults(bindings);
-    expect(result.vertices).toEqual(entities.nodes.values().toArray());
-    expect(result.edges).toEqual(entities.edges.values().toArray());
+    expect(result.vertices).toEqual(entities.vertices);
+    expect(result.edges).toEqual(entities.edges);
   });
   it("should map blank nodes to results", () => {
     const vertex = createRandomVertexForRdf();

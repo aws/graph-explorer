@@ -131,7 +131,7 @@ test("should add multiple nodes and edges", async () => {
   const dbState = new DbState(explorer);
 
   const randomEntities = createRandomEntities();
-  randomEntities.nodes.forEach(v => explorer.addVertex(v));
+  randomEntities.vertices.forEach(v => explorer.addVertex(v));
   randomEntities.edges.forEach(e => explorer.addEdge(e));
 
   const { result } = renderHookWithState(() => {
@@ -142,15 +142,10 @@ test("should add multiple nodes and edges", async () => {
     return { callback, vertices, edges };
   }, dbState);
 
-  await act(() =>
-    result.current.callback({
-      vertices: [...randomEntities.nodes.values()],
-      edges: [...randomEntities.edges.values()],
-    })
-  );
+  await act(() => result.current.callback(randomEntities));
 
   const actualNodes = result.current.vertices.values().toArray();
-  const expectedNodes = randomEntities.nodes.values().toArray();
+  const expectedNodes = randomEntities.vertices;
   expect(actualNodes).toEqual(expectedNodes);
 
   const actualEdges = result.current.edges.values().toArray();

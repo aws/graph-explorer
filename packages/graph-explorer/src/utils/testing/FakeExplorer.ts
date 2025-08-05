@@ -61,10 +61,7 @@ export class FakeExplorer implements Explorer {
       totalEdges: this.edges.length,
     };
     const schema = updateSchemaFromEntities(
-      {
-        nodes: toNodeMap(this.vertices),
-        edges: toEdgeMap(this.edges),
-      },
+      { vertices: this.vertices, edges: this.edges },
       initialSchema
     );
 

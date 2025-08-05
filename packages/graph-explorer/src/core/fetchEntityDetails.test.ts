@@ -120,10 +120,7 @@ describe("createCompletionNotification", () => {
 function createRandomFetchEntityDetailsResult(): FetchEntityDetailsResult {
   const entities = createRandomEntities();
   return {
-    entities: {
-      vertices: entities.nodes.values().toArray(),
-      edges: entities.edges.values().toArray(),
-    },
+    entities,
     counts: {
       notFound: {
         vertices: 0,

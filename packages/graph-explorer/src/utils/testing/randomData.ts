@@ -33,8 +33,6 @@ import {
   createRecord,
   randomlyUndefined,
 } from "@shared/utils/testing";
-import { toNodeMap } from "@/core/StateProvider/nodes";
-import { toEdgeMap } from "@/core/StateProvider/edges";
 import {
   NeptuneServiceType,
   neptuneServiceTypeOptions,
@@ -202,7 +200,7 @@ export function createRandomEntities(): Entities {
     createRandomEdge(nodes[2], nodes[0]),
     createRandomEdge(nodes[2], nodes[1]),
   ];
-  return { nodes: toNodeMap(nodes), edges: toEdgeMap(edges) };
+  return { vertices: nodes, edges: edges };
 }
 
 export function createRandomEntitiesForRdf(): Entities {
@@ -217,7 +215,7 @@ export function createRandomEntitiesForRdf(): Entities {
     createRandomEdgeForRdf(nodes[2], nodes[0]),
     createRandomEdgeForRdf(nodes[2], nodes[1]),
   ];
-  return { nodes: toNodeMap(nodes), edges: toEdgeMap(edges) };
+  return { vertices: nodes, edges: edges };
 }
 
 /** Creates a random vertex ID. */
@@ -352,8 +350,8 @@ export function createRandomVersion(): string {
 
 export function createRandomExportedGraph() {
   const entities = createRandomEntities();
-  const vertexIds = entities.nodes.keys().toArray();
-  const edgeIds = entities.edges.keys().toArray();
+  const vertexIds = entities.vertices.map(v => v.id);
+  const edgeIds = entities.edges.map(e => e.id);
   const connection = createRandomConnectionWithId();
   connection.queryEngine = pickRandomElement(
     queryEngineOptions.filter(e => e !== "sparql")
@@ -365,8 +363,8 @@ export function createRandomExportedGraph() {
 
 export function createRandomExportedGraphForRdf() {
   const entities = createRandomEntitiesForRdf();
-  const vertexIds = entities.nodes.keys().toArray();
-  const edgeIds = entities.edges.keys().toArray();
+  const vertexIds = entities.vertices.map(v => v.id);
+  const edgeIds = entities.edges.map(e => e.id);
   const connection = createRandomConnectionWithId();
   connection.queryEngine = "sparql";
   const result = createExportedGraph(vertexIds, edgeIds, connection);

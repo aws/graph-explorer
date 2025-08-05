@@ -6,14 +6,7 @@ import {
 } from "@/core/ConfigurationProvider";
 import { atomWithLocalForageAsync } from "./localForageEffect";
 import { activeConfigurationAtom } from "./configuration";
-import {
-  Edge,
-  Entities,
-  EntityProperties,
-  toEdgeMap,
-  toNodeMap,
-  Vertex,
-} from "@/core";
+import { Edge, Entities, EntityProperties, Vertex } from "@/core";
 import { logger } from "@/utils";
 import generatePrefixes from "@/utils/generatePrefixes";
 import { startTransition, useCallback } from "react";
@@ -72,21 +65,13 @@ export const activeSchemaSelector = atom(
   }
 );
 
-type SchemaEntities = Pick<Entities, "nodes" | "edges">;
-
 /** Updates the schema based on the given nodes and edges. */
 export function updateSchemaFromEntities(
-  entities: SchemaEntities,
+  entities: Entities,
   schema: SchemaInference
 ) {
-  const newVertexConfigs = entities.nodes
-    .values()
-    .map(extractConfigFromEntity)
-    .toArray();
-  const newEdgeConfigs = entities.edges
-    .values()
-    .map(extractConfigFromEntity)
-    .toArray();
+  const newVertexConfigs = entities.vertices.map(extractConfigFromEntity);
+  const newEdgeConfigs = entities.edges.map(extractConfigFromEntity);
 
   let newSchema = {
     ...schema,
@@ -212,7 +197,7 @@ function getResourceUris(schema: SchemaInference) {
 /** Updates the schema with any new vertex or edge types, any new attributes, and updates the generated prefixes for sparql connections. */
 export function useUpdateSchemaFromEntities() {
   return useAtomCallback(
-    useCallback((get, set, entities: { vertices: Vertex[]; edges: Edge[] }) => {
+    useCallback((get, set, entities: Entities) => {
       const activeSchema = get(activeSchemaSelector);
       if (entities.vertices.length === 0 && entities.edges.length === 0) {
         return;
@@ -230,13 +215,7 @@ export function useUpdateSchemaFromEntities() {
           if (!prev) {
             return prev;
           }
-          return updateSchemaFromEntities(
-            {
-              nodes: toNodeMap(entities.vertices),
-              edges: toEdgeMap(entities.edges),
-            },
-            prev
-          );
+          return updateSchemaFromEntities(entities, prev);
         });
       });
     }, [])
@@ -249,10 +228,7 @@ export type UpdateSchemaHandler = ReturnType<
 
 /** Attempts to efficiently detect if the schema should be updated. */
 export function shouldUpdateSchemaFromEntities(
-  entities: {
-    vertices: Vertex[];
-    edges: Edge[];
-  },
+  entities: Entities,
   schema: SchemaInference
 ) {
   if (entities.vertices.length > 0) {

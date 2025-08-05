@@ -11,8 +11,6 @@ import {
   updateSchemaPrefixes,
 } from "./schema";
 import { createArray, createRandomName } from "@shared/utils/testing";
-import { toNodeMap } from "./nodes";
-import { toEdgeMap } from "./edges";
 import { PrefixTypeConfig } from "../ConfigurationProvider";
 import { EntityProperties } from "../entities";
 
@@ -43,7 +41,7 @@ describe("schema", () => {
     it("should do nothing when no entities", () => {
       const originalSchema = createRandomSchema();
       const result = updateSchemaFromEntities(
-        { nodes: new Map(), edges: new Map() },
+        { vertices: [], edges: [] },
         originalSchema
       );
 
@@ -57,10 +55,7 @@ describe("schema", () => {
         createRandomEdge(createRandomVertex(), createRandomVertex())
       );
       const result = updateSchemaFromEntities(
-        {
-          nodes: toNodeMap(newNodes),
-          edges: toEdgeMap(newEdges),
-        },
+        { vertices: newNodes, edges: newEdges },
         originalSchema
       );
 
@@ -91,10 +86,7 @@ describe("schema", () => {
       const extractedEdgeConfig = extractConfigFromEntity(newEdge);
 
       const result = updateSchemaFromEntities(
-        {
-          nodes: toNodeMap([newNode]),
-          edges: toEdgeMap([newEdge]),
-        },
+        { vertices: [newNode], edges: [newEdge] },
         originalSchema
       );
 
@@ -126,10 +118,7 @@ describe("schema", () => {
       ).map(edge => ({ ...edge, type: "" }));
 
       const result = updateSchemaFromEntities(
-        {
-          nodes: toNodeMap(newNodes),
-          edges: toEdgeMap(newEdges),
-        },
+        { vertices: newNodes, edges: newEdges },
         originalSchema
       );
 
@@ -201,10 +190,7 @@ describe("schema", () => {
     it("should return true when entities are provided", () => {
       const entities = createRandomEntities();
       const result = shouldUpdateSchemaFromEntities(
-        {
-          vertices: entities.nodes.values().toArray(),
-          edges: entities.edges.values().toArray(),
-        },
+        entities,
         createRandomSchema()
       );
       expect(result).toBeTruthy();
