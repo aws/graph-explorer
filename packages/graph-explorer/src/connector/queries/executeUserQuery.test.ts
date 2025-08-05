@@ -5,7 +5,7 @@ import {
   FakeExplorer,
   makeFragment,
 } from "@/utils/testing";
-import { executeQuery } from "./executeQuery";
+import { executeUserQuery } from "./executeUserQuery";
 import { toMappedQueryResults } from "../useGEFetchTypes";
 import { createScalar } from "@/core";
 
@@ -22,7 +22,7 @@ describe("executeQuery", () => {
     const mockUpdateSchema = vi.fn();
 
     const result = await queryClient.fetchQuery(
-      executeQuery("query", mockUpdateSchema)
+      executeUserQuery("query", mockUpdateSchema)
     );
 
     expect(result).toEqual(toMappedQueryResults({}));
@@ -45,7 +45,7 @@ describe("executeQuery", () => {
     const mockUpdateSchema = vi.fn();
 
     const result = await queryClient.fetchQuery(
-      executeQuery("query", mockUpdateSchema)
+      executeUserQuery("query", mockUpdateSchema)
     );
 
     expect(result).toEqual(toMappedQueryResults({ vertices: [vertex] }));
@@ -71,7 +71,7 @@ describe("executeQuery", () => {
     const mockUpdateSchema = vi.fn();
 
     const result = await queryClient.fetchQuery(
-      executeQuery("query", mockUpdateSchema)
+      executeUserQuery("query", mockUpdateSchema)
     );
 
     expect(result).toEqual(toMappedQueryResults({ vertices: [vertex] }));
@@ -94,7 +94,7 @@ describe("executeQuery", () => {
     const mockUpdateSchema = vi.fn();
 
     const result = await queryClient.fetchQuery(
-      executeQuery("query", mockUpdateSchema)
+      executeUserQuery("query", mockUpdateSchema)
     );
 
     expect(result).toEqual(toMappedQueryResults({ edges: [edge] }));
@@ -120,7 +120,7 @@ describe("executeQuery", () => {
     const mockUpdateSchema = vi.fn();
 
     const result = await queryClient.fetchQuery(
-      executeQuery("query", mockUpdateSchema)
+      executeUserQuery("query", mockUpdateSchema)
     );
 
     expect(result).toEqual(toMappedQueryResults({ edges: [edge] }));
@@ -156,7 +156,7 @@ describe("executeQuery", () => {
     const mockUpdateSchema = vi.fn();
 
     const result = await queryClient.fetchQuery(
-      executeQuery("query", mockUpdateSchema)
+      executeUserQuery("query", mockUpdateSchema)
     );
 
     expect(result).toEqual(

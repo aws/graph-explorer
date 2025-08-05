@@ -7,7 +7,7 @@ export * from "./bulkVertexDetailsQuery";
 export * from "./bulkEdgeDetailsQuery";
 export * from "./vertexDetailsQuery";
 export * from "./edgeDetailsQuery";
-export * from "./executeQuery";
+export * from "./executeUserQuery";
 
 // Export helper functions that are used outside this folder
 export {

@@ -23,7 +23,7 @@ import { isCancellationError, logger } from "@/utils";
 import { useAtom, useAtomValue } from "jotai";
 import { SearchResultsList } from "./SearchResultsList";
 import { atomWithReset } from "jotai/utils";
-import { executeQuery } from "@/connector";
+import { executeUserQuery } from "@/connector";
 
 const formDataSchema = z.object({
   query: z.string().default(""),
@@ -155,7 +155,7 @@ function SearchResultsListContainer({ cancel }: { cancel: () => void }) {
   const updateSchema = useUpdateSchemaFromEntities();
 
   // This query is disabled and can only be fired manually
-  const query = useQuery(executeQuery(queryText, updateSchema));
+  const query = useQuery(executeUserQuery(queryText, updateSchema));
 
   // Loading
   if (query.isFetching) {
@@ -239,7 +239,7 @@ function useExecuteQuery() {
   // Execute the query, ignoring any cached values
   const submitQuery = (query: string) =>
     queryClient.fetchQuery({
-      ...executeQuery(query, updateSchema),
+      ...executeUserQuery(query, updateSchema),
       staleTime: 0,
     });
 
