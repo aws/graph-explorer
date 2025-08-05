@@ -1,5 +1,5 @@
 import { UpdateSchemaHandler, fetchEntityDetails } from "@/core";
-import { keepPreviousData, queryOptions } from "@tanstack/react-query";
+import { queryOptions } from "@tanstack/react-query";
 import { updateVertexDetailsCache, updateEdgeDetailsCache } from "../queries";
 import { toMappedQueryResults } from "../useGEFetchTypes";
 import { getExplorer } from "./helpers";
