@@ -8,7 +8,6 @@ import { OCEdge, OpenCypherFetch } from "./types";
 import { idParam } from "./idParam";
 import isErrorResponse from "@/connector/utils/isErrorResponse";
 import mapApiEdge from "./mappers/mapApiEdge";
-import { mapValuesToQueryResults } from "../mapping";
 
 type Response = {
   results: [
@@ -46,11 +45,9 @@ export async function edgeDetails(
     throw new Error(data.detailedMessage);
   }
 
-  const edges = mapValuesToQueryResults(
-    data.results.map(result =>
-      mapApiEdge(result.edge, result.sourceLabels, result.targetLabels)
-    )
-  ).edges;
+  const edges = data.results.map(result =>
+    mapApiEdge(result.edge, result.sourceLabels, result.targetLabels)
+  );
 
   // Log a warning if some edges are missing
   const missing = new Set(request.edgeIds).difference(

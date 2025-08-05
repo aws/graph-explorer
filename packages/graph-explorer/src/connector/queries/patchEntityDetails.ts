@@ -10,6 +10,7 @@ import {
   getAllGraphableEntities,
 } from "@/core";
 import { QueryClient } from "@tanstack/react-query";
+import { updateEdgeDetailsCache, updateVertexDetailsCache } from "./helpers";
 
 export async function patchEntityDetails(
   client: QueryClient,
@@ -17,6 +18,12 @@ export async function patchEntityDetails(
 ): Promise<Entity[]> {
   // Extract all vertices and fetch their details
   const { vertices, edges } = getAllGraphableEntities(entities);
+
+  // Update the cache with any already materialized entities
+  updateVertexDetailsCache(client, vertices);
+  updateEdgeDetailsCache(client, edges);
+
+  // Fetch details for fragments
   const details = await fetchEntityDetails(
     vertices.map(v => v.id),
     edges.map(e => e.id),
@@ -42,10 +49,8 @@ function patchEntity(
     case "vertex":
       return patchVertex(entity, vertexDetailsMap);
     case "edge":
-      return patchEdge(entity, edgeDetailsMap);
+      return patchEdge(entity, vertexDetailsMap, edgeDetailsMap);
     case "scalar":
-      return entity; // Scalars don't need patching
-    default:
       return entity;
   }
 }
@@ -61,12 +66,26 @@ function patchVertex(
   return vertex;
 }
 
-function patchEdge(edge: Edge, edgeDetailsMap: Map<EdgeId, Edge>): Edge {
+function patchEdge(
+  edge: Edge,
+  vertexDetailsMap: Map<VertexId, Vertex>,
+  edgeDetailsMap: Map<EdgeId, Edge>
+): Edge {
   // First try to get the full edge details
   const fullEdge = edgeDetailsMap.get(edge.id);
   if (fullEdge) {
-    return fullEdge;
+    // Preserve the original name if it exists, and patch the vertices
+    return {
+      ...fullEdge,
+      source: patchVertex(fullEdge.source, vertexDetailsMap),
+      target: patchVertex(fullEdge.target, vertexDetailsMap),
+    };
   }
 
-  return edge;
+  // If no full edge details, just patch the vertices
+  return {
+    ...edge,
+    source: patchVertex(edge.source, vertexDetailsMap),
+    target: patchVertex(edge.target, vertexDetailsMap),
+  };
 }

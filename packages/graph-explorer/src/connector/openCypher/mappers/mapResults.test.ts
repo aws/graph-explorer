@@ -1,8 +1,12 @@
-import { createScalar, Edge, getRawId, Vertex } from "@/core";
+import { createScalar, createVertex, Edge } from "@/core";
 import { mapResults } from "./mapResults";
-import { createRandomEdge, createRandomVertex } from "@/utils/testing";
+import {
+  createRandomEdge,
+  createRandomVertex,
+  mapToOcEdge,
+  mapToOcVertex,
+} from "@/utils/testing";
 import { createRandomInteger } from "@shared/utils/testing";
-import { OCEdge, OCVertex } from "../types";
 
 describe("mapResults", () => {
   it("should map empty results", () => {
@@ -10,7 +14,7 @@ describe("mapResults", () => {
       results: [],
     });
 
-    expect(result).toEqual([]);
+    expect(result).toStrictEqual([]);
   });
 
   it("should map vertex value", () => {
@@ -18,30 +22,26 @@ describe("mapResults", () => {
     const result = mapResults({
       results: [
         {
-          n: createCypherVertex(vertex),
+          n: mapToOcVertex(vertex),
         },
       ],
     });
 
-    expect(result).toEqual([vertex]);
+    expect(result).toStrictEqual([vertex]);
   });
 
   it("should map edge value", () => {
-    const source = createRandomVertex();
-    const target = createRandomVertex();
-    const edge = createRandomEdge(source, target);
-    edge.sourceTypes = [];
-    edge.targetTypes = [];
+    const edge = createRandomEdge();
 
     const result = mapResults({
       results: [
         {
-          n: createCypherEdge(edge),
+          n: mapToOcEdge(edge),
         },
       ],
     });
 
-    expect(result).toEqual([{ ...edge, __isFragment: true }]);
+    expect(result).toStrictEqual([toExpectedEdge(edge)]);
   });
 
   it("should map scalar value with names", () => {
@@ -58,7 +58,7 @@ describe("mapResults", () => {
       ],
     });
 
-    expect(result).toEqual([
+    expect(result).toStrictEqual([
       createScalar({ value: expectedValue, name: "total" }),
       createScalar({ value: "total", name: "name" }),
       createScalar({ value: expectedValue, name: "list" }),
@@ -71,30 +71,26 @@ describe("mapResults", () => {
     const result = mapResults({
       results: [
         {
-          n: [createCypherVertex(vertex)],
+          n: [mapToOcVertex(vertex)],
         },
       ],
     });
 
-    expect(result).toEqual([vertex]);
+    expect(result).toStrictEqual([vertex]);
   });
 
   it("should map edge in array", () => {
-    const source = createRandomVertex();
-    const target = createRandomVertex();
-    const edge = createRandomEdge(source, target);
-    edge.sourceTypes = [];
-    edge.targetTypes = [];
+    const edge = createRandomEdge();
 
     const result = mapResults({
       results: [
         {
-          n: [createCypherEdge(edge)],
+          n: [mapToOcEdge(edge)],
         },
       ],
     });
 
-    expect(result).toEqual([{ ...edge, __isFragment: true }]);
+    expect(result).toStrictEqual([toExpectedEdge(edge)]);
   });
 
   it("should map scalar in array", () => {
@@ -108,102 +104,72 @@ describe("mapResults", () => {
       ],
     });
 
-    expect(result).toEqual([createScalar({ value: expectedValue, name: "n" })]);
+    expect(result).toStrictEqual([
+      createScalar({ value: expectedValue, name: "n" }),
+    ]);
   });
 
   it("should map nested objects", () => {
     const vertex = createRandomVertex();
-    const source = createRandomVertex();
-    const target = createRandomVertex();
-    const edge = createRandomEdge(source, target);
+    const edge = createRandomEdge();
 
     const result = mapResults({
       results: [
         {
           n: {
-            v: createCypherVertex(vertex),
-            e: createCypherEdge(edge),
+            v: mapToOcVertex(vertex),
+            e: mapToOcEdge(edge),
           },
         },
       ],
     });
 
-    expect(result).toEqual([
-      vertex,
-      {
-        ...edge,
-        __isFragment: true,
-        sourceTypes: [],
-        targetTypes: [],
-      } satisfies Edge,
-    ]);
+    expect(result).toStrictEqual([vertex, toExpectedEdge(edge)]);
   });
 
   it("should map deeply nested objects", () => {
     const vertex = createRandomVertex();
-    const source = createRandomVertex();
-    const target = createRandomVertex();
-    const edge = createRandomEdge(source, target);
+    const edge = createRandomEdge();
 
     const result = mapResults({
       results: [
         {
           n: {
             deep: {
-              v: createCypherVertex(vertex),
-              e: createCypherEdge(edge),
+              v: mapToOcVertex(vertex),
+              e: mapToOcEdge(edge),
             },
           },
         },
       ],
     });
 
-    expect(result).toEqual([
-      vertex,
-      {
-        ...edge,
-        __isFragment: true,
-        sourceTypes: [],
-        targetTypes: [],
-      } satisfies Edge,
-    ]);
+    expect(result).toStrictEqual([vertex, toExpectedEdge(edge)]);
   });
 
   it("should map nested objects within array", () => {
     const vertex = createRandomVertex();
-    const source = createRandomVertex();
-    const target = createRandomVertex();
-    const edge = createRandomEdge(source, target);
+    const edge = createRandomEdge();
 
     const result = mapResults({
       results: [
         {
           n: [
             {
-              v: createCypherVertex(vertex),
-              e: createCypherEdge(edge),
+              v: mapToOcVertex(vertex),
+              e: mapToOcEdge(edge),
             },
           ],
         },
       ],
     });
 
-    expect(result).toEqual([
-      vertex,
-      {
-        ...edge,
-        __isFragment: true,
-        sourceTypes: [],
-        targetTypes: [],
-      } satisfies Edge,
-    ]);
+    expect(result).toStrictEqual([vertex, toExpectedEdge(edge)]);
   });
 
   it("should map deeply nested objects within array", () => {
     const vertex = createRandomVertex();
-    const source = createRandomVertex();
-    const target = createRandomVertex();
-    const edge = createRandomEdge(source, target);
+    const edge = createRandomEdge();
 
     const result = mapResults({
       results: [
@@ -211,8 +177,8 @@ describe("mapResults", () => {
           n: [
             {
               deep: {
-                v: createCypherVertex(vertex),
-                e: createCypherEdge(edge),
+                v: mapToOcVertex(vertex),
+                e: mapToOcEdge(edge),
               },
             },
           ],
@@ -220,15 +186,7 @@ describe("mapResults", () => {
       ],
     });
 
-    expect(result).toEqual([
-      vertex,
-      {
-        ...edge,
-        __isFragment: true,
-        sourceTypes: [],
-        targetTypes: [],
-      } satisfies Edge,
-    ]);
+    expect(result).toStrictEqual([vertex, toExpectedEdge(edge)]);
   });
 
   it("should map collect with array of scalars", () => {
@@ -242,7 +200,7 @@ describe("mapResults", () => {
       ],
     });
 
-    expect(result).toEqual([
+    expect(result).toStrictEqual([
       createScalar({ value: expectedValue, name: "collect" }),
     ]);
   });
@@ -258,7 +216,7 @@ describe("mapResults", () => {
       ],
     });
 
-    expect(result).toEqual([
+    expect(result).toStrictEqual([
       createScalar({ value: expectedValue, name: "values" }),
     ]);
   });
@@ -275,7 +233,7 @@ describe("mapResults", () => {
       ],
     });
 
-    expect(result).toEqual([
+    expect(result).toStrictEqual([
       createScalar({ value: 42, name: "count" }),
       createScalar({ value: "hello", name: "message" }),
       createScalar({ value: true, name: "isActive" }),
@@ -295,7 +253,7 @@ describe("mapResults", () => {
       ],
     });
 
-    expect(result).toEqual([
+    expect(result).toStrictEqual([
       createScalar({ value: "John", name: "name" }),
       createScalar({ value: 30, name: "age" }),
     ]);
@@ -311,7 +269,7 @@ describe("mapResults", () => {
       ],
     });
 
-    expect(result).toEqual([
+    expect(result).toStrictEqual([
       createScalar({ value: 1, name: "numbers" }),
       createScalar({ value: 2, name: "numbers" }),
       createScalar({ value: 3, name: "numbers" }),
@@ -321,42 +279,19 @@ describe("mapResults", () => {
   });
 });
 
-function createCypherVertex(vertex: Vertex): OCVertex {
-  const id = getRawId(vertex.id);
-
-  if (typeof id !== "string") {
-    throw new Error("Vertex id is not valid");
-  }
-
+/**
+ * Reduces the source and target vertices to fragments with just the ID.
+ */
+function toExpectedEdge(edge: Edge): Edge {
   return {
-    "~id": id,
-    "~entityType": "node",
-    "~labels": vertex.types,
-    "~properties": vertex.attributes,
-  };
-}
-
-function createCypherEdge(edge: Edge): OCEdge {
-  const id = getRawId(edge.id);
-  const sourceId = getRawId(edge.source);
-  const targetId = getRawId(edge.target);
-
-  if (typeof id !== "string") {
-    throw new Error("Edge id is not valid");
-  }
-  if (typeof sourceId !== "string") {
-    throw new Error("Edge source is not valid");
-  }
-  if (typeof targetId !== "string") {
-    throw new Error("Edge target is not valid");
-  }
-
-  return {
-    "~id": id,
-    "~entityType": "relationship",
-    "~type": edge.type,
-    "~start": sourceId,
-    "~end": targetId,
-    "~properties": edge.attributes,
+    ...edge,
+    source: createVertex({
+      id: edge.source.id,
+      types: [],
+    }),
+    target: createVertex({
+      id: edge.target.id,
+      types: [],
+    }),
   };
 }

@@ -251,11 +251,14 @@ export function createRandomVertexForRdf() {
 }
 
 /**
- * Creates a random edge.
+ * Creates a random edge with the source and target vertices embedded as-is.
  * @returns A random Edge object.
  */
-export function createRandomEdge(source: Vertex, target: Vertex) {
-  return createEdge({
+export function createRandomEdge(
+  source: Vertex = createRandomVertex(),
+  target: Vertex = createRandomVertex()
+) {
+  const edge = createEdge({
     id: createRandomEdgeId(),
     type: createRandomName("EdgeType"),
     attributes: createRecord(3, createRandomEntityAttribute),
@@ -268,6 +271,12 @@ export function createRandomEdge(source: Vertex, target: Vertex) {
       types: target.types,
     },
   });
+
+  // Replace with the full vertices passed in
+  edge.source = source;
+  edge.target = target;
+
+  return edge;
 }
 
 export function createRandomEdgeForRdf(source: Vertex, target: Vertex) {
@@ -293,6 +302,15 @@ export function makeFragment<T extends Vertex | Edge>(entity: T): T {
     ...entity,
     attributes: {},
     __isFragment: true,
+  };
+}
+
+/** Creates a copy of the provided edge with the source and target vertices as fragments. */
+export function makeEdgeVerticesFragments(edge: Edge): Edge {
+  return {
+    ...edge,
+    source: makeFragment(edge.source),
+    target: makeFragment(edge.target),
   };
 }
 

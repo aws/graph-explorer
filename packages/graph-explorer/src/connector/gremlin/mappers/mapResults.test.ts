@@ -1,4 +1,4 @@
-import { createEdge, createScalar, createVertex } from "@/core";
+import { createEdge, createScalar, createVertex, Edge } from "@/core";
 import { mapResults } from "./mapResults";
 import {
   createGEdge,
@@ -63,7 +63,7 @@ describe("mapResults", () => {
 
     const results = mapResults(gList);
 
-    expect(results).toEqual([edge, edge]);
+    expect(results).toEqual([toExpectedEdge(edge), toExpectedEdge(edge)]);
   });
 
   it("should handle g:List with g:Edge", () => {
@@ -176,3 +176,20 @@ describe("mapResults", () => {
     ]);
   });
 });
+
+/**
+ * Reduces the source and target vertices to fragments with just the ID and types.
+ */
+function toExpectedEdge(edge: Edge): Edge {
+  return {
+    ...edge,
+    source: createVertex({
+      id: edge.source.id,
+      types: edge.source.types,
+    }),
+    target: createVertex({
+      id: edge.target.id,
+      types: edge.target.types,
+    }),
+  };
+}

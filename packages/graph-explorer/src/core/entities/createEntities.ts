@@ -42,10 +42,8 @@ export function createEdge(options: {
     entityType: "edge",
     id: createEdgeId(options.id),
     type: options.type,
-    source: source.id,
-    sourceTypes: source.types,
-    target: target.id,
-    targetTypes: target.types,
+    source,
+    target,
     attributes:
       options.attributes != null ? createAttributes(options.attributes) : {},
     __isFragment: options.attributes == null,

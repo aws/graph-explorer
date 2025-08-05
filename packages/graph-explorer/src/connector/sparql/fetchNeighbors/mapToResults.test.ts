@@ -5,6 +5,7 @@ import {
   createRandomEdgeForRdf,
   createRandomEntitiesForRdf,
   createRandomVertexForRdf,
+  makeEdgeVerticesFragments,
 } from "@/utils/testing";
 import { rdfTypeUri } from "../types";
 
@@ -18,7 +19,11 @@ describe("mapToResults", () => {
     const bindings = createBindings(entities.vertices, entities.edges);
     const result = mapToResults(bindings);
     expect(result.vertices).toEqual(entities.vertices);
-    expect(result.edges).toEqual(entities.edges);
+    // The edges should have __isFragment: false and their source/target vertices should also have __isFragment: false
+    const expectedEdges = entities.edges.map(edge =>
+      makeEdgeVerticesFragments(edge)
+    );
+    expect(result.edges).toEqual(expectedEdges);
   });
   it("should map blank nodes to results", () => {
     const vertex = createRandomVertexForRdf();
@@ -41,7 +46,9 @@ describe("mapToResults", () => {
     const result = mapToResults(bindings);
 
     expect(result.vertices).toEqual(vertices);
-    expect(result.edges).toEqual(edges);
+    // The edge should have __isFragment: false and its source/target vertices should also have __isFragment: false
+    const expectedEdges = edges.map(edge => makeEdgeVerticesFragments(edge));
+    expect(result.edges).toEqual(expectedEdges);
   });
 });
 
@@ -78,8 +85,8 @@ function createBindings(vertices: Vertex[], edges: Edge[]) {
     ...edges
       .map(edge => {
         // Gets the vertices to see if they are blank nodes
-        const source = vertices.find(v => v.id === edge.source);
-        const target = vertices.find(v => v.id === edge.target);
+        const source = vertices.find(v => v.id === edge.source.id);
+        const target = vertices.find(v => v.id === edge.target.id);
         return {
           edge,
           source,
@@ -133,12 +140,12 @@ function createBindingsForEdge({
     // Relationship between resources
     {
       subject: isSourceBlank
-        ? rdfValue.blank(String(edge.source))
-        : rdfValue.uri(String(edge.source)),
+        ? rdfValue.blank(String(edge.source.id))
+        : rdfValue.uri(String(edge.source.id)),
       p: rdfValue.uri(edge.type),
       value: isTargetBlank
-        ? rdfValue.blank(String(edge.target))
-        : rdfValue.uri(String(edge.target)),
+        ? rdfValue.blank(String(edge.target.id))
+        : rdfValue.uri(String(edge.target.id)),
     },
   ];
 }

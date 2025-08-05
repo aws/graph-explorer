@@ -1,6 +1,5 @@
 import { UpdateSchemaHandler, getAllGraphableEntities } from "@/core";
 import { queryOptions } from "@tanstack/react-query";
-import { updateVertexDetailsCache, updateEdgeDetailsCache } from "../queries";
 
 import { getExplorer } from "./helpers";
 import { patchEntityDetails } from "./patchEntityDetails";
@@ -26,16 +25,11 @@ export function executeUserQuery(
       const explorer = getExplorer(meta);
       const results = await explorer.rawQuery({ query }, { signal });
 
-      const { vertices, edges } = getAllGraphableEntities(results);
-
-      // Update the schema and the cache
-      updateVertexDetailsCache(client, vertices);
-      updateEdgeDetailsCache(client, edges);
-
       // Fetch any details for fragments
       const combinedResults = await patchEntityDetails(client, results);
-      const patchedGraphableEntities = getAllGraphableEntities(combinedResults);
 
+      // Update the schema with the fully materialized graphable entities
+      const patchedGraphableEntities = getAllGraphableEntities(combinedResults);
       updateSchema(patchedGraphableEntities);
 
       return combinedResults;

@@ -3,6 +3,7 @@ import {
   createRandomEdge,
   createRandomVertex,
   FakeExplorer,
+  makeEdgeVerticesFragments,
   makeFragment,
 } from "@/utils/testing";
 import { executeUserQuery } from "./executeUserQuery";
@@ -152,7 +153,7 @@ describe("executeQuery", () => {
     const queryResult = [
       makeFragment(vertex1),
       makeFragment(vertex2),
-      edge,
+      makeEdgeVerticesFragments(makeFragment(edge)),
       createScalar({ name: "scalar1", value: 42 }),
       createScalar({ name: "scalar2", value: "hello" }),
     ];
@@ -171,7 +172,7 @@ describe("executeQuery", () => {
     ]);
     expect(rawQuerySpy).toBeCalledTimes(1);
     expect(vertexDetailsSpy).toBeCalledTimes(1);
-    expect(edgeDetailsSpy).toBeCalledTimes(0);
+    expect(edgeDetailsSpy).toBeCalledTimes(1);
     expect(mockUpdateSchema).toHaveBeenCalledExactlyOnceWith(
       getAllGraphableEntities(result)
     );

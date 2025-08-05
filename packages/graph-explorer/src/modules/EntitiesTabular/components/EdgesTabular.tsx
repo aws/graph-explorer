@@ -17,19 +17,31 @@ import {
 import { nodesSelectedIdsAtom } from "@/core/StateProvider/nodes";
 import { useDeepMemo } from "@/hooks";
 import useTranslations from "@/hooks/useTranslations";
-import { DisplayEdge, useDisplayEdgesInCanvas } from "@/core";
+import {
+  DisplayEdge,
+  DisplayVertex,
+  useDisplayEdgesInCanvas,
+  useDisplayVerticesInCanvas,
+  VertexId,
+} from "@/core";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { MISSING_DISPLAY_VALUE } from "@/utils";
 
 /** Creates the model for the table data */
-function createEdgeForTable(edge: DisplayEdge) {
+function createEdgeForTable(
+  edge: DisplayEdge,
+  vertices: Map<VertexId, DisplayVertex>
+) {
+  const source = vertices.get(edge.sourceId);
+  const target = vertices.get(edge.targetId);
   return {
     id: edge.id,
     displayTypes: edge.displayTypes,
     displayName: edge.displayName,
-    sourceDisplayId: edge.source.displayId,
-    sourceDisplayTypes: edge.source.displayTypes,
-    targetDisplayId: edge.target.displayId,
-    targetDisplayTypes: edge.target.displayTypes,
+    sourceDisplayId: source?.displayId ?? MISSING_DISPLAY_VALUE,
+    sourceDisplayTypes: source?.displayTypes ?? MISSING_DISPLAY_VALUE,
+    targetDisplayId: target?.displayId ?? MISSING_DISPLAY_VALUE,
+    targetDisplayTypes: target?.displayTypes ?? MISSING_DISPLAY_VALUE,
   };
 }
 
@@ -42,6 +54,7 @@ const EdgesTabular = forwardRef<TabularInstance<ToggleEdge>, any>(
   (_props, ref) => {
     const t = useTranslations();
     const edges = useDisplayEdgesInCanvas();
+    const vertices = useDisplayVerticesInCanvas();
     const setEdgesOut = useSetAtom(edgesOutOfFocusIdsAtom);
     const filteredEdges = useAtomValue(edgesFilteredIdsAtom);
     const toggleFilteredEdge = useToggleFilteredEdge();
@@ -101,7 +114,7 @@ const EdgesTabular = forwardRef<TabularInstance<ToggleEdge>, any>(
       return edges
         .values()
         .map(edge => ({
-          ...createEdgeForTable(edge),
+          ...createEdgeForTable(edge, vertices),
           __is_visible: !filteredEdges.has(edge.id),
         }))
         .toArray();

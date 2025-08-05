@@ -1,4 +1,4 @@
-import { Edge, useDisplayEdgeFromEdge } from "@/core";
+import { Edge, useDisplayEdgeFromEdge, useDisplayVertex } from "@/core";
 import {
   ButtonProps,
   CollapsibleContent,
@@ -15,11 +15,11 @@ import {
 } from "@/components";
 import {
   useAddToGraphMutation,
-  useDisplayVertexFromFragment,
   useHasEdgeBeenAddedToGraph,
   useRemoveEdgeFromGraph,
 } from "@/hooks";
 import { MinusCircleIcon, PlusCircleIcon } from "lucide-react";
+import { VertexSearchResult } from "./VertexSearchResult";
 
 export function EdgeSearchResult({
   edge,
@@ -31,14 +31,8 @@ export function EdgeSearchResult({
   const displayEdge = useDisplayEdgeFromEdge(edge);
 
   // Get the display vertices
-  const source = useDisplayVertexFromFragment(
-    displayEdge.source.id,
-    displayEdge.source.types
-  );
-  const target = useDisplayVertexFromFragment(
-    displayEdge.target.id,
-    displayEdge.target.types
-  );
+  const source = useDisplayVertex(displayEdge.sourceId);
+  const target = useDisplayVertex(displayEdge.targetId);
 
   return (
     <SearchResultCollapsible level={level}>
@@ -59,6 +53,12 @@ export function EdgeSearchResult({
       </CollapsibleTrigger>
       <CollapsibleContent>
         <ul className="space-y-3 p-3">
+          <li className="w-full">
+            <VertexSearchResult vertex={edge.source} level={level + 1} />
+          </li>
+          <li className="w-full">
+            <VertexSearchResult vertex={edge.target} level={level + 1} />
+          </li>
           {displayEdge.attributes.map(attr => (
             <li key={attr.name} className="w-full">
               <SearchResultAttribute level={level + 1}>

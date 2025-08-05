@@ -104,7 +104,6 @@ function mapValue(value: CypherValue, name?: string): Entity[] {
 
     if (value["~entityType"] === "relationship") {
       const edge = mapApiEdge(value as OCEdge, [], []);
-      edge.__isFragment = true;
       return [edge];
     }
     return Object.entries(value).flatMap(([key, value]) =>

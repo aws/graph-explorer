@@ -52,6 +52,8 @@ export function getAllGraphableEntities(entities: Entity[]): Entities {
       vertices.set(entity.id, entity);
     } else if (entity.entityType === "edge") {
       edges.set(entity.id, entity);
+      vertices.set(entity.source.id, entity.source);
+      vertices.set(entity.target.id, entity.target);
     }
   }
 
