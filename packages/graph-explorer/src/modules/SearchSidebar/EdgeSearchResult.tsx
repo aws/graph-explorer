@@ -61,7 +61,7 @@ export function EdgeSearchResult({
         <ul className="space-y-3 p-3">
           {displayEdge.attributes.map(attr => (
             <li key={attr.name} className="w-full">
-              <SearchResultAttribute>
+              <SearchResultAttribute level={level + 1}>
                 <SearchResultAttributeName>
                   {attr.name}
                 </SearchResultAttributeName>
