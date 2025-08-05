@@ -3,7 +3,6 @@ import { z } from "zod";
 import { fromError } from "zod-validation-error";
 import mapApiVertex from "./mapApiVertex";
 import mapApiEdge from "./mapApiEdge";
-import { mapValuesToQueryResults } from "@/connector/mapping";
 import { OCEdge, OCVertex } from "../types";
 import { createScalar, Entity } from "@/core";
 
@@ -74,7 +73,7 @@ export function mapResults(data: unknown) {
   const values = results.flatMap(result =>
     Object.entries(result).flatMap(([key, value]) => mapValue(value, key))
   );
-  return mapValuesToQueryResults(values);
+  return values;
 }
 
 /**

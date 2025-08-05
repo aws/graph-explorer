@@ -7,6 +7,7 @@ import { OpenCypherFetch } from "./types";
 import { mapResults } from "./mappers/mapResults";
 import isErrorResponse from "../utils/isErrorResponse";
 import { idParam } from "./idParam";
+import { getAllVertices } from "@/core";
 
 export async function vertexDetails(
   openCypherFetch: OpenCypherFetch,
@@ -31,7 +32,7 @@ export async function vertexDetails(
   }
 
   // Map the results
-  const vertices = mapResults(data).vertices;
+  const vertices = getAllVertices(mapResults(data));
 
   // Log a warning if some nodes are missing
   const missing = new Set(request.vertexIds).difference(

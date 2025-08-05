@@ -162,5 +162,5 @@ function SearchResultsListContainer({
     );
   }
 
-  return <SearchResultsList results={query.data} />;
+  return <SearchResultsList results={query.data.vertices} />;
 }

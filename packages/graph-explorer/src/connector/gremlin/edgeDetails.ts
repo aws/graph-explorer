@@ -8,6 +8,7 @@ import { GEdge, GremlinFetch } from "./types";
 import { mapResults } from "./mappers/mapResults";
 import isErrorResponse from "../utils/isErrorResponse";
 import { idParam } from "./idParam";
+import { getAllEdges } from "@/core";
 
 type Response = {
   requestId: string;
@@ -46,7 +47,7 @@ export async function edgeDetails(
 
   // Map the results
   const entities = mapResults(data.result.data);
-  const edges = entities.edges;
+  const edges = getAllEdges(entities);
 
   // Log a warning if some edges are missing
   const missing = new Set(request.edgeIds).difference(

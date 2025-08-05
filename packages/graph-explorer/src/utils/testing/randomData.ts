@@ -296,6 +296,22 @@ export function makeFragment<T extends Vertex | Edge>(entity: T): T {
   };
 }
 
+export function removeTypesFromEntity<T extends Vertex | Edge>(entity: T): T {
+  if (entity.entityType === "edge") {
+    return {
+      ...entity,
+      sourceTypes: [],
+      targetTypes: [],
+      type: "",
+    };
+  }
+  return {
+    ...entity,
+    type: "",
+    types: [],
+  };
+}
+
 /**
  * Creates a random entity (vertex or edge) attribute.
  * @returns A random entity attribute object.

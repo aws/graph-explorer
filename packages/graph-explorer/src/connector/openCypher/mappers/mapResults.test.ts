@@ -10,9 +10,7 @@ describe("mapResults", () => {
       results: [],
     });
 
-    expect(result.vertices).toHaveLength(0);
-    expect(result.edges).toHaveLength(0);
-    expect(result.scalars).toHaveLength(0);
+    expect(result).toEqual([]);
   });
 
   it("should map vertex value", () => {
@@ -25,14 +23,15 @@ describe("mapResults", () => {
       ],
     });
 
-    expect(result.vertices).toHaveLength(1);
-    expect(result.vertices[0]).toEqual(vertex);
-    expect(result.edges).toHaveLength(0);
-    expect(result.scalars).toHaveLength(0);
+    expect(result).toEqual([vertex]);
   });
 
   it("should map edge value", () => {
-    const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
+    const source = createRandomVertex();
+    const target = createRandomVertex();
+    const edge = createRandomEdge(source, target);
+    edge.sourceTypes = [];
+    edge.targetTypes = [];
 
     const result = mapResults({
       results: [
@@ -42,18 +41,10 @@ describe("mapResults", () => {
       ],
     });
 
-    expect(result.edges).toHaveLength(1);
-    expect(result.edges[0]).toEqual({
-      ...edge,
-      __isFragment: true,
-      sourceTypes: [],
-      targetTypes: [],
-    } satisfies Edge);
-    expect(result.vertices).toHaveLength(2);
-    expect(result.scalars).toHaveLength(0);
+    expect(result).toEqual([{ ...edge, __isFragment: true }]);
   });
 
-  it("should map scalar value", () => {
+  it("should map scalar value with names", () => {
     const expectedValue = createRandomInteger();
 
     const result = mapResults({
@@ -67,21 +58,12 @@ describe("mapResults", () => {
       ],
     });
 
-    expect(result.scalars).toHaveLength(4);
-    expect(result.scalars[0]).toEqual(
-      createScalar({ value: expectedValue, name: "total" })
-    );
-    expect(result.scalars[1]).toEqual(
-      createScalar({ value: "total", name: "name" })
-    );
-    expect(result.scalars[2]).toEqual(
-      createScalar({ value: expectedValue, name: "list" })
-    );
-    expect(result.scalars[3]).toEqual(
-      createScalar({ value: null, name: "nullValue" })
-    );
-    expect(result.vertices).toHaveLength(0);
-    expect(result.edges).toHaveLength(0);
+    expect(result).toEqual([
+      createScalar({ value: expectedValue, name: "total" }),
+      createScalar({ value: "total", name: "name" }),
+      createScalar({ value: expectedValue, name: "list" }),
+      createScalar({ value: null, name: "nullValue" }),
+    ]);
   });
 
   it("should map vertex in array", () => {
@@ -94,14 +76,16 @@ describe("mapResults", () => {
       ],
     });
 
-    expect(result.vertices).toHaveLength(1);
-    expect(result.vertices[0]).toEqual(vertex);
-    expect(result.edges).toHaveLength(0);
-    expect(result.scalars).toHaveLength(0);
+    expect(result).toEqual([vertex]);
   });
 
   it("should map edge in array", () => {
-    const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
+    const source = createRandomVertex();
+    const target = createRandomVertex();
+    const edge = createRandomEdge(source, target);
+    edge.sourceTypes = [];
+    edge.targetTypes = [];
+
     const result = mapResults({
       results: [
         {
@@ -110,14 +94,7 @@ describe("mapResults", () => {
       ],
     });
 
-    expect(result.edges).toHaveLength(1);
-    expect(result.edges[0]).toEqual({
-      ...edge,
-      __isFragment: true,
-      sourceTypes: [],
-      targetTypes: [],
-    } satisfies Edge);
-    expect(result.vertices).toHaveLength(2);
+    expect(result).toEqual([{ ...edge, __isFragment: true }]);
   });
 
   it("should map scalar in array", () => {
@@ -131,15 +108,14 @@ describe("mapResults", () => {
       ],
     });
 
-    expect(result.scalars).toHaveLength(1);
-    expect(result.scalars[0]).toEqual(
-      createScalar({ value: expectedValue, name: "n" })
-    );
+    expect(result).toEqual([createScalar({ value: expectedValue, name: "n" })]);
   });
 
   it("should map nested objects", () => {
     const vertex = createRandomVertex();
-    const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
+    const source = createRandomVertex();
+    const target = createRandomVertex();
+    const edge = createRandomEdge(source, target);
 
     const result = mapResults({
       results: [
@@ -152,21 +128,22 @@ describe("mapResults", () => {
       ],
     });
 
-    expect(result.vertices).toHaveLength(3);
-    expect(result.vertices[0]).toEqual(vertex);
-
-    expect(result.edges).toHaveLength(1);
-    expect(result.edges[0]).toEqual({
-      ...edge,
-      __isFragment: true,
-      sourceTypes: [],
-      targetTypes: [],
-    } satisfies Edge);
+    expect(result).toEqual([
+      vertex,
+      {
+        ...edge,
+        __isFragment: true,
+        sourceTypes: [],
+        targetTypes: [],
+      } satisfies Edge,
+    ]);
   });
 
   it("should map deeply nested objects", () => {
     const vertex = createRandomVertex();
-    const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
+    const source = createRandomVertex();
+    const target = createRandomVertex();
+    const edge = createRandomEdge(source, target);
 
     const result = mapResults({
       results: [
@@ -181,21 +158,22 @@ describe("mapResults", () => {
       ],
     });
 
-    expect(result.vertices).toHaveLength(3);
-    expect(result.vertices[0]).toEqual(vertex);
-
-    expect(result.edges).toHaveLength(1);
-    expect(result.edges[0]).toEqual({
-      ...edge,
-      __isFragment: true,
-      sourceTypes: [],
-      targetTypes: [],
-    } satisfies Edge);
+    expect(result).toEqual([
+      vertex,
+      {
+        ...edge,
+        __isFragment: true,
+        sourceTypes: [],
+        targetTypes: [],
+      } satisfies Edge,
+    ]);
   });
 
   it("should map nested objects within array", () => {
     const vertex = createRandomVertex();
-    const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
+    const source = createRandomVertex();
+    const target = createRandomVertex();
+    const edge = createRandomEdge(source, target);
 
     const result = mapResults({
       results: [
@@ -210,21 +188,22 @@ describe("mapResults", () => {
       ],
     });
 
-    expect(result.vertices).toHaveLength(3);
-    expect(result.vertices[0]).toEqual(vertex);
-
-    expect(result.edges).toHaveLength(1);
-    expect(result.edges[0]).toEqual({
-      ...edge,
-      __isFragment: true,
-      sourceTypes: [],
-      targetTypes: [],
-    } satisfies Edge);
+    expect(result).toEqual([
+      vertex,
+      {
+        ...edge,
+        __isFragment: true,
+        sourceTypes: [],
+        targetTypes: [],
+      } satisfies Edge,
+    ]);
   });
 
   it("should map deeply nested objects within array", () => {
     const vertex = createRandomVertex();
-    const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
+    const source = createRandomVertex();
+    const target = createRandomVertex();
+    const edge = createRandomEdge(source, target);
 
     const result = mapResults({
       results: [
@@ -241,16 +220,15 @@ describe("mapResults", () => {
       ],
     });
 
-    expect(result.vertices).toHaveLength(3);
-    expect(result.vertices[0]).toEqual(vertex);
-
-    expect(result.edges).toHaveLength(1);
-    expect(result.edges[0]).toEqual({
-      ...edge,
-      __isFragment: true,
-      sourceTypes: [],
-      targetTypes: [],
-    } satisfies Edge);
+    expect(result).toEqual([
+      vertex,
+      {
+        ...edge,
+        __isFragment: true,
+        sourceTypes: [],
+        targetTypes: [],
+      } satisfies Edge,
+    ]);
   });
 
   it("should map collect with array of scalars", () => {
@@ -264,10 +242,9 @@ describe("mapResults", () => {
       ],
     });
 
-    expect(result.scalars).toHaveLength(1);
-    expect(result.scalars[0]).toEqual(
-      createScalar({ value: expectedValue, name: "collect" })
-    );
+    expect(result).toEqual([
+      createScalar({ value: expectedValue, name: "collect" }),
+    ]);
   });
 
   it("should map collect with array of records", () => {
@@ -281,10 +258,9 @@ describe("mapResults", () => {
       ],
     });
 
-    expect(result.scalars).toHaveLength(1);
-    expect(result.scalars[0]).toEqual(
-      createScalar({ value: expectedValue, name: "values" })
-    );
+    expect(result).toEqual([
+      createScalar({ value: expectedValue, name: "values" }),
+    ]);
   });
 
   it("should preserve scalar names from top-level keys", () => {
@@ -299,19 +275,12 @@ describe("mapResults", () => {
       ],
     });
 
-    expect(result.scalars).toHaveLength(4);
-    expect(result.scalars[0]).toEqual(
-      createScalar({ value: 42, name: "count" })
-    );
-    expect(result.scalars[1]).toEqual(
-      createScalar({ value: "hello", name: "message" })
-    );
-    expect(result.scalars[2]).toEqual(
-      createScalar({ value: true, name: "isActive" })
-    );
-    expect(result.scalars[3]).toEqual(
-      createScalar({ value: null, name: "data" })
-    );
+    expect(result).toEqual([
+      createScalar({ value: 42, name: "count" }),
+      createScalar({ value: "hello", name: "message" }),
+      createScalar({ value: true, name: "isActive" }),
+      createScalar({ value: null, name: "data" }),
+    ]);
   });
 
   it("should preserve names for scalars in nested objects", () => {
@@ -326,11 +295,10 @@ describe("mapResults", () => {
       ],
     });
 
-    expect(result.scalars).toHaveLength(2);
-    expect(result.scalars[0]).toEqual(
-      createScalar({ value: "John", name: "name" })
-    );
-    expect(result.scalars[1]).toEqual(createScalar({ value: 30, name: "age" }));
+    expect(result).toEqual([
+      createScalar({ value: "John", name: "name" }),
+      createScalar({ value: 30, name: "age" }),
+    ]);
   });
 
   it("should preserve names for scalars in arrays", () => {
@@ -343,22 +311,13 @@ describe("mapResults", () => {
       ],
     });
 
-    expect(result.scalars).toHaveLength(5);
-    expect(result.scalars[0]).toEqual(
-      createScalar({ value: 1, name: "numbers" })
-    );
-    expect(result.scalars[1]).toEqual(
-      createScalar({ value: 2, name: "numbers" })
-    );
-    expect(result.scalars[2]).toEqual(
-      createScalar({ value: 3, name: "numbers" })
-    );
-    expect(result.scalars[3]).toEqual(
-      createScalar({ value: "a", name: "strings" })
-    );
-    expect(result.scalars[4]).toEqual(
-      createScalar({ value: "b", name: "strings" })
-    );
+    expect(result).toEqual([
+      createScalar({ value: 1, name: "numbers" }),
+      createScalar({ value: 2, name: "numbers" }),
+      createScalar({ value: 3, name: "numbers" }),
+      createScalar({ value: "a", name: "strings" }),
+      createScalar({ value: "b", name: "strings" }),
+    ]);
   });
 });
 
