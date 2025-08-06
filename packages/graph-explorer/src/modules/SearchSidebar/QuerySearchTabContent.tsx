@@ -231,8 +231,12 @@ function useExecuteQuery() {
   /** Cancels the active query request */
   const cancel = () => {
     logger.debug("Cancelling query");
+
+    // Get the query key from the query options (parameters are not important)
+    const { queryKey } = executeUserQuery("", () => {});
+
     queryClient
-      .cancelQueries({ queryKey: ["execute"] })
+      .cancelQueries({ queryKey })
       .catch(err => logger.error("Failed to cancel query", err));
   };
 
