@@ -4,7 +4,7 @@ import {
   SearchResultSymbol,
   SearchResultTitle,
 } from "@/components";
-import { getDisplayValueForScalar, Scalar } from "@/core";
+import { createTypedValue, getDisplayValueForScalar, Scalar } from "@/core";
 import {
   BanIcon,
   CalendarIcon,
@@ -15,13 +15,14 @@ import {
 } from "lucide-react";
 
 function getIcon(scalar: Scalar) {
-  switch (scalar.type) {
+  const typedValue = createTypedValue(scalar.value);
+  switch (typedValue.type) {
     case "string":
       return <QuoteIcon className="size-5" />;
     case "number":
       return <HashIcon className="size-5" />;
     case "boolean":
-      return scalar.value ? (
+      return typedValue.value ? (
         <CircleCheckIcon className="size-5" />
       ) : (
         <CircleIcon className="size-5" />
@@ -36,7 +37,7 @@ function getIcon(scalar: Scalar) {
 export function ScalarSearchResult({ scalar }: { scalar: Scalar }) {
   const Icon = getIcon(scalar);
   const title = scalar.name ?? "Scalar value";
-  const subtitle = getDisplayValueForScalar(scalar);
+  const subtitle = getDisplayValueForScalar(scalar.value);
 
   return (
     <SearchResult className="flex w-full flex-row items-center gap-2 p-3">

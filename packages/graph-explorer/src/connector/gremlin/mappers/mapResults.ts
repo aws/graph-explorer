@@ -42,7 +42,7 @@ function mapAnyValue(data: GAnyValue, name?: string): Entity[] {
           const mapped = mapAnyValue(key);
           const firstScalar = mapped.filter(m => m.entityType === "scalar")[0];
           const displayValue = firstScalar
-            ? getDisplayValueForScalar(firstScalar)
+            ? getDisplayValueForScalar(firstScalar.value)
             : undefined;
           // Only use string scalar values as name
           return displayValue;
