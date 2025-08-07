@@ -5,6 +5,7 @@ import {
   createRandomVertexForRdf,
   DbState,
   FakeExplorer,
+  makeFragment,
   renderHookWithState,
 } from "@/utils/testing";
 import { useAddToGraph } from "./useAddToGraph";
@@ -20,7 +21,6 @@ import {
   VertexTypeConfig,
 } from "@/core";
 import { waitFor } from "@testing-library/react";
-import { cloneDeep } from "lodash";
 import { useAtomValue } from "jotai";
 
 test("should add one node", async () => {
@@ -51,11 +51,8 @@ test("should materialize fragment vertices", async () => {
   const dbState = new DbState(explorer);
 
   const vertex = createRandomVertex();
-  const clonedVertex = cloneDeep(vertex);
-  vertex.__isFragment = true;
-  vertex.attributes = {};
 
-  explorer.addVertex(clonedVertex);
+  explorer.addVertex(vertex);
 
   const { result } = renderHookWithState(() => {
     const callback = useAddToGraph();
@@ -65,10 +62,12 @@ test("should materialize fragment vertices", async () => {
     return { callback, vertices, edges };
   }, dbState);
 
-  await act(() => result.current.callback({ vertices: [vertex] }));
+  await act(() =>
+    result.current.callback({ vertices: [makeFragment(vertex)] })
+  );
 
   const actual = result.current.vertices.get(vertex.id);
-  expect(actual).toEqual(clonedVertex);
+  expect(actual).toEqual(vertex);
 });
 
 test("should materialize fragment edges", async () => {
@@ -76,11 +75,8 @@ test("should materialize fragment edges", async () => {
   const dbState = new DbState(explorer);
 
   const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
-  const clonedEdge = cloneDeep(edge);
-  edge.__isFragment = true;
-  edge.attributes = {};
 
-  explorer.addEdge(clonedEdge);
+  explorer.addEdge(edge);
 
   const { result } = renderHookWithState(() => {
     const callback = useAddToGraph();
@@ -90,10 +86,10 @@ test("should materialize fragment edges", async () => {
     return { callback, vertices, edges };
   }, dbState);
 
-  await act(() => result.current.callback({ edges: [edge] }));
+  await act(() => result.current.callback({ edges: [makeFragment(edge)] }));
 
   const actual = result.current.edges.get(edge.id);
-  expect(actual).toEqual(clonedEdge);
+  expect(actual).toEqual(edge);
 });
 
 test("should add one edge", async () => {
@@ -151,6 +147,38 @@ test("should add multiple nodes and edges", async () => {
   const actualEdges = result.current.edges.values().toArray();
   const expectedEdges = randomEntities.edges.values().toArray();
   expect(actualEdges).toEqual(expectedEdges);
+});
+
+test("should add multiple nodes and edges ignoring duplicates", async () => {
+  const explorer = new FakeExplorer();
+  const dbState = new DbState(explorer);
+
+  const randomEntities = createRandomEntities();
+  randomEntities.vertices.forEach(v => explorer.addVertex(v));
+  randomEntities.edges.forEach(e => explorer.addEdge(e));
+
+  const { result } = renderHookWithState(() => {
+    const callback = useAddToGraph();
+    const vertices = useAtomValue(nodesAtom);
+    const edges = useAtomValue(edgesAtom);
+
+    return { callback, vertices, edges };
+  }, dbState);
+
+  await act(() =>
+    result.current.callback({
+      vertices: [...randomEntities.vertices, ...randomEntities.vertices],
+      edges: [...randomEntities.edges, ...randomEntities.edges],
+    })
+  );
+
+  const actualNodes = result.current.vertices.values().toArray();
+  const expectedNodes = randomEntities.vertices;
+  expect(actualNodes).toStrictEqual(expectedNodes);
+
+  const actualEdges = result.current.edges.values().toArray();
+  const expectedEdges = randomEntities.edges.values().toArray();
+  expect(actualEdges).toStrictEqual(expectedEdges);
 });
 
 test("should update schema when adding a node", async () => {

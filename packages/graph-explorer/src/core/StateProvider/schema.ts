@@ -70,8 +70,16 @@ export function updateSchemaFromEntities(
   entities: Entities,
   schema: SchemaInference
 ) {
-  const newVertexConfigs = entities.vertices.map(extractConfigFromEntity);
-  const newEdgeConfigs = entities.edges.map(extractConfigFromEntity);
+  const newVertexConfigs = entities.vertices
+    .values()
+    .filter(v => !v.__isFragment)
+    .map(extractConfigFromEntity)
+    .toArray();
+  const newEdgeConfigs = entities.edges
+    .values()
+    .filter(e => !e.__isFragment)
+    .map(extractConfigFromEntity)
+    .toArray();
 
   let newSchema = {
     ...schema,
@@ -91,50 +99,46 @@ function merge<T extends VertexTypeConfig | EdgeTypeConfig>(
   existing: T[],
   newConfigs: T[]
 ): T[] {
-  // Update existing nodes with new attributes
-  const updated = existing.map(config => {
-    const newConfig = newConfigs.find(vt => vt.type === config.type);
+  const configMap = new Map(existing.map(vt => [vt.type, vt]));
 
-    // No attributes to update
-    if (!newConfig) {
-      return config;
+  for (const newConfig of newConfigs) {
+    const existingConfig = configMap.get(newConfig.type);
+    if (!existingConfig) {
+      configMap.set(newConfig.type, newConfig);
+    } else {
+      const mergedAttributes = mergeAttributes(
+        existingConfig.attributes,
+        newConfig.attributes
+      );
+      configMap.set(newConfig.type, {
+        ...existingConfig,
+        attributes: mergedAttributes,
+      });
     }
-
-    // Find missing attributes
-    const existingAttributes = new Set(
-      config.attributes.map(attr => attr.name)
-    );
-    const missingAttributes = newConfig.attributes.filter(
-      newAttr => !existingAttributes.has(newAttr.name)
-    );
-
-    if (missingAttributes.length === 0) {
-      return config;
-    }
-
-    logger.debug(
-      `Adding missing attributes to ${config.type}:`,
-      missingAttributes
-    );
-
-    return {
-      ...config,
-      attributes: [...config.attributes, ...missingAttributes],
-    };
-  });
-
-  // Find missing vertex type configs
-  const existingTypes = new Set(updated.map(vt => vt.type));
-  const missing = newConfigs.filter(vt => !existingTypes.has(vt.type));
-
-  if (missing.length === 0) {
-    return updated;
   }
 
-  logger.debug(`Adding missing types:`, missing);
+  return Array.from(configMap.values());
+}
 
-  // Combine all together
-  return [...updated, ...missing];
+export function mergeAttributes(
+  existing: AttributeConfig[],
+  newAttributes: AttributeConfig[]
+): AttributeConfig[] {
+  const attrMap = new Map(existing.map(attr => [attr.name, attr]));
+
+  for (const newAttr of newAttributes) {
+    const existingAttr = attrMap.get(newAttr.name);
+    if (!existingAttr) {
+      attrMap.set(newAttr.name, newAttr);
+    } else {
+      attrMap.set(newAttr.name, {
+        ...existingAttr,
+        ...newAttr,
+      });
+    }
+  }
+
+  return Array.from(attrMap.values());
 }
 
 /** Creates a type config from a given node or edge. */

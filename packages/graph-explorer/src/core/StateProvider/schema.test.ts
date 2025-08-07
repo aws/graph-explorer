@@ -3,6 +3,7 @@ import {
   createRandomEntities,
   createRandomSchema,
   createRandomVertex,
+  makeFragment,
 } from "@/utils/testing";
 import {
   extractConfigFromEntity,
@@ -48,6 +49,18 @@ describe("schema", () => {
       expect(result).toEqual(originalSchema);
     });
 
+    it("should exclude fragment entities", () => {
+      const originalSchema = createRandomSchema();
+      const vertex = createRandomVertex();
+      const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
+      const result = updateSchemaFromEntities(
+        { vertices: [makeFragment(vertex)], edges: [makeFragment(edge)] },
+        originalSchema
+      );
+
+      expect(result).toEqual(originalSchema);
+    });
+
     it("should add missing entities to schema", () => {
       const originalSchema = createRandomSchema();
       const newNodes = createArray(3, () => createRandomVertex());
@@ -68,6 +81,53 @@ describe("schema", () => {
         edges: [
           ...originalSchema.edges,
           ...newEdges.map(extractConfigFromEntity),
+        ],
+      });
+    });
+
+    it("should merge entities that have duplicate IDs and types but different attributes", () => {
+      const originalSchema = createRandomSchema();
+      const newNode1 = createRandomVertex();
+      const newNode2 = createRandomVertex();
+      const newEdge1 = createRandomEdge(
+        createRandomVertex(),
+        createRandomVertex()
+      );
+      const newEdge2 = createRandomEdge(
+        createRandomVertex(),
+        createRandomVertex()
+      );
+      newNode2.id = newNode1.id;
+      newEdge2.id = newEdge1.id;
+      newNode2.type = newNode1.type;
+      newEdge2.type = newEdge1.type;
+
+      const result = updateSchemaFromEntities(
+        { vertices: [newNode1, newNode2], edges: [newEdge1, newEdge2] },
+        originalSchema
+      );
+
+      expect(result).toEqual({
+        ...originalSchema,
+        vertices: [
+          ...originalSchema.vertices,
+          {
+            ...extractConfigFromEntity(newNode1),
+            attributes: [
+              ...extractConfigFromEntity(newNode1).attributes,
+              ...extractConfigFromEntity(newNode2).attributes,
+            ],
+          },
+        ],
+        edges: [
+          ...originalSchema.edges,
+          {
+            ...extractConfigFromEntity(newEdge1),
+            attributes: [
+              ...extractConfigFromEntity(newEdge1).attributes,
+              ...extractConfigFromEntity(newEdge2).attributes,
+            ],
+          },
         ],
       });
     });
@@ -122,19 +182,17 @@ describe("schema", () => {
         originalSchema
       );
 
-      expect(result).toEqual({
-        ...originalSchema,
-        vertices: [
-          ...originalSchema.vertices,
-          ...newNodes.map(extractConfigFromEntity),
-        ],
-        edges: [
-          ...originalSchema.edges,
-          ...newEdges.map(extractConfigFromEntity),
-        ],
-      });
-      expect(result.vertices[0].type).toBe("");
-      expect(result.edges[0].type).toBe("");
+      const emptyTypeVtConfigs = result.vertices.filter(v => v.type === "");
+      expect(emptyTypeVtConfigs).toHaveLength(1);
+      expect(emptyTypeVtConfigs[0].attributes).toEqual(
+        newNodes.map(extractConfigFromEntity).flatMap(n => n.attributes)
+      );
+
+      const emptyTypeEdgeConfigs = result.edges.filter(e => e.type === "");
+      expect(emptyTypeEdgeConfigs).toHaveLength(1);
+      expect(emptyTypeEdgeConfigs[0].attributes).toEqual(
+        newEdges.map(extractConfigFromEntity).flatMap(e => e.attributes)
+      );
     });
   });
 
