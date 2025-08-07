@@ -21,9 +21,8 @@ export function EntitySearchResult({
 }
 
 export function createEntityKey(entity: Entity, level: number) {
-  const maybeName = "name" in entity ? entity.name : null;
-  const commonPrefix = maybeName
-    ? `${entity.entityType}:${level}:${maybeName}`
+  const commonPrefix = "name" in entity
+    ? `${entity.entityType}:${level}:${entity.name}`
     : `${entity.entityType}:${level}`;
 
   switch (entity.entityType) {
