@@ -6,14 +6,7 @@ import {
 } from "@/core/ConfigurationProvider";
 import { atomWithLocalForageAsync } from "./localForageEffect";
 import { activeConfigurationAtom } from "./configuration";
-import {
-  Edge,
-  Entities,
-  EntityProperties,
-  toEdgeMap,
-  toNodeMap,
-  Vertex,
-} from "@/core";
+import { Edge, Entities, EntityProperties, Vertex } from "@/core";
 import { logger } from "@/utils";
 import generatePrefixes from "@/utils/generatePrefixes";
 import { startTransition, useCallback } from "react";
@@ -72,19 +65,19 @@ export const activeSchemaSelector = atom(
   }
 );
 
-type SchemaEntities = Pick<Entities, "nodes" | "edges">;
-
 /** Updates the schema based on the given nodes and edges. */
 export function updateSchemaFromEntities(
-  entities: SchemaEntities,
+  entities: Entities,
   schema: SchemaInference
 ) {
-  const newVertexConfigs = entities.nodes
+  const newVertexConfigs = entities.vertices
     .values()
+    .filter(v => !v.__isFragment)
     .map(extractConfigFromEntity)
     .toArray();
   const newEdgeConfigs = entities.edges
     .values()
+    .filter(e => !e.__isFragment)
     .map(extractConfigFromEntity)
     .toArray();
 
@@ -106,50 +99,46 @@ function merge<T extends VertexTypeConfig | EdgeTypeConfig>(
   existing: T[],
   newConfigs: T[]
 ): T[] {
-  // Update existing nodes with new attributes
-  const updated = existing.map(config => {
-    const newConfig = newConfigs.find(vt => vt.type === config.type);
+  const configMap = new Map(existing.map(vt => [vt.type, vt]));
 
-    // No attributes to update
-    if (!newConfig) {
-      return config;
+  for (const newConfig of newConfigs) {
+    const existingConfig = configMap.get(newConfig.type);
+    if (!existingConfig) {
+      configMap.set(newConfig.type, newConfig);
+    } else {
+      const mergedAttributes = mergeAttributes(
+        existingConfig.attributes,
+        newConfig.attributes
+      );
+      configMap.set(newConfig.type, {
+        ...existingConfig,
+        attributes: mergedAttributes,
+      });
     }
-
-    // Find missing attributes
-    const existingAttributes = new Set(
-      config.attributes.map(attr => attr.name)
-    );
-    const missingAttributes = newConfig.attributes.filter(
-      newAttr => !existingAttributes.has(newAttr.name)
-    );
-
-    if (missingAttributes.length === 0) {
-      return config;
-    }
-
-    logger.debug(
-      `Adding missing attributes to ${config.type}:`,
-      missingAttributes
-    );
-
-    return {
-      ...config,
-      attributes: [...config.attributes, ...missingAttributes],
-    };
-  });
-
-  // Find missing vertex type configs
-  const existingTypes = new Set(updated.map(vt => vt.type));
-  const missing = newConfigs.filter(vt => !existingTypes.has(vt.type));
-
-  if (missing.length === 0) {
-    return updated;
   }
 
-  logger.debug(`Adding missing types:`, missing);
+  return Array.from(configMap.values());
+}
 
-  // Combine all together
-  return [...updated, ...missing];
+export function mergeAttributes(
+  existing: AttributeConfig[],
+  newAttributes: AttributeConfig[]
+): AttributeConfig[] {
+  const attrMap = new Map(existing.map(attr => [attr.name, attr]));
+
+  for (const newAttr of newAttributes) {
+    const existingAttr = attrMap.get(newAttr.name);
+    if (!existingAttr) {
+      attrMap.set(newAttr.name, newAttr);
+    } else {
+      attrMap.set(newAttr.name, {
+        ...existingAttr,
+        ...newAttr,
+      });
+    }
+  }
+
+  return Array.from(attrMap.values());
 }
 
 /** Creates a type config from a given node or edge. */
@@ -212,7 +201,7 @@ function getResourceUris(schema: SchemaInference) {
 /** Updates the schema with any new vertex or edge types, any new attributes, and updates the generated prefixes for sparql connections. */
 export function useUpdateSchemaFromEntities() {
   return useAtomCallback(
-    useCallback((get, set, entities: { vertices: Vertex[]; edges: Edge[] }) => {
+    useCallback((get, set, entities: Entities) => {
       const activeSchema = get(activeSchemaSelector);
       if (entities.vertices.length === 0 && entities.edges.length === 0) {
         return;
@@ -230,13 +219,7 @@ export function useUpdateSchemaFromEntities() {
           if (!prev) {
             return prev;
           }
-          return updateSchemaFromEntities(
-            {
-              nodes: toNodeMap(entities.vertices),
-              edges: toEdgeMap(entities.edges),
-            },
-            prev
-          );
+          return updateSchemaFromEntities(entities, prev);
         });
       });
     }, [])
@@ -249,10 +232,7 @@ export type UpdateSchemaHandler = ReturnType<
 
 /** Attempts to efficiently detect if the schema should be updated. */
 export function shouldUpdateSchemaFromEntities(
-  entities: {
-    vertices: Vertex[];
-    edges: Edge[];
-  },
+  entities: Entities,
   schema: SchemaInference
 ) {
   if (entities.vertices.length > 0) {

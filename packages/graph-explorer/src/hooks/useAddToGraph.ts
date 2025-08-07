@@ -4,6 +4,7 @@ import {
   createVertex,
   Edge,
   edgesAtom,
+  Entities,
   fetchEntityDetails,
   nodesAtom,
   toEdgeMap,
@@ -25,7 +26,7 @@ export function useAddToGraph() {
   const updateGraphStorage = useUpdateGraphSession();
   const queryClient = useQueryClient();
 
-  return async (entities: { vertices?: Vertex[]; edges?: Edge[] }) => {
+  return async (entities: Partial<Entities>) => {
     const vertices = toNodeMap(entities.vertices ?? []);
     const edges = toEdgeMap(entities.edges ?? []);
 
@@ -76,7 +77,10 @@ export function useAddToGraph() {
         return prev;
       }
       return updateSchemaFromEntities(
-        { nodes: newVerticesMap, edges: newEdgesMap },
+        {
+          vertices: newVerticesMap.values().toArray(),
+          edges: newEdgesMap.values().toArray(),
+        },
         prev
       );
     });
