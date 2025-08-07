@@ -21,9 +21,10 @@ export function EntitySearchResult({
 }
 
 export function createEntityKey(entity: Entity, level: number) {
-  const commonPrefix = "name" in entity
-    ? `${entity.entityType}:${level}:${entity.name}`
-    : `${entity.entityType}:${level}`;
+  const commonPrefix =
+    "name" in entity
+      ? `${entity.entityType}:${level}:${entity.name}`
+      : `${entity.entityType}:${level}`;
 
   switch (entity.entityType) {
     case "vertex":
