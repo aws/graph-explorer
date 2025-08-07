@@ -27,7 +27,6 @@ export function createEntityKey(entity: Entity, level: number) {
 
   switch (entity.entityType) {
     case "vertex":
-      return `${commonPrefix}:${entity.id}`;
     case "edge":
       return `${commonPrefix}:${entity.id}`;
     case "scalar":
