@@ -107,7 +107,7 @@ export function SearchResultAttribute({
       {...props}
       className={cn(
         "flex w-full flex-wrap justify-between gap-2 rounded-xl border px-4 py-2 shadow-sm",
-        isEven(level) ? "bg-default" : "bg-gray-50",
+        isEven(level) ? "bg-gray-50" : "bg-default",
         className
       )}
     />

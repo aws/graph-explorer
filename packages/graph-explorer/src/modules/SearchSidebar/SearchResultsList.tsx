@@ -6,14 +6,12 @@ import {
   Spinner,
 } from "@/components";
 import { MappedQueryResults } from "@/connector";
-import { VertexSearchResult } from "./VertexSearchResult";
 import { useAddToGraphMutation } from "@/hooks/useAddToGraph";
 import { ChevronLeftIcon, ChevronRightIcon, ListPlusIcon } from "lucide-react";
-import { EdgeSearchResult } from "./EdgeSearchResult";
-import { ScalarSearchResult } from "./ScalarSearchResult";
 import { Edge, Vertex } from "@/core";
 import { useState } from "react";
 import { cn } from "@/utils";
+import { createEntityKey, EntitySearchResult } from "./EntitySearchResult";
 
 export function SearchResultsList({
   results,
@@ -26,7 +24,7 @@ export function SearchResultsList({
   const [page, setPage] = useState(0);
 
   // Combine all result types into a single list
-  const allRows = createRows(results);
+  const allRows = [...results.vertices, ...results.edges, ...results.scalars];
 
   // Only show paging controls when over the page size
   const isPagingNecessary = allRows.length > pageSize;
@@ -45,8 +43,10 @@ export function SearchResultsList({
     <>
       <div className="grow p-3">
         <ul className="flex flex-col space-y-4">
-          {currentPageRows.map(row => (
-            <li key={row.key}>{row.render()}</li>
+          {currentPageRows.map(entity => (
+            <li key={createEntityKey(entity, 0)}>
+              <EntitySearchResult entity={entity} level={0} />
+            </li>
           ))}
         </ul>
       </div>
@@ -105,27 +105,6 @@ function ResultCounts({ results }: { results: MappedQueryResults }) {
       {counts || "No results"}
     </p>
   );
-}
-
-/** Create a list of functions that render a row for each result type */
-function createRows({ vertices, edges, scalars }: MappedQueryResults) {
-  return vertices
-    .map(entity => ({
-      key: `node:${entity.type}:${entity.id}`,
-      render: () => <VertexSearchResult vertex={entity} />,
-    }))
-    .concat(
-      edges.map(entity => ({
-        key: `edge:${entity.type}:${entity.id}`,
-        render: () => <EdgeSearchResult edge={entity} />,
-      }))
-    )
-    .concat(
-      scalars.map((entity, index) => ({
-        key: `scalar:${String(entity.value)}:${index}`,
-        render: () => <ScalarSearchResult scalar={entity} />,
-      }))
-    );
 }
 
 function AddAllToGraphButton({
