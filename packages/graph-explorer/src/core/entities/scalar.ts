@@ -1,36 +1,30 @@
 import { formatDate, MISSING_DISPLAY_VALUE } from "@/utils";
-import { EntityPropertyValue } from "./shared";
 
-type ScalarTypedValue =
-  | { type: "null"; value: null }
-  | { type: "string"; value: string }
-  | { type: "number"; value: number }
-  | { type: "boolean"; value: boolean }
-  | { type: "date"; value: Date };
+type ScalarValue = string | number | boolean | Date | null;
 
 export type Scalar = {
   entityType: "scalar";
   name?: string;
-} & ScalarTypedValue;
+  value: ScalarValue;
+};
 
 /** Constructs a Scalar instance from the given values. */
 export function createScalar({
   value,
   name,
 }: {
-  value: EntityPropertyValue | Date | null;
+  value: ScalarValue;
   name?: string;
 }): Scalar {
   return {
     entityType: "scalar" as const,
     name,
-    ...createTypedValue(value),
+    value,
   };
 }
 
-function createTypedValue(
-  value: EntityPropertyValue | Date | null
-): ScalarTypedValue {
+/** Determines the type of the value and casts it. Falls back to string if the type can not be determined. */
+export function createTypedValue(value: ScalarValue) {
   if (value === null) {
     return { type: "null" as const, value: null };
   } else if (value instanceof Date) {
@@ -46,16 +40,17 @@ function createTypedValue(
   }
 }
 
-export function getDisplayValueForScalar(scalar: Scalar) {
-  switch (scalar.type) {
+export function getDisplayValueForScalar(value: ScalarValue) {
+  const typedValue = createTypedValue(value);
+  switch (typedValue.type) {
     case "string":
-      return scalar.value;
+      return typedValue.value;
     case "number":
-      return new Intl.NumberFormat().format(scalar.value);
+      return new Intl.NumberFormat().format(typedValue.value);
     case "boolean":
-      return String(scalar.value);
+      return String(typedValue.value);
     case "date":
-      return formatDate(scalar.value);
+      return formatDate(typedValue.value);
     case "null":
       return MISSING_DISPLAY_VALUE;
   }
