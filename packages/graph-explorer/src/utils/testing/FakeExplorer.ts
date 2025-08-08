@@ -51,6 +51,8 @@ export class FakeExplorer implements Explorer {
 
   addEdge(edge: Edge) {
     this.edgeMap.set(edge.id, edge);
+    this.addVertex(edge.source);
+    this.addVertex(edge.target);
   }
 
   async fetchSchema() {
@@ -131,10 +133,10 @@ export class FakeExplorer implements Explorer {
     return this.edges
       .values()
       .map(edge =>
-        edge.source === vertexId
-          ? this.vertexMap.get(edge.target)
-          : edge.target === vertexId
-            ? this.vertexMap.get(edge.source)
+        edge.source.id === vertexId
+          ? this.vertexMap.get(edge.target.id)
+          : edge.target.id === vertexId
+            ? this.vertexMap.get(edge.source.id)
             : null
       )
       .filter(n => n != null)

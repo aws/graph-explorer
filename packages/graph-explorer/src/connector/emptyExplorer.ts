@@ -30,5 +30,5 @@ export const emptyExplorer: Explorer = {
   keywordSearch: async () => toMappedQueryResults({}),
   vertexDetails: async () => ({ vertices: [] }),
   edgeDetails: async () => ({ edges: [] }),
-  rawQuery: async () => toMappedQueryResults({}),
+  rawQuery: async () => [],
 };

@@ -11,7 +11,7 @@ import {
   renderHookWithJotai,
   renderHookWithState,
 } from "@/utils/testing";
-import { DisplayEdge, useDisplayEdgeFromEdge } from "./displayEdge";
+import { useDisplayEdgeFromEdge } from "./displayEdge";
 import { formatDate } from "@/utils";
 import { createRandomDate, createRandomName } from "@shared/utils/testing";
 import { DisplayAttribute } from "./displayAttribute";
@@ -47,24 +47,14 @@ describe("useDisplayEdgeFromEdge", () => {
     expect(act(edge).displayName).toEqual(edge.type);
   });
 
-  it("should contain info about the source vertex", () => {
+  it("should have the id of the source vertex", () => {
     const edge = createEdge();
-    expect(act(edge).source).toEqual({
-      displayId: String(edge.source),
-      displayTypes: edge.sourceTypes.join(", "),
-      id: edge.source,
-      types: edge.sourceTypes,
-    } satisfies DisplayEdge["source"]);
+    expect(act(edge).sourceId).toEqual(edge.source.id);
   });
 
-  it("should contain info about the target vertex", () => {
+  it("should have the id the target vertex", () => {
     const edge = createEdge();
-    expect(act(edge).target).toEqual({
-      displayId: String(edge.target),
-      displayTypes: edge.targetTypes.join(", "),
-      id: edge.target,
-      types: edge.targetTypes,
-    } satisfies DisplayEdge["target"]);
+    expect(act(edge).targetId).toEqual(edge.target.id);
   });
 
   it("should have display name that matches the attribute value", () => {

@@ -1,3 +1,4 @@
+import { vertexDetailsQuery } from "@/connector";
 import {
   DisplayAttribute,
   getSortedDisplayAttributes,
@@ -11,6 +12,7 @@ import {
   getRawId,
   Vertex,
   VertexId,
+  createVertex,
 } from "@/core";
 import { textTransformSelector } from "@/hooks";
 import {
@@ -18,6 +20,7 @@ import {
   RESERVED_ID_PROPERTY,
   RESERVED_TYPES_PROPERTY,
 } from "@/utils";
+import { useQuery } from "@tanstack/react-query";
 import { atom, useAtomValue } from "jotai";
 import { atomFamily } from "jotai/utils";
 
@@ -35,15 +38,21 @@ export type DisplayVertex = {
   original: Vertex;
 };
 
-/** Finds the `DisplayVertex` instance for a give `VertexId` within the vertices added to the graph canvas. */
+/**
+ * Creates a `DisplayVertex` from the given `VertexId.
+ *
+ * This will prefer the vertex from the query, which is most up to date. It will
+ * fall back to a vertex in the canvas, then to creating a blank vertex from the
+ * id.
+ */
 export function useDisplayVertex(id: VertexId) {
-  const vertex = useAtomValue(displayVerticesInCanvasSelector).get(id);
+  const fromId = createVertex({ id, types: [] });
+  const fromCanvas = useAtomValue(nodesAtom).get(id);
+  const { data: fromQuery } = useQuery(vertexDetailsQuery(id));
 
-  if (!vertex) {
-    throw new Error(`Vertex with id ${id} not found in displayVertices`);
-  }
+  const vertex = fromQuery?.vertex ?? fromCanvas ?? fromId;
 
-  return vertex;
+  return useAtomValue(displayVertexSelector(vertex));
 }
 
 /** Maps all `Vertex` instances in the graph canvas to `DisplayVertex` instances. */

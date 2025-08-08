@@ -71,7 +71,7 @@ describe("edgeDetails", () => {
       createRandomVertexForRdf()
     );
     // Missing the brackets
-    edge.id = `${edge.source}-${edge.type}->${edge.target}` as EdgeId;
+    edge.id = `${edge.source.id}-${edge.type}->${edge.target.id}` as EdgeId;
     const response = createResponseFromEdges(edge);
     const mockFetch = vi.fn().mockResolvedValue(response);
 
@@ -86,7 +86,7 @@ describe("edgeDetails", () => {
       createRandomVertexForRdf()
     );
     edge.id =
-      `${createRandomUrlString()}-[${edge.type}]->${edge.target}` as EdgeId;
+      `${createRandomUrlString()}-[${edge.type}]->${edge.target.id}` as EdgeId;
     const response = createResponseFromEdges(edge);
     const mockFetch = vi.fn().mockResolvedValue(response);
 
@@ -101,7 +101,7 @@ describe("edgeDetails", () => {
       createRandomVertexForRdf()
     );
     edge.id =
-      `${edge.source}-[${edge.type}]->${createRandomUrlString()}` as EdgeId;
+      `${edge.source.id}-[${edge.type}]->${createRandomUrlString()}` as EdgeId;
     const response = createResponseFromEdges(edge);
     const mockFetch = vi.fn().mockResolvedValue(response);
 
@@ -118,20 +118,20 @@ function createResponseFromEdges(...edges: Edge[]) {
     },
     results: {
       bindings: edges.flatMap(edge => [
-        ...edge.sourceTypes.map(sourceType => ({
+        ...edge.source.types.map(sourceType => ({
           resource: {
             type: "uri",
-            value: edge.source,
+            value: edge.source.id,
           },
           type: {
             type: "uri",
             value: sourceType,
           },
         })),
-        ...edge.targetTypes.map(targetType => ({
+        ...edge.target.types.map(targetType => ({
           resource: {
             type: "uri",
-            value: edge.target,
+            value: edge.target.id,
           },
           type: {
             type: "uri",

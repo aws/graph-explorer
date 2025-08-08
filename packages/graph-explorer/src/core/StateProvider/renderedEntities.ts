@@ -39,20 +39,6 @@ export function useRenderedEntities() {
   return { vertices, edges };
 }
 
-/**
- * Maps a rendered edge back to a regular edge.
- * @param renderedEdge The rendered edge
- * @returns An edge instance
- */
-export function createEdgeFromRenderedEdge(renderedEdge: RenderedEdge): Edge {
-  return {
-    ...renderedEdge.data,
-    id: getEdgeIdFromRenderedEdgeId(renderedEdge.data.id),
-    source: getVertexIdFromRenderedVertexId(renderedEdge.data.source),
-    target: getVertexIdFromRenderedVertexId(renderedEdge.data.target),
-  };
-}
-
 /** Maps a VertexId to a string with the original type prefixed. */
 export function createRenderedVertexId(id: VertexId): RenderedVertexId {
   return prefixIdWithType(id) as RenderedVertexId;
@@ -145,8 +131,8 @@ function createRenderedEdge(edge: Edge) {
     data: {
       ...edge,
       id: createRenderedEdgeId(edge.id),
-      source: createRenderedVertexId(edge.source),
-      target: createRenderedVertexId(edge.target),
+      source: createRenderedVertexId(edge.source.id),
+      target: createRenderedVertexId(edge.target.id),
     },
   };
 }

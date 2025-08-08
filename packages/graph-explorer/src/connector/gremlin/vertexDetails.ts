@@ -8,6 +8,7 @@ import { GremlinFetch, GVertex } from "./types";
 import { mapResults } from "./mappers/mapResults";
 import isErrorResponse from "../utils/isErrorResponse";
 import { idParam } from "./idParam";
+import { getAllVertices } from "@/core";
 
 type Response = {
   requestId: string;
@@ -45,7 +46,7 @@ export async function vertexDetails(
 
   // Map the results
   const entities = mapResults(data.result.data);
-  const vertices = entities.vertices;
+  const vertices = getAllVertices(entities);
 
   // Log a warning if some nodes are missing
   const missing = new Set(request.vertexIds).difference(

@@ -1,4 +1,4 @@
-import { createEdge, createScalar, createVertex } from "@/core";
+import { createEdge, createScalar, createVertex, Edge } from "@/core";
 import { mapResults } from "./mapResults";
 import {
   createGEdge,
@@ -13,17 +13,16 @@ import {
   createGMap,
   createGType,
 } from "@/utils/testing/graphsonHelpers";
-import { toMappedQueryResults } from "@/connector";
 
 describe("mapResults", () => {
   it("should handle empty g:List", () => {
     const results = mapResults(createGList([]));
-    expect(results).toEqual(toMappedQueryResults({}));
+    expect(results).toEqual([]);
   });
 
   it("should handle empty g:Map", () => {
     const results = mapResults(createGMap({}));
-    expect(results).toEqual(toMappedQueryResults({}));
+    expect(results).toEqual([]);
   });
 
   it("should handle empty g:Set", () => {
@@ -31,139 +30,60 @@ describe("mapResults", () => {
       "@type": "g:Set",
       "@value": [],
     });
-    expect(results).toEqual(toMappedQueryResults({}));
+    expect(results).toEqual([]);
   });
 
   it("should handle g:List with g:Vertex", () => {
-    const results = mapResults({
-      "@type": "g:List",
-      "@value": [
-        {
-          "@type": "g:Vertex",
-          "@value": {
-            id: "1",
-            label: "Person",
-            properties: {
-              name: [
-                {
-                  "@type": "g:VertexProperty",
-                  "@value": {
-                    id: {
-                      "@type": "g:Int32",
-                      "@value": 1,
-                    },
-                    value: "Alice",
-                    label: "name",
-                  },
-                },
-              ],
-            },
-          },
-        },
-      ],
+    const vertex = createVertex({
+      id: "1",
+      types: ["Person"],
+      attributes: {
+        name: "Alice",
+      },
     });
-    expect(results).toEqual(
-      toMappedQueryResults({
-        vertices: [
-          createVertex({
-            id: "1",
-            types: ["Person"],
-            attributes: {
-              name: "Alice",
-            },
-          }),
-        ],
-      })
-    );
+    const results = mapResults(createGList([createGVertex(vertex)]));
+    expect(results).toEqual([vertex]);
   });
 
-  it("should remove duplicate vertices", () => {
+  it("should not remove duplicate vertices", () => {
     const vertex = createRandomVertex();
     const gVertex = createGVertex(vertex);
     const gList = createGList([gVertex, gVertex]);
     const results = mapResults(gList);
-    expect(results).toEqual(
-      toMappedQueryResults({
-        vertices: [vertex],
-      })
-    );
+    expect(results).toEqual([vertex, vertex]);
   });
 
-  it("should remove duplicate vertices", () => {
-    const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
-    const sourceFragment = createVertex({
-      id: edge.source,
-      types: edge.sourceTypes,
-    });
-    const targetFragment = createVertex({
-      id: edge.target,
-      types: edge.targetTypes,
-    });
+  it("should not remove duplicate edges", () => {
+    const source = createRandomVertex();
+    const target = createRandomVertex();
+    const edge = createRandomEdge(source, target);
+
     const gEdge = createGEdge(edge);
     const gList = createGList([gEdge, gEdge]);
+
     const results = mapResults(gList);
-    expect(results).toEqual(
-      toMappedQueryResults({
-        edges: [edge],
-        vertices: [sourceFragment, targetFragment],
-      })
-    );
+
+    expect(results).toEqual([toExpectedEdge(edge), toExpectedEdge(edge)]);
   });
 
   it("should handle g:List with g:Edge", () => {
-    const results = mapResults({
-      "@type": "g:List",
-      "@value": [
-        {
-          "@type": "g:Edge",
-          "@value": {
-            id: "3",
-            label: "knows",
-            inVLabel: "Person",
-            outVLabel: "Person",
-            inV: "1",
-            outV: "2",
-            properties: {
-              since: {
-                "@type": "g:Property",
-                "@value": {
-                  key: "since",
-                  value: {
-                    "@type": "g:Int32",
-                    "@value": 20200101,
-                  },
-                },
-              },
-            },
-          },
-        },
-      ],
+    const edge = createEdge({
+      id: "3",
+      type: "knows",
+      source: {
+        id: "2",
+        types: ["Person"],
+      },
+      target: {
+        id: "1",
+        types: ["Person"],
+      },
+      attributes: {
+        since: 20200101,
+      },
     });
-    expect(results).toEqual(
-      toMappedQueryResults({
-        edges: [
-          createEdge({
-            id: "3",
-            type: "knows",
-            source: {
-              id: "2",
-              types: ["Person"],
-            },
-            target: {
-              id: "1",
-              types: ["Person"],
-            },
-            attributes: {
-              since: 20200101,
-            },
-          }),
-        ],
-        vertices: [
-          createVertex({ id: "2", types: ["Person"] }),
-          createVertex({ id: "1", types: ["Person"] }),
-        ],
-      })
-    );
+    const results = mapResults(createGList([createGEdge(edge)]));
+    expect(results).toEqual([edge]);
   });
 
   it("should be fragment when no properties exist", () => {
@@ -172,7 +92,7 @@ describe("mapResults", () => {
     vertex.attributes = {};
     const gVertex = createGVertex(vertex);
     const result = mapResults(gVertex);
-    expect(result).toEqual(toMappedQueryResults({ vertices: [vertex] }));
+    expect(result).toEqual([vertex]);
   });
 
   it("should not be fragment when some properties exist", () => {
@@ -180,16 +100,12 @@ describe("mapResults", () => {
     vertex.__isFragment = false;
     const gVertex = createGVertex(vertex);
     const result = mapResults(gVertex);
-    expect(result).toEqual(toMappedQueryResults({ vertices: [vertex] }));
+    expect(result).toEqual([vertex]);
   });
 
   it("should handle g:List with null", () => {
     const results = mapResults(createGList([null]));
-    expect(results).toEqual(
-      toMappedQueryResults({
-        scalars: [createScalar({ value: null })],
-      })
-    );
+    expect(results).toEqual([createScalar({ value: null })]);
   });
 
   it("should add names to scalars from g:Map keys", () => {
@@ -201,19 +117,15 @@ describe("mapResults", () => {
         time: createGDate(new Date("2020-01-01T00:00:00.000Z")),
       })
     );
-    expect(results).toEqual(
-      toMappedQueryResults({
-        scalars: [
-          createScalar({ value: 42, name: "count" }),
-          createScalar({ value: "John", name: "name" }),
-          createScalar({ value: true, name: "active" }),
-          createScalar({
-            value: new Date("2020-01-01T00:00:00.000Z"),
-            name: "time",
-          }),
-        ],
-      })
-    );
+    expect(results).toEqual([
+      createScalar({ value: 42, name: "count" }),
+      createScalar({ value: "John", name: "name" }),
+      createScalar({ value: true, name: "active" }),
+      createScalar({
+        value: new Date("2020-01-01T00:00:00.000Z"),
+        name: "time",
+      }),
+    ]);
   });
 
   it("should handle g:Map with non-string keys", () => {
@@ -221,14 +133,10 @@ describe("mapResults", () => {
       "@type": "g:Map",
       "@value": [createGInt32(1), "value1", createGType("ID"), "value2"],
     });
-    expect(results).toEqual(
-      toMappedQueryResults({
-        scalars: [
-          createScalar({ value: "value1", name: "1" }),
-          createScalar({ value: "value2", name: "ID" }),
-        ],
-      })
-    );
+    expect(results).toEqual([
+      createScalar({ value: "value1", name: "1" }),
+      createScalar({ value: "value2", name: "ID" }),
+    ]);
   });
 
   it("should handle nested g:Map in g:List", () => {
@@ -240,14 +148,10 @@ describe("mapResults", () => {
         }),
       ])
     );
-    expect(results).toEqual(
-      toMappedQueryResults({
-        scalars: [
-          createScalar({ value: 100, name: "total" }),
-          createScalar({ value: "success", name: "message" }),
-        ],
-      })
-    );
+    expect(results).toEqual([
+      createScalar({ value: 100, name: "total" }),
+      createScalar({ value: "success", name: "message" }),
+    ]);
   });
 
   it("should handle g:Map with null values", () => {
@@ -255,14 +159,10 @@ describe("mapResults", () => {
       "@type": "g:Map",
       "@value": ["data", null, "count", createGInt32(5)],
     });
-    expect(results).toEqual(
-      toMappedQueryResults({
-        scalars: [
-          createScalar({ value: null, name: "data" }),
-          createScalar({ value: 5, name: "count" }),
-        ],
-      })
-    );
+    expect(results).toEqual([
+      createScalar({ value: null, name: "data" }),
+      createScalar({ value: 5, name: "count" }),
+    ]);
   });
 
   it("should handle g:Map with id and label values", () => {
@@ -270,13 +170,26 @@ describe("mapResults", () => {
       "@type": "g:Map",
       "@value": [createGType("id"), "1", createGType("label"), "Foo::Bar"],
     });
-    expect(results).toEqual(
-      toMappedQueryResults({
-        scalars: [
-          createScalar({ value: "1", name: "id" }),
-          createScalar({ value: "Foo::Bar", name: "label" }),
-        ],
-      })
-    );
+    expect(results).toEqual([
+      createScalar({ value: "1", name: "id" }),
+      createScalar({ value: "Foo::Bar", name: "label" }),
+    ]);
   });
 });
+
+/**
+ * Reduces the source and target vertices to fragments with just the ID and types.
+ */
+function toExpectedEdge(edge: Edge): Edge {
+  return {
+    ...edge,
+    source: createVertex({
+      id: edge.source.id,
+      types: edge.source.types,
+    }),
+    target: createVertex({
+      id: edge.target.id,
+      types: edge.target.types,
+    }),
+  };
+}

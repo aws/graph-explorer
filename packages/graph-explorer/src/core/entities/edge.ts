@@ -1,5 +1,5 @@
 import { Branded } from "@/utils";
-import { Vertex, VertexId } from "./vertex";
+import { Vertex } from "./vertex";
 import { EntityProperties, EntityRawId } from "./shared";
 
 export type EdgeId = Branded<EntityRawId, "EdgeId">;
@@ -9,6 +9,7 @@ export type Edge = {
    * Indicates the type in order to discriminate from the `Vertex` type in unions.
    */
   entityType: "edge";
+
   /**
    * Unique identifier for the edge.
    * - For PG, the edge id
@@ -16,28 +17,24 @@ export type Edge = {
    *   So, a synthetic id is created using <source URI>-[predicate]-><target URI>
    */
   id: EdgeId;
+
   /**
    * Edge type.
    * - For PG, the label which identifies the relation type
    * - For RDF, the predicate
    */
   type: string;
+
   /**
-   * Source vertex id
+   * The source vertex from which this edge originates.
    */
-  source: VertexId;
+  source: Vertex;
+
   /**
-   * Source vertex types
+   * The target vertex to which this edge points.
    */
-  sourceTypes: Vertex["types"];
-  /**
-   * Target vertex id
-   */
-  target: VertexId;
-  /**
-   * Target vertex types
-   */
-  targetTypes: Vertex["types"];
+  target: Vertex;
+
   /**
    * Only for PG, attributes associated to the edge.
    * For RDF, predicates do not have more properties than the predicate itself.

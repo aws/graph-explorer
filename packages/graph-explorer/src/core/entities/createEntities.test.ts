@@ -11,7 +11,7 @@ describe("createVertex", () => {
       },
     });
 
-    expect(vertex).toMatchObject({
+    expect(vertex).toStrictEqual({
       entityType: "vertex",
       id: "1",
       type: "Person",
@@ -33,7 +33,7 @@ describe("createVertex", () => {
       },
     });
 
-    expect(vertex).toMatchObject({
+    expect(vertex).toStrictEqual({
       entityType: "vertex",
       id: "1",
       type: "Person",
@@ -55,7 +55,7 @@ describe("createVertex", () => {
       },
     });
 
-    expect(vertex).toMatchObject({
+    expect(vertex).toStrictEqual({
       entityType: "vertex",
       id: "1",
       type: "",
@@ -68,13 +68,13 @@ describe("createVertex", () => {
     });
   });
 
-  it("should create a vertex with missing attributes", () => {
+  it("should create a vertex with missing attributes as a fragment", () => {
     const vertex = createVertex({
       id: "1",
       types: ["Person"],
     });
 
-    expect(vertex).toMatchObject({
+    expect(vertex).toStrictEqual({
       entityType: "vertex",
       id: "1",
       type: "Person",
@@ -92,7 +92,7 @@ describe("createVertex", () => {
       attributes: {},
     });
 
-    expect(vertex).toMatchObject({
+    expect(vertex).toStrictEqual({
       entityType: "vertex",
       id: "1",
       type: "Person",
@@ -114,7 +114,7 @@ describe("createVertex", () => {
       ]),
     });
 
-    expect(vertex).toMatchObject({
+    expect(vertex).toStrictEqual({
       entityType: "vertex",
       id: "1",
       type: "Person",
@@ -137,7 +137,7 @@ describe("createVertex", () => {
       isBlankNode: true,
     });
 
-    expect(vertex).toMatchObject({
+    expect(vertex).toStrictEqual({
       entityType: "vertex",
       id: "1",
       type: "Person",
@@ -167,14 +167,18 @@ describe("createEdge", () => {
       },
     });
 
-    expect(edge).toMatchObject({
+    expect(edge).toStrictEqual({
       entityType: "edge",
       id: "1",
       type: "WORKS_WITH",
-      source: "1",
-      sourceTypes: ["Person"],
-      target: "2",
-      targetTypes: ["Person"],
+      source: createVertex({
+        id: "1",
+        types: ["Person"],
+      }),
+      target: createVertex({
+        id: "2",
+        types: ["Person"],
+      }),
       attributes: {
         since: "2020-01-01",
       },
@@ -199,14 +203,18 @@ describe("createEdge", () => {
       },
     });
 
-    expect(edge).toMatchObject({
+    expect(edge).toStrictEqual({
       entityType: "edge",
       id: "1",
       type: "WORKS_WITH",
-      source: "1",
-      sourceTypes: ["Person", "Worker"],
-      target: "2",
-      targetTypes: ["Person", "Worker"],
+      source: createVertex({
+        id: "1",
+        types: ["Person", "Worker"],
+      }),
+      target: createVertex({
+        id: "2",
+        types: ["Person", "Worker"],
+      }),
       attributes: {
         since: "2020-01-01",
       },
@@ -231,14 +239,18 @@ describe("createEdge", () => {
       },
     });
 
-    expect(edge).toMatchObject({
+    expect(edge).toStrictEqual({
       entityType: "edge",
       id: "1",
       type: "WORKS_WITH",
-      source: "1",
-      sourceTypes: [],
-      target: "2",
-      targetTypes: [],
+      source: createVertex({
+        id: "1",
+        types: [],
+      }),
+      target: createVertex({
+        id: "2",
+        types: [],
+      }),
       attributes: {
         since: "2020-01-01",
       },
@@ -260,14 +272,18 @@ describe("createEdge", () => {
       },
     });
 
-    expect(edge).toMatchObject({
+    expect(edge).toStrictEqual({
       entityType: "edge",
       id: "1",
       type: "WORKS_WITH",
-      source: "1",
-      sourceTypes: ["Person"],
-      target: "2",
-      targetTypes: ["Person"],
+      source: createVertex({
+        id: "1",
+        types: ["Person"],
+      }),
+      target: createVertex({
+        id: "2",
+        types: ["Person"],
+      }),
       attributes: {},
       __isFragment: true,
     });
@@ -288,14 +304,18 @@ describe("createEdge", () => {
       attributes: {},
     });
 
-    expect(edge).toMatchObject({
+    expect(edge).toStrictEqual({
       entityType: "edge",
       id: "1",
       type: "WORKS_WITH",
-      source: "1",
-      sourceTypes: ["Person"],
-      target: "2",
-      targetTypes: ["Person"],
+      source: createVertex({
+        id: "1",
+        types: ["Person"],
+      }),
+      target: createVertex({
+        id: "2",
+        types: ["Person"],
+      }),
       attributes: {},
       __isFragment: false,
     });
@@ -321,14 +341,18 @@ describe("createEdge", () => {
       ]),
     });
 
-    expect(edge).toMatchObject({
+    expect(edge).toStrictEqual({
       entityType: "edge",
       id: "1",
       type: "WORKS_WITH",
-      source: "1",
-      sourceTypes: ["Person"],
-      target: "2",
-      targetTypes: ["Person"],
+      source: createVertex({
+        id: "1",
+        types: ["Person"],
+      }),
+      target: createVertex({
+        id: "2",
+        types: ["Person"],
+      }),
       attributes: {
         since: "2020-01-01",
         until: "2020-01-02",

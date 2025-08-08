@@ -176,18 +176,12 @@ function SearchResultsListContainer({ cancel }: { cancel: () => void }) {
     return <QueryTabEmptyState />;
   }
 
-  const mappedResults = query.data;
-
   // No results
-  if (
-    mappedResults.vertices.length === 0 &&
-    mappedResults.edges.length === 0 &&
-    mappedResults.scalars.length === 0
-  ) {
+  if (!query.data.length) {
     return <QueryTabNoResults />;
   }
 
-  return <SearchResultsList results={mappedResults} />;
+  return <SearchResultsList results={query.data} />;
 }
 
 function QueryTabLoading({ cancel }: { cancel: () => void }) {

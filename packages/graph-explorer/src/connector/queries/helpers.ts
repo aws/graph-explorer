@@ -11,9 +11,9 @@ import { neighborsCountQuery } from "./neighborsCountQuery";
 /** Sets the vertex details cache for the given vertices. */
 export function updateVertexDetailsCache(
   queryClient: QueryClient,
-  vertices: Vertex[]
+  vertices: Iterable<Vertex>
 ) {
-  for (const vertex of vertices.filter(v => !v.__isFragment)) {
+  for (const vertex of Iterator.from(vertices).filter(v => !v.__isFragment)) {
     const queryKey = vertexDetailsQuery(vertex.id).queryKey;
     queryClient.setQueryData(queryKey, { vertex });
   }
@@ -22,9 +22,9 @@ export function updateVertexDetailsCache(
 /** Sets the edge details cache for the given edges. */
 export function updateEdgeDetailsCache(
   queryClient: QueryClient,
-  edges: Edge[]
+  edges: Iterable<Edge>
 ) {
-  for (const edge of edges.filter(e => !e.__isFragment)) {
+  for (const edge of Iterator.from(edges).filter(e => !e.__isFragment)) {
     const queryKey = edgeDetailsQuery(edge.id).queryKey;
     queryClient.setQueryData(queryKey, { edge });
   }

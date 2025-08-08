@@ -3,11 +3,11 @@ import {
   createRandomEdge,
   createRandomVertex,
   FakeExplorer,
+  makeEdgeVerticesFragments,
   makeFragment,
 } from "@/utils/testing";
 import { executeUserQuery } from "./executeUserQuery";
-import { toMappedQueryResults } from "../useGEFetchTypes";
-import { createScalar } from "@/core";
+import { createScalar, getAllGraphableEntities } from "@/core";
 
 describe("executeQuery", () => {
   it("should execute a query with empty results", async () => {
@@ -18,18 +18,20 @@ describe("executeQuery", () => {
     const vertexDetailsSpy = vi.spyOn(explorer, "vertexDetails");
     const edgeDetailsSpy = vi.spyOn(explorer, "edgeDetails");
 
-    rawQuerySpy.mockResolvedValue(toMappedQueryResults({}));
+    rawQuerySpy.mockResolvedValue([]);
     const mockUpdateSchema = vi.fn();
 
     const result = await queryClient.fetchQuery(
       executeUserQuery("query", mockUpdateSchema)
     );
 
-    expect(result).toEqual(toMappedQueryResults({}));
+    expect(result).toEqual([]);
     expect(rawQuerySpy).toBeCalledTimes(1);
     expect(vertexDetailsSpy).toBeCalledTimes(0);
     expect(edgeDetailsSpy).toBeCalledTimes(0);
-    expect(mockUpdateSchema).toHaveBeenCalledExactlyOnceWith(result);
+    expect(mockUpdateSchema).toHaveBeenCalledExactlyOnceWith(
+      getAllGraphableEntities(result)
+    );
   });
 
   it("should execute a query with vertex results", async () => {
@@ -41,18 +43,20 @@ describe("executeQuery", () => {
     const edgeDetailsSpy = vi.spyOn(explorer, "edgeDetails");
 
     const vertex = createRandomVertex();
-    rawQuerySpy.mockResolvedValue(toMappedQueryResults({ vertices: [vertex] }));
+    rawQuerySpy.mockResolvedValue([vertex]);
     const mockUpdateSchema = vi.fn();
 
     const result = await queryClient.fetchQuery(
       executeUserQuery("query", mockUpdateSchema)
     );
 
-    expect(result).toEqual(toMappedQueryResults({ vertices: [vertex] }));
+    expect(result).toEqual([vertex]);
     expect(rawQuerySpy).toBeCalledTimes(1);
     expect(vertexDetailsSpy).toBeCalledTimes(0);
     expect(edgeDetailsSpy).toBeCalledTimes(0);
-    expect(mockUpdateSchema).toHaveBeenCalledExactlyOnceWith(result);
+    expect(mockUpdateSchema).toHaveBeenCalledExactlyOnceWith(
+      getAllGraphableEntities(result)
+    );
   });
 
   it("should execute a query with vertex fragment results and fetch details", async () => {
@@ -65,20 +69,20 @@ describe("executeQuery", () => {
 
     const vertex = createRandomVertex();
     explorer.addVertex(vertex);
-    rawQuerySpy.mockResolvedValue(
-      toMappedQueryResults({ vertices: [makeFragment(vertex)] })
-    );
+    rawQuerySpy.mockResolvedValue([makeFragment(vertex)]);
     const mockUpdateSchema = vi.fn();
 
     const result = await queryClient.fetchQuery(
       executeUserQuery("query", mockUpdateSchema)
     );
 
-    expect(result).toEqual(toMappedQueryResults({ vertices: [vertex] }));
+    expect(result).toEqual([vertex]);
     expect(rawQuerySpy).toBeCalledTimes(1);
     expect(vertexDetailsSpy).toBeCalledTimes(1);
     expect(edgeDetailsSpy).toBeCalledTimes(0);
-    expect(mockUpdateSchema).toHaveBeenCalledExactlyOnceWith(result);
+    expect(mockUpdateSchema).toHaveBeenCalledExactlyOnceWith(
+      getAllGraphableEntities(result)
+    );
   });
 
   it("should execute a query with edge result", async () => {
@@ -90,18 +94,20 @@ describe("executeQuery", () => {
     const edgeDetailsSpy = vi.spyOn(explorer, "edgeDetails");
 
     const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
-    rawQuerySpy.mockResolvedValue(toMappedQueryResults({ edges: [edge] }));
+    rawQuerySpy.mockResolvedValue([edge]);
     const mockUpdateSchema = vi.fn();
 
     const result = await queryClient.fetchQuery(
       executeUserQuery("query", mockUpdateSchema)
     );
 
-    expect(result).toEqual(toMappedQueryResults({ edges: [edge] }));
+    expect(result).toEqual([edge]);
     expect(rawQuerySpy).toBeCalledTimes(1);
     expect(vertexDetailsSpy).toBeCalledTimes(0);
     expect(edgeDetailsSpy).toBeCalledTimes(0);
-    expect(mockUpdateSchema).toHaveBeenCalledExactlyOnceWith(result);
+    expect(mockUpdateSchema).toHaveBeenCalledExactlyOnceWith(
+      getAllGraphableEntities(result)
+    );
   });
 
   it("should execute a query with edge fragment result and fetch details", async () => {
@@ -114,20 +120,20 @@ describe("executeQuery", () => {
 
     const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
     explorer.addEdge(edge);
-    rawQuerySpy.mockResolvedValue(
-      toMappedQueryResults({ edges: [makeFragment(edge)] })
-    );
+    rawQuerySpy.mockResolvedValue([makeFragment(edge)]);
     const mockUpdateSchema = vi.fn();
 
     const result = await queryClient.fetchQuery(
       executeUserQuery("query", mockUpdateSchema)
     );
 
-    expect(result).toEqual(toMappedQueryResults({ edges: [edge] }));
+    expect(result).toEqual([edge]);
     expect(rawQuerySpy).toBeCalledTimes(1);
     expect(vertexDetailsSpy).toBeCalledTimes(0);
     expect(edgeDetailsSpy).toBeCalledTimes(1);
-    expect(mockUpdateSchema).toHaveBeenCalledExactlyOnceWith(result);
+    expect(mockUpdateSchema).toHaveBeenCalledExactlyOnceWith(
+      getAllGraphableEntities(result)
+    );
   });
 
   it("should execute a query and pass through scalars", async () => {
@@ -144,14 +150,13 @@ describe("executeQuery", () => {
     explorer.addVertex(vertex1);
     explorer.addVertex(vertex2);
     explorer.addEdge(edge);
-    const queryResult = toMappedQueryResults({
-      vertices: [makeFragment(vertex1), makeFragment(vertex2)],
-      edges: [edge],
-      scalars: [
-        createScalar({ name: "scalar1", value: 42 }),
-        createScalar({ name: "scalar2", value: "hello" }),
-      ],
-    });
+    const queryResult = [
+      makeFragment(vertex1),
+      makeFragment(vertex2),
+      makeEdgeVerticesFragments(makeFragment(edge)),
+      createScalar({ name: "scalar1", value: 42 }),
+      createScalar({ name: "scalar2", value: "hello" }),
+    ];
     rawQuerySpy.mockResolvedValue(queryResult);
     const mockUpdateSchema = vi.fn();
 
@@ -159,16 +164,17 @@ describe("executeQuery", () => {
       executeUserQuery("query", mockUpdateSchema)
     );
 
-    expect(result).toEqual(
-      toMappedQueryResults({
-        vertices: [vertex1, vertex2],
-        edges: [edge],
-        scalars: queryResult.scalars,
-      })
-    );
+    expect(result).toEqual([
+      vertex1,
+      vertex2,
+      edge,
+      ...queryResult.filter(r => r.entityType === "scalar"),
+    ]);
     expect(rawQuerySpy).toBeCalledTimes(1);
     expect(vertexDetailsSpy).toBeCalledTimes(1);
-    expect(edgeDetailsSpy).toBeCalledTimes(0);
-    expect(mockUpdateSchema).toHaveBeenCalledExactlyOnceWith(result);
+    expect(edgeDetailsSpy).toBeCalledTimes(1);
+    expect(mockUpdateSchema).toHaveBeenCalledExactlyOnceWith(
+      getAllGraphableEntities(result)
+    );
   });
 });

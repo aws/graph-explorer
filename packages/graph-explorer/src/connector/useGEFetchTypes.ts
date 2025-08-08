@@ -8,6 +8,7 @@ import {
   VertexId,
   NormalizedConnection,
   Scalar,
+  Entity,
 } from "@/core";
 
 export type QueryOptions = RequestInit & {
@@ -232,7 +233,7 @@ export type RawQueryRequest = {
   query: string;
 };
 
-export type RawQueryResponse = MappedQueryResults;
+export type RawQueryResponse = Entity[];
 
 /**
  * Abstracted interface to the common database queries used by

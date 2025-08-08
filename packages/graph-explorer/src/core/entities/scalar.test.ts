@@ -3,7 +3,12 @@ import {
   createRandomDouble,
   createRandomInteger,
 } from "@shared/utils/testing";
-import { createScalar, getDisplayValueForScalar, Scalar } from "./scalar";
+import {
+  createScalar,
+  createTypedValue,
+  getDisplayValueForScalar,
+  Scalar,
+} from "./scalar";
 import { MISSING_DISPLAY_VALUE } from "@/utils";
 
 describe("scalar", () => {
@@ -13,7 +18,6 @@ describe("scalar", () => {
 
       expect(result).toEqual({
         entityType: "scalar",
-        type: "null",
         value: null,
       } satisfies Scalar);
     });
@@ -23,7 +27,6 @@ describe("scalar", () => {
 
       expect(result).toEqual({
         entityType: "scalar",
-        type: "string",
         value: "hello world",
       } satisfies Scalar);
     });
@@ -33,7 +36,6 @@ describe("scalar", () => {
 
       expect(result).toEqual({
         entityType: "scalar",
-        type: "string",
         value: "",
       } satisfies Scalar);
     });
@@ -44,7 +46,6 @@ describe("scalar", () => {
 
       expect(result).toEqual({
         entityType: "scalar",
-        type: "number",
         value: value,
       } satisfies Scalar);
     });
@@ -55,7 +56,6 @@ describe("scalar", () => {
 
       expect(result).toEqual({
         entityType: "scalar",
-        type: "number",
         value: value,
       } satisfies Scalar);
     });
@@ -65,7 +65,6 @@ describe("scalar", () => {
 
       expect(result).toEqual({
         entityType: "scalar",
-        type: "number",
         value: 0,
       } satisfies Scalar);
     });
@@ -75,7 +74,6 @@ describe("scalar", () => {
 
       expect(result).toEqual({
         entityType: "scalar",
-        type: "number",
         value: -100,
       } satisfies Scalar);
     });
@@ -86,7 +84,6 @@ describe("scalar", () => {
 
       expect(result).toEqual({
         entityType: "scalar",
-        type: "boolean",
         value,
       } satisfies Scalar);
     });
@@ -97,59 +94,87 @@ describe("scalar", () => {
 
       expect(result).toEqual({
         entityType: "scalar",
-        type: "date",
         value: date,
       } satisfies Scalar);
     });
   });
 
+  describe("createTypedValue", () => {
+    it("should return type 'null'", () => {
+      expect(createTypedValue(null)).toEqual({
+        type: "null",
+        value: null,
+      });
+    });
+
+    it("should return type 'string'", () => {
+      expect(createTypedValue("hello world")).toEqual({
+        type: "string",
+        value: "hello world",
+      });
+    });
+
+    it("should return type 'number' for integer", () => {
+      const value = createRandomInteger();
+      expect(createTypedValue(value)).toEqual({
+        type: "number",
+        value: value,
+      });
+    });
+
+    it("should return type 'number' for double", () => {
+      const value = createRandomDouble();
+      expect(createTypedValue(value)).toEqual({
+        type: "number",
+        value: value,
+      });
+    });
+
+    it("should return type 'boolean'", () => {
+      const value = createRandomBoolean();
+      expect(createTypedValue(value)).toEqual({
+        type: "boolean",
+        value,
+      });
+    });
+
+    it("should return type 'date'", () => {
+      const date = new Date("2023-12-25T10:30:00Z");
+      expect(createTypedValue(date)).toEqual({
+        type: "date",
+        value: date,
+      });
+    });
+  });
+
   describe("getDisplayValueForScalar", () => {
     it("should return null for null scalar", () => {
-      const scalar = createScalar({ value: null });
-
-      const result = getDisplayValueForScalar(scalar);
-
+      const result = getDisplayValueForScalar(null);
       expect(result).toBe(MISSING_DISPLAY_VALUE);
     });
 
     it("should return string for string scalar", () => {
-      const scalar = createScalar({ value: "hello world" });
-
-      const result = getDisplayValueForScalar(scalar);
-
+      const result = getDisplayValueForScalar("hello world");
       expect(result).toBe("hello world");
     });
 
     it("should return number for integer scalar", () => {
-      const scalar = createScalar({ value: 123456 });
-
-      const result = getDisplayValueForScalar(scalar);
-
+      const result = getDisplayValueForScalar(123456);
       expect(result).toBe("123,456");
     });
 
     it("should return number for double scalar", () => {
-      const scalar = createScalar({ value: 123.45 });
-
-      const result = getDisplayValueForScalar(scalar);
-
+      const result = getDisplayValueForScalar(123.45);
       expect(result).toBe("123.45");
     });
 
     it("should return boolean for boolean scalar", () => {
-      const scalar = createScalar({ value: true });
-
-      const result = getDisplayValueForScalar(scalar);
-
+      const result = getDisplayValueForScalar(true);
       expect(result).toBe("true");
     });
 
     it("should return date for date scalar", () => {
-      const date = new Date("2023-12-25T10:30:00Z");
-      const scalar = createScalar({ value: date });
-
-      const result = getDisplayValueForScalar(scalar);
-
+      const result = getDisplayValueForScalar(new Date("2023-12-25T10:30:00Z"));
       expect(result).toBe("Dec 25 2023, 10:30 AM");
     });
   });
