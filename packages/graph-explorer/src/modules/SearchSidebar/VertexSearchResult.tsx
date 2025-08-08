@@ -22,9 +22,11 @@ import { MinusCircleIcon, PlusCircleIcon } from "lucide-react";
 
 export function VertexSearchResult({
   vertex,
+  name,
   level = 0,
 }: {
   vertex: Vertex;
+  name?: string;
   level?: number;
 }) {
   const displayNode = useDisplayVertexFromVertex(vertex);
@@ -37,7 +39,7 @@ export function VertexSearchResult({
           className="flex w-full flex-row items-center gap-2 p-3 text-left hover:cursor-pointer"
         >
           <SearchResultExpandChevron />
-          <VertexRow vertex={displayNode} className="grow" />
+          <VertexRow vertex={displayNode} name={name} className="grow" />
           <AddOrRemoveButton vertex={vertex} />
         </div>
       </CollapsibleTrigger>

@@ -54,10 +54,18 @@ export function EdgeSearchResult({
       <CollapsibleContent>
         <ul className="space-y-3 p-3">
           <li className="w-full">
-            <VertexSearchResult vertex={edge.source} level={level + 1} />
+            <VertexSearchResult
+              vertex={edge.source}
+              name="source"
+              level={level + 1}
+            />
           </li>
           <li className="w-full">
-            <VertexSearchResult vertex={edge.target} level={level + 1} />
+            <VertexSearchResult
+              vertex={edge.target}
+              name="target"
+              level={level + 1}
+            />
           </li>
           {displayEdge.attributes.map(attr => (
             <li key={attr.name} className="w-full">
