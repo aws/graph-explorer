@@ -35,7 +35,7 @@ export type DisplayVertex = {
   original: Vertex;
 };
 
-/** Finds the `DisplayVertex` instance for a give `VertexId` within the vertices added to the graph canvas. */
+/** Finds the `DisplayVertex` instance for a give `VertexId`. */
 export function useDisplayVertex(id: VertexId) {
   const vertex = useAtomValue(displayVerticesInCanvasSelector).get(id);
 

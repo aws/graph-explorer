@@ -6,7 +6,10 @@ import {
   RenderedVertexId,
   type Vertex,
   type VertexId,
+  createVertex,
 } from "@/core";
+import { vertexDetailsQuery } from "@/connector";
+import { useQuery } from "@tanstack/react-query";
 
 export function toNodeMap(nodes: Iterable<Vertex>): Map<VertexId, Vertex> {
   return new Map(Iterator.from(nodes).map(n => [n.id, n]));
@@ -91,12 +94,30 @@ export const filteredNodesSelector = atom(get => {
   );
 });
 
+/**
+ * Returns a Vertex object for the given id, using the following fallback strategy:
+ *
+ * 1. Prefer vertex from vertexDetailsQuery
+ * 2. Fallback to vertex in nodesAtom map
+ * 3. Fallback to creating a new Vertex object using createVertex
+ */
 export function useVertex(id: VertexId) {
-  const node = useAtomValue(nodesAtom).get(id);
+  const vertexDetailsQueryResult = useQuery(vertexDetailsQuery(id));
+  const nodesMap = useAtomValue(nodesAtom);
 
-  if (!node) {
-    throw new Error(`Node with id ${id} not found in displayNodes`);
+  // Fallback strategy:
+  // 1. Prefer vertex from vertexDetailsQuery
+  // 2. Fallback to vertex in nodesAtom map
+  // 3. Fallback to creating a new Vertex object using createVertex
+  if (vertexDetailsQueryResult.data?.vertex) {
+    return vertexDetailsQueryResult.data.vertex;
   }
 
-  return node;
+  const nodeFromMap = nodesMap.get(id);
+  if (nodeFromMap) {
+    return nodeFromMap;
+  }
+
+  // Create a minimal vertex as last fallback
+  return createVertex({ id, types: [] });
 }
