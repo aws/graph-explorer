@@ -91,7 +91,7 @@ export const filteredNodesSelector = atom(get => {
   );
 });
 
-export function useNode(id: VertexId) {
+export function useVertex(id: VertexId) {
   const node = useAtomValue(nodesAtom).get(id);
 
   if (!node) {
