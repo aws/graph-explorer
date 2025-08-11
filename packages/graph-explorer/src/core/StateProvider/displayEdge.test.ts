@@ -5,7 +5,6 @@ import {
   createRandomEdgeTypeConfig,
   createRandomRawConfiguration,
   createRandomSchema,
-  createRandomVertex,
   DbState,
   JotaiSnapshot,
   renderHookWithJotai,
@@ -28,34 +27,34 @@ import { QueryEngine } from "@shared/types";
 
 describe("useDisplayEdgeFromEdge", () => {
   it("should keep the same ID", () => {
-    const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
+    const edge = createRandomEdge();
     expect(act(edge).id).toEqual(edge.id);
   });
 
   it("should be an edge", () => {
-    const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
+    const edge = createRandomEdge();
     expect(act(edge).entityType).toEqual("edge");
   });
 
   it("should have a display ID equal to the edge ID", () => {
-    const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
+    const edge = createRandomEdge();
     expect(act(edge).displayId).toEqual(getRawId(edge.id));
   });
 
   it("should have the display name be the types", () => {
-    const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
+    const edge = createRandomEdge();
     expect(act(edge).displayName).toEqual(edge.type);
   });
 
   it("should contain the ID of the source and target vertices", () => {
-    const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
+    const edge = createRandomEdge();
 
     expect(act(edge).sourceId).toEqual(String(edge.sourceId));
     expect(act(edge).targetId).toEqual(String(edge.targetId));
   });
 
   it("should have display name that matches the attribute value", () => {
-    const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
+    const edge = createRandomEdge();
     const schema = createRandomSchema();
     // Get the first attribute
     const attribute = Object.entries(edge.attributes).map(([name, value]) => ({
@@ -74,7 +73,7 @@ describe("useDisplayEdgeFromEdge", () => {
   });
 
   it("should have display name that matches the types when displayNameAttribute is 'type'", () => {
-    const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
+    const edge = createRandomEdge();
     const schema = createRandomSchema();
 
     const etConfig = createRandomEdgeTypeConfig();
@@ -88,14 +87,14 @@ describe("useDisplayEdgeFromEdge", () => {
   });
 
   it("should have the default type config when edge type is not in the schema", () => {
-    const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
+    const edge = createRandomEdge();
     const etConfig = getDefaultEdgeTypeConfig(edge.type);
     const displayConfig = mapToDisplayEdgeTypeConfig(etConfig, t => t);
     expect(act(edge).typeConfig).toEqual(displayConfig);
   });
 
   it("should use the type config from the merged schema", () => {
-    const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
+    const edge = createRandomEdge();
     const etConfig = createRandomEdgeTypeConfig();
     etConfig.type = edge.type;
     const schema = createRandomSchema();
@@ -113,7 +112,7 @@ describe("useDisplayEdgeFromEdge", () => {
 
   it("should ignore display label from schema", () => {
     const dbState = new DbState();
-    const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
+    const edge = createRandomEdge();
 
     const etConfig = createRandomEdgeTypeConfig();
     etConfig.type = edge.type;
@@ -130,7 +129,7 @@ describe("useDisplayEdgeFromEdge", () => {
 
   it("should use display label from user preferences", () => {
     const dbState = new DbState();
-    const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
+    const edge = createRandomEdge();
 
     const etConfig = createRandomEdgeTypeConfig();
     etConfig.type = edge.type;
@@ -151,7 +150,7 @@ describe("useDisplayEdgeFromEdge", () => {
   });
 
   it("should have display types that list all types in gremlin", () => {
-    const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
+    const edge = createRandomEdge();
     const schema = createRandomSchema();
 
     const etConfig = createRandomEdgeTypeConfig();
@@ -166,7 +165,7 @@ describe("useDisplayEdgeFromEdge", () => {
   });
 
   it("should have display types that list all types in sparql", () => {
-    const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
+    const edge = createRandomEdge();
     edge.type = "http://www.example.com/class#bar";
     const schema = createRandomSchema();
     schema.prefixes = [
@@ -188,7 +187,7 @@ describe("useDisplayEdgeFromEdge", () => {
   });
 
   it("should have sorted attributes", () => {
-    const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
+    const edge = createRandomEdge();
     const attributes: DisplayAttribute[] = Object.entries(edge.attributes)
       .map(([key, value]) => ({
         name: key,
@@ -201,7 +200,7 @@ describe("useDisplayEdgeFromEdge", () => {
   });
 
   it("should format date values in attribute when type is Date", () => {
-    const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
+    const edge = createRandomEdge();
     const schema = createRandomSchema();
     const etConfig = createRandomEdgeTypeConfig();
     etConfig.type = edge.type;
@@ -225,7 +224,7 @@ describe("useDisplayEdgeFromEdge", () => {
   });
 
   it("should format date values in attribute when type is g:Date", () => {
-    const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
+    const edge = createRandomEdge();
     const schema = createRandomSchema();
     const etConfig = createRandomEdgeTypeConfig();
     etConfig.type = edge.type;

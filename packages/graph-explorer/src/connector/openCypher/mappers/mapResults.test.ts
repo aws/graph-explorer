@@ -32,7 +32,7 @@ describe("mapResults", () => {
   });
 
   it("should map edge value", () => {
-    const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
+    const edge = createRandomEdge();
 
     const result = mapResults({
       results: [
@@ -99,7 +99,7 @@ describe("mapResults", () => {
   });
 
   it("should map edge in array", () => {
-    const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
+    const edge = createRandomEdge();
     const result = mapResults({
       results: [
         {
@@ -135,7 +135,7 @@ describe("mapResults", () => {
 
   it("should map nested objects", () => {
     const vertex = createRandomVertex();
-    const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
+    const edge = createRandomEdge();
 
     const result = mapResults({
       results: [
@@ -160,7 +160,7 @@ describe("mapResults", () => {
 
   it("should map deeply nested objects", () => {
     const vertex = createRandomVertex();
-    const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
+    const edge = createRandomEdge();
 
     const result = mapResults({
       results: [
@@ -187,7 +187,7 @@ describe("mapResults", () => {
 
   it("should map nested objects within array", () => {
     const vertex = createRandomVertex();
-    const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
+    const edge = createRandomEdge();
 
     const result = mapResults({
       results: [
@@ -214,7 +214,7 @@ describe("mapResults", () => {
 
   it("should map deeply nested objects within array", () => {
     const vertex = createRandomVertex();
-    const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
+    const edge = createRandomEdge();
 
     const result = mapResults({
       results: [

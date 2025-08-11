@@ -90,7 +90,7 @@ describe("mapResults", () => {
   });
 
   it("should remove duplicate vertices", () => {
-    const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
+    const edge = createRandomEdge();
     const sourceFragment = createVertex({
       id: edge.sourceId,
       types: [],

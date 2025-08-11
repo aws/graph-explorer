@@ -1,7 +1,6 @@
 import {
   createRandomEdge,
   createRandomEdgeId,
-  createRandomVertex,
   FakeExplorer,
 } from "@/utils/testing";
 import { edgeDetailsQuery } from "./edgeDetailsQuery";
@@ -26,7 +25,7 @@ describe("edgeDetailsQuery", () => {
     const edgeDetailsSpy = vi.spyOn(explorer, "edgeDetails");
     const queryClient = createQueryClient({ explorer });
 
-    const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
+    const edge = createRandomEdge();
     explorer.addEdge(edge);
 
     const result = await queryClient.fetchQuery(edgeDetailsQuery(edge.id));

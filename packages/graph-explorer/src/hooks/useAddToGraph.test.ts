@@ -74,7 +74,7 @@ test("should materialize fragment edges", async () => {
   const explorer = new FakeExplorer();
   const dbState = new DbState(explorer);
 
-  const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
+  const edge = createRandomEdge();
 
   explorer.addEdge(edge);
 
