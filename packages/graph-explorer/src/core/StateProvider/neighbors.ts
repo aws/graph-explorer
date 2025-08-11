@@ -216,14 +216,12 @@ const fetchedNeighborsSelector = atomFamily((id: VertexId) =>
 
     const neighbors = edges
       .values()
-      .map(edge => {
-        const neighbor =
-          edge.sourceId === id
-            ? nodes.get(edge.targetId)
-            : nodes.get(edge.sourceId);
-        return neighbor ?? null;
-      })
-      .filter(neighbor => neighbor !== null)
+      .map(edge =>
+        edge.sourceId === id
+          ? nodes.get(edge.targetId)
+          : nodes.get(edge.sourceId)
+      )
+      .filter(neighbor => neighbor != null)
       .toArray();
 
     return neighbors;
