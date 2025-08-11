@@ -50,8 +50,8 @@ describe("useDisplayEdgeFromEdge", () => {
   it("should contain the ID of the source and target vertices", () => {
     const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
 
-    expect(act(edge).source).toEqual(String(edge.source));
-    expect(act(edge).target).toEqual(String(edge.target));
+    expect(act(edge).sourceId).toEqual(String(edge.sourceId));
+    expect(act(edge).targetId).toEqual(String(edge.targetId));
   });
 
   it("should have display name that matches the attribute value", () => {

@@ -131,10 +131,10 @@ export class FakeExplorer implements Explorer {
     return this.edges
       .values()
       .map(edge =>
-        edge.source === vertexId
-          ? this.vertexMap.get(edge.target)
-          : edge.target === vertexId
-            ? this.vertexMap.get(edge.source)
+        edge.sourceId === vertexId
+          ? this.vertexMap.get(edge.targetId)
+          : edge.targetId === vertexId
+            ? this.vertexMap.get(edge.sourceId)
             : null
       )
       .filter(n => n != null)

@@ -54,7 +54,7 @@ describe("edgeDetails", () => {
       createRandomVertexForRdf()
     );
     // Missing the brackets
-    edge.id = `${edge.source}-${edge.type}->${edge.target}` as EdgeId;
+    edge.id = `${edge.sourceId}-${edge.type}->${edge.targetId}` as EdgeId;
 
     expect(() => edgeDetails({ edgeIds: [edge.id] })).toThrow(
       "Invalid RDF edge ID"

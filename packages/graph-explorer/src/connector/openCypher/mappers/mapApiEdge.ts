@@ -6,8 +6,8 @@ export default function mapApiEdge(apiEdge: OCEdge) {
   return createEdge({
     id: apiEdge["~id"],
     type: apiEdge["~type"],
-    source: apiEdge["~start"],
-    target: apiEdge["~end"],
+    sourceId: apiEdge["~start"],
+    targetId: apiEdge["~end"],
     attributes: mapApiProperties(apiEdge["~properties"]),
   });
 }

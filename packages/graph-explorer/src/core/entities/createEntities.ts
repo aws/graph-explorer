@@ -32,16 +32,16 @@ export function createVertex(options: CreateVertexOptions): Vertex {
 export function createEdge(options: {
   id: EntityRawId;
   type: string;
-  source: EntityRawId;
-  target: EntityRawId;
+  sourceId: EntityRawId;
+  targetId: EntityRawId;
   attributes?: CreateEntityAttributeOptions;
 }): Edge {
   return {
     entityType: "edge",
     id: createEdgeId(options.id),
     type: options.type,
-    source: createVertexId(options.source),
-    target: createVertexId(options.target),
+    sourceId: createVertexId(options.sourceId),
+    targetId: createVertexId(options.targetId),
     attributes:
       options.attributes != null ? createAttributes(options.attributes) : {},
     __isFragment: options.attributes == null,

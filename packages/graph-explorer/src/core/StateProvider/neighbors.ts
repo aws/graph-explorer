@@ -218,7 +218,9 @@ const fetchedNeighborsSelector = atomFamily((id: VertexId) =>
       .values()
       .map(edge => {
         const neighbor =
-          edge.source === id ? nodes.get(edge.target) : nodes.get(edge.source);
+          edge.sourceId === id
+            ? nodes.get(edge.targetId)
+            : nodes.get(edge.sourceId);
         return neighbor ?? null;
       })
       .filter(neighbor => neighbor !== null)
@@ -241,11 +243,11 @@ export function useFetchedNeighborsCallback() {
       edges
         .values()
         // Find edges matching the given vertex ID
-        .filter(edge => edge.source === id || edge.target === id)
+        .filter(edge => edge.sourceId === id || edge.targetId === id)
         // Filter out edges where the source or target vertex is not in the graph
-        .filter(edge => nodes.has(edge.source) && nodes.has(edge.target))
+        .filter(edge => nodes.has(edge.sourceId) && nodes.has(edge.targetId))
         // Get the source or target vertex ID depending on the edge direction
-        .map(edge => (edge.source === id ? edge.target : edge.source))
+        .map(edge => (edge.sourceId === id ? edge.targetId : edge.sourceId))
     );
 }
 

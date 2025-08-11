@@ -9,12 +9,18 @@ export function mapValuesToQueryResults(values: Entity[]) {
 
   // Add fragment vertices from the edges if they are missing
   for (const edge of edgeMap.values()) {
-    if (!vertexMap.has(edge.source)) {
-      vertexMap.set(edge.source, createVertex({ id: edge.source, types: [] }));
+    if (!vertexMap.has(edge.sourceId)) {
+      vertexMap.set(
+        edge.sourceId,
+        createVertex({ id: edge.sourceId, types: [] })
+      );
     }
 
-    if (!vertexMap.has(edge.target)) {
-      vertexMap.set(edge.target, createVertex({ id: edge.target, types: [] }));
+    if (!vertexMap.has(edge.targetId)) {
+      vertexMap.set(
+        edge.targetId,
+        createVertex({ id: edge.targetId, types: [] })
+      );
     }
   }
 

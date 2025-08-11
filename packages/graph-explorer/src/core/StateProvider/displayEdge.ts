@@ -30,8 +30,8 @@ export type DisplayEdge = {
   displayName: string;
   displayTypes: string;
   typeConfig: DisplayEdgeTypeConfig;
-  source: VertexId;
-  target: VertexId;
+  sourceId: VertexId;
+  targetId: VertexId;
   attributes: DisplayAttribute[];
   hasUniqueId: boolean;
 };
@@ -114,8 +114,8 @@ const displayEdgeSelector = atomFamily((edge: Edge) =>
       displayName,
       displayTypes,
       typeConfig,
-      source: edge.source,
-      target: edge.target,
+      sourceId: edge.sourceId,
+      targetId: edge.targetId,
       attributes: sortedAttributes,
       // SPARQL does not have unique ID values for predicates, so the UI should hide them
       hasUniqueId: isSparql === false,

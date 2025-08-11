@@ -35,8 +35,8 @@ export type EdgeDetailProps = {
 
 const EdgeDetail = ({ edge }: EdgeDetailProps) => {
   const t = useTranslations();
-  const sourceVertex = useDisplayVertex(edge.source);
-  const targetVertex = useDisplayVertex(edge.target);
+  const sourceVertex = useDisplayVertex(edge.sourceId);
+  const targetVertex = useDisplayVertex(edge.targetId);
 
   const style = edge.typeConfig.style;
 

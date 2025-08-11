@@ -26,8 +26,8 @@ describe("mapApiEdge", () => {
       createEdge({
         id: "",
         type: "",
-        source: "",
-        target: "",
+        sourceId: "",
+        targetId: "",
         attributes: {},
       })
     );
@@ -42,8 +42,8 @@ describe("mapApiEdge", () => {
       "~entityType": "relationship",
       "~id": String(edge.id),
       "~type": edge.type,
-      "~start": String(edge.source),
-      "~end": String(edge.target),
+      "~start": String(edge.sourceId),
+      "~end": String(edge.targetId),
       "~properties": {
         stringValue: createRandomName("stringValue"),
         integerValue: createRandomInteger(),

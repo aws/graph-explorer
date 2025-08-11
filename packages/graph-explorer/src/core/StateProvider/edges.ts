@@ -96,7 +96,7 @@ export const filteredEdgesSelector = atom(get => {
       .entries()
       .filter(([_id, edge]) => !filteredEdgeTypes.has(edge.type))
       .filter(([_id, edge]) => !filteredEdgeIds.has(edge.id))
-      .filter(([_id, edge]) => existingVertexIds.has(edge.source))
-      .filter(([_id, edge]) => existingVertexIds.has(edge.target))
+      .filter(([_id, edge]) => existingVertexIds.has(edge.sourceId))
+      .filter(([_id, edge]) => existingVertexIds.has(edge.targetId))
   );
 });

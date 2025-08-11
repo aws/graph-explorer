@@ -367,8 +367,8 @@ function createCypherVertex(vertex: Vertex): OCVertex {
 
 function createCypherEdge(edge: Edge): OCEdge {
   const id = getRawId(edge.id);
-  const sourceId = getRawId(edge.source);
-  const targetId = getRawId(edge.target);
+  const sourceId = getRawId(edge.sourceId);
+  const targetId = getRawId(edge.targetId);
 
   if (typeof id !== "string") {
     throw new Error("Edge id is not valid");

@@ -251,11 +251,11 @@ function createBlankNodePredicateResponse(
           subject,
           subjectClass,
           predToSubject:
-            edge.target === neighbor.id
+            edge.targetId === neighbor.id
               ? createUriValue(parts.predicate)
               : undefined,
           predFromSubject:
-            edge.source === neighbor.id
+            edge.sourceId === neighbor.id
               ? createUriValue(parts.predicate)
               : undefined,
         };

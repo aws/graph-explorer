@@ -25,11 +25,11 @@ export type Edge = {
   /**
    * Source vertex id
    */
-  source: VertexId;
+  sourceId: VertexId;
   /**
    * Target vertex id
    */
-  target: VertexId;
+  targetId: VertexId;
   /**
    * Only for PG, attributes associated to the edge.
    * For RDF, predicates do not have more properties than the predicate itself.

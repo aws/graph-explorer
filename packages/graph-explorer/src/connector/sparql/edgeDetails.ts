@@ -19,8 +19,8 @@ export function edgeDetails(request: EdgeDetailsRequest): EdgeDetailsResponse {
     const edge = createEdge({
       id: edgeId,
       type: predicate,
-      source: source,
-      target: target,
+      sourceId: source,
+      targetId: target,
       // Ensure this edge is not a fragment since SPARQL edges can not have attributes
       attributes: {},
     });

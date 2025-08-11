@@ -109,8 +109,8 @@ export function createGEdge(edge: Edge): GEdge {
     "@value": {
       id: createIdValue(edge.id),
       label: edge.type,
-      inV: createIdValue(edge.target),
-      outV: createIdValue(edge.source),
+      inV: createIdValue(edge.targetId),
+      outV: createIdValue(edge.sourceId),
       properties: edge.__isFragment
         ? undefined
         : createGProperties(edge.attributes),

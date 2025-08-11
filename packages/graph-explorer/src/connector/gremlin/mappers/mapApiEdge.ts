@@ -15,8 +15,8 @@ export default function mapApiEdge(apiEdge: GEdge) {
   return createEdge({
     id: extractRawId(apiEdge["@value"].id),
     type: apiEdge["@value"].label,
-    source: extractRawId(apiEdge["@value"].outV),
-    target: extractRawId(apiEdge["@value"].inV),
+    sourceId: extractRawId(apiEdge["@value"].outV),
+    targetId: extractRawId(apiEdge["@value"].inV),
     attributes,
   });
 }

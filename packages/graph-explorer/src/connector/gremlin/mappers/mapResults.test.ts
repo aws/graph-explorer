@@ -92,11 +92,11 @@ describe("mapResults", () => {
   it("should remove duplicate vertices", () => {
     const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
     const sourceFragment = createVertex({
-      id: edge.source,
+      id: edge.sourceId,
       types: [],
     });
     const targetFragment = createVertex({
-      id: edge.target,
+      id: edge.targetId,
       types: [],
     });
     const gEdge = createGEdge(edge);
@@ -143,8 +143,8 @@ describe("mapResults", () => {
           createEdge({
             id: "3",
             type: "knows",
-            source: "2",
-            target: "1",
+            sourceId: "2",
+            targetId: "1",
             attributes: {
               since: 20200101,
             },

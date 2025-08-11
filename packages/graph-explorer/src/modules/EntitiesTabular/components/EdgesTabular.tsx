@@ -114,8 +114,8 @@ const EdgesTabular = forwardRef<TabularInstance<ToggleEdge>, any>(
         .map(edge => ({
           ...createEdgeForTable(
             edge,
-            nodes.get(edge.source),
-            nodes.get(edge.target)
+            nodes.get(edge.sourceId),
+            nodes.get(edge.targetId)
           ),
           __is_visible: !filteredEdges.has(edge.id),
         }))

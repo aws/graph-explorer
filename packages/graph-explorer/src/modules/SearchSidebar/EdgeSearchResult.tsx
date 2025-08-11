@@ -30,8 +30,8 @@ export function EdgeSearchResult({
   const displayEdge = useDisplayEdgeFromEdge(edge);
 
   // Get the display vertices
-  const source = useDisplayVertex(displayEdge.source);
-  const target = useDisplayVertex(displayEdge.target);
+  const source = useDisplayVertex(displayEdge.sourceId);
+  const target = useDisplayVertex(displayEdge.targetId);
 
   return (
     <SearchResultCollapsible level={level}>

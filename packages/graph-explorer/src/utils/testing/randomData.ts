@@ -259,8 +259,8 @@ export function createRandomEdge(source: Vertex, target: Vertex) {
     id: createRandomEdgeId(),
     type: createRandomName("EdgeType"),
     attributes: createRecord(3, createRandomEntityAttribute),
-    source: source.id,
-    target: target.id,
+    sourceId: source.id,
+    targetId: target.id,
   });
 }
 
@@ -270,8 +270,8 @@ export function createRandomEdgeForRdf(source: Vertex, target: Vertex) {
     id: createRdfEdgeId(source.id, predicate, target.id),
     type: predicate,
     attributes: {},
-    source: source.id,
-    target: target.id,
+    sourceId: source.id,
+    targetId: target.id,
   });
 }
 

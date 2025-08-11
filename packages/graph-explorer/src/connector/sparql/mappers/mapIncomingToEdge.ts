@@ -18,8 +18,8 @@ export default function mapIncomingToEdge(
   return createEdge({
     id: createRdfEdgeId(sourceUri, predicate, resourceURI),
     type: predicate,
-    source: sourceUri,
-    target: resourceURI,
+    sourceId: sourceUri,
+    targetId: resourceURI,
     // Ensure this edge is not a fragment since SPARQL edges can not have attributes
     attributes: {},
   });
