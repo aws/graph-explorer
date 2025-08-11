@@ -9,7 +9,7 @@ import { executeUserQuery } from "./executeUserQuery";
 import { toMappedQueryResults } from "../useGEFetchTypes";
 import { createScalar } from "@/core";
 
-describe("executeQuery", () => {
+describe("executeUserQuery", () => {
   it("should execute a query with empty results", async () => {
     const explorer = new FakeExplorer();
     const queryClient = createQueryClient({ explorer });
