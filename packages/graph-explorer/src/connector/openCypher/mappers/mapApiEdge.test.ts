@@ -20,14 +20,14 @@ describe("mapApiEdge", () => {
       "~end": "",
       "~properties": {},
     } satisfies OCEdge;
-    const result = mapApiEdge(input, [], []);
+    const result = mapApiEdge(input);
 
     expect(result).toEqual(
       createEdge({
         id: "",
         type: "",
-        source: { id: "", types: [] },
-        target: { id: "", types: [] },
+        source: "",
+        target: "",
         attributes: {},
       })
     );
@@ -55,7 +55,7 @@ describe("mapApiEdge", () => {
 
     edge.attributes = input["~properties"];
 
-    const result = mapApiEdge(input, sourceVertex.types, targetVertex.types);
+    const result = mapApiEdge(input);
 
     expect(result).toEqual(edge);
   });

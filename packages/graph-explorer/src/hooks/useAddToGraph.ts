@@ -33,17 +33,11 @@ export function useAddToGraph() {
     // Add fragment vertices from the edges if they are missing
     for (const edge of edges.values()) {
       if (!vertices.has(edge.source)) {
-        vertices.set(
-          edge.source,
-          createVertex({ id: edge.source, types: edge.sourceTypes })
-        );
+        vertices.set(edge.source, createVertex({ id: edge.source, types: [] }));
       }
 
       if (!vertices.has(edge.target)) {
-        vertices.set(
-          edge.target,
-          createVertex({ id: edge.target, types: edge.targetTypes })
-        );
+        vertices.set(edge.target, createVertex({ id: edge.target, types: [] }));
       }
     }
 

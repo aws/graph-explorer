@@ -157,14 +157,8 @@ describe("createEdge", () => {
       attributes: {
         since: "2020-01-01",
       },
-      source: {
-        id: "1",
-        types: ["Person"],
-      },
-      target: {
-        id: "2",
-        types: ["Person"],
-      },
+      source: "1",
+      target: "2",
     });
 
     expect(edge).toMatchObject({
@@ -172,9 +166,7 @@ describe("createEdge", () => {
       id: "1",
       type: "WORKS_WITH",
       source: "1",
-      sourceTypes: ["Person"],
       target: "2",
-      targetTypes: ["Person"],
       attributes: {
         since: "2020-01-01",
       },
@@ -189,14 +181,8 @@ describe("createEdge", () => {
       attributes: {
         since: "2020-01-01",
       },
-      source: {
-        id: "1",
-        types: ["Person", "Worker"],
-      },
-      target: {
-        id: "2",
-        types: ["Person", "Worker"],
-      },
+      source: "1",
+      target: "2",
     });
 
     expect(edge).toMatchObject({
@@ -204,9 +190,7 @@ describe("createEdge", () => {
       id: "1",
       type: "WORKS_WITH",
       source: "1",
-      sourceTypes: ["Person", "Worker"],
       target: "2",
-      targetTypes: ["Person", "Worker"],
       attributes: {
         since: "2020-01-01",
       },
@@ -221,14 +205,8 @@ describe("createEdge", () => {
       attributes: {
         since: "2020-01-01",
       },
-      source: {
-        id: "1",
-        types: [],
-      },
-      target: {
-        id: "2",
-        types: [],
-      },
+      source: "1",
+      target: "2",
     });
 
     expect(edge).toMatchObject({
@@ -236,9 +214,7 @@ describe("createEdge", () => {
       id: "1",
       type: "WORKS_WITH",
       source: "1",
-      sourceTypes: [],
       target: "2",
-      targetTypes: [],
       attributes: {
         since: "2020-01-01",
       },
@@ -250,14 +226,8 @@ describe("createEdge", () => {
     const edge = createEdge({
       id: "1",
       type: "WORKS_WITH",
-      source: {
-        id: "1",
-        types: ["Person"],
-      },
-      target: {
-        id: "2",
-        types: ["Person"],
-      },
+      source: "1",
+      target: "2",
     });
 
     expect(edge).toMatchObject({
@@ -265,9 +235,7 @@ describe("createEdge", () => {
       id: "1",
       type: "WORKS_WITH",
       source: "1",
-      sourceTypes: ["Person"],
       target: "2",
-      targetTypes: ["Person"],
       attributes: {},
       __isFragment: true,
     });
@@ -277,14 +245,8 @@ describe("createEdge", () => {
     const edge = createEdge({
       id: "1",
       type: "WORKS_WITH",
-      source: {
-        id: "1",
-        types: ["Person"],
-      },
-      target: {
-        id: "2",
-        types: ["Person"],
-      },
+      source: "1",
+      target: "2",
       attributes: {},
     });
 
@@ -293,9 +255,7 @@ describe("createEdge", () => {
       id: "1",
       type: "WORKS_WITH",
       source: "1",
-      sourceTypes: ["Person"],
       target: "2",
-      targetTypes: ["Person"],
       attributes: {},
       __isFragment: false,
     });
@@ -305,14 +265,8 @@ describe("createEdge", () => {
     const edge = createEdge({
       id: "1",
       type: "WORKS_WITH",
-      source: {
-        id: "1",
-        types: ["Person"],
-      },
-      target: {
-        id: "2",
-        types: ["Person"],
-      },
+      source: "1",
+      target: "2",
       attributes: new Map<string, EntityPropertyValue>([
         ["since", "2020-01-01"],
         ["until", "2020-01-02"],
@@ -326,9 +280,7 @@ describe("createEdge", () => {
       id: "1",
       type: "WORKS_WITH",
       source: "1",
-      sourceTypes: ["Person"],
       target: "2",
-      targetTypes: ["Person"],
       attributes: {
         since: "2020-01-01",
         until: "2020-01-02",

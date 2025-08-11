@@ -217,15 +217,9 @@ const fetchedNeighborsSelector = atomFamily((id: VertexId) =>
     const neighbors = edges
       .values()
       .map(edge => {
-        // Get all OUT connected edges: current node is source and target should exist
-        if (edge.source === id && nodes.has(edge.target)) {
-          return { id: edge.target, types: edge.targetTypes };
-        }
-        // Get all IN connected edges: current node is target and source should exist
-        if (edge.target === id && nodes.has(edge.source)) {
-          return { id: edge.source, types: edge.sourceTypes };
-        }
-        return null;
+        const neighbor =
+          edge.source === id ? nodes.get(edge.target) : nodes.get(edge.source);
+        return neighbor ?? null;
       })
       .filter(neighbor => neighbor !== null)
       .toArray();

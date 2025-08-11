@@ -14,7 +14,7 @@ describe("OpenCypher > oneHopTemplate", () => {
         WHERE ID(v) = "12"
         RETURN
           collect(DISTINCT tgt) AS vObjects,
-          collect({ edge: e, sourceTypes: labels(startNode(e)), targetTypes: labels(endNode(e)) }) AS eObjects
+          collect(e) AS eObjects
       `
     );
   });
@@ -31,7 +31,7 @@ describe("OpenCypher > oneHopTemplate", () => {
         WHERE ID(v) = "12" AND NOT ID(tgt) IN ["256", "512"]
         RETURN
           collect(DISTINCT tgt) AS vObjects,
-          collect({ edge: e, sourceTypes: labels(startNode(e)), targetTypes: labels(endNode(e)) }) AS eObjects
+          collect(e) AS eObjects
       `
     );
   });
@@ -54,7 +54,7 @@ describe("OpenCypher > oneHopTemplate", () => {
         MATCH (v)-[e]-(tgt)
         RETURN 
           collect(DISTINCT tgt) AS vObjects, 
-          collect({ edge: e, sourceTypes: labels(startNode(e)), targetTypes: labels(endNode(e)) }) AS eObjects 
+          collect(e) AS eObjects 
       `
     );
   });
@@ -78,7 +78,7 @@ describe("OpenCypher > oneHopTemplate", () => {
         MATCH (v)-[e]-(tgt)
         RETURN 
           collect(DISTINCT tgt) AS vObjects, 
-          collect({ edge: e, sourceTypes: labels(startNode(e)), targetTypes: labels(endNode(e)) }) AS eObjects 
+          collect(e) AS eObjects 
       `
     );
   });
@@ -95,7 +95,7 @@ describe("OpenCypher > oneHopTemplate", () => {
         WHERE ID(v) = "12" AND (v:country OR v:continent OR v:airport OR v:person)
         RETURN
           collect(DISTINCT tgt) AS vObjects,
-          collect({ edge: e, sourceTypes: labels(startNode(e)), targetTypes: labels(endNode(e)) }) AS eObjects
+          collect(e) AS eObjects
       `
     );
   });
@@ -119,7 +119,7 @@ describe("OpenCypher > oneHopTemplate", () => {
         MATCH (v)-[e:locatedIn]-(tgt)
         RETURN 
           collect(DISTINCT tgt) AS vObjects, 
-          collect({ edge: e, sourceTypes: labels(startNode(e)), targetTypes: labels(endNode(e)) }) AS eObjects 
+          collect(e) AS eObjects 
       `
     );
   });
@@ -147,7 +147,7 @@ describe("OpenCypher > oneHopTemplate", () => {
         MATCH (v)-[e]-(tgt)
         RETURN 
           collect(DISTINCT tgt) AS vObjects, 
-          collect({ edge: e, sourceTypes: labels(startNode(e)), targetTypes: labels(endNode(e)) }) AS eObjects 
+          collect(e) AS eObjects 
       `
     );
   });
@@ -172,7 +172,7 @@ describe("OpenCypher > oneHopTemplate", () => {
         MATCH (v)-[e:route]-(tgt)
         RETURN 
           collect(DISTINCT tgt) AS vObjects, 
-          collect({ edge: e, sourceTypes: labels(startNode(e)), targetTypes: labels(endNode(e)) }) AS eObjects 
+          collect(e) AS eObjects 
       `
     );
   });

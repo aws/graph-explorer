@@ -66,9 +66,7 @@ export type GEdge = {
   "@value": {
     id: string | GInt64 | JanusID;
     label: string;
-    inVLabel: string;
     inV: string | GInt64;
-    outVLabel: string;
     outV: string | GInt64;
     properties?: Record<string, GProperty>;
   };

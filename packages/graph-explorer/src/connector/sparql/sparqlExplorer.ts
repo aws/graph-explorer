@@ -181,12 +181,8 @@ export function createSparqlExplorer(
         req
       );
     },
-    async edgeDetails(req, options) {
-      remoteLogger.info("[SPARQL Explorer] Fetching edge details...");
-      return await edgeDetails(
-        _sparqlFetch(connection, featureFlags, options),
-        req
-      );
+    async edgeDetails(req) {
+      return Promise.resolve(edgeDetails(req));
     },
     // eslint-disable-next-line @typescript-eslint/require-await
     async rawQuery(_req, _options) {

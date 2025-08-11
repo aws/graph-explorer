@@ -14,8 +14,6 @@ type Response = {
   results: [
     {
       edge: OCEdge;
-      sourceLabels: Array<string>;
-      targetLabels: Array<string>;
     },
   ];
 };
@@ -33,7 +31,7 @@ export async function edgeDetails(
   const template = query`
     MATCH ()-[edge]-()
     WHERE ID(edge) in [${ids}]
-    RETURN edge, labels(startNode(edge)) as sourceLabels, labels(endNode(edge)) as targetLabels
+    RETURN edge
   `;
   const data = await openCypherFetch<Response | ErrorResponse>(template);
 
@@ -47,9 +45,7 @@ export async function edgeDetails(
   }
 
   const edges = mapValuesToQueryResults(
-    data.results.map(result =>
-      mapApiEdge(result.edge, result.sourceLabels, result.targetLabels)
-    )
+    data.results.map(result => mapApiEdge(result.edge))
   ).edges;
 
   // Log a warning if some edges are missing

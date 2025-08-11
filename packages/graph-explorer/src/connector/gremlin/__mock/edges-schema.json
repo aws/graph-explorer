@@ -21,8 +21,6 @@
               "@value": {
                 "id": "57783",
                 "label": "contains",
-                "inVLabel": "airport",
-                "outVLabel": "continent",
                 "inV": "1",
                 "outV": "3743"
               }
@@ -33,8 +31,6 @@
               "@value": {
                 "id": "3976",
                 "label": "route",
-                "inVLabel": "airport",
-                "outVLabel": "airport",
                 "inV": "1",
                 "outV": "8",
                 "properties": {

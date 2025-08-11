@@ -205,8 +205,6 @@
                   "@value": {
                     "id": "49540",
                     "label": "route",
-                    "inVLabel": "airport",
-                    "outVLabel": "airport",
                     "inV": "486",
                     "outV": "2018",
                     "properties": {
@@ -228,8 +226,6 @@
                   "@value": {
                     "id": "33133",
                     "label": "route",
-                    "inVLabel": "airport",
-                    "outVLabel": "airport",
                     "inV": "2018",
                     "outV": "486",
                     "properties": {
@@ -443,8 +439,6 @@
                   "@value": {
                     "id": "49539",
                     "label": "route",
-                    "inVLabel": "airport",
-                    "outVLabel": "airport",
                     "inV": "228",
                     "outV": "2018",
                     "properties": {
@@ -466,8 +460,6 @@
                   "@value": {
                     "id": "24860",
                     "label": "route",
-                    "inVLabel": "airport",
-                    "outVLabel": "airport",
                     "inV": "2018",
                     "outV": "228",
                     "properties": {
@@ -681,8 +673,6 @@
                   "@value": {
                     "id": "49538",
                     "label": "route",
-                    "inVLabel": "airport",
-                    "outVLabel": "airport",
                     "inV": "124",
                     "outV": "2018",
                     "properties": {
@@ -704,8 +694,6 @@
                   "@value": {
                     "id": "18665",
                     "label": "route",
-                    "inVLabel": "airport",
-                    "outVLabel": "airport",
                     "inV": "2018",
                     "outV": "124",
                     "properties": {
@@ -787,8 +775,6 @@
                   "@value": {
                     "id": "59800",
                     "label": "contains",
-                    "inVLabel": "airport",
-                    "outVLabel": "continent",
                     "inV": "2018",
                     "outV": "3741"
                   }
@@ -858,8 +844,6 @@
                   "@value": {
                     "id": "56297",
                     "label": "contains",
-                    "inVLabel": "airport",
-                    "outVLabel": "country",
                     "inV": "2018",
                     "outV": "3701"
                   }

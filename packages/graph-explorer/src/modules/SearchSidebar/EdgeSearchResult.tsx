@@ -1,4 +1,4 @@
-import { Edge, useDisplayEdgeFromEdge } from "@/core";
+import { Edge, useDisplayEdgeFromEdge, useDisplayVertex } from "@/core";
 import {
   ButtonProps,
   CollapsibleContent,
@@ -15,7 +15,6 @@ import {
 } from "@/components";
 import {
   useAddToGraphMutation,
-  useDisplayVertexFromFragment,
   useHasEdgeBeenAddedToGraph,
   useRemoveEdgeFromGraph,
 } from "@/hooks";
@@ -31,14 +30,8 @@ export function EdgeSearchResult({
   const displayEdge = useDisplayEdgeFromEdge(edge);
 
   // Get the display vertices
-  const source = useDisplayVertexFromFragment(
-    displayEdge.source.id,
-    displayEdge.source.types
-  );
-  const target = useDisplayVertexFromFragment(
-    displayEdge.target.id,
-    displayEdge.target.types
-  );
+  const source = useDisplayVertex(displayEdge.source);
+  const target = useDisplayVertex(displayEdge.target);
 
   return (
     <SearchResultCollapsible level={level}>

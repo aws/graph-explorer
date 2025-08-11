@@ -205,8 +205,6 @@
                   "@value": {
                     "id": "49540",
                     "label": "route",
-                    "inVLabel": "airport",
-                    "outVLabel": "airport",
                     "inV": "486",
                     "outV": "2018",
                     "properties": {
@@ -228,8 +226,6 @@
                   "@value": {
                     "id": "33133",
                     "label": "route",
-                    "inVLabel": "airport",
-                    "outVLabel": "airport",
                     "inV": "2018",
                     "outV": "486",
                     "properties": {
@@ -443,8 +439,6 @@
                   "@value": {
                     "id": "49538",
                     "label": "route",
-                    "inVLabel": "airport",
-                    "outVLabel": "airport",
                     "inV": "124",
                     "outV": "2018",
                     "properties": {
@@ -466,8 +460,6 @@
                   "@value": {
                     "id": "18665",
                     "label": "route",
-                    "inVLabel": "airport",
-                    "outVLabel": "airport",
                     "inV": "2018",
                     "outV": "124",
                     "properties": {

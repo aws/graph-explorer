@@ -82,14 +82,8 @@ export function mapToResults(bindings: Bindings): MappedQueryResults {
 
       return createEdge({
         id: createRdfEdgeId(source, uri, target),
-        source: createVertex({
-          id: source,
-          types: sourceClasses,
-        }),
-        target: createVertex({
-          id: target,
-          types: targetClasses,
-        }),
+        source: source,
+        target: target,
         type: uri,
         attributes: {},
       });

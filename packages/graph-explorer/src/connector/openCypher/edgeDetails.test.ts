@@ -61,8 +61,6 @@ function createResponseFromEdges(...edges: Edge[]) {
   return {
     results: edges.map(edge => ({
       edge: mapToOcEdge(edge),
-      sourceLabels: edge.sourceTypes,
-      targetLabels: edge.targetTypes,
     })),
   };
 }

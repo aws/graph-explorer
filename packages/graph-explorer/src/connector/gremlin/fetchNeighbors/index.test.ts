@@ -84,104 +84,56 @@ describe("Gremlin > fetchNeighbors", () => {
         createEdge({
           id: "49540",
           type: "route",
-          source: {
-            id: "2018",
-            types: ["airport"],
-          },
-          target: {
-            id: "486",
-            types: ["airport"],
-          },
+          source: "2018",
+          target: "486",
           attributes: { dist: 82 },
         }),
         createEdge({
           id: "33133",
           type: "route",
-          source: {
-            id: "486",
-            types: ["airport"],
-          },
-          target: {
-            id: "2018",
-            types: ["airport"],
-          },
+          source: "486",
+          target: "2018",
           attributes: { dist: 82 },
         }),
         createEdge({
           id: "49539",
           type: "route",
-          source: {
-            id: "2018",
-            types: ["airport"],
-          },
-          target: {
-            id: "228",
-            types: ["airport"],
-          },
+          source: "2018",
+          target: "228",
           attributes: { dist: 153 },
         }),
         createEdge({
           id: "24860",
           type: "route",
-          source: {
-            id: "228",
-            types: ["airport"],
-          },
-          target: {
-            id: "2018",
-            types: ["airport"],
-          },
+          source: "228",
+          target: "2018",
           attributes: { dist: 153 },
         }),
         createEdge({
           id: "49538",
           type: "route",
-          source: {
-            id: "2018",
-            types: ["airport"],
-          },
-          target: {
-            id: "124",
-            types: ["airport"],
-          },
+          source: "2018",
+          target: "124",
           attributes: { dist: 105 },
         }),
         createEdge({
           id: "18665",
           type: "route",
-          source: {
-            id: "124",
-            types: ["airport"],
-          },
-          target: {
-            id: "2018",
-            types: ["airport"],
-          },
+          source: "124",
+          target: "2018",
           attributes: { dist: 105 },
         }),
         createEdge({
           id: "59800",
           type: "contains",
-          source: {
-            id: "3741",
-            types: ["continent"],
-          },
-          target: {
-            id: "2018",
-            types: ["airport"],
-          },
+          source: "3741",
+          target: "2018",
         }),
         createEdge({
           id: "56297",
           type: "contains",
-          source: {
-            id: "3701",
-            types: ["country"],
-          },
-          target: {
-            id: "2018",
-            types: ["airport"],
-          },
+          source: "3701",
+          target: "2018",
         }),
       ],
     });
@@ -241,53 +193,29 @@ describe("Gremlin > fetchNeighbors", () => {
         createEdge({
           id: "49540",
           type: "route",
-          source: {
-            id: "2018",
-            types: ["airport"],
-          },
-          target: {
-            id: "486",
-            types: ["airport"],
-          },
+          source: "2018",
+          target: "486",
           attributes: { dist: 82 },
         }),
         createEdge({
           id: "33133",
           type: "route",
-          source: {
-            id: "486",
-            types: ["airport"],
-          },
-          target: {
-            id: "2018",
-            types: ["airport"],
-          },
+          source: "486",
+          target: "2018",
           attributes: { dist: 82 },
         }),
         createEdge({
           id: "49538",
           type: "route",
-          source: {
-            id: "2018",
-            types: ["airport"],
-          },
-          target: {
-            id: "124",
-            types: ["airport"],
-          },
+          source: "2018",
+          target: "124",
           attributes: { dist: 105 },
         }),
         createEdge({
           id: "18665",
           type: "route",
-          source: {
-            id: "124",
-            types: ["airport"],
-          },
-          target: {
-            id: "2018",
-            types: ["airport"],
-          },
+          source: "124",
+          target: "2018",
           attributes: { dist: 105 },
         }),
       ],

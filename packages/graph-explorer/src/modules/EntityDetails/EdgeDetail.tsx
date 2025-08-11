@@ -35,8 +35,8 @@ export type EdgeDetailProps = {
 
 const EdgeDetail = ({ edge }: EdgeDetailProps) => {
   const t = useTranslations();
-  const sourceVertex = useDisplayVertex(edge.source.id);
-  const targetVertex = useDisplayVertex(edge.target.id);
+  const sourceVertex = useDisplayVertex(edge.source);
+  const targetVertex = useDisplayVertex(edge.target);
 
   const style = edge.typeConfig.style;
 
@@ -58,22 +58,22 @@ const EdgeDetail = ({ edge }: EdgeDetailProps) => {
     {
       name: "sourceVertex",
       displayLabel: t("entities-tabular.source-id"),
-      displayValue: edge.source.displayId,
+      displayValue: sourceVertex.displayId,
     },
     {
       name: "sourceVertexType",
       displayLabel: t("entities-tabular.source-type"),
-      displayValue: edge.source.displayTypes,
+      displayValue: sourceVertex.displayTypes,
     },
     {
       name: "targetVertex",
       displayLabel: t("entities-tabular.target-id"),
-      displayValue: edge.target.displayId,
+      displayValue: targetVertex.displayId,
     },
     {
       name: "targetVertexType",
       displayLabel: t("entities-tabular.target-type"),
-      displayValue: edge.target.displayTypes,
+      displayValue: targetVertex.displayTypes,
     },
     ...edge.attributes,
   ];

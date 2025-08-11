@@ -46,8 +46,6 @@ describe("mapResults", () => {
     expect(result.edges[0]).toEqual({
       ...edge,
       __isFragment: true,
-      sourceTypes: [],
-      targetTypes: [],
     } satisfies Edge);
     expect(result.vertices).toHaveLength(2);
     expect(result.scalars).toHaveLength(0);
@@ -114,8 +112,6 @@ describe("mapResults", () => {
     expect(result.edges[0]).toEqual({
       ...edge,
       __isFragment: true,
-      sourceTypes: [],
-      targetTypes: [],
     } satisfies Edge);
     expect(result.vertices).toHaveLength(2);
   });
@@ -159,8 +155,6 @@ describe("mapResults", () => {
     expect(result.edges[0]).toEqual({
       ...edge,
       __isFragment: true,
-      sourceTypes: [],
-      targetTypes: [],
     } satisfies Edge);
   });
 
@@ -188,8 +182,6 @@ describe("mapResults", () => {
     expect(result.edges[0]).toEqual({
       ...edge,
       __isFragment: true,
-      sourceTypes: [],
-      targetTypes: [],
     } satisfies Edge);
   });
 
@@ -217,8 +209,6 @@ describe("mapResults", () => {
     expect(result.edges[0]).toEqual({
       ...edge,
       __isFragment: true,
-      sourceTypes: [],
-      targetTypes: [],
     } satisfies Edge);
   });
 
@@ -248,8 +238,6 @@ describe("mapResults", () => {
     expect(result.edges[0]).toEqual({
       ...edge,
       __isFragment: true,
-      sourceTypes: [],
-      targetTypes: [],
     } satisfies Edge);
   });
 
