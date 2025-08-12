@@ -11,6 +11,7 @@ import {
   getRawId,
   Vertex,
   VertexId,
+  useVertex,
 } from "@/core";
 import { textTransformSelector } from "@/hooks";
 import {
@@ -35,15 +36,10 @@ export type DisplayVertex = {
   original: Vertex;
 };
 
-/** Finds the `DisplayVertex` instance for a give `VertexId` within the vertices added to the graph canvas. */
+/** Finds the `DisplayVertex` instance for a give `VertexId`. */
 export function useDisplayVertex(id: VertexId) {
-  const vertex = useAtomValue(displayVerticesInCanvasSelector).get(id);
-
-  if (!vertex) {
-    throw new Error(`Vertex with id ${id} not found in displayVertices`);
-  }
-
-  return vertex;
+  const vertex = useVertex(id);
+  return useDisplayVertexFromVertex(vertex);
 }
 
 /** Maps all `Vertex` instances in the graph canvas to `DisplayVertex` instances. */

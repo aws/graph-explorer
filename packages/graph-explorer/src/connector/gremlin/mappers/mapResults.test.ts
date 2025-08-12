@@ -90,14 +90,14 @@ describe("mapResults", () => {
   });
 
   it("should remove duplicate vertices", () => {
-    const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
+    const edge = createRandomEdge();
     const sourceFragment = createVertex({
-      id: edge.source,
-      types: edge.sourceTypes,
+      id: edge.sourceId,
+      types: [],
     });
     const targetFragment = createVertex({
-      id: edge.target,
-      types: edge.targetTypes,
+      id: edge.targetId,
+      types: [],
     });
     const gEdge = createGEdge(edge);
     const gList = createGList([gEdge, gEdge]);
@@ -119,8 +119,6 @@ describe("mapResults", () => {
           "@value": {
             id: "3",
             label: "knows",
-            inVLabel: "Person",
-            outVLabel: "Person",
             inV: "1",
             outV: "2",
             properties: {
@@ -145,22 +143,16 @@ describe("mapResults", () => {
           createEdge({
             id: "3",
             type: "knows",
-            source: {
-              id: "2",
-              types: ["Person"],
-            },
-            target: {
-              id: "1",
-              types: ["Person"],
-            },
+            sourceId: "2",
+            targetId: "1",
             attributes: {
               since: 20200101,
             },
           }),
         ],
         vertices: [
-          createVertex({ id: "2", types: ["Person"] }),
-          createVertex({ id: "1", types: ["Person"] }),
+          createVertex({ id: "2", types: [] }),
+          createVertex({ id: "1", types: [] }),
         ],
       })
     );

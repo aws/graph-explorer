@@ -254,19 +254,16 @@ export function createRandomVertexForRdf() {
  * Creates a random edge.
  * @returns A random Edge object.
  */
-export function createRandomEdge(source: Vertex, target: Vertex) {
+export function createRandomEdge(source?: Vertex, target?: Vertex) {
+  const sourceId = source?.id ?? createRandomVertexId();
+  const targetId = target?.id ?? createRandomVertexId();
+
   return createEdge({
     id: createRandomEdgeId(),
     type: createRandomName("EdgeType"),
     attributes: createRecord(3, createRandomEntityAttribute),
-    source: {
-      id: source.id,
-      types: source.types,
-    },
-    target: {
-      id: target.id,
-      types: target.types,
-    },
+    sourceId,
+    targetId,
   });
 }
 
@@ -276,14 +273,8 @@ export function createRandomEdgeForRdf(source: Vertex, target: Vertex) {
     id: createRdfEdgeId(source.id, predicate, target.id),
     type: predicate,
     attributes: {},
-    source: {
-      id: source.id,
-      types: source.types,
-    },
-    target: {
-      id: target.id,
-      types: target.types,
-    },
+    sourceId: source.id,
+    targetId: target.id,
   });
 }
 

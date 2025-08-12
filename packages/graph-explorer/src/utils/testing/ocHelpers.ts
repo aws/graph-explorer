@@ -15,8 +15,8 @@ export function mapToOcEdge(edge: Edge): OCEdge {
     "~entityType": "relationship",
     "~id": String(edge.id),
     "~type": edge.type,
-    "~start": String(edge.source),
-    "~end": String(edge.target),
+    "~start": String(edge.sourceId),
+    "~end": String(edge.targetId),
     "~properties": edge.attributes,
   };
 }

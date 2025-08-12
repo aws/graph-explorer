@@ -6,15 +6,15 @@ import { createEdgeId, VertexId } from "@/core";
  * The format is:
  * {source}-[{predicate}]->{target}
  *
- * @param source The source resource URI
+ * @param sourceId The source resource URI
  * @param predicate The predicate URI
- * @param target The target resource URI
+ * @param targetId The target resource URI
  * @returns A string that represents the relationship between the source and target
  */
 export function createRdfEdgeId(
-  source: string | VertexId,
+  sourceId: string | VertexId,
   predicate: string,
-  target: string | VertexId
+  targetId: string | VertexId
 ) {
-  return createEdgeId(`${source}-[${predicate}]->${target}`);
+  return createEdgeId(`${sourceId}-[${predicate}]->${targetId}`);
 }

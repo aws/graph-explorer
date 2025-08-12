@@ -11,7 +11,7 @@ describe("createVertex", () => {
       },
     });
 
-    expect(vertex).toMatchObject({
+    expect(vertex).toStrictEqual({
       entityType: "vertex",
       id: "1",
       type: "Person",
@@ -33,7 +33,7 @@ describe("createVertex", () => {
       },
     });
 
-    expect(vertex).toMatchObject({
+    expect(vertex).toStrictEqual({
       entityType: "vertex",
       id: "1",
       type: "Person",
@@ -55,7 +55,7 @@ describe("createVertex", () => {
       },
     });
 
-    expect(vertex).toMatchObject({
+    expect(vertex).toStrictEqual({
       entityType: "vertex",
       id: "1",
       type: "",
@@ -74,7 +74,7 @@ describe("createVertex", () => {
       types: ["Person"],
     });
 
-    expect(vertex).toMatchObject({
+    expect(vertex).toStrictEqual({
       entityType: "vertex",
       id: "1",
       type: "Person",
@@ -92,7 +92,7 @@ describe("createVertex", () => {
       attributes: {},
     });
 
-    expect(vertex).toMatchObject({
+    expect(vertex).toStrictEqual({
       entityType: "vertex",
       id: "1",
       type: "Person",
@@ -114,7 +114,7 @@ describe("createVertex", () => {
       ]),
     });
 
-    expect(vertex).toMatchObject({
+    expect(vertex).toStrictEqual({
       entityType: "vertex",
       id: "1",
       type: "Person",
@@ -137,7 +137,7 @@ describe("createVertex", () => {
       isBlankNode: true,
     });
 
-    expect(vertex).toMatchObject({
+    expect(vertex).toStrictEqual({
       entityType: "vertex",
       id: "1",
       type: "Person",
@@ -157,24 +157,16 @@ describe("createEdge", () => {
       attributes: {
         since: "2020-01-01",
       },
-      source: {
-        id: "1",
-        types: ["Person"],
-      },
-      target: {
-        id: "2",
-        types: ["Person"],
-      },
+      sourceId: "1",
+      targetId: "2",
     });
 
-    expect(edge).toMatchObject({
+    expect(edge).toStrictEqual({
       entityType: "edge",
       id: "1",
       type: "WORKS_WITH",
-      source: "1",
-      sourceTypes: ["Person"],
-      target: "2",
-      targetTypes: ["Person"],
+      sourceId: "1",
+      targetId: "2",
       attributes: {
         since: "2020-01-01",
       },
@@ -189,24 +181,16 @@ describe("createEdge", () => {
       attributes: {
         since: "2020-01-01",
       },
-      source: {
-        id: "1",
-        types: ["Person", "Worker"],
-      },
-      target: {
-        id: "2",
-        types: ["Person", "Worker"],
-      },
+      sourceId: "1",
+      targetId: "2",
     });
 
-    expect(edge).toMatchObject({
+    expect(edge).toStrictEqual({
       entityType: "edge",
       id: "1",
       type: "WORKS_WITH",
-      source: "1",
-      sourceTypes: ["Person", "Worker"],
-      target: "2",
-      targetTypes: ["Person", "Worker"],
+      sourceId: "1",
+      targetId: "2",
       attributes: {
         since: "2020-01-01",
       },
@@ -221,24 +205,16 @@ describe("createEdge", () => {
       attributes: {
         since: "2020-01-01",
       },
-      source: {
-        id: "1",
-        types: [],
-      },
-      target: {
-        id: "2",
-        types: [],
-      },
+      sourceId: "1",
+      targetId: "2",
     });
 
-    expect(edge).toMatchObject({
+    expect(edge).toStrictEqual({
       entityType: "edge",
       id: "1",
       type: "WORKS_WITH",
-      source: "1",
-      sourceTypes: [],
-      target: "2",
-      targetTypes: [],
+      sourceId: "1",
+      targetId: "2",
       attributes: {
         since: "2020-01-01",
       },
@@ -250,24 +226,16 @@ describe("createEdge", () => {
     const edge = createEdge({
       id: "1",
       type: "WORKS_WITH",
-      source: {
-        id: "1",
-        types: ["Person"],
-      },
-      target: {
-        id: "2",
-        types: ["Person"],
-      },
+      sourceId: "1",
+      targetId: "2",
     });
 
-    expect(edge).toMatchObject({
+    expect(edge).toStrictEqual({
       entityType: "edge",
       id: "1",
       type: "WORKS_WITH",
-      source: "1",
-      sourceTypes: ["Person"],
-      target: "2",
-      targetTypes: ["Person"],
+      sourceId: "1",
+      targetId: "2",
       attributes: {},
       __isFragment: true,
     });
@@ -277,25 +245,17 @@ describe("createEdge", () => {
     const edge = createEdge({
       id: "1",
       type: "WORKS_WITH",
-      source: {
-        id: "1",
-        types: ["Person"],
-      },
-      target: {
-        id: "2",
-        types: ["Person"],
-      },
+      sourceId: "1",
+      targetId: "2",
       attributes: {},
     });
 
-    expect(edge).toMatchObject({
+    expect(edge).toStrictEqual({
       entityType: "edge",
       id: "1",
       type: "WORKS_WITH",
-      source: "1",
-      sourceTypes: ["Person"],
-      target: "2",
-      targetTypes: ["Person"],
+      sourceId: "1",
+      targetId: "2",
       attributes: {},
       __isFragment: false,
     });
@@ -305,14 +265,8 @@ describe("createEdge", () => {
     const edge = createEdge({
       id: "1",
       type: "WORKS_WITH",
-      source: {
-        id: "1",
-        types: ["Person"],
-      },
-      target: {
-        id: "2",
-        types: ["Person"],
-      },
+      sourceId: "1",
+      targetId: "2",
       attributes: new Map<string, EntityPropertyValue>([
         ["since", "2020-01-01"],
         ["until", "2020-01-02"],
@@ -321,14 +275,12 @@ describe("createEdge", () => {
       ]),
     });
 
-    expect(edge).toMatchObject({
+    expect(edge).toStrictEqual({
       entityType: "edge",
       id: "1",
       type: "WORKS_WITH",
-      source: "1",
-      sourceTypes: ["Person"],
-      target: "2",
-      targetTypes: ["Person"],
+      sourceId: "1",
+      targetId: "2",
       attributes: {
         since: "2020-01-01",
         until: "2020-01-02",

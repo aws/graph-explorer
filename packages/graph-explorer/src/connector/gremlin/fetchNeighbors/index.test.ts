@@ -2,6 +2,7 @@ import { globalMockFetch } from "@/connector/testUtils/globalMockFetch";
 import mockGremlinFetch from "@/connector/testUtils/mockGremlinFetch";
 import fetchNeighbors from ".";
 import { createEdge, createVertex, createVertexId } from "@/core";
+import { toMappedQueryResults } from "@/connector/useGEFetchTypes";
 
 describe("Gremlin > fetchNeighbors", () => {
   it("Should return all neighbors from node 2018", async () => {
@@ -78,113 +79,67 @@ describe("Gremlin > fetchNeighbors", () => {
       vertexTypes: ["airport"],
     });
 
-    expect(response).toMatchObject({
-      vertices: expectedVertices,
-      edges: [
-        createEdge({
-          id: "49540",
-          type: "route",
-          source: {
-            id: "2018",
-            types: ["airport"],
-          },
-          target: {
-            id: "486",
-            types: ["airport"],
-          },
-          attributes: { dist: 82 },
-        }),
-        createEdge({
-          id: "33133",
-          type: "route",
-          source: {
-            id: "486",
-            types: ["airport"],
-          },
-          target: {
-            id: "2018",
-            types: ["airport"],
-          },
-          attributes: { dist: 82 },
-        }),
-        createEdge({
-          id: "49539",
-          type: "route",
-          source: {
-            id: "2018",
-            types: ["airport"],
-          },
-          target: {
-            id: "228",
-            types: ["airport"],
-          },
-          attributes: { dist: 153 },
-        }),
-        createEdge({
-          id: "24860",
-          type: "route",
-          source: {
-            id: "228",
-            types: ["airport"],
-          },
-          target: {
-            id: "2018",
-            types: ["airport"],
-          },
-          attributes: { dist: 153 },
-        }),
-        createEdge({
-          id: "49538",
-          type: "route",
-          source: {
-            id: "2018",
-            types: ["airport"],
-          },
-          target: {
-            id: "124",
-            types: ["airport"],
-          },
-          attributes: { dist: 105 },
-        }),
-        createEdge({
-          id: "18665",
-          type: "route",
-          source: {
-            id: "124",
-            types: ["airport"],
-          },
-          target: {
-            id: "2018",
-            types: ["airport"],
-          },
-          attributes: { dist: 105 },
-        }),
-        createEdge({
-          id: "59800",
-          type: "contains",
-          source: {
-            id: "3741",
-            types: ["continent"],
-          },
-          target: {
-            id: "2018",
-            types: ["airport"],
-          },
-        }),
-        createEdge({
-          id: "56297",
-          type: "contains",
-          source: {
-            id: "3701",
-            types: ["country"],
-          },
-          target: {
-            id: "2018",
-            types: ["airport"],
-          },
-        }),
-      ],
-    });
+    expect(response).toStrictEqual(
+      toMappedQueryResults({
+        vertices: expectedVertices,
+        edges: [
+          createEdge({
+            id: "49540",
+            type: "route",
+            sourceId: "2018",
+            targetId: "486",
+            attributes: { dist: 82 },
+          }),
+          createEdge({
+            id: "33133",
+            type: "route",
+            sourceId: "486",
+            targetId: "2018",
+            attributes: { dist: 82 },
+          }),
+          createEdge({
+            id: "49539",
+            type: "route",
+            sourceId: "2018",
+            targetId: "228",
+            attributes: { dist: 153 },
+          }),
+          createEdge({
+            id: "24860",
+            type: "route",
+            sourceId: "228",
+            targetId: "2018",
+            attributes: { dist: 153 },
+          }),
+          createEdge({
+            id: "49538",
+            type: "route",
+            sourceId: "2018",
+            targetId: "124",
+            attributes: { dist: 105 },
+          }),
+          createEdge({
+            id: "18665",
+            type: "route",
+            sourceId: "124",
+            targetId: "2018",
+            attributes: { dist: 105 },
+          }),
+          createEdge({
+            id: "59800",
+            type: "contains",
+            sourceId: "3741",
+            targetId: "2018",
+          }),
+          createEdge({
+            id: "56297",
+            type: "contains",
+            sourceId: "3701",
+            targetId: "2018",
+          }),
+        ],
+      })
+    );
   });
 
   it("Should return filtered neighbors from node 2018", async () => {
@@ -235,62 +190,40 @@ describe("Gremlin > fetchNeighbors", () => {
       filterCriteria: [{ name: "code", value: "TF", operator: "LIKE" }],
     });
 
-    expect(response).toMatchObject({
-      vertices: expectedVertices,
-      edges: [
-        createEdge({
-          id: "49540",
-          type: "route",
-          source: {
-            id: "2018",
-            types: ["airport"],
-          },
-          target: {
-            id: "486",
-            types: ["airport"],
-          },
-          attributes: { dist: 82 },
-        }),
-        createEdge({
-          id: "33133",
-          type: "route",
-          source: {
-            id: "486",
-            types: ["airport"],
-          },
-          target: {
-            id: "2018",
-            types: ["airport"],
-          },
-          attributes: { dist: 82 },
-        }),
-        createEdge({
-          id: "49538",
-          type: "route",
-          source: {
-            id: "2018",
-            types: ["airport"],
-          },
-          target: {
-            id: "124",
-            types: ["airport"],
-          },
-          attributes: { dist: 105 },
-        }),
-        createEdge({
-          id: "18665",
-          type: "route",
-          source: {
-            id: "124",
-            types: ["airport"],
-          },
-          target: {
-            id: "2018",
-            types: ["airport"],
-          },
-          attributes: { dist: 105 },
-        }),
-      ],
-    });
+    expect(response).toStrictEqual(
+      toMappedQueryResults({
+        vertices: expectedVertices,
+        edges: [
+          createEdge({
+            id: "49540",
+            type: "route",
+            sourceId: "2018",
+            targetId: "486",
+            attributes: { dist: 82 },
+          }),
+          createEdge({
+            id: "33133",
+            type: "route",
+            sourceId: "486",
+            targetId: "2018",
+            attributes: { dist: 82 },
+          }),
+          createEdge({
+            id: "49538",
+            type: "route",
+            sourceId: "2018",
+            targetId: "124",
+            attributes: { dist: 105 },
+          }),
+          createEdge({
+            id: "18665",
+            type: "route",
+            sourceId: "124",
+            targetId: "2018",
+            attributes: { dist: 105 },
+          }),
+        ],
+      })
+    );
   });
 });

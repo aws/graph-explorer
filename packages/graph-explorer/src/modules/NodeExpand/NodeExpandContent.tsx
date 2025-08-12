@@ -10,7 +10,7 @@ import ExpandGraphIcon from "@/components/icons/ExpandGraphIcon";
 import GraphIcon from "@/components/icons/GraphIcon";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import PanelEmptyState from "@/components/PanelEmptyState/PanelEmptyState";
-import { DisplayVertex, useNeighbors, useNode } from "@/core";
+import { DisplayVertex, useNeighbors, useVertex } from "@/core";
 import { useExpandNode } from "@/hooks";
 import useNeighborsOptions, {
   NeighborOption,
@@ -154,7 +154,7 @@ function ExpandButton({
   isDisabled: boolean;
   filters: ExpandNodeFilters;
 }) {
-  const vertex = useNode(vertexId);
+  const vertex = useVertex(vertexId);
   const { expandNode, isPending } = useExpandNode();
 
   return (

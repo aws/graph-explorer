@@ -106,7 +106,7 @@ const criterionTemplate = (criterion: Criterion): string => {
  * MATCH (v)-[e:route]-(tgt)
  * RETURN
  *   collect(DISTINCT tgt) AS vObjects,
- *   collect({ edge: e, sourceTypes: labels(startNode(e)), targetTypes: labels(endNode(e)) }) AS eObjects
+ *   collect(e) AS eObjects
  */
 const oneHopTemplate = ({
   vertexId,
@@ -161,7 +161,7 @@ const oneHopTemplate = ({
       MATCH (v)-[${edgeMatch}]-(tgt)
       RETURN
         collect(DISTINCT tgt) AS vObjects, 
-        collect({ edge: e, sourceTypes: labels(startNode(e)), targetTypes: labels(endNode(e)) }) AS eObjects
+        collect(e) AS eObjects
     `;
   }
 
@@ -171,7 +171,7 @@ const oneHopTemplate = ({
     WHERE ${whereConditions}
     RETURN
       collect(DISTINCT tgt) AS vObjects, 
-      collect({ edge: e, sourceTypes: labels(startNode(e)), targetTypes: labels(endNode(e)) }) AS eObjects
+      collect(e) AS eObjects
   `;
 };
 

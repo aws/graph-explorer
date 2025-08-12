@@ -31,8 +31,8 @@ export function useUpdateGraphSession() {
         edgesInGraph
           .entries()
           .filter(([_key, edge]) => {
-            const source = nodesInGraph.get(edge.source);
-            const target = nodesInGraph.get(edge.target);
+            const source = nodesInGraph.get(edge.sourceId);
+            const target = nodesInGraph.get(edge.targetId);
             return !source?.__isBlank && !target?.__isBlank;
           })
           .map(([key]) => key)

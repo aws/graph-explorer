@@ -78,8 +78,8 @@ function createBindings(vertices: Vertex[], edges: Edge[]) {
     ...edges
       .map(edge => {
         // Gets the vertices to see if they are blank nodes
-        const source = vertices.find(v => v.id === edge.source);
-        const target = vertices.find(v => v.id === edge.target);
+        const source = vertices.find(v => v.id === edge.sourceId);
+        const target = vertices.find(v => v.id === edge.targetId);
         return {
           edge,
           source,
@@ -133,12 +133,12 @@ function createBindingsForEdge({
     // Relationship between resources
     {
       subject: isSourceBlank
-        ? rdfValue.blank(String(edge.source))
-        : rdfValue.uri(String(edge.source)),
+        ? rdfValue.blank(String(edge.sourceId))
+        : rdfValue.uri(String(edge.sourceId)),
       p: rdfValue.uri(edge.type),
       value: isTargetBlank
-        ? rdfValue.blank(String(edge.target))
-        : rdfValue.uri(String(edge.target)),
+        ? rdfValue.blank(String(edge.targetId))
+        : rdfValue.uri(String(edge.targetId)),
     },
   ];
 }

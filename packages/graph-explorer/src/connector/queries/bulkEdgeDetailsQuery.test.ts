@@ -1,8 +1,4 @@
-import {
-  createRandomEdge,
-  createRandomVertex,
-  FakeExplorer,
-} from "@/utils/testing";
+import { createRandomEdge, FakeExplorer } from "@/utils/testing";
 import { bulkEdgeDetailsQuery } from "./bulkEdgeDetailsQuery";
 import { edgeDetailsQuery } from "./edgeDetailsQuery";
 import { createQueryClient } from "@/core/queryClient";
@@ -26,7 +22,7 @@ describe("bulkEdgeDetailsQuery", () => {
     const edgeDetailsSpy = vi.spyOn(explorer, "edgeDetails");
     const queryClient = createQueryClient({ explorer });
 
-    const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
+    const edge = createRandomEdge();
 
     // Add edges to cache
     queryClient.setQueryData(edgeDetailsQuery(edge.id).queryKey, { edge });
@@ -49,7 +45,7 @@ describe("bulkEdgeDetailsQuery", () => {
     const edgeDetailsSpy = vi.spyOn(explorer, "edgeDetails");
     const queryClient = createQueryClient({ explorer });
 
-    const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
+    const edge = createRandomEdge();
     explorer.addEdge(edge);
 
     const result = await queryClient.fetchQuery(
@@ -70,10 +66,7 @@ describe("bulkEdgeDetailsQuery", () => {
     const edgeDetailsSpy = vi.spyOn(explorer, "edgeDetails");
     const queryClient = createQueryClient({ explorer });
 
-    const edgeCached = createRandomEdge(
-      createRandomVertex(),
-      createRandomVertex()
-    );
+    const edgeCached = createRandomEdge();
 
     // Add edges to cache
     queryClient.setQueryData(edgeDetailsQuery(edgeCached.id).queryKey, {
@@ -81,10 +74,7 @@ describe("bulkEdgeDetailsQuery", () => {
     });
 
     // Add edge to explorer
-    const edgeFetched = createRandomEdge(
-      createRandomVertex(),
-      createRandomVertex()
-    );
+    const edgeFetched = createRandomEdge();
     explorer.addEdge(edgeFetched);
 
     const result = await queryClient.fetchQuery(
@@ -109,7 +99,7 @@ describe("bulkEdgeDetailsQuery", () => {
     const queryClient = createQueryClient({ explorer });
 
     const edges = createArray(DEFAULT_BATCH_REQUEST_SIZE * 3, () =>
-      createRandomEdge(createRandomVertex(), createRandomVertex())
+      createRandomEdge()
     );
     edges.forEach(e => explorer.addEdge(e));
 

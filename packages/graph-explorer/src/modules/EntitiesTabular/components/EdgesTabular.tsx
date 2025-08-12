@@ -17,19 +17,29 @@ import {
 import { nodesSelectedIdsAtom } from "@/core/StateProvider/nodes";
 import { useDeepMemo } from "@/hooks";
 import useTranslations from "@/hooks/useTranslations";
-import { DisplayEdge, useDisplayEdgesInCanvas } from "@/core";
+import {
+  DisplayEdge,
+  DisplayVertex,
+  useDisplayEdgesInCanvas,
+  useDisplayVerticesInCanvas,
+} from "@/core";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { MISSING_DISPLAY_VALUE } from "@/utils";
 
 /** Creates the model for the table data */
-function createEdgeForTable(edge: DisplayEdge) {
+function createEdgeForTable(
+  edge: DisplayEdge,
+  source: DisplayVertex | undefined,
+  target: DisplayVertex | undefined
+) {
   return {
     id: edge.id,
     displayTypes: edge.displayTypes,
     displayName: edge.displayName,
-    sourceDisplayId: edge.source.displayId,
-    sourceDisplayTypes: edge.source.displayTypes,
-    targetDisplayId: edge.target.displayId,
-    targetDisplayTypes: edge.target.displayTypes,
+    sourceDisplayId: source?.displayId ?? MISSING_DISPLAY_VALUE,
+    sourceDisplayTypes: source?.displayTypes ?? MISSING_DISPLAY_VALUE,
+    targetDisplayId: target?.displayId ?? MISSING_DISPLAY_VALUE,
+    targetDisplayTypes: target?.displayTypes ?? MISSING_DISPLAY_VALUE,
   };
 }
 
@@ -41,6 +51,7 @@ type ToggleEdge = ReturnType<typeof createEdgeForTable> & {
 const EdgesTabular = forwardRef<TabularInstance<ToggleEdge>, any>(
   (_props, ref) => {
     const t = useTranslations();
+    const nodes = useDisplayVerticesInCanvas();
     const edges = useDisplayEdgesInCanvas();
     const setEdgesOut = useSetAtom(edgesOutOfFocusIdsAtom);
     const filteredEdges = useAtomValue(edgesFilteredIdsAtom);
@@ -101,7 +112,11 @@ const EdgesTabular = forwardRef<TabularInstance<ToggleEdge>, any>(
       return edges
         .values()
         .map(edge => ({
-          ...createEdgeForTable(edge),
+          ...createEdgeForTable(
+            edge,
+            nodes.get(edge.sourceId),
+            nodes.get(edge.targetId)
+          ),
           __is_visible: !filteredEdges.has(edge.id),
         }))
         .toArray();

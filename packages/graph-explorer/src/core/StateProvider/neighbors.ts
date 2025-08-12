@@ -216,18 +216,12 @@ const fetchedNeighborsSelector = atomFamily((id: VertexId) =>
 
     const neighbors = edges
       .values()
-      .map(edge => {
-        // Get all OUT connected edges: current node is source and target should exist
-        if (edge.source === id && nodes.has(edge.target)) {
-          return { id: edge.target, types: edge.targetTypes };
-        }
-        // Get all IN connected edges: current node is target and source should exist
-        if (edge.target === id && nodes.has(edge.source)) {
-          return { id: edge.source, types: edge.sourceTypes };
-        }
-        return null;
-      })
-      .filter(neighbor => neighbor !== null)
+      .map(edge =>
+        edge.sourceId === id
+          ? nodes.get(edge.targetId)
+          : nodes.get(edge.sourceId)
+      )
+      .filter(neighbor => neighbor != null)
       .toArray();
 
     return neighbors;
@@ -247,11 +241,11 @@ export function useFetchedNeighborsCallback() {
       edges
         .values()
         // Find edges matching the given vertex ID
-        .filter(edge => edge.source === id || edge.target === id)
+        .filter(edge => edge.sourceId === id || edge.targetId === id)
         // Filter out edges where the source or target vertex is not in the graph
-        .filter(edge => nodes.has(edge.source) && nodes.has(edge.target))
+        .filter(edge => nodes.has(edge.sourceId) && nodes.has(edge.targetId))
         // Get the source or target vertex ID depending on the edge direction
-        .map(edge => (edge.source === id ? edge.target : edge.source))
+        .map(edge => (edge.sourceId === id ? edge.targetId : edge.sourceId))
     );
 }
 

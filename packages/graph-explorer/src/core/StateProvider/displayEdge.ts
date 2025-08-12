@@ -2,7 +2,6 @@ import {
   Edge,
   EdgeId,
   getRawId,
-  Vertex,
   VertexId,
   DisplayEdgeTypeConfig,
   displayEdgeTypeConfigSelector,
@@ -10,7 +9,6 @@ import {
   getSortedDisplayAttributes,
   edgesAtom,
   edgesSelectedIdsAtom,
-  vertexTypeConfigSelector,
   queryEngineSelector,
   edgeSelector,
   edgeTypeAttributesSelector,
@@ -32,17 +30,10 @@ export type DisplayEdge = {
   displayName: string;
   displayTypes: string;
   typeConfig: DisplayEdgeTypeConfig;
-  source: EdgeVertex;
-  target: EdgeVertex;
+  sourceId: VertexId;
+  targetId: VertexId;
   attributes: DisplayAttribute[];
   hasUniqueId: boolean;
-};
-
-type EdgeVertex = {
-  id: VertexId;
-  displayId: string;
-  displayTypes: string;
-  types: Vertex["types"];
 };
 
 /** Maps all `Edge` instances in the graph canvas to `DisplayEdge` instances. */
@@ -96,30 +87,6 @@ const displayEdgeSelector = atomFamily((edge: Edge) =>
       textTransform
     );
 
-    const sourceRawStringId = String(getRawId(edge.source));
-    const targetRawStringId = String(getRawId(edge.target));
-    const sourceDisplayId = isSparql
-      ? textTransform(sourceRawStringId)
-      : sourceRawStringId;
-    const targetDisplayId = isSparql
-      ? textTransform(targetRawStringId)
-      : targetRawStringId;
-
-    const sourceDisplayTypes = edge.sourceTypes
-      .map(
-        type =>
-          get(vertexTypeConfigSelector(type))?.displayLabel ||
-          textTransform(type)
-      )
-      .join(", ");
-    const targetDisplayTypes = edge.targetTypes
-      .map(
-        type =>
-          get(vertexTypeConfigSelector(type))?.displayLabel ||
-          textTransform(type)
-      )
-      .join(", ");
-
     // Get the display name and description for the edge
     function getDisplayAttributeValueByName(name: string | undefined) {
       if (name === RESERVED_ID_PROPERTY) {
@@ -147,18 +114,8 @@ const displayEdgeSelector = atomFamily((edge: Edge) =>
       displayName,
       displayTypes,
       typeConfig,
-      source: {
-        id: edge.source,
-        displayId: sourceDisplayId,
-        displayTypes: sourceDisplayTypes,
-        types: edge.sourceTypes,
-      },
-      target: {
-        id: edge.target,
-        displayId: targetDisplayId,
-        displayTypes: targetDisplayTypes,
-        types: edge.targetTypes,
-      },
+      sourceId: edge.sourceId,
+      targetId: edge.targetId,
       attributes: sortedAttributes,
       // SPARQL does not have unique ID values for predicates, so the UI should hide them
       hasUniqueId: isSparql === false,

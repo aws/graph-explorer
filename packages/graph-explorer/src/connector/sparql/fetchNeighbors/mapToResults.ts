@@ -76,20 +76,14 @@ export function mapToResults(bindings: Bindings): MappedQueryResults {
         return null;
       }
 
-      const source = triple.subject.value;
-      const target = triple.value.value;
+      const sourceId = triple.subject.value;
+      const targetId = triple.value.value;
       const uri = triple.p.value;
 
       return createEdge({
-        id: createRdfEdgeId(source, uri, target),
-        source: createVertex({
-          id: source,
-          types: sourceClasses,
-        }),
-        target: createVertex({
-          id: target,
-          types: targetClasses,
-        }),
+        id: createRdfEdgeId(sourceId, uri, targetId),
+        sourceId,
+        targetId,
         type: uri,
         attributes: {},
       });

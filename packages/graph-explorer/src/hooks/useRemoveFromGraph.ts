@@ -46,7 +46,7 @@ export function useRemoveFromGraph() {
         .entries()
         .filter(
           ([_id, edge]) =>
-            vertices.has(edge.source) || vertices.has(edge.target)
+            vertices.has(edge.sourceId) || vertices.has(edge.targetId)
         )
         .map(([id]) => id)
     );

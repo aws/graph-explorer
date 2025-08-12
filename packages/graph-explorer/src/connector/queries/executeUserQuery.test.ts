@@ -89,7 +89,7 @@ describe("executeQuery", () => {
     const vertexDetailsSpy = vi.spyOn(explorer, "vertexDetails");
     const edgeDetailsSpy = vi.spyOn(explorer, "edgeDetails");
 
-    const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
+    const edge = createRandomEdge();
     rawQuerySpy.mockResolvedValue(toMappedQueryResults({ edges: [edge] }));
     const mockUpdateSchema = vi.fn();
 
@@ -112,7 +112,7 @@ describe("executeQuery", () => {
     const vertexDetailsSpy = vi.spyOn(explorer, "vertexDetails");
     const edgeDetailsSpy = vi.spyOn(explorer, "edgeDetails");
 
-    const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
+    const edge = createRandomEdge();
     explorer.addEdge(edge);
     rawQuerySpy.mockResolvedValue(
       toMappedQueryResults({ edges: [makeFragment(edge)] })

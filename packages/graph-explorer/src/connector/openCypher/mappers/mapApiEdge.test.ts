@@ -20,14 +20,14 @@ describe("mapApiEdge", () => {
       "~end": "",
       "~properties": {},
     } satisfies OCEdge;
-    const result = mapApiEdge(input, [], []);
+    const result = mapApiEdge(input);
 
     expect(result).toEqual(
       createEdge({
         id: "",
         type: "",
-        source: { id: "", types: [] },
-        target: { id: "", types: [] },
+        sourceId: "",
+        targetId: "",
         attributes: {},
       })
     );
@@ -42,8 +42,8 @@ describe("mapApiEdge", () => {
       "~entityType": "relationship",
       "~id": String(edge.id),
       "~type": edge.type,
-      "~start": String(edge.source),
-      "~end": String(edge.target),
+      "~start": String(edge.sourceId),
+      "~end": String(edge.targetId),
       "~properties": {
         stringValue: createRandomName("stringValue"),
         integerValue: createRandomInteger(),
@@ -55,7 +55,7 @@ describe("mapApiEdge", () => {
 
     edge.attributes = input["~properties"];
 
-    const result = mapApiEdge(input, sourceVertex.types, targetVertex.types);
+    const result = mapApiEdge(input);
 
     expect(result).toEqual(edge);
   });

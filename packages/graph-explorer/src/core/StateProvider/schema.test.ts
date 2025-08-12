@@ -26,10 +26,7 @@ describe("schema", () => {
       );
     });
     it("should work with edge", () => {
-      const entity = createRandomEdge(
-        createRandomVertex(),
-        createRandomVertex()
-      );
+      const entity = createRandomEdge();
       const result = extractConfigFromEntity(entity);
       expect(result.type).toEqual(entity.type);
       expect(result.attributes).toHaveLength(
@@ -52,7 +49,7 @@ describe("schema", () => {
     it("should exclude fragment entities", () => {
       const originalSchema = createRandomSchema();
       const vertex = createRandomVertex();
-      const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
+      const edge = createRandomEdge();
       const result = updateSchemaFromEntities(
         { vertices: [makeFragment(vertex)], edges: [makeFragment(edge)] },
         originalSchema
@@ -64,9 +61,7 @@ describe("schema", () => {
     it("should add missing entities to schema", () => {
       const originalSchema = createRandomSchema();
       const newNodes = createArray(3, () => createRandomVertex());
-      const newEdges = createArray(3, () =>
-        createRandomEdge(createRandomVertex(), createRandomVertex())
-      );
+      const newEdges = createArray(3, () => createRandomEdge());
       const result = updateSchemaFromEntities(
         { vertices: newNodes, edges: newEdges },
         originalSchema
@@ -89,14 +84,8 @@ describe("schema", () => {
       const originalSchema = createRandomSchema();
       const newNode1 = createRandomVertex();
       const newNode2 = createRandomVertex();
-      const newEdge1 = createRandomEdge(
-        createRandomVertex(),
-        createRandomVertex()
-      );
-      const newEdge2 = createRandomEdge(
-        createRandomVertex(),
-        createRandomVertex()
-      );
+      const newEdge1 = createRandomEdge();
+      const newEdge2 = createRandomEdge();
       newNode2.id = newNode1.id;
       newEdge2.id = newEdge1.id;
       newNode2.type = newNode1.type;
@@ -135,10 +124,7 @@ describe("schema", () => {
     it("should add missing attributes to schema", () => {
       const originalSchema = createRandomSchema();
       const newNode = createRandomVertex();
-      const newEdge = createRandomEdge(
-        createRandomVertex(),
-        createRandomVertex()
-      );
+      const newEdge = createRandomEdge();
       newNode.type = originalSchema.vertices[0].type;
       newEdge.type = originalSchema.edges[0].type;
 
@@ -173,9 +159,10 @@ describe("schema", () => {
       const newNodes = createArray(3, () => createRandomVertex()).map(
         vertex => ({ ...vertex, type: "", types: [] })
       );
-      const newEdges = createArray(3, () =>
-        createRandomEdge(createRandomVertex(), createRandomVertex())
-      ).map(edge => ({ ...edge, type: "" }));
+      const newEdges = createArray(3, () => createRandomEdge()).map(edge => ({
+        ...edge,
+        type: "",
+      }));
 
       const result = updateSchemaFromEntities(
         { vertices: newNodes, edges: newEdges },

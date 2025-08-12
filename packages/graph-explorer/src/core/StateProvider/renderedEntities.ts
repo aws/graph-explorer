@@ -48,8 +48,8 @@ export function createEdgeFromRenderedEdge(renderedEdge: RenderedEdge): Edge {
   return {
     ...renderedEdge.data,
     id: getEdgeIdFromRenderedEdgeId(renderedEdge.data.id),
-    source: getVertexIdFromRenderedVertexId(renderedEdge.data.source),
-    target: getVertexIdFromRenderedVertexId(renderedEdge.data.target),
+    sourceId: getVertexIdFromRenderedVertexId(renderedEdge.data.source),
+    targetId: getVertexIdFromRenderedVertexId(renderedEdge.data.target),
   };
 }
 
@@ -145,8 +145,8 @@ function createRenderedEdge(edge: Edge) {
     data: {
       ...edge,
       id: createRenderedEdgeId(edge.id),
-      source: createRenderedVertexId(edge.source),
-      target: createRenderedVertexId(edge.target),
+      source: createRenderedVertexId(edge.sourceId),
+      target: createRenderedVertexId(edge.targetId),
     },
   };
 }

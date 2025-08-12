@@ -1,5 +1,5 @@
 import { Branded } from "@/utils";
-import { Vertex, VertexId } from "./vertex";
+import { VertexId } from "./vertex";
 import { EntityProperties, EntityRawId } from "./shared";
 
 export type EdgeId = Branded<EntityRawId, "EdgeId">;
@@ -25,19 +25,11 @@ export type Edge = {
   /**
    * Source vertex id
    */
-  source: VertexId;
-  /**
-   * Source vertex types
-   */
-  sourceTypes: Vertex["types"];
+  sourceId: VertexId;
   /**
    * Target vertex id
    */
-  target: VertexId;
-  /**
-   * Target vertex types
-   */
-  targetTypes: Vertex["types"];
+  targetId: VertexId;
   /**
    * Only for PG, attributes associated to the edge.
    * For RDF, predicates do not have more properties than the predicate itself.

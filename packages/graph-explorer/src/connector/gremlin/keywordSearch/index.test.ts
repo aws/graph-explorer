@@ -1,7 +1,8 @@
 import { globalMockFetch } from "@/connector/testUtils/globalMockFetch";
 import mockGremlinFetch from "@/connector/testUtils/mockGremlinFetch";
 import keywordSearch from ".";
-import { createVertexId } from "@/core";
+import { createVertex, createVertexId } from "@/core";
+import { toMappedQueryResults } from "@/connector/useGEFetchTypes";
 
 describe("Gremlin > keywordSearch", () => {
   it("Should return 1 random node", async () => {
@@ -10,29 +11,30 @@ describe("Gremlin > keywordSearch", () => {
       limit: 1,
     });
 
-    expect(keywordResponse).toMatchObject({
-      vertices: [
-        {
-          id: createVertexId("1"),
-          type: "airport",
-          types: ["airport"],
-          attributes: {
-            country: "US",
-            longest: 12390,
-            code: "ATL",
-            city: "Atlanta",
-            elev: 1026,
-            icao: "KATL",
-            lon: -84.4281005859375,
-            runways: 5,
-            region: "US-GA",
-            type: "airport",
-            lat: 33.6366996765137,
-            desc: "Hartsfield - Jackson Atlanta International Airport",
-          },
-        },
-      ],
-    });
+    expect(keywordResponse).toStrictEqual(
+      toMappedQueryResults({
+        vertices: [
+          createVertex({
+            id: createVertexId("1"),
+            types: ["airport"],
+            attributes: {
+              country: "US",
+              longest: 12390,
+              code: "ATL",
+              city: "Atlanta",
+              elev: 1026,
+              icao: "KATL",
+              lon: -84.4281005859375,
+              runways: 5,
+              region: "US-GA",
+              type: "airport",
+              lat: 33.6366996765137,
+              desc: "Hartsfield - Jackson Atlanta International Airport",
+            },
+          }),
+        ],
+      })
+    );
   });
 
   it("Should return airports whose code matches with SFA", async () => {
@@ -43,28 +45,29 @@ describe("Gremlin > keywordSearch", () => {
       searchByAttributes: ["code"],
     });
 
-    expect(keywordResponse).toMatchObject({
-      vertices: [
-        {
-          id: createVertexId("836"),
-          type: "airport",
-          types: ["airport"],
-          attributes: {
-            country: "TN",
-            longest: 9843,
-            code: "SFA",
-            city: "Sfax",
-            elev: 85,
-            icao: "DTTX",
-            lon: 10.6909999847412,
-            runways: 1,
-            region: "TN-61",
-            type: "airport",
-            lat: 34.7179985046387,
-            desc: "Sfax Thyna International Airport",
-          },
-        },
-      ],
-    });
+    expect(keywordResponse).toStrictEqual(
+      toMappedQueryResults({
+        vertices: [
+          createVertex({
+            id: createVertexId("836"),
+            types: ["airport"],
+            attributes: {
+              country: "TN",
+              longest: 9843,
+              code: "SFA",
+              city: "Sfax",
+              elev: 85,
+              icao: "DTTX",
+              lon: 10.6909999847412,
+              runways: 1,
+              region: "TN-61",
+              type: "airport",
+              lat: 34.7179985046387,
+              desc: "Sfax Thyna International Airport",
+            },
+          }),
+        ],
+      })
+    );
   });
 });

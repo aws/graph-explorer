@@ -63,10 +63,10 @@ async function fetchBlankNodeNeighborsPredicates(
   const response = await sparqlFetch<RawNeighborsPredicatesResponse>(template);
   return response.results.bindings.map(result => {
     if (isIncomingPredicate(result)) {
-      return mapIncomingToEdge(resourceURI, resourceClasses, result);
+      return mapIncomingToEdge(resourceURI, result);
     }
 
-    return mapOutgoingToEdge(resourceURI, resourceClasses, result);
+    return mapOutgoingToEdge(resourceURI, result);
   });
 }
 

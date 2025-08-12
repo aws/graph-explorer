@@ -16,7 +16,9 @@ describe("Gremlin > fetchSchema", () => {
       new ClientLoggerConnector()
     );
 
-    expect(schemaResponse).toMatchObject({
+    expect(schemaResponse).toStrictEqual({
+      totalEdges: 57538,
+      totalVertices: 3747,
       vertices: [
         {
           type: "continent",

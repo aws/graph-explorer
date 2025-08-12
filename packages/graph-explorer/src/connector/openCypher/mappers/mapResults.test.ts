@@ -32,7 +32,7 @@ describe("mapResults", () => {
   });
 
   it("should map edge value", () => {
-    const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
+    const edge = createRandomEdge();
 
     const result = mapResults({
       results: [
@@ -46,8 +46,6 @@ describe("mapResults", () => {
     expect(result.edges[0]).toEqual({
       ...edge,
       __isFragment: true,
-      sourceTypes: [],
-      targetTypes: [],
     } satisfies Edge);
     expect(result.vertices).toHaveLength(2);
     expect(result.scalars).toHaveLength(0);
@@ -101,7 +99,7 @@ describe("mapResults", () => {
   });
 
   it("should map edge in array", () => {
-    const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
+    const edge = createRandomEdge();
     const result = mapResults({
       results: [
         {
@@ -114,8 +112,6 @@ describe("mapResults", () => {
     expect(result.edges[0]).toEqual({
       ...edge,
       __isFragment: true,
-      sourceTypes: [],
-      targetTypes: [],
     } satisfies Edge);
     expect(result.vertices).toHaveLength(2);
   });
@@ -139,7 +135,7 @@ describe("mapResults", () => {
 
   it("should map nested objects", () => {
     const vertex = createRandomVertex();
-    const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
+    const edge = createRandomEdge();
 
     const result = mapResults({
       results: [
@@ -159,14 +155,12 @@ describe("mapResults", () => {
     expect(result.edges[0]).toEqual({
       ...edge,
       __isFragment: true,
-      sourceTypes: [],
-      targetTypes: [],
     } satisfies Edge);
   });
 
   it("should map deeply nested objects", () => {
     const vertex = createRandomVertex();
-    const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
+    const edge = createRandomEdge();
 
     const result = mapResults({
       results: [
@@ -188,14 +182,12 @@ describe("mapResults", () => {
     expect(result.edges[0]).toEqual({
       ...edge,
       __isFragment: true,
-      sourceTypes: [],
-      targetTypes: [],
     } satisfies Edge);
   });
 
   it("should map nested objects within array", () => {
     const vertex = createRandomVertex();
-    const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
+    const edge = createRandomEdge();
 
     const result = mapResults({
       results: [
@@ -217,14 +209,12 @@ describe("mapResults", () => {
     expect(result.edges[0]).toEqual({
       ...edge,
       __isFragment: true,
-      sourceTypes: [],
-      targetTypes: [],
     } satisfies Edge);
   });
 
   it("should map deeply nested objects within array", () => {
     const vertex = createRandomVertex();
-    const edge = createRandomEdge(createRandomVertex(), createRandomVertex());
+    const edge = createRandomEdge();
 
     const result = mapResults({
       results: [
@@ -248,8 +238,6 @@ describe("mapResults", () => {
     expect(result.edges[0]).toEqual({
       ...edge,
       __isFragment: true,
-      sourceTypes: [],
-      targetTypes: [],
     } satisfies Edge);
   });
 
@@ -379,8 +367,8 @@ function createCypherVertex(vertex: Vertex): OCVertex {
 
 function createCypherEdge(edge: Edge): OCEdge {
   const id = getRawId(edge.id);
-  const sourceId = getRawId(edge.source);
-  const targetId = getRawId(edge.target);
+  const sourceId = getRawId(edge.sourceId);
+  const targetId = getRawId(edge.targetId);
 
   if (typeof id !== "string") {
     throw new Error("Edge id is not valid");
