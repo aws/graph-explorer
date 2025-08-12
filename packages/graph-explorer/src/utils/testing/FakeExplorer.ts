@@ -128,16 +128,22 @@ export class FakeExplorer implements Explorer {
   }
 
   findNeighbors(vertexId: VertexId) {
-    return this.edges
-      .values()
-      .map(edge =>
-        edge.sourceId === vertexId
-          ? this.vertexMap.get(edge.targetId)
-          : edge.targetId === vertexId
-            ? this.vertexMap.get(edge.sourceId)
-            : null
-      )
-      .filter(n => n != null)
-      .toArray();
+    const neighbors = toNodeMap([]);
+
+    for (const edge of this.edges) {
+      if (edge.sourceId === vertexId) {
+        const neighbor = this.vertexMap.get(edge.targetId);
+        if (neighbor) {
+          neighbors.set(edge.targetId, neighbor);
+        }
+      } else if (edge.targetId === vertexId) {
+        const neighbor = this.vertexMap.get(edge.sourceId);
+        if (neighbor) {
+          neighbors.set(edge.sourceId, neighbor);
+        }
+      }
+    }
+
+    return neighbors.values().toArray();
   }
 }

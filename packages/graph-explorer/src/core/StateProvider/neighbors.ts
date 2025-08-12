@@ -2,7 +2,7 @@ import { useDisplayVerticesInCanvas, VertexId } from "@/core";
 import { atom, useAtomValue } from "jotai";
 import { atomFamily, useAtomCallback } from "jotai/utils";
 import { edgesAtom } from "./edges";
-import { nodesAtom } from "./nodes";
+import { nodesAtom, toNodeMap } from "./nodes";
 import { useCallback, useEffect, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { bulkNeighborCountsQuery, neighborsCountQuery } from "@/connector";
@@ -214,17 +214,23 @@ const fetchedNeighborsSelector = atomFamily((id: VertexId) =>
     const nodes = get(nodesAtom);
     const edges = get(edgesAtom);
 
-    const neighbors = edges
-      .values()
-      .map(edge =>
-        edge.sourceId === id
-          ? nodes.get(edge.targetId)
-          : nodes.get(edge.sourceId)
-      )
-      .filter(neighbor => neighbor != null)
-      .toArray();
+    const neighbors = toNodeMap([]);
 
-    return neighbors;
+    for (const edge of edges.values()) {
+      if (edge.sourceId === id) {
+        const neighbor = nodes.get(edge.targetId);
+        if (neighbor) {
+          neighbors.set(neighbor.id, neighbor);
+        }
+      } else if (edge.targetId === id) {
+        const neighbor = nodes.get(edge.sourceId);
+        if (neighbor) {
+          neighbors.set(neighbor.id, neighbor);
+        }
+      }
+    }
+
+    return neighbors.values().toArray();
   })
 );
 
