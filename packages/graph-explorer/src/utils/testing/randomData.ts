@@ -262,8 +262,8 @@ export function createRandomEdge(source?: Vertex, target?: Vertex) {
     id: createRandomEdgeId(),
     type: createRandomName("EdgeType"),
     attributes: createRecord(3, createRandomEntityAttribute),
-    sourceId: sourceId,
-    targetId: targetId,
+    sourceId,
+    targetId,
   });
 }
 
