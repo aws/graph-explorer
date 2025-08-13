@@ -13,17 +13,31 @@ export function EdgeRow({
   edge,
   source,
   target,
+  name,
   className,
   ...props
 }: {
   edge: DisplayEdge;
   source: DisplayVertex;
   target: DisplayVertex;
+  name?: string | null;
 } & ComponentPropsWithoutRef<"div">) {
-  const title =
-    edge.displayTypes === edge.displayName
-      ? edge.displayTypes
-      : `${edge.displayTypes} › ${edge.displayName}`;
+  const innerTitle =
+    edge.displayTypes === edge.displayName ? (
+      <>{edge.displayTypes}</>
+    ) : (
+      <>
+        {edge.displayTypes}&nbsp;&rsaquo; {edge.displayName}
+      </>
+    );
+
+  const title = name ? (
+    <>
+      {name}: {innerTitle}
+    </>
+  ) : (
+    <>{innerTitle}</>
+  );
 
   return (
     <div
