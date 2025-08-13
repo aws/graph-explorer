@@ -1,4 +1,4 @@
-import { Entity } from "@/core";
+import { PatchedResultEntity } from "@/core";
 import { VertexSearchResult } from "./VertexSearchResult";
 import { EdgeSearchResult } from "./EdgeSearchResult";
 import { ScalarSearchResult } from "./ScalarSearchResult";
@@ -7,7 +7,7 @@ export function EntitySearchResult({
   entity,
   level,
 }: {
-  entity: Entity;
+  entity: PatchedResultEntity;
   level: number;
 }) {
   switch (entity.entityType) {
@@ -20,7 +20,7 @@ export function EntitySearchResult({
   }
 }
 
-export function createEntityKey(entity: Entity, level: number) {
+export function createEntityKey(entity: PatchedResultEntity, level: number) {
   const commonPrefix =
     "name" in entity
       ? `${entity.entityType}:${level}:${entity.name}`

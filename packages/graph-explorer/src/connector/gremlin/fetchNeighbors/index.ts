@@ -1,5 +1,4 @@
 import {
-  toMappedQueryResults,
   type NeighborsRequest,
   type NeighborsResponse,
 } from "@/connector/useGEFetchTypes";
@@ -8,6 +7,7 @@ import mapApiVertex from "../mappers/mapApiVertex";
 import oneHopTemplate from "./oneHopTemplate";
 import type { GEdgeList, GVertex } from "../types";
 import { GremlinFetch } from "../types";
+import { createEdge, createVertex } from "@/core";
 
 type RawOneHopRequest = {
   requestId: string;
@@ -35,15 +35,15 @@ const fetchNeighbors = async (
 
   const verticesResponse = data.result.data["@value"].map(item => ({
     vertex: mapApiVertex(item["@value"][1]),
-    edges: item["@value"][3]["@value"].map(mapApiEdge),
+    edges: item["@value"][3]["@value"].map(e => mapApiEdge(e)),
   }));
-  const vertices = verticesResponse.map(r => r.vertex);
-  const edges = verticesResponse.flatMap(r => r.edges);
+  const vertices = verticesResponse.map(r => r.vertex).map(createVertex);
+  const edges = verticesResponse.flatMap(r => r.edges).map(createEdge);
 
-  return toMappedQueryResults({
+  return {
     vertices,
     edges,
-  });
+  };
 };
 
 export default fetchNeighbors;

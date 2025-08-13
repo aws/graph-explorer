@@ -18,12 +18,14 @@ import {
   EdgeId,
   EntityPropertyValue,
   getRawId,
+  ResultEdge,
+  ResultVertex,
   Vertex,
   VertexId,
 } from "@/core";
 import { createRandomInteger } from "@shared/utils/testing";
 
-export function createGremlinResponseFromVertices(...vertices: Vertex[]) {
+export function createGremlinResponseFromVertices(...vertices: ResultVertex[]) {
   return createGremlinResponse(...vertices.map(createGVertex));
 }
 
@@ -76,7 +78,7 @@ export function createGMap<Value extends EntityPropertyValue | GAnyValue>(
   return result;
 }
 
-export function createGVertex(vertex: Vertex): GVertex {
+export function createGVertex(vertex: ResultVertex): GVertex {
   // Create graphSON ID value
   const id = (() => {
     const rawId = getRawId(vertex.id);
@@ -91,19 +93,25 @@ export function createGVertex(vertex: Vertex): GVertex {
     } satisfies GInt64;
   })();
 
+  const properties =
+    vertex.attributes != null
+      ? createGVertexProperties(vertex.attributes)
+      : undefined;
+
   return {
     "@type": "g:Vertex",
     "@value": {
       id,
       label: vertex.types.join("::"),
-      properties: vertex.__isFragment
-        ? undefined
-        : createGVertexProperties(vertex.attributes),
+      properties,
     },
   };
 }
 
-export function createGEdge(edge: Edge): GEdge {
+export function createGEdge(edge: ResultEdge): GEdge {
+  const properties =
+    edge.attributes != null ? createGProperties(edge.attributes) : undefined;
+
   return {
     "@type": "g:Edge",
     "@value": {
@@ -111,9 +119,7 @@ export function createGEdge(edge: Edge): GEdge {
       label: edge.type,
       inV: createIdValue(edge.targetId),
       outV: createIdValue(edge.sourceId),
-      properties: edge.__isFragment
-        ? undefined
-        : createGProperties(edge.attributes),
+      properties,
     },
   };
 }

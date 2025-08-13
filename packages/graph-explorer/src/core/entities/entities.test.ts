@@ -1,0 +1,163 @@
+import { createTestableVertex, createTestableEdge } from "@/utils/testing";
+import { getAllGraphableEntityIds, getAllGraphableEntities } from "./entities";
+import { createResultScalar } from "./scalar";
+
+describe("entities", () => {
+  describe("getAllGraphableEntityIds", () => {
+    it("should return empty sets for empty array", () => {
+      const result = getAllGraphableEntityIds([]);
+
+      expect(result.vertexIds.size).toBe(0);
+      expect(result.edgeIds.size).toBe(0);
+    });
+
+    it("should collect vertex IDs from result vertices", () => {
+      const vertex1 = createTestableVertex().asResult();
+      const vertex2 = createTestableVertex().asResult();
+
+      const result = getAllGraphableEntityIds([vertex1, vertex2]);
+
+      expect(result).toEqual({
+        vertexIds: new Set([vertex1.id, vertex2.id]),
+        edgeIds: new Set(),
+      });
+    });
+
+    it("should collect edge IDs and connected vertex IDs from result edges", () => {
+      const edge = createTestableEdge();
+
+      const result = getAllGraphableEntityIds([edge.asResult()]);
+
+      expect(result).toStrictEqual({
+        vertexIds: new Set([edge.source.id, edge.target.id]),
+        edgeIds: new Set([edge.id]),
+      });
+    });
+
+    it("should handle mixed vertices and edges", () => {
+      const vertex = createTestableVertex().asResult();
+      const edge = createTestableEdge().asResult();
+
+      const result = getAllGraphableEntityIds([vertex, edge]);
+
+      expect(result).toStrictEqual({
+        vertexIds: new Set([vertex.id, edge.sourceId, edge.targetId]),
+        edgeIds: new Set([edge.id]),
+      });
+    });
+
+    it("should ignore scalar entities", () => {
+      const scalar = createResultScalar({ value: "test" });
+      const vertex = createTestableVertex().asResult();
+
+      const result = getAllGraphableEntityIds([scalar, vertex]);
+
+      expect(result).toStrictEqual({
+        vertexIds: new Set([vertex.id]),
+        edgeIds: new Set(),
+      });
+    });
+
+    it("should deduplicate vertex IDs", () => {
+      const vertex = createTestableVertex();
+      const edge1 = createTestableEdge().withTarget(vertex);
+      const edge2 = createTestableEdge().withSource(vertex);
+
+      const result = getAllGraphableEntityIds([
+        vertex.asResult(),
+        edge1.asResult(),
+        edge2.asResult(),
+      ]);
+
+      expect(result).toStrictEqual({
+        vertexIds: new Set([vertex.id, edge1.source.id, edge2.target.id]),
+        edgeIds: new Set([edge1.id, edge2.id]),
+      });
+    });
+  });
+
+  describe("getAllGraphableEntities", () => {
+    it("should return empty entities for empty array", () => {
+      const result = getAllGraphableEntities([]);
+      expect(result).toStrictEqual({ vertices: [], edges: [] });
+    });
+
+    it("should convert patched result vertices to vertices", () => {
+      const vertex = createTestableVertex();
+
+      const result = getAllGraphableEntities([
+        vertex.asPatchedResult("Test Vertex"),
+      ]);
+
+      expect(result).toStrictEqual({
+        vertices: [vertex.asVertex()],
+        edges: [],
+      });
+    });
+
+    it("should convert patched result edges to edges and include connected vertices", () => {
+      const edge = createTestableEdge();
+
+      const result = getAllGraphableEntities([
+        edge.asPatchedResult("Test Edge"),
+      ]);
+
+      expect(result).toStrictEqual({
+        vertices: [edge.source.asVertex(), edge.target.asVertex()],
+        edges: [edge.asEdge()],
+      });
+    });
+
+    it("should handle mixed patched vertices and edges", () => {
+      const vertex = createTestableVertex();
+      const edge = createTestableEdge();
+
+      const result = getAllGraphableEntities([
+        vertex.asPatchedResult("Standalone Vertex"),
+        edge.asPatchedResult("Test Edge"),
+      ]);
+
+      expect(result).toStrictEqual({
+        vertices: [
+          vertex.asVertex(),
+          edge.source.asVertex(),
+          edge.target.asVertex(),
+        ],
+        edges: [edge.asEdge()],
+      });
+    });
+
+    it("should ignore scalar entities", () => {
+      const scalar = createResultScalar({ value: "test" });
+      const vertex = createTestableVertex();
+
+      const result = getAllGraphableEntities([
+        scalar,
+        vertex.asPatchedResult("Test Vertex"),
+      ]);
+
+      expect(result).toStrictEqual({
+        vertices: [vertex.asVertex()],
+        edges: [],
+      });
+    });
+
+    it("should deduplicate vertices when multiple edges share vertices", () => {
+      const edge1 = createTestableEdge();
+
+      const edge2 = createTestableEdge()
+        .withSource(edge1.target)
+        .withTarget(edge1.source);
+
+      const result = getAllGraphableEntities([
+        edge1.asPatchedResult(),
+        edge2.asPatchedResult(),
+      ]);
+
+      expect(result).toStrictEqual({
+        vertices: [edge1.source.asVertex(), edge1.target.asVertex()],
+        edges: [edge1.asEdge(), edge2.asEdge()],
+      });
+    });
+  });
+});

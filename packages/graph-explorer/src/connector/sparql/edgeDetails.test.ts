@@ -35,19 +35,6 @@ describe("edgeDetails", () => {
     expect(result.edges).toEqual([edge1, edge2]);
   });
 
-  it("should not be fragment if the response does not include the properties", () => {
-    const edge = createRandomEdgeForRdf(
-      createRandomVertexForRdf(),
-      createRandomVertexForRdf()
-    );
-    edge.attributes = {};
-    edge.__isFragment = true;
-
-    const result = edgeDetails({ edgeIds: [edge.id] });
-
-    expect(result.edges[0]?.__isFragment).toBe(false);
-  });
-
   it("should throw an error when the edge ID is not in the RDF edge ID format", () => {
     const edge = createRandomEdgeForRdf(
       createRandomVertexForRdf(),

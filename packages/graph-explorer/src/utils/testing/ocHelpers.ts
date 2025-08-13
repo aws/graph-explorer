@@ -1,7 +1,7 @@
 import { OCEdge, OCVertex } from "@/connector/openCypher/types";
-import { Edge, getRawId, Vertex } from "@/core";
+import { Edge, getRawId, ResultEdge, ResultVertex, Vertex } from "@/core";
 
-export function mapToOcVertex(vertex: Vertex): OCVertex {
+export function mapToOcVertex(vertex: Vertex | ResultVertex): OCVertex {
   const id = getRawId(vertex.id);
 
   if (typeof id !== "string") {
@@ -12,11 +12,12 @@ export function mapToOcVertex(vertex: Vertex): OCVertex {
     "~id": id,
     "~entityType": "node",
     "~labels": vertex.types,
-    "~properties": vertex.attributes,
+    // Can't be a fragment in openCypher
+    "~properties": vertex.attributes ?? {},
   };
 }
 
-export function mapToOcEdge(edge: Edge): OCEdge {
+export function mapToOcEdge(edge: Edge | ResultEdge): OCEdge {
   const id = getRawId(edge.id);
   const sourceId = getRawId(edge.sourceId);
   const targetId = getRawId(edge.targetId);
@@ -37,6 +38,7 @@ export function mapToOcEdge(edge: Edge): OCEdge {
     "~type": edge.type,
     "~start": sourceId,
     "~end": targetId,
-    "~properties": edge.attributes,
+    // openCypher does not have fragments
+    "~properties": edge.attributes ?? {},
   };
 }

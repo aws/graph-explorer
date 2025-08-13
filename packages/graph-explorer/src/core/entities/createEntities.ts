@@ -1,30 +1,114 @@
-import { Edge } from "./edge";
+import { Edge, PatchedResultEdge, ResultEdge } from "./edge";
 import { createVertexId, createEdgeId } from "./entityIdType";
-import { EntityPropertyValue, EntityProperties, EntityRawId } from "./shared";
-import { Vertex } from "./vertex";
+import { EntityProperties, EntityRawId } from "./shared";
+import { PatchedResultVertex, ResultVertex, Vertex } from "./vertex";
 
-type CreateEntityAttributeOptions =
-  | Map<string, EntityPropertyValue>
-  | EntityProperties;
-
-type CreateVertexOptions = {
+/**
+ * Creates a ResultVertex instance from the given options.
+ */
+export function createResultVertex(options: {
   id: EntityRawId;
-  types: string[];
-  attributes?: CreateEntityAttributeOptions;
+  name?: string | null;
+  types?: string[];
+  attributes?: EntityProperties;
   isBlankNode?: boolean;
-};
-
-/** Constructs a Vertex instance from the given values. */
-export function createVertex(options: CreateVertexOptions): Vertex {
+}): ResultVertex {
   return {
     entityType: "vertex",
     id: createVertexId(options.id),
-    type: options.types[0] ?? "",
-    types: options.types,
-    attributes:
-      options.attributes != null ? createAttributes(options.attributes) : {},
-    __isFragment: options.attributes == null,
+    name: options.name ?? null,
+    types: options.types ?? [],
+    attributes: options.attributes ?? null,
     isBlankNode: options.isBlankNode ?? false,
+  };
+}
+
+/**
+ * Creates a PatchedResultVertex instance from the given options.
+ */
+export function createPatchedResultVertex(options: {
+  id: EntityRawId;
+  name?: string | null;
+  types: string[];
+  attributes: EntityProperties;
+  isBlankNode?: boolean;
+}): PatchedResultVertex {
+  return {
+    entityType: "vertex",
+    id: createVertexId(options.id),
+    name: options.name ?? null,
+    types: options.types,
+    attributes: options.attributes,
+    isBlankNode: options.isBlankNode ?? false,
+  };
+}
+
+/** Constructs a Vertex instance from the given values. */
+export function createVertex(options: {
+  id: EntityRawId;
+  types?: string[];
+  attributes?: EntityProperties | null;
+  isBlankNode?: boolean;
+}): Vertex {
+  const types = options.types ?? [];
+  return {
+    id: createVertexId(options.id),
+    type: types[0] ?? "",
+    types,
+    attributes: options.attributes != null ? options.attributes : {},
+    isBlankNode: options.isBlankNode ?? false,
+  };
+}
+
+/**
+ * Creates a ResultEdge instance from the given options.
+ */
+export function createResultEdge(options: {
+  id: EntityRawId;
+  name?: string | null;
+  type: string;
+  attributes?: EntityProperties;
+  sourceId: EntityRawId;
+  targetId: EntityRawId;
+}): ResultEdge {
+  return {
+    entityType: "edge",
+    id: createEdgeId(options.id),
+    name: options.name ?? null,
+    type: options.type,
+    sourceId: createVertexId(options.sourceId),
+    targetId: createVertexId(options.targetId),
+    attributes: options.attributes ?? null,
+  };
+}
+
+/**
+ * Creates a PatchedResultEdge instance from the given options.
+ */
+export function createPatchedResultEdge(options: {
+  id: EntityRawId;
+  type: string;
+  attributes?: EntityProperties;
+  sourceVertex: Vertex;
+  targetVertex: Vertex;
+  name?: string | null;
+}): PatchedResultEdge {
+  return {
+    entityType: "edge",
+    id: createEdgeId(options.id),
+    name: options.name ?? null,
+    type: options.type,
+    sourceVertex: createPatchedResultVertex({
+      ...options.sourceVertex,
+      isBlankNode: options.sourceVertex.isBlankNode,
+      name: "source",
+    }),
+    targetVertex: createPatchedResultVertex({
+      ...options.targetVertex,
+      isBlankNode: options.targetVertex.isBlankNode,
+      name: "target",
+    }),
+    attributes: options.attributes ?? {},
   };
 }
 
@@ -34,29 +118,13 @@ export function createEdge(options: {
   type: string;
   sourceId: EntityRawId;
   targetId: EntityRawId;
-  attributes?: CreateEntityAttributeOptions;
+  attributes?: EntityProperties | null;
 }): Edge {
   return {
-    entityType: "edge",
     id: createEdgeId(options.id),
     type: options.type,
     sourceId: createVertexId(options.sourceId),
     targetId: createVertexId(options.targetId),
-    attributes:
-      options.attributes != null ? createAttributes(options.attributes) : {},
-    __isFragment: options.attributes == null,
+    attributes: options.attributes ?? {},
   };
-}
-
-function createAttributes(
-  attributes: CreateEntityAttributeOptions
-): EntityProperties {
-  if (attributes instanceof Map) {
-    return attributes.entries().reduce((prev, [key, value]) => {
-      prev[key] = value;
-      return prev;
-    }, {} as EntityProperties);
-  }
-
-  return attributes;
 }

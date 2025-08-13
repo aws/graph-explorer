@@ -3,9 +3,8 @@ import { z } from "zod";
 import { fromError } from "zod-validation-error";
 import mapApiVertex from "./mapApiVertex";
 import mapApiEdge from "./mapApiEdge";
-import { mapValuesToQueryResults } from "@/connector/mapping";
 import { OCEdge, OCVertex } from "../types";
-import { createScalar, Entity } from "@/core";
+import { createResultScalar, ResultEntity } from "@/core";
 
 const cypherScalarValueSchema = z.union([
   z.number(),
@@ -74,7 +73,7 @@ export function mapResults(data: unknown) {
   const values = results.flatMap(result =>
     Object.entries(result).flatMap(([key, value]) => mapValue(value, key))
   );
-  return mapValuesToQueryResults(values);
+  return values;
 }
 
 /**
@@ -83,14 +82,14 @@ export function mapResults(data: unknown) {
  * @param name The name/key for the value (used for scalar naming)
  * @returns The mapped value
  */
-function mapValue(value: CypherValue, name?: string): Entity[] {
+function mapValue(value: CypherValue, name?: string): ResultEntity[] {
   if (
     value === null ||
     typeof value === "number" ||
     typeof value === "string" ||
     typeof value === "boolean"
   ) {
-    return [createScalar({ value, name })];
+    return [createResultScalar({ value, name })];
   }
 
   if (Array.isArray(value)) {
@@ -100,13 +99,11 @@ function mapValue(value: CypherValue, name?: string): Entity[] {
   // Map record types
   if (typeof value === "object") {
     if (value["~entityType"] === "node") {
-      return [mapApiVertex(value as OCVertex)];
+      return [mapApiVertex(value as OCVertex, name)];
     }
 
     if (value["~entityType"] === "relationship") {
-      const edge = mapApiEdge(value as OCEdge);
-      edge.__isFragment = true;
-      return [edge];
+      return [mapApiEdge(value as OCEdge, name)];
     }
     return Object.entries(value).flatMap(([key, value]) =>
       mapValue(value, key)

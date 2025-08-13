@@ -1,4 +1,3 @@
-import { toMappedQueryResults } from "@/connector";
 import { mapToResults } from "./mapToResults";
 import { Edge, EntityPropertyValue, Vertex } from "@/core";
 import {
@@ -11,14 +10,13 @@ import { rdfTypeUri } from "../types";
 describe("mapToResults", () => {
   it("should map empty data to empty results", () => {
     const result = mapToResults([]);
-    expect(result).toEqual(toMappedQueryResults({}));
+    expect(result).toStrictEqual({ vertices: [], edges: [] });
   });
   it("should map vertices to results", () => {
     const entities = createRandomEntitiesForRdf();
     const bindings = createBindings(entities.vertices, entities.edges);
     const result = mapToResults(bindings);
-    expect(result.vertices).toEqual(entities.vertices);
-    expect(result.edges).toEqual(entities.edges);
+    expect(result).toStrictEqual(entities);
   });
   it("should map blank nodes to results", () => {
     const vertex = createRandomVertexForRdf();
@@ -26,7 +24,7 @@ describe("mapToResults", () => {
 
     const bindings = createBindings([vertex], []);
     const result = mapToResults(bindings);
-    expect(result.vertices).toEqual([vertex]);
+    expect(result.vertices).toStrictEqual([vertex]);
     expect(result.vertices[0].isBlankNode).toBe(true);
   });
   it("should map blank nodes and edges to results", () => {
@@ -40,8 +38,8 @@ describe("mapToResults", () => {
     const bindings = createBindings(vertices, edges);
     const result = mapToResults(bindings);
 
-    expect(result.vertices).toEqual(vertices);
-    expect(result.edges).toEqual(edges);
+    expect(result.vertices).toStrictEqual(vertices);
+    expect(result.edges).toStrictEqual(edges);
   });
 });
 

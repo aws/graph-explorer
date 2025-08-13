@@ -4,7 +4,11 @@ import {
   SearchResultSymbol,
   SearchResultTitle,
 } from "@/components";
-import { createTypedValue, getDisplayValueForScalar, Scalar } from "@/core";
+import {
+  createTypedValue,
+  getDisplayValueForScalar,
+  ResultScalar,
+} from "@/core";
 import {
   BanIcon,
   CalendarIcon,
@@ -14,7 +18,7 @@ import {
   QuoteIcon,
 } from "lucide-react";
 
-function getIcon(scalar: Scalar) {
+function getIcon(scalar: ResultScalar) {
   const typedValue = createTypedValue(scalar.value);
   switch (typedValue.type) {
     case "string":
@@ -34,7 +38,7 @@ function getIcon(scalar: Scalar) {
   }
 }
 
-export function ScalarSearchResult({ scalar }: { scalar: Scalar }) {
+export function ScalarSearchResult({ scalar }: { scalar: ResultScalar }) {
   const Icon = getIcon(scalar);
   const title = scalar.name ?? "Scalar value";
   const subtitle = getDisplayValueForScalar(scalar.value);

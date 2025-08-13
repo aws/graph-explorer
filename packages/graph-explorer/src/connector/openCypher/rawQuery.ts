@@ -1,9 +1,5 @@
 import { logger, query } from "@/utils";
-import {
-  RawQueryRequest,
-  RawQueryResponse,
-  toMappedQueryResults,
-} from "../useGEFetchTypes";
+import { RawQueryRequest, RawQueryResponse } from "../useGEFetchTypes";
 import { OpenCypherFetch } from "./types";
 import isErrorResponse from "../utils/isErrorResponse";
 import { mapResults } from "./mappers/mapResults";
@@ -15,7 +11,7 @@ export async function rawQuery(
   const template = query`${request.query}`;
 
   if (template.length <= 0) {
-    return toMappedQueryResults({});
+    return [];
   }
 
   // Fetch the results

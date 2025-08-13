@@ -1,7 +1,4 @@
-import {
-  toMappedQueryResults,
-  type NeighborsResponse,
-} from "@/connector/useGEFetchTypes";
+import { type NeighborsResponse } from "@/connector/useGEFetchTypes";
 import { oneHopNeighborsTemplate } from "./oneHopNeighborsTemplate";
 
 import { SparqlFetch, SPARQLNeighborsRequest } from "../types";
@@ -33,9 +30,9 @@ export default async function fetchNeighbors(
 
   const results = mapToResults(data.results.bindings);
 
-  return toMappedQueryResults({
+  return {
     // Filter out the source vertex since it is already in the graph and this one is missing the attributes
     vertices: results.vertices.filter(v => v.id !== req.resourceURI),
     edges: results.edges,
-  });
+  };
 }

@@ -1,5 +1,5 @@
 import { QueryClient } from "@tanstack/react-query";
-import { Edge, Vertex } from "@/core";
+import { createEdge, createVertex, Edge, ResultEntity, Vertex } from "@/core";
 import { NeighborCount } from "../useGEFetchTypes";
 import { GraphExplorerMeta } from "@/core/queryClient";
 import { logger } from "@/utils";
@@ -8,23 +8,17 @@ import { vertexDetailsQuery } from "./vertexDetailsQuery";
 import { edgeDetailsQuery } from "./edgeDetailsQuery";
 import { neighborsCountQuery } from "./neighborsCountQuery";
 
-/** Sets the vertex details cache for the given vertices. */
-export function updateVertexDetailsCache(
+/** Iterates over entities and adds any materialized entities to the details query cache. */
+export function updateDetailsCacheFromEntities(
   client: QueryClient,
-  vertices: Iterable<Vertex>
+  entities: ResultEntity[]
 ) {
-  for (const vertex of Iterator.from(vertices).filter(v => !v.__isFragment)) {
-    setVertexDetailsQueryCache(client, vertex);
-  }
-}
-
-/** Sets the edge details cache for the given edges. */
-export function updateEdgeDetailsCache(
-  client: QueryClient,
-  edges: Iterable<Edge>
-) {
-  for (const edge of Iterator.from(edges).filter(e => !e.__isFragment)) {
-    setEdgeDetailsQueryCache(client, edge);
+  for (const entity of entities) {
+    if (entity.entityType === "vertex" && entity.attributes != null) {
+      setVertexDetailsQueryCache(client, createVertex(entity));
+    } else if (entity.entityType === "edge" && entity.attributes != null) {
+      setEdgeDetailsQueryCache(client, createEdge(entity));
+    }
   }
 }
 

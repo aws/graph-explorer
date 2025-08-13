@@ -6,7 +6,7 @@ import {
   createRandomName,
 } from "@shared/utils/testing";
 import mapApiVertex from "./mapApiVertex";
-import { createVertex } from "@/core";
+import { createResultVertex } from "@/core";
 import { OCVertex } from "../types";
 
 test("maps empty vertex", () => {
@@ -19,9 +19,8 @@ test("maps empty vertex", () => {
   const result = mapApiVertex(input);
 
   expect(result).toEqual(
-    createVertex({
+    createResultVertex({
       id: "",
-      types: [],
       attributes: {},
     })
   );
@@ -42,7 +41,7 @@ test("maps known property types", () => {
   } satisfies OCVertex;
   const result = mapApiVertex(input);
   expect(result).toEqual(
-    createVertex({
+    createResultVertex({
       id: "1",
       types: ["airport"],
       attributes: {
@@ -52,6 +51,27 @@ test("maps known property types", () => {
         doubleValue: input["~properties"].doubleValue,
         dateValue: input["~properties"].dateValue,
       },
+    })
+  );
+});
+
+test("maps with name", () => {
+  const name = createRandomName("name");
+  const input = {
+    "~id": "1",
+    "~entityType": "node",
+    "~labels": ["airport"],
+    "~properties": {},
+  } satisfies OCVertex;
+
+  const result = mapApiVertex(input, name);
+
+  expect(result).toEqual(
+    createResultVertex({
+      id: "1",
+      name,
+      types: ["airport"],
+      attributes: {},
     })
   );
 });
@@ -80,7 +100,7 @@ test("maps airport node", () => {
   const result = mapApiVertex(input);
 
   expect(result).toEqual(
-    createVertex({
+    createResultVertex({
       id: "1",
       types: ["airport"],
       attributes: {

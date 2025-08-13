@@ -2,20 +2,20 @@ import { formatDate, MISSING_DISPLAY_VALUE } from "@/utils";
 
 type ScalarValue = string | number | boolean | Date | null;
 
-export type Scalar = {
+export type ResultScalar = {
   entityType: "scalar";
   name?: string;
   value: ScalarValue;
 };
 
-/** Constructs a Scalar instance from the given values. */
-export function createScalar({
+/** Constructs a ResultScalar instance from the given values. */
+export function createResultScalar({
   value,
   name,
 }: {
   value: ScalarValue;
   name?: string;
-}): Scalar {
+}): ResultScalar {
   return {
     entityType: "scalar" as const,
     name,

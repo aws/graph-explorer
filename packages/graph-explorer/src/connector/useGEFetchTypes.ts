@@ -7,7 +7,8 @@ import {
   Vertex,
   VertexId,
   NormalizedConnection,
-  Scalar,
+  ResultEntity,
+  Entities,
 } from "@/core";
 
 export type QueryOptions = RequestInit & {
@@ -71,29 +72,6 @@ export type Criterion = {
   dataType?: "String" | "Number" | "Date";
 };
 
-/**
- * Results from any query.
- *
- * Used by keyword search and raw query. Could potentially be used for other
- * queries in the future.
- */
-export type MappedQueryResults = {
-  vertices: Vertex[];
-  edges: Edge[];
-  scalars: Scalar[];
-};
-
-/** Constructs a `MappedQueryResults` instance without providing all values. */
-export function toMappedQueryResults(
-  value: Partial<MappedQueryResults>
-): MappedQueryResults {
-  return {
-    vertices: value.vertices ?? [],
-    edges: value.edges ?? [],
-    scalars: value.scalars ?? [],
-  };
-}
-
 export type NeighborsRequest = {
   /**
    * Source vertex ID & type.
@@ -140,7 +118,7 @@ export type NeighborsRequest = {
   offset?: number;
 };
 
-export type NeighborsResponse = MappedQueryResults;
+export type NeighborsResponse = Entities;
 
 export type NeighborCountsRequest = {
   /**
@@ -195,7 +173,7 @@ export type KeywordSearchRequest = {
   exactMatch?: boolean;
 };
 
-export type KeywordSearchResponse = MappedQueryResults;
+export type KeywordSearchResponse = { vertices: Vertex[] };
 
 export type ErrorResponse = {
   code: string;
@@ -232,7 +210,7 @@ export type RawQueryRequest = {
   query: string;
 };
 
-export type RawQueryResponse = MappedQueryResults;
+export type RawQueryResponse = ResultEntity[];
 
 /**
  * Abstracted interface to the common database queries used by

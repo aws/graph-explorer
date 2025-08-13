@@ -1,4 +1,4 @@
-import { useDisplayVertexFromVertex, Vertex } from "@/core";
+import { createVertex, PatchedResultVertex, useDisplayVertex } from "@/core";
 import {
   ButtonProps,
   CollapsibleContent,
@@ -24,10 +24,10 @@ export function VertexSearchResult({
   vertex,
   level = 0,
 }: {
-  vertex: Vertex;
+  vertex: PatchedResultVertex;
   level?: number;
 }) {
-  const displayNode = useDisplayVertexFromVertex(vertex);
+  const displayNode = useDisplayVertex(vertex.id);
 
   return (
     <SearchResultCollapsible level={level}>
@@ -37,7 +37,7 @@ export function VertexSearchResult({
           className="flex w-full flex-row items-center gap-2 p-3 text-left hover:cursor-pointer"
         >
           <SearchResultExpandChevron />
-          <VertexRow vertex={displayNode} className="grow" />
+          <VertexRow vertex={displayNode} name={vertex.name} className="grow" />
           <AddOrRemoveButton vertex={vertex} />
         </div>
       </CollapsibleTrigger>
@@ -64,8 +64,11 @@ export function VertexSearchResult({
 function AddOrRemoveButton({
   vertex,
   ...props
-}: ButtonProps & { vertex: Vertex }) {
+}: ButtonProps & { vertex: PatchedResultVertex }) {
   const mutation = useAddToGraphMutation();
+  const addToGraph = () =>
+    mutation.mutate({ vertices: [createVertex(vertex)] });
+
   const removeFromGraph = useRemoveNodeFromGraph(vertex.id);
   const hasBeenAdded = useHasVertexBeenAddedToGraph(vertex.id);
 
@@ -88,7 +91,7 @@ function AddOrRemoveButton({
       variant="text"
       className="rounded-full"
       size="small"
-      onClick={stopPropagation(() => mutation.mutate({ vertices: [vertex] }))}
+      onClick={stopPropagation(addToGraph)}
       disabled={mutation.isPending}
       tooltipText="Add node to view"
       {...props}

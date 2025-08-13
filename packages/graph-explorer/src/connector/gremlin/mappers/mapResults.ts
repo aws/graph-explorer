@@ -1,36 +1,37 @@
 import { GAnyValue } from "../types";
 import mapApiEdge from "./mapApiEdge";
 import mapApiVertex from "./mapApiVertex";
-import { mapValuesToQueryResults } from "@/connector/mapping";
-import { createScalar, Entity, getDisplayValueForScalar } from "@/core";
+import {
+  createResultScalar,
+  getDisplayValueForScalar,
+  ResultEntity,
+} from "@/core";
 
 export function mapResults(data: GAnyValue) {
-  const values = mapAnyValue(data);
-
-  return mapValuesToQueryResults(values);
+  return mapAnyValue(data);
 }
 
-function mapAnyValue(data: GAnyValue, name?: string): Entity[] {
+function mapAnyValue(data: GAnyValue, name?: string): ResultEntity[] {
   if (typeof data === "string" || typeof data === "boolean" || data === null) {
-    return [createScalar({ value: data, name })];
+    return [createResultScalar({ value: data, name })];
   } else if (
     data["@type"] === "g:Int32" ||
     data["@type"] === "g:Int64" ||
     data["@type"] === "g:Double" ||
     data["@type"] === "g:T"
   ) {
-    return [createScalar({ value: data["@value"], name })];
+    return [createResultScalar({ value: data["@value"], name })];
   } else if (data["@type"] === "g:Date") {
-    return [createScalar({ value: new Date(data["@value"]), name })];
+    return [createResultScalar({ value: new Date(data["@value"]), name })];
   } else if (data["@type"] === "g:Edge") {
-    return [mapApiEdge(data)];
+    return [mapApiEdge(data, name)];
   } else if (data["@type"] === "g:Vertex") {
-    return [mapApiVertex(data)];
+    return [mapApiVertex(data, name)];
   } else if (data["@type"] === "g:Path") {
     return mapAnyValue(data["@value"].objects);
   } else if (data["@type"] === "g:Map") {
     // Handle Maps specially to extract key-value pairs for scalar naming
-    const results: Entity[] = [];
+    const results: ResultEntity[] = [];
     for (let i = 0; i < data["@value"].length; i += 2) {
       const key = data["@value"][i];
       const value = data["@value"][i + 1];

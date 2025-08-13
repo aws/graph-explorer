@@ -5,9 +5,12 @@ import {
   createEdge,
   createEdgeId,
   createNewConfigurationId,
+  createPatchedResultEdge,
+  createPatchedResultVertex,
+  createResultEdge,
+  createResultVertex,
   createVertex,
   createVertexId,
-  Edge,
   EdgeId,
   EdgePreferences,
   EdgeTypeConfig,
@@ -267,6 +270,242 @@ export function createRandomEdge(source?: Vertex, target?: Vertex) {
   });
 }
 
+/**
+ * Creates a testable vertex with random data and helper functions to generate different vertex shapes.
+ *
+ * This factory function creates a vertex with random properties and provides methods to transform
+ * it into different vertex types (Vertex, ResultVertex, PatchedResultVertex) or convert it to
+ * RDF format. This is useful for testing scenarios where you need consistent vertex data across
+ * different representations.
+ *
+ * @returns A testable vertex object with the following properties and methods:
+ * - `id`: Random vertex ID (string for PG, URL for RDF)
+ * - `types`: Array of random type names
+ * - `attributes`: Random attributes object
+ * - `withRdfValues()`: Returns a new testable vertex with RDF-compatible values (URL-based IDs and attributes)
+ * - `asVertex()`: Returns a core Vertex object
+ * - `asFragmentResult(name?)`: Returns a ResultVertex without attributes (fragment)
+ * - `asResult(name?)`: Returns a complete ResultVertex with all attributes
+ * - `asPatchedResult(name?)`: Returns a PatchedResultVertex
+ *
+ * @example
+ * ```typescript
+ * // Create a testable vertex for property graph testing
+ * const testVertex = createTestableVertex();
+ *
+ * // Use as a core vertex
+ * const vertex = testVertex.asVertex();
+ *
+ * // Use as a result vertex with a custom name
+ * const resultVertex = testVertex.asResult("Custom Name");
+ *
+ * // Create RDF version for SPARQL testing
+ * const rdfVertex = testVertex.withRdfValues();
+ * const rdfResult = rdfVertex.asResult();
+ *
+ * // Create fragment (no attributes) for partial data scenarios
+ * const fragment = testVertex.asFragmentResult("Fragment Name");
+ * ```
+ */
+export function createTestableVertex() {
+  const createInternal = (options: { graphType: "pg" | "rdf" }) => {
+    const { graphType } = options;
+    const id =
+      graphType === "pg"
+        ? createRandomVertexId()
+        : createVertexId(createRandomUrlString());
+    const types = createArray(3, createRandomName);
+    const attributes =
+      graphType === "pg"
+        ? createRecord(3, createRandomEntityAttribute)
+        : createRecord(3, createRandomEntityAttributeForRdf);
+
+    const coreVertex = {
+      id,
+      types,
+      attributes,
+    };
+
+    return {
+      ...coreVertex,
+      withRdfValues: () => {
+        return createInternal({ graphType: "rdf" });
+      },
+      asVertex: () =>
+        createVertex({
+          id: coreVertex.id,
+          types: coreVertex.types,
+          attributes: coreVertex.attributes,
+        }),
+      asFragmentResult: (name?: string) =>
+        createResultVertex({
+          id: coreVertex.id,
+          name,
+          types: coreVertex.types,
+        }),
+      asResult: (name?: string) =>
+        createResultVertex({
+          id: coreVertex.id,
+          name,
+          types: coreVertex.types,
+          attributes: coreVertex.attributes,
+        }),
+      asPatchedResult: (name?: string) =>
+        createPatchedResultVertex({
+          id: coreVertex.id,
+          name,
+          types: coreVertex.types,
+          attributes: coreVertex.attributes,
+        }),
+    };
+  };
+
+  return createInternal({ graphType: "pg" });
+}
+
+/**
+ * Creates a testable edge with random data and helper functions to generate different edge shapes.
+ *
+ * This factory function creates an edge with random properties connecting two testable vertices
+ * and provides methods to transform it into different edge types (Edge, ResultEdge, PatchedResultEdge)
+ * or convert it to RDF format. The edge maintains consistent relationships between source and target
+ * vertices across all transformations.
+ *
+ * @returns A testable edge object with the following properties and methods:
+ * - `id`: Random edge ID (EdgeId for PG, RDF triple ID for RDF)
+ * - `type`: Random edge type (string for PG, URL for RDF)
+ * - `attributes`: Random attributes object
+ * - `source`: TestableVertex representing the source vertex
+ * - `target`: TestableVertex representing the target vertex
+ * - `withRdfValues()`: Returns a new testable edge with RDF-compatible values and vertices
+ * - `withSource(vertex)`: Returns a new testable edge with a different source vertex
+ * - `withTarget(vertex)`: Returns a new testable edge with a different target vertex
+ * - `asEdge()`: Returns a core Edge object
+ * - `asFragmentResult(name?)`: Returns a ResultEdge without attributes (fragment)
+ * - `asResult(name?)`: Returns a complete ResultEdge with all attributes
+ * - `asPatchedResult(name?)`: Returns a PatchedResultEdge with embedded vertex objects
+ *
+ * @example
+ * ```typescript
+ * // Create a testable edge with random vertices
+ * const testEdge = createTestableEdge();
+ *
+ * // Use as a core edge
+ * const edge = testEdge.asEdge();
+ *
+ * // Use as a result edge with a custom name
+ * const resultEdge = testEdge.asResult("Custom Edge Name");
+ *
+ * // Create RDF version for SPARQL testing
+ * const rdfEdge = testEdge.withRdfValues();
+ * const rdfResult = rdfEdge.asResult();
+ *
+ * // Use specific vertices
+ * const sourceVertex = createTestableVertex();
+ * const targetVertex = createTestableVertex();
+ * const customEdge = testEdge.withSource(sourceVertex).withTarget(targetVertex);
+ *
+ * // Create fragment (no attributes) for partial data scenarios
+ * const fragment = testEdge.asFragmentResult("Fragment Edge");
+ *
+ * // Create patched result with embedded vertices (useful for complex queries)
+ * const patchedResult = testEdge.asPatchedResult("Patched Edge");
+ * ```
+ */
+export function createTestableEdge() {
+  // Factory method that takes a few configurable options
+  const createInternal = (options: {
+    graphType: "pg" | "rdf";
+    source: TestableVertex;
+    target: TestableVertex;
+  }) => {
+    const { graphType, source, target } = options;
+    // Graph type specific values
+    const type =
+      graphType === "pg"
+        ? createRandomName("EdgeType")
+        : createRandomUrlString();
+    const id =
+      graphType === "pg"
+        ? createRandomEdgeId()
+        : createRdfEdgeId(source.id, type, target.id);
+    const attributes =
+      graphType === "pg"
+        ? createRecord(3, createRandomEntityAttribute)
+        : createRecord(3, createRandomEntityAttributeForRdf);
+
+    const coreEdge = {
+      id,
+      type,
+      attributes,
+      source,
+      target,
+    };
+
+    return {
+      ...coreEdge,
+      withRdfValues: () => {
+        return createInternal({
+          ...options,
+          graphType: "rdf",
+          source: options.source.withRdfValues(),
+          target: options.target.withRdfValues(),
+        });
+      },
+      withSource: (source: TestableVertex) => {
+        return createInternal({ ...options, source });
+      },
+      withTarget: (target: TestableVertex) => {
+        return createInternal({ ...options, target });
+      },
+      asEdge: () =>
+        createEdge({
+          id: coreEdge.id,
+          sourceId: coreEdge.source.id,
+          targetId: coreEdge.target.id,
+          type: coreEdge.type,
+          attributes: coreEdge.attributes,
+        }),
+      asFragmentResult: (name?: string) =>
+        createResultEdge({
+          id: coreEdge.id,
+          sourceId: coreEdge.source.id,
+          targetId: coreEdge.target.id,
+          type: coreEdge.type,
+          name,
+        }),
+      asResult: (name?: string) =>
+        createResultEdge({
+          id: coreEdge.id,
+          sourceId: coreEdge.source.id,
+          targetId: coreEdge.target.id,
+          type: coreEdge.type,
+          attributes: coreEdge.attributes,
+          name,
+        }),
+      asPatchedResult: (name?: string) =>
+        createPatchedResultEdge({
+          id: coreEdge.id,
+          type: coreEdge.type,
+          attributes: coreEdge.attributes,
+          sourceVertex: coreEdge.source.asVertex(),
+          targetVertex: coreEdge.target.asVertex(),
+          name,
+        }),
+    };
+  };
+
+  // Use some default values for the initial create
+  return createInternal({
+    graphType: "pg",
+    source: createTestableVertex(),
+    target: createTestableVertex(),
+  });
+}
+
+export type TestableEdge = ReturnType<typeof createTestableEdge>;
+export type TestableVertex = ReturnType<typeof createTestableVertex>;
+
 export function createRandomEdgeForRdf(source: Vertex, target: Vertex) {
   const predicate = createRandomUrlString();
   return createEdge({
@@ -276,15 +515,6 @@ export function createRandomEdgeForRdf(source: Vertex, target: Vertex) {
     sourceId: source.id,
     targetId: target.id,
   });
-}
-
-/** Creates a copy of the provided vertex without any attributes and the `__isFragment` flag true. */
-export function makeFragment<T extends Vertex | Edge>(entity: T): T {
-  return {
-    ...entity,
-    attributes: {},
-    __isFragment: true,
-  };
 }
 
 /**
