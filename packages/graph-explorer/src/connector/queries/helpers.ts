@@ -10,34 +10,45 @@ import { neighborsCountQuery } from "./neighborsCountQuery";
 
 /** Sets the vertex details cache for the given vertices. */
 export function updateVertexDetailsCache(
-  queryClient: QueryClient,
-  vertices: Vertex[]
+  client: QueryClient,
+  vertices: Iterable<Vertex>
 ) {
-  for (const vertex of vertices.filter(v => !v.__isFragment)) {
-    const queryKey = vertexDetailsQuery(vertex.id).queryKey;
-    queryClient.setQueryData(queryKey, { vertex });
+  for (const vertex of Iterator.from(vertices).filter(v => !v.__isFragment)) {
+    setVertexDetailsQueryCache(client, vertex);
   }
 }
 
 /** Sets the edge details cache for the given edges. */
 export function updateEdgeDetailsCache(
-  queryClient: QueryClient,
-  edges: Edge[]
+  client: QueryClient,
+  edges: Iterable<Edge>
 ) {
-  for (const edge of edges.filter(e => !e.__isFragment)) {
-    const queryKey = edgeDetailsQuery(edge.id).queryKey;
-    queryClient.setQueryData(queryKey, { edge });
+  for (const edge of Iterator.from(edges).filter(e => !e.__isFragment)) {
+    setEdgeDetailsQueryCache(client, edge);
   }
+}
+
+export function setVertexDetailsQueryCache(
+  client: QueryClient,
+  vertex: Vertex
+) {
+  const queryKey = vertexDetailsQuery(vertex.id).queryKey;
+  client.setQueryData(queryKey, { vertex });
+}
+
+export function setEdgeDetailsQueryCache(client: QueryClient, edge: Edge) {
+  const queryKey = edgeDetailsQuery(edge.id).queryKey;
+  client.setQueryData(queryKey, { edge });
 }
 
 /** Sets the neighbor count cache for the given vertex. */
 export function updateNeighborCountCache(
-  queryClient: QueryClient,
+  client: QueryClient,
   neighborCounts: NeighborCount[]
 ) {
   for (const count of neighborCounts) {
     const queryKey = neighborsCountQuery(count.vertexId).queryKey;
-    queryClient.setQueryData(queryKey, count);
+    client.setQueryData(queryKey, count);
   }
 }
 

@@ -2,7 +2,7 @@ import { queryOptions } from "@tanstack/react-query";
 import { Vertex, VertexId } from "@/core";
 import { DEFAULT_BATCH_REQUEST_SIZE } from "@/utils";
 import { chunk } from "lodash";
-import { getExplorer, updateVertexDetailsCache } from "./helpers";
+import { getExplorer, setVertexDetailsQueryCache } from "./helpers";
 import { vertexDetailsQuery } from "./vertexDetailsQuery";
 
 export function bulkVertexDetailsQuery(vertexIds: VertexId[]) {
@@ -43,7 +43,7 @@ export function bulkVertexDetailsQuery(vertexIds: VertexId[]) {
       ).then(results => results.flat());
 
       // Update cache
-      updateVertexDetailsCache(client, vertices);
+      vertices.forEach(v => setVertexDetailsQueryCache(client, v));
 
       return { vertices: [...cachedVertices, ...vertices] };
     },

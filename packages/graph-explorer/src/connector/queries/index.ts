@@ -14,4 +14,6 @@ export {
   updateVertexDetailsCache,
   updateEdgeDetailsCache,
   updateNeighborCountCache,
+  setVertexDetailsQueryCache,
+  setEdgeDetailsQueryCache,
 } from "./helpers";
