@@ -49,13 +49,15 @@ export function ScalarSearchResult({
   level: number;
 }) {
   const Icon = getIcon(scalar);
-  const title = scalar.name ?? "Scalar value";
+  const title = scalar.name;
   const subtitle = getDisplayValueForScalar(scalar.value);
 
   if (level > 0) {
     return (
       <SearchResultAttribute level={level}>
-        <SearchResultAttributeName>{title}</SearchResultAttributeName>
+        {title && (
+          <SearchResultAttributeName>{title}</SearchResultAttributeName>
+        )}
         <SearchResultAttributeValue>{subtitle}</SearchResultAttributeValue>
       </SearchResultAttribute>
     );
@@ -70,7 +72,7 @@ export function ScalarSearchResult({
         {Icon}
       </SearchResultSymbol>
       <div>
-        <SearchResultTitle>{title}</SearchResultTitle>
+        {title && <SearchResultTitle>{title}</SearchResultTitle>}
         <SearchResultSubtitle className="line-clamp-none">
           {subtitle}
         </SearchResultSubtitle>

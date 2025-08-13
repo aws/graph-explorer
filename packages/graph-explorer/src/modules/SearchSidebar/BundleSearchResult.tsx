@@ -18,7 +18,7 @@ export function BundleSearchResult({
   bundle: PatchedResultBundle;
   level?: number;
 }) {
-  const title = bundle.name ? `${bundle.name}` : `Bundle`;
+  const title = bundle.name;
   const subtitle = getDisplayValueForBundle(bundle);
 
   return (
@@ -30,7 +30,7 @@ export function BundleSearchResult({
             <BracketsIcon className="size-5" />
           </SearchResultSymbol>
           <div>
-            <SearchResultTitle>{title}</SearchResultTitle>
+            {title && <SearchResultTitle>{title}</SearchResultTitle>}
             <SearchResultSubtitle>{subtitle}</SearchResultSubtitle>
           </div>
         </div>
