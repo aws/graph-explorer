@@ -398,7 +398,7 @@ test("should ignore blank nodes when updating graph storage", async () => {
 
   const vertex = createRandomVertexForRdf();
   const blankNode = createRandomVertexForRdf();
-  blankNode.__isBlank = true;
+  blankNode.isBlankNode = true;
   const edge = createRandomEdge(vertex, blankNode);
 
   explorer.addVertex(vertex);

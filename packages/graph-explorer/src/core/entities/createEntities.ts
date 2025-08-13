@@ -24,7 +24,7 @@ export function createVertex(options: CreateVertexOptions): Vertex {
     attributes:
       options.attributes != null ? createAttributes(options.attributes) : {},
     __isFragment: options.attributes == null,
-    __isBlank: options.isBlankNode ?? false,
+    isBlankNode: options.isBlankNode ?? false,
   };
 }
 

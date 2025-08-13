@@ -22,18 +22,18 @@ describe("mapToResults", () => {
   });
   it("should map blank nodes to results", () => {
     const vertex = createRandomVertexForRdf();
-    vertex.__isBlank = true;
+    vertex.isBlankNode = true;
 
     const bindings = createBindings([vertex], []);
     const result = mapToResults(bindings);
     expect(result.vertices).toEqual([vertex]);
-    expect(result.vertices[0].__isBlank).toBe(true);
+    expect(result.vertices[0].isBlankNode).toBe(true);
   });
   it("should map blank nodes and edges to results", () => {
     const node1 = createRandomVertexForRdf();
     const node2 = createRandomVertexForRdf();
-    node1.__isBlank = true;
-    node2.__isBlank = true;
+    node1.isBlankNode = true;
+    node2.isBlankNode = true;
 
     const vertices = [node1, node2];
     const edges = [createRandomEdgeForRdf(node1, node2)];
@@ -106,7 +106,7 @@ function createBindingForVertex(vertex: Vertex) {
     })),
   ].map(binding =>
     // Modify bindings to represent blank nodes
-    vertex.__isBlank
+    vertex.isBlankNode
       ? {
           ...binding,
           subject: {
@@ -127,8 +127,8 @@ function createBindingsForEdge({
   source?: Vertex;
   target?: Vertex;
 }) {
-  const isSourceBlank = source?.__isBlank ?? false;
-  const isTargetBlank = target?.__isBlank ?? false;
+  const isSourceBlank = source?.isBlankNode ?? false;
+  const isTargetBlank = target?.isBlankNode ?? false;
   return [
     // Relationship between resources
     {

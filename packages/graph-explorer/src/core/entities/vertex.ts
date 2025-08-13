@@ -42,7 +42,7 @@ export type Vertex = {
    */
   __isFragment: boolean;
   /**
-   * Internal flag to mark the resource as blank node in RDF.
+   * Flag to mark the resource as blank node in RDF.
    */
-  __isBlank: boolean;
+  isBlankNode: boolean;
 };

@@ -20,7 +20,7 @@ describe("createVertex", () => {
         name: "Alice",
       },
       __isFragment: false,
-      __isBlank: false,
+      isBlankNode: false,
     });
   });
 
@@ -42,7 +42,7 @@ describe("createVertex", () => {
         name: "Alice",
       },
       __isFragment: false,
-      __isBlank: false,
+      isBlankNode: false,
     });
   });
 
@@ -64,7 +64,7 @@ describe("createVertex", () => {
         name: "Alice",
       },
       __isFragment: false,
-      __isBlank: false,
+      isBlankNode: false,
     });
   });
 
@@ -81,7 +81,7 @@ describe("createVertex", () => {
       types: ["Person"],
       attributes: {},
       __isFragment: true,
-      __isBlank: false,
+      isBlankNode: false,
     });
   });
 
@@ -99,7 +99,7 @@ describe("createVertex", () => {
       types: ["Person"],
       attributes: {},
       __isFragment: false,
-      __isBlank: false,
+      isBlankNode: false,
     });
   });
 
@@ -125,7 +125,7 @@ describe("createVertex", () => {
         isMarried: true,
       },
       __isFragment: false,
-      __isBlank: false,
+      isBlankNode: false,
     });
   });
 
@@ -144,7 +144,7 @@ describe("createVertex", () => {
       types: ["Person"],
       attributes: {},
       __isFragment: false,
-      __isBlank: true,
+      isBlankNode: true,
     });
   });
 });
