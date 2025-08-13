@@ -1,6 +1,6 @@
 import { formatDate, MISSING_DISPLAY_VALUE } from "@/utils";
 
-type ScalarValue = string | number | boolean | Date | null;
+export type ScalarValue = string | number | boolean | Date | null;
 
 export type ResultScalar = {
   entityType: "scalar";

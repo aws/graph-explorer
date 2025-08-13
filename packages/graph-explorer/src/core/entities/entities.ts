@@ -3,15 +3,21 @@ import { Edge, EdgeId, PatchedResultEdge, ResultEdge } from "./edge";
 import { ResultScalar } from "./scalar";
 import { toEdgeMap, toNodeMap } from "../StateProvider";
 import { createEdge, createVertex } from "./createEntities";
+import { PatchedResultBundle, ResultBundle } from "./bundle";
 
 /** Represents the results of a graph database query, which may be a fragment. */
-export type ResultEntity = ResultVertex | ResultEdge | ResultScalar;
+export type ResultEntity =
+  | ResultVertex
+  | ResultEdge
+  | ResultScalar
+  | ResultBundle;
 
 /** Represents the results of a graph database query after the details have been patched. */
 export type PatchedResultEntity =
   | PatchedResultVertex
   | PatchedResultEdge
-  | ResultScalar;
+  | ResultScalar
+  | PatchedResultBundle;
 
 /** An object containing both vertices and edges. */
 export type Entities = {
@@ -48,6 +54,10 @@ export function getAllGraphableEntityIds(
       edgeIds.add(entity.id);
       vertexIds.add(entity.sourceId);
       vertexIds.add(entity.targetId);
+    } else if (entity.entityType === "bundle") {
+      const nested = getAllGraphableEntityIds(entity.values);
+      nested.vertexIds.forEach(id => vertexIds.add(id));
+      nested.edgeIds.forEach(id => edgeIds.add(id));
     }
   }
 
@@ -84,6 +94,10 @@ export function getAllGraphableEntities(
       edges.set(entity.id, edge);
       vertices.set(entity.sourceVertex.id, createVertex(entity.sourceVertex));
       vertices.set(entity.targetVertex.id, createVertex(entity.targetVertex));
+    } else if (entity.entityType === "bundle") {
+      const nested = getAllGraphableEntities(entity.values);
+      nested.vertices.forEach(vertex => vertices.set(vertex.id, vertex));
+      nested.edges.forEach(edge => edges.set(edge.id, edge));
     }
   }
 

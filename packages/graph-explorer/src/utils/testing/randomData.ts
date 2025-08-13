@@ -8,6 +8,7 @@ import {
   createPatchedResultEdge,
   createPatchedResultVertex,
   createResultEdge,
+  createResultScalar,
   createResultVertex,
   createVertex,
   createVertexId,
@@ -30,6 +31,8 @@ import {
   createArray,
   createRandomBoolean,
   createRandomColor,
+  createRandomDate,
+  createRandomDouble,
   createRandomInteger,
   createRandomName,
   createRandomUrlString,
@@ -726,4 +729,27 @@ export function createRandomArrowStyle(): ArrowStyle {
     "diamond",
     "none",
   ]);
+}
+
+export function createRandomScalarValue() {
+  const generators = [
+    () => createRandomBoolean(),
+    () => createRandomColor(),
+    () => createRandomUrlString(),
+    () => createRandomInteger(),
+    () => createRandomDouble(),
+    () => createRandomDate(),
+    () => createRandomName(),
+    () => createRandomVersion(),
+    () => null,
+  ];
+  const generator = pickRandomElement(generators);
+  return generator();
+}
+
+export function createRandomeResultScalar() {
+  return createResultScalar({
+    name: createRandomName("name"),
+    value: createRandomScalarValue(),
+  });
 }

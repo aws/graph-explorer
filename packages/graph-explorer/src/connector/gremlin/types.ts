@@ -110,6 +110,11 @@ export type GSet = {
   "@value": Array<GAnyValue>;
 };
 
+export type GBulkSet = {
+  "@type": "g:BulkSet";
+  "@value": Array<GAnyValue>;
+};
+
 export type GEntityList = {
   "@type": "g:List";
   "@value": Array<GVertex | GEdge>;
@@ -124,6 +129,7 @@ export type GAnyValue =
   | GList
   | GMap
   | GSet
+  | GBulkSet
   | GPath
   | GVertex
   | GEdge

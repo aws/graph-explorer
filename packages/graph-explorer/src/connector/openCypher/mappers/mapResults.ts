@@ -4,7 +4,7 @@ import { fromError } from "zod-validation-error";
 import mapApiVertex from "./mapApiVertex";
 import mapApiEdge from "./mapApiEdge";
 import { OCEdge, OCVertex } from "../types";
-import { createResultScalar, ResultEntity } from "@/core";
+import { createResultScalar, createResultBundle, ResultEntity } from "@/core";
 
 const cypherScalarValueSchema = z.union([
   z.number(),
@@ -70,9 +70,21 @@ export function parseResults(data: unknown) {
  */
 export function mapResults(data: unknown) {
   const results = parseResults(data);
-  const values = results.flatMap(result =>
-    Object.entries(result).flatMap(([key, value]) => mapValue(value, key))
-  );
+  const values = results.flatMap(result => {
+    // Each result object should be treated as a potential bundle
+    const entities = Object.entries(result).flatMap(([key, value]) =>
+      mapValue(value, key)
+    );
+
+    // Create a bundle if there are multiple entities
+    if (entities.length === 1) {
+      return entities;
+    } else if (entities.length > 1) {
+      return [createResultBundle({ values: entities })];
+    } else {
+      return [];
+    }
+  });
   return values;
 }
 
@@ -80,6 +92,7 @@ export function mapResults(data: unknown) {
  * Recursively maps a value from the OpenCypher query to the expected format
  * @param value The value to map
  * @param name The name/key for the value (used for scalar naming)
+ * @param isRootObject Whether this is a root object in the results list
  * @returns The mapped value
  */
 function mapValue(value: CypherValue, name?: string): ResultEntity[] {
@@ -93,7 +106,10 @@ function mapValue(value: CypherValue, name?: string): ResultEntity[] {
   }
 
   if (Array.isArray(value)) {
-    return value.flatMap(v => mapValue(v, name));
+    // Any array value should become a bundle
+    const results = value.flatMap(v => mapValue(v));
+    // Arrays should always be bundles, even with one item
+    return [createResultBundle({ name, values: results })];
   }
 
   // Map record types
@@ -105,9 +121,30 @@ function mapValue(value: CypherValue, name?: string): ResultEntity[] {
     if (value["~entityType"] === "relationship") {
       return [mapApiEdge(value as OCEdge, name)];
     }
-    return Object.entries(value).flatMap(([key, value]) =>
-      mapValue(value, key)
-    );
+
+    // Any object other than vertex, edge, or root object should become a bundle
+    const keyValuePairs = Object.entries(value).map(([key, val]) => ({
+      key,
+      results: mapValue(val, key),
+    }));
+
+    // If this object has only one key-value pair and that value produces only one scalar result,
+    // promote that scalar with the key as the name (but not for objects inside arrays)
+    if (
+      keyValuePairs.length === 1 &&
+      keyValuePairs[0].results.length === 1 &&
+      name !== undefined
+    ) {
+      const { key, results } = keyValuePairs[0];
+      const result = results[0];
+      // Only promote scalars - everything else should create bundles
+      if (result.entityType === "scalar") {
+        return [{ ...result, name: key || result.name }];
+      }
+    }
+
+    const results = keyValuePairs.flatMap(pair => pair.results);
+    return [createResultBundle({ name, values: results })];
   }
 
   // Unsupported type

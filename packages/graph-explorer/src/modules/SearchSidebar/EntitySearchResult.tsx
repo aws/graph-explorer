@@ -1,7 +1,8 @@
-import { PatchedResultEntity } from "@/core";
+import { getDisplayValueForBundle, PatchedResultEntity } from "@/core";
 import { VertexSearchResult } from "./VertexSearchResult";
 import { EdgeSearchResult } from "./EdgeSearchResult";
 import { ScalarSearchResult } from "./ScalarSearchResult";
+import { BundleSearchResult } from "./BundleSearchResult";
 
 export function EntitySearchResult({
   entity,
@@ -16,7 +17,9 @@ export function EntitySearchResult({
     case "edge":
       return <EdgeSearchResult edge={entity} level={level} />;
     case "scalar":
-      return <ScalarSearchResult scalar={entity} />;
+      return <ScalarSearchResult scalar={entity} level={level} />;
+    case "bundle":
+      return <BundleSearchResult bundle={entity} level={level} />;
   }
 }
 
@@ -32,5 +35,7 @@ export function createEntityKey(entity: PatchedResultEntity, level: number) {
       return `${commonPrefix}:${entity.id}`;
     case "scalar":
       return `${commonPrefix}:${String(entity.value)}`;
+    case "bundle":
+      return `${commonPrefix}:${getDisplayValueForBundle(entity)}`;
   }
 }

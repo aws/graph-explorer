@@ -15,6 +15,8 @@ import {
   PatchedResultEdge,
   createPatchedResultVertex,
   createPatchedResultEdge,
+  ResultBundle,
+  PatchedResultBundle,
 } from "@/core";
 import { logger } from "@/utils";
 import { QueryClient } from "@tanstack/react-query";
@@ -67,8 +69,8 @@ function patchEntity(
       return patchEdge(entity, edgeDetailsMap, vertexDetailsMap);
     case "scalar":
       return entity; // Scalars don't need patching
-    default:
-      return entity;
+    case "bundle":
+      return patchBundle(entity, vertexDetailsMap, edgeDetailsMap);
   }
 }
 
@@ -107,4 +109,17 @@ function patchEdge(
     sourceVertex: fullSource,
     targetVertex: fullTarget,
   });
+}
+
+function patchBundle(
+  bundle: ResultBundle,
+  vertexDetailsMap: Map<VertexId, Vertex>,
+  edgeDetailsMap: Map<EdgeId, Edge>
+): PatchedResultBundle {
+  return {
+    ...bundle,
+    values: bundle.values.map(child =>
+      patchEntity(child, vertexDetailsMap, edgeDetailsMap)
+    ),
+  };
 }

@@ -1,6 +1,7 @@
 import { createTestableVertex, createTestableEdge } from "@/utils/testing";
 import { getAllGraphableEntityIds, getAllGraphableEntities } from "./entities";
 import { createResultScalar } from "./scalar";
+import { createResultBundle, createPatchedResultBundle } from "./bundle";
 
 describe("entities", () => {
   describe("getAllGraphableEntityIds", () => {
@@ -72,6 +73,66 @@ describe("entities", () => {
       expect(result).toStrictEqual({
         vertexIds: new Set([vertex.id, edge1.source.id, edge2.target.id]),
         edgeIds: new Set([edge1.id, edge2.id]),
+      });
+    });
+
+    it("should handle bundles with nested entities", () => {
+      const vertex = createTestableVertex().asResult();
+      const edge = createTestableEdge().asResult();
+      const scalar = createResultScalar({ value: "test" });
+
+      const bundle = createResultBundle({
+        name: "test-bundle",
+        values: [vertex, edge, scalar],
+      });
+
+      const result = getAllGraphableEntityIds([bundle]);
+
+      expect(result).toStrictEqual({
+        vertexIds: new Set([vertex.id, edge.sourceId, edge.targetId]),
+        edgeIds: new Set([edge.id]),
+      });
+    });
+
+    it("should handle nested bundles", () => {
+      const vertex1 = createTestableVertex().asResult();
+      const vertex2 = createTestableVertex().asResult();
+      const edge = createTestableEdge().asResult();
+
+      const innerBundle = createResultBundle({
+        name: "inner-bundle",
+        values: [vertex1, edge],
+      });
+
+      const outerBundle = createResultBundle({
+        name: "outer-bundle",
+        values: [vertex2, innerBundle],
+      });
+
+      const result = getAllGraphableEntityIds([outerBundle]);
+
+      expect(result).toStrictEqual({
+        vertexIds: new Set([
+          vertex1.id,
+          vertex2.id,
+          edge.sourceId,
+          edge.targetId,
+        ]),
+        edgeIds: new Set([edge.id]),
+      });
+    });
+
+    it("should handle empty bundles", () => {
+      const bundle = createResultBundle({
+        name: "empty-bundle",
+        values: [],
+      });
+
+      const result = getAllGraphableEntityIds([bundle]);
+
+      expect(result).toStrictEqual({
+        vertexIds: new Set(),
+        edgeIds: new Set(),
       });
     });
   });
@@ -158,6 +219,113 @@ describe("entities", () => {
         vertices: [edge1.source.asVertex(), edge1.target.asVertex()],
         edges: [edge1.asEdge(), edge2.asEdge()],
       });
+    });
+
+    it("should handle patched bundles with nested entities", () => {
+      const vertex = createTestableVertex();
+      const edge = createTestableEdge();
+      const scalar = createResultScalar({ value: "test" });
+
+      const bundle = createPatchedResultBundle({
+        name: "test-bundle",
+        values: [vertex.asPatchedResult(), edge.asPatchedResult(), scalar],
+      });
+
+      const result = getAllGraphableEntities([bundle]);
+
+      expect(result).toStrictEqual({
+        vertices: [
+          vertex.asVertex(),
+          edge.source.asVertex(),
+          edge.target.asVertex(),
+        ],
+        edges: [edge.asEdge()],
+      });
+    });
+
+    it("should handle nested patched bundles", () => {
+      const vertex1 = createTestableVertex();
+      const vertex2 = createTestableVertex();
+      const edge = createTestableEdge();
+
+      const innerBundle = createPatchedResultBundle({
+        name: "inner-bundle",
+        values: [vertex1.asPatchedResult(), edge.asPatchedResult()],
+      });
+
+      const outerBundle = createPatchedResultBundle({
+        name: "outer-bundle",
+        values: [vertex2.asPatchedResult(), innerBundle],
+      });
+
+      const result = getAllGraphableEntities([outerBundle]);
+
+      // Check that we have the correct number of vertices and edges
+      expect(result.vertices).toHaveLength(4);
+      expect(result.edges).toHaveLength(1);
+
+      // Check that all expected vertices are present (order doesn't matter)
+      const vertexIds = result.vertices.map(v => v.id);
+      expect(vertexIds).toContain(vertex1.id);
+      expect(vertexIds).toContain(vertex2.id);
+      expect(vertexIds).toContain(edge.source.id);
+      expect(vertexIds).toContain(edge.target.id);
+
+      // Check that the edge is correct
+      expect(result.edges[0]).toStrictEqual(edge.asEdge());
+    });
+
+    it("should handle empty patched bundles", () => {
+      const bundle = createPatchedResultBundle({
+        name: "empty-bundle",
+        values: [],
+      });
+
+      const result = getAllGraphableEntities([bundle]);
+
+      expect(result).toStrictEqual({
+        vertices: [],
+        edges: [],
+      });
+    });
+
+    it("should handle mixed entities and bundles", () => {
+      const standaloneVertex = createTestableVertex();
+      const standaloneEdge = createTestableEdge();
+      const bundledVertex = createTestableVertex();
+      const bundledEdge = createTestableEdge();
+
+      const bundle = createPatchedResultBundle({
+        name: "mixed-bundle",
+        values: [
+          bundledVertex.asPatchedResult(),
+          bundledEdge.asPatchedResult(),
+        ],
+      });
+
+      const result = getAllGraphableEntities([
+        standaloneVertex.asPatchedResult(),
+        standaloneEdge.asPatchedResult(),
+        bundle,
+      ]);
+
+      // Check that we have the correct number of vertices and edges
+      expect(result.vertices).toHaveLength(6);
+      expect(result.edges).toHaveLength(2);
+
+      // Check that all expected vertices are present (order doesn't matter)
+      const vertexIds = result.vertices.map(v => v.id);
+      expect(vertexIds).toContain(standaloneVertex.id);
+      expect(vertexIds).toContain(standaloneEdge.source.id);
+      expect(vertexIds).toContain(standaloneEdge.target.id);
+      expect(vertexIds).toContain(bundledVertex.id);
+      expect(vertexIds).toContain(bundledEdge.source.id);
+      expect(vertexIds).toContain(bundledEdge.target.id);
+
+      // Check that all expected edges are present
+      const edgeIds = result.edges.map(e => e.id);
+      expect(edgeIds).toContain(standaloneEdge.id);
+      expect(edgeIds).toContain(bundledEdge.id);
     });
   });
 });

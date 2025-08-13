@@ -4,7 +4,7 @@ import {
   RawQueryRequest,
   RawQueryResponse,
 } from "../useGEFetchTypes";
-import { GAnyValue, GremlinFetch } from "./types";
+import { GList, GremlinFetch } from "./types";
 import { mapResults } from "./mappers/mapResults";
 import isErrorResponse from "../utils/isErrorResponse";
 
@@ -15,7 +15,7 @@ type Response = {
     code: number;
   };
   result: {
-    data: GAnyValue;
+    data: GList;
   };
 };
 
