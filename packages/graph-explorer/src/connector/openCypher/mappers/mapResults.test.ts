@@ -1,8 +1,12 @@
 import { createScalar, Edge, getRawId, Vertex } from "@/core";
 import { mapResults } from "./mapResults";
-import { createRandomEdge, createRandomVertex } from "@/utils/testing";
+import {
+  createRandomEdge,
+  createRandomVertex,
+  mapToOcEdge,
+  mapToOcVertex,
+} from "@/utils/testing";
 import { createRandomInteger } from "@shared/utils/testing";
-import { OCEdge, OCVertex } from "../types";
 
 describe("mapResults", () => {
   it("should map empty results", () => {
@@ -20,7 +24,7 @@ describe("mapResults", () => {
     const result = mapResults({
       results: [
         {
-          n: createCypherVertex(vertex),
+          n: mapToOcVertex(vertex),
         },
       ],
     });
@@ -37,7 +41,7 @@ describe("mapResults", () => {
     const result = mapResults({
       results: [
         {
-          n: createCypherEdge(edge),
+          n: mapToOcEdge(edge),
         },
       ],
     });
@@ -87,7 +91,7 @@ describe("mapResults", () => {
     const result = mapResults({
       results: [
         {
-          n: [createCypherVertex(vertex)],
+          n: [mapToOcVertex(vertex)],
         },
       ],
     });
@@ -103,7 +107,7 @@ describe("mapResults", () => {
     const result = mapResults({
       results: [
         {
-          n: [createCypherEdge(edge)],
+          n: [mapToOcEdge(edge)],
         },
       ],
     });
@@ -141,8 +145,8 @@ describe("mapResults", () => {
       results: [
         {
           n: {
-            v: createCypherVertex(vertex),
-            e: createCypherEdge(edge),
+            v: mapToOcVertex(vertex),
+            e: mapToOcEdge(edge),
           },
         },
       ],
@@ -167,8 +171,8 @@ describe("mapResults", () => {
         {
           n: {
             deep: {
-              v: createCypherVertex(vertex),
-              e: createCypherEdge(edge),
+              v: mapToOcVertex(vertex),
+              e: mapToOcEdge(edge),
             },
           },
         },
@@ -194,8 +198,8 @@ describe("mapResults", () => {
         {
           n: [
             {
-              v: createCypherVertex(vertex),
-              e: createCypherEdge(edge),
+              v: mapToOcVertex(vertex),
+              e: mapToOcEdge(edge),
             },
           ],
         },
@@ -222,8 +226,8 @@ describe("mapResults", () => {
           n: [
             {
               deep: {
-                v: createCypherVertex(vertex),
-                e: createCypherEdge(edge),
+                v: mapToOcVertex(vertex),
+                e: mapToOcEdge(edge),
               },
             },
           ],
@@ -349,43 +353,3 @@ describe("mapResults", () => {
     );
   });
 });
-
-function createCypherVertex(vertex: Vertex): OCVertex {
-  const id = getRawId(vertex.id);
-
-  if (typeof id !== "string") {
-    throw new Error("Vertex id is not valid");
-  }
-
-  return {
-    "~id": id,
-    "~entityType": "node",
-    "~labels": vertex.types,
-    "~properties": vertex.attributes,
-  };
-}
-
-function createCypherEdge(edge: Edge): OCEdge {
-  const id = getRawId(edge.id);
-  const sourceId = getRawId(edge.sourceId);
-  const targetId = getRawId(edge.targetId);
-
-  if (typeof id !== "string") {
-    throw new Error("Edge id is not valid");
-  }
-  if (typeof sourceId !== "string") {
-    throw new Error("Edge source is not valid");
-  }
-  if (typeof targetId !== "string") {
-    throw new Error("Edge target is not valid");
-  }
-
-  return {
-    "~id": id,
-    "~entityType": "relationship",
-    "~type": edge.type,
-    "~start": sourceId,
-    "~end": targetId,
-    "~properties": edge.attributes,
-  };
-}
