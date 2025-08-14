@@ -102,8 +102,8 @@ function mapValue(value: CypherValue, name?: string): ResultEntity[] {
   }
 
   if (Array.isArray(value)) {
-    const results = value.flatMap(v => mapValue(v));
-    return [createResultBundle({ name, values: results })];
+    const values = value.flatMap(v => mapValue(v));
+    return [createResultBundle({ name, values })];
   }
 
   // Map record types
