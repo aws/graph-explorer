@@ -60,6 +60,7 @@ export const Tabular = <T extends object>(
     pageIndex = 0,
     pageSize = 10,
     onDataFilteredChange,
+    onColumnSortedChange,
     variant = "bordered",
     globalSearch,
     ...useTabularOptions
@@ -108,6 +109,12 @@ export const Tabular = <T extends object>(
     tableInstance.state.filters,
     tableInstance.filteredRows,
   ]);
+
+  useDeepCompareEffect(() => {
+    if (tableInstance.state.sortBy.length !== 0) {
+      onColumnSortedChange?.(tableInstance.state.sortBy);
+    }
+  }, [onColumnSortedChange, tableInstance.state.sortBy]);
 
   useImperativeHandle(ref, () => tabularInstance, [tabularInstance]);
 

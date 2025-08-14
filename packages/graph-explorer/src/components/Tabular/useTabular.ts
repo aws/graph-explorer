@@ -41,6 +41,9 @@ export type OnDataFilteredChange<T extends object> = (
   filteredRows: Row<T>[],
   filters: Array<{ id: IdType<T>; value: unknown }>
 ) => void;
+export type OnColumnSortedChange<T extends object> = (
+  sorts: Array<{ id: IdType<T>; desc?: boolean }>
+) => void;
 
 export type TabularFilterType =
   | {
@@ -206,6 +209,11 @@ export interface TabularOptions<T extends object> {
    * Listen for filters changes.
    */
   onDataFilteredChange?: OnDataFilteredChange<T>;
+
+  /**
+   * Listen for column sorting changes.
+   */
+  onColumnSortedChange?: OnColumnSortedChange<T>;
 
   /**
    * The filters state will automatically reset if data is changed.
