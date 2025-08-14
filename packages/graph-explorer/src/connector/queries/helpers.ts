@@ -18,6 +18,9 @@ export function updateDetailsCacheFromEntities(
       setVertexDetailsQueryCache(client, createVertex(entity));
     } else if (entity.entityType === "edge" && entity.attributes != null) {
       setEdgeDetailsQueryCache(client, createEdge(entity));
+    } else if (entity.entityType === "bundle") {
+      // Recursively process entities within bundles
+      updateDetailsCacheFromEntities(client, entity.values);
     }
   }
 }
