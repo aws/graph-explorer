@@ -89,7 +89,6 @@ export function mapResults(data: unknown) {
  * Recursively maps a value from the OpenCypher query to the expected format
  * @param value The value to map
  * @param name The name/key for the value (used for scalar naming)
- * @param isRootObject Whether this is a root object in the results list
  * @returns The mapped value
  */
 function mapValue(value: CypherValue, name?: string): ResultEntity[] {
