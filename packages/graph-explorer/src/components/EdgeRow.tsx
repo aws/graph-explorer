@@ -1,7 +1,7 @@
 import { DisplayEdge, DisplayVertex } from "@/core";
 import { ComponentPropsWithoutRef } from "react";
 import { EdgeSymbol } from "./EdgeSymbol";
-import { cn } from "@/utils";
+import { cn, NBSP, RSAQUO } from "@/utils";
 import { SearchResultSubtitle, SearchResultTitle } from "./SearchResult";
 
 /**
@@ -22,22 +22,12 @@ export function EdgeRow({
   target: DisplayVertex;
   name?: string | null;
 } & ComponentPropsWithoutRef<"div">) {
-  const innerTitle =
-    edge.displayTypes === edge.displayName ? (
-      <>{edge.displayTypes}</>
-    ) : (
-      <>
-        {edge.displayTypes}&nbsp;&rsaquo; {edge.displayName}
-      </>
-    );
-
-  const title = name ? (
-    <>
-      {name}: {innerTitle}
-    </>
-  ) : (
-    <>{innerTitle}</>
-  );
+  const resultName = name ? `${name}: ` : "";
+  const nameIsSameAsTypes = edge.displayTypes === edge.displayName;
+  const displayName = nameIsSameAsTypes
+    ? edge.displayName
+    : `${edge.displayTypes}${NBSP}${RSAQUO} ${edge.displayName}`;
+  const title = `${resultName}${displayName}`;
 
   return (
     <div

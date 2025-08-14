@@ -1,5 +1,6 @@
 import { getDisplayValueForScalar } from "./scalar";
 import { PatchedResultEntity, ResultEntity } from "./entities";
+import { NBSP } from "@/utils";
 
 export type ResultBundle = {
   entityType: "bundle";
@@ -50,7 +51,7 @@ export function createPatchedResultBundle({
  * - Bundles: "name: [...]" or just "[...]" if no name
  *
  * @param bundle - The bundle to format
- * @returns A formatted string with values separated by " • "
+ * @returns A formatted string with values separated by " • " (non-breaking space + bullet)
  *
  * @example
  * ```typescript
@@ -90,5 +91,5 @@ export function getDisplayValueForBundle(
       return null;
     })
     .filter(Boolean)
-    .join(" • ");
+    .join(`${NBSP}• `);
 }
