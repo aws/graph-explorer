@@ -24,17 +24,17 @@ export function executeUserQuery(
       const explorer = getExplorer(meta);
       const results = await explorer.rawQuery({ query }, { signal });
 
+      // Update the cache for any fully materialized entities
       updateDetailsCacheFromEntities(client, results);
 
-      // Fetch any details for fragments
-      const combinedResults = await patchEntityDetails(client, results);
-      const patchedGraphableEntities = getAllGraphableEntities(combinedResults);
+      // Fetch any details for fragments and patch the results
+      const patchedResults = await patchEntityDetails(client, results);
 
-      // Throw if any
-
+      // Update the schema with the results
+      const patchedGraphableEntities = getAllGraphableEntities(patchedResults);
       updateSchema(patchedGraphableEntities);
 
-      return combinedResults;
+      return patchedResults;
     },
   });
 }
