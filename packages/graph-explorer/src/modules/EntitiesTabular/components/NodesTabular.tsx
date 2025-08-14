@@ -18,6 +18,7 @@ import {
   nodesFilteredIdsAtom,
   nodesOutOfFocusIdsAtom,
   nodesSelectedIdsAtom,
+  nodesTableFiltersAtom,
   useToggleFilteredNode,
 } from "@/core/StateProvider/nodes";
 
@@ -40,6 +41,7 @@ const NodesTabular = forwardRef<TabularInstance<ToggleVertex>, any>(
     const [selectedNodesIds, setSelectedNodesIds] =
       useAtom(nodesSelectedIdsAtom);
     const setSelectedEdgesIds = useSetAtom(edgesSelectedIdsAtom);
+    const [tableFilters, setTableFilters] = useAtom(nodesTableFiltersAtom);
 
     // NOTE: Only use string accessors so that the export process continues to work
     const columns: ColumnDefinition<ToggleVertex>[] = [
@@ -142,10 +144,12 @@ const NodesTabular = forwardRef<TabularInstance<ToggleVertex>, any>(
         toggleRowSelected={onSelectRows}
         data={data}
         columns={columns}
-        onDataFilteredChange={rows => {
+        initialFilters={tableFilters}
+        onDataFilteredChange={(rows, filters) => {
           const nodesIds = displayNodes.keys().toArray();
           const ids = rows.map(row => row.original.id);
           setNodesOut(new Set(difference(nodesIds, ids)));
+          setTableFilters(filters);
         }}
       >
         <TabularEmptyBodyControls>
