@@ -124,3 +124,5 @@ export function useVertex(id: VertexId) {
 
 export const nodesTableFiltersAtom =
   atomWithReset(Array<{ id: string; value: unknown }>());
+export const nodesTableSortsAtom =
+  atomWithReset(Array<{ id: string; desc?: boolean }>());

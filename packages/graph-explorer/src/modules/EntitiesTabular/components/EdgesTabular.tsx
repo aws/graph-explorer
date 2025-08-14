@@ -13,6 +13,7 @@ import {
   edgesOutOfFocusIdsAtom,
   edgesSelectedIdsAtom,
   edgesTableFiltersAtom,
+  edgesTableSortsAtom,
   useToggleFilteredEdge,
 } from "@/core/StateProvider/edges";
 import { nodesSelectedIdsAtom } from "@/core/StateProvider/nodes";
@@ -61,6 +62,7 @@ const EdgesTabular = forwardRef<TabularInstance<ToggleEdge>, any>(
     const [selectedEdgesIds, setSelectedEdgesIds] =
       useAtom(edgesSelectedIdsAtom);
     const [tableFilters, setTableFilters] = useAtom(edgesTableFiltersAtom);
+    const [tableSorts, setTableSorts] = useAtom(edgesTableSortsAtom);
 
     // NOTE: Only use string accessors so that the export process continues to work
     const columns: ColumnDefinition<ToggleEdge>[] = [
@@ -157,6 +159,8 @@ const EdgesTabular = forwardRef<TabularInstance<ToggleEdge>, any>(
           setEdgesOut(new Set(difference(edgesIds, ids)));
           setTableFilters(filters);
         }}
+        initialSorting={tableSorts}
+        onColumnSortedChange={setTableSorts}
       >
         <TabularEmptyBodyControls>
           {data.length === 0 && (

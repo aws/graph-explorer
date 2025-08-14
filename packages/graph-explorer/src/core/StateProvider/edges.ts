@@ -103,3 +103,5 @@ export const filteredEdgesSelector = atom(get => {
 
 export const edgesTableFiltersAtom =
   atomWithReset(Array<{ id: string; value: unknown }>());
+export const edgesTableSortsAtom =
+  atomWithReset(Array<{ id: string; desc?: boolean }>());
