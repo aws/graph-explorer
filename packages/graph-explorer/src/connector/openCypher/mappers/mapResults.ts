@@ -102,9 +102,7 @@ function mapValue(value: CypherValue, name?: string): ResultEntity[] {
   }
 
   if (Array.isArray(value)) {
-    // Any array value should become a bundle
     const results = value.flatMap(v => mapValue(v));
-    // Arrays should always be bundles, even with one item
     return [createResultBundle({ name, values: results })];
   }
 
@@ -118,31 +116,16 @@ function mapValue(value: CypherValue, name?: string): ResultEntity[] {
       return [mapApiEdge(value as OCEdge, name)];
     }
 
-    // Any object other than vertex, edge, or root object should become a bundle
-    const keyValuePairs = Object.entries(value).map(([key, val]) => ({
-      key,
-      results: mapValue(val, key),
-    }));
-
-    // If this object has only one key-value pair and that value produces only one scalar result,
-    // promote that scalar with the key as the name (but not for objects inside arrays)
-    if (
-      keyValuePairs.length === 1 &&
-      keyValuePairs[0].results.length === 1 &&
-      name !== undefined
-    ) {
-      const { key, results } = keyValuePairs[0];
-      const result = results[0];
-      // Only promote scalars - everything else should create bundles
-      if (result.entityType === "scalar") {
-        return [{ ...result, name: key || result.name }];
-      }
-    }
-
-    const results = keyValuePairs.flatMap(pair => pair.results);
-    return [createResultBundle({ name, values: results })];
+    return [mapRecordToBundle(value, name)];
   }
 
   // Unsupported type
   return [];
+}
+
+function mapRecordToBundle(record: Record<string, CypherValue>, name?: string) {
+  const values = Object.entries(record).flatMap(([key, value]) =>
+    mapValue(value, key)
+  );
+  return createResultBundle({ values, name });
 }
