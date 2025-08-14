@@ -1,15 +1,13 @@
 import { OCEdge, OCVertex } from "@/connector/openCypher/types";
 import {
   createTypedValue,
-  Edge,
   getRawId,
   ResultEdge,
   ResultVertex,
   ScalarValue,
-  Vertex,
 } from "@/core";
 
-export function mapToOcVertex(vertex: Vertex | ResultVertex): OCVertex {
+export function mapToOcVertex(vertex: ResultVertex): OCVertex {
   const id = getRawId(vertex.id);
 
   if (typeof id !== "string") {
@@ -25,7 +23,7 @@ export function mapToOcVertex(vertex: Vertex | ResultVertex): OCVertex {
   };
 }
 
-export function mapToOcEdge(edge: Edge | ResultEdge): OCEdge {
+export function mapToOcEdge(edge: ResultEdge): OCEdge {
   const id = getRawId(edge.id);
   const sourceId = getRawId(edge.sourceId);
   const targetId = getRawId(edge.targetId);

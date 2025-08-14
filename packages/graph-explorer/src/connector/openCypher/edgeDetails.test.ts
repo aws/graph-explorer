@@ -1,6 +1,6 @@
 import { createTestableEdge, mapToOcEdge } from "@/utils/testing";
 import { edgeDetails } from "./edgeDetails";
-import { Edge, ResultEdge } from "@/core";
+import { ResultEdge } from "@/core";
 
 describe("edgeDetails", () => {
   it("should return empty when request is empty", async () => {
@@ -42,7 +42,7 @@ describe("edgeDetails", () => {
   });
 });
 
-function createResponseFromEdges(...edges: (Edge | ResultEdge)[]) {
+function createResponseFromEdges(...edges: ResultEdge[]) {
   return {
     results: edges.map(edge => ({
       edge: mapToOcEdge(edge),
