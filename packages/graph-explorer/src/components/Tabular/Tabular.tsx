@@ -100,13 +100,12 @@ export const Tabular = <T extends object>(
     if (tableInstance.state.diff.filters) {
       onDataFilteredChange?.(
         tableInstance.filteredRows,
-        tableInstance.state.filters.length !== 0
+        tableInstance.state.filters
       );
     }
   }, [
     onDataFilteredChange,
-    tableInstance.state.diff.filters,
-    tableInstance.state.filters.length,
+    tableInstance.state.filters,
     tableInstance.filteredRows,
   ]);
 

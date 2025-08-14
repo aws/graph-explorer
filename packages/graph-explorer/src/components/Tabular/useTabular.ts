@@ -39,7 +39,7 @@ import useFullWidth from "./plugins/useFullWidth";
 export type CellComponentProps<T extends object> = CellProps<T>;
 export type OnDataFilteredChange<T extends object> = (
   filteredRows: Row<T>[],
-  areFiltersApplied: boolean
+  filters: Array<{ id: IdType<T>; value: unknown }>
 ) => void;
 
 export type TabularFilterType =
