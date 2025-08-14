@@ -71,18 +71,15 @@ export function parseResults(data: unknown) {
 export function mapResults(data: unknown) {
   const results = parseResults(data);
   const values = results.flatMap(result => {
-    // Each result object should be treated as a potential bundle
     const entities = Object.entries(result).flatMap(([key, value]) =>
       mapValue(value, key)
     );
 
-    // Create a bundle if there are multiple entities
-    if (entities.length === 1) {
-      return entities;
-    } else if (entities.length > 1) {
+    // Create a bundle if there is more than one entity
+    if (entities.length > 1) {
       return [createResultBundle({ values: entities })];
     } else {
-      return [];
+      return entities;
     }
   });
   return values;
