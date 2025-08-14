@@ -6,7 +6,7 @@ describe("vertexDetails", () => {
   it("should return empty for empty request", async () => {
     const mockFetch = vi.fn();
     const result = await vertexDetails(mockFetch, { vertexIds: [] });
-    expect(result.vertices).toEqual([]);
+    expect(result.vertices).toStrictEqual([]);
     expect(mockFetch).not.toHaveBeenCalled();
   });
 
@@ -18,7 +18,7 @@ describe("vertexDetails", () => {
 
     const result = await vertexDetails(mockFetch, { vertexIds: [vertex.id] });
 
-    expect(result.vertices).toEqual([vertex.asVertex()]);
+    expect(result.vertices).toStrictEqual([vertex.asVertex()]);
   });
 
   it("should return the vertex details for multiple vertices", async () => {
@@ -32,7 +32,10 @@ describe("vertexDetails", () => {
       vertexIds: [vertex1.id, vertex2.id],
     });
 
-    expect(result.vertices).toEqual([vertex1.asVertex(), vertex2.asVertex()]);
+    expect(result.vertices).toStrictEqual([
+      vertex1.asVertex(),
+      vertex2.asVertex(),
+    ]);
   });
 });
 

@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { createResultBundle, getDisplayValueForBundle } from "./bundle";
 import { createResultScalar } from "./scalar";
-import { MISSING_DISPLAY_VALUE } from "@/utils/constants";
+import { MISSING_DISPLAY_VALUE, NBSP } from "@/utils/constants";
 import { createResultEdge, createResultVertex } from "./createEntities";
 
 describe("getDisplayValueForBundle", () => {
@@ -17,7 +17,7 @@ describe("getDisplayValueForBundle", () => {
 
     const result = getDisplayValueForBundle(bundle);
 
-    expect(result).toBe("Name: John • Age: 25 • Active: true");
+    expect(result).toBe(`Name: John${NBSP}• Age: 25${NBSP}• Active: true`);
   });
 
   it("should format scalar values without names", () => {
@@ -31,7 +31,7 @@ describe("getDisplayValueForBundle", () => {
 
     const result = getDisplayValueForBundle(bundle);
 
-    expect(result).toBe("John • 25 • false");
+    expect(result).toBe(`John${NBSP}• 25${NBSP}• false`);
   });
 
   it("should format null scalar values", () => {
@@ -45,7 +45,7 @@ describe("getDisplayValueForBundle", () => {
     const result = getDisplayValueForBundle(bundle);
 
     expect(result).toBe(
-      `EmptyField: ${MISSING_DISPLAY_VALUE} • ${MISSING_DISPLAY_VALUE}`
+      `EmptyField: ${MISSING_DISPLAY_VALUE}${NBSP}• ${MISSING_DISPLAY_VALUE}`
     );
   });
 
@@ -62,7 +62,7 @@ describe("getDisplayValueForBundle", () => {
     const expectedDateFormat = "Dec 25 2023, 10:30 AM";
 
     expect(result).toBe(
-      `CreatedAt: ${expectedDateFormat} • ${expectedDateFormat}`
+      `CreatedAt: ${expectedDateFormat}${NBSP}• ${expectedDateFormat}`
     );
   });
 
@@ -198,7 +198,7 @@ describe("getDisplayValueForBundle", () => {
     const result = getDisplayValueForBundle(bundle);
 
     expect(result).toBe(
-      "Name: John • Profile: v(v123) • Connection: e(e456) • SubBundle: [...]"
+      `Name: John${NBSP}• Profile: v(v123)${NBSP}• Connection: e(e456)${NBSP}• SubBundle: [...]`
     );
   });
 
@@ -225,7 +225,7 @@ describe("getDisplayValueForBundle", () => {
     const expectedPopulation = new Intl.NumberFormat().format(1000000);
 
     expect(result).toBe(
-      `Price: ${expectedPrice} • Population: ${expectedPopulation}`
+      `Price: ${expectedPrice}${NBSP}• Population: ${expectedPopulation}`
     );
   });
 });
