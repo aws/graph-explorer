@@ -100,3 +100,6 @@ export const filteredEdgesSelector = atom(get => {
       .filter(([_id, edge]) => existingVertexIds.has(edge.targetId))
   );
 });
+
+export const edgesTableFiltersAtom =
+  atomWithReset(Array<{ id: string; value: unknown }>());

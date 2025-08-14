@@ -4,12 +4,14 @@ import {
   edgesOutOfFocusIdsAtom,
   edgesSelectedIdsAtom,
   edgesTypesFilteredAtom,
+  edgesTableFiltersAtom,
 } from "./edges";
 import {
   nodesAtom,
   nodesFilteredIdsAtom,
   nodesOutOfFocusIdsAtom,
   nodesSelectedIdsAtom,
+  nodesTableFiltersAtom,
   nodesTypesFilteredAtom,
 } from "./nodes";
 import {
@@ -33,6 +35,7 @@ export default function useResetState() {
       set(nodesOutOfFocusIdsAtom, RESET);
       set(nodesFilteredIdsAtom, RESET);
       set(nodesTypesFilteredAtom, RESET);
+      set(nodesTableFiltersAtom, RESET);
 
       // Edges
       set(edgesAtom, RESET);
@@ -40,6 +43,7 @@ export default function useResetState() {
       set(edgesOutOfFocusIdsAtom, RESET);
       set(edgesFilteredIdsAtom, RESET);
       set(edgesTypesFilteredAtom, RESET);
+      set(edgesTableFiltersAtom, RESET);
 
       // Search related
       set(searchTermAtom, RESET);
