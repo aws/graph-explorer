@@ -38,7 +38,7 @@ test("should add one node", async () => {
 
   await waitFor(() => {
     const actual = result.current.vertices.get(vertex.id);
-    expect(actual).toEqual(vertex);
+    expect(actual).toStrictEqual(vertex);
   });
 });
 
@@ -65,7 +65,7 @@ test("should add one edge", async () => {
 
   await waitFor(() => {
     const actual = result.current.edges.get(edge.id);
-    expect(actual).toEqual(edge);
+    expect(actual).toStrictEqual(edge);
   });
 });
 
@@ -86,11 +86,11 @@ test("should add multiple nodes and edges", async () => {
 
   const actualNodes = result.current.vertices.values().toArray();
   const expectedNodes = randomEntities.vertices;
-  expect(actualNodes).toEqual(expectedNodes);
+  expect(actualNodes).toStrictEqual(expectedNodes);
 
   const actualEdges = result.current.edges.values().toArray();
   const expectedEdges = randomEntities.edges.values().toArray();
-  expect(actualEdges).toEqual(expectedEdges);
+  expect(actualEdges).toStrictEqual(expectedEdges);
 });
 
 test("should add multiple nodes and edges ignoring duplicates", async () => {
@@ -142,7 +142,7 @@ test("should update schema when adding a node", async () => {
   const vtConfig = result.current.schema?.vertices.find(
     v => v.type === vertex.type
   );
-  expect(vtConfig).toEqual(expectedVertexType);
+  expect(vtConfig).toStrictEqual(expectedVertexType);
 });
 
 test("should update schema when adding a node with no label", async () => {
@@ -167,7 +167,7 @@ test("should update schema when adding a node with no label", async () => {
   const vtConfig = result.current.schema?.vertices.find(
     v => v.type === vertex.type
   );
-  expect(vtConfig).toEqual(expectedVertexType);
+  expect(vtConfig).toStrictEqual(expectedVertexType);
 });
 
 test("should update schema when adding an edge", async () => {
@@ -193,7 +193,7 @@ test("should update schema when adding an edge", async () => {
   await act(() => result.current.callback({ edges: [edge] }));
 
   const etConfig = result.current.schema?.edges.find(e => e.type === edge.type);
-  expect(etConfig).toEqual(expectedEdgeType);
+  expect(etConfig).toStrictEqual(expectedEdgeType);
 });
 
 test("should add missing attributes to the schema when adding a node", async () => {
@@ -223,7 +223,7 @@ test("should add missing attributes to the schema when adding a node", async () 
   const vtConfig = result.current.schema?.vertices.find(
     v => v.type === vertex.type
   );
-  expect(vtConfig).toEqual(expectedVertexType);
+  expect(vtConfig).toStrictEqual(expectedVertexType);
 });
 
 test("should add missing attributes to the schema when adding an edge", async () => {
@@ -256,7 +256,7 @@ test("should add missing attributes to the schema when adding an edge", async ()
   await act(() => result.current.callback({ edges: [edge] }));
 
   const etConfig = result.current.schema?.edges.find(e => e.type === edge.type);
-  expect(etConfig).toEqual(expectedEdgeType);
+  expect(etConfig).toStrictEqual(expectedEdgeType);
 });
 
 test("should update graph storage when adding a node", async () => {
@@ -277,7 +277,7 @@ test("should update graph storage when adding a node", async () => {
     edges: new Set(),
   };
 
-  expect(result.current.graph).toEqual(expectedGraph);
+  expect(result.current.graph).toStrictEqual(expectedGraph);
 });
 
 test("should update graph storage when adding an edge", async () => {
@@ -303,7 +303,7 @@ test("should update graph storage when adding an edge", async () => {
     edges: new Set([edge.id]),
   };
 
-  expect(result.current.graph).toEqual(expectedGraph);
+  expect(result.current.graph).toStrictEqual(expectedGraph);
 });
 
 test("should ignore blank nodes when updating graph storage", async () => {
@@ -329,5 +329,5 @@ test("should ignore blank nodes when updating graph storage", async () => {
     edges: new Set(),
   };
 
-  expect(result.current.graph).toEqual(expectedGraph);
+  expect(result.current.graph).toStrictEqual(expectedGraph);
 });

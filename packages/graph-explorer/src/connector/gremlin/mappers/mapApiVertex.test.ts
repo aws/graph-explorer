@@ -22,7 +22,7 @@ describe("mapApiVertex", () => {
 
     const mappedVertex = mapApiVertex(gVertex);
 
-    expect(mappedVertex).toEqual(vertex);
+    expect(mappedVertex).toStrictEqual(vertex);
   });
 
   it("should map a properties to Vertex attributes", () => {
@@ -64,7 +64,7 @@ describe("mapApiVertex", () => {
 
     const mappedVertex = mapApiVertex(gVertex);
 
-    expect(mappedVertex.attributes).toEqual({
+    expect(mappedVertex.attributes).toStrictEqual({
       ...expectedProperties,
       // Keeps dates as numbers
       dateValue: expectedProperties.dateValue.getTime(),
@@ -78,7 +78,7 @@ describe("mapApiVertex", () => {
 
     const mappedVertex = mapApiVertex(gVertex);
 
-    expect(mappedVertex).toEqual(vertex);
+    expect(mappedVertex).toStrictEqual(vertex);
   });
 
   it("should map a graphSON vertex without labels", () => {
@@ -88,7 +88,7 @@ describe("mapApiVertex", () => {
 
     const mappedVertex = mapApiVertex(gVertex);
 
-    expect(mappedVertex).toEqual(vertex);
+    expect(mappedVertex).toStrictEqual(vertex);
   });
 
   it("should map a graphSON vertex with name", () => {
@@ -98,6 +98,6 @@ describe("mapApiVertex", () => {
 
     const mappedVertex = mapApiVertex(gVertex, name);
 
-    expect(mappedVertex).toEqual(vertex);
+    expect(mappedVertex).toStrictEqual(vertex);
   });
 });

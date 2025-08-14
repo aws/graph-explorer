@@ -8,8 +8,10 @@ describe("entities", () => {
     it("should return empty sets for empty array", () => {
       const result = getAllGraphableEntityIds([]);
 
-      expect(result.vertexIds.size).toBe(0);
-      expect(result.edgeIds.size).toBe(0);
+      expect(result).toStrictEqual({
+        vertexIds: new Set(),
+        edgeIds: new Set(),
+      });
     });
 
     it("should collect vertex IDs from result vertices", () => {
@@ -18,7 +20,7 @@ describe("entities", () => {
 
       const result = getAllGraphableEntityIds([vertex1, vertex2]);
 
-      expect(result).toEqual({
+      expect(result).toStrictEqual({
         vertexIds: new Set([vertex1.id, vertex2.id]),
         edgeIds: new Set(),
       });
@@ -260,19 +262,15 @@ describe("entities", () => {
 
       const result = getAllGraphableEntities([outerBundle]);
 
-      // Check that we have the correct number of vertices and edges
-      expect(result.vertices).toHaveLength(4);
-      expect(result.edges).toHaveLength(1);
-
-      // Check that all expected vertices are present (order doesn't matter)
-      const vertexIds = result.vertices.map(v => v.id);
-      expect(vertexIds).toContain(vertex1.id);
-      expect(vertexIds).toContain(vertex2.id);
-      expect(vertexIds).toContain(edge.source.id);
-      expect(vertexIds).toContain(edge.target.id);
-
-      // Check that the edge is correct
-      expect(result.edges[0]).toStrictEqual(edge.asEdge());
+      expect(result).toStrictEqual({
+        vertices: [
+          vertex2.asVertex(),
+          vertex1.asVertex(),
+          edge.source.asVertex(),
+          edge.target.asVertex(),
+        ],
+        edges: [edge.asEdge()],
+      });
     });
 
     it("should handle empty patched bundles", () => {
@@ -309,23 +307,17 @@ describe("entities", () => {
         bundle,
       ]);
 
-      // Check that we have the correct number of vertices and edges
-      expect(result.vertices).toHaveLength(6);
-      expect(result.edges).toHaveLength(2);
-
-      // Check that all expected vertices are present (order doesn't matter)
-      const vertexIds = result.vertices.map(v => v.id);
-      expect(vertexIds).toContain(standaloneVertex.id);
-      expect(vertexIds).toContain(standaloneEdge.source.id);
-      expect(vertexIds).toContain(standaloneEdge.target.id);
-      expect(vertexIds).toContain(bundledVertex.id);
-      expect(vertexIds).toContain(bundledEdge.source.id);
-      expect(vertexIds).toContain(bundledEdge.target.id);
-
-      // Check that all expected edges are present
-      const edgeIds = result.edges.map(e => e.id);
-      expect(edgeIds).toContain(standaloneEdge.id);
-      expect(edgeIds).toContain(bundledEdge.id);
+      expect(result).toStrictEqual({
+        vertices: [
+          standaloneVertex.asVertex(),
+          standaloneEdge.source.asVertex(),
+          standaloneEdge.target.asVertex(),
+          bundledVertex.asVertex(),
+          bundledEdge.source.asVertex(),
+          bundledEdge.target.asVertex(),
+        ],
+        edges: [standaloneEdge.asEdge(), bundledEdge.asEdge()],
+      });
     });
   });
 });

@@ -33,34 +33,34 @@ import { QueryEngine } from "@shared/types";
 describe("useDisplayVertexFromVertex", () => {
   it("should keep the same ID", () => {
     const vertex = createRandomVertex();
-    expect(act(vertex).id).toEqual(vertex.id);
+    expect(act(vertex).id).toStrictEqual(vertex.id);
   });
 
   it("should be a vertex", () => {
     const vertex = createRandomVertex();
-    expect(act(vertex).entityType).toEqual("vertex");
+    expect(act(vertex).entityType).toStrictEqual("vertex");
   });
 
   it("should have a display ID equal to the vertex ID", () => {
     const vertex = createRandomVertex();
-    expect(act(vertex).displayId).toEqual(getRawId(vertex.id));
+    expect(act(vertex).displayId).toStrictEqual(getRawId(vertex.id));
   });
 
   it("should have the display name be the sanitized vertex ID", () => {
     const vertex = createRandomVertex();
-    expect(act(vertex).displayName).toEqual(getRawId(vertex.id));
+    expect(act(vertex).displayName).toStrictEqual(getRawId(vertex.id));
   });
 
   it("should have the display description be the vertex type", () => {
     const vertex = createRandomVertex();
-    expect(act(vertex).displayDescription).toEqual(vertex.type);
+    expect(act(vertex).displayDescription).toStrictEqual(vertex.type);
   });
 
   it("should have the default type config when vertex type is not in the schema", () => {
     const vertex = createRandomVertex();
     const vtConfig = getDefaultVertexTypeConfig(vertex.type);
     const displayConfig = mapToDisplayVertexTypeConfig(vtConfig, t => t);
-    expect(act(vertex).typeConfig).toEqual(displayConfig);
+    expect(act(vertex).typeConfig).toStrictEqual(displayConfig);
   });
 
   it("should use the type config from the merged schema", () => {
@@ -80,7 +80,7 @@ describe("useDisplayVertexFromVertex", () => {
       dbState
     );
 
-    expect(result.current.typeConfig).toEqual(expectedTypeConfig);
+    expect(result.current.typeConfig).toStrictEqual(expectedTypeConfig);
   });
 
   it("should use the display label from user preferences", () => {
@@ -104,7 +104,7 @@ describe("useDisplayVertexFromVertex", () => {
       dbState
     );
 
-    expect(result.current.displayTypes).toEqual(userPrefs.displayLabel);
+    expect(result.current.displayTypes).toStrictEqual(userPrefs.displayLabel);
   });
 
   it("should have display types that list all types in gremlin", () => {
@@ -122,7 +122,7 @@ describe("useDisplayVertexFromVertex", () => {
 
     expect(
       act(vertex, withSchemaAndConnection(schema, "gremlin")).displayTypes
-    ).toEqual(`${vtConfig1.type}, ${vtConfig2.type}`);
+    ).toStrictEqual(`${vtConfig1.type}, ${vtConfig2.type}`);
   });
 
   it("should have display types that list all types in sparql", () => {
@@ -150,7 +150,7 @@ describe("useDisplayVertexFromVertex", () => {
 
     expect(
       act(vertex, withSchemaAndConnection(schema, "sparql")).displayTypes
-    ).toEqual(`example-class:bar, example-class:baz`);
+    ).toStrictEqual(`example-class:bar, example-class:baz`);
   });
 
   it("should have sorted attributes", () => {
@@ -163,7 +163,7 @@ describe("useDisplayVertexFromVertex", () => {
       }))
       .toSorted((a, b) => a.displayLabel.localeCompare(b.displayLabel));
 
-    expect(act(vertex).attributes).toEqual(attributes);
+    expect(act(vertex).attributes).toStrictEqual(attributes);
   });
 
   it("should format date values in attribute when type is Date", () => {
@@ -185,7 +185,7 @@ describe("useDisplayVertexFromVertex", () => {
     const actualAttribute = act(vertex, withSchema(schema)).attributes.find(
       attr => attr.name === "created"
     );
-    expect(actualAttribute?.displayValue).toEqual(
+    expect(actualAttribute?.displayValue).toStrictEqual(
       formatDate(new Date(vertex.attributes.created as any))
     );
   });
@@ -209,7 +209,7 @@ describe("useDisplayVertexFromVertex", () => {
     const actualAttribute = act(vertex, withSchema(schema)).attributes.find(
       attr => attr.name === "created"
     );
-    expect(actualAttribute?.displayValue).toEqual(
+    expect(actualAttribute?.displayValue).toStrictEqual(
       formatDate(new Date(vertex.attributes.created as any))
     );
   });
@@ -238,7 +238,7 @@ describe("useDisplayVertexFromVertex", () => {
       )
       .toSorted((a, b) => a.displayLabel.localeCompare(b.displayLabel));
 
-    expect(actualAttributesMatchingConfig).toEqual(expected);
+    expect(actualAttributesMatchingConfig).toStrictEqual(expected);
   });
 
   it("should replace uri with prefixes when available", () => {
@@ -262,8 +262,8 @@ describe("useDisplayVertexFromVertex", () => {
       vertex,
       withSchemaAndConnection(schema, "sparql")
     );
-    expect(displayVertex.displayId).toEqual("example:foo");
-    expect(displayVertex.displayTypes).toEqual("example-class:bar");
+    expect(displayVertex.displayId).toStrictEqual("example:foo");
+    expect(displayVertex.displayTypes).toStrictEqual("example-class:bar");
   });
 
   // Helpers

@@ -9,7 +9,7 @@ describe("vertexDetails", () => {
 
     const result = await vertexDetails(mockFetch, { vertexIds: [] });
 
-    expect(result.vertices).toEqual([]);
+    expect(result.vertices).toStrictEqual([]);
   });
 
   it("should return one vertex detail", async () => {
@@ -21,7 +21,7 @@ describe("vertexDetails", () => {
 
     const result = await vertexDetails(mockFetch, { vertexIds: [vertex.id] });
 
-    expect(result.vertices).toEqual([vertex]);
+    expect(result.vertices).toStrictEqual([vertex]);
   });
 
   it("should return multiple vertex details", async () => {
@@ -35,7 +35,7 @@ describe("vertexDetails", () => {
       vertexIds: vertices.map(vertex => vertex.id),
     });
 
-    expect(result.vertices).toEqual(vertices);
+    expect(result.vertices).toStrictEqual(vertices);
   });
 
   it("should throw an error when the vertex ID is not a string", async () => {

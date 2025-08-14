@@ -37,19 +37,19 @@ describe("mapResults", () => {
     it("should map vertices for vertexDetails query", () => {
       const vertices = createArray(3, () => createTestableVertex().asResult());
       const results = mapResults(createGList(vertices.map(createGVertex)));
-      expect(results).toEqual(vertices);
+      expect(results).toStrictEqual(vertices);
     });
 
     it("should map edges for edgeDetails query", () => {
       const edges = createArray(3, () => createTestableEdge().asResult());
       const results = mapResults(createGList(edges.map(createGEdge)));
-      expect(results).toEqual(edges);
+      expect(results).toStrictEqual(edges);
     });
   });
 
   it("should ignore the root g:List", () => {
     const results = mapResults(createGList([createGValue(42)]));
-    expect(results).toEqual([createResultScalar({ value: 42 })]);
+    expect(results).toStrictEqual([createResultScalar({ value: 42 })]);
   });
 
   it("should promote the values of a bundle if there is only one and it has no name", () => {
@@ -57,7 +57,7 @@ describe("mapResults", () => {
     const results = mapResults(
       createGList([createGMap({ vertex: createGVertex(vertex) })])
     );
-    expect(results).toEqual([vertex]);
+    expect(results).toStrictEqual([vertex]);
   });
 });
 
@@ -66,10 +66,10 @@ describe("mapAnyValue", () => {
     it("should map string to scalar", () => {
       const name = createRandomName("name");
       const value = createRandomName("value");
-      expect(mapAnyValue(createGValue(value))).toEqual([
+      expect(mapAnyValue(createGValue(value))).toStrictEqual([
         createResultScalar({ value }),
       ]);
-      expect(mapAnyValue(createGValue(value), name)).toEqual([
+      expect(mapAnyValue(createGValue(value), name)).toStrictEqual([
         createResultScalar({ value, name }),
       ]);
     });
@@ -77,56 +77,56 @@ describe("mapAnyValue", () => {
     it("should map boolean to scalar", () => {
       const value = createRandomBoolean();
       const results = mapAnyValue(createGValue(value));
-      expect(results).toEqual([createResultScalar({ value })]);
+      expect(results).toStrictEqual([createResultScalar({ value })]);
     });
 
     it("should map g:Int32 to scalar", () => {
       const value = createRandomInteger();
       const results = mapAnyValue(createGInt32(value));
-      expect(results).toEqual([createResultScalar({ value })]);
+      expect(results).toStrictEqual([createResultScalar({ value })]);
     });
 
     it("should map g:Double to scalar", () => {
       const value = createRandomDouble();
       const results = mapAnyValue(createGDouble(value));
-      expect(results).toEqual([createResultScalar({ value })]);
+      expect(results).toStrictEqual([createResultScalar({ value })]);
     });
 
     it("should map g:Date to scalar", () => {
       const value = new Date();
       const results = mapAnyValue(createGDate(value));
-      expect(results).toEqual([createResultScalar({ value })]);
+      expect(results).toStrictEqual([createResultScalar({ value })]);
     });
 
     it("should map g:Type to scalar", () => {
       const value = "Person";
       const results = mapAnyValue(createGType(value));
-      expect(results).toEqual([createResultScalar({ value })]);
+      expect(results).toStrictEqual([createResultScalar({ value })]);
     });
 
     it("should map g:Vertex to vertex", () => {
       const vertex = createTestableVertex().asResult();
       const results = mapAnyValue(createGVertex(vertex));
-      expect(results).toEqual([vertex]);
+      expect(results).toStrictEqual([vertex]);
     });
 
     it("should map g:Edge to edge", () => {
       const edge = createTestableEdge().asResult();
       const results = mapAnyValue(createGEdge(edge));
-      expect(results).toEqual([edge]);
+      expect(results).toStrictEqual([edge]);
     });
 
     it("should map g:Vertex without properties to a fragment", () => {
       const vertex = createTestableVertex().asFragmentResult();
       const results = mapAnyValue(createGVertex(vertex));
-      expect(results).toEqual([vertex]);
+      expect(results).toStrictEqual([vertex]);
       expect((results[0] as ResultVertex).attributes).toBeNull();
     });
 
     it("should map g:Edge without properties to a fragment", () => {
       const edge = createTestableEdge().asFragmentResult();
       const results = mapAnyValue(createGEdge(edge));
-      expect(results).toEqual([edge]);
+      expect(results).toStrictEqual([edge]);
       expect((results[0] as ResultEdge).attributes).toBeNull();
     });
 
@@ -134,7 +134,7 @@ describe("mapAnyValue", () => {
       const vertex = createTestableVertex().asResult();
       vertex.attributes = {};
       const results = mapAnyValue(createGVertex(vertex));
-      expect(results).toEqual([vertex]);
+      expect(results).toStrictEqual([vertex]);
       expect((results[0] as ResultVertex).attributes).not.toBeNull();
     });
 
@@ -142,7 +142,7 @@ describe("mapAnyValue", () => {
       const edge = createTestableEdge().asResult();
       edge.attributes = {};
       const results = mapAnyValue(createGEdge(edge));
-      expect(results).toEqual([edge]);
+      expect(results).toStrictEqual([edge]);
       expect((results[0] as ResultEdge).attributes).not.toBeNull();
     });
   });
@@ -150,13 +150,13 @@ describe("mapAnyValue", () => {
   describe("given g:List", () => {
     it("should map empty to an empty bundle", () => {
       const results = mapAnyValue(createGList([]));
-      expect(results).toEqual([]);
+      expect(results).toStrictEqual([]);
     });
 
     it("should map single item without bundle", () => {
       const vertex = createTestableVertex().asResult();
       const results = mapAnyValue(createGList([createGVertex(vertex)]));
-      expect(results).toEqual([vertex]);
+      expect(results).toStrictEqual([vertex]);
     });
 
     it("should map items in to bundle", () => {
@@ -171,7 +171,7 @@ describe("mapAnyValue", () => {
           null,
         ])
       );
-      expect(results).toEqual([
+      expect(results).toStrictEqual([
         createResultBundle({
           values: [vertex, edge, scalar, createResultScalar({ value: null })],
         }),
@@ -192,7 +192,7 @@ describe("mapAnyValue", () => {
           createGValue(scalar.value),
         ])
       );
-      expect(results).toEqual([
+      expect(results).toStrictEqual([
         createResultBundle({
           values: [vertex, edge, scalar, vertex, edge, scalar],
         }),
@@ -203,7 +203,7 @@ describe("mapAnyValue", () => {
   describe("given g:Set", () => {
     it("should ignore empty g:Set", () => {
       const results = mapAnyValue(createGSet([]));
-      expect(results).toEqual([]);
+      expect(results).toStrictEqual([]);
     });
 
     it("should map items in to bundle", () => {
@@ -218,7 +218,7 @@ describe("mapAnyValue", () => {
           null,
         ])
       );
-      expect(results).toEqual([
+      expect(results).toStrictEqual([
         createResultBundle({
           values: [vertex, edge, scalar, createResultScalar({ value: null })],
         }),
@@ -229,7 +229,7 @@ describe("mapAnyValue", () => {
   describe("given g:Map", () => {
     it("should ignore empty g:Map", () => {
       const results = mapAnyValue(createGMap({}));
-      expect(results).toEqual([]);
+      expect(results).toStrictEqual([]);
     });
 
     it("should map g:Map keys and values", () => {
@@ -249,7 +249,7 @@ describe("mapAnyValue", () => {
         })
       );
 
-      expect(results).toEqual([
+      expect(results).toStrictEqual([
         createResultBundle({
           values: [vertex, edge, scalarString, scalarNull],
         }),
@@ -261,7 +261,7 @@ describe("mapAnyValue", () => {
         "@type": "g:Map",
         "@value": [createGInt32(1), "value1", createGType("ID"), "value2"],
       });
-      expect(results).toEqual([
+      expect(results).toStrictEqual([
         createResultBundle({
           values: [
             createResultScalar({ value: "value1", name: "1" }),
@@ -276,7 +276,7 @@ describe("mapAnyValue", () => {
         "@type": "g:Map",
         "@value": [createGType("id"), "1", createGType("label"), "Foo::Bar"],
       });
-      expect(results).toEqual([
+      expect(results).toStrictEqual([
         createResultBundle({
           values: [
             createResultScalar({ value: "1", name: "id" }),
@@ -293,7 +293,7 @@ describe("mapAnyValue", () => {
           code: createGList(["ATL"]),
         })
       );
-      expect(results).toEqual([
+      expect(results).toStrictEqual([
         createResultBundle({
           values: [
             createResultScalar({ value: "Atlanta", name: "city" }),
@@ -307,7 +307,7 @@ describe("mapAnyValue", () => {
   describe("given g:BulkSet", () => {
     it("should ignore empty g:BulkSet", () => {
       const results = mapAnyValue(createGBulkSet({}));
-      expect(results).toEqual([]);
+      expect(results).toStrictEqual([]);
     });
 
     it("should map g:BulkSet keys and values", () => {
@@ -327,7 +327,7 @@ describe("mapAnyValue", () => {
         })
       );
 
-      expect(results).toEqual([
+      expect(results).toStrictEqual([
         createResultBundle({
           values: [vertex, edge, scalarString, scalarNull],
         }),
@@ -339,7 +339,7 @@ describe("mapAnyValue", () => {
         "@type": "g:BulkSet",
         "@value": [createGInt32(1), "value1", createGType("ID"), "value2"],
       });
-      expect(results).toEqual([
+      expect(results).toStrictEqual([
         createResultBundle({
           values: [
             createResultScalar({ value: "value1", name: "1" }),
@@ -354,7 +354,7 @@ describe("mapAnyValue", () => {
         "@type": "g:BulkSet",
         "@value": [createGType("id"), "1", createGType("label"), "Foo::Bar"],
       });
-      expect(results).toEqual([
+      expect(results).toStrictEqual([
         createResultBundle({
           values: [
             createResultScalar({ value: "1", name: "id" }),
@@ -368,7 +368,7 @@ describe("mapAnyValue", () => {
   describe("given g:Path", () => {
     it("should map empty to an empty bundle", () => {
       const results = mapAnyValue(createGPath([]));
-      expect(results).toEqual([createResultBundle({ values: [] })]);
+      expect(results).toStrictEqual([createResultBundle({ values: [] })]);
     });
 
     it("should map items in to bundle", () => {
@@ -376,7 +376,7 @@ describe("mapAnyValue", () => {
       const edge = createTestableEdge().asResult();
       const scalar = createResultScalar({ value: createRandomScalarValue() });
       const results = mapAnyValue(createGPath([vertex, edge, scalar]));
-      expect(results).toEqual([
+      expect(results).toStrictEqual([
         createResultBundle({
           values: [vertex, edge, scalar],
         }),
@@ -391,7 +391,7 @@ describe("mapAnyValue", () => {
         value: createRandomScalarValue(),
       });
       const results = mapAnyValue(createGPath([vertex, edge, scalar]));
-      expect(results).toEqual([
+      expect(results).toStrictEqual([
         createResultBundle({
           values: [vertex, edge, scalar],
         }),
@@ -409,7 +409,7 @@ describe("mapAnyValue", () => {
           }),
         ])
       );
-      expect(results).toEqual([
+      expect(results).toStrictEqual([
         createResultBundle({
           values: [
             createResultScalar({ value: 100, name: "total" }),
@@ -428,7 +428,7 @@ describe("mapAnyValue", () => {
           }),
         })
       );
-      expect(results).toEqual([
+      expect(results).toStrictEqual([
         createResultBundle({
           name: "user",
           values: [
@@ -449,7 +449,7 @@ describe("mapAnyValue", () => {
           ]),
         })
       );
-      expect(results).toEqual([
+      expect(results).toStrictEqual([
         createResultBundle({
           name: "numbers",
           values: [
@@ -467,7 +467,7 @@ describe("mapAnyValue", () => {
           tags: createGSet(["tag1", "tag2"]),
         })
       );
-      expect(results).toEqual([
+      expect(results).toStrictEqual([
         createResultBundle({
           name: "tags",
           values: [
@@ -494,7 +494,7 @@ describe("mapAnyValue", () => {
           }),
         })
       );
-      expect(results).toEqual([
+      expect(results).toStrictEqual([
         createResultBundle({
           name: "data",
           values: [

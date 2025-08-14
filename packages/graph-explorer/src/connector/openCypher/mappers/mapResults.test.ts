@@ -22,7 +22,7 @@ describe("mapResults", () => {
       results: [],
     });
 
-    expect(result).toEqual([]);
+    expect(result).toStrictEqual([]);
   });
 
   it("should map solo vertex value without bundle", () => {
@@ -35,7 +35,7 @@ describe("mapResults", () => {
       ],
     });
 
-    expect(result).toEqual([vertex]);
+    expect(result).toStrictEqual([vertex]);
   });
 
   it("should map multiple vertices to bundle", () => {
@@ -50,7 +50,7 @@ describe("mapResults", () => {
       ],
     });
 
-    expect(result).toEqual([
+    expect(result).toStrictEqual([
       createResultBundle({
         values: [vertex1, vertex2],
       }),
@@ -68,7 +68,7 @@ describe("mapResults", () => {
       ],
     });
 
-    expect(result).toEqual([edge]);
+    expect(result).toStrictEqual([edge]);
   });
 
   it("should map multiple edges to bundle", () => {
@@ -83,7 +83,7 @@ describe("mapResults", () => {
       ],
     });
 
-    expect(result).toEqual([
+    expect(result).toStrictEqual([
       createResultBundle({
         values: [edge1, edge2],
       }),
@@ -104,7 +104,7 @@ describe("mapResults", () => {
       ],
     });
 
-    expect(result).toEqual([
+    expect(result).toStrictEqual([
       createResultBundle({
         values: [
           createResultScalar({ value: expectedValue, name: "total" }),
@@ -129,7 +129,7 @@ describe("mapResults", () => {
       ],
     });
 
-    expect(result).toEqual([
+    expect(result).toStrictEqual([
       createResultBundle({
         name: "n",
         values: vertices,
@@ -148,7 +148,7 @@ describe("mapResults", () => {
       ],
     });
 
-    expect(result).toEqual([
+    expect(result).toStrictEqual([
       createResultBundle({
         name: "n",
         values: edges,
@@ -174,7 +174,7 @@ describe("mapResults", () => {
       ],
     });
 
-    expect(result).toEqual([
+    expect(result).toStrictEqual([
       createResultBundle({
         name: "n",
         values: scalars,
@@ -197,7 +197,7 @@ describe("mapResults", () => {
       ],
     });
 
-    expect(result).toEqual([
+    expect(result).toStrictEqual([
       createResultBundle({
         name: "n",
         values: [vertex, edge],
@@ -222,7 +222,7 @@ describe("mapResults", () => {
       ],
     });
 
-    expect(result).toEqual([
+    expect(result).toStrictEqual([
       createResultBundle({
         name: "n",
         values: [
@@ -252,7 +252,7 @@ describe("mapResults", () => {
       ],
     });
 
-    expect(result).toEqual([
+    expect(result).toStrictEqual([
       createResultBundle({
         name: "n",
         values: [
@@ -283,7 +283,7 @@ describe("mapResults", () => {
       ],
     });
 
-    expect(result).toEqual([
+    expect(result).toStrictEqual([
       createResultBundle({
         name: "outer",
         values: [
@@ -311,7 +311,7 @@ describe("mapResults", () => {
       ],
     });
 
-    expect(result).toEqual([
+    expect(result).toStrictEqual([
       createResultBundle({
         name: "collect",
         values: [createResultScalar({ value: expectedValue })],
@@ -330,7 +330,7 @@ describe("mapResults", () => {
       ],
     });
 
-    expect(result).toEqual([
+    expect(result).toStrictEqual([
       createResultBundle({
         name: "collect",
         values: [
@@ -356,7 +356,7 @@ describe("mapResults", () => {
       ],
     });
 
-    expect(result).toEqual([
+    expect(result).toStrictEqual([
       createResultBundle({
         values: [
           createResultScalar({ value: 42, name: "count" }),
@@ -380,7 +380,7 @@ describe("mapResults", () => {
       ],
     });
 
-    expect(result).toEqual([
+    expect(result).toStrictEqual([
       createResultBundle({
         name: "user",
         values: [
@@ -401,7 +401,7 @@ describe("mapResults", () => {
       ],
     });
 
-    expect(result).toEqual([
+    expect(result).toStrictEqual([
       createResultBundle({
         values: [
           createResultBundle({
@@ -450,7 +450,7 @@ describe("mapResults", () => {
 
     // Should create two bundles at the root level, each containing 3 entities
     expect(result).toHaveLength(2);
-    expect(result).toEqual([
+    expect(result).toStrictEqual([
       createResultBundle({
         values: [vertex1, edge1, vertex2],
       }),
@@ -476,7 +476,7 @@ describe("mapResults", () => {
 
     // Should create two bundles at the root level, each containing 2 scalars
     expect(result).toHaveLength(2);
-    expect(result).toEqual([
+    expect(result).toStrictEqual([
       createResultBundle({
         values: [
           createResultScalar({ value: "ATL", name: "n.code" }),

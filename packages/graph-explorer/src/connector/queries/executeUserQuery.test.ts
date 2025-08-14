@@ -23,7 +23,7 @@ describe("executeUserQuery", () => {
       executeUserQuery("query", mockUpdateSchema)
     );
 
-    expect(result).toEqual([]);
+    expect(result).toStrictEqual([]);
     expect(rawQuerySpy).toBeCalledTimes(1);
     expect(vertexDetailsSpy).toBeCalledTimes(0);
     expect(edgeDetailsSpy).toBeCalledTimes(0);
@@ -48,7 +48,7 @@ describe("executeUserQuery", () => {
       executeUserQuery("query", mockUpdateSchema)
     );
 
-    expect(result).toEqual([vertex.asPatchedResult()]);
+    expect(result).toStrictEqual([vertex.asPatchedResult()]);
     expect(rawQuerySpy).toBeCalledTimes(1);
     expect(vertexDetailsSpy).toBeCalledTimes(0);
     expect(edgeDetailsSpy).toBeCalledTimes(0);
@@ -74,7 +74,7 @@ describe("executeUserQuery", () => {
       executeUserQuery("query", mockUpdateSchema)
     );
 
-    expect(result).toEqual([vertex.asPatchedResult()]);
+    expect(result).toStrictEqual([vertex.asPatchedResult()]);
     expect(rawQuerySpy).toBeCalledTimes(1);
     expect(vertexDetailsSpy).toBeCalledTimes(1);
     expect(edgeDetailsSpy).toBeCalledTimes(0);
@@ -104,7 +104,7 @@ describe("executeUserQuery", () => {
       executeUserQuery("query", mockUpdateSchema)
     );
 
-    expect(result).toEqual([edge.asPatchedResult()]);
+    expect(result).toStrictEqual([edge.asPatchedResult()]);
     expect(rawQuerySpy).toBeCalledTimes(1);
     expect(vertexDetailsSpy).toBeCalledTimes(1);
     expect(vertexDetailsSpy).toBeCalledWith(
@@ -140,7 +140,7 @@ describe("executeUserQuery", () => {
     expect(edgeDetailsSpy).toBeCalledTimes(1);
     expect(vertexDetailsSpy).toBeCalledTimes(1);
     expect(rawQuerySpy).toBeCalledTimes(1);
-    expect(result).toEqual([edge.asPatchedResult()]);
+    expect(result).toStrictEqual([edge.asPatchedResult()]);
     expect(mockUpdateSchema).toHaveBeenCalledExactlyOnceWith(
       getAllGraphableEntities(result)
     );
@@ -213,7 +213,7 @@ describe("executeUserQuery", () => {
       executeUserQuery("query", mockUpdateSchema)
     );
 
-    expect(result).toEqual([
+    expect(result).toStrictEqual([
       vertex1.asPatchedResult(),
       vertex2.asPatchedResult(),
       edge.asPatchedResult(),

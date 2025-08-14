@@ -18,7 +18,7 @@ test("maps empty vertex", () => {
   };
   const result = mapApiVertex(input);
 
-  expect(result).toEqual(
+  expect(result).toStrictEqual(
     createResultVertex({
       id: "",
       attributes: {},
@@ -40,7 +40,7 @@ test("maps known property types", () => {
     },
   } satisfies OCVertex;
   const result = mapApiVertex(input);
-  expect(result).toEqual(
+  expect(result).toStrictEqual(
     createResultVertex({
       id: "1",
       types: ["airport"],
@@ -66,7 +66,7 @@ test("maps with name", () => {
 
   const result = mapApiVertex(input, name);
 
-  expect(result).toEqual(
+  expect(result).toStrictEqual(
     createResultVertex({
       id: "1",
       name,
@@ -99,7 +99,7 @@ test("maps airport node", () => {
 
   const result = mapApiVertex(input);
 
-  expect(result).toEqual(
+  expect(result).toStrictEqual(
     createResultVertex({
       id: "1",
       types: ["airport"],

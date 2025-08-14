@@ -9,7 +9,7 @@ describe("mapApiEdge", () => {
 
     const mappedEdge = mapApiEdge(gEdge);
 
-    expect(mappedEdge).toEqual(edge);
+    expect(mappedEdge).toStrictEqual(edge);
   });
 
   it("should map a graphSON edge to a fragment", () => {
@@ -19,7 +19,7 @@ describe("mapApiEdge", () => {
 
     const mappedEdge = mapApiEdge(gEdge);
 
-    expect(mappedEdge).toEqual(edge);
+    expect(mappedEdge).toStrictEqual(edge);
   });
 
   it("should map a graphSON edge with name", () => {
@@ -29,6 +29,6 @@ describe("mapApiEdge", () => {
 
     const mappedEdge = mapApiEdge(gEdge, name);
 
-    expect(mappedEdge).toEqual(edge);
+    expect(mappedEdge).toStrictEqual(edge);
   });
 });

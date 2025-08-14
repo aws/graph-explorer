@@ -8,7 +8,7 @@ import { edgeDetails } from "./edgeDetails";
 describe("edgeDetails", () => {
   it("should return empty when request is empty", () => {
     const result = edgeDetails({ edgeIds: [] });
-    expect(result.edges).toEqual([]);
+    expect(result.edges).toStrictEqual([]);
   });
 
   it("should return the edge details", () => {
@@ -17,7 +17,7 @@ describe("edgeDetails", () => {
       createRandomVertexForRdf()
     );
     const result = edgeDetails({ edgeIds: [edge.id] });
-    expect(result.edges).toEqual([edge]);
+    expect(result.edges).toStrictEqual([edge]);
   });
 
   it("should return multiple details when request includes multiple IDs", () => {
@@ -32,7 +32,7 @@ describe("edgeDetails", () => {
 
     const result = edgeDetails({ edgeIds: [edge1.id, edge2.id] });
 
-    expect(result.edges).toEqual([edge1, edge2]);
+    expect(result.edges).toStrictEqual([edge1, edge2]);
   });
 
   it("should throw an error when the edge ID is not in the RDF edge ID format", () => {

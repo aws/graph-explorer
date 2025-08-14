@@ -10,7 +10,7 @@ describe("edgeDetails", () => {
       edgeIds: [],
     });
 
-    expect(result.edges).toEqual([]);
+    expect(result.edges).toStrictEqual([]);
     expect(mockFetch).not.toHaveBeenCalled();
   });
 
@@ -22,7 +22,7 @@ describe("edgeDetails", () => {
 
     const result = await edgeDetails(mockFetch, { edgeIds: [edge.id] });
 
-    expect(result.edges).toEqual([edge.asEdge()]);
+    expect(result.edges).toStrictEqual([edge.asEdge()]);
   });
 
   it("should return multiple details when request includes multiple IDs", async () => {
@@ -38,7 +38,7 @@ describe("edgeDetails", () => {
       edgeIds: [edge1.id, edge2.id],
     });
 
-    expect(result.edges).toEqual([edge1.asEdge(), edge2.asEdge()]);
+    expect(result.edges).toStrictEqual([edge1.asEdge(), edge2.asEdge()]);
   });
 });
 
