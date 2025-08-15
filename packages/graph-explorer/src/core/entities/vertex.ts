@@ -55,7 +55,7 @@ export type ResultVertex = {
   /**
    * The name of the vertex in the original result set.
    */
-  name: string | null;
+  name?: string;
 
   /**
    * In gremlin, a node can have multiple labels (types).
@@ -70,7 +70,7 @@ export type ResultVertex = {
    * - For PG, nodes can contain attributes.
    * - For RDF, subjects can be connected to other subjects which are literals
    */
-  attributes: EntityProperties | null;
+  attributes?: EntityProperties;
   /**
    * Flag to mark the resource as blank node in RDF.
    */

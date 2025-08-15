@@ -10,7 +10,7 @@ export function VertexRow({
   ...props
 }: {
   vertex: DisplayVertex;
-  name?: string | null;
+  name?: string;
 } & ComponentPropsWithoutRef<"div">) {
   const resultName = name ? `${name}: ` : "";
   const nameIsSameAsTypes = vertex.displayTypes === vertex.displayName;

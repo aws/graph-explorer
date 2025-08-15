@@ -20,7 +20,7 @@ export function EdgeRow({
   edge: DisplayEdge;
   source: DisplayVertex;
   target: DisplayVertex;
-  name?: string | null;
+  name?: string;
 } & ComponentPropsWithoutRef<"div">) {
   const resultName = name ? `${name}: ` : "";
   const nameIsSameAsTypes = edge.displayTypes === edge.displayName;

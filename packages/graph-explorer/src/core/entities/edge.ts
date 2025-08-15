@@ -50,7 +50,7 @@ export type ResultEdge = {
   /**
    * The name of the vertex in the original result set.
    */
-  name: string | null;
+  name?: string;
 
   /**
    * Edge type.
@@ -71,7 +71,7 @@ export type ResultEdge = {
    * Only for PG, attributes associated to the edge. If it is null the edge is assumed to be a fragment.
    * For RDF, predicates do not have more properties than the predicate itself.
    */
-  attributes: EntityProperties | null;
+  attributes?: EntityProperties;
 };
 
 /**

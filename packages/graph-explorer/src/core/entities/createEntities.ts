@@ -8,7 +8,7 @@ import { PatchedResultVertex, ResultVertex, Vertex } from "./vertex";
  */
 export function createResultVertex(options: {
   id: EntityRawId;
-  name?: string | null;
+  name?: string;
   types?: string[];
   attributes?: EntityProperties;
   isBlankNode?: boolean;
@@ -16,9 +16,9 @@ export function createResultVertex(options: {
   return {
     entityType: "vertex",
     id: createVertexId(options.id),
-    name: options.name ?? null,
+    name: options.name,
     types: options.types ?? [],
-    attributes: options.attributes ?? null,
+    attributes: options.attributes,
     isBlankNode: options.isBlankNode ?? false,
   };
 }
@@ -28,7 +28,7 @@ export function createResultVertex(options: {
  */
 export function createPatchedResultVertex(options: {
   id: EntityRawId;
-  name?: string | null;
+  name?: string;
   types: string[];
   attributes: EntityProperties;
   isBlankNode?: boolean;
@@ -36,7 +36,7 @@ export function createPatchedResultVertex(options: {
   return {
     entityType: "vertex",
     id: createVertexId(options.id),
-    name: options.name ?? null,
+    name: options.name,
     types: options.types,
     attributes: options.attributes,
     isBlankNode: options.isBlankNode ?? false,
@@ -47,7 +47,7 @@ export function createPatchedResultVertex(options: {
 export function createVertex(options: {
   id: EntityRawId;
   types?: string[];
-  attributes?: EntityProperties | null;
+  attributes?: EntityProperties;
   isBlankNode?: boolean;
 }): Vertex {
   const types = options.types ?? [];
@@ -65,7 +65,7 @@ export function createVertex(options: {
  */
 export function createResultEdge(options: {
   id: EntityRawId;
-  name?: string | null;
+  name?: string;
   type: string;
   attributes?: EntityProperties;
   sourceId: EntityRawId;
@@ -74,11 +74,11 @@ export function createResultEdge(options: {
   return {
     entityType: "edge",
     id: createEdgeId(options.id),
-    name: options.name ?? null,
+    name: options.name,
     type: options.type,
     sourceId: createVertexId(options.sourceId),
     targetId: createVertexId(options.targetId),
-    attributes: options.attributes ?? null,
+    attributes: options.attributes,
   };
 }
 
@@ -91,12 +91,12 @@ export function createPatchedResultEdge(options: {
   attributes?: EntityProperties;
   sourceVertex: Vertex;
   targetVertex: Vertex;
-  name?: string | null;
+  name?: string;
 }): PatchedResultEdge {
   return {
     entityType: "edge",
     id: createEdgeId(options.id),
-    name: options.name ?? null,
+    name: options.name,
     type: options.type,
     sourceVertex: createPatchedResultVertex({
       ...options.sourceVertex,
@@ -118,7 +118,7 @@ export function createEdge(options: {
   type: string;
   sourceId: EntityRawId;
   targetId: EntityRawId;
-  attributes?: EntityProperties | null;
+  attributes?: EntityProperties;
 }): Edge {
   return {
     id: createEdgeId(options.id),
