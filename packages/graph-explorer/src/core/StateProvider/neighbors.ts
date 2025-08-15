@@ -217,17 +217,20 @@ const fetchedNeighborsSelector = atomFamily((id: VertexId) =>
     const neighbors = toNodeMap([]);
 
     for (const edge of edges.values()) {
-      if (edge.sourceId === id) {
-        const neighbor = nodes.get(edge.targetId);
-        if (neighbor) {
-          neighbors.set(neighbor.id, neighbor);
-        }
-      } else if (edge.targetId === id) {
-        const neighbor = nodes.get(edge.sourceId);
-        if (neighbor) {
-          neighbors.set(neighbor.id, neighbor);
-        }
+      // This edge is not related to the given vertex id
+      if (id !== edge.sourceId && id !== edge.targetId) {
+        continue;
       }
+
+      const neighborId = edge.sourceId === id ? edge.targetId : edge.sourceId;
+      const neighbor = nodes.get(neighborId);
+
+      if (!neighbor) {
+        // The neighbor is not in the graph
+        continue;
+      }
+
+      neighbors.set(neighbor.id, neighbor);
     }
 
     return neighbors.values().toArray();
