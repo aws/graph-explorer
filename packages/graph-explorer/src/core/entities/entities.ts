@@ -5,29 +5,54 @@ import { toEdgeMap, toNodeMap } from "../StateProvider";
 import { createEdge, createVertex } from "./createEntities";
 import { PatchedResultBundle, ResultBundle } from "./bundle";
 
-/** Represents the results of a graph database query, which may be a fragment. */
+/**
+ * Represents the results of a graph database query, which may be a fragment.
+ *
+ * A fragment means that some entities (vertices or edges) may not have their
+ * complete attribute data loaded yet and will need to be "patched" by fetching
+ * additional details from the database.
+ */
 export type ResultEntity =
   | ResultVertex
   | ResultEdge
   | ResultScalar
   | ResultBundle;
 
-/** Represents the results of a graph database query after the details have been patched. */
+/**
+ * Represents the results of a graph database query after the details have been patched.
+ *
+ * All entities in this union type are guaranteed to have their complete data
+ * loaded, including all attributes for vertices and edges.
+ */
 export type PatchedResultEntity =
   | PatchedResultVertex
   | PatchedResultEdge
   | ResultScalar
   | PatchedResultBundle;
 
-/** An object containing both vertices and edges. */
+/**
+ * An object containing both vertices and edges.
+ *
+ * This represents the core graph data structure used throughout the application
+ * for storing and manipulating graph data.
+ */
 export type Entities = {
+  /** Array of fully materialized vertices */
   vertices: Vertex[];
+  /** Array of fully materialized edges */
   edges: Edge[];
 };
 
-/** An object containing both vertex and edge IDs deduplicated. */
+/**
+ * An object containing both vertex and edge IDs deduplicated.
+ *
+ * This is used for efficiently tracking which entities are present in a
+ * result set without duplicating the full entity data.
+ */
 export type GraphableEntityIds = {
+  /** Set of unique vertex IDs */
   vertexIds: Set<VertexId>;
+  /** Set of unique edge IDs */
   edgeIds: Set<EdgeId>;
 };
 

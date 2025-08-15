@@ -2,17 +2,43 @@ import { getDisplayValueForScalar } from "./scalar";
 import { PatchedResultEntity, ResultEntity } from "./entities";
 import { NBSP } from "@/utils";
 
+/**
+ * Represents a collection of values. This can be vertices, edges, or just a
+ * list of scalar values like an array or a map. It can also include other
+ * bundles.
+ */
 export type ResultBundle = {
+  /**
+   * Indicates the type in order to discriminate from other result types in
+   * unions.
+   */
   entityType: "bundle";
+
+  /**
+   * The name of the bundle in the original result set.
+   */
   name?: string;
+
+  /**
+   * The values contained in the bundle.
+   */
   values: ResultEntity[];
 };
 
+/**
+ * A `ResultBundle` where all the values have been fully patched.
+ */
 export type PatchedResultBundle = Omit<ResultBundle, "values"> & {
   values: PatchedResultEntity[];
 };
 
-/** Constructs a Bundle instance from the given name and values. */
+/**
+ * Constructs a ResultBundle instance from the given name and values.
+ *
+ * @param name - Optional name for the bundle in the result set
+ * @param values - Array of result entities to include in the bundle
+ * @returns A new ResultBundle instance
+ */
 export function createResultBundle({
   name,
   values,
@@ -27,6 +53,13 @@ export function createResultBundle({
   };
 }
 
+/**
+ * Constructs a PatchedResultBundle instance from the given name and values.
+ *
+ * @param name - Optional name for the bundle in the result set
+ * @param values - Array of patched result entities to include in the bundle
+ * @returns A new PatchedResultBundle instance
+ */
 export function createPatchedResultBundle({
   name,
   values,
@@ -51,7 +84,8 @@ export function createPatchedResultBundle({
  * - Bundles: "name: [...]" or just "[...]" if no name
  *
  * @param bundle - The bundle to format
- * @returns A formatted string with values separated by " • " (non-breaking space + bullet)
+ * @returns A formatted string with values separated by " • " (non-breaking
+ * space + bullet)
  *
  * @example
  * ```typescript
