@@ -149,13 +149,6 @@ describe("executeUserQuery", () => {
   it("should throw error if details are not found", async () => {
     const explorer = new FakeExplorer();
     const queryClient = createQueryClient({ explorer });
-    queryClient.setDefaultOptions({
-      ...queryClient.getDefaultOptions(),
-      queries: {
-        ...queryClient.getDefaultOptions().queries,
-        retry: false,
-      },
-    });
 
     const rawQuerySpy = vi.spyOn(explorer, "rawQuery");
     const vertexDetailsSpy = vi.spyOn(explorer, "vertexDetails");
