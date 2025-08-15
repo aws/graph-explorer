@@ -37,6 +37,7 @@ const fetchNeighbors = async (
     vertex: mapApiVertex(item["@value"][1]),
     edges: item["@value"][3]["@value"].map(e => mapApiEdge(e)),
   }));
+  // Map directly to `Vertex` & `Edge` since these are guaranteed to be fully materialized
   const vertices = verticesResponse.map(r => r.vertex).map(createVertex);
   const edges = verticesResponse.flatMap(r => r.edges).map(createEdge);
 

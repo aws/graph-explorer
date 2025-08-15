@@ -72,6 +72,10 @@ export type Criterion = {
   dataType?: "String" | "Number" | "Date";
 };
 
+/**
+ * A request for the neighbors and relationships for the given vertex, filtered
+ * by the provided paramters.
+ */
 export type NeighborsRequest = {
   /**
    * Source vertex ID & type.
@@ -118,6 +122,11 @@ export type NeighborsRequest = {
   offset?: number;
 };
 
+/**
+ * A response with the neighbors and relationships for a given `NeighborsRequest`.
+ *
+ * All vertices and edges are fully materialized.
+ */
 export type NeighborsResponse = Entities;
 
 export type NeighborCountsRequest = {
