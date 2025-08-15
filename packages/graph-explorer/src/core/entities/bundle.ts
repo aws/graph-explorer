@@ -107,23 +107,22 @@ export function getDisplayValueForBundle(
 ): string {
   return bundle.values
     .map(entity => {
-      if (entity.entityType === "scalar") {
-        return entity.name != null
-          ? `${entity.name}: ${getDisplayValueForScalar(entity.value)}`
-          : getDisplayValueForScalar(entity.value);
-      } else if (entity.entityType === "vertex") {
-        return entity.name
-          ? `${entity.name}: v(${entity.id})`
-          : `v(${entity.id})`;
-      } else if (entity.entityType === "edge") {
-        return entity.name
-          ? `${entity.name}: e(${entity.id})`
-          : `e(${entity.id})`;
-      } else if (entity.entityType === "bundle") {
-        return entity.name != null ? `${entity.name}: [...]` : `[...]`;
+      switch (entity.entityType) {
+        case "scalar":
+          return entity.name != null
+            ? `${entity.name}: ${getDisplayValueForScalar(entity.value)}`
+            : getDisplayValueForScalar(entity.value);
+        case "vertex":
+          return entity.name
+            ? `${entity.name}: v(${entity.id})`
+            : `v(${entity.id})`;
+        case "edge":
+          return entity.name
+            ? `${entity.name}: e(${entity.id})`
+            : `e(${entity.id})`;
+        case "bundle":
+          return entity.name != null ? `${entity.name}: [...]` : `[...]`;
       }
-      return null;
     })
-    .filter(Boolean)
     .join(`${NBSP}• `);
 }
