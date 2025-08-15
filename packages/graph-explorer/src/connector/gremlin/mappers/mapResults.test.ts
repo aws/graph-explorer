@@ -120,14 +120,14 @@ describe("mapAnyValue", () => {
       const vertex = createTestableVertex().asFragmentResult();
       const results = mapAnyValue(createGVertex(vertex));
       expect(results).toStrictEqual([vertex]);
-      expect((results[0] as ResultVertex).attributes).toBeNull();
+      expect((results[0] as ResultVertex).attributes).toBeUndefined();
     });
 
     it("should map g:Edge without properties to a fragment", () => {
       const edge = createTestableEdge().asFragmentResult();
       const results = mapAnyValue(createGEdge(edge));
       expect(results).toStrictEqual([edge]);
-      expect((results[0] as ResultEdge).attributes).toBeNull();
+      expect((results[0] as ResultEdge).attributes).toBeUndefined();
     });
 
     it("should map g:Vertex with empty properties", () => {
@@ -135,7 +135,7 @@ describe("mapAnyValue", () => {
       vertex.attributes = {};
       const results = mapAnyValue(createGVertex(vertex));
       expect(results).toStrictEqual([vertex]);
-      expect((results[0] as ResultVertex).attributes).not.toBeNull();
+      expect((results[0] as ResultVertex).attributes).not.toBeUndefined();
     });
 
     it("should map g:Edge with empty properties", () => {
@@ -143,7 +143,7 @@ describe("mapAnyValue", () => {
       edge.attributes = {};
       const results = mapAnyValue(createGEdge(edge));
       expect(results).toStrictEqual([edge]);
-      expect((results[0] as ResultEdge).attributes).not.toBeNull();
+      expect((results[0] as ResultEdge).attributes).not.toBeUndefined();
     });
   });
 

@@ -18,7 +18,6 @@ describe("createResultVertex", () => {
     expect(vertex).toStrictEqual({
       entityType: "vertex",
       id: "1",
-      name: null,
       types: ["Person"],
       attributes: {
         name: "Alice",
@@ -39,7 +38,6 @@ describe("createResultVertex", () => {
     expect(vertex).toStrictEqual({
       entityType: "vertex",
       id: "1",
-      name: null,
       types: ["Person", "Worker"],
       attributes: {
         name: "Alice",
@@ -59,7 +57,6 @@ describe("createResultVertex", () => {
     expect(vertex).toStrictEqual({
       entityType: "vertex",
       id: "1",
-      name: null,
       types: [],
       attributes: {
         name: "Alice",
@@ -77,9 +74,7 @@ describe("createResultVertex", () => {
     expect(vertex).toStrictEqual({
       entityType: "vertex",
       id: "1",
-      name: null,
       types: ["Person"],
-      attributes: null,
       isBlankNode: false,
     });
   });
@@ -94,7 +89,6 @@ describe("createResultVertex", () => {
     expect(vertex).toStrictEqual({
       entityType: "vertex",
       id: "1",
-      name: null,
       types: ["Person"],
       attributes: {},
       isBlankNode: false,
@@ -115,7 +109,6 @@ describe("createResultVertex", () => {
     expect(vertex).toStrictEqual({
       entityType: "vertex",
       id: "1",
-      name: null,
       types: ["Person"],
       attributes: {
         name: "Alice",
@@ -137,7 +130,6 @@ describe("createResultVertex", () => {
     expect(vertex).toStrictEqual({
       entityType: "vertex",
       id: "1",
-      name: null,
       types: ["Person"],
       attributes: {},
       isBlankNode: true,
@@ -160,7 +152,6 @@ describe("createResultEdge", () => {
     expect(edge).toStrictEqual({
       entityType: "edge",
       id: "1",
-      name: null,
       type: "WORKS_WITH",
       sourceId: "1",
       targetId: "2",
@@ -184,7 +175,6 @@ describe("createResultEdge", () => {
     expect(edge).toStrictEqual({
       entityType: "edge",
       id: "1",
-      name: null,
       type: "WORKS_WITH",
       sourceId: "1",
       targetId: "2",
@@ -208,7 +198,6 @@ describe("createResultEdge", () => {
     expect(edge).toStrictEqual({
       entityType: "edge",
       id: "1",
-      name: null,
       type: "WORKS_WITH",
       sourceId: "1",
       targetId: "2",
@@ -229,11 +218,9 @@ describe("createResultEdge", () => {
     expect(edge).toStrictEqual({
       entityType: "edge",
       id: "1",
-      name: null,
       type: "WORKS_WITH",
       sourceId: "1",
       targetId: "2",
-      attributes: null,
     });
   });
 
@@ -249,7 +236,6 @@ describe("createResultEdge", () => {
     expect(edge).toStrictEqual({
       entityType: "edge",
       id: "1",
-      name: null,
       type: "WORKS_WITH",
       sourceId: "1",
       targetId: "2",
@@ -274,7 +260,6 @@ describe("createResultEdge", () => {
     expect(edge).toStrictEqual({
       entityType: "edge",
       id: "1",
-      name: null,
       type: "WORKS_WITH",
       sourceId: "1",
       targetId: "2",

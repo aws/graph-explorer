@@ -16,9 +16,9 @@ export function createResultVertex(options: {
   return {
     entityType: "vertex",
     id: createVertexId(options.id),
-    name: options.name,
+    ...(options.name ? { name: options.name } : {}),
     types: options.types ?? [],
-    attributes: options.attributes,
+    ...(options.attributes ? { attributes: options.attributes } : {}),
     isBlankNode: options.isBlankNode ?? false,
   };
 }
@@ -28,26 +28,45 @@ export function createResultVertex(options: {
  */
 export function createPatchedResultVertex(options: {
   id: EntityRawId;
-  name?: string;
   types: string[];
   attributes: EntityProperties;
+
+  /** If not provided, then defaults to false. */
   isBlankNode?: boolean;
+
+  /**
+   * The name of the vertex provided in the query result set. This is mainly just
+   * useful for user queries.
+   */
+  name?: string;
 }): PatchedResultVertex {
   return {
     entityType: "vertex",
     id: createVertexId(options.id),
-    name: options.name,
     types: options.types,
     attributes: options.attributes,
     isBlankNode: options.isBlankNode ?? false,
+    ...(options.name ? { name: options.name } : {}),
   };
 }
 
 /** Constructs a Vertex instance from the given values. */
 export function createVertex(options: {
   id: EntityRawId;
+
+  /**
+   * The primary type (used for styling) will be the first type in the array. If
+   * no types are provided, then types will be an empty array and the primary
+   * type will be empty string.
+   */
   types?: string[];
+
+  /**
+   * If no attributes are provided, then defaults to an empty object.
+   */
   attributes?: EntityProperties;
+
+  /** If not provided, then defaults to false. */
   isBlankNode?: boolean;
 }): Vertex {
   const types = options.types ?? [];
@@ -65,20 +84,30 @@ export function createVertex(options: {
  */
 export function createResultEdge(options: {
   id: EntityRawId;
-  name?: string;
-  type: string;
-  attributes?: EntityProperties;
   sourceId: EntityRawId;
   targetId: EntityRawId;
+  type: string;
+
+  /**
+   * If no attributes are provided, then a future process will fetch edge
+   * details to get the attributes.
+   */
+  attributes?: EntityProperties;
+
+  /**
+   * The name of the edge provided in the query result set. This is mainly just
+   * useful for user queries.
+   */
+  name?: string;
 }): ResultEdge {
   return {
     entityType: "edge",
     id: createEdgeId(options.id),
-    name: options.name,
-    type: options.type,
     sourceId: createVertexId(options.sourceId),
     targetId: createVertexId(options.targetId),
-    attributes: options.attributes,
+    type: options.type,
+    ...(options.attributes ? { attributes: options.attributes } : {}),
+    ...(options.name ? { name: options.name } : {}),
   };
 }
 
@@ -87,16 +116,20 @@ export function createResultEdge(options: {
  */
 export function createPatchedResultEdge(options: {
   id: EntityRawId;
-  type: string;
-  attributes?: EntityProperties;
   sourceVertex: Vertex;
   targetVertex: Vertex;
+  type: string;
+  attributes: EntityProperties;
+
+  /**
+   * The name of the edge provided in the query result set. This is mainly just
+   * useful for user queries.
+   */
   name?: string;
 }): PatchedResultEdge {
   return {
     entityType: "edge",
     id: createEdgeId(options.id),
-    name: options.name,
     type: options.type,
     sourceVertex: createPatchedResultVertex({
       ...options.sourceVertex,
@@ -109,6 +142,7 @@ export function createPatchedResultEdge(options: {
       name: "target",
     }),
     attributes: options.attributes ?? {},
+    ...(options.name ? { name: options.name } : {}),
   };
 }
 
