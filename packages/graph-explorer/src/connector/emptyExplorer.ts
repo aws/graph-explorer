@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/require-await */
-import { Explorer, toMappedQueryResults } from "./useGEFetchTypes";
+import { Explorer } from "./useGEFetchTypes";
 
 /**
  * Empty explorer for when there is no connection.
@@ -25,10 +25,10 @@ export const emptyExplorer: Explorer = {
       total: 0,
     };
   },
-  fetchNeighbors: async () => toMappedQueryResults({}),
+  fetchNeighbors: async () => ({ vertices: [], edges: [] }),
   neighborCounts: async () => ({ counts: [] }),
-  keywordSearch: async () => toMappedQueryResults({}),
+  keywordSearch: async () => ({ vertices: [] }),
   vertexDetails: async () => ({ vertices: [] }),
   edgeDetails: async () => ({ edges: [] }),
-  rawQuery: async () => toMappedQueryResults({}),
+  rawQuery: async () => [],
 };

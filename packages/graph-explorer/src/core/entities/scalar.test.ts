@@ -4,98 +4,98 @@ import {
   createRandomInteger,
 } from "@shared/utils/testing";
 import {
-  createScalar,
+  createResultScalar,
   createTypedValue,
   getDisplayValueForScalar,
-  Scalar,
+  ResultScalar,
 } from "./scalar";
 import { MISSING_DISPLAY_VALUE } from "@/utils";
 
 describe("scalar", () => {
   describe("createScalar", () => {
     it("should create a null scalar", () => {
-      const result = createScalar({ value: null });
+      const result = createResultScalar({ value: null });
 
       expect(result).toEqual({
         entityType: "scalar",
         value: null,
-      } satisfies Scalar);
+      } satisfies ResultScalar);
     });
 
     it("should create a string scalar", () => {
-      const result = createScalar({ value: "hello world" });
+      const result = createResultScalar({ value: "hello world" });
 
       expect(result).toEqual({
         entityType: "scalar",
         value: "hello world",
-      } satisfies Scalar);
+      } satisfies ResultScalar);
     });
 
     it("should create a string scalar from empty string", () => {
-      const result = createScalar({ value: "" });
+      const result = createResultScalar({ value: "" });
 
       expect(result).toEqual({
         entityType: "scalar",
         value: "",
-      } satisfies Scalar);
+      } satisfies ResultScalar);
     });
 
     it("should create a number scalar from integer", () => {
       const value = createRandomInteger();
-      const result = createScalar({ value });
+      const result = createResultScalar({ value });
 
       expect(result).toEqual({
         entityType: "scalar",
         value: value,
-      } satisfies Scalar);
+      } satisfies ResultScalar);
     });
 
     it("should create a number scalar from double", () => {
       const value = createRandomDouble();
-      const result = createScalar({ value });
+      const result = createResultScalar({ value });
 
       expect(result).toEqual({
         entityType: "scalar",
         value: value,
-      } satisfies Scalar);
+      } satisfies ResultScalar);
     });
 
     it("should create a number scalar from zero", () => {
-      const result = createScalar({ value: 0 });
+      const result = createResultScalar({ value: 0 });
 
       expect(result).toEqual({
         entityType: "scalar",
         value: 0,
-      } satisfies Scalar);
+      } satisfies ResultScalar);
     });
 
     it("should create a number scalar from negative number", () => {
-      const result = createScalar({ value: -100 });
+      const result = createResultScalar({ value: -100 });
 
       expect(result).toEqual({
         entityType: "scalar",
         value: -100,
-      } satisfies Scalar);
+      } satisfies ResultScalar);
     });
 
     it("should create a boolean scalar", () => {
       const value = createRandomBoolean();
-      const result = createScalar({ value });
+      const result = createResultScalar({ value });
 
       expect(result).toEqual({
         entityType: "scalar",
         value,
-      } satisfies Scalar);
+      } satisfies ResultScalar);
     });
 
     it("should create a date scalar", () => {
       const date = new Date("2023-12-25T10:30:00Z");
-      const result = createScalar({ value: date });
+      const result = createResultScalar({ value: date });
 
       expect(result).toEqual({
         entityType: "scalar",
         value: date,
-      } satisfies Scalar);
+      } satisfies ResultScalar);
     });
   });
 

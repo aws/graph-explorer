@@ -30,7 +30,7 @@ describe("edgeDetailsQuery", () => {
 
     const result = await queryClient.fetchQuery(edgeDetailsQuery(edge.id));
 
-    expect(result.edge).toEqual(edge);
+    expect(result.edge).toStrictEqual(edge);
     expect(edgeDetailsSpy).toBeCalledTimes(1);
   });
 });

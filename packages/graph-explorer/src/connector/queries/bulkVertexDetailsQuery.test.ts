@@ -13,7 +13,7 @@ describe("bulkVertexDetailsQuery", () => {
 
     const result = await queryClient.fetchQuery(bulkVertexDetailsQuery([]));
 
-    expect(result.vertices).toEqual([]);
+    expect(result.vertices).toStrictEqual([]);
     expect(vertexDetailsSpy).toBeCalledTimes(0);
   });
 
@@ -33,13 +33,13 @@ describe("bulkVertexDetailsQuery", () => {
       bulkVertexDetailsQuery([vertex.id])
     );
 
-    expect(result.vertices).toEqual([vertex]);
+    expect(result.vertices).toStrictEqual([vertex]);
     expect(vertexDetailsSpy).toBeCalledTimes(0);
 
     // Ensure vertex is still in the cache
     expect(
       queryClient.getQueryData(vertexDetailsQuery(vertex.id).queryKey)
-    ).toEqual({ vertex });
+    ).toStrictEqual({ vertex });
   });
 
   it("should fetch details for input", async () => {
@@ -54,13 +54,13 @@ describe("bulkVertexDetailsQuery", () => {
       bulkVertexDetailsQuery([vertex.id])
     );
 
-    expect(result.vertices).toEqual([vertex]);
+    expect(result.vertices).toStrictEqual([vertex]);
     expect(vertexDetailsSpy).toBeCalledTimes(1);
 
     // Ensure vertex is added to the cache
     expect(
       queryClient.getQueryData(vertexDetailsQuery(vertex.id).queryKey)
-    ).toEqual({ vertex });
+    ).toStrictEqual({ vertex });
   });
 
   it("should combine cached and fetched results", async () => {
@@ -83,16 +83,16 @@ describe("bulkVertexDetailsQuery", () => {
       bulkVertexDetailsQuery([vertexCached.id, vertexFetched.id])
     );
 
-    expect(result.vertices).toEqual([vertexCached, vertexFetched]);
+    expect(result.vertices).toStrictEqual([vertexCached, vertexFetched]);
     expect(vertexDetailsSpy).toBeCalledTimes(1);
 
     // Ensure both vertices are added to the cache
     expect(
       queryClient.getQueryData(vertexDetailsQuery(vertexCached.id).queryKey)
-    ).toEqual({ vertex: vertexCached });
+    ).toStrictEqual({ vertex: vertexCached });
     expect(
       queryClient.getQueryData(vertexDetailsQuery(vertexFetched.id).queryKey)
-    ).toEqual({ vertex: vertexFetched });
+    ).toStrictEqual({ vertex: vertexFetched });
   });
 
   it("should batch fetches for input", async () => {
@@ -111,14 +111,14 @@ describe("bulkVertexDetailsQuery", () => {
       bulkVertexDetailsQuery(vertices.map(v => v.id))
     );
 
-    expect(result.vertices).toEqual(vertices);
+    expect(result.vertices).toStrictEqual(vertices);
     expect(vertexDetailsSpy).toBeCalledTimes(4);
 
     // Ensure all are added to the cache
     for (const vertex of vertices) {
       expect(
         queryClient.getQueryData(vertexDetailsQuery(vertex.id).queryKey)
-      ).toEqual({ vertex });
+      ).toStrictEqual({ vertex });
     }
   });
 });

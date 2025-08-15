@@ -4,7 +4,7 @@ import {
   createGInt32,
   createGVertex,
   createGVertexProperty,
-  createRandomVertex,
+  createTestableVertex,
 } from "@/utils/testing";
 import mapApiVertex from "./mapApiVertex";
 import {
@@ -17,16 +17,16 @@ import {
 
 describe("mapApiVertex", () => {
   it("should map a graphSON vertex to a vertex", () => {
-    const vertex = createRandomVertex();
+    const vertex = createTestableVertex().asResult();
     const gVertex = createGVertex(vertex);
 
     const mappedVertex = mapApiVertex(gVertex);
 
-    expect(mappedVertex).toEqual(vertex);
+    expect(mappedVertex).toStrictEqual(vertex);
   });
 
   it("should map a properties to Vertex attributes", () => {
-    const vertex = createRandomVertex();
+    const vertex = createTestableVertex().asResult();
     const gVertex = createGVertex(vertex);
     const expectedProperties = {
       stringValue: createRandomName("stringValue"),
@@ -64,7 +64,7 @@ describe("mapApiVertex", () => {
 
     const mappedVertex = mapApiVertex(gVertex);
 
-    expect(mappedVertex.attributes).toEqual({
+    expect(mappedVertex.attributes).toStrictEqual({
       ...expectedProperties,
       // Keeps dates as numbers
       dateValue: expectedProperties.dateValue.getTime(),
@@ -72,25 +72,32 @@ describe("mapApiVertex", () => {
   });
 
   it("should map a graphSON vertex to a fragment", () => {
-    const vertex = createRandomVertex();
-    vertex.__isFragment = true;
-    vertex.attributes = {};
+    const vertex = createTestableVertex().asFragmentResult();
     const gVertex = createGVertex(vertex);
     delete gVertex["@value"].properties;
 
     const mappedVertex = mapApiVertex(gVertex);
 
-    expect(mappedVertex).toEqual(vertex);
+    expect(mappedVertex).toStrictEqual(vertex);
   });
 
   it("should map a graphSON vertex without labels", () => {
-    const vertex = createRandomVertex();
-    vertex.type = "";
+    const vertex = createTestableVertex().asResult();
     vertex.types = [];
     const gVertex = createGVertex(vertex);
 
     const mappedVertex = mapApiVertex(gVertex);
 
-    expect(mappedVertex).toEqual(vertex);
+    expect(mappedVertex).toStrictEqual(vertex);
+  });
+
+  it("should map a graphSON vertex with name", () => {
+    const name = createRandomName("vertexName");
+    const vertex = createTestableVertex().asResult(name);
+    const gVertex = createGVertex(vertex);
+
+    const mappedVertex = mapApiVertex(gVertex, name);
+
+    expect(mappedVertex).toStrictEqual(vertex);
   });
 });

@@ -28,29 +28,29 @@ import { QueryEngine } from "@shared/types";
 describe("useDisplayEdgeFromEdge", () => {
   it("should keep the same ID", () => {
     const edge = createRandomEdge();
-    expect(act(edge).id).toEqual(edge.id);
+    expect(act(edge).id).toStrictEqual(edge.id);
   });
 
   it("should be an edge", () => {
     const edge = createRandomEdge();
-    expect(act(edge).entityType).toEqual("edge");
+    expect(act(edge).entityType).toStrictEqual("edge");
   });
 
   it("should have a display ID equal to the edge ID", () => {
     const edge = createRandomEdge();
-    expect(act(edge).displayId).toEqual(getRawId(edge.id));
+    expect(act(edge).displayId).toStrictEqual(getRawId(edge.id));
   });
 
   it("should have the display name be the types", () => {
     const edge = createRandomEdge();
-    expect(act(edge).displayName).toEqual(edge.type);
+    expect(act(edge).displayName).toStrictEqual(edge.type);
   });
 
   it("should contain the ID of the source and target vertices", () => {
     const edge = createRandomEdge();
 
-    expect(act(edge).sourceId).toEqual(String(edge.sourceId));
-    expect(act(edge).targetId).toEqual(String(edge.targetId));
+    expect(act(edge).sourceId).toStrictEqual(String(edge.sourceId));
+    expect(act(edge).targetId).toStrictEqual(String(edge.targetId));
   });
 
   it("should have display name that matches the attribute value", () => {
@@ -69,7 +69,7 @@ describe("useDisplayEdgeFromEdge", () => {
 
     expect(
       act(edge, withSchemaAndConnection(schema, "gremlin")).displayName
-    ).toEqual(`${attribute.value}`);
+    ).toStrictEqual(`${attribute.value}`);
   });
 
   it("should have display name that matches the types when displayNameAttribute is 'type'", () => {
@@ -83,14 +83,14 @@ describe("useDisplayEdgeFromEdge", () => {
 
     expect(
       act(edge, withSchemaAndConnection(schema, "gremlin")).displayName
-    ).toEqual(edge.type);
+    ).toStrictEqual(edge.type);
   });
 
   it("should have the default type config when edge type is not in the schema", () => {
     const edge = createRandomEdge();
     const etConfig = getDefaultEdgeTypeConfig(edge.type);
     const displayConfig = mapToDisplayEdgeTypeConfig(etConfig, t => t);
-    expect(act(edge).typeConfig).toEqual(displayConfig);
+    expect(act(edge).typeConfig).toStrictEqual(displayConfig);
   });
 
   it("should use the type config from the merged schema", () => {
@@ -107,7 +107,7 @@ describe("useDisplayEdgeFromEdge", () => {
 
     expect(
       act(edge, withSchemaAndConnection(schema, "gremlin")).typeConfig
-    ).toEqual(expectedTypeConfig);
+    ).toStrictEqual(expectedTypeConfig);
   });
 
   it("should ignore display label from schema", () => {
@@ -124,7 +124,7 @@ describe("useDisplayEdgeFromEdge", () => {
       dbState
     );
 
-    expect(result.current.displayTypes).toEqual(edge.type);
+    expect(result.current.displayTypes).toStrictEqual(edge.type);
   });
 
   it("should use display label from user preferences", () => {
@@ -146,7 +146,7 @@ describe("useDisplayEdgeFromEdge", () => {
       dbState
     );
 
-    expect(result.current.displayTypes).toEqual(edgePrefs.displayLabel);
+    expect(result.current.displayTypes).toStrictEqual(edgePrefs.displayLabel);
   });
 
   it("should have display types that list all types in gremlin", () => {
@@ -161,7 +161,7 @@ describe("useDisplayEdgeFromEdge", () => {
 
     expect(
       act(edge, withSchemaAndConnection(schema, "gremlin")).displayTypes
-    ).toEqual(etConfig.type);
+    ).toStrictEqual(etConfig.type);
   });
 
   it("should have display types that list all types in sparql", () => {
@@ -183,7 +183,7 @@ describe("useDisplayEdgeFromEdge", () => {
 
     expect(
       act(edge, withSchemaAndConnection(schema, "sparql")).displayTypes
-    ).toEqual(`example-class:bar`);
+    ).toStrictEqual(`example-class:bar`);
   });
 
   it("should have sorted attributes", () => {
@@ -196,7 +196,7 @@ describe("useDisplayEdgeFromEdge", () => {
       }))
       .toSorted((a, b) => a.displayLabel.localeCompare(b.displayLabel));
 
-    expect(act(edge).attributes).toEqual(attributes);
+    expect(act(edge).attributes).toStrictEqual(attributes);
   });
 
   it("should format date values in attribute when type is Date", () => {
@@ -218,7 +218,7 @@ describe("useDisplayEdgeFromEdge", () => {
     const actualAttribute = act(edge, withSchema(schema)).attributes.find(
       attr => attr.name === "created"
     );
-    expect(actualAttribute?.displayValue).toEqual(
+    expect(actualAttribute?.displayValue).toStrictEqual(
       formatDate(new Date(edge.attributes.created as any))
     );
   });
@@ -242,7 +242,7 @@ describe("useDisplayEdgeFromEdge", () => {
     const actualAttribute = act(edge, withSchema(schema)).attributes.find(
       attr => attr.name === "created"
     );
-    expect(actualAttribute?.displayValue).toEqual(
+    expect(actualAttribute?.displayValue).toStrictEqual(
       formatDate(new Date(edge.attributes.created as any))
     );
   });

@@ -21,6 +21,7 @@ import { useTranslations } from "@/hooks";
 import { KeywordSearchResponse } from "@/connector";
 import { UseQueryResult } from "@tanstack/react-query";
 import { useCancelKeywordSearch } from "./useKeywordSearchQuery";
+import { createPatchedResultVertex } from "@/core";
 
 export function FilterSearchTabContent() {
   const t = useTranslations();
@@ -146,12 +147,7 @@ function SearchResultsListContainer({
     );
   }
 
-  if (
-    !query.data ||
-    (query.data.vertices.length === 0 &&
-      query.data.edges.length === 0 &&
-      query.data.scalars.length === 0)
-  ) {
+  if (!query.data || query.data.vertices.length === 0) {
     return (
       <PanelEmptyState
         title="No Results"
@@ -162,5 +158,9 @@ function SearchResultsListContainer({
     );
   }
 
-  return <SearchResultsList results={query.data} />;
+  return (
+    <SearchResultsList
+      results={query.data.vertices.map(createPatchedResultVertex)}
+    />
+  );
 }

@@ -27,7 +27,7 @@ describe("mapToDisplayAttribute", () => {
       config,
       transformNoOp
     );
-    expect(displayAttribute).toEqual({
+    expect(displayAttribute).toStrictEqual({
       name,
       displayLabel: name,
       displayValue: value,
@@ -46,7 +46,7 @@ describe("mapToDisplayAttribute", () => {
       config,
       transformNoOp
     );
-    expect(displayAttribute).toEqual({
+    expect(displayAttribute).toStrictEqual({
       name,
       displayLabel: name,
       displayValue: String(value),
@@ -65,7 +65,7 @@ describe("mapToDisplayAttribute", () => {
       config,
       transformNoOp
     );
-    expect(displayAttribute).toEqual({
+    expect(displayAttribute).toStrictEqual({
       name,
       displayLabel: name,
       displayValue: String(value),
@@ -84,7 +84,7 @@ describe("mapToDisplayAttribute", () => {
       config,
       transformNoOp
     );
-    expect(displayAttribute).toEqual({
+    expect(displayAttribute).toStrictEqual({
       name,
       displayLabel: name,
       displayValue: formatDate(value),
@@ -100,7 +100,7 @@ describe("mapToDisplayAttribute", () => {
       null,
       transformNoOp
     );
-    expect(displayAttribute).toEqual({
+    expect(displayAttribute).toStrictEqual({
       name,
       displayLabel: name,
       displayValue: value,
@@ -119,7 +119,7 @@ describe("mapToDisplayAttribute", () => {
       config,
       transformNoOp
     );
-    expect(displayAttribute).toEqual({
+    expect(displayAttribute).toStrictEqual({
       name,
       displayLabel: name,
       displayValue: MISSING_DISPLAY_VALUE,
@@ -137,7 +137,7 @@ describe("mapToDisplayAttribute", () => {
       config,
       transform
     );
-    expect(displayAttribute).toEqual({
+    expect(displayAttribute).toStrictEqual({
       name: config.name,
       displayLabel: "prefixed value",
       displayValue: value,
@@ -185,7 +185,7 @@ describe("getSortedDisplayAttributes", () => {
       mapToDisplayAttribute(matchedName, value, matchedConfig, transformNoOp),
     ].toSorted((a, b) => a.displayLabel.localeCompare(b.displayLabel));
 
-    expect(sortedDisplayAttributes).toEqual(expected);
+    expect(sortedDisplayAttributes).toStrictEqual(expected);
   });
 });
 

@@ -1,10 +1,17 @@
 import {
   SearchResult,
+  SearchResultAttribute,
+  SearchResultAttributeName,
+  SearchResultAttributeValue,
   SearchResultSubtitle,
   SearchResultSymbol,
   SearchResultTitle,
 } from "@/components";
-import { createTypedValue, getDisplayValueForScalar, Scalar } from "@/core";
+import {
+  createTypedValue,
+  getDisplayValueForScalar,
+  ResultScalar,
+} from "@/core";
 import {
   BanIcon,
   CalendarIcon,
@@ -14,7 +21,7 @@ import {
   QuoteIcon,
 } from "lucide-react";
 
-function getIcon(scalar: Scalar) {
+function getIcon(scalar: ResultScalar) {
   const typedValue = createTypedValue(scalar.value);
   switch (typedValue.type) {
     case "string":
@@ -34,18 +41,38 @@ function getIcon(scalar: Scalar) {
   }
 }
 
-export function ScalarSearchResult({ scalar }: { scalar: Scalar }) {
+export function ScalarSearchResult({
+  scalar,
+  level,
+}: {
+  scalar: ResultScalar;
+  level: number;
+}) {
   const Icon = getIcon(scalar);
-  const title = scalar.name ?? "Scalar value";
+  const title = scalar.name;
   const subtitle = getDisplayValueForScalar(scalar.value);
 
+  if (level > 0) {
+    return (
+      <SearchResultAttribute level={level}>
+        {title && (
+          <SearchResultAttributeName>{title}</SearchResultAttributeName>
+        )}
+        <SearchResultAttributeValue>{subtitle}</SearchResultAttributeValue>
+      </SearchResultAttribute>
+    );
+  }
+
   return (
-    <SearchResult className="flex w-full flex-row items-center gap-2 p-3">
+    <SearchResult
+      level={level}
+      className="flex w-full flex-row items-center gap-2 p-3"
+    >
       <SearchResultSymbol className="text-primary-main bg-primary-main/20 rounded-lg">
         {Icon}
       </SearchResultSymbol>
       <div>
-        <SearchResultTitle>{title}</SearchResultTitle>
+        {title && <SearchResultTitle>{title}</SearchResultTitle>}
         <SearchResultSubtitle className="line-clamp-none">
           {subtitle}
         </SearchResultSubtitle>

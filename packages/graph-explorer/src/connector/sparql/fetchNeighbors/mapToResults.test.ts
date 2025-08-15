@@ -1,4 +1,3 @@
-import { toMappedQueryResults } from "@/connector";
 import { mapToResults } from "./mapToResults";
 import { Edge, EntityPropertyValue, Vertex } from "@/core";
 import {
@@ -11,37 +10,36 @@ import { rdfTypeUri } from "../types";
 describe("mapToResults", () => {
   it("should map empty data to empty results", () => {
     const result = mapToResults([]);
-    expect(result).toEqual(toMappedQueryResults({}));
+    expect(result).toStrictEqual({ vertices: [], edges: [] });
   });
   it("should map vertices to results", () => {
     const entities = createRandomEntitiesForRdf();
     const bindings = createBindings(entities.vertices, entities.edges);
     const result = mapToResults(bindings);
-    expect(result.vertices).toEqual(entities.vertices);
-    expect(result.edges).toEqual(entities.edges);
+    expect(result).toStrictEqual(entities);
   });
   it("should map blank nodes to results", () => {
     const vertex = createRandomVertexForRdf();
-    vertex.__isBlank = true;
+    vertex.isBlankNode = true;
 
     const bindings = createBindings([vertex], []);
     const result = mapToResults(bindings);
-    expect(result.vertices).toEqual([vertex]);
-    expect(result.vertices[0].__isBlank).toBe(true);
+    expect(result.vertices).toStrictEqual([vertex]);
+    expect(result.vertices[0].isBlankNode).toBe(true);
   });
   it("should map blank nodes and edges to results", () => {
     const node1 = createRandomVertexForRdf();
     const node2 = createRandomVertexForRdf();
-    node1.__isBlank = true;
-    node2.__isBlank = true;
+    node1.isBlankNode = true;
+    node2.isBlankNode = true;
 
     const vertices = [node1, node2];
     const edges = [createRandomEdgeForRdf(node1, node2)];
     const bindings = createBindings(vertices, edges);
     const result = mapToResults(bindings);
 
-    expect(result.vertices).toEqual(vertices);
-    expect(result.edges).toEqual(edges);
+    expect(result.vertices).toStrictEqual(vertices);
+    expect(result.edges).toStrictEqual(edges);
   });
 });
 
@@ -106,7 +104,7 @@ function createBindingForVertex(vertex: Vertex) {
     })),
   ].map(binding =>
     // Modify bindings to represent blank nodes
-    vertex.__isBlank
+    vertex.isBlankNode
       ? {
           ...binding,
           subject: {
@@ -127,8 +125,8 @@ function createBindingsForEdge({
   source?: Vertex;
   target?: Vertex;
 }) {
-  const isSourceBlank = source?.__isBlank ?? false;
-  const isTargetBlank = target?.__isBlank ?? false;
+  const isSourceBlank = source?.isBlankNode ?? false;
+  const isTargetBlank = target?.isBlankNode ?? false;
   return [
     // Relationship between resources
     {

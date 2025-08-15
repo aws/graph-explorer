@@ -2,7 +2,10 @@ import { createVertexId } from "@/core";
 import { calculateNeighbors, useNeighbors } from "./neighbors";
 import {
   createRandomVertex,
+  createTestableEdge,
+  createTestableVertex,
   DbState,
+  FakeExplorer,
   renderHookWithState,
 } from "@/utils/testing";
 import { NeighborCount } from "@/connector";
@@ -57,6 +60,68 @@ describe("useNeighbors", () => {
       fetched: 0,
       unfetched: 0,
       byType: new Map(),
+    });
+  });
+
+  it("should return fetched neighbor counts", async () => {
+    const explorer = new FakeExplorer();
+    const dbState = new DbState(explorer);
+    const vertex = createTestableVertex();
+
+    const edge1 = createTestableEdge().withSource(vertex);
+    const edge2 = createTestableEdge().withTarget(vertex);
+
+    dbState.addTestableEdgeToGraph(edge1);
+    dbState.addTestableEdgeToGraph(edge2);
+    explorer.addTestableEdge(edge1);
+    explorer.addTestableEdge(edge2);
+
+    const { result } = renderHookWithState(
+      () => useNeighbors(vertex.id),
+      dbState
+    );
+
+    await waitFor(() => {
+      expect(result.current).toEqual({
+        all: 2,
+        fetched: 2,
+        unfetched: 0,
+        byType: new Map([
+          [edge1.target.types[0], { all: 1, fetched: 1, unfetched: 0 }],
+          [edge2.source.types[0], { all: 1, fetched: 1, unfetched: 0 }],
+        ]),
+      });
+    });
+  });
+
+  it("should return fetched neighbor counts and handle duplicates", async () => {
+    const explorer = new FakeExplorer();
+    const dbState = new DbState(explorer);
+    const vertex1 = createTestableVertex();
+    const vertex2 = createTestableVertex();
+
+    const edge1 = createTestableEdge().withSource(vertex1).withTarget(vertex2);
+    const edge2 = createTestableEdge().withSource(vertex2).withTarget(vertex1);
+
+    dbState.addTestableEdgeToGraph(edge1);
+    dbState.addTestableEdgeToGraph(edge2);
+    explorer.addTestableEdge(edge1);
+    explorer.addTestableEdge(edge2);
+
+    const { result } = renderHookWithState(
+      () => useNeighbors(vertex1.id),
+      dbState
+    );
+
+    await waitFor(() => {
+      expect(result.current).toEqual({
+        all: 1,
+        fetched: 1,
+        unfetched: 0,
+        byType: new Map([
+          [vertex2.types[0], { all: 1, fetched: 1, unfetched: 0 }],
+        ]),
+      });
     });
   });
 

@@ -8,6 +8,7 @@ import { GremlinFetch, GVertex } from "./types";
 import { mapResults } from "./mappers/mapResults";
 import isErrorResponse from "../utils/isErrorResponse";
 import { idParam } from "./idParam";
+import { createVertex } from "@/core";
 
 type Response = {
   requestId: string;
@@ -45,7 +46,9 @@ export async function vertexDetails(
 
   // Map the results
   const entities = mapResults(data.result.data);
-  const vertices = entities.vertices;
+  const vertices = entities
+    .filter(e => e.entityType === "vertex")
+    .map(v => createVertex(v));
 
   // Log a warning if some nodes are missing
   const missing = new Set(request.vertexIds).difference(
@@ -58,9 +61,6 @@ export async function vertexDetails(
       data,
     });
   }
-
-  // Always false for vertexDetails query, even if the vertex has no properties
-  vertices.forEach(vertex => (vertex.__isFragment = false));
 
   return { vertices };
 }

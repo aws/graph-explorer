@@ -34,12 +34,52 @@ afterEach(() => {
   cleanup();
   vi.unstubAllEnvs();
   vi.unstubAllGlobals();
+  vi.restoreAllMocks();
 });
 
 beforeEach(() => {
   vi.stubEnv("DEV", true);
   vi.stubEnv("PROD", false);
   localforage.clear();
+});
+
+// Mock the internal createQueryClient to disable retries
+// Use the actual implementation, but turn off retries in the default options.
+vi.mock("@/core/queryClient", async importOriginal => {
+  const original = await importOriginal<typeof import("@/core/queryClient")>();
+  return {
+    ...original,
+    createDefaultOptions: (explorer: any) => {
+      const defaultOptions = original.createDefaultOptions(explorer);
+      return {
+        ...defaultOptions,
+        queries: {
+          ...defaultOptions.queries,
+          retry: false,
+        },
+        mutations: {
+          ...defaultOptions.mutations,
+          retry: false,
+        },
+      };
+    },
+    createQueryClient: ({ explorer }: { explorer: any }) => {
+      const client = original.createQueryClient({ explorer });
+      const defaultOptions = client.getDefaultOptions();
+      client.setDefaultOptions({
+        ...defaultOptions,
+        queries: {
+          ...defaultOptions.queries,
+          retry: false,
+        },
+        mutations: {
+          ...defaultOptions.mutations,
+          retry: false,
+        },
+      });
+      return client;
+    },
+  };
 });
 
 // Mock logger

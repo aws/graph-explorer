@@ -1,6 +1,5 @@
-import { Vertex } from "@/core";
+import { createVertex, Vertex } from "@/core";
 import {
-  toMappedQueryResults,
   type ErrorResponse,
   type KeywordSearchRequest,
   type KeywordSearchResponse,
@@ -25,7 +24,7 @@ const keywordSearch = async (
 ): Promise<KeywordSearchResponse> => {
   const vertices = await vertexKeywordSearch(openCypherFetch, req);
 
-  return toMappedQueryResults({ vertices });
+  return { vertices };
 };
 
 const vertexKeywordSearch = async (
@@ -41,7 +40,9 @@ const vertexKeywordSearch = async (
     throw new Error(data.detailedMessage);
   }
 
-  return data.results.map(value => mapApiVertex(value.object));
+  return data.results
+    .map(value => mapApiVertex(value.object))
+    .map(createVertex);
 };
 
 export default keywordSearch;

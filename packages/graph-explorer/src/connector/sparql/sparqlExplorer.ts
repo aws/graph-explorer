@@ -1,5 +1,4 @@
 import {
-  toMappedQueryResults,
   type Criterion,
   type Explorer,
   type ExplorerRequestOptions,
@@ -137,7 +136,7 @@ export function createSparqlExplorer(
         request,
         response
       );
-      return toMappedQueryResults({ vertices, edges: response.edges });
+      return { vertices, edges: response.edges };
     },
     async neighborCounts(req, options) {
       remoteLogger.info("[SPARQL Explorer] Fetching neighbor counts...");
@@ -172,7 +171,7 @@ export function createSparqlExplorer(
         response
       );
 
-      return toMappedQueryResults({ vertices });
+      return { vertices };
     },
     async vertexDetails(req, options) {
       remoteLogger.info("[SPARQL Explorer] Fetching vertex details...");

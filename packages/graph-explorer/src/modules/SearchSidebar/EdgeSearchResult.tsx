@@ -1,4 +1,10 @@
-import { Edge, useDisplayEdgeFromEdge, useDisplayVertex } from "@/core";
+import {
+  createEdge,
+  createVertex,
+  PatchedResultEdge,
+  useDisplayEdgeFromEdge,
+  useDisplayVertex,
+} from "@/core";
 import {
   ButtonProps,
   CollapsibleContent,
@@ -19,15 +25,22 @@ import {
   useRemoveEdgeFromGraph,
 } from "@/hooks";
 import { MinusCircleIcon, PlusCircleIcon } from "lucide-react";
+import { EntitySearchResult } from "./EntitySearchResult";
 
 export function EdgeSearchResult({
   edge,
   level = 0,
 }: {
-  edge: Edge;
+  edge: PatchedResultEdge;
   level?: number;
 }) {
-  const displayEdge = useDisplayEdgeFromEdge(edge);
+  const displayEdge = useDisplayEdgeFromEdge(
+    createEdge({
+      ...edge,
+      sourceId: edge.sourceVertex.id,
+      targetId: edge.targetVertex.id,
+    })
+  );
 
   // Get the display vertices
   const source = useDisplayVertex(displayEdge.sourceId);
@@ -45,6 +58,7 @@ export function EdgeSearchResult({
             edge={displayEdge}
             source={source}
             target={target}
+            name={edge.name}
             className="grow"
           />
           <AddOrRemoveButton edge={edge} />
@@ -64,14 +78,37 @@ export function EdgeSearchResult({
               </SearchResultAttribute>
             </li>
           ))}
+          <li>
+            <EntitySearchResult entity={edge.sourceVertex} level={level + 1} />
+          </li>
+          <li>
+            <EntitySearchResult entity={edge.targetVertex} level={level + 1} />
+          </li>
         </ul>
       </CollapsibleContent>
     </SearchResultCollapsible>
   );
 }
 
-function AddOrRemoveButton({ edge, ...props }: ButtonProps & { edge: Edge }) {
+function AddOrRemoveButton({
+  edge,
+  ...props
+}: ButtonProps & { edge: PatchedResultEdge }) {
   const mutation = useAddToGraphMutation();
+  const addToGraph = () =>
+    mutation.mutate({
+      edges: [
+        createEdge({
+          ...edge,
+          sourceId: edge.sourceVertex.id,
+          targetId: edge.targetVertex.id,
+        }),
+      ],
+      vertices: [
+        createVertex(edge.sourceVertex),
+        createVertex(edge.targetVertex),
+      ],
+    });
   const removeFromGraph = useRemoveEdgeFromGraph(edge.id);
   const hasBeenAdded = useHasEdgeBeenAddedToGraph(edge.id);
 
@@ -94,7 +131,7 @@ function AddOrRemoveButton({ edge, ...props }: ButtonProps & { edge: Edge }) {
       variant="text"
       className="rounded-full"
       size="small"
-      onClick={stopPropagation(() => mutation.mutate({ edges: [edge] }))}
+      onClick={stopPropagation(addToGraph)}
       disabled={mutation.isPending}
       tooltipText="Add edge to view"
       {...props}

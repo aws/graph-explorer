@@ -30,6 +30,8 @@ import {
   createRandomVertex,
   createRandomEdge,
   createRandomUserStyling,
+  TestableEdge,
+  TestableVertex,
 } from "./randomData";
 import { JotaiSnapshot } from "./renderHookWithJotai";
 import { createMockExplorer } from "./createMockExplorer";
@@ -87,6 +89,18 @@ export class DbState {
   addEdgeToGraph(edge: Edge) {
     this.edges.push(edge);
     this.activeSchema.edges.push(extractConfigFromEntity(edge));
+  }
+
+  addTestableVertexToGraph(vertex: TestableVertex) {
+    this.vertices.push(vertex.asVertex());
+    this.activeSchema.vertices.push(extractConfigFromEntity(vertex.asVertex()));
+  }
+
+  addTestableEdgeToGraph(edge: TestableEdge) {
+    this.edges.push(edge.asEdge());
+    this.activeSchema.edges.push(extractConfigFromEntity(edge.asEdge()));
+    this.addTestableVertexToGraph(edge.source);
+    this.addTestableVertexToGraph(edge.target);
   }
 
   /** Creates a new random edge with the given source and target, and adds it to the graph. */

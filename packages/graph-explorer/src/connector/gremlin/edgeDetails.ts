@@ -8,6 +8,7 @@ import { GEdge, GremlinFetch } from "./types";
 import { mapResults } from "./mappers/mapResults";
 import isErrorResponse from "../utils/isErrorResponse";
 import { idParam } from "./idParam";
+import { createEdge } from "@/core";
 
 type Response = {
   requestId: string;
@@ -46,7 +47,7 @@ export async function edgeDetails(
 
   // Map the results
   const entities = mapResults(data.result.data);
-  const edges = entities.edges;
+  const edges = entities.filter(e => e.entityType === "edge").map(createEdge);
 
   // Log a warning if some edges are missing
   const missing = new Set(request.edgeIds).difference(
@@ -60,7 +61,5 @@ export async function edgeDetails(
     });
   }
 
-  // Always false for edgeDetails query, even if the edge has no properties
-  edges.forEach(edge => (edge.__isFragment = false));
   return { edges };
 }

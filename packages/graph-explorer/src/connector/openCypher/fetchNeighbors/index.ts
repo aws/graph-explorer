@@ -1,5 +1,4 @@
 import {
-  toMappedQueryResults,
   type NeighborsRequest,
   type NeighborsResponse,
 } from "@/connector/useGEFetchTypes";
@@ -8,6 +7,7 @@ import mapApiVertex from "../mappers/mapApiVertex";
 import oneHopTemplate from "./oneHopTemplate";
 import type { OCEdge, OCVertex } from "../types";
 import { OpenCypherFetch } from "../types";
+import { createEdge, createVertex } from "@/core";
 
 type RawOneHopRequest = {
   results: [
@@ -26,15 +26,20 @@ const fetchNeighbors = async (
   const oneHopData =
     await openCypherFetch<RawOneHopRequest>(openCypherTemplate);
 
-  const edges = oneHopData.results[0].eObjects.map(mapApiEdge);
+  // Map directly to `Edge` since these are guaranteed to be fully materialized
+  const edges = oneHopData.results[0].eObjects
+    .map(e => mapApiEdge(e))
+    .map(createEdge);
 
-  const vertices: NeighborsResponse["vertices"] =
-    oneHopData.results[0].vObjects.map(mapApiVertex);
+  // Map directly to `Vertex` since these are guaranteed to be fully materialized
+  const vertices = oneHopData.results[0].vObjects
+    .map(v => mapApiVertex(v))
+    .map(createVertex);
 
-  return toMappedQueryResults({
+  return {
     vertices,
     edges,
-  });
+  };
 };
 
 export default fetchNeighbors;

@@ -3,7 +3,6 @@ import {
   createRandomEntities,
   createRandomSchema,
   createRandomVertex,
-  makeFragment,
 } from "@/utils/testing";
 import {
   extractConfigFromEntity,
@@ -40,18 +39,6 @@ describe("schema", () => {
       const originalSchema = createRandomSchema();
       const result = updateSchemaFromEntities(
         { vertices: [], edges: [] },
-        originalSchema
-      );
-
-      expect(result).toEqual(originalSchema);
-    });
-
-    it("should exclude fragment entities", () => {
-      const originalSchema = createRandomSchema();
-      const vertex = createRandomVertex();
-      const edge = createRandomEdge();
-      const result = updateSchemaFromEntities(
-        { vertices: [makeFragment(vertex)], edges: [makeFragment(edge)] },
         originalSchema
       );
 

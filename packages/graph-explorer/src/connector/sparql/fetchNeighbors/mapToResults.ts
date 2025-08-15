@@ -1,9 +1,5 @@
-import {
-  MappedQueryResults,
-  toMappedQueryResults,
-} from "@/connector/useGEFetchTypes";
 import { RawValue, rdfTypeUri } from "../types";
-import { createEdge, createVertex, Vertex } from "@/core";
+import { createEdge, createVertex, Entities, Vertex } from "@/core";
 import { createRdfEdgeId } from "../createRdfEdgeId";
 
 export type RawOneHopNeighborsResponse = {
@@ -17,7 +13,7 @@ export type RawOneHopNeighborsResponse = {
 };
 type Bindings = RawOneHopNeighborsResponse["results"]["bindings"];
 
-export function mapToResults(bindings: Bindings): MappedQueryResults {
+export function mapToResults(bindings: Bindings): Entities {
   // Get types map
   const typesMap = getTypesMap(bindings);
 
@@ -91,7 +87,7 @@ export function mapToResults(bindings: Bindings): MappedQueryResults {
     .filter(edge => edge != null)
     .toArray();
 
-  return toMappedQueryResults({ vertices, edges });
+  return { vertices, edges };
 }
 
 function getTypesMap(bindings: Bindings) {

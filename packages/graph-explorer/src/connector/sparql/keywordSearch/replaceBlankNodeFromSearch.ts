@@ -15,7 +15,7 @@ export const replaceBlankNodeFromSearch = (
     "[SPARQL Explorer] Replacing blank node from search with keywordSearchBlankNodesIdsTemplate"
   );
   return response.vertices.map(vertex => {
-    if (!vertex.__isBlank) {
+    if (!vertex.isBlankNode) {
       return vertex;
     }
 

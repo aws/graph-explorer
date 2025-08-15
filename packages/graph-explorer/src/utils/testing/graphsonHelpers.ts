@@ -1,5 +1,6 @@
 import {
   GAnyValue,
+  GBulkSet,
   GDate,
   GDouble,
   GEdge,
@@ -7,23 +8,30 @@ import {
   GInt64,
   GList,
   GMap,
+  GPath,
   GProperty,
   GScalar,
+  GSet,
   GType,
   GVertex,
   GVertexProperty,
 } from "@/connector/gremlin/types";
 import {
+  createTypedValue,
   Edge,
   EdgeId,
   EntityPropertyValue,
   getRawId,
+  ResultEdge,
+  ResultEntity,
+  ResultVertex,
+  ScalarValue,
   Vertex,
   VertexId,
 } from "@/core";
 import { createRandomInteger } from "@shared/utils/testing";
 
-export function createGremlinResponseFromVertices(...vertices: Vertex[]) {
+export function createGremlinResponseFromVertices(...vertices: ResultVertex[]) {
   return createGremlinResponse(...vertices.map(createGVertex));
 }
 
@@ -44,18 +52,51 @@ export function createGList(items: GAnyValue[]): GList {
   };
 }
 
+export function createGSet(items: GAnyValue[]): GSet {
+  return {
+    "@type": "g:Set",
+    "@value": items,
+  };
+}
+
+export function createGBulkSet<Value extends EntityPropertyValue | GAnyValue>(
+  values: Record<string, Value>
+) {
+  const mapItems: GAnyValue[] = [];
+  for (const [key, value] of Object.entries(values)) {
+    mapItems.push(key);
+
+    if (
+      value === null ||
+      typeof value === "boolean" ||
+      typeof value === "string" ||
+      typeof value === "number"
+    ) {
+      mapItems.push(createGValue(value));
+    } else if (typeof value === "object" && "@type" in value) {
+      mapItems.push(value);
+    } else {
+      throw new Error(
+        "Automatic mapping to GAnyValue not yet supported. Update the logic to support this type"
+      );
+    }
+  }
+  const result: GBulkSet = {
+    "@type": "g:BulkSet",
+    "@value": mapItems,
+  };
+  return result;
+}
+
 export function createGMap<Value extends EntityPropertyValue | GAnyValue>(
   values: Record<string, Value>
 ): GMap {
   const mapItems: GAnyValue[] = [];
   for (const [key, value] of Object.entries(values)) {
-    // Skip any null values, since that's how Gremlin behaves
-    if (value === null) {
-      continue;
-    }
-
     mapItems.push(key);
+
     if (
+      value === null ||
       typeof value === "boolean" ||
       typeof value === "string" ||
       typeof value === "number"
@@ -76,7 +117,36 @@ export function createGMap<Value extends EntityPropertyValue | GAnyValue>(
   return result;
 }
 
-export function createGVertex(vertex: Vertex): GVertex {
+export function createGPath(entities: ResultEntity[]): GPath {
+  const gSetValues = entities
+    .map(e => {
+      const label: GSet = {
+        "@type": "g:Set",
+        "@value": e.name ? [e.name] : [],
+      };
+
+      if (e.entityType === "vertex") {
+        return { label, object: createGVertex(e) };
+      } else if (e.entityType === "edge") {
+        return { label, object: createGEdge(e) };
+      } else if (e.entityType === "scalar") {
+        return { label, object: createGValue(e.value) };
+      }
+
+      return null;
+    })
+    .filter(e => e != null);
+
+  return {
+    "@type": "g:Path",
+    "@value": {
+      labels: createGList(gSetValues.map(g => g.label)),
+      objects: createGList(gSetValues.map(g => g.object)),
+    },
+  };
+}
+
+export function createGVertex(vertex: ResultVertex): GVertex {
   // Create graphSON ID value
   const id = (() => {
     const rawId = getRawId(vertex.id);
@@ -91,19 +161,25 @@ export function createGVertex(vertex: Vertex): GVertex {
     } satisfies GInt64;
   })();
 
+  const properties =
+    vertex.attributes != null
+      ? createGVertexProperties(vertex.attributes)
+      : undefined;
+
   return {
     "@type": "g:Vertex",
     "@value": {
       id,
       label: vertex.types.join("::"),
-      properties: vertex.__isFragment
-        ? undefined
-        : createGVertexProperties(vertex.attributes),
+      properties,
     },
   };
 }
 
-export function createGEdge(edge: Edge): GEdge {
+export function createGEdge(edge: ResultEdge): GEdge {
+  const properties =
+    edge.attributes != null ? createGProperties(edge.attributes) : undefined;
+
   return {
     "@type": "g:Edge",
     "@value": {
@@ -111,9 +187,7 @@ export function createGEdge(edge: Edge): GEdge {
       label: edge.type,
       inV: createIdValue(edge.targetId),
       outV: createIdValue(edge.sourceId),
-      properties: edge.__isFragment
-        ? undefined
-        : createGProperties(edge.attributes),
+      properties,
     },
   };
 }
@@ -144,19 +218,20 @@ export function createGVertexProperty(label: string, gValue: GAnyValue) {
   } as GVertexProperty;
 }
 
-function createGValue(value: EntityPropertyValue): GScalar {
-  if (typeof value === "string") {
-    return value;
-  }
+export function createGValue(value: ScalarValue): GScalar {
+  const typedValue = createTypedValue(value);
 
-  if (typeof value === "boolean") {
-    return value;
+  switch (typedValue.type) {
+    case "string":
+    case "boolean":
+      return typedValue.value;
+    case "number":
+      return createGInt64(typedValue.value);
+    case "date":
+      return createGDate(typedValue.value);
+    case "null":
+      return null as any;
   }
-
-  return {
-    "@type": "g:Int64",
-    "@value": value,
-  };
 }
 
 function createGProperties(

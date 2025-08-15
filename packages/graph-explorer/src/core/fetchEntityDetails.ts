@@ -15,22 +15,25 @@ export async function fetchEntityDetails(
   edges: Iterable<EdgeId>,
   queryClient: QueryClient
 ) {
+  const verticesArray = Array.from(vertices);
+  const edgesArray = Array.from(edges);
+
   const vertexResults = await queryClient.fetchQuery(
-    bulkVertexDetailsQuery(Array.from(vertices))
+    bulkVertexDetailsQuery(verticesArray)
   );
   const edgeResults = await queryClient.fetchQuery(
-    bulkEdgeDetailsQuery(Array.from(edges))
+    bulkEdgeDetailsQuery(edgesArray)
   );
 
   const vertexDetails = vertexResults.vertices;
   const edgeDetails = edgeResults.edges;
 
-  const countOfVertexNotFound = Iterator.from(vertices)
-    .filter(id => vertexDetails.find(v => v.id === id) == null)
-    .toArray().length;
-  const countOfEdgeNotFound = Iterator.from(edges)
-    .filter(id => edgeDetails.find(e => e.id === id) == null)
-    .toArray().length;
+  const countOfVertexNotFound = verticesArray.filter(
+    id => vertexDetails.find(v => v.id === id) == null
+  ).length;
+  const countOfEdgeNotFound = edgesArray.filter(
+    id => edgeDetails.find(e => e.id === id) == null
+  ).length;
 
   return {
     entities: {

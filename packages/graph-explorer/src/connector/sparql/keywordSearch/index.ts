@@ -1,9 +1,5 @@
 import { logger } from "@/utils";
-import {
-  toMappedQueryResults,
-  type ErrorResponse,
-  type KeywordSearchResponse,
-} from "@/connector";
+import { type ErrorResponse, type KeywordSearchResponse } from "@/connector";
 import isErrorResponse from "@/connector/utils/isErrorResponse";
 import mapRawResultToVertex from "../mappers/mapRawResultToVertex";
 import keywordSearchTemplate from "./keywordSearchTemplate";
@@ -66,7 +62,7 @@ const keywordSearch = async (
     return mapRawResultToVertex(result);
   });
 
-  return toMappedQueryResults({ vertices });
+  return { vertices };
 };
 
 export default keywordSearch;

@@ -1,7 +1,7 @@
 import { useNotification } from "@/components/NotificationProvider";
 import {
-  updateEdgeDetailsCache,
-  updateVertexDetailsCache,
+  setEdgeDetailsQueryCache,
+  setVertexDetailsQueryCache,
   type NeighborsRequest,
   type NeighborsResponse,
 } from "@/connector";
@@ -101,8 +101,10 @@ export default function useExpandNode() {
         });
 
         // Update the vertex and edge details caches
-        updateVertexDetailsCache(queryClient, result.vertices);
-        updateEdgeDetailsCache(queryClient, result.edges);
+        result.vertices.forEach(v =>
+          setVertexDetailsQueryCache(queryClient, v)
+        );
+        result.edges.forEach(e => setEdgeDetailsQueryCache(queryClient, e));
 
         // Update nodes and edges in the graph
         await addToGraph(result);

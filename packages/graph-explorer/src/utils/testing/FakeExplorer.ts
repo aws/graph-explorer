@@ -3,7 +3,6 @@ import {
   CountsByTypeResponse,
   EdgeDetailsRequest,
   Explorer,
-  MappedQueryResults,
   NeighborCount,
   NeighborCountsRequest,
   NeighborCountsResponse,
@@ -13,6 +12,7 @@ import {
 } from "@/connector";
 import {
   Edge,
+  Entities,
   normalizeConnection,
   NormalizedConnection,
   toEdgeMap,
@@ -21,7 +21,11 @@ import {
   Vertex,
   VertexId,
 } from "@/core";
-import { createRandomConnectionWithId } from "./randomData";
+import {
+  createRandomConnectionWithId,
+  type TestableEdge,
+  type TestableVertex,
+} from "./randomData";
 
 /**
  * An implementation of the Explorer interface that uses local state for results where possible.
@@ -51,6 +55,16 @@ export class FakeExplorer implements Explorer {
 
   addEdge(edge: Edge) {
     this.edgeMap.set(edge.id, edge);
+  }
+
+  addTestableVertex(vertex: TestableVertex) {
+    this.vertexMap.set(vertex.id, vertex.asVertex());
+  }
+
+  addTestableEdge(edge: TestableEdge) {
+    this.edgeMap.set(edge.id, edge.asEdge());
+    this.vertexMap.set(edge.source.id, edge.source.asVertex());
+    this.vertexMap.set(edge.target.id, edge.target.asVertex());
   }
 
   async fetchSchema() {
@@ -101,7 +115,7 @@ export class FakeExplorer implements Explorer {
     };
   }
 
-  async keywordSearch(): Promise<MappedQueryResults> {
+  async keywordSearch(): Promise<Entities> {
     throw new Error("Not implemented");
   }
 
@@ -128,16 +142,22 @@ export class FakeExplorer implements Explorer {
   }
 
   findNeighbors(vertexId: VertexId) {
-    return this.edges
-      .values()
-      .map(edge =>
-        edge.sourceId === vertexId
-          ? this.vertexMap.get(edge.targetId)
-          : edge.targetId === vertexId
-            ? this.vertexMap.get(edge.sourceId)
-            : null
-      )
-      .filter(n => n != null)
-      .toArray();
+    const neighbors = toNodeMap([]);
+
+    for (const edge of this.edges) {
+      if (edge.sourceId === vertexId) {
+        const neighbor = this.vertexMap.get(edge.targetId);
+        if (neighbor) {
+          neighbors.set(edge.targetId, neighbor);
+        }
+      } else if (edge.targetId === vertexId) {
+        const neighbor = this.vertexMap.get(edge.sourceId);
+        if (neighbor) {
+          neighbors.set(edge.sourceId, neighbor);
+        }
+      }
+    }
+
+    return neighbors.values().toArray();
   }
 }

@@ -67,19 +67,14 @@ export const activeSchemaSelector = atom(
 
 /** Updates the schema based on the given nodes and edges. */
 export function updateSchemaFromEntities(
-  entities: Entities,
+  entities: Partial<Entities>,
   schema: SchemaInference
 ) {
-  const newVertexConfigs = entities.vertices
-    .values()
-    .filter(v => !v.__isFragment)
-    .map(extractConfigFromEntity)
-    .toArray();
-  const newEdgeConfigs = entities.edges
-    .values()
-    .filter(e => !e.__isFragment)
-    .map(extractConfigFromEntity)
-    .toArray();
+  const vertices = entities.vertices ?? [];
+  const edges = entities.edges ?? [];
+
+  const newVertexConfigs = vertices.map(extractConfigFromEntity);
+  const newEdgeConfigs = edges.map(extractConfigFromEntity);
 
   let newSchema = {
     ...schema,
@@ -201,9 +196,11 @@ function getResourceUris(schema: SchemaInference) {
 /** Updates the schema with any new vertex or edge types, any new attributes, and updates the generated prefixes for sparql connections. */
 export function useUpdateSchemaFromEntities() {
   return useAtomCallback(
-    useCallback((get, set, entities: Entities) => {
+    useCallback((get, set, entities: Partial<Entities>) => {
+      const vertices = entities.vertices ?? [];
+      const edges = entities.edges ?? [];
       const activeSchema = get(activeSchemaSelector);
-      if (entities.vertices.length === 0 && entities.edges.length === 0) {
+      if (vertices.length === 0 && edges.length === 0) {
         return;
       }
       if (!activeSchema) {
@@ -232,12 +229,14 @@ export type UpdateSchemaHandler = ReturnType<
 
 /** Attempts to efficiently detect if the schema should be updated. */
 export function shouldUpdateSchemaFromEntities(
-  entities: Entities,
+  entities: Partial<Entities>,
   schema: SchemaInference
 ) {
-  if (entities.vertices.length > 0) {
+  const vertices = entities.vertices ?? [];
+  const edges = entities.edges ?? [];
+  if (vertices.length > 0) {
     // Check if the vertex types and attributes are the same
-    const fromEntities = getUniqueTypesAndAttributes(entities.vertices);
+    const fromEntities = getUniqueTypesAndAttributes(vertices);
     const fromSchema = getUniqueTypesAndAttributes(schema.vertices);
 
     if (!fromSchema.isSupersetOf(fromEntities)) {
@@ -249,9 +248,9 @@ export function shouldUpdateSchemaFromEntities(
     }
   }
 
-  if (entities.edges.length > 0) {
+  if (edges.length > 0) {
     // Check if the edge types and attributes are the same
-    const fromEntities = getUniqueTypesAndAttributes(entities.edges);
+    const fromEntities = getUniqueTypesAndAttributes(edges);
     const fromSchema = getUniqueTypesAndAttributes(schema.edges);
 
     if (!fromSchema.isSupersetOf(fromEntities)) {
