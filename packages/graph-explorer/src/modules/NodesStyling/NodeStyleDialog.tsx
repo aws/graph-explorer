@@ -24,6 +24,7 @@ import {
   useVertexStyling,
 } from "@/core/StateProvider/userPreferences";
 import useTranslations from "@/hooks/useTranslations";
+import { useDebounceValue, usePrevious } from "@/hooks";
 import { LINE_STYLE_OPTIONS } from "./lineStyling";
 import { NODE_SHAPE } from "./nodeShape";
 import modalDefaultStyles from "./SingleNodeStylingModal.style";
@@ -33,6 +34,7 @@ import {
 } from "@/utils/constants";
 import { cn } from "@/utils";
 import { atom, useAtom } from "jotai";
+import { useEffect, useState } from "react";
 
 export const customizeNodeTypeAtom = atom<string | undefined>(undefined);
 
@@ -94,6 +96,33 @@ function Content({ vertexType }: { vertexType: string }) {
   const { vertexStyle, setVertexStyle, resetVertexStyle } =
     useVertexStyling(vertexType);
   const displayConfig = useDisplayVertexTypeConfig(vertexType);
+
+  const [localColors, setLocalColors] = useState({
+    color: vertexStyle?.color || "#17457b",
+    borderColor: vertexStyle?.borderColor || "#17457b",
+  });
+
+  const debouncedColors = useDebounceValue(localColors, 300);
+  const prevColors = usePrevious(debouncedColors);
+
+  useEffect(() => {
+    if (prevColors === null || prevColors === debouncedColors) {
+      return;
+    }
+    void setVertexStyle({
+      color: debouncedColors.color,
+      borderColor: debouncedColors.borderColor,
+    });
+  }, [debouncedColors, prevColors, setVertexStyle]);
+
+  useEffect(() => {
+    if (vertexStyle) {
+      setLocalColors({
+        color: vertexStyle.color || "#17457b",
+        borderColor: vertexStyle.borderColor || "#17457b",
+      });
+    }
+  }, [vertexStyle]);
 
   const selectOptions = (() => {
     const options = displayConfig.attributes.map(attr => ({
@@ -179,11 +208,12 @@ function Content({ vertexType }: { vertexType: string }) {
             asChild
           >
             <IconButton
-              variant="filled"
-              className="text-text-primary hover:text-text-primary group rounded-full border-0 bg-transparent p-0 hover:cursor-pointer hover:bg-gray-200"
+              variant="default"
+              className="group rounded-full"
+              style={vertexStyle}
               icon={
                 <>
-                  <div className="hidden group-hover:flex">
+                  <div className="hidden p-2 group-hover:flex">
                     <UploadIcon />
                   </div>
                   <VertexSymbol
@@ -203,8 +233,10 @@ function Content({ vertexType }: { vertexType: string }) {
           <ColorInput
             label="Color"
             labelPlacement="inner"
-            color={vertexStyle?.color || "#17457b"}
-            onChange={(color: string) => setVertexStyle({ color })}
+            color={localColors.color}
+            onChange={(color: string) =>
+              setLocalColors(prev => ({ ...prev, color }))
+            }
           />
           <InputField
             label="Background Opacity"
@@ -225,8 +257,10 @@ function Content({ vertexType }: { vertexType: string }) {
           <ColorInput
             label="Border Color"
             labelPlacement="inner"
-            color={vertexStyle?.borderColor || "#17457b"}
-            onChange={(color: string) => setVertexStyle({ borderColor: color })}
+            color={localColors.borderColor}
+            onChange={(color: string) =>
+              setLocalColors(prev => ({ ...prev, borderColor: color }))
+            }
           />
           <InputField
             label="Border Width"
