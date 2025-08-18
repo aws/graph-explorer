@@ -180,7 +180,6 @@ export default function oneHopTemplate({
       ${nodeFiltersTemplate}
       ${excludedTemplate}
       .dedup()
-      .order().by(id())
       ${range}
       .as("v")
       .project("vertex", "edges")

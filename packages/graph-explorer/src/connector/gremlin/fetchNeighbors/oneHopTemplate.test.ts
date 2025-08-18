@@ -24,7 +24,6 @@ describe("Gremlin > oneHopTemplate", () => {
           .hasLabel("airport").and(has("longest",gt(10000)), has("country",containing("ES")))
           .filter(__.not(__.hasId("256")))
           .dedup()
-          .order().by(id())
           .range(0, 10)
           .as("v")
           .project("vertex", "edges")
@@ -46,7 +45,7 @@ describe("Gremlin > oneHopTemplate", () => {
     expect(normalize(template)).toBe(
       normalize(`
         g.V("12")
-          .both().dedup().order().by(id()).as("v")
+          .both().dedup().as("v")
           .project("vertex", "edges")
             .by()
             .by(
@@ -69,7 +68,7 @@ describe("Gremlin > oneHopTemplate", () => {
         g.V("12")
           .both()
           .filter(__.not(__.hasId("256", "512")))
-          .dedup().order().by(id()).as("v")
+          .dedup().as("v")
           .project("vertex", "edges")
             .by()
             .by(
@@ -89,7 +88,7 @@ describe("Gremlin > oneHopTemplate", () => {
     expect(normalize(template)).toBe(
       normalize(`
         g.V(12L)
-          .both().dedup().order().by(id()).as("v")
+          .both().dedup().as("v")
           .project("vertex", "edges")
             .by()
             .by(
@@ -111,7 +110,7 @@ describe("Gremlin > oneHopTemplate", () => {
     expect(normalize(template)).toBe(
       normalize(`
         g.V("12")
-          .both().dedup().order().by(id()).range(5, 10).as("v")
+          .both().dedup().range(5, 10).as("v")
           .project("vertex", "edges")
             .by()
             .by(
@@ -134,7 +133,7 @@ describe("Gremlin > oneHopTemplate", () => {
     expect(normalize(template)).toBe(
       normalize(`
         g.V("12")
-          .both().hasLabel("country").dedup().order().by(id()).range(5, 15).as("v")
+          .both().hasLabel("country").dedup().range(5, 15).as("v")
           .project("vertex", "edges")
             .by()
             .by(
@@ -157,7 +156,7 @@ describe("Gremlin > oneHopTemplate", () => {
     expect(normalize(template)).toBe(
       normalize(`
         g.V("12")
-          .both().hasLabel("country", "airport", "continent").dedup().order().by(id()).range(5, 15).as("v")
+          .both().hasLabel("country", "airport", "continent").dedup().range(5, 15).as("v")
           .project("vertex", "edges")
             .by()
             .by(
@@ -186,7 +185,7 @@ describe("Gremlin > oneHopTemplate", () => {
         g.V("12")
           .both().hasLabel("country")
             .and(has("longest",gte(10000)),has("country",containing("ES")))
-            .dedup().order().by(id()).range(5, 15).as("v")
+            .dedup().range(5, 15).as("v")
           .project("vertex", "edges")
             .by()
             .by(
