@@ -45,9 +45,10 @@ export function EdgeSearchResult({
   // Get the display vertices
   const source = useDisplayVertex(displayEdge.sourceId);
   const target = useDisplayVertex(displayEdge.targetId);
+  const hasBeenAdded = useHasEdgeBeenAddedToGraph(edge.id);
 
   return (
-    <SearchResultCollapsible level={level}>
+    <SearchResultCollapsible level={level} highlighted={hasBeenAdded}>
       <CollapsibleTrigger asChild>
         <div
           role="button"

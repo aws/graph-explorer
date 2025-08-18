@@ -28,9 +28,10 @@ export function VertexSearchResult({
   level?: number;
 }) {
   const displayNode = useDisplayVertex(vertex.id);
+  const hasBeenAdded = useHasVertexBeenAddedToGraph(vertex.id);
 
   return (
-    <SearchResultCollapsible level={level}>
+    <SearchResultCollapsible level={level} highlighted={hasBeenAdded}>
       <CollapsibleTrigger asChild>
         <div
           role="button"
