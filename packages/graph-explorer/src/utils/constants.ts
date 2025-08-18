@@ -24,3 +24,9 @@ export const MISSING_DISPLAY_VALUE = "---";
 
 /** Shown when a type is missing  */
 export const MISSING_DISPLAY_TYPE = "---";
+
+/** Non breaking space */
+export const NBSP = "\u00A0";
+
+/** Small arrow character */
+export const RSAQUO = "\u203A";

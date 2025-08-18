@@ -119,5 +119,5 @@ export function useVertex(id: VertexId) {
   }
 
   // Create a minimal vertex as last fallback
-  return createVertex({ id, types: [] });
+  return createVertex({ id });
 }

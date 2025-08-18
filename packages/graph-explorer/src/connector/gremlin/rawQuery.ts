@@ -3,9 +3,8 @@ import {
   ErrorResponse,
   RawQueryRequest,
   RawQueryResponse,
-  toMappedQueryResults,
 } from "../useGEFetchTypes";
-import { GAnyValue, GremlinFetch } from "./types";
+import { GList, GremlinFetch } from "./types";
 import { mapResults } from "./mappers/mapResults";
 import isErrorResponse from "../utils/isErrorResponse";
 
@@ -16,7 +15,7 @@ type Response = {
     code: number;
   };
   result: {
-    data: GAnyValue;
+    data: GList;
   };
 };
 
@@ -27,7 +26,7 @@ export async function rawQuery(
   const template = query`${request.query}`;
 
   if (template.length <= 0) {
-    return toMappedQueryResults({});
+    return [];
   }
 
   // Fetch the results

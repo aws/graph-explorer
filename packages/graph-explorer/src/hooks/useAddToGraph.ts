@@ -1,11 +1,9 @@
 import { useNotification } from "@/components/NotificationProvider";
 import {
   activeSchemaSelector,
-  createVertex,
   Edge,
   edgesAtom,
   Entities,
-  fetchEntityDetails,
   nodesAtom,
   toEdgeMap,
   toNodeMap,
@@ -15,7 +13,7 @@ import {
 } from "@/core";
 import { logger } from "@/utils";
 import { createDisplayError } from "@/utils/createDisplayError";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useSetAtom } from "jotai";
 
 /** Returns a callback that adds an array of nodes and edges to the graph. */
@@ -24,37 +22,10 @@ export function useAddToGraph() {
   const setEdges = useSetAtom(edgesAtom);
   const setActiveSchema = useSetAtom(activeSchemaSelector);
   const updateGraphStorage = useUpdateGraphSession();
-  const queryClient = useQueryClient();
 
   return async (entities: Partial<Entities>) => {
-    const vertices = toNodeMap(entities.vertices ?? []);
-    const edges = toEdgeMap(entities.edges ?? []);
-
-    // Add fragment vertices from the edges if they are missing
-    for (const edge of edges.values()) {
-      if (!vertices.has(edge.sourceId)) {
-        vertices.set(
-          edge.sourceId,
-          createVertex({ id: edge.sourceId, types: [] })
-        );
-      }
-
-      if (!vertices.has(edge.targetId)) {
-        vertices.set(
-          edge.targetId,
-          createVertex({ id: edge.targetId, types: [] })
-        );
-      }
-    }
-
-    // Ensure all fragments are materialized
-    const results = await fetchEntityDetails(
-      vertices.keys(),
-      edges.keys(),
-      queryClient
-    );
-    const newVerticesMap = toNodeMap(results.entities.vertices);
-    const newEdgesMap = toEdgeMap(results.entities.edges);
+    const newVerticesMap = toNodeMap(entities.vertices ?? []);
+    const newEdgesMap = toEdgeMap(entities.edges ?? []);
 
     // Ensure there is something to add
     if (newVerticesMap.size === 0 && newEdgesMap.size === 0) {

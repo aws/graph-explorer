@@ -11,7 +11,7 @@ export * from "./executeUserQuery";
 
 // Export helper functions that are used outside this folder
 export {
-  updateVertexDetailsCache,
-  updateEdgeDetailsCache,
   updateNeighborCountCache,
+  setVertexDetailsQueryCache,
+  setEdgeDetailsQueryCache,
 } from "./helpers";

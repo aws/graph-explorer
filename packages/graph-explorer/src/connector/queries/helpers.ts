@@ -1,5 +1,5 @@
 import { QueryClient } from "@tanstack/react-query";
-import { Edge, Vertex } from "@/core";
+import { createEdge, createVertex, Edge, ResultEntity, Vertex } from "@/core";
 import { NeighborCount } from "../useGEFetchTypes";
 import { GraphExplorerMeta } from "@/core/queryClient";
 import { logger } from "@/utils";
@@ -8,36 +8,44 @@ import { vertexDetailsQuery } from "./vertexDetailsQuery";
 import { edgeDetailsQuery } from "./edgeDetailsQuery";
 import { neighborsCountQuery } from "./neighborsCountQuery";
 
-/** Sets the vertex details cache for the given vertices. */
-export function updateVertexDetailsCache(
-  queryClient: QueryClient,
-  vertices: Vertex[]
+/** Iterates over entities and adds any materialized entities to the details query cache. */
+export function updateDetailsCacheFromEntities(
+  client: QueryClient,
+  entities: ResultEntity[]
 ) {
-  for (const vertex of vertices.filter(v => !v.__isFragment)) {
-    const queryKey = vertexDetailsQuery(vertex.id).queryKey;
-    queryClient.setQueryData(queryKey, { vertex });
+  for (const entity of entities) {
+    if (entity.entityType === "vertex" && entity.attributes != null) {
+      setVertexDetailsQueryCache(client, createVertex(entity));
+    } else if (entity.entityType === "edge" && entity.attributes != null) {
+      setEdgeDetailsQueryCache(client, createEdge(entity));
+    } else if (entity.entityType === "bundle") {
+      // Recursively process entities within bundles
+      updateDetailsCacheFromEntities(client, entity.values);
+    }
   }
 }
 
-/** Sets the edge details cache for the given edges. */
-export function updateEdgeDetailsCache(
-  queryClient: QueryClient,
-  edges: Edge[]
+export function setVertexDetailsQueryCache(
+  client: QueryClient,
+  vertex: Vertex
 ) {
-  for (const edge of edges.filter(e => !e.__isFragment)) {
-    const queryKey = edgeDetailsQuery(edge.id).queryKey;
-    queryClient.setQueryData(queryKey, { edge });
-  }
+  const queryKey = vertexDetailsQuery(vertex.id).queryKey;
+  client.setQueryData(queryKey, { vertex });
+}
+
+export function setEdgeDetailsQueryCache(client: QueryClient, edge: Edge) {
+  const queryKey = edgeDetailsQuery(edge.id).queryKey;
+  client.setQueryData(queryKey, { edge });
 }
 
 /** Sets the neighbor count cache for the given vertex. */
 export function updateNeighborCountCache(
-  queryClient: QueryClient,
+  client: QueryClient,
   neighborCounts: NeighborCount[]
 ) {
   for (const count of neighborCounts) {
     const queryKey = neighborsCountQuery(count.vertexId).queryKey;
-    queryClient.setQueryData(queryKey, count);
+    client.setQueryData(queryKey, count);
   }
 }
 

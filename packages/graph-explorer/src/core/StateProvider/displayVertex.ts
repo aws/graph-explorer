@@ -132,7 +132,7 @@ const displayVertexSelector = atomFamily((vertex: Vertex) =>
       displayDescription,
       typeConfig,
       attributes: sortedAttributes,
-      isBlankNode: vertex.__isBlank ?? false,
+      isBlankNode: vertex.isBlankNode ?? false,
       original: vertex,
     };
     return result;

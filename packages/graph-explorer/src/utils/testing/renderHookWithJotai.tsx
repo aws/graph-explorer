@@ -63,6 +63,11 @@ export function renderHookWithState<TResult>(
 
   // Create the query client using the mock explorer
   const queryClient = createQueryClient({ explorer: state.explorer });
+  const defaultOptions = queryClient.getDefaultOptions();
+  queryClient.setDefaultOptions({
+    ...defaultOptions,
+    queries: { ...defaultOptions.queries, retry: false },
+  });
 
   // Call the standard testing hook with TanStack Query and Jotai setup
   return renderHook(callback, {

@@ -24,7 +24,7 @@ export function useUpdateGraphSession() {
       const vertices = new Set(
         nodesInGraph
           .entries()
-          .filter(([_key, node]) => !node.__isBlank)
+          .filter(([_key, node]) => !node.isBlankNode)
           .map(([key]) => key)
       );
       const edges = new Set(
@@ -33,7 +33,7 @@ export function useUpdateGraphSession() {
           .filter(([_key, edge]) => {
             const source = nodesInGraph.get(edge.sourceId);
             const target = nodesInGraph.get(edge.targetId);
-            return !source?.__isBlank && !target?.__isBlank;
+            return !source?.isBlankNode && !target?.isBlankNode;
           })
           .map(([key]) => key)
       );

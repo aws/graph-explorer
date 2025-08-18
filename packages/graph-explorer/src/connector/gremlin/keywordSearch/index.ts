@@ -1,5 +1,4 @@
 import {
-  toMappedQueryResults,
   type ErrorResponse,
   type KeywordSearchRequest,
   type KeywordSearchResponse,
@@ -9,6 +8,7 @@ import mapApiVertex from "../mappers/mapApiVertex";
 import keywordSearchTemplate from "./keywordSearchTemplate";
 import type { GVertexList } from "../types";
 import { GremlinFetch } from "../types";
+import { createVertex } from "@/core";
 
 type RawKeySearchResponse = {
   requestId: string;
@@ -34,11 +34,11 @@ const keywordSearch = async (
     throw new Error(data.detailedMessage);
   }
 
-  const vertices = data.result.data["@value"].map(value => {
-    return mapApiVertex(value);
-  });
+  const vertices = data.result.data["@value"]
+    .map(value => mapApiVertex(value))
+    .map(createVertex);
 
-  return toMappedQueryResults({ vertices });
+  return { vertices };
 };
 
 export default keywordSearch;

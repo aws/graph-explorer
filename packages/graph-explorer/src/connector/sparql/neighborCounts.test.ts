@@ -85,7 +85,7 @@ describe("neighborCounts", () => {
 
   it("should return blank node neighbor counts", async () => {
     const vertex = createRandomVertexForRdf();
-    vertex.__isBlank;
+    vertex.isBlankNode;
     const blankNodes: BlankNodesMap = new Map();
     const expected: NeighborCount = {
       vertexId: vertex.id,
@@ -129,7 +129,7 @@ describe("neighborCounts", () => {
 
   it("should fetch blank node neighbor counts", async () => {
     const vertex = createRandomVertexForRdf();
-    vertex.__isBlank;
+    vertex.isBlankNode;
     const neighborFrom = createRandomVertexForRdf();
     const edgeFrom = createRandomEdgeForRdf(neighborFrom, vertex);
     const neighborTo = createRandomVertexForRdf();
@@ -266,7 +266,7 @@ function createBlankNodePredicateResponse(
 
 function createVertexResponse(vertex: Vertex) {
   return Object.entries(vertex.attributes).map(([key, value]) => ({
-    subject: vertex.__isBlank
+    subject: vertex.isBlankNode
       ? createBNodeValue(String(vertex.id))
       : createUriValue(String(vertex.id)),
     subjectClass: createUriValue(String(vertex.type)),

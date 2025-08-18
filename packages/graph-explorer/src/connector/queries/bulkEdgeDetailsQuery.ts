@@ -2,7 +2,7 @@ import { queryOptions } from "@tanstack/react-query";
 import { Edge, EdgeId } from "@/core";
 import { DEFAULT_BATCH_REQUEST_SIZE } from "@/utils";
 import { chunk } from "lodash";
-import { getExplorer, updateEdgeDetailsCache } from "./helpers";
+import { getExplorer, setEdgeDetailsQueryCache } from "./helpers";
 import { edgeDetailsQuery } from "./edgeDetailsQuery";
 
 export function bulkEdgeDetailsQuery(edgeIds: EdgeId[]) {
@@ -41,7 +41,7 @@ export function bulkEdgeDetailsQuery(edgeIds: EdgeId[]) {
       ).then(results => results.flat());
 
       // Update cache
-      updateEdgeDetailsCache(client, edges);
+      edges.forEach(e => setEdgeDetailsQueryCache(client, e));
 
       return { edges: [...cachedEdges, ...edges] };
     },

@@ -3,9 +3,8 @@ import { z } from "zod";
 import { fromError } from "zod-validation-error";
 import mapApiVertex from "./mapApiVertex";
 import mapApiEdge from "./mapApiEdge";
-import { mapValuesToQueryResults } from "@/connector/mapping";
 import { OCEdge, OCVertex } from "../types";
-import { createScalar, Entity } from "@/core";
+import { createResultScalar, createResultBundle, ResultEntity } from "@/core";
 
 const cypherScalarValueSchema = z.union([
   z.number(),
@@ -71,10 +70,19 @@ export function parseResults(data: unknown) {
  */
 export function mapResults(data: unknown) {
   const results = parseResults(data);
-  const values = results.flatMap(result =>
-    Object.entries(result).flatMap(([key, value]) => mapValue(value, key))
-  );
-  return mapValuesToQueryResults(values);
+  const values = results.flatMap(result => {
+    const entities = Object.entries(result).flatMap(([key, value]) =>
+      mapValue(value, key)
+    );
+
+    // Create a bundle if there is more than one entity
+    if (entities.length > 1) {
+      return [createResultBundle({ values: entities })];
+    } else {
+      return entities;
+    }
+  });
+  return values;
 }
 
 /**
@@ -83,36 +91,41 @@ export function mapResults(data: unknown) {
  * @param name The name/key for the value (used for scalar naming)
  * @returns The mapped value
  */
-function mapValue(value: CypherValue, name?: string): Entity[] {
+function mapValue(value: CypherValue, name?: string): ResultEntity[] {
   if (
     value === null ||
     typeof value === "number" ||
     typeof value === "string" ||
     typeof value === "boolean"
   ) {
-    return [createScalar({ value, name })];
+    return [createResultScalar({ value, name })];
   }
 
   if (Array.isArray(value)) {
-    return value.flatMap(v => mapValue(v, name));
+    const values = value.flatMap(v => mapValue(v));
+    return [createResultBundle({ name, values })];
   }
 
   // Map record types
   if (typeof value === "object") {
     if (value["~entityType"] === "node") {
-      return [mapApiVertex(value as OCVertex)];
+      return [mapApiVertex(value as OCVertex, name)];
     }
 
     if (value["~entityType"] === "relationship") {
-      const edge = mapApiEdge(value as OCEdge);
-      edge.__isFragment = true;
-      return [edge];
+      return [mapApiEdge(value as OCEdge, name)];
     }
-    return Object.entries(value).flatMap(([key, value]) =>
-      mapValue(value, key)
-    );
+
+    return [mapRecordToBundle(value, name)];
   }
 
   // Unsupported type
   return [];
+}
+
+function mapRecordToBundle(record: Record<string, CypherValue>, name?: string) {
+  const values = Object.entries(record).flatMap(([key, value]) =>
+    mapValue(value, key)
+  );
+  return createResultBundle({ values, name });
 }

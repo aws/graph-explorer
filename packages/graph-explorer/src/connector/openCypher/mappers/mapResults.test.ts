@@ -1,8 +1,20 @@
-import { createScalar, Edge, getRawId, Vertex } from "@/core";
+import { createResultScalar, createResultBundle } from "@/core";
 import { mapResults } from "./mapResults";
-import { createRandomEdge, createRandomVertex } from "@/utils/testing";
-import { createRandomInteger } from "@shared/utils/testing";
-import { OCEdge, OCVertex } from "../types";
+import {
+  createTestableEdge,
+  createTestableVertex,
+  mapToOcEdge,
+  mapToOcScalar,
+  mapToOcVertex,
+} from "@/utils/testing";
+import {
+  createArray,
+  createRandomBoolean,
+  createRandomDouble,
+  createRandomInteger,
+  createRandomName,
+  createRandomUrlString,
+} from "@shared/utils/testing";
 
 describe("mapResults", () => {
   it("should map empty results", () => {
@@ -10,48 +22,75 @@ describe("mapResults", () => {
       results: [],
     });
 
-    expect(result.vertices).toHaveLength(0);
-    expect(result.edges).toHaveLength(0);
-    expect(result.scalars).toHaveLength(0);
+    expect(result).toStrictEqual([]);
   });
 
-  it("should map vertex value", () => {
-    const vertex = createRandomVertex();
+  it("should map solo vertex value without bundle", () => {
+    const vertex = createTestableVertex().asResult("n");
     const result = mapResults({
       results: [
         {
-          n: createCypherVertex(vertex),
+          n: mapToOcVertex(vertex),
         },
       ],
     });
 
-    expect(result.vertices).toHaveLength(1);
-    expect(result.vertices[0]).toEqual(vertex);
-    expect(result.edges).toHaveLength(0);
-    expect(result.scalars).toHaveLength(0);
+    expect(result).toStrictEqual([vertex]);
   });
 
-  it("should map edge value", () => {
-    const edge = createRandomEdge();
-
+  it("should map multiple vertices to bundle", () => {
+    const vertex1 = createTestableVertex().asResult("first");
+    const vertex2 = createTestableVertex().asResult("second");
     const result = mapResults({
       results: [
         {
-          n: createCypherEdge(edge),
+          first: mapToOcVertex(vertex1),
+          second: mapToOcVertex(vertex2),
         },
       ],
     });
 
-    expect(result.edges).toHaveLength(1);
-    expect(result.edges[0]).toEqual({
-      ...edge,
-      __isFragment: true,
-    } satisfies Edge);
-    expect(result.vertices).toHaveLength(2);
-    expect(result.scalars).toHaveLength(0);
+    expect(result).toStrictEqual([
+      createResultBundle({
+        values: [vertex1, vertex2],
+      }),
+    ]);
   });
 
-  it("should map scalar value", () => {
+  it("should map solo edge value without bundle", () => {
+    const edge = createTestableEdge().asResult("n");
+
+    const result = mapResults({
+      results: [
+        {
+          n: mapToOcEdge(edge),
+        },
+      ],
+    });
+
+    expect(result).toStrictEqual([edge]);
+  });
+
+  it("should map multiple edges to bundle", () => {
+    const edge1 = createTestableEdge().asResult("first");
+    const edge2 = createTestableEdge().asResult("second");
+    const result = mapResults({
+      results: [
+        {
+          first: mapToOcEdge(edge1),
+          second: mapToOcEdge(edge2),
+        },
+      ],
+    });
+
+    expect(result).toStrictEqual([
+      createResultBundle({
+        values: [edge1, edge2],
+      }),
+    ]);
+  });
+
+  it("should map scalar value with names to bundle", () => {
     const expectedValue = createRandomInteger();
 
     const result = mapResults({
@@ -65,165 +104,178 @@ describe("mapResults", () => {
       ],
     });
 
-    expect(result.scalars).toHaveLength(4);
-    expect(result.scalars[0]).toEqual(
-      createScalar({ value: expectedValue, name: "total" })
-    );
-    expect(result.scalars[1]).toEqual(
-      createScalar({ value: "total", name: "name" })
-    );
-    expect(result.scalars[2]).toEqual(
-      createScalar({ value: expectedValue, name: "list" })
-    );
-    expect(result.scalars[3]).toEqual(
-      createScalar({ value: null, name: "nullValue" })
-    );
-    expect(result.vertices).toHaveLength(0);
-    expect(result.edges).toHaveLength(0);
+    expect(result).toStrictEqual([
+      createResultBundle({
+        values: [
+          createResultScalar({ value: expectedValue, name: "total" }),
+          createResultScalar({ value: "total", name: "name" }),
+          createResultBundle({
+            name: "list",
+            values: [createResultScalar({ value: expectedValue })],
+          }),
+          createResultScalar({ value: null, name: "nullValue" }),
+        ],
+      }),
+    ]);
   });
 
-  it("should map vertex in array", () => {
-    const vertex = createRandomVertex();
+  it("should map vertex in array to bundle", () => {
+    const vertices = createArray(3, () => createTestableVertex().asResult());
     const result = mapResults({
       results: [
         {
-          n: [createCypherVertex(vertex)],
+          n: vertices.map(mapToOcVertex),
         },
       ],
     });
 
-    expect(result.vertices).toHaveLength(1);
-    expect(result.vertices[0]).toEqual(vertex);
-    expect(result.edges).toHaveLength(0);
-    expect(result.scalars).toHaveLength(0);
+    expect(result).toStrictEqual([
+      createResultBundle({
+        name: "n",
+        values: vertices,
+      }),
+    ]);
   });
 
-  it("should map edge in array", () => {
-    const edge = createRandomEdge();
-    const result = mapResults({
-      results: [
-        {
-          n: [createCypherEdge(edge)],
-        },
-      ],
-    });
-
-    expect(result.edges).toHaveLength(1);
-    expect(result.edges[0]).toEqual({
-      ...edge,
-      __isFragment: true,
-    } satisfies Edge);
-    expect(result.vertices).toHaveLength(2);
-  });
-
-  it("should map scalar in array", () => {
-    const expectedValue = createRandomInteger();
+  it("should map edge in array to bundle", () => {
+    const edges = createArray(3, () => createTestableEdge().asResult());
 
     const result = mapResults({
       results: [
         {
-          n: [expectedValue],
+          n: edges.map(mapToOcEdge),
         },
       ],
     });
 
-    expect(result.scalars).toHaveLength(1);
-    expect(result.scalars[0]).toEqual(
-      createScalar({ value: expectedValue, name: "n" })
-    );
+    expect(result).toStrictEqual([
+      createResultBundle({
+        name: "n",
+        values: edges,
+      }),
+    ]);
   });
 
-  it("should map nested objects", () => {
-    const vertex = createRandomVertex();
-    const edge = createRandomEdge();
+  it("should map scalars in array to bundle", () => {
+    const scalars = [
+      createResultScalar({ value: createRandomBoolean() }),
+      createResultScalar({ value: createRandomInteger() }),
+      createResultScalar({ value: createRandomDouble() }),
+      createResultScalar({ value: createRandomUrlString() }),
+      createResultScalar({ value: createRandomName() }),
+      createResultScalar({ value: null }),
+    ];
+
+    const result = mapResults({
+      results: [
+        {
+          n: scalars.map(s => mapToOcScalar(s.value)),
+        },
+      ],
+    });
+
+    expect(result).toStrictEqual([
+      createResultBundle({
+        name: "n",
+        values: scalars,
+      }),
+    ]);
+  });
+
+  it("should map nested objects to bundle", () => {
+    const vertex = createTestableVertex().asResult("v");
+    const edge = createTestableEdge().asResult("e");
 
     const result = mapResults({
       results: [
         {
           n: {
-            v: createCypherVertex(vertex),
-            e: createCypherEdge(edge),
+            v: mapToOcVertex(vertex),
+            e: mapToOcEdge(edge),
           },
         },
       ],
     });
 
-    expect(result.vertices).toHaveLength(3);
-    expect(result.vertices[0]).toEqual(vertex);
-
-    expect(result.edges).toHaveLength(1);
-    expect(result.edges[0]).toEqual({
-      ...edge,
-      __isFragment: true,
-    } satisfies Edge);
+    expect(result).toStrictEqual([
+      createResultBundle({
+        name: "n",
+        values: [vertex, edge],
+      }),
+    ]);
   });
 
-  it("should map deeply nested objects", () => {
-    const vertex = createRandomVertex();
-    const edge = createRandomEdge();
+  it("should map deeply nested objects to nested bundles", () => {
+    const vertex = createTestableVertex().asResult("v");
+    const edge = createTestableEdge().asResult("e");
 
     const result = mapResults({
       results: [
         {
           n: {
             deep: {
-              v: createCypherVertex(vertex),
-              e: createCypherEdge(edge),
+              v: mapToOcVertex(vertex),
+              e: mapToOcEdge(edge),
             },
           },
         },
       ],
     });
 
-    expect(result.vertices).toHaveLength(3);
-    expect(result.vertices[0]).toEqual(vertex);
-
-    expect(result.edges).toHaveLength(1);
-    expect(result.edges[0]).toEqual({
-      ...edge,
-      __isFragment: true,
-    } satisfies Edge);
+    expect(result).toStrictEqual([
+      createResultBundle({
+        name: "n",
+        values: [
+          createResultBundle({
+            name: "deep",
+            values: [vertex, edge],
+          }),
+        ],
+      }),
+    ]);
   });
 
-  it("should map nested objects within array", () => {
-    const vertex = createRandomVertex();
-    const edge = createRandomEdge();
+  it("should map nested objects within array to bundles", () => {
+    const vertex = createTestableVertex().asResult("v");
+    const edge = createTestableEdge().asResult("e");
 
     const result = mapResults({
       results: [
         {
           n: [
             {
-              v: createCypherVertex(vertex),
-              e: createCypherEdge(edge),
+              v: mapToOcVertex(vertex),
+              e: mapToOcEdge(edge),
             },
           ],
         },
       ],
     });
 
-    expect(result.vertices).toHaveLength(3);
-    expect(result.vertices[0]).toEqual(vertex);
-
-    expect(result.edges).toHaveLength(1);
-    expect(result.edges[0]).toEqual({
-      ...edge,
-      __isFragment: true,
-    } satisfies Edge);
+    expect(result).toStrictEqual([
+      createResultBundle({
+        name: "n",
+        values: [
+          createResultBundle({
+            values: [vertex, edge],
+          }),
+        ],
+      }),
+    ]);
   });
 
   it("should map deeply nested objects within array", () => {
-    const vertex = createRandomVertex();
-    const edge = createRandomEdge();
+    const vertex = createTestableVertex().asResult("v");
+    const edge = createTestableEdge().asResult("e");
 
     const result = mapResults({
       results: [
         {
-          n: [
+          outer: [
             {
-              deep: {
-                v: createCypherVertex(vertex),
-                e: createCypherEdge(edge),
+              inner: {
+                v: mapToOcVertex(vertex),
+                e: mapToOcEdge(edge),
               },
             },
           ],
@@ -231,14 +283,21 @@ describe("mapResults", () => {
       ],
     });
 
-    expect(result.vertices).toHaveLength(3);
-    expect(result.vertices[0]).toEqual(vertex);
-
-    expect(result.edges).toHaveLength(1);
-    expect(result.edges[0]).toEqual({
-      ...edge,
-      __isFragment: true,
-    } satisfies Edge);
+    expect(result).toStrictEqual([
+      createResultBundle({
+        name: "outer",
+        values: [
+          createResultBundle({
+            values: [
+              createResultBundle({
+                name: "inner",
+                values: [vertex, edge],
+              }),
+            ],
+          }),
+        ],
+      }),
+    ]);
   });
 
   it("should map collect with array of scalars", () => {
@@ -252,10 +311,12 @@ describe("mapResults", () => {
       ],
     });
 
-    expect(result.scalars).toHaveLength(1);
-    expect(result.scalars[0]).toEqual(
-      createScalar({ value: expectedValue, name: "collect" })
-    );
+    expect(result).toStrictEqual([
+      createResultBundle({
+        name: "collect",
+        values: [createResultScalar({ value: expectedValue })],
+      }),
+    ]);
   });
 
   it("should map collect with array of records", () => {
@@ -269,10 +330,18 @@ describe("mapResults", () => {
       ],
     });
 
-    expect(result.scalars).toHaveLength(1);
-    expect(result.scalars[0]).toEqual(
-      createScalar({ value: expectedValue, name: "values" })
-    );
+    expect(result).toStrictEqual([
+      createResultBundle({
+        name: "collect",
+        values: [
+          createResultBundle({
+            values: [
+              createResultScalar({ value: expectedValue, name: "values" }),
+            ],
+          }),
+        ],
+      }),
+    ]);
   });
 
   it("should preserve scalar names from top-level keys", () => {
@@ -287,19 +356,16 @@ describe("mapResults", () => {
       ],
     });
 
-    expect(result.scalars).toHaveLength(4);
-    expect(result.scalars[0]).toEqual(
-      createScalar({ value: 42, name: "count" })
-    );
-    expect(result.scalars[1]).toEqual(
-      createScalar({ value: "hello", name: "message" })
-    );
-    expect(result.scalars[2]).toEqual(
-      createScalar({ value: true, name: "isActive" })
-    );
-    expect(result.scalars[3]).toEqual(
-      createScalar({ value: null, name: "data" })
-    );
+    expect(result).toStrictEqual([
+      createResultBundle({
+        values: [
+          createResultScalar({ value: 42, name: "count" }),
+          createResultScalar({ value: "hello", name: "message" }),
+          createResultScalar({ value: true, name: "isActive" }),
+          createResultScalar({ value: null, name: "data" }),
+        ],
+      }),
+    ]);
   });
 
   it("should preserve names for scalars in nested objects", () => {
@@ -314,11 +380,15 @@ describe("mapResults", () => {
       ],
     });
 
-    expect(result.scalars).toHaveLength(2);
-    expect(result.scalars[0]).toEqual(
-      createScalar({ value: "John", name: "name" })
-    );
-    expect(result.scalars[1]).toEqual(createScalar({ value: 30, name: "age" }));
+    expect(result).toStrictEqual([
+      createResultBundle({
+        name: "user",
+        values: [
+          createResultScalar({ value: "John", name: "name" }),
+          createResultScalar({ value: 30, name: "age" }),
+        ],
+      }),
+    ]);
   });
 
   it("should preserve names for scalars in arrays", () => {
@@ -331,61 +401,100 @@ describe("mapResults", () => {
       ],
     });
 
-    expect(result.scalars).toHaveLength(5);
-    expect(result.scalars[0]).toEqual(
-      createScalar({ value: 1, name: "numbers" })
-    );
-    expect(result.scalars[1]).toEqual(
-      createScalar({ value: 2, name: "numbers" })
-    );
-    expect(result.scalars[2]).toEqual(
-      createScalar({ value: 3, name: "numbers" })
-    );
-    expect(result.scalars[3]).toEqual(
-      createScalar({ value: "a", name: "strings" })
-    );
-    expect(result.scalars[4]).toEqual(
-      createScalar({ value: "b", name: "strings" })
-    );
+    expect(result).toStrictEqual([
+      createResultBundle({
+        values: [
+          createResultBundle({
+            name: "numbers",
+            values: [
+              createResultScalar({ value: 1 }),
+              createResultScalar({ value: 2 }),
+              createResultScalar({ value: 3 }),
+            ],
+          }),
+          createResultBundle({
+            name: "strings",
+            values: [
+              createResultScalar({ value: "a" }),
+              createResultScalar({ value: "b" }),
+            ],
+          }),
+        ],
+      }),
+    ]);
+  });
+
+  it("should create bundles for multiple result objects with vertices and edges", () => {
+    const vertex1 = createTestableVertex().asResult("n");
+    const edge1 = createTestableEdge().asResult("e");
+    const vertex2 = createTestableVertex().asResult("tgt");
+
+    const vertex3 = createTestableVertex().asResult("n");
+    const edge2 = createTestableEdge().asResult("e");
+    const vertex4 = createTestableVertex().asResult("tgt");
+
+    const result = mapResults({
+      results: [
+        {
+          n: mapToOcVertex(vertex1),
+          e: mapToOcEdge(edge1),
+          tgt: mapToOcVertex(vertex2),
+        },
+        {
+          n: mapToOcVertex(vertex3),
+          e: mapToOcEdge(edge2),
+          tgt: mapToOcVertex(vertex4),
+        },
+      ],
+    });
+
+    // Should create two bundles at the root level, each containing 3 entities
+    expect(result).toHaveLength(2);
+    expect(result).toStrictEqual([
+      createResultBundle({
+        values: [vertex1, edge1, vertex2],
+      }),
+      createResultBundle({
+        values: [vertex3, edge2, vertex4],
+      }),
+    ]);
+  });
+
+  it("should create bundles for multiple result objects with scalars", () => {
+    const result = mapResults({
+      results: [
+        {
+          "n.code": "ATL",
+          "n.desc": "Hartsfield - Jackson Atlanta International Airport",
+        },
+        {
+          "n.code": "ANC",
+          "n.desc": "Anchorage Ted Stevens",
+        },
+      ],
+    });
+
+    // Should create two bundles at the root level, each containing 2 scalars
+    expect(result).toHaveLength(2);
+    expect(result).toStrictEqual([
+      createResultBundle({
+        values: [
+          createResultScalar({ value: "ATL", name: "n.code" }),
+          createResultScalar({
+            value: "Hartsfield - Jackson Atlanta International Airport",
+            name: "n.desc",
+          }),
+        ],
+      }),
+      createResultBundle({
+        values: [
+          createResultScalar({ value: "ANC", name: "n.code" }),
+          createResultScalar({
+            value: "Anchorage Ted Stevens",
+            name: "n.desc",
+          }),
+        ],
+      }),
+    ]);
   });
 });
-
-function createCypherVertex(vertex: Vertex): OCVertex {
-  const id = getRawId(vertex.id);
-
-  if (typeof id !== "string") {
-    throw new Error("Vertex id is not valid");
-  }
-
-  return {
-    "~id": id,
-    "~entityType": "node",
-    "~labels": vertex.types,
-    "~properties": vertex.attributes,
-  };
-}
-
-function createCypherEdge(edge: Edge): OCEdge {
-  const id = getRawId(edge.id);
-  const sourceId = getRawId(edge.sourceId);
-  const targetId = getRawId(edge.targetId);
-
-  if (typeof id !== "string") {
-    throw new Error("Edge id is not valid");
-  }
-  if (typeof sourceId !== "string") {
-    throw new Error("Edge source is not valid");
-  }
-  if (typeof targetId !== "string") {
-    throw new Error("Edge target is not valid");
-  }
-
-  return {
-    "~id": id,
-    "~entityType": "relationship",
-    "~type": edge.type,
-    "~start": sourceId,
-    "~end": targetId,
-    "~properties": edge.attributes,
-  };
-}
