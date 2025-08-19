@@ -65,7 +65,11 @@ export type ResultEdge = {
  * This type represents a `ResultEdge` that has been enriched with complete
  * attribute data and full vertex objects for the source and target vertices.
  */
-export type PatchedResultEdge = Omit<ResultEdge, "sourceId" | "targetId"> & {
+export type PatchedResultEdge = Omit<
+  ResultEdge,
+  "sourceId" | "targetId" | "entityType" | "attributes"
+> & {
+  entityType: "patched-edge";
   /** Complete set of edge attributes fetched from the database */
   attributes: EntityProperties;
   /** Fully patched source vertex with all attributes */
@@ -123,7 +127,7 @@ export function createPatchedResultEdge(options: {
   name?: string;
 }): PatchedResultEdge {
   return {
-    entityType: "edge",
+    entityType: "patched-edge",
     id: createEdgeId(options.id),
     type: options.type,
     sourceVertex: createPatchedResultVertex({

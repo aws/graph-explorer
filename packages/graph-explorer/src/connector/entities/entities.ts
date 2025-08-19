@@ -85,9 +85,9 @@ export function getAllGraphableEntities(
   const edges = toEdgeMap([]);
 
   for (const entity of entities) {
-    if (entity.entityType === "vertex") {
+    if (entity.entityType === "patched-vertex") {
       vertices.set(entity.id, createVertex(entity));
-    } else if (entity.entityType === "edge") {
+    } else if (entity.entityType === "patched-edge") {
       const edge = createEdge({
         id: entity.id,
         type: entity.type,

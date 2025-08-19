@@ -58,7 +58,11 @@ export type ResultVertex = {
  * attribute data fetched from the database. The `attributes` property is
  * guaranteed to be present and fully populated.
  */
-export type PatchedResultVertex = ResultVertex & {
+export type PatchedResultVertex = Omit<
+  ResultVertex,
+  "entityType" | "attributes"
+> & {
+  entityType: "patched-vertex";
   /** Complete set of vertex attributes fetched from the database */
   attributes: EntityProperties;
 };
@@ -101,7 +105,7 @@ export function createPatchedResultVertex(options: {
   name?: string;
 }): PatchedResultVertex {
   return {
-    entityType: "vertex",
+    entityType: "patched-vertex",
     id: createVertexId(options.id),
     types: options.types,
     attributes: options.attributes,

@@ -15,9 +15,9 @@ export function EntitySearchResult({
   level: number;
 }) {
   switch (entity.entityType) {
-    case "vertex":
+    case "patched-vertex":
       return <VertexSearchResult vertex={entity} level={level} />;
-    case "edge":
+    case "patched-edge":
       return <EdgeSearchResult edge={entity} level={level} />;
     case "scalar":
       return <ScalarSearchResult scalar={entity} level={level} />;
@@ -33,8 +33,8 @@ export function createEntityKey(entity: PatchedResultEntity, level: number) {
       : `${entity.entityType}:${level}`;
 
   switch (entity.entityType) {
-    case "vertex":
-    case "edge":
+    case "patched-vertex":
+    case "patched-edge":
       return `${commonPrefix}:${entity.id}`;
     case "scalar":
       return `${commonPrefix}:${String(entity.value)}`;
