@@ -1,13 +1,13 @@
-import { GAnyValue, GList } from "../types";
-import mapApiEdge from "./mapApiEdge";
-import mapApiVertex from "./mapApiVertex";
 import {
+  type ResultEntity,
   createResultScalar,
   createResultBundle,
   getDisplayValueForScalar,
-  ResultEntity,
-  ResultScalar,
-} from "@/core";
+  type ResultScalar,
+} from "@/connector/entities";
+import { GAnyValue, GList } from "../types";
+import mapApiEdge from "./mapApiEdge";
+import mapApiVertex from "./mapApiVertex";
 
 export function mapResults(data: GList) {
   const entities = data["@value"].flatMap(value => mapAnyValue(value));

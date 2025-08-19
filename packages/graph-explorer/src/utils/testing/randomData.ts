@@ -1,32 +1,27 @@
 import {
-  ArrowStyle,
-  AttributeConfig,
-  ConnectionWithId,
+  type ArrowStyle,
+  type AttributeConfig,
+  type ConnectionWithId,
   createEdge,
   createEdgeId,
   createNewConfigurationId,
-  createPatchedResultEdge,
-  createPatchedResultVertex,
-  createResultEdge,
-  createResultScalar,
-  createResultVertex,
   createVertex,
   createVertexId,
-  EdgeId,
-  EdgePreferences,
-  EdgeTypeConfig,
-  Entities,
-  EntityProperties,
-  FeatureFlags,
-  LineStyle,
-  PrefixTypeConfig,
-  RawConfiguration,
-  Schema,
-  UserStyling,
-  Vertex,
-  VertexId,
-  VertexPreferences,
-  VertexTypeConfig,
+  type EdgeId,
+  type EdgePreferences,
+  type EdgeTypeConfig,
+  type Entities,
+  type EntityProperties,
+  type FeatureFlags,
+  type LineStyle,
+  type PrefixTypeConfig,
+  type RawConfiguration,
+  type Schema,
+  type UserStyling,
+  type Vertex,
+  type VertexId,
+  type VertexPreferences,
+  type VertexTypeConfig,
 } from "@/core";
 import {
   createArray,
@@ -41,16 +36,23 @@ import {
   randomlyUndefined,
 } from "@shared/utils/testing";
 import {
-  NeptuneServiceType,
+  type NeptuneServiceType,
   neptuneServiceTypeOptions,
-  QueryEngine,
+  type QueryEngine,
   queryEngineOptions,
 } from "@shared/types";
 import {
   createExportedGraph,
-  ExportedGraphConnection,
+  type ExportedGraphConnection,
 } from "@/modules/GraphViewer/exportedGraph";
 import { createRdfEdgeId } from "@/connector/sparql/createRdfEdgeId";
+import {
+  createResultVertex,
+  createPatchedResultVertex,
+  createResultEdge,
+  createPatchedResultEdge,
+  createResultScalar,
+} from "@/connector/entities";
 
 /*
 

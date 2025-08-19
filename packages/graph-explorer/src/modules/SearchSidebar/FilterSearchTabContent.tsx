@@ -18,10 +18,10 @@ import {
 } from "@/components";
 
 import { useTranslations } from "@/hooks";
-import { KeywordSearchResponse } from "@/connector";
+import { createPatchedResultVertex } from "@/connector/entities";
 import { UseQueryResult } from "@tanstack/react-query";
 import { useCancelKeywordSearch } from "./useKeywordSearchQuery";
-import { createPatchedResultVertex } from "@/core";
+import { KeywordSearchResponse } from "@/connector";
 
 export function FilterSearchTabContent() {
   const t = useTranslations();

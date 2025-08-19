@@ -7,9 +7,9 @@ import {
   Vertex,
   VertexId,
   NormalizedConnection,
-  ResultEntity,
   Entities,
 } from "@/core";
+import { ResultEntity } from "./entities";
 
 export type QueryOptions = RequestInit & {
   queryId?: string;

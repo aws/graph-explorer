@@ -1,8 +1,11 @@
-import { getDisplayValueForBundle, PatchedResultEntity } from "@/core";
 import { VertexSearchResult } from "./VertexSearchResult";
 import { EdgeSearchResult } from "./EdgeSearchResult";
 import { ScalarSearchResult } from "./ScalarSearchResult";
 import { BundleSearchResult } from "./BundleSearchResult";
+import {
+  getDisplayValueForBundle,
+  PatchedResultEntity,
+} from "@/connector/entities";
 
 export function EntitySearchResult({
   entity,

@@ -1,6 +1,7 @@
 import { Branded } from "@/utils";
-import { PatchedResultVertex, VertexId } from "./vertex";
+import { VertexId } from "./vertex";
 import { EntityProperties, EntityRawId } from "./shared";
+import { createEdgeId, createVertexId } from "./entityIdType";
 
 /**
  * A branded type for edge identifiers to ensure type safety.
@@ -45,67 +46,19 @@ export type Edge = {
   attributes: EntityProperties;
 };
 
-/**
- * An edge result from a graph database query.
- *
- * If the attributes are undefined, the edge is assumed to be a fragment and
- * will have their details fetched from the database.
- */
-export type ResultEdge = {
-  /**
-   * Indicates the type in order to discriminate from other result types in
-   * unions.
-   */
-  entityType: "edge";
-
-  /**
-   * Unique identifier for the edge.
-   * - For PG, the edge id
-   * - For RDF, predicates do not have ids like PG graphs. So, a synthetic id is
-   *   created using <source URI>-[predicate]-><target URI>
-   */
-  id: EdgeId;
-
-  /**
-   * The name of the vertex in the original result set.
-   */
-  name?: string;
-
-  /**
-   * Edge type.
-   * - For PG, the label which identifies the relation type
-   * - For RDF, the predicate
-   */
+/** Constructs an Edge instance from the given values. */
+export function createEdge(options: {
+  id: EntityRawId;
   type: string;
-  /**
-   * Source vertex id
-   */
-  sourceId: VertexId;
-  /**
-   * Target vertex id
-   */
-  targetId: VertexId;
-
-  /**
-   * Only for PG, attributes associated to the edge. If it is undefined the edge
-   * is assumed to be a fragment. For RDF, predicates do not have more
-   * properties than the predicate itself.
-   */
+  sourceId: EntityRawId;
+  targetId: EntityRawId;
   attributes?: EntityProperties;
-};
-
-/**
- * An edge result after it has been patched with the full edge details, including
- * the patched vertex results for source and target.
- *
- * This type represents a `ResultEdge` that has been enriched with complete
- * attribute data and full vertex objects for the source and target vertices.
- */
-export type PatchedResultEdge = Omit<ResultEdge, "sourceId" | "targetId"> & {
-  /** Complete set of edge attributes fetched from the database */
-  attributes: EntityProperties;
-  /** Fully patched source vertex with all attributes */
-  sourceVertex: PatchedResultVertex;
-  /** Fully patched target vertex with all attributes */
-  targetVertex: PatchedResultVertex;
-};
+}): Edge {
+  return {
+    id: createEdgeId(options.id),
+    type: options.type,
+    sourceId: createVertexId(options.sourceId),
+    targetId: createVertexId(options.targetId),
+    attributes: options.attributes ?? {},
+  };
+}

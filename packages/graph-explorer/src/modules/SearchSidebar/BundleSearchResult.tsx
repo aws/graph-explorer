@@ -1,4 +1,3 @@
-import { PatchedResultBundle, getDisplayValueForBundle } from "@/core";
 import { BracketsIcon } from "lucide-react";
 import {
   CollapsibleContent,
@@ -10,6 +9,10 @@ import {
   SearchResultTitle,
 } from "@/components";
 import { createEntityKey, EntitySearchResult } from "./EntitySearchResult";
+import {
+  getDisplayValueForBundle,
+  type PatchedResultBundle,
+} from "@/connector/entities";
 
 export function BundleSearchResult({
   bundle,

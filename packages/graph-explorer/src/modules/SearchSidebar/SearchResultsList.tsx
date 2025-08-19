@@ -7,10 +7,13 @@ import {
 } from "@/components";
 import { useAddToGraphMutation } from "@/hooks/useAddToGraph";
 import { ChevronLeftIcon, ChevronRightIcon, ListPlusIcon } from "lucide-react";
-import { getAllGraphableEntities, PatchedResultEntity } from "@/core";
 import { useState } from "react";
 import { cn } from "@/utils";
 import { createEntityKey, EntitySearchResult } from "./EntitySearchResult";
+import {
+  getAllGraphableEntities,
+  type PatchedResultEntity,
+} from "@/connector/entities";
 
 export function SearchResultsList({
   results,

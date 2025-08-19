@@ -1,7 +1,6 @@
 import {
   createEdge,
   createVertex,
-  PatchedResultEdge,
   useDisplayEdgeFromEdge,
   useDisplayVertex,
 } from "@/core";
@@ -26,6 +25,7 @@ import {
 } from "@/hooks";
 import { MinusCircleIcon, PlusCircleIcon } from "lucide-react";
 import { EntitySearchResult } from "./EntitySearchResult";
+import type { PatchedResultEdge } from "@/connector/entities";
 
 export function EdgeSearchResult({
   edge,

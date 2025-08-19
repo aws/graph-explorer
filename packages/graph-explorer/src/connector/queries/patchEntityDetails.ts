@@ -1,25 +1,20 @@
-import {
-  Vertex,
-  Edge,
-  VertexId,
-  EdgeId,
-  toNodeMap,
-  toEdgeMap,
-  getAllGraphableEntityIds,
-  ResultEntity,
-  ResultVertex,
-  ResultEdge,
-  PatchedResultEntity,
-  PatchedResultVertex,
-  PatchedResultEdge,
-  createPatchedResultVertex,
-  createPatchedResultEdge,
-  ResultBundle,
-  PatchedResultBundle,
-} from "@/core";
+import { Vertex, Edge, VertexId, EdgeId, toNodeMap, toEdgeMap } from "@/core";
 import { logger } from "@/utils";
 import { QueryClient } from "@tanstack/react-query";
 import { fetchEntityDetails } from "./fetchEntityDetails";
+import {
+  createPatchedResultEdge,
+  createPatchedResultVertex,
+  getAllGraphableEntityIds,
+  PatchedResultBundle,
+  PatchedResultEdge,
+  PatchedResultEntity,
+  PatchedResultVertex,
+  ResultBundle,
+  ResultEdge,
+  ResultEntity,
+  ResultVertex,
+} from "../entities";
 
 export async function patchEntityDetails(
   client: QueryClient,

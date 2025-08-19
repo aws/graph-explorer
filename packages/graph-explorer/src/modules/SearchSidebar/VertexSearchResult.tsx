@@ -1,4 +1,4 @@
-import { createVertex, PatchedResultVertex, useDisplayVertex } from "@/core";
+import { createVertex, useDisplayVertex } from "@/core";
 import {
   ButtonProps,
   CollapsibleContent,
@@ -19,6 +19,7 @@ import {
   useRemoveNodeFromGraph,
 } from "@/hooks";
 import { MinusCircleIcon, PlusCircleIcon } from "lucide-react";
+import type { PatchedResultVertex } from "@/connector/entities";
 
 export function VertexSearchResult({
   vertex,

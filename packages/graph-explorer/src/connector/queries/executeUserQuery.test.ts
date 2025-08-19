@@ -5,7 +5,7 @@ import {
   FakeExplorer,
 } from "@/utils/testing";
 import { executeUserQuery } from "./executeUserQuery";
-import { createResultScalar, getAllGraphableEntities } from "@/core";
+import { getAllGraphableEntities, createResultScalar } from "../entities";
 
 describe("executeUserQuery", () => {
   it("should execute a query with empty results", async () => {

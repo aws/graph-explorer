@@ -6,7 +6,7 @@ import {
   createRandomName,
 } from "@shared/utils/testing";
 import mapApiVertex from "./mapApiVertex";
-import { createResultVertex } from "@/core";
+import { createResultVertex } from "@/connector/entities";
 import { OCVertex } from "../types";
 
 test("maps empty vertex", () => {

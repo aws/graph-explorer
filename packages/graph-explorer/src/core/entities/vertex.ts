@@ -1,5 +1,6 @@
 import { Branded } from "@/utils";
 import { EntityProperties, EntityRawId } from "./shared";
+import { createVertexId } from "./entityIdType";
 
 /**
  * A branded type for vertex identifiers to ensure type safety.
@@ -52,60 +53,31 @@ export type Vertex = {
   isBlankNode: boolean;
 };
 
-/**
- * A vertex result from a graph database query.
- *
- * If the attributes are not defined, the vertex is assumed to be a fragment and
- * will have their details fetched from the database.
- */
-export type ResultVertex = {
-  /**
-   * Indicates the type in order to discriminate from other result types in
-   * unions.
-   */
-  entityType: "vertex";
+/** Constructs a Vertex instance from the given values. */
+export function createVertex(options: {
+  id: EntityRawId;
 
   /**
-   * Unique identifier for the vertex.
-   * - For PG, the node id
-   * - For RDF, the resource URI
+   * The primary type (used for styling) will be the first type in the array. If
+   * no types are provided, then types will be an empty array and the primary
+   * type will be empty string.
    */
-  id: VertexId;
+  types?: string[];
 
   /**
-   * The name of the vertex in the original result set.
-   */
-  name?: string;
-
-  /**
-   * In gremlin, a node can have multiple labels (types). So, this stores all
-   * possible labels for displaying purposes.
-   * @example
-   * "John Doe" can be a "person" and a "worker"
-   * types = ["person", "worker"]
-   */
-  types: string[];
-
-  /**
-   * List of attributes associated to the vertex. If it is undefined the vertex
-   * is assumed to be a fragment.
+   * If no attributes are provided, then defaults to an empty object.
    */
   attributes?: EntityProperties;
 
-  /**
-   * Flag to mark the resource as blank node in RDF.
-   */
-  isBlankNode: boolean;
-};
-
-/**
- * A vertex result after it has been patched with the full vertex details.
- *
- * This type represents a `ResultVertex` that has been enriched with complete
- * attribute data fetched from the database. The `attributes` property is
- * guaranteed to be present and fully populated.
- */
-export type PatchedResultVertex = ResultVertex & {
-  /** Complete set of vertex attributes fetched from the database */
-  attributes: EntityProperties;
-};
+  /** If not provided, then defaults to false. */
+  isBlankNode?: boolean;
+}): Vertex {
+  const types = options.types ?? [];
+  return {
+    id: createVertexId(options.id),
+    type: types[0] ?? "",
+    types,
+    attributes: options.attributes != null ? options.attributes : {},
+    isBlankNode: options.isBlankNode ?? false,
+  };
+}

@@ -2,7 +2,8 @@ import { describe, it, expect } from "vitest";
 import { createResultBundle, getDisplayValueForBundle } from "./bundle";
 import { createResultScalar } from "./scalar";
 import { MISSING_DISPLAY_VALUE, NBSP } from "@/utils/constants";
-import { createResultEdge, createResultVertex } from "./createEntities";
+import { createResultVertex } from "./vertex";
+import { createResultEdge } from "./edge";
 
 describe("getDisplayValueForBundle", () => {
   it("should format scalar values with names", () => {

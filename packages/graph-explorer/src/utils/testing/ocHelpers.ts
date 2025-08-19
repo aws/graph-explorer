@@ -1,11 +1,11 @@
-import { OCEdge, OCVertex } from "@/connector/openCypher/types";
 import {
+  type ResultVertex,
+  type ResultEdge,
+  type ScalarValue,
   createTypedValue,
-  getRawId,
-  ResultEdge,
-  ResultVertex,
-  ScalarValue,
-} from "@/core";
+} from "@/connector/entities";
+import type { OCEdge, OCVertex } from "@/connector/openCypher/types";
+import { getRawId } from "@/core";
 
 export function mapToOcVertex(vertex: ResultVertex): OCVertex {
   const id = getRawId(vertex.id);
