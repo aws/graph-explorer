@@ -106,7 +106,7 @@ function EntitiesTabular() {
                 <IconButton
                   variant="text"
                   icon={<ResetIcon />}
-                  tooltipText={t("entities-tabular.reset-sorting-and-filters")}
+                  tooltipText="Reset sorting and filters"
                   onClick={resetSortingAndFilters}
                 />
               )}

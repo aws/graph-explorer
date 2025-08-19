@@ -63,8 +63,7 @@
     "source-type": "Source Class",
     "target-id": "Target URI",
     "target-type": "Target Class",
-    "edges-placeholder": "Add resources in the Graph View to see their predicates",
-    "reset-sorting-and-filters": "Reset sorting and filters"
+    "edges-placeholder": "Add resources in the Graph View to see their predicates"
   },
   "data-explorer": {
     "node-id": "Resource URI",

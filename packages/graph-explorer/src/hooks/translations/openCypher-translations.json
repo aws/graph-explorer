@@ -63,8 +63,7 @@
     "source-type": "Source Label",
     "target-id": "Target Id",
     "target-type": "Target Label",
-    "edges-placeholder": "Add a node in the Graph View to see its connections",
-    "reset-sorting-and-filters": "Reset sorting and filters"
+    "edges-placeholder": "Add a node in the Graph View to see its connections"
   },
   "data-explorer": {
     "node-id": "Node Id",
