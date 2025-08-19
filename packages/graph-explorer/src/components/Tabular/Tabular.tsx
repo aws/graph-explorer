@@ -111,9 +111,7 @@ export const Tabular = <T extends object>(
   ]);
 
   useDeepCompareEffect(() => {
-    if (tableInstance.state.sortBy.length !== 0) {
-      onColumnSortedChange?.(tableInstance.state.sortBy);
-    }
+    onColumnSortedChange?.(tableInstance.state.sortBy);
   }, [onColumnSortedChange, tableInstance.state.sortBy]);
 
   useImperativeHandle(ref, () => tabularInstance, [tabularInstance]);
