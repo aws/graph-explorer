@@ -1,5 +1,4 @@
 import {
-  fetchEntityDetails,
   Vertex,
   Edge,
   VertexId,
@@ -20,6 +19,7 @@ import {
 } from "@/core";
 import { logger } from "@/utils";
 import { QueryClient } from "@tanstack/react-query";
+import { fetchEntityDetails } from "./fetchEntityDetails";
 
 export async function patchEntityDetails(
   client: QueryClient,

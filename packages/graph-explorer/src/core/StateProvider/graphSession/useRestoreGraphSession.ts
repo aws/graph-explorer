@@ -2,7 +2,7 @@ import { useNotification } from "@/components/NotificationProvider";
 import {
   fetchEntityDetails,
   createFetchEntityDetailsCompletionNotification,
-} from "@/core/fetchEntityDetails";
+} from "@/connector";
 import { useAddToGraph } from "@/hooks";
 import { logger, formatEntityCounts } from "@/utils";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
