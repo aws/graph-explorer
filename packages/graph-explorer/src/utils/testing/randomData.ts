@@ -12,6 +12,7 @@ import {
   type EdgeTypeConfig,
   type Entities,
   type EntityProperties,
+  EntityRawId,
   type FeatureFlags,
   type LineStyle,
   type PrefixTypeConfig,
@@ -286,12 +287,13 @@ export function createRandomEdge(source?: Vertex, target?: Vertex) {
  */
 export function createTestableVertex() {
   const createInternal = (testable: {
-    id: VertexId;
+    id: EntityRawId;
     types: string[];
     attributes: EntityProperties;
   }) => {
     return {
       ...testable,
+      id: createVertexId(testable.id),
       withRdfValues: () => {
         return createInternal({
           id: createRandomUrlString() as VertexId,
@@ -350,7 +352,7 @@ export function createTestableVertex() {
 export function createTestableEdge() {
   // Factory method that creates the testable edge
   const createInternal = (testable: {
-    id: EdgeId;
+    id: EntityRawId;
     type: string;
     attributes: EntityProperties;
     source: TestableVertex;
@@ -358,6 +360,7 @@ export function createTestableEdge() {
   }) => {
     return {
       ...testable,
+      id: createEdgeId(testable.id),
       withRdfValues: () => {
         const rdfType = createRandomUrlString();
         const rdfSource = testable.source.withRdfValues();

@@ -102,9 +102,7 @@ export function createPatchedResultBundle({
  * // Returns: "Name: John • Age: 25 • Profile: v(v123)"
  * ```
  */
-export function getDisplayValueForBundle(
-  bundle: ResultBundle | PatchedResultBundle
-): string {
+export function getDisplayValueForBundle(bundle: PatchedResultBundle): string {
   return bundle.values
     .map(entity => {
       switch (entity.entityType) {
@@ -112,11 +110,11 @@ export function getDisplayValueForBundle(
           return entity.name != null
             ? `${entity.name}: ${getDisplayValueForScalar(entity.value)}`
             : getDisplayValueForScalar(entity.value);
-        case "vertex":
+        case "patched-vertex":
           return entity.name
             ? `${entity.name}: v(${entity.id})`
             : `v(${entity.id})`;
-        case "edge":
+        case "patched-edge":
           return entity.name
             ? `${entity.name}: e(${entity.id})`
             : `e(${entity.id})`;
