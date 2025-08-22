@@ -91,13 +91,13 @@ export function getAllGraphableEntities(
       const edge = createEdge({
         id: entity.id,
         type: entity.type,
-        sourceId: entity.sourceVertex.id,
-        targetId: entity.targetVertex.id,
+        sourceId: entity.source.id,
+        targetId: entity.target.id,
         attributes: entity.attributes,
       });
       edges.set(entity.id, edge);
-      vertices.set(entity.sourceVertex.id, createVertex(entity.sourceVertex));
-      vertices.set(entity.targetVertex.id, createVertex(entity.targetVertex));
+      vertices.set(entity.source.id, createVertex(entity.source));
+      vertices.set(entity.target.id, createVertex(entity.target));
     } else if (entity.entityType === "bundle") {
       const nested = getAllGraphableEntities(entity.values);
       nested.vertices.forEach(vertex => vertices.set(vertex.id, vertex));

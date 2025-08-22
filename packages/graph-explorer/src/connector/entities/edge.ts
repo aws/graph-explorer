@@ -73,9 +73,9 @@ export type PatchedResultEdge = Omit<
   /** Complete set of edge attributes fetched from the database */
   attributes: EntityProperties;
   /** Fully patched source vertex with all attributes */
-  sourceVertex: PatchedResultVertex;
+  source: PatchedResultVertex;
   /** Fully patched target vertex with all attributes */
-  targetVertex: PatchedResultVertex;
+  target: PatchedResultVertex;
 };
 
 /**
@@ -130,12 +130,12 @@ export function createPatchedResultEdge(options: {
     entityType: "patched-edge",
     id: createEdgeId(options.id),
     type: options.type,
-    sourceVertex: createPatchedResultVertex({
+    source: createPatchedResultVertex({
       ...options.sourceVertex,
       isBlankNode: options.sourceVertex.isBlankNode,
       name: "source",
     }),
-    targetVertex: createPatchedResultVertex({
+    target: createPatchedResultVertex({
       ...options.targetVertex,
       isBlankNode: options.targetVertex.isBlankNode,
       name: "target",
