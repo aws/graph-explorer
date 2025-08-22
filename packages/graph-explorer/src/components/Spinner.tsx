@@ -22,7 +22,7 @@ export function Spinner({
     <span className="stack">
       <LoaderIcon
         className={cn(
-          "invisible",
+          "invisible self-center justify-self-center",
           loading && "visible animate-spin",
           className
         )}
