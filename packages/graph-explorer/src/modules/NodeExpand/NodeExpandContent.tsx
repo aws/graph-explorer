@@ -157,15 +157,15 @@ function ExpandButton({
 
   return (
     <Button
-      icon={
-        isPending ? <Spinner className="size-[24px]" /> : <ExpandGraphIcon />
-      }
       variant="filled"
       isDisabled={isPending || isDisabled}
       onPress={() =>
         expandNode({ vertexId, vertexTypes: vertex.types, ...filters })
       }
     >
+      <Spinner loading={isPending}>
+        <ExpandGraphIcon />
+      </Spinner>
       Expand
     </Button>
   );
