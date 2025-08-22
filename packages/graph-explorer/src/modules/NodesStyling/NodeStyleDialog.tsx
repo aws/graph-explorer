@@ -5,19 +5,18 @@ import {
   DialogTitle,
   DialogBody,
   DialogDescription,
+  DialogFooter,
 } from "@/components/Dialog";
 import {
   Button,
   FileButton,
-  IconButton,
   InputField,
   SelectField,
-  UploadIcon,
-  VertexSymbol,
+  VertexIcon,
 } from "@/components";
 import ColorInput from "@/components/ColorInput/ColorInput";
 import { useNotification } from "@/components/NotificationProvider";
-import { useDisplayVertexTypeConfig, useWithTheme } from "@/core";
+import { useDisplayVertexTypeConfig } from "@/core";
 import {
   LineStyle,
   ShapeStyle,
@@ -26,12 +25,10 @@ import {
 import useTranslations from "@/hooks/useTranslations";
 import { LINE_STYLE_OPTIONS } from "./lineStyling";
 import { NODE_SHAPE } from "./nodeShape";
-import modalDefaultStyles from "./SingleNodeStylingModal.style";
 import {
   RESERVED_ID_PROPERTY,
   RESERVED_TYPES_PROPERTY,
 } from "@/utils/constants";
-import { cn } from "@/utils";
 import { atom, useAtom } from "jotai";
 
 export const customizeNodeTypeAtom = atom<string | undefined>(undefined);
@@ -47,8 +44,6 @@ const file2Base64 = (file: File): Promise<string> => {
 };
 
 export default function NodeStyleDialog() {
-  const styleWithTheme = useWithTheme();
-
   const [customizeNodeType, setCustomizeNodeType] = useAtom(
     customizeNodeTypeAtom
   );
@@ -58,18 +53,17 @@ export default function NodeStyleDialog() {
       open={Boolean(customizeNodeType)}
       onOpenChange={open => !open && setCustomizeNodeType(undefined)}
     >
-      <DialogContent
-        className={cn("max-w-2xl", styleWithTheme(modalDefaultStyles))}
-      >
-        {customizeNodeType ? (
-          <>
-            <NodeDialogTitle vertexType={customizeNodeType} />
-            <DialogBody>
-              <Content vertexType={customizeNodeType} />
-            </DialogBody>
-          </>
-        ) : null}
-      </DialogContent>
+      {customizeNodeType ? (
+        <DialogContent>
+          <NodeDialogTitle vertexType={customizeNodeType} />
+          <DialogBody>
+            <Content vertexType={customizeNodeType} />
+          </DialogBody>
+          <DialogFooter>
+            <ResetStylesButton vertexType={customizeNodeType} />
+          </DialogFooter>
+        </DialogContent>
+      ) : null}
     </Dialog>
   );
 }
@@ -91,8 +85,7 @@ function NodeDialogTitle({ vertexType }: { vertexType: string }) {
 function Content({ vertexType }: { vertexType: string }) {
   const t = useTranslations();
 
-  const { vertexStyle, setVertexStyle, resetVertexStyle } =
-    useVertexStyling(vertexType);
+  const { vertexStyle, setVertexStyle } = useVertexStyling(vertexType);
   const displayConfig = useDisplayVertexTypeConfig(vertexType);
 
   const selectOptions = (() => {
@@ -132,10 +125,10 @@ function Content({ vertexType }: { vertexType: string }) {
   };
 
   return (
-    <div className="modal-container">
-      <div>
-        <p>Display Attributes</p>
-        <div className="attrs-container">
+    <div className="flex flex-col gap-4">
+      <div className="space-y-2">
+        <p className="text-base font-medium">Display Attributes</p>
+        <div className="grid grid-cols-2 gap-2">
           <SelectField
             label="Display Name Attribute"
             labelPlacement="inner"
@@ -158,9 +151,9 @@ function Content({ vertexType }: { vertexType: string }) {
           />
         </div>
       </div>
-      <div>
-        <p>Shape and Icon</p>
-        <div className="flex flex-row items-center gap-2">
+      <div className="space-y-2">
+        <p className="text-base font-medium">Shape and Icon</p>
+        <div className="grid grid-cols-[1fr_auto] gap-4">
           <SelectField
             label="Style"
             labelPlacement="inner"
@@ -171,35 +164,25 @@ function Content({ vertexType }: { vertexType: string }) {
             options={NODE_SHAPE}
             className="grow"
           />
-          <FileButton
-            accept="image/*"
-            onChange={file => {
-              file && convertImageToBase64AndSetNewIcon(file);
-            }}
-            asChild
-          >
-            <IconButton
-              variant="filled"
-              className="text-text-primary hover:text-text-primary group rounded-full border-0 bg-transparent p-0 hover:cursor-pointer hover:bg-gray-200"
-              icon={
-                <>
-                  <div className="hidden group-hover:flex">
-                    <UploadIcon />
-                  </div>
-                  <VertexSymbol
-                    vertexStyle={displayConfig.style}
-                    className="size-full group-hover:hidden"
-                  />
-                </>
-              }
-              tooltipText="Upload New Icon"
+          <div className="grid grid-cols-[auto_auto] items-center">
+            <VertexIcon
+              vertexStyle={displayConfig.style}
+              className="size-3/4 group-hover:hidden"
             />
-          </FileButton>
+            <FileButton
+              accept="image/*"
+              onChange={file => {
+                file && convertImageToBase64AndSetNewIcon(file);
+              }}
+            >
+              Upload Icon
+            </FileButton>
+          </div>
         </div>
       </div>
-      <div>
-        <p>Shape Styling</p>
-        <div className="attrs-container">
+      <div className="space-y-2">
+        <p className="text-base font-medium">Shape Styling</p>
+        <div className="grid grid-cols-2 gap-2">
           <ColorInput
             label="Color"
             labelPlacement="inner"
@@ -221,7 +204,7 @@ function Content({ vertexType }: { vertexType: string }) {
         </div>
       </div>
       <div>
-        <div className="attrs-container">
+        <div className="grid grid-cols-3 gap-2">
           <ColorInput
             label="Border Color"
             labelPlacement="inner"
@@ -247,9 +230,12 @@ function Content({ vertexType }: { vertexType: string }) {
           />
         </div>
       </div>
-      <div className="actions">
-        <Button onClick={resetVertexStyle}>Reset to Default</Button>
-      </div>
     </div>
   );
+}
+
+function ResetStylesButton({ vertexType }: { vertexType: string }) {
+  const { resetVertexStyle } = useVertexStyling(vertexType);
+
+  return <Button onClick={resetVertexStyle}>Reset to Default</Button>;
 }
