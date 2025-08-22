@@ -52,16 +52,24 @@ export function getAllGraphableEntityIds(entities: ResultEntity[]) {
   const edgeIds = new Set<EdgeId>();
 
   for (const entity of entities) {
-    if (entity.entityType === "vertex") {
-      vertexIds.add(entity.id);
-    } else if (entity.entityType === "edge") {
-      edgeIds.add(entity.id);
-      vertexIds.add(entity.sourceId);
-      vertexIds.add(entity.targetId);
-    } else if (entity.entityType === "bundle") {
-      const nested = getAllGraphableEntityIds(entity.values);
-      nested.vertexIds.forEach(id => vertexIds.add(id));
-      nested.edgeIds.forEach(id => edgeIds.add(id));
+    switch (entity.entityType) {
+      case "vertex":
+        vertexIds.add(entity.id);
+        break;
+      case "edge":
+        edgeIds.add(entity.id);
+        vertexIds.add(entity.sourceId);
+        vertexIds.add(entity.targetId);
+        break;
+      case "bundle": {
+        const nested = getAllGraphableEntityIds(entity.values);
+        nested.vertexIds.forEach(id => vertexIds.add(id));
+        nested.edgeIds.forEach(id => edgeIds.add(id));
+        break;
+      }
+      case "scalar":
+        // Scalars are ignored
+        break;
     }
   }
 
@@ -85,23 +93,32 @@ export function getAllGraphableEntities(
   const edges = toEdgeMap([]);
 
   for (const entity of entities) {
-    if (entity.entityType === "patched-vertex") {
-      vertices.set(entity.id, createVertex(entity));
-    } else if (entity.entityType === "patched-edge") {
-      const edge = createEdge({
-        id: entity.id,
-        type: entity.type,
-        sourceId: entity.source.id,
-        targetId: entity.target.id,
-        attributes: entity.attributes,
-      });
-      edges.set(entity.id, edge);
-      vertices.set(entity.source.id, createVertex(entity.source));
-      vertices.set(entity.target.id, createVertex(entity.target));
-    } else if (entity.entityType === "bundle") {
-      const nested = getAllGraphableEntities(entity.values);
-      nested.vertices.forEach(vertex => vertices.set(vertex.id, vertex));
-      nested.edges.forEach(edge => edges.set(edge.id, edge));
+    switch (entity.entityType) {
+      case "patched-vertex":
+        vertices.set(entity.id, createVertex(entity));
+        break;
+      case "patched-edge": {
+        const edge = createEdge({
+          id: entity.id,
+          type: entity.type,
+          sourceId: entity.source.id,
+          targetId: entity.target.id,
+          attributes: entity.attributes,
+        });
+        edges.set(entity.id, edge);
+        vertices.set(entity.source.id, createVertex(entity.source));
+        vertices.set(entity.target.id, createVertex(entity.target));
+        break;
+      }
+      case "bundle": {
+        const nested = getAllGraphableEntities(entity.values);
+        nested.vertices.forEach(vertex => vertices.set(vertex.id, vertex));
+        nested.edges.forEach(edge => edges.set(edge.id, edge));
+        break;
+      }
+      case "scalar":
+        // Scalars are ignored
+        break;
     }
   }
 
