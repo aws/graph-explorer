@@ -5,10 +5,11 @@ import {
   DialogTitle,
   DialogBody,
   DialogDescription,
+  DialogFooter,
 } from "@/components/Dialog";
 import { Button, InputField, SelectField } from "@/components";
 import ColorInput from "@/components/ColorInput/ColorInput";
-import { useDisplayEdgeTypeConfig, useWithTheme } from "@/core";
+import { useDisplayEdgeTypeConfig } from "@/core";
 import {
   ArrowStyle,
   LineStyle,
@@ -20,15 +21,12 @@ import {
   TARGET_ARROW_STYLE_OPTIONS,
 } from "./arrowsStyling";
 import { LINE_STYLE_OPTIONS } from "./lineStyling";
-import modalDefaultStyles from "./SingleEdgeStylingModal.style";
 import { RESERVED_TYPES_PROPERTY } from "@/utils";
 import { atom, useAtom } from "jotai";
 
 export const customizeEdgeTypeAtom = atom<string | undefined>(undefined);
 
 export default function EdgeStyleDialog() {
-  const styleWithTheme = useWithTheme();
-
   const [customizeEdgeType, setCustomizeEdgeType] = useAtom(
     customizeEdgeTypeAtom
   );
@@ -38,16 +36,17 @@ export default function EdgeStyleDialog() {
       open={Boolean(customizeEdgeType)}
       onOpenChange={open => !open && setCustomizeEdgeType(undefined)}
     >
-      <DialogContent className={styleWithTheme(modalDefaultStyles)}>
-        {customizeEdgeType ? (
-          <>
-            <EdgeDialogTitle edgeType={customizeEdgeType} />
-            <DialogBody>
-              <Content edgeType={customizeEdgeType} />
-            </DialogBody>
-          </>
-        ) : null}
-      </DialogContent>
+      {customizeEdgeType ? (
+        <DialogContent>
+          <EdgeDialogTitle edgeType={customizeEdgeType} />
+          <DialogBody>
+            <Content edgeType={customizeEdgeType} />
+          </DialogBody>
+          <DialogFooter>
+            <ResetStylesButton edgeType={customizeEdgeType} />
+          </DialogFooter>
+        </DialogContent>
+      ) : null}
     </Dialog>
   );
 }
@@ -70,7 +69,7 @@ function Content({ edgeType }: { edgeType: string }) {
   const displayConfig = useDisplayEdgeTypeConfig(edgeType);
   const t = useTranslations();
 
-  const { edgeStyle, setEdgeStyle, resetEdgeStyle } = useEdgeStyling(edgeType);
+  const { edgeStyle, setEdgeStyle } = useEdgeStyling(edgeType);
 
   const selectOptions = (() => {
     const options = displayConfig.attributes.map(attr => ({
@@ -87,10 +86,10 @@ function Content({ edgeType }: { edgeType: string }) {
   })();
 
   return (
-    <div className="modal-container">
-      <div>
-        <p>Display Attributes</p>
-        <div className="attrs-container">
+    <div className="space-y-6">
+      <div className="space-y-2">
+        <p className="text-base font-medium">Display Attributes</p>
+        <div className="grid grid-cols-1 gap-2">
           <SelectField
             label="Display Name Attribute"
             labelPlacement="inner"
@@ -102,9 +101,9 @@ function Content({ edgeType }: { edgeType: string }) {
           />
         </div>
       </div>
-      <div>
-        <p>Label Styling</p>
-        <div className="attrs-container">
+      <div className="space-y-2">
+        <p className="text-base font-medium">Label Styling</p>
+        <div className="grid grid-cols-2 gap-2">
           <ColorInput
             label="Color"
             labelPlacement="inner"
@@ -124,9 +123,7 @@ function Content({ edgeType }: { edgeType: string }) {
             }
           />
         </div>
-      </div>
-      <div>
-        <div className="attrs-container">
+        <div className="grid grid-cols-3 gap-2">
           <ColorInput
             label="Border Color"
             labelPlacement="inner"
@@ -156,9 +153,9 @@ function Content({ edgeType }: { edgeType: string }) {
           />
         </div>
       </div>
-      <div>
-        <p>Line Styling</p>
-        <div className="attrs-container">
+      <div className="space-y-2">
+        <p className="text-base font-medium">Line Styling</p>
+        <div className="grid grid-cols-3 gap-2">
           <ColorInput
             label="Color"
             labelPlacement="inner"
@@ -184,9 +181,9 @@ function Content({ edgeType }: { edgeType: string }) {
           />
         </div>
       </div>
-      <div>
-        <p>Arrows Styling</p>
-        <div className="attrs-container">
+      <div className="space-y-2">
+        <p className="text-base font-medium">Arrows Styling</p>
+        <div className="grid grid-cols-2 gap-2">
           <SelectField
             label="Source"
             labelPlacement="inner"
@@ -207,9 +204,12 @@ function Content({ edgeType }: { edgeType: string }) {
           />
         </div>
       </div>
-      <div className="actions">
-        <Button onClick={resetEdgeStyle}>Reset to Default</Button>
-      </div>
     </div>
   );
+}
+
+function ResetStylesButton({ edgeType }: { edgeType: string }) {
+  const { resetEdgeStyle } = useEdgeStyling(edgeType);
+
+  return <Button onClick={resetEdgeStyle}>Reset to Default</Button>;
 }
