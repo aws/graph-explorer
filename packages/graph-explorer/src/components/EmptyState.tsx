@@ -18,7 +18,7 @@ const EmptyState = React.forwardRef<
 EmptyState.displayName = "EmptyState";
 
 const emptyStateIconStyles = cva({
-  base: "mb-6 flex size-24 items-center justify-center rounded-full text-7xl text-white [&>svg]:size-[60%]",
+  base: "mb-6 flex size-24 items-center justify-center rounded-full text-7xl text-white [&>svg]:size-1/2",
   variants: {
     variant: {
       info: "from-primary-main to-primary-light bg-gradient-to-b shadow-[0_0_20px_2px_hsl(205,95%,71%,70%)]",
