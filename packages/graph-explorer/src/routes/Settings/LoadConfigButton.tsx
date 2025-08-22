@@ -131,13 +131,12 @@ function ConfirmationModal({
           </div>
         </DialogBody>
         <DialogFooter>
-          <Button size="large" isDisabled={isPending} onPress={onCancel}>
+          <Button isDisabled={isPending} onPress={onCancel}>
             Cancel
           </Button>
           <Button
             variant="filled"
             color="danger"
-            size="large"
             onPress={onConfirm}
             isDisabled={isPending}
             className="relative transition-opacity"
@@ -188,7 +187,7 @@ function ParseFailureModal({
           </div>
         </DialogBody>
         <DialogFooter>
-          <Button size="large" onPress={onCancel} className="self-end">
+          <Button onPress={onCancel} className="self-end">
             Cancel
           </Button>
         </DialogFooter>
@@ -218,9 +217,7 @@ function SuccessModal({ success }: { success: boolean }) {
         <DialogFooter>
           {/* Force a full reload of the app in the browser */}
           <a href={RELOAD_URL} className="self-end">
-            <Button variant="filled" size="large">
-              Reload {APP_NAME}
-            </Button>
+            <Button variant="filled">Reload {APP_NAME}</Button>
           </a>
         </DialogFooter>
       </DialogContent>
