@@ -19,7 +19,6 @@ import {
   ConfigurationContextProps,
   createNewConfigurationId,
   RawConfiguration,
-  useWithTheme,
 } from "@/core";
 import {
   activeConfigurationAtom,
@@ -27,8 +26,7 @@ import {
 } from "@/core/StateProvider/configuration";
 import { schemaAtom } from "@/core/StateProvider/schema";
 import useResetState from "@/core/StateProvider/useResetState";
-import { cn, formatDate } from "@/utils";
-import defaultStyles from "./CreateConnection.styles";
+import { formatDate } from "@/utils";
 import {
   DEFAULT_FETCH_TIMEOUT,
   DEFAULT_NODE_EXPAND_LIMIT,
@@ -85,7 +83,6 @@ const CreateConnection = ({
   existingConfig,
   onClose,
 }: CreateConnectionProps) => {
-  const styleWithTheme = useWithTheme();
   const queryClient = useQueryClient();
 
   const configId = existingConfig?.id;
@@ -250,7 +247,7 @@ const CreateConnection = ({
   };
 
   return (
-    <div className={cn(styleWithTheme(defaultStyles), "flex flex-col gap-6")}>
+    <div className="flex flex-col gap-6">
       <div className="space-y-6">
         <FormItem>
           <Label>Name</Label>
