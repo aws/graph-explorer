@@ -11,10 +11,10 @@ import {
   Label,
   Checkbox,
   Input,
-  LoadingSpinner,
   PanelEmptyState,
   PanelError,
   SearchSadIcon,
+  Spinner,
 } from "@/components";
 
 import { useTranslations } from "@/hooks";
@@ -135,7 +135,7 @@ function SearchResultsListContainer({
         subtitle="Looking for matching results"
         actionLabel="Cancel"
         onAction={() => cancelAll()}
-        icon={<LoadingSpinner />}
+        icon={<Spinner />}
         className="p-8"
       />
     );

@@ -3,7 +3,7 @@ import { cn } from "@/utils";
 import { CheckIcon, CloseIcon, ErrorIcon, InfoIcon } from "@/components/icons";
 import { cva } from "cva";
 import { IconButton } from "../IconButton";
-import { Spinner } from "../LoadingSpinner";
+import { Spinner } from "../Spinner";
 import { NotificationType } from "../NotificationProvider/NotificationProvider";
 
 export type NotificationComponentProps = PropsWithChildren<{

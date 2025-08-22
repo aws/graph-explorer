@@ -1,11 +1,9 @@
-import { cn } from "@/utils";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import localforage from "localforage";
 import { useState, useRef } from "react";
 import {
   ErrorIcon,
   Paragraph,
-  LoaderIcon,
   Button,
   CheckIcon,
   FileButton,
@@ -16,6 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  Spinner,
 } from "@/components";
 import {
   readBackupDataFromFile,
@@ -142,17 +141,9 @@ function ConfirmationModal({
             isDisabled={isPending}
             className="relative transition-opacity"
           >
-            <span className={cn(isPending && "opacity-0")}>
+            <Spinner loading={isPending}>
               Replace {APP_NAME} Configuration
-            </span>
-            <div
-              className={cn(
-                "absolute inset-auto opacity-0",
-                isPending && "opacity-100"
-              )}
-            >
-              <LoaderIcon className="animate-spin" />
-            </div>
+            </Spinner>
           </Button>
         </DialogFooter>
       </DialogContent>
