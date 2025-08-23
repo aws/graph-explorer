@@ -6,7 +6,7 @@ import {
   Spinner,
 } from "@/components";
 import { useAddToGraphMutation } from "@/hooks/useAddToGraph";
-import { ChevronLeftIcon, ChevronRightIcon, ListPlusIcon } from "lucide-react";
+import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/utils";
 import { createEntityKey, EntitySearchResult } from "./EntitySearchResult";
@@ -36,11 +36,24 @@ export function SearchResultsList({
   const disableNextButton = (page + 1) * pageSize >= results.length;
   const handleNext = () => setPage(page + 1);
 
-  const currentPageRows = results.slice(page * pageSize, (page + 1) * pageSize);
+  const currentPageNumber = page + 1;
+  const currentPageRows = results.slice(
+    page * pageSize,
+    currentPageNumber * pageSize
+  );
+  const countOfPages = Math.ceil(results.length / pageSize);
 
   return (
     <>
-      <div className="grow p-3">
+      <div className="grow space-y-6 p-3">
+        <div className="flex flex-row items-center gap-3">
+          <div>
+            <h1 className="text-xl font-bold">Results</h1>
+            <ResultCounts results={results} />
+          </div>
+          <div className="grow" />
+          <AddAllToGraphButton entities={results} />
+        </div>
         <ul className="flex flex-col space-y-4">
           {currentPageRows.map(entity => (
             <li key={createEntityKey(entity, 0)}>
@@ -50,11 +63,12 @@ export function SearchResultsList({
         </ul>
       </div>
 
-      <PanelFooter className="sticky bottom-0 flex flex-row items-center justify-between gap-2">
-        <AddAllToGraphButton entities={results} />
-        <div className="flex min-h-10 grow items-center justify-end gap-2">
-          <ResultCounts results={results} />
-          {isPagingNecessary ? (
+      {isPagingNecessary ? (
+        <PanelFooter className="sticky bottom-0 flex flex-row items-center justify-between gap-2">
+          <div className="flex min-h-10 grow items-center justify-end gap-2">
+            <p>
+              Page {currentPageNumber} of {countOfPages}
+            </p>
             <div className="flex">
               <IconButton
                 icon={<ChevronLeftIcon />}
@@ -69,9 +83,9 @@ export function SearchResultsList({
                 disabled={disableNextButton}
               />
             </div>
-          ) : null}
-        </div>
-      </PanelFooter>
+          </div>
+        </PanelFooter>
+      ) : null}
     </>
   );
 }
@@ -105,7 +119,7 @@ function AddAllToGraphButton({
       variant="filled"
       onClick={addAllToGraph}
       disabled={mutation.isPending}
-      className="stack shrink-0 items-center justify-center"
+      className="stack shrink-0 items-center justify-center rounded-full"
       {...props}
     >
       <span
@@ -114,7 +128,6 @@ function AddAllToGraphButton({
           mutation.isPending && "invisible"
         )}
       >
-        <ListPlusIcon />
         Add All
       </span>
       <span

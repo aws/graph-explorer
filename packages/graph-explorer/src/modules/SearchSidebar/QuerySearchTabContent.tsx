@@ -1,9 +1,9 @@
 import {
-  Button,
   Form,
   FormControl,
   FormField,
   FormItem,
+  IconButton,
   KeyboardKey,
   LoadingSpinner,
   PanelEmptyState,
@@ -15,15 +15,16 @@ import {
 } from "@/components";
 import { useQueryEngine, useUpdateSchemaFromEntities } from "@/core";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ListIcon, SendHorizonalIcon } from "lucide-react";
+import { ListIcon, SendHorizonalIcon, SendHorizontalIcon } from "lucide-react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { isCancellationError, logger } from "@/utils";
+import { cn, isCancellationError, logger } from "@/utils";
 import { useAtom, useAtomValue } from "jotai";
 import { SearchResultsList } from "./SearchResultsList";
 import { atomWithReset } from "jotai/utils";
 import { executeUserQuery } from "@/connector";
+import { ComponentPropsWithRef } from "react";
 
 const formDataSchema = z.object({
   query: z.string().default(""),
@@ -42,7 +43,6 @@ export const queryTextAtom = atomWithReset("");
 export function QuerySearchTabContent() {
   const [queryText, setQueryText] = useAtom(queryTextAtom);
   const { submitQuery, cancel } = useExecuteQuery();
-  const queryEngine = useQueryEngine();
 
   const form = useForm({
     resolver: zodResolver(formDataSchema),
@@ -66,14 +66,78 @@ export function QuerySearchTabContent() {
     }
   };
 
-  // Submit the form when the user presses cmd+enter or ctrl+enter
-  const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+  const onKeyboardShortcutSubmit = () => {
     if (form.formState.isSubmitting) {
       return;
     }
+    form.handleSubmit(onSubmit)();
+  };
+
+  return (
+    <div className="bg-background-default flex h-full flex-col">
+      <Form {...form}>
+        <form
+          className="shrink-0 space-y-3 p-3"
+          onSubmit={form.handleSubmit(onSubmit)}
+        >
+          <FormField
+            control={form.control}
+            name="query"
+            render={({ field }) => (
+              <FormItem className="relative space-y-0">
+                <FormControl>
+                  <QueryTextArea
+                    {...field}
+                    className="pr-14"
+                    onSubmit={onKeyboardShortcutSubmit}
+                  />
+                </FormControl>
+                <QuerySubmitButton
+                  className="absolute bottom-2 right-2"
+                  disabled={form.formState.isSubmitting}
+                />
+              </FormItem>
+            )}
+          />
+        </form>
+      </Form>
+
+      <SearchResultsListContainer cancel={cancel} />
+    </div>
+  );
+}
+
+function QuerySubmitButton({
+  ...props
+}: ComponentPropsWithRef<typeof IconButton>) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <IconButton variant="default" type="submit" {...props}>
+          <span className="sr-only">Submit</span>
+          <SendHorizontalIcon />
+        </IconButton>
+      </TooltipTrigger>
+      <TooltipContent>
+        Submit query (<KeyboardKey>Cmd</KeyboardKey> +{" "}
+        <KeyboardKey>Enter</KeyboardKey> or <KeyboardKey>Ctrl</KeyboardKey> +{" "}
+        <KeyboardKey>Enter</KeyboardKey>)
+      </TooltipContent>
+    </Tooltip>
+  );
+}
+
+function QueryTextArea({
+  className,
+  ...props
+}: ComponentPropsWithRef<typeof TextArea> & { onSubmit: () => void }) {
+  const queryEngine = useQueryEngine();
+
+  // Submit the form when the user presses cmd+enter or ctrl+enter
+  const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
       e.preventDefault();
-      form.handleSubmit(onSubmit)();
+      props.onSubmit();
     }
   };
 
@@ -90,54 +154,13 @@ export function QuerySearchTabContent() {
   })();
 
   return (
-    <div className="bg-background-default flex h-full flex-col">
-      <Form {...form}>
-        <form
-          className="border-divider shrink-0 space-y-3 border-b p-3"
-          onSubmit={form.handleSubmit(onSubmit)}
-        >
-          <FormField
-            control={form.control}
-            name="query"
-            render={({ field }) => (
-              <FormItem className="space-y-0 p-[1px]">
-                <FormControl>
-                  <TextArea
-                    {...field}
-                    aria-label="Query"
-                    className="h-full min-h-[5lh] w-full font-mono text-sm"
-                    placeholder={queryPlaceholder}
-                    onKeyDown={onKeyDown}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-          <div className="flex justify-end gap-3">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="default"
-                  type="submit"
-                  disabled={form.formState.isSubmitting}
-                >
-                  Run Query
-                  <SendHorizonalIcon />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <KeyboardKey>Cmd</KeyboardKey> +{" "}
-                <KeyboardKey>Enter</KeyboardKey> or{" "}
-                <KeyboardKey>Ctrl</KeyboardKey> +{" "}
-                <KeyboardKey>Enter</KeyboardKey>
-              </TooltipContent>
-            </Tooltip>
-          </div>
-        </form>
-      </Form>
-
-      <SearchResultsListContainer cancel={cancel} />
-    </div>
+    <TextArea
+      {...props}
+      aria-label="Query"
+      className={cn("h-full min-h-[5lh] w-full font-mono text-sm", className)}
+      placeholder={queryPlaceholder}
+      onKeyDown={onKeyDown}
+    />
   );
 }
 
