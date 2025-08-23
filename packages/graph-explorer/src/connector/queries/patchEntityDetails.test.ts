@@ -4,12 +4,12 @@ import {
   FakeExplorer,
 } from "@/utils/testing";
 import { patchEntityDetails } from "./patchEntityDetails";
+import { createQueryClient } from "@/core/queryClient";
 import {
   createResultScalar,
   createResultBundle,
   createPatchedResultBundle,
-} from "@/core";
-import { createQueryClient } from "@/core/queryClient";
+} from "../entities";
 
 describe("patchEntityDetails", () => {
   it("should return empty array", async () => {

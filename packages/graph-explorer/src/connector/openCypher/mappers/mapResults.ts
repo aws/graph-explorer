@@ -4,7 +4,11 @@ import { fromError } from "zod-validation-error";
 import mapApiVertex from "./mapApiVertex";
 import mapApiEdge from "./mapApiEdge";
 import { OCEdge, OCVertex } from "../types";
-import { createResultScalar, createResultBundle, ResultEntity } from "@/core";
+import {
+  createResultBundle,
+  createResultScalar,
+  type ResultEntity,
+} from "@/connector/entities";
 
 const cypherScalarValueSchema = z.union([
   z.number(),

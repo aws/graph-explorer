@@ -1,8 +1,7 @@
-import { createResultEdge } from "@/core";
 import type { GEdge } from "../types";
 import parseEdgePropertiesValues from "./parseEdgePropertiesValues";
-
 import { extractRawId } from "./extractRawId";
+import { createResultEdge } from "@/connector/entities";
 
 export default function mapApiEdge(apiEdge: GEdge, name?: string) {
   // If the properties are null then the edge is a fragment, which will cause a

@@ -1,5 +1,5 @@
 import uniq from "lodash/uniq";
-import type { KeywordSearchRequest } from "@/connector/useGEFetchTypes";
+import type { KeywordSearchRequest } from "@/connector";
 import { escapeString } from "@/utils";
 
 /**

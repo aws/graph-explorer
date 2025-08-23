@@ -1,7 +1,6 @@
 import {
   createEdge,
   createVertex,
-  PatchedResultEdge,
   useDisplayEdgeFromEdge,
   useDisplayVertex,
 } from "@/core";
@@ -26,6 +25,7 @@ import {
 } from "@/hooks";
 import { MinusCircleIcon, PlusCircleIcon } from "lucide-react";
 import { EntitySearchResult } from "./EntitySearchResult";
+import type { PatchedResultEdge } from "@/connector/entities";
 
 export function EdgeSearchResult({
   edge,
@@ -37,8 +37,8 @@ export function EdgeSearchResult({
   const displayEdge = useDisplayEdgeFromEdge(
     createEdge({
       ...edge,
-      sourceId: edge.sourceVertex.id,
-      targetId: edge.targetVertex.id,
+      sourceId: edge.source.id,
+      targetId: edge.target.id,
     })
   );
 
@@ -80,10 +80,10 @@ export function EdgeSearchResult({
             </li>
           ))}
           <li>
-            <EntitySearchResult entity={edge.sourceVertex} level={level + 1} />
+            <EntitySearchResult entity={edge.source} level={level + 1} />
           </li>
           <li>
-            <EntitySearchResult entity={edge.targetVertex} level={level + 1} />
+            <EntitySearchResult entity={edge.target} level={level + 1} />
           </li>
         </ul>
       </CollapsibleContent>
@@ -101,14 +101,11 @@ function AddOrRemoveButton({
       edges: [
         createEdge({
           ...edge,
-          sourceId: edge.sourceVertex.id,
-          targetId: edge.targetVertex.id,
+          sourceId: edge.source.id,
+          targetId: edge.target.id,
         }),
       ],
-      vertices: [
-        createVertex(edge.sourceVertex),
-        createVertex(edge.targetVertex),
-      ],
+      vertices: [createVertex(edge.source), createVertex(edge.target)],
     });
   const removeFromGraph = useRemoveEdgeFromGraph(edge.id);
   const hasBeenAdded = useHasEdgeBeenAddedToGraph(edge.id);

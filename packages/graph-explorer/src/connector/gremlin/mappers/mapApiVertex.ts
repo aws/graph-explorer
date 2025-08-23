@@ -1,4 +1,4 @@
-import { createResultVertex } from "@/core";
+import { createResultVertex } from "../../entities";
 import type { GVertex } from "../types";
 import parsePropertiesValues from "./parsePropertiesValues";
 import { extractRawId } from "./extractRawId";

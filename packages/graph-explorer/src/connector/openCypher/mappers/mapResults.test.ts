@@ -1,4 +1,4 @@
-import { createResultScalar, createResultBundle } from "@/core";
+import { createResultBundle, createResultScalar } from "@/connector/entities";
 import { mapResults } from "./mapResults";
 import {
   createTestableEdge,

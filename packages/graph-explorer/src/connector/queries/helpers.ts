@@ -1,5 +1,5 @@
 import { QueryClient } from "@tanstack/react-query";
-import { createEdge, createVertex, Edge, ResultEntity, Vertex } from "@/core";
+import { createEdge, createVertex, Edge, Vertex } from "@/core";
 import { NeighborCount } from "../useGEFetchTypes";
 import { GraphExplorerMeta } from "@/core/queryClient";
 import { logger } from "@/utils";
@@ -7,6 +7,7 @@ import { emptyExplorer } from "../emptyExplorer";
 import { vertexDetailsQuery } from "./vertexDetailsQuery";
 import { edgeDetailsQuery } from "./edgeDetailsQuery";
 import { neighborsCountQuery } from "./neighborsCountQuery";
+import { ResultEntity } from "../entities";
 
 /** Iterates over entities and adds any materialized entities to the details query cache. */
 export function updateDetailsCacheFromEntities(
@@ -14,13 +15,26 @@ export function updateDetailsCacheFromEntities(
   entities: ResultEntity[]
 ) {
   for (const entity of entities) {
-    if (entity.entityType === "vertex" && entity.attributes != null) {
-      setVertexDetailsQueryCache(client, createVertex(entity));
-    } else if (entity.entityType === "edge" && entity.attributes != null) {
-      setEdgeDetailsQueryCache(client, createEdge(entity));
-    } else if (entity.entityType === "bundle") {
-      // Recursively process entities within bundles
-      updateDetailsCacheFromEntities(client, entity.values);
+    switch (entity.entityType) {
+      case "vertex":
+        if (!entity.attributes) {
+          break;
+        }
+        setVertexDetailsQueryCache(client, createVertex(entity));
+        break;
+      case "edge":
+        if (!entity.attributes) {
+          break;
+        }
+        setEdgeDetailsQueryCache(client, createEdge(entity));
+        break;
+      case "bundle":
+        // Recursively process entities within bundles
+        updateDetailsCacheFromEntities(client, entity.values);
+        break;
+      case "scalar":
+        // Ignore scalar values
+        break;
     }
   }
 }

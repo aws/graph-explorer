@@ -1,12 +1,12 @@
 import { describe, it, expect } from "vitest";
-import { createResultBundle, getDisplayValueForBundle } from "./bundle";
+import { createPatchedResultBundle, getDisplayValueForBundle } from "./bundle";
 import { createResultScalar } from "./scalar";
 import { MISSING_DISPLAY_VALUE, NBSP } from "@/utils/constants";
-import { createResultEdge, createResultVertex } from "./createEntities";
+import { createTestableEdge, createTestableVertex } from "@/utils/testing";
 
 describe("getDisplayValueForBundle", () => {
   it("should format scalar values with names", () => {
-    const bundle = createResultBundle({
+    const bundle = createPatchedResultBundle({
       name: "UserInfo",
       values: [
         createResultScalar({ value: "John", name: "Name" }),
@@ -21,7 +21,7 @@ describe("getDisplayValueForBundle", () => {
   });
 
   it("should format scalar values without names", () => {
-    const bundle = createResultBundle({
+    const bundle = createPatchedResultBundle({
       values: [
         createResultScalar({ value: "John" }),
         createResultScalar({ value: 25 }),
@@ -35,7 +35,7 @@ describe("getDisplayValueForBundle", () => {
   });
 
   it("should format null scalar values", () => {
-    const bundle = createResultBundle({
+    const bundle = createPatchedResultBundle({
       values: [
         createResultScalar({ value: null, name: "EmptyField" }),
         createResultScalar({ value: null }),
@@ -51,7 +51,7 @@ describe("getDisplayValueForBundle", () => {
 
   it("should format date scalar values", () => {
     const testDate = new Date("2023-12-25T10:30:00Z");
-    const bundle = createResultBundle({
+    const bundle = createPatchedResultBundle({
       values: [
         createResultScalar({ value: testDate, name: "CreatedAt" }),
         createResultScalar({ value: testDate }),
@@ -67,14 +67,9 @@ describe("getDisplayValueForBundle", () => {
   });
 
   it("should format vertex values with names", () => {
-    const bundle = createResultBundle({
-      values: [
-        createResultVertex({
-          name: "User",
-          id: "v123",
-          types: ["Person"],
-        }),
-      ],
+    const vertex = createTestableVertex().with({ id: "v123" });
+    const bundle = createPatchedResultBundle({
+      values: [vertex.asPatchedResult("User")],
     });
 
     const result = getDisplayValueForBundle(bundle);
@@ -83,13 +78,9 @@ describe("getDisplayValueForBundle", () => {
   });
 
   it("should format vertex values without names", () => {
-    const bundle = createResultBundle({
-      values: [
-        createResultVertex({
-          id: "v456",
-          types: ["Person"],
-        }),
-      ],
+    const vertex = createTestableVertex().with({ id: "v456" });
+    const bundle = createPatchedResultBundle({
+      values: [vertex.asPatchedResult()],
     });
 
     const result = getDisplayValueForBundle(bundle);
@@ -98,16 +89,9 @@ describe("getDisplayValueForBundle", () => {
   });
 
   it("should format edge values with names", () => {
-    const bundle = createResultBundle({
-      values: [
-        createResultEdge({
-          name: "Relationship",
-          id: "e789",
-          type: "KNOWS",
-          sourceId: "v1",
-          targetId: "v2",
-        }),
-      ],
+    const edge = createTestableEdge().with({ id: "e789" });
+    const bundle = createPatchedResultBundle({
+      values: [edge.asPatchedResult("Relationship")],
     });
 
     const result = getDisplayValueForBundle(bundle);
@@ -116,15 +100,9 @@ describe("getDisplayValueForBundle", () => {
   });
 
   it("should format edge values without names", () => {
-    const bundle = createResultBundle({
-      values: [
-        createResultEdge({
-          id: "e101",
-          type: "KNOWS",
-          sourceId: "v1",
-          targetId: "v2",
-        }),
-      ],
+    const edge = createTestableEdge().with({ id: "e101" });
+    const bundle = createPatchedResultBundle({
+      values: [edge.asPatchedResult()],
     });
 
     const result = getDisplayValueForBundle(bundle);
@@ -133,12 +111,12 @@ describe("getDisplayValueForBundle", () => {
   });
 
   it("should format nested bundle values with names", () => {
-    const bundle = createResultBundle({
+    const bundle = createPatchedResultBundle({
       values: [
-        createResultBundle({
-          name: "Container" as const,
+        createPatchedResultBundle({
+          name: "Container",
           values: [
-            createResultBundle({
+            createPatchedResultBundle({
               name: "NestedData",
               values: [createResultScalar({ value: "test" })],
             }),
@@ -153,11 +131,11 @@ describe("getDisplayValueForBundle", () => {
   });
 
   it("should format nested bundle values without names", () => {
-    const nestedBundle = createResultBundle({
+    const nestedBundle = createPatchedResultBundle({
       values: [createResultScalar({ value: "test" })],
     });
 
-    const bundle = createResultBundle({
+    const bundle = createPatchedResultBundle({
       values: [
         {
           entityType: "bundle" as const,
@@ -172,23 +150,15 @@ describe("getDisplayValueForBundle", () => {
   });
 
   it("should format mixed entity types", () => {
-    const bundle = createResultBundle({
+    const vertex = createTestableVertex().with({ id: "v123" });
+    const edge = createTestableEdge().with({ id: "e456" });
+    const bundle = createPatchedResultBundle({
       name: "MixedData",
       values: [
         createResultScalar({ value: "John", name: "Name" }),
-        createResultVertex({
-          name: "Profile",
-          id: "v123",
-          types: ["Person"],
-        }),
-        createResultEdge({
-          name: "Connection",
-          id: "e456",
-          type: "KNOWS",
-          sourceId: "v1",
-          targetId: "v2",
-        }),
-        createResultBundle({
+        vertex.asPatchedResult("Profile"),
+        edge.asPatchedResult("Connection"),
+        createPatchedResultBundle({
           name: "SubBundle",
           values: [createResultScalar({ value: "test" })],
         }),
@@ -203,7 +173,7 @@ describe("getDisplayValueForBundle", () => {
   });
 
   it("should handle empty bundle", () => {
-    const bundle = createResultBundle({
+    const bundle = createPatchedResultBundle({
       values: [],
     });
 
@@ -213,7 +183,7 @@ describe("getDisplayValueForBundle", () => {
   });
 
   it("should format numbers with locale formatting", () => {
-    const bundle = createResultBundle({
+    const bundle = createPatchedResultBundle({
       values: [
         createResultScalar({ value: 1234.56, name: "Price" }),
         createResultScalar({ value: 1000000, name: "Population" }),

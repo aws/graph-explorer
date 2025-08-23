@@ -10,8 +10,8 @@ import {
 import {
   createTypedValue,
   getDisplayValueForScalar,
-  ResultScalar,
-} from "@/core";
+  type ResultScalar,
+} from "@/connector/entities";
 import {
   BanIcon,
   CalendarIcon,

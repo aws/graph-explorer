@@ -1,4 +1,4 @@
-import { createResultEdge } from "@/core";
+import { createResultEdge } from "@/connector/entities";
 import type { OCEdge } from "../types";
 import { mapApiProperties } from "./mapApiProperties";
 

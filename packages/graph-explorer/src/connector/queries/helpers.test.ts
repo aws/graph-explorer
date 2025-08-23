@@ -17,12 +17,11 @@ import {
   FakeExplorer,
   createRandomEntityAttribute,
 } from "@/utils/testing";
-import { createResultScalar } from "@/core/entities/scalar";
-import { createResultBundle } from "@/core/entities/bundle";
 import { NeighborCount } from "../useGEFetchTypes";
 import { createQueryClient, GraphExplorerMeta } from "@/core/queryClient";
 import { createRandomName, createRecord } from "@shared/utils/testing";
 import { EdgeId, VertexId } from "@/core";
+import { createResultScalar, createResultBundle } from "../entities";
 
 describe("helpers", () => {
   let queryClient: QueryClient;

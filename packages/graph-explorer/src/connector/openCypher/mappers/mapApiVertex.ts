@@ -1,4 +1,4 @@
-import { createResultVertex } from "@/core";
+import { createResultVertex } from "@/connector/entities";
 import type { OCVertex } from "../types";
 import { mapApiProperties } from "./mapApiProperties";
 

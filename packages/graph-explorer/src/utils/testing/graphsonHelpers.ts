@@ -1,4 +1,11 @@
 import {
+  type ResultVertex,
+  type ResultEntity,
+  type ResultEdge,
+  type ScalarValue,
+  createTypedValue,
+} from "@/connector/entities";
+import type {
   GAnyValue,
   GBulkSet,
   GDate,
@@ -17,17 +24,12 @@ import {
   GVertexProperty,
 } from "@/connector/gremlin/types";
 import {
-  createTypedValue,
-  Edge,
-  EdgeId,
-  EntityPropertyValue,
+  type Edge,
+  type EdgeId,
+  type EntityPropertyValue,
   getRawId,
-  ResultEdge,
-  ResultEntity,
-  ResultVertex,
-  ScalarValue,
-  Vertex,
-  VertexId,
+  type Vertex,
+  type VertexId,
 } from "@/core";
 import { createRandomInteger } from "@shared/utils/testing";
 

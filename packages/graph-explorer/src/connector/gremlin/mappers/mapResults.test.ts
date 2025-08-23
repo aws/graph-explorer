@@ -1,9 +1,9 @@
 import {
   createResultScalar,
+  type ResultVertex,
+  type ResultEdge,
   createResultBundle,
-  ResultVertex,
-  ResultEdge,
-} from "@/core";
+} from "@/connector/entities";
 import { mapAnyValue, mapResults } from "./mapResults";
 import {
   createGEdge,
