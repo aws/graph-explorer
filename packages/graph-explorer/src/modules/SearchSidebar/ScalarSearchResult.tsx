@@ -3,7 +3,7 @@ import {
   SearchResultAttributeName,
   SearchResultAttributeValue,
 } from "@/components";
-import { getDisplayValueForScalar, ResultScalar } from "@/core";
+import { ResultScalar, getDisplayValueForScalar } from "@/connector/entities";
 
 export function ScalarSearchResult({
   scalar,
