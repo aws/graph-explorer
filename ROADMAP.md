@@ -9,15 +9,6 @@ issues linked below.
 > [!IMPORTANT]
 > These items are subject to change.
 
-## Q1 2025
-
-- [URL Sharing](https://github.com/aws/graph-explorer/issues/684)
-
-## Q2 2025
-
-- [Query editor for Gremlin](https://github.com/aws/graph-explorer/issues/686)
-- [Query editor for openCypher](https://github.com/aws/graph-explorer/issues/687)
-
 ## Q3 2025
 
 - [Query editor for SPARQL](https://github.com/aws/graph-explorer/issues/688)
