@@ -19,8 +19,9 @@ export async function renderNode(
   }
 
   // To avoid multiple requests, cache icons under the same URL
-  if (ICONS_CACHE.get(vtConfig.iconUrl)) {
-    return ICONS_CACHE.get(vtConfig.iconUrl);
+  const cacheKey = `${vtConfig.iconUrl}::${vtConfig.color || "#128EE5"}`;
+  if (ICONS_CACHE.get(cacheKey)) {
+    return ICONS_CACHE.get(cacheKey);
   }
 
   try {
@@ -33,7 +34,7 @@ export async function renderNode(
     iconText = encodeSvg(iconText);
 
     // Save to the cache
-    ICONS_CACHE.set(vtConfig.iconUrl, iconText);
+    ICONS_CACHE.set(cacheKey, iconText);
     return iconText;
   } catch (error) {
     // Ignore the error and move on
