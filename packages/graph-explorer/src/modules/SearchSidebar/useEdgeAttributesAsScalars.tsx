@@ -1,5 +1,5 @@
 import { createResultScalar, ResultScalar } from "@/connector/entities";
-import { DisplayAttribute, DisplayEdge, useQueryEngine } from "@/core";
+import { DisplayAttribute, DisplayEdge } from "@/core";
 import { useTranslations } from "@/hooks";
 
 /**
