@@ -58,14 +58,14 @@ describe("useVertexAttributesAsScalars", () => {
 
       expect(scalars[0]).toEqual(
         createResultScalar({
-          name: "ID",
+          name: "Node Id",
           value: "vertex-1",
         })
       );
 
       expect(scalars[1]).toEqual(
         createResultScalar({
-          name: "Label",
+          name: "Node Label",
           value: "Person",
         })
       );
@@ -81,29 +81,6 @@ describe("useVertexAttributesAsScalars", () => {
         createResultScalar({
           name: "Age",
           value: "30",
-        })
-      );
-    });
-
-    it("should use 'Labels' for multiple vertex types", () => {
-      const vertexWithMultipleTypes = {
-        ...vertex,
-        displayTypes: "Person, Employee",
-        original: {
-          types: ["Person", "Employee"],
-        } as any,
-      };
-
-      const { result } = renderHookWithState(
-        () => useVertexAttributesAsScalars(vertexWithMultipleTypes),
-        dbState
-      );
-
-      const scalars = result.current;
-      expect(scalars[1]).toEqual(
-        createResultScalar({
-          name: "Labels",
-          value: "Person, Employee",
         })
       );
     });
@@ -125,7 +102,7 @@ describe("useVertexAttributesAsScalars", () => {
 
       expect(scalars[0]).toEqual(
         createResultScalar({
-          name: "URI",
+          name: "Resource URI",
           value: "vertex-1",
         })
       );
@@ -134,29 +111,6 @@ describe("useVertexAttributesAsScalars", () => {
         createResultScalar({
           name: "Class",
           value: "Person",
-        })
-      );
-    });
-
-    it("should use 'Classes' for multiple vertex types", () => {
-      const vertexWithMultipleTypes = {
-        ...vertex,
-        displayTypes: "Person, Employee",
-        original: {
-          types: ["Person", "Employee"],
-        } as any,
-      };
-
-      const { result } = renderHookWithState(
-        () => useVertexAttributesAsScalars(vertexWithMultipleTypes),
-        dbState
-      );
-
-      const scalars = result.current;
-      expect(scalars[1]).toEqual(
-        createResultScalar({
-          name: "Classes",
-          value: "Person, Employee",
         })
       );
     });
@@ -227,7 +181,7 @@ describe("useVertexAttributesAsScalars", () => {
     const scalars = result.current;
     expect(scalars[1]).toEqual(
       createResultScalar({
-        name: "Labels",
+        name: "Node Label",
         value: "",
       })
     );

@@ -1,31 +1,27 @@
 import { createResultScalar } from "@/connector/entities";
-import { DisplayVertex, useQueryEngine, DisplayAttribute } from "@/core";
+import { DisplayVertex, DisplayAttribute } from "@/core";
+import { useTranslations } from "@/hooks";
+import { LABEL_FOR_BLANK_NODE_ID } from "@/utils";
 /**
  * Creates scalars for the given vertex's ID, label, and attributes.
  * @param vertex The vertex to create scalars for.
  * @returns The scalars for the given vertex.
  */
 export function useVertexAttributesAsScalars(vertex: DisplayVertex) {
-  const queryEngine = useQueryEngine();
-  const isRdf = queryEngine === "sparql";
+  const t = useTranslations();
 
   // Create the ID scalar
   const idScalar = createResultScalar({
-    // Blank nodes will have a non-stable unique ID, so they should be treated differently
-    name: isRdf ? (vertex.isBlankNode ? "Blank node ID" : "URI") : "ID",
+    // Blank node IDs are not standard IDs, so they get a custom label
+    name: vertex.isBlankNode
+      ? LABEL_FOR_BLANK_NODE_ID
+      : t("node-detail.node-id"),
     value: vertex.displayId,
   });
 
   // Create the label scalar
-  const shouldPluralize = vertex.original.types.length !== 1;
   const labelScalar = createResultScalar({
-    name: isRdf
-      ? shouldPluralize
-        ? "Classes"
-        : "Class"
-      : shouldPluralize
-        ? "Labels"
-        : "Label",
+    name: t("node-detail.node-type"),
     value: vertex.displayTypes,
   });
 

@@ -1,5 +1,6 @@
 import { createResultScalar, ResultScalar } from "@/connector/entities";
 import { DisplayAttribute, DisplayEdge, useQueryEngine } from "@/core";
+import { useTranslations } from "@/hooks";
 
 /**
  * Create scalars for the given edge's ID, label, and attributes.
@@ -7,15 +8,14 @@ import { DisplayAttribute, DisplayEdge, useQueryEngine } from "@/core";
  * @returns A list of scalars for the edge's ID, label, and attributes
  */
 export function useEdgeAttributesAsScalars(edge: DisplayEdge) {
-  const queryEngine = useQueryEngine();
-  const isRdf = queryEngine === "sparql";
+  const t = useTranslations();
 
   const idScalar = edge.hasUniqueId
     ? createResultScalar({ name: "ID", value: edge.displayId })
     : null;
 
   const labelScalar = createResultScalar({
-    name: isRdf ? "Predicate" : "Label",
+    name: t("edges-styling.edge-type"),
     value: edge.displayTypes,
   });
 

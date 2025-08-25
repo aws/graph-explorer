@@ -45,7 +45,7 @@ const EdgeDetail = ({ edge }: EdgeDetailProps) => {
       ? [
           {
             name: RESERVED_ID_PROPERTY,
-            displayLabel: "Edge ID",
+            displayLabel: t("edge-detail.edge-id"),
             displayValue: edge.displayId,
           },
         ]

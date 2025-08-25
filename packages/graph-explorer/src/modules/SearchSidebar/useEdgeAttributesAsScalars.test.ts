@@ -69,7 +69,7 @@ describe("useEdgeAttributesAsScalars", () => {
 
       expect(scalars[1]).toEqual(
         createResultScalar({
-          name: "Label",
+          name: "Edge Label",
           value: "knows",
         })
       );
@@ -105,7 +105,7 @@ describe("useEdgeAttributesAsScalars", () => {
 
       expect(scalars[0]).toEqual(
         createResultScalar({
-          name: "Label",
+          name: "Edge Label",
           value: "knows",
         })
       );
