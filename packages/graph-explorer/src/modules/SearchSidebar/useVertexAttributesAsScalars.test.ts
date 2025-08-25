@@ -132,7 +132,7 @@ describe("useVertexAttributesAsScalars", () => {
       const scalars = result.current;
       expect(scalars[0]).toEqual(
         createResultScalar({
-          name: "Blank node ID",
+          name: "Blank Node Id",
           value: "vertex-1",
         })
       );
