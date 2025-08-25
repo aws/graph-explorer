@@ -17,8 +17,8 @@ import {
 } from "@/hooks";
 import { MinusCircleIcon, PlusCircleIcon } from "lucide-react";
 import type { PatchedResultVertex } from "@/connector/entities";
-import { useEntityAttributesAsScalars } from "./useEntityAttributesAsScalars";
 import { createEntityKey, EntitySearchResult } from "./EntitySearchResult";
+import { useVertexAttributesAsScalars } from "./useVertexAttributesAsScalars";
 
 export function VertexSearchResult({
   vertex,
@@ -29,7 +29,7 @@ export function VertexSearchResult({
 }) {
   const displayNode = useDisplayVertex(vertex.id);
   const hasBeenAdded = useHasVertexBeenAddedToGraph(vertex.id);
-  const attributes = useEntityAttributesAsScalars(displayNode.attributes);
+  const attributes = useVertexAttributesAsScalars(displayNode);
 
   return (
     <SearchResultCollapsible level={level} highlighted={hasBeenAdded}>

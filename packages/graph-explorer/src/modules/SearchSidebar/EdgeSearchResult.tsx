@@ -23,7 +23,7 @@ import {
 import { MinusCircleIcon, PlusCircleIcon } from "lucide-react";
 import { createEntityKey, EntitySearchResult } from "./EntitySearchResult";
 import type { PatchedResultEdge } from "@/connector/entities";
-import { useEntityAttributesAsScalars } from "./useEntityAttributesAsScalars";
+import { useEdgeAttributesAsScalars } from "./useEdgeAttributesAsScalars";
 
 export function EdgeSearchResult({
   edge,
@@ -44,7 +44,7 @@ export function EdgeSearchResult({
   const source = useDisplayVertex(displayEdge.sourceId);
   const target = useDisplayVertex(displayEdge.targetId);
   const hasBeenAdded = useHasEdgeBeenAddedToGraph(edge.id);
-  const attributes = useEntityAttributesAsScalars(displayEdge.attributes);
+  const attributes = useEdgeAttributesAsScalars(displayEdge);
 
   return (
     <SearchResultCollapsible level={level} highlighted={hasBeenAdded}>
