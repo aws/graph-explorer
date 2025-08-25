@@ -41,7 +41,6 @@ import useRenderBadges from "./hooks/useRenderBadges";
 import useUpdateLayout from "./hooks/useRunLayout";
 import useUpdateGraphElements from "./hooks/useUpdateGraphElements";
 import EmptyState from "./internalComponents/EmptyState";
-import GraphLoading from "./internalComponents/GraphLoading";
 
 cytoscape.use(klay);
 cytoscape.use(dagre);
@@ -72,7 +71,6 @@ export interface GraphProps<
   // internal state of the graph
   layout?: LayoutName;
   additionalLayoutsConfig?: { [key: string]: Partial<cytoscape.LayoutOptions> };
-  loading?: boolean;
   onLayoutUpdated?: (cy: CytoscapeType, layout: string) => any;
   //callbacks
   // TODO: Update callbacks type
@@ -82,7 +80,6 @@ export interface GraphProps<
   onPanChanged?: (...args: any) => any;
   //components
   emptyComponent?: (...args: any) => any;
-  loadingComponent?: (...args: any) => any;
   hiddenEdgesIds?: Set<string>;
   hiddenNodesIds?: Set<string>;
   outOfFocusNodesIds?: Set<string>;
@@ -177,8 +174,6 @@ export const Graph = (
     onLayoutRunningChanged,
     onLayoutUpdated,
     emptyComponent,
-    loadingComponent,
-    loading = false,
     minZoom = 0.01,
     maxZoom = 5,
     motionBlur = true,
@@ -378,16 +373,14 @@ export const Graph = (
   );
 
   const EmptyComponent = emptyComponent ? emptyComponent : EmptyState;
-  const LoadingComponent = loadingComponent ? loadingComponent : GraphLoading;
 
   const isEmpty = !nodes.length && !edges.length;
-  const isLoading = loading;
+
   return (
     <div className={cn("relative h-full w-full overflow-hidden", className)}>
       <div className="absolute h-full w-full first:z-10" ref={wrapperRefCb} />
       {cy && children ? children(cy) : null}
-      {isEmpty && !isLoading ? <EmptyComponent /> : null}
-      {isLoading ? <LoadingComponent /> : null}
+      {isEmpty ? <EmptyComponent /> : null}
     </div>
   );
 };

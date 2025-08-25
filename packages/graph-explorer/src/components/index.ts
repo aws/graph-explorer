@@ -31,7 +31,7 @@ export * from "./Form";
 export { default as Graph } from "./Graph";
 export * from "./Graph";
 
-export * from "./HumanReadableNumberFormatter";
+export * from "./numberFormat";
 
 export * from "./IconButton";
 
@@ -50,8 +50,7 @@ export * from "./ListItem";
 
 export * from "./ListRow";
 
-export { default as LoadingSpinner } from "./LoadingSpinner";
-export * from "./LoadingSpinner";
+export * from "./Spinner";
 
 export * from "./Panel";
 export * from "./Popover";
