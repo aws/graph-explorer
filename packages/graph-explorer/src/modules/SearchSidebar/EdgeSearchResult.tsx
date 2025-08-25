@@ -10,9 +10,6 @@ import {
   CollapsibleTrigger,
   EdgeRow,
   IconButton,
-  SearchResultAttribute,
-  SearchResultAttributeName,
-  SearchResultAttributeValue,
   SearchResultCollapsible,
   SearchResultExpandChevron,
   Spinner,
@@ -24,8 +21,9 @@ import {
   useRemoveEdgeFromGraph,
 } from "@/hooks";
 import { MinusCircleIcon, PlusCircleIcon } from "lucide-react";
-import { EntitySearchResult } from "./EntitySearchResult";
+import { createEntityKey, EntitySearchResult } from "./EntitySearchResult";
 import type { PatchedResultEdge } from "@/connector/entities";
+import { useEntityAttributesAsScalars } from "./useEntityAttributesAsScalars";
 
 export function EdgeSearchResult({
   edge,
@@ -46,6 +44,7 @@ export function EdgeSearchResult({
   const source = useDisplayVertex(displayEdge.sourceId);
   const target = useDisplayVertex(displayEdge.targetId);
   const hasBeenAdded = useHasEdgeBeenAddedToGraph(edge.id);
+  const attributes = useEntityAttributesAsScalars(displayEdge.attributes);
 
   return (
     <SearchResultCollapsible level={level} highlighted={hasBeenAdded}>
@@ -67,16 +66,9 @@ export function EdgeSearchResult({
       </CollapsibleTrigger>
       <CollapsibleContent>
         <ul className="space-y-3 p-3">
-          {displayEdge.attributes.map(attr => (
-            <li key={attr.name} className="w-full">
-              <SearchResultAttribute level={level + 1}>
-                <SearchResultAttributeName>
-                  {attr.name}
-                </SearchResultAttributeName>
-                <SearchResultAttributeValue>
-                  {attr.displayValue}
-                </SearchResultAttributeValue>
-              </SearchResultAttribute>
+          {attributes.map(attr => (
+            <li key={createEntityKey(attr, level + 1)} className="w-full">
+              <EntitySearchResult entity={attr} level={level + 1} />
             </li>
           ))}
           <li>
