@@ -11,7 +11,6 @@ export { default as logger } from "./logger";
 export * from "./branded";
 export * from "./sanitizeQuery";
 export * from "./cn";
-export * from "./set";
 export * from "./env";
 export * from "./constants";
 export * from "./NetworkError";
