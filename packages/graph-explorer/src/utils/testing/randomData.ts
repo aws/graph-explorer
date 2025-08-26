@@ -567,7 +567,20 @@ export function createRandomRawConfiguration(): RawConfiguration {
   };
 }
 
-export function createRandomQueryEngine(): QueryEngine {
+/**
+ * Returnes a random query engine.
+ * @param graphType - If "pg" then a random property graph query engine is
+ * returned. If "rdf" then "sparql" is returned. If undefined then a random
+ * query engine is returned.
+ * @returns The query engine.
+ */
+export function createRandomQueryEngine(graphType?: "pg" | "rdf"): QueryEngine {
+  if (graphType === "rdf") {
+    return "sparql";
+  }
+  if (graphType === "pg") {
+    return pickRandomElement(["gremlin", "openCypher"]);
+  }
   return pickRandomElement([...queryEngineOptions]);
 }
 

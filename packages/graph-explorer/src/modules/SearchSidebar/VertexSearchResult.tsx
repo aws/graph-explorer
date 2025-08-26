@@ -4,9 +4,6 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
   IconButton,
-  SearchResultAttribute,
-  SearchResultAttributeName,
-  SearchResultAttributeValue,
   SearchResultCollapsible,
   SearchResultExpandChevron,
   Spinner,
@@ -20,6 +17,8 @@ import {
 } from "@/hooks";
 import { MinusCircleIcon, PlusCircleIcon } from "lucide-react";
 import type { PatchedResultVertex } from "@/connector/entities";
+import { createEntityKey, EntitySearchResult } from "./EntitySearchResult";
+import { useVertexAttributesAsScalars } from "./useVertexAttributesAsScalars";
 
 export function VertexSearchResult({
   vertex,
@@ -30,6 +29,7 @@ export function VertexSearchResult({
 }) {
   const displayNode = useDisplayVertex(vertex.id);
   const hasBeenAdded = useHasVertexBeenAddedToGraph(vertex.id);
+  const attributes = useVertexAttributesAsScalars(displayNode);
 
   return (
     <SearchResultCollapsible level={level} highlighted={hasBeenAdded}>
@@ -45,16 +45,9 @@ export function VertexSearchResult({
       </CollapsibleTrigger>
       <CollapsibleContent>
         <ul className="space-y-3 p-3">
-          {displayNode.attributes.map(attr => (
-            <li key={attr.name} className="w-full">
-              <SearchResultAttribute level={level + 1}>
-                <SearchResultAttributeName>
-                  {attr.name}
-                </SearchResultAttributeName>
-                <SearchResultAttributeValue>
-                  {attr.displayValue}
-                </SearchResultAttributeValue>
-              </SearchResultAttribute>
+          {attributes.map(attr => (
+            <li key={createEntityKey(attr, level + 1)} className="w-full">
+              <EntitySearchResult entity={attr} level={level + 1} />
             </li>
           ))}
         </ul>

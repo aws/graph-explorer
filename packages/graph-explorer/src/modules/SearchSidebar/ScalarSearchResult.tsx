@@ -16,12 +16,8 @@ export function ScalarSearchResult({
   const subtitle = getDisplayValueForScalar(scalar.value);
 
   return (
-    <SearchResultAttribute level={level} className="items-center">
-      <div className="grid grid-cols-[auto_1fr] items-center gap-3">
-        {title && (
-          <SearchResultAttributeName>{title}</SearchResultAttributeName>
-        )}
-      </div>
+    <SearchResultAttribute level={level} className="w-full">
+      {title && <SearchResultAttributeName>{title}</SearchResultAttributeName>}
       <SearchResultAttributeValue>{subtitle}</SearchResultAttributeValue>
     </SearchResultAttribute>
   );
