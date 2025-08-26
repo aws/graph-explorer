@@ -15,6 +15,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from "@/components";
 import {
   readBackupDataFromFile,
@@ -127,34 +128,33 @@ function ConfirmationModal({
                   <i>Any connected graph databases will be unaffected.</i>
                 </Paragraph>
               </div>
-              <div className="flex flex-row gap-2 self-end">
-                <Button size="large" isDisabled={isPending} onPress={onCancel}>
-                  Cancel
-                </Button>
-                <Button
-                  variant="filled"
-                  color="danger"
-                  size="large"
-                  onPress={onConfirm}
-                  isDisabled={isPending}
-                  className="relative transition-opacity"
-                >
-                  <span className={cn(isPending && "opacity-0")}>
-                    Replace {APP_NAME} Configuration
-                  </span>
-                  <div
-                    className={cn(
-                      "absolute inset-auto opacity-0",
-                      isPending && "opacity-100"
-                    )}
-                  >
-                    <LoaderIcon className="animate-spin" />
-                  </div>
-                </Button>
-              </div>
             </div>
           </div>
         </DialogBody>
+        <DialogFooter>
+          <Button isDisabled={isPending} onPress={onCancel}>
+            Cancel
+          </Button>
+          <Button
+            variant="filled"
+            color="danger"
+            onPress={onConfirm}
+            isDisabled={isPending}
+            className="relative transition-opacity"
+          >
+            <span className={cn(isPending && "opacity-0")}>
+              Replace {APP_NAME} Configuration
+            </span>
+            <div
+              className={cn(
+                "absolute inset-auto opacity-0",
+                isPending && "opacity-100"
+              )}
+            >
+              <LoaderIcon className="animate-spin" />
+            </div>
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
@@ -183,23 +183,21 @@ function ParseFailureModal({
             <div className="py-1">
               <ErrorIcon className="text-warning-main size-16" />
             </div>
-            <div className="flex grow flex-col gap-8">
-              <div>
-                <Paragraph>
-                  Could not parse the contents of the config file provided.
-                  Perhaps the file is not a config file from {APP_NAME} or the
-                  file is corrupted.
-                </Paragraph>
-                <Paragraph>
-                  <b>{fileName ?? debouncedFileName ?? "No file selected"}</b>
-                </Paragraph>
-              </div>
-              <Button size="large" onPress={onCancel} className="self-end">
-                Cancel
-              </Button>
+            <div>
+              <Paragraph>
+                Could not parse the contents of the config file provided.
+                Perhaps the file is not a config file from {APP_NAME} or the
+                file is corrupted.
+              </Paragraph>
+              <Paragraph>
+                <b>{fileName ?? debouncedFileName ?? "No file selected"}</b>
+              </Paragraph>
             </div>
           </div>
         </DialogBody>
+        <DialogFooter>
+          <Button onPress={onCancel}>Close</Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
@@ -217,23 +215,18 @@ function SuccessModal({ success }: { success: boolean }) {
             <div className="py-1">
               <CheckIcon className="text-success-main size-16" />
             </div>
-            <div className="flex grow flex-col gap-8">
-              <div>
-                <Paragraph className="w-full min-w-0">
-                  All data was restored successfully. Please reload {APP_NAME}
-                  to complete the process.
-                </Paragraph>
-              </div>
-
-              {/* Force a full reload of the app in the browser */}
-              <a href={RELOAD_URL} className="self-end">
-                <Button variant="filled" size="large">
-                  Reload {APP_NAME}
-                </Button>
-              </a>
-            </div>
+            <Paragraph className="w-full min-w-0">
+              All data was restored successfully. Please reload {APP_NAME}
+              to complete the process.
+            </Paragraph>
           </div>
         </DialogBody>
+        <DialogFooter>
+          {/* Force a full reload of the app in the browser */}
+          <a href={RELOAD_URL}>
+            <Button variant="filled">Reload {APP_NAME}</Button>
+          </a>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
