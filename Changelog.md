@@ -1,5 +1,77 @@
 # Graph Explorer Change Log
 
+## Release v2.3
+
+This release improves the accuracy when rendering query results by preserving
+result names, properly rendering grouped data structures like maps, embedding
+source and target node information within edge results, and refining the overall
+results interface for better clarity.
+
+### Major changes
+
+- **Updated** query and search UI with nested values
+- **Added** support for named results
+- **Added** nested source & target vertex results inside of edge results
+- **Added** support for grouped data structures like maps and paths
+- **Updated** vertex and edge results to highlight when added to the graph
+- **Fixed** table view filter and sort reset when toggled off/on (thanks @dwrth
+  🎉)
+- **Updated** Gremlin expand neighbors query performance by removing sorting
+
+### All changes
+
+- Add context for Kiro by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1063
+- Remove unused dependencies by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1076
+- Refactor entity logic and add scalar as entity by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1075
+- Update Node and use official binaries by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1077
+- Remove unused code by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1079
+- Remove all usages of Mantine by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1080
+- Update search result UI by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1081
+- Split queries in to multiple files by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1084
+- Use more conventional approach to React Router by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1083
+- Migrate manual query from a mutation to a query by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1082
+- Fixes render issue for vertex & edge properties by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1089
+- Use arrays instead of Map inside Entities by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1090
+- Simplify Scalar type by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1092
+- Remove vertex info from Edge type by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1096
+- Produce more accurate query results by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1091
+- Bump version to 2.3.0 by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1106
+- Persistent table filtering and sorting by @dwrth in
+  https://github.com/aws/graph-explorer/pull/1100
+- Remove order by ID in fetch neighbors by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1112
+- Add highlight to nodes/edges added to the graph by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1111
+- Fix result count alignment when nothing to add to graph by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1107
+- Reorganize result types in to connector namespace by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1114
+- Add results title for query results by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1115
+- Show no attributes when none exist by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1113
+
+### New Contributors
+
+- @dwrth made their first contribution in
+  https://github.com/aws/graph-explorer/pull/1100
+
 ## Release v2.2
 
 This release brings significant performance improvements for the query editor,
