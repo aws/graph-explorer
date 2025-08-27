@@ -6,18 +6,6 @@ import { createRandomName, createRandomColor } from "@shared/utils/testing";
 import { VertexIconConfig, renderNode } from "./renderNode";
 import { vi } from "vitest";
 import { QueryClient } from "@tanstack/react-query";
-
-// Mock the logger module
-vi.mock("@/utils", () => ({
-  logger: {
-    debug: vi.fn(),
-    error: vi.fn(),
-    log: vi.fn(),
-    warn: vi.fn(),
-  },
-}));
-
-// Import the mocked logger
 import { logger } from "@/utils";
 
 const client = new QueryClient();
