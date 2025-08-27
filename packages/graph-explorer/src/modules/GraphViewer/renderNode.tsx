@@ -37,6 +37,7 @@ const iconStyledQueryOptions = (iconData: string, color: string) =>
     },
     placeholderData: keepPreviousData,
     staleTime: Infinity,
+    gcTime: 10 * 60 * 1000, // 10 minutes
   });
 
 export async function renderNode(
