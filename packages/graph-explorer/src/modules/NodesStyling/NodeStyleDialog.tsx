@@ -24,7 +24,6 @@ import {
   useVertexStyling,
 } from "@/core/StateProvider/userPreferences";
 import useTranslations from "@/hooks/useTranslations";
-import { useDebounceValue, usePrevious } from "@/hooks";
 import { LINE_STYLE_OPTIONS } from "./lineStyling";
 import { NODE_SHAPE } from "./nodeShape";
 import modalDefaultStyles from "./SingleNodeStylingModal.style";
@@ -34,7 +33,7 @@ import {
 } from "@/utils/constants";
 import { cn } from "@/utils";
 import { atom, useAtom } from "jotai";
-import { useEffect, useState } from "react";
+import { startTransition } from "react";
 
 export const customizeNodeTypeAtom = atom<string | undefined>(undefined);
 
@@ -96,33 +95,6 @@ function Content({ vertexType }: { vertexType: string }) {
   const { vertexStyle, setVertexStyle, resetVertexStyle } =
     useVertexStyling(vertexType);
   const displayConfig = useDisplayVertexTypeConfig(vertexType);
-
-  const [localColors, setLocalColors] = useState({
-    color: vertexStyle?.color || "#17457b",
-    borderColor: vertexStyle?.borderColor || "#17457b",
-  });
-
-  const debouncedColors = useDebounceValue(localColors, 300);
-  const prevColors = usePrevious(debouncedColors);
-
-  useEffect(() => {
-    if (prevColors === null || prevColors === debouncedColors) {
-      return;
-    }
-    void setVertexStyle({
-      color: debouncedColors.color,
-      borderColor: debouncedColors.borderColor,
-    });
-  }, [debouncedColors, prevColors, setVertexStyle]);
-
-  useEffect(() => {
-    if (vertexStyle) {
-      setLocalColors({
-        color: vertexStyle.color || "#17457b",
-        borderColor: vertexStyle.borderColor || "#17457b",
-      });
-    }
-  }, [vertexStyle]);
 
   const selectOptions = (() => {
     const options = displayConfig.attributes.map(attr => ({
@@ -233,9 +205,9 @@ function Content({ vertexType }: { vertexType: string }) {
           <ColorInput
             label="Color"
             labelPlacement="inner"
-            color={localColors.color}
+            color={vertexStyle?.color || "#17457b"}
             onChange={(color: string) =>
-              setLocalColors(prev => ({ ...prev, color }))
+              startTransition(() => setVertexStyle({ color }))
             }
           />
           <InputField
@@ -257,10 +229,8 @@ function Content({ vertexType }: { vertexType: string }) {
           <ColorInput
             label="Border Color"
             labelPlacement="inner"
-            color={localColors.borderColor}
-            onChange={(color: string) =>
-              setLocalColors(prev => ({ ...prev, borderColor: color }))
-            }
+            color={vertexStyle?.borderColor || "#17457b"}
+            onChange={(color: string) => setVertexStyle({ borderColor: color })}
           />
           <InputField
             label="Border Width"

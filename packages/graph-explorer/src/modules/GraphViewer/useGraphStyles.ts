@@ -1,5 +1,5 @@
 import Color from "color";
-import { useEffect, useState } from "react";
+import { useDeferredValue, useEffect, useState } from "react";
 import {
   getEdgeIdFromRenderedEdgeId,
   RenderedEdgeId,
@@ -13,6 +13,7 @@ import {
   useVertexTypeConfigs,
 } from "@/core/ConfigurationProvider/useConfiguration";
 import { MISSING_DISPLAY_VALUE } from "@/utils/constants";
+import { useQueryClient } from "@tanstack/react-query";
 
 const LINE_PATTERN = {
   solid: undefined,
@@ -26,16 +27,20 @@ const useGraphStyles = () => {
   const textTransform = useTextTransform();
   const [styles, setStyles] = useState<GraphProps["styles"]>({});
   const displayEdges = useDisplayEdgesInCanvas();
+  const client = useQueryClient();
+
+  const deferredVtConfigs = useDeferredValue(vtConfigs);
+  const deferredEtConfigs = useDeferredValue(etConfigs);
 
   useEffect(() => {
     (async () => {
       const styles: GraphProps["styles"] = {};
 
-      for (const vtConfig of vtConfigs) {
+      for (const vtConfig of deferredVtConfigs) {
         const vt = vtConfig.type;
 
         // Process the image data or SVG
-        const backgroundImage = await renderNode(vtConfig);
+        const backgroundImage = await renderNode(client, vtConfig);
 
         styles[`node[type="${vt}"]`] = {
           "background-image": backgroundImage,
@@ -51,7 +56,7 @@ const useGraphStyles = () => {
         };
       }
 
-      for (const etConfig of etConfigs) {
+      for (const etConfig of deferredEtConfigs) {
         const et = etConfig?.type;
 
         let label = textTransform(et);
@@ -101,7 +106,13 @@ const useGraphStyles = () => {
 
       setStyles(styles);
     })();
-  }, [displayEdges, etConfigs, textTransform, vtConfigs]);
+  }, [
+    client,
+    deferredEtConfigs,
+    deferredVtConfigs,
+    displayEdges,
+    textTransform,
+  ]);
 
   return styles;
 };
