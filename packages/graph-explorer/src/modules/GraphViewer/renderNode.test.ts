@@ -3,23 +3,31 @@
 // DEV NOTE: The DOMParser in happy-dom is not fully functional. Using jsdom until it works properly.
 
 import { createRandomName, createRandomColor } from "@shared/utils/testing";
-import { ICONS_CACHE, VertexIconConfig, renderNode } from "./renderNode";
+import { VertexIconConfig, renderNode } from "./renderNode";
 import { vi } from "vitest";
+import { QueryClient } from "@tanstack/react-query";
 
+// Mock the logger module
+vi.mock("@/utils", () => ({
+  logger: {
+    debug: vi.fn(),
+    error: vi.fn(),
+    log: vi.fn(),
+    warn: vi.fn(),
+  },
+}));
+
+// Import the mocked logger
+import { logger } from "@/utils";
+
+const client = new QueryClient();
 const fetchMock = vi.fn<typeof fetch>();
-
-const consoleMock = {
-  log: vi.fn(),
-  warn: vi.fn(),
-  error: vi.fn(),
-};
 
 describe("renderNode", () => {
   beforeEach(() => {
-    ICONS_CACHE.clear();
+    client.clear();
     vi.resetAllMocks();
     vi.stubGlobal("fetch", fetchMock);
-    vi.stubGlobal("console", consoleMock);
   });
 
   afterEach(() => {
@@ -34,11 +42,11 @@ describe("renderNode", () => {
       iconImageType: "image/svg+xml",
     };
 
-    const result = await renderNode(node);
+    const result = await renderNode(client, node);
 
     expect(result).toBeUndefined();
     expect(fetchMock).not.toBeCalled();
-    expect(ICONS_CACHE.size).toEqual(0);
+    expect(client.getQueryData(["icon", node.iconUrl])).toBeUndefined();
   });
 
   it("should return undefined when error occurs in fetch", async () => {
@@ -50,12 +58,12 @@ describe("renderNode", () => {
       iconImageType: "image/svg+xml",
     };
 
-    const result = await renderNode(node);
+    const result = await renderNode(client, node);
 
     expect(fetchMock).toBeCalledWith(node.iconUrl);
     expect(result).toBeUndefined();
-    expect(ICONS_CACHE.size).toEqual(0);
-    expect(consoleMock.error).toHaveBeenCalledOnce();
+    expect(client.getQueryData(["icon", node.iconUrl])).toBeUndefined();
+    expect(vi.mocked(logger.error)).toHaveBeenCalledOnce();
   });
 
   it("should return icon url given image type is not an SVG", async () => {
@@ -66,11 +74,11 @@ describe("renderNode", () => {
       iconImageType: "image/png",
     };
 
-    const result = await renderNode(node);
+    const result = await renderNode(client, node);
 
     expect(result).toBe(node.iconUrl);
     expect(fetchMock).not.toBeCalled();
-    expect(ICONS_CACHE.size).toEqual(0);
+    expect(client.getQueryData(["icon", node.iconUrl])).toBeUndefined();
   });
 
   it("should return processed SVG string keeping original color", async () => {
@@ -84,7 +92,7 @@ describe("renderNode", () => {
       iconImageType: "image/svg+xml",
     };
 
-    const result = await renderNode(node);
+    const result = await renderNode(client, node);
 
     expect(fetchMock).toBeCalledWith(node.iconUrl);
     expect(result).toBeDefined();
@@ -108,7 +116,7 @@ describe("renderNode", () => {
       iconImageType: "image/svg+xml",
     };
 
-    const result = await renderNode(node);
+    const result = await renderNode(client, node);
 
     expect(fetchMock).toBeCalledWith(iconUrl);
     expect(result).toBeDefined();
@@ -131,7 +139,7 @@ describe("renderNode", () => {
       iconImageType: "image/svg+xml",
     };
 
-    const result = await renderNode(node);
+    const result = await renderNode(client, node);
 
     expect(fetchMock).toBeCalledWith(node.iconUrl);
     expect(result).toBeDefined();
@@ -155,7 +163,7 @@ describe("renderNode", () => {
       iconImageType: "image/svg+xml",
     };
 
-    const result = await renderNode(node);
+    const result = await renderNode(client, node);
 
     expect(fetchMock).toBeCalledWith(node.iconUrl);
     expect(result).toBeDefined();
