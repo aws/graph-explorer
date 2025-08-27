@@ -33,7 +33,6 @@ import {
 } from "@/utils/constants";
 import { cn } from "@/utils";
 import { atom, useAtom } from "jotai";
-import { startTransition } from "react";
 
 export const customizeNodeTypeAtom = atom<string | undefined>(undefined);
 
@@ -206,9 +205,7 @@ function Content({ vertexType }: { vertexType: string }) {
             label="Color"
             labelPlacement="inner"
             color={vertexStyle?.color || "#17457b"}
-            onChange={(color: string) =>
-              startTransition(() => setVertexStyle({ color }))
-            }
+            onChange={(color: string) => setVertexStyle({ color })}
           />
           <InputField
             label="Background Opacity"
