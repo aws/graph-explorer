@@ -73,9 +73,7 @@ export async function renderNode(
  */
 function embedSvgInsideCytoscapeSvgWrapper(svgContent: string): string {
   return `<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE svg>
-<svg width="24" height="24" xmlns="http://www.w3.org/2000/svg">
-  ${svgContent}
-</svg>`;
+${svgContent}`;
 }
 
 /**
@@ -94,8 +92,8 @@ function updateSize(svgContent: string): string {
 
   const doc = parser.parseFromString(svgContent, "application/xml");
 
-  doc.documentElement.setAttribute("width", "100%");
-  doc.documentElement.setAttribute("height", "100%");
+  doc.documentElement.setAttribute("width", "24");
+  doc.documentElement.setAttribute("height", "24");
 
   const result = serializer.serializeToString(doc.documentElement);
 
