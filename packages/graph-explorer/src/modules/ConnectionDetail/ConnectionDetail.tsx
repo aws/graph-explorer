@@ -10,7 +10,6 @@ import { useState } from "react";
 import {
   Button,
   Chip,
-  DeleteIcon,
   EdgeIcon,
   EditIcon,
   GraphIcon,
@@ -54,6 +53,7 @@ import {
 import saveConfigurationToFile from "@/utils/saveConfigurationToFile";
 import CreateConnection from "@/modules/CreateConnection";
 import ConnectionData from "./ConnectionData";
+import ConnectionDeleteButton from "./ConnectionDeleteButton";
 import { useQueryClient } from "@tanstack/react-query";
 import useEntitiesCounts from "@/hooks/useEntitiesCounts";
 import {
@@ -120,12 +120,11 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
             isDisabled={isSync}
             onActionClick={() => setEdit(true)}
           />
-          <PanelHeaderActionButton
-            label="Delete connection"
-            icon={<DeleteIcon />}
-            color="danger"
-            isDisabled={isSync}
-            onActionClick={deleteActiveConfig}
+          <ConnectionDeleteButton
+            connectionName={connectionName}
+            isSync={isSync}
+            deleteActiveConfig={deleteActiveConfig}
+            saveCopy={onConfigExport}
           />
         </PanelHeaderActions>
       </PanelHeader>
