@@ -12,11 +12,11 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "zod": "^3.25.64"
+    "zod": "^3.25.76"
   },
   "devDependencies": {
-    "@vitest/coverage-v8": "3.2.3",
+    "@vitest/coverage-v8": "3.2.4",
     "rimraf": "^6.0.1",
-    "vitest": "3.2.3"
+    "vitest": "3.2.4"
   }
 }
