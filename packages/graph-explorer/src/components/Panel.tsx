@@ -55,7 +55,7 @@ const PanelHeader = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "bg-background-default flex min-h-[48px] w-full shrink-0 items-center gap-4 border-b px-3 py-1",
+      "bg-background-default flex min-h-[48px] w-full shrink-0 items-center gap-4 border-b px-3 py-1 overflow-x-hidden",
       className
     )}
     {...props}
@@ -152,7 +152,7 @@ function PanelHeaderActions({
   return (
     <div
       className={cn(
-        "flex grow flex-row items-center justify-end gap-0.5",
+        "flex grow flex-row items-center justify-end gap-0.5 overflow-x-auto",
         className
       )}
       {...props}
