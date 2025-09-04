@@ -37,7 +37,7 @@ const DialogContent = React.forwardRef<
       <DialogPrimitive.Content
         ref={ref}
         className={cn(
-          "bg-background-default data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 relative grid max-h-full w-[500px] overflow-y-auto duration-200 sm:rounded-lg",
+          "bg-background-default data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 relative grid max-h-full w-[500px] overflow-y-auto rounded-lg duration-200",
           className
         )}
         {...props}
@@ -62,10 +62,7 @@ const DialogHeader = ({
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
-    className={cn(
-      "flex flex-col space-y-1.5 p-6 pb-3 text-center sm:text-left",
-      className
-    )}
+    className={cn("flex flex-col space-y-1.5 p-6 pb-3", className)}
     {...props}
   />
 );
@@ -75,13 +72,7 @@ const DialogBody = ({
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div
-    className={cn(
-      "flex flex-col gap-5 p-6 text-center sm:text-left",
-      className
-    )}
-    {...props}
-  />
+  <div className={cn("flex flex-col gap-5 p-6", className)} {...props} />
 );
 DialogBody.displayName = "DialogBody";
 
