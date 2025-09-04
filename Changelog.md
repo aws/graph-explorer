@@ -1,5 +1,23 @@
 # Graph Explorer Change Log
 
+## Release v2.3.1
+
+This release resolves a few important issues from the previous release.
+
+### All changes
+
+- Remove past roadmap items by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1116
+- Add OpenSSL back to Docker by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1137
+- Bump version to 2.3.1 for patch by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1138
+- Fix expand neighbor query when edge ID is UUID by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1140
+
+**Full Changelog**:
+https://github.com/aws/graph-explorer/compare/v2.3.0...v2.3.1
+
 ## Release v2.3
 
 This release improves the accuracy when rendering query results by preserving
