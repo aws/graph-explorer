@@ -31,7 +31,7 @@ export * from "./Form";
 export { default as Graph } from "./Graph";
 export * from "./Graph";
 
-export * from "./HumanReadableNumberFormatter";
+export * from "./numberFormat";
 
 export * from "./IconButton";
 
