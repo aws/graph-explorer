@@ -1,6 +1,6 @@
 {
   "name": "@graph-explorer/shared",
-  "version": "2.3.1",
+  "version": "2.4.0",
   "description": "Shared types and functions across client and server.",
   "author": "amazon",
   "license": "Apache-2.0",
