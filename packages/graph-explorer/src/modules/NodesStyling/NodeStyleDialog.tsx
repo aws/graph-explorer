@@ -179,11 +179,12 @@ function Content({ vertexType }: { vertexType: string }) {
             asChild
           >
             <IconButton
-              variant="filled"
-              className="text-text-primary hover:text-text-primary group rounded-full border-0 bg-transparent p-0 hover:cursor-pointer hover:bg-gray-200"
+              variant="default"
+              className="group rounded-full"
+              style={vertexStyle}
               icon={
                 <>
-                  <div className="hidden group-hover:flex">
+                  <div className="hidden p-2 group-hover:flex">
                     <UploadIcon />
                   </div>
                   <VertexSymbol

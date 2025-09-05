@@ -1,13 +1,47 @@
 import { VertexTypeConfig } from "@/core";
+import { logger } from "@/utils";
+import {
+  keepPreviousData,
+  QueryClient,
+  queryOptions,
+} from "@tanstack/react-query";
 
 export type VertexIconConfig = Pick<
   VertexTypeConfig,
   "type" | "iconUrl" | "iconImageType" | "color"
 >;
 
-export const ICONS_CACHE: Map<string, string> = new Map();
+const iconQueryOptions = (url: string) =>
+  queryOptions({
+    queryKey: ["icon", url],
+    queryFn: async () => {
+      logger.debug("Fetching icon", url);
+      const response = await fetch(url);
+      return await response.text();
+    },
+    placeholderData: keepPreviousData,
+    staleTime: Infinity,
+  });
+
+const iconStyledQueryOptions = (iconData: string, color: string) =>
+  queryOptions({
+    queryKey: ["icon-style", iconData, color],
+    queryFn: () => {
+      let iconText = iconData;
+      iconText = updateSize(iconText);
+      iconText = embedSvgInsideCytoscapeSvgWrapper(iconText);
+      iconText = applyCurrentColor(iconText, color);
+      iconText = encodeSvg(iconText);
+      logger.debug("Styling icon", iconText);
+      return iconText;
+    },
+    placeholderData: keepPreviousData,
+    staleTime: Infinity,
+    gcTime: 10 * 60 * 1000, // 10 minutes
+  });
 
 export async function renderNode(
+  client: QueryClient,
   vtConfig: VertexIconConfig
 ): Promise<string | undefined> {
   if (!vtConfig.iconUrl) {
@@ -18,29 +52,16 @@ export async function renderNode(
     return vtConfig.iconUrl;
   }
 
-  // To avoid multiple requests, cache icons under the same URL
-  if (ICONS_CACHE.get(vtConfig.iconUrl)) {
-    return ICONS_CACHE.get(vtConfig.iconUrl);
-  }
-
   try {
-    const response = await fetch(vtConfig.iconUrl);
-    let iconText = await response.text();
-
-    iconText = updateSize(iconText);
-    iconText = embedSvgInsideCytoscapeSvgWrapper(iconText);
-    iconText = applyCurrentColor(iconText, vtConfig.color || "#128EE5");
-    iconText = encodeSvg(iconText);
-
-    // Save to the cache
-    ICONS_CACHE.set(vtConfig.iconUrl, iconText);
-    return iconText;
-  } catch (error) {
-    // Ignore the error and move on
-    console.error(
-      `Failed to fetch the icon data for vertex ${vtConfig.type}`,
-      error
+    const iconData = await client.fetchQuery(
+      iconQueryOptions(vtConfig.iconUrl)
     );
+    const iconStyled = await client.fetchQuery(
+      iconStyledQueryOptions(iconData, vtConfig.color || "#128EE5")
+    );
+    return iconStyled;
+  } catch (e) {
+    logger.error("Failed to retrieve and style the icon", e, vtConfig.iconUrl);
     return;
   }
 }
@@ -52,9 +73,7 @@ export async function renderNode(
  */
 function embedSvgInsideCytoscapeSvgWrapper(svgContent: string): string {
   return `<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE svg>
-<svg width="24" height="24" xmlns="http://www.w3.org/2000/svg">
-  ${svgContent}
-</svg>`;
+${svgContent}`;
 }
 
 /**
@@ -73,8 +92,8 @@ function updateSize(svgContent: string): string {
 
   const doc = parser.parseFromString(svgContent, "application/xml");
 
-  doc.documentElement.setAttribute("width", "100%");
-  doc.documentElement.setAttribute("height", "100%");
+  doc.documentElement.setAttribute("width", "24");
+  doc.documentElement.setAttribute("height", "24");
 
   const result = serializer.serializeToString(doc.documentElement);
 
