@@ -34,7 +34,6 @@ when you click `Open Connections` on the top-right. Click `+` on the top-right
 to add a new connection. You can also edit and delete connections.
 
 - **Add a new connection:**
-
   - **Name:** Enter a name for your connection (e.g., `MyNeptuneCluster`).
   - **Graph Type:** Choose a graph data model that corresponds to your graph
     database.

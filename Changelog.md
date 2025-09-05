@@ -718,7 +718,6 @@ a more pleasant experience, especially for users with larger databases.
 **Major Changes**
 
 - Better UX around neighbor expansion
-
   - Expand up to 10 additional neighbors when double clicking a node
     (<https://github.com/aws/graph-explorer/pull/455>,
     <https://github.com/aws/graph-explorer/pull/465>)
@@ -734,7 +733,6 @@ a more pleasant experience, especially for users with larger databases.
     (<https://github.com/aws/graph-explorer/pull/434>)
 
 - Better UX around node counts
-
   - Progress and errors are reported in notifications when any are happening
     (<https://github.com/aws/graph-explorer/pull/434>)
   - Progress and errors are shown for selected node in the expand side bar
