@@ -3,13 +3,13 @@ import type { VertexId } from "@/core";
 import {
   Button,
   DefaultQueryErrorBoundary,
+  ExpandGraphIcon,
+  GraphIcon,
+  PanelEmptyState,
   PanelFooter,
+  Spinner,
   VertexRow,
 } from "@/components";
-import ExpandGraphIcon from "@/components/icons/ExpandGraphIcon";
-import GraphIcon from "@/components/icons/GraphIcon";
-import LoadingSpinner from "@/components/LoadingSpinner";
-import PanelEmptyState from "@/components/PanelEmptyState/PanelEmptyState";
 import { DisplayVertex, useNeighbors, useVertex } from "@/core";
 import { useExpandNode } from "@/hooks";
 import useNeighborsOptions, {
@@ -43,9 +43,7 @@ export default function NodeExpandContent({ vertex }: NodeExpandContentProps) {
 }
 
 function Loading() {
-  return (
-    <PanelEmptyState icon={<LoadingSpinner />} title="Loading Neighbors" />
-  );
+  return <PanelEmptyState icon={<Spinner />} title="Loading Neighbors" />;
 }
 
 function ExpandSidebarContent({ vertexId }: { vertexId: VertexId }) {
@@ -159,19 +157,15 @@ function ExpandButton({
 
   return (
     <Button
-      icon={
-        isPending ? (
-          <LoadingSpinner style={{ width: 24, height: 24 }} />
-        ) : (
-          <ExpandGraphIcon />
-        )
-      }
       variant="filled"
       isDisabled={isPending || isDisabled}
       onPress={() =>
         expandNode({ vertexId, vertexTypes: vertex.types, ...filters })
       }
     >
+      <Spinner loading={isPending}>
+        <ExpandGraphIcon />
+      </Spinner>
       Expand
     </Button>
   );
