@@ -1,5 +1,3 @@
-import { v4 } from "uuid";
-
 /*
 
 # Developer Note
@@ -17,10 +15,20 @@ affected by those values, regardless of what they are.
 /**
  * Creates a random string with a prefix, if provided.
  * @param prefix The prefix to prepend to the string.
- * @returns A random string that will resemble "prefix-8d49f0".
+ * @returns A random string that will resemble "prefix-8d49f0zp5t".
  */
 export function createRandomName(prefix: string = ""): string {
-  return `${prefix}${prefix.length > 0 ? "-" : ""}${v4().substring(0, 6)}`;
+  // Available characters for random string creation
+  const chars = "0123456789abcdefghijklmnopqrstuvwxyz";
+
+  // Grab 10 randome characters from the character array
+  const random = Array.from(
+    { length: 10 },
+    () => chars[Math.floor(Math.random() * chars.length)]
+  ).join("");
+
+  // Join with the prefix if provided
+  return `${prefix}${prefix.length > 0 ? "-" : ""}${random}`;
 }
 
 /**
