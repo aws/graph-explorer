@@ -55,12 +55,12 @@ const PanelHeader = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "bg-background-default flex min-h-[48px] w-full shrink-0 border-b overflow-hidden",
+      "bg-background-default flex min-h-[48px] w-full shrink-0 overflow-hidden border-b",
       className
     )}
     {...props}
   >
-    <div className="flex min-w-full items-center gap-4 px-3 py-1 overflow-x-auto">
+    <div className="flex min-w-full items-center gap-4 overflow-x-auto px-3 py-1">
       {children}
     </div>
   </div>
