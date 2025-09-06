@@ -55,12 +55,14 @@ const PanelHeader = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "bg-background-default flex min-h-[48px] w-full shrink-0 items-center gap-4 border-b px-3 py-1 overflow-x-hidden",
+      "bg-background-default flex min-h-[48px] w-full shrink-0 border-b overflow-hidden",
       className
     )}
     {...props}
   >
-    {children}
+    <div className="flex min-w-full items-center gap-4 px-3 py-1 overflow-x-auto">
+      {children}
+    </div>
   </div>
 ));
 PanelHeader.displayName = "PanelHeader";
@@ -152,7 +154,7 @@ function PanelHeaderActions({
   return (
     <div
       className={cn(
-        "flex grow flex-row items-center justify-end gap-0.5 overflow-x-auto",
+        "flex grow flex-row items-center justify-end gap-0.5",
         className
       )}
       {...props}
