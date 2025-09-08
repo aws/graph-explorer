@@ -3,23 +3,19 @@
 // DEV NOTE: The DOMParser in happy-dom is not fully functional. Using jsdom until it works properly.
 
 import { createRandomName, createRandomColor } from "@shared/utils/testing";
-import { ICONS_CACHE, VertexIconConfig, renderNode } from "./renderNode";
+import { VertexIconConfig, renderNode } from "./renderNode";
 import { vi } from "vitest";
+import { QueryClient } from "@tanstack/react-query";
+import { logger } from "@/utils";
 
+const client = new QueryClient();
 const fetchMock = vi.fn<typeof fetch>();
-
-const consoleMock = {
-  log: vi.fn(),
-  warn: vi.fn(),
-  error: vi.fn(),
-};
 
 describe("renderNode", () => {
   beforeEach(() => {
-    ICONS_CACHE.clear();
+    client.clear();
     vi.resetAllMocks();
     vi.stubGlobal("fetch", fetchMock);
-    vi.stubGlobal("console", consoleMock);
   });
 
   afterEach(() => {
@@ -34,11 +30,11 @@ describe("renderNode", () => {
       iconImageType: "image/svg+xml",
     };
 
-    const result = await renderNode(node);
+    const result = await renderNode(client, node);
 
     expect(result).toBeUndefined();
     expect(fetchMock).not.toBeCalled();
-    expect(ICONS_CACHE.size).toEqual(0);
+    expect(client.getQueryData(["icon", node.iconUrl])).toBeUndefined();
   });
 
   it("should return undefined when error occurs in fetch", async () => {
@@ -50,12 +46,12 @@ describe("renderNode", () => {
       iconImageType: "image/svg+xml",
     };
 
-    const result = await renderNode(node);
+    const result = await renderNode(client, node);
 
     expect(fetchMock).toBeCalledWith(node.iconUrl);
     expect(result).toBeUndefined();
-    expect(ICONS_CACHE.size).toEqual(0);
-    expect(consoleMock.error).toHaveBeenCalledOnce();
+    expect(client.getQueryData(["icon", node.iconUrl])).toBeUndefined();
+    expect(vi.mocked(logger.error)).toHaveBeenCalledOnce();
   });
 
   it("should return icon url given image type is not an SVG", async () => {
@@ -66,11 +62,11 @@ describe("renderNode", () => {
       iconImageType: "image/png",
     };
 
-    const result = await renderNode(node);
+    const result = await renderNode(client, node);
 
     expect(result).toBe(node.iconUrl);
     expect(fetchMock).not.toBeCalled();
-    expect(ICONS_CACHE.size).toEqual(0);
+    expect(client.getQueryData(["icon", node.iconUrl])).toBeUndefined();
   });
 
   it("should return processed SVG string keeping original color", async () => {
@@ -84,7 +80,7 @@ describe("renderNode", () => {
       iconImageType: "image/svg+xml",
     };
 
-    const result = await renderNode(node);
+    const result = await renderNode(client, node);
 
     expect(fetchMock).toBeCalledWith(node.iconUrl);
     expect(result).toBeDefined();
@@ -92,7 +88,7 @@ describe("renderNode", () => {
     const decodedResult = decodeSvg(result);
     expect(decodedResult).toEqual(
       wrapExpectedSvg(
-        `<svg fill="${originalColor}" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"/>`
+        `<svg fill="${originalColor}" xmlns="http://www.w3.org/2000/svg" width="24" height="24"/>`
       )
     );
   });
@@ -108,7 +104,7 @@ describe("renderNode", () => {
       iconImageType: "image/svg+xml",
     };
 
-    const result = await renderNode(node);
+    const result = await renderNode(client, node);
 
     expect(fetchMock).toBeCalledWith(iconUrl);
     expect(result).toBeDefined();
@@ -116,7 +112,7 @@ describe("renderNode", () => {
     const decodedResult = decodeSvg(result);
     expect(decodedResult).toEqual(
       wrapExpectedSvg(
-        `<svg fill="#128EE5" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"/>`
+        `<svg fill="#128EE5" xmlns="http://www.w3.org/2000/svg" width="24" height="24"/>`
       )
     );
   });
@@ -131,7 +127,7 @@ describe("renderNode", () => {
       iconImageType: "image/svg+xml",
     };
 
-    const result = await renderNode(node);
+    const result = await renderNode(client, node);
 
     expect(fetchMock).toBeCalledWith(node.iconUrl);
     expect(result).toBeDefined();
@@ -139,7 +135,7 @@ describe("renderNode", () => {
     const decodedResult = decodeSvg(result);
     expect(decodedResult).toEqual(
       wrapExpectedSvg(
-        `<svg fill="${node.color}" stroke="${node.color}" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"/>`
+        `<svg fill="${node.color}" stroke="${node.color}" xmlns="http://www.w3.org/2000/svg" width="24" height="24"/>`
       )
     );
   });
@@ -155,7 +151,7 @@ describe("renderNode", () => {
       iconImageType: "image/svg+xml",
     };
 
-    const result = await renderNode(node);
+    const result = await renderNode(client, node);
 
     expect(fetchMock).toBeCalledWith(node.iconUrl);
     expect(result).toBeDefined();
@@ -163,7 +159,7 @@ describe("renderNode", () => {
     const decodedResult = decodeSvg(result);
     expect(decodedResult).toEqual(
       wrapExpectedSvg(
-        `<svg fill="${originalColor}" viewBox="0 0 24 24" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"/>`
+        `<svg fill="${originalColor}" viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg"/>`
       )
     );
   });
@@ -172,9 +168,7 @@ describe("renderNode", () => {
 /** Wraps SVG string in another SVG element matching what is expected.  */
 function wrapExpectedSvg(svgContent: string): string {
   return `<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE svg>
-<svg width="24" height="24" xmlns="http://www.w3.org/2000/svg">
-  ${svgContent}
-</svg>`;
+${svgContent}`;
 }
 
 /** Decodes the string and removes the data type URL prefix, returning only the SVG portion. */

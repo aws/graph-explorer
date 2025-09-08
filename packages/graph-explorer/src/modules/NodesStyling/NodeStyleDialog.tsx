@@ -179,8 +179,8 @@ function Content({ vertexType }: { vertexType: string }) {
             asChild
           >
             <IconButton
-              variant="filled"
-              className="text-text-primary hover:text-text-primary group rounded-full border-0 bg-transparent p-0 hover:cursor-pointer hover:bg-gray-200"
+              variant="default"
+              className="group rounded-full"
               icon={
                 <>
                   <div className="hidden group-hover:flex">
