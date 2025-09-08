@@ -181,7 +181,6 @@ function Content({ vertexType }: { vertexType: string }) {
             <IconButton
               variant="default"
               className="group rounded-full"
-              style={vertexStyle}
               icon={
                 <>
                   <div className="hidden p-2 group-hover:flex">
