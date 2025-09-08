@@ -110,7 +110,7 @@ const retryFetch = async (
         // Don't log about retries if retrying is not used
         throw err;
       } else if (i === refetchMaxRetries - 1) {
-        proxyLogger.error("!!Proxy Retry Fetch Reached Maximum Tries!!", err);
+        proxyLogger.error(err, "!!Proxy Retry Fetch Reached Maximum Tries!!");
         throw err;
       } else {
         proxyLogger.debug("Proxy Retry Fetch Count::: " + i);
@@ -231,7 +231,7 @@ app.post("/sparql", async (req, res, next) => {
       );
     } catch (err) {
       // Not really an error
-      proxyLogger.warn("Failed to cancel the query: %o", err);
+      proxyLogger.warn(err, "Failed to cancel the query");
     }
   }
 
@@ -330,7 +330,7 @@ app.post("/gremlin", async (req, res, next) => {
       );
     } catch (err) {
       // Not really an error
-      proxyLogger.warn("Failed to cancel the query: %o", err);
+      proxyLogger.warn(err, "Failed to cancel the query");
     }
   }
 

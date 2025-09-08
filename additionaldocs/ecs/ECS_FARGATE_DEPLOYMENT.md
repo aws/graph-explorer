@@ -244,7 +244,6 @@ the specified domain names.
 8. Expand the **Load balancing** section.
 9. Select **Application load balancer**, and create a new load balancer with the
    configuration:
-
    - **Load balancer name**: `lb-graph-explorer-demo`
    - **Choose container to load balance**: `graph-explorer 443:443`.
    - **Listener**: Select **Create New listener**, then set **Port** as `443`
@@ -253,7 +252,6 @@ the specified domain names.
      domain name created in step "Request an ACM Public Certificate".
    - **Target group**: Select **Create new target group**, with the options set
      to:
-
      - **Target group name**: `tg-graphexplorer-demo` with **Protocol** as
        `HTTPS`.
      - **Health check path**: `/explorer/` with **Health check protocol** as
