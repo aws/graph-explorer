@@ -8,8 +8,9 @@ import {
   DialogBody,
   Paragraph,
   Button,
-  TrayArrowIcon,
   ErrorIcon,
+  DialogFooter,
+  DialogDescription,
 } from "@/components";
 import { useState } from "react";
 
@@ -26,6 +27,11 @@ export default function ConnectionDeleteButton({
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
+  const saveAndDelete = () => {
+    saveCopy();
+    deleteActiveConfig();
+  };
+
   return (
     <>
       <PanelHeaderActionButton
@@ -38,39 +44,34 @@ export default function ConnectionDeleteButton({
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete {connectionName}</DialogTitle>
+            <DialogTitle>Delete Connection</DialogTitle>
+            <DialogDescription className="sr-only">
+              Confirm the deletion of the connection named {connectionName}
+            </DialogDescription>
           </DialogHeader>
           <DialogBody>
             <div className="flex flex-row items-start gap-8">
               <div className="py-1">
                 <ErrorIcon className="text-warning-main size-16" />
               </div>
-              <div>
-                <Paragraph>
-                  Are you sure you want to delete this connection?
-                </Paragraph>
-                <Paragraph>
-                  This action is permanent and cannot be undone.
-                </Paragraph>
-              </div>
-            </div>
-            <div className="flex w-full justify-between">
-              <Button onPress={saveCopy} variant="text">
-                <TrayArrowIcon />
-                Export Copy
-              </Button>
-              <div className="flex gap-2 self-end justify-self-end">
-                <Button onPress={() => setIsOpen(false)}>Cancel</Button>
-                <Button
-                  onPress={deleteActiveConfig}
-                  color="danger"
-                  variant="filled"
-                >
-                  Delete Connection
-                </Button>
-              </div>
+              <Paragraph>
+                Are you sure you want to delete the connection,{" "}
+                <strong className="font-bold">{connectionName}</strong>? This
+                cannot be undone.
+              </Paragraph>
             </div>
           </DialogBody>
+          <DialogFooter>
+            <Button onPress={() => setIsOpen(false)}>Cancel</Button>
+            <Button onPress={saveAndDelete}>Save a Copy & Delete</Button>
+            <Button
+              onPress={deleteActiveConfig}
+              color="danger"
+              variant="filled"
+            >
+              Delete
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </>
