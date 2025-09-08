@@ -3,12 +3,12 @@
   "compilerOptions": {
     /* Language and Environment */
     "composite": true,
-    "target": "ES2022",
-    "lib": ["ES2023"],
+    "target": "ES2024",
+    "lib": ["ES2024"],
     "types": ["vitest/globals"],
 
     /* Modules */
-    "module": "Node16",
+    "module": "nodenext",
 
     /* Interop Constraints */
     "esModuleInterop": true,
