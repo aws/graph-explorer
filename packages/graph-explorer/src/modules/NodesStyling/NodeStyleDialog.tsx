@@ -183,7 +183,7 @@ function Content({ vertexType }: { vertexType: string }) {
               className="group rounded-full"
               icon={
                 <>
-                  <div className="hidden p-2 group-hover:flex">
+                  <div className="hidden group-hover:flex">
                     <UploadIcon />
                   </div>
                   <VertexSymbol
