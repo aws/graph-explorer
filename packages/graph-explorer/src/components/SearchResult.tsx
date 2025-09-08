@@ -23,14 +23,19 @@ export function SearchResult({
 export function SearchResultCollapsible({
   className,
   level = 0,
+  highlighted = false,
   ...props
-}: ComponentPropsWithRef<typeof Collapsible> & { level?: number }) {
+}: ComponentPropsWithRef<typeof Collapsible> & {
+  level?: number;
+  highlighted?: boolean;
+}) {
   return (
     <Collapsible
       {...props}
       className={cn(
-        "content-auto intrinsic-size-[4.75rem] group rounded-xl border shadow-sm",
+        "content-auto intrinsic-size-[4.75rem] ring-border group rounded-xl shadow-sm ring-1 transition duration-100 ease-in-out",
         isEven(level) ? "bg-gray-50" : "bg-default",
+        highlighted ? "ring-primary-dark/75 shadow-primary-dark/50" : "",
         className
       )}
     />

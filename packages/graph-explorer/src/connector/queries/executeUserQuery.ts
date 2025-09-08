@@ -1,8 +1,8 @@
-import { UpdateSchemaHandler, fetchEntityDetails } from "@/core";
+import { UpdateSchemaHandler } from "@/core";
 import { queryOptions } from "@tanstack/react-query";
-import { updateVertexDetailsCache, updateEdgeDetailsCache } from ".";
-import { toMappedQueryResults } from "../useGEFetchTypes";
-import { getExplorer } from "./helpers";
+import { getExplorer, updateDetailsCacheFromEntities } from "./helpers";
+import { patchEntityDetails } from "./patchEntityDetails";
+import { getAllGraphableEntities } from "../entities";
 
 export function executeUserQuery(
   query: string,
@@ -25,27 +25,17 @@ export function executeUserQuery(
       const explorer = getExplorer(meta);
       const results = await explorer.rawQuery({ query }, { signal });
 
-      // Update the schema and the cache
-      updateVertexDetailsCache(client, results.vertices);
-      updateEdgeDetailsCache(client, results.edges);
+      // Update the cache for any fully materialized entities
+      updateDetailsCacheFromEntities(client, results);
 
-      // Fetch any details for fragments
-      const details = await fetchEntityDetails(
-        results.vertices.map(v => v.id),
-        results.edges.map(e => e.id),
-        client
-      );
+      // Fetch any details for fragments and patch the results
+      const patchedResults = await patchEntityDetails(client, results);
 
-      // Recombine results with full details
-      const combinedResults = toMappedQueryResults({
-        ...results,
-        vertices: details.entities.vertices,
-        edges: details.entities.edges,
-      });
+      // Update the schema with the results
+      const patchedGraphableEntities = getAllGraphableEntities(patchedResults);
+      updateSchema(patchedGraphableEntities);
 
-      updateSchema(combinedResults);
-
-      return combinedResults;
+      return patchedResults;
     },
   });
 }

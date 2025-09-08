@@ -117,21 +117,20 @@ function criterionTemplate(criterion: Criterion): string {
  * limit = 10
  * offset = 0
  *
- * g.V("124")
- *  .both()
- *  .hasLabel("airport").and(has("longest",gt(10000)), has("country",containing("ES")))
- *  .filter(__.not(__.hasId("256")))
- *  .dedup()
- *  .order().by(id())
- *  .range(0, 10)
- *  .as("v")
- *  .project("vertex", "edges")
- *    .by()
- *    .by(
- *      __.select("v").bothE()
- *        .where(otherV().id().is("124"))
- *        .dedup().fold()
- *    )
+ * g.V("124").as("start")
+ *   .both()
+ *   .hasLabel("airport").and(has("longest",gt(10000)), has("country",containing("ES")))
+ *   .filter(__.not(__.hasId("256")))
+ *   .dedup()
+ *   .range(0, 10)
+ *   .as("neighbor")
+ *   .project("vertex", "edges")
+ *     .by()
+ *     .by(
+ *       __.select("start").bothE()
+ *         .where(otherV().where(eq("neighbor")))
+ *         .dedup().fold()
+ *     )
  */
 export default function oneHopTemplate({
   vertexId,
@@ -175,19 +174,18 @@ export default function oneHopTemplate({
     : ``;
 
   return query`
-    g.V(${idTemplate})
+    g.V(${idTemplate}).as("start")
       .both()
       ${nodeFiltersTemplate}
       ${excludedTemplate}
       .dedup()
-      .order().by(id())
       ${range}
-      .as("v")
+      .as("neighbor")
       .project("vertex", "edges")
         .by()
         .by(
-          __.select("v").bothE(${edgeTypesTemplate})
-            .where(otherV().id().is(${idTemplate}))
+          __.select("start").bothE(${edgeTypesTemplate})
+            .where(otherV().where(eq("neighbor")))
             .dedup().fold()
         )
   `;

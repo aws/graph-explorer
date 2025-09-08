@@ -24,3 +24,12 @@ export const MISSING_DISPLAY_VALUE = "---";
 
 /** Shown when a type is missing  */
 export const MISSING_DISPLAY_TYPE = "---";
+
+/** Used as the label for the ID of a blank node in the node details or query results. */
+export const LABEL_FOR_BLANK_NODE_ID = "Blank Node Id";
+
+/** Non breaking space */
+export const NBSP = "\u00A0";
+
+/** Small arrow character */
+export const RSAQUO = "\u203A";

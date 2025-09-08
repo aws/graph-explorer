@@ -109,9 +109,6 @@ export async function vertexDetails(
     });
   }
 
-  // Always false for vertexDetails query, even if the vertex has no properties
-  vertices.forEach(vertex => (vertex.__isFragment = false));
-
   return { vertices };
 }
 

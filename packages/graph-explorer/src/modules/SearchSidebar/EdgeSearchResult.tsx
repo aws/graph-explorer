@@ -1,13 +1,15 @@
-import { Edge, useDisplayEdgeFromEdge, useDisplayVertex } from "@/core";
+import {
+  createEdge,
+  createVertex,
+  useDisplayEdgeFromEdge,
+  useDisplayVertex,
+} from "@/core";
 import {
   ButtonProps,
   CollapsibleContent,
   CollapsibleTrigger,
   EdgeRow,
   IconButton,
-  SearchResultAttribute,
-  SearchResultAttributeName,
-  SearchResultAttributeValue,
   SearchResultCollapsible,
   SearchResultExpandChevron,
   Spinner,
@@ -19,22 +21,33 @@ import {
   useRemoveEdgeFromGraph,
 } from "@/hooks";
 import { MinusCircleIcon, PlusCircleIcon } from "lucide-react";
+import { createEntityKey, EntitySearchResult } from "./EntitySearchResult";
+import type { PatchedResultEdge } from "@/connector/entities";
+import { useEdgeAttributesAsScalars } from "./useEdgeAttributesAsScalars";
 
 export function EdgeSearchResult({
   edge,
   level = 0,
 }: {
-  edge: Edge;
+  edge: PatchedResultEdge;
   level?: number;
 }) {
-  const displayEdge = useDisplayEdgeFromEdge(edge);
+  const displayEdge = useDisplayEdgeFromEdge(
+    createEdge({
+      ...edge,
+      sourceId: edge.source.id,
+      targetId: edge.target.id,
+    })
+  );
 
   // Get the display vertices
   const source = useDisplayVertex(displayEdge.sourceId);
   const target = useDisplayVertex(displayEdge.targetId);
+  const hasBeenAdded = useHasEdgeBeenAddedToGraph(edge.id);
+  const attributes = useEdgeAttributesAsScalars(displayEdge);
 
   return (
-    <SearchResultCollapsible level={level}>
+    <SearchResultCollapsible level={level} highlighted={hasBeenAdded}>
       <CollapsibleTrigger asChild>
         <div
           role="button"
@@ -45,6 +58,7 @@ export function EdgeSearchResult({
             edge={displayEdge}
             source={source}
             target={target}
+            name={edge.name}
             className="grow"
           />
           <AddOrRemoveButton edge={edge} />
@@ -52,26 +66,39 @@ export function EdgeSearchResult({
       </CollapsibleTrigger>
       <CollapsibleContent>
         <ul className="space-y-3 p-3">
-          {displayEdge.attributes.map(attr => (
-            <li key={attr.name} className="w-full">
-              <SearchResultAttribute level={level + 1}>
-                <SearchResultAttributeName>
-                  {attr.name}
-                </SearchResultAttributeName>
-                <SearchResultAttributeValue>
-                  {attr.displayValue}
-                </SearchResultAttributeValue>
-              </SearchResultAttribute>
+          {attributes.map(attr => (
+            <li key={createEntityKey(attr, level + 1)} className="w-full">
+              <EntitySearchResult entity={attr} level={level + 1} />
             </li>
           ))}
+          <li>
+            <EntitySearchResult entity={edge.source} level={level + 1} />
+          </li>
+          <li>
+            <EntitySearchResult entity={edge.target} level={level + 1} />
+          </li>
         </ul>
       </CollapsibleContent>
     </SearchResultCollapsible>
   );
 }
 
-function AddOrRemoveButton({ edge, ...props }: ButtonProps & { edge: Edge }) {
+function AddOrRemoveButton({
+  edge,
+  ...props
+}: ButtonProps & { edge: PatchedResultEdge }) {
   const mutation = useAddToGraphMutation();
+  const addToGraph = () =>
+    mutation.mutate({
+      edges: [
+        createEdge({
+          ...edge,
+          sourceId: edge.source.id,
+          targetId: edge.target.id,
+        }),
+      ],
+      vertices: [createVertex(edge.source), createVertex(edge.target)],
+    });
   const removeFromGraph = useRemoveEdgeFromGraph(edge.id);
   const hasBeenAdded = useHasEdgeBeenAddedToGraph(edge.id);
 
@@ -94,7 +121,7 @@ function AddOrRemoveButton({ edge, ...props }: ButtonProps & { edge: Edge }) {
       variant="text"
       className="rounded-full"
       size="small"
-      onClick={stopPropagation(() => mutation.mutate({ edges: [edge] }))}
+      onClick={stopPropagation(addToGraph)}
       disabled={mutation.isPending}
       tooltipText="Add edge to view"
       {...props}

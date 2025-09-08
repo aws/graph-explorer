@@ -9,7 +9,7 @@ describe("vertexDetails", () => {
 
     const result = await vertexDetails(mockFetch, { vertexIds: [] });
 
-    expect(result.vertices).toEqual([]);
+    expect(result.vertices).toStrictEqual([]);
   });
 
   it("should return one vertex detail", async () => {
@@ -21,25 +21,7 @@ describe("vertexDetails", () => {
 
     const result = await vertexDetails(mockFetch, { vertexIds: [vertex.id] });
 
-    expect(result.vertices).toEqual([vertex]);
-  });
-
-  it("should not be fragment when no properties exist", async () => {
-    const vertex = createRandomVertexForRdf();
-    vertex.attributes = {};
-    vertex.__isFragment = true;
-    const response = createResponseFromVertices(vertex);
-    const mockFetch = vi
-      .fn()
-      .mockImplementation(() => Promise.resolve(response));
-
-    const result = await vertexDetails(mockFetch, { vertexIds: [vertex.id] });
-
-    expect(result.vertices).toHaveLength(1);
-
-    for (const actual of result.vertices) {
-      expect(actual.__isFragment).toEqual(false);
-    }
+    expect(result.vertices).toStrictEqual([vertex]);
   });
 
   it("should return multiple vertex details", async () => {
@@ -53,7 +35,7 @@ describe("vertexDetails", () => {
       vertexIds: vertices.map(vertex => vertex.id),
     });
 
-    expect(result.vertices).toEqual(vertices);
+    expect(result.vertices).toStrictEqual(vertices);
   });
 
   it("should throw an error when the vertex ID is not a string", async () => {

@@ -18,5 +18,10 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build .
-          docker build --build-arg NEPTUNE_NOTEBOOK=true .
+          docker build -t test-image .
+          docker build -t test-image-neptune --build-arg NEPTUNE_NOTEBOOK=true .
+
+      - name: Ensure openSSL is installed
+        run: |
+          docker run --rm --entrypoint="" test-image openssl --version
+          docker run --rm --entrypoint="" test-image-neptune openssl --version

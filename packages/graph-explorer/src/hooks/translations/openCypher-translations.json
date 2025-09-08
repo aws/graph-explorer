@@ -29,6 +29,10 @@
     "node-id": "Node Id",
     "node-type": "Node Label"
   },
+  "edge-detail": {
+    "edge-id": "Edge Id",
+    "edge-type": "Edge Label"
+  },
   "keyword-search": {
     "node-type": "Node label",
     "node-type-placeholder": "Select a node label",

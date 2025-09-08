@@ -1,19 +1,28 @@
 import { Branded } from "@/utils";
 import { VertexId } from "./vertex";
 import { EntityProperties, EntityRawId } from "./shared";
+import { createEdgeId, createVertexId } from "./entityIdType";
 
+/**
+ * A branded type for edge identifiers to ensure type safety.
+ *
+ * This prevents accidental mixing of edge IDs with other entity IDs
+ * at compile time.
+ */
 export type EdgeId = Branded<EntityRawId, "EdgeId">;
 
+/**
+ * An edge in a graph database.
+ *
+ * This type is used throughout the Graph Explorer UI to represent an edge in
+ * the graph. It is guaranteed to be fully materialized with all properties.
+ */
 export type Edge = {
-  /**
-   * Indicates the type in order to discriminate from the `Vertex` type in unions.
-   */
-  entityType: "edge";
   /**
    * Unique identifier for the edge.
    * - For PG, the edge id
-   * - For RDF, predicates do not have ids like PG graphs.
-   *   So, a synthetic id is created using <source URI>-[predicate]-><target URI>
+   * - For RDF, predicates do not have ids like PG graphs. So, a synthetic id is
+   *   created using <source URI>-[predicate]-><target URI>
    */
   id: EdgeId;
   /**
@@ -31,14 +40,25 @@ export type Edge = {
    */
   targetId: VertexId;
   /**
-   * Only for PG, attributes associated to the edge.
-   * For RDF, predicates do not have more properties than the predicate itself.
+   * Only for PG, attributes associated to the edge. For RDF, predicates do not
+   * have more properties than the predicate itself.
    */
   attributes: EntityProperties;
-
-  /**
-   * Sometimes the edge response does not include the properties, so this flag
-   * indicates that another query must be executed to get the properties.
-   */
-  __isFragment: boolean;
 };
+
+/** Constructs an Edge instance from the given values. */
+export function createEdge(options: {
+  id: EntityRawId;
+  type: string;
+  sourceId: EntityRawId;
+  targetId: EntityRawId;
+  attributes?: EntityProperties;
+}): Edge {
+  return {
+    id: createEdgeId(options.id),
+    type: options.type,
+    sourceId: createVertexId(options.sourceId),
+    targetId: createVertexId(options.targetId),
+    attributes: options.attributes ?? {},
+  };
+}

@@ -13,7 +13,7 @@ describe("bulkEdgeDetailsQuery", () => {
 
     const result = await queryClient.fetchQuery(bulkEdgeDetailsQuery([]));
 
-    expect(result.edges).toEqual([]);
+    expect(result.edges).toStrictEqual([]);
     expect(edgeDetailsSpy).toBeCalledTimes(0);
   });
 
@@ -31,13 +31,13 @@ describe("bulkEdgeDetailsQuery", () => {
       bulkEdgeDetailsQuery([edge.id])
     );
 
-    expect(result.edges).toEqual([edge]);
+    expect(result.edges).toStrictEqual([edge]);
     expect(edgeDetailsSpy).toBeCalledTimes(0);
 
     // Ensure edge is still in the cache
     expect(
       queryClient.getQueryData(edgeDetailsQuery(edge.id).queryKey)
-    ).toEqual({ edge });
+    ).toStrictEqual({ edge });
   });
 
   it("should fetch details for input", async () => {
@@ -52,13 +52,13 @@ describe("bulkEdgeDetailsQuery", () => {
       bulkEdgeDetailsQuery([edge.id])
     );
 
-    expect(result.edges).toEqual([edge]);
+    expect(result.edges).toStrictEqual([edge]);
     expect(edgeDetailsSpy).toBeCalledTimes(1);
 
     // Ensure edge is added to the cache
     expect(
       queryClient.getQueryData(edgeDetailsQuery(edge.id).queryKey)
-    ).toEqual({ edge });
+    ).toStrictEqual({ edge });
   });
 
   it("should combine cached and fetched results", async () => {
@@ -81,16 +81,16 @@ describe("bulkEdgeDetailsQuery", () => {
       bulkEdgeDetailsQuery([edgeCached.id, edgeFetched.id])
     );
 
-    expect(result.edges).toEqual([edgeCached, edgeFetched]);
+    expect(result.edges).toStrictEqual([edgeCached, edgeFetched]);
     expect(edgeDetailsSpy).toBeCalledTimes(1);
 
     // Ensure both edges are added to the cache
     expect(
       queryClient.getQueryData(edgeDetailsQuery(edgeCached.id).queryKey)
-    ).toEqual({ edge: edgeCached });
+    ).toStrictEqual({ edge: edgeCached });
     expect(
       queryClient.getQueryData(edgeDetailsQuery(edgeFetched.id).queryKey)
-    ).toEqual({ edge: edgeFetched });
+    ).toStrictEqual({ edge: edgeFetched });
   });
 
   it("should batch fetches for input", async () => {
@@ -107,14 +107,14 @@ describe("bulkEdgeDetailsQuery", () => {
       bulkEdgeDetailsQuery(edges.map(e => e.id))
     );
 
-    expect(result.edges).toEqual(edges);
+    expect(result.edges).toStrictEqual(edges);
     expect(edgeDetailsSpy).toBeCalledTimes(3);
 
     // Ensure all are added to the cache
     for (const edge of edges) {
       expect(
         queryClient.getQueryData(edgeDetailsQuery(edge.id).queryKey)
-      ).toEqual({ edge });
+      ).toStrictEqual({ edge });
     }
   });
 });

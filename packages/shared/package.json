@@ -1,6 +1,6 @@
 {
   "name": "@graph-explorer/shared",
-  "version": "2.2.0",
+  "version": "2.4.0",
   "description": "Shared types and functions across client and server.",
   "author": "amazon",
   "license": "Apache-2.0",
@@ -12,11 +12,9 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "uuid": "^11.1.0",
     "zod": "^3.25.64"
   },
   "devDependencies": {
-    "@types/uuid": "^10.0.0",
     "@vitest/coverage-v8": "3.2.3",
     "rimraf": "^6.0.1",
     "vitest": "3.2.3"

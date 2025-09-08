@@ -1,12 +1,15 @@
 import { useState } from "react";
+import { isEmpty } from "lodash";
 import {
   GridIcon,
+  IconButton,
   Panel,
   PanelHeader,
   PanelHeaderActions,
   PanelHeaderCloseButton,
   PanelHeaderDivider,
   PanelTitle,
+  ResetIcon,
   Select,
   SelectContent,
   SelectItem,
@@ -62,6 +65,12 @@ function EntitiesTabular() {
   const selectedTabularInstance =
     TableId.nodes === selectedTable ? nodeInstance : edgeInstance;
 
+  const resetSortingAndFilters = () => {
+    if (!selectedTabularInstance) return;
+    selectedTabularInstance.clearFilters();
+    selectedTabularInstance.setSort([]);
+  };
+
   return (
     <Panel>
       {nodeInstance && edgeInstance && selectedTabularInstance && (
@@ -92,6 +101,15 @@ function EntitiesTabular() {
                 </SelectContent>
               </Select>
               <div className="grow" />
+              {(!isEmpty(selectedTabularInstance.filters) ||
+                !isEmpty(selectedTabularInstance.sorts)) && (
+                <IconButton
+                  variant="text"
+                  icon={<ResetIcon />}
+                  tooltipText="Reset sorting and filters"
+                  onClick={resetSortingAndFilters}
+                />
+              )}
               <ExportControl />
               <PanelHeaderDivider />
               <CloseButton />

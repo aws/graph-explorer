@@ -18,9 +18,10 @@ import {
 } from "@/components";
 
 import { useTranslations } from "@/hooks";
-import { KeywordSearchResponse } from "@/connector";
+import { createPatchedResultVertex } from "@/connector/entities";
 import { UseQueryResult } from "@tanstack/react-query";
 import { useCancelKeywordSearch } from "./useKeywordSearchQuery";
+import { KeywordSearchResponse } from "@/connector";
 
 export function FilterSearchTabContent() {
   const t = useTranslations();
@@ -40,8 +41,8 @@ export function FilterSearchTabContent() {
   } = useKeywordSearch();
 
   return (
-    <div className="bg-background-default flex h-full flex-col">
-      <div className="border-divider flex flex-col gap-4 border-b p-3">
+    <div className="bg-background-default flex h-full flex-col gap-3">
+      <div className="flex flex-col gap-4 p-3">
         <div className="grid w-full grid-cols-2 gap-4">
           <FormItem>
             <Label htmlFor="nodeType">{t("keyword-search.node-type")}</Label>
@@ -146,12 +147,7 @@ function SearchResultsListContainer({
     );
   }
 
-  if (
-    !query.data ||
-    (query.data.vertices.length === 0 &&
-      query.data.edges.length === 0 &&
-      query.data.scalars.length === 0)
-  ) {
+  if (!query.data || query.data.vertices.length === 0) {
     return (
       <PanelEmptyState
         title="No Results"
@@ -162,5 +158,9 @@ function SearchResultsListContainer({
     );
   }
 
-  return <SearchResultsList results={query.data} />;
+  return (
+    <SearchResultsList
+      results={query.data.vertices.map(createPatchedResultVertex)}
+    />
+  );
 }

@@ -1,9 +1,9 @@
-import { createVertex } from "@/core";
+import { createResultVertex } from "../../entities";
 import type { GVertex } from "../types";
 import parsePropertiesValues from "./parsePropertiesValues";
 import { extractRawId } from "./extractRawId";
 
-const mapApiVertex = (apiVertex: GVertex) => {
+export default function mapApiVertex(apiVertex: GVertex, name?: string) {
   // Split multi-label from Neptune and filter out empty strings
   const types = apiVertex["@value"].label.split("::").filter(Boolean);
 
@@ -12,11 +12,10 @@ const mapApiVertex = (apiVertex: GVertex) => {
     ? parsePropertiesValues(apiVertex["@value"].properties)
     : undefined;
 
-  return createVertex({
+  return createResultVertex({
     id: extractRawId(apiVertex["@value"].id),
+    name,
     types,
     attributes,
   });
-};
-
-export default mapApiVertex;
+}

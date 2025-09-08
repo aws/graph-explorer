@@ -1,7 +1,7 @@
-import { createEdge } from "@/core";
+import { createResultEdge } from "@/connector/entities";
 import mapApiEdge from "./mapApiEdge";
 import { OCEdge } from "../types";
-import { createRandomEdge, createRandomVertex } from "@/utils/testing";
+import { createTestableEdge, mapToOcEdge } from "@/utils/testing";
 import {
   createRandomName,
   createRandomInteger,
@@ -22,8 +22,8 @@ describe("mapApiEdge", () => {
     } satisfies OCEdge;
     const result = mapApiEdge(input);
 
-    expect(result).toEqual(
-      createEdge({
+    expect(result).toStrictEqual(
+      createResultEdge({
         id: "",
         type: "",
         sourceId: "",
@@ -34,9 +34,7 @@ describe("mapApiEdge", () => {
   });
 
   it("should map an edge", () => {
-    const sourceVertex = createRandomVertex();
-    const targetVertex = createRandomVertex();
-    const edge = createRandomEdge(sourceVertex, targetVertex);
+    const edge = createTestableEdge().asResult();
 
     const input = {
       "~entityType": "relationship",
@@ -57,6 +55,16 @@ describe("mapApiEdge", () => {
 
     const result = mapApiEdge(input);
 
-    expect(result).toEqual(edge);
+    expect(result).toStrictEqual(edge);
+  });
+
+  it("should map an edge with name", () => {
+    const name = createRandomName("edgeName");
+    const edge = createTestableEdge().asResult(name);
+    const input = mapToOcEdge(edge);
+
+    const result = mapApiEdge(input, name);
+
+    expect(result).toStrictEqual(edge);
   });
 });

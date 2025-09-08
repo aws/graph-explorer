@@ -29,6 +29,10 @@
     "node-id": "Resource URI",
     "node-type": "Class"
   },
+  "edge-detail": {
+    "edge-id": "Predicate URI",
+    "edge-type": "Predicate"
+  },
   "keyword-search": {
     "node-type": "Class",
     "node-type-placeholder": "Select a resource class",

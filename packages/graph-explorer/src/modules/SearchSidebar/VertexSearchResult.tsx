@@ -1,12 +1,9 @@
-import { useDisplayVertexFromVertex, Vertex } from "@/core";
+import { createVertex, useDisplayVertex } from "@/core";
 import {
   ButtonProps,
   CollapsibleContent,
   CollapsibleTrigger,
   IconButton,
-  SearchResultAttribute,
-  SearchResultAttributeName,
-  SearchResultAttributeValue,
   SearchResultCollapsible,
   SearchResultExpandChevron,
   Spinner,
@@ -19,40 +16,38 @@ import {
   useRemoveNodeFromGraph,
 } from "@/hooks";
 import { MinusCircleIcon, PlusCircleIcon } from "lucide-react";
+import type { PatchedResultVertex } from "@/connector/entities";
+import { createEntityKey, EntitySearchResult } from "./EntitySearchResult";
+import { useVertexAttributesAsScalars } from "./useVertexAttributesAsScalars";
 
 export function VertexSearchResult({
   vertex,
   level = 0,
 }: {
-  vertex: Vertex;
+  vertex: PatchedResultVertex;
   level?: number;
 }) {
-  const displayNode = useDisplayVertexFromVertex(vertex);
+  const displayNode = useDisplayVertex(vertex.id);
+  const hasBeenAdded = useHasVertexBeenAddedToGraph(vertex.id);
+  const attributes = useVertexAttributesAsScalars(displayNode);
 
   return (
-    <SearchResultCollapsible level={level}>
+    <SearchResultCollapsible level={level} highlighted={hasBeenAdded}>
       <CollapsibleTrigger asChild>
         <div
           role="button"
           className="flex w-full flex-row items-center gap-2 p-3 text-left hover:cursor-pointer"
         >
           <SearchResultExpandChevron />
-          <VertexRow vertex={displayNode} className="grow" />
+          <VertexRow vertex={displayNode} name={vertex.name} className="grow" />
           <AddOrRemoveButton vertex={vertex} />
         </div>
       </CollapsibleTrigger>
       <CollapsibleContent>
         <ul className="space-y-3 p-3">
-          {displayNode.attributes.map(attr => (
-            <li key={attr.name} className="w-full">
-              <SearchResultAttribute level={level + 1}>
-                <SearchResultAttributeName>
-                  {attr.name}
-                </SearchResultAttributeName>
-                <SearchResultAttributeValue>
-                  {attr.displayValue}
-                </SearchResultAttributeValue>
-              </SearchResultAttribute>
+          {attributes.map(attr => (
+            <li key={createEntityKey(attr, level + 1)} className="w-full">
+              <EntitySearchResult entity={attr} level={level + 1} />
             </li>
           ))}
         </ul>
@@ -64,8 +59,11 @@ export function VertexSearchResult({
 function AddOrRemoveButton({
   vertex,
   ...props
-}: ButtonProps & { vertex: Vertex }) {
+}: ButtonProps & { vertex: PatchedResultVertex }) {
   const mutation = useAddToGraphMutation();
+  const addToGraph = () =>
+    mutation.mutate({ vertices: [createVertex(vertex)] });
+
   const removeFromGraph = useRemoveNodeFromGraph(vertex.id);
   const hasBeenAdded = useHasVertexBeenAddedToGraph(vertex.id);
 
@@ -88,7 +86,7 @@ function AddOrRemoveButton({
       variant="text"
       className="rounded-full"
       size="small"
-      onClick={stopPropagation(() => mutation.mutate({ vertices: [vertex] }))}
+      onClick={stopPropagation(addToGraph)}
       disabled={mutation.isPending}
       tooltipText="Add node to view"
       {...props}
