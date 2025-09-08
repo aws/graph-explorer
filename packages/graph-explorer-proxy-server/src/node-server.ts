@@ -1,14 +1,14 @@
-import express, { NextFunction, Response } from "express";
+import express, { type NextFunction, type Response } from "express";
 import cors from "cors";
 import compression from "compression";
-import fetch, { RequestInit } from "node-fetch";
+import fetch, { type RequestInit } from "node-fetch";
 import https from "https";
 import bodyParser from "body-parser";
 import fs from "fs";
 import path from "path";
 import { fromNodeProviderChain } from "@aws-sdk/credential-providers";
 import aws4 from "aws4";
-import { IncomingHttpHeaders } from "http";
+import type { IncomingHttpHeaders } from "http";
 import { logger as proxyLogger, requestLoggingMiddleware } from "./logging.js";
 import { clientRoot, proxyServerRoot } from "./paths.js";
 import { errorHandlingMiddleware, handleError } from "./error-handler.js";
