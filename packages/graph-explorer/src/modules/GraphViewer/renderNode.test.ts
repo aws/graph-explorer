@@ -88,7 +88,7 @@ describe("renderNode", () => {
     const decodedResult = decodeSvg(result);
     expect(decodedResult).toEqual(
       wrapExpectedSvg(
-        `<svg fill="${originalColor}" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"/>`
+        `<svg fill="${originalColor}" xmlns="http://www.w3.org/2000/svg" width="24" height="24"/>`
       )
     );
   });
@@ -112,7 +112,7 @@ describe("renderNode", () => {
     const decodedResult = decodeSvg(result);
     expect(decodedResult).toEqual(
       wrapExpectedSvg(
-        `<svg fill="#128EE5" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"/>`
+        `<svg fill="#128EE5" xmlns="http://www.w3.org/2000/svg" width="24" height="24"/>`
       )
     );
   });
@@ -135,7 +135,7 @@ describe("renderNode", () => {
     const decodedResult = decodeSvg(result);
     expect(decodedResult).toEqual(
       wrapExpectedSvg(
-        `<svg fill="${node.color}" stroke="${node.color}" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"/>`
+        `<svg fill="${node.color}" stroke="${node.color}" xmlns="http://www.w3.org/2000/svg" width="24" height="24"/>`
       )
     );
   });
@@ -159,7 +159,7 @@ describe("renderNode", () => {
     const decodedResult = decodeSvg(result);
     expect(decodedResult).toEqual(
       wrapExpectedSvg(
-        `<svg fill="${originalColor}" viewBox="0 0 24 24" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"/>`
+        `<svg fill="${originalColor}" viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg"/>`
       )
     );
   });
@@ -168,9 +168,7 @@ describe("renderNode", () => {
 /** Wraps SVG string in another SVG element matching what is expected.  */
 function wrapExpectedSvg(svgContent: string): string {
   return `<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE svg>
-<svg width="24" height="24" xmlns="http://www.w3.org/2000/svg">
-  ${svgContent}
-</svg>`;
+${svgContent}`;
 }
 
 /** Decodes the string and removes the data type URL prefix, returning only the SVG portion. */
