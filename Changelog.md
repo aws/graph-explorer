@@ -662,11 +662,11 @@ a more pleasant experience, especially for users with larger databases.
 - **Improved** diagnostic logging in Neptune Notebooks by adding CloudWatch logs
   ([#517](https://github.com/aws/graph-explorer/pull/517))
   - Check out the example
-    [lifecycle script](additionaldocs/sagemaker/install-graph-explorer-lc.sh)
+    [lifecycle script](additionaldocs/deployment/aws-sagemaker/install-graph-explorer-lc.sh)
     and IAM policies for
-    [Neptune](additionaldocs/sagemaker/graph-explorer-neptune-db-policy.json)
+    [Neptune](additionaldocs/deployment/aws-sagemaker/graph-explorer-neptune-db-policy.json)
     and
-    [Neptune Analytics](additionaldocs/sagemaker/graph-explorer-neptune-analytics-policy.json)
+    [Neptune Analytics](additionaldocs/deployment/aws-sagemaker/graph-explorer-neptune-analytics-policy.json)
 
 **Bug Fixes and Minor Changes**
 

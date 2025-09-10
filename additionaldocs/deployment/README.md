@@ -7,6 +7,8 @@ environments.
 
 1. [AWS ECS Fargate](aws-ecs-fargate.md) - Deploy Graph Explorer on AWS ECS
    using Fargate
+2. [AWS SageMaker](aws-sagemaker.md) - Deploy Graph Explorer on Amazon SageMaker
+   Notebooks
 
 ## Prerequisites
 

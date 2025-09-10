@@ -227,5 +227,5 @@ need to add those permissions manually.
 
 Below are examples of which IAM permissions you need for Graph Explorer.
 
-- [IAM permissions for Neptune DB](https://raw.githubusercontent.com/aws/graph-explorer/main/additionaldocs/sagemaker/graph-explorer-neptune-db-policy.json)
-- [IAM permissions for Neptune Analytics](https://raw.githubusercontent.com/aws/graph-explorer/main/additionaldocs/sagemaker/graph-explorer-neptune-analytics-policy.json)
+- [IAM permissions for Neptune DB](https://raw.githubusercontent.com/aws/graph-explorer/main/additionaldocs/deployment/aws-sagemaker/graph-explorer-neptune-db-policy.json)
+- [IAM permissions for Neptune Analytics](https://raw.githubusercontent.com/aws/graph-explorer/main/additionaldocs/deployment/aws-sagemaker/graph-explorer-neptune-analytics-policy.json)

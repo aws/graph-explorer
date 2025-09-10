@@ -230,7 +230,7 @@ through IAM roles.
 
 For information about what permissions Graph Explorer requires check out the
 documentation on
-[SageMaker configuration](./additionaldocs/sagemaker/README.md#minimum-database-permissions).
+[SageMaker configuration](./additionaldocs/deployment/aws-sagemaker.md#minimum-database-permissions).
 
 <!-- prettier-ignore -->
 > [!CAUTION] 

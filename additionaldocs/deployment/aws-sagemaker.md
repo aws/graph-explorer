@@ -6,12 +6,12 @@ how to create one, see the
 [documentation](https://docs.aws.amazon.com/sagemaker/latest/dg/notebook-lifecycle-config.html).
 
 You can use the provided sample lifecycle configuration,
-[`install-graph-explorer-lc.sh`](install-graph-explorer-lc.sh), or create your
-own shell script. If using the sample lifecycle, you should also create an IAM
-role with a policy containing the permissions described in either
-[`graph-explorer-neptune-db-policy.json`](graph-explorer-neptune-db-policy.json)
+[`install-graph-explorer-lc.sh`](aws-sagemaker/install-graph-explorer-lc.sh), or
+create your own shell script. If using the sample lifecycle, you should also
+create an IAM role with a policy containing the permissions described in either
+[`graph-explorer-neptune-db-policy.json`](aws-sagemaker/graph-explorer-neptune-db-policy.json)
 or
-[`graph-explorer-neptune-analytics-policy.json`](graph-explorer-neptune-analytics-policy.json),
+[`graph-explorer-neptune-analytics-policy.json`](aws-sagemaker/graph-explorer-neptune-analytics-policy.json),
 depending on the service used.
 
 After you have created the lifecycle configuration and IAM role, you can attach
