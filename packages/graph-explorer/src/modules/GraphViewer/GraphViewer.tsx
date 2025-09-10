@@ -131,7 +131,7 @@ export default function GraphViewer() {
   const edges = useRenderedEdges();
 
   return (
-    <div className="relative size-full grow" onContextMenu={onContextMenu}>
+    <div className="size-full grow" onContextMenu={onContextMenu}>
       <Panel>
         <PanelHeader>
           <PanelTitle>Graph View</PanelTitle>
@@ -179,7 +179,7 @@ export default function GraphViewer() {
           </PanelHeaderActions>
         </PanelHeader>
         <PanelContent
-          className="bg-background-secondary relative flex h-full w-full"
+          className="bg-background-secondary flex h-full w-full"
           ref={parentRef}
         >
           <Graph
