@@ -1,6 +1,6 @@
 import { PropsWithChildren, startTransition, Suspense, useEffect } from "react";
 import { useLocation } from "react-router";
-import { LoadingSpinner, PanelEmptyState } from "@/components";
+import { PanelEmptyState, Spinner } from "@/components";
 import Redirect from "@/components/Redirect";
 import {
   activeConfigurationAsyncAtom,
@@ -72,7 +72,7 @@ function LoadDefaultConfig({ children }: PropsWithChildren) {
       <PanelEmptyState
         title="Loading default connection..."
         subtitle="We are checking for a default connection"
-        icon={<LoadingSpinner />}
+        icon={<Spinner />}
       />
     );
   }
@@ -87,7 +87,7 @@ function LoadDefaultConfig({ children }: PropsWithChildren) {
       <PanelEmptyState
         title="Reading configuration..."
         subtitle="We are loading the configuration from the file"
-        icon={<LoadingSpinner />}
+        icon={<Spinner />}
       />
     );
   }
@@ -116,7 +116,7 @@ function PreparingEnvironment() {
     <PanelEmptyState
       title="Preparing environment..."
       subtitle="We are loading all components"
-      icon={<LoadingSpinner />}
+      icon={<Spinner />}
     />
   );
 }

@@ -50,8 +50,7 @@ export * from "./ListItem";
 
 export * from "./ListRow";
 
-export { default as LoadingSpinner } from "./LoadingSpinner";
-export * from "./LoadingSpinner";
+export * from "./Spinner";
 
 export * from "./Panel";
 export * from "./Popover";

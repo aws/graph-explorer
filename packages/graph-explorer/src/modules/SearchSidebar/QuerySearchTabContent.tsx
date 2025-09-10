@@ -5,9 +5,9 @@ import {
   FormItem,
   IconButton,
   KeyboardKey,
-  LoadingSpinner,
   PanelEmptyState,
   PanelError,
+  Spinner,
   TextArea,
   Tooltip,
   TooltipContent,
@@ -211,7 +211,7 @@ function QueryTabLoading({ cancel }: { cancel: () => void }) {
   return (
     <PanelEmptyState
       title="Executing query..."
-      icon={<LoadingSpinner />}
+      icon={<Spinner />}
       className="p-8"
       actionLabel="Cancel"
       onAction={cancel}
