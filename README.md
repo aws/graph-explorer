@@ -26,8 +26,8 @@ databases and Graph Explorer, we recommend that you check out the
   guide to deploying Graph Explorer locally using the official Docker image.
 - [Amazon EC2 Setup](./additionaldocs/deployment/aws-ec2.md) - A quick start
   guide to setting up Graph Explorer on Amazon EC2 with Neptune.
-- [Local Development](./additionaldocs/getting-started/README.md#local-development-setup) -
-  A quick start guide building the Docker image from source code.
+- [Local Development](./additionaldocs/development/development-setup.md) - A
+  quick start guide building the Docker image from source code.
 - [Troubleshooting](./additionaldocs/troubleshooting.md) - A collection of
   helpful tips if you run in to issues while setting up Graph Explorer.
 - [Samples](./samples) - A collection of Docker Compose files that show various
@@ -174,7 +174,7 @@ docker run -p 80:80 -p 443:443 \
 
 ## Development
 
-For development guidance, see [Development](./additionaldocs/development.md).
+For development guidance, see [Development](./additionaldocs/development/).
 
 ## Security
 
@@ -185,7 +185,7 @@ database endpoint.
 Graph Explorer supports the HTTPS protocol by default and provides a self-signed
 certificate as part of the Docker image. You can choose to use HTTP instead by
 changing the
-[environment variable default settings](./additionaldocs/development.md#environment-variables).
+[environment variable default settings](./additionaldocs/development/#environment-variables).
 
 ### HTTPS Connections
 
@@ -219,7 +219,7 @@ systems will have slightly different steps.
 > [!TIP] 
 > 
 > To get rid of the “Not Secure” warning, see
-[Using self-signed certificates on Chrome](./additionaldocs/development.md#using-self-signed-certificates-on-chrome).
+[Using self-signed certificates on Chrome](./additionaldocs/development/#using-self-signed-certificates-on-chrome).
 
 ## Permissions
 

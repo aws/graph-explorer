@@ -44,7 +44,7 @@ Which will result in the following URLs:
 
 If you do not want to use SSL and HTTPS, you can disable it by setting the
 following
-[environment variables](/additionaldocs/development.md#environment-variables):
+[environment variables](/additionaldocs/development/#environment-variables):
 
 ```
 PROXY_SERVER_HTTPS_CONNECTION=false
