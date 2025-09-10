@@ -14,5 +14,5 @@ be optionally used.
 ## Troubleshooting
 
 If the instructions above do not work for you, please see the
-[Troubleshooting](../troubleshooting.md) page for more information. It contains
+[Troubleshooting](../troubleshooting/) page for more information. It contains
 workarounds for common issues and information on how to diagnose other issues.

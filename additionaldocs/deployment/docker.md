@@ -53,7 +53,8 @@ Docker image. You can find the latest version of the image on
    the application is set to use HTTPS by default and contains a self-signed
    certificate, you will need to add the Graph Explorer certificates to the
    trusted certificates directory and manually trust them. See the
-   [HTTPS Connections](../troubleshooting.md#https-connections) section.
+   [HTTPS Connections](../troubleshooting/docker-issues.md#https-connections)
+   section.
 6. After completing the trusted certification step and refreshing the browser,
    you should now see the Connections UI. See below description on Connections
    UI to configure your first connection to Amazon Neptune.

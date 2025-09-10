@@ -28,8 +28,8 @@ databases and Graph Explorer, we recommend that you check out the
   guide to setting up Graph Explorer on Amazon EC2 with Neptune.
 - [Local Development](./additionaldocs/development/development-setup.md) - A
   quick start guide building the Docker image from source code.
-- [Troubleshooting](./additionaldocs/troubleshooting.md) - A collection of
-  helpful tips if you run in to issues while setting up Graph Explorer.
+- [Troubleshooting](./additionaldocs/troubleshooting/) - A collection of helpful
+  tips if you run in to issues while setting up Graph Explorer.
 - [Samples](./samples) - A collection of Docker Compose files that show various
   ways to configure and use Graph Explorer.
 

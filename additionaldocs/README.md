@@ -5,4 +5,4 @@
 - [Features](./features)
 - [Deployment](./deployment)
 - [Development](./development)
-- [Troubleshooting](./troubleshooting.md)
+- [Troubleshooting](./troubleshooting/)
