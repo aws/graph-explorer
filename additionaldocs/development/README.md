@@ -9,6 +9,8 @@ Explorer or set up a local development environment.
    setup
 2. [Release Preparation](release.md) - Guide for preparing and releasing new
    versions
+3. [Troubleshooting](troubleshooting.md) - Common development issues and
+   solutions
 
 ## Prerequisites
 

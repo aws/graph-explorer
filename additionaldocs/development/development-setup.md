@@ -183,13 +183,3 @@ using an EC2 instance to run the Docker container for Graph Explorer.
    fact that this is a self-signed certificate. If you have trouble accessing
    Graph Explorer after completing the previous step and reloading the browser,
    consider running a docker restart command and refreshing the browser again.
-
-## Troubleshooting
-
-- If you need more detailed logs, you can change the log level from `info` in
-  the default .env file to `debug`. The logs will begin printing the error's
-  stack trace.
-- If Graph Explorer crashes, you can recreate the container or run `pnpm start`
-- If Graph Explorer fails to start, check that the provided endpoint is properly
-  spelled and that you have access to from the environment you are trying to run
-  in. If you are in a different VPC, consider VPC Peering.
