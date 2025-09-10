@@ -77,7 +77,7 @@ Graph Explorer supports visualizing both **property graphs** and **RDF graphs**.
 You can connect to Amazon Neptune or you can also connect to open graph
 databases that implement an Apache TinkerPop Gremlin endpoint or the SPARQL 1.1
 protocol, such as Blazegraph. For additional details on connecting to different
-graph databases, see [Connections](./additionaldocs/connections.md).
+graph databases, see [Connections](./additionaldocs/user-guide/connections.md).
 
 ### Providing a Default Connection
 
