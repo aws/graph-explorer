@@ -60,9 +60,7 @@ const PanelHeader = React.forwardRef<
     )}
     {...props}
   >
-    <div className="flex min-w-full items-center gap-4 overflow-x-auto px-3 py-1">
-      {children}
-    </div>
+    {children}
   </div>
 ));
 PanelHeader.displayName = "PanelHeader";
