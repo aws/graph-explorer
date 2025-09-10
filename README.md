@@ -185,7 +185,7 @@ database endpoint.
 Graph Explorer supports the HTTPS protocol by default and provides a self-signed
 certificate as part of the Docker image. You can choose to use HTTP instead by
 changing the
-[environment variable default settings](./additionaldocs/development/#environment-variables).
+[environment variable default settings](./additionaldocs/deployment/configuration.md).
 
 ### HTTPS Connections
 

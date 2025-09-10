@@ -11,6 +11,7 @@ environments.
    using Fargate
 4. [AWS SageMaker](aws-sagemaker.md) - Deploy Graph Explorer on Amazon SageMaker
    Notebooks
+5. [Configuration](configuration.md) - Environment variables and settings
 
 ## Prerequisites
 
