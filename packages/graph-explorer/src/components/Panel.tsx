@@ -55,7 +55,7 @@ const PanelHeader = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "bg-background-default flex min-h-[48px] w-full shrink-0 items-center gap-4 border-b px-3 py-1",
+      "bg-background-default flex min-h-[48px] w-full shrink-0 items-center gap-4 overflow-x-auto border-b px-3 py-1",
       className
     )}
     {...props}
