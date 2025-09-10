@@ -13,6 +13,7 @@
     /* Interop Constraints */
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
+    "verbatimModuleSyntax": true,
 
     /* Paths */
     "outDir": "./dist",
