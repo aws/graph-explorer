@@ -163,7 +163,7 @@ ensuring that users can enforce read-only operations.
 
 Graph Explorer v2.0 marks a significant milestone with the introduction of the
 new
-[query editor for Gremlin connections](./additionaldocs/features/README.md#query-search).
+[query editor for Gremlin connections](./additionaldocs/user-guide/graph-explorer.md#query-search).
 This powerful feature allows users to enter any valid Gremlin query and
 visualize the returned nodes, edges, and scalar values directly from the
 database. You can review the results in the sidebar and choose to add all nodes

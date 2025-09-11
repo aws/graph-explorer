@@ -66,7 +66,7 @@ databases:
   view
 
 For complete documentation on all features and functionality, please see our
-[detailed features guide](./additionaldocs/features/README.md).
+[detailed user guide](./additionaldocs/user-guide/).
 
 If you're interested in our future development plans, check out our
 [roadmap](./ROADMAP.md) and participate in the discussions.
