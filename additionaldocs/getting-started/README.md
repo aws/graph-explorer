@@ -1,15 +1,28 @@
 # Getting Started
 
-This project contains the code needed to create a Docker image of the Graph
-Explorer. The image will create the Graph Explorer application and proxy server
-that will be served over the standard HTTP or HTTPS ports (HTTPS by default).
+This section helps new users install and configure Graph Explorer for the first
+time.
 
-The proxy server will be created automatically, but will only be necessary if
-you are connecting to Neptune. Gremlin-Server and BlazeGraph can be connected to
-directly. Additionally, the image will create a self-signed certificate that can
-be optionally used.
+## Files in this section
 
-## Examples
+1. [First Connection](first-connection.md) - Connecting to your first database
+
+## Prerequisites
+
+- Graph Explorer installed and running (see [Deployment](../deployment/) guides)
+- Access to a graph database endpoint
+- Basic familiarity with graph databases
+
+## Quick Start Steps
+
+1. **Deploy Graph Explorer** - Choose a deployment method from the
+   [Deployment](../deployment/) section
+2. **Configure your database** - Follow the
+   [First Connection](first-connection.md) guide for your database type
+3. **Create a connection** - Use the
+   [Connections UI](../user-guide/connections.md) to set up your connection
+4. **Start exploring** - Begin using Graph Explorer with the
+   [User Guide](../user-guide/)
 
 ## Troubleshooting
 

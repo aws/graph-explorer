@@ -5,8 +5,7 @@ features and connect to different graph databases.
 
 ## Files in this section
 
-1. [Connections](connections.md) - Database configuration and connection
-   management
+1. [Connections](connections.md) - Managing database connections in the UI
 2. [Settings](settings.md) - Application settings and configuration management
 3. [Graph Explorer](graph-explorer.md) - Main graph visualization interface
 4. [Table View](table-view.md) - Tabular data view and export functionality

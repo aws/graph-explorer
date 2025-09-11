@@ -1,69 +1,8 @@
-# Connections
+# Connections UI
 
-This guide covers both how to configure Graph Explorer with different graph
-database engines and how to manage connections within the application.
-
-## Database Configuration
-
-This section contains detailed instructions that help when configuring Graph
-Explorer with different graph database engines.
-
-### Connecting to Neptune
-
-- Ensure that Graph Explorer has access to the Neptune instance by being in the
-  same VPC or VPC peering.
-- If authentication is enabled, read query privileges are needed (See
-  [ReadDataViaQuery managed policy](https://docs.aws.amazon.com/neptune/latest/userguide/iam-data-access-examples.html#iam-auth-data-policy-example-read-query)).
-
-### Connecting to Gremlin-Server
-
-If you are using the default Gremlin Server docker image, you can get the server
-running with the following commands:
-
-```
-docker pull tinkerpop/gremlin-server:latest
-docker run -p 8182:8182 \
-    tinkerpop/gremlin-server:latest \
-    conf/gremlin-server-rest-modern.yaml
-```
-
-#### Enable REST
-
-Graph Explorer only supports HTTP(S) connections. When connecting to
-Gremlin-Server, ensure it is configured with a channelizer that supports HTTP(S)
-(i.e.
-[Channelizer Documentation](https://tinkerpop.apache.org/javadocs/current/full/org/apache/tinkerpop/gremlin/server/Channelizer.html)).
-
-<!-- prettier-ignore -->
-> [!TIP] 
-> The Gremlin Server configuration can be usually found at:
->
-> ```
-> /conf/gremlin-server.yaml
-> ```
-
-#### Versions Prior to 3.7
-
-If you have a version of Gremlin Server prior to 3.7, you will need to make the
-following changes:
-
-- **Enable property returns** - Remove
-  ".withStrategies(ReferenceElementStrategy)" from
-  `/scripts/generate-modern.groovy` so that properties are returned.
-- **Enable string IDs** - Change `gremlin.tinkergraph.vertexIdManager` and
-  `gremlin.tinkergraph.edgeIdManager` in `/conf/tinkergraph-empty.properties` to
-  support string ids. You can use `ANY`.
-- Build and run the Docker container as normal.
-
-### Connecting to BlazeGraph
-
-- Build and run the Docker container as normal and connect the proxy-server to
-  BlazeGraph and your workbench to the proxy-server.
-- If using Docker, ensure that the container running the workbench can properly
-  access the container running BlazeGraph. You can find documentation on how to
-  connect containers via [Docker networks](https://docs.docker.com/network/).
-
-## Connections UI
+This guide covers how to manage connections within the Graph Explorer
+application. For information on configuring different graph database engines,
+see the [First Connection](../getting-started/first-connection.md) guide.
 
 You can create and manage connections to graph databases using this feature.
 Connections is accessible as the first screen after deploying the application,
