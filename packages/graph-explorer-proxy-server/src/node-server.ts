@@ -33,52 +33,31 @@ interface LoggerIncomingHttpHeaders extends IncomingHttpHeaders {
 
 app.use(requestLoggingMiddleware());
 
-// Function to retry fetch requests with exponential backoff.
-const retryFetch = async (
+// Function to make authenticated fetch requests.
+const authenticatedFetch = async (
   url: URL,
   options: RequestInit,
   isIamEnabled: boolean,
   region: string | undefined,
-  serviceType: string,
-  retryDelay = 10000,
-  refetchMaxRetries = 1
+  serviceType: string
 ) => {
-  for (let i = 0; i < refetchMaxRetries; i++) {
-    const iamOptions = isIamEnabled
-      ? {
-          service: serviceType,
-          region: region,
-        }
-      : undefined;
-    const request: RequestInit = {
-      ...options,
-      compress: false, // prevent automatic decompression
-    };
-    const signedRequest = await signRequest(url, request, iamOptions);
+  const iamOptions = isIamEnabled
+    ? {
+        service: serviceType,
+        region: region,
+      }
+    : undefined;
+  const request: RequestInit = {
+    ...options,
+    compress: false, // prevent automatic decompression
+  };
+  const signedRequest = await signRequest(url, request, iamOptions);
 
-    try {
-      const res = await fetch(url, signedRequest);
-      if (!res.ok) {
-        proxyLogger.error("!!Request failure!!");
-        return res;
-      } else {
-        return res;
-      }
-    } catch (err) {
-      if (refetchMaxRetries === 1) {
-        // Don't log about retries if retrying is not used
-        throw err;
-      } else if (i === refetchMaxRetries - 1) {
-        proxyLogger.error(err, "!!Proxy Retry Fetch Reached Maximum Tries!!");
-        throw err;
-      } else {
-        proxyLogger.debug("Proxy Retry Fetch Count::: " + i);
-        await new Promise(resolve => setTimeout(resolve, retryDelay));
-      }
-    }
+  const res = await fetch(url, signedRequest);
+  if (!res.ok) {
+    proxyLogger.error("!!Request failure!!");
   }
-  // Should never reach this code
-  throw new Error("retryFetch failed to complete retry logic");
+  return res;
 };
 
 // Function to fetch data from the given URL and send it as a response.
@@ -92,7 +71,7 @@ async function fetchData(
   serviceType: string
 ) {
   try {
-    const response = await retryFetch(
+    const response = await authenticatedFetch(
       new URL(url),
       options,
       isIamEnabled,
@@ -174,7 +153,7 @@ app.post("/sparql", async (req, res, next) => {
     }
     proxyLogger.debug(`Cancelling request ${queryId}...`);
     try {
-      await retryFetch(
+      await authenticatedFetch(
         new URL(`${graphDbConnectionUrl}/sparql/status`),
         {
           method: "POST",
@@ -279,7 +258,7 @@ app.post("/gremlin", async (req, res, next) => {
     }
     proxyLogger.debug(`Cancelling request ${queryId}...`);
     try {
-      await retryFetch(
+      await authenticatedFetch(
         new URL(
           `${graphDbConnectionUrl}/gremlin/status?cancelQuery&queryId=${encodeURIComponent(queryId)}`
         ),
