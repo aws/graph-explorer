@@ -7,8 +7,6 @@ application, or for configuring advanced settings for development.
 
 - pnpm >=10.12.1
 - node >=24.4.0
-- [Docker](https://docs.docker.com/get-docker/) installed on your machine
-- [Git](https://git-scm.com/downloads) installed on your machine
 
 ### Node Version
 
