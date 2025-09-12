@@ -11,16 +11,3 @@ Explorer or set up a local development environment.
    versions
 3. [Troubleshooting](troubleshooting.md) - Common development issues and
    solutions
-
-## Prerequisites
-
-- Node.js >=24.4.0
-- pnpm >=10.12.1
-- Basic familiarity with React and TypeScript
-- Docker (for containerized development)
-
-## Next Steps
-
-After setting up your development environment, see the
-[Contributing Guidelines](../../CONTRIBUTING.md) for information on how to
-contribute to the project.

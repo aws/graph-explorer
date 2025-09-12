@@ -18,14 +18,3 @@ environments.
 7. [AWS SageMaker](aws-sagemaker.md) - Deploy Graph Explorer on Amazon SageMaker
    Notebooks
 8. [Configuration](configuration.md) - Environment variables and settings
-
-## Prerequisites
-
-- Basic familiarity with containerized deployments
-- Access to your chosen deployment platform
-- Graph database endpoint accessible from your deployment environment
-
-## Next Steps
-
-After completing deployment, see the [Getting Started](../getting-started/)
-guide for connecting to your first database and basic usage.
