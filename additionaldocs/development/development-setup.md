@@ -149,7 +149,7 @@ You can build the Docker image locally by following the steps below.
 ## Using Self-signed certificates on Chrome
 
 For browsers like Safari and Firefox,
-[trusting the certificate from the browser](../user-guide/security.md#https-connections)
+[trusting the certificate from the browser](../deployment/https-setup.md#https-connections)
 is enough to bypass the "Not Secure" warning. However, Chrome treats self-signed
 certificates differently. If you want to use a self-signed certificate on Chrome
 **without** the "Not Secure" warning and you do not have your own certificate,
