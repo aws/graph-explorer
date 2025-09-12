@@ -20,16 +20,16 @@ like [Amazon ECS](https://aws.amazon.com/ecs/).
 
 There are many ways to deploy and run Graph Explorer. If you are new to graph
 databases and Graph Explorer, we recommend that you check out the
-[Getting Started](./additionaldocs/getting-started/README.md) guide.
+[Getting Started](./docs/getting-started/README.md) guide.
 
-- [Local Docker Setup](./additionaldocs/deployment/docker.md) - A quick start
-  guide to deploying Graph Explorer locally using the official Docker image.
-- [Amazon EC2 Setup](./additionaldocs/deployment/aws-ec2.md) - A quick start
-  guide to setting up Graph Explorer on Amazon EC2 with Neptune.
-- [Local Development](./additionaldocs/development/development-setup.md) - A
-  quick start guide building the Docker image from source code.
-- [Troubleshooting](./additionaldocs/troubleshooting/) - A collection of helpful
-  tips if you run in to issues while setting up Graph Explorer.
+- [Local Docker Setup](./docs/deployment/docker.md) - A quick start guide to
+  deploying Graph Explorer locally using the official Docker image.
+- [Amazon EC2 Setup](./docs/deployment/aws-ec2.md) - A quick start guide to
+  setting up Graph Explorer on Amazon EC2 with Neptune.
+- [Local Development](./docs/development/development-setup.md) - A quick start
+  guide building the Docker image from source code.
+- [Troubleshooting](./docs/troubleshooting/) - A collection of helpful tips if
+  you run in to issues while setting up Graph Explorer.
 - [Samples](./samples) - A collection of Docker Compose files that show various
   ways to configure and use Graph Explorer.
 
@@ -54,14 +54,14 @@ databases:
   view
 
 For complete documentation on all features and functionality, please see our
-[detailed user guide](./additionaldocs/user-guide/).
+[detailed user guide](./docs/user-guide/).
 
 If you're interested in our future development plans, check out our
 [roadmap](./ROADMAP.md) and participate in the discussions.
 
 ## Development
 
-For development guidance, see [Development](./additionaldocs/development/).
+For development guidance, see [Development](./docs/development/).
 
 ## Contributing Guidelines
 

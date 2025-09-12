@@ -25,7 +25,7 @@
 ### Documentation Hierarchy
 
 - **README.md**: Project overview and quick start
-- **additionaldocs/**: Detailed guides organized by user journey
+- **docs/**: Detailed guides organized by user journey
   - `getting-started/`: Installation, first connection, basic usage
   - `user-guide/`: Feature documentation for end users
   - `deployment/`: Production deployment guides
@@ -62,7 +62,7 @@
 
 ```
 README.md                           # Project overview and quick start
-additionaldocs/
+docs/
 ├── getting-started/
 │   ├── installation.md            # Local and Docker setup
 │   ├── first-connection.md        # Connecting to your first database
