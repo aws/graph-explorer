@@ -17,13 +17,15 @@ These are the valid environment variables used for the default connection, their
 defaults, and their descriptions.
 
 - Required:
-  - `PUBLIC_OR_PROXY_ENDPOINT` - `None` - See [Connections UI](connections.md)
+  - `PUBLIC_OR_PROXY_ENDPOINT` - `None` - See
+    [Connections UI](../user-guide/connections.md)
 - Optional
   - `GRAPH_TYPE` - `None` - If not specified, multiple connections will be
     created for every available graph type / query language. See
-    [Connections UI](connections.md)
-  - `USING_PROXY_SERVER` - `False` - See [Connections UI](connections.md)
-  - `IAM` - `False` - See [Connections UI](connections.md)
+    [Connections UI](../user-guide/connections.md)
+  - `USING_PROXY_SERVER` - `False` - See
+    [Connections UI](../user-guide/connections.md)
+  - `IAM` - `False` - See [Connections UI](../user-guide/connections.md)
   - `GRAPH_EXP_HTTPS_CONNECTION` - `True` - Controls whether Graph Explorer uses
     SSL or not
   - `PROXY_SERVER_HTTPS_CONNECTION` - `True` - Controls whether the server uses
@@ -35,9 +37,10 @@ defaults, and their descriptions.
     counts and expansion queries.
 - Conditionally Required:
   - Required if `USING_PROXY_SERVER=True`
-    - `GRAPH_CONNECTION_URL` - `None` - See [Connections UI](connections.md)
+    - `GRAPH_CONNECTION_URL` - `None` - See
+      [Connections UI](../user-guide/connections.md)
   - Required if `USING_PROXY_SERVER=True` and `IAM=True`
-    - `AWS_REGION` - `None` - See [Connections UI](connections.md)
+    - `AWS_REGION` - `None` - See [Connections UI](../user-guide/connections.md)
     - `SERVICE_TYPE` - `neptune-db`, Set this as `neptune-db` for Neptune
       database or `neptune-graph` for Neptune Analytics.
 

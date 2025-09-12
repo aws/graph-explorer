@@ -24,7 +24,7 @@ time.
 3. **Deploy Graph Explorer** - Choose a deployment method from the
    [Deployment](../deployment/) section
 4. **Set up default connection (optional)** - Use the
-   [Default Connection](../user-guide/default-connection.md) guide to configure
+   [Default Connection](../deployment/default-connection.md) guide to configure
    automatic connections
 5. **Create a connection** - Use the
    [Connections UI](../user-guide/connections.md) to set up your connection
