@@ -5,13 +5,15 @@ environments.
 
 ## Files in this section
 
-1. [Docker](docker.md) - Deploy Graph Explorer locally using Docker
-2. [AWS EC2](aws-ec2.md) - Deploy Graph Explorer on Amazon EC2 instances
-3. [AWS ECS Fargate](aws-ecs-fargate.md) - Deploy Graph Explorer on AWS ECS
+1. [Database Setup](database-setup.md) - Configure different graph database
+   engines
+2. [Docker](docker.md) - Deploy Graph Explorer locally using Docker
+3. [AWS EC2](aws-ec2.md) - Deploy Graph Explorer on Amazon EC2 instances
+4. [AWS ECS Fargate](aws-ecs-fargate.md) - Deploy Graph Explorer on AWS ECS
    using Fargate
-4. [AWS SageMaker](aws-sagemaker.md) - Deploy Graph Explorer on Amazon SageMaker
+5. [AWS SageMaker](aws-sagemaker.md) - Deploy Graph Explorer on Amazon SageMaker
    Notebooks
-5. [Configuration](configuration.md) - Environment variables and settings
+6. [Configuration](configuration.md) - Environment variables and settings
 
 ## Prerequisites
 

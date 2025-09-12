@@ -2,8 +2,7 @@
 
 This guide covers how to manage connections within the Graph Explorer
 application. For information on configuring different graph database engines,
-see the
-[Requirements](../getting-started/requirements.md#database-configuration) guide.
+see the [Database Setup](../deployment/database-setup.md) guide.
 
 You can create and manage connections to graph databases using this feature.
 Connections is accessible as the first screen after deploying the application,
