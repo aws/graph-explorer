@@ -46,7 +46,7 @@ systems will have slightly different steps.
 > [!TIP] 
 > 
 > To get rid of the "Not Secure" warning, see
-[Using self-signed certificates on Chrome](../development/#using-self-signed-certificates-on-chrome).
+[Using self-signed certificates on Chrome](../development/development-setup.md#using-self-signed-certificates-on-chrome).
 
 ## Permissions
 
