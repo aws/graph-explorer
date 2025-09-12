@@ -10,12 +10,10 @@ features and connect to different graph databases.
    connections
 3. [Security](security.md) - Security considerations, authentication, and
    permissions
-4. [Monitoring](monitoring.md) - Health checks, logging, and monitoring
-   capabilities
-5. [Settings](settings.md) - Application settings and configuration management
-6. [Graph Explorer](graph-explorer.md) - Main graph visualization interface
-7. [Table View](table-view.md) - Tabular data view and export functionality
-8. [Data Explorer](data-explorer.md) - Node type data exploration
+4. [Settings](settings.md) - Application settings and configuration management
+5. [Graph Explorer](graph-explorer.md) - Main graph visualization interface
+6. [Table View](table-view.md) - Tabular data view and export functionality
+7. [Data Explorer](data-explorer.md) - Node type data exploration
 
 ## Prerequisites
 
