@@ -5,11 +5,8 @@ time.
 
 ## Files in this section
 
-1. [Requirements](requirements.md) - System requirements and minimum recommended
-   versions
-2. [First Connection](first-connection.md) - Connecting to your first database
-3. [Default Connection](default-connection.md) - Configuring automatic default
-   connections
+1. [Requirements](requirements.md) - System requirements, minimum recommended
+   versions, and database configuration
 
 ## Prerequisites
 
@@ -19,18 +16,17 @@ time.
 
 ## Quick Start Steps
 
-1. **Check requirements** - Review the [Requirements](requirements.md) to ensure
-   compatibility
+1. **Check requirements and configure database** - Review the
+   [Requirements](requirements.md) to ensure compatibility and follow the
+   database configuration instructions
 2. **Deploy Graph Explorer** - Choose a deployment method from the
    [Deployment](../deployment/) section
-3. **Configure your database** - Follow the
-   [First Connection](first-connection.md) guide for your database type
-4. **Set up default connection (optional)** - Use the
-   [Default Connection](default-connection.md) guide to configure automatic
-   connections
-5. **Create a connection** - Use the
+3. **Set up default connection (optional)** - Use the
+   [Default Connection](../user-guide/default-connection.md) guide to configure
+   automatic connections
+4. **Create a connection** - Use the
    [Connections UI](../user-guide/connections.md) to set up your connection
-6. **Start exploring** - Begin using Graph Explorer with the
+5. **Start exploring** - Begin using Graph Explorer with the
    [User Guide](../user-guide/)
 
 ## Troubleshooting

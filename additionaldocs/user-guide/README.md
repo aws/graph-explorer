@@ -6,14 +6,16 @@ features and connect to different graph databases.
 ## Files in this section
 
 1. [Connections](connections.md) - Managing database connections in the UI
-2. [Security](security.md) - Security considerations, authentication, and
+2. [Default Connection](default-connection.md) - Configuring automatic default
+   connections
+3. [Security](security.md) - Security considerations, authentication, and
    permissions
-3. [Monitoring](monitoring.md) - Health checks, logging, and monitoring
+4. [Monitoring](monitoring.md) - Health checks, logging, and monitoring
    capabilities
-4. [Settings](settings.md) - Application settings and configuration management
-5. [Graph Explorer](graph-explorer.md) - Main graph visualization interface
-6. [Table View](table-view.md) - Tabular data view and export functionality
-7. [Data Explorer](data-explorer.md) - Node type data exploration
+5. [Settings](settings.md) - Application settings and configuration management
+6. [Graph Explorer](graph-explorer.md) - Main graph visualization interface
+7. [Table View](table-view.md) - Tabular data view and export functionality
+8. [Data Explorer](data-explorer.md) - Node type data exploration
 
 ## Prerequisites
 

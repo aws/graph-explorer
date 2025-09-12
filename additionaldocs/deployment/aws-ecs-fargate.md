@@ -195,7 +195,7 @@ the specified domain names.
    - `taskRoleArn` and `executionRoleArn`: The ARN of the IAM role created in
      step "Create a new IAM role and permission policies".
    - `environment` variables section (see
-     [Default Connections](../getting-started/default-connection.md) for more
+     [Default Connections](../user-guide/default-connection.md) for more
      details):
      - `AWS_REGION`: The AWS region in which your Neptune cluster is located.
      - `GRAPH_TYPE`: The query language for your initial connection.
