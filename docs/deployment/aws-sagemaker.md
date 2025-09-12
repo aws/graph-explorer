@@ -97,7 +97,3 @@ Below are examples of which IAM permissions you need for Graph Explorer.
 
 - [IAM permissions for Neptune DB](aws-sagemaker/graph-explorer-neptune-db-policy.json)
 - [IAM permissions for Neptune Analytics](aws-sagemaker/graph-explorer-neptune-analytics-policy.json)
-
-```
-
-```
