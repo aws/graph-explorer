@@ -1,7 +1,7 @@
 # Monitoring
 
 This guide covers monitoring capabilities, health checks, and logging
-configuration for Graph Explorer.
+configuration for Graph Explorer across different deployment environments.
 
 ## Health Check Status
 
@@ -48,3 +48,30 @@ Within node-server.js, you'll notice three things.
 3. An endpoint called `/logger` - This is how you would log things from the
    browser. It needs a log level and message header passed and you can then
    expect to see the message logged at the provided log level.
+
+## Gathering SageMaker Logs
+
+The Graph Explorer proxy server outputs log statements to standard out. By
+default, these logs will be forwarded to CloudWatch if the Notebook has the
+proper permissions.
+
+To gather these logs:
+
+1. Open the AWS Console
+2. Navigate to the Neptune page
+3. Select "Notebook" from the sidebar
+4. Find the Notebook hosting Graph Explorer
+5. Open the details screen for that Notebook
+6. In the "Actions" menu, choose "View Details in SageMaker"
+7. Press the "View Logs" link in the SageMaker details screen under the field
+   titled "Lifecycle configuration"
+8. Scroll down to the "Log Streams" panel in the CloudWatch details where you
+   should find multiple log streams
+9. For each log stream related to Graph Explorer (LifecycleConfigOnStart.log,
+   graph-explorer.log)
+   1. Open the log stream
+   2. In the "Actions" menu, choose "Download search results (CSV)"
+
+If you encounter issues with missing log streams, see the
+[SageMaker Issues](../troubleshooting/sagemaker-issues.md) troubleshooting
+guide.
