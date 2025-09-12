@@ -137,7 +137,7 @@ editor with Neptune Analytics for the first time.
 
 As before, if you are a Neptune user concerned about data integrity, check out
 the
-[instructions on configuring IAM permissions to restrict mutations](./README.md#permissions),
+[instructions on configuring IAM permissions to restrict mutations](./additionaldocs/user-guide/security.md#permissions),
 ensuring that users can enforce read-only operations.
 
 ### New features & major changes
@@ -171,7 +171,7 @@ database. You can review the results in the sidebar and choose to add all nodes
 
 For Neptune users concerned about data integrity, [the README](./README.md) now
 includes
-[instructions on configuring IAM permissions to restrict mutations](./README.md#permissions),
+[instructions on configuring IAM permissions to restrict mutations](./additionaldocs/user-guide/security.md#permissions),
 ensuring users can enforce read-only operations.
 
 The release also changes the default strategy for representing node & edge
