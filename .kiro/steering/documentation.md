@@ -98,6 +98,7 @@ Each documentation folder should include a `README.md` file that serves as a
 table of contents for that folder:
 
 - **Purpose**: Explain what the folder contains and who it's for
+- **Summary**: Briefly describe the folder's purpose and content
 - **File Listing**: List all files in the folder with brief descriptions
 - **Reading Order**: Suggest the recommended order for reading files
 - **Prerequisites**: Note any required knowledge or setup before starting
