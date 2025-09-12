@@ -9,9 +9,7 @@ diagnose problems with Graph Explorer.
    certificate issues
 2. [Schema Sync](schema-sync.md) - Schema synchronization failures and
    connection problems
-3. [Backup and Restore](backup-restore.md) - Backing up and restoring Graph
-   Explorer configuration
-4. [SageMaker Logs](sagemaker-logs.md) - Gathering logs when running on Amazon
+3. [SageMaker Logs](sagemaker-logs.md) - Gathering logs when running on Amazon
    SageMaker
 
 ## General Troubleshooting Tips

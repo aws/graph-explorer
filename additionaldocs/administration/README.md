@@ -7,6 +7,8 @@ manage, monitor, and maintain Graph Explorer deployments.
 
 1. [Monitoring](monitoring.md) - Health checks, logging, and monitoring
    capabilities
+2. [Backup and Restore](backup-restore.md) - Backing up and restoring Graph
+   Explorer configuration
 
 ## Prerequisites
 
@@ -19,10 +21,10 @@ manage, monitor, and maintain Graph Explorer deployments.
 Administration tasks typically include:
 
 - **Monitoring**: Setting up health checks and log monitoring
-- **Maintenance**: Regular operational tasks and updates
-- **Security**: Operational security considerations
 - **Backup & Recovery**: Protecting configuration and ensuring business
   continuity
+- **Maintenance**: Regular operational tasks and updates
+- **Security**: Operational security considerations
 
 ## Next Steps
 
