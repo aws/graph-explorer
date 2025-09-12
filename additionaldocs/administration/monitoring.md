@@ -73,5 +73,5 @@ To gather these logs:
    2. In the "Actions" menu, choose "Download search results (CSV)"
 
 If you encounter issues with missing log streams, see the
-[SageMaker Issues](../troubleshooting/sagemaker-issues.md) troubleshooting
-guide.
+[SageMaker troubleshooting](../deployment/aws-sagemaker.md#troubleshooting)
+section.

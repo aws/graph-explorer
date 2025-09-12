@@ -5,12 +5,8 @@ diagnose problems with Graph Explorer.
 
 ## Files in this section
 
-1. [Docker Issues](docker-issues.md) - Container startup, ports, and HTTPS
-   certificate issues
-2. [Schema Sync](schema-sync.md) - Schema synchronization failures and
+1. [Schema Sync](schema-sync.md) - Schema synchronization failures and
    connection problems
-3. [SageMaker Issues](sagemaker-issues.md) - Common issues when running on
-   Amazon SageMaker
 
 ## General Troubleshooting Tips
 

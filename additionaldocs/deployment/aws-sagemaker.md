@@ -82,3 +82,22 @@ that request.
   ]
 }
 ```
+
+## Troubleshooting
+
+### Graph Explorer Log Stream Does Not Exist
+
+New Neptune Notebooks automatically apply the correct IAM permissions to write
+to CloudWatch. If your Notebook does not automatically create a
+graph-explorer.log in the CloudWatch Log Streams, then it is possible that the
+Neptune Notebook was created before those IAM permissions were added. You'll
+need to add those permissions manually.
+
+Below are examples of which IAM permissions you need for Graph Explorer.
+
+- [IAM permissions for Neptune DB](aws-sagemaker/graph-explorer-neptune-db-policy.json)
+- [IAM permissions for Neptune Analytics](aws-sagemaker/graph-explorer-neptune-analytics-policy.json)
+
+```
+
+```
