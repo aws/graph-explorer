@@ -1,10 +1,10 @@
+import { useVertexAttributesAsScalars } from "./useVertexAttributesAsScalars";
 import { type DisplayVertex, createVertexId, type DisplayAttribute } from "@/core";
 import {
   DbState,
   createRandomQueryEngine,
   renderHookWithState,
 } from "@/utils/testing";
-import { useVertexAttributesAsScalars } from "./useVertexAttributesAsScalars";
 import { createResultScalar } from "@/connector/entities";
 
 describe("useVertexAttributesAsScalars", () => {

@@ -1,7 +1,7 @@
-import { cn } from "@/utils";
 import { useRef } from "react";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { Link, useParams, useSearchParams } from "react-router";
+import { cn } from "@/utils";
 import {
   useUpdateSchemaFromEntities,
   type Vertex,

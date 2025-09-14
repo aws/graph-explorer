@@ -1,6 +1,6 @@
 import { type EdgeDetailsRequest, type EdgeDetailsResponse } from "../useGEFetchTypes";
-import { createEdge, type Edge } from "@/core";
 import { parseEdgeId } from "./parseEdgeId";
+import { createEdge, type Edge } from "@/core";
 
 export function edgeDetails(request: EdgeDetailsRequest): EdgeDetailsResponse {
   // Bail early if request is empty

@@ -1,5 +1,5 @@
-import { createVertex } from "@/core";
 import { type RawResult } from "../types";
+import { createVertex } from "@/core";
 
 const mapRawResultToVertex = (rawResult: RawResult) => {
   return createVertex({

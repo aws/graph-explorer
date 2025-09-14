@@ -1,5 +1,7 @@
 import Color from "color";
 import { useDeferredValue, useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { renderNode } from "./renderNode";
 import {
   getEdgeIdFromRenderedEdgeId,
   type RenderedEdgeId,
@@ -7,13 +9,11 @@ import {
 } from "@/core";
 import type { GraphProps } from "@/components";
 import useTextTransform from "@/hooks/useTextTransform";
-import { renderNode } from "./renderNode";
 import {
   useEdgeTypeConfigs,
   useVertexTypeConfigs,
 } from "@/core/ConfigurationProvider/useConfiguration";
 import { MISSING_DISPLAY_VALUE } from "@/utils/constants";
-import { useQueryClient } from "@tanstack/react-query";
 
 const LINE_PATTERN = {
   solid: undefined,

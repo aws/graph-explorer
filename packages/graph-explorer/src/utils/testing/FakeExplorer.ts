@@ -1,5 +1,10 @@
 /* eslint-disable @typescript-eslint/require-await */
 import {
+  createRandomConnectionWithId,
+  type TestableEdge,
+  type TestableVertex,
+} from "./randomData";
+import {
   type CountsByTypeResponse,
   type EdgeDetailsRequest,
   type Explorer,
@@ -21,11 +26,6 @@ import {
   type Vertex,
   type VertexId,
 } from "@/core";
-import {
-  createRandomConnectionWithId,
-  type TestableEdge,
-  type TestableVertex,
-} from "./randomData";
 
 /**
  * An implementation of the Explorer interface that uses local state for results where possible.

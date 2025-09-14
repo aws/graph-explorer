@@ -1,9 +1,9 @@
-import { cn } from "@/utils";
 import { useState, type PropsWithChildren, type ReactElement } from "react";
+import { Resizable } from "re-resizable";
+import WorkspaceSideBarContent from "./WorkspaceSideBarContent";
+import { cn } from "@/utils";
 import getChildOfType from "@/utils/getChildOfType";
 import getChildrenOfType from "@/utils/getChildrenOfType";
-import WorkspaceSideBarContent from "./WorkspaceSideBarContent";
-import { Resizable } from "re-resizable";
 import {
   CLOSED_SIDEBAR_WIDTH,
   DEFAULT_SIDEBAR_WIDTH,

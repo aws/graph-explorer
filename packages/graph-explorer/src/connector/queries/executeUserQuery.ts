@@ -1,8 +1,8 @@
-import { type UpdateSchemaHandler } from "@/core";
 import { queryOptions } from "@tanstack/react-query";
+import { getAllGraphableEntities } from "../entities";
 import { getExplorer, updateDetailsCacheFromEntities } from "./helpers";
 import { patchEntityDetails } from "./patchEntityDetails";
-import { getAllGraphableEntities } from "../entities";
+import { type UpdateSchemaHandler } from "@/core";
 
 export function executeUserQuery(
   query: string,

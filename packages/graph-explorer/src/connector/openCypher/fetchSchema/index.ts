@@ -1,3 +1,9 @@
+import type { OCEdge, OCVertex } from "../types";
+import { type GraphSummary, type OpenCypherFetch } from "../types";
+import edgeLabelsTemplate from "./edgeLabelsTemplate";
+import edgesSchemaTemplate from "./edgesSchemaTemplate";
+import vertexLabelsTemplate from "./vertexLabelsTemplate";
+import verticesSchemaTemplate from "./verticesSchemaTemplate";
 import { batchPromisesSerially } from "@/utils";
 import { DEFAULT_CONCURRENT_REQUESTS_LIMIT } from "@/utils/constants";
 import type {
@@ -5,12 +11,6 @@ import type {
   SchemaResponse,
   VertexSchemaResponse,
 } from "@/connector/useGEFetchTypes";
-import edgeLabelsTemplate from "./edgeLabelsTemplate";
-import edgesSchemaTemplate from "./edgesSchemaTemplate";
-import vertexLabelsTemplate from "./vertexLabelsTemplate";
-import verticesSchemaTemplate from "./verticesSchemaTemplate";
-import type { OCEdge, OCVertex } from "../types";
-import { type GraphSummary, type OpenCypherFetch } from "../types";
 import { type LoggerConnector } from "@/connector/LoggerConnector";
 
 // Response types for raw data returned by OpenCypher queries

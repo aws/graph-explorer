@@ -1,5 +1,5 @@
-import { type EntityPropertyValue } from "@/core";
 import { type SparqlValue } from "../types";
+import { type EntityPropertyValue } from "@/core";
 
 export function mapAttributeValue(value: SparqlValue): EntityPropertyValue {
   if (value.type === "literal") {

@@ -1,6 +1,8 @@
 import { type ReactNode } from "react";
 import type { IdType, Row } from "react-table";
 
+import TextFilter from "./TextFilter";
+import type { TextFilterProps } from "./TextFilter";
 import {
   EqualsIcon,
   GreaterOrEqualThanIcon,
@@ -8,8 +10,6 @@ import {
   LessOrEqualThanIcon,
   LessThanIcon,
 } from "@/components/icons";
-import TextFilter from "./TextFilter";
-import type { TextFilterProps } from "./TextFilter";
 
 type FilterFn<T extends object = object> = (
   rows: Row<T>[],

@@ -1,6 +1,7 @@
+import { vi } from "vitest";
+import { createRandomInteger } from "@shared/utils/testing";
 import useEntitiesCounts from "./useEntitiesCounts";
 import { type RawConfiguration, type Schema } from "@/core";
-import { vi } from "vitest";
 import {
   createRandomEdgeTypeConfig,
   createRandomRawConfiguration,
@@ -13,7 +14,6 @@ import {
   configurationAtom,
 } from "@/core/StateProvider/configuration";
 import { schemaAtom } from "@/core/StateProvider/schema";
-import { createRandomInteger } from "@shared/utils/testing";
 
 function renderUseEntitiesHook(config: RawConfiguration, schema: Schema) {
   return renderHookWithJotai(

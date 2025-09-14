@@ -1,13 +1,13 @@
-import { query } from "@/utils";
 import {
   type NeighborCount,
   type NeighborCountsRequest,
   type NeighborCountsResponse,
 } from "../useGEFetchTypes";
+import isErrorResponse from "../utils/isErrorResponse";
 import { idParam } from "./idParam";
 import { type OpenCypherFetch } from "./types";
-import isErrorResponse from "../utils/isErrorResponse";
 import { parseResults } from "./mappers/mapResults";
+import { query } from "@/utils";
 import { createVertexId, type EntityRawId } from "@/core";
 
 export async function neighborCounts(

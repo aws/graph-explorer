@@ -1,5 +1,9 @@
 import { type QueryClient } from "@tanstack/react-query";
 import { describe, it, expect, beforeEach } from "vitest";
+import { createRandomName, createRecord } from "@shared/utils/testing";
+import { emptyExplorer } from "../emptyExplorer";
+import { type NeighborCount } from "../useGEFetchTypes";
+import { createResultScalar, createResultBundle } from "../entities";
 import {
   updateDetailsCacheFromEntities,
   setVertexDetailsQueryCache,
@@ -10,18 +14,14 @@ import {
 import { vertexDetailsQuery } from "./vertexDetailsQuery";
 import { edgeDetailsQuery } from "./edgeDetailsQuery";
 import { neighborsCountQuery } from "./neighborsCountQuery";
-import { emptyExplorer } from "../emptyExplorer";
 import {
   createTestableVertex,
   createTestableEdge,
   FakeExplorer,
   createRandomEntityAttribute,
 } from "@/utils/testing";
-import { type NeighborCount } from "../useGEFetchTypes";
 import { createQueryClient, type GraphExplorerMeta } from "@/core/queryClient";
-import { createRandomName, createRecord } from "@shared/utils/testing";
 import { type EdgeId, type VertexId } from "@/core";
-import { createResultScalar, createResultBundle } from "../entities";
 
 describe("helpers", () => {
   let queryClient: QueryClient;

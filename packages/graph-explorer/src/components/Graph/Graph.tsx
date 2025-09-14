@@ -1,4 +1,3 @@
-import { cn } from "@/utils";
 import cytoscape from "cytoscape";
 import cyCanvas from "cytoscape-canvas";
 import d3Force from "cytoscape-d3-force";
@@ -41,6 +40,7 @@ import useRenderBadges from "./hooks/useRenderBadges";
 import useUpdateLayout from "./hooks/useRunLayout";
 import useUpdateGraphElements from "./hooks/useUpdateGraphElements";
 import EmptyState from "./internalComponents/EmptyState";
+import { cn } from "@/utils";
 
 cytoscape.use(klay);
 cytoscape.use(dagre);

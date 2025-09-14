@@ -1,3 +1,4 @@
+import { PlusCircleIcon, RotateCwIcon } from "lucide-react";
 import { Button } from "@/components";
 import { SearchIcon } from "@/components/icons";
 import { PanelEmptyState } from "@/components/PanelEmptyState";
@@ -7,7 +8,6 @@ import {
   useRestoreGraphSession,
 } from "@/core";
 import { formatEntityCounts } from "@/utils";
-import { PlusCircleIcon, RotateCwIcon } from "lucide-react";
 
 function EmptyState() {
   const availablePrevSession = useAvailablePreviousSession();

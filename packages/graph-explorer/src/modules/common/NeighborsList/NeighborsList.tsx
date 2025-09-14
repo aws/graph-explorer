@@ -1,3 +1,4 @@
+import { type ComponentPropsWithoutRef, useState } from "react";
 import { cn } from "@/utils";
 import {
   type VertexId,
@@ -16,7 +17,6 @@ import {
 import useNeighborsOptions, {
   type NeighborOption,
 } from "@/hooks/useNeighborsOptions";
-import { type ComponentPropsWithoutRef, useState } from "react";
 import { useQueryEngine } from "@/core/connector";
 
 export type NeighborsListProps = {

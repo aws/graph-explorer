@@ -1,3 +1,6 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { atom, useAtomValue } from "jotai";
+import { useAddToGraph } from "./useAddToGraph";
 import { useNotification } from "@/components/NotificationProvider";
 import {
   setEdgeDetailsQueryCache,
@@ -6,7 +9,6 @@ import {
   type NeighborsResponse,
 } from "@/connector";
 import { loggerSelector, useExplorer } from "@/core/connector";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   useFetchedNeighborsCallback,
   useNeighborsCallback,
@@ -15,8 +17,6 @@ import {
   defaultNeighborExpansionLimitEnabledAtom,
 } from "@/core";
 import { createDisplayError } from "@/utils/createDisplayError";
-import { useAddToGraph } from "./useAddToGraph";
-import { atom, useAtomValue } from "jotai";
 
 export type ExpandNodeFilters = Omit<
   NeighborsRequest,

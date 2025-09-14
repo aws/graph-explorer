@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router";
+import { useAtomValue } from "jotai";
 import {
   buttonStyles,
   Panel,
@@ -16,7 +17,6 @@ import ConnectionDetail from "@/modules/ConnectionDetail";
 import { APP_NAME } from "@/utils/constants";
 import GraphExplorerIcon from "@/components/icons/GraphExplorerIcon";
 import { cn } from "@/utils";
-import { useAtomValue } from "jotai";
 
 export default function Connections() {
   const config = useConfiguration();

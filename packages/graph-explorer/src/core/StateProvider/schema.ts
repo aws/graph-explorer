@@ -1,17 +1,17 @@
+import { startTransition, useCallback } from "react";
+import { atom } from "jotai";
+import { RESET, useAtomCallback } from "jotai/utils";
+import { atomWithLocalForageAsync } from "./localForageEffect";
+import { activeConfigurationAtom } from "./configuration";
 import {
   type AttributeConfig,
   type EdgeTypeConfig,
   type PrefixTypeConfig,
   type VertexTypeConfig,
 } from "@/core/ConfigurationProvider";
-import { atomWithLocalForageAsync } from "./localForageEffect";
-import { activeConfigurationAtom } from "./configuration";
 import { type Edge, type Entities, type EntityProperties, type Vertex } from "@/core";
 import { logger } from "@/utils";
 import generatePrefixes from "@/utils/generatePrefixes";
-import { startTransition, useCallback } from "react";
-import { atom } from "jotai";
-import { RESET, useAtomCallback } from "jotai/utils";
 import { type SetStateActionWithReset } from "@/utils/jotai";
 
 export type SchemaInference = {

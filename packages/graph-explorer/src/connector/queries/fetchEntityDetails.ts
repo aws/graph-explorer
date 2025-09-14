@@ -1,7 +1,7 @@
+import { type QueryClient } from "@tanstack/react-query";
 import { bulkEdgeDetailsQuery, bulkVertexDetailsQuery } from "@/connector";
 import { type VertexId, type EdgeId } from "@/core";
 import { formatEntityCounts } from "@/utils";
-import { type QueryClient } from "@tanstack/react-query";
 import { type Notification } from "@/components/NotificationProvider";
 
 /**

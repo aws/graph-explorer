@@ -1,3 +1,4 @@
+import { waitFor } from "@testing-library/react";
 import useNeighborsOptions from "./useNeighborsOptions";
 import {
   createRandomEdge,
@@ -6,7 +7,6 @@ import {
   renderHookWithState,
 } from "@/utils/testing";
 import { type NeighborCount } from "@/connector";
-import { waitFor } from "@testing-library/react";
 
 describe("useNeighborsOptions", () => {
   afterEach(() => {

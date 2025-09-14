@@ -1,8 +1,8 @@
+import { vertexDetails } from "./vertexDetails";
 import {
   createGremlinResponseFromVertices,
   createTestableVertex,
 } from "@/utils/testing";
-import { vertexDetails } from "./vertexDetails";
 
 describe("vertexDetails", () => {
   it("should return empty when request is empty", async () => {

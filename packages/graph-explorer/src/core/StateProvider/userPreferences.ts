@@ -1,6 +1,6 @@
-import { atomWithLocalForage } from "./localForageEffect";
 import { useAtom } from "jotai";
 import { clone } from "lodash";
+import { atomWithLocalForage } from "./localForageEffect";
 
 export type ShapeStyle =
   | "rectangle"

@@ -1,5 +1,6 @@
 import difference from "lodash/difference";
 import { forwardRef } from "react";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { NonVisibleIcon, VisibleIcon } from "@/components";
 import type { ColumnDefinition, TabularInstance } from "@/components/Tabular";
 import { makeIconToggleCell } from "@/components/Tabular/builders";
@@ -25,7 +26,6 @@ import {
   useDisplayEdgesInCanvas,
   useDisplayVerticesInCanvas,
 } from "@/core";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { MISSING_DISPLAY_VALUE } from "@/utils";
 
 /** Creates the model for the table data */

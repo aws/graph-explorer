@@ -1,5 +1,6 @@
 import difference from "lodash/difference";
 import { forwardRef } from "react";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { NonVisibleIcon, VisibleIcon } from "@/components";
 import type { ColumnDefinition, TabularInstance } from "@/components/Tabular";
 import { makeIconToggleCell } from "@/components/Tabular/builders";
@@ -24,7 +25,6 @@ import {
 } from "@/core/StateProvider/nodes";
 
 import { useDeepMemo, useTranslations } from "@/hooks";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
 
 type ToggleVertex = DisplayVertex & {
   __is_visible: boolean;

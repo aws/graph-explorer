@@ -1,3 +1,6 @@
+import { atomFamily } from "jotai/utils";
+import { atom, useAtomValue } from "jotai";
+import type { ConfigurationContextProps } from "./types";
 import {
   allEdgeTypeConfigsSelector,
   allVertexTypeConfigsSelector,
@@ -5,9 +8,6 @@ import {
   getDefaultVertexTypeConfig,
   mergedConfigurationSelector,
 } from "@/core/StateProvider/configuration";
-import type { ConfigurationContextProps } from "./types";
-import { atomFamily } from "jotai/utils";
-import { atom, useAtomValue } from "jotai";
 
 const assembledConfigSelector = atom(get => {
   const configuration = get(mergedConfigurationSelector);

@@ -1,3 +1,6 @@
+import { atomFamily, useAtomCallback } from "jotai/utils";
+import { atom, useAtomValue } from "jotai";
+import { useCallback } from "react";
 import {
   allEdgeTypeConfigsSelector,
   allVertexTypeConfigsSelector,
@@ -13,9 +16,6 @@ import {
 } from "@/core";
 import { type TextTransformer, textTransformSelector } from "@/hooks";
 import { MISSING_DISPLAY_TYPE, RESERVED_TYPES_PROPERTY } from "@/utils";
-import { atomFamily, useAtomCallback } from "jotai/utils";
-import { atom, useAtomValue } from "jotai";
-import { useCallback } from "react";
 
 export type DisplayVertexStyle = {
   color: string;

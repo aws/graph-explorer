@@ -1,4 +1,4 @@
-import { createDisplayError } from "@/utils/createDisplayError";
+import { InfoIcon, RotateCcwIcon } from "lucide-react";
 import { GraphIcon } from "./icons";
 import { Button } from "./Button";
 import {
@@ -9,7 +9,6 @@ import {
   EmptyStateDescription,
   EmptyStateActions,
 } from "./EmptyState";
-import { InfoIcon, RotateCcwIcon } from "lucide-react";
 import {
   Dialog,
   DialogBody,
@@ -22,6 +21,7 @@ import {
 } from "./Dialog";
 import { Label } from "./Label";
 import { FormItem } from "./Form";
+import { createDisplayError } from "@/utils/createDisplayError";
 
 export default function PanelError({
   error,

@@ -1,6 +1,6 @@
+import fetchNeighbors from ".";
 import { globalMockFetch } from "@/connector/testUtils/globalMockFetch";
 import mockGremlinFetch from "@/connector/testUtils/mockGremlinFetch";
-import fetchNeighbors from ".";
 import { createEdge, createVertex, createVertexId } from "@/core";
 
 describe("Gremlin > fetchNeighbors", () => {

@@ -1,8 +1,8 @@
-import { logger } from "@/utils";
 import { useQueryClient } from "@tanstack/react-query";
-import { defaultOptionsAtom } from "./queryClient";
 import { useAtomValue } from "jotai";
 import { useRef } from "react";
+import { defaultOptionsAtom } from "./queryClient";
+import { logger } from "@/utils";
 
 /**
  * Ensures the query client has the correct explorer for the connection injected

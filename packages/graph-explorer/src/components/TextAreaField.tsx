@@ -1,4 +1,3 @@
-import { cn } from "@/utils";
 import type { AriaTextFieldOptions } from "@react-aria/textfield";
 import { useTextField } from "@react-aria/textfield";
 import type { ValueBase } from "@react-types/shared";
@@ -6,6 +5,7 @@ import type { ForwardedRef, RefObject } from "react";
 import { forwardRef, useRef } from "react";
 import { FormError } from "./Form";
 import { TextArea } from "./TextArea";
+import { cn } from "@/utils";
 
 export interface TextAreaProps
   extends Omit<

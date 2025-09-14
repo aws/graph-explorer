@@ -1,11 +1,11 @@
-import type { SchemaResponse } from "@/connector/useGEFetchTypes";
+import { chunk } from "lodash";
+import type { GEdge, GInt64, GScalar, GVertex } from "../types";
+import { type GraphSummary, type GremlinFetch } from "../types";
 import edgeLabelsTemplate from "./edgeLabelsTemplate";
 import edgesSchemaTemplate from "./edgesSchemaTemplate";
 import vertexLabelsTemplate from "./vertexLabelsTemplate";
 import verticesSchemaTemplate from "./verticesSchemaTemplate";
-import type { GEdge, GInt64, GScalar, GVertex } from "../types";
-import { type GraphSummary, type GremlinFetch } from "../types";
-import { chunk } from "lodash";
+import type { SchemaResponse } from "@/connector/useGEFetchTypes";
 import { type LoggerConnector } from "@/connector/LoggerConnector";
 import { DEFAULT_BATCH_REQUEST_SIZE } from "@/utils";
 

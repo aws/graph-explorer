@@ -6,6 +6,7 @@ import reactLint from "eslint-plugin-react";
 import * as reactHooks from "eslint-plugin-react-hooks";
 import tanstackQueryLint from "@tanstack/eslint-plugin-query";
 import eslintConfigPrettier from "eslint-config-prettier";
+import importPlugin from "eslint-plugin-import";
 import { fixupPluginRules, includeIgnoreFile } from "@eslint/compat";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -46,6 +47,7 @@ export default defineConfig(
   {
     plugins: {
       "@tanstack/query": fixupPluginRules(tanstackQueryLint),
+      import: importPlugin,
     },
     rules: {
       ...tanstackQueryLint.configs.recommended.rules,
@@ -56,6 +58,9 @@ export default defineConfig(
   {
     rules: {
       "no-console": ["error", { allow: ["warn", "error"] }],
+
+      // Import sorting with eslint-plugin-import
+      "import/order": "error",
 
       // TypeScript
       "@typescript-eslint/switch-exhaustiveness-check": "error",

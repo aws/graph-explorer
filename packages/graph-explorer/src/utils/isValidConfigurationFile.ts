@@ -1,10 +1,10 @@
+import { queryEngineOptions } from "@shared/types";
 import {
   type AttributeConfig,
   type ConfigurationContextProps,
   type EdgeTypeConfig,
   type VertexTypeConfig,
 } from "@/core";
-import { queryEngineOptions } from "@shared/types";
 
 const isValidHttpUrl = (str: string) => {
   let url;

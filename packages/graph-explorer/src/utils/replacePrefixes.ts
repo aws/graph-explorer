@@ -1,5 +1,5 @@
-import { type PrefixTypeConfig } from "@/core";
 import commonPrefixes from "./common-prefixes.json";
+import { type PrefixTypeConfig } from "@/core";
 
 const commonPrefixesConfig = Object.entries(commonPrefixes).map(
   ([prefix, uri]) => ({

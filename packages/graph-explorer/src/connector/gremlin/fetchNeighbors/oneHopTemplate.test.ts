@@ -1,5 +1,5 @@
-import { normalizeWithNoSpace as normalize } from "@/utils/testing";
 import oneHopTemplate from "./oneHopTemplate";
+import { normalizeWithNoSpace as normalize } from "@/utils/testing";
 import { createVertexId } from "@/core";
 
 describe("Gremlin > oneHopTemplate", () => {

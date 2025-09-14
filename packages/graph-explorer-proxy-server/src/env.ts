@@ -1,7 +1,7 @@
-import dotenv from "dotenv";
 import path from "path";
-import { clientRoot } from "./paths.js";
+import dotenv from "dotenv";
 import { z } from "zod";
+import { clientRoot } from "./paths.js";
 
 /** Coerces a string to a boolean value in a case insensitive way. */
 export const BooleanStringSchema = z

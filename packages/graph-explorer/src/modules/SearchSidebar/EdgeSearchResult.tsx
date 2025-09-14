@@ -1,3 +1,6 @@
+import { MinusCircleIcon, PlusCircleIcon } from "lucide-react";
+import { createEntityKey, EntitySearchResult } from "./EntitySearchResult";
+import { useEdgeAttributesAsScalars } from "./useEdgeAttributesAsScalars";
 import {
   createEdge,
   createVertex,
@@ -20,10 +23,7 @@ import {
   useHasEdgeBeenAddedToGraph,
   useRemoveEdgeFromGraph,
 } from "@/hooks";
-import { MinusCircleIcon, PlusCircleIcon } from "lucide-react";
-import { createEntityKey, EntitySearchResult } from "./EntitySearchResult";
 import type { PatchedResultEdge } from "@/connector/entities";
-import { useEdgeAttributesAsScalars } from "./useEdgeAttributesAsScalars";
 
 export function EdgeSearchResult({
   edge,

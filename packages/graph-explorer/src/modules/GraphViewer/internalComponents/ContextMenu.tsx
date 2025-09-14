@@ -1,5 +1,14 @@
 import { type PropsWithChildren, type RefObject } from "react";
 import {
+  CircleSlash2,
+  ImageDownIcon,
+  MinusCircleIcon,
+  ZoomInIcon,
+  ZoomOutIcon,
+} from "lucide-react";
+import { useAtom, useSetAtom } from "jotai";
+import useGraphGlobalActions from "../useGraphGlobalActions";
+import {
   Divider,
   EdgeIcon,
   GraphIcon,
@@ -24,17 +33,8 @@ import {
 import { edgesSelectedIdsAtom } from "@/core/StateProvider/edges";
 import { nodesSelectedIdsAtom } from "@/core/StateProvider/nodes";
 import { useClearGraph, useRemoveFromGraph, useTranslations } from "@/hooks";
-import useGraphGlobalActions from "../useGraphGlobalActions";
-import {
-  CircleSlash2,
-  ImageDownIcon,
-  MinusCircleIcon,
-  ZoomInIcon,
-  ZoomOutIcon,
-} from "lucide-react";
 import { customizeNodeTypeAtom } from "@/modules/NodesStyling";
 import { customizeEdgeTypeAtom } from "@/modules/EdgesStyling";
-import { useAtom, useSetAtom } from "jotai";
 
 export type ContextMenuProps = {
   affectedNodesIds?: VertexId[];

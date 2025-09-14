@@ -1,4 +1,3 @@
-import { cn, getChildOfType } from "@/utils";
 import {
   type ForwardedRef,
   forwardRef,
@@ -10,8 +9,6 @@ import {
 import type { TableInstance } from "react-table";
 import useDeepCompareEffect from "use-deep-compare-effect";
 
-import { useWithTheme } from "@/core";
-import { useDeepMemo } from "@/hooks";
 
 import {
   PaginationControl,
@@ -29,6 +26,9 @@ import TabularHeader from "./TabularHeader";
 import TabularRow from "./TabularRow";
 import type { TabularOptions } from "./useTabular";
 import useTabular from "./useTabular";
+import { useDeepMemo } from "@/hooks";
+import { useWithTheme } from "@/core";
+import { cn, getChildOfType } from "@/utils";
 
 export type TabularVariantType = "bordered" | "noBorders";
 

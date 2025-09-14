@@ -1,9 +1,9 @@
+import { vertexDetailsQuery } from "./vertexDetailsQuery";
 import {
   createRandomVertex,
   createRandomVertexId,
   FakeExplorer,
 } from "@/utils/testing";
-import { vertexDetailsQuery } from "./vertexDetailsQuery";
 import { createQueryClient } from "@/core/queryClient";
 
 describe("vertexDetailsQuery", () => {

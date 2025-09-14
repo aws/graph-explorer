@@ -1,3 +1,10 @@
+import { atom, useAtomValue } from "jotai";
+import { selectAtom } from "jotai/utils";
+import {
+  activeConnectionAtom,
+  type NormalizedConnection,
+} from "./StateProvider/configuration";
+import { featureFlagsSelector } from "./featureFlags";
 import {
   ClientLoggerConnector,
   type LoggerConnector,
@@ -6,16 +13,9 @@ import {
 import { createGremlinExplorer } from "@/connector/gremlin/gremlinExplorer";
 import { createOpenCypherExplorer } from "@/connector/openCypher/openCypherExplorer";
 import { createSparqlExplorer } from "@/connector/sparql/sparqlExplorer";
-import {
-  activeConnectionAtom,
-  type NormalizedConnection,
-} from "./StateProvider/configuration";
 import { logger } from "@/utils";
-import { featureFlagsSelector } from "./featureFlags";
 import { type Explorer } from "@/connector/useGEFetchTypes";
 import { emptyExplorer } from "@/connector/emptyExplorer";
-import { atom, useAtomValue } from "jotai";
-import { selectAtom } from "jotai/utils";
 
 export const explorerAtom = atom(get => {
   const explorerForTesting = get(explorerForTestingAtom);

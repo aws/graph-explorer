@@ -1,10 +1,10 @@
 import { type PropsWithChildren } from "react";
-import { cn } from "@/utils";
-import { CheckIcon, CloseIcon, ErrorIcon, InfoIcon } from "@/components/icons";
 import { cva } from "cva";
 import { IconButton } from "../IconButton";
 import { Spinner } from "../Spinner";
 import { type NotificationType } from "../NotificationProvider/NotificationProvider";
+import { CheckIcon, CloseIcon, ErrorIcon, InfoIcon } from "@/components/icons";
+import { cn } from "@/utils";
 
 export type NotificationComponentProps = PropsWithChildren<{
   message: string;

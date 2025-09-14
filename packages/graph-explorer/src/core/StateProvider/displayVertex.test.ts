@@ -1,3 +1,13 @@
+import { createRandomDate, createRandomName } from "@shared/utils/testing";
+import { type QueryEngine } from "@shared/types";
+import { schemaAtom } from "./schema";
+import {
+  activeConfigurationAtom,
+  configurationAtom,
+  getDefaultVertexTypeConfig,
+  patchToRemoveDisplayLabel,
+} from "./configuration";
+import { mapToDisplayVertexTypeConfig } from "./displayTypeConfigs";
 import {
   createRandomRawConfiguration,
   createRandomSchema,
@@ -18,17 +28,7 @@ import {
   type Vertex,
 } from "@/core";
 import { formatDate } from "@/utils";
-import { schemaAtom } from "./schema";
-import {
-  activeConfigurationAtom,
-  configurationAtom,
-  getDefaultVertexTypeConfig,
-  patchToRemoveDisplayLabel,
-} from "./configuration";
-import { createRandomDate, createRandomName } from "@shared/utils/testing";
 import { MISSING_DISPLAY_VALUE } from "@/utils/constants";
-import { mapToDisplayVertexTypeConfig } from "./displayTypeConfigs";
-import { type QueryEngine } from "@shared/types";
 
 describe("useDisplayVertexFromVertex", () => {
   it("should keep the same ID", () => {

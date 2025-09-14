@@ -1,3 +1,9 @@
+import { atom, useAtom } from "jotai";
+import {
+  SOURCE_ARROW_STYLE_OPTIONS,
+  TARGET_ARROW_STYLE_OPTIONS,
+} from "./arrowsStyling";
+import { LINE_STYLE_OPTIONS } from "./lineStyling";
 import {
   Dialog,
   DialogContent,
@@ -16,13 +22,7 @@ import {
   useEdgeStyling,
 } from "@/core/StateProvider/userPreferences";
 import useTranslations from "@/hooks/useTranslations";
-import {
-  SOURCE_ARROW_STYLE_OPTIONS,
-  TARGET_ARROW_STYLE_OPTIONS,
-} from "./arrowsStyling";
-import { LINE_STYLE_OPTIONS } from "./lineStyling";
 import { RESERVED_TYPES_PROPERTY } from "@/utils";
-import { atom, useAtom } from "jotai";
 
 export const customizeEdgeTypeAtom = atom<string | undefined>(undefined);
 

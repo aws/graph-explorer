@@ -1,5 +1,5 @@
-import { cn } from "@/utils";
 import type { PropsWithChildren, ReactNode } from "react";
+import { cn } from "@/utils";
 
 export type WorkspaceTopBarTitleProps = {
   className?: string;

@@ -1,4 +1,15 @@
 import {
+  createRandomSchema,
+  createRandomRawConfiguration,
+  createRandomVertex,
+  createRandomEdge,
+  createRandomUserStyling,
+  type TestableEdge,
+  type TestableVertex,
+} from "./randomData";
+import { type JotaiSnapshot } from "./renderHookWithJotai";
+import { createMockExplorer } from "./createMockExplorer";
+import {
   activeConfigurationAtom,
   allGraphSessionsAtom,
   configurationAtom,
@@ -24,17 +35,6 @@ import {
   type VertexId,
   type VertexPreferences,
 } from "@/core";
-import {
-  createRandomSchema,
-  createRandomRawConfiguration,
-  createRandomVertex,
-  createRandomEdge,
-  createRandomUserStyling,
-  type TestableEdge,
-  type TestableVertex,
-} from "./randomData";
-import { type JotaiSnapshot } from "./renderHookWithJotai";
-import { createMockExplorer } from "./createMockExplorer";
 import { type Explorer } from "@/connector";
 
 /**

@@ -1,11 +1,10 @@
 import {
-  createRandomConnectionWithId,
-  createRandomEdgeId,
-  createRandomExportedGraph,
-  createRandomExportedGraphConnection,
-  createRandomExportedGraphForRdf,
-  createRandomVertexId,
-} from "@/utils/testing";
+  createArray,
+  createRandomDate,
+  createRandomInteger,
+  createRandomName,
+  createRandomUrlString,
+} from "@shared/utils/testing";
 import {
   createDefaultFileName,
   createExportedConnection,
@@ -18,12 +17,13 @@ import {
   parseExportedGraph,
 } from "./exportedGraph";
 import {
-  createArray,
-  createRandomDate,
-  createRandomInteger,
-  createRandomName,
-  createRandomUrlString,
-} from "@shared/utils/testing";
+  createRandomConnectionWithId,
+  createRandomEdgeId,
+  createRandomExportedGraph,
+  createRandomExportedGraphConnection,
+  createRandomExportedGraphForRdf,
+  createRandomVertexId,
+} from "@/utils/testing";
 import { type EdgeId, type VertexId } from "@/core";
 import { escapeString } from "@/utils";
 

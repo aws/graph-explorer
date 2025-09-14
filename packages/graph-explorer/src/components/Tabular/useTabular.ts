@@ -30,11 +30,11 @@ import {
   type UseSortByColumnOptions,
   useTable,
 } from "react-table";
-import { useDeepMemo } from "@/hooks";
 import TextFilter from "./filters/TextFilter";
 import columnDefinitionToColumn from "./helpers/columnDefinitionToColumn";
 import useDiffState from "./plugins/useDiffState";
 import useFullWidth from "./plugins/useFullWidth";
+import { useDeepMemo } from "@/hooks";
 
 export type CellComponentProps<T extends object> = CellProps<T>;
 export type OnDataFilteredChange<T extends object> = (

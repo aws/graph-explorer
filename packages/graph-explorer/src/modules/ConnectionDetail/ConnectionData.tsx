@@ -1,5 +1,7 @@
-import { cn } from "@/utils";
 import { Link } from "react-router";
+import { Virtuoso } from "react-virtuoso";
+import { type ComponentPropsWithoutRef } from "react";
+import { cn } from "@/utils";
 import {
   ChevronRightIcon,
   ListRowContent,
@@ -16,8 +18,6 @@ import {
   useQueryEngine,
 } from "@/core";
 import useTranslations from "@/hooks/useTranslations";
-import { Virtuoso } from "react-virtuoso";
-import { type ComponentPropsWithoutRef } from "react";
 
 export default function ConnectionData() {
   const vtConfigs = useDisplayVertexTypeConfigs().values().toArray();

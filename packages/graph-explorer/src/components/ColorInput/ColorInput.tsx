@@ -1,5 +1,6 @@
-import { cn } from "@/utils";
 import { type ComponentPropsWithoutRef } from "react";
+import { HexColorPicker, HexColorInput } from "react-colorful";
+import { cn } from "@/utils";
 import {
   InputField,
   type InputFieldProps,
@@ -8,7 +9,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components";
-import { HexColorPicker, HexColorInput } from "react-colorful";
 
 export interface ColorInputProps
   extends Pick<InputFieldProps, "label" | "labelPlacement">,

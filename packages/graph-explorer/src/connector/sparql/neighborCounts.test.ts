@@ -1,20 +1,20 @@
 import {
+  createArray,
+  createRandomName,
+  createRandomUrlString,
+} from "@shared/utils/testing";
+import { type NeighborCount } from "../useGEFetchTypes";
+import { neighborCounts } from "./neighborCounts";
+import { type BlankNodesMap } from "./types";
+import { parseEdgeId } from "./parseEdgeId";
+import { createVertexId, type Edge, type Vertex } from "@/core";
+import {
   createBNodeValue,
   createLiteralValue,
   createRandomEdgeForRdf,
   createRandomVertexForRdf,
   createUriValue,
 } from "@/utils/testing";
-import { type NeighborCount } from "../useGEFetchTypes";
-import { neighborCounts } from "./neighborCounts";
-import { type BlankNodesMap } from "./types";
-import {
-  createArray,
-  createRandomName,
-  createRandomUrlString,
-} from "@shared/utils/testing";
-import { createVertexId, type Edge, type Vertex } from "@/core";
-import { parseEdgeId } from "./parseEdgeId";
 
 describe("neighborCounts", () => {
   it("should return empty for an empty request", async () => {

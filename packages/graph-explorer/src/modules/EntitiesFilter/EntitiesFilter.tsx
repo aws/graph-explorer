@@ -1,3 +1,5 @@
+import { SidebarCloseButton } from "../SidebarCloseButton";
+import useFiltersConfig from "./useFiltersConfig";
 import {
   CheckboxList,
   Panel,
@@ -10,8 +12,6 @@ import {
   SidebarTabsList,
   SidebarTabsTrigger,
 } from "@/components";
-import useFiltersConfig from "./useFiltersConfig";
-import { SidebarCloseButton } from "../SidebarCloseButton";
 import { useTranslations } from "@/hooks";
 
 function EntitiesFilter() {

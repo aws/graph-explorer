@@ -1,3 +1,4 @@
+import { rdfTypeUri } from "../types";
 import { mapToResults } from "./mapToResults";
 import { type Edge, type EntityPropertyValue, type Vertex } from "@/core";
 import {
@@ -5,7 +6,6 @@ import {
   createRandomEntitiesForRdf,
   createRandomVertexForRdf,
 } from "@/utils/testing";
-import { rdfTypeUri } from "../types";
 
 describe("mapToResults", () => {
   it("should map empty data to empty results", () => {

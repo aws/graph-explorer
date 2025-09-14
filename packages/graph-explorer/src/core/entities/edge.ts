@@ -1,7 +1,7 @@
-import { type Branded } from "@/utils";
 import { type VertexId } from "./vertex";
 import { type EntityProperties, type EntityRawId } from "./shared";
 import { createEdgeId, createVertexId } from "./entityIdType";
+import { type Branded } from "@/utils";
 
 /**
  * A branded type for edge identifiers to ensure type safety.

@@ -1,5 +1,5 @@
-import { createEdgeId, createVertexId } from "@/core/entities";
 import { parseEdgeId } from "./parseEdgeId";
+import { createEdgeId, createVertexId } from "@/core/entities";
 
 test("parseEdgeId", () => {
   const edgeId = createEdgeId(

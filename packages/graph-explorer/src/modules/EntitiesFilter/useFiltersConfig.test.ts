@@ -1,17 +1,17 @@
 import { act } from "react";
+import { sample } from "lodash";
+import { vi } from "vitest";
 import useFiltersConfig from "./useFiltersConfig";
 import {
   createRandomRawConfiguration,
   createRandomSchema,
   renderHookWithJotai,
 } from "@/utils/testing";
-import { sample } from "lodash";
 import { type Schema } from "@/core";
 import {
   activeConfigurationAtom,
   configurationAtom,
 } from "@/core/StateProvider/configuration";
-import { vi } from "vitest";
 
 /** Creates a config with the schema and makes it active, then renders the `useFiltersConfig` hook. */
 function renderFilterConfigHook(schema: Schema) {

@@ -1,3 +1,7 @@
+import { useCallback, useState } from "react";
+import { Virtuoso } from "react-virtuoso";
+import { useAtomCallback } from "jotai/utils";
+import { DialogDescription } from "@radix-ui/react-dialog";
 import {
   Dialog,
   DialogContent,
@@ -6,7 +10,6 @@ import {
   DialogBody,
   DialogFooter,
 } from "@/components/Dialog";
-import { useCallback, useState } from "react";
 import {
   AddIcon,
   Button,
@@ -30,9 +33,6 @@ import {
   useConfiguration,
 } from "@/core";
 import { schemaAtom } from "@/core/StateProvider/schema";
-import { Virtuoso } from "react-virtuoso";
-import { useAtomCallback } from "jotai/utils";
-import { DialogDescription } from "@radix-ui/react-dialog";
 
 type PrefixForm = {
   prefix: string;

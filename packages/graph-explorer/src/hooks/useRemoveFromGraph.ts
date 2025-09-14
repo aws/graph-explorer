@@ -1,3 +1,7 @@
+import { useCallback } from "react";
+import { RESET, useAtomCallback } from "jotai/utils";
+import { useAtomValue, useSetAtom } from "jotai";
+import { logger } from "@/utils";
 import {
   activeGraphSessionAtom,
   type EdgeId,
@@ -12,10 +16,6 @@ import {
   useUpdateGraphSession,
   type VertexId,
 } from "@/core";
-import { useCallback } from "react";
-import { logger } from "@/utils";
-import { RESET, useAtomCallback } from "jotai/utils";
-import { useAtomValue, useSetAtom } from "jotai";
 
 export function useRemoveFromGraph() {
   const setVertices = useSetAtom(nodesAtom);

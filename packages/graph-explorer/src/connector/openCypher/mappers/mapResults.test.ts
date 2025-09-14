@@ -1,12 +1,3 @@
-import { createResultBundle, createResultScalar } from "@/connector/entities";
-import { mapResults } from "./mapResults";
-import {
-  createTestableEdge,
-  createTestableVertex,
-  mapToOcEdge,
-  mapToOcScalar,
-  mapToOcVertex,
-} from "@/utils/testing";
 import {
   createArray,
   createRandomBoolean,
@@ -15,6 +6,15 @@ import {
   createRandomName,
   createRandomUrlString,
 } from "@shared/utils/testing";
+import { mapResults } from "./mapResults";
+import { createResultBundle, createResultScalar } from "@/connector/entities";
+import {
+  createTestableEdge,
+  createTestableVertex,
+  mapToOcEdge,
+  mapToOcScalar,
+  mapToOcVertex,
+} from "@/utils/testing";
 
 describe("mapResults", () => {
   it("should map empty results", () => {

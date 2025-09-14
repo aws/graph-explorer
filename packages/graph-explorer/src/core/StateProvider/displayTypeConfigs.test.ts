@@ -1,3 +1,16 @@
+import { createRandomName } from "@shared/utils/testing";
+import { type Schema } from "../ConfigurationProvider";
+import {
+  activeConfigurationAtom,
+  configurationAtom,
+  defaultEdgeTypeConfig,
+  getDefaultVertexTypeConfig,
+} from "./configuration";
+import { schemaAtom } from "./schema";
+import {
+  useDisplayEdgeTypeConfig,
+  useDisplayVertexTypeConfig,
+} from "./displayTypeConfigs";
 import {
   createRandomEdgeTypeConfig,
   createRandomRawConfiguration,
@@ -8,19 +21,6 @@ import {
   renderHookWithJotai,
   renderHookWithState,
 } from "@/utils/testing";
-import {
-  activeConfigurationAtom,
-  configurationAtom,
-  defaultEdgeTypeConfig,
-  getDefaultVertexTypeConfig,
-} from "./configuration";
-import { schemaAtom } from "./schema";
-import { type Schema } from "../ConfigurationProvider";
-import {
-  useDisplayEdgeTypeConfig,
-  useDisplayVertexTypeConfig,
-} from "./displayTypeConfigs";
-import { createRandomName } from "@shared/utils/testing";
 import { MISSING_DISPLAY_TYPE, RESERVED_TYPES_PROPERTY } from "@/utils";
 
 describe("useDisplayVertexTypeConfig", () => {

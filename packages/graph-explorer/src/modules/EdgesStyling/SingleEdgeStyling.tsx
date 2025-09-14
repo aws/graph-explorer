@@ -1,11 +1,11 @@
 import { type ComponentPropsWithRef, useEffect, useState } from "react";
+import { useSetAtom } from "jotai";
+import { customizeEdgeTypeAtom } from "./EdgeStyleDialog";
 import { Button, FormItem, InputField, Label, StylingIcon } from "@/components";
 import { useDisplayEdgeTypeConfig } from "@/core";
 import { useEdgeStyling } from "@/core/StateProvider/userPreferences";
 import { useDebounceValue, usePrevious } from "@/hooks";
 import { MISSING_DISPLAY_TYPE } from "@/utils";
-import { customizeEdgeTypeAtom } from "./EdgeStyleDialog";
-import { useSetAtom } from "jotai";
 
 export type SingleEdgeStylingProps = {
   edgeType: string;

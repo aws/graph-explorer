@@ -1,11 +1,11 @@
 import { type ComponentPropsWithRef, useEffect, useState } from "react";
+import { useSetAtom } from "jotai";
+import { customizeNodeTypeAtom } from "./NodeStyleDialog";
 import { Button, FormItem, InputField, Label, StylingIcon } from "@/components";
 import { useDisplayVertexTypeConfig } from "@/core";
 import { useVertexStyling } from "@/core/StateProvider/userPreferences";
 import { useDebounceValue, usePrevious } from "@/hooks";
 import { MISSING_DISPLAY_TYPE } from "@/utils/constants";
-import { customizeNodeTypeAtom } from "./NodeStyleDialog";
-import { useSetAtom } from "jotai";
 
 export type SingleNodeStylingProps = {
   vertexType: string;

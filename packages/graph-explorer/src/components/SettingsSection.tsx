@@ -1,10 +1,10 @@
-import { cn } from "@/utils";
 import {
   type ComponentProps,
   type ComponentPropsWithoutRef,
   type PropsWithChildren,
 } from "react";
 import { Switch } from "./Switch";
+import { cn } from "@/utils";
 
 /** Provides a default gap between section elements */
 export function SettingsSection({

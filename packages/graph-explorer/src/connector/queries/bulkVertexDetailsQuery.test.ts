@@ -1,8 +1,8 @@
-import { createRandomVertex, FakeExplorer } from "@/utils/testing";
+import { createArray } from "@shared/utils/testing";
 import { bulkVertexDetailsQuery } from "./bulkVertexDetailsQuery";
 import { vertexDetailsQuery } from "./vertexDetailsQuery";
+import { createRandomVertex, FakeExplorer } from "@/utils/testing";
 import { createQueryClient } from "@/core/queryClient";
-import { createArray } from "@shared/utils/testing";
 import { DEFAULT_BATCH_REQUEST_SIZE } from "@/utils";
 
 describe("bulkVertexDetailsQuery", () => {

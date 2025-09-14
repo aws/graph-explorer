@@ -1,11 +1,11 @@
-import { query } from "@/utils";
 import { type SPARQLKeywordSearchRequest } from "../types";
+import { getLimit } from "../getLimit";
 import {
   getFilterObject,
   getFilterPredicates,
   getSubjectClasses,
 } from "./helpers";
-import { getLimit } from "../getLimit";
+import { query } from "@/utils";
 
 /**
  * This generates a template to get all blank nodes ids from

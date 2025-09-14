@@ -1,3 +1,14 @@
+import { createRandomName } from "@shared/utils/testing";
+import { type RawConfiguration, type VertexTypeConfig } from "../ConfigurationProvider";
+import {
+  defaultEdgeTypeConfig,
+  defaultVertexTypeConfig,
+  mergeConfiguration,
+  type NormalizedConnection,
+  patchToRemoveDisplayLabel,
+} from "./configuration";
+import { type SchemaInference } from "./schema";
+import { type UserStyling } from "./userPreferences";
 import {
   createRandomEdgePreferences,
   createRandomEdgeTypeConfig,
@@ -6,17 +17,6 @@ import {
   createRandomVertexPreferences,
   createRandomVertexTypeConfig,
 } from "@/utils/testing";
-import {
-  defaultEdgeTypeConfig,
-  defaultVertexTypeConfig,
-  mergeConfiguration,
-  type NormalizedConnection,
-  patchToRemoveDisplayLabel,
-} from "./configuration";
-import { type RawConfiguration, type VertexTypeConfig } from "../ConfigurationProvider";
-import { type SchemaInference } from "./schema";
-import { type UserStyling } from "./userPreferences";
-import { createRandomName } from "@shared/utils/testing";
 import { RESERVED_TYPES_PROPERTY } from "@/utils";
 
 /** The default empty connection values when no value is provided. */

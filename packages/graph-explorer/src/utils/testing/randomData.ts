@@ -1,4 +1,22 @@
 import {
+  createArray,
+  createRandomBoolean,
+  createRandomColor,
+  createRandomDate,
+  createRandomDouble,
+  createRandomInteger,
+  createRandomName,
+  createRandomUrlString,
+  createRecord,
+  randomlyUndefined,
+} from "@shared/utils/testing";
+import {
+  type NeptuneServiceType,
+  neptuneServiceTypeOptions,
+  type QueryEngine,
+  queryEngineOptions,
+} from "@shared/types";
+import {
   type ArrowStyle,
   type AttributeConfig,
   type ConnectionWithId,
@@ -24,24 +42,6 @@ import {
   type VertexPreferences,
   type VertexTypeConfig,
 } from "@/core";
-import {
-  createArray,
-  createRandomBoolean,
-  createRandomColor,
-  createRandomDate,
-  createRandomDouble,
-  createRandomInteger,
-  createRandomName,
-  createRandomUrlString,
-  createRecord,
-  randomlyUndefined,
-} from "@shared/utils/testing";
-import {
-  type NeptuneServiceType,
-  neptuneServiceTypeOptions,
-  type QueryEngine,
-  queryEngineOptions,
-} from "@shared/types";
 import {
   createExportedGraph,
   type ExportedGraphConnection,

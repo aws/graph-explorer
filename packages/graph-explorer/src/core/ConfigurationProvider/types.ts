@@ -1,10 +1,10 @@
+import { type ConnectionConfig } from "@shared/types";
+import { v4 } from "uuid";
 import {
   type EdgePreferences,
   type VertexPreferences,
 } from "@/core/StateProvider/userPreferences";
 import { type Branded } from "@/utils";
-import { type ConnectionConfig } from "@shared/types";
-import { v4 } from "uuid";
 
 export type ConfigurationId = Branded<string, "ConfigurationId">;
 

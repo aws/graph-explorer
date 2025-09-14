@@ -1,3 +1,8 @@
+import { Fragment } from "react/jsx-runtime";
+import { Virtuoso } from "react-virtuoso";
+import { SidebarCloseButton } from "../SidebarCloseButton";
+import SingleNodeStyling from "./SingleNodeStyling";
+import NodeStyleDialog from "./NodeStyleDialog";
 import {
   Divider,
   Panel,
@@ -8,11 +13,6 @@ import {
 } from "@/components";
 import { useDisplayVertexTypeConfigs } from "@/core";
 import useTranslations from "@/hooks/useTranslations";
-import SingleNodeStyling from "./SingleNodeStyling";
-import { Fragment } from "react/jsx-runtime";
-import { SidebarCloseButton } from "../SidebarCloseButton";
-import { Virtuoso } from "react-virtuoso";
-import NodeStyleDialog from "./NodeStyleDialog";
 
 function NodesStyling() {
   const vtConfigs = useDisplayVertexTypeConfigs().values().toArray();

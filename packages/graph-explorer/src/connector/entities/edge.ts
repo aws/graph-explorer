@@ -1,3 +1,4 @@
+import { createPatchedResultVertex, type PatchedResultVertex } from "./vertex";
 import {
   createEdgeId,
   createVertexId,
@@ -7,7 +8,6 @@ import {
   type Vertex,
   type VertexId,
 } from "@/core";
-import { createPatchedResultVertex, type PatchedResultVertex } from "./vertex";
 
 /**
  * An edge result from a graph database query.

@@ -1,7 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 import { type KeywordSearchRequest } from "../useGEFetchTypes";
-import { type UpdateSchemaHandler } from "@/core/StateProvider/schema";
 import { getExplorer, setVertexDetailsQueryCache } from "./helpers";
+import { type UpdateSchemaHandler } from "@/core/StateProvider/schema";
 
 /**
  * Performs a search with the provided parameters.

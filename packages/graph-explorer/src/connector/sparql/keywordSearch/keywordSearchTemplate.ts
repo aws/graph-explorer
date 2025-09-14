@@ -1,11 +1,11 @@
-import { query } from "@/utils";
 import { type SPARQLKeywordSearchRequest } from "../types";
+import { getLimit } from "../getLimit";
 import {
   getFilterObject,
   getFilterPredicates,
   getSubjectClasses,
 } from "./helpers";
-import { getLimit } from "../getLimit";
+import { query } from "@/utils";
 
 /**
  * Fetch nodes matching the given search parameters

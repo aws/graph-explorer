@@ -1,11 +1,11 @@
+import { getAllGraphableEntities, createResultScalar } from "../entities";
+import { executeUserQuery } from "./executeUserQuery";
 import { createQueryClient } from "@/core/queryClient";
 import {
   createTestableEdge,
   createTestableVertex,
   FakeExplorer,
 } from "@/utils/testing";
-import { executeUserQuery } from "./executeUserQuery";
-import { getAllGraphableEntities, createResultScalar } from "../entities";
 
 describe("executeUserQuery", () => {
   it("should execute a query with empty results", async () => {

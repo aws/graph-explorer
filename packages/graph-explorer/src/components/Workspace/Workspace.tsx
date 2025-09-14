@@ -1,9 +1,9 @@
-import { cn, getChildrenOfType } from "@/utils";
 import type { PropsWithChildren, ReactElement } from "react";
-import getChildOfType from "@/utils/getChildOfType";
 import WorkspacesContent from "./components/WorkspacesContent";
 import WorkspaceSideBar from "./components/WorkspaceSideBar";
 import WorkspaceTopBar from "./components/WorkspaceTopBar";
+import getChildOfType from "@/utils/getChildOfType";
+import { cn, getChildrenOfType } from "@/utils";
 
 export type WorkspaceProps = {
   orientation?: "vertical" | "horizontal";

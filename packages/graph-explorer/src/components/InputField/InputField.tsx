@@ -1,4 +1,3 @@
-import { cn } from "@/utils";
 import type { AriaTextFieldOptions } from "@react-aria/textfield";
 import { useTextField } from "@react-aria/textfield";
 import type { ValueBase } from "@react-types/shared";
@@ -7,6 +6,7 @@ import { forwardRef, useRef } from "react";
 import { Label } from "../Label";
 import { FormError, FormItem } from "../Form";
 import { Input } from "../Input";
+import { cn } from "@/utils";
 
 export interface BaseInputProps
   extends Omit<

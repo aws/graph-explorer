@@ -1,3 +1,6 @@
+import { MinusCircleIcon, PlusCircleIcon } from "lucide-react";
+import { createEntityKey, EntitySearchResult } from "./EntitySearchResult";
+import { useVertexAttributesAsScalars } from "./useVertexAttributesAsScalars";
 import { createVertex, useDisplayVertex } from "@/core";
 import {
   type ButtonProps,
@@ -15,10 +18,7 @@ import {
   useHasVertexBeenAddedToGraph,
   useRemoveNodeFromGraph,
 } from "@/hooks";
-import { MinusCircleIcon, PlusCircleIcon } from "lucide-react";
 import type { PatchedResultVertex } from "@/connector/entities";
-import { createEntityKey, EntitySearchResult } from "./EntitySearchResult";
-import { useVertexAttributesAsScalars } from "./useVertexAttributesAsScalars";
 
 export function VertexSearchResult({
   vertex,

@@ -1,8 +1,8 @@
 import { css } from "@emotion/css";
 import type { ReactNode } from "react";
+import type { CellComponentProps } from "../useTabular";
 import { IconButton } from "@/components";
 
-import type { CellComponentProps } from "../useTabular";
 
 type IconActionCellProps<T extends object> = {
   title: string;

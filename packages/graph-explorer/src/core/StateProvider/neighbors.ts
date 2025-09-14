@@ -1,10 +1,10 @@
-import { useDisplayVerticesInCanvas, type VertexId } from "@/core";
 import { atom, useAtomValue } from "jotai";
 import { atomFamily, useAtomCallback } from "jotai/utils";
-import { edgesAtom } from "./edges";
-import { nodesAtom, toNodeMap } from "./nodes";
 import { useCallback, useEffect, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { edgesAtom } from "./edges";
+import { nodesAtom, toNodeMap } from "./nodes";
+import { useDisplayVerticesInCanvas, type VertexId } from "@/core";
 import { bulkNeighborCountsQuery, neighborsCountQuery } from "@/connector";
 import { useNotification } from "@/components/NotificationProvider";
 

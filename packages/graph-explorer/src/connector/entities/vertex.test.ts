@@ -1,5 +1,5 @@
-import { createVertex } from "@/core";
 import { createResultVertex } from "./vertex";
+import { createVertex } from "@/core";
 
 describe("createResultVertex", () => {
   it("should create a vertex with a single type", () => {

@@ -1,9 +1,9 @@
-import { type NeighborsResponse } from "@/connector/useGEFetchTypes";
-import { oneHopNeighborsTemplate } from "./oneHopNeighborsTemplate";
-
 import { type SparqlFetch, type SPARQLNeighborsRequest } from "../types";
-import { logger } from "@/utils";
+import { oneHopNeighborsTemplate } from "./oneHopNeighborsTemplate";
 import { mapToResults, type RawOneHopNeighborsResponse } from "./mapToResults";
+import { type NeighborsResponse } from "@/connector/useGEFetchTypes";
+
+import { logger } from "@/utils";
 
 /**
  * Given a subject URI, it returns a set of subjects (with their properties)

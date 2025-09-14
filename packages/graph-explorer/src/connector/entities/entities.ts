@@ -1,3 +1,7 @@
+import { type PatchedResultBundle, type ResultBundle } from "./bundle";
+import { type PatchedResultEdge, type ResultEdge } from "./edge";
+import { type ResultScalar } from "./scalar";
+import { type PatchedResultVertex, type ResultVertex } from "./vertex";
 import {
   createEdge,
   createVertex,
@@ -7,10 +11,6 @@ import {
   toNodeMap,
   type VertexId,
 } from "@/core";
-import { type PatchedResultBundle, type ResultBundle } from "./bundle";
-import { type PatchedResultEdge, type ResultEdge } from "./edge";
-import { type ResultScalar } from "./scalar";
-import { type PatchedResultVertex, type ResultVertex } from "./vertex";
 
 /**
  * Represents the results of a graph database query, which may be a fragment.

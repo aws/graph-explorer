@@ -1,6 +1,6 @@
-import { DbState, renderHookWithJotai } from "@/utils/testing";
-import { useEdgeStyling, useVertexStyling } from "./userPreferences";
 import { act } from "react";
+import { useEdgeStyling, useVertexStyling } from "./userPreferences";
+import { DbState, renderHookWithJotai } from "@/utils/testing";
 
 describe("useVertexStyling", () => {
   it("should return undefined when the style does not exist", () => {

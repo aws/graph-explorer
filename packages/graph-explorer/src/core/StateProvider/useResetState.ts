@@ -1,3 +1,5 @@
+import { RESET, useAtomCallback } from "jotai/utils";
+import { useCallback } from "react";
 import {
   edgesAtom,
   edgesFilteredIdsAtom,
@@ -16,15 +18,13 @@ import {
   nodesTableSortsAtom,
   nodesTypesFilteredAtom,
 } from "./nodes";
+import { isRestorePreviousSessionAvailableAtom } from "./graphSession";
 import {
   partialMatchAtom,
   searchTermAtom,
   selectedAttributeAtom,
   selectedVertexTypeAtom,
 } from "@/modules/SearchSidebar/useKeywordSearch";
-import { isRestorePreviousSessionAvailableAtom } from "./graphSession";
-import { RESET, useAtomCallback } from "jotai/utils";
-import { useCallback } from "react";
 import { selectedTabAtom } from "@/modules/SearchSidebar";
 import { queryTextAtom } from "@/modules/SearchSidebar/QuerySearchTabContent";
 

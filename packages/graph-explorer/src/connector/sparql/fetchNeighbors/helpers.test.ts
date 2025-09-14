@@ -1,5 +1,5 @@
-import { query } from "@/utils";
 import { getFilters, getSubjectClasses } from "./helpers";
+import { query } from "@/utils";
 import { normalizeWithNewlines as normalize } from "@/utils/testing";
 
 describe("getSubjectClasses", () => {

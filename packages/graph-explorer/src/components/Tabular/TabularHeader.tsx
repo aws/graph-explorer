@@ -1,6 +1,6 @@
+import type { HeaderGroup, TableInstance } from "react-table";
 import { cn } from "@/utils";
 
-import type { HeaderGroup, TableInstance } from "react-table";
 
 import { ArrowDown } from "@/components/icons";
 

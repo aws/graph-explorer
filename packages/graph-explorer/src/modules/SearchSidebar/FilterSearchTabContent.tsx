@@ -1,5 +1,7 @@
+import { type UseQueryResult } from "@tanstack/react-query";
 import useKeywordSearch from "./useKeywordSearch";
 import { SearchResultsList } from "./SearchResultsList";
+import { useCancelKeywordSearch } from "./useKeywordSearchQuery";
 import {
   Select,
   SelectTrigger,
@@ -19,8 +21,6 @@ import {
 
 import { useTranslations } from "@/hooks";
 import { createPatchedResultVertex } from "@/connector/entities";
-import { type UseQueryResult } from "@tanstack/react-query";
-import { useCancelKeywordSearch } from "./useKeywordSearchQuery";
 import { type KeywordSearchResponse } from "@/connector";
 
 export function FilterSearchTabContent() {

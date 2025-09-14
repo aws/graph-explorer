@@ -1,7 +1,7 @@
-import { DEFAULT_SERVICE_TYPE } from "@/utils/constants";
-import { anySignal } from "./utils/anySignal";
-import { type FeatureFlags, type NormalizedConnection } from "@/core";
 import { z } from "zod";
+import { anySignal } from "./utils/anySignal";
+import { DEFAULT_SERVICE_TYPE } from "@/utils/constants";
+import { type FeatureFlags, type NormalizedConnection } from "@/core";
 import { logger, NetworkError } from "@/utils";
 
 const NeptuneErrorSchema = z.object({

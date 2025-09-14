@@ -1,7 +1,7 @@
 import { useEffect } from "react";
-import { useResolvedConfig } from "@/core/ConfigurationProvider";
-import useUpdateSchema from "./useUpdateSchema";
 import { useIsFetching, useQuery, useQueryClient } from "@tanstack/react-query";
+import useUpdateSchema from "./useUpdateSchema";
+import { useResolvedConfig } from "@/core/ConfigurationProvider";
 import { schemaSyncQuery } from "@/connector";
 import { logger } from "@/utils";
 

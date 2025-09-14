@@ -1,5 +1,5 @@
-import { type Explorer } from "@/connector";
 import { createRandomRawConfiguration } from "./randomData";
+import { type Explorer } from "@/connector";
 
 export function createMockExplorer(): Explorer {
   return <Explorer>{

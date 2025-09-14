@@ -1,7 +1,7 @@
-import { createRandomVertexForRdf } from "@/utils/testing";
-import { vertexDetails } from "./vertexDetails";
-import { createVertexId, type Vertex } from "@/core";
 import { createRandomInteger } from "@shared/utils/testing";
+import { vertexDetails } from "./vertexDetails";
+import { createRandomVertexForRdf } from "@/utils/testing";
+import { createVertexId, type Vertex } from "@/core";
 
 describe("vertexDetails", () => {
   it("should return an empty array when no vertex IDs are provided", async () => {

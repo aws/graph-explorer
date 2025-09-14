@@ -1,3 +1,7 @@
+import { Virtuoso } from "react-virtuoso";
+import { useAtomValue } from "jotai";
+import { ConnectionRow } from "./ConnectionRow";
+import { useImportConnectionFile } from "./useImportConnectionFile";
 import {
   Dialog,
   DialogContent,
@@ -24,10 +28,6 @@ import {
 } from "@/core/StateProvider/configuration";
 import CreateConnection from "@/modules/CreateConnection";
 import { cn } from "@/utils";
-import { Virtuoso } from "react-virtuoso";
-import { ConnectionRow } from "./ConnectionRow";
-import { useImportConnectionFile } from "./useImportConnectionFile";
-import { useAtomValue } from "jotai";
 
 export type ConnectionDetailProps = {
   isSync: boolean;

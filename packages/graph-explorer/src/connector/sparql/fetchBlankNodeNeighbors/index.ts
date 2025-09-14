@@ -1,6 +1,4 @@
 import groupBy from "lodash/groupBy";
-import type { ErrorResponse } from "@/connector/useGEFetchTypes";
-import isErrorResponse from "@/connector/utils/isErrorResponse";
 import mapIncomingToEdge, {
   type IncomingPredicate,
   isIncomingPredicate,
@@ -9,8 +7,6 @@ import mapOutgoingToEdge, {
   type OutgoingPredicate,
 } from "../mappers/mapOutgoingToEdge";
 import mapRawResultToVertex from "../mappers/mapRawResultToVertex";
-import blankNodeOneHopNeighborsTemplate from "./blankNodeOneHopNeighborsTemplate";
-import blankNodeSubjectPredicatesTemplate from "./blankNodeSubjectPredicatesTemplate";
 import {
   type RawResult,
   type RawValue,
@@ -18,9 +14,13 @@ import {
   type SPARQLBlankNodeNeighborsResponse,
   type SparqlFetch,
 } from "../types";
+import { mapAttributeValue } from "../mappers/mapAttributeValue";
+import blankNodeOneHopNeighborsTemplate from "./blankNodeOneHopNeighborsTemplate";
+import blankNodeSubjectPredicatesTemplate from "./blankNodeSubjectPredicatesTemplate";
 import { logger } from "@/utils";
 import { type Vertex, type VertexId } from "@/core";
-import { mapAttributeValue } from "../mappers/mapAttributeValue";
+import isErrorResponse from "@/connector/utils/isErrorResponse";
+import type { ErrorResponse } from "@/connector/useGEFetchTypes";
 
 type RawBlankNodeNeighborsResponse = {
   results: {

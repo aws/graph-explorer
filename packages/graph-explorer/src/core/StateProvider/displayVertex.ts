@@ -1,3 +1,5 @@
+import { atom, useAtomValue } from "jotai";
+import { atomFamily } from "jotai/utils";
 import {
   type DisplayAttribute,
   getSortedDisplayAttributes,
@@ -19,8 +21,6 @@ import {
   RESERVED_ID_PROPERTY,
   RESERVED_TYPES_PROPERTY,
 } from "@/utils";
-import { atom, useAtomValue } from "jotai";
-import { atomFamily } from "jotai/utils";
 
 /** Represents a vertex's display information after all transformations have been applied. */
 export type DisplayVertex = {

@@ -1,10 +1,10 @@
+import { type BlankNodesMap } from "../types";
+import keywordSearchBlankNodesIdsTemplate from "./keywordSearchBlankNodesIdsTemplate";
 import {
   type KeywordSearchRequest,
   type KeywordSearchResponse,
 } from "@/connector/useGEFetchTypes";
 import { logger } from "@/utils";
-import { type BlankNodesMap } from "../types";
-import keywordSearchBlankNodesIdsTemplate from "./keywordSearchBlankNodesIdsTemplate";
 
 export const replaceBlankNodeFromSearch = (
   blankNodes: BlankNodesMap,

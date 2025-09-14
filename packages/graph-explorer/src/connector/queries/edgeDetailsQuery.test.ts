@@ -1,9 +1,9 @@
+import { edgeDetailsQuery } from "./edgeDetailsQuery";
 import {
   createRandomEdge,
   createRandomEdgeId,
   FakeExplorer,
 } from "@/utils/testing";
-import { edgeDetailsQuery } from "./edgeDetailsQuery";
 import { createQueryClient } from "@/core/queryClient";
 
 describe("edgeDetailsQuery", () => {

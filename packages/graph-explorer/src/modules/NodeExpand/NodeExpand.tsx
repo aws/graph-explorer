@@ -1,3 +1,6 @@
+import { useAtomValue } from "jotai";
+import { SidebarCloseButton } from "../SidebarCloseButton";
+import NodeExpandContent from "./NodeExpandContent";
 import {
   Panel,
   PanelContent,
@@ -9,10 +12,7 @@ import GraphIcon from "@/components/icons/GraphIcon";
 import PanelEmptyState from "@/components/PanelEmptyState/PanelEmptyState";
 import { edgesSelectedIdsAtom } from "@/core/StateProvider/edges";
 import useTranslations from "@/hooks/useTranslations";
-import NodeExpandContent from "./NodeExpandContent";
 import { useSelectedDisplayVertices } from "@/core";
-import { SidebarCloseButton } from "../SidebarCloseButton";
-import { useAtomValue } from "jotai";
 
 function NodeExpand() {
   const t = useTranslations();

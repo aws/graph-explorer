@@ -1,7 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 import { type NeighborCount } from "../useGEFetchTypes";
-import { type VertexId } from "@/core";
 import { getExplorer } from "./helpers";
+import { type VertexId } from "@/core";
 
 /**
  * Retrieves the number of neighbors for a given node and their types.
