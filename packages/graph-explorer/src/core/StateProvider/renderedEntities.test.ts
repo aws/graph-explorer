@@ -1,3 +1,13 @@
+import { waitFor } from "@testing-library/react";
+import {
+  createRenderedEdgeId,
+  createRenderedVertexId,
+  getEdgeIdFromRenderedEdgeId,
+  getVertexIdFromRenderedVertexId,
+  type RenderedEdgeId,
+  type RenderedVertexId,
+  useRenderedEntities,
+} from "./renderedEntities";
 import {
   createRandomEdge,
   createRandomVertex,
@@ -5,16 +15,6 @@ import {
   renderHookWithJotai,
 } from "@/utils/testing";
 import { createEdgeId, createVertexId } from "@/core/entities";
-import {
-  createRenderedEdgeId,
-  createRenderedVertexId,
-  getEdgeIdFromRenderedEdgeId,
-  getVertexIdFromRenderedVertexId,
-  RenderedEdgeId,
-  RenderedVertexId,
-  useRenderedEntities,
-} from "./renderedEntities";
-import { waitFor } from "@testing-library/react";
 
 describe("createRenderedVertexId", () => {
   it("should create a rendered vertex id out of a string", () => {

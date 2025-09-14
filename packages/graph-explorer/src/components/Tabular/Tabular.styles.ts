@@ -1,7 +1,7 @@
 import { css } from "@emotion/css";
 
-import { fade, ThemeStyleFn } from "@/core";
 import baseTheme from "./baseTheme";
+import { fade, type ThemeStyleFn } from "@/core";
 
 const defaultStyles =
   (variant: "bordered" | "noBorders" = "bordered"): ThemeStyleFn =>

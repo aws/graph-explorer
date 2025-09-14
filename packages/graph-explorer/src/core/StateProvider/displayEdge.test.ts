@@ -1,19 +1,8 @@
-import { Edge, getRawId } from "@/core";
-import {
-  createRandomEdge,
-  createRandomEdgePreferences,
-  createRandomEdgeTypeConfig,
-  createRandomRawConfiguration,
-  createRandomSchema,
-  DbState,
-  JotaiSnapshot,
-  renderHookWithJotai,
-  renderHookWithState,
-} from "@/utils/testing";
-import { useDisplayEdgeFromEdge } from "./displayEdge";
-import { formatDate } from "@/utils";
 import { createRandomDate, createRandomName } from "@shared/utils/testing";
-import { DisplayAttribute } from "./displayAttribute";
+import { type QueryEngine } from "@shared/types";
+import { type Schema } from "../ConfigurationProvider";
+import { useDisplayEdgeFromEdge } from "./displayEdge";
+import { type DisplayAttribute } from "./displayAttribute";
 import { mapToDisplayEdgeTypeConfig } from "./displayTypeConfigs";
 import {
   activeConfigurationAtom,
@@ -21,9 +10,20 @@ import {
   getDefaultEdgeTypeConfig,
   patchToRemoveDisplayLabel,
 } from "./configuration";
-import { Schema } from "../ConfigurationProvider";
 import { schemaAtom } from "./schema";
-import { QueryEngine } from "@shared/types";
+import { formatDate } from "@/utils";
+import {
+  createRandomEdge,
+  createRandomEdgePreferences,
+  createRandomEdgeTypeConfig,
+  createRandomRawConfiguration,
+  createRandomSchema,
+  DbState,
+  type JotaiSnapshot,
+  renderHookWithJotai,
+  renderHookWithState,
+} from "@/utils/testing";
+import { type Edge, getRawId } from "@/core";
 
 describe("useDisplayEdgeFromEdge", () => {
   it("should keep the same ID", () => {

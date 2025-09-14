@@ -1,9 +1,9 @@
-import addPadding, { AddPaddingOptions } from "./addPadding";
-import adjustAnchor, { AdjustAnchorOptions } from "./adjustAnchor";
+import addPadding, { type AddPaddingOptions } from "./addPadding";
+import adjustAnchor, { type AdjustAnchorOptions } from "./adjustAnchor";
 import applyStyle from "./applyStyle";
-import drawImage, { DrawImageOption } from "./drawImage";
-import drawRectangle, { DrawRectangleOptions } from "./drawRectangle";
-import { AutoBoundingBox } from "./types";
+import drawImage, { type DrawImageOption } from "./drawImage";
+import drawRectangle, { type DrawRectangleOptions } from "./drawRectangle";
+import { type AutoBoundingBox } from "./types";
 
 export type TextStyle = {
   bold?: boolean;

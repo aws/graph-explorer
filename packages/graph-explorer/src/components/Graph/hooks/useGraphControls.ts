@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 
-import { CytoscapeType } from "../Graph.model";
+import { type CytoscapeType } from "../Graph.model";
 // Exposes common graph ui actions
 // Zoom, Fit, Center
 export const useGraphControls = (graph: CytoscapeType) => {

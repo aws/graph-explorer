@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   DeleteIcon,
   PanelHeaderActionButton,
@@ -12,7 +13,6 @@ import {
   DialogFooter,
   DialogDescription,
 } from "@/components";
-import { useState } from "react";
 
 export default function ConnectionDeleteButton({
   connectionName,

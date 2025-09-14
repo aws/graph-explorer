@@ -1,10 +1,12 @@
 import globals from "globals";
 import pluginJs from "@eslint/js";
+import { defineConfig } from "eslint/config";
 import tseslint from "typescript-eslint";
 import reactLint from "eslint-plugin-react";
 import * as reactHooks from "eslint-plugin-react-hooks";
 import tanstackQueryLint from "@tanstack/eslint-plugin-query";
 import eslintConfigPrettier from "eslint-config-prettier";
+import importPlugin from "eslint-plugin-import";
 import { fixupPluginRules, includeIgnoreFile } from "@eslint/compat";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -13,7 +15,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const gitignorePath = path.resolve(__dirname, ".gitignore");
 
-export default tseslint.config(
+export default defineConfig(
   // Ignored files
   includeIgnoreFile(gitignorePath),
   {
@@ -45,6 +47,7 @@ export default tseslint.config(
   {
     plugins: {
       "@tanstack/query": fixupPluginRules(tanstackQueryLint),
+      import: importPlugin,
     },
     rules: {
       ...tanstackQueryLint.configs.recommended.rules,
@@ -55,6 +58,9 @@ export default tseslint.config(
   {
     rules: {
       "no-console": ["error", { allow: ["warn", "error"] }],
+
+      // Import sorting with eslint-plugin-import
+      "import/order": "error",
 
       // TypeScript
       "@typescript-eslint/switch-exhaustiveness-check": "error",
@@ -74,6 +80,14 @@ export default tseslint.config(
           argsIgnorePattern: "^_",
           varsIgnorePattern: "^_",
           caughtErrorsIgnorePattern: "^_",
+        },
+      ],
+      "@typescript-eslint/consistent-type-imports": [
+        "error",
+        {
+          disallowTypeAnnotations: false, // Set to false to allow import of queryClient type in packages/graph-explorer/src/setupTests.ts
+          fixStyle: "inline-type-imports",
+          prefer: "type-imports",
         },
       ],
     },

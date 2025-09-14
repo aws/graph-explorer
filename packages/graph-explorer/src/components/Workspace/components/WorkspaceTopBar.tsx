@@ -1,10 +1,10 @@
-import { cn, groupChildrenByType } from "@/utils";
 import type { PropsWithChildren, ReactElement } from "react";
 import NavBarLogo from "./NavBarLogo";
 import WorkspaceTopBarAdditionalControls from "./WorkspaceTopBarAdditionalControls";
 import WorkspaceTopBarContent from "./WorkspaceTopBarContent";
 import WorkspaceTopBarTitle from "./WorkspaceTopBarTitle";
 import WorkspaceTopBarVersion from "./WorkspaceTopBarVersion";
+import { cn, groupChildrenByType } from "@/utils";
 
 export type WorkspaceTopBarProps = {
   className?: string;

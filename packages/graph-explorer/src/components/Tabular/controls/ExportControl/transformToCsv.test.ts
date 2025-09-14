@@ -1,6 +1,6 @@
 import dedent from "dedent";
+import { type TabularColumnInstance } from "../../helpers/tableInstanceToTabularInstance";
 import { transformToCsv } from "./transformToCsv";
-import { TabularColumnInstance } from "../../helpers/tableInstanceToTabularInstance";
 
 describe("transformToCsv", () => {
   it("should transform empty data to empty csv", () => {

@@ -1,26 +1,26 @@
-import { logger, query } from "@/utils";
+import { z } from "zod";
+import { fromError } from "zod-validation-error";
 import {
-  VertexDetailsRequest,
-  VertexDetailsResponse,
+  type VertexDetailsRequest,
+  type VertexDetailsResponse,
 } from "../useGEFetchTypes";
+import isErrorResponse from "../utils/isErrorResponse";
 import {
   rdfTypeUri,
   sparqlResponseSchema,
-  SparqlFetch,
+  type SparqlFetch,
   sparqlUriValueSchema,
   sparqlValueSchema,
 } from "./types";
-import { z } from "zod";
+import { idParam } from "./idParam";
+import { mapAttributeValue } from "./mappers/mapAttributeValue";
 import {
   createVertex,
   createVertexId,
-  EntityProperties,
-  VertexId,
+  type EntityProperties,
+  type VertexId,
 } from "@/core";
-import isErrorResponse from "../utils/isErrorResponse";
-import { idParam } from "./idParam";
-import { fromError } from "zod-validation-error";
-import { mapAttributeValue } from "./mappers/mapAttributeValue";
+import { logger, query } from "@/utils";
 
 const bindingSchema = z.object({
   resource: sparqlUriValueSchema,

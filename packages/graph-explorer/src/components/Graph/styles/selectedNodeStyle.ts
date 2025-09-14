@@ -1,4 +1,4 @@
-import { NodeStyle } from "../Graph.model";
+import { type NodeStyle } from "../Graph.model";
 
 const selectedNodeStyle: Partial<NodeStyle> = {
   underlayColor: "#17457b",

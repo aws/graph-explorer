@@ -1,8 +1,12 @@
-import { Explorer } from "@/connector";
-import { logger, NetworkError } from "@/utils";
-import { DefaultOptions, QueryCache, QueryClient } from "@tanstack/react-query";
+import {
+  type DefaultOptions,
+  QueryCache,
+  QueryClient,
+} from "@tanstack/react-query";
 import { atom } from "jotai";
 import { explorerAtom } from "./connector";
+import { logger, NetworkError } from "@/utils";
+import { type Explorer } from "@/connector";
 
 function exponentialBackoff(attempt: number): number {
   return Math.min(attempt > 1 ? 2 ** attempt * 1000 : 1000, 30 * 1000);

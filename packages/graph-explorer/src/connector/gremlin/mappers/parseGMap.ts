@@ -1,5 +1,5 @@
+import { type GMapWithValue } from "../types";
 import { logger } from "@/utils";
-import { GMapWithValue } from "../types";
 
 /**
  * Parses a gremlin map type in to a JavaScript Map object.

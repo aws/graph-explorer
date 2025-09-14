@@ -1,20 +1,20 @@
+import { useMutation } from "@tanstack/react-query";
+import { useSetAtom } from "jotai";
 import { useNotification } from "@/components/NotificationProvider";
 import {
   activeSchemaSelector,
-  Edge,
+  type Edge,
   edgesAtom,
-  Entities,
+  type Entities,
   nodesAtom,
   toEdgeMap,
   toNodeMap,
   updateSchemaFromEntities,
   useUpdateGraphSession,
-  Vertex,
+  type Vertex,
 } from "@/core";
 import { logger } from "@/utils";
 import { createDisplayError } from "@/utils/createDisplayError";
-import { useMutation } from "@tanstack/react-query";
-import { useSetAtom } from "jotai";
 
 /** Returns a callback that adds an array of nodes and edges to the graph. */
 export function useAddToGraph() {

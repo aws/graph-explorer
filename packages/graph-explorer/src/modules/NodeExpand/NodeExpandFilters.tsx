@@ -1,3 +1,6 @@
+import { type PropsWithChildren } from "react";
+import { PlusCircleIcon } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import {
   addRemoveAnimationProps,
   Button,
@@ -6,14 +9,11 @@ import {
   Input,
   Label,
   SelectField,
-  SelectOption,
+  type SelectOption,
   Switch,
 } from "@/components";
 import { useDisplayVertexTypeConfig } from "@/core";
 import useTranslations from "@/hooks/useTranslations";
-import { PropsWithChildren } from "react";
-import { PlusCircleIcon } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
 
 let nextFilterId = 1;
 export type NodeExpandFilter = {

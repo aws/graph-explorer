@@ -1,7 +1,5 @@
-import { PropsWithChildren, Suspense } from "react";
+import { type PropsWithChildren, Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
-import AppErrorPage from "@/core/AppErrorPage";
-import AppLoadingPage from "@/core/AppLoadingPage";
 import { useAtomValue } from "jotai";
 import { showDebugActionsAtom, allowLoggingDbQueryAtom } from "../featureFlags";
 import {
@@ -12,6 +10,8 @@ import { allGraphSessionsAtom } from "./graphSession";
 import { schemaAtom } from "./schema";
 import { userStylingAtom } from "./userPreferences";
 import { userLayoutAtom } from "./userLayout";
+import AppLoadingPage from "@/core/AppLoadingPage";
+import AppErrorPage from "@/core/AppErrorPage";
 
 export default function StateProvider({
   children,

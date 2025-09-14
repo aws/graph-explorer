@@ -1,15 +1,15 @@
-import { query } from "@/utils";
 import {
-  ErrorResponse,
-  NeighborCountsRequest,
-  NeighborCountsResponse,
+  type ErrorResponse,
+  type NeighborCountsRequest,
+  type NeighborCountsResponse,
 } from "../useGEFetchTypes";
-import { GInt64, GremlinFetch } from "./types";
 import isErrorResponse from "../utils/isErrorResponse";
+import { type GInt64, type GremlinFetch } from "./types";
 import { idParam } from "./idParam";
-import { createVertexId } from "@/core";
 import { extractRawId } from "./mappers/extractRawId";
 import { parseGMap } from "./mappers/parseGMap";
+import { createVertexId } from "@/core";
+import { query } from "@/utils";
 
 type GIdentifier = string | GInt64;
 

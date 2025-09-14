@@ -1,3 +1,7 @@
+import { atom, useAtom } from "jotai";
+import { LINE_STYLE_OPTIONS } from "./lineStyling";
+import { NODE_SHAPE } from "./nodeShape";
+import modalDefaultStyles from "./SingleNodeStylingModal.style";
 import {
   Dialog,
   DialogContent,
@@ -19,20 +23,16 @@ import ColorInput from "@/components/ColorInput/ColorInput";
 import { useNotification } from "@/components/NotificationProvider";
 import { useDisplayVertexTypeConfig, useWithTheme } from "@/core";
 import {
-  LineStyle,
-  ShapeStyle,
+  type LineStyle,
+  type ShapeStyle,
   useVertexStyling,
 } from "@/core/StateProvider/userPreferences";
 import useTranslations from "@/hooks/useTranslations";
-import { LINE_STYLE_OPTIONS } from "./lineStyling";
-import { NODE_SHAPE } from "./nodeShape";
-import modalDefaultStyles from "./SingleNodeStylingModal.style";
 import {
   RESERVED_ID_PROPERTY,
   RESERVED_TYPES_PROPERTY,
 } from "@/utils/constants";
 import { cn } from "@/utils";
-import { atom, useAtom } from "jotai";
 
 export const customizeNodeTypeAtom = atom<string | undefined>(undefined);
 

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { isEmpty } from "lodash";
+import { EdgesTabular, NodesTabular } from "./components";
 import {
   GridIcon,
   IconButton,
@@ -20,7 +21,6 @@ import type { TabularInstance } from "@/components/Tabular";
 import { ExportControl } from "@/components/Tabular";
 import TabularControlsProvider from "@/components/Tabular/TabularControlsProvider";
 import useTranslations from "@/hooks/useTranslations";
-import { EdgesTabular, NodesTabular } from "./components";
 import { useViewToggles } from "@/core";
 
 enum TableId {

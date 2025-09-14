@@ -3,20 +3,20 @@
  * this method transform the output properly.
  */
 import {
-  ColumnInstance,
-  Filters,
-  FilterValue,
-  IdType,
-  Row,
-  TableInstance,
-  UseColumnOrderInstanceProps,
-  UseColumnOrderState,
-  UseFiltersInstanceProps,
-  UseRowSelectInstanceProps,
-  UseRowSelectState,
-  UseSortByInstanceProps,
-  UseSortByState,
-  UseTableInstanceProps,
+  type ColumnInstance,
+  type Filters,
+  type FilterValue,
+  type IdType,
+  type Row,
+  type TableInstance,
+  type UseColumnOrderInstanceProps,
+  type UseColumnOrderState,
+  type UseFiltersInstanceProps,
+  type UseRowSelectInstanceProps,
+  type UseRowSelectState,
+  type UseSortByInstanceProps,
+  type UseSortByState,
+  type UseTableInstanceProps,
 } from "react-table";
 
 import type { TabularProps } from "../Tabular";

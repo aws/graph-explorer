@@ -1,3 +1,5 @@
+import { type CSSProperties } from "react";
+import EntityAttribute from "./EntityAttribute";
 import {
   ArrowCircle,
   ArrowDiamond,
@@ -14,20 +16,18 @@ import {
   VertexRow,
 } from "@/components";
 import {
-  ArrowStyle,
-  DisplayAttribute,
-  DisplayEdge,
-  LineStyle,
+  type ArrowStyle,
+  type DisplayAttribute,
+  type DisplayEdge,
+  type LineStyle,
   useDisplayVertex,
 } from "@/core";
-import EntityAttribute from "./EntityAttribute";
 import {
   RESERVED_ID_PROPERTY,
   RESERVED_TYPES_PROPERTY,
 } from "@/utils/constants";
 import { useTranslations } from "@/hooks";
-import { IconBaseProps } from "@/components/icons/IconBase";
-import { CSSProperties } from "react";
+import { type IconBaseProps } from "@/components/icons/IconBase";
 
 export type EdgeDetailProps = {
   edge: DisplayEdge;

@@ -1,11 +1,13 @@
+import { atom, useAtomValue } from "jotai";
+import { atomFamily } from "jotai/utils";
 import {
-  Edge,
-  EdgeId,
+  type Edge,
+  type EdgeId,
   getRawId,
-  VertexId,
-  DisplayEdgeTypeConfig,
+  type VertexId,
+  type DisplayEdgeTypeConfig,
   displayEdgeTypeConfigSelector,
-  DisplayAttribute,
+  type DisplayAttribute,
   getSortedDisplayAttributes,
   edgesAtom,
   edgesSelectedIdsAtom,
@@ -19,8 +21,6 @@ import {
   RESERVED_ID_PROPERTY,
   RESERVED_TYPES_PROPERTY,
 } from "@/utils";
-import { atom, useAtomValue } from "jotai";
-import { atomFamily } from "jotai/utils";
 
 /** Represents an edge's display information after all transformations have been applied. */
 export type DisplayEdge = {

@@ -1,6 +1,6 @@
-import { query } from "@/utils";
-import { SPARQLNeighborsPredicatesRequest } from "../types";
+import { type SPARQLNeighborsPredicatesRequest } from "../types";
 import { idParam } from "../idParam";
+import { query } from "@/utils";
 
 /**
  * Fetch all predicates and their direction of a pairs of subjects

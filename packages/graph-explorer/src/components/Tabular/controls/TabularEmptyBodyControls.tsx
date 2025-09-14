@@ -1,9 +1,9 @@
 import { css } from "@emotion/css";
-import { cn } from "@/utils";
 
-import { FC, PropsWithChildren } from "react";
+import { type FC, type PropsWithChildren } from "react";
 
 import { useTabularControl } from "../TabularControlsProvider";
+import { cn } from "@/utils";
 
 export type TabularEmptyBodyControlsProps = PropsWithChildren<{
   className?: string;

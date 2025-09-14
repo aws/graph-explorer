@@ -1,16 +1,16 @@
 import { QueryClientProvider } from "@tanstack/react-query";
+import { ErrorBoundary } from "react-error-boundary";
+import { Outlet } from "react-router";
+import { createQueryClient } from "../core/queryClient";
+import { ExplorerInjector } from "../core/ExplorerInjector";
 import { NotificationProvider } from "@/components/NotificationProvider";
 import Toast from "@/components/Toast";
 import AppStatusLoader from "@/core/AppStatusLoader";
 import StateProvider from "@/core/StateProvider/StateProvider";
 import { ThemeProvider } from "@/core/ThemeProvider";
-import { ErrorBoundary } from "react-error-boundary";
 import AppErrorPage from "@/core/AppErrorPage";
 import { TooltipProvider } from "@/components";
-import { createQueryClient } from "../core/queryClient";
 import { emptyExplorer } from "@/connector/emptyExplorer";
-import { ExplorerInjector } from "../core/ExplorerInjector";
-import { Outlet } from "react-router";
 
 const queryClient = createQueryClient({ explorer: emptyExplorer });
 

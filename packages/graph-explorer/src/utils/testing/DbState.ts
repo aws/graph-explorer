@@ -1,10 +1,21 @@
 import {
+  createRandomSchema,
+  createRandomRawConfiguration,
+  createRandomVertex,
+  createRandomEdge,
+  createRandomUserStyling,
+  type TestableEdge,
+  type TestableVertex,
+} from "./randomData";
+import { type JotaiSnapshot } from "./renderHookWithJotai";
+import { createMockExplorer } from "./createMockExplorer";
+import {
   activeConfigurationAtom,
   allGraphSessionsAtom,
   configurationAtom,
-  Edge,
-  EdgeId,
-  EdgePreferences,
+  type Edge,
+  type EdgeId,
+  type EdgePreferences,
   edgesAtom,
   edgesFilteredIdsAtom,
   edgesTypesFilteredAtom,
@@ -13,29 +24,18 @@ import {
   nodesAtom,
   nodesFilteredIdsAtom,
   nodesTypesFilteredAtom,
-  RawConfiguration,
-  Schema,
+  type RawConfiguration,
+  type Schema,
   schemaAtom,
   toEdgeMap,
   toNodeMap,
-  UserStyling,
+  type UserStyling,
   userStylingAtom,
-  Vertex,
-  VertexId,
-  VertexPreferences,
+  type Vertex,
+  type VertexId,
+  type VertexPreferences,
 } from "@/core";
-import {
-  createRandomSchema,
-  createRandomRawConfiguration,
-  createRandomVertex,
-  createRandomEdge,
-  createRandomUserStyling,
-  TestableEdge,
-  TestableVertex,
-} from "./randomData";
-import { JotaiSnapshot } from "./renderHookWithJotai";
-import { createMockExplorer } from "./createMockExplorer";
-import { Explorer } from "@/connector";
+import { type Explorer } from "@/connector";
 
 /**
  * Helps build up the state of the Jotai database with common data.

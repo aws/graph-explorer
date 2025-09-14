@@ -1,4 +1,8 @@
 import { useAtom } from "jotai";
+import localforage from "localforage";
+import { AnimatePresence, motion } from "motion/react";
+import { SaveAllIcon } from "lucide-react";
+import LoadConfigButton from "./LoadConfigButton";
 import {
   allowLoggingDbQueryAtom,
   defaultNeighborExpansionLimitAtom,
@@ -19,11 +23,7 @@ import {
   LabelledSetting,
 } from "@/components";
 import { saveLocalForageToFile } from "@/core/StateProvider/localDb";
-import localforage from "localforage";
-import LoadConfigButton from "./LoadConfigButton";
-import { AnimatePresence, motion } from "motion/react";
 import { addRemoveAnimationProps } from "@/components/CommonAnimationProps";
-import { SaveAllIcon } from "lucide-react";
 
 export default function SettingsGeneral() {
   const [isDebugOptionsEnabled, setIsDebugOptionsEnabled] =

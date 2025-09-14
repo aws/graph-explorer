@@ -1,9 +1,9 @@
-import { logger } from "@/utils";
 import { z } from "zod";
 import { fromError } from "zod-validation-error";
+import { type OCEdge, type OCVertex } from "../types";
 import mapApiVertex from "./mapApiVertex";
 import mapApiEdge from "./mapApiEdge";
-import { OCEdge, OCVertex } from "../types";
+import { logger } from "@/utils";
 import {
   createResultBundle,
   createResultScalar,

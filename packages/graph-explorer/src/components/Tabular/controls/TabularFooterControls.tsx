@@ -1,11 +1,11 @@
 import { css } from "@emotion/css";
-import { cn } from "@/utils";
-import { FC, PropsWithChildren } from "react";
-import { useWithTheme } from "@/core";
+import { type FC, type PropsWithChildren } from "react";
 import type { TabularVariantType } from "../Tabular";
+import baseTheme from "../baseTheme";
+import { cn } from "@/utils";
+import { useWithTheme } from "@/core";
 
 import type { ThemeStyleFn } from "@/core/ThemeProvider";
-import baseTheme from "../baseTheme";
 
 export type TabularFooterControlsProps = PropsWithChildren<{
   className?: string;

@@ -1,6 +1,6 @@
-import { userLayoutAtom } from "@/core";
 import { useAtomCallback } from "jotai/utils";
 import { useCallback } from "react";
+import { userLayoutAtom } from "@/core";
 
 export function useAutoOpenDetailsSidebar() {
   return useAtomCallback(

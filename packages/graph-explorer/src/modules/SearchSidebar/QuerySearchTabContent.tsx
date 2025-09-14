@@ -1,3 +1,15 @@
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { ListIcon, SendHorizonalIcon, SendHorizontalIcon } from "lucide-react";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useAtom, useAtomValue } from "jotai";
+import { atomWithReset } from "jotai/utils";
+import { type ComponentPropsWithRef } from "react";
+import { SearchResultsList } from "./SearchResultsList";
+import { executeUserQuery } from "@/connector";
+import { cn, isCancellationError, logger } from "@/utils";
+import { useQueryEngine, useUpdateSchemaFromEntities } from "@/core";
 import {
   Form,
   FormControl,
@@ -13,18 +25,6 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components";
-import { useQueryEngine, useUpdateSchemaFromEntities } from "@/core";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ListIcon, SendHorizonalIcon, SendHorizontalIcon } from "lucide-react";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { cn, isCancellationError, logger } from "@/utils";
-import { useAtom, useAtomValue } from "jotai";
-import { SearchResultsList } from "./SearchResultsList";
-import { atomWithReset } from "jotai/utils";
-import { executeUserQuery } from "@/connector";
-import { ComponentPropsWithRef } from "react";
 
 const formDataSchema = z.object({
   query: z.string().default(""),

@@ -1,23 +1,5 @@
-import {
-  createRandomRawConfiguration,
-  createRandomSchema,
-  createRandomVertex,
-  createRandomVertexPreferences,
-  createRandomVertexTypeConfig,
-  DbState,
-  JotaiSnapshot,
-  renderHookWithJotai,
-  renderHookWithState,
-} from "@/utils/testing";
-import {
-  createVertexId,
-  DisplayAttribute,
-  getRawId,
-  Schema,
-  useDisplayVertexFromVertex,
-  Vertex,
-} from "@/core";
-import { formatDate } from "@/utils";
+import { createRandomDate, createRandomName } from "@shared/utils/testing";
+import { type QueryEngine } from "@shared/types";
 import { schemaAtom } from "./schema";
 import {
   activeConfigurationAtom,
@@ -25,10 +7,28 @@ import {
   getDefaultVertexTypeConfig,
   patchToRemoveDisplayLabel,
 } from "./configuration";
-import { createRandomDate, createRandomName } from "@shared/utils/testing";
-import { MISSING_DISPLAY_VALUE } from "@/utils/constants";
 import { mapToDisplayVertexTypeConfig } from "./displayTypeConfigs";
-import { QueryEngine } from "@shared/types";
+import {
+  createRandomRawConfiguration,
+  createRandomSchema,
+  createRandomVertex,
+  createRandomVertexPreferences,
+  createRandomVertexTypeConfig,
+  DbState,
+  type JotaiSnapshot,
+  renderHookWithJotai,
+  renderHookWithState,
+} from "@/utils/testing";
+import {
+  createVertexId,
+  type DisplayAttribute,
+  getRawId,
+  type Schema,
+  useDisplayVertexFromVertex,
+  type Vertex,
+} from "@/core";
+import { formatDate } from "@/utils";
+import { MISSING_DISPLAY_VALUE } from "@/utils/constants";
 
 describe("useDisplayVertexFromVertex", () => {
   it("should keep the same ID", () => {

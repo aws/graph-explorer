@@ -1,6 +1,6 @@
-import { createGEdge, createTestableEdge } from "@/utils/testing";
-import mapApiEdge from "./mapApiEdge";
 import { createRandomName } from "@shared/utils/testing";
+import mapApiEdge from "./mapApiEdge";
+import { createGEdge, createTestableEdge } from "@/utils/testing";
 
 describe("mapApiEdge", () => {
   it("should map a graphSON edge to an edge", () => {

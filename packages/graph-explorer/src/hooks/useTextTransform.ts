@@ -1,7 +1,7 @@
+import { atom, useAtomValue } from "jotai";
 import replacePrefixes from "@/utils/replacePrefixes";
 import { allNamespacePrefixesSelector } from "@/core/StateProvider/configuration";
 import { queryEngineSelector } from "@/core/connector";
-import { atom, useAtomValue } from "jotai";
 
 export type TextTransformer = (text: string) => string;
 

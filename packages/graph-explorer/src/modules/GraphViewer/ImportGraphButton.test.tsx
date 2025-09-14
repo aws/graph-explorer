@@ -1,14 +1,14 @@
+import { createArray } from "@shared/utils/testing";
+import { ZodError } from "zod";
+import {
+  createErrorNotification,
+  InvalidConnectionError,
+} from "./ImportGraphButton";
 import {
   createRandomExportedGraphConnection,
   createRandomFile,
   createRandomRawConfiguration,
 } from "@/utils/testing";
-import {
-  createErrorNotification,
-  InvalidConnectionError,
-} from "./ImportGraphButton";
-import { createArray } from "@shared/utils/testing";
-import { ZodError } from "zod";
 
 describe("createErrorNotification", () => {
   it("should use generic error for an unrecognized error", () => {

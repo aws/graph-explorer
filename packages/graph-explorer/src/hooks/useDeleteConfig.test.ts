@@ -1,9 +1,7 @@
-import {
-  activeConfigurationAtom,
-  allGraphSessionsAtom,
-  configurationAtom,
-  schemaAtom,
-} from "@/core";
+import { waitFor } from "@testing-library/react";
+import { act } from "react";
+import { useAtomValue } from "jotai";
+import { useDeleteActiveConfiguration } from "./useDeleteConfig";
 import {
   createRandomRawConfiguration,
   createRandomSchema,
@@ -11,10 +9,12 @@ import {
   DbState,
   renderHookWithJotai,
 } from "@/utils/testing";
-import { waitFor } from "@testing-library/react";
-import { act } from "react";
-import { useDeleteActiveConfiguration } from "./useDeleteConfig";
-import { useAtomValue } from "jotai";
+import {
+  activeConfigurationAtom,
+  allGraphSessionsAtom,
+  configurationAtom,
+  schemaAtom,
+} from "@/core";
 
 test("should delete the active configuration", async () => {
   const config1 = createRandomRawConfiguration();

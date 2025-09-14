@@ -2,8 +2,8 @@ import { useCallback, useEffect, useReducer, useRef } from "react";
 import useDeepCompareEffect from "use-deep-compare-effect";
 import reducer, {
   initialState,
-  ProcessedNotification,
-  ScheduledNotification,
+  type ProcessedNotification,
+  type ScheduledNotification,
 } from "./reducer";
 
 const useManager = () => {

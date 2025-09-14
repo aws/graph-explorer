@@ -1,8 +1,8 @@
-import { createRandomEdge, FakeExplorer } from "@/utils/testing";
+import { createArray } from "@shared/utils/testing";
 import { bulkEdgeDetailsQuery } from "./bulkEdgeDetailsQuery";
 import { edgeDetailsQuery } from "./edgeDetailsQuery";
+import { createRandomEdge, FakeExplorer } from "@/utils/testing";
 import { createQueryClient } from "@/core/queryClient";
-import { createArray } from "@shared/utils/testing";
 import { DEFAULT_BATCH_REQUEST_SIZE } from "@/utils";
 
 describe("bulkEdgeDetailsQuery", () => {

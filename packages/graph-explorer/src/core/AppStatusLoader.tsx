@@ -1,16 +1,21 @@
-import { PropsWithChildren, startTransition, Suspense, useEffect } from "react";
+import {
+  type PropsWithChildren,
+  startTransition,
+  Suspense,
+  useEffect,
+} from "react";
 import { useLocation } from "react-router";
-import { PanelEmptyState, Spinner } from "@/components";
-import Redirect from "@/components/Redirect";
+import { useQuery } from "@tanstack/react-query";
+import { useAtom, useAtomValue } from "jotai";
 import {
   activeConfigurationAsyncAtom,
   configurationAsyncAtom,
 } from "./StateProvider/configuration";
 import { schemaAsyncAtom } from "./StateProvider/schema";
-import { logger } from "@/utils";
-import { useQuery } from "@tanstack/react-query";
 import { fetchDefaultConnection } from "./defaultConnection";
-import { useAtom, useAtomValue } from "jotai";
+import { PanelEmptyState, Spinner } from "@/components";
+import Redirect from "@/components/Redirect";
+import { logger } from "@/utils";
 
 function AppStatusLoader({ children }: PropsWithChildren) {
   return (

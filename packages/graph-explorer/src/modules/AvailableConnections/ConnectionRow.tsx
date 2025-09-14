@@ -1,14 +1,14 @@
 import { useCallback } from "react";
 import { DatabaseIcon } from "lucide-react";
+import { useAtomCallback } from "jotai/utils";
 import { ListRowContent, ListRowTitle, ListRowSubtitle } from "@/components";
 import {
   activeConfigurationAtom,
-  ConfigurationId,
-  RawConfiguration,
+  type ConfigurationId,
+  type RawConfiguration,
 } from "@/core";
 import useResetState from "@/core/StateProvider/useResetState";
 import { useTranslations } from "@/hooks";
-import { useAtomCallback } from "jotai/utils";
 import { logger } from "@/utils";
 
 function ConnectionRow({

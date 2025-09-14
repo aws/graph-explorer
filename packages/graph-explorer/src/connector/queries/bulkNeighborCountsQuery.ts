@@ -1,10 +1,10 @@
-import { QueryClient, queryOptions } from "@tanstack/react-query";
-import { NeighborCount } from "../useGEFetchTypes";
-import { VertexId } from "@/core";
-import { DEFAULT_BATCH_REQUEST_SIZE } from "@/utils";
+import { type QueryClient, queryOptions } from "@tanstack/react-query";
 import { chunk } from "lodash";
+import { type NeighborCount } from "../useGEFetchTypes";
 import { getExplorer, updateNeighborCountCache } from "./helpers";
 import { neighborsCountQuery } from "./neighborsCountQuery";
+import { type VertexId } from "@/core";
+import { DEFAULT_BATCH_REQUEST_SIZE } from "@/utils";
 
 export function bulkNeighborCountsQuery(
   vertexIds: VertexId[],

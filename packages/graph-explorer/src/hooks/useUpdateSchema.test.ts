@@ -1,19 +1,19 @@
 import {
-  createRandomSchema,
-  createRandomSchemaResponse,
-  renderHookWithJotai,
-} from "@/utils/testing";
-import {
   createRandomName,
   createRandomDate,
   createRandomInteger,
 } from "@shared/utils/testing";
-import useUpdateSchema from "./useUpdateSchema";
 import { act } from "react";
-import { schemaAtom, SchemaInference } from "@/core/StateProvider/schema";
+import { useAtomValue } from "jotai";
+import useUpdateSchema from "./useUpdateSchema";
+import {
+  createRandomSchema,
+  createRandomSchemaResponse,
+  renderHookWithJotai,
+} from "@/utils/testing";
+import { schemaAtom, type SchemaInference } from "@/core/StateProvider/schema";
 import { activeConfigurationAtom } from "@/core/StateProvider/configuration";
 import { createNewConfigurationId } from "@/core";
-import { useAtomValue } from "jotai";
 
 describe("useUpdateSchema", () => {
   describe("setSyncFailure", () => {

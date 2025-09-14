@@ -1,14 +1,14 @@
 import {
-  EdgeSchemaResponse,
-  SchemaResponse,
-  VertexSchemaResponse,
-} from "@/connector";
-import { createRandomAttributeConfig } from "./randomData";
-import {
   createArray,
   createRandomName,
   createRandomInteger,
 } from "@shared/utils/testing";
+import { createRandomAttributeConfig } from "./randomData";
+import {
+  type EdgeSchemaResponse,
+  type SchemaResponse,
+  type VertexSchemaResponse,
+} from "@/connector";
 
 /**
  * Creates a random schema response object.

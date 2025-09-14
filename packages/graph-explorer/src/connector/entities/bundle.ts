@@ -1,5 +1,5 @@
 import { getDisplayValueForScalar } from "./scalar";
-import { PatchedResultEntity, ResultEntity } from "./entities";
+import { type PatchedResultEntity, type ResultEntity } from "./entities";
 import { NBSP } from "@/utils";
 
 /**

@@ -1,10 +1,17 @@
 import {
+  createArray,
+  createRandomBoolean,
+  createRandomDouble,
+  createRandomInteger,
+  createRandomName,
+} from "@shared/utils/testing";
+import { mapAnyValue, mapResults } from "./mapResults";
+import {
   createResultScalar,
   type ResultVertex,
   type ResultEdge,
   createResultBundle,
 } from "@/connector/entities";
-import { mapAnyValue, mapResults } from "./mapResults";
 import {
   createGEdge,
   createGList,
@@ -24,13 +31,6 @@ import {
   createGType,
   createGValue,
 } from "@/utils/testing/graphsonHelpers";
-import {
-  createArray,
-  createRandomBoolean,
-  createRandomDouble,
-  createRandomInteger,
-  createRandomName,
-} from "@shared/utils/testing";
 
 describe("mapResults", () => {
   describe("common result sets", () => {

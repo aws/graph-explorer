@@ -1,5 +1,7 @@
 import { saveAs } from "file-saver";
 import { useState } from "react";
+import { transformToCsv } from "./transformToCsv";
+import { transformToJson } from "./transformToJson";
 import {
   Button,
   Checkbox,
@@ -12,10 +14,8 @@ import {
   SelectField,
 } from "@/components";
 import { TrayArrowIcon } from "@/components/icons";
-import { TabularInstance } from "@/components/Tabular/helpers/tableInstanceToTabularInstance";
+import { type TabularInstance } from "@/components/Tabular/helpers/tableInstanceToTabularInstance";
 
-import { transformToCsv } from "./transformToCsv";
-import { transformToJson } from "./transformToJson";
 import { toCsvFileData, toJsonFileData } from "@/utils/fileData";
 
 type ExportControlProps<T extends Record<string, unknown>> = {

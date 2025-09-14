@@ -1,5 +1,5 @@
-import { DbState, renderHookWithJotai } from "@/utils/testing";
 import { useDefaultNeighborExpansionLimit } from "./useExpandNode";
+import { DbState, renderHookWithJotai } from "@/utils/testing";
 import {
   defaultNeighborExpansionLimitAtom,
   defaultNeighborExpansionLimitEnabledAtom,

@@ -1,13 +1,13 @@
 import { atom, useSetAtom } from "jotai";
 import { atomFamily, atomWithReset, RESET } from "jotai/utils";
+import { filteredNodesSelector } from "./nodes";
 import {
   createRenderedEdgeId,
   getEdgeIdFromRenderedEdgeId,
-  RenderedEdgeId,
+  type RenderedEdgeId,
   type Edge,
   type EdgeId,
 } from "@/core";
-import { filteredNodesSelector } from "./nodes";
 
 export function toEdgeMap(edges: Iterable<Edge>): Map<EdgeId, Edge> {
   return new Map(Iterator.from(edges).map(e => [e.id, e]));

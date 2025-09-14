@@ -1,16 +1,16 @@
+import { type QueryEngine } from "@shared/types";
+import { vi } from "vitest";
 import useKeywordSearch from "./useKeywordSearch";
-import { QueryEngine } from "@shared/types";
 import {
   createRandomSchema,
   renderHookWithJotai,
   createRandomRawConfiguration,
-  JotaiSnapshot,
+  type JotaiSnapshot,
 } from "@/utils/testing";
 import {
   activeConfigurationAtom,
   configurationAtom,
 } from "@/core/StateProvider/configuration";
-import { vi } from "vitest";
 import { schemaAtom } from "@/core/StateProvider/schema";
 
 vi.mock("./useKeywordSearchQuery", () => ({

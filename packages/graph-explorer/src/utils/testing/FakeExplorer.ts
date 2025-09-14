@@ -1,31 +1,31 @@
 /* eslint-disable @typescript-eslint/require-await */
 import {
-  CountsByTypeResponse,
-  EdgeDetailsRequest,
-  Explorer,
-  NeighborCount,
-  NeighborCountsRequest,
-  NeighborCountsResponse,
-  NeighborsResponse,
-  RawQueryResponse,
-  VertexDetailsRequest,
-} from "@/connector";
-import {
-  Edge,
-  Entities,
-  normalizeConnection,
-  NormalizedConnection,
-  toEdgeMap,
-  toNodeMap,
-  updateSchemaFromEntities,
-  Vertex,
-  VertexId,
-} from "@/core";
-import {
   createRandomConnectionWithId,
   type TestableEdge,
   type TestableVertex,
 } from "./randomData";
+import {
+  type CountsByTypeResponse,
+  type EdgeDetailsRequest,
+  type Explorer,
+  type NeighborCount,
+  type NeighborCountsRequest,
+  type NeighborCountsResponse,
+  type NeighborsResponse,
+  type RawQueryResponse,
+  type VertexDetailsRequest,
+} from "@/connector";
+import {
+  type Edge,
+  type Entities,
+  normalizeConnection,
+  type NormalizedConnection,
+  toEdgeMap,
+  toNodeMap,
+  updateSchemaFromEntities,
+  type Vertex,
+  type VertexId,
+} from "@/core";
 
 /**
  * An implementation of the Explorer interface that uses local state for results where possible.

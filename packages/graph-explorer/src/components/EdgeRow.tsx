@@ -1,8 +1,8 @@
-import { DisplayEdge, DisplayVertex } from "@/core";
-import { ComponentPropsWithoutRef } from "react";
+import { type ComponentPropsWithoutRef } from "react";
 import { EdgeSymbol } from "./EdgeSymbol";
-import { cn, NBSP, RSAQUO } from "@/utils";
 import { SearchResultSubtitle, SearchResultTitle } from "./SearchResult";
+import { cn, NBSP, RSAQUO } from "@/utils";
+import { type DisplayEdge, type DisplayVertex } from "@/core";
 
 /**
  * Visually represents an edge from the graph database.

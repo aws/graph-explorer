@@ -1,4 +1,4 @@
-import { NodeStyle } from "../Graph.model";
+import { type NodeStyle } from "../Graph.model";
 
 const outOfFocusNodeStyle: Partial<NodeStyle> = {
   backgroundOpacity: 0.1,

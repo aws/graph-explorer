@@ -1,40 +1,40 @@
 /* eslint-disable react-hooks/react-compiler */
-import { MouseEvent, useEffect, useMemo, useRef, useState } from "react";
+import { type MouseEvent, useEffect, useMemo, useRef, useState } from "react";
 
 import {
-  ActionType,
-  CellProps,
-  Column,
-  ColumnInterfaceBasedOnValue,
-  DefaultFilterTypes,
-  FilterProps,
-  IdType,
-  Renderer,
-  Row,
-  TableInstance,
-  TableOptions,
-  TableState,
+  type ActionType,
+  type CellProps,
+  type Column,
+  type ColumnInterfaceBasedOnValue,
+  type DefaultFilterTypes,
+  type FilterProps,
+  type IdType,
+  type Renderer,
+  type Row,
+  type TableInstance,
+  type TableOptions,
+  type TableState,
   useBlockLayout,
   useColumnOrder,
-  UseColumnOrderState,
+  type UseColumnOrderState,
   useFilters,
-  UseFiltersColumnOptions,
+  type UseFiltersColumnOptions,
   useFlexLayout,
   useGlobalFilter,
   usePagination,
   useResizeColumns,
   useRowSelect,
-  UseRowSelectInstanceProps,
-  UseRowSelectState,
+  type UseRowSelectInstanceProps,
+  type UseRowSelectState,
   useSortBy,
-  UseSortByColumnOptions,
+  type UseSortByColumnOptions,
   useTable,
 } from "react-table";
-import { useDeepMemo } from "@/hooks";
 import TextFilter from "./filters/TextFilter";
 import columnDefinitionToColumn from "./helpers/columnDefinitionToColumn";
 import useDiffState from "./plugins/useDiffState";
 import useFullWidth from "./plugins/useFullWidth";
+import { useDeepMemo } from "@/hooks";
 
 export type CellComponentProps<T extends object> = CellProps<T>;
 export type OnDataFilteredChange<T extends object> = (

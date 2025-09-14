@@ -1,4 +1,22 @@
 import {
+  createArray,
+  createRandomDate,
+  createRandomInteger,
+  createRandomName,
+  createRandomUrlString,
+} from "@shared/utils/testing";
+import {
+  createDefaultFileName,
+  createExportedConnection,
+  createExportedGraph,
+  type ExportedGraphFile,
+  type ExportedGraphConnection,
+  createFileSafeTimestamp,
+  isMatchingConnection,
+  exportedGraphSchema,
+  parseExportedGraph,
+} from "./exportedGraph";
+import {
   createRandomConnectionWithId,
   createRandomEdgeId,
   createRandomExportedGraph,
@@ -6,25 +24,7 @@ import {
   createRandomExportedGraphForRdf,
   createRandomVertexId,
 } from "@/utils/testing";
-import {
-  createDefaultFileName,
-  createExportedConnection,
-  createExportedGraph,
-  ExportedGraphFile,
-  ExportedGraphConnection,
-  createFileSafeTimestamp,
-  isMatchingConnection,
-  exportedGraphSchema,
-  parseExportedGraph,
-} from "./exportedGraph";
-import {
-  createArray,
-  createRandomDate,
-  createRandomInteger,
-  createRandomName,
-  createRandomUrlString,
-} from "@shared/utils/testing";
-import { EdgeId, VertexId } from "@/core";
+import { type EdgeId, type VertexId } from "@/core";
 import { escapeString } from "@/utils";
 
 describe("createExportedGraph", () => {

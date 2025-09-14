@@ -1,6 +1,7 @@
-import { cn } from "@/utils";
 import { Resizable } from "re-resizable";
 import { Link } from "react-router";
+import { useAtomValue } from "jotai";
+import { cn } from "@/utils";
 import {
   buttonStyles,
   Divider,
@@ -40,7 +41,6 @@ import { NodesStyling } from "@/modules/NodesStyling";
 
 import { APP_NAME } from "@/utils/constants";
 import { SearchSidebarPanel } from "@/modules/SearchSidebar";
-import { useAtomValue } from "jotai";
 
 const RESIZE_ENABLE_TOP = {
   top: true,

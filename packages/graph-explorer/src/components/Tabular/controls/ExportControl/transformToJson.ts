@@ -1,4 +1,4 @@
-import { TabularColumnInstance } from "@/components/Tabular/helpers/tableInstanceToTabularInstance";
+import { type TabularColumnInstance } from "@/components/Tabular/helpers/tableInstanceToTabularInstance";
 
 export function transformToJson<T extends object>(
   data: readonly T[],

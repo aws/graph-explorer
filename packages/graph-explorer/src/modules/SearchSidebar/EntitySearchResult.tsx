@@ -4,7 +4,7 @@ import { ScalarSearchResult } from "./ScalarSearchResult";
 import { BundleSearchResult } from "./BundleSearchResult";
 import {
   getDisplayValueForBundle,
-  PatchedResultEntity,
+  type PatchedResultEntity,
 } from "@/connector/entities";
 
 export function EntitySearchResult({

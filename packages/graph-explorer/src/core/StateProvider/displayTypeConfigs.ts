@@ -1,3 +1,6 @@
+import { atomFamily, useAtomCallback } from "jotai/utils";
+import { atom, useAtomValue } from "jotai";
+import { useCallback } from "react";
 import {
   allEdgeTypeConfigsSelector,
   allVertexTypeConfigsSelector,
@@ -5,17 +8,14 @@ import {
   defaultVertexTypeConfig,
   edgeTypeConfigSelector,
   vertexTypeConfigSelector,
-  AttributeConfig,
-  EdgeTypeConfig,
-  VertexTypeConfig,
-  ArrowStyle,
-  LineStyle,
+  type AttributeConfig,
+  type EdgeTypeConfig,
+  type VertexTypeConfig,
+  type ArrowStyle,
+  type LineStyle,
 } from "@/core";
-import { TextTransformer, textTransformSelector } from "@/hooks";
+import { type TextTransformer, textTransformSelector } from "@/hooks";
 import { MISSING_DISPLAY_TYPE, RESERVED_TYPES_PROPERTY } from "@/utils";
-import { atomFamily, useAtomCallback } from "jotai/utils";
-import { atom, useAtomValue } from "jotai";
-import { useCallback } from "react";
 
 export type DisplayVertexStyle = {
   color: string;

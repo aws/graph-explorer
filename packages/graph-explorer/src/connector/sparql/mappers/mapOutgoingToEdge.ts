@@ -1,6 +1,6 @@
-import { createEdge, VertexId } from "@/core";
-import { RawValue } from "../types";
+import { type RawValue } from "../types";
 import { createRdfEdgeId } from "../createRdfEdgeId";
+import { createEdge, type VertexId } from "@/core";
 
 export type OutgoingPredicate = {
   subject: RawValue;

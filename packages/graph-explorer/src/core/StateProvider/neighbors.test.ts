@@ -1,5 +1,6 @@
-import { createVertexId } from "@/core";
+import { waitFor } from "@testing-library/react";
 import { calculateNeighbors, useNeighbors } from "./neighbors";
+import { createVertexId } from "@/core";
 import {
   createRandomVertex,
   createTestableEdge,
@@ -8,8 +9,7 @@ import {
   FakeExplorer,
   renderHookWithState,
 } from "@/utils/testing";
-import { NeighborCount } from "@/connector";
-import { waitFor } from "@testing-library/react";
+import { type NeighborCount } from "@/connector";
 
 describe("calculateNeighbors", () => {
   it("should calculate neighbors correctly", () => {

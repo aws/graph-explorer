@@ -1,5 +1,15 @@
 import { cloneDeep, isEqual, uniq } from "lodash";
 import { atom } from "jotai";
+import { type ConnectionConfig } from "@shared/types";
+import { selectAtom } from "jotai/utils";
+import { atomWithLocalForageAsync } from "./localForageEffect";
+import { activeSchemaSelector, type SchemaInference } from "./schema";
+import {
+  type EdgePreferences,
+  type UserStyling,
+  userStylingAtom,
+  type VertexPreferences,
+} from "./userPreferences";
 import DEFAULT_ICON_URL from "@/utils/defaultIconUrl";
 import {
   type AttributeConfig,
@@ -8,20 +18,10 @@ import {
   type RawConfiguration,
   type VertexTypeConfig,
 } from "@/core";
-import { atomWithLocalForageAsync } from "./localForageEffect";
-import { activeSchemaSelector, SchemaInference } from "./schema";
-import {
-  EdgePreferences,
-  UserStyling,
-  userStylingAtom,
-  VertexPreferences,
-} from "./userPreferences";
 import {
   RESERVED_ID_PROPERTY,
   RESERVED_TYPES_PROPERTY,
 } from "@/utils/constants";
-import { ConnectionConfig } from "@shared/types";
-import { selectAtom } from "jotai/utils";
 
 export const [activeConfigurationAtom, activeConfigurationAsyncAtom] =
   atomWithLocalForageAsync<ConfigurationId | null>(

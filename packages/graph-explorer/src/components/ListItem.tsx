@@ -1,4 +1,3 @@
-import { cn } from "@/utils";
 import type {
   ForwardedRef,
   HTMLAttributes,
@@ -6,6 +5,7 @@ import type {
   PropsWithChildren,
 } from "react";
 import { forwardRef } from "react";
+import { cn } from "@/utils";
 
 export interface ListItemProps extends HTMLAttributes<HTMLDivElement> {
   isDisabled?: boolean;

@@ -1,9 +1,9 @@
-import { EdgeId } from "@/core";
+import { edgeDetails } from "./edgeDetails";
+import { type EdgeId } from "@/core";
 import {
   createRandomEdgeForRdf,
   createRandomVertexForRdf,
 } from "@/utils/testing";
-import { edgeDetails } from "./edgeDetails";
 
 describe("edgeDetails", () => {
   it("should return empty when request is empty", () => {

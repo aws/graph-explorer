@@ -1,5 +1,5 @@
 import { v4 } from "uuid";
-import { NotificationComponentProps } from "./NotificationProvider";
+import { type NotificationComponentProps } from "./NotificationProvider";
 
 export interface Notification extends NotificationComponentProps {
   /**

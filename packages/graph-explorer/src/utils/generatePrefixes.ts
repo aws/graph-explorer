@@ -1,5 +1,5 @@
-import { PrefixTypeConfig } from "@/core";
 import commonPrefixes from "./common-prefixes.json";
+import { type PrefixTypeConfig } from "@/core";
 
 // Create a map of the common prefixes
 const commonPrefixesMap = toPrefixTypeConfigMap(

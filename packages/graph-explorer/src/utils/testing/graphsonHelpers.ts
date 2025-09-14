@@ -1,3 +1,4 @@
+import { createRandomInteger } from "@shared/utils/testing";
 import {
   type ResultVertex,
   type ResultEntity,
@@ -31,7 +32,6 @@ import {
   type Vertex,
   type VertexId,
 } from "@/core";
-import { createRandomInteger } from "@shared/utils/testing";
 
 export function createGremlinResponseFromVertices(...vertices: ResultVertex[]) {
   return createGremlinResponse(...vertices.map(createGVertex));

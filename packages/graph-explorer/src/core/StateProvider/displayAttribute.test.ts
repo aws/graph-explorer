@@ -1,17 +1,17 @@
 import {
-  createRandomAttributeConfig,
-  createRandomVertex,
-} from "@/utils/testing";
-import {
-  getSortedDisplayAttributes,
-  mapToDisplayAttribute,
-} from "./displayAttribute";
-import {
   createRandomBoolean,
   createRandomDate,
   createRandomInteger,
   createRandomName,
 } from "@shared/utils/testing";
+import {
+  getSortedDisplayAttributes,
+  mapToDisplayAttribute,
+} from "./displayAttribute";
+import {
+  createRandomAttributeConfig,
+  createRandomVertex,
+} from "@/utils/testing";
 import { formatDate, MISSING_DISPLAY_VALUE } from "@/utils";
 
 describe("mapToDisplayAttribute", () => {

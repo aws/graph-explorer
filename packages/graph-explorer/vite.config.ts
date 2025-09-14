@@ -1,7 +1,7 @@
 /// <reference types="vitest" />
 import react from "@vitejs/plugin-react";
 import tsconfigPaths from "vite-tsconfig-paths";
-import { loadEnv, PluginOption } from "vite";
+import { loadEnv, type PluginOption } from "vite";
 import { coverageConfigDefaults, defineConfig } from "vitest/config";
 
 export default defineConfig(({ mode }) => {

@@ -1,14 +1,14 @@
+import mapRawResultToVertex from "../mappers/mapRawResultToVertex";
+import {
+  type RawResult,
+  type RawValue,
+  type SparqlFetch,
+  type SPARQLKeywordSearchRequest,
+} from "../types";
+import keywordSearchTemplate from "./keywordSearchTemplate";
 import { logger } from "@/utils";
 import { type ErrorResponse, type KeywordSearchResponse } from "@/connector";
 import isErrorResponse from "@/connector/utils/isErrorResponse";
-import mapRawResultToVertex from "../mappers/mapRawResultToVertex";
-import keywordSearchTemplate from "./keywordSearchTemplate";
-import {
-  RawResult,
-  RawValue,
-  SparqlFetch,
-  SPARQLKeywordSearchRequest,
-} from "../types";
 
 type RawKeywordResponse = {
   head: {

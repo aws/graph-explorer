@@ -1,6 +1,6 @@
 import { useAtom } from "jotai";
-import { atomWithLocalForage } from "./localForageEffect";
 import { useQueryEngine } from "../connector";
+import { atomWithLocalForage } from "./localForageEffect";
 
 type ToggleableView = "graph-viewer" | "table-view";
 

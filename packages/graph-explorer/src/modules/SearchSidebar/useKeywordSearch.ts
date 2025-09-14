@@ -1,14 +1,14 @@
+import { atom, useAtom, useAtomValue } from "jotai";
+import { atomWithReset } from "jotai/utils";
+import { useKeywordSearchQuery } from "../SearchSidebar/useKeywordSearchQuery";
 import {
   displayVertexTypeConfigSelector,
   displayVertexTypeConfigsSelector,
   useDisplayVertexTypeConfigs,
 } from "@/core";
 import useDebounceValue from "@/hooks/useDebounceValue";
-import { useKeywordSearchQuery } from "../SearchSidebar/useKeywordSearchQuery";
 
 import { queryEngineSelector, useQueryEngine } from "@/core/connector";
-import { atom, useAtom, useAtomValue } from "jotai";
-import { atomWithReset } from "jotai/utils";
 
 export interface PromiseWithCancel<T> extends Promise<T> {
   cancel?: () => void;

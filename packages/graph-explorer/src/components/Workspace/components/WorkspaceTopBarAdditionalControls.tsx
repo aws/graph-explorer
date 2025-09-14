@@ -1,5 +1,5 @@
-import { cn } from "@/utils";
 import type { PropsWithChildren } from "react";
+import { cn } from "@/utils";
 
 export type WorkspaceTopBarAdditionalControlsProps = {
   className?: string;

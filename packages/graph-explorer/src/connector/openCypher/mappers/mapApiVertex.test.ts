@@ -5,9 +5,9 @@ import {
   createRandomInteger,
   createRandomName,
 } from "@shared/utils/testing";
+import { type OCVertex } from "../types";
 import mapApiVertex from "./mapApiVertex";
 import { createResultVertex } from "@/connector/entities";
-import { OCVertex } from "../types";
 
 test("maps empty vertex", () => {
   const input = {

@@ -1,3 +1,5 @@
+import { Link, NavLink, Outlet, type To } from "react-router";
+import { type PropsWithChildren, Suspense } from "react";
 import Workspace from "@/components/Workspace/Workspace";
 import {
   buttonStyles,
@@ -6,8 +8,6 @@ import {
   Panel,
   PanelContent,
 } from "@/components";
-import { Link, NavLink, Outlet, To } from "react-router";
-import { PropsWithChildren, Suspense } from "react";
 import AppLoadingPage from "@/core/AppLoadingPage";
 import { cn } from "@/utils";
 import { APP_NAME } from "@/utils/constants";

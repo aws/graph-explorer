@@ -1,3 +1,4 @@
+import { v4 } from "uuid";
 import {
   type Criterion,
   type Explorer,
@@ -9,21 +10,20 @@ import fetchNeighbors from "./fetchNeighbors";
 import fetchSchema from "./fetchSchema";
 import keywordSearch from "./keywordSearch";
 import {
-  BlankNodesMap,
-  GraphSummary,
-  SPARQLKeywordSearchRequest,
-  SPARQLNeighborsRequest,
+  type BlankNodesMap,
+  type GraphSummary,
+  type SPARQLKeywordSearchRequest,
+  type SPARQLNeighborsRequest,
 } from "./types";
-import { v4 } from "uuid";
-import { env, logger } from "@/utils";
-import { createLoggerFromConnection } from "@/core/connector";
-import { FeatureFlags, NormalizedConnection } from "@/core";
 import { replaceBlankNodeFromNeighbors } from "./fetchNeighbors/replaceBlankNodeFromNeighbors";
 import { storedBlankNodeNeighborsRequest } from "./fetchNeighbors/storedBlankNodeNeighborsRequest";
 import { replaceBlankNodeFromSearch } from "./keywordSearch/replaceBlankNodeFromSearch";
 import { vertexDetails } from "./vertexDetails";
 import { edgeDetails } from "./edgeDetails";
 import { neighborCounts } from "./neighborCounts";
+import { type FeatureFlags, type NormalizedConnection } from "@/core";
+import { createLoggerFromConnection } from "@/core/connector";
+import { env, logger } from "@/utils";
 
 function _sparqlFetch(
   connection: NormalizedConnection,

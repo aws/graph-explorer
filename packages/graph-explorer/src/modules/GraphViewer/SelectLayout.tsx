@@ -1,3 +1,5 @@
+import { atom, useAtom } from "jotai";
+import { type ComponentPropsWithRef } from "react";
 import {
   Select,
   SelectContent,
@@ -8,10 +10,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components";
-import { LayoutName } from "@/components/Graph/helpers/layoutConfig";
+import { type LayoutName } from "@/components/Graph/helpers/layoutConfig";
 import { cn } from "@/utils";
-import { atom, useAtom } from "jotai";
-import { ComponentPropsWithRef } from "react";
 
 export const graphLayoutSelectionAtom = atom<LayoutName>("F_COSE");
 

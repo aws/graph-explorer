@@ -1,9 +1,9 @@
 import { queryOptions } from "@tanstack/react-query";
-import { Vertex, VertexId } from "@/core";
-import { DEFAULT_BATCH_REQUEST_SIZE } from "@/utils";
 import { chunk } from "lodash";
 import { getExplorer, setVertexDetailsQueryCache } from "./helpers";
 import { vertexDetailsQuery } from "./vertexDetailsQuery";
+import { DEFAULT_BATCH_REQUEST_SIZE } from "@/utils";
+import { type Vertex, type VertexId } from "@/core";
 
 export function bulkVertexDetailsQuery(vertexIds: VertexId[]) {
   return queryOptions({

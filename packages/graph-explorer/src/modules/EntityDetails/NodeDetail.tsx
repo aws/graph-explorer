@@ -1,7 +1,7 @@
-import { DisplayAttribute, DisplayVertex } from "@/core";
+import EntityAttribute from "./EntityAttribute";
+import { type DisplayAttribute, type DisplayVertex } from "@/core";
 import useTranslations from "@/hooks/useTranslations";
 import NeighborsList from "@/modules/common/NeighborsList/NeighborsList";
-import EntityAttribute from "./EntityAttribute";
 import {
   LABEL_FOR_BLANK_NODE_ID,
   RESERVED_ID_PROPERTY,

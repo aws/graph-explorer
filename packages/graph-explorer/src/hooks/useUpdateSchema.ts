@@ -1,6 +1,6 @@
+import { useSetAtom } from "jotai";
 import type { SchemaResponse } from "@/connector";
 import { activeSchemaSelector } from "@/core/StateProvider/schema";
-import { useSetAtom } from "jotai";
 
 export default function useUpdateSchema() {
   const setSchema = useSetAtom(activeSchemaSelector);

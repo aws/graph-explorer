@@ -1,6 +1,6 @@
 import { saveAs } from "file-saver";
-import { ConfigurationContextProps } from "@/core";
 import { toJsonFileData } from "./fileData";
+import { type ConfigurationContextProps } from "@/core";
 
 const saveConfigurationToFile = (config: ConfigurationContextProps) => {
   const exportableConfig = {

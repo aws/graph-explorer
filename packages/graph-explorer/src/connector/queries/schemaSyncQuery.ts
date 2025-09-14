@@ -1,7 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
-import { SchemaResponse } from "../useGEFetchTypes";
-import { updateSchemaPrefixes } from "@/core/StateProvider/schema";
+import { type SchemaResponse } from "../useGEFetchTypes";
 import { getExplorer } from "./helpers";
+import { updateSchemaPrefixes } from "@/core/StateProvider/schema";
 
 /**
  * Fetches the schema from the given explorer and updates the local cache with the new schema.

@@ -1,3 +1,5 @@
+import { vi } from "vitest";
+import useTextTransform from "./useTextTransform";
 import {
   activeConfigurationAtom,
   configurationAtom,
@@ -5,11 +7,9 @@ import {
 import {
   createRandomRawConfiguration,
   createRandomSchema,
-  JotaiSnapshot,
+  type JotaiSnapshot,
   renderHookWithJotai,
 } from "@/utils/testing";
-import useTextTransform from "./useTextTransform";
-import { vi } from "vitest";
 import { schemaAtom } from "@/core/StateProvider/schema";
 
 function initializeConfigWithPrefix(snapshot: JotaiSnapshot) {

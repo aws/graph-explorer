@@ -1,4 +1,6 @@
 import { Suspense, useState } from "react";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import NodeExpandFilters, { type NodeExpandFilter } from "./NodeExpandFilters";
 import type { VertexId } from "@/core";
 import {
   Button,
@@ -10,20 +12,18 @@ import {
   Spinner,
   VertexRow,
 } from "@/components";
-import { DisplayVertex, useNeighbors, useVertex } from "@/core";
+import { type DisplayVertex, useNeighbors, useVertex } from "@/core";
 import { useExpandNode } from "@/hooks";
 import useNeighborsOptions, {
-  NeighborOption,
+  type NeighborOption,
 } from "@/hooks/useNeighborsOptions";
 import useTranslations from "@/hooks/useTranslations";
 import NeighborsList from "@/modules/common/NeighborsList/NeighborsList";
-import NodeExpandFilters, { NodeExpandFilter } from "./NodeExpandFilters";
 import {
-  ExpandNodeFilters,
+  type ExpandNodeFilters,
   useDefaultNeighborExpansionLimit,
 } from "@/hooks/useExpandNode";
 import { neighborsCountQuery } from "@/connector";
-import { useSuspenseQuery } from "@tanstack/react-query";
 
 export type NodeExpandContentProps = {
   vertex: DisplayVertex;

@@ -1,3 +1,4 @@
+import { LoaderCircleIcon } from "lucide-react";
 import {
   EmptyState,
   EmptyStateContent,
@@ -5,7 +6,6 @@ import {
   EmptyStateIcon,
   EmptyStateTitle,
 } from "@/components";
-import { LoaderCircleIcon } from "lucide-react";
 
 export default function AppLoadingPage() {
   return (

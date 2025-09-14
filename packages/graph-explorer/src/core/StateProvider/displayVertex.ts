@@ -1,16 +1,18 @@
+import { atom, useAtomValue } from "jotai";
+import { atomFamily } from "jotai/utils";
 import {
-  DisplayAttribute,
+  type DisplayAttribute,
   getSortedDisplayAttributes,
   vertexTypeAttributesSelector,
   nodesAtom,
   nodesSelectedIdsAtom,
-  DisplayVertexTypeConfig,
+  type DisplayVertexTypeConfig,
   displayVertexTypeConfigSelector,
   queryEngineSelector,
   nodeSelector,
   getRawId,
-  Vertex,
-  VertexId,
+  type Vertex,
+  type VertexId,
   useVertex,
 } from "@/core";
 import { textTransformSelector } from "@/hooks";
@@ -19,8 +21,6 @@ import {
   RESERVED_ID_PROPERTY,
   RESERVED_TYPES_PROPERTY,
 } from "@/utils";
-import { atom, useAtomValue } from "jotai";
-import { atomFamily } from "jotai/utils";
 
 /** Represents a vertex's display information after all transformations have been applied. */
 export type DisplayVertex = {

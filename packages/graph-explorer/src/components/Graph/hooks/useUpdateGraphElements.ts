@@ -1,4 +1,4 @@
-import cytoscape from "cytoscape";
+import type cytoscape from "cytoscape";
 import cloneDeep from "lodash/cloneDeep";
 import { useEffect, useState } from "react";
 import type { CytoscapeType, GraphEdge, GraphNode } from "../Graph.model";

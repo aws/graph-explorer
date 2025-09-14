@@ -1,13 +1,13 @@
+import { type OCEdge, type OpenCypherFetch } from "./types";
+import { idParam } from "./idParam";
+import mapApiEdge from "./mappers/mapApiEdge";
 import { logger, query } from "@/utils";
 import {
-  EdgeDetailsRequest,
-  EdgeDetailsResponse,
-  ErrorResponse,
+  type EdgeDetailsRequest,
+  type EdgeDetailsResponse,
+  type ErrorResponse,
 } from "@/connector";
-import { OCEdge, OpenCypherFetch } from "./types";
-import { idParam } from "./idParam";
 import isErrorResponse from "@/connector/utils/isErrorResponse";
-import mapApiEdge from "./mappers/mapApiEdge";
 import { createEdge } from "@/core";
 
 type Response = {
