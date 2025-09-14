@@ -69,20 +69,20 @@ export default defineConfig(
       "@typescript-eslint/unbound-method": "off",
       "@typescript-eslint/no-floating-promises": "off",
       "@typescript-eslint/no-misused-promises": "off",
-      "@typescript-eslint/consistent-type-imports": [
-        "error",
-        {
-          disallowTypeAnnotations: false, // Set to false to allow import of queryClient type in packages/graph-explorer/src/setupTests.ts
-          fixStyle: "inline-type-imports",
-          prefer: "type-imports",
-        },
-      ],
       "@typescript-eslint/no-unused-vars": [
         "error",
         {
           argsIgnorePattern: "^_",
           varsIgnorePattern: "^_",
           caughtErrorsIgnorePattern: "^_",
+        },
+      ],
+      "@typescript-eslint/consistent-type-imports": [
+        "error",
+        {
+          disallowTypeAnnotations: false, // Set to false to allow import of queryClient type in packages/graph-explorer/src/setupTests.ts
+          fixStyle: "inline-type-imports",
+          prefer: "type-imports",
         },
       ],
     },
