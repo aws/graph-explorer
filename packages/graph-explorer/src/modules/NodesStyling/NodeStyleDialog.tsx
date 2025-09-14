@@ -19,8 +19,8 @@ import ColorInput from "@/components/ColorInput/ColorInput";
 import { useNotification } from "@/components/NotificationProvider";
 import { useDisplayVertexTypeConfig, useWithTheme } from "@/core";
 import {
-  LineStyle,
-  ShapeStyle,
+  type LineStyle,
+  type ShapeStyle,
   useVertexStyling,
 } from "@/core/StateProvider/userPreferences";
 import useTranslations from "@/hooks/useTranslations";

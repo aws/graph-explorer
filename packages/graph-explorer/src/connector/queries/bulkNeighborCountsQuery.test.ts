@@ -1,7 +1,7 @@
 import { createRandomVertex, FakeExplorer } from "@/utils/testing";
 import { bulkNeighborCountsQuery } from "./bulkNeighborCountsQuery";
 import { neighborsCountQuery } from "./neighborsCountQuery";
-import { NeighborCount } from "../useGEFetchTypes";
+import { type NeighborCount } from "../useGEFetchTypes";
 import { createQueryClient } from "@/core/queryClient";
 import { createArray } from "@shared/utils/testing";
 import { DEFAULT_BATCH_REQUEST_SIZE } from "@/utils";

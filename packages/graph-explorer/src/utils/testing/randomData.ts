@@ -12,7 +12,7 @@ import {
   type EdgeTypeConfig,
   type Entities,
   type EntityProperties,
-  EntityRawId,
+  type EntityRawId,
   type FeatureFlags,
   type LineStyle,
   type PrefixTypeConfig,

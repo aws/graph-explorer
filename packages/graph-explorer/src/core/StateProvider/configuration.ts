@@ -9,18 +9,18 @@ import {
   type VertexTypeConfig,
 } from "@/core";
 import { atomWithLocalForageAsync } from "./localForageEffect";
-import { activeSchemaSelector, SchemaInference } from "./schema";
+import { activeSchemaSelector, type SchemaInference } from "./schema";
 import {
-  EdgePreferences,
-  UserStyling,
+  type EdgePreferences,
+  type UserStyling,
   userStylingAtom,
-  VertexPreferences,
+  type VertexPreferences,
 } from "./userPreferences";
 import {
   RESERVED_ID_PROPERTY,
   RESERVED_TYPES_PROPERTY,
 } from "@/utils/constants";
-import { ConnectionConfig } from "@shared/types";
+import { type ConnectionConfig } from "@shared/types";
 import { selectAtom } from "jotai/utils";
 
 export const [activeConfigurationAtom, activeConfigurationAsyncAtom] =

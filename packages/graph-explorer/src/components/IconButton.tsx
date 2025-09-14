@@ -3,7 +3,7 @@ import type { ForwardedRef } from "react";
 import { forwardRef } from "react";
 import { cva } from "cva";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components";
-import { Button, ButtonProps } from "./Button/Button";
+import { Button, type ButtonProps } from "./Button/Button";
 
 export const iconButtonStyles = cva({
   base: "px-0",

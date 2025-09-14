@@ -6,7 +6,7 @@ import {
 import { useAddToGraph } from "@/hooks";
 import { logger, formatEntityCounts } from "@/utils";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
-import { GraphSessionStorageModel } from "./storage";
+import { type GraphSessionStorageModel } from "./storage";
 
 /**
  * Provides a mutation that restores the graph session from storage.

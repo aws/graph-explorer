@@ -1,10 +1,10 @@
 import useKeywordSearch from "./useKeywordSearch";
-import { QueryEngine } from "@shared/types";
+import { type QueryEngine } from "@shared/types";
 import {
   createRandomSchema,
   renderHookWithJotai,
   createRandomRawConfiguration,
-  JotaiSnapshot,
+  type JotaiSnapshot,
 } from "@/utils/testing";
 import {
   activeConfigurationAtom,

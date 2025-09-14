@@ -1,5 +1,5 @@
 import { cn } from "@/utils";
-import { ComponentPropsWithRef } from "react";
+import { type ComponentPropsWithRef } from "react";
 
 export function TextArea({
   className,

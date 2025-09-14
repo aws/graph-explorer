@@ -1,5 +1,5 @@
-import { RawValue, rdfTypeUri } from "../types";
-import { createEdge, createVertex, Entities, Vertex } from "@/core";
+import { type RawValue, rdfTypeUri } from "../types";
+import { createEdge, createVertex, type Entities, type Vertex } from "@/core";
 import { createRdfEdgeId } from "../createRdfEdgeId";
 
 export type RawOneHopNeighborsResponse = {

@@ -2,7 +2,7 @@ import Color from "color";
 import { useDeferredValue, useEffect, useState } from "react";
 import {
   getEdgeIdFromRenderedEdgeId,
-  RenderedEdgeId,
+  type RenderedEdgeId,
   useDisplayEdgesInCanvas,
 } from "@/core";
 import type { GraphProps } from "@/components";

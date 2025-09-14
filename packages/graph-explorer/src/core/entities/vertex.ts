@@ -1,5 +1,5 @@
-import { Branded } from "@/utils";
-import { EntityProperties, EntityRawId } from "./shared";
+import { type Branded } from "@/utils";
+import { type EntityProperties, type EntityRawId } from "./shared";
 import { createVertexId } from "./entityIdType";
 
 /**

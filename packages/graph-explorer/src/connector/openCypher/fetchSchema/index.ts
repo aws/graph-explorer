@@ -10,8 +10,8 @@ import edgesSchemaTemplate from "./edgesSchemaTemplate";
 import vertexLabelsTemplate from "./vertexLabelsTemplate";
 import verticesSchemaTemplate from "./verticesSchemaTemplate";
 import type { OCEdge, OCVertex } from "../types";
-import { GraphSummary, OpenCypherFetch } from "../types";
-import { LoggerConnector } from "@/connector/LoggerConnector";
+import { type GraphSummary, type OpenCypherFetch } from "../types";
+import { type LoggerConnector } from "@/connector/LoggerConnector";
 
 // Response types for raw data returned by OpenCypher queries
 type RawVertexLabelsResponse = {

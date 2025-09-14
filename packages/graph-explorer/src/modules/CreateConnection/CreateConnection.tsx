@@ -10,15 +10,15 @@ import {
   TextAreaField,
 } from "@/components";
 import {
-  ConnectionConfig,
-  QueryEngine,
-  NeptuneServiceType,
+  type ConnectionConfig,
+  type QueryEngine,
+  type NeptuneServiceType,
 } from "@shared/types";
 import {
   allGraphSessionsAtom,
-  ConfigurationContextProps,
+  type ConfigurationContextProps,
   createNewConfigurationId,
-  RawConfiguration,
+  type RawConfiguration,
 } from "@/core";
 import {
   activeConfigurationAtom,

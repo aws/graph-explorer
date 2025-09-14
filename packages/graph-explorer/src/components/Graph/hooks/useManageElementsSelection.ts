@@ -2,7 +2,7 @@ import debounce from "lodash/debounce";
 import differenceBy from "lodash/differenceBy";
 import { useEffect, useRef } from "react";
 
-import { CytoscapeType, Selection } from "../Graph.model";
+import { type CytoscapeType, type Selection } from "../Graph.model";
 
 interface UseManageElementsSelection extends Selection {
   cy?: CytoscapeType;

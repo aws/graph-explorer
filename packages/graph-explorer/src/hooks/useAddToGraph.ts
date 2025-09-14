@@ -1,15 +1,15 @@
 import { useNotification } from "@/components/NotificationProvider";
 import {
   activeSchemaSelector,
-  Edge,
+  type Edge,
   edgesAtom,
-  Entities,
+  type Entities,
   nodesAtom,
   toEdgeMap,
   toNodeMap,
   updateSchemaFromEntities,
   useUpdateGraphSession,
-  Vertex,
+  type Vertex,
 } from "@/core";
 import { logger } from "@/utils";
 import { createDisplayError } from "@/utils/createDisplayError";

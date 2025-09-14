@@ -1,6 +1,6 @@
 import { createVertex, useDisplayVertex } from "@/core";
 import {
-  ButtonProps,
+  type ButtonProps,
   CollapsibleContent,
   CollapsibleTrigger,
   IconButton,

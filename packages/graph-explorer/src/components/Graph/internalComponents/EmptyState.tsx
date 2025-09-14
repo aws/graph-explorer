@@ -2,7 +2,7 @@ import { Button } from "@/components";
 import { SearchIcon } from "@/components/icons";
 import { PanelEmptyState } from "@/components/PanelEmptyState";
 import {
-  GraphSessionStorageModel,
+  type GraphSessionStorageModel,
   useAvailablePreviousSession,
   useRestoreGraphSession,
 } from "@/core";

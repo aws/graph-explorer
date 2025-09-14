@@ -3,8 +3,8 @@ import { DatabaseIcon } from "lucide-react";
 import { ListRowContent, ListRowTitle, ListRowSubtitle } from "@/components";
 import {
   activeConfigurationAtom,
-  ConfigurationId,
-  RawConfiguration,
+  type ConfigurationId,
+  type RawConfiguration,
 } from "@/core";
 import useResetState from "@/core/StateProvider/useResetState";
 import { useTranslations } from "@/hooks";

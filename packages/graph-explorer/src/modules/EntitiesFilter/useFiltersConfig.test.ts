@@ -6,7 +6,7 @@ import {
   renderHookWithJotai,
 } from "@/utils/testing";
 import { sample } from "lodash";
-import { Schema } from "@/core";
+import { type Schema } from "@/core";
 import {
   activeConfigurationAtom,
   configurationAtom,

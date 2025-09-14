@@ -1,4 +1,4 @@
-import { createEdgeId, VertexId } from "@/core";
+import { createEdgeId, type VertexId } from "@/core";
 
 /**
  * Combines the triple that makes up an edge into a single string.

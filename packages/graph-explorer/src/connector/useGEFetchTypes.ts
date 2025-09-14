@@ -1,15 +1,15 @@
 import {
-  ConfigurationContextProps,
-  EdgeTypeConfig,
-  VertexTypeConfig,
-  Edge,
-  EdgeId,
-  Vertex,
-  VertexId,
-  NormalizedConnection,
-  Entities,
+  type ConfigurationContextProps,
+  type EdgeTypeConfig,
+  type VertexTypeConfig,
+  type Edge,
+  type EdgeId,
+  type Vertex,
+  type VertexId,
+  type NormalizedConnection,
+  type Entities,
 } from "@/core";
-import { ResultEntity } from "./entities";
+import { type ResultEntity } from "./entities";
 
 export type QueryOptions = RequestInit & {
   queryId?: string;

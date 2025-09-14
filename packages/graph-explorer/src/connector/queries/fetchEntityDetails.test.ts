@@ -1,7 +1,7 @@
 import { createRandomInteger } from "@shared/utils/testing";
 import {
   createFetchEntityDetailsCompletionNotification,
-  FetchEntityDetailsResult,
+  type FetchEntityDetailsResult,
 } from "./fetchEntityDetails";
 import { createRandomEntities } from "@/utils/testing";
 

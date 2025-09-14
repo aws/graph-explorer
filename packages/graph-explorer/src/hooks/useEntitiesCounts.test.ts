@@ -1,5 +1,5 @@
 import useEntitiesCounts from "./useEntitiesCounts";
-import { RawConfiguration, Schema } from "@/core";
+import { type RawConfiguration, type Schema } from "@/core";
 import { vi } from "vitest";
 import {
   createRandomEdgeTypeConfig,

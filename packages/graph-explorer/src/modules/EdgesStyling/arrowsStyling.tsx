@@ -1,4 +1,4 @@
-import { PropsWithChildren } from "react";
+import { type PropsWithChildren } from "react";
 import {
   ArrowCircle,
   ArrowDiamond,
@@ -11,7 +11,7 @@ import {
   ArrowTriangleCross,
   ArrowTriangleTee,
   ArrowVee,
-  SelectOption,
+  type SelectOption,
 } from "@/components";
 
 const Wrapper = ({ children }: PropsWithChildren<any>) => (

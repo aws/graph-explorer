@@ -1,6 +1,6 @@
-import { Vertex, Edge, AttributeConfig, EntityPropertyValue } from "@/core";
+import { type Vertex, type Edge, type AttributeConfig, type EntityPropertyValue } from "@/core";
 import { MISSING_DISPLAY_VALUE, formatDate } from "@/utils";
-import { TextTransformer } from "@/hooks";
+import { type TextTransformer } from "@/hooks";
 
 /** Represents an attribute's display information after all transformations have been applied. */
 export type DisplayAttribute = {

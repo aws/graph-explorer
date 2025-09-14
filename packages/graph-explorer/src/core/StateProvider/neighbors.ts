@@ -1,4 +1,4 @@
-import { useDisplayVerticesInCanvas, VertexId } from "@/core";
+import { useDisplayVerticesInCanvas, type VertexId } from "@/core";
 import { atom, useAtomValue } from "jotai";
 import { atomFamily, useAtomCallback } from "jotai/utils";
 import { edgesAtom } from "./edges";

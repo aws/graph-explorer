@@ -4,7 +4,7 @@ import { useQueryEngine } from "@/core/connector";
 import gremlinTs from "./translations/gremlin-translations.json";
 import sparqlTs from "./translations/sparql-translations.json";
 import openCypherTs from "./translations/openCypher-translations.json";
-import { QueryEngine } from "@shared/types";
+import { type QueryEngine } from "@shared/types";
 
 const translations: Record<QueryEngine, Record<string, string>> = {
   gremlin: flatten(gremlinTs),
