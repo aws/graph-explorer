@@ -1,6 +1,7 @@
 import { atomWithLocalForage } from "./localForageEffect";
-import { useAtom } from "jotai";
+import { useAtom, WritableAtom } from "jotai";
 import { clone } from "lodash";
+import { useDeferredValue, useEffect, useState } from "react";
 
 export type ShapeStyle =
   | "rectangle"
@@ -101,6 +102,22 @@ export const userStylingAtom = atomWithLocalForage<UserStyling>(
   "user-styling"
 );
 
+function useDeferredAtom<Value, Result>(
+  atom: WritableAtom<Value, [Value], Result>
+) {
+  const [atomValue, setAtomValue] = useAtom(atom);
+  const [reactValue, setReactValue] = useState(atomValue);
+  const deferredValue = useDeferredValue(reactValue);
+
+  // Update the atom value in an effect when React rendering sees a gap
+  useEffect(() => {
+    setAtomValue(deferredValue);
+  }, [deferredValue, setAtomValue]);
+
+  // Only return the React state since we are managing all the atom state internally
+  return [reactValue, setReactValue] as const;
+}
+
 type UpdatedVertexStyle = Omit<VertexPreferences, "type">;
 
 /**
@@ -110,14 +127,14 @@ type UpdatedVertexStyle = Omit<VertexPreferences, "type">;
  * @returns The vertex style if it exists, an update function, and a reset function
  */
 export function useVertexStyling(type: string) {
-  const [allStyling, setAllStyling] = useAtom(userStylingAtom);
+  const [allStyling, setAllStyling] = useDeferredAtom(userStylingAtom);
 
   const vertexStyle = allStyling.vertices?.find(v => v.type === type);
 
-  const setVertexStyle = async (updatedStyle: UpdatedVertexStyle) => {
-    await setAllStyling(async prevPromise => {
+  const setVertexStyle = (updatedStyle: UpdatedVertexStyle) => {
+    setAllStyling(prevPromise => {
       // Shallow clone so React re-renders properly
-      const prev = clone(await prevPromise);
+      const prev = clone(prevPromise);
 
       const hasEntry = prev.vertices?.some(v => v.type === type);
       if (hasEntry) {
@@ -143,9 +160,9 @@ export function useVertexStyling(type: string) {
     });
   };
 
-  const resetVertexStyle = async () =>
-    await setAllStyling(async prevPromise => {
-      const prev = clone(await prevPromise);
+  const resetVertexStyle = () =>
+    setAllStyling(prevPromise => {
+      const prev = clone(prevPromise);
       prev.vertices = prev.vertices?.filter(v => v.type !== type);
       return prev;
     });
@@ -166,14 +183,14 @@ type UpdatedEdgeStyle = Omit<EdgePreferences, "type">;
  * @returns The edge style if it exists, an update function, and a reset function
  */
 export function useEdgeStyling(type: string) {
-  const [allStyling, setAllStyling] = useAtom(userStylingAtom);
+  const [allStyling, setAllStyling] = useDeferredAtom(userStylingAtom);
 
   const edgeStyle = allStyling.edges?.find(v => v.type === type);
 
-  const setEdgeStyle = async (updatedStyle: UpdatedEdgeStyle) => {
-    await setAllStyling(async prevPromise => {
+  const setEdgeStyle = (updatedStyle: UpdatedEdgeStyle) => {
+    setAllStyling(prevPromise => {
       // Shallow clone so React re-renders properly
-      const prev = clone(await prevPromise);
+      const prev = clone(prevPromise);
 
       const hasEntry = prev.edges?.some(v => v.type === type);
       if (hasEntry) {
@@ -199,9 +216,9 @@ export function useEdgeStyling(type: string) {
     });
   };
 
-  const resetEdgeStyle = async () =>
-    await setAllStyling(async prevPromise => {
-      const prev = clone(await prevPromise);
+  const resetEdgeStyle = () =>
+    setAllStyling(prevPromise => {
+      const prev = clone(prevPromise);
       prev.edges = prev.edges?.filter(v => v.type !== type);
       return prev;
     });
