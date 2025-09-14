@@ -9,7 +9,12 @@ import {
   type PrefixTypeConfig,
   type VertexTypeConfig,
 } from "@/core/ConfigurationProvider";
-import { type Edge, type Entities, type EntityProperties, type Vertex } from "@/core";
+import {
+  type Edge,
+  type Entities,
+  type EntityProperties,
+  type Vertex,
+} from "@/core";
 import { logger } from "@/utils";
 import generatePrefixes from "@/utils/generatePrefixes";
 import { type SetStateActionWithReset } from "@/utils/jotai";

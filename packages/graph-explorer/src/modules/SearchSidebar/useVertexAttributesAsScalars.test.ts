@@ -1,5 +1,9 @@
 import { useVertexAttributesAsScalars } from "./useVertexAttributesAsScalars";
-import { type DisplayVertex, createVertexId, type DisplayAttribute } from "@/core";
+import {
+  type DisplayVertex,
+  createVertexId,
+  type DisplayAttribute,
+} from "@/core";
 import {
   DbState,
   createRandomQueryEngine,

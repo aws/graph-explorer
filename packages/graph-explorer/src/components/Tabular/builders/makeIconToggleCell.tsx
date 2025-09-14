@@ -3,7 +3,6 @@ import type { ReactNode } from "react";
 import type { CellComponentProps } from "../useTabular";
 import { IconButton } from "@/components";
 
-
 type IconActionCellProps<T extends object> = {
   title: string;
   on: ReactNode;

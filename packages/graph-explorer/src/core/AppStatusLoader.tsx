@@ -1,4 +1,9 @@
-import { type PropsWithChildren, startTransition, Suspense, useEffect } from "react";
+import {
+  type PropsWithChildren,
+  startTransition,
+  Suspense,
+  useEffect,
+} from "react";
 import { useLocation } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useAtom, useAtomValue } from "jotai";

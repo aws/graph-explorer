@@ -1,4 +1,8 @@
-import { type DefaultOptions, QueryCache, QueryClient } from "@tanstack/react-query";
+import {
+  type DefaultOptions,
+  QueryCache,
+  QueryClient,
+} from "@tanstack/react-query";
 import { atom } from "jotai";
 import { explorerAtom } from "./connector";
 import { logger, NetworkError } from "@/utils";

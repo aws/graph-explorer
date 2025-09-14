@@ -13,7 +13,14 @@ import {
   type ResultVertex,
 } from "../entities";
 import { fetchEntityDetails } from "./fetchEntityDetails";
-import { type Vertex, type Edge, type VertexId, type EdgeId, toNodeMap, toEdgeMap } from "@/core";
+import {
+  type Vertex,
+  type Edge,
+  type VertexId,
+  type EdgeId,
+  toNodeMap,
+  toEdgeMap,
+} from "@/core";
 import { logger } from "@/utils";
 
 export async function patchEntityDetails(

@@ -1,4 +1,3 @@
-
 import { type MouseEvent, useEffect, useState } from "react";
 import type { Row, TableInstance } from "react-table";
 

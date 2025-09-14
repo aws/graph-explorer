@@ -1,4 +1,9 @@
-import { type Vertex, type Edge, type AttributeConfig, type EntityPropertyValue } from "@/core";
+import {
+  type Vertex,
+  type Edge,
+  type AttributeConfig,
+  type EntityPropertyValue,
+} from "@/core";
 import { MISSING_DISPLAY_VALUE, formatDate } from "@/utils";
 import { type TextTransformer } from "@/hooks";
 

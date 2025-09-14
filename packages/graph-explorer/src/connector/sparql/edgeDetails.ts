@@ -1,4 +1,7 @@
-import { type EdgeDetailsRequest, type EdgeDetailsResponse } from "../useGEFetchTypes";
+import {
+  type EdgeDetailsRequest,
+  type EdgeDetailsResponse,
+} from "../useGEFetchTypes";
 import { parseEdgeId } from "./parseEdgeId";
 import { createEdge, type Edge } from "@/core";
 

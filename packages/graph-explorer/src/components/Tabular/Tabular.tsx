@@ -9,7 +9,6 @@ import {
 import type { TableInstance } from "react-table";
 import useDeepCompareEffect from "use-deep-compare-effect";
 
-
 import {
   PaginationControl,
   TabularEmptyBodyControls,

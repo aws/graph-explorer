@@ -10,7 +10,11 @@ import {
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { v4 } from "uuid";
 
-import { initialState, type Notification, type NotificationState } from "./reducer";
+import {
+  initialState,
+  type Notification,
+  type NotificationState,
+} from "./reducer";
 import useManager from "./useManager";
 
 export type NotificationContextValue = {

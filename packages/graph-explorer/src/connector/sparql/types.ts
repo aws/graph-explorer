@@ -1,6 +1,11 @@
 import { z } from "zod";
 import type { NeighborCount } from "../useGEFetchTypes";
-import { type Edge, type EntityProperties, type Vertex, type VertexId } from "@/core";
+import {
+  type Edge,
+  type EntityProperties,
+  type Vertex,
+  type VertexId,
+} from "@/core";
 
 export type SparqlFetch = <TResult = any>(
   queryTemplate: string

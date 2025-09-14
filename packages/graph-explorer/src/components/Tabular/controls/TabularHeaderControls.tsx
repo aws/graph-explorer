@@ -7,7 +7,6 @@ import { cssVar } from "@/core/ThemeProvider/utils/lib";
 import type { ThemeStyleFn } from "@/core";
 import { useWithTheme } from "@/core";
 
-
 export type TabularHeaderControlsProps = PropsWithChildren<{
   className?: string;
   variant?: TabularVariantType;

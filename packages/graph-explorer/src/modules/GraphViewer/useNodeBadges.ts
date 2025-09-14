@@ -1,4 +1,7 @@
-import { type Badge, type BadgeRenderer } from "@/components/Graph/hooks/useRenderBadges";
+import {
+  type Badge,
+  type BadgeRenderer,
+} from "@/components/Graph/hooks/useRenderBadges";
 import {
   getVertexIdFromRenderedVertexId,
   type RenderedVertexId,

@@ -1,5 +1,8 @@
 import { createRandomName } from "@shared/utils/testing";
-import { type RawConfiguration, type VertexTypeConfig } from "../ConfigurationProvider";
+import {
+  type RawConfiguration,
+  type VertexTypeConfig,
+} from "../ConfigurationProvider";
 import {
   defaultEdgeTypeConfig,
   defaultVertexTypeConfig,

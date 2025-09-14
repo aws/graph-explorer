@@ -1,5 +1,10 @@
 import { type PropsWithChildren } from "react";
-import { LineDashed, LineDotted, LineSolid, type SelectOption } from "@/components";
+import {
+  LineDashed,
+  LineDotted,
+  LineSolid,
+  type SelectOption,
+} from "@/components";
 
 const Wrapper = ({ children }: PropsWithChildren<any>) => (
   <div

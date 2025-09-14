@@ -1,7 +1,6 @@
 import type { HeaderGroup, TableInstance } from "react-table";
 import { cn } from "@/utils";
 
-
 import { ArrowDown } from "@/components/icons";
 
 const TabularHeader = <T extends object>({
