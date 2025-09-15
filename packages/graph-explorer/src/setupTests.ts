@@ -49,20 +49,6 @@ vi.mock("@/core/queryClient", async importOriginal => {
   const original = await importOriginal<typeof import("@/core/queryClient")>();
   return {
     ...original,
-    createDefaultOptions: (explorer: any) => {
-      const defaultOptions = original.createDefaultOptions(explorer);
-      return {
-        ...defaultOptions,
-        queries: {
-          ...defaultOptions.queries,
-          retry: false,
-        },
-        mutations: {
-          ...defaultOptions.mutations,
-          retry: false,
-        },
-      };
-    },
     createQueryClient: ({ explorer }: { explorer: any }) => {
       const client = original.createQueryClient({ explorer });
       const defaultOptions = client.getDefaultOptions();
