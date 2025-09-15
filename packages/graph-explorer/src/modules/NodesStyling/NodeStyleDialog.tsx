@@ -125,7 +125,7 @@ function Content({ vertexType }: { vertexType: string }) {
     }
     try {
       const result = await file2Base64(file);
-      await setVertexStyle({ iconUrl: result, iconImageType: file.type });
+      setVertexStyle({ iconUrl: result, iconImageType: file.type });
     } catch (error) {
       console.error("Unable to convert uploaded image to base64: ", error);
     }
