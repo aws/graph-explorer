@@ -43,9 +43,9 @@ const iconStyledQueryOptions = (iconData: string, color: string) =>
 export async function renderNode(
   client: QueryClient,
   vtConfig: VertexIconConfig
-): Promise<string | undefined> {
+): Promise<string | null> {
   if (!vtConfig.iconUrl) {
-    return;
+    return null;
   }
 
   if (vtConfig.iconImageType !== "image/svg+xml") {
@@ -62,7 +62,7 @@ export async function renderNode(
     return iconStyled;
   } catch (e) {
     logger.error("Failed to retrieve and style the icon", e, vtConfig.iconUrl);
-    return;
+    return null;
   }
 }
 
