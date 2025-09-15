@@ -45,8 +45,8 @@ beforeEach(() => {
 
 // Mock the internal createQueryClient to disable retries
 // Use the actual implementation, but turn off retries in the default options.
-vi.mock("@/core/queryClient", async importOriginal => {
-  const original = await importOriginal<typeof import("@/core/queryClient")>();
+vi.mock(import("./core/queryClient"), async importOriginal => {
+  const original = await importOriginal();
   return {
     ...original,
     createQueryClient: ({ explorer }: { explorer: any }) => {
