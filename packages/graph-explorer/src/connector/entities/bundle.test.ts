@@ -198,4 +198,134 @@ describe("getDisplayValueForBundle", () => {
       `Price: ${expectedPrice}${NBSP}• Population: ${expectedPopulation}`
     );
   });
+
+  describe("with textTransformer", () => {
+    it("should apply text transformer to scalar names and values", () => {
+      const bundle = createPatchedResultBundle({
+        values: [
+          createResultScalar({ value: "john doe", name: "user_name" }),
+          createResultScalar({ value: "active", name: "status" }),
+        ],
+      });
+
+      const upperCaseTransformer = (text: string) => text.toUpperCase();
+      const result = getDisplayValueForBundle(bundle, upperCaseTransformer);
+
+      expect(result).toBe(`USER_NAME: JOHN DOE${NBSP}• STATUS: ACTIVE`);
+    });
+
+    it("should apply text transformer to scalar values without names", () => {
+      const bundle = createPatchedResultBundle({
+        values: [
+          createResultScalar({ value: "hello world" }),
+          createResultScalar({ value: "test value" }),
+        ],
+      });
+
+      const upperCaseTransformer = (text: string) => text.toUpperCase();
+      const result = getDisplayValueForBundle(bundle, upperCaseTransformer);
+
+      expect(result).toBe(`HELLO WORLD${NBSP}• TEST VALUE`);
+    });
+
+    it("should apply text transformer to bundle names", () => {
+      const nestedBundle = createPatchedResultBundle({
+        name: "nested_data",
+        values: [createResultScalar({ value: "test" })],
+      });
+
+      const bundle = createPatchedResultBundle({
+        values: [nestedBundle],
+      });
+
+      const upperCaseTransformer = (text: string) => text.toUpperCase();
+      const result = getDisplayValueForBundle(bundle, upperCaseTransformer);
+
+      expect(result).toBe("NESTED_DATA: [...]");
+    });
+
+    it("should not transform vertex and edge names or IDs", () => {
+      const vertex = createTestableVertex().with({ id: "v123" });
+      const edge = createTestableEdge().with({ id: "e456" });
+      const bundle = createPatchedResultBundle({
+        values: [
+          vertex.asPatchedResult("user_profile"),
+          edge.asPatchedResult("connection_edge"),
+        ],
+      });
+
+      const upperCaseTransformer = (text: string) => text.toUpperCase();
+      const result = getDisplayValueForBundle(bundle, upperCaseTransformer);
+
+      expect(result).toBe(
+        `user_profile: v(v123)${NBSP}• connection_edge: e(e456)`
+      );
+    });
+
+    it("should handle null values with text transformer", () => {
+      const bundle = createPatchedResultBundle({
+        values: [
+          createResultScalar({ value: null, name: "empty_field" }),
+          createResultScalar({ value: null }),
+        ],
+      });
+
+      const upperCaseTransformer = (text: string) => text.toUpperCase();
+      const result = getDisplayValueForBundle(bundle, upperCaseTransformer);
+
+      expect(result).toBe(
+        `EMPTY_FIELD: ${MISSING_DISPLAY_VALUE}${NBSP}• ${MISSING_DISPLAY_VALUE}`
+      );
+    });
+
+    it("should handle mixed entity types with text transformer", () => {
+      const vertex = createTestableVertex().with({ id: "v123" });
+      const bundle = createPatchedResultBundle({
+        values: [
+          createResultScalar({ value: "john", name: "name" }),
+          vertex.asPatchedResult("profile"),
+          createPatchedResultBundle({
+            name: "sub_bundle",
+            values: [createResultScalar({ value: "test" })],
+          }),
+        ],
+      });
+
+      const upperCaseTransformer = (text: string) => text.toUpperCase();
+      const result = getDisplayValueForBundle(bundle, upperCaseTransformer);
+
+      expect(result).toBe(
+        `NAME: JOHN${NBSP}• profile: v(v123)${NBSP}• SUB_BUNDLE: [...]`
+      );
+    });
+
+    it("should work with identity transformer (no change)", () => {
+      const bundle = createPatchedResultBundle({
+        values: [
+          createResultScalar({ value: "John", name: "Name" }),
+          createResultScalar({ value: 25, name: "Age" }),
+        ],
+      });
+
+      const identityTransformer = (text: string) => text;
+      const result = getDisplayValueForBundle(bundle, identityTransformer);
+
+      expect(result).toBe(`Name: John${NBSP}• Age: 25`);
+    });
+
+    it("should handle complex transformations", () => {
+      const bundle = createPatchedResultBundle({
+        values: [
+          createResultScalar({ value: "user_name", name: "field_name" }),
+          createResultScalar({ value: "some value" }),
+        ],
+      });
+
+      const kebabCaseTransformer = (text: string) =>
+        text.replace(/_/g, "-").toLowerCase();
+      const result = getDisplayValueForBundle(bundle, kebabCaseTransformer);
+
+      expect(result).toBe(`field-name: user-name${NBSP}• some value`);
+    });
+  });
 });

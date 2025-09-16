@@ -4,6 +4,7 @@ import {
   SearchResultAttributeValue,
 } from "@/components";
 import { ResultScalar, getDisplayValueForScalar } from "@/connector/entities";
+import { useTextTransform } from "@/hooks";
 
 export function ScalarSearchResult({
   scalar,
@@ -12,8 +13,9 @@ export function ScalarSearchResult({
   scalar: ResultScalar;
   level: number;
 }) {
+  const textTransformer = useTextTransform();
   const title = scalar.name;
-  const subtitle = getDisplayValueForScalar(scalar.value);
+  const subtitle = textTransformer(getDisplayValueForScalar(scalar.value));
 
   return (
     <SearchResultAttribute level={level} className="w-full">

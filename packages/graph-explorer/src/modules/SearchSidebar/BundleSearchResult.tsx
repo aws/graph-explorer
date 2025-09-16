@@ -13,6 +13,7 @@ import {
   getDisplayValueForBundle,
   type PatchedResultBundle,
 } from "@/connector/entities";
+import { useTextTransform } from "@/hooks";
 
 export function BundleSearchResult({
   bundle,
@@ -21,8 +22,9 @@ export function BundleSearchResult({
   bundle: PatchedResultBundle;
   level?: number;
 }) {
-  const title = bundle.name;
-  const subtitle = getDisplayValueForBundle(bundle);
+  const textTransformer = useTextTransform();
+  const title = bundle.name ? textTransformer(bundle.name) : bundle.name;
+  const subtitle = getDisplayValueForBundle(bundle, textTransformer);
 
   return (
     <SearchResultCollapsible level={level}>
