@@ -47,23 +47,8 @@ export async function vertexDetails(
         ${request.vertexIds.map(idParam).join("\n")}
       }
 
-      {
-        # Get the resource attributes
-        SELECT ?resource ?label ?value
-        WHERE {
-          ?resource ?label ?value .
-          FILTER(isLiteral(?value))
-        }
-      }
-      UNION
-      {
-        # Get the resource type
-        SELECT ?resource ?label ?value
-        WHERE {
-          ?resource a ?value .
-          BIND(IRI("${rdfTypeUri}") AS ?label)
-        }
-      }
+      ?resource ?label ?value .
+      FILTER(isLiteral(?value) || ?label = rdf:type)
     }
   `;
 

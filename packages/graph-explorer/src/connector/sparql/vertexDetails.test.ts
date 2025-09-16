@@ -2,6 +2,7 @@ import { createRandomVertexForRdf } from "@/utils/testing";
 import { vertexDetails } from "./vertexDetails";
 import { createVertexId, Vertex } from "@/core";
 import { createRandomInteger } from "@shared/utils/testing";
+import { query } from "@/utils";
 
 describe("vertexDetails", () => {
   it("should return an empty array when no vertex IDs are provided", async () => {
@@ -22,6 +23,57 @@ describe("vertexDetails", () => {
     const result = await vertexDetails(mockFetch, { vertexIds: [vertex.id] });
 
     expect(result.vertices).toStrictEqual([vertex]);
+  });
+
+  it("should use template with one vertex ID", async () => {
+    const vertex = createRandomVertexForRdf();
+    const response = createResponseFromVertices(vertex);
+    const mockFetch = vi
+      .fn()
+      .mockImplementation(() => Promise.resolve(response));
+
+    await vertexDetails(mockFetch, { vertexIds: [vertex.id] });
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      query`
+        # Get the resource attributes and class
+        SELECT ?resource ?label ?value
+        WHERE {
+          VALUES ?resource { 
+            <${vertex.id}> 
+          }
+          ?resource ?label ?value .
+          FILTER(isLiteral(?value) || ?label = rdf:type)
+        }
+      `
+    );
+  });
+
+  it("should use template with multiple vertex IDs", async () => {
+    const vertices = [createRandomVertexForRdf(), createRandomVertexForRdf()];
+    const response = createResponseFromVertices(...vertices);
+    const mockFetch = vi
+      .fn()
+      .mockImplementation(() => Promise.resolve(response));
+
+    await vertexDetails(mockFetch, {
+      vertexIds: vertices.map(vertex => vertex.id),
+    });
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      query`
+        # Get the resource attributes and class
+        SELECT ?resource ?label ?value
+        WHERE {
+          VALUES ?resource {
+            <${vertices[0].id}>
+            <${vertices[1].id}>
+          }
+          ?resource ?label ?value .
+          FILTER(isLiteral(?value) || ?label = rdf:type)
+        }
+      `
+    );
   });
 
   it("should return multiple vertex details", async () => {
