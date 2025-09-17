@@ -3,7 +3,7 @@ FROM amazonlinux:2023 AS base
 ENV NODE_VERSION=24.4.0
 
 RUN yum update -y && \
-    yum install -y tar xz openssl curl && \
+    yum install -y tar xz openssl curl-minimal && \
     ARCH=$(uname -m) && \
     if [ "$ARCH" = "x86_64" ]; then NODE_ARCH="x64"; \
     elif [ "$ARCH" = "aarch64" ]; then NODE_ARCH="arm64"; \
