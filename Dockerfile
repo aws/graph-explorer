@@ -3,7 +3,7 @@ FROM amazonlinux:2023 AS base
 ENV NODE_VERSION=24.4.0
 
 RUN yum update -y && \
-    yum install -y tar xz openssl && \
+    yum install -y tar xz openssl curl && \
     ARCH=$(uname -m) && \
     if [ "$ARCH" = "x86_64" ]; then NODE_ARCH="x64"; \
     elif [ "$ARCH" = "aarch64" ]; then NODE_ARCH="arm64"; \
@@ -20,18 +20,6 @@ ARG NEPTUNE_NOTEBOOK
 
 ENV NEPTUNE_NOTEBOOK=$NEPTUNE_NOTEBOOK
 ENV HOME=/graph-explorer
-
-# Conditionally set the following environment values using +/- variable expansion
-# https://docs.docker.com/reference/dockerfile/#environment-replacement
-# 
-# If NEPTUNE_NOTEBOOK value is set then
-#   - GRAPH_EXP_ENV_ROOT_FOLDER = /proxy/9250/explorer
-#   - PROXY_SERVER_HTTP_PORT    = 9250
-#   - LOG_STYLE                 = cloudwatch
-# Else the values are the defaults
-#   - GRAPH_EXP_ENV_ROOT_FOLDER = /explorer
-#   - PROXY_SERVER_HTTP_PORT    = 80
-#   - LOG_STYLE                 = default
 
 ENV GRAPH_EXP_ENV_ROOT_FOLDER=${NEPTUNE_NOTEBOOK:+/proxy/9250/explorer}
 ENV GRAPH_EXP_ENV_ROOT_FOLDER=${GRAPH_EXP_ENV_ROOT_FOLDER:-/explorer}
@@ -57,4 +45,8 @@ RUN pnpm install && \
 EXPOSE 443
 EXPOSE 80
 EXPOSE 9250
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD curl -f http://localhost:${PROXY_SERVER_HTTP_PORT}/ || exit 1
+
 ENTRYPOINT ["./docker-entrypoint.sh"]
