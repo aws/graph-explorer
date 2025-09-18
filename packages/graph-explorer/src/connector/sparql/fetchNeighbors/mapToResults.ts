@@ -1,6 +1,13 @@
 import { RawValue, rdfTypeUri } from "../types";
-import { createEdge, createVertex, Entities, Vertex } from "@/core";
+import {
+  createEdge,
+  createVertex,
+  Edge,
+  Entities,
+  EntityProperties,
+} from "@/core";
 import { createRdfEdgeId } from "../createRdfEdgeId";
+import { mapAttributeValue } from "../mappers/mapAttributeValue";
 
 export type RawOneHopNeighborsResponse = {
   results: {
@@ -13,92 +20,88 @@ export type RawOneHopNeighborsResponse = {
 };
 type Bindings = RawOneHopNeighborsResponse["results"]["bindings"];
 
+type VertexDraft = {
+  id: string;
+  types?: string[];
+  attributes?: EntityProperties;
+  isBlankNode: boolean;
+};
+
 export function mapToResults(bindings: Bindings): Entities {
-  // Get types map
-  const typesMap = getTypesMap(bindings);
+  const edges: Edge[] = [];
+  const vertexDrafts: Map<string, VertexDraft> = new Map();
 
-  // Get node related triples
-  const vertices = bindings
-    .values()
-    // Filter out type triples
-    .filter(triple => triple.p.value !== rdfTypeUri)
-    // Filter out non-literal values
-    .filter(triple => triple.value.type === "literal")
-    .reduce((vertices, current) => {
-      // Get the types for the current node
-      const uri = current.subject.value;
-      const classes = typesMap.get(uri);
-
-      if (!classes?.length) {
-        // Nodes are only valid if they include at least one class
-        return vertices;
-      }
-
-      // Get existing vertex or create a new one
-      const vertex =
-        vertices.get(uri) ??
-        createVertex({
-          id: uri,
-          types: classes,
-          isBlankNode: current.subject.type === "bnode",
-          attributes: {},
-        });
-
-      // Add the attribute to the vertex
-      vertex.attributes[current.p.value] =
-        current.value.datatype === "http://www.w3.org/2001/XMLSchema#integer"
-          ? Number(current.value.value)
-          : current.value.value;
-
-      return vertices.set(uri, vertex);
-    }, new Map<string, Vertex>())
-    .values()
-    .toArray();
-
-  // Get edge related triples
-  const edges = bindings
-    .values()
-    .filter(
-      triple =>
-        triple.p.value !== rdfTypeUri &&
-        (triple.subject.type === "uri" || triple.subject.type === "bnode") &&
-        (triple.value.type === "uri" || triple.value.type === "bnode")
-    )
-    .map(triple => {
-      const sourceClasses = typesMap.get(triple.subject.value);
-      const targetClasses = typesMap.get(triple.value.value);
-
-      if (!sourceClasses?.length || !targetClasses?.length) {
-        return null;
-      }
-
-      const sourceId = triple.subject.value;
-      const targetId = triple.value.value;
-      const uri = triple.p.value;
-
-      return createEdge({
-        id: createRdfEdgeId(sourceId, uri, targetId),
-        sourceId,
-        targetId,
-        type: uri,
-        attributes: {},
+  /** Updates the existing draft by merging data, or inserts a new entry. */
+  const updateDraft = (draft: VertexDraft) => {
+    const existing = vertexDrafts.get(draft.id);
+    if (existing) {
+      vertexDrafts.set(draft.id, {
+        ...existing,
+        types: [...(existing.types ?? []), ...(draft.types ?? [])],
+        attributes: {
+          ...existing.attributes,
+          ...draft.attributes,
+        },
+        isBlankNode: draft.isBlankNode,
       });
+    } else {
+      vertexDrafts.set(draft.id, draft);
+    }
+  };
+
+  for (const binding of bindings) {
+    const { subject, p, value } = binding;
+
+    if (
+      (subject.type === "uri" || subject.type === "bnode") &&
+      (value.type === "uri" || value.type === "bnode") &&
+      p.value !== rdfTypeUri
+    ) {
+      // Map edge bindings directly to an edge
+      const edgeId = createRdfEdgeId(subject.value, p.value, value.value);
+      const edge = createEdge({
+        id: edgeId,
+        type: p.value,
+        sourceId: subject.value,
+        targetId: value.value,
+      });
+
+      edges.push(edge);
+    } else {
+      // Aggregate resource bindings in to a VertexDraft
+      const isBlankNode = subject.type === "bnode";
+      if (p.value === rdfTypeUri) {
+        // Set the type
+        updateDraft({
+          id: subject.value,
+          types: [value.value],
+          isBlankNode,
+        });
+      } else {
+        // Set property values
+        updateDraft({
+          id: subject.value,
+          attributes: {
+            [p.value]: mapAttributeValue(value),
+          },
+          isBlankNode,
+        });
+      }
+    }
+  }
+
+  // Map all drafts to actual Vertex objects
+  const vertices = Array.from(vertexDrafts.values()).map(draft =>
+    createVertex({
+      id: draft.id,
+      types: draft.types,
+      attributes: draft.attributes ?? {},
+      isBlankNode: draft.isBlankNode,
     })
-    .filter(edge => edge != null)
-    .toArray();
-
-  return { vertices, edges };
-}
-
-function getTypesMap(bindings: Bindings) {
-  const typesMap = Map.groupBy(
-    bindings.filter(item => item.p.value === rdfTypeUri),
-    item => item.subject.value
   );
 
-  return new Map(
-    typesMap
-      .entries()
-      .map(([key, value]) => [key, value.map(v => v.value.value)])
-  );
+  return {
+    vertices,
+    edges,
+  };
 }

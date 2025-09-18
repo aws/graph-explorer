@@ -4,6 +4,7 @@ import {
   createRandomEdgeForRdf,
   createRandomEntitiesForRdf,
   createRandomVertexForRdf,
+  createTestableVertex,
 } from "@/utils/testing";
 import { rdfTypeUri } from "../types";
 
@@ -12,6 +13,17 @@ describe("mapToResults", () => {
     const result = mapToResults([]);
     expect(result).toStrictEqual({ vertices: [], edges: [] });
   });
+
+  it("should map vertex with no attributes", () => {
+    const vertex = createTestableVertex()
+      .withRdfValues()
+      .with({ attributes: {} })
+      .asVertex();
+    const bindings = createBindings([vertex], []);
+    const result = mapToResults(bindings);
+    expect(result).toStrictEqual({ vertices: [vertex], edges: [] });
+  });
+
   it("should map vertices to results", () => {
     const entities = createRandomEntitiesForRdf();
     const bindings = createBindings(entities.vertices, entities.edges);
