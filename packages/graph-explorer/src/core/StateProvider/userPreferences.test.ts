@@ -68,6 +68,73 @@ describe("useVertexStyling", () => {
 
     expect(result.current.vertexStyle).toBeUndefined();
   });
+
+  it("should not affect other vertex styles when updating", () => {
+    const dbState = new DbState();
+    dbState.addVertexStyle("type1", { color: "red" });
+    dbState.addVertexStyle("type2", { color: "blue" });
+
+    const { result } = renderHookWithJotai(
+      () => useVertexStyling("type1"),
+      snapshot => dbState.applyTo(snapshot)
+    );
+
+    act(() => result.current.setVertexStyle({ borderColor: "green" }));
+
+    // Check that type1 was updated
+    expect(result.current.vertexStyle).toEqual({
+      type: "type1",
+      color: "red",
+      borderColor: "green",
+    });
+
+    // Check that type2 was not affected by getting its hook
+    const { result: result2 } = renderHookWithJotai(
+      () => useVertexStyling("type2"),
+      snapshot => dbState.applyTo(snapshot)
+    );
+    expect(result2.current.vertexStyle).toEqual({
+      type: "type2",
+      color: "blue",
+    });
+  });
+
+  it("should not affect other vertex styles when resetting", () => {
+    const dbState = new DbState();
+    dbState.addVertexStyle("type1", { color: "red" });
+    dbState.addVertexStyle("type2", { color: "blue" });
+
+    const { result } = renderHookWithJotai(
+      () => useVertexStyling("type1"),
+      snapshot => dbState.applyTo(snapshot)
+    );
+
+    act(() => result.current.resetVertexStyle());
+
+    expect(result.current.vertexStyle).toBeUndefined();
+
+    // Check that type2 still exists
+    const { result: result2 } = renderHookWithJotai(
+      () => useVertexStyling("type2"),
+      snapshot => dbState.applyTo(snapshot)
+    );
+    expect(result2.current.vertexStyle).toEqual({
+      type: "type2",
+      color: "blue",
+    });
+  });
+
+  it("should handle empty style updates", () => {
+    const dbState = new DbState();
+    const { result } = renderHookWithJotai(
+      () => useVertexStyling("test"),
+      snapshot => dbState.applyTo(snapshot)
+    );
+
+    act(() => result.current.setVertexStyle({}));
+
+    expect(result.current.vertexStyle).toEqual({ type: "test" });
+  });
 });
 
 describe("useEdgeStyling", () => {
@@ -137,5 +204,122 @@ describe("useEdgeStyling", () => {
     act(() => result.current.resetEdgeStyle());
 
     expect(result.current.edgeStyle).toBeUndefined();
+  });
+
+  it("should not affect other edge styles when updating", () => {
+    const dbState = new DbState();
+    dbState.addEdgeStyle("type1", { lineColor: "red" });
+    dbState.addEdgeStyle("type2", { lineColor: "blue" });
+
+    const { result } = renderHookWithJotai(
+      () => useEdgeStyling("type1"),
+      snapshot => dbState.applyTo(snapshot)
+    );
+
+    act(() => result.current.setEdgeStyle({ labelColor: "green" }));
+
+    // Check that type1 was updated
+    expect(result.current.edgeStyle).toEqual({
+      type: "type1",
+      lineColor: "red",
+      labelColor: "green",
+    });
+
+    // Check that type2 was not affected
+    const { result: result2 } = renderHookWithJotai(
+      () => useEdgeStyling("type2"),
+      snapshot => dbState.applyTo(snapshot)
+    );
+    expect(result2.current.edgeStyle).toEqual({
+      type: "type2",
+      lineColor: "blue",
+    });
+  });
+
+  it("should not affect other edge styles when resetting", () => {
+    const dbState = new DbState();
+    dbState.addEdgeStyle("type1", { lineColor: "red" });
+    dbState.addEdgeStyle("type2", { lineColor: "blue" });
+
+    const { result } = renderHookWithJotai(
+      () => useEdgeStyling("type1"),
+      snapshot => dbState.applyTo(snapshot)
+    );
+
+    act(() => result.current.resetEdgeStyle());
+
+    expect(result.current.edgeStyle).toBeUndefined();
+
+    // Check that type2 still exists
+    const { result: result2 } = renderHookWithJotai(
+      () => useEdgeStyling("type2"),
+      snapshot => dbState.applyTo(snapshot)
+    );
+    expect(result2.current.edgeStyle).toEqual({
+      type: "type2",
+      lineColor: "blue",
+    });
+  });
+
+  it("should handle empty style updates", () => {
+    const dbState = new DbState();
+    const { result } = renderHookWithJotai(
+      () => useEdgeStyling("test"),
+      snapshot => dbState.applyTo(snapshot)
+    );
+
+    act(() => result.current.setEdgeStyle({}));
+
+    expect(result.current.edgeStyle).toEqual({ type: "test" });
+  });
+});
+
+describe("useDeferredAtom integration", () => {
+  it("should handle multiple rapid updates correctly", () => {
+    const dbState = new DbState();
+    const { result } = renderHookWithJotai(
+      () => useVertexStyling("test"),
+      snapshot => dbState.applyTo(snapshot)
+    );
+
+    // Simulate rapid updates that might happen in real usage
+    act(() => {
+      result.current.setVertexStyle({ color: "red" });
+      result.current.setVertexStyle({ borderColor: "blue" });
+      result.current.setVertexStyle({ shape: "ellipse" });
+    });
+
+    expect(result.current.vertexStyle).toEqual({
+      type: "test",
+      color: "red",
+      borderColor: "blue",
+      shape: "ellipse",
+    });
+  });
+
+  it("should handle deferred atom updates correctly", () => {
+    const dbState = new DbState();
+    const { result } = renderHookWithJotai(
+      () => useVertexStyling("test"),
+      snapshot => dbState.applyTo(snapshot)
+    );
+
+    // Test that the deferred atom pattern works with the hook
+    act(() => result.current.setVertexStyle({ color: "red" }));
+
+    // The hook should immediately reflect the change in its local state
+    expect(result.current.vertexStyle).toEqual({
+      type: "test",
+      color: "red",
+    });
+
+    // Test that subsequent updates work correctly
+    act(() => result.current.setVertexStyle({ borderColor: "blue" }));
+
+    expect(result.current.vertexStyle).toEqual({
+      type: "test",
+      color: "red",
+      borderColor: "blue",
+    });
   });
 });

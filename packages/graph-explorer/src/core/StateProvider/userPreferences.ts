@@ -1,6 +1,5 @@
 import { atomWithLocalForage } from "./localForageEffect";
 import { useAtom, WritableAtom } from "jotai";
-import { clone } from "lodash";
 import { useDeferredValue, useEffect, useState } from "react";
 
 export type ShapeStyle =
@@ -132,40 +131,30 @@ export function useVertexStyling(type: string) {
   const vertexStyle = allStyling.vertices?.find(v => v.type === type);
 
   const setVertexStyle = (updatedStyle: UpdatedVertexStyle) => {
-    setAllStyling(prevPromise => {
-      // Shallow clone so React re-renders properly
-      const prev = clone(prevPromise);
+    setAllStyling(prev => {
+      const vertices = prev.vertices ?? [];
+      const existingIndex = vertices.findIndex(v => v.type === type);
 
-      const hasEntry = prev.vertices?.some(v => v.type === type);
-      if (hasEntry) {
-        // Update the existing entry, merging the updates with the existing style
-        prev.vertices = prev.vertices?.map(existing => {
-          if (existing.type === type) {
-            return {
-              ...existing,
-              ...updatedStyle,
-            };
-          }
-          return existing;
-        });
-      } else {
-        // Add the new entry
-        prev.vertices = (prev.vertices ?? []).concat({
-          type,
+      if (existingIndex >= 0) {
+        // Update existing entry
+        const updatedVertices = [...vertices];
+        updatedVertices[existingIndex] = {
+          ...vertices[existingIndex],
           ...updatedStyle,
-        });
+        };
+        return { ...prev, vertices: updatedVertices };
+      } else {
+        // Add new entry
+        return { ...prev, vertices: [...vertices, { type, ...updatedStyle }] };
       }
-
-      return prev;
     });
   };
 
   const resetVertexStyle = () =>
-    setAllStyling(prevPromise => {
-      const prev = clone(prevPromise);
-      prev.vertices = prev.vertices?.filter(v => v.type !== type);
-      return prev;
-    });
+    setAllStyling(prev => ({
+      ...prev,
+      vertices: prev.vertices?.filter(v => v.type !== type),
+    }));
 
   return {
     vertexStyle,
@@ -188,40 +177,30 @@ export function useEdgeStyling(type: string) {
   const edgeStyle = allStyling.edges?.find(v => v.type === type);
 
   const setEdgeStyle = (updatedStyle: UpdatedEdgeStyle) => {
-    setAllStyling(prevPromise => {
-      // Shallow clone so React re-renders properly
-      const prev = clone(prevPromise);
+    setAllStyling(prev => {
+      const edges = prev.edges ?? [];
+      const existingIndex = edges.findIndex(v => v.type === type);
 
-      const hasEntry = prev.edges?.some(v => v.type === type);
-      if (hasEntry) {
-        // Update the existing entry, merging the updates with the existing style
-        prev.edges = prev.edges?.map(existing => {
-          if (existing.type === type) {
-            return {
-              ...existing,
-              ...updatedStyle,
-            };
-          }
-          return existing;
-        });
-      } else {
-        // Add the new entry
-        prev.edges = (prev.edges ?? []).concat({
-          type,
+      if (existingIndex >= 0) {
+        // Update existing entry
+        const updatedEdges = [...edges];
+        updatedEdges[existingIndex] = {
+          ...edges[existingIndex],
           ...updatedStyle,
-        });
+        };
+        return { ...prev, edges: updatedEdges };
+      } else {
+        // Add new entry
+        return { ...prev, edges: [...edges, { type, ...updatedStyle }] };
       }
-
-      return prev;
     });
   };
 
   const resetEdgeStyle = () =>
-    setAllStyling(prevPromise => {
-      const prev = clone(prevPromise);
-      prev.edges = prev.edges?.filter(v => v.type !== type);
-      return prev;
-    });
+    setAllStyling(prev => ({
+      ...prev,
+      edges: prev.edges?.filter(v => v.type !== type),
+    }));
 
   return {
     edgeStyle,
