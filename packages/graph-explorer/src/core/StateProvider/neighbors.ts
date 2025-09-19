@@ -112,6 +112,7 @@ export function useAllNeighbors() {
     const notificationId = enqueueNotification({
       title: "Updating Neighbors",
       message: `Updating neighbor counts for new nodes`,
+      type: "loading",
       autoHideDuration: null,
     });
     return () => clearNotification(notificationId);
