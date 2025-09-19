@@ -6,7 +6,7 @@ export interface IconBaseProps
   color?: string;
 }
 
-export const IconBase = ({
+const IconBase = ({
   className,
   color,
   children,

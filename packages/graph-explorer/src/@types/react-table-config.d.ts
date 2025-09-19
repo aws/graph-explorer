@@ -105,14 +105,6 @@ declare module "react-table" {
       UseSortByState<D>,
       UseDiffState {}
 
-  export interface ColumnInterface<
-    D extends Record<string, unknown> = Record<string, unknown>,
-  > extends UseFiltersColumnOptions<D>,
-      UseGlobalFiltersColumnOptions<D>,
-      UseGroupByColumnOptions<D>,
-      UseResizeColumnsColumnOptions<D>,
-      UseSortByColumnOptions<D> {}
-
   export interface ColumnInstance<
     D extends Record<string, unknown> = Record<string, unknown>,
   > extends UseFiltersColumnProps<D>,
@@ -139,8 +131,14 @@ declare module "react-table" {
   // react-table propagates every unknown property that is sent to the "columns"
   // TS does not recognize them
   // this is the reason for this extension
-  export interface ColumnInterface<D extends object = object>
-    extends UseTableColumnOptions<D> {
+  export interface ColumnInterface<
+    D extends Record<string, unknown> = Record<string, unknown>,
+  > extends UseTableColumnOptions<D>,
+      UseFiltersColumnOptions<D>,
+      UseGlobalFiltersColumnOptions<D>,
+      UseGroupByColumnOptions<D>,
+      UseResizeColumnsColumnOptions<D>,
+      UseSortByColumnOptions<D> {
     align?: "right" | "left";
     overflow?: "ellipsis" | "truncate" | "none";
     oneLine?: boolean;

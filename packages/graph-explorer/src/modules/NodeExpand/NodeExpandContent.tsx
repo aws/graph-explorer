@@ -1,7 +1,6 @@
 import { Suspense, useState } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import NodeExpandFilters, { type NodeExpandFilter } from "./NodeExpandFilters";
-import type { VertexId } from "@/core";
 import {
   Button,
   DefaultQueryErrorBoundary,
@@ -12,7 +11,12 @@ import {
   Spinner,
   VertexRow,
 } from "@/components";
-import { type DisplayVertex, useNeighbors, useVertex } from "@/core";
+import {
+  type DisplayVertex,
+  type VertexId,
+  useNeighbors,
+  useVertex,
+} from "@/core";
 import { useExpandNode } from "@/hooks";
 import useNeighborsOptions, {
   type NeighborOption,

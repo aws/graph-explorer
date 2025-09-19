@@ -11,7 +11,7 @@ export interface ListItemProps extends HTMLAttributes<HTMLDivElement> {
   isDisabled?: boolean;
 }
 
-export const ListItem = (
+const ListItem = (
   {
     children,
     className,

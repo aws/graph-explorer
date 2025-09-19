@@ -12,4 +12,3 @@ export * from "./drawImage";
 export { default as drawRectangle } from "./drawRectangle";
 export * from "./drawRectangle";
 export { default as getLineDash } from "./getLineDash";
-export * from "./getLineDash";

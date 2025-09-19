@@ -1,7 +1,7 @@
 import type { IconBaseProps } from "./IconBase";
 import IconBase from "./IconBase";
 
-export const GraphExplorerIcon = (props: IconBaseProps) => {
+const GraphExplorerIcon = (props: IconBaseProps) => {
   return (
     <IconBase {...props}>
       <path

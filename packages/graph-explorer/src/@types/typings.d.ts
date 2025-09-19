@@ -1,5 +1,3 @@
-import "rc-dock";
-
 declare global {
   /**
    * Main level and all nested will be optional

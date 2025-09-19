@@ -3,7 +3,6 @@ export { default as getChildOfType } from "./getChildOfType";
 export { default as getChildrenOfType } from "./getChildrenOfType";
 export { default as groupChildrenByType } from "./groupChildrenByType";
 export { default as useClickOutside } from "./useClickOutside";
-export { DEFAULT_SERVICE_TYPE } from "./constants";
 export { default as escapeString } from "./escapeString";
 export { default as batchPromisesSerially } from "./batchPromisesSerially";
 export { default as logger } from "./logger";

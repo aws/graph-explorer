@@ -1,7 +1,6 @@
 import mapApiEdge from "../mappers/mapApiEdge";
 import mapApiVertex from "../mappers/mapApiVertex";
-import type { GEdgeList, GVertex } from "../types";
-import { type GremlinFetch } from "../types";
+import type { GEdgeList, GVertex, GremlinFetch } from "../types";
 import oneHopTemplate from "./oneHopTemplate";
 import {
   type NeighborsRequest,

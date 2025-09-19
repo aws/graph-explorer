@@ -22,7 +22,7 @@ export interface ChipProps
   extends HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof chip> {}
 
-export const Chip = (
+const Chip = (
   { children, className, variant, ...allProps }: PropsWithChildren<ChipProps>,
   ref: ForwardedRef<HTMLDivElement>
 ) => {

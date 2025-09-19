@@ -6,7 +6,6 @@ export { default as CheckboxList } from "./CheckboxList";
 export * from "./CheckboxList";
 
 export { default as Chip } from "./Chip";
-export * from "./Chip";
 
 export * from "./Collapsible";
 
@@ -14,7 +13,6 @@ export * from "./CommonAnimationProps";
 
 export * from "./DefaultQueryErrorBoundary";
 
-export { PanelEmptyState } from "./PanelEmptyState";
 export * from "./PanelEmptyState";
 export { default as PanelError } from "./PanelError";
 

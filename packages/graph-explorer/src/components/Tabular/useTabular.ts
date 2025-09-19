@@ -294,7 +294,7 @@ export interface TabularOptions<T extends object> {
   initialHiddenColumns?: TableState<T>["hiddenColumns"];
 }
 
-export const useTabular = <T extends object>(options: TabularOptions<T>) => {
+const useTabular = <T extends object>(options: TabularOptions<T>) => {
   const {
     data,
     columns,

@@ -1,6 +1,12 @@
 import { chunk } from "lodash";
-import type { GEdge, GInt64, GScalar, GVertex } from "../types";
-import { type GraphSummary, type GremlinFetch } from "../types";
+import type {
+  GEdge,
+  GInt64,
+  GScalar,
+  GVertex,
+  GraphSummary,
+  GremlinFetch,
+} from "../types";
 import edgeLabelsTemplate from "./edgeLabelsTemplate";
 import edgesSchemaTemplate from "./edgesSchemaTemplate";
 import vertexLabelsTemplate from "./vertexLabelsTemplate";

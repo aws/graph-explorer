@@ -1,4 +1,4 @@
-import escapeString from "./escapeString";
+import { escapeString } from "./escapeString";
 
 describe("escapeString", () => {
   it("Should handle empty strings", () => {

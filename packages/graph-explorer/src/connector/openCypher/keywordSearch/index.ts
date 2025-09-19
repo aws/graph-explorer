@@ -1,6 +1,5 @@
 import mapApiVertex from "../mappers/mapApiVertex";
-import type { OCVertex } from "../types";
-import { type OpenCypherFetch } from "../types";
+import { type OpenCypherFetch, type OCVertex } from "../types";
 import keywordSearchTemplate from "./keywordSearchTemplate";
 import { createVertex, type Vertex } from "@/core";
 import {

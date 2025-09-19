@@ -1,7 +1,7 @@
 import {
   type ForwardedRef,
-  forwardRef,
   type PropsWithChildren,
+  forwardRef,
   useEffect,
   useImperativeHandle,
   useState,
@@ -49,7 +49,7 @@ export interface TabularProps<T extends object> extends TabularOptions<T> {
   globalSearch?: string;
 }
 
-export const Tabular = <T extends object>(
+const Tabular = <T extends object>(
   {
     children,
     className,

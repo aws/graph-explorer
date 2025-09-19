@@ -1,5 +1,4 @@
-import type { OCEdge, OCVertex } from "../types";
-import { type GraphSummary, type OpenCypherFetch } from "../types";
+import type { OCEdge, OCVertex, OpenCypherFetch, GraphSummary } from "../types";
 import edgeLabelsTemplate from "./edgeLabelsTemplate";
 import edgesSchemaTemplate from "./edgesSchemaTemplate";
 import vertexLabelsTemplate from "./vertexLabelsTemplate";

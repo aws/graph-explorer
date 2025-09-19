@@ -8,7 +8,7 @@ export type TextFilterProps = {
   startAdornment?: ReactNode;
 };
 
-export function TextFilter<T extends object>({
+function TextFilter<T extends object>({
   placeholder,
   startAdornment,
 }: TextFilterProps) {

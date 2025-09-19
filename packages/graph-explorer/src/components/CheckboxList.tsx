@@ -4,8 +4,8 @@ import {
   type ReactNode,
 } from "react";
 import { Virtuoso } from "react-virtuoso";
-import { Label } from "./Label";
 import { Checkbox } from "./Checkbox";
+import { Label } from "./Label";
 import { cn } from "@/utils";
 
 export type CheckboxListItemProps = {

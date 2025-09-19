@@ -1,11 +1,10 @@
 import mapApiEdge from "../mappers/mapApiEdge";
 import mapApiVertex from "../mappers/mapApiVertex";
-import type { OCEdge, OCVertex } from "../types";
-import { type OpenCypherFetch } from "../types";
+import type { OCEdge, OCVertex, OpenCypherFetch } from "../types";
 import oneHopTemplate from "./oneHopTemplate";
-import {
-  type NeighborsRequest,
-  type NeighborsResponse,
+import type {
+  NeighborsRequest,
+  NeighborsResponse,
 } from "@/connector/useGEFetchTypes";
 import { createEdge, createVertex } from "@/core";
 

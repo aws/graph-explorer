@@ -45,12 +45,28 @@ export default defineConfig(
   reactLint.configs.flat.recommended,
   reactHooks.configs.recommended,
   {
+    extends: [
+      importPlugin.flatConfigs.recommended,
+      importPlugin.flatConfigs.typescript,
+    ],
+  },
+  {
     plugins: {
       "@tanstack/query": fixupPluginRules(tanstackQueryLint),
-      import: importPlugin,
     },
     rules: {
       ...tanstackQueryLint.configs.recommended.rules,
+    },
+    settings: {
+      "import/resolver": {
+        typescript: {
+          project: [
+            "packages/graph-explorer/tsconfig.app.json",
+            "packages/graph-explorer-proxy-server/tsconfig.json",
+            "packages/shared/tsconfig.json",
+          ],
+        },
+      },
     },
   },
   eslintConfigPrettier,

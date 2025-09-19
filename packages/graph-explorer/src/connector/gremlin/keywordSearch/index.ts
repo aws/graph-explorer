@@ -1,6 +1,5 @@
 import mapApiVertex from "../mappers/mapApiVertex";
-import type { GVertexList } from "../types";
-import { type GremlinFetch } from "../types";
+import type { GremlinFetch, GVertexList } from "../types";
 import keywordSearchTemplate from "./keywordSearchTemplate";
 import isErrorResponse from "@/connector/utils/isErrorResponse";
 import {
