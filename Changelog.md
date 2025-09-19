@@ -137,7 +137,7 @@ editor with Neptune Analytics for the first time.
 
 As before, if you are a Neptune user concerned about data integrity, check out
 the
-[instructions on configuring IAM permissions to restrict mutations](./README.md#permissions),
+[instructions on configuring IAM permissions to restrict mutations](./docs/user-guide/security.md#permissions),
 ensuring that users can enforce read-only operations.
 
 ### New features & major changes
@@ -163,7 +163,7 @@ ensuring that users can enforce read-only operations.
 
 Graph Explorer v2.0 marks a significant milestone with the introduction of the
 new
-[query editor for Gremlin connections](./additionaldocs/features/README.md#query-search).
+[query editor for Gremlin connections](./docs/user-guide/graph-explorer.md#query-search).
 This powerful feature allows users to enter any valid Gremlin query and
 visualize the returned nodes, edges, and scalar values directly from the
 database. You can review the results in the sidebar and choose to add all nodes
@@ -171,7 +171,7 @@ database. You can review the results in the sidebar and choose to add all nodes
 
 For Neptune users concerned about data integrity, [the README](./README.md) now
 includes
-[instructions on configuring IAM permissions to restrict mutations](./README.md#permissions),
+[instructions on configuring IAM permissions to restrict mutations](./docs/user-guide/security.md#permissions),
 ensuring users can enforce read-only operations.
 
 The release also changes the default strategy for representing node & edge
@@ -662,11 +662,11 @@ a more pleasant experience, especially for users with larger databases.
 - **Improved** diagnostic logging in Neptune Notebooks by adding CloudWatch logs
   ([#517](https://github.com/aws/graph-explorer/pull/517))
   - Check out the example
-    [lifecycle script](additionaldocs/sagemaker/install-graph-explorer-lc.sh)
+    [lifecycle script](docs/deployment/aws-sagemaker/install-graph-explorer-lc.sh)
     and IAM policies for
-    [Neptune](additionaldocs/sagemaker/graph-explorer-neptune-db-policy.json)
+    [Neptune](docs/deployment/aws-sagemaker/graph-explorer-neptune-db-policy.json)
     and
-    [Neptune Analytics](additionaldocs/sagemaker/graph-explorer-neptune-analytics-policy.json)
+    [Neptune Analytics](docs/deployment/aws-sagemaker/graph-explorer-neptune-analytics-policy.json)
 
 **Bug Fixes and Minor Changes**
 

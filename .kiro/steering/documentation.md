@@ -25,7 +25,7 @@
 ### Documentation Hierarchy
 
 - **README.md**: Project overview and quick start
-- **additionaldocs/**: Detailed guides organized by user journey
+- **docs/**: Detailed guides organized by user journey
   - `getting-started/`: Installation, first connection, basic usage
   - `user-guide/`: Feature documentation for end users
   - `deployment/`: Production deployment guides
@@ -62,7 +62,7 @@
 
 ```
 README.md                           # Project overview and quick start
-additionaldocs/
+docs/
 ├── getting-started/
 │   ├── installation.md            # Local and Docker setup
 │   ├── first-connection.md        # Connecting to your first database
@@ -91,6 +91,44 @@ additionaldocs/
 - Use kebab-case for all file names: `getting-started.md`
 - Use descriptive names that match user tasks: `first-connection.md`
 - Group related content in folders by user journey
+
+### Folder README Files
+
+Each documentation folder should include a `README.md` file that serves as a
+table of contents for that folder:
+
+- **Purpose**: Explain what the folder contains and who it's for
+- **Summary**: Briefly describe the folder's purpose and content
+- **File Listing**: List all files in the folder with brief descriptions
+- **Reading Order**: Suggest the recommended order for reading files
+- **Prerequisites**: Note any required knowledge or setup before starting
+- **Navigation**: Link to parent folder and related sections
+
+Example folder README structure:
+
+```markdown
+# Getting Started
+
+This section helps new users install and configure Graph Explorer for the first
+time.
+
+## Files in this section
+
+1. [Installation](installation.md) - Local and Docker setup options
+2. [First Connection](first-connection.md) - Connect to your first database
+3. [Basic Usage](basic-usage.md) - Essential features walkthrough
+
+## Prerequisites
+
+- Basic familiarity with graph databases
+- Access to a graph database endpoint
+- Docker or Node.js >=24.4.0 installed
+
+## Next Steps
+
+After completing this section, see the [User Guide](../user-guide/) for detailed
+feature documentation.
+```
 
 ## Formatting Standards
 
