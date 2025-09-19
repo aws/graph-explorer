@@ -7,10 +7,12 @@ import {
 import {
   BlankNodeItem,
   BlankNodesMap,
+  rdfTypeUri,
   SparqlFetch,
+  sparqlNumberValueSchema,
+  sparqlResourceValueSchema,
   sparqlResponseSchema,
   sparqlUriValueSchema,
-  sparqlValueSchema,
 } from "./types";
 import { idParam } from "./idParam";
 import isErrorResponse from "../utils/isErrorResponse";
@@ -18,13 +20,6 @@ import { z } from "zod";
 import { fromError } from "zod-validation-error/v3";
 import { createVertexId, VertexId } from "@/core";
 import fetchBlankNodeNeighbors from "./fetchBlankNodeNeighbors";
-
-const bindingSchema = z.object({
-  resource: sparqlUriValueSchema,
-  class: sparqlUriValueSchema,
-  count: sparqlValueSchema,
-});
-const responseSchema = sparqlResponseSchema(bindingSchema);
 
 export async function neighborCounts(
   sparqlFetch: SparqlFetch,
@@ -66,96 +61,169 @@ async function fetchNeighborCounts(
     return { counts: [] };
   }
 
+  const [totalCounts, countsByType] = await Promise.all([
+    fetchUniqueNeighborCount(sparqlFetch, nonBlankNodeVertexIds),
+    fetchCountsByType(sparqlFetch, nonBlankNodeVertexIds),
+  ]);
+
+  // Add empty values for all request IDs
+  const results = new Array<NeighborCount>();
+  for (const id of request.vertexIds) {
+    const totalCount = totalCounts.get(id) ?? 0;
+    const counts = countsByType.get(id) ?? {};
+    results.push({
+      vertexId: id,
+      counts,
+      totalCount,
+    });
+  }
+
+  return { counts: results };
+}
+
+async function fetchUniqueNeighborCount(
+  sparqlFetch: SparqlFetch,
+  resources: VertexId[]
+) {
   const template = query`
-    # Count neighbors by class which are related with the given subject URI
-    SELECT ?resource ?class (COUNT(?neighbor) as ?count) {
-      SELECT DISTINCT ?resource ?class ?neighbor
-      WHERE {
-        VALUES ?resource {
-          ${nonBlankNodeVertexIds.map(idParam).join("\n")}
-        }
-
-        {
-          # Incoming neighbors
-          ?neighbor ?pIncoming ?resource . 
-          
-          # Get the neighbor's class
-          ?neighbor a ?class .
-
-          # Remove any classes from the list of neighbors
-          FILTER NOT EXISTS { ?anySubject a ?neighbor }
-        }
-        UNION
-        {
-          # Outgoing neighbors
-          ?resource ?pOutgoing ?neighbor . 
-          
-          # Get the neighbor's class
-          ?neighbor a ?class .
-
-          # Remove any classes from the list of neighbors
-          FILTER NOT EXISTS { ?anySubject a ?neighbor }
-        }
+    # Count total unique neighbors which are related with the given subject URI
+    SELECT ?resource (COUNT(DISTINCT ?neighbor) AS ?totalCount)
+    WHERE {
+      VALUES ?resource { 
+        ${resources.map(idParam).join("\n")}
+      }
+      {
+        ?resource ?p ?neighbor .
+        ?neighbor a [] .
+        FILTER(
+          ?p != ${idParam(rdfTypeUri)} &&
+          !isLiteral(?neighbor)
+        )
+      }
+      UNION
+      {
+        ?neighbor ?p ?resource .
+        ?neighbor a [] .
+        FILTER(
+          ?p != ${idParam(rdfTypeUri)} &&
+          !isLiteral(?neighbor)
+        )
       }
     }
-    GROUP BY ?resource ?class
+    GROUP BY ?resource
   `;
 
   // Fetch the vertex details
   const response = await sparqlFetch(template);
   if (isErrorResponse(response)) {
-    logger.error("Neighbor count request failed", request, response);
-    throw new Error("Neighbor count request failed", {
+    logger.error("Total neighbor count request failed", resources, response);
+    throw new Error("Total neighbor count request failed", {
       cause: response,
     });
   }
 
   // Parse the response
+  const responseSchema = sparqlResponseSchema(
+    z.object({
+      resource: sparqlResourceValueSchema,
+      totalCount: sparqlNumberValueSchema,
+    })
+  );
   const parsed = responseSchema.safeParse(response);
 
   if (!parsed.success) {
     const validationError = fromError(parsed.error);
     logger.error(
-      "Failed to parse sparql response",
+      "Failed to parse sparql response for totalCount",
       validationError.toString(),
       response
     );
     throw validationError;
   }
 
-  // Add empty values for all request IDs
-  const groupedResults = new Map<VertexId, NeighborCount>();
-  for (const id of request.vertexIds) {
-    groupedResults.set(id, {
-      vertexId: id,
-      counts: {},
-      totalCount: 0,
+  // Map to the result
+  const result: Map<VertexId, number> = new Map();
+  for (const binding of parsed.data.results.bindings) {
+    const vertexId = createVertexId(binding.resource.value);
+    const count = parseInt(binding.totalCount.value);
+    result.set(vertexId, count);
+  }
+
+  return result;
+}
+
+async function fetchCountsByType(
+  sparqlFetch: SparqlFetch,
+  resources: VertexId[]
+) {
+  const template = query`
+    # Count neighbors by class which are related with the given subject URI
+    SELECT ?resource ?type (COUNT(DISTINCT ?neighbor) AS ?typeCount)
+    WHERE {
+      VALUES ?resource { 
+        ${resources.map(idParam).join("\n")}
+      }
+      {
+        ?resource ?p ?neighbor .
+        ?neighbor a ?type .
+        FILTER(
+          ?p != ${idParam(rdfTypeUri)} &&
+          !isLiteral(?neighbor)
+        )
+      }
+      UNION
+      {
+        ?neighbor ?p ?resource .
+        ?neighbor a ?type .
+        FILTER(
+          ?p != ${idParam(rdfTypeUri)} &&
+          !isLiteral(?neighbor)
+        )
+      }
+    }
+    GROUP BY ?resource ?type
+  `;
+
+  // Fetch the vertex details
+  const response = await sparqlFetch(template);
+  if (isErrorResponse(response)) {
+    logger.error("Total neighbor count request failed", resources, response);
+    throw new Error("Total neighbor count request failed", {
+      cause: response,
     });
   }
 
-  // Map the results
-  for (const binding of parsed.data.results.bindings) {
-    const vertexId = createVertexId(binding.resource.value);
-    const type = binding.class.value;
-    const count = parseInt(binding.count.value);
+  // Parse the response
+  const responseSchema = sparqlResponseSchema(
+    z.object({
+      resource: sparqlUriValueSchema,
+      type: sparqlUriValueSchema,
+      typeCount: sparqlNumberValueSchema,
+    })
+  );
+  const parsed = responseSchema.safeParse(response);
 
-    const existing = groupedResults.get(vertexId);
-
-    if (existing) {
-      // update existing
-      existing.counts[type] = count;
-      existing.totalCount += count;
-    } else {
-      // create new entry
-      groupedResults.set(vertexId, {
-        vertexId,
-        counts: { [type]: count },
-        totalCount: count,
-      });
-    }
+  if (!parsed.success) {
+    const validationError = fromError(parsed.error);
+    logger.error(
+      "Failed to parse sparql response for totalCount",
+      validationError.toString(),
+      response
+    );
+    throw validationError;
   }
 
-  return { counts: Array.from(groupedResults.values()) };
+  // Map to the result
+  return new Map(
+    parsed.data.results.bindings.reduce((acc, binding) => {
+      const vertexId = createVertexId(binding.resource.value);
+      const existing = acc.get(vertexId) ?? {};
+      return acc.set(vertexId, {
+        ...existing,
+        [binding.type.value]: parseInt(binding.typeCount.value),
+      });
+    }, new Map<VertexId, Record<string, number>>())
+  );
 }
 
 async function fetchBlankNodeNeighborCounts(

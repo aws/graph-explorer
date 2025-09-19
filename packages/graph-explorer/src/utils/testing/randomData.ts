@@ -290,15 +290,19 @@ export function createTestableVertex() {
     id: EntityRawId;
     types: string[];
     attributes: EntityProperties;
+    isBlankNode: boolean;
   }) => {
     return {
       ...testable,
       id: createVertexId(testable.id),
-      withRdfValues: () => {
+      withRdfValues: (
+        options?: Partial<Pick<typeof testable, "isBlankNode">>
+      ) => {
         return createInternal({
           id: createRandomUrlString() as VertexId,
           types: createArray(3, createRandomUrlString),
           attributes: createRecord(3, createRandomEntityAttributeForRdf),
+          isBlankNode: options?.isBlankNode ?? false,
         });
       },
       with: (newTestable: Partial<typeof testable>) => {
@@ -309,12 +313,14 @@ export function createTestableVertex() {
           id: testable.id,
           types: testable.types,
           attributes: testable.attributes,
+          isBlankNode: testable.isBlankNode,
         }),
       asFragmentResult: (name?: string) =>
         createResultVertex({
           id: testable.id,
           name,
           types: testable.types,
+          isBlankNode: testable.isBlankNode,
         }),
       asResult: (name?: string) =>
         createResultVertex({
@@ -322,6 +328,7 @@ export function createTestableVertex() {
           name,
           types: testable.types,
           attributes: testable.attributes,
+          isBlankNode: testable.isBlankNode,
         }),
       asPatchedResult: (name?: string) =>
         createPatchedResultVertex({
@@ -329,6 +336,7 @@ export function createTestableVertex() {
           name,
           types: testable.types,
           attributes: testable.attributes,
+          isBlankNode: testable.isBlankNode,
         }),
     };
   };
@@ -337,6 +345,7 @@ export function createTestableVertex() {
     id: createRandomVertexId(),
     types: createArray(3, createRandomName),
     attributes: createRecord(3, createRandomEntityAttribute),
+    isBlankNode: false,
   });
 }
 

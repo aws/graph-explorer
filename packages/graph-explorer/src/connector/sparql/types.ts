@@ -203,6 +203,11 @@ export const sparqlValueSchema = z.object({
 });
 export type SparqlValue = z.infer<typeof sparqlValueSchema>;
 
+export const sparqlResourceValueSchema = z.union([
+  sparqlUriValueSchema,
+  sparqlBlankNodeSchema,
+]);
+
 export function sparqlResponseSchema<T extends z.ZodTypeAny>(
   bindingsSchema: T
 ) {
