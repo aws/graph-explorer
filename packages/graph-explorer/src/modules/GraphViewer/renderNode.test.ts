@@ -32,7 +32,7 @@ describe("renderNode", () => {
 
     const result = await renderNode(client, node);
 
-    expect(result).toBeUndefined();
+    expect(result).toBeNull();
     expect(fetchMock).not.toBeCalled();
     expect(client.getQueryData(["icon", node.iconUrl])).toBeUndefined();
   });
@@ -49,7 +49,7 @@ describe("renderNode", () => {
     const result = await renderNode(client, node);
 
     expect(fetchMock).toBeCalledWith(node.iconUrl);
-    expect(result).toBeUndefined();
+    expect(result).toBeNull();
     expect(client.getQueryData(["icon", node.iconUrl])).toBeUndefined();
     expect(vi.mocked(logger.error)).toHaveBeenCalledOnce();
   });
@@ -172,6 +172,6 @@ ${svgContent}`;
 }
 
 /** Decodes the string and removes the data type URL prefix, returning only the SVG portion. */
-function decodeSvg(result: string | undefined) {
+function decodeSvg(result: string | null) {
   return decodeURIComponent(result!).replace("data:image/svg+xml;utf8,", "");
 }
