@@ -26,15 +26,21 @@ import { getLimit } from "../getLimit";
  *       BIND(<http://www.example.com/soccer/resource#EPL> AS ?resource)
  *       VALUES ?class { <http://www.example.com/soccer/ontology/Team> }
  *       {
- *         ?neighbor ?pIncoming ?resource .
+ *         ?neighbor ?p ?resource .
  *         ?neighbor a ?class .
- *         FILTER NOT EXISTS { ?anySubject a ?neighbor }
+ *         FILTER(
+ *           ?p != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> &&
+ *           !isLiteral(?neighbor)
+ *         )
  *       }
  *       UNION
  *       {
- *         ?resource ?pOutgoing ?neighbor .
+ *         ?resource ?p ?neighbor .
  *         ?neighbor a ?class .
- *         FILTER NOT EXISTS { ?anySubject a ?neighbor }
+ *         FILTER(
+ *           ?p != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> &&
+ *           !isLiteral(?neighbor)
+ *         )
  *       }
  *       ?neighbor ?pValue ?value .
  *       FILTER(
@@ -44,7 +50,6 @@ import { getLimit } from "../getLimit";
  *         )
  *       )
  *     }
- *     ORDER BY ?neighbor
  *     LIMIT 2
  *   }
  *   {
@@ -76,7 +81,6 @@ import { getLimit } from "../getLimit";
  *     BIND(?resource as ?subject)
  *   }
  * }
- * ORDER BY ?subject ?p ?value
  */
 
 export function oneHopNeighborsTemplate({
@@ -116,14 +120,22 @@ export function oneHopNeighborsTemplate({
   const limitTemplate = getLimit(limit, offset);
   const rdfTypeUriTemplate = idParam(rdfTypeUri);
 
-  // Excluded vertices
-  const excludedVerticesTemplate = excludedVertices.size
-    ? query`FILTER NOT EXISTS {
-        VALUES ?neighbor {
-          ${excludedVertices.values().map(idParam).toArray().join(" ")}
-        }
-      }`
-    : "";
+  const neighborFilters = [
+    `?p != ${rdfTypeUriTemplate}`,
+    `!isLiteral(?neighbor)`,
+    excludedVertices.size > 0
+      ? query`
+      ?neighbor NOT IN (
+        ${excludedVertices.values().map(idParam).toArray().join(", \n")}
+      )
+    `
+      : null,
+  ];
+  const neighborFilterTemplate = query`
+    FILTER(
+      ${neighborFilters.filter(item => item != null).join(" &&\n")}
+    )
+  `;
 
   return query`
     # Fetch all neighbors and their predicates, values, and classes
@@ -137,30 +149,26 @@ export function oneHopNeighborsTemplate({
           ${subjectClassesTemplate}
           {
             # Incoming neighbors
-            ?neighbor ?pIncoming ?resource . 
+            ?neighbor ?p ?resource . 
             
             # Get the neighbor's class
             ?neighbor a ?class .
 
-            # Remove any classes from the list of neighbors
-            FILTER NOT EXISTS { ?anySubject a ?neighbor }
+            ${neighborFilterTemplate}
           }
           UNION
           {
             # Outgoing neighbors
-            ?resource ?pOutgoing ?neighbor . 
+            ?resource ?p ?neighbor . 
             
             # Get the neighbor's class
             ?neighbor a ?class .
 
-            # Remove any classes from the list of neighbors
-            FILTER NOT EXISTS { ?anySubject a ?neighbor }
+            ${neighborFilterTemplate}
           }
           ${valueBindingTemplate}
           ${filterTemplate}
-          ${excludedVerticesTemplate}
         }
-        ORDER BY ?neighbor
         ${limitTemplate}
       }
 
@@ -205,6 +213,5 @@ export function oneHopNeighborsTemplate({
         BIND(?resource as ?subject)
       }
     }
-    ORDER BY ?subject ?p ?value
   `;
 }
