@@ -42,6 +42,7 @@ describe("neighborCounts", () => {
       counts: {
         label1: 3,
         label2: 9,
+        label3: 9,
       },
     };
     const response = createResponse({
