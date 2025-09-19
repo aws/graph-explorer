@@ -49,13 +49,14 @@ describe("neighborCounts", () => {
     expect(result.counts).toEqual([expected]);
   });
 
-  it("should return neighbor counts", async () => {
+  it("should return neighbor counts with multiple labels", async () => {
     const expected: NeighborCount = {
       vertexId: createRandomVertexId(),
       totalCount: 12,
       counts: {
         label1: 3,
         label2: 9,
+        label3: 9,
       },
     };
     const response = createResponse({
