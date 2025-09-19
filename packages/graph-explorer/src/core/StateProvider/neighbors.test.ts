@@ -43,6 +43,74 @@ describe("calculateNeighbors", () => {
       ])
     );
   });
+
+  it("should calculate multi-label neighbors correctly", () => {
+    const total = {
+      total: 10,
+      byType: new Map([
+        ["type1", 6],
+        ["type2", 4],
+        ["type3", 2],
+      ]),
+    };
+    const fetchedNeighbors = [
+      { id: createVertexId("1"), types: ["type1"] },
+      { id: createVertexId("2"), types: ["type2", "type3"] },
+      { id: createVertexId("3"), types: ["type1"] },
+      { id: createVertexId("4"), types: ["type2"] },
+    ];
+
+    const result = calculateNeighbors(
+      total.total,
+      total.byType,
+      fetchedNeighbors
+    );
+
+    expect(result.all).toEqual(total.total);
+    expect(result.fetched).toEqual(4);
+    expect(result.unfetched).toEqual(6);
+    expect(result.byType).toEqual(
+      new Map([
+        ["type1", { all: 6, fetched: 2, unfetched: 4 }],
+        ["type2", { all: 4, fetched: 2, unfetched: 2 }],
+        ["type3", { all: 2, fetched: 1, unfetched: 1 }],
+      ])
+    );
+  });
+
+  it("should calculate multi-label neighbors correctly when all fetched", () => {
+    const total = {
+      total: 4,
+      byType: new Map([
+        ["type1", 2],
+        ["type2", 2],
+        ["type3", 1],
+      ]),
+    };
+    const fetchedNeighbors = [
+      { id: createVertexId("1"), types: ["type1"] },
+      { id: createVertexId("2"), types: ["type2", "type3"] },
+      { id: createVertexId("3"), types: ["type1"] },
+      { id: createVertexId("4"), types: ["type2"] },
+    ];
+
+    const result = calculateNeighbors(
+      total.total,
+      total.byType,
+      fetchedNeighbors
+    );
+
+    expect(result.all).toEqual(total.total);
+    expect(result.fetched).toEqual(4);
+    expect(result.unfetched).toEqual(0);
+    expect(result.byType).toEqual(
+      new Map([
+        ["type1", { all: 2, fetched: 2, unfetched: 0 }],
+        ["type2", { all: 2, fetched: 2, unfetched: 0 }],
+        ["type3", { all: 1, fetched: 1, unfetched: 0 }],
+      ])
+    );
+  });
 });
 
 describe("useNeighbors", () => {
