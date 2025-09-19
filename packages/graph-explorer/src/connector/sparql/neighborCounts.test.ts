@@ -41,8 +41,12 @@ describe("neighborCounts", () => {
         [`${createRandomUrlString()}`]: 9,
       },
     };
-    const response = createResponse(expected);
-    const mockFetch = vi.fn().mockResolvedValue(response);
+    const totalCountResponse = createTotalCountResponse(expected);
+    const countsByTypeResponse = createCountsByTypeResponse(expected);
+    const mockFetch = vi
+      .fn()
+      .mockResolvedValueOnce(totalCountResponse)
+      .mockResolvedValueOnce(countsByTypeResponse);
     const result = await neighborCounts(
       mockFetch,
       {
@@ -71,8 +75,15 @@ describe("neighborCounts", () => {
         [`${createRandomUrlString()}`]: 9,
       },
     };
-    const response = createResponse(expected1, expected2);
-    const mockFetch = vi.fn().mockResolvedValue(response);
+    const totalCountResponse = createTotalCountResponse(expected1, expected2);
+    const countsByTypeResponse = createCountsByTypeResponse(
+      expected1,
+      expected2
+    );
+    const mockFetch = vi
+      .fn()
+      .mockResolvedValueOnce(totalCountResponse)
+      .mockResolvedValueOnce(countsByTypeResponse);
     const result = await neighborCounts(
       mockFetch,
       {
@@ -196,10 +207,24 @@ describe("neighborCounts", () => {
   });
 });
 
-function createResponse(...counts: NeighborCount[]) {
+function createTotalCountResponse(...counts: NeighborCount[]) {
   return {
     head: {
-      vars: ["resource", "class", "count"],
+      vars: ["resource", "totalCount"],
+    },
+    results: {
+      bindings: counts.map(count => ({
+        resource: createUriValue(String(count.vertexId)),
+        totalCount: createLiteralValue(count.totalCount),
+      })),
+    },
+  };
+}
+
+function createCountsByTypeResponse(...counts: NeighborCount[]) {
+  return {
+    head: {
+      vars: ["resource", "type", "typeCount"],
     },
     results: {
       bindings: counts
@@ -212,8 +237,8 @@ function createResponse(...counts: NeighborCount[]) {
         )
         .map(count => ({
           resource: createUriValue(String(count.vertexId)),
-          class: createUriValue(count.className),
-          count: createLiteralValue(count.count),
+          type: createUriValue(count.className),
+          typeCount: createLiteralValue(count.count),
         })),
     },
   };
