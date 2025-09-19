@@ -63,26 +63,29 @@ export function createGSet(items: GAnyValue[]): GSet {
 
 export function createGBulkSet<Value extends EntityPropertyValue | GAnyValue>(
   values: Record<string, Value>
-) {
+): GBulkSet;
+export function createGBulkSet<
+  Key extends EntityPropertyValue | GAnyValue,
+  Value extends EntityPropertyValue | GAnyValue,
+>(values: Map<Key, Value>): GBulkSet;
+export function createGBulkSet<
+  Key extends EntityPropertyValue | GAnyValue,
+  Value extends EntityPropertyValue | GAnyValue,
+>(values: Record<string, Value> | Map<Key, Value>): GBulkSet {
   const mapItems: GAnyValue[] = [];
-  for (const [key, value] of Object.entries(values)) {
-    mapItems.push(key);
 
-    if (
-      value === null ||
-      typeof value === "boolean" ||
-      typeof value === "string" ||
-      typeof value === "number"
-    ) {
-      mapItems.push(createGValue(value));
-    } else if (typeof value === "object" && "@type" in value) {
-      mapItems.push(value);
-    } else {
-      throw new Error(
-        "Automatic mapping to GAnyValue not yet supported. Update the logic to support this type"
-      );
+  if (values instanceof Map) {
+    for (const [key, value] of values) {
+      mapItems.push(mapGMapValue(key));
+      mapItems.push(mapGMapValue(value));
+    }
+  } else {
+    for (const [key, value] of Object.entries(values)) {
+      mapItems.push(key);
+      mapItems.push(mapGMapValue(value));
     }
   }
+
   const result: GBulkSet = {
     "@type": "g:BulkSet",
     "@value": mapItems,
@@ -92,31 +95,51 @@ export function createGBulkSet<Value extends EntityPropertyValue | GAnyValue>(
 
 export function createGMap<Value extends EntityPropertyValue | GAnyValue>(
   values: Record<string, Value>
-): GMap {
+): GMap;
+export function createGMap<
+  Key extends EntityPropertyValue | GAnyValue,
+  Value extends EntityPropertyValue | GAnyValue,
+>(values: Map<Key, Value>): GMap;
+export function createGMap<
+  Key extends EntityPropertyValue | GAnyValue,
+  Value extends EntityPropertyValue | GAnyValue,
+>(values: Record<string, Value> | Map<Key, Value>): GMap {
   const mapItems: GAnyValue[] = [];
-  for (const [key, value] of Object.entries(values)) {
-    mapItems.push(key);
 
-    if (
-      value === null ||
-      typeof value === "boolean" ||
-      typeof value === "string" ||
-      typeof value === "number"
-    ) {
-      mapItems.push(createGValue(value));
-    } else if (typeof value === "object" && "@type" in value) {
-      mapItems.push(value);
-    } else {
-      throw new Error(
-        "Automatic mapping to GAnyValue not yet supported. Update the logic to support this type"
-      );
+  if (values instanceof Map) {
+    for (const [key, value] of values) {
+      mapItems.push(mapGMapValue(key));
+      mapItems.push(mapGMapValue(value));
+    }
+  } else {
+    for (const [key, value] of Object.entries(values)) {
+      mapItems.push(key);
+      mapItems.push(mapGMapValue(value));
     }
   }
+
   const result: GMap = {
     "@type": "g:Map",
     "@value": mapItems,
   };
   return result;
+}
+
+function mapGMapValue(value: EntityPropertyValue | GAnyValue) {
+  if (
+    value === null ||
+    typeof value === "boolean" ||
+    typeof value === "string" ||
+    typeof value === "number"
+  ) {
+    return createGValue(value);
+  } else if (typeof value === "object" && "@type" in value) {
+    return value;
+  } else {
+    throw new Error(
+      "Automatic mapping to GAnyValue not yet supported. Update the logic to support this type"
+    );
+  }
 }
 
 export function createGPath(entities: ResultEntity[]): GPath {
