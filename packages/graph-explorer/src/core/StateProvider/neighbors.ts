@@ -173,7 +173,7 @@ export function calculateNeighbors(
   const totals = {
     all: total,
     fetched: fetchedTotal,
-    unfetched: total - fetchedTotal,
+    unfetched: Math.max(0, total - fetchedTotal),
   };
 
   const fetchedNeighborsByType = fetchNeighborsMap
@@ -191,7 +191,7 @@ export function calculateNeighbors(
       const fetched = fetchedNeighborsByType.get(type) ?? 0;
 
       // Total neighbors minus the fetched neighbors
-      const unfetched = count - fetched;
+      const unfetched = Math.max(0, count - fetched);
 
       return [
         type,
