@@ -49,9 +49,7 @@ export const defaultOptionsAtom = atom(get =>
  * @param explorer The explorer to use for the default options.
  * @returns The query client default options
  */
-export function createDefaultOptions(
-  explorer: Explorer
-): DefaultOptions<Error> {
+function createDefaultOptions(explorer: Explorer): DefaultOptions<Error> {
   return {
     queries: {
       meta: {
