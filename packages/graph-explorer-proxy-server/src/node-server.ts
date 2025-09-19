@@ -6,14 +6,13 @@ import https from "https";
 import bodyParser from "body-parser";
 import fs from "fs";
 import path from "path";
-import { fromNodeProviderChain } from "@aws-sdk/credential-providers";
-import aws4 from "aws4";
 import type { IncomingHttpHeaders } from "http";
 import { logger as proxyLogger, requestLoggingMiddleware } from "./logging.js";
 import { clientRoot, proxyServerRoot } from "./paths.js";
 import { errorHandlingMiddleware, handleError } from "./error-handler.js";
 import { BooleanStringSchema, env } from "./env.js";
 import { pipeline } from "stream";
+import { signRequest } from "./authentication.js";
 
 const app = express();
 
@@ -34,29 +33,10 @@ interface LoggerIncomingHttpHeaders extends IncomingHttpHeaders {
 
 app.use(requestLoggingMiddleware());
 
-// Function to get IAM headers for AWS4 signing process.
-async function getIAMHeaders(options: string | aws4.Request) {
-  const credentialProvider = fromNodeProviderChain();
-  const creds = await credentialProvider();
-  if (creds === undefined) {
-    throw new Error(
-      "IAM is enabled but credentials cannot be found on the credential provider chain."
-    );
-  }
-
-  const headers = aws4.sign(options, {
-    accessKeyId: creds.accessKeyId,
-    secretAccessKey: creds.secretAccessKey,
-    ...(creds.sessionToken && { sessionToken: creds.sessionToken }),
-  });
-
-  return headers;
-}
-
 // Function to retry fetch requests with exponential backoff.
 const retryFetch = async (
   url: URL,
-  options: any,
+  options: RequestInit,
   isIamEnabled: boolean,
   region: string | undefined,
   serviceType: string,
@@ -64,41 +44,20 @@ const retryFetch = async (
   refetchMaxRetries = 1
 ) => {
   for (let i = 0; i < refetchMaxRetries; i++) {
-    if (isIamEnabled) {
-      const data = await getIAMHeaders({
-        host: url.hostname,
-        port: url.port,
-        path: url.pathname + url.search,
-        service: serviceType,
-        region,
-        method: options.method,
-        body: options.body ?? undefined,
-      });
-
-      options = {
-        host: url.hostname,
-        port: url.port,
-        path: url.pathname + url.search,
-        service: serviceType,
-        region,
-        method: options.method,
-        body: options.body ?? undefined,
-        headers: data.headers,
-      };
-    }
-    options = {
-      host: url.hostname,
-      port: url.port,
-      path: url.pathname + url.search,
-      service: serviceType,
-      method: options.method,
-      body: options.body ?? undefined,
-      headers: options.headers,
+    const iamOptions = isIamEnabled
+      ? {
+          service: serviceType,
+          region: region,
+        }
+      : undefined;
+    const request: RequestInit = {
+      ...options,
       compress: false, // prevent automatic decompression
     };
+    const signedRequest = await signRequest(url, request, iamOptions);
 
     try {
-      const res = await fetch(url.href, options);
+      const res = await fetch(url, signedRequest);
       if (!res.ok) {
         proxyLogger.error("!!Request failure!!");
         return res;
@@ -269,8 +228,9 @@ app.post("/sparql", async (req, res, next) => {
   const requestOptions = {
     method: "POST",
     headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      Accept: "application/sparql-results+json",
+      "Content-Type":
+        headers["content-type"] ?? "application/x-www-form-urlencoded",
+      Accept: headers.accept ?? "application/sparql-results+json",
     },
     body,
   };
