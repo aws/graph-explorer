@@ -101,7 +101,6 @@ export default defineConfig(
       "@typescript-eslint/consistent-type-imports": [
         "error",
         {
-          disallowTypeAnnotations: false, // Set to false to allow import of queryClient type in packages/graph-explorer/src/setupTests.ts
           fixStyle: "inline-type-imports",
           prefer: "type-imports",
         },
