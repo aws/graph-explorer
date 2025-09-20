@@ -1,5 +1,5 @@
-import { useAtom } from "jotai";
-import { clone } from "lodash";
+import { useAtom, type WritableAtom } from "jotai";
+import { useDeferredValue, useEffect, useState } from "react";
 import { atomWithLocalForage } from "./localForageEffect";
 
 export type ShapeStyle =
@@ -101,6 +101,22 @@ export const userStylingAtom = atomWithLocalForage<UserStyling>(
   "user-styling"
 );
 
+function useDeferredAtom<Value, Result>(
+  atom: WritableAtom<Value, [Value], Result>
+) {
+  const [atomValue, setAtomValue] = useAtom(atom);
+  const [reactValue, setReactValue] = useState(atomValue);
+  const deferredValue = useDeferredValue(reactValue);
+
+  // Update the atom value in an effect when React rendering sees a gap
+  useEffect(() => {
+    setAtomValue(deferredValue);
+  }, [deferredValue, setAtomValue]);
+
+  // Only return the React state since we are managing all the atom state internally
+  return [reactValue, setReactValue] as const;
+}
+
 type UpdatedVertexStyle = Omit<VertexPreferences, "type">;
 
 /**
@@ -110,45 +126,35 @@ type UpdatedVertexStyle = Omit<VertexPreferences, "type">;
  * @returns The vertex style if it exists, an update function, and a reset function
  */
 export function useVertexStyling(type: string) {
-  const [allStyling, setAllStyling] = useAtom(userStylingAtom);
+  const [allStyling, setAllStyling] = useDeferredAtom(userStylingAtom);
 
   const vertexStyle = allStyling.vertices?.find(v => v.type === type);
 
-  const setVertexStyle = async (updatedStyle: UpdatedVertexStyle) => {
-    await setAllStyling(async prevPromise => {
-      // Shallow clone so React re-renders properly
-      const prev = clone(await prevPromise);
+  const setVertexStyle = (updatedStyle: UpdatedVertexStyle) => {
+    setAllStyling(prev => {
+      const vertices = prev.vertices ?? [];
+      const existingIndex = vertices.findIndex(v => v.type === type);
 
-      const hasEntry = prev.vertices?.some(v => v.type === type);
-      if (hasEntry) {
-        // Update the existing entry, merging the updates with the existing style
-        prev.vertices = prev.vertices?.map(existing => {
-          if (existing.type === type) {
-            return {
-              ...existing,
-              ...updatedStyle,
-            };
-          }
-          return existing;
-        });
-      } else {
-        // Add the new entry
-        prev.vertices = (prev.vertices ?? []).concat({
-          type,
+      if (existingIndex >= 0) {
+        // Update existing entry
+        const updatedVertices = [...vertices];
+        updatedVertices[existingIndex] = {
+          ...vertices[existingIndex],
           ...updatedStyle,
-        });
+        };
+        return { ...prev, vertices: updatedVertices };
+      } else {
+        // Add new entry
+        return { ...prev, vertices: [...vertices, { type, ...updatedStyle }] };
       }
-
-      return prev;
     });
   };
 
-  const resetVertexStyle = async () =>
-    await setAllStyling(async prevPromise => {
-      const prev = clone(await prevPromise);
-      prev.vertices = prev.vertices?.filter(v => v.type !== type);
-      return prev;
-    });
+  const resetVertexStyle = () =>
+    setAllStyling(prev => ({
+      ...prev,
+      vertices: prev.vertices?.filter(v => v.type !== type),
+    }));
 
   return {
     vertexStyle,
@@ -166,45 +172,35 @@ type UpdatedEdgeStyle = Omit<EdgePreferences, "type">;
  * @returns The edge style if it exists, an update function, and a reset function
  */
 export function useEdgeStyling(type: string) {
-  const [allStyling, setAllStyling] = useAtom(userStylingAtom);
+  const [allStyling, setAllStyling] = useDeferredAtom(userStylingAtom);
 
   const edgeStyle = allStyling.edges?.find(v => v.type === type);
 
-  const setEdgeStyle = async (updatedStyle: UpdatedEdgeStyle) => {
-    await setAllStyling(async prevPromise => {
-      // Shallow clone so React re-renders properly
-      const prev = clone(await prevPromise);
+  const setEdgeStyle = (updatedStyle: UpdatedEdgeStyle) => {
+    setAllStyling(prev => {
+      const edges = prev.edges ?? [];
+      const existingIndex = edges.findIndex(v => v.type === type);
 
-      const hasEntry = prev.edges?.some(v => v.type === type);
-      if (hasEntry) {
-        // Update the existing entry, merging the updates with the existing style
-        prev.edges = prev.edges?.map(existing => {
-          if (existing.type === type) {
-            return {
-              ...existing,
-              ...updatedStyle,
-            };
-          }
-          return existing;
-        });
-      } else {
-        // Add the new entry
-        prev.edges = (prev.edges ?? []).concat({
-          type,
+      if (existingIndex >= 0) {
+        // Update existing entry
+        const updatedEdges = [...edges];
+        updatedEdges[existingIndex] = {
+          ...edges[existingIndex],
           ...updatedStyle,
-        });
+        };
+        return { ...prev, edges: updatedEdges };
+      } else {
+        // Add new entry
+        return { ...prev, edges: [...edges, { type, ...updatedStyle }] };
       }
-
-      return prev;
     });
   };
 
-  const resetEdgeStyle = async () =>
-    await setAllStyling(async prevPromise => {
-      const prev = clone(await prevPromise);
-      prev.edges = prev.edges?.filter(v => v.type !== type);
-      return prev;
-    });
+  const resetEdgeStyle = () =>
+    setAllStyling(prev => ({
+      ...prev,
+      edges: prev.edges?.filter(v => v.type !== type),
+    }));
 
   return {
     edgeStyle,

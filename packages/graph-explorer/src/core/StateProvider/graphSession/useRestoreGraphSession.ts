@@ -1,4 +1,5 @@
 import { useQueryClient, useMutation } from "@tanstack/react-query";
+import { useRef } from "react";
 import { type GraphSessionStorageModel } from "./storage";
 import { useNotification } from "@/components/NotificationProvider";
 import {
@@ -18,6 +19,7 @@ export function useRestoreGraphSession() {
   const { enqueueNotification, clearNotification } = useNotification();
 
   const notificationTitle = "Restoring Graph Session";
+  const progressNotificationId = useRef<string | null>(null);
 
   const mutation = useMutation({
     mutationFn: async (graph: GraphSessionStorageModel) => {
@@ -29,7 +31,7 @@ export function useRestoreGraphSession() {
         graph.edges.size
       );
 
-      const progressNotificationId = enqueueNotification({
+      progressNotificationId.current = enqueueNotification({
         title: notificationTitle,
         message: `Restoring graph session with ${entityCountMessage}.`,
         type: "loading",
@@ -42,8 +44,6 @@ export function useRestoreGraphSession() {
         graph.edges,
         queryClient
       );
-
-      clearNotification(progressNotificationId);
 
       // Update Graph Explorer state
       await addToGraph(result.entities);
@@ -58,7 +58,9 @@ export function useRestoreGraphSession() {
       });
     },
     onSettled: () => {
-      logger.debug("Graph has been restored");
+      if (progressNotificationId.current) {
+        clearNotification(progressNotificationId.current);
+      }
     },
     onError: () => {
       enqueueNotification({

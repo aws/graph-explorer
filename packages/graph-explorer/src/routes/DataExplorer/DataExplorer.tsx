@@ -192,13 +192,13 @@ function DisplayNameAndDescriptionOptions({
 
   const { setVertexStyle: setPreferences } = useVertexStyling(vertexType);
   const onDisplayNameChange =
-    (field: "name" | "longName") => async (value: string | string[]) => {
+    (field: "name" | "longName") => (value: string | string[]) => {
       if (field === "name") {
-        await setPreferences({ displayNameAttribute: value as string });
+        setPreferences({ displayNameAttribute: value as string });
       }
 
       if (field === "longName") {
-        await setPreferences({ longDisplayNameAttribute: value as string });
+        setPreferences({ longDisplayNameAttribute: value as string });
       }
     };
 
