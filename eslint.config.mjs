@@ -60,10 +60,15 @@ export default defineConfig(
     settings: {
       "import/resolver": {
         typescript: {
+          alwaysTryTypes: true,
+          noWarnOnMultipleProjects: true,
           project: [
-            "packages/graph-explorer/tsconfig.app.json",
-            "packages/graph-explorer-proxy-server/tsconfig.json",
-            "packages/shared/tsconfig.json",
+            "./tsconfig.json",
+            "./tsconfig.root.json",
+            "./packages/graph-explorer/tsconfig.app.json",
+            "./packages/graph-explorer/tsconfig.vite.json",
+            "./packages/graph-explorer-proxy-server/tsconfig.json",
+            "./packages/shared/tsconfig.json",
           ],
         },
       },
