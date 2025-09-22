@@ -6,14 +6,13 @@ import https from "https";
 import bodyParser from "body-parser";
 import fs from "fs";
 import path from "path";
-import { fromNodeProviderChain } from "@aws-sdk/credential-providers";
-import aws4 from "aws4";
 import type { IncomingHttpHeaders } from "http";
 import { logger as proxyLogger, requestLoggingMiddleware } from "./logging.js";
 import { clientRoot, proxyServerRoot } from "./paths.js";
 import { errorHandlingMiddleware, handleError } from "./error-handler.js";
 import { BooleanStringSchema, env } from "./env.js";
 import { pipeline } from "stream";
+import { signRequest } from "./authentication.js";
 
 const app = express();
 
@@ -34,92 +33,31 @@ interface LoggerIncomingHttpHeaders extends IncomingHttpHeaders {
 
 app.use(requestLoggingMiddleware());
 
-// Function to get IAM headers for AWS4 signing process.
-async function getIAMHeaders(options: string | aws4.Request) {
-  const credentialProvider = fromNodeProviderChain();
-  const creds = await credentialProvider();
-  if (creds === undefined) {
-    throw new Error(
-      "IAM is enabled but credentials cannot be found on the credential provider chain."
-    );
-  }
-
-  const headers = aws4.sign(options, {
-    accessKeyId: creds.accessKeyId,
-    secretAccessKey: creds.secretAccessKey,
-    ...(creds.sessionToken && { sessionToken: creds.sessionToken }),
-  });
-
-  return headers;
-}
-
-// Function to retry fetch requests with exponential backoff.
-const retryFetch = async (
+// Function to make authenticated fetch requests.
+const authenticatedFetch = async (
   url: URL,
-  options: any,
+  options: RequestInit,
   isIamEnabled: boolean,
   region: string | undefined,
-  serviceType: string,
-  retryDelay = 10000,
-  refetchMaxRetries = 1
+  serviceType: string
 ) => {
-  for (let i = 0; i < refetchMaxRetries; i++) {
-    if (isIamEnabled) {
-      const data = await getIAMHeaders({
-        host: url.hostname,
-        port: url.port,
-        path: url.pathname + url.search,
+  const iamOptions = isIamEnabled
+    ? {
         service: serviceType,
-        region,
-        method: options.method,
-        body: options.body ?? undefined,
-      });
-
-      options = {
-        host: url.hostname,
-        port: url.port,
-        path: url.pathname + url.search,
-        service: serviceType,
-        region,
-        method: options.method,
-        body: options.body ?? undefined,
-        headers: data.headers,
-      };
-    }
-    options = {
-      host: url.hostname,
-      port: url.port,
-      path: url.pathname + url.search,
-      service: serviceType,
-      method: options.method,
-      body: options.body ?? undefined,
-      headers: options.headers,
-      compress: false, // prevent automatic decompression
-    };
-
-    try {
-      const res = await fetch(url.href, options);
-      if (!res.ok) {
-        proxyLogger.error("!!Request failure!!");
-        return res;
-      } else {
-        return res;
+        region: region,
       }
-    } catch (err) {
-      if (refetchMaxRetries === 1) {
-        // Don't log about retries if retrying is not used
-        throw err;
-      } else if (i === refetchMaxRetries - 1) {
-        proxyLogger.error(err, "!!Proxy Retry Fetch Reached Maximum Tries!!");
-        throw err;
-      } else {
-        proxyLogger.debug("Proxy Retry Fetch Count::: " + i);
-        await new Promise(resolve => setTimeout(resolve, retryDelay));
-      }
-    }
+    : undefined;
+  const request: RequestInit = {
+    ...options,
+    compress: false, // prevent automatic decompression
+  };
+  const signedRequest = await signRequest(url, request, iamOptions);
+
+  const res = await fetch(url, signedRequest);
+  if (!res.ok) {
+    proxyLogger.error("!!Request failure!!");
   }
-  // Should never reach this code
-  throw new Error("retryFetch failed to complete retry logic");
+  return res;
 };
 
 // Function to fetch data from the given URL and send it as a response.
@@ -133,7 +71,7 @@ async function fetchData(
   serviceType: string
 ) {
   try {
-    const response = await retryFetch(
+    const response = await authenticatedFetch(
       new URL(url),
       options,
       isIamEnabled,
@@ -215,7 +153,7 @@ app.post("/sparql", async (req, res, next) => {
     }
     proxyLogger.debug(`Cancelling request ${queryId}...`);
     try {
-      await retryFetch(
+      await authenticatedFetch(
         new URL(`${graphDbConnectionUrl}/sparql/status`),
         {
           method: "POST",
@@ -269,8 +207,9 @@ app.post("/sparql", async (req, res, next) => {
   const requestOptions = {
     method: "POST",
     headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      Accept: "application/sparql-results+json",
+      "Content-Type":
+        headers["content-type"] ?? "application/x-www-form-urlencoded",
+      Accept: headers.accept ?? "application/sparql-results+json",
     },
     body,
   };
@@ -319,7 +258,7 @@ app.post("/gremlin", async (req, res, next) => {
     }
     proxyLogger.debug(`Cancelling request ${queryId}...`);
     try {
-      await retryFetch(
+      await authenticatedFetch(
         new URL(
           `${graphDbConnectionUrl}/gremlin/status?cancelQuery&queryId=${encodeURIComponent(queryId)}`
         ),
