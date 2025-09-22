@@ -7,7 +7,6 @@ import {
 } from "@/components";
 import { FilterSearchTabContent } from "./FilterSearchTabContent";
 import { SidebarCloseButton } from "../SidebarCloseButton";
-import { useQueryEngine } from "@/core";
 import {
   SidebarTabs,
   SidebarTabsContent,
@@ -23,21 +22,7 @@ import { useAtom } from "jotai";
 export const selectedTabAtom = atomWithReset("filter");
 
 export function SearchSidebarPanel() {
-  const queryEngine = useQueryEngine();
   const [selectedTab, setSelectedTab] = useAtom(selectedTabAtom);
-
-  // Only show query editor for Gremlin and openCypher
-  const shouldShowQueryEditor =
-    queryEngine === "gremlin" || queryEngine === "openCypher";
-
-  // Hide query editor tabs
-  if (!shouldShowQueryEditor) {
-    return (
-      <Layout className="overflow-y-auto">
-        <FilterSearchTabContent />
-      </Layout>
-    );
-  }
 
   return (
     <Layout>

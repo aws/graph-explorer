@@ -200,6 +200,7 @@ export const sparqlValueSchema = z.object({
   datatype: z.string().optional(),
   type: z.string(),
   value: z.string(),
+  "xml:lang": z.string().optional(),
 });
 export type SparqlValue = z.infer<typeof sparqlValueSchema>;
 

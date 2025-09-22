@@ -24,6 +24,7 @@ import { replaceBlankNodeFromSearch } from "./keywordSearch/replaceBlankNodeFrom
 import { vertexDetails } from "./vertexDetails";
 import { edgeDetails } from "./edgeDetails";
 import { neighborCounts } from "./neighborCounts";
+import { rawQuery } from "./rawquery";
 
 function _sparqlFetch(
   connection: NormalizedConnection,
@@ -183,10 +184,12 @@ export function createSparqlExplorer(
     async edgeDetails(req) {
       return Promise.resolve(edgeDetails(req));
     },
-    // eslint-disable-next-line @typescript-eslint/require-await
-    async rawQuery(_req, _options) {
+    async rawQuery(req, options) {
       remoteLogger.info("[SPARQL Explorer] Fetching raw query...");
-      throw new Error("Raw query functionality is not implemented for SPARQL");
+      return await rawQuery(
+        _sparqlFetch(connection, featureFlags, options),
+        req
+      );
     },
   } satisfies Explorer;
 }
