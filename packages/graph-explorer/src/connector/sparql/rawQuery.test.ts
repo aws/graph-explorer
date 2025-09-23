@@ -570,4 +570,436 @@ describe("rawQuery", () => {
     const uniqueVertexIds = new Set(vertexIds);
     expect(vertexIds.length).toBe(uniqueVertexIds.size);
   });
+
+  it("should filter out blank nodes from CONSTRUCT query results", async () => {
+    const mockResponse = {
+      head: { vars: ["subject", "predicate", "object"] },
+      results: {
+        bindings: [
+          // Valid URI triple - should be included
+          {
+            subject: { type: "uri", value: "http://example.org/person1" },
+            predicate: { type: "uri", value: "http://example.org/name" },
+            object: { type: "literal", value: "John Doe" },
+          },
+          // Blank node as subject - should be filtered out
+          {
+            subject: { type: "bnode", value: "_:b1" },
+            predicate: { type: "uri", value: "http://example.org/name" },
+            object: { type: "literal", value: "Anonymous Person" },
+          },
+          // Blank node as object - should be filtered out
+          {
+            subject: { type: "uri", value: "http://example.org/person2" },
+            predicate: { type: "uri", value: "http://example.org/relatedTo" },
+            object: { type: "bnode", value: "_:b2" },
+          },
+          // Both subject and object are blank nodes - should be filtered out
+          {
+            subject: { type: "bnode", value: "_:b3" },
+            predicate: { type: "uri", value: "http://example.org/knows" },
+            object: { type: "bnode", value: "_:b4" },
+          },
+          // Another valid URI triple - should be included
+          {
+            subject: { type: "uri", value: "http://example.org/person3" },
+            predicate: { type: "uri", value: "http://example.org/age" },
+            object: {
+              type: "literal",
+              datatype: "http://www.w3.org/2001/XMLSchema#integer",
+              value: "25",
+            },
+          },
+        ],
+      },
+    };
+
+    const mockFetch = vi.fn().mockResolvedValue(mockResponse);
+    const result = await rawQuery(mockFetch, {
+      query: "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }",
+    });
+
+    // Should only have 2 vertex results (person1 and person3), blank node triples filtered out
+    expect(result).toHaveLength(2);
+
+    expect(result[0]).toEqual(
+      createResultVertex({
+        id: "http://example.org/person1",
+        isBlankNode: false,
+      })
+    );
+
+    expect(result[1]).toEqual(
+      createResultVertex({
+        id: "http://example.org/person3",
+        isBlankNode: false,
+      })
+    );
+
+    // Verify no blank node results exist
+    const hasBlankNodes = result.some(
+      item =>
+        (item.entityType === "vertex" && item.isBlankNode) ||
+        (item.entityType === "edge" &&
+          (String(item.sourceId).startsWith("_:") ||
+            String(item.targetId).startsWith("_:")))
+    );
+    expect(hasBlankNodes).toBe(false);
+  });
+
+  it("should filter out blank node edges from CONSTRUCT query results", async () => {
+    const mockResponse = {
+      head: { vars: ["subject", "predicate", "object"] },
+      results: {
+        bindings: [
+          // Valid URI-to-URI edge - should be included
+          {
+            subject: { type: "uri", value: "http://example.org/person1" },
+            predicate: { type: "uri", value: "http://example.org/knows" },
+            object: { type: "uri", value: "http://example.org/person2" },
+          },
+          // Edge with blank node as subject - should be filtered out
+          {
+            subject: { type: "bnode", value: "_:b1" },
+            predicate: { type: "uri", value: "http://example.org/knows" },
+            object: { type: "uri", value: "http://example.org/person3" },
+          },
+          // Edge with blank node as object - should be filtered out
+          {
+            subject: { type: "uri", value: "http://example.org/person4" },
+            predicate: { type: "uri", value: "http://example.org/worksAt" },
+            object: { type: "bnode", value: "_:b2" },
+          },
+          // Another valid URI-to-URI edge - should be included
+          {
+            subject: { type: "uri", value: "http://example.org/person2" },
+            predicate: { type: "uri", value: "http://example.org/friendOf" },
+            object: { type: "uri", value: "http://example.org/person4" },
+          },
+        ],
+      },
+    };
+
+    const mockFetch = vi.fn().mockResolvedValue(mockResponse);
+    const result = await rawQuery(mockFetch, {
+      query: "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }",
+    });
+
+    // Should only have 2 edge results, blank node edges filtered out
+    expect(result).toHaveLength(2);
+
+    expect(result[0]).toEqual(
+      createResultEdge({
+        id: "http://example.org/person1-[http://example.org/knows]->http://example.org/person2",
+        sourceId: "http://example.org/person1",
+        targetId: "http://example.org/person2",
+        type: "http://example.org/knows",
+        attributes: {},
+      })
+    );
+
+    expect(result[1]).toEqual(
+      createResultEdge({
+        id: "http://example.org/person2-[http://example.org/friendOf]->http://example.org/person4",
+        sourceId: "http://example.org/person2",
+        targetId: "http://example.org/person4",
+        type: "http://example.org/friendOf",
+        attributes: {},
+      })
+    );
+
+    // Verify all results are edges (no vertices created from filtered blank nodes)
+    expect(result.every(item => item.entityType === "edge")).toBe(true);
+  });
+
+  it("should handle CONSTRUCT query with only blank node triples", async () => {
+    const mockResponse = {
+      head: { vars: ["subject", "predicate", "object"] },
+      results: {
+        bindings: [
+          // Start with a URI subject to ensure CONSTRUCT detection, then blank nodes
+          {
+            subject: { type: "uri", value: "http://example.org/person1" },
+            predicate: { type: "uri", value: "http://example.org/relatedTo" },
+            object: { type: "bnode", value: "_:b2" },
+          },
+          // All other triples contain blank nodes - should all be filtered out
+          {
+            subject: { type: "bnode", value: "_:b1" },
+            predicate: { type: "uri", value: "http://example.org/name" },
+            object: { type: "literal", value: "Anonymous" },
+          },
+          {
+            subject: { type: "bnode", value: "_:b3" },
+            predicate: { type: "uri", value: "http://example.org/knows" },
+            object: { type: "bnode", value: "_:b4" },
+          },
+        ],
+      },
+    };
+
+    const mockFetch = vi.fn().mockResolvedValue(mockResponse);
+    const result = await rawQuery(mockFetch, {
+      query: "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }",
+    });
+
+    // Should return empty array since all triples contain blank nodes and are filtered out
+    expect(result).toEqual([]);
+  });
+
+  it("should handle mixed blank nodes and valid triples in CONSTRUCT query", async () => {
+    const mockResponse = {
+      head: { vars: ["subject", "predicate", "object"] },
+      results: {
+        bindings: [
+          // Valid edge - should create edge (put this first to ensure CONSTRUCT detection)
+          {
+            subject: { type: "uri", value: "http://example.org/person1" },
+            predicate: { type: "uri", value: "http://example.org/knows" },
+            object: { type: "uri", value: "http://example.org/person2" },
+          },
+          // Valid vertex attribute - should create vertex
+          {
+            subject: { type: "uri", value: "http://example.org/person1" },
+            predicate: { type: "uri", value: "http://example.org/name" },
+            object: { type: "literal", value: "John Doe" },
+          },
+          // Blank node triple - should be filtered out
+          {
+            subject: { type: "bnode", value: "_:b1" },
+            predicate: { type: "uri", value: "http://example.org/name" },
+            object: { type: "literal", value: "Anonymous" },
+          },
+          // Another blank node triple - should be filtered out
+          {
+            subject: { type: "uri", value: "http://example.org/person2" },
+            predicate: { type: "uri", value: "http://example.org/worksAt" },
+            object: { type: "bnode", value: "_:company" },
+          },
+          // Valid vertex attribute for person2 - should create vertex
+          {
+            subject: { type: "uri", value: "http://example.org/person2" },
+            predicate: { type: "uri", value: "http://example.org/age" },
+            object: {
+              type: "literal",
+              datatype: "http://www.w3.org/2001/XMLSchema#integer",
+              value: "30",
+            },
+          },
+        ],
+      },
+    };
+
+    const mockFetch = vi.fn().mockResolvedValue(mockResponse);
+    const result = await rawQuery(mockFetch, {
+      query: "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }",
+    });
+
+    // Should have 3 results: 1 edge + 2 vertices (person1 and person2)
+    expect(result).toHaveLength(3);
+
+    // Edge result
+    expect(result[0]).toEqual(
+      createResultEdge({
+        id: "http://example.org/person1-[http://example.org/knows]->http://example.org/person2",
+        sourceId: "http://example.org/person1",
+        targetId: "http://example.org/person2",
+        type: "http://example.org/knows",
+        attributes: {},
+      })
+    );
+
+    // Vertex results
+    expect(result[1]).toEqual(
+      createResultVertex({
+        id: "http://example.org/person1",
+        isBlankNode: false,
+      })
+    );
+
+    expect(result[2]).toEqual(
+      createResultVertex({
+        id: "http://example.org/person2",
+        isBlankNode: false,
+      })
+    );
+
+    // Verify no blank node entities exist in results
+    const hasBlankNodeEntities = result.some(
+      item =>
+        (item.entityType === "vertex" && item.isBlankNode) ||
+        (item.entityType === "edge" &&
+          (String(item.sourceId).startsWith("_:") ||
+            String(item.targetId).startsWith("_:")))
+    );
+    expect(hasBlankNodeEntities).toBe(false);
+  });
+
+  it("should filter out blank nodes when first binding is a blank node", async () => {
+    const mockResponse = {
+      head: { vars: ["subject", "predicate", "object"] },
+      results: {
+        bindings: [
+          // Start with blank node - should still be detected as CONSTRUCT and filtered
+          {
+            subject: { type: "bnode", value: "_:b1" },
+            predicate: { type: "uri", value: "http://example.org/name" },
+            object: { type: "literal", value: "Anonymous" },
+          },
+          // Valid URI triple - should be included
+          {
+            subject: { type: "uri", value: "http://example.org/person1" },
+            predicate: { type: "uri", value: "http://example.org/name" },
+            object: { type: "literal", value: "John Doe" },
+          },
+          // Another blank node triple - should be filtered
+          {
+            subject: { type: "uri", value: "http://example.org/person2" },
+            predicate: { type: "uri", value: "http://example.org/relatedTo" },
+            object: { type: "bnode", value: "_:b2" },
+          },
+        ],
+      },
+    };
+
+    const mockFetch = vi.fn().mockResolvedValue(mockResponse);
+    const result = await rawQuery(mockFetch, {
+      query: "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }",
+    });
+
+    // Should only have 1 vertex result (person1), blank node triples filtered out
+    expect(result).toHaveLength(1);
+
+    expect(result[0]).toEqual(
+      createResultVertex({
+        id: "http://example.org/person1",
+        isBlankNode: false,
+      })
+    );
+
+    // Verify no blank node results exist
+    const hasBlankNodes = result.some(
+      item =>
+        (item.entityType === "vertex" && item.isBlankNode) ||
+        (item.entityType === "edge" &&
+          (String(item.sourceId).startsWith("_:") ||
+            String(item.targetId).startsWith("_:")))
+    );
+    expect(hasBlankNodes).toBe(false);
+  });
+
+  it("should handle CONSTRUCT query with complex blank node patterns", async () => {
+    const mockResponse = {
+      head: { vars: ["subject", "predicate", "object"] },
+      results: {
+        bindings: [
+          // Valid edge
+          {
+            subject: { type: "uri", value: "http://example.org/person1" },
+            predicate: { type: "uri", value: "http://example.org/knows" },
+            object: { type: "uri", value: "http://example.org/person2" },
+          },
+          // Valid vertex attribute for person1
+          {
+            subject: { type: "uri", value: "http://example.org/person1" },
+            predicate: { type: "uri", value: "http://example.org/name" },
+            object: { type: "literal", value: "John Doe" },
+          },
+          // Blank node as subject with literal object - filtered
+          {
+            subject: { type: "bnode", value: "_:anonymous1" },
+            predicate: { type: "uri", value: "http://example.org/name" },
+            object: { type: "literal", value: "Unknown Person" },
+          },
+          // URI subject with blank node object - filtered
+          {
+            subject: { type: "uri", value: "http://example.org/person1" },
+            predicate: { type: "uri", value: "http://example.org/hasAddress" },
+            object: { type: "bnode", value: "_:address1" },
+          },
+          // Blank node to blank node - filtered
+          {
+            subject: { type: "bnode", value: "_:anonymous1" },
+            predicate: { type: "uri", value: "http://example.org/livesAt" },
+            object: { type: "bnode", value: "_:address2" },
+          },
+          // Valid vertex attribute
+          {
+            subject: { type: "uri", value: "http://example.org/person2" },
+            predicate: { type: "uri", value: "http://example.org/age" },
+            object: {
+              type: "literal",
+              datatype: "http://www.w3.org/2001/XMLSchema#integer",
+              value: "25",
+            },
+          },
+          // Another valid edge
+          {
+            subject: { type: "uri", value: "http://example.org/person2" },
+            predicate: { type: "uri", value: "http://example.org/worksAt" },
+            object: { type: "uri", value: "http://example.org/company1" },
+          },
+        ],
+      },
+    };
+
+    const mockFetch = vi.fn().mockResolvedValue(mockResponse);
+    const result = await rawQuery(mockFetch, {
+      query: "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }",
+    });
+
+    // Should have 4 results: 2 edges + 2 vertices (person1, person2)
+    // Note: company1 vertex is not created because it only appears as an edge target
+    expect(result).toHaveLength(4);
+
+    // Check edges
+    const edges = result.filter(item => item.entityType === "edge");
+    expect(edges).toHaveLength(2);
+
+    const expectedEdges = [
+      createResultEdge({
+        id: "http://example.org/person1-[http://example.org/knows]->http://example.org/person2",
+        sourceId: "http://example.org/person1",
+        targetId: "http://example.org/person2",
+        type: "http://example.org/knows",
+        attributes: {},
+      }),
+      createResultEdge({
+        id: "http://example.org/person2-[http://example.org/worksAt]->http://example.org/company1",
+        sourceId: "http://example.org/person2",
+        targetId: "http://example.org/company1",
+        type: "http://example.org/worksAt",
+        attributes: {},
+      }),
+    ];
+
+    expectedEdges.forEach(expectedEdge => {
+      expect(edges).toContainEqual(expectedEdge);
+    });
+
+    // Check vertices
+    const vertices = result.filter(item => item.entityType === "vertex");
+    expect(vertices).toHaveLength(2);
+
+    const vertexIds = vertices.map(v => v.id).sort();
+    expect(vertexIds).toEqual([
+      "http://example.org/person1",
+      "http://example.org/person2",
+    ]);
+
+    // Verify all vertices are not blank nodes
+    vertices.forEach(vertex => {
+      expect(vertex.isBlankNode).toBe(false);
+    });
+
+    // Verify no blank node entities exist in any results
+    const hasBlankNodeEntities = result.some(
+      item =>
+        (item.entityType === "vertex" && item.isBlankNode) ||
+        (item.entityType === "edge" &&
+          (String(item.sourceId).startsWith("_:") ||
+            String(item.targetId).startsWith("_:")))
+    );
+    expect(hasBlankNodeEntities).toBe(false);
+  });
 });

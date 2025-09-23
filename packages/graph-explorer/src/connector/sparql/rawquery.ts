@@ -87,7 +87,8 @@ function isConstructQueryResult(bindings: Array<RawQueryBinding>): boolean {
     variables.includes("subject") &&
     variables.includes("predicate") &&
     variables.includes("object") &&
-    firstBinding.subject?.type === "uri"
+    (firstBinding.subject?.type === "uri" ||
+      firstBinding.subject?.type === "bnode")
   );
 }
 
@@ -102,6 +103,11 @@ function handleConstructQueryResults(
 
   // Separate triples into edges and vertices
   for (const binding of bindings) {
+    // Filter out all blank node results
+    if (binding.subject.type === "bnode" || binding.object.type === "bnode") {
+      continue;
+    }
+
     if (isEdgeBinding(binding)) {
       const sourceId = binding.subject.value;
       const targetId = binding.object.value;
