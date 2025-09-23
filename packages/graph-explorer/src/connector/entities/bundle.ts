@@ -1,6 +1,7 @@
 import { getDisplayValueForScalar } from "./scalar";
 import { PatchedResultEntity, ResultEntity } from "./entities";
 import { NBSP } from "@/utils";
+import { TextTransformer } from "@/hooks";
 
 /**
  * Represents a collection of values. This can be vertices, edges, or just a
@@ -102,14 +103,18 @@ export function createPatchedResultBundle({
  * // Returns: "Name: John • Age: 25 • Profile: v(v123)"
  * ```
  */
-export function getDisplayValueForBundle(bundle: PatchedResultBundle): string {
+export function getDisplayValueForBundle(
+  bundle: PatchedResultBundle,
+  textTransformer?: TextTransformer
+): string {
+  const transform = textTransformer ?? (text => text);
   return bundle.values
     .map(entity => {
       switch (entity.entityType) {
         case "scalar":
           return entity.name != null
-            ? `${entity.name}: ${getDisplayValueForScalar(entity.value)}`
-            : getDisplayValueForScalar(entity.value);
+            ? `${transform(entity.name)}: ${transform(getDisplayValueForScalar(entity.value))}`
+            : transform(getDisplayValueForScalar(entity.value));
         case "patched-vertex":
           return entity.name
             ? `${entity.name}: v(${entity.id})`
@@ -119,7 +124,9 @@ export function getDisplayValueForBundle(bundle: PatchedResultBundle): string {
             ? `${entity.name}: e(${entity.id})`
             : `e(${entity.id})`;
         case "bundle":
-          return entity.name != null ? `${entity.name}: [...]` : `[...]`;
+          return entity.name != null
+            ? `${transform(entity.name)}: [...]`
+            : `[...]`;
       }
     })
     .join(`${NBSP}• `);

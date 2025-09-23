@@ -149,7 +149,7 @@ function QueryTextArea({
       case "openCypher":
         return "e.g. MATCH (n) RETURN n LIMIT 10";
       case "sparql":
-        return "Not supported";
+        return "e.g. CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o } LIMIT 10";
     }
   })();
 
