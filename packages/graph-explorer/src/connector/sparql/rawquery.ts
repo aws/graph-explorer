@@ -6,6 +6,7 @@ import {
   sparqlResponseSchema,
   sparqlValueSchema,
   sparqlAskResponseSchema,
+  sparqlQuadBindingSchema,
 } from "./types";
 import isErrorResponse from "../utils/isErrorResponse";
 import { z } from "zod";
@@ -50,7 +51,16 @@ export async function rawQuery(
     return handleAskQueryResult(askParsed.data.boolean);
   }
 
-  // Handle JSON format response for SELECT/CONSTRUCT queries
+  // Try to parse as quads next (CONSTRUCT and DESCRIBE queries)
+  const quadsParsed = sparqlResponseSchema(sparqlQuadBindingSchema).safeParse(
+    data
+  );
+  if (quadsParsed.success) {
+    logger.debug("Parsing SPARQL quads response");
+    return handleConstructQueryResults(quadsParsed.data.results.bindings);
+  }
+
+  // Parse raw JSON format response for all other queries
   logger.debug("Parsing SPARQL JSON response");
   const parsed = rawQueryResponseSchema.safeParse(data);
   if (!parsed.success) {
@@ -62,20 +72,8 @@ export async function rawQuery(
     );
     throw validationError;
   }
-  const bindings = parsed.data.results.bindings;
 
-  // If there are no bindings, return empty array
-  if (!bindings.length) {
-    return [];
-  }
-
-  // Check if this is a CONSTRUCT query by looking for subject/predicate/object pattern
-  const isConstructQuery = isConstructQueryResult(bindings);
-  if (isConstructQuery) {
-    return handleConstructQueryResults(bindings);
-  }
-
-  return handleSelectQueryResults(bindings);
+  return handleSelectQueryResults(parsed.data.results.bindings);
 }
 
 /**
@@ -88,28 +86,6 @@ function handleAskQueryResult(booleanResult: boolean): RawQueryResponse {
       value: booleanResult,
     }),
   ];
-}
-
-/**
- * Detects if the query results are from a CONSTRUCT query by checking for
- * the typical subject/predicate/object pattern with a URI subject
- */
-function isConstructQueryResult(bindings: Array<RawQueryBinding>): boolean {
-  if (bindings.length === 0) return false;
-
-  // Check if the first binding has exactly subject, predicate, and object variables
-  // AND the subject is a URI (which indicates it represents a vertex)
-  const firstBinding = bindings[0];
-  const variables = Object.keys(firstBinding);
-
-  return (
-    variables.length === 3 &&
-    variables.includes("subject") &&
-    variables.includes("predicate") &&
-    variables.includes("object") &&
-    (firstBinding.subject?.type === "uri" ||
-      firstBinding.subject?.type === "bnode")
-  );
 }
 
 /**

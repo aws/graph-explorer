@@ -190,6 +190,11 @@ export const sparqlBlankNodeSchema = z.object({
   value: z.string(),
 });
 
+export const sparqlResourceValueSchema = z.union([
+  sparqlUriValueSchema,
+  sparqlBlankNodeSchema,
+]);
+
 export const sparqlNumberValueSchema = z.object({
   datatype: z.literal("http://www.w3.org/2001/XMLSchema#integer"),
   type: z.literal("literal"),
@@ -219,3 +224,12 @@ export const sparqlAskResponseSchema = z.object({
   head: z.object({}),
   boolean: z.boolean(),
 });
+
+export const sparqlQuadBindingSchema = z
+  .object({
+    subject: sparqlResourceValueSchema,
+    predicate: sparqlUriValueSchema,
+    object: sparqlValueSchema,
+    graph: sparqlValueSchema.optional(),
+  })
+  .strict();
