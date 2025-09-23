@@ -23,7 +23,7 @@ export function mapSparqlValueToScalar(sparqlValue: SparqlValue): ScalarValue {
       return parseFloat(sparqlValue.value);
 
     case "http://www.w3.org/2001/XMLSchema#boolean":
-      return sparqlValue.value === "true";
+      return sparqlValue.value === "true" || sparqlValue.value === "1";
 
     case "http://www.w3.org/2001/XMLSchema#dateTime":
     case "http://www.w3.org/2001/XMLSchema#date":

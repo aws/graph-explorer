@@ -216,7 +216,8 @@ describe("mapSparqlValueToScalar", () => {
 
       const result = mapSparqlValueToScalar(sparqlValue);
 
-      expect(result).toBe(false); // Only "true" string maps to true
+      expect(result).toBe(true);
+      expect(typeof result).toBe("boolean");
     });
 
     test("should parse '0' to boolean false", () => {
@@ -229,6 +230,7 @@ describe("mapSparqlValueToScalar", () => {
       const result = mapSparqlValueToScalar(sparqlValue);
 
       expect(result).toBe(false);
+      expect(typeof result).toBe("boolean");
     });
   });
 
