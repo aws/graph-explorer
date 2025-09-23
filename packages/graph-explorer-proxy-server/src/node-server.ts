@@ -73,6 +73,7 @@ const retryFetch = async (
         region,
         method: options.method,
         body: options.body ?? undefined,
+        headers: options.headers,
       });
 
       options = {
