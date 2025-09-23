@@ -551,7 +551,6 @@ describe("rawQuery", () => {
     expect(result[0]).toEqual(
       createResultVertex({
         id: "http://example.org/person1",
-        types: [],
         isBlankNode: false,
       })
     );
@@ -560,15 +559,14 @@ describe("rawQuery", () => {
     expect(result[1]).toEqual(
       createResultVertex({
         id: "http://example.org/person2",
-        types: [],
         isBlankNode: false,
       })
     );
 
     // Verify no duplicate vertices exist in the result set
     const vertexIds = result
-      .filter(item => item.type === "vertex")
-      .map(vertex => vertex.data.id);
+      .filter(item => item.entityType === "vertex")
+      .map(vertex => vertex.id);
     const uniqueVertexIds = new Set(vertexIds);
     expect(vertexIds.length).toBe(uniqueVertexIds.size);
   });
