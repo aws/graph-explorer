@@ -5,6 +5,7 @@ import {
   SparqlFetch,
   sparqlResponseSchema,
   sparqlValueSchema,
+  sparqlAskResponseSchema,
 } from "./types";
 import isErrorResponse from "../utils/isErrorResponse";
 import { z } from "zod";
@@ -42,7 +43,14 @@ export async function rawQuery(
 
   logger.debug("Raw query result", data);
 
-  // Handle JSON format response
+  // Try to parse as ASK query response first
+  const askParsed = sparqlAskResponseSchema.safeParse(data);
+  if (askParsed.success) {
+    logger.debug("Parsing SPARQL ASK response");
+    return handleAskQueryResult(askParsed.data.boolean);
+  }
+
+  // Handle JSON format response for SELECT/CONSTRUCT queries
   logger.debug("Parsing SPARQL JSON response");
   const parsed = rawQueryResponseSchema.safeParse(data);
   if (!parsed.success) {
@@ -68,6 +76,18 @@ export async function rawQuery(
   }
 
   return handleSelectQueryResults(bindings);
+}
+
+/**
+ * Handles ASK query results by creating a scalar boolean value
+ */
+function handleAskQueryResult(booleanResult: boolean): RawQueryResponse {
+  return [
+    createResultScalar({
+      name: "ASK",
+      value: booleanResult,
+    }),
+  ];
 }
 
 /**

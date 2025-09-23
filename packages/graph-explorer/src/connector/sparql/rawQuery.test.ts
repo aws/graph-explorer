@@ -888,6 +888,94 @@ describe("rawQuery", () => {
     expect(hasBlankNodes).toBe(false);
   });
 
+  describe("ASK queries", () => {
+    it("should handle ASK query with true result", async () => {
+      const mockResponse = {
+        head: {},
+        boolean: true,
+      };
+
+      const mockFetch = vi.fn().mockResolvedValue(mockResponse);
+      const result = await rawQuery(mockFetch, {
+        query: "ASK { ?s ?p ?o }",
+      });
+
+      expect(result).toHaveLength(1);
+      expect(result[0]).toEqual(
+        createResultScalar({
+          name: "ASK",
+          value: true,
+        })
+      );
+    });
+
+    it("should handle ASK query with false result", async () => {
+      const mockResponse = {
+        head: {},
+        boolean: false,
+      };
+
+      const mockFetch = vi.fn().mockResolvedValue(mockResponse);
+      const result = await rawQuery(mockFetch, {
+        query: "ASK { ?s <http://example.org/nonexistent> ?o }",
+      });
+
+      expect(result).toHaveLength(1);
+      expect(result[0]).toEqual(
+        createResultScalar({
+          name: "ASK",
+          value: false,
+        })
+      );
+    });
+
+    it("should handle complex ASK query", async () => {
+      const mockResponse = {
+        head: {},
+        boolean: true,
+      };
+
+      const mockFetch = vi.fn().mockResolvedValue(mockResponse);
+      const result = await rawQuery(mockFetch, {
+        query: `ASK { 
+          ?person <http://example.org/name> "John Doe" .
+          ?person <http://example.org/age> ?age .
+          FILTER(?age > 18)
+        }`,
+      });
+
+      expect(result).toHaveLength(1);
+      expect(result[0]).toEqual(
+        createResultScalar({
+          name: "ASK",
+          value: true,
+        })
+      );
+    });
+
+    it("should prioritize ASK parsing over SELECT/CONSTRUCT parsing", async () => {
+      // This response could theoretically be parsed as a malformed SELECT response,
+      // but should be correctly identified as an ASK response
+      const mockResponse = {
+        head: {},
+        boolean: false,
+      };
+
+      const mockFetch = vi.fn().mockResolvedValue(mockResponse);
+      const result = await rawQuery(mockFetch, {
+        query: "ASK { ?s ?p ?o }",
+      });
+
+      expect(result).toHaveLength(1);
+      expect(result[0]).toEqual(
+        createResultScalar({
+          name: "ASK",
+          value: false,
+        })
+      );
+    });
+  });
+
   it("should handle CONSTRUCT query with complex blank node patterns", async () => {
     const mockResponse = {
       head: { vars: ["subject", "predicate", "object"] },

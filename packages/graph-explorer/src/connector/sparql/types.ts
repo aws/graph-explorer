@@ -214,3 +214,8 @@ export function sparqlResponseSchema<T extends z.ZodTypeAny>(
     }),
   });
 }
+
+export const sparqlAskResponseSchema = z.object({
+  head: z.object({}),
+  boolean: z.boolean(),
+});
