@@ -21,6 +21,8 @@ export function executeUserQuery(
     staleTime: Infinity,
     // Keep the query results around for 5 minutes if the user happens to be on another tab
     gcTime: 1000 /* ms */ * 60 /* sec */ * 5 /* min */,
+    // Disable retries since query could be a mutation
+    retry: false,
     queryFn: async ({ signal, meta, client }) => {
       const explorer = getExplorer(meta);
       const results = await explorer.rawQuery({ query }, { signal });
