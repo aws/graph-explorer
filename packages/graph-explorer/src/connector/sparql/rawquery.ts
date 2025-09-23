@@ -80,7 +80,7 @@ function isConstructQueryResult(bindings: Array<RawQueryBinding>): boolean {
   // Check if the first binding has exactly subject, predicate, and object variables
   // AND the subject is a URI (which indicates it represents a vertex)
   const firstBinding = bindings[0];
-  const variables = Object.keys(firstBinding).sort();
+  const variables = Object.keys(firstBinding);
 
   return (
     variables.length === 3 &&
