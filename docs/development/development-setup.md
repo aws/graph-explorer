@@ -1,15 +1,14 @@
-## Development
+# Local Development Setup
 
-This developer README details instructions for building on top of the
-graph-explorer application, or for configuring advanced settings, like using
-environment variables to switch to HTTP.
+This guide details instructions for building on top of the graph-explorer
+application, or for configuring advanced settings for development.
 
-### Requirements
+## Requirements
 
 - pnpm >=10.12.1
 - node >=24.4.0
 
-#### Node Version
+### Node Version
 
 Ensure you are running the correct Node version. If you are using
 [NVM](https://github.com/nvm-sh/nvm), you can simply do:
@@ -21,7 +20,7 @@ nvm use
 Otherwise, use whatever method you use to install
 [Node v24.4.0](https://nodejs.org/en/download).
 
-#### Node Corepack
+### Node Corepack
 
 [Corepack](https://nodejs.org/api/corepack.html) is used to ensure the package
 manager used for the project is consistent.
@@ -30,12 +29,12 @@ manager used for the project is consistent.
 corepack enable
 ```
 
-### Supported Graph Types
+## Supported Graph Types
 
 - Labelled Property Graph (PG) using Gremlin or openCypher
 - Resource Description Framework (RDF) using SPARQL
 
-### Run in development mode
+## Run in development mode
 
 Install any missing or updated dependencies.
 
@@ -58,7 +57,7 @@ http://localhost:5173
 At this point, Graph Explorer should be successfully running and it is asking
 you for connection details. This part is specific to your personal setup.
 
-### Build for production
+## Build for production
 
 Building Graph Explorer is simple.
 
@@ -87,7 +86,7 @@ However, if you want to run Graph Explorer without the proxy server, you can:
 pnpm start:client
 ```
 
-### Managing dependencies
+## Managing dependencies
 
 If you need to add, remove, or update a dependency you can easily do so from the
 root folder in the CLI:
@@ -100,99 +99,36 @@ pnpm add react --filter graph-explorer
 pnpm add -D vitest --filter graph-explorer-proxy-server
 ```
 
-#### Preparation of a release
+## Building Docker Image from Source
 
-This repository is composed by 2 packages and a mono-repository structure
-itself. Then, you need to take into account 3 different `package.json` files:
+You can build the Docker image locally by following the steps below.
 
-- `<root>/package.json` is intended to keep the dependencies for managing the
-  repository. It has utilities like linter, code formatter, or git checks.
-- `<root>/packages/graph-explorer/package.json` is the package file that
-  describes the UI client package.
-- `<root>/packages/graph-explorer-proxy-server/package.json` is the package file
-  for the node server which is in charge of authentication and redirection of
-  requests.
+1. Clone the repository
+   ```
+   git clone https://github.com/aws/graph-explorer.git
+   ```
+2. Navigate to the repository
+   ```
+   cd graph-explorer
+   ```
+3. Build the image
+   ```
+   docker build -t graph-explorer .
+   ```
+4. Run the container (HTTPS disabled)
+   ```
+   docker run -p 80:80 \
+     --name graph-explorer \
+     --env PROXY_SERVER_HTTPS_CONNECTION=false \
+     --env GRAPH_EXP_HTTPS_CONNECTION=false \
+     graph-explorer
+   ```
+5. Connect to the Graph Explorer UI
+   ```
+   http://localhost/explorer
+   ```
 
-Each of these `package.json` files has an independent `version` property.
-However, in this project we should keep them correlated. Therefore, when a new
-release version is being prepared, the version number should be increased in all
-3 files. Regarding the version number displayed in the user interface, it is
-specifically extracted from the `<root>/packages/graph-explorer/package.json`.
-file
-
-### Environment variables
-
-#### `GRAPH_EXP_ENV_ROOT_FOLDER`
-
-Base path used to serve the `graph-explorer` front end application.
-
-Example: `/explorer`
-
-- Optional
-- Default: `/`
-- Type: `string`
-
-#### `GRAPH_EXP_CONNECTION_NAME`
-
-Default connection name.
-
-- Optional
-- Default is empty
-- Type: `string`
-
-#### `GRAPH_EXP_CONNECTION_ENGINE`
-
-The query engine to use for the default connection.
-
-- Optional
-- Default is `gremlin`
-- Valid values are `gremlin`, `openCypher`, or `sparql`
-- Type: `string`
-
-#### `HOST`
-
-The public hostname of the server. This is used to generate the SSL certificate
-during the Docker build.
-
-Example: `localhost`
-
-- Required when using HTTPS connections
-- Default is empty
-- Type: `string`
-
-#### `GRAPH_EXP_HTTPS_CONNECTION`
-
-Uses the self-signed certificate to serve Graph Explorer over https if true.
-
-- Optional
-- Default `true`
-- Type: `boolean`
-
-#### `PROXY_SERVER_HTTPS_PORT`
-
-The port to use for the HTTPS server.
-
-- Optional
-- Default `443`
-- Type: `number`
-
-#### `PROXY_SERVER_HTTP_PORT`
-
-The port to use for the HTTP server.
-
-- Optional
-- Default `80`
-- Type: `number`
-
-#### `PROXY_SERVER_HTTPS_CONNECTION`
-
-Uses the self-signed certificate to serve the proxy-server over https if true.
-
-- Optional
-- Default `true`
-- Type: `boolean`
-
-### Using self-signed certificates with Docker
+## Using self-signed certificates with Docker
 
 - Self-signed certificates will use the hostname provided in the `docker run`
   command, so unless you have specific requirements, there are no extra steps
@@ -208,15 +144,15 @@ Uses the self-signed certificate to serve the proxy-server over https if true.
   /packages/graph-explorer-proxy-server/cert-info/ on the Docker container that
   is created.
 
-### Using Self-signed certificates on Chrome
+## Using Self-signed certificates on Chrome
 
 For browsers like Safari and Firefox,
-[trusting the certificate from the browser](../README.md/#https-connections) is
-enough to bypass the “Not Secure” warning. However, Chrome treats self-signed
+[trusting the certificate from the browser](../deployment/https-setup.md#https-connections)
+is enough to bypass the "Not Secure" warning. However, Chrome treats self-signed
 certificates differently. If you want to use a self-signed certificate on Chrome
-**without** the “Not Secure” warning and you do not have your own certificate,
-or one provided by Let’s Encrypt, you can use the following instructions to add
-the root certificate and remove the warning. These instructions assume you’re
+**without** the "Not Secure" warning and you do not have your own certificate,
+or one provided by Let's Encrypt, you can use the following instructions to add
+the root certificate and remove the warning. These instructions assume you're
 using an EC2 instance to run the Docker container for Graph Explorer.
 
 1. After the Docker container is built and running, open a terminal prompt and
@@ -230,7 +166,7 @@ using an EC2 instance to run the Docker container for Graph Explorer.
    `scp -i {path_to_pem_file} {EC2_login}:~/rootCA.crt {path_on_local_to_place_file}`
    For example,
    `scp -i /Users/user1/EC2.pem ec2-user@XXX.XXX.XXX.XXX:~/rootCA.crt /Users/user1/downloads`
-6. After copying the certificate from the container to your local machine’s file
+6. After copying the certificate from the container to your local machine's file
    system, you can delete the rootCA.crt file from the EC2 file store with
    `rm -rf ~/rootCA.crt`
 7. Once you have the certificate, you will need to trust it on your machine. For
@@ -241,17 +177,7 @@ using an EC2 instance to run the Docker container for Graph Explorer.
    Expand the Trust section, and change the value of "When using this
    certificate" to "Always Trust".
 9. You should now refresh the browser and see that you can proceed to open the
-   application. For Chrome, the application will remain “Not Secure” due to the
+   application. For Chrome, the application will remain "Not Secure" due to the
    fact that this is a self-signed certificate. If you have trouble accessing
    Graph Explorer after completing the previous step and reloading the browser,
    consider running a docker restart command and refreshing the browser again.
-
-### Troubleshooting
-
-- If you need more detailed logs, you can change the log level from `info` in
-  the default .env file to `debug`. The logs will begin printing the error's
-  stack trace.
-- If Graph Explorer crashes, you can recreate the container or run `pnpm start`
-- If Graph Explorer fails to start, check that the provided endpoint is properly
-  spelled and that you have access to from the environment you are trying to run
-  in. If you are in a different VPC, consider VPC Peering.

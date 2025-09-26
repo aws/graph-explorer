@@ -14,7 +14,7 @@ graph-explorer/
 │   ├── graph-explorer/           # React frontend application
 │   ├── graph-explorer-proxy-server/  # Express.js backend server
 │   └── shared/                   # Shared types and utilities
-├── additionaldocs/               # Documentation
+├── docs/                        # Documentation
 ├── samples/                      # Example configurations
 └── [root config files]           # Workspace-level configuration
 ```
