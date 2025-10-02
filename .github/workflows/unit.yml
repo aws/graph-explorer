@@ -16,8 +16,6 @@ jobs:
       matrix:
         node-version:
           - 24.4.0
-        pnpm-version:
-          - 10.18.0
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -27,10 +25,8 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: Set up pnpm ${{ matrix.pnpm-version }}
+      - name: Set up pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: ${{ matrix.pnpm-version }}
 
       - name: Install package and dependencies
         run: pnpm install
