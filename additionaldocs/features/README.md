@@ -153,7 +153,7 @@ your graph database:
 - Supports cancellation of long-running queries
 - Some limitations exist for SPARQL queries
   - No support for synthetically generated RDF from `CONSTRUCT` queries
-  - Does not support blank node results
+  - No support for blank node results
   - `SELECT` queries always result in scalar values, even for resource URIs
   - `INSERT` and `DELETE` queries are not supported
 
