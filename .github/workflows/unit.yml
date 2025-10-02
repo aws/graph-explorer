@@ -17,7 +17,7 @@ jobs:
         node-version:
           - 24.4.0
         pnpm-version:
-          - 10.12.1
+          - 10.18.0
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
