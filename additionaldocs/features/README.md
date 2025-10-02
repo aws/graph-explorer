@@ -145,13 +145,17 @@ your graph database:
 
 ##### Query Search
 
-- Available for Gremlin and openCypher connections
 - Allows execution of any valid database query, including mutations
 - When adding an edge, its connected nodes are automatically included
 - Displays scalar values in results (though these cannot be added to the graph)
 - Paginates large result sets
 - Results can be added to the graph individually or all at once
 - Supports cancellation of long-running queries
+- Some limitations exist for SPARQL queries
+  - No support for `INSERT` and `DELETE` queries
+  - No support for synthetically generated RDF from `CONSTRUCT` queries
+  - No support for blank node results
+  - `SELECT` queries only returns scalar values, even for resource URIs
 
 #### Details Panel
 

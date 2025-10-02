@@ -11,7 +11,6 @@ issues linked below.
 
 ## Q3 2025
 
-- [Query editor for SPARQL](https://github.com/aws/graph-explorer/issues/688)
 - [Schema visualization](https://github.com/aws/graph-explorer/issues/685)
 
 ## Q4 2025
