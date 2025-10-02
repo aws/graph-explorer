@@ -12,25 +12,17 @@ on:
 jobs:
   install-and-test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version:
-          - 24.4.0
-        pnpm-version:
-          - 10.12.1
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-
-      - name: Set up pnpm ${{ matrix.pnpm-version }}
+      - name: Set up pnpm
         uses: pnpm/action-setup@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
         with:
-          version: ${{ matrix.pnpm-version }}
+          node-version-file: "package.json"
 
       - name: Install package and dependencies
         run: pnpm install

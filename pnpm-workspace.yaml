@@ -1,2 +1,6 @@
 packages:
   - packages/*
+
+# This prevents malicious packages from being installed by waiting 24 hours
+# after a package is published. See https://pnpm.io/settings#minimumreleaseage
+minimumReleaseAge: 1440
