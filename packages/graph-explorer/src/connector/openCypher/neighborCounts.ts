@@ -53,14 +53,16 @@ export async function neighborCounts(
     }
 
     const vertexId = createVertexId(rawId);
+
+    // Total up neighbors by type (might be more than unique neighbors)
     const countsByType: Record<string, number> = {};
     for (const count of rawCounts) {
-      // TODO: In a future set of changes we should pass the full lsit of types
-      // up to the UI so that it can list them out properly, but since this is a
-      // rather large change I am defering that work.
-      const type = count.label[0] ?? "";
-      countsByType[type] = count.count;
+      for (const type of count.label) {
+        countsByType[type] = (countsByType[type] ?? 0) + count.count;
+      }
     }
+
+    // Total up the unique neighbors
     const totalCount = rawCounts.reduce((acc, count) => acc + count.count, 0);
 
     counts.push({

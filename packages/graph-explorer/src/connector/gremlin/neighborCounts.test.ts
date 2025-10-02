@@ -1,4 +1,4 @@
-import { createVertexId } from "@/core";
+import { createVertexId, EntityRawId } from "@/core";
 import { neighborCounts } from "./neighborCounts";
 import { query } from "@/utils";
 import { NeighborCount } from "../useGEFetchTypes";
@@ -7,6 +7,7 @@ import {
   createGremlinResponse,
   createRandomVertexId,
 } from "@/utils/testing";
+import { GMap } from "./types";
 
 describe("neighborCounts", () => {
   it("should return empty for an empty request", async () => {
@@ -42,6 +43,7 @@ describe("neighborCounts", () => {
       counts: {
         label1: 3,
         label2: 9,
+        label3: 9,
       },
     };
     const response = createResponse({
@@ -116,18 +118,86 @@ describe("neighborCounts", () => {
        )
     `);
   });
+
+  it("should handle error response", async () => {
+    const mockFetch = vi.fn().mockResolvedValue({
+      code: 500,
+      detailedMessage: "Internal server error occurred",
+    });
+
+    await expect(
+      neighborCounts(mockFetch, {
+        vertexIds: [createVertexId("123")],
+      })
+    ).rejects.toThrow("Internal server error occurred");
+  });
+
+  it("should handle empty response data", async () => {
+    const mockFetch = vi
+      .fn()
+      .mockResolvedValue(createGremlinResponse(createGMap({})));
+
+    const result = await neighborCounts(mockFetch, {
+      vertexIds: [createVertexId("123")],
+    });
+
+    expect(result.counts).toEqual([]);
+  });
+
+  it("should handle vertex with zero neighbors", async () => {
+    const vertexId = createRandomVertexId();
+    const expected: NeighborCount = {
+      vertexId,
+      totalCount: 0,
+      counts: {},
+    };
+    const response = createResponse(expected);
+    const mockFetch = vi.fn().mockResolvedValue(response);
+
+    const result = await neighborCounts(mockFetch, {
+      vertexIds: [vertexId],
+    });
+
+    expect(result.counts).toEqual([expected]);
+  });
+
+  it("should handle mixed vertex ID types", async () => {
+    const stringId = createVertexId("string-id");
+    const numberId = createVertexId(42);
+    const expected1: NeighborCount = {
+      vertexId: stringId,
+      totalCount: 5,
+      counts: { type1: 5 },
+    };
+    const expected2: NeighborCount = {
+      vertexId: numberId, // Gremlin converts number IDs to strings
+      totalCount: 3,
+      counts: { type2: 3 },
+    };
+    const response = createResponse(expected1, expected2);
+    const mockFetch = vi.fn().mockResolvedValue(response);
+
+    const result = await neighborCounts(mockFetch, {
+      vertexIds: [stringId, numberId],
+    });
+
+    expect(result.counts).toHaveLength(2);
+    expect(result.counts).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining(expected1),
+        expect.objectContaining(expected2),
+      ])
+    );
+  });
 });
 
 function createResponse(...counts: NeighborCount[]) {
   return createGremlinResponse(
     createGMap(
-      counts.reduce(
-        (prev, curr) => {
-          prev[String(curr.vertexId)] = createGMap(curr.counts);
-          return prev;
-        },
-        {} as Record<string, any>
-      )
+      counts.reduce((prev, curr) => {
+        prev.set(curr.vertexId, createGMap(curr.counts));
+        return prev;
+      }, new Map<EntityRawId, GMap>())
     )
   );
 }
