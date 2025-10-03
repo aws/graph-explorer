@@ -1,11 +1,6 @@
-import {
-  type ResultVertex,
-  type ResultEdge,
-  type ScalarValue,
-  createTypedValue,
-} from "@/connector/entities";
+import { type ResultVertex, type ResultEdge } from "@/connector/entities";
 import type { OCEdge, OCVertex } from "@/connector/openCypher/types";
-import { getRawId } from "@/core";
+import { EntityProperties, EntityPropertyValue, getRawId } from "@/core";
 
 export function mapToOcVertex(vertex: ResultVertex): OCVertex {
   const id = getRawId(vertex.id);
@@ -19,7 +14,7 @@ export function mapToOcVertex(vertex: ResultVertex): OCVertex {
     "~entityType": "node",
     "~labels": vertex.types,
     // Can't be a fragment in openCypher
-    "~properties": vertex.attributes ?? {},
+    "~properties": mapToOcProperties(vertex.attributes ?? {}),
   };
 }
 
@@ -45,16 +40,23 @@ export function mapToOcEdge(edge: ResultEdge): OCEdge {
     "~start": sourceId,
     "~end": targetId,
     // openCypher does not have fragments
-    "~properties": edge.attributes ?? {},
+    "~properties": mapToOcProperties(edge.attributes ?? {}),
   };
 }
 
-export function mapToOcScalar(value: ScalarValue) {
-  const typedValue = createTypedValue(value);
+/** Converts Dates to strings */
+function mapToOcProperties(attributes: EntityProperties) {
+  return Object.fromEntries(
+    Object.entries(attributes).map(
+      ([key, value]) => [key, mapToOcScalar(value)] as const
+    )
+  );
+}
 
-  if (typedValue.type === "date") {
-    return typedValue.value.toISOString();
+export function mapToOcScalar(value: EntityPropertyValue) {
+  if (value instanceof Date) {
+    return value.toISOString();
   } else {
-    return typedValue.value;
+    return value;
   }
 }

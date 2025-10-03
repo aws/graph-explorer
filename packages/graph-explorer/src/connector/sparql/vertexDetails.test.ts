@@ -1,4 +1,4 @@
-import { createRandomVertexForRdf } from "@/utils/testing";
+import { createLiteralValue, createRandomVertexForRdf } from "@/utils/testing";
 import { vertexDetails } from "./vertexDetails";
 import { createVertexId, Vertex } from "@/core";
 import { createRandomInteger } from "@shared/utils/testing";
@@ -135,16 +135,7 @@ function createResponseFromVertices(...vertices: Vertex[]) {
               type: "uri",
               value: key,
             },
-            value: {
-              type: "literal",
-              value: value.toString(),
-              // Only include the datatype if the value is a number
-              ...(typeof value === "number" && {
-                datatype: value.toString().includes(".")
-                  ? "http://www.w3.org/2001/XMLSchema#decimal"
-                  : "http://www.w3.org/2001/XMLSchema#integer",
-              }),
-            },
+            value: createLiteralValue(value),
           })),
         ];
       }),
