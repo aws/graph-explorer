@@ -29,6 +29,7 @@ import { createRandomDate, createRandomName } from "@shared/utils/testing";
 import { MISSING_DISPLAY_VALUE } from "@/utils/constants";
 import { mapToDisplayVertexTypeConfig } from "./displayTypeConfigs";
 import { QueryEngine } from "@shared/types";
+import { getDisplayValueForScalar } from "@/connector/entities";
 
 describe("useDisplayVertexFromVertex", () => {
   it("should keep the same ID", () => {
@@ -159,51 +160,20 @@ describe("useDisplayVertexFromVertex", () => {
       .map(([key, value]) => ({
         name: key,
         displayLabel: key,
-        displayValue: String(value),
+        displayValue: getDisplayValueForScalar(value),
       }))
       .toSorted((a, b) => a.displayLabel.localeCompare(b.displayLabel));
 
     expect(act(vertex).attributes).toStrictEqual(attributes);
   });
 
-  it("should format date values in attribute when type is Date", () => {
+  it("should format date values in attribute", () => {
     const vertex = createRandomVertex();
     const schema = createRandomSchema();
-    const vtConfig = createRandomVertexTypeConfig();
-    vtConfig.type = vertex.type;
-    vtConfig.attributes.push({
-      name: "created",
-      dataType: "Date",
-    });
-    schema.vertices.push(vtConfig);
 
     vertex.attributes = {
       ...vertex.attributes,
-      created: createRandomDate().toISOString(),
-    };
-
-    const actualAttribute = act(vertex, withSchema(schema)).attributes.find(
-      attr => attr.name === "created"
-    );
-    expect(actualAttribute?.displayValue).toStrictEqual(
-      formatDate(new Date(vertex.attributes.created as any))
-    );
-  });
-
-  it("should format date values in attribute when type is g:Date", () => {
-    const vertex = createRandomVertex();
-    const schema = createRandomSchema();
-    const vtConfig = createRandomVertexTypeConfig();
-    vtConfig.type = vertex.type;
-    vtConfig.attributes.push({
-      name: "created",
-      dataType: "g:Date",
-    });
-    schema.vertices.push(vtConfig);
-
-    vertex.attributes = {
-      ...vertex.attributes,
-      created: createRandomDate().toISOString(),
+      created: createRandomDate(),
     };
 
     const actualAttribute = act(vertex, withSchema(schema)).attributes.find(
