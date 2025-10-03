@@ -216,6 +216,8 @@ test("should generate correct query", async () => {
 ```typescript
 import { render, screen } from "@testing-library/react";
 import { DbState, createTestableVertex, TestProvider } from "@/utils/testing";
+import { createQueryClient } from "@/core/queryClient";
+import { createStore } from "jotai";
 
 test("should render vertex correctly", () => {
   const state = new DbState();
@@ -225,9 +227,21 @@ test("should render vertex correctly", () => {
   });
   state.addTestableVertexToGraph(vertex);
 
+  // Set values on the Jotai store
+  const store = createStore();
+  state.applyTo(store);
+
+  // Create the query client using the mock explorer
+  const queryClient = createQueryClient({ explorer: state.explorer });
+  const defaultOptions = queryClient.getDefaultOptions();
+  queryClient.setDefaultOptions({
+    ...defaultOptions,
+    queries: { ...defaultOptions.queries, retry: false },
+  });
+
   render(<VertexComponent />, {
     wrapper: ({ children }) => (
-      <TestProvider initialValues={state.snapshot.values()}>
+      <TestProvider client={queryClient} store={store}>
         {children}
       </TestProvider>
     )

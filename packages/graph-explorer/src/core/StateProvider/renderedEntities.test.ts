@@ -97,7 +97,7 @@ describe("useRenderedVertices", () => {
 
     const { result } = renderHookWithJotai(
       () => useRenderedEntities(),
-      snapshot => dbState.applyTo(snapshot)
+      store => dbState.applyTo(store)
     );
 
     await waitFor(() => {
@@ -123,7 +123,7 @@ describe("useRenderedVertices", () => {
 
     const { result } = renderHookWithJotai(
       () => useRenderedEntities(),
-      snapshot => dbState.applyTo(snapshot)
+      store => dbState.applyTo(store)
     );
 
     await waitFor(() => {
@@ -164,7 +164,7 @@ describe("useRenderedEdges", () => {
 
     const { result } = renderHookWithJotai(
       () => useRenderedEntities(),
-      snapshot => dbState.applyTo(snapshot)
+      store => dbState.applyTo(store)
     );
 
     await waitFor(() => {
@@ -204,7 +204,7 @@ describe("useRenderedEdges", () => {
 
     const { result } = renderHookWithJotai(
       () => useRenderedEntities(),
-      snapshot => dbState.applyTo(snapshot)
+      store => dbState.applyTo(store)
     );
 
     await waitFor(() => {
@@ -242,7 +242,7 @@ describe("useRenderedEdges", () => {
 
     const { result } = renderHookWithJotai(
       () => useRenderedEntities(),
-      snapshot => dbState.applyTo(snapshot)
+      store => dbState.applyTo(store)
     );
 
     await waitFor(() => {
@@ -278,7 +278,7 @@ describe("useRenderedEdges", () => {
 
     const { result } = renderHookWithJotai(
       () => useRenderedEntities(),
-      snapshot => dbState.applyTo(snapshot)
+      store => dbState.applyTo(store)
     );
 
     await waitFor(() => {

@@ -27,9 +27,9 @@ test("should delete the active configuration", async () => {
 
       return { callback, allConfigs, activeConfig };
     },
-    snapshot => {
-      snapshot.set(activeConfigurationAtom, config1.id);
-      snapshot.set(configurationAtom, new Map([[config1.id, config1]]));
+    store => {
+      store.set(activeConfigurationAtom, config1.id);
+      store.set(configurationAtom, new Map([[config1.id, config1]]));
     }
   );
 
@@ -52,10 +52,10 @@ test("should delete the active schema", async () => {
 
       return { callback, allSchemas };
     },
-    snapshot => {
-      snapshot.set(activeConfigurationAtom, config1.id);
-      snapshot.set(configurationAtom, new Map([[config1.id, config1]]));
-      snapshot.set(schemaAtom, new Map([[config1.id, schema1]]));
+    store => {
+      store.set(activeConfigurationAtom, config1.id);
+      store.set(configurationAtom, new Map([[config1.id, config1]]));
+      store.set(schemaAtom, new Map([[config1.id, schema1]]));
     }
   );
 
@@ -77,8 +77,8 @@ test("should delete the graph session for the active connection", async () => {
 
       return { callback, allGraphs };
     },
-    snapshot => {
-      dbState.applyTo(snapshot);
+    store => {
+      dbState.applyTo(store);
     }
   );
 

@@ -4,7 +4,7 @@ import {
   createRandomSchema,
   renderHookWithJotai,
   createRandomRawConfiguration,
-  JotaiSnapshot,
+  JotaiStore,
 } from "@/utils/testing";
 import {
   activeConfigurationAtom,
@@ -21,15 +21,15 @@ vi.mock("./useKeywordSearchQuery", () => ({
 }));
 
 function initializeConfigWithQueryEngine(queryEngine: QueryEngine) {
-  return (snapshot: JotaiSnapshot) => {
+  return (store: JotaiStore) => {
     // Create config and setup schema
     const config = createRandomRawConfiguration();
     config.connection!.queryEngine = queryEngine;
 
-    snapshot.set(configurationAtom, new Map([[config.id, config]]));
+    store.set(configurationAtom, new Map([[config.id, config]]));
 
     // Make config active
-    snapshot.set(activeConfigurationAtom, config.id);
+    store.set(activeConfigurationAtom, config.id);
   };
 }
 
@@ -117,7 +117,7 @@ describe("useKeywordSearch", () => {
   });
 
   describe("SPARQL", () => {
-    function initializeConfigWithRdfLabel(snapshot: JotaiSnapshot) {
+    function initializeConfigWithRdfLabel(store: JotaiStore) {
       // Create config and setup schema
       const config = createRandomRawConfiguration();
       const schema = createRandomSchema();
@@ -128,11 +128,11 @@ describe("useKeywordSearch", () => {
         dataType: "String",
       });
 
-      snapshot.set(configurationAtom, new Map([[config.id, config]]));
-      snapshot.set(schemaAtom, new Map([[config.id, schema]]));
+      store.set(configurationAtom, new Map([[config.id, config]]));
+      store.set(schemaAtom, new Map([[config.id, schema]]));
 
       // Make config active
-      snapshot.set(activeConfigurationAtom, config.id);
+      store.set(activeConfigurationAtom, config.id);
     }
 
     it("Should default to precision match exact", () => {

@@ -1,53 +1,22 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook } from "@testing-library/react";
-import { Provider, WritableAtom } from "jotai";
-import { useHydrateAtoms } from "jotai/utils";
-import { ReactNode } from "react";
+import { createStore, Provider } from "jotai";
+import { PropsWithChildren } from "react";
 import { DbState } from "./DbState";
 import { createQueryClient } from "@/core/queryClient";
 
-type AnyWritableAtom = WritableAtom<unknown, unknown[], unknown>;
+export type JotaiStore = ReturnType<typeof createStore>;
 
-type HydrateAtomsProps<T extends Map<AnyWritableAtom, unknown>> = {
-  initialValues: T;
-  children: ReactNode;
-};
-
-function HydrateAtoms<T extends Map<AnyWritableAtom, unknown>>({
-  initialValues,
+export function TestProvider({
+  store,
+  client,
   children,
-}: HydrateAtomsProps<T>) {
-  useHydrateAtoms(initialValues);
-  return children;
-}
-
-export function TestProvider<T extends Map<AnyWritableAtom, unknown>>({
-  initialValues,
-  children,
-}: HydrateAtomsProps<T>) {
+}: PropsWithChildren<{ store: JotaiStore; client: QueryClient }>) {
   return (
-    <Provider>
-      <HydrateAtoms initialValues={initialValues}>{children}</HydrateAtoms>
-    </Provider>
+    <QueryClientProvider client={client}>
+      <Provider store={store}>{children}</Provider>
+    </QueryClientProvider>
   );
-}
-
-export interface JotaiSnapshot {
-  set: <Value, Args extends unknown[], Result>(
-    atom: WritableAtom<Value, Args, Result>,
-    value: Value
-  ) => void;
-  values: () => Map<AnyWritableAtom, unknown>;
-}
-
-export function createJotaiSnapshot(): JotaiSnapshot {
-  const map = new Map<AnyWritableAtom, unknown>();
-  return {
-    set: (atom, value) => {
-      map.set(atom as AnyWritableAtom, value);
-    },
-    values: () => map,
-  };
 }
 
 export function renderHookWithState<TResult>(
@@ -57,9 +26,9 @@ export function renderHookWithState<TResult>(
   // Create default DbState if none passed
   state ??= new DbState();
 
-  // Set values on the Jotai snapshot
-  const snapshot = createJotaiSnapshot();
-  state.applyTo(snapshot);
+  // Set values on the Jotai store
+  const store = createStore();
+  state.applyTo(store);
 
   // Create the query client using the mock explorer
   const queryClient = createQueryClient({ explorer: state.explorer });
@@ -71,40 +40,28 @@ export function renderHookWithState<TResult>(
 
   // Call the standard testing hook with TanStack Query and Jotai setup
   return renderHook(callback, {
-    wrapper: ({ children }) => {
-      return (
-        <QueryClientProvider client={queryClient}>
-          <TestProvider initialValues={snapshot.values()}>
-            {children}
-          </TestProvider>
-        </QueryClientProvider>
-      );
-    },
+    wrapper: props => (
+      <TestProvider client={queryClient} store={store} {...props} />
+    ),
   });
 }
 
 export function renderHookWithJotai<TResult>(
   callback: () => TResult,
-  initializeState?: (snapshot: JotaiSnapshot) => void
+  initializeState?: (store: JotaiStore) => void
 ) {
   // Provide a way to set atom initial values
-  const snapshot = createJotaiSnapshot();
+  const store = createStore();
   if (initializeState) {
-    initializeState(snapshot);
+    initializeState(store);
   }
 
   // Call the standard testing hook with TanStack Query and Jotai setup
   const queryClient = new QueryClient();
 
   return renderHook(callback, {
-    wrapper: ({ children }) => {
-      return (
-        <QueryClientProvider client={queryClient}>
-          <TestProvider initialValues={snapshot.values()}>
-            {children}
-          </TestProvider>
-        </QueryClientProvider>
-      );
-    },
+    wrapper: props => (
+      <TestProvider client={queryClient} store={store} {...props} />
+    ),
   });
 }

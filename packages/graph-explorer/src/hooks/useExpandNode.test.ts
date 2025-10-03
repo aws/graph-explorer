@@ -13,10 +13,10 @@ describe("useDefaultNeighborExpansionLimit", () => {
     }
     const { result } = renderHookWithJotai(
       () => useDefaultNeighborExpansionLimit(),
-      snapshot => {
-        dbState.applyTo(snapshot);
-        snapshot.set(defaultNeighborExpansionLimitAtom, 10);
-        snapshot.set(defaultNeighborExpansionLimitEnabledAtom, true);
+      store => {
+        dbState.applyTo(store);
+        store.set(defaultNeighborExpansionLimitAtom, 10);
+        store.set(defaultNeighborExpansionLimitEnabledAtom, true);
       }
     );
 
@@ -30,8 +30,8 @@ describe("useDefaultNeighborExpansionLimit", () => {
     }
     const { result } = renderHookWithJotai(
       () => useDefaultNeighborExpansionLimit(),
-      snapshot => {
-        dbState.applyTo(snapshot);
+      store => {
+        dbState.applyTo(store);
       }
     );
 
@@ -45,10 +45,10 @@ describe("useDefaultNeighborExpansionLimit", () => {
     }
     const { result } = renderHookWithJotai(
       () => useDefaultNeighborExpansionLimit(),
-      snapshot => {
-        dbState.applyTo(snapshot);
-        snapshot.set(defaultNeighborExpansionLimitEnabledAtom, true);
-        snapshot.set(defaultNeighborExpansionLimitAtom, 10);
+      store => {
+        dbState.applyTo(store);
+        store.set(defaultNeighborExpansionLimitEnabledAtom, true);
+        store.set(defaultNeighborExpansionLimitAtom, 10);
       }
     );
 
@@ -62,9 +62,9 @@ describe("useDefaultNeighborExpansionLimit", () => {
     }
     const { result } = renderHookWithJotai(
       () => useDefaultNeighborExpansionLimit(),
-      snapshot => {
-        dbState.applyTo(snapshot);
-        snapshot.set(defaultNeighborExpansionLimitEnabledAtom, false);
+      store => {
+        dbState.applyTo(store);
+        store.set(defaultNeighborExpansionLimitEnabledAtom, false);
       }
     );
 

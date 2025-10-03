@@ -33,7 +33,7 @@ import {
   TestableEdge,
   TestableVertex,
 } from "./randomData";
-import { JotaiSnapshot } from "./renderHookWithJotai";
+import { JotaiStore } from "./renderHookWithJotai";
 import { createMockExplorer } from "./createMockExplorer";
 import { Explorer } from "@/connector";
 
@@ -152,34 +152,31 @@ export class DbState {
     return composedStyle;
   }
 
-  /** Applies the state to the given Jotai snapshot. */
-  applyTo(snapshot: JotaiSnapshot) {
+  /** Applies the state to the given Jotai store. */
+  applyTo(store: JotaiStore) {
     // Config
-    snapshot.set(
+    store.set(
       configurationAtom,
       new Map([[this.activeConfig.id, this.activeConfig]])
     );
-    snapshot.set(
-      schemaAtom,
-      new Map([[this.activeConfig.id, this.activeSchema]])
-    );
-    snapshot.set(activeConfigurationAtom, this.activeConfig.id);
+    store.set(schemaAtom, new Map([[this.activeConfig.id, this.activeSchema]]));
+    store.set(activeConfigurationAtom, this.activeConfig.id);
 
     // Styling
-    snapshot.set(userStylingAtom, this.activeStyling);
+    store.set(userStylingAtom, this.activeStyling);
 
     // Vertices
-    snapshot.set(nodesAtom, toNodeMap(this.vertices));
-    snapshot.set(nodesFilteredIdsAtom, this.filteredVertices);
-    snapshot.set(nodesTypesFilteredAtom, this.filteredVertexTypes);
+    store.set(nodesAtom, toNodeMap(this.vertices));
+    store.set(nodesFilteredIdsAtom, this.filteredVertices);
+    store.set(nodesTypesFilteredAtom, this.filteredVertexTypes);
 
     // Edges
-    snapshot.set(edgesAtom, toEdgeMap(this.edges));
-    snapshot.set(edgesFilteredIdsAtom, this.filteredEdges);
-    snapshot.set(edgesTypesFilteredAtom, this.filteredEdgeTypes);
+    store.set(edgesAtom, toEdgeMap(this.edges));
+    store.set(edgesFilteredIdsAtom, this.filteredEdges);
+    store.set(edgesTypesFilteredAtom, this.filteredEdgeTypes);
 
     // Graph Storage
-    snapshot.set(
+    store.set(
       allGraphSessionsAtom,
       new Map([
         [
@@ -193,6 +190,6 @@ export class DbState {
     );
 
     // Explorer
-    snapshot.set(explorerForTestingAtom, this.explorer);
+    store.set(explorerForTestingAtom, this.explorer);
   }
 }

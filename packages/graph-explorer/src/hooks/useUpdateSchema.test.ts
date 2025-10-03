@@ -26,9 +26,9 @@ describe("useUpdateSchema", () => {
     it("should update existing schema", async () => {
       const configId = createNewConfigurationId();
       const existingSchema = createRandomSchema();
-      const { result } = renderHookWithJotai(useTestSetup, snapshot => {
-        snapshot.set(activeConfigurationAtom, configId);
-        snapshot.set(schemaAtom, new Map([[configId, existingSchema]]));
+      const { result } = renderHookWithJotai(useTestSetup, store => {
+        store.set(activeConfigurationAtom, configId);
+        store.set(schemaAtom, new Map([[configId, existingSchema]]));
       });
       await act(async () => await result.current.setSyncFailure());
 
@@ -54,8 +54,8 @@ describe("useUpdateSchema", () => {
       const configId = createNewConfigurationId();
       const schemaResponse = createRandomSchemaResponse();
 
-      const { result } = renderHookWithJotai(useTestSetup, snapshot => {
-        snapshot.set(activeConfigurationAtom, configId);
+      const { result } = renderHookWithJotai(useTestSetup, store => {
+        store.set(activeConfigurationAtom, configId);
       });
 
       await act(async () => await result.current.replaceSchema(schemaResponse));
@@ -74,9 +74,9 @@ describe("useUpdateSchema", () => {
       const existingSchema = createRandomSchema();
       const schemaResponse = createRandomSchemaResponse();
 
-      const { result } = renderHookWithJotai(useTestSetup, snapshot => {
-        snapshot.set(activeConfigurationAtom, configId);
-        snapshot.set(schemaAtom, new Map([[configId, existingSchema]]));
+      const { result } = renderHookWithJotai(useTestSetup, store => {
+        store.set(activeConfigurationAtom, configId);
+        store.set(schemaAtom, new Map([[configId, existingSchema]]));
       });
       await act(async () => await result.current.replaceSchema(schemaResponse));
 
@@ -95,8 +95,8 @@ describe("useUpdateSchema", () => {
       const vertexType = createRandomName("VertexType");
       const vertexTotal = createRandomInteger();
 
-      const { result } = renderHookWithJotai(useTestSetup, snapshot => {
-        snapshot.set(activeConfigurationAtom, configId);
+      const { result } = renderHookWithJotai(useTestSetup, store => {
+        store.set(activeConfigurationAtom, configId);
       });
 
       await act(
@@ -114,9 +114,9 @@ describe("useUpdateSchema", () => {
       const existingSchema = createRandomSchema();
       existingSchema.vertices[0].type = vertexType;
 
-      const { result } = renderHookWithJotai(useTestSetup, snapshot => {
-        snapshot.set(activeConfigurationAtom, configId);
-        snapshot.set(schemaAtom, new Map([[configId, existingSchema]]));
+      const { result } = renderHookWithJotai(useTestSetup, store => {
+        store.set(activeConfigurationAtom, configId);
+        store.set(schemaAtom, new Map([[configId, existingSchema]]));
       });
 
       await act(
