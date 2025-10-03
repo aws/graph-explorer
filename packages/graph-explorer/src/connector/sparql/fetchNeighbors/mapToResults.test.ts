@@ -1,6 +1,7 @@
 import { mapToResults } from "./mapToResults";
 import { Edge, EntityPropertyValue, Vertex } from "@/core";
 import {
+  createLiteralValue,
   createRandomEdgeForRdf,
   createRandomEntitiesForRdf,
   createRandomVertexForRdf,
@@ -112,7 +113,7 @@ function createBindingForVertex(vertex: Vertex) {
     ...Object.entries(vertex.attributes).map(([key, value]) => ({
       subject: rdfValue.uri(String(vertex.id)),
       p: rdfValue.uri(key),
-      value: rdfValue.literal(value),
+      value: createLiteralValue(value),
     })),
   ].map(binding =>
     // Modify bindings to represent blank nodes
