@@ -1,8 +1,22 @@
 import { EntityProperties } from "@/core";
 import type { OCProperties } from "../types";
+import z from "zod";
 
 export function mapApiProperties(properties: OCProperties) {
-  // openCypher maps directly to internal property value type since it is just simple JSON
-  const attributes: EntityProperties = properties;
-  return attributes;
+  const mappedProperties: EntityProperties = {};
+
+  for (const [key, value] of Object.entries(properties)) {
+    // Parse date values
+    if (typeof value === "string" && isDateString(value)) {
+      mappedProperties[key] = new Date(value);
+    } else {
+      mappedProperties[key] = value;
+    }
+  }
+
+  return mappedProperties;
 }
+
+const isDateString = (value: string): boolean => {
+  return z.string().datetime().safeParse(value).success;
+};

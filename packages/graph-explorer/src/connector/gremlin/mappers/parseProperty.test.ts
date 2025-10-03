@@ -51,7 +51,6 @@ describe("parseProperty", () => {
       createGVertexProperty("value", createGDate(value))
     );
 
-    // Stores as time since epoch
-    expect(actual).toBe(value.getTime());
+    expect(actual).toEqual(value);
   });
 });

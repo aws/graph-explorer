@@ -12,5 +12,9 @@ export default function parseProperty(
     return property["@value"].value;
   }
 
+  if (property["@value"].value["@type"] === "g:Date") {
+    return new Date(property["@value"].value["@value"]);
+  }
+
   return property["@value"].value["@value"];
 }
