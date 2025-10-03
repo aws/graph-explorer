@@ -20,7 +20,7 @@ import {
 import isErrorResponse from "../utils/isErrorResponse";
 import { idParam } from "./idParam";
 import { fromError } from "zod-validation-error";
-import { mapAttributeValue } from "./mappers/mapAttributeValue";
+import { mapSparqlValueToScalar } from "./mappers/mapSparqlValueToScalar";
 
 const bindingSchema = z.object({
   resource: sparqlUriValueSchema,
@@ -105,7 +105,7 @@ function mapToVertex(id: VertexId, detailsBinding: VertexDetailsBinding[]) {
     if (result.label.value === rdfTypeUri) {
       types.push(result.value.value);
     } else {
-      attributes[result.label.value] = mapAttributeValue(result.value);
+      attributes[result.label.value] = mapSparqlValueToScalar(result.value);
     }
   }
 

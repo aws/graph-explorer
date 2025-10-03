@@ -1,10 +1,9 @@
-import { ScalarValue } from "@/connector/entities";
 import { SparqlValue } from "../types";
 
 /**
  * Converts a SPARQL value to a scalar value that can be used in ResultScalar
  */
-export function mapSparqlValueToScalar(sparqlValue: SparqlValue): ScalarValue {
+export function mapSparqlValueToScalar(sparqlValue: SparqlValue) {
   if (sparqlValue.type !== "literal" || !sparqlValue.datatype) {
     // For URIs and blank nodes or plain literal without datatype, return the value as string
     return sparqlValue.value;
