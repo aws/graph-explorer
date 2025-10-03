@@ -3,7 +3,6 @@ import { DEFAULT_CONCURRENT_REQUESTS_LIMIT } from "@/utils/constants";
 import type {
   EdgeSchemaResponse,
   SchemaResponse,
-  VertexSchemaResponse,
 } from "@/connector/useGEFetchTypes";
 import edgeLabelsTemplate from "./edgeLabelsTemplate";
 import edgesSchemaTemplate from "./edgesSchemaTemplate";
@@ -12,6 +11,8 @@ import verticesSchemaTemplate from "./verticesSchemaTemplate";
 import type { OCEdge, OCVertex } from "../types";
 import { GraphSummary, OpenCypherFetch } from "../types";
 import { LoggerConnector } from "@/connector/LoggerConnector";
+import mapApiVertex from "../mappers/mapApiVertex";
+import { createVertex, extractConfigFromEntity } from "@/core";
 
 // Response types for raw data returned by OpenCypher queries
 type RawVertexLabelsResponse = {
@@ -126,21 +127,12 @@ const fetchVerticesAttributes = async (
         return null;
       }
 
-      // Use the first label
-      const label = vertex["~labels"][0];
-      const properties = vertex["~properties"];
-      const vertexSchema: VertexSchemaResponse = {
-        type: label,
-        total: countsByLabel[label],
-        attributes: Object.entries(properties || {}).map(([name, prop]) => {
-          const value = prop;
-          return {
-            name,
-            dataType: typeof value === "string" ? "String" : "Number",
-          };
-        }),
+      const mappedVertex = createVertex(mapApiVertex(vertex));
+      const vertexTypeConfig = extractConfigFromEntity(mappedVertex);
+      return {
+        ...vertexTypeConfig,
+        total: countsByLabel[vertexTypeConfig.type],
       };
-      return vertexSchema;
     })
     .filter(vertexSchema => vertexSchema != null);
 

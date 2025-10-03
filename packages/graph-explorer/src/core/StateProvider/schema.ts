@@ -13,6 +13,7 @@ import { startTransition, useCallback } from "react";
 import { atom } from "jotai";
 import { RESET, useAtomCallback } from "jotai/utils";
 import { SetStateActionWithReset } from "@/utils/jotai";
+import { createTypedValue, ScalarValue } from "@/connector/entities";
 
 export type SchemaInference = {
   vertices: VertexTypeConfig[];
@@ -142,14 +143,27 @@ export function extractConfigFromEntity<Entity extends Vertex | Edge>(
 ): Entity extends Vertex ? VertexTypeConfig : EdgeTypeConfig {
   return {
     type: entity.type,
-    attributes: Object.keys(entity.attributes).map(
-      attr =>
-        <AttributeConfig>{
-          name: attr,
-          hidden: false,
-        }
-    ),
+    attributes: Object.entries(entity.attributes).map(([name, value]) => ({
+      name,
+      dataType: detectDataType(value),
+    })),
   };
+}
+
+function detectDataType(value: ScalarValue) {
+  const typedValue = createTypedValue(value);
+  switch (typedValue.type) {
+    case "string":
+      return "String";
+    case "number":
+      return "Number";
+    case "boolean":
+      return "Boolean";
+    case "date":
+      return "Date";
+    case "null":
+      return undefined;
+  }
 }
 
 /** Generate RDF prefixes for all the resource URIs in the schema. */
