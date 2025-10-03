@@ -5,13 +5,13 @@ import { PropsWithChildren } from "react";
 import { DbState } from "./DbState";
 import { createQueryClient } from "@/core/queryClient";
 
-export type JotaiSnapshot = ReturnType<typeof createStore>;
+export type JotaiStore = ReturnType<typeof createStore>;
 
 export function TestProvider({
   store,
   client,
   children,
-}: PropsWithChildren<{ store: JotaiSnapshot; client: QueryClient }>) {
+}: PropsWithChildren<{ store: JotaiStore; client: QueryClient }>) {
   return (
     <QueryClientProvider client={client}>
       <Provider store={store}>{children}</Provider>
@@ -26,9 +26,9 @@ export function renderHookWithState<TResult>(
   // Create default DbState if none passed
   state ??= new DbState();
 
-  // Set values on the Jotai snapshot
-  const snapshot = createStore();
-  state.applyTo(snapshot);
+  // Set values on the Jotai store
+  const store = createStore();
+  state.applyTo(store);
 
   // Create the query client using the mock explorer
   const queryClient = createQueryClient({ explorer: state.explorer });
@@ -41,19 +41,19 @@ export function renderHookWithState<TResult>(
   // Call the standard testing hook with TanStack Query and Jotai setup
   return renderHook(callback, {
     wrapper: props => (
-      <TestProvider client={queryClient} store={snapshot} {...props} />
+      <TestProvider client={queryClient} store={store} {...props} />
     ),
   });
 }
 
 export function renderHookWithJotai<TResult>(
   callback: () => TResult,
-  initializeState?: (snapshot: JotaiSnapshot) => void
+  initializeState?: (store: JotaiStore) => void
 ) {
   // Provide a way to set atom initial values
-  const snapshot = createStore();
+  const store = createStore();
   if (initializeState) {
-    initializeState(snapshot);
+    initializeState(store);
   }
 
   // Call the standard testing hook with TanStack Query and Jotai setup
@@ -61,7 +61,7 @@ export function renderHookWithJotai<TResult>(
 
   return renderHook(callback, {
     wrapper: props => (
-      <TestProvider client={queryClient} store={snapshot} {...props} />
+      <TestProvider client={queryClient} store={store} {...props} />
     ),
   });
 }

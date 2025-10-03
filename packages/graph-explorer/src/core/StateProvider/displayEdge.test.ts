@@ -6,7 +6,7 @@ import {
   createRandomRawConfiguration,
   createRandomSchema,
   DbState,
-  JotaiSnapshot,
+  JotaiStore,
   renderHookWithJotai,
   renderHookWithState,
 } from "@/utils/testing";
@@ -249,10 +249,7 @@ describe("useDisplayEdgeFromEdge", () => {
 
   // Helpers
 
-  function act(
-    edge: Edge,
-    initializeState?: (mutableSnapshot: JotaiSnapshot) => void
-  ) {
+  function act(edge: Edge, initializeState?: (store: JotaiStore) => void) {
     const { result } = renderHookWithJotai(
       () => useDisplayEdgeFromEdge(edge),
       initializeState
@@ -262,20 +259,20 @@ describe("useDisplayEdgeFromEdge", () => {
 
   function withSchema(schema: Schema) {
     const config = createRandomRawConfiguration();
-    return (snapshot: JotaiSnapshot) => {
-      snapshot.set(configurationAtom, new Map([[config.id, config]]));
-      snapshot.set(schemaAtom, new Map([[config.id, schema]]));
-      snapshot.set(activeConfigurationAtom, config.id);
+    return (store: JotaiStore) => {
+      store.set(configurationAtom, new Map([[config.id, config]]));
+      store.set(schemaAtom, new Map([[config.id, schema]]));
+      store.set(activeConfigurationAtom, config.id);
     };
   }
 
   function withSchemaAndConnection(schema: Schema, queryEngine: QueryEngine) {
     const config = createRandomRawConfiguration();
     config.connection!.queryEngine = queryEngine;
-    return (snapshot: JotaiSnapshot) => {
-      snapshot.set(configurationAtom, new Map([[config.id, config]]));
-      snapshot.set(schemaAtom, new Map([[config.id, schema]]));
-      snapshot.set(activeConfigurationAtom, config.id);
+    return (store: JotaiStore) => {
+      store.set(configurationAtom, new Map([[config.id, config]]));
+      store.set(schemaAtom, new Map([[config.id, schema]]));
+      store.set(activeConfigurationAtom, config.id);
     };
   }
 });

@@ -68,8 +68,8 @@ describe("useSidebar", () => {
   it("should close the sidebar if toggling to the same item", async () => {
     const { result } = renderHookWithJotai(
       () => useSidebar(),
-      snapshot =>
-        snapshot.set(userLayoutAtom, {
+      store =>
+        store.set(userLayoutAtom, {
           activeSidebarItem: "details",
           activeToggles: new Set(),
         } satisfies UserLayout)
@@ -95,9 +95,9 @@ describe("useSidebar", () => {
 
     const { result } = renderHookWithJotai(
       () => useSidebar(),
-      snapshot => {
-        dbState.applyTo(snapshot);
-        snapshot.set(userLayoutAtom, {
+      store => {
+        dbState.applyTo(store);
+        store.set(userLayoutAtom, {
           activeSidebarItem: "namespaces",
           activeToggles: new Set(),
         } satisfies UserLayout);
@@ -115,9 +115,9 @@ describe("useSidebar", () => {
 
     const { result } = renderHookWithJotai(
       () => useSidebar(),
-      snapshot => {
-        dbState.applyTo(snapshot);
-        snapshot.set(userLayoutAtom, {
+      store => {
+        dbState.applyTo(store);
+        store.set(userLayoutAtom, {
           activeSidebarItem: "namespaces",
           activeToggles: new Set(),
         } satisfies UserLayout);

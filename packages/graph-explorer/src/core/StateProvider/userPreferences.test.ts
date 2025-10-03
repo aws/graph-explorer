@@ -7,7 +7,7 @@ describe("useVertexStyling", () => {
     const dbState = new DbState();
     const { result } = renderHookWithJotai(
       () => useVertexStyling("test"),
-      snapshot => dbState.applyTo(snapshot)
+      store => dbState.applyTo(store)
     );
 
     expect(result.current.vertexStyle).toBeUndefined();
@@ -18,7 +18,7 @@ describe("useVertexStyling", () => {
     const style = dbState.addVertexStyle("test", { color: "red" });
     const { result } = renderHookWithJotai(
       () => useVertexStyling("test"),
-      snapshot => dbState.applyTo(snapshot)
+      store => dbState.applyTo(store)
     );
 
     expect(result.current.vertexStyle).toEqual(style);
@@ -28,7 +28,7 @@ describe("useVertexStyling", () => {
     const dbState = new DbState();
     const { result } = renderHookWithJotai(
       () => useVertexStyling("test"),
-      snapshot => dbState.applyTo(snapshot)
+      store => dbState.applyTo(store)
     );
 
     act(() => result.current.setVertexStyle({ color: "red" }));
@@ -40,7 +40,7 @@ describe("useVertexStyling", () => {
     const dbState = new DbState();
     const { result } = renderHookWithJotai(
       () => useVertexStyling("test"),
-      snapshot => dbState.applyTo(snapshot)
+      store => dbState.applyTo(store)
     );
 
     act(() =>
@@ -61,7 +61,7 @@ describe("useVertexStyling", () => {
 
     const { result } = renderHookWithJotai(
       () => useVertexStyling("test"),
-      snapshot => dbState.applyTo(snapshot)
+      store => dbState.applyTo(store)
     );
 
     act(() => result.current.resetVertexStyle());
@@ -76,7 +76,7 @@ describe("useVertexStyling", () => {
 
     const { result } = renderHookWithJotai(
       () => useVertexStyling("type1"),
-      snapshot => dbState.applyTo(snapshot)
+      store => dbState.applyTo(store)
     );
 
     act(() => result.current.setVertexStyle({ borderColor: "green" }));
@@ -91,7 +91,7 @@ describe("useVertexStyling", () => {
     // Check that type2 was not affected by getting its hook
     const { result: result2 } = renderHookWithJotai(
       () => useVertexStyling("type2"),
-      snapshot => dbState.applyTo(snapshot)
+      store => dbState.applyTo(store)
     );
     expect(result2.current.vertexStyle).toEqual({
       type: "type2",
@@ -106,7 +106,7 @@ describe("useVertexStyling", () => {
 
     const { result } = renderHookWithJotai(
       () => useVertexStyling("type1"),
-      snapshot => dbState.applyTo(snapshot)
+      store => dbState.applyTo(store)
     );
 
     act(() => result.current.resetVertexStyle());
@@ -116,7 +116,7 @@ describe("useVertexStyling", () => {
     // Check that type2 still exists
     const { result: result2 } = renderHookWithJotai(
       () => useVertexStyling("type2"),
-      snapshot => dbState.applyTo(snapshot)
+      store => dbState.applyTo(store)
     );
     expect(result2.current.vertexStyle).toEqual({
       type: "type2",
@@ -128,7 +128,7 @@ describe("useVertexStyling", () => {
     const dbState = new DbState();
     const { result } = renderHookWithJotai(
       () => useVertexStyling("test"),
-      snapshot => dbState.applyTo(snapshot)
+      store => dbState.applyTo(store)
     );
 
     act(() => result.current.setVertexStyle({}));
@@ -142,7 +142,7 @@ describe("useEdgeStyling", () => {
     const dbState = new DbState();
     const { result } = renderHookWithJotai(
       () => useEdgeStyling("test"),
-      snapshot => dbState.applyTo(snapshot)
+      store => dbState.applyTo(store)
     );
 
     expect(result.current.edgeStyle).toBeUndefined();
@@ -153,7 +153,7 @@ describe("useEdgeStyling", () => {
     const style = dbState.addEdgeStyle("test", { lineColor: "red" });
     const { result } = renderHookWithJotai(
       () => useEdgeStyling("test"),
-      snapshot => dbState.applyTo(snapshot)
+      store => dbState.applyTo(store)
     );
 
     expect(result.current.edgeStyle).toEqual(style);
@@ -163,7 +163,7 @@ describe("useEdgeStyling", () => {
     const dbState = new DbState();
     const { result } = renderHookWithJotai(
       () => useEdgeStyling("test"),
-      snapshot => dbState.applyTo(snapshot)
+      store => dbState.applyTo(store)
     );
 
     act(() => result.current.setEdgeStyle({ lineColor: "red" }));
@@ -178,7 +178,7 @@ describe("useEdgeStyling", () => {
     const dbState = new DbState();
     const { result } = renderHookWithJotai(
       () => useEdgeStyling("test"),
-      snapshot => dbState.applyTo(snapshot)
+      store => dbState.applyTo(store)
     );
 
     act(() =>
@@ -197,7 +197,7 @@ describe("useEdgeStyling", () => {
     const dbState = new DbState();
     const { result } = renderHookWithJotai(
       () => useEdgeStyling("test"),
-      snapshot => dbState.applyTo(snapshot)
+      store => dbState.applyTo(store)
     );
 
     act(() => result.current.setEdgeStyle({ labelColor: "blue" }));
@@ -213,7 +213,7 @@ describe("useEdgeStyling", () => {
 
     const { result } = renderHookWithJotai(
       () => useEdgeStyling("type1"),
-      snapshot => dbState.applyTo(snapshot)
+      store => dbState.applyTo(store)
     );
 
     act(() => result.current.setEdgeStyle({ labelColor: "green" }));
@@ -228,7 +228,7 @@ describe("useEdgeStyling", () => {
     // Check that type2 was not affected
     const { result: result2 } = renderHookWithJotai(
       () => useEdgeStyling("type2"),
-      snapshot => dbState.applyTo(snapshot)
+      store => dbState.applyTo(store)
     );
     expect(result2.current.edgeStyle).toEqual({
       type: "type2",
@@ -243,7 +243,7 @@ describe("useEdgeStyling", () => {
 
     const { result } = renderHookWithJotai(
       () => useEdgeStyling("type1"),
-      snapshot => dbState.applyTo(snapshot)
+      store => dbState.applyTo(store)
     );
 
     act(() => result.current.resetEdgeStyle());
@@ -253,7 +253,7 @@ describe("useEdgeStyling", () => {
     // Check that type2 still exists
     const { result: result2 } = renderHookWithJotai(
       () => useEdgeStyling("type2"),
-      snapshot => dbState.applyTo(snapshot)
+      store => dbState.applyTo(store)
     );
     expect(result2.current.edgeStyle).toEqual({
       type: "type2",
@@ -265,7 +265,7 @@ describe("useEdgeStyling", () => {
     const dbState = new DbState();
     const { result } = renderHookWithJotai(
       () => useEdgeStyling("test"),
-      snapshot => dbState.applyTo(snapshot)
+      store => dbState.applyTo(store)
     );
 
     act(() => result.current.setEdgeStyle({}));
@@ -279,7 +279,7 @@ describe("useDeferredAtom integration", () => {
     const dbState = new DbState();
     const { result } = renderHookWithJotai(
       () => useVertexStyling("test"),
-      snapshot => dbState.applyTo(snapshot)
+      store => dbState.applyTo(store)
     );
 
     // Simulate rapid updates that might happen in real usage
@@ -301,7 +301,7 @@ describe("useDeferredAtom integration", () => {
     const dbState = new DbState();
     const { result } = renderHookWithJotai(
       () => useVertexStyling("test"),
-      snapshot => dbState.applyTo(snapshot)
+      store => dbState.applyTo(store)
     );
 
     // Test that the deferred atom pattern works with the hook

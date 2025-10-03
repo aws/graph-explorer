@@ -4,7 +4,7 @@ import {
   createRandomSchema,
   createRandomVertexTypeConfig,
   DbState,
-  JotaiSnapshot,
+  JotaiStore,
   renderHookWithJotai,
   renderHookWithState,
 } from "@/utils/testing";
@@ -137,10 +137,10 @@ describe("useDisplayVertexTypeConfig", () => {
 
   function withSchema(schema: Schema) {
     const config = createRandomRawConfiguration();
-    return (snapshot: JotaiSnapshot) => {
-      snapshot.set(configurationAtom, new Map([[config.id, config]]));
-      snapshot.set(schemaAtom, new Map([[config.id, schema]]));
-      snapshot.set(activeConfigurationAtom, config.id);
+    return (store: JotaiStore) => {
+      store.set(configurationAtom, new Map([[config.id, config]]));
+      store.set(schemaAtom, new Map([[config.id, schema]]));
+      store.set(activeConfigurationAtom, config.id);
     };
   }
 });
@@ -235,10 +235,10 @@ describe("useDisplayEdgeTypeConfig", () => {
 
   function withSchema(schema: Schema) {
     const config = createRandomRawConfiguration();
-    return (snapshot: JotaiSnapshot) => {
-      snapshot.set(configurationAtom, new Map([[config.id, config]]));
-      snapshot.set(schemaAtom, new Map([[config.id, schema]]));
-      snapshot.set(activeConfigurationAtom, config.id);
+    return (store: JotaiStore) => {
+      store.set(configurationAtom, new Map([[config.id, config]]));
+      store.set(schemaAtom, new Map([[config.id, schema]]));
+      store.set(activeConfigurationAtom, config.id);
     };
   }
 });

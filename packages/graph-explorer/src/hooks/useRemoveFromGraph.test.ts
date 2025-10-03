@@ -43,11 +43,11 @@ test("should remove one node", async () => {
 
       return { callback, nodes, selected, outOfFocus, filtered };
     },
-    snapshot => {
-      snapshot.set(nodesAtom, toNodeMap([vertex, ...noise]));
-      snapshot.set(nodesSelectedIdsAtom, new Set([vertex.id, ...idsOfNoise]));
-      snapshot.set(nodesOutOfFocusIdsAtom, new Set([vertex.id, ...idsOfNoise]));
-      snapshot.set(nodesFilteredIdsAtom, new Set([vertex.id, ...idsOfNoise]));
+    store => {
+      store.set(nodesAtom, toNodeMap([vertex, ...noise]));
+      store.set(nodesSelectedIdsAtom, new Set([vertex.id, ...idsOfNoise]));
+      store.set(nodesOutOfFocusIdsAtom, new Set([vertex.id, ...idsOfNoise]));
+      store.set(nodesFilteredIdsAtom, new Set([vertex.id, ...idsOfNoise]));
     }
   );
 
@@ -82,12 +82,12 @@ test("should remove one edge", async () => {
 
       return { callback, edges, selected, outOfFocus, filtered };
     },
-    snapshot => {
-      snapshot.set(nodesAtom, toNodeMap([node1, node2]));
-      snapshot.set(edgesAtom, toEdgeMap([edge1, edge2]));
-      snapshot.set(edgesSelectedIdsAtom, new Set([edge1.id, edge2.id]));
-      snapshot.set(edgesOutOfFocusIdsAtom, new Set([edge1.id, edge2.id]));
-      snapshot.set(edgesFilteredIdsAtom, new Set([edge1.id, edge2.id]));
+    store => {
+      store.set(nodesAtom, toNodeMap([node1, node2]));
+      store.set(edgesAtom, toEdgeMap([edge1, edge2]));
+      store.set(edgesSelectedIdsAtom, new Set([edge1.id, edge2.id]));
+      store.set(edgesOutOfFocusIdsAtom, new Set([edge1.id, edge2.id]));
+      store.set(edgesFilteredIdsAtom, new Set([edge1.id, edge2.id]));
     }
   );
 
@@ -131,13 +131,13 @@ test("should remove associated edges when a node is removed", async () => {
         edgesFiltered,
       };
     },
-    snapshot => {
-      snapshot.set(nodesAtom, toNodeMap([node1, node2]));
+    store => {
+      store.set(nodesAtom, toNodeMap([node1, node2]));
 
-      snapshot.set(edgesAtom, toEdgeMap([edge1, edge2]));
-      snapshot.set(edgesSelectedIdsAtom, new Set([edge1.id, edge2.id]));
-      snapshot.set(edgesOutOfFocusIdsAtom, new Set([edge1.id, edge2.id]));
-      snapshot.set(edgesFilteredIdsAtom, new Set([edge1.id, edge2.id]));
+      store.set(edgesAtom, toEdgeMap([edge1, edge2]));
+      store.set(edgesSelectedIdsAtom, new Set([edge1.id, edge2.id]));
+      store.set(edgesOutOfFocusIdsAtom, new Set([edge1.id, edge2.id]));
+      store.set(edgesFilteredIdsAtom, new Set([edge1.id, edge2.id]));
     }
   );
 
@@ -190,8 +190,8 @@ test("should remove all nodes and edges", async () => {
         graph,
       };
     },
-    snapshot => {
-      dbState.applyTo(snapshot);
+    store => {
+      dbState.applyTo(store);
     }
   );
 
@@ -235,8 +235,8 @@ test("should update graph session", async () => {
         graph,
       };
     },
-    snapshot => {
-      dbState.applyTo(snapshot);
+    store => {
+      dbState.applyTo(store);
     }
   );
 
