@@ -20,7 +20,7 @@ import {
 } from "../types";
 import { logger } from "@/utils";
 import { Vertex, VertexId } from "@/core";
-import { mapAttributeValue } from "../mappers/mapAttributeValue";
+import { mapSparqlValueToScalar } from "../mappers/mapSparqlValueToScalar";
 
 type RawBlankNodeNeighborsResponse = {
   results: {
@@ -87,7 +87,7 @@ export function mapOneHop(data: RawBlankNodeNeighborsResponse) {
     };
 
     result.forEach(attr => {
-      mappedResults[uri].attributes[attr.pred.value] = mapAttributeValue(
+      mappedResults[uri].attributes[attr.pred.value] = mapSparqlValueToScalar(
         attr.value
       );
     });

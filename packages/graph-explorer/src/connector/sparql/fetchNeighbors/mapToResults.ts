@@ -7,7 +7,7 @@ import {
   EntityProperties,
 } from "@/core";
 import { createRdfEdgeId } from "../createRdfEdgeId";
-import { mapAttributeValue } from "../mappers/mapAttributeValue";
+import { mapSparqlValueToScalar } from "../mappers/mapSparqlValueToScalar";
 
 export type RawOneHopNeighborsResponse = {
   results: {
@@ -82,7 +82,7 @@ export function mapToResults(bindings: Bindings): Entities {
         updateDraft({
           id: subject.value,
           attributes: {
-            [p.value]: mapAttributeValue(value),
+            [p.value]: mapSparqlValueToScalar(value),
           },
           isBlankNode,
         });

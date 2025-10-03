@@ -1,6 +1,6 @@
 import { Vertex, Edge, AttributeConfig, EntityPropertyValue } from "@/core";
-import { MISSING_DISPLAY_VALUE, formatDate } from "@/utils";
 import { TextTransformer } from "@/hooks";
+import { getDisplayValueForScalar } from "@/connector/entities";
 
 /** Represents an attribute's display information after all transformations have been applied. */
 export type DisplayAttribute = {
@@ -24,10 +24,9 @@ export function getSortedDisplayAttributes(
   const sortedAttributes = uniqueAttributeNames
     .values()
     .map(name => {
-      const config = typeAttributes.find(attr => attr.name === name) ?? null;
       const value = entity.attributes[name] ?? null;
 
-      return mapToDisplayAttribute(name, value, config, textTransform);
+      return mapToDisplayAttribute(name, value, textTransform);
     })
     .toArray()
     .toSorted((a, b) => a.displayLabel.localeCompare(b.displayLabel));
@@ -38,36 +37,11 @@ export function getSortedDisplayAttributes(
 export function mapToDisplayAttribute(
   name: string,
   value: EntityPropertyValue | null,
-  config: AttributeConfig | null,
   textTransform: TextTransformer
 ): DisplayAttribute {
   return {
     name,
     displayLabel: textTransform(name),
-    displayValue: mapToDisplayValue(value, config),
+    displayValue: getDisplayValueForScalar(value),
   } satisfies DisplayAttribute;
-}
-
-function mapToDisplayValue(
-  value: EntityPropertyValue | null,
-  config: AttributeConfig | null
-) {
-  if (value === null) {
-    return MISSING_DISPLAY_VALUE;
-  }
-
-  if (typeof value === "boolean") {
-    return String(value);
-  }
-
-  const isDate = config?.dataType === "Date" || config?.dataType === "g:Date";
-  if (isDate) {
-    return formatDate(new Date(value));
-  }
-
-  if (typeof value === "number") {
-    return String(value);
-  }
-
-  return value;
 }

@@ -24,6 +24,7 @@ import {
 import { Schema } from "../ConfigurationProvider";
 import { schemaAtom } from "./schema";
 import { QueryEngine } from "@shared/types";
+import { getDisplayValueForScalar } from "@/connector/entities";
 
 describe("useDisplayEdgeFromEdge", () => {
   it("should keep the same ID", () => {
@@ -69,7 +70,7 @@ describe("useDisplayEdgeFromEdge", () => {
 
     expect(
       act(edge, withSchemaAndConnection(schema, "gremlin")).displayName
-    ).toStrictEqual(`${attribute.value}`);
+    ).toStrictEqual(getDisplayValueForScalar(attribute.value));
   });
 
   it("should have display name that matches the types when displayNameAttribute is 'type'", () => {
@@ -192,27 +193,20 @@ describe("useDisplayEdgeFromEdge", () => {
       .map(([key, value]) => ({
         name: key,
         displayLabel: key,
-        displayValue: String(value),
+        displayValue: getDisplayValueForScalar(value),
       }))
       .toSorted((a, b) => a.displayLabel.localeCompare(b.displayLabel));
 
     expect(act(edge).attributes).toStrictEqual(attributes);
   });
 
-  it("should format date values in attribute when type is Date", () => {
+  it("should format date values in attribute", () => {
     const edge = createRandomEdge();
     const schema = createRandomSchema();
-    const etConfig = createRandomEdgeTypeConfig();
-    etConfig.type = edge.type;
-    etConfig.attributes.push({
-      name: "created",
-      dataType: "Date",
-    });
-    schema.edges.push(etConfig);
 
     edge.attributes = {
       ...edge.attributes,
-      created: createRandomDate().toISOString(),
+      created: createRandomDate(),
     };
 
     const actualAttribute = act(edge, withSchema(schema)).attributes.find(
@@ -223,20 +217,13 @@ describe("useDisplayEdgeFromEdge", () => {
     );
   });
 
-  it("should format date values in attribute when type is g:Date", () => {
+  it("should format date values in attribute", () => {
     const edge = createRandomEdge();
     const schema = createRandomSchema();
-    const etConfig = createRandomEdgeTypeConfig();
-    etConfig.type = edge.type;
-    etConfig.attributes.push({
-      name: "created",
-      dataType: "g:Date",
-    });
-    schema.edges.push(etConfig);
 
     edge.attributes = {
       ...edge.attributes,
-      created: createRandomDate().toISOString(),
+      created: createRandomDate(),
     };
 
     const actualAttribute = act(edge, withSchema(schema)).attributes.find(

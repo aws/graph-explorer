@@ -61,7 +61,7 @@ describe("OpenCypher > fetchSchema", () => {
               name: "type",
             },
             {
-              dataType: "String",
+              dataType: "Date",
               name: "lastUpdate",
             },
             {
