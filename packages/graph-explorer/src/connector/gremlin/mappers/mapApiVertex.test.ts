@@ -66,8 +66,6 @@ describe("mapApiVertex", () => {
 
     expect(mappedVertex.attributes).toStrictEqual({
       ...expectedProperties,
-      // Keeps dates as numbers
-      dateValue: expectedProperties.dateValue.getTime(),
     });
   });
 

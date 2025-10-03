@@ -49,7 +49,7 @@ test("maps known property types", () => {
         integerValue: input["~properties"].integerValue,
         booleanValue: input["~properties"].booleanValue,
         doubleValue: input["~properties"].doubleValue,
-        dateValue: input["~properties"].dateValue,
+        dateValue: new Date(input["~properties"].dateValue),
       },
     })
   );
