@@ -160,6 +160,9 @@ function QueryTextArea({
       className={cn("h-full min-h-[5lh] w-full font-mono text-sm", className)}
       placeholder={queryPlaceholder}
       onKeyDown={onKeyDown}
+      spellCheck={false}
+      autoComplete="off"
+      autoCapitalize="off"
     />
   );
 }
