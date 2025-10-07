@@ -2,7 +2,7 @@
 
 ## Package Management
 
-- **Package Manager**: pnpm (v10.12.1) - enforced via corepack
+- **Package Manager**: pnpm (v10.18.0) - enforced via corepack
 - **Workspace**: Monorepo structure with 3 packages
 - **Node Version**: >=24.4.0 (use `nvm use` if available)
 
