@@ -36,6 +36,7 @@ describe("mapApiEdge", () => {
   it("should map an edge", () => {
     const edge = createTestableEdge().asResult();
 
+    const dateValue = createRandomDate();
     const input = {
       "~entityType": "relationship",
       "~id": String(edge.id),
@@ -47,11 +48,11 @@ describe("mapApiEdge", () => {
         integerValue: createRandomInteger(),
         booleanValue: createRandomBoolean(),
         doubleValue: createRandomDouble(),
-        dateValue: createRandomDate().toISOString(),
+        dateValue: dateValue.toISOString(),
       },
     } satisfies OCEdge;
 
-    edge.attributes = input["~properties"];
+    edge.attributes = { ...input["~properties"], dateValue };
 
     const result = mapApiEdge(input);
 

@@ -1,3 +1,4 @@
+import { ScalarValue } from "@/connector/entities";
 import { SparqlValue } from "@/connector/sparql/types";
 
 export function createUriValue(value: string): SparqlValue {
@@ -15,16 +16,28 @@ export function createBNodeValue(value: string): SparqlValue {
 }
 
 export function createLiteralValue(
-  value: string | number | boolean
+  value: Exclude<ScalarValue, null>
 ): SparqlValue {
-  return {
-    type: "literal",
-    value: value.toString(),
-    // Only include the datatype if the value is a number
-    ...(typeof value === "number" && {
+  if (typeof value === "number") {
+    return {
+      type: "literal",
+      value: value.toString(),
       datatype: value.toString().includes(".")
         ? "http://www.w3.org/2001/XMLSchema#decimal"
         : "http://www.w3.org/2001/XMLSchema#integer",
-    }),
+    };
+  }
+
+  if (value instanceof Date) {
+    return {
+      type: "literal",
+      value: value.toISOString(),
+      datatype: "http://www.w3.org/2001/XMLSchema#dateTime",
+    };
+  }
+
+  return {
+    type: "literal",
+    value: value.toString(),
   };
 }

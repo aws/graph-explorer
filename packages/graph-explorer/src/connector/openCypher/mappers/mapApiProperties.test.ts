@@ -35,6 +35,6 @@ describe("mapApiProperties", () => {
   it("should map date value", () => {
     const value = createRandomDate();
     const actual = mapApiProperties({ value: value.toISOString() });
-    expect(actual).toEqual({ value: value.toISOString() });
+    expect(actual).toEqual({ value });
   });
 });
