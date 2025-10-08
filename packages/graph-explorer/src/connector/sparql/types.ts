@@ -233,3 +233,4 @@ export const sparqlQuadBindingSchema = z
     graph: sparqlValueSchema.optional(),
   })
   .strict();
+export type SparqlQuadBinding = z.infer<typeof sparqlQuadBindingSchema>;

@@ -23,18 +23,20 @@ export default function keywordSearchBlankNodesIdsTemplate({
 }: SPARQLKeywordSearchRequest): string {
   return query`
     # Fetch all blank nodes ids from a generic keyword search request
-    SELECT DISTINCT ?bNode {
-      ?bNode ?pred ?value {
-        SELECT DISTINCT ?bNode {
-            ?bNode a          ?class ;
-                   ?predicate ?value .
-            ${getFilterPredicates(predicates)}
-            ${getSubjectClasses(subjectClasses)}
-            ${getFilterObject(exactMatch, searchTerm)}
+    SELECT DISTINCT ?bNode
+    WHERE {
+      {
+        # This sub-query will find any matching instances to the given filters and limit the results
+        SELECT DISTINCT ?bNode
+        WHERE {
+          ?bNode a       ?class ;
+                 ?pValue ?value .
+          ${getFilterPredicates(predicates)}
+          ${getSubjectClasses(subjectClasses)}
+          ${getFilterObject(exactMatch, searchTerm)}
         }
         ${getLimit(limit, offset)}
       }
-      FILTER(isLiteral(?value))
       FILTER(isBlank(?bNode))
     }
   `;

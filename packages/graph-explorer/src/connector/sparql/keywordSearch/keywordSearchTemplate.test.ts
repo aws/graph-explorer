@@ -7,13 +7,20 @@ describe("SPARQL > keywordSearchTemplate", () => {
 
     expect(normalize(template)).toBe(
       normalize(`
-        SELECT ?subject ?pred ?value ?class { 
-          ?subject ?pred ?value { 
-            SELECT DISTINCT ?subject ?class { 
-              ?subject a ?class ; ?predicate ?value . 
-            } 
-          } 
-          FILTER(isLiteral(?value)) 
+        SELECT DISTINCT ?subject ?predicate ?object
+        WHERE {
+          {
+            # This sub-query will find any matching instances to the given filters and limit the results
+            SELECT DISTINCT ?subject
+            WHERE {
+              ?subject a ?class ; ?pValue ?value .
+            }
+          }
+          {
+            # Values and types
+            ?subject ?predicate ?object
+            FILTER(isLiteral(?object) || ?predicate = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+          }
         }
       `)
     );
@@ -27,14 +34,21 @@ describe("SPARQL > keywordSearchTemplate", () => {
 
     expect(normalize(template)).toBe(
       normalize(`
-        SELECT ?subject ?pred ?value ?class { 
-          ?subject ?pred ?value { 
-            SELECT DISTINCT ?subject ?class { 
-              ?subject a ?class ; ?predicate ?value . 
-            } 
-            LIMIT 10 OFFSET 20 
-          } 
-          FILTER(isLiteral(?value)) 
+        SELECT DISTINCT ?subject ?predicate ?object
+        WHERE {
+          {
+            # This sub-query will find any matching instances to the given filters and limit the results
+            SELECT DISTINCT ?subject
+            WHERE {
+              ?subject a ?class ; ?pValue ?value .
+            }
+            LIMIT 10 OFFSET 20
+          }
+          {
+            # Values and types
+            ?subject ?predicate ?object
+            FILTER(isLiteral(?object) || ?predicate = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+          }
         }
       `)
     );
@@ -47,14 +61,21 @@ describe("SPARQL > keywordSearchTemplate", () => {
 
     expect(normalize(template)).toBe(
       normalize(`
-        SELECT ?subject ?pred ?value ?class { 
-          ?subject ?pred ?value { 
-            SELECT DISTINCT ?subject ?class { 
-              ?subject a ?class ; ?predicate ?value . 
-            } 
+        SELECT DISTINCT ?subject ?predicate ?object
+        WHERE {
+          {
+            # This sub-query will find any matching instances to the given filters and limit the results
+            SELECT DISTINCT ?subject
+            WHERE {
+              ?subject a ?class ; ?pValue ?value .
+            }
             LIMIT 10
-          } 
-          FILTER(isLiteral(?value)) 
+          }
+          {
+            # Values and types
+            ?subject ?predicate ?object
+            FILTER(isLiteral(?object) || ?predicate = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+          }
         }
       `)
     );
@@ -67,13 +88,20 @@ describe("SPARQL > keywordSearchTemplate", () => {
 
     expect(normalize(template)).toBe(
       normalize(`
-        SELECT ?subject ?pred ?value ?class { 
-          ?subject ?pred ?value { 
-            SELECT DISTINCT ?subject ?class { 
-              ?subject a ?class ; ?predicate ?value . 
-            } 
-          } 
-          FILTER(isLiteral(?value)) 
+        SELECT DISTINCT ?subject ?predicate ?object
+        WHERE {
+          {
+            # This sub-query will find any matching instances to the given filters and limit the results
+            SELECT DISTINCT ?subject
+            WHERE {
+              ?subject a ?class ; ?pValue ?value .
+            }
+          }
+          {
+            # Values and types
+            ?subject ?predicate ?object
+            FILTER(isLiteral(?object) || ?predicate = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+          }
         }
       `)
     );
@@ -86,14 +114,21 @@ describe("SPARQL > keywordSearchTemplate", () => {
 
     expect(normalize(template)).toBe(
       normalize(`
-        SELECT ?subject ?pred ?value ?class { 
-          ?subject ?pred ?value { 
-            SELECT DISTINCT ?subject ?class { 
-              ?subject a ?class ; ?predicate ?value . 
+        SELECT DISTINCT ?subject ?predicate ?object
+        WHERE {
+          {
+            # This sub-query will find any matching instances to the given filters and limit the results
+            SELECT DISTINCT ?subject
+            WHERE {
+              ?subject a ?class ; ?pValue ?value .
               FILTER (?class IN (<air:airport>))
-            } 
-          } 
-          FILTER(isLiteral(?value)) 
+            }
+          }
+          {
+            # Values and types
+            ?subject ?predicate ?object
+            FILTER(isLiteral(?object) || ?predicate = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+          }
         }
       `)
     );
@@ -109,16 +144,23 @@ describe("SPARQL > keywordSearchTemplate", () => {
 
     expect(normalize(template)).toBe(
       normalize(`
-        SELECT ?subject ?pred ?value ?class { 
-          ?subject ?pred ?value { 
-            SELECT DISTINCT ?subject ?class { 
-              ?subject a ?class ; ?predicate ?value . 
-              FILTER (?predicate IN (<air:city>, <air:code>))
+        SELECT DISTINCT ?subject ?predicate ?object
+        WHERE {
+          {
+            # This sub-query will find any matching instances to the given filters and limit the results
+            SELECT DISTINCT ?subject
+            WHERE {
+              ?subject a ?class ; ?pValue ?value .
+              FILTER (?pValue IN (<air:city>, <air:code>))
               FILTER (?class IN (<air:airport>))
               FILTER (regex(str(?value), "JFK", "i"))
-            } 
-          } 
-          FILTER(isLiteral(?value)) 
+            }
+          }
+          {
+            # Values and types
+            ?subject ?predicate ?object
+            FILTER(isLiteral(?object) || ?predicate = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+          }
         }
       `)
     );
@@ -134,16 +176,23 @@ describe("SPARQL > keywordSearchTemplate", () => {
 
     expect(normalize(template)).toBe(
       normalize(`
-        SELECT ?subject ?pred ?value ?class { 
-          ?subject ?pred ?value { 
-            SELECT DISTINCT ?subject ?class { 
-              ?subject a ?class ; ?predicate ?value . 
-              FILTER (?predicate IN (<air:city>, <air:code>))
+        SELECT DISTINCT ?subject ?predicate ?object
+        WHERE {
+          {
+            # This sub-query will find any matching instances to the given filters and limit the results
+            SELECT DISTINCT ?subject
+            WHERE {
+              ?subject a ?class ; ?pValue ?value .
+              FILTER (?pValue IN (<air:city>, <air:code>))
               FILTER (?class IN (<air:airport>))
               FILTER (?value = "JFK")
-            } 
-          } 
-          FILTER(isLiteral(?value)) 
+            }
+          }
+          {
+            # Values and types
+            ?subject ?predicate ?object
+            FILTER(isLiteral(?object) || ?predicate = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+          }
         }
       `)
     );
@@ -159,16 +208,23 @@ describe("SPARQL > keywordSearchTemplate", () => {
 
     expect(normalize(template)).toBe(
       normalize(`
-        SELECT ?subject ?pred ?value ?class { 
-          ?subject ?pred ?value { 
-            SELECT DISTINCT ?subject ?class { 
-              ?subject a ?class ; ?predicate ?value . 
-              FILTER (?predicate IN (<air:city>, <air:code>))
+        SELECT DISTINCT ?subject ?predicate ?object
+        WHERE {
+          {
+            # This sub-query will find any matching instances to the given filters and limit the results
+            SELECT DISTINCT ?subject
+            WHERE {
+              ?subject a ?class ; ?pValue ?value .
+              FILTER (?pValue IN (<air:city>, <air:code>))
               FILTER (?class IN (<air:airport>))
               FILTER (?value = "JFK")
-            } 
-          } 
-          FILTER(isLiteral(?value)) 
+            }
+          }
+          {
+            # Values and types
+            ?subject ?predicate ?object
+            FILTER(isLiteral(?object) || ?predicate = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+          }
         }
       `)
     );
@@ -184,16 +240,23 @@ describe("SPARQL > keywordSearchTemplate", () => {
 
     expect(normalize(template)).toBe(
       normalize(`
-        SELECT ?subject ?pred ?value ?class { 
-          ?subject ?pred ?value { 
-            SELECT DISTINCT ?subject ?class { 
-              ?subject a ?class ; ?predicate ?value . 
-              FILTER (?predicate IN (<rdfs:label>))
+        SELECT DISTINCT ?subject ?predicate ?object
+        WHERE {
+          {
+            # This sub-query will find any matching instances to the given filters and limit the results
+            SELECT DISTINCT ?subject
+            WHERE {
+              ?subject a ?class ; ?pValue ?value .
+              FILTER (?pValue IN (<rdfs:label>))
               FILTER (?class IN (<air:airport>))
               FILTER (?value = "JFK")
-            } 
-          } 
-          FILTER(isLiteral(?value)) 
+            }
+          }
+          {
+            # Values and types
+            ?subject ?predicate ?object
+            FILTER(isLiteral(?object) || ?predicate = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+          }
         }
       `)
     );
@@ -209,16 +272,23 @@ describe("SPARQL > keywordSearchTemplate", () => {
 
     expect(normalize(template)).toBe(
       normalize(`
-        SELECT ?subject ?pred ?value ?class { 
-          ?subject ?pred ?value { 
-            SELECT DISTINCT ?subject ?class { 
-              ?subject a ?class ; ?predicate ?value . 
-              FILTER (?predicate IN (<rdfs:label>))
+        SELECT DISTINCT ?subject ?predicate ?object
+        WHERE {
+          {
+            # This sub-query will find any matching instances to the given filters and limit the results
+            SELECT DISTINCT ?subject
+            WHERE {
+              ?subject a ?class ; ?pValue ?value .
+              FILTER (?pValue IN (<rdfs:label>))
               FILTER (?class IN (<air:airport>))
               FILTER (regex(str(?value), "JFK", "i"))
-            } 
-          } 
-          FILTER(isLiteral(?value)) 
+            }
+          }
+          {
+            # Values and types
+            ?subject ?predicate ?object
+            FILTER(isLiteral(?object) || ?predicate = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+          }
         }
       `)
     );
