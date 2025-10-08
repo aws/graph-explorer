@@ -251,6 +251,114 @@ test("should render vertex correctly", () => {
 });
 ```
 
+## Test Assertions
+
+### Use toStrictEqual() with Full Expected Arrays
+
+Instead of checking array length and individual indices, use `toStrictEqual()`
+with the complete expected array:
+
+```typescript
+// ❌ Avoid: Length check + individual index assertions
+expect(result).toHaveLength(2);
+expect(result[0]).toEqual(createResultScalar({ name: "?name", value: name1 }));
+expect(result[1]).toEqual(createResultScalar({ name: "?name", value: name2 }));
+
+// ✅ Prefer: Single assertion with full expected array
+expect(result).toStrictEqual([
+  createResultScalar({ name: "?name", value: name1 }),
+  createResultScalar({ name: "?name", value: name2 }),
+]);
+```
+
+**Benefits:**
+
+- **Cleaner**: Single assertion instead of multiple checks
+- **Stricter**: `toStrictEqual()` provides more thorough comparison than
+  `toEqual()`
+- **Readable**: Expected results are clearly visible in the test
+- **Maintainable**: Changes only require updating one array
+- **Better Errors**: Failure messages show full expected vs actual arrays
+
+### SPARQL Test Helpers
+
+For SPARQL-related tests, use the helper functions to create consistent test
+data:
+
+```typescript
+import {
+  createUriValue,
+  createBNodeValue,
+  createLiteralValue,
+  createTestableVertex,
+  createTestableEdge,
+} from "@/utils/testing";
+import { createRandomName, createRandomUrlString } from "@shared/utils/testing";
+
+test("should parse SPARQL response", async () => {
+  const name1 = createRandomName("Person");
+  const name2 = createRandomName("Person");
+
+  const mockResponse = {
+    head: { vars: ["name"] },
+    results: {
+      bindings: [
+        { name: createLiteralValue(name1) },
+        { name: createLiteralValue(name2) },
+      ],
+    },
+  };
+
+  const result = await rawQuery(mockFetch, {
+    query: "SELECT ?name WHERE { ?s ?p ?name }",
+  });
+
+  expect(result).toStrictEqual([
+    createResultScalar({ name: "?name", value: name1 }),
+    createResultScalar({ name: "?name", value: name2 }),
+  ]);
+});
+```
+
+### RDF Test Data
+
+For RDF/SPARQL tests, use `.withRdfValues()` to generate appropriate URIs:
+
+```typescript
+test("should handle RDF construct query", async () => {
+  const person1 = createTestableVertex().withRdfValues();
+  const person2 = createTestableVertex().withRdfValues();
+  const edge = createTestableEdge().withRdfValues();
+
+  const mockResponse = {
+    head: { vars: ["subject", "predicate", "object"] },
+    results: {
+      bindings: [
+        {
+          subject: createUriValue(edge.source.id),
+          predicate: createUriValue(edge.type),
+          object: createUriValue(edge.target.id),
+        },
+      ],
+    },
+  };
+
+  const result = await rawQuery(mockFetch, {
+    query: "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }",
+  });
+
+  expect(result).toStrictEqual([
+    createResultEdge({
+      id: edge.id,
+      sourceId: edge.source.id,
+      targetId: edge.target.id,
+      type: edge.type,
+      attributes: {},
+    }),
+  ]);
+});
+```
+
 ## Best Practices
 
 ### Data Isolation
