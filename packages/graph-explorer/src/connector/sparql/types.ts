@@ -1,23 +1,11 @@
-import { Edge, EntityProperties, Vertex, VertexId } from "@/core";
+import { Edge, Vertex, VertexId } from "@/core";
 import type { NeighborCount } from "../useGEFetchTypes";
 import { z } from "zod";
 
+// TODO: Remove generic
 export type SparqlFetch = <TResult = any>(
   queryTemplate: string
 ) => Promise<TResult>;
-
-export type RawValue = {
-  datatype?: string;
-  type: string;
-  value: string;
-};
-
-export type RawResult = {
-  uri: string;
-  class: string;
-  attributes: EntityProperties;
-  isBlank: boolean;
-};
 
 export type SPARQLCriterion = {
   /**
