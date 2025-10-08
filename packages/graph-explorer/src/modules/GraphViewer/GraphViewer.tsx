@@ -44,8 +44,8 @@ import { ExportGraphButton } from "./ExportGraphButton";
 import {
   BadgeInfoIcon,
   CircleSlash2,
+  ExpandIcon,
   ImageDownIcon,
-  Maximize2Icon,
   RefreshCwIcon,
   ZoomInIcon,
   ZoomOutIcon,
@@ -148,7 +148,7 @@ export default function GraphViewer() {
             />
             <IconButton
               tooltipText="Zoom to Fit"
-              icon={<Maximize2Icon />}
+              icon={<ExpandIcon />}
               variant="text"
               onClick={onFitAllToCanvas}
             />

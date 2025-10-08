@@ -59,10 +59,11 @@ const useGraphGlobalActions = (graphRef?: RefObject<GraphRef | null>) => {
   );
 
   const onFitAllToCanvas = useCallback(() => {
-    graphRef?.current?.cytoscape?.fit(
-      graphRef?.current?.cytoscape.elements(),
-      48 // avoid fit elements to the limit of the canvas
-    );
+    graphRef?.current?.cytoscape?.animate({
+      fit: { eles: graphRef?.current?.cytoscape?.elements(), padding: 48 },
+      duration: 200,
+      easing: "ease-in-out-cubic",
+    });
   }, [graphRef]);
 
   const onCenterGraph = useCallback(() => {
