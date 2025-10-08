@@ -27,13 +27,11 @@ export default function blankNodeOneHopNeighborsTemplate(subQuery: string) {
         WHERE {
           {
             ?neighbor ?predicate ?bNode .
-            ?neighbor a ?class .
             ${getNeighborsFilter()}
           } 
           UNION 
           {
             ?bNode ?predicate ?neighbor .
-            ?neighbor a ?class .
             ${getNeighborsFilter()}
           }
         }

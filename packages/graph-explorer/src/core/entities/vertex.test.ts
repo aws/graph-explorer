@@ -1,3 +1,4 @@
+import { LABELS } from "@/utils";
 import { createVertex } from "./vertex";
 
 describe("createVertex", () => {
@@ -41,7 +42,7 @@ describe("createVertex", () => {
     });
   });
 
-  it("should create a vertex with no types", () => {
+  it("should create a vertex with missing types", () => {
     const vertex = createVertex({
       id: "1",
       attributes: {
@@ -51,8 +52,8 @@ describe("createVertex", () => {
 
     expect(vertex).toStrictEqual({
       id: "1",
-      type: "",
-      types: [],
+      type: LABELS.MISSING_TYPE,
+      types: [LABELS.MISSING_TYPE],
       attributes: {
         name: "Alice",
       },

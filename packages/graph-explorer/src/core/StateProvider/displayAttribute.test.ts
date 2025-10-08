@@ -12,7 +12,7 @@ import {
   createRandomInteger,
   createRandomName,
 } from "@shared/utils/testing";
-import { formatDate } from "@/utils";
+import { formatDate, LABELS } from "@/utils";
 import { getDisplayValueForScalar } from "@/connector/entities";
 import { RDFS_LABEL_URI } from "./sortAttributeByName";
 
@@ -25,6 +25,17 @@ describe("mapToDisplayAttribute", () => {
       name,
       displayLabel: name,
       displayValue: value,
+    });
+  });
+
+  it("should map empty string value", () => {
+    const name = createRandomName("name");
+    const value = "";
+    const displayAttribute = mapToDisplayAttribute(name, value, transformNoOp);
+    expect(displayAttribute).toStrictEqual({
+      name,
+      displayLabel: name,
+      displayValue: LABELS.EMPTY_VALUE,
     });
   });
 

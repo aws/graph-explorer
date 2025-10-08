@@ -18,10 +18,15 @@ export function useVertexAttributesAsScalars(vertex: DisplayVertex) {
   });
 
   // Create the label scalar
-  const labelScalar = createResultScalar({
-    name: t("node-detail.node-type"),
-    value: vertex.displayTypes,
-  });
+  const labelScalar =
+    vertex.displayTypes !== LABELS.MISSING_TYPE
+      ? [
+          createResultScalar({
+            name: t("node-detail.node-type"),
+            value: vertex.displayTypes,
+          }),
+        ]
+      : [];
 
   // Create the attributes scalars
   const attributes = vertex.attributes.map((attribute: DisplayAttribute) =>
@@ -31,5 +36,5 @@ export function useVertexAttributesAsScalars(vertex: DisplayVertex) {
     })
   );
 
-  return [idScalar, labelScalar, ...attributes];
+  return [idScalar, ...labelScalar, ...attributes];
 }

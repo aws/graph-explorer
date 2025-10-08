@@ -1,4 +1,4 @@
-import { createVertex, useDisplayVertex } from "@/core";
+import { createVertex, useDisplayVertexFromVertex } from "@/core";
 import {
   ButtonProps,
   CollapsibleContent,
@@ -27,7 +27,7 @@ export function VertexSearchResult({
   vertex: PatchedResultVertex;
   level?: number;
 }) {
-  const displayNode = useDisplayVertex(vertex.id);
+  const displayNode = useDisplayVertexFromVertex(createVertex(vertex));
   const hasBeenAdded = useHasVertexBeenAddedToGraph(vertex.id);
   const attributes = useVertexAttributesAsScalars(displayNode);
 

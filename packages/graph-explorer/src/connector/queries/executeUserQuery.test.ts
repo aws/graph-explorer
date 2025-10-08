@@ -165,7 +165,7 @@ describe("executeUserQuery", () => {
       executeUserQuery("query", mockUpdateSchema)
     );
 
-    await expect(result).rejects.toThrow("Failed to fetch entity details");
+    await expect(result).rejects.toThrow("Failed to fetch edge details");
     expect(rawQuerySpy).toBeCalledTimes(1);
     expect(vertexDetailsSpy).toBeCalledTimes(1);
     expect(edgeDetailsSpy).toBeCalledTimes(1);

@@ -32,10 +32,21 @@ export default async function fetchNeighbors(
   const results = parseAndMapQuads(data);
 
   // Filter out the source vertex since it is already in the graph and this one is missing the attributes
-  const vertices = results.vertices
-    .filter(v => v.id !== req.resourceURI)
-    .map(v => createVertex(v));
+  const verticesMap = new Map(
+    results.vertices
+      .values()
+      .filter(v => v.id !== req.resourceURI)
+      .map(v => [v.id, createVertex(v)])
+  );
   const edges = results.edges.map(e => createEdge(e));
 
-  return { vertices, edges };
+  // Find any missing vertices from the edges and add them to the vertex array
+  for (const vertexId of results.edges.flatMap(e => [e.sourceId, e.targetId])) {
+    if (verticesMap.has(vertexId) || req.resourceURI === vertexId) {
+      continue;
+    }
+    verticesMap.set(vertexId, createVertex({ id: vertexId }));
+  }
+
+  return { vertices: verticesMap.values().toArray(), edges };
 }
