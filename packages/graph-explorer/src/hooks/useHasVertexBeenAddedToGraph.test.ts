@@ -20,8 +20,8 @@ test("returns true if vertex has been added to graph", () => {
   const vertex = createRandomVertex();
   const { result } = renderHookWithJotai(
     () => useHasVertexBeenAddedToGraph(vertex.id),
-    snapshot => {
-      snapshot.set(nodesAtom, toNodeMap([vertex]));
+    store => {
+      store.set(nodesAtom, toNodeMap([vertex]));
     }
   );
 
@@ -32,9 +32,9 @@ test("returns true if vertex has been added to graph and is filtered out by id",
   const vertex = createRandomVertex();
   const { result } = renderHookWithJotai(
     () => useHasVertexBeenAddedToGraph(vertex.id),
-    snapshot => {
-      snapshot.set(nodesAtom, toNodeMap([vertex]));
-      snapshot.set(nodesFilteredIdsAtom, new Set([vertex.id]));
+    store => {
+      store.set(nodesAtom, toNodeMap([vertex]));
+      store.set(nodesFilteredIdsAtom, new Set([vertex.id]));
     }
   );
 
@@ -45,9 +45,9 @@ test("returns true if vertex has been added to graph and is filtered out by type
   const vertex = createRandomVertex();
   const { result } = renderHookWithJotai(
     () => useHasVertexBeenAddedToGraph(vertex.id),
-    snapshot => {
-      snapshot.set(nodesAtom, toNodeMap([vertex]));
-      snapshot.set(nodesTypesFilteredAtom, new Set([vertex.type]));
+    store => {
+      store.set(nodesAtom, toNodeMap([vertex]));
+      store.set(nodesTypesFilteredAtom, new Set([vertex.type]));
     }
   );
 

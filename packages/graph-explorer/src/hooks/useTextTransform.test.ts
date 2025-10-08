@@ -5,14 +5,14 @@ import {
 import {
   createRandomRawConfiguration,
   createRandomSchema,
-  JotaiSnapshot,
+  JotaiStore,
   renderHookWithJotai,
 } from "@/utils/testing";
 import useTextTransform from "./useTextTransform";
 import { vi } from "vitest";
 import { schemaAtom } from "@/core/StateProvider/schema";
 
-function initializeConfigWithPrefix(snapshot: JotaiSnapshot) {
+function initializeConfigWithPrefix(store: JotaiStore) {
   // Create config and setup schema
   const config = createRandomRawConfiguration();
   const schema = createRandomSchema();
@@ -23,11 +23,11 @@ function initializeConfigWithPrefix(snapshot: JotaiSnapshot) {
       uri: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
     },
   ];
-  snapshot.set(configurationAtom, new Map([[config.id, config]]));
-  snapshot.set(schemaAtom, new Map([[config.id, schema]]));
+  store.set(configurationAtom, new Map([[config.id, config]]));
+  store.set(schemaAtom, new Map([[config.id, schema]]));
 
   // Make config active
-  snapshot.set(activeConfigurationAtom, config.id);
+  store.set(activeConfigurationAtom, config.id);
 }
 
 describe("useTextTransform", () => {

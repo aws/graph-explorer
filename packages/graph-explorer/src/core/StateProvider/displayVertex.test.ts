@@ -5,7 +5,7 @@ import {
   createRandomVertexPreferences,
   createRandomVertexTypeConfig,
   DbState,
-  JotaiSnapshot,
+  JotaiStore,
   renderHookWithJotai,
   renderHookWithState,
 } from "@/utils/testing";
@@ -268,10 +268,7 @@ describe("useDisplayVertexFromVertex", () => {
 
   // Helpers
 
-  function act(
-    vertex: Vertex,
-    initializeState?: (mutableSnapshot: JotaiSnapshot) => void
-  ) {
+  function act(vertex: Vertex, initializeState?: (store: JotaiStore) => void) {
     const { result } = renderHookWithJotai(
       () => useDisplayVertexFromVertex(vertex),
       initializeState
@@ -281,20 +278,20 @@ describe("useDisplayVertexFromVertex", () => {
 
   function withSchema(schema: Schema) {
     const config = createRandomRawConfiguration();
-    return (snapshot: JotaiSnapshot) => {
-      snapshot.set(configurationAtom, new Map([[config.id, config]]));
-      snapshot.set(schemaAtom, new Map([[config.id, schema]]));
-      snapshot.set(activeConfigurationAtom, config.id);
+    return (store: JotaiStore) => {
+      store.set(configurationAtom, new Map([[config.id, config]]));
+      store.set(schemaAtom, new Map([[config.id, schema]]));
+      store.set(activeConfigurationAtom, config.id);
     };
   }
 
   function withSchemaAndConnection(schema: Schema, queryEngine: QueryEngine) {
     const config = createRandomRawConfiguration();
     config.connection!.queryEngine = queryEngine;
-    return (snapshot: JotaiSnapshot) => {
-      snapshot.set(configurationAtom, new Map([[config.id, config]]));
-      snapshot.set(schemaAtom, new Map([[config.id, schema]]));
-      snapshot.set(activeConfigurationAtom, config.id);
+    return (store: JotaiStore) => {
+      store.set(configurationAtom, new Map([[config.id, config]]));
+      store.set(schemaAtom, new Map([[config.id, schema]]));
+      store.set(activeConfigurationAtom, config.id);
     };
   }
 });

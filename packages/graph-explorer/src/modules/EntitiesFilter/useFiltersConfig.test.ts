@@ -17,12 +17,12 @@ import { vi } from "vitest";
 function renderFilterConfigHook(schema: Schema) {
   return renderHookWithJotai(
     () => useFiltersConfig(),
-    snapshot => {
+    store => {
       // Initialize the configuration atom with a test config
       const config = createRandomRawConfiguration();
       config.schema = schema;
-      snapshot.set(configurationAtom, new Map([[config.id, config]]));
-      snapshot.set(activeConfigurationAtom, config.id);
+      store.set(configurationAtom, new Map([[config.id, config]]));
+      store.set(activeConfigurationAtom, config.id);
     }
   );
 }

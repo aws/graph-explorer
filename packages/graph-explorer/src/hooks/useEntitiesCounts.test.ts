@@ -18,10 +18,10 @@ import { createRandomInteger } from "@shared/utils/testing";
 function renderUseEntitiesHook(config: RawConfiguration, schema: Schema) {
   return renderHookWithJotai(
     () => useEntitiesCounts(),
-    snapshot => {
-      snapshot.set(schemaAtom, new Map([[config.id, schema]]));
-      snapshot.set(configurationAtom, new Map([[config.id, config]]));
-      snapshot.set(activeConfigurationAtom, config.id);
+    store => {
+      store.set(schemaAtom, new Map([[config.id, schema]]));
+      store.set(configurationAtom, new Map([[config.id, config]]));
+      store.set(activeConfigurationAtom, config.id);
     }
   );
 }
