@@ -163,7 +163,7 @@ describe("rawQuery", () => {
   });
 
   describe("CONSTRUCT/DESCRIBE queries", () => {
-    it("should handle CONSTRUCT query results by creating vertex objects as fragments", async () => {
+    it("should handle CONSTRUCT query results by creating vertex results", async () => {
       const vertex1 = createTestableVertex().withRdfValues();
       const vertex2 = createTestableVertex().withRdfValues();
 
@@ -176,9 +176,8 @@ describe("rawQuery", () => {
       });
 
       expect(result).toStrictEqual([
-        // Fragment results with only the ID saved
-        createResultVertex({ id: vertex1.id }),
-        createResultVertex({ id: vertex2.id }),
+        vertex1.asFragmentResult(),
+        vertex2.asFragmentResult(),
       ]);
     });
 
@@ -324,8 +323,8 @@ describe("rawQuery", () => {
       });
 
       expect(result).toStrictEqual([
-        createResultVertex({ id: vertex1.id }),
-        createResultVertex({ id: vertex2.id }),
+        vertex1.asFragmentResult(),
+        vertex2.asFragmentResult(),
         edge.asResult(),
       ]);
     });
@@ -362,8 +361,8 @@ describe("rawQuery", () => {
       });
 
       expect(result).toStrictEqual([
-        createResultVertex({ id: vertex2.id }),
-        createResultVertex({ id: vertex3.id }),
+        vertex2.asFragmentResult(),
+        vertex3.asFragmentResult(),
         edge3.asResult(),
       ]);
     });
