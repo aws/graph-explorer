@@ -44,6 +44,7 @@ import { ExportGraphButton } from "./ExportGraphButton";
 import {
   BadgeInfoIcon,
   CircleSlash2,
+  FullscreenIcon,
   ImageDownIcon,
   RefreshCwIcon,
   ZoomInIcon,
@@ -90,7 +91,7 @@ export default function GraphViewer() {
   };
 
   const [legendOpen, setLegendOpen] = useState(false);
-  const { onZoomIn, onZoomOut, onSaveScreenshot } =
+  const { onZoomIn, onZoomOut, onSaveScreenshot, onFitAllToCanvas } =
     useGraphGlobalActions(graphRef);
 
   const {
@@ -144,6 +145,12 @@ export default function GraphViewer() {
               onClick={() => {
                 graphRef.current?.runLayout();
               }}
+            />
+            <IconButton
+              tooltipText="Zoom to Fit"
+              icon={<FullscreenIcon />}
+              variant="text"
+              onClick={onFitAllToCanvas}
             />
             <div className="grow" />
             <PanelHeaderActionButton
