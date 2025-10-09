@@ -1,4 +1,9 @@
-import { PropsWithChildren, startTransition, Suspense, useEffect } from "react";
+import {
+  type PropsWithChildren,
+  startTransition,
+  Suspense,
+  useEffect,
+} from "react";
 import { useLocation } from "react-router";
 import { PanelEmptyState, Spinner } from "@/components";
 import Redirect from "@/components/Redirect";

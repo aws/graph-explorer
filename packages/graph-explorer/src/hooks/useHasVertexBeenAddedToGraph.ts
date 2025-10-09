@@ -1,4 +1,4 @@
-import { nodesAtom, VertexId } from "@/core";
+import { nodesAtom, type VertexId } from "@/core";
 import { useAtomValue } from "jotai";
 
 /** Returns true if the given vertex has been added to the graph. */

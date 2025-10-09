@@ -1,8 +1,8 @@
 import { cn } from "@/utils";
 import {
-  ComponentProps,
-  ComponentPropsWithoutRef,
-  PropsWithChildren,
+  type ComponentProps,
+  type ComponentPropsWithoutRef,
+  type PropsWithChildren,
 } from "react";
 import { Switch } from "./Switch";
 

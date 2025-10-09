@@ -1,7 +1,7 @@
 import { cn } from "@/utils";
 import type { ForwardedRef, HTMLAttributes, PropsWithChildren } from "react";
 import { forwardRef } from "react";
-import { cva, VariantProps } from "cva";
+import { cva, type VariantProps } from "cva";
 
 const chip = cva({
   base: "chip inline-flex h-[22px] select-none items-center justify-center gap-1 overflow-hidden text-ellipsis whitespace-nowrap rounded-full px-2.5 text-sm font-medium text-white [&>svg]:size-4",

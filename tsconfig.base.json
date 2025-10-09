@@ -18,6 +18,7 @@
     "allowUnreachableCode": false,
     "noImplicitOverride": true,
     "noImplicitAny": true,
-    "checkJs": true
+    "checkJs": true,
+    "verbatimModuleSyntax": true
   }
 }

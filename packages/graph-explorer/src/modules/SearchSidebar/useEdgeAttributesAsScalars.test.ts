@@ -1,8 +1,8 @@
 import { describe, it, expect } from "vitest";
 import { useEdgeAttributesAsScalars } from "./useEdgeAttributesAsScalars";
 import {
-  DisplayEdge,
-  DisplayAttribute,
+  type DisplayEdge,
+  type DisplayAttribute,
   createVertexId,
   createEdgeId,
 } from "@/core";

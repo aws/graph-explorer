@@ -1,4 +1,4 @@
-import { DisplayVertexStyle, fade } from "@/core";
+import { type DisplayVertexStyle, fade } from "@/core";
 import SVG from "react-inlinesvg";
 import { cn } from "@/utils";
 import { SearchResultSymbol } from "./SearchResult";

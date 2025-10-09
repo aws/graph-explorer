@@ -1,6 +1,6 @@
 import { DEFAULT_SERVICE_TYPE } from "@/utils/constants";
 import { anySignal } from "./utils/anySignal";
-import { FeatureFlags, NormalizedConnection } from "@/core";
+import { type FeatureFlags, type NormalizedConnection } from "@/core";
 import { z } from "zod";
 import { logger, NetworkError } from "@/utils";
 

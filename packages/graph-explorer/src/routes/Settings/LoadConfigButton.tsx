@@ -7,7 +7,7 @@ import {
   Button,
   CheckIcon,
   FileButton,
-  FileButtonHandle,
+  type FileButtonHandle,
   Dialog,
   DialogBody,
   DialogContent,

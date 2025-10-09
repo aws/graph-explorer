@@ -5,7 +5,7 @@ import {
   DbState,
   renderHookWithState,
 } from "@/utils/testing";
-import { NeighborCount } from "@/connector";
+import { type NeighborCount } from "@/connector";
 import { waitFor } from "@testing-library/react";
 
 describe("useNeighborsOptions", () => {

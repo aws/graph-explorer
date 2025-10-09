@@ -1,7 +1,7 @@
 import { createVertexId } from "@/core";
 import { neighborCounts } from "./neighborCounts";
 import { query } from "@/utils";
-import { NeighborCount } from "../useGEFetchTypes";
+import { type NeighborCount } from "../useGEFetchTypes";
 import {
   createGMap,
   createGremlinResponse,

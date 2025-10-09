@@ -3,7 +3,7 @@
 // DEV NOTE: The DOMParser in happy-dom is not fully functional. Using jsdom until it works properly.
 
 import { createRandomName, createRandomColor } from "@shared/utils/testing";
-import { VertexIconConfig, renderNode } from "./renderNode";
+import { type VertexIconConfig, renderNode } from "./renderNode";
 import { vi } from "vitest";
 import { QueryClient } from "@tanstack/react-query";
 import { logger } from "@/utils";

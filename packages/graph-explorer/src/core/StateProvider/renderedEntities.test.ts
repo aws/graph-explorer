@@ -10,8 +10,8 @@ import {
   createRenderedVertexId,
   getEdgeIdFromRenderedEdgeId,
   getVertexIdFromRenderedVertexId,
-  RenderedEdgeId,
-  RenderedVertexId,
+  type RenderedEdgeId,
+  type RenderedVertexId,
   useRenderedEntities,
 } from "./renderedEntities";
 import { waitFor } from "@testing-library/react";

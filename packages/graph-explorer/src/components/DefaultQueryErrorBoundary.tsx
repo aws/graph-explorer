@@ -1,5 +1,5 @@
 import { QueryErrorResetBoundary } from "@tanstack/react-query";
-import { PropsWithChildren } from "react";
+import { type PropsWithChildren } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import PanelError from "./PanelError";
 

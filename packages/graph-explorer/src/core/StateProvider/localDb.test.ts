@@ -5,7 +5,7 @@ import {
 } from "@/utils/testing";
 import {
   createBackupData,
-  LocalDb,
+  type LocalDb,
   renameEntry,
   addRestoredPrefix,
   removePrefixFromRestoredEntries,

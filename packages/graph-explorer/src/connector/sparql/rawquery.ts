@@ -1,13 +1,15 @@
 import { logger, query } from "@/utils";
-import { RawQueryRequest, RawQueryResponse } from "../useGEFetchTypes";
 import {
-  rdfTypeUri,
-  SparqlFetch,
+  type RawQueryRequest,
+  type RawQueryResponse,
+} from "../useGEFetchTypes";
+import {
   sparqlResponseSchema,
   sparqlValueSchema,
   sparqlAskResponseSchema,
   sparqlQuadBindingSchema,
-} from "./types";
+} from "./schemas";
+import { type SparqlFetch, rdfTypeUri } from "./types";
 import isErrorResponse from "../utils/isErrorResponse";
 import { z } from "zod";
 import { fromError } from "zod-validation-error";

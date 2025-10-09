@@ -1,10 +1,10 @@
 import { logger, query } from "@/utils";
 import {
-  ErrorResponse,
-  RawQueryRequest,
-  RawQueryResponse,
+  type ErrorResponse,
+  type RawQueryRequest,
+  type RawQueryResponse,
 } from "../useGEFetchTypes";
-import { GList, GremlinFetch } from "./types";
+import { type GList, type GremlinFetch } from "./types";
 import { mapResults } from "./mappers/mapResults";
 import isErrorResponse from "../utils/isErrorResponse";
 

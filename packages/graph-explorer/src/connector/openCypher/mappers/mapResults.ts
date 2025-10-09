@@ -3,7 +3,7 @@ import { z } from "zod";
 import { fromError } from "zod-validation-error";
 import mapApiVertex from "./mapApiVertex";
 import mapApiEdge from "./mapApiEdge";
-import { OCEdge, OCVertex } from "../types";
+import { type OCEdge, type OCVertex } from "../types";
 import {
   createResultBundle,
   createResultScalar,

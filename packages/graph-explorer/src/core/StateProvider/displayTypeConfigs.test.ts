@@ -4,7 +4,7 @@ import {
   createRandomSchema,
   createRandomVertexTypeConfig,
   DbState,
-  JotaiStore,
+  type JotaiStore,
   renderHookWithJotai,
   renderHookWithState,
 } from "@/utils/testing";
@@ -15,7 +15,7 @@ import {
   getDefaultVertexTypeConfig,
 } from "./configuration";
 import { schemaAtom } from "./schema";
-import { Schema } from "../ConfigurationProvider";
+import { type Schema } from "../ConfigurationProvider";
 import {
   useDisplayEdgeTypeConfig,
   useDisplayVertexTypeConfig,

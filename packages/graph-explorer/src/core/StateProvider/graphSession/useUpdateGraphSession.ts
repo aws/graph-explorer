@@ -2,7 +2,7 @@ import { logger } from "@/utils";
 import { edgesAtom } from "../edges";
 import { nodesAtom } from "../nodes";
 import {
-  GraphSessionStorageModel,
+  type GraphSessionStorageModel,
   activeGraphSessionAtom,
   isRestorePreviousSessionAvailableAtom,
 } from "./storage";

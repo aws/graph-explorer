@@ -1,4 +1,4 @@
-import cytoscape from "cytoscape";
+import type cytoscape from "cytoscape";
 
 export const concentricLayout = {
   name: "concentric",

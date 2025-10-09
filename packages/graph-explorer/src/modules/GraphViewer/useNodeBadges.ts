@@ -1,7 +1,10 @@
-import { Badge, BadgeRenderer } from "@/components/Graph/hooks/useRenderBadges";
+import {
+  type Badge,
+  type BadgeRenderer,
+} from "@/components/Graph/hooks/useRenderBadges";
 import {
   getVertexIdFromRenderedVertexId,
-  RenderedVertexId,
+  type RenderedVertexId,
   useDisplayVerticesInCanvas,
   useAllNeighbors,
 } from "@/core";

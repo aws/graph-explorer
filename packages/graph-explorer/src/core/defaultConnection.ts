@@ -1,7 +1,10 @@
 import { logger, DEFAULT_SERVICE_TYPE } from "@/utils";
 import { queryEngineOptions, neptuneServiceTypeOptions } from "@shared/types";
 import { z } from "zod";
-import { ConfigurationId, RawConfiguration } from "./ConfigurationProvider";
+import {
+  type ConfigurationId,
+  type RawConfiguration,
+} from "./ConfigurationProvider";
 
 export const DefaultConnectionDataSchema = z.object({
   // Connection info

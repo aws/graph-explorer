@@ -9,7 +9,7 @@ import {
 } from "@/components/Tabular/controls";
 import Tabular from "@/components/Tabular/Tabular";
 import {
-  DisplayVertex,
+  type DisplayVertex,
   useDisplayVerticesInCanvas,
   useAllNeighbors,
 } from "@/core";

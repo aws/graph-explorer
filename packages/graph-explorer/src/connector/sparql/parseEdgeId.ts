@@ -1,4 +1,4 @@
-import { EdgeId, VertexId, getRawId, createVertexId } from "@/core";
+import { type EdgeId, type VertexId, getRawId, createVertexId } from "@/core";
 import { logger } from "@/utils";
 
 /**

@@ -1,5 +1,5 @@
-import { ScalarValue } from "@/connector/entities";
-import { SparqlValue } from "@/connector/sparql/types";
+import { type ScalarValue } from "@/connector/entities";
+import { type SparqlValue } from "@/connector/sparql/types";
 
 export function createUriValue(value: string): SparqlValue {
   return {

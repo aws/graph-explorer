@@ -20,8 +20,8 @@ import { nodesSelectedIdsAtom } from "@/core/StateProvider/nodes";
 import { useDeepMemo } from "@/hooks";
 import useTranslations from "@/hooks/useTranslations";
 import {
-  DisplayEdge,
-  DisplayVertex,
+  type DisplayEdge,
+  type DisplayVertex,
   useDisplayEdgesInCanvas,
   useDisplayVerticesInCanvas,
 } from "@/core";

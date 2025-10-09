@@ -2,24 +2,24 @@ import groupBy from "lodash/groupBy";
 import type { ErrorResponse } from "@/connector/useGEFetchTypes";
 import isErrorResponse from "@/connector/utils/isErrorResponse";
 import mapIncomingToEdge, {
-  IncomingPredicate,
+  type IncomingPredicate,
   isIncomingPredicate,
 } from "../mappers/mapIncomingToEdge";
 import mapOutgoingToEdge, {
-  OutgoingPredicate,
+  type OutgoingPredicate,
 } from "../mappers/mapOutgoingToEdge";
 import mapRawResultToVertex from "../mappers/mapRawResultToVertex";
 import blankNodeOneHopNeighborsTemplate from "./blankNodeOneHopNeighborsTemplate";
 import blankNodeSubjectPredicatesTemplate from "./blankNodeSubjectPredicatesTemplate";
 import {
-  RawResult,
-  RawValue,
-  SPARQLBlankNodeNeighborsRequest,
-  SPARQLBlankNodeNeighborsResponse,
-  SparqlFetch,
+  type RawResult,
+  type RawValue,
+  type SPARQLBlankNodeNeighborsRequest,
+  type SPARQLBlankNodeNeighborsResponse,
+  type SparqlFetch,
 } from "../types";
 import { logger } from "@/utils";
-import { Vertex, VertexId } from "@/core";
+import { type Vertex, type VertexId } from "@/core";
 import { mapSparqlValueToScalar } from "../mappers/mapSparqlValueToScalar";
 
 type RawBlankNodeNeighborsResponse = {

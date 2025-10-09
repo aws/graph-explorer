@@ -6,10 +6,10 @@ import dagre from "cytoscape-dagre";
 import fcose from "cytoscape-fcose";
 import klay from "cytoscape-klay";
 import {
-  ForwardedRef,
+  type ForwardedRef,
   forwardRef,
   memo,
-  ReactNode,
+  type ReactNode,
   useCallback,
   useImperativeHandle,
   useState,

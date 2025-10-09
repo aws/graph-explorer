@@ -19,7 +19,7 @@ import {
   edgesFilteredIdsAtom,
   edgesOutOfFocusIdsAtom,
   edgesSelectedIdsAtom,
-  GraphSessionStorageModel,
+  type GraphSessionStorageModel,
   nodesAtom,
   nodesFilteredIdsAtom,
   nodesOutOfFocusIdsAtom,

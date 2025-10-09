@@ -1,4 +1,4 @@
-import { SparqlValue } from "../types";
+import { type SparqlValue } from "../types";
 
 /**
  * Converts a SPARQL value to a scalar value that can be used in ResultScalar

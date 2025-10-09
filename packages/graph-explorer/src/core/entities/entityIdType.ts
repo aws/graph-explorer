@@ -1,6 +1,6 @@
-import { EdgeId } from "./edge";
-import { EntityRawId } from "./shared";
-import { VertexId } from "./vertex";
+import { type EdgeId } from "./edge";
+import { type EntityRawId } from "./shared";
+import { type VertexId } from "./vertex";
 
 /**
  * Creates a VertexId from the given database ID.

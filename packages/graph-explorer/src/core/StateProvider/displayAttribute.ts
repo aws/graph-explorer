@@ -1,5 +1,10 @@
-import { Vertex, Edge, AttributeConfig, EntityPropertyValue } from "@/core";
-import { TextTransformer } from "@/hooks";
+import {
+  type Vertex,
+  type Edge,
+  type AttributeConfig,
+  type EntityPropertyValue,
+} from "@/core";
+import { type TextTransformer } from "@/hooks";
 import { getDisplayValueForScalar } from "@/connector/entities";
 
 /** Represents an attribute's display information after all transformations have been applied. */

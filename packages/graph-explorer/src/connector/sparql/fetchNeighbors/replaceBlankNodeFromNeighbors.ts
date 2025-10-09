@@ -1,5 +1,5 @@
-import { KeywordSearchResponse } from "@/connector/useGEFetchTypes";
-import { BlankNodesMap, SPARQLNeighborsRequest } from "../types";
+import { type KeywordSearchResponse } from "@/connector/useGEFetchTypes";
+import { type BlankNodesMap, type SPARQLNeighborsRequest } from "../types";
 import { logger } from "@/utils";
 import oneHopNeighborsBlankNodesIdsTemplate from "./oneHopNeighborsBlankNodesIdsTemplate";
 

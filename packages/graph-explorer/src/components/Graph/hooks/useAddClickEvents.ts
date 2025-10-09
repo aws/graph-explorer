@@ -1,7 +1,7 @@
-import cytoscape from "cytoscape";
+import type cytoscape from "cytoscape";
 import { useEffect } from "react";
 
-import { CytoscapeType } from "../Graph.model";
+import { type CytoscapeType } from "../Graph.model";
 
 export type Position = {
   top: number;
