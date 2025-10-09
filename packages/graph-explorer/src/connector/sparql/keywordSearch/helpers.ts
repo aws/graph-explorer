@@ -1,41 +1,24 @@
 import { escapeString } from "@/utils";
+import { idParam } from "../idParam";
 
-export const getSubjectClasses = (subjectClasses?: string[]) => {
+export function getSubjectClasses(subjectClasses?: string[]) {
   if (!subjectClasses?.length) {
     return "";
   }
 
-  let filterByClass = "";
-  filterByClass += "FILTER (?class IN (";
-  subjectClasses.forEach((sc, i) => {
-    filterByClass += `<${sc}>`;
-    if (i < subjectClasses.length - 1) {
-      filterByClass += ", ";
-    }
-  });
-  filterByClass += "))";
-  return filterByClass;
-};
+  return `FILTER (?class IN (${subjectClasses.map(idParam).join(", ")}))`;
+}
 
-export const getFilterPredicates = (predicates?: string[]) => {
+export function getFilterPredicates(predicates?: string[]) {
   const filteredPredicates = predicates?.filter(p => p !== "__all") || [];
   if (!filteredPredicates.length) {
     return "";
   }
 
-  let filterByAttributes = "";
-  filterByAttributes += "FILTER (?predicate IN (";
-  filteredPredicates.forEach((p, i) => {
-    filterByAttributes += `<${p}>`;
-    if (i < filteredPredicates.length - 1) {
-      filterByAttributes += ", ";
-    }
-  });
-  filterByAttributes += "))";
-  return filterByAttributes;
-};
+  return `FILTER (?pValue IN (${filteredPredicates.map(idParam).join(", ")}))`;
+}
 
-export const getFilterObject = (exactMatch: boolean, searchTerm?: string) => {
+export function getFilterObject(exactMatch: boolean, searchTerm?: string) {
   if (!searchTerm) {
     return "";
   }
@@ -49,4 +32,4 @@ export const getFilterObject = (exactMatch: boolean, searchTerm?: string) => {
     filterBySearchTerm = `FILTER (regex(str(?value), "${escapedSearchTerm}", "i"))`;
   }
   return filterBySearchTerm;
-};
+}

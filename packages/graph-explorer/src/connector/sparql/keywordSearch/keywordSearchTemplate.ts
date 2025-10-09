@@ -1,11 +1,12 @@
 import { query } from "@/utils";
-import { SPARQLKeywordSearchRequest } from "../types";
+import { rdfTypeUri, SPARQLKeywordSearchRequest } from "../types";
 import {
   getFilterObject,
   getFilterPredicates,
   getSubjectClasses,
 } from "./helpers";
 import { getLimit } from "../getLimit";
+import { idParam } from "../idParam";
 
 /**
  * Fetch nodes matching the given search parameters
@@ -19,24 +20,32 @@ import { getLimit } from "../getLimit";
  * limit = 10
  * offset = 0
  *
- * SELECT ?subject ?pred ?value ?class {
- *   ?subject ?pred ?value {
- *     SELECT DISTINCT ?subject ?class {
- *         ?subject a          ?class ;
- *                  ?predicate ?value .
- *         FILTER (?predicate IN (
- *             <http://www.example.com/soccer/ontology/teamName>,
- *             <http://www.example.com/soccer/ontology/nickname>
- *         ))
- *         FILTER (?class IN (
- *             <http://www.example.com/soccer/ontology/Team>
- *         ))
- *         FILTER (regex(str(?value), "Ch", "i"))
+ * # Fetch nodes matching the given search parameters
+ * SELECT DISTINCT ?subject ?predicate ?object
+ * WHERE {
+ *   {
+ *     # This sub-query will find any matching instances to the given filters and limit the results
+ *     SELECT DISTINCT ?subject
+ *     WHERE {
+ *       ?subject a       ?class ;
+ *                ?pValue ?value .
+ *       FILTER (?pValue IN (
+ *           <http://www.example.com/soccer/ontology/teamName>,
+ *           <http://www.example.com/soccer/ontology/nickname>
+ *       ))
+ *       FILTER (?class IN (
+ *           <http://www.example.com/soccer/ontology/Team>
+ *       ))
+ *       FILTER (regex(str(?value), "Ch", "i"))
  *     }
  *     LIMIT 10
  *     OFFSET 0
  *   }
- *   FILTER(isLiteral(?value))
+ *   {
+ *     # Values and types
+ *     ?subject ?predicate ?object
+ *     FILTER(isLiteral(?object) || ?predicate = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+ *   }
  * }
  */
 export default function keywordSearchTemplate({
@@ -49,18 +58,25 @@ export default function keywordSearchTemplate({
 }: SPARQLKeywordSearchRequest): string {
   return query`
     # Fetch nodes matching the given search parameters
-    SELECT ?subject ?pred ?value ?class {
-      ?subject ?pred ?value {
-        SELECT DISTINCT ?subject ?class {
-            ?subject a          ?class ;
-                     ?predicate ?value .
-            ${getFilterPredicates(predicates)}
-            ${getSubjectClasses(subjectClasses)}
-            ${getFilterObject(exactMatch, searchTerm)}
+    SELECT DISTINCT ?subject ?predicate ?object
+    WHERE {
+      {
+        # This sub-query will find any matching instances to the given filters and limit the results
+        SELECT DISTINCT ?subject
+        WHERE {
+          ?subject a       ?class ;
+                   ?pValue ?value .
+          ${getFilterPredicates(predicates)}
+          ${getSubjectClasses(subjectClasses)}
+          ${getFilterObject(exactMatch, searchTerm)}
         }
         ${getLimit(limit, offset)}
       }
-      FILTER(isLiteral(?value))
+      {
+        # Values and types
+        ?subject ?predicate ?object
+        FILTER(isLiteral(?object) || ?predicate = ${idParam(rdfTypeUri)})
+      }
     }
   `;
 }

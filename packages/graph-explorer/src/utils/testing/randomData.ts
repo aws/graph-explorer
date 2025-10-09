@@ -291,6 +291,7 @@ export function createTestableVertex() {
     types: string[];
     attributes: EntityProperties;
     isBlankNode: boolean;
+    hasRdfValues?: boolean;
   }) => {
     return {
       ...testable,
@@ -298,11 +299,16 @@ export function createTestableVertex() {
       withRdfValues: (
         options?: Partial<Pick<typeof testable, "isBlankNode">>
       ) => {
+        if (testable.hasRdfValues === true) {
+          // Do nothing if it already has RDF values
+          return createInternal(testable);
+        }
         return createInternal({
           id: createRandomUrlString() as VertexId,
           types: createArray(3, createRandomUrlString),
           attributes: createRecord(3, createRandomEntityAttributeForRdf),
           isBlankNode: options?.isBlankNode ?? false,
+          hasRdfValues: true,
         });
       },
       with: (newTestable: Partial<typeof testable>) => {
@@ -380,7 +386,8 @@ export function createTestableEdge() {
           type: rdfType,
           source: rdfSource,
           target: rdfTarget,
-          attributes: createRecord(3, createRandomEntityAttributeForRdf),
+          // RDF edge never has attributes
+          attributes: {},
         });
       },
       with: (newTestable: Partial<typeof testable>) => {
