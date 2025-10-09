@@ -74,18 +74,19 @@ function createBindingsForVertex(vertex: TestableVertex) {
 }
 
 function createBindingsForEdge(edge: TestableEdge) {
-  const isSourceBlank = edge.source.isBlankNode;
-  const isTargetBlank = edge.target.isBlankNode;
+  const subject = edge.source.isBlankNode
+    ? createBNodeValue(String(edge.source.id))
+    : createUriValue(String(edge.source.id));
+  const object = edge.target.isBlankNode
+    ? createBNodeValue(String(edge.target.id))
+    : createUriValue(String(edge.target.id));
+
   return [
     // Relationship between resources
     {
-      subject: isSourceBlank
-        ? createBNodeValue(String(edge.source.id))
-        : createUriValue(String(edge.source.id)),
+      subject: subject,
       predicate: createUriValue(edge.type),
-      object: isTargetBlank
-        ? createBNodeValue(String(edge.target.id))
-        : createUriValue(String(edge.target.id)),
+      object: object,
     },
   ];
 }
