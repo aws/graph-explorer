@@ -31,44 +31,43 @@ export async function neighborCounts(
     return { counts: [] };
   }
 
-  const blankNodeResponses = await fetchBlankNodeNeighborCounts(
-    sparqlFetch,
-    request,
-    blankNodes
-  );
+  const blankNodeVertexIds: VertexId[] = [];
+  const resouceVertexIds: VertexId[] = [];
 
-  const nonBlankNodeResponses = await fetchNeighborCounts(
-    sparqlFetch,
-    request,
-    blankNodes
-  );
+  for (const id of request.vertexIds) {
+    if (blankNodes.has(id)) {
+      blankNodeVertexIds.push(id);
+    } else {
+      resouceVertexIds.push(id);
+    }
+  }
+
+  const [blankNodeResponses, resourceResponses] = await Promise.all([
+    fetchBlankNodeNeighborCounts(sparqlFetch, blankNodeVertexIds, blankNodes),
+    fetchNeighborCounts(sparqlFetch, resouceVertexIds),
+  ]);
 
   return {
-    counts: [...blankNodeResponses.counts, ...nonBlankNodeResponses.counts],
+    counts: [...blankNodeResponses.counts, ...resourceResponses.counts],
   };
 }
 
 async function fetchNeighborCounts(
   sparqlFetch: SparqlFetch,
-  request: NeighborCountsRequest,
-  blankNodes: BlankNodesMap
+  vertexIds: VertexId[]
 ): Promise<NeighborCountsResponse> {
-  const nonBlankNodeVertexIds = request.vertexIds.filter(
-    id => !blankNodes.has(id)
-  );
-
-  if (!nonBlankNodeVertexIds.length) {
+  if (!vertexIds.length) {
     return { counts: [] };
   }
 
   const [totalCounts, countsByType] = await Promise.all([
-    fetchUniqueNeighborCount(sparqlFetch, nonBlankNodeVertexIds),
-    fetchCountsByType(sparqlFetch, nonBlankNodeVertexIds),
+    fetchUniqueNeighborCount(sparqlFetch, vertexIds),
+    fetchCountsByType(sparqlFetch, vertexIds),
   ]);
 
   // Add empty values for all request IDs
   const results = new Array<NeighborCount>();
-  for (const id of request.vertexIds) {
+  for (const id of vertexIds) {
     const totalCount = totalCounts.get(id) ?? 0;
     const counts = countsByType.get(id) ?? {};
     results.push({
@@ -228,14 +227,14 @@ async function fetchCountsByType(
 
 async function fetchBlankNodeNeighborCounts(
   sparqlFetch: SparqlFetch,
-  request: NeighborCountsRequest,
+  vertexIds: VertexId[],
   blankNodes: BlankNodesMap
 ) {
   const counts: NeighborCount[] = [];
   const missing: Map<VertexId, BlankNodeItem> = new Map();
 
   // Find cached and missing blank node neighbor counts
-  for (const vertexId of request.vertexIds) {
+  for (const vertexId of vertexIds) {
     const bNode = blankNodes.get(vertexId);
     if (!bNode) {
       continue;
