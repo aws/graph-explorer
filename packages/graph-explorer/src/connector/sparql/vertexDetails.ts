@@ -1,4 +1,4 @@
-import { query } from "@/utils";
+import { logger, query } from "@/utils";
 import {
   VertexDetailsRequest,
   VertexDetailsResponse,
@@ -36,6 +36,17 @@ export async function vertexDetails(
   // Map results to fully materialized vertices
   const results = parseAndMapQuads(data);
   const vertices = results.vertices.map(v => createVertex(v));
+
+  // Log a warning if some nodes are missing
+  const missing = new Set(request.vertexIds).difference(
+    new Set(vertices.map(v => v.id))
+  );
+  if (missing.size) {
+    logger.warn("Did not find all requested vertices", {
+      requested: request.vertexIds,
+      missing: missing.values().toArray(),
+    });
+  }
 
   return { vertices };
 }
