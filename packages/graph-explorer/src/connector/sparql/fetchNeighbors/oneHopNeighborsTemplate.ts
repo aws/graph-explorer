@@ -4,7 +4,14 @@ import { rdfTypeUri, SPARQLNeighborsRequest } from "../types";
 import { getLimit } from "../getLimit";
 
 /**
- * Fetch all neighbors and their predicates, values, and classes.
+ * Creates a SPARQL query that will find all neighbors for the given resource URI and search filters.
+ *
+ * The result will include the following in standard triple or quad form:
+ *
+ * - Neighbor literals
+ * - Neighbor class
+ * - Predicates from source to neighbor
+ * - Predicates from neighbor to source
  *
  * @example
  * resourceURI = "http://www.example.com/soccer/resource#EPL"
@@ -18,7 +25,7 @@ import { getLimit } from "../getLimit";
  * limit = 2
  * offset = 0
  *
- * SELECT DISTINCT ?subject ?p ?value
+ * SELECT DISTINCT ?subject ?predicate ?object
  * WHERE {
  *   {
  *     SELECT DISTINCT ?neighbor
@@ -26,27 +33,27 @@ import { getLimit } from "../getLimit";
  *       BIND(<http://www.example.com/soccer/resource#EPL> AS ?resource)
  *       VALUES ?class { <http://www.example.com/soccer/ontology/Team> }
  *       {
- *         ?neighbor ?p ?resource .
+ *         ?neighbor ?predicate ?resource .
  *         ?neighbor a ?class .
  *         FILTER(
- *           ?p != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> &&
+ *           ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> &&
  *           !isLiteral(?neighbor)
  *         )
  *       }
  *       UNION
  *       {
- *         ?resource ?p ?neighbor .
+ *         ?resource ?predicate ?neighbor .
  *         ?neighbor a ?class .
  *         FILTER(
- *           ?p != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> &&
+ *           ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> &&
  *           !isLiteral(?neighbor)
  *         )
  *       }
- *       ?neighbor ?pValue ?value .
+ *       ?neighbor ?pValue ?object .
  *       FILTER(
- *         isLiteral(?value) && (
- *           (?pValue=<http://www.example.com/soccer/ontology/teamName> && regex(str(?value), "Arsenal", "i")) ||
- *           (?pValue=<http://www.example.com/soccer/ontology/nickname> && regex(str(?value), "Gunners", "i"))
+ *         isLiteral(?object) && (
+ *           (?pValue=<http://www.example.com/soccer/ontology/teamName> && regex(str(?object), "Arsenal", "i")) ||
+ *           (?pValue=<http://www.example.com/soccer/ontology/nickname> && regex(str(?object), "Gunners", "i"))
  *         )
  *       )
  *     }
@@ -56,34 +63,96 @@ import { getLimit } from "../getLimit";
  *     BIND(<http://www.example.com/soccer/resource#EPL> AS ?resource)
  *     ?neighbor ?pToSource ?resource
  *     BIND(?neighbor as ?subject)
- *     BIND(?pToSource as ?p)
- *     BIND(?resource as ?value)
+ *     BIND(?pToSource as ?predicate)
+ *     BIND(?resource as ?object)
  *   }
  *   UNION
  *   {
  *     BIND(<http://www.example.com/soccer/resource#EPL> AS ?resource)
  *     ?resource ?pFromSource ?neighbor
- *     BIND(?neighbor as ?value)
- *     BIND(?pFromSource as ?p)
+ *     BIND(?neighbor as ?object)
+ *     BIND(?pFromSource as ?predicate)
  *     BIND(?resource as ?subject)
  *   }
  *   UNION
  *   {
- *     ?neighbor ?p ?value
- *     FILTER(isLiteral(?value) || ?p = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+ *     ?neighbor ?predicate ?object
+ *     FILTER(isLiteral(?object) || ?predicate = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
  *     BIND(?neighbor as ?subject)
  *   }
  *   UNION
  *   {
  *     BIND(<http://www.example.com/soccer/resource#EPL> AS ?resource)
- *     ?resource ?p ?value
- *     FILTER(?p = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+ *     ?resource ?predicate ?object
+ *     FILTER(?predicate = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
  *     BIND(?resource as ?subject)
  *   }
  * }
  */
+export function oneHopNeighborsTemplate(
+  request: SPARQLNeighborsRequest
+): string {
+  const resourceTemplate = idParam(request.resourceURI);
+  const rdfTypeUriTemplate = idParam(rdfTypeUri);
 
-export function oneHopNeighborsTemplate({
+  return query`
+    # Fetch all neighbors and their predicates, values, and classes
+    SELECT DISTINCT ?subject ?predicate ?object
+    WHERE {
+      {
+        ${findNeighborsUsingFilters(request)}
+      }
+
+      # Using the ?neighbor gathered above we can start getting
+      # the information we are really interested in
+      #
+      # - predicate to source from neighbor
+      # - predicate from source to neighbor
+      # - neighbor class
+      # - neighbor values
+
+      {
+        # Incoming connection predicate
+        BIND(${resourceTemplate} AS ?resource)
+        ?neighbor ?pToSource ?resource
+        BIND(?neighbor as ?subject)
+        BIND(?pToSource as ?predicate)
+        BIND(?resource as ?object)
+      }
+      UNION
+      {
+        # Outgoing connection predicate
+        BIND(${resourceTemplate} AS ?resource)
+        ?resource ?pFromSource ?neighbor
+        BIND(?neighbor as ?object)
+        BIND(?pFromSource as ?predicate)
+        BIND(?resource as ?subject)
+      }
+      UNION
+      {
+        # Values and types
+        ?neighbor ?predicate ?object
+        FILTER(isLiteral(?object) || ?predicate = ${rdfTypeUriTemplate})
+        BIND(?neighbor as ?subject)
+      }
+      UNION
+      {
+        # Source types
+        BIND(${resourceTemplate} AS ?resource)
+        ?resource ?predicate ?object
+        FILTER(?predicate = ${rdfTypeUriTemplate})
+        BIND(?resource as ?subject)
+      }
+    }
+  `;
+}
+
+/**
+ * Creates a SPARQL query that uses search expand neighbors filters to find neighbors matching the filters.
+ *
+ * This is used by the neighbor expansion query and as the subquery in future blank node queries.
+ */
+export function findNeighborsUsingFilters({
   resourceURI,
   subjectClasses = [],
   filterCriteria = [],
@@ -98,19 +167,19 @@ export function oneHopNeighborsTemplate({
   const filterCriteriaTemplate = filterCriteria
     .map(
       c =>
-        `(?pValue=${idParam(c.predicate)} && regex(str(?value), "${c.object}", "i"))`
+        `(?pValue=${idParam(c.predicate)} && regex(str(?object), "${c.object}", "i"))`
     )
     .join(" ||\n");
   const filterTemplate = hasFilters
     ? query`
         FILTER(
-          isLiteral(?value) && (
+          isLiteral(?object) && (
             ${filterCriteriaTemplate}
           )
         )
       `
     : "";
-  const valueBindingTemplate = hasFilters ? `?neighbor ?pValue ?value .` : "";
+  const valueBindingTemplate = hasFilters ? `?neighbor ?pValue ?object .` : "";
 
   // templates for filtering by class
   const subjectClassesTemplate = subjectClasses.length
@@ -121,7 +190,7 @@ export function oneHopNeighborsTemplate({
   const rdfTypeUriTemplate = idParam(rdfTypeUri);
 
   const neighborFilters = [
-    `?p != ${rdfTypeUriTemplate}`,
+    `?predicate != ${rdfTypeUriTemplate}`,
     `!isLiteral(?neighbor)`,
     excludedVertices.size > 0
       ? query`
@@ -138,80 +207,33 @@ export function oneHopNeighborsTemplate({
   `;
 
   return query`
-    # Fetch all neighbors and their predicates, values, and classes
-    SELECT DISTINCT ?subject ?p ?value
+    # This sub-query will give us all unique neighbors within the given limit
+    SELECT DISTINCT ?neighbor
     WHERE {
+      BIND(${resourceTemplate} AS ?resource)
+      ${subjectClassesTemplate}
       {
-        # This sub-query will give us all unique neighbors within the given limit
-        SELECT DISTINCT ?neighbor
-        WHERE {
-          BIND(${resourceTemplate} AS ?resource)
-          ${subjectClassesTemplate}
-          {
-            # Incoming neighbors
-            ?neighbor ?p ?resource . 
-            
-            # Get the neighbor's class
-            ?neighbor a ?class .
+        # Incoming neighbors
+        ?neighbor ?predicate ?resource . 
+        
+        # Get the neighbor's class
+        ?neighbor a ?class .
 
-            ${neighborFilterTemplate}
-          }
-          UNION
-          {
-            # Outgoing neighbors
-            ?resource ?p ?neighbor . 
-            
-            # Get the neighbor's class
-            ?neighbor a ?class .
-
-            ${neighborFilterTemplate}
-          }
-          ${valueBindingTemplate}
-          ${filterTemplate}
-        }
-        ${limitTemplate}
-      }
-
-      # Using the ?neighbor gathered above we can start getting
-      # the information we are really interested in
-      #
-      # - predicate to source from neighbor
-      # - predicate from source to neighbor
-      # - neighbor class
-      # - neighbor values
-
-      {
-        # Incoming connection predicate
-        BIND(${resourceTemplate} AS ?resource)
-        ?neighbor ?pToSource ?resource
-        BIND(?neighbor as ?subject)
-        BIND(?pToSource as ?p)
-        BIND(?resource as ?value)
+        ${neighborFilterTemplate}
       }
       UNION
       {
-        # Outgoing connection predicate
-        BIND(${resourceTemplate} AS ?resource)
-        ?resource ?pFromSource ?neighbor
-        BIND(?neighbor as ?value)
-        BIND(?pFromSource as ?p)
-        BIND(?resource as ?subject)
+        # Outgoing neighbors
+        ?resource ?predicate ?neighbor . 
+        
+        # Get the neighbor's class
+        ?neighbor a ?class .
+
+        ${neighborFilterTemplate}
       }
-      UNION
-      {
-        # Values and types
-        ?neighbor ?p ?value
-        FILTER(isLiteral(?value) || ?p = ${rdfTypeUriTemplate})
-        BIND(?neighbor as ?subject)
-      }
-      UNION
-      {
-        # Source types
-        BIND(${resourceTemplate} AS ?resource)
-        ?resource ?p ?value
-        FILTER(?p = ${rdfTypeUriTemplate})
-        BIND(?resource as ?subject)
-      }
+      ${valueBindingTemplate}
+      ${filterTemplate}
     }
+    ${limitTemplate}
   `;
 }
