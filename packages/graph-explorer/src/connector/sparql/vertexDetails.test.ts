@@ -1,6 +1,6 @@
 import { createLiteralValue, createRandomVertexForRdf } from "@/utils/testing";
 import { vertexDetails } from "./vertexDetails";
-import { createVertexId, Vertex } from "@/core";
+import { createVertexId, type Vertex } from "@/core";
 import { createRandomInteger } from "@shared/utils/testing";
 import { query } from "@/utils";
 

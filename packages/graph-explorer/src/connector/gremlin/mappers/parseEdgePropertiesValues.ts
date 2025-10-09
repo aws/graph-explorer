@@ -1,6 +1,6 @@
 import parseProperty from "./parseProperty";
 import type { GProperty } from "../types";
-import { EntityProperties } from "@/core";
+import { type EntityProperties } from "@/core";
 
 export default function parseEdgePropertiesValues(
   properties?: Record<string, GProperty>

@@ -1,5 +1,5 @@
 import { mapToResults } from "./mapToResults";
-import { Edge, EntityPropertyValue, Vertex } from "@/core";
+import { type Edge, type EntityPropertyValue, type Vertex } from "@/core";
 import {
   createLiteralValue,
   createRandomEdgeForRdf,

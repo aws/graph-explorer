@@ -1,5 +1,5 @@
 import { query } from "@/utils";
-import { SPARQLNeighborsRequest } from "../types";
+import { type SPARQLNeighborsRequest } from "../types";
 import { getFilters, getSubjectClasses } from "./helpers";
 import { idParam } from "../idParam";
 import { getLimit } from "../getLimit";

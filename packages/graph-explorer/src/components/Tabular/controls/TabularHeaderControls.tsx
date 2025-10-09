@@ -1,7 +1,7 @@
 import { css } from "@emotion/css";
 import { cn } from "@/utils";
 import { cssVar } from "@/core/ThemeProvider/utils/lib";
-import { FC, PropsWithChildren, useEffect } from "react";
+import { type FC, type PropsWithChildren, useEffect } from "react";
 import type { ThemeStyleFn } from "@/core";
 import { useWithTheme } from "@/core";
 import type { TabularVariantType } from "../Tabular";

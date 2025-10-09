@@ -12,7 +12,7 @@ import {
   SelectField,
 } from "@/components";
 import { TrayArrowIcon } from "@/components/icons";
-import { TabularInstance } from "@/components/Tabular/helpers/tableInstanceToTabularInstance";
+import { type TabularInstance } from "@/components/Tabular/helpers/tableInstanceToTabularInstance";
 
 import { transformToCsv } from "./transformToCsv";
 import { transformToJson } from "./transformToJson";

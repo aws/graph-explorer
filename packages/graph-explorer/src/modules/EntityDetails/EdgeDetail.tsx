@@ -14,10 +14,10 @@ import {
   VertexRow,
 } from "@/components";
 import {
-  ArrowStyle,
-  DisplayAttribute,
-  DisplayEdge,
-  LineStyle,
+  type ArrowStyle,
+  type DisplayAttribute,
+  type DisplayEdge,
+  type LineStyle,
   useDisplayVertex,
 } from "@/core";
 import EntityAttribute from "./EntityAttribute";
@@ -26,8 +26,8 @@ import {
   RESERVED_TYPES_PROPERTY,
 } from "@/utils/constants";
 import { useTranslations } from "@/hooks";
-import { IconBaseProps } from "@/components/icons/IconBase";
-import { CSSProperties } from "react";
+import { type IconBaseProps } from "@/components/icons/IconBase";
+import { type CSSProperties } from "react";
 
 export type EdgeDetailProps = {
   edge: DisplayEdge;

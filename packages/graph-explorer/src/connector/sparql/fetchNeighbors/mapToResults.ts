@@ -1,10 +1,10 @@
-import { RawValue, rdfTypeUri } from "../types";
+import { type RawValue, rdfTypeUri } from "../types";
 import {
   createEdge,
   createVertex,
-  Edge,
-  Entities,
-  EntityProperties,
+  type Edge,
+  type Entities,
+  type EntityProperties,
 } from "@/core";
 import { createRdfEdgeId } from "../createRdfEdgeId";
 import { mapSparqlValueToScalar } from "../mappers/mapSparqlValueToScalar";

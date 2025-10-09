@@ -1,13 +1,13 @@
 import { logger, query } from "@/utils";
 import {
-  NeighborCount,
-  NeighborCountsRequest,
-  NeighborCountsResponse,
+  type NeighborCount,
+  type NeighborCountsRequest,
+  type NeighborCountsResponse,
 } from "../useGEFetchTypes";
 import {
-  BlankNodeItem,
-  BlankNodesMap,
-  SparqlFetch,
+  type BlankNodeItem,
+  type BlankNodesMap,
+  type SparqlFetch,
   sparqlResponseSchema,
   sparqlUriValueSchema,
   sparqlValueSchema,
@@ -16,7 +16,7 @@ import { idParam } from "./idParam";
 import isErrorResponse from "../utils/isErrorResponse";
 import { z } from "zod";
 import { fromError } from "zod-validation-error/v3";
-import { createVertexId, VertexId } from "@/core";
+import { createVertexId, type VertexId } from "@/core";
 import fetchBlankNodeNeighbors from "./fetchBlankNodeNeighbors";
 
 const bindingSchema = z.object({

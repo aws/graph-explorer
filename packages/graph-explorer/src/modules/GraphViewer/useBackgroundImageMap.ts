@@ -1,4 +1,4 @@
-import { VertexTypeConfig } from "@/core";
+import { type VertexTypeConfig } from "@/core";
 import { useQueries } from "@tanstack/react-query";
 import { renderNode } from "./renderNode";
 

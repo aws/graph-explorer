@@ -2,8 +2,8 @@ import cytoscape from "cytoscape";
 import debounce from "lodash/debounce";
 import { useEffect, useRef, useState } from "react";
 
-import { GraphProps } from "../Graph";
-import { Config, CytoscapeType } from "../Graph.model";
+import { type GraphProps } from "../Graph";
+import { type Config, type CytoscapeType } from "../Graph.model";
 import { useDeepMemo } from "@/hooks";
 
 export interface UseInitCytoscapeProps

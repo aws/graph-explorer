@@ -1,4 +1,4 @@
-import { BoundingBox } from "./types";
+import { type BoundingBox } from "./types";
 
 export type AddPaddingOptions = {
   paddingTop?: number;

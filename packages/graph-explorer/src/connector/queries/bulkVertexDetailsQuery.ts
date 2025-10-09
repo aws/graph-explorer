@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import { Vertex, VertexId } from "@/core";
+import { type Vertex, type VertexId } from "@/core";
 import { DEFAULT_BATCH_REQUEST_SIZE } from "@/utils";
 import { chunk } from "lodash";
 import { getExplorer, setVertexDetailsQueryCache } from "./helpers";

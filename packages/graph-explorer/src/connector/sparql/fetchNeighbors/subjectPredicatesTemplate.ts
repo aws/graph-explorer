@@ -1,5 +1,5 @@
 import { query } from "@/utils";
-import { SPARQLNeighborsPredicatesRequest } from "../types";
+import { type SPARQLNeighborsPredicatesRequest } from "../types";
 import { idParam } from "../idParam";
 
 /**

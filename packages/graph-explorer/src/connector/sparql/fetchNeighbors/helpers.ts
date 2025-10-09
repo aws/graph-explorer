@@ -1,4 +1,4 @@
-import { SPARQLCriterion } from "../types";
+import { type SPARQLCriterion } from "../types";
 import { query } from "@/utils";
 
 export function getSubjectClasses(subjectClasses: string[]) {

@@ -1,4 +1,4 @@
-import { BoundingBox } from "./types";
+import { type BoundingBox } from "./types";
 
 export type AdjustAnchorOptions = {
   anchor?: "left" | "center" | "right";

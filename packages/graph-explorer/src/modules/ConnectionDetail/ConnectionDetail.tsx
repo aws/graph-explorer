@@ -34,7 +34,7 @@ import {
 import { LinkButton } from "@/components/Button";
 import {
   activeSchemaSelector,
-  ConfigurationContextProps,
+  type ConfigurationContextProps,
   showDebugActionsAtom,
 } from "@/core";
 

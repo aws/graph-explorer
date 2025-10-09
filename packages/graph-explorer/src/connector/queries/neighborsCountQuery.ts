@@ -1,6 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
-import { NeighborCount } from "../useGEFetchTypes";
-import { VertexId } from "@/core";
+import { type NeighborCount } from "../useGEFetchTypes";
+import { type VertexId } from "@/core";
 import { getExplorer } from "./helpers";
 
 /**

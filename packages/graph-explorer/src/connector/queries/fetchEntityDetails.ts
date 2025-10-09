@@ -1,8 +1,8 @@
 import { bulkEdgeDetailsQuery, bulkVertexDetailsQuery } from "@/connector";
-import { VertexId, EdgeId } from "@/core";
+import { type VertexId, type EdgeId } from "@/core";
 import { formatEntityCounts } from "@/utils";
-import { QueryClient } from "@tanstack/react-query";
-import { Notification } from "@/components/NotificationProvider";
+import { type QueryClient } from "@tanstack/react-query";
+import { type Notification } from "@/components/NotificationProvider";
 
 /**
  * Fetches the details for the given vertices and edges.

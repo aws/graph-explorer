@@ -1,12 +1,12 @@
 import { logger, query } from "@/utils";
 import {
-  VertexDetailsRequest,
-  VertexDetailsResponse,
+  type VertexDetailsRequest,
+  type VertexDetailsResponse,
 } from "../useGEFetchTypes";
 import {
   rdfTypeUri,
   sparqlResponseSchema,
-  SparqlFetch,
+  type SparqlFetch,
   sparqlUriValueSchema,
   sparqlValueSchema,
 } from "./types";
@@ -14,8 +14,8 @@ import { z } from "zod";
 import {
   createVertex,
   createVertexId,
-  EntityProperties,
-  VertexId,
+  type EntityProperties,
+  type VertexId,
 } from "@/core";
 import isErrorResponse from "../utils/isErrorResponse";
 import { idParam } from "./idParam";

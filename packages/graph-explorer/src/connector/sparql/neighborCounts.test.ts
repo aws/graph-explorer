@@ -5,15 +5,15 @@ import {
   createRandomVertexForRdf,
   createUriValue,
 } from "@/utils/testing";
-import { NeighborCount } from "../useGEFetchTypes";
+import { type NeighborCount } from "../useGEFetchTypes";
 import { neighborCounts } from "./neighborCounts";
-import { BlankNodesMap } from "./types";
+import { type BlankNodesMap } from "./types";
 import {
   createArray,
   createRandomName,
   createRandomUrlString,
 } from "@shared/utils/testing";
-import { createVertexId, Edge, Vertex } from "@/core";
+import { createVertexId, type Edge, type Vertex } from "@/core";
 import { parseEdgeId } from "./parseEdgeId";
 
 describe("neighborCounts", () => {

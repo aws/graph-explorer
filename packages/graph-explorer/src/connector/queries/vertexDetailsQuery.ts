@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import { VertexId } from "@/core";
+import { type VertexId } from "@/core";
 import { getExplorer } from "./helpers";
 
 export function vertexDetailsQuery(vertexId: VertexId) {

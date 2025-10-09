@@ -1,4 +1,4 @@
-import { EntityProperties } from "@/core";
+import { type EntityProperties } from "@/core";
 import type { OCProperties } from "../types";
 import z from "zod";
 

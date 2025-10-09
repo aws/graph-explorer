@@ -1,8 +1,11 @@
 import { logger, query } from "@/utils";
-import { RawQueryRequest, RawQueryResponse } from "../useGEFetchTypes";
+import {
+  type RawQueryRequest,
+  type RawQueryResponse,
+} from "../useGEFetchTypes";
 import {
   rdfTypeUri,
-  SparqlFetch,
+  type SparqlFetch,
   sparqlResponseSchema,
   sparqlValueSchema,
   sparqlAskResponseSchema,

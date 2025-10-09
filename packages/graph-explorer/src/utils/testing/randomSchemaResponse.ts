@@ -1,7 +1,7 @@
 import {
-  EdgeSchemaResponse,
-  SchemaResponse,
-  VertexSchemaResponse,
+  type EdgeSchemaResponse,
+  type SchemaResponse,
+  type VertexSchemaResponse,
 } from "@/connector";
 import { createRandomAttributeConfig } from "./randomData";
 import {

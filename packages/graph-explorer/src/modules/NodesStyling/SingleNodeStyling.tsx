@@ -1,4 +1,4 @@
-import { ComponentPropsWithRef, useEffect, useState } from "react";
+import { type ComponentPropsWithRef, useEffect, useState } from "react";
 import { Button, FormItem, InputField, Label, StylingIcon } from "@/components";
 import { useDisplayVertexTypeConfig } from "@/core";
 import { useVertexStyling } from "@/core/StateProvider/userPreferences";

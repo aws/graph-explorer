@@ -1,6 +1,6 @@
 import {
   Button,
-  ButtonProps,
+  type ButtonProps,
   IconButton,
   PanelFooter,
   Spinner,

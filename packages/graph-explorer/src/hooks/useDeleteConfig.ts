@@ -2,7 +2,7 @@ import {
   activeConfigurationAtom,
   allGraphSessionsAtom,
   configurationAtom,
-  ConfigurationId,
+  type ConfigurationId,
   schemaAtom,
 } from "@/core";
 import { logger } from "@/utils";

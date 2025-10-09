@@ -1,6 +1,6 @@
 import { css } from "@emotion/css";
 
-import { PropsWithChildren } from "react";
+import { type PropsWithChildren } from "react";
 
 const defaultStyles = () => css`
   font-style: italic;

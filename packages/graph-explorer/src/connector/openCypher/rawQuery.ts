@@ -1,6 +1,9 @@
 import { logger, query } from "@/utils";
-import { RawQueryRequest, RawQueryResponse } from "../useGEFetchTypes";
-import { OpenCypherFetch } from "./types";
+import {
+  type RawQueryRequest,
+  type RawQueryResponse,
+} from "../useGEFetchTypes";
+import { type OpenCypherFetch } from "./types";
 import isErrorResponse from "../utils/isErrorResponse";
 import { mapResults } from "./mappers/mapResults";
 

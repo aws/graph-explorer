@@ -1,6 +1,6 @@
 import parseProperty from "./parseProperty";
 import type { GVertexProperty } from "../types";
-import { EntityProperties } from "@/core";
+import { type EntityProperties } from "@/core";
 
 export default function parsePropertiesValues(
   properties: Record<string, GVertexProperty[]>

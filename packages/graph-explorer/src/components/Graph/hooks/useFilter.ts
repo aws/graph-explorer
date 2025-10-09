@@ -1,4 +1,4 @@
-import cytoscape from "cytoscape";
+import type cytoscape from "cytoscape";
 import { useEffect } from "react";
 import type { CytoscapeType } from "../Graph.model";
 

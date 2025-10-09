@@ -11,13 +11,13 @@ import {
   VertexIcon,
 } from "@/components";
 import {
-  DisplayVertexTypeConfig,
+  type DisplayVertexTypeConfig,
   useDisplayVertexTypeConfigs,
   useQueryEngine,
 } from "@/core";
 import useTranslations from "@/hooks/useTranslations";
 import { Virtuoso } from "react-virtuoso";
-import { ComponentPropsWithoutRef } from "react";
+import { type ComponentPropsWithoutRef } from "react";
 
 export default function ConnectionData() {
   const vtConfigs = useDisplayVertexTypeConfigs().values().toArray();

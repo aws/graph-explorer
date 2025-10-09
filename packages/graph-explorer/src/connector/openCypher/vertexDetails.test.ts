@@ -1,6 +1,6 @@
 import { createTestableVertex, mapToOcVertex } from "@/utils/testing";
 import { vertexDetails } from "./vertexDetails";
-import { ResultVertex } from "../entities";
+import { type ResultVertex } from "../entities";
 
 describe("vertexDetails", () => {
   it("should return empty for empty request", async () => {

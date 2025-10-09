@@ -1,5 +1,5 @@
-import { Vertex } from "./vertex";
-import { Edge } from "./edge";
+import { type Vertex } from "./vertex";
+import { type Edge } from "./edge";
 
 /**
  * An object containing both vertices and edges.

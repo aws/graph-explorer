@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
-import { RenderedVertex } from "@/core";
-import { DrawBoxWithAdornmentOptions } from "@/components/utils";
+import { type RenderedVertex } from "@/core";
+import { type DrawBoxWithAdornmentOptions } from "@/components/utils";
 import drawBoxWithAdornment from "@/components/utils/canvas/drawBoxWithAdornment";
 import type {
   AutoBoundingBox,

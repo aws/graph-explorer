@@ -1,5 +1,5 @@
 import { cn } from "@/utils";
-import { ComponentProps } from "react";
+import { type ComponentProps } from "react";
 
 export function PageHeading({ className, ...props }: ComponentProps<"h1">) {
   return (

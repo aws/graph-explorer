@@ -5,7 +5,7 @@ import {
 import {
   createRandomRawConfiguration,
   createRandomSchema,
-  JotaiStore,
+  type JotaiStore,
   renderHookWithJotai,
 } from "@/utils/testing";
 import useTextTransform from "./useTextTransform";

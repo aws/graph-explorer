@@ -4,10 +4,10 @@ import isErrorResponse from "@/connector/utils/isErrorResponse";
 import mapRawResultToVertex from "../mappers/mapRawResultToVertex";
 import keywordSearchTemplate from "./keywordSearchTemplate";
 import {
-  RawResult,
-  RawValue,
-  SparqlFetch,
-  SPARQLKeywordSearchRequest,
+  type RawResult,
+  type RawValue,
+  type SparqlFetch,
+  type SPARQLKeywordSearchRequest,
 } from "../types";
 
 type RawKeywordResponse = {

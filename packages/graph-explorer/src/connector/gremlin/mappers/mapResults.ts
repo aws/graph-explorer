@@ -5,7 +5,7 @@ import {
   getDisplayValueForScalar,
   type ResultScalar,
 } from "@/connector/entities";
-import { GAnyValue, GList } from "../types";
+import { type GAnyValue, type GList } from "../types";
 import mapApiEdge from "./mapApiEdge";
 import mapApiVertex from "./mapApiVertex";
 
