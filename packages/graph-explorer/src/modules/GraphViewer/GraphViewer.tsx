@@ -148,7 +148,7 @@ export default function GraphViewer() {
             />
             <IconButton
               tooltipText="Zoom to Fit"
-              icon={<ExpandIcon />}
+              icon={<FullscreenIcon />}
               variant="text"
               onClick={onFitAllToCanvas}
             />
