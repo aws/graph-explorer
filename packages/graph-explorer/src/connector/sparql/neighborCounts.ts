@@ -8,10 +8,12 @@ import {
   type BlankNodeItem,
   type BlankNodesMap,
   type SparqlFetch,
+} from "./types";
+import {
   sparqlResponseSchema,
   sparqlUriValueSchema,
   sparqlValueSchema,
-} from "./types";
+} from "./schemas";
 import { idParam } from "./idParam";
 import isErrorResponse from "../utils/isErrorResponse";
 import { z } from "zod";

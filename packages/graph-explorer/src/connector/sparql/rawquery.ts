@@ -4,13 +4,12 @@ import {
   type RawQueryResponse,
 } from "../useGEFetchTypes";
 import {
-  rdfTypeUri,
-  type SparqlFetch,
   sparqlResponseSchema,
   sparqlValueSchema,
   sparqlAskResponseSchema,
   sparqlQuadBindingSchema,
-} from "./types";
+} from "./schemas";
+import { type SparqlFetch, rdfTypeUri } from "./types";
 import isErrorResponse from "../utils/isErrorResponse";
 import { z } from "zod";
 import { fromError } from "zod-validation-error";

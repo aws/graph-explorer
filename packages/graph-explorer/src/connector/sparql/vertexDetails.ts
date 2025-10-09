@@ -3,13 +3,12 @@ import {
   type VertexDetailsRequest,
   type VertexDetailsResponse,
 } from "../useGEFetchTypes";
+import { rdfTypeUri, type SparqlFetch } from "./types";
 import {
-  rdfTypeUri,
   sparqlResponseSchema,
-  type SparqlFetch,
   sparqlUriValueSchema,
   sparqlValueSchema,
-} from "./types";
+} from "./schemas";
 import { z } from "zod";
 import {
   createVertex,
