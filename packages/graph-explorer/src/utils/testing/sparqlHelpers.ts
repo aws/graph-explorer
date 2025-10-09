@@ -27,6 +27,14 @@ export function createLiteralValue(value: Exclude<ScalarValue, null>) {
     };
   }
 
+  if (typeof value === "boolean") {
+    return {
+      type: "literal",
+      value: value.toString(),
+      datatype: "http://www.w3.org/2001/XMLSchema#boolean",
+    };
+  }
+
   if (value instanceof Date) {
     return {
       type: "literal" as const,
