@@ -44,7 +44,7 @@ import { ExportGraphButton } from "./ExportGraphButton";
 import {
   BadgeInfoIcon,
   CircleSlash2,
-  ExpandIcon,
+  FullscreenIcon,
   ImageDownIcon,
   RefreshCwIcon,
   ZoomInIcon,
