@@ -43,6 +43,221 @@ describe("calculateNeighbors", () => {
       ])
     );
   });
+
+  it("should calculate multi-label neighbors correctly", () => {
+    const total = {
+      total: 10,
+      byType: new Map([
+        ["type1", 6],
+        ["type2", 4],
+        ["type3", 2],
+      ]),
+    };
+    const fetchedNeighbors = [
+      { id: createVertexId("1"), types: ["type1"] },
+      { id: createVertexId("2"), types: ["type2", "type3"] },
+      { id: createVertexId("3"), types: ["type1"] },
+      { id: createVertexId("4"), types: ["type2"] },
+    ];
+
+    const result = calculateNeighbors(
+      total.total,
+      total.byType,
+      fetchedNeighbors
+    );
+
+    expect(result.all).toEqual(total.total);
+    expect(result.fetched).toEqual(4);
+    expect(result.unfetched).toEqual(6);
+    expect(result.byType).toEqual(
+      new Map([
+        ["type1", { all: 6, fetched: 2, unfetched: 4 }],
+        ["type2", { all: 4, fetched: 2, unfetched: 2 }],
+        ["type3", { all: 2, fetched: 1, unfetched: 1 }],
+      ])
+    );
+  });
+
+  it("should calculate multi-label neighbors correctly when all fetched", () => {
+    const total = {
+      total: 4,
+      byType: new Map([
+        ["type1", 2],
+        ["type2", 2],
+        ["type3", 1],
+      ]),
+    };
+    const fetchedNeighbors = [
+      { id: createVertexId("1"), types: ["type1"] },
+      { id: createVertexId("2"), types: ["type2", "type3"] },
+      { id: createVertexId("3"), types: ["type1"] },
+      { id: createVertexId("4"), types: ["type2"] },
+    ];
+
+    const result = calculateNeighbors(
+      total.total,
+      total.byType,
+      fetchedNeighbors
+    );
+
+    expect(result.all).toEqual(total.total);
+    expect(result.fetched).toEqual(4);
+    expect(result.unfetched).toEqual(0);
+    expect(result.byType).toEqual(
+      new Map([
+        ["type1", { all: 2, fetched: 2, unfetched: 0 }],
+        ["type2", { all: 2, fetched: 2, unfetched: 0 }],
+        ["type3", { all: 1, fetched: 1, unfetched: 0 }],
+      ])
+    );
+  });
+
+  it("should handle empty inputs", () => {
+    const result = calculateNeighbors(0, new Map(), []);
+
+    expect(result.all).toEqual(0);
+    expect(result.fetched).toEqual(0);
+    expect(result.unfetched).toEqual(0);
+    expect(result.byType).toEqual(new Map());
+  });
+
+  it("should handle no fetched neighbors", () => {
+    const total = 10;
+    const byType = new Map([
+      ["type1", 6],
+      ["type2", 4],
+    ]);
+
+    const result = calculateNeighbors(total, byType, []);
+
+    expect(result.all).toEqual(10);
+    expect(result.fetched).toEqual(0);
+    expect(result.unfetched).toEqual(10);
+    expect(result.byType).toEqual(
+      new Map([
+        ["type1", { all: 6, fetched: 0, unfetched: 6 }],
+        ["type2", { all: 4, fetched: 0, unfetched: 4 }],
+      ])
+    );
+  });
+
+  it("should handle no total by type", () => {
+    const total = 5;
+    const fetchedNeighbors = [
+      { id: createVertexId("1"), types: ["type1"] },
+      { id: createVertexId("2"), types: ["type2"] },
+    ];
+
+    const result = calculateNeighbors(total, new Map(), fetchedNeighbors);
+
+    expect(result.all).toEqual(5);
+    expect(result.fetched).toEqual(2);
+    expect(result.unfetched).toEqual(3);
+    expect(result.byType).toEqual(new Map());
+  });
+
+  it("should handle duplicate neighbor IDs", () => {
+    const total = 3;
+    const byType = new Map([["type1", 3]]);
+    const fetchedNeighbors = [
+      { id: createVertexId("1"), types: ["type1"] },
+      { id: createVertexId("1"), types: ["type1"] }, // Duplicate ID
+      { id: createVertexId("2"), types: ["type1"] },
+    ];
+
+    const result = calculateNeighbors(total, byType, fetchedNeighbors);
+
+    expect(result.all).toEqual(3);
+    expect(result.fetched).toEqual(2); // Should deduplicate by ID
+    expect(result.unfetched).toEqual(1);
+    expect(result.byType).toEqual(
+      new Map([["type1", { all: 3, fetched: 2, unfetched: 1 }]])
+    );
+  });
+
+  it("should handle neighbors with no types", () => {
+    const total = 2;
+    const byType = new Map([["type1", 2]]);
+    const fetchedNeighbors = [
+      { id: createVertexId("1"), types: [] },
+      { id: createVertexId("2"), types: ["type1"] },
+    ];
+
+    const result = calculateNeighbors(total, byType, fetchedNeighbors);
+
+    expect(result.all).toEqual(2);
+    expect(result.fetched).toEqual(2);
+    expect(result.unfetched).toEqual(0);
+    expect(result.byType).toEqual(
+      new Map([["type1", { all: 2, fetched: 1, unfetched: 1 }]])
+    );
+  });
+
+  it("should handle neighbors with types not in totalByType", () => {
+    const total = 3;
+    const byType = new Map([["type1", 2]]);
+    const fetchedNeighbors = [
+      { id: createVertexId("1"), types: ["type1"] },
+      { id: createVertexId("2"), types: ["type2"] }, // Type not in byType
+      { id: createVertexId("3"), types: ["type1"] },
+    ];
+
+    const result = calculateNeighbors(total, byType, fetchedNeighbors);
+
+    expect(result.all).toEqual(3);
+    expect(result.fetched).toEqual(3);
+    expect(result.unfetched).toEqual(0);
+    expect(result.byType).toEqual(
+      new Map([["type1", { all: 2, fetched: 2, unfetched: 0 }]])
+    );
+  });
+
+  it("should handle over-fetched scenario", () => {
+    const total = 2;
+    const byType = new Map([["type1", 1]]);
+    const fetchedNeighbors = [
+      { id: createVertexId("1"), types: ["type1"] },
+      { id: createVertexId("2"), types: ["type1"] },
+      { id: createVertexId("3"), types: ["type1"] },
+    ];
+
+    const result = calculateNeighbors(total, byType, fetchedNeighbors);
+
+    expect(result.all).toEqual(2);
+    expect(result.fetched).toEqual(3);
+    expect(result.unfetched).toEqual(0);
+    expect(result.byType).toEqual(
+      new Map([["type1", { all: 1, fetched: 3, unfetched: 0 }]])
+    );
+  });
+
+  it("should handle complex multi-type scenario with overlapping types", () => {
+    const total = 6;
+    const byType = new Map([
+      ["Person", 3],
+      ["Employee", 2],
+      ["Manager", 1],
+    ]);
+    const fetchedNeighbors = [
+      { id: createVertexId("1"), types: ["Person"] },
+      { id: createVertexId("2"), types: ["Person", "Employee"] },
+      { id: createVertexId("3"), types: ["Employee", "Manager"] },
+      { id: createVertexId("4"), types: ["Person"] },
+    ];
+
+    const result = calculateNeighbors(total, byType, fetchedNeighbors);
+
+    expect(result.all).toEqual(6);
+    expect(result.fetched).toEqual(4);
+    expect(result.unfetched).toEqual(2);
+    expect(result.byType).toEqual(
+      new Map([
+        ["Person", { all: 3, fetched: 3, unfetched: 0 }],
+        ["Employee", { all: 2, fetched: 2, unfetched: 0 }],
+        ["Manager", { all: 1, fetched: 1, unfetched: 0 }],
+      ])
+    );
+  });
 });
 
 describe("useNeighbors", () => {

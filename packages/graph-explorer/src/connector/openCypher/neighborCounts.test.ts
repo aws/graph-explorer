@@ -49,13 +49,14 @@ describe("neighborCounts", () => {
     expect(result.counts).toEqual([expected]);
   });
 
-  it("should return neighbor counts", async () => {
+  it("should return neighbor counts with multiple labels", async () => {
     const expected: NeighborCount = {
       vertexId: createRandomVertexId(),
       totalCount: 12,
       counts: {
         label1: 3,
         label2: 9,
+        label3: 9,
       },
     };
     const response = createResponse({
@@ -95,6 +96,134 @@ describe("neighborCounts", () => {
       vertexIds: [expected1.vertexId, expected2.vertexId],
     });
     expect(result.counts).toEqual([expected1, expected2]);
+  });
+
+  it("should handle error response", async () => {
+    const mockFetch = vi.fn().mockResolvedValue({
+      code: 500,
+      detailedMessage: "openCypher query failed",
+    });
+
+    await expect(
+      neighborCounts(mockFetch, {
+        vertexIds: [createVertexId("123")],
+      })
+    ).rejects.toThrow("openCypher query failed");
+  });
+
+  it("should handle empty results", async () => {
+    const mockFetch = vi.fn().mockResolvedValue({ results: [] });
+
+    const result = await neighborCounts(mockFetch, {
+      vertexIds: [createVertexId("123")],
+    });
+
+    expect(result.counts).toEqual([]);
+  });
+
+  it("should handle vertex with zero neighbors", async () => {
+    const vertexId = createRandomVertexId();
+    const response = {
+      results: [
+        {
+          id: String(vertexId),
+          counts: [],
+        },
+      ],
+    };
+    const mockFetch = vi.fn().mockResolvedValue(response);
+
+    const result = await neighborCounts(mockFetch, {
+      vertexIds: [vertexId],
+    });
+
+    expect(result.counts).toEqual([
+      {
+        vertexId,
+        totalCount: 0,
+        counts: {},
+      },
+    ]);
+  });
+
+  it("should handle malformed result data", async () => {
+    const vertexId = createRandomVertexId();
+    const response = {
+      results: [
+        {
+          id: String(vertexId),
+          // Missing counts property
+        },
+      ],
+    };
+    const mockFetch = vi.fn().mockResolvedValue(response);
+
+    const result = await neighborCounts(mockFetch, {
+      vertexIds: [vertexId],
+    });
+
+    expect(result.counts).toEqual([]);
+  });
+
+  it("should handle single label neighbors", async () => {
+    const vertexId = createRandomVertexId();
+    const expected: NeighborCount = {
+      vertexId,
+      totalCount: 5,
+      counts: {
+        Person: 5,
+      },
+    };
+    const response = {
+      results: [
+        {
+          id: String(vertexId),
+          counts: [
+            {
+              label: ["Person"],
+              count: 5,
+            },
+          ],
+        },
+      ],
+    };
+    const mockFetch = vi.fn().mockResolvedValue(response);
+
+    const result = await neighborCounts(mockFetch, {
+      vertexIds: [vertexId],
+    });
+
+    expect(result.counts).toEqual([expected]);
+  });
+
+  it("should handle empty label arrays", async () => {
+    const vertexId = createRandomVertexId();
+    const response = {
+      results: [
+        {
+          id: String(vertexId),
+          counts: [
+            {
+              label: [],
+              count: 3,
+            },
+          ],
+        },
+      ],
+    };
+    const mockFetch = vi.fn().mockResolvedValue(response);
+
+    const result = await neighborCounts(mockFetch, {
+      vertexIds: [vertexId],
+    });
+
+    expect(result.counts).toEqual([
+      {
+        vertexId,
+        totalCount: 3,
+        counts: {},
+      },
+    ]);
   });
 });
 

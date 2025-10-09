@@ -41,8 +41,12 @@ describe("neighborCounts", () => {
         [`${createRandomUrlString()}`]: 9,
       },
     };
-    const response = createResponse(expected);
-    const mockFetch = vi.fn().mockResolvedValue(response);
+    const totalCountResponse = createTotalCountResponse(expected);
+    const countsByTypeResponse = createCountsByTypeResponse(expected);
+    const mockFetch = vi
+      .fn()
+      .mockResolvedValueOnce(totalCountResponse)
+      .mockResolvedValueOnce(countsByTypeResponse);
     const result = await neighborCounts(
       mockFetch,
       {
@@ -71,8 +75,15 @@ describe("neighborCounts", () => {
         [`${createRandomUrlString()}`]: 9,
       },
     };
-    const response = createResponse(expected1, expected2);
-    const mockFetch = vi.fn().mockResolvedValue(response);
+    const totalCountResponse = createTotalCountResponse(expected1, expected2);
+    const countsByTypeResponse = createCountsByTypeResponse(
+      expected1,
+      expected2
+    );
+    const mockFetch = vi
+      .fn()
+      .mockResolvedValueOnce(totalCountResponse)
+      .mockResolvedValueOnce(countsByTypeResponse);
     const result = await neighborCounts(
       mockFetch,
       {
@@ -194,12 +205,168 @@ describe("neighborCounts", () => {
       edgeTo,
     ]);
   });
+
+  it("should handle error response for total counts", async () => {
+    const blankNodes: BlankNodesMap = new Map();
+    const mockFetch = vi.fn().mockResolvedValue({
+      code: 500,
+      detailedMessage: "SPARQL query failed",
+    });
+
+    await expect(
+      neighborCounts(
+        mockFetch,
+        { vertexIds: [createVertexId(createRandomUrlString())] },
+        blankNodes
+      )
+    ).rejects.toThrow("Total neighbor count request failed");
+  });
+
+  it("should handle malformed response for total counts", async () => {
+    const blankNodes: BlankNodesMap = new Map();
+    const mockFetch = vi
+      .fn()
+      .mockResolvedValueOnce({
+        head: { vars: ["resource", "totalCount"] },
+        results: {
+          bindings: [
+            {
+              resource: createUriValue("invalid"),
+              totalCount: { type: "invalid", value: "not-a-number" },
+            },
+          ],
+        },
+      })
+      .mockResolvedValueOnce({
+        head: { vars: ["resource", "type", "typeCount"] },
+        results: { bindings: [] },
+      });
+
+    await expect(
+      neighborCounts(
+        mockFetch,
+        { vertexIds: [createVertexId(createRandomUrlString())] },
+        blankNodes
+      )
+    ).rejects.toThrow();
+  });
+
+  it("should handle vertices with no neighbors", async () => {
+    const blankNodes: BlankNodesMap = new Map();
+    const vertexId = createVertexId(createRandomUrlString());
+    const expected: NeighborCount = {
+      vertexId,
+      totalCount: 0,
+      counts: {},
+    };
+    const totalCountResponse = createTotalCountResponse();
+    const countsByTypeResponse = createCountsByTypeResponse();
+    const mockFetch = vi
+      .fn()
+      .mockResolvedValueOnce(totalCountResponse)
+      .mockResolvedValueOnce(countsByTypeResponse);
+
+    const result = await neighborCounts(
+      mockFetch,
+      { vertexIds: [vertexId] },
+      blankNodes
+    );
+
+    expect(result.counts).toEqual([expected]);
+  });
+
+  it("should handle mixed blank and non-blank nodes", async () => {
+    const blankNodes: BlankNodesMap = new Map();
+    const blankVertex = createRandomVertexForRdf();
+    blankVertex.isBlankNode = true;
+    const nonBlankVertex = createVertexId(createRandomUrlString());
+
+    const expectedBlank: NeighborCount = {
+      vertexId: blankVertex.id,
+      totalCount: 2,
+      counts: { [createRandomUrlString()]: 2 },
+    };
+    const expectedNonBlank: NeighborCount = {
+      vertexId: nonBlankVertex,
+      totalCount: 3,
+      counts: { [createRandomUrlString()]: 3 },
+    };
+
+    blankNodes.set(blankVertex.id, {
+      id: blankVertex.id,
+      neighbors: {
+        vertices: createArray(2, createRandomVertexForRdf),
+        edges: createArray(2, () =>
+          createRandomEdgeForRdf(
+            createRandomVertexForRdf(),
+            createRandomVertexForRdf()
+          )
+        ),
+      },
+      neighborCounts: {
+        counts: expectedBlank.counts,
+        totalCount: expectedBlank.totalCount,
+      },
+      vertex: blankVertex,
+      subQueryTemplate: "",
+    });
+
+    const totalCountResponse = createTotalCountResponse(expectedNonBlank);
+    const countsByTypeResponse = createCountsByTypeResponse(expectedNonBlank);
+    const mockFetch = vi
+      .fn()
+      .mockResolvedValueOnce(totalCountResponse)
+      .mockResolvedValueOnce(countsByTypeResponse);
+
+    const result = await neighborCounts(
+      mockFetch,
+      { vertexIds: [blankVertex.id, nonBlankVertex] },
+      blankNodes
+    );
+
+    expect(result.counts).toEqual(
+      expect.arrayContaining([expectedBlank, expectedNonBlank])
+    );
+  });
+
+  it("should handle blank node fetch failure", async () => {
+    const blankNodes: BlankNodesMap = new Map();
+    const vertex = createRandomVertexForRdf();
+    vertex.isBlankNode = true;
+
+    blankNodes.set(vertex.id, {
+      id: vertex.id,
+      neighborCounts: { totalCount: 0, counts: {} },
+      vertex,
+      subQueryTemplate: createRandomName("subQuery"),
+    });
+
+    const mockFetch = vi.fn().mockRejectedValue(new Error("Network error"));
+
+    await expect(
+      neighborCounts(mockFetch, { vertexIds: [vertex.id] }, blankNodes)
+    ).rejects.toThrow("Network error");
+  });
 });
 
-function createResponse(...counts: NeighborCount[]) {
+function createTotalCountResponse(...counts: NeighborCount[]) {
   return {
     head: {
-      vars: ["resource", "class", "count"],
+      vars: ["resource", "totalCount"],
+    },
+    results: {
+      bindings: counts.map(count => ({
+        resource: createUriValue(String(count.vertexId)),
+        totalCount: createLiteralValue(count.totalCount),
+      })),
+    },
+  };
+}
+
+function createCountsByTypeResponse(...counts: NeighborCount[]) {
+  return {
+    head: {
+      vars: ["resource", "type", "typeCount"],
     },
     results: {
       bindings: counts
@@ -212,8 +379,8 @@ function createResponse(...counts: NeighborCount[]) {
         )
         .map(count => ({
           resource: createUriValue(String(count.vertexId)),
-          class: createUriValue(count.className),
-          count: createLiteralValue(count.count),
+          type: createUriValue(count.className),
+          typeCount: createLiteralValue(count.count),
         })),
     },
   };
