@@ -1,12 +1,12 @@
 import { logger, query } from "@/utils";
 import { RawQueryRequest, RawQueryResponse } from "../useGEFetchTypes";
 import {
-  rdfTypeUri,
   SparqlFetch,
   sparqlResponseSchema,
   sparqlValueSchema,
   sparqlAskResponseSchema,
   sparqlQuadBindingSchema,
+  SparqlQuadBinding,
 } from "./types";
 import isErrorResponse from "../utils/isErrorResponse";
 import { z } from "zod";
@@ -15,10 +15,9 @@ import {
   createResultScalar,
   createResultBundle,
   createResultVertex,
-  createResultEdge,
 } from "../entities";
-import { createRdfEdgeId } from "./createRdfEdgeId";
 import { mapSparqlValueToScalar } from "./mappers/mapSparqlValueToScalar";
+import { mapQuadToEntities } from "./mappers/mapQuadToEntities";
 
 // Zod schema for any SPARQL response - uses a record of variable names to SPARQL values
 const rawQueryBindingSchema = z.record(z.string(), sparqlValueSchema);
@@ -89,61 +88,28 @@ function handleAskQueryResult(booleanResult: boolean): RawQueryResponse {
 }
 
 /**
- * Handles CONSTRUCT query results by separating triples into edges and vertex attributes
+ * Handles CONSTRUCT query results by mapping to fragment vertices and edges.
+ *
+ * This will filter out blank node results and mark vertices as fragments to
+ * ensure any query limits does not prevent gathering all of the vertex details.
  */
 function handleConstructQueryResults(
-  bindings: Array<RawQueryBinding>
+  bindings: Array<SparqlQuadBinding>
 ): RawQueryResponse {
-  const results: RawQueryResponse = [];
-  const resourcesAdded = new Set<string>();
+  // Filter out blank node results until we can determine a good way to handle them
+  const bindingsWithoutBlankNodes = bindings.filter(
+    b => b.subject.type !== "bnode" && b.object.type !== "bnode"
+  );
 
-  // Separate triples into edges and vertices
-  for (const binding of bindings) {
-    // Filter out all blank node results
-    if (binding.subject.type === "bnode" || binding.object.type === "bnode") {
-      continue;
-    }
+  const results = mapQuadToEntities(bindingsWithoutBlankNodes);
 
-    if (isEdgeBinding(binding)) {
-      const sourceId = binding.subject.value;
-      const targetId = binding.object.value;
-      const predicate = binding.predicate.value;
+  // Force vertices to be fragments so they will be fetched later.
+  // This ensures if the user limits the results we can still show the full vertex details.
+  const vertexFragments = results.vertices.map(v =>
+    createResultVertex({ ...v, attributes: undefined })
+  );
 
-      // Create RDF edge ID using the standard format
-      const edgeId = createRdfEdgeId(sourceId, predicate, targetId);
-
-      results.push(
-        createResultEdge({
-          id: edgeId,
-          sourceId,
-          targetId,
-          type: predicate,
-          // RDF edges don't have additional attributes beyond the predicate
-          attributes: {},
-        })
-      );
-    } else {
-      const subjectUri = binding.subject.value;
-
-      // Only create the vertex once
-      if (resourcesAdded.has(subjectUri)) {
-        continue;
-      }
-
-      // NOTE: Ignoring any other attributes in order to force this vertex to be a fragment so the full details will be fetched later
-      results.push(
-        createResultVertex({
-          id: subjectUri,
-          isBlankNode: false, // URI subjects are not blank nodes
-        })
-      );
-
-      // Add the subject URI to the set of resources added
-      resourcesAdded.add(subjectUri);
-    }
-  }
-
-  return results;
+  return [...vertexFragments, ...results.edges];
 }
 
 /**
@@ -177,20 +143,4 @@ function handleSelectQueryResults(
   }
 
   return results;
-}
-
-function isVertexTypeBinding(binding: RawQueryBinding) {
-  return (
-    binding.predicate.value.toLowerCase() === rdfTypeUri.toLowerCase() &&
-    binding.object.type === "uri"
-  );
-}
-
-function isEdgeBinding(binding: RawQueryBinding) {
-  return (
-    binding.subject.type === "uri" &&
-    binding.predicate.type === "uri" &&
-    binding.object.type === "uri" &&
-    !isVertexTypeBinding(binding)
-  );
 }
