@@ -31,10 +31,10 @@ export async function vertexDetails(
   `;
 
   // Fetch the vertex details
-  const data = await sparqlFetch(template);
+  const response = await sparqlFetch(template);
 
   // Map results to fully materialized vertices
-  const results = parseAndMapQuads(data);
+  const results = parseAndMapQuads(response);
   const vertices = results.vertices.map(v => createVertex(v));
 
   // Log a warning if some nodes are missing
@@ -45,6 +45,7 @@ export async function vertexDetails(
     logger.warn("Did not find all requested vertices", {
       requested: request.vertexIds,
       missing: missing.values().toArray(),
+      response,
     });
   }
 
