@@ -31,44 +31,43 @@ export async function neighborCounts(
     return { counts: [] };
   }
 
-  const blankNodeResponses = await fetchBlankNodeNeighborCounts(
-    sparqlFetch,
-    request,
-    blankNodes
-  );
+  const blankNodeVertexIds: VertexId[] = [];
+  const resouceVertexIds: VertexId[] = [];
 
-  const nonBlankNodeResponses = await fetchNeighborCounts(
-    sparqlFetch,
-    request,
-    blankNodes
-  );
+  for (const id of request.vertexIds) {
+    if (blankNodes.has(id)) {
+      blankNodeVertexIds.push(id);
+    } else {
+      resouceVertexIds.push(id);
+    }
+  }
+
+  const [blankNodeResponses, resourceResponses] = await Promise.all([
+    fetchBlankNodeNeighborCounts(sparqlFetch, blankNodeVertexIds, blankNodes),
+    fetchNeighborCounts(sparqlFetch, resouceVertexIds),
+  ]);
 
   return {
-    counts: [...blankNodeResponses.counts, ...nonBlankNodeResponses.counts],
+    counts: [...blankNodeResponses.counts, ...resourceResponses.counts],
   };
 }
 
 async function fetchNeighborCounts(
   sparqlFetch: SparqlFetch,
-  request: NeighborCountsRequest,
-  blankNodes: BlankNodesMap
+  vertexIds: VertexId[]
 ): Promise<NeighborCountsResponse> {
-  const nonBlankNodeVertexIds = request.vertexIds.filter(
-    id => !blankNodes.has(id)
-  );
-
-  if (!nonBlankNodeVertexIds.length) {
+  if (!vertexIds.length) {
     return { counts: [] };
   }
 
   const [totalCounts, countsByType] = await Promise.all([
-    fetchUniqueNeighborCount(sparqlFetch, nonBlankNodeVertexIds),
-    fetchCountsByType(sparqlFetch, nonBlankNodeVertexIds),
+    fetchUniqueNeighborCount(sparqlFetch, vertexIds),
+    fetchCountsByType(sparqlFetch, vertexIds),
   ]);
 
   // Add empty values for all request IDs
   const results = new Array<NeighborCount>();
-  for (const id of request.vertexIds) {
+  for (const id of vertexIds) {
     const totalCount = totalCounts.get(id) ?? 0;
     const counts = countsByType.get(id) ?? {};
     results.push({
@@ -81,6 +80,9 @@ async function fetchNeighborCounts(
   return { counts: results };
 }
 
+/**
+ * Queries for the total unique neighbors which are related with the given subject URI.
+ */
 async function fetchUniqueNeighborCount(
   sparqlFetch: SparqlFetch,
   resources: VertexId[]
@@ -113,7 +115,7 @@ async function fetchUniqueNeighborCount(
     GROUP BY ?resource
   `;
 
-  // Fetch the vertex details
+  // Execute the query
   const response = await sparqlFetch(template);
   if (isErrorResponse(response)) {
     logger.error("Total neighbor count request failed", resources, response);
@@ -152,6 +154,13 @@ async function fetchUniqueNeighborCount(
   return result;
 }
 
+/**
+ * Queries for the total unique neighbors grouped by class which are related
+ * with the given subject URI.
+ *
+ * This count might be higher than the total unique neighbors count because some
+ * neighbors may have more than one associated type.
+ */
 async function fetchCountsByType(
   sparqlFetch: SparqlFetch,
   resources: VertexId[]
@@ -184,7 +193,7 @@ async function fetchCountsByType(
     GROUP BY ?resource ?type
   `;
 
-  // Fetch the vertex details
+  // Execute the query
   const response = await sparqlFetch(template);
   if (isErrorResponse(response)) {
     logger.error("Total neighbor count request failed", resources, response);
@@ -214,28 +223,33 @@ async function fetchCountsByType(
   }
 
   // Map to the result
-  return new Map(
-    parsed.data.results.bindings.reduce((acc, binding) => {
-      const vertexId = createVertexId(binding.resource.value);
-      const existing = acc.get(vertexId) ?? {};
-      return acc.set(vertexId, {
-        ...existing,
-        [binding.type.value]: parseInt(binding.typeCount.value),
-      });
-    }, new Map<VertexId, Record<string, number>>())
-  );
+  return parsed.data.results.bindings.reduce((mappedResults, binding) => {
+    //Map the binding to useful values
+    const vertexId = createVertexId(binding.resource.value);
+    const type = binding.type.value;
+    const count = parseInt(binding.typeCount.value);
+
+    // Get the existing entry if it exists
+    const existing = mappedResults.get(vertexId) ?? {};
+
+    // Merge new type count in to existing entry
+    return mappedResults.set(vertexId, {
+      ...existing,
+      [type]: count,
+    });
+  }, new Map<VertexId, Record<string, number>>());
 }
 
 async function fetchBlankNodeNeighborCounts(
   sparqlFetch: SparqlFetch,
-  request: NeighborCountsRequest,
+  vertexIds: VertexId[],
   blankNodes: BlankNodesMap
 ) {
   const counts: NeighborCount[] = [];
   const missing: Map<VertexId, BlankNodeItem> = new Map();
 
   // Find cached and missing blank node neighbor counts
-  for (const vertexId of request.vertexIds) {
+  for (const vertexId of vertexIds) {
     const bNode = blankNodes.get(vertexId);
     if (!bNode) {
       continue;
