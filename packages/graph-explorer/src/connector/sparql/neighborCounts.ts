@@ -223,16 +223,21 @@ async function fetchCountsByType(
   }
 
   // Map to the result
-  return new Map(
-    parsed.data.results.bindings.reduce((acc, binding) => {
-      const vertexId = createVertexId(binding.resource.value);
-      const existing = acc.get(vertexId) ?? {};
-      return acc.set(vertexId, {
-        ...existing,
-        [binding.type.value]: parseInt(binding.typeCount.value),
-      });
-    }, new Map<VertexId, Record<string, number>>())
-  );
+  return parsed.data.results.bindings.reduce((mappedResults, binding) => {
+    //Map the binding to useful values
+    const vertexId = createVertexId(binding.resource.value);
+    const type = binding.type.value;
+    const count = parseInt(binding.typeCount.value);
+
+    // Get the existing entry if it exists
+    const existing = mappedResults.get(vertexId) ?? {};
+
+    // Merge new type count in to existing entry
+    return mappedResults.set(vertexId, {
+      ...existing,
+      [type]: count,
+    });
+  }, new Map<VertexId, Record<string, number>>());
 }
 
 async function fetchBlankNodeNeighborCounts(
