@@ -80,6 +80,9 @@ async function fetchNeighborCounts(
   return { counts: results };
 }
 
+/**
+ * Queries for the total unique neighbors which are related with the given subject URI.
+ */
 async function fetchUniqueNeighborCount(
   sparqlFetch: SparqlFetch,
   resources: VertexId[]
@@ -112,7 +115,7 @@ async function fetchUniqueNeighborCount(
     GROUP BY ?resource
   `;
 
-  // Fetch the vertex details
+  // Execute the query
   const response = await sparqlFetch(template);
   if (isErrorResponse(response)) {
     logger.error("Total neighbor count request failed", resources, response);
@@ -151,6 +154,13 @@ async function fetchUniqueNeighborCount(
   return result;
 }
 
+/**
+ * Queries for the total unique neighbors grouped by class which are related
+ * with the given subject URI.
+ *
+ * This count might be higher than the total unique neighbors count because some
+ * neighbors may have more than one associated type.
+ */
 async function fetchCountsByType(
   sparqlFetch: SparqlFetch,
   resources: VertexId[]
@@ -183,7 +193,7 @@ async function fetchCountsByType(
     GROUP BY ?resource ?type
   `;
 
-  // Fetch the vertex details
+  // Execute the query
   const response = await sparqlFetch(template);
   if (isErrorResponse(response)) {
     logger.error("Total neighbor count request failed", resources, response);
