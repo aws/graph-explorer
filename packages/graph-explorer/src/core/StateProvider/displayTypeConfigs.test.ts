@@ -11,9 +11,14 @@ import {
 import {
   useDisplayEdgeTypeConfig,
   useDisplayVertexTypeConfig,
+  mapToDisplayVertexTypeConfig,
 } from "./displayTypeConfigs";
 import { createRandomName } from "@shared/utils/testing";
 import { MISSING_DISPLAY_TYPE } from "@/utils";
+import type { TextTransformer } from "@/hooks";
+
+// Simple identity text transformer for testing (non-SPARQL behavior)
+const identityTextTransform: TextTransformer = (text: string) => text;
 
 describe("useDisplayVertexTypeConfig", () => {
   it("should use default values when the vertex type is not in the schema", () => {
@@ -123,6 +128,181 @@ describe("useDisplayVertexTypeConfig", () => {
     expect(result.current.style.color).toBe(vtConfig.color);
     expect(result.current.style.iconImageType).toBe(vtConfig.iconImageType);
     expect(result.current.style.iconUrl).toBe(vtConfig.iconUrl);
+  });
+});
+
+describe("mapToDisplayVertexTypeConfig", () => {
+  it("should map attributes with display labels", () => {
+    const vtConfig = createRandomVertexTypeConfig();
+    vtConfig.attributes = [
+      { name: "firstName", dataType: "String" },
+      { name: "age", dataType: "Number" },
+    ];
+
+    const result = mapToDisplayVertexTypeConfig(
+      vtConfig,
+      identityTextTransform
+    );
+
+    expect(result.attributes).toStrictEqual([
+      {
+        name: "age",
+        displayLabel: "age",
+        isSearchable: false,
+      },
+      {
+        name: "firstName",
+        displayLabel: "firstName",
+        isSearchable: true,
+      },
+    ]);
+  });
+
+  it("should sort attributes alphabetically by name", () => {
+    const vtConfig = createRandomVertexTypeConfig();
+    vtConfig.attributes = [
+      { name: "zebra", dataType: "String" },
+      { name: "apple", dataType: "String" },
+      { name: "middle", dataType: "String" },
+    ];
+
+    const result = mapToDisplayVertexTypeConfig(
+      vtConfig,
+      identityTextTransform
+    );
+
+    expect(result.attributes.map(a => a.name)).toStrictEqual([
+      "apple",
+      "middle",
+      "zebra",
+    ]);
+  });
+
+  it("should mark String attributes as searchable by default", () => {
+    const vtConfig = createRandomVertexTypeConfig();
+    vtConfig.attributes = [
+      { name: "name", dataType: "String" },
+      { name: "email", dataType: "String", searchable: true },
+    ];
+
+    const result = mapToDisplayVertexTypeConfig(
+      vtConfig,
+      identityTextTransform
+    );
+
+    expect(result.attributes).toStrictEqual([
+      {
+        name: "email",
+        displayLabel: "email",
+        isSearchable: true,
+      },
+      {
+        name: "name",
+        displayLabel: "name",
+        isSearchable: true,
+      },
+    ]);
+  });
+
+  it("should mark non-String attributes as not searchable", () => {
+    const vtConfig = createRandomVertexTypeConfig();
+    vtConfig.attributes = [
+      { name: "age", dataType: "Number" },
+      { name: "active", dataType: "Boolean" },
+      { name: "created", dataType: "Date" },
+    ];
+
+    const result = mapToDisplayVertexTypeConfig(
+      vtConfig,
+      identityTextTransform
+    );
+
+    expect(result.attributes.every(a => !a.isSearchable)).toBe(true);
+  });
+
+  it("should respect searchable: false for String attributes", () => {
+    const vtConfig = createRandomVertexTypeConfig();
+    vtConfig.attributes = [
+      { name: "name", dataType: "String", searchable: false },
+      { name: "email", dataType: "String", searchable: true },
+    ];
+
+    const result = mapToDisplayVertexTypeConfig(
+      vtConfig,
+      identityTextTransform
+    );
+
+    expect(result.attributes).toStrictEqual([
+      {
+        name: "email",
+        displayLabel: "email",
+        isSearchable: true,
+      },
+      {
+        name: "name",
+        displayLabel: "name",
+        isSearchable: false,
+      },
+    ]);
+  });
+
+  it("should handle attributes without dataType", () => {
+    const vtConfig = createRandomVertexTypeConfig();
+    vtConfig.attributes = [
+      { name: "unknown" },
+      { name: "name", dataType: "String" },
+    ];
+
+    const result = mapToDisplayVertexTypeConfig(
+      vtConfig,
+      identityTextTransform
+    );
+
+    expect(result.attributes).toStrictEqual([
+      {
+        name: "name",
+        displayLabel: "name",
+        isSearchable: true,
+      },
+      {
+        name: "unknown",
+        displayLabel: "unknown",
+        isSearchable: false,
+      },
+    ]);
+  });
+
+  it("should handle empty attributes array", () => {
+    const vtConfig = createRandomVertexTypeConfig();
+    vtConfig.attributes = [];
+
+    const result = mapToDisplayVertexTypeConfig(
+      vtConfig,
+      identityTextTransform
+    );
+
+    expect(result.attributes).toStrictEqual([]);
+  });
+
+  it("should apply custom text transformer to attribute names", () => {
+    const vtConfig = createRandomVertexTypeConfig();
+    vtConfig.attributes = [
+      { name: "firstName", dataType: "String" },
+      { name: "lastName", dataType: "String" },
+      { name: "email", dataType: "String" },
+    ];
+
+    // Custom transformer that uppercases
+    const uppercaseTransform: TextTransformer = (text: string) =>
+      text.toUpperCase();
+
+    const result = mapToDisplayVertexTypeConfig(vtConfig, uppercaseTransform);
+
+    expect(result.attributes.map(a => a.displayLabel)).toStrictEqual([
+      "EMAIL",
+      "FIRSTNAME",
+      "LASTNAME",
+    ]);
   });
 });
 
