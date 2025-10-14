@@ -372,6 +372,7 @@ export function createTestableEdge() {
     attributes: EntityProperties;
     source: TestableVertex;
     target: TestableVertex;
+    hasRdfValues?: boolean;
   }) => {
     return {
       ...testable,
@@ -388,16 +389,23 @@ export function createTestableEdge() {
           target: rdfTarget,
           // RDF edge never has attributes
           attributes: {},
+          hasRdfValues: true,
         });
       },
       with: (newTestable: Partial<typeof testable>) => {
         return createInternal({ ...testable, ...newTestable });
       },
       withSource: (source: TestableVertex) => {
-        return createInternal({ ...testable, source });
+        const id = testable.hasRdfValues
+          ? createRdfEdgeId(source.id, testable.type, testable.target.id)
+          : testable.id;
+        return createInternal({ ...testable, id, source });
       },
       withTarget: (target: TestableVertex) => {
-        return createInternal({ ...testable, target });
+        const id = testable.hasRdfValues
+          ? createRdfEdgeId(testable.source.id, testable.type, target.id)
+          : testable.id;
+        return createInternal({ ...testable, id, target });
       },
       asEdge: () =>
         createEdge({
