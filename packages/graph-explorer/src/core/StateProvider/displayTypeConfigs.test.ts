@@ -1,64 +1,50 @@
 import {
   createRandomEdgeTypeConfig,
-  createRandomRawConfiguration,
-  createRandomSchema,
   createRandomVertexTypeConfig,
   DbState,
-  JotaiStore,
-  renderHookWithJotai,
   renderHookWithState,
 } from "@/utils/testing";
 import {
-  activeConfigurationAtom,
-  configurationAtom,
   defaultEdgeTypeConfig,
   getDefaultVertexTypeConfig,
 } from "./configuration";
-import { schemaAtom } from "./schema";
-import { Schema } from "../ConfigurationProvider";
 import {
   useDisplayEdgeTypeConfig,
   useDisplayVertexTypeConfig,
 } from "./displayTypeConfigs";
 import { createRandomName } from "@shared/utils/testing";
-import { MISSING_DISPLAY_TYPE, RESERVED_TYPES_PROPERTY } from "@/utils";
+import { MISSING_DISPLAY_TYPE } from "@/utils";
 
 describe("useDisplayVertexTypeConfig", () => {
-  describe("when the vertex type is not in the schema", () => {
+  it("should use default values when the vertex type is not in the schema", () => {
     const vtConfig = createRandomVertexTypeConfig();
     const defaultConfig = getDefaultVertexTypeConfig(vtConfig.type);
 
-    it("should have the same type as the input", () => {
-      expect(act(vtConfig.type).type).toBe(vtConfig.type);
-    });
+    const { result } = renderHookWithState(() =>
+      useDisplayVertexTypeConfig(vtConfig.type)
+    );
 
-    it("should have display label match the type transformed", () => {
-      expect(act(vtConfig.type).displayLabel).toBe(vtConfig.type);
+    expect(result.current.type).toBe(vtConfig.type);
+    expect(result.current.displayLabel).toBe(vtConfig.type);
+    expect(result.current.displayNameAttribute).toBe(
+      defaultConfig.displayNameAttribute
+    );
+    expect(result.current.displayDescriptionAttribute).toBe(
+      defaultConfig.longDisplayNameAttribute
+    );
+    expect(result.current.style).toEqual({
+      color: defaultConfig.color,
+      iconImageType: defaultConfig.iconImageType,
+      iconUrl: defaultConfig.iconUrl,
     });
+  });
 
-    it("should use empty label constant when the type is empty", () => {
-      expect(act("").displayLabel).toBe(MISSING_DISPLAY_TYPE);
-    });
+  it("should use missing value string when type is empty", () => {
+    const { result } = renderHookWithState(() =>
+      useDisplayVertexTypeConfig("")
+    );
 
-    it("should have display name attribute from the default config", () => {
-      expect(act(vtConfig.type).displayNameAttribute).toBe(
-        defaultConfig.displayNameAttribute
-      );
-    });
-
-    it("should have display description attribute from the default config", () => {
-      expect(act(vtConfig.type).displayDescriptionAttribute).toBe(
-        defaultConfig.longDisplayNameAttribute
-      );
-    });
-
-    it("should have style matching the default config", () => {
-      expect(act(vtConfig.type).style).toEqual({
-        color: defaultConfig.color,
-        iconImageType: defaultConfig.iconImageType,
-        iconUrl: defaultConfig.iconUrl,
-      });
-    });
+    expect(result.current.displayLabel).toBe(MISSING_DISPLAY_TYPE);
   });
 
   it("should ignore display label from schema", () => {
@@ -91,91 +77,80 @@ describe("useDisplayVertexTypeConfig", () => {
   });
 
   it("should have display name attribute from the config", () => {
+    const dbState = new DbState();
     const vtConfig = createRandomVertexTypeConfig();
     vtConfig.displayNameAttribute = createRandomName("displayNameAttribute");
-    const schema = createRandomSchema();
-    schema.vertices.push(vtConfig);
+    dbState.activeSchema.vertices.push(vtConfig);
 
-    expect(act(vtConfig.type, schema).displayNameAttribute).toBe(
+    const { result } = renderHookWithState(
+      () => useDisplayVertexTypeConfig(vtConfig.type),
+      dbState
+    );
+
+    expect(result.current.displayNameAttribute).toBe(
       vtConfig.displayNameAttribute
     );
   });
 
   it("should have display description attribute from the config", () => {
+    const dbState = new DbState();
     const vtConfig = createRandomVertexTypeConfig();
     vtConfig.longDisplayNameAttribute = createRandomName(
       "longDisplayNameAttribute"
     );
-    const schema = createRandomSchema();
-    schema.vertices.push(vtConfig);
+    dbState.activeSchema.vertices.push(vtConfig);
 
-    expect(act(vtConfig.type, schema).displayDescriptionAttribute).toBe(
+    const { result } = renderHookWithState(
+      () => useDisplayVertexTypeConfig(vtConfig.type),
+      dbState
+    );
+
+    expect(result.current.displayDescriptionAttribute).toBe(
       vtConfig.longDisplayNameAttribute
     );
   });
 
   it("should have style matching the config", () => {
+    const dbState = new DbState();
     const vtConfig = createRandomVertexTypeConfig();
-    const schema = createRandomSchema();
-    schema.vertices.push(vtConfig);
+    dbState.activeSchema.vertices.push(vtConfig);
 
-    const displayConfig = act(vtConfig.type, schema);
-    expect(displayConfig.style.color).toBe(vtConfig.color);
-    expect(displayConfig.style.iconImageType).toBe(vtConfig.iconImageType);
-    expect(displayConfig.style.iconUrl).toBe(vtConfig.iconUrl);
-  });
-
-  // Helpers
-
-  function act(vertexConfigType: string, schema?: Schema) {
-    const { result } = renderHookWithJotai(
-      () => useDisplayVertexTypeConfig(vertexConfigType),
-      schema ? withSchema(schema) : undefined
+    const { result } = renderHookWithState(
+      () => useDisplayVertexTypeConfig(vtConfig.type),
+      dbState
     );
-    return result.current;
-  }
 
-  function withSchema(schema: Schema) {
-    const config = createRandomRawConfiguration();
-    return (store: JotaiStore) => {
-      store.set(configurationAtom, new Map([[config.id, config]]));
-      store.set(schemaAtom, new Map([[config.id, schema]]));
-      store.set(activeConfigurationAtom, config.id);
-    };
-  }
+    expect(result.current.style.color).toBe(vtConfig.color);
+    expect(result.current.style.iconImageType).toBe(vtConfig.iconImageType);
+    expect(result.current.style.iconUrl).toBe(vtConfig.iconUrl);
+  });
 });
 
 describe("useDisplayEdgeTypeConfig", () => {
-  it("should have the same type as the input", () => {
+  it("should use default values when type is not in schema", () => {
     const type = createRandomName("type");
-    expect(act(type).type).toBe(type);
-  });
 
-  it("should have display label match the type", () => {
-    const type = createRandomName("type");
-    expect(act(type).displayLabel).toBe(type);
+    const { result } = renderHookWithState(() =>
+      useDisplayEdgeTypeConfig(type)
+    );
+
+    expect(result.current.type).toBe(type);
+    expect(result.current.displayLabel).toBe(type);
+    expect(result.current.displayNameAttribute).toBe(
+      defaultEdgeTypeConfig.displayNameAttribute
+    );
+
+    const style = result.current.style;
+    expect(style.sourceArrowStyle).toBe(defaultEdgeTypeConfig.sourceArrowStyle);
+    expect(style.targetArrowStyle).toBe(defaultEdgeTypeConfig.targetArrowStyle);
+    expect(style.lineColor).toBe(defaultEdgeTypeConfig.lineColor);
+    expect(style.lineStyle).toBe(defaultEdgeTypeConfig.lineStyle);
   });
 
   it("should use empty label constant when the type is empty", () => {
-    expect(act("").displayLabel).toBe(MISSING_DISPLAY_TYPE);
-  });
+    const { result } = renderHookWithState(() => useDisplayEdgeTypeConfig(""));
 
-  it("should have display name attribute for types", () => {
-    const type = createRandomName("type");
-    expect(act(type).displayNameAttribute).toBe(RESERVED_TYPES_PROPERTY);
-  });
-
-  it("should have style matching the default config", () => {
-    const type = createRandomName("type");
-
-    expect(act(type).style.sourceArrowStyle).toBe(
-      defaultEdgeTypeConfig.sourceArrowStyle
-    );
-    expect(act(type).style.targetArrowStyle).toBe(
-      defaultEdgeTypeConfig.targetArrowStyle
-    );
-    expect(act(type).style.lineColor).toBe(defaultEdgeTypeConfig.lineColor);
-    expect(act(type).style.lineStyle).toBe(defaultEdgeTypeConfig.lineStyle);
+    expect(result.current.displayLabel).toBe(MISSING_DISPLAY_TYPE);
   });
 
   it("should ignore display label from the config", () => {
@@ -208,37 +183,22 @@ describe("useDisplayEdgeTypeConfig", () => {
   });
 
   it("should have style matching the config", () => {
+    const dbState = new DbState();
     const etConfig = createRandomEdgeTypeConfig();
-    const schema = createRandomSchema();
-    schema.edges.push(etConfig);
+    dbState.activeSchema.edges.push(etConfig);
 
-    const displayConfig = act(etConfig.type, schema);
-    expect(displayConfig.style.sourceArrowStyle).toBe(
+    const { result } = renderHookWithState(
+      () => useDisplayEdgeTypeConfig(etConfig.type),
+      dbState
+    );
+
+    expect(result.current.style.sourceArrowStyle).toBe(
       etConfig.sourceArrowStyle
     );
-    expect(displayConfig.style.targetArrowStyle).toBe(
+    expect(result.current.style.targetArrowStyle).toBe(
       etConfig.targetArrowStyle
     );
-    expect(displayConfig.style.lineColor).toBe(etConfig.lineColor);
-    expect(displayConfig.style.lineStyle).toBe(etConfig.lineStyle);
+    expect(result.current.style.lineColor).toBe(etConfig.lineColor);
+    expect(result.current.style.lineStyle).toBe(etConfig.lineStyle);
   });
-
-  // Helpers
-
-  function act(edgeConfigType: string, schema?: Schema) {
-    const { result } = renderHookWithJotai(
-      () => useDisplayEdgeTypeConfig(edgeConfigType),
-      schema ? withSchema(schema) : undefined
-    );
-    return result.current;
-  }
-
-  function withSchema(schema: Schema) {
-    const config = createRandomRawConfiguration();
-    return (store: JotaiStore) => {
-      store.set(configurationAtom, new Map([[config.id, config]]));
-      store.set(schemaAtom, new Map([[config.id, schema]]));
-      store.set(activeConfigurationAtom, config.id);
-    };
-  }
 });
