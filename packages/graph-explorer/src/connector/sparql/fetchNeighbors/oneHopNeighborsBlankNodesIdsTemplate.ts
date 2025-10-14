@@ -1,8 +1,6 @@
 import { query } from "@/utils";
 import { SPARQLNeighborsRequest } from "../types";
-import { getFilters, getSubjectClasses } from "./helpers";
-import { idParam } from "../idParam";
-import { getLimit } from "../getLimit";
+import { findNeighborsUsingFilters } from "./oneHopNeighborsTemplate";
 
 /**
  * Generate a template with the same constraints that oneHopNeighborsTemplate
@@ -10,33 +8,15 @@ import { getLimit } from "../getLimit";
  *
  * @see oneHopNeighborsTemplate
  */
-export default function oneHopNeighborsBlankNodesIdsTemplate({
-  resourceURI,
-  subjectClasses = [],
-  filterCriteria = [],
-  limit = 0,
-  offset = 0,
-}: SPARQLNeighborsRequest) {
+export default function oneHopNeighborsBlankNodesIdsTemplate(
+  request: SPARQLNeighborsRequest
+) {
   return query`
-    # Sub-query to fetch blank node ids for one hop neighbors
-    SELECT DISTINCT (?subject AS ?bNode) {
-      BIND(${idParam(resourceURI)} AS ?argument)
-      ${getSubjectClasses(subjectClasses)}
+    SELECT DISTINCT (?neighbor AS ?bNode) {
       {
-        ?argument ?pToSubject ?subject.
-        ?subject a         ?subjectClass;
-                 ?sPred    ?sValue .
-        ${getFilters(filterCriteria)}
+        ${findNeighborsUsingFilters(request)}
       }
-      UNION
-      {
-        ?subject ?pFromSubject ?argument;
-                 a         ?subjectClass;
-                 ?sPred    ?sValue .
-       ${getFilters(filterCriteria)}
-      }
-      FILTER(isBlank(?subject))
+      FILTER(isBlank(?neighbor))
     }
-    ${getLimit(limit, offset)}
   `;
 }

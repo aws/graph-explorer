@@ -8,10 +8,10 @@ import { idParam } from "../idParam";
  *
  * @see subjectPredicatesTemplate
  */
-const blankNodeSubjectPredicatesTemplate = ({
+function blankNodeSubjectPredicatesTemplate({
   subQuery,
   subjectURIs = [],
-}: SPARQLBlankNodeNeighborsPredicatesRequest): string => {
+}: SPARQLBlankNodeNeighborsPredicatesRequest): string {
   const getSubjectURIs = () => {
     if (!subjectURIs?.length) {
       return "";
@@ -38,9 +38,11 @@ const blankNodeSubjectPredicatesTemplate = ({
         ?subject ?predFromSubject ?bNode;
                  a                ?subjectClass.
       }
-      { ${subQuery} }
+      {
+        ${subQuery}
+      }
     }
   `;
-};
+}
 
 export default blankNodeSubjectPredicatesTemplate;

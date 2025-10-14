@@ -18,7 +18,7 @@ export function getFilterPredicates(predicates?: string[]) {
   return `FILTER (?pValue IN (${filteredPredicates.map(idParam).join(", ")}))`;
 }
 
-export function getFilterObject(exactMatch: boolean, searchTerm?: string) {
+export function getFilterObject(exactMatch?: boolean, searchTerm?: string) {
   if (!searchTerm) {
     return "";
   }
