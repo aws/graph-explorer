@@ -14,6 +14,7 @@ import {
 } from "@shared/utils/testing";
 import { formatDate, LABELS } from "@/utils";
 import { getDisplayValueForScalar } from "@/connector/entities";
+import { RDFS_LABEL_URI } from "./sortAttributeByName";
 
 describe("mapToDisplayAttribute", () => {
   it("should map string value", () => {
@@ -128,6 +129,85 @@ describe("getSortedDisplayAttributes", () => {
     ].toSorted((a, b) => a.displayLabel.localeCompare(b.displayLabel));
 
     expect(sortedDisplayAttributes).toStrictEqual(expected);
+  });
+
+  it("should sort rdfs:label as the first attribute", () => {
+    const vertex = createRandomVertex();
+    vertex.attributes = {
+      name: "John Doe",
+      age: 30,
+      [RDFS_LABEL_URI]: "Person Label",
+      email: "john@example.com",
+    };
+
+    const configAttributes = [
+      { name: "name", dataType: "String" },
+      { name: "age", dataType: "Number" },
+      { name: RDFS_LABEL_URI, dataType: "String" },
+      { name: "email", dataType: "String" },
+    ];
+
+    const sortedDisplayAttributes = getSortedDisplayAttributes(
+      vertex,
+      configAttributes,
+      transformNoOp
+    );
+
+    expect(sortedDisplayAttributes[0].name).toBe(RDFS_LABEL_URI);
+    expect(sortedDisplayAttributes[0].displayValue).toBe("Person Label");
+  });
+
+  it("should sort rdfs:label first even when other attributes come alphabetically before it", () => {
+    const vertex = createRandomVertex();
+    vertex.attributes = {
+      aaa: "value1",
+      bbb: "value2",
+      [RDFS_LABEL_URI]: "Label Value",
+      zzz: "value3",
+    };
+
+    const configAttributes = [
+      { name: "aaa", dataType: "String" },
+      { name: "bbb", dataType: "String" },
+      { name: RDFS_LABEL_URI, dataType: "String" },
+      { name: "zzz", dataType: "String" },
+    ];
+
+    const sortedDisplayAttributes = getSortedDisplayAttributes(
+      vertex,
+      configAttributes,
+      transformNoOp
+    );
+
+    expect(sortedDisplayAttributes.map(a => a.name)).toStrictEqual([
+      RDFS_LABEL_URI,
+      "aaa",
+      "bbb",
+      "zzz",
+    ]);
+  });
+
+  it("should handle rdfs:label when it has no value", () => {
+    const vertex = createRandomVertex();
+    vertex.attributes = {
+      name: "John Doe",
+      age: 30,
+    };
+
+    const configAttributes = [
+      { name: "name", dataType: "String" },
+      { name: RDFS_LABEL_URI, dataType: "String" },
+      { name: "age", dataType: "Number" },
+    ];
+
+    const sortedDisplayAttributes = getSortedDisplayAttributes(
+      vertex,
+      configAttributes,
+      transformNoOp
+    );
+
+    expect(sortedDisplayAttributes[0].name).toBe(RDFS_LABEL_URI);
+    expect(sortedDisplayAttributes[0].displayValue).toBe(LABELS.MISSING_VALUE);
   });
 });
 

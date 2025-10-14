@@ -12,10 +12,12 @@ import {
   useDisplayEdgeTypeConfig,
   useDisplayVertexTypeConfig,
   mapToDisplayVertexTypeConfig,
+  mapToDisplayEdgeTypeConfig,
 } from "./displayTypeConfigs";
 import { createRandomName } from "@shared/utils/testing";
 import { LABELS } from "@/utils";
 import type { TextTransformer } from "@/hooks";
+import { RDFS_LABEL_URI } from "./sortAttributeByName";
 
 // Simple identity text transformer for testing (non-SPARQL behavior)
 const identityTextTransform: TextTransformer = (text: string) => text;
@@ -178,6 +180,51 @@ describe("mapToDisplayVertexTypeConfig", () => {
     ]);
   });
 
+  it("should sort rdfs:label as the first attribute", () => {
+    const vtConfig = createRandomVertexTypeConfig();
+    vtConfig.attributes = [
+      { name: "zebra", dataType: "String" },
+      { name: RDFS_LABEL_URI, dataType: "String" },
+      { name: "apple", dataType: "String" },
+      { name: "middle", dataType: "String" },
+    ];
+
+    const result = mapToDisplayVertexTypeConfig(
+      vtConfig,
+      identityTextTransform
+    );
+
+    expect(result.attributes.map(a => a.name)).toStrictEqual([
+      RDFS_LABEL_URI,
+      "apple",
+      "middle",
+      "zebra",
+    ]);
+  });
+
+  it("should sort rdfs:label first even when it appears last", () => {
+    const vtConfig = createRandomVertexTypeConfig();
+    vtConfig.attributes = [
+      { name: "aaa", dataType: "String" },
+      { name: "bbb", dataType: "String" },
+      { name: "ccc", dataType: "String" },
+      { name: RDFS_LABEL_URI, dataType: "String" },
+    ];
+
+    const result = mapToDisplayVertexTypeConfig(
+      vtConfig,
+      identityTextTransform
+    );
+
+    expect(result.attributes[0].name).toBe(RDFS_LABEL_URI);
+    expect(result.attributes.map(a => a.name)).toStrictEqual([
+      RDFS_LABEL_URI,
+      "aaa",
+      "bbb",
+      "ccc",
+    ]);
+  });
+
   it("should mark String attributes as searchable by default", () => {
     const vtConfig = createRandomVertexTypeConfig();
     vtConfig.attributes = [
@@ -318,6 +365,25 @@ describe("mapToDisplayVertexTypeConfig", () => {
       "EMAIL",
       "FIRSTNAME",
       "LASTNAME",
+    ]);
+  });
+});
+
+describe("mapToDisplayEdgeTypeConfig", () => {
+  it("should sort rdfs:label as the first attribute", () => {
+    const etConfig = createRandomEdgeTypeConfig();
+    etConfig.attributes = [
+      { name: "weight", dataType: "Number" },
+      { name: RDFS_LABEL_URI, dataType: "String" },
+      { name: "created", dataType: "Date" },
+    ];
+
+    const result = mapToDisplayEdgeTypeConfig(etConfig, identityTextTransform);
+
+    expect(result.attributes.map(a => a.name)).toStrictEqual([
+      RDFS_LABEL_URI,
+      "created",
+      "weight",
     ]);
   });
 });

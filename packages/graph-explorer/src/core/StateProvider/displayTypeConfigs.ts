@@ -16,6 +16,7 @@ import { LABELS, RESERVED_TYPES_PROPERTY } from "@/utils";
 import { atomFamily, useAtomCallback } from "jotai/utils";
 import { atom, useAtomValue } from "jotai";
 import { useCallback } from "react";
+import { sortAttributeByName } from "./sortAttributeByName";
 
 export type DisplayVertexStyle = {
   color: string;
@@ -141,7 +142,7 @@ export function mapToDisplayVertexTypeConfig(
       displayLabel: textTransform(attr.name),
       isSearchable: isAttributeSearchable(attr),
     }))
-    .toSorted((a, b) => a.name.localeCompare(b.name));
+    .toSorted(sortAttributeByName);
 
   const result: DisplayVertexTypeConfig = {
     type: typeConfig.type,
@@ -178,7 +179,7 @@ export function mapToDisplayEdgeTypeConfig(
       displayLabel: textTransform(attr.name),
       isSearchable: isAttributeSearchable(attr),
     }))
-    .toSorted((a, b) => a.name.localeCompare(b.name));
+    .toSorted(sortAttributeByName);
 
   const style: DisplayEdgeStyle = {
     sourceArrowStyle:
