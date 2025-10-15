@@ -1,4 +1,4 @@
-import { logger, query } from "@/utils";
+import { LABELS, logger, query } from "@/utils";
 import {
   NeighborCount,
   NeighborCountsRequest,
@@ -96,13 +96,11 @@ async function fetchUniqueNeighborCount(
       }
       {
         ?resource ?predicate ?neighbor .
-        ?neighbor a [] .
         ${getNeighborsFilter()}
       }
       UNION
       {
         ?neighbor ?predicate ?resource .
-        ?neighbor a [] .
         ${getNeighborsFilter()}
       }
     }
@@ -168,13 +166,13 @@ async function fetchCountsByType(
       }
       {
         ?resource ?predicate ?neighbor .
-        ?neighbor a ?type .
+        OPTIONAL { ?neighbor a ?type } .
         ${getNeighborsFilter()}
       }
       UNION
       {
         ?neighbor ?predicate ?resource .
-        ?neighbor a ?type .
+        OPTIONAL { ?neighbor a ?type } .
         ${getNeighborsFilter()}
       }
     }
@@ -194,7 +192,7 @@ async function fetchCountsByType(
   const responseSchema = sparqlResponseSchema(
     z.object({
       resource: sparqlUriValueSchema,
-      type: sparqlUriValueSchema,
+      type: sparqlUriValueSchema.optional(),
       typeCount: sparqlNumberValueSchema,
     })
   );
@@ -214,7 +212,7 @@ async function fetchCountsByType(
   return parsed.data.results.bindings.reduce((mappedResults, binding) => {
     //Map the binding to useful values
     const vertexId = createVertexId(binding.resource.value);
-    const type = binding.type.value;
+    const type = binding.type?.value ?? LABELS.MISSING_TYPE;
     const count = parseInt(binding.typeCount.value);
 
     // Get the existing entry if it exists

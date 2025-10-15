@@ -27,6 +27,17 @@ describe("mapToDisplayAttribute", () => {
     });
   });
 
+  it("should map empty string value", () => {
+    const name = createRandomName("name");
+    const value = "";
+    const displayAttribute = mapToDisplayAttribute(name, value, transformNoOp);
+    expect(displayAttribute).toStrictEqual({
+      name,
+      displayLabel: name,
+      displayValue: value,
+    });
+  });
+
   it("should map number value", () => {
     const name = createRandomName("name");
     const value = createRandomInteger();

@@ -35,7 +35,13 @@ export async function vertexDetails(
 
   // Map results to fully materialized vertices
   const results = parseAndMapQuads(response);
-  const vertices = results.vertices.map(v => createVertex(v));
+
+  // Ensure each requested vertex is present in the response, and create a new vertex for any vertex ID that is not
+  // present in the response.
+  const vertices = request.vertexIds.map(vertexId => {
+    const vertex = results.vertices.find(v => v.id === vertexId);
+    return vertex ? createVertex(vertex) : createVertex({ id: vertexId });
+  });
 
   // Log a warning if some nodes are missing
   const missing = new Set(request.vertexIds).difference(

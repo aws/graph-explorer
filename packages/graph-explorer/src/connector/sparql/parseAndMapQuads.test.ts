@@ -274,6 +274,7 @@ describe("parseAndMapQuads", () => {
 
       const result = parseAndMapQuads(data);
 
+      // Vertices with no types get DEFAULT_TYPE added
       expect(result.vertices).toEqual([vertex.asResult()]);
       expect(logger.error).not.toHaveBeenCalled();
     });

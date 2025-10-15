@@ -1,7 +1,7 @@
 import { VertexId } from "@/core";
 import { idParam } from "./idParam";
 import { rdfTypeUri } from "./types";
-import { query } from "@/utils";
+import { LABELS, query } from "@/utils";
 
 /**
  * Generates a SPARQL FILTER clause to restrict results to specific subject classes.
@@ -20,6 +20,10 @@ import { query } from "@/utils";
 export function getSubjectClasses(subjectClasses?: string[]) {
   if (!subjectClasses?.length) {
     return "";
+  }
+
+  if (subjectClasses.includes(LABELS.MISSING_TYPE)) {
+    return "FILTER NOT EXISTS { ?subject a ?class }";
   }
 
   return `FILTER (?class IN (${subjectClasses.map(idParam).join(", ")}))`;

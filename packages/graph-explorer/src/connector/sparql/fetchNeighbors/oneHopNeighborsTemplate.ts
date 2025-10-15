@@ -37,7 +37,8 @@ import {
  *       BIND(<http://www.example.com/soccer/resource#EPL> AS ?resource)
  *       {
  *         ?neighbor ?predicate ?resource .
- *         ?neighbor a ?class .
+ *         OPTIONAL { ?neighbor a ?class } .
+ *
  *         FILTER(
  *           ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> &&
  *           !isLiteral(?neighbor)
@@ -49,7 +50,8 @@ import {
  *       UNION
  *       {
  *         ?resource ?predicate ?neighbor .
- *         ?neighbor a ?class .
+ *         OPTIONAL { ?neighbor a ?class } .
+ *
  *         FILTER(
  *           ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> &&
  *           !isLiteral(?neighbor)
@@ -179,7 +181,7 @@ export function findNeighborsUsingFilters({
       {
         # Incoming neighbors
         ?neighbor ?predicate ?resource . 
-        ?neighbor a ?class .
+        OPTIONAL { ?neighbor a ?class } .
         ${getNeighborsFilter(excludedVertices)}
         ${getSubjectClasses(subjectClasses)}
       }
@@ -187,7 +189,7 @@ export function findNeighborsUsingFilters({
       {
         # Outgoing neighbors
         ?resource ?predicate ?neighbor . 
-        ?neighbor a ?class .
+        OPTIONAL { ?neighbor a ?class } .
         ${getNeighborsFilter(excludedVertices)}
         ${getSubjectClasses(subjectClasses)}
       }
