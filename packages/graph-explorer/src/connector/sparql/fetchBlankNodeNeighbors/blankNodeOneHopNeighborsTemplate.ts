@@ -1,6 +1,7 @@
 import { query } from "@/utils";
 import { idParam } from "../idParam";
 import { rdfTypeUri } from "../types";
+import { getNeighborsFilter } from "../filterHelpers";
 
 /**
  * Fetch all neighbors and their predicates, values, and classes
@@ -25,15 +26,15 @@ export default function blankNodeOneHopNeighborsTemplate(subQuery: string) {
         SELECT DISTINCT ?bNode ?neighbor 
         WHERE {
           {
-            ?neighbor ?p ?bNode .
+            ?neighbor ?predicate ?bNode .
             ?neighbor a ?class .
-            FILTER(!isLiteral(?neighbor) && ?p != ${rdfTypeUriTemplate})
+            ${getNeighborsFilter()}
           } 
           UNION 
           {
-            ?bNode ?p ?neighbor .
+            ?bNode ?predicate ?neighbor .
             ?neighbor a ?class .
-            FILTER(!isLiteral(?neighbor) && ?p != ${rdfTypeUriTemplate})
+            ${getNeighborsFilter()}
           }
         }
       }
