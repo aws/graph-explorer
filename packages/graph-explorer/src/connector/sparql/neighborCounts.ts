@@ -7,7 +7,6 @@ import {
 import {
   BlankNodeItem,
   BlankNodesMap,
-  rdfTypeUri,
   SparqlFetch,
   sparqlNumberValueSchema,
   sparqlResourceValueSchema,
@@ -20,6 +19,7 @@ import { z } from "zod";
 import { fromError } from "zod-validation-error/v3";
 import { createVertexId, VertexId } from "@/core";
 import fetchBlankNodeNeighbors from "./fetchBlankNodeNeighbors";
+import { getNeighborsFilter } from "./filterHelpers";
 
 export async function neighborCounts(
   sparqlFetch: SparqlFetch,
@@ -95,21 +95,15 @@ async function fetchUniqueNeighborCount(
         ${resources.map(idParam).join("\n")}
       }
       {
-        ?resource ?p ?neighbor .
+        ?resource ?predicate ?neighbor .
         ?neighbor a [] .
-        FILTER(
-          ?p != ${idParam(rdfTypeUri)} &&
-          !isLiteral(?neighbor)
-        )
+        ${getNeighborsFilter()}
       }
       UNION
       {
-        ?neighbor ?p ?resource .
+        ?neighbor ?predicate ?resource .
         ?neighbor a [] .
-        FILTER(
-          ?p != ${idParam(rdfTypeUri)} &&
-          !isLiteral(?neighbor)
-        )
+        ${getNeighborsFilter()}
       }
     }
     GROUP BY ?resource
@@ -173,21 +167,15 @@ async function fetchCountsByType(
         ${resources.map(idParam).join("\n")}
       }
       {
-        ?resource ?p ?neighbor .
+        ?resource ?predicate ?neighbor .
         ?neighbor a ?type .
-        FILTER(
-          ?p != ${idParam(rdfTypeUri)} &&
-          !isLiteral(?neighbor)
-        )
+        ${getNeighborsFilter()}
       }
       UNION
       {
-        ?neighbor ?p ?resource .
+        ?neighbor ?predicate ?resource .
         ?neighbor a ?type .
-        FILTER(
-          ?p != ${idParam(rdfTypeUri)} &&
-          !isLiteral(?neighbor)
-        )
+        ${getNeighborsFilter()}
       }
     }
     GROUP BY ?resource ?type
