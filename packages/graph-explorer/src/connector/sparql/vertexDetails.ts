@@ -3,7 +3,7 @@ import {
   VertexDetailsRequest,
   VertexDetailsResponse,
 } from "../useGEFetchTypes";
-import { SparqlFetch } from "./types";
+import { rdfTypeUri, SparqlFetch } from "./types";
 import { createVertex } from "@/core";
 import { idParam } from "./idParam";
 import { parseAndMapQuads } from "./parseAndMapQuads";
@@ -26,7 +26,7 @@ export async function vertexDetails(
       }
 
       ?subject ?predicate ?object .
-      FILTER(isLiteral(?object) || ?predicate = rdf:type)
+      FILTER(isLiteral(?object) || ?predicate = ${idParam(rdfTypeUri)})
     }
   `;
 
