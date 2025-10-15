@@ -220,6 +220,22 @@ describe("mapToDisplayVertexTypeConfig", () => {
     expect(result.attributes.every(a => !a.isSearchable)).toBe(true);
   });
 
+  it("should mark non-String attributes as not searchable even when searchable in schema", () => {
+    const vtConfig = createRandomVertexTypeConfig();
+    vtConfig.attributes = [
+      { name: "age", dataType: "Number", searchable: true },
+      { name: "active", dataType: "Boolean", searchable: true },
+      { name: "created", dataType: "Date", searchable: true },
+    ];
+
+    const result = mapToDisplayVertexTypeConfig(
+      vtConfig,
+      identityTextTransform
+    );
+
+    expect(result.attributes.every(a => !a.isSearchable)).toBe(true);
+  });
+
   it("should respect searchable: false for String attributes", () => {
     const vtConfig = createRandomVertexTypeConfig();
     vtConfig.attributes = [
