@@ -26,7 +26,7 @@ describe("oneHopNeighborsTemplate", () => {
 
     expect(normalize(template)).toEqual(
       normalize(query`
-        SELECT DISTINCT ?subject ?p ?value
+        SELECT DISTINCT ?subject ?predicate ?object
         WHERE {
           {
             SELECT DISTINCT ?neighbor
@@ -34,27 +34,27 @@ describe("oneHopNeighborsTemplate", () => {
               BIND(<http://www.example.com/soccer/resource#EPL> AS ?resource)
               VALUES ?class { <http://www.example.com/soccer/ontology/Team> }
               {
-                ?neighbor ?p ?resource .
+                ?neighbor ?predicate ?resource .
                 ?neighbor a ?class .
                 FILTER(
-                  ?p != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> &&
+                  ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> &&
                   !isLiteral(?neighbor)
                 )
               }
               UNION
               {
-                ?resource ?p ?neighbor .
+                ?resource ?predicate ?neighbor .
                 ?neighbor a ?class .
                 FILTER(
-                  ?p != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> &&
+                  ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> &&
                   !isLiteral(?neighbor)
                 )
               }
-              ?neighbor ?pValue ?value .
+              ?neighbor ?pValue ?object .
               FILTER(
-                isLiteral(?value) && (
-                  (?pValue=<http://www.example.com/soccer/ontology/teamName> && regex(str(?value), "Arsenal", "i")) ||
-                  (?pValue=<http://www.example.com/soccer/ontology/nickname> && regex(str(?value), "Gunners", "i"))
+                isLiteral(?object) && (
+                  (?pValue=<http://www.example.com/soccer/ontology/teamName> && regex(str(?object), "Arsenal", "i")) ||
+                  (?pValue=<http://www.example.com/soccer/ontology/nickname> && regex(str(?object), "Gunners", "i"))
                 )
               )
             }
@@ -76,26 +76,26 @@ describe("oneHopNeighborsTemplate", () => {
 
     expect(normalize(template)).toEqual(
       normalize(query`
-        SELECT DISTINCT ?subject ?p ?value
+        SELECT DISTINCT ?subject ?predicate ?object
         WHERE {
           {
             SELECT DISTINCT ?neighbor
             WHERE {
               BIND(<http://www.example.com/soccer/resource#EPL> AS ?resource)
               {
-                ?neighbor ?p ?resource .
+                ?neighbor ?predicate ?resource .
                 ?neighbor a ?class .
                 FILTER(
-                  ?p != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> &&
+                  ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> &&
                   !isLiteral(?neighbor)
                 )
               }
               UNION
               {
-                ?resource ?p ?neighbor .
+                ?resource ?predicate ?neighbor .
                 ?neighbor a ?class .
                 FILTER(
-                  ?p != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> &&
+                  ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> &&
                   !isLiteral(?neighbor)
                 )
               }
@@ -119,7 +119,7 @@ describe("oneHopNeighborsTemplate", () => {
     });
     expect(normalize(template)).toEqual(
       normalize(query`
-        SELECT DISTINCT ?subject ?p ?value
+        SELECT DISTINCT ?subject ?predicate ?object
         WHERE {
           {
             SELECT DISTINCT ?neighbor
@@ -127,19 +127,19 @@ describe("oneHopNeighborsTemplate", () => {
               BIND(<http://www.example.com/soccer/resource#EPL> AS ?resource)
               VALUES ?class { <http://www.example.com/soccer/ontology/Team> <http://www.example.com/soccer/ontology/Player> }
               {
-                ?neighbor ?p ?resource .
+                ?neighbor ?predicate ?resource .
                 ?neighbor a ?class .
                 FILTER(
-                  ?p != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> &&
+                  ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> &&
                   !isLiteral(?neighbor)
                 )
               }
               UNION
               {
-                ?resource ?p ?neighbor .
+                ?resource ?predicate ?neighbor .
                 ?neighbor a ?class .
                 FILTER(
-                  ?p != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> &&
+                  ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> &&
                   !isLiteral(?neighbor)
                 )
               }
@@ -160,26 +160,26 @@ describe("oneHopNeighborsTemplate", () => {
 
     expect(normalize(template)).toEqual(
       normalize(query`
-        SELECT DISTINCT ?subject ?p ?value
+        SELECT DISTINCT ?subject ?predicate ?object
         WHERE {
           {
             SELECT DISTINCT ?neighbor
             WHERE {
               BIND(<http://www.example.com/soccer/resource#EPL> AS ?resource)
               {
-                ?neighbor ?p ?resource .
+                ?neighbor ?predicate ?resource .
                 ?neighbor a ?class .
                 FILTER(
-                  ?p != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> &&
+                  ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> &&
                   !isLiteral(?neighbor)
                 )
               }
               UNION
               {
-                ?resource ?p ?neighbor .
+                ?resource ?predicate ?neighbor .
                 ?neighbor a ?class .
                 FILTER(
-                  ?p != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> &&
+                  ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> &&
                   !isLiteral(?neighbor)
                 )
               }
@@ -201,26 +201,26 @@ describe("oneHopNeighborsTemplate", () => {
 
     expect(normalize(template)).toEqual(
       normalize(query`
-        SELECT DISTINCT ?subject ?p ?value
+        SELECT DISTINCT ?subject ?predicate ?object
         WHERE {
           {
             SELECT DISTINCT ?neighbor
             WHERE {
               BIND(<http://www.example.com/soccer/resource#EPL> AS ?resource)
               {
-                ?neighbor ?p ?resource .
+                ?neighbor ?predicate ?resource .
                 ?neighbor a ?class .
                 FILTER(
-                  ?p != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> &&
+                  ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> &&
                   !isLiteral(?neighbor)
                 )
               }
               UNION
               {
-                ?resource ?p ?neighbor .
+                ?resource ?predicate ?neighbor .
                 ?neighbor a ?class .
                 FILTER(
-                  ?p != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> &&
+                  ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> &&
                   !isLiteral(?neighbor)
                 )
               }
@@ -245,17 +245,17 @@ describe("oneHopNeighborsTemplate", () => {
 
     expect(normalize(template)).toEqual(
       normalize(query`
-        SELECT DISTINCT ?subject ?p ?value
+        SELECT DISTINCT ?subject ?predicate ?object
         WHERE {
           {
             SELECT DISTINCT ?neighbor
             WHERE {
               BIND(<http://www.example.com/soccer/resource#EPL> AS ?resource)
               {
-                ?neighbor ?p ?resource .
+                ?neighbor ?predicate ?resource .
                 ?neighbor a ?class .
                 FILTER(
-                  ?p != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> &&
+                  ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> &&
                   !isLiteral(?neighbor) &&
                   ?neighbor NOT IN (
                     <http://www.example.com/soccer/resource#EFL>,
@@ -265,10 +265,10 @@ describe("oneHopNeighborsTemplate", () => {
               }
               UNION
               {
-                ?resource ?p ?neighbor .
+                ?resource ?predicate ?neighbor .
                 ?neighbor a ?class .
                 FILTER(
-                  ?p != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> &&
+                  ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> &&
                   !isLiteral(?neighbor) &&
                   ?neighbor NOT IN (
                     <http://www.example.com/soccer/resource#EFL>,
@@ -295,28 +295,28 @@ function commonPartOfQuery(resourceURI: string) {
       BIND(<${resourceURI}> AS ?resource)
       ?neighbor ?pToSource ?resource
       BIND(?neighbor as ?subject)
-      BIND(?pToSource as ?p)
-      BIND(?resource as ?value)
+      BIND(?pToSource as ?predicate)
+      BIND(?resource as ?object)
     }
     UNION
     {
       BIND(<${resourceURI}> AS ?resource)
       ?resource ?pFromSource ?neighbor
-      BIND(?neighbor as ?value)
-      BIND(?pFromSource as ?p)
+      BIND(?neighbor as ?object)
+      BIND(?pFromSource as ?predicate)
       BIND(?resource as ?subject)
     }
     UNION
     {
-      ?neighbor ?p ?value
-      FILTER(isLiteral(?value) || ?p = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+      ?neighbor ?predicate ?object
+      FILTER(isLiteral(?object) || ?predicate = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
       BIND(?neighbor as ?subject)
     }
     UNION
     {
       BIND(<${resourceURI}> AS ?resource)
-      ?resource ?p ?value
-      FILTER(?p = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+      ?resource ?predicate ?object
+      FILTER(?predicate = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
       BIND(?resource as ?subject)
     }
   `;

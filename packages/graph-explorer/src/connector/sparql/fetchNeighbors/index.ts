@@ -1,9 +1,9 @@
 import { type NeighborsResponse } from "@/connector/useGEFetchTypes";
 import { oneHopNeighborsTemplate } from "./oneHopNeighborsTemplate";
-
 import { SparqlFetch, SPARQLNeighborsRequest } from "../types";
 import { logger } from "@/utils";
-import { mapToResults, RawOneHopNeighborsResponse } from "./mapToResults";
+import { createEdge, createVertex } from "@/core";
+import { parseAndMapQuads } from "../parseAndMapQuads";
 
 /**
  * Given a subject URI, it returns a set of subjects (with their properties)
@@ -23,16 +23,19 @@ export default async function fetchNeighbors(
   sparqlFetch: SparqlFetch,
   req: SPARQLNeighborsRequest
 ): Promise<NeighborsResponse> {
+  // Fetch vertex details
   const oneHopTemplate = oneHopNeighborsTemplate(req);
   logger.log("[SPARQL Explorer] Fetching oneHopNeighbors...", req);
-  const data = await sparqlFetch<RawOneHopNeighborsResponse>(oneHopTemplate);
-  logger.log("[SPARQL Explorer] Fetched oneHopNeighbors", data);
+  const data = await sparqlFetch(oneHopTemplate);
 
-  const results = mapToResults(data.results.bindings);
+  // Map to fully materialized entities
+  const results = parseAndMapQuads(data);
 
-  return {
-    // Filter out the source vertex since it is already in the graph and this one is missing the attributes
-    vertices: results.vertices.filter(v => v.id !== req.resourceURI),
-    edges: results.edges,
-  };
+  // Filter out the source vertex since it is already in the graph and this one is missing the attributes
+  const vertices = results.vertices
+    .filter(v => v.id !== req.resourceURI)
+    .map(v => createVertex(v));
+  const edges = results.edges.map(e => createEdge(e));
+
+  return { vertices, edges };
 }
