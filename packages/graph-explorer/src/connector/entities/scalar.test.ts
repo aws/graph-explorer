@@ -158,6 +158,11 @@ describe("scalar", () => {
       expect(result).toBe("hello world");
     });
 
+    it("should return EMPTY_VALUE for empty string scalar", () => {
+      const result = getDisplayValueForScalar("   ");
+      expect(result).toBe(LABELS.EMPTY_VALUE);
+    });
+
     it("should return number for integer scalar", () => {
       const result = getDisplayValueForScalar(123456);
       expect(result).toBe("123,456");
