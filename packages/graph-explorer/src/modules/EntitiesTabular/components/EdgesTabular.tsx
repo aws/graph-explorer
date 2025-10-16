@@ -39,9 +39,9 @@ function createEdgeForTable(
     displayTypes: edge.displayTypes,
     displayName: edge.displayName,
     sourceDisplayId: source?.displayId ?? LABELS.MISSING_VALUE,
-    sourceDisplayTypes: source?.displayTypes ?? LABELS.MISSING_VALUE,
+    sourceDisplayTypes: source?.displayTypes ?? LABELS.MISSING_TYPE,
     targetDisplayId: target?.displayId ?? LABELS.MISSING_VALUE,
-    targetDisplayTypes: target?.displayTypes ?? LABELS.MISSING_VALUE,
+    targetDisplayTypes: target?.displayTypes ?? LABELS.MISSING_TYPE,
   };
 }
 
