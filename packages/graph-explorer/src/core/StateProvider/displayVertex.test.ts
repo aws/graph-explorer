@@ -17,7 +17,7 @@ import {
   useDisplayVertexFromVertex,
   Vertex,
 } from "@/core";
-import { formatDate } from "@/utils";
+import { formatDate, LABELS } from "@/utils";
 import { schemaAtom } from "./schema";
 import {
   activeConfigurationAtom,
@@ -26,7 +26,6 @@ import {
   patchToRemoveDisplayLabel,
 } from "./configuration";
 import { createRandomDate, createRandomName } from "@shared/utils/testing";
-import { LABELS } from "@/utils/constants";
 import { mapToDisplayVertexTypeConfig } from "./displayTypeConfigs";
 import { QueryEngine } from "@shared/types";
 import { getDisplayValueForScalar } from "@/connector/entities";
@@ -191,31 +190,18 @@ describe("useDisplayVertexFromVertex", () => {
     );
   });
 
-  it("should include missing attributes with --- as value", () => {
+  it("should not add missing attributes from schema config", () => {
     const vertex = createRandomVertex();
     const schema = createRandomSchema();
     const vtConfig = createRandomVertexTypeConfig();
     vtConfig.type = vertex.type;
     schema.vertices.push(vtConfig);
-    const configAttributeNames = vtConfig.attributes.map(attr => attr.name);
 
-    const actualAttributesMatchingConfig = act(
-      vertex,
-      withSchema(schema)
-    ).attributes.filter(a => configAttributeNames.includes(a.name));
+    const result = act(vertex, withSchema(schema));
 
-    const expected = vtConfig.attributes
-      .map(
-        attr =>
-          <DisplayAttribute>{
-            name: attr.name,
-            displayLabel: attr.name,
-            displayValue: LABELS.MISSING_VALUE,
-          }
-      )
-      .toSorted((a, b) => a.displayLabel.localeCompare(b.displayLabel));
-
-    expect(actualAttributesMatchingConfig).toStrictEqual(expected);
+    expect(Object.keys(result.attributes)).not.toBe(
+      expect.arrayContaining(vtConfig.attributes.map(a => a.name))
+    );
   });
 
   it("should replace uri with prefixes when available", () => {
