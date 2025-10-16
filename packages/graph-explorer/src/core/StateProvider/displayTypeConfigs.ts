@@ -12,7 +12,7 @@ import {
   LineStyle,
 } from "@/core";
 import { TextTransformer, textTransformSelector } from "@/hooks";
-import { MISSING_DISPLAY_TYPE, RESERVED_TYPES_PROPERTY } from "@/utils";
+import { LABELS, RESERVED_TYPES_PROPERTY } from "@/utils";
 import { atomFamily, useAtomCallback } from "jotai/utils";
 import { atom, useAtomValue } from "jotai";
 import { useCallback } from "react";
@@ -133,7 +133,7 @@ export function mapToDisplayVertexTypeConfig(
   const displayLabel =
     typeConfig.displayLabel ||
     textTransform(typeConfig.type) ||
-    MISSING_DISPLAY_TYPE;
+    LABELS.MISSING_TYPE;
 
   const attributes: DisplayConfigAttribute[] = typeConfig.attributes
     .map(attr => ({
@@ -170,7 +170,7 @@ export function mapToDisplayEdgeTypeConfig(
   const displayLabel =
     typeConfig.displayLabel ||
     textTransform(typeConfig.type) ||
-    MISSING_DISPLAY_TYPE;
+    LABELS.MISSING_TYPE;
 
   const attributes: DisplayConfigAttribute[] = typeConfig.attributes
     .map(attr => ({

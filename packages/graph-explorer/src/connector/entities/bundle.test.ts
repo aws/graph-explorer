@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { createPatchedResultBundle, getDisplayValueForBundle } from "./bundle";
 import { createResultScalar } from "./scalar";
-import { MISSING_DISPLAY_VALUE, ASCII } from "@/utils/constants";
+import { ASCII, LABELS } from "@/utils/constants";
 import { createTestableEdge, createTestableVertex } from "@/utils/testing";
 
 describe("getDisplayValueForBundle", () => {
@@ -47,7 +47,7 @@ describe("getDisplayValueForBundle", () => {
     const result = getDisplayValueForBundle(bundle);
 
     expect(result).toBe(
-      `EmptyField: ${MISSING_DISPLAY_VALUE}${ASCII.NBSP}• ${MISSING_DISPLAY_VALUE}`
+      `EmptyField: ${LABELS.MISSING_VALUE}${ASCII.NBSP}• ${LABELS.MISSING_VALUE}`
     );
   });
 
@@ -276,7 +276,7 @@ describe("getDisplayValueForBundle", () => {
       const result = getDisplayValueForBundle(bundle, upperCaseTransformer);
 
       expect(result).toBe(
-        `EMPTY_FIELD: ${MISSING_DISPLAY_VALUE}${ASCII.NBSP}• ${MISSING_DISPLAY_VALUE}`
+        `EMPTY_FIELD: ${LABELS.MISSING_VALUE}${ASCII.NBSP}• ${LABELS.MISSING_VALUE}`
       );
     });
 

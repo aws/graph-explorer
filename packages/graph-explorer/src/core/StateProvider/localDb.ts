@@ -3,7 +3,7 @@ import { logger } from "@/utils";
 import { deserializeData, serializeData } from "./serializeData";
 import { fromFileToJson, toJsonFileData } from "@/utils/fileData";
 import saveAs from "file-saver";
-import { APP_NAME } from "@/utils/constants";
+import { LABELS } from "@/utils/constants";
 
 /*
 
@@ -131,7 +131,7 @@ export async function createBackupData(localDb: LocalDb) {
   const backupData = Object.fromEntries(await getEntries(localDb));
 
   const result: SerializedBackup = {
-    backupSource: APP_NAME,
+    backupSource: LABELS.APP_NAME,
     backupSourceVersion: __GRAPH_EXP_VERSION__,
     backupVersion: "1.0",
     backupTimestamp: new Date(),

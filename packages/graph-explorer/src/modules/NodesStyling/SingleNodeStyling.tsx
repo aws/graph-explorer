@@ -3,7 +3,7 @@ import { Button, FormItem, InputField, Label, StylingIcon } from "@/components";
 import { useDisplayVertexTypeConfig } from "@/core";
 import { useVertexStyling } from "@/core/StateProvider/userPreferences";
 import { useDebounceValue, usePrevious } from "@/hooks";
-import { MISSING_DISPLAY_TYPE } from "@/utils/constants";
+import { LABELS } from "@/utils/constants";
 import { customizeNodeTypeAtom } from "./NodeStyleDialog";
 import { useSetAtom } from "jotai";
 
@@ -38,7 +38,7 @@ export default function SingleNodeStyling({
       {vertexType ? (
         <Label>{vertexType}</Label>
       ) : (
-        <Label>{MISSING_DISPLAY_TYPE}</Label>
+        <Label>{LABELS.MISSING_TYPE}</Label>
       )}
 
       <div className="flex flex-row items-center gap-2">

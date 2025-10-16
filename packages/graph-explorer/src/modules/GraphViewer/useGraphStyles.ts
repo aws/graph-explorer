@@ -14,7 +14,7 @@ import {
   useEdgeTypeConfigs,
   useVertexTypeConfigs,
 } from "@/core/ConfigurationProvider/useConfiguration";
-import { MISSING_DISPLAY_VALUE } from "@/utils/constants";
+import { LABELS } from "@/utils/constants";
 import { useBackgroundImageMap } from "./useBackgroundImageMap";
 
 const LINE_PATTERN = {
@@ -78,7 +78,7 @@ function createGraphStyles(
         const displayEdge = displayEdges.get(
           getEdgeIdFromRenderedEdgeId(edgeId)
         );
-        return displayEdge ? displayEdge.displayName : MISSING_DISPLAY_VALUE;
+        return displayEdge ? displayEdge.displayName : LABELS.MISSING_VALUE;
       },
       color: new Color(etConfig?.labelColor || "#17457b").isDark()
         ? "#FFFFFF"

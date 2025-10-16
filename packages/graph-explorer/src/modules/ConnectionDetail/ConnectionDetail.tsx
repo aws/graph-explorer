@@ -44,12 +44,7 @@ import {
   useSchemaSync,
 } from "@/hooks/useSchemaSync";
 import useTranslations from "@/hooks/useTranslations";
-import {
-  formatDate,
-  formatRelativeDate,
-  logger,
-  MISSING_DISPLAY_VALUE,
-} from "@/utils";
+import { formatDate, formatRelativeDate, LABELS, logger } from "@/utils";
 import saveConfigurationToFile from "@/utils/saveConfigurationToFile";
 import CreateConnection from "@/modules/CreateConnection";
 import ConnectionData from "./ConnectionData";
@@ -93,7 +88,7 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
     ? config.connection.proxyConnection
       ? config.connection.graphDbUrl
       : config.connection.url
-    : MISSING_DISPLAY_VALUE;
+    : LABELS.MISSING_VALUE;
 
   const isSyncing = useIsSyncing();
 
@@ -268,7 +263,7 @@ function VertexCounts() {
   const t = useTranslations();
 
   const humanReadable =
-    totalNodes == null ? MISSING_DISPLAY_VALUE : toHumanString(totalNodes);
+    totalNodes == null ? LABELS.MISSING_VALUE : toHumanString(totalNodes);
 
   return (
     <InfoItem>
@@ -288,7 +283,7 @@ function EdgeCounts() {
   const t = useTranslations();
 
   const humanReadable =
-    totalEdges == null ? MISSING_DISPLAY_VALUE : toHumanString(totalEdges);
+    totalEdges == null ? LABELS.MISSING_VALUE : toHumanString(totalEdges);
 
   return (
     <InfoItem>

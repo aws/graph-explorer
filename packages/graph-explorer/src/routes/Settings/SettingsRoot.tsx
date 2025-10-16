@@ -10,13 +10,13 @@ import { Link, NavLink, Outlet, To } from "react-router";
 import { PropsWithChildren, Suspense } from "react";
 import AppLoadingPage from "@/core/AppLoadingPage";
 import { cn } from "@/utils";
-import { APP_NAME } from "@/utils/constants";
+import { LABELS } from "@/utils/constants";
 
 export default function SettingsRoot() {
   return (
     <Workspace orientation="horizontal">
       <Workspace.TopBar logoVisible>
-        <Workspace.TopBar.Title title={`${APP_NAME} Settings`} />
+        <Workspace.TopBar.Title title={`${LABELS.APP_NAME} Settings`} />
         <Workspace.TopBar.Version>
           {__GRAPH_EXP_VERSION__}
         </Workspace.TopBar.Version>

@@ -14,11 +14,7 @@ import {
   edgeTypeAttributesSelector,
 } from "@/core";
 import { textTransformSelector } from "@/hooks";
-import {
-  MISSING_DISPLAY_VALUE,
-  RESERVED_ID_PROPERTY,
-  RESERVED_TYPES_PROPERTY,
-} from "@/utils";
+import { LABELS, RESERVED_ID_PROPERTY, RESERVED_TYPES_PROPERTY } from "@/utils";
 import { atom, useAtomValue } from "jotai";
 import { atomFamily } from "jotai/utils";
 
@@ -96,11 +92,11 @@ const displayEdgeSelector = atomFamily((edge: Edge) =>
       } else if (name) {
         return (
           sortedAttributes.find(attr => attr.name === name)?.displayValue ??
-          MISSING_DISPLAY_VALUE
+          LABELS.MISSING_VALUE
         );
       }
 
-      return MISSING_DISPLAY_VALUE;
+      return LABELS.MISSING_VALUE;
     }
 
     const displayName = getDisplayAttributeValueByName(

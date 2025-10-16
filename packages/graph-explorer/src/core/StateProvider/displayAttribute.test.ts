@@ -12,7 +12,7 @@ import {
   createRandomInteger,
   createRandomName,
 } from "@shared/utils/testing";
-import { formatDate, MISSING_DISPLAY_VALUE } from "@/utils";
+import { formatDate, LABELS } from "@/utils";
 import { getDisplayValueForScalar } from "@/connector/entities";
 
 describe("mapToDisplayAttribute", () => {
@@ -67,7 +67,7 @@ describe("mapToDisplayAttribute", () => {
     expect(displayAttribute).toStrictEqual({
       name,
       displayLabel: name,
-      displayValue: MISSING_DISPLAY_VALUE,
+      displayValue: LABELS.MISSING_VALUE,
     });
   });
 
