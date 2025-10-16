@@ -30,11 +30,11 @@ import { idParam } from "../idParam";
  *       ?subject a       ?class ;
  *                ?pValue ?value .
  *       FILTER (?pValue IN (
- *           <http://www.example.com/soccer/ontology/teamName>,
- *           <http://www.example.com/soccer/ontology/nickname>
+ *         <http://www.example.com/soccer/ontology/teamName>,
+ *         <http://www.example.com/soccer/ontology/nickname>
  *       ))
  *       FILTER (?class IN (
- *           <http://www.example.com/soccer/ontology/Team>
+ *         <http://www.example.com/soccer/ontology/Team>
  *       ))
  *       FILTER (regex(str(?value), "Ch", "i"))
  *     }
@@ -48,29 +48,16 @@ import { idParam } from "../idParam";
  *   }
  * }
  */
-export default function keywordSearchTemplate({
-  searchTerm,
-  subjectClasses = [],
-  predicates = [],
-  limit,
-  offset = 0,
-  exactMatch = false,
-}: SPARQLKeywordSearchRequest): string {
+export default function keywordSearchTemplate(
+  request: SPARQLKeywordSearchRequest
+): string {
   return query`
     # Fetch nodes matching the given search parameters
     SELECT DISTINCT ?subject ?predicate ?object
     WHERE {
       {
         # This sub-query will find any matching instances to the given filters and limit the results
-        SELECT DISTINCT ?subject
-        WHERE {
-          ?subject a       ?class ;
-                   ?pValue ?value .
-          ${getFilterPredicates(predicates)}
-          ${getSubjectClasses(subjectClasses)}
-          ${getFilterObject(exactMatch, searchTerm)}
-        }
-        ${getLimit(limit, offset)}
+        ${findSubjectsMatchingFilters(request)}
       }
       {
         # Values and types
@@ -78,5 +65,21 @@ export default function keywordSearchTemplate({
         FILTER(isLiteral(?object) || ?predicate = ${idParam(rdfTypeUri)})
       }
     }
+  `;
+}
+
+export function findSubjectsMatchingFilters(
+  request: SPARQLKeywordSearchRequest
+) {
+  return query`
+    SELECT DISTINCT ?subject
+    WHERE {
+      ?subject a       ?class ;
+               ?pValue ?value .
+      ${getFilterPredicates(request.predicates)}
+      ${getSubjectClasses(request.subjectClasses)}
+      ${getFilterObject(request.exactMatch, request.searchTerm)}
+    }
+    ${getLimit(request.limit, request.offset)}
   `;
 }

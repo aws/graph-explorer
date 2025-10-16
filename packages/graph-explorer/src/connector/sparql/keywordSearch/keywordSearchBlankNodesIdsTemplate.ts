@@ -1,11 +1,6 @@
 import { query } from "@/utils";
 import { SPARQLKeywordSearchRequest } from "../types";
-import {
-  getFilterObject,
-  getFilterPredicates,
-  getSubjectClasses,
-} from "./helpers";
-import { getLimit } from "../getLimit";
+import { findSubjectsMatchingFilters } from "./keywordSearchTemplate";
 
 /**
  * This generates a template to get all blank nodes ids from
@@ -13,31 +8,18 @@ import { getLimit } from "../getLimit";
  *
  * @see keywordSearchTemplate
  */
-export default function keywordSearchBlankNodesIdsTemplate({
-  searchTerm,
-  subjectClasses = [],
-  predicates = [],
-  limit,
-  offset = 0,
-  exactMatch = true,
-}: SPARQLKeywordSearchRequest): string {
+export default function keywordSearchBlankNodesIdsTemplate(
+  request: SPARQLKeywordSearchRequest
+) {
   return query`
     # Fetch all blank nodes ids from a generic keyword search request
-    SELECT DISTINCT ?bNode
+    SELECT DISTINCT (?subject as ?bNode)
     WHERE {
       {
         # This sub-query will find any matching instances to the given filters and limit the results
-        SELECT DISTINCT ?bNode
-        WHERE {
-          ?bNode a       ?class ;
-                 ?pValue ?value .
-          ${getFilterPredicates(predicates)}
-          ${getSubjectClasses(subjectClasses)}
-          ${getFilterObject(exactMatch, searchTerm)}
-        }
-        ${getLimit(limit, offset)}
+        ${findSubjectsMatchingFilters(request)}
       }
-      FILTER(isBlank(?bNode))
+      FILTER(isBlank(?subject))
     }
   `;
 }

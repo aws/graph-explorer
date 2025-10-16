@@ -1,8 +1,11 @@
 import {
-  createBNodeValue,
   createLiteralValue,
+  createQuadBindingsForEntities,
+  createQuadSparqlResponse,
   createRandomEdgeForRdf,
   createRandomVertexForRdf,
+  createTestableEdge,
+  createTestableVertex,
   createUriValue,
 } from "@/utils/testing";
 import { NeighborCount } from "../useGEFetchTypes";
@@ -13,8 +16,7 @@ import {
   createRandomName,
   createRandomUrlString,
 } from "@shared/utils/testing";
-import { createVertexId, Edge, Vertex } from "@/core";
-import { parseEdgeId } from "./parseEdgeId";
+import { createVertexId } from "@/core";
 
 describe("neighborCounts", () => {
   it("should return empty for an empty request", async () => {
@@ -139,12 +141,17 @@ describe("neighborCounts", () => {
   });
 
   it("should fetch blank node neighbor counts", async () => {
-    const vertex = createRandomVertexForRdf();
-    vertex.isBlankNode;
-    const neighborFrom = createRandomVertexForRdf();
-    const edgeFrom = createRandomEdgeForRdf(neighborFrom, vertex);
-    const neighborTo = createRandomVertexForRdf();
-    const edgeTo = createRandomEdgeForRdf(vertex, neighborTo);
+    const vertex = createTestableVertex().withRdfValues({ isBlankNode: true });
+    const neighborFrom = createTestableVertex().withRdfValues();
+    const edgeFrom = createTestableEdge()
+      .withRdfValues()
+      .withSource(neighborFrom)
+      .withTarget(vertex);
+    const neighborTo = createTestableVertex().withRdfValues();
+    const edgeTo = createTestableEdge()
+      .withRdfValues()
+      .withSource(vertex)
+      .withTarget(neighborTo);
     const blankNodes: BlankNodesMap = new Map();
     blankNodes.set(vertex.id, {
       id: vertex.id,
@@ -152,31 +159,25 @@ describe("neighborCounts", () => {
         totalCount: 0,
         counts: {},
       },
-      vertex,
+      vertex: vertex.asVertex(),
       subQueryTemplate: createRandomName("subQuery"),
     });
 
-    const responseNeighbors = createBlankNodeNeighbortsResponse(vertex, [
-      neighborFrom,
-      neighborTo,
-    ]);
-    const responsePredicates = createBlankNodePredicateResponse([
-      { edge: edgeFrom, neighbor: neighborFrom },
-      { edge: edgeTo, neighbor: neighborTo },
-    ]);
-    const mockFetch = vi
-      .fn()
-      // First fetch is for neighbors
-      .mockReturnValueOnce(responseNeighbors)
-      // Second fetch is for predicates
-      .mockReturnValueOnce(responsePredicates);
+    const responseNeighbors = createQuadSparqlResponse(
+      createQuadBindingsForEntities(
+        [neighborFrom, neighborTo],
+        [edgeFrom, edgeTo]
+      )
+    );
+
+    const mockFetch = vi.fn().mockReturnValueOnce(responseNeighbors);
 
     const expected: NeighborCount = {
       vertexId: vertex.id,
       totalCount: 2,
       counts: {
-        [`${neighborFrom.type}`]: 1,
-        [`${neighborTo.type}`]: 1,
+        [`${neighborFrom.types[0]}`]: 1,
+        [`${neighborTo.types[0]}`]: 1,
       },
     };
 
@@ -188,7 +189,7 @@ describe("neighborCounts", () => {
       blankNodes
     );
 
-    expect(mockFetch).toHaveBeenCalledTimes(2);
+    expect(mockFetch).toHaveBeenCalledTimes(1);
     expect(result.counts).toEqual([expected]);
     expect(blankNodes.get(vertex.id)?.neighborCounts.counts).toEqual(
       expected.counts
@@ -197,12 +198,12 @@ describe("neighborCounts", () => {
       expected.totalCount
     );
     expect(blankNodes.get(vertex.id)?.neighbors?.vertices).toEqual([
-      neighborFrom,
-      neighborTo,
+      neighborFrom.asVertex(),
+      neighborTo.asVertex(),
     ]);
     expect(blankNodes.get(vertex.id)?.neighbors?.edges).toEqual([
-      edgeFrom,
-      edgeTo,
+      edgeFrom.asEdge(),
+      edgeTo.asEdge(),
     ]);
   });
 
@@ -384,60 +385,4 @@ function createCountsByTypeResponse(...counts: NeighborCount[]) {
         })),
     },
   };
-}
-
-function createBlankNodeNeighbortsResponse(bNode: Vertex, neighbors: Vertex[]) {
-  const vertexBindings = neighbors.flatMap(neighbor =>
-    createVertexResponse(neighbor)
-  );
-  return {
-    head: {
-      vars: ["bNode", "subject", "pred", "value", "subjectClass"],
-    },
-    results: {
-      bindings: vertexBindings.flatMap(vBinding => ({
-        ...vBinding,
-        bNode: createUriValue(String(bNode.id)),
-      })),
-    },
-  };
-}
-
-function createBlankNodePredicateResponse(
-  relationships: { edge: Edge; neighbor: Vertex }[]
-) {
-  return {
-    head: {
-      vars: ["subject", "subjectClass", "pToSubject", "pFromSubject"],
-    },
-    results: {
-      bindings: relationships.map(({ edge, neighbor }) => {
-        const { subject, subjectClass } = createVertexResponse(neighbor)[0];
-        const parts = parseEdgeId(edge.id);
-        return {
-          subject,
-          subjectClass,
-          predToSubject:
-            edge.targetId === neighbor.id
-              ? createUriValue(parts.predicate)
-              : undefined,
-          predFromSubject:
-            edge.sourceId === neighbor.id
-              ? createUriValue(parts.predicate)
-              : undefined,
-        };
-      }),
-    },
-  };
-}
-
-function createVertexResponse(vertex: Vertex) {
-  return Object.entries(vertex.attributes).map(([key, value]) => ({
-    subject: vertex.isBlankNode
-      ? createBNodeValue(String(vertex.id))
-      : createUriValue(String(vertex.id)),
-    subjectClass: createUriValue(String(vertex.type)),
-    pred: createUriValue(key),
-    value: createLiteralValue(value),
-  }));
 }
