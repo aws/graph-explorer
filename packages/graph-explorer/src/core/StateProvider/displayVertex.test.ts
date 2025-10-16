@@ -57,6 +57,13 @@ describe("useDisplayVertexFromVertex", () => {
     expect(act(vertex).displayDescription).toStrictEqual(vertex.type);
   });
 
+  it("should have the display types be missing type label when no types", () => {
+    const vertex = createRandomVertex();
+    vertex.type = "";
+    vertex.types = [];
+    expect(act(vertex).displayTypes).toStrictEqual(LABELS.MISSING_TYPE);
+  });
+
   it("should have the default type config when vertex type is not in the schema", () => {
     const vertex = createRandomVertex();
     const vtConfig = getDefaultVertexTypeConfig(vertex.type);
