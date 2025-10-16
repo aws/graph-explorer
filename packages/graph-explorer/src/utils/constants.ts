@@ -35,7 +35,7 @@ export const LABELS = {
   /** Used as the label for the ID of a blank node in the node details or query results. */
   BLANK_NODE_ID: "Blank Node Id",
   /** Shown when a type is missing  */
-  MISSING_TYPE: "---",
+  MISSING_TYPE: `${ASCII.LAQUO}No Type${ASCII.RAQUO}`,
   /** Shown when a value is missing */
-  MISSING_VALUE: "---",
+  MISSING_VALUE: `${ASCII.LAQUO}No Value${ASCII.RAQUO}`,
 } as const;
