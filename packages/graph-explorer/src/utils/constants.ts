@@ -34,4 +34,8 @@ export const ASCII = {
   NBSP: "\u00A0",
   /** Small arrow character */
   RSAQUO: "\u203A",
+  /** Left double angle quotes */
+  LAQUO: "\u00ab",
+  /** Right double angle quotes */
+  RAQUO: "\u00bb",
 } as const;
