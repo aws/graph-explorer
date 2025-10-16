@@ -3,7 +3,7 @@ import { Button, FormItem, InputField, Label, StylingIcon } from "@/components";
 import { useDisplayEdgeTypeConfig } from "@/core";
 import { useEdgeStyling } from "@/core/StateProvider/userPreferences";
 import { useDebounceValue, usePrevious } from "@/hooks";
-import { MISSING_DISPLAY_TYPE } from "@/utils";
+import { LABELS } from "@/utils";
 import { customizeEdgeTypeAtom } from "./EdgeStyleDialog";
 import { useSetAtom } from "jotai";
 
@@ -37,7 +37,7 @@ export default function SingleEdgeStyling({
       {edgeType ? (
         <Label>{edgeType}</Label>
       ) : (
-        <Label>{MISSING_DISPLAY_TYPE}</Label>
+        <Label>{LABELS.MISSING_TYPE}</Label>
       )}
       <div className="flex flex-row items-center gap-2">
         <InputField

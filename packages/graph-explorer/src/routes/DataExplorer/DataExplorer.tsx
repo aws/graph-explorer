@@ -41,8 +41,7 @@ import useTranslations from "@/hooks/useTranslations";
 import useUpdateVertexTypeCounts from "@/hooks/useUpdateVertexTypeCounts";
 import { useVertexTypeConfig } from "@/core/ConfigurationProvider/useConfiguration";
 import {
-  APP_NAME,
-  MISSING_DISPLAY_VALUE,
+  LABELS,
   RESERVED_ID_PROPERTY,
   RESERVED_TYPES_PROPERTY,
 } from "@/utils/constants";
@@ -103,7 +102,7 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
             className={cn(buttonStyles({ variant: "filled" }))}
           >
             <ExplorerIcon />
-            Open {APP_NAME}
+            Open {LABELS.APP_NAME}
           </Link>
         </Workspace.TopBar.AdditionalControls>
       </Workspace.TopBar>
@@ -253,7 +252,7 @@ function useColumnDefinitions(vertexType: string) {
         label: attr.displayLabel,
         accessor: row =>
           row.attributes.find(a => a.name === attr.name)?.displayValue ??
-          MISSING_DISPLAY_VALUE,
+          LABELS.MISSING_VALUE,
       }));
     vtColumns.unshift({
       label: t("data-explorer.node-id"),

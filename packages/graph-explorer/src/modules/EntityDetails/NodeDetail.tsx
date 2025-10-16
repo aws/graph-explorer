@@ -3,7 +3,7 @@ import useTranslations from "@/hooks/useTranslations";
 import NeighborsList from "@/modules/common/NeighborsList/NeighborsList";
 import EntityAttribute from "./EntityAttribute";
 import {
-  LABEL_FOR_BLANK_NODE_ID,
+  LABELS,
   RESERVED_ID_PROPERTY,
   RESERVED_TYPES_PROPERTY,
 } from "@/utils/constants";
@@ -21,7 +21,7 @@ export default function NodeDetail({ node }: VertexDetailProps) {
       name: RESERVED_ID_PROPERTY,
       // Blank node IDs are not standard IDs, so they get a custom label
       displayLabel: node.isBlankNode
-        ? LABEL_FOR_BLANK_NODE_ID
+        ? LABELS.BLANK_NODE_ID
         : t("node-detail.node-id"),
       displayValue: node.displayId,
     },

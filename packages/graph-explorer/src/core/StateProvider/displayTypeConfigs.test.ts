@@ -14,7 +14,7 @@ import {
   mapToDisplayVertexTypeConfig,
 } from "./displayTypeConfigs";
 import { createRandomName } from "@shared/utils/testing";
-import { MISSING_DISPLAY_TYPE } from "@/utils";
+import { LABELS } from "@/utils";
 import type { TextTransformer } from "@/hooks";
 
 // Simple identity text transformer for testing (non-SPARQL behavior)
@@ -49,7 +49,7 @@ describe("useDisplayVertexTypeConfig", () => {
       useDisplayVertexTypeConfig("")
     );
 
-    expect(result.current.displayLabel).toBe(MISSING_DISPLAY_TYPE);
+    expect(result.current.displayLabel).toBe(LABELS.MISSING_TYPE);
   });
 
   it("should ignore display label from schema", () => {
@@ -346,7 +346,7 @@ describe("useDisplayEdgeTypeConfig", () => {
   it("should use empty label constant when the type is empty", () => {
     const { result } = renderHookWithState(() => useDisplayEdgeTypeConfig(""));
 
-    expect(result.current.displayLabel).toBe(MISSING_DISPLAY_TYPE);
+    expect(result.current.displayLabel).toBe(LABELS.MISSING_TYPE);
   });
 
   it("should ignore display label from the config", () => {

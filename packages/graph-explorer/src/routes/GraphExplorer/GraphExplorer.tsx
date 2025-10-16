@@ -38,7 +38,7 @@ import Namespaces from "@/modules/Namespaces/Namespaces";
 import NodeExpand from "@/modules/NodeExpand";
 import { NodesStyling } from "@/modules/NodesStyling";
 
-import { APP_NAME } from "@/utils/constants";
+import { LABELS } from "@/utils/constants";
 import { SearchSidebarPanel } from "@/modules/SearchSidebar";
 import { useAtomValue } from "jotai";
 
@@ -75,7 +75,7 @@ const GraphExplorer = () => {
     <Workspace>
       <Workspace.TopBar logoVisible>
         <Workspace.TopBar.Title
-          title={APP_NAME}
+          title={LABELS.APP_NAME}
           subtitle={`Connection: ${config?.displayLabel || config?.id}`}
         />
         <Workspace.TopBar.Version>

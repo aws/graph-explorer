@@ -26,7 +26,7 @@ import {
   patchToRemoveDisplayLabel,
 } from "./configuration";
 import { createRandomDate, createRandomName } from "@shared/utils/testing";
-import { MISSING_DISPLAY_VALUE } from "@/utils/constants";
+import { LABELS } from "@/utils/constants";
 import { mapToDisplayVertexTypeConfig } from "./displayTypeConfigs";
 import { QueryEngine } from "@shared/types";
 import { getDisplayValueForScalar } from "@/connector/entities";
@@ -203,7 +203,7 @@ describe("useDisplayVertexFromVertex", () => {
           <DisplayAttribute>{
             name: attr.name,
             displayLabel: attr.name,
-            displayValue: MISSING_DISPLAY_VALUE,
+            displayValue: LABELS.MISSING_VALUE,
           }
       )
       .toSorted((a, b) => a.displayLabel.localeCompare(b.displayLabel));

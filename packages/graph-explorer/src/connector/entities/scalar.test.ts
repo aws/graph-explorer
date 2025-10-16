@@ -9,7 +9,7 @@ import {
   getDisplayValueForScalar,
   ResultScalar,
 } from "./scalar";
-import { MISSING_DISPLAY_VALUE } from "@/utils";
+import { LABELS } from "@/utils";
 
 describe("scalar", () => {
   describe("createScalar", () => {
@@ -150,7 +150,7 @@ describe("scalar", () => {
   describe("getDisplayValueForScalar", () => {
     it("should return null for null scalar", () => {
       const result = getDisplayValueForScalar(null);
-      expect(result).toBe(MISSING_DISPLAY_VALUE);
+      expect(result).toBe(LABELS.MISSING_VALUE);
     });
 
     it("should return string for string scalar", () => {

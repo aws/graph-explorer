@@ -1,4 +1,4 @@
-import { formatDate, MISSING_DISPLAY_VALUE } from "@/utils";
+import { formatDate, LABELS } from "@/utils";
 
 /**
  * Represents a scalar value that can be returned from a graph database query.
@@ -101,6 +101,6 @@ export function getDisplayValueForScalar(value: ScalarValue) {
     case "date":
       return formatDate(typedValue.value);
     case "null":
-      return MISSING_DISPLAY_VALUE;
+      return LABELS.MISSING_VALUE;
   }
 }

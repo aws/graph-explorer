@@ -10,23 +10,23 @@ export const RESERVED_ID_PROPERTY = "~id";
 /** The name of the property representing the list of types of the node */
 export const RESERVED_TYPES_PROPERTY = "types";
 
-/** The string "Graph Explorer". */
-export const APP_NAME = "Graph Explorer";
-
 /** The root URL for the app used for reloading fresh. */
 export const RELOAD_URL =
   import.meta.env.BASE_URL.substring(-1) !== "/"
     ? import.meta.env.BASE_URL + "/"
     : import.meta.env.BASE_URL;
 
-/** Shown when a value is missing */
-export const MISSING_DISPLAY_VALUE = "---";
-
-/** Shown when a type is missing  */
-export const MISSING_DISPLAY_TYPE = "---";
-
-/** Used as the label for the ID of a blank node in the node details or query results. */
-export const LABEL_FOR_BLANK_NODE_ID = "Blank Node Id";
+/** Labels used in the UI */
+export const LABELS = {
+  /** The string "Graph Explorer". */
+  APP_NAME: "Graph Explorer",
+  /** Used as the label for the ID of a blank node in the node details or query results. */
+  BLANK_NODE_ID: "Blank Node Id",
+  /** Shown when a type is missing  */
+  MISSING_TYPE: "---",
+  /** Shown when a value is missing */
+  MISSING_VALUE: "---",
+} as const;
 
 /** ASCII characters used in strings */
 export const ASCII = {

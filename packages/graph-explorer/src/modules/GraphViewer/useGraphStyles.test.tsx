@@ -2,7 +2,7 @@ import { waitFor } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach, Mock } from "vitest";
 import useGraphStyles from "./useGraphStyles";
 import { renderNode } from "./renderNode";
-import { MISSING_DISPLAY_VALUE } from "@/utils/constants";
+import { LABELS } from "@/utils/constants";
 import { getEdgeIdFromRenderedEdgeId } from "@/core";
 import type { RenderedEdgeId } from "@/core";
 import type { GraphProps } from "@/components";
@@ -261,7 +261,7 @@ describe("useGraphStyles", () => {
     };
 
     const label = labelFunction(mockEdgeElement);
-    expect(label).toBe(MISSING_DISPLAY_VALUE);
+    expect(label).toBe(LABELS.MISSING_VALUE);
   });
 
   it("should handle renderNode failure gracefully", () => {

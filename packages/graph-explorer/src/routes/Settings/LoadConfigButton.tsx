@@ -22,7 +22,7 @@ import {
   type SerializedBackup,
 } from "@/core/StateProvider/localDb";
 import { useDebounceValue } from "@/hooks";
-import { APP_NAME, RELOAD_URL } from "@/utils/constants";
+import { LABELS, RELOAD_URL } from "@/utils/constants";
 import { FolderOpenIcon } from "lucide-react";
 
 export default function LoadConfigButton() {
@@ -106,7 +106,7 @@ function ConfirmationModal({
     >
       <DialogContent className="w-[588px]">
         <DialogHeader>
-          <DialogTitle>Replace {APP_NAME} Configuration</DialogTitle>
+          <DialogTitle>Replace {LABELS.APP_NAME} Configuration</DialogTitle>
         </DialogHeader>
         <DialogBody>
           <div className="flex flex-row items-start gap-8">
@@ -117,8 +117,8 @@ function ConfirmationModal({
               <div>
                 <Paragraph>
                   This action will replace all configuration data within{" "}
-                  {APP_NAME}, including connections and custom styles, with the
-                  contents of the config file selected.
+                  {LABELS.APP_NAME}, including connections and custom styles,
+                  with the contents of the config file selected.
                 </Paragraph>
                 <Paragraph className="my-4">
                   <b>{fileName ?? debouncedFileName ?? "No file selected"}</b>
@@ -142,7 +142,7 @@ function ConfirmationModal({
             className="relative transition-opacity"
           >
             <Spinner loading={isPending}>
-              Replace {APP_NAME} Configuration
+              Replace {LABELS.APP_NAME} Configuration
             </Spinner>
           </Button>
         </DialogFooter>
@@ -177,8 +177,8 @@ function ParseFailureModal({
             <div>
               <Paragraph>
                 Could not parse the contents of the config file provided.
-                Perhaps the file is not a config file from {APP_NAME} or the
-                file is corrupted.
+                Perhaps the file is not a config file from {LABELS.APP_NAME} or
+                the file is corrupted.
               </Paragraph>
               <Paragraph>
                 <b>{fileName ?? debouncedFileName ?? "No file selected"}</b>
@@ -207,7 +207,8 @@ function SuccessModal({ success }: { success: boolean }) {
               <CheckIcon className="text-success-main size-16" />
             </div>
             <Paragraph className="w-full min-w-0">
-              All data was restored successfully. Please reload {APP_NAME}
+              All data was restored successfully. Please reload{" "}
+              {LABELS.APP_NAME}
               to complete the process.
             </Paragraph>
           </div>
@@ -215,7 +216,7 @@ function SuccessModal({ success }: { success: boolean }) {
         <DialogFooter>
           {/* Force a full reload of the app in the browser */}
           <a href={RELOAD_URL}>
-            <Button variant="filled">Reload {APP_NAME}</Button>
+            <Button variant="filled">Reload {LABELS.APP_NAME}</Button>
           </a>
         </DialogFooter>
       </DialogContent>

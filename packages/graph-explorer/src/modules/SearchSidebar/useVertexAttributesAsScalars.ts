@@ -1,7 +1,7 @@
 import { createResultScalar } from "@/connector/entities";
 import { DisplayVertex, DisplayAttribute } from "@/core";
 import { useTranslations } from "@/hooks";
-import { LABEL_FOR_BLANK_NODE_ID } from "@/utils";
+import { LABELS } from "@/utils";
 /**
  * Creates scalars for the given vertex's ID, label, and attributes.
  * @param vertex The vertex to create scalars for.
@@ -13,9 +13,7 @@ export function useVertexAttributesAsScalars(vertex: DisplayVertex) {
   // Create the ID scalar
   const idScalar = createResultScalar({
     // Blank node IDs are not standard IDs, so they get a custom label
-    name: vertex.isBlankNode
-      ? LABEL_FOR_BLANK_NODE_ID
-      : t("node-detail.node-id"),
+    name: vertex.isBlankNode ? LABELS.BLANK_NODE_ID : t("node-detail.node-id"),
     value: vertex.displayId,
   });
 

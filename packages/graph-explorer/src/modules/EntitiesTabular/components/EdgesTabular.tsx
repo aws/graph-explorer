@@ -26,7 +26,7 @@ import {
   useDisplayVerticesInCanvas,
 } from "@/core";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { MISSING_DISPLAY_VALUE } from "@/utils";
+import { LABELS } from "@/utils";
 
 /** Creates the model for the table data */
 function createEdgeForTable(
@@ -38,10 +38,10 @@ function createEdgeForTable(
     id: edge.id,
     displayTypes: edge.displayTypes,
     displayName: edge.displayName,
-    sourceDisplayId: source?.displayId ?? MISSING_DISPLAY_VALUE,
-    sourceDisplayTypes: source?.displayTypes ?? MISSING_DISPLAY_VALUE,
-    targetDisplayId: target?.displayId ?? MISSING_DISPLAY_VALUE,
-    targetDisplayTypes: target?.displayTypes ?? MISSING_DISPLAY_VALUE,
+    sourceDisplayId: source?.displayId ?? LABELS.MISSING_VALUE,
+    sourceDisplayTypes: source?.displayTypes ?? LABELS.MISSING_VALUE,
+    targetDisplayId: target?.displayId ?? LABELS.MISSING_VALUE,
+    targetDisplayTypes: target?.displayTypes ?? LABELS.MISSING_VALUE,
   };
 }
 

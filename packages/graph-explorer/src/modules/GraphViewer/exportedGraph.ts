@@ -6,7 +6,7 @@ import {
   EntityRawId,
   VertexId,
 } from "@/core/entities";
-import { APP_NAME, escapeString, logger } from "@/utils";
+import { escapeString, LABELS, logger } from "@/utils";
 import {
   ConnectionConfig,
   QueryEngine,
@@ -44,7 +44,7 @@ export function createExportedGraph(
   return {
     meta: {
       kind: "graph-export",
-      source: APP_NAME,
+      source: LABELS.APP_NAME,
       sourceVersion: __GRAPH_EXP_VERSION__,
       version: "1.0",
       timestamp: new Date(),

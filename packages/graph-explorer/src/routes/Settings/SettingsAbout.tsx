@@ -7,12 +7,12 @@ import {
   LabelledSetting,
 } from "@/components";
 import { env } from "@/utils";
-import { APP_NAME } from "@/utils/constants";
+import { LABELS } from "@/utils/constants";
 
 export default function SettingsAbout() {
   return (
     <SettingsSectionContainer>
-      <PageHeading>{APP_NAME}</PageHeading>
+      <PageHeading>{LABELS.APP_NAME}</PageHeading>
       <SettingsSection>
         <LabelledSetting
           label="App version"
@@ -20,7 +20,7 @@ export default function SettingsAbout() {
         />
         <LabelledSetting
           label="Provide Feedback"
-          description={`If you have any ideas for future features for ${APP_NAME}, or encounter an issue, please let us know.`}
+          description={`If you have any ideas for future features for ${LABELS.APP_NAME}, or encounter an issue, please let us know.`}
         >
           <a
             href={env.GRAPH_EXP_FEEDBACK_URL}

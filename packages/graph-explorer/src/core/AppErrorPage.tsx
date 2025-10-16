@@ -7,7 +7,7 @@ import {
   Paragraph,
   ResetIcon,
 } from "@/components";
-import { APP_NAME, RELOAD_URL } from "@/utils/constants";
+import { LABELS, RELOAD_URL } from "@/utils/constants";
 
 /** This is the app wide error page that will be shown when the app essentially crashes */
 export default function AppErrorPage(props: FallbackProps) {
@@ -25,7 +25,7 @@ export default function AppErrorPage(props: FallbackProps) {
         {/* Force a full reload of the app in the browser */}
         <a href={RELOAD_URL}>
           <Button variant="filled" size="large" icon={<ResetIcon />}>
-            Reload {APP_NAME}
+            Reload {LABELS.APP_NAME}
           </Button>
         </a>
       </div>

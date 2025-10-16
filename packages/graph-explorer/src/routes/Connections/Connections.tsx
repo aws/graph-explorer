@@ -13,7 +13,7 @@ import { configurationAsyncAtom } from "@/core/StateProvider/configuration";
 import { useIsSyncing } from "@/hooks/useSchemaSync";
 import AvailableConnections from "@/modules/AvailableConnections";
 import ConnectionDetail from "@/modules/ConnectionDetail";
-import { APP_NAME } from "@/utils/constants";
+import { LABELS } from "@/utils/constants";
 import GraphExplorerIcon from "@/components/icons/GraphExplorerIcon";
 import { cn } from "@/utils";
 import { useAtomValue } from "jotai";
@@ -52,7 +52,7 @@ export default function Connections() {
               aria-disabled={!config?.schema?.lastUpdate}
             >
               <ExplorerIcon />
-              Open {APP_NAME}
+              Open {LABELS.APP_NAME}
             </Link>
           </div>
         </Workspace.TopBar.AdditionalControls>
