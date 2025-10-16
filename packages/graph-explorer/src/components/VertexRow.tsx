@@ -1,7 +1,7 @@
 import { DisplayVertex } from "@/core";
 import { SearchResultSubtitle, SearchResultTitle, VertexSymbol } from ".";
 import { ComponentPropsWithoutRef } from "react";
-import { cn, NBSP, RSAQUO } from "@/utils";
+import { ASCII, cn } from "@/utils";
 
 export function VertexRow({
   name,
@@ -16,7 +16,7 @@ export function VertexRow({
   const nameIsSameAsTypes = vertex.displayTypes === vertex.displayName;
   const displayName = nameIsSameAsTypes
     ? vertex.displayName
-    : `${vertex.displayTypes}${NBSP}${RSAQUO} ${vertex.displayName}`;
+    : `${vertex.displayTypes}${ASCII.NBSP}${ASCII.RSAQUO} ${vertex.displayName}`;
   const title = `${resultName}${displayName}`;
 
   return (

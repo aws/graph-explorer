@@ -1,6 +1,6 @@
 import { getDisplayValueForScalar } from "./scalar";
 import { PatchedResultEntity, ResultEntity } from "./entities";
-import { NBSP } from "@/utils";
+import { ASCII } from "@/utils";
 import { TextTransformer } from "@/hooks";
 
 /**
@@ -129,5 +129,5 @@ export function getDisplayValueForBundle(
             : `[...]`;
       }
     })
-    .join(`${NBSP}• `);
+    .join(`${ASCII.NBSP}• `);
 }

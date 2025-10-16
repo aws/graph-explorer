@@ -28,8 +28,10 @@ export const MISSING_DISPLAY_TYPE = "---";
 /** Used as the label for the ID of a blank node in the node details or query results. */
 export const LABEL_FOR_BLANK_NODE_ID = "Blank Node Id";
 
-/** Non breaking space */
-export const NBSP = "\u00A0";
-
-/** Small arrow character */
-export const RSAQUO = "\u203A";
+/** ASCII characters used in strings */
+export const ASCII = {
+  /** Non breaking space */
+  NBSP: "\u00A0",
+  /** Small arrow character */
+  RSAQUO: "\u203A",
+} as const;

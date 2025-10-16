@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { createPatchedResultBundle, getDisplayValueForBundle } from "./bundle";
 import { createResultScalar } from "./scalar";
-import { MISSING_DISPLAY_VALUE, NBSP } from "@/utils/constants";
+import { MISSING_DISPLAY_VALUE, ASCII } from "@/utils/constants";
 import { createTestableEdge, createTestableVertex } from "@/utils/testing";
 
 describe("getDisplayValueForBundle", () => {
@@ -17,7 +17,9 @@ describe("getDisplayValueForBundle", () => {
 
     const result = getDisplayValueForBundle(bundle);
 
-    expect(result).toBe(`Name: John${NBSP}• Age: 25${NBSP}• Active: true`);
+    expect(result).toBe(
+      `Name: John${ASCII.NBSP}• Age: 25${ASCII.NBSP}• Active: true`
+    );
   });
 
   it("should format scalar values without names", () => {
@@ -31,7 +33,7 @@ describe("getDisplayValueForBundle", () => {
 
     const result = getDisplayValueForBundle(bundle);
 
-    expect(result).toBe(`John${NBSP}• 25${NBSP}• false`);
+    expect(result).toBe(`John${ASCII.NBSP}• 25${ASCII.NBSP}• false`);
   });
 
   it("should format null scalar values", () => {
@@ -45,7 +47,7 @@ describe("getDisplayValueForBundle", () => {
     const result = getDisplayValueForBundle(bundle);
 
     expect(result).toBe(
-      `EmptyField: ${MISSING_DISPLAY_VALUE}${NBSP}• ${MISSING_DISPLAY_VALUE}`
+      `EmptyField: ${MISSING_DISPLAY_VALUE}${ASCII.NBSP}• ${MISSING_DISPLAY_VALUE}`
     );
   });
 
@@ -62,7 +64,7 @@ describe("getDisplayValueForBundle", () => {
     const expectedDateFormat = "Dec 25 2023, 10:30 AM";
 
     expect(result).toBe(
-      `CreatedAt: ${expectedDateFormat}${NBSP}• ${expectedDateFormat}`
+      `CreatedAt: ${expectedDateFormat}${ASCII.NBSP}• ${expectedDateFormat}`
     );
   });
 
@@ -168,7 +170,7 @@ describe("getDisplayValueForBundle", () => {
     const result = getDisplayValueForBundle(bundle);
 
     expect(result).toBe(
-      `Name: John${NBSP}• Profile: v(v123)${NBSP}• Connection: e(e456)${NBSP}• SubBundle: [...]`
+      `Name: John${ASCII.NBSP}• Profile: v(v123)${ASCII.NBSP}• Connection: e(e456)${ASCII.NBSP}• SubBundle: [...]`
     );
   });
 
@@ -195,7 +197,7 @@ describe("getDisplayValueForBundle", () => {
     const expectedPopulation = new Intl.NumberFormat().format(1000000);
 
     expect(result).toBe(
-      `Price: ${expectedPrice}${NBSP}• Population: ${expectedPopulation}`
+      `Price: ${expectedPrice}${ASCII.NBSP}• Population: ${expectedPopulation}`
     );
   });
 
@@ -211,7 +213,7 @@ describe("getDisplayValueForBundle", () => {
       const upperCaseTransformer = (text: string) => text.toUpperCase();
       const result = getDisplayValueForBundle(bundle, upperCaseTransformer);
 
-      expect(result).toBe(`USER_NAME: JOHN DOE${NBSP}• STATUS: ACTIVE`);
+      expect(result).toBe(`USER_NAME: JOHN DOE${ASCII.NBSP}• STATUS: ACTIVE`);
     });
 
     it("should apply text transformer to scalar values without names", () => {
@@ -225,7 +227,7 @@ describe("getDisplayValueForBundle", () => {
       const upperCaseTransformer = (text: string) => text.toUpperCase();
       const result = getDisplayValueForBundle(bundle, upperCaseTransformer);
 
-      expect(result).toBe(`HELLO WORLD${NBSP}• TEST VALUE`);
+      expect(result).toBe(`HELLO WORLD${ASCII.NBSP}• TEST VALUE`);
     });
 
     it("should apply text transformer to bundle names", () => {
@@ -258,7 +260,7 @@ describe("getDisplayValueForBundle", () => {
       const result = getDisplayValueForBundle(bundle, upperCaseTransformer);
 
       expect(result).toBe(
-        `user_profile: v(v123)${NBSP}• connection_edge: e(e456)`
+        `user_profile: v(v123)${ASCII.NBSP}• connection_edge: e(e456)`
       );
     });
 
@@ -274,7 +276,7 @@ describe("getDisplayValueForBundle", () => {
       const result = getDisplayValueForBundle(bundle, upperCaseTransformer);
 
       expect(result).toBe(
-        `EMPTY_FIELD: ${MISSING_DISPLAY_VALUE}${NBSP}• ${MISSING_DISPLAY_VALUE}`
+        `EMPTY_FIELD: ${MISSING_DISPLAY_VALUE}${ASCII.NBSP}• ${MISSING_DISPLAY_VALUE}`
       );
     });
 
@@ -295,7 +297,7 @@ describe("getDisplayValueForBundle", () => {
       const result = getDisplayValueForBundle(bundle, upperCaseTransformer);
 
       expect(result).toBe(
-        `NAME: JOHN${NBSP}• profile: v(v123)${NBSP}• SUB_BUNDLE: [...]`
+        `NAME: JOHN${ASCII.NBSP}• profile: v(v123)${ASCII.NBSP}• SUB_BUNDLE: [...]`
       );
     });
 
@@ -310,7 +312,7 @@ describe("getDisplayValueForBundle", () => {
       const identityTransformer = (text: string) => text;
       const result = getDisplayValueForBundle(bundle, identityTransformer);
 
-      expect(result).toBe(`Name: John${NBSP}• Age: 25`);
+      expect(result).toBe(`Name: John${ASCII.NBSP}• Age: 25`);
     });
 
     it("should handle complex transformations", () => {
@@ -325,7 +327,7 @@ describe("getDisplayValueForBundle", () => {
         text.replace(/_/g, "-").toLowerCase();
       const result = getDisplayValueForBundle(bundle, kebabCaseTransformer);
 
-      expect(result).toBe(`field-name: user-name${NBSP}• some value`);
+      expect(result).toBe(`field-name: user-name${ASCII.NBSP}• some value`);
     });
   });
 });
