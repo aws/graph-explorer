@@ -93,7 +93,8 @@ export function getDisplayValueForScalar(value: ScalarValue) {
   const typedValue = createTypedValue(value);
   switch (typedValue.type) {
     case "string":
-      return typedValue.value;
+      // Check for empty string
+      return !typedValue.value.trim() ? LABELS.EMPTY_VALUE : typedValue.value;
     case "number":
       return new Intl.NumberFormat().format(typedValue.value);
     case "boolean":
