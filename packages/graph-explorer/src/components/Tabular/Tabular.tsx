@@ -195,7 +195,11 @@ const TabularContent = <T extends object>({
   return (
     <div
       ref={tableRef}
-      className={cn(styleWithTheme(defaultStyles(variant)), className)}
+      className={cn(
+        styleWithTheme(defaultStyles(variant)),
+        className,
+        "overflow-hidden"
+      )}
       style={{
         userSelect: tableInstance.state.columnResizing?.isResizingColumn
           ? "none"
@@ -203,7 +207,7 @@ const TabularContent = <T extends object>({
       }}
     >
       {headerControlsChildren}
-      <div {...getTableProps()} className="table">
+      <div {...getTableProps()} className="table overflow-auto">
         <div
           className={cn("headers", {
             ["headers-sticky"]: !disableStickyHeader,
