@@ -1,6 +1,7 @@
 import { Vertex, Edge, AttributeConfig, EntityPropertyValue } from "@/core";
 import { TextTransformer } from "@/hooks";
 import { getDisplayValueForScalar } from "@/connector/entities";
+import { sortAttributeByName } from "./sortAttributeByName";
 
 /** Represents an attribute's display information after all transformations have been applied. */
 export type DisplayAttribute = {
@@ -29,7 +30,7 @@ export function getSortedDisplayAttributes(
       return mapToDisplayAttribute(name, value, textTransform);
     })
     .toArray()
-    .toSorted((a, b) => a.displayLabel.localeCompare(b.displayLabel));
+    .toSorted(sortAttributeByName);
 
   return sortedAttributes;
 }
