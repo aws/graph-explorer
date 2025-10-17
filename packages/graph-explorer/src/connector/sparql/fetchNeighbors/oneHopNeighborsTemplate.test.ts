@@ -32,23 +32,18 @@ describe("oneHopNeighborsTemplate", () => {
             SELECT DISTINCT ?neighbor
             WHERE {
               BIND(<http://www.example.com/soccer/resource#EPL> AS ?resource)
-              VALUES ?class { <http://www.example.com/soccer/ontology/Team> }
               {
                 ?neighbor ?predicate ?resource .
-                ?neighbor a ?class .
-                FILTER(
-                  ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> &&
-                  !isLiteral(?neighbor)
-                )
+                OPTIONAL { ?neighbor a ?class } .
+                FILTER(!isLiteral(?neighbor) && ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+                FILTER (?class IN (<http://www.example.com/soccer/ontology/Team>))
               }
               UNION
               {
                 ?resource ?predicate ?neighbor .
-                ?neighbor a ?class .
-                FILTER(
-                  ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> &&
-                  !isLiteral(?neighbor)
-                )
+                OPTIONAL { ?neighbor a ?class } .
+                FILTER(!isLiteral(?neighbor) && ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+                FILTER (?class IN (<http://www.example.com/soccer/ontology/Team>))
               }
               ?neighbor ?pValue ?object .
               FILTER(
@@ -84,20 +79,14 @@ describe("oneHopNeighborsTemplate", () => {
               BIND(<http://www.example.com/soccer/resource#EPL> AS ?resource)
               {
                 ?neighbor ?predicate ?resource .
-                ?neighbor a ?class .
-                FILTER(
-                  ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> &&
-                  !isLiteral(?neighbor)
-                )
+                OPTIONAL { ?neighbor a ?class } .
+                FILTER(!isLiteral(?neighbor) && ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
               }
               UNION
               {
                 ?resource ?predicate ?neighbor .
-                ?neighbor a ?class .
-                FILTER(
-                  ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> &&
-                  !isLiteral(?neighbor)
-                )
+                OPTIONAL { ?neighbor a ?class } .
+                FILTER(!isLiteral(?neighbor) && ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
               }
             }
             LIMIT 10
@@ -125,23 +114,18 @@ describe("oneHopNeighborsTemplate", () => {
             SELECT DISTINCT ?neighbor
             WHERE {
               BIND(<http://www.example.com/soccer/resource#EPL> AS ?resource)
-              VALUES ?class { <http://www.example.com/soccer/ontology/Team> <http://www.example.com/soccer/ontology/Player> }
               {
                 ?neighbor ?predicate ?resource .
-                ?neighbor a ?class .
-                FILTER(
-                  ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> &&
-                  !isLiteral(?neighbor)
-                )
+                OPTIONAL { ?neighbor a ?class } .
+                FILTER(!isLiteral(?neighbor) && ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+                FILTER (?class IN (<http://www.example.com/soccer/ontology/Team>, <http://www.example.com/soccer/ontology/Player>))
               }
               UNION
               {
                 ?resource ?predicate ?neighbor .
-                ?neighbor a ?class .
-                FILTER(
-                  ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> &&
-                  !isLiteral(?neighbor)
-                )
+                OPTIONAL { ?neighbor a ?class } .
+                FILTER(!isLiteral(?neighbor) && ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+                FILTER (?class IN (<http://www.example.com/soccer/ontology/Team>, <http://www.example.com/soccer/ontology/Player>))
               }
             }
           }
@@ -168,20 +152,14 @@ describe("oneHopNeighborsTemplate", () => {
               BIND(<http://www.example.com/soccer/resource#EPL> AS ?resource)
               {
                 ?neighbor ?predicate ?resource .
-                ?neighbor a ?class .
-                FILTER(
-                  ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> &&
-                  !isLiteral(?neighbor)
-                )
+                OPTIONAL { ?neighbor a ?class } .
+                FILTER(!isLiteral(?neighbor) && ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
               }
               UNION
               {
                 ?resource ?predicate ?neighbor .
-                ?neighbor a ?class .
-                FILTER(
-                  ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> &&
-                  !isLiteral(?neighbor)
-                )
+                OPTIONAL { ?neighbor a ?class } .
+                FILTER(!isLiteral(?neighbor) && ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
               }
             }
           }
@@ -209,20 +187,14 @@ describe("oneHopNeighborsTemplate", () => {
               BIND(<http://www.example.com/soccer/resource#EPL> AS ?resource)
               {
                 ?neighbor ?predicate ?resource .
-                ?neighbor a ?class .
-                FILTER(
-                  ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> &&
-                  !isLiteral(?neighbor)
-                )
+                OPTIONAL { ?neighbor a ?class } .
+                FILTER(!isLiteral(?neighbor) && ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
               }
               UNION
               {
                 ?resource ?predicate ?neighbor .
-                ?neighbor a ?class .
-                FILTER(
-                  ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> &&
-                  !isLiteral(?neighbor)
-                )
+                OPTIONAL { ?neighbor a ?class } .
+                FILTER(!isLiteral(?neighbor) && ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
               }
             }
             LIMIT 10 OFFSET 5
@@ -253,10 +225,10 @@ describe("oneHopNeighborsTemplate", () => {
               BIND(<http://www.example.com/soccer/resource#EPL> AS ?resource)
               {
                 ?neighbor ?predicate ?resource .
-                ?neighbor a ?class .
+                OPTIONAL { ?neighbor a ?class } .
                 FILTER(
-                  ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> &&
                   !isLiteral(?neighbor) &&
+                  ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> &&
                   ?neighbor NOT IN (
                     <http://www.example.com/soccer/resource#EFL>,
                     <http://www.example.com/soccer/resource#EFL2>
@@ -266,10 +238,10 @@ describe("oneHopNeighborsTemplate", () => {
               UNION
               {
                 ?resource ?predicate ?neighbor .
-                ?neighbor a ?class .
+                OPTIONAL { ?neighbor a ?class } .
                 FILTER(
-                  ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> &&
                   !isLiteral(?neighbor) &&
+                  ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> &&
                   ?neighbor NOT IN (
                     <http://www.example.com/soccer/resource#EFL>,
                     <http://www.example.com/soccer/resource#EFL2>
@@ -311,13 +283,6 @@ function commonPartOfQuery(resourceURI: string) {
       ?neighbor ?predicate ?object
       FILTER(isLiteral(?object) || ?predicate = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
       BIND(?neighbor as ?subject)
-    }
-    UNION
-    {
-      BIND(<${resourceURI}> AS ?resource)
-      ?resource ?predicate ?object
-      FILTER(?predicate = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
-      BIND(?resource as ?subject)
     }
   `;
 }

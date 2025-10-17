@@ -3,7 +3,7 @@ import {
   VertexDetailsRequest,
   VertexDetailsResponse,
 } from "../useGEFetchTypes";
-import { SparqlFetch } from "./types";
+import { rdfTypeUri, SparqlFetch } from "./types";
 import { createVertex } from "@/core";
 import { idParam } from "./idParam";
 import { parseAndMapQuads } from "./parseAndMapQuads";
@@ -26,7 +26,7 @@ export async function vertexDetails(
       }
 
       ?subject ?predicate ?object .
-      FILTER(isLiteral(?object) || ?predicate = rdf:type)
+      FILTER(isLiteral(?object) || ?predicate = ${idParam(rdfTypeUri)})
     }
   `;
 
@@ -35,7 +35,13 @@ export async function vertexDetails(
 
   // Map results to fully materialized vertices
   const results = parseAndMapQuads(response);
-  const vertices = results.vertices.map(v => createVertex(v));
+
+  // Ensure each requested vertex is present in the response, and create a new vertex for any vertex ID that is not
+  // present in the response.
+  const vertices = request.vertexIds.map(vertexId => {
+    const vertex = results.vertices.find(v => v.id === vertexId);
+    return vertex ? createVertex(vertex) : createVertex({ id: vertexId });
+  });
 
   // Log a warning if some nodes are missing
   const missing = new Set(request.vertexIds).difference(

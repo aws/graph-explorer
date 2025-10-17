@@ -8,6 +8,7 @@ import { vertexDetails } from "./vertexDetails";
 import { createVertexId } from "@/core";
 import { createRandomInteger } from "@shared/utils/testing";
 import { query } from "@/utils";
+import { rdfTypeUri } from "./types";
 
 describe("vertexDetails", () => {
   it("should return an empty array when no vertex IDs are provided", async () => {
@@ -48,7 +49,7 @@ describe("vertexDetails", () => {
             <${vertex.id}> 
           }
           ?subject ?predicate ?object .
-          FILTER(isLiteral(?object) || ?predicate = rdf:type)
+          FILTER(isLiteral(?object) || ?predicate = <${rdfTypeUri}>)
         }
       `
     );
@@ -78,7 +79,7 @@ describe("vertexDetails", () => {
             <${vertices[1].id}>
           }
           ?subject ?predicate ?object .
-          FILTER(isLiteral(?object) || ?predicate = rdf:type)
+          FILTER(isLiteral(?object) || ?predicate = <${rdfTypeUri}>)
         }
       `
     );

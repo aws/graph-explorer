@@ -37,5 +37,14 @@ export default async function fetchNeighbors(
     .map(v => createVertex(v));
   const edges = results.edges.map(e => createEdge(e));
 
+  // Find any missing vertices from the edges and add them to the vertex array
+  const missingVertices = results.edges
+    .values()
+    .flatMap(e => [e.sourceId, e.targetId])
+    .filter(id => !vertices.find(v2 => v2.id === id))
+    .filter(id => id !== req.resourceURI)
+    .map(id => createVertex({ id }));
+  vertices.push(...missingVertices);
+
   return { vertices, edges };
 }

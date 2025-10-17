@@ -11,7 +11,6 @@ import {
   edgesSelectedIdsAtom,
   queryEngineSelector,
   edgeSelector,
-  edgeTypeAttributesSelector,
 } from "@/core";
 import { textTransformSelector } from "@/hooks";
 import { LABELS, RESERVED_ID_PROPERTY, RESERVED_TYPES_PROPERTY } from "@/utils";
@@ -76,12 +75,7 @@ const displayEdgeSelector = atomFamily((edge: Edge) =>
     const rawStringId = String(getRawId(edge.id));
     const displayId = isSparql ? displayTypes : rawStringId;
 
-    const typeAttributes = get(edgeTypeAttributesSelector(edgeTypes));
-    const sortedAttributes = getSortedDisplayAttributes(
-      edge,
-      typeAttributes,
-      textTransform
-    );
+    const sortedAttributes = getSortedDisplayAttributes(edge, textTransform);
 
     // Get the display name and description for the edge
     function getDisplayAttributeValueByName(name: string | undefined) {

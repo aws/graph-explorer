@@ -196,8 +196,11 @@ describe("rawQuery", () => {
           "CONSTRUCT { ?s <http://example.org/title> ?title } WHERE { ?s <http://example.org/title> ?title }",
       });
 
+      // Vertices with no types get DEFAULT_TYPE added
       expect(result).toStrictEqual([
-        createResultVertex({ id: "http://example.org/resource" }),
+        createResultVertex({
+          id: "http://example.org/resource",
+        }),
       ]);
     });
 

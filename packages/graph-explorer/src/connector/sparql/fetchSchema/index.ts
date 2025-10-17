@@ -4,23 +4,23 @@ import type { SchemaResponse } from "@/connector/useGEFetchTypes";
 import classesWithCountsTemplates from "./classesWithCountsTemplates";
 import predicatesByClassTemplate from "./predicatesByClassTemplate";
 import predicatesWithCountsTemplate from "./predicatesWithCountsTemplate";
-import { GraphSummary, RawValue, SparqlFetch } from "../types";
+import { GraphSummary, SparqlFetch, SparqlValue } from "../types";
 import { LoggerConnector } from "@/connector/LoggerConnector";
 import { defaultVertexTypeConfig } from "@/core/StateProvider/configuration";
 
 type RawClassesWCountsResponse = {
   results: {
     bindings: Array<{
-      class: RawValue;
-      instancesCount: RawValue;
+      class: SparqlValue;
+      instancesCount: SparqlValue;
     }>;
   };
 };
 type RawPredicatesSamplesResponse = {
   results: {
     bindings: Array<{
-      pred: RawValue;
-      sample: RawValue;
+      pred: SparqlValue;
+      sample: SparqlValue;
     }>;
   };
 };

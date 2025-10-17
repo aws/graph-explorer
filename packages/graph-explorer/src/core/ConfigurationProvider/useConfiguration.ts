@@ -31,37 +31,6 @@ const assembledConfigSelector = atom(get => {
   return result;
 });
 
-export const vertexTypeAttributesSelector = atomFamily(
-  (vertexTypes: string[]) =>
-    atom(get => {
-      const attributesByNameMap = new Map(
-        vertexTypes
-          .values()
-          .map(vt => get(vertexTypeConfigSelector(vt)))
-          .filter(vt => vt != null)
-          .flatMap(vt => vt.attributes)
-          .map(attr => [attr.name, attr])
-      );
-
-      return attributesByNameMap.values().toArray();
-    })
-);
-
-export const edgeTypeAttributesSelector = atomFamily((edgeTypes: string[]) =>
-  atom(get => {
-    const attributesByNameMap = new Map(
-      edgeTypes
-        .values()
-        .map(et => get(edgeTypeConfigSelector(et)))
-        .filter(et => et != null)
-        .flatMap(et => et.attributes)
-        .map(attr => [attr.name, attr])
-    );
-
-    return attributesByNameMap.values().toArray();
-  })
-);
-
 export const vertexTypeConfigSelector = atomFamily((vertexType: string) =>
   atom(
     get =>

@@ -12,13 +12,24 @@ import {
   createRandomInteger,
   createRandomName,
 } from "@shared/utils/testing";
-import { formatDate, LABELS } from "@/utils";
+import { formatDate } from "@/utils";
 import { getDisplayValueForScalar } from "@/connector/entities";
 
 describe("mapToDisplayAttribute", () => {
   it("should map string value", () => {
     const name = createRandomName("name");
     const value = createRandomName("value");
+    const displayAttribute = mapToDisplayAttribute(name, value, transformNoOp);
+    expect(displayAttribute).toStrictEqual({
+      name,
+      displayLabel: name,
+      displayValue: value,
+    });
+  });
+
+  it("should map empty string value", () => {
+    const name = createRandomName("name");
+    const value = "";
     const displayAttribute = mapToDisplayAttribute(name, value, transformNoOp);
     expect(displayAttribute).toStrictEqual({
       name,
@@ -60,17 +71,6 @@ describe("mapToDisplayAttribute", () => {
     });
   });
 
-  it("should map null value", () => {
-    const name = createRandomName("name");
-    const value = null;
-    const displayAttribute = mapToDisplayAttribute(name, value, transformNoOp);
-    expect(displayAttribute).toStrictEqual({
-      name,
-      displayLabel: name,
-      displayValue: LABELS.MISSING_VALUE,
-    });
-  });
-
   it("should use the transformer for display name", () => {
     const value = createRandomName("value");
     const config = createRandomAttributeConfig();
@@ -97,27 +97,16 @@ describe("getSortedDisplayAttributes", () => {
     const matchedConfig = createRandomAttributeConfig();
     matchedConfig.name = matchedName;
 
-    const configAttributes = [
-      createRandomAttributeConfig(),
-      createRandomAttributeConfig(),
-      matchedConfig,
-    ];
-
     const vertex = createRandomVertex();
     vertex.attributes[matchedName] = value;
 
     const sortedDisplayAttributes = getSortedDisplayAttributes(
       vertex,
-      configAttributes,
       transformNoOp
     );
 
     const expected = [
-      // All the non-matched attribute config types
-      ...configAttributes
-        .filter(({ name }) => name !== matchedName)
-        .map(config => mapToDisplayAttribute(config.name, null, transformNoOp)),
-      // All the non-matched vertex attributes value values
+      // All the matched vertex attributes value values
       ...Object.entries(vertex.attributes)
         .filter(([name]) => name !== matchedName)
         .map(([name, value]) =>

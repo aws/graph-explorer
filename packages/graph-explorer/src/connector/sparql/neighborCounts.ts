@@ -1,4 +1,4 @@
-import { logger, query } from "@/utils";
+import { LABELS, logger, query } from "@/utils";
 import {
   NeighborCount,
   NeighborCountsRequest,
@@ -7,7 +7,6 @@ import {
 import {
   BlankNodeItem,
   BlankNodesMap,
-  rdfTypeUri,
   SparqlFetch,
   sparqlNumberValueSchema,
   sparqlResourceValueSchema,
@@ -20,6 +19,7 @@ import { z } from "zod";
 import { fromError } from "zod-validation-error/v3";
 import { createVertexId, VertexId } from "@/core";
 import fetchBlankNodeNeighbors from "./fetchBlankNodeNeighbors";
+import { getNeighborsFilter } from "./filterHelpers";
 
 export async function neighborCounts(
   sparqlFetch: SparqlFetch,
@@ -95,21 +95,13 @@ async function fetchUniqueNeighborCount(
         ${resources.map(idParam).join("\n")}
       }
       {
-        ?resource ?p ?neighbor .
-        ?neighbor a [] .
-        FILTER(
-          ?p != ${idParam(rdfTypeUri)} &&
-          !isLiteral(?neighbor)
-        )
+        ?resource ?predicate ?neighbor .
+        ${getNeighborsFilter()}
       }
       UNION
       {
-        ?neighbor ?p ?resource .
-        ?neighbor a [] .
-        FILTER(
-          ?p != ${idParam(rdfTypeUri)} &&
-          !isLiteral(?neighbor)
-        )
+        ?neighbor ?predicate ?resource .
+        ${getNeighborsFilter()}
       }
     }
     GROUP BY ?resource
@@ -173,21 +165,15 @@ async function fetchCountsByType(
         ${resources.map(idParam).join("\n")}
       }
       {
-        ?resource ?p ?neighbor .
-        ?neighbor a ?type .
-        FILTER(
-          ?p != ${idParam(rdfTypeUri)} &&
-          !isLiteral(?neighbor)
-        )
+        ?resource ?predicate ?neighbor .
+        OPTIONAL { ?neighbor a ?type } .
+        ${getNeighborsFilter()}
       }
       UNION
       {
-        ?neighbor ?p ?resource .
-        ?neighbor a ?type .
-        FILTER(
-          ?p != ${idParam(rdfTypeUri)} &&
-          !isLiteral(?neighbor)
-        )
+        ?neighbor ?predicate ?resource .
+        OPTIONAL { ?neighbor a ?type } .
+        ${getNeighborsFilter()}
       }
     }
     GROUP BY ?resource ?type
@@ -206,7 +192,7 @@ async function fetchCountsByType(
   const responseSchema = sparqlResponseSchema(
     z.object({
       resource: sparqlUriValueSchema,
-      type: sparqlUriValueSchema,
+      type: sparqlUriValueSchema.optional(),
       typeCount: sparqlNumberValueSchema,
     })
   );
@@ -226,7 +212,7 @@ async function fetchCountsByType(
   return parsed.data.results.bindings.reduce((mappedResults, binding) => {
     //Map the binding to useful values
     const vertexId = createVertexId(binding.resource.value);
-    const type = binding.type.value;
+    const type = binding.type?.value ?? LABELS.MISSING_TYPE;
     const count = parseInt(binding.typeCount.value);
 
     // Get the existing entry if it exists

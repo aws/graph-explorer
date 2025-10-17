@@ -1,4 +1,4 @@
-import { Branded } from "@/utils";
+import { Branded, LABELS } from "@/utils";
 import { EntityProperties, EntityRawId } from "./shared";
 import { createVertexId } from "./entityIdType";
 
@@ -72,10 +72,11 @@ export function createVertex(options: {
   /** If not provided, then defaults to false. */
   isBlankNode?: boolean;
 }): Vertex {
-  const types = options.types ?? [];
+  const givenTypes = options.types ?? [];
+  const types = givenTypes.length > 0 ? givenTypes : [LABELS.MISSING_TYPE];
   return {
     id: createVertexId(options.id),
-    type: types[0] ?? "",
+    type: types[0],
     types,
     attributes: options.attributes != null ? options.attributes : {},
     isBlankNode: options.isBlankNode ?? false,

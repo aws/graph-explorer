@@ -91,7 +91,7 @@ describe("mapQuadToEntities", () => {
     const bindings = createQuadBindingsForEntities([vertex], []);
     const result = mapQuadToEntities(bindings);
 
-    expect(result.vertices).toEqual([vertex.asResult()]);
+    expect(result.vertices).toStrictEqual([vertex.asResult()]);
   });
 
   it("should handle duplicate vertex bindings correctly", () => {

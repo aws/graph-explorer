@@ -1,7 +1,11 @@
 import { query } from "@/utils";
 import { idParam } from "../idParam";
-import { rdfTypeUri, SPARQLNeighborsRequest } from "../types";
-import { getLimit } from "../getLimit";
+import { rdfTypeUri, SPARQLCriterion, SPARQLNeighborsRequest } from "../types";
+import {
+  getLimit,
+  getNeighborsFilter,
+  getSubjectClasses,
+} from "../filterHelpers";
 
 /**
  * Creates a SPARQL query that will find all neighbors for the given resource URI and search filters.
@@ -31,23 +35,30 @@ import { getLimit } from "../getLimit";
  *     SELECT DISTINCT ?neighbor
  *     WHERE {
  *       BIND(<http://www.example.com/soccer/resource#EPL> AS ?resource)
- *       VALUES ?class { <http://www.example.com/soccer/ontology/Team> }
  *       {
  *         ?neighbor ?predicate ?resource .
- *         ?neighbor a ?class .
+ *         OPTIONAL { ?neighbor a ?class } .
+ *
  *         FILTER(
  *           ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> &&
  *           !isLiteral(?neighbor)
  *         )
+ *         FILTER (?class IN (
+ *           <http://www.example.com/soccer/ontology/Team>
+ *         ))
  *       }
  *       UNION
  *       {
  *         ?resource ?predicate ?neighbor .
- *         ?neighbor a ?class .
+ *         OPTIONAL { ?neighbor a ?class } .
+ *
  *         FILTER(
  *           ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> &&
  *           !isLiteral(?neighbor)
  *         )
+ *         FILTER (?class IN (
+ *           <http://www.example.com/soccer/ontology/Team>
+ *         ))
  *       }
  *       ?neighbor ?pValue ?object .
  *       FILTER(
@@ -135,14 +146,6 @@ export function oneHopNeighborsTemplate(
         FILTER(isLiteral(?object) || ?predicate = ${rdfTypeUriTemplate})
         BIND(?neighbor as ?subject)
       }
-      UNION
-      {
-        # Source types
-        BIND(${resourceTemplate} AS ?resource)
-        ?resource ?predicate ?object
-        FILTER(?predicate = ${rdfTypeUriTemplate})
-        BIND(?resource as ?subject)
-      }
     }
   `;
 }
@@ -162,78 +165,51 @@ export function findNeighborsUsingFilters({
 }: SPARQLNeighborsRequest): string {
   const resourceTemplate = idParam(resourceURI);
 
-  // templates for filtering by value
-  const hasFilters = filterCriteria.length > 0;
-  const filterCriteriaTemplate = filterCriteria
-    .map(
-      c =>
-        `(?pValue=${idParam(c.predicate)} && regex(str(?object), "${c.object}", "i"))`
-    )
-    .join(" ||\n");
-  const filterTemplate = hasFilters
-    ? query`
-        FILTER(
-          isLiteral(?object) && (
-            ${filterCriteriaTemplate}
-          )
-        )
-      `
-    : "";
-  const valueBindingTemplate = hasFilters ? `?neighbor ?pValue ?object .` : "";
-
-  // templates for filtering by class
-  const subjectClassesTemplate = subjectClasses.length
-    ? `VALUES ?class { ${subjectClasses.map(idParam).join(" ")} }`
-    : "";
-
-  const limitTemplate = getLimit(limit, offset);
-  const rdfTypeUriTemplate = idParam(rdfTypeUri);
-
-  const neighborFilters = [
-    `?predicate != ${rdfTypeUriTemplate}`,
-    `!isLiteral(?neighbor)`,
-    excludedVertices.size > 0
-      ? query`
-      ?neighbor NOT IN (
-        ${excludedVertices.values().map(idParam).toArray().join(", \n")}
-      )
-    `
-      : null,
-  ];
-  const neighborFilterTemplate = query`
-    FILTER(
-      ${neighborFilters.filter(item => item != null).join(" &&\n")}
-    )
-  `;
-
   return query`
     # This sub-query will give us all unique neighbors within the given limit
     SELECT DISTINCT ?neighbor
     WHERE {
       BIND(${resourceTemplate} AS ?resource)
-      ${subjectClassesTemplate}
       {
         # Incoming neighbors
         ?neighbor ?predicate ?resource . 
-        
-        # Get the neighbor's class
-        ?neighbor a ?class .
-
-        ${neighborFilterTemplate}
+        OPTIONAL { ?neighbor a ?class } .
+        ${getNeighborsFilter(excludedVertices)}
+        ${getSubjectClasses(subjectClasses)}
       }
       UNION
       {
         # Outgoing neighbors
         ?resource ?predicate ?neighbor . 
-        
-        # Get the neighbor's class
-        ?neighbor a ?class .
-
-        ${neighborFilterTemplate}
+        OPTIONAL { ?neighbor a ?class } .
+        ${getNeighborsFilter(excludedVertices)}
+        ${getSubjectClasses(subjectClasses)}
       }
-      ${valueBindingTemplate}
-      ${filterTemplate}
+      ${getFilterTemplate(filterCriteria)}
     }
-    ${limitTemplate}
+    ${getLimit(limit, offset)}
   `;
+}
+
+/**
+ * Creates a filter template for the given filter criteria.
+ *
+ * The ?pValue must equal the given criteria predicate and the ?object must match the given criteria object with a partial match.
+ */
+function getFilterTemplate(filterCriteria: SPARQLCriterion[]) {
+  const hasFilters = filterCriteria.length > 0;
+
+  const createFilterTemplate = (c: SPARQLCriterion) =>
+    `(?pValue=${idParam(c.predicate)} && regex(str(?object), "${c.object}", "i"))`;
+
+  return hasFilters
+    ? query`
+        ?neighbor ?pValue ?object .
+        FILTER(
+          isLiteral(?object) && (
+            ${filterCriteria.map(createFilterTemplate).join(" ||\n")}
+          )
+        )
+      `
+    : "";
 }

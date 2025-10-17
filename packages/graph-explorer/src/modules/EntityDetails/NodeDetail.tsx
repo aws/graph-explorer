@@ -16,6 +16,17 @@ export type VertexDetailProps = {
 export default function NodeDetail({ node }: VertexDetailProps) {
   const t = useTranslations();
 
+  const displayTypes =
+    node.displayTypes !== LABELS.MISSING_TYPE
+      ? [
+          {
+            name: RESERVED_TYPES_PROPERTY,
+            displayLabel: t("node-detail.node-type"),
+            displayValue: node.displayTypes,
+          },
+        ]
+      : [];
+
   const allAttributes: DisplayAttribute[] = [
     {
       name: RESERVED_ID_PROPERTY,
@@ -25,11 +36,7 @@ export default function NodeDetail({ node }: VertexDetailProps) {
         : t("node-detail.node-id"),
       displayValue: node.displayId,
     },
-    {
-      name: RESERVED_TYPES_PROPERTY,
-      displayLabel: t("node-detail.node-type"),
-      displayValue: node.displayTypes,
-    },
+    ...displayTypes,
     ...node.attributes,
   ];
 

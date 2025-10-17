@@ -13,7 +13,8 @@ describe("SPARQL > keywordSearchTemplate", () => {
             # This sub-query will find any matching instances to the given filters and limit the results
             SELECT DISTINCT ?subject
             WHERE {
-              ?subject a ?class ; ?pValue ?value .
+              ?subject ?pValue ?value .
+              OPTIONAL { ?subject a ?class } .
             }
           }
           {
@@ -40,7 +41,8 @@ describe("SPARQL > keywordSearchTemplate", () => {
             # This sub-query will find any matching instances to the given filters and limit the results
             SELECT DISTINCT ?subject
             WHERE {
-              ?subject a ?class ; ?pValue ?value .
+              ?subject ?pValue ?value .
+              OPTIONAL { ?subject a ?class } .
             }
             LIMIT 10 OFFSET 20
           }
@@ -67,7 +69,8 @@ describe("SPARQL > keywordSearchTemplate", () => {
             # This sub-query will find any matching instances to the given filters and limit the results
             SELECT DISTINCT ?subject
             WHERE {
-              ?subject a ?class ; ?pValue ?value .
+              ?subject ?pValue ?value .
+              OPTIONAL { ?subject a ?class } .
             }
             LIMIT 10
           }
@@ -94,7 +97,8 @@ describe("SPARQL > keywordSearchTemplate", () => {
             # This sub-query will find any matching instances to the given filters and limit the results
             SELECT DISTINCT ?subject
             WHERE {
-              ?subject a ?class ; ?pValue ?value .
+              ?subject ?pValue ?value .
+              OPTIONAL { ?subject a ?class } .
             }
           }
           {
@@ -120,7 +124,8 @@ describe("SPARQL > keywordSearchTemplate", () => {
             # This sub-query will find any matching instances to the given filters and limit the results
             SELECT DISTINCT ?subject
             WHERE {
-              ?subject a ?class ; ?pValue ?value .
+              ?subject ?pValue ?value .
+              OPTIONAL { ?subject a ?class } .
               FILTER (?class IN (<air:airport>))
             }
           }
@@ -150,7 +155,8 @@ describe("SPARQL > keywordSearchTemplate", () => {
             # This sub-query will find any matching instances to the given filters and limit the results
             SELECT DISTINCT ?subject
             WHERE {
-              ?subject a ?class ; ?pValue ?value .
+              ?subject ?pValue ?value .
+              OPTIONAL { ?subject a ?class } .
               FILTER (?pValue IN (<air:city>, <air:code>))
               FILTER (?class IN (<air:airport>))
               FILTER (regex(str(?value), "JFK", "i"))
@@ -182,7 +188,8 @@ describe("SPARQL > keywordSearchTemplate", () => {
             # This sub-query will find any matching instances to the given filters and limit the results
             SELECT DISTINCT ?subject
             WHERE {
-              ?subject a ?class ; ?pValue ?value .
+              ?subject ?pValue ?value .
+              OPTIONAL { ?subject a ?class } .
               FILTER (?pValue IN (<air:city>, <air:code>))
               FILTER (?class IN (<air:airport>))
               FILTER (?value = "JFK")
@@ -214,7 +221,8 @@ describe("SPARQL > keywordSearchTemplate", () => {
             # This sub-query will find any matching instances to the given filters and limit the results
             SELECT DISTINCT ?subject
             WHERE {
-              ?subject a ?class ; ?pValue ?value .
+              ?subject ?pValue ?value .
+              OPTIONAL { ?subject a ?class } .
               FILTER (?pValue IN (<air:city>, <air:code>))
               FILTER (?class IN (<air:airport>))
               FILTER (?value = "JFK")
@@ -246,7 +254,8 @@ describe("SPARQL > keywordSearchTemplate", () => {
             # This sub-query will find any matching instances to the given filters and limit the results
             SELECT DISTINCT ?subject
             WHERE {
-              ?subject a ?class ; ?pValue ?value .
+              ?subject ?pValue ?value .
+              OPTIONAL { ?subject a ?class } .
               FILTER (?pValue IN (<rdfs:label>))
               FILTER (?class IN (<air:airport>))
               FILTER (?value = "JFK")
@@ -278,7 +287,8 @@ describe("SPARQL > keywordSearchTemplate", () => {
             # This sub-query will find any matching instances to the given filters and limit the results
             SELECT DISTINCT ?subject
             WHERE {
-              ?subject a ?class ; ?pValue ?value .
+              ?subject ?pValue ?value .
+              OPTIONAL { ?subject a ?class } .
               FILTER (?pValue IN (<rdfs:label>))
               FILTER (?class IN (<air:airport>))
               FILTER (regex(str(?value), "JFK", "i"))
