@@ -284,12 +284,5 @@ function commonPartOfQuery(resourceURI: string) {
       FILTER(isLiteral(?object) || ?predicate = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
       BIND(?neighbor as ?subject)
     }
-    UNION
-    {
-      BIND(<${resourceURI}> AS ?resource)
-      ?resource ?predicate ?object
-      FILTER(?predicate = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
-      BIND(?resource as ?subject)
-    }
   `;
 }

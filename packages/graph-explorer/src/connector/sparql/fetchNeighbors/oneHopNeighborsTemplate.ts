@@ -146,14 +146,6 @@ export function oneHopNeighborsTemplate(
         FILTER(isLiteral(?object) || ?predicate = ${rdfTypeUriTemplate})
         BIND(?neighbor as ?subject)
       }
-      UNION
-      {
-        # Source types
-        BIND(${resourceTemplate} AS ?resource)
-        ?resource ?predicate ?object
-        FILTER(?predicate = ${rdfTypeUriTemplate})
-        BIND(?resource as ?subject)
-      }
     }
   `;
 }
