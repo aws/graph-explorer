@@ -128,4 +128,53 @@ describe("useSidebar", () => {
     expect(result.current.activeSidebarItem).toBeNull();
     expect(result.current.shouldShowNamespaces).toBe(false);
   });
+
+  it("should auto-open details when detailsAutoOpenOnSelection is true", async () => {
+    const { result } = renderHookWithJotai(
+      () => useSidebar(),
+      store =>
+        store.set(userLayoutAtom, {
+          activeSidebarItem: "search",
+          activeToggles: new Set(),
+          detailsAutoOpenOnSelection: true,
+        } satisfies UserLayout)
+    );
+
+    await act(() => result.current.autoOpenDetails());
+
+    expect(result.current.activeSidebarItem).toBe("details");
+  });
+
+  it("should do nothing when detailsAutoOpenOnSelection is true and sidebar is already details", async () => {
+    const { result } = renderHookWithJotai(
+      () => useSidebar(),
+      store =>
+        store.set(userLayoutAtom, {
+          activeSidebarItem: "details",
+          activeToggles: new Set(),
+          detailsAutoOpenOnSelection: true,
+        } satisfies UserLayout)
+    );
+
+    await act(() => result.current.autoOpenDetails());
+
+    expect(result.current.activeSidebarItem).toBe("details");
+    expect(result.current.isSidebarOpen).toBe(true);
+  });
+
+  it("should not auto-open details when detailsAutoOpenOnSelection is false", async () => {
+    const { result } = renderHookWithJotai(
+      () => useSidebar(),
+      store =>
+        store.set(userLayoutAtom, {
+          activeSidebarItem: "search",
+          activeToggles: new Set(),
+          detailsAutoOpenOnSelection: false,
+        } satisfies UserLayout)
+    );
+
+    await act(() => result.current.autoOpenDetails());
+
+    expect(result.current.activeSidebarItem).toBe("search");
+  });
 });

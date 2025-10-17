@@ -136,11 +136,27 @@ export function useSidebar() {
       };
     });
 
+  const autoOpenDetails = async () => {
+    await setUserLayout(async prevPromise => {
+      const prev = await prevPromise;
+
+      if (prev.detailsAutoOpenOnSelection !== true) {
+        return prev;
+      }
+
+      return {
+        ...prev,
+        activeSidebarItem: "details",
+      };
+    });
+  };
+
   return {
     activeSidebarItem,
     isSidebarOpen,
     closeSidebar,
     toggleSidebar,
+    autoOpenDetails,
     shouldShowNamespaces,
   };
 }

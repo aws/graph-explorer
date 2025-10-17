@@ -7,6 +7,7 @@ import {
   useDisplayVertexTypeConfigs,
   useRenderedEdges,
   useRenderedVertices,
+  useSidebar,
 } from "@/core";
 import {
   Panel,
@@ -38,7 +39,6 @@ import useGraphGlobalActions from "./useGraphGlobalActions";
 import useGraphStyles from "./useGraphStyles";
 import useNodeBadges from "./useNodeBadges";
 import { SelectedElements } from "@/components/Graph/Graph.model";
-import { useAutoOpenDetailsSidebar } from "./useAutoOpenDetailsSidebar";
 import { ImportGraphButton } from "./ImportGraphButton";
 import { ExportGraphButton } from "./ExportGraphButton";
 import {
@@ -73,7 +73,7 @@ export default function GraphViewer() {
   const nodesOutIds = useAtomValue(nodesOutOfFocusRenderedIdsAtom);
   const edgesOutIds = useAtomValue(edgesOutOfFocusRenderedIdsAtom);
 
-  const autoOpenDetails = useAutoOpenDetailsSidebar();
+  const { autoOpenDetails } = useSidebar();
 
   const onSelectedElementIdsChange = ({
     nodeIds,
