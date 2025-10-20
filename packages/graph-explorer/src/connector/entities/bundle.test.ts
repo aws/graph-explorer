@@ -276,7 +276,7 @@ describe("getDisplayValueForBundle", () => {
       const result = getDisplayValueForBundle(bundle, upperCaseTransformer);
 
       expect(result).toBe(
-        `EMPTY_FIELD: ${LABELS.MISSING_VALUE}${ASCII.NBSP}• ${LABELS.MISSING_VALUE}`
+        `EMPTY_FIELD: ${upperCaseTransformer(LABELS.MISSING_VALUE)}${ASCII.NBSP}• ${upperCaseTransformer(LABELS.MISSING_VALUE)}`
       );
     });
 

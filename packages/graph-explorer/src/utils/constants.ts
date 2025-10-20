@@ -1,3 +1,15 @@
+/** ASCII characters used in strings */
+export const ASCII = {
+  /** Non breaking space */
+  NBSP: "\u00A0",
+  /** Small arrow character */
+  RSAQUO: "\u203A",
+  /** Left double angle quotes */
+  LAQUO: "\u00ab",
+  /** Right double angle quotes */
+  RAQUO: "\u00bb",
+} as const;
+
 export const DEFAULT_SERVICE_TYPE = "neptune-db";
 export const DEFAULT_FETCH_TIMEOUT = 240000;
 export const DEFAULT_NODE_EXPAND_LIMIT = 500;
@@ -23,15 +35,7 @@ export const LABELS = {
   /** Used as the label for the ID of a blank node in the node details or query results. */
   BLANK_NODE_ID: "Blank Node Id",
   /** Shown when a type is missing  */
-  MISSING_TYPE: "---",
+  MISSING_TYPE: `${ASCII.LAQUO}No Type${ASCII.RAQUO}`,
   /** Shown when a value is missing */
-  MISSING_VALUE: "---",
-} as const;
-
-/** ASCII characters used in strings */
-export const ASCII = {
-  /** Non breaking space */
-  NBSP: "\u00A0",
-  /** Small arrow character */
-  RSAQUO: "\u203A",
+  MISSING_VALUE: `${ASCII.LAQUO}No Value${ASCII.RAQUO}`,
 } as const;
