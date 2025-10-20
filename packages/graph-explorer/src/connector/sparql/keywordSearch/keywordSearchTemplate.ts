@@ -1,12 +1,7 @@
-import { query } from "@/utils";
+import { escapeString, query } from "@/utils";
 import { rdfTypeUri, SPARQLKeywordSearchRequest } from "../types";
-import {
-  getFilterObject,
-  getFilterPredicates,
-  getSubjectClasses,
-} from "./helpers";
-import { getLimit } from "../getLimit";
 import { idParam } from "../idParam";
+import { getLimit, getSubjectClasses } from "../filterHelpers";
 
 /**
  * Fetch nodes matching the given search parameters
@@ -68,6 +63,41 @@ export default function keywordSearchTemplate(
   `;
 }
 
+/**
+ * Generates a SPARQL sub-query to find subjects matching the given search filters.
+ * This sub-query is used within keyword search and blank node neighbor fetching to identify matching resources before fetching their full details.
+ *
+ * @param request - Search parameters including search term, predicates, subject classes, and pagination
+ * @returns A SPARQL SELECT query that returns distinct subjects matching the filters
+ *
+ * @example
+ * // With all filters:
+ * // Returns:
+ * // "SELECT DISTINCT ?subject
+ * // WHERE {
+ * //   ?subject a       ?class ;
+ * //            ?pValue ?value .
+ * //   FILTER (?pValue IN (<http://example.org/name>, <http://example.org/title>))
+ * //   FILTER (?class IN (<http://example.org/Person>))
+ * //   FILTER (regex(str(?value), "John", "i"))
+ * // }
+ * // LIMIT 10 OFFSET 0"
+ * findSubjectsMatchingFilters({
+ *   searchTerm: "John",
+ *   predicates: ["http://example.org/name", "http://example.org/title"],
+ *   subjectClasses: ["http://example.org/Person"],
+ *   limit: 10,
+ *   offset: 0
+ * })
+ *
+ * @example
+ * // With exact match:
+ * // Returns query with: FILTER (?value = "John")
+ * findSubjectsMatchingFilters({
+ *   searchTerm: "John",
+ *   exactMatch: true
+ * })
+ */
 export function findSubjectsMatchingFilters(
   request: SPARQLKeywordSearchRequest
 ) {
@@ -82,4 +112,25 @@ export function findSubjectsMatchingFilters(
     }
     ${getLimit(request.limit, request.offset)}
   `;
+}
+
+function getFilterPredicates(predicates?: string[]) {
+  const filteredPredicates = predicates?.filter(p => p !== "__all") || [];
+  if (!filteredPredicates.length) {
+    return "";
+  }
+
+  return `FILTER (?pValue IN (${filteredPredicates.map(idParam).join(", ")}))`;
+}
+
+function getFilterObject(exactMatch?: boolean, searchTerm?: string) {
+  if (!searchTerm) {
+    return "";
+  }
+
+  const escapedSearchTerm = escapeString(searchTerm);
+
+  return exactMatch === true
+    ? `FILTER (?value = "${escapedSearchTerm}")`
+    : `FILTER (regex(str(?value), "${escapedSearchTerm}", "i"))`;
 }

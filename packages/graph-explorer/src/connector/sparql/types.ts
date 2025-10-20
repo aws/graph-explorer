@@ -14,7 +14,7 @@ export type SPARQLCriterion = {
   /**
    * Object value.
    */
-  object: any;
+  object: string;
 };
 
 export type SPARQLNeighborsRequest = {
