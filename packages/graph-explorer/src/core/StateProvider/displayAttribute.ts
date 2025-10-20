@@ -1,48 +1,29 @@
-import { Vertex, Edge, AttributeConfig, EntityPropertyValue } from "@/core";
+import { Vertex, Edge, EntityPropertyValue } from "@/core";
 import { TextTransformer } from "@/hooks";
 import { getDisplayValueForScalar } from "@/connector/entities";
 import { sortAttributeByName } from "./sortAttributeByName";
 
 /** Represents an attribute's display information after all transformations have been applied. */
-export type DisplayAttribute = {
-  name: string;
-  displayLabel: string;
-  displayValue: string | null;
-};
+export type DisplayAttribute = ReturnType<typeof mapToDisplayAttribute>;
 
 /** Maps a `Vertex` or `Edge` instance's attributes to a list of `DisplayAttribute` instances using the schema and any user preferences. */
 export function getSortedDisplayAttributes(
   entity: Vertex | Edge,
-  typeAttributes: AttributeConfig[],
   textTransform: TextTransformer
 ): DisplayAttribute[] {
-  const entityAttributeNames = Object.keys(entity.attributes);
-  const typeAttributeNames = typeAttributes.map(attr => attr.name);
-  const uniqueAttributeNames = new Set([
-    ...entityAttributeNames,
-    ...typeAttributeNames,
-  ]);
-  const sortedAttributes = uniqueAttributeNames
-    .values()
-    .map(name => {
-      const value = entity.attributes[name] ?? null;
-
-      return mapToDisplayAttribute(name, value, textTransform);
-    })
-    .toArray()
+  return Object.entries(entity.attributes)
+    .map(([name, value]) => mapToDisplayAttribute(name, value, textTransform))
     .toSorted(sortAttributeByName);
-
-  return sortedAttributes;
 }
 
 export function mapToDisplayAttribute(
   name: string,
-  value: EntityPropertyValue | null,
+  value: EntityPropertyValue,
   textTransform: TextTransformer
-): DisplayAttribute {
+) {
   return {
     name,
     displayLabel: textTransform(name),
     displayValue: getDisplayValueForScalar(value),
-  } satisfies DisplayAttribute;
+  };
 }

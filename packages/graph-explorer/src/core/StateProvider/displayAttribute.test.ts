@@ -12,7 +12,7 @@ import {
   createRandomInteger,
   createRandomName,
 } from "@shared/utils/testing";
-import { formatDate, LABELS } from "@/utils";
+import { formatDate } from "@/utils";
 import { getDisplayValueForScalar } from "@/connector/entities";
 import { RDFS_LABEL_URI } from "./sortAttributeByName";
 
@@ -61,17 +61,6 @@ describe("mapToDisplayAttribute", () => {
     });
   });
 
-  it("should map null value", () => {
-    const name = createRandomName("name");
-    const value = null;
-    const displayAttribute = mapToDisplayAttribute(name, value, transformNoOp);
-    expect(displayAttribute).toStrictEqual({
-      name,
-      displayLabel: name,
-      displayValue: LABELS.MISSING_VALUE,
-    });
-  });
-
   it("should use the transformer for display name", () => {
     const value = createRandomName("value");
     const config = createRandomAttributeConfig();
@@ -98,27 +87,16 @@ describe("getSortedDisplayAttributes", () => {
     const matchedConfig = createRandomAttributeConfig();
     matchedConfig.name = matchedName;
 
-    const configAttributes = [
-      createRandomAttributeConfig(),
-      createRandomAttributeConfig(),
-      matchedConfig,
-    ];
-
     const vertex = createRandomVertex();
     vertex.attributes[matchedName] = value;
 
     const sortedDisplayAttributes = getSortedDisplayAttributes(
       vertex,
-      configAttributes,
       transformNoOp
     );
 
     const expected = [
-      // All the non-matched attribute config types
-      ...configAttributes
-        .filter(({ name }) => name !== matchedName)
-        .map(config => mapToDisplayAttribute(config.name, null, transformNoOp)),
-      // All the non-matched vertex attributes value values
+      // All the matched vertex attributes value values
       ...Object.entries(vertex.attributes)
         .filter(([name]) => name !== matchedName)
         .map(([name, value]) =>
@@ -140,16 +118,8 @@ describe("getSortedDisplayAttributes", () => {
       email: "john@example.com",
     };
 
-    const configAttributes = [
-      { name: "name", dataType: "String" },
-      { name: "age", dataType: "Number" },
-      { name: RDFS_LABEL_URI, dataType: "String" },
-      { name: "email", dataType: "String" },
-    ];
-
     const sortedDisplayAttributes = getSortedDisplayAttributes(
       vertex,
-      configAttributes,
       transformNoOp
     );
 
@@ -166,16 +136,8 @@ describe("getSortedDisplayAttributes", () => {
       zzz: "value3",
     };
 
-    const configAttributes = [
-      { name: "aaa", dataType: "String" },
-      { name: "bbb", dataType: "String" },
-      { name: RDFS_LABEL_URI, dataType: "String" },
-      { name: "zzz", dataType: "String" },
-    ];
-
     const sortedDisplayAttributes = getSortedDisplayAttributes(
       vertex,
-      configAttributes,
       transformNoOp
     );
 
@@ -185,29 +147,6 @@ describe("getSortedDisplayAttributes", () => {
       "bbb",
       "zzz",
     ]);
-  });
-
-  it("should handle rdfs:label when it has no value", () => {
-    const vertex = createRandomVertex();
-    vertex.attributes = {
-      name: "John Doe",
-      age: 30,
-    };
-
-    const configAttributes = [
-      { name: "name", dataType: "String" },
-      { name: RDFS_LABEL_URI, dataType: "String" },
-      { name: "age", dataType: "Number" },
-    ];
-
-    const sortedDisplayAttributes = getSortedDisplayAttributes(
-      vertex,
-      configAttributes,
-      transformNoOp
-    );
-
-    expect(sortedDisplayAttributes[0].name).toBe(RDFS_LABEL_URI);
-    expect(sortedDisplayAttributes[0].displayValue).toBe(LABELS.MISSING_VALUE);
   });
 });
 

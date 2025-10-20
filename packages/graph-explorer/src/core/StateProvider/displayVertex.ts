@@ -1,7 +1,6 @@
 import {
   DisplayAttribute,
   getSortedDisplayAttributes,
-  vertexTypeAttributesSelector,
   nodesAtom,
   nodesSelectedIdsAtom,
   DisplayVertexTypeConfig,
@@ -89,12 +88,7 @@ const displayVertexSelector = atomFamily((vertex: Vertex) =>
       .join(", ");
 
     // Map all the attributes for displaying
-    const typeAttributes = get(vertexTypeAttributesSelector(vertexTypes));
-    const sortedAttributes = getSortedDisplayAttributes(
-      vertex,
-      typeAttributes,
-      textTransform
-    );
+    const sortedAttributes = getSortedDisplayAttributes(vertex, textTransform);
 
     // Get the display name and description for the vertex
     function getDisplayAttributeValueByName(name: string | undefined) {
