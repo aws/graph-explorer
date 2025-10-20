@@ -2,7 +2,7 @@ import { useAtom } from "jotai";
 import { atomWithLocalForage } from "./localForageEffect";
 import { useQueryEngine } from "../connector";
 
-type ToggleableView = "graph-viewer" | "table-view";
+export type ToggleableView = "graph-viewer" | "table-view";
 
 type UserLayout = {
   activeToggles: Set<ToggleableView>;
