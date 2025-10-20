@@ -130,11 +130,7 @@ function getFilterObject(exactMatch?: boolean, searchTerm?: string) {
 
   const escapedSearchTerm = escapeString(searchTerm);
 
-  let filterBySearchTerm = "";
-  if (exactMatch === true) {
-    filterBySearchTerm = `FILTER (?value = "${escapedSearchTerm}")`;
-  } else {
-    filterBySearchTerm = `FILTER (regex(str(?value), "${escapedSearchTerm}", "i"))`;
-  }
-  return filterBySearchTerm;
+  return exactMatch === true
+    ? `FILTER (?value = "${escapedSearchTerm}")`
+    : `FILTER (regex(str(?value), "${escapedSearchTerm}", "i"))`;
 }
