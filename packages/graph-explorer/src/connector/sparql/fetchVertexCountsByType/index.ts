@@ -4,13 +4,13 @@ import type {
   CountsByTypeResponse,
 } from "@/connector/useGEFetchTypes";
 import classWithCountsTemplates from "./classWithCountsTemplates";
-import { RawValue, SparqlFetch } from "../types";
+import { SparqlFetch, SparqlValue } from "../types";
 
 type RawCountsByTypeResponse = {
   results: {
     bindings: [
       {
-        instancesCount: RawValue;
+        instancesCount: SparqlValue;
       },
     ];
   };
