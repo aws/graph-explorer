@@ -1,6 +1,7 @@
 import { ZodError } from "zod";
 import { NetworkError } from "./NetworkError";
 import { isCancellationError } from "./isCancellationError";
+import { PatchEntityDetailsError } from "@/connector/queries/patchEntityDetails";
 
 export type DisplayError = {
   title: string;
@@ -115,6 +116,13 @@ export function createDisplayError(error: any): DisplayError {
       title: `Network Response ${error.statusCode}`,
       message:
         extractMessageFromData(error.data) ?? defaultDisplayError.message,
+    };
+  }
+
+  if (error instanceof PatchEntityDetailsError) {
+    return {
+      title: "Failed to update entity details",
+      message: error.message,
     };
   }
 

@@ -35,11 +35,30 @@ export async function patchEntityDetails(
 
   // Ensure all details are fetched
   if (missingVertices.length > 0 || missingEdges.length > 0) {
+    const vertexCount =
+      missingVertices.length === 0
+        ? null
+        : missingVertices.length === 1
+          ? "1 vertex"
+          : `${missingVertices.length} vertices`;
+    const edgeCount =
+      missingEdges.length === 0
+        ? null
+        : missingEdges.length === 1
+          ? "1 edge"
+          : `${missingEdges.length} edges`;
+
+    const missingCount =
+      vertexCount && edgeCount
+        ? `${vertexCount} and ${edgeCount}`
+        : vertexCount || edgeCount || "";
     logger.error("Failed to fetch fragment entity details", {
       missingVertices,
       missingEdges,
     });
-    throw new Error("Failed to fetch entity details");
+    throw new PatchEntityDetailsError(
+      `Failed to fetch the details of ${missingCount}.`
+    );
   }
 
   // Create a mapping from vertex ID to full vertex details
@@ -76,7 +95,7 @@ function patchVertex(
   const fullVertex = vertexDetailsMap.get(vertex.id);
 
   if (!fullVertex) {
-    throw new Error("Failed to fetch vertex details");
+    throw new PatchEntityDetailsError("Failed to fetch vertex details");
   }
 
   return createPatchedResultVertex({
@@ -94,8 +113,21 @@ function patchEdge(
   const fullSource = vertexDetailsMap.get(edge.sourceId);
   const fullTarget = vertexDetailsMap.get(edge.targetId);
 
-  if (!fullEdge || !fullSource || !fullTarget) {
-    throw new Error("Failed to fetch edge details");
+  if (!fullEdge) {
+    throw new PatchEntityDetailsError(
+      "Could not find the full details of the edge"
+    );
+  }
+
+  if (!fullSource) {
+    throw new PatchEntityDetailsError(
+      "Could not find the full details of the source vertex"
+    );
+  }
+  if (!fullTarget) {
+    throw new PatchEntityDetailsError(
+      "Could not find the full details of the target vertex"
+    );
   }
 
   return createPatchedResultEdge({
@@ -117,4 +149,12 @@ function patchBundle(
       patchEntity(child, vertexDetailsMap, edgeDetailsMap)
     ),
   };
+}
+
+export class PatchEntityDetailsError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "PatchEntityDetailsError";
+    Object.setPrototypeOf(this, PatchEntityDetailsError.prototype);
+  }
 }

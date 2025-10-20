@@ -3,7 +3,10 @@ import {
   createTestableVertex,
   FakeExplorer,
 } from "@/utils/testing";
-import { patchEntityDetails } from "./patchEntityDetails";
+import {
+  patchEntityDetails,
+  PatchEntityDetailsError,
+} from "./patchEntityDetails";
 import { createQueryClient } from "@/core/queryClient";
 import {
   createResultScalar,
@@ -221,5 +224,78 @@ describe("patchEntityDetails", () => {
     });
 
     expect(result).toStrictEqual([expectedBundle]);
+  });
+
+  it("should throw when source vertex not found", async () => {
+    const explorer = new FakeExplorer();
+    const client = createQueryClient({ explorer });
+
+    const edge = createTestableEdge();
+    explorer.addTestableEdge(edge);
+    explorer.vertexMap.delete(edge.source.id);
+
+    await expect(() =>
+      patchEntityDetails(client, [edge.asFragmentResult()])
+    ).rejects.toThrow(
+      new PatchEntityDetailsError("Failed to fetch the details of 1 vertex.")
+    );
+  });
+
+  it("should throw when target vertex not found", async () => {
+    const explorer = new FakeExplorer();
+    const client = createQueryClient({ explorer });
+
+    const edge = createTestableEdge();
+    explorer.addTestableEdge(edge);
+    explorer.vertexMap.delete(edge.target.id);
+
+    await expect(() =>
+      patchEntityDetails(client, [edge.asFragmentResult()])
+    ).rejects.toThrow(
+      new PatchEntityDetailsError("Failed to fetch the details of 1 vertex.")
+    );
+  });
+
+  it("should throw when edge full details not found", async () => {
+    const explorer = new FakeExplorer();
+    const client = createQueryClient({ explorer });
+
+    const edge = createTestableEdge();
+    explorer.addTestableEdge(edge);
+    explorer.edgeMap.delete(edge.id);
+
+    await expect(() =>
+      patchEntityDetails(client, [edge.asFragmentResult()])
+    ).rejects.toThrow(
+      new PatchEntityDetailsError("Failed to fetch the details of 1 edge.")
+    );
+  });
+
+  it("should throw when multiple vertices and edges are not found", async () => {
+    const explorer = new FakeExplorer();
+    const client = createQueryClient({ explorer });
+
+    const vertex = createTestableVertex();
+    const edge1 = createTestableEdge();
+    const edge2 = createTestableEdge();
+    explorer.addTestableVertex(vertex);
+    explorer.addTestableEdge(edge1);
+    explorer.addTestableEdge(edge2);
+    explorer.vertexMap.delete(vertex.id);
+    explorer.vertexMap.delete(edge1.source.id);
+    explorer.edgeMap.delete(edge1.id);
+    explorer.edgeMap.delete(edge2.id);
+
+    await expect(() =>
+      patchEntityDetails(client, [
+        vertex.asFragmentResult(),
+        edge1.asFragmentResult(),
+        edge2.asFragmentResult(),
+      ])
+    ).rejects.toThrow(
+      new PatchEntityDetailsError(
+        "Failed to fetch the details of 2 vertices and 2 edges."
+      )
+    );
   });
 });
