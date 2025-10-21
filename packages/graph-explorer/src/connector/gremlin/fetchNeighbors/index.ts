@@ -1,6 +1,6 @@
-import {
-  type NeighborsRequest,
-  type NeighborsResponse,
+import type {
+  NeighborsRequest,
+  NeighborsResponse,
 } from "@/connector/useGEFetchTypes";
 import mapApiEdge from "../mappers/mapApiEdge";
 import mapApiVertex from "../mappers/mapApiVertex";

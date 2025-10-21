@@ -1,8 +1,8 @@
 import { createVertex, Vertex } from "@/core";
-import {
-  type ErrorResponse,
-  type KeywordSearchRequest,
-  type KeywordSearchResponse,
+import type {
+  ErrorResponse,
+  KeywordSearchRequest,
+  KeywordSearchResponse,
 } from "@/connector/useGEFetchTypes";
 import isErrorResponse from "@/connector/utils/isErrorResponse";
 import mapApiVertex from "../mappers/mapApiVertex";

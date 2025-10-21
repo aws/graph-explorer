@@ -1,12 +1,12 @@
 import { cloneDeep, isEqual, uniq } from "lodash";
 import { atom } from "jotai";
 import DEFAULT_ICON_URL from "@/utils/defaultIconUrl";
-import {
-  type AttributeConfig,
-  type ConfigurationId,
-  type EdgeTypeConfig,
-  type RawConfiguration,
-  type VertexTypeConfig,
+import type {
+  AttributeConfig,
+  ConfigurationId,
+  EdgeTypeConfig,
+  RawConfiguration,
+  VertexTypeConfig,
 } from "@/core";
 import { atomWithLocalForageAsync } from "./localForageEffect";
 import { activeSchemaSelector, SchemaInference } from "./schema";

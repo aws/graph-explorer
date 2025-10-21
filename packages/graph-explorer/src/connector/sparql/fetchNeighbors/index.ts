@@ -1,4 +1,4 @@
-import { type NeighborsResponse } from "@/connector/useGEFetchTypes";
+import type { NeighborsResponse } from "@/connector/useGEFetchTypes";
 import { oneHopNeighborsTemplate } from "./oneHopNeighborsTemplate";
 import { SparqlFetch, SPARQLNeighborsRequest } from "../types";
 import { logger } from "@/utils";

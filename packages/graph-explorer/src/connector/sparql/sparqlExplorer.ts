@@ -1,7 +1,7 @@
-import {
-  type Criterion,
-  type Explorer,
-  type ExplorerRequestOptions,
+import type {
+  Criterion,
+  Explorer,
+  ExplorerRequestOptions,
 } from "../useGEFetchTypes";
 import { fetchDatabaseRequest } from "../fetchDatabaseRequest";
 import fetchClassCounts from "./fetchVertexCountsByType";
