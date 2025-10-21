@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   presets: [
     [
       "@babel/preset-env",
@@ -15,7 +15,7 @@ module.exports = {
     [
       "babel-plugin-react-compiler",
       {
-        target: "19", // '17' | '18' | '19'
+        target: "19",
       },
     ],
   ],
