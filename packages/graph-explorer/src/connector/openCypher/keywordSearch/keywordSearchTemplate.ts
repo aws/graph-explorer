@@ -25,7 +25,7 @@ const keywordSearchTemplate = ({
   offset,
   exactMatch,
 }: KeywordSearchRequest): string => {
-  // Check if we're searching for nodes with no type
+  // Check if we're searching for nodes with no type by checking that the MISSING_TYPE is the only type defined
   const isMissingTypeSearch =
     vertexTypes.length > 0 &&
     vertexTypes.every(item => item === LABELS.MISSING_TYPE);
