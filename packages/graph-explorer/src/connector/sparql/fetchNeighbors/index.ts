@@ -31,22 +31,27 @@ export default async function fetchNeighbors(
   // Map to fully materialized entities
   const results = parseAndMapQuads(data);
 
-  // Filter out the source vertex since it is already in the graph and this one is missing the attributes
+  // Seed the vertex map with the ResultVertex instances in the response
   const verticesMap = new Map(
-    results.vertices
-      .values()
-      .filter(v => v.id !== req.resourceURI)
-      .map(v => [v.id, createVertex(v)])
+    results.vertices.values().map(v => [v.id, createVertex(v)])
   );
-  const edges = results.edges.map(e => createEdge(e));
 
   // Find any missing vertices from the edges and add them to the vertex array
-  for (const vertexId of results.edges.flatMap(e => [e.sourceId, e.targetId])) {
-    if (verticesMap.has(vertexId) || req.resourceURI === vertexId) {
-      continue;
-    }
-    verticesMap.set(vertexId, createVertex({ id: vertexId }));
-  }
+  results.edges
+    .values()
+    .flatMap(e => [e.sourceId, e.targetId])
+    .filter(id => !verticesMap.has(id))
+    .forEach(id => {
+      verticesMap.set(id, createVertex({ id: id }));
+    });
 
-  return { vertices: verticesMap.values().toArray(), edges };
+  // Filter out the source vertex since it is already in the graph and this one is missing the attributes
+  const vertices = Array.from(
+    verticesMap.values().filter(v => v.id !== req.resourceURI)
+  );
+
+  // Create edges from the ResultEdge instances in the response
+  const edges = results.edges.map(e => createEdge(e));
+
+  return { vertices, edges };
 }
