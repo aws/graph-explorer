@@ -4,6 +4,7 @@
     /* Modules */
     "module": "nodenext",
     "target": "esnext",
+    "verbatimModuleSyntax": true,
 
     /* Useful for project references */
     "composite": true,

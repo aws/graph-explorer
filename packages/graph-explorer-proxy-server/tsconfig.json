@@ -7,7 +7,6 @@
 
     /* Modules */
     "forceConsistentCasingInFileNames": true,
-    "verbatimModuleSyntax": true,
 
     /* Paths */
     "outDir": "./dist",
