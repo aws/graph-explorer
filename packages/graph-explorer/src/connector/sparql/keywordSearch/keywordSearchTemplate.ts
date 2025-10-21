@@ -22,8 +22,8 @@ import { getLimit, getSubjectClasses } from "../filterHelpers";
  *     # This sub-query will find any matching instances to the given filters and limit the results
  *     SELECT DISTINCT ?subject
  *     WHERE {
- *       ?subject a       ?class ;
- *                ?pValue ?value .
+ *       ?subject ?pValue ?value .
+ *       OPTIONAL { ?subject a ?class } .
  *       FILTER (?pValue IN (
  *         <http://www.example.com/soccer/ontology/teamName>,
  *         <http://www.example.com/soccer/ontology/nickname>
@@ -75,8 +75,8 @@ export default function keywordSearchTemplate(
  * // Returns:
  * // "SELECT DISTINCT ?subject
  * // WHERE {
- * //   ?subject a       ?class ;
- * //            ?pValue ?value .
+ * //   ?subject ?pValue ?value .
+ * //   OPTIONAL { ?subject a ?class } .
  * //   FILTER (?pValue IN (<http://example.org/name>, <http://example.org/title>))
  * //   FILTER (?class IN (<http://example.org/Person>))
  * //   FILTER (regex(str(?value), "John", "i"))
@@ -104,8 +104,8 @@ export function findSubjectsMatchingFilters(
   return query`
     SELECT DISTINCT ?subject
     WHERE {
-      ?subject a       ?class ;
-               ?pValue ?value .
+      ?subject ?pValue ?value .
+      OPTIONAL { ?subject a ?class } .
       ${getFilterPredicates(request.predicates)}
       ${getSubjectClasses(request.subjectClasses)}
       ${getFilterObject(request.exactMatch, request.searchTerm)}

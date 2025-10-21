@@ -1,6 +1,6 @@
 import uniq from "lodash/uniq";
 import type { KeywordSearchRequest } from "@/connector/useGEFetchTypes";
-import { escapeString, query } from "@/utils";
+import { escapeString, LABELS, query } from "@/utils";
 
 /**
  * @example
@@ -25,13 +25,22 @@ const keywordSearchTemplate = ({
   offset,
   exactMatch,
 }: KeywordSearchRequest): string => {
-  // For exactly one vertex type we put the type in the match
+  // Check if we're searching for nodes with no type by checking that the MISSING_TYPE is the only type defined
+  const isMissingTypeSearch =
+    vertexTypes.length > 0 &&
+    vertexTypes.every(item => item === LABELS.MISSING_TYPE);
+
+  // For exactly one vertex type we put the type in the match (unless it's MISSING_TYPE)
   const vertexMatchTemplate =
-    vertexTypes.length === 1 ? `v:\`${vertexTypes[0]}\`` : "v";
+    vertexTypes.length === 1 && !isMissingTypeSearch
+      ? `v:\`${vertexTypes[0]}\``
+      : "v";
+
   // For multiple vertex types we use the where clause
-  const vertexTypeWhereClause =
-    vertexTypes.length > 1 &&
-    vertexTypes.map(type => `v:\`${type}\``).join(" OR ");
+  const vertexTypeWhereClause = isMissingTypeSearch
+    ? "labels(v) = []"
+    : vertexTypes.length > 1 &&
+      vertexTypes.map(type => `v:\`${type}\``).join(" OR ");
 
   // If we have a search term we need to build the search term where clause
   const hasSearchTerm = Boolean(searchTerm);

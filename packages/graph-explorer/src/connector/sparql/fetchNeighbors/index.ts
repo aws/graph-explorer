@@ -31,10 +31,26 @@ export default async function fetchNeighbors(
   // Map to fully materialized entities
   const results = parseAndMapQuads(data);
 
+  // Seed the vertex map with the ResultVertex instances in the response
+  const verticesMap = new Map(
+    results.vertices.values().map(v => [v.id, createVertex(v)])
+  );
+
+  // Find any missing vertices from the edges and add them to the vertex array
+  results.edges
+    .values()
+    .flatMap(e => [e.sourceId, e.targetId])
+    .filter(id => !verticesMap.has(id))
+    .forEach(id => {
+      verticesMap.set(id, createVertex({ id: id }));
+    });
+
   // Filter out the source vertex since it is already in the graph and this one is missing the attributes
-  const vertices = results.vertices
-    .filter(v => v.id !== req.resourceURI)
-    .map(v => createVertex(v));
+  const vertices = Array.from(
+    verticesMap.values().filter(v => v.id !== req.resourceURI)
+  );
+
+  // Create edges from the ResultEdge instances in the response
   const edges = results.edges.map(e => createEdge(e));
 
   return { vertices, edges };

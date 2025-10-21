@@ -1,3 +1,4 @@
+import { LABELS } from "@/utils";
 import { normalize } from "@/utils/testing";
 import keywordSearchTemplate from "./keywordSearchTemplate";
 
@@ -204,6 +205,55 @@ describe("OpenCypher > keywordSearchTemplate", () => {
           AND (toString(id(v)) CONTAINS "JFK" OR v.city CONTAINS "JFK" OR v.code CONTAINS "JFK")
         RETURN v AS object
         SKIP 25 LIMIT 50
+      `)
+    );
+  });
+
+  it("Should return a template for nodes with no type", () => {
+    const template = keywordSearchTemplate({
+      vertexTypes: [LABELS.MISSING_TYPE],
+    });
+
+    expect(normalize(template)).toBe(
+      normalize(`
+        MATCH (v)
+        WHERE (labels(v) = [])
+        RETURN v AS object
+      `)
+    );
+  });
+
+  it("Should return a template for nodes with no type and search term", () => {
+    const template = keywordSearchTemplate({
+      vertexTypes: [LABELS.MISSING_TYPE],
+      searchTerm: "test",
+      searchByAttributes: ["name", "value"],
+      exactMatch: false,
+    });
+
+    expect(normalize(template)).toBe(
+      normalize(`
+        MATCH (v)
+        WHERE (labels(v) = [])
+          AND (v.name CONTAINS "test" OR v.value CONTAINS "test")
+        RETURN v AS object
+      `)
+    );
+  });
+
+  it("Should return a template for nodes with no type with pagination", () => {
+    const template = keywordSearchTemplate({
+      vertexTypes: [LABELS.MISSING_TYPE],
+      limit: 100,
+      offset: 50,
+    });
+
+    expect(normalize(template)).toBe(
+      normalize(`
+        MATCH (v)
+        WHERE (labels(v) = [])
+        RETURN v AS object
+        SKIP 50 LIMIT 100
       `)
     );
   });

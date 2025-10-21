@@ -8,6 +8,7 @@ import {
   createQuadSparqlResponse,
 } from "@/utils/testing";
 import { createRandomUrlString } from "@shared/utils/testing";
+import { createVertex } from "@/core";
 
 describe("fetchNeighbors", () => {
   const mockSparqlFetch = vi.fn() as any;
@@ -266,5 +267,61 @@ describe("fetchNeighbors", () => {
     await expect(fetchNeighbors(mockSparqlFetch, request)).rejects.toThrow(
       "Network error"
     );
+  });
+
+  test("should add missing source vertex from edge to vertices results", async () => {
+    // Arrange
+    const sourceVertex = createTestableVertex().withRdfValues();
+    const targetVertex = createTestableVertex().withRdfValues();
+    const edge = createTestableEdge()
+      .withSource(sourceVertex)
+      .withTarget(targetVertex)
+      .withRdfValues();
+    const request: SPARQLNeighborsRequest = {
+      resourceURI: targetVertex.id,
+      resourceClasses: [],
+    };
+
+    // Only include target vertex in bindings, not the edge source
+    const bindings = createQuadBindingsForEntities([targetVertex], [edge]);
+    const mockResponse = createQuadSparqlResponse(bindings);
+    mockSparqlFetch.mockResolvedValue(mockResponse);
+
+    // Act
+    const result = await fetchNeighbors(mockSparqlFetch, request);
+
+    // Assert
+    expect(result.vertices).toStrictEqual([
+      createVertex({ id: edge.source.id }),
+    ]);
+    expect(result.edges).toStrictEqual([edge.asEdge()]);
+  });
+
+  test("should add missing target vertex from edge to vertices results", async () => {
+    // Arrange
+    const sourceVertex = createTestableVertex().withRdfValues();
+    const targetVertex = createTestableVertex().withRdfValues();
+    const edge = createTestableEdge()
+      .withSource(sourceVertex)
+      .withTarget(targetVertex)
+      .withRdfValues();
+    const request: SPARQLNeighborsRequest = {
+      resourceURI: sourceVertex.id,
+      resourceClasses: [],
+    };
+
+    // Only include source vertex in bindings, not the edge source
+    const bindings = createQuadBindingsForEntities([sourceVertex], [edge]);
+    const mockResponse = createQuadSparqlResponse(bindings);
+    mockSparqlFetch.mockResolvedValue(mockResponse);
+
+    // Act
+    const result = await fetchNeighbors(mockSparqlFetch, request);
+
+    // Assert
+    expect(result.vertices).toStrictEqual([
+      createVertex({ id: edge.target.id }),
+    ]);
+    expect(result.edges).toStrictEqual([edge.asEdge()]);
   });
 });
