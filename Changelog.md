@@ -12,8 +12,8 @@ being considered for future releases.
 - Support for `SELECT`, `ASK`, `DESCRIBE`, and `CONSTRUCT` queries
 - `DESCRIBE` and `CONSTRUCT` queries will result in fully materialized vertex
   and edge results
-- `SELECT` and `ASK` queries will result in the values returned in collections
-  by statement
+- `SELECT` and `ASK` queries will result in raw statements, but do not
+  materialize results as vertices or edges
 - Support for RDF resources without a defined `rdf:type`
 - Updated display name defaults to use `rdfs:label` if it is available
 
