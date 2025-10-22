@@ -51,6 +51,12 @@ export function QuerySearchTabContent() {
     },
   });
 
+  // Sync form changes to Jotai atom in real-time
+  const handleQueryChange = (value: string) => {
+    setQueryText(value);
+    form.setValue("query", value);
+  };
+
   // Execute the query when the form is submitted
   const onSubmit = async (data: FormData) => {
     logger.debug("Executing query:", data);
@@ -88,6 +94,7 @@ export function QuerySearchTabContent() {
                 <FormControl>
                   <QueryTextArea
                     {...field}
+                    onChange={e => handleQueryChange(e.target.value)}
                     className="pr-14"
                     onSubmit={onKeyboardShortcutSubmit}
                   />
