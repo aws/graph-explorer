@@ -1,5 +1,167 @@
 # Graph Explorer Change Log
 
+## Release v2.4.0
+
+This release introduces support for SPARQL queries within the query editor. Now,
+all three query engines are supported: Gremlin, openCypher, and SPARQL. This
+does not mean we are done with the query editor. We have many exciting ideas
+being considered for future releases.
+
+### SPARQL Query Support
+
+- Support for `SELECT`, `ASK`, `DESCRIBE`, and `CONSTRUCT` queries
+- `DESCRIBE` and `CONSTRUCT` queries will result in fully materialized vertex
+  and edge results
+- `SELECT` and `ASK` queries will result in raw statements, but do not
+  materialize results as vertices or edges
+- Support for RDF resources without a defined `rdf:type`
+- Updated display name defaults to use `rdfs:label` if it is available
+
+### Other notable changes
+
+- Added support for vertices that have no label in openCypher
+- Hide properties that don't have a value for the given vertex or edge
+- Added confirmation dialog when deleting a connection (thanks @dwrth)
+- Added ability to horizontally scroll toolbars if space is limited (thanks
+  @Ansh2004P)
+- Added zoom to fit toolbar button (thanks @cnaples79)
+- Updated the strings used to represent no value, no type, and empty value to be
+  more clear
+- Updated handling of neighbor counts when neighbors have more than one type or
+  label
+- Updated handling of date values, specifically in openCypher connections
+- Updated behavior of auto open details panel when a node is selected
+- Fixed many bugs
+
+### All Changes
+
+- Adjust styles in DialogFooter by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1147
+- Bump version to 2.4.0 by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1132
+- Remove unused code by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1131
+- Use DialogFooter in LoadConfigButton dialog by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1148
+- Increase randomness in generated test strings by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1153
+- Add confirmation to deleting a connection by @dwrth in
+  https://github.com/aws/graph-explorer/pull/1136
+- Update dependencies by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1155
+- Fix node icon color change by @dwrth in
+  https://github.com/aws/graph-explorer/pull/1103
+- Add steering doc for documentation by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1164
+- Use consistent Spinner component across app by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1130
+- Update TypeScript config for Node 24 by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1156
+- Migrate EdgeStyleDialog to tailwind by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1151
+- Migrate CreateConnection to Tailwind by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1150
+- Use verbatimModuleSyntax in proxy server by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1157
+- Clear graph restore progress notification by @dwrth in
+  https://github.com/aws/graph-explorer/pull/1172
+- Fix input lag when changing node and edge colors by @dwrth in
+  https://github.com/aws/graph-explorer/pull/1173
+- Update minor versions by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1181
+- Add testing steering document by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1182
+- Simplify vertex detail query by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1186
+- Fix neighbor expansion when no attributes by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1185
+- Remove old async relics by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1180
+- Streamline useGraphStyles hook by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1183
+- Simplify queryClient test setup by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1179
+- Include headers in IAM request signing by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1198
+- Disable retries for user query by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1201
+- Fix neighbor expansion in SPARQL by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1195
+- Add SPARQL support to user queries by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1199
+- Fix Panel header overflow causing canvas to scroll off-screen by @Ansh2004P in
+  https://github.com/aws/graph-explorer/pull/1142
+- Update documentation for SPARQL query editor by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1211
+- Reduce risk of malicious packages by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1215
+- Disable spell check, auto capitalize/complete by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1225
+- Use store for Jotai state in tests by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1216
+- Add date as entity property value by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1220
+- feat: add Zoom to Fit button to graph canvas toolbar by @cnaples79 in
+  https://github.com/aws/graph-explorer/pull/1229
+- Fix multi label/class support in neighbor counts by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1194
+- Fix keyword search when resource has no attributes by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1230
+- Update rawQuery tests to use sparql helpers by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1236
+- Fix bug in testable edge with rdf values by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1238
+- Switch vertex details to map quads by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1239
+- Update raw query with mapping logic by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1241
+- Bump happy-dom from 18.0.1 to 20.0.0 by @dependabot[bot] in
+  https://github.com/aws/graph-explorer/pull/1244
+- Execute neighbor count queries in parallel by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1243
+- Update tests for DisplayVertexTypeConfig by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1246
+- Update fetch neighbors to use quad mapping by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1240
+- Consolidate blank node mapping logic by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1245
+- Move ASCII constants to module by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1251
+- Move labels in to module by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1252
+- Fix scrollbar placement in `Tabular` by @dwrth in
+  https://github.com/aws/graph-explorer/pull/1257
+- Minor tweaks for consolidated mapping logic by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1248
+- Ensure rdfs:label is first attribute by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1247
+- Update labels used when there is no value by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1253
+- Add check for empty string and use friendly string by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1254
+- Fix auto open details by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1262
+- Don’t add missing attributes to vertex or edge by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1255
+- Use shared filter helpers across queries by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1256
+- Support RDF resources that have no type or class defined by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1258
+- Bump happy-dom from 20.0.0 to 20.0.2 by @dependabot[bot] in
+  https://github.com/aws/graph-explorer/pull/1266
+- Save query state on every change by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1269
+
+### New Contributors
+
+- @Ansh2004P made their first contribution in
+  https://github.com/aws/graph-explorer/pull/1142
+- @cnaples79 made their first contribution in
+  https://github.com/aws/graph-explorer/pull/1229
+
+**Full Changelog**:
+https://github.com/aws/graph-explorer/compare/v2.3.1...v2.4.0
+
 ## Release v2.3.1
 
 This release resolves a few important issues from the previous release.
