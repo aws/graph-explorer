@@ -6,5 +6,8 @@
 **/dist/
 **/.env.local
 
+# The data persisted from running samples should not end up in the repo
+**/samples/**/data/
+
 # TypeScript build cache manifests
 *.tsbuildinfo
