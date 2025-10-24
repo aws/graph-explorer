@@ -1,0 +1,35 @@
+version: "3.9"
+
+services:
+  database:
+    image: openkbs/blazegraph:latest
+    restart: unless-stopped
+    environment:
+      - JAVA_OPTS=-Xmx2g
+    volumes:
+      - ./init:/init
+      - ./data:/var/blazegraph
+    command:
+      bash -c "java -server -Xmx2g -jar blazegraph.jar & /init/load-data.sh &&
+      wait"
+    working_dir: /home/developer/blazegraph/
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9999/blazegraph"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  graph-explorer:
+    image: public.ecr.aws/neptune/graph-explorer:latest
+    ports:
+      - "8090:80"
+    environment:
+      - HOST=localhost
+      - PUBLIC_OR_PROXY_ENDPOINT=http://localhost:8090
+      - GRAPH_TYPE=sparql
+      - USING_PROXY_SERVER=true
+      - PROXY_SERVER_HTTPS_CONNECTION=false
+      - GRAPH_CONNECTION_URL=http://database:9999/blazegraph
+    depends_on:
+      database:
+        condition: service_healthy
