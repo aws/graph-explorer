@@ -2,6 +2,8 @@
   "extends": ["../../tsconfig.base.json"],
   "compilerOptions": {
     "useDefineForClassFields": true,
+    "module": "ESNext",
+    "target": "ESNext",
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "types": [
       "vite/client",
