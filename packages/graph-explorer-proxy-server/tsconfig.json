@@ -3,15 +3,10 @@
   "compilerOptions": {
     /* Language and Environment */
     "composite": true,
-    "target": "ES2024",
-    "lib": ["ES2024"],
-    "types": ["vitest/globals"],
+    "lib": ["ESNext"],
+    "types": ["node", "vitest/globals"],
 
     /* Modules */
-    "module": "nodenext",
-
-    /* Interop Constraints */
-    "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "verbatimModuleSyntax": true,
 
