@@ -58,7 +58,12 @@ export default tseslint.config(
 
       // TypeScript
       "@typescript-eslint/switch-exhaustiveness-check": "error",
-      "@typescript-eslint/consistent-type-imports": "error",
+      "@typescript-eslint/consistent-type-imports": [
+        "error",
+        {
+          fixStyle: "inline-type-imports",
+        },
+      ],
       "@typescript-eslint/no-import-type-side-effects": "error",
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-unsafe-member-access": "off",
