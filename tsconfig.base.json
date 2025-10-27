@@ -1,8 +1,13 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
+    /* Modules */
+    "module": "nodenext",
+    "target": "esnext",
+
     /* Useful for project references */
     "composite": true,
+    "sourceMap": true,
     "declaration": true,
     "declarationMap": true,
     "incremental": true,
@@ -19,6 +24,7 @@
     "allowUnreachableCode": false,
     "noImplicitOverride": true,
     "noImplicitAny": true,
-    "checkJs": true
+    "checkJs": true,
+    "jsx": "react-jsx"
   }
 }
