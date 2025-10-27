@@ -1,10 +1,10 @@
 {
   "extends": ["../../tsconfig.base.json"],
   "compilerOptions": {
-    "target": "ESNext",
     "useDefineForClassFields": true,
-    "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "module": "ESNext",
+    "target": "ESNext",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "types": [
       "vite/client",
       "vitest/globals",
@@ -25,8 +25,7 @@
     "allowImportingTsExtensions": true,
     "isolatedModules": true,
     "moduleDetection": "force",
-    "noEmit": true,
-    "jsx": "react-jsx"
+    "noEmit": true
   },
   "include": ["src"],
   "references": [{ "path": "../shared" }]
