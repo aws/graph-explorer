@@ -8,7 +8,7 @@ import fetchClassCounts from "./fetchVertexCountsByType";
 import fetchNeighbors from "./fetchNeighbors";
 import fetchSchema from "./fetchSchema";
 import keywordSearch from "./keywordSearch";
-import {
+import type {
   BlankNodesMap,
   GraphSummary,
   SPARQLKeywordSearchRequest,
@@ -17,7 +17,7 @@ import {
 import { v4 } from "uuid";
 import { env, logger } from "@/utils";
 import { createLoggerFromConnection } from "@/core/connector";
-import { FeatureFlags, NormalizedConnection } from "@/core";
+import type { FeatureFlags, NormalizedConnection } from "@/core";
 import { replaceBlankNodeFromNeighbors } from "./fetchNeighbors/replaceBlankNodeFromNeighbors";
 import { storedBlankNodeNeighborsRequest } from "./fetchNeighbors/storedBlankNodeNeighborsRequest";
 import { replaceBlankNodeFromSearch } from "./keywordSearch/replaceBlankNodeFromSearch";

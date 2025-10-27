@@ -1,7 +1,7 @@
 import { getDisplayValueForScalar } from "./scalar";
-import { PatchedResultEntity, ResultEntity } from "./entities";
+import type { PatchedResultEntity, ResultEntity } from "./entities";
 import { ASCII } from "@/utils";
-import { TextTransformer } from "@/hooks";
+import type { TextTransformer } from "@/hooks";
 
 /**
  * Represents a collection of values. This can be vertices, edges, or just a

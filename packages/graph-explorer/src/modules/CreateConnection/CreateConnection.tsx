@@ -9,16 +9,16 @@ import {
   SelectField,
   TextAreaField,
 } from "@/components";
-import {
+import type {
   ConnectionConfig,
   QueryEngine,
   NeptuneServiceType,
 } from "@shared/types";
 import {
   allGraphSessionsAtom,
-  ConfigurationContextProps,
+  type ConfigurationContextProps,
   createNewConfigurationId,
-  RawConfiguration,
+  type RawConfiguration,
 } from "@/core";
 import {
   activeConfigurationAtom,

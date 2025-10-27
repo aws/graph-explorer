@@ -8,9 +8,9 @@ import {
   createTestableVertex,
   createUriValue,
 } from "@/utils/testing";
-import { NeighborCount } from "../useGEFetchTypes";
+import type { NeighborCount } from "../useGEFetchTypes";
 import { neighborCounts } from "./neighborCounts";
-import { BlankNodesMap } from "./types";
+import type { BlankNodesMap } from "./types";
 import {
   createArray,
   createRandomName,

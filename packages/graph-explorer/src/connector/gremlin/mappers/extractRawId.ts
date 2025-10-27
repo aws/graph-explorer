@@ -1,5 +1,5 @@
-import { EntityRawId } from "@/core";
-import { GInt64, JanusID } from "../types";
+import type { EntityRawId } from "@/core";
+import type { GInt64, JanusID } from "../types";
 
 function isJanusID(id: any): id is JanusID {
   return (

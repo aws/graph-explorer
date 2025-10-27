@@ -1,5 +1,5 @@
 import { createRandomVertexId } from "@/utils/testing";
-import { NeighborCount } from "../useGEFetchTypes";
+import type { NeighborCount } from "../useGEFetchTypes";
 import { neighborCounts } from "./neighborCounts";
 import { query } from "@/utils";
 import { createVertexId } from "@/core";

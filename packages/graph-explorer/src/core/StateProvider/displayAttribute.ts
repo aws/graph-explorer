@@ -1,5 +1,5 @@
-import { Vertex, Edge, EntityPropertyValue } from "@/core";
-import { TextTransformer } from "@/hooks";
+import type { Vertex, Edge, EntityPropertyValue } from "@/core";
+import type { TextTransformer } from "@/hooks";
 import { getDisplayValueForScalar } from "@/connector/entities";
 import { sortAttributeByName } from "./sortAttributeByName";
 

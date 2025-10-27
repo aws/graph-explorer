@@ -1,4 +1,4 @@
-import { VertexId } from "@/core";
+import type { VertexId } from "@/core";
 import { idParam } from "./idParam";
 import { rdfTypeUri } from "./types";
 import { LABELS, query } from "@/utils";

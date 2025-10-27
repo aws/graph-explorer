@@ -1,4 +1,4 @@
-import {
+import type {
   ConfigurationContextProps,
   EdgeTypeConfig,
   VertexTypeConfig,
@@ -9,7 +9,7 @@ import {
   NormalizedConnection,
   Entities,
 } from "@/core";
-import { ResultEntity } from "./entities";
+import type { ResultEntity } from "./entities";
 
 export type QueryOptions = RequestInit & {
   queryId?: string;

@@ -4,8 +4,8 @@ import type { SchemaResponse } from "@/connector/useGEFetchTypes";
 import classesWithCountsTemplates from "./classesWithCountsTemplates";
 import predicatesByClassTemplate from "./predicatesByClassTemplate";
 import predicatesWithCountsTemplate from "./predicatesWithCountsTemplate";
-import { GraphSummary, SparqlFetch, SparqlValue } from "../types";
-import { LoggerConnector } from "@/connector/LoggerConnector";
+import type { GraphSummary, SparqlFetch, SparqlValue } from "../types";
+import type { LoggerConnector } from "@/connector/LoggerConnector";
 import { defaultVertexTypeConfig } from "@/core/StateProvider/configuration";
 
 type RawClassesWCountsResponse = {

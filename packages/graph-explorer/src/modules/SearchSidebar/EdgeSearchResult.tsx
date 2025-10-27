@@ -5,7 +5,7 @@ import {
   useDisplayVertex,
 } from "@/core";
 import {
-  ButtonProps,
+  type ButtonProps,
   CollapsibleContent,
   CollapsibleTrigger,
   EdgeRow,

@@ -1,17 +1,17 @@
 import { FileButton, PanelHeaderActionButton, Spinner } from "@/components";
-import { useExplorer, configurationAtom, ConnectionWithId } from "@/core";
+import { useExplorer, configurationAtom, type ConnectionWithId } from "@/core";
 import { logger, formatEntityCounts } from "@/utils";
 import { fromFileToJson } from "@/utils/fileData";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { FolderOpenIcon } from "lucide-react";
 import {
-  ExportedGraphConnection,
+  type ExportedGraphConnection,
   isMatchingConnection,
   parseExportedGraph,
 } from "./exportedGraph";
 import { useNotification } from "@/components/NotificationProvider";
 import { ZodError } from "zod";
-import { Notification } from "@/components/NotificationProvider/reducer";
+import type { Notification } from "@/components/NotificationProvider/reducer";
 import { getTranslation } from "@/hooks/useTranslations";
 import { useAddToGraph } from "@/hooks";
 import { useAtomValue } from "jotai";

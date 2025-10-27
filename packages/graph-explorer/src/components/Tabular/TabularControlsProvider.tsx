@@ -1,8 +1,8 @@
 import {
   createContext,
-  CSSProperties,
-  PropsWithChildren,
-  RefObject,
+  type CSSProperties,
+  type PropsWithChildren,
+  type RefObject,
   useContext,
   useRef,
   useState,

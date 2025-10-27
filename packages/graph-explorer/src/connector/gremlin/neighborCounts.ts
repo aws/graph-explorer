@@ -1,10 +1,10 @@
 import { query } from "@/utils";
-import {
+import type {
   ErrorResponse,
   NeighborCountsRequest,
   NeighborCountsResponse,
 } from "../useGEFetchTypes";
-import { GInt64, GremlinFetch } from "./types";
+import type { GInt64, GremlinFetch } from "./types";
 import isErrorResponse from "../utils/isErrorResponse";
 import { idParam } from "./idParam";
 import { createVertexId } from "@/core";

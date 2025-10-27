@@ -2,7 +2,7 @@ import {
   createQuadBindingsForEntities,
   createQuadSparqlResponse,
   createTestableVertex,
-  TestableVertex,
+  type TestableVertex,
 } from "@/utils/testing";
 import { vertexDetails } from "./vertexDetails";
 import { createVertexId } from "@/core";

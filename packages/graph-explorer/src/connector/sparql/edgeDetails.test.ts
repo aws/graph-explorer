@@ -1,4 +1,4 @@
-import { EdgeId } from "@/core";
+import type { EdgeId } from "@/core";
 import {
   createRandomEdgeForRdf,
   createRandomVertexForRdf,

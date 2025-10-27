@@ -3,7 +3,7 @@ import { atomFamily, atomWithReset, RESET } from "jotai/utils";
 import {
   createRenderedEdgeId,
   getEdgeIdFromRenderedEdgeId,
-  RenderedEdgeId,
+  type RenderedEdgeId,
   type Edge,
   type EdgeId,
 } from "@/core";

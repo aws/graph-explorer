@@ -1,6 +1,10 @@
 import { query } from "@/utils";
 import { idParam } from "../idParam";
-import { rdfTypeUri, SPARQLCriterion, SPARQLNeighborsRequest } from "../types";
+import {
+  rdfTypeUri,
+  type SPARQLCriterion,
+  type SPARQLNeighborsRequest,
+} from "../types";
 import {
   getLimit,
   getNeighborsFilter,

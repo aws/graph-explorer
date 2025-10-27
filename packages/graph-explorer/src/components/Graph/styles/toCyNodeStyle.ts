@@ -1,4 +1,4 @@
-import { CyNodeStyle, NodeStyle } from "../Graph.model";
+import type { CyNodeStyle, NodeStyle } from "../Graph.model";
 
 const toCyNodeStyle = (nodeStyle: Partial<NodeStyle>): Partial<CyNodeStyle> => {
   return {

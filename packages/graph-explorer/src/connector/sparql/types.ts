@@ -1,4 +1,4 @@
-import { Edge, Vertex, VertexId } from "@/core";
+import type { Edge, Vertex, VertexId } from "@/core";
 import type { NeighborCount } from "../useGEFetchTypes";
 import { z } from "zod";
 

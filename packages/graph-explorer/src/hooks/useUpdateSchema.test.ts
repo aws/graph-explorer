@@ -10,7 +10,7 @@ import {
 } from "@shared/utils/testing";
 import useUpdateSchema from "./useUpdateSchema";
 import { act } from "react";
-import { schemaAtom, SchemaInference } from "@/core/StateProvider/schema";
+import { schemaAtom, type SchemaInference } from "@/core/StateProvider/schema";
 import { activeConfigurationAtom } from "@/core/StateProvider/configuration";
 import { createNewConfigurationId } from "@/core";
 import { useAtomValue } from "jotai";

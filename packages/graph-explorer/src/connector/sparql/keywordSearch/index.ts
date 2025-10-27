@@ -1,7 +1,7 @@
 import { logger } from "@/utils";
 import type { KeywordSearchResponse } from "@/connector";
 import keywordSearchTemplate from "./keywordSearchTemplate";
-import { SparqlFetch, SPARQLKeywordSearchRequest } from "../types";
+import type { SparqlFetch, SPARQLKeywordSearchRequest } from "../types";
 import { createVertex } from "@/core";
 import { parseAndMapQuads } from "../parseAndMapQuads";
 

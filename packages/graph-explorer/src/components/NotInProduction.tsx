@@ -1,6 +1,6 @@
-import { PropsWithChildren } from "react";
+import type { PropsWithChildren } from "react";
 import { env } from "@/utils";
-import { Atom, atom, useAtomValue } from "jotai";
+import { type Atom, atom, useAtomValue } from "jotai";
 
 type Props = {
   /** Optionally check an additional feature flag from Jotai state. */

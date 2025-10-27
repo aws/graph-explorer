@@ -1,4 +1,4 @@
-import { MouseEvent, useRef, useState } from "react";
+import { type MouseEvent, useRef, useState } from "react";
 import {
   getVertexIdFromRenderedVertexId,
   type RenderedEdgeId,
@@ -21,8 +21,8 @@ import {
   IconButton,
 } from "@/components";
 import Graph from "@/components/Graph";
-import { GraphRef } from "@/components/Graph/Graph";
-import { ElementEventCallback } from "@/components/Graph/hooks/useAddClickEvents";
+import type { GraphRef } from "@/components/Graph/Graph";
+import type { ElementEventCallback } from "@/components/Graph/hooks/useAddClickEvents";
 import {
   edgesOutOfFocusRenderedIdsAtom,
   edgesSelectedRenderedIdsAtom,
@@ -37,7 +37,7 @@ import useContextMenu from "./useContextMenu";
 import useGraphGlobalActions from "./useGraphGlobalActions";
 import useGraphStyles from "./useGraphStyles";
 import useNodeBadges from "./useNodeBadges";
-import { SelectedElements } from "@/components/Graph/Graph.model";
+import type { SelectedElements } from "@/components/Graph/Graph.model";
 import { useAutoOpenDetailsSidebar } from "./useAutoOpenDetailsSidebar";
 import { ImportGraphButton } from "./ImportGraphButton";
 import { ExportGraphButton } from "./ExportGraphButton";

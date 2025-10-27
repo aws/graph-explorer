@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/require-await */
-import {
+import type {
   CountsByTypeResponse,
   EdgeDetailsRequest,
   Explorer,
@@ -11,15 +11,15 @@ import {
   VertexDetailsRequest,
 } from "@/connector";
 import {
-  Edge,
-  Entities,
+  type Edge,
+  type Entities,
   normalizeConnection,
-  NormalizedConnection,
+  type NormalizedConnection,
   toEdgeMap,
   toNodeMap,
   updateSchemaFromEntities,
-  Vertex,
-  VertexId,
+  type Vertex,
+  type VertexId,
 } from "@/core";
 import {
   createRandomConnectionWithId,

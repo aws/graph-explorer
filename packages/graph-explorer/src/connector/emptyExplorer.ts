@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/require-await */
-import { Explorer } from "./useGEFetchTypes";
+import type { Explorer } from "./useGEFetchTypes";
 
 /**
  * Empty explorer for when there is no connection.

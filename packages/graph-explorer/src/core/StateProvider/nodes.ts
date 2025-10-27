@@ -3,7 +3,7 @@ import { atomFamily, atomWithReset, RESET } from "jotai/utils";
 import {
   createRenderedVertexId,
   getVertexIdFromRenderedVertexId,
-  RenderedVertexId,
+  type RenderedVertexId,
   type Vertex,
   type VertexId,
   createVertex,

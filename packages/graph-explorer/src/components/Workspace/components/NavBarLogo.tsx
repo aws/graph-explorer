@@ -1,6 +1,6 @@
 import { cn } from "@/utils";
 import GraphExplorerIcon from "@/components/icons/GraphExplorerIcon";
-import { ComponentPropsWithRef } from "react";
+import type { ComponentPropsWithRef } from "react";
 
 export default function NavBarLogo({
   className,

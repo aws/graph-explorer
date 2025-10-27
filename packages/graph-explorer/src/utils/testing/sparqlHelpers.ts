@@ -1,6 +1,6 @@
-import { ScalarValue } from "@/connector/entities";
-import { TestableEdge, TestableVertex } from "./randomData";
-import { rdfTypeUri, SparqlQuadBinding } from "@/connector/sparql/types";
+import type { ScalarValue } from "@/connector/entities";
+import type { TestableEdge, TestableVertex } from "./randomData";
+import { rdfTypeUri, type SparqlQuadBinding } from "@/connector/sparql/types";
 
 export function createUriValue(value: string) {
   return {

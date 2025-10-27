@@ -12,11 +12,11 @@ import {
   activeGraphSessionAtom,
   activeSchemaSelector,
   edgesAtom,
-  EdgeTypeConfig,
+  type EdgeTypeConfig,
   extractConfigFromEntity,
-  GraphSessionStorageModel,
+  type GraphSessionStorageModel,
   nodesAtom,
-  VertexTypeConfig,
+  type VertexTypeConfig,
 } from "@/core";
 import { waitFor } from "@testing-library/react";
 import { useAtomValue } from "jotai";

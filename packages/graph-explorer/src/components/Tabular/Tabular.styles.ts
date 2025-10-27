@@ -1,6 +1,6 @@
 import { css } from "@emotion/css";
 
-import { fade, ThemeStyleFn } from "@/core";
+import { fade, type ThemeStyleFn } from "@/core";
 import baseTheme from "./baseTheme";
 
 const defaultStyles =

@@ -1,9 +1,9 @@
-import {
+import type {
   EdgePreferences,
   VertexPreferences,
 } from "@/core/StateProvider/userPreferences";
-import { Branded } from "@/utils";
-import { ConnectionConfig } from "@shared/types";
+import type { Branded } from "@/utils";
+import type { ConnectionConfig } from "@shared/types";
 import { v4 } from "uuid";
 
 export type ConfigurationId = Branded<string, "ConfigurationId">;

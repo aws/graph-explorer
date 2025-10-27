@@ -1,5 +1,5 @@
 import { atomWithLocalForage } from "./localForageEffect";
-import { useAtom, WritableAtom } from "jotai";
+import { useAtom, type WritableAtom } from "jotai";
 import { useDeferredValue, useEffect, useState } from "react";
 
 export type ShapeStyle =

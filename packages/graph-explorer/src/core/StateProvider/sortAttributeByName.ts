@@ -1,5 +1,5 @@
-import { DisplayAttribute } from "./displayAttribute";
-import { DisplayConfigAttribute } from "./displayTypeConfigs";
+import type { DisplayAttribute } from "./displayAttribute";
+import type { DisplayConfigAttribute } from "./displayTypeConfigs";
 
 /** The RDFS label property name that should be sorted first in attribute lists */
 export const RDFS_LABEL_URI = "http://www.w3.org/2000/01/rdf-schema#label";

@@ -1,4 +1,4 @@
-import { ComponentPropsWithRef } from "react";
+import type { ComponentPropsWithRef } from "react";
 import { cn } from "@/utils";
 
 export function KeyboardKey({

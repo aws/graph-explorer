@@ -6,7 +6,7 @@ import {
   edgeTypesSelector,
   vertexTypesSelector,
 } from "@/core/StateProvider/configuration";
-import { CheckboxListItemProps } from "@/components";
+import type { CheckboxListItemProps } from "@/components";
 import { useDisplayEdgeTypeConfigs, useDisplayVertexTypeConfigs } from "@/core";
 import { atom, useAtomValue, useSetAtom } from "jotai";
 

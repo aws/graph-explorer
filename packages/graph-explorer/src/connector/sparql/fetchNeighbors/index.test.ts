@@ -1,6 +1,6 @@
 import { describe, test, expect, vi } from "vitest";
 import fetchNeighbors from "./index";
-import { SPARQLNeighborsRequest } from "../types";
+import type { SPARQLNeighborsRequest } from "../types";
 import {
   createTestableVertex,
   createTestableEdge,

@@ -1,5 +1,5 @@
-import { ReactNode } from "react";
-import { ColumnInstance } from "react-table";
+import type { ReactNode } from "react";
+import type { ColumnInstance } from "react-table";
 import { Input } from "@/components";
 import { FilterIcon } from "lucide-react";
 

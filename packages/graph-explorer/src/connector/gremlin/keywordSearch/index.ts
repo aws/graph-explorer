@@ -7,7 +7,7 @@ import isErrorResponse from "@/connector/utils/isErrorResponse";
 import mapApiVertex from "../mappers/mapApiVertex";
 import keywordSearchTemplate from "./keywordSearchTemplate";
 import type { GVertexList } from "../types";
-import { GremlinFetch } from "../types";
+import type { GremlinFetch } from "../types";
 import { createVertex } from "@/core";
 
 type RawKeySearchResponse = {

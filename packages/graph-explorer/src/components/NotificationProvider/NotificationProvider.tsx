@@ -1,16 +1,20 @@
 import { css } from "@emotion/css";
 import {
   createContext,
-  CSSProperties,
-  FC,
-  PropsWithChildren,
+  type CSSProperties,
+  type FC,
+  type PropsWithChildren,
   useCallback,
   useRef,
 } from "react";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { v4 } from "uuid";
 
-import { initialState, Notification, NotificationState } from "./reducer";
+import {
+  initialState,
+  type Notification,
+  type NotificationState,
+} from "./reducer";
 import useManager from "./useManager";
 
 export type NotificationContextValue = {

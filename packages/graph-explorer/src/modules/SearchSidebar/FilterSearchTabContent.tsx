@@ -19,9 +19,9 @@ import {
 
 import { useTranslations } from "@/hooks";
 import { createPatchedResultVertex } from "@/connector/entities";
-import { UseQueryResult } from "@tanstack/react-query";
+import type { UseQueryResult } from "@tanstack/react-query";
 import { useCancelKeywordSearch } from "./useKeywordSearchQuery";
-import { KeywordSearchResponse } from "@/connector";
+import type { KeywordSearchResponse } from "@/connector";
 
 export function FilterSearchTabContent() {
   const t = useTranslations();

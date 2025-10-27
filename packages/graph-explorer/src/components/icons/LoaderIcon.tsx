@@ -1,4 +1,4 @@
-import IconBase, { IconBaseProps } from "./IconBase";
+import IconBase, { type IconBaseProps } from "./IconBase";
 
 const LoaderIcon = (props: IconBaseProps) => (
   <IconBase {...props}>

@@ -1,6 +1,6 @@
-import { DisplayVertex } from "@/core";
+import type { DisplayVertex } from "@/core";
 import { SearchResultSubtitle, SearchResultTitle, VertexSymbol } from ".";
-import { ComponentPropsWithoutRef } from "react";
+import type { ComponentPropsWithoutRef } from "react";
 import { ASCII, cn, LABELS } from "@/utils";
 
 export function VertexRow({

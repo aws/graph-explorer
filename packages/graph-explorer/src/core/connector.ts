@@ -1,6 +1,6 @@
 import {
   ClientLoggerConnector,
-  LoggerConnector,
+  type LoggerConnector,
   ServerLoggerConnector,
 } from "@/connector/LoggerConnector";
 import { createGremlinExplorer } from "@/connector/gremlin/gremlinExplorer";
@@ -8,11 +8,11 @@ import { createOpenCypherExplorer } from "@/connector/openCypher/openCypherExplo
 import { createSparqlExplorer } from "@/connector/sparql/sparqlExplorer";
 import {
   activeConnectionAtom,
-  NormalizedConnection,
+  type NormalizedConnection,
 } from "./StateProvider/configuration";
 import { logger } from "@/utils";
 import { featureFlagsSelector } from "./featureFlags";
-import { Explorer } from "@/connector/useGEFetchTypes";
+import type { Explorer } from "@/connector/useGEFetchTypes";
 import { emptyExplorer } from "@/connector/emptyExplorer";
 import { atom, useAtomValue } from "jotai";
 import { selectAtom } from "jotai/utils";

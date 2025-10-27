@@ -2,14 +2,14 @@ import { parseRdfEdgeIdString } from "@/connector/sparql/parseEdgeId";
 import {
   createEdgeId,
   createVertexId,
-  EdgeId,
-  EntityRawId,
-  VertexId,
+  type EdgeId,
+  type EntityRawId,
+  type VertexId,
 } from "@/core/entities";
 import { escapeString, LABELS, logger } from "@/utils";
 import {
-  ConnectionConfig,
-  QueryEngine,
+  type ConnectionConfig,
+  type QueryEngine,
   queryEngineOptions,
 } from "@shared/types";
 import { z } from "zod";

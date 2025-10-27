@@ -1,5 +1,5 @@
 import { vi } from "vitest";
-import { SchemaResponse } from "@/connector/useGEFetchTypes";
+import type { SchemaResponse } from "@/connector/useGEFetchTypes";
 import fetchSchema from ".";
 import { ClientLoggerConnector } from "@/connector/LoggerConnector";
 

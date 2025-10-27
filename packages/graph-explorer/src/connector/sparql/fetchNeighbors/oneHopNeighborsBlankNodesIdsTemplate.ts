@@ -1,5 +1,5 @@
 import { query } from "@/utils";
-import { SPARQLNeighborsRequest } from "../types";
+import type { SPARQLNeighborsRequest } from "../types";
 import { findNeighborsUsingFilters } from "./oneHopNeighborsTemplate";
 
 /**

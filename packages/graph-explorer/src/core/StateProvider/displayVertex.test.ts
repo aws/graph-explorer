@@ -5,17 +5,17 @@ import {
   createRandomVertexPreferences,
   createRandomVertexTypeConfig,
   DbState,
-  JotaiStore,
+  type JotaiStore,
   renderHookWithJotai,
   renderHookWithState,
 } from "@/utils/testing";
 import {
   createVertexId,
-  DisplayAttribute,
+  type DisplayAttribute,
   getRawId,
-  Schema,
+  type Schema,
   useDisplayVertexFromVertex,
-  Vertex,
+  type Vertex,
 } from "@/core";
 import { formatDate, LABELS } from "@/utils";
 import { schemaAtom } from "./schema";
@@ -27,7 +27,7 @@ import {
 } from "./configuration";
 import { createRandomDate, createRandomName } from "@shared/utils/testing";
 import { mapToDisplayVertexTypeConfig } from "./displayTypeConfigs";
-import { QueryEngine } from "@shared/types";
+import type { QueryEngine } from "@shared/types";
 import { getDisplayValueForScalar } from "@/connector/entities";
 
 describe("useDisplayVertexFromVertex", () => {

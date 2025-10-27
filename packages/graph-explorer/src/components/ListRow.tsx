@@ -1,5 +1,5 @@
 import { cn } from "@/utils";
-import { ComponentPropsWithoutRef } from "react";
+import type { ComponentPropsWithoutRef } from "react";
 
 export function ListRow({
   className,
