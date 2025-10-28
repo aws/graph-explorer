@@ -12,7 +12,6 @@ import SingleNodeStyling from "./SingleNodeStyling";
 import { Fragment } from "react/jsx-runtime";
 import { SidebarCloseButton } from "../SidebarCloseButton";
 import { Virtuoso } from "react-virtuoso";
-import NodeStyleDialog from "./NodeStyleDialog";
 
 function NodesStyling() {
   const vtConfigs = useDisplayVertexTypeConfigs().values().toArray();
@@ -41,7 +40,6 @@ function NodesStyling() {
             </Fragment>
           )}
         />
-        <NodeStyleDialog />
       </PanelContent>
     </Panel>
   );

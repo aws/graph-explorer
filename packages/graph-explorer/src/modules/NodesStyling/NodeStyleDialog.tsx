@@ -32,9 +32,21 @@ import {
   RESERVED_TYPES_PROPERTY,
 } from "@/utils/constants";
 import { cn } from "@/utils";
-import { atom, useAtom } from "jotai";
+import { atom, useAtom, useSetAtom } from "jotai";
 
-export const customizeNodeTypeAtom = atom<string | undefined>(undefined);
+const customizeNodeTypeAtom = atom<string | undefined>(undefined);
+
+/**
+ * Open the dialog to customize the node style
+ * @returns callback to open the dialog
+ */
+export function useOpenNodeStyleDialog() {
+  const setCustomizeNodeType = useSetAtom(customizeNodeTypeAtom);
+
+  return (vertexType: string) => {
+    setCustomizeNodeType(vertexType);
+  };
+}
 
 const file2Base64 = (file: File): Promise<string> => {
   return new Promise<string>((resolve, reject) => {
@@ -46,7 +58,7 @@ const file2Base64 = (file: File): Promise<string> => {
   });
 };
 
-export default function NodeStyleDialog() {
+export function NodeStyleDialog() {
   const styleWithTheme = useWithTheme();
 
   const [customizeNodeType, setCustomizeNodeType] = useAtom(

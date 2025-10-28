@@ -4,8 +4,7 @@ import { useDisplayEdgeTypeConfig } from "@/core";
 import { useEdgeStyling } from "@/core/StateProvider/userPreferences";
 import { useDebounceValue, usePrevious } from "@/hooks";
 import { LABELS } from "@/utils";
-import { customizeEdgeTypeAtom } from "./EdgeStyleDialog";
-import { useSetAtom } from "jotai";
+import { useOpenEdgeStyleDialog } from "./EdgeStyleDialog";
 
 export type SingleEdgeStylingProps = {
   edgeType: string;
@@ -16,7 +15,7 @@ export default function SingleEdgeStyling({
   ...rest
 }: SingleEdgeStylingProps) {
   const { setEdgeStyle } = useEdgeStyling(edgeType);
-  const setCustomizeEdgeType = useSetAtom(customizeEdgeTypeAtom);
+  const openEdgeStyleDialog = useOpenEdgeStyleDialog();
   const displayConfig = useDisplayEdgeTypeConfig(edgeType);
 
   const [displayAs, setDisplayAs] = useState(displayConfig.displayLabel);
@@ -50,7 +49,7 @@ export default function SingleEdgeStyling({
         <Button
           icon={<StylingIcon />}
           variant="text"
-          onClick={() => setCustomizeEdgeType(edgeType)}
+          onClick={() => openEdgeStyleDialog(edgeType)}
         >
           Customize
         </Button>

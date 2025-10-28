@@ -11,7 +11,6 @@ import { useDisplayEdgeTypeConfigs } from "@/core";
 import useTranslations from "@/hooks/useTranslations";
 import SingleEdgeStyling from "./SingleEdgeStyling";
 import { SidebarCloseButton } from "../SidebarCloseButton";
-import EdgeStyleDialog from "./EdgeStyleDialog";
 import { Virtuoso } from "react-virtuoso";
 
 function EdgesStyling() {
@@ -42,7 +41,6 @@ function EdgesStyling() {
             </Fragment>
           )}
         />
-        <EdgeStyleDialog />
       </PanelContent>
     </Panel>
   );

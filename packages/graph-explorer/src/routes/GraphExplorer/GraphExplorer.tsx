@@ -30,14 +30,14 @@ import {
 } from "@/core";
 import { totalFilteredCount } from "@/core/StateProvider/filterCount";
 import useTranslations from "@/hooks/useTranslations";
-import EdgesStyling from "@/modules/EdgesStyling/EdgesStyling";
+import { EdgesStyling, EdgeStyleDialog } from "@/modules/EdgesStyling";
 import EntitiesFilter from "@/modules/EntitiesFilter";
 import EntitiesTabular from "@/modules/EntitiesTabular/EntitiesTabular";
 import EntityDetails from "@/modules/EntityDetails";
 import GraphViewer from "@/modules/GraphViewer";
 import Namespaces from "@/modules/Namespaces/Namespaces";
 import NodeExpand from "@/modules/NodeExpand";
-import { NodesStyling } from "@/modules/NodesStyling";
+import { NodesStyling, NodeStyleDialog } from "@/modules/NodesStyling";
 import { LABELS } from "@/utils/constants";
 import { SearchSidebarPanel } from "@/modules/SearchSidebar";
 import { useAtomValue } from "jotai";
@@ -131,6 +131,8 @@ const GraphExplorer = () => {
             <EntitiesTabular />
           </Resizable>
         </Activity>
+        <NodeStyleDialog />
+        <EdgeStyleDialog />
       </Workspace.Content>
 
       <Workspace.SideBar direction="row">

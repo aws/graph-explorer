@@ -32,8 +32,8 @@ import {
   ZoomInIcon,
   ZoomOutIcon,
 } from "lucide-react";
-import { customizeNodeTypeAtom } from "@/modules/NodesStyling";
-import { customizeEdgeTypeAtom } from "@/modules/EdgesStyling";
+import { useOpenNodeStyleDialog } from "@/modules/NodesStyling";
+import { useOpenEdgeStyleDialog } from "@/modules/EdgesStyling";
 import { useAtom, useSetAtom } from "jotai";
 
 export type ContextMenuProps = {
@@ -68,36 +68,38 @@ const ContextMenu = ({
   const nonEmptySelection =
     nodesSelectedIds.size >= 1 || edgesSelectedIds.size >= 1;
 
-  const setCustomizeNodeType = useSetAtom(customizeNodeTypeAtom);
-  const setCustomizeEdgeType = useSetAtom(customizeEdgeTypeAtom);
+  const openNodeStyleDialog = useOpenNodeStyleDialog();
+  const openEdgeStyleDialog = useOpenEdgeStyleDialog();
 
-  const openSidebarPanel =
-    (
-      panelName: SidebarItems,
-      props?: { nodeType?: string; edgeType?: string }
-    ) =>
-    async () => {
-      await setUserLayout(async prev => {
-        const prevValue = await prev;
-        return {
-          ...prevValue,
-          activeSidebarItem: panelName,
-        };
-      });
-      if (affectedNodesIds?.length) {
-        setEdgesSelectedIds(prev => (prev.size === 0 ? prev : new Set([])));
-        setNodesSelectedIds(new Set(affectedNodesIds ?? []));
-      }
-      if (affectedEdgesIds?.length) {
-        setEdgesSelectedIds(new Set(affectedEdgesIds ?? []));
-        setNodesSelectedIds(prev => (prev.size === 0 ? prev : new Set([])));
-      }
+  const openSidebarPanel = (panelName: SidebarItems) => async () => {
+    await setUserLayout(async prev => {
+      const prevValue = await prev;
+      return {
+        ...prevValue,
+        activeSidebarItem: panelName,
+      };
+    });
+    if (affectedNodesIds?.length) {
+      setEdgesSelectedIds(prev => (prev.size === 0 ? prev : new Set([])));
+      setNodesSelectedIds(new Set(affectedNodesIds ?? []));
+    }
+    if (affectedEdgesIds?.length) {
+      setEdgesSelectedIds(new Set(affectedEdgesIds ?? []));
+      setNodesSelectedIds(prev => (prev.size === 0 ? prev : new Set([])));
+    }
 
-      props?.nodeType && setCustomizeNodeType(props.nodeType);
-      props?.edgeType && setCustomizeEdgeType(props.edgeType);
+    onClose?.();
+  };
 
-      onClose?.();
-    };
+  const openNodeStyle = (nodeType: string) => () => {
+    openNodeStyleDialog(nodeType);
+    onClose?.();
+  };
+
+  const openEdgeStyle = (edgeType: string) => () => {
+    openEdgeStyleDialog(edgeType);
+    onClose?.();
+  };
 
   const handleFitToFrame = () => {
     onFitToCanvas();
@@ -177,13 +179,9 @@ const ContextMenu = ({
           <ExpandGraphIcon />
           Expand panel
         </ListItem>
-        <ListItem
-          onClick={openSidebarPanel("nodes-styling", {
-            nodeType: affectedNode.typeConfig.type,
-          })}
-        >
+        <ListItem onClick={openNodeStyle(affectedNode.typeConfig.type)}>
           <StylingIcon />
-          Customize panel
+          Customize {t("graph-viewer.node").toLowerCase()} style
         </ListItem>
         <Divider />
         <ListItem onClick={handleRemoveFromCanvas([affectedNode.id], [])}>
@@ -206,13 +204,9 @@ const ContextMenu = ({
           <DetailsIcon />
           Details Panel
         </ListItem>
-        <ListItem
-          onClick={openSidebarPanel("edges-styling", {
-            edgeType: affectedEdge.typeConfig.type,
-          })}
-        >
+        <ListItem onClick={openEdgeStyle(affectedEdge.typeConfig.type)}>
           <StylingIcon />
-          Customize Panel
+          Customize {t("graph-viewer.edge").toLocaleLowerCase()} style
         </ListItem>
         <Divider />
         <ListItem onClick={handleRemoveFromCanvas([], [affectedEdge.id])}>
