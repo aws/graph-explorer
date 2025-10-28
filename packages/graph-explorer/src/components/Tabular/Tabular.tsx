@@ -134,7 +134,6 @@ const TabularContent = <T extends object>({
   disablePagination,
   disableStickyHeader,
   fitRowsVertically,
-  rowSelectionMode,
   onRowMouseOver,
   onRowMouseOut,
   variant,
@@ -235,7 +234,6 @@ const TabularContent = <T extends object>({
                 row={row}
                 tableInstance={tableInstance}
                 fitRowsVertically={fitRowsVertically}
-                rowSelectionMode={rowSelectionMode}
                 onMouseOver={onRowMouseOver}
                 onMouseOut={onRowMouseOut}
               />

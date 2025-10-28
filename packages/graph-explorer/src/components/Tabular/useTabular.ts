@@ -246,15 +246,6 @@ export interface TabularOptions<T extends object> {
   disableRowSelection?: boolean;
 
   /**
-   * Defines the row selection behavior:
-   * "Checkbox" adds a column to the table at the most left position.
-   * "row" allows to Select the row by clicking on the row itself.
-   * If it is not defined, rows are selectable but their management should be implemented
-   * using controls or custom columns definitions
-   */
-  rowSelectionMode?: "checkbox" | "row";
-
-  /**
    * Record with initial selected rows ids.
    * Changes in this record will not trigger any table update. For externally management of
    * rows selection, you should use 'selectedRowIds', 'toggleRowSelected', and 'toggleAllRowsSelected'.

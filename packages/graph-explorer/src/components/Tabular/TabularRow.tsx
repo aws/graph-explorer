@@ -7,12 +7,11 @@ import type { TabularProps } from "./Tabular";
 
 const TabularRow = <T extends object>({
   fitRowsVertically,
-  rowSelectionMode,
   row,
   tableInstance,
   onMouseOver,
   onMouseOut,
-}: Pick<TabularProps<T>, "fitRowsVertically" | "rowSelectionMode"> & {
+}: Pick<TabularProps<T>, "fitRowsVertically"> & {
   tableInstance: TableInstance<T>;
   row: Row<T>;
   onMouseOver?(event: MouseEvent<HTMLDivElement>, row: Row<T>): void;
@@ -43,14 +42,11 @@ const TabularRow = <T extends object>({
   return (
     <div
       {...rowProps}
-      className={cn("row", {
+      className={cn("row row-selectable", {
         ["row-grow"]: fitRowsVertically,
-        ["row-selectable"]: rowSelectionMode === "row",
         ["row-selected"]: row.isSelected,
       })}
-      onClick={() =>
-        rowSelectionMode === "row" && selectable && row.toggleRowSelected()
-      }
+      onClick={() => selectable && row.toggleRowSelected()}
       onMouseOver={event => onMouseOver?.(event, row)}
       onMouseOut={event => onMouseOut?.(event, row)}
     >

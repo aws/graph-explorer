@@ -147,7 +147,6 @@ const EdgesTabular = forwardRef<TabularInstance<ToggleEdge>, any>(
       <Tabular
         ref={ref}
         fullWidth
-        rowSelectionMode="row"
         selectedRowIds={selectedRowsIds}
         toggleRowSelected={onSelectRows}
         data={data}
