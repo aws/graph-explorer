@@ -17,3 +17,4 @@ export * from "./formatEntityCounts";
 export * from "./formatRelativeDate";
 export * from "./numbers";
 export * from "./isCancellationError";
+export * from "./isVisible";
