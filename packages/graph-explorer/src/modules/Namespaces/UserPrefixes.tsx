@@ -211,18 +211,19 @@ function EditPrefixModal({
     }));
   };
 
+  const configId = config?.id;
   const onSave = useAtomCallback(
     useCallback(
       async (_get, set, prefix: string, uri: string) => {
-        if (!config?.id) {
+        if (!configId) {
           return;
         }
 
         await set(schemaAtom, async prevSchemas => {
           const updatedSchemas = new Map(await prevSchemas);
-          const activeSchema = updatedSchemas.get(config.id);
+          const activeSchema = updatedSchemas.get(configId);
 
-          updatedSchemas.set(config.id, {
+          updatedSchemas.set(configId, {
             ...(activeSchema || {}),
             vertices: activeSchema?.vertices || [],
             edges: activeSchema?.edges || [],
@@ -232,7 +233,7 @@ function EditPrefixModal({
           return updatedSchemas;
         });
       },
-      [config?.id]
+      [configId]
     )
   );
 
