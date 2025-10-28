@@ -147,7 +147,6 @@ const TabularContent = <T extends object>({
    * fixes the issue. We can likely revisit this when we upgrade to the newest
    * React Table version.
    */
-  // eslint-disable-next-line react-hooks/react-compiler
   "use no memo";
 
   const { tableRef, headerControlsRef, headerControlsPosition } =
@@ -183,6 +182,7 @@ const TabularContent = <T extends object>({
 
   useEffect(() => {
     if (!headerControlsRef.current || headerControlsPosition !== "sticky") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setStickyHeaderTop(0);
       return;
     }

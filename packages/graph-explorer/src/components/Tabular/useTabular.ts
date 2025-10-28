@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/react-compiler */
 import { type MouseEvent, useEffect, useMemo, useRef, useState } from "react";
 
 import {

@@ -94,6 +94,7 @@ const useInitCytoscape = ({
       }, 100);
       cy.on("pan", debouncedPan);
 
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCy(cy);
 
       return () => {
