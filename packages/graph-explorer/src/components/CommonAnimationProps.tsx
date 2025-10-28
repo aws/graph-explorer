@@ -1,4 +1,4 @@
-import { MotionNodeAnimationOptions } from "motion/react";
+import type { MotionNodeAnimationOptions } from "motion/react";
 
 export const addRemoveAnimationProps: MotionNodeAnimationOptions = {
   initial: { opacity: 0, scale: 0.95 },

@@ -1,4 +1,4 @@
-import { DisplayAttribute, DisplayVertex } from "@/core";
+import type { DisplayAttribute, DisplayVertex } from "@/core";
 import useTranslations from "@/hooks/useTranslations";
 import NeighborsList from "@/modules/common/NeighborsList/NeighborsList";
 import EntityAttribute from "./EntityAttribute";

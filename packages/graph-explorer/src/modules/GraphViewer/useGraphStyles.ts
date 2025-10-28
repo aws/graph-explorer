@@ -1,13 +1,13 @@
 import Color from "color";
 import { useDeferredValue } from "react";
 import {
-  DisplayEdge,
-  EdgeId,
-  EdgeTypeConfig,
+  type DisplayEdge,
+  type EdgeId,
+  type EdgeTypeConfig,
   getEdgeIdFromRenderedEdgeId,
-  RenderedEdgeId,
+  type RenderedEdgeId,
   useDisplayEdgesInCanvas,
-  VertexTypeConfig,
+  type VertexTypeConfig,
 } from "@/core";
 import type { GraphProps } from "@/components";
 import {

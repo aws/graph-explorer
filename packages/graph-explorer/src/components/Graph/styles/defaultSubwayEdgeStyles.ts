@@ -1,4 +1,4 @@
-import { EdgeStyle } from "../Graph.model";
+import type { EdgeStyle } from "../Graph.model";
 import defaultEdgeStyle from "./defaultEdgeStyle";
 
 const defaultSubwayEdgeStyles: EdgeStyle = {

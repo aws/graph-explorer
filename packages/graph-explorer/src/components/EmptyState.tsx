@@ -1,5 +1,5 @@
 import { cn } from "@/utils";
-import { cva, VariantProps } from "cva";
+import { cva, type VariantProps } from "cva";
 import React from "react";
 
 const EmptyState = React.forwardRef<

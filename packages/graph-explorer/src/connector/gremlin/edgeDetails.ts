@@ -1,10 +1,10 @@
 import { logger, query } from "@/utils";
-import {
+import type {
   EdgeDetailsRequest,
   EdgeDetailsResponse,
   ErrorResponse,
 } from "../useGEFetchTypes";
-import { GEdge, GremlinFetch } from "./types";
+import type { GEdge, GremlinFetch } from "./types";
 import { mapResults } from "./mappers/mapResults";
 import isErrorResponse from "../utils/isErrorResponse";
 import { idParam } from "./idParam";

@@ -1,4 +1,4 @@
-import { UpdateSchemaHandler } from "@/core";
+import type { UpdateSchemaHandler } from "@/core";
 import { queryOptions } from "@tanstack/react-query";
 import { getExplorer, updateDetailsCacheFromEntities } from "./helpers";
 import { patchEntityDetails } from "./patchEntityDetails";

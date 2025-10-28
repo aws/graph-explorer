@@ -1,12 +1,12 @@
 import { logger, query } from "@/utils";
-import { RawQueryRequest, RawQueryResponse } from "../useGEFetchTypes";
+import type { RawQueryRequest, RawQueryResponse } from "../useGEFetchTypes";
 import {
-  SparqlFetch,
+  type SparqlFetch,
   sparqlResponseSchema,
   sparqlValueSchema,
   sparqlAskResponseSchema,
   sparqlQuadBindingSchema,
-  SparqlQuadBinding,
+  type SparqlQuadBinding,
 } from "./types";
 import isErrorResponse from "../utils/isErrorResponse";
 import { z } from "zod";

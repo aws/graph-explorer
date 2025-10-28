@@ -4,7 +4,7 @@ import type {
   CountsByTypeResponse,
 } from "@/connector/useGEFetchTypes";
 import classWithCountsTemplates from "./classWithCountsTemplates";
-import { SparqlFetch, SparqlValue } from "../types";
+import type { SparqlFetch, SparqlValue } from "../types";
 
 type RawCountsByTypeResponse = {
   results: {

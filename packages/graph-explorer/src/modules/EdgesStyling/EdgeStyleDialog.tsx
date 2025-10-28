@@ -11,8 +11,8 @@ import { Button, InputField, SelectField } from "@/components";
 import ColorInput from "@/components/ColorInput/ColorInput";
 import { useDisplayEdgeTypeConfig } from "@/core";
 import {
-  ArrowStyle,
-  LineStyle,
+  type ArrowStyle,
+  type LineStyle,
   useEdgeStyling,
 } from "@/core/StateProvider/userPreferences";
 import useTranslations from "@/hooks/useTranslations";

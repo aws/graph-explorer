@@ -1,7 +1,7 @@
 import { cn } from "@/utils";
 import type { ForwardedRef, ReactNode } from "react";
 import { forwardRef } from "react";
-import { cva, VariantProps } from "cva";
+import { cva, type VariantProps } from "cva";
 import { Slot } from "@radix-ui/react-slot";
 
 export const buttonStyles = cva({

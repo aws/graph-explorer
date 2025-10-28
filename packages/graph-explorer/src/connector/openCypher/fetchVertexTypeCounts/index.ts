@@ -3,7 +3,7 @@ import type {
   CountsByTypeResponse,
 } from "@/connector/useGEFetchTypes";
 import vertexTypeCountTemplate from "./vertexTypeCountTemplate";
-import { OpenCypherFetch } from "../types";
+import type { OpenCypherFetch } from "../types";
 
 type RawCountsByTypeResponse = {
   results: [

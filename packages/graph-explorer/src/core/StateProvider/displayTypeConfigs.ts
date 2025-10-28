@@ -5,13 +5,13 @@ import {
   defaultVertexTypeConfig,
   edgeTypeConfigSelector,
   vertexTypeConfigSelector,
-  AttributeConfig,
-  EdgeTypeConfig,
-  VertexTypeConfig,
-  ArrowStyle,
-  LineStyle,
+  type AttributeConfig,
+  type EdgeTypeConfig,
+  type VertexTypeConfig,
+  type ArrowStyle,
+  type LineStyle,
 } from "@/core";
-import { TextTransformer, textTransformSelector } from "@/hooks";
+import { type TextTransformer, textTransformSelector } from "@/hooks";
 import { LABELS, RESERVED_TYPES_PROPERTY } from "@/utils";
 import { atomFamily, useAtomCallback } from "jotai/utils";
 import { atom, useAtomValue } from "jotai";

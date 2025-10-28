@@ -1,6 +1,6 @@
 import { saveAs } from "file-saver";
-import { RefObject, useCallback, useEffect, useState } from "react";
-import { GraphRef } from "@/components/Graph/Graph";
+import { type RefObject, useCallback, useEffect, useState } from "react";
+import type { GraphRef } from "@/components/Graph/Graph";
 
 const useGraphGlobalActions = (graphRef?: RefObject<GraphRef | null>) => {
   const [isZoomInDisabled, setIsZoomInDisabled] = useState(false);

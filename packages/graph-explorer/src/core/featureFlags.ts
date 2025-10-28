@@ -1,4 +1,4 @@
-import { atom, ExtractAtomValue, useAtomValue } from "jotai";
+import { atom, type ExtractAtomValue, useAtomValue } from "jotai";
 import { atomWithLocalForage } from "./StateProvider/localForageEffect";
 
 /** Shows debug actions in various places around the app. */

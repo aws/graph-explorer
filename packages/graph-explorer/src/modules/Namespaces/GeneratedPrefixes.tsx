@@ -1,4 +1,4 @@
-import { ComponentPropsWithoutRef } from "react";
+import type { ComponentPropsWithoutRef } from "react";
 import {
   ListRow,
   ListRowContent,
@@ -9,7 +9,7 @@ import {
   SearchBar,
   useSearchItems,
 } from "@/components";
-import { PrefixTypeConfig, useConfiguration } from "@/core";
+import { type PrefixTypeConfig, useConfiguration } from "@/core";
 import { Virtuoso } from "react-virtuoso";
 
 const GeneratedPrefixes = () => {

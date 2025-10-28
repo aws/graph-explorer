@@ -1,8 +1,8 @@
 import { cn } from "@/utils";
-import { ComponentPropsWithoutRef } from "react";
+import type { ComponentPropsWithoutRef } from "react";
 import {
   InputField,
-  InputFieldProps,
+  type InputFieldProps,
   inputStyles,
   Popover,
   PopoverContent,

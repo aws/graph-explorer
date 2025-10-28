@@ -1,4 +1,4 @@
-import { EdgeId, VertexId } from "@/core";
+import type { EdgeId, VertexId } from "@/core";
 
 /** Formats the ID parameter for a sparql query based on the ID type. */
 export function idParam(id: VertexId | EdgeId | string) {

@@ -24,7 +24,7 @@ import { useAtom, useAtomValue } from "jotai";
 import { SearchResultsList } from "./SearchResultsList";
 import { atomWithReset } from "jotai/utils";
 import { executeUserQuery } from "@/connector";
-import { ComponentPropsWithRef } from "react";
+import type { ComponentPropsWithRef } from "react";
 
 const formDataSchema = z.object({
   query: z.string().default(""),

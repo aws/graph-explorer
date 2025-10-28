@@ -1,8 +1,8 @@
 import { cn, getChildOfType } from "@/utils";
 import {
-  ForwardedRef,
+  type ForwardedRef,
   forwardRef,
-  PropsWithChildren,
+  type PropsWithChildren,
   useEffect,
   useImperativeHandle,
   useState,

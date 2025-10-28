@@ -4,8 +4,8 @@ import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { Link, useParams, useSearchParams } from "react-router";
 import {
   useUpdateSchemaFromEntities,
-  Vertex,
-  DisplayVertex,
+  type Vertex,
+  type DisplayVertex,
   useConfiguration,
   useDisplayVertexTypeConfig,
   useDisplayVerticesFromVertices,
@@ -25,16 +25,16 @@ import {
 } from "@/components";
 import { ExplorerIcon } from "@/components/icons";
 import {
-  ColumnDefinition,
+  type ColumnDefinition,
   PaginationControl,
   PlaceholderControl,
   TabularEmptyBodyControls,
   TabularFooterControls,
-  TabularInstance,
+  type TabularInstance,
 } from "@/components/Tabular";
 import Tabular from "@/components/Tabular/Tabular";
 import Workspace from "@/components/Workspace/Workspace";
-import { KeywordSearchRequest, searchQuery } from "@/connector";
+import { type KeywordSearchRequest, searchQuery } from "@/connector";
 import { useVertexStyling } from "@/core/StateProvider/userPreferences";
 import { useAddVertexToGraph, useHasVertexBeenAddedToGraph } from "@/hooks";
 import useTranslations from "@/hooks/useTranslations";

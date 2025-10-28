@@ -1,4 +1,8 @@
-import { Column, ColumnGroup, ColumnInterfaceBasedOnValue } from "react-table";
+import type {
+  Column,
+  ColumnGroup,
+  ColumnInterfaceBasedOnValue,
+} from "react-table";
 import { numericFilter } from "../filters";
 import type { ColumnDefinition } from "../useTabular";
 

@@ -1,5 +1,5 @@
 import { escapeString, query } from "@/utils";
-import { rdfTypeUri, SPARQLKeywordSearchRequest } from "../types";
+import { rdfTypeUri, type SPARQLKeywordSearchRequest } from "../types";
 import { idParam } from "../idParam";
 import { getLimit, getSubjectClasses } from "../filterHelpers";
 

@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import { SchemaResponse } from "../useGEFetchTypes";
+import type { SchemaResponse } from "../useGEFetchTypes";
 import { updateSchemaPrefixes } from "@/core/StateProvider/schema";
 import { getExplorer } from "./helpers";
 

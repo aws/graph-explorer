@@ -10,12 +10,15 @@ import {
   defaultEdgeTypeConfig,
   defaultVertexTypeConfig,
   mergeConfiguration,
-  NormalizedConnection,
+  type NormalizedConnection,
   patchToRemoveDisplayLabel,
 } from "./configuration";
-import { RawConfiguration, VertexTypeConfig } from "../ConfigurationProvider";
-import { SchemaInference } from "./schema";
-import { UserStyling } from "./userPreferences";
+import type {
+  RawConfiguration,
+  VertexTypeConfig,
+} from "../ConfigurationProvider";
+import type { SchemaInference } from "./schema";
+import type { UserStyling } from "./userPreferences";
 import { createRandomName } from "@shared/utils/testing";
 import { RESERVED_TYPES_PROPERTY } from "@/utils";
 

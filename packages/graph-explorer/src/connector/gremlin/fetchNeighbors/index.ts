@@ -1,12 +1,12 @@
-import {
-  type NeighborsRequest,
-  type NeighborsResponse,
+import type {
+  NeighborsRequest,
+  NeighborsResponse,
 } from "@/connector/useGEFetchTypes";
 import mapApiEdge from "../mappers/mapApiEdge";
 import mapApiVertex from "../mappers/mapApiVertex";
 import oneHopTemplate from "./oneHopTemplate";
 import type { GEdgeList, GVertex } from "../types";
-import { GremlinFetch } from "../types";
+import type { GremlinFetch } from "../types";
 import { createEdge, createVertex } from "@/core";
 
 type RawOneHopRequest = {

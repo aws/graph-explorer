@@ -1,5 +1,5 @@
 import { cn } from "@/utils";
-import {
+import type {
   ComponentProps,
   ComponentPropsWithoutRef,
   PropsWithChildren,

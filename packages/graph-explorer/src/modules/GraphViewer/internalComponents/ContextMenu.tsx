@@ -1,4 +1,4 @@
-import { PropsWithChildren, RefObject } from "react";
+import type { PropsWithChildren, RefObject } from "react";
 import {
   Divider,
   EdgeIcon,
@@ -6,7 +6,7 @@ import {
   ListItem,
   StylingIcon,
 } from "@/components";
-import { GraphRef } from "@/components/Graph/Graph";
+import type { GraphRef } from "@/components/Graph/Graph";
 import {
   CenterGraphIcon,
   DetailsIcon,
@@ -16,10 +16,10 @@ import {
 import {
   useDisplayEdgesInCanvas,
   useDisplayVerticesInCanvas,
-  EdgeId,
-  VertexId,
+  type EdgeId,
+  type VertexId,
   userLayoutAtom,
-  SidebarItems,
+  type SidebarItems,
 } from "@/core";
 import { edgesSelectedIdsAtom } from "@/core/StateProvider/edges";
 import { nodesSelectedIdsAtom } from "@/core/StateProvider/nodes";

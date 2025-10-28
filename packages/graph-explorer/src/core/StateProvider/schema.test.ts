@@ -11,8 +11,8 @@ import {
   updateSchemaPrefixes,
 } from "./schema";
 import { createArray, createRandomName } from "@shared/utils/testing";
-import { PrefixTypeConfig } from "../ConfigurationProvider";
-import { EntityProperties } from "../entities";
+import type { PrefixTypeConfig } from "../ConfigurationProvider";
+import type { EntityProperties } from "../entities";
 
 describe("schema", () => {
   describe("extractConfigFromEntity", () => {

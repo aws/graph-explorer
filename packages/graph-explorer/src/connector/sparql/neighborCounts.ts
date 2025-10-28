@@ -1,13 +1,13 @@
 import { LABELS, logger, query } from "@/utils";
-import {
+import type {
   NeighborCount,
   NeighborCountsRequest,
   NeighborCountsResponse,
 } from "../useGEFetchTypes";
 import {
-  BlankNodeItem,
-  BlankNodesMap,
-  SparqlFetch,
+  type BlankNodeItem,
+  type BlankNodesMap,
+  type SparqlFetch,
   sparqlNumberValueSchema,
   sparqlResourceValueSchema,
   sparqlResponseSchema,
@@ -17,7 +17,7 @@ import { idParam } from "./idParam";
 import isErrorResponse from "../utils/isErrorResponse";
 import { z } from "zod";
 import { fromError } from "zod-validation-error/v3";
-import { createVertexId, VertexId } from "@/core";
+import { createVertexId, type VertexId } from "@/core";
 import fetchBlankNodeNeighbors from "./fetchBlankNodeNeighbors";
 import { getNeighborsFilter } from "./filterHelpers";
 

@@ -1,6 +1,6 @@
 import {
   activeGraphSessionAtom,
-  EdgeId,
+  type EdgeId,
   edgesAtom,
   edgesFilteredIdsAtom,
   edgesOutOfFocusIdsAtom,
@@ -10,7 +10,7 @@ import {
   nodesOutOfFocusIdsAtom,
   nodesSelectedIdsAtom,
   useUpdateGraphSession,
-  VertexId,
+  type VertexId,
 } from "@/core";
 import { useCallback } from "react";
 import { logger } from "@/utils";

@@ -10,8 +10,8 @@ import {
   createDefaultFileName,
   createExportedConnection,
   createExportedGraph,
-  ExportedGraphFile,
-  ExportedGraphConnection,
+  type ExportedGraphFile,
+  type ExportedGraphConnection,
   createFileSafeTimestamp,
   isMatchingConnection,
   exportedGraphSchema,
@@ -24,7 +24,7 @@ import {
   createRandomName,
   createRandomUrlString,
 } from "@shared/utils/testing";
-import { EdgeId, VertexId } from "@/core";
+import type { EdgeId, VertexId } from "@/core";
 import { escapeString } from "@/utils";
 
 describe("createExportedGraph", () => {

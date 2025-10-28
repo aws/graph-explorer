@@ -2,7 +2,7 @@
  * In order to avoid export react-table and their plugins properties,
  * this method transform the output properly.
  */
-import {
+import type {
   ColumnInstance,
   Filters,
   FilterValue,

@@ -1,6 +1,6 @@
 import { createResultEdge } from "@/connector/entities";
 import mapApiEdge from "./mapApiEdge";
-import { OCEdge } from "../types";
+import type { OCEdge } from "../types";
 import { createTestableEdge, mapToOcEdge } from "@/utils/testing";
 import {
   createRandomName,

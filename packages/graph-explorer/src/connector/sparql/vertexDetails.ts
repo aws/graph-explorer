@@ -1,9 +1,9 @@
 import { logger, query } from "@/utils";
-import {
+import type {
   VertexDetailsRequest,
   VertexDetailsResponse,
 } from "../useGEFetchTypes";
-import { rdfTypeUri, SparqlFetch } from "./types";
+import { rdfTypeUri, type SparqlFetch } from "./types";
 import { createVertex } from "@/core";
 import { idParam } from "./idParam";
 import { parseAndMapQuads } from "./parseAndMapQuads";

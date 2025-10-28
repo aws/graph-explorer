@@ -1,12 +1,12 @@
 import {
   createResultEdge,
   createResultVertex,
-  ResultEdge,
-  ResultVertex,
+  type ResultEdge,
+  type ResultVertex,
 } from "@/connector/entities";
-import { rdfTypeUri, SparqlQuadBinding } from "../types";
+import { rdfTypeUri, type SparqlQuadBinding } from "../types";
 import { createRdfEdgeId } from "../createRdfEdgeId";
-import { EntityProperties } from "@/core/entities";
+import type { EntityProperties } from "@/core/entities";
 import { mapSparqlValueToScalar } from "./mapSparqlValueToScalar";
 
 /** Internal type to support creation of vertex result one binding at a time. */

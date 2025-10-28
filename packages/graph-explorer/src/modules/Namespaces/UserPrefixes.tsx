@@ -26,7 +26,7 @@ import {
 } from "@/components";
 import {
   activeConfigurationAtom,
-  PrefixTypeConfig,
+  type PrefixTypeConfig,
   useConfiguration,
 } from "@/core";
 import { schemaAtom } from "@/core/StateProvider/schema";

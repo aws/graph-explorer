@@ -1,15 +1,15 @@
 import {
-  DisplayAttribute,
+  type DisplayAttribute,
   getSortedDisplayAttributes,
   nodesAtom,
   nodesSelectedIdsAtom,
-  DisplayVertexTypeConfig,
+  type DisplayVertexTypeConfig,
   displayVertexTypeConfigSelector,
   queryEngineSelector,
   nodeSelector,
   getRawId,
-  Vertex,
-  VertexId,
+  type Vertex,
+  type VertexId,
   useVertex,
 } from "@/core";
 import { textTransformSelector } from "@/hooks";

@@ -1,6 +1,6 @@
 import groupBy from "lodash/groupBy";
 import blankNodeOneHopNeighborsTemplate from "./blankNodeOneHopNeighborsTemplate";
-import {
+import type {
   SPARQLBlankNodeNeighborsRequest,
   SPARQLBlankNodeNeighborsResponse,
   SparqlFetch,

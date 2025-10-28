@@ -1,7 +1,7 @@
 import { atom } from "jotai";
-import { EdgeId, VertexId } from "../../entities";
+import type { EdgeId, VertexId } from "../../entities";
 import { activeConfigurationAtom } from "../configuration";
-import { ConfigurationId } from "../../ConfigurationProvider";
+import type { ConfigurationId } from "../../ConfigurationProvider";
 import { atomWithLocalForage } from "../localForageEffect";
 import { atomWithReset, RESET } from "jotai/utils";
 

@@ -1,10 +1,10 @@
 import { logger, query } from "@/utils";
-import {
+import type {
   EdgeDetailsRequest,
   EdgeDetailsResponse,
   ErrorResponse,
 } from "@/connector";
-import { OCEdge, OpenCypherFetch } from "./types";
+import type { OCEdge, OpenCypherFetch } from "./types";
 import { idParam } from "./idParam";
 import isErrorResponse from "@/connector/utils/isErrorResponse";
 import mapApiEdge from "./mappers/mapApiEdge";

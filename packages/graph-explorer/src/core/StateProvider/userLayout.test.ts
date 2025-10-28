@@ -5,7 +5,7 @@ import {
 } from "@/utils/testing";
 import { userLayoutAtom, useSidebar, useViewToggles } from "./userLayout";
 import { act } from "react";
-import { ExtractAtomValue } from "jotai";
+import type { ExtractAtomValue } from "jotai";
 
 type UserLayout = ExtractAtomValue<typeof userLayoutAtom>;
 

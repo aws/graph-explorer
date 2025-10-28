@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook } from "@testing-library/react";
 import { createStore, Provider } from "jotai";
-import { PropsWithChildren } from "react";
+import type { PropsWithChildren } from "react";
 import { DbState } from "./DbState";
 import { createQueryClient } from "@/core/queryClient";
 

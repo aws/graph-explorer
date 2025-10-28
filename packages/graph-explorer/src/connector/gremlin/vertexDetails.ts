@@ -1,10 +1,10 @@
 import { logger, query } from "@/utils";
-import {
+import type {
   ErrorResponse,
   VertexDetailsRequest,
   VertexDetailsResponse,
 } from "../useGEFetchTypes";
-import { GremlinFetch, GVertex } from "./types";
+import type { GremlinFetch, GVertex } from "./types";
 import { mapResults } from "./mappers/mapResults";
 import isErrorResponse from "../utils/isErrorResponse";
 import { idParam } from "./idParam";

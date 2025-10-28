@@ -1,9 +1,9 @@
 import { logger, query } from "@/utils";
-import {
+import type {
   VertexDetailsRequest,
   VertexDetailsResponse,
 } from "../useGEFetchTypes";
-import { OpenCypherFetch } from "./types";
+import type { OpenCypherFetch } from "./types";
 import { mapResults } from "./mappers/mapResults";
 import isErrorResponse from "../utils/isErrorResponse";
 import { idParam } from "./idParam";

@@ -1,13 +1,13 @@
-import {
-  type ErrorResponse,
-  type KeywordSearchRequest,
-  type KeywordSearchResponse,
+import type {
+  ErrorResponse,
+  KeywordSearchRequest,
+  KeywordSearchResponse,
 } from "@/connector/useGEFetchTypes";
 import isErrorResponse from "@/connector/utils/isErrorResponse";
 import mapApiVertex from "../mappers/mapApiVertex";
 import keywordSearchTemplate from "./keywordSearchTemplate";
 import type { GVertexList } from "../types";
-import { GremlinFetch } from "../types";
+import type { GremlinFetch } from "../types";
 import { createVertex } from "@/core";
 
 type RawKeySearchResponse = {

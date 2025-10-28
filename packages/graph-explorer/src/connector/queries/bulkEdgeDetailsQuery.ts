@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import { Edge, EdgeId } from "@/core";
+import type { Edge, EdgeId } from "@/core";
 import { DEFAULT_BATCH_REQUEST_SIZE } from "@/utils";
 import { chunk } from "lodash";
 import { getExplorer, setEdgeDetailsQueryCache } from "./helpers";

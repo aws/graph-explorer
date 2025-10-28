@@ -1,5 +1,5 @@
 import { createResultScalar } from "@/connector/entities";
-import { DisplayVertex, DisplayAttribute } from "@/core";
+import type { DisplayVertex, DisplayAttribute } from "@/core";
 import { useTranslations } from "@/hooks";
 import { LABELS } from "@/utils";
 /**

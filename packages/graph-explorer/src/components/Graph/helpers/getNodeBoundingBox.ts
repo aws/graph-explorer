@@ -1,4 +1,4 @@
-import cytoscape from "cytoscape";
+import type cytoscape from "cytoscape";
 
 const getNodeBoundingBox = (node: cytoscape.NodeSingular) => {
   const { x1, y1, x2, y2 } = node.boundingbox({

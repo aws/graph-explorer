@@ -7,7 +7,7 @@ import {
   createResultScalar,
   createTypedValue,
   getDisplayValueForScalar,
-  ResultScalar,
+  type ResultScalar,
 } from "./scalar";
 import { LABELS } from "@/utils";
 

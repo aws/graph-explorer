@@ -1,4 +1,4 @@
-import { RESET } from "jotai/utils";
+import type { RESET } from "jotai/utils";
 
 export type SetStateActionWithReset<Value> =
   | Value
