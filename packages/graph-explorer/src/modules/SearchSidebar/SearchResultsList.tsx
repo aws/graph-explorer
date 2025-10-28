@@ -94,7 +94,7 @@ function ResultCounts({ results }: { results: PatchedResultEntity[] }) {
   const count = results.length;
   const label = count === 1 ? `${count} Item` : `${count} Items`;
 
-  return <p className="text-text-secondary text-pretty text-sm">{label}</p>;
+  return <p className="text-pretty text-sm text-text-secondary">{label}</p>;
 }
 
 function AddAllToGraphButton({

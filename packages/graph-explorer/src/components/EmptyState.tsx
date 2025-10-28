@@ -21,9 +21,9 @@ const emptyStateIconStyles = cva({
   base: "mb-6 flex size-24 items-center justify-center rounded-full text-7xl text-white [&>svg]:size-1/2",
   variants: {
     variant: {
-      info: "from-primary-main to-primary-light bg-gradient-to-b shadow-[0_0_20px_2px_hsl(205,95%,71%,70%)]",
+      info: "bg-gradient-to-b from-primary-main to-primary-light shadow-[0_0_20px_2px_hsl(205,95%,71%,70%)]",
       error:
-        "from-error-main to-error-light bg-gradient-to-b shadow-[0_0_20px_2px_rgba(255,144,119,0.7)]",
+        "bg-gradient-to-b from-error-main to-error-light shadow-[0_0_20px_2px_rgba(255,144,119,0.7)]",
     },
   },
   defaultVariants: {
@@ -50,7 +50,7 @@ const EmptyStateContent = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "max-w-paragraph flex w-full flex-col items-center justify-center gap-1 text-center",
+      "flex w-full max-w-paragraph flex-col items-center justify-center gap-1 text-center",
       className
     )}
     {...props}
@@ -65,7 +65,7 @@ const EmptyStateTitle = React.forwardRef<
   <h1
     ref={ref}
     className={cn(
-      "text-text-primary min-w-0 text-balance break-words text-lg font-bold",
+      "min-w-0 text-balance break-words text-lg font-bold text-text-primary",
       className
     )}
     {...props}
@@ -80,7 +80,7 @@ const EmptyStateDescription = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "text-text-primary/75 font-base min-w-0 text-pretty break-words text-base",
+      "min-w-0 text-pretty break-words text-base font-base text-text-primary/75",
       className
     )}
     {...props}

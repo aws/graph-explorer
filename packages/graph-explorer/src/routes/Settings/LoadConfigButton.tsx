@@ -111,7 +111,7 @@ function ConfirmationModal({
         <DialogBody>
           <div className="flex flex-row items-start gap-8">
             <div className="py-1">
-              <ErrorIcon className="text-warning-main size-16" />
+              <ErrorIcon className="size-16 text-warning-main" />
             </div>
             <div className="flex grow flex-col gap-8">
               <div>
@@ -172,7 +172,7 @@ function ParseFailureModal({
         <DialogBody>
           <div className="flex flex-row items-start gap-8">
             <div className="py-1">
-              <ErrorIcon className="text-warning-main size-16" />
+              <ErrorIcon className="size-16 text-warning-main" />
             </div>
             <div>
               <Paragraph>
@@ -204,7 +204,7 @@ function SuccessModal({ success }: { success: boolean }) {
         <DialogBody>
           <div className="flex flex-row items-start gap-8">
             <div className="py-1">
-              <CheckIcon className="text-success-main size-16" />
+              <CheckIcon className="size-16 text-success-main" />
             </div>
             <Paragraph className="w-full min-w-0">
               All data was restored successfully. Please reload{" "}

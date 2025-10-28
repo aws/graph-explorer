@@ -110,8 +110,8 @@ function CheckboxRow({
     <div className={cn("px-3", isTop && "pt-3", isBottom && "pb-3")}>
       <Label
         className={cn(
-          "text-text-primary w-full border-x border-b px-3 py-3 hover:cursor-pointer",
-          isTop && "bg-background-contrast/50 rounded-t-lg border-t",
+          "w-full border-x border-b px-3 py-3 text-text-primary hover:cursor-pointer",
+          isTop && "rounded-t-lg border-t bg-background-contrast/50",
           isBottom && "rounded-b-lg",
           className
         )}

@@ -73,7 +73,7 @@ export const InputField = (
             disabled={isDisabled}
             {...inputProps}
           />
-          <div className="text-text-secondary absolute left-3 top-1.5 text-xs leading-none">
+          <div className="absolute left-3 top-1.5 text-xs leading-none text-text-secondary">
             {label}
           </div>
         </div>

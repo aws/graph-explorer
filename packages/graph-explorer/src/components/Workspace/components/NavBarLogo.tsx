@@ -9,7 +9,7 @@ export default function NavBarLogo({
   return (
     <div
       className={cn(
-        "bg-logo-gradient mr-2 grid aspect-square h-full place-content-center overflow-hidden text-white",
+        "mr-2 grid aspect-square h-full place-content-center overflow-hidden bg-logo-gradient text-white",
         className
       )}
       {...rest}

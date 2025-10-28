@@ -124,7 +124,7 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
         </PanelHeaderActions>
       </PanelHeader>
       <PanelContent>
-        <InfoBar className="@sm:flex hidden">
+        <InfoBar className="hidden @sm:flex">
           <InfoItem className="shrink-0">
             <InfoItemIcon>
               <GlobeIcon />
@@ -145,7 +145,7 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
             </InfoItemContent>
           </InfoItem>
         </InfoBar>
-        <InfoBar className="@sm:flex hidden">
+        <InfoBar className="hidden @sm:flex">
           <VertexCounts />
           <EdgeCounts />
           <InfoItem>

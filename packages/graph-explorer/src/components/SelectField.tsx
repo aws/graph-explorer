@@ -50,7 +50,7 @@ function SelectField({
       <Select value={value} onValueChange={onValueChange}>
         <SelectTrigger className={cn("h-11 py-1", className)} {...props}>
           <div className="flex flex-col items-start justify-center gap-0">
-            <div className="text-text-secondary text-xs leading-none">
+            <div className="text-xs leading-none text-text-secondary">
               {label}
             </div>
             <SelectValue>

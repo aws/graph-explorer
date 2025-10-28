@@ -79,7 +79,7 @@ const EdgeDetail = ({ edge }: EdgeDetailProps) => {
   ];
 
   return (
-    <div className="divide-border divide-y">
+    <div className="divide-y divide-border">
       {/* Uses a grid with the first column width matching the size of the edge icon */}
       <div className="grid grid-cols-[2.75rem_1fr] gap-3 p-3">
         <EdgeRow

@@ -10,14 +10,14 @@ export default function Divider({
   if (axis === "vertical") {
     return (
       <div
-        className={cn("bg-border mx-1 h-full w-[1px] min-w-[1px]", className)}
+        className={cn("mx-1 h-full w-[1px] min-w-[1px] bg-border", className)}
         {...props}
       />
     );
   } else {
     return (
       <div
-        className={cn("bg-border my-1 h-[1px] min-h-[1px] w-full", className)}
+        className={cn("my-1 h-[1px] min-h-[1px] w-full bg-border", className)}
         {...props}
       />
     );

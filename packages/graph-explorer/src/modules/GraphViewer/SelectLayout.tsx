@@ -31,7 +31,7 @@ export function SelectLayout({
         {...selectTriggerProps}
       >
         <div className="flex flex-col items-start justify-center gap-0">
-          <div className="text-text-secondary text-xs leading-none">Layout</div>
+          <div className="text-xs leading-none text-text-secondary">Layout</div>
           <SelectValue placeholder="Select a layout" />
         </div>
       </SelectTrigger>

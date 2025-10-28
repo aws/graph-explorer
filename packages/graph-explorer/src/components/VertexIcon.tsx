@@ -37,7 +37,7 @@ export function VertexSymbol({
 }) {
   return (
     <SearchResultSymbol
-      className={cn("text-primary-main bg-primary-main/20", className)}
+      className={cn("bg-primary-main/20 text-primary-main", className)}
       style={{
         background: fade(vertexStyle.color, 0.2),
       }}
