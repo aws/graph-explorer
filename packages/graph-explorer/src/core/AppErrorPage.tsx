@@ -14,8 +14,8 @@ export default function AppErrorPage(props: FallbackProps) {
   const displayError = createDisplayError(props.error);
 
   return (
-    <div className="bg-background-default flex h-full w-full flex-col items-center justify-center p-6">
-      <ErrorIcon className="text-warning-main h-[8rem] w-[8rem]" />
+    <div className="flex h-full w-full flex-col items-center justify-center bg-background-default p-6">
+      <ErrorIcon className="h-[8rem] w-[8rem] text-warning-main" />
       <div className="flex flex-col items-center gap-6">
         <div className="text-center">
           <PageHeading>{displayError.title}</PageHeading>

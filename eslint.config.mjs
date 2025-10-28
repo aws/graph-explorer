@@ -41,7 +41,7 @@ export default tseslint.config(
   pluginJs.configs.recommended,
   tseslint.configs.recommendedTypeChecked,
   reactLint.configs.flat.recommended,
-  reactHooks.configs.recommended,
+  reactHooks.configs.flat.recommended,
   {
     plugins: {
       "@tanstack/query": fixupPluginRules(tanstackQueryLint),
@@ -92,11 +92,6 @@ export default tseslint.config(
       "react/prop-types": "off",
       "react/display-name": "off",
       "react/jsx-curly-brace-presence": "error",
-
-      // Hooks
-      "react-hooks/rules-of-hooks": "error",
-      "react-hooks/exhaustive-deps": "error",
-      "react-hooks/react-compiler": "error",
 
       // TanStack Query
       "@tanstack/query/exhaustive-deps": "error",

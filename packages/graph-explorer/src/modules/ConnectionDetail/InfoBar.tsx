@@ -8,7 +8,7 @@ const InfoBar = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "@sm:flex-row @sm:gap-9 flex w-full flex-col items-start gap-6 border-b px-3 py-6",
+      "flex w-full flex-col items-start gap-6 border-b px-3 py-6 @sm:flex-row @sm:gap-9",
       className
     )}
     {...props}
@@ -22,7 +22,7 @@ const InfoItemIcon = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "@lg:flex bg-background-secondary-subtle text-primary-main hidden aspect-square h-12 items-center justify-center rounded-lg [&_svg]:size-6",
+      "bg-background-secondary-subtle hidden aspect-square h-12 items-center justify-center rounded-lg text-primary-main @lg:flex [&_svg]:size-6",
       className
     )}
     {...props}
@@ -54,7 +54,7 @@ const InfoItemLabel = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "text-text-secondary text-balance break-words text-sm",
+      "text-balance break-words text-sm text-text-secondary",
       className
     )}
     {...props}
@@ -68,7 +68,7 @@ const InfoItemValue = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "text-text-primary inline-flex items-center gap-1 text-balance break-words text-base font-medium",
+      "inline-flex items-center gap-1 text-balance break-words text-base font-medium text-text-primary",
       className
     )}
     {...props}

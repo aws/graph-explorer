@@ -34,6 +34,7 @@ afterEach(() => {
   cleanup();
   vi.unstubAllEnvs();
   vi.unstubAllGlobals();
+  vi.resetAllMocks();
   vi.restoreAllMocks();
 });
 

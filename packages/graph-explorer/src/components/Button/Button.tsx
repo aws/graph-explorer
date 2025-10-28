@@ -27,19 +27,19 @@ export const buttonStyles = cva({
       variant: "filled",
       color: "primary",
       className:
-        "bg-brand hover:bg-brand-hover data-open:bg-brand-hover text-white",
+        "bg-brand text-white hover:bg-brand-hover data-open:bg-brand-hover",
     },
     {
       variant: "filled",
       color: "danger",
       className:
-        "bg-danger hover:bg-danger-hover data-open:bg-danger-hover text-white",
+        "bg-danger text-white hover:bg-danger-hover data-open:bg-danger-hover",
     },
     {
       variant: "default",
       color: "primary",
       className:
-        "text-text-primary data-open:bg-gray-200 bg-gray-100 hover:bg-gray-200",
+        "bg-gray-100 text-text-primary hover:bg-gray-200 data-open:bg-gray-200",
     },
     {
       variant: "default",

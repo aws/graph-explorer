@@ -33,7 +33,7 @@ export function SettingsSectionTitle({
   return (
     <h2
       className={cn(
-        "text-text-primary text-xl font-bold leading-snug",
+        "text-xl font-bold leading-snug text-text-primary",
         className
       )}
       {...props}
@@ -48,7 +48,7 @@ export function SettingsSectionDescription({
   return (
     <div
       className={cn(
-        "text-text-secondary font-base text-base leading-snug",
+        "text-base font-base leading-snug text-text-secondary",
         className
       )}
       {...props}
@@ -78,11 +78,11 @@ export function ToggleSetting({
       className="flex flex-row items-center justify-between space-x-4"
     >
       <div className="space-y-1">
-        <p className="text-text-primary text-pretty text-base font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+        <p className="text-pretty text-base font-medium leading-none text-text-primary peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
           {label}
         </p>
         {description ? (
-          <p className="text-text-secondary font-base text-pretty text-sm leading-normal peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+          <p className="text-pretty text-sm font-base leading-normal text-text-secondary peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
             {description}
           </p>
         ) : null}
@@ -103,11 +103,11 @@ export function LabelledSetting({
   return (
     <div className="flex flex-row items-center justify-between space-x-4">
       <div className="block cursor-pointer space-y-1">
-        <p className="text-text-primary text-pretty text-base font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+        <p className="text-pretty text-base font-medium leading-none text-text-primary peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
           {label}
         </p>
         {description ? (
-          <p className="text-text-secondary font-base text-pretty text-sm leading-normal peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+          <p className="text-pretty text-sm font-base leading-normal text-text-secondary peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
             {description}
           </p>
         ) : null}

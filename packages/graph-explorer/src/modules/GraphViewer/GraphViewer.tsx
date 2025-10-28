@@ -186,7 +186,7 @@ export default function GraphViewer() {
           </PanelHeaderActions>
         </PanelHeader>
         <PanelContent
-          className="bg-background-secondary flex h-full w-full"
+          className="flex h-full w-full bg-background-secondary"
           ref={parentRef}
         >
           <Graph
@@ -233,7 +233,7 @@ function Legend({ onClose }: { onClose: () => void }) {
   const vtConfigs = useDisplayVertexTypeConfigs().values().toArray();
 
   return (
-    <Panel className="z-panes absolute bottom-2 right-2 top-2 h-auto min-w-48 max-w-80 rounded-md">
+    <Panel className="absolute bottom-2 right-2 top-2 z-panes h-auto min-w-48 max-w-80 rounded-md">
       <PanelHeader className="flex items-center justify-between">
         <PanelTitle className="text-base font-bold">Legend</PanelTitle>
         <PanelHeaderCloseButton onClose={onClose} />

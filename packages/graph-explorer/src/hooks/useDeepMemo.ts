@@ -17,10 +17,12 @@ export const useDeepMemo = <TKey, TValue>(
 ): TValue => {
   const ref = useRef<{ key: TKey; value: TValue } | null>(null);
 
+  // eslint-disable-next-line react-hooks/refs
   if (!ref.current || !isEqual(key, ref.current.key)) {
     ref.current = { key, value: memoFn() };
   }
 
+  // eslint-disable-next-line react-hooks/refs
   return ref.current.value;
 };
 

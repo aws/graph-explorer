@@ -13,8 +13,8 @@ const Panel = React.forwardRef<React.ElementRef<"div">, PanelProps>(
     <div
       ref={ref}
       className={cn(
-        "bg-background-default @container/panel flex h-full flex-col overflow-hidden",
-        variant === "default" && "shadow-primary-dark/20 rounded-lg shadow",
+        "flex h-full flex-col overflow-hidden bg-background-default @container/panel",
+        variant === "default" && "rounded-lg shadow shadow-primary-dark/20",
         className
       )}
       {...props}
@@ -30,7 +30,7 @@ const PanelContent = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "bg-background-default flex h-full w-full grow flex-col overflow-y-auto",
+      "flex h-full w-full grow flex-col overflow-y-auto bg-background-default",
       className
     )}
     {...props}
@@ -55,7 +55,7 @@ const PanelHeader = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "bg-background-default flex min-h-[48px] w-full shrink-0 items-center gap-4 overflow-x-auto border-b px-3 py-1",
+      "flex min-h-[48px] w-full shrink-0 items-center gap-4 overflow-x-auto border-b bg-background-default px-3 py-1",
       className
     )}
     {...props}
@@ -71,7 +71,7 @@ const PanelFooter = React.forwardRef<
 >(({ className, children, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("bg-background-default w-full border-t px-3 py-3", className)}
+    className={cn("w-full border-t bg-background-default px-3 py-3", className)}
     {...props}
   >
     {children}
@@ -86,7 +86,7 @@ const PanelTitle = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "text-text-primary inline-flex shrink-0 items-center gap-2 whitespace-nowrap text-base font-bold leading-none",
+      "inline-flex shrink-0 items-center gap-2 whitespace-nowrap text-base font-bold leading-none text-text-primary",
       className
     )}
     {...props}
@@ -100,7 +100,7 @@ const PanelHeaderDivider = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("bg-divider mx-1 h-5 w-[1px]", className)}
+    className={cn("mx-1 h-5 w-[1px] bg-divider", className)}
     {...props}
   />
 ));

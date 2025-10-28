@@ -122,7 +122,7 @@ function Row({ config }: { config: DisplayVertexTypeConfig }) {
             {config.attributes.length} {unit}
           </ListRowSubtitle>
         </ListRowContent>
-        <ChevronRightIcon className="text-text-secondary size-5" />
+        <ChevronRightIcon className="size-5 text-text-secondary" />
       </div>
     </Link>
   );
