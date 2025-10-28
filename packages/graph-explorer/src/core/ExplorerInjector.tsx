@@ -2,7 +2,7 @@ import { logger } from "@/utils";
 import { useQueryClient } from "@tanstack/react-query";
 import { defaultOptionsAtom } from "./queryClient";
 import { useAtomValue } from "jotai";
-import { useRef } from "react";
+import { useState } from "react";
 
 /**
  * Ensures the query client has the correct explorer for the connection injected
@@ -11,10 +11,10 @@ import { useRef } from "react";
 export function ExplorerInjector() {
   const queryClient = useQueryClient();
   const defaultOptions = useAtomValue(defaultOptionsAtom);
-  const prevDefaultOptions = useRef(defaultOptions);
+  const [prevDefaultOptions, setPrevDefaultOptions] = useState(defaultOptions);
 
-  if (prevDefaultOptions.current !== defaultOptions) {
-    prevDefaultOptions.current = defaultOptions;
+  if (prevDefaultOptions !== defaultOptions) {
+    setPrevDefaultOptions(defaultOptions);
     logger.log(
       "Clearing cache and updating query default options due to connection change"
     );
