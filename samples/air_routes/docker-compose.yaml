@@ -13,6 +13,7 @@ services:
 
   database:
     image: tinkerpop/gremlin-server:latest
+    user: root
     volumes:
       - ./sample:/opt/gremlin-server/sample
     command: /opt/gremlin-server/sample/conf/gremlin-server-air-routes.yaml
