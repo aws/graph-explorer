@@ -1,4 +1,5 @@
-import { cn } from "@/utils";
+import { Activity } from "react";
+import { cn, isVisible } from "@/utils";
 import { Resizable } from "re-resizable";
 import { Link } from "react-router";
 import {
@@ -37,7 +38,6 @@ import GraphViewer from "@/modules/GraphViewer";
 import Namespaces from "@/modules/Namespaces/Namespaces";
 import NodeExpand from "@/modules/NodeExpand";
 import { NodesStyling } from "@/modules/NodesStyling";
-
 import { LABELS } from "@/utils/constants";
 import { SearchSidebarPanel } from "@/modules/SearchSidebar";
 import { useAtomValue } from "jotai";
@@ -106,15 +106,17 @@ const GraphExplorer = () => {
       </Workspace.TopBar>
 
       <Workspace.Content>
-        {!isGraphVisible && !isTableVisible && (
+        <Activity mode={isVisible(!isGraphVisible && !isTableVisible)}>
           <PanelEmptyState
             icon={<EmptyWidgetIcon />}
             title="No active views"
             subtitle="Use toggles in the top-right corner to show/hide views"
           />
-        )}
-        {isGraphVisible && <GraphViewer />}
-        {isTableVisible && (
+        </Activity>
+        <Activity mode={isVisible(isGraphVisible)}>
+          <GraphViewer />
+        </Activity>
+        <Activity mode={isVisible(isTableVisible)}>
           <Resizable
             enable={RESIZE_ENABLE_TOP}
             size={{
@@ -128,7 +130,7 @@ const GraphExplorer = () => {
           >
             <EntitiesTabular />
           </Resizable>
-        )}
+        </Activity>
       </Workspace.Content>
 
       <Workspace.SideBar direction="row">
@@ -179,13 +181,27 @@ const GraphExplorer = () => {
         )}
 
         <Workspace.SideBar.Content>
-          {activeSidebarItem === "search" && <SearchSidebarPanel />}
-          {activeSidebarItem === "details" && <EntityDetails />}
-          {activeSidebarItem === "expand" && <NodeExpand />}
-          {activeSidebarItem === "filters" && <EntitiesFilter />}
-          {activeSidebarItem === "nodes-styling" && <NodesStyling />}
-          {activeSidebarItem === "edges-styling" && <EdgesStyling />}
-          {activeSidebarItem === "namespaces" && <Namespaces />}
+          <Activity mode={isVisible(activeSidebarItem === "search")}>
+            <SearchSidebarPanel />
+          </Activity>
+          <Activity mode={isVisible(activeSidebarItem === "details")}>
+            <EntityDetails />
+          </Activity>
+          <Activity mode={isVisible(activeSidebarItem === "expand")}>
+            <NodeExpand />
+          </Activity>
+          <Activity mode={isVisible(activeSidebarItem === "filters")}>
+            <EntitiesFilter />
+          </Activity>
+          <Activity mode={isVisible(activeSidebarItem === "nodes-styling")}>
+            <NodesStyling />
+          </Activity>
+          <Activity mode={isVisible(activeSidebarItem === "edges-styling")}>
+            <EdgesStyling />
+          </Activity>
+          <Activity mode={isVisible(activeSidebarItem === "namespaces")}>
+            <Namespaces />
+          </Activity>
         </Workspace.SideBar.Content>
       </Workspace.SideBar>
     </Workspace>
