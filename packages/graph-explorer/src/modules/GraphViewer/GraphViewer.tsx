@@ -1,5 +1,8 @@
 import { type MouseEvent, useRef, useState } from "react";
 import {
+  createRenderedEdgeId,
+  createRenderedVertexId,
+  getEdgeIdFromRenderedEdgeId,
   getVertexIdFromRenderedVertexId,
   type RenderedEdgeId,
   type RenderedVertex,
@@ -23,14 +26,8 @@ import {
 import Graph from "@/components/Graph";
 import type { GraphRef } from "@/components/Graph/Graph";
 import type { ElementEventCallback } from "@/components/Graph/hooks/useAddClickEvents";
-import {
-  edgesOutOfFocusRenderedIdsAtom,
-  edgesSelectedRenderedIdsAtom,
-} from "@/core/StateProvider/edges";
-import {
-  nodesOutOfFocusRenderedIdsAtom,
-  nodesSelectedRenderedIdsAtom,
-} from "@/core/StateProvider/nodes";
+import { edgesOutOfFocusIdsAtom } from "@/core/StateProvider/edges";
+import { nodesOutOfFocusIdsAtom } from "@/core/StateProvider/nodes";
 import { useClearGraph, useExpandNode } from "@/hooks";
 import ContextMenu from "./internalComponents/ContextMenu";
 import useContextMenu from "./useContextMenu";
@@ -38,7 +35,6 @@ import useGraphGlobalActions from "./useGraphGlobalActions";
 import useGraphStyles from "./useGraphStyles";
 import useNodeBadges from "./useNodeBadges";
 import type { SelectedElements } from "@/components/Graph/Graph.model";
-import { useAutoOpenDetailsSidebar } from "./useAutoOpenDetailsSidebar";
 import { ImportGraphButton } from "./ImportGraphButton";
 import { ExportGraphButton } from "./ExportGraphButton";
 import {
@@ -50,9 +46,10 @@ import {
   ZoomInIcon,
   ZoomOutIcon,
 } from "lucide-react";
-import { useAtom, useAtomValue } from "jotai";
+import { useAtomValue } from "jotai";
 import { useDefaultNeighborExpansionLimit } from "@/hooks/useExpandNode";
 import { graphLayoutSelectionAtom, SelectLayout } from "./SelectLayout";
+import { useGraphSelection } from "./useGraphSelection";
 
 // Prevent open context menu on Windows
 function onContextMenu(e: MouseEvent<HTMLDivElement>) {
@@ -63,31 +60,36 @@ function onContextMenu(e: MouseEvent<HTMLDivElement>) {
 export default function GraphViewer() {
   const graphRef = useRef<GraphRef | null>(null);
 
-  const [nodesSelectedIds, setNodesSelectedIds] = useAtom(
-    nodesSelectedRenderedIdsAtom
-  );
+  const { graphSelection, replaceGraphSelection } = useGraphSelection();
+  const selectedVertices = graphSelection.vertices.map(createRenderedVertexId);
+  const selectedEdges = graphSelection.edges.map(createRenderedEdgeId);
 
-  const [edgesSelectedIds, setEdgesSelectedIds] = useAtom(
-    edgesSelectedRenderedIdsAtom
-  );
-  const nodesOutIds = useAtomValue(nodesOutOfFocusRenderedIdsAtom);
-  const edgesOutIds = useAtomValue(edgesOutOfFocusRenderedIdsAtom);
+  const nodesOutIds = useAtomValue(nodesOutOfFocusIdsAtom);
+  const edgesOutIds = useAtomValue(edgesOutOfFocusIdsAtom);
 
-  const autoOpenDetails = useAutoOpenDetailsSidebar();
+  // Map the ids to rendered IDs for compatibility with Cytoscape
+  const nodesOutRenderedIds = new Set(
+    nodesOutIds.values().map(createRenderedVertexId)
+  );
+  const edgesOutRenderedIds = new Set(
+    edgesOutIds.values().map(createRenderedEdgeId)
+  );
 
   const onSelectedElementIdsChange = ({
     nodeIds,
     edgeIds,
   }: SelectedElements) => {
-    setNodesSelectedIds(nodeIds as Set<RenderedVertexId>);
-    setEdgesSelectedIds(edgeIds as Set<RenderedEdgeId>);
-
-    if (
-      (nodeIds.size === 1 && edgeIds.size === 0) ||
-      (nodeIds.size === 0 && edgeIds.size === 1)
-    ) {
-      autoOpenDetails();
-    }
+    console.log("Changing selection from onSelectedElementIdsChange");
+    // Map the rendered ids to the original ids and change selection
+    replaceGraphSelection({
+      vertices: (nodeIds as Set<RenderedVertexId>)
+        .values()
+        .map(getVertexIdFromRenderedVertexId),
+      edges: (edgeIds as Set<RenderedEdgeId>)
+        .values()
+        .map(getEdgeIdFromRenderedEdgeId),
+      disableSideEffects: true,
+    });
   };
 
   const [legendOpen, setLegendOpen] = useState(false);
@@ -194,11 +196,11 @@ export default function GraphViewer() {
             nodes={nodes}
             edges={edges}
             badgesEnabled={false}
-            getNodeBadges={getNodeBadges(nodesOutIds)}
-            selectedNodesIds={nodesSelectedIds}
-            selectedEdgesIds={edgesSelectedIds}
-            outOfFocusNodesIds={nodesOutIds}
-            outOfFocusEdgesIds={edgesOutIds}
+            getNodeBadges={getNodeBadges(nodesOutRenderedIds)}
+            selectedNodesIds={selectedVertices}
+            selectedEdgesIds={selectedEdges}
+            outOfFocusNodesIds={nodesOutRenderedIds}
+            outOfFocusEdgesIds={edgesOutRenderedIds}
             onSelectedElementIdsChange={onSelectedElementIdsChange}
             onNodeDoubleClick={onNodeDoubleClick}
             onNodeRightClick={onNodeRightClick}

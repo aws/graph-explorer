@@ -13,11 +13,9 @@ import {
   useDisplayVerticesInCanvas,
   useAllNeighbors,
 } from "@/core";
-import { edgesSelectedIdsAtom } from "@/core/StateProvider/edges";
 import {
   nodesFilteredIdsAtom,
   nodesOutOfFocusIdsAtom,
-  nodesSelectedIdsAtom,
   nodesTableFiltersAtom,
   nodesTableSortsAtom,
   useToggleFilteredNode,
@@ -25,6 +23,7 @@ import {
 
 import { useDeepMemo, useTranslations } from "@/hooks";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useGraphSelection } from "@/modules/GraphViewer";
 
 type ToggleVertex = DisplayVertex & {
   __is_visible: boolean;
@@ -39,9 +38,7 @@ const NodesTabular = forwardRef<TabularInstance<ToggleVertex>, any>(
     const setNodesOut = useSetAtom(nodesOutOfFocusIdsAtom);
     const filteredNodes = useAtomValue(nodesFilteredIdsAtom);
     const toggleFilteredNode = useToggleFilteredNode();
-    const [selectedNodesIds, setSelectedNodesIds] =
-      useAtom(nodesSelectedIdsAtom);
-    const setSelectedEdgesIds = useSetAtom(edgesSelectedIdsAtom);
+    const { graphSelection, replaceGraphSelection } = useGraphSelection();
     const [tableFilters, setTableFilters] = useAtom(nodesTableFiltersAtom);
     const [tableSorts, setTableSorts] = useAtom(nodesTableSortsAtom);
 
@@ -122,20 +119,20 @@ const NodesTabular = forwardRef<TabularInstance<ToggleVertex>, any>(
 
     const onSelectRows = (rowIndex: string) => {
       const entityId = data[Number(rowIndex)].id;
-      setSelectedNodesIds(new Set([entityId]));
-      setSelectedEdgesIds(new Set([]));
+      console.log("Changing selection from NodesTabular");
+      replaceGraphSelection({ vertices: [entityId] });
     };
 
     const selectedRowsIds: Record<string, boolean> = useDeepMemo(() => {
       const selectedRows: Record<string, boolean> = {};
-      Array.from(selectedNodesIds).forEach(selectedNodeId => {
+      graphSelection.vertices.forEach(selectedNodeId => {
         const rowIndex = data.findIndex(node => node.id === selectedNodeId);
         if (rowIndex !== -1) {
           selectedRows[rowIndex] = true;
         }
       });
       return selectedRows;
-    }, [data, selectedNodesIds]);
+    }, [data, graphSelection]);
 
     return (
       <Tabular
