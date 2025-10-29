@@ -22,11 +22,23 @@ import {
 } from "./arrowsStyling";
 import { LINE_STYLE_OPTIONS } from "./lineStyling";
 import { RESERVED_TYPES_PROPERTY } from "@/utils";
-import { atom, useAtom } from "jotai";
+import { atom, useAtom, useSetAtom } from "jotai";
 
-export const customizeEdgeTypeAtom = atom<string | undefined>(undefined);
+const customizeEdgeTypeAtom = atom<string | undefined>(undefined);
 
-export default function EdgeStyleDialog() {
+/**
+ * Open the dialog to customize the edge style
+ * @returns callback to open the dialog
+ */
+export function useOpenEdgeStyleDialog() {
+  const setCustomizeEdgeType = useSetAtom(customizeEdgeTypeAtom);
+
+  return (edgeType: string) => {
+    setCustomizeEdgeType(edgeType);
+  };
+}
+
+export function EdgeStyleDialog() {
   const [customizeEdgeType, setCustomizeEdgeType] = useAtom(
     customizeEdgeTypeAtom
   );

@@ -4,8 +4,7 @@ import { useDisplayVertexTypeConfig } from "@/core";
 import { useVertexStyling } from "@/core/StateProvider/userPreferences";
 import { useDebounceValue, usePrevious } from "@/hooks";
 import { LABELS } from "@/utils/constants";
-import { customizeNodeTypeAtom } from "./NodeStyleDialog";
-import { useSetAtom } from "jotai";
+import { useOpenNodeStyleDialog } from "./NodeStyleDialog";
 
 export type SingleNodeStylingProps = {
   vertexType: string;
@@ -20,7 +19,7 @@ export default function SingleNodeStyling({
 
   const [displayAs, setDisplayAs] = useState(displayConfig.displayLabel);
 
-  const setCustomizeNodeType = useSetAtom(customizeNodeTypeAtom);
+  const openNodeStyleDialog = useOpenNodeStyleDialog();
 
   // Delayed update of display name to prevent input lag
   const debouncedDisplayAs = useDebounceValue(displayAs, 400);
@@ -52,7 +51,7 @@ export default function SingleNodeStyling({
         <Button
           icon={<StylingIcon />}
           variant="text"
-          onClick={() => setCustomizeNodeType(vertexType)}
+          onClick={() => openNodeStyleDialog(vertexType)}
         >
           Customize
         </Button>
