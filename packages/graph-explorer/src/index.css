@@ -72,6 +72,11 @@
   /* Colors from tailwind config */
   --background-color-default: var(--color-background-default);
   --background-color-secondary: var(--color-background-secondary);
+  --background-color-secondary-subtle: color-mix(
+    in oklab,
+    var(--color-background-secondary) 60%,
+    transparent
+  );
   --background-color-contrast: var(--color-background-contrast);
   --background-color-contrast-secondary: var(
     --color-background-contrast-secondary
@@ -117,10 +122,6 @@
   ::file-selector-button {
     border-color: var(--color-gray-200, currentColor);
   }
-}
-
-@utility bg-background-secondary-subtle {
-  @apply bg-background-secondary/60;
 }
 
 @utility stack {

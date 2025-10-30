@@ -22,7 +22,7 @@ const InfoItemIcon = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "bg-background-secondary-subtle text-primary-main hidden aspect-square h-12 items-center justify-center rounded-lg @lg:flex [&_svg]:size-6",
+      "bg-secondary-subtle text-primary-main hidden aspect-square h-12 items-center justify-center rounded-lg @lg:flex [&_svg]:size-6",
       className
     )}
     {...props}
