@@ -9,7 +9,7 @@ export const iconButtonStyles = cva({
   base: "px-0",
   variants: {
     size: {
-      small: "h-8 min-w-8 rounded text-base [&_svg]:size-5",
+      small: "h-8 min-w-8 rounded-sm text-base [&_svg]:size-5",
       base: "h-10 min-w-10 rounded-md text-base [&_svg]:size-[1.325rem]",
       large: "h-12 min-w-12 rounded-md text-lg [&_svg]:size-6",
     },
