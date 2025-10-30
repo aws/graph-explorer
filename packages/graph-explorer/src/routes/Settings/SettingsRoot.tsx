@@ -14,7 +14,7 @@ import { LABELS } from "@/utils/constants";
 
 export default function SettingsRoot() {
   return (
-    <Workspace orientation="horizontal">
+    <Workspace>
       <Workspace.TopBar logoVisible>
         <Workspace.TopBar.Title title={`${LABELS.APP_NAME} Settings`} />
         <Workspace.TopBar.Version>
@@ -30,7 +30,7 @@ export default function SettingsRoot() {
           </Link>
         </Workspace.TopBar.AdditionalControls>
       </Workspace.TopBar>
-      <Workspace.Content>
+      <Workspace.Content orientation="horizontal">
         <Panel className="min-w-64">
           <PanelContent className="px-3 py-6">
             <SideBar />
