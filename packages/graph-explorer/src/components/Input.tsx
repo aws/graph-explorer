@@ -12,7 +12,7 @@ export type InputProps = React.InputHTMLAttributes<HTMLInputElement>;
  */
 
 export const inputStyles = cva({
-  base: "border-input bg-input-background text-text-primary placeholder:text-text-secondary invalid:border-error-main focus-visible:border-primary-main aria-invalid:border-error-main flex h-10 w-full rounded-md border px-3 py-1 text-sm shadow-sm transition-colors file:bg-transparent file:text-sm file:font-medium focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50",
+  base: "border-input bg-input-background text-text-primary placeholder:text-text-secondary invalid:border-error-main focus-visible:border-primary-main aria-invalid:border-error-main flex h-10 w-full rounded-md border px-3 py-1 text-sm shadow-xs transition-colors file:bg-transparent file:text-sm file:font-medium focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50",
 });
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(

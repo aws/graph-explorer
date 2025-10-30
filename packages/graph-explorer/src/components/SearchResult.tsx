@@ -12,7 +12,7 @@ export function SearchResult({
     <div
       {...props}
       className={cn(
-        "content-auto intrinsic-size-[4.75rem] rounded-xl border shadow-sm",
+        "content-auto intrinsic-size-[4.75rem] rounded-xl border shadow-xs",
         isEven(level) ? "bg-gray-50" : "bg-default",
         className
       )}
@@ -33,7 +33,7 @@ export function SearchResultCollapsible({
     <Collapsible
       {...props}
       className={cn(
-        "group ring-border content-auto intrinsic-size-[4.75rem] rounded-xl shadow-sm ring-1 transition duration-100 ease-in-out",
+        "group ring-border content-auto intrinsic-size-[4.75rem] rounded-xl shadow-xs ring-1 transition duration-100 ease-in-out",
         isEven(level) ? "bg-gray-50" : "bg-default",
         highlighted ? "shadow-primary-dark/50 ring-primary-dark/75" : "",
         className
@@ -111,7 +111,7 @@ export function SearchResultAttribute({
     <div
       {...props}
       className={cn(
-        "flex w-full flex-wrap justify-between gap-2 rounded-xl border px-4 py-2 shadow-sm",
+        "flex w-full flex-wrap justify-between gap-2 rounded-xl border px-4 py-2 shadow-xs",
         isEven(level) ? "bg-gray-50" : "bg-default",
         className
       )}
