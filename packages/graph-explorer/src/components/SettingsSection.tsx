@@ -101,7 +101,7 @@ export function LabelledSetting({
   description?: string;
 }>) {
   return (
-    <div className="flex flex-row items-center justify-between space-x-4">
+    <div className="flex flex-row items-center justify-between gap-4">
       <div className="block cursor-pointer space-y-1">
         <p className="text-text-primary text-base leading-none font-medium text-pretty peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
           {label}

@@ -31,7 +31,7 @@ export default function SettingsRoot() {
         </Workspace.TopBar.AdditionalControls>
       </Workspace.TopBar>
       <Workspace.Content>
-        <Panel className="min-w-[16rem]">
+        <Panel className="min-w-64">
           <PanelContent className="px-3 py-6">
             <SideBar />
           </PanelContent>
