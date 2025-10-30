@@ -1,4 +1,9 @@
-import { type MouseEvent, useRef, useState } from "react";
+import {
+  type ComponentPropsWithRef,
+  type MouseEvent,
+  useRef,
+  useState,
+} from "react";
 import {
   createRenderedEdgeId,
   createRenderedVertexId,
@@ -50,6 +55,7 @@ import { useAtomValue } from "jotai";
 import { useDefaultNeighborExpansionLimit } from "@/hooks/useExpandNode";
 import { graphLayoutSelectionAtom, SelectLayout } from "./SelectLayout";
 import { useGraphSelection } from "./useGraphSelection";
+import { cn } from "@/utils";
 
 // Prevent open context menu on Windows
 function onContextMenu(e: MouseEvent<HTMLDivElement>) {
@@ -57,7 +63,10 @@ function onContextMenu(e: MouseEvent<HTMLDivElement>) {
   e.stopPropagation();
 }
 
-export default function GraphViewer() {
+export default function GraphViewer({
+  className,
+  ...props
+}: Omit<ComponentPropsWithRef<"div">, "children" | "onContextMenu">) {
   const graphRef = useRef<GraphRef | null>(null);
 
   const { graphSelection, replaceGraphSelection } = useGraphSelection();
@@ -133,12 +142,16 @@ export default function GraphViewer() {
   const edges = useRenderedEdges();
 
   return (
-    <div className="size-full grow" onContextMenu={onContextMenu}>
+    <div
+      className={cn("size-full grow", className)}
+      onContextMenu={onContextMenu}
+      {...props}
+    >
       <Panel>
         <PanelHeader>
           <PanelTitle>Graph View</PanelTitle>
           <PanelHeaderActions>
-            <SelectLayout className="min-w-auto max-w-64" />
+            <SelectLayout className="max-w-64 min-w-auto" />
             <IconButton
               tooltipText="Re-run Layout"
               icon={<RefreshCwIcon />}
@@ -187,7 +200,7 @@ export default function GraphViewer() {
           </PanelHeaderActions>
         </PanelHeader>
         <PanelContent
-          className="flex h-full w-full bg-background-secondary"
+          className="bg-background-secondary flex h-full w-full"
           ref={parentRef}
         >
           <Graph
@@ -234,7 +247,7 @@ function Legend({ onClose }: { onClose: () => void }) {
   const vtConfigs = useDisplayVertexTypeConfigs().values().toArray();
 
   return (
-    <Panel className="absolute bottom-2 right-2 top-2 z-panes h-auto min-w-48 max-w-80 rounded-md">
+    <Panel className="z-panes absolute top-2 right-2 bottom-2 h-auto max-w-80 min-w-48 rounded-md">
       <PanelHeader className="flex items-center justify-between">
         <PanelTitle className="text-base font-bold">Legend</PanelTitle>
         <PanelHeaderCloseButton onClose={onClose} />
@@ -244,7 +257,7 @@ function Legend({ onClose }: { onClose: () => void }) {
           {vtConfigs.map(vtConfig => (
             <li
               key={vtConfig.type}
-              className="flex items-center gap-3 text-balance text-base font-medium"
+              className="flex items-center gap-3 text-base font-medium text-balance"
             >
               <VertexSymbol vertexStyle={vtConfig.style} className="size-9" />
               {vtConfig.displayLabel}

@@ -1,40 +1,39 @@
 const spacing = (scale: number) => `${scale * 4}px`;
 
 const gray = {
-  100: "rgb(var(--color-gray-100))",
-  200: "rgb(var(--color-gray-200))",
-  300: "rgb(var(--color-gray-300))",
-  400: "rgb(var(--color-gray-400))",
-  500: "rgb(var(--color-gray-500))",
-  600: "rgb(var(--color-gray-600))",
-  700: "rgb(var(--color-gray-700))",
-  800: "rgb(var(--color-gray-800))",
-  900: "rgb(var(--color-gray-900))",
+  100: "var(--color-gray-100)",
+  200: "var(--color-gray-200)",
+  300: "var(--color-gray-300)",
+  400: "var(--color-gray-400)",
+  500: "var(--color-gray-500)",
+  600: "var(--color-gray-600)",
+  700: "var(--color-gray-700)",
+  800: "var(--color-gray-800)",
+  900: "var(--color-gray-900)",
 };
 
 const palette = {
   common: {
-    white: "rgb(var(--color-white))",
-    black: "rgb(var(--color-black))",
+    white: "var(--color-white)",
+    black: "var(--color-black)",
   },
   primary: {
     light: "hsl(var(--color-primary-light))",
     main: "hsl(var(--color-primary-main))",
     dark: "hsl(var(--color-primary-dark))",
-    contrastText: "rgb(var(--color-white))",
   },
   text: {
-    primary: "rgb(var(--color-text-primary))",
-    secondary: "rgb(var(--color-text-secondary))",
-    disabled: "rgb(var(--color-text-disabled))",
+    primary: "var(--color-text-primary)",
+    secondary: "var(--color-text-secondary)",
+    disabled: "var(--color-text-disabled)",
   },
-  divider: "rgb(var(--color-divider))",
-  border: "rgb(var(--color-border))",
+  divider: "var(--color-divider)",
+  border: "var(--color-border)",
   background: {
-    default: "rgb(var(--color-background-default))",
-    secondary: "rgb(var(--color-background-secondary))",
-    contrast: "rgb(var(--color-background-contrast))",
-    contrastSecondary: "rgb(var(--color-background-contrast-secondary))",
+    default: "var(--color-background-default)",
+    secondary: "var(--color-background-secondary)",
+    contrast: "var(--color-background-contrast)",
+    contrastSecondary: "var(--color-background-contrast-secondary)",
   },
   grey: gray,
 };

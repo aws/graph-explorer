@@ -34,9 +34,9 @@ export const ListItem = (
     <div
       ref={ref}
       className={cn(
-        "line-clamp-1 flex flex-row items-center gap-3 rounded px-3 py-2 text-text-primary [&_svg]:size-5 [&_svg]:text-primary-dark",
+        "text-text-primary [&_svg]:text-primary-dark line-clamp-1 flex flex-row items-center gap-3 rounded-sm px-3 py-2 [&_svg]:size-5",
         isDisabled && "pointer-events-none",
-        clickable && "hover:cursor-pointer hover:bg-background-secondary",
+        clickable && "hover:bg-background-secondary hover:cursor-pointer",
         className
       )}
       onClick={actualOnClick}

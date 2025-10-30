@@ -59,7 +59,7 @@ export default function SettingsGeneral() {
           {defaultNeighborExpansionLimitEnabled ? (
             <motion.div {...addRemoveAnimationProps} key="defaultNeighborLimit">
               <FormItem>
-                <Label className="text-pretty text-base font-medium leading-none text-text-primary">
+                <Label className="text-text-primary text-base leading-none font-medium text-pretty">
                   Neighbor expansion limit
                 </Label>
                 <Input

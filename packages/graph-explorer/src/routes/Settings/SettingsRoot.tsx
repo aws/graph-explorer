@@ -14,7 +14,7 @@ import { LABELS } from "@/utils/constants";
 
 export default function SettingsRoot() {
   return (
-    <Workspace orientation="horizontal">
+    <Workspace>
       <Workspace.TopBar logoVisible>
         <Workspace.TopBar.Title title={`${LABELS.APP_NAME} Settings`} />
         <Workspace.TopBar.Version>
@@ -30,8 +30,8 @@ export default function SettingsRoot() {
           </Link>
         </Workspace.TopBar.AdditionalControls>
       </Workspace.TopBar>
-      <Workspace.Content>
-        <Panel className="min-w-[16rem]">
+      <Workspace.Content orientation="horizontal">
+        <Panel className="min-w-64">
           <PanelContent className="px-3 py-6">
             <SideBar />
           </PanelContent>
@@ -71,7 +71,7 @@ function SideBarItem(props: PropsWithChildren<{ to: To }>) {
         cn(
           "flex w-full flex-row items-center rounded-md px-2 py-1 text-lg",
           isActive &&
-            "bg-primary-main font-bold text-primary-contrastText hover:bg-primary-light",
+            "bg-primary-main hover:bg-primary-light font-bold text-white",
           !isActive && "font-base text-text-secondary hover:bg-gray-200"
         )
       }

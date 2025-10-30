@@ -270,7 +270,7 @@ const ContextMenu = ({
 
 function Layout({ children }: PropsWithChildren) {
   return (
-    <div className="rounded-lg bg-background-default p-1 shadow-lg">
+    <div className="bg-background-default rounded-lg p-1 shadow-lg">
       {children}
     </div>
   );

@@ -8,7 +8,6 @@ import {
 import { useAddToGraphMutation } from "@/hooks/useAddToGraph";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { useState } from "react";
-import { cn } from "@/utils";
 import { createEntityKey, EntitySearchResult } from "./EntitySearchResult";
 import {
   getAllGraphableEntities,
@@ -94,7 +93,7 @@ function ResultCounts({ results }: { results: PatchedResultEntity[] }) {
   const count = results.length;
   const label = count === 1 ? `${count} Item` : `${count} Items`;
 
-  return <p className="text-pretty text-sm text-text-secondary">{label}</p>;
+  return <p className="text-text-secondary text-sm text-pretty">{label}</p>;
 }
 
 function AddAllToGraphButton({
@@ -122,19 +121,7 @@ function AddAllToGraphButton({
       className="stack shrink-0 items-center justify-center rounded-full"
       {...props}
     >
-      <span
-        className={cn(
-          "visible inline-flex items-center gap-2",
-          mutation.isPending && "invisible"
-        )}
-      >
-        Add All
-      </span>
-      <span
-        className={cn("invisible", mutation.isPending && "visible mx-auto")}
-      >
-        <Spinner />
-      </span>
+      <Spinner loading={mutation.isPending}>Add All</Spinner>
     </Button>
   );
 }

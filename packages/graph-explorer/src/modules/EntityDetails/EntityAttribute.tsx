@@ -17,10 +17,10 @@ export default function EntityAttribute({
       className={cn("space-y-0.5", className)}
       {...props}
     >
-      <div className="text-balance break-words text-sm text-text-secondary">
+      <div className="text-text-secondary text-sm text-balance break-words">
         {attribute.displayLabel}
       </div>
-      <div className="text-balance break-words font-medium text-text-primary">
+      <div className="text-text-primary font-medium text-balance break-words">
         {attribute.displayValue}
       </div>
     </li>

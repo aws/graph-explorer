@@ -21,7 +21,7 @@ const SidebarTabsList = React.forwardRef<
   <TabsPrimitive.List
     ref={ref}
     className={cn(
-      "sticky top-0 flex w-full flex-row items-center border-b border-divider bg-background-default text-text-secondary",
+      "border-divider bg-background-default text-text-secondary sticky top-0 flex w-full flex-row items-center border-b",
       className
     )}
     {...props}
@@ -36,7 +36,7 @@ const SidebarTabsTrigger = React.forwardRef<
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      "focus-visible:ring-ring inline-flex grow items-center justify-center gap-2 whitespace-nowrap border-b-2 border-transparent bg-background-default px-4 py-2 text-base font-bold text-text-secondary ring-offset-background-contrast transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:border-primary-main data-[state=active]:text-text-primary [&_svg]:size-5",
+      "focus-visible:ring-ring-3 bg-background-default text-text-secondary ring-offset-background-contrast data-[state=active]:border-primary-main data-[state=active]:text-text-primary inline-flex grow items-center justify-center gap-2 border-b-2 border-transparent px-4 py-2 text-base font-bold whitespace-nowrap transition-all focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-5",
       className
     )}
     {...props}
@@ -51,7 +51,7 @@ const SidebarTabsContent = React.forwardRef<
   <TabsPrimitive.Content
     ref={ref}
     className={cn(
-      "ring-offset-background focus-visible:ring-ring h-full overflow-y-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
+      "ring-offset-background focus-visible:ring-ring-3 h-full overflow-y-auto focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden",
       className
     )}
     {...props}

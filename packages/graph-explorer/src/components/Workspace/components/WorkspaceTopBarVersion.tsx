@@ -12,7 +12,7 @@ const WorkspaceTopBarVersion = ({
   return (
     <div
       className={cn(
-        "top-bar-version flex items-center justify-center text-xs font-light text-text-secondary",
+        "top-bar-version text-text-secondary flex items-center justify-center text-xs font-light",
         className
       )}
     >

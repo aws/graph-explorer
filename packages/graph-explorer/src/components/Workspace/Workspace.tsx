@@ -6,7 +6,6 @@ import WorkspaceSideBar from "./components/WorkspaceSideBar";
 import WorkspaceTopBar from "./components/WorkspaceTopBar";
 
 export type WorkspaceProps = {
-  orientation?: "vertical" | "horizontal";
   className?: string;
 };
 
@@ -17,7 +16,6 @@ interface WorkspaceComposition {
 }
 
 const Workspace = ({
-  orientation = "vertical",
   children,
   className,
 }: PropsWithChildren<WorkspaceProps>) => {
@@ -38,20 +36,13 @@ const Workspace = ({
   return (
     <div
       className={cn(
-        "flex h-full w-full grow flex-col overflow-hidden bg-background-secondary",
+        "bg-background-secondary flex h-full w-full grow flex-col overflow-hidden",
         className
       )}
     >
       {topBarSection}
       <div className="flex h-full grow flex-row overflow-auto">
-        <div
-          className={cn(
-            "flex h-full grow gap-2 overflow-auto p-2",
-            orientation === "vertical" ? "flex-col" : "flex-row"
-          )}
-        >
-          {contentSection}
-        </div>
+        {contentSection}
         {sidebarSection}
       </div>
     </div>

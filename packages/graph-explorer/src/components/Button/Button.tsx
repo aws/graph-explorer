@@ -5,7 +5,7 @@ import { cva, type VariantProps } from "cva";
 import { Slot } from "@radix-ui/react-slot";
 
 export const buttonStyles = cva({
-  base: "inline-flex items-center justify-center gap-2 font-medium focus-visible:outline-none focus-visible:ring-1 disabled:pointer-events-none disabled:opacity-50 disabled:saturate-0 aria-disabled:pointer-events-none aria-disabled:opacity-50 aria-disabled:saturate-0 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+  base: "inline-flex items-center justify-center gap-2 font-medium focus-visible:ring-1 focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50 disabled:saturate-0 aria-disabled:pointer-events-none aria-disabled:opacity-50 aria-disabled:saturate-0 [&_svg]:pointer-events-none [&_svg]:shrink-0",
   variants: {
     variant: {
       filled: "",
@@ -17,7 +17,7 @@ export const buttonStyles = cva({
       danger: "",
     },
     size: {
-      small: "h-8 rounded px-1 text-base [&_svg]:size-5",
+      small: "h-8 rounded-sm px-1 text-base [&_svg]:size-5",
       base: "h-10 rounded-md px-4 text-base [&_svg]:size-5",
       large: "h-12 rounded-md px-5 text-lg [&_svg]:size-6",
     },
@@ -27,19 +27,19 @@ export const buttonStyles = cva({
       variant: "filled",
       color: "primary",
       className:
-        "bg-brand text-white hover:bg-brand-hover data-open:bg-brand-hover",
+        "bg-brand hover:bg-brand-hover data-open:bg-brand-hover text-white",
     },
     {
       variant: "filled",
       color: "danger",
       className:
-        "bg-danger text-white hover:bg-danger-hover data-open:bg-danger-hover",
+        "bg-danger hover:bg-danger-hover data-open:bg-danger-hover text-white",
     },
     {
       variant: "default",
       color: "primary",
       className:
-        "bg-gray-100 text-text-primary hover:bg-gray-200 data-open:bg-gray-200",
+        "text-text-primary bg-gray-100 hover:bg-gray-200 data-open:bg-gray-200",
     },
     {
       variant: "default",

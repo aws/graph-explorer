@@ -42,7 +42,7 @@ export default function ConnectionData() {
 
   return (
     <Layout>
-      <div className="w-full px-3 pb-1.5 pt-3">
+      <div className="w-full px-3 pt-3 pb-1.5">
         <SearchBar
           search={search}
           searchPlaceholder={t("connection-detail.search-placeholder")}
@@ -122,7 +122,7 @@ function Row({ config }: { config: DisplayVertexTypeConfig }) {
             {config.attributes.length} {unit}
           </ListRowSubtitle>
         </ListRowContent>
-        <ChevronRightIcon className="size-5 text-text-secondary" />
+        <ChevronRightIcon className="text-text-secondary size-5" />
       </div>
     </Link>
   );

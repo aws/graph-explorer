@@ -4,7 +4,7 @@ import { forwardRef } from "react";
 import { cva, type VariantProps } from "cva";
 
 const chip = cva({
-  base: "chip inline-flex h-[22px] select-none items-center justify-center gap-1 overflow-hidden text-ellipsis whitespace-nowrap rounded-full px-2.5 text-sm font-medium text-white [&>svg]:size-4",
+  base: "chip inline-flex h-[22px] items-center justify-center gap-1 overflow-hidden rounded-full px-2.5 text-sm font-medium text-ellipsis whitespace-nowrap text-white select-none [&>svg]:size-4",
   variants: {
     variant: {
       info: "bg-info-main",
