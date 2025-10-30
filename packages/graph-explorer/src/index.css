@@ -1,128 +1,138 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@config "../tailwind.config.ts";
+
+@theme {
+  --color-white: rgb(255 255 255);
+  --color-black: rgb(0 0 0);
+
+  --color-gray-50: rgb(250 250 250);
+  --color-gray-100: rgb(245 245 245);
+  --color-gray-200: rgb(229 229 229);
+  --color-gray-300: rgb(212 212 212);
+  --color-gray-400: rgb(163 163 163);
+  --color-gray-500: rgb(115 115 115);
+  --color-gray-600: rgb(82 82 82);
+  --color-gray-700: rgb(64 64 64);
+  --color-gray-800: rgb(38 38 38);
+  --color-gray-900: rgb(23 23 23);
+  --color-gray-950: rgb(10 10 10);
+
+  --color-input-background: var(--color-white);
+  --color-input-border: var(--color-gray-300);
+
+  --color-text-primary: rgb(33 33 33);
+  --color-text-secondary: rgb(115 115 115);
+  --color-text-disabled: rgb(158 158 158);
+
+  --color-background-default: var(--color-white);
+  --color-background-secondary: rgb(224 233 246);
+  --color-background-contrast: var(--color-gray-100);
+  --color-background-contrast-secondary: var(--color-gray-200);
+
+  --color-brand-50: hsl(205deg 87% 95%);
+  --color-brand-100: hsl(205deg 87% 93%);
+  --color-brand-200: hsl(205deg 87% 82%);
+  --color-brand-300: hsl(205deg 95% 71%);
+  --color-brand-400: hsl(205deg 87% 57%);
+  --color-brand-500: hsl(205deg 85% 48%);
+  --color-brand-600: hsl(205deg 87% 39%);
+  --color-brand-700: hsl(205deg 89% 31%);
+  --color-brand-800: hsl(205deg 92% 24%);
+  --color-brand-900: hsl(205deg 95% 12%);
+  --color-brand-950: hsl(205deg 98% 6%);
+
+  --color-primary-light: var(--color-brand-300);
+  --color-primary-main: var(--color-brand-500);
+  --color-primary-dark: var(--color-brand-800);
+  --color-primary-contast-text: var(--color-white);
+
+  --color-secondary-light: rgb(255 184 46);
+  --color-secondary-main: rgb(250 133 0);
+  --color-secondary-dark: rgb(228 96 0);
+  --color-secondary-contast-text: var(--color-white);
+
+  --color-info-light: rgb(100 199 255);
+  --color-info-main: rgb(18 142 229);
+  --color-info-dark: rgb(23 69 123);
+  --color-info-contast-text: var(--color-white);
+
+  --color-error-light: rgb(252 165 165);
+  --color-error-main: rgb(239 68 68);
+  --color-error-dark: rgb(153 27 27);
+  --color-error-contast-text: var(--color-white);
+
+  --color-success-light: rgb(49 222 178);
+  --color-success-main: rgb(39 175 140);
+  --color-success-dark: rgb(18 146 113);
+  --color-success-contast-text: var(--color-white);
+
+  --color-warning-light: rgb(255 184 46);
+  --color-warning-main: rgb(250 133 0);
+  --color-warning-dark: rgb(228 96 0);
+  --color-warning-contast-text: var(--color-white);
+
+  --color-divider: var(--color-gray-200);
+  --color-border: var(--color-gray-200);
+
+  /* Colors from tailwind config */
+  --background-color-default: var(--color-background-default);
+  --background-color-secondary: var(--color-background-secondary);
+  --background-color-contrast: var(--color-background-contrast);
+  --background-color-contrast-secondary: var(
+    --color-background-contrast-secondary
+  );
+
+  --background-color-brand: var(--color-brand-500);
+  --background-color-brand-hover: var(--color-brand-600);
+  --background-color-brand-subtle: var(--color-brand-50);
+  --background-color-brand-subtle-hover: var(--color-brand-100);
+
+  --background-color-danger: var(--color-red-500);
+  --background-color-danger-hover: var(--color-red-600);
+  --background-color-danger-subtle: var(--color-red-50);
+  --background-color-danger-subtle-hover: var(--color-red-100);
+
+  --text-color-secondary: var(--color-text-secondary);
+  --text-color-disabled: var(--color-text-disabled);
+  --text-color-danger: var(--color-red-700);
+  --text-color-brand: var(--color-brand-700);
+
+  --border-color-input: var(--color-input-border);
+}
 
 @layer base {
-  :root {
-    --color-white: 255 255 255;
-    --color-black: 0 0 0;
-
-    --color-gray-50: 250 250 250;
-    --color-gray-100: 245 245 245;
-    --color-gray-200: 229 229 229;
-    --color-gray-300: 212 212 212;
-    --color-gray-400: 163 163 163;
-    --color-gray-500: 115 115 115;
-    --color-gray-600: 82 82 82;
-    --color-gray-700: 64 64 64;
-    --color-gray-800: 38 38 38;
-    --color-gray-900: 23 23 23;
-    --color-gray-950: 10 10 10;
-
-    --color-input-background: var(--color-white);
-    --color-input-border: var(--color-gray-300);
-
-    --color-text-primary: 33 33 33;
-    --color-text-secondary: 115 115 115;
-    --color-text-disabled: 158 158 158;
-
-    --color-background-default: var(--color-white);
-    --color-background-secondary: 224 233 246;
-    --color-background-contrast: var(--color-gray-100);
-    --color-background-contrast-secondary: var(--color-gray-200);
-
-    --color-brand-50: 205deg 87% 95%;
-    --color-brand-100: 205deg 87% 93%;
-    --color-brand-200: 205deg 87% 82%;
-    --color-brand-300: 205deg 95% 71%;
-    --color-brand-400: 205deg 87% 57%;
-    --color-brand-500: 205deg 85% 48%;
-    --color-brand-600: 205deg 87% 39%;
-    --color-brand-700: 205deg 89% 31%;
-    --color-brand-800: 205deg 92% 24%;
-    --color-brand-900: 205deg 95% 12%;
-    --color-brand-950: 205deg 98% 6%;
-
-    --color-primary-light: var(--color-brand-300);
-    --color-primary-main: var(--color-brand-500);
-    --color-primary-dark: var(--color-brand-800);
-
-    --color-secondary-light: 255 184 46;
-    --color-secondary-main: 250 133 0;
-    --color-secondary-dark: 228 96 0;
-
-    --color-info-light: 100 199 255;
-    --color-info-main: 18 142 229;
-    --color-info-dark: 23 69 123;
-
-    --color-error-light: 252 165 165;
-    --color-error-main: 239 68 68;
-    --color-error-dark: 153 27 27;
-
-    --color-success-light: 49 222 178;
-    --color-success-main: 39 175 140;
-    --color-success-dark: 18 146 113;
-
-    --color-warning-light: 255 184 46;
-    --color-warning-main: 250 133 0;
-    --color-warning-dark: 228 96 0;
-
-    --color-divider: var(--color-gray-200);
-    --color-border: var(--color-gray-200);
-
-    /* Allow animating intrinsic values like height */
-    interpolate-size: allow-keywords;
-  }
-
-  .dark {
-    --color-white: 240 240 240;
-    --color-black: 15 15 15;
-
-    --color-input-background: var(--color-gray-900);
-
-    --color-text-primary: var(--color-white);
-    --color-text-secondary: 224 224 224;
-    --color-text-disabled: 160 160 160;
-
-    --color-background-default: 16 16 16;
-    --color-background-secondary: 38 38 38;
-    --color-background-contrast: var(--color-gray-700);
-    --color-background-contrast-secondary: var(--color-gray-600);
-
-    --color-primary-main: 67 171 244;
-    --color-primary-dark: 18 142 229;
-
-    --color-success-light: 102 187 106;
-    --color-success-main: 129 199 132;
-    --color-success-dark: 56 142 60;
-
-    --color-divider: var(--color-gray-700);
-    --color-border: var(--color-gray-700);
-  }
-
   html {
     font-size: 14px;
+    /* Allow animating intrinsic values like height */
+    interpolate-size: allow-keywords;
   }
 
   body {
     @apply bg-background-default text-text-primary font-sans;
   }
-}
 
-.lucide {
-  stroke-width: 2px;
-}
-
-@layer utilities {
-  .bg-background-secondary-subtle {
-    @apply bg-background-secondary/60;
+  .lucide {
+    stroke-width: 2px;
   }
 
-  .stack {
-    display: grid;
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
   }
+}
 
-  .stack > * {
+@utility bg-background-secondary-subtle {
+  @apply bg-background-secondary/60;
+}
+
+@utility stack {
+  display: grid;
+
+  & > * {
     grid-area: 1 / 1 / 2 / 2;
   }
 }
