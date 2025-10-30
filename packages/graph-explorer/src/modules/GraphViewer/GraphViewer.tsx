@@ -79,7 +79,6 @@ export default function GraphViewer() {
     nodeIds,
     edgeIds,
   }: SelectedElements) => {
-    console.log("Changing selection from onSelectedElementIdsChange");
     // Map the rendered ids to the original ids and change selection
     replaceGraphSelection({
       vertices: (nodeIds as Set<RenderedVertexId>)

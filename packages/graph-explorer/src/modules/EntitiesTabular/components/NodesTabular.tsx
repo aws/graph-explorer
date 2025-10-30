@@ -119,7 +119,6 @@ const NodesTabular = forwardRef<TabularInstance<ToggleVertex>, any>(
 
     const onSelectRows = (rowIndex: string) => {
       const entityId = data[Number(rowIndex)].id;
-      console.log("Changing selection from NodesTabular");
       replaceGraphSelection({ vertices: [entityId] });
     };
 
