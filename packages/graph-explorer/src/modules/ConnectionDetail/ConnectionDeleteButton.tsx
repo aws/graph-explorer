@@ -52,7 +52,7 @@ export default function ConnectionDeleteButton({
           <DialogBody>
             <div className="flex flex-row items-start gap-8">
               <div className="py-1">
-                <ErrorIcon className="size-16 text-warning-main" />
+                <ErrorIcon className="text-warning-main size-16" />
               </div>
               <Paragraph>
                 Are you sure you want to delete the connection,{" "}

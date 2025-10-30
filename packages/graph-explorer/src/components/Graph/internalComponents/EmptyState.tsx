@@ -57,7 +57,7 @@ function RestorePreviousSessionEmptyState({
 
 function DefaultEmptyState() {
   return (
-    <div className="pointer-events-none absolute inset-0 flex select-none flex-col items-center justify-center p-4">
+    <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center p-4 select-none">
       <PanelEmptyState
         icon={<SearchIcon />}
         title="Add nodes from search"

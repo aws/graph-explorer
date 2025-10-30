@@ -174,7 +174,7 @@ function Section({ children }: PropsWithChildren) {
 
 function SectionTitle({ children }: PropsWithChildren) {
   return (
-    <div className="flex justify-between gap-2 text-base font-medium text-text-primary">
+    <div className="text-text-primary flex justify-between gap-2 text-base font-medium">
       {children}
     </div>
   );

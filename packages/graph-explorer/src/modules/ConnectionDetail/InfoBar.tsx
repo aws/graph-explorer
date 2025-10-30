@@ -22,7 +22,7 @@ const InfoItemIcon = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "bg-background-secondary-subtle hidden aspect-square h-12 items-center justify-center rounded-lg text-primary-main @lg:flex [&_svg]:size-6",
+      "bg-background-secondary-subtle text-primary-main hidden aspect-square h-12 items-center justify-center rounded-lg @lg:flex [&_svg]:size-6",
       className
     )}
     {...props}
@@ -54,7 +54,7 @@ const InfoItemLabel = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "text-balance break-words text-sm text-text-secondary",
+      "text-text-secondary text-sm text-balance break-words",
       className
     )}
     {...props}
@@ -68,7 +68,7 @@ const InfoItemValue = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "inline-flex items-center gap-1 text-balance break-words text-base font-medium text-text-primary",
+      "text-text-primary inline-flex items-center gap-1 text-base font-medium text-balance break-words",
       className
     )}
     {...props}

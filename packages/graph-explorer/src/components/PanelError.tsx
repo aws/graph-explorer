@@ -72,13 +72,13 @@ function ErrorDetailsButton({ error }: { error: Error }) {
         <DialogBody>
           <FormItem>
             <Label>Error name</Label>
-            <div className="text-pretty text-base leading-snug [word-break:break-word]">
+            <div className="text-base leading-snug text-pretty [word-break:break-word]">
               {error.name}
             </div>
           </FormItem>
           <FormItem>
             <Label>Error message</Label>
-            <div className="text-pretty text-base leading-snug [word-break:break-word]">
+            <div className="text-base leading-snug text-pretty [word-break:break-word]">
               {error.message}
             </div>
           </FormItem>

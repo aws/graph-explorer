@@ -71,7 +71,7 @@ function SideBarItem(props: PropsWithChildren<{ to: To }>) {
         cn(
           "flex w-full flex-row items-center rounded-md px-2 py-1 text-lg",
           isActive &&
-            "bg-primary-main font-bold text-primary-contrastText hover:bg-primary-light",
+            "bg-primary-main text-primary-contrastText hover:bg-primary-light font-bold",
           !isActive && "font-base text-text-secondary hover:bg-gray-200"
         )
       }

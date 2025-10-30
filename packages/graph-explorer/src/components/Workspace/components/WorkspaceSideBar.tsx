@@ -56,17 +56,17 @@ const WorkspaceSideBar = ({
         setSidebarWidth(delta.width);
       }}
       className={cn(
-        enableAnimation && "transform transition-width duration-200 ease-in-out"
+        enableAnimation && "transition-width transform duration-200 ease-in-out"
       )}
     >
       <div
         className={cn(
-          "shadow-left flex h-full bg-background-default",
+          "shadow-left bg-background-default flex h-full",
           direction === "row" && "flex-row",
           direction === "row-reverse" && "flex-row-reverse"
         )}
       >
-        <div className="bg-background-secondary-subtle dark:text-brand-100 flex flex-col gap-2 p-2 text-primary-dark shadow shadow-primary-dark/20 dark:bg-gray-900">
+        <div className="bg-background-secondary-subtle dark:text-brand-100 text-primary-dark shadow-primary-dark/20 flex flex-col gap-2 p-2 shadow dark:bg-gray-900">
           {sidebarActions}
         </div>
         {sidebarContent}

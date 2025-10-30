@@ -35,7 +35,7 @@ function NodesStyling() {
 
               <SingleNodeStyling
                 vertexType={vtConfig.type}
-                className="px-3 pb-3 pt-2"
+                className="px-3 pt-2 pb-3"
               />
             </Fragment>
           )}

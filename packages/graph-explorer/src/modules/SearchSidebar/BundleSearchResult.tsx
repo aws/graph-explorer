@@ -31,7 +31,7 @@ export function BundleSearchResult({
       <CollapsibleTrigger asChild>
         <div className="flex w-full flex-row items-center gap-2 p-3 text-left hover:cursor-pointer">
           <SearchResultExpandChevron />
-          <SearchResultSymbol className="rounded-lg bg-primary-main/20 text-primary-main">
+          <SearchResultSymbol className="bg-primary-main/20 text-primary-main rounded-lg">
             <BracketsIcon className="size-5" />
           </SearchResultSymbol>
           <div>

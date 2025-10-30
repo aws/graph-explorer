@@ -105,7 +105,7 @@
   }
 
   body {
-    @apply bg-background-default font-sans text-text-primary;
+    @apply bg-background-default text-text-primary font-sans;
   }
 }
 

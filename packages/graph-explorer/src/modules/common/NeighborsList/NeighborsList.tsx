@@ -70,7 +70,7 @@ function NeighborTypeRow({
 
   return (
     <>
-      <span className="flex items-center gap-2 break-all font-medium">
+      <span className="flex items-center gap-2 font-medium break-all">
         <VertexIcon vertexStyle={op.config.style} />
         {op.label}
       </span>

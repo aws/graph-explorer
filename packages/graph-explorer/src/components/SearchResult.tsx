@@ -12,7 +12,7 @@ export function SearchResult({
     <div
       {...props}
       className={cn(
-        "rounded-xl border shadow-sm content-auto intrinsic-size-[4.75rem]",
+        "content-auto intrinsic-size-[4.75rem] rounded-xl border shadow-sm",
         isEven(level) ? "bg-gray-50" : "bg-default",
         className
       )}
@@ -33,7 +33,7 @@ export function SearchResultCollapsible({
     <Collapsible
       {...props}
       className={cn(
-        "group rounded-xl shadow-sm ring-1 ring-border transition duration-100 ease-in-out content-auto intrinsic-size-[4.75rem]",
+        "group ring-border content-auto intrinsic-size-[4.75rem] rounded-xl shadow-sm ring-1 transition duration-100 ease-in-out",
         isEven(level) ? "bg-gray-50" : "bg-default",
         highlighted ? "shadow-primary-dark/50 ring-primary-dark/75" : "",
         className
@@ -50,7 +50,7 @@ export function SearchResultTitle({
     <div
       {...props}
       className={cn(
-        "line-clamp-2 min-w-0 text-pretty break-words text-base font-bold leading-snug text-text-primary [word-break:break-word]",
+        "text-text-primary line-clamp-2 min-w-0 text-base leading-snug font-bold text-pretty break-words [word-break:break-word]",
         className
       )}
     />
@@ -65,7 +65,7 @@ export function SearchResultSubtitle({
     <div
       {...props}
       className={cn(
-        "line-clamp-2 min-w-0 text-pretty break-words text-base leading-snug text-text-secondary [word-break:break-word]",
+        "text-text-secondary line-clamp-2 min-w-0 text-base leading-snug text-pretty break-words [word-break:break-word]",
         className
       )}
     />
@@ -94,7 +94,7 @@ export function SearchResultExpandChevron({
   return (
     <ChevronRightIcon
       className={cn(
-        "size-5 shrink-0 text-primary-dark/50 transition-transform duration-200 ease-in-out group-data-open:rotate-90 group-data-closed:rotate-0",
+        "text-primary-dark/50 size-5 shrink-0 transition-transform duration-200 ease-in-out group-data-closed:rotate-0 group-data-open:rotate-90",
         className
       )}
       {...props}
@@ -127,7 +127,7 @@ export function SearchResultAttributeName({
     <div
       {...props}
       className={cn(
-        "flex-[1 1 150px] min-w-0 text-pretty break-words text-base leading-snug text-secondary [word-break:break-word]",
+        "flex-[1 1 150px] text-secondary min-w-0 text-base leading-snug text-pretty break-words [word-break:break-word]",
         className
       )}
     />
@@ -142,7 +142,7 @@ export function SearchResultAttributeValue({
     <div
       {...props}
       className={cn(
-        "flex-[2 1 150px] min-w-0 text-pretty break-words text-base leading-snug text-text-primary [word-break:break-word]",
+        "flex-[2 1 150px] text-text-primary min-w-0 text-base leading-snug text-pretty break-words [word-break:break-word]",
         className
       )}
     />
