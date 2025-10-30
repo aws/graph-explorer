@@ -1,13 +1,6 @@
 import { atom, useAtomValue, useSetAtom } from "jotai";
-import { atomFamily, atomWithReset, RESET } from "jotai/utils";
-import {
-  createRenderedVertexId,
-  getVertexIdFromRenderedVertexId,
-  type RenderedVertexId,
-  type Vertex,
-  type VertexId,
-  createVertex,
-} from "@/core";
+import { atomFamily, atomWithReset } from "jotai/utils";
+import { type Vertex, type VertexId, createVertex } from "@/core";
 import { vertexDetailsQuery } from "@/connector";
 import { useQuery } from "@tanstack/react-query";
 
@@ -22,41 +15,7 @@ export const nodeSelector = atomFamily((id: VertexId) =>
 );
 
 export const nodesSelectedIdsAtom = atomWithReset(new Set<VertexId>());
-
-export const nodesSelectedRenderedIdsAtom = atom(
-  get =>
-    new Set(get(nodesSelectedIdsAtom).values().map(createRenderedVertexId)),
-  (_get, set, newValue: Set<RenderedVertexId> | typeof RESET) => {
-    if (newValue === RESET) {
-      set(nodesSelectedIdsAtom, newValue);
-      return;
-    }
-
-    set(
-      nodesSelectedIdsAtom,
-      new Set(newValue.values().map(getVertexIdFromRenderedVertexId))
-    );
-  }
-);
-
 export const nodesOutOfFocusIdsAtom = atomWithReset(new Set<VertexId>());
-
-export const nodesOutOfFocusRenderedIdsAtom = atom(
-  get =>
-    new Set(get(nodesOutOfFocusIdsAtom).values().map(createRenderedVertexId)),
-  (_get, set, newValue: Set<RenderedVertexId> | typeof RESET) => {
-    if (newValue === RESET) {
-      set(nodesOutOfFocusIdsAtom, newValue);
-      return;
-    }
-
-    set(
-      nodesOutOfFocusIdsAtom,
-      new Set(newValue.values().map(getVertexIdFromRenderedVertexId))
-    );
-  }
-);
-
 export const nodesFilteredIdsAtom = atomWithReset(new Set<VertexId>());
 export const nodesTypesFilteredAtom = atomWithReset(new Set<string>());
 

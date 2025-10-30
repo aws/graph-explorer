@@ -1,12 +1,6 @@
 import { atom, useSetAtom } from "jotai";
-import { atomFamily, atomWithReset, RESET } from "jotai/utils";
-import {
-  createRenderedEdgeId,
-  getEdgeIdFromRenderedEdgeId,
-  type RenderedEdgeId,
-  type Edge,
-  type EdgeId,
-} from "@/core";
+import { atomFamily, atomWithReset } from "jotai/utils";
+import type { Edge, EdgeId } from "@/core";
 import { filteredNodesSelector } from "./nodes";
 
 export function toEdgeMap(edges: Iterable<Edge>): Map<EdgeId, Edge> {
@@ -20,40 +14,7 @@ export const edgeSelector = atomFamily((id: EdgeId) =>
 );
 
 export const edgesSelectedIdsAtom = atomWithReset(new Set<EdgeId>());
-
-export const edgesSelectedRenderedIdsAtom = atom(
-  get => new Set(get(edgesSelectedIdsAtom).values().map(createRenderedEdgeId)),
-  (_get, set, newValue: Set<RenderedEdgeId> | typeof RESET) => {
-    if (newValue === RESET) {
-      set(edgesSelectedIdsAtom, newValue);
-      return;
-    }
-
-    set(
-      edgesSelectedIdsAtom,
-      new Set(newValue.values().map(getEdgeIdFromRenderedEdgeId))
-    );
-  }
-);
-
 export const edgesOutOfFocusIdsAtom = atomWithReset(new Set<EdgeId>());
-
-export const edgesOutOfFocusRenderedIdsAtom = atom(
-  get =>
-    new Set(get(edgesOutOfFocusIdsAtom).values().map(createRenderedEdgeId)),
-  (_get, set, newValue: Set<RenderedEdgeId> | typeof RESET) => {
-    if (newValue === RESET) {
-      set(edgesOutOfFocusIdsAtom, newValue);
-      return;
-    }
-
-    set(
-      edgesOutOfFocusIdsAtom,
-      new Set(newValue.values().map(getEdgeIdFromRenderedEdgeId))
-    );
-  }
-);
-
 export const edgesFilteredIdsAtom = atomWithReset(new Set<EdgeId>());
 export const edgesTypesFilteredAtom = atomWithReset(new Set<string>());
 

@@ -21,8 +21,6 @@ import {
   userLayoutAtom,
   type SidebarItems,
 } from "@/core";
-import { edgesSelectedIdsAtom } from "@/core/StateProvider/edges";
-import { nodesSelectedIdsAtom } from "@/core/StateProvider/nodes";
 import { useClearGraph, useRemoveFromGraph, useTranslations } from "@/hooks";
 import useGraphGlobalActions from "../useGraphGlobalActions";
 import {
@@ -34,11 +32,12 @@ import {
 } from "lucide-react";
 import { useOpenNodeStyleDialog } from "@/modules/NodesStyling";
 import { useOpenEdgeStyleDialog } from "@/modules/EdgesStyling";
-import { useAtom, useSetAtom } from "jotai";
+import { useSetAtom } from "jotai";
+import { useGraphSelection } from "../useGraphSelection";
 
 export type ContextMenuProps = {
-  affectedNodesIds?: VertexId[];
-  affectedEdgesIds?: EdgeId[];
+  affectedNodesIds: VertexId[];
+  affectedEdgesIds: EdgeId[];
   graphRef: RefObject<GraphRef | null>;
   onClose?(): void;
 };
@@ -52,8 +51,7 @@ const ContextMenu = ({
   const t = useTranslations();
   const displayNodes = useDisplayVerticesInCanvas();
   const displayEdges = useDisplayEdgesInCanvas();
-  const [nodesSelectedIds, setNodesSelectedIds] = useAtom(nodesSelectedIdsAtom);
-  const [edgesSelectedIds, setEdgesSelectedIds] = useAtom(edgesSelectedIdsAtom);
+  const { graphSelection, replaceGraphSelection } = useGraphSelection();
   const setUserLayout = useSetAtom(userLayoutAtom);
 
   const {
@@ -66,7 +64,7 @@ const ContextMenu = ({
   } = useGraphGlobalActions(graphRef);
 
   const nonEmptySelection =
-    nodesSelectedIds.size >= 1 || edgesSelectedIds.size >= 1;
+    graphSelection.vertices.length || graphSelection.edges.length;
 
   const openNodeStyleDialog = useOpenNodeStyleDialog();
   const openEdgeStyleDialog = useOpenEdgeStyleDialog();
@@ -79,13 +77,16 @@ const ContextMenu = ({
         activeSidebarItem: panelName,
       };
     });
-    if (affectedNodesIds?.length) {
-      setEdgesSelectedIds(prev => (prev.size === 0 ? prev : new Set([])));
-      setNodesSelectedIds(new Set(affectedNodesIds ?? []));
-    }
-    if (affectedEdgesIds?.length) {
-      setEdgesSelectedIds(new Set(affectedEdgesIds ?? []));
-      setNodesSelectedIds(prev => (prev.size === 0 ? prev : new Set([])));
+    if (affectedNodesIds.length) {
+      replaceGraphSelection({
+        vertices: affectedNodesIds,
+        disableSideEffects: true,
+      });
+    } else if (affectedEdgesIds.length) {
+      replaceGraphSelection({
+        edges: affectedEdgesIds,
+        disableSideEffects: true,
+      });
     }
 
     onClose?.();
@@ -144,22 +145,22 @@ const ContextMenu = ({
   };
 
   const noSelectionOrNotAffected =
-    affectedNodesIds?.length === 0 &&
-    nodesSelectedIds.size === 0 &&
-    affectedEdgesIds?.length === 0 &&
-    edgesSelectedIds.size === 0;
+    affectedNodesIds.length === 0 &&
+    graphSelection.vertices.length === 0 &&
+    affectedEdgesIds.length === 0 &&
+    graphSelection.edges.length === 0;
 
   const selectedButNoAffected =
-    affectedNodesIds?.length === 0 &&
-    affectedEdgesIds?.length === 0 &&
-    nodesSelectedIds.size + edgesSelectedIds.size > 0;
+    affectedNodesIds.length === 0 &&
+    affectedEdgesIds.length === 0 &&
+    graphSelection.vertices.length + graphSelection.edges.length > 0;
 
   const affectedNode =
-    affectedNodesIds?.length === 1
+    affectedNodesIds.length === 1
       ? displayNodes.get(affectedNodesIds[0])
       : undefined;
   const affectedEdge =
-    affectedEdgesIds?.length === 1
+    affectedEdgesIds.length === 1
       ? displayEdges.get(affectedEdgesIds[0])
       : undefined;
 
@@ -245,8 +246,8 @@ const ContextMenu = ({
           <Divider />
           <ListItem
             onClick={handleRemoveFromCanvas(
-              Array.from(nodesSelectedIds),
-              Array.from(edgesSelectedIds)
+              graphSelection.vertices,
+              graphSelection.edges
             )}
           >
             <CircleSlash2 color="red" />

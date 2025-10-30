@@ -11,12 +11,10 @@ import Tabular from "@/components/Tabular/Tabular";
 import {
   edgesFilteredIdsAtom,
   edgesOutOfFocusIdsAtom,
-  edgesSelectedIdsAtom,
   edgesTableFiltersAtom,
   edgesTableSortsAtom,
   useToggleFilteredEdge,
 } from "@/core/StateProvider/edges";
-import { nodesSelectedIdsAtom } from "@/core/StateProvider/nodes";
 import { useDeepMemo } from "@/hooks";
 import useTranslations from "@/hooks/useTranslations";
 import {
@@ -27,6 +25,7 @@ import {
 } from "@/core";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { LABELS } from "@/utils";
+import { useGraphSelection } from "@/modules/GraphViewer";
 
 /** Creates the model for the table data */
 function createEdgeForTable(
@@ -58,9 +57,7 @@ const EdgesTabular = forwardRef<TabularInstance<ToggleEdge>, any>(
     const setEdgesOut = useSetAtom(edgesOutOfFocusIdsAtom);
     const filteredEdges = useAtomValue(edgesFilteredIdsAtom);
     const toggleFilteredEdge = useToggleFilteredEdge();
-    const setSelectedNodesIds = useSetAtom(nodesSelectedIdsAtom);
-    const [selectedEdgesIds, setSelectedEdgesIds] =
-      useAtom(edgesSelectedIdsAtom);
+    const { graphSelection, replaceGraphSelection } = useGraphSelection();
     const [tableFilters, setTableFilters] = useAtom(edgesTableFiltersAtom);
     const [tableSorts, setTableSorts] = useAtom(edgesTableSortsAtom);
 
@@ -128,20 +125,19 @@ const EdgesTabular = forwardRef<TabularInstance<ToggleEdge>, any>(
 
     const onSelectRows = (rowIndex: string) => {
       const entityId = data[Number(rowIndex)].id;
-      setSelectedEdgesIds(new Set([entityId]));
-      setSelectedNodesIds(new Set([]));
+      replaceGraphSelection({ edges: [entityId] });
     };
 
     const selectedRowsIds: Record<string, boolean> = useDeepMemo(() => {
       const selectedRows: Record<string, boolean> = {};
-      Array.from(selectedEdgesIds).forEach(selectedEdgeId => {
+      graphSelection.edges.forEach(selectedEdgeId => {
         const rowIndex = data.findIndex(edge => edge.id === selectedEdgeId);
         if (rowIndex !== -1) {
           selectedRows[rowIndex] = true;
         }
       });
       return selectedRows;
-    }, [data, selectedEdgesIds]);
+    }, [data, graphSelection]);
 
     return (
       <Tabular
