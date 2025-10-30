@@ -45,32 +45,26 @@
   --color-primary-light: var(--color-brand-300);
   --color-primary-main: var(--color-brand-500);
   --color-primary-dark: var(--color-brand-800);
-  --color-primary-contast-text: var(--color-white);
 
   --color-secondary-light: rgb(255 184 46);
   --color-secondary-main: rgb(250 133 0);
   --color-secondary-dark: rgb(228 96 0);
-  --color-secondary-contast-text: var(--color-white);
 
   --color-info-light: rgb(100 199 255);
   --color-info-main: rgb(18 142 229);
   --color-info-dark: rgb(23 69 123);
-  --color-info-contast-text: var(--color-white);
 
   --color-error-light: rgb(252 165 165);
   --color-error-main: rgb(239 68 68);
   --color-error-dark: rgb(153 27 27);
-  --color-error-contast-text: var(--color-white);
 
   --color-success-light: rgb(49 222 178);
   --color-success-main: rgb(39 175 140);
   --color-success-dark: rgb(18 146 113);
-  --color-success-contast-text: var(--color-white);
 
   --color-warning-light: rgb(255 184 46);
   --color-warning-main: rgb(250 133 0);
   --color-warning-dark: rgb(228 96 0);
-  --color-warning-contast-text: var(--color-white);
 
   --color-divider: var(--color-gray-200);
   --color-border: var(--color-gray-200);
