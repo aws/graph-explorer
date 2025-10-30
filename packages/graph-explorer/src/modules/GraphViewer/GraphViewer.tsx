@@ -1,4 +1,9 @@
-import { type MouseEvent, useRef, useState } from "react";
+import {
+  type ComponentPropsWithRef,
+  type MouseEvent,
+  useRef,
+  useState,
+} from "react";
 import {
   createRenderedEdgeId,
   createRenderedVertexId,
@@ -50,6 +55,7 @@ import { useAtomValue } from "jotai";
 import { useDefaultNeighborExpansionLimit } from "@/hooks/useExpandNode";
 import { graphLayoutSelectionAtom, SelectLayout } from "./SelectLayout";
 import { useGraphSelection } from "./useGraphSelection";
+import { cn } from "@/utils";
 
 // Prevent open context menu on Windows
 function onContextMenu(e: MouseEvent<HTMLDivElement>) {
@@ -57,7 +63,10 @@ function onContextMenu(e: MouseEvent<HTMLDivElement>) {
   e.stopPropagation();
 }
 
-export default function GraphViewer() {
+export default function GraphViewer({
+  className,
+  ...props
+}: Omit<ComponentPropsWithRef<"div">, "children" | "onContextMenu">) {
   const graphRef = useRef<GraphRef | null>(null);
 
   const { graphSelection, replaceGraphSelection } = useGraphSelection();
@@ -133,7 +142,11 @@ export default function GraphViewer() {
   const edges = useRenderedEdges();
 
   return (
-    <div className="size-full grow" onContextMenu={onContextMenu}>
+    <div
+      className={cn("size-full grow", className)}
+      onContextMenu={onContextMenu}
+      {...props}
+    >
       <Panel>
         <PanelHeader>
           <PanelTitle>Graph View</PanelTitle>

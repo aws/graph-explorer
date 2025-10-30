@@ -377,8 +377,8 @@ export const Graph = (
   const isEmpty = !nodes.length && !edges.length;
 
   return (
-    <div className={cn("relative h-full w-full overflow-hidden", className)}>
-      <div className="absolute h-full w-full first:z-10" ref={wrapperRefCb} />
+    <div className={cn("relative size-full overflow-hidden", className)}>
+      <div className="absolute inset-0 size-full" ref={wrapperRefCb} />
       {cy && children ? children(cy) : null}
       {isEmpty ? <EmptyComponent /> : null}
     </div>
