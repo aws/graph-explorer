@@ -143,7 +143,7 @@ export default function GraphViewer({
 
   return (
     <div
-      className={cn("size-full grow", className)}
+      className={cn("size-full min-h-0 grow", className)}
       onContextMenu={onContextMenu}
       {...props}
     >
