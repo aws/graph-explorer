@@ -2,6 +2,15 @@
 
 @config "../tailwind.config.ts";
 
+/* 
+ * Use `dark` class name to indicate dark mode.
+ * 
+ * We will need to slowly build up dark mode support component by component, so
+ * this is a way to force dark mode to be off, unless we explicitly set `dark`
+ * in the classes in the root component.
+ */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-white: rgb(255 255 255);
   --color-black: rgb(0 0 0);
