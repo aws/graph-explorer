@@ -29,11 +29,11 @@ type ToggleVertex = DisplayVertex & {
   neighborCounts: number;
 };
 
-function NodesTabular({
-  ref,
-}: {
+interface NodesTabularProps {
   ref?: React.Ref<TabularInstance<ToggleVertex>>;
-}) {
+}
+
+function NodesTabular({ ref }: NodesTabularProps) {
   const t = useTranslations();
   const displayNodes = useDisplayVerticesInCanvas();
   const neighborCounts = useAllNeighbors();

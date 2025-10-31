@@ -48,11 +48,11 @@ type ToggleEdge = ReturnType<typeof createEdgeForTable> & {
   __is_visible: boolean;
 };
 
-function EdgesTabular({
-  ref,
-}: {
+interface EdgesTabularProps {
   ref?: React.Ref<TabularInstance<ToggleEdge>>;
-}) {
+}
+
+function EdgesTabular({ ref }: EdgesTabularProps) {
   const t = useTranslations();
   const nodes = useDisplayVerticesInCanvas();
   const edges = useDisplayEdgesInCanvas();

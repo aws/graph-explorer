@@ -135,6 +135,7 @@ export interface GraphProps<
   hideDefaultEdgeLabels?: boolean;
   defaultEdgeLabelAttribute?: string;
   hideEdges?: boolean;
+  ref?: React.Ref<GraphRef>;
 }
 
 const DEFAULT_LAYOUT_CONFIG = {};
@@ -207,7 +208,7 @@ export const Graph = ({
   hideDefaultEdgeLabels = false,
   hideEdges,
   ref,
-}: GraphProps & { ref?: React.Ref<GraphRef> }) => {
+}: GraphProps) => {
   // capture wrapper via callbackRef so it triggers a re-render (and thus our cy mounting effect)
   // https://reactjs.org/docs/hooks-faq.html#how-can-i-measure-a-dom-node
   const [wrapper, setWrapper] = useState();

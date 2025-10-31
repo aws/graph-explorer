@@ -17,6 +17,7 @@ export interface BaseInputProps
   labelPlacement?: "top" | "inner";
   className?: string;
   errorMessage?: string;
+  ref?: React.Ref<HTMLInputElement>;
 }
 
 interface TextInputProps extends BaseInputProps, ValueBase<string> {}
@@ -38,7 +39,7 @@ export function InputField({
   labelPlacement = "top",
   ref,
   ...props
-}: InputFieldProps & { ref?: React.Ref<HTMLInputElement> }) {
+}: InputFieldProps) {
   const { label, className, validationState, errorMessage, isDisabled } = props;
   const localRef = useRef<HTMLInputElement>(null);
   const { labelProps, inputProps } = useTextField(

@@ -46,6 +46,7 @@ export interface TabularProps<T extends object> extends TabularOptions<T> {
 
   variant?: TabularVariantType;
   globalSearch?: string;
+  ref?: React.Ref<TabularInstance<T>>;
 }
 
 export const Tabular = <T extends object>({
@@ -62,9 +63,7 @@ export const Tabular = <T extends object>({
   globalSearch,
   ref,
   ...useTabularOptions
-}: PropsWithChildren<TabularProps<T>> & {
-  ref?: React.Ref<TabularInstance<T>>;
-}) => {
+}: PropsWithChildren<TabularProps<T>>) => {
   const tableInstance = useTabular({
     ...useTabularOptions,
     data,

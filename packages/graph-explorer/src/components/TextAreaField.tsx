@@ -15,13 +15,11 @@ export interface TextAreaProps
     ValueBase<string> {
   className?: string;
   errorMessage?: string;
+  ref?: React.Ref<HTMLTextAreaElement>;
 }
 
 /** @deprecated Use TextArea instead */
-function TextAreaField({
-  ref,
-  ...props
-}: TextAreaProps & { ref?: React.Ref<HTMLTextAreaElement> }) {
+function TextAreaField({ ref, ...props }: TextAreaProps) {
   const { className, validationState, errorMessage } = props;
   const localRef = useRef<HTMLTextAreaElement>(null);
   const { inputProps } = useTextField(
