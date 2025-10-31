@@ -1,7 +1,5 @@
 import { cn, getChildOfType } from "@/utils";
 import {
-  type ForwardedRef,
-  forwardRef,
   type PropsWithChildren,
   useEffect,
   useImperativeHandle,
@@ -50,23 +48,23 @@ export interface TabularProps<T extends object> extends TabularOptions<T> {
   globalSearch?: string;
 }
 
-export const Tabular = <T extends object>(
-  {
-    children,
-    className,
-    data,
-    disablePagination,
-    paginationOptions = [10, 20, 50],
-    pageIndex = 0,
-    pageSize = 10,
-    onDataFilteredChange,
-    onColumnSortedChange,
-    variant = "bordered",
-    globalSearch,
-    ...useTabularOptions
-  }: PropsWithChildren<TabularProps<T>>,
-  ref: ForwardedRef<TabularInstance<T>>
-) => {
+export const Tabular = <T extends object>({
+  children,
+  className,
+  data,
+  disablePagination,
+  paginationOptions = [10, 20, 50],
+  pageIndex = 0,
+  pageSize = 10,
+  onDataFilteredChange,
+  onColumnSortedChange,
+  variant = "bordered",
+  globalSearch,
+  ref,
+  ...useTabularOptions
+}: PropsWithChildren<TabularProps<T>> & {
+  ref?: React.Ref<TabularInstance<T>>;
+}) => {
   const tableInstance = useTabular({
     ...useTabularOptions,
     data,
@@ -273,8 +271,4 @@ function Paging({ totalRows }: { totalRows: number }) {
   );
 }
 
-export default forwardRef(Tabular) as <T extends object>(
-  props: PropsWithChildren<TabularProps<T>> & {
-    ref?: ForwardedRef<TabularInstance<T>>;
-  }
-) => ReturnType<typeof Tabular>;
+export default Tabular;

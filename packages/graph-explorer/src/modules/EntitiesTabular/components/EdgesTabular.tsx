@@ -1,5 +1,4 @@
 import difference from "lodash/difference";
-import { forwardRef } from "react";
 import { NonVisibleIcon, VisibleIcon } from "@/components";
 import type { ColumnDefinition, TabularInstance } from "@/components/Tabular";
 import { makeIconToggleCell } from "@/components/Tabular/builders";
@@ -49,125 +48,127 @@ type ToggleEdge = ReturnType<typeof createEdgeForTable> & {
   __is_visible: boolean;
 };
 
-const EdgesTabular = forwardRef<TabularInstance<ToggleEdge>, any>(
-  (_props, ref) => {
-    const t = useTranslations();
-    const nodes = useDisplayVerticesInCanvas();
-    const edges = useDisplayEdgesInCanvas();
-    const setEdgesOut = useSetAtom(edgesOutOfFocusIdsAtom);
-    const filteredEdges = useAtomValue(edgesFilteredIdsAtom);
-    const toggleFilteredEdge = useToggleFilteredEdge();
-    const { graphSelection, replaceGraphSelection } = useGraphSelection();
-    const [tableFilters, setTableFilters] = useAtom(edgesTableFiltersAtom);
-    const [tableSorts, setTableSorts] = useAtom(edgesTableSortsAtom);
+function EdgesTabular({
+  ref,
+}: {
+  ref?: React.Ref<TabularInstance<ToggleEdge>>;
+}) {
+  const t = useTranslations();
+  const nodes = useDisplayVerticesInCanvas();
+  const edges = useDisplayEdgesInCanvas();
+  const setEdgesOut = useSetAtom(edgesOutOfFocusIdsAtom);
+  const filteredEdges = useAtomValue(edgesFilteredIdsAtom);
+  const toggleFilteredEdge = useToggleFilteredEdge();
+  const { graphSelection, replaceGraphSelection } = useGraphSelection();
+  const [tableFilters, setTableFilters] = useAtom(edgesTableFiltersAtom);
+  const [tableSorts, setTableSorts] = useAtom(edgesTableSortsAtom);
 
-    // NOTE: Only use string accessors so that the export process continues to work
-    const columns: ColumnDefinition<ToggleEdge>[] = [
-      {
-        unhideable: true,
-        resizable: false,
-        filterable: false,
-        label: "Visibility",
-        accessor: "__is_visible",
-        cellComponent: makeIconToggleCell<ToggleEdge>({
-          title: "Toggle Visibility",
-          on: <VisibleIcon />,
-          off: <NonVisibleIcon style={{ color: "#FA8500" }} />,
-          getValue: ({ cell }) => !!cell.value,
-          onPress: ({ cell }) => toggleFilteredEdge(cell.row.original.id),
-        }),
-      },
-      {
-        id: "edge-type",
-        accessor: "displayTypes",
-        label: t("entities-tabular.edge-type"),
-        overflow: "ellipsis",
-      },
-      {
-        id: "source-id",
-        accessor: "sourceDisplayId",
-        label: t("entities-tabular.source-id"),
-        overflow: "ellipsis",
-      },
-      {
-        id: "source-type",
-        accessor: "sourceDisplayTypes",
-        label: t("entities-tabular.source-type"),
-        overflow: "ellipsis",
-      },
-      {
-        id: "target-id",
-        accessor: "targetDisplayId",
-        label: t("entities-tabular.target-id"),
-        overflow: "ellipsis",
-      },
-      {
-        id: "target-type",
-        accessor: "targetDisplayTypes",
-        label: t("entities-tabular.target-type"),
-        overflow: "ellipsis",
-      },
-    ];
+  // NOTE: Only use string accessors so that the export process continues to work
+  const columns: ColumnDefinition<ToggleEdge>[] = [
+    {
+      unhideable: true,
+      resizable: false,
+      filterable: false,
+      label: "Visibility",
+      accessor: "__is_visible",
+      cellComponent: makeIconToggleCell<ToggleEdge>({
+        title: "Toggle Visibility",
+        on: <VisibleIcon />,
+        off: <NonVisibleIcon style={{ color: "#FA8500" }} />,
+        getValue: ({ cell }) => !!cell.value,
+        onPress: ({ cell }) => toggleFilteredEdge(cell.row.original.id),
+      }),
+    },
+    {
+      id: "edge-type",
+      accessor: "displayTypes",
+      label: t("entities-tabular.edge-type"),
+      overflow: "ellipsis",
+    },
+    {
+      id: "source-id",
+      accessor: "sourceDisplayId",
+      label: t("entities-tabular.source-id"),
+      overflow: "ellipsis",
+    },
+    {
+      id: "source-type",
+      accessor: "sourceDisplayTypes",
+      label: t("entities-tabular.source-type"),
+      overflow: "ellipsis",
+    },
+    {
+      id: "target-id",
+      accessor: "targetDisplayId",
+      label: t("entities-tabular.target-id"),
+      overflow: "ellipsis",
+    },
+    {
+      id: "target-type",
+      accessor: "targetDisplayTypes",
+      label: t("entities-tabular.target-type"),
+      overflow: "ellipsis",
+    },
+  ];
 
-    const data: ToggleEdge[] = useDeepMemo(() => {
-      return edges
-        .values()
-        .map(edge => ({
-          ...createEdgeForTable(
-            edge,
-            nodes.get(edge.sourceId),
-            nodes.get(edge.targetId)
-          ),
-          __is_visible: !filteredEdges.has(edge.id),
-        }))
-        .toArray();
-    }, [edges, filteredEdges]);
+  const data: ToggleEdge[] = useDeepMemo(() => {
+    return edges
+      .values()
+      .map(edge => ({
+        ...createEdgeForTable(
+          edge,
+          nodes.get(edge.sourceId),
+          nodes.get(edge.targetId)
+        ),
+        __is_visible: !filteredEdges.has(edge.id),
+      }))
+      .toArray();
+  }, [edges, filteredEdges]);
 
-    const onSelectRows = (rowIndex: string) => {
-      const entityId = data[Number(rowIndex)].id;
-      replaceGraphSelection({ edges: [entityId] });
-    };
+  const onSelectRows = (rowIndex: string) => {
+    const entityId = data[Number(rowIndex)].id;
+    replaceGraphSelection({ edges: [entityId] });
+  };
 
-    const selectedRowsIds: Record<string, boolean> = useDeepMemo(() => {
-      const selectedRows: Record<string, boolean> = {};
-      graphSelection.edges.forEach(selectedEdgeId => {
-        const rowIndex = data.findIndex(edge => edge.id === selectedEdgeId);
-        if (rowIndex !== -1) {
-          selectedRows[rowIndex] = true;
-        }
-      });
-      return selectedRows;
-    }, [data, graphSelection]);
+  const selectedRowsIds: Record<string, boolean> = useDeepMemo(() => {
+    const selectedRows: Record<string, boolean> = {};
+    graphSelection.edges.forEach(selectedEdgeId => {
+      const rowIndex = data.findIndex(edge => edge.id === selectedEdgeId);
+      if (rowIndex !== -1) {
+        selectedRows[rowIndex] = true;
+      }
+    });
+    return selectedRows;
+  }, [data, graphSelection]);
 
-    return (
-      <Tabular
-        ref={ref}
-        fullWidth
-        rowSelectionMode="row"
-        selectedRowIds={selectedRowsIds}
-        toggleRowSelected={onSelectRows}
-        data={data}
-        columns={columns}
-        initialFilters={tableFilters}
-        onDataFilteredChange={(rows, filters) => {
-          const edgesIds = edges.keys().toArray();
-          const ids = rows.map(row => row.original.id);
-          setEdgesOut(new Set(difference(edgesIds, ids)));
-          setTableFilters(filters);
-        }}
-        initialSorting={tableSorts}
-        onColumnSortedChange={setTableSorts}
-      >
-        <TabularEmptyBodyControls>
-          {data.length === 0 && (
-            <PlaceholderControl>
-              {t("entities-tabular.edges-placeholder")}
-            </PlaceholderControl>
-          )}
-        </TabularEmptyBodyControls>
-      </Tabular>
-    );
-  }
-);
+  return (
+    <Tabular
+      ref={ref}
+      fullWidth
+      rowSelectionMode="row"
+      selectedRowIds={selectedRowsIds}
+      toggleRowSelected={onSelectRows}
+      data={data}
+      columns={columns}
+      initialFilters={tableFilters}
+      onDataFilteredChange={(rows, filters) => {
+        const edgesIds = edges.keys().toArray();
+        const ids = rows.map(row => row.original.id);
+        setEdgesOut(new Set(difference(edgesIds, ids)));
+        setTableFilters(filters);
+      }}
+      initialSorting={tableSorts}
+      onColumnSortedChange={setTableSorts}
+    >
+      <TabularEmptyBodyControls>
+        {data.length === 0 && (
+          <PlaceholderControl>
+            {t("entities-tabular.edges-placeholder")}
+          </PlaceholderControl>
+        )}
+      </TabularEmptyBodyControls>
+    </Tabular>
+  );
+}
 
 export default EdgesTabular;

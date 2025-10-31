@@ -1,26 +1,18 @@
 import { cn } from "@/utils";
-import type {
-  ForwardedRef,
-  HTMLAttributes,
-  MouseEvent,
-  PropsWithChildren,
-} from "react";
-import { forwardRef } from "react";
+import type { MouseEvent, PropsWithChildren } from "react";
 
-export interface ListItemProps extends HTMLAttributes<HTMLDivElement> {
+export interface ListItemProps extends React.ComponentPropsWithRef<"div"> {
   isDisabled?: boolean;
 }
 
-export const ListItem = (
-  {
-    children,
-    className,
-    onClick,
-    isDisabled,
-    ...allProps
-  }: PropsWithChildren<ListItemProps>,
-  ref: ForwardedRef<HTMLDivElement>
-) => {
+export function ListItem({
+  children,
+  className,
+  onClick,
+  isDisabled,
+  ref,
+  ...allProps
+}: PropsWithChildren<ListItemProps>) {
   const clickable = onClick != null;
   const actualOnClick = (ev: MouseEvent<HTMLDivElement>) => {
     if (!clickable) {
@@ -45,8 +37,6 @@ export const ListItem = (
       {children}
     </div>
   );
-};
+}
 
-export default forwardRef<HTMLDivElement, PropsWithChildren<ListItemProps>>(
-  ListItem
-);
+export default ListItem;

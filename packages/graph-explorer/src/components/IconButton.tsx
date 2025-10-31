@@ -1,6 +1,4 @@
 import { cn } from "@/utils";
-import type { ForwardedRef } from "react";
-import { forwardRef } from "react";
 import { cva } from "cva";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components";
 import { Button, type ButtonProps } from "./Button/Button";
@@ -22,32 +20,34 @@ export interface IconButtonProps extends ButtonProps {
   tooltipText?: React.ReactNode;
 }
 
-export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
-  (
-    { tooltipText, size, className, children, ...props }: IconButtonProps,
-    ref: ForwardedRef<HTMLButtonElement>
-  ) => {
-    const component = (
-      <Button
-        ref={ref}
-        size={size}
-        className={cn(iconButtonStyles({ size }), className)}
-        {...props}
-      >
-        {children}
-        <span className="sr-only">{tooltipText}</span>
-      </Button>
+export function IconButton({
+  tooltipText,
+  size,
+  className,
+  children,
+  ref,
+  ...props
+}: IconButtonProps) {
+  const component = (
+    <Button
+      ref={ref}
+      size={size}
+      className={cn(iconButtonStyles({ size }), className)}
+      {...props}
+    >
+      {children}
+      <span className="sr-only">{tooltipText}</span>
+    </Button>
+  );
+
+  if (tooltipText) {
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>{component}</TooltipTrigger>
+        <TooltipContent>{tooltipText}</TooltipContent>
+      </Tooltip>
     );
-
-    if (tooltipText) {
-      return (
-        <Tooltip>
-          <TooltipTrigger asChild>{component}</TooltipTrigger>
-          <TooltipContent>{tooltipText}</TooltipContent>
-        </Tooltip>
-      );
-    }
-
-    return component;
   }
-);
+
+  return component;
+}

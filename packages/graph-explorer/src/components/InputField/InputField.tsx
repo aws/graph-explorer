@@ -2,8 +2,8 @@ import { cn } from "@/utils";
 import type { AriaTextFieldOptions } from "@react-aria/textfield";
 import { useTextField } from "@react-aria/textfield";
 import type { ValueBase } from "@react-types/shared";
-import type { ForwardedRef, ReactNode, RefObject } from "react";
-import { forwardRef, useRef } from "react";
+import type { ReactNode, RefObject } from "react";
+import { useRef } from "react";
 import { Label } from "../Label";
 import { FormError, FormItem } from "../Form";
 import { Input } from "../Input";
@@ -34,10 +34,11 @@ export type InputFieldProps = TextInputProps | NumberInputProps;
 const isNumberInput = (props: InputFieldProps): props is NumberInputProps =>
   props.type === "number";
 
-export const InputField = (
-  { labelPlacement = "top", ...props }: InputFieldProps,
-  ref: ForwardedRef<HTMLInputElement>
-) => {
+export function InputField({
+  labelPlacement = "top",
+  ref,
+  ...props
+}: InputFieldProps & { ref?: React.Ref<HTMLInputElement> }) {
   const { label, className, validationState, errorMessage, isDisabled } = props;
   const localRef = useRef<HTMLInputElement>(null);
   const { labelProps, inputProps } = useTextField(
@@ -101,6 +102,6 @@ export const InputField = (
       ) : null}
     </FormItem>
   );
-};
+}
 
-export default forwardRef<HTMLInputElement, InputFieldProps>(InputField);
+export default InputField;

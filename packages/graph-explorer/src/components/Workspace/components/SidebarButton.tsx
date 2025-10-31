@@ -3,14 +3,19 @@ import * as TogglePrimitive from "@radix-ui/react-toggle";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components";
 import { cn } from "@/utils";
 
-const SidebarButton = React.forwardRef<
-  React.ElementRef<typeof TogglePrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof TogglePrimitive.Root> & {
-    icon: React.ReactElement<any>;
-    title: React.ReactNode;
-    badge?: boolean;
-  }
->(({ icon, title, badge = false, className, children, ...props }, ref) => {
+function SidebarButton({
+  icon,
+  title,
+  badge = false,
+  className,
+  children,
+  ref,
+  ...props
+}: React.ComponentPropsWithRef<typeof TogglePrimitive.Root> & {
+  icon: React.ReactElement<any>;
+  title: React.ReactNode;
+  badge?: boolean;
+}) {
   return (
     <Badge value={badge}>
       <Tooltip>
@@ -37,7 +42,7 @@ const SidebarButton = React.forwardRef<
       </Tooltip>
     </Badge>
   );
-});
+}
 
 function Badge({
   children,

@@ -4,12 +4,12 @@ import React from "react";
 import { IconButton, type IconButtonProps } from "@/components/IconButton";
 import { XIcon } from "lucide-react";
 
-interface PanelProps extends React.ComponentPropsWithoutRef<"div"> {
+interface PanelProps extends React.ComponentPropsWithRef<"div"> {
   variant?: "default" | "sidebar";
 }
 
-const Panel = React.forwardRef<React.ElementRef<"div">, PanelProps>(
-  ({ variant = "default", className, ...props }, ref) => (
+function Panel({ variant = "default", className, ref, ...props }: PanelProps) {
+  return (
     <div
       ref={ref}
       className={cn(
@@ -19,23 +19,26 @@ const Panel = React.forwardRef<React.ElementRef<"div">, PanelProps>(
       )}
       {...props}
     />
-  )
-);
+  );
+}
 Panel.displayName = "Panel";
 
-const PanelContent = React.forwardRef<
-  React.ElementRef<"div">,
-  React.ComponentPropsWithoutRef<"div">
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn(
-      "bg-background-default flex h-full w-full grow flex-col overflow-y-auto",
-      className
-    )}
-    {...props}
-  />
-));
+function PanelContent({
+  className,
+  ref,
+  ...props
+}: React.ComponentPropsWithRef<"div">) {
+  return (
+    <div
+      ref={ref}
+      className={cn(
+        "bg-background-default flex h-full w-full grow flex-col overflow-y-auto",
+        className
+      )}
+      {...props}
+    />
+  );
+}
 PanelContent.displayName = "PanelContent";
 
 export type Action = {
@@ -48,62 +51,79 @@ export type Action = {
   onActionClick?: () => void;
 };
 
-const PanelHeader = React.forwardRef<
-  React.ElementRef<"div">,
-  React.PropsWithChildren<React.ComponentPropsWithoutRef<"div">>
->(({ className, children, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn(
-      "bg-background-default flex min-h-[48px] w-full shrink-0 items-center gap-4 overflow-x-auto border-b px-3 py-1",
-      className
-    )}
-    {...props}
-  >
-    {children}
-  </div>
-));
+function PanelHeader({
+  className,
+  children,
+  ref,
+  ...props
+}: React.PropsWithChildren<React.ComponentPropsWithRef<"div">>) {
+  return (
+    <div
+      ref={ref}
+      className={cn(
+        "bg-background-default flex min-h-[48px] w-full shrink-0 items-center gap-4 overflow-x-auto border-b px-3 py-1",
+        className
+      )}
+      {...props}
+    >
+      {children}
+    </div>
+  );
+}
 PanelHeader.displayName = "PanelHeader";
 
-const PanelFooter = React.forwardRef<
-  React.ElementRef<"div">,
-  React.PropsWithChildren<React.ComponentPropsWithoutRef<"div">>
->(({ className, children, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn("bg-background-default w-full border-t px-3 py-3", className)}
-    {...props}
-  >
-    {children}
-  </div>
-));
+function PanelFooter({
+  className,
+  children,
+  ref,
+  ...props
+}: React.PropsWithChildren<React.ComponentPropsWithRef<"div">>) {
+  return (
+    <div
+      ref={ref}
+      className={cn(
+        "bg-background-default w-full border-t px-3 py-3",
+        className
+      )}
+      {...props}
+    >
+      {children}
+    </div>
+  );
+}
 PanelFooter.displayName = "PanelFooter";
 
-const PanelTitle = React.forwardRef<
-  React.ElementRef<"div">,
-  React.ComponentPropsWithoutRef<"div">
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn(
-      "text-text-primary inline-flex shrink-0 items-center gap-2 text-base leading-none font-bold whitespace-nowrap",
-      className
-    )}
-    {...props}
-  />
-));
+function PanelTitle({
+  className,
+  ref,
+  ...props
+}: React.ComponentPropsWithRef<"div">) {
+  return (
+    <div
+      ref={ref}
+      className={cn(
+        "text-text-primary inline-flex shrink-0 items-center gap-2 text-base leading-none font-bold whitespace-nowrap",
+        className
+      )}
+      {...props}
+    />
+  );
+}
 PanelTitle.displayName = "PanelTitle";
 
-const PanelHeaderDivider = React.forwardRef<
-  React.ElementRef<"div">,
-  React.ComponentPropsWithoutRef<"div">
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn("bg-divider mx-1 h-5 w-[1px]", className)}
-    {...props}
-  />
-));
+function PanelHeaderDivider({
+  className,
+  ref,
+  ...props
+}: React.ComponentPropsWithRef<"div">) {
+  return (
+    <div
+      ref={ref}
+      className={cn("bg-divider mx-1 h-5 w-[1px]", className)}
+      {...props}
+    />
+  );
+}
 PanelHeaderDivider.displayName = "PanelHeaderDivider";
 
 export interface PanelHeaderCloseButtonProps
@@ -126,18 +146,23 @@ export function PanelHeaderCloseButton({
 }
 PanelHeaderCloseButton.displayName = "PanelHeaderCloseButton";
 
-export const PanelHeaderActionButton = React.forwardRef<
-  HTMLButtonElement,
-  Action & IconButtonProps
->(({ label, active, onActionClick, ...props }, ref) => (
-  <IconButton
-    ref={ref}
-    tooltipText={label}
-    variant={active ? "filled" : "text"}
-    {...(onActionClick && { onClick: onActionClick })}
-    {...props}
-  />
-));
+export function PanelHeaderActionButton({
+  label,
+  active,
+  onActionClick,
+  ref,
+  ...props
+}: Action & IconButtonProps) {
+  return (
+    <IconButton
+      ref={ref}
+      tooltipText={label}
+      variant={active ? "filled" : "text"}
+      {...(onActionClick && { onClick: onActionClick })}
+      {...props}
+    />
+  );
+}
 PanelHeaderActionButton.displayName = "PanelHeaderActionButton";
 
 export type PanelHeaderActionsProps = React.PropsWithChildren<
