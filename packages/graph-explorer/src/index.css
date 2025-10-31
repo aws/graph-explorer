@@ -8,6 +8,8 @@
  * We will need to slowly build up dark mode support component by component, so
  * this is a way to force dark mode to be off, unless we explicitly set `dark`
  * in the classes in the root component.
+ * 
+ * https://github.com/aws/graph-explorer/issues/645
  */
 @custom-variant dark (&:where(.dark, .dark *));
 
