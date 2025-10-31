@@ -1,6 +1,5 @@
 import { cn } from "@/utils";
-import type { ForwardedRef, HTMLAttributes, PropsWithChildren } from "react";
-import { forwardRef } from "react";
+import type { PropsWithChildren } from "react";
 import { cva, type VariantProps } from "cva";
 
 const chip = cva({
@@ -19,18 +18,20 @@ const chip = cva({
 });
 
 export interface ChipProps
-  extends HTMLAttributes<HTMLDivElement>,
+  extends React.ComponentPropsWithRef<"div">,
     VariantProps<typeof chip> {}
 
-export const Chip = (
-  { children, className, variant, ...allProps }: PropsWithChildren<ChipProps>,
-  ref: ForwardedRef<HTMLDivElement>
-) => {
+export function Chip({
+  children,
+  className,
+  variant,
+  ...allProps
+}: PropsWithChildren<ChipProps>) {
   return (
-    <div ref={ref} className={cn(chip({ variant }), className)} {...allProps}>
+    <div className={cn(chip({ variant }), className)} {...allProps}>
       {children}
     </div>
   );
-};
+}
 
-export default forwardRef<HTMLDivElement, PropsWithChildren<ChipProps>>(Chip);
+export default Chip;

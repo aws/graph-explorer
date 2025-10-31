@@ -3,21 +3,24 @@ import * as TogglePrimitive from "@radix-ui/react-toggle";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components";
 import { cn } from "@/utils";
 
-const SidebarButton = React.forwardRef<
-  React.ElementRef<typeof TogglePrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof TogglePrimitive.Root> & {
-    icon: React.ReactElement<any>;
-    title: React.ReactNode;
-    badge?: boolean;
-  }
->(({ icon, title, badge = false, className, children, ...props }, ref) => {
+function SidebarButton({
+  icon,
+  title,
+  badge = false,
+  className,
+  children,
+  ...props
+}: React.ComponentPropsWithRef<typeof TogglePrimitive.Root> & {
+  icon: React.ReactElement<any>;
+  title: React.ReactNode;
+  badge?: boolean;
+}) {
   return (
     <Badge value={badge}>
       <Tooltip>
         <TooltipTrigger asChild>
           <span>
             <TogglePrimitive.Root
-              ref={ref}
               className={cn(
                 "text-brand-900 active:bg-brand-300 data-[state=on]:bg-brand-500 inline-flex size-10 items-center justify-center rounded-md bg-transparent p-2 ring-0 transition-colors duration-100 focus:shadow-none active:text-white disabled:pointer-events-none disabled:opacity-50 data-[state=on]:text-white [&_svg]:size-6",
                 "hover:bg-brand-200/50 hover:text-primary-dark hover:data-[state=on]:bg-brand-400",
@@ -37,7 +40,7 @@ const SidebarButton = React.forwardRef<
       </Tooltip>
     </Badge>
   );
-});
+}
 
 function Badge({
   children,

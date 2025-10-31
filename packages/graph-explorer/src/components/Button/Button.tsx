@@ -1,6 +1,5 @@
 import { cn } from "@/utils";
-import type { ForwardedRef, ReactNode } from "react";
-import { forwardRef } from "react";
+import type { ReactNode } from "react";
 import { cva, type VariantProps } from "cva";
 import { Slot } from "@radix-ui/react-slot";
 
@@ -69,7 +68,7 @@ export const buttonStyles = cva({
 export interface ButtonProps
   extends VariantProps<typeof buttonStyles>,
     VariantProps<typeof buttonStyles>,
-    Omit<React.ComponentPropsWithoutRef<"button">, "color"> {
+    Omit<React.ComponentPropsWithRef<"button">, "color"> {
   icon?: ReactNode;
   asChild?: boolean;
 
@@ -79,37 +78,31 @@ export interface ButtonProps
   onPress?: () => void;
 }
 
-const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  (
-    {
-      className,
-      icon,
-      variant = "default",
-      size,
-      color,
-      children,
-      asChild = false,
-      isDisabled,
-      onPress,
-      ...props
-    }: ButtonProps,
-    ref: ForwardedRef<HTMLButtonElement>
-  ) => {
-    const Component = asChild ? (Slot as any) : "button";
-    return (
-      <Component
-        ref={ref}
-        className={cn(buttonStyles({ size, variant, color }), className)}
-        disabled={isDisabled}
-        onClick={onPress}
-        {...props}
-      >
-        {icon && icon}
-        {children}
-      </Component>
-    );
-  }
-);
+function Button({
+  className,
+  icon,
+  variant = "default",
+  size,
+  color,
+  children,
+  asChild = false,
+  isDisabled,
+  onPress,
+  ...props
+}: ButtonProps) {
+  const Component = asChild ? (Slot as any) : "button";
+  return (
+    <Component
+      className={cn(buttonStyles({ size, variant, color }), className)}
+      disabled={isDisabled}
+      onClick={onPress}
+      {...props}
+    >
+      {icon && icon}
+      {children}
+    </Component>
+  );
+}
 Button.displayName = "Button";
 
 /** Wrap an action to stop button click propagation. */
