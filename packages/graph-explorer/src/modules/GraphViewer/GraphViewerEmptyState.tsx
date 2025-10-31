@@ -6,25 +6,31 @@ import {
   useAvailablePreviousSession,
   useRestoreGraphSession,
 } from "@/core";
-import { formatEntityCounts } from "@/utils";
+import { cn, formatEntityCounts } from "@/utils";
 import { PlusCircleIcon, RotateCwIcon } from "lucide-react";
+import type { ComponentPropsWithRef } from "react";
 
-function EmptyState() {
+export function GraphViewerEmptyState(props: ComponentPropsWithRef<"div">) {
   const availablePrevSession = useAvailablePreviousSession();
 
   if (availablePrevSession) {
     return (
-      <RestorePreviousSessionEmptyState prevSession={availablePrevSession} />
+      <RestorePreviousSessionEmptyState
+        prevSession={availablePrevSession}
+        {...props}
+      />
     );
   }
-  return <DefaultEmptyState />;
+  return <DefaultEmptyState {...props} />;
 }
 
 function RestorePreviousSessionEmptyState({
   prevSession,
+  className,
+  ...props
 }: {
   prevSession: GraphSessionStorageModel;
-}) {
+} & ComponentPropsWithRef<"div">) {
   const restore = useRestoreGraphSession();
 
   const entityCounts = formatEntityCounts(
@@ -33,7 +39,10 @@ function RestorePreviousSessionEmptyState({
   );
 
   return (
-    <div className="absolute inset-0 z-20 flex flex-col items-center justify-center p-4">
+    <div
+      className={cn("flex flex-col items-center justify-center p-4", className)}
+      {...props}
+    >
       <PanelEmptyState
         icon={<SearchIcon />}
         title="Start a search or restore session"
@@ -55,9 +64,15 @@ function RestorePreviousSessionEmptyState({
   );
 }
 
-function DefaultEmptyState() {
+function DefaultEmptyState({
+  className,
+  ...props
+}: ComponentPropsWithRef<"div">) {
   return (
-    <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center p-4 select-none">
+    <div
+      className={cn("flex flex-col items-center justify-center p-4", className)}
+      {...props}
+    >
       <PanelEmptyState
         icon={<SearchIcon />}
         title="Add nodes from search"
@@ -77,5 +92,3 @@ function DefaultEmptyState() {
     </div>
   );
 }
-
-export default EmptyState;

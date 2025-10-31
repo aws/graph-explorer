@@ -7,10 +7,10 @@ import fcose from "cytoscape-fcose";
 import klay from "cytoscape-klay";
 import {
   memo,
-  type ReactNode,
   useCallback,
   useImperativeHandle,
   useState,
+  type ComponentPropsWithoutRef,
 } from "react";
 import type {
   Config,
@@ -38,7 +38,6 @@ import type { BadgeRenderer } from "./hooks/useRenderBadges";
 import useRenderBadges from "./hooks/useRenderBadges";
 import useUpdateLayout from "./hooks/useRunLayout";
 import useUpdateGraphElements from "./hooks/useUpdateGraphElements";
-import EmptyState from "./internalComponents/EmptyState";
 
 cytoscape.use(klay);
 cytoscape.use(dagre);
@@ -55,13 +54,12 @@ export interface GraphProps<
   TEdge extends object = any,
 > extends Config,
     Selection,
-    Omit<UseAddClickEvents<TNode, TEdge>, "cy"> {
-  children?: (graphRef: CytoscapeType) => ReactNode;
+    Omit<UseAddClickEvents<TNode, TEdge>, "cy">,
+    Omit<ComponentPropsWithoutRef<"div">, "children" | "styles"> {
   //Data inputs
   nodes: GraphNode[];
   edges: GraphEdge[];
   //styling
-  className?: string;
   styles?: {
     [selector: string]: StyleSelector;
   };
@@ -77,7 +75,6 @@ export interface GraphProps<
   onZoomChanged?: (...args: any) => any;
   onPanChanged?: (...args: any) => any;
   //components
-  emptyComponent?: (...args: any) => any;
   hiddenEdgesIds?: Set<string>;
   hiddenNodesIds?: Set<string>;
   outOfFocusNodesIds?: Set<string>;
@@ -142,7 +139,6 @@ const DEFAULT_LAYOUT_CONFIG = {};
 
 export const Graph = ({
   primaryNodeId,
-  children,
   nodes,
   edges,
   selectedNodesIds,
@@ -152,7 +148,7 @@ export const Graph = ({
   onSelectedNodesIdsChange,
   onSelectedGroupsIdsChange,
   onSelectedEdgesIdsChange,
-  className = "",
+  className,
   styles,
   onEdgeClick,
   onEdgeRightClick,
@@ -171,7 +167,6 @@ export const Graph = ({
   connectionsFilterConfig,
   onLayoutRunningChanged,
   onLayoutUpdated,
-  emptyComponent,
   minZoom = 0.01,
   maxZoom = 5,
   motionBlur = true,
@@ -208,6 +203,7 @@ export const Graph = ({
   hideDefaultEdgeLabels = false,
   hideEdges,
   ref,
+  ...props
 }: GraphProps) => {
   // capture wrapper via callbackRef so it triggers a re-render (and thus our cy mounting effect)
   // https://reactjs.org/docs/hooks-faq.html#how-can-i-measure-a-dom-node
@@ -369,16 +365,12 @@ export const Graph = ({
     [additionalLayoutsConfig, cy, layout]
   );
 
-  const EmptyComponent = emptyComponent ? emptyComponent : EmptyState;
-
-  const isEmpty = !nodes.length && !edges.length;
-
   return (
-    <div className={cn("relative size-full overflow-hidden", className)}>
-      <div className="absolute inset-0 size-full" ref={wrapperRefCb} />
-      {cy && children ? children(cy) : null}
-      {isEmpty ? <EmptyComponent /> : null}
-    </div>
+    <div
+      className={cn("size-fulloverflow-hidden relative", className)}
+      ref={wrapperRefCb}
+      {...props}
+    />
   );
 };
 
