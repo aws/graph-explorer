@@ -70,16 +70,12 @@ const FormItemContext = React.createContext<FormItemContextValue>(
   {} as FormItemContextValue
 );
 
-function FormItem({
-  className,
-  ref,
-  ...props
-}: React.ComponentPropsWithRef<"div">) {
+function FormItem({ className, ...props }: React.ComponentPropsWithRef<"div">) {
   const id = React.useId();
 
   return (
     <FormItemContext.Provider value={{ id }}>
-      <div ref={ref} className={cn("space-y-1", className)} {...props} />
+      <div className={cn("space-y-1", className)} {...props} />
     </FormItemContext.Provider>
   );
 }
@@ -87,14 +83,12 @@ FormItem.displayName = "FormItem";
 
 function FormLabel({
   className,
-  ref,
   ...props
 }: React.ComponentPropsWithRef<typeof LabelPrimitive.Root>) {
   const { error, formItemId } = useFormField();
 
   return (
     <Label
-      ref={ref}
       className={cn(error && "text-error-main", className)}
       htmlFor={formItemId}
       {...props}
@@ -103,16 +97,12 @@ function FormLabel({
 }
 FormLabel.displayName = "FormLabel";
 
-function FormControl({
-  ref,
-  ...props
-}: React.ComponentPropsWithRef<typeof Slot>) {
+function FormControl({ ...props }: React.ComponentPropsWithRef<typeof Slot>) {
   const { error, formItemId, formDescriptionId, formMessageId } =
     useFormField();
 
   return (
     <Slot
-      ref={ref}
       id={formItemId}
       aria-describedby={
         !error
@@ -128,14 +118,12 @@ FormControl.displayName = "FormControl";
 
 function FormDescription({
   className,
-  ref,
   ...props
 }: React.ComponentPropsWithRef<"p">) {
   const { formDescriptionId } = useFormField();
 
   return (
     <p
-      ref={ref}
       id={formDescriptionId}
       className={cn("text-text-secondary text-sm", className)}
       {...props}
@@ -144,11 +132,7 @@ function FormDescription({
 }
 FormDescription.displayName = "FormDescription";
 
-function FormMessage({
-  children,
-  ref,
-  ...props
-}: React.ComponentPropsWithRef<"p">) {
+function FormMessage({ children, ...props }: React.ComponentPropsWithRef<"p">) {
   const { error, formMessageId } = useFormField();
   const body = error ? String(error?.message) : children;
 
@@ -157,7 +141,7 @@ function FormMessage({
   }
 
   return (
-    <FormError ref={ref} id={formMessageId} {...props}>
+    <FormError id={formMessageId} {...props}>
       {body}
     </FormError>
   );
@@ -167,12 +151,10 @@ FormMessage.displayName = "FormMessage";
 function FormError({
   className,
   children,
-  ref,
   ...props
 }: React.ComponentPropsWithRef<"p">) {
   return (
     <p
-      ref={ref}
       className={cn("text-error-main text-sm font-medium", className)}
       {...props}
     >

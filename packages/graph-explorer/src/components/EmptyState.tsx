@@ -4,12 +4,10 @@ import React from "react";
 
 function EmptyState({
   className,
-  ref,
   ...props
 }: React.ComponentPropsWithRef<"div">) {
   return (
     <div
-      ref={ref}
       className={cn(
         "flex h-full w-full flex-col items-center justify-center",
         className
@@ -36,13 +34,11 @@ const emptyStateIconStyles = cva({
 function EmptyStateIcon({
   variant,
   className,
-  ref,
   ...props
 }: React.ComponentPropsWithRef<"div"> &
   VariantProps<typeof emptyStateIconStyles>) {
   return (
     <div
-      ref={ref}
       className={cn(emptyStateIconStyles({ variant }), className)}
       {...props}
     />
@@ -52,12 +48,10 @@ EmptyStateIcon.displayName = "EmptyStateIcon";
 
 function EmptyStateContent({
   className,
-  ref,
   ...props
 }: React.ComponentPropsWithRef<"div">) {
   return (
     <div
-      ref={ref}
       className={cn(
         "max-w-paragraph flex w-full flex-col items-center justify-center gap-1 text-center",
         className
@@ -70,12 +64,10 @@ EmptyStateContent.displayName = "EmptyStateContent";
 
 function EmptyStateTitle({
   className,
-  ref,
   ...props
 }: React.ComponentPropsWithRef<"h1">) {
   return (
     <h1
-      ref={ref}
       className={cn(
         "text-text-primary min-w-0 text-lg font-bold text-balance break-words",
         className
@@ -88,12 +80,10 @@ EmptyStateTitle.displayName = "EmptyStateTitle";
 
 function EmptyStateDescription({
   className,
-  ref,
   ...props
 }: React.ComponentPropsWithRef<"div">) {
   return (
     <div
-      ref={ref}
       className={cn(
         "font-base text-text-primary/75 min-w-0 text-base text-pretty break-words",
         className
@@ -106,12 +96,10 @@ EmptyStateDescription.displayName = "EmptyStateDescription";
 
 function EmptyStateActions({
   className,
-  ref,
   ...props
 }: React.ComponentPropsWithRef<"div">) {
   return (
     <div
-      ref={ref}
       className={cn(
         "flex flex-wrap items-center justify-center gap-4 pt-6",
         className

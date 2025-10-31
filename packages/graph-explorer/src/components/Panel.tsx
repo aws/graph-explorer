@@ -8,10 +8,9 @@ interface PanelProps extends React.ComponentPropsWithRef<"div"> {
   variant?: "default" | "sidebar";
 }
 
-function Panel({ variant = "default", className, ref, ...props }: PanelProps) {
+function Panel({ variant = "default", className, ...props }: PanelProps) {
   return (
     <div
-      ref={ref}
       className={cn(
         "bg-background-default @container/panel flex h-full flex-col overflow-hidden",
         variant === "default" && "shadow-primary-dark/20 rounded-lg shadow",
@@ -25,12 +24,10 @@ Panel.displayName = "Panel";
 
 function PanelContent({
   className,
-  ref,
   ...props
 }: React.ComponentPropsWithRef<"div">) {
   return (
     <div
-      ref={ref}
       className={cn(
         "bg-background-default flex h-full w-full grow flex-col overflow-y-auto",
         className
@@ -54,12 +51,10 @@ export type Action = {
 function PanelHeader({
   className,
   children,
-  ref,
   ...props
 }: React.PropsWithChildren<React.ComponentPropsWithRef<"div">>) {
   return (
     <div
-      ref={ref}
       className={cn(
         "bg-background-default flex min-h-[48px] w-full shrink-0 items-center gap-4 overflow-x-auto border-b px-3 py-1",
         className
@@ -75,12 +70,10 @@ PanelHeader.displayName = "PanelHeader";
 function PanelFooter({
   className,
   children,
-  ref,
   ...props
 }: React.PropsWithChildren<React.ComponentPropsWithRef<"div">>) {
   return (
     <div
-      ref={ref}
       className={cn(
         "bg-background-default w-full border-t px-3 py-3",
         className
@@ -95,12 +88,10 @@ PanelFooter.displayName = "PanelFooter";
 
 function PanelTitle({
   className,
-  ref,
   ...props
 }: React.ComponentPropsWithRef<"div">) {
   return (
     <div
-      ref={ref}
       className={cn(
         "text-text-primary inline-flex shrink-0 items-center gap-2 text-base leading-none font-bold whitespace-nowrap",
         className
@@ -113,15 +104,10 @@ PanelTitle.displayName = "PanelTitle";
 
 function PanelHeaderDivider({
   className,
-  ref,
   ...props
 }: React.ComponentPropsWithRef<"div">) {
   return (
-    <div
-      ref={ref}
-      className={cn("bg-divider mx-1 h-5 w-[1px]", className)}
-      {...props}
-    />
+    <div className={cn("bg-divider mx-1 h-5 w-[1px]", className)} {...props} />
   );
 }
 PanelHeaderDivider.displayName = "PanelHeaderDivider";
@@ -150,12 +136,10 @@ export function PanelHeaderActionButton({
   label,
   active,
   onActionClick,
-  ref,
   ...props
 }: Action & IconButtonProps) {
   return (
     <IconButton
-      ref={ref}
       tooltipText={label}
       variant={active ? "filled" : "text"}
       {...(onActionClick && { onClick: onActionClick })}

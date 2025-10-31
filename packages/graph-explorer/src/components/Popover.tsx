@@ -15,13 +15,11 @@ function PopoverContent({
   className,
   align = "center",
   sideOffset = 4,
-  ref,
   ...props
 }: React.ComponentPropsWithRef<typeof PopoverPrimitive.Content>) {
   return (
     <PopoverPrimitive.Portal>
       <PopoverPrimitive.Content
-        ref={ref}
         align={align}
         sideOffset={sideOffset}
         className={cn(

@@ -4,12 +4,10 @@ import { cn } from "@/utils";
 
 function Label({
   className,
-  ref,
   ...props
 }: React.ComponentPropsWithRef<typeof LabelPrimitive.Root>) {
   return (
     <LabelPrimitive.Root
-      ref={ref}
       className={cn(
         "font-base text-text-secondary inline-flex items-center gap-2 text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
         className

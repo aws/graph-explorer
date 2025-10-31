@@ -10,7 +10,6 @@ export function ListItem({
   className,
   onClick,
   isDisabled,
-  ref,
   ...allProps
 }: PropsWithChildren<ListItemProps>) {
   const clickable = onClick != null;
@@ -24,7 +23,6 @@ export function ListItem({
 
   return (
     <div
-      ref={ref}
       className={cn(
         "text-text-primary [&_svg]:text-primary-dark line-clamp-1 flex flex-row items-center gap-3 rounded-sm px-3 py-2 [&_svg]:size-5",
         isDisabled && "pointer-events-none",

@@ -4,7 +4,6 @@ import { cn } from "@/utils";
 
 function Switch({
   className,
-  ref,
   ...props
 }: React.ComponentPropsWithRef<typeof SwitchPrimitives.Root>) {
   return (
@@ -14,7 +13,6 @@ function Switch({
         className
       )}
       {...props}
-      ref={ref}
     >
       <SwitchPrimitives.Thumb
         className={cn(

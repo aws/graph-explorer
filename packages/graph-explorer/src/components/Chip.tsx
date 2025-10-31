@@ -25,11 +25,10 @@ export function Chip({
   children,
   className,
   variant,
-  ref,
   ...allProps
 }: PropsWithChildren<ChipProps>) {
   return (
-    <div ref={ref} className={cn(chip({ variant }), className)} {...allProps}>
+    <div className={cn(chip({ variant }), className)} {...allProps}>
       {children}
     </div>
   );

@@ -25,12 +25,10 @@ export function IconButton({
   size,
   className,
   children,
-  ref,
   ...props
 }: IconButtonProps) {
   const component = (
     <Button
-      ref={ref}
       size={size}
       className={cn(iconButtonStyles({ size }), className)}
       {...props}

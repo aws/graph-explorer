@@ -15,14 +15,9 @@ export const inputStyles = cva({
 
 export type InputProps = React.ComponentPropsWithRef<"input">;
 
-function Input({ className, type, ref, ...props }: InputProps) {
+function Input({ className, type, ...props }: InputProps) {
   return (
-    <input
-      type={type}
-      className={cn(inputStyles(), className)}
-      ref={ref}
-      {...props}
-    />
+    <input type={type} className={cn(inputStyles(), className)} {...props} />
   );
 }
 Input.displayName = "Input";

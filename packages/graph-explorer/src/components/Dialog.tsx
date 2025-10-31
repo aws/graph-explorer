@@ -14,12 +14,10 @@ const DialogClose = DialogPrimitive.Close;
 
 function DialogOverlay({
   className,
-  ref,
   ...props
 }: React.ComponentPropsWithRef<typeof DialogPrimitive.Overlay>) {
   return (
     <DialogPrimitive.Overlay
-      ref={ref}
       className={cn(
         "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50",
         className
@@ -33,7 +31,6 @@ DialogOverlay.displayName = DialogPrimitive.Overlay.displayName;
 function DialogContent({
   className,
   children,
-  ref,
   ...props
 }: React.ComponentPropsWithRef<typeof DialogPrimitive.Content>) {
   return (
@@ -41,7 +38,6 @@ function DialogContent({
       <DialogOverlay />
       <div className="fixed inset-0 z-50 flex h-full w-full items-center justify-center p-20">
         <DialogPrimitive.Content
-          ref={ref}
           className={cn(
             "bg-background-default data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 relative grid max-h-full w-[500px] overflow-y-auto rounded-lg duration-200",
             className
@@ -99,12 +95,10 @@ DialogFooter.displayName = "DialogFooter";
 
 function DialogTitle({
   className,
-  ref,
   ...props
 }: React.ComponentPropsWithRef<typeof DialogPrimitive.Title>) {
   return (
     <DialogPrimitive.Title
-      ref={ref}
       className={cn("text-lg leading-none font-bold tracking-tight", className)}
       {...props}
     />
@@ -114,12 +108,10 @@ DialogTitle.displayName = DialogPrimitive.Title.displayName;
 
 function DialogDescription({
   className,
-  ref,
   ...props
 }: React.ComponentPropsWithRef<typeof DialogPrimitive.Description>) {
   return (
     <DialogPrimitive.Description
-      ref={ref}
       className={cn("text-text-secondary text-sm", className)}
       {...props}
     />

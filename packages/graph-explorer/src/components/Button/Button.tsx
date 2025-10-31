@@ -88,13 +88,11 @@ function Button({
   asChild = false,
   isDisabled,
   onPress,
-  ref,
   ...props
 }: ButtonProps) {
   const Component = asChild ? (Slot as any) : "button";
   return (
     <Component
-      ref={ref}
       className={cn(buttonStyles({ size, variant, color }), className)}
       disabled={isDisabled}
       onClick={onPress}
