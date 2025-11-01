@@ -1,4 +1,5 @@
 import {
+  Activity,
   type ComponentPropsWithRef,
   type MouseEvent,
   useRef,
@@ -55,7 +56,8 @@ import { useAtomValue } from "jotai";
 import { useDefaultNeighborExpansionLimit } from "@/hooks/useExpandNode";
 import { graphLayoutSelectionAtom, SelectLayout } from "./SelectLayout";
 import { useGraphSelection } from "./useGraphSelection";
-import { cn } from "@/utils";
+import { cn, isVisible } from "@/utils";
+import { GraphViewerEmptyState } from "./GraphViewerEmptyState";
 
 // Prevent open context menu on Windows
 function onContextMenu(e: MouseEvent<HTMLDivElement>) {
@@ -141,12 +143,10 @@ export default function GraphViewer({
   const nodes = useRenderedVertices();
   const edges = useRenderedEdges();
 
+  const isEmpty = !nodes.length && !edges.length;
+
   return (
-    <div
-      className={cn("size-full grow", className)}
-      onContextMenu={onContextMenu}
-      {...props}
-    >
+    <div className={cn("size-full min-h-0 grow", className)} {...props}>
       <Panel>
         <PanelHeader>
           <PanelTitle>Graph View</PanelTitle>
@@ -199,55 +199,67 @@ export default function GraphViewer({
             />
           </PanelHeaderActions>
         </PanelHeader>
-        <PanelContent
-          className="bg-background-secondary flex h-full w-full"
-          ref={parentRef}
-        >
-          <Graph
-            ref={graphRef}
-            nodes={nodes}
-            edges={edges}
-            badgesEnabled={false}
-            getNodeBadges={getNodeBadges(nodesOutRenderedIds)}
-            selectedNodesIds={selectedVertices}
-            selectedEdgesIds={selectedEdges}
-            outOfFocusNodesIds={nodesOutRenderedIds}
-            outOfFocusEdgesIds={edgesOutRenderedIds}
-            onSelectedElementIdsChange={onSelectedElementIdsChange}
-            onNodeDoubleClick={onNodeDoubleClick}
-            onNodeRightClick={onNodeRightClick}
-            onEdgeRightClick={onEdgeRightClick}
-            onGraphRightClick={onGraphRightClick}
-            styles={styles}
-            layout={layout}
-          />
-          {isContextOpen &&
-            renderContextLayer(
-              <div
-                {...contextLayerProps}
-                style={contextLayerProps.style}
-                className="z-menu"
-              >
-                <ContextMenu
-                  graphRef={graphRef}
-                  onClose={clearAllLayers}
-                  affectedNodesIds={contextNodeId ? [contextNodeId] : []}
-                  affectedEdgesIds={contextEdgeId ? [contextEdgeId] : []}
-                />
-              </div>
-            )}
-          {legendOpen && <Legend onClose={() => setLegendOpen(false)} />}
+        <PanelContent className="bg-background-secondary grid" ref={parentRef}>
+          <Activity mode={isVisible(!isEmpty)}>
+            <Graph
+              ref={graphRef}
+              nodes={nodes}
+              edges={edges}
+              badgesEnabled={false}
+              getNodeBadges={getNodeBadges(nodesOutRenderedIds)}
+              selectedNodesIds={selectedVertices}
+              selectedEdgesIds={selectedEdges}
+              outOfFocusNodesIds={nodesOutRenderedIds}
+              outOfFocusEdgesIds={edgesOutRenderedIds}
+              onSelectedElementIdsChange={onSelectedElementIdsChange}
+              onNodeDoubleClick={onNodeDoubleClick}
+              onNodeRightClick={onNodeRightClick}
+              onEdgeRightClick={onEdgeRightClick}
+              onGraphRightClick={onGraphRightClick}
+              styles={styles}
+              layout={layout}
+              className="col-start-1 row-start-1 min-h-0 min-w-0"
+              onContextMenu={onContextMenu}
+            />
+            {isContextOpen &&
+              renderContextLayer(
+                <div
+                  {...contextLayerProps}
+                  style={contextLayerProps.style}
+                  className="z-menu"
+                >
+                  <ContextMenu
+                    graphRef={graphRef}
+                    onClose={clearAllLayers}
+                    affectedNodesIds={contextNodeId ? [contextNodeId] : []}
+                    affectedEdgesIds={contextEdgeId ? [contextEdgeId] : []}
+                  />
+                </div>
+              )}
+          </Activity>
+          <Activity mode={isVisible(isEmpty)}>
+            <GraphViewerEmptyState className="col-start-1 row-start-1" />
+          </Activity>
+          <Activity mode={isVisible(legendOpen)}>
+            <div className="z-20 col-start-1 row-start-1 grid min-h-0 justify-self-end p-3">
+              <Legend onClose={() => setLegendOpen(false)} />
+            </div>
+          </Activity>
         </PanelContent>
       </Panel>
     </div>
   );
 }
 
-function Legend({ onClose }: { onClose: () => void }) {
+function Legend({
+  onClose,
+  className,
+  ...props
+}: { onClose: () => void } & ComponentPropsWithRef<typeof Panel>) {
   const vtConfigs = useDisplayVertexTypeConfigs().values().toArray();
 
   return (
-    <Panel className="z-panes absolute top-2 right-2 bottom-2 h-auto max-w-80 min-w-48 rounded-md">
+    <Panel className={cn("shadow-md", className)} {...props}>
       <PanelHeader className="flex items-center justify-between">
         <PanelTitle className="text-base font-bold">Legend</PanelTitle>
         <PanelHeaderCloseButton onClose={onClose} />
