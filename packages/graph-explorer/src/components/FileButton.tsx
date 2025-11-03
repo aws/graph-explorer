@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Slot } from "@radix-ui/react-slot";
+import { Slot } from "radix-ui";
 import { Button } from "./Button";
 
 type FilesProps =
@@ -76,7 +76,7 @@ export const FileButton = ({
   }));
 
   // Use the child as the component, or fall back to a button
-  const Component = asChild ? (Slot as any) : Button;
+  const Component = asChild ? (Slot.Root as any) : Button;
 
   return (
     <>

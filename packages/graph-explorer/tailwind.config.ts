@@ -1,8 +1,6 @@
 import { type Config } from "tailwindcss";
 import defaultTheme from "tailwindcss/defaultTheme";
 import plugin from "tailwindcss/plugin";
-import tailwindAnimate from "tailwindcss-animate";
-import tailwindContainerQueries from "@tailwindcss/container-queries";
 
 export default {
   theme: {
@@ -45,10 +43,6 @@ export default {
         "logo-gradient":
           "linear-gradient(225deg, #4d72f2 12.15%, #3334b9 87.02%)",
       },
-      borderColor: {
-        DEFAULT: "rgb(var(--color-border) / <alpha-value>)",
-        input: "rgb(var(--color-input-border) / <alpha-value>)",
-      },
       maxWidth: {
         paragraph: "36rem",
       },
@@ -85,8 +79,6 @@ export default {
     },
   },
   plugins: [
-    tailwindAnimate,
-    tailwindContainerQueries,
     plugin(({ addUtilities, matchUtilities, theme }) => {
       addUtilities({
         ".content-auto": {

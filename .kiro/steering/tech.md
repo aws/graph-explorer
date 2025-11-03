@@ -13,7 +13,7 @@
 - **Build Tool**: Vite 6.3.5 with React plugin
 - **Styling**: TailwindCSS (preferred) - Emotion is being phased out
 - **UI Components**:
-  - Radix UI primitives (@radix-ui/react-\*) (preferred)
+  - Radix UI primitives (radix-ui package) (preferred)
   - Custom component library
   - Mantine core components (being phased out, avoid using in new code)
 - **State Management**: Jotai for atomic state

@@ -1,7 +1,7 @@
 import { cn } from "@/utils";
 import type { ReactNode } from "react";
 import { cva, type VariantProps } from "cva";
-import { Slot } from "@radix-ui/react-slot";
+import { Slot } from "radix-ui";
 
 export const buttonStyles = cva({
   base: "inline-flex items-center justify-center gap-2 font-medium focus-visible:ring-1 focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50 disabled:saturate-0 aria-disabled:pointer-events-none aria-disabled:opacity-50 aria-disabled:saturate-0 [&_svg]:pointer-events-none [&_svg]:shrink-0",
@@ -90,7 +90,7 @@ function Button({
   onPress,
   ...props
 }: ButtonProps) {
-  const Component = asChild ? (Slot as any) : "button";
+  const Component = asChild ? (Slot.Root as any) : "button";
   return (
     <Component
       className={cn(buttonStyles({ size, variant, color }), className)}

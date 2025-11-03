@@ -5,6 +5,7 @@ import {
   DialogTitle,
   DialogBody,
   DialogFooter,
+  DialogDescription,
 } from "@/components/Dialog";
 import { useCallback, useState } from "react";
 import {
@@ -32,7 +33,6 @@ import {
 import { schemaAtom } from "@/core/StateProvider/schema";
 import { Virtuoso } from "react-virtuoso";
 import { useAtomCallback } from "jotai/utils";
-import { DialogDescription } from "@radix-ui/react-dialog";
 
 type PrefixForm = {
   prefix: string;
