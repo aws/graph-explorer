@@ -90,7 +90,7 @@ function Button({
   onPress,
   ...props
 }: ButtonProps) {
-  const Component = asChild ? (Slot as any) : "button";
+  const Component = asChild ? (Slot.Root as any) : "button";
   return (
     <Component
       className={cn(buttonStyles({ size, variant, color }), className)}

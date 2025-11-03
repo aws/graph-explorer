@@ -96,12 +96,12 @@ function FormLabel({
 }
 FormLabel.displayName = "FormLabel";
 
-function FormControl({ ...props }: React.ComponentPropsWithRef<typeof Slot>) {
+function FormControl({ ...props }: Slot.SlotProps) {
   const { error, formItemId, formDescriptionId, formMessageId } =
     useFormField();
 
   return (
-    <Slot
+    <Slot.Root
       id={formItemId}
       aria-describedby={
         !error
