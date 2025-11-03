@@ -43,10 +43,6 @@ export default {
         "logo-gradient":
           "linear-gradient(225deg, #4d72f2 12.15%, #3334b9 87.02%)",
       },
-      borderColor: {
-        DEFAULT: "rgb(var(--color-border) / <alpha-value>)",
-        input: "rgb(var(--color-input-border) / <alpha-value>)",
-      },
       maxWidth: {
         paragraph: "36rem",
       },
