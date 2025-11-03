@@ -1,7 +1,6 @@
 import { type Config } from "tailwindcss";
 import defaultTheme from "tailwindcss/defaultTheme";
 import plugin from "tailwindcss/plugin";
-import tailwindAnimate from "tailwindcss-animate";
 
 export default {
   theme: {
@@ -84,7 +83,6 @@ export default {
     },
   },
   plugins: [
-    tailwindAnimate,
     plugin(({ addUtilities, matchUtilities, theme }) => {
       addUtilities({
         ".content-auto": {
