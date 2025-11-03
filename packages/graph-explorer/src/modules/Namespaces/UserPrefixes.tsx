@@ -32,7 +32,9 @@ import {
 import { schemaAtom } from "@/core/StateProvider/schema";
 import { Virtuoso } from "react-virtuoso";
 import { useAtomCallback } from "jotai/utils";
-import { DialogDescription } from "@radix-ui/react-dialog";
+import { Dialog as RadixDialog } from "radix-ui";
+
+const DialogDescription = RadixDialog.Description;
 
 type PrefixForm = {
   prefix: string;
