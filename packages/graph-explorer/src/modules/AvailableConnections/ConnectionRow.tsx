@@ -37,7 +37,7 @@ function ConnectionRow({
   return (
     <div
       onClick={setActiveConfig}
-      className="flex flex-row items-center gap-4 px-6 py-4 hover:cursor-pointer"
+      className="@container flex flex-row items-center gap-4 px-6 py-4 hover:cursor-pointer"
     >
       <DatabaseIcon className="text-primary-main hidden size-8 shrink-0 @md:block" />
       <ListRowContent>

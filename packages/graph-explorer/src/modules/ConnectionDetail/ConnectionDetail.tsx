@@ -123,7 +123,7 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
           />
         </PanelHeaderActions>
       </PanelHeader>
-      <PanelContent>
+      <PanelContent className="@container">
         <InfoBar className="hidden @sm:flex">
           <InfoItem className="shrink-0">
             <InfoItemIcon>
