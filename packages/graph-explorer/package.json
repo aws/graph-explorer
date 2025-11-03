@@ -85,7 +85,6 @@
     "@react-types/radio": "^3.9.2",
     "@react-types/shared": "^3.32.1",
     "@react-types/switch": "^3.5.15",
-    "@tailwindcss/container-queries": "^0.1.1",
     "@tailwindcss/vite": "^4.1.16",
     "@tanstack/react-query-devtools": "^5.90.2",
     "@testing-library/dom": "^10.4.1",
