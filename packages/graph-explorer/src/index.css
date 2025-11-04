@@ -81,6 +81,16 @@
   --color-divider: var(--color-gray-200);
   --color-border: var(--color-gray-200);
 
+  /* Semantic colors for shadcn/ui components */
+
+  --color-background: var(--color-background-default);
+  --color-foreground: var(--color-text-primary);
+  --color-muted-foreground: var(--color-text-secondary);
+  --color-muted: var(--color-background-contrast);
+  --color-primary: var(--color-primary-main);
+  --color-primary-foreground: var(--color-white);
+  --color-destructive: var(--color-error-main);
+
   /* Colors from tailwind config */
   --background-color-default: var(--color-background-default);
   --background-color-secondary: var(--color-background-secondary);
