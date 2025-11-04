@@ -50,17 +50,18 @@ export default function CheckboxList({
   const totalCheckboxes = checkboxes.length;
 
   return (
-    <div className={cn("flex h-full grow flex-col space-y-2", className)}>
-      <div className="flex h-full grow flex-col gap-3">
-        <Virtuoso
-          className="h-full grow"
-          data={checkboxes}
-          components={{
-            Header: () => (
-              <CheckboxRow
-                isTop={true}
-                isBottom={false}
-                aria-label="checkbox for all"
+    <Virtuoso
+      className={cn("size-full", className)}
+      data={checkboxes}
+      components={{
+        Header: () => (
+          <CheckboxRow
+            isTop={true}
+            isBottom={false}
+            aria-label="checkbox for all"
+          >
+            <Label className="font-bold">
+              <Checkbox
                 checked={
                   numOfSelections > 0 && numOfSelections !== totalCheckboxes
                     ? "indeterminate"
@@ -69,29 +70,33 @@ export default function CheckboxList({
                 onCheckedChange={isSelected => {
                   onChangeAll(Boolean(isSelected));
                 }}
-                className="font-bold"
-              >
-                {numOfSelections} selected of {totalCheckboxes}
-              </CheckboxRow>
-            ),
-          }}
-          itemContent={(index, checkbox) => (
-            <CheckboxRow
-              isBottom={index === checkboxes.length - 1}
-              isTop={false}
-              aria-label={`checkbox for ${checkbox.id}`}
+              />
+              {numOfSelections} selected of {totalCheckboxes}
+            </Label>
+          </CheckboxRow>
+        ),
+      }}
+      itemContent={(index, checkbox) => (
+        <CheckboxRow
+          isBottom={index === checkboxes.length - 1}
+          isTop={false}
+          aria-label={`checkbox for ${checkbox.id}`}
+        >
+          <Label className="text-foreground grid min-w-0 grid-cols-[auto_1fr_auto]">
+            <Checkbox
               checked={selectedIds.has(checkbox.id)}
               onCheckedChange={isSelected =>
                 onChange(checkbox.id, Boolean(isSelected))
               }
-            >
-              <div className="grow">{checkbox.text}</div>
-              <div className="[&_svg]:size-5">{checkbox.endAdornment}</div>
-            </CheckboxRow>
-          )}
-        />
-      </div>
-    </div>
+            />
+            {checkbox.text}
+            <div className="shrink-0 [&_svg]:size-5">
+              {checkbox.endAdornment}
+            </div>
+          </Label>
+        </CheckboxRow>
+      )}
+    />
   );
 }
 
@@ -100,7 +105,6 @@ function CheckboxRow({
   isTop,
   className,
   children,
-  ...checkboxProps
 }: PropsWithChildren<
   { isTop: boolean; isBottom: boolean } & ComponentPropsWithoutRef<
     typeof Checkbox
@@ -108,17 +112,16 @@ function CheckboxRow({
 >) {
   return (
     <div className={cn("px-3", isTop && "pt-3", isBottom && "pb-3")}>
-      <Label
+      <div
         className={cn(
-          "text-text-primary w-full border-x border-b px-3 py-3 hover:cursor-pointer",
+          "border-x border-b px-3 py-3 hover:cursor-pointer",
           isTop && "bg-background-contrast/50 rounded-t-lg border-t",
           isBottom && "rounded-b-lg",
           className
         )}
       >
-        <Checkbox {...checkboxProps} />
         {children}
-      </Label>
+      </div>
     </div>
   );
 }

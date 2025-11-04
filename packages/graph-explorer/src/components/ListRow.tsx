@@ -12,7 +12,7 @@ export function ListRow({
     <div
       className={cn(
         "bg-secondary-subtle text-primary-dark ring-primary-main flex items-center gap-4 overflow-hidden rounded-lg px-4 py-2 hover:ring-1",
-        "has-[:checked]:bg-secondary-subtle has-[:checked]:border-primary-main has-[:checked]:ring-primary-main has-[:checked]:ring-[1.5px]",
+        "has-checked:bg-secondary-subtle has-checked:border-primary-main has-checked:ring-primary-main has-checked:ring-[1.5px]",
         isDisabled && "pointer-events-none",
         className
       )}
@@ -29,7 +29,7 @@ export function ListRowTitle({
   return (
     <div
       className={cn(
-        "line-clamp-1 text-base leading-6 font-bold text-current",
+        "line-clamp-1 text-base leading-6 font-bold text-pretty wrap-break-word [word-break:break-word] text-current",
         className
       )}
       {...props}
@@ -44,7 +44,7 @@ export function ListRowSubtitle({
   return (
     <div
       className={cn(
-        "line-clamp-2 text-base leading-6 text-current opacity-75",
+        "line-clamp-2 text-base leading-6 text-pretty wrap-break-word [word-break:break-word] text-current opacity-75",
         className
       )}
       {...props}
