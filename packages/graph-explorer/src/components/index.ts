@@ -25,6 +25,7 @@ export * from "./EdgeRow";
 export * from "./EdgeSymbol";
 export * from "./EmptyState";
 
+export * from "./Field";
 export * from "./FileButton";
 export * from "./Form";
 
@@ -65,6 +66,7 @@ export * from "./SearchResult";
 export * from "./Select";
 export { default as SelectField } from "./SelectField";
 export * from "./SelectField";
+export * from "./Separator";
 
 export * from "./SettingsSection";
 
