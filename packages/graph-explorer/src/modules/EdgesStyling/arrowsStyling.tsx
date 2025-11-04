@@ -1,4 +1,3 @@
-import type { PropsWithChildren } from "react";
 import {
   ArrowCircle,
   ArrowDiamond,
@@ -11,246 +10,120 @@ import {
   ArrowTriangleCross,
   ArrowTriangleTee,
   ArrowVee,
-  type SelectOption,
 } from "@/components";
 
-const Wrapper = ({ children }: PropsWithChildren<any>) => (
-  <div
-    style={{
-      display: "flex",
-      alignItems: "center",
-      gap: 4,
-      justifyContent: "space-between",
-      width: "100%",
-      minWidth: "100%",
-    }}
-  >
-    {children}
-  </div>
-);
-
-export const SOURCE_ARROW_STYLE_OPTIONS: SelectOption[] = [
+export const SOURCE_ARROW_STYLE_OPTIONS = [
   {
     label: "Triangle",
     value: "triangle",
-    render: ({ label }) => (
-      <Wrapper>
-        {label}
-        <ArrowTriangle style={{ transform: "rotate(180deg)" }} />
-      </Wrapper>
-    ),
+    icon: <ArrowTriangle style={{ transform: "rotate(180deg)" }} />,
   },
   {
     label: "Triangle Tee",
     value: "triangle-tee",
-    render: ({ label }) => (
-      <Wrapper>
-        {label}
-        <ArrowTriangleTee style={{ transform: "rotate(180deg)" }} />
-      </Wrapper>
-    ),
+    icon: <ArrowTriangleTee style={{ transform: "rotate(180deg)" }} />,
   },
   {
     label: "Triangle Circle",
     value: "circle-triangle",
-    render: ({ label }) => (
-      <Wrapper>
-        {label}
-        <ArrowTriangleCircle style={{ transform: "rotate(180deg)" }} />
-      </Wrapper>
-    ),
+    icon: <ArrowTriangleCircle style={{ transform: "rotate(180deg)" }} />,
   },
   {
     label: "Triangle Cross",
     value: "triangle-cross",
-    render: ({ label }) => (
-      <Wrapper>
-        {label}
-        <ArrowTriangleCross style={{ transform: "rotate(180deg)" }} />
-      </Wrapper>
-    ),
+    icon: <ArrowTriangleCross style={{ transform: "rotate(180deg)" }} />,
   },
   {
     label: "Triangle Backcurve",
     value: "triangle-backcurve",
-    render: ({ label }) => (
-      <Wrapper>
-        {label}
-        <ArrowTriangleBackCurve style={{ transform: "rotate(180deg)" }} />
-      </Wrapper>
-    ),
+    icon: <ArrowTriangleBackCurve style={{ transform: "rotate(180deg)" }} />,
   },
   {
     label: "Tee",
     value: "tee",
-    render: ({ label }) => (
-      <Wrapper>
-        {label}
-        <ArrowTee style={{ transform: "rotate(180deg)" }} />
-      </Wrapper>
-    ),
+    icon: <ArrowTee style={{ transform: "rotate(180deg)" }} />,
   },
   {
     label: "Vee",
     value: "vee",
-    render: ({ label }) => (
-      <Wrapper>
-        {label}
-        <ArrowVee style={{ transform: "rotate(180deg)" }} />
-      </Wrapper>
-    ),
+    icon: <ArrowVee style={{ transform: "rotate(180deg)" }} />,
   },
   {
     label: "Square",
     value: "square",
-    render: ({ label }) => (
-      <Wrapper>
-        {label}
-        <ArrowSquare style={{ transform: "rotate(180deg)" }} />
-      </Wrapper>
-    ),
+    icon: <ArrowSquare style={{ transform: "rotate(180deg)" }} />,
   },
   {
     label: "Circle",
     value: "circle",
-    render: ({ label }) => (
-      <Wrapper>
-        {label}
-        <ArrowCircle style={{ transform: "rotate(180deg)" }} />
-      </Wrapper>
-    ),
+    icon: <ArrowCircle style={{ transform: "rotate(180deg)" }} />,
   },
   {
     label: "Diamond",
     value: "diamond",
-    render: ({ label }) => (
-      <Wrapper>
-        {label}
-        <ArrowDiamond style={{ transform: "rotate(180deg)" }} />
-      </Wrapper>
-    ),
+    icon: <ArrowDiamond style={{ transform: "rotate(180deg)" }} />,
   },
   {
     label: "None",
     value: "none",
-    render: ({ label }) => (
-      <Wrapper>
-        {label}
-        <ArrowNone style={{ transform: "rotate(180deg)" }} />
-      </Wrapper>
-    ),
+    icon: <ArrowNone style={{ transform: "rotate(180deg)" }} />,
   },
 ];
 
-export const TARGET_ARROW_STYLE_OPTIONS: SelectOption[] = [
+export const TARGET_ARROW_STYLE_OPTIONS = [
   {
     label: "Triangle",
     value: "triangle",
-    render: ({ label }) => (
-      <Wrapper>
-        {label}
-        <ArrowTriangle />
-      </Wrapper>
-    ),
+    icon: <ArrowTriangle />,
   },
   {
     label: "Triangle Tee",
     value: "triangle-tee",
-    render: ({ label }) => (
-      <Wrapper>
-        {label}
-        <ArrowTriangleTee />
-      </Wrapper>
-    ),
+    icon: <ArrowTriangleTee />,
   },
   {
     label: "Triangle Circle",
     value: "circle-triangle",
-    render: ({ label }) => (
-      <Wrapper>
-        {label}
-        <ArrowTriangleCircle />
-      </Wrapper>
-    ),
+    icon: <ArrowTriangleCircle />,
   },
   {
     label: "Triangle Cross",
     value: "triangle-cross",
-    render: ({ label }) => (
-      <Wrapper>
-        {label}
-        <ArrowTriangleCross />
-      </Wrapper>
-    ),
+    icon: <ArrowTriangleCross />,
   },
   {
     label: "Triangle Backcurve",
     value: "triangle-backcurve",
-    render: ({ label }) => (
-      <Wrapper>
-        {label}
-        <ArrowTriangleBackCurve />
-      </Wrapper>
-    ),
+    icon: <ArrowTriangleBackCurve />,
   },
   {
     label: "Tee",
     value: "tee",
-    render: ({ label }) => (
-      <Wrapper>
-        {label}
-        <ArrowTee />
-      </Wrapper>
-    ),
+    icon: <ArrowTee />,
   },
   {
     label: "Vee",
     value: "vee",
-    render: ({ label }) => (
-      <Wrapper>
-        {label}
-        <ArrowVee />
-      </Wrapper>
-    ),
+    icon: <ArrowVee />,
   },
   {
     label: "Square",
     value: "square",
-    render: ({ label }) => (
-      <Wrapper>
-        {label}
-        <ArrowSquare />
-      </Wrapper>
-    ),
+    icon: <ArrowSquare />,
   },
   {
     label: "Circle",
     value: "circle",
-    render: ({ label }) => (
-      <Wrapper>
-        {label}
-        <ArrowCircle />
-      </Wrapper>
-    ),
+    icon: <ArrowCircle />,
   },
   {
     label: "Diamond",
     value: "diamond",
-    render: ({ label }) => (
-      <Wrapper>
-        {label}
-        <ArrowDiamond />
-      </Wrapper>
-    ),
+    icon: <ArrowDiamond />,
   },
   {
     label: "None",
     value: "none",
-    render: ({ label }) => (
-      <Wrapper>
-        {label}
-        <ArrowNone />
-      </Wrapper>
-    ),
+    icon: <ArrowNone />,
   },
 ];
