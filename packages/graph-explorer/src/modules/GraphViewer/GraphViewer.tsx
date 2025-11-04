@@ -259,17 +259,19 @@ function Legend({
   const vtConfigs = useDisplayVertexTypeConfigs().values().toArray();
 
   return (
-    <Panel className={cn("shadow-md", className)} {...props}>
-      <PanelHeader className="flex items-center justify-between">
-        <PanelTitle className="text-base font-bold">Legend</PanelTitle>
-        <PanelHeaderCloseButton onClose={onClose} />
+    <Panel className={cn("max-w-md shadow-md", className)} {...props}>
+      <PanelHeader>
+        <PanelTitle>Legend</PanelTitle>
+        <PanelHeaderActions>
+          <PanelHeaderCloseButton onClose={onClose} />
+        </PanelHeaderActions>
       </PanelHeader>
       <PanelContent className="p-3">
         <ul className="space-y-3">
           {vtConfigs.map(vtConfig => (
             <li
               key={vtConfig.type}
-              className="flex items-center gap-3 text-base font-medium text-balance"
+              className="flex items-center gap-3 text-base font-medium text-pretty wrap-break-word [word-break:break-word]"
             >
               <VertexSymbol vertexStyle={vtConfig.style} className="size-9" />
               {vtConfig.displayLabel}
