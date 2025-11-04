@@ -69,7 +69,7 @@ function EmptyStateTitle({
   return (
     <h1
       className={cn(
-        "text-text-primary min-w-0 text-lg font-bold text-balance break-words",
+        "text-text-primary gx-wrap-break-word text-lg font-bold text-balance",
         className
       )}
       {...props}
@@ -85,7 +85,7 @@ function EmptyStateDescription({
   return (
     <div
       className={cn(
-        "font-base text-text-primary/75 min-w-0 text-base text-pretty break-words",
+        "font-base text-text-primary/75 gx-wrap-break-word text-base",
         className
       )}
       {...props}

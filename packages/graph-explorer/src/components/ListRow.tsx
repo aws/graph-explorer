@@ -29,7 +29,7 @@ export function ListRowTitle({
   return (
     <div
       className={cn(
-        "line-clamp-1 text-base leading-6 font-bold text-pretty wrap-break-word [word-break:break-word] text-current",
+        "gx-wrap-break-word line-clamp-1 text-base leading-6 font-bold text-current",
         className
       )}
       {...props}
@@ -44,7 +44,7 @@ export function ListRowSubtitle({
   return (
     <div
       className={cn(
-        "line-clamp-2 text-base leading-6 text-pretty wrap-break-word [word-break:break-word] text-current opacity-75",
+        "gx-wrap-break-word line-clamp-2 text-base leading-6 text-current opacity-75",
         className
       )}
       {...props}

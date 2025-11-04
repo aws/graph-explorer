@@ -271,7 +271,7 @@ function Legend({
           {vtConfigs.map(vtConfig => (
             <li
               key={vtConfig.type}
-              className="flex items-center gap-3 text-base font-medium text-pretty wrap-break-word [word-break:break-word]"
+              className="gx-wrap-break-word flex items-center gap-3 text-base font-medium"
             >
               <VertexSymbol vertexStyle={vtConfig.style} className="size-9" />
               {vtConfig.displayLabel}
