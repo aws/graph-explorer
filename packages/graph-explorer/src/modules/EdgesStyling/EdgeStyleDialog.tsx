@@ -30,10 +30,7 @@ import {
   useEdgeStyling,
 } from "@/core/StateProvider/userPreferences";
 import useTranslations from "@/hooks/useTranslations";
-import {
-  SOURCE_ARROW_STYLE_OPTIONS,
-  TARGET_ARROW_STYLE_OPTIONS,
-} from "./arrowsStyling";
+import { ARROW_STYLE_OPTIONS } from "./arrowsStyling";
 import { parseNumberSafely, RESERVED_TYPES_PROPERTY } from "@/utils";
 import { atom, useAtom, useSetAtom } from "jotai";
 import { LINE_STYLE_OPTIONS } from "./lineStyling";
@@ -257,11 +254,11 @@ function Content({ edgeType }: { edgeType: string }) {
                       <SelectValue placeholder="Select a source arrow style" />
                     </SelectTrigger>
                     <SelectContent>
-                      {SOURCE_ARROW_STYLE_OPTIONS.map(option => (
+                      {ARROW_STYLE_OPTIONS.map(option => (
                         <SelectItem key={option.value} value={option.value}>
                           <div className="flex flex-row items-center gap-3">
                             {option.label}
-                            {option.icon}
+                            <option.Icon className="rotate-180" />
                           </div>
                         </SelectItem>
                       ))}
@@ -280,11 +277,11 @@ function Content({ edgeType }: { edgeType: string }) {
                       <SelectValue placeholder="Select a target arrow style" />
                     </SelectTrigger>
                     <SelectContent>
-                      {TARGET_ARROW_STYLE_OPTIONS.map(option => (
+                      {ARROW_STYLE_OPTIONS.map(option => (
                         <SelectItem key={option.value} value={option.value}>
                           <div className="flex flex-row items-center gap-3">
                             {option.label}
-                            {option.icon}
+                            <option.Icon />
                           </div>
                         </SelectItem>
                       ))}
