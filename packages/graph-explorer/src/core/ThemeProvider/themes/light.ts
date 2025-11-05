@@ -18,9 +18,9 @@ const palette = {
     black: "var(--color-black)",
   },
   primary: {
-    light: "hsl(var(--color-primary-light))",
-    main: "hsl(var(--color-primary-main))",
-    dark: "hsl(var(--color-primary-dark))",
+    light: "var(--color-primary-light)",
+    main: "var(--color-primary-main)",
+    dark: "var(--color-primary-dark)",
   },
   text: {
     primary: "var(--color-text-primary)",
