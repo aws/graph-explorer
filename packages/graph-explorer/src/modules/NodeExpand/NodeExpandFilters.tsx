@@ -111,14 +111,14 @@ const NodeExpandFilters = ({
                   <SearchResult className="grid">
                     <FieldGroup className="col-start-1 row-start-1 p-3">
                       <Field>
-                        <FieldLabel>Attribute</FieldLabel>
+                        <FieldLabel htmlFor="attribute">Attribute</FieldLabel>
                         <Select
                           value={filter.name}
                           onValueChange={value => {
                             onFilterChange(filter.id, value, filter.value);
                           }}
                         >
-                          <SelectTrigger>
+                          <SelectTrigger id="attribute">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -134,11 +134,9 @@ const NodeExpandFilters = ({
                         </Select>
                       </Field>
                       <Field>
-                        <FieldLabel>Value</FieldLabel>
-
+                        <FieldLabel htmlFor="value">Value</FieldLabel>
                         <Input
-                          aria-label="Filter"
-                          className="grow"
+                          id="value"
                           value={filter.value}
                           onChange={e => {
                             onFilterChange(
