@@ -99,7 +99,10 @@ function DialogTitle({
 }: React.ComponentPropsWithRef<typeof DialogPrimitive.Title>) {
   return (
     <DialogPrimitive.Title
-      className={cn("text-lg leading-none font-bold tracking-tight", className)}
+      className={cn(
+        "gx-wrap-break-word text-lg leading-none font-bold tracking-tight",
+        className
+      )}
       {...props}
     />
   );
@@ -112,7 +115,10 @@ function DialogDescription({
 }: React.ComponentPropsWithRef<typeof DialogPrimitive.Description>) {
   return (
     <DialogPrimitive.Description
-      className={cn("text-text-secondary text-sm", className)}
+      className={cn(
+        "text-text-secondary gx-wrap-break-word text-sm",
+        className
+      )}
       {...props}
     />
   );

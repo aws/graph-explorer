@@ -10,6 +10,7 @@ export const buttonStyles = cva({
       filled: "",
       default: "",
       text: "",
+      outline: "",
     },
     color: {
       primary: "",
@@ -17,7 +18,7 @@ export const buttonStyles = cva({
     },
     size: {
       small: "h-8 rounded-sm px-1 text-base [&_svg]:size-5",
-      base: "h-10 rounded-md px-4 text-base [&_svg]:size-5",
+      base: "h-10 rounded-md px-3 text-base [&_svg]:size-5",
       large: "h-12 rounded-md px-5 text-lg [&_svg]:size-6",
     },
   },
@@ -56,6 +57,18 @@ export const buttonStyles = cva({
       color: "danger",
       className:
         "text-danger hover:bg-danger-subtle data-open:bg-danger-subtle",
+    },
+    {
+      variant: "outline",
+      color: "primary",
+      className:
+        "text-text-primary border-input hover:bg-muted data-open:border-primary-main border bg-transparent shadow-xs",
+    },
+    {
+      variant: "outline",
+      color: "danger",
+      className:
+        "border-error-light text-danger hover:bg-danger-subtle data-open:border-error-main border shadow-xs",
     },
   ],
   defaultVariants: {

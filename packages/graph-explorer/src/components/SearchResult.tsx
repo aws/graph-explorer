@@ -50,7 +50,7 @@ export function SearchResultTitle({
     <div
       {...props}
       className={cn(
-        "text-text-primary line-clamp-2 min-w-0 text-base leading-snug font-bold text-pretty break-words [word-break:break-word]",
+        "text-text-primary gx-wrap-break-word line-clamp-2 text-base leading-snug font-bold",
         className
       )}
     />
@@ -65,7 +65,7 @@ export function SearchResultSubtitle({
     <div
       {...props}
       className={cn(
-        "text-text-secondary line-clamp-2 min-w-0 text-base leading-snug text-pretty break-words [word-break:break-word]",
+        "text-text-secondary gx-wrap-break-word line-clamp-2 text-base leading-snug",
         className
       )}
     />
@@ -127,7 +127,7 @@ export function SearchResultAttributeName({
     <div
       {...props}
       className={cn(
-        "flex-[1 1 150px] text-secondary min-w-0 text-base leading-snug text-pretty break-words [word-break:break-word]",
+        "flex-[1 1 150px] text-secondary gx-wrap-break-word text-base leading-snug",
         className
       )}
     />
@@ -142,7 +142,7 @@ export function SearchResultAttributeValue({
     <div
       {...props}
       className={cn(
-        "flex-[2 1 150px] text-text-primary min-w-0 text-base leading-snug text-pretty break-words [word-break:break-word]",
+        "flex-[2 1 150px] text-text-primary gx-wrap-break-word text-base leading-snug",
         className
       )}
     />

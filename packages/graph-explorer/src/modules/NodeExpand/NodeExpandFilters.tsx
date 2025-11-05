@@ -1,18 +1,26 @@
 import {
   addRemoveAnimationProps,
   Button,
-  DeleteIcon,
+  Field,
+  FieldGroup,
+  FieldLabel,
   IconButton,
   Input,
   Label,
+  SearchResult,
+  Select,
+  SelectContent,
   SelectField,
+  SelectItem,
   type SelectOption,
+  SelectTrigger,
+  SelectValue,
   Switch,
 } from "@/components";
 import { useDisplayVertexTypeConfig } from "@/core";
 import useTranslations from "@/hooks/useTranslations";
 import type { PropsWithChildren } from "react";
-import { PlusCircleIcon } from "lucide-react";
+import { ListFilterPlusIcon, Trash2Icon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 
 let nextFilterId = 1;
@@ -96,42 +104,66 @@ const NodeExpandFilters = ({
       {hasSearchableAttributes ? (
         <Section>
           <SectionTitle>Filter to narrow results</SectionTitle>
-          <div className="space-y-3">
+          <div className="space-y-4">
             <AnimatePresence initial={false}>
               {filters.map(filter => (
-                <motion.div
-                  key={filter.id}
-                  {...addRemoveAnimationProps}
-                  className="flex w-full items-center gap-2"
-                >
-                  <SelectField
-                    aria-label="Attribute"
-                    value={filter.name}
-                    onValueChange={value => {
-                      onFilterChange(filter.id, value, filter.value);
-                    }}
-                    options={attributeSelectOptions}
-                  />
-                  <Input
-                    aria-label="Filter"
-                    className="grow"
-                    value={filter.value}
-                    onChange={e => {
-                      onFilterChange(filter.id, filter.name, e.target.value);
-                    }}
-                  />
-                  <IconButton
-                    icon={<DeleteIcon />}
-                    variant="text"
-                    color="danger"
-                    tooltipText="Remove Filter"
-                    onClick={() => onFilterDelete(filter.id)}
-                  />
+                <motion.div key={filter.id} {...addRemoveAnimationProps}>
+                  <SearchResult className="grid">
+                    <FieldGroup className="col-start-1 row-start-1 p-3">
+                      <Field>
+                        <FieldLabel htmlFor="attribute">Attribute</FieldLabel>
+                        <Select
+                          value={filter.name}
+                          onValueChange={value => {
+                            onFilterChange(filter.id, value, filter.value);
+                          }}
+                        >
+                          <SelectTrigger id="attribute">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {attributeSelectOptions.map(option => (
+                              <SelectItem
+                                key={option.value}
+                                value={option.value}
+                              >
+                                {option.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </Field>
+                      <Field>
+                        <FieldLabel htmlFor="value">Value</FieldLabel>
+                        <Input
+                          id="value"
+                          value={filter.value}
+                          onChange={e => {
+                            onFilterChange(
+                              filter.id,
+                              filter.name,
+                              e.target.value
+                            );
+                          }}
+                        />
+                      </Field>
+                    </FieldGroup>
+                    <IconButton
+                      variant="text"
+                      color="danger"
+                      size="small"
+                      onClick={() => onFilterDelete(filter.id)}
+                      className="col-start-1 row-start-1 m-1 justify-self-end"
+                      tooltipText="Remove Filter"
+                    >
+                      <Trash2Icon />
+                    </IconButton>
+                  </SearchResult>
                 </motion.div>
               ))}
             </AnimatePresence>
-            <Button className="w-full" onClick={onFilterAdd}>
-              <PlusCircleIcon />
+            <Button className="w-full" variant="outline" onClick={onFilterAdd}>
+              <ListFilterPlusIcon />
               Add Filter
             </Button>
           </div>
