@@ -9,6 +9,7 @@ export { default as Chip } from "./Chip";
 export * from "./Chip";
 
 export * from "./Collapsible";
+export * from "./ColorPopover";
 
 export * from "./CommonAnimationProps";
 
