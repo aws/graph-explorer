@@ -30,7 +30,7 @@ const TabularHeader = <T extends object>({
             key={key}
             style={style}
             className={cn("header", {
-              ["header-resizing"]:
+              ["border-r-primary-main!"]:
                 column.isResizing ||
                 state.columnResizing?.isResizingColumn === column.id,
             })}

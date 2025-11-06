@@ -63,7 +63,7 @@ const TabularRow = <T extends object>({
             key={key}
             {...cellProps}
             className={cn("cell", `cell-align-${cell.column.align || "left"}`, {
-              ["cell-resizing"]:
+              ["border-r-primary-main!"]:
                 cell.column.isResizing ||
                 state.columnResizing?.isResizingColumn === cell.column.id,
             })}

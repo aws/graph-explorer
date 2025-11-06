@@ -118,12 +118,6 @@ const defaultStyles = (): ThemeStyleFn => theme => {
       padding: ${baseTheme.header.filter.padding};
     }
 
-    .header-resizing {
-      background: ${palette.background.contrastSecondary};
-      color: ${baseTheme.header.resizing.color};
-      border-right: 1px dashed ${palette.border};
-    }
-
     .header-label-sorter {
       display: flex;
       justify-content: center;
@@ -162,12 +156,6 @@ const defaultStyles = (): ThemeStyleFn => theme => {
     .cell-one-line {
       word-break: keep-all;
       white-space: nowrap;
-    }
-
-    .cell-resizing {
-      background: ${palette.background.contrastSecondary};
-      color: ${baseTheme.row.resizing.color};
-      border-right: 1px dashed ${palette.border};
     }
 
     .header-label-align-left,
