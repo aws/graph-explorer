@@ -44,9 +44,9 @@ const TabularRow = <T extends object>({
   return (
     <div
       {...rowProps}
-      className={cn("row", {
-        ["row-selectable"]: rowSelectionMode === "row",
-        ["row-selected"]: row.isSelected,
+      className={cn("grow-0! border-b", {
+        ["hover:bg-muted hover:cursor-pointer"]: rowSelectionMode === "row",
+        ["hover:bg-brand-100! bg-brand-50"]: row.isSelected,
       })}
       onClick={() =>
         rowSelectionMode === "row" && selectable && row.toggleRowSelected()
@@ -69,7 +69,7 @@ const TabularRow = <T extends object>({
             })}
           >
             <div
-              className={cn("cell-content", {
+              className={cn("cell-content py-1", {
                 ["cell-overflow-ellipsis"]: cell.column.overflow === "ellipsis",
                 ["cell-overflow-truncate"]: cell.column.overflow === "truncate",
                 ["cell-one-line"]: cell.column.oneLine,

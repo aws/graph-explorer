@@ -1,6 +1,6 @@
 import { css } from "@emotion/css";
 
-import { fade, type ThemeStyleFn } from "@/core";
+import type { ThemeStyleFn } from "@/core";
 import baseTheme from "./baseTheme";
 
 const defaultStyles = (): ThemeStyleFn => theme => {
@@ -33,52 +33,12 @@ const defaultStyles = (): ThemeStyleFn => theme => {
       color: ${palette.text.secondary};
       border: solid 1px ${palette.border};
       min-height: ${baseTheme.header.minHeight};
-
-      .row:last-child {
-        border-bottom: none;
-      }
     }
 
     .headers-sticky {
       position: sticky;
       top: 0;
       z-index: 1;
-    }
-
-    .row {
-      box-sizing: border-box;
-      min-height: ${baseTheme.row.minHeight};
-      border-bottom: solid 1px ${palette.border};
-      flex-grow: 0 !important;
-      transition: background-color 250ms ease;
-
-      :first-child {
-        border-top: solid 1px ${palette.border};
-      }
-
-      :hover {
-        background: ${palette.background.contrast};
-        color: ${palette.text.primary};
-      }
-
-      :first-child {
-        border-top: none;
-      }
-    }
-
-    .row-selectable {
-      background: ${baseTheme.row.selectable.background};
-      color: ${baseTheme.row.selectable.color};
-      :hover {
-        background: ${baseTheme.row.selectable.hover.background};
-        color: ${palette.primary.dark};
-        cursor: pointer;
-      }
-    }
-
-    .row-selected {
-      background: ${fade(palette.primary.main, 0.25)};
-      color: ${baseTheme.row.selected.color};
     }
 
     .header {
