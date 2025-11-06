@@ -9,7 +9,8 @@ import {
   edgesFilteredIdsAtom,
   edgesTypesFilteredAtom,
   explorerForTestingAtom,
-  extractConfigFromEntity,
+  mapVertexToTypeConfigs,
+  mapEdgeToTypeConfig,
   nodesAtom,
   nodesFilteredIdsAtom,
   nodesTypesFilteredAtom,
@@ -70,7 +71,7 @@ export class DbState {
   /** Adds the vertex to the graph and updates the schema to include the type config. */
   addVertexToGraph(vertex: Vertex) {
     this.vertices.push(vertex);
-    this.activeSchema.vertices.push(extractConfigFromEntity(vertex));
+    this.activeSchema.vertices.push(...mapVertexToTypeConfigs(vertex));
   }
 
   /** Creates a new randome vertex and adds it to the graph. */
@@ -88,17 +89,19 @@ export class DbState {
 
   addEdgeToGraph(edge: Edge) {
     this.edges.push(edge);
-    this.activeSchema.edges.push(extractConfigFromEntity(edge));
+    this.activeSchema.edges.push(mapEdgeToTypeConfig(edge));
   }
 
   addTestableVertexToGraph(vertex: TestableVertex) {
     this.vertices.push(vertex.asVertex());
-    this.activeSchema.vertices.push(extractConfigFromEntity(vertex.asVertex()));
+    this.activeSchema.vertices.push(
+      ...mapVertexToTypeConfigs(vertex.asVertex())
+    );
   }
 
   addTestableEdgeToGraph(edge: TestableEdge) {
     this.edges.push(edge.asEdge());
-    this.activeSchema.edges.push(extractConfigFromEntity(edge.asEdge()));
+    this.activeSchema.edges.push(mapEdgeToTypeConfig(edge.asEdge()));
     this.addTestableVertexToGraph(edge.source);
     this.addTestableVertexToGraph(edge.target);
   }

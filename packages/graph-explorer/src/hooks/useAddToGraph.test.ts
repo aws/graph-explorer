@@ -13,7 +13,8 @@ import {
   activeSchemaSelector,
   edgesAtom,
   type EdgeTypeConfig,
-  extractConfigFromEntity,
+  mapVertexToTypeConfigs,
+  mapEdgeToTypeConfig,
   type GraphSessionStorageModel,
   nodesAtom,
   type VertexTypeConfig,
@@ -126,7 +127,7 @@ test("should update schema when adding a node", async () => {
   const dbState = new DbState();
 
   const vertex = createRandomVertex();
-  const expectedVertexType = extractConfigFromEntity(vertex);
+  const expectedVertexTypes = mapVertexToTypeConfigs(vertex);
 
   const { result } = renderHookWithState(() => {
     const callback = useAddToGraph();
@@ -139,10 +140,12 @@ test("should update schema when adding a node", async () => {
 
   await act(() => result.current.callback({ vertices: [vertex] }));
 
-  const vtConfig = result.current.schema?.vertices.find(
-    v => v.type === vertex.type
-  );
-  expect(vtConfig).toStrictEqual(expectedVertexType);
+  for (const expectedType of expectedVertexTypes) {
+    const vtConfig = result.current.schema?.vertices.find(
+      v => v.type === expectedType.type
+    );
+    expect(vtConfig).toStrictEqual(expectedType);
+  }
 });
 
 test("should update schema when adding a node with no label", async () => {
@@ -151,7 +154,7 @@ test("should update schema when adding a node with no label", async () => {
   const vertex = createRandomVertex();
   vertex.type = "";
   vertex.types = [];
-  const expectedVertexType = extractConfigFromEntity(vertex);
+  const expectedVertexTypes = mapVertexToTypeConfigs(vertex);
 
   const { result } = renderHookWithState(() => {
     const callback = useAddToGraph();
@@ -164,10 +167,12 @@ test("should update schema when adding a node with no label", async () => {
 
   await act(() => result.current.callback({ vertices: [vertex] }));
 
-  const vtConfig = result.current.schema?.vertices.find(
-    v => v.type === vertex.type
-  );
-  expect(vtConfig).toStrictEqual(expectedVertexType);
+  for (const expectedType of expectedVertexTypes) {
+    const vtConfig = result.current.schema?.vertices.find(
+      v => v.type === expectedType.type
+    );
+    expect(vtConfig).toStrictEqual(expectedType);
+  }
 });
 
 test("should update schema when adding an edge", async () => {
@@ -176,7 +181,7 @@ test("should update schema when adding an edge", async () => {
   const node1 = createRandomVertex();
   const node2 = createRandomVertex();
   const edge = createRandomEdge(node1, node2);
-  const expectedEdgeType = extractConfigFromEntity(edge);
+  const expectedEdgeType = mapEdgeToTypeConfig(edge);
 
   dbState.addVertexToGraph(node1);
   dbState.addVertexToGraph(node2);
@@ -200,14 +205,16 @@ test("should add missing attributes to the schema when adding a node", async () 
   const dbState = new DbState();
 
   const vertex = createRandomVertex();
-  const expectedVertexType = extractConfigFromEntity(vertex);
+  const expectedVertexTypes = mapVertexToTypeConfigs(vertex);
 
   // Clear out the attributes in the initial schema
-  const initialVtConfig: VertexTypeConfig = {
-    ...expectedVertexType,
-    attributes: [],
-  };
-  dbState.activeSchema.vertices.push(initialVtConfig);
+  for (const expectedType of expectedVertexTypes) {
+    const initialVtConfig: VertexTypeConfig = {
+      ...expectedType,
+      attributes: [],
+    };
+    dbState.activeSchema.vertices.push(initialVtConfig);
+  }
 
   const { result } = renderHookWithState(() => {
     const callback = useAddToGraph();
@@ -220,10 +227,12 @@ test("should add missing attributes to the schema when adding a node", async () 
 
   await act(() => result.current.callback({ vertices: [vertex] }));
 
-  const vtConfig = result.current.schema?.vertices.find(
-    v => v.type === vertex.type
-  );
-  expect(vtConfig).toStrictEqual(expectedVertexType);
+  for (const expectedType of expectedVertexTypes) {
+    const vtConfig = result.current.schema?.vertices.find(
+      v => v.type === expectedType.type
+    );
+    expect(vtConfig).toStrictEqual(expectedType);
+  }
 });
 
 test("should add missing attributes to the schema when adding an edge", async () => {
@@ -232,7 +241,7 @@ test("should add missing attributes to the schema when adding an edge", async ()
   const node1 = createRandomVertex();
   const node2 = createRandomVertex();
   const edge = createRandomEdge(node1, node2);
-  const expectedEdgeType = extractConfigFromEntity(edge);
+  const expectedEdgeType = mapEdgeToTypeConfig(edge);
 
   dbState.addVertexToGraph(node1);
   dbState.addVertexToGraph(node2);

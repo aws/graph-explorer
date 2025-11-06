@@ -5,32 +5,87 @@ import {
   createRandomVertex,
 } from "@/utils/testing";
 import {
-  extractConfigFromEntity,
+  mapVertexToTypeConfigs,
+  mapEdgeToTypeConfig,
   shouldUpdateSchemaFromEntities,
   updateSchemaFromEntities,
   updateSchemaPrefixes,
 } from "./schema";
 import { createArray, createRandomName } from "@shared/utils/testing";
-import type { PrefixTypeConfig } from "../ConfigurationProvider";
-import type { EntityProperties } from "../entities";
+import type {
+  EdgeTypeConfig,
+  PrefixTypeConfig,
+  VertexTypeConfig,
+} from "../ConfigurationProvider";
+import { createEdge, createVertex, type EntityProperties } from "../entities";
+import { LABELS } from "@/utils";
 
 describe("schema", () => {
-  describe("extractConfigFromEntity", () => {
+  describe("mapVertexToTypeConfigs", () => {
     it("should work with vertex", () => {
-      const entity = createRandomVertex();
-      const result = extractConfigFromEntity(entity);
-      expect(result.type).toEqual(entity.type);
-      expect(result.attributes).toHaveLength(
-        Object.keys(entity.attributes).length
-      );
+      const entity = createVertex({
+        id: "1",
+        types: ["Person", "Manager"],
+        attributes: {
+          name: "John",
+          age: 30,
+        },
+      });
+      const expected: VertexTypeConfig[] = [
+        {
+          type: "Person",
+          attributes: [
+            {
+              name: "name",
+              dataType: "String",
+            },
+            {
+              name: "age",
+              dataType: "Number",
+            },
+          ],
+        },
+        {
+          type: "Manager",
+          attributes: [
+            {
+              name: "name",
+              dataType: "String",
+            },
+            {
+              name: "age",
+              dataType: "Number",
+            },
+          ],
+        },
+      ];
+      const result = mapVertexToTypeConfigs(entity);
+      expect(result).toStrictEqual(expected);
     });
+  });
+
+  describe("mapEdgeToTypeConfig", () => {
     it("should work with edge", () => {
-      const entity = createRandomEdge();
-      const result = extractConfigFromEntity(entity);
-      expect(result.type).toEqual(entity.type);
-      expect(result.attributes).toHaveLength(
-        Object.keys(entity.attributes).length
-      );
+      const entity = createEdge({
+        id: "1",
+        type: "WORKS_FOR",
+        attributes: {
+          since: 2020,
+        },
+        sourceId: "2",
+        targetId: "3",
+      });
+      const expected: EdgeTypeConfig = {
+        type: "WORKS_FOR",
+        attributes: [
+          {
+            name: "since",
+            dataType: "Number",
+          },
+        ],
+      };
+      const result = mapEdgeToTypeConfig(entity);
+      expect(result).toStrictEqual(expected);
     });
   });
 
@@ -58,12 +113,9 @@ describe("schema", () => {
         ...originalSchema,
         vertices: [
           ...originalSchema.vertices,
-          ...newNodes.map(extractConfigFromEntity),
+          ...newNodes.flatMap(mapVertexToTypeConfigs),
         ],
-        edges: [
-          ...originalSchema.edges,
-          ...newEdges.map(extractConfigFromEntity),
-        ],
+        edges: [...originalSchema.edges, ...newEdges.map(mapEdgeToTypeConfig)],
       });
     });
 
@@ -76,6 +128,7 @@ describe("schema", () => {
       newNode2.id = newNode1.id;
       newEdge2.id = newEdge1.id;
       newNode2.type = newNode1.type;
+      newNode2.types = newNode1.types;
       newEdge2.type = newEdge1.type;
 
       const result = updateSchemaFromEntities(
@@ -83,25 +136,26 @@ describe("schema", () => {
         originalSchema
       );
 
+      const node1Configs = mapVertexToTypeConfigs(newNode1);
+      const node2Configs = mapVertexToTypeConfigs(newNode2);
+      const mergedNodeConfigs = node1Configs.map(config1 => ({
+        ...config1,
+        attributes: [
+          ...config1.attributes,
+          ...node2Configs.find(c => c.type === config1.type)!.attributes,
+        ],
+      }));
+
       expect(result).toEqual({
         ...originalSchema,
-        vertices: [
-          ...originalSchema.vertices,
-          {
-            ...extractConfigFromEntity(newNode1),
-            attributes: [
-              ...extractConfigFromEntity(newNode1).attributes,
-              ...extractConfigFromEntity(newNode2).attributes,
-            ],
-          },
-        ],
+        vertices: [...originalSchema.vertices, ...mergedNodeConfigs],
         edges: [
           ...originalSchema.edges,
           {
-            ...extractConfigFromEntity(newEdge1),
+            ...mapEdgeToTypeConfig(newEdge1),
             attributes: [
-              ...extractConfigFromEntity(newEdge1).attributes,
-              ...extractConfigFromEntity(newEdge2).attributes,
+              ...mapEdgeToTypeConfig(newEdge1).attributes,
+              ...mapEdgeToTypeConfig(newEdge2).attributes,
             ],
           },
         ],
@@ -113,10 +167,11 @@ describe("schema", () => {
       const newNode = createRandomVertex();
       const newEdge = createRandomEdge();
       newNode.type = originalSchema.vertices[0].type;
+      newNode.types = [originalSchema.vertices[0].type];
       newEdge.type = originalSchema.edges[0].type;
 
-      const extractedNodeConfig = extractConfigFromEntity(newNode);
-      const extractedEdgeConfig = extractConfigFromEntity(newEdge);
+      const extractedNodeConfigs = mapVertexToTypeConfigs(newNode);
+      const extractedEdgeConfig = mapEdgeToTypeConfig(newEdge);
 
       const result = updateSchemaFromEntities(
         { vertices: [newNode], edges: [newEdge] },
@@ -126,7 +181,7 @@ describe("schema", () => {
       expect(result.vertices.flatMap(v => v.attributes)).toEqual(
         expect.arrayContaining([
           ...originalSchema.vertices.flatMap(v => v.attributes),
-          ...extractedNodeConfig.attributes,
+          ...extractedNodeConfigs.flatMap(c => c.attributes),
         ])
       );
 
@@ -138,34 +193,26 @@ describe("schema", () => {
       );
     });
 
-    it("should add entities with no type to the schema", () => {
+    it("should add vertices with no type to the schema", () => {
       const originalSchema = createRandomSchema();
       originalSchema.vertices = [];
       originalSchema.edges = [];
 
-      const newNodes = createArray(3, () => createRandomVertex()).map(
-        vertex => ({ ...vertex, type: "", types: [] })
+      const newNodes = createArray(3, () => createRandomVertex()).map(vertex =>
+        createVertex({ ...vertex, types: [] })
       );
-      const newEdges = createArray(3, () => createRandomEdge()).map(edge => ({
-        ...edge,
-        type: "",
-      }));
 
       const result = updateSchemaFromEntities(
-        { vertices: newNodes, edges: newEdges },
+        { vertices: newNodes, edges: [] },
         originalSchema
       );
 
-      const emptyTypeVtConfigs = result.vertices.filter(v => v.type === "");
+      const emptyTypeVtConfigs = result.vertices.filter(
+        v => v.type === LABELS.MISSING_TYPE
+      );
       expect(emptyTypeVtConfigs).toHaveLength(1);
       expect(emptyTypeVtConfigs[0].attributes).toEqual(
-        newNodes.map(extractConfigFromEntity).flatMap(n => n.attributes)
-      );
-
-      const emptyTypeEdgeConfigs = result.edges.filter(e => e.type === "");
-      expect(emptyTypeEdgeConfigs).toHaveLength(1);
-      expect(emptyTypeEdgeConfigs[0].attributes).toEqual(
-        newEdges.map(extractConfigFromEntity).flatMap(e => e.attributes)
+        newNodes.flatMap(mapVertexToTypeConfigs).flatMap(n => n.attributes)
       );
     });
   });

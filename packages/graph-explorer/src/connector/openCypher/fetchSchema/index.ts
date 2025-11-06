@@ -1,9 +1,6 @@
 import { batchPromisesSerially } from "@/utils";
 import { DEFAULT_CONCURRENT_REQUESTS_LIMIT } from "@/utils/constants";
-import type {
-  EdgeSchemaResponse,
-  SchemaResponse,
-} from "@/connector/useGEFetchTypes";
+import type { SchemaResponse } from "@/connector/useGEFetchTypes";
 import edgeLabelsTemplate from "./edgeLabelsTemplate";
 import edgesSchemaTemplate from "./edgesSchemaTemplate";
 import vertexLabelsTemplate from "./vertexLabelsTemplate";
@@ -12,7 +9,13 @@ import type { OCEdge, OCVertex } from "../types";
 import type { GraphSummary, OpenCypherFetch } from "../types";
 import type { LoggerConnector } from "@/connector/LoggerConnector";
 import mapApiVertex from "../mappers/mapApiVertex";
-import { createVertex, extractConfigFromEntity } from "@/core";
+import {
+  createEdge,
+  createVertex,
+  mapEdgeToTypeConfig,
+  mapVertexToTypeConfigs,
+} from "@/core";
+import mapApiEdge from "../mappers/mapApiEdge";
 
 // Response types for raw data returned by OpenCypher queries
 type RawVertexLabelsResponse = {
@@ -113,26 +116,23 @@ const fetchVerticesAttributes = async (
       const response =
         await openCypherFetch<RawVerticesSchemaResponse>(verticesTemplate);
 
-      return {
-        vertex: response.results ? response.results[0]?.object : null,
-        label,
-      };
+      return response.results ? response.results[0]?.object : null;
     }
   );
 
   const vertices = responses
-    .map(({ vertex }) => {
+    .flatMap(ocVertex => {
       // verify response has the info we need
-      if (!vertex || !vertex["~labels"]) {
+      if (!ocVertex || !ocVertex["~labels"]) {
         return null;
       }
 
-      const mappedVertex = createVertex(mapApiVertex(vertex));
-      const vertexTypeConfig = extractConfigFromEntity(mappedVertex);
-      return {
+      const vertex = createVertex(mapApiVertex(ocVertex));
+      const vertexTypeConfigs = mapVertexToTypeConfigs(vertex);
+      return vertexTypeConfigs.map(vertexTypeConfig => ({
         ...vertexTypeConfig,
         total: countsByLabel[vertexTypeConfig.type],
-      };
+      }));
     })
     .filter(vertexSchema => vertexSchema != null);
 
@@ -222,34 +222,24 @@ const fetchEdgesAttributes = async (
       const response =
         await openCypherFetch<RawEdgesSchemaResponse>(edgesTemplate);
 
-      return {
-        edge: response.results ? response.results[0]?.object : null,
-        label,
-      };
+      return response.results ? response.results[0]?.object : null;
     }
   );
 
   const edges = responses
-    .map(({ edge, label }) => {
+    .map(ocEdge => {
       // verify response has the info we need
-      if (!edge || !edge["~entityType"] || !edge["~type"]) {
+      if (!ocEdge || !ocEdge["~entityType"] || !ocEdge["~type"]) {
         return null;
       }
 
-      const type = edge["~type"];
-      const properties = edge["~properties"];
-      const edgeSchema: EdgeSchemaResponse = {
-        type: type,
-        total: countsByLabel[label],
-        attributes: Object.entries(properties || {}).map(([name, prop]) => {
-          const value = prop;
-          return {
-            name,
-            dataType: typeof value === "string" ? "String" : "Number",
-          };
-        }),
+      const edge = createEdge(mapApiEdge(ocEdge));
+      const edgeTypeConfig = mapEdgeToTypeConfig(edge);
+
+      return {
+        ...edgeTypeConfig,
+        total: countsByLabel[edgeTypeConfig.type],
       };
-      return edgeSchema;
     })
     .filter(edgeSchema => edgeSchema != null);
 
