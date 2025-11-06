@@ -229,16 +229,6 @@ const defaultStyles =
         overflow: hidden;
       }
 
-      .col-resizer,
-      .cell-resizer {
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: 8px;
-        height: 100%;
-        z-index: 1;
-      }
-
       .body {
         width: fit-content;
         min-width: 100%;

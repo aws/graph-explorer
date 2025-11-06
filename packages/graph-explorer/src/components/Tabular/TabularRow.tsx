@@ -4,6 +4,7 @@ import { type MouseEvent, useEffect, useState } from "react";
 import type { Row, TableInstance } from "react-table";
 
 import type { TabularProps } from "./Tabular";
+import { TableColumnResizer } from "./TableColumnResizer";
 
 const TabularRow = <T extends object>({
   rowSelectionMode,
@@ -77,9 +78,8 @@ const TabularRow = <T extends object>({
               {cell.render("Cell")}
             </div>
             {cell.column.canResize && (
-              <div
+              <TableColumnResizer
                 {...(cell.column.getResizerProps?.() || {})}
-                className="cell-resizer"
               />
             )}
           </div>
