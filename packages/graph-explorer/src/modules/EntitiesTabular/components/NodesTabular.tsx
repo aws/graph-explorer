@@ -1,11 +1,15 @@
 import difference from "lodash/difference";
-import { NonVisibleIcon, VisibleIcon } from "@/components";
+import {
+  EmptyState,
+  EmptyStateContent,
+  EmptyStateDescription,
+  EmptyStateTitle,
+  NonVisibleIcon,
+  VisibleIcon,
+} from "@/components";
 import type { ColumnDefinition, TabularInstance } from "@/components/Tabular";
 import { makeIconToggleCell } from "@/components/Tabular/builders";
-import {
-  PlaceholderControl,
-  TabularEmptyBodyControls,
-} from "@/components/Tabular/controls";
+import { TabularEmptyBodyControls } from "@/components/Tabular/controls";
 import Tabular from "@/components/Tabular/Tabular";
 import {
   type DisplayVertex,
@@ -156,9 +160,14 @@ function NodesTabular({ ref }: NodesTabularProps) {
     >
       <TabularEmptyBodyControls>
         {data.length === 0 && (
-          <PlaceholderControl>
-            {t("entities-tabular.nodes-placeholder")}
-          </PlaceholderControl>
+          <EmptyState>
+            <EmptyStateContent>
+              <EmptyStateTitle>No Data</EmptyStateTitle>
+              <EmptyStateDescription>
+                {t("entities-tabular.nodes-placeholder")}
+              </EmptyStateDescription>
+            </EmptyStateContent>
+          </EmptyState>
         )}
       </TabularEmptyBodyControls>
     </Tabular>
