@@ -193,4 +193,45 @@ describe("generatePrefixes", () => {
       __matches: new Set(["http://SecretSpyOrg/data/hasText"]),
     });
   });
+
+  it("should ignore file URIs since they don't have an origin", () => {
+    const updatedPrefixes = generatePrefixes(
+      new Set(["file://foo/bar.txt"]),
+      []
+    );
+
+    expect(updatedPrefixes).toBeNull();
+  });
+
+  it("should ignore any non-path URIs", () => {
+    const updatedPrefixes = generatePrefixes(
+      new Set([
+        "urn:Person",
+        "urn:knows",
+        "urn:name",
+        "urn:isbn:1234567890",
+        "mailto:example@abc.com",
+        "custom-scheme:foo",
+      ]),
+      []
+    );
+
+    expect(updatedPrefixes).toBeNull();
+  });
+
+  it("should handle any pathed URI", () => {
+    const updatedPrefixes = generatePrefixes(
+      new Set(["ftp://foo/bar.txt"]),
+      []
+    );
+
+    expect(updatedPrefixes).toEqual([
+      {
+        __inferred: true,
+        uri: "ftp://foo/",
+        prefix: "foo",
+        __matches: new Set(["ftp://foo/bar.txt"]),
+      },
+    ]);
+  });
 });

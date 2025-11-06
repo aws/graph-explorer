@@ -16,6 +16,8 @@
 
 ## Project Commands
 
+- All commands should be run from the root of the project repository
+
 ### Development
 
 - `pnpm dev` - Start dev servers
@@ -36,6 +38,7 @@
 - `pnpm test` - Run tests
 - `pnpm test:watch` - Watch mode
 - `pnpm coverage` - Test coverage
+- `pnpm vitest --run <path-to-file>` - Run tests for specific file
 
 ### Maintenance
 

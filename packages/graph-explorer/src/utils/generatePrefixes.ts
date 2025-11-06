@@ -18,11 +18,18 @@ function normalizeUri(uri: string) {
   return uri.toLowerCase().trim();
 }
 
-/** Checks if the given string is a valid URL. */
+/** Checks if the given string is a valid URL with a path. */
 function isUrl(str: string) {
   try {
-    new URL(str);
-    return true;
+    const url = new URL(str);
+
+    // Check for invalid origin (`urn:Person` has "null" origin)
+    if (url.origin.length === 0 || url.origin === "null") {
+      return false;
+    }
+
+    // Must contain a path or a hash
+    return url.pathname.length > 0 || url.hash.length > 0;
   } catch {
     return false;
   }
