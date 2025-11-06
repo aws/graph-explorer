@@ -33,12 +33,6 @@ export type TabularVariantType = "bordered" | "noBorders";
 export interface TabularProps<T extends object> extends TabularOptions<T> {
   className?: string;
 
-  /**
-   * Disables the sticky header. By default, it is pinned to the top of the view
-   * so that it is visible even when scrolling.
-   */
-  disableStickyHeader?: boolean;
-
   variant?: TabularVariantType;
   globalSearch?: string;
   ref?: React.Ref<TabularInstance<T>>;
@@ -124,7 +118,6 @@ const TabularContent = <T extends object>({
   className,
   tableInstance,
   disablePagination,
-  disableStickyHeader,
   rowSelectionMode,
   onRowMouseOver,
   onRowMouseOut,
@@ -200,9 +193,7 @@ const TabularContent = <T extends object>({
       {headerControlsChildren}
       <div {...getTableProps()} className="table overflow-auto">
         <div
-          className={cn("headers", {
-            ["headers-sticky"]: !disableStickyHeader,
-          })}
+          className="headers headers-sticky"
           style={{
             // Top is assigned depending on the header-controls visibility and height
             // It only affects to sticky header
