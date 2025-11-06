@@ -98,7 +98,7 @@ export default function GraphViewer({
       edges: (edgeIds as Set<RenderedEdgeId>)
         .values()
         .map(getEdgeIdFromRenderedEdgeId),
-      disableSideEffects: true,
+      disableSideEffects: false,
     });
   };
 
