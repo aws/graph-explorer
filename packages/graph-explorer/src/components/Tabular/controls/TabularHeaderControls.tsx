@@ -4,13 +4,11 @@ import { cssVar } from "@/core/ThemeProvider/utils/lib";
 import { type FC, type PropsWithChildren, useEffect } from "react";
 import type { ThemeStyleFn } from "@/core";
 import { useWithTheme } from "@/core";
-import type { TabularVariantType } from "../Tabular";
 
 import { useTabularControl } from "../TabularControlsProvider";
 
 export type TabularHeaderControlsProps = PropsWithChildren<{
   className?: string;
-  variant?: TabularVariantType;
 
   /**
    * Disables the sticky header controls. By default, it is pinned to the top of the view
@@ -19,30 +17,27 @@ export type TabularHeaderControlsProps = PropsWithChildren<{
   disableSticky?: boolean;
 }>;
 
-const defaultStyles =
-  (variant?: TabularVariantType): ThemeStyleFn =>
-  () => css`
-    &.header-controls {
-      position: sticky;
-      left: 0;
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      flex-wrap: wrap;
-      width: 100%;
-      min-height: 36px;
-      background: ${cssVar(
-        "--tabular-header-controls-background",
-        "--tabular-header-background",
-        "--palette-background-contrast"
-      )};
-      color: ${cssVar(
-        "--tabular-header-controls-color",
-        "--tabular-header-color"
-      )};
-      padding: ${cssVar("--tabular-header-controls-padding")};
-      ${variant !== "noBorders" &&
-      `
+const defaultStyles = (): ThemeStyleFn => () => css`
+  &.header-controls {
+    position: sticky;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    width: 100%;
+    min-height: 36px;
+    background: ${cssVar(
+      "--tabular-header-controls-background",
+      "--tabular-header-background",
+      "--palette-background-contrast"
+    )};
+    color: ${cssVar(
+      "--tabular-header-controls-color",
+      "--tabular-header-color"
+    )};
+    padding: ${cssVar("--tabular-header-controls-padding")};
+
     border-top: ${cssVar(
       "--tabular-header-controls-border",
       "--tabular-header-controls-border",
@@ -59,24 +54,22 @@ const defaultStyles =
       "--tabular-border",
       "solid 1px var(--palette-border)"
     )};
-    `}
 
-      > * {
-        margin: 0 4px;
-      }
+    > * {
+      margin: 0 4px;
     }
+  }
 
-    &.header-controls-sticky {
-      z-index: 2;
-      top: 0;
-    }
-  `;
+  &.header-controls-sticky {
+    z-index: 2;
+    top: 0;
+  }
+`;
 
 const TabularHeaderControls: FC<TabularHeaderControlsProps> = ({
   children,
   className,
   disableSticky,
-  variant,
 }) => {
   const { headerControlsRef, setHeaderControlsPosition } = useTabularControl();
   useEffect(() => {
@@ -87,7 +80,7 @@ const TabularHeaderControls: FC<TabularHeaderControlsProps> = ({
     <div
       ref={headerControlsRef}
       className={cn(
-        styleWithTheme(defaultStyles(variant)),
+        styleWithTheme(defaultStyles()),
         "header-controls",
         className,
         {

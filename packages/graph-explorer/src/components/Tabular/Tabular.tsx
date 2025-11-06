@@ -28,12 +28,9 @@ import TabularRow from "./TabularRow";
 import type { TabularOptions } from "./useTabular";
 import useTabular from "./useTabular";
 
-export type TabularVariantType = "bordered" | "noBorders";
-
 export interface TabularProps<T extends object> extends TabularOptions<T> {
   className?: string;
 
-  variant?: TabularVariantType;
   globalSearch?: string;
   ref?: React.Ref<TabularInstance<T>>;
 }
@@ -48,7 +45,6 @@ export const Tabular = <T extends object>({
   pageSize = 10,
   onDataFilteredChange,
   onColumnSortedChange,
-  variant = "bordered",
   globalSearch,
   ref,
   ...useTabularOptions
@@ -69,7 +65,6 @@ export const Tabular = <T extends object>({
     paginationOptions,
     pageIndex,
     pageSize,
-    variant,
     ...useTabularOptions,
   };
 
@@ -104,11 +99,7 @@ export const Tabular = <T extends object>({
 
   return (
     <TabularControlsProvider tabularInstance={tabularInstance}>
-      <TabularContent
-        {...tabularContentProps}
-        variant={variant}
-        tableInstance={tableInstance}
-      />
+      <TabularContent {...tabularContentProps} tableInstance={tableInstance} />
     </TabularControlsProvider>
   );
 };
@@ -121,7 +112,6 @@ const TabularContent = <T extends object>({
   rowSelectionMode,
   onRowMouseOver,
   onRowMouseOut,
-  variant,
 }: PropsWithChildren<
   TabularProps<T> & { tableInstance: TableInstance<T> }
 >) => {
@@ -180,7 +170,7 @@ const TabularContent = <T extends object>({
     <div
       ref={tableRef}
       className={cn(
-        styleWithTheme(defaultStyles(variant)),
+        styleWithTheme(defaultStyles()),
         className,
         "overflow-hidden"
       )}
@@ -226,7 +216,7 @@ const TabularContent = <T extends object>({
       </div>
       {footerControlsChildren}
       {!footerControlsChildren && !disablePagination && (
-        <TabularFooterControls variant={variant}>
+        <TabularFooterControls>
           <Paging totalRows={rows.length} />
         </TabularFooterControls>
       )}
