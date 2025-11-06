@@ -106,7 +106,8 @@ src/
 
 - React 19 + TypeScript
 - Vite build tool
-- TailwindCSS + Radix UI components
+- TailwindCSS v4 with CSS config
+- Radix UI components
 - React Router for routing
 - Cytoscape.js for graph visualization
 - React Query for data fetching
