@@ -71,10 +71,6 @@ const defaultStyles =
         }
       }
 
-      .row-grow {
-        flex-grow: 1 !important;
-      }
-
       .row-selectable {
         background: ${baseTheme.row.selectable.background};
         color: ${baseTheme.row.selectable.color};

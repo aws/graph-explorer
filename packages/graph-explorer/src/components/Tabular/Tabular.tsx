@@ -39,11 +39,6 @@ export interface TabularProps<T extends object> extends TabularOptions<T> {
    */
   disableStickyHeader?: boolean;
 
-  /**
-   * Allows row to grow vertically. Each row grows to fit to table available space.
-   */
-  fitRowsVertically?: boolean;
-
   variant?: TabularVariantType;
   globalSearch?: string;
   ref?: React.Ref<TabularInstance<T>>;
@@ -130,7 +125,6 @@ const TabularContent = <T extends object>({
   tableInstance,
   disablePagination,
   disableStickyHeader,
-  fitRowsVertically,
   rowSelectionMode,
   onRowMouseOver,
   onRowMouseOut,
@@ -231,7 +225,6 @@ const TabularContent = <T extends object>({
                 key={row.id}
                 row={row}
                 tableInstance={tableInstance}
-                fitRowsVertically={fitRowsVertically}
                 rowSelectionMode={rowSelectionMode}
                 onMouseOver={onRowMouseOver}
                 onMouseOut={onRowMouseOut}

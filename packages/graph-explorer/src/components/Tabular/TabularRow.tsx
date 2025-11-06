@@ -6,13 +6,12 @@ import type { Row, TableInstance } from "react-table";
 import type { TabularProps } from "./Tabular";
 
 const TabularRow = <T extends object>({
-  fitRowsVertically,
   rowSelectionMode,
   row,
   tableInstance,
   onMouseOver,
   onMouseOut,
-}: Pick<TabularProps<T>, "fitRowsVertically" | "rowSelectionMode"> & {
+}: Pick<TabularProps<T>, "rowSelectionMode"> & {
   tableInstance: TableInstance<T>;
   row: Row<T>;
   onMouseOver?(event: MouseEvent<HTMLDivElement>, row: Row<T>): void;
@@ -45,7 +44,6 @@ const TabularRow = <T extends object>({
     <div
       {...rowProps}
       className={cn("row", {
-        ["row-grow"]: fitRowsVertically,
         ["row-selectable"]: rowSelectionMode === "row",
         ["row-selected"]: row.isSelected,
       })}
