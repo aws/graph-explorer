@@ -23,10 +23,6 @@ export type SPARQLNeighborsRequest = {
    */
   resourceURI: VertexId;
   /**
-   * Resource classes.
-   */
-  resourceClasses: Vertex["types"];
-  /**
    * Filter by subject classes
    */
   subjectClasses?: Array<string>;

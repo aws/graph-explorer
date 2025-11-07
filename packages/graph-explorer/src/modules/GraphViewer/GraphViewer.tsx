@@ -132,7 +132,6 @@ export default function GraphViewer({
 
     expandNode({
       vertexId,
-      vertexTypes: vertex.types,
       limit: defaultNeighborExpansionLimit ?? undefined,
     });
   };
