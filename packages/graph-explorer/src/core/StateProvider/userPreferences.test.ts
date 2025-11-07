@@ -1,46 +1,74 @@
-import { DbState, renderHookWithJotai } from "@/utils/testing";
-import { useEdgeStyling, useVertexStyling } from "./userPreferences";
+import { DbState, renderHookWithState } from "@/utils/testing";
+import {
+  defaultEdgePreferences,
+  defaultVertexPreferences,
+  useEdgeStyling,
+  useVertexStyling,
+  type EdgePreferences,
+  type VertexPreferences,
+} from "./userPreferences";
 import { act } from "react";
 
-describe("useVertexStyling", () => {
-  it("should return undefined when the style does not exist", () => {
-    const dbState = new DbState();
-    const { result } = renderHookWithJotai(
-      () => useVertexStyling("test"),
-      store => dbState.applyTo(store)
-    );
+function createExpectedVertex(existing: VertexPreferences) {
+  return {
+    ...defaultVertexPreferences,
+    displayLabel: existing.displayLabel ?? existing.type,
+    ...existing,
+  };
+}
 
-    expect(result.current.vertexStyle).toBeUndefined();
+function createExpectedEdge(existing: EdgePreferences) {
+  return {
+    ...defaultEdgePreferences,
+    displayLabel: existing.displayLabel ?? existing.type,
+    ...existing,
+  };
+}
+
+describe("useVertexStyling", () => {
+  it("should return defaults when the style does not exist", () => {
+    const dbState = new DbState();
+    const { result } = renderHookWithState(
+      () => useVertexStyling("test"),
+      dbState
+    );
+    const expected = createExpectedVertex({ type: "test" });
+
+    expect(result.current.vertexStyle).toStrictEqual(expected);
   });
 
   it("should return the vertex style when it exists", () => {
     const dbState = new DbState();
     const style = dbState.addVertexStyle("test", { color: "red" });
-    const { result } = renderHookWithJotai(
+    const expected = createExpectedVertex(style);
+
+    const { result } = renderHookWithState(
       () => useVertexStyling("test"),
-      store => dbState.applyTo(store)
+      dbState
     );
 
-    expect(result.current.vertexStyle).toEqual(style);
+    expect(result.current.vertexStyle).toStrictEqual(expected);
   });
 
   it("should insert the vertex style when none exist", () => {
     const dbState = new DbState();
-    const { result } = renderHookWithJotai(
+    const { result } = renderHookWithState(
       () => useVertexStyling("test"),
-      store => dbState.applyTo(store)
+      dbState
     );
 
     act(() => result.current.setVertexStyle({ color: "red" }));
 
-    expect(result.current.vertexStyle).toEqual({ type: "test", color: "red" });
+    expect(result.current.vertexStyle).toStrictEqual(
+      createExpectedVertex({ type: "test", color: "red" })
+    );
   });
 
   it("should update the existing style, merging new styles", () => {
     const dbState = new DbState();
-    const { result } = renderHookWithJotai(
+    const { result } = renderHookWithState(
       () => useVertexStyling("test"),
-      store => dbState.applyTo(store)
+      dbState
     );
 
     act(() =>
@@ -48,25 +76,29 @@ describe("useVertexStyling", () => {
     );
     act(() => result.current.setVertexStyle({ borderColor: "blue" }));
 
-    expect(result.current.vertexStyle).toEqual({
-      type: "test",
-      color: "red",
-      borderColor: "blue",
-    });
+    expect(result.current.vertexStyle).toStrictEqual(
+      createExpectedVertex({
+        type: "test",
+        color: "red",
+        borderColor: "blue",
+      })
+    );
   });
 
   it("should reset the vertex style", () => {
     const dbState = new DbState();
     dbState.addVertexStyle("test", { borderColor: "blue" });
 
-    const { result } = renderHookWithJotai(
+    const { result } = renderHookWithState(
       () => useVertexStyling("test"),
-      store => dbState.applyTo(store)
+      dbState
     );
 
     act(() => result.current.resetVertexStyle());
 
-    expect(result.current.vertexStyle).toBeUndefined();
+    expect(result.current.vertexStyle).toStrictEqual(
+      createExpectedVertex({ type: "test" })
+    );
   });
 
   it("should not affect other vertex styles when updating", () => {
@@ -74,29 +106,33 @@ describe("useVertexStyling", () => {
     dbState.addVertexStyle("type1", { color: "red" });
     dbState.addVertexStyle("type2", { color: "blue" });
 
-    const { result } = renderHookWithJotai(
+    const { result } = renderHookWithState(
       () => useVertexStyling("type1"),
-      store => dbState.applyTo(store)
+      dbState
     );
 
     act(() => result.current.setVertexStyle({ borderColor: "green" }));
 
     // Check that type1 was updated
-    expect(result.current.vertexStyle).toEqual({
-      type: "type1",
-      color: "red",
-      borderColor: "green",
-    });
+    expect(result.current.vertexStyle).toStrictEqual(
+      createExpectedVertex({
+        type: "type1",
+        color: "red",
+        borderColor: "green",
+      })
+    );
 
     // Check that type2 was not affected by getting its hook
-    const { result: result2 } = renderHookWithJotai(
+    const { result: result2 } = renderHookWithState(
       () => useVertexStyling("type2"),
-      store => dbState.applyTo(store)
+      dbState
     );
-    expect(result2.current.vertexStyle).toEqual({
-      type: "type2",
-      color: "blue",
-    });
+    expect(result2.current.vertexStyle).toStrictEqual(
+      createExpectedVertex({
+        type: "type2",
+        color: "blue",
+      })
+    );
   });
 
   it("should not affect other vertex styles when resetting", () => {
@@ -104,81 +140,91 @@ describe("useVertexStyling", () => {
     dbState.addVertexStyle("type1", { color: "red" });
     dbState.addVertexStyle("type2", { color: "blue" });
 
-    const { result } = renderHookWithJotai(
+    const { result } = renderHookWithState(
       () => useVertexStyling("type1"),
-      store => dbState.applyTo(store)
+      dbState
     );
 
     act(() => result.current.resetVertexStyle());
 
-    expect(result.current.vertexStyle).toBeUndefined();
+    expect(result.current.vertexStyle).toStrictEqual(
+      createExpectedVertex({ type: "type1" })
+    );
 
     // Check that type2 still exists
-    const { result: result2 } = renderHookWithJotai(
+    const { result: result2 } = renderHookWithState(
       () => useVertexStyling("type2"),
-      store => dbState.applyTo(store)
+      dbState
     );
-    expect(result2.current.vertexStyle).toEqual({
-      type: "type2",
-      color: "blue",
-    });
+    expect(result2.current.vertexStyle).toStrictEqual(
+      createExpectedVertex({
+        type: "type2",
+        color: "blue",
+      })
+    );
   });
 
   it("should handle empty style updates", () => {
     const dbState = new DbState();
-    const { result } = renderHookWithJotai(
+    const { result } = renderHookWithState(
       () => useVertexStyling("test"),
-      store => dbState.applyTo(store)
+      dbState
     );
 
     act(() => result.current.setVertexStyle({}));
 
-    expect(result.current.vertexStyle).toEqual({ type: "test" });
+    expect(result.current.vertexStyle).toStrictEqual(
+      createExpectedVertex({ type: "test" })
+    );
   });
 });
 
 describe("useEdgeStyling", () => {
-  it("should return undefined when the style does not exist", () => {
+  it("should return defaults when the style does not exist", () => {
     const dbState = new DbState();
-    const { result } = renderHookWithJotai(
+    const { result } = renderHookWithState(
       () => useEdgeStyling("test"),
-      store => dbState.applyTo(store)
+      dbState
     );
 
-    expect(result.current.edgeStyle).toBeUndefined();
+    expect(result.current.edgeStyle).toStrictEqual(
+      createExpectedEdge({ type: "test" })
+    );
   });
 
   it("should return the edge style when it exists", () => {
     const dbState = new DbState();
     const style = dbState.addEdgeStyle("test", { lineColor: "red" });
-    const { result } = renderHookWithJotai(
+    const { result } = renderHookWithState(
       () => useEdgeStyling("test"),
-      store => dbState.applyTo(store)
+      dbState
     );
 
-    expect(result.current.edgeStyle).toEqual(style);
+    expect(result.current.edgeStyle).toStrictEqual(createExpectedEdge(style));
   });
 
   it("should insert the edge style when none exist", () => {
     const dbState = new DbState();
-    const { result } = renderHookWithJotai(
+    const { result } = renderHookWithState(
       () => useEdgeStyling("test"),
-      store => dbState.applyTo(store)
+      dbState
     );
 
     act(() => result.current.setEdgeStyle({ lineColor: "red" }));
 
-    expect(result.current.edgeStyle).toEqual({
-      type: "test",
-      lineColor: "red",
-    });
+    expect(result.current.edgeStyle).toStrictEqual(
+      createExpectedEdge({
+        type: "test",
+        lineColor: "red",
+      })
+    );
   });
 
   it("should update the existing style, merging new styles", () => {
     const dbState = new DbState();
-    const { result } = renderHookWithJotai(
+    const { result } = renderHookWithState(
       () => useEdgeStyling("test"),
-      store => dbState.applyTo(store)
+      dbState
     );
 
     act(() =>
@@ -186,24 +232,28 @@ describe("useEdgeStyling", () => {
     );
     act(() => result.current.setEdgeStyle({ labelColor: "blue" }));
 
-    expect(result.current.edgeStyle).toEqual({
-      type: "test",
-      lineColor: "red",
-      labelColor: "blue",
-    });
+    expect(result.current.edgeStyle).toStrictEqual(
+      createExpectedEdge({
+        type: "test",
+        lineColor: "red",
+        labelColor: "blue",
+      })
+    );
   });
 
   it("should reset the edge style", () => {
     const dbState = new DbState();
-    const { result } = renderHookWithJotai(
+    const { result } = renderHookWithState(
       () => useEdgeStyling("test"),
-      store => dbState.applyTo(store)
+      dbState
     );
 
     act(() => result.current.setEdgeStyle({ labelColor: "blue" }));
     act(() => result.current.resetEdgeStyle());
 
-    expect(result.current.edgeStyle).toBeUndefined();
+    expect(result.current.edgeStyle).toStrictEqual(
+      createExpectedEdge({ type: "test" })
+    );
   });
 
   it("should not affect other edge styles when updating", () => {
@@ -211,29 +261,33 @@ describe("useEdgeStyling", () => {
     dbState.addEdgeStyle("type1", { lineColor: "red" });
     dbState.addEdgeStyle("type2", { lineColor: "blue" });
 
-    const { result } = renderHookWithJotai(
+    const { result } = renderHookWithState(
       () => useEdgeStyling("type1"),
-      store => dbState.applyTo(store)
+      dbState
     );
 
     act(() => result.current.setEdgeStyle({ labelColor: "green" }));
 
     // Check that type1 was updated
-    expect(result.current.edgeStyle).toEqual({
-      type: "type1",
-      lineColor: "red",
-      labelColor: "green",
-    });
+    expect(result.current.edgeStyle).toStrictEqual(
+      createExpectedEdge({
+        type: "type1",
+        lineColor: "red",
+        labelColor: "green",
+      })
+    );
 
     // Check that type2 was not affected
-    const { result: result2 } = renderHookWithJotai(
+    const { result: result2 } = renderHookWithState(
       () => useEdgeStyling("type2"),
-      store => dbState.applyTo(store)
+      dbState
     );
-    expect(result2.current.edgeStyle).toEqual({
-      type: "type2",
-      lineColor: "blue",
-    });
+    expect(result2.current.edgeStyle).toStrictEqual(
+      createExpectedEdge({
+        type: "type2",
+        lineColor: "blue",
+      })
+    );
   });
 
   it("should not affect other edge styles when resetting", () => {
@@ -241,45 +295,51 @@ describe("useEdgeStyling", () => {
     dbState.addEdgeStyle("type1", { lineColor: "red" });
     dbState.addEdgeStyle("type2", { lineColor: "blue" });
 
-    const { result } = renderHookWithJotai(
+    const { result } = renderHookWithState(
       () => useEdgeStyling("type1"),
-      store => dbState.applyTo(store)
+      dbState
     );
 
     act(() => result.current.resetEdgeStyle());
 
-    expect(result.current.edgeStyle).toBeUndefined();
+    expect(result.current.edgeStyle).toStrictEqual(
+      createExpectedEdge({ type: "type1" })
+    );
 
     // Check that type2 still exists
-    const { result: result2 } = renderHookWithJotai(
+    const { result: result2 } = renderHookWithState(
       () => useEdgeStyling("type2"),
-      store => dbState.applyTo(store)
+      dbState
     );
-    expect(result2.current.edgeStyle).toEqual({
-      type: "type2",
-      lineColor: "blue",
-    });
+    expect(result2.current.edgeStyle).toStrictEqual(
+      createExpectedEdge({
+        type: "type2",
+        lineColor: "blue",
+      })
+    );
   });
 
   it("should handle empty style updates", () => {
     const dbState = new DbState();
-    const { result } = renderHookWithJotai(
+    const { result } = renderHookWithState(
       () => useEdgeStyling("test"),
-      store => dbState.applyTo(store)
+      dbState
     );
 
     act(() => result.current.setEdgeStyle({}));
 
-    expect(result.current.edgeStyle).toEqual({ type: "test" });
+    expect(result.current.edgeStyle).toStrictEqual(
+      createExpectedEdge({ type: "test" })
+    );
   });
 });
 
 describe("useDeferredAtom integration", () => {
   it("should handle multiple rapid updates correctly", () => {
     const dbState = new DbState();
-    const { result } = renderHookWithJotai(
+    const { result } = renderHookWithState(
       () => useVertexStyling("test"),
-      store => dbState.applyTo(store)
+      dbState
     );
 
     // Simulate rapid updates that might happen in real usage
@@ -289,37 +349,43 @@ describe("useDeferredAtom integration", () => {
       result.current.setVertexStyle({ shape: "ellipse" });
     });
 
-    expect(result.current.vertexStyle).toEqual({
-      type: "test",
-      color: "red",
-      borderColor: "blue",
-      shape: "ellipse",
-    });
+    expect(result.current.vertexStyle).toStrictEqual(
+      createExpectedVertex({
+        type: "test",
+        color: "red",
+        borderColor: "blue",
+        shape: "ellipse",
+      })
+    );
   });
 
   it("should handle deferred atom updates correctly", () => {
     const dbState = new DbState();
-    const { result } = renderHookWithJotai(
+    const { result } = renderHookWithState(
       () => useVertexStyling("test"),
-      store => dbState.applyTo(store)
+      dbState
     );
 
     // Test that the deferred atom pattern works with the hook
     act(() => result.current.setVertexStyle({ color: "red" }));
 
     // The hook should immediately reflect the change in its local state
-    expect(result.current.vertexStyle).toEqual({
-      type: "test",
-      color: "red",
-    });
+    expect(result.current.vertexStyle).toStrictEqual(
+      createExpectedVertex({
+        type: "test",
+        color: "red",
+      })
+    );
 
     // Test that subsequent updates work correctly
     act(() => result.current.setVertexStyle({ borderColor: "blue" }));
 
-    expect(result.current.vertexStyle).toEqual({
-      type: "test",
-      color: "red",
-      borderColor: "blue",
-    });
+    expect(result.current.vertexStyle).toStrictEqual(
+      createExpectedVertex({
+        type: "test",
+        color: "red",
+        borderColor: "blue",
+      })
+    );
   });
 });

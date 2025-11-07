@@ -1,6 +1,5 @@
 import { cloneDeep, isEqual, uniq } from "lodash";
 import { atom } from "jotai";
-import DEFAULT_ICON_URL from "@/utils/defaultIconUrl";
 import type {
   AttributeConfig,
   ConfigurationId,
@@ -11,15 +10,14 @@ import type {
 import { atomWithLocalForageAsync } from "./localForageEffect";
 import { activeSchemaSelector, type SchemaInference } from "./schema";
 import {
+  defaultEdgePreferences,
+  defaultVertexPreferences,
   type EdgePreferences,
   type UserStyling,
   userStylingAtom,
   type VertexPreferences,
 } from "./userPreferences";
-import {
-  RESERVED_ID_PROPERTY,
-  RESERVED_TYPES_PROPERTY,
-} from "@/utils/constants";
+import { RESERVED_TYPES_PROPERTY } from "@/utils/constants";
 import type { ConnectionConfig } from "@shared/types";
 import { selectAtom } from "jotai/utils";
 
@@ -242,11 +240,7 @@ export const edgeTypesSelector = atom(get => {
 
 export const defaultVertexTypeConfig = {
   attributes: [],
-  displayNameAttribute: RESERVED_ID_PROPERTY,
-  longDisplayNameAttribute: RESERVED_TYPES_PROPERTY,
-  color: "#128EE5",
-  iconUrl: DEFAULT_ICON_URL,
-  iconImageType: "image/svg+xml",
+  ...defaultVertexPreferences,
 } satisfies Omit<VertexTypeConfig, "type">;
 
 export function getDefaultVertexTypeConfig(
@@ -260,11 +254,7 @@ export function getDefaultVertexTypeConfig(
 
 export const defaultEdgeTypeConfig = {
   attributes: [],
-  sourceArrowStyle: "none",
-  targetArrowStyle: "triangle",
-  lineStyle: "solid",
-  lineColor: "#b3b3b3",
-  displayNameAttribute: RESERVED_TYPES_PROPERTY,
+  ...defaultEdgePreferences,
 } satisfies Omit<EdgeTypeConfig, "type">;
 
 export function getDefaultEdgeTypeConfig(edgeType: string): EdgeTypeConfig {
