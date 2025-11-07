@@ -100,11 +100,11 @@ export const defaultVertexPreferences: Required<
   longDisplayNameAttribute: RESERVED_TYPES_PROPERTY,
   iconUrl: DEFAULT_ICON_URL,
   iconImageType: "image/svg+xml",
-  color: "#17457b",
+  color: "#128EE5",
   shape: "ellipse",
   backgroundOpacity: 0.4,
   borderWidth: 0,
-  borderColor: "#17457b",
+  borderColor: "#128EE5",
   borderStyle: "solid",
 };
 
