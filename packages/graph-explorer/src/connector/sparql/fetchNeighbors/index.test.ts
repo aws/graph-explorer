@@ -18,7 +18,6 @@ describe("fetchNeighbors", () => {
     const sourceVertex = createTestableVertex().withRdfValues();
     const request: SPARQLNeighborsRequest = {
       resourceURI: sourceVertex.id,
-      resourceClasses: [],
     };
     const neighborVertex = createTestableVertex().withRdfValues();
     const edge = createTestableEdge()
@@ -47,7 +46,6 @@ describe("fetchNeighbors", () => {
     const sourceVertex = createTestableVertex().withRdfValues();
     const request: SPARQLNeighborsRequest = {
       resourceURI: sourceVertex.id,
-      resourceClasses: [],
     };
     const neighbor1 = createTestableVertex().withRdfValues();
     const neighbor2 = createTestableVertex().withRdfValues();
@@ -74,7 +72,6 @@ describe("fetchNeighbors", () => {
     const sourceVertex = createTestableVertex().withRdfValues();
     const request: SPARQLNeighborsRequest = {
       resourceURI: sourceVertex.id,
-      resourceClasses: [],
     };
     const mockResponse = createQuadSparqlResponse([]);
     mockSparqlFetch.mockResolvedValue(mockResponse);
@@ -92,7 +89,6 @@ describe("fetchNeighbors", () => {
     const sourceVertex = createTestableVertex().withRdfValues();
     const request: SPARQLNeighborsRequest = {
       resourceURI: sourceVertex.id,
-      resourceClasses: [],
     };
 
     const bindings = createQuadBindingsForEntities([sourceVertex], []);
@@ -112,7 +108,6 @@ describe("fetchNeighbors", () => {
     const sourceVertex = createTestableVertex().withRdfValues();
     const request: SPARQLNeighborsRequest = {
       resourceURI: sourceVertex.id,
-      resourceClasses: [],
     };
     const malformedResponse = {
       head: { vars: ["subject", "predicate", "object"] },
@@ -137,7 +132,6 @@ describe("fetchNeighbors", () => {
     const sourceVertex = createTestableVertex().withRdfValues();
     const request: SPARQLNeighborsRequest = {
       resourceURI: sourceVertex.id,
-      resourceClasses: [],
     };
     const invalidResponse = {
       head: { vars: ["subject", "predicate", "object"] },
@@ -162,7 +156,6 @@ describe("fetchNeighbors", () => {
     const sourceVertex = createTestableVertex().withRdfValues();
     const request: SPARQLNeighborsRequest = {
       resourceURI: sourceVertex.id,
-      resourceClasses: [],
     };
     const invalidResponse = {
       // Missing head
@@ -181,7 +174,6 @@ describe("fetchNeighbors", () => {
     const sourceVertex = createTestableVertex().withRdfValues();
     const request: SPARQLNeighborsRequest = {
       resourceURI: sourceVertex.id,
-      resourceClasses: [],
     };
     const invalidResponse = {
       head: { vars: ["subject", "predicate", "object"] },
@@ -198,7 +190,6 @@ describe("fetchNeighbors", () => {
     const sourceVertex = createTestableVertex().withRdfValues();
     const request: SPARQLNeighborsRequest = {
       resourceURI: sourceVertex.id,
-      resourceClasses: [],
     };
     const blankNodeVertex = createTestableVertex().withRdfValues({
       isBlankNode: true,
@@ -227,7 +218,6 @@ describe("fetchNeighbors", () => {
     // Arrange
     const request: SPARQLNeighborsRequest = {
       resourceURI: createRandomUrlString() as any,
-      resourceClasses: [createRandomUrlString(), createRandomUrlString()],
       subjectClasses: [createRandomUrlString()],
       filterCriteria: [
         { predicate: "http://example.com/name", object: "test" },
@@ -258,7 +248,6 @@ describe("fetchNeighbors", () => {
     const sourceVertex = createTestableVertex().withRdfValues();
     const request: SPARQLNeighborsRequest = {
       resourceURI: sourceVertex.id,
-      resourceClasses: [],
     };
     const fetchError = new Error("Network error");
     mockSparqlFetch.mockRejectedValue(fetchError);
@@ -279,7 +268,6 @@ describe("fetchNeighbors", () => {
       .withRdfValues();
     const request: SPARQLNeighborsRequest = {
       resourceURI: targetVertex.id,
-      resourceClasses: [],
     };
 
     // Only include target vertex in bindings, not the edge source
@@ -307,7 +295,6 @@ describe("fetchNeighbors", () => {
       .withRdfValues();
     const request: SPARQLNeighborsRequest = {
       resourceURI: sourceVertex.id,
-      resourceClasses: [],
     };
 
     // Only include source vertex in bindings, not the edge source

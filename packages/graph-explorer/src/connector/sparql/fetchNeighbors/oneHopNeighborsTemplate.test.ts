@@ -8,7 +8,6 @@ describe("oneHopNeighborsTemplate", () => {
     // This represents the filter criteria used in the example documentation
     const template = oneHopNeighborsTemplate({
       resourceURI: createVertexId("http://www.example.com/soccer/resource#EPL"),
-      resourceClasses: [],
       subjectClasses: ["http://www.example.com/soccer/ontology/Team"],
       filterCriteria: [
         {
@@ -64,7 +63,6 @@ describe("oneHopNeighborsTemplate", () => {
   it("should produce query for resource", () => {
     const template = oneHopNeighborsTemplate({
       resourceURI: createVertexId("http://www.example.com/soccer/resource#EPL"),
-      resourceClasses: [],
       limit: 10,
       offset: 0,
     });
@@ -100,7 +98,6 @@ describe("oneHopNeighborsTemplate", () => {
   it("should produce query for multiple subject classes", () => {
     const template = oneHopNeighborsTemplate({
       resourceURI: createVertexId("http://www.example.com/soccer/resource#EPL"),
-      resourceClasses: [],
       subjectClasses: [
         "http://www.example.com/soccer/ontology/Team",
         "http://www.example.com/soccer/ontology/Player",
@@ -138,7 +135,6 @@ describe("oneHopNeighborsTemplate", () => {
   it("should produce query with limit of zero", () => {
     const template = oneHopNeighborsTemplate({
       resourceURI: createVertexId("http://www.example.com/soccer/resource#EPL"),
-      resourceClasses: [],
       limit: 0,
     });
 
@@ -172,7 +168,6 @@ describe("oneHopNeighborsTemplate", () => {
   it("should produce query with limit and offset", () => {
     const template = oneHopNeighborsTemplate({
       resourceURI: createVertexId("http://www.example.com/soccer/resource#EPL"),
-      resourceClasses: [],
       limit: 10,
       offset: 5,
     });
@@ -208,7 +203,6 @@ describe("oneHopNeighborsTemplate", () => {
   it("should produce query excluding resources", () => {
     const template = oneHopNeighborsTemplate({
       resourceURI: createVertexId("http://www.example.com/soccer/resource#EPL"),
-      resourceClasses: [],
       excludedVertices: new Set([
         createVertexId("http://www.example.com/soccer/resource#EFL"),
         createVertexId("http://www.example.com/soccer/resource#EFL2"),

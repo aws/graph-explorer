@@ -10,7 +10,7 @@ import {
   Spinner,
   VertexRow,
 } from "@/components";
-import { type DisplayVertex, useNeighbors, useVertex } from "@/core";
+import { type DisplayVertex, useNeighbors } from "@/core";
 import { useExpandNode } from "@/hooks";
 import useNeighborsOptions, {
   type NeighborOption,
@@ -152,16 +152,13 @@ function ExpandButton({
   isDisabled: boolean;
   filters: ExpandNodeFilters;
 }) {
-  const vertex = useVertex(vertexId);
   const { expandNode, isPending } = useExpandNode();
 
   return (
     <Button
       variant="filled"
       isDisabled={isPending || isDisabled}
-      onPress={() =>
-        expandNode({ vertexId, vertexTypes: vertex.types, ...filters })
-      }
+      onPress={() => expandNode({ vertexId, ...filters })}
     >
       <Spinner loading={isPending}>
         <ExpandGraphIcon />
