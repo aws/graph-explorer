@@ -3,11 +3,19 @@ import edgeLabelsTemplate from "./edgeLabelsTemplate";
 import edgesSchemaTemplate from "./edgesSchemaTemplate";
 import vertexLabelsTemplate from "./vertexLabelsTemplate";
 import verticesSchemaTemplate from "./verticesSchemaTemplate";
-import type { GEdge, GInt64, GScalar, GVertex } from "../types";
+import type { GEdge, GInt64, GVertex } from "../types";
 import type { GraphSummary, GremlinFetch } from "../types";
 import { chunk } from "lodash";
 import type { LoggerConnector } from "@/connector/LoggerConnector";
 import { DEFAULT_BATCH_REQUEST_SIZE } from "@/utils";
+import {
+  createEdge,
+  createVertex,
+  mapEdgeToTypeConfig,
+  mapVertexToTypeConfigs,
+} from "@/core";
+import mapApiVertex from "../mappers/mapApiVertex";
+import mapApiEdge from "../mappers/mapApiEdge";
 
 type RawVertexLabelsResponse = {
   requestId: string;
@@ -106,15 +114,6 @@ const fetchVertexLabels = async (
   return labelsWithCounts;
 };
 
-const TYPE_MAP = {
-  "g:Date": "Date" as const,
-  "g:Int32": "Number" as const,
-  "g:Int64": "Number" as const,
-  "g:Double": "Number" as const,
-  "g:Float": "Number" as const,
-  "g:T": "String" as const,
-};
-
 const fetchVerticesAttributes = async (
   gremlinFetch: GremlinFetch,
   remoteLogger: LoggerConnector,
@@ -141,18 +140,14 @@ const fetchVerticesAttributes = async (
     const verticesSchemas = response.result.data["@value"][0]["@value"];
 
     for (let i = 0; i < verticesSchemas.length; i += 2) {
-      const label = verticesSchemas[i] as string;
-      const vertex = verticesSchemas[i + 1] as GVertex;
-      const properties = vertex["@value"].properties ?? {};
-      vertices.push({
-        type: label,
-        total: countsByLabel[label],
-        attributes: Object.entries(properties || {}).map(([name, prop]) => {
-          const value = prop[0]?.["@value"].value;
-          const dataType = mapValueToDataType(value);
-          return { name, dataType };
-        }),
-      });
+      const gVertex = verticesSchemas[i + 1] as GVertex;
+      const vertex = createVertex(mapApiVertex(gVertex));
+      const vtConfigs = mapVertexToTypeConfigs(vertex);
+
+      for (const vtConfig of vtConfigs) {
+        vtConfig.total = countsByLabel[vtConfig.type];
+        vertices.push(vtConfig);
+      }
     }
   }
 
@@ -224,18 +219,11 @@ const fetchEdgesAttributes = async (
 
     for (let i = 0; i < edgesSchemas.length; i += 2) {
       const label = edgesSchemas[i] as string;
-      const vertex = edgesSchemas[i + 1] as GEdge;
-      const properties = vertex["@value"].properties;
-      edges.push({
-        type: label,
-        total: countsByLabel[label],
-        attributes: Object.entries(properties || {}).map(([name, prop]) => {
-          const value = prop["@value"].value;
-          const dataType = mapValueToDataType(value);
-
-          return { name, dataType };
-        }),
-      });
+      const gEdge = edgesSchemas[i + 1] as GEdge;
+      const edge = createEdge(mapApiEdge(gEdge));
+      const etConfig = mapEdgeToTypeConfig(edge);
+      etConfig.total = countsByLabel[label];
+      edges.push(etConfig);
     }
   }
 
@@ -245,18 +233,6 @@ const fetchEdgesAttributes = async (
 
   return edges;
 };
-
-function mapValueToDataType(value: GScalar) {
-  if (typeof value === "string") {
-    return "String";
-  }
-
-  if (typeof value === "boolean") {
-    return "Boolean";
-  }
-
-  return TYPE_MAP[value["@type"]] || "String";
-}
 
 const fetchEdgesSchema = async (
   gremlinFetch: GremlinFetch,

@@ -74,8 +74,8 @@ export function updateSchemaFromEntities(
   const vertices = entities.vertices ?? [];
   const edges = entities.edges ?? [];
 
-  const newVertexConfigs = vertices.map(extractConfigFromEntity);
-  const newEdgeConfigs = edges.map(extractConfigFromEntity);
+  const newVertexConfigs = vertices.flatMap(mapVertexToTypeConfigs);
+  const newEdgeConfigs = edges.map(mapEdgeToTypeConfig);
 
   let newSchema = {
     ...schema,
@@ -137,13 +137,20 @@ export function mergeAttributes(
   return Array.from(attrMap.values());
 }
 
-/** Creates a type config from a given node or edge. */
-export function extractConfigFromEntity<Entity extends Vertex | Edge>(
-  entity: Entity
-): Entity extends Vertex ? VertexTypeConfig : EdgeTypeConfig {
+export function mapVertexToTypeConfigs(vertex: Vertex): VertexTypeConfig[] {
+  return vertex.types.map(type => ({
+    type,
+    attributes: Object.entries(vertex.attributes).map(([name, value]) => ({
+      name,
+      dataType: detectDataType(value),
+    })),
+  }));
+}
+
+export function mapEdgeToTypeConfig(edge: Edge): EdgeTypeConfig {
   return {
-    type: entity.type,
-    attributes: Object.entries(entity.attributes).map(([name, value]) => ({
+    type: edge.type,
+    attributes: Object.entries(edge.attributes).map(([name, value]) => ({
       name,
       dataType: detectDataType(value),
     })),
