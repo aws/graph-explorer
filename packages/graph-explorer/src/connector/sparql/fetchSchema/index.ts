@@ -97,7 +97,6 @@ const fetchPredicatesByClass = async (
             item =>
               ({
                 name: item.pred.value,
-                searchable: true,
                 dataType: TYPE_MAP[item.sample.datatype || ""] || "String",
               }) satisfies AttributeConfig
           )
