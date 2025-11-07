@@ -1,6 +1,7 @@
 import {
   createRandomEdge,
   createRandomVertex,
+  createTestableVertex,
   DbState,
   renderHookWithJotai,
 } from "@/utils/testing";
@@ -108,18 +109,16 @@ describe("useRenderedVertices", () => {
 
   it("should return the filtered vertices by type", async () => {
     const dbState = new DbState();
-    dbState.addVertexToGraph(createRandomVertex());
-    dbState.addVertexToGraph(createRandomVertex());
-    dbState.addVertexToGraph(createRandomVertex());
 
-    // Make sure two vertices have the same type
-    dbState.vertices[1].type = dbState.vertices[0].type;
+    const vertex1 = createTestableVertex();
+    const vertex2 = createTestableVertex().with({ types: vertex1.types });
+    const vertex3 = createTestableVertex();
 
-    dbState.filterVertexType(dbState.vertices[0].type);
+    dbState.addTestableVertexToGraph(vertex1);
+    dbState.addTestableVertexToGraph(vertex2);
+    dbState.addTestableVertexToGraph(vertex3);
 
-    const expectedRenderedVertices = [
-      createRenderedVertexId(dbState.vertices[2].id),
-    ];
+    dbState.filterVertexType(vertex1.types[0]);
 
     const { result } = renderHookWithJotai(
       () => useRenderedEntities(),
@@ -127,8 +126,8 @@ describe("useRenderedVertices", () => {
     );
 
     await waitFor(() => {
-      const vertexIds = result.current.vertices.map(v => v.data.id);
-      expect(vertexIds).toEqual(expectedRenderedVertices);
+      const vertexIds = result.current.vertices.map(v => v.data.vertexId);
+      expect(vertexIds).toStrictEqual([vertex3.id]);
     });
   });
 });

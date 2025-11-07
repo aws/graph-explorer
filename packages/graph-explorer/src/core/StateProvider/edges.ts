@@ -1,7 +1,6 @@
 import { atom, useSetAtom } from "jotai";
 import { atomFamily, atomWithReset } from "jotai/utils";
 import type { Edge, EdgeId } from "@/core";
-import { filteredNodesSelector } from "./nodes";
 
 export function toEdgeMap(edges: Iterable<Edge>): Map<EdgeId, Edge> {
   return new Map(Iterator.from(edges).map(e => [e.id, e]));
@@ -33,34 +32,6 @@ const toggleFilteredEdgeAtom = atom(null, (_get, set, edgeId: EdgeId) => {
 export function useToggleFilteredEdge() {
   return useSetAtom(toggleFilteredEdgeAtom);
 }
-
-/**
- * Filters the edges added to the graph by:
- *
- * - Edge types unselected in the filter sidebar
- * - Vertex types unselected in the filter sidebar
- * - Individual edges hidden using the table view
- * - Individual vertices hidden using the table view
- *
- * If either the source or target vertex is hidden, the edge is also hidden.
- */
-export const filteredEdgesSelector = atom(get => {
-  const edges = get(edgesAtom);
-  const filteredEdgeIds = get(edgesFilteredIdsAtom);
-  const filteredEdgeTypes = get(edgesTypesFilteredAtom);
-
-  // Get the IDs of the existing vertices
-  const existingVertexIds = new Set(get(filteredNodesSelector).keys());
-
-  return new Map(
-    edges
-      .entries()
-      .filter(([_id, edge]) => !filteredEdgeTypes.has(edge.type))
-      .filter(([_id, edge]) => !filteredEdgeIds.has(edge.id))
-      .filter(([_id, edge]) => existingVertexIds.has(edge.sourceId))
-      .filter(([_id, edge]) => existingVertexIds.has(edge.targetId))
-  );
-});
 
 export const edgesTableFiltersAtom =
   atomWithReset(Array<{ id: string; value: unknown }>());

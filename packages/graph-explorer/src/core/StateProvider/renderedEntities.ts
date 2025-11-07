@@ -1,13 +1,19 @@
 import {
-  filteredEdgesSelector,
-  filteredNodesSelector,
+  edgesFilteredIdsAtom,
+  edgesTypesFilteredAtom,
+  nodesFilteredIdsAtom,
+  nodesTypesFilteredAtom,
+  useAllNeighbors,
+  useDisplayEdgesInCanvas,
+  useDisplayVerticesInCanvas,
+  type DisplayEdge,
+  type DisplayVertex,
   type EntityRawId,
-  type Vertex,
   type VertexId,
 } from "@/core";
 import type { Branded } from "@/utils";
 import { useAtomValue } from "jotai";
-import type { Edge, EdgeId } from "../entities/edge";
+import type { EdgeId } from "../entities/edge";
 
 /** A string representation of a vertex ID that encodes the original type. Cytoscape requires IDs to be strings. */
 export type RenderedVertexId = Branded<string, "RenderedVertexId">;
@@ -23,34 +29,68 @@ export type RenderedEdge = ReturnType<typeof createRenderedEdge>;
 
 /** Returns the filtered array of `RenderedVertex` instances for use by Cytoscape. */
 export function useRenderedVertices(): RenderedVertex[] {
-  const vertices = useAtomValue(filteredNodesSelector);
-  return vertices.values().map(createRenderedVertex).toArray();
+  const filteredIds = useAtomValue(nodesFilteredIdsAtom);
+  const filteredTypes = useAtomValue(nodesTypesFilteredAtom);
+  const displayVerticesInGraph = useDisplayVerticesInCanvas();
+  const neighborCounts = useAllNeighbors();
+
+  const result: RenderedVertex[] = [];
+
+  for (const vertex of displayVerticesInGraph.values()) {
+    // Filters the nodes added to the graph by:
+    // - Individual nodes hidden using the table view
+    // - Vertex types unselected in the filter sidebar
+    if (filteredIds.has(vertex.id)) continue;
+
+    // Check if any vertex type is in the filtered types
+    let hasFilteredType = false;
+    for (const type of vertex.original.types) {
+      if (filteredTypes.has(type)) {
+        hasFilteredType = true;
+        break;
+      }
+    }
+    if (hasFilteredType) continue;
+
+    const neighborCount = neighborCounts.get(vertex.id)?.unfetched ?? 0;
+    result.push(createRenderedVertex(vertex, neighborCount));
+  }
+
+  return result;
 }
 
 /** Returns the filtered array of `RenderedEdge` instances for use by Cytoscape. */
 export function useRenderedEdges(): RenderedEdge[] {
-  const edges = useAtomValue(filteredEdgesSelector);
-  return edges.values().map(createRenderedEdge).toArray();
+  const edges = useDisplayEdgesInCanvas();
+  const filteredEdgeIds = useAtomValue(edgesFilteredIdsAtom);
+  const filteredEdgeTypes = useAtomValue(edgesTypesFilteredAtom);
+  const vertices = useRenderedVertices();
+
+  // Get the IDs of the existing vertices
+  const existingVertexIds = new Set(vertices.map(v => v.data.vertexId));
+
+  const result: RenderedEdge[] = [];
+
+  for (const edge of edges.values()) {
+    // Filters the edges added to the graph by:
+    // - Edge types unselected in the filter sidebar
+    // - Individual edges hidden using the table view
+    // - Missing source or target vertex
+    if (filteredEdgeTypes.has(edge.typeConfig.type)) continue;
+    if (filteredEdgeIds.has(edge.id)) continue;
+    if (!existingVertexIds.has(edge.sourceId)) continue;
+    if (!existingVertexIds.has(edge.targetId)) continue;
+
+    result.push(createRenderedEdge(edge));
+  }
+
+  return result;
 }
 
 export function useRenderedEntities() {
   const vertices = useRenderedVertices();
   const edges = useRenderedEdges();
   return { vertices, edges };
-}
-
-/**
- * Maps a rendered edge back to a regular edge.
- * @param renderedEdge The rendered edge
- * @returns An edge instance
- */
-export function createEdgeFromRenderedEdge(renderedEdge: RenderedEdge): Edge {
-  return {
-    ...renderedEdge.data,
-    id: getEdgeIdFromRenderedEdgeId(renderedEdge.data.id),
-    sourceId: getVertexIdFromRenderedVertexId(renderedEdge.data.source),
-    targetId: getVertexIdFromRenderedVertexId(renderedEdge.data.target),
-  };
 }
 
 /** Maps a VertexId to a string with the original type prefixed. */
@@ -123,11 +163,15 @@ function stripIdTypePrefix(id: string): string {
  * - The `id` property is a string
  * - There exists a `data` property where any custom data is stored
  */
-function createRenderedVertex(vertex: Vertex) {
+function createRenderedVertex(vertex: DisplayVertex, neighborCount: number) {
   return {
     data: {
-      ...vertex,
       id: createRenderedVertexId(vertex.id),
+      type: vertex.typeConfig.type,
+      vertexId: vertex.id,
+      displayName: vertex.displayName,
+      displayTypes: vertex.displayTypes,
+      neighborCount,
     },
   };
 }
@@ -140,13 +184,15 @@ function createRenderedVertex(vertex: Vertex) {
  * - The `source` and `target` properties are strings
  * - There exists a `data` property where any custom data is stored
  */
-function createRenderedEdge(edge: Edge) {
+function createRenderedEdge(edge: DisplayEdge) {
   return {
     data: {
-      ...edge,
       id: createRenderedEdgeId(edge.id),
       source: createRenderedVertexId(edge.sourceId),
       target: createRenderedVertexId(edge.targetId),
+      edgeId: edge.id,
+      type: edge.typeConfig.type,
+      displayName: edge.displayName,
     },
   };
 }

@@ -1,20 +1,11 @@
 import Color from "color";
 import { useDeferredValue } from "react";
-import {
-  type DisplayEdge,
-  type EdgeId,
-  type EdgeTypeConfig,
-  getEdgeIdFromRenderedEdgeId,
-  type RenderedEdgeId,
-  useDisplayEdgesInCanvas,
-  type VertexTypeConfig,
-} from "@/core";
+import type { EdgeTypeConfig, VertexTypeConfig } from "@/core";
 import type { GraphProps } from "@/components";
 import {
   useEdgeTypeConfigs,
   useVertexTypeConfigs,
 } from "@/core/ConfigurationProvider/useConfiguration";
-import { LABELS } from "@/utils/constants";
 import { useBackgroundImageMap } from "./useBackgroundImageMap";
 
 const LINE_PATTERN = {
@@ -26,7 +17,6 @@ const LINE_PATTERN = {
 export default function useGraphStyles() {
   const vtConfigs = useVertexTypeConfigs();
   const etConfigs = useEdgeTypeConfigs();
-  const displayEdges = useDisplayEdgesInCanvas();
 
   const deferredVtConfigs = useDeferredValue(vtConfigs);
   const deferredEtConfigs = useDeferredValue(etConfigs);
@@ -36,16 +26,14 @@ export default function useGraphStyles() {
   return createGraphStyles(
     deferredVtConfigs,
     deferredEtConfigs,
-    backgroundImageMap,
-    displayEdges
+    backgroundImageMap
   );
 }
 
 function createGraphStyles(
   deferredVtConfigs: VertexTypeConfig[],
   deferredEtConfigs: EdgeTypeConfig[],
-  backgroundImageMap: Map<string, string | null>,
-  displayEdges: Map<EdgeId, DisplayEdge>
+  backgroundImageMap: Map<string, string | null>
 ): GraphProps["styles"] {
   const styles: GraphProps["styles"] = {};
 
@@ -73,13 +61,7 @@ function createGraphStyles(
     const et = etConfig?.type;
 
     styles[`edge[type="${et}"]`] = {
-      label: (el: cytoscape.EdgeSingular) => {
-        const edgeId = el.id() as RenderedEdgeId;
-        const displayEdge = displayEdges.get(
-          getEdgeIdFromRenderedEdgeId(edgeId)
-        );
-        return displayEdge ? displayEdge.displayName : LABELS.MISSING_VALUE;
-      },
+      label: "data(displayName)",
       color: new Color(etConfig?.labelColor || "#17457b").isDark()
         ? "#FFFFFF"
         : "#000000",

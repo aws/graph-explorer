@@ -36,24 +36,6 @@ export function useToggleFilteredNode() {
 }
 
 /**
- * Filters the nodes added to the graph by:
- *
- * - Vertex types unselected in the filter sidebar
- * - Individual nodes hidden using the table view
- */
-export const filteredNodesSelector = atom(get => {
-  const filteredIds = get(nodesFilteredIdsAtom);
-  const filteredTypes = get(nodesTypesFilteredAtom);
-
-  return new Map(
-    get(nodesAtom)
-      .entries()
-      .filter(([_id, node]) => !filteredTypes.has(node.type))
-      .filter(([_id, node]) => !filteredIds.has(node.id))
-  );
-});
-
-/**
  * Returns a Vertex object for the given id, using the following fallback strategy:
  *
  * 1. Prefer vertex from vertexDetailsQuery

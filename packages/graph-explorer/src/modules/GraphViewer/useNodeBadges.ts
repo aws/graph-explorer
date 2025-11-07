@@ -2,32 +2,16 @@ import type {
   Badge,
   BadgeRenderer,
 } from "@/components/Graph/hooks/useRenderBadges";
-import {
-  getVertexIdFromRenderedVertexId,
-  type RenderedVertexId,
-  useDisplayVerticesInCanvas,
-  useAllNeighbors,
-} from "@/core";
+import type { RenderedVertexId } from "@/core";
 
 const useNodeBadges = () => {
-  const displayNodes = useDisplayVerticesInCanvas();
-  const neighborCounts = useAllNeighbors();
-
   return (outOfFocusIds: Set<RenderedVertexId>): BadgeRenderer =>
     (nodeData, boundingBox, { zoomLevel }) => {
-      const vertexId = getVertexIdFromRenderedVertexId(nodeData.id);
-      const displayNode = displayNodes.get(vertexId);
-      const neighbors = neighborCounts.get(vertexId);
-      // Ensure we have the node name and title
-      const name = displayNode?.displayName ?? "";
-      const title = displayNode?.displayTypes ?? "";
-      const unfetched = neighbors?.unfetched ?? 0;
-
       return [
         {
-          text: name,
+          text: nodeData.displayName,
           hidden: zoomLevel === "small" || outOfFocusIds.has(nodeData.id),
-          title: zoomLevel === "large" ? title : undefined,
+          title: zoomLevel === "large" ? nodeData.displayTypes : undefined,
           maxWidth: zoomLevel === "large" ? 80 : 50,
           anchor: "center",
           fontSize: 7,
@@ -48,8 +32,8 @@ const useNodeBadges = () => {
           hidden:
             zoomLevel === "small" ||
             outOfFocusIds.has(nodeData.id) ||
-            !unfetched,
-          text: String(unfetched),
+            !nodeData.neighborCount,
+          text: String(nodeData.neighborCount),
           anchor: "center",
           fontSize: 5,
           borderRadius: 4,
