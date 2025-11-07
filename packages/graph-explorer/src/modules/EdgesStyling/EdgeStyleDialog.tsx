@@ -123,7 +123,7 @@ function Content({ edgeType }: { edgeType: string }) {
                 <Field>
                   <FieldLabel>Background Color</FieldLabel>
                   <ColorPopover
-                    color={edgeStyle?.labelColor || "#17457b"}
+                    color={edgeStyle.labelColor}
                     onColorChange={color => setEdgeStyle({ labelColor: color })}
                   />
                 </Field>
@@ -134,7 +134,7 @@ function Content({ edgeType }: { edgeType: string }) {
                     min={0}
                     max={1}
                     step={0.1}
-                    value={edgeStyle?.labelBackgroundOpacity ?? 0.7}
+                    value={edgeStyle.labelBackgroundOpacity}
                     onChange={e =>
                       setEdgeStyle({
                         labelBackgroundOpacity: parseNumberSafely(
@@ -149,7 +149,7 @@ function Content({ edgeType }: { edgeType: string }) {
                 <Field>
                   <FieldLabel>Border Color</FieldLabel>
                   <ColorPopover
-                    color={edgeStyle?.labelBorderColor || "#17457b"}
+                    color={edgeStyle.labelBorderColor}
                     onColorChange={color =>
                       setEdgeStyle({ labelBorderColor: color })
                     }
@@ -160,7 +160,7 @@ function Content({ edgeType }: { edgeType: string }) {
                   <Input
                     type="number"
                     min={0}
-                    value={edgeStyle?.labelBorderWidth ?? 0}
+                    value={edgeStyle.labelBorderWidth}
                     onChange={e =>
                       setEdgeStyle({
                         labelBorderWidth: parseNumberSafely(e.target.value),
@@ -171,7 +171,7 @@ function Content({ edgeType }: { edgeType: string }) {
                 <Field>
                   <FieldLabel>Border Style</FieldLabel>
                   <Select
-                    value={edgeStyle?.labelBorderStyle || "solid"}
+                    value={edgeStyle.labelBorderStyle}
                     onValueChange={value =>
                       setEdgeStyle({ labelBorderStyle: value as LineStyle })
                     }
@@ -199,7 +199,7 @@ function Content({ edgeType }: { edgeType: string }) {
                 <Field>
                   <FieldLabel>Line Color</FieldLabel>
                   <ColorPopover
-                    color={edgeStyle?.lineColor || "#b3b3b3"}
+                    color={edgeStyle.lineColor}
                     onColorChange={color => setEdgeStyle({ lineColor: color })}
                   />
                 </Field>
@@ -209,7 +209,7 @@ function Content({ edgeType }: { edgeType: string }) {
                   <Input
                     type="number"
                     min={1}
-                    value={edgeStyle?.lineThickness ?? 2}
+                    value={edgeStyle.lineThickness}
                     onChange={e =>
                       setEdgeStyle({
                         lineThickness: parseNumberSafely(e.target.value),
@@ -220,7 +220,7 @@ function Content({ edgeType }: { edgeType: string }) {
                 <Field>
                   <FieldLabel>Line Style</FieldLabel>
                   <Select
-                    value={edgeStyle?.lineStyle || "solid"}
+                    value={edgeStyle.lineStyle}
                     onValueChange={value =>
                       setEdgeStyle({ lineStyle: value as LineStyle })
                     }
@@ -245,7 +245,7 @@ function Content({ edgeType }: { edgeType: string }) {
                 <Field>
                   <FieldLabel>Source Arrow Style</FieldLabel>
                   <Select
-                    value={edgeStyle?.sourceArrowStyle || "none"}
+                    value={edgeStyle.sourceArrowStyle}
                     onValueChange={value =>
                       setEdgeStyle({ sourceArrowStyle: value as ArrowStyle })
                     }
@@ -268,7 +268,7 @@ function Content({ edgeType }: { edgeType: string }) {
                 <Field>
                   <FieldLabel>Target Arrow Style</FieldLabel>
                   <Select
-                    value={edgeStyle?.targetArrowStyle || "triangle"}
+                    value={edgeStyle.targetArrowStyle}
                     onValueChange={value =>
                       setEdgeStyle({ targetArrowStyle: value as ArrowStyle })
                     }

@@ -183,7 +183,7 @@ function Content({ vertexType }: { vertexType: string }) {
                 <Field>
                   <FieldLabel>Shape</FieldLabel>
                   <Select
-                    value={vertexStyle?.shape || "ellipse"}
+                    value={vertexStyle.shape}
                     onValueChange={value =>
                       setVertexStyle({ shape: value as ShapeStyle })
                     }
@@ -226,7 +226,7 @@ function Content({ vertexType }: { vertexType: string }) {
                 <Field>
                   <FieldLabel>{t("graph-viewer.node")} Color</FieldLabel>
                   <ColorPopover
-                    color={vertexStyle?.color || "#17457b"}
+                    color={vertexStyle.color}
                     onColorChange={(color: string) => setVertexStyle({ color })}
                   />
                 </Field>
@@ -237,7 +237,7 @@ function Content({ vertexType }: { vertexType: string }) {
                     min={0}
                     max={1}
                     step={0.1}
-                    value={vertexStyle?.backgroundOpacity ?? 0.4}
+                    value={vertexStyle.backgroundOpacity}
                     onChange={e =>
                       setVertexStyle({
                         backgroundOpacity: parseNumberSafely(e.target.value),
@@ -250,7 +250,7 @@ function Content({ vertexType }: { vertexType: string }) {
                 <Field>
                   <FieldLabel>Border Color</FieldLabel>
                   <ColorPopover
-                    color={vertexStyle?.borderColor || "#17457b"}
+                    color={vertexStyle.borderColor}
                     onColorChange={(color: string) =>
                       setVertexStyle({ borderColor: color })
                     }
@@ -261,7 +261,7 @@ function Content({ vertexType }: { vertexType: string }) {
                   <Input
                     type="number"
                     min={0}
-                    value={vertexStyle?.borderWidth ?? 0}
+                    value={vertexStyle.borderWidth}
                     onChange={e =>
                       setVertexStyle({
                         borderWidth: parseNumberSafely(e.target.value),
@@ -272,7 +272,7 @@ function Content({ vertexType }: { vertexType: string }) {
                 <Field>
                   <FieldLabel>Border Style</FieldLabel>
                   <Select
-                    value={vertexStyle?.borderStyle || "solid"}
+                    value={vertexStyle.borderStyle}
                     onValueChange={value =>
                       setVertexStyle({ borderStyle: value as LineStyle })
                     }

@@ -1,6 +1,8 @@
+import DEFAULT_ICON_URL from "@/utils/defaultIconUrl";
 import { atomWithLocalForage } from "./localForageEffect";
 import { useAtom, type WritableAtom } from "jotai";
 import { useDeferredValue, useEffect, useState } from "react";
+import { RESERVED_ID_PROPERTY, RESERVED_TYPES_PROPERTY } from "@/utils";
 
 export type ShapeStyle =
   | "rectangle"
@@ -91,6 +93,38 @@ export type EdgePreferences = {
   targetArrowStyle?: ArrowStyle;
 };
 
+export const defaultVertexPreferences: Required<
+  Omit<VertexPreferences, "type" | "displayLabel">
+> = {
+  displayNameAttribute: RESERVED_ID_PROPERTY,
+  longDisplayNameAttribute: RESERVED_TYPES_PROPERTY,
+  iconUrl: DEFAULT_ICON_URL,
+  iconImageType: "image/svg+xml",
+  color: "#128EE5",
+  shape: "ellipse",
+  backgroundOpacity: 0.4,
+  borderWidth: 0,
+  borderColor: "#128EE5",
+  borderStyle: "solid",
+};
+
+export const defaultEdgePreferences: Required<
+  Omit<EdgePreferences, "type" | "displayLabel">
+> = {
+  displayNameAttribute: RESERVED_TYPES_PROPERTY,
+  labelColor: "#17457b",
+  labelBackgroundOpacity: 0.7,
+  labelBorderColor: "#17457b",
+  labelBorderStyle: "solid",
+  labelBorderWidth: 0,
+  labelOpacity: "1",
+  lineColor: "#b3b3b3",
+  lineThickness: 2,
+  lineStyle: "solid",
+  sourceArrowStyle: "none",
+  targetArrowStyle: "triangle",
+};
+
 export type UserStyling = {
   vertices?: Array<VertexPreferences>;
   edges?: Array<EdgePreferences>;
@@ -128,7 +162,13 @@ type UpdatedVertexStyle = Omit<VertexPreferences, "type">;
 export function useVertexStyling(type: string) {
   const [allStyling, setAllStyling] = useDeferredAtom(userStylingAtom);
 
-  const vertexStyle = allStyling.vertices?.find(v => v.type === type);
+  const storedVertexStyle = allStyling.vertices?.find(v => v.type === type);
+  const vertexStyle = {
+    ...defaultVertexPreferences,
+    ...storedVertexStyle,
+    type: storedVertexStyle?.type ?? type,
+    displayLabel: storedVertexStyle?.displayLabel ?? type,
+  };
 
   const setVertexStyle = (updatedStyle: UpdatedVertexStyle) => {
     setAllStyling(prev => {
@@ -174,7 +214,13 @@ type UpdatedEdgeStyle = Omit<EdgePreferences, "type">;
 export function useEdgeStyling(type: string) {
   const [allStyling, setAllStyling] = useDeferredAtom(userStylingAtom);
 
-  const edgeStyle = allStyling.edges?.find(v => v.type === type);
+  const storedEdgeStyle = allStyling.edges?.find(v => v.type === type);
+  const edgeStyle = {
+    ...defaultEdgePreferences,
+    ...storedEdgeStyle,
+    type: storedEdgeStyle?.type ?? type,
+    displayLabel: storedEdgeStyle?.displayLabel ?? type,
+  };
 
   const setEdgeStyle = (updatedStyle: UpdatedEdgeStyle) => {
     setAllStyling(prev => {
