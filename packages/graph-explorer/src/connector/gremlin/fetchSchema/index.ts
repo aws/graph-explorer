@@ -144,9 +144,10 @@ const fetchVerticesAttributes = async (
       const vertex = createVertex(mapApiVertex(gVertex));
       const vtConfigs = mapVertexToTypeConfigs(vertex);
 
-      vertices.push(
-        ...vtConfigs.map(vt => ({ ...vt, total: countsByLabel[vt.type] }))
-      );
+      for (const vtConfig of vtConfigs) {
+        vtConfig.total = countsByLabel[vtConfig.type];
+        vertices.push(vtConfig);
+      }
     }
   }
 
@@ -221,10 +222,8 @@ const fetchEdgesAttributes = async (
       const gEdge = edgesSchemas[i + 1] as GEdge;
       const edge = createEdge(mapApiEdge(gEdge));
       const etConfig = mapEdgeToTypeConfig(edge);
-      edges.push({
-        ...etConfig,
-        total: countsByLabel[label],
-      });
+      etConfig.total = countsByLabel[label];
+      edges.push(etConfig);
     }
   }
 
