@@ -202,5 +202,5 @@ export function mapToDisplayEdgeTypeConfig(
 }
 
 function isAttributeSearchable(attribute: AttributeConfig) {
-  return attribute.searchable !== false && attribute.dataType === "String";
+  return attribute.dataType === "String";
 }

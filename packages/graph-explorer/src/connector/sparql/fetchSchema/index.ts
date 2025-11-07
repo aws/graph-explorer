@@ -1,12 +1,16 @@
 import { batchPromisesSerially } from "@/utils";
 import { DEFAULT_CONCURRENT_REQUESTS_LIMIT } from "@/utils/constants";
-import type { SchemaResponse } from "@/connector/useGEFetchTypes";
+import type {
+  EdgeSchemaResponse,
+  SchemaResponse,
+} from "@/connector/useGEFetchTypes";
 import classesWithCountsTemplates from "./classesWithCountsTemplates";
 import predicatesByClassTemplate from "./predicatesByClassTemplate";
 import predicatesWithCountsTemplate from "./predicatesWithCountsTemplate";
 import type { GraphSummary, SparqlFetch, SparqlValue } from "../types";
 import type { LoggerConnector } from "@/connector/LoggerConnector";
 import { defaultVertexTypeConfig } from "@/core/StateProvider/configuration";
+import type { AttributeConfig } from "@/core";
 
 type RawClassesWCountsResponse = {
   results: {
@@ -89,12 +93,13 @@ const fetchPredicatesByClass = async (
 
       const attributes = new Map(
         predicatesResponse.results.bindings
-          .map(item => ({
-            name: item.pred.value,
-            searchable: true,
-            hidden: false,
-            dataType: TYPE_MAP[item.sample.datatype || ""] || "String",
-          }))
+          .map(
+            item =>
+              ({
+                name: item.pred.value,
+                dataType: TYPE_MAP[item.sample.datatype || ""] || "String",
+              }) satisfies AttributeConfig
+          )
           .map(a => [a.name, a])
       );
 
@@ -183,7 +188,7 @@ const fetchPredicatesSchema = async (
       type: label,
       total: count,
       attributes: [],
-    };
+    } satisfies EdgeSchemaResponse;
   });
 };
 

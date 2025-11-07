@@ -124,7 +124,6 @@ describe("useKeywordSearch", () => {
       config.connection!.queryEngine = "sparql";
       schema.vertices[0].attributes.push({
         name: "rdfs:label",
-        searchable: true,
         dataType: "String",
       });
 

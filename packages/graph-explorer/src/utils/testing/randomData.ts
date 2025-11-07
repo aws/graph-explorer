@@ -75,16 +75,12 @@ affected by those values, regardless of what they are.
  */
 export function createRandomAttributeConfig(): AttributeConfig {
   const dataType = randomlyUndefined(createRandomName("dataType"));
-  const hidden = randomlyUndefined(createRandomBoolean());
-  const searchable = randomlyUndefined(createRandomBoolean());
   const displayLabel = randomlyUndefined(createRandomName("displayLabel"));
 
   return {
     name: createRandomName("name"),
     ...(displayLabel && { displayLabel }),
     ...(dataType && { dataType }),
-    ...(hidden && { hidden }),
-    ...(searchable && { searchable }),
   };
 }
 

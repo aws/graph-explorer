@@ -17,19 +17,11 @@ export type AttributeConfig = {
    * Name of the attribute in the DB schema
    */
   name: string;
-  /**
-   * If hidden is true, the attribute won't be rendered
-   */
-  hidden?: boolean;
+
   /**
    * DB data type
    */
   dataType?: string;
-  /**
-   * For searching purposes, attributes can be enabled or disable
-   * from the search request
-   */
-  searchable?: boolean;
 };
 
 export type VertexTypeConfig = {
@@ -80,7 +72,7 @@ export type EdgeTypeConfig = {
   /**
    * List of attributes for the edge type
    */
-  attributes: Array<Omit<AttributeConfig, "searchable">>;
+  attributes: Array<AttributeConfig>;
   /**
    * Total number of edges of this type
    */

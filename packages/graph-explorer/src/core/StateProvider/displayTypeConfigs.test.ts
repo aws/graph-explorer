@@ -229,7 +229,7 @@ describe("mapToDisplayVertexTypeConfig", () => {
     const vtConfig = createRandomVertexTypeConfig();
     vtConfig.attributes = [
       { name: "name", dataType: "String" },
-      { name: "email", dataType: "String", searchable: true },
+      { name: "email", dataType: "String" },
     ];
 
     const result = mapToDisplayVertexTypeConfig(
@@ -270,9 +270,9 @@ describe("mapToDisplayVertexTypeConfig", () => {
   it("should mark non-String attributes as not searchable even when searchable in schema", () => {
     const vtConfig = createRandomVertexTypeConfig();
     vtConfig.attributes = [
-      { name: "age", dataType: "Number", searchable: true },
-      { name: "active", dataType: "Boolean", searchable: true },
-      { name: "created", dataType: "Date", searchable: true },
+      { name: "age", dataType: "Number" },
+      { name: "active", dataType: "Boolean" },
+      { name: "created", dataType: "Date" },
     ];
 
     const result = mapToDisplayVertexTypeConfig(
@@ -281,32 +281,6 @@ describe("mapToDisplayVertexTypeConfig", () => {
     );
 
     expect(result.attributes.every(a => !a.isSearchable)).toBe(true);
-  });
-
-  it("should respect searchable: false for String attributes", () => {
-    const vtConfig = createRandomVertexTypeConfig();
-    vtConfig.attributes = [
-      { name: "name", dataType: "String", searchable: false },
-      { name: "email", dataType: "String", searchable: true },
-    ];
-
-    const result = mapToDisplayVertexTypeConfig(
-      vtConfig,
-      identityTextTransform
-    );
-
-    expect(result.attributes).toStrictEqual([
-      {
-        name: "email",
-        displayLabel: "email",
-        isSearchable: true,
-      },
-      {
-        name: "name",
-        displayLabel: "name",
-        isSearchable: false,
-      },
-    ]);
   });
 
   it("should handle attributes without dataType", () => {
