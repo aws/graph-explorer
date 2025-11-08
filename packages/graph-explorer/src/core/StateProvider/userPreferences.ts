@@ -85,7 +85,6 @@ export type EdgePreferences = {
   labelBorderColor?: string;
   labelBorderStyle?: LineStyle;
   labelBorderWidth?: number;
-  labelOpacity?: string;
   lineColor?: string;
   lineThickness?: number;
   lineStyle?: LineStyle;
@@ -117,7 +116,6 @@ export const defaultEdgePreferences: Required<
   labelBorderColor: "#17457b",
   labelBorderStyle: "solid",
   labelBorderWidth: 0,
-  labelOpacity: "1",
   lineColor: "#b3b3b3",
   lineThickness: 2,
   lineStyle: "solid",
