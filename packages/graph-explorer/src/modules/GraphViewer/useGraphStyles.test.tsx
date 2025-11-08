@@ -57,7 +57,6 @@ describe("useGraphStyles", () => {
         "background-opacity": 0.8,
         "border-color": "#000000",
         "border-width": 2,
-        "border-opacity": 1,
         "border-style": "solid",
         shape: "ellipse",
         width: 24,
@@ -117,7 +116,7 @@ describe("useGraphStyles", () => {
     const { result } = renderHookWithState(() => useGraphStyles(), dbState);
 
     const vertexStyle = getStyles(result)[`node[type="Person"]`] as any;
-    expect(vertexStyle["border-opacity"]).toBe(0);
+    expect(vertexStyle["border-width"]).toBe(0);
   });
 
   it("should handle edge config with dotted line style", () => {

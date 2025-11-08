@@ -49,7 +49,6 @@ function createGraphStyles(
       "background-opacity": vtConfig.backgroundOpacity,
       "border-color": vtConfig.borderColor,
       "border-width": vtConfig.borderWidth,
-      "border-opacity": vtConfig.borderWidth ? 1 : 0,
       "border-style": vtConfig.borderStyle,
       shape: vtConfig.shape,
       width: 24,
