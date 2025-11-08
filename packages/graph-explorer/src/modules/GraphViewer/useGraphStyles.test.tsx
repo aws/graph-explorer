@@ -2,9 +2,6 @@ import { waitFor } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach, type Mock } from "vitest";
 import useGraphStyles from "./useGraphStyles";
 import { renderNode } from "./renderNode";
-import { LABELS } from "@/utils/constants";
-import { getEdgeIdFromRenderedEdgeId } from "@/core";
-import type { RenderedEdgeId } from "@/core";
 import type { GraphProps } from "@/components";
 import {
   DbState,
@@ -15,21 +12,8 @@ import {
 
 // Mock dependencies
 vi.mock("./renderNode");
-vi.mock("@/core", async () => {
-  const actual = await vi.importActual("@/core");
-  return {
-    ...actual,
-    getEdgeIdFromRenderedEdgeId: vi.fn(),
-    useDisplayEdgesInCanvas: vi.fn(),
-  };
-});
 
 const mockRenderNode = renderNode as Mock;
-const mockGetEdgeIdFromRenderedEdgeId = getEdgeIdFromRenderedEdgeId as Mock;
-
-// Import the mocked function
-import { useDisplayEdgesInCanvas } from "@/core";
-const mockUseDisplayEdgesInCanvas = useDisplayEdgesInCanvas as Mock;
 
 describe("useGraphStyles", () => {
   let dbState: DbState;
@@ -48,8 +32,6 @@ describe("useGraphStyles", () => {
 
     // Setup mock implementations
     mockRenderNode.mockResolvedValue("data:image/svg+xml;utf8,<svg></svg>");
-    mockGetEdgeIdFromRenderedEdgeId.mockReturnValue("edge-1");
-    mockUseDisplayEdgesInCanvas.mockReturnValue(new Map());
   });
 
   it("should generate vertex styles correctly", async () => {
@@ -209,59 +191,17 @@ describe("useGraphStyles", () => {
     expect(edgeStyle.label).toBeDefined();
   });
 
-  it("should handle edge label function with display edges", () => {
+  it("should have label use the display name in the data", () => {
     const edgeConfig = {
       ...createRandomEdgeTypeConfig(),
       type: "KNOWS",
     };
     dbState.activeSchema.edges = [edgeConfig];
 
-    const mockDisplayEdge = {
-      displayName: "Custom Display Name",
-    };
-    const mockDisplayEdgesMap = new Map([["edge-1", mockDisplayEdge]]);
-    mockUseDisplayEdgesInCanvas.mockReturnValue(mockDisplayEdgesMap);
-
     const { result } = renderHookWithState(() => useGraphStyles(), dbState);
 
     const edgeStyle = getStyles(result)[`edge[type="KNOWS"]`] as any;
-    const labelFunction = edgeStyle.label as (el: {
-      id: () => RenderedEdgeId;
-    }) => string;
-
-    // Mock cytoscape edge element
-    const mockEdgeElement = {
-      id: () => "rendered-edge-1" as RenderedEdgeId,
-    };
-
-    const label = labelFunction(mockEdgeElement);
-    expect(label).toBe("Custom Display Name");
-  });
-
-  it("should return missing display value when edge not found", () => {
-    const edgeConfig = {
-      ...createRandomEdgeTypeConfig(),
-      type: "KNOWS",
-    };
-    dbState.activeSchema.edges = [edgeConfig];
-
-    const mockDisplayEdgesMap = new Map(); // Empty map
-    mockUseDisplayEdgesInCanvas.mockReturnValue(mockDisplayEdgesMap);
-
-    const { result } = renderHookWithState(() => useGraphStyles(), dbState);
-
-    const edgeStyle = getStyles(result)[`edge[type="KNOWS"]`] as any;
-    const labelFunction = edgeStyle.label as (el: {
-      id: () => RenderedEdgeId;
-    }) => string;
-
-    // Mock cytoscape edge element
-    const mockEdgeElement = {
-      id: () => "rendered-edge-1" as RenderedEdgeId,
-    };
-
-    const label = labelFunction(mockEdgeElement);
-    expect(label).toBe(LABELS.MISSING_VALUE);
+    expect(edgeStyle.label).toEqual("data(displayName)");
   });
 
   it("should handle renderNode failure gracefully", () => {
