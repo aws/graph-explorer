@@ -21,6 +21,8 @@ import { atomFamily } from "jotai/utils";
 export type DisplayVertex = {
   entityType: "vertex";
   id: VertexId;
+  primaryType: string;
+  types: string[];
   displayId: string;
   displayTypes: string;
   displayName: string;
@@ -116,6 +118,8 @@ const displayVertexSelector = atomFamily((vertex: Vertex) =>
     const result: DisplayVertex = {
       entityType: "vertex",
       id: vertex.id,
+      primaryType: vertex.type,
+      types: vertexTypes,
       displayId,
       displayTypes,
       displayName,

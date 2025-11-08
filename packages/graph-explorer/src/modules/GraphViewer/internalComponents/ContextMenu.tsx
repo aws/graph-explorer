@@ -179,7 +179,7 @@ const ContextMenu = ({
           <ExpandGraphIcon />
           Expand panel
         </ListItem>
-        <ListItem onClick={openNodeStyle(affectedNode.typeConfig.type)}>
+        <ListItem onClick={openNodeStyle(affectedNode.primaryType)}>
           <StylingIcon />
           Customize {t("graph-viewer.node").toLowerCase()} style
         </ListItem>

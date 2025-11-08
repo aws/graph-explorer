@@ -167,7 +167,7 @@ function createRenderedVertex(vertex: DisplayVertex, neighborCount: number) {
   return {
     data: {
       id: createRenderedVertexId(vertex.id),
-      type: vertex.typeConfig.type,
+      type: vertex.primaryType,
       vertexId: vertex.id,
       displayName: vertex.displayName,
       displayTypes: vertex.displayTypes,
