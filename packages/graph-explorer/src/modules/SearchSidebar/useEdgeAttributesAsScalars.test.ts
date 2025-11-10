@@ -23,7 +23,6 @@ describe("useEdgeAttributesAsScalars", () => {
     displayId: "edge-1",
     displayName: "knows",
     displayTypes: "knows",
-    typeConfig: {} as any,
     sourceId: createVertexId("vertex-1"),
     targetId: createVertexId("vertex-2"),
     attributes: [

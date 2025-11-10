@@ -13,13 +13,7 @@ import { useDisplayEdgeFromEdge } from "./displayEdge";
 import { formatDate } from "@/utils";
 import { createRandomDate, createRandomName } from "@shared/utils/testing";
 import type { DisplayAttribute } from "./displayAttribute";
-import { mapToDisplayEdgeTypeConfig } from "./displayTypeConfigs";
-import {
-  activeConfigurationAtom,
-  configurationAtom,
-  getDefaultEdgeTypeConfig,
-  patchToRemoveDisplayLabel,
-} from "./configuration";
+import { activeConfigurationAtom, configurationAtom } from "./configuration";
 import type { Schema } from "../ConfigurationProvider";
 import { schemaAtom } from "./schema";
 import type { QueryEngine } from "@shared/types";
@@ -84,30 +78,6 @@ describe("useDisplayEdgeFromEdge", () => {
     expect(
       act(edge, withSchemaAndConnection(schema, "gremlin")).displayName
     ).toStrictEqual(edge.type);
-  });
-
-  it("should have the default type config when edge type is not in the schema", () => {
-    const edge = createRandomEdge();
-    const etConfig = getDefaultEdgeTypeConfig(edge.type);
-    const displayConfig = mapToDisplayEdgeTypeConfig(etConfig, t => t);
-    expect(act(edge).typeConfig).toStrictEqual(displayConfig);
-  });
-
-  it("should use the type config from the merged schema", () => {
-    const edge = createRandomEdge();
-    const etConfig = createRandomEdgeTypeConfig();
-    etConfig.type = edge.type;
-    const schema = createRandomSchema();
-    schema.edges.push(etConfig);
-
-    const expectedTypeConfig = mapToDisplayEdgeTypeConfig(
-      patchToRemoveDisplayLabel(etConfig),
-      t => t
-    );
-
-    expect(
-      act(edge, withSchemaAndConnection(schema, "gremlin")).typeConfig
-    ).toStrictEqual(expectedTypeConfig);
   });
 
   it("should ignore display label from schema", () => {

@@ -1,10 +1,11 @@
 import DEFAULT_ICON_URL from "@/utils/defaultIconUrl";
 import { atomWithLocalForage } from "./atomWithLocalForage";
-import { useAtomValue, useSetAtom } from "jotai";
+import { atom, useAtomValue, useSetAtom } from "jotai";
 import { useDeferredValue } from "react";
 import { RESERVED_ID_PROPERTY, RESERVED_TYPES_PROPERTY } from "@/utils";
 import type { Simplify } from "type-fest";
 import { useActiveSchema } from "./schema";
+import { atomFamily } from "jotai/utils";
 
 export type ShapeStyle =
   | "rectangle"
@@ -206,6 +207,14 @@ export function useEdgePreference(type: string): ImmutableEdgePreference {
   const edgePreference = allPreferences.get(type);
   return createEdgePreference(type, edgePreference);
 }
+
+export const vertexPreferenceByTypeAtom = atomFamily((type: string) =>
+  atom(get => {
+    const userStyling = get(userStylingAtom);
+    const stored = userStyling.vertices?.find(v => v.type === type);
+    return createVertexPreference(type, stored);
+  })
+);
 
 type UpdatedVertexStyle = Omit<VertexPreferences, "type">;
 

@@ -3,14 +3,13 @@ import {
   getSortedDisplayAttributes,
   nodesAtom,
   nodesSelectedIdsAtom,
-  type DisplayVertexTypeConfig,
-  displayVertexTypeConfigSelector,
   queryEngineSelector,
   nodeSelector,
   getRawId,
   type Vertex,
   type VertexId,
   useVertex,
+  vertexPreferenceByTypeAtom,
 } from "@/core";
 import { textTransformSelector } from "@/hooks";
 import { LABELS, RESERVED_ID_PROPERTY, RESERVED_TYPES_PROPERTY } from "@/utils";
@@ -27,7 +26,6 @@ export type DisplayVertex = {
   displayTypes: string;
   displayName: string;
   displayDescription: string;
-  typeConfig: DisplayVertexTypeConfig;
   attributes: DisplayAttribute[];
   isBlankNode: boolean;
   original: Vertex;
@@ -79,14 +77,15 @@ const displayVertexSelector = atomFamily((vertex: Vertex) =>
     const rawStringId = String(getRawId(vertex.id));
     const displayId = isSparql ? textTransform(rawStringId) : rawStringId;
 
-    // One type config used for shape, color, icon, etc.
-    const typeConfig = get(displayVertexTypeConfigSelector(vertex.type));
-
     // List all vertex types for displaying
     const vertexTypes =
       vertex.types && vertex.types.length > 0 ? vertex.types : [vertex.type];
     const displayTypes = vertexTypes
-      .map(type => get(displayVertexTypeConfigSelector(type)).displayLabel)
+      .map(
+        type =>
+          get(vertexPreferenceByTypeAtom(type)).displayLabel ??
+          textTransform(type)
+      )
       .join(", ");
 
     // Map all the attributes for displaying
@@ -108,11 +107,12 @@ const displayVertexSelector = atomFamily((vertex: Vertex) =>
       return LABELS.MISSING_VALUE;
     }
 
+    const vertexPreferences = get(vertexPreferenceByTypeAtom(vertex.type));
     const displayName = getDisplayAttributeValueByName(
-      typeConfig.displayNameAttribute
+      vertexPreferences.displayNameAttribute
     );
     const displayDescription = getDisplayAttributeValueByName(
-      typeConfig.displayDescriptionAttribute
+      vertexPreferences.longDisplayNameAttribute
     );
 
     const result: DisplayVertex = {
@@ -124,7 +124,6 @@ const displayVertexSelector = atomFamily((vertex: Vertex) =>
       displayTypes,
       displayName,
       displayDescription,
-      typeConfig,
       attributes: sortedAttributes,
       isBlankNode: vertex.isBlankNode ?? false,
       original: vertex,

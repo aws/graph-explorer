@@ -3,7 +3,6 @@ import {
   type EdgeId,
   getRawId,
   type VertexId,
-  type DisplayEdgeTypeConfig,
   displayEdgeTypeConfigSelector,
   type DisplayAttribute,
   getSortedDisplayAttributes,
@@ -25,7 +24,6 @@ export type DisplayEdge = {
   displayId: string;
   displayName: string;
   displayTypes: string;
-  typeConfig: DisplayEdgeTypeConfig;
   sourceId: VertexId;
   targetId: VertexId;
   attributes: DisplayAttribute[];
@@ -105,7 +103,6 @@ const displayEdgeSelector = atomFamily((edge: Edge) =>
       displayId,
       displayName,
       displayTypes,
-      typeConfig,
       sourceId: edge.sourceId,
       targetId: edge.targetId,
       attributes: sortedAttributes,

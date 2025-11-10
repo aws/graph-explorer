@@ -23,7 +23,6 @@ describe("useVertexAttributesAsScalars", () => {
     displayTypes: "Person",
     displayName: "John Doe",
     displayDescription: "A person",
-    typeConfig: {} as any,
     attributes: [
       {
         name: "name",
@@ -175,7 +174,6 @@ describe("useVertexAttributesAsScalars", () => {
       displayTypes: "",
       displayName: "John Doe",
       displayDescription: "A person",
-      typeConfig: {} as any,
       attributes: [],
       isBlankNode: false,
       original: { types: [] } as any,
