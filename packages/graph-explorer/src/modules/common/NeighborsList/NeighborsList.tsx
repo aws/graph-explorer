@@ -3,6 +3,7 @@ import {
   type VertexId,
   useNeighbors,
   useNeighborByType as useNeighborsByType,
+  useVertexPreference,
 } from "@/core";
 import {
   Button,
@@ -67,11 +68,12 @@ function NeighborTypeRow({
   op: NeighborOption;
 }) {
   const neighbors = useNeighborsByType(vertexId, op.value);
+  const vertexPreferences = useVertexPreference(op.config.type);
 
   return (
     <>
       <span className="flex items-center gap-2 font-medium break-all">
-        <VertexIcon vertexStyle={op.config.style} />
+        <VertexIcon vertexStyle={vertexPreferences} />
         {op.label}
       </span>
       <Tooltip>

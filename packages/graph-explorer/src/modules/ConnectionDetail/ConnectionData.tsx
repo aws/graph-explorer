@@ -14,6 +14,7 @@ import {
   type DisplayVertexTypeConfig,
   useDisplayVertexTypeConfigs,
   useQueryEngine,
+  useVertexPreference,
 } from "@/core";
 import useTranslations from "@/hooks/useTranslations";
 import { Virtuoso } from "react-virtuoso";
@@ -102,6 +103,7 @@ function VertexTypeList({
 }
 
 function Row({ config }: { config: DisplayVertexTypeConfig }) {
+  const vertexPreferences = useVertexPreference(config.type);
   const queryEngine = useQueryEngine();
   const unit =
     config.attributes.length === 1
@@ -115,7 +117,10 @@ function Row({ config }: { config: DisplayVertexTypeConfig }) {
   return (
     <Link to={`/data-explorer/${encodeURIComponent(config.type)}`}>
       <div className="@container/vertex-row flex min-h-12 items-center gap-4 px-4 py-2 hover:cursor-pointer">
-        <VertexIcon vertexStyle={config.style} className="@max-md:hidden" />
+        <VertexIcon
+          vertexStyle={vertexPreferences}
+          className="@max-md:hidden"
+        />
         <ListRowContent>
           <ListRowTitle className="wrap-anywhere">
             {config.displayLabel}

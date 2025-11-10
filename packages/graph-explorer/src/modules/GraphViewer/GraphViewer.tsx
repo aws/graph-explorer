@@ -26,8 +26,8 @@ import {
   PanelHeaderCloseButton,
   PanelHeaderDivider,
   PanelTitle,
-  VertexSymbol,
   IconButton,
+  VertexSymbolByType,
 } from "@/components";
 import Graph from "@/components/Graph";
 import type { GraphRef } from "@/components/Graph/Graph";
@@ -272,7 +272,10 @@ function Legend({
               key={vtConfig.type}
               className="gx-wrap-break-word flex items-center gap-3 text-base font-medium"
             >
-              <VertexSymbol vertexStyle={vtConfig.style} className="size-9" />
+              <VertexSymbolByType
+                vertexType={vtConfig.type}
+                className="size-9"
+              />
               {vtConfig.displayLabel}
             </li>
           ))}

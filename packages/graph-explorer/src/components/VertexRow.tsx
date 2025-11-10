@@ -1,4 +1,4 @@
-import type { DisplayVertex } from "@/core";
+import { useVertexPreference, type DisplayVertex } from "@/core";
 import { SearchResultSubtitle, SearchResultTitle, VertexSymbol } from ".";
 import type { ComponentPropsWithoutRef } from "react";
 import { ASCII, cn, LABELS } from "@/utils";
@@ -12,6 +12,7 @@ export function VertexRow({
   vertex: DisplayVertex;
   name?: string;
 } & ComponentPropsWithoutRef<"div">) {
+  const vertexStyle = useVertexPreference(vertex.primaryType);
   const resultName = name ? `${name}: ` : "";
   const nameIsSameAsTypes = vertex.displayTypes === vertex.displayName;
   const isDefaultType = vertex.displayTypes === LABELS.MISSING_TYPE;
@@ -26,7 +27,7 @@ export function VertexRow({
       className={cn("flex flex-row items-center gap-3", className)}
       {...props}
     >
-      <VertexSymbol vertexStyle={vertex.typeConfig.style} />
+      <VertexSymbol vertexStyle={vertexStyle} />
       <div>
         <SearchResultTitle>{title}</SearchResultTitle>
         <SearchResultSubtitle>{vertex.displayDescription}</SearchResultSubtitle>
