@@ -46,6 +46,7 @@ describe("useGraphStyles", () => {
       shape: "ellipse" as const,
     };
     dbState.activeSchema.vertices = [vertexConfig];
+    dbState.addVertexStyle(vertexConfig.type, vertexConfig);
 
     const { result } = renderHookWithState(() => useGraphStyles(), dbState);
 
@@ -81,6 +82,7 @@ describe("useGraphStyles", () => {
       labelBorderStyle: "solid" as const,
     };
     dbState.activeSchema.edges = [edgeConfig];
+    dbState.addEdgeStyle(edgeConfig.type, edgeConfig);
 
     const { result } = renderHookWithState(() => useGraphStyles(), dbState);
 
@@ -112,6 +114,7 @@ describe("useGraphStyles", () => {
       borderWidth: 0,
     };
     dbState.activeSchema.vertices = [vertexConfig];
+    dbState.addVertexStyle(vertexConfig.type, vertexConfig);
 
     const { result } = renderHookWithState(() => useGraphStyles(), dbState);
 
@@ -126,6 +129,7 @@ describe("useGraphStyles", () => {
       lineStyle: "dotted" as const,
     };
     dbState.activeSchema.edges = [edgeConfig];
+    dbState.addEdgeStyle(edgeConfig.type, edgeConfig);
 
     const { result } = renderHookWithState(() => useGraphStyles(), dbState);
 
@@ -141,6 +145,7 @@ describe("useGraphStyles", () => {
       lineStyle: "dashed" as const,
     };
     dbState.activeSchema.edges = [edgeConfig];
+    dbState.addEdgeStyle(edgeConfig.type, edgeConfig);
 
     const { result } = renderHookWithState(() => useGraphStyles(), dbState);
 
@@ -156,6 +161,7 @@ describe("useGraphStyles", () => {
       labelColor: "#ffffff",
     };
     dbState.activeSchema.edges = [edgeConfig];
+    dbState.addEdgeStyle(edgeConfig.type, edgeConfig);
 
     const { result } = renderHookWithState(() => useGraphStyles(), dbState);
 
@@ -166,6 +172,7 @@ describe("useGraphStyles", () => {
   it("should handle text transformation for edge labels", () => {
     const edgeConfig = createRandomEdgeTypeConfig();
     dbState.activeSchema.edges = [edgeConfig];
+    dbState.addEdgeStyle(edgeConfig.type, edgeConfig);
 
     const { result } = renderHookWithState(() => useGraphStyles(), dbState);
 
@@ -181,6 +188,7 @@ describe("useGraphStyles", () => {
       type: longEdgeType,
     };
     dbState.activeSchema.edges = [edgeConfig];
+    dbState.addEdgeStyle(edgeConfig.type, edgeConfig);
 
     const { result } = renderHookWithState(() => useGraphStyles(), dbState);
 
@@ -196,6 +204,7 @@ describe("useGraphStyles", () => {
       type: "KNOWS",
     };
     dbState.activeSchema.edges = [edgeConfig];
+    dbState.addEdgeStyle(edgeConfig.type, edgeConfig);
 
     const { result } = renderHookWithState(() => useGraphStyles(), dbState);
 
@@ -209,6 +218,7 @@ describe("useGraphStyles", () => {
       type: "Person",
     };
     dbState.activeSchema.vertices = [vertexConfig];
+    dbState.addVertexStyle(vertexConfig.type, vertexConfig);
 
     mockRenderNode.mockResolvedValue(undefined);
 
@@ -238,6 +248,10 @@ describe("useGraphStyles", () => {
 
     dbState.activeSchema.vertices = [personConfig, companyConfig];
     dbState.activeSchema.edges = [knowsConfig, worksAtConfig];
+    dbState.addVertexStyle(personConfig.type, personConfig);
+    dbState.addVertexStyle(companyConfig.type, companyConfig);
+    dbState.addEdgeStyle(knowsConfig.type, knowsConfig);
+    dbState.addEdgeStyle(worksAtConfig.type, worksAtConfig);
 
     const { result } = renderHookWithState(() => useGraphStyles(), dbState);
 
@@ -260,6 +274,8 @@ describe("useGraphStyles", () => {
     const updatedDbState = new DbState();
     updatedDbState.activeSchema.vertices = [vertexConfig];
     updatedDbState.activeSchema.edges = [edgeConfig];
+    updatedDbState.addVertexStyle(vertexConfig.type, vertexConfig);
+    dbState.addEdgeStyle(edgeConfig.type, edgeConfig);
 
     const { result } = renderHookWithState(
       () => useGraphStyles(),
@@ -282,6 +298,7 @@ describe("useGraphStyles", () => {
     };
 
     dbState.activeSchema.edges = [minimalEdgeConfig];
+    dbState.addEdgeStyle(minimalEdgeConfig.type, minimalEdgeConfig);
 
     const { result } = renderHookWithState(() => useGraphStyles(), dbState);
 
@@ -297,6 +314,8 @@ describe("useGraphStyles", () => {
 
     dbState.activeSchema.vertices = [vertexConfig];
     dbState.activeSchema.edges = [edgeConfig];
+    dbState.addVertexStyle(vertexConfig.type, vertexConfig);
+    dbState.addEdgeStyle(edgeConfig.type, edgeConfig);
 
     // This test ensures that the hook uses useDeferredValue for configs
     // The actual deferring behavior is handled by React, so we just verify
