@@ -1,8 +1,9 @@
 import DEFAULT_ICON_URL from "@/utils/defaultIconUrl";
 import { atomWithLocalForage } from "./atomWithLocalForage";
-import { useAtom, type WritableAtom } from "jotai";
+import { useAtom, useAtomValue, type WritableAtom } from "jotai";
 import { useDeferredValue, useEffect, useState } from "react";
 import { logger, RESERVED_ID_PROPERTY, RESERVED_TYPES_PROPERTY } from "@/utils";
+import { useDeferredValue } from "react";
 
 export type ShapeStyle =
   | "rectangle"
@@ -133,6 +134,19 @@ export const userStylingAtom = atomWithLocalForage<UserStyling>(
   {}
 );
 
+/** Get the stored user preferences for vertices and edges in a fast lookup Map. */
+function useStoredGraphPreferences() {
+  const graphPreferences = useAtomValue(userStylingAtom);
+  const vertices = new Map(
+    graphPreferences.vertices?.map(v => [v.type, v]) ?? []
+  );
+  const edges = new Map(graphPreferences.edges?.map(e => [e.type, e]) ?? []);
+  const result = { vertices, edges };
+  const deferredResult = useDeferredValue(result);
+  return deferredResult;
+}
+
+}
 function useDeferredAtom<Value, Result>(
   atom: WritableAtom<Value, [Value], Result>
 ) {
