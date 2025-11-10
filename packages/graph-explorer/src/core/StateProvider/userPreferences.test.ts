@@ -12,7 +12,6 @@ import { act } from "react";
 function createExpectedVertex(existing: VertexPreferences) {
   return {
     ...defaultVertexPreferences,
-    displayLabel: existing.displayLabel ?? existing.type,
     ...existing,
   };
 }
@@ -20,7 +19,6 @@ function createExpectedVertex(existing: VertexPreferences) {
 function createExpectedEdge(existing: EdgePreferences) {
   return {
     ...defaultEdgePreferences,
-    displayLabel: existing.displayLabel ?? existing.type,
     ...existing,
   };
 }

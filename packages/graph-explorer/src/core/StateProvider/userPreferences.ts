@@ -1,9 +1,10 @@
 import DEFAULT_ICON_URL from "@/utils/defaultIconUrl";
 import { atomWithLocalForage } from "./atomWithLocalForage";
-import { useAtom, useAtomValue, type WritableAtom } from "jotai";
-import { useDeferredValue, useEffect, useState } from "react";
-import { logger, RESERVED_ID_PROPERTY, RESERVED_TYPES_PROPERTY } from "@/utils";
+import { useAtomValue, useSetAtom } from "jotai";
 import { useDeferredValue } from "react";
+import { RESERVED_ID_PROPERTY, RESERVED_TYPES_PROPERTY } from "@/utils";
+import type { Simplify } from "type-fest";
+import { useActiveSchema } from "./schema";
 
 export type ShapeStyle =
   | "rectangle"
@@ -93,8 +94,8 @@ export type EdgePreferences = {
   targetArrowStyle?: ArrowStyle;
 };
 
-export const defaultVertexPreferences: Required<
-  Omit<VertexPreferences, "type" | "displayLabel">
+export const defaultVertexPreferences: Simplify<
+  Readonly<Required<Omit<VertexPreferences, "type" | "displayLabel">>>
 > = {
   displayNameAttribute: RESERVED_ID_PROPERTY,
   longDisplayNameAttribute: RESERVED_TYPES_PROPERTY,
@@ -108,8 +109,8 @@ export const defaultVertexPreferences: Required<
   borderStyle: "solid",
 };
 
-export const defaultEdgePreferences: Required<
-  Omit<EdgePreferences, "type" | "displayLabel">
+export const defaultEdgePreferences: Simplify<
+  Readonly<Required<Omit<EdgePreferences, "type" | "displayLabel">>>
 > = {
   displayNameAttribute: RESERVED_TYPES_PROPERTY,
   labelColor: "#17457b",
@@ -146,26 +147,64 @@ function useStoredGraphPreferences() {
   return deferredResult;
 }
 
-}
-function useDeferredAtom<Value, Result>(
-  atom: WritableAtom<Value, [Value], Result>
+export function createVertexPreference(
+  type: string,
+  stored: Readonly<VertexPreferences> | undefined
 ) {
-  const [atomValue, setAtomValue] = useAtom(atom);
-  const [reactValue, setReactValue] = useState(atomValue);
-  const deferredValue = useDeferredValue(reactValue);
+  return {
+    type,
+    ...defaultVertexPreferences,
+    ...stored,
+  } as const;
+}
 
-  // Update the atom value in an effect when React rendering sees a gap
-  useEffect(() => {
-    if (deferredValue === atomValue) return;
-    logger.debug(
-      `useDeferredAtom(${atom.debugLabel ?? "atom"}): Updating atom value`,
-      deferredValue
-    );
-    setAtomValue(deferredValue);
-  }, [atom.debugLabel, atomValue, deferredValue, setAtomValue]);
+export type ImmutableVertexPreference = Simplify<
+  Readonly<ReturnType<typeof createVertexPreference>>
+>;
 
-  // Only return the React state since we are managing all the atom state internally
-  return [reactValue, setReactValue] as const;
+export function useAllVertexPreferences(): ImmutableVertexPreference[] {
+  const { vertices: allPreferences } = useStoredGraphPreferences();
+  const { vertices: allSchemas } = useActiveSchema();
+
+  return allSchemas.map(({ type }) =>
+    createVertexPreference(type, allPreferences.get(type))
+  );
+}
+
+export function createEdgePreference(
+  type: string,
+  stored: EdgePreferences | undefined
+) {
+  return {
+    type,
+    ...defaultEdgePreferences,
+    ...stored,
+  };
+}
+
+export type ImmutableEdgePreference = Simplify<
+  Readonly<ReturnType<typeof createEdgePreference>>
+>;
+
+export function useAllEdgePreferences(): ImmutableEdgePreference[] {
+  const { edges: allPreferences } = useStoredGraphPreferences();
+  const { edges: allSchemas } = useActiveSchema();
+
+  return allSchemas.map(({ type }) =>
+    createEdgePreference(type, allPreferences.get(type))
+  );
+}
+
+export function useVertexPreference(type: string): ImmutableVertexPreference {
+  const { vertices: allPreferences } = useStoredGraphPreferences();
+  const vertexPreference = allPreferences.get(type);
+  return createVertexPreference(type, vertexPreference);
+}
+
+export function useEdgePreference(type: string): ImmutableEdgePreference {
+  const { edges: allPreferences } = useStoredGraphPreferences();
+  const edgePreference = allPreferences.get(type);
+  return createEdgePreference(type, edgePreference);
 }
 
 type UpdatedVertexStyle = Omit<VertexPreferences, "type">;
@@ -177,17 +216,10 @@ type UpdatedVertexStyle = Omit<VertexPreferences, "type">;
  * @returns The vertex style if it exists, an update function, and a reset function
  */
 export function useVertexStyling(type: string) {
-  const [allStyling, setAllStyling] = useDeferredAtom(userStylingAtom);
+  const setAllStyling = useSetAtom(userStylingAtom);
+  const vertexStyle = useVertexPreference(type);
 
-  const storedVertexStyle = allStyling.vertices?.find(v => v.type === type);
-  const vertexStyle = {
-    ...defaultVertexPreferences,
-    ...storedVertexStyle,
-    type: storedVertexStyle?.type ?? type,
-    displayLabel: storedVertexStyle?.displayLabel ?? type,
-  };
-
-  const setVertexStyle = (updatedStyle: UpdatedVertexStyle) => {
+  const setVertexStyle = (updatedStyle: UpdatedVertexStyle) =>
     setAllStyling(prev => {
       const vertices = prev.vertices ?? [];
       const existingIndex = vertices.findIndex(v => v.type === type);
@@ -205,13 +237,14 @@ export function useVertexStyling(type: string) {
         return { ...prev, vertices: [...vertices, { type, ...updatedStyle }] };
       }
     });
-  };
 
   const resetVertexStyle = () =>
-    setAllStyling(prev => ({
-      ...prev,
-      vertices: prev.vertices?.filter(v => v.type !== type),
-    }));
+    setAllStyling(prev => {
+      return {
+        ...prev,
+        vertices: prev.vertices?.filter(v => v.type !== type),
+      };
+    });
 
   return {
     vertexStyle,
@@ -229,17 +262,10 @@ type UpdatedEdgeStyle = Omit<EdgePreferences, "type">;
  * @returns The edge style if it exists, an update function, and a reset function
  */
 export function useEdgeStyling(type: string) {
-  const [allStyling, setAllStyling] = useDeferredAtom(userStylingAtom);
+  const setAllStyling = useSetAtom(userStylingAtom);
+  const edgeStyle = useEdgePreference(type);
 
-  const storedEdgeStyle = allStyling.edges?.find(v => v.type === type);
-  const edgeStyle = {
-    ...defaultEdgePreferences,
-    ...storedEdgeStyle,
-    type: storedEdgeStyle?.type ?? type,
-    displayLabel: storedEdgeStyle?.displayLabel ?? type,
-  };
-
-  const setEdgeStyle = (updatedStyle: UpdatedEdgeStyle) => {
+  const setEdgeStyle = (updatedStyle: UpdatedEdgeStyle) =>
     setAllStyling(prev => {
       const edges = prev.edges ?? [];
       const existingIndex = edges.findIndex(v => v.type === type);
@@ -257,13 +283,14 @@ export function useEdgeStyling(type: string) {
         return { ...prev, edges: [...edges, { type, ...updatedStyle }] };
       }
     });
-  };
 
   const resetEdgeStyle = () =>
-    setAllStyling(prev => ({
-      ...prev,
-      edges: prev.edges?.filter(v => v.type !== type),
-    }));
+    setAllStyling(prev => {
+      return {
+        ...prev,
+        edges: prev.edges?.filter(v => v.type !== type),
+      };
+    });
 
   return {
     edgeStyle,
