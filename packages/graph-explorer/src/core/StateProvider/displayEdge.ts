@@ -21,6 +21,7 @@ import { atomFamily } from "jotai/utils";
 export type DisplayEdge = {
   entityType: "edge";
   id: EdgeId;
+  type: string;
   displayId: string;
   displayName: string;
   displayTypes: string;
@@ -100,6 +101,7 @@ const displayEdgeSelector = atomFamily((edge: Edge) =>
     const displayEdge: DisplayEdge = {
       entityType: "edge",
       id: edge.id,
+      type: edge.type,
       displayId,
       displayName,
       displayTypes,

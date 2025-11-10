@@ -19,6 +19,7 @@ describe("useEdgeAttributesAsScalars", () => {
   const edge: DisplayEdge = {
     entityType: "edge",
     id: createEdgeId("edge-1"),
+    type: "knows",
     displayId: "edge-1",
     displayName: "knows",
     displayTypes: "knows",

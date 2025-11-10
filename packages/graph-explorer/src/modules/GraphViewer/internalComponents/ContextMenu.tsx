@@ -204,7 +204,7 @@ const ContextMenu = ({
           <DetailsIcon />
           Details Panel
         </ListItem>
-        <ListItem onClick={openEdgeStyle(affectedEdge.typeConfig.type)}>
+        <ListItem onClick={openEdgeStyle(affectedEdge.type)}>
           <StylingIcon />
           Customize {t("graph-viewer.edge").toLocaleLowerCase()} style
         </ListItem>
