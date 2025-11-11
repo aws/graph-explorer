@@ -12,7 +12,7 @@ export function VertexRow({
   vertex: DisplayVertex;
   name?: string;
 } & ComponentPropsWithoutRef<"div">) {
-  const vertexStyle = useVertexPreferences(vertex.primaryType);
+  const vertexPreferences = useVertexPreferences(vertex.primaryType);
   const resultName = name ? `${name}: ` : "";
   const nameIsSameAsTypes = vertex.displayTypes === vertex.displayName;
   const isDefaultType = vertex.displayTypes === LABELS.MISSING_TYPE;
@@ -27,7 +27,7 @@ export function VertexRow({
       className={cn("flex flex-row items-center gap-3", className)}
       {...props}
     >
-      <VertexSymbol vertexStyle={vertexStyle} />
+      <VertexSymbol vertexStyle={vertexPreferences} />
       <div>
         <SearchResultTitle>{title}</SearchResultTitle>
         <SearchResultSubtitle>{vertex.displayDescription}</SearchResultSubtitle>
