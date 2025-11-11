@@ -142,3 +142,10 @@ src/
   - AWS ECS/Fargate/EC2
   - AWS Neptune Notebook
   - Node.js
+
+### Testing
+
+- Prefer `renderHookWithState` over `renderHook` or `renderHookWithJotai`
+- Prefer `DbState` over manual state management
+- Prefer tests that limit mocks to external systems
+- Always check `setupTests.ts` for global setup to avoid duplication
