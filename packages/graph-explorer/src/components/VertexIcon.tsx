@@ -1,4 +1,4 @@
-import { fade, useVertexPreference, type VertexPreferences } from "@/core";
+import { fade, useVertexPreferences, type VertexPreferences } from "@/core";
 import SVG from "react-inlinesvg";
 import { cn } from "@/utils";
 import { SearchResultSymbol } from "./SearchResult";
@@ -35,7 +35,7 @@ export function VertexIconByType({
   vertexType: string;
   className?: string;
 }) {
-  const vertexPreferences = useVertexPreference(vertexType);
+  const vertexPreferences = useVertexPreferences(vertexType);
   return <VertexIcon vertexStyle={vertexPreferences} className={className} />;
 }
 
@@ -65,7 +65,7 @@ export function VertexSymbolByType({
   vertexType: string;
   className?: string;
 }) {
-  const vertexPreferences = useVertexPreference(vertexType);
+  const vertexPreferences = useVertexPreferences(vertexType);
   return <VertexSymbol vertexStyle={vertexPreferences} className={className} />;
 }
 

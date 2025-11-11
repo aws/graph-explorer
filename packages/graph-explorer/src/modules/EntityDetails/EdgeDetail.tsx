@@ -19,7 +19,7 @@ import {
   type DisplayEdge,
   type LineStyle,
   useDisplayVertex,
-  useEdgePreference,
+  useEdgePreferences,
 } from "@/core";
 import EntityAttribute from "./EntityAttribute";
 import {
@@ -39,7 +39,7 @@ const EdgeDetail = ({ edge }: EdgeDetailProps) => {
   const sourceVertex = useDisplayVertex(edge.sourceId);
   const targetVertex = useDisplayVertex(edge.targetId);
 
-  const style = useEdgePreference(edge.type);
+  const style = useEdgePreferences(edge.type);
 
   const allAttributes: DisplayAttribute[] = [
     ...(edge.hasUniqueId

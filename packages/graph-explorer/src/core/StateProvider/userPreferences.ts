@@ -46,6 +46,7 @@ export type ArrowStyle =
   | "diamond"
   | "none";
 
+/** The user preferences to be used for the specified vertex type as the type used for storing in local storage. */
 export type VertexPreferencesStorageModel = {
   type: string;
   /**
@@ -79,6 +80,7 @@ export type VertexPreferencesStorageModel = {
   borderStyle?: LineStyle;
 };
 
+/** The user preferences to be used for the specified edge type as the type used for storing in local storage. */
 export type EdgePreferencesStorageModel = {
   type: string;
   displayLabel?: string;
@@ -95,6 +97,7 @@ export type EdgePreferencesStorageModel = {
   targetArrowStyle?: ArrowStyle;
 };
 
+/** The user preferences to be used for the specified vertex type as an immutable object. */
 export type VertexPreferences = Simplify<
   Readonly<
     Pick<VertexPreferencesStorageModel, "displayLabel"> &
@@ -102,6 +105,7 @@ export type VertexPreferences = Simplify<
   >
 >;
 
+/** The user preferences to be used for the specified edge type as an immutable object. */
 export type EdgePreferences = Simplify<
   Readonly<
     Pick<EdgePreferencesStorageModel, "displayLabel"> &
@@ -109,6 +113,7 @@ export type EdgePreferences = Simplify<
   >
 >;
 
+/** The default values to use when no user provided value is given. */
 export const defaultVertexPreferences: Omit<
   VertexPreferences,
   "type" | "displayLabel"
@@ -125,6 +130,7 @@ export const defaultVertexPreferences: Omit<
   borderStyle: "solid",
 };
 
+/** The default values to use when no user provided value is given. */
 export const defaultEdgePreferences: Omit<
   EdgePreferences,
   "type" | "displayLabel"
@@ -164,6 +170,7 @@ function useStoredGraphPreferences() {
   return deferredResult;
 }
 
+/** Combines the stored user preferences with the defined default values. */
 export function createVertexPreference(
   type: string,
   stored: VertexPreferencesStorageModel | undefined
@@ -175,15 +182,7 @@ export function createVertexPreference(
   } as const;
 }
 
-export function useAllVertexPreferences(): VertexPreferences[] {
-  const { vertices: allPreferences } = useStoredGraphPreferences();
-  const { vertices: allSchemas } = useActiveSchema();
-
-  return allSchemas.map(({ type }) =>
-    createVertexPreference(type, allPreferences.get(type))
-  );
-}
-
+/** Combines the stored user preferences with the defined default values. */
 export function createEdgePreference(
   type: string,
   stored: EdgePreferencesStorageModel | undefined
@@ -195,6 +194,17 @@ export function createEdgePreference(
   };
 }
 
+/** Returns an array of vertex preferences based on the known vertex types in the schema. */
+export function useAllVertexPreferences(): VertexPreferences[] {
+  const { vertices: allPreferences } = useStoredGraphPreferences();
+  const { vertices: allSchemas } = useActiveSchema();
+
+  return allSchemas.map(({ type }) =>
+    createVertexPreference(type, allPreferences.get(type))
+  );
+}
+
+/** Returns an array of edge preferences based on the known edge types in the schema. */
 export function useAllEdgePreferences(): EdgePreferences[] {
   const { edges: allPreferences } = useStoredGraphPreferences();
   const { edges: allSchemas } = useActiveSchema();
@@ -204,18 +214,25 @@ export function useAllEdgePreferences(): EdgePreferences[] {
   );
 }
 
-export function useVertexPreference(type: string): VertexPreferences {
+/** Returns the user preferences for the specified vertex type. */
+export function useVertexPreferences(type: string): VertexPreferences {
   const { vertices: allPreferences } = useStoredGraphPreferences();
   const vertexPreference = allPreferences.get(type);
   return createVertexPreference(type, vertexPreference);
 }
 
-export function useEdgePreference(type: string): EdgePreferences {
+/** Returns the user preferences for the specified edge type. */
+export function useEdgePreferences(type: string): EdgePreferences {
   const { edges: allPreferences } = useStoredGraphPreferences();
   const edgePreference = allPreferences.get(type);
   return createEdgePreference(type, edgePreference);
 }
 
+/**
+ * Returns the user preferences for the specified vertex type.
+ *
+ * @deprecated Use `useVertexPreference` instead. This is temporary while we move away from atoms.
+ */
 export const vertexPreferenceByTypeAtom = atomFamily((type: string) =>
   atom(get => {
     const userStyling = get(userStylingAtom);
@@ -224,7 +241,7 @@ export const vertexPreferenceByTypeAtom = atomFamily((type: string) =>
   })
 );
 
-type UpdatedVertexStyle = Omit<VertexPreferencesStorageModel, "type">;
+type UpdatedVertexStyle = Partial<Omit<VertexPreferences, "type">>;
 
 /**
  * Provides the necessary functions for managing vertex styles.
@@ -234,7 +251,7 @@ type UpdatedVertexStyle = Omit<VertexPreferencesStorageModel, "type">;
  */
 export function useVertexStyling(type: string) {
   const setAllStyling = useSetAtom(userStylingAtom);
-  const vertexStyle = useVertexPreference(type);
+  const vertexStyle = useVertexPreferences(type);
 
   const setVertexStyle = (updatedStyle: UpdatedVertexStyle) =>
     setAllStyling(prev => {
@@ -280,7 +297,7 @@ type UpdatedEdgeStyle = Omit<EdgePreferencesStorageModel, "type">;
  */
 export function useEdgeStyling(type: string) {
   const setAllStyling = useSetAtom(userStylingAtom);
-  const edgeStyle = useEdgePreference(type);
+  const edgeStyle = useEdgePreferences(type);
 
   const setEdgeStyle = (updatedStyle: UpdatedEdgeStyle) =>
     setAllStyling(prev => {

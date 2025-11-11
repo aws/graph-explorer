@@ -14,7 +14,7 @@ import {
   type DisplayVertexTypeConfig,
   useDisplayVertexTypeConfigs,
   useQueryEngine,
-  useVertexPreference,
+  useVertexPreferences,
 } from "@/core";
 import useTranslations from "@/hooks/useTranslations";
 import { Virtuoso } from "react-virtuoso";
@@ -103,7 +103,7 @@ function VertexTypeList({
 }
 
 function Row({ config }: { config: DisplayVertexTypeConfig }) {
-  const vertexPreferences = useVertexPreference(config.type);
+  const vertexPreferences = useVertexPreferences(config.type);
   const queryEngine = useQueryEngine();
   const unit =
     config.attributes.length === 1
