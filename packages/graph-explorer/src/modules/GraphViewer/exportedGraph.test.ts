@@ -69,6 +69,67 @@ describe("createExportedGraph", () => {
     expect(graph.data.vertices).toEqual(vertexIds);
     expect(graph.data.edges).toEqual(edgeIds);
   });
+
+  it("should create an exported graph with empty vertices and edges", () => {
+    const connection = createRandomConnectionWithId();
+    const expectedConnection = createExportedConnection(connection);
+
+    const graph = createExportedGraph([], [], connection);
+
+    expect(graph.data.connection).toEqual(expectedConnection);
+    expect(graph.data.vertices).toEqual([]);
+    expect(graph.data.edges).toEqual([]);
+  });
+
+  it("should use current timestamp when creating graph", () => {
+    const vertexIds = createArray(2, () => createRandomVertexId());
+    const edgeIds = createArray(2, () => createRandomEdgeId());
+    const connection = createRandomConnectionWithId();
+
+    const graph = createExportedGraph(vertexIds, edgeIds, connection);
+
+    expect(graph.meta.timestamp).toEqual(timestamp);
+  });
+
+  it("should use app version from global variable", () => {
+    const vertexIds = createArray(2, () => createRandomVertexId());
+    const edgeIds = createArray(2, () => createRandomEdgeId());
+    const connection = createRandomConnectionWithId();
+
+    const graph = createExportedGraph(vertexIds, edgeIds, connection);
+
+    expect(graph.meta.sourceVersion).toBe(appVersion);
+  });
+
+  it("should set meta kind to graph-export", () => {
+    const vertexIds = createArray(2, () => createRandomVertexId());
+    const edgeIds = createArray(2, () => createRandomEdgeId());
+    const connection = createRandomConnectionWithId();
+
+    const graph = createExportedGraph(vertexIds, edgeIds, connection);
+
+    expect(graph.meta.kind).toBe("graph-export");
+  });
+
+  it("should set meta version to 1.0", () => {
+    const vertexIds = createArray(2, () => createRandomVertexId());
+    const edgeIds = createArray(2, () => createRandomEdgeId());
+    const connection = createRandomConnectionWithId();
+
+    const graph = createExportedGraph(vertexIds, edgeIds, connection);
+
+    expect(graph.meta.version).toBe("1.0");
+  });
+
+  it("should set meta source to Graph Explorer", () => {
+    const vertexIds = createArray(2, () => createRandomVertexId());
+    const edgeIds = createArray(2, () => createRandomEdgeId());
+    const connection = createRandomConnectionWithId();
+
+    const graph = createExportedGraph(vertexIds, edgeIds, connection);
+
+    expect(graph.meta.source).toBe("Graph Explorer");
+  });
 });
 
 describe("createExportedConnection", () => {
