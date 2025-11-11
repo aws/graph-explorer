@@ -8,7 +8,7 @@ import {
   createVertex,
   createVertexId,
   type EdgeId,
-  type EdgePreferences,
+  type EdgePreferencesStorageModel,
   type EdgeTypeConfig,
   type Entities,
   type EntityProperties,
@@ -21,7 +21,7 @@ import {
   type UserStyling,
   type Vertex,
   type VertexId,
-  type VertexPreferences,
+  type VertexPreferencesStorageModel,
   type VertexTypeConfig,
 } from "@/core";
 import {
@@ -613,7 +613,7 @@ export function createRandomAwsRegion(): string {
   return pickRandomElement(["us-west-1", "us-west-2", "us-east-1"]);
 }
 
-export function createRandomVertexPreferences(): VertexPreferences {
+export function createRandomVertexPreferences(): VertexPreferencesStorageModel {
   const color = randomlyUndefined(createRandomColor());
   const borderColor = randomlyUndefined(createRandomColor());
   const iconUrl = randomlyUndefined(createRandomUrlString());
@@ -635,7 +635,7 @@ export function createRandomVertexPreferences(): VertexPreferences {
   };
 }
 
-export function createRandomEdgePreferences(): EdgePreferences {
+export function createRandomEdgePreferences(): EdgePreferencesStorageModel {
   const displayLabel = randomlyUndefined(createRandomName("DisplayLabel"));
   const displayNameAttribute = randomlyUndefined(
     createRandomName("DisplayNameAttribute")

@@ -46,7 +46,7 @@ export type ArrowStyle =
   | "diamond"
   | "none";
 
-export type VertexPreferences = {
+export type VertexPreferencesStorageModel = {
   type: string;
   /**
    * Color overwrite for vertex
@@ -79,7 +79,7 @@ export type VertexPreferences = {
   borderStyle?: LineStyle;
 };
 
-export type EdgePreferences = {
+export type EdgePreferencesStorageModel = {
   type: string;
   displayLabel?: string;
   displayNameAttribute?: string;
@@ -95,8 +95,23 @@ export type EdgePreferences = {
   targetArrowStyle?: ArrowStyle;
 };
 
-export const defaultVertexPreferences: Simplify<
-  Readonly<Required<Omit<VertexPreferences, "type" | "displayLabel">>>
+export type VertexPreferences = Simplify<
+  Readonly<
+    Pick<VertexPreferencesStorageModel, "displayLabel"> &
+      Required<Omit<VertexPreferencesStorageModel, "displayLabel">>
+  >
+>;
+
+export type EdgePreferences = Simplify<
+  Readonly<
+    Pick<EdgePreferencesStorageModel, "displayLabel"> &
+      Required<Omit<EdgePreferencesStorageModel, "displayLabel">>
+  >
+>;
+
+export const defaultVertexPreferences: Omit<
+  VertexPreferences,
+  "type" | "displayLabel"
 > = {
   displayNameAttribute: RESERVED_ID_PROPERTY,
   longDisplayNameAttribute: RESERVED_TYPES_PROPERTY,
@@ -110,8 +125,9 @@ export const defaultVertexPreferences: Simplify<
   borderStyle: "solid",
 };
 
-export const defaultEdgePreferences: Simplify<
-  Readonly<Required<Omit<EdgePreferences, "type" | "displayLabel">>>
+export const defaultEdgePreferences: Omit<
+  EdgePreferences,
+  "type" | "displayLabel"
 > = {
   displayNameAttribute: RESERVED_TYPES_PROPERTY,
   labelColor: "#17457b",
@@ -127,8 +143,8 @@ export const defaultEdgePreferences: Simplify<
 };
 
 export type UserStyling = {
-  vertices?: Array<VertexPreferences>;
-  edges?: Array<EdgePreferences>;
+  vertices?: Array<VertexPreferencesStorageModel>;
+  edges?: Array<EdgePreferencesStorageModel>;
 };
 
 export const userStylingAtom = atomWithLocalForage<UserStyling>(
@@ -150,8 +166,8 @@ function useStoredGraphPreferences() {
 
 export function createVertexPreference(
   type: string,
-  stored: Readonly<VertexPreferences> | undefined
-) {
+  stored: VertexPreferencesStorageModel | undefined
+): VertexPreferences {
   return {
     type,
     ...defaultVertexPreferences,
@@ -159,11 +175,7 @@ export function createVertexPreference(
   } as const;
 }
 
-export type ImmutableVertexPreference = Simplify<
-  Readonly<ReturnType<typeof createVertexPreference>>
->;
-
-export function useAllVertexPreferences(): ImmutableVertexPreference[] {
+export function useAllVertexPreferences(): VertexPreferences[] {
   const { vertices: allPreferences } = useStoredGraphPreferences();
   const { vertices: allSchemas } = useActiveSchema();
 
@@ -174,7 +186,7 @@ export function useAllVertexPreferences(): ImmutableVertexPreference[] {
 
 export function createEdgePreference(
   type: string,
-  stored: EdgePreferences | undefined
+  stored: EdgePreferencesStorageModel | undefined
 ) {
   return {
     type,
@@ -183,11 +195,7 @@ export function createEdgePreference(
   };
 }
 
-export type ImmutableEdgePreference = Simplify<
-  Readonly<ReturnType<typeof createEdgePreference>>
->;
-
-export function useAllEdgePreferences(): ImmutableEdgePreference[] {
+export function useAllEdgePreferences(): EdgePreferences[] {
   const { edges: allPreferences } = useStoredGraphPreferences();
   const { edges: allSchemas } = useActiveSchema();
 
@@ -196,13 +204,13 @@ export function useAllEdgePreferences(): ImmutableEdgePreference[] {
   );
 }
 
-export function useVertexPreference(type: string): ImmutableVertexPreference {
+export function useVertexPreference(type: string): VertexPreferences {
   const { vertices: allPreferences } = useStoredGraphPreferences();
   const vertexPreference = allPreferences.get(type);
   return createVertexPreference(type, vertexPreference);
 }
 
-export function useEdgePreference(type: string): ImmutableEdgePreference {
+export function useEdgePreference(type: string): EdgePreferences {
   const { edges: allPreferences } = useStoredGraphPreferences();
   const edgePreference = allPreferences.get(type);
   return createEdgePreference(type, edgePreference);
@@ -216,7 +224,7 @@ export const vertexPreferenceByTypeAtom = atomFamily((type: string) =>
   })
 );
 
-type UpdatedVertexStyle = Omit<VertexPreferences, "type">;
+type UpdatedVertexStyle = Omit<VertexPreferencesStorageModel, "type">;
 
 /**
  * Provides the necessary functions for managing vertex styles.
@@ -262,7 +270,7 @@ export function useVertexStyling(type: string) {
   };
 }
 
-type UpdatedEdgeStyle = Omit<EdgePreferences, "type">;
+type UpdatedEdgeStyle = Omit<EdgePreferencesStorageModel, "type">;
 
 /**
  * Provides the necessary functions for managing edge styles.

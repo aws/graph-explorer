@@ -1,14 +1,10 @@
-import {
-  fade,
-  useVertexPreference,
-  type ImmutableVertexPreference,
-} from "@/core";
+import { fade, useVertexPreference, type VertexPreferences } from "@/core";
 import SVG from "react-inlinesvg";
 import { cn } from "@/utils";
 import { SearchResultSymbol } from "./SearchResult";
 
 interface Props {
-  vertexStyle: ImmutableVertexPreference;
+  vertexStyle: VertexPreferences;
   className?: string;
 }
 
@@ -47,7 +43,7 @@ export function VertexSymbol({
   vertexStyle,
   className,
 }: {
-  vertexStyle: ImmutableVertexPreference;
+  vertexStyle: VertexPreferences;
   className?: string;
 }) {
   return (

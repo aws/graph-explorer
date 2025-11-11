@@ -1,6 +1,6 @@
 import type {
-  EdgePreferences,
-  VertexPreferences,
+  EdgePreferencesStorageModel,
+  VertexPreferencesStorageModel,
 } from "@/core/StateProvider/userPreferences";
 import type { Branded } from "@/utils";
 import type { ConnectionConfig } from "@shared/types";
@@ -54,7 +54,7 @@ export type VertexTypeConfig = {
    * Total number of vertices of this type
    */
   total?: number;
-} & VertexPreferences;
+} & VertexPreferencesStorageModel;
 
 export type EdgeTypeConfig = {
   /**
@@ -77,7 +77,7 @@ export type EdgeTypeConfig = {
    * Total number of edges of this type
    */
   total?: number;
-} & EdgePreferences;
+} & EdgePreferencesStorageModel;
 
 export type PrefixTypeConfig = {
   prefix: string;

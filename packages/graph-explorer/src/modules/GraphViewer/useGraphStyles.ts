@@ -3,8 +3,8 @@ import { useDeferredValue } from "react";
 import {
   useAllEdgePreferences,
   useAllVertexPreferences,
-  type ImmutableEdgePreference,
-  type ImmutableVertexPreference,
+  type EdgePreferences,
+  type VertexPreferences,
 } from "@/core";
 import type { GraphProps } from "@/components";
 import { useBackgroundImageMap } from "./useBackgroundImageMap";
@@ -32,8 +32,8 @@ export default function useGraphStyles() {
 }
 
 function createGraphStyles(
-  deferredVtConfigs: ImmutableVertexPreference[],
-  deferredEtConfigs: ImmutableEdgePreference[],
+  deferredVtConfigs: VertexPreferences[],
+  deferredEtConfigs: EdgePreferences[],
   backgroundImageMap: Map<string, string | null>
 ): GraphProps["styles"] {
   const styles: GraphProps["styles"] = {};

@@ -1,4 +1,4 @@
-import type { ImmutableVertexPreference } from "@/core";
+import type { VertexPreferences } from "@/core";
 import { useQueries } from "@tanstack/react-query";
 import { renderNode } from "./renderNode";
 
@@ -11,7 +11,7 @@ import { renderNode } from "./renderNode";
  * @returns A Map where keys are vertex type names and values are their
  * corresponding background image strings
  */
-export function useBackgroundImageMap(vtConfigs: ImmutableVertexPreference[]) {
+export function useBackgroundImageMap(vtConfigs: VertexPreferences[]) {
   return useQueries({
     queries: vtConfigs.map(vtConfig => ({
       queryKey: ["vertexIcon", vtConfig],
