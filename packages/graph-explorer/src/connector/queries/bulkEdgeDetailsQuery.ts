@@ -2,7 +2,12 @@ import { queryOptions } from "@tanstack/react-query";
 import type { Edge, EdgeId } from "@/core";
 import { DEFAULT_BATCH_REQUEST_SIZE } from "@/utils";
 import { chunk } from "lodash";
-import { getExplorer, setEdgeDetailsQueryCache } from "./helpers";
+import {
+  getExplorer,
+  getStore,
+  setEdgeDetailsQueryCache,
+  updateEdgeGraphCanvasState,
+} from "./helpers";
 import { edgeDetailsQuery } from "./edgeDetailsQuery";
 
 export function bulkEdgeDetailsQuery(edgeIds: EdgeId[]) {
@@ -12,6 +17,7 @@ export function bulkEdgeDetailsQuery(edgeIds: EdgeId[]) {
     gcTime: 0,
     queryFn: async ({ client, meta, signal }) => {
       const explorer = getExplorer(meta);
+      const store = getStore(meta);
 
       // Get cached and missing edges in one pass
       const cachedEdges: Edge[] = [];
@@ -42,6 +48,7 @@ export function bulkEdgeDetailsQuery(edgeIds: EdgeId[]) {
 
       // Update cache
       edges.forEach(e => setEdgeDetailsQueryCache(client, e));
+      updateEdgeGraphCanvasState(store, edges);
 
       return { edges: [...cachedEdges, ...edges] };
     },

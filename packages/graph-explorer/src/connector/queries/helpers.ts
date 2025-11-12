@@ -1,5 +1,13 @@
 import type { QueryClient } from "@tanstack/react-query";
-import { createEdge, createVertex, type Edge, type Vertex } from "@/core";
+import {
+  createEdge,
+  createVertex,
+  edgesAtom,
+  nodesAtom,
+  type AppStore,
+  type Edge,
+  type Vertex,
+} from "@/core";
 import type { NeighborCount } from "../useGEFetchTypes";
 import type { GraphExplorerMeta } from "@/core/queryClient";
 import { logger } from "@/utils";
@@ -61,6 +69,51 @@ export function updateNeighborCountCache(
     const queryKey = neighborsCountQuery(count.vertexId).queryKey;
     client.setQueryData(queryKey, count);
   }
+}
+
+/** Update the canvas data cache for the given vertices */
+export function updateVertexGraphCanvasState(
+  store: AppStore,
+  vertices: Vertex[]
+) {
+  store.set(nodesAtom, prev => {
+    if (vertices.length === 0) {
+      return prev;
+    }
+
+    const updated = new Map(prev);
+    for (const vertex of vertices) {
+      if (!updated.has(vertex.id)) {
+        continue;
+      }
+      updated.set(vertex.id, vertex);
+    }
+
+    logger.debug("Updating vertex canvas state", { vertices, prev, updated });
+
+    return updated;
+  });
+}
+
+/** Update the canvas data cache for the given edges */
+export function updateEdgeGraphCanvasState(store: AppStore, edges: Edge[]) {
+  store.set(edgesAtom, prev => {
+    if (edges.length === 0) {
+      return prev;
+    }
+
+    const updated = new Map(prev);
+    for (const edge of edges) {
+      if (!updated.has(edge.id)) {
+        continue;
+      }
+      updated.set(edge.id, edge);
+    }
+
+    logger.debug("Updating edge canvas state", { edges, prev, updated });
+
+    return updated;
+  });
 }
 
 /** Extracts the explorer from the meta objects */

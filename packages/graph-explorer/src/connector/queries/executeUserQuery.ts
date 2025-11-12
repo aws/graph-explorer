@@ -1,6 +1,12 @@
 import type { UpdateSchemaHandler } from "@/core";
 import { queryOptions } from "@tanstack/react-query";
-import { getExplorer, updateDetailsCacheFromEntities } from "./helpers";
+import {
+  getExplorer,
+  getStore,
+  updateDetailsCacheFromEntities,
+  updateEdgeGraphCanvasState,
+  updateVertexGraphCanvasState,
+} from "./helpers";
 import { patchEntityDetails } from "./patchEntityDetails";
 import { getAllGraphableEntities } from "../entities";
 
@@ -25,6 +31,7 @@ export function executeUserQuery(
     retry: false,
     queryFn: async ({ signal, meta, client }) => {
       const explorer = getExplorer(meta);
+      const store = getStore(meta);
       const results = await explorer.rawQuery({ query }, { signal });
 
       // Update the cache for any fully materialized entities
@@ -36,6 +43,8 @@ export function executeUserQuery(
       // Update the schema with the results
       const patchedGraphableEntities = getAllGraphableEntities(patchedResults);
       updateSchema(patchedGraphableEntities);
+      updateVertexGraphCanvasState(store, patchedGraphableEntities.vertices);
+      updateEdgeGraphCanvasState(store, patchedGraphableEntities.edges);
 
       return patchedResults;
     },
