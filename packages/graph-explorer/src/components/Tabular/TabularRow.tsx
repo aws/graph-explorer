@@ -4,15 +4,15 @@ import { type MouseEvent, useEffect, useState } from "react";
 import type { Row, TableInstance } from "react-table";
 
 import type { TabularProps } from "./Tabular";
+import { TableColumnResizer } from "./TableColumnResizer";
 
 const TabularRow = <T extends object>({
-  fitRowsVertically,
   rowSelectionMode,
   row,
   tableInstance,
   onMouseOver,
   onMouseOut,
-}: Pick<TabularProps<T>, "fitRowsVertically" | "rowSelectionMode"> & {
+}: Pick<TabularProps<T>, "rowSelectionMode"> & {
   tableInstance: TableInstance<T>;
   row: Row<T>;
   onMouseOver?(event: MouseEvent<HTMLDivElement>, row: Row<T>): void;
@@ -44,10 +44,9 @@ const TabularRow = <T extends object>({
   return (
     <div
       {...rowProps}
-      className={cn("row", {
-        ["row-grow"]: fitRowsVertically,
-        ["row-selectable"]: rowSelectionMode === "row",
-        ["row-selected"]: row.isSelected,
+      className={cn("grow-0! border-b", {
+        ["hover:bg-muted hover:cursor-pointer"]: rowSelectionMode === "row",
+        ["hover:bg-brand-100! bg-brand-50"]: row.isSelected,
       })}
       onClick={() =>
         rowSelectionMode === "row" && selectable && row.toggleRowSelected()
@@ -64,13 +63,13 @@ const TabularRow = <T extends object>({
             key={key}
             {...cellProps}
             className={cn("cell", `cell-align-${cell.column.align || "left"}`, {
-              ["cell-resizing"]:
+              ["border-r-primary-main!"]:
                 cell.column.isResizing ||
                 state.columnResizing?.isResizingColumn === cell.column.id,
             })}
           >
             <div
-              className={cn("cell-content", {
+              className={cn("cell-content py-1", {
                 ["cell-overflow-ellipsis"]: cell.column.overflow === "ellipsis",
                 ["cell-overflow-truncate"]: cell.column.overflow === "truncate",
                 ["cell-one-line"]: cell.column.oneLine,
@@ -79,9 +78,8 @@ const TabularRow = <T extends object>({
               {cell.render("Cell")}
             </div>
             {cell.column.canResize && (
-              <div
+              <TableColumnResizer
                 {...(cell.column.getResizerProps?.() || {})}
-                className="cell-resizer"
               />
             )}
           </div>

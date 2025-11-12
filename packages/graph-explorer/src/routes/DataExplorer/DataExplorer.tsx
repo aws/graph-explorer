@@ -15,6 +15,10 @@ import {
   buttonStyles,
   CheckIcon,
   ChevronLeftIcon,
+  EmptyState,
+  EmptyStateContent,
+  EmptyStateDescription,
+  EmptyStateTitle,
   Panel,
   PanelError,
   PanelHeader,
@@ -27,7 +31,6 @@ import { ExplorerIcon } from "@/components/icons";
 import {
   type ColumnDefinition,
   PaginationControl,
-  PlaceholderControl,
   TabularEmptyBodyControls,
   TabularFooterControls,
   type TabularInstance,
@@ -142,9 +145,14 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
                 <PanelError error={query.error} onRetry={query.refetch} />
               ) : null}
               {query.data?.vertices.length === 0 && (
-                <PlaceholderControl>
-                  {`No nodes found for "${displayTypeConfig.displayLabel}"`}
-                </PlaceholderControl>
+                <EmptyState>
+                  <EmptyStateContent>
+                    <EmptyStateTitle>No Data</EmptyStateTitle>
+                    <EmptyStateDescription>
+                      {`No nodes found for "${displayTypeConfig.displayLabel}"`}
+                    </EmptyStateDescription>
+                  </EmptyStateContent>
+                </EmptyState>
               )}
             </TabularEmptyBodyControls>
             <TabularFooterControls>

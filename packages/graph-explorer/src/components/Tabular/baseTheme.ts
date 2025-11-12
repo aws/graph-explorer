@@ -39,33 +39,6 @@ const baseTheme = {
       padding: "4px 8px",
     },
   },
-  row: {
-    background: "inherit",
-    color: "inherit",
-    border: "solid 1px #d3d3d3",
-    minHeight: "32px",
-    hover: {
-      background: "rgba(238,238,238,0.5)",
-      color: "inherit",
-    },
-    selectable: {
-      background: "inherit",
-      color: "inherit",
-      hover: {
-        background: "rgba(18, 142, 229, 0.5)",
-        color: "inherit",
-      },
-    },
-    selected: {
-      background: "rgba(18, 142, 229, 0.25)",
-      color: "inherit",
-    },
-    resizing: {
-      background: "inherit",
-      color: "inherit",
-      border: "dashed 1px #d3d3d3",
-    },
-  },
   footer: {
     controls: {
       background: "#fff",

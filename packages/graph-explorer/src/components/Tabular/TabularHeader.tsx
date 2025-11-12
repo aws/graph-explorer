@@ -3,6 +3,7 @@ import { cn } from "@/utils";
 import type { HeaderGroup, TableInstance } from "react-table";
 
 import { ArrowDown } from "@/components/icons";
+import { TableColumnResizer } from "./TableColumnResizer";
 
 const TabularHeader = <T extends object>({
   headerGroup,
@@ -29,7 +30,7 @@ const TabularHeader = <T extends object>({
             key={key}
             style={style}
             className={cn("header", {
-              ["header-resizing"]:
+              ["border-r-primary-main!"]:
                 column.isResizing ||
                 state.columnResizing?.isResizingColumn === column.id,
             })}
@@ -70,10 +71,7 @@ const TabularHeader = <T extends object>({
               <div className="header-filter">{column.render("Filter")}</div>
             )}
             {column.canResize && (
-              <div
-                {...(column.getResizerProps?.() || {})}
-                className="col-resizer"
-              />
+              <TableColumnResizer {...(column.getResizerProps?.() || {})} />
             )}
           </div>
         );
