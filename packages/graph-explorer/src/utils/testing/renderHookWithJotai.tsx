@@ -1,17 +1,16 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook } from "@testing-library/react";
-import { createStore, Provider } from "jotai";
+import { Provider } from "jotai";
 import type { PropsWithChildren } from "react";
 import { DbState } from "./DbState";
 import { createQueryClient } from "@/core/queryClient";
-
-export type JotaiStore = ReturnType<typeof createStore>;
+import { getAppStore, type AppStore } from "@/core";
 
 export function TestProvider({
   store,
   client,
   children,
-}: PropsWithChildren<{ store: JotaiStore; client: QueryClient }>) {
+}: PropsWithChildren<{ store: AppStore; client: QueryClient }>) {
   return (
     <QueryClientProvider client={client}>
       <Provider store={store}>{children}</Provider>
@@ -27,11 +26,11 @@ export function renderHookWithState<TResult>(
   state ??= new DbState();
 
   // Set values on the Jotai store
-  const store = createStore();
+  const store = getAppStore();
   state.applyTo(store);
 
   // Create the query client using the mock explorer
-  const queryClient = createQueryClient({ explorer: state.explorer });
+  const queryClient = createQueryClient({ explorer: state.explorer, store });
   const defaultOptions = queryClient.getDefaultOptions();
   queryClient.setDefaultOptions({
     ...defaultOptions,
@@ -39,21 +38,19 @@ export function renderHookWithState<TResult>(
   });
 
   // Call the standard testing hook with TanStack Query and Jotai setup
-  const renderHookResult = renderHook(callback, {
+  return renderHook(callback, {
     wrapper: props => (
       <TestProvider client={queryClient} store={store} {...props} />
     ),
   });
-
-  return { ...renderHookResult, store };
 }
 
 export function renderHookWithJotai<TResult>(
   callback: () => TResult,
-  initializeState?: (store: JotaiStore) => void
+  initializeState?: (store: AppStore) => void
 ) {
   // Provide a way to set atom initial values
-  const store = createStore();
+  const store = getAppStore();
   if (initializeState) {
     initializeState(store);
   }

@@ -5,11 +5,11 @@ import {
   createRandomVertexPreferences,
   createRandomVertexTypeConfig,
   DbState,
-  type JotaiStore,
   renderHookWithJotai,
   renderHookWithState,
 } from "@/utils/testing";
 import {
+  type AppStore,
   createVertexId,
   type DisplayAttribute,
   getRawId,
@@ -231,7 +231,7 @@ describe("useDisplayVertexFromVertex", () => {
 
   // Helpers
 
-  function act(vertex: Vertex, initializeState?: (store: JotaiStore) => void) {
+  function act(vertex: Vertex, initializeState?: (store: AppStore) => void) {
     const { result } = renderHookWithJotai(
       () => useDisplayVertexFromVertex(vertex),
       initializeState
@@ -241,7 +241,7 @@ describe("useDisplayVertexFromVertex", () => {
 
   function withSchema(schema: Schema) {
     const config = createRandomRawConfiguration();
-    return (store: JotaiStore) => {
+    return (store: AppStore) => {
       store.set(configurationAtom, new Map([[config.id, config]]));
       store.set(schemaAtom, new Map([[config.id, schema]]));
       store.set(activeConfigurationAtom, config.id);
@@ -251,7 +251,7 @@ describe("useDisplayVertexFromVertex", () => {
   function withSchemaAndConnection(schema: Schema, queryEngine: QueryEngine) {
     const config = createRandomRawConfiguration();
     config.connection!.queryEngine = queryEngine;
-    return (store: JotaiStore) => {
+    return (store: AppStore) => {
       store.set(configurationAtom, new Map([[config.id, config]]));
       store.set(schemaAtom, new Map([[config.id, schema]]));
       store.set(activeConfigurationAtom, config.id);

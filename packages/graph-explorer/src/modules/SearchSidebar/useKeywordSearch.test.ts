@@ -4,14 +4,14 @@ import {
   createRandomSchema,
   renderHookWithJotai,
   createRandomRawConfiguration,
-  type JotaiStore,
 } from "@/utils/testing";
 import {
   activeConfigurationAtom,
   configurationAtom,
-} from "@/core/StateProvider/configuration";
+  schemaAtom,
+  type AppStore,
+} from "@/core";
 import { vi } from "vitest";
-import { schemaAtom } from "@/core/StateProvider/schema";
 
 vi.mock("./useKeywordSearchQuery", () => ({
   useKeywordSearchQuery: vi.fn().mockReturnValue({
@@ -21,7 +21,7 @@ vi.mock("./useKeywordSearchQuery", () => ({
 }));
 
 function initializeConfigWithQueryEngine(queryEngine: QueryEngine) {
-  return (store: JotaiStore) => {
+  return (store: AppStore) => {
     // Create config and setup schema
     const config = createRandomRawConfiguration();
     config.connection!.queryEngine = queryEngine;
@@ -117,7 +117,7 @@ describe("useKeywordSearch", () => {
   });
 
   describe("SPARQL", () => {
-    function initializeConfigWithRdfLabel(store: JotaiStore) {
+    function initializeConfigWithRdfLabel(store: AppStore) {
       // Create config and setup schema
       const config = createRandomRawConfiguration();
       const schema = createRandomSchema();
