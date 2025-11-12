@@ -39,11 +39,13 @@ export function renderHookWithState<TResult>(
   });
 
   // Call the standard testing hook with TanStack Query and Jotai setup
-  return renderHook(callback, {
+  const renderHookResult = renderHook(callback, {
     wrapper: props => (
       <TestProvider client={queryClient} store={store} {...props} />
     ),
   });
+
+  return { ...renderHookResult, store };
 }
 
 export function renderHookWithJotai<TResult>(
