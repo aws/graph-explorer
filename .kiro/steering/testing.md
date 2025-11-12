@@ -217,7 +217,7 @@ test("should generate correct query", async () => {
 import { render, screen } from "@testing-library/react";
 import { DbState, createTestableVertex, TestProvider } from "@/utils/testing";
 import { createQueryClient } from "@/core/queryClient";
-import { createStore } from "jotai";
+import { getAppStore } from "@/core";
 
 test("should render vertex correctly", () => {
   const state = new DbState();
@@ -228,7 +228,7 @@ test("should render vertex correctly", () => {
   state.addTestableVertexToGraph(vertex);
 
   // Set values on the Jotai store
-  const store = createStore();
+  const store = getAppStore();
   state.applyTo(store);
 
   // Create the query client using the mock explorer

@@ -1,18 +1,18 @@
 import {
   activeConfigurationAtom,
   configurationAtom,
-} from "@/core/StateProvider/configuration";
+  schemaAtom,
+  type AppStore,
+} from "@/core";
 import {
   createRandomRawConfiguration,
   createRandomSchema,
-  type JotaiStore,
   renderHookWithJotai,
 } from "@/utils/testing";
 import useTextTransform from "./useTextTransform";
 import { vi } from "vitest";
-import { schemaAtom } from "@/core/StateProvider/schema";
 
-function initializeConfigWithPrefix(store: JotaiStore) {
+function initializeConfigWithPrefix(store: AppStore) {
   // Create config and setup schema
   const config = createRandomRawConfiguration();
   const schema = createRandomSchema();

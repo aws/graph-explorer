@@ -1,4 +1,4 @@
-import { type Edge, getRawId } from "@/core";
+import { type AppStore, type Edge, getRawId } from "@/core";
 import {
   createRandomEdge,
   createRandomEdgePreferences,
@@ -6,7 +6,6 @@ import {
   createRandomRawConfiguration,
   createRandomSchema,
   DbState,
-  type JotaiStore,
   renderHookWithJotai,
   renderHookWithState,
 } from "@/utils/testing";
@@ -236,7 +235,7 @@ describe("useDisplayEdgeFromEdge", () => {
 
   // Helpers
 
-  function act(edge: Edge, initializeState?: (store: JotaiStore) => void) {
+  function act(edge: Edge, initializeState?: (store: AppStore) => void) {
     const { result } = renderHookWithJotai(
       () => useDisplayEdgeFromEdge(edge),
       initializeState
@@ -246,7 +245,7 @@ describe("useDisplayEdgeFromEdge", () => {
 
   function withSchema(schema: Schema) {
     const config = createRandomRawConfiguration();
-    return (store: JotaiStore) => {
+    return (store: AppStore) => {
       store.set(configurationAtom, new Map([[config.id, config]]));
       store.set(schemaAtom, new Map([[config.id, schema]]));
       store.set(activeConfigurationAtom, config.id);
@@ -256,7 +255,7 @@ describe("useDisplayEdgeFromEdge", () => {
   function withSchemaAndConnection(schema: Schema, queryEngine: QueryEngine) {
     const config = createRandomRawConfiguration();
     config.connection!.queryEngine = queryEngine;
-    return (store: JotaiStore) => {
+    return (store: AppStore) => {
       store.set(configurationAtom, new Map([[config.id, config]]));
       store.set(schemaAtom, new Map([[config.id, schema]]));
       store.set(activeConfigurationAtom, config.id);

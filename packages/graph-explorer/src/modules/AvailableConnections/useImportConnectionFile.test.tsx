@@ -6,6 +6,7 @@ import {
   activeConfigurationAtom,
   configurationAtom,
   createNewConfigurationId,
+  getAppStore,
   schemaAtom,
 } from "@/core";
 import { createRandomName, createRandomUrlString } from "@shared/utils/testing";
@@ -25,7 +26,7 @@ vi.mock("@/core/StateProvider/useResetState", () => ({
 describe("useImportConnectionFile", () => {
   test("should import valid configuration file", async () => {
     const state = new DbState();
-    const { result, store } = renderHookWithState(
+    const { result } = renderHookWithState(
       () => useImportConnectionFile(),
       state
     );
@@ -55,13 +56,13 @@ describe("useImportConnectionFile", () => {
       await result.current(file);
     });
 
-    const configs = store.get(configurationAtom);
+    const configs = getAppStore().get(configurationAtom);
     expect(configs.size).toBe(2);
 
-    const schemas = store.get(schemaAtom);
+    const schemas = getAppStore().get(schemaAtom);
     expect(schemas.size).toBe(2);
 
-    const activeConfigId = store.get(activeConfigurationAtom);
+    const activeConfigId = getAppStore().get(activeConfigurationAtom);
     expect(activeConfigId).not.toBe(state.activeConfig.id);
 
     const importedConfig = Array.from(configs.values()).find(
@@ -90,7 +91,7 @@ describe("useImportConnectionFile", () => {
 
   test("should reject invalid configuration file", async () => {
     const state = new DbState();
-    const { result, store } = renderHookWithState(
+    const { result } = renderHookWithState(
       () => useImportConnectionFile(),
       state
     );
@@ -107,7 +108,7 @@ describe("useImportConnectionFile", () => {
       await result.current(file);
     });
 
-    const configs = store.get(configurationAtom);
+    const configs = getAppStore().get(configurationAtom);
     expect(configs.size).toBe(1);
 
     expect(mockEnqueueNotification).toHaveBeenCalledWith({
@@ -121,7 +122,7 @@ describe("useImportConnectionFile", () => {
 
   test("should create new ID to avoid collisions", async () => {
     const state = new DbState();
-    const { result, store } = renderHookWithState(
+    const { result } = renderHookWithState(
       () => useImportConnectionFile(),
       state
     );
@@ -149,16 +150,16 @@ describe("useImportConnectionFile", () => {
       await result.current(file);
     });
 
-    const configs = store.get(configurationAtom);
+    const configs = getAppStore().get(configurationAtom);
     expect(configs.size).toBe(2);
 
-    const activeConfigId = store.get(activeConfigurationAtom);
+    const activeConfigId = getAppStore().get(activeConfigurationAtom);
     expect(activeConfigId).not.toBe(state.activeConfig.id);
   });
 
   test("should handle schema with prefixes", async () => {
     const state = new DbState();
-    const { result, store } = renderHookWithState(
+    const { result } = renderHookWithState(
       () => useImportConnectionFile(),
       state
     );
@@ -193,7 +194,7 @@ describe("useImportConnectionFile", () => {
       await result.current(file);
     });
 
-    const schemas = store.get(schemaAtom);
+    const schemas = getAppStore().get(schemaAtom);
     const importedSchema = Array.from(schemas.values()).find(
       (_, index) => index === 1
     );
@@ -209,7 +210,7 @@ describe("useImportConnectionFile", () => {
 
   test("should handle schema with lastUpdate date", async () => {
     const state = new DbState();
-    const { result, store } = renderHookWithState(
+    const { result } = renderHookWithState(
       () => useImportConnectionFile(),
       state
     );
@@ -239,7 +240,7 @@ describe("useImportConnectionFile", () => {
       await result.current(file);
     });
 
-    const schemas = store.get(schemaAtom);
+    const schemas = getAppStore().get(schemaAtom);
     const importedSchema = Array.from(schemas.values()).find(
       (_, index) => index === 1
     );
@@ -252,7 +253,7 @@ describe("useImportConnectionFile", () => {
 
   test("should handle empty schema arrays", async () => {
     const state = new DbState();
-    const { result, store } = renderHookWithState(
+    const { result } = renderHookWithState(
       () => useImportConnectionFile(),
       state
     );
@@ -280,7 +281,7 @@ describe("useImportConnectionFile", () => {
       await result.current(file);
     });
 
-    const schemas = store.get(schemaAtom);
+    const schemas = getAppStore().get(schemaAtom);
     const importedSchema = Array.from(schemas.values()).find(
       (_, index) => index === 1
     );
@@ -291,7 +292,7 @@ describe("useImportConnectionFile", () => {
 
   test("should handle file with complex schema", async () => {
     const state = new DbState();
-    const { result, store } = renderHookWithState(
+    const { result } = renderHookWithState(
       () => useImportConnectionFile(),
       state
     );
@@ -344,7 +345,7 @@ describe("useImportConnectionFile", () => {
       await result.current(file);
     });
 
-    const schemas = store.get(schemaAtom);
+    const schemas = getAppStore().get(schemaAtom);
     const importedSchema = Array.from(schemas.values()).find(
       (_, index) => index === 1
     );

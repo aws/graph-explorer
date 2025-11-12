@@ -7,6 +7,10 @@ import { cleanup } from "@testing-library/react";
 import * as matchers from "@testing-library/jest-dom/matchers";
 import "core-js/full/iterator";
 import localforage from "localforage";
+import { createStore } from "jotai";
+import type { Explorer } from "./connector";
+import type { Store } from "jotai/vanilla/store";
+import { getAppStore } from "./core";
 
 expect.extend(matchers);
 
@@ -30,18 +34,29 @@ vi.stubGlobal("Intl", {
   } as typeof originalIntl.DateTimeFormat,
 });
 
+// Mock getAppStore to return a specific test store
+let store = createStore();
+vi.mock(import("@/core/StateProvider/appStore"), () => {
+  return {
+    getAppStore: () => store,
+  };
+});
+
 afterEach(() => {
   cleanup();
   vi.unstubAllEnvs();
   vi.unstubAllGlobals();
-  vi.resetAllMocks();
-  vi.restoreAllMocks();
 });
 
 beforeEach(() => {
+  store = createStore();
   vi.stubEnv("DEV", true);
   vi.stubEnv("PROD", false);
   localforage.clear();
+  vi.clearAllMocks();
+  vi.resetModules();
+  vi.resetAllMocks();
+  vi.restoreAllMocks();
 });
 
 // Mock the internal createQueryClient to disable retries
@@ -50,8 +65,14 @@ vi.mock(import("./core/queryClient"), async importOriginal => {
   const original = await importOriginal();
   return {
     ...original,
-    createQueryClient: ({ explorer }: { explorer: any }) => {
-      const client = original.createQueryClient({ explorer });
+    createQueryClient: ({
+      explorer,
+      store = getAppStore(),
+    }: {
+      explorer: Explorer;
+      store?: Store;
+    }) => {
+      const client = original.createQueryClient({ explorer, store });
       const defaultOptions = client.getDefaultOptions();
       client.setDefaultOptions({
         ...defaultOptions,

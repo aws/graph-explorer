@@ -24,6 +24,7 @@ import {
   type Vertex,
   type VertexId,
   type VertexPreferences,
+  type AppStore,
 } from "@/core";
 import {
   createRandomSchema,
@@ -34,7 +35,6 @@ import {
   type TestableEdge,
   type TestableVertex,
 } from "./randomData";
-import type { JotaiStore } from "./renderHookWithJotai";
 import { createMockExplorer } from "./createMockExplorer";
 import type { Explorer } from "@/connector";
 
@@ -156,7 +156,7 @@ export class DbState {
   }
 
   /** Applies the state to the given Jotai store. */
-  applyTo(store: JotaiStore) {
+  applyTo(store: AppStore) {
     // Config
     store.set(
       configurationAtom,

@@ -71,3 +71,12 @@ export function getExplorer(meta: GraphExplorerMeta | undefined) {
   }
   return meta.explorer;
 }
+
+/** Extracts the Jotai store from the meta objects */
+export function getStore(meta: GraphExplorerMeta | undefined) {
+  if (!meta?.store) {
+    logger.error("No Jotai store found in the query client meta object");
+    throw new Error("No Jotai store found in the query client meta object");
+  }
+  return meta.store;
+}
