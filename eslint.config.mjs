@@ -42,7 +42,6 @@ export default defineConfig(
       ...tanstackQueryLint.configs.recommended.rules,
     },
   },
-  eslintConfigPrettier,
   // General rules
   {
     rules: {
@@ -90,5 +89,8 @@ export default defineConfig(
       "@tanstack/query/no-rest-destructuring": "warn",
       "@tanstack/query/stable-query-client": "error",
     },
-  }
+  },
+
+  // Prettier must be last
+  eslintConfigPrettier
 );
