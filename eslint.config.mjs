@@ -15,13 +15,7 @@ export default defineConfig(
   // Ignored files
   includeIgnoreFile(gitignorePath, "Imported .gitignore patterns"),
   {
-    ignores: [
-      "**/tailwind.config.ts",
-      "**/eslint.config.mjs",
-      "**/vitest.config.ts",
-      "**/vitest.workspace.ts",
-      "**/*.config.js",
-    ],
+    ignores: ["**/*.config.{js,ts,mjs}", "**/vitest.workspace.ts"],
   },
   // Settings
   { languageOptions: { parserOptions: { ecmaFeatures: { jsx: true } } } },
