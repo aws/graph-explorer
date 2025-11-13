@@ -32,16 +32,6 @@ export default defineConfig(
   // Plugins
   pluginJs.configs.recommended,
   tseslint.configs.recommendedTypeChecked,
-  reactLint.configs.flat.recommended,
-  reactHooks.configs.flat.recommended,
-  {
-    plugins: {
-      "@tanstack/query": fixupPluginRules(tanstackQueryLint),
-    },
-    rules: {
-      ...tanstackQueryLint.configs.recommended.rules,
-    },
-  },
   // General rules
   {
     rules: {
@@ -76,9 +66,21 @@ export default defineConfig(
       ],
     },
   },
-  // React rules
+
+  // React files - frontend only
   {
+    files: ["packages/graph-explorer/**/*.{ts,tsx}"],
+    plugins: {
+      react: reactLint,
+      "react-hooks": fixupPluginRules(reactHooks),
+      "@tanstack/query": fixupPluginRules(tanstackQueryLint),
+    },
     rules: {
+      ...reactLint.configs.flat.recommended.rules,
+      ...reactHooks.configs.flat.recommended.rules,
+      ...tanstackQueryLint.configs.recommended.rules,
+
+      // React optimizations
       "react/react-in-jsx-scope": "off",
       "react/prop-types": "off",
       "react/display-name": "off",
