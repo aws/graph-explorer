@@ -34,11 +34,13 @@ export function useAddToGraph() {
 
     // Add new vertices to the graph
     if (newVerticesMap.size > 0) {
+      logger.debug("Adding vertices to graph", newVerticesMap);
       setVertices(prev => new Map([...prev, ...newVerticesMap]));
     }
 
     // Add new edges to the graph
     if (newEdgesMap.size > 0) {
+      logger.debug("Adding edges to graph", newEdgesMap);
       setEdges(prev => new Map([...prev, ...newEdgesMap]));
     }
 

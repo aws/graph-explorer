@@ -1,22 +1,26 @@
 import { queryOptions } from "@tanstack/react-query";
 import type { VertexId } from "@/core";
-import { getExplorer } from "./helpers";
+import { getExplorer, getStore, updateVertexGraphCanvasState } from "./helpers";
 
 export function vertexDetailsQuery(vertexId: VertexId) {
   return queryOptions({
     queryKey: ["vertex", vertexId],
     queryFn: async ({ signal, meta }) => {
       const explorer = getExplorer(meta);
+      const store = getStore(meta);
+
       const results = await explorer.vertexDetails(
         { vertexIds: [vertexId] },
         { signal }
       );
 
-      if (!results.vertices.length) {
-        return { vertex: null };
+      const vertex = results.vertices[0] ?? null;
+
+      if (vertex) {
+        updateVertexGraphCanvasState(store, [vertex]);
       }
 
-      return { vertex: results.vertices[0] };
+      return { vertex };
     },
   });
 }

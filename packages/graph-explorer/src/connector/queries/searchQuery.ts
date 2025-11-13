@@ -1,7 +1,12 @@
 import { queryOptions } from "@tanstack/react-query";
 import type { KeywordSearchRequest } from "../useGEFetchTypes";
 import type { UpdateSchemaHandler } from "@/core/StateProvider/schema";
-import { getExplorer, setVertexDetailsQueryCache } from "./helpers";
+import {
+  getExplorer,
+  getStore,
+  setVertexDetailsQueryCache,
+  updateVertexGraphCanvasState,
+} from "./helpers";
 
 /**
  * Performs a search with the provided parameters.
@@ -18,11 +23,14 @@ export function searchQuery(
     queryKey: ["keyword-search", request],
     queryFn: async ({ signal, meta, client }) => {
       const explorer = getExplorer(meta);
+      const store = getStore(meta);
+
       const results = await explorer.keywordSearch(request, { signal });
 
       results.vertices.forEach(vertex => {
         setVertexDetailsQueryCache(client, vertex);
       });
+      updateVertexGraphCanvasState(store, results.vertices);
       updateSchema(results);
 
       return results;

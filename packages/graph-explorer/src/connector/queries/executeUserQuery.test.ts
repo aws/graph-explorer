@@ -6,6 +6,7 @@ import {
 } from "@/utils/testing";
 import { executeUserQuery } from "./executeUserQuery";
 import { getAllGraphableEntities, createResultScalar } from "../entities";
+import { edgesAtom, getAppStore, nodesAtom } from "@/core";
 
 describe("executeUserQuery", () => {
   it("should execute a query with empty results", async () => {
@@ -219,5 +220,90 @@ describe("executeUserQuery", () => {
     expect(mockUpdateSchema).toHaveBeenCalledExactlyOnceWith(
       getAllGraphableEntities(result)
     );
+  });
+
+  it("should update nodesAtom when vertices are already in graph", async () => {
+    const explorer = new FakeExplorer();
+    const queryClient = createQueryClient({ explorer });
+
+    const rawQuerySpy = vi.spyOn(explorer, "rawQuery");
+
+    const originalVertex = createTestableVertex();
+    const updatedVertex = originalVertex.with({
+      attributes: { name: "Updated Name" },
+    });
+
+    // Add original vertex to nodesAtom
+    getAppStore().set(
+      nodesAtom,
+      new Map([[originalVertex.id, originalVertex.asVertex()]])
+    );
+
+    // Mock explorer to return updated vertex
+    explorer.addTestableVertex(updatedVertex);
+    rawQuerySpy.mockResolvedValue([updatedVertex.asResult()]);
+    const mockUpdateSchema = vi.fn();
+
+    await queryClient.fetchQuery(executeUserQuery("query", mockUpdateSchema));
+
+    // Verify nodesAtom was updated with the new vertex data
+    const nodesMap = getAppStore().get(nodesAtom);
+    expect(nodesMap.get(originalVertex.id)).toStrictEqual(
+      updatedVertex.asVertex()
+    );
+  });
+
+  it("should update edgesAtom when edges are already in graph", async () => {
+    const explorer = new FakeExplorer();
+    const queryClient = createQueryClient({ explorer });
+
+    const rawQuerySpy = vi.spyOn(explorer, "rawQuery");
+
+    const originalEdge = createTestableEdge();
+    const updatedEdge = originalEdge.with({
+      attributes: { weight: 42 },
+    });
+
+    // Add original edge to edgesAtom
+    getAppStore().set(
+      edgesAtom,
+      new Map([[originalEdge.id, originalEdge.asEdge()]])
+    );
+
+    // Mock explorer to return updated edge
+    explorer.addTestableEdge(updatedEdge);
+    rawQuerySpy.mockResolvedValue([updatedEdge.asResult()]);
+    const mockUpdateSchema = vi.fn();
+
+    await queryClient.fetchQuery(executeUserQuery("query", mockUpdateSchema));
+
+    // Verify edgesAtom was updated with the new edge data
+    const edgesMap = getAppStore().get(edgesAtom);
+    expect(edgesMap.get(originalEdge.id)).toStrictEqual(updatedEdge.asEdge());
+  });
+
+  it("should not update canvas state when entities are not in graph", async () => {
+    const explorer = new FakeExplorer();
+    const queryClient = createQueryClient({ explorer });
+
+    const rawQuerySpy = vi.spyOn(explorer, "rawQuery");
+
+    const vertex = createTestableVertex();
+    const edge = createTestableEdge();
+
+    explorer.addTestableVertex(vertex);
+    explorer.addTestableEdge(edge);
+    rawQuerySpy.mockResolvedValue([vertex.asResult(), edge.asResult()]);
+    const mockUpdateSchema = vi.fn();
+
+    // Canvas state is empty
+    expect(getAppStore().get(nodesAtom).size).toBe(0);
+    expect(getAppStore().get(edgesAtom).size).toBe(0);
+
+    await queryClient.fetchQuery(executeUserQuery("query", mockUpdateSchema));
+
+    // Verify canvas state was not modified
+    expect(getAppStore().get(nodesAtom).size).toBe(0);
+    expect(getAppStore().get(edgesAtom).size).toBe(0);
   });
 });

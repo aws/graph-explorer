@@ -4,6 +4,7 @@ import { vertexDetailsQuery } from "./vertexDetailsQuery";
 import { createQueryClient } from "@/core/queryClient";
 import { createArray } from "@shared/utils/testing";
 import { DEFAULT_BATCH_REQUEST_SIZE } from "@/utils";
+import { getAppStore, nodesAtom } from "@/core";
 
 describe("bulkVertexDetailsQuery", () => {
   it("should return nothing when input is empty", async () => {
@@ -120,5 +121,63 @@ describe("bulkVertexDetailsQuery", () => {
         queryClient.getQueryData(vertexDetailsQuery(vertex.id).queryKey)
       ).toStrictEqual({ vertex });
     }
+  });
+
+  it("should update nodesAtom when vertices are already in graph", async () => {
+    const explorer = new FakeExplorer();
+    const queryClient = createQueryClient({ explorer });
+
+    const originalVertex1 = createRandomVertex();
+    const originalVertex2 = createRandomVertex();
+    const updatedVertex1 = {
+      ...originalVertex1,
+      attributes: { ...originalVertex1.attributes, name: "Updated 1" },
+    };
+    const updatedVertex2 = {
+      ...originalVertex2,
+      attributes: { ...originalVertex2.attributes, name: "Updated 2" },
+    };
+
+    // Add original vertices to nodesAtom
+    getAppStore().set(
+      nodesAtom,
+      new Map([
+        [originalVertex1.id, originalVertex1],
+        [originalVertex2.id, originalVertex2],
+      ])
+    );
+
+    // Mock explorer to return updated vertices
+    explorer.addVertex(updatedVertex1);
+    explorer.addVertex(updatedVertex2);
+
+    await queryClient.fetchQuery(
+      bulkVertexDetailsQuery([originalVertex1.id, originalVertex2.id])
+    );
+
+    // Verify nodesAtom was updated with the new vertex data
+    const nodesMap = getAppStore().get(nodesAtom);
+    expect(nodesMap.get(originalVertex1.id)).toStrictEqual(updatedVertex1);
+    expect(nodesMap.get(originalVertex2.id)).toStrictEqual(updatedVertex2);
+  });
+
+  it("should not update nodesAtom when vertices are not in graph", async () => {
+    const explorer = new FakeExplorer();
+    const queryClient = createQueryClient({ explorer });
+
+    const vertex1 = createRandomVertex();
+    const vertex2 = createRandomVertex();
+    explorer.addVertex(vertex1);
+    explorer.addVertex(vertex2);
+
+    // nodesAtom is empty
+    expect(getAppStore().get(nodesAtom).size).toBe(0);
+
+    await queryClient.fetchQuery(
+      bulkVertexDetailsQuery([vertex1.id, vertex2.id])
+    );
+
+    // Verify nodesAtom was not modified
+    expect(getAppStore().get(nodesAtom).size).toBe(0);
   });
 });

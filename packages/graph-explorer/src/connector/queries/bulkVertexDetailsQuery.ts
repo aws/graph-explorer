@@ -2,7 +2,12 @@ import { queryOptions } from "@tanstack/react-query";
 import type { Vertex, VertexId } from "@/core";
 import { DEFAULT_BATCH_REQUEST_SIZE } from "@/utils";
 import { chunk } from "lodash";
-import { getExplorer, setVertexDetailsQueryCache } from "./helpers";
+import {
+  getExplorer,
+  getStore,
+  setVertexDetailsQueryCache,
+  updateVertexGraphCanvasState,
+} from "./helpers";
 import { vertexDetailsQuery } from "./vertexDetailsQuery";
 
 export function bulkVertexDetailsQuery(vertexIds: VertexId[]) {
@@ -12,6 +17,7 @@ export function bulkVertexDetailsQuery(vertexIds: VertexId[]) {
     gcTime: 0,
     queryFn: async ({ client, meta, signal }) => {
       const explorer = getExplorer(meta);
+      const store = getStore(meta);
 
       // Get cached and missing vertices in one pass
       const cachedVertices: Vertex[] = [];
@@ -44,6 +50,7 @@ export function bulkVertexDetailsQuery(vertexIds: VertexId[]) {
 
       // Update cache
       vertices.forEach(v => setVertexDetailsQueryCache(client, v));
+      updateVertexGraphCanvasState(store, vertices);
 
       return { vertices: [...cachedVertices, ...vertices] };
     },

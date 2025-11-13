@@ -4,6 +4,7 @@ import { edgeDetailsQuery } from "./edgeDetailsQuery";
 import { createQueryClient } from "@/core/queryClient";
 import { createArray } from "@shared/utils/testing";
 import { DEFAULT_BATCH_REQUEST_SIZE } from "@/utils";
+import { edgesAtom, getAppStore } from "@/core";
 
 describe("bulkEdgeDetailsQuery", () => {
   it("should return nothing when input is empty", async () => {
@@ -116,5 +117,61 @@ describe("bulkEdgeDetailsQuery", () => {
         queryClient.getQueryData(edgeDetailsQuery(edge.id).queryKey)
       ).toStrictEqual({ edge });
     }
+  });
+
+  it("should update edgesAtom when edges are already in graph", async () => {
+    const explorer = new FakeExplorer();
+    const queryClient = createQueryClient({ explorer });
+
+    const originalEdge1 = createRandomEdge();
+    const originalEdge2 = createRandomEdge();
+    const updatedEdge1 = {
+      ...originalEdge1,
+      attributes: { ...originalEdge1.attributes, weight: 10 },
+    };
+    const updatedEdge2 = {
+      ...originalEdge2,
+      attributes: { ...originalEdge2.attributes, weight: 20 },
+    };
+
+    // Add original edges to edgesAtom
+    getAppStore().set(
+      edgesAtom,
+      new Map([
+        [originalEdge1.id, originalEdge1],
+        [originalEdge2.id, originalEdge2],
+      ])
+    );
+
+    // Mock explorer to return updated edges
+    explorer.addEdge(updatedEdge1);
+    explorer.addEdge(updatedEdge2);
+
+    await queryClient.fetchQuery(
+      bulkEdgeDetailsQuery([originalEdge1.id, originalEdge2.id])
+    );
+
+    // Verify edgesAtom was updated with the new edge data
+    const edgesMap = getAppStore().get(edgesAtom);
+    expect(edgesMap.get(originalEdge1.id)).toStrictEqual(updatedEdge1);
+    expect(edgesMap.get(originalEdge2.id)).toStrictEqual(updatedEdge2);
+  });
+
+  it("should not update edgesAtom when edges are not in graph", async () => {
+    const explorer = new FakeExplorer();
+    const queryClient = createQueryClient({ explorer });
+
+    const edge1 = createRandomEdge();
+    const edge2 = createRandomEdge();
+    explorer.addEdge(edge1);
+    explorer.addEdge(edge2);
+
+    // edgesAtom is empty
+    expect(getAppStore().get(edgesAtom).size).toBe(0);
+
+    await queryClient.fetchQuery(bulkEdgeDetailsQuery([edge1.id, edge2.id]));
+
+    // Verify edgesAtom was not modified
+    expect(getAppStore().get(edgesAtom).size).toBe(0);
   });
 });
