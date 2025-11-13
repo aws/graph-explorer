@@ -3,10 +3,10 @@ import globals from "globals";
 import pluginJs from "@eslint/js";
 import tseslint from "typescript-eslint";
 import reactLint from "eslint-plugin-react";
-import * as reactHooks from "eslint-plugin-react-hooks";
+import reactHooks from "eslint-plugin-react-hooks";
 import tanstackQueryLint from "@tanstack/eslint-plugin-query";
 import eslintConfigPrettier from "eslint-config-prettier";
-import { fixupPluginRules, includeIgnoreFile } from "@eslint/compat";
+import { includeIgnoreFile } from "@eslint/compat";
 import { fileURLToPath } from "node:url";
 
 const gitignorePath = fileURLToPath(new URL(".gitignore", import.meta.url));
@@ -74,8 +74,8 @@ export default defineConfig(
     files: ["packages/graph-explorer/**/*.{ts,tsx}"],
     plugins: {
       react: reactLint,
-      "react-hooks": fixupPluginRules(reactHooks),
-      "@tanstack/query": fixupPluginRules(tanstackQueryLint),
+      "react-hooks": reactHooks,
+      "@tanstack/query": tanstackQueryLint,
     },
     languageOptions: {
       globals: globals.browser,
