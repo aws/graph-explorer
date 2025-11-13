@@ -7,16 +7,13 @@ import * as reactHooks from "eslint-plugin-react-hooks";
 import tanstackQueryLint from "@tanstack/eslint-plugin-query";
 import eslintConfigPrettier from "eslint-config-prettier";
 import { fixupPluginRules, includeIgnoreFile } from "@eslint/compat";
-import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const gitignorePath = path.resolve(__dirname, ".gitignore");
+const gitignorePath = fileURLToPath(new URL(".gitignore", import.meta.url));
 
 export default defineConfig(
   // Ignored files
-  includeIgnoreFile(gitignorePath),
+  includeIgnoreFile(gitignorePath, "Imported .gitignore patterns"),
   {
     ignores: [
       "**/tailwind.config.ts",
