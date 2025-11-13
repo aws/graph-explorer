@@ -10,7 +10,7 @@ describe("searchQuery", () => {
     const keywordSearchSpy = vi.spyOn(explorer, "keywordSearch");
     const queryClient = createQueryClient({ explorer });
 
-    keywordSearchSpy.mockResolvedValue({ vertices: [] });
+    keywordSearchSpy.mockResolvedValue({ vertices: [], edges: [] });
     const mockUpdateSchema = vi.fn();
 
     const result = await queryClient.fetchQuery(
@@ -32,6 +32,7 @@ describe("searchQuery", () => {
 
     keywordSearchSpy.mockResolvedValue({
       vertices: [vertex1.asVertex(), vertex2.asVertex()],
+      edges: [],
     });
     const mockUpdateSchema = vi.fn();
 
@@ -54,7 +55,10 @@ describe("searchQuery", () => {
 
     const vertex = createTestableVertex();
 
-    keywordSearchSpy.mockResolvedValue({ vertices: [vertex.asVertex()] });
+    keywordSearchSpy.mockResolvedValue({
+      vertices: [vertex.asVertex()],
+      edges: [],
+    });
     const mockUpdateSchema = vi.fn();
 
     await queryClient.fetchQuery(
@@ -86,6 +90,7 @@ describe("searchQuery", () => {
     // Mock search to return updated vertex
     keywordSearchSpy.mockResolvedValue({
       vertices: [updatedVertex.asVertex()],
+      edges: [],
     });
     const mockUpdateSchema = vi.fn();
 
@@ -110,6 +115,7 @@ describe("searchQuery", () => {
 
     keywordSearchSpy.mockResolvedValue({
       vertices: [vertex1.asVertex(), vertex2.asVertex()],
+      edges: [],
     });
     const mockUpdateSchema = vi.fn();
 
