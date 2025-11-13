@@ -58,6 +58,10 @@ export const activeSchemaSelector = atom(
         return updatedSchemaMap;
       }
 
+      if (newValue === prev) {
+        return prevSchemaMap;
+      }
+
       // Update the map
       updatedSchemaMap.set(schemaId, newValue);
 
@@ -74,19 +78,31 @@ export function updateSchemaFromEntities(
   const vertices = entities.vertices ?? [];
   const edges = entities.edges ?? [];
 
+  if (!vertices.length && !edges.length) {
+    return schema;
+  }
+
   const newVertexConfigs = vertices.flatMap(mapVertexToTypeConfigs);
   const newEdgeConfigs = edges.map(mapEdgeToTypeConfig);
 
+  const mergedVertices = merge(schema.vertices, newVertexConfigs);
+  const mergedEdges = merge(schema.edges, newEdgeConfigs);
+
+  // Only create new schema if something changed
+  if (mergedVertices === schema.vertices && mergedEdges === schema.edges) {
+    return schema;
+  }
+
   let newSchema = {
     ...schema,
-    vertices: merge(schema.vertices, newVertexConfigs),
-    edges: merge(schema.edges, newEdgeConfigs),
+    vertices: mergedVertices,
+    edges: mergedEdges,
   } satisfies SchemaInference;
 
   // Update the generated prefixes in the schema
   newSchema = updateSchemaPrefixes(newSchema);
 
-  logger.debug("Updated schema:", newSchema);
+  logger.debug("Updated schema:", { newSchema, prevSchema: schema });
   return newSchema;
 }
 
@@ -96,24 +112,31 @@ function merge<T extends VertexTypeConfig | EdgeTypeConfig>(
   newConfigs: T[]
 ): T[] {
   const configMap = new Map(existing.map(vt => [vt.type, vt]));
+  let hasChanges = false;
 
   for (const newConfig of newConfigs) {
     const existingConfig = configMap.get(newConfig.type);
     if (!existingConfig) {
       configMap.set(newConfig.type, newConfig);
+      hasChanges = true;
     } else {
       const mergedAttributes = mergeAttributes(
         existingConfig.attributes,
         newConfig.attributes
       );
+      if (mergedAttributes === existingConfig.attributes) {
+        continue;
+      }
       configMap.set(newConfig.type, {
         ...existingConfig,
         attributes: mergedAttributes,
       });
+      hasChanges = true;
     }
   }
 
-  return Array.from(configMap.values());
+  // Return original array if nothing changed
+  return hasChanges ? Array.from(configMap.values()) : existing;
 }
 
 export function mergeAttributes(
@@ -121,20 +144,34 @@ export function mergeAttributes(
   newAttributes: AttributeConfig[]
 ): AttributeConfig[] {
   const attrMap = new Map(existing.map(attr => [attr.name, attr]));
+  let hasChanges = false;
 
   for (const newAttr of newAttributes) {
     const existingAttr = attrMap.get(newAttr.name);
     if (!existingAttr) {
       attrMap.set(newAttr.name, newAttr);
+      hasChanges = true;
+    } else if (
+      existingAttr.name === newAttr.name &&
+      existingAttr.dataType !== newAttr.dataType
+    ) {
+      continue;
     } else {
-      attrMap.set(newAttr.name, {
-        ...existingAttr,
-        ...newAttr,
-      });
+      // Check if merge would actually change anything
+      const merged = { ...existingAttr, ...newAttr };
+      if (
+        merged.name === existingAttr.name &&
+        merged.dataType === existingAttr.dataType
+      ) {
+        continue;
+      }
+      attrMap.set(newAttr.name, merged);
+      hasChanges = true;
     }
   }
 
-  return Array.from(attrMap.values());
+  // Return original array if nothing changed
+  return hasChanges ? Array.from(attrMap.values()) : existing;
 }
 
 export function mapVertexToTypeConfigs(vertex: Vertex): VertexTypeConfig[] {
