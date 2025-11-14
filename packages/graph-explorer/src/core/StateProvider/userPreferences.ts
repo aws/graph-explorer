@@ -2,7 +2,7 @@ import DEFAULT_ICON_URL from "@/utils/defaultIconUrl";
 import { atomWithLocalForage } from "./atomWithLocalForage";
 import { atom, useAtomValue, useSetAtom } from "jotai";
 import { useDeferredValue } from "react";
-import { RESERVED_ID_PROPERTY, RESERVED_TYPES_PROPERTY } from "@/utils";
+import { logger, RESERVED_ID_PROPERTY, RESERVED_TYPES_PROPERTY } from "@/utils";
 import type { Simplify } from "type-fest";
 import { useActiveSchema } from "./schema";
 import { atomFamily } from "jotai/utils";
@@ -175,6 +175,7 @@ export function createVertexPreference(
   type: string,
   stored: VertexPreferencesStorageModel | undefined
 ): VertexPreferences {
+  logger.debug("Creating VertexPreference", { type, stored });
   return {
     type,
     ...defaultVertexPreferences,
@@ -187,6 +188,7 @@ export function createEdgePreference(
   type: string,
   stored: EdgePreferencesStorageModel | undefined
 ) {
+  logger.debug("Creating EdgePreference", { type, stored });
   return {
     type,
     ...defaultEdgePreferences,
