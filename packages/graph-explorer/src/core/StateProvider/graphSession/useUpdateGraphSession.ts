@@ -15,7 +15,7 @@ import { useCallback } from "react";
  */
 export function useUpdateGraphSession() {
   return useAtomCallback(
-    useCallback(async (get, set) => {
+    useCallback((get, set) => {
       // Get the latest graph data from the atoms
       const nodesInGraph = get(nodesAtom);
       const edgesInGraph = get(edgesAtom);
@@ -46,7 +46,7 @@ export function useUpdateGraphSession() {
 
       // Update the session
       logger.debug("Updating graph session", graphSession);
-      await set(activeGraphSessionAtom, graphSession);
+      set(activeGraphSessionAtom, graphSession);
       set(isRestorePreviousSessionAvailableAtom, false);
     }, [])
   );

@@ -3,10 +3,8 @@ import { useSetAtom } from "jotai";
 
 export function useAutoOpenDetailsSidebar() {
   const setUserLayout = useSetAtom(userLayoutAtom);
-  return async () => {
-    await setUserLayout(async prevPromise => {
-      const prev = await prevPromise;
-
+  return () => {
+    setUserLayout(prev => {
       if (prev.detailsAutoOpenOnSelection !== true) {
         return prev;
       }

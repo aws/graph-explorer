@@ -69,11 +69,10 @@ const ContextMenu = ({
   const openNodeStyleDialog = useOpenNodeStyleDialog();
   const openEdgeStyleDialog = useOpenEdgeStyleDialog();
 
-  const openSidebarPanel = (panelName: SidebarItems) => async () => {
-    await setUserLayout(async prev => {
-      const prevValue = await prev;
+  const openSidebarPanel = (panelName: SidebarItems) => () => {
+    setUserLayout(prev => {
       return {
-        ...prevValue,
+        ...prev,
         activeSidebarItem: panelName,
       };
     });
@@ -133,14 +132,14 @@ const ContextMenu = ({
 
   const removeFromGraph = useRemoveFromGraph();
   const handleRemoveFromCanvas =
-    (nodesIds: VertexId[], edgesIds: EdgeId[]) => async () => {
-      await removeFromGraph({ vertices: nodesIds, edges: edgesIds });
+    (nodesIds: VertexId[], edgesIds: EdgeId[]) => () => {
+      removeFromGraph({ vertices: nodesIds, edges: edgesIds });
       onClose?.();
     };
 
   const clearGraph = useClearGraph();
-  const handleRemoveAllFromCanvas = async () => {
-    await clearGraph();
+  const handleRemoveAllFromCanvas = () => {
+    clearGraph();
     onClose?.();
   };
 

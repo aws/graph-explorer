@@ -12,30 +12,29 @@ import { useCallback } from "react";
 
 export function useDeleteConfig() {
   return useAtomCallback(
-    useCallback(async (_get, set, id: ConfigurationId) => {
+    useCallback((_get, set, id: ConfigurationId) => {
       logger.log("Deleting connection:", id);
-      await set(activeConfigurationAtom, async prev => {
-        const prevValue = await prev;
-        if (prevValue === id) {
+      set(activeConfigurationAtom, prev => {
+        if (prev === id) {
           return null;
         }
-        return prevValue;
+        return prev;
       });
 
-      await set(configurationAtom, async prevConfigs => {
-        const updatedConfigs = new Map(await prevConfigs);
+      set(configurationAtom, prevConfigs => {
+        const updatedConfigs = new Map(prevConfigs);
         updatedConfigs.delete(id);
         return updatedConfigs;
       });
 
-      await set(schemaAtom, async prevSchemas => {
-        const updatedSchemas = new Map(await prevSchemas);
+      set(schemaAtom, prevSchemas => {
+        const updatedSchemas = new Map(prevSchemas);
         updatedSchemas.delete(id);
         return updatedSchemas;
       });
 
-      await set(allGraphSessionsAtom, async prev => {
-        const updatedGraphs = new Map(await prev);
+      set(allGraphSessionsAtom, prev => {
+        const updatedGraphs = new Map(prev);
         updatedGraphs.delete(id);
         return updatedGraphs;
       });
@@ -47,11 +46,11 @@ export function useDeleteActiveConfiguration() {
   const activeConfigId = useAtomValue(activeConfigurationAtom);
   const deleteConfig = useDeleteConfig();
 
-  return async () => {
+  return () => {
     if (!activeConfigId) {
       return;
     }
 
-    await deleteConfig(activeConfigId);
+    deleteConfig(activeConfigId);
   };
 }

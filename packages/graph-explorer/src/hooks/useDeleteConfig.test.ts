@@ -33,7 +33,7 @@ test("should delete the active configuration", async () => {
     }
   );
 
-  await act(() => result.current.callback());
+  act(() => result.current.callback());
 
   await waitFor(() => {
     expect(result.current.activeConfig).toBeNull();
@@ -59,7 +59,7 @@ test("should delete the active schema", async () => {
     }
   );
 
-  await act(() => result.current.callback());
+  act(() => result.current.callback());
 
   await waitFor(() => {
     expect(result.current.allSchemas.size).toBe(0);
@@ -82,7 +82,7 @@ test("should delete the graph session for the active connection", async () => {
     }
   );
 
-  await act(() => result.current.callback());
+  act(() => result.current.callback());
 
   await waitFor(() => {
     expect(result.current.allGraphs.size).toBe(0);

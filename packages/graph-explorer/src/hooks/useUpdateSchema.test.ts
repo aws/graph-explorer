@@ -17,20 +17,20 @@ import { useAtomValue } from "jotai";
 
 describe("useUpdateSchema", () => {
   describe("setSyncFailure", () => {
-    it("should do nothing if no schema exists", async () => {
+    it("should do nothing if no schema exists", () => {
       const { result } = renderHookWithJotai(useTestSetup);
-      await act(async () => await result.current.setSyncFailure());
+      act(() => result.current.setSyncFailure());
       expect(result.current.schemas).toHaveLength(0);
     });
 
-    it("should update existing schema", async () => {
+    it("should update existing schema", () => {
       const configId = createNewConfigurationId();
       const existingSchema = createRandomSchema();
       const { result } = renderHookWithJotai(useTestSetup, store => {
         store.set(activeConfigurationAtom, configId);
         store.set(schemaAtom, new Map([[configId, existingSchema]]));
       });
-      await act(async () => await result.current.setSyncFailure());
+      act(() => result.current.setSyncFailure());
 
       const schema = result.current.schemas.get(configId);
       expect(schema).toEqual({
@@ -50,7 +50,7 @@ describe("useUpdateSchema", () => {
       vi.useRealTimers();
     });
 
-    it("should set schema when none set", async () => {
+    it("should set schema when none set", () => {
       const configId = createNewConfigurationId();
       const schemaResponse = createRandomSchemaResponse();
 
@@ -58,7 +58,7 @@ describe("useUpdateSchema", () => {
         store.set(activeConfigurationAtom, configId);
       });
 
-      await act(async () => await result.current.replaceSchema(schemaResponse));
+      act(() => result.current.replaceSchema(schemaResponse));
 
       const schema = result.current.schemas.get(configId);
       expect(schema).toStrictEqual({
@@ -69,7 +69,7 @@ describe("useUpdateSchema", () => {
       } satisfies SchemaInference);
     });
 
-    it("should update existing schema", async () => {
+    it("should update existing schema", () => {
       const configId = createNewConfigurationId();
       const existingSchema = createRandomSchema();
       const schemaResponse = createRandomSchemaResponse();
@@ -78,7 +78,7 @@ describe("useUpdateSchema", () => {
         store.set(activeConfigurationAtom, configId);
         store.set(schemaAtom, new Map([[configId, existingSchema]]));
       });
-      await act(async () => await result.current.replaceSchema(schemaResponse));
+      act(() => result.current.replaceSchema(schemaResponse));
 
       expect(result.current.schemas.get(configId)).toEqual({
         ...schemaResponse,
@@ -90,7 +90,7 @@ describe("useUpdateSchema", () => {
   });
 
   describe("updateVertexTotal", () => {
-    it("should do nothing if no schema exists", async () => {
+    it("should do nothing if no schema exists", () => {
       const configId = createNewConfigurationId();
       const vertexType = createRandomName("VertexType");
       const vertexTotal = createRandomInteger();
@@ -99,15 +99,12 @@ describe("useUpdateSchema", () => {
         store.set(activeConfigurationAtom, configId);
       });
 
-      await act(
-        async () =>
-          await result.current.updateVertexTotal(vertexType, vertexTotal)
-      );
+      act(() => result.current.updateVertexTotal(vertexType, vertexTotal));
 
       expect(result.current.schemas).toHaveLength(0);
     });
 
-    it("should update total on given vertex type", async () => {
+    it("should update total on given vertex type", () => {
       const configId = createNewConfigurationId();
       const vertexType = createRandomName("VertexType");
       const vertexTotal = createRandomInteger();
@@ -119,10 +116,7 @@ describe("useUpdateSchema", () => {
         store.set(schemaAtom, new Map([[configId, existingSchema]]));
       });
 
-      await act(
-        async () =>
-          await result.current.updateVertexTotal(vertexType, vertexTotal)
-      );
+      act(() => result.current.updateVertexTotal(vertexType, vertexTotal));
 
       const schema = result.current.schemas.get(configId)!;
       const vtConfig = schema.vertices.find(v => v.type === vertexType);

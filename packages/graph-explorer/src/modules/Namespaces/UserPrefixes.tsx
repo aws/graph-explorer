@@ -161,15 +161,15 @@ function EmptyState({ onCreate }: { onCreate: () => void }) {
 function useDeletePrefixCallback(prefix: string) {
   return useAtomCallback(
     useCallback(
-      async (get, set) => {
+      (get, set) => {
         const activeConfigId = get(activeConfigurationAtom);
 
         if (!activeConfigId) {
           return;
         }
 
-        await set(schemaAtom, async prevSchemas => {
-          const updatedSchemas = new Map(await prevSchemas);
+        set(schemaAtom, prevSchemas => {
+          const updatedSchemas = new Map(prevSchemas);
           const activeSchema = updatedSchemas.get(activeConfigId);
 
           updatedSchemas.set(activeConfigId, {
@@ -214,13 +214,13 @@ function EditPrefixModal({
   const configId = config?.id;
   const onSave = useAtomCallback(
     useCallback(
-      async (_get, set, prefix: string, uri: string) => {
+      (_get, set, prefix: string, uri: string) => {
         if (!configId) {
           return;
         }
 
-        await set(schemaAtom, async prevSchemas => {
-          const updatedSchemas = new Map(await prevSchemas);
+        set(schemaAtom, prevSchemas => {
+          const updatedSchemas = new Map(prevSchemas);
           const activeSchema = updatedSchemas.get(configId);
 
           updatedSchemas.set(configId, {

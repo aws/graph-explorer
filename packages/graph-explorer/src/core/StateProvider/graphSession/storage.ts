@@ -2,7 +2,7 @@ import { atom } from "jotai";
 import type { EdgeId, VertexId } from "../../entities";
 import { activeConfigurationAtom } from "../configuration";
 import type { ConfigurationId } from "../../ConfigurationProvider";
-import { atomWithLocalForage } from "../localForageEffect";
+import { atomWithLocalForage } from "../atomWithLocalForage";
 import { atomWithReset, RESET } from "jotai/utils";
 
 /** A model for the graph data that is stored in local storage. */
@@ -14,10 +14,9 @@ export type GraphSessionStorageModel = {
 export const isRestorePreviousSessionAvailableAtom = atomWithReset(true);
 
 /** Stores the graph session data for each connection. */
-export const allGraphSessionsAtom = atomWithLocalForage(
-  new Map<ConfigurationId, GraphSessionStorageModel>(),
-  "graph-sessions"
-);
+export const allGraphSessionsAtom = atomWithLocalForage<
+  Map<ConfigurationId, GraphSessionStorageModel>
+>("graph-sessions", new Map());
 
 /** Gets or sets the active connection's graph session data. */
 export const activeGraphSessionAtom = atom(
@@ -31,7 +30,7 @@ export const activeGraphSessionAtom = atom(
     const graphs = get(allGraphSessionsAtom);
     return graphs.get(connectionId) ?? null;
   },
-  async (get, set, newValue: GraphSessionStorageModel | typeof RESET) => {
+  (get, set, newValue: GraphSessionStorageModel | typeof RESET) => {
     const graphs = get(allGraphSessionsAtom);
     const connectionId = get(activeConfigurationAtom);
 
@@ -50,6 +49,6 @@ export const activeGraphSessionAtom = atom(
     }
 
     newGraphs.set(connectionId, newValue);
-    await set(allGraphSessionsAtom, newGraphs);
+    set(allGraphSessionsAtom, newGraphs);
   }
 );

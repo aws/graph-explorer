@@ -31,7 +31,7 @@ export function useRemoveFromGraph() {
 
   const updateGraphStorage = useUpdateGraphSession();
 
-  return async (entities: { vertices?: VertexId[]; edges?: EdgeId[] }) => {
+  return (entities: { vertices?: VertexId[]; edges?: EdgeId[] }) => {
     const vertices = new Set(entities.vertices ?? []);
     const edges = new Set(entities.edges ?? []);
 
@@ -68,7 +68,7 @@ export function useRemoveFromGraph() {
       setFilteredEdges(prev => prev.difference(edgesToRemove));
     }
 
-    await updateGraphStorage();
+    updateGraphStorage();
   };
 }
 
@@ -94,7 +94,7 @@ export function useRemoveEdgeFromGraph(edgeId: EdgeId) {
 
 export function useClearGraph() {
   return useAtomCallback(
-    useCallback(async (_get, set) => {
+    useCallback((_get, set) => {
       logger.log("Clearing graph state...");
       set(nodesAtom, RESET);
       set(edgesAtom, RESET);
@@ -104,7 +104,7 @@ export function useClearGraph() {
       set(edgesOutOfFocusIdsAtom, RESET);
       set(nodesFilteredIdsAtom, RESET);
       set(edgesFilteredIdsAtom, RESET);
-      await set(activeGraphSessionAtom, RESET);
+      set(activeGraphSessionAtom, RESET);
     }, [])
   );
 }

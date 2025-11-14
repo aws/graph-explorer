@@ -31,8 +31,8 @@ export function useImportConnectionFile() {
 
         // Create new id to avoid collisions
         const newId = createNewConfigurationId();
-        await set(configurationAtom, async prevConfig => {
-          const updatedConfig = new Map(await prevConfig);
+        set(configurationAtom, prevConfig => {
+          const updatedConfig = new Map(prevConfig);
           updatedConfig.set(newId, {
             id: newId,
             displayLabel: fileContent.displayLabel,
@@ -40,8 +40,8 @@ export function useImportConnectionFile() {
           });
           return updatedConfig;
         });
-        await set(schemaAtom, async prevSchema => {
-          const updatedSchema = new Map(await prevSchema);
+        set(schemaAtom, prevSchema => {
+          const updatedSchema = new Map(prevSchema);
           updatedSchema.set(newId, {
             vertices: fileContent.schema?.vertices || [],
             edges: fileContent.schema?.edges || [],

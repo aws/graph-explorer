@@ -40,12 +40,10 @@ function EntityDetails() {
             icon={<AutoFitLeftIcon />}
             active={userLayout.detailsAutoOpenOnSelection}
             onActionClick={() =>
-              setUserLayout(async prev => {
-                const prevValue = await prev;
+              setUserLayout(prev => {
                 return {
-                  ...prevValue,
-                  detailsAutoOpenOnSelection:
-                    !prevValue.detailsAutoOpenOnSelection,
+                  ...prev,
+                  detailsAutoOpenOnSelection: !prev.detailsAutoOpenOnSelection,
                 };
               })
             }

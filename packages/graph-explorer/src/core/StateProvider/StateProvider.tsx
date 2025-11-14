@@ -4,10 +4,7 @@ import AppErrorPage from "@/core/AppErrorPage";
 import AppLoadingPage from "@/core/AppLoadingPage";
 import { useAtomValue } from "jotai";
 import { showDebugActionsAtom, allowLoggingDbQueryAtom } from "../featureFlags";
-import {
-  activeConfigurationAsyncAtom,
-  configurationAsyncAtom,
-} from "./configuration";
+import { activeConfigurationAtom, configurationAtom } from "./configuration";
 import { allGraphSessionsAtom } from "./graphSession";
 import { schemaAtom } from "./schema";
 import { userStylingAtom } from "./userPreferences";
@@ -36,8 +33,8 @@ function PreloadLocalForageData(props: PropsWithChildren) {
   useAtomValue(userStylingAtom);
   useAtomValue(userLayoutAtom);
 
-  useAtomValue(activeConfigurationAsyncAtom);
-  useAtomValue(configurationAsyncAtom);
+  useAtomValue(activeConfigurationAtom);
+  useAtomValue(configurationAtom);
   useAtomValue(schemaAtom);
   useAtomValue(showDebugActionsAtom);
   useAtomValue(allowLoggingDbQueryAtom);

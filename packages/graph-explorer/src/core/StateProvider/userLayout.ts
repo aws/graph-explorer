@@ -1,5 +1,5 @@
 import { useAtom } from "jotai";
-import { atomWithLocalForage } from "./localForageEffect";
+import { atomWithLocalForage } from "./atomWithLocalForage";
 import { useQueryEngine } from "../connector";
 
 export type ToggleableView = "graph-viewer" | "table-view";
@@ -28,17 +28,14 @@ export type SidebarItems = UserLayout["activeSidebarItem"];
 
 export const DEFAULT_TABLE_VIEW_HEIGHT = 300;
 
-export const userLayoutAtom = atomWithLocalForage<UserLayout>(
-  {
-    activeToggles: new Set(["graph-viewer", "table-view"]),
-    activeSidebarItem: "search",
-    detailsAutoOpenOnSelection: true,
-    tableView: {
-      height: DEFAULT_TABLE_VIEW_HEIGHT,
-    },
+export const userLayoutAtom = atomWithLocalForage<UserLayout>("user-layout", {
+  activeToggles: new Set(["graph-viewer", "table-view"]),
+  activeSidebarItem: "search",
+  detailsAutoOpenOnSelection: true,
+  tableView: {
+    height: DEFAULT_TABLE_VIEW_HEIGHT,
   },
-  "user-layout"
-);
+});
 
 export function useViewToggles() {
   const [userLayout, setUserLayout] = useAtom(userLayoutAtom);
@@ -47,9 +44,8 @@ export function useViewToggles() {
   const isTableVisible = userLayout.activeToggles.has("table-view");
 
   const toggleView = (item: ToggleableView) =>
-    setUserLayout(async prev => {
-      const prevValue = await prev;
-      const toggles = new Set(prevValue.activeToggles);
+    setUserLayout(prev => {
+      const toggles = new Set(prev.activeToggles);
       if (toggles.has(item)) {
         toggles.delete(item);
       } else {
@@ -57,7 +53,7 @@ export function useViewToggles() {
       }
 
       return {
-        ...prevValue,
+        ...prev,
         activeToggles: toggles,
       };
     });
@@ -82,8 +78,7 @@ export function useTableViewSize() {
 
   /** Sets the table view height to the current height + the given delta */
   const setTableViewHeight = (deltaHeight: number) =>
-    setUserLayout(async prevPromise => {
-      const prev = await prevPromise;
+    setUserLayout(prev => {
       const prevHeight = prev.tableView?.height ?? DEFAULT_TABLE_VIEW_HEIGHT;
       return {
         ...prev,
@@ -114,8 +109,7 @@ export function useSidebar() {
 
   /** Closes the sidebar */
   const closeSidebar = () =>
-    setUserLayout(async prevPromise => {
-      const prev = await prevPromise;
+    setUserLayout(prev => {
       return {
         ...prev,
         activeSidebarItem: null,
@@ -127,9 +121,7 @@ export function useSidebar() {
    * item is the same as the current active item.
    */
   const toggleSidebar = (item: SidebarItems) =>
-    setUserLayout(async prevPromise => {
-      const prev = await prevPromise;
-
+    setUserLayout(prev => {
       return {
         ...prev,
         activeSidebarItem: prev.activeSidebarItem === item ? null : item,
@@ -155,8 +147,7 @@ export function useSidebarSize() {
 
   /** Sets the sidebar width to the current with + the given delta */
   const setSidebarWidth = (deltaWidth: number) => {
-    setUserLayout(async prevPromise => {
-      const prev = await prevPromise;
+    setUserLayout(prev => {
       const prevWidth = prev.sidebar?.width ?? DEFAULT_SIDEBAR_WIDTH;
       return {
         ...prev,

@@ -23,6 +23,7 @@ export function useAddToGraph() {
   const setActiveSchema = useSetAtom(activeSchemaSelector);
   const updateGraphStorage = useUpdateGraphSession();
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   return async (entities: Partial<Entities>) => {
     const newVerticesMap = toNodeMap(entities.vertices ?? []);
     const newEdgesMap = toEdgeMap(entities.edges ?? []);
@@ -58,7 +59,7 @@ export function useAddToGraph() {
       );
     });
 
-    await updateGraphStorage();
+    updateGraphStorage();
   };
 }
 

@@ -17,29 +17,29 @@ describe("useViewToggles", () => {
     expect(result.current.isTableVisible).toBeTruthy();
   });
 
-  it("should toggle graph view", async () => {
+  it("should toggle graph view", () => {
     const { result } = renderHookWithState(() => useViewToggles());
 
-    await act(() => result.current.toggleGraphVisibility());
+    act(() => result.current.toggleGraphVisibility());
 
     expect(result.current.isGraphVisible).toBeFalsy();
     expect(result.current.isTableVisible).toBeTruthy();
 
-    await act(() => result.current.toggleGraphVisibility());
+    act(() => result.current.toggleGraphVisibility());
 
     expect(result.current.isGraphVisible).toBeTruthy();
     expect(result.current.isTableVisible).toBeTruthy();
   });
 
-  it("should toggle table view", async () => {
+  it("should toggle table view", () => {
     const { result } = renderHookWithState(() => useViewToggles());
 
-    await act(() => result.current.toggleTableVisibility());
+    act(() => result.current.toggleTableVisibility());
 
     expect(result.current.isGraphVisible).toBeTruthy();
     expect(result.current.isTableVisible).toBeFalsy();
 
-    await act(() => result.current.toggleTableVisibility());
+    act(() => result.current.toggleTableVisibility());
 
     expect(result.current.isGraphVisible).toBeTruthy();
     expect(result.current.isTableVisible).toBeTruthy();
@@ -53,19 +53,19 @@ describe("useSidebar", () => {
     expect(result.current.isSidebarOpen).toBe(true);
   });
 
-  it("should change to the give sidebar item", async () => {
+  it("should change to the give sidebar item", () => {
     const { result } = renderHookWithJotai(() => useSidebar());
 
-    await act(() => result.current.toggleSidebar("details"));
+    act(() => result.current.toggleSidebar("details"));
     expect(result.current.isSidebarOpen).toBe(true);
     expect(result.current.activeSidebarItem).toBe("details");
 
-    await act(() => result.current.toggleSidebar("search"));
+    act(() => result.current.toggleSidebar("search"));
     expect(result.current.isSidebarOpen).toBe(true);
     expect(result.current.activeSidebarItem).toBe("search");
   });
 
-  it("should close the sidebar if toggling to the same item", async () => {
+  it("should close the sidebar if toggling to the same item", () => {
     const { result } = renderHookWithJotai(
       () => useSidebar(),
       store =>
@@ -75,16 +75,16 @@ describe("useSidebar", () => {
         } satisfies UserLayout)
     );
 
-    await act(() => result.current.toggleSidebar("details"));
+    act(() => result.current.toggleSidebar("details"));
 
     expect(result.current.isSidebarOpen).toBe(false);
     expect(result.current.activeSidebarItem).toBeNull();
   });
 
-  it("should close the sidebar", async () => {
+  it("should close the sidebar", () => {
     const { result } = renderHookWithJotai(() => useSidebar());
 
-    await act(() => result.current.closeSidebar());
+    act(() => result.current.closeSidebar());
 
     expect(result.current.isSidebarOpen).toBe(false);
   });
