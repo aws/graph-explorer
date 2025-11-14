@@ -325,3 +325,89 @@ describe("schema", () => {
     });
   });
 });
+
+describe("referential integrity", () => {
+  it("should preserve schema reference when no changes", () => {
+    const schema = createRandomSchema();
+    const vertex = createRandomVertex();
+    vertex.type = schema.vertices[0].type;
+    vertex.types = [schema.vertices[0].type];
+    vertex.attributes = schema.vertices[0].attributes.reduce((acc, attr) => {
+      acc[attr.name] = createRandomName("value");
+      return acc;
+    }, {} as EntityProperties);
+
+    const result = updateSchemaFromEntities({ vertices: [vertex] }, schema);
+
+    expect(result).toBe(schema);
+  });
+
+  it("should preserve vertex config reference when no changes", () => {
+    const schema = createRandomSchema();
+    const vertex = createRandomVertex();
+    vertex.type = schema.vertices[0].type;
+    vertex.types = [schema.vertices[0].type];
+    vertex.attributes = schema.vertices[0].attributes.reduce((acc, attr) => {
+      acc[attr.name] = createRandomName("value");
+      return acc;
+    }, {} as EntityProperties);
+
+    const result = updateSchemaFromEntities({ vertices: [vertex] }, schema);
+
+    expect(result.vertices[0]).toBe(schema.vertices[0]);
+  });
+
+  it("should preserve edge config reference when no changes", () => {
+    const schema = createRandomSchema();
+    const edge = createRandomEdge();
+    edge.type = schema.edges[0].type;
+    edge.attributes = schema.edges[0].attributes.reduce((acc, attr) => {
+      acc[attr.name] = createRandomName("value");
+      return acc;
+    }, {} as EntityProperties);
+
+    const result = updateSchemaFromEntities({ edges: [edge] }, schema);
+
+    expect(result.edges[0]).toBe(schema.edges[0]);
+  });
+
+  it("should preserve attributes reference when no changes", () => {
+    const schema = createRandomSchema();
+    const vertex = createRandomVertex();
+    vertex.type = schema.vertices[0].type;
+    vertex.types = [schema.vertices[0].type];
+    vertex.attributes = schema.vertices[0].attributes.reduce((acc, attr) => {
+      acc[attr.name] = createRandomName("value");
+      return acc;
+    }, {} as EntityProperties);
+
+    const result = updateSchemaFromEntities({ vertices: [vertex] }, schema);
+
+    expect(result.vertices[0].attributes).toBe(schema.vertices[0].attributes);
+  });
+
+  it("should create new vertex config when attributes change", () => {
+    const schema = createRandomSchema();
+    const vertex = createRandomVertex();
+    vertex.type = schema.vertices[0].type;
+    vertex.types = [schema.vertices[0].type];
+
+    const result = updateSchemaFromEntities({ vertices: [vertex] }, schema);
+
+    expect(result.vertices[0]).not.toBe(schema.vertices[0]);
+    expect(result.vertices[0].attributes).not.toBe(
+      schema.vertices[0].attributes
+    );
+  });
+
+  it("should create new edge config when attributes change", () => {
+    const schema = createRandomSchema();
+    const edge = createRandomEdge();
+    edge.type = schema.edges[0].type;
+
+    const result = updateSchemaFromEntities({ edges: [edge] }, schema);
+
+    expect(result.edges[0]).not.toBe(schema.edges[0]);
+    expect(result.edges[0].attributes).not.toBe(schema.edges[0].attributes);
+  });
+});

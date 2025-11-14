@@ -2,7 +2,7 @@ import DEFAULT_ICON_URL from "@/utils/defaultIconUrl";
 import { atomWithLocalForage } from "./localForageEffect";
 import { useAtom, type WritableAtom } from "jotai";
 import { useDeferredValue, useEffect, useState } from "react";
-import { RESERVED_ID_PROPERTY, RESERVED_TYPES_PROPERTY } from "@/utils";
+import { logger, RESERVED_ID_PROPERTY, RESERVED_TYPES_PROPERTY } from "@/utils";
 
 export type ShapeStyle =
   | "rectangle"
@@ -144,8 +144,13 @@ function useDeferredAtom<Value, Result>(
 
   // Update the atom value in an effect when React rendering sees a gap
   useEffect(() => {
+    if (deferredValue === atomValue) return;
+    logger.debug(
+      `useDeferredAtom(${atom.debugLabel ?? "atom"}): Updating atom value`,
+      deferredValue
+    );
     setAtomValue(deferredValue);
-  }, [deferredValue, setAtomValue]);
+  }, [atom.debugLabel, atomValue, deferredValue, setAtomValue]);
 
   // Only return the React state since we are managing all the atom state internally
   return [reactValue, setReactValue] as const;
