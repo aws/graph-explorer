@@ -99,7 +99,7 @@ const CreateConnection = ({
 
   const onSave = useAtomCallback(
     useCallback(
-      async (_get, set, data: Required<ConnectionForm>) => {
+      (_get, set, data: Required<ConnectionForm>) => {
         if (!configId) {
           const newConfigId = createNewConfigurationId();
           const newConfig: RawConfiguration = {
@@ -107,8 +107,8 @@ const CreateConnection = ({
             displayLabel: data.name,
             connection: mapToConnection(data),
           };
-          await set(configurationAtom, async prevConfigMap => {
-            const updatedConfig = new Map(await prevConfigMap);
+          set(configurationAtom, prevConfigMap => {
+            const updatedConfig = new Map(prevConfigMap);
             updatedConfig.set(newConfigId, newConfig);
             return updatedConfig;
           });
@@ -116,8 +116,8 @@ const CreateConnection = ({
           return;
         }
 
-        await set(configurationAtom, async prevConfigMap => {
-          const updatedConfig = new Map(await prevConfigMap);
+        set(configurationAtom, prevConfigMap => {
+          const updatedConfig = new Map(prevConfigMap);
           const currentConfig = updatedConfig.get(configId);
 
           updatedConfig.set(configId, {
@@ -135,8 +135,8 @@ const CreateConnection = ({
 
         if (urlChange || dbUrlChange || typeChange) {
           // Force a sync of the schema
-          await set(schemaAtom, async prevSchemaMap => {
-            const updatedSchema = new Map(await prevSchemaMap);
+          set(schemaAtom, prevSchemaMap => {
+            const updatedSchema = new Map(prevSchemaMap);
             const currentSchema = updatedSchema.get(configId);
             updatedSchema.set(configId, {
               vertices: currentSchema?.vertices || [],
@@ -152,13 +152,13 @@ const CreateConnection = ({
           });
 
           // Delete previous session data
-          await set(allGraphSessionsAtom, async prev => {
-            const updatedGraphs = new Map(await prev);
+          set(allGraphSessionsAtom, prev => {
+            const updatedGraphs = new Map(prev);
             updatedGraphs.delete(configId);
             return updatedGraphs;
           });
 
-          await queryClient.resetQueries();
+          void queryClient.resetQueries();
         }
       },
       [

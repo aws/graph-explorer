@@ -6,8 +6,8 @@ export default function useUpdateSchema() {
   const setSchema = useSetAtom(activeSchemaSelector);
 
   // Keeps previous data, but sets the status to sync failure
-  const setSyncFailure = async () => {
-    await setSchema(prev => ({
+  const setSyncFailure = () => {
+    setSchema(prev => ({
       ...prev,
       vertices: prev?.vertices ?? [],
       edges: prev?.edges ?? [],
@@ -17,8 +17,8 @@ export default function useUpdateSchema() {
   };
 
   // Updates the stored schema with the given schema
-  const replaceSchema = async (schema: SchemaResponse) => {
-    await setSchema({
+  const replaceSchema = (schema: SchemaResponse) => {
+    setSchema({
       ...schema,
       triedToSync: true,
       lastUpdate: new Date(),
@@ -27,8 +27,8 @@ export default function useUpdateSchema() {
   };
 
   // Update the vertex totals (used by Data Explorer)
-  const updateVertexTotal = async (vertexType: string, newTotal: number) => {
-    await setSchema(prev => {
+  const updateVertexTotal = (vertexType: string, newTotal: number) => {
+    setSchema(prev => {
       if (!prev) {
         return prev;
       }

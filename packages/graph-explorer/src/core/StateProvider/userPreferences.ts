@@ -1,5 +1,5 @@
 import DEFAULT_ICON_URL from "@/utils/defaultIconUrl";
-import { atomWithLocalForage } from "./localForageEffect";
+import { atomWithLocalForage } from "./atomWithLocalForage";
 import { useAtom, type WritableAtom } from "jotai";
 import { useDeferredValue, useEffect, useState } from "react";
 import { logger, RESERVED_ID_PROPERTY, RESERVED_TYPES_PROPERTY } from "@/utils";
@@ -131,8 +131,8 @@ export type UserStyling = {
 };
 
 export const userStylingAtom = atomWithLocalForage<UserStyling>(
-  {},
-  "user-styling"
+  "user-styling",
+  {}
 );
 
 function useDeferredAtom<Value, Result>(

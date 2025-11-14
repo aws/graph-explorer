@@ -9,7 +9,7 @@ import {
 import { ExplorerIcon, GearIcon } from "@/components/icons";
 import Workspace from "@/components/Workspace/Workspace";
 import { useConfiguration } from "@/core";
-import { configurationAsyncAtom } from "@/core/StateProvider/configuration";
+import { configurationAtom } from "@/core/StateProvider/configuration";
 import { useIsSyncing } from "@/hooks/useSchemaSync";
 import AvailableConnections from "@/modules/AvailableConnections";
 import ConnectionDetail from "@/modules/ConnectionDetail";
@@ -20,7 +20,7 @@ import { useAtomValue } from "jotai";
 
 export default function Connections() {
   const config = useConfiguration();
-  const configuration = useAtomValue(configurationAsyncAtom);
+  const configuration = useAtomValue(configurationAtom);
   const [isModalOpen, setModal] = useState(configuration.size === 0);
   const isSyncing = useIsSyncing();
 

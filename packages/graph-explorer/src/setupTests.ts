@@ -6,7 +6,6 @@ import { expect, afterEach, vi } from "vitest";
 import { cleanup } from "@testing-library/react";
 import * as matchers from "@testing-library/jest-dom/matchers";
 import "core-js/full/iterator";
-import localforage from "localforage";
 import { createStore } from "jotai";
 import type { Explorer } from "./connector";
 import type { Store } from "jotai/vanilla/store";
@@ -52,7 +51,6 @@ beforeEach(() => {
   store = createStore();
   vi.stubEnv("DEV", true);
   vi.stubEnv("PROD", false);
-  localforage.clear();
   vi.clearAllMocks();
   vi.resetModules();
   vi.resetAllMocks();
@@ -101,26 +99,52 @@ vi.mock("@/utils/logger", () => ({
   },
 }));
 
-// Mock localforage
-vi.mock("localforage", () => {
-  const store = new Map<string, any>();
-
+// Stub out localforage using map
+let localForageStore: Map<string, any> = new Map();
+vi.mock(import("localforage"), () => {
   return {
     default: {
       config: vi.fn(),
-      getItem: vi.fn((key: string) => Promise.resolve(store.get(key))),
-      setItem: vi.fn((key: string, value: any) => {
-        store.set(key, value);
-        return Promise.resolve(value);
-      }),
-      removeItem: vi.fn((key: string) => {
-        store.delete(key);
-        return Promise.resolve();
-      }),
-      clear: vi.fn(() => {
-        store.clear();
-        return Promise.resolve();
-      }),
-    },
+      async getItem(key: string) {
+        await Promise.resolve();
+        return localForageStore.has(key) ? localForageStore.get(key) : null;
+      },
+      async setItem(key: string, value: any) {
+        await Promise.resolve();
+        localForageStore.set(key, value);
+        return value;
+      },
+      async removeItem(key: string) {
+        await Promise.resolve();
+        localForageStore.delete(key);
+      },
+      async clear() {
+        await Promise.resolve();
+        localForageStore.clear();
+      },
+
+      // Other functions that we don't use
+      LOCALSTORAGE: "",
+      WEBSQL: "",
+      INDEXEDDB: "",
+      createInstance: vi.fn(),
+      driver: vi.fn(),
+      setDriver: vi.fn(),
+      defineDriver: vi.fn(),
+      getDriver: vi.fn(),
+      getSerializer: vi.fn(),
+      supports: vi.fn(),
+      ready: vi.fn(),
+      length: vi.fn(),
+      key: vi.fn(),
+      keys: vi.fn(),
+      iterate: vi.fn(),
+      dropInstance: vi.fn(),
+    } satisfies LocalForage,
   };
+});
+
+beforeEach(() => {
+  localForageStore.clear();
+  localForageStore = new Map();
 });

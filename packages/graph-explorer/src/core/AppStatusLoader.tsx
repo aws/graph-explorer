@@ -8,10 +8,10 @@ import { useLocation } from "react-router";
 import { PanelEmptyState, Spinner } from "@/components";
 import Redirect from "@/components/Redirect";
 import {
-  activeConfigurationAsyncAtom,
-  configurationAsyncAtom,
+  activeConfigurationAtom,
+  configurationAtom,
 } from "./StateProvider/configuration";
-import { schemaAsyncAtom } from "./StateProvider/schema";
+import { schemaAtom } from "./StateProvider/schema";
 import { logger } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
 import { fetchDefaultConnection } from "./defaultConnection";
@@ -28,9 +28,9 @@ function AppStatusLoader({ children }: PropsWithChildren) {
 function LoadDefaultConfig({ children }: PropsWithChildren) {
   const location = useLocation();
 
-  const [activeConfig, setActiveConfig] = useAtom(activeConfigurationAsyncAtom);
-  const [configuration, setConfiguration] = useAtom(configurationAsyncAtom);
-  const schema = useAtomValue(schemaAsyncAtom);
+  const [activeConfig, setActiveConfig] = useAtom(activeConfigurationAtom);
+  const [configuration, setConfiguration] = useAtom(configurationAtom);
+  const schema = useAtomValue(schemaAtom);
 
   const defaultConfigQuery = useQuery({
     queryKey: ["default-connection"],
@@ -55,8 +55,8 @@ function LoadDefaultConfig({ children }: PropsWithChildren) {
 
     startTransition(() => {
       logger.debug("Adding default connections", defaultConnectionConfigs);
-      setConfiguration(async prev => {
-        const updatedConfig = new Map(await prev);
+      setConfiguration(prev => {
+        const updatedConfig = new Map(prev);
         defaultConnectionConfigs.forEach(config => {
           updatedConfig.set(config.id, config);
         });

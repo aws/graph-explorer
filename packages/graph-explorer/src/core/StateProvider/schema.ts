@@ -4,7 +4,7 @@ import type {
   PrefixTypeConfig,
   VertexTypeConfig,
 } from "@/core/ConfigurationProvider";
-import { atomWithLocalForageAsync } from "./localForageEffect";
+import { atomWithLocalForage } from "./atomWithLocalForage";
 import { activeConfigurationAtom } from "./configuration";
 import type { Edge, Entities, EntityProperties, Vertex } from "@/core";
 import { logger } from "@/utils";
@@ -26,9 +26,9 @@ export type SchemaInference = {
   totalEdges?: number;
 };
 
-export const [schemaAtom, schemaAsyncAtom] = atomWithLocalForageAsync(
-  new Map<string, SchemaInference>(),
-  "schema"
+export const schemaAtom = atomWithLocalForage(
+  "schema",
+  new Map<string, SchemaInference>()
 );
 
 export const activeSchemaSelector = atom(
@@ -38,17 +38,13 @@ export const activeSchemaSelector = atom(
     const activeSchema = id ? schemaMap.get(id) : null;
     return activeSchema;
   },
-  async (
-    get,
-    set,
-    update: SetStateActionWithReset<SchemaInference | undefined>
-  ) => {
+  (get, set, update: SetStateActionWithReset<SchemaInference | undefined>) => {
     const schemaId = get(activeConfigurationAtom);
     if (!schemaId) {
       return;
     }
-    await set(schemaAtom, async prevSchemaMap => {
-      const updatedSchemaMap = new Map(await prevSchemaMap);
+    set(schemaAtom, prevSchemaMap => {
+      const updatedSchemaMap = new Map(prevSchemaMap);
       const prev = updatedSchemaMap.get(schemaId);
       const newValue = typeof update === "function" ? update(prev) : update;
 
