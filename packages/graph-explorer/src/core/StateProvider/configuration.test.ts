@@ -1,9 +1,9 @@
 import {
-  createRandomEdgePreferences,
+  createRandomEdgePreferencesStorageModel,
   createRandomEdgeTypeConfig,
   createRandomRawConfiguration,
   createRandomSchema,
-  createRandomVertexPreferences,
+  createRandomVertexPreferencesStorageModel,
   createRandomVertexTypeConfig,
 } from "@/utils/testing";
 import {
@@ -108,11 +108,11 @@ describe("mergedConfiguration", () => {
     const schema = createRandomSchema();
     const styling: UserStyling = {
       vertices: schema.vertices.map(v => ({
-        ...createRandomVertexPreferences(),
+        ...createRandomVertexPreferencesStorageModel(),
         type: v.type,
       })),
       edges: schema.edges.map(v => ({
-        ...createRandomEdgePreferences(),
+        ...createRandomEdgePreferencesStorageModel(),
         type: v.type,
       })),
     };

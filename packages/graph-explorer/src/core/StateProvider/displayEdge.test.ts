@@ -1,7 +1,7 @@
 import { type AppStore, type Edge, getRawId } from "@/core";
 import {
   createRandomEdge,
-  createRandomEdgePreferences,
+  createRandomEdgePreferencesStorageModel,
   createRandomEdgeTypeConfig,
   createRandomRawConfiguration,
   createRandomSchema,
@@ -106,7 +106,7 @@ describe("useDisplayEdgeFromEdge", () => {
     etConfig.displayLabel = createRandomName("schema");
     dbState.activeSchema.edges.push(etConfig);
 
-    const edgePrefs = createRandomEdgePreferences();
+    const edgePrefs = createRandomEdgePreferencesStorageModel();
     edgePrefs.type = edge.type;
     edgePrefs.displayLabel = createRandomName("prefs");
     dbState.activeStyling.edges?.push(edgePrefs);

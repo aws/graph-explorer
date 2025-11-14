@@ -3,7 +3,7 @@ import {
   createRandomSchema,
   createRandomVertex,
   createRandomVertexId,
-  createRandomVertexPreferences,
+  createRandomVertexPreferencesStorageModel,
   createRandomVertexTypeConfig,
   DbState,
   renderHookWithJotai,
@@ -71,7 +71,7 @@ describe("useDisplayVertexFromVertex", () => {
     dbState.activeSchema.vertices.push(vtConfig);
 
     // User vertex preferences
-    const userPrefs = createRandomVertexPreferences();
+    const userPrefs = createRandomVertexPreferencesStorageModel();
     userPrefs.type = vertex.type;
     userPrefs.displayLabel = createRandomName("userPrefs");
     dbState.activeStyling.vertices?.push(userPrefs);

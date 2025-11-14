@@ -5,9 +5,9 @@ import { renderNode } from "./renderNode";
 import {
   renderHookWithState,
   DbState,
-  createRandomVertexTypeConfig,
+  createRandomVertexPreferences,
 } from "@/utils/testing";
-import { createVertexPreference } from "@/core";
+import { defaultVertexPreferences } from "@/core";
 
 // Mock the renderNode function
 vi.mock("./renderNode");
@@ -32,10 +32,8 @@ describe("useBackgroundImageMap", () => {
   });
 
   it("should generate background image map for single vertex config", async () => {
-    const vertexConfig = createVertexPreference("Person", {
-      ...createRandomVertexTypeConfig(),
-      type: "Person",
-    });
+    const vertexConfig = createRandomVertexPreferences();
+    vertexConfig.type = "Person";
     const expectedImage = "data:image/svg+xml;utf8,<svg>person</svg>";
     mockRenderNode.mockResolvedValue(expectedImage);
 
@@ -55,14 +53,10 @@ describe("useBackgroundImageMap", () => {
   });
 
   it("should generate background image map for multiple vertex configs", async () => {
-    const personConfig = createVertexPreference("Person", {
-      ...createRandomVertexTypeConfig(),
-      type: "Person",
-    });
-    const companyConfig = createVertexPreference("Company", {
-      ...createRandomVertexTypeConfig(),
-      type: "Company",
-    });
+    const personConfig = createRandomVertexPreferences();
+    personConfig.type = "Person";
+    const companyConfig = createRandomVertexPreferences();
+    companyConfig.type = "Company";
 
     const personImage = "data:image/svg+xml;utf8,<svg>person</svg>";
     const companyImage = "data:image/svg+xml;utf8,<svg>company</svg>";
@@ -93,14 +87,10 @@ describe("useBackgroundImageMap", () => {
   });
 
   it("should filter out failed renders from the map", async () => {
-    const personConfig = createVertexPreference("Person", {
-      ...createRandomVertexTypeConfig(),
-      type: "Person",
-    });
-    const companyConfig = createVertexPreference("Company", {
-      ...createRandomVertexTypeConfig(),
-      type: "Company",
-    });
+    const personConfig = createRandomVertexPreferences();
+    personConfig.type = "Person";
+    const companyConfig = createRandomVertexPreferences();
+    companyConfig.type = "Company";
 
     const personImage = "data:image/svg+xml;utf8,<svg>person</svg>";
 
@@ -121,10 +111,8 @@ describe("useBackgroundImageMap", () => {
   });
 
   it("should handle renderNode returning undefined", async () => {
-    const vertexConfig = createVertexPreference("Person", {
-      ...createRandomVertexTypeConfig(),
-      type: "Person",
-    });
+    const vertexConfig = createRandomVertexPreferences();
+    vertexConfig.type = "Person";
     mockRenderNode.mockResolvedValue(undefined);
 
     const { result } = renderHookWithState(
@@ -139,10 +127,8 @@ describe("useBackgroundImageMap", () => {
   });
 
   it("should handle renderNode throwing an error", async () => {
-    const vertexConfig = createVertexPreference("Person", {
-      ...createRandomVertexTypeConfig(),
-      type: "Person",
-    });
+    const vertexConfig = createRandomVertexPreferences();
+    vertexConfig.type = "Person";
     mockRenderNode.mockRejectedValue(new Error("Render failed"));
 
     const { result } = renderHookWithState(
@@ -157,14 +143,10 @@ describe("useBackgroundImageMap", () => {
   });
 
   it("should update map when vertex configs change", async () => {
-    const initialConfig = createVertexPreference("Person", {
-      ...createRandomVertexTypeConfig(),
-      type: "Person",
-    });
-    const updatedConfig = createVertexPreference("Company", {
-      ...createRandomVertexTypeConfig(),
-      type: "Company",
-    });
+    const initialConfig = createRandomVertexPreferences();
+    initialConfig.type = "Person";
+    const updatedConfig = createRandomVertexPreferences();
+    updatedConfig.type = "Company";
 
     const personImage = "data:image/svg+xml;utf8,<svg>person</svg>";
     const companyImage = "data:image/svg+xml;utf8,<svg>company</svg>";
@@ -197,19 +179,13 @@ describe("useBackgroundImageMap", () => {
 
   it("should handle mixed success and failure renders", async () => {
     const configs = [
-      createVertexPreference("Person", {
-        ...createRandomVertexTypeConfig(),
-        type: "Person",
-      }),
-      createVertexPreference("Company", {
-        ...createRandomVertexTypeConfig(),
-        type: "Company",
-      }),
-      createVertexPreference("Product", {
-        ...createRandomVertexTypeConfig(),
-        type: "Product",
-      }),
+      createRandomVertexPreferences(),
+      createRandomVertexPreferences(),
+      createRandomVertexPreferences(),
     ];
+    configs[0].type = "Person";
+    configs[1].type = "Company";
+    configs[2].type = "Product";
 
     const personImage = "data:image/svg+xml;utf8,<svg>person</svg>";
     const productImage = "data:image/svg+xml;utf8,<svg>product</svg>";
@@ -233,10 +209,8 @@ describe("useBackgroundImageMap", () => {
   });
 
   it("should use correct query key for caching", async () => {
-    const vertexConfig = createVertexPreference("Person", {
-      ...createRandomVertexTypeConfig(),
-      type: "Person",
-    });
+    const vertexConfig = createRandomVertexPreferences();
+    vertexConfig.type = "Person";
     mockRenderNode.mockResolvedValue("data:image/svg+xml;utf8,<svg></svg>");
 
     renderHookWithState(() => useBackgroundImageMap([vertexConfig]), dbState);
@@ -254,16 +228,10 @@ describe("useBackgroundImageMap", () => {
   });
 
   it("should handle vertex configs with different image types", async () => {
-    const svgConfig = createVertexPreference("Person", {
-      ...createRandomVertexTypeConfig(),
-      type: "Person",
-      iconImageType: "image/svg+xml",
-    });
-    const pngConfig = createVertexPreference("Company", {
-      ...createRandomVertexTypeConfig(),
-      type: "Company",
-      iconImageType: "image/png",
-    });
+    const svgConfig = createRandomVertexPreferences();
+    svgConfig.type = "Person";
+    const pngConfig = createRandomVertexPreferences();
+    pngConfig.type = "Company";
 
     const svgImage = "data:image/svg+xml;utf8,<svg>person</svg>";
     const pngImage = "https://example.com/company.png";
@@ -284,16 +252,13 @@ describe("useBackgroundImageMap", () => {
   });
 
   it("should handle vertex configs with no icon URL", async () => {
-    const configWithIcon = createVertexPreference("Person", {
-      ...createRandomVertexTypeConfig(),
-      type: "Person",
-      iconUrl: "https://example.com/icon.svg",
-    });
-    const configWithoutIcon = createVertexPreference("Company", {
-      ...createRandomVertexTypeConfig(),
-      type: "Company",
-      iconUrl: undefined,
-    });
+    const configWithIcon = createRandomVertexPreferences();
+    configWithIcon.type = "Person";
+    configWithIcon.iconUrl = "https://example.com/icon.svg";
+
+    const configWithoutIcon = createRandomVertexPreferences();
+    configWithoutIcon.type = "Company";
+    configWithoutIcon.iconUrl = defaultVertexPreferences.iconUrl;
 
     const personImage = "data:image/svg+xml;utf8,<svg>person</svg>";
 
