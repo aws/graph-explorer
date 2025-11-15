@@ -44,7 +44,7 @@ export function useRenderedVertices(): RenderedVertex[] {
 
     // Check if any vertex type is in the filtered types
     let hasFilteredType = false;
-    for (const type of vertex.original.types) {
+    for (const type of vertex.types) {
       if (filteredTypes.has(type)) {
         hasFilteredType = true;
         break;
@@ -76,7 +76,7 @@ export function useRenderedEdges(): RenderedEdge[] {
     // - Edge types unselected in the filter sidebar
     // - Individual edges hidden using the table view
     // - Missing source or target vertex
-    if (filteredEdgeTypes.has(edge.typeConfig.type)) continue;
+    if (filteredEdgeTypes.has(edge.type)) continue;
     if (filteredEdgeIds.has(edge.id)) continue;
     if (!existingVertexIds.has(edge.sourceId)) continue;
     if (!existingVertexIds.has(edge.targetId)) continue;
@@ -167,7 +167,7 @@ function createRenderedVertex(vertex: DisplayVertex, neighborCount: number) {
   return {
     data: {
       id: createRenderedVertexId(vertex.id),
-      type: vertex.typeConfig.type,
+      type: vertex.primaryType,
       vertexId: vertex.id,
       displayName: vertex.displayName,
       displayTypes: vertex.displayTypes,
@@ -191,7 +191,7 @@ function createRenderedEdge(edge: DisplayEdge) {
       source: createRenderedVertexId(edge.sourceId),
       target: createRenderedVertexId(edge.targetId),
       edgeId: edge.id,
-      type: edge.typeConfig.type,
+      type: edge.type,
       displayName: edge.displayName,
     },
   };

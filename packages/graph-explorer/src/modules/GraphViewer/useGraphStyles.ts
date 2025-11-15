@@ -1,11 +1,12 @@
 import Color from "color";
 import { useDeferredValue } from "react";
-import type { EdgeTypeConfig, VertexTypeConfig } from "@/core";
-import type { GraphProps } from "@/components";
 import {
-  useEdgeTypeConfigs,
-  useVertexTypeConfigs,
-} from "@/core/ConfigurationProvider/useConfiguration";
+  useAllEdgePreferences,
+  useAllVertexPreferences,
+  type EdgePreferences,
+  type VertexPreferences,
+} from "@/core";
+import type { GraphProps } from "@/components";
 import { useBackgroundImageMap } from "./useBackgroundImageMap";
 
 const LINE_PATTERN = {
@@ -15,8 +16,8 @@ const LINE_PATTERN = {
 };
 
 export default function useGraphStyles() {
-  const vtConfigs = useVertexTypeConfigs();
-  const etConfigs = useEdgeTypeConfigs();
+  const vtConfigs = useAllVertexPreferences();
+  const etConfigs = useAllEdgePreferences();
 
   const deferredVtConfigs = useDeferredValue(vtConfigs);
   const deferredEtConfigs = useDeferredValue(etConfigs);
@@ -31,8 +32,8 @@ export default function useGraphStyles() {
 }
 
 function createGraphStyles(
-  deferredVtConfigs: VertexTypeConfig[],
-  deferredEtConfigs: EdgeTypeConfig[],
+  deferredVtConfigs: VertexPreferences[],
+  deferredEtConfigs: EdgePreferences[],
   backgroundImageMap: Map<string, string | null>
 ): GraphProps["styles"] {
   const styles: GraphProps["styles"] = {};
@@ -49,7 +50,6 @@ function createGraphStyles(
       "background-opacity": vtConfig.backgroundOpacity,
       "border-color": vtConfig.borderColor,
       "border-width": vtConfig.borderWidth,
-      "border-opacity": vtConfig.borderWidth ? 1 : 0,
       "border-style": vtConfig.borderStyle,
       shape: vtConfig.shape,
       width: 24,

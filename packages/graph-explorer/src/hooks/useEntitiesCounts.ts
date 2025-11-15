@@ -1,75 +1,56 @@
-import { useConfiguration } from "@/core";
-import {
-  useEdgeTypeConfigs,
-  useVertexTypeConfigs,
-} from "@/core/ConfigurationProvider/useConfiguration";
+import { useActiveSchema } from "@/core";
 
-const useEntitiesCounts = () => {
-  const config = useConfiguration();
-  const vtConfigs = useVertexTypeConfigs();
-  const etConfigs = useEdgeTypeConfigs();
-
-  const preCalculatedTotalNodes = config?.totalVertices ?? 0;
-  const preCalculatedTotalEdges = config?.totalEdges ?? 0;
-
-  const hasSyncedSchema = Boolean(config?.schema?.lastUpdate);
-
-  const totalNodes = (() => {
-    if (!hasSyncedSchema) {
-      return null;
-    }
-
-    // If pre-calculated total exists, use that
-    if (preCalculatedTotalNodes !== 0) {
-      return preCalculatedTotalNodes;
-    }
-
-    if (!vtConfigs.length) {
-      return 0;
-    }
-
-    let total = 0;
-
-    for (const vtConfig of vtConfigs) {
-      const currTotal = vtConfig.total;
-      if (currTotal == null) {
-        return null;
-      }
-
-      total += currTotal;
-    }
-
-    return total;
-  })();
-
-  const totalEdges = (() => {
-    if (!hasSyncedSchema) {
-      return null;
-    }
-
-    if (preCalculatedTotalEdges !== 0) {
-      return preCalculatedTotalEdges;
-    }
-
-    if (!etConfigs.length) {
-      return 0;
-    }
-
-    let total = 0;
-
-    for (const etConfig of etConfigs) {
-      const currTotal = etConfig.total;
-      if (currTotal == null) {
-        return null;
-      }
-
-      total += currTotal;
-    }
-
-    return total;
-  })();
+export default function useEntitiesCounts() {
+  const totalNodes = useVertexTotals();
+  const totalEdges = useEdgeTotals();
 
   return { totalNodes, totalEdges };
-};
+}
 
-export default useEntitiesCounts;
+function useVertexTotals() {
+  const activeSchema = useActiveSchema();
+
+  const hasSyncedSchema = Boolean(activeSchema.lastUpdate);
+  if (!hasSyncedSchema) {
+    return null;
+  }
+
+  if (activeSchema.totalVertices != null && activeSchema.totalVertices > 0) {
+    return activeSchema.totalVertices;
+  }
+
+  let total = 0;
+  for (const vtConfig of activeSchema.vertices) {
+    const currTotal = vtConfig.total;
+    if (currTotal == null) {
+      return null;
+    }
+
+    total += currTotal;
+  }
+
+  return total;
+}
+
+function useEdgeTotals() {
+  const activeSchema = useActiveSchema();
+
+  const hasSyncedSchema = Boolean(activeSchema.lastUpdate);
+  if (!hasSyncedSchema) {
+    return null;
+  }
+
+  if (activeSchema.totalEdges != null && activeSchema.totalEdges > 0) {
+    return activeSchema.totalEdges;
+  }
+
+  let total = 0;
+  for (const etConfig of activeSchema.edges) {
+    const currTotal = etConfig.total;
+    if (currTotal == null) {
+      return null;
+    }
+    total += currTotal;
+  }
+  return total;
+}

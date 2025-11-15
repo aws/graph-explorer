@@ -140,7 +140,7 @@ function Content({ vertexType }: { vertexType: string }) {
               <Field>
                 <FieldLabel>Display Name Attribute</FieldLabel>
                 <Select
-                  value={displayConfig.displayNameAttribute}
+                  value={vertexStyle.displayNameAttribute}
                   onValueChange={value =>
                     setVertexStyle({ displayNameAttribute: value })
                   }
@@ -160,7 +160,7 @@ function Content({ vertexType }: { vertexType: string }) {
               <Field>
                 <FieldLabel>Display Description Attribute</FieldLabel>
                 <Select
-                  value={displayConfig.displayDescriptionAttribute}
+                  value={vertexStyle.longDisplayNameAttribute}
                   onValueChange={value =>
                     setVertexStyle({ longDisplayNameAttribute: value })
                   }
@@ -216,7 +216,7 @@ function Content({ vertexType }: { vertexType: string }) {
                       <ImageUpIcon />
                       Upload
                     </FileButton>
-                    <VertexSymbol vertexStyle={displayConfig.style} />
+                    <VertexSymbol vertexStyle={vertexStyle} />
                   </div>
                 </Field>
               </div>

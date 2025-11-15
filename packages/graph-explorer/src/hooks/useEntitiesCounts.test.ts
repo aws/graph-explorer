@@ -6,24 +6,16 @@ import {
   createRandomRawConfiguration,
   createRandomSchema,
   createRandomVertexTypeConfig,
-  renderHookWithJotai,
+  DbState,
+  renderHookWithState,
 } from "@/utils/testing";
-import {
-  activeConfigurationAtom,
-  configurationAtom,
-} from "@/core/StateProvider/configuration";
-import { schemaAtom } from "@/core/StateProvider/schema";
 import { createRandomInteger } from "@shared/utils/testing";
 
 function renderUseEntitiesHook(config: RawConfiguration, schema: Schema) {
-  return renderHookWithJotai(
-    () => useEntitiesCounts(),
-    store => {
-      store.set(schemaAtom, new Map([[config.id, schema]]));
-      store.set(configurationAtom, new Map([[config.id, config]]));
-      store.set(activeConfigurationAtom, config.id);
-    }
-  );
+  const dbState = new DbState();
+  dbState.activeSchema = schema;
+  dbState.activeConfig = config;
+  return renderHookWithState(() => useEntitiesCounts(), dbState);
 }
 
 describe("useEntitiesCounts", () => {
@@ -81,7 +73,7 @@ describe("useEntitiesCounts", () => {
     expect(result.current.totalEdges).toBe(0);
   });
 
-  it("should calculate total when when all entity type configs have a total", () => {
+  it("should calculate total when all entity type configs have a total", () => {
     schema.totalVertices = 0;
     schema.vertices = [
       createRandomVertexTypeConfig(),

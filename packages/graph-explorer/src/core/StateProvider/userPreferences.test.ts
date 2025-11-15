@@ -4,23 +4,21 @@ import {
   defaultVertexPreferences,
   useEdgeStyling,
   useVertexStyling,
-  type EdgePreferences,
-  type VertexPreferences,
+  type EdgePreferencesStorageModel,
+  type VertexPreferencesStorageModel,
 } from "./userPreferences";
 import { act } from "react";
 
-function createExpectedVertex(existing: VertexPreferences) {
+function createExpectedVertex(existing: VertexPreferencesStorageModel) {
   return {
     ...defaultVertexPreferences,
-    displayLabel: existing.displayLabel ?? existing.type,
     ...existing,
   };
 }
 
-function createExpectedEdge(existing: EdgePreferences) {
+function createExpectedEdge(existing: EdgePreferencesStorageModel) {
   return {
     ...defaultEdgePreferences,
-    displayLabel: existing.displayLabel ?? existing.type,
     ...existing,
   };
 }

@@ -2,7 +2,8 @@ import {
   createRandomRawConfiguration,
   createRandomSchema,
   createRandomVertex,
-  createRandomVertexPreferences,
+  createRandomVertexId,
+  createRandomVertexPreferencesStorageModel,
   createRandomVertexTypeConfig,
   DbState,
   renderHookWithJotai,
@@ -10,6 +11,7 @@ import {
 } from "@/utils/testing";
 import {
   type AppStore,
+  createVertex,
   createVertexId,
   type DisplayAttribute,
   getRawId,
@@ -19,14 +21,8 @@ import {
 } from "@/core";
 import { formatDate, LABELS } from "@/utils";
 import { schemaAtom } from "./schema";
-import {
-  activeConfigurationAtom,
-  configurationAtom,
-  getDefaultVertexTypeConfig,
-  patchToRemoveDisplayLabel,
-} from "./configuration";
+import { activeConfigurationAtom, configurationAtom } from "./configuration";
 import { createRandomDate, createRandomName } from "@shared/utils/testing";
-import { mapToDisplayVertexTypeConfig } from "./displayTypeConfigs";
 import type { QueryEngine } from "@shared/types";
 import { getDisplayValueForScalar } from "@/connector/entities";
 
@@ -57,37 +53,11 @@ describe("useDisplayVertexFromVertex", () => {
   });
 
   it("should have the display types be missing type label when no types", () => {
-    const vertex = createRandomVertex();
-    vertex.type = "";
-    vertex.types = [];
+    const vertex = createVertex({
+      id: createRandomVertexId(),
+      types: [],
+    });
     expect(act(vertex).displayTypes).toStrictEqual(LABELS.MISSING_TYPE);
-  });
-
-  it("should have the default type config when vertex type is not in the schema", () => {
-    const vertex = createRandomVertex();
-    const vtConfig = getDefaultVertexTypeConfig(vertex.type);
-    const displayConfig = mapToDisplayVertexTypeConfig(vtConfig, t => t);
-    expect(act(vertex).typeConfig).toStrictEqual(displayConfig);
-  });
-
-  it("should use the type config from the merged schema", () => {
-    const dbState = new DbState();
-    const vertex = createRandomVertex();
-    const vtConfig = createRandomVertexTypeConfig();
-    vtConfig.type = vertex.type;
-    dbState.activeSchema.vertices.push(vtConfig);
-
-    const expectedTypeConfig = mapToDisplayVertexTypeConfig(
-      patchToRemoveDisplayLabel(vtConfig),
-      t => t
-    );
-
-    const { result } = renderHookWithState(
-      () => useDisplayVertexFromVertex(vertex),
-      dbState
-    );
-
-    expect(result.current.typeConfig).toStrictEqual(expectedTypeConfig);
   });
 
   it("should use the display label from user preferences", () => {
@@ -101,7 +71,7 @@ describe("useDisplayVertexFromVertex", () => {
     dbState.activeSchema.vertices.push(vtConfig);
 
     // User vertex preferences
-    const userPrefs = createRandomVertexPreferences();
+    const userPrefs = createRandomVertexPreferencesStorageModel();
     userPrefs.type = vertex.type;
     userPrefs.displayLabel = createRandomName("userPrefs");
     dbState.activeStyling.vertices?.push(userPrefs);

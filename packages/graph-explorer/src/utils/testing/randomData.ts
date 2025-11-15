@@ -4,11 +4,14 @@ import {
   type ConnectionWithId,
   createEdge,
   createEdgeId,
+  createEdgePreference,
   createNewConfigurationId,
   createVertex,
   createVertexId,
+  createVertexPreference,
   type EdgeId,
   type EdgePreferences,
+  type EdgePreferencesStorageModel,
   type EdgeTypeConfig,
   type Entities,
   type EntityProperties,
@@ -22,6 +25,7 @@ import {
   type Vertex,
   type VertexId,
   type VertexPreferences,
+  type VertexPreferencesStorageModel,
   type VertexTypeConfig,
 } from "@/core";
 import {
@@ -54,6 +58,7 @@ import {
   createPatchedResultEdge,
   createResultScalar,
 } from "@/connector/entities";
+import type { Writable } from "type-fest";
 
 /*
 
@@ -613,7 +618,7 @@ export function createRandomAwsRegion(): string {
   return pickRandomElement(["us-west-1", "us-west-2", "us-east-1"]);
 }
 
-export function createRandomVertexPreferences(): VertexPreferences {
+export function createRandomVertexPreferencesStorageModel(): VertexPreferencesStorageModel {
   const color = randomlyUndefined(createRandomColor());
   const borderColor = randomlyUndefined(createRandomColor());
   const iconUrl = randomlyUndefined(createRandomUrlString());
@@ -635,7 +640,7 @@ export function createRandomVertexPreferences(): VertexPreferences {
   };
 }
 
-export function createRandomEdgePreferences(): EdgePreferences {
+export function createRandomEdgePreferencesStorageModel(): EdgePreferencesStorageModel {
   const displayLabel = randomlyUndefined(createRandomName("DisplayLabel"));
   const displayNameAttribute = randomlyUndefined(
     createRandomName("DisplayNameAttribute")
@@ -657,9 +662,19 @@ export function createRandomEdgePreferences(): EdgePreferences {
 
 export function createRandomUserStyling(): UserStyling {
   return {
-    vertices: createArray(3, createRandomVertexPreferences),
-    edges: createArray(3, createRandomEdgePreferences),
+    vertices: createArray(3, createRandomVertexPreferencesStorageModel),
+    edges: createArray(3, createRandomEdgePreferencesStorageModel),
   };
+}
+
+export function createRandomVertexPreferences(): Writable<VertexPreferences> {
+  const stored = createRandomVertexPreferencesStorageModel();
+  return createVertexPreference(stored.type, stored);
+}
+
+export function createRandomEdgePreferences(): Writable<EdgePreferences> {
+  const stored = createRandomEdgePreferencesStorageModel();
+  return createEdgePreference(stored.type, stored);
 }
 
 export function createRandomFeatureFlags(): FeatureFlags {

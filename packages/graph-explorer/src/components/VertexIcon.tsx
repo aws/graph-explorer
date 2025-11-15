@@ -1,10 +1,10 @@
-import { type DisplayVertexStyle, fade } from "@/core";
+import { fade, useVertexPreferences, type VertexPreferences } from "@/core";
 import SVG from "react-inlinesvg";
 import { cn } from "@/utils";
 import { SearchResultSymbol } from "./SearchResult";
 
 interface Props {
-  vertexStyle: DisplayVertexStyle;
+  vertexStyle: VertexPreferences;
   className?: string;
 }
 
@@ -28,11 +28,22 @@ function VertexIcon({ vertexStyle, className }: Props) {
   );
 }
 
+export function VertexIconByType({
+  vertexType,
+  className,
+}: {
+  vertexType: string;
+  className?: string;
+}) {
+  const vertexPreferences = useVertexPreferences(vertexType);
+  return <VertexIcon vertexStyle={vertexPreferences} className={className} />;
+}
+
 export function VertexSymbol({
   vertexStyle,
   className,
 }: {
-  vertexStyle: DisplayVertexStyle;
+  vertexStyle: VertexPreferences;
   className?: string;
 }) {
   return (
@@ -45,6 +56,17 @@ export function VertexSymbol({
       <VertexIcon vertexStyle={vertexStyle} className="size-full" />
     </SearchResultSymbol>
   );
+}
+
+export function VertexSymbolByType({
+  vertexType,
+  className,
+}: {
+  vertexType: string;
+  className?: string;
+}) {
+  const vertexPreferences = useVertexPreferences(vertexType);
+  return <VertexSymbol vertexStyle={vertexPreferences} className={className} />;
 }
 
 export default VertexIcon;

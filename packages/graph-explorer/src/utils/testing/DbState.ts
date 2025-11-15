@@ -4,7 +4,7 @@ import {
   configurationAtom,
   type Edge,
   type EdgeId,
-  type EdgePreferences,
+  type EdgePreferencesStorageModel,
   edgesAtom,
   edgesFilteredIdsAtom,
   edgesTypesFilteredAtom,
@@ -23,7 +23,7 @@ import {
   userStylingAtom,
   type Vertex,
   type VertexId,
-  type VertexPreferences,
+  type VertexPreferencesStorageModel,
   type AppStore,
 } from "@/core";
 import {
@@ -129,8 +129,8 @@ export class DbState {
    */
   addVertexStyle(
     vertexType: string,
-    style: Omit<VertexPreferences, "type">
-  ): VertexPreferences {
+    style: Omit<VertexPreferencesStorageModel, "type">
+  ): VertexPreferencesStorageModel {
     const composedStyle = { ...style, type: vertexType };
     const vertices = this.activeStyling.vertices ?? [];
     vertices.push(composedStyle);
@@ -146,8 +146,8 @@ export class DbState {
    */
   addEdgeStyle(
     edgeType: string,
-    style: Omit<EdgePreferences, "type">
-  ): EdgePreferences {
+    style: Omit<EdgePreferencesStorageModel, "type">
+  ): EdgePreferencesStorageModel {
     const composedStyle = { ...style, type: edgeType };
     const edges = this.activeStyling.edges ?? [];
     edges.push(composedStyle);

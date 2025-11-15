@@ -3,7 +3,6 @@ import {
   type EdgeId,
   getRawId,
   type VertexId,
-  type DisplayEdgeTypeConfig,
   displayEdgeTypeConfigSelector,
   type DisplayAttribute,
   getSortedDisplayAttributes,
@@ -21,10 +20,10 @@ import { atomFamily } from "jotai/utils";
 export type DisplayEdge = {
   entityType: "edge";
   id: EdgeId;
+  type: string;
   displayId: string;
   displayName: string;
   displayTypes: string;
-  typeConfig: DisplayEdgeTypeConfig;
   sourceId: VertexId;
   targetId: VertexId;
   attributes: DisplayAttribute[];
@@ -100,10 +99,10 @@ const displayEdgeSelector = atomFamily((edge: Edge) =>
     const displayEdge: DisplayEdge = {
       entityType: "edge",
       id: edge.id,
+      type: edge.type,
       displayId,
       displayName,
       displayTypes,
-      typeConfig,
       sourceId: edge.sourceId,
       targetId: edge.targetId,
       attributes: sortedAttributes,

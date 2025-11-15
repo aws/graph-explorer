@@ -99,7 +99,7 @@ function Content({ edgeType }: { edgeType: string }) {
               <Field>
                 <FieldLabel>Display Name Attribute</FieldLabel>
                 <Select
-                  value={displayConfig.displayNameAttribute}
+                  value={edgeStyle.displayNameAttribute}
                   onValueChange={value =>
                     setEdgeStyle({ displayNameAttribute: value })
                   }

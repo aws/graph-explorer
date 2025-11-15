@@ -1,13 +1,13 @@
 import { EdgeIcon } from "@/components/icons";
-import VertexIcon from "@/components/VertexIcon";
-import { edgesTypesFilteredAtom } from "@/core/StateProvider/edges";
-import { nodesTypesFilteredAtom } from "@/core/StateProvider/nodes";
+import { VertexIconByType, type CheckboxListItemProps } from "@/components";
 import {
+  edgesTypesFilteredAtom,
   edgeTypesSelector,
+  nodesTypesFilteredAtom,
+  useDisplayEdgeTypeConfigs,
+  useDisplayVertexTypeConfigs,
   vertexTypesSelector,
-} from "@/core/StateProvider/configuration";
-import type { CheckboxListItemProps } from "@/components";
-import { useDisplayEdgeTypeConfigs, useDisplayVertexTypeConfigs } from "@/core";
+} from "@/core";
 import { atom, useAtomValue, useSetAtom } from "jotai";
 
 const selectedVerticesSelector = atom(get => {
@@ -89,7 +89,7 @@ const useFiltersConfig = () => {
       return {
         id: vertexConfig.type,
         text: vertexConfig.displayLabel,
-        endAdornment: <VertexIcon vertexStyle={vertexConfig.style} />,
+        endAdornment: <VertexIconByType vertexType={vertexConfig.type} />,
       } as CheckboxListItemProps;
     })
     .toArray();

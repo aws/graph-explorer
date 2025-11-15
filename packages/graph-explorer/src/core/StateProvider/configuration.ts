@@ -12,10 +12,10 @@ import { activeSchemaSelector, type SchemaInference } from "./schema";
 import {
   defaultEdgePreferences,
   defaultVertexPreferences,
-  type EdgePreferences,
+  type EdgePreferencesStorageModel,
   type UserStyling,
   userStylingAtom,
-  type VertexPreferences,
+  type VertexPreferencesStorageModel,
 } from "./userPreferences";
 import { RESERVED_TYPES_PROPERTY } from "@/utils/constants";
 import type { ConnectionConfig } from "@shared/types";
@@ -145,7 +145,7 @@ const mergeAttributes = (
 const mergeVertex = (
   configVertex?: VertexTypeConfig,
   schemaVertex?: VertexTypeConfig,
-  preferences?: VertexPreferences
+  preferences?: VertexPreferencesStorageModel
 ): VertexTypeConfig => {
   // Ignore the displayLabel from schema & config
   const patchedSchema = schemaVertex
@@ -176,7 +176,7 @@ const mergeVertex = (
 const mergeEdge = (
   configEdge?: EdgeTypeConfig,
   schemaEdge?: EdgeTypeConfig,
-  preferences?: EdgePreferences
+  preferences?: EdgePreferencesStorageModel
 ): EdgeTypeConfig => {
   // Ignore the displayLabel from schema & config
   const patchedSchema = schemaEdge

@@ -1,15 +1,12 @@
 import {
   allEdgeTypeConfigsSelector,
   allVertexTypeConfigsSelector,
-  defaultEdgeTypeConfig,
   defaultVertexTypeConfig,
   edgeTypeConfigSelector,
   vertexTypeConfigSelector,
   type AttributeConfig,
   type EdgeTypeConfig,
   type VertexTypeConfig,
-  type ArrowStyle,
-  type LineStyle,
 } from "@/core";
 import { type TextTransformer, textTransformSelector } from "@/hooks";
 import { LABELS, RESERVED_TYPES_PROPERTY } from "@/utils";
@@ -18,32 +15,18 @@ import { atom, useAtomValue } from "jotai";
 import { useCallback } from "react";
 import { sortAttributeByName } from "./sortAttributeByName";
 
-export type DisplayVertexStyle = {
-  color: string;
-  iconUrl: string;
-  iconImageType: string;
-};
-
 export type DisplayVertexTypeConfig = {
   type: string;
   displayLabel: string;
   attributes: DisplayConfigAttribute[];
-  style: DisplayVertexStyle;
   displayNameAttribute: string;
   displayDescriptionAttribute: string;
 };
 
-export type DisplayEdgeStyle = {
-  sourceArrowStyle: ArrowStyle;
-  targetArrowStyle: ArrowStyle;
-  lineStyle: LineStyle;
-  lineColor: string;
-};
 export type DisplayEdgeTypeConfig = {
   type: string;
   displayLabel: string;
   attributes: DisplayConfigAttribute[];
-  style: DisplayEdgeStyle;
   displayNameAttribute: string;
 };
 
@@ -154,12 +137,6 @@ export function mapToDisplayVertexTypeConfig(
       typeConfig.longDisplayNameAttribute ??
       defaultVertexTypeConfig.longDisplayNameAttribute,
     attributes,
-    style: {
-      color: typeConfig.color ?? defaultVertexTypeConfig.color,
-      iconUrl: typeConfig.iconUrl ?? defaultVertexTypeConfig.iconUrl,
-      iconImageType:
-        typeConfig.iconImageType ?? defaultVertexTypeConfig.iconImageType,
-    },
   };
   return result;
 }
@@ -181,20 +158,10 @@ export function mapToDisplayEdgeTypeConfig(
     }))
     .toSorted(sortAttributeByName);
 
-  const style: DisplayEdgeStyle = {
-    sourceArrowStyle:
-      typeConfig.sourceArrowStyle || defaultEdgeTypeConfig.sourceArrowStyle,
-    targetArrowStyle:
-      typeConfig.targetArrowStyle || defaultEdgeTypeConfig.targetArrowStyle,
-    lineStyle: typeConfig.lineStyle || defaultEdgeTypeConfig.lineStyle,
-    lineColor: typeConfig.lineColor || defaultEdgeTypeConfig.lineColor,
-  };
-
   const result: DisplayEdgeTypeConfig = {
     type: typeConfig.type,
     displayLabel,
     attributes,
-    style,
     displayNameAttribute:
       typeConfig.displayNameAttribute || RESERVED_TYPES_PROPERTY,
   };

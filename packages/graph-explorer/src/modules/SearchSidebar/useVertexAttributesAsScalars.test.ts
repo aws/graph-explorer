@@ -17,11 +17,12 @@ describe("useVertexAttributesAsScalars", () => {
   const vertex: DisplayVertex = {
     entityType: "vertex",
     id: createVertexId("vertex-1"),
+    primaryType: "Person",
+    types: ["Person"],
     displayId: "vertex-1",
     displayTypes: "Person",
     displayName: "John Doe",
     displayDescription: "A person",
-    typeConfig: {} as any,
     attributes: [
       {
         name: "name",
@@ -167,11 +168,12 @@ describe("useVertexAttributesAsScalars", () => {
     const vertexWithEmptyTypes: DisplayVertex = {
       entityType: "vertex",
       id: createVertexId("vertex-1"),
+      primaryType: "",
+      types: [],
       displayId: "vertex-1",
       displayTypes: "",
       displayName: "John Doe",
       displayDescription: "A person",
-      typeConfig: {} as any,
       attributes: [],
       isBlankNode: false,
       original: { types: [] } as any,

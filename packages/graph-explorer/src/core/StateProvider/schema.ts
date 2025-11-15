@@ -9,8 +9,8 @@ import { activeConfigurationAtom } from "./configuration";
 import type { Edge, Entities, EntityProperties, Vertex } from "@/core";
 import { logger } from "@/utils";
 import generatePrefixes from "@/utils/generatePrefixes";
-import { startTransition, useCallback } from "react";
-import { atom } from "jotai";
+import { startTransition, useCallback, useDeferredValue } from "react";
+import { atom, useAtomValue } from "jotai";
 import { RESET, useAtomCallback } from "jotai/utils";
 import type { SetStateActionWithReset } from "@/utils/jotai";
 import { createTypedValue, type ScalarValue } from "@/connector/entities";
@@ -30,6 +30,35 @@ export const schemaAtom = atomWithLocalForage(
   "schema",
   new Map<string, SchemaInference>()
 );
+
+export function useActiveSchema(): SchemaInference {
+  const activeSchemaId = useAtomValue(activeConfigurationAtom);
+  const schemaMap = useAtomValue(schemaAtom);
+  const deferredSchemaMap = useDeferredValue(schemaMap);
+
+  if (!activeSchemaId) {
+    return { vertices: [], edges: [] };
+  }
+
+  const activeSchema = deferredSchemaMap.get(activeSchemaId);
+  if (!activeSchema) {
+    return { vertices: [], edges: [] };
+  }
+
+  return activeSchema;
+}
+
+export function useVertexTypeTotal(type: string) {
+  const schema = useActiveSchema();
+  const vertexType = schema.vertices.find(v => v.type === type);
+  return vertexType?.total;
+}
+
+export function useEdgeTypeTotal(type: string) {
+  const schema = useActiveSchema();
+  const edgeType = schema.edges.find(e => e.type === type);
+  return edgeType?.total;
+}
 
 export const activeSchemaSelector = atom(
   get => {
