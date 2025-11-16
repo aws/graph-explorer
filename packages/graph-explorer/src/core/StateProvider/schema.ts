@@ -14,6 +14,7 @@ import { atom, useAtomValue } from "jotai";
 import { RESET, useAtomCallback } from "jotai/utils";
 import type { SetStateActionWithReset } from "@/utils/jotai";
 import { createTypedValue, type ScalarValue } from "@/connector/entities";
+import type { Simplify } from "type-fest";
 
 export type SchemaInference = {
   vertices: VertexTypeConfig[];
@@ -52,6 +53,63 @@ export function useActiveSchema(): SchemaInference {
   }
 
   return activeSchema;
+}
+
+function createVertexSchema(vtConfig: VertexTypeConfig) {
+  return {
+    type: vtConfig.type,
+    attributes: vtConfig.attributes.map(attr => ({
+      name: attr.name,
+      dataType: attr.dataType ?? "String",
+    })),
+  };
+}
+
+export type VertexSchema = Simplify<
+  Readonly<ReturnType<typeof createVertexSchema>>
+>;
+
+function createEdgeSchema(etConfig: EdgeTypeConfig) {
+  return {
+    type: etConfig.type,
+    attributes: etConfig.attributes.map(attr => ({
+      name: attr.name,
+      dataType: attr.dataType ?? "String",
+    })),
+  };
+}
+
+export type EdgeSchema = Simplify<
+  Readonly<ReturnType<typeof createEdgeSchema>>
+>;
+
+function createGraphSchema(stored: SchemaInference) {
+  logger.debug("Creating graph schema", stored);
+  const vertices = new Map<string, VertexSchema>();
+  for (const vtConfig of stored.vertices) {
+    vertices.set(vtConfig.type, createVertexSchema(vtConfig));
+  }
+
+  const edges = new Map<string, EdgeSchema>();
+  for (const etConfig of stored.edges) {
+    edges.set(etConfig.type, createEdgeSchema(etConfig));
+  }
+  return { vertices, edges };
+}
+
+export function useGraphSchema() {
+  const activeSchema = useActiveSchema();
+  return createGraphSchema(activeSchema);
+}
+
+export function useVertexSchema(type: string) {
+  const { vertices } = useGraphSchema();
+  return vertices.get(type) ?? { type, attributes: [] };
+}
+
+export function useEdgeSchema(type: string) {
+  const { edges } = useGraphSchema();
+  return edges.get(type) ?? { type, attributes: [] };
 }
 
 export function useVertexTypeTotal(type: string) {
