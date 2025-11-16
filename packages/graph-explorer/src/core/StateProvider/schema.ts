@@ -36,6 +36,7 @@ export function useActiveSchema(): SchemaInference {
   const schemaMap = useAtomValue(schemaAtom);
   const deferredSchemaMap = useDeferredValue(schemaMap);
 
+  logger.debug("Creating active schema", activeSchemaId);
   if (!activeSchemaId) {
     return { vertices: [], edges: [] };
   }

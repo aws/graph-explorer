@@ -2,12 +2,15 @@ import replacePrefixes from "@/utils/replacePrefixes";
 import { allNamespacePrefixesSelector } from "@/core/StateProvider/configuration";
 import { queryEngineSelector } from "@/core/connector";
 import { atom, useAtomValue } from "jotai";
+import { logger } from "@/utils";
 
 export type TextTransformer = (text: string) => string;
 
 export const textTransformSelector = atom(get => {
   const queryEngine = get(queryEngineSelector);
   const prefixes = get(allNamespacePrefixesSelector);
+
+  logger.debug("Creating text transform", prefixes);
 
   const result: TextTransformer = text => {
     if (!text) {
