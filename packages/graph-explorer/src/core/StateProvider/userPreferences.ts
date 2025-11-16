@@ -173,7 +173,7 @@ function useStoredGraphPreferences() {
 /** Combines the stored user preferences with the defined default values. */
 export function createVertexPreference(
   type: string,
-  stored: VertexPreferencesStorageModel | undefined
+  stored?: VertexPreferencesStorageModel
 ): VertexPreferences {
   logger.debug("Creating VertexPreference", { type, stored });
   return {
@@ -186,7 +186,7 @@ export function createVertexPreference(
 /** Combines the stored user preferences with the defined default values. */
 export function createEdgePreference(
   type: string,
-  stored: EdgePreferencesStorageModel | undefined
+  stored?: EdgePreferencesStorageModel
 ) {
   logger.debug("Creating EdgePreference", { type, stored });
   return {
