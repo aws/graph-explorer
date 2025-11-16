@@ -31,6 +31,11 @@ export const schemaAtom = atomWithLocalForage(
   new Map<string, SchemaInference>()
 );
 
+const emptySchema: SchemaInference = {
+  vertices: [],
+  edges: [],
+};
+
 export function useActiveSchema(): SchemaInference {
   const activeSchemaId = useAtomValue(activeConfigurationAtom);
   const schemaMap = useAtomValue(schemaAtom);
@@ -38,12 +43,12 @@ export function useActiveSchema(): SchemaInference {
 
   logger.debug("Creating active schema", activeSchemaId);
   if (!activeSchemaId) {
-    return { vertices: [], edges: [] };
+    return emptySchema;
   }
 
   const activeSchema = deferredSchemaMap.get(activeSchemaId);
   if (!activeSchema) {
-    return { vertices: [], edges: [] };
+    return emptySchema;
   }
 
   return activeSchema;
