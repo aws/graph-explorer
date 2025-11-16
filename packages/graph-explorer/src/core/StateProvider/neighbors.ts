@@ -1,4 +1,4 @@
-import { useDisplayVerticesInCanvas, type VertexId } from "@/core";
+import type { VertexId } from "@/core";
 import { atom, useAtomValue } from "jotai";
 import { atomFamily, useAtomCallback } from "jotai/utils";
 import { edgesAtom } from "./edges";
@@ -93,7 +93,7 @@ export function useNeighborByType(vertexId: VertexId, type: string) {
 }
 
 export function useAllNeighbors() {
-  const vertices = useDisplayVerticesInCanvas();
+  const vertices = useAtomValue(nodesAtom);
   const vertexIds = useMemo(() => vertices.keys().toArray(), [vertices]);
 
   const queryClient = useQueryClient();
