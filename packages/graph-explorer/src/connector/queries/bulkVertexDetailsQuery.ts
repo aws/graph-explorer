@@ -10,28 +10,37 @@ import {
 } from "./helpers";
 import { vertexDetailsQuery } from "./vertexDetailsQuery";
 
-export function bulkVertexDetailsQuery(vertexIds: VertexId[]) {
+export function bulkVertexDetailsQuery(
+  vertexIds: VertexId[],
+  options?: { ignoreCache: boolean }
+) {
   return queryOptions({
-    queryKey: ["vertices", vertexIds],
+    queryKey: ["vertices", vertexIds, options],
     staleTime: 0,
     gcTime: 0,
     queryFn: async ({ client, meta, signal }) => {
       const explorer = getExplorer(meta);
       const store = getStore(meta);
 
+      const shouldIgnoreCache = options?.ignoreCache ?? false;
+
       // Get cached and missing vertices in one pass
       const cachedVertices: Vertex[] = [];
       const missingIds: VertexId[] = [];
 
-      for (const id of vertexIds) {
-        const cached = client.getQueryData(
-          vertexDetailsQuery(id).queryKey
-        )?.vertex;
-        if (cached) {
-          cachedVertices.push(cached);
-        } else {
-          missingIds.push(id);
-        }
+      if (!shouldIgnoreCache) {
+        vertexIds.forEach(id => {
+          const cached = client.getQueryData(
+            vertexDetailsQuery(id).queryKey
+          )?.vertex;
+          if (cached) {
+            cachedVertices.push(cached);
+          } else {
+            missingIds.push(id);
+          }
+        });
+      } else {
+        missingIds.push(...vertexIds);
       }
 
       // Return early if all vertices are cached

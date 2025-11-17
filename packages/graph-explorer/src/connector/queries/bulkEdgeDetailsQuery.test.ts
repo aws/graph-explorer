@@ -174,4 +174,56 @@ describe("bulkEdgeDetailsQuery", () => {
     // Verify edgesAtom was not modified
     expect(getAppStore().get(edgesAtom).size).toBe(0);
   });
+
+  it("should ignore cache when ignoreCache option is true", async () => {
+    const explorer = new FakeExplorer();
+    const edgeDetailsSpy = vi.spyOn(explorer, "edgeDetails");
+    const queryClient = createQueryClient({ explorer });
+
+    const cachedEdge = createRandomEdge();
+    const updatedEdge = {
+      ...cachedEdge,
+      attributes: { ...cachedEdge.attributes, weight: 100 },
+    };
+
+    // Add edge to cache
+    queryClient.setQueryData(edgeDetailsQuery(cachedEdge.id).queryKey, {
+      edge: cachedEdge,
+    });
+
+    // Add updated edge to explorer
+    explorer.addEdge(updatedEdge);
+
+    const result = await queryClient.fetchQuery(
+      bulkEdgeDetailsQuery([cachedEdge.id], { ignoreCache: true })
+    );
+
+    expect(result.edges).toStrictEqual([updatedEdge]);
+    expect(edgeDetailsSpy).toBeCalledTimes(1);
+
+    // Ensure cache is updated with new data
+    expect(
+      queryClient.getQueryData(edgeDetailsQuery(cachedEdge.id).queryKey)
+    ).toStrictEqual({ edge: updatedEdge });
+  });
+
+  it("should use cache when ignoreCache option is false", async () => {
+    const explorer = new FakeExplorer();
+    const edgeDetailsSpy = vi.spyOn(explorer, "edgeDetails");
+    const queryClient = createQueryClient({ explorer });
+
+    const cachedEdge = createRandomEdge();
+
+    // Add edge to cache
+    queryClient.setQueryData(edgeDetailsQuery(cachedEdge.id).queryKey, {
+      edge: cachedEdge,
+    });
+
+    const result = await queryClient.fetchQuery(
+      bulkEdgeDetailsQuery([cachedEdge.id], { ignoreCache: false })
+    );
+
+    expect(result.edges).toStrictEqual([cachedEdge]);
+    expect(edgeDetailsSpy).toBeCalledTimes(0);
+  });
 });
