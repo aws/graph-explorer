@@ -19,6 +19,7 @@ import {
 } from "@/core";
 import { SidebarCloseButton } from "../SidebarCloseButton";
 import { useAtom } from "jotai";
+import { EntitiesRefreshButton } from "./EntitiesRefreshButton";
 
 function EntityDetails() {
   const [userLayout, setUserLayout] = useAtom(userLayoutAtom);
@@ -35,6 +36,7 @@ function EntityDetails() {
       <PanelHeader>
         <PanelTitle>Details View</PanelTitle>
         <PanelHeaderActions>
+          <EntitiesRefreshButton />
           <PanelHeaderActionButton
             label="Automatically open on selection"
             icon={<AutoFitLeftIcon />}
