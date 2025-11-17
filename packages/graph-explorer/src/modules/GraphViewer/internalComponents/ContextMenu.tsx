@@ -21,12 +21,18 @@ import {
   userLayoutAtom,
   type SidebarItems,
 } from "@/core";
-import { useClearGraph, useRemoveFromGraph, useTranslations } from "@/hooks";
+import {
+  useClearGraph,
+  useRefreshEntities,
+  useRemoveFromGraph,
+  useTranslations,
+} from "@/hooks";
 import useGraphGlobalActions from "../useGraphGlobalActions";
 import {
   CircleSlash2,
   ImageDownIcon,
   MinusCircleIcon,
+  RefreshCwIcon,
   ZoomInIcon,
   ZoomOutIcon,
 } from "lucide-react";
@@ -53,6 +59,10 @@ const ContextMenu = ({
   const displayEdges = useDisplayEdgesInCanvas();
   const { graphSelection, replaceGraphSelection } = useGraphSelection();
   const setUserLayout = useSetAtom(userLayoutAtom);
+  const refreshEntities = useRefreshEntities({
+    vertexIds: affectedNodesIds,
+    edgeIds: affectedEdgesIds,
+  });
 
   const {
     onFitToCanvas,
@@ -143,6 +153,11 @@ const ContextMenu = ({
     onClose?.();
   };
 
+  const onRefresh = () => {
+    refreshEntities.refresh();
+    onClose?.();
+  };
+
   const noSelectionOrNotAffected =
     affectedNodesIds.length === 0 &&
     graphSelection.vertices.length === 0 &&
@@ -171,6 +186,10 @@ const ContextMenu = ({
           {affectedNode.displayName}
         </ListItem>
         <Divider />
+        <ListItem onClick={onRefresh}>
+          <RefreshCwIcon />
+          Refresh {t("graph-viewer.node").toLowerCase()}
+        </ListItem>
         <ListItem onClick={openSidebarPanel("details")}>
           <DetailsIcon />
           Details panel
@@ -200,6 +219,10 @@ const ContextMenu = ({
           {affectedEdge.displayTypes}
         </ListItem>
         <Divider />
+        <ListItem onClick={onRefresh}>
+          <RefreshCwIcon />
+          Refresh {t("graph-viewer.edge").toLowerCase()}
+        </ListItem>
         <ListItem onClick={openSidebarPanel("details")}>
           <DetailsIcon />
           Details Panel
