@@ -51,12 +51,14 @@ const emptySchema: SchemaInference = {
   edges: [],
 };
 
+export const activeSchemaAtom = atom(get => {
+  const id = get(activeConfigurationAtom);
+  return get(schemaByIdAtom(id));
+});
+
 /** Gets the stored active schema or a default empty schema */
 export function useActiveSchema(): SchemaInference {
-  const id = useAtomValue(activeConfigurationAtom);
-  const schema = useAtomValue(schemaByIdAtom(id));
-  const deferred = useDeferredValue(schema);
-  return deferred;
+  return useDeferredValue(useAtomValue(activeSchemaAtom));
 }
 
 function createVertexSchema(vtConfig: VertexTypeConfig) {
