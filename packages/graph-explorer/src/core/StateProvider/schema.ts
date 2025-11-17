@@ -1,5 +1,6 @@
 import type {
   AttributeConfig,
+  ConfigurationId,
   EdgeTypeConfig,
   PrefixTypeConfig,
   VertexTypeConfig,
@@ -11,7 +12,7 @@ import { logger } from "@/utils";
 import generatePrefixes from "@/utils/generatePrefixes";
 import { startTransition, useCallback, useDeferredValue } from "react";
 import { atom, useAtomValue } from "jotai";
-import { RESET, useAtomCallback } from "jotai/utils";
+import { atomFamily, RESET, useAtomCallback } from "jotai/utils";
 import type { SetStateActionWithReset } from "@/utils/jotai";
 import { createTypedValue, type ScalarValue } from "@/connector/entities";
 import type { Simplify } from "type-fest";
@@ -27,32 +28,35 @@ export type SchemaInference = {
   totalEdges?: number;
 };
 
+/** All the stored schemas */
 export const schemaAtom = atomWithLocalForage(
   "schema",
   new Map<string, SchemaInference>()
 );
+
+/** Grabs a specific schema out of the map. */
+const schemaByIdAtom = atomFamily((id: ConfigurationId | null) => {
+  if (!id) {
+    return atom(emptySchema);
+  }
+  return atom(get => {
+    logger.debug("Creating active schema", id);
+    const schemaMap = get(schemaAtom);
+    return schemaMap.get(id) ?? emptySchema;
+  });
+});
 
 const emptySchema: SchemaInference = {
   vertices: [],
   edges: [],
 };
 
+/** Gets the stored active schema or a default empty schema */
 export function useActiveSchema(): SchemaInference {
-  const activeSchemaId = useAtomValue(activeConfigurationAtom);
-  const schemaMap = useAtomValue(schemaAtom);
-  const deferredSchemaMap = useDeferredValue(schemaMap);
-
-  logger.debug("Creating active schema", activeSchemaId);
-  if (!activeSchemaId) {
-    return emptySchema;
-  }
-
-  const activeSchema = deferredSchemaMap.get(activeSchemaId);
-  if (!activeSchema) {
-    return emptySchema;
-  }
-
-  return activeSchema;
+  const id = useAtomValue(activeConfigurationAtom);
+  const schema = useAtomValue(schemaByIdAtom(id));
+  const deferred = useDeferredValue(schema);
+  return deferred;
 }
 
 function createVertexSchema(vtConfig: VertexTypeConfig) {
