@@ -9,7 +9,7 @@ import {
   type VertexTypeConfig,
 } from "@/core";
 import { type TextTransformer, textTransformSelector } from "@/hooks";
-import { LABELS, RESERVED_TYPES_PROPERTY } from "@/utils";
+import { LABELS, logger, RESERVED_TYPES_PROPERTY } from "@/utils";
 import { atomFamily, useAtomCallback } from "jotai/utils";
 import { atom, useAtomValue } from "jotai";
 import { useCallback } from "react";
@@ -114,6 +114,7 @@ export function mapToDisplayVertexTypeConfig(
   typeConfig: VertexTypeConfig,
   textTransform: TextTransformer
 ): DisplayVertexTypeConfig {
+  logger.debug("Creating display vertex type config", typeConfig.type);
   const displayLabel =
     typeConfig.displayLabel ||
     textTransform(typeConfig.type) ||
@@ -145,6 +146,7 @@ export function mapToDisplayEdgeTypeConfig(
   typeConfig: EdgeTypeConfig,
   textTransform: TextTransformer
 ): DisplayEdgeTypeConfig {
+  logger.debug("Creating display edge type config", typeConfig.type);
   const displayLabel =
     typeConfig.displayLabel ||
     textTransform(typeConfig.type) ||
