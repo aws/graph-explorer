@@ -4,7 +4,6 @@ import {
   DbState,
   renderHookWithState,
 } from "@/utils/testing";
-import { getDefaultVertexTypeConfig } from "./configuration";
 import {
   useDisplayEdgeTypeConfig,
   useDisplayVertexTypeConfig,
@@ -22,7 +21,6 @@ const identityTextTransform: TextTransformer = (text: string) => text;
 describe("useDisplayVertexTypeConfig", () => {
   it("should use default values when the vertex type is not in the schema", () => {
     const vtConfig = createRandomVertexTypeConfig();
-    const defaultConfig = getDefaultVertexTypeConfig(vtConfig.type);
 
     const { result } = renderHookWithState(() =>
       useDisplayVertexTypeConfig(vtConfig.type)
@@ -30,12 +28,6 @@ describe("useDisplayVertexTypeConfig", () => {
 
     expect(result.current.type).toBe(vtConfig.type);
     expect(result.current.displayLabel).toBe(vtConfig.type);
-    expect(result.current.displayNameAttribute).toBe(
-      defaultConfig.displayNameAttribute
-    );
-    expect(result.current.displayDescriptionAttribute).toBe(
-      defaultConfig.longDisplayNameAttribute
-    );
   });
 
   it("should use missing value string when type is empty", () => {
@@ -73,40 +65,6 @@ describe("useDisplayVertexTypeConfig", () => {
     );
 
     expect(result.current.displayLabel).toBe(vtConfig.displayLabel);
-  });
-
-  it("should have display name attribute from the config", () => {
-    const dbState = new DbState();
-    const vtConfig = createRandomVertexTypeConfig();
-    vtConfig.displayNameAttribute = createRandomName("displayNameAttribute");
-    dbState.activeSchema.vertices.push(vtConfig);
-
-    const { result } = renderHookWithState(
-      () => useDisplayVertexTypeConfig(vtConfig.type),
-      dbState
-    );
-
-    expect(result.current.displayNameAttribute).toBe(
-      vtConfig.displayNameAttribute
-    );
-  });
-
-  it("should have display description attribute from the config", () => {
-    const dbState = new DbState();
-    const vtConfig = createRandomVertexTypeConfig();
-    vtConfig.longDisplayNameAttribute = createRandomName(
-      "longDisplayNameAttribute"
-    );
-    dbState.activeSchema.vertices.push(vtConfig);
-
-    const { result } = renderHookWithState(
-      () => useDisplayVertexTypeConfig(vtConfig.type),
-      dbState
-    );
-
-    expect(result.current.displayDescriptionAttribute).toBe(
-      vtConfig.longDisplayNameAttribute
-    );
   });
 });
 

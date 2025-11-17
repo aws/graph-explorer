@@ -1,7 +1,6 @@
 import {
   allEdgeTypeConfigsSelector,
   allVertexTypeConfigsSelector,
-  defaultVertexTypeConfig,
   edgeTypeConfigSelector,
   vertexTypeConfigSelector,
   type AttributeConfig,
@@ -9,7 +8,7 @@ import {
   type VertexTypeConfig,
 } from "@/core";
 import { type TextTransformer, textTransformSelector } from "@/hooks";
-import { LABELS, logger, RESERVED_TYPES_PROPERTY } from "@/utils";
+import { LABELS, logger } from "@/utils";
 import { atomFamily, useAtomCallback } from "jotai/utils";
 import { atom, useAtomValue } from "jotai";
 import { useCallback } from "react";
@@ -19,15 +18,12 @@ export type DisplayVertexTypeConfig = {
   type: string;
   displayLabel: string;
   attributes: DisplayConfigAttribute[];
-  displayNameAttribute: string;
-  displayDescriptionAttribute: string;
 };
 
 export type DisplayEdgeTypeConfig = {
   type: string;
   displayLabel: string;
   attributes: DisplayConfigAttribute[];
-  displayNameAttribute: string;
 };
 
 export type DisplayConfigAttribute = {
@@ -131,12 +127,6 @@ export function mapToDisplayVertexTypeConfig(
   const result: DisplayVertexTypeConfig = {
     type: typeConfig.type,
     displayLabel,
-    displayNameAttribute:
-      typeConfig.displayNameAttribute ??
-      defaultVertexTypeConfig.displayNameAttribute,
-    displayDescriptionAttribute:
-      typeConfig.longDisplayNameAttribute ??
-      defaultVertexTypeConfig.longDisplayNameAttribute,
     attributes,
   };
   return result;
@@ -164,8 +154,6 @@ export function mapToDisplayEdgeTypeConfig(
     type: typeConfig.type,
     displayLabel,
     attributes,
-    displayNameAttribute:
-      typeConfig.displayNameAttribute || RESERVED_TYPES_PROPERTY,
   };
   return result;
 }
