@@ -20,6 +20,16 @@ import type { QueryEngine } from "@shared/types";
 import { getDisplayValueForScalar } from "@/connector/entities";
 
 describe("useDisplayEdgeFromEdge", () => {
+  let dbState = new DbState();
+
+  beforeEach(() => {
+    dbState = new DbState();
+  });
+
+  function renderHookDisplayEdgeFromEdge(edge: Edge) {
+    return renderHookWithState(() => useDisplayEdgeFromEdge(edge), dbState);
+  }
+
   it("should keep the same ID", () => {
     const edge = createRandomEdge();
     expect(act(edge).id).toStrictEqual(edge.id);
@@ -49,21 +59,21 @@ describe("useDisplayEdgeFromEdge", () => {
 
   it("should have display name that matches the attribute value", () => {
     const edge = createRandomEdge();
-    const schema = createRandomSchema();
     // Get the first attribute
     const attribute = Object.entries(edge.attributes).map(([name, value]) => ({
       name,
       value,
     }))[0];
 
-    const etConfig = createRandomEdgeTypeConfig();
-    etConfig.type = edge.type;
-    etConfig.displayNameAttribute = attribute.name;
-    schema.edges.push(etConfig);
+    dbState.addEdgeStyle(edge.type, {
+      displayNameAttribute: attribute.name,
+    });
 
-    expect(
-      act(edge, withSchemaAndConnection(schema, "gremlin")).displayName
-    ).toStrictEqual(getDisplayValueForScalar(attribute.value));
+    const { result } = renderHookDisplayEdgeFromEdge(edge);
+
+    expect(result.current.displayName).toStrictEqual(
+      getDisplayValueForScalar(attribute.value)
+    );
   });
 
   it("should have display name that matches the types when displayNameAttribute is 'type'", () => {

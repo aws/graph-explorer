@@ -10,6 +10,7 @@ import {
   edgesSelectedIdsAtom,
   queryEngineSelector,
   edgeSelector,
+  edgePreferenceByTypeAtom,
 } from "@/core";
 import { textTransformSelector } from "@/hooks";
 import { LABELS, RESERVED_ID_PROPERTY, RESERVED_TYPES_PROPERTY } from "@/utils";
@@ -62,7 +63,7 @@ const displayEdgeSelector = atomFamily((edge: Edge) =>
     const isSparql = queryEngine === "sparql";
 
     // One type config used for shape, color, icon, etc.
-    const typeConfig = get(displayEdgeTypeConfigSelector(edge.type));
+    const preferences = get(edgePreferenceByTypeAtom(edge.type));
 
     // List all edge types for displaying
     const edgeTypes = [edge.type];
@@ -93,7 +94,7 @@ const displayEdgeSelector = atomFamily((edge: Edge) =>
     }
 
     const displayName = getDisplayAttributeValueByName(
-      typeConfig.displayNameAttribute
+      preferences.displayNameAttribute
     );
 
     const displayEdge: DisplayEdge = {
