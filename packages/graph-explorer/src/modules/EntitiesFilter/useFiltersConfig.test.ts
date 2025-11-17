@@ -1,106 +1,82 @@
 import { act } from "react";
 import useFiltersConfig from "./useFiltersConfig";
-import {
-  createRandomRawConfiguration,
-  createRandomSchema,
-  renderHookWithJotai,
-} from "@/utils/testing";
+import { DbState, renderHookWithState } from "@/utils/testing";
 import { sample } from "lodash";
-import type { Schema } from "@/core";
-import {
-  activeConfigurationAtom,
-  configurationAtom,
-} from "@/core/StateProvider/configuration";
 import { vi } from "vitest";
 
-/** Creates a config with the schema and makes it active, then renders the `useFiltersConfig` hook. */
-function renderFilterConfigHook(schema: Schema) {
-  return renderHookWithJotai(
-    () => useFiltersConfig(),
-    store => {
-      // Initialize the configuration atom with a test config
-      const config = createRandomRawConfiguration();
-      config.schema = schema;
-      store.set(configurationAtom, new Map([[config.id, config]]));
-      store.set(activeConfigurationAtom, config.id);
-    }
-  );
-}
-
 describe("useFiltersConfig", () => {
+  let dbState = new DbState();
+
   beforeEach(() => {
+    dbState = new DbState();
     vi.resetAllMocks();
   });
 
-  it("should have all entities selected", () => {
-    const schema = createRandomSchema();
+  /** Creates a config with the schema and makes it active, then renders the `useFiltersConfig` hook. */
+  function renderFilterConfigHook() {
+    return renderHookWithState(() => useFiltersConfig(), dbState);
+  }
 
-    const { result } = renderFilterConfigHook(schema);
+  it("should have all entities selected", () => {
+    dbState.activeSchema.vertices = [
+      { type: "Person", attributes: [] },
+      { type: "Movie", attributes: [] },
+    ];
+    dbState.activeSchema.edges = [{ type: "ACTED_IN", attributes: [] }];
+    const { result } = renderFilterConfigHook();
 
     expect(result.current.selectedVertexTypes).toEqual(
-      new Set(schema.vertices.map(v => v.type))
+      new Set(["Person", "Movie"])
     );
     expect(result.current.selectedConnectionTypes).toEqual(
-      new Set(schema.edges.map(v => v.type))
+      new Set(["ACTED_IN"])
     );
   });
 
   it("should have all vertices in checkboxes", () => {
-    const schema = createRandomSchema();
-    const expectedCheckboxIds = schema.vertices.map(v => v.type);
+    const expectedCheckboxIds = dbState.activeSchema.vertices.map(v => v.type);
 
-    const { result } = renderFilterConfigHook(schema);
+    const { result } = renderFilterConfigHook();
 
     expect(result.current.vertexTypes.map(vt => vt.id)).toEqual(
       expect.arrayContaining(expectedCheckboxIds)
     );
   });
 
-  it("should sort vertex checkboxes alphabetically", () => {
-    const schema = createRandomSchema();
+  it("should sort checkboxes alphabetically", () => {
+    dbState.activeSchema.vertices = [
+      { type: "Person", attributes: [] },
+      { type: "Movie", attributes: [] },
+    ];
+    dbState.activeSchema.edges = [
+      { type: "DIRECTED", attributes: [] },
+      { type: "ACTED_IN", attributes: [] },
+    ];
+    const { result } = renderFilterConfigHook();
 
-    const { result } = renderFilterConfigHook(schema);
-
-    const actualVertexTypes = result.current.vertexTypes.map(
-      vt => vt.text as string
+    expect(result.current.vertexTypes.map(vt => vt.text as string)).toEqual([
+      "Movie",
+      "Person",
+    ]);
+    expect(result.current.connectionTypes.map(vt => vt.text as string)).toEqual(
+      ["ACTED_IN", "DIRECTED"]
     );
-    const sortedExpectations = result.current.vertexTypes
-      .map(vt => vt.text as string)
-      .toSorted((a, b) => a.localeCompare(b));
-
-    expect(actualVertexTypes).toEqual(sortedExpectations);
   });
 
   it("should have all edges in checkboxes", () => {
-    const schema = createRandomSchema();
-    const expectedCheckboxIds = schema.edges.map(v => v.type);
+    const expectedCheckboxIds = dbState.activeSchema.edges.map(v => v.type);
 
-    const { result } = renderFilterConfigHook(schema);
+    const { result } = renderFilterConfigHook();
 
     expect(result.current.connectionTypes.map(vt => vt.id)).toEqual(
       expect.arrayContaining(expectedCheckboxIds)
     );
   });
 
-  it("should sort edge checkboxes alphabetically", () => {
-    const schema = createRandomSchema();
-
-    const { result } = renderFilterConfigHook(schema);
-
-    const actualConnectionTypes = result.current.connectionTypes.map(
-      et => et.text as string
-    );
-    const expectedConnectionTypes = actualConnectionTypes.toSorted((a, b) =>
-      a.localeCompare(b)
-    );
-    expect(actualConnectionTypes).toEqual(expectedConnectionTypes);
-  });
-
   it("should unselect vertex when toggled", () => {
-    const schema = createRandomSchema();
-    const changingVertex = sample(schema.vertices)!;
+    const changingVertex = sample(dbState.activeSchema.vertices)!;
 
-    const { result } = renderFilterConfigHook(schema);
+    const { result } = renderFilterConfigHook();
 
     // Ensure vertex is selected initially
     expect(result.current.selectedVertexTypes.has(changingVertex.type)).toEqual(
@@ -117,10 +93,9 @@ describe("useFiltersConfig", () => {
   });
 
   it("should unselect edge when toggled", () => {
-    const schema = createRandomSchema();
-    const changingEdge = sample(schema.edges)!;
+    const changingEdge = sample(dbState.activeSchema.edges)!;
 
-    const { result } = renderFilterConfigHook(schema);
+    const { result } = renderFilterConfigHook();
 
     // Ensure edge is selected initially
     expect(
