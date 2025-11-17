@@ -240,7 +240,7 @@ export const vertexPreferenceByTypeAtom = atomFamily((type: string) =>
 /**
  * Returns the user preferences for the specified edge type.
  */
-const edgePreferenceByTypeAtom = atomFamily((type: string) =>
+export const edgePreferenceByTypeAtom = atomFamily((type: string) =>
   atom(get => {
     const userStyling = get(userStylingAtom);
     const stored = userStyling.edges?.find(e => e.type === type);
