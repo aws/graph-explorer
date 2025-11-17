@@ -218,28 +218,33 @@ export function useAllEdgePreferences(): EdgePreferences[] {
 
 /** Returns the user preferences for the specified vertex type. */
 export function useVertexPreferences(type: string): VertexPreferences {
-  const { vertices: allPreferences } = useStoredGraphPreferences();
-  const vertexPreference = allPreferences.get(type);
-  return createVertexPreference(type, vertexPreference);
+  return useDeferredValue(useAtomValue(vertexPreferenceByTypeAtom(type)));
 }
 
 /** Returns the user preferences for the specified edge type. */
 export function useEdgePreferences(type: string): EdgePreferences {
-  const { edges: allPreferences } = useStoredGraphPreferences();
-  const edgePreference = allPreferences.get(type);
-  return createEdgePreference(type, edgePreference);
+  return useDeferredValue(useAtomValue(edgePreferenceByTypeAtom(type)));
 }
 
 /**
  * Returns the user preferences for the specified vertex type.
- *
- * @deprecated Use `useVertexPreference` instead. This is temporary while we move away from atoms.
  */
 export const vertexPreferenceByTypeAtom = atomFamily((type: string) =>
   atom(get => {
     const userStyling = get(userStylingAtom);
     const stored = userStyling.vertices?.find(v => v.type === type);
     return createVertexPreference(type, stored);
+  })
+);
+
+/**
+ * Returns the user preferences for the specified edge type.
+ */
+const edgePreferenceByTypeAtom = atomFamily((type: string) =>
+  atom(get => {
+    const userStyling = get(userStylingAtom);
+    const stored = userStyling.edges?.find(e => e.type === type);
+    return createEdgePreference(type, stored);
   })
 );
 
