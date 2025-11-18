@@ -180,4 +180,56 @@ describe("bulkVertexDetailsQuery", () => {
     // Verify nodesAtom was not modified
     expect(getAppStore().get(nodesAtom).size).toBe(0);
   });
+
+  it("should ignore cache when ignoreCache option is true", async () => {
+    const explorer = new FakeExplorer();
+    const vertexDetailsSpy = vi.spyOn(explorer, "vertexDetails");
+    const queryClient = createQueryClient({ explorer });
+
+    const cachedVertex = createRandomVertex();
+    const updatedVertex = {
+      ...cachedVertex,
+      attributes: { ...cachedVertex.attributes, name: "Updated" },
+    };
+
+    // Add vertex to cache
+    queryClient.setQueryData(vertexDetailsQuery(cachedVertex.id).queryKey, {
+      vertex: cachedVertex,
+    });
+
+    // Add updated vertex to explorer
+    explorer.addVertex(updatedVertex);
+
+    const result = await queryClient.fetchQuery(
+      bulkVertexDetailsQuery([cachedVertex.id], { ignoreCache: true })
+    );
+
+    expect(result.vertices).toStrictEqual([updatedVertex]);
+    expect(vertexDetailsSpy).toBeCalledTimes(1);
+
+    // Ensure cache is updated with new data
+    expect(
+      queryClient.getQueryData(vertexDetailsQuery(cachedVertex.id).queryKey)
+    ).toStrictEqual({ vertex: updatedVertex });
+  });
+
+  it("should use cache when ignoreCache option is false", async () => {
+    const explorer = new FakeExplorer();
+    const vertexDetailsSpy = vi.spyOn(explorer, "vertexDetails");
+    const queryClient = createQueryClient({ explorer });
+
+    const cachedVertex = createRandomVertex();
+
+    // Add vertex to cache
+    queryClient.setQueryData(vertexDetailsQuery(cachedVertex.id).queryKey, {
+      vertex: cachedVertex,
+    });
+
+    const result = await queryClient.fetchQuery(
+      bulkVertexDetailsQuery([cachedVertex.id], { ignoreCache: false })
+    );
+
+    expect(result.vertices).toStrictEqual([cachedVertex]);
+    expect(vertexDetailsSpy).toBeCalledTimes(0);
+  });
 });

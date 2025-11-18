@@ -10,26 +10,37 @@ import {
 } from "./helpers";
 import { edgeDetailsQuery } from "./edgeDetailsQuery";
 
-export function bulkEdgeDetailsQuery(edgeIds: EdgeId[]) {
+export function bulkEdgeDetailsQuery(
+  edgeIds: EdgeId[],
+  options?: { ignoreCache: boolean }
+) {
   return queryOptions({
-    queryKey: ["edges", edgeIds],
+    queryKey: ["edges", edgeIds, options],
     staleTime: 0,
     gcTime: 0,
     queryFn: async ({ client, meta, signal }) => {
       const explorer = getExplorer(meta);
       const store = getStore(meta);
 
+      const shouldIgnoreCache = options?.ignoreCache ?? false;
+
       // Get cached and missing edges in one pass
       const cachedEdges: Edge[] = [];
       const missingIds: EdgeId[] = [];
 
-      for (const id of edgeIds) {
-        const cached = client.getQueryData(edgeDetailsQuery(id).queryKey)?.edge;
-        if (cached) {
-          cachedEdges.push(cached);
-        } else {
-          missingIds.push(id);
-        }
+      if (!shouldIgnoreCache) {
+        edgeIds.forEach(id => {
+          const cached = client.getQueryData(
+            edgeDetailsQuery(id).queryKey
+          )?.edge;
+          if (cached) {
+            cachedEdges.push(cached);
+          } else {
+            missingIds.push(id);
+          }
+        });
+      } else {
+        missingIds.push(...edgeIds);
       }
 
       // Return early if all edges are cached
