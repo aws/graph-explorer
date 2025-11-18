@@ -1,5 +1,86 @@
 # Graph Explorer Change Log
 
+## Release v2.4.1
+
+This release includes several important bug fixes and improvements, notably:
+
+- Added ability to manually refresh node or edge data from UI
+- Updated graph data to mirror the most recent data from searches and queries
+- Updated handling of multi-label nodes when patching the schema
+- Fixed auto-open details panel behavior when selecting entities
+- Fixed representation of default values in node & edge styles
+- Fixed several layout issues around long labels
+
+### All Changes
+
+- Update TypeScript configs for consistency by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1274
+- Use verbatimModuleSyntax and make imports consistent by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1278
+- Update dependencies post release by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1282
+- Use Activity for sidebar by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1290
+- Make style dialogs more global by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1291
+- Fix auto open details on selection issue in context menu actions by @kmcginnes
+  in https://github.com/aws/graph-explorer/pull/1292
+- Update Tailwind to v4 by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1293
+- Bump version to 2.4.1 by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1295
+- Remove forwardRef by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1296
+- Fix sidebar color issue by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1297
+- Fix layout issues by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1298
+- Fix container query issues by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1300
+- Cleanup from Tailwind upgrade by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1301
+- Fix handling of long labels across app UI by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1302
+- Update node & edge style dialogs by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1303
+- Add general steering rules for claude/q/kiro by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1305
+- Fix auto open details again by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1306
+- Fix null prefix by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1307
+- Remove `searchable` and `hidden` from `AttributeConfig` by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1311
+- Create schema entries for multi-label entities by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1312
+- Use default values for user preferences by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1313
+- Remove vertexTypes from expand neighbors request by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1314
+- Update canvas data to include label info by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1315
+- Add unit tests around connections by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1318
+- Use universal Jotai store by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1320
+- Update vertex and edge canvas state with query results by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1321
+- Update ESLint configuration by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1322
+- Fix re-renders in some core spots by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1324
+- Update atomWithLocalStorage to be cached and synchronous by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1323
+- Refactor schema, preferences, display types by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1316
+- Add refresh button for vertices and edges by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1325
+- Minor optimizations for refactored Jotai state by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1332
+
+**Full Changelog**:
+https://github.com/aws/graph-explorer/compare/v2.4.0...v2.4.1
+
 ## Release v2.4.0
 
 This release introduces support for SPARQL queries within the query editor. Now,
