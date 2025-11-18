@@ -7,7 +7,7 @@ This release includes several important bug fixes and improvements, notably:
 - Added ability to manually refresh node or edge data from UI
 - Updated graph data to mirror the most recent data from searches and queries
 - Updated handling of multi-label nodes when patching the schema
-- Fixed behavior of the auto open details panel on selection feature
+- Fixed auto-open details panel behavior when selecting entities
 - Fixed representation of default values in node & edge styles
 - Fixed several layout issues around long labels
 
