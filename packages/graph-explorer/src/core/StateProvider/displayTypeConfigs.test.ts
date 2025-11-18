@@ -1,10 +1,11 @@
 import {
+  createRandomEdgePreferences,
   createRandomEdgeTypeConfig,
+  createRandomVertexPreferences,
   createRandomVertexTypeConfig,
   DbState,
   renderHookWithState,
 } from "@/utils/testing";
-import { getDefaultVertexTypeConfig } from "./configuration";
 import {
   useDisplayEdgeTypeConfig,
   useDisplayVertexTypeConfig,
@@ -22,7 +23,6 @@ const identityTextTransform: TextTransformer = (text: string) => text;
 describe("useDisplayVertexTypeConfig", () => {
   it("should use default values when the vertex type is not in the schema", () => {
     const vtConfig = createRandomVertexTypeConfig();
-    const defaultConfig = getDefaultVertexTypeConfig(vtConfig.type);
 
     const { result } = renderHookWithState(() =>
       useDisplayVertexTypeConfig(vtConfig.type)
@@ -30,12 +30,6 @@ describe("useDisplayVertexTypeConfig", () => {
 
     expect(result.current.type).toBe(vtConfig.type);
     expect(result.current.displayLabel).toBe(vtConfig.type);
-    expect(result.current.displayNameAttribute).toBe(
-      defaultConfig.displayNameAttribute
-    );
-    expect(result.current.displayDescriptionAttribute).toBe(
-      defaultConfig.longDisplayNameAttribute
-    );
   });
 
   it("should use missing value string when type is empty", () => {
@@ -74,40 +68,6 @@ describe("useDisplayVertexTypeConfig", () => {
 
     expect(result.current.displayLabel).toBe(vtConfig.displayLabel);
   });
-
-  it("should have display name attribute from the config", () => {
-    const dbState = new DbState();
-    const vtConfig = createRandomVertexTypeConfig();
-    vtConfig.displayNameAttribute = createRandomName("displayNameAttribute");
-    dbState.activeSchema.vertices.push(vtConfig);
-
-    const { result } = renderHookWithState(
-      () => useDisplayVertexTypeConfig(vtConfig.type),
-      dbState
-    );
-
-    expect(result.current.displayNameAttribute).toBe(
-      vtConfig.displayNameAttribute
-    );
-  });
-
-  it("should have display description attribute from the config", () => {
-    const dbState = new DbState();
-    const vtConfig = createRandomVertexTypeConfig();
-    vtConfig.longDisplayNameAttribute = createRandomName(
-      "longDisplayNameAttribute"
-    );
-    dbState.activeSchema.vertices.push(vtConfig);
-
-    const { result } = renderHookWithState(
-      () => useDisplayVertexTypeConfig(vtConfig.type),
-      dbState
-    );
-
-    expect(result.current.displayDescriptionAttribute).toBe(
-      vtConfig.longDisplayNameAttribute
-    );
-  });
 });
 
 describe("mapToDisplayVertexTypeConfig", () => {
@@ -117,9 +77,11 @@ describe("mapToDisplayVertexTypeConfig", () => {
       { name: "firstName", dataType: "String" },
       { name: "age", dataType: "Number" },
     ];
+    const preferences = createRandomVertexPreferences();
 
     const result = mapToDisplayVertexTypeConfig(
       vtConfig,
+      preferences,
       identityTextTransform
     );
 
@@ -144,9 +106,11 @@ describe("mapToDisplayVertexTypeConfig", () => {
       { name: "apple", dataType: "String" },
       { name: "middle", dataType: "String" },
     ];
+    const preferences = createRandomVertexPreferences();
 
     const result = mapToDisplayVertexTypeConfig(
       vtConfig,
+      preferences,
       identityTextTransform
     );
 
@@ -165,9 +129,11 @@ describe("mapToDisplayVertexTypeConfig", () => {
       { name: "apple", dataType: "String" },
       { name: "middle", dataType: "String" },
     ];
+    const preferences = createRandomVertexPreferences();
 
     const result = mapToDisplayVertexTypeConfig(
       vtConfig,
+      preferences,
       identityTextTransform
     );
 
@@ -187,9 +153,11 @@ describe("mapToDisplayVertexTypeConfig", () => {
       { name: "ccc", dataType: "String" },
       { name: RDFS_LABEL_URI, dataType: "String" },
     ];
+    const preferences = createRandomVertexPreferences();
 
     const result = mapToDisplayVertexTypeConfig(
       vtConfig,
+      preferences,
       identityTextTransform
     );
 
@@ -208,9 +176,11 @@ describe("mapToDisplayVertexTypeConfig", () => {
       { name: "name", dataType: "String" },
       { name: "email", dataType: "String" },
     ];
+    const preferences = createRandomVertexPreferences();
 
     const result = mapToDisplayVertexTypeConfig(
       vtConfig,
+      preferences,
       identityTextTransform
     );
 
@@ -235,9 +205,11 @@ describe("mapToDisplayVertexTypeConfig", () => {
       { name: "active", dataType: "Boolean" },
       { name: "created", dataType: "Date" },
     ];
+    const preferences = createRandomVertexPreferences();
 
     const result = mapToDisplayVertexTypeConfig(
       vtConfig,
+      preferences,
       identityTextTransform
     );
 
@@ -251,9 +223,11 @@ describe("mapToDisplayVertexTypeConfig", () => {
       { name: "active", dataType: "Boolean" },
       { name: "created", dataType: "Date" },
     ];
+    const preferences = createRandomVertexPreferences();
 
     const result = mapToDisplayVertexTypeConfig(
       vtConfig,
+      preferences,
       identityTextTransform
     );
 
@@ -266,9 +240,11 @@ describe("mapToDisplayVertexTypeConfig", () => {
       { name: "unknown" },
       { name: "name", dataType: "String" },
     ];
+    const preferences = createRandomVertexPreferences();
 
     const result = mapToDisplayVertexTypeConfig(
       vtConfig,
+      preferences,
       identityTextTransform
     );
 
@@ -289,9 +265,11 @@ describe("mapToDisplayVertexTypeConfig", () => {
   it("should handle empty attributes array", () => {
     const vtConfig = createRandomVertexTypeConfig();
     vtConfig.attributes = [];
+    const preferences = createRandomVertexPreferences();
 
     const result = mapToDisplayVertexTypeConfig(
       vtConfig,
+      preferences,
       identityTextTransform
     );
 
@@ -305,12 +283,17 @@ describe("mapToDisplayVertexTypeConfig", () => {
       { name: "lastName", dataType: "String" },
       { name: "email", dataType: "String" },
     ];
+    const preferences = createRandomVertexPreferences();
 
     // Custom transformer that uppercases
     const uppercaseTransform: TextTransformer = (text: string) =>
       text.toUpperCase();
 
-    const result = mapToDisplayVertexTypeConfig(vtConfig, uppercaseTransform);
+    const result = mapToDisplayVertexTypeConfig(
+      vtConfig,
+      preferences,
+      uppercaseTransform
+    );
 
     expect(result.attributes.map(a => a.displayLabel)).toStrictEqual([
       "EMAIL",
@@ -328,8 +311,13 @@ describe("mapToDisplayEdgeTypeConfig", () => {
       { name: RDFS_LABEL_URI, dataType: "String" },
       { name: "created", dataType: "Date" },
     ];
+    const preferences = createRandomEdgePreferences();
 
-    const result = mapToDisplayEdgeTypeConfig(etConfig, identityTextTransform);
+    const result = mapToDisplayEdgeTypeConfig(
+      etConfig,
+      preferences,
+      identityTextTransform
+    );
 
     expect(result.attributes.map(a => a.name)).toStrictEqual([
       RDFS_LABEL_URI,

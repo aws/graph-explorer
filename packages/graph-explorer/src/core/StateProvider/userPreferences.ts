@@ -173,7 +173,7 @@ function useStoredGraphPreferences() {
 /** Combines the stored user preferences with the defined default values. */
 export function createVertexPreference(
   type: string,
-  stored: VertexPreferencesStorageModel | undefined
+  stored?: VertexPreferencesStorageModel
 ): VertexPreferences {
   logger.debug("Creating VertexPreference", { type, stored });
   return {
@@ -186,7 +186,7 @@ export function createVertexPreference(
 /** Combines the stored user preferences with the defined default values. */
 export function createEdgePreference(
   type: string,
-  stored: EdgePreferencesStorageModel | undefined
+  stored?: EdgePreferencesStorageModel
 ) {
   logger.debug("Creating EdgePreference", { type, stored });
   return {
@@ -218,28 +218,33 @@ export function useAllEdgePreferences(): EdgePreferences[] {
 
 /** Returns the user preferences for the specified vertex type. */
 export function useVertexPreferences(type: string): VertexPreferences {
-  const { vertices: allPreferences } = useStoredGraphPreferences();
-  const vertexPreference = allPreferences.get(type);
-  return createVertexPreference(type, vertexPreference);
+  return useDeferredValue(useAtomValue(vertexPreferenceByTypeAtom(type)));
 }
 
 /** Returns the user preferences for the specified edge type. */
 export function useEdgePreferences(type: string): EdgePreferences {
-  const { edges: allPreferences } = useStoredGraphPreferences();
-  const edgePreference = allPreferences.get(type);
-  return createEdgePreference(type, edgePreference);
+  return useDeferredValue(useAtomValue(edgePreferenceByTypeAtom(type)));
 }
 
 /**
  * Returns the user preferences for the specified vertex type.
- *
- * @deprecated Use `useVertexPreference` instead. This is temporary while we move away from atoms.
  */
 export const vertexPreferenceByTypeAtom = atomFamily((type: string) =>
   atom(get => {
     const userStyling = get(userStylingAtom);
     const stored = userStyling.vertices?.find(v => v.type === type);
     return createVertexPreference(type, stored);
+  })
+);
+
+/**
+ * Returns the user preferences for the specified edge type.
+ */
+export const edgePreferenceByTypeAtom = atomFamily((type: string) =>
+  atom(get => {
+    const userStyling = get(userStylingAtom);
+    const stored = userStyling.edges?.find(e => e.type === type);
+    return createEdgePreference(type, stored);
   })
 );
 
