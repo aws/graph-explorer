@@ -13,11 +13,14 @@ import {
   getAllGraphableEntities,
   type PatchedResultEntity,
 } from "@/connector/entities";
+import { ShowRawResponseDialogButton } from "./ShowRawResponseDialog";
 
 export function SearchResultsList({
   results,
+  rawResponse,
 }: {
   results: PatchedResultEntity[];
+  rawResponse?: unknown;
 }) {
   // Hard coding the page size for now. Only trying to improve rendering
   // performance for large results.
@@ -51,6 +54,9 @@ export function SearchResultsList({
             <ResultCounts results={results} />
           </div>
           <div className="grow" />
+          {rawResponse !== undefined && (
+            <ShowRawResponseDialogButton rawResponse={rawResponse} />
+          )}
           <AddAllToGraphButton entities={results} />
         </div>
         <ul className="flex flex-col space-y-4">

@@ -214,7 +214,12 @@ function SearchResultsListContainer({ cancel }: { cancel: () => void }) {
     return <QueryTabNoResults />;
   }
 
-  return <SearchResultsList results={query.data.results} />;
+  return (
+    <SearchResultsList
+      results={query.data.results}
+      rawResponse={query.data.rawResponse}
+    />
+  );
 }
 
 function QueryTabLoading({ cancel }: { cancel: () => void }) {
