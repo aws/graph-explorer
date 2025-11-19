@@ -13,7 +13,7 @@
   "author": "amazon",
   "license": "Apache-2.0",
   "dependencies": {
-    "@aws-sdk/credential-providers": "^3.917.0",
+    "@aws-sdk/credential-providers": "^3.933.0",
     "@graph-explorer/shared": "workspace:*",
     "aws4": "^1.13.2",
     "body-parser": "^2.2.0",
@@ -35,12 +35,12 @@
     "@types/body-parser": "^1.19.6",
     "@types/compression": "^1.8.1",
     "@types/cors": "^2.8.19",
-    "@types/express": "^5.0.4",
-    "@types/node": "^24.9.1",
-    "@vitest/coverage-v8": "4.0.3",
-    "memfs": "^4.49.0",
-    "rimraf": "^6.0.1",
+    "@types/express": "^5.0.5",
+    "@types/node": "^24.10.1",
+    "@vitest/coverage-v8": "4.0.10",
+    "memfs": "^4.51.0",
+    "rimraf": "^6.1.0",
     "tsx": "^4.20.6",
-    "vitest": "4.0.3"
+    "vitest": "4.0.10"
   }
 }
