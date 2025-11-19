@@ -21,7 +21,7 @@ const cypherNodeSchema: z.ZodType<OCVertex> = z.object({
   "~entityType": z.literal("node"),
   "~id": z.string(),
   "~labels": z.array(z.string()),
-  "~properties": z.record(z.any()),
+  "~properties": z.record(z.string(), z.any()),
 });
 
 const cypherEdgeSchema: z.ZodType<OCEdge> = z.object({
@@ -30,7 +30,7 @@ const cypherEdgeSchema: z.ZodType<OCEdge> = z.object({
   "~start": z.string(),
   "~end": z.string(),
   "~type": z.string(),
-  "~properties": z.record(z.any()),
+  "~properties": z.record(z.string(), z.any()),
 });
 
 type CypherScalar = z.infer<typeof cypherScalarValueSchema>;
@@ -47,12 +47,12 @@ const cypherValueSchema: z.ZodType<CypherValue> = z.lazy(() =>
     cypherNodeSchema,
     cypherEdgeSchema,
     z.array(cypherValueSchema),
-    z.record(cypherValueSchema),
+    z.record(z.string(), cypherValueSchema),
   ]),
 );
 
 const cypherQueryResultSchema = z.object({
-  results: z.array(z.record(cypherValueSchema)),
+  results: z.array(z.record(z.string(), cypherValueSchema)),
 });
 
 export function parseResults(data: unknown) {
