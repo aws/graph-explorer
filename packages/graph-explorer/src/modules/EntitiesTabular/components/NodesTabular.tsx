@@ -75,7 +75,7 @@ function NodesTabular({ ref }: NodesTabularProps) {
         rows.filter(row =>
           row.original.displayTypes
             .toLowerCase()
-            .match(filterValue.toLowerCase())
+            .match(filterValue.toLowerCase()),
         ),
       overflow: "ellipsis",
     },

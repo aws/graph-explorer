@@ -48,7 +48,7 @@ const cypherValueSchema: z.ZodType<CypherValue> = z.lazy(() =>
     cypherEdgeSchema,
     z.array(cypherValueSchema),
     z.record(cypherValueSchema),
-  ])
+  ]),
 );
 
 const cypherQueryResultSchema = z.object({
@@ -76,7 +76,7 @@ export function mapResults(data: unknown) {
   const results = parseResults(data);
   const values = results.flatMap(result => {
     const entities = Object.entries(result).flatMap(([key, value]) =>
-      mapValue(value, key)
+      mapValue(value, key),
     );
 
     // Create a bundle if there is more than one entity
@@ -129,7 +129,7 @@ function mapValue(value: CypherValue, name?: string): ResultEntity[] {
 
 function mapRecordToBundle(record: Record<string, CypherValue>, name?: string) {
   const values = Object.entries(record).flatMap(([key, value]) =>
-    mapValue(value, key)
+    mapValue(value, key),
   );
   return createResultBundle({ values, name });
 }

@@ -34,10 +34,10 @@ function EntitiesTabular() {
   const [selectedTable, setSelectedTable] = useState<TableId>(TableId.nodes);
   // Store tabular instances to allow use external tabular controls in the header
   const [nodeInstance, setNodeInstance] = useState<TabularInstance<any> | null>(
-    null
+    null,
   );
   const [edgeInstance, setEdgeInstance] = useState<TabularInstance<any> | null>(
-    null
+    null,
   );
   const tableList = [
     {

@@ -16,7 +16,7 @@ describe("useAutoOpenDetailsSidebar", () => {
           activeSidebarItem: "search",
           activeToggles: new Set<ToggleableView>(),
           detailsAutoOpenOnSelection: true,
-        })
+        }),
     );
 
     act(() => result.current.autoOpen());
@@ -36,7 +36,7 @@ describe("useAutoOpenDetailsSidebar", () => {
           activeSidebarItem: "details",
           activeToggles: new Set<ToggleableView>(),
           detailsAutoOpenOnSelection: true,
-        })
+        }),
     );
 
     act(() => result.current.autoOpen());
@@ -57,7 +57,7 @@ describe("useAutoOpenDetailsSidebar", () => {
           activeSidebarItem: "search",
           activeToggles: new Set<ToggleableView>(),
           detailsAutoOpenOnSelection: false,
-        })
+        }),
     );
 
     act(() => result.current.autoOpen());

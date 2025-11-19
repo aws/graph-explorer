@@ -68,7 +68,7 @@ const TabularFooterControls: FC<TabularFooterControlsProps> = ({
         className,
         {
           ["footer-controls-sticky"]: !disableSticky,
-        }
+        },
       )}
     >
       {children}

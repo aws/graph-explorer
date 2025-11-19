@@ -61,11 +61,11 @@ type RawEdgesSchemaResponse = {
 // Fetches all vertex labels and their counts
 const fetchVertexLabels = async (
   openCypherFetch: OpenCypherFetch,
-  remoteLogger: LoggerConnector
+  remoteLogger: LoggerConnector,
 ): Promise<Record<string, number>> => {
   const labelsTemplate = vertexLabelsTemplate();
   remoteLogger.info(
-    "[openCypher Explorer] Fetching vertex labels with counts..."
+    "[openCypher Explorer] Fetching vertex labels with counts...",
   );
   const data = await openCypherFetch<RawVertexLabelsResponse>(labelsTemplate);
 
@@ -87,7 +87,7 @@ const fetchVertexLabels = async (
   }
 
   remoteLogger.info(
-    `[openCypher Explorer] Found ${Object.keys(labelsWithCounts).length} vertex labels.`
+    `[openCypher Explorer] Found ${Object.keys(labelsWithCounts).length} vertex labels.`,
   );
 
   return labelsWithCounts;
@@ -98,7 +98,7 @@ const fetchVerticesAttributes = async (
   openCypherFetch: OpenCypherFetch,
   remoteLogger: LoggerConnector,
   labels: Array<string>,
-  countsByLabel: Record<string, number>
+  countsByLabel: Record<string, number>,
 ): Promise<SchemaResponse["vertices"]> => {
   if (labels.length === 0) {
     return [];
@@ -117,7 +117,7 @@ const fetchVerticesAttributes = async (
         await openCypherFetch<RawVerticesSchemaResponse>(verticesTemplate);
 
       return response.results ? response.results[0]?.object : null;
-    }
+    },
   );
 
   const vertices = responses
@@ -137,7 +137,7 @@ const fetchVerticesAttributes = async (
     .filter(vertexSchema => vertexSchema != null);
 
   remoteLogger.info(
-    `[openCypher Explorer] Found ${vertices.flatMap(v => v.attributes).length} vertex attributes across ${vertices.length} vertex types.`
+    `[openCypher Explorer] Found ${vertices.flatMap(v => v.attributes).length} vertex attributes across ${vertices.length} vertex types.`,
   );
 
   return vertices;
@@ -146,7 +146,7 @@ const fetchVerticesAttributes = async (
 // Fetches schema for all vertices
 const fetchVerticesSchema = async (
   openCypherFetch: OpenCypherFetch,
-  remoteLogger: LoggerConnector
+  remoteLogger: LoggerConnector,
 ): Promise<SchemaResponse["vertices"]> => {
   const countsByLabel = await fetchVertexLabels(openCypherFetch, remoteLogger);
   const labels = Object.keys(countsByLabel);
@@ -155,18 +155,18 @@ const fetchVerticesSchema = async (
     openCypherFetch,
     remoteLogger,
     labels,
-    countsByLabel
+    countsByLabel,
   );
 };
 
 // Fetches all edge labels and their counts
 const fetchEdgeLabels = async (
   openCypherFetch: OpenCypherFetch,
-  remoteLogger: LoggerConnector
+  remoteLogger: LoggerConnector,
 ): Promise<Record<string, number>> => {
   const labelsTemplate = edgeLabelsTemplate();
   remoteLogger.info(
-    "[openCypher Explorer] Fetching edge labels with counts..."
+    "[openCypher Explorer] Fetching edge labels with counts...",
   );
   const data = await openCypherFetch<RawEdgeLabelsResponse>(labelsTemplate);
 
@@ -193,7 +193,7 @@ const fetchEdgeLabels = async (
   }
 
   remoteLogger.info(
-    `[openCypher Explorer] Found ${Object.keys(labelsWithCounts).length} edge labels.`
+    `[openCypher Explorer] Found ${Object.keys(labelsWithCounts).length} edge labels.`,
   );
 
   return labelsWithCounts;
@@ -204,7 +204,7 @@ const fetchEdgesAttributes = async (
   openCypherFetch: OpenCypherFetch,
   remoteLogger: LoggerConnector,
   labels: Array<string>,
-  countsByLabel: Record<string, number>
+  countsByLabel: Record<string, number>,
 ): Promise<SchemaResponse["edges"]> => {
   if (labels.length === 0) {
     return [];
@@ -223,7 +223,7 @@ const fetchEdgesAttributes = async (
         await openCypherFetch<RawEdgesSchemaResponse>(edgesTemplate);
 
       return response.results ? response.results[0]?.object : null;
-    }
+    },
   );
 
   const edges = responses
@@ -244,7 +244,7 @@ const fetchEdgesAttributes = async (
     .filter(edgeSchema => edgeSchema != null);
 
   remoteLogger.info(
-    `[openCypher Explorer] Found ${edges.flatMap(e => e.attributes).length} edge attributes across ${edges.length} edge types.`
+    `[openCypher Explorer] Found ${edges.flatMap(e => e.attributes).length} edge attributes across ${edges.length} edge types.`,
   );
 
   return edges;
@@ -253,7 +253,7 @@ const fetchEdgesAttributes = async (
 // Fetches schema for all edges
 const fetchEdgesSchema = async (
   openCypherFetch: OpenCypherFetch,
-  remoteLogger: LoggerConnector
+  remoteLogger: LoggerConnector,
 ): Promise<SchemaResponse["edges"]> => {
   const countsByLabel = await fetchEdgeLabels(openCypherFetch, remoteLogger);
   const labels = Object.keys(countsByLabel);
@@ -262,7 +262,7 @@ const fetchEdgesSchema = async (
     openCypherFetch,
     remoteLogger,
     labels,
-    countsByLabel
+    countsByLabel,
   );
 };
 
@@ -284,7 +284,7 @@ const fetchEdgesSchema = async (
 const fetchSchema = async (
   openCypherFetch: OpenCypherFetch,
   remoteLogger: LoggerConnector,
-  summary?: GraphSummary
+  summary?: GraphSummary,
 ): Promise<SchemaResponse> => {
   if (!summary) {
     remoteLogger.info("[openCypher Explorer] No summary statistics");
@@ -301,7 +301,7 @@ const fetchSchema = async (
     }, 0);
 
     remoteLogger.info(
-      `[openCypher Explorer] Schema sync successful (${totalVertices} vertices; ${totalEdges} edges; ${vertices.length} vertex types; ${edges.length} edge types)`
+      `[openCypher Explorer] Schema sync successful (${totalVertices} vertices; ${totalEdges} edges; ${vertices.length} vertex types; ${edges.length} edge types)`,
     );
 
     return {
@@ -319,18 +319,18 @@ const fetchSchema = async (
       openCypherFetch,
       remoteLogger,
       summary.nodeLabels,
-      {}
+      {},
     )) || [];
   const edges =
     (await fetchEdgesAttributes(
       openCypherFetch,
       remoteLogger,
       summary.edgeLabels,
-      {}
+      {},
     )) || [];
 
   remoteLogger.info(
-    `[openCypher Explorer] Schema sync successful (${summary.numNodes} vertices; ${summary.numEdges} edges; ${vertices.length} vertex types; ${edges.length} edge types)`
+    `[openCypher Explorer] Schema sync successful (${summary.numNodes} vertices; ${summary.numEdges} edges; ${vertices.length} vertex types; ${edges.length} edge types)`,
   );
 
   return {

@@ -17,7 +17,7 @@ import {
  */
 export function searchQuery(
   request: KeywordSearchRequest,
-  updateSchema: UpdateSchemaHandler
+  updateSchema: UpdateSchemaHandler,
 ) {
   return queryOptions({
     queryKey: ["keyword-search", request],

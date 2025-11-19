@@ -4,13 +4,13 @@ import { atomWithLocalForage } from "./StateProvider/atomWithLocalForage";
 /** Shows debug actions in various places around the app. */
 export const showDebugActionsAtom = atomWithLocalForage<boolean>(
   "showDebugActions",
-  false
+  false,
 );
 
 /** Shows debug actions in various places around the app. */
 export const allowLoggingDbQueryAtom = atomWithLocalForage<boolean>(
   "allowLoggingDbQuery",
-  false
+  false,
 );
 
 export const featureFlagsSelector = atom(get => {
@@ -37,5 +37,5 @@ export const defaultNeighborExpansionLimitEnabledAtom =
 /** Setting that defines the default limit for neighbor expansion. */
 export const defaultNeighborExpansionLimitAtom = atomWithLocalForage<number>(
   "defaultNeighborExpansionLimit",
-  10
+  10,
 );

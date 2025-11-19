@@ -22,7 +22,7 @@ export function parseAndMapQuads(data: unknown) {
     logger.error(
       "Failed to parse SPARQL JSON response",
       validationError.toString(),
-      data
+      data,
     );
     throw validationError;
   }

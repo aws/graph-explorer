@@ -17,7 +17,7 @@ describe("parseAndMapQuads", () => {
       };
 
       expect(() => parseAndMapQuads(errorData)).toThrow(
-        "Invalid SPARQL query syntax"
+        "Invalid SPARQL query syntax",
       );
       expect(logger.error).toHaveBeenCalledWith("Invalid SPARQL query syntax");
     });
@@ -31,7 +31,7 @@ describe("parseAndMapQuads", () => {
       expect(logger.error).toHaveBeenCalledWith(
         "Failed to parse SPARQL JSON response",
         expect.any(String),
-        invalidData
+        invalidData,
       );
     });
 
@@ -155,7 +155,7 @@ describe("parseAndMapQuads", () => {
 
     it("should parse multiple vertices", () => {
       const vertices = createArray(3, () =>
-        createTestableVertex().withRdfValues()
+        createTestableVertex().withRdfValues(),
       );
       const bindings = createQuadBindingsForEntities(vertices, []);
       const data = createQuadSparqlResponse(bindings);
@@ -191,7 +191,7 @@ describe("parseAndMapQuads", () => {
 
     it("should parse multiple edges", () => {
       const vertices = createArray(4, () =>
-        createTestableVertex().withRdfValues()
+        createTestableVertex().withRdfValues(),
       );
       const edges = [
         createTestableEdge()
@@ -232,7 +232,7 @@ describe("parseAndMapQuads", () => {
 
       const bindings = createQuadBindingsForEntities(
         [uriVertex, blankVertex],
-        [edge]
+        [edge],
       );
       const data = createQuadSparqlResponse(bindings);
 
@@ -295,10 +295,10 @@ describe("parseAndMapQuads", () => {
 
     it("should parse complex graph with multiple entity types", () => {
       const vertices = createArray(5, () =>
-        createTestableVertex().withRdfValues()
+        createTestableVertex().withRdfValues(),
       );
       const blankNodes = createArray(2, () =>
-        createTestableVertex().withRdfValues({ isBlankNode: true })
+        createTestableVertex().withRdfValues({ isBlankNode: true }),
       );
       const edges = [
         createTestableEdge()

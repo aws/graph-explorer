@@ -72,7 +72,7 @@ describe("useDisplayEdgeFromEdge", () => {
     const { result } = renderHookDisplayEdgeFromEdge(edge);
 
     expect(result.current.displayName).toStrictEqual(
-      getDisplayValueForScalar(attribute.value)
+      getDisplayValueForScalar(attribute.value),
     );
   });
 
@@ -86,7 +86,7 @@ describe("useDisplayEdgeFromEdge", () => {
     schema.edges.push(etConfig);
 
     expect(
-      act(edge, withSchemaAndConnection(schema, "gremlin")).displayName
+      act(edge, withSchemaAndConnection(schema, "gremlin")).displayName,
     ).toStrictEqual(edge.type);
   });
 
@@ -101,7 +101,7 @@ describe("useDisplayEdgeFromEdge", () => {
 
     const { result } = renderHookWithState(
       () => useDisplayEdgeFromEdge(edge),
-      dbState
+      dbState,
     );
 
     expect(result.current.displayTypes).toStrictEqual(edge.type);
@@ -123,7 +123,7 @@ describe("useDisplayEdgeFromEdge", () => {
 
     const { result } = renderHookWithState(
       () => useDisplayEdgeFromEdge(edge),
-      dbState
+      dbState,
     );
 
     expect(result.current.displayTypes).toStrictEqual(edgePrefs.displayLabel);
@@ -140,7 +140,7 @@ describe("useDisplayEdgeFromEdge", () => {
     edge.type = etConfig.type;
 
     expect(
-      act(edge, withSchemaAndConnection(schema, "gremlin")).displayTypes
+      act(edge, withSchemaAndConnection(schema, "gremlin")).displayTypes,
     ).toStrictEqual(etConfig.type);
   });
 
@@ -162,7 +162,7 @@ describe("useDisplayEdgeFromEdge", () => {
     edge.type = etConfig.type;
 
     expect(
-      act(edge, withSchemaAndConnection(schema, "sparql")).displayTypes
+      act(edge, withSchemaAndConnection(schema, "sparql")).displayTypes,
     ).toStrictEqual(`example-class:bar`);
   });
 
@@ -189,10 +189,10 @@ describe("useDisplayEdgeFromEdge", () => {
     };
 
     const actualAttribute = act(edge, withSchema(schema)).attributes.find(
-      attr => attr.name === "created"
+      attr => attr.name === "created",
     );
     expect(actualAttribute?.displayValue).toStrictEqual(
-      formatDate(new Date(edge.attributes.created as any))
+      formatDate(new Date(edge.attributes.created as any)),
     );
   });
 
@@ -206,10 +206,10 @@ describe("useDisplayEdgeFromEdge", () => {
     };
 
     const actualAttribute = act(edge, withSchema(schema)).attributes.find(
-      attr => attr.name === "created"
+      attr => attr.name === "created",
     );
     expect(actualAttribute?.displayValue).toStrictEqual(
-      formatDate(new Date(edge.attributes.created as any))
+      formatDate(new Date(edge.attributes.created as any)),
     );
   });
 
@@ -218,7 +218,7 @@ describe("useDisplayEdgeFromEdge", () => {
   function act(edge: Edge, initializeState?: (store: AppStore) => void) {
     const { result } = renderHookWithJotai(
       () => useDisplayEdgeFromEdge(edge),
-      initializeState
+      initializeState,
     );
     return result.current;
   }

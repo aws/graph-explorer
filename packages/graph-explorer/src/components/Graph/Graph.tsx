@@ -210,7 +210,7 @@ export const Graph = ({
   const [wrapper, setWrapper] = useState();
   const wrapperRefCb = useCallback(
     (domElement: any) => setWrapper(domElement),
-    []
+    [],
   );
   // init cytoscape instance and attach some events listeners
   const cy = useInitCytoscape({
@@ -251,7 +251,7 @@ export const Graph = ({
       userPanningEnabled,
       userZoomingEnabled,
     },
-    cy
+    cy,
   );
 
   // this hook return a different version number each time a node/edge is added or removed, it's used to trigger
@@ -279,7 +279,7 @@ export const Graph = ({
     {
       autounselectify,
       disableSelectionEvents,
-    }
+    },
   );
 
   useManageElementsVisibility({
@@ -362,7 +362,7 @@ export const Graph = ({
         runLayout(cy, layout, additionalLayoutsConfig, true);
       },
     }),
-    [additionalLayoutsConfig, cy, layout]
+    [additionalLayoutsConfig, cy, layout],
   );
 
   return (

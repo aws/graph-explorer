@@ -49,7 +49,7 @@ export type Selection = {
   onSelectedNodesIdsChange?(nodesIds: Array<string> | Set<string>): void;
   onSelectedGroupsIdsChange?(
     groupsIds: Array<string> | Set<string>,
-    visibleChildrenIds: Array<string> | Set<string>
+    visibleChildrenIds: Array<string> | Set<string>,
   ): void;
   onSelectedEdgesIdsChange?(edgesIds: Array<string> | Set<string>): void;
 };

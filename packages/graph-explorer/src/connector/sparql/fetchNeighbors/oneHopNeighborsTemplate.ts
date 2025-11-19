@@ -105,7 +105,7 @@ import {
  * }
  */
 export function oneHopNeighborsTemplate(
-  request: SPARQLNeighborsRequest
+  request: SPARQLNeighborsRequest,
 ): string {
   const resourceTemplate = idParam(request.resourceURI);
   const rdfTypeUriTemplate = idParam(rdfTypeUri);

@@ -33,7 +33,7 @@ export function useVertexAttributesAsScalars(vertex: DisplayVertex) {
     createResultScalar({
       name: attribute.displayLabel,
       value: attribute.displayValue,
-    })
+    }),
   );
 
   return [idScalar, ...labelScalar, ...attributes];

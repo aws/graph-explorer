@@ -14,7 +14,7 @@ describe("edgeDetails", () => {
   it("should return the edge details", () => {
     const edge = createRandomEdgeForRdf(
       createRandomVertexForRdf(),
-      createRandomVertexForRdf()
+      createRandomVertexForRdf(),
     );
     const result = edgeDetails({ edgeIds: [edge.id] });
     expect(result.edges).toStrictEqual([edge]);
@@ -23,11 +23,11 @@ describe("edgeDetails", () => {
   it("should return multiple details when request includes multiple IDs", () => {
     const edge1 = createRandomEdgeForRdf(
       createRandomVertexForRdf(),
-      createRandomVertexForRdf()
+      createRandomVertexForRdf(),
     );
     const edge2 = createRandomEdgeForRdf(
       createRandomVertexForRdf(),
-      createRandomVertexForRdf()
+      createRandomVertexForRdf(),
     );
 
     const result = edgeDetails({ edgeIds: [edge1.id, edge2.id] });
@@ -38,13 +38,13 @@ describe("edgeDetails", () => {
   it("should throw an error when the edge ID is not in the RDF edge ID format", () => {
     const edge = createRandomEdgeForRdf(
       createRandomVertexForRdf(),
-      createRandomVertexForRdf()
+      createRandomVertexForRdf(),
     );
     // Missing the brackets
     edge.id = `${edge.sourceId}-${edge.type}->${edge.targetId}` as EdgeId;
 
     expect(() => edgeDetails({ edgeIds: [edge.id] })).toThrow(
-      "Invalid RDF edge ID"
+      "Invalid RDF edge ID",
     );
   });
 });

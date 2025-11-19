@@ -22,7 +22,7 @@ test("maps empty vertex", () => {
     createResultVertex({
       id: "",
       attributes: {},
-    })
+    }),
   );
 });
 
@@ -51,7 +51,7 @@ test("maps known property types", () => {
         doubleValue: input["~properties"].doubleValue,
         dateValue: new Date(input["~properties"].dateValue),
       },
-    })
+    }),
   );
 });
 
@@ -72,7 +72,7 @@ test("maps with name", () => {
       name,
       types: ["airport"],
       attributes: {},
-    })
+    }),
   );
 });
 
@@ -117,6 +117,6 @@ test("maps airport node", () => {
         runways: 5,
         type: "airport",
       },
-    })
+    }),
   );
 });

@@ -27,7 +27,7 @@ const BASE_FONT_FAMILY = `-apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto
 
 const applyTextStyles = (
   context: CanvasRenderingContext2D,
-  textStyles: TextStyle
+  textStyles: TextStyle,
 ) => {
   context.textAlign = "center";
   context.textBaseline = "middle";
@@ -40,7 +40,7 @@ const applyTextStyles = (
 const truncateText = (
   context: CanvasRenderingContext2D,
   text: string,
-  maxWidth: number
+  maxWidth: number,
 ) => {
   let actualText = text;
   let actualWidth = context.measureText(actualText).width;
@@ -60,7 +60,7 @@ const truncateText = (
 const drawBoxWithAdornment = (
   context: CanvasRenderingContext2D,
   boundingBox: AutoBoundingBox,
-  options: DrawBoxWithAdornmentOptions = {}
+  options: DrawBoxWithAdornmentOptions = {},
 ) => {
   context.save();
   const { title, text, src, maxWidth, titleFormat } = options;
@@ -99,7 +99,7 @@ const drawBoxWithAdornment = (
     const titleWidth = context.measureText(actualTitle).width;
     actualBox.width = Math.min(
       Math.max(titleWidth, actualBox.width),
-      maxWidth || Number.MAX_SAFE_INTEGER
+      maxWidth || Number.MAX_SAFE_INTEGER,
     );
     const result = truncateText(context, actualTitle, actualBox.width);
     actualTitle = result.text;
@@ -138,7 +138,7 @@ const drawBoxWithAdornment = (
             : boundingBox.height,
         width: boundingBox.width === "auto" ? fontHeight : boundingBox.width,
       },
-      options
+      options,
     );
   } else if (src) {
     drawImage(
@@ -149,7 +149,7 @@ const drawBoxWithAdornment = (
         width: 8,
         height: 8,
       },
-      options
+      options,
     );
   }
   if (actualText) {
@@ -166,7 +166,7 @@ const drawBoxWithAdornment = (
               ? actualBox.height
               : fontHeight * 2) -
             (options.paddingBottom || 0)
-        : actualBox.y + actualBox.height / 2
+        : actualBox.y + actualBox.height / 2,
     );
   }
 
@@ -180,7 +180,7 @@ const drawBoxWithAdornment = (
     context.fillText(
       actualTitle,
       actualBox.x + actualBox.width / 2 + (hasIconWithText ? 5 : 0),
-      actualBox.y + (options.paddingTop || 0)
+      actualBox.y + (options.paddingTop || 0),
     );
   }
 

@@ -70,7 +70,7 @@ describe("DefaultConnectionDataSchema", () => {
     const data: any = createRandomDefaultConnectionData();
     data.GRAPH_EXP_CONNECTION_URL = createRandomName("connectionURL");
     data.GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT = createRandomName(
-      "publicOrProxyEndpoint"
+      "publicOrProxyEndpoint",
     );
     // Make the enum less strict
     const actual = DefaultConnectionDataSchema.parse(data);

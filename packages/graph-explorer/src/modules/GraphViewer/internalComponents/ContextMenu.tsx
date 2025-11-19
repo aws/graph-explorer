@@ -269,7 +269,7 @@ const ContextMenu = ({
           <ListItem
             onClick={handleRemoveFromCanvas(
               graphSelection.vertices,
-              graphSelection.edges
+              graphSelection.edges,
             )}
           >
             <CircleSlash2 color="red" />

@@ -24,7 +24,7 @@ import { getNeighborsFilter } from "./filterHelpers";
 export async function neighborCounts(
   sparqlFetch: SparqlFetch,
   request: NeighborCountsRequest,
-  blankNodes: BlankNodesMap
+  blankNodes: BlankNodesMap,
 ): Promise<NeighborCountsResponse> {
   // Bail early if request is empty
   if (!request.vertexIds.length) {
@@ -54,7 +54,7 @@ export async function neighborCounts(
 
 async function fetchNeighborCounts(
   sparqlFetch: SparqlFetch,
-  vertexIds: VertexId[]
+  vertexIds: VertexId[],
 ): Promise<NeighborCountsResponse> {
   if (!vertexIds.length) {
     return { counts: [] };
@@ -85,7 +85,7 @@ async function fetchNeighborCounts(
  */
 async function fetchUniqueNeighborCount(
   sparqlFetch: SparqlFetch,
-  resources: VertexId[]
+  resources: VertexId[],
 ) {
   const template = query`
     # Count total unique neighbors which are related with the given subject URI
@@ -121,7 +121,7 @@ async function fetchUniqueNeighborCount(
     z.object({
       resource: sparqlResourceValueSchema,
       totalCount: sparqlNumberValueSchema,
-    })
+    }),
   );
   const parsed = responseSchema.safeParse(response);
 
@@ -130,7 +130,7 @@ async function fetchUniqueNeighborCount(
     logger.error(
       "Failed to parse sparql response for totalCount",
       validationError.toString(),
-      response
+      response,
     );
     throw validationError;
   }
@@ -155,7 +155,7 @@ async function fetchUniqueNeighborCount(
  */
 async function fetchCountsByType(
   sparqlFetch: SparqlFetch,
-  resources: VertexId[]
+  resources: VertexId[],
 ) {
   const template = query`
     # Count neighbors by class which are related with the given subject URI
@@ -194,7 +194,7 @@ async function fetchCountsByType(
       resource: sparqlUriValueSchema,
       type: sparqlUriValueSchema.optional(),
       typeCount: sparqlNumberValueSchema,
-    })
+    }),
   );
   const parsed = responseSchema.safeParse(response);
 
@@ -203,7 +203,7 @@ async function fetchCountsByType(
     logger.error(
       "Failed to parse sparql response for totalCount",
       validationError.toString(),
-      response
+      response,
     );
     throw validationError;
   }
@@ -229,7 +229,7 @@ async function fetchCountsByType(
 async function fetchBlankNodeNeighborCounts(
   sparqlFetch: SparqlFetch,
   vertexIds: VertexId[],
-  blankNodes: BlankNodesMap
+  blankNodes: BlankNodesMap,
 ) {
   const counts: NeighborCount[] = [];
   const missing: Map<VertexId, BlankNodeItem> = new Map();
@@ -270,7 +270,7 @@ async function fetchBlankNodeNeighborCounts(
         bNode,
         vertexId,
       };
-    })
+    }),
   );
 
   for (const response of blankNodeResponses) {

@@ -23,7 +23,7 @@ export function useEdgeAttributesAsScalars(edge: DisplayEdge) {
     createResultScalar({
       name: attribute.displayLabel,
       value: attribute.displayValue,
-    })
+    }),
   );
 
   const allAttributes: ResultScalar[] = [

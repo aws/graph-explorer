@@ -142,7 +142,7 @@ const NodeExpandFilters = ({
                             onFilterChange(
                               filter.id,
                               filter.name,
-                              e.target.value
+                              e.target.value,
                             );
                           }}
                         />

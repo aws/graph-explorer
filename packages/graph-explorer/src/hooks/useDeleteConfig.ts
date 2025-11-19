@@ -38,7 +38,7 @@ export function useDeleteConfig() {
         updatedGraphs.delete(id);
         return updatedGraphs;
       });
-    }, [])
+    }, []),
   );
 }
 

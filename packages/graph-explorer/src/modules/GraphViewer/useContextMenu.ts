@@ -58,7 +58,7 @@ function useContextMenu() {
   const onNodeRightClick: ElementEventCallback<RenderedVertex["data"]> = (
     event,
     node,
-    bounds
+    bounds,
   ) => {
     const parentBounds = parentRef.current?.getBoundingClientRect() || {
       top: 0,
@@ -77,7 +77,7 @@ function useContextMenu() {
 
   const onEdgeRightClick: ElementEventCallback<RenderedEdge["data"]> = (
     event,
-    edge
+    edge,
   ) => {
     const parentBounds = parentRef.current?.getBoundingClientRect() || {
       top: 0,

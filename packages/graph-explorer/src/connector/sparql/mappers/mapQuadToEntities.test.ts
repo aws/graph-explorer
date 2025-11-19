@@ -14,7 +14,7 @@ describe("mapQuadToEntities", () => {
 
   it("should map vertices to results", () => {
     const vertices = createArray(3, () =>
-      createTestableVertex().withRdfValues()
+      createTestableVertex().withRdfValues(),
     );
     const edges = createArray(3, () => createTestableEdge().withRdfValues());
     const bindings = createQuadBindingsForEntities(vertices, edges);
@@ -61,7 +61,7 @@ describe("mapQuadToEntities", () => {
 
     const bindings = createQuadBindingsForEntities(
       [uriVertex, blankVertex],
-      [edge]
+      [edge],
     );
     const result = mapQuadToEntities(bindings);
 

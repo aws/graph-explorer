@@ -90,7 +90,7 @@ export const Tabular = <T extends object>({
 
   const tabularInstance = tableInstanceToTabularInstance(
     tableInstance,
-    tabularContentProps
+    tabularContentProps,
   );
 
   // This hook is only triggered when filter change
@@ -98,7 +98,7 @@ export const Tabular = <T extends object>({
     if (tableInstance.state.diff.filters) {
       onDataFilteredChange?.(
         tableInstance.filteredRows,
-        tableInstance.state.filters
+        tableInstance.state.filters,
       );
     }
   }, [
@@ -164,17 +164,17 @@ const TabularContent = <T extends object>({
 
   const headerControlsChildren = getChildOfType(
     children,
-    TabularHeaderControls.displayName || TabularHeaderControls.name
+    TabularHeaderControls.displayName || TabularHeaderControls.name,
   );
 
   const footerControlsChildren = getChildOfType(
     children,
-    TabularFooterControls.displayName || TabularFooterControls.name
+    TabularFooterControls.displayName || TabularFooterControls.name,
   );
 
   const emptyBodyControlsChildren = getChildOfType(
     children,
-    TabularEmptyBodyControls.displayName || TabularEmptyBodyControls.name
+    TabularEmptyBodyControls.displayName || TabularEmptyBodyControls.name,
   );
 
   useEffect(() => {
@@ -195,7 +195,7 @@ const TabularContent = <T extends object>({
       className={cn(
         styleWithTheme(defaultStyles(variant)),
         className,
-        "overflow-hidden"
+        "overflow-hidden",
       )}
       style={{
         userSelect: tableInstance.state.columnResizing?.isResizingColumn

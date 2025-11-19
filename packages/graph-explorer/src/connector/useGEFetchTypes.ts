@@ -220,30 +220,30 @@ export type Explorer = {
   fetchSchema: (options?: ExplorerRequestOptions) => Promise<SchemaResponse>;
   fetchVertexCountsByType: (
     req: CountsByTypeRequest,
-    options?: ExplorerRequestOptions
+    options?: ExplorerRequestOptions,
   ) => Promise<CountsByTypeResponse>;
   fetchNeighbors: (
     req: NeighborsRequest,
-    options?: ExplorerRequestOptions
+    options?: ExplorerRequestOptions,
   ) => Promise<NeighborsResponse>;
   neighborCounts: (
     req: NeighborCountsRequest,
-    options?: ExplorerRequestOptions
+    options?: ExplorerRequestOptions,
   ) => Promise<NeighborCountsResponse>;
   keywordSearch: (
     req: KeywordSearchRequest,
-    options?: ExplorerRequestOptions
+    options?: ExplorerRequestOptions,
   ) => Promise<KeywordSearchResponse>;
   vertexDetails: (
     req: VertexDetailsRequest,
-    options?: ExplorerRequestOptions
+    options?: ExplorerRequestOptions,
   ) => Promise<VertexDetailsResponse>;
   edgeDetails: (
     req: EdgeDetailsRequest,
-    options?: ExplorerRequestOptions
+    options?: ExplorerRequestOptions,
   ) => Promise<EdgeDetailsResponse>;
   rawQuery: (
     req: RawQueryRequest,
-    options?: ExplorerRequestOptions
+    options?: ExplorerRequestOptions,
   ) => Promise<RawQueryResponse>;
 };

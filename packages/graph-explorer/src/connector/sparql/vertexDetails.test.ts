@@ -51,7 +51,7 @@ describe("vertexDetails", () => {
           ?subject ?predicate ?object .
           FILTER(isLiteral(?object) || ?predicate = <${rdfTypeUri}>)
         }
-      `
+      `,
     );
   });
 
@@ -81,7 +81,7 @@ describe("vertexDetails", () => {
           ?subject ?predicate ?object .
           FILTER(isLiteral(?object) || ?predicate = <${rdfTypeUri}>)
         }
-      `
+      `,
     );
   });
 
@@ -111,7 +111,7 @@ describe("vertexDetails", () => {
       .mockImplementation(() => Promise.resolve(response));
 
     await expect(
-      vertexDetails(mockFetch, { vertexIds: [vertex.id] })
+      vertexDetails(mockFetch, { vertexIds: [vertex.id] }),
     ).rejects.toThrow("ID must be a URI");
   });
 });

@@ -111,5 +111,5 @@ export default defineConfig(
   },
 
   // Prettier must be last
-  eslintConfigPrettier
+  eslintConfigPrettier,
 );

@@ -17,7 +17,7 @@ const useBlastRadius = (
     isActive = true,
     referenceNodeIds,
     referenceEdgeIds,
-  }: BlastRadiusConfig = {}
+  }: BlastRadiusConfig = {},
 ): void => {
   const applyFilter = useCallback(
     (cy: CytoscapeType) => {
@@ -57,7 +57,7 @@ const useBlastRadius = (
 
       return elementsInRadius;
     },
-    [referenceNodeIds, referenceEdgeIds, numHops]
+    [referenceNodeIds, referenceEdgeIds, numHops],
   );
 
   useFilter({

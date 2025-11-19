@@ -20,7 +20,7 @@ type RawOneHopRequest = {
 
 const fetchNeighbors = async (
   openCypherFetch: OpenCypherFetch,
-  req: NeighborsRequest
+  req: NeighborsRequest,
 ): Promise<NeighborsResponse> => {
   const openCypherTemplate = oneHopTemplate(req);
   const oneHopData =

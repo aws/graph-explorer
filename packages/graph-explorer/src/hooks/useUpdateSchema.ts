@@ -36,7 +36,7 @@ export default function useUpdateSchema() {
       return {
         ...prev,
         vertices: prev.vertices.map(vertex =>
-          vertex.type === vertexType ? { ...vertex, total: newTotal } : vertex
+          vertex.type === vertexType ? { ...vertex, total: newTotal } : vertex,
         ),
       };
     });

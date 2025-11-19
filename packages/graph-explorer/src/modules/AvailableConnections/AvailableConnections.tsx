@@ -77,7 +77,7 @@ const AvailableConnections = ({
               className={cn(
                 "px-3 py-1.5",
                 index === 0 && "pt-3",
-                index === allConnections.length - 1 && "pb-3"
+                index === allConnections.length - 1 && "pb-3",
               )}
             >
               <div

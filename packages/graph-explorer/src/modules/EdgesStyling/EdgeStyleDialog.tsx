@@ -51,7 +51,7 @@ export function useOpenEdgeStyleDialog() {
 
 export function EdgeStyleDialog() {
   const [customizeEdgeType, setCustomizeEdgeType] = useAtom(
-    customizeEdgeTypeAtom
+    customizeEdgeTypeAtom,
   );
 
   return (
@@ -138,7 +138,7 @@ function Content({ edgeType }: { edgeType: string }) {
                     onChange={e =>
                       setEdgeStyle({
                         labelBackgroundOpacity: parseNumberSafely(
-                          e.target.value
+                          e.target.value,
                         ),
                       })
                     }

@@ -25,13 +25,13 @@ const WorkspaceSideBar = ({
 }: PropsWithChildren<WorkspaceSideBarProps>) => {
   const sidebarContent = getChildOfType(
     children,
-    WorkspaceSideBarContent.displayName || WorkspaceSideBarContent.name
+    WorkspaceSideBarContent.displayName || WorkspaceSideBarContent.name,
   );
 
   const sidebarActions = getChildrenOfType(
     children,
     WorkspaceSideBarContent.displayName || WorkspaceSideBarContent.name,
-    true
+    true,
   );
 
   const { isSidebarOpen } = useSidebar();
@@ -56,14 +56,15 @@ const WorkspaceSideBar = ({
         setSidebarWidth(delta.width);
       }}
       className={cn(
-        enableAnimation && "transition-width transform duration-200 ease-in-out"
+        enableAnimation &&
+          "transition-width transform duration-200 ease-in-out",
       )}
     >
       <div
         className={cn(
           "shadow-left bg-background-default flex h-full",
           direction === "row" && "flex-row",
-          direction === "row-reverse" && "flex-row-reverse"
+          direction === "row-reverse" && "flex-row-reverse",
         )}
       >
         <div className="bg-secondary-subtle dark:text-brand-100 text-primary-dark shadow-primary-dark/20 flex flex-col gap-2 p-2 shadow-sm dark:bg-gray-900">
@@ -80,6 +81,6 @@ WorkspaceSideBar.displayName = "WorkspaceSideBar";
 WorkspaceSideBar.Content = WorkspaceSideBarContent;
 
 export default WorkspaceSideBar as ((
-  props: PropsWithChildren<WorkspaceSideBarProps>
+  props: PropsWithChildren<WorkspaceSideBarProps>,
 ) => ReactElement<any>) &
   WorkspaceSideBarComposition & { displayName: string };

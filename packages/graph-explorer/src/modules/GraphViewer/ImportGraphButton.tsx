@@ -52,7 +52,7 @@ function useImportGraphMutation() {
             id: config.id,
             displayLabel: config.displayLabel,
           }
-        : null
+        : null,
     )
     .filter(c => c != null)
     .toArray();
@@ -71,14 +71,14 @@ function useImportGraphMutation() {
       if (!isMatchingConnection(explorer.connection, graph.connection)) {
         throw new InvalidConnectionError(
           "Connection must match active connection",
-          graph.connection
+          graph.connection,
         );
       }
 
       // 3. Get the vertex and edge details from the database
       const entityCountMessage = formatEntityCounts(
         graph.vertices.size,
-        graph.edges.size
+        graph.edges.size,
       );
 
       const progressNotificationId = enqueueNotification({
@@ -91,7 +91,7 @@ function useImportGraphMutation() {
       const result = await fetchEntityDetails(
         graph.vertices,
         graph.edges,
-        queryClient
+        queryClient,
       );
 
       clearNotification(progressNotificationId);
@@ -124,7 +124,7 @@ function useImportGraphMutation() {
 export function createErrorNotification(
   error: Error,
   file: File,
-  allConnections: ConnectionWithId[]
+  allConnections: ConnectionWithId[],
 ): Notification {
   if (error instanceof ZodError) {
     // Parsing has failed
@@ -136,13 +136,13 @@ export function createErrorNotification(
   } else if (error instanceof InvalidConnectionError) {
     // Invalid connection
     const matchingByUrlAndQueryEngine = allConnections.filter(connection =>
-      isMatchingConnection(connection, error.connection)
+      isMatchingConnection(connection, error.connection),
     );
 
     // Get the display label for the given query engine
     const displayQueryEngine = getTranslation(
       "available-connections.graph-type",
-      error.connection.queryEngine
+      error.connection.queryEngine,
     );
 
     if (matchingByUrlAndQueryEngine.length > 0) {

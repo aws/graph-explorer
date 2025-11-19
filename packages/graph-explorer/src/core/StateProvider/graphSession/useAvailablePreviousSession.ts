@@ -8,7 +8,7 @@ import { useAtomValue } from "jotai";
 export function useAvailablePreviousSession() {
   const prevSession = useAtomValue(activeGraphSessionAtom);
   const isRestoreAvailable = useAtomValue(
-    isRestorePreviousSessionAvailableAtom
+    isRestorePreviousSessionAvailableAtom,
   );
 
   if (!prevSession || !isRestoreAvailable) {

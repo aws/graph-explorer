@@ -11,7 +11,7 @@ export type NeighborOption = SelectOption & {
 };
 
 export default function useNeighborsOptions(
-  vertexId: VertexId
+  vertexId: VertexId,
 ): NeighborOption[] {
   const getVtConfig = useDisplayVertexTypeConfigCallback();
   const neighbors = useNeighbors(vertexId);

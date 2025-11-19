@@ -38,10 +38,10 @@ import useFullWidth from "./plugins/useFullWidth";
 export type CellComponentProps<T extends object> = CellProps<T>;
 export type OnDataFilteredChange<T extends object> = (
   filteredRows: Row<T>[],
-  filters: Array<{ id: IdType<T>; value: unknown }>
+  filters: Array<{ id: IdType<T>; value: unknown }>,
 ) => void;
 export type OnColumnSortedChange<T extends object> = (
-  sorts: Array<{ id: IdType<T>; desc?: boolean }>
+  sorts: Array<{ id: IdType<T>; desc?: boolean }>,
 ) => void;
 
 export type TabularFilterType =
@@ -275,7 +275,7 @@ export interface TabularOptions<T extends object> {
    */
   toggleAllRowsSelected?: (
     value: boolean,
-    affectedRowsIds: IdType<T>[]
+    affectedRowsIds: IdType<T>[],
   ) => void;
 
   onRowMouseOut?(event: MouseEvent<HTMLDivElement>, row: Row<T>): void;
@@ -339,7 +339,7 @@ export const useTabular = <T extends object>(options: TabularOptions<T>) => {
     newState: TableState<T>,
     action: ActionType,
     previousState: TableState<T>,
-    instance?: TableInstance<T>
+    instance?: TableInstance<T>,
   ) => {
     // Table is considered managed externally if 'selectedRowIds' is defined.
     // Otherwise, it manages its own internal state.
@@ -351,7 +351,7 @@ export const useTabular = <T extends object>(options: TabularOptions<T>) => {
     if (action.type === "toggleAllRowsSelected" && selectedRowIds) {
       toggleAllRowsSelected?.(
         action.value,
-        instance?.rows.map(row => row.id) || []
+        instance?.rows.map(row => row.id) || [],
       );
       return previousState;
     }
@@ -377,12 +377,12 @@ export const useTabular = <T extends object>(options: TabularOptions<T>) => {
 
                 return ids;
               },
-              {} as UseRowSelectState<T>["selectedRowIds"]
+              {} as UseRowSelectState<T>["selectedRowIds"],
             ),
       }),
       // selectedRowIds is necessary in deps to listen external updates
       // eslint-disable-next-line react-hooks/exhaustive-deps
-      [tableState, selectedRowIds]
+      [tableState, selectedRowIds],
     );
   };
 
@@ -395,7 +395,7 @@ export const useTabular = <T extends object>(options: TabularOptions<T>) => {
       disableMultiSort: disableMultiSorting,
       columns: useDeepMemo(
         () => columns.map(column => columnDefinitionToColumn(column)),
-        [columns]
+        [columns],
       ),
       initialState: {
         sortBy: initialSorting || [],
@@ -410,7 +410,7 @@ export const useTabular = <T extends object>(options: TabularOptions<T>) => {
               // If the column does not have id its accessor should be a valid string
               // However, both are optional in the main interface
               hiddenCols.push(
-                col.id?.toString() || col.accessor?.toString() || ""
+                col.id?.toString() || col.accessor?.toString() || "",
               );
             }
 
@@ -439,7 +439,7 @@ export const useTabular = <T extends object>(options: TabularOptions<T>) => {
     useDiffState,
     useSortBy,
     usePagination,
-    useRowSelect
+    useRowSelect,
   );
 };
 

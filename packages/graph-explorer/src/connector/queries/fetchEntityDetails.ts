@@ -13,26 +13,26 @@ import type { Notification } from "@/components/NotificationProvider";
 export async function fetchEntityDetails(
   vertices: Iterable<VertexId>,
   edges: Iterable<EdgeId>,
-  queryClient: QueryClient
+  queryClient: QueryClient,
 ) {
   const verticesArray = Array.from(vertices);
   const edgesArray = Array.from(edges);
 
   const vertexResults = await queryClient.fetchQuery(
-    bulkVertexDetailsQuery(verticesArray)
+    bulkVertexDetailsQuery(verticesArray),
   );
   const edgeResults = await queryClient.fetchQuery(
-    bulkEdgeDetailsQuery(edgesArray)
+    bulkEdgeDetailsQuery(edgesArray),
   );
 
   const vertexDetails = vertexResults.vertices;
   const edgeDetails = edgeResults.edges;
 
   const countOfVertexNotFound = verticesArray.filter(
-    id => vertexDetails.find(v => v.id === id) == null
+    id => vertexDetails.find(v => v.id === id) == null,
   ).length;
   const countOfEdgeNotFound = edgesArray.filter(
-    id => edgeDetails.find(e => e.id === id) == null
+    id => edgeDetails.find(e => e.id === id) == null,
   ).length;
 
   return {
@@ -56,12 +56,12 @@ export type FetchEntityDetailsResult = Awaited<
 
 /** Uses the result of `fetchEntityDetails` to create a notification that summarizes the results. */
 export function createFetchEntityDetailsCompletionNotification(
-  result: FetchEntityDetailsResult
+  result: FetchEntityDetailsResult,
 ): Notification {
   if (result.counts.notFound.total > 0) {
     const errorMessage = formatEntityCounts(
       result.counts.notFound.vertices,
-      result.counts.notFound.edges
+      result.counts.notFound.edges,
     );
     const verb = result.counts.notFound.total > 1 ? "were" : "was";
     return {
@@ -81,7 +81,7 @@ export function createFetchEntityDetailsCompletionNotification(
 
   const entityCountMessage = formatEntityCounts(
     result.entities.vertices.length,
-    result.entities.edges.length
+    result.entities.edges.length,
   );
   return {
     message: `Finished loading ${entityCountMessage} from the graph file.`,

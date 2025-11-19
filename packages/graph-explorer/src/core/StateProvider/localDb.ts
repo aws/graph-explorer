@@ -77,7 +77,7 @@ export async function readBackupDataFromFile(blob: Blob) {
   const deserializedData = deserializeData(jsonData);
   logger.debug(
     "Deserialized JSON data from JSON serialization",
-    deserializedData
+    deserializedData,
   );
   const result = await SerializedBackupSchema.parseAsync(deserializedData);
   logger.debug("Parsed backup result", result);
@@ -91,7 +91,7 @@ export async function readBackupDataFromFile(blob: Blob) {
  */
 export async function restoreBackup(
   backup: SerializedBackup,
-  localDb: LocalDb
+  localDb: LocalDb,
 ) {
   logger.debug("Restoring backup to local db", backup);
   await removeRestoredEntries(localDb);
@@ -147,7 +147,7 @@ async function getEntries(localDb: LocalDb) {
   const keys = await localDb.keys();
 
   return await Promise.all(
-    keys.map(async key => [key, await localDb.getItem(key)])
+    keys.map(async key => [key, await localDb.getItem(key)]),
   );
 }
 
@@ -177,7 +177,7 @@ const restoredEntryPrefix = "RESTORED-ENTRY-";
 
 function applyRestorePrefixToEntries(data: Record<string, unknown>) {
   return Object.entries(data).map(
-    ([key, value]) => [addRestoredPrefix(key), value] as const
+    ([key, value]) => [addRestoredPrefix(key), value] as const,
   );
 }
 
@@ -199,7 +199,7 @@ export function missingRestoredPrefix(key: string) {
 
 export async function saveEntriesToDb(
   entries: (readonly [string, unknown])[],
-  localDb: LocalDb
+  localDb: LocalDb,
 ) {
   for (const [key, value] of entries) {
     logger.debug("Saving entry to db", {
@@ -224,7 +224,7 @@ export async function removePrefixFromRestoredEntries(localDb: LocalDb) {
 export async function renameEntry(
   oldKey: string,
   newKey: string,
-  localDb: LocalDb
+  localDb: LocalDb,
 ) {
   logger.debug("Renaming entry", { oldKey, newKey });
 

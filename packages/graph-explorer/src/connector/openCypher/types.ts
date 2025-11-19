@@ -17,7 +17,7 @@ export type OCEdge = {
 };
 
 export type OpenCypherFetch = <TResult = any>(
-  queryTemplate: string
+  queryTemplate: string,
 ) => Promise<TResult>;
 
 export type GraphSummary = {

@@ -109,7 +109,7 @@ describe("createDisplayError", () => {
 
   it("Should handle TimeoutError", () => {
     const result = createDisplayError(
-      new FakeError("TimeoutError", "Timed out")
+      new FakeError("TimeoutError", "Timed out"),
     );
     expect(result).toStrictEqual({
       title: "Fetch Timeout Exceeded",
@@ -119,7 +119,7 @@ describe("createDisplayError", () => {
 
   it("Should handle failed to fetch error", () => {
     const result = createDisplayError(
-      new FakeError("TypeError", "Failed to fetch")
+      new FakeError("TypeError", "Failed to fetch"),
     );
     expect(result).toStrictEqual({
       title: "Connection Error",
@@ -129,7 +129,7 @@ describe("createDisplayError", () => {
 
   it("Should handle too many requests error", () => {
     const result = createDisplayError(
-      new NetworkError("Network error", 429, null)
+      new NetworkError("Network error", 429, null),
     );
     expect(result).toStrictEqual({
       title: "Too Many Requests",
@@ -140,7 +140,7 @@ describe("createDisplayError", () => {
 
   it("Should handle network error", () => {
     const result = createDisplayError(
-      new NetworkError("Network error", 500, { message: "Some error" })
+      new NetworkError("Network error", 500, { message: "Some error" }),
     );
     expect(result).toStrictEqual({
       title: "Network Response 500",
@@ -150,7 +150,7 @@ describe("createDisplayError", () => {
 
   it("Should handle network error with no data", () => {
     const result = createDisplayError(
-      new NetworkError("Network error", 500, undefined)
+      new NetworkError("Network error", 500, undefined),
     );
     expect(result).toStrictEqual({
       title: "Network Response 500",
@@ -161,7 +161,7 @@ describe("createDisplayError", () => {
   it("Should handle zod validation errors", () => {
     const schema = z.object({ name: z.string(), age: z.number() });
     const result = createDisplayError(
-      schema.safeParse({ nameWrong: "Bob", ageWrong: 42 }).error
+      schema.safeParse({ nameWrong: "Bob", ageWrong: 42 }).error,
     );
     expect(result).toStrictEqual({
       title: "Unrecognized Result Format",

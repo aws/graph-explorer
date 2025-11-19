@@ -12,7 +12,7 @@ import { edgeDetailsQuery } from "./edgeDetailsQuery";
 
 export function bulkEdgeDetailsQuery(
   edgeIds: EdgeId[],
-  options?: { ignoreCache: boolean }
+  options?: { ignoreCache: boolean },
 ) {
   return queryOptions({
     queryKey: ["edges", edgeIds, options],
@@ -31,7 +31,7 @@ export function bulkEdgeDetailsQuery(
       if (!shouldIgnoreCache) {
         edgeIds.forEach(id => {
           const cached = client.getQueryData(
-            edgeDetailsQuery(id).queryKey
+            edgeDetailsQuery(id).queryKey,
           )?.edge;
           if (cached) {
             cachedEdges.push(cached);
@@ -53,8 +53,8 @@ export function bulkEdgeDetailsQuery(
         chunk(missingIds, DEFAULT_BATCH_REQUEST_SIZE).map(batch =>
           explorer
             .edgeDetails({ edgeIds: batch }, { signal })
-            .then(r => r.edges)
-        )
+            .then(r => r.edges),
+        ),
       ).then(results => results.flat());
 
       // Update cache

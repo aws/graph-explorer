@@ -78,7 +78,7 @@ describe("useDisplayVertexFromVertex", () => {
 
     const { result } = renderHookWithState(
       () => useDisplayVertexFromVertex(vertex),
-      dbState
+      dbState,
     );
 
     expect(result.current.displayTypes).toStrictEqual(userPrefs.displayLabel);
@@ -98,7 +98,7 @@ describe("useDisplayVertexFromVertex", () => {
     vertex.types = [vtConfig1.type, vtConfig2.type];
 
     expect(
-      act(vertex, withSchemaAndConnection(schema, "gremlin")).displayTypes
+      act(vertex, withSchemaAndConnection(schema, "gremlin")).displayTypes,
     ).toStrictEqual(`${vtConfig1.type}, ${vtConfig2.type}`);
   });
 
@@ -126,7 +126,7 @@ describe("useDisplayVertexFromVertex", () => {
     vertex.types = [vtConfig1.type, vtConfig2.type];
 
     expect(
-      act(vertex, withSchemaAndConnection(schema, "sparql")).displayTypes
+      act(vertex, withSchemaAndConnection(schema, "sparql")).displayTypes,
     ).toStrictEqual(`example-class:bar, example-class:baz`);
   });
 
@@ -153,10 +153,10 @@ describe("useDisplayVertexFromVertex", () => {
     };
 
     const actualAttribute = act(vertex, withSchema(schema)).attributes.find(
-      attr => attr.name === "created"
+      attr => attr.name === "created",
     );
     expect(actualAttribute?.displayValue).toStrictEqual(
-      formatDate(new Date(vertex.attributes.created as any))
+      formatDate(new Date(vertex.attributes.created as any)),
     );
   });
 
@@ -170,7 +170,7 @@ describe("useDisplayVertexFromVertex", () => {
     const result = act(vertex, withSchema(schema));
 
     expect(Object.keys(result.attributes)).not.toBe(
-      expect.arrayContaining(vtConfig.attributes.map(a => a.name))
+      expect.arrayContaining(vtConfig.attributes.map(a => a.name)),
     );
   });
 
@@ -193,7 +193,7 @@ describe("useDisplayVertexFromVertex", () => {
 
     const displayVertex = act(
       vertex,
-      withSchemaAndConnection(schema, "sparql")
+      withSchemaAndConnection(schema, "sparql"),
     );
     expect(displayVertex.displayId).toStrictEqual("example:foo");
     expect(displayVertex.displayTypes).toStrictEqual("example-class:bar");
@@ -204,7 +204,7 @@ describe("useDisplayVertexFromVertex", () => {
   function act(vertex: Vertex, initializeState?: (store: AppStore) => void) {
     const { result } = renderHookWithJotai(
       () => useDisplayVertexFromVertex(vertex),
-      initializeState
+      initializeState,
     );
     return result.current;
   }

@@ -3,7 +3,7 @@ import { parseEdgeId } from "./parseEdgeId";
 
 test("parseEdgeId", () => {
   const edgeId = createEdgeId(
-    "http://example.com/source-[http://example.com/predicate]->http://example.com/target"
+    "http://example.com/source-[http://example.com/predicate]->http://example.com/target",
   );
   const { source, predicate, target } = parseEdgeId(edgeId);
   expect(source).toBe(createVertexId("http://example.com/source"));

@@ -138,7 +138,7 @@ export type GAnyValue =
   | null;
 
 export type GremlinFetch = <TResult = any>(
-  queryTemplate: string
+  queryTemplate: string,
 ) => Promise<TResult>;
 
 export type GraphSummary = {

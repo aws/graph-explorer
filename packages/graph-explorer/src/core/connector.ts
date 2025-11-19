@@ -54,9 +54,9 @@ export const explorerForTestingAtom = atom<Explorer | null>(null);
 export const queryEngineSelector = atom(get =>
   get(
     selectAtom(activeConnectionAtom, c =>
-      c && c.queryEngine ? c.queryEngine : "gremlin"
-    )
-  )
+      c && c.queryEngine ? c.queryEngine : "gremlin",
+    ),
+  ),
 );
 
 export function useQueryEngine() {
@@ -67,26 +67,26 @@ export function useQueryEngine() {
  * Logger based on the active connection proxy URL.
  */
 export const loggerSelector = atom(get =>
-  createLoggerFromConnection(get(activeConnectionAtom))
+  createLoggerFromConnection(get(activeConnectionAtom)),
 );
 
 /** Creates a logger instance that will be remote if the connection is using the
  * proxy server. Otherwise it will be a client only logger. */
 export function createLoggerFromConnection(
-  connection: NormalizedConnection | null
+  connection: NormalizedConnection | null,
 ): LoggerConnector {
   // Check for a url and that we are using the proxy server
   if (!connection || !connection.url || connection.proxyConnection !== true) {
     logger.debug(
       "Connection did not contain enough information to create a remote logger, so using a client logger instead",
-      connection
+      connection,
     );
     return new ClientLoggerConnector();
   }
 
   logger.debug(
     "Creating a remote server logger using proxy server URL",
-    connection.url
+    connection.url,
   );
   return new ServerLoggerConnector(connection.url);
 }

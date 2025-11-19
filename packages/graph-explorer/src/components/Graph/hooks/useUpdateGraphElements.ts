@@ -13,7 +13,7 @@ export interface UseUpdateGraphElementsProps {
 
 function wereElementsAddedOrRemoved(
   cyElements: cytoscape.EdgeCollection | cytoscape.NodeCollection,
-  elements: GraphNode[]
+  elements: GraphNode[],
 ) {
   const cyElementsIds = new Set(cyElements.map(e => e.data("id")));
   const elementsIds = new Set(elements.map(e => e.data.id));

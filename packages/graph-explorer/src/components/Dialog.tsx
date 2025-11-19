@@ -20,7 +20,7 @@ function DialogOverlay({
     <DialogPrimitive.Overlay
       className={cn(
         "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50",
-        className
+        className,
       )}
       {...props}
     />
@@ -40,7 +40,7 @@ function DialogContent({
         <DialogPrimitive.Content
           className={cn(
             "bg-background-default data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 relative grid max-h-full w-[500px] overflow-y-auto rounded-lg duration-200",
-            className
+            className,
           )}
           {...props}
         >
@@ -86,7 +86,7 @@ const DialogFooter = ({
   <div
     className={cn(
       "flex flex-col-reverse gap-3 p-6 sm:flex-row sm:justify-end",
-      className
+      className,
     )}
     {...props}
   />
@@ -101,7 +101,7 @@ function DialogTitle({
     <DialogPrimitive.Title
       className={cn(
         "gx-wrap-break-word text-lg leading-none font-bold tracking-tight",
-        className
+        className,
       )}
       {...props}
     />
@@ -117,7 +117,7 @@ function DialogDescription({
     <DialogPrimitive.Description
       className={cn(
         "text-text-secondary gx-wrap-break-word text-sm",
-        className
+        className,
       )}
       {...props}
     />

@@ -9,7 +9,7 @@ export type DisplayAttribute = ReturnType<typeof mapToDisplayAttribute>;
 /** Maps a `Vertex` or `Edge` instance's attributes to a list of `DisplayAttribute` instances using the schema and any user preferences. */
 export function getSortedDisplayAttributes(
   entity: Vertex | Edge,
-  textTransform: TextTransformer
+  textTransform: TextTransformer,
 ): DisplayAttribute[] {
   return Object.entries(entity.attributes)
     .map(([name, value]) => mapToDisplayAttribute(name, value, textTransform))
@@ -19,7 +19,7 @@ export function getSortedDisplayAttributes(
 export function mapToDisplayAttribute(
   name: string,
   value: EntityPropertyValue,
-  textTransform: TextTransformer
+  textTransform: TextTransformer,
 ) {
   return {
     name,

@@ -37,7 +37,7 @@ export function EdgeSearchResult({
       ...edge,
       sourceId: edge.source.id,
       targetId: edge.target.id,
-    })
+    }),
   );
 
   // Get the display vertices

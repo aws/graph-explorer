@@ -48,7 +48,7 @@ test("should remove one node", async () => {
       store.set(nodesSelectedIdsAtom, new Set([vertex.id, ...idsOfNoise]));
       store.set(nodesOutOfFocusIdsAtom, new Set([vertex.id, ...idsOfNoise]));
       store.set(nodesFilteredIdsAtom, new Set([vertex.id, ...idsOfNoise]));
-    }
+    },
   );
 
   act(() => result.current.callback());
@@ -88,7 +88,7 @@ test("should remove one edge", async () => {
       store.set(edgesSelectedIdsAtom, new Set([edge1.id, edge2.id]));
       store.set(edgesOutOfFocusIdsAtom, new Set([edge1.id, edge2.id]));
       store.set(edgesFilteredIdsAtom, new Set([edge1.id, edge2.id]));
-    }
+    },
   );
 
   act(() => result.current.callback());
@@ -138,7 +138,7 @@ test("should remove associated edges when a node is removed", async () => {
       store.set(edgesSelectedIdsAtom, new Set([edge1.id, edge2.id]));
       store.set(edgesOutOfFocusIdsAtom, new Set([edge1.id, edge2.id]));
       store.set(edgesFilteredIdsAtom, new Set([edge1.id, edge2.id]));
-    }
+    },
   );
 
   act(() => result.current.callback());
@@ -192,7 +192,7 @@ test("should remove all nodes and edges", async () => {
     },
     store => {
       dbState.applyTo(store);
-    }
+    },
   );
 
   act(() => result.current.callback());
@@ -237,7 +237,7 @@ test("should update graph session", async () => {
     },
     store => {
       dbState.applyTo(store);
-    }
+    },
   );
 
   act(() => result.current.callback({ vertices: [node1.id] }));

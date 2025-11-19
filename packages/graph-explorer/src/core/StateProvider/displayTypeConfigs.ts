@@ -50,8 +50,8 @@ export function useDisplayVertexTypeConfigCallback() {
   return useAtomCallback(
     useCallback(
       (get, _set, type: string) => get(displayVertexTypeConfigSelector(type)),
-      []
-    )
+      [],
+    ),
   );
 }
 
@@ -72,7 +72,7 @@ export const displayVertexTypeConfigSelector = atomFamily((type: string) =>
     const preferences = get(vertexPreferenceByTypeAtom(type));
     const typeConfig = get(vertexTypeConfigSelector(type));
     return mapToDisplayVertexTypeConfig(typeConfig, preferences, textTransform);
-  })
+  }),
 );
 
 /** All vertex types sorted by display label */
@@ -82,7 +82,7 @@ export const displayVertexTypeConfigsSelector = atom(get => {
     schema.vertices
       .map(vtConfig => get(displayVertexTypeConfigSelector(vtConfig.type)))
       .toSorted((a, b) => a.displayLabel.localeCompare(b.displayLabel))
-      .map(vtConfig => [vtConfig.type, vtConfig])
+      .map(vtConfig => [vtConfig.type, vtConfig]),
   );
 });
 
@@ -93,7 +93,7 @@ export const displayEdgeTypeConfigSelector = atomFamily((type: string) =>
     const preferences = get(edgePreferenceByTypeAtom(type));
     const typeConfig = get(edgeTypeConfigSelector(type));
     return mapToDisplayEdgeTypeConfig(typeConfig, preferences, textTransform);
-  })
+  }),
 );
 
 /** All edge types sorted by display label */
@@ -103,14 +103,14 @@ export const displayEdgeTypeConfigsSelector = atom(get => {
     schema.edges
       .map(etConfig => get(displayEdgeTypeConfigSelector(etConfig.type)))
       .toSorted((a, b) => a.displayLabel.localeCompare(b.displayLabel))
-      .map(etConfig => [etConfig.type, etConfig])
+      .map(etConfig => [etConfig.type, etConfig]),
   );
 });
 
 export function mapToDisplayVertexTypeConfig(
   typeConfig: VertexTypeConfig,
   preferences: VertexPreferences,
-  textTransform: TextTransformer
+  textTransform: TextTransformer,
 ): DisplayVertexTypeConfig {
   logger.debug("Creating display vertex type config", typeConfig.type);
   const displayLabel =
@@ -137,7 +137,7 @@ export function mapToDisplayVertexTypeConfig(
 export function mapToDisplayEdgeTypeConfig(
   typeConfig: EdgeTypeConfig,
   preferences: EdgePreferences,
-  textTransform: TextTransformer
+  textTransform: TextTransformer,
 ): DisplayEdgeTypeConfig {
   logger.debug("Creating display edge type config", typeConfig.type);
   const displayLabel =

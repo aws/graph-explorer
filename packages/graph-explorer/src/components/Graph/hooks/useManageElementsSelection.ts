@@ -43,7 +43,7 @@ const useEntitySelection = (
   cy: CytoscapeType | undefined,
   selector: string,
   ids: Array<string> | Set<string>,
-  isSelectionDisabled?: boolean
+  isSelectionDisabled?: boolean,
 ) => {
   useEffect(() => {
     if (!cy) {
@@ -57,12 +57,12 @@ const useEntitySelection = (
     cy.batch(() => {
       const cyRefSelectedEntities = cy.$(selector);
       const cyRefSelectedEntitiesIds = cyRefSelectedEntities.map(
-        p => p.data().id
+        p => p.data().id,
       );
 
       const unSelectedEntities = differenceBy(
         cyRefSelectedEntitiesIds,
-        arrayOfIds
+        arrayOfIds,
       );
       // TODO: Determine what is going on with our id with Cytoscape selectors.
       // When using an id which is simply a json string, these fail to Select
@@ -99,7 +99,7 @@ export default function useManageElementsSelection(
     onSelectedEdgesIdsChange,
     onSelectedGroupsIdsChange,
   }: UseManageElementsSelection,
-  options?: Options
+  options?: Options,
 ) {
   const isSelectionDisabled =
     options?.disableSelectionEvents || !!options?.autounselectify;
@@ -109,17 +109,17 @@ export default function useManageElementsSelection(
     nodeIds: new Set(
       Array.isArray(selectedNodesIds)
         ? selectedNodesIds
-        : Array.from(selectedNodesIds)
+        : Array.from(selectedNodesIds),
     ),
     edgeIds: new Set(
       Array.isArray(selectedEdgesIds)
         ? selectedEdgesIds
-        : Array.from(selectedEdgesIds)
+        : Array.from(selectedEdgesIds),
     ),
     groupIds: new Set(
       Array.isArray(selectedGroupsIds)
         ? selectedGroupsIds
-        : Array.from(selectedGroupsIds)
+        : Array.from(selectedGroupsIds),
     ),
   });
 
@@ -129,17 +129,17 @@ export default function useManageElementsSelection(
       nodeIds: new Set(
         Array.isArray(selectedNodesIds)
           ? selectedNodesIds
-          : Array.from(selectedNodesIds)
+          : Array.from(selectedNodesIds),
       ),
       edgeIds: new Set(
         Array.isArray(selectedEdgesIds)
           ? selectedEdgesIds
-          : Array.from(selectedEdgesIds)
+          : Array.from(selectedEdgesIds),
       ),
       groupIds: new Set(
         Array.isArray(selectedGroupsIds)
           ? selectedGroupsIds
-          : Array.from(selectedGroupsIds)
+          : Array.from(selectedGroupsIds),
       ),
     };
   }, [selectedNodesIds, selectedEdgesIds, selectedGroupsIds]);
@@ -231,7 +231,7 @@ export default function useManageElementsSelection(
       ) {
         handlers.current.onSelectedGroupsIdsChange(
           selectedGroupsIds,
-          selectedNodesIds
+          selectedNodesIds,
         );
       }
     }, 0);
@@ -260,7 +260,7 @@ export default function useManageElementsSelection(
       cy.off(
         "select unselect",
         "node[?__isGroupNode]",
-        debouncedGroupSelection
+        debouncedGroupSelection,
       );
       cy.off("select unselect", "edge", debouncedEdgeSelection);
     };
@@ -270,18 +270,18 @@ export default function useManageElementsSelection(
     cy,
     "node:selected[!__isGroupNode]",
     selectedNodesIds,
-    isSelectionDisabled
+    isSelectionDisabled,
   );
   useEntitySelection(
     cy,
     "node:selected[?__isGroupNode]",
     selectedGroupsIds,
-    isSelectionDisabled
+    isSelectionDisabled,
   );
   useEntitySelection(
     cy,
     "edge:selected",
     selectedEdgesIds,
-    isSelectionDisabled
+    isSelectionDisabled,
   );
 }

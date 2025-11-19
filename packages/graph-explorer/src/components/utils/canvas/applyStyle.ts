@@ -9,7 +9,7 @@ export type ApplyStyleOptions = {
 
 const applyStyle = (
   context: CanvasRenderingContext2D,
-  options: ApplyStyleOptions = {}
+  options: ApplyStyleOptions = {},
 ) => {
   const {
     backgroundColor = "",

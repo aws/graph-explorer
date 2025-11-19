@@ -33,7 +33,7 @@ describe("Gremlin > oneHopTemplate", () => {
                 .where(otherV().where(eq("neighbor")))
                 .dedup().fold()
             )
-      `)
+      `),
     );
   });
 
@@ -53,7 +53,7 @@ describe("Gremlin > oneHopTemplate", () => {
                 .where(otherV().where(eq("neighbor")))
                 .dedup().fold()
             )
-      `)
+      `),
     );
   });
 
@@ -76,7 +76,7 @@ describe("Gremlin > oneHopTemplate", () => {
                 .where(otherV().where(eq("neighbor")))
                 .dedup().fold()
             )
-      `)
+      `),
     );
   });
 
@@ -96,7 +96,7 @@ describe("Gremlin > oneHopTemplate", () => {
                 .where(otherV().where(eq("neighbor")))
                 .dedup().fold()
             )
-      `)
+      `),
     );
   });
 
@@ -118,7 +118,7 @@ describe("Gremlin > oneHopTemplate", () => {
                 .where(otherV().where(eq("neighbor")))
                 .dedup().fold()
             )
-      `)
+      `),
     );
   });
 
@@ -141,7 +141,7 @@ describe("Gremlin > oneHopTemplate", () => {
                 .where(otherV().where(eq("neighbor")))
                 .dedup().fold()
             )
-      `)
+      `),
     );
   });
 
@@ -164,7 +164,7 @@ describe("Gremlin > oneHopTemplate", () => {
                 .where(otherV().where(eq("neighbor")))
                 .dedup().fold()
             )
-      `)
+      `),
     );
   });
 
@@ -193,7 +193,7 @@ describe("Gremlin > oneHopTemplate", () => {
                 .where(otherV().where(eq("neighbor")))
                 .dedup().fold()
             )
-      `)
+      `),
     );
   });
 });

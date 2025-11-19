@@ -87,7 +87,7 @@ export function getAllGraphableEntityIds(entities: ResultEntity[]) {
  * @returns Object containing arrays of core Vertex and Edge objects
  */
 export function getAllGraphableEntities(
-  entities: PatchedResultEntity[]
+  entities: PatchedResultEntity[],
 ): Entities {
   const vertices = toNodeMap([]);
   const edges = toEdgeMap([]);

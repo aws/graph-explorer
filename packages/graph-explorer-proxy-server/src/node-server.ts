@@ -40,7 +40,7 @@ async function getIAMHeaders(options: string | aws4.Request) {
   const creds = await credentialProvider();
   if (creds === undefined) {
     throw new Error(
-      "IAM is enabled but credentials cannot be found on the credential provider chain."
+      "IAM is enabled but credentials cannot be found on the credential provider chain.",
     );
   }
 
@@ -61,7 +61,7 @@ const retryFetch = async (
   region: string | undefined,
   serviceType: string,
   retryDelay = 10000,
-  refetchMaxRetries = 1
+  refetchMaxRetries = 1,
 ) => {
   for (let i = 0; i < refetchMaxRetries; i++) {
     if (isIamEnabled) {
@@ -131,7 +131,7 @@ async function fetchData(
   options: RequestInit,
   isIamEnabled: boolean,
   region: string | undefined,
-  serviceType: string
+  serviceType: string,
 ) {
   try {
     const response = await retryFetch(
@@ -139,7 +139,7 @@ async function fetchData(
       options,
       isIamEnabled,
       region,
-      serviceType
+      serviceType,
     );
 
     // Set the headers from the fetch response to the client response
@@ -175,8 +175,8 @@ app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
 app.use(
   "/defaultConnection",
   express.static(
-    path.join(defaultConnectionFolderPath, "defaultConnection.json")
-  )
+    path.join(defaultConnectionFolderPath, "defaultConnection.json"),
+  ),
 );
 
 // Host the Graph Explorer UI static files
@@ -186,7 +186,7 @@ const staticFilesPath = path.join(clientRoot, "dist");
 proxyLogger.info("Hosting client side static files from: %s", staticFilesPath);
 proxyLogger.info(
   "Hosting client side static files at: %s",
-  staticFilesVirtualPath ?? "/"
+  staticFilesVirtualPath ?? "/",
 );
 if (staticFilesVirtualPath) {
   app.use(staticFilesVirtualPath, express.static(staticFilesPath));
@@ -201,7 +201,7 @@ app.post("/sparql", async (req, res, next) => {
   const queryId = headers["queryid"];
   const graphDbConnectionUrl = headers["graph-db-connection-url"];
   const shouldLogDbQuery = BooleanStringSchema.default("false").parse(
-    headers["db-query-logging-enabled"]
+    headers["db-query-logging-enabled"],
   );
   const isIamEnabled = !!headers["aws-neptune-region"];
   const region = isIamEnabled ? headers["aws-neptune-region"] : "";
@@ -228,7 +228,7 @@ app.post("/sparql", async (req, res, next) => {
         },
         isIamEnabled,
         region,
-        serviceType
+        serviceType,
       );
     } catch (err) {
       // Not really an error
@@ -283,7 +283,7 @@ app.post("/sparql", async (req, res, next) => {
     requestOptions,
     isIamEnabled,
     region,
-    serviceType
+    serviceType,
   );
 });
 
@@ -294,7 +294,7 @@ app.post("/gremlin", async (req, res, next) => {
   const queryId = headers["queryid"];
   const graphDbConnectionUrl = headers["graph-db-connection-url"];
   const shouldLogDbQuery = BooleanStringSchema.default("false").parse(
-    headers["db-query-logging-enabled"]
+    headers["db-query-logging-enabled"],
   );
   const isIamEnabled = !!headers["aws-neptune-region"];
   const region = isIamEnabled ? headers["aws-neptune-region"] : "";
@@ -322,12 +322,12 @@ app.post("/gremlin", async (req, res, next) => {
     try {
       await retryFetch(
         new URL(
-          `${graphDbConnectionUrl}/gremlin/status?cancelQuery&queryId=${encodeURIComponent(queryId)}`
+          `${graphDbConnectionUrl}/gremlin/status?cancelQuery&queryId=${encodeURIComponent(queryId)}`,
         ),
         { method: "GET" },
         isIamEnabled,
         region,
-        serviceType
+        serviceType,
       );
     } catch (err) {
       // Not really an error
@@ -367,7 +367,7 @@ app.post("/gremlin", async (req, res, next) => {
     requestOptions,
     isIamEnabled,
     region,
-    serviceType
+    serviceType,
   );
 });
 
@@ -375,7 +375,7 @@ app.post("/gremlin", async (req, res, next) => {
 app.post("/openCypher", async (req, res, next) => {
   const headers = req.headers as DbQueryIncomingHttpHeaders;
   const shouldLogDbQuery = BooleanStringSchema.default("false").parse(
-    headers["db-query-logging-enabled"]
+    headers["db-query-logging-enabled"],
   );
 
   const queryString = req.body.query;
@@ -412,7 +412,7 @@ app.post("/openCypher", async (req, res, next) => {
     requestOptions,
     isIamEnabled,
     region,
-    serviceType
+    serviceType,
   );
 });
 
@@ -438,7 +438,7 @@ app.get("/summary", async (req, res, next) => {
     requestOptions,
     isIamEnabled,
     region,
-    serviceType
+    serviceType,
   );
 });
 
@@ -464,7 +464,7 @@ app.get("/pg/statistics/summary", async (req, res, next) => {
     requestOptions,
     isIamEnabled,
     region,
-    serviceType
+    serviceType,
   );
 });
 
@@ -490,7 +490,7 @@ app.get("/rdf/statistics/summary", async (req, res, next) => {
     requestOptions,
     isIamEnabled,
     region,
-    serviceType
+    serviceType,
   );
 });
 
@@ -542,7 +542,7 @@ app.use((_req, res) => {
 // Relative paths to certificate files
 const certificateKeyFilePath = path.join(
   proxyServerRoot,
-  "cert-info/server.key"
+  "cert-info/server.key",
 );
 const certificateFilePath = path.join(proxyServerRoot, "cert-info/server.crt");
 
@@ -570,7 +570,7 @@ function logServerLocations() {
   const baseUrl = `${scheme}://${host}${port}`;
   proxyLogger.info(`Proxy server located at ${baseUrl}`);
   proxyLogger.info(
-    `Graph Explorer UI located at: ${baseUrl}${staticFilesVirtualPath ?? ""}`
+    `Graph Explorer UI located at: ${baseUrl}${staticFilesVirtualPath ?? ""}`,
   );
 }
 

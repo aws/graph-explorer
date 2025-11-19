@@ -11,7 +11,7 @@ export function toNodeMap(nodes: Iterable<Vertex>): Map<VertexId, Vertex> {
 export const nodesAtom = atomWithReset(new Map<VertexId, Vertex>());
 
 export const nodeSelector = atomFamily((id: VertexId) =>
-  atom(get => get(nodesAtom).get(id) ?? null)
+  atom(get => get(nodesAtom).get(id) ?? null),
 );
 
 export const nodesSelectedIdsAtom = atomWithReset(new Set<VertexId>());

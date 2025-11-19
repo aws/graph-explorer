@@ -256,10 +256,10 @@ describe("useGraphStyles", () => {
     const { result } = renderHookWithState(() => useGraphStyles(), dbState);
 
     expect(
-      (getStyles(result)[`node[type="Company"]`] as any)["background-color"]
+      (getStyles(result)[`node[type="Company"]`] as any)["background-color"],
     ).toBe("#ff0000");
     expect(
-      (getStyles(result)[`edge[type="WORKS_AT"]`] as any)["line-color"]
+      (getStyles(result)[`edge[type="WORKS_AT"]`] as any)["line-color"],
     ).toBe("#00ff00");
   });
 
@@ -279,11 +279,11 @@ describe("useGraphStyles", () => {
 
     const { result } = renderHookWithState(
       () => useGraphStyles(),
-      updatedDbState
+      updatedDbState,
     );
 
     expect(
-      (getStyles(result)[`node[type="Person"]`] as any)["background-color"]
+      (getStyles(result)[`node[type="Person"]`] as any)["background-color"],
     ).toBe("#ff0000");
   });
 
@@ -324,7 +324,7 @@ describe("useGraphStyles", () => {
 
     // Verify that the hook successfully processes the configurations
     expect(
-      getStyles(result)[`node[type="${vertexConfig.type}"]`]
+      getStyles(result)[`node[type="${vertexConfig.type}"]`],
     ).toBeDefined();
     expect(getStyles(result)[`edge[type="${edgeConfig.type}"]`]).toBeDefined();
   });

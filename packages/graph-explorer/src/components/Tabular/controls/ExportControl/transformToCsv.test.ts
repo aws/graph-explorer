@@ -23,13 +23,13 @@ describe("transformToCsv", () => {
         createColumn("name"),
         createColumn("age"),
         createColumn("gender"),
-      ]
+      ],
     );
     expect(csv(result)).toEqual(
       csv(`
         id,name,age,gender
         1,test,10,male
-      `)
+      `),
     );
   });
 
@@ -41,13 +41,13 @@ describe("transformToCsv", () => {
           age: 10,
         },
       ],
-      [createColumn("name"), createColumn("age")]
+      [createColumn("name"), createColumn("age")],
     );
     expect(csv(result)).toEqual(
       csv(`
         name,age
         "LastName, FirstName",10
-      `)
+      `),
     );
   });
 
@@ -61,13 +61,13 @@ describe("transformToCsv", () => {
           gender: "male",
         },
       ],
-      [createColumn("name"), createColumn("age")]
+      [createColumn("name"), createColumn("age")],
     );
     expect(csv(result)).toEqual(
       csv(`
         name,age
         test,10
-      `)
+      `),
     );
   });
 
@@ -91,14 +91,14 @@ describe("transformToCsv", () => {
         createColumn("name"),
         createColumn("age"),
         createColumn("gender"),
-      ]
+      ],
     );
     expect(csv(result)).toEqual(
       csv(`
         id,name,age,gender
         1,test,10,male
         2,other test,,female
-      `)
+      `),
     );
   });
 
@@ -123,19 +123,19 @@ describe("transformToCsv", () => {
         createColumn("name"),
         createColumn("age"),
         createColumn("gender"),
-      ]
+      ],
     );
     expect(csv(result)).toEqual(
       csv(`
         id,name,age,gender
         1,test,10,male
-      `)
+      `),
     );
   });
 });
 
 function createColumn<T extends object>(
-  key: keyof T
+  key: keyof T,
 ): TabularColumnInstance<T> {
   return {
     instance: {

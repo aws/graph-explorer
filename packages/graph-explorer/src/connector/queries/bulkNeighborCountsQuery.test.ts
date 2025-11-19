@@ -13,7 +13,7 @@ describe("bulkNeighborCountsQuery", () => {
     const queryClient = createQueryClient({ explorer });
 
     const result = await queryClient.fetchQuery(
-      bulkNeighborCountsQuery([], queryClient)
+      bulkNeighborCountsQuery([], queryClient),
     );
 
     expect(result).toEqual([]);
@@ -35,11 +35,11 @@ describe("bulkNeighborCountsQuery", () => {
     };
     queryClient.setQueryData(
       neighborsCountQuery(vertex.id).queryKey,
-      cachedResponse
+      cachedResponse,
     );
 
     const result = await queryClient.fetchQuery(
-      bulkNeighborCountsQuery([vertex.id], queryClient)
+      bulkNeighborCountsQuery([vertex.id], queryClient),
     );
 
     expect(result).toEqual([cachedResponse]);
@@ -47,7 +47,7 @@ describe("bulkNeighborCountsQuery", () => {
 
     // Ensure counts are still in the cache
     expect(
-      queryClient.getQueryData(neighborsCountQuery(vertex.id).queryKey)
+      queryClient.getQueryData(neighborsCountQuery(vertex.id).queryKey),
     ).toEqual(cachedResponse);
   });
 
@@ -69,7 +69,7 @@ describe("bulkNeighborCountsQuery", () => {
     });
 
     const result = await queryClient.fetchQuery(
-      bulkNeighborCountsQuery([vertex.id], queryClient)
+      bulkNeighborCountsQuery([vertex.id], queryClient),
     );
 
     expect(result).toEqual([expected]);
@@ -77,7 +77,7 @@ describe("bulkNeighborCountsQuery", () => {
 
     // Ensure counts are added to the cache
     expect(
-      queryClient.getQueryData(neighborsCountQuery(vertex.id).queryKey)
+      queryClient.getQueryData(neighborsCountQuery(vertex.id).queryKey),
     ).toEqual(expected);
   });
 
@@ -95,7 +95,7 @@ describe("bulkNeighborCountsQuery", () => {
     };
     queryClient.setQueryData(
       neighborsCountQuery(vertexCached.id).queryKey,
-      cachedResponse
+      cachedResponse,
     );
 
     // Mock fetch response
@@ -110,7 +110,7 @@ describe("bulkNeighborCountsQuery", () => {
     });
 
     const result = await queryClient.fetchQuery(
-      bulkNeighborCountsQuery([vertexCached.id, vertexFetched.id], queryClient)
+      bulkNeighborCountsQuery([vertexCached.id, vertexFetched.id], queryClient),
     );
 
     expect(result).toEqual([cachedResponse, fetchedResponse]);
@@ -118,10 +118,10 @@ describe("bulkNeighborCountsQuery", () => {
 
     // Ensure counts are added to the cache
     expect(
-      queryClient.getQueryData(neighborsCountQuery(vertexCached.id).queryKey)
+      queryClient.getQueryData(neighborsCountQuery(vertexCached.id).queryKey),
     ).toEqual(cachedResponse);
     expect(
-      queryClient.getQueryData(neighborsCountQuery(vertexFetched.id).queryKey)
+      queryClient.getQueryData(neighborsCountQuery(vertexFetched.id).queryKey),
     ).toEqual(fetchedResponse);
   });
 
@@ -133,7 +133,7 @@ describe("bulkNeighborCountsQuery", () => {
     const vertices = createArray(
       // 3 full batches plus 1 additional, to make 4
       DEFAULT_BATCH_REQUEST_SIZE * 3 + 1,
-      createRandomVertex
+      createRandomVertex,
     );
 
     const expected = vertices.map(v => ({
@@ -149,14 +149,14 @@ describe("bulkNeighborCountsQuery", () => {
           counts: { inCount: 1, outCount: 2 },
           totalCount: 3,
         })),
-      })
+      }),
     );
 
     const result = await queryClient.fetchQuery(
       bulkNeighborCountsQuery(
         vertices.map(v => v.id),
-        queryClient
-      )
+        queryClient,
+      ),
     );
 
     expect(result).toHaveLength(vertices.length);
@@ -166,7 +166,7 @@ describe("bulkNeighborCountsQuery", () => {
     // Ensure all are added to the cache
     for (const vertex of vertices) {
       expect(
-        queryClient.getQueryData(neighborsCountQuery(vertex.id).queryKey)
+        queryClient.getQueryData(neighborsCountQuery(vertex.id).queryKey),
       ).not.toBeUndefined();
     }
   });

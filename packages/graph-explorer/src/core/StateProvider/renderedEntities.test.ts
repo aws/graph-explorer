@@ -44,14 +44,14 @@ describe("createRenderedEdgeId", () => {
 describe("getVertexIdFromRenderedVertexId", () => {
   it("should return the raw string id without the prefix", () => {
     const id = getVertexIdFromRenderedVertexId(
-      createRenderedVertexId(createVertexId("123"))
+      createRenderedVertexId(createVertexId("123")),
     );
     expect(id).toBe("123");
   });
 
   it("should return the raw number id without the prefix", () => {
     const id = getVertexIdFromRenderedVertexId(
-      createRenderedVertexId(createVertexId(123))
+      createRenderedVertexId(createVertexId(123)),
     );
     expect(id).toBe(123);
   });
@@ -65,14 +65,14 @@ describe("getVertexIdFromRenderedVertexId", () => {
 describe("getEdgeIdFromRenderedEdgeId", () => {
   it("should return the raw string id without the prefix", () => {
     const id = getEdgeIdFromRenderedEdgeId(
-      createRenderedEdgeId(createEdgeId("123"))
+      createRenderedEdgeId(createEdgeId("123")),
     );
     expect(id).toBe("123");
   });
 
   it("should return the raw number id without the prefix", () => {
     const id = getEdgeIdFromRenderedEdgeId(
-      createRenderedEdgeId(createEdgeId(123))
+      createRenderedEdgeId(createEdgeId(123)),
     );
     expect(id).toBe(123);
   });
@@ -98,7 +98,7 @@ describe("useRenderedVertices", () => {
 
     const { result } = renderHookWithJotai(
       () => useRenderedEntities(),
-      store => dbState.applyTo(store)
+      store => dbState.applyTo(store),
     );
 
     await waitFor(() => {
@@ -122,7 +122,7 @@ describe("useRenderedVertices", () => {
 
     const { result } = renderHookWithJotai(
       () => useRenderedEntities(),
-      store => dbState.applyTo(store)
+      store => dbState.applyTo(store),
     );
 
     await waitFor(() => {
@@ -141,16 +141,16 @@ describe("useRenderedEdges", () => {
 
     // Create edges
     dbState.addEdgeToGraph(
-      createRandomEdge(dbState.vertices[0], dbState.vertices[1])
+      createRandomEdge(dbState.vertices[0], dbState.vertices[1]),
     );
     dbState.addEdgeToGraph(
-      createRandomEdge(dbState.vertices[1], dbState.vertices[0])
+      createRandomEdge(dbState.vertices[1], dbState.vertices[0]),
     );
     dbState.addEdgeToGraph(
-      createRandomEdge(dbState.vertices[0], dbState.vertices[2])
+      createRandomEdge(dbState.vertices[0], dbState.vertices[2]),
     );
     dbState.addEdgeToGraph(
-      createRandomEdge(dbState.vertices[2], dbState.vertices[0])
+      createRandomEdge(dbState.vertices[2], dbState.vertices[0]),
     );
 
     dbState.filterEdge(dbState.edges[0].id);
@@ -163,7 +163,7 @@ describe("useRenderedEdges", () => {
 
     const { result } = renderHookWithJotai(
       () => useRenderedEntities(),
-      store => dbState.applyTo(store)
+      store => dbState.applyTo(store),
     );
 
     await waitFor(() => {
@@ -179,16 +179,16 @@ describe("useRenderedEdges", () => {
     dbState.addVertexToGraph(createRandomVertex());
 
     dbState.addEdgeToGraph(
-      createRandomEdge(dbState.vertices[0], dbState.vertices[1])
+      createRandomEdge(dbState.vertices[0], dbState.vertices[1]),
     );
     dbState.addEdgeToGraph(
-      createRandomEdge(dbState.vertices[1], dbState.vertices[0])
+      createRandomEdge(dbState.vertices[1], dbState.vertices[0]),
     );
     dbState.addEdgeToGraph(
-      createRandomEdge(dbState.vertices[0], dbState.vertices[2])
+      createRandomEdge(dbState.vertices[0], dbState.vertices[2]),
     );
     dbState.addEdgeToGraph(
-      createRandomEdge(dbState.vertices[2], dbState.vertices[0])
+      createRandomEdge(dbState.vertices[2], dbState.vertices[0]),
     );
 
     // Ensure two edges have the same type
@@ -203,7 +203,7 @@ describe("useRenderedEdges", () => {
 
     const { result } = renderHookWithJotai(
       () => useRenderedEntities(),
-      store => dbState.applyTo(store)
+      store => dbState.applyTo(store),
     );
 
     await waitFor(() => {
@@ -219,16 +219,16 @@ describe("useRenderedEdges", () => {
     dbState.addVertexToGraph(createRandomVertex());
 
     dbState.addEdgeToGraph(
-      createRandomEdge(dbState.vertices[0], dbState.vertices[1])
+      createRandomEdge(dbState.vertices[0], dbState.vertices[1]),
     );
     dbState.addEdgeToGraph(
-      createRandomEdge(dbState.vertices[1], dbState.vertices[0])
+      createRandomEdge(dbState.vertices[1], dbState.vertices[0]),
     );
     dbState.addEdgeToGraph(
-      createRandomEdge(dbState.vertices[0], dbState.vertices[2])
+      createRandomEdge(dbState.vertices[0], dbState.vertices[2]),
     );
     dbState.addEdgeToGraph(
-      createRandomEdge(dbState.vertices[2], dbState.vertices[0])
+      createRandomEdge(dbState.vertices[2], dbState.vertices[0]),
     );
 
     dbState.filterVertex(dbState.vertices[1].id);
@@ -241,7 +241,7 @@ describe("useRenderedEdges", () => {
 
     const { result } = renderHookWithJotai(
       () => useRenderedEntities(),
-      store => dbState.applyTo(store)
+      store => dbState.applyTo(store),
     );
 
     await waitFor(() => {
@@ -257,16 +257,16 @@ describe("useRenderedEdges", () => {
     dbState.addVertexToGraph(createRandomVertex());
 
     dbState.addEdgeToGraph(
-      createRandomEdge(dbState.vertices[0], dbState.vertices[1])
+      createRandomEdge(dbState.vertices[0], dbState.vertices[1]),
     );
     dbState.addEdgeToGraph(
-      createRandomEdge(dbState.vertices[1], dbState.vertices[0])
+      createRandomEdge(dbState.vertices[1], dbState.vertices[0]),
     );
     dbState.addEdgeToGraph(
-      createRandomEdge(dbState.vertices[0], missingVertex)
+      createRandomEdge(dbState.vertices[0], missingVertex),
     );
     dbState.addEdgeToGraph(
-      createRandomEdge(missingVertex, dbState.vertices[0])
+      createRandomEdge(missingVertex, dbState.vertices[0]),
     );
 
     // Only expect the edges connected to vertex indices 0 and 2
@@ -277,7 +277,7 @@ describe("useRenderedEdges", () => {
 
     const { result } = renderHookWithJotai(
       () => useRenderedEntities(),
-      store => dbState.applyTo(store)
+      store => dbState.applyTo(store),
     );
 
     await waitFor(() => {

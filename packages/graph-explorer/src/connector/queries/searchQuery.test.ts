@@ -14,7 +14,7 @@ describe("searchQuery", () => {
     const mockUpdateSchema = vi.fn();
 
     const result = await queryClient.fetchQuery(
-      searchQuery({ searchTerm: "test" }, mockUpdateSchema)
+      searchQuery({ searchTerm: "test" }, mockUpdateSchema),
     );
 
     expect(result.vertices).toStrictEqual([]);
@@ -37,7 +37,7 @@ describe("searchQuery", () => {
     const mockUpdateSchema = vi.fn();
 
     const result = await queryClient.fetchQuery(
-      searchQuery({ searchTerm: "test" }, mockUpdateSchema)
+      searchQuery({ searchTerm: "test" }, mockUpdateSchema),
     );
 
     expect(result.vertices).toStrictEqual([
@@ -62,12 +62,12 @@ describe("searchQuery", () => {
     const mockUpdateSchema = vi.fn();
 
     await queryClient.fetchQuery(
-      searchQuery({ searchTerm: "test" }, mockUpdateSchema)
+      searchQuery({ searchTerm: "test" }, mockUpdateSchema),
     );
 
     // Verify vertex is added to the cache
     expect(
-      queryClient.getQueryData(vertexDetailsQuery(vertex.id).queryKey)
+      queryClient.getQueryData(vertexDetailsQuery(vertex.id).queryKey),
     ).toStrictEqual({ vertex: vertex.asVertex() });
   });
 
@@ -84,7 +84,7 @@ describe("searchQuery", () => {
     // Add original vertex to nodesAtom
     getAppStore().set(
       nodesAtom,
-      new Map([[originalVertex.id, originalVertex.asVertex()]])
+      new Map([[originalVertex.id, originalVertex.asVertex()]]),
     );
 
     // Mock search to return updated vertex
@@ -95,13 +95,13 @@ describe("searchQuery", () => {
     const mockUpdateSchema = vi.fn();
 
     await queryClient.fetchQuery(
-      searchQuery({ searchTerm: "test" }, mockUpdateSchema)
+      searchQuery({ searchTerm: "test" }, mockUpdateSchema),
     );
 
     // Verify nodesAtom was updated with the new vertex data
     const nodesMap = getAppStore().get(nodesAtom);
     expect(nodesMap.get(originalVertex.id)).toStrictEqual(
-      updatedVertex.asVertex()
+      updatedVertex.asVertex(),
     );
   });
 
@@ -123,7 +123,7 @@ describe("searchQuery", () => {
     expect(getAppStore().get(nodesAtom).size).toBe(0);
 
     await queryClient.fetchQuery(
-      searchQuery({ searchTerm: "test" }, mockUpdateSchema)
+      searchQuery({ searchTerm: "test" }, mockUpdateSchema),
     );
 
     // Verify nodesAtom was not modified

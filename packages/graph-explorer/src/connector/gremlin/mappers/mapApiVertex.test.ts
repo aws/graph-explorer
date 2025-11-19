@@ -42,13 +42,13 @@ describe("mapApiVertex", () => {
       integerValue: [
         createGVertexProperty(
           "integerValue",
-          createGInt32(expectedProperties.integerValue)
+          createGInt32(expectedProperties.integerValue),
         ),
       ],
       doubleValue: [
         createGVertexProperty(
           "doubleValue",
-          createGDouble(expectedProperties.doubleValue)
+          createGDouble(expectedProperties.doubleValue),
         ),
       ],
       booleanValue: [
@@ -57,7 +57,7 @@ describe("mapApiVertex", () => {
       dateValue: [
         createGVertexProperty(
           "dateValue",
-          createGDate(expectedProperties.dateValue)
+          createGDate(expectedProperties.dateValue),
         ),
       ],
     };

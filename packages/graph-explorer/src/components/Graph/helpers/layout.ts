@@ -16,7 +16,7 @@ export const runLayout = (
       cytoscape.LayoutOptions & ExpandedCytoscapeLayoutOptions
     >;
   } = {},
-  useAnimation = false
+  useAnimation = false,
 ) => {
   const _layout = {
     ...availableLayoutsConfig[layoutName],
@@ -42,7 +42,7 @@ export const runLayout = (
 
   throw new Error(
     "Layout configuration not found, if you are using a custom layout make sure to pass down the" +
-      " layout configuration through the additionalLayouts Prop "
+      " layout configuration through the additionalLayouts Prop ",
   );
 };
 

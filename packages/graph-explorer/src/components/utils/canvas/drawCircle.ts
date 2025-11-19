@@ -8,7 +8,7 @@ export type DrawCircleOptions = ApplyStyleOptions & {
 const drawCircle = (
   context: CanvasRenderingContext2D,
   coordinates: Coordinates,
-  options: DrawCircleOptions = {}
+  options: DrawCircleOptions = {},
 ) => {
   context.save();
   const { x, y } = coordinates;

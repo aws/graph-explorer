@@ -18,7 +18,7 @@ describe("getDisplayValueForBundle", () => {
     const result = getDisplayValueForBundle(bundle);
 
     expect(result).toBe(
-      `Name: John${ASCII.NBSP}• Age: 25${ASCII.NBSP}• Active: true`
+      `Name: John${ASCII.NBSP}• Age: 25${ASCII.NBSP}• Active: true`,
     );
   });
 
@@ -47,7 +47,7 @@ describe("getDisplayValueForBundle", () => {
     const result = getDisplayValueForBundle(bundle);
 
     expect(result).toBe(
-      `EmptyField: ${LABELS.MISSING_VALUE}${ASCII.NBSP}• ${LABELS.MISSING_VALUE}`
+      `EmptyField: ${LABELS.MISSING_VALUE}${ASCII.NBSP}• ${LABELS.MISSING_VALUE}`,
     );
   });
 
@@ -64,7 +64,7 @@ describe("getDisplayValueForBundle", () => {
     const expectedDateFormat = "Dec 25 2023, 10:30 AM";
 
     expect(result).toBe(
-      `CreatedAt: ${expectedDateFormat}${ASCII.NBSP}• ${expectedDateFormat}`
+      `CreatedAt: ${expectedDateFormat}${ASCII.NBSP}• ${expectedDateFormat}`,
     );
   });
 
@@ -170,7 +170,7 @@ describe("getDisplayValueForBundle", () => {
     const result = getDisplayValueForBundle(bundle);
 
     expect(result).toBe(
-      `Name: John${ASCII.NBSP}• Profile: v(v123)${ASCII.NBSP}• Connection: e(e456)${ASCII.NBSP}• SubBundle: [...]`
+      `Name: John${ASCII.NBSP}• Profile: v(v123)${ASCII.NBSP}• Connection: e(e456)${ASCII.NBSP}• SubBundle: [...]`,
     );
   });
 
@@ -197,7 +197,7 @@ describe("getDisplayValueForBundle", () => {
     const expectedPopulation = new Intl.NumberFormat().format(1000000);
 
     expect(result).toBe(
-      `Price: ${expectedPrice}${ASCII.NBSP}• Population: ${expectedPopulation}`
+      `Price: ${expectedPrice}${ASCII.NBSP}• Population: ${expectedPopulation}`,
     );
   });
 
@@ -260,7 +260,7 @@ describe("getDisplayValueForBundle", () => {
       const result = getDisplayValueForBundle(bundle, upperCaseTransformer);
 
       expect(result).toBe(
-        `user_profile: v(v123)${ASCII.NBSP}• connection_edge: e(e456)`
+        `user_profile: v(v123)${ASCII.NBSP}• connection_edge: e(e456)`,
       );
     });
 
@@ -276,7 +276,7 @@ describe("getDisplayValueForBundle", () => {
       const result = getDisplayValueForBundle(bundle, upperCaseTransformer);
 
       expect(result).toBe(
-        `EMPTY_FIELD: ${upperCaseTransformer(LABELS.MISSING_VALUE)}${ASCII.NBSP}• ${upperCaseTransformer(LABELS.MISSING_VALUE)}`
+        `EMPTY_FIELD: ${upperCaseTransformer(LABELS.MISSING_VALUE)}${ASCII.NBSP}• ${upperCaseTransformer(LABELS.MISSING_VALUE)}`,
       );
     });
 
@@ -297,7 +297,7 @@ describe("getDisplayValueForBundle", () => {
       const result = getDisplayValueForBundle(bundle, upperCaseTransformer);
 
       expect(result).toBe(
-        `NAME: JOHN${ASCII.NBSP}• profile: v(v123)${ASCII.NBSP}• SUB_BUNDLE: [...]`
+        `NAME: JOHN${ASCII.NBSP}• profile: v(v123)${ASCII.NBSP}• SUB_BUNDLE: [...]`,
       );
     });
 

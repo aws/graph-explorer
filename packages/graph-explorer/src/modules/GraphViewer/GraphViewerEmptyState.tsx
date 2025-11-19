@@ -35,7 +35,7 @@ function RestorePreviousSessionEmptyState({
 
   const entityCounts = formatEntityCounts(
     prevSession.vertices.size,
-    prevSession.edges.size
+    prevSession.edges.size,
   );
 
   return (

@@ -156,7 +156,7 @@ export default function oneHopTemplate({
       : ``;
 
   const nodeFilters = [vertexTypesTemplate, filterCriteriaTemplate].filter(
-    Boolean
+    Boolean,
   );
 
   const nodeFiltersTemplate =

@@ -29,7 +29,7 @@ describe("bulkEdgeDetailsQuery", () => {
     queryClient.setQueryData(edgeDetailsQuery(edge.id).queryKey, { edge });
 
     const result = await queryClient.fetchQuery(
-      bulkEdgeDetailsQuery([edge.id])
+      bulkEdgeDetailsQuery([edge.id]),
     );
 
     expect(result.edges).toStrictEqual([edge]);
@@ -37,7 +37,7 @@ describe("bulkEdgeDetailsQuery", () => {
 
     // Ensure edge is still in the cache
     expect(
-      queryClient.getQueryData(edgeDetailsQuery(edge.id).queryKey)
+      queryClient.getQueryData(edgeDetailsQuery(edge.id).queryKey),
     ).toStrictEqual({ edge });
   });
 
@@ -50,7 +50,7 @@ describe("bulkEdgeDetailsQuery", () => {
     explorer.addEdge(edge);
 
     const result = await queryClient.fetchQuery(
-      bulkEdgeDetailsQuery([edge.id])
+      bulkEdgeDetailsQuery([edge.id]),
     );
 
     expect(result.edges).toStrictEqual([edge]);
@@ -58,7 +58,7 @@ describe("bulkEdgeDetailsQuery", () => {
 
     // Ensure edge is added to the cache
     expect(
-      queryClient.getQueryData(edgeDetailsQuery(edge.id).queryKey)
+      queryClient.getQueryData(edgeDetailsQuery(edge.id).queryKey),
     ).toStrictEqual({ edge });
   });
 
@@ -79,7 +79,7 @@ describe("bulkEdgeDetailsQuery", () => {
     explorer.addEdge(edgeFetched);
 
     const result = await queryClient.fetchQuery(
-      bulkEdgeDetailsQuery([edgeCached.id, edgeFetched.id])
+      bulkEdgeDetailsQuery([edgeCached.id, edgeFetched.id]),
     );
 
     expect(result.edges).toStrictEqual([edgeCached, edgeFetched]);
@@ -87,10 +87,10 @@ describe("bulkEdgeDetailsQuery", () => {
 
     // Ensure both edges are added to the cache
     expect(
-      queryClient.getQueryData(edgeDetailsQuery(edgeCached.id).queryKey)
+      queryClient.getQueryData(edgeDetailsQuery(edgeCached.id).queryKey),
     ).toStrictEqual({ edge: edgeCached });
     expect(
-      queryClient.getQueryData(edgeDetailsQuery(edgeFetched.id).queryKey)
+      queryClient.getQueryData(edgeDetailsQuery(edgeFetched.id).queryKey),
     ).toStrictEqual({ edge: edgeFetched });
   });
 
@@ -100,12 +100,12 @@ describe("bulkEdgeDetailsQuery", () => {
     const queryClient = createQueryClient({ explorer });
 
     const edges = createArray(DEFAULT_BATCH_REQUEST_SIZE * 3, () =>
-      createRandomEdge()
+      createRandomEdge(),
     );
     edges.forEach(e => explorer.addEdge(e));
 
     const result = await queryClient.fetchQuery(
-      bulkEdgeDetailsQuery(edges.map(e => e.id))
+      bulkEdgeDetailsQuery(edges.map(e => e.id)),
     );
 
     expect(result.edges).toStrictEqual(edges);
@@ -114,7 +114,7 @@ describe("bulkEdgeDetailsQuery", () => {
     // Ensure all are added to the cache
     for (const edge of edges) {
       expect(
-        queryClient.getQueryData(edgeDetailsQuery(edge.id).queryKey)
+        queryClient.getQueryData(edgeDetailsQuery(edge.id).queryKey),
       ).toStrictEqual({ edge });
     }
   });
@@ -140,7 +140,7 @@ describe("bulkEdgeDetailsQuery", () => {
       new Map([
         [originalEdge1.id, originalEdge1],
         [originalEdge2.id, originalEdge2],
-      ])
+      ]),
     );
 
     // Mock explorer to return updated edges
@@ -148,7 +148,7 @@ describe("bulkEdgeDetailsQuery", () => {
     explorer.addEdge(updatedEdge2);
 
     await queryClient.fetchQuery(
-      bulkEdgeDetailsQuery([originalEdge1.id, originalEdge2.id])
+      bulkEdgeDetailsQuery([originalEdge1.id, originalEdge2.id]),
     );
 
     // Verify edgesAtom was updated with the new edge data
@@ -195,7 +195,7 @@ describe("bulkEdgeDetailsQuery", () => {
     explorer.addEdge(updatedEdge);
 
     const result = await queryClient.fetchQuery(
-      bulkEdgeDetailsQuery([cachedEdge.id], { ignoreCache: true })
+      bulkEdgeDetailsQuery([cachedEdge.id], { ignoreCache: true }),
     );
 
     expect(result.edges).toStrictEqual([updatedEdge]);
@@ -203,7 +203,7 @@ describe("bulkEdgeDetailsQuery", () => {
 
     // Ensure cache is updated with new data
     expect(
-      queryClient.getQueryData(edgeDetailsQuery(cachedEdge.id).queryKey)
+      queryClient.getQueryData(edgeDetailsQuery(cachedEdge.id).queryKey),
     ).toStrictEqual({ edge: updatedEdge });
   });
 
@@ -220,7 +220,7 @@ describe("bulkEdgeDetailsQuery", () => {
     });
 
     const result = await queryClient.fetchQuery(
-      bulkEdgeDetailsQuery([cachedEdge.id], { ignoreCache: false })
+      bulkEdgeDetailsQuery([cachedEdge.id], { ignoreCache: false }),
     );
 
     expect(result.edges).toStrictEqual([cachedEdge]);

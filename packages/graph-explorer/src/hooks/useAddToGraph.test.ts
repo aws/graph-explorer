@@ -111,7 +111,7 @@ test("should add multiple nodes and edges ignoring duplicates", async () => {
     result.current.callback({
       vertices: [...randomEntities.vertices, ...randomEntities.vertices],
       edges: [...randomEntities.edges, ...randomEntities.edges],
-    })
+    }),
   );
 
   const actualNodes = result.current.vertices.values().toArray();
@@ -142,7 +142,7 @@ test("should update schema when adding a node", async () => {
 
   for (const expectedType of expectedVertexTypes) {
     const vtConfig = result.current.schema?.vertices.find(
-      v => v.type === expectedType.type
+      v => v.type === expectedType.type,
     );
     expect(vtConfig).toStrictEqual(expectedType);
   }
@@ -169,7 +169,7 @@ test("should update schema when adding a node with no label", async () => {
 
   for (const expectedType of expectedVertexTypes) {
     const vtConfig = result.current.schema?.vertices.find(
-      v => v.type === expectedType.type
+      v => v.type === expectedType.type,
     );
     expect(vtConfig).toStrictEqual(expectedType);
   }
@@ -229,7 +229,7 @@ test("should add missing attributes to the schema when adding a node", async () 
 
   for (const expectedType of expectedVertexTypes) {
     const vtConfig = result.current.schema?.vertices.find(
-      v => v.type === expectedType.type
+      v => v.type === expectedType.type,
     );
     expect(vtConfig).toStrictEqual(expectedType);
   }
@@ -330,7 +330,7 @@ test("should ignore blank nodes when updating graph storage", async () => {
   }, dbState);
 
   await act(() =>
-    result.current.callback({ vertices: [vertex, blankNode], edges: [edge] })
+    result.current.callback({ vertices: [vertex, blankNode], edges: [edge] }),
   );
 
   const expectedGraph: GraphSessionStorageModel = {

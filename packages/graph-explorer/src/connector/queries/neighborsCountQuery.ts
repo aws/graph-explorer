@@ -15,7 +15,7 @@ export function neighborsCountQuery(vertexId: VertexId) {
       const explorer = getExplorer(meta);
       const results = await explorer.neighborCounts(
         { vertexIds: [vertexId] },
-        { signal }
+        { signal },
       );
 
       if (!results.counts.length) {

@@ -92,7 +92,7 @@ const CreateConnection = ({
         name: existingConfig.displayLabel || existingConfig.id,
         fetchTimeoutEnabled: Boolean(existingConfig.connection?.fetchTimeoutMs),
         nodeExpansionLimitEnabled: Boolean(
-          existingConfig.connection?.nodeExpansionLimit
+          existingConfig.connection?.nodeExpansionLimit,
         ),
       }
     : undefined;
@@ -167,8 +167,8 @@ const CreateConnection = ({
         initialData?.graphDbUrl,
         initialData?.queryEngine,
         queryClient,
-      ]
-    )
+      ],
+    ),
   );
 
   const [form, setForm] = useState<ConnectionForm>({

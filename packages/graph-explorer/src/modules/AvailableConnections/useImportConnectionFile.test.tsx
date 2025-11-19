@@ -28,7 +28,7 @@ describe("useImportConnectionFile", () => {
     const state = new DbState();
     const { result } = renderHookWithState(
       () => useImportConnectionFile(),
-      state
+      state,
     );
 
     const displayLabel = createRandomName("Config");
@@ -66,14 +66,14 @@ describe("useImportConnectionFile", () => {
     expect(activeConfigId).not.toBe(state.activeConfig.id);
 
     const importedConfig = Array.from(configs.values()).find(
-      c => c.id !== state.activeConfig.id
+      c => c.id !== state.activeConfig.id,
     );
     expect(importedConfig?.displayLabel).toBe(displayLabel);
     expect(importedConfig?.connection?.url).toBe(url);
     expect(importedConfig?.connection?.queryEngine).toBe("gremlin");
 
     const importedSchema = Array.from(schemas.values()).find(
-      (_, index) => index === 1
+      (_, index) => index === 1,
     );
     expect(importedSchema?.vertices).toHaveLength(1);
     expect(importedSchema?.vertices[0].type).toBe("Person");
@@ -93,7 +93,7 @@ describe("useImportConnectionFile", () => {
     const state = new DbState();
     const { result } = renderHookWithState(
       () => useImportConnectionFile(),
-      state
+      state,
     );
 
     const invalidConfig = {
@@ -124,7 +124,7 @@ describe("useImportConnectionFile", () => {
     const state = new DbState();
     const { result } = renderHookWithState(
       () => useImportConnectionFile(),
-      state
+      state,
     );
 
     const validConfig = {
@@ -161,7 +161,7 @@ describe("useImportConnectionFile", () => {
     const state = new DbState();
     const { result } = renderHookWithState(
       () => useImportConnectionFile(),
-      state
+      state,
     );
 
     const validConfig = {
@@ -196,13 +196,13 @@ describe("useImportConnectionFile", () => {
 
     const schemas = getAppStore().get(schemaAtom);
     const importedSchema = Array.from(schemas.values()).find(
-      (_, index) => index === 1
+      (_, index) => index === 1,
     );
 
     expect(importedSchema?.prefixes).toHaveLength(1);
     expect(importedSchema?.prefixes?.[0].prefix).toBe("rdf");
     expect(importedSchema?.prefixes?.[0].uri).toBe(
-      "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+      "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
     );
     expect(importedSchema?.prefixes?.[0].__matches).toBeInstanceOf(Set);
     expect(importedSchema?.prefixes?.[0].__matches?.size).toBe(2);
@@ -212,7 +212,7 @@ describe("useImportConnectionFile", () => {
     const state = new DbState();
     const { result } = renderHookWithState(
       () => useImportConnectionFile(),
-      state
+      state,
     );
 
     const lastUpdate = new Date("2024-01-01T00:00:00Z");
@@ -242,12 +242,12 @@ describe("useImportConnectionFile", () => {
 
     const schemas = getAppStore().get(schemaAtom);
     const importedSchema = Array.from(schemas.values()).find(
-      (_, index) => index === 1
+      (_, index) => index === 1,
     );
 
     expect(importedSchema?.lastUpdate).toBeInstanceOf(Date);
     expect(importedSchema?.lastUpdate?.toISOString()).toBe(
-      lastUpdate.toISOString()
+      lastUpdate.toISOString(),
     );
   });
 
@@ -255,7 +255,7 @@ describe("useImportConnectionFile", () => {
     const state = new DbState();
     const { result } = renderHookWithState(
       () => useImportConnectionFile(),
-      state
+      state,
     );
 
     const validConfig = {
@@ -283,7 +283,7 @@ describe("useImportConnectionFile", () => {
 
     const schemas = getAppStore().get(schemaAtom);
     const importedSchema = Array.from(schemas.values()).find(
-      (_, index) => index === 1
+      (_, index) => index === 1,
     );
 
     expect(importedSchema?.vertices).toStrictEqual([]);
@@ -294,7 +294,7 @@ describe("useImportConnectionFile", () => {
     const state = new DbState();
     const { result } = renderHookWithState(
       () => useImportConnectionFile(),
-      state
+      state,
     );
 
     const validConfig = {
@@ -347,7 +347,7 @@ describe("useImportConnectionFile", () => {
 
     const schemas = getAppStore().get(schemaAtom);
     const importedSchema = Array.from(schemas.values()).find(
-      (_, index) => index === 1
+      (_, index) => index === 1,
     );
 
     expect(importedSchema?.vertices).toHaveLength(2);

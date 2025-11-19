@@ -62,7 +62,7 @@ export default function useExpandNode() {
       id: "expandNode",
     },
     mutationFn: async (
-      request: NeighborsRequest
+      request: NeighborsRequest,
     ): Promise<NeighborsResponse | null> => {
       const neighbor = await neighborCallback(request.vertexId);
       if (!neighbor) {
@@ -102,7 +102,7 @@ export default function useExpandNode() {
 
         // Update the vertex and edge details caches
         result.vertices.forEach(v =>
-          setVertexDetailsQueryCache(queryClient, v)
+          setVertexDetailsQueryCache(queryClient, v),
         );
         result.edges.forEach(e => setEdgeDetailsQueryCache(queryClient, e));
 
@@ -112,7 +112,7 @@ export default function useExpandNode() {
         return result;
       } catch (error) {
         remoteLogger.error(
-          `Failed to expand node: ${(error as Error)?.message ?? "Unknown error"}`
+          `Failed to expand node: ${(error as Error)?.message ?? "Unknown error"}`,
         );
         const displayError = createDisplayError(error);
         // Notify the user of the error

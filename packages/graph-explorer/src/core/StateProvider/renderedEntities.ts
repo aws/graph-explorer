@@ -105,7 +105,7 @@ export function createRenderedEdgeId(id: EdgeId): RenderedEdgeId {
 
 /** Strips the ID type prefix from the given ID and returns the value as a VertexId. */
 export function getVertexIdFromRenderedVertexId(
-  id: RenderedVertexId
+  id: RenderedVertexId,
 ): VertexId {
   if (isIdNumber(id)) {
     return parseInt(stripIdTypePrefix(id)) as VertexId;

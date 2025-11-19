@@ -46,7 +46,7 @@ describe("isCancellationError", () => {
     expect(isCancellationError(new URIError())).toBe(false);
     expect(isCancellationError(new DOMException())).toBe(false);
     expect(isCancellationError(new NetworkError("Test", 500, null))).toBe(
-      false
+      false,
     );
   });
 });

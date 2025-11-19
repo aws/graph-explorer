@@ -6,7 +6,7 @@ import { mapResults } from "./mappers/mapResults";
 
 export async function rawQuery(
   openCypherFetch: OpenCypherFetch,
-  request: RawQueryRequest
+  request: RawQueryRequest,
 ): Promise<RawQueryResponse> {
   const template = query`${request.query}`;
 

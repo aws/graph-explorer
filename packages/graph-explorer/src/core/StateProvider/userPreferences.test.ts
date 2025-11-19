@@ -28,7 +28,7 @@ describe("useVertexStyling", () => {
     const dbState = new DbState();
     const { result } = renderHookWithState(
       () => useVertexStyling("test"),
-      dbState
+      dbState,
     );
     const expected = createExpectedVertex({ type: "test" });
 
@@ -42,7 +42,7 @@ describe("useVertexStyling", () => {
 
     const { result } = renderHookWithState(
       () => useVertexStyling("test"),
-      dbState
+      dbState,
     );
 
     expect(result.current.vertexStyle).toStrictEqual(expected);
@@ -52,13 +52,13 @@ describe("useVertexStyling", () => {
     const dbState = new DbState();
     const { result } = renderHookWithState(
       () => useVertexStyling("test"),
-      dbState
+      dbState,
     );
 
     act(() => result.current.setVertexStyle({ color: "red" }));
 
     expect(result.current.vertexStyle).toStrictEqual(
-      createExpectedVertex({ type: "test", color: "red" })
+      createExpectedVertex({ type: "test", color: "red" }),
     );
   });
 
@@ -66,11 +66,11 @@ describe("useVertexStyling", () => {
     const dbState = new DbState();
     const { result } = renderHookWithState(
       () => useVertexStyling("test"),
-      dbState
+      dbState,
     );
 
     act(() =>
-      result.current.setVertexStyle({ color: "red", borderColor: "green" })
+      result.current.setVertexStyle({ color: "red", borderColor: "green" }),
     );
     act(() => result.current.setVertexStyle({ borderColor: "blue" }));
 
@@ -79,7 +79,7 @@ describe("useVertexStyling", () => {
         type: "test",
         color: "red",
         borderColor: "blue",
-      })
+      }),
     );
   });
 
@@ -89,13 +89,13 @@ describe("useVertexStyling", () => {
 
     const { result } = renderHookWithState(
       () => useVertexStyling("test"),
-      dbState
+      dbState,
     );
 
     act(() => result.current.resetVertexStyle());
 
     expect(result.current.vertexStyle).toStrictEqual(
-      createExpectedVertex({ type: "test" })
+      createExpectedVertex({ type: "test" }),
     );
   });
 
@@ -106,7 +106,7 @@ describe("useVertexStyling", () => {
 
     const { result } = renderHookWithState(
       () => useVertexStyling("type1"),
-      dbState
+      dbState,
     );
 
     act(() => result.current.setVertexStyle({ borderColor: "green" }));
@@ -117,19 +117,19 @@ describe("useVertexStyling", () => {
         type: "type1",
         color: "red",
         borderColor: "green",
-      })
+      }),
     );
 
     // Check that type2 was not affected by getting its hook
     const { result: result2 } = renderHookWithState(
       () => useVertexStyling("type2"),
-      dbState
+      dbState,
     );
     expect(result2.current.vertexStyle).toStrictEqual(
       createExpectedVertex({
         type: "type2",
         color: "blue",
-      })
+      }),
     );
   });
 
@@ -140,25 +140,25 @@ describe("useVertexStyling", () => {
 
     const { result } = renderHookWithState(
       () => useVertexStyling("type1"),
-      dbState
+      dbState,
     );
 
     act(() => result.current.resetVertexStyle());
 
     expect(result.current.vertexStyle).toStrictEqual(
-      createExpectedVertex({ type: "type1" })
+      createExpectedVertex({ type: "type1" }),
     );
 
     // Check that type2 still exists
     const { result: result2 } = renderHookWithState(
       () => useVertexStyling("type2"),
-      dbState
+      dbState,
     );
     expect(result2.current.vertexStyle).toStrictEqual(
       createExpectedVertex({
         type: "type2",
         color: "blue",
-      })
+      }),
     );
   });
 
@@ -166,13 +166,13 @@ describe("useVertexStyling", () => {
     const dbState = new DbState();
     const { result } = renderHookWithState(
       () => useVertexStyling("test"),
-      dbState
+      dbState,
     );
 
     act(() => result.current.setVertexStyle({}));
 
     expect(result.current.vertexStyle).toStrictEqual(
-      createExpectedVertex({ type: "test" })
+      createExpectedVertex({ type: "test" }),
     );
   });
 });
@@ -182,11 +182,11 @@ describe("useEdgeStyling", () => {
     const dbState = new DbState();
     const { result } = renderHookWithState(
       () => useEdgeStyling("test"),
-      dbState
+      dbState,
     );
 
     expect(result.current.edgeStyle).toStrictEqual(
-      createExpectedEdge({ type: "test" })
+      createExpectedEdge({ type: "test" }),
     );
   });
 
@@ -195,7 +195,7 @@ describe("useEdgeStyling", () => {
     const style = dbState.addEdgeStyle("test", { lineColor: "red" });
     const { result } = renderHookWithState(
       () => useEdgeStyling("test"),
-      dbState
+      dbState,
     );
 
     expect(result.current.edgeStyle).toStrictEqual(createExpectedEdge(style));
@@ -205,7 +205,7 @@ describe("useEdgeStyling", () => {
     const dbState = new DbState();
     const { result } = renderHookWithState(
       () => useEdgeStyling("test"),
-      dbState
+      dbState,
     );
 
     act(() => result.current.setEdgeStyle({ lineColor: "red" }));
@@ -214,7 +214,7 @@ describe("useEdgeStyling", () => {
       createExpectedEdge({
         type: "test",
         lineColor: "red",
-      })
+      }),
     );
   });
 
@@ -222,11 +222,11 @@ describe("useEdgeStyling", () => {
     const dbState = new DbState();
     const { result } = renderHookWithState(
       () => useEdgeStyling("test"),
-      dbState
+      dbState,
     );
 
     act(() =>
-      result.current.setEdgeStyle({ lineColor: "red", labelColor: "green" })
+      result.current.setEdgeStyle({ lineColor: "red", labelColor: "green" }),
     );
     act(() => result.current.setEdgeStyle({ labelColor: "blue" }));
 
@@ -235,7 +235,7 @@ describe("useEdgeStyling", () => {
         type: "test",
         lineColor: "red",
         labelColor: "blue",
-      })
+      }),
     );
   });
 
@@ -243,14 +243,14 @@ describe("useEdgeStyling", () => {
     const dbState = new DbState();
     const { result } = renderHookWithState(
       () => useEdgeStyling("test"),
-      dbState
+      dbState,
     );
 
     act(() => result.current.setEdgeStyle({ labelColor: "blue" }));
     act(() => result.current.resetEdgeStyle());
 
     expect(result.current.edgeStyle).toStrictEqual(
-      createExpectedEdge({ type: "test" })
+      createExpectedEdge({ type: "test" }),
     );
   });
 
@@ -261,7 +261,7 @@ describe("useEdgeStyling", () => {
 
     const { result } = renderHookWithState(
       () => useEdgeStyling("type1"),
-      dbState
+      dbState,
     );
 
     act(() => result.current.setEdgeStyle({ labelColor: "green" }));
@@ -272,19 +272,19 @@ describe("useEdgeStyling", () => {
         type: "type1",
         lineColor: "red",
         labelColor: "green",
-      })
+      }),
     );
 
     // Check that type2 was not affected
     const { result: result2 } = renderHookWithState(
       () => useEdgeStyling("type2"),
-      dbState
+      dbState,
     );
     expect(result2.current.edgeStyle).toStrictEqual(
       createExpectedEdge({
         type: "type2",
         lineColor: "blue",
-      })
+      }),
     );
   });
 
@@ -295,25 +295,25 @@ describe("useEdgeStyling", () => {
 
     const { result } = renderHookWithState(
       () => useEdgeStyling("type1"),
-      dbState
+      dbState,
     );
 
     act(() => result.current.resetEdgeStyle());
 
     expect(result.current.edgeStyle).toStrictEqual(
-      createExpectedEdge({ type: "type1" })
+      createExpectedEdge({ type: "type1" }),
     );
 
     // Check that type2 still exists
     const { result: result2 } = renderHookWithState(
       () => useEdgeStyling("type2"),
-      dbState
+      dbState,
     );
     expect(result2.current.edgeStyle).toStrictEqual(
       createExpectedEdge({
         type: "type2",
         lineColor: "blue",
-      })
+      }),
     );
   });
 
@@ -321,13 +321,13 @@ describe("useEdgeStyling", () => {
     const dbState = new DbState();
     const { result } = renderHookWithState(
       () => useEdgeStyling("test"),
-      dbState
+      dbState,
     );
 
     act(() => result.current.setEdgeStyle({}));
 
     expect(result.current.edgeStyle).toStrictEqual(
-      createExpectedEdge({ type: "test" })
+      createExpectedEdge({ type: "test" }),
     );
   });
 });
@@ -337,7 +337,7 @@ describe("useDeferredAtom integration", () => {
     const dbState = new DbState();
     const { result } = renderHookWithState(
       () => useVertexStyling("test"),
-      dbState
+      dbState,
     );
 
     // Simulate rapid updates that might happen in real usage
@@ -353,7 +353,7 @@ describe("useDeferredAtom integration", () => {
         color: "red",
         borderColor: "blue",
         shape: "ellipse",
-      })
+      }),
     );
   });
 
@@ -361,7 +361,7 @@ describe("useDeferredAtom integration", () => {
     const dbState = new DbState();
     const { result } = renderHookWithState(
       () => useVertexStyling("test"),
-      dbState
+      dbState,
     );
 
     // Test that the deferred atom pattern works with the hook
@@ -372,7 +372,7 @@ describe("useDeferredAtom integration", () => {
       createExpectedVertex({
         type: "test",
         color: "red",
-      })
+      }),
     );
 
     // Test that subsequent updates work correctly
@@ -383,7 +383,7 @@ describe("useDeferredAtom integration", () => {
         type: "test",
         color: "red",
         borderColor: "blue",
-      })
+      }),
     );
   });
 });

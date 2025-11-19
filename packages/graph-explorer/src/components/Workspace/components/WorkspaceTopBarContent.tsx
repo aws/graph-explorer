@@ -13,7 +13,7 @@ const WorkspaceTopBarContent = ({
     <div
       className={cn(
         "flex h-full min-w-[240px] grow justify-center py-1",
-        className
+        className,
       )}
     >
       {children}

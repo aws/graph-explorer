@@ -17,7 +17,7 @@ const GeneratedPrefixes = () => {
 
   const { filteredItems, search, setSearch } = useSearchItems(
     items,
-    prefix => prefix.title
+    prefix => prefix.title,
   );
 
   if (items.length === 0) {
@@ -60,7 +60,7 @@ function useGeneratedPrefixes() {
       prefixConfig =>
         prefixConfig.__inferred === true &&
         prefixConfig.__matches &&
-        prefixConfig.__matches.size > 0
+        prefixConfig.__matches.size > 0,
     )
     .map(mapToPrefixData)
     .toSorted((a, b) => a.title.localeCompare(b.title));

@@ -197,10 +197,10 @@ describe("saveConfigurationToFile", () => {
 
     expect(Array.isArray(parsed.schema.prefixes[0].__matches)).toBe(true);
     expect(parsed.schema.prefixes[0].__matches).toContain(
-      "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+      "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
     );
     expect(parsed.schema.prefixes[1].__matches).toContain(
-      "http://www.w3.org/2000/01/rdf-schema#"
+      "http://www.w3.org/2000/01/rdf-schema#",
     );
   });
 

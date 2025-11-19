@@ -55,7 +55,7 @@ describe("useVertexAttributesAsScalars", () => {
     it("should return ID, Label, and attributes for vertex", () => {
       const { result } = renderHookWithState(
         () => useVertexAttributesAsScalars(vertex),
-        dbState
+        dbState,
       );
 
       const scalars = result.current;
@@ -65,28 +65,28 @@ describe("useVertexAttributesAsScalars", () => {
         createResultScalar({
           name: "Node Id",
           value: "vertex-1",
-        })
+        }),
       );
 
       expect(scalars[1]).toEqual(
         createResultScalar({
           name: "Node Label",
           value: "Person",
-        })
+        }),
       );
 
       expect(scalars[2]).toEqual(
         createResultScalar({
           name: "Name",
           value: "John Doe",
-        })
+        }),
       );
 
       expect(scalars[3]).toEqual(
         createResultScalar({
           name: "Age",
           value: "30",
-        })
+        }),
       );
     });
   });
@@ -99,7 +99,7 @@ describe("useVertexAttributesAsScalars", () => {
     it("should return URI, Class, and attributes for vertex", () => {
       const { result } = renderHookWithState(
         () => useVertexAttributesAsScalars(vertex),
-        dbState
+        dbState,
       );
 
       const scalars = result.current;
@@ -109,14 +109,14 @@ describe("useVertexAttributesAsScalars", () => {
         createResultScalar({
           name: "Resource URI",
           value: "vertex-1",
-        })
+        }),
       );
 
       expect(scalars[1]).toEqual(
         createResultScalar({
           name: "Class",
           value: "Person",
-        })
+        }),
       );
     });
 
@@ -131,7 +131,7 @@ describe("useVertexAttributesAsScalars", () => {
 
       const { result } = renderHookWithState(
         () => useVertexAttributesAsScalars(blankNodeVertex),
-        dbState
+        dbState,
       );
 
       const scalars = result.current;
@@ -139,7 +139,7 @@ describe("useVertexAttributesAsScalars", () => {
         createResultScalar({
           name: "Blank Node Id",
           value: "vertex-1",
-        })
+        }),
       );
     });
   });
@@ -155,7 +155,7 @@ describe("useVertexAttributesAsScalars", () => {
 
     const { result } = renderHookWithState(
       () => useVertexAttributesAsScalars(vertexWithNoAttributes),
-      dbState
+      dbState,
     );
 
     const scalars = result.current;
@@ -181,7 +181,7 @@ describe("useVertexAttributesAsScalars", () => {
 
     const { result } = renderHookWithState(
       () => useVertexAttributesAsScalars(vertexWithEmptyTypes),
-      dbState
+      dbState,
     );
 
     const scalars = result.current;
@@ -189,7 +189,7 @@ describe("useVertexAttributesAsScalars", () => {
       createResultScalar({
         name: "Node Label",
         value: "",
-      })
+      }),
     );
   });
 });

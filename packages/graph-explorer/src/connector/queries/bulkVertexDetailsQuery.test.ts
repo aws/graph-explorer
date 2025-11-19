@@ -31,7 +31,7 @@ describe("bulkVertexDetailsQuery", () => {
     });
 
     const result = await queryClient.fetchQuery(
-      bulkVertexDetailsQuery([vertex.id])
+      bulkVertexDetailsQuery([vertex.id]),
     );
 
     expect(result.vertices).toStrictEqual([vertex]);
@@ -39,7 +39,7 @@ describe("bulkVertexDetailsQuery", () => {
 
     // Ensure vertex is still in the cache
     expect(
-      queryClient.getQueryData(vertexDetailsQuery(vertex.id).queryKey)
+      queryClient.getQueryData(vertexDetailsQuery(vertex.id).queryKey),
     ).toStrictEqual({ vertex });
   });
 
@@ -52,7 +52,7 @@ describe("bulkVertexDetailsQuery", () => {
     explorer.addVertex(vertex);
 
     const result = await queryClient.fetchQuery(
-      bulkVertexDetailsQuery([vertex.id])
+      bulkVertexDetailsQuery([vertex.id]),
     );
 
     expect(result.vertices).toStrictEqual([vertex]);
@@ -60,7 +60,7 @@ describe("bulkVertexDetailsQuery", () => {
 
     // Ensure vertex is added to the cache
     expect(
-      queryClient.getQueryData(vertexDetailsQuery(vertex.id).queryKey)
+      queryClient.getQueryData(vertexDetailsQuery(vertex.id).queryKey),
     ).toStrictEqual({ vertex });
   });
 
@@ -81,7 +81,7 @@ describe("bulkVertexDetailsQuery", () => {
     explorer.addVertex(vertexFetched);
 
     const result = await queryClient.fetchQuery(
-      bulkVertexDetailsQuery([vertexCached.id, vertexFetched.id])
+      bulkVertexDetailsQuery([vertexCached.id, vertexFetched.id]),
     );
 
     expect(result.vertices).toStrictEqual([vertexCached, vertexFetched]);
@@ -89,10 +89,10 @@ describe("bulkVertexDetailsQuery", () => {
 
     // Ensure both vertices are added to the cache
     expect(
-      queryClient.getQueryData(vertexDetailsQuery(vertexCached.id).queryKey)
+      queryClient.getQueryData(vertexDetailsQuery(vertexCached.id).queryKey),
     ).toStrictEqual({ vertex: vertexCached });
     expect(
-      queryClient.getQueryData(vertexDetailsQuery(vertexFetched.id).queryKey)
+      queryClient.getQueryData(vertexDetailsQuery(vertexFetched.id).queryKey),
     ).toStrictEqual({ vertex: vertexFetched });
   });
 
@@ -104,12 +104,12 @@ describe("bulkVertexDetailsQuery", () => {
     const vertices = createArray(
       // 3 full batches plus 1 additional, to make 4
       DEFAULT_BATCH_REQUEST_SIZE * 3 + 1,
-      createRandomVertex
+      createRandomVertex,
     );
     vertices.forEach(v => explorer.addVertex(v));
 
     const result = await queryClient.fetchQuery(
-      bulkVertexDetailsQuery(vertices.map(v => v.id))
+      bulkVertexDetailsQuery(vertices.map(v => v.id)),
     );
 
     expect(result.vertices).toStrictEqual(vertices);
@@ -118,7 +118,7 @@ describe("bulkVertexDetailsQuery", () => {
     // Ensure all are added to the cache
     for (const vertex of vertices) {
       expect(
-        queryClient.getQueryData(vertexDetailsQuery(vertex.id).queryKey)
+        queryClient.getQueryData(vertexDetailsQuery(vertex.id).queryKey),
       ).toStrictEqual({ vertex });
     }
   });
@@ -144,7 +144,7 @@ describe("bulkVertexDetailsQuery", () => {
       new Map([
         [originalVertex1.id, originalVertex1],
         [originalVertex2.id, originalVertex2],
-      ])
+      ]),
     );
 
     // Mock explorer to return updated vertices
@@ -152,7 +152,7 @@ describe("bulkVertexDetailsQuery", () => {
     explorer.addVertex(updatedVertex2);
 
     await queryClient.fetchQuery(
-      bulkVertexDetailsQuery([originalVertex1.id, originalVertex2.id])
+      bulkVertexDetailsQuery([originalVertex1.id, originalVertex2.id]),
     );
 
     // Verify nodesAtom was updated with the new vertex data
@@ -174,7 +174,7 @@ describe("bulkVertexDetailsQuery", () => {
     expect(getAppStore().get(nodesAtom).size).toBe(0);
 
     await queryClient.fetchQuery(
-      bulkVertexDetailsQuery([vertex1.id, vertex2.id])
+      bulkVertexDetailsQuery([vertex1.id, vertex2.id]),
     );
 
     // Verify nodesAtom was not modified
@@ -201,7 +201,7 @@ describe("bulkVertexDetailsQuery", () => {
     explorer.addVertex(updatedVertex);
 
     const result = await queryClient.fetchQuery(
-      bulkVertexDetailsQuery([cachedVertex.id], { ignoreCache: true })
+      bulkVertexDetailsQuery([cachedVertex.id], { ignoreCache: true }),
     );
 
     expect(result.vertices).toStrictEqual([updatedVertex]);
@@ -209,7 +209,7 @@ describe("bulkVertexDetailsQuery", () => {
 
     // Ensure cache is updated with new data
     expect(
-      queryClient.getQueryData(vertexDetailsQuery(cachedVertex.id).queryKey)
+      queryClient.getQueryData(vertexDetailsQuery(cachedVertex.id).queryKey),
     ).toStrictEqual({ vertex: updatedVertex });
   });
 
@@ -226,7 +226,7 @@ describe("bulkVertexDetailsQuery", () => {
     });
 
     const result = await queryClient.fetchQuery(
-      bulkVertexDetailsQuery([cachedVertex.id], { ignoreCache: false })
+      bulkVertexDetailsQuery([cachedVertex.id], { ignoreCache: false }),
     );
 
     expect(result.vertices).toStrictEqual([cachedVertex]);

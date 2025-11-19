@@ -72,7 +72,7 @@ function SideBarItem(props: PropsWithChildren<{ to: To }>) {
           "flex w-full flex-row items-center rounded-md px-2 py-1 text-lg",
           isActive &&
             "bg-primary-main hover:bg-primary-light font-bold text-white",
-          !isActive && "font-base text-text-secondary hover:bg-gray-200"
+          !isActive && "font-base text-text-secondary hover:bg-gray-200",
         )
       }
     >

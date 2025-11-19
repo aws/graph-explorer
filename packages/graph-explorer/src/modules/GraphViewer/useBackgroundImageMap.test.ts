@@ -25,7 +25,7 @@ describe("useBackgroundImageMap", () => {
   it("should return empty map when no vertex configs provided", () => {
     const { result } = renderHookWithState(
       () => useBackgroundImageMap([]),
-      dbState
+      dbState,
     );
 
     expect(result.current).toEqual(new Map());
@@ -39,7 +39,7 @@ describe("useBackgroundImageMap", () => {
 
     const { result } = renderHookWithState(
       () => useBackgroundImageMap([vertexConfig]),
-      dbState
+      dbState,
     );
 
     await waitFor(() => {
@@ -48,7 +48,7 @@ describe("useBackgroundImageMap", () => {
 
     expect(mockRenderNode).toHaveBeenCalledWith(
       expect.any(Object),
-      vertexConfig
+      vertexConfig,
     );
   });
 
@@ -67,7 +67,7 @@ describe("useBackgroundImageMap", () => {
 
     const { result } = renderHookWithState(
       () => useBackgroundImageMap([personConfig, companyConfig]),
-      dbState
+      dbState,
     );
 
     await waitFor(() => {
@@ -78,11 +78,11 @@ describe("useBackgroundImageMap", () => {
     expect(mockRenderNode).toHaveBeenCalledTimes(2);
     expect(mockRenderNode).toHaveBeenCalledWith(
       expect.any(Object),
-      personConfig
+      personConfig,
     );
     expect(mockRenderNode).toHaveBeenCalledWith(
       expect.any(Object),
-      companyConfig
+      companyConfig,
     );
   });
 
@@ -100,7 +100,7 @@ describe("useBackgroundImageMap", () => {
 
     const { result } = renderHookWithState(
       () => useBackgroundImageMap([personConfig, companyConfig]),
-      dbState
+      dbState,
     );
 
     await waitFor(() => {
@@ -117,7 +117,7 @@ describe("useBackgroundImageMap", () => {
 
     const { result } = renderHookWithState(
       () => useBackgroundImageMap([vertexConfig]),
-      dbState
+      dbState,
     );
 
     await waitFor(() => {
@@ -133,7 +133,7 @@ describe("useBackgroundImageMap", () => {
 
     const { result } = renderHookWithState(
       () => useBackgroundImageMap([vertexConfig]),
-      dbState
+      dbState,
     );
 
     await waitFor(() => {
@@ -156,7 +156,7 @@ describe("useBackgroundImageMap", () => {
 
     const { result: initialResult } = renderHookWithState(
       () => useBackgroundImageMap([initialConfig]),
-      dbState
+      dbState,
     );
 
     await waitFor(() => {
@@ -168,7 +168,7 @@ describe("useBackgroundImageMap", () => {
 
     const { result: updatedResult } = renderHookWithState(
       () => useBackgroundImageMap([updatedConfig]),
-      dbState
+      dbState,
     );
 
     await waitFor(() => {
@@ -197,7 +197,7 @@ describe("useBackgroundImageMap", () => {
 
     const { result } = renderHookWithState(
       () => useBackgroundImageMap(configs),
-      dbState
+      dbState,
     );
 
     await waitFor(() => {
@@ -218,7 +218,7 @@ describe("useBackgroundImageMap", () => {
     await waitFor(() => {
       expect(mockRenderNode).toHaveBeenCalledWith(
         expect.any(Object),
-        vertexConfig
+        vertexConfig,
       );
     });
 
@@ -242,7 +242,7 @@ describe("useBackgroundImageMap", () => {
 
     const { result } = renderHookWithState(
       () => useBackgroundImageMap([svgConfig, pngConfig]),
-      dbState
+      dbState,
     );
 
     await waitFor(() => {
@@ -268,7 +268,7 @@ describe("useBackgroundImageMap", () => {
 
     const { result } = renderHookWithState(
       () => useBackgroundImageMap([configWithIcon, configWithoutIcon]),
-      dbState
+      dbState,
     );
 
     await waitFor(() => {

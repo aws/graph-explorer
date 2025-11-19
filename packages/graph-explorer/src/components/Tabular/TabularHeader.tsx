@@ -20,7 +20,7 @@ const TabularHeader = <T extends object>({
         const { key, style, ...restHeaderProps } = column.getHeaderProps(
           column.getSortByToggleProps({
             style: { display: "flex", cursor: "default" },
-          })
+          }),
         );
 
         // This wrapper avoids collisions between sort and resize events
@@ -43,7 +43,7 @@ const TabularHeader = <T extends object>({
                   ["header-label-sortable"]: column.canSort,
                   [`header-label-sort-${column.isSortedDesc ? "desc" : "asc"}`]:
                     column.isSorted,
-                }
+                },
               )}
             >
               <div

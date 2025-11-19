@@ -28,7 +28,7 @@ export function useRestoreGraphSession() {
       // Get the vertex and edge details from the database
       const entityCountMessage = formatEntityCounts(
         graph.vertices.size,
-        graph.edges.size
+        graph.edges.size,
       );
 
       progressNotificationId.current = enqueueNotification({
@@ -42,7 +42,7 @@ export function useRestoreGraphSession() {
       const result = await fetchEntityDetails(
         graph.vertices,
         graph.edges,
-        queryClient
+        queryClient,
       );
 
       // Update Graph Explorer state

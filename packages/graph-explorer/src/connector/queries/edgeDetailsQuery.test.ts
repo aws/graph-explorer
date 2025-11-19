@@ -14,7 +14,7 @@ describe("edgeDetailsQuery", () => {
     const queryClient = createQueryClient({ explorer });
 
     const result = await queryClient.fetchQuery(
-      edgeDetailsQuery(createRandomEdgeId())
+      edgeDetailsQuery(createRandomEdgeId()),
     );
 
     expect(result.edge).toBeNull();

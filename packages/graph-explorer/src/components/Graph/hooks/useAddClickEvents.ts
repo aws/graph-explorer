@@ -17,20 +17,20 @@ export type BoundingRect = {
 
 export type GraphEventCallback = (
   event: cytoscape.EventObject,
-  position: Position
+  position: Position,
 ) => void;
 
 export type ElementEventCallback<TElement extends object = any> = (
   event: cytoscape.EventObject,
   element: TElement,
-  bounds: BoundingRect
+  bounds: BoundingRect,
 ) => void;
 
 type GroupElementEventCallback<TNode extends object = any> = (
   event: cytoscape.EventObject,
   node: TNode,
   children: TNode[],
-  bounds: BoundingRect
+  bounds: BoundingRect,
 ) => void;
 
 export interface UseAddClickEvents<
@@ -128,7 +128,7 @@ const useAddClickEvents = ({
 
     const withMousePosition = (
       e: cytoscape.EventObject,
-      cb?: GraphEventCallback
+      cb?: GraphEventCallback,
     ) => {
       if (!cb) {
         return;
@@ -140,7 +140,7 @@ const useAddClickEvents = ({
 
     const withElementAndBounds = (
       e: cytoscape.EventObject,
-      cb?: ElementEventCallback
+      cb?: ElementEventCallback,
     ) => {
       if (!cb) {
         return;
@@ -162,7 +162,7 @@ const useAddClickEvents = ({
 
     const withGroupElementAndBounds = (
       e: cytoscape.EventObject,
-      cb?: GroupElementEventCallback
+      cb?: GroupElementEventCallback,
     ) => {
       if (!cb) {
         return;
@@ -188,7 +188,7 @@ const useAddClickEvents = ({
           left: x1,
           width: x2 - x1,
           height: y2 - y1,
-        }
+        },
       );
     };
 

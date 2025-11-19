@@ -21,7 +21,7 @@ describe("executeUserQuery", () => {
     const mockUpdateSchema = vi.fn();
 
     const result = await queryClient.fetchQuery(
-      executeUserQuery("query", mockUpdateSchema)
+      executeUserQuery("query", mockUpdateSchema),
     );
 
     expect(result).toStrictEqual([]);
@@ -29,7 +29,7 @@ describe("executeUserQuery", () => {
     expect(vertexDetailsSpy).toBeCalledTimes(0);
     expect(edgeDetailsSpy).toBeCalledTimes(0);
     expect(mockUpdateSchema).toHaveBeenCalledExactlyOnceWith(
-      getAllGraphableEntities(result)
+      getAllGraphableEntities(result),
     );
   });
 
@@ -46,7 +46,7 @@ describe("executeUserQuery", () => {
     const mockUpdateSchema = vi.fn();
 
     const result = await queryClient.fetchQuery(
-      executeUserQuery("query", mockUpdateSchema)
+      executeUserQuery("query", mockUpdateSchema),
     );
 
     expect(result).toStrictEqual([vertex.asPatchedResult()]);
@@ -54,7 +54,7 @@ describe("executeUserQuery", () => {
     expect(vertexDetailsSpy).toBeCalledTimes(0);
     expect(edgeDetailsSpy).toBeCalledTimes(0);
     expect(mockUpdateSchema).toHaveBeenCalledExactlyOnceWith(
-      getAllGraphableEntities(result)
+      getAllGraphableEntities(result),
     );
   });
 
@@ -72,7 +72,7 @@ describe("executeUserQuery", () => {
     const mockUpdateSchema = vi.fn();
 
     const result = await queryClient.fetchQuery(
-      executeUserQuery("query", mockUpdateSchema)
+      executeUserQuery("query", mockUpdateSchema),
     );
 
     expect(result).toStrictEqual([vertex.asPatchedResult()]);
@@ -80,7 +80,7 @@ describe("executeUserQuery", () => {
     expect(vertexDetailsSpy).toBeCalledTimes(1);
     expect(edgeDetailsSpy).toBeCalledTimes(0);
     expect(mockUpdateSchema).toHaveBeenCalledExactlyOnceWith(
-      getAllGraphableEntities(result)
+      getAllGraphableEntities(result),
     );
   });
 
@@ -102,7 +102,7 @@ describe("executeUserQuery", () => {
     const mockUpdateSchema = vi.fn();
 
     const result = await queryClient.fetchQuery(
-      executeUserQuery("query", mockUpdateSchema)
+      executeUserQuery("query", mockUpdateSchema),
     );
 
     expect(result).toStrictEqual([edge.asPatchedResult()]);
@@ -112,11 +112,11 @@ describe("executeUserQuery", () => {
       {
         vertexIds: [edge.source.id, edge.target.id],
       },
-      expect.anything()
+      expect.anything(),
     );
     expect(edgeDetailsSpy).toBeCalledTimes(0);
     expect(mockUpdateSchema).toHaveBeenCalledExactlyOnceWith(
-      getAllGraphableEntities(result)
+      getAllGraphableEntities(result),
     );
   });
 
@@ -135,7 +135,7 @@ describe("executeUserQuery", () => {
     const mockUpdateSchema = vi.fn();
 
     const result = await queryClient.fetchQuery(
-      executeUserQuery("query", mockUpdateSchema)
+      executeUserQuery("query", mockUpdateSchema),
     );
 
     expect(edgeDetailsSpy).toBeCalledTimes(1);
@@ -143,7 +143,7 @@ describe("executeUserQuery", () => {
     expect(rawQuerySpy).toBeCalledTimes(1);
     expect(result).toStrictEqual([edge.asPatchedResult()]);
     expect(mockUpdateSchema).toHaveBeenCalledExactlyOnceWith(
-      getAllGraphableEntities(result)
+      getAllGraphableEntities(result),
     );
   });
 
@@ -163,7 +163,7 @@ describe("executeUserQuery", () => {
     const mockUpdateSchema = vi.fn();
 
     const result = queryClient.fetchQuery(
-      executeUserQuery("query", mockUpdateSchema)
+      executeUserQuery("query", mockUpdateSchema),
     );
 
     await expect(result).rejects.toThrow("Failed to fetch edge details");
@@ -171,7 +171,7 @@ describe("executeUserQuery", () => {
     expect(vertexDetailsSpy).toBeCalledTimes(1);
     expect(edgeDetailsSpy).toBeCalledTimes(1);
     expect(mockUpdateSchema).not.toHaveBeenCalledExactlyOnceWith(
-      getAllGraphableEntities([])
+      getAllGraphableEntities([]),
     );
   });
 
@@ -204,7 +204,7 @@ describe("executeUserQuery", () => {
     const mockUpdateSchema = vi.fn();
 
     const result = await queryClient.fetchQuery(
-      executeUserQuery("query", mockUpdateSchema)
+      executeUserQuery("query", mockUpdateSchema),
     );
 
     expect(result).toStrictEqual([
@@ -218,7 +218,7 @@ describe("executeUserQuery", () => {
     expect(vertexDetailsSpy).toBeCalledTimes(1);
     expect(edgeDetailsSpy).toBeCalledTimes(0);
     expect(mockUpdateSchema).toHaveBeenCalledExactlyOnceWith(
-      getAllGraphableEntities(result)
+      getAllGraphableEntities(result),
     );
   });
 
@@ -236,7 +236,7 @@ describe("executeUserQuery", () => {
     // Add original vertex to nodesAtom
     getAppStore().set(
       nodesAtom,
-      new Map([[originalVertex.id, originalVertex.asVertex()]])
+      new Map([[originalVertex.id, originalVertex.asVertex()]]),
     );
 
     // Mock explorer to return updated vertex
@@ -249,7 +249,7 @@ describe("executeUserQuery", () => {
     // Verify nodesAtom was updated with the new vertex data
     const nodesMap = getAppStore().get(nodesAtom);
     expect(nodesMap.get(originalVertex.id)).toStrictEqual(
-      updatedVertex.asVertex()
+      updatedVertex.asVertex(),
     );
   });
 
@@ -267,7 +267,7 @@ describe("executeUserQuery", () => {
     // Add original edge to edgesAtom
     getAppStore().set(
       edgesAtom,
-      new Map([[originalEdge.id, originalEdge.asEdge()]])
+      new Map([[originalEdge.id, originalEdge.asEdge()]]),
     );
 
     // Mock explorer to return updated edge

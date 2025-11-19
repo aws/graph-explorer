@@ -30,7 +30,7 @@ describe("calculateNeighbors", () => {
     const result = calculateNeighbors(
       total.total,
       total.byType,
-      fetchedNeighbors
+      fetchedNeighbors,
     );
 
     expect(result.all).toEqual(total.total);
@@ -40,7 +40,7 @@ describe("calculateNeighbors", () => {
       new Map([
         ["type1", { all: 6, fetched: 2, unfetched: 4 }],
         ["type2", { all: 4, fetched: 2, unfetched: 2 }],
-      ])
+      ]),
     );
   });
 
@@ -63,7 +63,7 @@ describe("calculateNeighbors", () => {
     const result = calculateNeighbors(
       total.total,
       total.byType,
-      fetchedNeighbors
+      fetchedNeighbors,
     );
 
     expect(result.all).toEqual(total.total);
@@ -74,7 +74,7 @@ describe("calculateNeighbors", () => {
         ["type1", { all: 6, fetched: 2, unfetched: 4 }],
         ["type2", { all: 4, fetched: 2, unfetched: 2 }],
         ["type3", { all: 2, fetched: 1, unfetched: 1 }],
-      ])
+      ]),
     );
   });
 
@@ -97,7 +97,7 @@ describe("calculateNeighbors", () => {
     const result = calculateNeighbors(
       total.total,
       total.byType,
-      fetchedNeighbors
+      fetchedNeighbors,
     );
 
     expect(result.all).toEqual(total.total);
@@ -108,7 +108,7 @@ describe("calculateNeighbors", () => {
         ["type1", { all: 2, fetched: 2, unfetched: 0 }],
         ["type2", { all: 2, fetched: 2, unfetched: 0 }],
         ["type3", { all: 1, fetched: 1, unfetched: 0 }],
-      ])
+      ]),
     );
   });
 
@@ -137,7 +137,7 @@ describe("calculateNeighbors", () => {
       new Map([
         ["type1", { all: 6, fetched: 0, unfetched: 6 }],
         ["type2", { all: 4, fetched: 0, unfetched: 4 }],
-      ])
+      ]),
     );
   });
 
@@ -171,7 +171,7 @@ describe("calculateNeighbors", () => {
     expect(result.fetched).toEqual(2); // Should deduplicate by ID
     expect(result.unfetched).toEqual(1);
     expect(result.byType).toEqual(
-      new Map([["type1", { all: 3, fetched: 2, unfetched: 1 }]])
+      new Map([["type1", { all: 3, fetched: 2, unfetched: 1 }]]),
     );
   });
 
@@ -189,7 +189,7 @@ describe("calculateNeighbors", () => {
     expect(result.fetched).toEqual(2);
     expect(result.unfetched).toEqual(0);
     expect(result.byType).toEqual(
-      new Map([["type1", { all: 2, fetched: 1, unfetched: 1 }]])
+      new Map([["type1", { all: 2, fetched: 1, unfetched: 1 }]]),
     );
   });
 
@@ -208,7 +208,7 @@ describe("calculateNeighbors", () => {
     expect(result.fetched).toEqual(3);
     expect(result.unfetched).toEqual(0);
     expect(result.byType).toEqual(
-      new Map([["type1", { all: 2, fetched: 2, unfetched: 0 }]])
+      new Map([["type1", { all: 2, fetched: 2, unfetched: 0 }]]),
     );
   });
 
@@ -227,7 +227,7 @@ describe("calculateNeighbors", () => {
     expect(result.fetched).toEqual(3);
     expect(result.unfetched).toEqual(0);
     expect(result.byType).toEqual(
-      new Map([["type1", { all: 1, fetched: 3, unfetched: 0 }]])
+      new Map([["type1", { all: 1, fetched: 3, unfetched: 0 }]]),
     );
   });
 
@@ -255,7 +255,7 @@ describe("calculateNeighbors", () => {
         ["Person", { all: 3, fetched: 3, unfetched: 0 }],
         ["Employee", { all: 2, fetched: 2, unfetched: 0 }],
         ["Manager", { all: 1, fetched: 1, unfetched: 0 }],
-      ])
+      ]),
     );
   });
 });
@@ -267,7 +267,7 @@ describe("useNeighbors", () => {
 
     const { result } = renderHookWithState(
       () => useNeighbors(vertex.id),
-      dbState
+      dbState,
     );
 
     expect(result.current).toEqual({
@@ -293,7 +293,7 @@ describe("useNeighbors", () => {
 
     const { result } = renderHookWithState(
       () => useNeighbors(vertex.id),
-      dbState
+      dbState,
     );
 
     await waitFor(() => {
@@ -325,7 +325,7 @@ describe("useNeighbors", () => {
 
     const { result } = renderHookWithState(
       () => useNeighbors(vertex1.id),
-      dbState
+      dbState,
     );
 
     await waitFor(() => {
@@ -355,7 +355,7 @@ describe("useNeighbors", () => {
 
     const { result } = renderHookWithState(
       () => useNeighbors(vertex.id),
-      dbState
+      dbState,
     );
 
     await waitFor(() => {

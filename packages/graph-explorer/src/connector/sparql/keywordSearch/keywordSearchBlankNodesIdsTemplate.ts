@@ -9,7 +9,7 @@ import { findSubjectsMatchingFilters } from "./keywordSearchTemplate";
  * @see keywordSearchTemplate
  */
 export default function keywordSearchBlankNodesIdsTemplate(
-  request: SPARQLKeywordSearchRequest
+  request: SPARQLKeywordSearchRequest,
 ) {
   return query`
     # Fetch all blank nodes ids from a generic keyword search request

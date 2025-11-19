@@ -33,7 +33,7 @@ describe("vertexDetails", () => {
     const vertex2 = createTestableVertex();
     const response = createGremlinResponseFromVertices(
       vertex1.asResult(),
-      vertex2.asResult()
+      vertex2.asResult(),
     );
     const mockFetch = vi.fn().mockResolvedValue(response);
 

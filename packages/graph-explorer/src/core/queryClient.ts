@@ -58,7 +58,7 @@ export function createQueryClient({
  */
 export function createDefaultOptions(
   explorer: Explorer,
-  store: Store
+  store: Store,
 ): DefaultOptions<Error> {
   const meta: GraphExplorerMeta = { explorer, store };
   return {
@@ -74,7 +74,7 @@ export function createDefaultOptions(
         ) {
           logger.debug(
             "Aborting retry due to HTTP status code:",
-            error.statusCode
+            error.statusCode,
           );
           return false;
         }

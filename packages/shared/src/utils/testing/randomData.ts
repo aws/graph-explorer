@@ -24,7 +24,7 @@ export function createRandomName(prefix: string = ""): string {
   // Grab 10 randome characters from the character array
   const random = Array.from(
     { length: 10 },
-    () => chars[Math.floor(Math.random() * chars.length)]
+    () => chars[Math.floor(Math.random() * chars.length)],
   ).join("");
 
   // Join with the prefix if provided
@@ -131,7 +131,7 @@ export function createArray<T>(length: number, factory: () => T): T[] {
 
 export function createRecord<TValue>(
   length: number,
-  factory: () => { key: string; value: TValue }
+  factory: () => { key: string; value: TValue },
 ): Record<string, TValue> {
   const result: Record<string, TValue> = {};
 

@@ -50,5 +50,5 @@ export const activeGraphSessionAtom = atom(
 
     newGraphs.set(connectionId, newValue);
     set(allGraphSessionsAtom, newGraphs);
-  }
+  },
 );

@@ -20,7 +20,7 @@ type RawKeySearchResponse = {
 
 const keywordSearch = async (
   openCypherFetch: OpenCypherFetch,
-  req: KeywordSearchRequest
+  req: KeywordSearchRequest,
 ): Promise<KeywordSearchResponse> => {
   const vertices = await vertexKeywordSearch(openCypherFetch, req);
 
@@ -29,11 +29,11 @@ const keywordSearch = async (
 
 const vertexKeywordSearch = async (
   openCypherFetch: OpenCypherFetch,
-  req: KeywordSearchRequest
+  req: KeywordSearchRequest,
 ): Promise<Vertex[]> => {
   const openCypherTemplate = keywordSearchTemplate(req);
   const data = await openCypherFetch<RawKeySearchResponse | ErrorResponse>(
-    openCypherTemplate
+    openCypherTemplate,
   );
 
   if (isErrorResponse(data)) {

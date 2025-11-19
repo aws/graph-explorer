@@ -56,7 +56,7 @@ describe("oneHopNeighborsTemplate", () => {
           }
           ${commonPartOfQuery("http://www.example.com/soccer/resource#EPL")}
         }
-      `)
+      `),
     );
   });
 
@@ -91,7 +91,7 @@ describe("oneHopNeighborsTemplate", () => {
           }
           ${commonPartOfQuery("http://www.example.com/soccer/resource#EPL")}
         }
-      `)
+      `),
     );
   });
 
@@ -128,7 +128,7 @@ describe("oneHopNeighborsTemplate", () => {
           }
           ${commonPartOfQuery("http://www.example.com/soccer/resource#EPL")}
         }
-      `)
+      `),
     );
   });
 
@@ -161,7 +161,7 @@ describe("oneHopNeighborsTemplate", () => {
           }
           ${commonPartOfQuery("http://www.example.com/soccer/resource#EPL")}
         }
-      `)
+      `),
     );
   });
 
@@ -196,7 +196,7 @@ describe("oneHopNeighborsTemplate", () => {
           }
           ${commonPartOfQuery("http://www.example.com/soccer/resource#EPL")}
         }
-      `)
+      `),
     );
   });
 
@@ -246,7 +246,7 @@ describe("oneHopNeighborsTemplate", () => {
           }
           ${commonPartOfQuery("http://www.example.com/soccer/resource#EPL")}
         }
-      `)
+      `),
     );
   });
 });

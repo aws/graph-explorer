@@ -94,7 +94,7 @@ describe("schema", () => {
       const originalSchema = createRandomSchema();
       const result = updateSchemaFromEntities(
         { vertices: [], edges: [] },
-        originalSchema
+        originalSchema,
       );
 
       expect(result).toEqual(originalSchema);
@@ -106,7 +106,7 @@ describe("schema", () => {
       const newEdges = createArray(3, () => createRandomEdge());
       const result = updateSchemaFromEntities(
         { vertices: newNodes, edges: newEdges },
-        originalSchema
+        originalSchema,
       );
 
       expect(result).toEqual({
@@ -133,7 +133,7 @@ describe("schema", () => {
 
       const result = updateSchemaFromEntities(
         { vertices: [newNode1, newNode2], edges: [newEdge1, newEdge2] },
-        originalSchema
+        originalSchema,
       );
 
       const node1Configs = mapVertexToTypeConfigs(newNode1);
@@ -175,21 +175,21 @@ describe("schema", () => {
 
       const result = updateSchemaFromEntities(
         { vertices: [newNode], edges: [newEdge] },
-        originalSchema
+        originalSchema,
       );
 
       expect(result.vertices.flatMap(v => v.attributes)).toEqual(
         expect.arrayContaining([
           ...originalSchema.vertices.flatMap(v => v.attributes),
           ...extractedNodeConfigs.flatMap(c => c.attributes),
-        ])
+        ]),
       );
 
       expect(result.edges.flatMap(v => v.attributes)).toEqual(
         expect.arrayContaining([
           ...originalSchema.edges.flatMap(v => v.attributes),
           ...extractedEdgeConfig.attributes,
-        ])
+        ]),
       );
     });
 
@@ -199,20 +199,20 @@ describe("schema", () => {
       originalSchema.edges = [];
 
       const newNodes = createArray(3, () => createRandomVertex()).map(vertex =>
-        createVertex({ ...vertex, types: [] })
+        createVertex({ ...vertex, types: [] }),
       );
 
       const result = updateSchemaFromEntities(
         { vertices: newNodes, edges: [] },
-        originalSchema
+        originalSchema,
       );
 
       const emptyTypeVtConfigs = result.vertices.filter(
-        v => v.type === LABELS.MISSING_TYPE
+        v => v.type === LABELS.MISSING_TYPE,
       );
       expect(emptyTypeVtConfigs).toHaveLength(1);
       expect(emptyTypeVtConfigs[0].attributes).toEqual(
-        newNodes.flatMap(mapVertexToTypeConfigs).flatMap(n => n.attributes)
+        newNodes.flatMap(mapVertexToTypeConfigs).flatMap(n => n.attributes),
       );
     });
   });
@@ -261,7 +261,7 @@ describe("schema", () => {
     it("should return false when no entities are provided", () => {
       const result = shouldUpdateSchemaFromEntities(
         { vertices: [], edges: [] },
-        createRandomSchema()
+        createRandomSchema(),
       );
       expect(result).toBeFalsy();
     });
@@ -270,7 +270,7 @@ describe("schema", () => {
       const entities = createRandomEntities();
       const result = shouldUpdateSchemaFromEntities(
         entities,
-        createRandomSchema()
+        createRandomSchema(),
       );
       expect(result).toBeTruthy();
     });
@@ -288,7 +288,7 @@ describe("schema", () => {
           vertices: [vertex],
           edges: [],
         },
-        schema
+        schema,
       );
       expect(result).toBeFalsy();
     });
@@ -319,7 +319,7 @@ describe("schema", () => {
           vertices: [source, target],
           edges: [edge],
         },
-        schema
+        schema,
       );
       expect(result).toBeFalsy();
     });
@@ -396,7 +396,7 @@ describe("referential integrity", () => {
 
     expect(result.vertices[0]).not.toBe(schema.vertices[0]);
     expect(result.vertices[0].attributes).not.toBe(
-      schema.vertices[0].attributes
+      schema.vertices[0].attributes,
     );
   });
 

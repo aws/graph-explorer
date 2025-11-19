@@ -20,7 +20,7 @@ import type { ResultEntity } from "../entities";
 /** Iterates over entities and adds any materialized entities to the details query cache. */
 export function updateDetailsCacheFromEntities(
   client: QueryClient,
-  entities: ResultEntity[]
+  entities: ResultEntity[],
 ) {
   for (const entity of entities) {
     switch (entity.entityType) {
@@ -49,7 +49,7 @@ export function updateDetailsCacheFromEntities(
 
 export function setVertexDetailsQueryCache(
   client: QueryClient,
-  vertex: Vertex
+  vertex: Vertex,
 ) {
   const queryKey = vertexDetailsQuery(vertex.id).queryKey;
   client.setQueryData(queryKey, { vertex });
@@ -63,7 +63,7 @@ export function setEdgeDetailsQueryCache(client: QueryClient, edge: Edge) {
 /** Sets the neighbor count cache for the given vertex. */
 export function updateNeighborCountCache(
   client: QueryClient,
-  neighborCounts: NeighborCount[]
+  neighborCounts: NeighborCount[],
 ) {
   for (const count of neighborCounts) {
     const queryKey = neighborsCountQuery(count.vertexId).queryKey;
@@ -74,7 +74,7 @@ export function updateNeighborCountCache(
 /** Update the canvas data cache for the given vertices */
 export function updateVertexGraphCanvasState(
   store: AppStore,
-  vertices: Vertex[]
+  vertices: Vertex[],
 ) {
   store.set(nodesAtom, prev => {
     if (vertices.length === 0) {

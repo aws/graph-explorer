@@ -12,7 +12,7 @@ import { getAllGraphableEntities } from "../entities";
 
 export function executeUserQuery(
   query: string,
-  updateSchema: UpdateSchemaHandler
+  updateSchema: UpdateSchemaHandler,
 ) {
   return queryOptions({
     /*

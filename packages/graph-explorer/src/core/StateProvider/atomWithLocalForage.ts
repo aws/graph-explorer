@@ -82,7 +82,7 @@ export function atomWithLocalForage<T>(key: string, initialValue: T) {
       logger.debug(`atomWithLocalForage(${key}): update`, nextValue);
       set(baseAtom, nextValue);
       storage.setItem(nextValue);
-    }
+    },
   );
 
   derivedAtom.debugLabel = `atomWithLocalForage(${key})`;

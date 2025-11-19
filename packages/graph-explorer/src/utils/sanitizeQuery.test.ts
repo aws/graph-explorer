@@ -17,7 +17,7 @@ describe("sanitizeQuery", () => {
         `  ?subject a ?subjectClass;\n` +
         `           ?pred ?value .\n` +
         `}\n` +
-        `LIMIT 10`
+        `LIMIT 10`,
     );
   });
 
@@ -44,7 +44,7 @@ describe("sanitizeQuery", () => {
         `  )\n` +
         `}\n` +
         `LIMIT 10\n` +
-        `OFFSET 10`
+        `OFFSET 10`,
     );
   });
 });

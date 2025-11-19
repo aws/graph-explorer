@@ -85,7 +85,7 @@ function ExpansionOptions({
   const defaultLimit = useDefaultNeighborExpansionLimit();
 
   const [selectedType, setSelectedType] = useState<string>(
-    firstNeighborAvailableForExpansion(neighborsOptions)?.value ?? ""
+    firstNeighborAvailableForExpansion(neighborsOptions)?.value ?? "",
   );
   const [filters, setFilters] = useState<Array<NodeExpandFilter>>([]);
   const [limitEnabled, setLimitEnabled] = useState(Boolean(defaultLimit));
@@ -169,7 +169,7 @@ function ExpandButton({
 }
 
 function firstNeighborAvailableForExpansion(
-  neighborsOptions: NeighborOption[]
+  neighborsOptions: NeighborOption[],
 ) {
   return neighborsOptions.find(x => !x.isDisabled) ?? neighborsOptions[0];
 }

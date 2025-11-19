@@ -18,7 +18,7 @@ type TranslationPaths = Leaves<
 
 export function getTranslation(
   key: TranslationPaths,
-  queryEngine: QueryEngine
+  queryEngine: QueryEngine,
 ) {
   return translations[queryEngine][key] || key;
 }

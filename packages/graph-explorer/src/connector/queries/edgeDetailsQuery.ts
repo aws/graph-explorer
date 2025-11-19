@@ -10,7 +10,7 @@ export function edgeDetailsQuery(edgeId: EdgeId) {
       const store = getStore(meta);
       const results = await explorer.edgeDetails(
         { edgeIds: [edgeId] },
-        { signal }
+        { signal },
       );
 
       const edge = results.edges[0] ?? null;

@@ -27,7 +27,7 @@ describe("fetchNeighbors", () => {
 
     const bindings = createQuadBindingsForEntities(
       [sourceVertex, neighborVertex],
-      [edge]
+      [edge],
     );
     const mockResponse = createQuadSparqlResponse(bindings);
     mockSparqlFetch.mockResolvedValue(mockResponse);
@@ -52,7 +52,7 @@ describe("fetchNeighbors", () => {
 
     const bindings = createQuadBindingsForEntities(
       [sourceVertex, neighbor1, neighbor2],
-      []
+      [],
     );
     const mockResponse = createQuadSparqlResponse(bindings);
     mockSparqlFetch.mockResolvedValue(mockResponse);
@@ -201,7 +201,7 @@ describe("fetchNeighbors", () => {
 
     const bindings = createQuadBindingsForEntities(
       [sourceVertex, blankNodeVertex],
-      [edge]
+      [edge],
     );
     const mockResponse = createQuadSparqlResponse(bindings);
     mockSparqlFetch.mockResolvedValue(mockResponse);
@@ -254,7 +254,7 @@ describe("fetchNeighbors", () => {
 
     // Act & Assert
     await expect(fetchNeighbors(mockSparqlFetch, request)).rejects.toThrow(
-      "Network error"
+      "Network error",
     );
   });
 

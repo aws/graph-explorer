@@ -23,7 +23,7 @@ function SidebarTabsList({
     <TabsPrimitive.List
       className={cn(
         "border-divider bg-background-default text-text-secondary sticky top-0 flex w-full flex-row items-center border-b",
-        className
+        className,
       )}
       {...props}
     />
@@ -39,7 +39,7 @@ function SidebarTabsTrigger({
     <TabsPrimitive.Trigger
       className={cn(
         "focus-visible:ring-ring-3 bg-background-default text-text-secondary ring-offset-background-contrast data-[state=active]:border-primary-main data-[state=active]:text-text-primary inline-flex grow items-center justify-center gap-2 border-b-2 border-transparent px-4 py-2 text-base font-bold whitespace-nowrap transition-all focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-5",
-        className
+        className,
       )}
       {...props}
     />
@@ -55,7 +55,7 @@ function SidebarTabsContent({
     <TabsPrimitive.Content
       className={cn(
         "ring-offset-background focus-visible:ring-ring-3 h-full overflow-y-auto focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden",
-        className
+        className,
       )}
       {...props}
     />

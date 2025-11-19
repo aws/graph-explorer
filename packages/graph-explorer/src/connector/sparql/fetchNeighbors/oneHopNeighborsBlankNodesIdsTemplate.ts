@@ -9,7 +9,7 @@ import { findNeighborsUsingFilters } from "./oneHopNeighborsTemplate";
  * @see oneHopNeighborsTemplate
  */
 export default function oneHopNeighborsBlankNodesIdsTemplate(
-  request: SPARQLNeighborsRequest
+  request: SPARQLNeighborsRequest,
 ) {
   return query`
     SELECT DISTINCT (?neighbor AS ?bNode) {

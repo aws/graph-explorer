@@ -14,7 +14,7 @@ const selectedVerticesSelector = atom(get => {
   const filteredNodeTypes = get(nodesTypesFilteredAtom);
   const allNodeTypes = get(vertexTypesSelector);
   return new Set(
-    [...allNodeTypes].filter(n => filteredNodeTypes.has(n) === false)
+    [...allNodeTypes].filter(n => filteredNodeTypes.has(n) === false),
   );
 });
 
@@ -22,7 +22,7 @@ const selectedEdgesSelector = atom(get => {
   const filteredEdgeTypes = get(edgesTypesFilteredAtom);
   const allEdgeTypes = get(edgeTypesSelector);
   return new Set(
-    [...allEdgeTypes].filter(n => filteredEdgeTypes.has(n) === false)
+    [...allEdgeTypes].filter(n => filteredEdgeTypes.has(n) === false),
   );
 });
 
@@ -36,20 +36,22 @@ const useFiltersConfig = () => {
 
   const addVertex = (vertex: string) => {
     setNodesTypesFiltered(
-      prevVertexList => new Set([...prevVertexList, vertex])
+      prevVertexList => new Set([...prevVertexList, vertex]),
     );
   };
 
   const deleteVertex = (vertex: string) => {
     setNodesTypesFiltered(
       prevVertexList =>
-        new Set([...prevVertexList].filter(prevVertex => prevVertex !== vertex))
+        new Set(
+          [...prevVertexList].filter(prevVertex => prevVertex !== vertex),
+        ),
     );
   };
 
   const addConnection = (connection: string) => {
     setEdgesTypesFiltered(
-      prevConnectionList => new Set([...prevConnectionList, connection])
+      prevConnectionList => new Set([...prevConnectionList, connection]),
     );
   };
 
@@ -58,9 +60,9 @@ const useFiltersConfig = () => {
       prevConnectionList =>
         new Set(
           [...prevConnectionList].filter(
-            prevConnection => prevConnection !== connection
-          )
-        )
+            prevConnection => prevConnection !== connection,
+          ),
+        ),
     );
   };
 
@@ -74,7 +76,7 @@ const useFiltersConfig = () => {
 
   const onChangeConnectionTypes = (
     connectionId: string,
-    isSelected: boolean
+    isSelected: boolean,
   ): void => {
     isSelected ? deleteConnection(connectionId) : addConnection(connectionId);
   };

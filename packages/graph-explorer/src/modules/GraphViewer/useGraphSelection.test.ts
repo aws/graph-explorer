@@ -27,7 +27,7 @@ describe("useGraphSelection", () => {
       result.current.replaceGraphSelection({
         vertices: [vertexId1, vertexId2],
         disableSideEffects: true,
-      })
+      }),
     );
 
     expect(result.current.graphSelection.vertices).toStrictEqual([
@@ -47,7 +47,7 @@ describe("useGraphSelection", () => {
       result.current.replaceGraphSelection({
         edges: [edgeId1, edgeId2],
         disableSideEffects: true,
-      })
+      }),
     );
 
     expect(result.current.graphSelection.vertices).toStrictEqual([]);
@@ -68,7 +68,7 @@ describe("useGraphSelection", () => {
         vertices: [vertexId],
         edges: [edgeId],
         disableSideEffects: true,
-      })
+      }),
     );
 
     expect(result.current.graphSelection.vertices).toStrictEqual([vertexId]);
@@ -85,14 +85,14 @@ describe("useGraphSelection", () => {
       result.current.replaceGraphSelection({
         vertices: [vertexId1],
         disableSideEffects: true,
-      })
+      }),
     );
 
     act(() =>
       result.current.replaceGraphSelection({
         vertices: [vertexId2],
         disableSideEffects: true,
-      })
+      }),
     );
 
     expect(result.current.graphSelection.vertices).toStrictEqual([vertexId2]);
@@ -109,7 +109,7 @@ describe("useGraphSelection", () => {
         vertices: [vertexId],
         edges: [edgeId],
         disableSideEffects: true,
-      })
+      }),
     );
 
     act(() =>
@@ -117,7 +117,7 @@ describe("useGraphSelection", () => {
         vertices: [],
         edges: [],
         disableSideEffects: true,
-      })
+      }),
     );
 
     expect(result.current.graphSelection.vertices).toStrictEqual([]);
@@ -135,7 +135,7 @@ describe("useGraphSelection", () => {
       result.current.replaceGraphSelection({
         vertices: vertexSet,
         disableSideEffects: true,
-      })
+      }),
     );
 
     expect(result.current.graphSelection.vertices).toStrictEqual([
@@ -155,7 +155,7 @@ describe("useGraphSelection", () => {
       result.current.replaceGraphSelection({
         edges: edgeSet,
         disableSideEffects: true,
-      })
+      }),
     );
 
     expect(result.current.graphSelection.edges).toStrictEqual([
@@ -172,7 +172,7 @@ describe("useGraphSelection", () => {
     act(() =>
       result.current.replaceGraphSelection({
         vertices: [vertexId],
-      })
+      }),
     );
 
     expect(mockAutoOpenDetails).toHaveBeenCalledTimes(1);
@@ -186,7 +186,7 @@ describe("useGraphSelection", () => {
     act(() =>
       result.current.replaceGraphSelection({
         edges: [edgeId],
-      })
+      }),
     );
 
     expect(mockAutoOpenDetails).toHaveBeenCalledTimes(1);
@@ -201,7 +201,7 @@ describe("useGraphSelection", () => {
     act(() =>
       result.current.replaceGraphSelection({
         vertices: [vertexId1, vertexId2],
-      })
+      }),
     );
 
     expect(mockAutoOpenDetails).not.toHaveBeenCalled();
@@ -216,7 +216,7 @@ describe("useGraphSelection", () => {
       result.current.replaceGraphSelection({
         vertices: [vertexId],
         disableSideEffects: true,
-      })
+      }),
     );
 
     expect(mockAutoOpenDetails).not.toHaveBeenCalled();
@@ -229,7 +229,7 @@ describe("useGraphSelection", () => {
       result.current.replaceGraphSelection({
         vertices: [],
         edges: [],
-      })
+      }),
     );
 
     expect(mockAutoOpenDetails).not.toHaveBeenCalled();

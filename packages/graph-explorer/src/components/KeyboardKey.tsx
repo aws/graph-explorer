@@ -9,7 +9,7 @@ export function KeyboardKey({
     <div
       className={cn(
         "border-text-secondary inline rounded-sm border bg-transparent px-1 py-0.5 font-mono text-xs leading-none tracking-wider [&_svg]:inline [&_svg]:size-[10px]",
-        className
+        className,
       )}
       {...props}
     />

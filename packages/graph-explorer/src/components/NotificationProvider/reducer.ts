@@ -77,7 +77,7 @@ const reducer = (state: NotificationState, action: NotificationAction) => {
       return {
         ...state,
         active: state.active.filter(
-          notification => notification.id !== action.payload.id
+          notification => notification.id !== action.payload.id,
         ),
         cancelledIds: [...state.cancelledIds, action.payload.id],
       };
@@ -90,13 +90,13 @@ const reducer = (state: NotificationState, action: NotificationAction) => {
         notification =>
           (!notification.expiresAt ||
             notification.expiresAt >= new Date().getTime()) &&
-          !state.cancelledIds.includes(notification.id)
+          !state.cancelledIds.includes(notification.id),
       );
 
       let candidateIndex = 0;
       let notificationCandidate;
       const allStackable = state.active.every(
-        activeNotification => activeNotification.stackable
+        activeNotification => activeNotification.stackable,
       );
       while (
         candidateIndex < nonExpiredQueue.length &&
@@ -147,7 +147,7 @@ const reducer = (state: NotificationState, action: NotificationAction) => {
       return {
         ...state,
         queue: [...state.queue, incomingNotification].sort((a, b) =>
-          a.priority < b.priority ? 1 : a.priority === b.priority ? 0 : -1
+          a.priority < b.priority ? 1 : a.priority === b.priority ? 0 : -1,
         ),
       };
     }

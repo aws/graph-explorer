@@ -24,7 +24,7 @@ describe("getSubjectClasses", () => {
       "http://example.org/class2",
     ]);
     expect(result).toEqual(
-      `FILTER (?class IN (<http://example.org/class1>, <http://example.org/class2>))`
+      `FILTER (?class IN (<http://example.org/class1>, <http://example.org/class2>))`,
     );
   });
 });
@@ -33,14 +33,14 @@ describe("getNeighborsFilter", () => {
   it("should return basic filter when no excluded vertices", () => {
     const result = getNeighborsFilter();
     expect(result).toEqual(
-      `FILTER(!isLiteral(?neighbor) && ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)`
+      `FILTER(!isLiteral(?neighbor) && ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)`,
     );
   });
 
   it("should return basic filter when excluded vertices set is empty", () => {
     const result = getNeighborsFilter(new Set());
     expect(result).toEqual(
-      `FILTER(!isLiteral(?neighbor) && ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)`
+      `FILTER(!isLiteral(?neighbor) && ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)`,
     );
   });
 
@@ -61,7 +61,7 @@ describe("getNeighborsFilter", () => {
             <${vertex2}>
           )
         )
-      `
+      `,
     );
   });
 
@@ -80,7 +80,7 @@ describe("getNeighborsFilter", () => {
             <${vertex}>
           )
         )
-      `
+      `,
     );
   });
 });

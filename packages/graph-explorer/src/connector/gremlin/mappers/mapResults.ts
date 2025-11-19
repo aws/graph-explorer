@@ -91,7 +91,7 @@ export function mapAnyValue(data: GAnyValue, name?: string): ResultEntity[] {
     }
 
     const results = data["@value"].flatMap((item: GAnyValue) =>
-      mapAnyValue(item)
+      mapAnyValue(item),
     );
     return [createResultBundle({ name, values: results })];
   }

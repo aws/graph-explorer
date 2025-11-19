@@ -6,7 +6,7 @@ export function PageHeading({ className, ...props }: ComponentProps<"h1">) {
     <h1
       className={cn(
         "font-extraBold text-text-primary text-4xl leading-snug",
-        className
+        className,
       )}
       {...props}
     />
@@ -18,7 +18,7 @@ export function Paragraph({ className, ...props }: ComponentProps<"p">) {
     <p
       className={cn(
         "text-text-secondary my-2 text-base font-light text-pretty",
-        className
+        className,
       )}
       {...props}
     />
@@ -34,7 +34,7 @@ export function ImportantBlock({
     <div
       className={cn(
         "border-info-main bg-info-light/20 text-info-dark rounded-md border-l-4 px-4 py-2",
-        className
+        className,
       )}
       {...props}
     >

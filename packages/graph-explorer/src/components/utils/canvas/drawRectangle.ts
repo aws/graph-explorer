@@ -8,7 +8,7 @@ export type DrawRectangleOptions = ApplyStyleOptions & {
 const drawRectangle = (
   context: CanvasRenderingContext2D,
   boundingBox: BoundingBox,
-  options: DrawRectangleOptions = {}
+  options: DrawRectangleOptions = {},
 ) => {
   context.save();
   const { x, y, width: w, height: h } = boundingBox;

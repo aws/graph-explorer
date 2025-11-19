@@ -40,19 +40,19 @@ export function useNeighborsCallback() {
       async (get, _set, vertexId: VertexId) => {
         const fetchedNeighbors = get(fetchedNeighborsSelector(vertexId));
         const response = await queryClient.fetchQuery(
-          neighborsCountQuery(vertexId)
+          neighborsCountQuery(vertexId),
         );
 
         const neighbors = calculateNeighbors(
           response.totalCount,
           new Map(Object.entries(response.counts)),
-          fetchedNeighbors
+          fetchedNeighbors,
         );
 
         return neighbors;
       },
-      [queryClient]
-    )
+      [queryClient],
+    ),
   );
 }
 
@@ -72,7 +72,7 @@ export function useNeighbors(vertexId: VertexId) {
   const neighbors = calculateNeighbors(
     query.data.totalCount,
     new Map(Object.entries(query.data.counts)),
-    fetchedNeighbors
+    fetchedNeighbors,
   );
 
   return neighbors;
@@ -99,7 +99,7 @@ export function useAllNeighbors() {
   const queryClient = useQueryClient();
   const fetchedNeighbors = useAtomValue(allFetchedNeighborsSelector(vertexIds));
   const { isLoading, error, data } = useQuery(
-    bulkNeighborCountsQuery(vertexIds, queryClient)
+    bulkNeighborCountsQuery(vertexIds, queryClient),
   );
 
   const { enqueueNotification, clearNotification } = useNotification();
@@ -147,10 +147,10 @@ export function useAllNeighbors() {
             calculateNeighbors(
               data.totalCount,
               new Map(Object.entries(data.counts)),
-              neighbors
+              neighbors,
             ),
           ];
-        })
+        }),
     );
   }, [data, fetchedNeighbors, vertexIds]);
 }
@@ -165,7 +165,7 @@ export function useAllNeighbors() {
 export function calculateNeighbors(
   total: number,
   totalByType: Map<string, number>,
-  fetchedNeighbors: NeighborStub[]
+  fetchedNeighbors: NeighborStub[],
 ): NeighborCounts {
   const fetchNeighborsMap = new Map(fetchedNeighbors.map(n => [n.id, n]));
 
@@ -201,7 +201,7 @@ export function calculateNeighbors(
           unfetched,
         },
       ];
-    })
+    }),
   );
 
   return {
@@ -235,7 +235,7 @@ const fetchedNeighborsSelector = atomFamily((id: VertexId) =>
     }
 
     return neighbors.values().toArray();
-  })
+  }),
 );
 
 /**
@@ -255,12 +255,12 @@ export function useFetchedNeighborsCallback() {
         // Filter out edges where the source or target vertex is not in the graph
         .filter(edge => nodes.has(edge.sourceId) && nodes.has(edge.targetId))
         // Get the source or target vertex ID depending on the edge direction
-        .map(edge => (edge.sourceId === id ? edge.targetId : edge.sourceId))
+        .map(edge => (edge.sourceId === id ? edge.targetId : edge.sourceId)),
     );
 }
 
 const allFetchedNeighborsSelector = atomFamily((ids: VertexId[]) =>
   atom(get => {
     return new Map(ids.map(id => [id, get(fetchedNeighborsSelector(id))]));
-  })
+  }),
 );

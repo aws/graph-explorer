@@ -97,7 +97,7 @@ export default {
             "contain-intrinsic-size": value,
           }),
         },
-        { values: theme("spacing") }
+        { values: theme("spacing") },
       );
     }),
   ],

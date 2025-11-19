@@ -104,7 +104,7 @@ export const getStyles = ({
   addDefault("node.hidden", toCyNodeStyle(hiddenNodeStyle));
   addDefault(
     "node.blast-radius-filter-out",
-    toCyNodeStyle(outOfFocusNodeStyle)
+    toCyNodeStyle(outOfFocusNodeStyle),
   );
   addDefault("node.connections-filter-out", toCyNodeStyle(outOfFocusNodeStyle));
   addDefault("node.out-of-focus", toCyNodeStyle(outOfFocusNodeStyle));
@@ -117,7 +117,7 @@ export const getStyles = ({
   }
   addDefault(
     "edge.blast-radius-filter-out",
-    toCyEdgeStyle(outOfFocusEdgeStyle)
+    toCyEdgeStyle(outOfFocusEdgeStyle),
   );
   addDefault("edge.connections-filter-out", toCyEdgeStyle(outOfFocusEdgeStyle));
   addDefault("edge.out-of-focus", toCyEdgeStyle(outOfFocusEdgeStyle));

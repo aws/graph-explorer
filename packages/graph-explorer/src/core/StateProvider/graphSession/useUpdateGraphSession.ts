@@ -25,7 +25,7 @@ export function useUpdateGraphSession() {
         nodesInGraph
           .entries()
           .filter(([_key, node]) => !node.isBlankNode)
-          .map(([key]) => key)
+          .map(([key]) => key),
       );
       const edges = new Set(
         edgesInGraph
@@ -35,7 +35,7 @@ export function useUpdateGraphSession() {
             const target = nodesInGraph.get(edge.targetId);
             return !source?.isBlankNode && !target?.isBlankNode;
           })
-          .map(([key]) => key)
+          .map(([key]) => key),
       );
 
       // Construct the graph storage model
@@ -48,6 +48,6 @@ export function useUpdateGraphSession() {
       logger.debug("Updating graph session", graphSession);
       set(activeGraphSessionAtom, graphSession);
       set(isRestorePreviousSessionAvailableAtom, false);
-    }, [])
+    }, []),
   );
 }

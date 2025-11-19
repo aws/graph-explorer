@@ -10,7 +10,7 @@ describe("OpenCypher > keywordSearchTemplate", () => {
       normalize(`
         MATCH (v)
         RETURN v AS object 
-      `)
+      `),
     );
   });
 
@@ -23,7 +23,7 @@ describe("OpenCypher > keywordSearchTemplate", () => {
       normalize(`
         MATCH (v:\`airport\`) 
         RETURN v AS object 
-      `)
+      `),
     );
   });
 
@@ -37,7 +37,7 @@ describe("OpenCypher > keywordSearchTemplate", () => {
         MATCH (v) 
         WHERE (v:\`airport\` OR v:\`country\`) 
         RETURN v AS object 
-      `)
+      `),
     );
   });
 
@@ -53,7 +53,7 @@ describe("OpenCypher > keywordSearchTemplate", () => {
         MATCH (v:\`airport\`)
         RETURN v AS object
         SKIP 10 LIMIT 20
-      `)
+      `),
     );
   });
 
@@ -68,7 +68,7 @@ describe("OpenCypher > keywordSearchTemplate", () => {
         MATCH (v:\`airport\`)
         RETURN v AS object
         LIMIT 20
-      `)
+      `),
     );
   });
 
@@ -82,7 +82,7 @@ describe("OpenCypher > keywordSearchTemplate", () => {
       normalize(`
         MATCH (v:\`airport\`)
         RETURN v AS object
-      `)
+      `),
     );
   });
 
@@ -100,7 +100,7 @@ describe("OpenCypher > keywordSearchTemplate", () => {
         WHERE (v:\`airport\` OR v:\`country\`) 
           AND (v.city CONTAINS "JFK" OR v.code CONTAINS "JFK")
         RETURN v AS object
-      `)
+      `),
     );
   });
 
@@ -117,7 +117,7 @@ describe("OpenCypher > keywordSearchTemplate", () => {
         MATCH (v:\`airport\`)
         WHERE (v.city CONTAINS "JFK" OR v.code CONTAINS "JFK")
         RETURN v AS object
-      `)
+      `),
     );
   });
 
@@ -134,7 +134,7 @@ describe("OpenCypher > keywordSearchTemplate", () => {
         MATCH (v:\`airport\`)
         WHERE (v.city = "JFK" OR v.code = "JFK")
         RETURN v AS object
-      `)
+      `),
     );
   });
 
@@ -151,7 +151,7 @@ describe("OpenCypher > keywordSearchTemplate", () => {
         MATCH (v:\`airport\`)
         WHERE (id(v) = "JFK")
         RETURN v AS object
-      `)
+      `),
     );
   });
 
@@ -168,7 +168,7 @@ describe("OpenCypher > keywordSearchTemplate", () => {
         MATCH (v:\`airport\`)
         WHERE (toString(id(v)) CONTAINS "JFK")
         RETURN v AS object
-      `)
+      `),
     );
   });
 
@@ -184,7 +184,7 @@ describe("OpenCypher > keywordSearchTemplate", () => {
         MATCH (v:\`airport\`)
         WHERE (toString(id(v)) CONTAINS "JFK" OR v.city CONTAINS "JFK" OR v.code CONTAINS "JFK")
         RETURN v AS object
-      `)
+      `),
     );
   });
 
@@ -205,7 +205,7 @@ describe("OpenCypher > keywordSearchTemplate", () => {
           AND (toString(id(v)) CONTAINS "JFK" OR v.city CONTAINS "JFK" OR v.code CONTAINS "JFK")
         RETURN v AS object
         SKIP 25 LIMIT 50
-      `)
+      `),
     );
   });
 
@@ -219,7 +219,7 @@ describe("OpenCypher > keywordSearchTemplate", () => {
         MATCH (v)
         WHERE (labels(v) = [])
         RETURN v AS object
-      `)
+      `),
     );
   });
 
@@ -237,7 +237,7 @@ describe("OpenCypher > keywordSearchTemplate", () => {
         WHERE (labels(v) = [])
           AND (v.name CONTAINS "test" OR v.value CONTAINS "test")
         RETURN v AS object
-      `)
+      `),
     );
   });
 
@@ -254,7 +254,7 @@ describe("OpenCypher > keywordSearchTemplate", () => {
         WHERE (labels(v) = [])
         RETURN v AS object
         SKIP 50 LIMIT 100
-      `)
+      `),
     );
   });
 });

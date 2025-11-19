@@ -26,7 +26,7 @@ describe("neighborCounts", () => {
     const result = await neighborCounts(
       mockFetch,
       { vertexIds: [] },
-      blankNodes
+      blankNodes,
     );
 
     expect(result.counts).toEqual([]);
@@ -54,7 +54,7 @@ describe("neighborCounts", () => {
       {
         vertexIds: [expected.vertexId],
       },
-      blankNodes
+      blankNodes,
     );
     expect(result.counts).toEqual([expected]);
   });
@@ -80,7 +80,7 @@ describe("neighborCounts", () => {
     const totalCountResponse = createTotalCountResponse(expected1, expected2);
     const countsByTypeResponse = createCountsByTypeResponse(
       expected1,
-      expected2
+      expected2,
     );
     const mockFetch = vi
       .fn()
@@ -91,7 +91,7 @@ describe("neighborCounts", () => {
       {
         vertexIds: [expected1.vertexId, expected2.vertexId],
       },
-      blankNodes
+      blankNodes,
     );
     expect(result.counts).toEqual([expected1, expected2]);
   });
@@ -115,8 +115,8 @@ describe("neighborCounts", () => {
         edges: createArray(3, () =>
           createRandomEdgeForRdf(
             createRandomVertexForRdf(),
-            createRandomVertexForRdf()
-          )
+            createRandomVertexForRdf(),
+          ),
         ),
       },
       neighborCounts: {
@@ -133,7 +133,7 @@ describe("neighborCounts", () => {
       {
         vertexIds: [expected.vertexId],
       },
-      blankNodes
+      blankNodes,
     );
 
     expect(mockFetch).not.toHaveBeenCalled();
@@ -166,8 +166,8 @@ describe("neighborCounts", () => {
     const responseNeighbors = createQuadSparqlResponse(
       createQuadBindingsForEntities(
         [neighborFrom, neighborTo],
-        [edgeFrom, edgeTo]
-      )
+        [edgeFrom, edgeTo],
+      ),
     );
 
     const mockFetch = vi.fn().mockReturnValueOnce(responseNeighbors);
@@ -186,16 +186,16 @@ describe("neighborCounts", () => {
       {
         vertexIds: [vertex.id],
       },
-      blankNodes
+      blankNodes,
     );
 
     expect(mockFetch).toHaveBeenCalledTimes(1);
     expect(result.counts).toEqual([expected]);
     expect(blankNodes.get(vertex.id)?.neighborCounts.counts).toEqual(
-      expected.counts
+      expected.counts,
     );
     expect(blankNodes.get(vertex.id)?.neighborCounts.totalCount).toEqual(
-      expected.totalCount
+      expected.totalCount,
     );
     expect(blankNodes.get(vertex.id)?.neighbors?.vertices).toEqual([
       neighborFrom.asVertex(),
@@ -218,8 +218,8 @@ describe("neighborCounts", () => {
       neighborCounts(
         mockFetch,
         { vertexIds: [createVertexId(createRandomUrlString())] },
-        blankNodes
-      )
+        blankNodes,
+      ),
     ).rejects.toThrow("Total neighbor count request failed");
   });
 
@@ -247,8 +247,8 @@ describe("neighborCounts", () => {
       neighborCounts(
         mockFetch,
         { vertexIds: [createVertexId(createRandomUrlString())] },
-        blankNodes
-      )
+        blankNodes,
+      ),
     ).rejects.toThrow();
   });
 
@@ -270,7 +270,7 @@ describe("neighborCounts", () => {
     const result = await neighborCounts(
       mockFetch,
       { vertexIds: [vertexId] },
-      blankNodes
+      blankNodes,
     );
 
     expect(result.counts).toEqual([expected]);
@@ -300,8 +300,8 @@ describe("neighborCounts", () => {
         edges: createArray(2, () =>
           createRandomEdgeForRdf(
             createRandomVertexForRdf(),
-            createRandomVertexForRdf()
-          )
+            createRandomVertexForRdf(),
+          ),
         ),
       },
       neighborCounts: {
@@ -322,11 +322,11 @@ describe("neighborCounts", () => {
     const result = await neighborCounts(
       mockFetch,
       { vertexIds: [blankVertex.id, nonBlankVertex] },
-      blankNodes
+      blankNodes,
     );
 
     expect(result.counts).toEqual(
-      expect.arrayContaining([expectedBlank, expectedNonBlank])
+      expect.arrayContaining([expectedBlank, expectedNonBlank]),
     );
   });
 
@@ -345,7 +345,7 @@ describe("neighborCounts", () => {
     const mockFetch = vi.fn().mockRejectedValue(new Error("Network error"));
 
     await expect(
-      neighborCounts(mockFetch, { vertexIds: [vertex.id] }, blankNodes)
+      neighborCounts(mockFetch, { vertexIds: [vertex.id] }, blankNodes),
     ).rejects.toThrow("Network error");
   });
 });
@@ -376,7 +376,7 @@ function createCountsByTypeResponse(...counts: NeighborCount[]) {
             vertexId: count.vertexId,
             className: key,
             count: value,
-          }))
+          })),
         )
         .map(count => ({
           resource: createUriValue(String(count.vertexId)),

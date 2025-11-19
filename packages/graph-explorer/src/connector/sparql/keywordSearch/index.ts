@@ -7,7 +7,7 @@ import { parseAndMapQuads } from "../parseAndMapQuads";
 
 async function keywordSearch(
   sparqlFetch: SparqlFetch,
-  req: SPARQLKeywordSearchRequest
+  req: SPARQLKeywordSearchRequest,
 ): Promise<KeywordSearchResponse> {
   const template = keywordSearchTemplate(req);
 

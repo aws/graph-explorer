@@ -6,10 +6,10 @@ import oneHopNeighborsBlankNodesIdsTemplate from "./oneHopNeighborsBlankNodesIds
 export const replaceBlankNodeFromNeighbors = (
   blankNodes: BlankNodesMap,
   request: SPARQLNeighborsRequest,
-  response: KeywordSearchResponse
+  response: KeywordSearchResponse,
 ) => {
   logger.log(
-    "[SPARQL Explorer] Replacing blank node from search with oneHopNeighborsBlankNodesIdsTemplate"
+    "[SPARQL Explorer] Replacing blank node from search with oneHopNeighborsBlankNodesIdsTemplate",
   );
   return response.vertices.map(vertex => {
     if (!vertex.isBlankNode) {

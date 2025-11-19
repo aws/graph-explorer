@@ -9,7 +9,7 @@ import { getExplorer } from "./helpers";
  * @param explorer The explorer to use for fetching the schema.
  */
 export function schemaSyncQuery(
-  updateLocalCache: (schema: SchemaResponse) => void
+  updateLocalCache: (schema: SchemaResponse) => void,
 ) {
   return queryOptions({
     queryKey: ["schema"],

@@ -27,7 +27,7 @@ type PrefixData = (typeof COMMON_PREFIXES_ITEMS)[number];
 const CommonPrefixes = () => {
   const { filteredItems, search, setSearch } = useSearchItems(
     COMMON_PREFIXES_ITEMS,
-    prefix => prefix.title
+    prefix => prefix.title,
   );
 
   return (

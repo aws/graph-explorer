@@ -6,7 +6,7 @@ function InfoBar({ className, ...props }: React.ComponentPropsWithRef<"div">) {
     <div
       className={cn(
         "flex w-full flex-col items-start gap-6 border-b px-3 py-6 @sm:flex-row @sm:gap-9",
-        className
+        className,
       )}
       {...props}
     />
@@ -21,7 +21,7 @@ function InfoItemIcon({
     <div
       className={cn(
         "bg-secondary-subtle text-primary-main hidden aspect-square h-12 items-center justify-center rounded-lg @lg:flex [&_svg]:size-6",
-        className
+        className,
       )}
       {...props}
     />
@@ -52,7 +52,7 @@ function InfoItemLabel({
     <div
       className={cn(
         "text-text-secondary text-sm text-balance break-words",
-        className
+        className,
       )}
       {...props}
     />
@@ -67,7 +67,7 @@ function InfoItemValue({
     <div
       className={cn(
         "text-text-primary inline-flex items-center gap-1 text-base font-medium text-balance break-words",
-        className
+        className,
       )}
       {...props}
     />

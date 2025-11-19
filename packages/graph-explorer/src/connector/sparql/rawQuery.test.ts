@@ -146,7 +146,7 @@ describe("rawQuery", () => {
     const mockFetch = vi.fn().mockResolvedValue(mockResponse);
 
     await expect(
-      rawQuery(mockFetch, { query: "SELECT ?name WHERE { ?s ?p ?name }" })
+      rawQuery(mockFetch, { query: "SELECT ?name WHERE { ?s ?p ?name }" }),
     ).rejects.toThrow();
   });
 
@@ -158,7 +158,7 @@ describe("rawQuery", () => {
     const mockFetch = vi.fn().mockResolvedValue(mockErrorResponse);
 
     await expect(
-      rawQuery(mockFetch, { query: "INVALID QUERY" })
+      rawQuery(mockFetch, { query: "INVALID QUERY" }),
     ).rejects.toThrow("Invalid query syntax");
   });
 
@@ -295,7 +295,7 @@ describe("rawQuery", () => {
       const edge2 = createTestableEdge().withRdfValues();
 
       const mockResponse = createQuadSparqlResponse(
-        createQuadBindingsForEntities([], [edge1, edge2])
+        createQuadBindingsForEntities([], [edge1, edge2]),
       );
 
       const mockFetch = vi.fn().mockResolvedValue(mockResponse);
@@ -314,7 +314,7 @@ describe("rawQuery", () => {
         .withTarget(vertex2)
         .withRdfValues();
       const mockResponse = createQuadSparqlResponse(
-        createQuadBindingsForEntities([vertex1, vertex2], [edge])
+        createQuadBindingsForEntities([vertex1, vertex2], [edge]),
       );
 
       const mockFetch = vi.fn().mockResolvedValue(mockResponse);
@@ -351,8 +351,8 @@ describe("rawQuery", () => {
       const mockResponse = createQuadSparqlResponse(
         createQuadBindingsForEntities(
           [vertex1, vertex2, vertex3],
-          [edge1, edge2, edge3]
-        )
+          [edge1, edge2, edge3],
+        ),
       );
 
       const mockFetch = vi.fn().mockResolvedValue(mockResponse);
@@ -375,7 +375,7 @@ describe("rawQuery", () => {
       const edge2 = createTestableEdge().withTarget(vertex).withRdfValues();
 
       const mockResponse = createQuadSparqlResponse(
-        createQuadBindingsForEntities([vertex], [edge1, edge2])
+        createQuadBindingsForEntities([vertex], [edge1, edge2]),
       );
 
       const mockFetch = vi.fn().mockResolvedValue(mockResponse);

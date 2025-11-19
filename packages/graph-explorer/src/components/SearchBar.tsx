@@ -32,7 +32,7 @@ export default function SearchBar({
 
 export function useSearchItems<TItem>(
   items: TItem[],
-  searchPredicate: (item: TItem) => string
+  searchPredicate: (item: TItem) => string,
 ) {
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounceValue(search, 300);
@@ -41,7 +41,7 @@ export function useSearchItems<TItem>(
     : items.filter(item =>
         searchPredicate(item)
           .toLowerCase()
-          .includes(debouncedSearch.toLowerCase())
+          .includes(debouncedSearch.toLowerCase()),
       );
 
   return {

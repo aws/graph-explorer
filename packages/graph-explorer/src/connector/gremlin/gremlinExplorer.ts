@@ -17,7 +17,7 @@ import { neighborCounts } from "./neighborCounts";
 function _gremlinFetch(
   connection: NormalizedConnection,
   featureFlags: FeatureFlags,
-  options?: ExplorerRequestOptions
+  options?: ExplorerRequestOptions,
 ): GremlinFetch {
   return async (queryTemplate: string) => {
     logger.debug(queryTemplate);
@@ -39,7 +39,7 @@ function _gremlinFetch(
         headers,
         body,
         ...options,
-      }
+      },
     );
   };
 }
@@ -47,7 +47,7 @@ function _gremlinFetch(
 async function fetchSummary(
   connection: NormalizedConnection,
   featureFlags: FeatureFlags,
-  options?: RequestInit
+  options?: RequestInit,
 ) {
   try {
     const response = await fetchDatabaseRequest(
@@ -57,20 +57,20 @@ async function fetchSummary(
       {
         method: "GET",
         ...options,
-      }
+      },
     );
     return response.payload.graphSummary as GraphSummary;
   } catch (error) {
     logger.error(
       "[Gremlin Explorer] Failed to gather summary statistics",
-      error
+      error,
     );
   }
 }
 
 export function createGremlinExplorer(
   connection: NormalizedConnection,
-  featureFlags: FeatureFlags
+  featureFlags: FeatureFlags,
 ): Explorer {
   const remoteLogger = createLoggerFromConnection(connection);
   return {
@@ -81,28 +81,28 @@ export function createGremlinExplorer(
       return fetchSchema(
         _gremlinFetch(connection, featureFlags, options),
         remoteLogger,
-        summary
+        summary,
       );
     },
     async fetchVertexCountsByType(req, options) {
       remoteLogger.info("[Gremlin Explorer] Fetching vertex counts by type...");
       return fetchVertexTypeCounts(
         _gremlinFetch(connection, featureFlags, options),
-        req
+        req,
       );
     },
     async fetchNeighbors(req, options) {
       remoteLogger.info("[Gremlin Explorer] Fetching neighbors...");
       return fetchNeighbors(
         _gremlinFetch(connection, featureFlags, options),
-        req
+        req,
       );
     },
     async neighborCounts(req, options) {
       remoteLogger.info("[Gremlin Explorer] Fetching neighbors count...");
       return neighborCounts(
         _gremlinFetch(connection, featureFlags, options),
-        req
+        req,
       );
     },
     async keywordSearch(req, options) {
@@ -112,7 +112,7 @@ export function createGremlinExplorer(
       remoteLogger.info("[Gremlin Explorer] Fetching keyword search...");
       return keywordSearch(
         _gremlinFetch(connection, featureFlags, options),
-        req
+        req,
       );
     },
     async vertexDetails(req, options) {
@@ -122,7 +122,7 @@ export function createGremlinExplorer(
       remoteLogger.info("[Gremlin Explorer] Fetching vertex details...");
       const result = await vertexDetails(
         _gremlinFetch(connection, featureFlags, options),
-        req
+        req,
       );
       return result;
     },
@@ -133,7 +133,7 @@ export function createGremlinExplorer(
       remoteLogger.info("[Gremlin Explorer] Fetching edge details...");
       const result = await edgeDetails(
         _gremlinFetch(connection, featureFlags, options),
-        req
+        req,
       );
       return result;
     },
@@ -143,7 +143,7 @@ export function createGremlinExplorer(
       remoteLogger.info("[Gremlin Explorer] Fetching raw query...");
       const result = await rawQuery(
         _gremlinFetch(connection, featureFlags, options),
-        req
+        req,
       );
       return result;
     },

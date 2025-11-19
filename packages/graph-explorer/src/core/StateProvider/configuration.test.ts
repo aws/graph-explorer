@@ -168,7 +168,7 @@ describe("mergedConfiguration", () => {
     const result = mergeConfiguration(schema, config, styling);
 
     const actualVtConfig = result.schema?.vertices.find(
-      v => v.type === vtConfig.type
+      v => v.type === vtConfig.type,
     );
 
     expect(actualVtConfig?.displayLabel).toBeUndefined();
@@ -186,7 +186,7 @@ describe("mergedConfiguration", () => {
     const result = mergeConfiguration(schema, config, styling);
 
     const actualEtConfig = result.schema?.edges.find(
-      e => e.type === etConfig.type
+      e => e.type === etConfig.type,
     );
 
     expect(actualEtConfig?.displayLabel).toBeUndefined();
@@ -213,7 +213,7 @@ describe("mergedConfiguration", () => {
     const result = mergeConfiguration(schema, config, styling);
 
     const actualVtConfig = result.schema?.vertices.find(
-      v => v.type === vtConfig.type
+      v => v.type === vtConfig.type,
     );
 
     expect(actualVtConfig?.displayLabel).toEqual(customDisplayLabel);
@@ -240,7 +240,7 @@ describe("mergedConfiguration", () => {
     const result = mergeConfiguration(schema, config, styling);
 
     const actualEtConfig = result.schema?.edges.find(
-      e => e.type === etConfig.type
+      e => e.type === etConfig.type,
     );
 
     expect(actualEtConfig?.displayLabel).toEqual(customDisplayLabel);
@@ -264,11 +264,11 @@ describe("mergedConfiguration", () => {
     const result = mergeConfiguration(schema, config, styling);
 
     const actualEtConfig = result.schema?.edges.find(
-      e => e.type === etConfig.type
+      e => e.type === etConfig.type,
     );
 
     expect(actualEtConfig?.displayNameAttribute).toEqual(
-      RESERVED_TYPES_PROPERTY
+      RESERVED_TYPES_PROPERTY,
     );
   });
 });
@@ -283,7 +283,7 @@ describe("patchToRemoveDisplayLabel", () => {
     const config = createRandomVertexTypeConfig();
     config.displayLabel = createRandomName("displayLabel");
     config.attributes.forEach(
-      a => ((a as any).displayLabel = createRandomName("displayLabel"))
+      a => ((a as any).displayLabel = createRandomName("displayLabel")),
     );
     const result = patchToRemoveDisplayLabel(config);
 

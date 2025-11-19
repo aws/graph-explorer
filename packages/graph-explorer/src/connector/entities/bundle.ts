@@ -105,7 +105,7 @@ export function createPatchedResultBundle({
  */
 export function getDisplayValueForBundle(
   bundle: PatchedResultBundle,
-  textTransformer?: TextTransformer
+  textTransformer?: TextTransformer,
 ): string {
   const transform = textTransformer ?? (text => text);
   return bundle.values

@@ -68,7 +68,7 @@ const file2Base64 = (file: File): Promise<string> => {
 
 export function NodeStyleDialog() {
   const [customizeNodeType, setCustomizeNodeType] = useAtom(
-    customizeNodeTypeAtom
+    customizeNodeTypeAtom,
   );
 
   return (

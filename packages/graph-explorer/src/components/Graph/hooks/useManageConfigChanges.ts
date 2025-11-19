@@ -7,8 +7,8 @@ function useChangeConfig(
   configFnName?: keyof CytoscapeType,
   compareFn: (oldValue?: any, newValue?: any) => boolean = (
     oldValue,
-    newValue
-  ) => oldValue !== newValue
+    newValue,
+  ) => oldValue !== newValue,
 ) {
   const compare = useRef<typeof compareFn>(compareFn);
 
@@ -75,7 +75,7 @@ export const useManageConfigChanges = (config: Config, cy?: CytoscapeType) => {
     (oldValue, newValue) =>
       oldValue &&
       newValue &&
-      (oldValue.x !== newValue.x || oldValue.y !== newValue.y)
+      (oldValue.x !== newValue.x || oldValue.y !== newValue.y),
   );
   useChangeConfig(cy, autounselectify, "autounselectify");
   useChangeConfig(cy, autoungrabify, "autoungrabify");

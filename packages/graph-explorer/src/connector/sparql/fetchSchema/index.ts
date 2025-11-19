@@ -74,7 +74,7 @@ const fetchPredicatesByClass = async (
   sparqlFetch: SparqlFetch,
   remoteLogger: LoggerConnector,
   classes: Array<string>,
-  countsByClass: Record<string, number>
+  countsByClass: Record<string, number>,
 ) => {
   const responses = await batchPromisesSerially(
     classes,
@@ -84,11 +84,11 @@ const fetchPredicatesByClass = async (
         class: resourceClass,
       });
       remoteLogger.info(
-        `[SPARQL Explorer] Fetching predicates by class ${resourceClass}...`
+        `[SPARQL Explorer] Fetching predicates by class ${resourceClass}...`,
       );
       const predicatesResponse =
         await sparqlFetch<RawPredicatesSamplesResponse>(
-          classPredicatesTemplate
+          classPredicatesTemplate,
         );
 
       const attributes = new Map(
@@ -98,16 +98,16 @@ const fetchPredicatesByClass = async (
               ({
                 name: item.pred.value,
                 dataType: TYPE_MAP[item.sample.datatype || ""] || "String",
-              }) satisfies AttributeConfig
+              }) satisfies AttributeConfig,
           )
-          .map(a => [a.name, a])
+          .map(a => [a.name, a]),
       );
 
       return {
         attributes,
         resourceClass,
       };
-    }
+    },
   );
 
   return responses.map(({ attributes, resourceClass }) => ({
@@ -131,7 +131,7 @@ const fetchPredicatesByClass = async (
 
 const fetchClassesSchema = async (
   sparqlFetch: SparqlFetch,
-  remoteLogger: LoggerConnector
+  remoteLogger: LoggerConnector,
 ) => {
   const classesTemplate = classesWithCountsTemplates();
   remoteLogger.info("[SPARQL Explorer] Fetching classes schema...");
@@ -143,12 +143,12 @@ const fetchClassesSchema = async (
   classesCounts.results.bindings
     // Exclude classes that start with one of the metadata class base URIs
     .filter(
-      c => !metadataClassBaseUris.some(uri => c.class.value.startsWith(uri))
+      c => !metadataClassBaseUris.some(uri => c.class.value.startsWith(uri)),
     )
     .forEach(classResult => {
       classes.push(classResult.class.value);
       countsByClass[classResult.class.value] = Number(
-        classResult.instancesCount.value
+        classResult.instancesCount.value,
       );
     });
 
@@ -156,13 +156,13 @@ const fetchClassesSchema = async (
     sparqlFetch,
     remoteLogger,
     classes,
-    countsByClass
+    countsByClass,
   );
 };
 
 const fetchPredicatesWithCounts = async (
   sparqlFetch: SparqlFetch,
-  remoteLogger: LoggerConnector
+  remoteLogger: LoggerConnector,
 ): Promise<Record<string, number>> => {
   const template = predicatesWithCountsTemplate();
   remoteLogger.info("[SPARQL Explorer] Fetching predicates with counts...");
@@ -179,7 +179,7 @@ const fetchPredicatesWithCounts = async (
 
 const fetchPredicatesSchema = async (
   sparqlFetch: SparqlFetch,
-  remoteLogger: LoggerConnector
+  remoteLogger: LoggerConnector,
 ) => {
   const allLabels = await fetchPredicatesWithCounts(sparqlFetch, remoteLogger);
 
@@ -205,7 +205,7 @@ const fetchPredicatesSchema = async (
 const fetchSchema = async (
   sparqlFetch: SparqlFetch,
   remoteLogger: LoggerConnector,
-  summary?: GraphSummary
+  summary?: GraphSummary,
 ): Promise<SchemaResponse> => {
   if (!summary) {
     const vertices = await fetchClassesSchema(sparqlFetch, remoteLogger);
@@ -219,7 +219,7 @@ const fetchSchema = async (
     }, 0);
 
     remoteLogger.info(
-      `[SPARQL Explorer] Schema sync successful (${totalVertices} vertices; ${totalEdges} edges; ${vertices.length} vertex types; ${edges.length} edge types)`
+      `[SPARQL Explorer] Schema sync successful (${totalVertices} vertices; ${totalEdges} edges; ${vertices.length} vertex types; ${edges.length} edge types)`,
     );
 
     return {
@@ -232,14 +232,14 @@ const fetchSchema = async (
 
   // Exclude classes that start with one of the metadata class base URIs
   const classes = summary.classes.filter(
-    c => !metadataClassBaseUris.some(uri => c.startsWith(uri))
+    c => !metadataClassBaseUris.some(uri => c.startsWith(uri)),
   );
 
   const vertices = await fetchPredicatesByClass(
     sparqlFetch,
     remoteLogger,
     classes,
-    {}
+    {},
   );
   const edges = summary.predicates.flatMap(pred => {
     return Object.entries(pred).map(([type, count]) => {
@@ -252,7 +252,7 @@ const fetchSchema = async (
   });
 
   remoteLogger.info(
-    `[SPARQL Explorer] Schema sync successful (${summary.numDistinctSubjects} vertices; ${summary.numQuads} edges; ${vertices.length} vertex types; ${edges.length} edge types)`
+    `[SPARQL Explorer] Schema sync successful (${summary.numDistinctSubjects} vertices; ${summary.numQuads} edges; ${vertices.length} vertex types; ${edges.length} edge types)`,
   );
 
   return {

@@ -15,7 +15,7 @@ type RawCountsByTypeResponse = {
 
 const fetchVertexTypeCounts = async (
   openCypherFetch: OpenCypherFetch,
-  req: CountsByTypeRequest
+  req: CountsByTypeRequest,
 ): Promise<CountsByTypeResponse> => {
   const template = vertexTypeCountTemplate(req.label);
   const response = await openCypherFetch<RawCountsByTypeResponse>(template);

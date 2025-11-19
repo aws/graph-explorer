@@ -14,7 +14,7 @@ import { createEdgeId, type VertexId } from "@/core";
 export function createRdfEdgeId(
   sourceId: string | VertexId,
   predicate: string,
-  targetId: string | VertexId
+  targetId: string | VertexId,
 ) {
   return createEdgeId(`${sourceId}-[${predicate}]->${targetId}`);
 }

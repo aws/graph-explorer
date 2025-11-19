@@ -21,7 +21,7 @@ type Response = {
 
 export async function rawQuery(
   gremlinFetch: GremlinFetch,
-  request: RawQueryRequest
+  request: RawQueryRequest,
 ): Promise<RawQueryResponse> {
   const template = query`${request.query}`;
 

@@ -39,7 +39,10 @@ describe("serializeData", () => {
   });
   test("serialize map", () => {
     const input = new Map(
-      createArray(3, () => [createRandomName("key"), createRandomName("value")])
+      createArray(3, () => [
+        createRandomName("key"),
+        createRandomName("value"),
+      ]),
     );
     const result = serializeData(input);
     expect(result).toEqual({

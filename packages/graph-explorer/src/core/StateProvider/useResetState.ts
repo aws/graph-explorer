@@ -61,6 +61,6 @@ export default function useResetState() {
 
       // Previous session
       set(isRestorePreviousSessionAvailableAtom, RESET);
-    }, [])
+    }, []),
   );
 }

@@ -25,7 +25,7 @@ import {
 
 export async function patchEntityDetails(
   client: QueryClient,
-  entities: ResultEntity[]
+  entities: ResultEntity[],
 ): Promise<PatchedResultEntity[]> {
   const { vertexIds, edgeIds } = getAllGraphableEntityIds(entities);
 
@@ -38,14 +38,14 @@ export async function patchEntityDetails(
 
   // Recursively patch entities
   return entities.map(entity =>
-    patchEntity(entity, vertexDetailsMap, edgeDetailsMap)
+    patchEntity(entity, vertexDetailsMap, edgeDetailsMap),
   );
 }
 
 function patchEntity(
   entity: ResultEntity,
   vertexDetailsMap: Map<VertexId, Vertex>,
-  edgeDetailsMap: Map<EdgeId, Edge>
+  edgeDetailsMap: Map<EdgeId, Edge>,
 ): PatchedResultEntity {
   switch (entity.entityType) {
     case "vertex":
@@ -61,7 +61,7 @@ function patchEntity(
 
 function patchVertex(
   vertex: ResultVertex,
-  vertexDetailsMap: Map<VertexId, Vertex>
+  vertexDetailsMap: Map<VertexId, Vertex>,
 ): PatchedResultVertex {
   const fullVertex = vertexDetailsMap.get(vertex.id) ?? createVertex(vertex);
 
@@ -74,7 +74,7 @@ function patchVertex(
 function patchEdge(
   edge: ResultEdge,
   edgeDetailsMap: Map<EdgeId, Edge>,
-  vertexDetailsMap: Map<VertexId, Vertex>
+  vertexDetailsMap: Map<VertexId, Vertex>,
 ): PatchedResultEdge {
   const fullEdge = edgeDetailsMap.get(edge.id);
   const fullSource =
@@ -97,12 +97,12 @@ function patchEdge(
 function patchBundle(
   bundle: ResultBundle,
   vertexDetailsMap: Map<VertexId, Vertex>,
-  edgeDetailsMap: Map<EdgeId, Edge>
+  edgeDetailsMap: Map<EdgeId, Edge>,
 ): PatchedResultBundle {
   return {
     ...bundle,
     values: bundle.values.map(child =>
-      patchEntity(child, vertexDetailsMap, edgeDetailsMap)
+      patchEntity(child, vertexDetailsMap, edgeDetailsMap),
     ),
   };
 }

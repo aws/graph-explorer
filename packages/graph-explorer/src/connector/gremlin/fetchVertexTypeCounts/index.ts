@@ -21,7 +21,7 @@ type RawCountsByTypeResponse = {
 
 const fetchVertexTypeCounts = async (
   gremlinFetch: GremlinFetch,
-  req: CountsByTypeRequest
+  req: CountsByTypeRequest,
 ): Promise<CountsByTypeResponse> => {
   const template = vertexTypeCountTemplate(req.label);
   const response = await gremlinFetch<RawCountsByTypeResponse>(template);

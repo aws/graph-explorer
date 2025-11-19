@@ -14,7 +14,7 @@ describe("vertexDetailsQuery", () => {
     const queryClient = createQueryClient({ explorer });
 
     const result = await queryClient.fetchQuery(
-      vertexDetailsQuery(createRandomVertexId())
+      vertexDetailsQuery(createRandomVertexId()),
     );
 
     expect(result.vertex).toBeNull();
@@ -48,7 +48,7 @@ describe("vertexDetailsQuery", () => {
     // Add original vertex to nodesAtom
     getAppStore().set(
       nodesAtom,
-      new Map([[originalVertex.id, originalVertex]])
+      new Map([[originalVertex.id, originalVertex]]),
     );
 
     // Mock explorer to return updated vertex

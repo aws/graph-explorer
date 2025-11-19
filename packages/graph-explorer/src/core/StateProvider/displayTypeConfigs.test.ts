@@ -25,7 +25,7 @@ describe("useDisplayVertexTypeConfig", () => {
     const vtConfig = createRandomVertexTypeConfig();
 
     const { result } = renderHookWithState(() =>
-      useDisplayVertexTypeConfig(vtConfig.type)
+      useDisplayVertexTypeConfig(vtConfig.type),
     );
 
     expect(result.current.type).toBe(vtConfig.type);
@@ -34,7 +34,7 @@ describe("useDisplayVertexTypeConfig", () => {
 
   it("should use missing value string when type is empty", () => {
     const { result } = renderHookWithState(() =>
-      useDisplayVertexTypeConfig("")
+      useDisplayVertexTypeConfig(""),
     );
 
     expect(result.current.displayLabel).toBe(LABELS.MISSING_TYPE);
@@ -48,7 +48,7 @@ describe("useDisplayVertexTypeConfig", () => {
 
     const { result } = renderHookWithState(
       () => useDisplayVertexTypeConfig(vtConfig.type),
-      dbState
+      dbState,
     );
 
     expect(result.current.displayLabel).toBe(vtConfig.type);
@@ -63,7 +63,7 @@ describe("useDisplayVertexTypeConfig", () => {
 
     const { result } = renderHookWithState(
       () => useDisplayVertexTypeConfig(vtConfig.type),
-      dbState
+      dbState,
     );
 
     expect(result.current.displayLabel).toBe(vtConfig.displayLabel);
@@ -82,7 +82,7 @@ describe("mapToDisplayVertexTypeConfig", () => {
     const result = mapToDisplayVertexTypeConfig(
       vtConfig,
       preferences,
-      identityTextTransform
+      identityTextTransform,
     );
 
     expect(result.attributes).toStrictEqual([
@@ -111,7 +111,7 @@ describe("mapToDisplayVertexTypeConfig", () => {
     const result = mapToDisplayVertexTypeConfig(
       vtConfig,
       preferences,
-      identityTextTransform
+      identityTextTransform,
     );
 
     expect(result.attributes.map(a => a.name)).toStrictEqual([
@@ -134,7 +134,7 @@ describe("mapToDisplayVertexTypeConfig", () => {
     const result = mapToDisplayVertexTypeConfig(
       vtConfig,
       preferences,
-      identityTextTransform
+      identityTextTransform,
     );
 
     expect(result.attributes.map(a => a.name)).toStrictEqual([
@@ -158,7 +158,7 @@ describe("mapToDisplayVertexTypeConfig", () => {
     const result = mapToDisplayVertexTypeConfig(
       vtConfig,
       preferences,
-      identityTextTransform
+      identityTextTransform,
     );
 
     expect(result.attributes[0].name).toBe(RDFS_LABEL_URI);
@@ -181,7 +181,7 @@ describe("mapToDisplayVertexTypeConfig", () => {
     const result = mapToDisplayVertexTypeConfig(
       vtConfig,
       preferences,
-      identityTextTransform
+      identityTextTransform,
     );
 
     expect(result.attributes).toStrictEqual([
@@ -210,7 +210,7 @@ describe("mapToDisplayVertexTypeConfig", () => {
     const result = mapToDisplayVertexTypeConfig(
       vtConfig,
       preferences,
-      identityTextTransform
+      identityTextTransform,
     );
 
     expect(result.attributes.every(a => !a.isSearchable)).toBe(true);
@@ -228,7 +228,7 @@ describe("mapToDisplayVertexTypeConfig", () => {
     const result = mapToDisplayVertexTypeConfig(
       vtConfig,
       preferences,
-      identityTextTransform
+      identityTextTransform,
     );
 
     expect(result.attributes.every(a => !a.isSearchable)).toBe(true);
@@ -245,7 +245,7 @@ describe("mapToDisplayVertexTypeConfig", () => {
     const result = mapToDisplayVertexTypeConfig(
       vtConfig,
       preferences,
-      identityTextTransform
+      identityTextTransform,
     );
 
     expect(result.attributes).toStrictEqual([
@@ -270,7 +270,7 @@ describe("mapToDisplayVertexTypeConfig", () => {
     const result = mapToDisplayVertexTypeConfig(
       vtConfig,
       preferences,
-      identityTextTransform
+      identityTextTransform,
     );
 
     expect(result.attributes).toStrictEqual([]);
@@ -292,7 +292,7 @@ describe("mapToDisplayVertexTypeConfig", () => {
     const result = mapToDisplayVertexTypeConfig(
       vtConfig,
       preferences,
-      uppercaseTransform
+      uppercaseTransform,
     );
 
     expect(result.attributes.map(a => a.displayLabel)).toStrictEqual([
@@ -316,7 +316,7 @@ describe("mapToDisplayEdgeTypeConfig", () => {
     const result = mapToDisplayEdgeTypeConfig(
       etConfig,
       preferences,
-      identityTextTransform
+      identityTextTransform,
     );
 
     expect(result.attributes.map(a => a.name)).toStrictEqual([
@@ -342,7 +342,7 @@ describe("useDisplayEdgeTypeConfig", () => {
 
     const { result } = renderHookWithState(
       () => useDisplayEdgeTypeConfig(etConfig.type),
-      dbState
+      dbState,
     );
 
     expect(result.current.displayLabel).toBe(etConfig.type);
@@ -357,7 +357,7 @@ describe("useDisplayEdgeTypeConfig", () => {
 
     const { result } = renderHookWithState(
       () => useDisplayEdgeTypeConfig(etConfig.type),
-      dbState
+      dbState,
     );
 
     expect(result.current.displayLabel).toBe(etConfig.displayLabel);

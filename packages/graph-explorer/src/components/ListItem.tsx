@@ -27,7 +27,7 @@ export function ListItem({
         "text-text-primary [&_svg]:text-primary-dark line-clamp-1 flex flex-row items-center gap-3 rounded-sm px-3 py-2 [&_svg]:size-5",
         isDisabled && "pointer-events-none",
         clickable && "hover:bg-background-secondary hover:cursor-pointer",
-        className
+        className,
       )}
       onClick={actualOnClick}
       {...allProps}

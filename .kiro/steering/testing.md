@@ -206,7 +206,7 @@ test("should generate correct query", async () => {
   });
 
   expect(mockFetch).toHaveBeenCalledWith(
-    expect.stringContaining("expected query pattern")
+    expect.stringContaining("expected query pattern"),
   );
 });
 ```
