@@ -200,7 +200,7 @@ app.post("/sparql", async (req, res, next) => {
   const headers = req.headers as DbQueryIncomingHttpHeaders;
   const queryId = headers["queryid"];
   const graphDbConnectionUrl = headers["graph-db-connection-url"];
-  const shouldLogDbQuery = BooleanStringSchema.default("false").parse(
+  const shouldLogDbQuery = BooleanStringSchema.default(false).parse(
     headers["db-query-logging-enabled"],
   );
   const isIamEnabled = !!headers["aws-neptune-region"];
@@ -293,7 +293,7 @@ app.post("/gremlin", async (req, res, next) => {
   const headers = req.headers as DbQueryIncomingHttpHeaders;
   const queryId = headers["queryid"];
   const graphDbConnectionUrl = headers["graph-db-connection-url"];
-  const shouldLogDbQuery = BooleanStringSchema.default("false").parse(
+  const shouldLogDbQuery = BooleanStringSchema.default(false).parse(
     headers["db-query-logging-enabled"],
   );
   const isIamEnabled = !!headers["aws-neptune-region"];
@@ -374,7 +374,7 @@ app.post("/gremlin", async (req, res, next) => {
 // POST endpoint for openCypher queries.
 app.post("/openCypher", async (req, res, next) => {
   const headers = req.headers as DbQueryIncomingHttpHeaders;
-  const shouldLogDbQuery = BooleanStringSchema.default("false").parse(
+  const shouldLogDbQuery = BooleanStringSchema.default(false).parse(
     headers["db-query-logging-enabled"],
   );
 

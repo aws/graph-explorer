@@ -16,7 +16,7 @@ import {
 import { idParam } from "./idParam";
 import isErrorResponse from "../utils/isErrorResponse";
 import { z } from "zod";
-import { fromError } from "zod-validation-error/v3";
+import { fromError } from "zod-validation-error";
 import { createVertexId, type VertexId } from "@/core";
 import fetchBlankNodeNeighbors from "./fetchBlankNodeNeighbors";
 import { getNeighborsFilter } from "./filterHelpers";

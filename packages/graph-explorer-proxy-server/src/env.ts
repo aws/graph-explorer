@@ -12,7 +12,7 @@ export const BooleanStringSchema = z
 // Define a required schema for the values we expect along with their defaults
 const EnvironmentValuesSchema = z.object({
   HOST: z.string().default("localhost"),
-  PROXY_SERVER_HTTPS_CONNECTION: BooleanStringSchema.default("false"),
+  PROXY_SERVER_HTTPS_CONNECTION: BooleanStringSchema.default(false),
   PROXY_SERVER_HTTPS_PORT: z.coerce.number().default(443),
   PROXY_SERVER_HTTP_PORT: z.coerce.number().default(80),
   LOG_LEVEL: z
