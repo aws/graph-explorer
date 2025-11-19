@@ -210,11 +210,11 @@ function SearchResultsListContainer({ cancel }: { cancel: () => void }) {
   }
 
   // No results
-  if (!query.data.length) {
+  if (!query.data.results.length) {
     return <QueryTabNoResults />;
   }
 
-  return <SearchResultsList results={query.data} />;
+  return <SearchResultsList results={query.data.results} />;
 }
 
 function QueryTabLoading({ cancel }: { cancel: () => void }) {

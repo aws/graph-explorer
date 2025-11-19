@@ -30,5 +30,5 @@ export const emptyExplorer: Explorer = {
   keywordSearch: async () => ({ vertices: [] }),
   vertexDetails: async () => ({ vertices: [] }),
   edgeDetails: async () => ({ edges: [] }),
-  rawQuery: async () => [],
+  rawQuery: async () => ({ results: [], rawResponse: null }),
 };

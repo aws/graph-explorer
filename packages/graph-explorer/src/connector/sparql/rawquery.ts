@@ -31,7 +31,7 @@ export async function rawQuery(
   const template = query`${request.query}`;
 
   if (template.length <= 0) {
-    return [];
+    return { results: [], rawResponse: null };
   }
 
   // Fetch the results
@@ -47,7 +47,8 @@ export async function rawQuery(
   const askParsed = sparqlAskResponseSchema.safeParse(data);
   if (askParsed.success) {
     logger.debug("Parsing SPARQL ASK response");
-    return handleAskQueryResult(askParsed.data.boolean);
+    const results = handleAskQueryResult(askParsed.data.boolean);
+    return { results, rawResponse: data };
   }
 
   // Try to parse as quads next (CONSTRUCT and DESCRIBE queries)
@@ -56,7 +57,10 @@ export async function rawQuery(
   );
   if (quadsParsed.success) {
     logger.debug("Parsing SPARQL quads response");
-    return handleConstructQueryResults(quadsParsed.data.results.bindings);
+    const results = handleConstructQueryResults(
+      quadsParsed.data.results.bindings,
+    );
+    return { results, rawResponse: data };
   }
 
   // Parse raw JSON format response for all other queries
@@ -72,7 +76,8 @@ export async function rawQuery(
     throw validationError;
   }
 
-  return handleSelectQueryResults(parsed.data.results.bindings);
+  const results = handleSelectQueryResults(parsed.data.results.bindings);
+  return { results, rawResponse: data };
 }
 
 /**

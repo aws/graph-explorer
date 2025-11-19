@@ -25,7 +25,7 @@ describe("rawQuery", () => {
   it("should return empty array for empty query", async () => {
     const mockFetch = vi.fn();
     const result = await rawQuery(mockFetch, { query: "" });
-    expect(result).toEqual([]);
+    expect(result).toEqual({ results: [], rawResponse: null });
     expect(mockFetch).not.toHaveBeenCalled();
   });
 
@@ -48,10 +48,11 @@ describe("rawQuery", () => {
       query: "SELECT ?name WHERE { ?s ?p ?name }",
     });
 
-    expect(result).toStrictEqual([
+    expect(result.results).toStrictEqual([
       createResultScalar({ name: "?name", value: name1 }),
       createResultScalar({ name: "?name", value: name2 }),
     ]);
+    expect(result.rawResponse).toEqual(mockResponse);
   });
 
   it("should parse SPARQL response with multiple variables as bundles", async () => {
@@ -75,7 +76,7 @@ describe("rawQuery", () => {
       query: "SELECT ?name ?age WHERE { ?s ?p ?name, ?age }",
     });
 
-    expect(result).toStrictEqual([
+    expect(result.results).toStrictEqual([
       createResultBundle({
         values: [
           createResultScalar({ name: "?name", value: personName }),
@@ -83,6 +84,7 @@ describe("rawQuery", () => {
         ],
       }),
     ]);
+    expect(result.rawResponse).toEqual(mockResponse);
   });
 
   it("should handle different SPARQL data types", async () => {
@@ -112,7 +114,7 @@ describe("rawQuery", () => {
       query: "SELECT * WHERE { ?s ?p ?o }",
     });
 
-    expect(result).toStrictEqual([
+    expect(result.results).toStrictEqual([
       createResultBundle({
         values: [
           createResultScalar({ name: "?string", value: stringValue }),
@@ -123,6 +125,7 @@ describe("rawQuery", () => {
         ],
       }),
     ]);
+    expect(result.rawResponse).toEqual(mockResponse);
   });
 
   it("should handle empty results", async () => {
@@ -138,7 +141,8 @@ describe("rawQuery", () => {
       query: "SELECT ?name WHERE { ?s ?p ?name }",
     });
 
-    expect(result).toEqual([]);
+    expect(result.results).toEqual([]);
+    expect(result.rawResponse).toEqual(mockResponse);
   });
 
   it("should throw error for invalid SPARQL response", async () => {
@@ -175,10 +179,11 @@ describe("rawQuery", () => {
         query: "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }",
       });
 
-      expect(result).toStrictEqual([
+      expect(result.results).toStrictEqual([
         vertex1.asFragmentResult(),
         vertex2.asFragmentResult(),
       ]);
+      expect(result.rawResponse).toEqual(mockResponse);
     });
 
     it("should handle CONSTRUCT query with single triple", async () => {
@@ -196,9 +201,10 @@ describe("rawQuery", () => {
           "CONSTRUCT { ?s <http://example.org/title> ?title } WHERE { ?s <http://example.org/title> ?title }",
       });
 
-      expect(result).toStrictEqual([
+      expect(result.results).toStrictEqual([
         createResultVertex({ id: "http://example.org/resource" }),
       ]);
+      expect(result.rawResponse).toEqual(mockResponse);
     });
 
     it("should handle CONSTRUCT query with empty results", async () => {
@@ -209,7 +215,8 @@ describe("rawQuery", () => {
         query: "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }",
       });
 
-      expect(result).toEqual([]);
+      expect(result.results).toEqual([]);
+      expect(result.rawResponse).toEqual(mockResponse);
     });
 
     it("should not treat SELECT queries with subject/predicate/object variables as CONSTRUCT", async () => {
@@ -234,7 +241,7 @@ describe("rawQuery", () => {
       });
 
       // Should be treated as SELECT query (bundle with 4 scalars), not CONSTRUCT
-      expect(result).toStrictEqual([
+      expect(result.results).toStrictEqual([
         createResultBundle({
           values: [
             createResultScalar({
@@ -250,6 +257,7 @@ describe("rawQuery", () => {
           ],
         }),
       ]);
+      expect(result.rawResponse).toEqual(mockResponse);
     });
 
     it("should not treat SELECT queries with non-URI subjects as CONSTRUCT", async () => {
@@ -273,7 +281,7 @@ describe("rawQuery", () => {
       });
 
       // Should be treated as SELECT query (bundle with 3 scalars), not CONSTRUCT
-      expect(result).toStrictEqual([
+      expect(result.results).toStrictEqual([
         createResultBundle({
           values: [
             createResultScalar({
@@ -288,6 +296,7 @@ describe("rawQuery", () => {
           ],
         }),
       ]);
+      expect(result.rawResponse).toEqual(mockResponse);
     });
 
     it("should handle CONSTRUCT query with edges (URI subject and object)", async () => {
@@ -303,7 +312,11 @@ describe("rawQuery", () => {
         query: "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }",
       });
 
-      expect(result).toStrictEqual([edge1.asResult(), edge2.asResult()]);
+      expect(result.results).toStrictEqual([
+        edge1.asResult(),
+        edge2.asResult(),
+      ]);
+      expect(result.rawResponse).toEqual(mockResponse);
     });
 
     it("should handle CONSTRUCT query with mixed edges and vertex attributes", async () => {
@@ -322,11 +335,12 @@ describe("rawQuery", () => {
         query: "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }",
       });
 
-      expect(result).toStrictEqual([
+      expect(result.results).toStrictEqual([
         vertex1.asFragmentResult(),
         vertex2.asFragmentResult(),
         edge.asResult(),
       ]);
+      expect(result.rawResponse).toEqual(mockResponse);
     });
 
     it("should filter out blank nodes from CONSTRUCT query results", async () => {
@@ -360,11 +374,12 @@ describe("rawQuery", () => {
         query: "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }",
       });
 
-      expect(result).toStrictEqual([
+      expect(result.results).toStrictEqual([
         vertex2.asFragmentResult(),
         vertex3.asFragmentResult(),
         edge3.asResult(),
       ]);
+      expect(result.rawResponse).toEqual(mockResponse);
     });
 
     it("should handle CONSTRUCT query with only blank node triples", async () => {
@@ -383,7 +398,8 @@ describe("rawQuery", () => {
         query: "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }",
       });
 
-      expect(result).toStrictEqual([]);
+      expect(result.results).toStrictEqual([]);
+      expect(result.rawResponse).toEqual(mockResponse);
     });
   });
 
@@ -399,12 +415,13 @@ describe("rawQuery", () => {
         query: "ASK { ?s ?p ?o }",
       });
 
-      expect(result).toStrictEqual([
+      expect(result.results).toStrictEqual([
         createResultScalar({
           name: "ASK",
           value: true,
         }),
       ]);
+      expect(result.rawResponse).toEqual(mockResponse);
     });
 
     it("should handle ASK query with false result", async () => {
@@ -418,12 +435,13 @@ describe("rawQuery", () => {
         query: "ASK { ?s <http://example.org/nonexistent> ?o }",
       });
 
-      expect(result).toStrictEqual([
+      expect(result.results).toStrictEqual([
         createResultScalar({
           name: "ASK",
           value: false,
         }),
       ]);
+      expect(result.rawResponse).toEqual(mockResponse);
     });
   });
 });
