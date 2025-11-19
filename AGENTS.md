@@ -45,6 +45,10 @@
 - `pnpm clean` - Clean build artifacts
 - `pnpm clean:dep` - Remove node_modules
 
+### Git
+
+- `git --no-pager` - Disable pager for git commands
+
 ### Dependency Management
 
 Add dependency to specific package
