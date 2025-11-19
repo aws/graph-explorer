@@ -26,7 +26,7 @@ function SidebarButton({
                 "hover:bg-brand-200/50 hover:text-primary-dark hover:data-[state=on]:bg-brand-400",
                 "dark:text-brand-300 dark:data-[state=on]:bg-brand-400 dark:hover:data-[state=on]:bg-brand-500 dark:hover:bg-gray-800 dark:data-[state=on]:text-white",
                 "focus-visible:ring-brand-500 focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:outline-hidden active:ring-0",
-                className
+                className,
               )}
               {...props}
             >

@@ -2,7 +2,7 @@ import type { TabularColumnInstance } from "@/components/Tabular/helpers/tableIn
 
 export function transformToJson<T extends object>(
   data: readonly T[],
-  columns: TabularColumnInstance<T>[]
+  columns: TabularColumnInstance<T>[],
 ) {
   return data.map(row =>
     columns
@@ -21,7 +21,7 @@ export function transformToJson<T extends object>(
           acc[label] = value;
           return acc;
         },
-        {} as Record<string, string | number>
-      )
+        {} as Record<string, string | number>,
+      ),
   );
 }

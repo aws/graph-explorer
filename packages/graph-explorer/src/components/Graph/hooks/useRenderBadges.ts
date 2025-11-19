@@ -22,7 +22,7 @@ export type BadgeRenderer = (
   options: {
     context: CanvasRenderingContext2D;
     zoomLevel: "small" | "medium" | "large";
-  }
+  },
 ) => Array<Badge | undefined>;
 
 export interface UseRenderBadgesProps {
@@ -80,7 +80,7 @@ const useRenderBadges = ({
             "If you want to render badges you need to install the " +
               "cytoscape-canvas plugin first, see the documentation " +
               "for more information",
-            e
+            e,
           );
         return;
       }

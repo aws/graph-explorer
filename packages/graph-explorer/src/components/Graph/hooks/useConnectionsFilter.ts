@@ -19,7 +19,7 @@ const useConnectionsFilter = (
     min = 0,
     max = Number.MAX_SAFE_INTEGER,
     isActive = false,
-  }: ConnectionsFilterConfig = {}
+  }: ConnectionsFilterConfig = {},
 ): void => {
   const applyFilter = useCallback(
     (cy: CytoscapeType) => {
@@ -45,7 +45,7 @@ const useConnectionsFilter = (
 
       return elementsWithinCutoff;
     },
-    [numConnections, min, max]
+    [numConnections, min, max],
   );
 
   useFilter({

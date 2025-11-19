@@ -94,7 +94,7 @@ const displayEdgeSelector = atomFamily((edge: Edge) =>
     }
 
     const displayName = getDisplayAttributeValueByName(
-      preferences.displayNameAttribute
+      preferences.displayNameAttribute,
     );
 
     const displayEdge: DisplayEdge = {
@@ -111,13 +111,13 @@ const displayEdgeSelector = atomFamily((edge: Edge) =>
       hasUniqueId: isSparql === false,
     };
     return displayEdge;
-  })
+  }),
 );
 
 const displayEdgesInCanvasSelector = atom(get => {
   return new Map(
     get(edgesAtom)
       .entries()
-      .map(([id, edge]) => [id, get(displayEdgeSelector(edge))])
+      .map(([id, edge]) => [id, get(displayEdgeSelector(edge))]),
   );
 });

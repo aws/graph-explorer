@@ -29,7 +29,7 @@ import { rawQuery } from "./rawquery";
 function _sparqlFetch(
   connection: NormalizedConnection,
   featureFlags: FeatureFlags,
-  options?: ExplorerRequestOptions
+  options?: ExplorerRequestOptions,
 ) {
   return async (queryTemplate: string) => {
     logger.debug(queryTemplate);
@@ -55,7 +55,7 @@ function _sparqlFetch(
         headers,
         body,
         ...options,
-      }
+      },
     );
   };
 }
@@ -63,7 +63,7 @@ function _sparqlFetch(
 async function fetchSummary(
   connection: NormalizedConnection,
   featureFlags: FeatureFlags,
-  options?: RequestInit
+  options?: RequestInit,
 ) {
   try {
     const response = await fetchDatabaseRequest(
@@ -73,7 +73,7 @@ async function fetchSummary(
       {
         method: "GET",
         ...options,
-      }
+      },
     );
 
     return (response?.payload?.graphSummary as GraphSummary) || undefined;
@@ -87,7 +87,7 @@ async function fetchSummary(
 export function createSparqlExplorer(
   connection: NormalizedConnection,
   featureFlags: FeatureFlags,
-  blankNodes: BlankNodesMap
+  blankNodes: BlankNodesMap,
 ): Explorer {
   const remoteLogger = createLoggerFromConnection(connection);
   return {
@@ -98,14 +98,14 @@ export function createSparqlExplorer(
       return fetchSchema(
         _sparqlFetch(connection, featureFlags, options),
         remoteLogger,
-        summary
+        summary,
       );
     },
     async fetchVertexCountsByType(req, options) {
       remoteLogger.info("[SPARQL Explorer] Fetching vertex counts by type...");
       return fetchClassCounts(
         _sparqlFetch(connection, featureFlags, options),
-        req
+        req,
       );
     },
     async fetchNeighbors(req, options) {
@@ -129,12 +129,12 @@ export function createSparqlExplorer(
 
       const response = await fetchNeighbors(
         _sparqlFetch(connection, featureFlags, options),
-        request
+        request,
       );
       const vertices = replaceBlankNodeFromNeighbors(
         blankNodes,
         request,
-        response
+        response,
       );
       return { vertices, edges: response.edges };
     },
@@ -143,7 +143,7 @@ export function createSparqlExplorer(
       return neighborCounts(
         _sparqlFetch(connection, featureFlags, options),
         req,
-        blankNodes
+        blankNodes,
       );
     },
     async keywordSearch(req, options) {
@@ -163,12 +163,12 @@ export function createSparqlExplorer(
 
       const response = await keywordSearch(
         _sparqlFetch(connection, featureFlags, options),
-        reqParams
+        reqParams,
       );
       const vertices = replaceBlankNodeFromSearch(
         blankNodes,
         reqParams,
-        response
+        response,
       );
 
       return { vertices };
@@ -177,7 +177,7 @@ export function createSparqlExplorer(
       remoteLogger.info("[SPARQL Explorer] Fetching vertex details...");
       return await vertexDetails(
         _sparqlFetch(connection, featureFlags, options),
-        req
+        req,
       );
     },
     async edgeDetails(req) {
@@ -187,7 +187,7 @@ export function createSparqlExplorer(
       remoteLogger.info("[SPARQL Explorer] Fetching raw query...");
       return await rawQuery(
         _sparqlFetch(connection, featureFlags, options),
-        req
+        req,
       );
     },
   } satisfies Explorer;

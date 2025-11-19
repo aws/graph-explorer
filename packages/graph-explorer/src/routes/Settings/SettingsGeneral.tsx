@@ -30,7 +30,7 @@ export default function SettingsGeneral() {
     useAtom(showDebugActionsAtom);
 
   const [allowLoggingDbQuery, setAllowLoggingDbQuery] = useAtom(
-    allowLoggingDbQueryAtom
+    allowLoggingDbQueryAtom,
   );
 
   const [defaultNeighborExpansionLimit, setDefaultNeighborExpansionLimit] =
@@ -69,7 +69,7 @@ export default function SettingsGeneral() {
                   value={defaultNeighborExpansionLimit}
                   onChange={e =>
                     setDefaultNeighborExpansionLimit(
-                      parseInt(e.target.value) ?? 0
+                      parseInt(e.target.value) ?? 0,
                     )
                   }
                   min={0}

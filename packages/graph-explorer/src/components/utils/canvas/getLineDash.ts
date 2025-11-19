@@ -1,5 +1,5 @@
 const getLineDash = (
-  shape: "solid" | "dashed" | "dotted" = "solid"
+  shape: "solid" | "dashed" | "dotted" = "solid",
 ): number[] => {
   if (shape === "dotted") {
     return [1, 2];

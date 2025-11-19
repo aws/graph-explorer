@@ -55,7 +55,7 @@ describe("mapResults", () => {
   it("should promote the values of a bundle if there is only one and it has no name", () => {
     const vertex = createTestableVertex().asResult("vertex");
     const results = mapResults(
-      createGList([createGMap({ vertex: createGVertex(vertex) })])
+      createGList([createGMap({ vertex: createGVertex(vertex) })]),
     );
     expect(results).toStrictEqual([vertex]);
   });
@@ -169,7 +169,7 @@ describe("mapAnyValue", () => {
           createGEdge(edge),
           createGValue(scalar.value),
           null,
-        ])
+        ]),
       );
       expect(results).toStrictEqual([
         createResultBundle({
@@ -190,7 +190,7 @@ describe("mapAnyValue", () => {
           createGVertex(vertex),
           createGEdge(edge),
           createGValue(scalar.value),
-        ])
+        ]),
       );
       expect(results).toStrictEqual([
         createResultBundle({
@@ -216,7 +216,7 @@ describe("mapAnyValue", () => {
           createGEdge(edge),
           createGValue(scalar.value),
           null,
-        ])
+        ]),
       );
       expect(results).toStrictEqual([
         createResultBundle({
@@ -246,7 +246,7 @@ describe("mapAnyValue", () => {
           edge: createGEdge(edge),
           string: createGValue(scalarString.value),
           null: createGValue(scalarNull.value),
-        })
+        }),
       );
 
       expect(results).toStrictEqual([
@@ -291,7 +291,7 @@ describe("mapAnyValue", () => {
         createGMap({
           city: createGList(["Atlanta"]),
           code: createGList(["ATL"]),
-        })
+        }),
       );
       expect(results).toStrictEqual([
         createResultBundle({
@@ -324,7 +324,7 @@ describe("mapAnyValue", () => {
           edge: createGEdge(edge),
           string: createGValue(scalarString.value),
           null: createGValue(scalarNull.value),
-        })
+        }),
       );
 
       expect(results).toStrictEqual([
@@ -407,7 +407,7 @@ describe("mapAnyValue", () => {
             total: createGInt32(100),
             message: "success",
           }),
-        ])
+        ]),
       );
       expect(results).toStrictEqual([
         createResultBundle({
@@ -426,7 +426,7 @@ describe("mapAnyValue", () => {
             name: "John",
             age: createGInt32(30),
           }),
-        })
+        }),
       );
       expect(results).toStrictEqual([
         createResultBundle({
@@ -447,7 +447,7 @@ describe("mapAnyValue", () => {
             createGInt32(2),
             createGInt32(3),
           ]),
-        })
+        }),
       );
       expect(results).toStrictEqual([
         createResultBundle({
@@ -465,7 +465,7 @@ describe("mapAnyValue", () => {
       const results = mapAnyValue(
         createGMap({
           tags: createGSet(["tag1", "tag2"]),
-        })
+        }),
       );
       expect(results).toStrictEqual([
         createResultBundle({
@@ -492,7 +492,7 @@ describe("mapAnyValue", () => {
               }),
             ]),
           }),
-        })
+        }),
       );
       expect(results).toStrictEqual([
         createResultBundle({

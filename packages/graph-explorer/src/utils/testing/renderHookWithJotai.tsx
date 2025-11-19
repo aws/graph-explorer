@@ -20,7 +20,7 @@ export function TestProvider({
 
 export function renderHookWithState<TResult>(
   callback: () => TResult,
-  state?: DbState
+  state?: DbState,
 ) {
   // Create default DbState if none passed
   state ??= new DbState();
@@ -47,7 +47,7 @@ export function renderHookWithState<TResult>(
 
 export function renderHookWithJotai<TResult>(
   callback: () => TResult,
-  initializeState?: (store: AppStore) => void
+  initializeState?: (store: AppStore) => void,
 ) {
   // Provide a way to set atom initial values
   const store = getAppStore();

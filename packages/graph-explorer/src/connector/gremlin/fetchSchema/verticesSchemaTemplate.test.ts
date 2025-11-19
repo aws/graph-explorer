@@ -15,7 +15,7 @@ describe("Gremlin > verticesSchemaTemplate", () => {
         .project("airport", "country")
         .by(unfold().hasLabel("airport"))
         .by(unfold().hasLabel("country"))
-      `)
+      `),
     );
   });
 });

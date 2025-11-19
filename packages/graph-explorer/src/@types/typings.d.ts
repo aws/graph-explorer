@@ -77,7 +77,7 @@ declare global {
 
   type ReducerActionDispatch<TState, TAction> = (
     state: TState,
-    action: TAction
+    action: TAction,
   ) => TState;
 
   interface PromiseWithCancel<T> extends Promise<T> {

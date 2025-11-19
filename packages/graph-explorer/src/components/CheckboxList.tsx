@@ -117,7 +117,7 @@ function CheckboxRow({
           "border-x border-b px-3 py-3 hover:cursor-pointer",
           isTop && "bg-background-contrast/50 rounded-t-lg border-t",
           isBottom && "rounded-b-lg",
-          className
+          className,
         )}
       >
         {children}

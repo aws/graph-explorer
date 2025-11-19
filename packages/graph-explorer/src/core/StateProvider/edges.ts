@@ -9,7 +9,7 @@ export function toEdgeMap(edges: Iterable<Edge>): Map<EdgeId, Edge> {
 export const edgesAtom = atomWithReset(new Map<EdgeId, Edge>());
 
 export const edgeSelector = atomFamily((id: EdgeId) =>
-  atom(get => get(edgesAtom).get(id) ?? null)
+  atom(get => get(edgesAtom).get(id) ?? null),
 );
 
 export const edgesSelectedIdsAtom = atomWithReset(new Set<EdgeId>());

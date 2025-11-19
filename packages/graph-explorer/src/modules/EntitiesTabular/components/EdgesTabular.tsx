@@ -30,7 +30,7 @@ import { useGraphSelection } from "@/modules/GraphViewer";
 function createEdgeForTable(
   edge: DisplayEdge,
   source: DisplayVertex | undefined,
-  target: DisplayVertex | undefined
+  target: DisplayVertex | undefined,
 ) {
   return {
     id: edge.id,
@@ -118,7 +118,7 @@ function EdgesTabular({ ref }: EdgesTabularProps) {
         ...createEdgeForTable(
           edge,
           nodes.get(edge.sourceId),
-          nodes.get(edge.targetId)
+          nodes.get(edge.targetId),
         ),
         __is_visible: !filteredEdges.has(edge.id),
       }))

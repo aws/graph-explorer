@@ -21,23 +21,23 @@ const Workspace = ({
 }: PropsWithChildren<WorkspaceProps>) => {
   const topBarSection = getChildrenOfType(
     children,
-    WorkspaceTopBar.displayName || WorkspaceTopBar.name
+    WorkspaceTopBar.displayName || WorkspaceTopBar.name,
   );
 
   const contentSection = getChildOfType(
     children,
-    WorkspacesContent.displayName || WorkspacesContent.name
+    WorkspacesContent.displayName || WorkspacesContent.name,
   );
   const sidebarSection = getChildOfType(
     children,
-    WorkspaceSideBar.displayName || WorkspaceSideBar.name
+    WorkspaceSideBar.displayName || WorkspaceSideBar.name,
   );
 
   return (
     <div
       className={cn(
         "bg-background-secondary flex h-full w-full grow flex-col overflow-hidden",
-        className
+        className,
       )}
     >
       {topBarSection}
@@ -54,6 +54,6 @@ Workspace.Content = WorkspacesContent;
 Workspace.SideBar = WorkspaceSideBar;
 
 export default Workspace as ((
-  props: PropsWithChildren<WorkspaceProps>
+  props: PropsWithChildren<WorkspaceProps>,
 ) => ReactElement<any>) &
   WorkspaceComposition;

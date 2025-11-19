@@ -26,10 +26,10 @@ describe("useFiltersConfig", () => {
     const { result } = renderFilterConfigHook();
 
     expect(result.current.selectedVertexTypes).toEqual(
-      new Set(["Person", "Movie"])
+      new Set(["Person", "Movie"]),
     );
     expect(result.current.selectedConnectionTypes).toEqual(
-      new Set(["ACTED_IN"])
+      new Set(["ACTED_IN"]),
     );
   });
 
@@ -39,7 +39,7 @@ describe("useFiltersConfig", () => {
     const { result } = renderFilterConfigHook();
 
     expect(result.current.vertexTypes.map(vt => vt.id)).toEqual(
-      expect.arrayContaining(expectedCheckboxIds)
+      expect.arrayContaining(expectedCheckboxIds),
     );
   });
 
@@ -59,7 +59,7 @@ describe("useFiltersConfig", () => {
       "Person",
     ]);
     expect(result.current.connectionTypes.map(vt => vt.text as string)).toEqual(
-      ["ACTED_IN", "DIRECTED"]
+      ["ACTED_IN", "DIRECTED"],
     );
   });
 
@@ -69,7 +69,7 @@ describe("useFiltersConfig", () => {
     const { result } = renderFilterConfigHook();
 
     expect(result.current.connectionTypes.map(vt => vt.id)).toEqual(
-      expect.arrayContaining(expectedCheckboxIds)
+      expect.arrayContaining(expectedCheckboxIds),
     );
   });
 
@@ -80,7 +80,7 @@ describe("useFiltersConfig", () => {
 
     // Ensure vertex is selected initially
     expect(result.current.selectedVertexTypes.has(changingVertex.type)).toEqual(
-      true
+      true,
     );
 
     // Deselect vertex
@@ -88,7 +88,7 @@ describe("useFiltersConfig", () => {
 
     // Ensure vertex is no longer selected
     expect(result.current.selectedVertexTypes.has(changingVertex.type)).toEqual(
-      false
+      false,
     );
   });
 
@@ -99,7 +99,7 @@ describe("useFiltersConfig", () => {
 
     // Ensure edge is selected initially
     expect(
-      result.current.selectedConnectionTypes.has(changingEdge.type)
+      result.current.selectedConnectionTypes.has(changingEdge.type),
     ).toEqual(true);
 
     // Deselect edge
@@ -107,7 +107,7 @@ describe("useFiltersConfig", () => {
 
     // Ensure edge is no longer selected
     expect(
-      result.current.selectedConnectionTypes.has(changingEdge.type)
+      result.current.selectedConnectionTypes.has(changingEdge.type),
     ).toEqual(false);
   });
 });

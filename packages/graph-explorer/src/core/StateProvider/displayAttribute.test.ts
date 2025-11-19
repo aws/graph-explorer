@@ -80,7 +80,7 @@ describe("mapToDisplayAttribute", () => {
     const displayAttribute = mapToDisplayAttribute(
       config.name,
       value,
-      transform
+      transform,
     );
     expect(displayAttribute).toStrictEqual({
       name: config.name,
@@ -103,7 +103,7 @@ describe("getSortedDisplayAttributes", () => {
 
     const sortedDisplayAttributes = getSortedDisplayAttributes(
       vertex,
-      transformNoOp
+      transformNoOp,
     );
 
     const expected = [
@@ -111,7 +111,7 @@ describe("getSortedDisplayAttributes", () => {
       ...Object.entries(vertex.attributes)
         .filter(([name]) => name !== matchedName)
         .map(([name, value]) =>
-          mapToDisplayAttribute(name, value, transformNoOp)
+          mapToDisplayAttribute(name, value, transformNoOp),
         ),
       // The matched attribute config type and value
       mapToDisplayAttribute(matchedName, value, transformNoOp),
@@ -131,7 +131,7 @@ describe("getSortedDisplayAttributes", () => {
 
     const sortedDisplayAttributes = getSortedDisplayAttributes(
       vertex,
-      transformNoOp
+      transformNoOp,
     );
 
     expect(sortedDisplayAttributes[0].name).toBe(RDFS_LABEL_URI);
@@ -149,7 +149,7 @@ describe("getSortedDisplayAttributes", () => {
 
     const sortedDisplayAttributes = getSortedDisplayAttributes(
       vertex,
-      transformNoOp
+      transformNoOp,
     );
 
     expect(sortedDisplayAttributes.map(a => a.name)).toStrictEqual([

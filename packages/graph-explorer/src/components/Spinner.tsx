@@ -24,7 +24,7 @@ export function Spinner({
         className={cn(
           "invisible self-center justify-self-center",
           loading && "visible animate-spin",
-          className
+          className,
         )}
         {...props}
       />

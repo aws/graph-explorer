@@ -52,7 +52,7 @@ export function createLiteralValue(value: Exclude<ScalarValue, null>) {
 /** Maps the provided testable entities in to SPARQL quad bindings. */
 export function createQuadBindingsForEntities(
   vertices: TestableVertex[],
-  edges: TestableEdge[]
+  edges: TestableEdge[],
 ): SparqlQuadBinding[] {
   return [
     ...vertices.flatMap(createBindingsForVertex),

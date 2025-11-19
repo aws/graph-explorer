@@ -6,7 +6,7 @@ import type { Activity, ComponentProps } from "react";
  * @returns The mode for the Activity component.
  */
 export function isVisible(
-  condition: boolean
+  condition: boolean,
 ): ComponentProps<typeof Activity>["mode"] {
   return condition ? "visible" : "hidden";
 }

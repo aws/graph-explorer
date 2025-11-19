@@ -88,8 +88,8 @@ describe("renderNode", () => {
     const decodedResult = decodeSvg(result);
     expect(decodedResult).toEqual(
       wrapExpectedSvg(
-        `<svg fill="${originalColor}" xmlns="http://www.w3.org/2000/svg" width="24" height="24"/>`
-      )
+        `<svg fill="${originalColor}" xmlns="http://www.w3.org/2000/svg" width="24" height="24"/>`,
+      ),
     );
   });
 
@@ -112,8 +112,8 @@ describe("renderNode", () => {
     const decodedResult = decodeSvg(result);
     expect(decodedResult).toEqual(
       wrapExpectedSvg(
-        `<svg fill="#128EE5" xmlns="http://www.w3.org/2000/svg" width="24" height="24"/>`
-      )
+        `<svg fill="#128EE5" xmlns="http://www.w3.org/2000/svg" width="24" height="24"/>`,
+      ),
     );
   });
 
@@ -135,8 +135,8 @@ describe("renderNode", () => {
     const decodedResult = decodeSvg(result);
     expect(decodedResult).toEqual(
       wrapExpectedSvg(
-        `<svg fill="${node.color}" stroke="${node.color}" xmlns="http://www.w3.org/2000/svg" width="24" height="24"/>`
-      )
+        `<svg fill="${node.color}" stroke="${node.color}" xmlns="http://www.w3.org/2000/svg" width="24" height="24"/>`,
+      ),
     );
   });
 
@@ -159,8 +159,8 @@ describe("renderNode", () => {
     const decodedResult = decodeSvg(result);
     expect(decodedResult).toEqual(
       wrapExpectedSvg(
-        `<svg fill="${originalColor}" viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg"/>`
-      )
+        `<svg fill="${originalColor}" viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg"/>`,
+      ),
     );
   });
 });

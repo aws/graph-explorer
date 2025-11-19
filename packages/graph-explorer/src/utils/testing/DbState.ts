@@ -95,7 +95,7 @@ export class DbState {
   addTestableVertexToGraph(vertex: TestableVertex) {
     this.vertices.push(vertex.asVertex());
     this.activeSchema.vertices.push(
-      ...mapVertexToTypeConfigs(vertex.asVertex())
+      ...mapVertexToTypeConfigs(vertex.asVertex()),
     );
   }
 
@@ -129,7 +129,7 @@ export class DbState {
    */
   addVertexStyle(
     vertexType: string,
-    style: Omit<VertexPreferencesStorageModel, "type">
+    style: Omit<VertexPreferencesStorageModel, "type">,
   ): VertexPreferencesStorageModel {
     const composedStyle = { ...style, type: vertexType };
     const vertices = this.activeStyling.vertices ?? [];
@@ -146,7 +146,7 @@ export class DbState {
    */
   addEdgeStyle(
     edgeType: string,
-    style: Omit<EdgePreferencesStorageModel, "type">
+    style: Omit<EdgePreferencesStorageModel, "type">,
   ): EdgePreferencesStorageModel {
     const composedStyle = { ...style, type: edgeType };
     const edges = this.activeStyling.edges ?? [];
@@ -160,7 +160,7 @@ export class DbState {
     // Config
     store.set(
       configurationAtom,
-      new Map([[this.activeConfig.id, this.activeConfig]])
+      new Map([[this.activeConfig.id, this.activeConfig]]),
     );
     store.set(schemaAtom, new Map([[this.activeConfig.id, this.activeSchema]]));
     store.set(activeConfigurationAtom, this.activeConfig.id);
@@ -189,7 +189,7 @@ export class DbState {
             edges: new Set(this.edges.map(e => e.id)),
           },
         ],
-      ])
+      ]),
     );
 
     // Explorer

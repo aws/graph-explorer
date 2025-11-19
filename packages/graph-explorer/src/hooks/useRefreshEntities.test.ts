@@ -54,13 +54,13 @@ describe("useRefreshEntities", () => {
       vertexDetailsQuery(vertex.id).queryKey,
       {
         vertex: cachedVertex,
-      }
+      },
     );
     result.current.queryClient.setQueryData(
       edgeDetailsQuery(edge.id).queryKey,
       {
         edge: cachedEdge,
-      }
+      },
     );
 
     expect(result.current.refreshHook.isPending).toBe(false);
@@ -76,13 +76,13 @@ describe("useRefreshEntities", () => {
     // Verify cache was updated with fresh data
     expect(
       result.current.queryClient.getQueryData(
-        vertexDetailsQuery(vertex.id).queryKey
-      )
+        vertexDetailsQuery(vertex.id).queryKey,
+      ),
     ).toStrictEqual({ vertex: updatedVertex });
     expect(
       result.current.queryClient.getQueryData(
-        edgeDetailsQuery(edge.id).queryKey
-      )
+        edgeDetailsQuery(edge.id).queryKey,
+      ),
     ).toStrictEqual({ edge: updatedEdge });
   });
 
@@ -98,7 +98,7 @@ describe("useRefreshEntities", () => {
           vertexIds: [],
           edgeIds: [],
         }),
-      state
+      state,
     );
 
     act(() => {
@@ -131,7 +131,7 @@ describe("useRefreshEntities", () => {
           vertexIds: [vertex.id],
           edgeIds: [edge.id],
         }),
-      state
+      state,
     );
 
     act(() => {

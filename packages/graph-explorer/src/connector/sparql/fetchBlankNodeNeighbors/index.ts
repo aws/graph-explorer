@@ -11,7 +11,7 @@ import { parseAndMapQuads } from "../parseAndMapQuads";
 
 export default async function fetchBlankNodeNeighbors(
   sparqlFetch: SparqlFetch,
-  req: SPARQLBlankNodeNeighborsRequest
+  req: SPARQLBlankNodeNeighborsRequest,
 ): Promise<SPARQLBlankNodeNeighborsResponse> {
   logger.log("[SPARQL Explorer] Fetching blank node one hop neighbors", req);
   const neighborsTemplate = blankNodeOneHopNeighborsTemplate(req.subQuery);
@@ -23,7 +23,7 @@ export default async function fetchBlankNodeNeighbors(
   const edges = results.edges
     .filter(
       edge =>
-        edge.sourceId === req.resourceURI || edge.targetId === req.resourceURI
+        edge.sourceId === req.resourceURI || edge.targetId === req.resourceURI,
     )
     .map(createEdge);
 
@@ -31,7 +31,7 @@ export default async function fetchBlankNodeNeighbors(
     .filter(
       v =>
         v.id !== req.resourceURI &&
-        edges.find(e => e.sourceId === v.id || e.targetId === v.id)
+        edges.find(e => e.sourceId === v.id || e.targetId === v.id),
     )
     .map(createVertex);
 
@@ -43,7 +43,7 @@ export default async function fetchBlankNodeNeighbors(
         counts[group] = vs.length;
         return counts;
       },
-      {} as Record<string, number>
+      {} as Record<string, number>,
     ),
     neighbors: {
       vertices,

@@ -13,7 +13,7 @@ import { useRef } from "react";
  */
 export const useDeepMemo = <TKey, TValue>(
   memoFn: () => TValue,
-  key: TKey
+  key: TKey,
 ): TValue => {
   const ref = useRef<{ key: TKey; value: TValue } | null>(null);
 

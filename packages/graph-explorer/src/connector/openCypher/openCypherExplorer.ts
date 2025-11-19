@@ -17,7 +17,7 @@ import { neighborCounts } from "./neighborCounts";
 function _openCypherFetch(
   connection: NormalizedConnection,
   featureFlags: FeatureFlags,
-  options?: ExplorerRequestOptions
+  options?: ExplorerRequestOptions,
 ) {
   return async (queryTemplate: string) => {
     logger.debug(queryTemplate);
@@ -32,14 +32,14 @@ function _openCypherFetch(
         },
         body: JSON.stringify({ query: queryTemplate }),
         ...options,
-      }
+      },
     );
   };
 }
 
 export function createOpenCypherExplorer(
   connection: NormalizedConnection,
-  featureFlags: FeatureFlags
+  featureFlags: FeatureFlags,
 ): Explorer {
   const remoteLogger = createLoggerFromConnection(connection);
   const serviceType = connection.serviceType || DEFAULT_SERVICE_TYPE;
@@ -51,56 +51,56 @@ export function createOpenCypherExplorer(
         serviceType,
         connection,
         featureFlags,
-        options
+        options,
       );
       return fetchSchema(
         _openCypherFetch(connection, featureFlags, options),
         remoteLogger,
-        summary
+        summary,
       );
     },
     async fetchVertexCountsByType(req, options) {
       remoteLogger.info(
-        "[openCypher Explorer] Fetching vertex counts by type..."
+        "[openCypher Explorer] Fetching vertex counts by type...",
       );
       return fetchVertexTypeCounts(
         _openCypherFetch(connection, featureFlags, options),
-        req
+        req,
       );
     },
     async fetchNeighbors(req, options) {
       remoteLogger.info("[openCypher Explorer] Fetching neighbors...");
       return fetchNeighbors(
         _openCypherFetch(connection, featureFlags, options),
-        req
+        req,
       );
     },
     async neighborCounts(req, options) {
       remoteLogger.info("[openCypher Explorer] Fetching neighbors count...");
       return neighborCounts(
         _openCypherFetch(connection, featureFlags, options),
-        req
+        req,
       );
     },
     async keywordSearch(req, options) {
       remoteLogger.info("[openCypher Explorer] Fetching keyword search...");
       return keywordSearch(
         _openCypherFetch(connection, featureFlags, options),
-        req
+        req,
       );
     },
     async vertexDetails(req, options) {
       remoteLogger.info("[openCypher Explorer] Fetching vertex details...");
       return vertexDetails(
         _openCypherFetch(connection, featureFlags, options),
-        req
+        req,
       );
     },
     async edgeDetails(req, options) {
       remoteLogger.info("[openCypher Explorer] Fetching edge details...");
       return edgeDetails(
         _openCypherFetch(connection, featureFlags, options),
-        req
+        req,
       );
     },
     async rawQuery(req, options) {
@@ -114,7 +114,7 @@ async function fetchSummary(
   serviceType: string,
   connection: NormalizedConnection,
   featureFlags: FeatureFlags,
-  options?: RequestInit
+  options?: RequestInit,
 ) {
   try {
     const endpoint =
@@ -128,7 +128,7 @@ async function fetchSummary(
       {
         method: "GET",
         ...options,
-      }
+      },
     );
 
     return (

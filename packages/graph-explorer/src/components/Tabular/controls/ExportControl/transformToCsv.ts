@@ -3,7 +3,7 @@ import type { TabularColumnInstance } from "@/components/Tabular/helpers/tableIn
 
 export function transformToCsv<T extends object>(
   data: readonly T[],
-  columns: TabularColumnInstance<T>[]
+  columns: TabularColumnInstance<T>[],
 ) {
   const csvRows = data.map(row =>
     columns.map(col => {
@@ -12,7 +12,7 @@ export function transformToCsv<T extends object>(
         return null;
       }
       return (row as any)[accessor];
-    })
+    }),
   );
   const headers = columns.map(col => col.definition?.label || col.instance.id);
 

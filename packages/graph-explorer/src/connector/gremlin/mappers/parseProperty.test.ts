@@ -23,7 +23,7 @@ describe("parseProperty", () => {
   it("should parse a number value", () => {
     const value = createRandomInteger();
     const actual = parseProperty(
-      createGVertexProperty("value", createGInt32(value))
+      createGVertexProperty("value", createGInt32(value)),
     );
 
     expect(actual).toBe(value);
@@ -39,7 +39,7 @@ describe("parseProperty", () => {
   it("should parse a double value", () => {
     const value = createRandomDouble();
     const actual = parseProperty(
-      createGVertexProperty("value", createGDouble(value))
+      createGVertexProperty("value", createGDouble(value)),
     );
 
     expect(actual).toBe(value);
@@ -48,7 +48,7 @@ describe("parseProperty", () => {
   it("should parse a date value", () => {
     const value = new Date();
     const actual = parseProperty(
-      createGVertexProperty("value", createGDate(value))
+      createGVertexProperty("value", createGDate(value)),
     );
 
     expect(actual).toEqual(value);

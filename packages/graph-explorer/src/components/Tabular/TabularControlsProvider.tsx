@@ -20,7 +20,7 @@ type TabularContextValue<T extends object> = {
 };
 
 const createTabularContext = <T extends object = any>(
-  defaultValue: TabularContextValue<T>
+  defaultValue: TabularContextValue<T>,
 ) => {
   return createContext<TabularContextValue<T>>(defaultValue);
 };

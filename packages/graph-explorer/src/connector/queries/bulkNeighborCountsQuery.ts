@@ -8,7 +8,7 @@ import { neighborsCountQuery } from "./neighborsCountQuery";
 
 export function bulkNeighborCountsQuery(
   vertexIds: VertexId[],
-  queryClient: QueryClient
+  queryClient: QueryClient,
 ) {
   return queryOptions({
     queryKey: ["vertices", vertexIds, "neighbor", "count"],
@@ -45,8 +45,8 @@ export function bulkNeighborCountsQuery(
         chunk(missingIds, DEFAULT_BATCH_REQUEST_SIZE).map(batch =>
           explorer
             .neighborCounts({ vertexIds: batch }, { signal })
-            .then(r => r.counts)
-        )
+            .then(r => r.counts),
+        ),
       ).then(results => results.flat());
 
       // Update cache and combine responses

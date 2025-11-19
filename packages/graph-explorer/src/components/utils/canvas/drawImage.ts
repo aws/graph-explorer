@@ -46,7 +46,7 @@ const IMAGES_PENDING: Set<string> = new Set();
 const drawImage = (
   context: CanvasRenderingContext2D,
   boundingBox: BoundingBox,
-  options: DrawImageOption = {}
+  options: DrawImageOption = {},
 ) => {
   context.save();
   const { x, y, width, height } = boundingBox;
@@ -66,7 +66,7 @@ const drawImage = (
       x,
       y,
       width,
-      height
+      height,
     );
 
     if (initialGlobalAlpha !== context.globalAlpha) {

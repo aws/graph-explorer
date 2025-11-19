@@ -72,7 +72,7 @@ describe("useSidebar", () => {
         store.set(userLayoutAtom, {
           activeSidebarItem: "details",
           activeToggles: new Set(),
-        } satisfies UserLayout)
+        } satisfies UserLayout),
     );
 
     act(() => result.current.toggleSidebar("details"));
@@ -101,7 +101,7 @@ describe("useSidebar", () => {
           activeSidebarItem: "namespaces",
           activeToggles: new Set(),
         } satisfies UserLayout);
-      }
+      },
     );
 
     expect(result.current.isSidebarOpen).toBe(true);
@@ -121,7 +121,7 @@ describe("useSidebar", () => {
           activeSidebarItem: "namespaces",
           activeToggles: new Set(),
         } satisfies UserLayout);
-      }
+      },
     );
 
     expect(result.current.isSidebarOpen).toBe(false);

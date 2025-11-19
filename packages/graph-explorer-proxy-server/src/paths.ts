@@ -6,5 +6,5 @@ export const clientRoot = path.join(repoRoot, "packages", "graph-explorer");
 export const proxyServerRoot = path.join(
   repoRoot,
   "packages",
-  "graph-explorer-proxy-server"
+  "graph-explorer-proxy-server",
 );

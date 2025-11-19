@@ -58,7 +58,7 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
     columnOrder.reduce<Record<string, boolean>>((init, col) => {
       init[col] = visibleColumns[col];
       return init;
-    }, {})
+    }, {}),
   );
 
   const onExport = () => {
@@ -121,7 +121,7 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
                 {columns.find(colDef => colDef.instance.id === columnId)
                   ?.definition?.label || columnId}
               </Label>
-            )
+            ),
           )}
         </div>
       </div>

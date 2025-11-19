@@ -18,7 +18,7 @@ describe("OpenCypher > fetchSchema", () => {
 
     const schema = await fetchSchema(
       openCypherFetchFn,
-      new ClientLoggerConnector()
+      new ClientLoggerConnector(),
     );
 
     const expected: SchemaResponse = {
@@ -130,7 +130,7 @@ describe("OpenCypher > fetchSchema", () => {
 
     const schema = await fetchSchema(
       openCypherFetchFn,
-      new ClientLoggerConnector()
+      new ClientLoggerConnector(),
     );
     expect(schema.vertices.length).toBe(0);
   });
@@ -159,7 +159,7 @@ describe("OpenCypher > fetchSchema", () => {
 
     const schema = await fetchSchema(
       openCypherFetchFn,
-      new ClientLoggerConnector()
+      new ClientLoggerConnector(),
     );
     expect(schema.vertices.length).toBe(0);
   });
@@ -188,7 +188,7 @@ describe("OpenCypher > fetchSchema", () => {
 
     const schema = await fetchSchema(
       openCypherFetchFn,
-      new ClientLoggerConnector()
+      new ClientLoggerConnector(),
     );
     expect(schema.vertices.length).toBe(0);
   });
@@ -209,7 +209,7 @@ describe("OpenCypher > fetchSchema", () => {
 
     const schema = await fetchSchema(
       openCypherFetchFn,
-      new ClientLoggerConnector()
+      new ClientLoggerConnector(),
     );
     expect(schema).toBeDefined();
   });
@@ -227,7 +227,7 @@ describe("OpenCypher > fetchSchema", () => {
 
     const schema = await fetchSchema(
       openCypherFetchFn,
-      new ClientLoggerConnector()
+      new ClientLoggerConnector(),
     );
     expect(schema.edges.length).toBe(0);
   });
@@ -256,7 +256,7 @@ describe("OpenCypher > fetchSchema", () => {
 
     const schema = await fetchSchema(
       openCypherFetchFn,
-      new ClientLoggerConnector()
+      new ClientLoggerConnector(),
     );
     expect(schema.edges.length).toBe(0);
   });
@@ -285,7 +285,7 @@ describe("OpenCypher > fetchSchema", () => {
 
     const schema = await fetchSchema(
       openCypherFetchFn,
-      new ClientLoggerConnector()
+      new ClientLoggerConnector(),
     );
     expect(schema.edges.length).toBe(0);
   });
@@ -314,7 +314,7 @@ describe("OpenCypher > fetchSchema", () => {
 
     const schema = await fetchSchema(
       openCypherFetchFn,
-      new ClientLoggerConnector()
+      new ClientLoggerConnector(),
     );
     expect(schema.edges.length).toBe(0);
   });
@@ -350,7 +350,7 @@ describe("OpenCypher > fetchSchema", () => {
 
     const schema = await fetchSchema(
       openCypherFetchFn,
-      new ClientLoggerConnector()
+      new ClientLoggerConnector(),
     );
     expect(schema).toBeDefined();
   });
@@ -370,7 +370,7 @@ describe("OpenCypher > fetchSchema", () => {
 
     const schema = await fetchSchema(
       openCypherFetchFn,
-      new ClientLoggerConnector()
+      new ClientLoggerConnector(),
     );
     expect(schema).toBeDefined();
   });
@@ -398,7 +398,7 @@ describe("OpenCypher > fetchSchema", () => {
 
     const schema = await fetchSchema(
       openCypherFetchFn,
-      new ClientLoggerConnector()
+      new ClientLoggerConnector(),
     );
     expect(schema).toBeDefined();
     const routeEdge = schema.edges[0];
@@ -421,10 +421,10 @@ describe("OpenCypher > fetchSchema", () => {
     await fetchSchema(openCypherFetchFn, new ClientLoggerConnector());
 
     expect(openCypherFetchFn.mock.calls[3][0]).toStrictEqual(
-      "MATCH () -[e:`route`]- () RETURN e AS object LIMIT 1"
+      "MATCH () -[e:`route`]- () RETURN e AS object LIMIT 1",
     );
     expect(openCypherFetchFn.mock.calls[4][0]).toStrictEqual(
-      "MATCH () -[e:`contains`]- () RETURN e AS object LIMIT 1"
+      "MATCH () -[e:`contains`]- () RETURN e AS object LIMIT 1",
     );
   });
 
@@ -443,10 +443,10 @@ describe("OpenCypher > fetchSchema", () => {
     await fetchSchema(openCypherFetchFn, new ClientLoggerConnector());
 
     expect(openCypherFetchFn.mock.calls[3][0]).toStrictEqual(
-      "MATCH () -[e:`route`]- () RETURN e AS object LIMIT 1"
+      "MATCH () -[e:`route`]- () RETURN e AS object LIMIT 1",
     );
     expect(openCypherFetchFn.mock.calls[4][0]).toStrictEqual(
-      "MATCH () -[e:`contains`]- () RETURN e AS object LIMIT 1"
+      "MATCH () -[e:`contains`]- () RETURN e AS object LIMIT 1",
     );
   });
 });

@@ -23,7 +23,7 @@ describe("SPARQL > keywordSearchTemplate", () => {
             FILTER(isLiteral(?object) || ?predicate = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
           }
         }
-      `)
+      `),
     );
   });
 
@@ -52,7 +52,7 @@ describe("SPARQL > keywordSearchTemplate", () => {
             FILTER(isLiteral(?object) || ?predicate = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
           }
         }
-      `)
+      `),
     );
   });
 
@@ -80,7 +80,7 @@ describe("SPARQL > keywordSearchTemplate", () => {
             FILTER(isLiteral(?object) || ?predicate = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
           }
         }
-      `)
+      `),
     );
   });
 
@@ -107,7 +107,7 @@ describe("SPARQL > keywordSearchTemplate", () => {
             FILTER(isLiteral(?object) || ?predicate = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
           }
         }
-      `)
+      `),
     );
   });
 
@@ -135,7 +135,7 @@ describe("SPARQL > keywordSearchTemplate", () => {
             FILTER(isLiteral(?object) || ?predicate = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
           }
         }
-      `)
+      `),
     );
   });
 
@@ -168,7 +168,7 @@ describe("SPARQL > keywordSearchTemplate", () => {
             FILTER(isLiteral(?object) || ?predicate = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
           }
         }
-      `)
+      `),
     );
   });
 
@@ -201,7 +201,7 @@ describe("SPARQL > keywordSearchTemplate", () => {
             FILTER(isLiteral(?object) || ?predicate = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
           }
         }
-      `)
+      `),
     );
   });
 
@@ -234,7 +234,7 @@ describe("SPARQL > keywordSearchTemplate", () => {
             FILTER(isLiteral(?object) || ?predicate = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
           }
         }
-      `)
+      `),
     );
   });
 
@@ -267,7 +267,7 @@ describe("SPARQL > keywordSearchTemplate", () => {
             FILTER(isLiteral(?object) || ?predicate = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
           }
         }
-      `)
+      `),
     );
   });
 
@@ -300,7 +300,7 @@ describe("SPARQL > keywordSearchTemplate", () => {
             FILTER(isLiteral(?object) || ?predicate = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
           }
         }
-      `)
+      `),
     );
   });
 });

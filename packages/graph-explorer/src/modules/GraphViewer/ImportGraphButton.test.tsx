@@ -20,7 +20,7 @@ describe("createErrorNotification", () => {
 
     expect(notification.type).toBe("error");
     expect(notification.message).toBe(
-      "Failed to load the graph because an error occurred."
+      "Failed to load the graph because an error occurred.",
     );
   });
 
@@ -33,7 +33,7 @@ describe("createErrorNotification", () => {
 
     expect(notification.type).toBe("error");
     expect(notification.message).toBe(
-      `Parsing the file "${file.name}" failed. Please ensure the file was originally saved from Graph Explorer and is not corrupt.`
+      `Parsing the file "${file.name}" failed. Please ensure the file was originally saved from Graph Explorer and is not corrupt.`,
     );
   });
 
@@ -48,7 +48,7 @@ describe("createErrorNotification", () => {
 
     expect(notification.type).toBe("error");
     expect(notification.message).toBe(
-      `The graph file requires a connection to ${connection.dbUrl} using the graph type PG-Gremlin.`
+      `The graph file requires a connection to ${connection.dbUrl} using the graph type PG-Gremlin.`,
     );
   });
 
@@ -63,7 +63,7 @@ describe("createErrorNotification", () => {
 
     expect(notification.type).toBe("error");
     expect(notification.message).toBe(
-      `The graph file requires a connection to ${connection.dbUrl} using the graph type RDF-SPARQL.`
+      `The graph file requires a connection to ${connection.dbUrl} using the graph type RDF-SPARQL.`,
     );
   });
 
@@ -78,7 +78,7 @@ describe("createErrorNotification", () => {
 
     expect(notification.type).toBe("error");
     expect(notification.message).toBe(
-      `The graph file requires a connection to ${connection.dbUrl} using the graph type PG-openCypher.`
+      `The graph file requires a connection to ${connection.dbUrl} using the graph type PG-openCypher.`,
     );
   });
 
@@ -96,7 +96,7 @@ describe("createErrorNotification", () => {
 
     expect(notification.type).toBe("error");
     expect(notification.message).toBe(
-      `The graph file requires switching to connection ${matchingConnectionName}.`
+      `The graph file requires switching to connection ${matchingConnectionName}.`,
     );
   });
 
@@ -114,7 +114,7 @@ describe("createErrorNotification", () => {
 
     expect(notification.type).toBe("error");
     expect(notification.message).toBe(
-      `The graph file requires switching to connection ${matchingConnectionName}.`
+      `The graph file requires switching to connection ${matchingConnectionName}.`,
     );
   });
 });

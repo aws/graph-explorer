@@ -46,9 +46,9 @@ export function useRemoveFromGraph() {
         .entries()
         .filter(
           ([_id, edge]) =>
-            vertices.has(edge.sourceId) || vertices.has(edge.targetId)
+            vertices.has(edge.sourceId) || vertices.has(edge.targetId),
         )
-        .map(([id]) => id)
+        .map(([id]) => id),
     );
     const edgesToRemove = edges.union(associatedEdges);
 
@@ -105,6 +105,6 @@ export function useClearGraph() {
       set(nodesFilteredIdsAtom, RESET);
       set(edgesFilteredIdsAtom, RESET);
       set(activeGraphSessionAtom, RESET);
-    }, [])
+    }, []),
   );
 }

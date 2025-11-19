@@ -49,7 +49,7 @@ const keywordSearchTemplate = ({
     uniq(
       searchByAttributes.includes("__all")
         ? ["__id", ...searchByAttributes]
-        : searchByAttributes
+        : searchByAttributes,
     )
       .filter(attr => attr !== "__all")
       .map(attr => {

@@ -21,7 +21,7 @@ const initialState: UseDiffState = {
 const reducer = <T extends object>(
   newState: TableState<T>,
   action: ActionType,
-  previousState?: TableState<T>
+  previousState?: TableState<T>,
 ) => {
   if (action.type === "init") {
     return {
@@ -47,7 +47,8 @@ const reducer = <T extends object>(
     const hasChanged = newState.filters.some(newFilter => {
       return previousState.filters.find(
         prevFilter =>
-          prevFilter.id === newFilter.id && prevFilter.value !== newFilter.value
+          prevFilter.id === newFilter.id &&
+          prevFilter.value !== newFilter.value,
       );
     });
 

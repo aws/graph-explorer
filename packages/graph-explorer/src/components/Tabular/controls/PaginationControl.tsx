@@ -64,7 +64,7 @@ export function PaginationControl({
     <div
       className={cn(
         "flex w-full flex-wrap items-center justify-between gap-2",
-        className
+        className,
       )}
     >
       <div className="text-text-secondary">

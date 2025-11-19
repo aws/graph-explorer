@@ -33,14 +33,14 @@ const combinedSearchableAttributesSelector = atom(get => {
       .values()
       .flatMap(c => c.attributes)
       .filter(a => a.isSearchable)
-      .map(a => [a.name, a])
+      .map(a => [a.name, a]),
   )
     .values()
     .toArray();
 
   // Sort by name
   return uniqueSearchableAttributes.sort((a, b) =>
-    a.name.localeCompare(b.name)
+    a.name.localeCompare(b.name),
   );
 });
 
@@ -83,10 +83,10 @@ export default function useKeywordSearch() {
   const [searchTerm, setSearchTerm] = useAtom(searchTermAtom);
   const debouncedSearchTerm = useDebounceValue(searchTerm, 600);
   const [selectedVertexType, setSelectedVertexType] = useAtom(
-    selectedVertexTypeAtom
+    selectedVertexTypeAtom,
   );
   const [selectedAttribute, setSelectedAttribute] = useAtom(
-    selectedAttributeAtom
+    selectedAttributeAtom,
   );
   const [partialMatch, setPartialMatch] = useAtom(partialMatchAtom);
 

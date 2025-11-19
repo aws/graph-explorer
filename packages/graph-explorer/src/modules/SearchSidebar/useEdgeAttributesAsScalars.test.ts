@@ -54,7 +54,7 @@ describe("useEdgeAttributesAsScalars", () => {
     it("should return ID, Label, and attributes for edge with unique ID", () => {
       const { result } = renderHookWithState(
         () => useEdgeAttributesAsScalars(edge),
-        dbState
+        dbState,
       );
 
       const scalars = result.current;
@@ -64,28 +64,28 @@ describe("useEdgeAttributesAsScalars", () => {
         createResultScalar({
           name: "ID",
           value: "edge-1",
-        })
+        }),
       );
 
       expect(scalars[1]).toEqual(
         createResultScalar({
           name: "Edge Label",
           value: "knows",
-        })
+        }),
       );
 
       expect(scalars[2]).toEqual(
         createResultScalar({
           name: "Since",
           value: "2020",
-        })
+        }),
       );
 
       expect(scalars[3]).toEqual(
         createResultScalar({
           name: "Weight",
           value: "0.8",
-        })
+        }),
       );
     });
 
@@ -97,7 +97,7 @@ describe("useEdgeAttributesAsScalars", () => {
 
       const { result } = renderHookWithState(
         () => useEdgeAttributesAsScalars(edgeWithoutId),
-        dbState
+        dbState,
       );
 
       const scalars = result.current;
@@ -107,7 +107,7 @@ describe("useEdgeAttributesAsScalars", () => {
         createResultScalar({
           name: "Edge Label",
           value: "knows",
-        })
+        }),
       );
     });
   });
@@ -119,7 +119,7 @@ describe("useEdgeAttributesAsScalars", () => {
     it("should return ID, Predicate and attributes for edge with unique ID", () => {
       const { result } = renderHookWithState(
         () => useEdgeAttributesAsScalars(edge),
-        dbState
+        dbState,
       );
 
       const scalars = result.current;
@@ -129,28 +129,28 @@ describe("useEdgeAttributesAsScalars", () => {
         createResultScalar({
           name: "ID",
           value: "edge-1",
-        })
+        }),
       );
 
       expect(scalars[1]).toEqual(
         createResultScalar({
           name: "Predicate",
           value: "knows",
-        })
+        }),
       );
 
       expect(scalars[2]).toEqual(
         createResultScalar({
           name: "Since",
           value: "2020",
-        })
+        }),
       );
 
       expect(scalars[3]).toEqual(
         createResultScalar({
           name: "Weight",
           value: "0.8",
-        })
+        }),
       );
     });
 
@@ -162,7 +162,7 @@ describe("useEdgeAttributesAsScalars", () => {
 
       const { result } = renderHookWithState(
         () => useEdgeAttributesAsScalars(edgeWithoutId),
-        dbState
+        dbState,
       );
 
       const scalars = result.current;
@@ -179,7 +179,7 @@ describe("useEdgeAttributesAsScalars", () => {
 
     const { result } = renderHookWithState(
       () => useEdgeAttributesAsScalars(edgeWithNoAttributes),
-      dbState
+      dbState,
     );
 
     const scalars = result.current;

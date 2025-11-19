@@ -155,14 +155,14 @@ export type UserStyling = {
 
 export const userStylingAtom = atomWithLocalForage<UserStyling>(
   "user-styling",
-  {}
+  {},
 );
 
 /** Get the stored user preferences for vertices and edges in a fast lookup Map. */
 function useStoredGraphPreferences() {
   const graphPreferences = useAtomValue(userStylingAtom);
   const vertices = new Map(
-    graphPreferences.vertices?.map(v => [v.type, v]) ?? []
+    graphPreferences.vertices?.map(v => [v.type, v]) ?? [],
   );
   const edges = new Map(graphPreferences.edges?.map(e => [e.type, e]) ?? []);
   const result = { vertices, edges };
@@ -173,7 +173,7 @@ function useStoredGraphPreferences() {
 /** Combines the stored user preferences with the defined default values. */
 export function createVertexPreference(
   type: string,
-  stored?: VertexPreferencesStorageModel
+  stored?: VertexPreferencesStorageModel,
 ): VertexPreferences {
   logger.debug("Creating VertexPreference", { type, stored });
   return {
@@ -186,7 +186,7 @@ export function createVertexPreference(
 /** Combines the stored user preferences with the defined default values. */
 export function createEdgePreference(
   type: string,
-  stored?: EdgePreferencesStorageModel
+  stored?: EdgePreferencesStorageModel,
 ) {
   logger.debug("Creating EdgePreference", { type, stored });
   return {
@@ -202,7 +202,7 @@ export function useAllVertexPreferences(): VertexPreferences[] {
   const { vertices: allSchemas } = useActiveSchema();
 
   return allSchemas.map(({ type }) =>
-    createVertexPreference(type, allPreferences.get(type))
+    createVertexPreference(type, allPreferences.get(type)),
   );
 }
 
@@ -212,7 +212,7 @@ export function useAllEdgePreferences(): EdgePreferences[] {
   const { edges: allSchemas } = useActiveSchema();
 
   return allSchemas.map(({ type }) =>
-    createEdgePreference(type, allPreferences.get(type))
+    createEdgePreference(type, allPreferences.get(type)),
   );
 }
 
@@ -234,7 +234,7 @@ export const vertexPreferenceByTypeAtom = atomFamily((type: string) =>
     const userStyling = get(userStylingAtom);
     const stored = userStyling.vertices?.find(v => v.type === type);
     return createVertexPreference(type, stored);
-  })
+  }),
 );
 
 /**
@@ -245,7 +245,7 @@ export const edgePreferenceByTypeAtom = atomFamily((type: string) =>
     const userStyling = get(userStylingAtom);
     const stored = userStyling.edges?.find(e => e.type === type);
     return createEdgePreference(type, stored);
-  })
+  }),
 );
 
 type UpdatedVertexStyle = Partial<Omit<VertexPreferences, "type">>;

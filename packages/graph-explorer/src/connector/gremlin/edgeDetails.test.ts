@@ -34,7 +34,7 @@ describe("edgeDetails", () => {
     const edge2 = createTestableEdge();
     const response = createGremlinResponse(
       createGEdge(edge1.asResult()),
-      createGEdge(edge2.asResult())
+      createGEdge(edge2.asResult()),
     );
     const mockFetch = vi.fn().mockResolvedValue(response);
 

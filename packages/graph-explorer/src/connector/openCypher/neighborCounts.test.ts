@@ -28,7 +28,7 @@ describe("neighborCounts", () => {
           labels(neighbor) AS neighborLabels, 
           count(neighbor) AS neighborCount
         RETURN id, collect({ label: neighborLabels, count: neighborCount }) as counts
-      `
+      `,
     );
   });
 
@@ -107,7 +107,7 @@ describe("neighborCounts", () => {
     await expect(
       neighborCounts(mockFetch, {
         vertexIds: [createVertexId("123")],
-      })
+      }),
     ).rejects.toThrow("openCypher query failed");
   });
 

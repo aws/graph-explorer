@@ -11,7 +11,7 @@ function FieldSet({ className, ...props }: ComponentPropsWithRef<"fieldset">) {
       className={cn(
         "flex min-w-0 flex-col gap-6",
         "has-[>[data-slot=checkbox-group]]:gap-3 has-[>[data-slot=radio-group]]:gap-3",
-        className
+        className,
       )}
       {...props}
     />
@@ -31,7 +31,7 @@ function FieldLegend({
         "mb-3 font-medium",
         "data-[variant=legend]:text-base",
         "data-[variant=label]:text-sm",
-        className
+        className,
       )}
       {...props}
     />
@@ -44,7 +44,7 @@ function FieldGroup({ className, ...props }: ComponentPropsWithRef<"div">) {
       data-slot="field-group"
       className={cn(
         "group/field-group @container/field-group flex w-full flex-col gap-7 data-[slot=checkbox-group]:gap-3 *:data-[slot=field-group]:gap-4",
-        className
+        className,
       )}
       {...props}
     />
@@ -95,7 +95,7 @@ function FieldContent({ className, ...props }: ComponentPropsWithRef<"div">) {
       data-slot="field-content"
       className={cn(
         "group/field-content flex flex-1 flex-col gap-1.5 leading-snug",
-        className
+        className,
       )}
       {...props}
     />
@@ -113,7 +113,7 @@ function FieldLabel({
         "group/field-label peer/field-label flex w-fit gap-2 leading-snug group-data-[disabled=true]/field:opacity-50",
         "has-[>[data-slot=field]]:w-full has-[>[data-slot=field]]:flex-col has-[>[data-slot=field]]:rounded-md has-[>[data-slot=field]]:border *:data-[slot=field]:p-4",
         "has-data-[state=checked]:bg-primary/5 has-data-[state=checked]:border-primary dark:has-data-[state=checked]:bg-primary/10",
-        className
+        className,
       )}
       {...props}
     />
@@ -126,7 +126,7 @@ function FieldTitle({ className, ...props }: ComponentPropsWithRef<"div">) {
       data-slot="field-label"
       className={cn(
         "flex w-fit items-center gap-2 text-sm leading-snug font-medium group-data-[disabled=true]/field:opacity-50",
-        className
+        className,
       )}
       {...props}
     />
@@ -141,7 +141,7 @@ function FieldDescription({ className, ...props }: ComponentPropsWithRef<"p">) {
         "text-muted-foreground text-sm leading-normal font-normal group-has-data-[orientation=horizontal]/field:text-balance",
         "last:mt-0 nth-last-2:-mt-1 [[data-variant=legend]+&]:-mt-1.5",
         "[&>a:hover]:text-primary [&>a]:underline [&>a]:underline-offset-4",
-        className
+        className,
       )}
       {...props}
     />
@@ -161,7 +161,7 @@ function FieldSeparator({
       data-content={!!children}
       className={cn(
         "relative -my-2 h-5 text-sm group-data-[variant=outline]/field-group:-mb-2",
-        className
+        className,
       )}
       {...props}
     >
@@ -207,7 +207,7 @@ function FieldError({
       <ul className="ml-4 flex list-disc flex-col gap-1">
         {uniqueErrors.map(
           (error, index) =>
-            error?.message && <li key={index}>{error.message}</li>
+            error?.message && <li key={index}>{error.message}</li>,
         )}
       </ul>
     );

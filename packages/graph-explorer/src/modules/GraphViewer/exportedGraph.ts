@@ -39,7 +39,7 @@ export type ExportedGraphConnection = ExportedGraphFile["data"]["connection"];
 export function createExportedGraph(
   vertexIds: VertexId[],
   edgeIds: EdgeId[],
-  connection: ConnectionConfig
+  connection: ConnectionConfig,
 ): ExportedGraphFile {
   return {
     meta: {
@@ -59,7 +59,7 @@ export function createExportedGraph(
 
 /** Creates an exported connection object from the given connection config. */
 export function createExportedConnection(
-  connection: ConnectionConfig
+  connection: ConnectionConfig,
 ): ExportedGraphConnection {
   const dbUrl = (
     (connection.proxyConnection ? connection.graphDbUrl : connection.url) ?? ""
@@ -85,7 +85,7 @@ export async function parseExportedGraph(data: unknown) {
       .filter(isNotEmptyIfString)
       .filter(isNotMaliciousIfSparql(connection.queryEngine))
       .map(escapeIfPropertyGraphAndString(connection.queryEngine))
-      .map(createVertexId)
+      .map(createVertexId),
   );
 
   // Do some basic validation and skip any invalid IDs
@@ -96,7 +96,7 @@ export async function parseExportedGraph(data: unknown) {
       .filter(isNotEmptyIfString)
       .filter(isValidRdfEdgeIdIfSparql(connection.queryEngine))
       .map(escapeIfPropertyGraphAndString(connection.queryEngine))
-      .map(createEdgeId)
+      .map(createEdgeId),
   );
 
   return { connection, vertices, edges };
@@ -178,7 +178,7 @@ function escapeIfPropertyGraphAndString(queryEngine: QueryEngine) {
 /** Compares the connection config to the exported connection. */
 export function isMatchingConnection(
   connection: ConnectionConfig,
-  exportedConnection: ExportedGraphConnection
+  exportedConnection: ExportedGraphConnection,
 ) {
   const compareTo = createExportedConnection(connection);
   return (

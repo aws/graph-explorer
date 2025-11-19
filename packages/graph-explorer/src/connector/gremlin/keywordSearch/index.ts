@@ -23,11 +23,11 @@ type RawKeySearchResponse = {
 
 const keywordSearch = async (
   gremlinFetch: GremlinFetch,
-  req: KeywordSearchRequest
+  req: KeywordSearchRequest,
 ): Promise<KeywordSearchResponse> => {
   const gremlinTemplate = keywordSearchTemplate(req);
   const data = await gremlinFetch<RawKeySearchResponse | ErrorResponse>(
-    gremlinTemplate
+    gremlinTemplate,
   );
 
   if (isErrorResponse(data)) {

@@ -17,7 +17,7 @@ import { uniq } from "lodash";
 export default function edgesSchemaTemplate({ types }: { types: string[] }) {
   // Labels with quotes
   const labels = uniq(types.flatMap(type => type.split("::"))).map(
-    label => `"${label}"`
+    label => `"${label}"`,
   );
 
   return query`

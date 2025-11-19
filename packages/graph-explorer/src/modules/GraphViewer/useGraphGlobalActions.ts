@@ -10,11 +10,11 @@ const useGraphGlobalActions = (graphRef?: RefObject<GraphRef | null>) => {
     const updateFunction = () => {
       setIsZoomInDisabled(
         graphRef?.current?.cytoscape?.zoom() ===
-          graphRef?.current?.cytoscape?.maxZoom()
+          graphRef?.current?.cytoscape?.maxZoom(),
       );
       setIsZoomOutDisabled(
         graphRef?.current?.cytoscape?.zoom() ===
-          graphRef?.current?.cytoscape?.minZoom()
+          graphRef?.current?.cytoscape?.minZoom(),
       );
     };
     // Call to set values on initialization
@@ -41,7 +41,7 @@ const useGraphGlobalActions = (graphRef?: RefObject<GraphRef | null>) => {
       selectedElements?.nonempty()
         ? selectedElements
         : graphRef?.current?.cytoscape.elements(),
-      48 // avoid fit elements to the limit of the canvas
+      48, // avoid fit elements to the limit of the canvas
     );
   }, [graphRef]);
 
@@ -52,10 +52,10 @@ const useGraphGlobalActions = (graphRef?: RefObject<GraphRef | null>) => {
         : graphRef?.current?.cytoscape?.elements(":selected");
       graphRef?.current?.cytoscape?.fit(
         selectedElements,
-        48 // avoid fit elements to the limit of the canvas
+        48, // avoid fit elements to the limit of the canvas
       );
     },
-    [graphRef]
+    [graphRef],
   );
 
   const onFitAllToCanvas = useCallback(() => {
@@ -72,7 +72,7 @@ const useGraphGlobalActions = (graphRef?: RefObject<GraphRef | null>) => {
     graphRef?.current?.cytoscape?.center(
       selectedElements?.nonempty()
         ? selectedElements
-        : graphRef?.current?.cytoscape.elements()
+        : graphRef?.current?.cytoscape.elements(),
     );
   }, [graphRef]);
 
@@ -83,12 +83,12 @@ const useGraphGlobalActions = (graphRef?: RefObject<GraphRef | null>) => {
         : graphRef?.current?.cytoscape?.elements(":selected");
       graphRef?.current?.cytoscape?.center(selectedElements);
     },
-    [graphRef]
+    [graphRef],
   );
 
   const onCenterEntireGraph = useCallback(() => {
     graphRef?.current?.cytoscape?.center(
-      graphRef?.current?.cytoscape.elements()
+      graphRef?.current?.cytoscape.elements(),
     );
   }, [graphRef]);
 
@@ -132,7 +132,7 @@ const useGraphGlobalActions = (graphRef?: RefObject<GraphRef | null>) => {
     const selectedElements =
       graphRef?.current?.cytoscape?.elements(":selected");
     graphRef?.current?.cytoscape?.zoom(
-      graphRef?.current?.cytoscape?.zoom() + 0.5
+      graphRef?.current?.cytoscape?.zoom() + 0.5,
     );
     if (selectedElements?.nonempty()) {
       onCenterGraph();
@@ -141,7 +141,7 @@ const useGraphGlobalActions = (graphRef?: RefObject<GraphRef | null>) => {
 
   const onZoomOut = useCallback(() => {
     graphRef?.current?.cytoscape?.zoom(
-      graphRef?.current?.cytoscape?.zoom() - 0.5
+      graphRef?.current?.cytoscape?.zoom() - 0.5,
     );
   }, [graphRef]);
 

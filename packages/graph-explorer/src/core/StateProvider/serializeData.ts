@@ -47,7 +47,7 @@ export function serializeData(data: any): any {
   } else if (typeof data === "object" && data !== null) {
     // Recursively serialize object values
     return Object.fromEntries(
-      Object.entries(data).map(([key, value]) => [key, serializeData(value)])
+      Object.entries(data).map(([key, value]) => [key, serializeData(value)]),
     );
   } else {
     // Must be a literal type that serializes fine on its own
@@ -68,7 +68,7 @@ export function deserializeData(data: unknown): unknown {
         data.value.map(([key, value]: [string, any]) => [
           key,
           deserializeData(value),
-        ])
+        ]),
       );
     } else if (data.__type === "Set" && Array.isArray(data.value)) {
       // Deserialize inner array values to Set entries
@@ -80,7 +80,7 @@ export function deserializeData(data: unknown): unknown {
   } else if (typeof data === "object" && data !== null) {
     // Recursively deserialize object values
     return Object.fromEntries(
-      Object.entries(data).map(([key, value]) => [key, deserializeData(value)])
+      Object.entries(data).map(([key, value]) => [key, deserializeData(value)]),
     );
   } else {
     // Literal type deserializes fine on its own

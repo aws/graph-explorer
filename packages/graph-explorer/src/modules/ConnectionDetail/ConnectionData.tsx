@@ -25,7 +25,7 @@ export default function ConnectionData() {
 
   const { filteredItems, search, setSearch } = useSearchItems(
     vtConfigs,
-    config => config.displayLabel
+    config => config.displayLabel,
   );
 
   const t = useTranslations();
@@ -84,14 +84,14 @@ function VertexTypeList({
           className={cn(
             "px-3",
             index === 0 && "pt-3",
-            index === vtConfigs.length - 1 && "pb-3"
+            index === vtConfigs.length - 1 && "pb-3",
           )}
         >
           <div
             className={cn(
               "border-x border-b",
               index === 0 && "rounded-t-lg border-t",
-              index === vtConfigs.length - 1 && "rounded-b-lg"
+              index === vtConfigs.length - 1 && "rounded-b-lg",
             )}
           >
             <Row config={config} />

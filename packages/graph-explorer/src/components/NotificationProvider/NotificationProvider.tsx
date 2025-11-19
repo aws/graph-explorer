@@ -133,7 +133,7 @@ export const NotificationProvider: FC<NotificationProviderProps> = ({
 
       return notification.id || id;
     },
-    [dispatchNotification]
+    [dispatchNotification],
   );
 
   const clearNotification = useCallback(
@@ -143,7 +143,7 @@ export const NotificationProvider: FC<NotificationProviderProps> = ({
         payload: { id: notificationId },
       });
     },
-    [dispatchNotification]
+    [dispatchNotification],
   );
 
   const nodeRef = useRef<HTMLElement>(null);

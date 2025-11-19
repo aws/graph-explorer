@@ -6,7 +6,7 @@ export type AdjustAnchorOptions = {
 
 const adjustAnchor = (
   boundingBox: BoundingBox,
-  options: AdjustAnchorOptions = {}
+  options: AdjustAnchorOptions = {},
 ): BoundingBox => {
   const { x, width } = boundingBox;
   const { anchor = "left" } = options;

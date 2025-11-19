@@ -5,10 +5,10 @@ import type { ReadonlyDeep } from "type-fest";
 const groupChildrenByType = (
   children: ReadonlyDeep<ReactNode | ReactNode[]>,
   types: readonly (ComponentClass<any> | FunctionComponent | string)[] = [],
-  rest = "rest"
+  rest = "rest",
 ): Record<string, ReactNode[]> => {
   const typeNames: string[] = types.map(type =>
-    typeof type === "string" ? type : type.name
+    typeof type === "string" ? type : type.name,
   );
 
   return Children.toArray(children).reduce(
@@ -29,7 +29,7 @@ const groupChildrenByType = (
 
       return acc;
     },
-    {}
+    {},
   );
 };
 

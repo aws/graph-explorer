@@ -16,7 +16,7 @@ const assembledConfigSelector = atom(get => {
   }
 
   const vertexTypesMap = new Set(
-    configuration.schema?.vertices.map(v => v.type)
+    configuration.schema?.vertices.map(v => v.type),
   );
 
   const edgeTypesMap = new Set(configuration.schema?.edges.map(e => e.type));
@@ -35,8 +35,8 @@ export const vertexTypeConfigSelector = atomFamily((vertexType: string) =>
   atom(
     get =>
       get(allVertexTypeConfigsSelector).get(vertexType) ??
-      getDefaultVertexTypeConfig(vertexType)
-  )
+      getDefaultVertexTypeConfig(vertexType),
+  ),
 );
 
 /** Gets the matching vertex type config or a generated default value. */
@@ -51,9 +51,9 @@ const vertexTypeConfigsSelector = atomFamily((vertexTypes?: string[]) =>
       return allConfigs.values().toArray();
     }
     return vertexTypes.map(
-      type => allConfigs.get(type) ?? getDefaultVertexTypeConfig(type)
+      type => allConfigs.get(type) ?? getDefaultVertexTypeConfig(type),
     );
-  })
+  }),
 );
 
 /** Gets the matching vertex type configs or the generated default values. */
@@ -65,8 +65,8 @@ export const edgeTypeConfigSelector = atomFamily((edgeType: string) =>
   atom(
     get =>
       get(allEdgeTypeConfigsSelector).get(edgeType) ??
-      getDefaultEdgeTypeConfig(edgeType)
-  )
+      getDefaultEdgeTypeConfig(edgeType),
+  ),
 );
 
 /** Gets the matching edge type config or a generated default value. */
@@ -81,9 +81,9 @@ const edgeTypeConfigsSelector = atomFamily((edgeTypes?: string[]) =>
       return allConfigs.values().toArray();
     }
     return edgeTypes.map(
-      type => allConfigs.get(type) ?? getDefaultEdgeTypeConfig(type)
+      type => allConfigs.get(type) ?? getDefaultEdgeTypeConfig(type),
     );
-  })
+  }),
 );
 
 /** Gets the matching edge type configs or the generated default values. */

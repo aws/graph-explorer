@@ -46,7 +46,7 @@ export const getSymbolForNumber = (num: number) => {
 export const formatWithoutSymbol = (num: number, digits = 2) => {
   const exponent = Math.max(
     Math.min(3 * Math.floor(getExponent(num) / 3), 24),
-    -24
+    -24,
   );
   return precise(num / Math.pow(10, exponent), digits).toString();
 };

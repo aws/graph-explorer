@@ -298,7 +298,7 @@ export function createTestableVertex() {
       ...testable,
       id: createVertexId(testable.id),
       withRdfValues: (
-        options?: Partial<Pick<typeof testable, "isBlankNode">>
+        options?: Partial<Pick<typeof testable, "isBlankNode">>,
       ) => {
         if (testable.hasRdfValues === true) {
           // Do nothing if it already has RDF values
@@ -528,7 +528,7 @@ export function createRandomExportedGraph() {
   const edgeIds = entities.edges.map(e => e.id);
   const connection = createRandomConnectionWithId();
   connection.queryEngine = pickRandomElement(
-    queryEngineOptions.filter(e => e !== "sparql")
+    queryEngineOptions.filter(e => e !== "sparql"),
   );
   const result = createExportedGraph(vertexIds, edgeIds, connection);
   result.meta.sourceVersion = createRandomVersion();
@@ -623,10 +623,10 @@ export function createRandomVertexPreferencesStorageModel(): VertexPreferencesSt
   const borderColor = randomlyUndefined(createRandomColor());
   const iconUrl = randomlyUndefined(createRandomUrlString());
   const longDisplayNameAttribute = randomlyUndefined(
-    createRandomName("LongDisplayNameAttribute")
+    createRandomName("LongDisplayNameAttribute"),
   );
   const displayNameAttribute = randomlyUndefined(
-    createRandomName("DisplayNameAttribute")
+    createRandomName("DisplayNameAttribute"),
   );
   const displayLabel = randomlyUndefined(createRandomName("DisplayLabel"));
   return {
@@ -643,7 +643,7 @@ export function createRandomVertexPreferencesStorageModel(): VertexPreferencesSt
 export function createRandomEdgePreferencesStorageModel(): EdgePreferencesStorageModel {
   const displayLabel = randomlyUndefined(createRandomName("DisplayLabel"));
   const displayNameAttribute = randomlyUndefined(
-    createRandomName("DisplayNameAttribute")
+    createRandomName("DisplayNameAttribute"),
   );
   const lineColor = randomlyUndefined(createRandomColor());
   const labelColor = randomlyUndefined(createRandomColor());

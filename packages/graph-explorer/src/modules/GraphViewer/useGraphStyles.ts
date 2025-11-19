@@ -27,14 +27,14 @@ export default function useGraphStyles() {
   return createGraphStyles(
     deferredVtConfigs,
     deferredEtConfigs,
-    backgroundImageMap
+    backgroundImageMap,
   );
 }
 
 function createGraphStyles(
   deferredVtConfigs: VertexPreferences[],
   deferredEtConfigs: EdgePreferences[],
-  backgroundImageMap: Map<string, string | null>
+  backgroundImageMap: Map<string, string | null>,
 ): GraphProps["styles"] {
   const styles: GraphProps["styles"] = {};
 

@@ -27,7 +27,7 @@ function CollapsibleContent({
       data-slot="collapsible-content"
       className={cn(
         "group-data-open:animate-expand group-data-closed:animate-collapse overflow-hidden",
-        className
+        className,
       )}
       {...props}
     />

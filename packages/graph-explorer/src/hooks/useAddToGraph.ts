@@ -55,7 +55,7 @@ export function useAddToGraph() {
           vertices: newVerticesMap.values().toArray(),
           edges: newEdgesMap.values().toArray(),
         },
-        prev
+        prev,
       );
     });
 

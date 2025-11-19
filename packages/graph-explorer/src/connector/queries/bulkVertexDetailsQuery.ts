@@ -12,7 +12,7 @@ import { vertexDetailsQuery } from "./vertexDetailsQuery";
 
 export function bulkVertexDetailsQuery(
   vertexIds: VertexId[],
-  options?: { ignoreCache: boolean }
+  options?: { ignoreCache: boolean },
 ) {
   return queryOptions({
     queryKey: ["vertices", vertexIds, options],
@@ -31,7 +31,7 @@ export function bulkVertexDetailsQuery(
       if (!shouldIgnoreCache) {
         vertexIds.forEach(id => {
           const cached = client.getQueryData(
-            vertexDetailsQuery(id).queryKey
+            vertexDetailsQuery(id).queryKey,
           )?.vertex;
           if (cached) {
             cachedVertices.push(cached);
@@ -53,8 +53,8 @@ export function bulkVertexDetailsQuery(
         chunk(missingIds, DEFAULT_BATCH_REQUEST_SIZE).map(batch =>
           explorer
             .vertexDetails({ vertexIds: batch }, { signal })
-            .then(r => r.vertices)
-        )
+            .then(r => r.vertices),
+        ),
       ).then(results => results.flat());
 
       // Update cache

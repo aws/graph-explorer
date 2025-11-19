@@ -14,7 +14,7 @@ function Panel({ variant = "default", className, ...props }: PanelProps) {
       className={cn(
         "bg-background-default flex h-full flex-col overflow-hidden",
         variant === "default" && "shadow-primary-dark/20 rounded-lg shadow",
-        className
+        className,
       )}
       {...props}
     />
@@ -30,7 +30,7 @@ function PanelContent({
     <div
       className={cn(
         "bg-background-default flex h-full w-full grow flex-col overflow-y-auto",
-        className
+        className,
       )}
       {...props}
     />
@@ -57,7 +57,7 @@ function PanelHeader({
     <div
       className={cn(
         "bg-background-default flex min-h-[48px] w-full shrink-0 items-center gap-4 overflow-x-auto border-b px-3 py-1",
-        className
+        className,
       )}
       {...props}
     >
@@ -76,7 +76,7 @@ function PanelFooter({
     <div
       className={cn(
         "bg-background-default w-full border-t px-3 py-3",
-        className
+        className,
       )}
       {...props}
     >
@@ -94,7 +94,7 @@ function PanelTitle({
     <div
       className={cn(
         "text-text-primary inline-flex shrink-0 items-center gap-2 text-base leading-none font-bold whitespace-nowrap",
-        className
+        className,
       )}
       {...props}
     />
@@ -162,7 +162,7 @@ function PanelHeaderActions({
     <div
       className={cn(
         "flex grow flex-row items-center justify-end gap-0.5",
-        className
+        className,
       )}
       {...props}
     >

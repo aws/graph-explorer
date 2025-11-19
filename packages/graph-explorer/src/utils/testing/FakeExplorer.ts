@@ -76,7 +76,7 @@ export class FakeExplorer implements Explorer {
     };
     const schema = updateSchemaFromEntities(
       { vertices: this.vertices, edges: this.edges },
-      initialSchema
+      initialSchema,
     );
 
     return schema;
@@ -91,7 +91,7 @@ export class FakeExplorer implements Explorer {
   }
 
   async neighborCounts(
-    request: NeighborCountsRequest
+    request: NeighborCountsRequest,
   ): Promise<NeighborCountsResponse> {
     return {
       counts: request.vertexIds.map(vertexId => {
@@ -137,7 +137,7 @@ export class FakeExplorer implements Explorer {
 
   async rawQuery(): Promise<RawQueryResponse> {
     throw new Error(
-      "rawQuery can never have a fake implmentation. Use mocking instead."
+      "rawQuery can never have a fake implmentation. Use mocking instead.",
     );
   }
 

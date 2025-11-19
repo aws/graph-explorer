@@ -32,20 +32,20 @@ const WorkspaceTopBar = ({
         WorkspaceTopBarAdditionalControls.name,
       WorkspaceTopBarVersion.displayName || WorkspaceTopBarVersion.name,
     ],
-    "rest"
+    "rest",
   );
 
   return (
     <div
       className={cn(
         "border-divider bg-background-default text-text-primary flex flex-col border-b",
-        className
+        className,
       )}
     >
       <div
         className={cn(
           "bg-background-default text-text-primary flex min-h-[3.5rem] items-center gap-3",
-          logoVisible ? "pr-2" : "px-2"
+          logoVisible ? "pr-2" : "px-2",
         )}
       >
         {logoVisible ? <NavBarLogo /> : null}
@@ -86,6 +86,6 @@ WorkspaceTopBar.Content = WorkspaceTopBarContent;
 WorkspaceTopBar.Version = WorkspaceTopBarVersion;
 
 export default WorkspaceTopBar as ((
-  props: PropsWithChildren<WorkspaceTopBarProps>
+  props: PropsWithChildren<WorkspaceTopBarProps>,
 ) => ReactElement<any>) &
   WorkspaceTopBarComposition & { displayName: string };

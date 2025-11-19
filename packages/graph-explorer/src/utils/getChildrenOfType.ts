@@ -5,7 +5,7 @@ import { Children, isValidElement } from "react";
 const getChildrenOfType = (
   children: ReactNode,
   type: string | string[],
-  inverseSelection?: boolean
+  inverseSelection?: boolean,
 ) => {
   const actualTypes = Array.isArray(type) ? type : [type];
   return (

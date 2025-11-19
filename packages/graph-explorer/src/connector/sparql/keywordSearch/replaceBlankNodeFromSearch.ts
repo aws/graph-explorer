@@ -9,10 +9,10 @@ import keywordSearchBlankNodesIdsTemplate from "./keywordSearchBlankNodesIdsTemp
 export const replaceBlankNodeFromSearch = (
   blankNodes: BlankNodesMap,
   request: KeywordSearchRequest,
-  response: KeywordSearchResponse
+  response: KeywordSearchResponse,
 ) => {
   logger.log(
-    "[SPARQL Explorer] Replacing blank node from search with keywordSearchBlankNodesIdsTemplate"
+    "[SPARQL Explorer] Replacing blank node from search with keywordSearchBlankNodesIdsTemplate",
   );
   return response.vertices.map(vertex => {
     if (!vertex.isBlankNode) {

@@ -16,7 +16,7 @@ describe("createCompletionNotification", () => {
 
     expect(notification.type).toBe("success");
     expect(notification.message).toBe(
-      "Finished loading 1 node and 1 edge from the graph file."
+      "Finished loading 1 node and 1 edge from the graph file.",
     );
   });
 
@@ -29,7 +29,7 @@ describe("createCompletionNotification", () => {
 
     expect(notification.type).toBe("success");
     expect(notification.message).toBe(
-      `Finished loading ${nodeCount} nodes and ${edgeCount} edges from the graph file.`
+      `Finished loading ${nodeCount} nodes and ${edgeCount} edges from the graph file.`,
     );
   });
 
@@ -47,7 +47,7 @@ describe("createCompletionNotification", () => {
 
     expect(notification.type).toBe("info");
     expect(notification.message).toBe(
-      `Finished loading the graph, but ${nodeCount} nodes and ${edgeCount} edges were not found.`
+      `Finished loading the graph, but ${nodeCount} nodes and ${edgeCount} edges were not found.`,
     );
   });
 
@@ -63,7 +63,7 @@ describe("createCompletionNotification", () => {
 
     expect(notification.type).toBe("info");
     expect(notification.message).toBe(
-      `Finished loading the graph, but 1 node was not found.`
+      `Finished loading the graph, but 1 node was not found.`,
     );
   });
 
@@ -79,7 +79,7 @@ describe("createCompletionNotification", () => {
 
     expect(notification.type).toBe("info");
     expect(notification.message).toBe(
-      `Finished loading the graph, but 1 edge was not found.`
+      `Finished loading the graph, but 1 edge was not found.`,
     );
   });
 
@@ -99,7 +99,7 @@ describe("createCompletionNotification", () => {
 
     expect(notification.type).toBe("info");
     expect(notification.message).toBe(
-      `Finished loading the graph, but ${nodeCount} nodes and ${edgeCount} edges were not found.`
+      `Finished loading the graph, but ${nodeCount} nodes and ${edgeCount} edges were not found.`,
     );
   });
 
@@ -112,7 +112,7 @@ describe("createCompletionNotification", () => {
 
     expect(notification.type).toBe("error");
     expect(notification.message).toBe(
-      `Finished loading the graph, but no nodes or edges were loaded.`
+      `Finished loading the graph, but no nodes or edges were loaded.`,
     );
   });
 });

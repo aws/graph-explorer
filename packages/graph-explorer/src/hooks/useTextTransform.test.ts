@@ -39,7 +39,7 @@ describe("useTextTransform", () => {
     const expected = "rdf:type";
     const { result } = renderHookWithJotai(
       () => useTextTransform(),
-      initializeConfigWithPrefix
+      initializeConfigWithPrefix,
     );
     expect(result.current(text)).toEqual(expected);
   });
@@ -73,7 +73,7 @@ describe("useTextTransform", () => {
     const input = "http://www.some-uri.com/";
     const { result } = renderHookWithJotai(
       () => useTextTransform(),
-      initializeConfigWithPrefix
+      initializeConfigWithPrefix,
     );
     expect(result.current(input)).toBe(input);
   });
@@ -83,7 +83,7 @@ describe("useTextTransform", () => {
 
     const { result } = renderHookWithJotai(
       () => useTextTransform(),
-      initializeConfigWithPrefix
+      initializeConfigWithPrefix,
     );
 
     expect(result.current(input)).toBe(input);

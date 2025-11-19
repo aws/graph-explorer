@@ -34,7 +34,7 @@ export function SettingsSectionTitle({
     <h2
       className={cn(
         "text-text-primary text-xl leading-snug font-bold",
-        className
+        className,
       )}
       {...props}
     />
@@ -49,7 +49,7 @@ export function SettingsSectionDescription({
     <div
       className={cn(
         "font-base text-text-secondary text-base leading-snug",
-        className
+        className,
       )}
       {...props}
     />

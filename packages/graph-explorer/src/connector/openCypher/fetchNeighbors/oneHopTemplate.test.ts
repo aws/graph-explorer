@@ -15,7 +15,7 @@ describe("OpenCypher > oneHopTemplate", () => {
         RETURN
           collect(DISTINCT tgt) AS vObjects,
           collect(e) AS eObjects
-      `
+      `,
     );
   });
 
@@ -32,7 +32,7 @@ describe("OpenCypher > oneHopTemplate", () => {
         RETURN
           collect(DISTINCT tgt) AS vObjects,
           collect(e) AS eObjects
-      `
+      `,
     );
   });
 
@@ -55,7 +55,7 @@ describe("OpenCypher > oneHopTemplate", () => {
         RETURN 
           collect(DISTINCT tgt) AS vObjects, 
           collect(e) AS eObjects 
-      `
+      `,
     );
   });
 
@@ -79,7 +79,7 @@ describe("OpenCypher > oneHopTemplate", () => {
         RETURN 
           collect(DISTINCT tgt) AS vObjects, 
           collect(e) AS eObjects 
-      `
+      `,
     );
   });
 
@@ -96,7 +96,7 @@ describe("OpenCypher > oneHopTemplate", () => {
         RETURN
           collect(DISTINCT tgt) AS vObjects,
           collect(e) AS eObjects
-      `
+      `,
     );
   });
 
@@ -120,7 +120,7 @@ describe("OpenCypher > oneHopTemplate", () => {
         RETURN 
           collect(DISTINCT tgt) AS vObjects, 
           collect(e) AS eObjects 
-      `
+      `,
     );
   });
 
@@ -148,7 +148,7 @@ describe("OpenCypher > oneHopTemplate", () => {
         RETURN 
           collect(DISTINCT tgt) AS vObjects, 
           collect(e) AS eObjects 
-      `
+      `,
     );
   });
 
@@ -173,7 +173,7 @@ describe("OpenCypher > oneHopTemplate", () => {
         RETURN 
           collect(DISTINCT tgt) AS vObjects, 
           collect(e) AS eObjects 
-      `
+      `,
     );
   });
 });

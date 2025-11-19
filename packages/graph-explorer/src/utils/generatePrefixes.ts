@@ -3,12 +3,12 @@ import commonPrefixes from "./common-prefixes.json";
 
 // Create a map of the common prefixes
 const commonPrefixesMap = toPrefixTypeConfigMap(
-  Object.entries(commonPrefixes).map(([prefix, uri]) => ({ prefix, uri }))
+  Object.entries(commonPrefixes).map(([prefix, uri]) => ({ prefix, uri })),
 );
 
 /** Helper function to create a map of prefix configs from an array of configs. */
 function toPrefixTypeConfigMap(
-  configs: PrefixTypeConfig[]
+  configs: PrefixTypeConfig[],
 ): Map<string, PrefixTypeConfig> {
   return new Map(configs.map(config => [normalizeUri(config.uri), config]));
 }
@@ -57,7 +57,7 @@ function createPrefixTypeConfig(uri: string): PrefixTypeConfig | null {
 }
 
 export function generateHashPrefix(
-  url: URL
+  url: URL,
 ): Omit<PrefixTypeConfig, "__count"> {
   const paths = url.pathname.replace(/^\//, "").split("/");
   let prefix;
@@ -118,7 +118,7 @@ export function generatePrefix(url: URL): Omit<PrefixTypeConfig, "__count"> {
   }
 
   const filteredPaths = paths.filter(
-    path => !["ontology", "resource", "class"].includes(path.toLowerCase())
+    path => !["ontology", "resource", "class"].includes(path.toLowerCase()),
   );
   filteredPaths.pop();
   if (filteredPaths.length === 0) {
@@ -141,7 +141,7 @@ export function generatePrefix(url: URL): Omit<PrefixTypeConfig, "__count"> {
 
 function generatePrefixes(
   uris: Set<string>,
-  currentPrefixes: PrefixTypeConfig[]
+  currentPrefixes: PrefixTypeConfig[],
 ) {
   const updatedPrefixes = toPrefixTypeConfigMap(currentPrefixes);
   let hasBeenUpdated = false;

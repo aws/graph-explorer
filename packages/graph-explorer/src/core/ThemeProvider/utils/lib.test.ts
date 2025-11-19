@@ -21,10 +21,10 @@ describe("generateCssVariable", () => {
       "--toast-info-background",
       "--colors-primary-dark",
       "--colors-primary",
-      "blue"
+      "blue",
     );
     expect(result).toEqual(
-      "var(--toast-info-background, var(--colors-primary-dark, var(--colors-primary, blue)))"
+      "var(--toast-info-background, var(--colors-primary-dark, var(--colors-primary, blue)))",
     );
   });
 });

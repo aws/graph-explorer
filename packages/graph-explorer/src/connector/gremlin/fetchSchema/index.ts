@@ -95,7 +95,7 @@ type RawEdgesSchemaResponse = {
 
 const fetchVertexLabels = async (
   gremlinFetch: GremlinFetch,
-  remoteLogger: LoggerConnector
+  remoteLogger: LoggerConnector,
 ): Promise<Record<string, number>> => {
   const labelsTemplate = vertexLabelsTemplate();
   remoteLogger.info("[Gremlin Explorer] Fetching vertex labels with counts...");
@@ -108,7 +108,7 @@ const fetchVertexLabels = async (
   }
 
   remoteLogger.info(
-    `[Gremlin Explorer] Found ${Object.keys(labelsWithCounts).length} vertex labels.`
+    `[Gremlin Explorer] Found ${Object.keys(labelsWithCounts).length} vertex labels.`,
   );
 
   return labelsWithCounts;
@@ -118,7 +118,7 @@ const fetchVerticesAttributes = async (
   gremlinFetch: GremlinFetch,
   remoteLogger: LoggerConnector,
   labels: Array<string>,
-  countsByLabel: Record<string, number>
+  countsByLabel: Record<string, number>,
 ): Promise<SchemaResponse["vertices"]> => {
   const vertices: SchemaResponse["vertices"] = [];
 
@@ -152,7 +152,7 @@ const fetchVerticesAttributes = async (
   }
 
   remoteLogger.info(
-    `[Gremlin Explorer] Found ${vertices.flatMap(v => v.attributes).length} vertex attributes across ${vertices.length} vertex types.`
+    `[Gremlin Explorer] Found ${vertices.flatMap(v => v.attributes).length} vertex attributes across ${vertices.length} vertex types.`,
   );
 
   return vertices;
@@ -160,7 +160,7 @@ const fetchVerticesAttributes = async (
 
 const fetchVerticesSchema = async (
   gremlinFetch: GremlinFetch,
-  remoteLogger: LoggerConnector
+  remoteLogger: LoggerConnector,
 ): Promise<SchemaResponse["vertices"]> => {
   const countsByLabel = await fetchVertexLabels(gremlinFetch, remoteLogger);
   const labels = Object.keys(countsByLabel);
@@ -169,13 +169,13 @@ const fetchVerticesSchema = async (
     gremlinFetch,
     remoteLogger,
     labels,
-    countsByLabel
+    countsByLabel,
   );
 };
 
 const fetchEdgeLabels = async (
   gremlinFetch: GremlinFetch,
-  remoteLogger: LoggerConnector
+  remoteLogger: LoggerConnector,
 ): Promise<Record<string, number>> => {
   const labelsTemplate = edgeLabelsTemplate();
   remoteLogger.info("[Gremlin Explorer] Fetching edge labels with counts...");
@@ -188,7 +188,7 @@ const fetchEdgeLabels = async (
   }
 
   remoteLogger.info(
-    `[Gremlin Explorer] Found ${Object.keys(labelsWithCounts).length} edge labels.`
+    `[Gremlin Explorer] Found ${Object.keys(labelsWithCounts).length} edge labels.`,
   );
 
   return labelsWithCounts;
@@ -198,7 +198,7 @@ const fetchEdgesAttributes = async (
   gremlinFetch: GremlinFetch,
   remoteLogger: LoggerConnector,
   labels: Array<string>,
-  countsByLabel: Record<string, number>
+  countsByLabel: Record<string, number>,
 ): Promise<SchemaResponse["edges"]> => {
   const edges: SchemaResponse["edges"] = [];
   if (labels.length === 0) {
@@ -228,7 +228,7 @@ const fetchEdgesAttributes = async (
   }
 
   remoteLogger.info(
-    `[Gremlin Explorer] Found ${edges.flatMap(e => e.attributes).length} edge attributes across ${edges.length} edge types.`
+    `[Gremlin Explorer] Found ${edges.flatMap(e => e.attributes).length} edge attributes across ${edges.length} edge types.`,
   );
 
   return edges;
@@ -236,7 +236,7 @@ const fetchEdgesAttributes = async (
 
 const fetchEdgesSchema = async (
   gremlinFetch: GremlinFetch,
-  remoteLogger: LoggerConnector
+  remoteLogger: LoggerConnector,
 ): Promise<SchemaResponse["edges"]> => {
   const countsByLabel = await fetchEdgeLabels(gremlinFetch, remoteLogger);
   const labels = Object.keys(countsByLabel);
@@ -245,7 +245,7 @@ const fetchEdgesSchema = async (
     gremlinFetch,
     remoteLogger,
     labels,
-    countsByLabel
+    countsByLabel,
   );
 };
 
@@ -263,7 +263,7 @@ const fetchEdgesSchema = async (
 const fetchSchema = async (
   gremlinFetch: GremlinFetch,
   remoteLogger: LoggerConnector,
-  summary?: GraphSummary
+  summary?: GraphSummary,
 ): Promise<SchemaResponse> => {
   if (!summary) {
     remoteLogger.info("[Gremlin Explorer] No summary statistics");
@@ -279,7 +279,7 @@ const fetchSchema = async (
     }, 0);
 
     remoteLogger.info(
-      `[Gremlin Explorer] Schema sync successful (${totalVertices} vertices; ${totalEdges} edges; ${vertices.length} vertex types; ${edges.length} edge types)`
+      `[Gremlin Explorer] Schema sync successful (${totalVertices} vertices; ${totalEdges} edges; ${vertices.length} vertex types; ${edges.length} edge types)`,
     );
 
     return {
@@ -296,17 +296,17 @@ const fetchSchema = async (
     gremlinFetch,
     remoteLogger,
     summary.nodeLabels,
-    {}
+    {},
   );
   const edges = await fetchEdgesAttributes(
     gremlinFetch,
     remoteLogger,
     summary.edgeLabels,
-    {}
+    {},
   );
 
   remoteLogger.info(
-    `[Gremlin Explorer] Schema sync successful (${summary.numNodes} vertices; ${summary.numEdges} edges; ${vertices.length} vertex types; ${edges.length} edge types)`
+    `[Gremlin Explorer] Schema sync successful (${summary.numNodes} vertices; ${summary.numEdges} edges; ${vertices.length} vertex types; ${edges.length} edge types)`,
   );
 
   return {

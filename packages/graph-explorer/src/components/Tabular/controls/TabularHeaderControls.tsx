@@ -34,11 +34,11 @@ const defaultStyles =
       background: ${cssVar(
         "--tabular-header-controls-background",
         "--tabular-header-background",
-        "--palette-background-contrast"
+        "--palette-background-contrast",
       )};
       color: ${cssVar(
         "--tabular-header-controls-color",
-        "--tabular-header-color"
+        "--tabular-header-color",
       )};
       padding: ${cssVar("--tabular-header-controls-padding")};
       ${variant !== "noBorders" &&
@@ -47,17 +47,17 @@ const defaultStyles =
       "--tabular-header-controls-border",
       "--tabular-header-controls-border",
       "--tabular-border",
-      "solid 1px var(--palette-border)"
+      "solid 1px var(--palette-border)",
     )};
     border-right: ${cssVar(
       "--tabular-header-controls-border",
       "--tabular-border",
-      "solid 1px var(--palette-border)"
+      "solid 1px var(--palette-border)",
     )};
     border-left: ${cssVar(
       "--tabular-header-controls-border",
       "--tabular-border",
-      "solid 1px var(--palette-border)"
+      "solid 1px var(--palette-border)",
     )};
     `}
 
@@ -92,7 +92,7 @@ const TabularHeaderControls: FC<TabularHeaderControlsProps> = ({
         className,
         {
           ["header-controls-sticky"]: !disableSticky,
-        }
+        },
       )}
     >
       {children}

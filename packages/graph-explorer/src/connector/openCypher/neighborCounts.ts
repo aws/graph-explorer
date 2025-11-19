@@ -12,7 +12,7 @@ import { createVertexId, type EntityRawId } from "@/core";
 
 export async function neighborCounts(
   openCypherFetch: OpenCypherFetch,
-  request: NeighborCountsRequest
+  request: NeighborCountsRequest,
 ): Promise<NeighborCountsResponse> {
   // Bail early if request is empty
   if (!request.vertexIds.length) {

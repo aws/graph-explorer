@@ -144,7 +144,7 @@ export type TabularInstance<T extends object> = {
 
 const tableInstanceToTabularInstance = <T extends object>(
   tableInstance: TableInstance<T>,
-  tableProps: TabularProps<T>
+  tableProps: TabularProps<T>,
 ): TabularInstance<T> => {
   return {
     data: tableProps.data,
@@ -152,7 +152,7 @@ const tableInstanceToTabularInstance = <T extends object>(
     columns: tableInstance.columns.map(column => {
       const currentColDef = tableProps.columns.find(
         columnDef =>
-          columnDef.id === column.id || columnDef.accessor === column.id
+          columnDef.id === column.id || columnDef.accessor === column.id,
       );
 
       return {
@@ -223,7 +223,7 @@ const tableInstanceToTabularInstance = <T extends object>(
 
         return visible;
       },
-      {} as TabularInstance<T>["visibleColumns"]
+      {} as TabularInstance<T>["visibleColumns"],
     ),
     toggleHideAllColumns: tableInstance.toggleHideAllColumns,
     toggleHideColumn: tableInstance.toggleHideColumn,

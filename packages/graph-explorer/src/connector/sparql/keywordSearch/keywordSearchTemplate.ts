@@ -44,7 +44,7 @@ import { getLimit, getSubjectClasses } from "../filterHelpers";
  * }
  */
 export default function keywordSearchTemplate(
-  request: SPARQLKeywordSearchRequest
+  request: SPARQLKeywordSearchRequest,
 ): string {
   return query`
     # Fetch nodes matching the given search parameters
@@ -99,7 +99,7 @@ export default function keywordSearchTemplate(
  * })
  */
 export function findSubjectsMatchingFilters(
-  request: SPARQLKeywordSearchRequest
+  request: SPARQLKeywordSearchRequest,
 ) {
   return query`
     SELECT DISTINCT ?subject

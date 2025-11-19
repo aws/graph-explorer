@@ -62,7 +62,7 @@ export async function fetchDefaultConnection() {
     return configs;
   } catch (error) {
     logger.error(
-      `Error when trying to create connection: ${error instanceof Error ? error.message : "Unexpected error"}`
+      `Error when trying to create connection: ${error instanceof Error ? error.message : "Unexpected error"}`,
     );
     return [];
   }
@@ -70,7 +70,7 @@ export async function fetchDefaultConnection() {
 
 /** Attempts to fetch a default connection from the given URL and returns null on a failure. */
 export async function fetchDefaultConnectionFor(
-  url: string
+  url: string,
 ): Promise<DefaultConnectionData | null> {
   try {
     logger.debug("Fetching default connection from", url);
@@ -80,7 +80,7 @@ export async function fetchDefaultConnectionFor(
       logger.warn(
         `Response status ${response.status} for default connection url`,
         url,
-        responseText
+        responseText,
       );
       return null;
     }
@@ -92,7 +92,7 @@ export async function fetchDefaultConnectionFor(
     } else {
       logger.warn(
         "Failed to parse default connection data",
-        result.error.flatten()
+        result.error.flatten(),
       );
       return null;
     }

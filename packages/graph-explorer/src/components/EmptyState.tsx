@@ -10,7 +10,7 @@ function EmptyState({
     <div
       className={cn(
         "flex h-full w-full flex-col items-center justify-center",
-        className
+        className,
       )}
       {...props}
     />
@@ -54,7 +54,7 @@ function EmptyStateContent({
     <div
       className={cn(
         "max-w-paragraph flex w-full flex-col items-center justify-center gap-1 text-center",
-        className
+        className,
       )}
       {...props}
     />
@@ -70,7 +70,7 @@ function EmptyStateTitle({
     <h1
       className={cn(
         "text-text-primary gx-wrap-break-word text-lg font-bold text-balance",
-        className
+        className,
       )}
       {...props}
     />
@@ -86,7 +86,7 @@ function EmptyStateDescription({
     <div
       className={cn(
         "font-base text-text-primary/75 gx-wrap-break-word text-base",
-        className
+        className,
       )}
       {...props}
     />
@@ -102,7 +102,7 @@ function EmptyStateActions({
     <div
       className={cn(
         "flex flex-wrap items-center justify-center gap-4 pt-6",
-        className
+        className,
       )}
       {...props}
     />

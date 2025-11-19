@@ -49,7 +49,7 @@ function useUpdateLayout({
     const nodesInGraph = cy.nodes();
     const nodesToLock = shouldLock
       ? nodesInGraph.filter(cyNode =>
-          previousNodesRef.current.has(cyNode.data().id)
+          previousNodesRef.current.has(cyNode.data().id),
         )
       : [];
 

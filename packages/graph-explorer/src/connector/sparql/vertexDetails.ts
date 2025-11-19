@@ -10,7 +10,7 @@ import { parseAndMapQuads } from "./parseAndMapQuads";
 
 export async function vertexDetails(
   sparqlFetch: SparqlFetch,
-  request: VertexDetailsRequest
+  request: VertexDetailsRequest,
 ): Promise<VertexDetailsResponse> {
   // Bail early if request is empty
   if (!request.vertexIds.length) {
@@ -39,7 +39,7 @@ export async function vertexDetails(
 
   // Log a warning if some nodes are missing
   const missing = new Set(request.vertexIds).difference(
-    new Set(vertices.map(v => v.id))
+    new Set(vertices.map(v => v.id)),
   );
   if (missing.size) {
     logger.warn("Did not find all requested vertices", {

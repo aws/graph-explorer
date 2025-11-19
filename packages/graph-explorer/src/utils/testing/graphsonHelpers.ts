@@ -62,7 +62,7 @@ export function createGSet(items: GAnyValue[]): GSet {
 }
 
 export function createGBulkSet<Value extends EntityPropertyValue | GAnyValue>(
-  values: Record<string, Value>
+  values: Record<string, Value>,
 ): GBulkSet;
 export function createGBulkSet<
   Key extends EntityPropertyValue | GAnyValue,
@@ -94,7 +94,7 @@ export function createGBulkSet<
 }
 
 export function createGMap<Value extends EntityPropertyValue | GAnyValue>(
-  values: Record<string, Value>
+  values: Record<string, Value>,
 ): GMap;
 export function createGMap<
   Key extends EntityPropertyValue | GAnyValue,
@@ -137,7 +137,7 @@ function mapGMapValue(value: EntityPropertyValue | GAnyValue) {
     return value;
   } else {
     throw new Error(
-      "Automatic mapping to GAnyValue not yet supported. Update the logic to support this type"
+      "Automatic mapping to GAnyValue not yet supported. Update the logic to support this type",
     );
   }
 }
@@ -218,10 +218,10 @@ export function createGEdge(edge: ResultEdge): GEdge {
 }
 
 function createGVertexProperties(
-  attributes: Vertex["attributes"]
+  attributes: Vertex["attributes"],
 ): GVertex["@value"]["properties"] {
   const mapped = Object.entries(attributes).map(([key, value]) =>
-    createGVertexProperty(key, createGValue(value))
+    createGVertexProperty(key, createGValue(value)),
   );
 
   const result = {} as Record<string, any>;
@@ -260,7 +260,7 @@ export function createGValue(value: ScalarValue): GScalar {
 }
 
 function createGProperties(
-  attributes: Edge["attributes"]
+  attributes: Edge["attributes"],
 ): Record<string, GProperty> {
   return Object.entries(attributes)
     .map(
@@ -271,14 +271,14 @@ function createGProperties(
             key,
             value: createGValue(value),
           },
-        }) satisfies GProperty
+        }) satisfies GProperty,
     )
     .reduce(
       (result, curr) => {
         result[curr["@value"].key] = curr;
         return result;
       },
-      {} as Record<string, GProperty>
+      {} as Record<string, GProperty>,
     );
 }
 

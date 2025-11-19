@@ -58,7 +58,7 @@ const UserPrefixes = () => {
 function useCustomPrefixes() {
   const config = useConfiguration();
   return (config?.schema?.prefixes || []).filter(
-    prefixConfig => prefixConfig.__inferred !== true
+    prefixConfig => prefixConfig.__inferred !== true,
   );
 }
 
@@ -71,7 +71,7 @@ function SearchablePrefixes({
 }) {
   const { filteredItems, search, setSearch } = useSearchItems(
     items,
-    config => `${config.prefix} ${config.uri}`
+    config => `${config.prefix} ${config.uri}`,
   );
 
   return (
@@ -177,15 +177,15 @@ function useDeletePrefixCallback(prefix: string) {
             vertices: activeSchema?.vertices || [],
             edges: activeSchema?.edges || [],
             prefixes: (activeSchema?.prefixes || []).filter(
-              prefixConfig => prefixConfig.prefix !== prefix
+              prefixConfig => prefixConfig.prefix !== prefix,
             ),
           });
 
           return updatedSchemas;
         });
       },
-      [prefix]
-    )
+      [prefix],
+    ),
   );
 }
 
@@ -233,8 +233,8 @@ function EditPrefixModal({
           return updatedSchemas;
         });
       },
-      [configId]
-    )
+      [configId],
+    ),
   );
 
   const onSubmit = () => {

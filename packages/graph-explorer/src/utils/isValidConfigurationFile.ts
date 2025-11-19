@@ -48,7 +48,7 @@ const isValidVertexConfig = (vertex: any): vertex is VertexTypeConfig => {
 };
 
 const isValidConfigurationFile = (
-  data: any
+  data: any,
 ): data is Pick<
   ConfigurationContextProps,
   "id" | "displayLabel" | "connection" | "schema"

@@ -80,10 +80,10 @@ export default function GraphViewer({
 
   // Map the ids to rendered IDs for compatibility with Cytoscape
   const nodesOutRenderedIds = new Set(
-    nodesOutIds.values().map(createRenderedVertexId)
+    nodesOutIds.values().map(createRenderedVertexId),
   );
   const edgesOutRenderedIds = new Set(
-    edgesOutIds.values().map(createRenderedEdgeId)
+    edgesOutIds.values().map(createRenderedEdgeId),
   );
 
   const onSelectedElementIdsChange = ({
@@ -126,7 +126,7 @@ export default function GraphViewer({
   const defaultNeighborExpansionLimit = useDefaultNeighborExpansionLimit();
   const onNodeDoubleClick: ElementEventCallback<RenderedVertex["data"]> = (
     _,
-    vertex
+    vertex,
   ) => {
     const vertexId = getVertexIdFromRenderedVertexId(vertex.id);
 
@@ -233,7 +233,7 @@ export default function GraphViewer({
                     affectedNodesIds={contextNodeId ? [contextNodeId] : []}
                     affectedEdgesIds={contextEdgeId ? [contextEdgeId] : []}
                   />
-                </div>
+                </div>,
               )}
           </Activity>
           <Activity mode={isVisible(isEmpty)}>

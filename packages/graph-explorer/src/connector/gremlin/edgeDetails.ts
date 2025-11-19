@@ -26,7 +26,7 @@ type Response = {
 
 export async function edgeDetails(
   gremlinFetch: GremlinFetch,
-  request: EdgeDetailsRequest
+  request: EdgeDetailsRequest,
 ): Promise<EdgeDetailsResponse> {
   // Bail early if request is empty
   if (!request.edgeIds.length) {
@@ -51,7 +51,7 @@ export async function edgeDetails(
 
   // Log a warning if some edges are missing
   const missing = new Set(request.edgeIds).difference(
-    new Set(edges.map(e => e.id))
+    new Set(edges.map(e => e.id)),
   );
   if (missing.size) {
     logger.warn("Did not find all requested edges", {

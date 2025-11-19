@@ -38,7 +38,7 @@ export function SearchResultsList({
   const currentPageNumber = page + 1;
   const currentPageRows = results.slice(
     page * pageSize,
-    currentPageNumber * pageSize
+    currentPageNumber * pageSize,
   );
   const countOfPages = Math.ceil(results.length / pageSize);
 

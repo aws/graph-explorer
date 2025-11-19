@@ -41,7 +41,7 @@ export function mapQuadToEntities(bindings: SparqlQuadBinding[]) {
         types: draft.types,
         attributes: draft.attributes,
         isBlankNode: draft.isBlankNode,
-      })
+      }),
     );
   }
 
@@ -76,7 +76,7 @@ function createVertexDraft(binding: SparqlQuadBinding) {
 /** Merges the existing draft and the new draft together. */
 function mergeVertexDrafts(
   existing: VertexDraft | undefined,
-  draft: VertexDraft
+  draft: VertexDraft,
 ): VertexDraft {
   if (!existing) {
     return draft;
@@ -104,7 +104,7 @@ function mapToEdgeResult(binding: SparqlQuadBinding) {
   const edgeId = createRdfEdgeId(
     binding.subject.value,
     binding.predicate.value,
-    binding.object.value
+    binding.object.value,
   );
 
   return createResultEdge({

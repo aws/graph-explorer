@@ -128,7 +128,7 @@ describe("neighborCounts", () => {
     await expect(
       neighborCounts(mockFetch, {
         vertexIds: [createVertexId("123")],
-      })
+      }),
     ).rejects.toThrow("Internal server error occurred");
   });
 
@@ -186,7 +186,7 @@ describe("neighborCounts", () => {
       expect.arrayContaining([
         expect.objectContaining(expected1),
         expect.objectContaining(expected2),
-      ])
+      ]),
     );
   });
 });
@@ -197,7 +197,7 @@ function createResponse(...counts: NeighborCount[]) {
       counts.reduce((prev, curr) => {
         prev.set(curr.vertexId, createGMap(curr.counts));
         return prev;
-      }, new Map<EntityRawId, GMap>())
-    )
+      }, new Map<EntityRawId, GMap>()),
+    ),
   );
 }

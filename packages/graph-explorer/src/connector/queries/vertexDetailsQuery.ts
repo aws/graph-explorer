@@ -11,7 +11,7 @@ export function vertexDetailsQuery(vertexId: VertexId) {
 
       const results = await explorer.vertexDetails(
         { vertexIds: [vertexId] },
-        { signal }
+        { signal },
       );
 
       const vertex = results.vertices[0] ?? null;

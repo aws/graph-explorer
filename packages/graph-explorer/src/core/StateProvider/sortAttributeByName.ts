@@ -10,7 +10,7 @@ export const RDFS_LABEL_URI = "http://www.w3.org/2000/01/rdf-schema#label";
  */
 export function sortAttributeByName(
   a: DisplayConfigAttribute | DisplayAttribute,
-  b: DisplayConfigAttribute | DisplayAttribute
+  b: DisplayConfigAttribute | DisplayAttribute,
 ) {
   // rdfs:label should always be first
   if (a.name === RDFS_LABEL_URI) return -1;

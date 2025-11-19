@@ -55,11 +55,11 @@ export function InputField({
         ? // It returns null if the field is empty
           (v: string) =>
             (props.onChange as (v: number | null) => void)?.(
-              v && !isNaN(Number(v)) ? Number(v) : null
+              v && !isNaN(Number(v)) ? Number(v) : null,
             )
         : (props.onChange as (v: string) => void),
     },
-    (ref as RefObject<HTMLInputElement | null>) || localRef
+    (ref as RefObject<HTMLInputElement | null>) || localRef,
   );
 
   if (labelPlacement === "inner") {

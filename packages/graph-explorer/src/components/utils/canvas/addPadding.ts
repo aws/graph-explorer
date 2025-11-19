@@ -9,7 +9,7 @@ export type AddPaddingOptions = {
 
 const addPadding = (
   boundingBox: BoundingBox,
-  options: AddPaddingOptions = {}
+  options: AddPaddingOptions = {},
 ): BoundingBox => {
   const { x, y, width, height } = boundingBox;
   const {

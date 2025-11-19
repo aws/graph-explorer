@@ -81,7 +81,7 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
 
   const query = useDataExplorerQuery(vertexType, pageSize, pageIndex);
   const displayVertices = useDisplayVerticesFromVertices(
-    query.data?.vertices ?? []
+    query.data?.vertices ?? [],
   )
     .values()
     .toArray();
@@ -292,7 +292,7 @@ function usePagingOptions() {
           pageSize: String(currPageSize),
         };
       },
-      { replace: true }
+      { replace: true },
     );
   };
 
@@ -305,7 +305,7 @@ function usePagingOptions() {
           pageSize: String(pageSize),
         };
       },
-      { replace: true }
+      { replace: true },
     );
   };
 
@@ -320,7 +320,7 @@ function usePagingOptions() {
 function useDataExplorerQuery(
   vertexType: string,
   pageSize: number,
-  pageIndex: number
+  pageIndex: number,
 ) {
   const updateSchema = useUpdateSchemaFromEntities();
 

@@ -37,7 +37,7 @@ type Response = {
 
 export async function neighborCounts(
   gremlinFetch: GremlinFetch,
-  request: NeighborCountsRequest
+  request: NeighborCountsRequest,
 ): Promise<NeighborCountsResponse> {
   // Bail early if request is empty
   if (!request.vertexIds.length) {
@@ -89,7 +89,7 @@ export async function neighborCounts(
             }
             return acc;
           },
-          {} as Record<string, number>
+          {} as Record<string, number>,
         );
 
       // Total up the unique neighbors

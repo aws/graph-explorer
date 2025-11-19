@@ -12,7 +12,7 @@ describe("Gremlin > edgesSchemaTemplate", () => {
           .by(V().bothE("route").limit(1))
           .by(V().bothE("contain").limit(1))
           .limit(1)
-      `)
+      `),
     );
   });
 });

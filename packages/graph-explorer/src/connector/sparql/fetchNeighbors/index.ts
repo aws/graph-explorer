@@ -21,7 +21,7 @@ import { parseAndMapQuads } from "../parseAndMapQuads";
  */
 export default async function fetchNeighbors(
   sparqlFetch: SparqlFetch,
-  req: SPARQLNeighborsRequest
+  req: SPARQLNeighborsRequest,
 ): Promise<NeighborsResponse> {
   // Fetch vertex details
   const oneHopTemplate = oneHopNeighborsTemplate(req);
@@ -33,7 +33,7 @@ export default async function fetchNeighbors(
 
   // Seed the vertex map with the ResultVertex instances in the response
   const verticesMap = new Map(
-    results.vertices.values().map(v => [v.id, createVertex(v)])
+    results.vertices.values().map(v => [v.id, createVertex(v)]),
   );
 
   // Find any missing vertices from the edges and add them to the vertex array
@@ -47,7 +47,7 @@ export default async function fetchNeighbors(
 
   // Filter out the source vertex since it is already in the graph and this one is missing the attributes
   const vertices = Array.from(
-    verticesMap.values().filter(v => v.id !== req.resourceURI)
+    verticesMap.values().filter(v => v.id !== req.resourceURI),
   );
 
   // Create edges from the ResultEdge instances in the response

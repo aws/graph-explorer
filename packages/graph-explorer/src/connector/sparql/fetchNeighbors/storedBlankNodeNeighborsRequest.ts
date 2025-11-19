@@ -7,7 +7,7 @@ import type { BlankNodesMap, SPARQLNeighborsRequest } from "../types";
  */
 export const storedBlankNodeNeighborsRequest = (
   blankNodes: BlankNodesMap,
-  req: SPARQLNeighborsRequest
+  req: SPARQLNeighborsRequest,
 ) => {
   return new Promise<NeighborsResponse>(resolve => {
     const bNode = blankNodes.get(req.resourceURI);
@@ -45,7 +45,7 @@ export const storedBlankNodeNeighborsRequest = (
     resolve({
       vertices: filteredVertices.slice(
         req.offset ?? 0,
-        req.limit ? req.limit + (req.offset ?? 0) : undefined
+        req.limit ? req.limit + (req.offset ?? 0) : undefined,
       ),
       edges: bNode.neighbors.edges,
     });

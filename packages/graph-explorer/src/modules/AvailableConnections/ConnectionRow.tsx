@@ -31,7 +31,7 @@ function ConnectionRow({
 
   const graphType = t(
     "available-connections.graph-type",
-    connection.connection?.queryEngine || "gremlin"
+    connection.connection?.queryEngine || "gremlin",
   );
 
   return (
@@ -69,8 +69,8 @@ function useSetActiveConfigCallback(configId: ConfigurationId) {
         set(activeConfigurationAtom, configId);
         resetState();
       },
-      [configId, resetState]
-    )
+      [configId, resetState],
+    ),
   );
 }
 

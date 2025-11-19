@@ -24,7 +24,7 @@ function TextAreaField({ ref, ...props }: TextAreaProps) {
   const localRef = useRef<HTMLTextAreaElement>(null);
   const { inputProps } = useTextField(
     props,
-    (ref as RefObject<HTMLTextAreaElement | null>) || localRef
+    (ref as RefObject<HTMLTextAreaElement | null>) || localRef,
   );
 
   return (

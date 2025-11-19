@@ -38,7 +38,7 @@ export const activeConfigSelector = atom(get => {
 
 export const activeConnectionAtom = atom(get => {
   const connection = get(
-    selectAtom(activeConfigSelector, c => c?.connection, isEqual)
+    selectAtom(activeConfigSelector, c => c?.connection, isEqual),
   );
   if (!connection) {
     return null;
@@ -61,7 +61,7 @@ export const mergedConfigurationSelector = atom(get => {
 export function mergeConfiguration(
   currentSchema: SchemaInference | null | undefined,
   currentConfig: RawConfiguration,
-  userStyling: UserStyling
+  userStyling: UserStyling,
 ): RawConfiguration {
   const configVLabels = currentConfig.schema?.vertices.map(v => v.type) || [];
   const schemaVLabels = currentSchema?.vertices?.map(v => v.type) || [];
@@ -69,7 +69,7 @@ export function mergeConfiguration(
   const mergedVertices = allVertexLabels
     .map(vLabel => {
       const configVertex = currentConfig.schema?.vertices.find(
-        v => v.type === vLabel
+        v => v.type === vLabel,
       );
       const schemaVertex = currentSchema?.vertices.find(v => v.type === vLabel);
       const prefsVertex = userStyling.vertices?.find(v => v.type === vLabel);
@@ -124,7 +124,7 @@ export type NormalizedConnection = ReturnType<typeof normalizeConnection>;
 
 const mergeAttributes = (
   config: VertexTypeConfig | EdgeTypeConfig | null,
-  schema: VertexTypeConfig | EdgeTypeConfig | null
+  schema: VertexTypeConfig | EdgeTypeConfig | null,
 ): AttributeConfig[] => {
   const configAttrLabels = config?.attributes.map(attr => attr.name) || [];
   const schemaAttrLabels = schema?.attributes.map(attr => attr.name) || [];
@@ -145,7 +145,7 @@ const mergeAttributes = (
 const mergeVertex = (
   configVertex?: VertexTypeConfig,
   schemaVertex?: VertexTypeConfig,
-  preferences?: VertexPreferencesStorageModel
+  preferences?: VertexPreferencesStorageModel,
 ): VertexTypeConfig => {
   // Ignore the displayLabel from schema & config
   const patchedSchema = schemaVertex
@@ -176,7 +176,7 @@ const mergeVertex = (
 const mergeEdge = (
   configEdge?: EdgeTypeConfig,
   schemaEdge?: EdgeTypeConfig,
-  preferences?: EdgePreferencesStorageModel
+  preferences?: EdgePreferencesStorageModel,
 ): EdgeTypeConfig => {
   // Ignore the displayLabel from schema & config
   const patchedSchema = schemaEdge
@@ -239,7 +239,7 @@ export const defaultVertexTypeConfig = {
 } satisfies Omit<VertexTypeConfig, "type">;
 
 export function getDefaultVertexTypeConfig(
-  vertexType: string
+  vertexType: string,
 ): VertexTypeConfig {
   return {
     ...defaultVertexTypeConfig,

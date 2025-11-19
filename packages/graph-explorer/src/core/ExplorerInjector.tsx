@@ -21,7 +21,7 @@ export function ExplorerInjector() {
   if (prevDefaultOptions !== defaultOptions) {
     setPrevDefaultOptions(defaultOptions);
     logger.log(
-      "Clearing cache and updating query default options due to connection change"
+      "Clearing cache and updating query default options due to connection change",
     );
     queryClient.clear();
     queryClient.setDefaultOptions(defaultOptions);

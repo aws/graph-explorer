@@ -147,7 +147,7 @@ describe("exportFromLocalForage", () => {
         addRestoredPrefix("schema"),
         addRestoredPrefix("configuration"),
         addRestoredPrefix("active-configuration"),
-      ])
+      ]),
     );
   });
 
@@ -233,7 +233,7 @@ test("Remove prefix from restored entries", async () => {
 
 /** Fake database using a map as the data source. */
 export function createFakeLocalDb(
-  initialState?: Iterable<readonly [string, any]> | null
+  initialState?: Iterable<readonly [string, any]> | null,
 ): LocalDb {
   const map = new Map<string, any>(initialState);
 

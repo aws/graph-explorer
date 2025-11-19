@@ -24,8 +24,8 @@ describe("Gremlin > keywordSearchTemplate", () => {
 
     expect(normalize(template)).toBe(
       normalize(
-        'g.V().or(has("city",containing("JFK")),has("code",containing("JFK")))'
-      )
+        'g.V().or(has("city",containing("JFK")),has("code",containing("JFK")))',
+      ),
     );
   });
 
@@ -37,7 +37,7 @@ describe("Gremlin > keywordSearchTemplate", () => {
     });
 
     expect(normalize(template)).toBe(
-      normalize('g.V().or(has("city","JFK"),has("code","JFK"))')
+      normalize('g.V().or(has("city","JFK"),has("code","JFK"))'),
     );
   });
 
@@ -49,7 +49,7 @@ describe("Gremlin > keywordSearchTemplate", () => {
     });
 
     expect(normalize(template)).toBe(
-      normalize('g.V().or(has("code","\\"JFK\\""))')
+      normalize('g.V().or(has("code","\\"JFK\\""))'),
     );
   });
 
@@ -62,7 +62,7 @@ describe("Gremlin > keywordSearchTemplate", () => {
     });
 
     expect(normalize(template)).toBe(
-      normalize('g.V().hasLabel("airport").or(has(id,"JFK"))')
+      normalize('g.V().hasLabel("airport").or(has(id,"JFK"))'),
     );
   });
 
@@ -75,7 +75,7 @@ describe("Gremlin > keywordSearchTemplate", () => {
     });
 
     expect(normalize(template)).toBe(
-      normalize('g.V().hasLabel("airport").or(has(id,containing("JFK")))')
+      normalize('g.V().hasLabel("airport").or(has(id,containing("JFK")))'),
     );
   });
 
@@ -93,7 +93,7 @@ describe("Gremlin > keywordSearchTemplate", () => {
             has("city", containing("JFK")), 
             has("code", containing("JFK"))
           )
-      `)
+      `),
     );
   });
 
@@ -105,7 +105,7 @@ describe("Gremlin > keywordSearchTemplate", () => {
     });
 
     expect(normalize(template)).toBe(
-      normalize('g.V().hasLabel("airport").range(25,50)')
+      normalize('g.V().hasLabel("airport").range(25,50)'),
     );
   });
 
@@ -118,7 +118,7 @@ describe("Gremlin > keywordSearchTemplate", () => {
     });
 
     expect(normalize(template)).toBe(
-      normalize('g.V().or(has("code",containing("JFK"))).range(2,12)')
+      normalize('g.V().or(has("code",containing("JFK"))).range(2,12)'),
     );
   });
 
@@ -130,7 +130,7 @@ describe("Gremlin > keywordSearchTemplate", () => {
     });
 
     expect(normalize(template)).toBe(
-      normalize('g.V().or(has("code",containing("JFK"))).range(0,10)')
+      normalize('g.V().or(has("code",containing("JFK"))).range(0,10)'),
     );
   });
 
@@ -142,7 +142,7 @@ describe("Gremlin > keywordSearchTemplate", () => {
     });
 
     expect(normalize(template)).toBe(
-      normalize('g.V().or(has("code",containing("JFK")))')
+      normalize('g.V().or(has("code",containing("JFK")))'),
     );
   });
 
@@ -157,8 +157,8 @@ describe("Gremlin > keywordSearchTemplate", () => {
 
     expect(normalize(template)).toBe(
       normalize(
-        'g.V().hasLabel("airport").or(has("code",containing("JFK"))).range(1,26)'
-      )
+        'g.V().hasLabel("airport").or(has("code",containing("JFK"))).range(1,26)',
+      ),
     );
   });
 });

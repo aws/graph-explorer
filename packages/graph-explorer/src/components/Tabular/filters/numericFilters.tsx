@@ -14,7 +14,7 @@ import type { TextFilterProps } from "./TextFilter";
 type FilterFn<T extends object = object> = (
   rows: Row<T>[],
   id: IdType<T>[],
-  filterValue: unknown
+  filterValue: unknown,
 ) => Row<T>[];
 
 const numberComparisonFilter =
@@ -32,7 +32,7 @@ const numberComparisonFilter =
 
 const equalsFilter = <T extends object>() =>
   numberComparisonFilter<T>(
-    (rowValue, filterValue) => rowValue === filterValue
+    (rowValue, filterValue) => rowValue === filterValue,
   );
 
 const lessThanFilter = <T extends object>() =>
@@ -73,7 +73,7 @@ const filtersComponentMap: Record<string, ReactNode> = {
 
 export const numericFilter = <T extends object>(
   operator: string,
-  props: TextFilterProps = {}
+  props: TextFilterProps = {},
 ) => ({
   filter: filtersMap[operator]<T>(),
   filterComponent: TextFilter<T>({

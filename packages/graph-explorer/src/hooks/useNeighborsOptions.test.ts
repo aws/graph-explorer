@@ -19,7 +19,7 @@ describe("useNeighborsOptions", () => {
 
     const { result } = renderHookWithState(
       () => useNeighborsOptions(vertex.id),
-      dbState
+      dbState,
     );
 
     expect(result.current).toHaveLength(0);
@@ -40,7 +40,7 @@ describe("useNeighborsOptions", () => {
 
     const { result } = renderHookWithState(
       () => useNeighborsOptions(vertex.id),
-      dbState
+      dbState,
     );
 
     expect(result.current).toHaveLength(0);
@@ -62,7 +62,7 @@ describe("useNeighborsOptions", () => {
 
     const { result } = renderHookWithState(
       () => useNeighborsOptions(vertex.id),
-      dbState
+      dbState,
     );
 
     await waitFor(() => {
@@ -107,7 +107,7 @@ describe("useNeighborsOptions", () => {
 
     const { result } = renderHookWithState(
       () => useNeighborsOptions(vertex.id),
-      dbState
+      dbState,
     );
 
     await waitFor(() => {

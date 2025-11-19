@@ -38,7 +38,7 @@ describe("useKeywordSearch", () => {
     it("Should default to precision match exact", () => {
       const { result } = renderHookWithJotai(
         () => useKeywordSearch(),
-        initializeConfigWithQueryEngine("gremlin")
+        initializeConfigWithQueryEngine("gremlin"),
       );
 
       expect(result.current.partialMatch).toBe(false);
@@ -47,7 +47,7 @@ describe("useKeywordSearch", () => {
     it("Should default to attribute ID", () => {
       const { result } = renderHookWithJotai(
         () => useKeywordSearch(),
-        initializeConfigWithQueryEngine("gremlin")
+        initializeConfigWithQueryEngine("gremlin"),
       );
 
       expect(result.current.selectedAttribute).toBe("__id");
@@ -56,7 +56,7 @@ describe("useKeywordSearch", () => {
     it("Should default to node type All", () => {
       const { result } = renderHookWithJotai(
         () => useKeywordSearch(),
-        initializeConfigWithQueryEngine("gremlin")
+        initializeConfigWithQueryEngine("gremlin"),
       );
 
       expect(result.current.selectedVertexType).toBe("__all");
@@ -65,7 +65,7 @@ describe("useKeywordSearch", () => {
     it("Should have all searchable attributes", () => {
       const { result } = renderHookWithJotai(
         () => useKeywordSearch(),
-        initializeConfigWithQueryEngine("gremlin")
+        initializeConfigWithQueryEngine("gremlin"),
       );
 
       expect(result.current.attributesOptions).toStrictEqual([
@@ -79,7 +79,7 @@ describe("useKeywordSearch", () => {
     it("Should default to precision match exact", () => {
       const { result } = renderHookWithJotai(
         () => useKeywordSearch(),
-        initializeConfigWithQueryEngine("openCypher")
+        initializeConfigWithQueryEngine("openCypher"),
       );
 
       expect(result.current.partialMatch).toBe(false);
@@ -88,7 +88,7 @@ describe("useKeywordSearch", () => {
     it("Should default to attribute ID", () => {
       const { result } = renderHookWithJotai(
         () => useKeywordSearch(),
-        initializeConfigWithQueryEngine("openCypher")
+        initializeConfigWithQueryEngine("openCypher"),
       );
 
       expect(result.current.selectedAttribute).toBe("__id");
@@ -97,7 +97,7 @@ describe("useKeywordSearch", () => {
     it("Should default to node type All", () => {
       const { result } = renderHookWithJotai(
         () => useKeywordSearch(),
-        initializeConfigWithQueryEngine("openCypher")
+        initializeConfigWithQueryEngine("openCypher"),
       );
 
       expect(result.current.selectedVertexType).toBe("__all");
@@ -106,7 +106,7 @@ describe("useKeywordSearch", () => {
     it("Should have all searchable attributes", () => {
       const { result } = renderHookWithJotai(
         () => useKeywordSearch(),
-        initializeConfigWithQueryEngine("openCypher")
+        initializeConfigWithQueryEngine("openCypher"),
       );
 
       expect(result.current.attributesOptions).toStrictEqual([
@@ -137,7 +137,7 @@ describe("useKeywordSearch", () => {
     it("Should default to precision match exact", () => {
       const { result } = renderHookWithJotai(
         () => useKeywordSearch(),
-        initializeConfigWithRdfLabel
+        initializeConfigWithRdfLabel,
       );
 
       expect(result.current.partialMatch).toBe(false);
@@ -146,7 +146,7 @@ describe("useKeywordSearch", () => {
     it("Should default to attribute rdfs:label", () => {
       const { result } = renderHookWithJotai(
         () => useKeywordSearch(),
-        initializeConfigWithRdfLabel
+        initializeConfigWithRdfLabel,
       );
 
       expect(result.current.selectedAttribute).toBe("rdfs:label");
@@ -155,7 +155,7 @@ describe("useKeywordSearch", () => {
     it("Should default to node type All", () => {
       const { result } = renderHookWithJotai(
         () => useKeywordSearch(),
-        initializeConfigWithRdfLabel
+        initializeConfigWithRdfLabel,
       );
 
       expect(result.current.selectedVertexType).toBe("__all");
@@ -164,7 +164,7 @@ describe("useKeywordSearch", () => {
     it("Should have all searchable attributes", () => {
       const { result } = renderHookWithJotai(
         () => useKeywordSearch(),
-        initializeConfigWithRdfLabel
+        initializeConfigWithRdfLabel,
       );
 
       expect(result.current.attributesOptions).toStrictEqual([
@@ -178,7 +178,7 @@ describe("useKeywordSearch", () => {
     it("Should default to precision match exact", () => {
       const { result } = renderHookWithJotai(
         () => useKeywordSearch(),
-        initializeConfigWithQueryEngine("sparql")
+        initializeConfigWithQueryEngine("sparql"),
       );
 
       expect(result.current.partialMatch).toBe(false);
@@ -187,7 +187,7 @@ describe("useKeywordSearch", () => {
     it("Should default to attribute All", () => {
       const { result } = renderHookWithJotai(
         () => useKeywordSearch(),
-        initializeConfigWithQueryEngine("sparql")
+        initializeConfigWithQueryEngine("sparql"),
       );
 
       expect(result.current.selectedAttribute).toBe("__all");
@@ -196,7 +196,7 @@ describe("useKeywordSearch", () => {
     it("Should default to node type All", () => {
       const { result } = renderHookWithJotai(
         () => useKeywordSearch(),
-        initializeConfigWithQueryEngine("sparql")
+        initializeConfigWithQueryEngine("sparql"),
       );
 
       expect(result.current.selectedVertexType).toBe("__all");
@@ -205,7 +205,7 @@ describe("useKeywordSearch", () => {
     it("Should have all searchable attributes", () => {
       const { result } = renderHookWithJotai(
         () => useKeywordSearch(),
-        initializeConfigWithQueryEngine("sparql")
+        initializeConfigWithQueryEngine("sparql"),
       );
 
       expect(result.current.attributesOptions).toStrictEqual([

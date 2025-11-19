@@ -18,7 +18,7 @@ type RawCountsByTypeResponse = {
 
 const fetchClassCounts = async (
   sparqlFetch: SparqlFetch,
-  req: CountsByTypeRequest
+  req: CountsByTypeRequest,
 ): Promise<CountsByTypeResponse> => {
   const template = classWithCountsTemplates(req.label);
   logger.log("[SPARQL Explorer] Fetching class counts...", req);

@@ -14,7 +14,7 @@ export function SearchResult({
       className={cn(
         "content-auto intrinsic-size-[4.75rem] rounded-xl border shadow-xs",
         isEven(level) ? "bg-gray-50" : "bg-default",
-        className
+        className,
       )}
     />
   );
@@ -36,7 +36,7 @@ export function SearchResultCollapsible({
         "group ring-border content-auto intrinsic-size-[4.75rem] rounded-xl shadow-xs ring-1 transition duration-100 ease-in-out",
         isEven(level) ? "bg-gray-50" : "bg-default",
         highlighted ? "shadow-primary-dark/50 ring-primary-dark/75" : "",
-        className
+        className,
       )}
     />
   );
@@ -51,7 +51,7 @@ export function SearchResultTitle({
       {...props}
       className={cn(
         "text-text-primary gx-wrap-break-word line-clamp-2 text-base leading-snug font-bold",
-        className
+        className,
       )}
     />
   );
@@ -66,7 +66,7 @@ export function SearchResultSubtitle({
       {...props}
       className={cn(
         "text-text-secondary gx-wrap-break-word line-clamp-2 text-base leading-snug",
-        className
+        className,
       )}
     />
   );
@@ -80,7 +80,7 @@ export function SearchResultSymbol({
     <div
       className={cn(
         "grid size-[36px] shrink-0 place-content-center rounded-full p-2 text-[2em]",
-        className
+        className,
       )}
       {...props}
     />
@@ -95,7 +95,7 @@ export function SearchResultExpandChevron({
     <ChevronRightIcon
       className={cn(
         "text-primary-dark/50 size-5 shrink-0 transition-transform duration-200 ease-in-out group-data-closed:rotate-0 group-data-open:rotate-90",
-        className
+        className,
       )}
       {...props}
     />
@@ -113,7 +113,7 @@ export function SearchResultAttribute({
       className={cn(
         "flex w-full flex-wrap justify-between gap-2 rounded-xl border px-4 py-2 shadow-xs",
         isEven(level) ? "bg-gray-50" : "bg-default",
-        className
+        className,
       )}
     />
   );
@@ -128,7 +128,7 @@ export function SearchResultAttributeName({
       {...props}
       className={cn(
         "flex-[1 1 150px] text-secondary gx-wrap-break-word text-base leading-snug",
-        className
+        className,
       )}
     />
   );
@@ -143,7 +143,7 @@ export function SearchResultAttributeValue({
       {...props}
       className={cn(
         "flex-[2 1 150px] text-text-primary gx-wrap-break-word text-base leading-snug",
-        className
+        className,
       )}
     />
   );

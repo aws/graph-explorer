@@ -5,12 +5,12 @@ const commonPrefixesConfig = Object.entries(commonPrefixes).map(
   ([prefix, uri]) => ({
     prefix,
     uri,
-  })
+  }),
 );
 
 const replacePrefixes = (
   uri?: string,
-  prefixes: PrefixTypeConfig[] = []
+  prefixes: PrefixTypeConfig[] = [],
 ): string => {
   if (!uri) {
     return "";
@@ -22,7 +22,7 @@ const replacePrefixes = (
   // 3. automatically generated
   const customPrefixes = prefixes.filter(p => !p.__inferred);
   const generatedPrefixes = prefixes.filter(
-    p => p.__inferred === true && p.__matches && p.__matches.size > 0
+    p => p.__inferred === true && p.__matches && p.__matches.size > 0,
   );
   const allPrefixes = [
     ...customPrefixes,
@@ -32,7 +32,7 @@ const replacePrefixes = (
 
   // Find matching prefix ignoring case
   const prefixConfig = allPrefixes.find(prefixConfig =>
-    uri.match(new RegExp(`^${prefixConfig.uri}`, "i"))
+    uri.match(new RegExp(`^${prefixConfig.uri}`, "i")),
   );
 
   if (!prefixConfig) {
@@ -42,7 +42,7 @@ const replacePrefixes = (
   // Replace the matching part of the URI with the prefix, ignoring case
   return uri.replace(
     new RegExp(`^${prefixConfig.uri}`, "i"),
-    `${prefixConfig.prefix}:`
+    `${prefixConfig.prefix}:`,
   );
 };
 

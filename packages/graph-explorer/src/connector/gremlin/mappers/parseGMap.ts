@@ -16,7 +16,7 @@ import type { GMapWithValue } from "../types";
  * object.
  */
 export function parseGMap<Key, Value>(
-  gMap: GMapWithValue<Key, Value>
+  gMap: GMapWithValue<Key, Value>,
 ): Map<Key, Value> {
   const map = new Map<Key, Value>();
   for (let i = 0; i < gMap["@value"].length; i += 2) {

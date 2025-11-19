@@ -11,7 +11,7 @@ function WorkspacesContent({
       className={cn(
         "flex h-full grow gap-2 overflow-auto p-2",
         orientation === "horizontal" ? "flex-row" : "flex-col",
-        className
+        className,
       )}
       {...props}
     />

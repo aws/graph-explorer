@@ -26,7 +26,7 @@ type RawQueryBinding = z.infer<typeof rawQueryBindingSchema>;
 
 export async function rawQuery(
   dbFetch: SparqlFetch,
-  request: RawQueryRequest
+  request: RawQueryRequest,
 ): Promise<RawQueryResponse> {
   const template = query`${request.query}`;
 
@@ -52,7 +52,7 @@ export async function rawQuery(
 
   // Try to parse as quads next (CONSTRUCT and DESCRIBE queries)
   const quadsParsed = sparqlResponseSchema(sparqlQuadBindingSchema).safeParse(
-    data
+    data,
   );
   if (quadsParsed.success) {
     logger.debug("Parsing SPARQL quads response");
@@ -67,7 +67,7 @@ export async function rawQuery(
     logger.error(
       "Failed to parse SPARQL JSON response",
       validationError.toString(),
-      data
+      data,
     );
     throw validationError;
   }
@@ -94,11 +94,11 @@ function handleAskQueryResult(booleanResult: boolean): RawQueryResponse {
  * ensure any query limits does not prevent gathering all of the vertex details.
  */
 function handleConstructQueryResults(
-  bindings: Array<SparqlQuadBinding>
+  bindings: Array<SparqlQuadBinding>,
 ): RawQueryResponse {
   // Filter out blank node results until we can determine a good way to handle them
   const bindingsWithoutBlankNodes = bindings.filter(
-    b => b.subject.type !== "bnode" && b.object.type !== "bnode"
+    b => b.subject.type !== "bnode" && b.object.type !== "bnode",
   );
 
   const results = mapQuadToEntities(bindingsWithoutBlankNodes);
@@ -106,7 +106,7 @@ function handleConstructQueryResults(
   // Force vertices to be fragments so they will be fetched later.
   // This ensures if the user limits the results we can still show the full vertex details.
   const vertexFragments = results.vertices.map(v =>
-    createResultVertex({ ...v, attributes: undefined })
+    createResultVertex({ ...v, attributes: undefined }),
   );
 
   return [...vertexFragments, ...results.edges];
@@ -116,7 +116,7 @@ function handleConstructQueryResults(
  * Handles SELECT query results by creating scalar values for each variable
  */
 function handleSelectQueryResults(
-  bindings: Array<RawQueryBinding>
+  bindings: Array<RawQueryBinding>,
 ): RawQueryResponse {
   const results: RawQueryResponse = [];
 
@@ -130,7 +130,7 @@ function handleSelectQueryResults(
           name: `?${variableName}`,
           value: scalarValue,
         });
-      }
+      },
     );
 
     // If there's only one scalar, return it directly instead of wrapping in a bundle

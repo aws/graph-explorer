@@ -3,7 +3,7 @@ import type { NeighborCount } from "../useGEFetchTypes";
 import { z } from "zod";
 
 export type SparqlFetch = <TResult = any>(
-  queryTemplate: string
+  queryTemplate: string,
 ) => Promise<TResult>;
 
 export type SPARQLCriterion = {
@@ -193,7 +193,7 @@ export const sparqlValueSchema = z.object({
 export type SparqlValue = z.infer<typeof sparqlValueSchema>;
 
 export function sparqlResponseSchema<T extends z.ZodTypeAny>(
-  bindingsSchema: T
+  bindingsSchema: T,
 ) {
   return z.object({
     head: sparqlResponseHeadSchema,

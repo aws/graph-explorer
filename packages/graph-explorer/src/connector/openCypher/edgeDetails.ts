@@ -20,7 +20,7 @@ type Response = {
 
 export async function edgeDetails(
   openCypherFetch: OpenCypherFetch,
-  request: EdgeDetailsRequest
+  request: EdgeDetailsRequest,
 ): Promise<EdgeDetailsResponse> {
   // Bail early if request is empty
   if (!request.edgeIds.length) {
@@ -39,7 +39,7 @@ export async function edgeDetails(
     logger.error(
       "Failed to fetch edge details",
       request.edgeIds,
-      data.detailedMessage
+      data.detailedMessage,
     );
     throw new Error(data.detailedMessage);
   }
@@ -50,7 +50,7 @@ export async function edgeDetails(
 
   // Log a warning if some edges are missing
   const missing = new Set(request.edgeIds).difference(
-    new Set(edges.map(e => e.id))
+    new Set(edges.map(e => e.id)),
   );
   if (missing.size) {
     logger.warn("Did not find all requested edges", {

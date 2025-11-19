@@ -16,7 +16,7 @@ export function nodeCountByNodeTypeQuery(nodeType: string) {
         {
           label: nodeType,
         },
-        { signal }
+        { signal },
       );
     },
   });

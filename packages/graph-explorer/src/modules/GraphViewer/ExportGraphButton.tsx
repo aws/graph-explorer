@@ -25,7 +25,7 @@ export function useExportGraph() {
 
   const exportGraph = async () => {
     const fileName = createDefaultFileName(
-      config?.displayLabel ?? "Connection"
+      config?.displayLabel ?? "Connection",
     );
     const exportData = createExportedGraph(vertexIds, edgeIds, connection);
     const fileToSave = toJsonFileData(exportData);

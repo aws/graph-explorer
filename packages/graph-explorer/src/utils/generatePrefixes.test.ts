@@ -122,7 +122,7 @@ describe("generatePrefixes", () => {
             "http://www.example.com/location/resource#Manchester",
           ]),
         },
-      ]
+      ],
     );
 
     expect(updatedPrefixes).toHaveLength(5);
@@ -173,7 +173,7 @@ describe("generatePrefixes", () => {
           uri: "http://secretspyorg/entity/",
           __matches: new Set(["http://SecretSpyOrg/entity/quantity"]),
         },
-      ]
+      ],
     );
 
     expect(updatedPrefixes).toHaveLength(2);
@@ -197,7 +197,7 @@ describe("generatePrefixes", () => {
   it("should ignore file URIs since they don't have an origin", () => {
     const updatedPrefixes = generatePrefixes(
       new Set(["file://foo/bar.txt"]),
-      []
+      [],
     );
 
     expect(updatedPrefixes).toBeNull();
@@ -213,7 +213,7 @@ describe("generatePrefixes", () => {
         "mailto:example@abc.com",
         "custom-scheme:foo",
       ]),
-      []
+      [],
     );
 
     expect(updatedPrefixes).toBeNull();
@@ -222,7 +222,7 @@ describe("generatePrefixes", () => {
   it("should handle any pathed URI", () => {
     const updatedPrefixes = generatePrefixes(
       new Set(["ftp://foo/bar.txt"]),
-      []
+      [],
     );
 
     expect(updatedPrefixes).toEqual([

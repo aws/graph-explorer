@@ -27,7 +27,7 @@ export function errorHandlingMiddleware() {
     error: unknown,
     request: Request,
     response: Response,
-    _next: NextFunction
+    _next: NextFunction,
   ) => {
     const errorInfo = extractErrorInfo(error);
 
@@ -43,9 +43,9 @@ export function errorHandlingMiddleware() {
         .filter(([key]) => HEADER_WHITE_LIST.includes(key.toLowerCase()))
         .map(
           ([key, value]) =>
-            `\n\t- ${key}: ${Array.isArray(value) ? value.join(", ") : value}`
+            `\n\t- ${key}: ${Array.isArray(value) ? value.join(", ") : value}`,
         )
-        .join("")
+        .join(""),
     );
 
     handleError(error);

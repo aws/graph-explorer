@@ -14,7 +14,7 @@ import { chunk } from "lodash";
 export default async function batchPromisesSerially<Item, Result>(
   items: Item[],
   batchSize: number,
-  callback: (item: Item) => Promise<Result>
+  callback: (item: Item) => Promise<Result>,
 ): Promise<Result[]> {
   const batches = chunk(items, batchSize);
   const results = new Array<Result>();

@@ -30,7 +30,7 @@ test("should delete the active configuration", async () => {
     store => {
       store.set(activeConfigurationAtom, config1.id);
       store.set(configurationAtom, new Map([[config1.id, config1]]));
-    }
+    },
   );
 
   act(() => result.current.callback());
@@ -56,7 +56,7 @@ test("should delete the active schema", async () => {
       store.set(activeConfigurationAtom, config1.id);
       store.set(configurationAtom, new Map([[config1.id, config1]]));
       store.set(schemaAtom, new Map([[config1.id, schema1]]));
-    }
+    },
   );
 
   act(() => result.current.callback());
@@ -79,7 +79,7 @@ test("should delete the graph session for the active connection", async () => {
     },
     store => {
       dbState.applyTo(store);
-    }
+    },
   );
 
   act(() => result.current.callback());

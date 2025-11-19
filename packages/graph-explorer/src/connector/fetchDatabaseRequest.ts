@@ -58,13 +58,13 @@ async function decodeErrorSafely(response: Response): Promise<any> {
 function getAuthHeaders(
   connection: NormalizedConnection,
   featureFlags: FeatureFlags,
-  typeHeaders: HeadersInit | undefined
+  typeHeaders: HeadersInit | undefined,
 ) {
   const headers: HeadersInit = {};
   if (connection.proxyConnection) {
     headers["graph-db-connection-url"] = connection.graphDbUrl || "";
     headers["db-query-logging-enabled"] = String(
-      featureFlags.allowLoggingDbQuery
+      featureFlags.allowLoggingDbQuery,
     );
   }
   if (connection.awsAuthEnabled) {
@@ -92,7 +92,7 @@ export async function fetchDatabaseRequest(
   connection: NormalizedConnection,
   featureFlags: FeatureFlags,
   uri: URL | RequestInfo,
-  options: RequestInit
+  options: RequestInit,
 ) {
   // Apply connection settings to fetch options
   const fetchOptions: RequestInit = {

@@ -42,7 +42,7 @@ const iconStyledQueryOptions = (iconData: string, color: string) =>
 
 export async function renderNode(
   client: QueryClient,
-  vtConfig: VertexIconConfig
+  vtConfig: VertexIconConfig,
 ): Promise<string | null> {
   if (!vtConfig.iconUrl) {
     return null;
@@ -54,10 +54,10 @@ export async function renderNode(
 
   try {
     const iconData = await client.fetchQuery(
-      iconQueryOptions(vtConfig.iconUrl)
+      iconQueryOptions(vtConfig.iconUrl),
     );
     const iconStyled = await client.fetchQuery(
-      iconStyledQueryOptions(iconData, vtConfig.color || "#128EE5")
+      iconStyledQueryOptions(iconData, vtConfig.color || "#128EE5"),
     );
     return iconStyled;
   } catch (e) {

@@ -65,7 +65,7 @@ export function useImportConnectionFile() {
           stackable: true,
         });
       },
-      [enqueueNotification, resetState]
-    )
+      [enqueueNotification, resetState],
+    ),
   );
 }

@@ -232,10 +232,10 @@ describe("parseExportedGraph", () => {
     expect(parsed.vertices.has(maliciousVertexId as VertexId)).toBeFalsy();
     expect(parsed.edges.has(maliciousEdgeId as EdgeId)).toBeFalsy();
     expect(
-      parsed.vertices.has(escapeString(maliciousVertexId) as VertexId)
+      parsed.vertices.has(escapeString(maliciousVertexId) as VertexId),
     ).toBeTruthy();
     expect(
-      parsed.edges.has(escapeString(maliciousEdgeId) as EdgeId)
+      parsed.edges.has(escapeString(maliciousEdgeId) as EdgeId),
     ).toBeTruthy();
   });
 
@@ -251,10 +251,10 @@ describe("parseExportedGraph", () => {
     expect(parsed.vertices.has(vertexIdWithWhitespace as VertexId)).toBeFalsy();
     expect(parsed.edges.has(edgeIdWithWhitespace as EdgeId)).toBeFalsy();
     expect(
-      parsed.vertices.has(vertexIdWithWhitespace.trim() as VertexId)
+      parsed.vertices.has(vertexIdWithWhitespace.trim() as VertexId),
     ).toBeTruthy();
     expect(
-      parsed.edges.has(edgeIdWithWhitespace.trim() as EdgeId)
+      parsed.edges.has(edgeIdWithWhitespace.trim() as EdgeId),
     ).toBeTruthy();
   });
 
@@ -262,7 +262,7 @@ describe("parseExportedGraph", () => {
     const exportedGraph = createRandomExportedGraphForRdf();
     // Missing the brackets
     exportedGraph.data.edges.push(
-      "http://example.com/foo-http://example.com/foo-http://example.com/foo"
+      "http://example.com/foo-http://example.com/foo-http://example.com/foo",
     );
     const expected = {
       connection: exportedGraph.data.connection,
@@ -276,7 +276,7 @@ describe("parseExportedGraph", () => {
   it("should skip malicious RDF edge IDs", async () => {
     const exportedGraph = createRandomExportedGraphForRdf();
     exportedGraph.data.edges.push(
-      "http://example.com/foo-[http://example.com/foo]->http://example.com/foo> . { ?s ?p ?o }#"
+      "http://example.com/foo-[http://example.com/foo]->http://example.com/foo> . { ?s ?p ?o }#",
     );
     const expected = {
       connection: exportedGraph.data.connection,
@@ -402,7 +402,7 @@ describe("createDefaultFileName", () => {
   it("should replace spaces with dashes", () => {
     const fileName = createDefaultFileName("My Connection to the Database");
     expect(fileName).toBe(
-      `my-connection-to-the-database.20250207010101.graph.json`
+      `my-connection-to-the-database.20250207010101.graph.json`,
     );
   });
 

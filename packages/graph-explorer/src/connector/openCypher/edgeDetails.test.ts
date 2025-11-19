@@ -30,7 +30,7 @@ describe("edgeDetails", () => {
     const edge2 = createTestableEdge();
     const response = createResponseFromEdges(
       edge1.asResult(),
-      edge2.asResult()
+      edge2.asResult(),
     );
     const mockFetch = vi.fn().mockResolvedValue(response);
 

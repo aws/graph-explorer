@@ -31,7 +31,7 @@ export type SchemaInference = {
 /** All the stored schemas */
 export const schemaAtom = atomWithLocalForage(
   "schema",
-  new Map<string, SchemaInference>()
+  new Map<string, SchemaInference>(),
 );
 
 /** Grabs a specific schema out of the map. */
@@ -162,13 +162,13 @@ export const activeSchemaSelector = atom(
 
       return updatedSchemaMap;
     });
-  }
+  },
 );
 
 /** Updates the schema based on the given nodes and edges. */
 export function updateSchemaFromEntities(
   entities: Partial<Entities>,
-  schema: SchemaInference
+  schema: SchemaInference,
 ) {
   const vertices = entities.vertices ?? [];
   const edges = entities.edges ?? [];
@@ -204,7 +204,7 @@ export function updateSchemaFromEntities(
 /** Merges new node or edge configs in to a set of existing node or edge configs. */
 function merge<T extends VertexTypeConfig | EdgeTypeConfig>(
   existing: T[],
-  newConfigs: T[]
+  newConfigs: T[],
 ): T[] {
   const configMap = new Map(existing.map(vt => [vt.type, vt]));
   let hasChanges = false;
@@ -217,7 +217,7 @@ function merge<T extends VertexTypeConfig | EdgeTypeConfig>(
     } else {
       const mergedAttributes = mergeAttributes(
         existingConfig.attributes,
-        newConfig.attributes
+        newConfig.attributes,
       );
       if (mergedAttributes === existingConfig.attributes) {
         continue;
@@ -236,7 +236,7 @@ function merge<T extends VertexTypeConfig | EdgeTypeConfig>(
 
 export function mergeAttributes(
   existing: AttributeConfig[],
-  newAttributes: AttributeConfig[]
+  newAttributes: AttributeConfig[],
 ): AttributeConfig[] {
   const attrMap = new Map(existing.map(attr => [attr.name, attr]));
   let hasChanges = false;
@@ -372,7 +372,7 @@ export function useUpdateSchemaFromEntities() {
           return updateSchemaFromEntities(entities, prev);
         });
       });
-    }, [])
+    }, []),
   );
 }
 
@@ -383,7 +383,7 @@ export type UpdateSchemaHandler = ReturnType<
 /** Attempts to efficiently detect if the schema should be updated. */
 export function shouldUpdateSchemaFromEntities(
   entities: Partial<Entities>,
-  schema: SchemaInference
+  schema: SchemaInference,
 ) {
   const vertices = entities.vertices ?? [];
   const edges = entities.edges ?? [];
@@ -395,7 +395,7 @@ export function shouldUpdateSchemaFromEntities(
     if (!fromSchema.isSupersetOf(fromEntities)) {
       logger.debug(
         "Found new vertex types or attributes:",
-        fromEntities.difference(fromSchema)
+        fromEntities.difference(fromSchema),
       );
       return true;
     }
@@ -409,7 +409,7 @@ export function shouldUpdateSchemaFromEntities(
     if (!fromSchema.isSupersetOf(fromEntities)) {
       logger.debug(
         "Found new edge types or attributes:",
-        fromEntities.difference(fromSchema)
+        fromEntities.difference(fromSchema),
       );
       return true;
     }
@@ -424,7 +424,7 @@ export function shouldUpdateSchemaFromEntities(
  * The entries in the set will be in the format of `vertexType.attributeName` or `edgeType.attributeName`.
  */
 function getUniqueTypesAndAttributes(
-  entities: (Vertex | Edge | VertexTypeConfig | EdgeTypeConfig)[]
+  entities: (Vertex | Edge | VertexTypeConfig | EdgeTypeConfig)[],
 ) {
   return new Set(
     entities.flatMap(e => {
@@ -432,7 +432,7 @@ function getUniqueTypesAndAttributes(
         e.type,
         ...getAttributeNames(e.attributes).map(a => `${e.type}.${a}`),
       ];
-    })
+    }),
   );
 }
 

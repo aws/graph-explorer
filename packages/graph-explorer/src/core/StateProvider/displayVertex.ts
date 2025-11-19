@@ -84,7 +84,7 @@ const displayVertexSelector = atomFamily((vertex: Vertex) =>
       .map(
         type =>
           get(vertexPreferenceByTypeAtom(type)).displayLabel ??
-          textTransform(type)
+          textTransform(type),
       )
       .join(", ");
 
@@ -109,10 +109,10 @@ const displayVertexSelector = atomFamily((vertex: Vertex) =>
 
     const vertexPreferences = get(vertexPreferenceByTypeAtom(vertex.type));
     const displayName = getDisplayAttributeValueByName(
-      vertexPreferences.displayNameAttribute
+      vertexPreferences.displayNameAttribute,
     );
     const displayDescription = getDisplayAttributeValueByName(
-      vertexPreferences.longDisplayNameAttribute
+      vertexPreferences.longDisplayNameAttribute,
     );
 
     const result: DisplayVertex = {
@@ -129,15 +129,15 @@ const displayVertexSelector = atomFamily((vertex: Vertex) =>
       original: vertex,
     };
     return result;
-  })
+  }),
 );
 
 const displayVerticesSelector = atomFamily((vertices: Vertex[]) =>
   atom(get => {
     return new Map(
-      vertices.map(vertex => [vertex.id, get(displayVertexSelector(vertex))])
+      vertices.map(vertex => [vertex.id, get(displayVertexSelector(vertex))]),
     );
-  })
+  }),
 );
 
 const displayVerticesInCanvasSelector = atom(get => {
