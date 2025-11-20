@@ -55,7 +55,7 @@ export function SearchResultsList({
             <ResultCounts results={results} />
           </div>
           <div className="grow" />
-          {rawResponse !== undefined && (
+          {rawResponse != null && (
             <ShowRawResponseDialogButton rawResponse={rawResponse} />
           )}
           <AddAllToGraphButton entities={results} />
