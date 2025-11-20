@@ -15,6 +15,7 @@ import {
   createResultScalar,
   createResultBundle,
   createResultVertex,
+  type ResultEntity,
 } from "../entities";
 import { mapSparqlValueToScalar } from "./mappers/mapSparqlValueToScalar";
 import { mapQuadToEntities } from "./mappers/mapQuadToEntities";
@@ -83,7 +84,7 @@ export async function rawQuery(
 /**
  * Handles ASK query results by creating a scalar boolean value
  */
-function handleAskQueryResult(booleanResult: boolean): RawQueryResponse {
+function handleAskQueryResult(booleanResult: boolean): ResultEntity[] {
   return [
     createResultScalar({
       name: "ASK",
@@ -100,7 +101,7 @@ function handleAskQueryResult(booleanResult: boolean): RawQueryResponse {
  */
 function handleConstructQueryResults(
   bindings: Array<SparqlQuadBinding>,
-): RawQueryResponse {
+): ResultEntity[] {
   // Filter out blank node results until we can determine a good way to handle them
   const bindingsWithoutBlankNodes = bindings.filter(
     b => b.subject.type !== "bnode" && b.object.type !== "bnode",
@@ -122,8 +123,8 @@ function handleConstructQueryResults(
  */
 function handleSelectQueryResults(
   bindings: Array<RawQueryBinding>,
-): RawQueryResponse {
-  const results: RawQueryResponse = [];
+): ResultEntity[] {
+  const results: ResultEntity[] = [];
 
   for (const binding of bindings) {
     const scalars = Object.entries(binding).map(
