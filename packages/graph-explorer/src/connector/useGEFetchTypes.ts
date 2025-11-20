@@ -209,7 +209,10 @@ export type RawQueryRequest = {
   query: string;
 };
 
-export type RawQueryResponse = ResultEntity[];
+export type RawQueryResponse = {
+  results: ResultEntity[];
+  rawResponse: unknown;
+};
 
 /**
  * Abstracted interface to the common database queries used by

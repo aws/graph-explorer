@@ -15,7 +15,7 @@ import {
 } from "@/components";
 import { useQueryEngine, useUpdateSchemaFromEntities } from "@/core";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ListIcon, SendHorizonalIcon, SendHorizontalIcon } from "lucide-react";
+import { SendHorizonalIcon, SendHorizontalIcon } from "lucide-react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -209,12 +209,12 @@ function SearchResultsListContainer({ cancel }: { cancel: () => void }) {
     return <QueryTabEmptyState />;
   }
 
-  // No results
-  if (!query.data.length) {
-    return <QueryTabNoResults />;
-  }
-
-  return <SearchResultsList results={query.data} />;
+  return (
+    <SearchResultsList
+      results={query.data.results}
+      rawResponse={query.data.rawResponse}
+    />
+  );
 }
 
 function QueryTabLoading({ cancel }: { cancel: () => void }) {
@@ -235,17 +235,6 @@ function QueryTabEmptyState() {
       title="Search Query"
       subtitle="Run a query to see results"
       icon={<SendHorizonalIcon />}
-      className="p-8"
-    />
-  );
-}
-
-function QueryTabNoResults() {
-  return (
-    <PanelEmptyState
-      title="Empty Results"
-      subtitle="Your query executed successfully, but the result was empty."
-      icon={<ListIcon />}
       className="p-8"
     />
   );

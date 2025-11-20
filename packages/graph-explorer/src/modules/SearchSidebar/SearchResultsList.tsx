@@ -2,22 +2,26 @@ import {
   Button,
   type ButtonProps,
   IconButton,
+  PanelEmptyState,
   PanelFooter,
   Spinner,
 } from "@/components";
 import { useAddToGraphMutation } from "@/hooks/useAddToGraph";
-import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import { ChevronLeftIcon, ChevronRightIcon, ListIcon } from "lucide-react";
 import { useState } from "react";
 import { createEntityKey, EntitySearchResult } from "./EntitySearchResult";
 import {
   getAllGraphableEntities,
   type PatchedResultEntity,
 } from "@/connector/entities";
+import { ShowRawResponseDialogButton } from "./ShowRawResponseDialog";
 
 export function SearchResultsList({
   results,
+  rawResponse,
 }: {
   results: PatchedResultEntity[];
+  rawResponse?: unknown;
 }) {
   // Hard coding the page size for now. Only trying to improve rendering
   // performance for large results.
@@ -51,15 +55,23 @@ export function SearchResultsList({
             <ResultCounts results={results} />
           </div>
           <div className="grow" />
+          {rawResponse != null && (
+            <ShowRawResponseDialogButton rawResponse={rawResponse} />
+          )}
           <AddAllToGraphButton entities={results} />
         </div>
-        <ul className="flex flex-col space-y-4">
-          {currentPageRows.map(entity => (
-            <li key={createEntityKey(entity, 0)}>
-              <EntitySearchResult entity={entity} level={0} />
-            </li>
-          ))}
-        </ul>
+
+        {currentPageRows.length === 0 ? (
+          <EmptyResults />
+        ) : (
+          <ul className="flex flex-col space-y-4">
+            {currentPageRows.map(entity => (
+              <li key={createEntityKey(entity, 0)}>
+                <EntitySearchResult entity={entity} level={0} />
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
       {isPagingNecessary ? (
@@ -123,5 +135,16 @@ function AddAllToGraphButton({
     >
       <Spinner loading={mutation.isPending}>Add All</Spinner>
     </Button>
+  );
+}
+
+function EmptyResults() {
+  return (
+    <PanelEmptyState
+      title="Empty Results"
+      subtitle="Your query executed successfully, but the result was empty."
+      icon={<ListIcon />}
+      className="p-8"
+    />
   );
 }

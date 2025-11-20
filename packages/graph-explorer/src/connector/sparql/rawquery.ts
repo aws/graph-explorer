@@ -15,6 +15,7 @@ import {
   createResultScalar,
   createResultBundle,
   createResultVertex,
+  type ResultEntity,
 } from "../entities";
 import { mapSparqlValueToScalar } from "./mappers/mapSparqlValueToScalar";
 import { mapQuadToEntities } from "./mappers/mapQuadToEntities";
@@ -31,7 +32,7 @@ export async function rawQuery(
   const template = query`${request.query}`;
 
   if (template.length <= 0) {
-    return [];
+    return { results: [], rawResponse: null };
   }
 
   // Fetch the results
@@ -47,7 +48,8 @@ export async function rawQuery(
   const askParsed = sparqlAskResponseSchema.safeParse(data);
   if (askParsed.success) {
     logger.debug("Parsing SPARQL ASK response");
-    return handleAskQueryResult(askParsed.data.boolean);
+    const results = handleAskQueryResult(askParsed.data.boolean);
+    return { results, rawResponse: data };
   }
 
   // Try to parse as quads next (CONSTRUCT and DESCRIBE queries)
@@ -56,7 +58,10 @@ export async function rawQuery(
   );
   if (quadsParsed.success) {
     logger.debug("Parsing SPARQL quads response");
-    return handleConstructQueryResults(quadsParsed.data.results.bindings);
+    const results = handleConstructQueryResults(
+      quadsParsed.data.results.bindings,
+    );
+    return { results, rawResponse: data };
   }
 
   // Parse raw JSON format response for all other queries
@@ -72,13 +77,14 @@ export async function rawQuery(
     throw validationError;
   }
 
-  return handleSelectQueryResults(parsed.data.results.bindings);
+  const results = handleSelectQueryResults(parsed.data.results.bindings);
+  return { results, rawResponse: data };
 }
 
 /**
  * Handles ASK query results by creating a scalar boolean value
  */
-function handleAskQueryResult(booleanResult: boolean): RawQueryResponse {
+function handleAskQueryResult(booleanResult: boolean): ResultEntity[] {
   return [
     createResultScalar({
       name: "ASK",
@@ -95,7 +101,7 @@ function handleAskQueryResult(booleanResult: boolean): RawQueryResponse {
  */
 function handleConstructQueryResults(
   bindings: Array<SparqlQuadBinding>,
-): RawQueryResponse {
+): ResultEntity[] {
   // Filter out blank node results until we can determine a good way to handle them
   const bindingsWithoutBlankNodes = bindings.filter(
     b => b.subject.type !== "bnode" && b.object.type !== "bnode",
@@ -117,8 +123,8 @@ function handleConstructQueryResults(
  */
 function handleSelectQueryResults(
   bindings: Array<RawQueryBinding>,
-): RawQueryResponse {
-  const results: RawQueryResponse = [];
+): ResultEntity[] {
+  const results: ResultEntity[] = [];
 
   for (const binding of bindings) {
     const scalars = Object.entries(binding).map(

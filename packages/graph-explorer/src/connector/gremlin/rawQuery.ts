@@ -26,7 +26,7 @@ export async function rawQuery(
   const template = query`${request.query}`;
 
   if (template.length <= 0) {
-    return [];
+    return { results: [], rawResponse: null };
   }
 
   // Fetch the results
@@ -37,5 +37,6 @@ export async function rawQuery(
   }
 
   // Map the results
-  return mapResults(data.result.data);
+  const results = mapResults(data.result.data);
+  return { results, rawResponse: data };
 }

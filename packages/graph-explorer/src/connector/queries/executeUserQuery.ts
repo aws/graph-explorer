@@ -32,13 +32,13 @@ export function executeUserQuery(
     queryFn: async ({ signal, meta, client }) => {
       const explorer = getExplorer(meta);
       const store = getStore(meta);
-      const results = await explorer.rawQuery({ query }, { signal });
+      const response = await explorer.rawQuery({ query }, { signal });
 
       // Update the cache for any fully materialized entities
-      updateDetailsCacheFromEntities(client, results);
+      updateDetailsCacheFromEntities(client, response.results);
 
       // Fetch any details for fragments and patch the results
-      const patchedResults = await patchEntityDetails(client, results);
+      const patchedResults = await patchEntityDetails(client, response.results);
 
       // Update the schema with the results
       const patchedGraphableEntities = getAllGraphableEntities(patchedResults);
@@ -46,7 +46,7 @@ export function executeUserQuery(
       updateVertexGraphCanvasState(store, patchedGraphableEntities.vertices);
       updateEdgeGraphCanvasState(store, patchedGraphableEntities.edges);
 
-      return patchedResults;
+      return { results: patchedResults, rawResponse: response.rawResponse };
     },
   });
 }
