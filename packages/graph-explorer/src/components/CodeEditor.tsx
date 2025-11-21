@@ -88,11 +88,11 @@ function createMonacoTheme(options: {
       { token: "keyword.json", foreground: options.keyword },
 
       // Delimiters
-      { token: "delimiter.comma.json", foreground: options.mutedForeground },
+      { token: "delimiter.comma.json", foreground: options.foreground },
       { token: "delimiter.colon.json", foreground: options.foreground },
-      { token: "delimiter.bracket.json", foreground: options.mutedForeground },
+      { token: "delimiter.bracket.json", foreground: options.foreground },
       { token: "delimiter.array.json", foreground: options.foreground },
-      { token: "delimiter.curly.json", foreground: options.mutedForeground },
+      { token: "delimiter.curly.json", foreground: options.foreground },
 
       // Comments
       { token: "comment.json", foreground: options.mutedForeground },
@@ -105,15 +105,16 @@ function createMonacoTheme(options: {
       "editor.background": options.background,
       "editorLineNumber.foreground": options.mutedForeground,
       "editorLineNumber.activeForeground": options.foreground,
-      "editorBracketHighlight.foreground1": options.mutedForeground,
-      "editorBracketHighlight.foreground2": options.mutedForeground,
-      "editorBracketHighlight.foreground3": options.mutedForeground,
-      "editorBracketHighlight.foreground4": options.mutedForeground,
-      "editorBracketHighlight.foreground5": options.mutedForeground,
-      "editorBracketHighlight.foreground6": options.mutedForeground,
+      "editorBracketHighlight.foreground1": options.foreground,
+      "editorBracketHighlight.foreground2": options.foreground,
+      "editorBracketHighlight.foreground3": options.foreground,
+      "editorBracketHighlight.foreground4": options.foreground,
+      "editorBracketHighlight.foreground5": options.foreground,
+      "editorBracketHighlight.foreground6": options.foreground,
       "scrollbarSlider.background": options.mutedForeground + "44",
       "scrollbarSlider.hoverBackground": options.mutedForeground + "88",
       "scrollbarSlider.activeBackground": options.mutedForeground + "88",
+      "editorGutter.foldingControlForeground": options.mutedForeground,
     },
   };
 }
