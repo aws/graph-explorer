@@ -1,0 +1,119 @@
+import { Editor, type Monaco } from "@monaco-editor/react";
+import type { ComponentProps } from "react";
+
+export function CodeEditor({
+  options,
+  beforeMount,
+  wrapperProps,
+  ...props
+}: ComponentProps<typeof Editor>) {
+  return (
+    <Editor
+      defaultLanguage="json"
+      theme="graph-explorer-light"
+      options={{
+        readOnly: true,
+        minimap: { enabled: false },
+        scrollBeyondLastLine: false,
+        renderLineHighlight: "none",
+        matchBrackets: "never",
+        bracketPairColorization: {
+          enabled: false,
+          independentColorPoolPerBracketType: false,
+          ...options?.bracketPairColorization,
+        },
+        padding: {
+          top: 7,
+          bottom: 7,
+          ...options?.padding,
+        },
+        guides: {
+          bracketPairs: false,
+          indentation: false,
+          ...options?.guides,
+        },
+        lineDecorationsWidth: 0,
+        lineNumbersMinChars: 3,
+        overviewRulerLanes: 0,
+        renderWhitespace: "none",
+        fontSize: 14,
+        fontFamily:
+          "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
+        hideCursorInOverviewRuler: true,
+        ...options,
+      }}
+      wrapperProps={{ className: "pl-2", ...wrapperProps }}
+      beforeMount={monaco => {
+        monaco.editor.defineTheme("graph-explorer-light", lightTheme);
+        if (beforeMount) {
+          beforeMount(monaco);
+        }
+      }}
+      {...props}
+    />
+  );
+}
+
+type ThemeData = Parameters<Monaco["editor"]["defineTheme"]>[1];
+
+const lightTheme = createMonacoTheme({
+  foreground: "#1f2937",
+  background: "#f9fafb",
+  mutedForeground: "#9ca3af",
+  keys: "#3730a3",
+  strings: "#9f1239",
+  numbers: "#065f46",
+  keyword: "#065f46",
+});
+
+function createMonacoTheme(options: {
+  foreground: string;
+  background: string;
+  mutedForeground: string;
+  keys: string;
+  strings: string;
+  numbers: string;
+  keyword: string;
+}): ThemeData {
+  return {
+    base: "vs",
+    inherit: true,
+    rules: [
+      // Values
+      { token: "string.key.json", foreground: options.keys },
+      { token: "string.value.json", foreground: options.strings },
+      { token: "string.json", foreground: options.strings },
+      { token: "number.json", foreground: options.numbers },
+      { token: "number.float.json", foreground: options.numbers },
+      { token: "keyword.json", foreground: options.keyword },
+
+      // Delimiters
+      { token: "delimiter.comma.json", foreground: options.mutedForeground },
+      { token: "delimiter.colon.json", foreground: options.foreground },
+      { token: "delimiter.bracket.json", foreground: options.mutedForeground },
+      { token: "delimiter.array.json", foreground: options.foreground },
+      { token: "delimiter.curly.json", foreground: options.mutedForeground },
+
+      // Comments
+      { token: "comment.json", foreground: options.mutedForeground },
+      { token: "comment.block.json", foreground: options.mutedForeground },
+      { token: "comment.line.json", foreground: options.mutedForeground },
+    ],
+    colors: {
+      foreground: options.foreground,
+      "editor.foreground": options.foreground,
+      "editor.background": options.background,
+      "editorLineNumber.foreground": options.mutedForeground,
+      "editorLineNumber.activeForeground": options.foreground,
+      "editorBracketHighlight.foreground1": options.mutedForeground,
+      "editorBracketHighlight.foreground2": options.mutedForeground,
+      "editorBracketHighlight.foreground3": options.mutedForeground,
+      "editorBracketHighlight.foreground4": options.mutedForeground,
+      "editorBracketHighlight.foreground5": options.mutedForeground,
+      "editorBracketHighlight.foreground6": options.mutedForeground,
+      "scrollbarSlider.background": options.mutedForeground + "44",
+      "scrollbarSlider.hoverBackground": options.mutedForeground + "88",
+      "scrollbarSlider.activeBackground": options.mutedForeground + "88",
+    },
+  };
+}
