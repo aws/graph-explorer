@@ -60,10 +60,10 @@ const lightTheme = createMonacoTheme({
   foreground: "#1f2937",
   background: "#f9fafb",
   mutedForeground: "#9ca3af",
-  keys: "#3730a3",
-  strings: "#9f1239",
-  numbers: "#065f46",
-  keyword: "#065f46",
+  keys: "#115e59",
+  strings: "#1e40af",
+  numbers: "#6b21a8",
+  keyword: "#6b21a8",
 });
 
 function createMonacoTheme(options: {
