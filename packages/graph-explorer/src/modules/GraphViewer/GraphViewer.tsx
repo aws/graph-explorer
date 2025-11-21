@@ -47,8 +47,8 @@ import {
   BadgeInfoIcon,
   CircleSlash2,
   FullscreenIcon,
+  GitCompareArrowsIcon,
   ImageDownIcon,
-  RefreshCwIcon,
   ZoomInIcon,
   ZoomOutIcon,
 } from "lucide-react";
@@ -153,7 +153,7 @@ export default function GraphViewer({
             <SelectLayout className="max-w-64 min-w-auto" />
             <IconButton
               tooltipText="Re-run Layout"
-              icon={<RefreshCwIcon />}
+              icon={<GitCompareArrowsIcon />}
               variant="text"
               onClick={() => {
                 graphRef.current?.runLayout();
