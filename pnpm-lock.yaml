@@ -92,6 +92,9 @@ importers:
       '@hookform/resolvers':
         specifier: ^5.2.2
         version: 5.2.2(react-hook-form@7.66.1(react@19.2.0))
+      '@monaco-editor/react':
+        specifier: ^4.7.0
+        version: 4.7.0(monaco-editor@0.55.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@react-aria/textfield':
         specifier: 3.18.2
         version: 3.18.2(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -155,6 +158,9 @@ importers:
       lucide-react:
         specifier: ^0.554.0
         version: 0.554.0(react@19.2.0)
+      monaco-editor:
+        specifier: ^0.55.0
+        version: 0.55.0
       motion:
         specifier: ^12.23.24
         version: 12.23.24(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -1533,6 +1539,16 @@ packages:
     peerDependencies:
       tslib: '2'
 
+  '@monaco-editor/loader@1.6.1':
+    resolution: {integrity: sha512-w3tEnj9HYEC73wtjdpR089AqkUPskFRcdkxsiSFt3SoUc3OHpmu+leP94CXBm4mHfefmhsdfI0ZQu6qJ0wgtPg==}
+
+  '@monaco-editor/react@4.7.0':
+    resolution: {integrity: sha512-cyzXQCtO47ydzxpQtCGSQGOC8Gk3ZUeBXFAxD+CWXYFo5OqZyZUonFl0DwUlTyAfRHntBfw2p3w4s9R6oe1eCA==}
+    peerDependencies:
+      monaco-editor: '>= 0.25.0 < 1'
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+
   '@nodelib/fs.scandir@2.1.5':
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
     engines: {node: '>= 8'}
@@ -2896,6 +2912,9 @@ packages:
   '@types/serve-static@1.15.10':
     resolution: {integrity: sha512-tRs1dB+g8Itk72rlSI2ZrW6vZg0YrLI81iQSTkMmOqnqCaNr/8Ek4VwWcN5vZgCYWbg/JJSGBlUaYGAOP73qBw==}
 
+  '@types/trusted-types@2.0.7':
+    resolution: {integrity: sha512-ScaPdn1dQczgbl0QFTeTOmVHFULt394XJgOQNoyVhZ6r2vLnMLJfBPd53SB52T/3G36VI1/g2MZaX0cwDuXsfw==}
+
   '@types/whatwg-mimetype@3.0.2':
     resolution: {integrity: sha512-c2AKvDT8ToxLIOUlN51gTiHXflsfIFisS4pO7pDPoKouJCESkhZnEy623gwP9laCy5lnLDAw1vAzu2vM2YLOrA==}
 
@@ -3468,6 +3487,9 @@ packages:
 
   dom-helpers@5.2.1:
     resolution: {integrity: sha512-nRCa7CK3VTrM2NmGkIy4cbK7IZlgBE/PYMn55rrXefr5xXDP0LdtfPnblFDoVdcAfslJ7or6iqAUnx0CCGIWQA==}
+
+  dompurify@3.2.7:
+    resolution: {integrity: sha512-WhL/YuveyGXJaerVlMYGWhvQswa7myDG17P7Vu65EWC05o8vfeNbvNf4d/BOvH99+ZW+LlQsc1GDKMa1vNK6dw==}
 
   dotenv@17.2.3:
     resolution: {integrity: sha512-JVUnt+DUIzu87TABbhPmNfVdBDt18BLOWjMUFJMSi/Qqg7NTYtabbvSNJGOJ7afbRuv9D/lngizHtP7QyLQ+9w==}
@@ -4335,6 +4357,11 @@ packages:
     resolution: {integrity: sha512-hXdUTZYIVOt1Ex//jAQi+wTZZpUpwBj/0QsOzqegb3rGMMeJiSEu5xLHnYfBrRV4RH2+OCSOO95Is/7x1WJ4bw==}
     engines: {node: '>=10'}
 
+  marked@14.0.0:
+    resolution: {integrity: sha512-uIj4+faQ+MgHgwUW1l2PsPglZLOLOT1uErt06dAPtx2kjteLAkbsd/0FiYg/MGS+i7ZKLb7w2WClxHkzOOuryQ==}
+    engines: {node: '>= 18'}
+    hasBin: true
+
   math-intrinsics@1.1.0:
     resolution: {integrity: sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g==}
     engines: {node: '>= 0.4'}
@@ -4394,6 +4421,9 @@ packages:
   minipass@7.1.2:
     resolution: {integrity: sha512-qOOzS1cBTWYF4BH8fVePDBOO9iptMnGUEZwNc/cMWnTV2nVLZ7VoNWEPHkYczZA0pdoA7dl6e7FL659nX9S2aw==}
     engines: {node: '>=16 || 14 >=14.17'}
+
+  monaco-editor@0.55.0:
+    resolution: {integrity: sha512-z0wxERYJs9181lmruSC42pD2AEllobxBrDWnOMbKBKWmQnhKn7p3BGvpk+Usahooa0ueCShJkWXE8vXgYvKCIg==}
 
   motion-dom@12.23.23:
     resolution: {integrity: sha512-n5yolOs0TQQBRUFImrRfs/+6X4p3Q4n1dUEqt/H58Vx7OW6RF+foWEgmTVDhIWJIMXOuNNL0apKH2S16en9eiA==}
@@ -5035,6 +5065,9 @@ packages:
 
   stackback@0.0.2:
     resolution: {integrity: sha512-1XMJE5fQo1jGH6Y/7ebnwPOBEkIEnT4QF32d5R1+VXdXveM0IBMJt8zfaxX1P3QhVwrYe+576+jkANtSS2mBbw==}
+
+  state-local@1.0.7:
+    resolution: {integrity: sha512-HTEHMNieakEnoe33shBYcZ7NX83ACUjCu8c40iOGEZsngj9zRnkqS9j1pqQPXwobB0ZcVTk27REb7COQ0UR59w==}
 
   statuses@2.0.1:
     resolution: {integrity: sha512-RwNA9Z/7PrK06rYLIzFMlaF+l73iwpzsqRIFgbMLbTcLD6cOao82TaWefPXQvB2fOC4AjuYSEndS7N/mTCbkdQ==}
@@ -7043,6 +7076,17 @@ snapshots:
       '@jsonjoy.com/codegen': 1.0.0(tslib@2.8.1)
       tslib: 2.8.1
 
+  '@monaco-editor/loader@1.6.1':
+    dependencies:
+      state-local: 1.0.7
+
+  '@monaco-editor/react@4.7.0(monaco-editor@0.55.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)':
+    dependencies:
+      '@monaco-editor/loader': 1.6.1
+      monaco-editor: 0.55.0
+      react: 19.2.0
+      react-dom: 19.2.0(react@19.2.0)
+
   '@nodelib/fs.scandir@2.1.5':
     dependencies:
       '@nodelib/fs.stat': 2.0.5
@@ -8535,6 +8579,9 @@ snapshots:
       '@types/node': 24.10.1
       '@types/send': 0.17.6
 
+  '@types/trusted-types@2.0.7':
+    optional: true
+
   '@types/whatwg-mimetype@3.0.2': {}
 
   '@types/wicg-file-system-access@2023.10.7': {}
@@ -9178,6 +9225,10 @@ snapshots:
     dependencies:
       '@babel/runtime': 7.28.4
       csstype: 3.2.3
+
+  dompurify@3.2.7:
+    optionalDependencies:
+      '@types/trusted-types': 2.0.7
 
   dotenv@17.2.3: {}
 
@@ -10166,6 +10217,8 @@ snapshots:
     dependencies:
       semver: 7.7.3
 
+  marked@14.0.0: {}
+
   math-intrinsics@1.1.0: {}
 
   mdn-data@2.12.2: {}
@@ -10215,6 +10268,11 @@ snapshots:
   minimist@1.2.8: {}
 
   minipass@7.1.2: {}
+
+  monaco-editor@0.55.0:
+    dependencies:
+      dompurify: 3.2.7
+      marked: 14.0.0
 
   motion-dom@12.23.23:
     dependencies:
@@ -10904,6 +10962,8 @@ snapshots:
   split2@4.2.0: {}
 
   stackback@0.0.2: {}
+
+  state-local@1.0.7: {}
 
   statuses@2.0.1: {}
 
