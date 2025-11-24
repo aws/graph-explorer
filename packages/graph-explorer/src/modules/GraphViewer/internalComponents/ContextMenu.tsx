@@ -56,10 +56,7 @@ const ContextMenu = ({
   const displayEdges = useDisplayEdgesInCanvas();
   const { graphSelection, replaceGraphSelection } = useGraphSelection();
   const setUserLayout = useSetAtom(userLayoutAtom);
-  const refreshEntities = useRefreshEntities({
-    vertexIds: affectedNodesIds,
-    edgeIds: affectedEdgesIds,
-  });
+  const { refresh: refreshEntities } = useRefreshEntities();
 
   const {
     onFitToCanvas,
@@ -151,7 +148,10 @@ const ContextMenu = ({
   };
 
   const onRefresh = () => {
-    refreshEntities.refresh();
+    refreshEntities({
+      vertexIds: affectedNodesIds,
+      edgeIds: affectedEdgesIds,
+    });
     onClose?.();
   };
 

@@ -3,15 +3,11 @@ import type { VertexId, EdgeId } from "@/core";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTransition } from "react";
 
-export function useRefreshEntities(entityIds: {
-  vertexIds: VertexId[];
-  edgeIds: EdgeId[];
-}) {
+export function useRefreshEntities() {
   const queryClient = useQueryClient();
-
   const [isPending, startTransition] = useTransition();
 
-  const refresh = () => {
+  const refresh = (entityIds: { vertexIds: VertexId[]; edgeIds: EdgeId[] }) => {
     startTransition(async () => {
       await Promise.all([
         queryClient.prefetchQuery({

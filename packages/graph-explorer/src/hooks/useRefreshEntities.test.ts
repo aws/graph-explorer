@@ -41,10 +41,7 @@ describe("useRefreshEntities", () => {
 
     const { result } = renderHookWithState(() => {
       const queryClient = useQueryClient();
-      const refreshHook = useRefreshEntities({
-        vertexIds: [vertex.id],
-        edgeIds: [edge.id],
-      });
+      const refreshHook = useRefreshEntities();
 
       return { queryClient, refreshHook };
     }, state);
@@ -66,7 +63,10 @@ describe("useRefreshEntities", () => {
     expect(result.current.refreshHook.isPending).toBe(false);
 
     act(() => {
-      result.current.refreshHook.refresh();
+      result.current.refreshHook.refresh({
+        vertexIds: [vertex.id],
+        edgeIds: [edge.id],
+      });
     });
 
     await waitFor(() => {
@@ -92,17 +92,13 @@ describe("useRefreshEntities", () => {
     const vertexDetailsSpy = vi.spyOn(explorer, "vertexDetails");
     const edgeDetailsSpy = vi.spyOn(explorer, "edgeDetails");
 
-    const { result } = renderHookWithState(
-      () =>
-        useRefreshEntities({
-          vertexIds: [],
-          edgeIds: [],
-        }),
-      state,
-    );
+    const { result } = renderHookWithState(() => useRefreshEntities(), state);
 
     act(() => {
-      result.current.refresh();
+      result.current.refresh({
+        vertexIds: [],
+        edgeIds: [],
+      });
     });
 
     await waitFor(() => {
@@ -125,17 +121,13 @@ describe("useRefreshEntities", () => {
     const vertexDetailsSpy = vi.spyOn(explorer, "vertexDetails");
     const edgeDetailsSpy = vi.spyOn(explorer, "edgeDetails");
 
-    const { result } = renderHookWithState(
-      () =>
-        useRefreshEntities({
-          vertexIds: [vertex.id],
-          edgeIds: [edge.id],
-        }),
-      state,
-    );
+    const { result } = renderHookWithState(() => useRefreshEntities(), state);
 
     act(() => {
-      result.current.refresh();
+      result.current.refresh({
+        vertexIds: [vertex.id],
+        edgeIds: [edge.id],
+      });
     });
 
     await waitFor(() => {
