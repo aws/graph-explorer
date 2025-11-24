@@ -10,3 +10,4 @@ export * from "./useTextTransform";
 export { default as usePrevious } from "./usePrevious";
 export { default as useTranslations } from "./useTranslations";
 export * from "./useRefreshEntities";
+export * from "./useContextMenuTarget";
