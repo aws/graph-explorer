@@ -2,7 +2,6 @@ import {
   Activity,
   type ComponentPropsWithRef,
   type MouseEvent,
-  useRef,
   useState,
 } from "react";
 import {
@@ -30,7 +29,6 @@ import {
   VertexSymbolByType,
 } from "@/components";
 import Graph from "@/components/Graph";
-import type { GraphRef } from "@/components/Graph/Graph";
 import type { ElementEventCallback } from "@/components/Graph/hooks/useAddClickEvents";
 import { edgesOutOfFocusIdsAtom } from "@/core/StateProvider/edges";
 import { nodesOutOfFocusIdsAtom } from "@/core/StateProvider/nodes";
@@ -58,6 +56,7 @@ import { graphLayoutSelectionAtom, SelectLayout } from "./SelectLayout";
 import { useGraphSelection } from "./useGraphSelection";
 import { cn, isVisible } from "@/utils";
 import { GraphViewerEmptyState } from "./GraphViewerEmptyState";
+import { GraphProvider } from "@/components/Graph/GraphContext";
 
 // Prevent open context menu on Windows
 function onContextMenu(e: MouseEvent<HTMLDivElement>) {
@@ -69,8 +68,17 @@ export default function GraphViewer({
   className,
   ...props
 }: Omit<ComponentPropsWithRef<"div">, "children" | "onContextMenu">) {
-  const graphRef = useRef<GraphRef | null>(null);
+  return (
+    <GraphProvider>
+      <GraphViewerContent className={className} {...props} />
+    </GraphProvider>
+  );
+}
 
+function GraphViewerContent({
+  className,
+  ...props
+}: Omit<ComponentPropsWithRef<"div">, "children" | "onContextMenu">) {
   const { graphSelection, replaceGraphSelection } = useGraphSelection();
   const selectedVertices = graphSelection.vertices.map(createRenderedVertexId);
   const selectedEdges = graphSelection.edges.map(createRenderedEdgeId);
@@ -103,8 +111,13 @@ export default function GraphViewer({
   };
 
   const [legendOpen, setLegendOpen] = useState(false);
-  const { onZoomIn, onZoomOut, onSaveScreenshot, onFitAllToCanvas } =
-    useGraphGlobalActions(graphRef);
+  const {
+    onZoomIn,
+    onZoomOut,
+    onSaveScreenshot,
+    onFitAllToCanvas,
+    onRunLayout,
+  } = useGraphGlobalActions();
 
   const {
     clearAllLayers,
@@ -155,9 +168,7 @@ export default function GraphViewer({
               tooltipText="Re-run Layout"
               icon={<GitCompareArrowsIcon />}
               variant="text"
-              onClick={() => {
-                graphRef.current?.runLayout();
-              }}
+              onClick={onRunLayout}
             />
             <IconButton
               tooltipText="Zoom to Fit"
@@ -169,7 +180,7 @@ export default function GraphViewer({
             <PanelHeaderActionButton
               label="Download Screenshot"
               icon={<ImageDownIcon />}
-              onActionClick={onSaveScreenshot}
+              onClick={onSaveScreenshot}
             />
             <ExportGraphButton />
             <ImportGraphButton />
@@ -177,31 +188,30 @@ export default function GraphViewer({
             <PanelHeaderActionButton
               label="Zoom in"
               icon={<ZoomInIcon />}
-              onActionClick={onZoomIn}
+              onClick={onZoomIn}
             />
             <PanelHeaderActionButton
               label="Zoom out"
               icon={<ZoomOutIcon />}
-              onActionClick={onZoomOut}
+              onClick={onZoomOut}
             />
             <PanelHeaderDivider />
             <PanelHeaderActionButton
               label="Clear canvas"
               icon={<CircleSlash2 />}
               color="danger"
-              onActionClick={onClearGraph}
+              onClick={onClearGraph}
             />
             <PanelHeaderActionButton
               label="Legend"
               icon={<BadgeInfoIcon />}
-              onActionClick={() => setLegendOpen(open => !open)}
+              onClick={() => setLegendOpen(open => !open)}
             />
           </PanelHeaderActions>
         </PanelHeader>
         <PanelContent className="bg-background-secondary grid" ref={parentRef}>
           <Activity mode={isVisible(!isEmpty)}>
             <Graph
-              ref={graphRef}
               nodes={nodes}
               edges={edges}
               badgesEnabled={false}
@@ -228,7 +238,6 @@ export default function GraphViewer({
                   className="z-menu"
                 >
                   <ContextMenu
-                    graphRef={graphRef}
                     onClose={clearAllLayers}
                     affectedNodesIds={contextNodeId ? [contextNodeId] : []}
                     affectedEdgesIds={contextEdgeId ? [contextEdgeId] : []}

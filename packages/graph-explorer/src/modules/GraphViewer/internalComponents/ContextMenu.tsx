@@ -1,4 +1,4 @@
-import type { PropsWithChildren, RefObject } from "react";
+import type { PropsWithChildren } from "react";
 import {
   Divider,
   EdgeIcon,
@@ -6,7 +6,6 @@ import {
   ListItem,
   StylingIcon,
 } from "@/components";
-import type { GraphRef } from "@/components/Graph/Graph";
 import {
   CenterGraphIcon,
   DetailsIcon,
@@ -44,14 +43,12 @@ import { useGraphSelection } from "../useGraphSelection";
 export type ContextMenuProps = {
   affectedNodesIds: VertexId[];
   affectedEdgesIds: EdgeId[];
-  graphRef: RefObject<GraphRef | null>;
   onClose?(): void;
 };
 
 const ContextMenu = ({
   affectedNodesIds,
   affectedEdgesIds,
-  graphRef,
   onClose,
 }: ContextMenuProps) => {
   const t = useTranslations();
@@ -71,7 +68,7 @@ const ContextMenu = ({
     onSaveScreenshot,
     onZoomIn,
     onZoomOut,
-  } = useGraphGlobalActions(graphRef);
+  } = useGraphGlobalActions();
 
   const nonEmptySelection =
     graphSelection.vertices.length || graphSelection.edges.length;

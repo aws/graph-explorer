@@ -38,6 +38,7 @@ import type { BadgeRenderer } from "./hooks/useRenderBadges";
 import useRenderBadges from "./hooks/useRenderBadges";
 import useUpdateLayout from "./hooks/useRunLayout";
 import useUpdateGraphElements from "./hooks/useUpdateGraphElements";
+import { useGraphRef } from "./GraphContext";
 
 cytoscape.use(klay);
 cytoscape.use(dagre);
@@ -132,7 +133,6 @@ export interface GraphProps<
   hideDefaultEdgeLabels?: boolean;
   defaultEdgeLabelAttribute?: string;
   hideEdges?: boolean;
-  ref?: React.Ref<GraphRef>;
 }
 
 const DEFAULT_LAYOUT_CONFIG = {};
@@ -202,7 +202,6 @@ export const Graph = ({
   defaultEdgeLabelAttribute,
   hideDefaultEdgeLabels = false,
   hideEdges,
-  ref,
   ...props
 }: GraphProps) => {
   // capture wrapper via callbackRef so it triggers a re-render (and thus our cy mounting effect)
@@ -351,8 +350,10 @@ export const Graph = ({
     mounted,
   });
 
+  // Set the graphRef context value so that the GraphContextProvider can access the graphRef
+  const graphRef = useGraphRef();
   useImperativeHandle(
-    ref,
+    graphRef,
     () => ({
       cytoscape: cy,
       runLayout: () => {

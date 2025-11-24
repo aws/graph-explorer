@@ -1,8 +1,9 @@
 import { saveAs } from "file-saver";
-import { type RefObject, useCallback, useEffect, useState } from "react";
-import type { GraphRef } from "@/components/Graph/Graph";
+import { useCallback, useEffect, useState } from "react";
+import { useGraphRef } from "@/components/Graph/GraphContext";
 
-const useGraphGlobalActions = (graphRef?: RefObject<GraphRef | null>) => {
+const useGraphGlobalActions = () => {
+  const graphRef = useGraphRef();
   const [isZoomInDisabled, setIsZoomInDisabled] = useState(false);
   const [isZoomOutDisabled, setIsZoomOutDisabled] = useState(false);
 
@@ -20,15 +21,12 @@ const useGraphGlobalActions = (graphRef?: RefObject<GraphRef | null>) => {
     // Call to set values on initialization
     updateFunction();
 
-    const cleanupFunction = (localGraphRef: RefObject<GraphRef | null>) => {
+    const cy = graphRef?.current?.cytoscape;
+    if (cy) {
+      cy.on("zoom", updateFunction);
       return () => {
-        localGraphRef?.current?.cytoscape?.off("zoom", updateFunction);
+        cy.off("zoom", updateFunction);
       };
-    };
-
-    if (graphRef?.current?.cytoscape) {
-      graphRef?.current?.cytoscape.on("zoom", updateFunction);
-      return cleanupFunction(graphRef);
     }
     // graphRef is a reference that doesn't change but cytoscape can
     //eslint-disable-next-line
@@ -85,6 +83,10 @@ const useGraphGlobalActions = (graphRef?: RefObject<GraphRef | null>) => {
     },
     [graphRef],
   );
+
+  const onRunLayout = useCallback(() => {
+    graphRef.current?.runLayout();
+  }, [graphRef]);
 
   const onCenterEntireGraph = useCallback(() => {
     graphRef?.current?.cytoscape?.center(
@@ -149,6 +151,7 @@ const useGraphGlobalActions = (graphRef?: RefObject<GraphRef | null>) => {
     onFitToCanvas,
     onFitSelectionToCanvas,
     onFitAllToCanvas,
+    onRunLayout,
     onCenterGraph,
     onCenterSelectedGraph,
     onCenterEntireGraph,
