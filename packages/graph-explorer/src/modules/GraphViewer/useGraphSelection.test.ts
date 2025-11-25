@@ -234,4 +234,70 @@ describe("useGraphSelection", () => {
 
     expect(mockAutoOpenDetails).not.toHaveBeenCalled();
   });
+
+  test("isVertexSelected should return true for selected vertex", () => {
+    const { result } = renderHookWithState(() => useGraphSelection());
+
+    const vertexId = createRandomVertexId();
+
+    act(() =>
+      result.current.replaceGraphSelection({
+        vertices: [vertexId],
+        disableSideEffects: true,
+      }),
+    );
+
+    expect(result.current.graphSelection.isVertexSelected(vertexId)).toBe(true);
+  });
+
+  test("isVertexSelected should return false for unselected vertex", () => {
+    const { result } = renderHookWithState(() => useGraphSelection());
+
+    const selectedVertexId = createRandomVertexId();
+    const unselectedVertexId = createRandomVertexId();
+
+    act(() =>
+      result.current.replaceGraphSelection({
+        vertices: [selectedVertexId],
+        disableSideEffects: true,
+      }),
+    );
+
+    expect(
+      result.current.graphSelection.isVertexSelected(unselectedVertexId),
+    ).toBe(false);
+  });
+
+  test("isEdgeSelected should return true for selected edge", () => {
+    const { result } = renderHookWithState(() => useGraphSelection());
+
+    const edgeId = createRandomEdgeId();
+
+    act(() =>
+      result.current.replaceGraphSelection({
+        edges: [edgeId],
+        disableSideEffects: true,
+      }),
+    );
+
+    expect(result.current.graphSelection.isEdgeSelected(edgeId)).toBe(true);
+  });
+
+  test("isEdgeSelected should return false for unselected edge", () => {
+    const { result } = renderHookWithState(() => useGraphSelection());
+
+    const selectedEdgeId = createRandomEdgeId();
+    const unselectedEdgeId = createRandomEdgeId();
+
+    act(() =>
+      result.current.replaceGraphSelection({
+        edges: [selectedEdgeId],
+        disableSideEffects: true,
+      }),
+    );
+
+    expect(result.current.graphSelection.isEdgeSelected(unselectedEdgeId)).toBe(
+      false,
+    );
+  });
 });

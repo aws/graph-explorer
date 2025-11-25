@@ -24,13 +24,30 @@ export function useGraphSelection() {
     /**
      * Current graph selection state.
      *
-     * Contains arrays of selected vertex and edge IDs.
+     * Contains arrays of selected vertex and edge IDs, and methods to check selection.
      */
     graphSelection: {
       /** Array of currently selected vertex IDs */
       vertices: Array.from(selectedVertices),
+
       /** Array of currently selected edge IDs */
       edges: Array.from(selectedEdges),
+
+      /**
+       * Checks if a vertex is currently selected.
+       *
+       * @param vertexId - The vertex ID to check
+       * @returns true if the vertex is selected, false otherwise
+       */
+      isVertexSelected: (vertexId: VertexId) => selectedVertices.has(vertexId),
+
+      /**
+       * Checks if an edge is currently selected.
+       *
+       * @param edgeId - The edge ID to check
+       * @returns true if the edge is selected, false otherwise
+       */
+      isEdgeSelected: (edgeId: EdgeId) => selectedEdges.has(edgeId),
     },
 
     /**
