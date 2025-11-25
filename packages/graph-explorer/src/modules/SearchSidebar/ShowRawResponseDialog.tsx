@@ -43,6 +43,7 @@ export function ShowRawResponseDialogButton({
               value={rawResponseText}
               options={{
                 readOnly: true,
+                ariaLabel: "Raw Query Response",
                 // Matches current tailwind padding of 2 or 0.5rem
                 padding: { top: 7, bottom: 7 },
               }}
