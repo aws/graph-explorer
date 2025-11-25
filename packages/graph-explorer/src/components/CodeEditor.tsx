@@ -55,7 +55,7 @@ export function CodeEditor({
 type MonacoThemeData = Parameters<Monaco["editor"]["defineTheme"]>[1];
 
 const lightTheme = createMonacoTheme({
-  // DEV NOTE: This is currently limited to the colors needed for JSON syntax higlighting.
+  // DEV NOTE: This is currently limited to the colors needed for JSON syntax highlighting.
   foreground: "#1f2937",
   background: "#f9fafb",
   mutedForeground: "#9ca3af",
