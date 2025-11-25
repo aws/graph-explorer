@@ -87,17 +87,17 @@ export function useContextMenuTarget(params: {
   const edges = useAtomValue(edgesAtom);
 
   // Check if affected is within selection
-  const affectedVertexInSelection =
+  const hasAffectedVertexInSelection =
     affectedVertexIds.length > 0 &&
     affectedVertexIds.some(id => selectedVertexIds.includes(id));
-  const affectedEdgeInSelection =
+  const hasAffectedEdgeInSelection =
     affectedEdgeIds.length > 0 &&
     affectedEdgeIds.some(id => selectedEdgeIds.includes(id));
-  const affectedWithinSelection =
-    affectedVertexInSelection || affectedEdgeInSelection;
+  const hasAffectedWithinSelection =
+    hasAffectedVertexInSelection || hasAffectedEdgeInSelection;
 
   // Use selection when affected is within it
-  if (affectedWithinSelection) {
+  if (hasAffectedWithinSelection) {
     // Single vertex selected that matches single affected
     if (
       selectedVertexIds.length === 1 &&
