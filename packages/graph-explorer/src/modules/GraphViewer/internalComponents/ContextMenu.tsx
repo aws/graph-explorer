@@ -20,11 +20,13 @@ import {
 } from "@/core";
 import {
   useClearGraph,
+  useExpandNode,
   useRefreshEntities,
   useRemoveFromGraph,
   useTranslations,
   useContextMenuTarget,
 } from "@/hooks";
+import { useDefaultNeighborExpansionLimit } from "@/hooks/useExpandNode";
 import useGraphGlobalActions from "../useGraphGlobalActions";
 import {
   CircleSlash2,
@@ -94,9 +96,16 @@ function SingleVertexMenu({ vertexId }: { vertexId: VertexId }) {
   const removeFromGraph = useRemoveFromGraph();
   const openNodeStyleDialog = useOpenNodeStyleDialog();
   const { onCenterVertex, onFitVertexToCanvas } = useGraphGlobalActions();
+  const { expandNode } = useExpandNode();
+  const defaultNeighborExpansionLimit = useDefaultNeighborExpansionLimit();
 
   const handleCenter = () => onCenterVertex(vertexId);
   const handleFit = () => onFitVertexToCanvas(vertexId);
+  const handleExpand = () =>
+    expandNode({
+      vertexId,
+      limit: defaultNeighborExpansionLimit ?? undefined,
+    });
 
   const openSidebarPanel = (panelName: SidebarItems) => () => {
     setUserLayout(prev => ({ ...prev, activeSidebarItem: panelName }));
@@ -118,6 +127,15 @@ function SingleVertexMenu({ vertexId }: { vertexId: VertexId }) {
         {vertex.displayName}
       </ContextMenuTitle>
       <Divider />
+      <ContextMenuItem onClick={handleExpand}>
+        <ExpandGraphIcon />
+        Expand {t("graph-viewer.node").toLowerCase()}
+      </ContextMenuItem>
+      <ContextMenuItem onClick={handleRefresh}>
+        <RefreshCwIcon />
+        Refresh {t("graph-viewer.node").toLowerCase()}
+      </ContextMenuItem>
+      <Divider />
       <ContextMenuItem onClick={handleFit}>
         <FullscreenIcon />
         Fit {t("graph-viewer.node").toLowerCase()} to frame
@@ -126,18 +144,14 @@ function SingleVertexMenu({ vertexId }: { vertexId: VertexId }) {
         <CenterGraphIcon />
         Center {t("graph-viewer.node").toLowerCase()}
       </ContextMenuItem>
-      <ContextMenuItem onClick={handleRefresh}>
-        <RefreshCwIcon />
-        Refresh {t("graph-viewer.node").toLowerCase()}
-      </ContextMenuItem>
       <Divider />
       <ContextMenuItem onClick={openSidebarPanel("details")}>
         <DetailsIcon />
-        Details panel
+        Show details panel
       </ContextMenuItem>
       <ContextMenuItem onClick={openSidebarPanel("expand")}>
         <ExpandGraphIcon />
-        Expand panel
+        Show expand panel
       </ContextMenuItem>
       <ContextMenuItem onClick={handleOpenStyle}>
         <StylingIcon />
@@ -184,6 +198,11 @@ function SingleEdgeMenu({ edgeId }: { edgeId: EdgeId }) {
         {edge.displayTypes}
       </ContextMenuTitle>
       <Divider />
+      <ContextMenuItem onClick={handleRefresh}>
+        <RefreshCwIcon />
+        Refresh {t("graph-viewer.edge").toLowerCase()}
+      </ContextMenuItem>
+      <Divider />
       <ContextMenuItem onClick={handleFit}>
         <FullscreenIcon />
         Fit {t("graph-viewer.edge").toLowerCase()} to frame
@@ -192,14 +211,10 @@ function SingleEdgeMenu({ edgeId }: { edgeId: EdgeId }) {
         <CenterGraphIcon />
         Center {t("graph-viewer.edge").toLowerCase()}
       </ContextMenuItem>
-      <ContextMenuItem onClick={handleRefresh}>
-        <RefreshCwIcon />
-        Refresh {t("graph-viewer.edge").toLowerCase()}
-      </ContextMenuItem>
       <Divider />
       <ContextMenuItem onClick={openSidebarPanel("details")}>
         <DetailsIcon />
-        Details panel
+        Show details panel
       </ContextMenuItem>
       <ContextMenuItem onClick={handleOpenStyle}>
         <StylingIcon />
