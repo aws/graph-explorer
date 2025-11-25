@@ -7,6 +7,7 @@ import {
 } from "@/utils/testing";
 import { useContextMenuTarget } from "./useContextMenuTarget";
 import type { EdgeId, VertexId } from "@/core";
+import { createGraphSelection } from "@/modules/GraphViewer";
 
 describe("useContextMenuTarget", () => {
   let state: DbState;
@@ -21,7 +22,19 @@ describe("useContextMenuTarget", () => {
     selectedVertexIds: VertexId[];
     selectedEdgeIds: EdgeId[];
   }) {
-    return renderHookWithState(() => useContextMenuTarget(params), state);
+    const graphSelection = createGraphSelection(
+      new Set(params.selectedVertexIds),
+      new Set(params.selectedEdgeIds),
+    );
+    return renderHookWithState(
+      () =>
+        useContextMenuTarget({
+          affectedVertexIds: params.affectedVertexIds,
+          affectedEdgeIds: params.affectedEdgeIds,
+          graphSelection,
+        }),
+      state,
+    );
   }
 
   it("should return single-vertex when one vertex is affected and not in selection", () => {

@@ -57,8 +57,7 @@ export default function ContextMenu({
   const target = useContextMenuTarget({
     affectedVertexIds: affectedNodesIds,
     affectedEdgeIds: affectedEdgesIds,
-    selectedVertexIds: graphSelection.vertices,
-    selectedEdgeIds: graphSelection.edges,
+    graphSelection,
   });
 
   return (

@@ -2,6 +2,7 @@ import type { EdgeId, VertexId } from "@/core";
 import { nodesAtom } from "@/core/StateProvider/nodes";
 import { edgesAtom } from "@/core/StateProvider/edges";
 import { useAtomValue } from "jotai";
+import type { GraphSelection } from "@/modules/GraphViewer/useGraphSelection";
 
 /**
  * Discriminated union representing the target of a context menu action.
@@ -35,8 +36,7 @@ export type ContextMenuTarget =
  *
  * @param params.affectedVertexIds - Vertex IDs directly affected by the context menu trigger (e.g., right-clicked)
  * @param params.affectedEdgeIds - Edge IDs directly affected by the context menu trigger
- * @param params.selectedVertexIds - Currently selected vertex IDs in the graph
- * @param params.selectedEdgeIds - Currently selected edge IDs in the graph
+ * @param params.graphSelection - Current graph selection state with vertices, edges, and selection check methods
  * @returns A discriminated union indicating the target type and relevant entity IDs
  *
  * @example
@@ -44,8 +44,7 @@ export type ContextMenuTarget =
  * const target = useContextMenuTarget({
  *   affectedVertexIds: ['v1'],
  *   affectedEdgeIds: [],
- *   selectedVertexIds: [],
- *   selectedEdgeIds: []
+ *   graphSelection: { vertices: [], edges: [], isVertexSelected: () => false, isEdgeSelected: () => false }
  * });
  * // Returns: { type: "single-vertex", vertexId: "v1" }
  *
@@ -54,8 +53,7 @@ export type ContextMenuTarget =
  * const target = useContextMenuTarget({
  *   affectedVertexIds: ['v1'],
  *   affectedEdgeIds: [],
- *   selectedVertexIds: ['v1', 'v2', 'v3'],
- *   selectedEdgeIds: []
+ *   graphSelection: { vertices: ['v1', 'v2', 'v3'], edges: [], isVertexSelected: (id) => ['v1', 'v2', 'v3'].includes(id), isEdgeSelected: () => false }
  * });
  * // Returns: { type: "multiple-vertices", vertexIds: ["v1", "v2", "v3"] }
  *
@@ -64,24 +62,19 @@ export type ContextMenuTarget =
  * const target = useContextMenuTarget({
  *   affectedVertexIds: [],
  *   affectedEdgeIds: [],
- *   selectedVertexIds: [],
- *   selectedEdgeIds: []
+ *   graphSelection: { vertices: [], edges: [], isVertexSelected: () => false, isEdgeSelected: () => false }
  * });
  * // Returns: { type: "none", vertexIds: [...all graph vertices], edgeIds: [...all graph edges] }
  */
-export function useContextMenuTarget(params: {
+export function useContextMenuTarget({
+  affectedVertexIds,
+  affectedEdgeIds,
+  graphSelection,
+}: {
   affectedVertexIds: VertexId[];
   affectedEdgeIds: EdgeId[];
-  selectedVertexIds: VertexId[];
-  selectedEdgeIds: EdgeId[];
+  graphSelection: GraphSelection;
 }): ContextMenuTarget {
-  const {
-    affectedVertexIds,
-    affectedEdgeIds,
-    selectedVertexIds,
-    selectedEdgeIds,
-  } = params;
-
   // All the entities in the graph canvas
   const nodes = useAtomValue(nodesAtom);
   const edges = useAtomValue(edgesAtom);
@@ -89,10 +82,10 @@ export function useContextMenuTarget(params: {
   // Check if affected is within selection
   const hasAffectedVertexInSelection =
     affectedVertexIds.length > 0 &&
-    affectedVertexIds.some(id => selectedVertexIds.includes(id));
+    affectedVertexIds.some(id => graphSelection.isVertexSelected(id));
   const hasAffectedEdgeInSelection =
     affectedEdgeIds.length > 0 &&
-    affectedEdgeIds.some(id => selectedEdgeIds.includes(id));
+    affectedEdgeIds.some(id => graphSelection.isEdgeSelected(id));
   const hasAffectedWithinSelection =
     hasAffectedVertexInSelection || hasAffectedEdgeInSelection;
 
