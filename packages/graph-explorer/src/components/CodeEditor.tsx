@@ -8,7 +8,6 @@ loader.init().then(monaco => {
 
 export function CodeEditor({
   options,
-  wrapperProps,
   ...props
 }: ComponentProps<typeof Editor>) {
   return (
@@ -19,12 +18,6 @@ export function CodeEditor({
         fontSize: 14,
         fontFamily:
           "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
-        // Matches current tailwind padding of 2 or 0.5rem
-        padding: {
-          top: 7,
-          bottom: 7,
-          ...options?.padding,
-        },
         scrollBeyondLastLine: false,
         lineNumbersMinChars: 3,
 
@@ -54,7 +47,6 @@ export function CodeEditor({
 
         ...options,
       }}
-      wrapperProps={{ className: "pl-2", ...wrapperProps }}
       {...props}
     />
   );

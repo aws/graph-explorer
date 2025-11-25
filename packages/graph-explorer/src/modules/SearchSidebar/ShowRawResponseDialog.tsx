@@ -43,6 +43,8 @@ export function ShowRawResponseDialogButton({
               value={rawResponseText}
               options={{
                 readOnly: true,
+                // Matches current tailwind padding of 2 or 0.5rem
+                padding: { top: 7, bottom: 7 },
               }}
               wrapperProps={{ className: "pl-2" }}
             />
