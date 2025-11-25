@@ -99,6 +99,15 @@ vi.mock("@/utils/logger", () => ({
   },
 }));
 
+// Mock Monaco editor to prevent script injection errors in tests
+vi.mock("@monaco-editor/react", () => ({
+  Editor: () => null,
+  loader: {
+    init: () => Promise.resolve({ editor: { defineTheme: vi.fn() } }),
+    config: vi.fn(),
+  },
+}));
+
 // Stub out localforage using map
 let localForageStore: Map<string, any> = new Map();
 vi.mock(import("localforage"), () => {

@@ -1,5 +1,6 @@
 import {
   Button,
+  CodeEditor,
   Dialog,
   DialogBody,
   DialogClose,
@@ -28,17 +29,27 @@ export function ShowRawResponseDialogButton({
           Raw Response
         </Button>
       </DialogTrigger>
-      <DialogContent className="flex w-5xl flex-col">
+      <DialogContent className="grid h-full w-5xl grid-rows-[auto_1fr_auto]">
         <DialogHeader>
           <DialogTitle>Raw Query Response</DialogTitle>
           <DialogDescription>
             The raw response from the database query
           </DialogDescription>
         </DialogHeader>
-        <DialogBody className="grow overflow-auto">
-          <pre className="bg-muted overflow-auto rounded-lg border p-4 text-sm">
-            <code>{rawResponseText}</code>
-          </pre>
+        <DialogBody className="grid min-h-0 py-3">
+          <div className="overflow-auto rounded-lg border bg-gray-50 shadow-xs">
+            <CodeEditor
+              defaultLanguage="json"
+              value={rawResponseText}
+              options={{
+                readOnly: true,
+                ariaLabel: "Raw Query Response",
+                // Matches current tailwind padding of 2 or 0.5rem
+                padding: { top: 7, bottom: 7 },
+              }}
+              wrapperProps={{ className: "pl-2" }}
+            />
+          </div>
         </DialogBody>
         <DialogFooter className="justify-between">
           <CopyToClipboardButton text={rawResponseText} />

@@ -8,6 +8,7 @@ export * from "./CheckboxList";
 export { default as Chip } from "./Chip";
 export * from "./Chip";
 
+export * from "./CodeEditor";
 export * from "./Collapsible";
 export * from "./ColorPopover";
 
