@@ -1,9 +1,13 @@
-import { Editor, type Monaco } from "@monaco-editor/react";
+import { Editor, loader, type Monaco } from "@monaco-editor/react";
 import type { ComponentProps } from "react";
+
+// Register theme once when Monaco loads
+loader.init().then(monaco => {
+  monaco.editor.defineTheme("graph-explorer-light", lightTheme);
+});
 
 export function CodeEditor({
   options,
-  beforeMount,
   wrapperProps,
   ...props
 }: ComponentProps<typeof Editor>) {
@@ -51,12 +55,6 @@ export function CodeEditor({
         ...options,
       }}
       wrapperProps={{ className: "pl-2", ...wrapperProps }}
-      beforeMount={monaco => {
-        monaco.editor.defineTheme("graph-explorer-light", lightTheme);
-        if (beforeMount) {
-          beforeMount(monaco);
-        }
-      }}
       {...props}
     />
   );
