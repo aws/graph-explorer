@@ -47,9 +47,6 @@ export * from "./KeyboardKey";
 
 export * from "./Label";
 
-export { default as ListItem } from "./ListItem";
-export * from "./ListItem";
-
 export * from "./ListRow";
 
 export * from "./Spinner";

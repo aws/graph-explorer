@@ -1,34 +1,34 @@
-import type { PropsWithChildren } from "react";
-import {
-  Divider,
-  EdgeIcon,
-  GraphIcon,
-  ListItem,
-  StylingIcon,
-} from "@/components";
+import type {
+  ComponentPropsWithRef,
+  MouseEventHandler,
+  PropsWithChildren,
+} from "react";
+import { createContext, use } from "react";
+import { Divider, EdgeIcon, GraphIcon, StylingIcon } from "@/components";
 import {
   CenterGraphIcon,
   DetailsIcon,
   ExpandGraphIcon,
-  FitToFrameIcon,
 } from "@/components/icons";
 import {
-  useDisplayEdgesInCanvas,
-  useDisplayVerticesInCanvas,
   type EdgeId,
   type VertexId,
   userLayoutAtom,
   type SidebarItems,
+  useDisplayVertex,
+  useDisplayEdgeInCanvas,
 } from "@/core";
 import {
   useClearGraph,
   useRefreshEntities,
   useRemoveFromGraph,
   useTranslations,
+  useContextMenuTarget,
 } from "@/hooks";
 import useGraphGlobalActions from "../useGraphGlobalActions";
 import {
   CircleSlash2,
+  FullscreenIcon,
   ImageDownIcon,
   MinusCircleIcon,
   RefreshCwIcon,
@@ -39,255 +39,271 @@ import { useOpenNodeStyleDialog } from "@/modules/NodesStyling";
 import { useOpenEdgeStyleDialog } from "@/modules/EdgesStyling";
 import { useSetAtom } from "jotai";
 import { useGraphSelection } from "../useGraphSelection";
+import { cn } from "@/utils";
 
-export type ContextMenuProps = {
+type ContextMenuProps = {
   affectedNodesIds: VertexId[];
   affectedEdgesIds: EdgeId[];
-  onClose?(): void;
+  onClose(): void;
 };
 
-const ContextMenu = ({
+export default function ContextMenu({
   affectedNodesIds,
   affectedEdgesIds,
   onClose,
-}: ContextMenuProps) => {
-  const t = useTranslations();
-  const displayNodes = useDisplayVerticesInCanvas();
-  const displayEdges = useDisplayEdgesInCanvas();
-  const { graphSelection, replaceGraphSelection } = useGraphSelection();
-  const setUserLayout = useSetAtom(userLayoutAtom);
-  const refreshEntities = useRefreshEntities({
-    vertexIds: affectedNodesIds,
-    edgeIds: affectedEdgesIds,
+}: ContextMenuProps) {
+  const { graphSelection } = useGraphSelection();
+
+  const target = useContextMenuTarget({
+    affectedVertexIds: affectedNodesIds,
+    affectedEdgeIds: affectedEdgesIds,
+    graphSelection,
   });
 
+  return (
+    <ContextMenuCloseContext.Provider value={onClose}>
+      {target.type === "single-vertex" && (
+        <SingleVertexMenu vertexId={target.vertexId} />
+      )}
+      {target.type === "single-edge" && (
+        <SingleEdgeMenu edgeId={target.edgeId} />
+      )}
+      {target.type === "multiple-vertices" && (
+        <MultipleEntitiesMenu vertexIds={target.vertexIds} edgeIds={[]} />
+      )}
+      {target.type === "multiple-edges" && (
+        <MultipleEntitiesMenu edgeIds={target.edgeIds} vertexIds={[]} />
+      )}
+      {target.type === "multiple-vertices-and-edges" && (
+        <MultipleEntitiesMenu
+          vertexIds={target.vertexIds}
+          edgeIds={target.edgeIds}
+        />
+      )}
+      {target.type === "none" && <NoTargetMenu />}
+    </ContextMenuCloseContext.Provider>
+  );
+}
+
+function SingleVertexMenu({ vertexId }: { vertexId: VertexId }) {
+  const t = useTranslations();
+  const vertex = useDisplayVertex(vertexId);
+  const setUserLayout = useSetAtom(userLayoutAtom);
+  const { replaceGraphSelection } = useGraphSelection();
+  const { refresh: refreshEntities } = useRefreshEntities();
+  const removeFromGraph = useRemoveFromGraph();
+  const openNodeStyleDialog = useOpenNodeStyleDialog();
+  const { onCenterVertex, onFitVertexToCanvas } = useGraphGlobalActions();
+
+  const handleCenter = () => onCenterVertex(vertexId);
+  const handleFit = () => onFitVertexToCanvas(vertexId);
+
+  const openSidebarPanel = (panelName: SidebarItems) => () => {
+    setUserLayout(prev => ({ ...prev, activeSidebarItem: panelName }));
+    replaceGraphSelection({ vertices: [vertexId], disableSideEffects: true });
+  };
+
+  const handleRefresh = () =>
+    refreshEntities({ vertexIds: [vertexId], edgeIds: [] });
+
+  const handleRemove = () =>
+    removeFromGraph({ vertices: [vertexId], edges: [] });
+
+  const handleOpenStyle = () => openNodeStyleDialog(vertex.primaryType);
+
+  return (
+    <ContextMenuContent>
+      <ContextMenuTitle>
+        <GraphIcon />
+        {vertex.displayName}
+      </ContextMenuTitle>
+      <Divider />
+      <ContextMenuItem onClick={handleFit}>
+        <FullscreenIcon />
+        Fit {t("graph-viewer.node").toLowerCase()} to frame
+      </ContextMenuItem>
+      <ContextMenuItem onClick={handleCenter}>
+        <CenterGraphIcon />
+        Center {t("graph-viewer.node").toLowerCase()}
+      </ContextMenuItem>
+      <ContextMenuItem onClick={handleRefresh}>
+        <RefreshCwIcon />
+        Refresh {t("graph-viewer.node").toLowerCase()}
+      </ContextMenuItem>
+      <Divider />
+      <ContextMenuItem onClick={openSidebarPanel("details")}>
+        <DetailsIcon />
+        Details panel
+      </ContextMenuItem>
+      <ContextMenuItem onClick={openSidebarPanel("expand")}>
+        <ExpandGraphIcon />
+        Expand panel
+      </ContextMenuItem>
+      <ContextMenuItem onClick={handleOpenStyle}>
+        <StylingIcon />
+        Customize {t("graph-viewer.node").toLowerCase()} style
+      </ContextMenuItem>
+      <Divider />
+      <ContextMenuItem onClick={handleRemove}>
+        <MinusCircleIcon color="red" />
+        Remove {t("graph-viewer.node").toLowerCase()} from view
+      </ContextMenuItem>
+    </ContextMenuContent>
+  );
+}
+
+function SingleEdgeMenu({ edgeId }: { edgeId: EdgeId }) {
+  const t = useTranslations();
+  const edge = useDisplayEdgeInCanvas(edgeId);
+  const setUserLayout = useSetAtom(userLayoutAtom);
+  const { replaceGraphSelection } = useGraphSelection();
+  const { refresh: refreshEntities } = useRefreshEntities();
+  const removeFromGraph = useRemoveFromGraph();
+  const openEdgeStyleDialog = useOpenEdgeStyleDialog();
+  const { onCenterEdge, onFitEdgeToCanvas } = useGraphGlobalActions();
+
+  const handleCenter = () => onCenterEdge(edgeId);
+  const handleFit = () => onFitEdgeToCanvas(edgeId);
+
+  const openSidebarPanel = (panelName: SidebarItems) => () => {
+    setUserLayout(prev => ({ ...prev, activeSidebarItem: panelName }));
+    replaceGraphSelection({ edges: [edgeId], disableSideEffects: true });
+  };
+
+  const handleRefresh = () =>
+    refreshEntities({ vertexIds: [], edgeIds: [edgeId] });
+
+  const handleRemove = () => removeFromGraph({ vertices: [], edges: [edgeId] });
+
+  const handleOpenStyle = () => openEdgeStyleDialog(edge.type);
+
+  return (
+    <ContextMenuContent>
+      <ContextMenuTitle>
+        <EdgeIcon />
+        {edge.displayTypes}
+      </ContextMenuTitle>
+      <Divider />
+      <ContextMenuItem onClick={handleFit}>
+        <FullscreenIcon />
+        Fit {t("graph-viewer.edge").toLowerCase()} to frame
+      </ContextMenuItem>
+      <ContextMenuItem onClick={handleCenter}>
+        <CenterGraphIcon />
+        Center {t("graph-viewer.edge").toLowerCase()}
+      </ContextMenuItem>
+      <ContextMenuItem onClick={handleRefresh}>
+        <RefreshCwIcon />
+        Refresh {t("graph-viewer.edge").toLowerCase()}
+      </ContextMenuItem>
+      <Divider />
+      <ContextMenuItem onClick={openSidebarPanel("details")}>
+        <DetailsIcon />
+        Details panel
+      </ContextMenuItem>
+      <ContextMenuItem onClick={handleOpenStyle}>
+        <StylingIcon />
+        Customize {t("graph-viewer.edge").toLowerCase()} style
+      </ContextMenuItem>
+      <Divider />
+      <ContextMenuItem onClick={handleRemove}>
+        <MinusCircleIcon color="red" />
+        Remove {t("graph-viewer.edge").toLowerCase()} from view
+      </ContextMenuItem>
+    </ContextMenuContent>
+  );
+}
+
+function MultipleEntitiesMenu({
+  vertexIds,
+  edgeIds,
+}: {
+  vertexIds: VertexId[];
+  edgeIds: EdgeId[];
+}) {
+  const { onFitSelectionToCanvas, onCenterGraph } = useGraphGlobalActions();
+  const removeFromGraph = useRemoveFromGraph();
+
+  const handleRemove = () => {
+    removeFromGraph({ vertices: vertexIds, edges: edgeIds });
+  };
+
+  return (
+    <ContextMenuContent>
+      <ContextMenuItem onClick={onFitSelectionToCanvas}>
+        <FullscreenIcon />
+        Fit selection to frame
+      </ContextMenuItem>
+      <ContextMenuItem onClick={onCenterGraph}>
+        <CenterGraphIcon />
+        Center selection
+      </ContextMenuItem>
+      <Divider />
+      <ContextMenuItem onClick={handleRemove}>
+        <MinusCircleIcon color="red" />
+        Remove selection from view
+      </ContextMenuItem>
+    </ContextMenuContent>
+  );
+}
+
+function NoTargetMenu() {
   const {
-    onFitToCanvas,
+    onFitAllToCanvas,
     onCenterGraph,
-    onCenterSelectedGraph,
     onSaveScreenshot,
     onZoomIn,
     onZoomOut,
   } = useGraphGlobalActions();
-
-  const nonEmptySelection =
-    graphSelection.vertices.length || graphSelection.edges.length;
-
-  const openNodeStyleDialog = useOpenNodeStyleDialog();
-  const openEdgeStyleDialog = useOpenEdgeStyleDialog();
-
-  const openSidebarPanel = (panelName: SidebarItems) => () => {
-    setUserLayout(prev => {
-      return {
-        ...prev,
-        activeSidebarItem: panelName,
-      };
-    });
-    if (affectedNodesIds.length) {
-      replaceGraphSelection({
-        vertices: affectedNodesIds,
-        disableSideEffects: true,
-      });
-    } else if (affectedEdgesIds.length) {
-      replaceGraphSelection({
-        edges: affectedEdgesIds,
-        disableSideEffects: true,
-      });
-    }
-
-    onClose?.();
-  };
-
-  const openNodeStyle = (nodeType: string) => () => {
-    openNodeStyleDialog(nodeType);
-    onClose?.();
-  };
-
-  const openEdgeStyle = (edgeType: string) => () => {
-    openEdgeStyleDialog(edgeType);
-    onClose?.();
-  };
-
-  const handleFitToFrame = () => {
-    onFitToCanvas();
-    onClose?.();
-  };
-
-  const handleCenter = () => {
-    if (nonEmptySelection) {
-      onCenterSelectedGraph();
-    } else {
-      onCenterGraph();
-    }
-    onClose?.();
-  };
-
-  const handleDownloadScreenshot = () => {
-    onSaveScreenshot();
-    onClose?.();
-  };
-
-  const handleZoomIn = () => {
-    onZoomIn();
-    onClose?.();
-  };
-
-  const handleZoomOut = () => {
-    onZoomOut();
-    onClose?.();
-  };
-
-  const removeFromGraph = useRemoveFromGraph();
-  const handleRemoveFromCanvas =
-    (nodesIds: VertexId[], edgesIds: EdgeId[]) => () => {
-      removeFromGraph({ vertices: nodesIds, edges: edgesIds });
-      onClose?.();
-    };
-
   const clearGraph = useClearGraph();
-  const handleRemoveAllFromCanvas = () => {
-    clearGraph();
-    onClose?.();
-  };
-
-  const onRefresh = () => {
-    refreshEntities.refresh();
-    onClose?.();
-  };
-
-  const noSelectionOrNotAffected =
-    affectedNodesIds.length === 0 &&
-    graphSelection.vertices.length === 0 &&
-    affectedEdgesIds.length === 0 &&
-    graphSelection.edges.length === 0;
-
-  const selectedButNoAffected =
-    affectedNodesIds.length === 0 &&
-    affectedEdgesIds.length === 0 &&
-    graphSelection.vertices.length + graphSelection.edges.length > 0;
-
-  const affectedNode =
-    affectedNodesIds.length === 1
-      ? displayNodes.get(affectedNodesIds[0])
-      : undefined;
-  const affectedEdge =
-    affectedEdgesIds.length === 1
-      ? displayEdges.get(affectedEdgesIds[0])
-      : undefined;
-
-  if (affectedNode) {
-    return (
-      <Layout>
-        <ListItem className="font-bold">
-          <GraphIcon />
-          {affectedNode.displayName}
-        </ListItem>
-        <Divider />
-        <ListItem onClick={onRefresh}>
-          <RefreshCwIcon />
-          Refresh {t("graph-viewer.node").toLowerCase()}
-        </ListItem>
-        <ListItem onClick={openSidebarPanel("details")}>
-          <DetailsIcon />
-          Details panel
-        </ListItem>
-        <ListItem onClick={openSidebarPanel("expand")}>
-          <ExpandGraphIcon />
-          Expand panel
-        </ListItem>
-        <ListItem onClick={openNodeStyle(affectedNode.primaryType)}>
-          <StylingIcon />
-          Customize {t("graph-viewer.node").toLowerCase()} style
-        </ListItem>
-        <Divider />
-        <ListItem onClick={handleRemoveFromCanvas([affectedNode.id], [])}>
-          <MinusCircleIcon color="red" />
-          Remove {t("graph-viewer.node").toLowerCase()} from view
-        </ListItem>
-      </Layout>
-    );
-  }
-
-  if (affectedEdge) {
-    return (
-      <Layout>
-        <ListItem className="font-bold">
-          <EdgeIcon />
-          {affectedEdge.displayTypes}
-        </ListItem>
-        <Divider />
-        <ListItem onClick={onRefresh}>
-          <RefreshCwIcon />
-          Refresh {t("graph-viewer.edge").toLowerCase()}
-        </ListItem>
-        <ListItem onClick={openSidebarPanel("details")}>
-          <DetailsIcon />
-          Details Panel
-        </ListItem>
-        <ListItem onClick={openEdgeStyle(affectedEdge.type)}>
-          <StylingIcon />
-          Customize {t("graph-viewer.edge").toLocaleLowerCase()} style
-        </ListItem>
-        <Divider />
-        <ListItem onClick={handleRemoveFromCanvas([], [affectedEdge.id])}>
-          <MinusCircleIcon color="red" />
-          Remove {t("graph-viewer.edge")} from canvas
-        </ListItem>
-      </Layout>
-    );
-  }
 
   return (
-    <Layout>
-      <ListItem onClick={handleFitToFrame}>
-        <FitToFrameIcon />
-        {nonEmptySelection ? "Fit Selection to Frame" : "Fit to Frame"}
-      </ListItem>
-      <ListItem onClick={handleCenter}>
+    <ContextMenuContent>
+      <ContextMenuItem onClick={onFitAllToCanvas}>
+        <FullscreenIcon />
+        Fit to frame
+      </ContextMenuItem>
+      <ContextMenuItem onClick={onCenterGraph}>
         <CenterGraphIcon />
-        {nonEmptySelection ? "Center Selection" : "Center"}
-      </ListItem>
-      <ListItem onClick={handleDownloadScreenshot}>
+        Center
+      </ContextMenuItem>
+      <ContextMenuItem onClick={onSaveScreenshot}>
         <ImageDownIcon />
-        Download Screenshot
-      </ListItem>
+        Download screenshot
+      </ContextMenuItem>
       <Divider />
-      <ListItem onClick={handleZoomIn}>
+      <ContextMenuItem onClick={onZoomIn}>
         <ZoomInIcon />
         Zoom in
-      </ListItem>
-      <ListItem onClick={handleZoomOut}>
+      </ContextMenuItem>
+      <ContextMenuItem onClick={onZoomOut}>
         <ZoomOutIcon />
         Zoom out
-      </ListItem>
-      {selectedButNoAffected && (
-        <>
-          <Divider />
-          <ListItem
-            onClick={handleRemoveFromCanvas(
-              graphSelection.vertices,
-              graphSelection.edges,
-            )}
-          >
-            <CircleSlash2 color="red" />
-            Remove selection from canvas
-          </ListItem>
-        </>
-      )}
-      {noSelectionOrNotAffected && (
-        <>
-          <Divider />
-          <ListItem onClick={handleRemoveAllFromCanvas}>
-            <CircleSlash2 color="red" />
-            Clear canvas
-          </ListItem>
-        </>
-      )}
-    </Layout>
+      </ContextMenuItem>
+      <Divider />
+      <ContextMenuItem onClick={clearGraph}>
+        <CircleSlash2 color="red" />
+        Clear canvas
+      </ContextMenuItem>
+    </ContextMenuContent>
   );
-};
+}
 
-function Layout({ children }: PropsWithChildren) {
+const ContextMenuCloseContext = createContext<(() => void) | undefined>(
+  undefined,
+);
+
+function useContextMenuClose() {
+  const value = use(ContextMenuCloseContext);
+  if (!value) {
+    throw new Error(
+      "useContextMenuClose must be used within a ContextMenu component",
+    );
+  }
+  return value;
+}
+
+function ContextMenuContent({ children }: PropsWithChildren) {
   return (
     <div className="bg-background-default rounded-lg p-1 shadow-lg">
       {children}
@@ -295,4 +311,42 @@ function Layout({ children }: PropsWithChildren) {
   );
 }
 
-export default ContextMenu;
+function ContextMenuItem({
+  className,
+  onClick,
+  ...props
+}: ComponentPropsWithRef<"button"> & {
+  onClick: MouseEventHandler<HTMLDivElement>;
+}) {
+  const onClose = useContextMenuClose();
+  const handleClick: MouseEventHandler<HTMLButtonElement> = e => {
+    onClick?.(e);
+    onClose();
+  };
+
+  return (
+    <button
+      className={cn(
+        "text-text-primary [&_svg]:text-primary-dark hover:bg-background-secondary line-clamp-1 flex w-full flex-row items-center gap-3 rounded-sm px-3 py-2 hover:cursor-pointer [&_svg]:size-5",
+        className,
+      )}
+      onClick={handleClick}
+      {...props}
+    />
+  );
+}
+
+function ContextMenuTitle({
+  className,
+  ...props
+}: ComponentPropsWithRef<"div">) {
+  return (
+    <div
+      className={cn(
+        "text-text-primary [&_svg]:text-primary-dark line-clamp-1 flex flex-row items-center gap-3 rounded-sm px-3 py-2 font-bold [&_svg]:size-5",
+        className,
+      )}
+      {...props}
+    />
+  );
+}

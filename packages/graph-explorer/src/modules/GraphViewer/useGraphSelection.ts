@@ -8,6 +8,55 @@ import { useAtom } from "jotai";
 import { useAutoOpenDetailsSidebar } from "./useAutoOpenDetailsSidebar";
 
 /**
+ * Creates a graph selection object from sets of vertex and edge IDs.
+ *
+ * @param selectedVertices - Set of selected vertex IDs
+ * @param selectedEdges - Set of selected edge IDs
+ * @returns Graph selection object with arrays and selection check methods
+ */
+export function createGraphSelection(
+  selectedVertices: Set<VertexId>,
+  selectedEdges: Set<EdgeId>,
+) {
+  return {
+    /** Array of currently selected vertex IDs */
+    vertices: Array.from(selectedVertices),
+
+    /** Array of currently selected edge IDs */
+    edges: Array.from(selectedEdges),
+
+    /**
+     * Checks if a vertex is currently selected.
+     *
+     * @param vertexId - The vertex ID to check
+     * @returns true if the vertex is selected, false otherwise
+     */
+    isVertexSelected: (vertexId: VertexId) => selectedVertices.has(vertexId),
+
+    /**
+     * Checks if an edge is currently selected.
+     *
+     * @param edgeId - The edge ID to check
+     * @returns true if the edge is selected, false otherwise
+     */
+    isEdgeSelected: (edgeId: EdgeId) => selectedEdges.has(edgeId),
+  };
+}
+
+/**
+ * Graph selection state object.
+ *
+ * Contains arrays of selected vertex and edge IDs, along with methods
+ * to check if specific entities are selected.
+ *
+ * @property vertices - Array of currently selected vertex IDs
+ * @property edges - Array of currently selected edge IDs
+ * @property isVertexSelected - Function to check if a vertex ID is selected
+ * @property isEdgeSelected - Function to check if an edge ID is selected
+ */
+export type GraphSelection = ReturnType<typeof createGraphSelection>;
+
+/**
  * Hook for managing graph entity selection state (vertices and edges).
  *
  * Provides access to the current selection and a function to update it.
@@ -24,14 +73,9 @@ export function useGraphSelection() {
     /**
      * Current graph selection state.
      *
-     * Contains arrays of selected vertex and edge IDs.
+     * Contains arrays of selected vertex and edge IDs, and methods to check selection.
      */
-    graphSelection: {
-      /** Array of currently selected vertex IDs */
-      vertices: Array.from(selectedVertices),
-      /** Array of currently selected edge IDs */
-      edges: Array.from(selectedEdges),
-    },
+    graphSelection: createGraphSelection(selectedVertices, selectedEdges),
 
     /**
      * Replaces the graph selection state.

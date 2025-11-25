@@ -1,6 +1,15 @@
 import { saveAs } from "file-saver";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useGraphRef } from "@/components/Graph/GraphContext";
+import {
+  createRenderedEdgeId,
+  createRenderedVertexId,
+  type EdgeId,
+  type VertexId,
+} from "@/core";
+
+const ANIMATION_DURATION = 150;
+const ANIMATION_EASING = "ease-in-out-cubic";
 
 const useGraphGlobalActions = () => {
   const graphRef = useGraphRef();
@@ -32,79 +41,140 @@ const useGraphGlobalActions = () => {
     //eslint-disable-next-line
   }, [graphRef?.current?.cytoscape]);
 
-  const onFitToCanvas = useCallback(() => {
-    const selectedElements =
-      graphRef?.current?.cytoscape?.elements(":selected");
-    graphRef?.current?.cytoscape?.fit(
-      selectedElements?.nonempty()
-        ? selectedElements
-        : graphRef?.current?.cytoscape.elements(),
-      48, // avoid fit elements to the limit of the canvas
-    );
-  }, [graphRef]);
+  const onFitSelectionToCanvas = () => {
+    const cy = graphRef?.current?.cytoscape;
+    if (!cy) {
+      return;
+    }
 
-  const onFitSelectionToCanvas = useCallback(
-    (nodeId: string | undefined = undefined) => {
-      const selectedElements = nodeId
-        ? graphRef?.current?.cytoscape?.getElementById(nodeId)
-        : graphRef?.current?.cytoscape?.elements(":selected");
-      graphRef?.current?.cytoscape?.fit(
-        selectedElements,
-        48, // avoid fit elements to the limit of the canvas
-      );
-    },
-    [graphRef],
-  );
-
-  const onFitAllToCanvas = useCallback(() => {
-    graphRef?.current?.cytoscape?.animate({
-      fit: { eles: graphRef?.current?.cytoscape?.elements(), padding: 48 },
-      duration: 200,
-      easing: "ease-in-out-cubic",
+    const elements = cy.elements(":selected");
+    cy.animate({
+      fit: { eles: elements, padding: 48 },
+      duration: ANIMATION_DURATION,
+      easing: ANIMATION_EASING,
     });
-  }, [graphRef]);
+  };
 
-  const onCenterGraph = useCallback(() => {
-    const selectedElements =
-      graphRef?.current?.cytoscape?.elements(":selected");
-    graphRef?.current?.cytoscape?.center(
-      selectedElements?.nonempty()
-        ? selectedElements
-        : graphRef?.current?.cytoscape.elements(),
-    );
-  }, [graphRef]);
+  const onFitVertexToCanvas = (vertexId: VertexId) => {
+    const cy = graphRef?.current?.cytoscape;
+    if (!cy) {
+      return;
+    }
 
-  const onCenterSelectedGraph = useCallback(
-    (nodeId: string | undefined = undefined) => {
-      const selectedElements = nodeId
-        ? graphRef?.current?.cytoscape?.getElementById(nodeId)
-        : graphRef?.current?.cytoscape?.elements(":selected");
-      graphRef?.current?.cytoscape?.center(selectedElements);
-    },
-    [graphRef],
-  );
+    const id = createRenderedVertexId(vertexId);
+    const element = cy.getElementById(id);
+    cy.animate({
+      fit: { eles: element, padding: 48 },
+      duration: ANIMATION_DURATION,
+      easing: ANIMATION_EASING,
+    });
+  };
 
-  const onRunLayout = useCallback(() => {
+  const onFitEdgeToCanvas = (edgeId: EdgeId) => {
+    const cy = graphRef?.current?.cytoscape;
+    if (!cy) {
+      return;
+    }
+
+    const id = createRenderedEdgeId(edgeId);
+    const element = cy.getElementById(id);
+    cy.animate({
+      fit: { eles: element, padding: 48 },
+      duration: ANIMATION_DURATION,
+      easing: ANIMATION_EASING,
+    });
+  };
+
+  const onFitAllToCanvas = () => {
+    const cy = graphRef?.current?.cytoscape;
+    if (!cy) {
+      return;
+    }
+
+    cy.animate({
+      fit: { eles: cy.elements(), padding: 48 },
+      duration: ANIMATION_DURATION,
+      easing: ANIMATION_EASING,
+    });
+  };
+
+  const onCenterGraph = () => {
+    const cy = graphRef?.current?.cytoscape;
+    if (!cy) {
+      return;
+    }
+
+    const selectedElements = cy.elements(":selected");
+    cy.animate({
+      center: {
+        eles: selectedElements.nonempty() ? selectedElements : cy.elements(),
+      },
+      duration: ANIMATION_DURATION,
+      easing: ANIMATION_EASING,
+    });
+  };
+
+  const onCenterVertex = (vertexId: VertexId) => {
+    const cy = graphRef?.current?.cytoscape;
+    if (!cy) {
+      return;
+    }
+
+    const id = createRenderedVertexId(vertexId);
+    const element = cy.getElementById(id);
+    cy.animate({
+      center: { eles: element },
+      duration: ANIMATION_DURATION,
+      easing: ANIMATION_EASING,
+    });
+  };
+
+  const onCenterEdge = (edgeId: EdgeId) => {
+    const cy = graphRef?.current?.cytoscape;
+    if (!cy) {
+      return;
+    }
+
+    const id = createRenderedEdgeId(edgeId);
+    const selectedElements = cy.getElementById(id);
+    cy.animate({
+      center: { eles: selectedElements },
+      duration: ANIMATION_DURATION,
+      easing: ANIMATION_EASING,
+    });
+  };
+
+  const onRunLayout = () => {
     graphRef.current?.runLayout();
-  }, [graphRef]);
+  };
 
-  const onCenterEntireGraph = useCallback(() => {
-    graphRef?.current?.cytoscape?.center(
-      graphRef?.current?.cytoscape.elements(),
-    );
-  }, [graphRef]);
+  const onCenterEntireGraph = () => {
+    const cy = graphRef?.current?.cytoscape;
+    if (!cy) {
+      return;
+    }
 
-  const onSaveScreenshot = useCallback(() => {
-    // graphRef?.current?.cytoscape.png does NOT RENDER CUSTOM BADGES
+    cy.animate({
+      center: { eles: cy.elements() },
+      duration: ANIMATION_DURATION,
+      easing: ANIMATION_EASING,
+    });
+  };
+
+  const onSaveScreenshot = () => {
+    const cy = graphRef?.current?.cytoscape;
+    if (!cy) {
+      return;
+    }
+
+    // cy.png does NOT RENDER CUSTOM BADGES
     // such node name or connections because they are rendered using
     // cytoscape-canvas plugin.
     // The alternative is export the current view of the graph by merging all
     // canvases under the cytoscape root container.
 
     // Get all canvases from the container
-    const canvases = graphRef?.current?.cytoscape
-      ?.container()
-      ?.querySelectorAll("canvas");
+    const canvases = cy.container()?.querySelectorAll("canvas");
 
     if (!canvases || canvases.length === 0) {
       return;
@@ -122,38 +192,48 @@ const useGraphGlobalActions = () => {
     }
 
     // Copy each canvas from cytoscape into the new canvas
-    canvases?.forEach(cnvs => {
+    canvases.forEach(cnvs => {
       ctx.drawImage(cnvs, 0, 0);
     });
 
     const data = canvas.toDataURL("image/png", 1);
     saveAs(data, `graph-${new Date().getTime()}.png`);
-  }, [graphRef]);
+  };
 
-  const onZoomIn = useCallback(() => {
-    const selectedElements =
-      graphRef?.current?.cytoscape?.elements(":selected");
-    graphRef?.current?.cytoscape?.zoom(
-      graphRef?.current?.cytoscape?.zoom() + 0.5,
-    );
-    if (selectedElements?.nonempty()) {
-      onCenterGraph();
+  const onZoomIn = () => {
+    const cy = graphRef?.current?.cytoscape;
+    if (!cy) {
+      return;
     }
-  }, [onCenterGraph, graphRef]);
 
-  const onZoomOut = useCallback(() => {
-    graphRef?.current?.cytoscape?.zoom(
-      graphRef?.current?.cytoscape?.zoom() - 0.5,
-    );
-  }, [graphRef]);
+    cy.animate({
+      zoom: cy.zoom() + 0.5,
+      duration: ANIMATION_DURATION,
+      easing: ANIMATION_EASING,
+    });
+  };
+
+  const onZoomOut = () => {
+    const cy = graphRef?.current?.cytoscape;
+    if (!cy) {
+      return;
+    }
+    cy.animate({
+      zoom: cy.zoom() - 0.5,
+      duration: ANIMATION_DURATION,
+      easing: ANIMATION_EASING,
+    });
+  };
 
   return {
-    onFitToCanvas,
     onFitSelectionToCanvas,
+    onFitVertexToCanvas,
+    onFitEdgeToCanvas,
     onFitAllToCanvas,
     onRunLayout,
     onCenterGraph,
-    onCenterSelectedGraph,
+    onCenterVertex,
+    onCenterEdge,
     onCenterEntireGraph,
     onSaveScreenshot,
     onZoomIn,
