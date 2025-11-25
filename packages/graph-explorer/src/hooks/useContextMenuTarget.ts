@@ -3,6 +3,11 @@ import { nodesAtom } from "@/core/StateProvider/nodes";
 import { edgesAtom } from "@/core/StateProvider/edges";
 import { useAtomValue } from "jotai";
 
+/**
+ * Discriminated union representing the target of a context menu action.
+ * Determines what entities the context menu should operate on based on
+ * what was clicked and what is currently selected.
+ */
 export type ContextMenuTarget =
   | { type: "single-vertex"; vertexId: VertexId }
   | { type: "single-edge"; edgeId: EdgeId }
@@ -15,6 +20,55 @@ export type ContextMenuTarget =
     }
   | { type: "none"; vertexIds: VertexId[]; edgeIds: EdgeId[] };
 
+/**
+ * Determines the appropriate context menu target based on affected entities and current selection.
+ *
+ * The hook implements the following priority logic:
+ * 1. If affected entities are within the current selection, use the selection
+ * 2. If no entities are affected (canvas click), return all graph entities with type "none"
+ * 3. Otherwise, use only the affected entities
+ *
+ * This allows context menus to intelligently operate on either:
+ * - The clicked entity (when nothing is selected)
+ * - The entire selection (when clicking within a selection)
+ * - All graph entities (when clicking empty canvas)
+ *
+ * @param params.affectedVertexIds - Vertex IDs directly affected by the context menu trigger (e.g., right-clicked)
+ * @param params.affectedEdgeIds - Edge IDs directly affected by the context menu trigger
+ * @param params.selectedVertexIds - Currently selected vertex IDs in the graph
+ * @param params.selectedEdgeIds - Currently selected edge IDs in the graph
+ * @returns A discriminated union indicating the target type and relevant entity IDs
+ *
+ * @example
+ * // Right-click on a single unselected vertex
+ * const target = useContextMenuTarget({
+ *   affectedVertexIds: ['v1'],
+ *   affectedEdgeIds: [],
+ *   selectedVertexIds: [],
+ *   selectedEdgeIds: []
+ * });
+ * // Returns: { type: "single-vertex", vertexId: "v1" }
+ *
+ * @example
+ * // Right-click on a vertex that's part of a multi-vertex selection
+ * const target = useContextMenuTarget({
+ *   affectedVertexIds: ['v1'],
+ *   affectedEdgeIds: [],
+ *   selectedVertexIds: ['v1', 'v2', 'v3'],
+ *   selectedEdgeIds: []
+ * });
+ * // Returns: { type: "multiple-vertices", vertexIds: ["v1", "v2", "v3"] }
+ *
+ * @example
+ * // Right-click on empty canvas
+ * const target = useContextMenuTarget({
+ *   affectedVertexIds: [],
+ *   affectedEdgeIds: [],
+ *   selectedVertexIds: [],
+ *   selectedEdgeIds: []
+ * });
+ * // Returns: { type: "none", vertexIds: [...all graph vertices], edgeIds: [...all graph edges] }
+ */
 export function useContextMenuTarget(params: {
   affectedVertexIds: VertexId[];
   affectedEdgeIds: EdgeId[];
