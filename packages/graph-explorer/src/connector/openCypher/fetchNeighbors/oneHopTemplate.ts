@@ -93,17 +93,14 @@ const criterionTemplate = (criterion: Criterion): string => {
  * @example
  * sourceId = "124"
  * vertexTypes = ["airport"]
- * edgeTypes = ["route"]
  * limit = 10
- * offset = 10
  *
- * MATCH (v)-[e:route]-(tgt:airport)
+ * MATCH (v)-[e]-(tgt:airport)
  * WHERE ID(v) = "124"
  * WITH DISTINCT v, tgt
  * ORDER BY toInteger(ID(tgt))
- * SKIP 10
  * LIMIT 10
- * MATCH (v)-[e:route]-(tgt)
+ * MATCH (v)-[e]-(tgt)
  * RETURN
  *   collect(DISTINCT tgt) AS vObjects,
  *   collect(e) AS eObjects
@@ -111,11 +108,9 @@ const criterionTemplate = (criterion: Criterion): string => {
 const oneHopTemplate = ({
   vertexId,
   filterByVertexTypes = [],
-  edgeTypes = [],
   filterCriteria = [],
   excludedVertices = new Set(),
   limit = 0,
-  offset = 0,
 }: Omit<NeighborsRequest, "vertexTypes">): string => {
   const formattedExcludedVertices =
     excludedVertices.size > 0
@@ -126,14 +121,10 @@ const oneHopTemplate = ({
   const formattedVertexTypes =
     filterByVertexTypes.length > 1
       ? `(${filterByVertexTypes
-          .flatMap(type => type.split("::"))
-          .map(type => `v:${type}`)
+          .flatMap((type: string) => type.split("::"))
+          .map((type: string) => `v:${type}`)
           .join(" OR ")})`
       : "";
-  const formattedEdgeTypes = edgeTypes.map(type => `${type}`).join("|");
-
-  // Specify edge type if provided
-  const edgeMatch = edgeTypes.length > 0 ? `e:${formattedEdgeTypes}` : `e`;
 
   // Specify node type for target if provided and only one
   const targetMatch =
@@ -152,13 +143,12 @@ const oneHopTemplate = ({
   if (limit > 0) {
     // When applying a limit, we must apply it to the set of distinct neighbors, which requires some additional steps
     return query`
-      MATCH (v)-[${edgeMatch}]-(${targetMatch})
+      MATCH (v)-[e]-(${targetMatch})
       WHERE ${whereConditions}
       WITH DISTINCT v, tgt
       ORDER BY toInteger(ID(tgt))
-      ${offset > 0 ? `SKIP ${offset}` : ``}
       LIMIT ${limit}
-      MATCH (v)-[${edgeMatch}]-(tgt)
+      MATCH (v)-[e]-(tgt)
       RETURN
         collect(DISTINCT tgt) AS vObjects, 
         collect(e) AS eObjects
@@ -167,7 +157,7 @@ const oneHopTemplate = ({
 
   // Much faster and shorter query when no limit is provided
   return query`
-    MATCH (v)-[${edgeMatch}]-(${targetMatch})
+    MATCH (v)-[e]-(${targetMatch})
     WHERE ${whereConditions}
     RETURN
       collect(DISTINCT tgt) AS vObjects, 

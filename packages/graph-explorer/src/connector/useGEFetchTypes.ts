@@ -94,10 +94,6 @@ export type NeighborsRequest = {
    */
   filterByVertexTypes?: Array<string>;
   /**
-   * Filter by edge types.
-   */
-  edgeTypes?: Array<string>;
-  /**
    * Filter by vertex attributes.
    */
   filterCriteria?: Array<Criterion>;
@@ -106,10 +102,6 @@ export type NeighborsRequest = {
    * 0 = No limit.
    */
   limit?: number;
-  /**
-   * Skip the given number of results.
-   */
-  offset?: number;
 };
 
 /**

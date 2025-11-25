@@ -14,7 +14,6 @@ describe("Gremlin > oneHopTemplate", () => {
       ],
       excludedVertices: new Set([createVertexId("256")]),
       limit: 10,
-      offset: 0,
     });
 
     expect(normalize(template)).toEqual(
@@ -100,17 +99,16 @@ describe("Gremlin > oneHopTemplate", () => {
     );
   });
 
-  it("Should return a template with an offset and limit", () => {
+  it("Should return a template with a limit", () => {
     const template = oneHopTemplate({
       vertexId: createVertexId("12"),
-      offset: 5,
       limit: 5,
     });
 
     expect(normalize(template)).toBe(
       normalize(`
         g.V("12").as("start")
-          .both().dedup().range(5, 10).as("neighbor")
+          .both().dedup().range(0, 5).as("neighbor")
           .project("vertex", "edges")
             .by()
             .by(
@@ -126,14 +124,13 @@ describe("Gremlin > oneHopTemplate", () => {
     const template = oneHopTemplate({
       vertexId: createVertexId("12"),
       filterByVertexTypes: ["country"],
-      offset: 5,
       limit: 10,
     });
 
     expect(normalize(template)).toBe(
       normalize(`
         g.V("12").as("start")
-          .both().hasLabel("country").dedup().range(5, 15).as("neighbor")
+          .both().hasLabel("country").dedup().range(0, 10).as("neighbor")
           .project("vertex", "edges")
             .by()
             .by(
@@ -149,14 +146,13 @@ describe("Gremlin > oneHopTemplate", () => {
     const template = oneHopTemplate({
       vertexId: createVertexId("12"),
       filterByVertexTypes: ["country", "airport", "continent"],
-      offset: 5,
       limit: 10,
     });
 
     expect(normalize(template)).toBe(
       normalize(`
         g.V("12").as("start")
-          .both().hasLabel("country", "airport", "continent").dedup().range(5, 15).as("neighbor")
+          .both().hasLabel("country", "airport", "continent").dedup().range(0, 10).as("neighbor")
           .project("vertex", "edges")
             .by()
             .by(
@@ -176,7 +172,6 @@ describe("Gremlin > oneHopTemplate", () => {
         { name: "longest", value: 10000, operator: "gte", dataType: "Number" },
         { name: "country", value: "ES", operator: "like" },
       ],
-      offset: 5,
       limit: 10,
     });
 
@@ -185,7 +180,7 @@ describe("Gremlin > oneHopTemplate", () => {
         g.V("12").as("start")
           .both().hasLabel("country")
             .and(has("longest",gte(10000)),has("country",containing("ES")))
-            .dedup().range(5, 15).as("neighbor")
+            .dedup().range(0, 10).as("neighbor")
           .project("vertex", "edges")
             .by()
             .by(

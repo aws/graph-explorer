@@ -93,29 +93,12 @@ function criterionTemplate(criterion: Criterion): string {
  * @example
  * sourceId = "124"
  * vertexTypes = ["airport"]
- * edgeTypes = ["route"]
- * limit = 10
- * offset = 0
- *
- * g.V("124")
- *  .project("vertices", "edges")
- *  .by(
- *    both().hasLabel("airport").dedup().range(0,10).fold()
- *  )
- *  .by(
- *    bothE("route").dedup().range(0,10).fold()
- *  )
- *
- *  @example
- * sourceId = "124"
- * vertexTypes = ["airport"]
  * filterCriteria = [
  *   { name: "longest", dataType: "Int", operator: "gt", value: 10000 },
  *   { name: "country", dataType: "String", operator: "like", value: "ES" }
  * ]
  * excludedVertices = new Set(["256"])
  * limit = 10
- * offset = 0
  *
  * g.V("124").as("start")
  *   .both()
@@ -136,13 +119,11 @@ export default function oneHopTemplate({
   vertexId,
   excludedVertices = new Set(),
   filterByVertexTypes = [],
-  edgeTypes = [],
   filterCriteria = [],
   limit = 0,
-  offset = 0,
 }: Omit<NeighborsRequest, "vertexTypes">): string {
   const idTemplate = idParam(vertexId);
-  const range = limit > 0 ? `.range(${offset}, ${offset + limit})` : "";
+  const range = limit > 0 ? `.range(0, ${limit})` : "";
 
   const vertexTypes = filterByVertexTypes.flatMap(type => type.split("::"));
   const vertexTypesTemplate =
@@ -161,8 +142,6 @@ export default function oneHopTemplate({
 
   const nodeFiltersTemplate =
     nodeFilters.length > 0 ? `.${nodeFilters.join(".")}` : ``;
-
-  const edgeTypesTemplate = edgeTypes.map(type => `"${type}"`).join(",");
 
   const excludedList = excludedVertices
     .values()
@@ -184,7 +163,7 @@ export default function oneHopTemplate({
       .project("vertex", "edges")
         .by()
         .by(
-          __.select("start").bothE(${edgeTypesTemplate})
+          __.select("start").bothE()
             .where(otherV().where(eq("neighbor")))
             .dedup().fold()
         )

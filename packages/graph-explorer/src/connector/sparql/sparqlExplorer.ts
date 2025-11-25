@@ -119,7 +119,6 @@ export function createSparqlExplorer(
         })),
         excludedVertices: req.excludedVertices,
         limit: req.limit,
-        offset: req.offset,
       };
 
       const bNode = blankNodes.get(req.vertexId);
