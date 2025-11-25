@@ -1,5 +1,9 @@
 import { createVertexId } from "@/core";
-import { calculateNeighbors, useNeighbors } from "./neighbors";
+import {
+  calculateNeighbors,
+  useFetchedNeighborsCallback,
+  useNeighbors,
+} from "./neighbors";
 import {
   createRandomVertex,
   createTestableEdge,
@@ -369,5 +373,156 @@ describe("useNeighbors", () => {
         ]),
       });
     });
+  });
+});
+
+describe("useFetchedNeighborsCallback", () => {
+  it("should return empty set when no edges exist", () => {
+    const dbState = new DbState();
+    const vertex = createTestableVertex();
+    dbState.addTestableVertexToGraph(vertex);
+
+    const { result } = renderHookWithState(
+      () => useFetchedNeighborsCallback(),
+      dbState,
+    );
+
+    const neighbors = result.current(vertex.id);
+    expect(neighbors).toEqual(new Set());
+  });
+
+  it("should return neighbor IDs for outgoing edges", () => {
+    const dbState = new DbState();
+    const source = createTestableVertex();
+    const target = createTestableVertex();
+    const edge = createTestableEdge().withSource(source).withTarget(target);
+
+    dbState.addTestableEdgeToGraph(edge);
+
+    const { result } = renderHookWithState(
+      () => useFetchedNeighborsCallback(),
+      dbState,
+    );
+
+    const neighbors = result.current(source.id);
+    expect(neighbors).toEqual(new Set([target.id]));
+  });
+
+  it("should return neighbor IDs for incoming edges", () => {
+    const dbState = new DbState();
+    const source = createTestableVertex();
+    const target = createTestableVertex();
+    const edge = createTestableEdge().withSource(source).withTarget(target);
+
+    dbState.addTestableEdgeToGraph(edge);
+
+    const { result } = renderHookWithState(
+      () => useFetchedNeighborsCallback(),
+      dbState,
+    );
+
+    const neighbors = result.current(target.id);
+    expect(neighbors).toEqual(new Set([source.id]));
+  });
+
+  it("should return unique neighbor IDs when multiple edges connect same vertices", () => {
+    const dbState = new DbState();
+    const vertex1 = createTestableVertex();
+    const vertex2 = createTestableVertex();
+    const edge1 = createTestableEdge().withSource(vertex1).withTarget(vertex2);
+    const edge2 = createTestableEdge().withSource(vertex2).withTarget(vertex1);
+
+    dbState.addTestableEdgeToGraph(edge1);
+    dbState.addTestableEdgeToGraph(edge2);
+
+    const { result } = renderHookWithState(
+      () => useFetchedNeighborsCallback(),
+      dbState,
+    );
+
+    const neighbors = result.current(vertex1.id);
+    expect(neighbors).toEqual(new Set([vertex2.id]));
+  });
+
+  it("should return multiple neighbor IDs", () => {
+    const dbState = new DbState();
+    const center = createTestableVertex();
+    const neighbor1 = createTestableVertex();
+    const neighbor2 = createTestableVertex();
+    const neighbor3 = createTestableVertex();
+
+    const edge1 = createTestableEdge().withSource(center).withTarget(neighbor1);
+    const edge2 = createTestableEdge().withSource(neighbor2).withTarget(center);
+    const edge3 = createTestableEdge().withSource(center).withTarget(neighbor3);
+
+    dbState.addTestableEdgeToGraph(edge1);
+    dbState.addTestableEdgeToGraph(edge2);
+    dbState.addTestableEdgeToGraph(edge3);
+
+    const { result } = renderHookWithState(
+      () => useFetchedNeighborsCallback(),
+      dbState,
+    );
+
+    const neighbors = result.current(center.id);
+    expect(neighbors).toEqual(
+      new Set([neighbor1.id, neighbor2.id, neighbor3.id]),
+    );
+  });
+
+  it("should exclude edges where neighbor vertex is not in the graph", () => {
+    const dbState = new DbState();
+    const source = createTestableVertex();
+    const target = createTestableVertex();
+    const edge = createTestableEdge().withSource(source).withTarget(target);
+
+    // Only add source vertex, not target
+    dbState.addTestableVertexToGraph(source);
+    dbState.addEdgeToGraph(edge.asEdge());
+
+    const { result } = renderHookWithState(
+      () => useFetchedNeighborsCallback(),
+      dbState,
+    );
+
+    const neighbors = result.current(source.id);
+    expect(neighbors).toEqual(new Set());
+  });
+
+  it("should exclude edges where source vertex is not in the graph", () => {
+    const dbState = new DbState();
+    const source = createTestableVertex();
+    const target = createTestableVertex();
+    const edge = createTestableEdge().withSource(source).withTarget(target);
+
+    // Only add target vertex, not source
+    dbState.addTestableVertexToGraph(target);
+    dbState.addEdgeToGraph(edge.asEdge());
+
+    const { result } = renderHookWithState(
+      () => useFetchedNeighborsCallback(),
+      dbState,
+    );
+
+    const neighbors = result.current(target.id);
+    expect(neighbors).toEqual(new Set());
+  });
+
+  it("should return empty set for vertex not in graph", () => {
+    const dbState = new DbState();
+    const vertex1 = createTestableVertex();
+    const vertex2 = createTestableVertex();
+    const orphan = createTestableVertex();
+    const edge = createTestableEdge().withSource(vertex1).withTarget(vertex2);
+
+    dbState.addTestableEdgeToGraph(edge);
+
+    const { result } = renderHookWithState(
+      () => useFetchedNeighborsCallback(),
+      dbState,
+    );
+
+    const neighbors = result.current(orphan.id);
+    expect(neighbors).toEqual(new Set());
   });
 });
