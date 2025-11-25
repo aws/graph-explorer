@@ -198,11 +198,7 @@ describe("useContextMenuTarget", () => {
       selectedEdgeIds: [],
     });
 
-    expect(result.current.type).toBe("none");
-    if (result.current.type === "none") {
-      expect(result.current.vertexIds).toHaveLength(4); // 2 vertices + 2 from edge (source + target)
-      expect(result.current.edgeIds).toStrictEqual([edge.id]);
-    }
+    expect(result.current).toStrictEqual({ type: "none" });
   });
 
   it("should return single-vertex when single affected vertex not in selection", () => {

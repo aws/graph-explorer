@@ -1,7 +1,4 @@
 import type { EdgeId, VertexId } from "@/core";
-import { nodesAtom } from "@/core/StateProvider/nodes";
-import { edgesAtom } from "@/core/StateProvider/edges";
-import { useAtomValue } from "jotai";
 import type { GraphSelection } from "@/modules/GraphViewer/useGraphSelection";
 
 /**
@@ -19,14 +16,14 @@ export type ContextMenuTarget =
       vertexIds: VertexId[];
       edgeIds: EdgeId[];
     }
-  | { type: "none"; vertexIds: VertexId[]; edgeIds: EdgeId[] };
+  | { type: "none" };
 
 /**
  * Determines the appropriate context menu target based on affected entities and current selection.
  *
  * The hook implements the following priority logic:
  * 1. If affected entities are within the current selection, use the selection
- * 2. If no entities are affected (canvas click), return all graph entities with type "none"
+ * 2. If no entities are affected (canvas click), return type "none"
  * 3. Otherwise, use only the affected entities
  *
  * This allows context menus to intelligently operate on either:
@@ -64,7 +61,7 @@ export type ContextMenuTarget =
  *   affectedEdgeIds: [],
  *   graphSelection: { vertices: [], edges: [], isVertexSelected: () => false, isEdgeSelected: () => false }
  * });
- * // Returns: { type: "none", vertexIds: [...all graph vertices], edgeIds: [...all graph edges] }
+ * // Returns: { type: "none" }
  */
 export function useContextMenuTarget({
   affectedVertexIds,
@@ -75,17 +72,9 @@ export function useContextMenuTarget({
   affectedEdgeIds: EdgeId[];
   graphSelection: GraphSelection;
 }): ContextMenuTarget {
-  // All the entities in the graph canvas
-  const nodes = useAtomValue(nodesAtom);
-  const edges = useAtomValue(edgesAtom);
-
   // Early return for canvas click (no affected entities)
   if (affectedVertexIds.length === 0 && affectedEdgeIds.length === 0) {
-    return {
-      type: "none",
-      vertexIds: Array.from(nodes.keys()),
-      edgeIds: Array.from(edges.keys()),
-    };
+    return { type: "none" };
   }
 
   // Check if affected is within selection (short-circuits on first match)
