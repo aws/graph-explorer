@@ -1,4 +1,4 @@
-import { atom, useSetAtom } from "jotai";
+import { atom, useAtomValue, useSetAtom } from "jotai";
 import { atomFamily, atomWithReset } from "jotai/utils";
 import type { Edge, EdgeId } from "@/core";
 
@@ -37,3 +37,21 @@ export const edgesTableFiltersAtom =
   atomWithReset(Array<{ id: string; value: unknown }>());
 export const edgesTableSortsAtom =
   atomWithReset(Array<{ id: string; desc?: boolean }>());
+
+/**
+ * Get an edge by id from the canvas.
+ *
+ * This will throw an error if the edge is not found.
+ * @param id The id of the edge to get
+ */
+export function useEdgeInCanvas(id: EdgeId) {
+  const edgesInCanvas = useAtomValue(edgesAtom);
+
+  const edge = edgesInCanvas.get(id);
+  if (!edge) {
+    // This should never happen
+    throw new Error(`Edge ${id} not found`);
+  }
+
+  return edge;
+}

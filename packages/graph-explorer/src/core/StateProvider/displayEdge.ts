@@ -11,6 +11,7 @@ import {
   queryEngineSelector,
   edgeSelector,
   edgePreferenceByTypeAtom,
+  useEdgeInCanvas,
 } from "@/core";
 import { textTransformSelector } from "@/hooks";
 import { LABELS, RESERVED_ID_PROPERTY, RESERVED_TYPES_PROPERTY } from "@/utils";
@@ -30,6 +31,11 @@ export type DisplayEdge = {
   attributes: DisplayAttribute[];
   hasUniqueId: boolean;
 };
+
+export function useDisplayEdgeInCanvas(edgeId: EdgeId) {
+  const edge = useEdgeInCanvas(edgeId);
+  return useAtomValue(displayEdgeSelector(edge));
+}
 
 /** Maps all `Edge` instances in the graph canvas to `DisplayEdge` instances. */
 export function useDisplayEdgesInCanvas() {
