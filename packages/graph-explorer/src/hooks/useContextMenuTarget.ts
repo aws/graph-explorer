@@ -79,18 +79,27 @@ export function useContextMenuTarget({
   const nodes = useAtomValue(nodesAtom);
   const edges = useAtomValue(edgesAtom);
 
-  // Check if affected is within selection
-  const hasAffectedVertexInSelection =
-    affectedVertexIds.length > 0 &&
-    affectedVertexIds.some(id => graphSelection.isVertexSelected(id));
-  const hasAffectedEdgeInSelection =
-    affectedEdgeIds.length > 0 &&
-    affectedEdgeIds.some(id => graphSelection.isEdgeSelected(id));
-  const hasAffectedWithinSelection =
-    hasAffectedVertexInSelection || hasAffectedEdgeInSelection;
+  // Early return for canvas click (no affected entities)
+  if (affectedVertexIds.length === 0 && affectedEdgeIds.length === 0) {
+    return {
+      type: "none",
+      vertexIds: Array.from(nodes.keys()),
+      edgeIds: Array.from(edges.keys()),
+    };
+  }
+
+  // Check if affected is within selection (short-circuits on first match)
+  const hasAffectedInSelection =
+    (affectedVertexIds.length > 0 &&
+      affectedVertexIds.some(id => graphSelection.isVertexSelected(id))) ||
+    (affectedEdgeIds.length > 0 &&
+      affectedEdgeIds.some(id => graphSelection.isEdgeSelected(id)));
 
   // Use selection when affected is within it
-  if (hasAffectedWithinSelection) {
+  if (hasAffectedInSelection) {
+    const selectedVertexIds = graphSelection.vertices;
+    const selectedEdgeIds = graphSelection.edges;
+
     // Single vertex selected that matches single affected
     if (
       selectedVertexIds.length === 1 &&
@@ -122,16 +131,7 @@ export function useContextMenuTarget({
     };
   }
 
-  // None case - no affected entities, return all from graph
-  if (affectedVertexIds.length === 0 && affectedEdgeIds.length === 0) {
-    return {
-      type: "none",
-      vertexIds: Array.from(nodes.keys()),
-      edgeIds: Array.from(edges.keys()),
-    };
-  }
-
-  // Use affected entities
+  // Use affected entities (not in selection)
   if (affectedVertexIds.length === 1 && affectedEdgeIds.length === 0) {
     return { type: "single-vertex", vertexId: affectedVertexIds[0] };
   }
