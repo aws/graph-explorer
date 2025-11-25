@@ -243,21 +243,20 @@ const fetchedNeighborsSelector = atomFamily((id: VertexId) =>
  * @returns A callback that returns the unique set of neighbors for a given vertex ID.
  */
 export function useFetchedNeighborsCallback() {
-  const nodes = useAtomValue(nodesAtom);
-  const edges = useAtomValue(edgesAtom);
-
-  return (id: VertexId) =>
-    new Set(
-      edges
-        .values()
-        // Find edges matching the given vertex ID
-        .filter(edge => edge.sourceId === id || edge.targetId === id)
-        // Filter out edges where the source or target vertex is not in the graph
-        .filter(edge => nodes.has(edge.sourceId) && nodes.has(edge.targetId))
-        // Get the source or target vertex ID depending on the edge direction
-        .map(edge => (edge.sourceId === id ? edge.targetId : edge.sourceId)),
-    );
+  return useAtomCallback(
+    useCallback(
+      (get, _set, vertexId: VertexId) => get(fetchedNeighborIdsAtom(vertexId)),
+      [],
+    ),
+  );
 }
+
+const fetchedNeighborIdsAtom = atomFamily((id: VertexId) =>
+  atom(get => {
+    const neighbors = get(fetchedNeighborsSelector(id));
+    return new Set(neighbors.map(n => n.id));
+  }),
+);
 
 const allFetchedNeighborsSelector = atomFamily((ids: VertexId[]) =>
   atom(get => {
