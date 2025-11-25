@@ -16,7 +16,7 @@
     "@aws-sdk/credential-providers": "^3.933.0",
     "@graph-explorer/shared": "workspace:*",
     "aws4": "^1.13.2",
-    "body-parser": "^2.2.0",
+    "body-parser": "^2.2.1",
     "compression": "^1.8.1",
     "cors": "^2.8.5",
     "crypto-js": "^4.2.0",
