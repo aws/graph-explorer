@@ -32,7 +32,6 @@ export { default as ErrorIcon } from "./ErrorIcon";
 export { default as ExpandGraphIcon } from "./ExpandGraphIcon";
 export { default as ExplorerIcon } from "./ExplorerIcon";
 export { default as FilterIcon } from "./FilterIcon";
-export { default as FitToFrameIcon } from "./FitToFrameIcon";
 export { default as ForwardIcon } from "./ForwardIcon";
 export { default as GearIcon } from "./GearIcon";
 export { default as GraphIcon } from "./GraphIcon";
