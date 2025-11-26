@@ -236,8 +236,16 @@ function MultipleEntitiesMenu({
   vertexIds: VertexId[];
   edgeIds: EdgeId[];
 }) {
+  const defaultNeighborExpansionLimit = useDefaultNeighborExpansionLimit();
+  const { expandNodes } = useExpandNode();
   const { onFitSelectionToCanvas, onCenterGraph } = useGraphGlobalActions();
   const removeFromGraph = useRemoveFromGraph();
+
+  const handleExpand = () =>
+    expandNodes({
+      vertexIds,
+      limit: defaultNeighborExpansionLimit ?? undefined,
+    });
 
   const handleRemove = () => {
     removeFromGraph({ vertices: vertexIds, edges: edgeIds });
@@ -245,6 +253,16 @@ function MultipleEntitiesMenu({
 
   return (
     <ContextMenuContent>
+      <ContextMenuTitle>
+        <GraphIcon />
+        {vertexIds.length + edgeIds.length} items selected
+      </ContextMenuTitle>
+      <Divider />
+      <ContextMenuItem onClick={handleExpand}>
+        <ExpandGraphIcon />
+        Expand selection
+      </ContextMenuItem>
+      <Divider />
       <ContextMenuItem onClick={onFitSelectionToCanvas}>
         <FullscreenIcon />
         Fit selection to frame

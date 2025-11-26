@@ -15,6 +15,8 @@ import {
   defaultNeighborExpansionLimitEnabledAtom,
   type Entities,
   type VertexId,
+  type Vertex,
+  type Edge,
 } from "@/core";
 import { createDisplayError } from "@/utils/createDisplayError";
 import { useAddToGraph } from "./useAddToGraph";
@@ -61,7 +63,7 @@ export default function useExpandNode() {
   const neighborCallback = useNeighborsCallback();
 
   // Expand single node
-  const { isPending, mutate: expandNode } = useMutation({
+  const { isPending: isExpandingSingle, mutate: expandNode } = useMutation({
     scope: {
       // Enforces only one expand node mutation is executed at a time
       id: "expandNode",
@@ -149,14 +151,26 @@ export default function useExpandNode() {
           ),
         );
 
-        // Combine all results
-        const combined = results.reduce<Entities>(
-          (acc, result) => ({
-            vertices: [...acc.vertices, ...result.vertices],
-            edges: [...acc.edges, ...result.edges],
-          }),
-          { vertices: [], edges: [] },
-        );
+        // Combine all results & update cache
+        const combinedVertices: Vertex[] = [];
+        const combinedEdges: Edge[] = [];
+
+        for (const result of results) {
+          for (const vertex of result.vertices) {
+            combinedVertices.push(vertex);
+            setVertexDetailsQueryCache(client, vertex);
+          }
+
+          for (const edge of result.edges) {
+            combinedEdges.push(edge);
+            setEdgeDetailsQueryCache(client, edge);
+          }
+        }
+
+        const combined: Entities = {
+          vertices: combinedVertices,
+          edges: combinedEdges,
+        };
 
         if (combined.vertices.length + combined.edges.length <= 0) {
           enqueueNotification({
@@ -166,10 +180,6 @@ export default function useExpandNode() {
           });
           return;
         }
-
-        // Update caches
-        combined.vertices.forEach(v => setVertexDetailsQueryCache(client, v));
-        combined.edges.forEach(e => setEdgeDetailsQueryCache(client, e));
 
         await addToGraph(combined);
       } catch (error) {
@@ -192,7 +202,7 @@ export default function useExpandNode() {
   return {
     expandNode,
     expandNodes,
-    isPending: isPending || isExpandingMultiple,
+    isPending: isExpandingSingle || isExpandingMultiple,
   };
 }
 
