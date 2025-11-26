@@ -2,20 +2,23 @@ import { useNotification } from "@/components/NotificationProvider";
 import {
   setEdgeDetailsQueryCache,
   setVertexDetailsQueryCache,
+  type Explorer,
   type NeighborsRequest,
 } from "@/connector";
-import { loggerSelector, useExplorer } from "@/core/connector";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { loggerSelector } from "@/core/connector";
+import { useMutation } from "@tanstack/react-query";
 import {
   useFetchedNeighborsCallback,
   useNeighborsCallback,
   activeConnectionAtom,
   defaultNeighborExpansionLimitAtom,
   defaultNeighborExpansionLimitEnabledAtom,
+  type Entities,
 } from "@/core";
 import { createDisplayError } from "@/utils/createDisplayError";
 import { useAddToGraph } from "./useAddToGraph";
 import { atom, useAtomValue } from "jotai";
+import { getExplorer } from "@/connector/queries/helpers";
 
 export type ExpandNodeFilters = Omit<
   NeighborsRequest,
@@ -46,21 +49,22 @@ export function useDefaultNeighborExpansionLimit() {
  * information, and a callback to reset the request state.
  */
 export default function useExpandNode() {
-  const queryClient = useQueryClient();
-  const explorer = useExplorer();
   const addToGraph = useAddToGraph();
   const getFetchedNeighbors = useFetchedNeighborsCallback();
   const { enqueueNotification, clearNotification } = useNotification();
   const remoteLogger = useAtomValue(loggerSelector);
   const neighborCallback = useNeighborsCallback();
-  const notificationTitle = "Expanding Node";
 
-  const { isPending, mutate } = useMutation({
+  // Expand single node
+  const { isPending, mutate: expandNode } = useMutation({
     scope: {
       // Enforces only one expand node mutation is executed at a time
       id: "expandNode",
     },
-    mutationFn: async (request: NeighborsRequest) => {
+    mutationFn: async (request: NeighborsRequest, { client, meta }) => {
+      const explorer = getExplorer(meta);
+      const notificationTitle = "Expanding Node";
+
       // Show progress
       const progressNotificationId = enqueueNotification({
         title: notificationTitle,
@@ -70,9 +74,15 @@ export default function useExpandNode() {
       });
 
       try {
-        const neighbor = await neighborCallback(request.vertexId);
+        const result = await fetchNeighbors(
+          request,
+          explorer,
+          neighborCallback,
+          getFetchedNeighbors,
+        );
 
-        if (neighbor.unfetched <= 0) {
+        // Exit early and tell the user there are no neighbors
+        if (result.vertices.length + result.edges.length <= 0) {
           enqueueNotification({
             title: "No more neighbors",
             message:
@@ -81,20 +91,9 @@ export default function useExpandNode() {
           return;
         }
 
-        // Get neighbors that have already been added so they can be excluded
-        const excludedNeighbors = getFetchedNeighbors(request.vertexId);
-
-        // Perform the query when a request exists
-        const result = await explorer.fetchNeighbors({
-          ...request,
-          excludedVertices: excludedNeighbors,
-        });
-
         // Update the vertex and edge details caches
-        result.vertices.forEach(v =>
-          setVertexDetailsQueryCache(queryClient, v),
-        );
-        result.edges.forEach(e => setEdgeDetailsQueryCache(queryClient, e));
+        result.vertices.forEach(v => setVertexDetailsQueryCache(client, v));
+        result.edges.forEach(e => setEdgeDetailsQueryCache(client, e));
 
         // Update nodes and edges in the graph
         await addToGraph(result);
@@ -117,7 +116,34 @@ export default function useExpandNode() {
   });
 
   return {
-    expandNode: mutate,
+    expandNode,
     isPending,
   };
+}
+
+async function fetchNeighbors(
+  request: NeighborsRequest,
+  explorer: Explorer,
+  neighborCallback: ReturnType<typeof useNeighborsCallback>,
+  getFetchedNeighbors: ReturnType<typeof useFetchedNeighborsCallback>,
+) {
+  const neighbor = await neighborCallback(request.vertexId);
+
+  if (neighbor.unfetched <= 0) {
+    return {
+      vertices: [],
+      edges: [],
+    } satisfies Entities;
+  }
+
+  // Get neighbors that have already been added so they can be excluded
+  const excludedNeighbors = getFetchedNeighbors(request.vertexId);
+
+  // Perform the query when a request exists
+  const result = await explorer.fetchNeighbors({
+    ...request,
+    excludedVertices: excludedNeighbors,
+  });
+
+  return result;
 }
