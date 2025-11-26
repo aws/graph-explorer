@@ -6,6 +6,7 @@ import type {
   NeighborCount,
   NeighborCountsRequest,
   NeighborCountsResponse,
+  NeighborsRequest,
   NeighborsResponse,
   RawQueryResponse,
   VertexDetailsRequest,
@@ -86,8 +87,56 @@ export class FakeExplorer implements Explorer {
     throw new Error("Not implemented");
   }
 
-  async fetchNeighbors(): Promise<NeighborsResponse> {
-    throw new Error("Not implemented");
+  async fetchNeighbors(request: NeighborsRequest): Promise<NeighborsResponse> {
+    const { vertexId, excludedVertices, limit = 0 } = request;
+
+    // Find all neighbors connected to the given vertex
+    const neighborVertices = toNodeMap([]);
+    const neighborEdges = toEdgeMap([]);
+
+    for (const edge of this.edges) {
+      let neighborId: VertexId | null = null;
+
+      if (edge.sourceId === vertexId) {
+        neighborId = edge.targetId;
+      } else if (edge.targetId === vertexId) {
+        neighborId = edge.sourceId;
+      }
+
+      if (!neighborId) {
+        continue;
+      }
+
+      // Skip excluded vertices
+      if (excludedVertices?.has(neighborId)) {
+        continue;
+      }
+
+      const neighbor = this.vertexMap.get(neighborId);
+      if (neighbor) {
+        neighborVertices.set(neighborId, neighbor);
+        neighborEdges.set(edge.id, edge);
+      }
+    }
+
+    // Apply offset and limit
+    let vertices = neighborVertices.values().toArray();
+    if (limit > 0) {
+      vertices = vertices.slice(0, limit);
+    }
+
+    // Filter edges to only include those connecting to returned vertices
+    const returnedVertexIds = new Set(vertices.map(v => v.id));
+    const edges = neighborEdges
+      .values()
+      .filter(
+        e =>
+          returnedVertexIds.has(e.sourceId) ||
+          returnedVertexIds.has(e.targetId),
+      )
+      .toArray();
+
+    return { vertices, edges };
   }
 
   async neighborCounts(

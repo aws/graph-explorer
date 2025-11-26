@@ -10,15 +10,10 @@ import {
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { v4 } from "uuid";
 
-import {
-  initialState,
-  type Notification,
-  type NotificationState,
-} from "./reducer";
+import type { Notification } from "./reducer";
 import useManager from "./useManager";
 
 export type NotificationContextValue = {
-  state: NotificationState;
   enqueueNotification: (notification: Notification) => string;
   clearNotification: (notificationId: string) => void;
 };
@@ -47,7 +42,6 @@ const styles = css`
 `;
 
 export const NotificationContext = createContext<NotificationContextValue>({
-  state: initialState,
   enqueueNotification: voidFn,
   clearNotification: voidFn,
 });
@@ -151,7 +145,6 @@ export const NotificationProvider: FC<NotificationProviderProps> = ({
   return (
     <NotificationContext.Provider
       value={{
-        state,
         enqueueNotification,
         clearNotification,
       }}

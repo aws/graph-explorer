@@ -2,26 +2,35 @@ import { useNotification } from "@/components/NotificationProvider";
 import {
   setEdgeDetailsQueryCache,
   setVertexDetailsQueryCache,
+  type Explorer,
   type NeighborsRequest,
-  type NeighborsResponse,
 } from "@/connector";
-import { loggerSelector, useExplorer } from "@/core/connector";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { loggerSelector } from "@/core/connector";
+import { useMutation } from "@tanstack/react-query";
 import {
   useFetchedNeighborsCallback,
   useNeighborsCallback,
   activeConnectionAtom,
   defaultNeighborExpansionLimitAtom,
   defaultNeighborExpansionLimitEnabledAtom,
+  type Entities,
+  type VertexId,
+  type Vertex,
+  type Edge,
 } from "@/core";
 import { createDisplayError } from "@/utils/createDisplayError";
 import { useAddToGraph } from "./useAddToGraph";
 import { atom, useAtomValue } from "jotai";
+import { getExplorer } from "@/connector/queries/helpers";
 
 export type ExpandNodeFilters = Omit<
   NeighborsRequest,
   "vertexId" | "vertexTypes" | "excludedVertices"
 >;
+
+export type ExpandNodesRequest = ExpandNodeFilters & {
+  vertexIds: VertexId[];
+};
 
 const defaultExpansionLimitAtom = atom(get => {
   // Check for a connection override
@@ -47,40 +56,21 @@ export function useDefaultNeighborExpansionLimit() {
  * information, and a callback to reset the request state.
  */
 export default function useExpandNode() {
-  const queryClient = useQueryClient();
-  const explorer = useExplorer();
   const addToGraph = useAddToGraph();
   const getFetchedNeighbors = useFetchedNeighborsCallback();
   const { enqueueNotification, clearNotification } = useNotification();
   const remoteLogger = useAtomValue(loggerSelector);
   const neighborCallback = useNeighborsCallback();
-  const notificationTitle = "Expanding Node";
 
-  const { isPending, mutate } = useMutation({
+  // Expand single node
+  const { isPending: isExpandingSingle, mutate: expandNode } = useMutation({
     scope: {
       // Enforces only one expand node mutation is executed at a time
       id: "expandNode",
     },
-    mutationFn: async (
-      request: NeighborsRequest,
-    ): Promise<NeighborsResponse | null> => {
-      const neighbor = await neighborCallback(request.vertexId);
-      if (!neighbor) {
-        enqueueNotification({
-          title: "No neighbor information available",
-          message: "This vertex's neighbor data has not been retrieved yet.",
-        });
-        return null;
-      }
-
-      if (neighbor.unfetched <= 0) {
-        enqueueNotification({
-          title: "No more neighbors",
-          message:
-            "This vertex has been fully expanded or it does not have connections",
-        });
-        return null;
-      }
+    mutationFn: async (request: NeighborsRequest, { client, meta }) => {
+      const explorer = getExplorer(meta);
+      const notificationTitle = "Expanding Node";
 
       // Show progress
       const progressNotificationId = enqueueNotification({
@@ -91,25 +81,29 @@ export default function useExpandNode() {
       });
 
       try {
-        // Get neighbors that have already been added so they can be excluded
-        const excludedNeighbors = getFetchedNeighbors(request.vertexId);
+        const result = await fetchNeighbors(
+          request,
+          explorer,
+          neighborCallback,
+          getFetchedNeighbors,
+        );
 
-        // Perform the query when a request exists
-        const result = await explorer.fetchNeighbors({
-          ...request,
-          excludedVertices: excludedNeighbors,
-        });
+        // Exit early and tell the user there are no neighbors
+        if (result.vertices.length + result.edges.length <= 0) {
+          enqueueNotification({
+            title: "No more neighbors",
+            message:
+              "This vertex has been fully expanded or it does not have connections",
+          });
+          return;
+        }
 
         // Update the vertex and edge details caches
-        result.vertices.forEach(v =>
-          setVertexDetailsQueryCache(queryClient, v),
-        );
-        result.edges.forEach(e => setEdgeDetailsQueryCache(queryClient, e));
+        result.vertices.forEach(v => setVertexDetailsQueryCache(client, v));
+        result.edges.forEach(e => setEdgeDetailsQueryCache(client, e));
 
         // Update nodes and edges in the graph
         await addToGraph(result);
-
-        return result;
       } catch (error) {
         remoteLogger.error(
           `Failed to expand node: ${(error as Error)?.message ?? "Unknown error"}`,
@@ -128,8 +122,113 @@ export default function useExpandNode() {
     },
   });
 
+  // Expand multiple nodes in parallel
+  const { isPending: isExpandingMultiple, mutate: expandNodes } = useMutation({
+    scope: {
+      id: "expandNode",
+    },
+    mutationFn: async (request: ExpandNodesRequest, { client, meta }) => {
+      const explorer = getExplorer(meta);
+      const { vertexIds, ...filters } = request;
+
+      const progressNotificationId = enqueueNotification({
+        title: "Expanding Nodes",
+        message: `Expanding neighbors for ${vertexIds.length} nodes.`,
+        type: "loading",
+        autoHideDuration: null,
+      });
+
+      try {
+        // Fetch neighbors for all vertices in parallel
+        const results = await Promise.all(
+          vertexIds.map(vertexId =>
+            fetchNeighbors(
+              { vertexId, ...filters },
+              explorer,
+              neighborCallback,
+              getFetchedNeighbors,
+            ),
+          ),
+        );
+
+        // Combine all results & update cache
+        const combinedVertices: Vertex[] = [];
+        const combinedEdges: Edge[] = [];
+
+        for (const result of results) {
+          for (const vertex of result.vertices) {
+            combinedVertices.push(vertex);
+            setVertexDetailsQueryCache(client, vertex);
+          }
+
+          for (const edge of result.edges) {
+            combinedEdges.push(edge);
+            setEdgeDetailsQueryCache(client, edge);
+          }
+        }
+
+        const combined: Entities = {
+          vertices: combinedVertices,
+          edges: combinedEdges,
+        };
+
+        if (combined.vertices.length + combined.edges.length <= 0) {
+          enqueueNotification({
+            title: "No more neighbors",
+            message:
+              "All vertices have been fully expanded or do not have connections",
+          });
+          return;
+        }
+
+        await addToGraph(combined);
+      } catch (error) {
+        remoteLogger.error(
+          `Failed to expand nodes: ${(error as Error)?.message ?? "Unknown error"}`,
+        );
+        const displayError = createDisplayError(error);
+        enqueueNotification({
+          title: "Expanding Nodes Failed",
+          message: displayError.message,
+          type: "error",
+        });
+        throw error;
+      } finally {
+        clearNotification(progressNotificationId);
+      }
+    },
+  });
+
   return {
-    expandNode: mutate,
-    isPending,
+    expandNode,
+    expandNodes,
+    isPending: isExpandingSingle || isExpandingMultiple,
   };
+}
+
+async function fetchNeighbors(
+  request: NeighborsRequest,
+  explorer: Explorer,
+  neighborCallback: ReturnType<typeof useNeighborsCallback>,
+  getFetchedNeighbors: ReturnType<typeof useFetchedNeighborsCallback>,
+) {
+  const neighbor = await neighborCallback(request.vertexId);
+
+  if (neighbor.unfetched <= 0) {
+    return {
+      vertices: [],
+      edges: [],
+    } satisfies Entities;
+  }
+
+  // Get neighbors that have already been added so they can be excluded
+  const excludedNeighbors = getFetchedNeighbors(request.vertexId);
+
+  // Perform the query when a request exists
+  const result = await explorer.fetchNeighbors({
+    ...request,
+    excludedVertices: excludedNeighbors,
+  });
+
+  return result;
 }
