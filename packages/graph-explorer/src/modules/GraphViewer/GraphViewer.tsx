@@ -210,41 +210,40 @@ function GraphViewerContent({
           </PanelHeaderActions>
         </PanelHeader>
         <PanelContent className="bg-background-secondary grid" ref={parentRef}>
-          <Activity mode={isVisible(!isEmpty)}>
-            <Graph
-              nodes={nodes}
-              edges={edges}
-              badgesEnabled={false}
-              getNodeBadges={getNodeBadges(nodesOutRenderedIds)}
-              selectedNodesIds={selectedVertices}
-              selectedEdgesIds={selectedEdges}
-              outOfFocusNodesIds={nodesOutRenderedIds}
-              outOfFocusEdgesIds={edgesOutRenderedIds}
-              onSelectedElementIdsChange={onSelectedElementIdsChange}
-              onNodeDoubleClick={onNodeDoubleClick}
-              onNodeRightClick={onNodeRightClick}
-              onEdgeRightClick={onEdgeRightClick}
-              onGraphRightClick={onGraphRightClick}
-              styles={styles}
-              layout={layout}
-              className="col-start-1 row-start-1 min-h-0 min-w-0"
-              onContextMenu={onContextMenu}
-            />
-            {isContextOpen &&
-              renderContextLayer(
-                <div
-                  {...contextLayerProps}
-                  style={contextLayerProps.style}
-                  className="z-menu"
-                >
-                  <ContextMenu
-                    onClose={clearAllLayers}
-                    affectedNodesIds={contextNodeId ? [contextNodeId] : []}
-                    affectedEdgesIds={contextEdgeId ? [contextEdgeId] : []}
-                  />
-                </div>,
-              )}
-          </Activity>
+          <Graph
+            nodes={nodes}
+            edges={edges}
+            badgesEnabled={false}
+            getNodeBadges={getNodeBadges(nodesOutRenderedIds)}
+            selectedNodesIds={selectedVertices}
+            selectedEdgesIds={selectedEdges}
+            outOfFocusNodesIds={nodesOutRenderedIds}
+            outOfFocusEdgesIds={edgesOutRenderedIds}
+            onSelectedElementIdsChange={onSelectedElementIdsChange}
+            onNodeDoubleClick={onNodeDoubleClick}
+            onNodeRightClick={onNodeRightClick}
+            onEdgeRightClick={onEdgeRightClick}
+            onGraphRightClick={onGraphRightClick}
+            styles={styles}
+            layout={layout}
+            className="col-start-1 row-start-1 min-h-0 min-w-0"
+            onContextMenu={onContextMenu}
+          />
+          {isContextOpen &&
+            renderContextLayer(
+              <div
+                {...contextLayerProps}
+                style={contextLayerProps.style}
+                className="z-menu"
+              >
+                <ContextMenu
+                  onClose={clearAllLayers}
+                  affectedNodesIds={contextNodeId ? [contextNodeId] : []}
+                  affectedEdgesIds={contextEdgeId ? [contextEdgeId] : []}
+                />
+              </div>,
+            )}
+
           <Activity mode={isVisible(isEmpty)}>
             <GraphViewerEmptyState className="col-start-1 row-start-1" />
           </Activity>

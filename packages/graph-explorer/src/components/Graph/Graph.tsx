@@ -366,10 +366,13 @@ export const Graph = ({
     [additionalLayoutsConfig, cy, layout],
   );
 
+  const isEmpty = !nodes.length && !edges.length;
+
   return (
     <div
       className={cn("size-fulloverflow-hidden relative", className)}
       ref={wrapperRefCb}
+      {...(isEmpty ? { inert: true } : {})}
       {...props}
     />
   );
