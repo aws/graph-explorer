@@ -138,7 +138,7 @@ function Content({ vertexType }: { vertexType: string }) {
           <FieldSet>
             <FieldGroup>
               <Field>
-                <FieldLabel>Display Name Attribute</FieldLabel>
+                <FieldLabel>Display Name {t("property")}</FieldLabel>
                 <Select
                   value={vertexStyle.displayNameAttribute}
                   onValueChange={value =>
@@ -158,7 +158,7 @@ function Content({ vertexType }: { vertexType: string }) {
                 </Select>
               </Field>
               <Field>
-                <FieldLabel>Display Description Attribute</FieldLabel>
+                <FieldLabel>Display Description {t("property")}</FieldLabel>
                 <Select
                   value={vertexStyle.longDisplayNameAttribute}
                   onValueChange={value =>
