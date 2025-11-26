@@ -16,13 +16,6 @@ import {
 } from "@/core";
 import { act, waitFor } from "@testing-library/react";
 
-vi.mock("@/components/NotificationProvider", () => ({
-  useNotification: () => ({
-    enqueueNotification: vi.fn(() => "notification-id"),
-    clearNotification: vi.fn(),
-  }),
-}));
-
 describe("useDefaultNeighborExpansionLimit", () => {
   it("should return the app limit when defined", () => {
     const dbState = new DbState();

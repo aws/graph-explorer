@@ -57,6 +57,18 @@ beforeEach(() => {
   vi.restoreAllMocks();
 });
 
+// Mock the NotificationProvider
+vi.mock(import("@/components/NotificationProvider"), async importOriginal => {
+  const original = await importOriginal();
+  return {
+    ...original,
+    useNotification: () => ({
+      enqueueNotification: vi.fn(() => "notification-id"),
+      clearNotification: vi.fn(),
+    }),
+  };
+});
+
 // Mock the internal createQueryClient to disable retries
 // Use the actual implementation, but turn off retries in the default options.
 vi.mock(import("./core/queryClient"), async importOriginal => {
