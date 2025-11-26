@@ -3,7 +3,6 @@ import {
   setEdgeDetailsQueryCache,
   setVertexDetailsQueryCache,
   type NeighborsRequest,
-  type NeighborsResponse,
 } from "@/connector";
 import { loggerSelector, useExplorer } from "@/core/connector";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -61,9 +60,7 @@ export default function useExpandNode() {
       // Enforces only one expand node mutation is executed at a time
       id: "expandNode",
     },
-    mutationFn: async (
-      request: NeighborsRequest,
-    ): Promise<NeighborsResponse | null> => {
+    mutationFn: async (request: NeighborsRequest) => {
       // Show progress
       const progressNotificationId = enqueueNotification({
         title: notificationTitle,
@@ -81,7 +78,7 @@ export default function useExpandNode() {
             message:
               "This vertex has been fully expanded or it does not have connections",
           });
-          return null;
+          return;
         }
 
         // Get neighbors that have already been added so they can be excluded
@@ -101,8 +98,6 @@ export default function useExpandNode() {
 
         // Update nodes and edges in the graph
         await addToGraph(result);
-
-        return result;
       } catch (error) {
         remoteLogger.error(
           `Failed to expand node: ${(error as Error)?.message ?? "Unknown error"}`,
