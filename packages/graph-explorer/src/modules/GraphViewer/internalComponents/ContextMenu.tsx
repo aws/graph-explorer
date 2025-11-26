@@ -251,6 +251,8 @@ function MultipleEntitiesMenu({
     removeFromGraph({ vertices: vertexIds, edges: edgeIds });
   };
 
+  const hasSelectedVertices = vertexIds.length > 0;
+
   return (
     <ContextMenuContent>
       <ContextMenuTitle>
@@ -258,11 +260,15 @@ function MultipleEntitiesMenu({
         {vertexIds.length + edgeIds.length} items selected
       </ContextMenuTitle>
       <Divider />
-      <ContextMenuItem onClick={handleExpand}>
-        <ExpandGraphIcon />
-        Expand selection
-      </ContextMenuItem>
-      <Divider />
+      {hasSelectedVertices ? (
+        <>
+          <ContextMenuItem onClick={handleExpand}>
+            <ExpandGraphIcon />
+            Expand selection
+          </ContextMenuItem>
+          <Divider />
+        </>
+      ) : null}
       <ContextMenuItem onClick={onFitSelectionToCanvas}>
         <FullscreenIcon />
         Fit selection to frame
