@@ -1,4 +1,13 @@
 {
+  "node-id": "Node Id",
+  "node-type": "Node Label",
+  "node-types": "Node Labels",
+  "edge-id": "Edge Id",
+  "edge-type": "Edge Label",
+  "edge-types": "Edge Labels",
+  "property": "Attribute",
+  "properties": "Attributes",
+
   "available-connections": {
     "graph-type": "PG-Gremlin"
   },
@@ -23,14 +32,6 @@
   },
   "edges-styling": {
     "title": "Edge Styling",
-    "edge-type": "Edge Label"
-  },
-  "node-detail": {
-    "node-id": "Node Id",
-    "node-type": "Node Label"
-  },
-  "edge-detail": {
-    "edge-id": "Edge Id",
     "edge-type": "Edge Label"
   },
   "keyword-search": {
