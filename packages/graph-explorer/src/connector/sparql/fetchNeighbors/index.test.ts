@@ -224,7 +224,6 @@ describe("fetchNeighbors", () => {
       ],
       excludedVertices: new Set([createRandomUrlString() as any]),
       limit: 10,
-      offset: 5,
     };
 
     const mockResponse = createQuadSparqlResponse([]);
@@ -240,7 +239,6 @@ describe("fetchNeighbors", () => {
     // Verify the query template contains expected elements
     expect(queryTemplate).toContain(request.resourceURI);
     expect(queryTemplate).toContain("LIMIT 10");
-    expect(queryTemplate).toContain("OFFSET 5");
   });
 
   test("should handle sparqlFetch rejection", async () => {

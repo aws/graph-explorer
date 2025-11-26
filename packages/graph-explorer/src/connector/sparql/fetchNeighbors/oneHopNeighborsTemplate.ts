@@ -31,7 +31,6 @@ import {
  *   { predicate: "http://www.example.com/soccer/ontology/nickname", object: "Gunners" },
  * ]
  * limit = 2
- * offset = 0
  *
  * SELECT DISTINCT ?subject ?predicate ?object
  * WHERE {
@@ -165,7 +164,6 @@ export function findNeighborsUsingFilters({
   filterCriteria = [],
   excludedVertices = new Set(),
   limit = 0,
-  offset = 0,
 }: SPARQLNeighborsRequest): string {
   const resourceTemplate = idParam(resourceURI);
 
@@ -191,7 +189,7 @@ export function findNeighborsUsingFilters({
       }
       ${getFilterTemplate(filterCriteria)}
     }
-    ${getLimit(limit, offset)}
+    ${getLimit(limit)}
   `;
 }
 

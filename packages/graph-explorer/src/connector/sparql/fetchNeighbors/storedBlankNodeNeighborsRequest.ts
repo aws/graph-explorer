@@ -43,10 +43,7 @@ export const storedBlankNodeNeighborsRequest = (
     });
 
     resolve({
-      vertices: filteredVertices.slice(
-        req.offset ?? 0,
-        req.limit ? req.limit + (req.offset ?? 0) : undefined,
-      ),
+      vertices: filteredVertices.slice(0, req.limit ?? undefined),
       edges: bNode.neighbors.edges,
     });
   });

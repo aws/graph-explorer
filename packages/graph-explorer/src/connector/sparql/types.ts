@@ -39,10 +39,6 @@ export type SPARQLNeighborsRequest = {
    * 0 = No limit.
    */
   limit?: number;
-  /**
-   * Skip the given number of results.
-   */
-  offset?: number;
 };
 
 export type SPARQLNeighborsPredicatesRequest = {

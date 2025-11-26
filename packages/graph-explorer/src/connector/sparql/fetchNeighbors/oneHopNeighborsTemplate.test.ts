@@ -20,7 +20,6 @@ describe("oneHopNeighborsTemplate", () => {
         },
       ],
       limit: 2,
-      offset: 0,
     });
 
     expect(normalize(template)).toEqual(
@@ -64,7 +63,6 @@ describe("oneHopNeighborsTemplate", () => {
     const template = oneHopNeighborsTemplate({
       resourceURI: createVertexId("http://www.example.com/soccer/resource#EPL"),
       limit: 10,
-      offset: 0,
     });
 
     expect(normalize(template)).toEqual(
@@ -165,11 +163,10 @@ describe("oneHopNeighborsTemplate", () => {
     );
   });
 
-  it("should produce query with limit and offset", () => {
+  it("should produce query with limit", () => {
     const template = oneHopNeighborsTemplate({
       resourceURI: createVertexId("http://www.example.com/soccer/resource#EPL"),
       limit: 10,
-      offset: 5,
     });
 
     expect(normalize(template)).toEqual(
@@ -192,7 +189,7 @@ describe("oneHopNeighborsTemplate", () => {
                 FILTER(!isLiteral(?neighbor) && ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
               }
             }
-            LIMIT 10 OFFSET 5
+            LIMIT 10
           }
           ${commonPartOfQuery("http://www.example.com/soccer/resource#EPL")}
         }
