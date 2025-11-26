@@ -64,24 +64,6 @@ export default function useExpandNode() {
     mutationFn: async (
       request: NeighborsRequest,
     ): Promise<NeighborsResponse | null> => {
-      const neighbor = await neighborCallback(request.vertexId);
-      if (!neighbor) {
-        enqueueNotification({
-          title: "No neighbor information available",
-          message: "This vertex's neighbor data has not been retrieved yet.",
-        });
-        return null;
-      }
-
-      if (neighbor.unfetched <= 0) {
-        enqueueNotification({
-          title: "No more neighbors",
-          message:
-            "This vertex has been fully expanded or it does not have connections",
-        });
-        return null;
-      }
-
       // Show progress
       const progressNotificationId = enqueueNotification({
         title: notificationTitle,
@@ -91,6 +73,17 @@ export default function useExpandNode() {
       });
 
       try {
+        const neighbor = await neighborCallback(request.vertexId);
+
+        if (neighbor.unfetched <= 0) {
+          enqueueNotification({
+            title: "No more neighbors",
+            message:
+              "This vertex has been fully expanded or it does not have connections",
+          });
+          return null;
+        }
+
         // Get neighbors that have already been added so they can be excluded
         const excludedNeighbors = getFetchedNeighbors(request.vertexId);
 
