@@ -8,6 +8,7 @@ import {
 } from "@/utils/testing";
 import useExpandNode, {
   useDefaultNeighborExpansionLimit,
+  type ExpandNodesRequest,
 } from "./useExpandNode";
 import {
   defaultNeighborExpansionLimitAtom,
@@ -195,5 +196,131 @@ describe("useExpandNode", () => {
         excludedVertices: new Set([fetchedNeighbor.id]),
       }),
     );
+  });
+
+  describe("expandNodes (multiple)", () => {
+    it("should expand multiple nodes in parallel", async () => {
+      const vertex1 = createTestableVertex();
+      const vertex2 = createTestableVertex();
+      const neighbor1 = createTestableVertex();
+      const neighbor2 = createTestableVertex();
+      const edge1 = createTestableEdge()
+        .withSource(vertex1)
+        .withTarget(neighbor1);
+      const edge2 = createTestableEdge()
+        .withSource(vertex2)
+        .withTarget(neighbor2);
+
+      // Add only source vertices to the graph
+      dbState.addTestableVertexToGraph(vertex1);
+      dbState.addTestableVertexToGraph(vertex2);
+
+      // Add edges to explorer (simulating unfetched neighbors)
+      explorer.addTestableEdge(edge1);
+      explorer.addTestableEdge(edge2);
+
+      vi.spyOn(explorer, "fetchNeighbors");
+
+      const { result } = renderHookExpandNode();
+
+      act(() => {
+        result.current.expandNodes({ vertexIds: [vertex1.id, vertex2.id] });
+      });
+
+      await waitFor(() => {
+        expect(result.current.isPending).toBe(false);
+      });
+
+      expect(explorer.fetchNeighbors).toHaveBeenCalledTimes(2);
+      expect(explorer.fetchNeighbors).toHaveBeenCalledWith(
+        expect.objectContaining({ vertexId: vertex1.id }),
+      );
+      expect(explorer.fetchNeighbors).toHaveBeenCalledWith(
+        expect.objectContaining({ vertexId: vertex2.id }),
+      );
+    });
+
+    it("should not expand nodes with no unfetched neighbors", async () => {
+      const vertex1 = createTestableVertex();
+      const vertex2 = createTestableVertex();
+      const neighbor1 = createTestableVertex();
+      const edge1 = createTestableEdge()
+        .withSource(vertex1)
+        .withTarget(neighbor1);
+
+      // vertex1 has all neighbors fetched, vertex2 has none
+      dbState.addTestableEdgeToGraph(edge1);
+      dbState.addTestableVertexToGraph(vertex2);
+
+      explorer.addTestableEdge(edge1);
+
+      vi.spyOn(explorer, "fetchNeighbors");
+
+      const { result } = renderHookExpandNode();
+
+      act(() => {
+        result.current.expandNodes({ vertexIds: [vertex1.id, vertex2.id] });
+      });
+
+      await waitFor(() => {
+        expect(result.current.isPending).toBe(false);
+      });
+
+      // Should not call fetchNeighbors for either vertex
+      // vertex1 has no unfetched neighbors, vertex2 has no neighbors at all
+      expect(explorer.fetchNeighbors).not.toHaveBeenCalled();
+    });
+
+    it("should pass filters to all expansion requests", async () => {
+      const vertex1 = createTestableVertex();
+      const vertex2 = createTestableVertex();
+      const neighbor1 = createTestableVertex().with({ types: ["Person"] });
+      const neighbor2 = createTestableVertex().with({ types: ["Person"] });
+      const edge1 = createTestableEdge()
+        .withSource(vertex1)
+        .withTarget(neighbor1);
+      const edge2 = createTestableEdge()
+        .withSource(vertex2)
+        .withTarget(neighbor2);
+
+      dbState.addTestableVertexToGraph(vertex1);
+      dbState.addTestableVertexToGraph(vertex2);
+
+      explorer.addTestableEdge(edge1);
+      explorer.addTestableEdge(edge2);
+
+      vi.spyOn(explorer, "fetchNeighbors");
+
+      const { result } = renderHookExpandNode();
+
+      const request: ExpandNodesRequest = {
+        vertexIds: [vertex1.id, vertex2.id],
+        filterByVertexTypes: ["Person"],
+        limit: 10,
+      };
+
+      act(() => {
+        result.current.expandNodes(request);
+      });
+
+      await waitFor(() => {
+        expect(result.current.isPending).toBe(false);
+      });
+
+      expect(explorer.fetchNeighbors).toHaveBeenCalledWith(
+        expect.objectContaining({
+          vertexId: vertex1.id,
+          filterByVertexTypes: ["Person"],
+          limit: 10,
+        }),
+      );
+      expect(explorer.fetchNeighbors).toHaveBeenCalledWith(
+        expect.objectContaining({
+          vertexId: vertex2.id,
+          filterByVertexTypes: ["Person"],
+          limit: 10,
+        }),
+      );
+    });
   });
 });

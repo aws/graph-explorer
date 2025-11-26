@@ -14,6 +14,7 @@ import {
   defaultNeighborExpansionLimitAtom,
   defaultNeighborExpansionLimitEnabledAtom,
   type Entities,
+  type VertexId,
 } from "@/core";
 import { createDisplayError } from "@/utils/createDisplayError";
 import { useAddToGraph } from "./useAddToGraph";
@@ -24,6 +25,10 @@ export type ExpandNodeFilters = Omit<
   NeighborsRequest,
   "vertexId" | "vertexTypes" | "excludedVertices"
 >;
+
+export type ExpandNodesRequest = ExpandNodeFilters & {
+  vertexIds: VertexId[];
+};
 
 const defaultExpansionLimitAtom = atom(get => {
   // Check for a connection override
@@ -115,9 +120,79 @@ export default function useExpandNode() {
     },
   });
 
+  // Expand multiple nodes in parallel
+  const { isPending: isExpandingMultiple, mutate: expandNodes } = useMutation({
+    scope: {
+      id: "expandNode",
+    },
+    mutationFn: async (request: ExpandNodesRequest, { client, meta }) => {
+      const explorer = getExplorer(meta);
+      const { vertexIds, ...filters } = request;
+
+      const progressNotificationId = enqueueNotification({
+        title: "Expanding Nodes",
+        message: `Expanding neighbors for ${vertexIds.length} nodes.`,
+        type: "loading",
+        autoHideDuration: null,
+      });
+
+      try {
+        // Fetch neighbors for all vertices in parallel
+        const results = await Promise.all(
+          vertexIds.map(vertexId =>
+            fetchNeighbors(
+              { vertexId, ...filters },
+              explorer,
+              neighborCallback,
+              getFetchedNeighbors,
+            ),
+          ),
+        );
+
+        // Combine all results
+        const combined = results.reduce<Entities>(
+          (acc, result) => ({
+            vertices: [...acc.vertices, ...result.vertices],
+            edges: [...acc.edges, ...result.edges],
+          }),
+          { vertices: [], edges: [] },
+        );
+
+        if (combined.vertices.length + combined.edges.length <= 0) {
+          enqueueNotification({
+            title: "No more neighbors",
+            message:
+              "All vertices have been fully expanded or do not have connections",
+          });
+          return;
+        }
+
+        // Update caches
+        combined.vertices.forEach(v => setVertexDetailsQueryCache(client, v));
+        combined.edges.forEach(e => setEdgeDetailsQueryCache(client, e));
+
+        await addToGraph(combined);
+      } catch (error) {
+        remoteLogger.error(
+          `Failed to expand nodes: ${(error as Error)?.message ?? "Unknown error"}`,
+        );
+        const displayError = createDisplayError(error);
+        enqueueNotification({
+          title: "Expanding Nodes Failed",
+          message: displayError.message,
+          type: "error",
+        });
+        throw error;
+      } finally {
+        clearNotification(progressNotificationId);
+      }
+    },
+  });
+
   return {
     expandNode,
-    isPending,
+    expandNodes,
+    isPending: isPending || isExpandingMultiple,
   };
 }
 
