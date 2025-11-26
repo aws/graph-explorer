@@ -111,7 +111,9 @@ const NodeExpandFilters = ({
                   <SearchResult className="grid">
                     <FieldGroup className="col-start-1 row-start-1 p-3">
                       <Field>
-                        <FieldLabel htmlFor="attribute">Attribute</FieldLabel>
+                        <FieldLabel htmlFor="attribute">
+                          {t("property")}
+                        </FieldLabel>
                         <Select
                           value={filter.name}
                           onValueChange={value => {

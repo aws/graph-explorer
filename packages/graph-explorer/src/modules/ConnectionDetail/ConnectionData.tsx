@@ -13,7 +13,6 @@ import {
 import {
   type DisplayVertexTypeConfig,
   useDisplayVertexTypeConfigs,
-  useQueryEngine,
   useVertexPreferences,
 } from "@/core";
 import useTranslations from "@/hooks/useTranslations";
@@ -103,16 +102,9 @@ function VertexTypeList({
 }
 
 function Row({ config }: { config: DisplayVertexTypeConfig }) {
+  const t = useTranslations();
   const vertexPreferences = useVertexPreferences(config.type);
-  const queryEngine = useQueryEngine();
-  const unit =
-    config.attributes.length === 1
-      ? queryEngine === "sparql"
-        ? "predicate"
-        : "property"
-      : queryEngine === "sparql"
-        ? "predicates"
-        : "properties";
+  const unit = config.attributes.length === 1 ? t("property") : t("properties");
 
   return (
     <Link to={`/data-explorer/${encodeURIComponent(config.type)}`}>

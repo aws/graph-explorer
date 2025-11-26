@@ -13,7 +13,7 @@ export function useVertexAttributesAsScalars(vertex: DisplayVertex) {
   // Create the ID scalar
   const idScalar = createResultScalar({
     // Blank node IDs are not standard IDs, so they get a custom label
-    name: vertex.isBlankNode ? LABELS.BLANK_NODE_ID : t("node-detail.node-id"),
+    name: vertex.isBlankNode ? LABELS.BLANK_NODE_ID : t("node-id"),
     value: vertex.displayId,
   });
 
@@ -22,7 +22,7 @@ export function useVertexAttributesAsScalars(vertex: DisplayVertex) {
     vertex.displayTypes !== LABELS.MISSING_TYPE
       ? [
           createResultScalar({
-            name: t("node-detail.node-type"),
+            name: t("node-type"),
             value: vertex.displayTypes,
           }),
         ]

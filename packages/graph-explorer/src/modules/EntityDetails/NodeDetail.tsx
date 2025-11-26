@@ -21,7 +21,7 @@ export default function NodeDetail({ node }: VertexDetailProps) {
       ? [
           {
             name: RESERVED_TYPES_PROPERTY,
-            displayLabel: t("node-detail.node-type"),
+            displayLabel: t("node-type"),
             displayValue: node.displayTypes,
           },
         ]
@@ -31,9 +31,7 @@ export default function NodeDetail({ node }: VertexDetailProps) {
     {
       name: RESERVED_ID_PROPERTY,
       // Blank node IDs are not standard IDs, so they get a custom label
-      displayLabel: node.isBlankNode
-        ? LABELS.BLANK_NODE_ID
-        : t("node-detail.node-id"),
+      displayLabel: node.isBlankNode ? LABELS.BLANK_NODE_ID : t("node-id"),
       displayValue: node.displayId,
     },
     ...displayTypes,
@@ -44,9 +42,9 @@ export default function NodeDetail({ node }: VertexDetailProps) {
     <div>
       <VertexRow vertex={node} className="border-b p-3" />
       <NeighborsList vertexId={node.id} />
-      <div className="space-y-[1.125rem] p-3">
-        <div className="text-lg font-bold">Properties</div>
-        <ul className="space-y-[1.125rem]">
+      <div className="space-y-4.5 p-3">
+        <div className="text-lg font-bold">{t("properties")}</div>
+        <ul className="space-y-4.5">
           {allAttributes.map(attribute => (
             <EntityAttribute key={attribute.name} attribute={attribute} />
           ))}

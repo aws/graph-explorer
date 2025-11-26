@@ -46,7 +46,7 @@ const EdgeDetail = ({ edge }: EdgeDetailProps) => {
       ? [
           {
             name: RESERVED_ID_PROPERTY,
-            displayLabel: t("edge-detail.edge-id"),
+            displayLabel: t("edge-id"),
             displayValue: edge.displayId,
           },
         ]
@@ -95,7 +95,7 @@ const EdgeDetail = ({ edge }: EdgeDetailProps) => {
         >
           <Arrow
             kind={style.sourceArrowStyle || "none"}
-            className="-mb-[1px] size-[24px] shrink-0 -rotate-90 transform"
+            className="-mb-px size-[24px] shrink-0 -rotate-90 transform"
           />
           <div
             className="h-full w-[2px]"
@@ -103,15 +103,15 @@ const EdgeDetail = ({ edge }: EdgeDetailProps) => {
           ></div>
           <Arrow
             kind={style.targetArrowStyle || "triangle"}
-            className="-mt-[1px] size-[24px] shrink-0 rotate-90 transform"
+            className="-mt-px size-[24px] shrink-0 rotate-90 transform"
           />
         </div>
         <VertexRow vertex={sourceVertex} />
         <VertexRow vertex={targetVertex} />
       </div>
-      <div className="space-y-[1.125rem] p-3">
-        <div className="text-lg font-bold">Properties</div>
-        <ul className="space-y-[1.125rem]">
+      <div className="space-y-4.5 p-3">
+        <div className="text-lg font-bold">{t("properties")}</div>
+        <ul className="space-y-4.5">
           {allAttributes.map(attribute => (
             <EntityAttribute key={attribute.name} attribute={attribute} />
           ))}

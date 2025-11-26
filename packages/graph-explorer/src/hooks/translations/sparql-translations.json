@@ -1,4 +1,13 @@
 {
+  "node-id": "Resource URI",
+  "node-type": "Class",
+  "node-types": "Classes",
+  "edge-id": "Predicate URI",
+  "edge-type": "Predicate",
+  "edge-types": "Predicates",
+  "property": "Literal",
+  "properties": "Literals",
+
   "available-connections": {
     "graph-type": "RDF-SPARQL"
   },
@@ -23,14 +32,6 @@
   },
   "edges-styling": {
     "title": "Predicate Styling",
-    "edge-type": "Predicate"
-  },
-  "node-detail": {
-    "node-id": "Resource URI",
-    "node-type": "Class"
-  },
-  "edge-detail": {
-    "edge-id": "Predicate URI",
     "edge-type": "Predicate"
   },
   "keyword-search": {

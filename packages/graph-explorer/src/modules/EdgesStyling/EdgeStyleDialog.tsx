@@ -97,7 +97,7 @@ function Content({ edgeType }: { edgeType: string }) {
           <FieldSet>
             <FieldGroup>
               <Field>
-                <FieldLabel>Display Name Attribute</FieldLabel>
+                <FieldLabel>Display Name {t("property")}</FieldLabel>
                 <Select
                   value={edgeStyle.displayNameAttribute}
                   onValueChange={value =>

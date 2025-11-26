@@ -31,6 +31,9 @@ export function CodeEditor({
           indentation: false,
           ...options?.guides,
         },
+        stickyScroll: {
+          enabled: false,
+        },
         lineDecorationsWidth: 0,
         overviewRulerLanes: 0,
         renderWhitespace: "none",
