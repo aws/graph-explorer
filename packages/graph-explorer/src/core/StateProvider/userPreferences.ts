@@ -153,7 +153,7 @@ export type UserStyling = {
   edges?: Array<EdgePreferencesStorageModel>;
 };
 
-export const userStylingAtom = atomWithLocalForage<UserStyling>(
+export const userStylingAtom = await atomWithLocalForage<UserStyling>(
   "user-styling",
   {},
 );

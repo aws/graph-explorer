@@ -22,9 +22,12 @@ import type { ConnectionConfig } from "@shared/types";
 import { selectAtom } from "jotai/utils";
 
 export const activeConfigurationAtom =
-  atomWithLocalForage<ConfigurationId | null>("active-configuration", null);
+  await atomWithLocalForage<ConfigurationId | null>(
+    "active-configuration",
+    null,
+  );
 
-export const configurationAtom = atomWithLocalForage<
+export const configurationAtom = await atomWithLocalForage<
   Map<ConfigurationId, RawConfiguration>
 >("configuration", new Map());
 

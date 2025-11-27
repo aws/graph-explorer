@@ -38,31 +38,15 @@ type SetStateAction<Value> = Value | ((prev: Value) => Value);
  * @param initialValue The initial value if none is found in storage
  * @returns An atom that persists to localForage
  */
-export function atomWithLocalForage<T>(key: string, initialValue: T) {
-  logger.debug(`atomWithLocalForage(${key}): init`, initialValue);
-  // Cached value
-  const baseAtom = atom(initialValue);
-
+export async function atomWithLocalForage<T>(key: string, initialValue: T) {
   // Interactions with local forage
-  const storage = createLocalForageStorage(key, initialValue);
+  const storage = createLocalForageStorage<T>(key, initialValue);
+  const preloadValue = await storage.getItem();
 
-  // Track the last modification time
-  let lastModificationTime = 0;
+  logger.debug(`atomWithLocalForage(${key}): init`, preloadValue);
 
-  // Preload data from local forage on mount
-  baseAtom.onMount = setValue => {
-    const mountTime = Date.now();
-    logger.debug(`atomWithLocalForage(${key}): mount`, mountTime);
-
-    (async () => {
-      const item = await storage.getItem();
-      // Only set the value if it hasn't been modified since mount
-      if (lastModificationTime < mountTime) {
-        logger.debug(`atomWithLocalForage(${key}): preload`, item);
-        setValue(item);
-      }
-    })();
-  };
+  // Cached value
+  const baseAtom = atom<T>(preloadValue);
 
   // Persist data to local forage on change
   const derivedAtom = atom(
@@ -78,7 +62,6 @@ export function atomWithLocalForage<T>(key: string, initialValue: T) {
         logger.debug(`atomWithLocalForage(${key}): no change`, nextValue);
         return;
       }
-      lastModificationTime = Date.now();
       logger.debug(`atomWithLocalForage(${key}): update`, nextValue);
       set(baseAtom, nextValue);
       storage.setItem(nextValue);
