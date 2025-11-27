@@ -29,7 +29,7 @@ export type SchemaInference = {
 };
 
 /** All the stored schemas */
-export const schemaAtom = atomWithLocalForage(
+export const schemaAtom = await atomWithLocalForage(
   "schema",
   new Map<string, SchemaInference>(),
 );

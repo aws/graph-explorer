@@ -2,13 +2,13 @@ import { atom, type ExtractAtomValue, useAtomValue } from "jotai";
 import { atomWithLocalForage } from "./StateProvider/atomWithLocalForage";
 
 /** Shows debug actions in various places around the app. */
-export const showDebugActionsAtom = atomWithLocalForage<boolean>(
+export const showDebugActionsAtom = await atomWithLocalForage<boolean>(
   "showDebugActions",
   false,
 );
 
 /** Shows debug actions in various places around the app. */
-export const allowLoggingDbQueryAtom = atomWithLocalForage<boolean>(
+export const allowLoggingDbQueryAtom = await atomWithLocalForage<boolean>(
   "allowLoggingDbQuery",
   false,
 );
@@ -32,10 +32,11 @@ export function useFeatureFlags() {
 
 /** Setting that enables/disables the default limit for neighbor expansion. */
 export const defaultNeighborExpansionLimitEnabledAtom =
-  atomWithLocalForage<boolean>("defaultNeighborExpansionLimitEnabled", true);
+  await atomWithLocalForage<boolean>(
+    "defaultNeighborExpansionLimitEnabled",
+    true,
+  );
 
 /** Setting that defines the default limit for neighbor expansion. */
-export const defaultNeighborExpansionLimitAtom = atomWithLocalForage<number>(
-  "defaultNeighborExpansionLimit",
-  10,
-);
+export const defaultNeighborExpansionLimitAtom =
+  await atomWithLocalForage<number>("defaultNeighborExpansionLimit", 10);

@@ -121,8 +121,8 @@ vi.mock("@monaco-editor/react", () => ({
 }));
 
 // Stub out localforage using map
-let localForageStore: Map<string, any> = new Map();
 vi.mock(import("localforage"), () => {
+  const localForageStore: Map<string, any> = new Map();
   return {
     default: {
       config: vi.fn(),
@@ -163,9 +163,4 @@ vi.mock(import("localforage"), () => {
       dropInstance: vi.fn(),
     } satisfies LocalForage,
   };
-});
-
-beforeEach(() => {
-  localForageStore.clear();
-  localForageStore = new Map();
 });

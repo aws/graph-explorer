@@ -28,14 +28,17 @@ export type SidebarItems = UserLayout["activeSidebarItem"];
 
 export const DEFAULT_TABLE_VIEW_HEIGHT = 300;
 
-export const userLayoutAtom = atomWithLocalForage<UserLayout>("user-layout", {
-  activeToggles: new Set(["graph-viewer", "table-view"]),
-  activeSidebarItem: "search",
-  detailsAutoOpenOnSelection: true,
-  tableView: {
-    height: DEFAULT_TABLE_VIEW_HEIGHT,
+export const userLayoutAtom = await atomWithLocalForage<UserLayout>(
+  "user-layout",
+  {
+    activeToggles: new Set(["graph-viewer", "table-view"]),
+    activeSidebarItem: "search",
+    detailsAutoOpenOnSelection: true,
+    tableView: {
+      height: DEFAULT_TABLE_VIEW_HEIGHT,
+    },
   },
-});
+);
 
 export function useViewToggles() {
   const [userLayout, setUserLayout] = useAtom(userLayoutAtom);
