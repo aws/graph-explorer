@@ -14,7 +14,7 @@ export type GraphSessionStorageModel = {
 export const isRestorePreviousSessionAvailableAtom = atomWithReset(true);
 
 /** Stores the graph session data for each connection. */
-export const allGraphSessionsAtom = atomWithLocalForage<
+export const allGraphSessionsAtom = await atomWithLocalForage<
   Map<ConfigurationId, GraphSessionStorageModel>
 >("graph-sessions", new Map());
 
