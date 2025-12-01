@@ -8,7 +8,6 @@ import {
 import type { TableInstance } from "react-table";
 import useDeepCompareEffect from "use-deep-compare-effect";
 
-import { useWithTheme } from "@/core";
 import { useDeepMemo } from "@/hooks";
 
 import {
@@ -19,7 +18,6 @@ import {
 } from "./controls";
 import type { TabularInstance } from "./helpers/tableInstanceToTabularInstance";
 import tableInstanceToTabularInstance from "./helpers/tableInstanceToTabularInstance";
-import defaultStyles from "./Tabular.styles";
 import TabularControlsProvider, {
   useTabularControl,
 } from "./TabularControlsProvider";
@@ -28,23 +26,8 @@ import TabularRow from "./TabularRow";
 import type { TabularOptions } from "./useTabular";
 import useTabular from "./useTabular";
 
-export type TabularVariantType = "bordered" | "noBorders";
-
 export interface TabularProps<T extends object> extends TabularOptions<T> {
   className?: string;
-
-  /**
-   * Disables the sticky header. By default, it is pinned to the top of the view
-   * so that it is visible even when scrolling.
-   */
-  disableStickyHeader?: boolean;
-
-  /**
-   * Allows row to grow vertically. Each row grows to fit to table available space.
-   */
-  fitRowsVertically?: boolean;
-
-  variant?: TabularVariantType;
   globalSearch?: string;
   ref?: React.Ref<TabularInstance<T>>;
 }
@@ -59,7 +42,6 @@ export const Tabular = <T extends object>({
   pageSize = 10,
   onDataFilteredChange,
   onColumnSortedChange,
-  variant = "bordered",
   globalSearch,
   ref,
   ...useTabularOptions
@@ -80,7 +62,6 @@ export const Tabular = <T extends object>({
     paginationOptions,
     pageIndex,
     pageSize,
-    variant,
     ...useTabularOptions,
   };
 
@@ -115,11 +96,7 @@ export const Tabular = <T extends object>({
 
   return (
     <TabularControlsProvider tabularInstance={tabularInstance}>
-      <TabularContent
-        {...tabularContentProps}
-        variant={variant}
-        tableInstance={tableInstance}
-      />
+      <TabularContent {...tabularContentProps} tableInstance={tableInstance} />
     </TabularControlsProvider>
   );
 };
@@ -129,12 +106,9 @@ const TabularContent = <T extends object>({
   className,
   tableInstance,
   disablePagination,
-  disableStickyHeader,
-  fitRowsVertically,
   rowSelectionMode,
   onRowMouseOver,
   onRowMouseOut,
-  variant,
 }: PropsWithChildren<
   TabularProps<T> & { tableInstance: TableInstance<T> }
 >) => {
@@ -149,7 +123,6 @@ const TabularContent = <T extends object>({
   const { tableRef, headerControlsRef, headerControlsPosition } =
     useTabularControl();
   const [stickyHeaderTop, setStickyHeaderTop] = useState(0);
-  const styleWithTheme = useWithTheme();
 
   const { getTableProps, getTableBodyProps, headerGroups, rows, page } =
     tableInstance;
@@ -193,9 +166,8 @@ const TabularContent = <T extends object>({
     <div
       ref={tableRef}
       className={cn(
-        styleWithTheme(defaultStyles(variant)),
+        "bg-background-default text-text-primary flex h-full max-h-full w-full max-w-full flex-col overflow-hidden",
         className,
-        "overflow-hidden",
       )}
       style={{
         userSelect: tableInstance.state.columnResizing?.isResizingColumn
@@ -204,11 +176,12 @@ const TabularContent = <T extends object>({
       }}
     >
       {headerControlsChildren}
-      <div {...getTableProps()} className="table overflow-auto">
+      <table
+        {...getTableProps()}
+        className="relative isolate flex w-full grow flex-col overflow-auto"
+      >
         <div
-          className={cn("headers", {
-            ["headers-sticky"]: !disableStickyHeader,
-          })}
+          className="sticky top-0 z-1 w-fit min-w-full"
           style={{
             // Top is assigned depending on the header-controls visibility and height
             // It only affects to sticky header
@@ -223,7 +196,13 @@ const TabularContent = <T extends object>({
             />
           ))}
         </div>
-        <div {...getTableBodyProps()} className="body">
+        <tbody
+          {...getTableBodyProps()}
+          className={cn(
+            "flex w-fit min-w-full flex-col",
+            actualRows.length === 0 && "grow",
+          )}
+        >
           {emptyBodyControlsChildren}
           {actualRows.map(row => {
             return (
@@ -231,18 +210,17 @@ const TabularContent = <T extends object>({
                 key={row.id}
                 row={row}
                 tableInstance={tableInstance}
-                fitRowsVertically={fitRowsVertically}
                 rowSelectionMode={rowSelectionMode}
                 onMouseOver={onRowMouseOver}
                 onMouseOut={onRowMouseOut}
               />
             );
           })}
-        </div>
-      </div>
+        </tbody>
+      </table>
       {footerControlsChildren}
       {!footerControlsChildren && !disablePagination && (
-        <TabularFooterControls variant={variant}>
+        <TabularFooterControls>
           <Paging totalRows={rows.length} />
         </TabularFooterControls>
       )}

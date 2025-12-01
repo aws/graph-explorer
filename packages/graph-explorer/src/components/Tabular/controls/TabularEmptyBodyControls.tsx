@@ -1,4 +1,3 @@
-import { css } from "@emotion/css";
 import { cn } from "@/utils";
 
 import type { FC, PropsWithChildren } from "react";
@@ -8,18 +7,6 @@ import { useTabularControl } from "../TabularControlsProvider";
 export type TabularEmptyBodyControlsProps = PropsWithChildren<{
   className?: string;
 }>;
-
-const defaultStyles = () => css`
-  &.body-controls {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-    width: 100%;
-    justify-content: center;
-    align-items: center;
-  }
-`;
 
 const TabularEmptyBodyControls: FC<TabularEmptyBodyControlsProps> = ({
   children,
@@ -34,7 +21,12 @@ const TabularEmptyBodyControls: FC<TabularEmptyBodyControlsProps> = ({
   }
 
   return (
-    <div className={cn(defaultStyles(), "body-controls", className)}>
+    <div
+      className={cn(
+        "relative flex w-full grow flex-col items-center justify-center",
+        className,
+      )}
+    >
       {children}
     </div>
   );

@@ -1,7 +1,6 @@
 export { default as AddIcon } from "./AddIcon";
 export { default as ArrowCircle } from "./ArrowCircle";
 export { default as ArrowDiamond } from "./ArrowDiamond";
-export { default as ArrowDown } from "./ArrowDown";
 export { default as ArrowNone } from "./ArrowNone";
 export { default as ArrowSquare } from "./ArrowSquare";
 export { default as ArrowTee } from "./ArrowTee";

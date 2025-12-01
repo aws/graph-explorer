@@ -228,17 +228,16 @@ function AddToExplorerButton({ vertex }: { vertex: Vertex }) {
   const isInExplorer = useHasVertexBeenAddedToGraph(vertex.id);
 
   return (
-    <div style={{ display: "inline-block" }}>
-      <Button
-        isDisabled={isInExplorer}
-        icon={isInExplorer ? <CheckIcon /> : <SendIcon />}
-        variant="default"
-        size="small"
-        onPress={addToGraph}
-      >
-        {isInExplorer ? "Sent to Explorer" : "Send to Explorer"}
-      </Button>
-    </div>
+    <Button
+      isDisabled={isInExplorer}
+      variant="outline"
+      size="small"
+      onClick={addToGraph}
+      className="text-nowrap"
+    >
+      {isInExplorer ? <CheckIcon /> : <SendIcon />}
+      {isInExplorer ? "Sent to Explorer" : "Send to Explorer"}
+    </Button>
   );
 }
 
@@ -267,8 +266,7 @@ function useColumnDefinitions(vertexType: string) {
       filterable: false,
       sortable: false,
       resizable: false,
-      width: 200,
-      align: "right",
+      width: 180,
       cellComponent: ({ cell }) => (
         <AddToExplorerButton vertex={cell.row.original.original} />
       ),

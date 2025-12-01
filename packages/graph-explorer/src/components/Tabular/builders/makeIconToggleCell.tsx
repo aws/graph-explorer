@@ -1,4 +1,3 @@
-import { css } from "@emotion/css";
 import type { ReactNode } from "react";
 import { IconButton } from "@/components";
 
@@ -12,24 +11,6 @@ type IconActionCellProps<T extends object> = {
   onPress?(props: CellComponentProps<T>): void;
 };
 
-const styles = () => css`
-  display: flex;
-  justify-content: center;
-  align-content: center;
-  width: 100%;
-  height: 100%;
-  font-size: 1.3rem;
-
-  > div {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 24px;
-    height: 24px;
-    border-radius: 12px;
-  }
-`;
-
 export const makeIconActionCell =
   <T extends object>({
     title,
@@ -40,7 +21,7 @@ export const makeIconActionCell =
   }: IconActionCellProps<T>) =>
   (props: CellComponentProps<T>) => {
     return (
-      <div className={styles()}>
+      <div className="flex h-full w-full content-center justify-center text-[1.3rem] [&>div]:flex [&>div]:size-6 [&>div]:items-center [&>div]:justify-center [&>div]:rounded-full">
         <IconButton
           title={title}
           icon={getValue(props) ? on : off}

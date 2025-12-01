@@ -1,8 +1,6 @@
 import { cn } from "@/utils";
-
+import { ArrowDown } from "lucide-react";
 import type { HeaderGroup, TableInstance } from "react-table";
-
-import { ArrowDown } from "@/components/icons";
 
 const TabularHeader = <T extends object>({
   headerGroup,
@@ -14,71 +12,66 @@ const TabularHeader = <T extends object>({
   const { state } = tableInstance;
   const { key, ...otherProps } = headerGroup.getHeaderGroupProps();
 
+  const isResizing = (columnId: string) =>
+    state.columnResizing?.isResizingColumn === columnId;
+
   return (
-    <div key={key} {...otherProps} className="row">
+    <tr
+      key={key}
+      {...otherProps}
+      className="grow-0 border border-x-transparent border-t-transparent bg-gray-50"
+    >
       {headerGroup.headers.map(column => {
-        const { key, style, ...restHeaderProps } = column.getHeaderProps(
-          column.getSortByToggleProps({
-            style: { display: "flex", cursor: "default" },
-          }),
+        const { key, ...headerProps } = column.getHeaderProps(
+          column.getSortByToggleProps(),
         );
 
         // This wrapper avoids collisions between sort and resize events
         return (
-          <div
+          <th
             key={key}
-            style={style}
-            className={cn("header", {
-              ["header-resizing"]:
-                column.isResizing ||
-                state.columnResizing?.isResizingColumn === column.id,
-            })}
+            {...headerProps}
+            className={cn(
+              "group/th text-secondary grid grid-cols-[1fr_auto] grid-rows-[auto_auto] gap-1 border-r px-2 py-1 font-medium transition-[background,border] duration-150 last:border-none",
+              (column.isResizing || isResizing(column.id)) &&
+                "border-primary-dark cursor-col-resize! border-dashed",
+              column.canSort && "cursor-pointer",
+            )}
           >
             <div
-              {...restHeaderProps}
-              className={cn(
-                "header-label",
-                `header-label-align-${column.align || "left"}`,
-                {
-                  ["header-label-sortable"]: column.canSort,
-                  [`header-label-sort-${column.isSortedDesc ? "desc" : "asc"}`]:
-                    column.isSorted,
-                },
-              )}
+              className="place-self-start overflow-hidden text-left data-[align='right']:text-right data-[overflow='ellipsis']:text-ellipsis"
+              data-align={column.align}
+              data-overflow={column.overflow}
             >
-              <div
-                className={cn({
-                  ["header-overflow-ellipsis"]: column.overflow === "ellipsis",
-                  ["header-overflow-truncate"]: column.overflow === "truncate",
-                })}
-              >
-                {column.render("Header")}
-              </div>
-              <div>
-                <div
-                  className="header-label-sorter"
-                  style={{
-                    opacity: column.isSorted ? 1 : 0,
-                    transform: column.isSortedDesc ? "unset" : "rotate(180deg)",
-                  }}
-                >
-                  <ArrowDown width={18} height={18} />
-                </div>
-              </div>
+              {column.render("Header")}
             </div>
+
+            <div
+              className={cn(
+                "invisible place-self-start opacity-50 transition-transform duration-150 data-sortable:group-hover/th:visible data-[direction='asc']:rotate-180 data-[state='sorted']:visible data-[state='sorted']:opacity-100",
+              )}
+              data-state={column.isSorted ? "sorted" : "none"}
+              data-direction={column.isSortedDesc ? "desc" : "asc"}
+              data-sortable={column.canSort ? "true" : undefined}
+            >
+              <ArrowDown className="size-5" />
+            </div>
+
             {column.canFilter && (
-              <div className="header-filter">{column.render("Filter")}</div>
+              <div className="col-span-2 self-end">
+                {column.render("Filter")}
+              </div>
             )}
             {column.canResize && (
               <div
                 {...(column.getResizerProps?.() || {})}
-                className="col-resizer"
+                className="absolute top-0 right-0 z-1 h-full w-2"
               />
             )}
-          </div>
+          </th>
         );
       })}
-    </div>
+    </tr>
   );
 };
 
