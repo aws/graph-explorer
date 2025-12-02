@@ -3,12 +3,18 @@ import { cn, isVisible } from "@/utils";
 import { Resizable } from "re-resizable";
 import { Link } from "react-router";
 import {
+  Button,
   buttonStyles,
   Divider,
   EdgeIcon,
+  EmptyState,
+  EmptyStateActions,
+  EmptyStateContent,
+  EmptyStateDescription,
+  EmptyStateIcon,
+  EmptyStateTitle,
   IconButton,
   NamespaceIcon,
-  PanelEmptyState,
 } from "@/components";
 import {
   DatabaseIcon,
@@ -107,11 +113,27 @@ const GraphExplorer = () => {
 
       <Workspace.Content>
         <Activity mode={isVisible(!isGraphVisible && !isTableVisible)}>
-          <PanelEmptyState
-            icon={<EmptyWidgetIcon />}
-            title="No active views"
-            subtitle="Use toggles in the top-right corner to show/hide views"
-          />
+          <EmptyState>
+            <EmptyStateIcon>
+              <EmptyWidgetIcon />
+            </EmptyStateIcon>
+            <EmptyStateContent>
+              <EmptyStateTitle>All Views Hidden</EmptyStateTitle>
+              <EmptyStateDescription>
+                To view your graph data show the graph view or table view
+              </EmptyStateDescription>
+              <EmptyStateActions>
+                <Button variant="filled" onClick={toggleGraphVisibility}>
+                  <GraphIcon />
+                  Show Graph View
+                </Button>
+                <Button variant="filled" onClick={toggleTableVisibility}>
+                  <GridIcon />
+                  Show Table View
+                </Button>
+              </EmptyStateActions>
+            </EmptyStateContent>
+          </EmptyState>
         </Activity>
         <Activity mode={isVisible(isGraphVisible)}>
           <GraphViewer />
