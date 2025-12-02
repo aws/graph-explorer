@@ -19,6 +19,10 @@ export function TextFilter<T extends object>({
           className="h-8 px-2 pl-8"
           placeholder={placeholder || "Filter..."}
           value={column.filterValue || ""}
+          onClick={e => {
+            // Prevents the click in the input from causing the column to sort
+            e.stopPropagation();
+          }}
           onChange={e => {
             // do not use value || undefined because
             // if the user types zero, it clears the filter too
