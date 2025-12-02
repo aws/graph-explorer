@@ -372,7 +372,7 @@ export const Graph = ({
     <div
       className={cn("size-fulloverflow-hidden relative", className)}
       ref={wrapperRefCb}
-      {...(isEmpty ? { inert: true } : {})}
+      inert={isEmpty}
       {...props}
     />
   );
