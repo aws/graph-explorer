@@ -1,11 +1,7 @@
 import difference from "lodash/difference";
-import { NonVisibleIcon, VisibleIcon } from "@/components";
 import type { ColumnDefinition, TabularInstance } from "@/components/Tabular";
 import { makeIconToggleCell } from "@/components/Tabular/builders";
-import {
-  PlaceholderControl,
-  TabularEmptyBodyControls,
-} from "@/components/Tabular/controls";
+import { TabularEmptyBodyControls } from "@/components/Tabular/controls";
 import Tabular from "@/components/Tabular/Tabular";
 import {
   type DisplayVertex,
@@ -23,6 +19,13 @@ import {
 import { useDeepMemo, useTranslations } from "@/hooks";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useGraphSelection } from "@/modules/GraphViewer";
+import { EyeIcon, EyeOffIcon } from "lucide-react";
+import {
+  EmptyState,
+  EmptyStateContent,
+  EmptyStateDescription,
+  EmptyStateTitle,
+} from "@/components";
 
 type ToggleVertex = DisplayVertex & {
   __is_visible: boolean;
@@ -54,8 +57,8 @@ function NodesTabular({ ref }: NodesTabularProps) {
       accessor: "__is_visible",
       cellComponent: makeIconToggleCell<ToggleVertex>({
         title: "Toggle Visibility",
-        on: <NonVisibleIcon style={{ color: "#FA8500" }} />,
-        off: <VisibleIcon />,
+        on: <EyeIcon />,
+        off: <EyeOffIcon />,
         getValue: ({ cell }) => !cell.value,
         onPress: ({ cell }) => toggleFilteredNode(cell.row.original.id),
       }),
@@ -156,9 +159,14 @@ function NodesTabular({ ref }: NodesTabularProps) {
     >
       <TabularEmptyBodyControls>
         {data.length === 0 && (
-          <PlaceholderControl>
-            {t("entities-tabular.nodes-placeholder")}
-          </PlaceholderControl>
+          <EmptyState>
+            <EmptyStateContent>
+              <EmptyStateTitle>Empty Graph</EmptyStateTitle>
+              <EmptyStateDescription>
+                {t("entities-tabular.nodes-placeholder")}
+              </EmptyStateDescription>
+            </EmptyStateContent>
+          </EmptyState>
         )}
       </TabularEmptyBodyControls>
     </Tabular>

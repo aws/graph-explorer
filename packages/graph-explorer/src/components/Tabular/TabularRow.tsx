@@ -6,13 +6,12 @@ import type { Row, TableInstance } from "react-table";
 import type { TabularProps } from "./Tabular";
 
 const TabularRow = <T extends object>({
-  fitRowsVertically,
   rowSelectionMode,
   row,
   tableInstance,
   onMouseOver,
   onMouseOut,
-}: Pick<TabularProps<T>, "fitRowsVertically" | "rowSelectionMode"> & {
+}: Pick<TabularProps<T>, "rowSelectionMode"> & {
   tableInstance: TableInstance<T>;
   row: Row<T>;
   onMouseOver?(event: MouseEvent<HTMLDivElement>, row: Row<T>): void;
@@ -41,53 +40,57 @@ const TabularRow = <T extends object>({
 
   const { key: _, ...rowProps } = row.getRowProps();
 
+  const isResizing = (columnId: string) =>
+    state.columnResizing?.isResizingColumn === columnId;
+
   return (
-    <div
+    <tr
       {...rowProps}
-      className={cn("row", {
-        ["row-grow"]: fitRowsVertically,
-        ["row-selectable"]: rowSelectionMode === "row",
-        ["row-selected"]: row.isSelected,
-      })}
+      className="group/tr text-text-primary data-selected:text-primary-dark data-selected:border-primary-dark data-selected:bg-background-secondary grow-0 border border-x-transparent border-t-transparent data-[selection-mode='row']:hover:cursor-pointer data-[selection-mode='row']:hover:bg-gray-50 data-[selection-mode='row']:data-selected:hover:bg-blue-200/75"
       onClick={() =>
         rowSelectionMode === "row" && selectable && row.toggleRowSelected()
       }
       onMouseOver={event => onMouseOver?.(event, row)}
       onMouseOut={event => onMouseOut?.(event, row)}
+      data-selection-mode={rowSelectionMode}
+      data-selected={row.isSelected ? "true" : undefined}
     >
       {row.cells.map(cell => {
         const { key, ...cellProps } = cell.getCellProps({
           style: { display: "flex" },
         });
         return (
-          <div
+          <td
             key={key}
             {...cellProps}
-            className={cn("cell", `cell-align-${cell.column.align || "left"}`, {
-              ["cell-resizing"]:
-                cell.column.isResizing ||
-                state.columnResizing?.isResizingColumn === cell.column.id,
-            })}
+            className={cn(
+              "group-data-selected/tr:border-primary-dark/25 relative grid items-center border-r px-2 py-1 transition-[border] duration-150 last:border-none data-[align='right']:text-right",
+              (cell.column.isResizing || isResizing(cell.column.id)) &&
+                "border-primary-dark cursor-col-resize! border-dashed",
+            )}
+            data-align={cell.column.align}
           >
             <div
-              className={cn("cell-content", {
-                ["cell-overflow-ellipsis"]: cell.column.overflow === "ellipsis",
-                ["cell-overflow-truncate"]: cell.column.overflow === "truncate",
-                ["cell-one-line"]: cell.column.oneLine,
-              })}
+              className={cn(
+                "w-full overflow-hidden data-[overflow='ellipsis']:text-ellipsis",
+                {
+                  "break-keep whitespace-nowrap": cell.column.oneLine,
+                },
+              )}
+              data-overflow={cell.column.overflow}
             >
               {cell.render("Cell")}
             </div>
             {cell.column.canResize && (
               <div
                 {...(cell.column.getResizerProps?.() || {})}
-                className="cell-resizer"
+                className="absolute top-0 right-0 z-1 h-full w-2"
               />
             )}
-          </div>
+          </td>
         );
       })}
-    </div>
+    </tr>
   );
 };
 

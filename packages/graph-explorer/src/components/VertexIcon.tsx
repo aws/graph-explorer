@@ -1,7 +1,8 @@
-import { fade, useVertexPreferences, type VertexPreferences } from "@/core";
+import { useVertexPreferences, type VertexPreferences } from "@/core";
 import SVG from "react-inlinesvg";
 import { cn } from "@/utils";
 import { SearchResultSymbol } from "./SearchResult";
+import type { CSSProperties } from "react";
 
 interface Props {
   vertexStyle: VertexPreferences;
@@ -48,10 +49,13 @@ export function VertexSymbol({
 }) {
   return (
     <SearchResultSymbol
-      className={cn("bg-primary-main/20 text-primary-main", className)}
-      style={{
-        background: fade(vertexStyle.color, 0.2),
-      }}
+      className={cn("text-primary-main bg-(--bg-color)", className)}
+      style={
+        {
+          // Defines the background color with the configured amount of transparency added
+          "--bg-color": `color-mix(in srgb, ${vertexStyle.color} ${vertexStyle.backgroundOpacity * 100}%, transparent)`,
+        } as CSSProperties
+      }
     >
       <VertexIcon vertexStyle={vertexStyle} className="size-full" />
     </SearchResultSymbol>

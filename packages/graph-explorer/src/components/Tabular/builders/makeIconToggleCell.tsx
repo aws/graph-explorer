@@ -1,7 +1,5 @@
-import { css } from "@emotion/css";
 import type { ReactNode } from "react";
-import { IconButton } from "@/components";
-
+import { Button, Tooltip, TooltipContent, TooltipTrigger } from "@/components";
 import type { CellComponentProps } from "../useTabular";
 
 type IconActionCellProps<T extends object> = {
@@ -12,44 +10,29 @@ type IconActionCellProps<T extends object> = {
   onPress?(props: CellComponentProps<T>): void;
 };
 
-const styles = () => css`
-  display: flex;
-  justify-content: center;
-  align-content: center;
-  width: 100%;
-  height: 100%;
-  font-size: 1.3rem;
-
-  > div {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 24px;
-    height: 24px;
-    border-radius: 12px;
-  }
-`;
-
-export const makeIconActionCell =
-  <T extends object>({
-    title,
-    on,
-    off,
-    getValue,
-    onPress,
-  }: IconActionCellProps<T>) =>
-  (props: CellComponentProps<T>) => {
+export default function makeIconActionCell<T extends object>({
+  title,
+  on,
+  off,
+  getValue,
+  onPress,
+}: IconActionCellProps<T>) {
+  return (props: CellComponentProps<T>) => {
     return (
-      <div className={styles()}>
-        <IconButton
-          title={title}
-          icon={getValue(props) ? on : off}
-          size="small"
-          variant="text"
-          onClick={() => onPress?.(props)}
-        />
-      </div>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            size="small"
+            variant="text"
+            onClick={() => onPress?.(props)}
+            className="active:bg-brand-100 text-brand-600 hover:text-brand-800 w-full cursor-pointer hover:bg-transparent"
+          >
+            {getValue(props) ? on : off}
+            <span className="sr-only">{title}</span>
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>{title}</TooltipContent>
+      </Tooltip>
     );
   };
-
-export default makeIconActionCell;
+}

@@ -12,13 +12,13 @@ import {
   TooltipContent,
   TooltipTrigger,
   VertexIcon,
-  VisibleIcon,
 } from "@/components";
 import useNeighborsOptions, {
   type NeighborOption,
 } from "@/hooks/useNeighborsOptions";
 import { type ComponentPropsWithoutRef, useState } from "react";
 import { useQueryEngine } from "@/core/connector";
+import { EyeIcon } from "lucide-react";
 
 export type NeighborsListProps = {
   vertexId: VertexId;
@@ -79,7 +79,7 @@ function NeighborTypeRow({
       <Tooltip>
         <TooltipTrigger asChild>
           <Chip className="min-w-12">
-            <VisibleIcon />
+            <EyeIcon />
             {neighbors.fetched}
           </Chip>
         </TooltipTrigger>

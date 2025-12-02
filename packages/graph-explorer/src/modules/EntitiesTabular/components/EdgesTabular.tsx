@@ -1,11 +1,7 @@
 import difference from "lodash/difference";
-import { NonVisibleIcon, VisibleIcon } from "@/components";
 import type { ColumnDefinition, TabularInstance } from "@/components/Tabular";
 import { makeIconToggleCell } from "@/components/Tabular/builders";
-import {
-  PlaceholderControl,
-  TabularEmptyBodyControls,
-} from "@/components/Tabular/controls";
+import { TabularEmptyBodyControls } from "@/components/Tabular/controls";
 import Tabular from "@/components/Tabular/Tabular";
 import {
   edgesFilteredIdsAtom,
@@ -25,6 +21,13 @@ import {
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { LABELS } from "@/utils";
 import { useGraphSelection } from "@/modules/GraphViewer";
+import { EyeIcon, EyeOff } from "lucide-react";
+import {
+  EmptyState,
+  EmptyStateContent,
+  EmptyStateTitle,
+  EmptyStateDescription,
+} from "@/components";
 
 /** Creates the model for the table data */
 function createEdgeForTable(
@@ -73,8 +76,8 @@ function EdgesTabular({ ref }: EdgesTabularProps) {
       accessor: "__is_visible",
       cellComponent: makeIconToggleCell<ToggleEdge>({
         title: "Toggle Visibility",
-        on: <VisibleIcon />,
-        off: <NonVisibleIcon style={{ color: "#FA8500" }} />,
+        on: <EyeIcon />,
+        off: <EyeOff />,
         getValue: ({ cell }) => !!cell.value,
         onPress: ({ cell }) => toggleFilteredEdge(cell.row.original.id),
       }),
@@ -162,9 +165,14 @@ function EdgesTabular({ ref }: EdgesTabularProps) {
     >
       <TabularEmptyBodyControls>
         {data.length === 0 && (
-          <PlaceholderControl>
-            {t("entities-tabular.edges-placeholder")}
-          </PlaceholderControl>
+          <EmptyState>
+            <EmptyStateContent>
+              <EmptyStateTitle>Empty Graph</EmptyStateTitle>
+              <EmptyStateDescription>
+                {t("entities-tabular.edges-placeholder")}
+              </EmptyStateDescription>
+            </EmptyStateContent>
+          </EmptyState>
         )}
       </TabularEmptyBodyControls>
     </Tabular>

@@ -15,6 +15,10 @@ import {
   buttonStyles,
   CheckIcon,
   ChevronLeftIcon,
+  EmptyState,
+  EmptyStateContent,
+  EmptyStateDescription,
+  EmptyStateTitle,
   Panel,
   PanelError,
   PanelHeader,
@@ -27,7 +31,6 @@ import { ExplorerIcon } from "@/components/icons";
 import {
   type ColumnDefinition,
   PaginationControl,
-  PlaceholderControl,
   TabularEmptyBodyControls,
   TabularFooterControls,
   type TabularInstance,
@@ -142,9 +145,14 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
                 <PanelError error={query.error} onRetry={query.refetch} />
               ) : null}
               {query.data?.vertices.length === 0 && (
-                <PlaceholderControl>
-                  {`No nodes found for "${displayTypeConfig.displayLabel}"`}
-                </PlaceholderControl>
+                <EmptyState>
+                  <EmptyStateContent>
+                    <EmptyStateTitle>No Results</EmptyStateTitle>
+                    <EmptyStateDescription>
+                      {`No nodes found for "${displayTypeConfig.displayLabel}"`}
+                    </EmptyStateDescription>
+                  </EmptyStateContent>
+                </EmptyState>
               )}
             </TabularEmptyBodyControls>
             <TabularFooterControls>
@@ -228,17 +236,16 @@ function AddToExplorerButton({ vertex }: { vertex: Vertex }) {
   const isInExplorer = useHasVertexBeenAddedToGraph(vertex.id);
 
   return (
-    <div style={{ display: "inline-block" }}>
-      <Button
-        isDisabled={isInExplorer}
-        icon={isInExplorer ? <CheckIcon /> : <SendIcon />}
-        variant="default"
-        size="small"
-        onPress={addToGraph}
-      >
-        {isInExplorer ? "Sent to Explorer" : "Send to Explorer"}
-      </Button>
-    </div>
+    <Button
+      isDisabled={isInExplorer}
+      variant="outline"
+      size="small"
+      onClick={addToGraph}
+      className="text-nowrap"
+    >
+      {isInExplorer ? <CheckIcon /> : <SendIcon />}
+      {isInExplorer ? "Sent to Explorer" : "Send to Explorer"}
+    </Button>
   );
 }
 
@@ -267,8 +274,7 @@ function useColumnDefinitions(vertexType: string) {
       filterable: false,
       sortable: false,
       resizable: false,
-      width: 200,
-      align: "right",
+      width: 180,
       cellComponent: ({ cell }) => (
         <AddToExplorerButton vertex={cell.row.original.original} />
       ),
