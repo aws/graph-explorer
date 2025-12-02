@@ -1,5 +1,4 @@
 import difference from "lodash/difference";
-import { NonVisibleIcon, VisibleIcon } from "@/components";
 import type { ColumnDefinition, TabularInstance } from "@/components/Tabular";
 import { makeIconToggleCell } from "@/components/Tabular/builders";
 import {
@@ -25,6 +24,7 @@ import {
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { LABELS } from "@/utils";
 import { useGraphSelection } from "@/modules/GraphViewer";
+import { EyeIcon, EyeOff } from "lucide-react";
 
 /** Creates the model for the table data */
 function createEdgeForTable(
@@ -73,8 +73,8 @@ function EdgesTabular({ ref }: EdgesTabularProps) {
       accessor: "__is_visible",
       cellComponent: makeIconToggleCell<ToggleEdge>({
         title: "Toggle Visibility",
-        on: <VisibleIcon />,
-        off: <NonVisibleIcon style={{ color: "#FA8500" }} />,
+        on: <EyeIcon />,
+        off: <EyeOff />,
         getValue: ({ cell }) => !!cell.value,
         onPress: ({ cell }) => toggleFilteredEdge(cell.row.original.id),
       }),

@@ -1,5 +1,4 @@
 import difference from "lodash/difference";
-import { NonVisibleIcon, VisibleIcon } from "@/components";
 import type { ColumnDefinition, TabularInstance } from "@/components/Tabular";
 import { makeIconToggleCell } from "@/components/Tabular/builders";
 import {
@@ -23,6 +22,7 @@ import {
 import { useDeepMemo, useTranslations } from "@/hooks";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useGraphSelection } from "@/modules/GraphViewer";
+import { EyeIcon, EyeOffIcon } from "lucide-react";
 
 type ToggleVertex = DisplayVertex & {
   __is_visible: boolean;
@@ -54,8 +54,8 @@ function NodesTabular({ ref }: NodesTabularProps) {
       accessor: "__is_visible",
       cellComponent: makeIconToggleCell<ToggleVertex>({
         title: "Toggle Visibility",
-        on: <NonVisibleIcon style={{ color: "#FA8500" }} />,
-        off: <VisibleIcon />,
+        on: <EyeIcon />,
+        off: <EyeOffIcon />,
         getValue: ({ cell }) => !cell.value,
         onPress: ({ cell }) => toggleFilteredNode(cell.row.original.id),
       }),
