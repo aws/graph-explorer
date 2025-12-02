@@ -15,7 +15,6 @@ import {
   EmptyStateTitle,
   IconButton,
   NamespaceIcon,
-  PanelEmptyState,
 } from "@/components";
 import {
   DatabaseIcon,
