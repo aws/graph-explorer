@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
-import { IconButton } from "@/components";
-
+import { Button, Tooltip, TooltipContent, TooltipTrigger } from "@/components";
 import type { CellComponentProps } from "../useTabular";
 
 type IconActionCellProps<T extends object> = {
@@ -11,26 +10,29 @@ type IconActionCellProps<T extends object> = {
   onPress?(props: CellComponentProps<T>): void;
 };
 
-export const makeIconActionCell =
-  <T extends object>({
-    title,
-    on,
-    off,
-    getValue,
-    onPress,
-  }: IconActionCellProps<T>) =>
-  (props: CellComponentProps<T>) => {
+export default function makeIconActionCell<T extends object>({
+  title,
+  on,
+  off,
+  getValue,
+  onPress,
+}: IconActionCellProps<T>) {
+  return (props: CellComponentProps<T>) => {
     return (
-      <div className="flex h-full w-full content-center justify-center text-[1.3rem] [&>div]:flex [&>div]:size-6 [&>div]:items-center [&>div]:justify-center [&>div]:rounded-full">
-        <IconButton
-          title={title}
-          icon={getValue(props) ? on : off}
-          size="small"
-          variant="text"
-          onClick={() => onPress?.(props)}
-        />
-      </div>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            size="small"
+            variant="text"
+            onClick={() => onPress?.(props)}
+            className="active:bg-brand-100 text-brand-600 hover:text-brand-800 w-full cursor-pointer hover:bg-transparent"
+          >
+            {getValue(props) ? on : off}
+            <span className="sr-only">{title}</span>
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>{title}</TooltipContent>
+      </Tooltip>
     );
   };
-
-export default makeIconActionCell;
+}
