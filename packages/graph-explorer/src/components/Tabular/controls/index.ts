@@ -1,4 +1,3 @@
-export { default as TabularHeaderControls } from "./TabularHeaderControls";
 export { default as TabularFooterControls } from "./TabularFooterControls";
 export { default as TabularEmptyBodyControls } from "./TabularEmptyBodyControls";
 export { default as PaginationControl } from "./PaginationControl";

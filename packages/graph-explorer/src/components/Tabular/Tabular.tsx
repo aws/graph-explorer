@@ -14,7 +14,6 @@ import {
   PaginationControl,
   TabularEmptyBodyControls,
   TabularFooterControls,
-  TabularHeaderControls,
 } from "./controls";
 import type { TabularInstance } from "./helpers/tableInstanceToTabularInstance";
 import tableInstanceToTabularInstance from "./helpers/tableInstanceToTabularInstance";
@@ -135,11 +134,6 @@ const TabularContent = <T extends object>({
     return page;
   }, [disablePagination, rows, page]);
 
-  const headerControlsChildren = getChildOfType(
-    children,
-    TabularHeaderControls.displayName || TabularHeaderControls.name,
-  );
-
   const footerControlsChildren = getChildOfType(
     children,
     TabularFooterControls.displayName || TabularFooterControls.name,
@@ -160,7 +154,7 @@ const TabularContent = <T extends object>({
     const { height } = headerControlsRef.current.getBoundingClientRect();
     setStickyHeaderTop(height);
     // headerControlsChildren can affect to the container's height
-  }, [headerControlsRef, headerControlsChildren, headerControlsPosition]);
+  }, [headerControlsRef, headerControlsPosition]);
 
   return (
     <div
@@ -175,7 +169,6 @@ const TabularContent = <T extends object>({
           : "auto",
       }}
     >
-      {headerControlsChildren}
       <table
         {...getTableProps()}
         className="relative isolate flex w-full grow flex-col overflow-auto"
