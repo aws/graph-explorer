@@ -1,4 +1,4 @@
-import { useNotification } from "@/components/NotificationProvider";
+import { toast } from "sonner";
 import {
   createNewConfigurationId,
   configurationAtom,
@@ -13,18 +13,14 @@ import { useCallback } from "react";
 
 export function useImportConnectionFile() {
   const resetState = useResetState();
-  const { enqueueNotification } = useNotification();
   return useAtomCallback(
     useCallback(
       async (_get, set, file: File) => {
         const fileContent = await fromFileToJson(file);
 
         if (!isValidConfigurationFile(fileContent)) {
-          enqueueNotification({
-            title: "Invalid File",
-            message: "The connection file is not valid",
-            type: "error",
-            stackable: true,
+          toast.error("Invalid File", {
+            description: "The connection file is not valid",
           });
           return;
         }
@@ -58,14 +54,8 @@ export function useImportConnectionFile() {
         set(activeConfigurationAtom, newId);
 
         resetState();
-        enqueueNotification({
-          title: "File imported",
-          message: "Connection file successfully imported",
-          type: "success",
-          stackable: true,
-        });
       },
-      [enqueueNotification, resetState],
+      [resetState],
     ),
   );
 }

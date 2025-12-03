@@ -24,7 +24,7 @@ import {
   SelectValue,
   VertexSymbol,
 } from "@/components";
-import { useNotification } from "@/components/NotificationProvider";
+import { toast } from "sonner";
 import { useDisplayVertexTypeConfig } from "@/core";
 import {
   type LineStyle,
@@ -106,13 +106,10 @@ function Content({ vertexType }: { vertexType: string }) {
     return options;
   })();
 
-  const { enqueueNotification } = useNotification();
   const convertImageToBase64AndSetNewIcon = async (file: File) => {
     if (file.size > 50 * 1024) {
-      enqueueNotification({
-        title: "Invalid file",
-        message: "File size too large. Maximum 50Kb",
-        type: "error",
+      toast.error("Invalid file", {
+        description: "File size too large. Maximum 50Kb",
       });
       return;
     }

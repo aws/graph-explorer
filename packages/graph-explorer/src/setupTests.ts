@@ -57,17 +57,20 @@ beforeEach(() => {
   vi.restoreAllMocks();
 });
 
-// Mock the NotificationProvider
-vi.mock(import("@/components/NotificationProvider"), async importOriginal => {
-  const original = await importOriginal();
-  return {
-    ...original,
-    useNotification: () => ({
-      enqueueNotification: vi.fn(() => "notification-id"),
-      clearNotification: vi.fn(),
-    }),
-  };
-});
+// Mock sonner toast notifications
+vi.mock("sonner", () => ({
+  toast: {
+    success: vi.fn(),
+    error: vi.fn(),
+    warning: vi.fn(),
+    info: vi.fn(),
+    loading: vi.fn(),
+    dismiss: vi.fn(),
+    custom: vi.fn(),
+    promise: vi.fn((promise: Promise<unknown>) => promise),
+  },
+  Toaster: () => null,
+}));
 
 // Mock the internal createQueryClient to disable retries
 // Use the actual implementation, but turn off retries in the default options.

@@ -1,13 +1,10 @@
-import { useNotification } from "@/components/NotificationProvider";
-import {
-  fetchEntityDetails,
-  createFetchEntityDetailsCompletionNotification,
-} from "@/connector";
+import { toast } from "sonner";
+import { fetchEntityDetails, notifyOnIncompleteRestoration } from "@/connector";
 import { useAddToGraph } from "@/hooks";
 import { logger, formatEntityCounts } from "@/utils";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import type { GraphSessionStorageModel } from "./storage";
-import { useRef } from "react";
+import { createDisplayError } from "@/utils/createDisplayError";
 
 /**
  * Provides a mutation that restores the graph session from storage.
@@ -16,59 +13,41 @@ export function useRestoreGraphSession() {
   const queryClient = useQueryClient();
   const addToGraph = useAddToGraph();
 
-  const { enqueueNotification, clearNotification } = useNotification();
-
-  const notificationTitle = "Restoring Graph Session";
-  const progressNotificationId = useRef<string | null>(null);
-
   const mutation = useMutation({
     mutationFn: async (graph: GraphSessionStorageModel) => {
       logger.debug("Restoring graph session", graph);
 
-      // Get the vertex and edge details from the database
       const entityCountMessage = formatEntityCounts(
         graph.vertices.size,
         graph.edges.size,
       );
 
-      progressNotificationId.current = enqueueNotification({
-        title: notificationTitle,
-        message: `Restoring graph session with ${entityCountMessage}.`,
-        type: "loading",
-        autoHideDuration: null,
-        stackable: true,
+      const restorePromise = (async () => {
+        const result = await fetchEntityDetails(
+          graph.vertices,
+          graph.edges,
+          queryClient,
+        );
+
+        // Update Graph Explorer state
+        await addToGraph(result.entities);
+
+        return result;
+      })();
+
+      toast.promise(restorePromise, {
+        loading: `Loading ${entityCountMessage}...`,
+        error: err => ({
+          description: createDisplayError(err).title,
+          message: createDisplayError(err).message,
+        }),
       });
 
-      const result = await fetchEntityDetails(
-        graph.vertices,
-        graph.edges,
-        queryClient,
-      );
+      const result = await restorePromise;
 
-      // Update Graph Explorer state
-      await addToGraph(result.entities);
+      notifyOnIncompleteRestoration(result);
 
-      // Notify user of completion
-      const finalNotification =
-        createFetchEntityDetailsCompletionNotification(result);
-      enqueueNotification({
-        ...finalNotification,
-        title: notificationTitle,
-        stackable: true,
-      });
-    },
-    onSettled: () => {
-      if (progressNotificationId.current) {
-        clearNotification(progressNotificationId.current);
-      }
-    },
-    onError: () => {
-      enqueueNotification({
-        title: notificationTitle,
-        message: `Failed to restore the graph session because an error occurred.`,
-        type: "error",
-        stackable: true,
-      });
+      return result;
     },
   });
   return mutation;

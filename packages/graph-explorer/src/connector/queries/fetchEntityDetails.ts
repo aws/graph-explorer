@@ -2,7 +2,7 @@ import { bulkEdgeDetailsQuery, bulkVertexDetailsQuery } from "@/connector";
 import type { VertexId, EdgeId } from "@/core";
 import { formatEntityCounts } from "@/utils";
 import type { QueryClient } from "@tanstack/react-query";
-import type { Notification } from "@/components/NotificationProvider";
+import { toast } from "sonner";
 
 /**
  * Fetches the details for the given vertices and edges.
@@ -54,37 +54,26 @@ export type FetchEntityDetailsResult = Awaited<
   ReturnType<typeof fetchEntityDetails>
 >;
 
-/** Uses the result of `fetchEntityDetails` to create a notification that summarizes the results. */
-export function createFetchEntityDetailsCompletionNotification(
+/** Uses the result of `fetchEntityDetails` to create a notification message. */
+export function notifyOnIncompleteRestoration(
   result: FetchEntityDetailsResult,
-): Notification {
+) {
   if (result.counts.notFound.total > 0) {
     const errorMessage = formatEntityCounts(
       result.counts.notFound.vertices,
       result.counts.notFound.edges,
     );
     const verb = result.counts.notFound.total > 1 ? "were" : "was";
-    return {
-      message: `Finished loading the graph, but ${errorMessage} ${verb} not found.`,
-      type: "info",
-    };
+    toast.warning(
+      `Finished loading the graph, but ${errorMessage} ${verb} not found.`,
+    );
   }
 
   const anyImported =
     result.entities.vertices.length + result.entities.edges.length > 0;
   if (!anyImported) {
-    return {
-      message: `Finished loading the graph, but no nodes or edges were loaded.`,
-      type: "error",
-    };
+    toast.warning(
+      "Finished loading the graph, but no nodes or edges were loaded.",
+    );
   }
-
-  const entityCountMessage = formatEntityCounts(
-    result.entities.vertices.length,
-    result.entities.edges.length,
-  );
-  return {
-    message: `Finished loading ${entityCountMessage} from the graph file.`,
-    type: "success",
-  };
 }

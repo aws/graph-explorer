@@ -1,4 +1,4 @@
-import { useNotification } from "@/components/NotificationProvider";
+import { toast } from "sonner";
 import {
   setEdgeDetailsQueryCache,
   setVertexDetailsQueryCache,
@@ -58,7 +58,6 @@ export function useDefaultNeighborExpansionLimit() {
 export default function useExpandNode() {
   const addToGraph = useAddToGraph();
   const getFetchedNeighbors = useFetchedNeighborsCallback();
-  const { enqueueNotification, clearNotification } = useNotification();
   const remoteLogger = useAtomValue(loggerSelector);
   const neighborCallback = useNeighborsCallback();
 
@@ -70,55 +69,43 @@ export default function useExpandNode() {
     },
     mutationFn: async (request: NeighborsRequest, { client, meta }) => {
       const explorer = getExplorer(meta);
-      const notificationTitle = "Expanding Node";
 
-      // Show progress
-      const progressNotificationId = enqueueNotification({
-        title: notificationTitle,
-        message: "Expanding neighbors for the given node.",
-        type: "loading",
-        autoHideDuration: null,
+      const expandPromise = fetchNeighbors(
+        request,
+        explorer,
+        neighborCallback,
+        getFetchedNeighbors,
+      );
+
+      toast.promise(expandPromise, {
+        loading: "Expanding neighbors...",
+        error: err => {
+          remoteLogger.error(
+            `Failed to expand node: ${(err as Error)?.message ?? "Unknown error"}`,
+          );
+          const displayError = createDisplayError(err);
+          return displayError.message;
+        },
       });
 
-      try {
-        const result = await fetchNeighbors(
-          request,
-          explorer,
-          neighborCallback,
-          getFetchedNeighbors,
-        );
+      const result = await expandPromise;
 
-        // Exit early and tell the user there are no neighbors
-        if (result.vertices.length + result.edges.length <= 0) {
-          enqueueNotification({
-            title: "No more neighbors",
-            message:
-              "This vertex has been fully expanded or it does not have connections",
-          });
-          return;
-        }
-
-        // Update the vertex and edge details caches
-        result.vertices.forEach(v => setVertexDetailsQueryCache(client, v));
-        result.edges.forEach(e => setEdgeDetailsQueryCache(client, e));
-
-        // Update nodes and edges in the graph
-        await addToGraph(result);
-      } catch (error) {
-        remoteLogger.error(
-          `Failed to expand node: ${(error as Error)?.message ?? "Unknown error"}`,
-        );
-        const displayError = createDisplayError(error);
-        // Notify the user of the error
-        enqueueNotification({
-          title: "Expanding Node Failed",
-          message: displayError.message,
-          type: "error",
+      // No neighbors to add
+      if (result.vertices.length + result.edges.length <= 0) {
+        toast.info("No more neighbors", {
+          description:
+            "This vertex has been fully expanded or it does not have connections",
         });
-        throw error;
-      } finally {
-        clearNotification(progressNotificationId);
+        return;
       }
+
+      // Update the vertex and edge details caches
+      result.vertices.forEach(v => setVertexDetailsQueryCache(client, v));
+      result.edges.forEach(e => setEdgeDetailsQueryCache(client, e));
+
+      // Update nodes and edges in the graph
+      await addToGraph(result);
+      return;
     },
   });
 
@@ -131,14 +118,7 @@ export default function useExpandNode() {
       const explorer = getExplorer(meta);
       const { vertexIds, ...filters } = request;
 
-      const progressNotificationId = enqueueNotification({
-        title: "Expanding Nodes",
-        message: `Expanding neighbors for ${vertexIds.length} nodes.`,
-        type: "loading",
-        autoHideDuration: null,
-      });
-
-      try {
+      const expandPromise = (async () => {
         // Fetch neighbors for all vertices in parallel
         const results = await Promise.all(
           vertexIds.map(vertexId =>
@@ -173,29 +153,29 @@ export default function useExpandNode() {
         };
 
         if (combined.vertices.length + combined.edges.length <= 0) {
-          enqueueNotification({
-            title: "No more neighbors",
-            message:
+          toast.info("No more neighbors", {
+            description:
               "All vertices have been fully expanded or do not have connections",
           });
           return;
         }
 
         await addToGraph(combined);
-      } catch (error) {
-        remoteLogger.error(
-          `Failed to expand nodes: ${(error as Error)?.message ?? "Unknown error"}`,
-        );
-        const displayError = createDisplayError(error);
-        enqueueNotification({
-          title: "Expanding Nodes Failed",
-          message: displayError.message,
-          type: "error",
-        });
-        throw error;
-      } finally {
-        clearNotification(progressNotificationId);
-      }
+      })();
+
+      toast.promise(expandPromise, {
+        loading: `Expanding neighbors for ${vertexIds.length} nodes...`,
+        success: "Nodes expanded",
+        error: err => {
+          remoteLogger.error(
+            `Failed to expand nodes: ${(err as Error)?.message ?? "Unknown error"}`,
+          );
+          const displayError = createDisplayError(err);
+          return displayError.message;
+        },
+      });
+
+      return expandPromise;
     },
   });
 
