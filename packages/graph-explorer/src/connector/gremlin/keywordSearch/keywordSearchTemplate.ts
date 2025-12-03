@@ -1,6 +1,6 @@
 import uniq from "lodash/uniq";
 import type { KeywordSearchRequest } from "@/connector";
-import { escapeString } from "@/utils";
+import { escapeString, SEARCH_TOKENS } from "@/utils";
 
 /**
  * @example
@@ -41,13 +41,13 @@ export default function keywordSearchTemplate({
     const escapedSearchTerm = escapeString(searchTerm);
 
     const orContent = uniq(
-      searchByAttributes.includes("__all")
-        ? ["__id", ...searchByAttributes]
+      searchByAttributes.includes(SEARCH_TOKENS.ALL_ATTRIBUTES)
+        ? [SEARCH_TOKENS.NODE_ID, ...searchByAttributes]
         : searchByAttributes,
     )
-      .filter(attr => attr !== "__all")
+      .filter(attr => attr !== SEARCH_TOKENS.ALL_ATTRIBUTES)
       .map(attr => {
-        if (attr === "__id") {
+        if (attr === SEARCH_TOKENS.NODE_ID) {
           if (exactMatch === true) {
             return `has(id,"${escapedSearchTerm}")`;
           }

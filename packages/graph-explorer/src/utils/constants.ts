@@ -41,3 +41,13 @@ export const LABELS = {
   /** Shown when a value is empty (like empty string) */
   EMPTY_VALUE: `${ASCII.LAQUO}Empty Value${ASCII.RAQUO}`,
 } as const;
+
+/** Searchable tokens */
+export const SEARCH_TOKENS = {
+  /** Token to search over all vertex types */
+  ALL_VERTEX_TYPES: "__all",
+  /** Token to search over all attributes */
+  ALL_ATTRIBUTES: "__all",
+  /** Token to search by node ID */
+  NODE_ID: "__id",
+} as const;

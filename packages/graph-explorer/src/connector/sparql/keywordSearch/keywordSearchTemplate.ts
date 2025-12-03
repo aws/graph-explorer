@@ -1,4 +1,4 @@
-import { escapeString, query } from "@/utils";
+import { escapeString, query, SEARCH_TOKENS } from "@/utils";
 import { rdfTypeUri, type SPARQLKeywordSearchRequest } from "../types";
 import { idParam } from "../idParam";
 import { getLimit, getSubjectClasses } from "../filterHelpers";
@@ -115,7 +115,8 @@ export function findSubjectsMatchingFilters(
 }
 
 function getFilterPredicates(predicates?: string[]) {
-  const filteredPredicates = predicates?.filter(p => p !== "__all") || [];
+  const filteredPredicates =
+    predicates?.filter(p => p !== SEARCH_TOKENS.ALL_ATTRIBUTES) || [];
   if (!filteredPredicates.length) {
     return "";
   }

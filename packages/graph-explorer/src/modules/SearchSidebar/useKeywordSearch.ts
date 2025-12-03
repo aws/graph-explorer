@@ -9,18 +9,19 @@ import { useKeywordSearchQuery } from "../SearchSidebar/useKeywordSearchQuery";
 import { queryEngineSelector, useQueryEngine } from "@/core/connector";
 import { atom, useAtom, useAtomValue } from "jotai";
 import { atomWithReset } from "jotai/utils";
+import { SEARCH_TOKENS } from "@/utils";
 
 export interface PromiseWithCancel<T> extends Promise<T> {
   cancel?: () => void;
 }
 
-const allVerticesValue = "__all";
-const allAttributesValue = "__all";
-const idAttributeValue = "__id";
-
 export const searchTermAtom = atomWithReset("");
-export const selectedVertexTypeAtom = atomWithReset(allVerticesValue);
-export const selectedAttributeAtom = atomWithReset(idAttributeValue);
+export const selectedVertexTypeAtom = atomWithReset<string>(
+  SEARCH_TOKENS.ALL_VERTEX_TYPES,
+);
+export const selectedAttributeAtom = atomWithReset<string>(
+  SEARCH_TOKENS.NODE_ID,
+);
 export const partialMatchAtom = atomWithReset(false);
 
 /** Gets all searchable attributes across all vertex types */
@@ -52,17 +53,17 @@ const attributeOptionsSelector = atom(get => {
 
   // Get searchable attributes for selected vertex type
   const searchableAttributes =
-    selectedVertexType === allVerticesValue
+    selectedVertexType === SEARCH_TOKENS.ALL_VERTEX_TYPES
       ? get(combinedSearchableAttributesSelector)
       : get(displayVertexTypeConfigSelector(selectedVertexType)).attributes;
 
   const attributeOptions = (() => {
     const defaultAttributes = allowsIdSearch
       ? [
-          { label: "All", value: allAttributesValue },
-          { label: "ID", value: idAttributeValue },
+          { label: "All", value: SEARCH_TOKENS.ALL_ATTRIBUTES },
+          { label: "ID", value: SEARCH_TOKENS.NODE_ID },
         ]
-      : [{ label: "All", value: allAttributesValue }];
+      : [{ label: "All", value: SEARCH_TOKENS.ALL_ATTRIBUTES }];
 
     const attributes = searchableAttributes.map(attr => ({
       value: attr.name,
@@ -97,7 +98,7 @@ export default function useKeywordSearch() {
 
   const vtConfigs = useDisplayVertexTypeConfigs();
   const vertexOptions = [
-    { label: "All", value: allVerticesValue },
+    { label: "All", value: SEARCH_TOKENS.ALL_VERTEX_TYPES },
     ...vtConfigs
       .values()
       // Filtering out empty types because the queries need to be updated to support them
@@ -112,8 +113,8 @@ export default function useKeywordSearch() {
   const defaultSearchAttribute =
     queryEngine === "sparql"
       ? (attributesOptions.find(o => o.label === "rdfs:label")?.value ??
-        allAttributesValue)
-      : idAttributeValue;
+        SEARCH_TOKENS.ALL_ATTRIBUTES)
+      : SEARCH_TOKENS.NODE_ID;
 
   /** This is the selected attribute unless the attribute is not in the
    * attribute options list (for example, the selected vertex type changed). */
@@ -129,9 +130,9 @@ export default function useKeywordSearch() {
   const onPartialMatchChange = (value: boolean) => setPartialMatch(value);
 
   const attributes =
-    safeSelectedAttribute === allAttributesValue
+    safeSelectedAttribute === SEARCH_TOKENS.ALL_ATTRIBUTES
       ? attributesOptions
-          .filter(attr => attr.value !== allAttributesValue)
+          .filter(attr => attr.value !== SEARCH_TOKENS.ALL_ATTRIBUTES)
           .map(attr => attr.label)
           .join(", ")
       : (attributesOptions.find(opt => opt.value === safeSelectedAttribute)
@@ -139,11 +140,13 @@ export default function useKeywordSearch() {
   const searchPlaceholder = `Search by ${attributes}`;
 
   const vertexTypes =
-    selectedVertexType === allVerticesValue ? [] : [selectedVertexType];
+    selectedVertexType === SEARCH_TOKENS.ALL_VERTEX_TYPES
+      ? []
+      : [selectedVertexType];
   const searchByAttributes =
-    safeSelectedAttribute === allAttributesValue
+    safeSelectedAttribute === SEARCH_TOKENS.ALL_ATTRIBUTES
       ? attributesOptions
-          .filter(attr => attr.value !== allAttributesValue)
+          .filter(attr => attr.value !== SEARCH_TOKENS.ALL_ATTRIBUTES)
           .map(attr => attr.value)
       : [safeSelectedAttribute];
 

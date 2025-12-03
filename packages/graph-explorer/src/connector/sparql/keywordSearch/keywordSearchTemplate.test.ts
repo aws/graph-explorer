@@ -1,5 +1,6 @@
 import { normalize } from "@/utils/testing";
 import keywordSearchTemplate from "./keywordSearchTemplate";
+import { SEARCH_TOKENS } from "@/utils";
 
 describe("SPARQL > keywordSearchTemplate", () => {
   it("Should return a template for an empty request", () => {
@@ -205,11 +206,11 @@ describe("SPARQL > keywordSearchTemplate", () => {
     );
   });
 
-  it("Should return a template for searched attributes without the __all predicate", () => {
+  it("Should return a template for searched attributes without the all attributes token predicate", () => {
     const template = keywordSearchTemplate({
       subjectClasses: ["air:airport"],
       searchTerm: "JFK",
-      predicates: ["air:city", "air:code", "__all"],
+      predicates: ["air:city", "air:code", SEARCH_TOKENS.ALL_ATTRIBUTES],
       exactMatch: true,
     });
 
