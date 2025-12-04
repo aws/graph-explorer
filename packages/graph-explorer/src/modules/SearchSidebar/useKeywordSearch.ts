@@ -1,15 +1,12 @@
-import {
-  displayVertexTypeConfigSelector,
-  displayVertexTypeConfigsSelector,
-  useDisplayVertexTypeConfigs,
-} from "@/core";
+import { useDisplayVertexTypeConfigs, useSearchableAttributes } from "@/core";
 import useDebounceValue from "@/hooks/useDebounceValue";
 import { useKeywordSearchQuery } from "../SearchSidebar/useKeywordSearchQuery";
 
-import { queryEngineSelector, useQueryEngine } from "@/core/connector";
-import { atom, useAtom, useAtomValue } from "jotai";
+import { useQueryEngine } from "@/core/connector";
+import { useAtom } from "jotai";
 import { atomWithReset } from "jotai/utils";
 import { SEARCH_TOKENS } from "@/utils";
+import type { SelectOption } from "@/components";
 
 export interface PromiseWithCancel<T> extends Promise<T> {
   cancel?: () => void;
@@ -24,57 +21,28 @@ export const selectedAttributeAtom = atomWithReset<string>(
 );
 export const partialMatchAtom = atomWithReset(false);
 
-/** Gets all searchable attributes across all vertex types */
-const combinedSearchableAttributesSelector = atom(get => {
-  const allVertexTypeConfigs = get(displayVertexTypeConfigsSelector);
+/** Gets all the searchable attributes for the selected vertex type */
+function useAttributeOptions(selectedVertexType: string) {
+  const allSearchableAttributes = useSearchableAttributes(selectedVertexType);
+  const queryEngine = useQueryEngine();
 
-  // Get unique searchable attributes across all vertex types
-  const uniqueSearchableAttributes = new Map(
-    allVertexTypeConfigs
-      .values()
-      .flatMap(c => c.attributes)
-      .filter(a => a.isSearchable)
-      .map(a => [a.name, a]),
-  )
-    .values()
-    .toArray();
+  const options: SelectOption[] = [
+    { label: "All", value: SEARCH_TOKENS.ALL_ATTRIBUTES },
+  ];
 
-  // Sort by name
-  return uniqueSearchableAttributes.sort((a, b) =>
-    a.name.localeCompare(b.name),
-  );
-});
+  // SPARQL support for ID search is not yet implemented
+  if (queryEngine !== "sparql") {
+    options.push({ label: "ID", value: SEARCH_TOKENS.NODE_ID });
+  }
 
-const attributeOptionsSelector = atom(get => {
-  const selectedVertexType = get(selectedVertexTypeAtom);
-
-  // Sparql uses rdfs:label, not ID
-  const allowsIdSearch = get(queryEngineSelector) !== "sparql";
-
-  // Get searchable attributes for selected vertex type
-  const searchableAttributes =
-    selectedVertexType === SEARCH_TOKENS.ALL_VERTEX_TYPES
-      ? get(combinedSearchableAttributesSelector)
-      : get(displayVertexTypeConfigSelector(selectedVertexType)).attributes;
-
-  const attributeOptions = (() => {
-    const defaultAttributes = allowsIdSearch
-      ? [
-          { label: "All", value: SEARCH_TOKENS.ALL_ATTRIBUTES },
-          { label: "ID", value: SEARCH_TOKENS.NODE_ID },
-        ]
-      : [{ label: "All", value: SEARCH_TOKENS.ALL_ATTRIBUTES }];
-
-    const attributes = searchableAttributes.map(attr => ({
-      value: attr.name,
-      label: attr.displayLabel,
-    }));
-
-    return [...defaultAttributes, ...attributes];
-  })();
-
-  return attributeOptions;
-});
+  for (const attribute of allSearchableAttributes) {
+    options.push({
+      label: attribute.displayLabel,
+      value: attribute.name,
+    });
+  }
+  return options;
+}
 
 /** Manages all the state and gathers all required information to render the
  * keyword search sidebar. */
@@ -109,7 +77,7 @@ export default function useKeywordSearch() {
       })),
   ];
 
-  const attributesOptions = useAtomValue(attributeOptionsSelector);
+  const attributesOptions = useAttributeOptions(selectedVertexType);
   const defaultSearchAttribute =
     queryEngine === "sparql"
       ? (attributesOptions.find(o => o.label === "rdfs:label")?.value ??

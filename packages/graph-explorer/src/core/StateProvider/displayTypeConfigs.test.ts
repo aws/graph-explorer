@@ -9,11 +9,12 @@ import {
 import {
   useDisplayEdgeTypeConfig,
   useDisplayVertexTypeConfig,
+  useSearchableAttributes,
   mapToDisplayVertexTypeConfig,
   mapToDisplayEdgeTypeConfig,
 } from "./displayTypeConfigs";
 import { createRandomName } from "@shared/utils/testing";
-import { LABELS } from "@/utils";
+import { LABELS, SEARCH_TOKENS } from "@/utils";
 import type { TextTransformer } from "@/hooks";
 import { RDFS_LABEL_URI } from "./sortAttributeByName";
 
@@ -361,5 +362,137 @@ describe("useDisplayEdgeTypeConfig", () => {
     );
 
     expect(result.current.displayLabel).toBe(etConfig.displayLabel);
+  });
+});
+
+describe("useSearchableAttributes", () => {
+  it("should return empty array when no vertex types exist", () => {
+    const dbState = new DbState();
+    dbState.activeSchema.vertices = [];
+
+    const { result } = renderHookWithState(
+      () => useSearchableAttributes(SEARCH_TOKENS.ALL_VERTEX_TYPES),
+      dbState,
+    );
+
+    expect(result.current).toStrictEqual([]);
+  });
+
+  it("should return only searchable attributes for a specific vertex type", () => {
+    const dbState = new DbState();
+    dbState.activeSchema.vertices = [];
+    const vtConfig = createRandomVertexTypeConfig();
+    vtConfig.attributes = [
+      { name: "name", dataType: "String" },
+      { name: "age", dataType: "Number" },
+      { name: "active", dataType: "Boolean" },
+      { name: "created", dataType: "Date" },
+    ];
+    dbState.activeSchema.vertices.push(vtConfig);
+
+    const { result } = renderHookWithState(
+      () => useSearchableAttributes(vtConfig.type),
+      dbState,
+    );
+
+    expect(result.current).toStrictEqual([
+      { name: "name", displayLabel: "name", isSearchable: true },
+    ]);
+  });
+
+  it("should return empty array when type does not exist", () => {
+    const dbState = new DbState();
+    dbState.activeSchema.vertices = [];
+    const vtConfig = createRandomVertexTypeConfig();
+    dbState.activeSchema.vertices.push(vtConfig);
+
+    const { result } = renderHookWithState(
+      () => useSearchableAttributes("nonexistent-type"),
+      dbState,
+    );
+
+    expect(result.current).toStrictEqual([]);
+  });
+
+  it("should return searchable attributes from all vertex types when using ALL_VERTEX_TYPES", () => {
+    const dbState = new DbState();
+    dbState.activeSchema.vertices = [];
+
+    const vtConfig1 = createRandomVertexTypeConfig();
+    vtConfig1.attributes = [
+      { name: "firstName", dataType: "String" },
+      { name: "age", dataType: "Number" },
+    ];
+    dbState.activeSchema.vertices.push(vtConfig1);
+
+    const vtConfig2 = createRandomVertexTypeConfig();
+    vtConfig2.attributes = [
+      { name: "lastName", dataType: "String" },
+      { name: "active", dataType: "Boolean" },
+    ];
+    dbState.activeSchema.vertices.push(vtConfig2);
+
+    const { result } = renderHookWithState(
+      () => useSearchableAttributes(SEARCH_TOKENS.ALL_VERTEX_TYPES),
+      dbState,
+    );
+
+    expect(result.current).toStrictEqual([
+      { name: "firstName", displayLabel: "firstName", isSearchable: true },
+      { name: "lastName", displayLabel: "lastName", isSearchable: true },
+    ]);
+  });
+
+  it("should deduplicate searchable attributes with the same name across vertex types", () => {
+    const dbState = new DbState();
+    dbState.activeSchema.vertices = [];
+
+    const vtConfig1 = createRandomVertexTypeConfig();
+    vtConfig1.attributes = [
+      { name: "sharedAttr", dataType: "String" },
+      { name: "uniqueAttr1", dataType: "String" },
+    ];
+    dbState.activeSchema.vertices.push(vtConfig1);
+
+    const vtConfig2 = createRandomVertexTypeConfig();
+    vtConfig2.attributes = [
+      { name: "sharedAttr", dataType: "String" },
+      { name: "uniqueAttr2", dataType: "String" },
+    ];
+    dbState.activeSchema.vertices.push(vtConfig2);
+
+    const { result } = renderHookWithState(
+      () => useSearchableAttributes(SEARCH_TOKENS.ALL_VERTEX_TYPES),
+      dbState,
+    );
+
+    expect(result.current).toStrictEqual([
+      { name: "sharedAttr", displayLabel: "sharedAttr", isSearchable: true },
+      { name: "uniqueAttr1", displayLabel: "uniqueAttr1", isSearchable: true },
+      { name: "uniqueAttr2", displayLabel: "uniqueAttr2", isSearchable: true },
+    ]);
+  });
+
+  it("should sort attributes by display label", () => {
+    const dbState = new DbState();
+    dbState.activeSchema.vertices = [];
+    const vtConfig = createRandomVertexTypeConfig();
+    vtConfig.attributes = [
+      { name: "zebra", dataType: "String" },
+      { name: "apple", dataType: "String" },
+      { name: "middle", dataType: "String" },
+    ];
+    dbState.activeSchema.vertices.push(vtConfig);
+
+    const { result } = renderHookWithState(
+      () => useSearchableAttributes(vtConfig.type),
+      dbState,
+    );
+
+    expect(result.current.map(a => a.name)).toStrictEqual([
+      "apple",
+      "middle",
+      "zebra",
+    ]);
   });
 });
