@@ -11,7 +11,7 @@ import {
   type VertexTypeConfig,
 } from "@/core";
 import { type TextTransformer, textTransformSelector } from "@/hooks";
-import { LABELS, logger } from "@/utils";
+import { LABELS, logger, SEARCH_TOKENS } from "@/utils";
 import { atomFamily, useAtomCallback } from "jotai/utils";
 import { atom, useAtomValue } from "jotai";
 import { useCallback } from "react";
@@ -63,6 +63,44 @@ export function useDisplayEdgeTypeConfig(type: string) {
 /** All edge types sorted by display label */
 export function useDisplayEdgeTypeConfigs() {
   return useAtomValue(displayEdgeTypeConfigsSelector);
+}
+
+/**
+ * Returns a list of searchable attributes for the given vertex type.
+ *
+ * Only attributes marked as searchable (String data type) are included.
+ * When the type is `SEARCH_TOKENS.ALL_VERTEX_TYPES`, returns a deduplicated
+ * list of searchable attributes from all vertex types. Otherwise, returns only
+ * the searchable attributes for the specified type.
+ *
+ * @param type - The vertex type to get attributes for, or
+ *   `SEARCH_TOKENS.ALL_VERTEX_TYPES` to get attributes from all types.
+ * @returns A list of searchable display config attributes sorted by display label.
+ */
+export function useSearchableAttributes(type: string) {
+  const displayTypeConfigs = useDisplayVertexTypeConfigs();
+  const includeAllTypes = type === SEARCH_TOKENS.ALL_VERTEX_TYPES;
+
+  const alreadyAdded = new Set<string>();
+  const results: DisplayConfigAttribute[] = [];
+
+  for (const [, value] of displayTypeConfigs) {
+    if (!includeAllTypes && value.type !== type) {
+      continue;
+    }
+    for (const attr of value.attributes) {
+      if (!attr.isSearchable || alreadyAdded.has(attr.name)) {
+        continue;
+      }
+      alreadyAdded.add(attr.name);
+      results.push(attr);
+    }
+  }
+
+  // Sort by name
+  return results.toSorted((a, b) =>
+    a.displayLabel.localeCompare(b.displayLabel),
+  );
 }
 
 /** Gets the matching vertex type config or a generated default value. */

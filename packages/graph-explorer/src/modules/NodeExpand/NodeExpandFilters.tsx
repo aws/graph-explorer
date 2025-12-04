@@ -17,7 +17,7 @@ import {
   SelectValue,
   Switch,
 } from "@/components";
-import { useDisplayVertexTypeConfig } from "@/core";
+import { useSearchableAttributes } from "@/core";
 import useTranslations from "@/hooks/useTranslations";
 import type { PropsWithChildren } from "react";
 import { ListFilterPlusIcon, Trash2Icon } from "lucide-react";
@@ -42,6 +42,14 @@ export type NodeExpandFiltersProps = {
   onLimitEnabledToggle(enabled: boolean): void;
 };
 
+function useAttributeOptions(selectedType: string) {
+  const allSearchableAttributes = useSearchableAttributes(selectedType);
+  return allSearchableAttributes.map(a => ({
+    label: a.displayLabel,
+    value: a.name,
+  }));
+}
+
 const NodeExpandFilters = ({
   neighborsOptions,
   selectedType,
@@ -55,14 +63,7 @@ const NodeExpandFilters = ({
 }: NodeExpandFiltersProps) => {
   const t = useTranslations();
 
-  const displayVertexTypeConfig = useDisplayVertexTypeConfig(selectedType);
-  const attributeSelectOptions: SelectOption[] =
-    displayVertexTypeConfig.attributes
-      .filter(a => a.isSearchable)
-      .map(attr => ({
-        label: attr.displayLabel,
-        value: attr.name,
-      }));
+  const attributeSelectOptions = useAttributeOptions(selectedType);
   const hasSearchableAttributes = attributeSelectOptions.length > 0;
 
   const onFilterAdd = () => {
@@ -203,7 +204,7 @@ const NodeExpandFilters = ({
 };
 
 function Section({ children }: PropsWithChildren) {
-  return <div className="space-y-[1.125rem]">{children}</div>;
+  return <div className="space-y-4.5">{children}</div>;
 }
 
 function SectionTitle({ children }: PropsWithChildren) {
