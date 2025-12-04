@@ -47,6 +47,7 @@ import {
   LABELS,
   RESERVED_ID_PROPERTY,
   RESERVED_TYPES_PROPERTY,
+  SEARCH_TOKENS,
 } from "@/utils/constants";
 
 export type ConnectionsProps = {
@@ -263,7 +264,7 @@ function useColumnDefinitions(vertexType: string) {
       }));
     vtColumns.unshift({
       label: t("data-explorer.node-id"),
-      id: "__id",
+      id: SEARCH_TOKENS.NODE_ID,
       accessor: row => row.displayId,
       filterable: false,
     });

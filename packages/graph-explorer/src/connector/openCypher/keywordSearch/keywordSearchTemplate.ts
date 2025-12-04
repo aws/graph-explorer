@@ -1,6 +1,6 @@
 import uniq from "lodash/uniq";
 import type { KeywordSearchRequest } from "@/connector/useGEFetchTypes";
-import { escapeString, LABELS, query } from "@/utils";
+import { escapeString, LABELS, query, SEARCH_TOKENS } from "@/utils";
 
 /**
  * @example
@@ -47,14 +47,14 @@ const keywordSearchTemplate = ({
   const searchTermWhereClause =
     hasSearchTerm &&
     uniq(
-      searchByAttributes.includes("__all")
-        ? ["__id", ...searchByAttributes]
+      searchByAttributes.includes(SEARCH_TOKENS.ALL_ATTRIBUTES)
+        ? [SEARCH_TOKENS.NODE_ID, ...searchByAttributes]
         : searchByAttributes,
     )
-      .filter(attr => attr !== "__all")
+      .filter(attr => attr !== SEARCH_TOKENS.ALL_ATTRIBUTES)
       .map(attr => {
         // ID is a special case
-        if (attr === "__id") {
+        if (attr === SEARCH_TOKENS.NODE_ID) {
           return exactMatch === true
             ? `id(v) = "${escapeString(searchTerm)}"`
             : `toString(id(v)) CONTAINS "${escapeString(searchTerm)}"`;

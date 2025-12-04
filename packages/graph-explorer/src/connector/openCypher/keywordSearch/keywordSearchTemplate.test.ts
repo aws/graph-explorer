@@ -1,4 +1,4 @@
-import { LABELS } from "@/utils";
+import { LABELS, SEARCH_TOKENS } from "@/utils";
 import { normalize } from "@/utils/testing";
 import keywordSearchTemplate from "./keywordSearchTemplate";
 
@@ -143,7 +143,7 @@ describe("OpenCypher > keywordSearchTemplate", () => {
       vertexTypes: ["airport"],
       searchTerm: "JFK",
       exactMatch: true,
-      searchByAttributes: ["__id"],
+      searchByAttributes: [SEARCH_TOKENS.NODE_ID],
     });
 
     expect(normalize(template)).toBe(
@@ -160,7 +160,7 @@ describe("OpenCypher > keywordSearchTemplate", () => {
       vertexTypes: ["airport"],
       searchTerm: "JFK",
       exactMatch: false,
-      searchByAttributes: ["__id"],
+      searchByAttributes: [SEARCH_TOKENS.NODE_ID],
     });
 
     expect(normalize(template)).toBe(
@@ -176,7 +176,7 @@ describe("OpenCypher > keywordSearchTemplate", () => {
     const template = keywordSearchTemplate({
       vertexTypes: ["airport"],
       searchTerm: "JFK",
-      searchByAttributes: ["city", "code", "__all"],
+      searchByAttributes: ["city", "code", SEARCH_TOKENS.ALL_ATTRIBUTES],
     });
 
     expect(normalize(template)).toBe(
@@ -193,7 +193,7 @@ describe("OpenCypher > keywordSearchTemplate", () => {
       vertexTypes: ["airport", "country"],
       searchTerm: "JFK",
       exactMatch: false,
-      searchByAttributes: ["city", "code", "__all"],
+      searchByAttributes: ["city", "code", SEARCH_TOKENS.ALL_ATTRIBUTES],
       limit: 50,
       offset: 25,
     });

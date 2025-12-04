@@ -12,6 +12,7 @@ import {
   type AppStore,
 } from "@/core";
 import { vi } from "vitest";
+import { SEARCH_TOKENS } from "@/utils";
 
 vi.mock("./useKeywordSearchQuery", () => ({
   useKeywordSearchQuery: vi.fn().mockReturnValue({
@@ -50,7 +51,7 @@ describe("useKeywordSearch", () => {
         initializeConfigWithQueryEngine("gremlin"),
       );
 
-      expect(result.current.selectedAttribute).toBe("__id");
+      expect(result.current.selectedAttribute).toBe(SEARCH_TOKENS.NODE_ID);
     });
 
     it("Should default to node type All", () => {
@@ -59,7 +60,9 @@ describe("useKeywordSearch", () => {
         initializeConfigWithQueryEngine("gremlin"),
       );
 
-      expect(result.current.selectedVertexType).toBe("__all");
+      expect(result.current.selectedVertexType).toBe(
+        SEARCH_TOKENS.ALL_VERTEX_TYPES,
+      );
     });
 
     it("Should have all searchable attributes", () => {
@@ -69,8 +72,8 @@ describe("useKeywordSearch", () => {
       );
 
       expect(result.current.attributesOptions).toStrictEqual([
-        { value: "__all", label: "All" },
-        { value: "__id", label: "ID" },
+        { value: SEARCH_TOKENS.ALL_ATTRIBUTES, label: "All" },
+        { value: SEARCH_TOKENS.NODE_ID, label: "ID" },
       ]);
     });
   });
@@ -91,7 +94,7 @@ describe("useKeywordSearch", () => {
         initializeConfigWithQueryEngine("openCypher"),
       );
 
-      expect(result.current.selectedAttribute).toBe("__id");
+      expect(result.current.selectedAttribute).toBe(SEARCH_TOKENS.NODE_ID);
     });
 
     it("Should default to node type All", () => {
@@ -100,7 +103,9 @@ describe("useKeywordSearch", () => {
         initializeConfigWithQueryEngine("openCypher"),
       );
 
-      expect(result.current.selectedVertexType).toBe("__all");
+      expect(result.current.selectedVertexType).toBe(
+        SEARCH_TOKENS.ALL_VERTEX_TYPES,
+      );
     });
 
     it("Should have all searchable attributes", () => {
@@ -110,8 +115,8 @@ describe("useKeywordSearch", () => {
       );
 
       expect(result.current.attributesOptions).toStrictEqual([
-        { value: "__all", label: "All" },
-        { value: "__id", label: "ID" },
+        { value: SEARCH_TOKENS.ALL_ATTRIBUTES, label: "All" },
+        { value: SEARCH_TOKENS.NODE_ID, label: "ID" },
       ]);
     });
   });
@@ -158,7 +163,9 @@ describe("useKeywordSearch", () => {
         initializeConfigWithRdfLabel,
       );
 
-      expect(result.current.selectedVertexType).toBe("__all");
+      expect(result.current.selectedVertexType).toBe(
+        SEARCH_TOKENS.ALL_VERTEX_TYPES,
+      );
     });
 
     it("Should have all searchable attributes", () => {
@@ -168,7 +175,7 @@ describe("useKeywordSearch", () => {
       );
 
       expect(result.current.attributesOptions).toStrictEqual([
-        { value: "__all", label: "All" },
+        { value: SEARCH_TOKENS.ALL_ATTRIBUTES, label: "All" },
         { value: "rdfs:label", label: "rdfs:label" },
       ]);
     });
@@ -190,7 +197,9 @@ describe("useKeywordSearch", () => {
         initializeConfigWithQueryEngine("sparql"),
       );
 
-      expect(result.current.selectedAttribute).toBe("__all");
+      expect(result.current.selectedAttribute).toBe(
+        SEARCH_TOKENS.ALL_ATTRIBUTES,
+      );
     });
 
     it("Should default to node type All", () => {
@@ -199,7 +208,9 @@ describe("useKeywordSearch", () => {
         initializeConfigWithQueryEngine("sparql"),
       );
 
-      expect(result.current.selectedVertexType).toBe("__all");
+      expect(result.current.selectedVertexType).toBe(
+        SEARCH_TOKENS.ALL_VERTEX_TYPES,
+      );
     });
 
     it("Should have all searchable attributes", () => {
@@ -209,7 +220,7 @@ describe("useKeywordSearch", () => {
       );
 
       expect(result.current.attributesOptions).toStrictEqual([
-        { value: "__all", label: "All" },
+        { value: SEARCH_TOKENS.ALL_ATTRIBUTES, label: "All" },
       ]);
     });
   });
