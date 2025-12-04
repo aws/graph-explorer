@@ -49,6 +49,7 @@ const schemaByIdAtom = atomFamily((id: ConfigurationId | null) => {
 const emptySchema: SchemaInference = {
   vertices: [],
   edges: [],
+  prefixes: [],
 };
 
 export const activeSchemaAtom = atom(get => {
@@ -60,6 +61,17 @@ export const activeSchemaAtom = atom(get => {
 export function useActiveSchema(): SchemaInference {
   return useDeferredValue(useAtomValue(activeSchemaAtom));
 }
+
+/** Gets the stored prefixes from the active schema. */
+export function usePrefixes(): PrefixTypeConfig[] {
+  const schema = useActiveSchema();
+  return schema.prefixes ?? [];
+}
+
+export const prefixesAtom = atom(get => {
+  const schema = get(activeSchemaAtom);
+  return schema.prefixes ?? [];
+});
 
 function createVertexSchema(vtConfig: VertexTypeConfig) {
   return {

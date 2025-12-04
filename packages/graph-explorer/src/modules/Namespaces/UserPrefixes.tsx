@@ -30,7 +30,7 @@ import {
   type PrefixTypeConfig,
   useConfiguration,
 } from "@/core";
-import { schemaAtom } from "@/core/StateProvider/schema";
+import { schemaAtom, usePrefixes } from "@/core/StateProvider/schema";
 import { Virtuoso } from "react-virtuoso";
 import { useAtomCallback } from "jotai/utils";
 
@@ -56,10 +56,8 @@ const UserPrefixes = () => {
 };
 
 function useCustomPrefixes() {
-  const config = useConfiguration();
-  return (config?.schema?.prefixes || []).filter(
-    prefixConfig => prefixConfig.__inferred !== true,
-  );
+  const prefixes = usePrefixes();
+  return prefixes.filter(prefixConfig => prefixConfig.__inferred !== true);
 }
 
 function SearchablePrefixes({
