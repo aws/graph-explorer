@@ -259,11 +259,6 @@ export function getDefaultEdgeTypeConfig(edgeType: string): EdgeTypeConfig {
   };
 }
 
-export const allNamespacePrefixesSelector = atom(get => {
-  const configuration = get(mergedConfigurationSelector);
-  return configuration?.schema?.prefixes ?? [];
-});
-
 /**
  * Removes the displayLabel property from a vertex or edge config and any
  * attributes.

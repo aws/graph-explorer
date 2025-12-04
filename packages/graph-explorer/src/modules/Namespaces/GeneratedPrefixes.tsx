@@ -9,7 +9,7 @@ import {
   SearchBar,
   useSearchItems,
 } from "@/components";
-import { type PrefixTypeConfig, useConfiguration } from "@/core";
+import { type PrefixTypeConfig, usePrefixes } from "@/core";
 import { Virtuoso } from "react-virtuoso";
 
 const GeneratedPrefixes = () => {
@@ -53,9 +53,9 @@ function Layout(props: ComponentPropsWithoutRef<"div">) {
 }
 
 function useGeneratedPrefixes() {
-  const config = useConfiguration();
+  const prefixes = usePrefixes();
 
-  return (config?.schema?.prefixes || [])
+  return prefixes
     .filter(
       prefixConfig =>
         prefixConfig.__inferred === true &&
