@@ -18,8 +18,7 @@ describe("createErrorNotification", () => {
 
     const notification = createErrorNotification(error, file, allConnections);
 
-    expect(notification.type).toBe("error");
-    expect(notification.message).toBe(
+    expect(notification).toBe(
       "Failed to load the graph because an error occurred.",
     );
   });
@@ -31,8 +30,7 @@ describe("createErrorNotification", () => {
 
     const notification = createErrorNotification(error, file, allConnections);
 
-    expect(notification.type).toBe("error");
-    expect(notification.message).toBe(
+    expect(notification).toBe(
       `Parsing the file "${file.name}" failed. Please ensure the file was originally saved from Graph Explorer and is not corrupt.`,
     );
   });
@@ -46,8 +44,7 @@ describe("createErrorNotification", () => {
 
     const notification = createErrorNotification(error, file, allConnections);
 
-    expect(notification.type).toBe("error");
-    expect(notification.message).toBe(
+    expect(notification).toBe(
       `The graph file requires a connection to ${connection.dbUrl} using the graph type PG-Gremlin.`,
     );
   });
@@ -61,8 +58,7 @@ describe("createErrorNotification", () => {
 
     const notification = createErrorNotification(error, file, allConnections);
 
-    expect(notification.type).toBe("error");
-    expect(notification.message).toBe(
+    expect(notification).toBe(
       `The graph file requires a connection to ${connection.dbUrl} using the graph type RDF-SPARQL.`,
     );
   });
@@ -76,8 +72,7 @@ describe("createErrorNotification", () => {
 
     const notification = createErrorNotification(error, file, allConnections);
 
-    expect(notification.type).toBe("error");
-    expect(notification.message).toBe(
+    expect(notification).toBe(
       `The graph file requires a connection to ${connection.dbUrl} using the graph type PG-openCypher.`,
     );
   });
@@ -94,8 +89,7 @@ describe("createErrorNotification", () => {
 
     const notification = createErrorNotification(error, file, allConnections);
 
-    expect(notification.type).toBe("error");
-    expect(notification.message).toBe(
+    expect(notification).toBe(
       `The graph file requires switching to connection ${matchingConnectionName}.`,
     );
   });
@@ -112,8 +106,7 @@ describe("createErrorNotification", () => {
 
     const notification = createErrorNotification(error, file, allConnections);
 
-    expect(notification.type).toBe("error");
-    expect(notification.message).toBe(
+    expect(notification).toBe(
       `The graph file requires switching to connection ${matchingConnectionName}.`,
     );
   });
