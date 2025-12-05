@@ -23,6 +23,7 @@ export function useRestoreGraphSession() {
       );
 
       const restorePromise = (async () => {
+        // Get the vertex and edge details from the database
         const result = await fetchEntityDetails(
           graph.vertices,
           graph.edges,

@@ -16,11 +16,6 @@ import { useAddToGraph } from "@/hooks";
 import { useAtomValue } from "jotai";
 import { notifyOnIncompleteRestoration, fetchEntityDetails } from "@/connector";
 
-type ErrorNotification = {
-  message: string;
-  type: "error";
-};
-
 export function ImportGraphButton() {
   const importGraph = useImportGraphMutation();
 
@@ -101,34 +96,23 @@ function useImportGraphMutation() {
       return result;
     },
     onError: (error, file) => {
-      showErrorNotification(error, file, allConnections);
+      const notification = createErrorNotification(error, file, allConnections);
+      logger.error(`Loading graph failed: ${notification}`, error);
+      toast.error("Loading Graph Failed", {
+        description: notification,
+      });
     },
   });
   return mutation;
-}
-
-function showErrorNotification(
-  error: Error,
-  file: File,
-  allConnections: ConnectionWithId[],
-): void {
-  const notification = createErrorNotification(error, file, allConnections);
-  logger.error(`Loading graph failed: ${notification.message}`);
-  toast.error("Loading Graph Failed", {
-    description: notification.message,
-  });
 }
 
 export function createErrorNotification(
   error: Error,
   file: File,
   allConnections: ConnectionWithId[],
-): ErrorNotification {
+) {
   if (error instanceof ZodError) {
-    return {
-      message: `Parsing the file "${file.name}" failed. Please ensure the file was originally saved from Graph Explorer and is not corrupt.`,
-      type: "error",
-    };
+    return `Parsing the file "${file.name}" failed. Please ensure the file was originally saved from Graph Explorer and is not corrupt.`;
   } else if (error instanceof InvalidConnectionError) {
     const matchingByUrlAndQueryEngine = allConnections.filter(connection =>
       isMatchingConnection(connection, error.connection),
@@ -141,22 +125,13 @@ export function createErrorNotification(
 
     if (matchingByUrlAndQueryEngine.length > 0) {
       const matchingConnection = matchingByUrlAndQueryEngine[0];
-      return {
-        message: `The graph file requires switching to connection ${matchingConnection.displayLabel}.`,
-        type: "error",
-      };
+      return `The graph file requires switching to connection ${matchingConnection.displayLabel}.`;
     } else {
       const dbUrl = error.connection.dbUrl;
-      return {
-        message: `The graph file requires a connection to ${dbUrl} using the graph type ${displayQueryEngine}.`,
-        type: "error",
-      };
+      return `The graph file requires a connection to ${dbUrl} using the graph type ${displayQueryEngine}.`;
     }
   }
-  return {
-    message: "Failed to load the graph because an error occurred.",
-    type: "error",
-  };
+  return "Failed to load the graph because an error occurred.";
 }
 
 export class InvalidConnectionError extends Error {
