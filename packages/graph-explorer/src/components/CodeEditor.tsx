@@ -45,7 +45,7 @@ export function CodeEditor({
 
         ...options,
       }}
-      onMount={(editor, monaco) => {
+      onMount={(_editor, monaco) => {
         monaco.editor.defineTheme("graph-explorer-light", lightTheme);
       }}
       {...props}
