@@ -2,7 +2,7 @@ import { waitFor } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach, type Mock } from "vitest";
 import useGraphStyles from "./useGraphStyles";
 import { renderNode } from "./renderNode";
-import type { GraphProps } from "@/components";
+import type { GraphProps } from "@/components/Graph";
 import {
   DbState,
   renderHookWithState,

@@ -18,7 +18,7 @@ import {
 
 import { useDeepMemo, useTranslations } from "@/hooks";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { useGraphSelection } from "@/modules/GraphViewer";
+import { useGraphSelection } from "@/modules/GraphViewer/useGraphSelection";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import {
   EmptyState,

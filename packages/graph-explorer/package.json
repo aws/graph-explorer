@@ -15,8 +15,6 @@
   "author": "amazon",
   "license": "Apache-2.0",
   "dependencies": {
-    "@emotion/css": "^11.13.5",
-    "@emotion/react": "^11.14.0",
     "@graph-explorer/shared": "workspace:*",
     "@hookform/resolvers": "^5.2.2",
     "@monaco-editor/react": "^4.7.0",

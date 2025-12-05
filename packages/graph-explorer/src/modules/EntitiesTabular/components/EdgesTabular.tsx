@@ -20,7 +20,7 @@ import {
 } from "@/core";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { LABELS } from "@/utils";
-import { useGraphSelection } from "@/modules/GraphViewer";
+import { useGraphSelection } from "@/modules/GraphViewer/useGraphSelection";
 import { EyeIcon, EyeOff } from "lucide-react";
 import {
   EmptyState,
