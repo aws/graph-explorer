@@ -16,6 +16,7 @@ export function Toaster() {
       position="bottom-left"
       className="toaster group"
       duration={6000}
+      closeButton
       icons={{
         success: <CircleCheckIcon className="size-4" />,
         info: <InfoIcon className="size-4" />,
