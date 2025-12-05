@@ -5,6 +5,7 @@ import { DEFAULT_BATCH_REQUEST_SIZE } from "@/utils";
 import { chunk } from "lodash";
 import { getExplorer, updateNeighborCountCache } from "./helpers";
 import { neighborsCountQuery } from "./neighborsCountQuery";
+import { toast } from "sonner";
 
 export function bulkNeighborCountsQuery(
   vertexIds: VertexId[],
@@ -41,13 +42,20 @@ export function bulkNeighborCountsQuery(
       }
 
       // Fetch missing neighbor counts in batches
-      const newResponses = await Promise.all(
+      const newResponsesPromise = Promise.all(
         chunk(missingIds, DEFAULT_BATCH_REQUEST_SIZE).map(batch =>
           explorer
             .neighborCounts({ vertexIds: batch }, { signal })
             .then(r => r.counts),
         ),
       ).then(results => results.flat());
+
+      toast.promise(newResponsesPromise, {
+        loading: "Updating neighbor counts",
+        error: "Error updating neighbor counts",
+      });
+
+      const newResponses = await newResponsesPromise;
 
       // Update cache and combine responses
       updateNeighborCountCache(client, newResponses);

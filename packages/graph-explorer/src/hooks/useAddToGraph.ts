@@ -1,4 +1,4 @@
-import { useNotification } from "@/components/NotificationProvider";
+import { toast } from "sonner";
 import {
   activeSchemaSelector,
   type Edge,
@@ -81,16 +81,12 @@ export function useAddEdgeToGraph(edge: Edge) {
  * On error, a toast notification will be shown.
  */
 export function useAddToGraphMutation() {
-  const { enqueueNotification } = useNotification();
   const sendToGraph = useAddToGraph();
   return useMutation({
     mutationFn: sendToGraph,
     onError: error => {
       const displayError = createDisplayError(error);
-      enqueueNotification({
-        ...displayError,
-        type: "error",
-      });
+      toast.error(displayError.message);
       logger.error("Failed to add all to graph", error);
     },
   });

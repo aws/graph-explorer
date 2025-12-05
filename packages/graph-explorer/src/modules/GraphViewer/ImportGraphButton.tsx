@@ -9,16 +9,12 @@ import {
   isMatchingConnection,
   parseExportedGraph,
 } from "./exportedGraph";
-import { useNotification } from "@/components/NotificationProvider";
+import { toast } from "sonner";
 import { ZodError } from "zod";
-import type { Notification } from "@/components/NotificationProvider/reducer";
 import { getTranslation } from "@/hooks/useTranslations";
 import { useAddToGraph } from "@/hooks";
 import { useAtomValue } from "jotai";
-import {
-  createFetchEntityDetailsCompletionNotification,
-  fetchEntityDetails,
-} from "@/connector";
+import { notifyOnIncompleteRestoration, fetchEntityDetails } from "@/connector";
 
 export function ImportGraphButton() {
   const importGraph = useImportGraphMutation();
@@ -57,10 +53,6 @@ function useImportGraphMutation() {
     .filter(c => c != null)
     .toArray();
 
-  const { enqueueNotification, clearNotification } = useNotification();
-
-  const notificationTitle = "Loading Graph";
-
   const mutation = useMutation({
     mutationFn: async (file: File) => {
       // 1. Parse the file
@@ -81,40 +73,33 @@ function useImportGraphMutation() {
         graph.edges.size,
       );
 
-      const progressNotificationId = enqueueNotification({
-        title: notificationTitle,
-        message: `Loading the graph with ${entityCountMessage} from the file "${file.name}"`,
-        type: "loading",
-        autoHideDuration: null,
+      const loadPromise = (async () => {
+        const result = await fetchEntityDetails(
+          graph.vertices,
+          graph.edges,
+          queryClient,
+        );
+
+        // 4. Update Graph Explorer state
+        await addToGraph(result.entities);
+
+        return result;
+      })();
+
+      toast.promise(loadPromise, {
+        loading: `Loading ${entityCountMessage}`,
+        error: "Failed to load the graph",
       });
-
-      const result = await fetchEntityDetails(
-        graph.vertices,
-        graph.edges,
-        queryClient,
-      );
-
-      clearNotification(progressNotificationId);
+      const result = await loadPromise;
+      notifyOnIncompleteRestoration(result);
 
       return result;
     },
-    onSuccess: async result => {
-      // 4. Update Graph Explorer state
-      await addToGraph(result.entities);
-
-      // 5. Notify user of completion
-      const finalNotification =
-        createFetchEntityDetailsCompletionNotification(result);
-      enqueueNotification({
-        ...finalNotification,
-        title: notificationTitle,
-      });
-    },
     onError: (error, file) => {
       const notification = createErrorNotification(error, file, allConnections);
-      enqueueNotification({
-        ...notification,
-        title: notificationTitle,
+      logger.error(`Loading graph failed: ${notification}`, error);
+      toast.error("Loading Graph Failed", {
+        description: notification,
       });
     },
   });
@@ -125,21 +110,14 @@ export function createErrorNotification(
   error: Error,
   file: File,
   allConnections: ConnectionWithId[],
-): Notification {
+) {
   if (error instanceof ZodError) {
-    // Parsing has failed
-    logger.error(`Failed to parse the file "${file.name}"`, error.format());
-    return {
-      message: `Parsing the file "${file.name}" failed. Please ensure the file was originally saved from Graph Explorer and is not corrupt.`,
-      type: "error",
-    };
+    return `Parsing the file "${file.name}" failed. Please ensure the file was originally saved from Graph Explorer and is not corrupt.`;
   } else if (error instanceof InvalidConnectionError) {
-    // Invalid connection
     const matchingByUrlAndQueryEngine = allConnections.filter(connection =>
       isMatchingConnection(connection, error.connection),
     );
 
-    // Get the display label for the given query engine
     const displayQueryEngine = getTranslation(
       "available-connections.graph-type",
       error.connection.queryEngine,
@@ -147,22 +125,13 @@ export function createErrorNotification(
 
     if (matchingByUrlAndQueryEngine.length > 0) {
       const matchingConnection = matchingByUrlAndQueryEngine[0];
-      return {
-        message: `The graph file requires switching to connection ${matchingConnection.displayLabel}.`,
-        type: "error",
-      };
+      return `The graph file requires switching to connection ${matchingConnection.displayLabel}.`;
     } else {
       const dbUrl = error.connection.dbUrl;
-      return {
-        message: `The graph file requires a connection to ${dbUrl} using the graph type ${displayQueryEngine}.`,
-        type: "error",
-      };
+      return `The graph file requires a connection to ${dbUrl} using the graph type ${displayQueryEngine}.`;
     }
   }
-  return {
-    message: `Failed to load the graph because an error occurred.`,
-    type: "error",
-  };
+  return "Failed to load the graph because an error occurred.";
 }
 
 export class InvalidConnectionError extends Error {

@@ -90,6 +90,8 @@
   --color-primary: var(--color-primary-main);
   --color-primary-foreground: var(--color-white);
   --color-destructive: var(--color-error-main);
+  --color-popover: var(--color-background);
+  --color-popover-foreground: var(--color-foreground);
 
   /* Colors from tailwind config */
   --background-color-default: var(--color-background-default);
@@ -130,7 +132,11 @@
   }
 
   body {
-    @apply bg-background-default text-text-primary font-sans;
+    @apply bg-background-default text-text-primary h-screen w-full overflow-hidden overscroll-none font-sans;
+  }
+
+  #root {
+    @apply size-full;
   }
 
   .lucide {

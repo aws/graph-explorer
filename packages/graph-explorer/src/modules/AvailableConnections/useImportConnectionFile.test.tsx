@@ -10,13 +10,7 @@ import {
   schemaAtom,
 } from "@/core";
 import { createRandomName, createRandomUrlString } from "@shared/utils/testing";
-
-const mockEnqueueNotification = vi.fn();
-vi.mock("@/components/NotificationProvider", () => ({
-  useNotification: () => ({
-    enqueueNotification: mockEnqueueNotification,
-  }),
-}));
+import { toast } from "sonner";
 
 const mockResetState = vi.fn();
 vi.mock("@/core/StateProvider/useResetState", () => ({
@@ -81,12 +75,6 @@ describe("useImportConnectionFile", () => {
     expect(importedSchema?.edges[0].type).toBe("knows");
 
     expect(mockResetState).toHaveBeenCalledOnce();
-    expect(mockEnqueueNotification).toHaveBeenCalledWith({
-      title: "File imported",
-      message: "Connection file successfully imported",
-      type: "success",
-      stackable: true,
-    });
   });
 
   test("should reject invalid configuration file", async () => {
@@ -111,11 +99,8 @@ describe("useImportConnectionFile", () => {
     const configs = getAppStore().get(configurationAtom);
     expect(configs.size).toBe(1);
 
-    expect(mockEnqueueNotification).toHaveBeenCalledWith({
-      title: "Invalid File",
-      message: "The connection file is not valid",
-      type: "error",
-      stackable: true,
+    expect(toast.error).toHaveBeenCalledWith("Invalid File", {
+      description: "The connection file is not valid",
     });
     expect(mockResetState).not.toHaveBeenCalled();
   });

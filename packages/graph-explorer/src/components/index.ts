@@ -50,6 +50,8 @@ export * from "./Label";
 
 export * from "./ListRow";
 
+export * from "./Toaster";
+
 export * from "./Spinner";
 
 export * from "./Panel";

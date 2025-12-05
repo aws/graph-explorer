@@ -1,6 +1,5 @@
 import { QueryClientProvider } from "@tanstack/react-query";
-import { NotificationProvider } from "@/components/NotificationProvider";
-import Toast from "@/components/Toast";
+import { Toaster } from "@/components/Toaster";
 import AppStatusLoader from "@/core/AppStatusLoader";
 import StateProvider from "@/core/StateProvider/StateProvider";
 import { ErrorBoundary } from "react-error-boundary";
@@ -23,13 +22,12 @@ export default function DefaultLayout() {
       <QueryClientProvider client={queryClient}>
         <ExplorerInjector />
         <TooltipProvider delayDuration={200}>
-          <NotificationProvider component={Toast}>
-            <StateProvider>
-              <AppStatusLoader>
-                <Outlet />
-              </AppStatusLoader>
-            </StateProvider>
-          </NotificationProvider>
+          <StateProvider>
+            <AppStatusLoader>
+              <Outlet />
+              <Toaster />
+            </AppStatusLoader>
+          </StateProvider>
         </TooltipProvider>
       </QueryClientProvider>
     </ErrorBoundary>

@@ -3,10 +3,9 @@ import { atom, useAtomValue } from "jotai";
 import { atomFamily, useAtomCallback } from "jotai/utils";
 import { edgesAtom } from "./edges";
 import { nodesAtom, toNodeMap } from "./nodes";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { bulkNeighborCountsQuery, neighborsCountQuery } from "@/connector";
-import { useNotification } from "@/components/NotificationProvider";
 
 export type NeighborCounts = {
   all: number;
@@ -98,38 +97,7 @@ export function useAllNeighbors() {
 
   const queryClient = useQueryClient();
   const fetchedNeighbors = useAtomValue(allFetchedNeighborsSelector(vertexIds));
-  const { isLoading, error, data } = useQuery(
-    bulkNeighborCountsQuery(vertexIds, queryClient),
-  );
-
-  const { enqueueNotification, clearNotification } = useNotification();
-
-  // Show loading notification
-  useEffect(() => {
-    if (!isLoading) {
-      return;
-    }
-    const notificationId = enqueueNotification({
-      title: "Updating Neighbors",
-      message: `Updating neighbor counts for new nodes`,
-      type: "loading",
-      autoHideDuration: null,
-    });
-    return () => clearNotification(notificationId);
-  }, [clearNotification, isLoading, enqueueNotification]);
-
-  // Show error notification
-  useEffect(() => {
-    if (isLoading || !error) {
-      return;
-    }
-    const notificationId = enqueueNotification({
-      title: "Some Errors Occurred",
-      message: `While requesting counts for neighboring nodes, some errors occurred.`,
-      type: "error",
-    });
-    return () => clearNotification(notificationId);
-  }, [clearNotification, isLoading, error, enqueueNotification]);
+  const { data } = useQuery(bulkNeighborCountsQuery(vertexIds, queryClient));
 
   return useMemo(() => {
     if (!data) {
