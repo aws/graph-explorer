@@ -36,7 +36,7 @@ export function useRestoreGraphSession() {
       })();
 
       toast.promise(restorePromise, {
-        loading: `Loading ${entityCountMessage}...`,
+        loading: `Loading ${entityCountMessage}`,
         error: err => ({
           description: createDisplayError(err).title,
           message: createDisplayError(err).message,

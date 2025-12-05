@@ -51,8 +51,8 @@ export function bulkNeighborCountsQuery(
       ).then(results => results.flat());
 
       toast.promise(newResponsesPromise, {
-        loading: "Fetching neighbor counts...",
-        error: "Error fetching neighbor counts",
+        loading: "Loading neighbor counts",
+        error: "Error loading neighbor counts",
       });
 
       const newResponses = await newResponsesPromise;

@@ -41,6 +41,7 @@ import {
 import { atom, useAtom, useSetAtom } from "jotai";
 import { ImageUpIcon } from "lucide-react";
 import { parseNumberSafely } from "@/utils";
+import { createDisplayError } from "@/utils/createDisplayError";
 
 const customizeNodeTypeAtom = atom<string | undefined>(undefined);
 
@@ -118,6 +119,9 @@ function Content({ vertexType }: { vertexType: string }) {
       setVertexStyle({ iconUrl: result, iconImageType: file.type });
     } catch (error) {
       console.error("Unable to convert uploaded image to base64: ", error);
+      toast.error("Invalid file", {
+        description: createDisplayError(error).message,
+      });
     }
   };
 

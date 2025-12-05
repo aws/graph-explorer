@@ -78,7 +78,7 @@ export default function useExpandNode() {
       );
 
       toast.promise(expandPromise, {
-        loading: "Expanding neighbors...",
+        loading: "Expanding neighbors",
         error: err => {
           remoteLogger.error(
             `Failed to expand node: ${(err as Error)?.message ?? "Unknown error"}`,
@@ -92,10 +92,7 @@ export default function useExpandNode() {
 
       // No neighbors to add
       if (result.vertices.length + result.edges.length <= 0) {
-        toast.info("No more neighbors", {
-          description:
-            "This vertex has been fully expanded or it does not have connections",
-        });
+        toast.info("No more neighbors to expand");
         return;
       }
 
@@ -147,25 +144,14 @@ export default function useExpandNode() {
           }
         }
 
-        const combined: Entities = {
+        return {
           vertices: combinedVertices,
           edges: combinedEdges,
         };
-
-        if (combined.vertices.length + combined.edges.length <= 0) {
-          toast.info("No more neighbors", {
-            description:
-              "All vertices have been fully expanded or do not have connections",
-          });
-          return;
-        }
-
-        await addToGraph(combined);
       })();
 
       toast.promise(expandPromise, {
-        loading: `Expanding neighbors for ${vertexIds.length} nodes...`,
-        success: "Nodes expanded",
+        loading: `Expanding neighbors`,
         error: err => {
           remoteLogger.error(
             `Failed to expand nodes: ${(err as Error)?.message ?? "Unknown error"}`,
@@ -175,7 +161,16 @@ export default function useExpandNode() {
         },
       });
 
-      return expandPromise;
+      const combined = await expandPromise;
+
+      if (combined.vertices.length + combined.edges.length <= 0) {
+        toast.info("No more neighbors to expand");
+        return;
+      }
+
+      await addToGraph(combined);
+
+      return combined;
     },
   });
 
