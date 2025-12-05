@@ -7,7 +7,7 @@ import {
 } from "@/utils/testing";
 import { useContextMenuTarget } from "./useContextMenuTarget";
 import type { EdgeId, VertexId } from "@/core";
-import { createGraphSelection } from "@/modules/GraphViewer";
+import { createGraphSelection } from "@/modules/GraphViewer/useGraphSelection";
 
 describe("useContextMenuTarget", () => {
   let state: DbState;

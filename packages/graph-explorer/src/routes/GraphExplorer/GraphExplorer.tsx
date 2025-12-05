@@ -40,12 +40,12 @@ import { EdgesStyling, EdgeStyleDialog } from "@/modules/EdgesStyling";
 import EntitiesFilter from "@/modules/EntitiesFilter";
 import EntitiesTabular from "@/modules/EntitiesTabular/EntitiesTabular";
 import EntityDetails from "@/modules/EntityDetails";
-import GraphViewer from "@/modules/GraphViewer";
 import Namespaces from "@/modules/Namespaces/Namespaces";
 import NodeExpand from "@/modules/NodeExpand";
 import { NodesStyling, NodeStyleDialog } from "@/modules/NodesStyling";
 import { LABELS } from "@/utils/constants";
 import { SearchSidebarPanel } from "@/modules/SearchSidebar";
+import GraphViewer from "@/modules/GraphViewer";
 import { useAtomValue } from "jotai";
 
 const RESIZE_ENABLE_TOP = {

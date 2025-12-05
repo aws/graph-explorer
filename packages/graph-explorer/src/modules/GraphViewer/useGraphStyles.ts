@@ -6,7 +6,7 @@ import {
   type EdgePreferences,
   type VertexPreferences,
 } from "@/core";
-import type { GraphProps } from "@/components";
+import type { GraphProps } from "@/components/Graph";
 import { useBackgroundImageMap } from "./useBackgroundImageMap";
 
 const LINE_PATTERN = {

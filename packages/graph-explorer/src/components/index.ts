@@ -31,8 +31,6 @@ export * from "./Field";
 export * from "./FileButton";
 export * from "./Form";
 
-export { default as Graph } from "./Graph";
-export * from "./Graph";
 
 export * from "./numberFormat";
 

@@ -28,7 +28,6 @@ import {
   IconButton,
   VertexSymbolByType,
 } from "@/components";
-import Graph from "@/components/Graph";
 import type { ElementEventCallback } from "@/components/Graph/hooks/useAddClickEvents";
 import { edgesOutOfFocusIdsAtom } from "@/core/StateProvider/edges";
 import { nodesOutOfFocusIdsAtom } from "@/core/StateProvider/nodes";
@@ -56,6 +55,7 @@ import { graphLayoutSelectionAtom, SelectLayout } from "./SelectLayout";
 import { useGraphSelection } from "./useGraphSelection";
 import { cn, isVisible } from "@/utils";
 import { GraphViewerEmptyState } from "./GraphViewerEmptyState";
+import { Graph } from "@/components/Graph";
 import { GraphProvider } from "@/components/Graph/GraphContext";
 
 // Prevent open context menu on Windows

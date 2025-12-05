@@ -4,4 +4,6 @@ export type { GraphProps } from "./Graph";
 export type { Badge } from "./hooks/useRenderBadges";
 export { availableLayoutsConfig } from "./helpers/layoutConfig";
 export { GraphProvider, useGraphRef } from "./GraphContext";
-export { default } from "./Graph";
+
+// Export lazy-loaded Graph wrapper to defer loading the cytoscape bundle
+export { default as Graph } from "./LazyGraph";
