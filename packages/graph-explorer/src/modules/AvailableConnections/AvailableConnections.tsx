@@ -18,16 +18,13 @@ import {
   PanelContent,
   FileButton,
 } from "@/components";
-import {
-  activeConfigurationAtom,
-  configurationAtom,
-} from "@/core/StateProvider/configuration";
 import CreateConnection from "@/modules/CreateConnection";
 import { cn } from "@/utils";
 import { Virtuoso } from "react-virtuoso";
 import { ConnectionRow } from "./ConnectionRow";
 import { useImportConnectionFile } from "./useImportConnectionFile";
 import { useAtomValue } from "jotai";
+import { activeConfigurationAtom, configurationAtom } from "@/core";
 
 export type ConnectionDetailProps = {
   isSync: boolean;

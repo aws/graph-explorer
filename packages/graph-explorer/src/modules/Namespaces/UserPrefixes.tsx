@@ -28,9 +28,10 @@ import {
 import {
   activeConfigurationAtom,
   type PrefixTypeConfig,
+  schemaAtom,
   useConfiguration,
 } from "@/core";
-import { schemaAtom, usePrefixes } from "@/core/StateProvider/schema";
+import { usePrefixes } from "@/core/StateProvider/schema";
 import { Virtuoso } from "react-virtuoso";
 import { useAtomCallback } from "jotai/utils";
 

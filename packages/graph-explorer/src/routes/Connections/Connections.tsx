@@ -8,8 +8,7 @@ import {
 } from "@/components";
 import { ExplorerIcon, GearIcon } from "@/components/icons";
 import Workspace from "@/components/Workspace/Workspace";
-import { useConfiguration } from "@/core";
-import { configurationAtom } from "@/core/StateProvider/configuration";
+import { configurationAtom, useConfiguration } from "@/core";
 import { useIsSyncing } from "@/hooks/useSchemaSync";
 import AvailableConnections from "@/modules/AvailableConnections";
 import ConnectionDetail from "@/modules/ConnectionDetail";

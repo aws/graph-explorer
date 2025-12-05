@@ -1,35 +1,25 @@
 import { cloneDeep, isEqual, uniq } from "lodash";
 import { atom } from "jotai";
-import type {
-  AttributeConfig,
-  ConfigurationId,
-  EdgeTypeConfig,
-  RawConfiguration,
-  VertexTypeConfig,
+import {
+  activeConfigurationAtom,
+  configurationAtom,
+  userStylingAtom,
+  type AttributeConfig,
+  type EdgeTypeConfig,
+  type RawConfiguration,
+  type VertexTypeConfig,
 } from "@/core";
-import { atomWithLocalForage } from "./atomWithLocalForage";
 import { activeSchemaSelector, type SchemaInference } from "./schema";
 import {
   defaultEdgePreferences,
   defaultVertexPreferences,
   type EdgePreferencesStorageModel,
   type UserStyling,
-  userStylingAtom,
   type VertexPreferencesStorageModel,
 } from "./userPreferences";
 import { RESERVED_TYPES_PROPERTY } from "@/utils/constants";
 import type { ConnectionConfig } from "@shared/types";
 import { selectAtom } from "jotai/utils";
-
-export const activeConfigurationAtom =
-  await atomWithLocalForage<ConfigurationId | null>(
-    "active-configuration",
-    null,
-  );
-
-export const configurationAtom = await atomWithLocalForage<
-  Map<ConfigurationId, RawConfiguration>
->("configuration", new Map());
 
 /** Gets the currently active config. */
 export const activeConfigSelector = atom(get => {

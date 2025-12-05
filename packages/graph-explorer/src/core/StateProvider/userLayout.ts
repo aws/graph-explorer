@@ -1,6 +1,6 @@
 import { useAtom } from "jotai";
-import { atomWithLocalForage } from "./atomWithLocalForage";
 import { useQueryEngine } from "../connector";
+import { userLayoutAtom } from "../storageAtoms";
 
 export type ToggleableView = "graph-viewer" | "table-view";
 
@@ -28,17 +28,14 @@ export type SidebarItems = UserLayout["activeSidebarItem"];
 
 export const DEFAULT_TABLE_VIEW_HEIGHT = 300;
 
-export const userLayoutAtom = await atomWithLocalForage<UserLayout>(
-  "user-layout",
-  {
-    activeToggles: new Set(["graph-viewer", "table-view"]),
-    activeSidebarItem: "search",
-    detailsAutoOpenOnSelection: true,
-    tableView: {
-      height: DEFAULT_TABLE_VIEW_HEIGHT,
-    },
+export const defaultUserLayout: UserLayout = {
+  activeToggles: new Set(["graph-viewer", "table-view"]),
+  activeSidebarItem: "search",
+  detailsAutoOpenOnSelection: true,
+  tableView: {
+    height: DEFAULT_TABLE_VIEW_HEIGHT,
   },
-);
+};
 
 export function useViewToggles() {
   const [userLayout, setUserLayout] = useAtom(userLayoutAtom);

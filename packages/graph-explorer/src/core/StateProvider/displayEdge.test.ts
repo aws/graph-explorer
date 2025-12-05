@@ -1,4 +1,11 @@
-import { type AppStore, type Edge, getRawId } from "@/core";
+import {
+  activeConfigurationAtom,
+  type AppStore,
+  configurationAtom,
+  type Edge,
+  getRawId,
+  schemaAtom,
+} from "@/core";
 import {
   createRandomEdge,
   createRandomEdgePreferencesStorageModel,
@@ -13,9 +20,7 @@ import { useDisplayEdgeFromEdge } from "./displayEdge";
 import { formatDate } from "@/utils";
 import { createRandomDate, createRandomName } from "@shared/utils/testing";
 import type { DisplayAttribute } from "./displayAttribute";
-import { activeConfigurationAtom, configurationAtom } from "./configuration";
 import type { Schema } from "../ConfigurationProvider";
-import { schemaAtom } from "./schema";
 import type { QueryEngine } from "@shared/types";
 import { getDisplayValueForScalar } from "@/connector/entities";
 

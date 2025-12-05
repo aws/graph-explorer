@@ -7,15 +7,15 @@ import {
 import { useLocation } from "react-router";
 import { PanelEmptyState, Spinner } from "@/components";
 import Redirect from "@/components/Redirect";
-import {
-  activeConfigurationAtom,
-  configurationAtom,
-} from "./StateProvider/configuration";
-import { schemaAtom } from "./StateProvider/schema";
 import { logger } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
 import { fetchDefaultConnection } from "./defaultConnection";
 import { useAtom, useAtomValue } from "jotai";
+import {
+  activeConfigurationAtom,
+  configurationAtom,
+  schemaAtom,
+} from "./storageAtoms";
 
 function AppStatusLoader({ children }: PropsWithChildren) {
   return (

@@ -5,9 +5,14 @@ import type {
   PrefixTypeConfig,
   VertexTypeConfig,
 } from "@/core/ConfigurationProvider";
-import { atomWithLocalForage } from "./atomWithLocalForage";
-import { activeConfigurationAtom } from "./configuration";
-import type { Edge, Entities, EntityProperties, Vertex } from "@/core";
+import {
+  activeConfigurationAtom,
+  schemaAtom,
+  type Edge,
+  type Entities,
+  type EntityProperties,
+  type Vertex,
+} from "@/core";
 import { logger } from "@/utils";
 import generatePrefixes from "@/utils/generatePrefixes";
 import { startTransition, useCallback, useDeferredValue } from "react";
@@ -27,12 +32,6 @@ export type SchemaInference = {
   totalVertices?: number;
   totalEdges?: number;
 };
-
-/** All the stored schemas */
-export const schemaAtom = await atomWithLocalForage(
-  "schema",
-  new Map<string, SchemaInference>(),
-);
 
 /** Grabs a specific schema out of the map. */
 const schemaByIdAtom = atomFamily((id: ConfigurationId | null) => {
