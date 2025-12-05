@@ -6,7 +6,7 @@ import {
 import { useSidebar, useViewToggles } from "./userLayout";
 import { act } from "react";
 import type { ExtractAtomValue } from "jotai";
-import { userLayoutAtom } from "../storageAtoms";
+import { userLayoutAtom } from "./storageAtoms";
 
 type UserLayout = ExtractAtomValue<typeof userLayoutAtom>;
 

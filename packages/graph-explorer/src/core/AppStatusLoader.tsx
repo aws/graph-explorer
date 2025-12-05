@@ -15,7 +15,7 @@ import {
   activeConfigurationAtom,
   configurationAtom,
   schemaAtom,
-} from "./storageAtoms";
+} from "./StateProvider";
 
 function AppStatusLoader({ children }: PropsWithChildren) {
   return (

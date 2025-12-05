@@ -11,7 +11,7 @@ import {
   type NormalizedConnection,
 } from "./StateProvider/configuration";
 import { logger } from "@/utils";
-import { featureFlagsSelector } from "./featureFlags";
+import { featureFlagsSelector } from "./StateProvider";
 import type { Explorer } from "@/connector/useGEFetchTypes";
 import { emptyExplorer } from "@/connector/emptyExplorer";
 import { atom, useAtomValue } from "jotai";

@@ -1,6 +1,6 @@
 import { useAtom } from "jotai";
 import { useQueryEngine } from "../connector";
-import { userLayoutAtom } from "../storageAtoms";
+import { userLayoutAtom } from "./storageAtoms";
 
 export type ToggleableView = "graph-viewer" | "table-view";
 

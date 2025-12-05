@@ -1,14 +1,14 @@
 import type {
   ConfigurationId,
   RawConfiguration,
-} from "./ConfigurationProvider";
+} from "../ConfigurationProvider";
 import {
   defaultUserLayout,
   type GraphSessionStorageModel,
   type SchemaInference,
   type UserStyling,
-} from "./StateProvider";
-import { atomWithLocalForage } from "./StateProvider/atomWithLocalForage";
+} from "./index";
+import { atomWithLocalForage } from "./atomWithLocalForage";
 
 export const activeConfigurationAtom =
   await atomWithLocalForage<ConfigurationId | null>(
