@@ -1,8 +1,8 @@
 import { logger } from "@/utils";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, type DefaultOptions } from "@tanstack/react-query";
 import { createDefaultOptions } from "./queryClient";
 import { useAtomValue } from "jotai";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { explorerAtom } from "./connector";
 import { getAppStore } from "./StateProvider/appStore";
 
@@ -15,14 +15,20 @@ export function ExplorerInjector() {
   const queryClient = useQueryClient();
   const explorer = useAtomValue(explorerAtom);
   const store = getAppStore();
-  const defaultOptions = createDefaultOptions(explorer, store);
-  const [prevDefaultOptions, setPrevDefaultOptions] = useState(defaultOptions);
+
+  // Only crate a new defaultOptions when explorer or store changes
+  const defaultOptions = useMemo(
+    () => createDefaultOptions(explorer, store),
+    [explorer, store],
+  );
+
+  // Start with null to ensure first render sets the default options properly
+  const [prevDefaultOptions, setPrevDefaultOptions] =
+    useState<DefaultOptions<Error> | null>(null);
 
   if (prevDefaultOptions !== defaultOptions) {
     setPrevDefaultOptions(defaultOptions);
-    logger.log(
-      "Clearing cache and updating query default options due to connection change",
-    );
+    logger.log("Clearing cache and updating query default options");
     queryClient.clear();
     queryClient.setDefaultOptions(defaultOptions);
   }
