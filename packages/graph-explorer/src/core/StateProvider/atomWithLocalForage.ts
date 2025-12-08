@@ -29,10 +29,12 @@ type SetStateAction<Value> = Value | ((prev: Value) => Value);
 /**
  * Creates an atom that persists its value in localForage.
  *
- * The atom provides synchronous read/write operations while persistence happens
- * asynchronously in the background. On first read, the atom loads the stored
- * value from localForage. If a write occurs during the load, it's queued and
- * takes precedence over the loaded value.
+ * This function is async and preloads the stored value before returning the
+ * atom. This ensures the atom is immediately available with the correct value
+ * on first read.
+ *
+ * After initialization, the atom provides synchronous read/write operations
+ * while persistence happens asynchronously in the background.
  *
  * @param key The key to use for the stored value in localForage
  * @param initialValue The initial value if none is found in storage
