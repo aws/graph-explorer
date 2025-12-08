@@ -15,16 +15,14 @@ import type {
   NeptuneServiceType,
 } from "@shared/types";
 import {
+  activeConfigurationAtom,
   allGraphSessionsAtom,
+  configurationAtom,
   type ConfigurationContextProps,
   createNewConfigurationId,
   type RawConfiguration,
+  schemaAtom,
 } from "@/core";
-import {
-  activeConfigurationAtom,
-  configurationAtom,
-} from "@/core/StateProvider/configuration";
-import { schemaAtom } from "@/core/StateProvider/schema";
 import useResetState from "@/core/StateProvider/useResetState";
 import { formatDate } from "@/utils";
 import {

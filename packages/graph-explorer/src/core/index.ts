@@ -1,5 +1,4 @@
 export * from "./ConfigurationProvider";
-export * from "./featureFlags";
 export * from "./StateProvider";
 export * from "./connector";
 export * from "./entities";

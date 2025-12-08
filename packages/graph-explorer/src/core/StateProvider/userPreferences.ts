@@ -1,11 +1,11 @@
 import DEFAULT_ICON_URL from "@/utils/defaultIconUrl";
-import { atomWithLocalForage } from "./atomWithLocalForage";
 import { atom, useAtomValue, useSetAtom } from "jotai";
 import { useDeferredValue } from "react";
 import { logger, RESERVED_ID_PROPERTY, RESERVED_TYPES_PROPERTY } from "@/utils";
 import type { Simplify } from "type-fest";
 import { useActiveSchema } from "./schema";
 import { atomFamily } from "jotai/utils";
+import { userStylingAtom } from "./storageAtoms";
 
 export type ShapeStyle =
   | "rectangle"
@@ -152,11 +152,6 @@ export type UserStyling = {
   vertices?: Array<VertexPreferencesStorageModel>;
   edges?: Array<EdgePreferencesStorageModel>;
 };
-
-export const userStylingAtom = atomWithLocalForage<UserStyling>(
-  "user-styling",
-  {},
-);
 
 /** Get the stored user preferences for vertices and edges in a fast lookup Map. */
 function useStoredGraphPreferences() {

@@ -10,18 +10,19 @@ import {
   renderHookWithState,
 } from "@/utils/testing";
 import {
+  activeConfigurationAtom,
   type AppStore,
+  configurationAtom,
   createVertex,
   createVertexId,
   type DisplayAttribute,
   getRawId,
   type Schema,
+  schemaAtom,
   useDisplayVertexFromVertex,
   type Vertex,
 } from "@/core";
 import { formatDate, LABELS } from "@/utils";
-import { schemaAtom } from "./schema";
-import { activeConfigurationAtom, configurationAtom } from "./configuration";
 import { createRandomDate, createRandomName } from "@shared/utils/testing";
 import type { QueryEngine } from "@shared/types";
 import { getDisplayValueForScalar } from "@/connector/entities";
