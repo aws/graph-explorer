@@ -1,13 +1,14 @@
 import { cn } from "@/utils";
 import { useRef } from "react";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { Link, useParams, useSearchParams } from "react-router";
+import { useQuery } from "@tanstack/react-query";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router";
 import {
   useUpdateSchemaFromEntities,
   type Vertex,
   type DisplayVertex,
   useConfiguration,
   useDisplayVertexTypeConfig,
+  useDisplayVertexTypeConfigs,
   useDisplayVerticesFromVertices,
 } from "@/core";
 import {
@@ -70,7 +71,9 @@ export default function DataExplorer() {
 }
 
 function DataExplorerContent({ vertexType }: ConnectionsProps) {
+  const t = useTranslations();
   const config = useConfiguration();
+  const navigate = useNavigate();
 
   // Automatically updates counts if needed
   useUpdateVertexTypeCounts(vertexType);
@@ -89,6 +92,19 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
   )
     .values()
     .toArray();
+
+  const vtConfigs = useDisplayVertexTypeConfigs().values().toArray();
+  const vertexTypeOptions = vtConfigs.map(config => ({
+    value: config.type,
+    label: config.displayLabel,
+  }));
+
+  const onVertexTypeChange = (value: string | string[]) => {
+    const newType = Array.isArray(value) ? value[0] : value;
+    navigate(`/data-explorer/${encodeURIComponent(newType)}`, {
+      replace: true,
+    });
+  };
 
   return (
     <Workspace>
@@ -118,6 +134,14 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
           </Link>
         </Workspace.TopBar.Title>
         <Workspace.TopBar.AdditionalControls>
+          <SelectField
+            className="w-[200px]"
+            value={vertexType}
+            onValueChange={onVertexTypeChange}
+            options={vertexTypeOptions}
+            label={t("node-type")}
+            labelPlacement="inner"
+          />
           <DisplayNameAndDescriptionOptions vertexType={vertexType} />
         </Workspace.TopBar.AdditionalControls>
       </Workspace.TopBar>
@@ -336,10 +360,6 @@ function useDataExplorerQuery(
     limit: pageSize,
     offset: pageIndex * pageSize,
   };
-  const query = useQuery({
-    ...searchQuery(searchRequest, updateSchema),
-    placeholderData: keepPreviousData,
-  });
 
-  return query;
+  return useQuery(searchQuery(searchRequest, updateSchema));
 }
