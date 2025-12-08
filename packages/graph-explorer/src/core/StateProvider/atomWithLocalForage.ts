@@ -1,6 +1,5 @@
 import localForage from "localforage";
 import { atom } from "jotai";
-import { logger } from "@/utils";
 
 localForage.config({
   name: "ge",
@@ -45,8 +44,6 @@ export async function atomWithLocalForage<T>(key: string, initialValue: T) {
   const storage = createLocalForageStorage<T>(key, initialValue);
   const preloadValue = await storage.getItem();
 
-  logger.debug(`atomWithLocalForage(${key}): init`, preloadValue);
-
   // Cached value
   const baseAtom = atom<T>(preloadValue);
 
@@ -61,10 +58,9 @@ export async function atomWithLocalForage<T>(key: string, initialValue: T) {
           : update;
 
       if (prevValue === nextValue) {
-        logger.debug(`atomWithLocalForage(${key}): no change`, nextValue);
         return;
       }
-      logger.debug(`atomWithLocalForage(${key}): update`, nextValue);
+
       set(baseAtom, nextValue);
       storage.setItem(nextValue);
     },
