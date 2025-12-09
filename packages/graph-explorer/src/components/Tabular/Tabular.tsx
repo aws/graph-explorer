@@ -173,7 +173,7 @@ const TabularContent = <T extends object>({
         {...getTableProps()}
         className="relative isolate flex w-full grow flex-col overflow-auto"
       >
-        <div
+        <thead
           className="sticky top-0 z-1 w-fit min-w-full"
           style={{
             // Top is assigned depending on the header-controls visibility and height
@@ -188,7 +188,7 @@ const TabularContent = <T extends object>({
               tableInstance={tableInstance}
             />
           ))}
-        </div>
+        </thead>
         <tbody
           {...getTableBodyProps()}
           className={cn(
@@ -196,7 +196,16 @@ const TabularContent = <T extends object>({
             actualRows.length === 0 && "grow",
           )}
         >
-          {emptyBodyControlsChildren}
+          {!actualRows.length && (
+            <tr className="grow">
+              <td
+                colSpan={tableInstance.columns.length}
+                className="grid size-full grow"
+              >
+                {emptyBodyControlsChildren}
+              </td>
+            </tr>
+          )}
           {actualRows.map(row => {
             return (
               <TabularRow
