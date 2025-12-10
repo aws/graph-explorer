@@ -58,10 +58,6 @@
   --color-primary-main: var(--color-brand-500);
   --color-primary-dark: var(--color-brand-800);
 
-  --color-secondary-light: rgb(255 184 46);
-  --color-secondary-main: rgb(250 133 0);
-  --color-secondary-dark: rgb(228 96 0);
-
   --color-info-light: rgb(100 199 255);
   --color-info-main: rgb(18 142 229);
   --color-info-dark: rgb(23 69 123);
