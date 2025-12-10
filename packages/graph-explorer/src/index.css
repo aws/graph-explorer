@@ -111,10 +111,16 @@
   --background-color-brand-subtle: var(--color-brand-50);
   --background-color-brand-subtle-hover: var(--color-brand-100);
 
+  --color-primary-subtle: var(--color-brand-50);
+  --color-primary-subtle-hover: var(--color-brand-100);
+  --color-primary-subtle-foreground: var(--color-primary-dark);
+
   --background-color-danger: var(--color-red-500);
   --background-color-danger-hover: var(--color-red-600);
-  --background-color-danger-subtle: var(--color-red-50);
-  --background-color-danger-subtle-hover: var(--color-red-100);
+
+  --color-danger-subtle: var(--color-red-50);
+  --color-danger-subtle-hover: var(--color-red-100);
+  --color-danger-subtle-foreground: var(--color-error-dark);
 
   --text-color-secondary: var(--color-text-secondary);
   --text-color-disabled: var(--color-text-disabled);
