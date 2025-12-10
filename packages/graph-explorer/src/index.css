@@ -131,6 +131,10 @@
     interpolate-size: allow-keywords;
   }
 
+  b {
+    @apply font-bold;
+  }
+
   body {
     @apply bg-background-default text-text-primary h-screen w-full overflow-hidden overscroll-none font-sans;
   }
