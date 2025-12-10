@@ -22,7 +22,7 @@ function SidebarTabsList({
   return (
     <TabsPrimitive.List
       className={cn(
-        "border-divider bg-background-default text-text-secondary sticky top-0 flex w-full flex-row items-center border-b",
+        "bg-background-default text-text-secondary sticky top-0 flex w-full flex-row items-center border-b",
         className,
       )}
       {...props}

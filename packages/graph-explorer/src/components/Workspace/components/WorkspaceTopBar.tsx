@@ -38,13 +38,13 @@ const WorkspaceTopBar = ({
   return (
     <div
       className={cn(
-        "border-divider bg-background-default text-text-primary flex flex-col border-b",
+        "bg-background-default text-text-primary flex flex-col border-b",
         className,
       )}
     >
       <div
         className={cn(
-          "bg-background-default text-text-primary flex min-h-[3.5rem] items-center gap-3",
+          "bg-background-default text-text-primary flex min-h-14 items-center gap-3",
           logoVisible ? "pr-2" : "px-2",
         )}
       >
@@ -70,7 +70,7 @@ const WorkspaceTopBar = ({
         }
       </div>
       {childrenByType.rest?.length > 0 ? (
-        <div className="border-divider text-text-primary flex w-full items-center border-t bg-black">
+        <div className="text-text-primary flex w-full items-center border-t bg-black">
           {childrenByType.rest}
         </div>
       ) : null}
