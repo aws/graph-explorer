@@ -30,6 +30,8 @@
   --color-gray-900: rgb(23 23 23);
   --color-gray-950: rgb(10 10 10);
 
+  --color-border: var(--color-gray-200);
+
   --color-input-background: var(--color-white);
   --color-input-border: var(--color-gray-300);
 
@@ -73,9 +75,6 @@
   --color-warning-light: rgb(255 184 46);
   --color-warning-main: rgb(250 133 0);
   --color-warning-dark: rgb(228 96 0);
-
-  --color-divider: var(--color-gray-200);
-  --color-border: var(--color-gray-200);
 
   /* Semantic colors for shadcn/ui components */
 
