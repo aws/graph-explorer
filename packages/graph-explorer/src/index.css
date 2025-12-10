@@ -37,7 +37,6 @@
 
   --color-text-primary: rgb(33 33 33);
   --color-text-secondary: rgb(115 115 115);
-  --color-text-disabled: rgb(158 158 158);
 
   --color-background-default: var(--color-white);
   --color-background-secondary: rgb(224 233 246);
@@ -118,7 +117,6 @@
   --color-danger-subtle-foreground: var(--color-error-dark);
 
   --text-color-secondary: var(--color-text-secondary);
-  --text-color-disabled: var(--color-text-disabled);
   --text-color-danger: var(--color-red-700);
   --text-color-brand: var(--color-brand-700);
 
