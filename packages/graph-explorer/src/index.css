@@ -107,6 +107,12 @@
   --color-input-background: var(--color-white);
   --color-input-border: var(--color-gray-300);
 
+  /* Semantic colors for shadcn/ui components */
+
+  --color-destructive: var(--color-danger);
+  --color-popover: var(--color-background);
+  --color-popover-foreground: var(--color-foreground);
+
   --color-text-primary: rgb(33 33 33);
   --color-text-secondary: rgb(115 115 115);
 
@@ -124,12 +130,6 @@
   --color-success-main: rgb(39 175 140);
 
   --color-warning-main: rgb(250 133 0);
-
-  /* Semantic colors for shadcn/ui components */
-
-  --color-destructive: var(--color-error-main);
-  --color-popover: var(--color-background);
-  --color-popover-foreground: var(--color-foreground);
 
   /* Colors from tailwind config */
   --background-color-default: var(--color-background-default);
