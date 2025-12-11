@@ -115,42 +115,35 @@
 
   /* Legacy colors */
 
-  --color-text-primary: rgb(33 33 33);
-  --color-text-secondary: rgb(115 115 115);
+  --color-text-primary: var(--color-foreground);
+  --color-text-secondary: var(--color-muted-foreground);
 
-  --color-background-default: var(--color-white);
-  --color-background-secondary: rgb(224 233 246);
+  --color-background-default: var(--color-background);
+  --color-background-secondary: var(--color-primary-subtle-hover);
 
   --color-primary-light: var(--color-brand-300);
-  --color-primary-main: var(--color-brand-500);
-  --color-primary-dark: var(--color-brand-800);
+  --color-primary-main: var(--color-primary);
+  --color-primary-dark: var(--color-primary-foreground);
 
-  --color-error-light: rgb(252 165 165);
-  --color-error-main: rgb(239 68 68);
-  --color-error-dark: rgb(153 27 27);
+  --color-error-light: var(--color-red-300);
+  --color-error-main: var(--color-danger);
+  --color-error-dark: var(--color-danger-foreground);
 
-  --color-success-main: rgb(39 175 140);
+  --color-success-main: var(--color-success);
 
-  --color-warning-main: rgb(250 133 0);
+  --color-warning-main: var(--color-warning);
 
-  --background-color-default: var(--color-background-default);
-  --background-color-secondary: var(--color-background-secondary);
-  --background-color-secondary-subtle: color-mix(
-    in oklab,
-    var(--color-background-secondary) 60%,
-    transparent
-  );
+  --background-color-default: var(--color-background);
+  --background-color-secondary: var(--color-muted);
+  --background-color-secondary-subtle: var(--color-primary-subtle);
 
-  --background-color-brand: var(--color-brand-500);
-  --background-color-brand-hover: var(--color-brand-600);
-  --background-color-brand-subtle: var(--color-brand-50);
-  --background-color-brand-subtle-hover: var(--color-brand-100);
+  --background-color-brand: var(--color-primary);
+  --background-color-brand-hover: var(--color-primary-hover);
+  --background-color-brand-subtle: var(--color-primary-subtle);
+  --background-color-brand-subtle-hover: var(--color-primary-subtle-hover);
 
-  --background-color-danger: var(--color-red-500);
-  --background-color-danger-hover: var(--color-red-600);
-
-  --text-color-danger: var(--color-red-700);
-  --text-color-brand: var(--color-brand-700);
+  --text-color-danger: var(--color-danger-foreground);
+  --text-color-brand: var(--color-primary-foreground);
 
   --border-color-input: var(--color-input-border);
 }
