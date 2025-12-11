@@ -60,6 +60,48 @@
 
   /* Semantic colors */
 
+  --color-foreground: var(--color-gray-900);
+  --color-background: var(--color-white);
+  --color-background-alt: var(--color-gray-50);
+
+  --color-muted-foreground: var(--color-gray-700);
+  --color-muted: var(--color-gray-100);
+
+  /* Used for highlights and selections */
+  --color-accent-foreground: var(--color-brand-700);
+  --color-accent: var(--color-brand-100);
+  --color-accent-hover: var(--color-brand-200);
+
+  --color-neutral-foreground: var(--color-gray-900);
+  --color-neutral: var(--color-gray-900);
+  --color-neutral-hover: var(--color-gray-700);
+  --color-neutral-subtle: var(--color-gray-100);
+  --color-neutral-subtle-hover: var(--color-gray-200);
+
+  --color-primary-foreground: var(--color-brand-700);
+  --color-primary: var(--color-brand-500);
+  --color-primary-hover: var(--color-brand-600);
+  --color-primary-subtle: var(--color-brand-50);
+  --color-primary-subtle-hover: var(--color-brand-100);
+
+  --color-danger-foreground: var(--color-red-700);
+  --color-danger: var(--color-red-500);
+  --color-danger-hover: var(--color-red-600);
+  --color-danger-subtle: var(--color-red-50);
+  --color-danger-subtle-hover: var(--color-red-100);
+
+  --color-warning-foreground: var(--color-amber-700);
+  --color-warning: var(--color-amber-500);
+  --color-warning-hover: var(--color-amber-600);
+  --color-warning-subtle: var(--color-amber-50);
+  --color-warning-subtle-hover: var(--color-amber-100);
+
+  --color-success-foreground: var(--color-emerald-700);
+  --color-success: var(--color-emerald-500);
+  --color-success-hover: var(--color-emerald-600);
+  --color-success-subtle: var(--color-emerald-50);
+  --color-success-subtle-hover: var(--color-emerald-100);
+
   --color-border: var(--color-gray-200);
 
   --color-input-background: var(--color-white);
@@ -85,12 +127,6 @@
 
   /* Semantic colors for shadcn/ui components */
 
-  --color-background: var(--color-background-default);
-  --color-foreground: var(--color-text-primary);
-  --color-muted-foreground: var(--color-text-secondary);
-  --color-muted: var(--color-gray-100);
-  --color-primary: var(--color-primary-main);
-  --color-primary-foreground: var(--color-white);
   --color-destructive: var(--color-error-main);
   --color-popover: var(--color-background);
   --color-popover-foreground: var(--color-foreground);
@@ -109,16 +145,8 @@
   --background-color-brand-subtle: var(--color-brand-50);
   --background-color-brand-subtle-hover: var(--color-brand-100);
 
-  --color-primary-subtle: var(--color-brand-50);
-  --color-primary-subtle-hover: var(--color-brand-100);
-  --color-primary-subtle-foreground: var(--color-primary-dark);
-
   --background-color-danger: var(--color-red-500);
   --background-color-danger-hover: var(--color-red-600);
-
-  --color-danger-subtle: var(--color-red-50);
-  --color-danger-subtle-hover: var(--color-red-100);
-  --color-danger-subtle-foreground: var(--color-error-dark);
 
   --text-color-danger: var(--color-red-700);
   --text-color-brand: var(--color-brand-700);
@@ -154,7 +182,7 @@
   ::before,
   ::backdrop,
   ::file-selector-button {
-    border-color: var(--color-gray-200, currentColor);
+    border-color: var(--color-border, currentColor);
   }
 }
 
