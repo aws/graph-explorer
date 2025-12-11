@@ -40,8 +40,6 @@
 
   --color-background-default: var(--color-white);
   --color-background-secondary: rgb(224 233 246);
-  --color-background-contrast: var(--color-gray-100);
-  --color-background-contrast-secondary: var(--color-gray-200);
 
   --color-brand-50: hsl(205deg 87% 95%);
   --color-brand-100: hsl(205deg 87% 93%);
@@ -59,28 +57,20 @@
   --color-primary-main: var(--color-brand-500);
   --color-primary-dark: var(--color-brand-800);
 
-  --color-info-light: rgb(100 199 255);
-  --color-info-main: rgb(18 142 229);
-  --color-info-dark: rgb(23 69 123);
-
   --color-error-light: rgb(252 165 165);
   --color-error-main: rgb(239 68 68);
   --color-error-dark: rgb(153 27 27);
 
-  --color-success-light: rgb(49 222 178);
   --color-success-main: rgb(39 175 140);
-  --color-success-dark: rgb(18 146 113);
 
-  --color-warning-light: rgb(255 184 46);
   --color-warning-main: rgb(250 133 0);
-  --color-warning-dark: rgb(228 96 0);
 
   /* Semantic colors for shadcn/ui components */
 
   --color-background: var(--color-background-default);
   --color-foreground: var(--color-text-primary);
   --color-muted-foreground: var(--color-text-secondary);
-  --color-muted: var(--color-background-contrast);
+  --color-muted: var(--color-gray-100);
   --color-primary: var(--color-primary-main);
   --color-primary-foreground: var(--color-white);
   --color-destructive: var(--color-error-main);
@@ -94,10 +84,6 @@
     in oklab,
     var(--color-background-secondary) 60%,
     transparent
-  );
-  --background-color-contrast: var(--color-background-contrast);
-  --background-color-contrast-secondary: var(
-    --color-background-contrast-secondary
   );
 
   --background-color-brand: var(--color-brand-500);
@@ -116,7 +102,6 @@
   --color-danger-subtle-hover: var(--color-red-100);
   --color-danger-subtle-foreground: var(--color-error-dark);
 
-  --text-color-secondary: var(--color-text-secondary);
   --text-color-danger: var(--color-red-700);
   --text-color-brand: var(--color-brand-700);
 
