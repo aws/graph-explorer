@@ -1,5 +1,88 @@
 # Graph Explorer Change Log
 
+## Release 2.5.0
+
+This release focuses on improving the graph exploration experience with better
+debugging tools, enhanced node interactions, and performance optimizations.
+
+### New Features
+
+- **Raw JSON Response Viewer**: View query results as formatted JSON with syntax
+  highlighting and copy functionality for better debugging
+- **Enhanced Node Expansion**: Expand single or multiple selected nodes
+  simultaneously through an improved context menu
+- **Graph View Improvements**: Added toggle buttons to the empty state and
+  updated the re-layout button icon for clarity
+
+### Improvements
+
+- **Better Context Menu**: Reorganized options with new abilities to center/zoom
+  to selected items and remove all selected items
+- **Performance**: Faster app startup by lazy-loading Cytoscape and other heavy
+  dependencies (38% reduction in initial bundle size)
+- **UI Polish**: Updated table and notification styling, plus fixed node
+  stacking issues in graph rendering
+- **Stability**: Resolved race conditions that caused inconsistent behavior
+  during app initialization
+
+### All Changes
+
+- Change Prettier trailing comma option by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1340
+- Update dependencies to the latest versions by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1341
+- Update to Zod v4 by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1342
+- Add basic raw response dialog by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1345
+- Change re-layout button icon by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1350
+- Add GraphContext to contain the graphRef by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1351
+- Rework context menu to make more sense by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1352
+- Use Monaco editor for raw response syntax highlighting and folding by
+  @kmcginnes in https://github.com/aws/graph-explorer/pull/1349
+- Add expand option to single target by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1354
+- Remove offset and edgeTypes from neighbor request by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1355
+- Allow expanding multiple nodes at once by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1357
+- Bump body-parser from 2.2.0 to 2.2.1 by @dependabot[bot] in
+  https://github.com/aws/graph-explorer/pull/1353
+- Bump the version to 2.5.0 by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1359
+- Disable scroll pinning in raw response & fix property labels by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1361
+- Add toggle buttons to graph view empty state by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1366
+- Fix node stacking issue with graph canvas rendering by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1365
+- Migrate table components to Tailwind by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1368
+- Add search tokens constants by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1382
+- Move searchable attributes to a hook by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1383
+- Update prefixes to use specific hook by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1384
+- Switch notifications to use Sonner by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1385
+- Introduce code splitting by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1386
+- Move LocalForage preloading to before React is initialized by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1387
+- Fix explorer creation on app load by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1389
+- Fix HTML errors related to table by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1388
+- Update versions of GitHub actions by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1391
+
+**Full Changelog**:
+https://github.com/aws/graph-explorer/compare/v2.4.1...v2.5.0
+
 ## Release v2.4.1
 
 This release includes several important bug fixes and improvements, notably:
