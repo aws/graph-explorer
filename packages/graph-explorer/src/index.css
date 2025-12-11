@@ -15,6 +15,8 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
+  /* Custom color palette */
+
   --color-white: rgb(255 255 255);
   --color-black: rgb(0 0 0);
 
@@ -30,17 +32,6 @@
   --color-gray-900: rgb(23 23 23);
   --color-gray-950: rgb(10 10 10);
 
-  --color-border: var(--color-gray-200);
-
-  --color-input-background: var(--color-white);
-  --color-input-border: var(--color-gray-300);
-
-  --color-text-primary: rgb(33 33 33);
-  --color-text-secondary: rgb(115 115 115);
-
-  --color-background-default: var(--color-white);
-  --color-background-secondary: rgb(224 233 246);
-
   --color-brand-50: hsl(205deg 87% 95%);
   --color-brand-100: hsl(205deg 87% 93%);
   --color-brand-200: hsl(205deg 87% 82%);
@@ -52,6 +43,19 @@
   --color-brand-800: hsl(205deg 92% 24%);
   --color-brand-900: hsl(205deg 95% 12%);
   --color-brand-950: hsl(205deg 98% 6%);
+
+  /* Semantic colors */
+
+  --color-border: var(--color-gray-200);
+
+  --color-input-background: var(--color-white);
+  --color-input-border: var(--color-gray-300);
+
+  --color-text-primary: rgb(33 33 33);
+  --color-text-secondary: rgb(115 115 115);
+
+  --color-background-default: var(--color-white);
+  --color-background-secondary: rgb(224 233 246);
 
   --color-primary-light: var(--color-brand-300);
   --color-primary-main: var(--color-brand-500);
