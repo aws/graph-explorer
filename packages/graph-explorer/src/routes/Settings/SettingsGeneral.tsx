@@ -98,8 +98,10 @@ export default function SettingsGeneral() {
           <LoadConfigButton />
         </LabelledSetting>
         <ImportantBlock>
-          Loading configuration data will overwrite all of your current data
-          with the data within the configuration file.
+          <p>
+            Loading configuration data will overwrite all of your current data
+            with the data within the configuration file.
+          </p>
         </ImportantBlock>
 
         <ToggleSetting
@@ -113,9 +115,11 @@ export default function SettingsGeneral() {
           description="Logs the generated database queries to the servers logger. If you have encountered an issue this might be helpful with diagnosing the root cause."
         />
         <ImportantBlock>
-          This <b>will not</b> log any data returned by the database queries.
-          However, the node & edge labels, ID values, and any value filters will
-          be present in the queries.
+          <p>
+            This <b>will not</b> log any data returned by the database queries.
+            However, the node & edge labels, ID values, and any value filters
+            will be present in the queries.
+          </p>
         </ImportantBlock>
         <NotInProduction>
           <ToggleSetting

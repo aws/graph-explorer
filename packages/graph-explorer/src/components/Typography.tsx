@@ -1,5 +1,7 @@
 import { cn } from "@/utils";
 import type { ComponentProps } from "react";
+import { Alert, AlertDescription, AlertTitle } from "./Alert";
+import { CircleAlertIcon } from "lucide-react";
 
 export function PageHeading({ className, ...props }: ComponentProps<"h1">) {
   return (
@@ -26,20 +28,14 @@ export function Paragraph({ className, ...props }: ComponentProps<"p">) {
 }
 
 export function ImportantBlock({
-  className,
   children,
   ...props
-}: ComponentProps<"div">) {
+}: ComponentProps<typeof Alert>) {
   return (
-    <div
-      className={cn(
-        "border-info-main bg-info-light/20 text-info-dark rounded-md border-l-4 px-4 py-2",
-        className,
-      )}
-      {...props}
-    >
-      <div className="font-extraBold uppercase">Important</div>
-      {children}
-    </div>
+    <Alert variant="primary" {...props}>
+      <CircleAlertIcon />
+      <AlertTitle>Important</AlertTitle>
+      <AlertDescription>{children}</AlertDescription>
+    </Alert>
   );
 }
