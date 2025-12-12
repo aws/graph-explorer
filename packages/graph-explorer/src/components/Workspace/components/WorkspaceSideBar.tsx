@@ -19,21 +19,7 @@ export type WorkspaceSideBarProps = {
   direction?: "row" | "row-reverse";
 };
 
-const WorkspaceSideBar = ({
-  children,
-  direction = "row",
-}: PropsWithChildren<WorkspaceSideBarProps>) => {
-  const sidebarContent = getChildOfType(
-    children,
-    WorkspaceSideBarContent.displayName || WorkspaceSideBarContent.name,
-  );
-
-  const sidebarActions = getChildrenOfType(
-    children,
-    WorkspaceSideBarContent.displayName || WorkspaceSideBarContent.name,
-    true,
-  );
-
+function ResizableSidebar({ children }: PropsWithChildren) {
   const { isSidebarOpen } = useSidebar();
   const [sidebarWidth, setSidebarWidth] = useSidebarSize();
 
@@ -60,6 +46,28 @@ const WorkspaceSideBar = ({
           "transition-width transform duration-200 ease-in-out",
       )}
     >
+      {children}
+    </Resizable>
+  );
+}
+
+const WorkspaceSideBar = ({
+  children,
+  direction = "row",
+}: PropsWithChildren<WorkspaceSideBarProps>) => {
+  const sidebarContent = getChildOfType(
+    children,
+    WorkspaceSideBarContent.displayName || WorkspaceSideBarContent.name,
+  );
+
+  const sidebarActions = getChildrenOfType(
+    children,
+    WorkspaceSideBarContent.displayName || WorkspaceSideBarContent.name,
+    true,
+  );
+
+  return (
+    <ResizableSidebar>
       <div
         className={cn(
           "bg-background-default shadow-primary-foreground/25 flex h-full shadow",
@@ -72,7 +80,7 @@ const WorkspaceSideBar = ({
         </div>
         {sidebarContent}
       </div>
-    </Resizable>
+    </ResizableSidebar>
   );
 };
 
