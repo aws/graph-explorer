@@ -24,29 +24,39 @@
   --color-neutral-*: initial;
   --color-stone-*: initial;
 
-  --color-gray-50: rgb(250 250 250);
-  --color-gray-100: rgb(245 245 245);
-  --color-gray-200: rgb(229 229 229);
-  --color-gray-300: rgb(212 212 212);
-  --color-gray-400: rgb(163 163 163);
-  --color-gray-500: rgb(115 115 115);
-  --color-gray-600: rgb(82 82 82);
-  --color-gray-700: rgb(64 64 64);
-  --color-gray-800: rgb(38 38 38);
-  --color-gray-900: rgb(23 23 23);
-  --color-gray-950: rgb(10 10 10);
+  /* Replace the Tailwind gray color with Tailwind zinc color */
+  --color-gray-50: oklch(0.985 0 0);
+  --color-gray-100: oklch(0.967 0.001 286.375);
+  --color-gray-200: oklch(0.92 0.004 286.32);
+  --color-gray-300: oklch(0.871 0.006 286.286);
+  --color-gray-400: oklch(0.705 0.015 286.067);
+  --color-gray-500: oklch(0.552 0.016 285.938);
+  --color-gray-600: oklch(0.442 0.017 285.786);
+  --color-gray-700: oklch(0.37 0.013 285.805);
+  --color-gray-800: oklch(0.274 0.006 286.033);
+  --color-gray-900: oklch(0.21 0.006 285.885);
+  --color-gray-950: oklch(0.141 0.005 285.823);
 
-  --color-brand-50: hsl(205deg 87% 95%);
-  --color-brand-100: hsl(205deg 87% 93%);
-  --color-brand-200: hsl(205deg 87% 82%);
-  --color-brand-300: hsl(205deg 95% 71%);
-  --color-brand-400: hsl(205deg 87% 57%);
-  --color-brand-500: hsl(205deg 85% 48%);
-  --color-brand-600: hsl(205deg 87% 39%);
-  --color-brand-700: hsl(205deg 89% 31%);
-  --color-brand-800: hsl(205deg 92% 24%);
-  --color-brand-900: hsl(205deg 95% 12%);
-  --color-brand-950: hsl(205deg 98% 6%);
+  /**
+   * The brand color serves as the primary accent color for Graph Explorer.
+   *  
+   * It is a custom blue color that is between Tailwind's sky and blue colors,
+   * with slightly less vibrancy. 
+   * 
+   * Generated using:
+   * https://www.tints.dev/palette/v1:YnJhbmR8MTM3Q0M3fDYwMHxwfDB8MHwwfDEwMHxt
+   */
+  --color-brand-50: oklch(0.966 0.016 262.77);
+  --color-brand-100: oklch(0.931 0.032 260.03);
+  --color-brand-200: oklch(0.854 0.071 258.35);
+  --color-brand-300: oklch(0.784 0.108 254.45);
+  --color-brand-400: oklch(0.715 0.151 249.85);
+  --color-brand-500: oklch(0.645 0.163 247.04);
+  --color-brand-600: oklch(0.57 0.144 247.21);
+  --color-brand-700: oklch(0.465 0.117 247.2);
+  --color-brand-800: oklch(0.354 0.089 247.01);
+  --color-brand-900: oklch(0.25 0.063 247.66);
+  --color-brand-950: oklch(0.187 0.048 248.24);
 
   /* Semantic colors */
 
