@@ -1,10 +1,17 @@
-import Workspace from "@/components/Workspace/Workspace";
 import {
   buttonStyles,
   DatabaseIcon,
   ForwardIcon,
+  NavBar,
+  NavBarContent,
+  NavBarActions,
+  NavBarTitle,
+  NavBarVersion,
   Panel,
   PanelContent,
+  PanelGroup,
+  Workspace,
+  WorkspaceContent,
 } from "@/components";
 import { Link, NavLink, Outlet, type To } from "react-router";
 import { type PropsWithChildren, Suspense } from "react";
@@ -15,12 +22,13 @@ import { LABELS } from "@/utils/constants";
 export default function SettingsRoot() {
   return (
     <Workspace>
-      <Workspace.TopBar logoVisible>
-        <Workspace.TopBar.Title title={`${LABELS.APP_NAME} Settings`} />
-        <Workspace.TopBar.Version>
-          {__GRAPH_EXP_VERSION__}
-        </Workspace.TopBar.Version>
-        <Workspace.TopBar.AdditionalControls>
+      <NavBar logoVisible>
+        <NavBarContent>
+          <NavBarTitle title={`${LABELS.APP_NAME} Settings`} />
+        </NavBarContent>
+
+        <NavBarActions>
+          <NavBarVersion>{__GRAPH_EXP_VERSION__}</NavBarVersion>
           <Link
             to="/connections"
             className={cn(buttonStyles({ variant: "filled" }))}
@@ -28,22 +36,24 @@ export default function SettingsRoot() {
             <DatabaseIcon />
             Open Connections
           </Link>
-        </Workspace.TopBar.AdditionalControls>
-      </Workspace.TopBar>
-      <Workspace.Content orientation="horizontal">
-        <Panel className="min-w-64">
-          <PanelContent className="px-3 py-6">
-            <SideBar />
-          </PanelContent>
-        </Panel>
-        <Panel className="w-full grow">
-          <PanelContent className="p-6">
-            <Suspense fallback={<AppLoadingPage />}>
-              <Outlet />
-            </Suspense>
-          </PanelContent>
-        </Panel>
-      </Workspace.Content>
+        </NavBarActions>
+      </NavBar>
+      <WorkspaceContent>
+        <PanelGroup>
+          <Panel className="min-w-64">
+            <PanelContent className="px-3 py-6">
+              <SideBar />
+            </PanelContent>
+          </Panel>
+          <Panel className="w-full grow">
+            <PanelContent className="p-6">
+              <Suspense fallback={<AppLoadingPage />}>
+                <Outlet />
+              </Suspense>
+            </PanelContent>
+          </Panel>
+        </PanelGroup>
+      </WorkspaceContent>
     </Workspace>
   );
 }

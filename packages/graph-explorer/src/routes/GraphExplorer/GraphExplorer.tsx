@@ -1,12 +1,10 @@
-import { Activity } from "react";
-import { cn, isVisible } from "@/utils";
+import { cn } from "@/utils";
 import { Resizable } from "re-resizable";
 import { Link } from "react-router";
 import {
   Button,
   buttonStyles,
   Divider,
-  EdgeIcon,
   EmptyState,
   EmptyStateActions,
   EmptyStateContent,
@@ -14,39 +12,29 @@ import {
   EmptyStateIcon,
   EmptyStateTitle,
   IconButton,
-  NamespaceIcon,
+  NavBar,
+  NavBarContent,
+  NavBarActions,
+  NavBarTitle,
+  NavBarVersion,
+  PanelGroup,
+  Workspace,
+  WorkspaceContent,
 } from "@/components";
-import {
-  DatabaseIcon,
-  DetailsIcon,
-  EmptyWidgetIcon,
-  ExpandGraphIcon,
-  FilterIcon,
-  GraphIcon,
-  SearchIcon,
-} from "@/components/icons";
+import { DatabaseIcon, EmptyWidgetIcon, GraphIcon } from "@/components/icons";
 import GridIcon from "@/components/icons/GridIcon";
-import Workspace, { SidebarButton } from "@/components/Workspace";
 import {
   DEFAULT_TABLE_VIEW_HEIGHT,
   useConfiguration,
-  useSidebar,
   useTableViewSize,
   useViewToggles,
 } from "@/core";
-import { totalFilteredCount } from "@/core/StateProvider/filterCount";
-import useTranslations from "@/hooks/useTranslations";
-import { EdgesStyling, EdgeStyleDialog } from "@/modules/EdgesStyling";
-import EntitiesFilter from "@/modules/EntitiesFilter";
+import { EdgeStyleDialog } from "@/modules/EdgesStyling";
 import EntitiesTabular from "@/modules/EntitiesTabular/EntitiesTabular";
-import EntityDetails from "@/modules/EntityDetails";
-import Namespaces from "@/modules/Namespaces/Namespaces";
-import NodeExpand from "@/modules/NodeExpand";
-import { NodesStyling, NodeStyleDialog } from "@/modules/NodesStyling";
+import { NodeStyleDialog } from "@/modules/NodesStyling";
 import { LABELS } from "@/utils/constants";
-import { SearchSidebarPanel } from "@/modules/SearchSidebar";
 import GraphViewer from "@/modules/GraphViewer";
-import { useAtomValue } from "jotai";
+import { Sidebar } from "./Sidebar";
 
 const RESIZE_ENABLE_TOP = {
   top: true,
@@ -61,9 +49,6 @@ const RESIZE_ENABLE_TOP = {
 
 const GraphExplorer = () => {
   const config = useConfiguration();
-  const t = useTranslations();
-
-  const filteredEntitiesCount = useAtomValue(totalFilteredCount);
 
   const {
     isGraphVisible,
@@ -72,35 +57,40 @@ const GraphExplorer = () => {
     toggleTableVisibility,
   } = useViewToggles();
 
-  const { activeSidebarItem, toggleSidebar, shouldShowNamespaces } =
-    useSidebar();
-
   const [tableViewHeight, setTableViewHeight] = useTableViewSize();
 
   return (
     <Workspace>
-      <Workspace.TopBar logoVisible>
-        <Workspace.TopBar.Title
-          title={LABELS.APP_NAME}
-          subtitle={`Connection: ${config?.displayLabel || config?.id}`}
-        />
-        <Workspace.TopBar.Version>
-          {__GRAPH_EXP_VERSION__}
-        </Workspace.TopBar.Version>
-        <Workspace.TopBar.AdditionalControls>
-          <IconButton
-            tooltipText={isGraphVisible ? "Hide Graph View" : "Show Graph View"}
-            variant={isGraphVisible ? "filled" : "text"}
-            icon={<GraphIcon />}
-            onClick={toggleGraphVisibility}
+      <NavBar logoVisible>
+        <NavBarContent>
+          <NavBarTitle
+            title={LABELS.APP_NAME}
+            subtitle={`Connection: ${config?.displayLabel || config?.id}`}
           />
-          <IconButton
-            tooltipText={isTableVisible ? "Hide Table View" : "Show Table View"}
-            variant={isTableVisible ? "filled" : "text"}
-            icon={<GridIcon />}
-            onClick={toggleTableVisibility}
-          />
-          <Divider axis="vertical" className="mx-2 h-[50%]" />
+        </NavBarContent>
+
+        <NavBarActions>
+          <NavBarVersion>{__GRAPH_EXP_VERSION__}</NavBarVersion>
+
+          <div className="flex gap-1">
+            <IconButton
+              tooltipText={
+                isGraphVisible ? "Hide Graph View" : "Show Graph View"
+              }
+              variant={isGraphVisible ? "filled" : "text"}
+              icon={<GraphIcon />}
+              onClick={toggleGraphVisibility}
+            />
+            <IconButton
+              tooltipText={
+                isTableVisible ? "Hide Table View" : "Show Table View"
+              }
+              variant={isTableVisible ? "filled" : "text"}
+              icon={<GridIcon />}
+              onClick={toggleTableVisibility}
+            />
+          </div>
+          <Divider axis="vertical" className="h-[50%]" />
           <Link
             to="/connections"
             className={cn(buttonStyles({ variant: "filled" }))}
@@ -108,126 +98,66 @@ const GraphExplorer = () => {
             <DatabaseIcon />
             Open Connections
           </Link>
-        </Workspace.TopBar.AdditionalControls>
-      </Workspace.TopBar>
+        </NavBarActions>
+      </NavBar>
 
-      <Workspace.Content>
-        <Activity mode={isVisible(!isGraphVisible && !isTableVisible)}>
-          <EmptyState>
-            <EmptyStateIcon>
-              <EmptyWidgetIcon />
-            </EmptyStateIcon>
-            <EmptyStateContent>
-              <EmptyStateTitle>All Views Hidden</EmptyStateTitle>
-              <EmptyStateDescription>
-                To view your graph data show the graph view or table view
-              </EmptyStateDescription>
-              <EmptyStateActions>
-                <Button variant="filled" onClick={toggleGraphVisibility}>
-                  <GraphIcon />
-                  Show Graph View
-                </Button>
-                <Button variant="filled" onClick={toggleTableVisibility}>
-                  <GridIcon />
-                  Show Table View
-                </Button>
-              </EmptyStateActions>
-            </EmptyStateContent>
-          </EmptyState>
-        </Activity>
-        <Activity mode={isVisible(isGraphVisible)}>
-          <GraphViewer />
-        </Activity>
-        <Activity mode={isVisible(isTableVisible)}>
-          <Resizable
-            enable={RESIZE_ENABLE_TOP}
-            size={{
-              width: "100%",
-              height: tableViewHeight,
-            }}
-            minHeight={DEFAULT_TABLE_VIEW_HEIGHT}
-            onResizeStop={(_e, _dir, _ref, delta) =>
-              setTableViewHeight(delta.height)
-            }
+      <WorkspaceContent className="flex min-h-0 flex-1 flex-row">
+        <PanelGroup className="flex min-h-0 flex-col overflow-auto">
+          <div
+            className={cn(
+              "hidden min-h-0 flex-1",
+              !isGraphVisible && !isTableVisible && "block",
+            )}
           >
-            <EntitiesTabular />
-          </Resizable>
-        </Activity>
+            <EmptyState>
+              <EmptyStateIcon>
+                <EmptyWidgetIcon />
+              </EmptyStateIcon>
+              <EmptyStateContent>
+                <EmptyStateTitle>All Views Hidden</EmptyStateTitle>
+                <EmptyStateDescription>
+                  To view your graph data show the graph view or table view
+                </EmptyStateDescription>
+                <EmptyStateActions>
+                  <Button variant="filled" onClick={toggleGraphVisibility}>
+                    <GraphIcon />
+                    Show Graph View
+                  </Button>
+                  <Button variant="filled" onClick={toggleTableVisibility}>
+                    <GridIcon />
+                    Show Table View
+                  </Button>
+                </EmptyStateActions>
+              </EmptyStateContent>
+            </EmptyState>
+          </div>
+          <div
+            className={cn("hidden min-h-0 flex-1", isGraphVisible && "block")}
+          >
+            <GraphViewer />
+          </div>
+          <div className={cn("hidden flex-none", isTableVisible && "block")}>
+            <Resizable
+              enable={RESIZE_ENABLE_TOP}
+              size={{
+                width: "100%",
+                height: tableViewHeight,
+              }}
+              minHeight={DEFAULT_TABLE_VIEW_HEIGHT}
+              onResizeStop={(_e, _dir, _ref, delta) =>
+                setTableViewHeight(delta.height)
+              }
+            >
+              <EntitiesTabular />
+            </Resizable>
+          </div>
+        </PanelGroup>
+
+        <Sidebar />
+
         <NodeStyleDialog />
         <EdgeStyleDialog />
-      </Workspace.Content>
-
-      <Workspace.SideBar direction="row">
-        <SidebarButton
-          title="Search"
-          icon={<SearchIcon />}
-          onPressedChange={() => toggleSidebar("search")}
-          pressed={activeSidebarItem === "search"}
-        />
-        <SidebarButton
-          title="Details"
-          icon={<DetailsIcon />}
-          onPressedChange={() => toggleSidebar("details")}
-          pressed={activeSidebarItem === "details"}
-        />
-        <SidebarButton
-          title="Filters"
-          icon={<FilterIcon />}
-          onPressedChange={() => toggleSidebar("filters")}
-          badge={filteredEntitiesCount > 0}
-          pressed={activeSidebarItem === "filters"}
-        />
-        <SidebarButton
-          title="Expand"
-          icon={<ExpandGraphIcon />}
-          onPressedChange={() => toggleSidebar("expand")}
-          pressed={activeSidebarItem === "expand"}
-        />
-        <SidebarButton
-          title={t("nodes-styling.title")}
-          icon={<GraphIcon />}
-          onPressedChange={() => toggleSidebar("nodes-styling")}
-          pressed={activeSidebarItem === "nodes-styling"}
-        />
-        <SidebarButton
-          title={t("edges-styling.title")}
-          icon={<EdgeIcon />}
-          onPressedChange={() => toggleSidebar("edges-styling")}
-          pressed={activeSidebarItem === "edges-styling"}
-        />
-        {shouldShowNamespaces && (
-          <SidebarButton
-            title="Namespaces"
-            icon={<NamespaceIcon />}
-            onPressedChange={() => toggleSidebar("namespaces")}
-            pressed={activeSidebarItem === "namespaces"}
-          />
-        )}
-
-        <Workspace.SideBar.Content>
-          <Activity mode={isVisible(activeSidebarItem === "search")}>
-            <SearchSidebarPanel />
-          </Activity>
-          <Activity mode={isVisible(activeSidebarItem === "details")}>
-            <EntityDetails />
-          </Activity>
-          <Activity mode={isVisible(activeSidebarItem === "expand")}>
-            <NodeExpand />
-          </Activity>
-          <Activity mode={isVisible(activeSidebarItem === "filters")}>
-            <EntitiesFilter />
-          </Activity>
-          <Activity mode={isVisible(activeSidebarItem === "nodes-styling")}>
-            <NodesStyling />
-          </Activity>
-          <Activity mode={isVisible(activeSidebarItem === "edges-styling")}>
-            <EdgesStyling />
-          </Activity>
-          <Activity mode={isVisible(activeSidebarItem === "namespaces")}>
-            <Namespaces />
-          </Activity>
-        </Workspace.SideBar.Content>
-      </Workspace.SideBar>
+      </WorkspaceContent>
     </Workspace>
   );
 };
