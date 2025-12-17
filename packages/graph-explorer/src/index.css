@@ -64,7 +64,7 @@
   --color-background: var(--color-white);
   --color-background-alt: var(--color-gray-50);
 
-  --color-muted-foreground: var(--color-gray-700);
+  --color-muted-foreground: var(--color-gray-600);
   --color-muted: var(--color-gray-100);
 
   /* Used for highlights and selections */
@@ -119,7 +119,7 @@
   --color-text-secondary: var(--color-muted-foreground);
 
   --color-background-default: var(--color-background);
-  --color-background-secondary: var(--color-primary-subtle-hover);
+  --color-background-secondary: var(--color-primary-subtle);
 
   --color-primary-light: var(--color-brand-300);
   --color-primary-main: var(--color-primary);

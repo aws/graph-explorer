@@ -13,7 +13,8 @@ function Panel({ variant = "default", className, ...props }: PanelProps) {
     <div
       className={cn(
         "bg-background-default flex h-full flex-col overflow-hidden",
-        variant === "default" && "shadow-primary-dark/20 rounded-lg shadow",
+        variant === "default" &&
+          "shadow-primary-foreground/25 rounded-lg shadow",
         className,
       )}
       {...props}
