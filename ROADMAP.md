@@ -9,11 +9,11 @@ issues linked below.
 > [!IMPORTANT]
 > These items are subject to change.
 
-## Q3 2025
+## Q1 2026
 
 - [Schema visualization](https://github.com/aws/graph-explorer/issues/685)
 
-## Q4 2025
+## Q2 2026
 
 - [Improved graph rendering](https://github.com/aws/graph-explorer/issues/691)
 
