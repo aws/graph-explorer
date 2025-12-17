@@ -2,12 +2,19 @@ import { useState } from "react";
 import { Link } from "react-router";
 import {
   buttonStyles,
+  NavBar,
+  NavBarContent,
+  NavBarActions,
+  NavBarTitle,
+  NavBarVersion,
   Panel,
   PanelContent,
   PanelEmptyState,
+  PanelGroup,
+  Workspace,
+  WorkspaceContent,
 } from "@/components";
 import { ExplorerIcon, GearIcon } from "@/components/icons";
-import Workspace from "@/components/Workspace/Workspace";
 import { configurationAtom, useConfiguration } from "@/core";
 import { useIsSyncing } from "@/hooks/useSchemaSync";
 import AvailableConnections from "@/modules/AvailableConnections";
@@ -25,15 +32,15 @@ export default function Connections() {
 
   return (
     <Workspace>
-      <Workspace.TopBar logoVisible>
-        <Workspace.TopBar.Title
-          title="Connections Details"
-          subtitle={`Connection: ${config?.displayLabel || config?.id || "none"}`}
-        />
-        <Workspace.TopBar.Version>
-          {__GRAPH_EXP_VERSION__}
-        </Workspace.TopBar.Version>
-        <Workspace.TopBar.AdditionalControls>
+      <NavBar logoVisible>
+        <NavBarContent>
+          <NavBarTitle
+            title="Connections Details"
+            subtitle={`Connection: ${config?.displayLabel || config?.id || "none"}`}
+          />
+        </NavBarContent>
+        <NavBarActions>
+          <NavBarVersion>{__GRAPH_EXP_VERSION__}</NavBarVersion>
           <div className="flex gap-2">
             <Link
               to="/settings/general"
@@ -54,10 +61,10 @@ export default function Connections() {
               Open {LABELS.APP_NAME}
             </Link>
           </div>
-        </Workspace.TopBar.AdditionalControls>
-      </Workspace.TopBar>
-      <Workspace.Content>
-        <div className="grid h-full grid-cols-2 gap-2">
+        </NavBarActions>
+      </NavBar>
+      <WorkspaceContent>
+        <PanelGroup className="grid grid-cols-2 gap-2">
           <div className="h-full grow">
             <AvailableConnections
               isSync={isSyncing}
@@ -72,8 +79,8 @@ export default function Connections() {
           ) : (
             <NoActiveConnectionPanel />
           )}
-        </div>
-      </Workspace.Content>
+        </PanelGroup>
+      </WorkspaceContent>
     </Workspace>
   );
 }

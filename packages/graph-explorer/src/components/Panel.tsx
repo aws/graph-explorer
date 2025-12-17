@@ -16,7 +16,7 @@ export function PanelGroup({
     <div
       data-slot="panel-group"
       className={cn(
-        "bg-background-secondary flex min-h-0 flex-1 gap-2 p-2",
+        "bg-brand-100 flex min-h-0 min-w-0 flex-1 gap-2 p-2",
         className,
       )}
       {...props}

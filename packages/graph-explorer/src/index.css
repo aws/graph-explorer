@@ -164,7 +164,7 @@
   }
 
   #root {
-    @apply size-full;
+    @apply flex size-full;
   }
 
   .lucide {

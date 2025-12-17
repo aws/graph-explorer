@@ -20,13 +20,21 @@ import {
   EmptyStateContent,
   EmptyStateDescription,
   EmptyStateTitle,
+  NavBar,
+  NavBarContent,
+  NavBarActions,
+  NavBarTitle,
+  NavBarVersion,
   Panel,
   PanelError,
+  PanelGroup,
   PanelHeader,
   PanelTitle,
   SelectField,
   SendIcon,
   Spinner,
+  Workspace,
+  WorkspaceContent,
 } from "@/components";
 import { ExplorerIcon } from "@/components/icons";
 import {
@@ -37,7 +45,6 @@ import {
   type TabularInstance,
 } from "@/components/Tabular";
 import Tabular from "@/components/Tabular/Tabular";
-import Workspace from "@/components/Workspace/Workspace";
 import { type KeywordSearchRequest, searchQuery } from "@/connector";
 import { useVertexStyling } from "@/core/StateProvider/userPreferences";
 import { useAddVertexToGraph, useHasVertexBeenAddedToGraph } from "@/hooks";
@@ -108,15 +115,15 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
 
   return (
     <Workspace>
-      <Workspace.TopBar logoVisible>
-        <Workspace.TopBar.Title
-          title="Data Explorer"
-          subtitle={`Connection: ${config?.displayLabel || config?.id}`}
-        />
-        <Workspace.TopBar.Version>
-          {__GRAPH_EXP_VERSION__}
-        </Workspace.TopBar.Version>
-        <Workspace.TopBar.AdditionalControls>
+      <NavBar logoVisible>
+        <NavBarContent>
+          <NavBarTitle
+            title="Data Explorer"
+            subtitle={`Connection: ${config?.displayLabel || config?.id}`}
+          />
+        </NavBarContent>
+        <NavBarActions>
+          <NavBarVersion>{__GRAPH_EXP_VERSION__}</NavBarVersion>
           <Link
             to="/graph-explorer"
             className={cn(buttonStyles({ variant: "filled" }))}
@@ -124,16 +131,16 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
             <ExplorerIcon />
             Open {LABELS.APP_NAME}
           </Link>
-        </Workspace.TopBar.AdditionalControls>
-      </Workspace.TopBar>
-      <Workspace.TopBar>
-        <Workspace.TopBar.Title>
+        </NavBarActions>
+      </NavBar>
+      <NavBar>
+        <NavBarContent>
           <Link to="/connections" className={cn(buttonStyles())}>
             <ChevronLeftIcon />
             Back to all Data
           </Link>
-        </Workspace.TopBar.Title>
-        <Workspace.TopBar.AdditionalControls>
+        </NavBarContent>
+        <NavBarActions>
           <SelectField
             className="w-[200px]"
             value={vertexType}
@@ -143,55 +150,57 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
             labelPlacement="inner"
           />
           <DisplayNameAndDescriptionOptions vertexType={vertexType} />
-        </Workspace.TopBar.AdditionalControls>
-      </Workspace.TopBar>
-      <Workspace.Content>
-        <Panel>
-          <PanelHeader>
-            <PanelTitle className="flex flex-row">
-              {displayTypeConfig.displayLabel}{" "}
-              {query.isFetching ? <Spinner /> : null}
-            </PanelTitle>
-          </PanelHeader>
-          <Tabular
-            ref={tableRef}
-            defaultColumn={DEFAULT_COLUMN}
-            data={displayVertices}
-            columns={columns}
-            fullWidth={true}
-            pageIndex={pageIndex}
-            pageSize={pageSize}
-            disablePagination={true}
-            disableFilters={true}
-            disableSorting={true}
-          >
-            <TabularEmptyBodyControls>
-              {query.isError ? (
-                <PanelError error={query.error} onRetry={query.refetch} />
-              ) : null}
-              {query.data?.vertices.length === 0 && (
-                <EmptyState>
-                  <EmptyStateContent>
-                    <EmptyStateTitle>No Results</EmptyStateTitle>
-                    <EmptyStateDescription>
-                      {`No nodes found for "${displayTypeConfig.displayLabel}"`}
-                    </EmptyStateDescription>
-                  </EmptyStateContent>
-                </EmptyState>
-              )}
-            </TabularEmptyBodyControls>
-            <TabularFooterControls>
-              <PaginationControl
-                pageIndex={pageIndex}
-                onPageIndexChange={onPageIndexChange}
-                pageSize={pageSize}
-                onPageSizeChange={onPageSizeChange}
-                totalRows={vertexConfig?.total ?? pageSize * (pageIndex + 2)}
-              />
-            </TabularFooterControls>
-          </Tabular>
-        </Panel>
-      </Workspace.Content>
+        </NavBarActions>
+      </NavBar>
+      <WorkspaceContent>
+        <PanelGroup className="grid">
+          <Panel>
+            <PanelHeader>
+              <PanelTitle className="flex flex-row">
+                {displayTypeConfig.displayLabel}{" "}
+                {query.isFetching ? <Spinner /> : null}
+              </PanelTitle>
+            </PanelHeader>
+            <Tabular
+              ref={tableRef}
+              defaultColumn={DEFAULT_COLUMN}
+              data={displayVertices}
+              columns={columns}
+              fullWidth={true}
+              pageIndex={pageIndex}
+              pageSize={pageSize}
+              disablePagination={true}
+              disableFilters={true}
+              disableSorting={true}
+            >
+              <TabularEmptyBodyControls>
+                {query.isError ? (
+                  <PanelError error={query.error} onRetry={query.refetch} />
+                ) : null}
+                {query.data?.vertices.length === 0 && (
+                  <EmptyState>
+                    <EmptyStateContent>
+                      <EmptyStateTitle>No Results</EmptyStateTitle>
+                      <EmptyStateDescription>
+                        {`No nodes found for "${displayTypeConfig.displayLabel}"`}
+                      </EmptyStateDescription>
+                    </EmptyStateContent>
+                  </EmptyState>
+                )}
+              </TabularEmptyBodyControls>
+              <TabularFooterControls>
+                <PaginationControl
+                  pageIndex={pageIndex}
+                  onPageIndexChange={onPageIndexChange}
+                  pageSize={pageSize}
+                  onPageSizeChange={onPageSizeChange}
+                  totalRows={vertexConfig?.total ?? pageSize * (pageIndex + 2)}
+                />
+              </TabularFooterControls>
+            </Tabular>
+          </Panel>
+        </PanelGroup>
+      </WorkspaceContent>
     </Workspace>
   );
 }
