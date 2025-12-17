@@ -50,7 +50,8 @@ export const buttonStyles = cva({
     {
       variant: "text",
       color: "primary",
-      className: "text-brand hover:bg-brand-subtle data-open:bg-brand-subtle",
+      className:
+        "text-primary-subtle-foreground hover:bg-primary-subtle data-open:bg-primary-subtle",
     },
     {
       variant: "text",

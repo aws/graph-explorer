@@ -15,8 +15,14 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --color-white: rgb(255 255 255);
-  --color-black: rgb(0 0 0);
+  /* Custom color palette */
+
+  /* Remove unused neutral colors from Tailwind theme */
+  --color-slate-*: initial;
+  --color-gray-*: initial;
+  --color-zinc-*: initial;
+  --color-neutral-*: initial;
+  --color-stone-*: initial;
 
   --color-gray-50: rgb(250 250 250);
   --color-gray-100: rgb(245 245 245);
@@ -30,18 +36,6 @@
   --color-gray-900: rgb(23 23 23);
   --color-gray-950: rgb(10 10 10);
 
-  --color-input-background: var(--color-white);
-  --color-input-border: var(--color-gray-300);
-
-  --color-text-primary: rgb(33 33 33);
-  --color-text-secondary: rgb(115 115 115);
-  --color-text-disabled: rgb(158 158 158);
-
-  --color-background-default: var(--color-white);
-  --color-background-secondary: rgb(224 233 246);
-  --color-background-contrast: var(--color-gray-100);
-  --color-background-contrast-secondary: var(--color-gray-200);
-
   --color-brand-50: hsl(205deg 87% 95%);
   --color-brand-100: hsl(205deg 87% 93%);
   --color-brand-200: hsl(205deg 87% 82%);
@@ -54,39 +48,37 @@
   --color-brand-900: hsl(205deg 95% 12%);
   --color-brand-950: hsl(205deg 98% 6%);
 
+  /* Semantic colors */
+
+  --color-border: var(--color-gray-200);
+
+  --color-input-background: var(--color-white);
+  --color-input-border: var(--color-gray-300);
+
+  --color-text-primary: rgb(33 33 33);
+  --color-text-secondary: rgb(115 115 115);
+
+  --color-background-default: var(--color-white);
+  --color-background-secondary: rgb(224 233 246);
+
   --color-primary-light: var(--color-brand-300);
   --color-primary-main: var(--color-brand-500);
   --color-primary-dark: var(--color-brand-800);
-
-  --color-secondary-light: rgb(255 184 46);
-  --color-secondary-main: rgb(250 133 0);
-  --color-secondary-dark: rgb(228 96 0);
-
-  --color-info-light: rgb(100 199 255);
-  --color-info-main: rgb(18 142 229);
-  --color-info-dark: rgb(23 69 123);
 
   --color-error-light: rgb(252 165 165);
   --color-error-main: rgb(239 68 68);
   --color-error-dark: rgb(153 27 27);
 
-  --color-success-light: rgb(49 222 178);
   --color-success-main: rgb(39 175 140);
-  --color-success-dark: rgb(18 146 113);
 
-  --color-warning-light: rgb(255 184 46);
   --color-warning-main: rgb(250 133 0);
-  --color-warning-dark: rgb(228 96 0);
-
-  --color-divider: var(--color-gray-200);
-  --color-border: var(--color-gray-200);
 
   /* Semantic colors for shadcn/ui components */
 
   --color-background: var(--color-background-default);
   --color-foreground: var(--color-text-primary);
   --color-muted-foreground: var(--color-text-secondary);
-  --color-muted: var(--color-background-contrast);
+  --color-muted: var(--color-gray-100);
   --color-primary: var(--color-primary-main);
   --color-primary-foreground: var(--color-white);
   --color-destructive: var(--color-error-main);
@@ -100,10 +92,6 @@
     in oklab,
     var(--color-background-secondary) 60%,
     transparent
-  );
-  --background-color-contrast: var(--color-background-contrast);
-  --background-color-contrast-secondary: var(
-    --color-background-contrast-secondary
   );
 
   --background-color-brand: var(--color-brand-500);
@@ -122,8 +110,6 @@
   --color-danger-subtle-hover: var(--color-red-100);
   --color-danger-subtle-foreground: var(--color-error-dark);
 
-  --text-color-secondary: var(--color-text-secondary);
-  --text-color-disabled: var(--color-text-disabled);
   --text-color-danger: var(--color-red-700);
   --text-color-brand: var(--color-brand-700);
 

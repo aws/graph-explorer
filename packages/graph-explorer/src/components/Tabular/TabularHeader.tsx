@@ -32,7 +32,7 @@ const TabularHeader = <T extends object>({
             key={key}
             {...headerProps}
             className={cn(
-              "group/th text-secondary grid grid-cols-[1fr_auto] grid-rows-[auto_auto] gap-1 border-r px-2 py-1 font-medium transition-[background,border] duration-150 last:border-none",
+              "group/th text-muted-foreground grid grid-cols-[1fr_auto] grid-rows-[auto_auto] gap-1 border-r px-2 py-1 font-medium transition-[background,border] duration-150 last:border-none",
               (column.isResizing || isResizing(column.id)) &&
                 "border-primary-dark cursor-col-resize! border-dashed",
               column.canSort && "cursor-pointer",

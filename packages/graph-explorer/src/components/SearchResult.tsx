@@ -127,7 +127,7 @@ export function SearchResultAttributeName({
     <div
       {...props}
       className={cn(
-        "flex-[1 1 150px] text-secondary gx-wrap-break-word text-base leading-snug",
+        "flex-[1 1 150px] text-muted-foreground gx-wrap-break-word text-base leading-snug",
         className,
       )}
     />

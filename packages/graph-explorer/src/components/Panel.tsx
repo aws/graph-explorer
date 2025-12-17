@@ -107,7 +107,7 @@ function PanelHeaderDivider({
   ...props
 }: React.ComponentPropsWithRef<"div">) {
   return (
-    <div className={cn("bg-divider mx-1 h-5 w-[1px]", className)} {...props} />
+    <div className={cn("bg-border mx-1 h-5 w-px", className)} {...props} />
   );
 }
 PanelHeaderDivider.displayName = "PanelHeaderDivider";

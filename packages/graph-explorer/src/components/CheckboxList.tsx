@@ -115,7 +115,7 @@ function CheckboxRow({
       <div
         className={cn(
           "border-x border-b px-3 py-3 hover:cursor-pointer",
-          isTop && "bg-background-contrast/50 rounded-t-lg border-t",
+          isTop && "bg-muted/50 rounded-t-lg border-t",
           isBottom && "rounded-b-lg",
           className,
         )}
