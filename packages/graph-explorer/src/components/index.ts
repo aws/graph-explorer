@@ -47,6 +47,7 @@ export * from "./KeyboardKey";
 export * from "./Label";
 
 export * from "./ListRow";
+export * from "./NavBar";
 
 export * from "./Toaster";
 
@@ -86,5 +87,4 @@ export * from "./VertexIcon";
 
 export * from "./VertexRow";
 
-export { default as Workspace } from "./Workspace";
 export * from "./Workspace";
