@@ -1,0 +1,189 @@
+# Implementation Plan
+
+- [ ] 1. Add EdgeConnection type and extend schema types
+  - [ ] 1.1 Add EdgeConnection interface to ConfigurationProvider types
+    - Add `EdgeConnection` interface with `edgeType`, `sourceLabel`,
+      `targetLabel`, and optional `count`
+    - Add `edgeConnections?: EdgeConnection[]` to `Schema` type
+    - _Requirements: 5.3_
+  - [ ] 1.2 Extend SchemaResponse type in connector
+    - Add `edgeConnections?: EdgeConnection[]` to `SchemaResponse` type
+    - _Requirements: 5.3_
+  - [ ] 1.3 Write property test for edge connection type
+    - **Property 8: Edge connection serialization round-trip**
+    - **Validates: Requirements 5.4, 5.5**
+  - [ ] 1.4 Add createRandomEdgeConnection test utility
+    - Create `createRandomEdgeConnection()` function in test utilities
+    - _Requirements: 5.3_
+
+- [ ] 2. Implement edge connection discovery for Gremlin
+  - [ ] 2.1 Create edge connections query template for Gremlin
+    - Create `edgeConnectionsTemplate.ts` with Gremlin query
+    - Handle `::` separator for multi-label nodes in response parsing
+    - _Requirements: 5.1, 5.2_
+  - [ ] 2.2 Add fetchEdgeConnections function to Gremlin fetchSchema
+    - Implement function to fetch and parse edge connections
+    - Expand multi-label results into individual edge connections
+    - _Requirements: 5.1, 5.2_
+  - [ ] 2.3 Integrate edge connections into Gremlin schema response
+    - Call fetchEdgeConnections in fetchSchema
+    - Include edgeConnections in SchemaResponse
+    - _Requirements: 5.3_
+  - [ ] 2.4 Write property test for Gremlin edge connection discovery
+    - **Property 6: Edge connection discovery extracts correct data**
+    - **Property 6a: Multi-label edge connections are expanded**
+    - **Validates: Requirements 5.2**
+
+- [ ] 3. Implement edge connection discovery for OpenCypher
+  - [ ] 3.1 Create edge connections query template for OpenCypher
+    - Create `edgeConnectionsTemplate.ts` with OpenCypher query
+    - Return label arrays for source and target nodes
+    - _Requirements: 5.1, 5.2_
+  - [ ] 3.2 Add fetchEdgeConnections function to OpenCypher fetchSchema
+    - Implement function to fetch and parse edge connections
+    - Expand label array combinations into individual edge connections
+    - _Requirements: 5.1, 5.2_
+  - [ ] 3.3 Integrate edge connections into OpenCypher schema response
+    - Call fetchEdgeConnections in fetchSchema
+    - Include edgeConnections in SchemaResponse
+    - _Requirements: 5.3_
+  - [ ] 3.4 Write property test for OpenCypher edge connection discovery
+    - **Property 6: Edge connection discovery extracts correct data**
+    - **Property 6a: Multi-label edge connections are expanded**
+    - **Validates: Requirements 5.2**
+
+- [ ] 4. Implement edge connection discovery for SPARQL
+  - [ ] 4.1 Create edge connections query template for SPARQL
+    - Create `edgeConnectionsTemplate.ts` with SPARQL query
+    - Query all source-predicate-target type combinations
+    - _Requirements: 5.1, 5.2_
+  - [ ] 4.2 Add fetchEdgeConnections function to SPARQL fetchSchema
+    - Implement function to fetch and parse edge connections
+    - Map SPARQL results to EdgeConnection objects
+    - _Requirements: 5.1, 5.2_
+  - [ ] 4.3 Integrate edge connections into SPARQL schema response
+    - Call fetchEdgeConnections in fetchSchema
+    - Include edgeConnections in SchemaResponse
+    - _Requirements: 5.3_
+  - [ ] 4.4 Write property test for SPARQL edge connection discovery
+    - **Property 6: Edge connection discovery extracts correct data**
+    - **Validates: Requirements 5.2**
+
+- [ ] 5. Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [ ] 6. Update schema state management to handle edge connections
+  - [ ] 6.1 Update schema state to store edge connections
+    - Modify schema atom/state to include edgeConnections
+    - Update replaceSchema to handle edgeConnections
+    - _Requirements: 5.3_
+  - [ ] 6.2 Update schema serialization for persistence
+    - Include edgeConnections in schema export
+    - Handle edgeConnections in schema import
+    - _Requirements: 5.4, 5.5_
+  - [ ] 6.3 Write property test for schema serialization round-trip
+    - **Property 8: Edge connection serialization round-trip**
+    - **Validates: Requirements 5.4, 5.5**
+
+- [ ] 7. Create Schema Explorer route
+  - [ ] 7.1 Create SchemaExplorer route component
+    - Create `packages/graph-explorer/src/routes/SchemaExplorer/` directory
+    - Create `SchemaExplorer.tsx` with NavBar and layout structure
+    - Handle redirect when no active connection
+    - _Requirements: 1.3, 1.4_
+  - [ ] 7.2 Add route to App.tsx
+    - Add `/schema-explorer` route to router configuration
+    - _Requirements: 1.3_
+  - [ ] 7.3 Add navigation link from Connections page
+    - Add link/button to navigate to Schema Explorer
+    - _Requirements: 1.1_
+  - [ ] 7.4 Add navigation link from Graph Explorer page
+    - Add link/button to navigate to Schema Explorer
+    - _Requirements: 1.2_
+  - [ ] 7.5 Write unit tests for route navigation
+    - Test navigation links render correctly
+    - Test redirect when no connection
+    - _Requirements: 1.1, 1.2, 1.3, 1.4_
+
+- [ ] 8. Create schema graph transformation utilities
+  - [ ] 8.1 Create useSchemaGraphNodes hook
+    - Transform VertexTypeConfig array to graph nodes
+    - Include display labels, colors, icons from config
+    - _Requirements: 2.1, 2.2, 2.3, 2.4_
+  - [ ] 8.2 Create useSchemaGraphEdges hook
+    - Transform EdgeConnection array to graph edges
+    - Create unique IDs for each edge connection
+    - _Requirements: 4.1, 4.2, 4.3, 4.4_
+  - [ ] 8.3 Write property tests for schema graph transformation
+    - **Property 1: Schema nodes match node labels**
+    - **Property 2: Node display labels are applied**
+    - **Property 4: Schema edges match edge connections**
+    - **Property 5: Multiple edge types between same labels**
+    - **Validates: Requirements 2.1, 2.2, 4.1, 4.2, 4.3**
+
+- [ ] 9. Create SchemaGraph module
+  - [ ] 9.1 Create SchemaGraph component
+    - Create `packages/graph-explorer/src/modules/SchemaGraph/` directory
+    - Create `SchemaGraph.tsx` using Graph component
+    - Wire up schema graph nodes and edges
+    - _Requirements: 2.1, 4.1_
+  - [ ] 9.2 Add graph controls (zoom, fit, layout)
+    - Add zoom in/out buttons
+    - Add fit-to-canvas button
+    - Add layout selection dropdown
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [ ] 9.3 Implement node and edge selection handling
+    - Track selected node/edge state
+    - Emit selection changes for details panel
+    - _Requirements: 3.1, 7.1_
+  - [ ] 9.4 Add empty state handling
+    - Display empty state when no node labels
+    - Display nodes without edges when no edge connections
+    - _Requirements: 8.1, 8.2_
+  - [ ] 9.5 Write unit tests for SchemaGraph component
+    - Test empty state rendering
+    - Test node and edge rendering
+    - _Requirements: 8.1, 8.2_
+
+- [ ] 10. Create details panels
+  - [ ] 10.1 Create NodeLabelDetails component
+    - Display node label name and display label
+    - Display attributes with data types
+    - Display total count if available
+    - _Requirements: 3.1, 3.2, 3.3_
+  - [ ] 10.2 Create EdgeConnectionDetails component
+    - Display edge type name
+    - Display source and target node labels
+    - Display attributes with data types
+    - Display total count if available
+    - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5_
+  - [ ] 10.3 Create SchemaDetailsSidebar component
+    - Show NodeLabelDetails when node selected
+    - Show EdgeConnectionDetails when edge selected
+    - Hide when nothing selected
+    - _Requirements: 3.1, 3.4, 7.1_
+  - [ ] 10.4 Write property tests for details panels
+    - **Property 3: Node details show all attributes and count**
+    - **Property 9: Edge details show complete information**
+    - **Validates: Requirements 3.2, 3.3, 7.2, 7.3, 7.4, 7.5**
+
+- [ ] 11. Integrate components into Schema Explorer route
+  - [ ] 11.1 Wire up SchemaGraph to SchemaExplorer
+    - Add SchemaGraph component to route
+    - Connect to schema data from context
+    - _Requirements: 2.1, 4.1_
+  - [ ] 11.2 Wire up SchemaDetailsSidebar to SchemaExplorer
+    - Add sidebar component to route
+    - Connect selection state between graph and sidebar
+    - _Requirements: 3.1, 7.1_
+  - [ ] 11.3 Add loading and error states
+    - Show loading indicator during schema sync
+    - Show error state with retry option on failure
+    - _Requirements: 8.3, 8.4_
+  - [ ] 11.4 Write integration tests for Schema Explorer
+    - Test full flow with mock schema data
+    - Test loading and error states
+    - _Requirements: 8.3, 8.4_
+
+- [ ] 12. Final Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
