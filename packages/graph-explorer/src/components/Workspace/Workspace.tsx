@@ -36,7 +36,7 @@ const Workspace = ({
   return (
     <div
       className={cn(
-        "bg-background-secondary flex h-full w-full grow flex-col overflow-hidden",
+        "bg-brand-100 flex h-full w-full grow flex-col overflow-hidden",
         className,
       )}
     >
