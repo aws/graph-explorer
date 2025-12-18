@@ -69,19 +69,19 @@
     - **Property 6: Edge connection discovery extracts correct data**
     - **Validates: Requirements 5.2**
 
-- [-] 5. Checkpoint - Ensure all tests pass
+- [x] 5. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 6. Update schema state management to handle edge connections
-  - [ ] 6.1 Update schema state to store edge connections
+- [x] 6. Update schema state management to handle edge connections
+  - [x] 6.1 Update schema state to store edge connections
     - Modify schema atom/state to include edgeConnections
     - Update replaceSchema to handle edgeConnections
     - _Requirements: 5.3_
-  - [ ] 6.2 Update schema serialization for persistence
+  - [x] 6.2 Update schema serialization for persistence
     - Include edgeConnections in schema export
     - Handle edgeConnections in schema import
     - _Requirements: 5.4, 5.5_
-  - [ ] 6.3 Write property test for schema serialization round-trip
+  - [x] 6.3 Write property test for schema serialization round-trip
     - **Property 8: Edge connection serialization round-trip**
     - **Validates: Requirements 5.4, 5.5**
 

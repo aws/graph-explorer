@@ -86,12 +86,14 @@ describe("mergedConfiguration", () => {
           ...e,
         }))
         .map(patchToRemoveDisplayLabel),
-      // edgeConnections is not yet included in mergeConfiguration (task 6)
-      edgeConnections: undefined,
+      edgeConnections: schema.edgeConnections,
     } satisfies SchemaInference;
 
     expect(result.schema?.vertices).toEqual(expectedSchema.vertices);
     expect(result.schema?.edges).toEqual(expectedSchema.edges);
+    expect(result.schema?.edgeConnections).toEqual(
+      expectedSchema.edgeConnections,
+    );
     expect(result.schema).toEqual(expectedSchema);
     expect(result).toEqual({
       ...config,
@@ -141,12 +143,14 @@ describe("mergedConfiguration", () => {
           ...style,
         };
       }),
-      // edgeConnections is not yet included in mergeConfiguration (task 6)
-      edgeConnections: undefined,
+      edgeConnections: schema.edgeConnections,
     } satisfies SchemaInference;
 
     expect(result.schema?.vertices).toEqual(expectedSchema.vertices);
     expect(result.schema?.edges).toEqual(expectedSchema.edges);
+    expect(result.schema?.edgeConnections).toEqual(
+      expectedSchema.edgeConnections,
+    );
     expect(result.schema).toEqual(expectedSchema);
     expect(result).toEqual({
       ...config,

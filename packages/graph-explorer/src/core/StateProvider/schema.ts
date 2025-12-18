@@ -1,6 +1,7 @@
 import type {
   AttributeConfig,
   ConfigurationId,
+  EdgeConnection,
   EdgeTypeConfig,
   PrefixTypeConfig,
   VertexTypeConfig,
@@ -31,6 +32,8 @@ export type SchemaInference = {
   lastSyncFail?: boolean;
   totalVertices?: number;
   totalEdges?: number;
+  /** Edge connections between node labels discovered during schema sync. */
+  edgeConnections?: Array<EdgeConnection>;
 };
 
 /** Grabs a specific schema out of the map. */
