@@ -16,26 +16,26 @@
     - Create `createRandomEdgeConnection()` function in test utilities
     - _Requirements: 5.3_
 
-- [ ] 2. Implement edge connection discovery for Gremlin
-  - [ ] 2.1 Create edge connections query template for Gremlin
+- [x] 2. Implement edge connection discovery for Gremlin
+  - [x] 2.1 Create edge connections query template for Gremlin
     - Create `edgeConnectionsTemplate.ts` with Gremlin query
     - Handle `::` separator for multi-label nodes in response parsing
     - _Requirements: 5.1, 5.2_
-  - [ ] 2.2 Add fetchEdgeConnections function to Gremlin fetchSchema
+  - [x] 2.2 Add fetchEdgeConnections function to Gremlin fetchSchema
     - Implement function to fetch and parse edge connections
     - Expand multi-label results into individual edge connections
     - _Requirements: 5.1, 5.2_
-  - [ ] 2.3 Integrate edge connections into Gremlin schema response
+  - [x] 2.3 Integrate edge connections into Gremlin schema response
     - Call fetchEdgeConnections in fetchSchema
     - Include edgeConnections in SchemaResponse
     - _Requirements: 5.3_
-  - [ ] 2.4 Write property test for Gremlin edge connection discovery
+  - [x] 2.4 Write property test for Gremlin edge connection discovery
     - **Property 6: Edge connection discovery extracts correct data**
     - **Property 6a: Multi-label edge connections are expanded**
     - **Validates: Requirements 5.2**
 
 - [ ] 3. Implement edge connection discovery for OpenCypher
-  - [ ] 3.1 Create edge connections query template for OpenCypher
+  - [x] 3.1 Create edge connections query template for OpenCypher
     - Create `edgeConnectionsTemplate.ts` with OpenCypher query
     - Return label arrays for source and target nodes
     - _Requirements: 5.1, 5.2_
