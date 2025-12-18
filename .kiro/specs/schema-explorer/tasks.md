@@ -1,18 +1,18 @@
 # Implementation Plan
 
-- [ ] 1. Add EdgeConnection type and extend schema types
-  - [ ] 1.1 Add EdgeConnection interface to ConfigurationProvider types
+- [x] 1. Add EdgeConnection type and extend schema types
+  - [x] 1.1 Add EdgeConnection interface to ConfigurationProvider types
     - Add `EdgeConnection` interface with `edgeType`, `sourceLabel`,
       `targetLabel`, and optional `count`
     - Add `edgeConnections?: EdgeConnection[]` to `Schema` type
     - _Requirements: 5.3_
-  - [ ] 1.2 Extend SchemaResponse type in connector
+  - [x] 1.2 Extend SchemaResponse type in connector
     - Add `edgeConnections?: EdgeConnection[]` to `SchemaResponse` type
     - _Requirements: 5.3_
-  - [ ] 1.3 Write property test for edge connection type
+  - [x] 1.3 Write property test for edge connection type
     - **Property 8: Edge connection serialization round-trip**
     - **Validates: Requirements 5.4, 5.5**
-  - [ ] 1.4 Add createRandomEdgeConnection test utility
+  - [x] 1.4 Add createRandomEdgeConnection test utility
     - Create `createRandomEdgeConnection()` function in test utilities
     - _Requirements: 5.3_
 

@@ -97,6 +97,29 @@ export type PrefixTypeConfig = {
   __matches?: Set<string>;
 };
 
+/**
+ * Represents a connection between node labels via an edge type.
+ * Used by Schema Explorer to visualize relationships between node types.
+ */
+export type EdgeConnection = {
+  /**
+   * The edge type name
+   */
+  edgeType: string;
+  /**
+   * The source node label
+   */
+  sourceLabel: string;
+  /**
+   * The target node label
+   */
+  targetLabel: string;
+  /**
+   * Count of edges with this connection pattern
+   */
+  count?: number;
+};
+
 export type Schema = {
   totalVertices: number;
   vertices: Array<VertexTypeConfig>;
@@ -109,6 +132,11 @@ export type Schema = {
    * List of RDF prefixes (only for SPARQL)
    */
   prefixes?: Array<PrefixTypeConfig>;
+  /**
+   * Edge connections between node labels discovered during schema sync.
+   * Used by Schema Explorer to visualize relationships between node types.
+   */
+  edgeConnections?: Array<EdgeConnection>;
 };
 
 export type RawConfiguration = {
