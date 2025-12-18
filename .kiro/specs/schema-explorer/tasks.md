@@ -34,20 +34,20 @@
     - **Property 6a: Multi-label edge connections are expanded**
     - **Validates: Requirements 5.2**
 
-- [ ] 3. Implement edge connection discovery for OpenCypher
+- [x] 3. Implement edge connection discovery for OpenCypher
   - [x] 3.1 Create edge connections query template for OpenCypher
     - Create `edgeConnectionsTemplate.ts` with OpenCypher query
     - Return label arrays for source and target nodes
     - _Requirements: 5.1, 5.2_
-  - [ ] 3.2 Add fetchEdgeConnections function to OpenCypher fetchSchema
+  - [x] 3.2 Add fetchEdgeConnections function to OpenCypher fetchSchema
     - Implement function to fetch and parse edge connections
     - Expand label array combinations into individual edge connections
     - _Requirements: 5.1, 5.2_
-  - [ ] 3.3 Integrate edge connections into OpenCypher schema response
+  - [x] 3.3 Integrate edge connections into OpenCypher schema response
     - Call fetchEdgeConnections in fetchSchema
     - Include edgeConnections in SchemaResponse
     - _Requirements: 5.3_
-  - [ ] 3.4 Write property test for OpenCypher edge connection discovery
+  - [x] 3.4 Write property test for OpenCypher edge connection discovery
     - **Property 6: Edge connection discovery extracts correct data**
     - **Property 6a: Multi-label edge connections are expanded**
     - **Validates: Requirements 5.2**

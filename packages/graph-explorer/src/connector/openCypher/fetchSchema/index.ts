@@ -1,6 +1,7 @@
 import { batchPromisesSerially } from "@/utils";
 import { DEFAULT_CONCURRENT_REQUESTS_LIMIT } from "@/utils/constants";
 import type { SchemaResponse } from "@/connector/useGEFetchTypes";
+import edgeConnectionsTemplate from "./edgeConnectionsTemplate";
 import edgeLabelsTemplate from "./edgeLabelsTemplate";
 import edgesSchemaTemplate from "./edgesSchemaTemplate";
 import vertexLabelsTemplate from "./vertexLabelsTemplate";
@@ -12,6 +13,7 @@ import mapApiVertex from "../mappers/mapApiVertex";
 import {
   createEdge,
   createVertex,
+  type EdgeConnection,
   mapEdgeToTypeConfig,
   mapVertexToTypeConfigs,
 } from "@/core";
@@ -57,6 +59,23 @@ type RawEdgesSchemaResponse = {
     | []
     | undefined;
 };
+
+import { z } from "zod";
+import { fromError } from "zod-validation-error";
+import { logger } from "@/utils";
+
+const edgeConnectionsResponseSchema = z.object({
+  results: z
+    .array(
+      z.object({
+        sourceLabels: z.array(z.string()),
+        edgeType: z.string(),
+        targetLabels: z.array(z.string()),
+        count: z.number(),
+      }),
+    )
+    .optional(),
+});
 
 // Fetches all vertex labels and their counts
 const fetchVertexLabels = async (
@@ -267,6 +286,84 @@ const fetchEdgesSchema = async (
 };
 
 /**
+ * Expands edge connections for multi-label nodes.
+ * For a source with M labels and target with N labels, creates M × N connections.
+ */
+const expandEdgeConnections = (
+  sourceLabels: string[],
+  edgeType: string,
+  targetLabels: string[],
+  count: number,
+): EdgeConnection[] => {
+  const connections: EdgeConnection[] = [];
+  for (const sourceLabel of sourceLabels) {
+    for (const targetLabel of targetLabels) {
+      connections.push({
+        edgeType,
+        sourceLabel,
+        targetLabel,
+        count,
+      });
+    }
+  }
+  return connections;
+};
+
+/**
+ * Fetches edge connections between node labels.
+ * Returns distinct combinations of source label, edge type, and target label.
+ */
+const fetchEdgeConnections = async (
+  openCypherFetch: OpenCypherFetch,
+  remoteLogger: LoggerConnector,
+): Promise<EdgeConnection[]> => {
+  const template = edgeConnectionsTemplate();
+  remoteLogger.info("[openCypher Explorer] Fetching edge connections...");
+
+  try {
+    const data = await openCypherFetch<unknown>(template);
+
+    const parsed = edgeConnectionsResponseSchema.safeParse(data);
+    if (!parsed.success) {
+      const validationError = fromError(parsed.error);
+      logger.error(
+        "Failed to parse edge connections response",
+        validationError.toString(),
+        data,
+      );
+      throw validationError;
+    }
+
+    const edgeConnections: EdgeConnection[] = [];
+    const results = parsed.data.results || [];
+
+    for (const result of results) {
+      const { sourceLabels, edgeType, targetLabels, count } = result;
+
+      // Handle multi-label nodes by expanding all combinations
+      const expanded = expandEdgeConnections(
+        sourceLabels,
+        edgeType,
+        targetLabels,
+        count,
+      );
+      edgeConnections.push(...expanded);
+    }
+
+    remoteLogger.info(
+      `[openCypher Explorer] Found ${edgeConnections.length} edge connections.`,
+    );
+
+    return edgeConnections;
+  } catch (error) {
+    remoteLogger.warn(
+      `[openCypher Explorer] Failed to fetch edge connections, continuing without them: ${String(error)}`,
+    );
+    return [];
+  }
+};
+
+/**
  * Fetches the database schema.
  * It follows this process:
  * 1. Fetch all node labels and their counts
@@ -286,6 +383,12 @@ const fetchSchema = async (
   remoteLogger: LoggerConnector,
   summary?: GraphSummary,
 ): Promise<SchemaResponse> => {
+  // Fetch edge connections (works with or without summary)
+  const edgeConnections = await fetchEdgeConnections(
+    openCypherFetch,
+    remoteLogger,
+  );
+
   if (!summary) {
     remoteLogger.info("[openCypher Explorer] No summary statistics");
 
@@ -301,7 +404,7 @@ const fetchSchema = async (
     }, 0);
 
     remoteLogger.info(
-      `[openCypher Explorer] Schema sync successful (${totalVertices} vertices; ${totalEdges} edges; ${vertices.length} vertex types; ${edges.length} edge types)`,
+      `[openCypher Explorer] Schema sync successful (${totalVertices} vertices; ${totalEdges} edges; ${vertices.length} vertex types; ${edges.length} edge types; ${edgeConnections.length} edge connections)`,
     );
 
     return {
@@ -309,6 +412,7 @@ const fetchSchema = async (
       vertices,
       totalEdges,
       edges,
+      edgeConnections,
     };
   }
 
@@ -330,7 +434,7 @@ const fetchSchema = async (
     )) || [];
 
   remoteLogger.info(
-    `[openCypher Explorer] Schema sync successful (${summary.numNodes} vertices; ${summary.numEdges} edges; ${vertices.length} vertex types; ${edges.length} edge types)`,
+    `[openCypher Explorer] Schema sync successful (${summary.numNodes} vertices; ${summary.numEdges} edges; ${vertices.length} vertex types; ${edges.length} edge types; ${edgeConnections.length} edge connections)`,
   );
 
   return {
@@ -338,6 +442,7 @@ const fetchSchema = async (
     vertices,
     totalEdges: summary.numEdges,
     edges,
+    edgeConnections,
   };
 };
 
