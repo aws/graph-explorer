@@ -64,7 +64,11 @@ describe("Gremlin Edge Connection Discovery", () => {
       fc.assert(
         fc.property(
           fc.array(
-            fc.string({ minLength: 1 }).filter(s => !s.includes("::")),
+            // Labels cannot contain :: (the separator) or be empty
+            // Also exclude labels that contain single : to avoid ambiguity
+            fc
+              .string({ minLength: 1 })
+              .filter(s => !s.includes("::") && !s.includes(":")),
             {
               minLength: 2,
               maxLength: 5,

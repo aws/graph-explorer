@@ -1,0 +1,72 @@
+{
+  "requestId": "edge-connections-mock",
+  "status": {
+    "message": "",
+    "code": 200,
+    "attributes": {
+      "@type": "g:Map",
+      "@value": []
+    }
+  },
+  "result": {
+    "data": {
+      "@type": "g:List",
+      "@value": [
+        {
+          "@type": "g:Map",
+          "@value": [
+            {
+              "@type": "g:Map",
+              "@value": [
+                "source",
+                "airport",
+                "edge",
+                "route",
+                "target",
+                "airport"
+              ]
+            },
+            {
+              "@type": "g:Int64",
+              "@value": 50532
+            },
+            {
+              "@type": "g:Map",
+              "@value": [
+                "source",
+                "continent",
+                "edge",
+                "contains",
+                "target",
+                "country"
+              ]
+            },
+            {
+              "@type": "g:Int64",
+              "@value": 237
+            },
+            {
+              "@type": "g:Map",
+              "@value": [
+                "source",
+                "country",
+                "edge",
+                "contains",
+                "target",
+                "airport"
+              ]
+            },
+            {
+              "@type": "g:Int64",
+              "@value": 3503
+            }
+          ]
+        }
+      ]
+    },
+    "meta": {
+      "@type": "g:Map",
+      "@value": []
+    }
+  }
+}

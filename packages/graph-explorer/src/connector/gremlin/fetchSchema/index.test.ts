@@ -6,6 +6,7 @@ import { ClientLoggerConnector } from "@/connector/LoggerConnector";
 describe("Gremlin > fetchSchema", () => {
   it("Should return an inferred schema", async () => {
     globalMockFetch(
+      "edge-connections.json",
       "vertices-labels-and-counts.json",
       "vertices-schema.json",
       "edges-labels-and-counts.json",
@@ -130,6 +131,26 @@ describe("Gremlin > fetchSchema", () => {
               dataType: "Number",
             },
           ],
+        },
+      ],
+      edgeConnections: [
+        {
+          edgeType: "route",
+          sourceLabel: "airport",
+          targetLabel: "airport",
+          count: 50532,
+        },
+        {
+          edgeType: "contains",
+          sourceLabel: "continent",
+          targetLabel: "country",
+          count: 237,
+        },
+        {
+          edgeType: "contains",
+          sourceLabel: "country",
+          targetLabel: "airport",
+          count: 3503,
         },
       ],
     });

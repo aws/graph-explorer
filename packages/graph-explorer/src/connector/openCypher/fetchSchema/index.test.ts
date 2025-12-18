@@ -3,10 +3,14 @@ import type { SchemaResponse } from "@/connector/useGEFetchTypes";
 import fetchSchema from ".";
 import { ClientLoggerConnector } from "@/connector/LoggerConnector";
 
+// Empty edge connections response for tests that don't need edge connections
+const emptyEdgeConnectionsResponse = { results: [] };
+
 describe("OpenCypher > fetchSchema", () => {
   it("Should return a schema", async () => {
     const openCypherFetchFn = vi
       .fn()
+      .mockResolvedValueOnce(emptyEdgeConnectionsResponse)
       .mockResolvedValueOnce(allVertexLabelsResponse)
       .mockResolvedValueOnce(airportPropertiesResponse)
       .mockResolvedValueOnce(allEdgesResponse)
@@ -22,6 +26,7 @@ describe("OpenCypher > fetchSchema", () => {
     );
 
     const expected: SchemaResponse = {
+      edgeConnections: [],
       edges: [
         {
           attributes: [
@@ -121,9 +126,11 @@ describe("OpenCypher > fetchSchema", () => {
     };
     const openCypherFetchFn = vi
       .fn()
+      .mockResolvedValueOnce(emptyEdgeConnectionsResponse)
       .mockResolvedValueOnce(allVertexLabelsResponseEmpty)
-      .mockResolvedValueOnce(airportPropertiesResponse)
       .mockResolvedValueOnce(allEdgesResponse)
+      .mockResolvedValueOnce(routeEdgePropertiesResponse)
+      .mockResolvedValueOnce(containsEdgePropertiesResponse)
       .mockImplementation(query => {
         throw new Error(query);
       });
@@ -150,9 +157,11 @@ describe("OpenCypher > fetchSchema", () => {
     };
     const openCypherFetchFn = vi
       .fn()
+      .mockResolvedValueOnce(emptyEdgeConnectionsResponse)
       .mockResolvedValueOnce(allVertexLabelsResponseEmpty)
-      .mockResolvedValueOnce(airportPropertiesResponse)
       .mockResolvedValueOnce(allEdgesResponse)
+      .mockResolvedValueOnce(routeEdgePropertiesResponse)
+      .mockResolvedValueOnce(containsEdgePropertiesResponse)
       .mockImplementation(query => {
         throw new Error(query);
       });
@@ -179,9 +188,11 @@ describe("OpenCypher > fetchSchema", () => {
     };
     const openCypherFetchFn = vi
       .fn()
+      .mockResolvedValueOnce(emptyEdgeConnectionsResponse)
       .mockResolvedValueOnce(allVertexLabelsResponseEmpty)
-      .mockResolvedValueOnce(airportPropertiesResponse)
       .mockResolvedValueOnce(allEdgesResponse)
+      .mockResolvedValueOnce(routeEdgePropertiesResponse)
+      .mockResolvedValueOnce(containsEdgePropertiesResponse)
       .mockImplementation(query => {
         throw new Error(query);
       });
@@ -196,6 +207,7 @@ describe("OpenCypher > fetchSchema", () => {
   it("Should handle empty edge properties", async () => {
     const openCypherFetchFn = vi
       .fn()
+      .mockResolvedValueOnce(emptyEdgeConnectionsResponse)
       .mockResolvedValueOnce(allVertexLabelsResponse)
       .mockResolvedValueOnce(airportPropertiesResponse)
       .mockResolvedValueOnce(allEdgesResponse)
@@ -218,6 +230,7 @@ describe("OpenCypher > fetchSchema", () => {
     const allEdgesResponseEmpty = {};
     const openCypherFetchFn = vi
       .fn()
+      .mockResolvedValueOnce(emptyEdgeConnectionsResponse)
       .mockResolvedValueOnce(allVertexLabelsResponse)
       .mockResolvedValueOnce(airportPropertiesResponse)
       .mockResolvedValueOnce(allEdgesResponseEmpty)
@@ -247,6 +260,7 @@ describe("OpenCypher > fetchSchema", () => {
     };
     const openCypherFetchFn = vi
       .fn()
+      .mockResolvedValueOnce(emptyEdgeConnectionsResponse)
       .mockResolvedValueOnce(allVertexLabelsResponse)
       .mockResolvedValueOnce(airportPropertiesResponse)
       .mockResolvedValueOnce(allEdgesResponseEmpty)
@@ -276,6 +290,7 @@ describe("OpenCypher > fetchSchema", () => {
     };
     const openCypherFetchFn = vi
       .fn()
+      .mockResolvedValueOnce(emptyEdgeConnectionsResponse)
       .mockResolvedValueOnce(allVertexLabelsResponse)
       .mockResolvedValueOnce(airportPropertiesResponse)
       .mockResolvedValueOnce(allEdgesResponseEmpty)
@@ -305,6 +320,7 @@ describe("OpenCypher > fetchSchema", () => {
     };
     const openCypherFetchFn = vi
       .fn()
+      .mockResolvedValueOnce(emptyEdgeConnectionsResponse)
       .mockResolvedValueOnce(allVertexLabelsResponse)
       .mockResolvedValueOnce(airportPropertiesResponse)
       .mockResolvedValueOnce(allEdgesResponseEmpty)
@@ -339,6 +355,7 @@ describe("OpenCypher > fetchSchema", () => {
 
     const openCypherFetchFn = vi
       .fn()
+      .mockResolvedValueOnce(emptyEdgeConnectionsResponse)
       .mockResolvedValueOnce(allVertexLabelsResponse)
       .mockResolvedValueOnce(airportPropertiesResponse)
       .mockResolvedValueOnce(allEdgesResponse)
@@ -359,6 +376,7 @@ describe("OpenCypher > fetchSchema", () => {
     const routeEdgePropertiesResponseEmpty = {};
     const openCypherFetchFn = vi
       .fn()
+      .mockResolvedValueOnce(emptyEdgeConnectionsResponse)
       .mockResolvedValueOnce(allVertexLabelsResponse)
       .mockResolvedValueOnce(airportPropertiesResponse)
       .mockResolvedValueOnce(allEdgesResponse)
@@ -388,6 +406,7 @@ describe("OpenCypher > fetchSchema", () => {
     };
     const openCypherFetchFn = vi
       .fn()
+      .mockResolvedValueOnce(emptyEdgeConnectionsResponse)
       .mockResolvedValueOnce(allVertexLabelsResponse)
       .mockResolvedValueOnce(airportPropertiesResponse)
       .mockResolvedValueOnce(allEdgesResponseMalformed)
@@ -409,6 +428,7 @@ describe("OpenCypher > fetchSchema", () => {
   it("Should request properties for edges where labels are strings", async () => {
     const openCypherFetchFn = vi
       .fn()
+      .mockResolvedValueOnce(emptyEdgeConnectionsResponse)
       .mockResolvedValueOnce(allVertexLabelsResponse)
       .mockResolvedValueOnce(airportPropertiesResponse)
       .mockResolvedValueOnce(allEdgesResponse)
@@ -420,10 +440,10 @@ describe("OpenCypher > fetchSchema", () => {
 
     await fetchSchema(openCypherFetchFn, new ClientLoggerConnector());
 
-    expect(openCypherFetchFn.mock.calls[3][0]).toStrictEqual(
+    expect(openCypherFetchFn.mock.calls[4][0]).toStrictEqual(
       "MATCH () -[e:`route`]- () RETURN e AS object LIMIT 1",
     );
-    expect(openCypherFetchFn.mock.calls[4][0]).toStrictEqual(
+    expect(openCypherFetchFn.mock.calls[5][0]).toStrictEqual(
       "MATCH () -[e:`contains`]- () RETURN e AS object LIMIT 1",
     );
   });
@@ -431,6 +451,7 @@ describe("OpenCypher > fetchSchema", () => {
   it("Should request properties for edges where labels are arrays of strings", async () => {
     const openCypherFetchFn = vi
       .fn()
+      .mockResolvedValueOnce(emptyEdgeConnectionsResponse)
       .mockResolvedValueOnce(allVertexLabelsResponse)
       .mockResolvedValueOnce(airportPropertiesResponse)
       .mockResolvedValueOnce(allEdgesLabelsInArrayResponse)
@@ -442,10 +463,10 @@ describe("OpenCypher > fetchSchema", () => {
 
     await fetchSchema(openCypherFetchFn, new ClientLoggerConnector());
 
-    expect(openCypherFetchFn.mock.calls[3][0]).toStrictEqual(
+    expect(openCypherFetchFn.mock.calls[4][0]).toStrictEqual(
       "MATCH () -[e:`route`]- () RETURN e AS object LIMIT 1",
     );
-    expect(openCypherFetchFn.mock.calls[4][0]).toStrictEqual(
+    expect(openCypherFetchFn.mock.calls[5][0]).toStrictEqual(
       "MATCH () -[e:`contains`]- () RETURN e AS object LIMIT 1",
     );
   });

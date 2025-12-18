@@ -52,24 +52,24 @@
     - **Property 6a: Multi-label edge connections are expanded**
     - **Validates: Requirements 5.2**
 
-- [ ] 4. Implement edge connection discovery for SPARQL
-  - [ ] 4.1 Create edge connections query template for SPARQL
+- [x] 4. Implement edge connection discovery for SPARQL
+  - [x] 4.1 Create edge connections query template for SPARQL
     - Create `edgeConnectionsTemplate.ts` with SPARQL query
     - Query all source-predicate-target type combinations
     - _Requirements: 5.1, 5.2_
-  - [ ] 4.2 Add fetchEdgeConnections function to SPARQL fetchSchema
+  - [x] 4.2 Add fetchEdgeConnections function to SPARQL fetchSchema
     - Implement function to fetch and parse edge connections
     - Map SPARQL results to EdgeConnection objects
     - _Requirements: 5.1, 5.2_
-  - [ ] 4.3 Integrate edge connections into SPARQL schema response
+  - [x] 4.3 Integrate edge connections into SPARQL schema response
     - Call fetchEdgeConnections in fetchSchema
     - Include edgeConnections in SchemaResponse
     - _Requirements: 5.3_
-  - [ ] 4.4 Write property test for SPARQL edge connection discovery
+  - [x] 4.4 Write property test for SPARQL edge connection discovery
     - **Property 6: Edge connection discovery extracts correct data**
     - **Validates: Requirements 5.2**
 
-- [ ] 5. Checkpoint - Ensure all tests pass
+- [-] 5. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 6. Update schema state management to handle edge connections

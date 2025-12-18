@@ -6,6 +6,7 @@ const RESPONSES_FILES_MAP = {
   "vertices-labels-and-counts.json": `${GREMLIN}/vertices-labels-and-counts.json`,
   "edges-schema.json": `${GREMLIN}/edges-schema.json`,
   "edges-labels-and-counts.json": `${GREMLIN}/edges-labels-and-counts.json`,
+  "edge-connections.json": `${GREMLIN}/edge-connections.json`,
   "should-return-1-random-node.json": `${GREMLIN}/should-return-1-random-node.json`,
   "should-return-airports-whose-code-matches-with-SFA.json": `${GREMLIN}/should-return-airports-whose-code-matches-with-SFA.json`,
   "should-return-all-neighbors-from-node-2018.json": `${GREMLIN}/should-return-all-neighbors-from-node-2018.json`,
