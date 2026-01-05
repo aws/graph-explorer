@@ -39,20 +39,30 @@ export default function blankNodeOneHopNeighborsTemplate(subQuery: string) {
 
       # Now get the data for these specific neighbors
       {
-        # Connection predicate
-        ?neighbor ?predicate ?bNode .
-        BIND(?neighbor as ?subject) 
-        BIND(?bNode as ?object)
-      } UNION {
-        # Connection predicate
-        ?bNode ?predicate ?neighbor .
-        BIND(?bNode as ?subject) 
-        BIND(?neighbor as ?object)
-      } UNION {
-        # Neighbor properties
-        ?neighbor ?predicate ?object .
-        FILTER(isLiteral(?object) || ?predicate = ${rdfTypeUriTemplate})
-        BIND(?neighbor as ?subject)
+        # Executed as a subquery to workaround a query optimization issue
+        # [Original Fix PR #942](https://github.com/aws/graph-explorer/pull/942)
+        # [Regression PR #1065](https://github.com/aws/graph-explorer/pull/1065)
+        # [Second fix PR #1402](https://github.com/aws/graph-explorer/pull/1402)
+      
+        SELECT *
+        WHERE {
+          {
+            # Connection predicate
+            ?neighbor ?predicate ?bNode .
+            BIND(?neighbor as ?subject) 
+            BIND(?bNode as ?object)
+          } UNION {
+            # Connection predicate
+            ?bNode ?predicate ?neighbor .
+            BIND(?bNode as ?subject) 
+            BIND(?neighbor as ?object)
+          } UNION {
+            # Neighbor properties
+            ?neighbor ?predicate ?object .
+            FILTER(isLiteral(?object) || ?predicate = ${rdfTypeUriTemplate})
+            BIND(?neighbor as ?subject)
+          }
+        }
       }
     }
   `;

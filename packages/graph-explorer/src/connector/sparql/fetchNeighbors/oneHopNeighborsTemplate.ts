@@ -126,28 +126,38 @@ export function oneHopNeighborsTemplate(
       # - neighbor values
 
       {
-        # Incoming connection predicate
-        BIND(${resourceTemplate} AS ?resource)
-        ?neighbor ?pToSource ?resource
-        BIND(?neighbor as ?subject)
-        BIND(?pToSource as ?predicate)
-        BIND(?resource as ?object)
-      }
-      UNION
-      {
-        # Outgoing connection predicate
-        BIND(${resourceTemplate} AS ?resource)
-        ?resource ?pFromSource ?neighbor
-        BIND(?neighbor as ?object)
-        BIND(?pFromSource as ?predicate)
-        BIND(?resource as ?subject)
-      }
-      UNION
-      {
-        # Values and types
-        ?neighbor ?predicate ?object
-        FILTER(isLiteral(?object) || ?predicate = ${rdfTypeUriTemplate})
-        BIND(?neighbor as ?subject)
+        # Executed as a subquery to workaround a query optimization issue
+        # [Original Fix PR #942](https://github.com/aws/graph-explorer/pull/942)
+        # [Regression PR #1065](https://github.com/aws/graph-explorer/pull/1065)
+        # [Second fix PR #1402](https://github.com/aws/graph-explorer/pull/1402)
+        
+        SELECT * 
+        WHERE {
+          {
+            # Incoming connection predicate
+            BIND(${resourceTemplate} AS ?resource)
+            ?neighbor ?pToSource ?resource
+            BIND(?neighbor as ?subject)
+            BIND(?pToSource as ?predicate)
+            BIND(?resource as ?object)
+          }
+          UNION
+          {
+            # Outgoing connection predicate
+            BIND(${resourceTemplate} AS ?resource)
+            ?resource ?pFromSource ?neighbor
+            BIND(?neighbor as ?object)
+            BIND(?pFromSource as ?predicate)
+            BIND(?resource as ?subject)
+          }
+          UNION
+          {
+            # Values and types
+            ?neighbor ?predicate ?object
+            FILTER(isLiteral(?object) || ?predicate = ${rdfTypeUriTemplate})
+            BIND(?neighbor as ?subject)
+          }
+        }
       }
     }
   `;
