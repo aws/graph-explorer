@@ -1,5 +1,18 @@
 # Graph Explorer Change Log
 
+## Release 2.5.1
+
+This release includes a fix for a regression that caused neighbor expansion in
+SPARQL databases to perform poorly.
+
+## All Changes
+
+- Fix SPARQL query optimization issue (again) by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1402
+
+**Full Changelog**:
+https://github.com/aws/graph-explorer/compare/v2.5.0...v2.5.1
+
 ## Release 2.5.0
 
 This release focuses on improving the graph exploration experience with better
