@@ -253,27 +253,32 @@ describe("oneHopNeighborsTemplate", () => {
  * parts of the query change from test to test.
  */
 function commonPartOfQuery(resourceURI: string) {
-  return query`  
+  return query`
     {
-      BIND(<${resourceURI}> AS ?resource)
-      ?neighbor ?pToSource ?resource
-      BIND(?neighbor as ?subject)
-      BIND(?pToSource as ?predicate)
-      BIND(?resource as ?object)
-    }
-    UNION
-    {
-      BIND(<${resourceURI}> AS ?resource)
-      ?resource ?pFromSource ?neighbor
-      BIND(?neighbor as ?object)
-      BIND(?pFromSource as ?predicate)
-      BIND(?resource as ?subject)
-    }
-    UNION
-    {
-      ?neighbor ?predicate ?object
-      FILTER(isLiteral(?object) || ?predicate = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
-      BIND(?neighbor as ?subject)
+      SELECT *
+      WHERE {
+        {
+          BIND(<${resourceURI}> AS ?resource)
+          ?neighbor ?pToSource ?resource
+          BIND(?neighbor as ?subject)
+          BIND(?pToSource as ?predicate)
+          BIND(?resource as ?object)
+        }
+        UNION
+        {
+          BIND(<${resourceURI}> AS ?resource)
+          ?resource ?pFromSource ?neighbor
+          BIND(?neighbor as ?object)
+          BIND(?pFromSource as ?predicate)
+          BIND(?resource as ?subject)
+        }
+        UNION
+        {
+          ?neighbor ?predicate ?object
+          FILTER(isLiteral(?object) || ?predicate = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+          BIND(?neighbor as ?subject)
+        }
+      }
     }
   `;
 }
