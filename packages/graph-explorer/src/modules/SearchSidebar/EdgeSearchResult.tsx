@@ -7,11 +7,10 @@ import {
 import {
   type ButtonProps,
   CollapsibleContent,
-  CollapsibleTrigger,
   EdgeRow,
   IconButton,
   SearchResultCollapsible,
-  SearchResultExpandChevron,
+  SearchResultCollapsibleTrigger,
   Spinner,
   stopPropagation,
 } from "@/components";
@@ -48,22 +47,16 @@ export function EdgeSearchResult({
 
   return (
     <SearchResultCollapsible level={level} highlighted={hasBeenAdded}>
-      <CollapsibleTrigger asChild>
-        <div
-          role="button"
-          className="flex w-full flex-row items-center gap-2 p-3 text-left hover:cursor-pointer"
-        >
-          <SearchResultExpandChevron />
-          <EdgeRow
-            edge={displayEdge}
-            source={source}
-            target={target}
-            name={edge.name}
-            className="grow"
-          />
-          <AddOrRemoveButton edge={edge} />
-        </div>
-      </CollapsibleTrigger>
+      <SearchResultCollapsibleTrigger>
+        <EdgeRow
+          edge={displayEdge}
+          source={source}
+          target={target}
+          name={edge.name}
+          className="grow"
+        />
+        <AddOrRemoveButton edge={edge} />
+      </SearchResultCollapsibleTrigger>
       <CollapsibleContent>
         <ul className="space-y-3 p-3">
           {attributes.map(attr => (
