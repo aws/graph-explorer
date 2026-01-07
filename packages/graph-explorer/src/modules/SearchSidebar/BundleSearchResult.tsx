@@ -1,9 +1,8 @@
 import { BracketsIcon } from "lucide-react";
 import {
   CollapsibleContent,
-  CollapsibleTrigger,
   SearchResultCollapsible,
-  SearchResultExpandChevron,
+  SearchResultCollapsibleTrigger,
   SearchResultSubtitle,
   SearchResultSymbol,
   SearchResultTitle,
@@ -28,18 +27,15 @@ export function BundleSearchResult({
 
   return (
     <SearchResultCollapsible level={level}>
-      <CollapsibleTrigger asChild>
-        <div className="flex w-full flex-row items-center gap-2 p-3 text-left hover:cursor-pointer">
-          <SearchResultExpandChevron />
-          <SearchResultSymbol className="bg-primary-main/20 text-primary-main rounded-lg">
-            <BracketsIcon className="size-5" />
-          </SearchResultSymbol>
-          <div>
-            {title && <SearchResultTitle>{title}</SearchResultTitle>}
-            <SearchResultSubtitle>{subtitle}</SearchResultSubtitle>
-          </div>
+      <SearchResultCollapsibleTrigger>
+        <SearchResultSymbol className="bg-primary-main/20 text-primary-main rounded-lg">
+          <BracketsIcon className="size-5" />
+        </SearchResultSymbol>
+        <div>
+          {title && <SearchResultTitle>{title}</SearchResultTitle>}
+          <SearchResultSubtitle>{subtitle}</SearchResultSubtitle>
         </div>
-      </CollapsibleTrigger>
+      </SearchResultCollapsibleTrigger>
       <CollapsibleContent>
         <ul className="space-y-3 p-3">
           {bundle.values.map(entity => (

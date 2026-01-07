@@ -2,10 +2,9 @@ import { createVertex, useDisplayVertexFromVertex } from "@/core";
 import {
   type ButtonProps,
   CollapsibleContent,
-  CollapsibleTrigger,
   IconButton,
   SearchResultCollapsible,
-  SearchResultExpandChevron,
+  SearchResultCollapsibleTrigger,
   Spinner,
   stopPropagation,
   VertexRow,
@@ -33,16 +32,10 @@ export function VertexSearchResult({
 
   return (
     <SearchResultCollapsible level={level} highlighted={hasBeenAdded}>
-      <CollapsibleTrigger asChild>
-        <div
-          role="button"
-          className="flex w-full flex-row items-center gap-2 p-3 text-left hover:cursor-pointer"
-        >
-          <SearchResultExpandChevron />
-          <VertexRow vertex={displayNode} name={vertex.name} className="grow" />
-          <AddOrRemoveButton vertex={vertex} />
-        </div>
-      </CollapsibleTrigger>
+      <SearchResultCollapsibleTrigger>
+        <VertexRow vertex={displayNode} name={vertex.name} className="grow" />
+        <AddOrRemoveButton vertex={vertex} />
+      </SearchResultCollapsibleTrigger>
       <CollapsibleContent>
         <ul className="space-y-3 p-3">
           {attributes.map(attr => (
