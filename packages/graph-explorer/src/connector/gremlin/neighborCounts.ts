@@ -75,25 +75,17 @@ export async function neighborCounts(
       const countsByTypeMap = parseGMap<string, GInt64>(value);
 
       // Parse the Map entries in to a Map with vertex type as the key and the count as the value
-      const countsByType = countsByTypeMap
-        .entries()
-        .map(([type, gValue]) => ({
-          type,
-          count: gValue["@value"],
-        }))
-        .reduce((acc, curr) => {
-          const types = curr.type.split("::");
-          for (const type of types) {
-            acc.set(type, (acc.get(type) ?? 0) + curr.count);
-          }
-          return acc;
-        }, new Map<string, number>());
+      const countsByType = new Map<string, number>();
+      let totalCount = 0;
 
-      // Total up the unique neighbors
-      const totalCount = countsByTypeMap
-        .values()
-        .map(gValue => gValue["@value"])
-        .reduce((acc, curr) => acc + curr, 0);
+      for (const [type, gValue] of countsByTypeMap.entries()) {
+        const count = gValue["@value"];
+        totalCount += count;
+        const types = type.split("::");
+        for (const t of types) {
+          countsByType.set(t, (countsByType.get(t) ?? 0) + count);
+        }
+      }
 
       return {
         vertexId: createVertexId(extractRawId(key)),
