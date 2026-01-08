@@ -97,6 +97,7 @@ export function mergeConfiguration(
       lastSyncFail: currentSchema?.lastSyncFail,
       totalVertices: currentSchema?.totalVertices ?? 0,
       totalEdges: currentSchema?.totalEdges ?? 0,
+      edgeConnections: currentSchema?.edgeConnections,
     },
   };
 }

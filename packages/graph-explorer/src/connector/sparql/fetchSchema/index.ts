@@ -1,16 +1,19 @@
-import { batchPromisesSerially } from "@/utils";
+import { batchPromisesSerially, logger } from "@/utils";
 import { DEFAULT_CONCURRENT_REQUESTS_LIMIT } from "@/utils/constants";
 import type {
   EdgeSchemaResponse,
   SchemaResponse,
 } from "@/connector/useGEFetchTypes";
 import classesWithCountsTemplates from "./classesWithCountsTemplates";
+import edgeConnectionsTemplate from "./edgeConnectionsTemplate";
 import predicatesByClassTemplate from "./predicatesByClassTemplate";
 import predicatesWithCountsTemplate from "./predicatesWithCountsTemplate";
 import type { GraphSummary, SparqlFetch, SparqlValue } from "../types";
 import type { LoggerConnector } from "@/connector/LoggerConnector";
 import { defaultVertexTypeConfig } from "@/core/StateProvider/configuration";
-import type { AttributeConfig } from "@/core";
+import type { AttributeConfig, EdgeConnection } from "@/core";
+import { z } from "zod";
+import { fromError } from "zod-validation-error";
 
 type RawClassesWCountsResponse = {
   results: {
@@ -44,6 +47,23 @@ type RawPredicatesWCountsResponse = {
     }>;
   };
 };
+
+const edgeConnectionsResponseSchema = z.object({
+  results: z.object({
+    bindings: z.array(
+      z.object({
+        sourceType: z.object({ type: z.string(), value: z.string() }),
+        predicate: z.object({ type: z.string(), value: z.string() }),
+        targetType: z.object({ type: z.string(), value: z.string() }),
+        count: z.object({
+          type: z.string(),
+          value: z.string(),
+          datatype: z.string().optional(),
+        }),
+      }),
+    ),
+  }),
+});
 
 const TYPE_MAP: Record<string, string> = {
   "http://www.w3.org/TR/xmlschema-2/#decimal": "Number",
@@ -193,6 +213,53 @@ const fetchPredicatesSchema = async (
 };
 
 /**
+ * Fetches edge connections between resource types.
+ * Returns distinct combinations of source type, predicate, and target type.
+ */
+const fetchEdgeConnections = async (
+  sparqlFetch: SparqlFetch,
+  remoteLogger: LoggerConnector,
+): Promise<EdgeConnection[]> => {
+  const template = edgeConnectionsTemplate();
+  remoteLogger.info("[SPARQL Explorer] Fetching edge connections...");
+
+  try {
+    const data = await sparqlFetch<unknown>(template);
+
+    const parsed = edgeConnectionsResponseSchema.safeParse(data);
+    if (!parsed.success) {
+      const validationError = fromError(parsed.error);
+      logger.error(
+        "Failed to parse edge connections response",
+        validationError.toString(),
+        data,
+      );
+      throw validationError;
+    }
+
+    const edgeConnections: EdgeConnection[] = parsed.data.results.bindings.map(
+      binding => ({
+        edgeType: binding.predicate.value,
+        sourceLabel: binding.sourceType.value,
+        targetLabel: binding.targetType.value,
+        count: Number(binding.count.value),
+      }),
+    );
+
+    remoteLogger.info(
+      `[SPARQL Explorer] Found ${edgeConnections.length} edge connections.`,
+    );
+
+    return edgeConnections;
+  } catch (error) {
+    remoteLogger.warn(
+      `[SPARQL Explorer] Failed to fetch edge connections, continuing without them: ${String(error)}`,
+    );
+    return [];
+  }
+};
+
+/**
  * Fetch the database shape.
  * It follows this process:
  * 1. Fetch all distinct classes their counts
@@ -207,6 +274,9 @@ const fetchSchema = async (
   remoteLogger: LoggerConnector,
   summary?: GraphSummary,
 ): Promise<SchemaResponse> => {
+  // Fetch edge connections (works with or without summary)
+  const edgeConnections = await fetchEdgeConnections(sparqlFetch, remoteLogger);
+
   if (!summary) {
     const vertices = await fetchClassesSchema(sparqlFetch, remoteLogger);
     const totalVertices = vertices.reduce((total, vertex) => {
@@ -219,7 +289,7 @@ const fetchSchema = async (
     }, 0);
 
     remoteLogger.info(
-      `[SPARQL Explorer] Schema sync successful (${totalVertices} vertices; ${totalEdges} edges; ${vertices.length} vertex types; ${edges.length} edge types)`,
+      `[SPARQL Explorer] Schema sync successful (${totalVertices} vertices; ${totalEdges} edges; ${vertices.length} vertex types; ${edges.length} edge types; ${edgeConnections.length} edge connections)`,
     );
 
     return {
@@ -227,6 +297,7 @@ const fetchSchema = async (
       vertices,
       totalEdges,
       edges,
+      edgeConnections,
     };
   }
 
@@ -252,7 +323,7 @@ const fetchSchema = async (
   });
 
   remoteLogger.info(
-    `[SPARQL Explorer] Schema sync successful (${summary.numDistinctSubjects} vertices; ${summary.numQuads} edges; ${vertices.length} vertex types; ${edges.length} edge types)`,
+    `[SPARQL Explorer] Schema sync successful (${summary.numDistinctSubjects} vertices; ${summary.numQuads} edges; ${vertices.length} vertex types; ${edges.length} edge types; ${edgeConnections.length} edge connections)`,
   );
 
   return {
@@ -260,6 +331,7 @@ const fetchSchema = async (
     vertices,
     totalEdges: summary.numQuads,
     edges,
+    edgeConnections,
   };
 };
 

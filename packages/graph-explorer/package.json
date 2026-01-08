@@ -95,6 +95,7 @@
     "@vitejs/plugin-react": "^5.1.1",
     "@vitest/coverage-v8": "4.0.10",
     "core-js": "^3.47.0",
+    "fast-check": "^4.4.0",
     "happy-dom": "^20.0.10",
     "jsdom": "^27.2.0",
     "lint-staged": "^16.2.6",

@@ -18,6 +18,7 @@ const saveConfigurationToFile = (config: ConfigurationContextProps) => {
         __matches: Array.from(prefix.__matches || []),
       })),
       lastUpdate: config.schema?.lastUpdate?.toISOString(),
+      edgeConnections: config.schema?.edgeConnections,
     },
   };
 
