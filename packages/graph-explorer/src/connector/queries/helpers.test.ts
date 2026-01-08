@@ -294,10 +294,10 @@ describe("helpers", () => {
       const neighborCount: NeighborCount = {
         vertexId: vertex.id,
         totalCount: 5,
-        counts: {
-          Person: 3,
-          Company: 2,
-        },
+        counts: new Map([
+          ["Person", 3],
+          ["Company", 2],
+        ]),
       };
 
       updateNeighborCountCache(queryClient, [neighborCount]);
@@ -314,12 +314,15 @@ describe("helpers", () => {
         {
           vertexId: vertex1.id,
           totalCount: 3,
-          counts: { Person: 3 },
+          counts: new Map([["Person", 3]]),
         },
         {
           vertexId: vertex2.id,
           totalCount: 7,
-          counts: { Company: 4, Product: 3 },
+          counts: new Map([
+            ["Company", 4],
+            ["Product", 3],
+          ]),
         },
       ];
 
@@ -335,13 +338,16 @@ describe("helpers", () => {
       const initialCount: NeighborCount = {
         vertexId: vertex.id,
         totalCount: 3,
-        counts: { Person: 3 },
+        counts: new Map([["Person", 3]]),
       };
 
       const updatedCount: NeighborCount = {
         vertexId: vertex.id,
         totalCount: 5,
-        counts: { Person: 3, Company: 2 },
+        counts: new Map([
+          ["Person", 3],
+          ["Company", 2],
+        ]),
       };
 
       updateNeighborCountCache(queryClient, [initialCount]);

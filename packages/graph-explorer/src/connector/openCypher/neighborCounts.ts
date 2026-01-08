@@ -55,10 +55,10 @@ export async function neighborCounts(
     const vertexId = createVertexId(rawId);
 
     // Total up neighbors by type (might be more than unique neighbors)
-    const countsByType: Record<string, number> = {};
+    const countsByType = new Map<string, number>();
     for (const count of rawCounts) {
       for (const type of count.label) {
-        countsByType[type] = (countsByType[type] ?? 0) + count.count;
+        countsByType.set(type, (countsByType.get(type) ?? 0) + count.count);
       }
     }
 

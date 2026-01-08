@@ -145,13 +145,13 @@ export class FakeExplorer implements Explorer {
     return {
       counts: request.vertexIds.map(vertexId => {
         const neighbors = this.findNeighbors(vertexId);
-        const counts: Record<string, number> = {};
+        const counts = new Map<string, number>();
         let totalCount = 0;
 
         // Count neighbors by type
         neighbors.forEach(neighbor => {
           const neighborType = neighbor.type;
-          counts[neighborType] = (counts[neighborType] || 0) + 1;
+          counts.set(neighborType, (counts.get(neighborType) ?? 0) + 1);
           totalCount++;
         });
 

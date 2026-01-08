@@ -351,7 +351,10 @@ describe("useNeighbors", () => {
     const response: NeighborCount = {
       vertexId: vertex.id,
       totalCount: 8,
-      counts: { nodeType1: 5, nodeType2: 3 },
+      counts: new Map([
+        ["nodeType1", 5],
+        ["nodeType2", 3],
+      ]),
     };
     vi.mocked(dbState.explorer.neighborCounts).mockResolvedValueOnce({
       counts: [response],

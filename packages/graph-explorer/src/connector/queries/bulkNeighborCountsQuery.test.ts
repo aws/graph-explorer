@@ -30,7 +30,10 @@ describe("bulkNeighborCountsQuery", () => {
     // Add counts to cache
     const cachedResponse: NeighborCount = {
       vertexId: vertex.id,
-      counts: { inCount: 1, outCount: 2 },
+      counts: new Map([
+        ["inCount", 1],
+        ["outCount", 2],
+      ]),
       totalCount: 3,
     };
     queryClient.setQueryData(
@@ -59,7 +62,10 @@ describe("bulkNeighborCountsQuery", () => {
     const vertex = createRandomVertex();
     const expected: NeighborCount = {
       vertexId: vertex.id,
-      counts: { inCount: 1, outCount: 2 },
+      counts: new Map([
+        ["inCount", 1],
+        ["outCount", 2],
+      ]),
       totalCount: 3,
     };
 
@@ -90,7 +96,10 @@ describe("bulkNeighborCountsQuery", () => {
     const vertexCached = createRandomVertex();
     const cachedResponse: NeighborCount = {
       vertexId: vertexCached.id,
-      counts: { inCount: 1, outCount: 2 },
+      counts: new Map([
+        ["inCount", 1],
+        ["outCount", 2],
+      ]),
       totalCount: 3,
     };
     queryClient.setQueryData(
@@ -102,7 +111,10 @@ describe("bulkNeighborCountsQuery", () => {
     const vertexFetched = createRandomVertex();
     const fetchedResponse: NeighborCount = {
       vertexId: vertexFetched.id,
-      counts: { inCount: 1, outCount: 2 },
+      counts: new Map([
+        ["inCount", 1],
+        ["outCount", 2],
+      ]),
       totalCount: 3,
     };
     bulkNeighborCountsSpy.mockResolvedValueOnce({
@@ -138,7 +150,10 @@ describe("bulkNeighborCountsQuery", () => {
 
     const expected = vertices.map(v => ({
       vertexId: v.id,
-      counts: { inCount: 1, outCount: 2 },
+      counts: new Map([
+        ["inCount", 1],
+        ["outCount", 2],
+      ]),
       totalCount: 3,
     }));
 
@@ -146,7 +161,10 @@ describe("bulkNeighborCountsQuery", () => {
       Promise.resolve({
         counts: request.vertexIds.map(vertexId => ({
           vertexId,
-          counts: { inCount: 1, outCount: 2 },
+          counts: new Map([
+            ["inCount", 1],
+            ["outCount", 2],
+          ]),
           totalCount: 3,
         })),
       }),

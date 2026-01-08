@@ -123,7 +123,7 @@ export type BlankNodeItem = {
   vertex: Vertex;
   neighborCounts: {
     totalCount: number;
-    counts: Record<string, number>;
+    counts: Map<string, number>;
   };
   neighbors?: {
     vertices: Array<Vertex>;

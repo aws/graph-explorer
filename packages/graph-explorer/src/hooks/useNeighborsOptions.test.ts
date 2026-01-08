@@ -32,7 +32,7 @@ describe("useNeighborsOptions", () => {
     const response: NeighborCount = {
       vertexId: vertex.id,
       totalCount: 0,
-      counts: {},
+      counts: new Map(),
     };
     vi.mocked(dbState.explorer.neighborCounts).mockResolvedValueOnce({
       counts: [response],
@@ -54,7 +54,10 @@ describe("useNeighborsOptions", () => {
     const response: NeighborCount = {
       vertexId: vertex.id,
       totalCount: 8,
-      counts: { nodeType1: 5, nodeType2: 3 },
+      counts: new Map([
+        ["nodeType1", 5],
+        ["nodeType2", 3],
+      ]),
     };
     vi.mocked(dbState.explorer.neighborCounts).mockResolvedValueOnce({
       counts: [response],
@@ -99,7 +102,7 @@ describe("useNeighborsOptions", () => {
     const response: NeighborCount = {
       vertexId: vertex.id,
       totalCount: 1,
-      counts: { nodeType1: 1 },
+      counts: new Map([["nodeType1", 1]]),
     };
     vi.mocked(dbState.explorer.neighborCounts).mockResolvedValueOnce({
       counts: [response],

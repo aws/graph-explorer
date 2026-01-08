@@ -23,10 +23,10 @@ describe("neighborCounts", () => {
     const expected: NeighborCount = {
       vertexId: createRandomVertexId(),
       totalCount: 12,
-      counts: {
-        label1: 3,
-        label2: 9,
-      },
+      counts: new Map([
+        ["label1", 3],
+        ["label2", 9],
+      ]),
     };
     const response = createResponse(expected);
     const mockFetch = vi.fn().mockResolvedValue(response);
@@ -40,18 +40,19 @@ describe("neighborCounts", () => {
     const expected: NeighborCount = {
       vertexId: createRandomVertexId(),
       totalCount: 12,
-      counts: {
-        label1: 3,
-        label2: 9,
-        label3: 9,
-      },
+      counts: new Map([
+        ["label1", 3],
+        ["label2", 9],
+        ["label3", 9],
+      ]),
     };
     const response = createResponse({
-      ...expected,
-      counts: {
-        label1: expected.counts.label1,
-        "label2::label3": expected.counts.label2,
-      },
+      vertexId: expected.vertexId,
+      totalCount: expected.totalCount,
+      counts: new Map([
+        ["label1", expected.counts.get("label1")!],
+        ["label2::label3", expected.counts.get("label2")!],
+      ]),
     });
     const mockFetch = vi.fn().mockResolvedValue(response);
     const result = await neighborCounts(mockFetch, {
@@ -64,18 +65,18 @@ describe("neighborCounts", () => {
     const expected1: NeighborCount = {
       vertexId: createRandomVertexId(),
       totalCount: 12,
-      counts: {
-        label1: 3,
-        label2: 9,
-      },
+      counts: new Map([
+        ["label1", 3],
+        ["label2", 9],
+      ]),
     };
     const expected2: NeighborCount = {
       vertexId: createRandomVertexId(),
       totalCount: 12,
-      counts: {
-        label1: 3,
-        label2: 9,
-      },
+      counts: new Map([
+        ["label1", 3],
+        ["label2", 9],
+      ]),
     };
     const response = createResponse(expected1, expected2);
     const mockFetch = vi.fn().mockResolvedValue(response);
@@ -149,7 +150,7 @@ describe("neighborCounts", () => {
     const expected: NeighborCount = {
       vertexId,
       totalCount: 0,
-      counts: {},
+      counts: new Map(),
     };
     const response = createResponse(expected);
     const mockFetch = vi.fn().mockResolvedValue(response);
@@ -167,12 +168,12 @@ describe("neighborCounts", () => {
     const expected1: NeighborCount = {
       vertexId: stringId,
       totalCount: 5,
-      counts: { type1: 5 },
+      counts: new Map([["type1", 5]]),
     };
     const expected2: NeighborCount = {
-      vertexId: numberId, // Gremlin converts number IDs to strings
+      vertexId: numberId,
       totalCount: 3,
-      counts: { type2: 3 },
+      counts: new Map([["type2", 3]]),
     };
     const response = createResponse(expected1, expected2);
     const mockFetch = vi.fn().mockResolvedValue(response);
