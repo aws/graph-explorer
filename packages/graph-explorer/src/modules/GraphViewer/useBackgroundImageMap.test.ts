@@ -33,7 +33,6 @@ describe("useBackgroundImageMap", () => {
 
   it("should generate background image map for single vertex config", async () => {
     const vertexConfig = createRandomVertexPreferences();
-    vertexConfig.type = "Person";
     const expectedImage = "data:image/svg+xml;utf8,<svg>person</svg>";
     mockRenderNode.mockResolvedValue(expectedImage);
 
@@ -43,7 +42,7 @@ describe("useBackgroundImageMap", () => {
     );
 
     await waitFor(() => {
-      expect(result.current.get("Person")).toBe(expectedImage);
+      expect(result.current.get(vertexConfig.type)).toBe(expectedImage);
     });
 
     expect(mockRenderNode).toHaveBeenCalledWith(
@@ -53,66 +52,53 @@ describe("useBackgroundImageMap", () => {
   });
 
   it("should generate background image map for multiple vertex configs", async () => {
-    const personConfig = createRandomVertexPreferences();
-    personConfig.type = "Person";
-    const companyConfig = createRandomVertexPreferences();
-    companyConfig.type = "Company";
+    const config1 = createRandomVertexPreferences();
+    const config2 = createRandomVertexPreferences();
 
-    const personImage = "data:image/svg+xml;utf8,<svg>person</svg>";
-    const companyImage = "data:image/svg+xml;utf8,<svg>company</svg>";
+    const image1 = "data:image/svg+xml;utf8,<svg>first</svg>";
+    const image2 = "data:image/svg+xml;utf8,<svg>second</svg>";
 
-    mockRenderNode
-      .mockResolvedValueOnce(personImage)
-      .mockResolvedValueOnce(companyImage);
+    mockRenderNode.mockResolvedValueOnce(image1).mockResolvedValueOnce(image2);
 
     const { result } = renderHookWithState(
-      () => useBackgroundImageMap([personConfig, companyConfig]),
+      () => useBackgroundImageMap([config1, config2]),
       dbState,
     );
 
     await waitFor(() => {
-      expect(result.current.get("Person")).toBe(personImage);
-      expect(result.current.get("Company")).toBe(companyImage);
+      expect(result.current.get(config1.type)).toBe(image1);
+      expect(result.current.get(config2.type)).toBe(image2);
     });
 
     expect(mockRenderNode).toHaveBeenCalledTimes(2);
-    expect(mockRenderNode).toHaveBeenCalledWith(
-      expect.any(Object),
-      personConfig,
-    );
-    expect(mockRenderNode).toHaveBeenCalledWith(
-      expect.any(Object),
-      companyConfig,
-    );
+    expect(mockRenderNode).toHaveBeenCalledWith(expect.any(Object), config1);
+    expect(mockRenderNode).toHaveBeenCalledWith(expect.any(Object), config2);
   });
 
   it("should filter out failed renders from the map", async () => {
-    const personConfig = createRandomVertexPreferences();
-    personConfig.type = "Person";
-    const companyConfig = createRandomVertexPreferences();
-    companyConfig.type = "Company";
+    const config1 = createRandomVertexPreferences();
+    const config2 = createRandomVertexPreferences();
 
-    const personImage = "data:image/svg+xml;utf8,<svg>person</svg>";
+    const successImage = "data:image/svg+xml;utf8,<svg>success</svg>";
 
     mockRenderNode
-      .mockResolvedValueOnce(personImage)
+      .mockResolvedValueOnce(successImage)
       .mockResolvedValueOnce(null); // Failed render
 
     const { result } = renderHookWithState(
-      () => useBackgroundImageMap([personConfig, companyConfig]),
+      () => useBackgroundImageMap([config1, config2]),
       dbState,
     );
 
     await waitFor(() => {
-      expect(result.current.get("Person")).toBe(personImage);
-      expect(result.current.has("Company")).toBe(false);
+      expect(result.current.get(config1.type)).toBe(successImage);
+      expect(result.current.has(config2.type)).toBe(false);
       expect(result.current.size).toBe(1);
     });
   });
 
   it("should handle renderNode returning undefined", async () => {
     const vertexConfig = createRandomVertexPreferences();
-    vertexConfig.type = "Person";
     mockRenderNode.mockResolvedValue(undefined);
 
     const { result } = renderHookWithState(
@@ -121,14 +107,13 @@ describe("useBackgroundImageMap", () => {
     );
 
     await waitFor(() => {
-      expect(result.current.has("Person")).toBe(false);
+      expect(result.current.has(vertexConfig.type)).toBe(false);
       expect(result.current.size).toBe(0);
     });
   });
 
   it("should handle renderNode throwing an error", async () => {
     const vertexConfig = createRandomVertexPreferences();
-    vertexConfig.type = "Person";
     mockRenderNode.mockRejectedValue(new Error("Render failed"));
 
     const { result } = renderHookWithState(
@@ -137,22 +122,20 @@ describe("useBackgroundImageMap", () => {
     );
 
     await waitFor(() => {
-      expect(result.current.has("Person")).toBe(false);
+      expect(result.current.has(vertexConfig.type)).toBe(false);
       expect(result.current.size).toBe(0);
     });
   });
 
   it("should update map when vertex configs change", async () => {
     const initialConfig = createRandomVertexPreferences();
-    initialConfig.type = "Person";
     const updatedConfig = createRandomVertexPreferences();
-    updatedConfig.type = "Company";
 
-    const personImage = "data:image/svg+xml;utf8,<svg>person</svg>";
-    const companyImage = "data:image/svg+xml;utf8,<svg>company</svg>";
+    const initialImage = "data:image/svg+xml;utf8,<svg>initial</svg>";
+    const updatedImage = "data:image/svg+xml;utf8,<svg>updated</svg>";
 
     // Test initial render
-    mockRenderNode.mockResolvedValueOnce(personImage);
+    mockRenderNode.mockResolvedValueOnce(initialImage);
 
     const { result: initialResult } = renderHookWithState(
       () => useBackgroundImageMap([initialConfig]),
@@ -160,11 +143,11 @@ describe("useBackgroundImageMap", () => {
     );
 
     await waitFor(() => {
-      expect(initialResult.current.get("Person")).toBe(personImage);
+      expect(initialResult.current.get(initialConfig.type)).toBe(initialImage);
     });
 
     // Test updated render with different config
-    mockRenderNode.mockResolvedValueOnce(companyImage);
+    mockRenderNode.mockResolvedValueOnce(updatedImage);
 
     const { result: updatedResult } = renderHookWithState(
       () => useBackgroundImageMap([updatedConfig]),
@@ -172,8 +155,8 @@ describe("useBackgroundImageMap", () => {
     );
 
     await waitFor(() => {
-      expect(updatedResult.current.get("Company")).toBe(companyImage);
-      expect(updatedResult.current.has("Person")).toBe(false);
+      expect(updatedResult.current.get(updatedConfig.type)).toBe(updatedImage);
+      expect(updatedResult.current.has(initialConfig.type)).toBe(false);
     });
   });
 
@@ -183,17 +166,14 @@ describe("useBackgroundImageMap", () => {
       createRandomVertexPreferences(),
       createRandomVertexPreferences(),
     ];
-    configs[0].type = "Person";
-    configs[1].type = "Company";
-    configs[2].type = "Product";
 
-    const personImage = "data:image/svg+xml;utf8,<svg>person</svg>";
-    const productImage = "data:image/svg+xml;utf8,<svg>product</svg>";
+    const image1 = "data:image/svg+xml;utf8,<svg>first</svg>";
+    const image3 = "data:image/svg+xml;utf8,<svg>third</svg>";
 
     mockRenderNode
-      .mockResolvedValueOnce(personImage)
-      .mockResolvedValueOnce(null) // Company fails
-      .mockResolvedValueOnce(productImage);
+      .mockResolvedValueOnce(image1)
+      .mockResolvedValueOnce(null) // Second fails
+      .mockResolvedValueOnce(image3);
 
     const { result } = renderHookWithState(
       () => useBackgroundImageMap(configs),
@@ -201,16 +181,15 @@ describe("useBackgroundImageMap", () => {
     );
 
     await waitFor(() => {
-      expect(result.current.get("Person")).toBe(personImage);
-      expect(result.current.get("Product")).toBe(productImage);
-      expect(result.current.has("Company")).toBe(false);
+      expect(result.current.get(configs[0].type)).toBe(image1);
+      expect(result.current.has(configs[1].type)).toBe(false);
+      expect(result.current.get(configs[2].type)).toBe(image3);
       expect(result.current.size).toBe(2);
     });
   });
 
   it("should use correct query key for caching", async () => {
     const vertexConfig = createRandomVertexPreferences();
-    vertexConfig.type = "Person";
     mockRenderNode.mockResolvedValue("data:image/svg+xml;utf8,<svg></svg>");
 
     renderHookWithState(() => useBackgroundImageMap([vertexConfig]), dbState);
@@ -229,12 +208,10 @@ describe("useBackgroundImageMap", () => {
 
   it("should handle vertex configs with different image types", async () => {
     const svgConfig = createRandomVertexPreferences();
-    svgConfig.type = "Person";
     const pngConfig = createRandomVertexPreferences();
-    pngConfig.type = "Company";
 
-    const svgImage = "data:image/svg+xml;utf8,<svg>person</svg>";
-    const pngImage = "https://example.com/company.png";
+    const svgImage = "data:image/svg+xml;utf8,<svg>svg</svg>";
+    const pngImage = "https://example.com/image.png";
 
     mockRenderNode
       .mockResolvedValueOnce(svgImage)
@@ -246,24 +223,22 @@ describe("useBackgroundImageMap", () => {
     );
 
     await waitFor(() => {
-      expect(result.current.get("Person")).toBe(svgImage);
-      expect(result.current.get("Company")).toBe(pngImage);
+      expect(result.current.get(svgConfig.type)).toBe(svgImage);
+      expect(result.current.get(pngConfig.type)).toBe(pngImage);
     });
   });
 
   it("should handle vertex configs with no icon URL", async () => {
     const configWithIcon = createRandomVertexPreferences();
-    configWithIcon.type = "Person";
     configWithIcon.iconUrl = "https://example.com/icon.svg";
 
     const configWithoutIcon = createRandomVertexPreferences();
-    configWithoutIcon.type = "Company";
     configWithoutIcon.iconUrl = defaultVertexPreferences.iconUrl;
 
-    const personImage = "data:image/svg+xml;utf8,<svg>person</svg>";
+    const successImage = "data:image/svg+xml;utf8,<svg>success</svg>";
 
     mockRenderNode
-      .mockResolvedValueOnce(personImage)
+      .mockResolvedValueOnce(successImage)
       .mockResolvedValueOnce(null); // No icon URL returns null
 
     const { result } = renderHookWithState(
@@ -272,8 +247,8 @@ describe("useBackgroundImageMap", () => {
     );
 
     await waitFor(() => {
-      expect(result.current.get("Person")).toBe(personImage);
-      expect(result.current.has("Company")).toBe(false);
+      expect(result.current.get(configWithIcon.type)).toBe(successImage);
+      expect(result.current.has(configWithoutIcon.type)).toBe(false);
       expect(result.current.size).toBe(1);
     });
   });
