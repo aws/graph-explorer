@@ -5,7 +5,11 @@ import {
   DbState,
   renderHookWithJotai,
 } from "@/utils/testing";
-import { createEdgeId, createVertexId } from "@/core/entities";
+import {
+  createEdgeId,
+  createVertexId,
+  createVertexType,
+} from "@/core/entities";
 import {
   createRenderedEdgeId,
   createRenderedVertexId,
@@ -118,7 +122,7 @@ describe("useRenderedVertices", () => {
     dbState.addTestableVertexToGraph(vertex2);
     dbState.addTestableVertexToGraph(vertex3);
 
-    dbState.filterVertexType(vertex1.types[0]);
+    dbState.filterVertexType(createVertexType(vertex1.types[0]));
 
     const { result } = renderHookWithJotai(
       () => useRenderedEntities(),

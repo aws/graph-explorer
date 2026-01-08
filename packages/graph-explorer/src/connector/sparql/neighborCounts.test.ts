@@ -16,7 +16,7 @@ import {
   createRandomName,
   createRandomUrlString,
 } from "@shared/utils/testing";
-import { createVertexId } from "@/core";
+import { createVertexId, createVertexType, type VertexType } from "@/core";
 
 describe("neighborCounts", () => {
   it("should return empty for an empty request", async () => {
@@ -39,8 +39,8 @@ describe("neighborCounts", () => {
       vertexId: createVertexId(createRandomUrlString()),
       totalCount: 12,
       counts: new Map([
-        [createRandomUrlString(), 3],
-        [createRandomUrlString(), 9],
+        [createVertexType(createRandomUrlString()), 3],
+        [createVertexType(createRandomUrlString()), 9],
       ]),
     };
     const totalCountResponse = createTotalCountResponse(expected);
@@ -65,16 +65,16 @@ describe("neighborCounts", () => {
       vertexId: createVertexId(createRandomUrlString()),
       totalCount: 12,
       counts: new Map([
-        [createRandomUrlString(), 3],
-        [createRandomUrlString(), 9],
+        [createVertexType(createRandomUrlString()), 3],
+        [createVertexType(createRandomUrlString()), 9],
       ]),
     };
     const expected2: NeighborCount = {
       vertexId: createVertexId(createRandomUrlString()),
       totalCount: 12,
       counts: new Map([
-        [createRandomUrlString(), 3],
-        [createRandomUrlString(), 9],
+        [createVertexType(createRandomUrlString()), 3],
+        [createVertexType(createRandomUrlString()), 9],
       ]),
     };
     const totalCountResponse = createTotalCountResponse(expected1, expected2);
@@ -104,8 +104,8 @@ describe("neighborCounts", () => {
       vertexId: vertex.id,
       totalCount: 12,
       counts: new Map([
-        [createRandomUrlString(), 3],
-        [createRandomUrlString(), 9],
+        [createVertexType(createRandomUrlString()), 3],
+        [createVertexType(createRandomUrlString()), 9],
       ]),
     };
     blankNodes.set(expected.vertexId, {
@@ -258,7 +258,7 @@ describe("neighborCounts", () => {
     const expected: NeighborCount = {
       vertexId,
       totalCount: 0,
-      counts: new Map(),
+      counts: new Map<VertexType, number>(),
     };
     const totalCountResponse = createTotalCountResponse();
     const countsByTypeResponse = createCountsByTypeResponse();
@@ -285,12 +285,12 @@ describe("neighborCounts", () => {
     const expectedBlank: NeighborCount = {
       vertexId: blankVertex.id,
       totalCount: 2,
-      counts: new Map([[createRandomUrlString(), 2]]),
+      counts: new Map([[createVertexType(createRandomUrlString()), 2]]),
     };
     const expectedNonBlank: NeighborCount = {
       vertexId: nonBlankVertex,
       totalCount: 3,
-      counts: new Map([[createRandomUrlString(), 3]]),
+      counts: new Map([[createVertexType(createRandomUrlString()), 3]]),
     };
 
     blankNodes.set(blankVertex.id, {

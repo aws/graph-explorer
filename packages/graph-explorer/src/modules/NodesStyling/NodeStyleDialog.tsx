@@ -25,7 +25,7 @@ import {
   VertexSymbol,
 } from "@/components";
 import { toast } from "sonner";
-import { useDisplayVertexTypeConfig } from "@/core";
+import { useDisplayVertexTypeConfig, type VertexType } from "@/core";
 import {
   type LineStyle,
   type ShapeStyle,
@@ -43,7 +43,7 @@ import { ImageUpIcon } from "lucide-react";
 import { parseNumberSafely } from "@/utils";
 import { createDisplayError } from "@/utils/createDisplayError";
 
-const customizeNodeTypeAtom = atom<string | undefined>(undefined);
+const customizeNodeTypeAtom = atom<VertexType | undefined>(undefined);
 
 /**
  * Open the dialog to customize the node style
@@ -52,7 +52,7 @@ const customizeNodeTypeAtom = atom<string | undefined>(undefined);
 export function useOpenNodeStyleDialog() {
   const setCustomizeNodeType = useSetAtom(customizeNodeTypeAtom);
 
-  return (vertexType: string) => {
+  return (vertexType: VertexType) => {
     setCustomizeNodeType(vertexType);
   };
 }
@@ -82,7 +82,7 @@ export function NodeStyleDialog() {
   );
 }
 
-function Content({ vertexType }: { vertexType: string }) {
+function Content({ vertexType }: { vertexType: VertexType }) {
   const t = useTranslations();
 
   const { vertexStyle, setVertexStyle, resetVertexStyle } =

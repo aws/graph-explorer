@@ -10,6 +10,7 @@ import {
   type VertexId,
   useVertex,
   vertexPreferenceByTypeAtom,
+  type VertexType,
 } from "@/core";
 import { textTransformSelector } from "@/hooks";
 import { LABELS, RESERVED_ID_PROPERTY, RESERVED_TYPES_PROPERTY } from "@/utils";
@@ -20,8 +21,8 @@ import { atomFamily } from "jotai/utils";
 export type DisplayVertex = {
   entityType: "vertex";
   id: VertexId;
-  primaryType: string;
-  types: string[];
+  primaryType: VertexType;
+  types: VertexType[];
   displayId: string;
   displayTypes: string;
   displayName: string;

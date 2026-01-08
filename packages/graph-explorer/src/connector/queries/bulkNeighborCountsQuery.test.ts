@@ -5,6 +5,7 @@ import type { NeighborCount } from "../useGEFetchTypes";
 import { createQueryClient } from "@/core/queryClient";
 import { createArray } from "@shared/utils/testing";
 import { DEFAULT_BATCH_REQUEST_SIZE } from "@/utils";
+import { createVertexType } from "@/core";
 
 describe("bulkNeighborCountsQuery", () => {
   it("should return nothing when input is empty", async () => {
@@ -31,8 +32,8 @@ describe("bulkNeighborCountsQuery", () => {
     const cachedResponse: NeighborCount = {
       vertexId: vertex.id,
       counts: new Map([
-        ["inCount", 1],
-        ["outCount", 2],
+        [createVertexType("inCount"), 1],
+        [createVertexType("outCount"), 2],
       ]),
       totalCount: 3,
     };
@@ -63,8 +64,8 @@ describe("bulkNeighborCountsQuery", () => {
     const expected: NeighborCount = {
       vertexId: vertex.id,
       counts: new Map([
-        ["inCount", 1],
-        ["outCount", 2],
+        [createVertexType("inCount"), 1],
+        [createVertexType("outCount"), 2],
       ]),
       totalCount: 3,
     };
@@ -97,8 +98,8 @@ describe("bulkNeighborCountsQuery", () => {
     const cachedResponse: NeighborCount = {
       vertexId: vertexCached.id,
       counts: new Map([
-        ["inCount", 1],
-        ["outCount", 2],
+        [createVertexType("inCount"), 1],
+        [createVertexType("outCount"), 2],
       ]),
       totalCount: 3,
     };
@@ -112,8 +113,8 @@ describe("bulkNeighborCountsQuery", () => {
     const fetchedResponse: NeighborCount = {
       vertexId: vertexFetched.id,
       counts: new Map([
-        ["inCount", 1],
-        ["outCount", 2],
+        [createVertexType("inCount"), 1],
+        [createVertexType("outCount"), 2],
       ]),
       totalCount: 3,
     };
@@ -151,8 +152,8 @@ describe("bulkNeighborCountsQuery", () => {
     const expected = vertices.map(v => ({
       vertexId: v.id,
       counts: new Map([
-        ["inCount", 1],
-        ["outCount", 2],
+        [createVertexType("inCount"), 1],
+        [createVertexType("outCount"), 2],
       ]),
       totalCount: 3,
     }));
@@ -162,8 +163,8 @@ describe("bulkNeighborCountsQuery", () => {
         counts: request.vertexIds.map(vertexId => ({
           vertexId,
           counts: new Map([
-            ["inCount", 1],
-            ["outCount", 2],
+            [createVertexType("inCount"), 1],
+            [createVertexType("outCount"), 2],
           ]),
           totalCount: 3,
         })),

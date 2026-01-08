@@ -8,6 +8,7 @@ import {
 import type { ConfigurationContextProps } from "./types";
 import { atomFamily } from "jotai/utils";
 import { atom, useAtomValue } from "jotai";
+import type { EdgeType, VertexType } from "../entities";
 
 const assembledConfigSelector = atom(get => {
   const configuration = get(mergedConfigurationSelector);
@@ -31,7 +32,7 @@ const assembledConfigSelector = atom(get => {
   return result;
 });
 
-export const vertexTypeConfigSelector = atomFamily((vertexType: string) =>
+export const vertexTypeConfigSelector = atomFamily((vertexType: VertexType) =>
   atom(
     get =>
       get(allVertexTypeConfigsSelector).get(vertexType) ??
@@ -40,11 +41,11 @@ export const vertexTypeConfigSelector = atomFamily((vertexType: string) =>
 );
 
 /** Gets the matching vertex type config or a generated default value. */
-export function useVertexTypeConfig(vertexType: string) {
+export function useVertexTypeConfig(vertexType: VertexType) {
   return useAtomValue(vertexTypeConfigSelector(vertexType));
 }
 
-const vertexTypeConfigsSelector = atomFamily((vertexTypes?: string[]) =>
+const vertexTypeConfigsSelector = atomFamily((vertexTypes?: VertexType[]) =>
   atom(get => {
     const allConfigs = get(allVertexTypeConfigsSelector);
     if (!vertexTypes) {
@@ -57,11 +58,11 @@ const vertexTypeConfigsSelector = atomFamily((vertexTypes?: string[]) =>
 );
 
 /** Gets the matching vertex type configs or the generated default values. */
-export function useVertexTypeConfigs(vertexTypes?: string[]) {
+export function useVertexTypeConfigs(vertexTypes?: VertexType[]) {
   return useAtomValue(vertexTypeConfigsSelector(vertexTypes));
 }
 
-export const edgeTypeConfigSelector = atomFamily((edgeType: string) =>
+export const edgeTypeConfigSelector = atomFamily((edgeType: EdgeType) =>
   atom(
     get =>
       get(allEdgeTypeConfigsSelector).get(edgeType) ??
@@ -70,11 +71,11 @@ export const edgeTypeConfigSelector = atomFamily((edgeType: string) =>
 );
 
 /** Gets the matching edge type config or a generated default value. */
-export function useEdgeTypeConfig(edgeType: string) {
+export function useEdgeTypeConfig(edgeType: EdgeType) {
   return useAtomValue(edgeTypeConfigSelector(edgeType));
 }
 
-const edgeTypeConfigsSelector = atomFamily((edgeTypes?: string[]) =>
+const edgeTypeConfigsSelector = atomFamily((edgeTypes?: EdgeType[]) =>
   atom(get => {
     const allConfigs = get(allEdgeTypeConfigsSelector);
     if (!edgeTypes) {
@@ -87,7 +88,7 @@ const edgeTypeConfigsSelector = atomFamily((edgeTypes?: string[]) =>
 );
 
 /** Gets the matching edge type configs or the generated default values. */
-export function useEdgeTypeConfigs(edgeTypes?: string[]) {
+export function useEdgeTypeConfigs(edgeTypes?: EdgeType[]) {
   return useAtomValue(edgeTypeConfigsSelector(edgeTypes));
 }
 

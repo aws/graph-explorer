@@ -1,7 +1,9 @@
 import {
   createEdgeId,
   createVertexId,
+  createEdgeType,
   type EdgeId,
+  type EdgeType,
   type EntityProperties,
   type EntityRawId,
   type Vertex,
@@ -40,7 +42,7 @@ export type ResultEdge = {
    * - For PG, the label which identifies the relation type
    * - For RDF, the predicate
    */
-  type: string;
+  type: EdgeType;
   /**
    * Source vertex id
    */
@@ -104,7 +106,7 @@ export function createResultEdge(options: {
     id: createEdgeId(options.id),
     sourceId: createVertexId(options.sourceId),
     targetId: createVertexId(options.targetId),
-    type: options.type,
+    type: createEdgeType(options.type),
     ...(options.attributes ? { attributes: options.attributes } : {}),
     ...(options.name ? { name: options.name } : {}),
   };
@@ -129,7 +131,7 @@ export function createPatchedResultEdge(options: {
   return {
     entityType: "patched-edge",
     id: createEdgeId(options.id),
-    type: options.type,
+    type: createEdgeType(options.type),
     source: createPatchedResultVertex({
       ...options.sourceVertex,
       isBlankNode: options.sourceVertex.isBlankNode,

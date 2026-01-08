@@ -8,7 +8,12 @@ import { idParam } from "./idParam";
 import type { OpenCypherFetch } from "./types";
 import isErrorResponse from "../utils/isErrorResponse";
 import { parseResults } from "./mappers/mapResults";
-import { createVertexId, type EntityRawId } from "@/core";
+import {
+  createVertexId,
+  createVertexType,
+  type EntityRawId,
+  type VertexType,
+} from "@/core";
 
 export async function neighborCounts(
   openCypherFetch: OpenCypherFetch,
@@ -55,10 +60,12 @@ export async function neighborCounts(
     const vertexId = createVertexId(rawId);
 
     // Total up neighbors by type (might be more than unique neighbors)
-    const countsByType = new Map<string, number>();
+    const countsByType = new Map<VertexType, number>();
     for (const count of rawCounts) {
       for (const type of count.label) {
-        countsByType.set(type, (countsByType.get(type) ?? 0) + count.count);
+        const vertexType = createVertexType(type);
+        const existingCount = countsByType.get(vertexType) ?? 0;
+        countsByType.set(vertexType, existingCount + count.count);
       }
     }
 

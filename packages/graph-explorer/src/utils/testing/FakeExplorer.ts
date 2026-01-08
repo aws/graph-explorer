@@ -21,6 +21,7 @@ import {
   updateSchemaFromEntities,
   type Vertex,
   type VertexId,
+  type VertexType,
 } from "@/core";
 import {
   createRandomConnectionWithId,
@@ -145,7 +146,7 @@ export class FakeExplorer implements Explorer {
     return {
       counts: request.vertexIds.map(vertexId => {
         const neighbors = this.findNeighbors(vertexId);
-        const counts = new Map<string, number>();
+        const counts = new Map<VertexType, number>();
         let totalCount = 0;
 
         // Count neighbors by type

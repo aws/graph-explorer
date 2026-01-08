@@ -7,6 +7,7 @@ import {
 } from "@/utils/testing";
 import type { NeighborCount } from "@/connector";
 import { waitFor } from "@testing-library/react";
+import { createVertexType } from "@/core";
 
 describe("useNeighborsOptions", () => {
   afterEach(() => {
@@ -55,8 +56,8 @@ describe("useNeighborsOptions", () => {
       vertexId: vertex.id,
       totalCount: 8,
       counts: new Map([
-        ["nodeType1", 5],
-        ["nodeType2", 3],
+        [createVertexType("nodeType1"), 5],
+        [createVertexType("nodeType2"), 3],
       ]),
     };
     vi.mocked(dbState.explorer.neighborCounts).mockResolvedValueOnce({
@@ -74,12 +75,12 @@ describe("useNeighborsOptions", () => {
 
       const firstResult = result.current[0];
       expect(firstResult.label).toEqual("nodeType1");
-      expect(firstResult.value).toEqual("nodeType1");
+      expect(firstResult.value).toEqual(createVertexType("nodeType1"));
       expect(firstResult.isDisabled).toEqual(false);
 
       const secondResult = result.current[1];
       expect(secondResult.label).toEqual("nodeType2");
-      expect(secondResult.value).toEqual("nodeType2");
+      expect(secondResult.value).toEqual(createVertexType("nodeType2"));
       expect(secondResult.isDisabled).toEqual(false);
     });
   });
@@ -92,8 +93,8 @@ describe("useNeighborsOptions", () => {
     dbState.addVertexToGraph(vertex);
 
     const neighbor = createRandomVertex();
-    neighbor.type = "nodeType1";
-    neighbor.types = ["nodeType1"];
+    neighbor.type = createVertexType("nodeType1");
+    neighbor.types = [createVertexType("nodeType1")];
     dbState.addVertexToGraph(neighbor);
 
     const edge = createRandomEdge(vertex, neighbor);
@@ -102,7 +103,7 @@ describe("useNeighborsOptions", () => {
     const response: NeighborCount = {
       vertexId: vertex.id,
       totalCount: 1,
-      counts: new Map([["nodeType1", 1]]),
+      counts: new Map([[createVertexType("nodeType1"), 1]]),
     };
     vi.mocked(dbState.explorer.neighborCounts).mockResolvedValueOnce({
       counts: [response],
@@ -119,7 +120,7 @@ describe("useNeighborsOptions", () => {
 
       const firstResult = result.current[0];
       expect(firstResult.label).toEqual("nodeType1");
-      expect(firstResult.value).toEqual("nodeType1");
+      expect(firstResult.value).toEqual(createVertexType("nodeType1"));
       expect(firstResult.isDisabled).toEqual(true);
     });
   });

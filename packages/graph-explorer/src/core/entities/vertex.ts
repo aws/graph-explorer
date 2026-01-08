@@ -10,6 +10,9 @@ import { createVertexId } from "./entityIdType";
  */
 export type VertexId = Branded<EntityRawId, "VertexId">;
 
+/** Represents the vertex label or RDF class */
+export type VertexType = Branded<string, "VertexType">;
+
 /**
  * A vertex in a graph database.
  *
@@ -29,7 +32,7 @@ export type Vertex = {
    * - For PG, the node label
    * - For RDF, the resource class
    */
-  type: string;
+  type: VertexType;
 
   /**
    * In gremlin, a node can have multiple labels (types). So, this stores all
@@ -38,7 +41,7 @@ export type Vertex = {
    * "John Doe" can be a "person" and a "worker"
    * types = ["person", "worker"]
    */
-  types: string[];
+  types: VertexType[];
 
   /**
    * List of attributes associated to the vertex.
@@ -73,7 +76,9 @@ export function createVertex(options: {
   isBlankNode?: boolean;
 }): Vertex {
   const givenTypes = options.types ?? [];
-  const types = givenTypes.length > 0 ? givenTypes : [LABELS.MISSING_TYPE];
+  const types = (
+    givenTypes.length > 0 ? givenTypes : [LABELS.MISSING_TYPE]
+  ) as VertexType[];
   return {
     id: createVertexId(options.id),
     type: types[0],
@@ -81,4 +86,9 @@ export function createVertex(options: {
     attributes: options.attributes != null ? options.attributes : {},
     isBlankNode: options.isBlankNode ?? false,
   };
+}
+
+/** Creates a VertexType from a string */
+export function createVertexType(type: string): VertexType {
+  return type as VertexType;
 }

@@ -6,6 +6,7 @@ import type { Simplify } from "type-fest";
 import { useActiveSchema } from "./schema";
 import { atomFamily } from "jotai/utils";
 import { userStylingAtom } from "./storageAtoms";
+import type { EdgeType, VertexType } from "../entities";
 
 export type ShapeStyle =
   | "rectangle"
@@ -48,7 +49,7 @@ export type ArrowStyle =
 
 /** The user preferences to be used for the specified vertex type as the type used for storing in local storage. */
 export type VertexPreferencesStorageModel = {
-  type: string;
+  type: VertexType;
   /**
    * Color overwrite for vertex
    */
@@ -82,7 +83,7 @@ export type VertexPreferencesStorageModel = {
 
 /** The user preferences to be used for the specified edge type as the type used for storing in local storage. */
 export type EdgePreferencesStorageModel = {
-  type: string;
+  type: EdgeType;
   displayLabel?: string;
   displayNameAttribute?: string;
   labelColor?: string;
@@ -167,7 +168,7 @@ function useStoredGraphPreferences() {
 
 /** Combines the stored user preferences with the defined default values. */
 export function createVertexPreference(
-  type: string,
+  type: VertexType,
   stored?: VertexPreferencesStorageModel,
 ): VertexPreferences {
   logger.debug("Creating VertexPreference", { type, stored });
@@ -180,7 +181,7 @@ export function createVertexPreference(
 
 /** Combines the stored user preferences with the defined default values. */
 export function createEdgePreference(
-  type: string,
+  type: EdgeType,
   stored?: EdgePreferencesStorageModel,
 ) {
   logger.debug("Creating EdgePreference", { type, stored });
@@ -212,19 +213,19 @@ export function useAllEdgePreferences(): EdgePreferences[] {
 }
 
 /** Returns the user preferences for the specified vertex type. */
-export function useVertexPreferences(type: string): VertexPreferences {
+export function useVertexPreferences(type: VertexType): VertexPreferences {
   return useDeferredValue(useAtomValue(vertexPreferenceByTypeAtom(type)));
 }
 
 /** Returns the user preferences for the specified edge type. */
-export function useEdgePreferences(type: string): EdgePreferences {
+export function useEdgePreferences(type: EdgeType): EdgePreferences {
   return useDeferredValue(useAtomValue(edgePreferenceByTypeAtom(type)));
 }
 
 /**
  * Returns the user preferences for the specified vertex type.
  */
-export const vertexPreferenceByTypeAtom = atomFamily((type: string) =>
+export const vertexPreferenceByTypeAtom = atomFamily((type: VertexType) =>
   atom(get => {
     const userStyling = get(userStylingAtom);
     const stored = userStyling.vertices?.find(v => v.type === type);
@@ -235,7 +236,7 @@ export const vertexPreferenceByTypeAtom = atomFamily((type: string) =>
 /**
  * Returns the user preferences for the specified edge type.
  */
-export const edgePreferenceByTypeAtom = atomFamily((type: string) =>
+export const edgePreferenceByTypeAtom = atomFamily((type: EdgeType) =>
   atom(get => {
     const userStyling = get(userStylingAtom);
     const stored = userStyling.edges?.find(e => e.type === type);
@@ -251,7 +252,7 @@ type UpdatedVertexStyle = Partial<Omit<VertexPreferences, "type">>;
  * @param type The vertex type
  * @returns The vertex style if it exists, an update function, and a reset function
  */
-export function useVertexStyling(type: string) {
+export function useVertexStyling(type: VertexType) {
   const setAllStyling = useSetAtom(userStylingAtom);
   const vertexStyle = useVertexPreferences(type);
 
@@ -297,7 +298,7 @@ type UpdatedEdgeStyle = Omit<EdgePreferencesStorageModel, "type">;
  * @param type The edge type
  * @returns The edge style if it exists, an update function, and a reset function
  */
-export function useEdgeStyling(type: string) {
+export function useEdgeStyling(type: EdgeType) {
   const setAllStyling = useSetAtom(userStylingAtom);
   const edgeStyle = useEdgePreferences(type);
 

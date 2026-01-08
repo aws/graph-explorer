@@ -5,6 +5,7 @@ import {
   type Edge,
   getRawId,
   schemaAtom,
+  createEdgeType,
 } from "@/core";
 import {
   createRandomEdge,
@@ -151,7 +152,7 @@ describe("useDisplayEdgeFromEdge", () => {
 
   it("should have display types that list all types in sparql", () => {
     const edge = createRandomEdge();
-    edge.type = "http://www.example.com/class#bar";
+    edge.type = createEdgeType("http://www.example.com/class#bar");
     const schema = createRandomSchema();
     schema.prefixes = [
       {

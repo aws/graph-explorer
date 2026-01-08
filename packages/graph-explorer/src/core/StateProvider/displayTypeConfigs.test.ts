@@ -17,6 +17,7 @@ import { createRandomName } from "@shared/utils/testing";
 import { LABELS, SEARCH_TOKENS } from "@/utils";
 import type { TextTransformer } from "@/hooks";
 import { RDFS_LABEL_URI } from "./sortAttributeByName";
+import { createEdgeType, createVertexType } from "@/core";
 
 // Simple identity text transformer for testing (non-SPARQL behavior)
 const identityTextTransform: TextTransformer = (text: string) => text;
@@ -35,7 +36,7 @@ describe("useDisplayVertexTypeConfig", () => {
 
   it("should use missing value string when type is empty", () => {
     const { result } = renderHookWithState(() =>
-      useDisplayVertexTypeConfig(""),
+      useDisplayVertexTypeConfig(createVertexType("")),
     );
 
     expect(result.current.displayLabel).toBe(LABELS.MISSING_TYPE);
@@ -330,7 +331,9 @@ describe("mapToDisplayEdgeTypeConfig", () => {
 
 describe("useDisplayEdgeTypeConfig", () => {
   it("should use empty label constant when the type is empty", () => {
-    const { result } = renderHookWithState(() => useDisplayEdgeTypeConfig(""));
+    const { result } = renderHookWithState(() =>
+      useDisplayEdgeTypeConfig(createEdgeType("")),
+    );
 
     expect(result.current.displayLabel).toBe(LABELS.MISSING_TYPE);
   });

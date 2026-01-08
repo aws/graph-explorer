@@ -20,7 +20,7 @@ import {
 import type { NeighborCount } from "../useGEFetchTypes";
 import { createQueryClient, type GraphExplorerMeta } from "@/core/queryClient";
 import { createRandomName, createRecord } from "@shared/utils/testing";
-import type { EdgeId, VertexId } from "@/core";
+import { createVertexType, type EdgeId, type VertexId } from "@/core";
 import { createResultScalar, createResultBundle } from "../entities";
 
 describe("helpers", () => {
@@ -295,8 +295,8 @@ describe("helpers", () => {
         vertexId: vertex.id,
         totalCount: 5,
         counts: new Map([
-          ["Person", 3],
-          ["Company", 2],
+          [createVertexType("Person"), 3],
+          [createVertexType("Company"), 2],
         ]),
       };
 
@@ -314,14 +314,14 @@ describe("helpers", () => {
         {
           vertexId: vertex1.id,
           totalCount: 3,
-          counts: new Map([["Person", 3]]),
+          counts: new Map([[createVertexType("Person"), 3]]),
         },
         {
           vertexId: vertex2.id,
           totalCount: 7,
           counts: new Map([
-            ["Company", 4],
-            ["Product", 3],
+            [createVertexType("Company"), 4],
+            [createVertexType("Product"), 3],
           ]),
         },
       ];
@@ -338,15 +338,15 @@ describe("helpers", () => {
       const initialCount: NeighborCount = {
         vertexId: vertex.id,
         totalCount: 3,
-        counts: new Map([["Person", 3]]),
+        counts: new Map([[createVertexType("Person"), 3]]),
       };
 
       const updatedCount: NeighborCount = {
         vertexId: vertex.id,
         totalCount: 5,
         counts: new Map([
-          ["Person", 3],
-          ["Company", 2],
+          [createVertexType("Person"), 3],
+          [createVertexType("Company"), 2],
         ]),
       };
 

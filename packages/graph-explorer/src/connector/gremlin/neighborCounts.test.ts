@@ -1,4 +1,4 @@
-import { createVertexId, type EntityRawId } from "@/core";
+import { createVertexId, createVertexType, type EntityRawId } from "@/core";
 import { neighborCounts } from "./neighborCounts";
 import { query } from "@/utils";
 import type { NeighborCount } from "../useGEFetchTypes";
@@ -24,8 +24,8 @@ describe("neighborCounts", () => {
       vertexId: createRandomVertexId(),
       totalCount: 12,
       counts: new Map([
-        ["label1", 3],
-        ["label2", 9],
+        [createVertexType("label1"), 3],
+        [createVertexType("label2"), 9],
       ]),
     };
     const response = createResponse(expected);
@@ -41,17 +41,23 @@ describe("neighborCounts", () => {
       vertexId: createRandomVertexId(),
       totalCount: 12,
       counts: new Map([
-        ["label1", 3],
-        ["label2", 9],
-        ["label3", 9],
+        [createVertexType("label1"), 3],
+        [createVertexType("label2"), 9],
+        [createVertexType("label3"), 9],
       ]),
     };
     const response = createResponse({
       vertexId: expected.vertexId,
       totalCount: expected.totalCount,
       counts: new Map([
-        ["label1", expected.counts.get("label1")!],
-        ["label2::label3", expected.counts.get("label2")!],
+        [
+          createVertexType("label1"),
+          expected.counts.get(createVertexType("label1"))!,
+        ],
+        [
+          createVertexType("label2::label3"),
+          expected.counts.get(createVertexType("label2"))!,
+        ],
       ]),
     });
     const mockFetch = vi.fn().mockResolvedValue(response);
@@ -66,16 +72,16 @@ describe("neighborCounts", () => {
       vertexId: createRandomVertexId(),
       totalCount: 12,
       counts: new Map([
-        ["label1", 3],
-        ["label2", 9],
+        [createVertexType("label1"), 3],
+        [createVertexType("label2"), 9],
       ]),
     };
     const expected2: NeighborCount = {
       vertexId: createRandomVertexId(),
       totalCount: 12,
       counts: new Map([
-        ["label1", 3],
-        ["label2", 9],
+        [createVertexType("label1"), 3],
+        [createVertexType("label2"), 9],
       ]),
     };
     const response = createResponse(expected1, expected2);
@@ -168,12 +174,12 @@ describe("neighborCounts", () => {
     const expected1: NeighborCount = {
       vertexId: stringId,
       totalCount: 5,
-      counts: new Map([["type1", 5]]),
+      counts: new Map([[createVertexType("type1"), 5]]),
     };
     const expected2: NeighborCount = {
       vertexId: numberId,
       totalCount: 3,
-      counts: new Map([["type2", 3]]),
+      counts: new Map([[createVertexType("type2"), 3]]),
     };
     const response = createResponse(expected1, expected2);
     const mockFetch = vi.fn().mockResolvedValue(response);

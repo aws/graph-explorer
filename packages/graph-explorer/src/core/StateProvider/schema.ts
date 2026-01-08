@@ -9,9 +9,11 @@ import {
   activeConfigurationAtom,
   schemaAtom,
   type Edge,
+  type EdgeType,
   type Entities,
   type EntityProperties,
   type Vertex,
+  type VertexType,
 } from "@/core";
 import { logger } from "@/utils";
 import generatePrefixes from "@/utils/generatePrefixes";
@@ -102,12 +104,12 @@ export type EdgeSchema = Simplify<
 
 function createGraphSchema(stored: SchemaInference) {
   logger.debug("Creating graph schema", stored);
-  const vertices = new Map<string, VertexSchema>();
+  const vertices = new Map<VertexType, VertexSchema>();
   for (const vtConfig of stored.vertices) {
     vertices.set(vtConfig.type, createVertexSchema(vtConfig));
   }
 
-  const edges = new Map<string, EdgeSchema>();
+  const edges = new Map<EdgeType, EdgeSchema>();
   for (const etConfig of stored.edges) {
     edges.set(etConfig.type, createEdgeSchema(etConfig));
   }
@@ -119,23 +121,23 @@ export function useGraphSchema() {
   return createGraphSchema(activeSchema);
 }
 
-export function useVertexSchema(type: string) {
+export function useVertexSchema(type: VertexType) {
   const { vertices } = useGraphSchema();
   return vertices.get(type) ?? { type, attributes: [] };
 }
 
-export function useEdgeSchema(type: string) {
+export function useEdgeSchema(type: EdgeType) {
   const { edges } = useGraphSchema();
   return edges.get(type) ?? { type, attributes: [] };
 }
 
-export function useVertexTypeTotal(type: string) {
+export function useVertexTypeTotal(type: VertexType) {
   const schema = useActiveSchema();
   const vertexType = schema.vertices.find(v => v.type === type);
   return vertexType?.total;
 }
 
-export function useEdgeTypeTotal(type: string) {
+export function useEdgeTypeTotal(type: EdgeType) {
   const schema = useActiveSchema();
   const edgeType = schema.edges.find(e => e.type === type);
   return edgeType?.total;

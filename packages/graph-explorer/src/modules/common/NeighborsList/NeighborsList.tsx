@@ -4,6 +4,7 @@ import {
   useNeighbors,
   useNeighborByType as useNeighborsByType,
   useVertexPreferences,
+  createVertexType,
 } from "@/core";
 import {
   Button,
@@ -67,7 +68,7 @@ function NeighborTypeRow({
   vertexId: VertexId;
   op: NeighborOption;
 }) {
-  const neighbors = useNeighborsByType(vertexId, op.value);
+  const neighbors = useNeighborsByType(vertexId, createVertexType(op.value));
   const vertexPreferences = useVertexPreferences(op.config.type);
 
   return (

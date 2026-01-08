@@ -1,4 +1,8 @@
-import { useVertexPreferences, type VertexPreferences } from "@/core";
+import {
+  useVertexPreferences,
+  type VertexPreferences,
+  type VertexType,
+} from "@/core";
 import SVG from "react-inlinesvg";
 import { cn } from "@/utils";
 import { SearchResultSymbol } from "./SearchResult";
@@ -33,7 +37,7 @@ export function VertexIconByType({
   vertexType,
   className,
 }: {
-  vertexType: string;
+  vertexType: VertexType;
   className?: string;
 }) {
   const vertexPreferences = useVertexPreferences(vertexType);
@@ -66,7 +70,7 @@ export function VertexSymbolByType({
   vertexType,
   className,
 }: {
-  vertexType: string;
+  vertexType: VertexType;
   className?: string;
 }) {
   const vertexPreferences = useVertexPreferences(vertexType);

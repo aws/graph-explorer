@@ -1,13 +1,10 @@
 import {
   createRandomSchema,
   createRandomSchemaResponse,
+  createRandomVertexType,
   renderHookWithJotai,
 } from "@/utils/testing";
-import {
-  createRandomName,
-  createRandomDate,
-  createRandomInteger,
-} from "@shared/utils/testing";
+import { createRandomDate, createRandomInteger } from "@shared/utils/testing";
 import useUpdateSchema from "./useUpdateSchema";
 import { act } from "react";
 import {
@@ -95,7 +92,7 @@ describe("useUpdateSchema", () => {
   describe("updateVertexTotal", () => {
     it("should do nothing if no schema exists", () => {
       const configId = createNewConfigurationId();
-      const vertexType = createRandomName("VertexType");
+      const vertexType = createRandomVertexType();
       const vertexTotal = createRandomInteger();
 
       const { result } = renderHookWithJotai(useTestSetup, store => {
@@ -109,7 +106,7 @@ describe("useUpdateSchema", () => {
 
     it("should update total on given vertex type", () => {
       const configId = createNewConfigurationId();
-      const vertexType = createRandomName("VertexType");
+      const vertexType = createRandomVertexType();
       const vertexTotal = createRandomInteger();
       const existingSchema = createRandomSchema();
       existingSchema.vertices[0].type = vertexType;

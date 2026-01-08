@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from "vitest";
 import saveConfigurationToFile from "./saveConfigurationToFile";
 import * as fileSaver from "file-saver";
 import type { ConfigurationContextProps } from "@/core";
+import { createVertexType, createEdgeType } from "@/core";
 import { createRandomRawConfiguration } from "./testing";
 
 vi.mock("file-saver", () => ({
@@ -95,12 +96,20 @@ describe("saveConfigurationToFile", () => {
       ...createRandomRawConfiguration(),
       schema: {
         vertices: [
-          { type: "Person", displayLabel: "Person", attributes: [] },
-          { type: "Company", displayLabel: "Company", attributes: [] },
+          {
+            type: createVertexType("Person"),
+            displayLabel: "Person",
+            attributes: [],
+          },
+          {
+            type: createVertexType("Company"),
+            displayLabel: "Company",
+            attributes: [],
+          },
         ],
         edges: [
           {
-            type: "worksAt",
+            type: createEdgeType("worksAt"),
             displayLabel: "works at",
             attributes: [],
           },
@@ -113,9 +122,9 @@ describe("saveConfigurationToFile", () => {
         triedToSync: true,
       },
       totalVertices: 100,
-      vertexTypes: ["Person", "Company"],
+      vertexTypes: [createVertexType("Person"), createVertexType("Company")],
       totalEdges: 50,
-      edgeTypes: ["worksAt"],
+      edgeTypes: [createEdgeType("worksAt")],
     };
 
     saveConfigurationToFile(config);
@@ -249,9 +258,9 @@ describe("saveConfigurationToFile", () => {
     const config: ConfigurationContextProps = {
       ...createRandomRawConfiguration(),
       totalVertices: 100,
-      vertexTypes: ["Person"],
+      vertexTypes: [createVertexType("Person")],
       totalEdges: 50,
-      edgeTypes: ["knows"],
+      edgeTypes: [createEdgeType("knows")],
     };
 
     saveConfigurationToFile(config);

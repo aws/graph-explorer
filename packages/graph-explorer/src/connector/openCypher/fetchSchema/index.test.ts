@@ -2,6 +2,7 @@ import { vi } from "vitest";
 import type { SchemaResponse } from "@/connector/useGEFetchTypes";
 import fetchSchema from ".";
 import { ClientLoggerConnector } from "@/connector/LoggerConnector";
+import { createEdgeType, createVertexType } from "@/core";
 
 describe("OpenCypher > fetchSchema", () => {
   it("Should return a schema", async () => {
@@ -31,12 +32,12 @@ describe("OpenCypher > fetchSchema", () => {
             },
           ],
           total: 101064,
-          type: "route",
+          type: createEdgeType("route"),
         },
         {
           attributes: [],
           total: 14012,
-          type: "contains",
+          type: createEdgeType("contains"),
         },
       ],
       totalEdges: 115076,
@@ -98,7 +99,7 @@ describe("OpenCypher > fetchSchema", () => {
             },
           ],
           total: 3497,
-          type: "airport",
+          type: createVertexType("airport"),
         },
       ],
     };

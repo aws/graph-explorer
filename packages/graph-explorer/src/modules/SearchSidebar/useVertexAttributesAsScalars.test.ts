@@ -2,6 +2,7 @@ import {
   type DisplayVertex,
   createVertexId,
   type DisplayAttribute,
+  createVertexType,
 } from "@/core";
 import {
   DbState,
@@ -17,8 +18,8 @@ describe("useVertexAttributesAsScalars", () => {
   const vertex: DisplayVertex = {
     entityType: "vertex",
     id: createVertexId("vertex-1"),
-    primaryType: "Person",
-    types: ["Person"],
+    primaryType: createVertexType("Person"),
+    types: [createVertexType("Person")],
     displayId: "vertex-1",
     displayTypes: "Person",
     displayName: "John Doe",
@@ -168,7 +169,7 @@ describe("useVertexAttributesAsScalars", () => {
     const vertexWithEmptyTypes: DisplayVertex = {
       entityType: "vertex",
       id: createVertexId("vertex-1"),
-      primaryType: "",
+      primaryType: createVertexType(""),
       types: [],
       displayId: "vertex-1",
       displayTypes: "",

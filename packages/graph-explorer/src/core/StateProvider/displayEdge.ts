@@ -12,6 +12,7 @@ import {
   edgeSelector,
   edgePreferenceByTypeAtom,
   useEdgeInCanvas,
+  type EdgeType,
 } from "@/core";
 import { textTransformSelector } from "@/hooks";
 import { LABELS, RESERVED_ID_PROPERTY, RESERVED_TYPES_PROPERTY } from "@/utils";
@@ -22,7 +23,7 @@ import { atomFamily } from "jotai/utils";
 export type DisplayEdge = {
   entityType: "edge";
   id: EdgeId;
-  type: string;
+  type: EdgeType;
   displayId: string;
   displayName: string;
   displayTypes: string;

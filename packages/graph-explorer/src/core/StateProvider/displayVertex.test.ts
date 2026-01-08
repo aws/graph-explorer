@@ -19,6 +19,7 @@ import {
   getRawId,
   type Schema,
   schemaAtom,
+  createVertexType,
   useDisplayVertexFromVertex,
   type Vertex,
 } from "@/core";
@@ -105,7 +106,7 @@ describe("useDisplayVertexFromVertex", () => {
 
   it("should have display types that list all types in sparql", () => {
     const vertex = createRandomVertex();
-    vertex.type = "http://www.example.com/class#bar";
+    vertex.type = createVertexType("http://www.example.com/class#bar");
     const schema = createRandomSchema();
     schema.prefixes = [
       {
@@ -120,7 +121,7 @@ describe("useDisplayVertexFromVertex", () => {
     schema.vertices.push(vtConfig1);
 
     const vtConfig2 = createRandomVertexTypeConfig();
-    vtConfig2.type = "http://www.example.com/class#baz";
+    vtConfig2.type = createVertexType("http://www.example.com/class#baz");
     delete vtConfig2.displayLabel;
     schema.vertices.push(vtConfig2);
 
@@ -178,8 +179,8 @@ describe("useDisplayVertexFromVertex", () => {
   it("should replace uri with prefixes when available", () => {
     const vertex = createRandomVertex();
     vertex.id = createVertexId("http://www.example.com/resources#foo");
-    vertex.type = "http://www.example.com/class#bar";
-    vertex.types = ["http://www.example.com/class#bar"];
+    vertex.type = createVertexType("http://www.example.com/class#bar");
+    vertex.types = [createVertexType("http://www.example.com/class#bar")];
     const schema = createRandomSchema();
     schema.prefixes = [
       {

@@ -10,7 +10,12 @@ import predicatesWithCountsTemplate from "./predicatesWithCountsTemplate";
 import type { GraphSummary, SparqlFetch, SparqlValue } from "../types";
 import type { LoggerConnector } from "@/connector/LoggerConnector";
 import { defaultVertexTypeConfig } from "@/core/StateProvider/configuration";
-import type { AttributeConfig } from "@/core";
+import {
+  createEdgeType,
+  createVertexType,
+  type AttributeConfig,
+  type VertexType,
+} from "@/core";
 
 type RawClassesWCountsResponse = {
   results: {
@@ -73,8 +78,8 @@ const displayDescCandidates = [rdfsComment, skosNote, skosDefinition];
 const fetchPredicatesByClass = async (
   sparqlFetch: SparqlFetch,
   remoteLogger: LoggerConnector,
-  classes: Array<string>,
-  countsByClass: Record<string, number>,
+  classes: Array<VertexType>,
+  countsByClass: Record<VertexType, number>,
 ) => {
   const responses = await batchPromisesSerially(
     classes,
@@ -111,7 +116,7 @@ const fetchPredicatesByClass = async (
   );
 
   return responses.map(({ attributes, resourceClass }) => ({
-    type: resourceClass,
+    type: createVertexType(resourceClass),
     total: countsByClass[resourceClass],
     displayNameAttribute:
       displayNameCandidates
@@ -138,18 +143,17 @@ const fetchClassesSchema = async (
   const classesCounts =
     await sparqlFetch<RawClassesWCountsResponse>(classesTemplate);
 
-  const classes: Array<string> = [];
-  const countsByClass: Record<string, number> = {};
+  const classes: Array<VertexType> = [];
+  const countsByClass: Record<VertexType, number> = {};
   classesCounts.results.bindings
     // Exclude classes that start with one of the metadata class base URIs
     .filter(
       c => !metadataClassBaseUris.some(uri => c.class.value.startsWith(uri)),
     )
     .forEach(classResult => {
-      classes.push(classResult.class.value);
-      countsByClass[classResult.class.value] = Number(
-        classResult.instancesCount.value,
-      );
+      const vertexType = createVertexType(classResult.class.value);
+      classes.push(vertexType);
+      countsByClass[vertexType] = Number(classResult.instancesCount.value);
     });
 
   return fetchPredicatesByClass(
@@ -185,7 +189,7 @@ const fetchPredicatesSchema = async (
 
   return Object.entries(allLabels).map(([label, count]) => {
     return {
-      type: label,
+      type: createEdgeType(label),
       total: count,
       attributes: [],
     } satisfies EdgeSchemaResponse;
@@ -233,7 +237,7 @@ const fetchSchema = async (
   // Exclude classes that start with one of the metadata class base URIs
   const classes = summary.classes.filter(
     c => !metadataClassBaseUris.some(uri => c.startsWith(uri)),
-  );
+  ) as VertexType[];
 
   const vertices = await fetchPredicatesByClass(
     sparqlFetch,
@@ -244,7 +248,7 @@ const fetchSchema = async (
   const edges = summary.predicates.flatMap(pred => {
     return Object.entries(pred).map(([type, count]) => {
       return {
-        type,
+        type: createEdgeType(type),
         total: count,
         attributes: [],
       };
