@@ -9,6 +9,7 @@ import {
   createVertex,
   createVertexId,
   createVertexPreference,
+  type EdgeConnection,
   type EdgeId,
   type EdgePreferences,
   type EdgePreferencesStorageModel,
@@ -177,15 +178,31 @@ export function createRandomPrefixTypeConfig(): PrefixTypeConfig {
 }
 
 /**
+ * Creates a random EdgeConnection object.
+ * Used for testing Schema Explorer edge connection functionality.
+ * @returns A random EdgeConnection object.
+ */
+export function createRandomEdgeConnection(): EdgeConnection {
+  return {
+    edgeType: createRandomEdgeType(),
+    sourceVertexType: createRandomVertexType(),
+    targetVertexType: createRandomVertexType(),
+    count: randomlyUndefined(createRandomInteger({ min: 1, max: 1000 })),
+  };
+}
+
+/**
  * Creates a random schema object.
  * @returns A random SchemaStorageModel object.
  */
 export function createRandomSchema(): SchemaStorageModel {
   const edges = createArray(3, createRandomEdgeTypeConfig);
   const vertices = createArray(3, createRandomVertexTypeConfig);
+  const edgeConnections = createArray(5, createRandomEdgeConnection);
   const schema: SchemaStorageModel = {
     edges,
     vertices,
+    edgeConnections: randomlyUndefined(edgeConnections),
     totalEdges: edges
       .map(e => e.total ?? 0)
       .reduce((prev, current) => current + prev, 0),
