@@ -127,9 +127,7 @@ export type NeighborCount = {
   /**
    * Number of connected vertices by vertex type.
    */
-  counts: {
-    [vertexType: string]: number;
-  };
+  counts: Map<string, number>;
 };
 
 export type NeighborCountsResponse = {

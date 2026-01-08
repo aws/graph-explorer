@@ -38,10 +38,10 @@ describe("neighborCounts", () => {
     const expected: NeighborCount = {
       vertexId: createVertexId(createRandomUrlString()),
       totalCount: 12,
-      counts: {
-        [`${createRandomUrlString()}`]: 3,
-        [`${createRandomUrlString()}`]: 9,
-      },
+      counts: new Map([
+        [createRandomUrlString(), 3],
+        [createRandomUrlString(), 9],
+      ]),
     };
     const totalCountResponse = createTotalCountResponse(expected);
     const countsByTypeResponse = createCountsByTypeResponse(expected);
@@ -64,18 +64,18 @@ describe("neighborCounts", () => {
     const expected1: NeighborCount = {
       vertexId: createVertexId(createRandomUrlString()),
       totalCount: 12,
-      counts: {
-        [`${createRandomUrlString()}`]: 3,
-        [`${createRandomUrlString()}`]: 9,
-      },
+      counts: new Map([
+        [createRandomUrlString(), 3],
+        [createRandomUrlString(), 9],
+      ]),
     };
     const expected2: NeighborCount = {
       vertexId: createVertexId(createRandomUrlString()),
       totalCount: 12,
-      counts: {
-        [`${createRandomUrlString()}`]: 3,
-        [`${createRandomUrlString()}`]: 9,
-      },
+      counts: new Map([
+        [createRandomUrlString(), 3],
+        [createRandomUrlString(), 9],
+      ]),
     };
     const totalCountResponse = createTotalCountResponse(expected1, expected2);
     const countsByTypeResponse = createCountsByTypeResponse(
@@ -103,10 +103,10 @@ describe("neighborCounts", () => {
     const expected: NeighborCount = {
       vertexId: vertex.id,
       totalCount: 12,
-      counts: {
-        [`${createRandomUrlString()}`]: 3,
-        [`${createRandomUrlString()}`]: 9,
-      },
+      counts: new Map([
+        [createRandomUrlString(), 3],
+        [createRandomUrlString(), 9],
+      ]),
     };
     blankNodes.set(expected.vertexId, {
       id: vertex.id,
@@ -157,7 +157,7 @@ describe("neighborCounts", () => {
       id: vertex.id,
       neighborCounts: {
         totalCount: 0,
-        counts: {},
+        counts: new Map(),
       },
       vertex: vertex.asVertex(),
       subQueryTemplate: createRandomName("subQuery"),
@@ -175,10 +175,10 @@ describe("neighborCounts", () => {
     const expected: NeighborCount = {
       vertexId: vertex.id,
       totalCount: 2,
-      counts: {
-        [`${neighborFrom.types[0]}`]: 1,
-        [`${neighborTo.types[0]}`]: 1,
-      },
+      counts: new Map([
+        [neighborFrom.types[0], 1],
+        [neighborTo.types[0], 1],
+      ]),
     };
 
     const result = await neighborCounts(
@@ -258,7 +258,7 @@ describe("neighborCounts", () => {
     const expected: NeighborCount = {
       vertexId,
       totalCount: 0,
-      counts: {},
+      counts: new Map(),
     };
     const totalCountResponse = createTotalCountResponse();
     const countsByTypeResponse = createCountsByTypeResponse();
@@ -285,12 +285,12 @@ describe("neighborCounts", () => {
     const expectedBlank: NeighborCount = {
       vertexId: blankVertex.id,
       totalCount: 2,
-      counts: { [createRandomUrlString()]: 2 },
+      counts: new Map([[createRandomUrlString(), 2]]),
     };
     const expectedNonBlank: NeighborCount = {
       vertexId: nonBlankVertex,
       totalCount: 3,
-      counts: { [createRandomUrlString()]: 3 },
+      counts: new Map([[createRandomUrlString(), 3]]),
     };
 
     blankNodes.set(blankVertex.id, {
@@ -337,7 +337,7 @@ describe("neighborCounts", () => {
 
     blankNodes.set(vertex.id, {
       id: vertex.id,
-      neighborCounts: { totalCount: 0, counts: {} },
+      neighborCounts: { totalCount: 0, counts: new Map() },
       vertex,
       subQueryTemplate: createRandomName("subQuery"),
     });
@@ -372,7 +372,7 @@ function createCountsByTypeResponse(...counts: NeighborCount[]) {
     results: {
       bindings: counts
         .flatMap(count =>
-          Object.entries(count.counts).map(([key, value]) => ({
+          Array.from(count.counts.entries()).map(([key, value]) => ({
             vertexId: count.vertexId,
             className: key,
             count: value,

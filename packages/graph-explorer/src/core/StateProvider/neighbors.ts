@@ -44,7 +44,7 @@ export function useNeighborsCallback() {
 
         const neighbors = calculateNeighbors(
           response.totalCount,
-          new Map(Object.entries(response.counts)),
+          response.counts,
           fetchedNeighbors,
         );
 
@@ -70,7 +70,7 @@ export function useNeighbors(vertexId: VertexId) {
 
   const neighbors = calculateNeighbors(
     query.data.totalCount,
-    new Map(Object.entries(query.data.counts)),
+    query.data.counts,
     fetchedNeighbors,
   );
 
@@ -112,11 +112,7 @@ export function useAllNeighbors() {
           const neighbors = fetchedNeighbors.get(data.vertexId) ?? [];
           return [
             data.vertexId,
-            calculateNeighbors(
-              data.totalCount,
-              new Map(Object.entries(data.counts)),
-              neighbors,
-            ),
+            calculateNeighbors(data.totalCount, data.counts, neighbors),
           ];
         }),
     );

@@ -1,4 +1,3 @@
-import groupBy from "lodash/groupBy";
 import blankNodeOneHopNeighborsTemplate from "./blankNodeOneHopNeighborsTemplate";
 import type {
   SPARQLBlankNodeNeighborsRequest,
@@ -6,7 +5,7 @@ import type {
   SparqlFetch,
 } from "../types";
 import { logger } from "@/utils";
-import { createEdge, createVertex } from "@/core";
+import { createEdge, createVertex, type Vertex } from "@/core";
 import { parseAndMapQuads } from "../parseAndMapQuads";
 
 export default async function fetchBlankNodeNeighbors(
@@ -38,16 +37,18 @@ export default async function fetchBlankNodeNeighbors(
   return {
     vertexId: req.resourceURI,
     totalCount: vertices.length,
-    counts: Object.entries(groupBy(vertices, v => v.type)).reduce(
-      (counts, [group, vs]) => {
-        counts[group] = vs.length;
-        return counts;
-      },
-      {} as Record<string, number>,
-    ),
+    counts: vertexCountsByType(vertices),
     neighbors: {
       vertices,
       edges,
     },
   };
+}
+
+function vertexCountsByType(vertices: Vertex[]) {
+  const counts = new Map<string, number>();
+  for (const vertex of vertices) {
+    counts.set(vertex.type, (counts.get(vertex.type) ?? 0) + 1);
+  }
+  return counts;
 }

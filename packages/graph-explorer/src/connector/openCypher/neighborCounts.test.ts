@@ -36,10 +36,10 @@ describe("neighborCounts", () => {
     const expected: NeighborCount = {
       vertexId: createRandomVertexId(),
       totalCount: 12,
-      counts: {
-        label1: 3,
-        label2: 9,
-      },
+      counts: new Map([
+        ["label1", 3],
+        ["label2", 9],
+      ]),
     };
     const response = createResponse(expected);
     const mockFetch = vi.fn().mockResolvedValue(response);
@@ -53,18 +53,19 @@ describe("neighborCounts", () => {
     const expected: NeighborCount = {
       vertexId: createRandomVertexId(),
       totalCount: 12,
-      counts: {
-        label1: 3,
-        label2: 9,
-        label3: 9,
-      },
+      counts: new Map([
+        ["label1", 3],
+        ["label2", 9],
+        ["label3", 9],
+      ]),
     };
     const response = createResponse({
-      ...expected,
-      counts: {
-        label1: expected.counts.label1,
-        "label2::label3": expected.counts.label2,
-      },
+      vertexId: expected.vertexId,
+      totalCount: expected.totalCount,
+      counts: new Map([
+        ["label1", expected.counts.get("label1")!],
+        ["label2::label3", expected.counts.get("label2")!],
+      ]),
     });
     const mockFetch = vi.fn().mockResolvedValue(response);
     const result = await neighborCounts(mockFetch, {
@@ -77,18 +78,18 @@ describe("neighborCounts", () => {
     const expected1: NeighborCount = {
       vertexId: createRandomVertexId(),
       totalCount: 12,
-      counts: {
-        label1: 3,
-        label2: 9,
-      },
+      counts: new Map([
+        ["label1", 3],
+        ["label2", 9],
+      ]),
     };
     const expected2: NeighborCount = {
       vertexId: createRandomVertexId(),
       totalCount: 12,
-      counts: {
-        label1: 3,
-        label2: 9,
-      },
+      counts: new Map([
+        ["label1", 3],
+        ["label2", 9],
+      ]),
     };
     const response = createResponse(expected1, expected2);
     const mockFetch = vi.fn().mockResolvedValue(response);
@@ -141,7 +142,7 @@ describe("neighborCounts", () => {
       {
         vertexId,
         totalCount: 0,
-        counts: {},
+        counts: new Map(),
       },
     ]);
   });
@@ -170,9 +171,7 @@ describe("neighborCounts", () => {
     const expected: NeighborCount = {
       vertexId,
       totalCount: 5,
-      counts: {
-        Person: 5,
-      },
+      counts: new Map([["Person", 5]]),
     };
     const response = {
       results: [
@@ -221,7 +220,7 @@ describe("neighborCounts", () => {
       {
         vertexId,
         totalCount: 3,
-        counts: {},
+        counts: new Map(),
       },
     ]);
   });
@@ -231,10 +230,12 @@ function createResponse(...counts: NeighborCount[]) {
   return {
     results: counts.map(count => ({
       id: String(count.vertexId),
-      counts: Object.entries(count.counts).map(([type, count]) => ({
-        label: type.split("::"),
-        count,
-      })),
+      counts: Array.from(
+        count.counts.entries().map(([type, countVal]) => ({
+          label: type.split("::"),
+          count: countVal,
+        })),
+      ),
     })),
   };
 }

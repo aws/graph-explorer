@@ -69,7 +69,7 @@ async function fetchNeighborCounts(
   const results = new Array<NeighborCount>();
   for (const id of vertexIds) {
     const totalCount = totalCounts.get(id) ?? 0;
-    const counts = countsByType.get(id) ?? {};
+    const counts = countsByType.get(id) ?? new Map<string, number>();
     results.push({
       vertexId: id,
       counts,
@@ -216,14 +216,12 @@ async function fetchCountsByType(
     const count = parseInt(binding.typeCount.value);
 
     // Get the existing entry if it exists
-    const existing = mappedResults.get(vertexId) ?? {};
+    const existing = mappedResults.get(vertexId) ?? new Map<string, number>();
 
     // Merge new type count in to existing entry
-    return mappedResults.set(vertexId, {
-      ...existing,
-      [type]: count,
-    });
-  }, new Map<VertexId, Record<string, number>>());
+    existing.set(type, count);
+    return mappedResults.set(vertexId, existing);
+  }, new Map<VertexId, Map<string, number>>());
 }
 
 async function fetchBlankNodeNeighborCounts(
@@ -292,7 +290,5 @@ async function fetchBlankNodeNeighborCounts(
     });
   }
 
-  return {
-    counts: counts,
-  };
+  return { counts };
 }

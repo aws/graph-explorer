@@ -22,7 +22,7 @@ export function neighborsCountQuery(vertexId: VertexId) {
         return {
           vertexId,
           totalCount: 0,
-          counts: {},
+          counts: new Map(),
         };
       }
 

@@ -24,7 +24,7 @@ export const replaceBlankNodeFromNeighbors = (
         vertex,
         neighborCounts: {
           totalCount: 0,
-          counts: {},
+          counts: new Map(),
         },
       });
     }

@@ -74,23 +74,20 @@ export async function neighborCounts(
       // Parse the g:Map in to a Map instance
       const countsByTypeMap = parseGMap<string, GInt64>(value);
 
-      // Parse the Map entries in to the Record with vertex type as the key and the count as the value
+      // Parse the Map entries in to a Map with vertex type as the key and the count as the value
       const countsByType = countsByTypeMap
         .entries()
         .map(([type, gValue]) => ({
           type,
           count: gValue["@value"],
         }))
-        .reduce(
-          (acc, curr) => {
-            const types = curr.type.split("::");
-            for (const type of types) {
-              acc[type] = (acc[type] ?? 0) + curr.count;
-            }
-            return acc;
-          },
-          {} as Record<string, number>,
-        );
+        .reduce((acc, curr) => {
+          const types = curr.type.split("::");
+          for (const type of types) {
+            acc.set(type, (acc.get(type) ?? 0) + curr.count);
+          }
+          return acc;
+        }, new Map<string, number>());
 
       // Total up the unique neighbors
       const totalCount = countsByTypeMap
