@@ -8,9 +8,26 @@ interface PanelProps extends React.ComponentPropsWithRef<"div"> {
   variant?: "default" | "sidebar";
 }
 
+export function PanelGroup({
+  className,
+  ...props
+}: React.ComponentPropsWithRef<"div">) {
+  return (
+    <div
+      data-slot="panel-group"
+      className={cn(
+        "bg-brand-100 flex min-h-0 min-w-0 flex-1 gap-2 p-2",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
 function Panel({ variant = "default", className, ...props }: PanelProps) {
   return (
     <div
+      data-slot="panel"
       className={cn(
         "bg-background-default flex h-full flex-col overflow-hidden",
         variant === "default" &&
