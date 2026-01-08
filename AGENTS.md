@@ -6,6 +6,9 @@
 - Use TypeScript for type safety
 - Prefer descriptive variable and function names over code comments
 - Prefer simple to follow logic over clever concise code
+- Prefer named function syntax over anonymous arrow functions for top-level
+  declarations (e.g., `function handleClick() {}` over
+  `const handleClick = () => {}`)
 
 ### React Rules
 
