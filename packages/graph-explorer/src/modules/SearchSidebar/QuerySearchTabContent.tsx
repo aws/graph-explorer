@@ -18,7 +18,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { SendHorizonalIcon, SendHorizontalIcon } from "lucide-react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { cn, isCancellationError, logger } from "@/utils";
 import { useAtom, useAtomValue } from "jotai";
 import { SearchResultsList } from "./SearchResultsList";
@@ -45,7 +45,9 @@ export function QuerySearchTabContent() {
   const { submitQuery, cancel } = useExecuteQuery();
 
   const form = useForm({
-    resolver: zodResolver(formDataSchema),
+    // Using standardSchemaResolver because Zod 4 implements Standard Schema spec
+    // and zodResolver has compatibility issues with Zod 4.x
+    resolver: standardSchemaResolver(formDataSchema),
     defaultValues: {
       query: queryText,
     },
