@@ -4,9 +4,13 @@ import {
   activeConfigurationAtom,
   configurationAtom,
   userStylingAtom,
+  createEdgeType,
+  createVertexType,
   type AttributeConfig,
+  type EdgeType,
   type EdgeTypeConfig,
   type RawConfiguration,
+  type VertexType,
   type VertexTypeConfig,
 } from "@/core";
 import { activeSchemaSelector, type SchemaInference } from "./schema";
@@ -151,7 +155,10 @@ const mergeVertex = (
   const attributes = mergeAttributes(patchedConfig, patchedSchema);
 
   const vt =
-    preferences?.type || configVertex?.type || schemaVertex?.type || "unknown";
+    preferences?.type ||
+    configVertex?.type ||
+    schemaVertex?.type ||
+    createVertexType("unknown");
 
   return {
     // Defaults
@@ -182,7 +189,10 @@ const mergeEdge = (
   const attributes = mergeAttributes(patchedConfig, patchedSchema);
 
   const et =
-    preferences?.type || configEdge?.type || schemaEdge?.type || "unknown";
+    preferences?.type ||
+    configEdge?.type ||
+    schemaEdge?.type ||
+    createEdgeType("unknown");
 
   const config: EdgeTypeConfig = {
     // Defaults
@@ -232,7 +242,7 @@ export const defaultVertexTypeConfig = {
 } satisfies Omit<VertexTypeConfig, "type">;
 
 export function getDefaultVertexTypeConfig(
-  vertexType: string,
+  vertexType: VertexType,
 ): VertexTypeConfig {
   return {
     ...defaultVertexTypeConfig,
@@ -245,7 +255,7 @@ export const defaultEdgeTypeConfig = {
   ...defaultEdgePreferences,
 } satisfies Omit<EdgeTypeConfig, "type">;
 
-export function getDefaultEdgeTypeConfig(edgeType: string): EdgeTypeConfig {
+export function getDefaultEdgeTypeConfig(edgeType: EdgeType): EdgeTypeConfig {
   return {
     ...defaultEdgeTypeConfig,
     type: edgeType,

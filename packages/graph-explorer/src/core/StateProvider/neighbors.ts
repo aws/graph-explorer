@@ -1,4 +1,4 @@
-import type { VertexId } from "@/core";
+import type { VertexId, VertexType } from "@/core";
 import { atom, useAtomValue } from "jotai";
 import { atomFamily, useAtomCallback } from "jotai/utils";
 import { edgesAtom } from "./edges";
@@ -11,7 +11,7 @@ export type NeighborCounts = {
   all: number;
   fetched: number;
   unfetched: number;
-  byType: Map<string, { all: number; fetched: number; unfetched: number }>;
+  byType: Map<VertexType, { all: number; fetched: number; unfetched: number }>;
 };
 
 const defaultNeighborCounts: NeighborCounts = {
@@ -83,7 +83,7 @@ export function useNeighbors(vertexId: VertexId) {
  * @param type The neighbor type for which to fetch the neighbors counts.
  * @returns The neighbor counts for the given vertex and neighbor type.
  */
-export function useNeighborByType(vertexId: VertexId, type: string) {
+export function useNeighborByType(vertexId: VertexId, type: VertexType) {
   const neighbors = useNeighbors(vertexId)?.byType.get(type);
   if (!neighbors) {
     return { all: 0, fetched: 0, unfetched: 0 };
@@ -128,7 +128,7 @@ export function useAllNeighbors() {
  */
 export function calculateNeighbors(
   total: number,
-  totalByType: Map<string, number>,
+  totalByType: Map<VertexType, number>,
   fetchedNeighbors: NeighborStub[],
 ): NeighborCounts {
   const fetchNeighborsMap = new Map(fetchedNeighbors.map(n => [n.id, n]));

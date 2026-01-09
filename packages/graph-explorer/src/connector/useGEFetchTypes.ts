@@ -8,6 +8,7 @@ import type {
   VertexId,
   NormalizedConnection,
   Entities,
+  VertexType,
 } from "@/core";
 import type { ResultEntity } from "./entities";
 
@@ -127,7 +128,7 @@ export type NeighborCount = {
   /**
    * Number of connected vertices by vertex type.
    */
-  counts: Map<string, number>;
+  counts: Map<VertexType, number>;
 };
 
 export type NeighborCountsResponse = {

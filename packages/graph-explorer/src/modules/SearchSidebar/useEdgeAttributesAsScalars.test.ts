@@ -5,6 +5,7 @@ import {
   type DisplayAttribute,
   createVertexId,
   createEdgeId,
+  createEdgeType,
 } from "@/core";
 import {
   createRandomQueryEngine,
@@ -19,7 +20,7 @@ describe("useEdgeAttributesAsScalars", () => {
   const edge: DisplayEdge = {
     entityType: "edge",
     id: createEdgeId("edge-1"),
-    type: "knows",
+    type: createEdgeType("knows"),
     displayId: "edge-1",
     displayName: "knows",
     displayTypes: "knows",

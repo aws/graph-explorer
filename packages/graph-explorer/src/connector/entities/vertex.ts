@@ -3,6 +3,7 @@ import {
   type EntityProperties,
   type EntityRawId,
   type VertexId,
+  type VertexType,
 } from "@/core";
 
 /**
@@ -37,7 +38,7 @@ export type ResultVertex = {
    * "John Doe" can be a "person" and a "worker"
    * types = ["person", "worker"]
    */
-  types: string[];
+  types: VertexType[];
 
   /**
    * List of attributes associated to the vertex. If it is undefined the vertex
@@ -81,7 +82,7 @@ export function createResultVertex(options: {
     entityType: "vertex",
     id: createVertexId(options.id),
     ...(options.name ? { name: options.name } : {}),
-    types: options.types ?? [],
+    types: (options.types as VertexType[]) ?? [],
     ...(options.attributes ? { attributes: options.attributes } : {}),
     isBlankNode: options.isBlankNode ?? false,
   };
@@ -107,7 +108,7 @@ export function createPatchedResultVertex(options: {
   return {
     entityType: "patched-vertex",
     id: createVertexId(options.id),
-    types: options.types,
+    types: options.types as VertexType[],
     attributes: options.attributes,
     isBlankNode: options.isBlankNode ?? false,
     ...(options.name ? { name: options.name } : {}),

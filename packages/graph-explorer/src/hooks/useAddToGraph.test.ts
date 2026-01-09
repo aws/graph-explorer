@@ -17,6 +17,7 @@ import {
   mapEdgeToTypeConfig,
   type GraphSessionStorageModel,
   nodesAtom,
+  createVertexType,
   type VertexTypeConfig,
 } from "@/core";
 import { waitFor } from "@testing-library/react";
@@ -152,7 +153,7 @@ test("should update schema when adding a node with no label", async () => {
   const dbState = new DbState();
 
   const vertex = createRandomVertex();
-  vertex.type = "";
+  vertex.type = createVertexType("");
   vertex.types = [];
   const expectedVertexTypes = mapVertexToTypeConfigs(vertex);
 

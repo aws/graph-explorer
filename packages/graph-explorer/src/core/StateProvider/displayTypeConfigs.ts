@@ -6,8 +6,10 @@ import {
   vertexTypeConfigSelector,
   type AttributeConfig,
   type EdgePreferences,
+  type EdgeType,
   type EdgeTypeConfig,
   type VertexPreferences,
+  type VertexType,
   type VertexTypeConfig,
 } from "@/core";
 import { type TextTransformer, textTransformSelector } from "@/hooks";
@@ -18,13 +20,13 @@ import { useCallback } from "react";
 import { sortAttributeByName } from "./sortAttributeByName";
 
 export type DisplayVertexTypeConfig = {
-  type: string;
+  type: VertexType;
   displayLabel: string;
   attributes: DisplayConfigAttribute[];
 };
 
 export type DisplayEdgeTypeConfig = {
-  type: string;
+  type: EdgeType;
   displayLabel: string;
   attributes: DisplayConfigAttribute[];
 };
@@ -36,7 +38,7 @@ export type DisplayConfigAttribute = {
 };
 
 /** Gets the matching vertex type config or a generated default value. */
-export function useDisplayVertexTypeConfig(type: string) {
+export function useDisplayVertexTypeConfig(type: VertexType) {
   return useAtomValue(displayVertexTypeConfigSelector(type));
 }
 
@@ -49,14 +51,15 @@ export function useDisplayVertexTypeConfigs() {
 export function useDisplayVertexTypeConfigCallback() {
   return useAtomCallback(
     useCallback(
-      (get, _set, type: string) => get(displayVertexTypeConfigSelector(type)),
+      (get, _set, type: VertexType) =>
+        get(displayVertexTypeConfigSelector(type)),
       [],
     ),
   );
 }
 
 /** Gets the matching edge type config or a generated default value. */
-export function useDisplayEdgeTypeConfig(type: string) {
+export function useDisplayEdgeTypeConfig(type: EdgeType) {
   return useAtomValue(displayEdgeTypeConfigSelector(type));
 }
 
@@ -104,7 +107,7 @@ export function useSearchableAttributes(type: string) {
 }
 
 /** Gets the matching vertex type config or a generated default value. */
-export const displayVertexTypeConfigSelector = atomFamily((type: string) =>
+export const displayVertexTypeConfigSelector = atomFamily((type: VertexType) =>
   atom(get => {
     const textTransform = get(textTransformSelector);
     const preferences = get(vertexPreferenceByTypeAtom(type));
@@ -125,7 +128,7 @@ export const displayVertexTypeConfigsSelector = atom(get => {
 });
 
 /** Gets the matching edge type config or a generated default value. */
-export const displayEdgeTypeConfigSelector = atomFamily((type: string) =>
+export const displayEdgeTypeConfigSelector = atomFamily((type: EdgeType) =>
   atom(get => {
     const textTransform = get(textTransformSelector);
     const preferences = get(edgePreferenceByTypeAtom(type));

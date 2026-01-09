@@ -25,6 +25,8 @@ import {
   type VertexId,
   type VertexPreferencesStorageModel,
   type AppStore,
+  type EdgeType,
+  type VertexType,
 } from "@/core";
 import {
   createRandomSchema,
@@ -83,7 +85,7 @@ export class DbState {
     this.filteredVertices.add(vertexId);
   }
 
-  filterVertexType(vertexType: string) {
+  filterVertexType(vertexType: VertexType) {
     this.filteredVertexTypes.add(vertexType);
   }
 
@@ -115,7 +117,7 @@ export class DbState {
     this.filteredEdges.add(edgeId);
   }
 
-  filterEdgeType(edgeType: string) {
+  filterEdgeType(edgeType: EdgeType) {
     this.filteredEdgeTypes.add(edgeType);
   }
 
@@ -128,7 +130,7 @@ export class DbState {
    * @returns The fully composed style configuration.
    */
   addVertexStyle(
-    vertexType: string,
+    vertexType: VertexType,
     style: Omit<VertexPreferencesStorageModel, "type">,
   ): VertexPreferencesStorageModel {
     const composedStyle = { ...style, type: vertexType };
@@ -145,7 +147,7 @@ export class DbState {
    * @returns The fully composed style configuration.
    */
   addEdgeStyle(
-    edgeType: string,
+    edgeType: EdgeType,
     style: Omit<EdgePreferencesStorageModel, "type">,
   ): EdgePreferencesStorageModel {
     const composedStyle = { ...style, type: edgeType };

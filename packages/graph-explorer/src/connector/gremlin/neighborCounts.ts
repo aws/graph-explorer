@@ -7,7 +7,7 @@ import type {
 import type { GInt64, GremlinFetch } from "./types";
 import isErrorResponse from "../utils/isErrorResponse";
 import { idParam } from "./idParam";
-import { createVertexId } from "@/core";
+import { createVertexId, createVertexType, type VertexType } from "@/core";
 import { extractRawId } from "./mappers/extractRawId";
 import { parseGMap } from "./mappers/parseGMap";
 
@@ -75,15 +75,19 @@ export async function neighborCounts(
       const countsByTypeMap = parseGMap<string, GInt64>(value);
 
       // Parse the Map entries in to a Map with vertex type as the key and the count as the value
-      const countsByType = new Map<string, number>();
+      const countsByType = new Map<VertexType, number>();
       let totalCount = 0;
 
-      for (const [type, gValue] of countsByTypeMap.entries()) {
+      for (const [rawType, gValue] of countsByTypeMap.entries()) {
         const count = gValue["@value"];
         totalCount += count;
-        const types = type.split("::");
-        for (const t of types) {
-          countsByType.set(t, (countsByType.get(t) ?? 0) + count);
+        const types = rawType.split("::");
+        for (const type of types) {
+          const vertexType = createVertexType(type);
+          countsByType.set(
+            vertexType,
+            (countsByType.get(vertexType) ?? 0) + count,
+          );
         }
       }
 

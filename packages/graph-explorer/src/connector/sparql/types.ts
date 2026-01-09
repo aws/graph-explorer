@@ -1,4 +1,4 @@
-import type { Edge, Vertex, VertexId } from "@/core";
+import type { Edge, Vertex, VertexId, VertexType } from "@/core";
 import type { NeighborCount } from "../useGEFetchTypes";
 import { z } from "zod";
 
@@ -123,7 +123,7 @@ export type BlankNodeItem = {
   vertex: Vertex;
   neighborCounts: {
     totalCount: number;
-    counts: Map<string, number>;
+    counts: Map<VertexType, number>;
   };
   neighbors?: {
     vertices: Array<Vertex>;

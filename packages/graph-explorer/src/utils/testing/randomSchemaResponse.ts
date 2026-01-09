@@ -3,12 +3,12 @@ import type {
   SchemaResponse,
   VertexSchemaResponse,
 } from "@/connector";
-import { createRandomAttributeConfig } from "./randomData";
 import {
-  createArray,
-  createRandomName,
-  createRandomInteger,
-} from "@shared/utils/testing";
+  createRandomAttributeConfig,
+  createRandomEdgeType,
+  createRandomVertexType,
+} from "./randomData";
+import { createArray, createRandomInteger } from "@shared/utils/testing";
 
 /**
  * Creates a random schema response object.
@@ -32,7 +32,7 @@ export function createRandomSchemaResponse(): SchemaResponse {
 
 function createRandomEdgeTypeConfig(): EdgeSchemaResponse {
   return {
-    type: createRandomName("type"),
+    type: createRandomEdgeType(),
     attributes: createArray(6, createRandomAttributeConfig),
     total: createRandomInteger(),
   };
@@ -40,7 +40,7 @@ function createRandomEdgeTypeConfig(): EdgeSchemaResponse {
 
 function createRandomVertexTypeConfig(): VertexSchemaResponse {
   return {
-    type: createRandomName("type"),
+    type: createRandomVertexType(),
     attributes: createArray(6, createRandomAttributeConfig),
     total: createRandomInteger(),
   };

@@ -17,7 +17,13 @@ import type {
   PrefixTypeConfig,
   VertexTypeConfig,
 } from "../ConfigurationProvider";
-import { createEdge, createVertex, type EntityProperties } from "../entities";
+import {
+  createEdge,
+  createVertex,
+  createEdgeType,
+  createVertexType,
+  type EntityProperties,
+} from "../entities";
 import { LABELS } from "@/utils";
 
 describe("schema", () => {
@@ -33,7 +39,7 @@ describe("schema", () => {
       });
       const expected: VertexTypeConfig[] = [
         {
-          type: "Person",
+          type: createVertexType("Person"),
           attributes: [
             {
               name: "name",
@@ -46,7 +52,7 @@ describe("schema", () => {
           ],
         },
         {
-          type: "Manager",
+          type: createVertexType("Manager"),
           attributes: [
             {
               name: "name",
@@ -76,7 +82,7 @@ describe("schema", () => {
         targetId: "3",
       });
       const expected: EdgeTypeConfig = {
-        type: "WORKS_FOR",
+        type: createEdgeType("WORKS_FOR"),
         attributes: [
           {
             name: "since",
@@ -232,10 +238,14 @@ describe("schema", () => {
     it("should generate prefixes for a single URI", () => {
       const schema = createRandomSchema();
       schema.vertices.forEach(v => {
-        v.type = "http://abcdefg.com/vertex#" + encodeURIComponent(v.type);
+        v.type = createVertexType(
+          "http://abcdefg.com/vertex#" + encodeURIComponent(v.type),
+        );
       });
       schema.edges.forEach(e => {
-        e.type = "http://abcdefg.com/edge#" + encodeURIComponent(e.type);
+        e.type = createEdgeType(
+          "http://abcdefg.com/edge#" + encodeURIComponent(e.type),
+        );
       });
       const result = updateSchemaPrefixes(schema);
 

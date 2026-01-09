@@ -7,6 +7,7 @@ import { type VertexIconConfig, renderNode } from "./renderNode";
 import { vi } from "vitest";
 import { QueryClient } from "@tanstack/react-query";
 import { logger } from "@/utils";
+import { createRandomVertexType } from "@/utils/testing";
 
 const client = new QueryClient();
 const fetchMock = vi.fn<typeof fetch>();
@@ -24,7 +25,7 @@ describe("renderNode", () => {
 
   it("should return undefined given no icon url", async () => {
     const node: VertexIconConfig = {
-      type: createRandomName("vertex"),
+      type: createRandomVertexType(),
       color: createRandomColor(),
       iconUrl: undefined,
       iconImageType: "image/svg+xml",
@@ -40,7 +41,7 @@ describe("renderNode", () => {
   it("should return undefined when error occurs in fetch", async () => {
     fetchMock.mockRejectedValue(new Error("Failed"));
     const node: VertexIconConfig = {
-      type: createRandomName("vertex"),
+      type: createRandomVertexType(),
       color: createRandomColor(),
       iconUrl: createRandomName("iconUrl"),
       iconImageType: "image/svg+xml",
@@ -56,7 +57,7 @@ describe("renderNode", () => {
 
   it("should return icon url given image type is not an SVG", async () => {
     const node: VertexIconConfig = {
-      type: createRandomName("vertex"),
+      type: createRandomVertexType(),
       color: createRandomColor(),
       iconUrl: createRandomName("iconUrl"),
       iconImageType: "image/png",
@@ -74,7 +75,7 @@ describe("renderNode", () => {
     const svgContent = `<svg fill="${originalColor}" xmlns="http://www.w3.org/2000/svg"/>`;
     fetchMock.mockResolvedValue(new Response(svgContent));
     const node: VertexIconConfig = {
-      type: createRandomName("vertex"),
+      type: createRandomVertexType(),
       color: createRandomColor(),
       iconUrl: createRandomName("iconUrl"),
       iconImageType: "image/svg+xml",
@@ -98,7 +99,7 @@ describe("renderNode", () => {
     fetchMock.mockResolvedValue(new Response(svgContent));
     const iconUrl = createRandomName("iconUrl");
     const node: VertexIconConfig = {
-      type: createRandomName("vertex"),
+      type: createRandomVertexType(),
       color: undefined,
       iconUrl,
       iconImageType: "image/svg+xml",
@@ -121,7 +122,7 @@ describe("renderNode", () => {
     const svgContent = `<svg fill="currentColor" stroke="currentColor" xmlns="http://www.w3.org/2000/svg"/>`;
     fetchMock.mockResolvedValue(new Response(svgContent));
     const node: VertexIconConfig = {
-      type: createRandomName("vertex"),
+      type: createRandomVertexType(),
       color: createRandomColor(),
       iconUrl: createRandomName("iconUrl"),
       iconImageType: "image/svg+xml",
@@ -145,7 +146,7 @@ describe("renderNode", () => {
     const svgContent = `<svg fill="${originalColor}" viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg"/>`;
     fetchMock.mockResolvedValue(new Response(svgContent));
     const node: VertexIconConfig = {
-      type: createRandomName("vertex"),
+      type: createRandomVertexType(),
       color: createRandomColor(),
       iconUrl: createRandomName("iconUrl"),
       iconImageType: "image/svg+xml",

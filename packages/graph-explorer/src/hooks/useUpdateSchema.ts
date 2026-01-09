@@ -1,4 +1,5 @@
 import type { SchemaResponse } from "@/connector";
+import type { VertexType } from "@/core";
 import { activeSchemaSelector } from "@/core/StateProvider/schema";
 import { useSetAtom } from "jotai";
 
@@ -27,7 +28,7 @@ export default function useUpdateSchema() {
   };
 
   // Update the vertex totals (used by Data Explorer)
-  const updateVertexTotal = (vertexType: string, newTotal: number) => {
+  const updateVertexTotal = (vertexType: VertexType, newTotal: number) => {
     setSchema(prev => {
       if (!prev) {
         return prev;

@@ -10,6 +10,8 @@ import {
   useDisplayVertexTypeConfig,
   useDisplayVertexTypeConfigs,
   useDisplayVerticesFromVertices,
+  type VertexType,
+  createVertexType,
 } from "@/core";
 import {
   Button,
@@ -59,7 +61,7 @@ import {
 } from "@/utils/constants";
 
 export type ConnectionsProps = {
-  vertexType: string;
+  vertexType: VertexType;
 };
 
 const DEFAULT_COLUMN = {
@@ -74,7 +76,7 @@ export default function DataExplorer() {
     return <>No vertex type was defined</>;
   }
 
-  return <DataExplorerContent vertexType={vertexType} />;
+  return <DataExplorerContent vertexType={createVertexType(vertexType)} />;
 }
 
 function DataExplorerContent({ vertexType }: ConnectionsProps) {
@@ -208,7 +210,7 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
 function DisplayNameAndDescriptionOptions({
   vertexType,
 }: {
-  vertexType: string;
+  vertexType: VertexType;
 }) {
   const t = useTranslations();
   const vertexConfig = useVertexTypeConfig(vertexType);
@@ -283,7 +285,7 @@ function AddToExplorerButton({ vertex }: { vertex: Vertex }) {
   );
 }
 
-function useColumnDefinitions(vertexType: string) {
+function useColumnDefinitions(vertexType: VertexType) {
   const t = useTranslations();
   const displayConfig = useDisplayVertexTypeConfig(vertexType);
   const columns: ColumnDefinition<DisplayVertex>[] = (() => {
@@ -358,7 +360,7 @@ function usePagingOptions() {
 }
 
 function useDataExplorerQuery(
-  vertexType: string,
+  vertexType: VertexType,
   pageSize: number,
   pageIndex: number,
 ) {

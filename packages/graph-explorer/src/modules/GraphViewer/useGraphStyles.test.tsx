@@ -9,6 +9,7 @@ import {
   createRandomVertexTypeConfig,
   createRandomEdgeTypeConfig,
 } from "@/utils/testing";
+import { createEdgeType, createVertexType } from "@/core";
 
 // Mock dependencies
 vi.mock("./renderNode");
@@ -37,7 +38,7 @@ describe("useGraphStyles", () => {
   it("should generate vertex styles correctly", async () => {
     const vertexConfig = {
       ...createRandomVertexTypeConfig(),
-      type: "Person",
+      type: createVertexType("Person"),
       color: "#128EE5",
       backgroundOpacity: 0.8,
       borderColor: "#000000",
@@ -69,7 +70,7 @@ describe("useGraphStyles", () => {
   it("should generate edge styles correctly", () => {
     const edgeConfig = {
       ...createRandomEdgeTypeConfig(),
-      type: "KNOWS",
+      type: createEdgeType("KNOWS"),
       labelColor: "#17457b",
       lineColor: "#b3b3b3",
       lineStyle: "solid" as const,
@@ -110,7 +111,7 @@ describe("useGraphStyles", () => {
   it("should handle vertex config without border width", () => {
     const vertexConfig = {
       ...createRandomVertexTypeConfig(),
-      type: "Person",
+      type: createVertexType("Person"),
       borderWidth: 0,
     };
     dbState.activeSchema.vertices = [vertexConfig];
@@ -125,7 +126,7 @@ describe("useGraphStyles", () => {
   it("should handle edge config with dotted line style", () => {
     const edgeConfig = {
       ...createRandomEdgeTypeConfig(),
-      type: "KNOWS",
+      type: createEdgeType("KNOWS"),
       lineStyle: "dotted" as const,
     };
     dbState.activeSchema.edges = [edgeConfig];
@@ -141,7 +142,7 @@ describe("useGraphStyles", () => {
   it("should handle edge config with dashed line style", () => {
     const edgeConfig = {
       ...createRandomEdgeTypeConfig(),
-      type: "KNOWS",
+      type: createEdgeType("KNOWS"),
       lineStyle: "dashed" as const,
     };
     dbState.activeSchema.edges = [edgeConfig];
@@ -157,7 +158,7 @@ describe("useGraphStyles", () => {
   it("should use light text color for light label background", () => {
     const edgeConfig = {
       ...createRandomEdgeTypeConfig(),
-      type: "KNOWS",
+      type: createEdgeType("KNOWS"),
       labelColor: "#ffffff",
     };
     dbState.activeSchema.edges = [edgeConfig];
@@ -182,7 +183,9 @@ describe("useGraphStyles", () => {
   });
 
   it("should truncate long edge labels", () => {
-    const longEdgeType = "VERY_LONG_EDGE_TYPE_NAME_THAT_EXCEEDS_LIMIT";
+    const longEdgeType = createEdgeType(
+      "VERY_LONG_EDGE_TYPE_NAME_THAT_EXCEEDS_LIMIT",
+    );
     const edgeConfig = {
       ...createRandomEdgeTypeConfig(),
       type: longEdgeType,
@@ -201,7 +204,7 @@ describe("useGraphStyles", () => {
   it("should have label use the display name in the data", () => {
     const edgeConfig = {
       ...createRandomEdgeTypeConfig(),
-      type: "KNOWS",
+      type: createEdgeType("KNOWS"),
     };
     dbState.activeSchema.edges = [edgeConfig];
     dbState.addEdgeStyle(edgeConfig.type, edgeConfig);
@@ -215,7 +218,7 @@ describe("useGraphStyles", () => {
   it("should handle renderNode failure gracefully", () => {
     const vertexConfig = {
       ...createRandomVertexTypeConfig(),
-      type: "Person",
+      type: createVertexType("Person"),
     };
     dbState.activeSchema.vertices = [vertexConfig];
     dbState.addVertexStyle(vertexConfig.type, vertexConfig);
@@ -231,18 +234,18 @@ describe("useGraphStyles", () => {
   it("should handle multiple vertex and edge types", () => {
     const personConfig = {
       ...createRandomVertexTypeConfig(),
-      type: "Person",
+      type: createVertexType("Person"),
     };
     const companyConfig = {
       ...createRandomVertexTypeConfig(),
-      type: "Company",
+      type: createVertexType("Company"),
       color: "#ff0000",
     };
 
     const knowsConfig = createRandomEdgeTypeConfig();
     const worksAtConfig = {
       ...createRandomEdgeTypeConfig(),
-      type: "WORKS_AT",
+      type: createEdgeType("WORKS_AT"),
       lineColor: "#00ff00",
     };
 
@@ -266,7 +269,7 @@ describe("useGraphStyles", () => {
   it("should update styles when configs change", () => {
     const vertexConfig = {
       ...createRandomVertexTypeConfig(),
-      type: "Person",
+      type: createVertexType("Person"),
       color: "#ff0000",
     };
     const edgeConfig = createRandomEdgeTypeConfig();
@@ -290,7 +293,7 @@ describe("useGraphStyles", () => {
   it("should handle edge config with undefined optional properties", () => {
     const minimalEdgeConfig = {
       ...createRandomEdgeTypeConfig(),
-      type: "MINIMAL",
+      type: createEdgeType("MINIMAL"),
       // Remove optional properties to test undefined handling
       labelBackgroundOpacity: undefined,
       labelBorderWidth: undefined,

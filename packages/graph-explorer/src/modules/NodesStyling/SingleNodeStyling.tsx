@@ -1,13 +1,13 @@
 import { type ComponentPropsWithRef, useEffect, useState } from "react";
 import { Button, FormItem, InputField, Label, StylingIcon } from "@/components";
-import { useDisplayVertexTypeConfig } from "@/core";
+import { useDisplayVertexTypeConfig, type VertexType } from "@/core";
 import { useVertexStyling } from "@/core/StateProvider/userPreferences";
 import { useDebounceValue, usePrevious } from "@/hooks";
 import { LABELS } from "@/utils/constants";
 import { useOpenNodeStyleDialog } from "./NodeStyleDialog";
 
 export type SingleNodeStylingProps = {
-  vertexType: string;
+  vertexType: VertexType;
 } & ComponentPropsWithRef<typeof FormItem>;
 
 export default function SingleNodeStyling({

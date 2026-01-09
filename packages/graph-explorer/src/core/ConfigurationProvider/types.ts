@@ -5,6 +5,7 @@ import type {
 import type { Branded } from "@/utils";
 import type { ConnectionConfig } from "@shared/types";
 import { v4 } from "uuid";
+import type { EdgeType, VertexType } from "../entities";
 
 export type ConfigurationId = Branded<string, "ConfigurationId">;
 
@@ -28,7 +29,7 @@ export type VertexTypeConfig = {
   /**
    * Vertex type name's in the DB schema
    */
-  type: string;
+  type: VertexType;
   /**
    * Name to be printed
    */
@@ -60,7 +61,7 @@ export type EdgeTypeConfig = {
   /**
    * Edge type name's in the DB schema
    */
-  type: string;
+  type: EdgeType;
   /**
    * Name to be printed
    */
@@ -129,9 +130,9 @@ export type RawConfiguration = {
 
 export type ConfigurationContextProps = RawConfiguration & {
   totalVertices: number;
-  vertexTypes: Array<string>;
+  vertexTypes: Array<VertexType>;
   totalEdges: number;
-  edgeTypes: Array<string>;
+  edgeTypes: Array<EdgeType>;
 };
 
 /**

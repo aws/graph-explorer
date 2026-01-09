@@ -11,6 +11,9 @@ import { createEdgeId, createVertexId } from "./entityIdType";
  */
 export type EdgeId = Branded<EntityRawId, "EdgeId">;
 
+/** Represents the edge label or RDF predicate */
+export type EdgeType = Branded<string, "EdgeType">;
+
 /**
  * An edge in a graph database.
  *
@@ -30,7 +33,7 @@ export type Edge = {
    * - For PG, the label which identifies the relation type
    * - For RDF, the predicate
    */
-  type: string;
+  type: EdgeType;
   /**
    * Source vertex id
    */
@@ -56,9 +59,14 @@ export function createEdge(options: {
 }): Edge {
   return {
     id: createEdgeId(options.id),
-    type: options.type,
+    type: createEdgeType(options.type),
     sourceId: createVertexId(options.sourceId),
     targetId: createVertexId(options.targetId),
     attributes: options.attributes ?? {},
   };
+}
+
+/** Creates an EdgeType from a string */
+export function createEdgeType(type: string): EdgeType {
+  return type as EdgeType;
 }

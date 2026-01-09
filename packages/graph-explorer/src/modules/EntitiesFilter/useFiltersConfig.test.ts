@@ -3,6 +3,7 @@ import useFiltersConfig from "./useFiltersConfig";
 import { DbState, renderHookWithState } from "@/utils/testing";
 import { sample } from "lodash";
 import { vi } from "vitest";
+import { createEdgeType, createVertexType } from "@/core";
 
 describe("useFiltersConfig", () => {
   let dbState = new DbState();
@@ -19,17 +20,19 @@ describe("useFiltersConfig", () => {
 
   it("should have all entities selected", () => {
     dbState.activeSchema.vertices = [
-      { type: "Person", attributes: [] },
-      { type: "Movie", attributes: [] },
+      { type: createVertexType("Person"), attributes: [] },
+      { type: createVertexType("Movie"), attributes: [] },
     ];
-    dbState.activeSchema.edges = [{ type: "ACTED_IN", attributes: [] }];
+    dbState.activeSchema.edges = [
+      { type: createEdgeType("ACTED_IN"), attributes: [] },
+    ];
     const { result } = renderFilterConfigHook();
 
     expect(result.current.selectedVertexTypes).toEqual(
-      new Set(["Person", "Movie"]),
+      new Set([createVertexType("Person"), createVertexType("Movie")]),
     );
     expect(result.current.selectedConnectionTypes).toEqual(
-      new Set(["ACTED_IN"]),
+      new Set([createEdgeType("ACTED_IN")]),
     );
   });
 
@@ -45,12 +48,12 @@ describe("useFiltersConfig", () => {
 
   it("should sort checkboxes alphabetically", () => {
     dbState.activeSchema.vertices = [
-      { type: "Person", attributes: [] },
-      { type: "Movie", attributes: [] },
+      { type: createVertexType("Person"), attributes: [] },
+      { type: createVertexType("Movie"), attributes: [] },
     ];
     dbState.activeSchema.edges = [
-      { type: "DIRECTED", attributes: [] },
-      { type: "ACTED_IN", attributes: [] },
+      { type: createEdgeType("DIRECTED"), attributes: [] },
+      { type: createEdgeType("ACTED_IN"), attributes: [] },
     ];
     const { result } = renderFilterConfigHook();
 

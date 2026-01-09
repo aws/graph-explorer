@@ -5,7 +5,7 @@ import type {
   SparqlFetch,
 } from "../types";
 import { logger } from "@/utils";
-import { createEdge, createVertex, type Vertex } from "@/core";
+import { createEdge, createVertex, type Vertex, type VertexType } from "@/core";
 import { parseAndMapQuads } from "../parseAndMapQuads";
 
 export default async function fetchBlankNodeNeighbors(
@@ -46,7 +46,7 @@ export default async function fetchBlankNodeNeighbors(
 }
 
 function vertexCountsByType(vertices: Vertex[]) {
-  const counts = new Map<string, number>();
+  const counts = new Map<VertexType, number>();
   for (const vertex of vertices) {
     counts.set(vertex.type, (counts.get(vertex.type) ?? 0) + 1);
   }

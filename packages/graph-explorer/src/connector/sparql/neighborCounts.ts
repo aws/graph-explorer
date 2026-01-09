@@ -17,7 +17,12 @@ import { idParam } from "./idParam";
 import isErrorResponse from "../utils/isErrorResponse";
 import { z } from "zod";
 import { fromError } from "zod-validation-error";
-import { createVertexId, type VertexId } from "@/core";
+import {
+  createVertexId,
+  createVertexType,
+  type VertexId,
+  type VertexType,
+} from "@/core";
 import fetchBlankNodeNeighbors from "./fetchBlankNodeNeighbors";
 import { getNeighborsFilter } from "./filterHelpers";
 
@@ -69,7 +74,7 @@ async function fetchNeighborCounts(
   const results = new Array<NeighborCount>();
   for (const id of vertexIds) {
     const totalCount = totalCounts.get(id) ?? 0;
-    const counts = countsByType.get(id) ?? new Map<string, number>();
+    const counts = countsByType.get(id) ?? new Map<VertexType, number>();
     results.push({
       vertexId: id,
       counts,
@@ -212,16 +217,17 @@ async function fetchCountsByType(
   return parsed.data.results.bindings.reduce((mappedResults, binding) => {
     //Map the binding to useful values
     const vertexId = createVertexId(binding.resource.value);
-    const type = binding.type?.value ?? LABELS.MISSING_TYPE;
+    const type = createVertexType(binding.type?.value ?? LABELS.MISSING_TYPE);
     const count = parseInt(binding.typeCount.value);
 
     // Get the existing entry if it exists
-    const existing = mappedResults.get(vertexId) ?? new Map<string, number>();
+    const existing =
+      mappedResults.get(vertexId) ?? new Map<VertexType, number>();
 
     // Merge new type count in to existing entry
     existing.set(type, count);
     return mappedResults.set(vertexId, existing);
-  }, new Map<VertexId, Map<string, number>>());
+  }, new Map<VertexId, Map<VertexType, number>>());
 }
 
 async function fetchBlankNodeNeighborCounts(

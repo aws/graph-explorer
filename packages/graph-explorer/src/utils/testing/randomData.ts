@@ -12,6 +12,7 @@ import {
   type EdgeId,
   type EdgePreferences,
   type EdgePreferencesStorageModel,
+  type EdgeType,
   type EdgeTypeConfig,
   type Entities,
   type EntityProperties,
@@ -21,11 +22,14 @@ import {
   type PrefixTypeConfig,
   type RawConfiguration,
   type Schema,
+  createEdgeType,
+  createVertexType,
   type UserStyling,
   type Vertex,
   type VertexId,
   type VertexPreferences,
   type VertexPreferencesStorageModel,
+  type VertexType,
   type VertexTypeConfig,
 } from "@/core";
 import {
@@ -108,7 +112,7 @@ export function createRandomEdgeTypeConfig(): EdgeTypeConfig {
   const displayLabel = randomlyUndefined(createRandomName("displayLabel"));
   const hidden = randomlyUndefined(createRandomBoolean());
   return {
-    type: createRandomName("type"),
+    type: createRandomEdgeType(),
     attributes: createArray(6, createRandomAttributeConfig),
     ...(displayLabel && { displayLabel }),
     ...(hidden && { hidden }),
@@ -128,7 +132,7 @@ export function createRandomEdgeTypeConfig(): EdgeTypeConfig {
 export function createRandomEdgeTypeConfigForRdf(): EdgeTypeConfig {
   return {
     ...createRandomEdgeTypeConfig(),
-    type: createRandomUrlString(),
+    type: createEdgeType(createRandomUrlString()),
     attributes: createArray(6, createRandomAttributeConfigForRdf),
   };
 }
@@ -141,7 +145,7 @@ export function createRandomVertexTypeConfig(): VertexTypeConfig {
   const displayLabel = randomlyUndefined(createRandomName("displayLabel"));
   const hidden = randomlyUndefined(createRandomBoolean());
   return {
-    type: createRandomName("type"),
+    type: createRandomVertexType(),
     attributes: createArray(6, createRandomAttributeConfig),
     ...(displayLabel && { displayLabel }),
     ...(hidden && { hidden }),
@@ -160,7 +164,7 @@ export function createRandomVertexTypeConfig(): VertexTypeConfig {
 export function createRandomVertexTypeConfigForRdf(): VertexTypeConfig {
   return {
     ...createRandomVertexTypeConfig(),
-    type: createRandomUrlString(),
+    type: createVertexType(createRandomUrlString()),
     attributes: createArray(6, createRandomAttributeConfigForRdf),
   };
 }
@@ -239,6 +243,14 @@ export function createRandomEdgeId(): EdgeId {
   return createEdgeId(createRandomName("EdgeId"));
 }
 
+export function createRandomVertexType(): VertexType {
+  return createVertexType(createRandomName("VertexType"));
+}
+
+export function createRandomEdgeType(): EdgeType {
+  return createEdgeType(createRandomName("EdgeType"));
+}
+
 /**
  * Creates a random vertex.
  * @returns A random Vertex object.
@@ -297,6 +309,7 @@ export function createTestableVertex() {
     return {
       ...testable,
       id: createVertexId(testable.id),
+      types: testable.types as VertexType[],
       withRdfValues: (
         options?: Partial<Pick<typeof testable, "isBlankNode">>,
       ) => {
@@ -378,6 +391,7 @@ export function createTestableEdge() {
     return {
       ...testable,
       id: createEdgeId(testable.id),
+      type: testable.type as EdgeType,
       withRdfValues: () => {
         const rdfType = createRandomUrlString();
         const rdfSource = testable.source.withRdfValues();
@@ -630,7 +644,7 @@ export function createRandomVertexPreferencesStorageModel(): VertexPreferencesSt
   );
   const displayLabel = randomlyUndefined(createRandomName("DisplayLabel"));
   return {
-    type: createRandomName("VertexType"),
+    type: createRandomVertexType(),
     ...(displayLabel && { displayLabel }),
     ...(displayNameAttribute && { displayNameAttribute }),
     ...(longDisplayNameAttribute && { longDisplayNameAttribute }),
@@ -650,7 +664,7 @@ export function createRandomEdgePreferencesStorageModel(): EdgePreferencesStorag
   const labelBorderColor = randomlyUndefined(createRandomColor());
   const lineThickness = randomlyUndefined(createRandomInteger({ max: 25 }));
   return {
-    type: createRandomName("EdgeType"),
+    type: createRandomEdgeType(),
     ...(displayLabel && { displayLabel }),
     ...(displayNameAttribute && { displayNameAttribute }),
     ...(lineColor && { lineColor }),

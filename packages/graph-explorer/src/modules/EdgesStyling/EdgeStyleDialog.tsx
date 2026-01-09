@@ -23,7 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components";
-import { useDisplayEdgeTypeConfig } from "@/core";
+import { useDisplayEdgeTypeConfig, type EdgeType } from "@/core";
 import {
   type ArrowStyle,
   type LineStyle,
@@ -35,7 +35,7 @@ import { parseNumberSafely, RESERVED_TYPES_PROPERTY } from "@/utils";
 import { atom, useAtom, useSetAtom } from "jotai";
 import { LINE_STYLE_OPTIONS } from "./lineStyling";
 
-const customizeEdgeTypeAtom = atom<string | undefined>(undefined);
+const customizeEdgeTypeAtom = atom<EdgeType | undefined>(undefined);
 
 /**
  * Open the dialog to customize the edge style
@@ -44,7 +44,7 @@ const customizeEdgeTypeAtom = atom<string | undefined>(undefined);
 export function useOpenEdgeStyleDialog() {
   const setCustomizeEdgeType = useSetAtom(customizeEdgeTypeAtom);
 
-  return (edgeType: string) => {
+  return (edgeType: EdgeType) => {
     setCustomizeEdgeType(edgeType);
   };
 }
@@ -64,7 +64,7 @@ export function EdgeStyleDialog() {
   );
 }
 
-function Content({ edgeType }: { edgeType: string }) {
+function Content({ edgeType }: { edgeType: EdgeType }) {
   const displayConfig = useDisplayEdgeTypeConfig(edgeType);
   const t = useTranslations();
 
