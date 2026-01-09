@@ -78,11 +78,12 @@ export async function neighborCounts(
       const countsByType = new Map<VertexType, number>();
       let totalCount = 0;
 
-      for (const [type, gValue] of countsByTypeMap.entries()) {
+      for (const [rawType, gValue] of countsByTypeMap.entries()) {
         const count = gValue["@value"];
         totalCount += count;
-        const vertexTypes = type.split("::").map(createVertexType);
-        for (const vertexType of vertexTypes) {
+        const types = rawType.split("::");
+        for (const type of types) {
+          const vertexType = createVertexType(type);
           countsByType.set(
             vertexType,
             (countsByType.get(vertexType) ?? 0) + count,
