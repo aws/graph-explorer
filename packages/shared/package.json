@@ -16,7 +16,7 @@
   },
   "devDependencies": {
     "@vitest/coverage-v8": "4.0.10",
-    "rimraf": "^6.1.0",
+    "rimraf": "^6.1.2",
     "vitest": "4.0.10"
   }
 }
