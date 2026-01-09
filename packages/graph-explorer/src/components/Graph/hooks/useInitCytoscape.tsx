@@ -6,10 +6,9 @@ import type { GraphProps } from "../Graph";
 import type { Config, CytoscapeType } from "../Graph.model";
 import { useDeepMemo } from "@/hooks";
 
-export interface UseInitCytoscapeProps
-  extends Required<
-    Pick<GraphProps, keyof Omit<Config, "minZoom" | "maxZoom" | "pan">>
-  > {
+export interface UseInitCytoscapeProps extends Required<
+  Pick<GraphProps, keyof Omit<Config, "minZoom" | "maxZoom" | "pan">>
+> {
   wrapper?: HTMLElement;
   minZoom?: number;
   maxZoom?: number;

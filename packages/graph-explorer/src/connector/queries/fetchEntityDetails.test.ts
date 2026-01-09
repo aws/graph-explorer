@@ -5,9 +5,8 @@ import { createRandomEntities } from "@/utils/testing";
 
 describe("notifyOnIncompleteRestoration", () => {
   it("should not show a notification when all entities were found", async () => {
-    const { notifyOnIncompleteRestoration } = await import(
-      "./fetchEntityDetails"
-    );
+    const { notifyOnIncompleteRestoration } =
+      await import("./fetchEntityDetails");
     const fetchResult = createRandomFetchEntityDetailsResult();
 
     notifyOnIncompleteRestoration(fetchResult);
@@ -16,9 +15,8 @@ describe("notifyOnIncompleteRestoration", () => {
   });
 
   it("should show a warning when some nodes and edges were not found", async () => {
-    const { notifyOnIncompleteRestoration } = await import(
-      "./fetchEntityDetails"
-    );
+    const { notifyOnIncompleteRestoration } =
+      await import("./fetchEntityDetails");
     const fetchResult = createRandomFetchEntityDetailsResult();
     fetchResult.counts.notFound.vertices = createRandomInteger({ min: 2 });
     fetchResult.counts.notFound.edges = createRandomInteger({ min: 2 });
@@ -35,9 +33,8 @@ describe("notifyOnIncompleteRestoration", () => {
   });
 
   it("should show a warning when exactly 1 node was not found", async () => {
-    const { notifyOnIncompleteRestoration } = await import(
-      "./fetchEntityDetails"
-    );
+    const { notifyOnIncompleteRestoration } =
+      await import("./fetchEntityDetails");
     const fetchResult = createRandomFetchEntityDetailsResult();
     fetchResult.counts.notFound.vertices = 1;
     fetchResult.counts.notFound.edges = 0;
@@ -51,9 +48,8 @@ describe("notifyOnIncompleteRestoration", () => {
   });
 
   it("should show a warning when exactly 1 edge was not found", async () => {
-    const { notifyOnIncompleteRestoration } = await import(
-      "./fetchEntityDetails"
-    );
+    const { notifyOnIncompleteRestoration } =
+      await import("./fetchEntityDetails");
     const fetchResult = createRandomFetchEntityDetailsResult();
     fetchResult.counts.notFound.vertices = 0;
     fetchResult.counts.notFound.edges = 1;
@@ -67,9 +63,8 @@ describe("notifyOnIncompleteRestoration", () => {
   });
 
   it("should show a warning when no nodes or edges were imported", async () => {
-    const { notifyOnIncompleteRestoration } = await import(
-      "./fetchEntityDetails"
-    );
+    const { notifyOnIncompleteRestoration } =
+      await import("./fetchEntityDetails");
     const fetchResult = createRandomFetchEntityDetailsResult();
     fetchResult.entities.vertices = [];
     fetchResult.entities.edges = [];
