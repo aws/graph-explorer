@@ -6,7 +6,7 @@ import {
   mergedConfigurationSelector,
 } from "@/core/StateProvider/configuration";
 import type { ConfigurationContextProps } from "./types";
-import { atomFamily } from "jotai/utils";
+import { atomFamily } from "jotai-family";
 import { atom, useAtomValue } from "jotai";
 import type { EdgeType, VertexType } from "../entities";
 

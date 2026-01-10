@@ -1,5 +1,6 @@
 import { atom, useAtomValue, useSetAtom } from "jotai";
-import { atomFamily, atomWithReset } from "jotai/utils";
+import { atomWithReset } from "jotai/utils";
+import { atomFamily } from "jotai-family";
 import { type Vertex, type VertexId, createVertex } from "@/core";
 import { vertexDetailsQuery } from "@/connector";
 import { useQuery } from "@tanstack/react-query";

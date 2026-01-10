@@ -4,7 +4,7 @@ import { useDeferredValue } from "react";
 import { logger, RESERVED_ID_PROPERTY, RESERVED_TYPES_PROPERTY } from "@/utils";
 import type { Simplify } from "type-fest";
 import { useActiveSchema } from "./schema";
-import { atomFamily } from "jotai/utils";
+import { atomFamily } from "jotai-family";
 import { userStylingAtom } from "./storageAtoms";
 import type { EdgeType, VertexType } from "../entities";
 
