@@ -1,5 +1,6 @@
 import { atom, useAtomValue, useSetAtom } from "jotai";
-import { atomFamily, atomWithReset } from "jotai/utils";
+import { atomWithReset } from "jotai/utils";
+import { atomFamily } from "jotai-family";
 import type { Edge, EdgeId } from "@/core";
 
 export function toEdgeMap(edges: Iterable<Edge>): Map<EdgeId, Edge> {

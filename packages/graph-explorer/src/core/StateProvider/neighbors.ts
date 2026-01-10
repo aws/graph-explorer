@@ -1,6 +1,7 @@
 import type { VertexId, VertexType } from "@/core";
 import { atom, useAtomValue } from "jotai";
-import { atomFamily, useAtomCallback } from "jotai/utils";
+import { useAtomCallback } from "jotai/utils";
+import { atomFamily } from "jotai-family";
 import { edgesAtom } from "./edges";
 import { nodesAtom, toNodeMap } from "./nodes";
 import { useCallback, useMemo } from "react";
