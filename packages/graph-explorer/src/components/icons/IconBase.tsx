@@ -1,7 +1,9 @@
 import type { PropsWithChildren, SVGAttributes } from "react";
 
-export interface IconBaseProps
-  extends Omit<SVGAttributes<SVGElement>, "fill" | "stroke"> {
+export interface IconBaseProps extends Omit<
+  SVGAttributes<SVGElement>,
+  "fill" | "stroke"
+> {
   className?: string;
   color?: string;
 }

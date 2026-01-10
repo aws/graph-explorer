@@ -8,11 +8,10 @@ import { Label } from "../Label";
 import { FormError, FormItem } from "../Form";
 import { Input } from "../Input";
 
-export interface BaseInputProps
-  extends Omit<
-    AriaTextFieldOptions<"input">,
-    "value" | "defaultValue" | "onChange"
-  > {
+export interface BaseInputProps extends Omit<
+  AriaTextFieldOptions<"input">,
+  "value" | "defaultValue" | "onChange"
+> {
   label?: ReactNode;
   labelPlacement?: "top" | "inner";
   className?: string;

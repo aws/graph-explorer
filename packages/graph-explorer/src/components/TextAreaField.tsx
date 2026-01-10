@@ -8,7 +8,8 @@ import { FormError } from "./Form";
 import { TextArea } from "./TextArea";
 
 export interface TextAreaProps
-  extends Omit<
+  extends
+    Omit<
       AriaTextFieldOptions<"textarea">,
       "value" | "defaultValue" | "onChange"
     >,

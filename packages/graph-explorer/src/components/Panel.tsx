@@ -130,8 +130,9 @@ function PanelHeaderDivider({
 }
 PanelHeaderDivider.displayName = "PanelHeaderDivider";
 
-export interface PanelHeaderCloseButtonProps
-  extends React.PropsWithChildren<React.ComponentPropsWithoutRef<"div">> {
+export interface PanelHeaderCloseButtonProps extends React.PropsWithChildren<
+  React.ComponentPropsWithoutRef<"div">
+> {
   onClose: () => void;
 }
 

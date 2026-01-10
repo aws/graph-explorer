@@ -18,8 +18,7 @@ const chip = cva({
 });
 
 export interface ChipProps
-  extends React.ComponentPropsWithRef<"div">,
-    VariantProps<typeof chip> {}
+  extends React.ComponentPropsWithRef<"div">, VariantProps<typeof chip> {}
 
 export function Chip({
   children,

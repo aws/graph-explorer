@@ -80,7 +80,8 @@ export const buttonStyles = cva({
 });
 
 export interface ButtonProps
-  extends VariantProps<typeof buttonStyles>,
+  extends
+    VariantProps<typeof buttonStyles>,
     VariantProps<typeof buttonStyles>,
     Omit<React.ComponentPropsWithRef<"button">, "color"> {
   icon?: ReactNode;
