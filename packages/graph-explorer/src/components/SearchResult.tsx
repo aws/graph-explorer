@@ -48,19 +48,20 @@ export function SearchResultCollapsibleTrigger({
   ...props
 }: ComponentPropsWithRef<typeof CollapsibleTrigger>) {
   return (
-    <CollapsibleTrigger
-      className={cn(
-        "group/search-result-collapsible-trigger flex w-full flex-row items-center gap-2 p-3 text-left hover:cursor-pointer",
-        className,
-      )}
-      {...props}
-    >
-      <ChevronRightIcon
+    <CollapsibleTrigger asChild {...props}>
+      <div
         className={cn(
-          "text-primary-dark/50 size-5 shrink-0 transition-transform duration-200 ease-in-out group-data-[state=open]/search-result-collapsible-trigger:rotate-90",
+          "group/search-result-collapsible-trigger flex w-full flex-row items-center gap-2 p-3 text-left hover:cursor-pointer",
+          className,
         )}
-      />
-      {children}
+      >
+        <ChevronRightIcon
+          className={cn(
+            "text-primary-dark/50 size-5 shrink-0 transition-transform duration-200 ease-in-out group-data-[state=open]/search-result-collapsible-trigger:rotate-90",
+          )}
+        />
+        {children}
+      </div>
     </CollapsibleTrigger>
   );
 }
