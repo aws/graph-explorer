@@ -14,7 +14,8 @@ import {
 } from "@/core";
 import { type TextTransformer, textTransformSelector } from "@/hooks";
 import { LABELS, logger, SEARCH_TOKENS } from "@/utils";
-import { atomFamily, useAtomCallback } from "jotai/utils";
+import { useAtomCallback } from "jotai/utils";
+import { atomFamily } from "jotai-family";
 import { atom, useAtomValue } from "jotai";
 import { useCallback } from "react";
 import { sortAttributeByName } from "./sortAttributeByName";
