@@ -116,20 +116,8 @@ export default defineConfig(
       perfectionist,
     },
     rules: {
-      "perfectionist/sort-imports": [
-        "error",
-        {
-          type: "natural",
-          order: "asc",
-        },
-      ],
-      "perfectionist/sort-named-imports": [
-        "error",
-        {
-          type: "natural",
-          order: "asc",
-        },
-      ],
+      "perfectionist/sort-imports": ["error", { type: "natural" }],
+      "perfectionist/sort-named-imports": ["error", { type: "natural" }],
     },
   },
 
