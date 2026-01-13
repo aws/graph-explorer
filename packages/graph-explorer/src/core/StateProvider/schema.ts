@@ -25,14 +25,29 @@ import type { SetStateActionWithReset } from "@/utils/jotai";
 import { createTypedValue, type ScalarValue } from "@/connector/entities";
 import type { Simplify } from "type-fest";
 
+/**
+ * Persisted schema state for a database connection.
+ *
+ * This is the runtime representation of the discovered graph schema, stored in
+ * Jotai atoms and persisted to IndexedDB. It gets populated from database
+ * schema queries and incrementally updated as users explore the graph.
+ */
 export type SchemaStorageModel = {
+  /** Vertex type configurations with their attributes. */
   vertices: VertexTypeConfig[];
+  /** Edge type configurations with their attributes. */
   edges: EdgeTypeConfig[];
+  /** RDF namespace prefixes for SPARQL connections. */
   prefixes?: Array<PrefixTypeConfig>;
+  /** When the schema was last updated. */
   lastUpdate?: Date;
+  /** Whether a schema sync has been attempted. */
   triedToSync?: boolean;
+  /** Whether the last schema sync failed. */
   lastSyncFail?: boolean;
+  /** Total vertex count from the database. */
   totalVertices?: number;
+  /** Total edge count from the database. */
   totalEdges?: number;
 };
 
