@@ -179,6 +179,31 @@ app.use(
   ),
 );
 
+// Serve the backup config file if it exists
+const backupConfigPath = path.resolve(
+  defaultConnectionFolderPath,
+  "graph-explorer-config.json",
+);
+app.get("/graph-explorer-config.json", (_req, res) => {
+  // Check if file exists before attempting to send it
+  if (!fs.existsSync(backupConfigPath)) {
+    res.status(404).send("Backup config file not found");
+    return;
+  }
+  // Send file and handle any errors gracefully
+  res.sendFile(backupConfigPath, err => {
+    if (err) {
+      // File was deleted or became inaccessible after the exists check
+      if (!res.headersSent) {
+        res.status(404).send("Backup config file not found");
+      }
+    }
+  });
+});
+if (fs.existsSync(backupConfigPath)) {
+  proxyLogger.info("Serving backup config file from: %s", backupConfigPath);
+}
+
 // Host the Graph Explorer UI static files
 const staticFilesVirtualPath = "/explorer";
 const staticFilesPath = path.join(clientRoot, "dist");

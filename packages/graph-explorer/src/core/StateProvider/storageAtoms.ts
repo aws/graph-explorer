@@ -9,6 +9,7 @@ import {
   type UserStyling,
 } from "./index";
 import { atomWithLocalForage } from "./atomWithLocalForage";
+import { autoLoadBackupIfExists } from "./autoLoadBackup";
 
 /**
  DEV NOTE
@@ -45,6 +46,9 @@ import { atomWithLocalForage } from "./atomWithLocalForage";
  this file in order to preload the data in parallel, reducing the startup time
  of the app on slower machines.
  */
+
+// Auto-load backup config before initializing atoms
+await autoLoadBackupIfExists();
 
 const [
   activeConfigurationAtom,
