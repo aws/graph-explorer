@@ -13,7 +13,7 @@ import {
   type VertexType,
   type VertexTypeConfig,
 } from "@/core";
-import { activeSchemaSelector, type SchemaInference } from "./schema";
+import { activeSchemaSelector, type SchemaStorageModel } from "./schema";
 import {
   defaultEdgePreferences,
   defaultVertexPreferences,
@@ -56,7 +56,7 @@ export const mergedConfigurationSelector = atom(get => {
 });
 
 export function mergeConfiguration(
-  currentSchema: SchemaInference | null | undefined,
+  currentSchema: SchemaStorageModel | null | undefined,
   currentConfig: RawConfiguration,
   userStyling: UserStyling,
 ): RawConfiguration {

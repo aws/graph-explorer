@@ -11,7 +11,7 @@ import {
   activeConfigurationAtom,
   createNewConfigurationId,
   schemaAtom,
-  type SchemaInference,
+  type SchemaStorageModel,
 } from "@/core";
 import { useAtomValue } from "jotai";
 
@@ -36,7 +36,7 @@ describe("useUpdateSchema", () => {
       expect(schema).toEqual({
         ...existingSchema,
         lastSyncFail: true,
-      } satisfies SchemaInference);
+      } satisfies SchemaStorageModel);
     });
   });
 
@@ -66,7 +66,7 @@ describe("useUpdateSchema", () => {
         lastSyncFail: false,
         lastUpdate: vi.getMockedSystemTime()!,
         triedToSync: true,
-      } satisfies SchemaInference);
+      } satisfies SchemaStorageModel);
     });
 
     it("should update existing schema", () => {
@@ -85,7 +85,7 @@ describe("useUpdateSchema", () => {
         lastSyncFail: false,
         lastUpdate: vi.getMockedSystemTime()!,
         triedToSync: true,
-      } satisfies SchemaInference);
+      } satisfies SchemaStorageModel);
     });
   });
 

@@ -6,6 +6,7 @@ import type { Branded } from "@/utils";
 import type { ConnectionConfig } from "@shared/types";
 import { v4 } from "uuid";
 import type { EdgeType, VertexType } from "../entities";
+import type { SchemaStorageModel } from "../StateProvider";
 
 export type ConfigurationId = Branded<string, "ConfigurationId">;
 
@@ -98,20 +99,6 @@ export type PrefixTypeConfig = {
   __matches?: Set<string>;
 };
 
-export type Schema = {
-  totalVertices: number;
-  vertices: Array<VertexTypeConfig>;
-  totalEdges: number;
-  edges: Array<EdgeTypeConfig>;
-  lastUpdate?: Date;
-  triedToSync?: boolean;
-  lastSyncFail?: boolean;
-  /**
-   * List of RDF prefixes (only for SPARQL)
-   */
-  prefixes?: Array<PrefixTypeConfig>;
-};
-
 export type RawConfiguration = {
   /**
    * Unique identifier for this config
@@ -125,7 +112,7 @@ export type RawConfiguration = {
   /**
    * Database schema: types, names, labels, icons, ...
    */
-  schema?: Schema;
+  schema?: SchemaStorageModel;
 };
 
 export type ConfigurationContextProps = RawConfiguration & {

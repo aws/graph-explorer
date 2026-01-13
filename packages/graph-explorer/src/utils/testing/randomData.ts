@@ -21,7 +21,6 @@ import {
   type LineStyle,
   type PrefixTypeConfig,
   type RawConfiguration,
-  type Schema,
   createEdgeType,
   createVertexType,
   type UserStyling,
@@ -31,6 +30,7 @@ import {
   type VertexPreferencesStorageModel,
   type VertexType,
   type VertexTypeConfig,
+  type SchemaStorageModel,
 } from "@/core";
 import {
   createArray,
@@ -178,12 +178,12 @@ export function createRandomPrefixTypeConfig(): PrefixTypeConfig {
 
 /**
  * Creates a random schema object.
- * @returns A random Schema object.
+ * @returns A random SchemaStorageModel object.
  */
-export function createRandomSchema(): Schema {
+export function createRandomSchema(): SchemaStorageModel {
   const edges = createArray(3, createRandomEdgeTypeConfig);
   const vertices = createArray(3, createRandomVertexTypeConfig);
-  const schema: Schema = {
+  const schema: SchemaStorageModel = {
     edges,
     vertices,
     totalEdges: edges

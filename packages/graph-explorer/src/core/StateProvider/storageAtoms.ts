@@ -5,7 +5,7 @@ import type {
 import {
   defaultUserLayout,
   type GraphSessionStorageModel,
-  type SchemaInference,
+  type SchemaStorageModel,
   type UserStyling,
 } from "./index";
 import { atomWithLocalForage } from "./atomWithLocalForage";
@@ -64,7 +64,7 @@ const [
     new Map(),
   ),
   /** All the stored schemas */
-  atomWithLocalForage("schema", new Map<string, SchemaInference>()),
+  atomWithLocalForage("schema", new Map<string, SchemaStorageModel>()),
   atomWithLocalForage<UserStyling>("user-styling", {}),
   atomWithLocalForage("user-layout", defaultUserLayout),
   /** Stores the graph session data for each connection. */
