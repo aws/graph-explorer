@@ -123,6 +123,13 @@ export default defineConfig(
           order: "asc",
         },
       ],
+      "perfectionist/sort-named-imports": [
+        "error",
+        {
+          type: "natural",
+          order: "asc",
+        },
+      ],
     },
   },
 
