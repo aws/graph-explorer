@@ -1,10 +1,12 @@
+import { createArray } from "@shared/utils/testing";
+
+import { getAppStore, nodesAtom } from "@/core";
+import { createQueryClient } from "@/core/queryClient";
+import { DEFAULT_BATCH_REQUEST_SIZE } from "@/utils";
 import { createRandomVertex, FakeExplorer } from "@/utils/testing";
+
 import { bulkVertexDetailsQuery } from "./bulkVertexDetailsQuery";
 import { vertexDetailsQuery } from "./vertexDetailsQuery";
-import { createQueryClient } from "@/core/queryClient";
-import { createArray } from "@shared/utils/testing";
-import { DEFAULT_BATCH_REQUEST_SIZE } from "@/utils";
-import { getAppStore, nodesAtom } from "@/core";
 
 describe("bulkVertexDetailsQuery", () => {
   it("should return nothing when input is empty", async () => {

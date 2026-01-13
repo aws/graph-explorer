@@ -1,6 +1,7 @@
-import { cn } from "@/utils";
 import { cva, type VariantProps } from "cva";
 import React from "react";
+
+import { cn } from "@/utils";
 
 function EmptyState({
   className,

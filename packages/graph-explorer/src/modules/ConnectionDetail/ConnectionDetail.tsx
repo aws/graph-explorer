@@ -1,12 +1,15 @@
+import { useQueryClient } from "@tanstack/react-query";
+import { useSetAtom } from "jotai";
+import { RESET } from "jotai/utils";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogBody,
-  DialogDescription,
-} from "@/components/Dialog";
+  ClockIcon,
+  DatabaseIcon,
+  GlobeIcon,
+  HammerIcon,
+  LinkIcon,
+} from "lucide-react";
 import { useState } from "react";
+
 import {
   Button,
   Chip,
@@ -33,24 +36,32 @@ import {
 } from "@/components";
 import { LinkButton } from "@/components/Button";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogBody,
+  DialogDescription,
+} from "@/components/Dialog";
+import {
   activeSchemaSelector,
   type ConfigurationContextProps,
   showDebugActionsAtom,
 } from "@/core";
-
+import { useDeleteActiveConfiguration } from "@/hooks/useDeleteConfig";
+import useEntitiesCounts from "@/hooks/useEntitiesCounts";
 import {
   useCancelSchemaSync,
   useIsSyncing,
   useSchemaSync,
 } from "@/hooks/useSchemaSync";
 import useTranslations from "@/hooks/useTranslations";
+import CreateConnection from "@/modules/CreateConnection";
 import { formatDate, formatRelativeDate, LABELS, logger } from "@/utils";
 import saveConfigurationToFile from "@/utils/saveConfigurationToFile";
-import CreateConnection from "@/modules/CreateConnection";
+
 import ConnectionData from "./ConnectionData";
 import ConnectionDeleteButton from "./ConnectionDeleteButton";
-import { useQueryClient } from "@tanstack/react-query";
-import useEntitiesCounts from "@/hooks/useEntitiesCounts";
 import {
   InfoBar,
   InfoItem,
@@ -59,16 +70,6 @@ import {
   InfoItemLabel,
   InfoItemValue,
 } from "./InfoBar";
-import {
-  ClockIcon,
-  DatabaseIcon,
-  GlobeIcon,
-  HammerIcon,
-  LinkIcon,
-} from "lucide-react";
-import { useDeleteActiveConfiguration } from "@/hooks/useDeleteConfig";
-import { useSetAtom } from "jotai";
-import { RESET } from "jotai/utils";
 
 export type ConnectionDetailProps = {
   config: ConfigurationContextProps;

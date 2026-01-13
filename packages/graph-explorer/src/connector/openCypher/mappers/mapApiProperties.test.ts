@@ -5,6 +5,7 @@ import {
   createRandomInteger,
   createRandomName,
 } from "@shared/utils/testing";
+
 import { mapApiProperties } from "./mapApiProperties";
 
 describe("mapApiProperties", () => {

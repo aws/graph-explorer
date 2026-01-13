@@ -1,4 +1,8 @@
+import { useAtomCallback } from "jotai/utils";
+import { useCallback } from "react";
+
 import { logger } from "@/utils";
+
 import { edgesAtom } from "../edges";
 import { nodesAtom } from "../nodes";
 import {
@@ -6,8 +10,6 @@ import {
   activeGraphSessionAtom,
   isRestorePreviousSessionAvailableAtom,
 } from "./storage";
-import { useAtomCallback } from "jotai/utils";
-import { useCallback } from "react";
 
 /**
  * Returns a callback that can be used to trigger an update of the graph

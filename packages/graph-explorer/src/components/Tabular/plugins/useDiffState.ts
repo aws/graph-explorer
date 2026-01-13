@@ -1,8 +1,9 @@
+import type { ActionType, Hooks, TableInstance, TableState } from "react-table";
+
 /**
  * This plugin checks difference between filters
  */
 import { ensurePluginOrder } from "react-table";
-import type { ActionType, Hooks, TableInstance, TableState } from "react-table";
 
 const pluginName = "useDiffState";
 

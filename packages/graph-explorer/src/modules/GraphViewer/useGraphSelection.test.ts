@@ -1,6 +1,8 @@
 import { act } from "react";
+
 import { renderHookWithState } from "@/utils/testing";
 import { createRandomVertexId, createRandomEdgeId } from "@/utils/testing";
+
 import { useGraphSelection } from "./useGraphSelection";
 
 const mockAutoOpenDetails = vi.fn();

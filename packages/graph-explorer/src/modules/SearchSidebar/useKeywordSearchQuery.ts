@@ -1,4 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+
 import { type KeywordSearchRequest, searchQuery } from "@/connector";
 import { useUpdateSchemaFromEntities } from "@/core";
 

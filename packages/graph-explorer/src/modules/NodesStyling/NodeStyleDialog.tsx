@@ -1,13 +1,7 @@
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogBody,
-  DialogDescription,
-  DialogFooter,
-  DialogClose,
-} from "@/components/Dialog";
+import { atom, useAtom, useSetAtom } from "jotai";
+import { ImageUpIcon } from "lucide-react";
+import { toast } from "sonner";
+
 import {
   Button,
   ColorPopover,
@@ -24,7 +18,16 @@ import {
   SelectValue,
   VertexSymbol,
 } from "@/components";
-import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogBody,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+} from "@/components/Dialog";
 import { useDisplayVertexTypeConfig, type VertexType } from "@/core";
 import {
   type LineStyle,
@@ -32,16 +35,15 @@ import {
   useVertexStyling,
 } from "@/core/StateProvider/userPreferences";
 import useTranslations from "@/hooks/useTranslations";
-import { LINE_STYLE_OPTIONS } from "./lineStyling";
-import { NODE_SHAPE } from "./nodeShape";
+import { parseNumberSafely } from "@/utils";
 import {
   RESERVED_ID_PROPERTY,
   RESERVED_TYPES_PROPERTY,
 } from "@/utils/constants";
-import { atom, useAtom, useSetAtom } from "jotai";
-import { ImageUpIcon } from "lucide-react";
-import { parseNumberSafely } from "@/utils";
 import { createDisplayError } from "@/utils/createDisplayError";
+
+import { LINE_STYLE_OPTIONS } from "./lineStyling";
+import { NODE_SHAPE } from "./nodeShape";
 
 const customizeNodeTypeAtom = atom<VertexType | undefined>(undefined);
 

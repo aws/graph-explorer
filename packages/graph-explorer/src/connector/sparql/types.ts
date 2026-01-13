@@ -1,6 +1,8 @@
-import type { Edge, Vertex, VertexId, VertexType } from "@/core";
-import type { NeighborCount } from "../useGEFetchTypes";
 import { z } from "zod";
+
+import type { Edge, Vertex, VertexId, VertexType } from "@/core";
+
+import type { NeighborCount } from "../useGEFetchTypes";
 
 export type SparqlFetch = <TResult = any>(
   queryTemplate: string,

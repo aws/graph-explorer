@@ -1,5 +1,7 @@
-import { query } from "@/utils";
 import type { Criterion, NeighborsRequest } from "@/connector/useGEFetchTypes";
+
+import { query } from "@/utils";
+
 import { idParam } from "../idParam";
 
 const criterionNumberTemplate = ({

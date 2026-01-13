@@ -1,4 +1,5 @@
 import type { Explorer } from "@/connector";
+
 import { createRandomRawConfiguration } from "./randomData";
 
 export function createMockExplorer(): Explorer {

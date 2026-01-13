@@ -1,19 +1,21 @@
 import {
-  createRandomAttributeConfig,
-  createRandomVertex,
-} from "@/utils/testing";
-import {
-  getSortedDisplayAttributes,
-  mapToDisplayAttribute,
-} from "./displayAttribute";
-import {
   createRandomBoolean,
   createRandomDate,
   createRandomInteger,
   createRandomName,
 } from "@shared/utils/testing";
-import { formatDate, LABELS } from "@/utils";
+
 import { getDisplayValueForScalar } from "@/connector/entities";
+import { formatDate, LABELS } from "@/utils";
+import {
+  createRandomAttributeConfig,
+  createRandomVertex,
+} from "@/utils/testing";
+
+import {
+  getSortedDisplayAttributes,
+  mapToDisplayAttribute,
+} from "./displayAttribute";
 import { RDFS_LABEL_URI } from "./sortAttributeByName";
 
 describe("mapToDisplayAttribute", () => {

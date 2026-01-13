@@ -3,7 +3,19 @@ import type {
   MouseEventHandler,
   PropsWithChildren,
 } from "react";
+
+import { useSetAtom } from "jotai";
+import {
+  CircleSlash2,
+  FullscreenIcon,
+  ImageDownIcon,
+  MinusCircleIcon,
+  RefreshCwIcon,
+  ZoomInIcon,
+  ZoomOutIcon,
+} from "lucide-react";
 import { createContext, use } from "react";
+
 import { Divider, EdgeIcon, GraphIcon, StylingIcon } from "@/components";
 import {
   CenterGraphIcon,
@@ -27,21 +39,12 @@ import {
   useContextMenuTarget,
 } from "@/hooks";
 import { useDefaultNeighborExpansionLimit } from "@/hooks/useExpandNode";
-import useGraphGlobalActions from "../useGraphGlobalActions";
-import {
-  CircleSlash2,
-  FullscreenIcon,
-  ImageDownIcon,
-  MinusCircleIcon,
-  RefreshCwIcon,
-  ZoomInIcon,
-  ZoomOutIcon,
-} from "lucide-react";
-import { useOpenNodeStyleDialog } from "@/modules/NodesStyling";
 import { useOpenEdgeStyleDialog } from "@/modules/EdgesStyling";
-import { useSetAtom } from "jotai";
-import { useGraphSelection } from "../useGraphSelection";
+import { useOpenNodeStyleDialog } from "@/modules/NodesStyling";
 import { cn } from "@/utils";
+
+import useGraphGlobalActions from "../useGraphGlobalActions";
+import { useGraphSelection } from "../useGraphSelection";
 
 type ContextMenuProps = {
   affectedNodesIds: VertexId[];

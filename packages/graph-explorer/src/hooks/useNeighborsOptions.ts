@@ -1,10 +1,11 @@
+import type { SelectOption } from "@/components";
+
 import {
   type VertexId,
   type DisplayVertexTypeConfig,
   useNeighbors,
   useDisplayVertexTypeConfigCallback,
 } from "@/core";
-import type { SelectOption } from "@/components";
 
 export type NeighborOption = SelectOption & {
   config: DisplayVertexTypeConfig;

@@ -1,19 +1,12 @@
-import { cn } from "@/utils";
+import { useAtomValue } from "jotai";
+import { Tabs as TabsPrimitive } from "radix-ui";
+import { Resizable } from "re-resizable";
 import {
   useState,
   type ComponentPropsWithRef,
   type PropsWithChildren,
 } from "react";
-import { Resizable } from "re-resizable";
-import { Tabs as TabsPrimitive } from "radix-ui";
-import {
-  CLOSED_SIDEBAR_WIDTH,
-  DEFAULT_SIDEBAR_WIDTH,
-  useSidebar,
-  useSidebarSize,
-  type SidebarItems,
-} from "@/core";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/Tooltip";
+
 import {
   DetailsIcon,
   EdgeIcon,
@@ -23,16 +16,24 @@ import {
   NamespaceIcon,
   SearchIcon,
 } from "@/components";
-import { SearchSidebarPanel } from "@/modules/SearchSidebar";
-import EntityDetails from "@/modules/EntityDetails";
-import NodeExpand from "@/modules/NodeExpand";
-import EntitiesFilter from "@/modules/EntitiesFilter";
-import { NodesStyling } from "@/modules/NodesStyling";
-import { EdgesStyling } from "@/modules/EdgesStyling";
-import Namespaces from "@/modules/Namespaces/Namespaces";
-import { useAtomValue } from "jotai";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/Tooltip";
+import {
+  CLOSED_SIDEBAR_WIDTH,
+  DEFAULT_SIDEBAR_WIDTH,
+  useSidebar,
+  useSidebarSize,
+  type SidebarItems,
+} from "@/core";
 import { totalFilteredCount } from "@/core/StateProvider/filterCount";
 import { useTranslations } from "@/hooks";
+import { EdgesStyling } from "@/modules/EdgesStyling";
+import EntitiesFilter from "@/modules/EntitiesFilter";
+import EntityDetails from "@/modules/EntityDetails";
+import Namespaces from "@/modules/Namespaces/Namespaces";
+import NodeExpand from "@/modules/NodeExpand";
+import { NodesStyling } from "@/modules/NodesStyling";
+import { SearchSidebarPanel } from "@/modules/SearchSidebar";
+import { cn } from "@/utils";
 
 export function Sidebar({
   className,

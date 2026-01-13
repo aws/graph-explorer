@@ -1,5 +1,7 @@
-import type { VertexPreferences } from "@/core";
 import { useQueries } from "@tanstack/react-query";
+
+import type { VertexPreferences } from "@/core";
+
 import { renderNode } from "./renderNode";
 
 /**

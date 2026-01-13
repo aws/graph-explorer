@@ -1,6 +1,8 @@
 import type { Vertex, Edge, EntityPropertyValue } from "@/core";
 import type { TextTransformer } from "@/hooks";
+
 import { getDisplayValueForScalar } from "@/connector/entities";
+
 import { sortAttributeByName } from "./sortAttributeByName";
 
 /** Represents an attribute's display information after all transformations have been applied. */

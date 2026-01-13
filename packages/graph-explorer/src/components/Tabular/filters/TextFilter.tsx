@@ -1,7 +1,9 @@
 import type { ReactNode } from "react";
 import type { ColumnInstance } from "react-table";
-import { Input } from "@/components";
+
 import { FilterIcon } from "lucide-react";
+
+import { Input } from "@/components";
 
 export type TextFilterProps = {
   placeholder?: string;

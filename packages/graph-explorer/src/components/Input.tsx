@@ -1,6 +1,7 @@
-import * as React from "react";
-import { cn } from "@/utils";
 import { cva } from "cva";
+import * as React from "react";
+
+import { cn } from "@/utils";
 
 /*
  * DEV NOTE: There's not a set of variants here, but I wanted a consistent way

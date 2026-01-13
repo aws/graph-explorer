@@ -1,5 +1,11 @@
 import { useRef, useState } from "react";
 import { useLayer, useMousePositionAsTrigger } from "react-laag";
+
+import type {
+  ElementEventCallback,
+  GraphEventCallback,
+} from "@/components/Graph/hooks/useAddClickEvents";
+
 import {
   getEdgeIdFromRenderedEdgeId,
   getVertexIdFromRenderedVertexId,
@@ -8,10 +14,6 @@ import {
   type EdgeId,
   type VertexId,
 } from "@/core";
-import type {
-  ElementEventCallback,
-  GraphEventCallback,
-} from "@/components/Graph/hooks/useAddClickEvents";
 import { useClickOutside } from "@/utils";
 
 function useContextMenu() {

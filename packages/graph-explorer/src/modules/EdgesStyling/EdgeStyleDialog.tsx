@@ -1,13 +1,5 @@
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogBody,
-  DialogDescription,
-  DialogFooter,
-  DialogClose,
-} from "@/components/Dialog";
+import { atom, useAtom, useSetAtom } from "jotai";
+
 import {
   Button,
   ColorPopover,
@@ -23,6 +15,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogBody,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+} from "@/components/Dialog";
 import { useDisplayEdgeTypeConfig, type EdgeType } from "@/core";
 import {
   type ArrowStyle,
@@ -30,9 +32,9 @@ import {
   useEdgeStyling,
 } from "@/core/StateProvider/userPreferences";
 import useTranslations from "@/hooks/useTranslations";
-import { ARROW_STYLE_OPTIONS } from "./arrowsStyling";
 import { parseNumberSafely, RESERVED_TYPES_PROPERTY } from "@/utils";
-import { atom, useAtom, useSetAtom } from "jotai";
+
+import { ARROW_STYLE_OPTIONS } from "./arrowsStyling";
 import { LINE_STYLE_OPTIONS } from "./lineStyling";
 
 const customizeEdgeTypeAtom = atom<EdgeType | undefined>(undefined);

@@ -1,5 +1,6 @@
-import edgesSchemaTemplate from "./edgesSchemaTemplate";
 import { normalizeWithNoSpace as normalize } from "@/utils/testing";
+
+import edgesSchemaTemplate from "./edgesSchemaTemplate";
 
 describe("Gremlin > edgesSchemaTemplate", () => {
   it("Should return a template with the projection of each type", () => {

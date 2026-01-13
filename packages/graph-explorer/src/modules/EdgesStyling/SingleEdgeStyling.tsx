@@ -1,9 +1,11 @@
 import { type ComponentPropsWithRef, useEffect, useState } from "react";
+
 import { Button, FormItem, InputField, Label, StylingIcon } from "@/components";
 import { useDisplayEdgeTypeConfig, type EdgeType } from "@/core";
 import { useEdgeStyling } from "@/core/StateProvider/userPreferences";
 import { useDebounceValue, usePrevious } from "@/hooks";
 import { LABELS } from "@/utils";
+
 import { useOpenEdgeStyleDialog } from "./EdgeStyleDialog";
 
 export type SingleEdgeStylingProps = {

@@ -1,4 +1,11 @@
 import {
+  createArray,
+  createRandomName,
+  createRandomUrlString,
+} from "@shared/utils/testing";
+
+import { createVertexId, createVertexType, type VertexType } from "@/core";
+import {
   createLiteralValue,
   createQuadBindingsForEntities,
   createQuadSparqlResponse,
@@ -8,15 +15,11 @@ import {
   createTestableVertex,
   createUriValue,
 } from "@/utils/testing";
+
 import type { NeighborCount } from "../useGEFetchTypes";
-import { neighborCounts } from "./neighborCounts";
 import type { BlankNodesMap } from "./types";
-import {
-  createArray,
-  createRandomName,
-  createRandomUrlString,
-} from "@shared/utils/testing";
-import { createVertexId, createVertexType, type VertexType } from "@/core";
+
+import { neighborCounts } from "./neighborCounts";
 
 describe("neighborCounts", () => {
   it("should return empty for an empty request", async () => {

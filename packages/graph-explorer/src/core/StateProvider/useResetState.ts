@@ -1,3 +1,15 @@
+import { RESET, useAtomCallback } from "jotai/utils";
+import { useCallback } from "react";
+
+import { selectedTabAtom } from "@/modules/SearchSidebar";
+import { queryTextAtom } from "@/modules/SearchSidebar/QuerySearchTabContent";
+import {
+  partialMatchAtom,
+  searchTermAtom,
+  selectedAttributeAtom,
+  selectedVertexTypeAtom,
+} from "@/modules/SearchSidebar/useKeywordSearch";
+
 import {
   edgesAtom,
   edgesFilteredIdsAtom,
@@ -7,6 +19,7 @@ import {
   edgesTableFiltersAtom,
   edgesTableSortsAtom,
 } from "./edges";
+import { isRestorePreviousSessionAvailableAtom } from "./graphSession";
 import {
   nodesAtom,
   nodesFilteredIdsAtom,
@@ -16,17 +29,6 @@ import {
   nodesTableSortsAtom,
   nodesTypesFilteredAtom,
 } from "./nodes";
-import {
-  partialMatchAtom,
-  searchTermAtom,
-  selectedAttributeAtom,
-  selectedVertexTypeAtom,
-} from "@/modules/SearchSidebar/useKeywordSearch";
-import { isRestorePreviousSessionAvailableAtom } from "./graphSession";
-import { RESET, useAtomCallback } from "jotai/utils";
-import { useCallback } from "react";
-import { selectedTabAtom } from "@/modules/SearchSidebar";
-import { queryTextAtom } from "@/modules/SearchSidebar/QuerySearchTabContent";
 
 export default function useResetState() {
   return useAtomCallback(

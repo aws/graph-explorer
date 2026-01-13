@@ -1,3 +1,8 @@
+import type { QueryEngine } from "@shared/types";
+
+import { createRandomDate, createRandomName } from "@shared/utils/testing";
+
+import { getDisplayValueForScalar } from "@/connector/entities";
 import {
   activeConfigurationAtom,
   type AppStore,
@@ -8,6 +13,7 @@ import {
   createEdgeType,
   type SchemaStorageModel,
 } from "@/core";
+import { formatDate } from "@/utils";
 import {
   createRandomEdge,
   createRandomEdgePreferencesStorageModel,
@@ -18,12 +24,10 @@ import {
   renderHookWithJotai,
   renderHookWithState,
 } from "@/utils/testing";
-import { useDisplayEdgeFromEdge } from "./displayEdge";
-import { formatDate } from "@/utils";
-import { createRandomDate, createRandomName } from "@shared/utils/testing";
+
 import type { DisplayAttribute } from "./displayAttribute";
-import type { QueryEngine } from "@shared/types";
-import { getDisplayValueForScalar } from "@/connector/entities";
+
+import { useDisplayEdgeFromEdge } from "./displayEdge";
 
 describe("useDisplayEdgeFromEdge", () => {
   let dbState = new DbState();

@@ -1,3 +1,5 @@
+import type { QueryClient } from "@tanstack/react-query";
+
 import {
   type Vertex,
   type Edge,
@@ -7,8 +9,7 @@ import {
   toEdgeMap,
   createVertex,
 } from "@/core";
-import type { QueryClient } from "@tanstack/react-query";
-import { fetchEntityDetails } from "./fetchEntityDetails";
+
 import {
   createPatchedResultEdge,
   createPatchedResultVertex,
@@ -22,6 +23,7 @@ import {
   type ResultEntity,
   type ResultVertex,
 } from "../entities";
+import { fetchEntityDetails } from "./fetchEntityDetails";
 
 export async function patchEntityDetails(
   client: QueryClient,

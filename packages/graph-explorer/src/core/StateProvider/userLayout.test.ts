@@ -1,12 +1,15 @@
+import type { ExtractAtomValue } from "jotai";
+
+import { act } from "react";
+
 import {
   DbState,
   renderHookWithJotai,
   renderHookWithState,
 } from "@/utils/testing";
-import { useSidebar, useViewToggles } from "./userLayout";
-import { act } from "react";
-import type { ExtractAtomValue } from "jotai";
+
 import { userLayoutAtom } from "./storageAtoms";
+import { useSidebar, useViewToggles } from "./userLayout";
 
 type UserLayout = ExtractAtomValue<typeof userLayoutAtom>;
 

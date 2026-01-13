@@ -1,6 +1,9 @@
 import type { KeywordSearchResponse } from "@/connector/useGEFetchTypes";
-import type { BlankNodesMap, SPARQLNeighborsRequest } from "../types";
+
 import { logger } from "@/utils";
+
+import type { BlankNodesMap, SPARQLNeighborsRequest } from "../types";
+
 import oneHopNeighborsBlankNodesIdsTemplate from "./oneHopNeighborsBlankNodesIdsTemplate";
 
 export const replaceBlankNodeFromNeighbors = (

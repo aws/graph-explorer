@@ -1,6 +1,7 @@
 import type { PropsWithChildren } from "react";
-import { InfoIcon } from "@/components/icons";
+
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components";
+import { InfoIcon } from "@/components/icons";
 
 export default function InfoTooltip({ children }: PropsWithChildren) {
   return (

@@ -1,5 +1,7 @@
 import { type Branded, LABELS } from "@/utils";
+
 import type { EntityProperties, EntityRawId } from "./shared";
+
 import { createVertexId } from "./entityIdType";
 
 /**

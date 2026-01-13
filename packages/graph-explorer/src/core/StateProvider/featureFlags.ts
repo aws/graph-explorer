@@ -1,4 +1,5 @@
 import { atom, type ExtractAtomValue, useAtomValue } from "jotai";
+
 import { allowLoggingDbQueryAtom, showDebugActionsAtom } from "./storageAtoms";
 
 export const featureFlagsSelector = atom(get => {

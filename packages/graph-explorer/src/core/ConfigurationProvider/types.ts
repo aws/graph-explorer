@@ -1,10 +1,13 @@
+import type { ConnectionConfig } from "@shared/types";
+
+import { v4 } from "uuid";
+
 import type {
   EdgePreferencesStorageModel,
   VertexPreferencesStorageModel,
 } from "@/core/StateProvider/userPreferences";
 import type { Branded } from "@/utils";
-import type { ConnectionConfig } from "@shared/types";
-import { v4 } from "uuid";
+
 import type { EdgeType, VertexType } from "../entities";
 import type { SchemaStorageModel } from "../StateProvider";
 

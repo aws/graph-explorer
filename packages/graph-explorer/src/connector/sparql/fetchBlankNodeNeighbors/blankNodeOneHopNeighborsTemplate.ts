@@ -1,7 +1,8 @@
 import { query } from "@/utils";
+
+import { getNeighborsFilter } from "../filterHelpers";
 import { idParam } from "../idParam";
 import { rdfTypeUri } from "../types";
-import { getNeighborsFilter } from "../filterHelpers";
 
 /**
  * Fetch all neighbors and their predicates, values, and classes

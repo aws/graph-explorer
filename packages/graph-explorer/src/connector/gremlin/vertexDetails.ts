@@ -1,14 +1,16 @@
+import { createVertex } from "@/core";
 import { logger, query } from "@/utils";
+
 import type {
   ErrorResponse,
   VertexDetailsRequest,
   VertexDetailsResponse,
 } from "../useGEFetchTypes";
 import type { GremlinFetch, GVertex } from "./types";
-import { mapResults } from "./mappers/mapResults";
+
 import isErrorResponse from "../utils/isErrorResponse";
 import { idParam } from "./idParam";
-import { createVertex } from "@/core";
+import { mapResults } from "./mappers/mapResults";
 
 type Response = {
   requestId: string;

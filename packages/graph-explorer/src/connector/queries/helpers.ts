@@ -1,4 +1,7 @@
 import type { QueryClient } from "@tanstack/react-query";
+
+import type { GraphExplorerMeta } from "@/core/queryClient";
+
 import {
   createEdge,
   createVertex,
@@ -8,14 +11,15 @@ import {
   type Edge,
   type Vertex,
 } from "@/core";
-import type { NeighborCount } from "../useGEFetchTypes";
-import type { GraphExplorerMeta } from "@/core/queryClient";
 import { logger } from "@/utils";
+
+import type { ResultEntity } from "../entities";
+import type { NeighborCount } from "../useGEFetchTypes";
+
 import { emptyExplorer } from "../emptyExplorer";
-import { vertexDetailsQuery } from "./vertexDetailsQuery";
 import { edgeDetailsQuery } from "./edgeDetailsQuery";
 import { neighborsCountQuery } from "./neighborsCountQuery";
-import type { ResultEntity } from "../entities";
+import { vertexDetailsQuery } from "./vertexDetailsQuery";
 
 /** Iterates over entities and adds any materialized entities to the details query cache. */
 export function updateDetailsCacheFromEntities(

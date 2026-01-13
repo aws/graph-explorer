@@ -1,4 +1,5 @@
 import type { NeighborsResponse } from "@/connector/useGEFetchTypes";
+
 import type { BlankNodesMap, SPARQLNeighborsRequest } from "../types";
 
 /**

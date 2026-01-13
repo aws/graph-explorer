@@ -11,6 +11,7 @@ import type {
   Entities,
   VertexType,
 } from "@/core";
+
 import type { ResultEntity } from "./entities";
 
 export type QueryOptions = RequestInit & {

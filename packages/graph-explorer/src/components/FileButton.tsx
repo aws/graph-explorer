@@ -1,5 +1,6 @@
-import * as React from "react";
 import { Slot } from "radix-ui";
+import * as React from "react";
+
 import { Button } from "./Button";
 
 type FilesProps =

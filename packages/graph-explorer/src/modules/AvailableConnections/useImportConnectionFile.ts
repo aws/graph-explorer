@@ -1,4 +1,7 @@
+import { useAtomCallback } from "jotai/utils";
+import { useCallback } from "react";
 import { toast } from "sonner";
+
 import {
   createNewConfigurationId,
   configurationAtom,
@@ -8,8 +11,6 @@ import {
 import useResetState from "@/core/StateProvider/useResetState";
 import { fromFileToJson } from "@/utils/fileData";
 import isValidConfigurationFile from "@/utils/isValidConfigurationFile";
-import { useAtomCallback } from "jotai/utils";
-import { useCallback } from "react";
 
 export function useImportConnectionFile() {
   const resetState = useResetState();

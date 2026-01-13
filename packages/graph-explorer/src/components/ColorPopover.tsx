@@ -1,5 +1,8 @@
-import { cn } from "@/utils";
 import type { ComponentPropsWithRef, CSSProperties } from "react";
+
+import { PencilIcon } from "lucide-react";
+import { HexColorPicker, HexColorInput } from "react-colorful";
+
 import {
   Button,
   inputStyles,
@@ -7,8 +10,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components";
-import { HexColorPicker, HexColorInput } from "react-colorful";
-import { PencilIcon } from "lucide-react";
+import { cn } from "@/utils";
 
 export function ColorPopover({
   color,

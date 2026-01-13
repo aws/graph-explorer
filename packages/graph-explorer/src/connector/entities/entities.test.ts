@@ -1,7 +1,8 @@
 import { createTestableVertex, createTestableEdge } from "@/utils/testing";
+
+import { createResultBundle, createPatchedResultBundle } from "./bundle";
 import { getAllGraphableEntityIds, getAllGraphableEntities } from "./entities";
 import { createResultScalar } from "./scalar";
-import { createResultBundle, createPatchedResultBundle } from "./bundle";
 
 describe("entities", () => {
   describe("getAllGraphableEntityIds", () => {

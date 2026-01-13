@@ -1,3 +1,32 @@
+import type { Writable } from "type-fest";
+
+import {
+  type NeptuneServiceType,
+  neptuneServiceTypeOptions,
+  type QueryEngine,
+  queryEngineOptions,
+} from "@shared/types";
+import {
+  createArray,
+  createRandomBoolean,
+  createRandomColor,
+  createRandomDate,
+  createRandomDouble,
+  createRandomInteger,
+  createRandomName,
+  createRandomUrlString,
+  createRecord,
+  randomlyUndefined,
+} from "@shared/utils/testing";
+
+import {
+  createResultVertex,
+  createPatchedResultVertex,
+  createResultEdge,
+  createPatchedResultEdge,
+  createResultScalar,
+} from "@/connector/entities";
+import { createRdfEdgeId } from "@/connector/sparql/createRdfEdgeId";
 import {
   type ArrowStyle,
   type AttributeConfig,
@@ -34,36 +63,9 @@ import {
   type SchemaStorageModel,
 } from "@/core";
 import {
-  createArray,
-  createRandomBoolean,
-  createRandomColor,
-  createRandomDate,
-  createRandomDouble,
-  createRandomInteger,
-  createRandomName,
-  createRandomUrlString,
-  createRecord,
-  randomlyUndefined,
-} from "@shared/utils/testing";
-import {
-  type NeptuneServiceType,
-  neptuneServiceTypeOptions,
-  type QueryEngine,
-  queryEngineOptions,
-} from "@shared/types";
-import {
   createExportedGraph,
   type ExportedGraphConnection,
 } from "@/modules/GraphViewer/exportedGraph";
-import { createRdfEdgeId } from "@/connector/sparql/createRdfEdgeId";
-import {
-  createResultVertex,
-  createPatchedResultVertex,
-  createResultEdge,
-  createPatchedResultEdge,
-  createResultScalar,
-} from "@/connector/entities";
-import type { Writable } from "type-fest";
 
 /*
 

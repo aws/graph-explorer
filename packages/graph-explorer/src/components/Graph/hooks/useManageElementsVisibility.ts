@@ -1,7 +1,10 @@
 import type { CollectionReturnValue } from "cytoscape";
+
 import { useEffect, useRef } from "react";
-import type { CytoscapeType } from "../Graph.model";
+
 import type { EntityRawId } from "@/core";
+
+import type { CytoscapeType } from "../Graph.model";
 
 interface UseManageElementsSelection {
   cy?: CytoscapeType;

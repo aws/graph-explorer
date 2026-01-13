@@ -1,5 +1,7 @@
 import type cytoscape from "cytoscape";
+
 import { useEffect } from "react";
+
 import type { CytoscapeType } from "../Graph.model";
 
 export type UseFilterOptions = {

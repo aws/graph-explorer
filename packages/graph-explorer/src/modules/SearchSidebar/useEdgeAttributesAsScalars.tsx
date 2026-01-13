@@ -1,5 +1,6 @@
-import { createResultScalar, type ResultScalar } from "@/connector/entities";
 import type { DisplayAttribute, DisplayEdge } from "@/core";
+
+import { createResultScalar, type ResultScalar } from "@/connector/entities";
 import { useTranslations } from "@/hooks";
 
 /**

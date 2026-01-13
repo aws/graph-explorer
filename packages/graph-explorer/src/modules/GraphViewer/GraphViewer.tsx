@@ -1,21 +1,23 @@
+import { useAtomValue } from "jotai";
+import {
+  BadgeInfoIcon,
+  CircleSlash2,
+  FullscreenIcon,
+  GitCompareArrowsIcon,
+  ImageDownIcon,
+  ZoomInIcon,
+  ZoomOutIcon,
+} from "lucide-react";
 import {
   Activity,
   type ComponentPropsWithRef,
   type MouseEvent,
   useState,
 } from "react";
-import {
-  createRenderedEdgeId,
-  createRenderedVertexId,
-  getEdgeIdFromRenderedEdgeId,
-  getVertexIdFromRenderedVertexId,
-  type RenderedEdgeId,
-  type RenderedVertex,
-  type RenderedVertexId,
-  useDisplayVertexTypeConfigs,
-  useRenderedEdges,
-  useRenderedVertices,
-} from "@/core";
+
+import type { SelectedElements } from "@/components/Graph/Graph.model";
+import type { ElementEventCallback } from "@/components/Graph/hooks/useAddClickEvents";
+
 import {
   Panel,
   PanelContent,
@@ -28,35 +30,36 @@ import {
   IconButton,
   VertexSymbolByType,
 } from "@/components";
-import type { ElementEventCallback } from "@/components/Graph/hooks/useAddClickEvents";
+import { Graph } from "@/components/Graph";
+import { GraphProvider } from "@/components/Graph/GraphContext";
+import {
+  createRenderedEdgeId,
+  createRenderedVertexId,
+  getEdgeIdFromRenderedEdgeId,
+  getVertexIdFromRenderedVertexId,
+  type RenderedEdgeId,
+  type RenderedVertex,
+  type RenderedVertexId,
+  useDisplayVertexTypeConfigs,
+  useRenderedEdges,
+  useRenderedVertices,
+} from "@/core";
 import { edgesOutOfFocusIdsAtom } from "@/core/StateProvider/edges";
 import { nodesOutOfFocusIdsAtom } from "@/core/StateProvider/nodes";
 import { useClearGraph, useExpandNode } from "@/hooks";
+import { useDefaultNeighborExpansionLimit } from "@/hooks/useExpandNode";
+import { cn, isVisible } from "@/utils";
+
+import { ExportGraphButton } from "./ExportGraphButton";
+import { GraphViewerEmptyState } from "./GraphViewerEmptyState";
+import { ImportGraphButton } from "./ImportGraphButton";
 import ContextMenu from "./internalComponents/ContextMenu";
+import { graphLayoutSelectionAtom, SelectLayout } from "./SelectLayout";
 import useContextMenu from "./useContextMenu";
 import useGraphGlobalActions from "./useGraphGlobalActions";
+import { useGraphSelection } from "./useGraphSelection";
 import useGraphStyles from "./useGraphStyles";
 import useNodeBadges from "./useNodeBadges";
-import type { SelectedElements } from "@/components/Graph/Graph.model";
-import { ImportGraphButton } from "./ImportGraphButton";
-import { ExportGraphButton } from "./ExportGraphButton";
-import {
-  BadgeInfoIcon,
-  CircleSlash2,
-  FullscreenIcon,
-  GitCompareArrowsIcon,
-  ImageDownIcon,
-  ZoomInIcon,
-  ZoomOutIcon,
-} from "lucide-react";
-import { useAtomValue } from "jotai";
-import { useDefaultNeighborExpansionLimit } from "@/hooks/useExpandNode";
-import { graphLayoutSelectionAtom, SelectLayout } from "./SelectLayout";
-import { useGraphSelection } from "./useGraphSelection";
-import { cn, isVisible } from "@/utils";
-import { GraphViewerEmptyState } from "./GraphViewerEmptyState";
-import { Graph } from "@/components/Graph";
-import { GraphProvider } from "@/components/Graph/GraphContext";
 
 // Prevent open context menu on Windows
 function onContextMenu(e: MouseEvent<HTMLDivElement>) {

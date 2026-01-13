@@ -1,8 +1,9 @@
 import { useState } from "react";
-import SearchIcon from "@/components/icons/SearchIcon";
+
 import { Input } from "@/components";
-import { cn } from "@/utils";
+import SearchIcon from "@/components/icons/SearchIcon";
 import { useDebounceValue } from "@/hooks";
+import { cn } from "@/utils";
 
 type SearchBarProps = {
   search?: string;

@@ -1,11 +1,14 @@
+import { createArray } from "@shared/utils/testing";
+
+import { createVertexType } from "@/core";
+import { createQueryClient } from "@/core/queryClient";
+import { DEFAULT_BATCH_REQUEST_SIZE } from "@/utils";
 import { createRandomVertex, FakeExplorer } from "@/utils/testing";
+
+import type { NeighborCount } from "../useGEFetchTypes";
+
 import { bulkNeighborCountsQuery } from "./bulkNeighborCountsQuery";
 import { neighborsCountQuery } from "./neighborsCountQuery";
-import type { NeighborCount } from "../useGEFetchTypes";
-import { createQueryClient } from "@/core/queryClient";
-import { createArray } from "@shared/utils/testing";
-import { DEFAULT_BATCH_REQUEST_SIZE } from "@/utils";
-import { createVertexType } from "@/core";
 
 describe("bulkNeighborCountsQuery", () => {
   it("should return nothing when input is empty", async () => {

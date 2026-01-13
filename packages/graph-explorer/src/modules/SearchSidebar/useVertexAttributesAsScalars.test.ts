@@ -1,3 +1,4 @@
+import { createResultScalar } from "@/connector/entities";
 import {
   type DisplayVertex,
   createVertexId,
@@ -9,8 +10,8 @@ import {
   createRandomQueryEngine,
   renderHookWithState,
 } from "@/utils/testing";
+
 import { useVertexAttributesAsScalars } from "./useVertexAttributesAsScalars";
-import { createResultScalar } from "@/connector/entities";
 
 describe("useVertexAttributesAsScalars", () => {
   let dbState = new DbState();

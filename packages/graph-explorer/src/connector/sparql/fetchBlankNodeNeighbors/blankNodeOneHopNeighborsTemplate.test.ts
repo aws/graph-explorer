@@ -1,6 +1,7 @@
-import blankNodeOneHopNeighborsTemplate from "./blankNodeOneHopNeighborsTemplate";
 import { query } from "@/utils";
 import { normalizeWithNewlines as normalize } from "@/utils/testing";
+
+import blankNodeOneHopNeighborsTemplate from "./blankNodeOneHopNeighborsTemplate";
 
 describe("blankNodeOneHopNeighborsTemplate", () => {
   it("should produce query with simple subquery", () => {

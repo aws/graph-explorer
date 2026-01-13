@@ -1,6 +1,6 @@
-import { cn } from "@/utils";
-
 import type { FC, PropsWithChildren } from "react";
+
+import { cn } from "@/utils";
 
 import { useTabularControl } from "../TabularControlsProvider";
 

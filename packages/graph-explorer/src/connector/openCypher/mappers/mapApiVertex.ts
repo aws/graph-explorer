@@ -1,5 +1,7 @@
 import { createResultVertex } from "@/connector/entities";
+
 import type { OCVertex } from "../types";
+
 import { mapApiProperties } from "./mapApiProperties";
 
 export default function mapApiVertex(apiVertex: OCVertex, name?: string) {

@@ -4,15 +4,17 @@ import {
   createRandomName,
   createRandomUrlString,
 } from "@shared/utils/testing";
-import {
-  DefaultConnectionDataSchema,
-  mapToConnection,
-} from "./defaultConnection";
+
 import {
   createRandomAwsRegion,
   createRandomQueryEngine,
   createRandomServiceType,
 } from "@/utils/testing";
+
+import {
+  DefaultConnectionDataSchema,
+  mapToConnection,
+} from "./defaultConnection";
 
 describe("mapToConnection", () => {
   test("should map default connection data to connection config", () => {

@@ -1,14 +1,16 @@
+import { createEdge } from "@/core";
 import { logger, query } from "@/utils";
+
 import type {
   EdgeDetailsRequest,
   EdgeDetailsResponse,
   ErrorResponse,
 } from "../useGEFetchTypes";
 import type { GEdge, GremlinFetch } from "./types";
-import { mapResults } from "./mappers/mapResults";
+
 import isErrorResponse from "../utils/isErrorResponse";
 import { idParam } from "./idParam";
-import { createEdge } from "@/core";
+import { mapResults } from "./mappers/mapResults";
 
 type Response = {
   requestId: string;

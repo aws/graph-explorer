@@ -1,3 +1,6 @@
+import { ClipboardCheckIcon, ClipboardIcon } from "lucide-react";
+import { useState, type ComponentPropsWithoutRef } from "react";
+
 import {
   Button,
   CodeEditor,
@@ -12,8 +15,6 @@ import {
   DialogTrigger,
 } from "@/components";
 import { cn } from "@/utils";
-import { ClipboardCheckIcon, ClipboardIcon } from "lucide-react";
-import { useState, type ComponentPropsWithoutRef } from "react";
 
 export function ShowRawResponseDialogButton({
   rawResponse,

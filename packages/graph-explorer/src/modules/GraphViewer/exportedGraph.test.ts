@@ -1,4 +1,15 @@
 import {
+  createArray,
+  createRandomDate,
+  createRandomInteger,
+  createRandomName,
+  createRandomUrlString,
+} from "@shared/utils/testing";
+
+import type { EdgeId, VertexId } from "@/core";
+
+import { escapeString } from "@/utils";
+import {
   createRandomConnectionWithId,
   createRandomEdgeId,
   createRandomExportedGraph,
@@ -6,6 +17,7 @@ import {
   createRandomExportedGraphForRdf,
   createRandomVertexId,
 } from "@/utils/testing";
+
 import {
   createDefaultFileName,
   createExportedConnection,
@@ -17,15 +29,6 @@ import {
   exportedGraphSchema,
   parseExportedGraph,
 } from "./exportedGraph";
-import {
-  createArray,
-  createRandomDate,
-  createRandomInteger,
-  createRandomName,
-  createRandomUrlString,
-} from "@shared/utils/testing";
-import type { EdgeId, VertexId } from "@/core";
-import { escapeString } from "@/utils";
 
 describe("createExportedGraph", () => {
   let timestamp: Date;

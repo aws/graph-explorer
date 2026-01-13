@@ -3,6 +3,7 @@ import {
   createGremlinResponse,
   createTestableEdge,
 } from "@/utils/testing";
+
 import { edgeDetails } from "./edgeDetails";
 
 describe("edgeDetails", () => {

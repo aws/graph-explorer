@@ -1,12 +1,16 @@
-import DEFAULT_ICON_URL from "@/utils/defaultIconUrl";
-import { atom, useAtomValue, useSetAtom } from "jotai";
-import { useDeferredValue } from "react";
-import { logger, RESERVED_ID_PROPERTY, RESERVED_TYPES_PROPERTY } from "@/utils";
 import type { Simplify } from "type-fest";
-import { useActiveSchema } from "./schema";
+
+import { atom, useAtomValue, useSetAtom } from "jotai";
 import { atomFamily } from "jotai-family";
-import { userStylingAtom } from "./storageAtoms";
+import { useDeferredValue } from "react";
+
+import { logger, RESERVED_ID_PROPERTY, RESERVED_TYPES_PROPERTY } from "@/utils";
+import DEFAULT_ICON_URL from "@/utils/defaultIconUrl";
+
 import type { EdgeType, VertexType } from "../entities";
+
+import { useActiveSchema } from "./schema";
+import { userStylingAtom } from "./storageAtoms";
 
 export type ShapeStyle =
   | "rectangle"

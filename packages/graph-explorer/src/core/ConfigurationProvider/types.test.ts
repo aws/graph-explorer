@@ -1,12 +1,15 @@
+import { createArray } from "@shared/utils/testing";
 import { describe, expect, test } from "vitest";
-import type { RawConfiguration } from "./types";
-import { serializeData, deserializeData } from "../StateProvider/serializeData";
+
 import {
   createRandomRawConfiguration,
   createRandomSchema,
 } from "@/utils/testing";
-import { createArray } from "@shared/utils/testing";
+
 import type { SchemaStorageModel } from "../StateProvider";
+import type { RawConfiguration } from "./types";
+
+import { serializeData, deserializeData } from "../StateProvider/serializeData";
 
 describe("Schema", () => {
   test("serialization round-trip preserves schema data", () => {

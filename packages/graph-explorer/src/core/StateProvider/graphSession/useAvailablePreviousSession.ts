@@ -1,8 +1,9 @@
+import { useAtomValue } from "jotai";
+
 import {
   activeGraphSessionAtom,
   isRestorePreviousSessionAvailableAtom,
 } from "./storage";
-import { useAtomValue } from "jotai";
 
 /** Returns the available previous session if it exists and no graph manipulations have been made in the current session. */
 export function useAvailablePreviousSession() {

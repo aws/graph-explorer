@@ -1,11 +1,12 @@
+import { edgesAtom, getAppStore } from "@/core";
+import { createQueryClient } from "@/core/queryClient";
 import {
   createRandomEdge,
   createRandomEdgeId,
   FakeExplorer,
 } from "@/utils/testing";
+
 import { edgeDetailsQuery } from "./edgeDetailsQuery";
-import { createQueryClient } from "@/core/queryClient";
-import { edgesAtom, getAppStore } from "@/core";
 
 describe("edgeDetailsQuery", () => {
   it("should return null when edge is not found", async () => {

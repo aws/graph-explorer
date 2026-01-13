@@ -1,5 +1,7 @@
 import type { EntityRawId } from "@/core";
+
 import type { CytoscapeType } from "../Graph.model";
+
 import { availableLayoutsConfig, type LayoutName } from "./layoutConfig";
 
 type ExpandedCytoscapeLayoutOptions = {

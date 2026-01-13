@@ -1,11 +1,6 @@
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogBody,
-  DialogDescription,
-} from "@/components/Dialog";
+import { useAtomValue } from "jotai";
+import { Virtuoso } from "react-virtuoso";
+
 import {
   AddIcon,
   PanelHeaderActionButton,
@@ -18,13 +13,20 @@ import {
   PanelContent,
   FileButton,
 } from "@/components";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogBody,
+  DialogDescription,
+} from "@/components/Dialog";
+import { activeConfigurationAtom, configurationAtom } from "@/core";
 import CreateConnection from "@/modules/CreateConnection";
 import { cn } from "@/utils";
-import { Virtuoso } from "react-virtuoso";
+
 import { ConnectionRow } from "./ConnectionRow";
 import { useImportConnectionFile } from "./useImportConnectionFile";
-import { useAtomValue } from "jotai";
-import { activeConfigurationAtom, configurationAtom } from "@/core";
 
 export type ConnectionDetailProps = {
   isSync: boolean;

@@ -1,5 +1,6 @@
-import applyStyle, { type ApplyStyleOptions } from "./applyStyle";
 import type { BoundingBox } from "./types";
+
+import applyStyle, { type ApplyStyleOptions } from "./applyStyle";
 
 export type DrawRectangleOptions = ApplyStyleOptions & {
   borderRadius?: number;

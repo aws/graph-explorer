@@ -6,8 +6,9 @@
  * Here, we ensure that "useFullWidth" plugin is run after those plugins to fix the styling issue.
  */
 
-import { ensurePluginOrder } from "react-table";
 import type { Hooks, TableInstance } from "react-table";
+
+import { ensurePluginOrder } from "react-table";
 
 const pluginName = "useFullWidth";
 

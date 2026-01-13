@@ -1,4 +1,3 @@
-import { cn } from "@/utils";
 import cytoscape from "cytoscape";
 import cyCanvas from "cytoscape-canvas";
 import d3Force from "cytoscape-d3-force";
@@ -12,6 +11,9 @@ import {
   useState,
   type ComponentPropsWithoutRef,
 } from "react";
+
+import { cn } from "@/utils";
+
 import type {
   Config,
   CytoscapeType,
@@ -20,25 +22,26 @@ import type {
   LayoutName,
   Selection,
 } from "./Graph.model";
-import { runLayout } from "./helpers/layout";
 import type { UseAddClickEvents } from "./hooks/useAddClickEvents";
-import useAddClickEvents from "./hooks/useAddClickEvents";
 import type { BlastRadiusConfig } from "./hooks/useBlastRadius";
-import useBlastRadius from "./hooks/useBlastRadius";
 import type { ConnectionsFilterConfig } from "./hooks/useConnectionsFilter";
+import type { StyleSelector } from "./hooks/useManageStyles";
+import type { BadgeRenderer } from "./hooks/useRenderBadges";
+
+import { useGraphRef } from "./GraphContext";
+import { runLayout } from "./helpers/layout";
+import useAddClickEvents from "./hooks/useAddClickEvents";
+import useBlastRadius from "./hooks/useBlastRadius";
 import useConnectionsFilter from "./hooks/useConnectionsFilter";
 import useInitCytoscape from "./hooks/useInitCytoscape";
 import { useManageConfigChanges } from "./hooks/useManageConfigChanges";
 import useManageElementsLock from "./hooks/useManageElementsLock";
 import useManageElementsSelection from "./hooks/useManageElementsSelection";
 import useManageElementsVisibility from "./hooks/useManageElementsVisibility";
-import type { StyleSelector } from "./hooks/useManageStyles";
 import useManageStyles from "./hooks/useManageStyles";
-import type { BadgeRenderer } from "./hooks/useRenderBadges";
 import useRenderBadges from "./hooks/useRenderBadges";
 import useUpdateLayout from "./hooks/useRunLayout";
 import useUpdateGraphElements from "./hooks/useUpdateGraphElements";
-import { useGraphRef } from "./GraphContext";
 
 cytoscape.use(klay);
 cytoscape.use(dagre);

@@ -1,3 +1,5 @@
+import type { Explorer } from "@/connector";
+
 import {
   activeConfigurationAtom,
   allGraphSessionsAtom,
@@ -28,6 +30,8 @@ import {
   type VertexType,
   type SchemaStorageModel,
 } from "@/core";
+
+import { createMockExplorer } from "./createMockExplorer";
 import {
   createRandomSchema,
   createRandomRawConfiguration,
@@ -37,8 +41,6 @@ import {
   type TestableEdge,
   type TestableVertex,
 } from "./randomData";
-import { createMockExplorer } from "./createMockExplorer";
-import type { Explorer } from "@/connector";
 
 /**
  * Helps build up the state of the Jotai database with common data.

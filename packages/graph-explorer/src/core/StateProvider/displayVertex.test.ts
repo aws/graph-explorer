@@ -1,14 +1,8 @@
-import {
-  createRandomRawConfiguration,
-  createRandomSchema,
-  createRandomVertex,
-  createRandomVertexId,
-  createRandomVertexPreferencesStorageModel,
-  createRandomVertexTypeConfig,
-  DbState,
-  renderHookWithJotai,
-  renderHookWithState,
-} from "@/utils/testing";
+import type { QueryEngine } from "@shared/types";
+
+import { createRandomDate, createRandomName } from "@shared/utils/testing";
+
+import { getDisplayValueForScalar } from "@/connector/entities";
 import {
   activeConfigurationAtom,
   type AppStore,
@@ -24,9 +18,17 @@ import {
   type SchemaStorageModel,
 } from "@/core";
 import { formatDate, LABELS } from "@/utils";
-import { createRandomDate, createRandomName } from "@shared/utils/testing";
-import type { QueryEngine } from "@shared/types";
-import { getDisplayValueForScalar } from "@/connector/entities";
+import {
+  createRandomRawConfiguration,
+  createRandomSchema,
+  createRandomVertex,
+  createRandomVertexId,
+  createRandomVertexPreferencesStorageModel,
+  createRandomVertexTypeConfig,
+  DbState,
+  renderHookWithJotai,
+  renderHookWithState,
+} from "@/utils/testing";
 
 describe("useDisplayVertexFromVertex", () => {
   it("should keep the same ID", () => {

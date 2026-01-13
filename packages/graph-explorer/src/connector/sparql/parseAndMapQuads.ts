@@ -1,7 +1,9 @@
-import { logger } from "@/utils";
-import { mapQuadToEntities } from "./mappers/mapQuadToEntities";
 import { fromError } from "zod-validation-error";
+
+import { logger } from "@/utils";
+
 import isErrorResponse from "../utils/isErrorResponse";
+import { mapQuadToEntities } from "./mappers/mapQuadToEntities";
 import { sparqlResponseSchema, sparqlQuadBindingSchema } from "./types";
 
 /**

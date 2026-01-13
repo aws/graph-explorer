@@ -1,8 +1,10 @@
-import { createRandomVertexId } from "@/utils/testing";
-import type { NeighborCount } from "../useGEFetchTypes";
-import { neighborCounts } from "./neighborCounts";
-import { query } from "@/utils";
 import { createVertexId, createVertexType } from "@/core";
+import { query } from "@/utils";
+import { createRandomVertexId } from "@/utils/testing";
+
+import type { NeighborCount } from "../useGEFetchTypes";
+
+import { neighborCounts } from "./neighborCounts";
 
 describe("neighborCounts", () => {
   it("should return empty for empty request", async () => {

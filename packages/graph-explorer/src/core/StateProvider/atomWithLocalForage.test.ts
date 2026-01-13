@@ -1,6 +1,7 @@
-import { describe, expect, test, beforeEach } from "vitest";
 import { createStore } from "jotai";
 import localforage from "localforage";
+import { describe, expect, test, beforeEach } from "vitest";
+
 import { atomWithLocalForage } from "./atomWithLocalForage";
 
 describe("atomWithLocalForage", () => {

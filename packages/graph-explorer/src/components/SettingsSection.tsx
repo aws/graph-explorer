@@ -1,9 +1,11 @@
-import { cn } from "@/utils";
 import type {
   ComponentProps,
   ComponentPropsWithoutRef,
   PropsWithChildren,
 } from "react";
+
+import { cn } from "@/utils";
+
 import { Switch } from "./Switch";
 
 /** Provides a default gap between section elements */

@@ -1,4 +1,7 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { act, waitFor } from "@testing-library/react";
+
+import { vertexDetailsQuery, edgeDetailsQuery } from "@/connector";
 import {
   createRandomEdge,
   createRandomVertex,
@@ -6,9 +9,8 @@ import {
   FakeExplorer,
   renderHookWithState,
 } from "@/utils/testing";
+
 import { useRefreshEntities } from "./useRefreshEntities";
-import { vertexDetailsQuery, edgeDetailsQuery } from "@/connector";
-import { useQueryClient } from "@tanstack/react-query";
 
 describe("useRefreshEntities", () => {
   it("should refresh vertices and edges", async () => {

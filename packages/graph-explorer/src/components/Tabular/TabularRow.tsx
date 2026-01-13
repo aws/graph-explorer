@@ -1,7 +1,8 @@
-import { cn } from "@/utils";
+import type { Row, TableInstance } from "react-table";
 
 import { type MouseEvent, useEffect, useState } from "react";
-import type { Row, TableInstance } from "react-table";
+
+import { cn } from "@/utils";
 
 import type { TabularProps } from "./Tabular";
 

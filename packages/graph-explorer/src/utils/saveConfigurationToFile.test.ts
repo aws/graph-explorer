@@ -1,8 +1,11 @@
-import { describe, it, expect, vi } from "vitest";
-import saveConfigurationToFile from "./saveConfigurationToFile";
 import * as fileSaver from "file-saver";
+import { describe, it, expect, vi } from "vitest";
+
 import type { ConfigurationContextProps } from "@/core";
+
 import { createVertexType, createEdgeType } from "@/core";
+
+import saveConfigurationToFile from "./saveConfigurationToFile";
 import { createRandomRawConfiguration } from "./testing";
 
 vi.mock("file-saver", () => ({

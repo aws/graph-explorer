@@ -1,3 +1,7 @@
+import { useAtom } from "jotai";
+import { atomWithReset } from "jotai/utils";
+import { CodeIcon, ListFilterIcon } from "lucide-react";
+
 import {
   Panel,
   PanelContent,
@@ -5,19 +9,17 @@ import {
   PanelHeaderActions,
   PanelTitle,
 } from "@/components";
-import { FilterSearchTabContent } from "./FilterSearchTabContent";
-import { SidebarCloseButton } from "../SidebarCloseButton";
 import {
   SidebarTabs,
   SidebarTabsContent,
   SidebarTabsList,
   SidebarTabsTrigger,
 } from "@/components/SidebarTabs";
-import { QuerySearchTabContent } from "./QuerySearchTabContent";
-import { CodeIcon, ListFilterIcon } from "lucide-react";
 import { cn } from "@/utils";
-import { atomWithReset } from "jotai/utils";
-import { useAtom } from "jotai";
+
+import { SidebarCloseButton } from "../SidebarCloseButton";
+import { FilterSearchTabContent } from "./FilterSearchTabContent";
+import { QuerySearchTabContent } from "./QuerySearchTabContent";
 
 export const selectedTabAtom = atomWithReset("filter");
 

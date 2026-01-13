@@ -1,6 +1,6 @@
-import { cn } from "@/utils";
 import { Resizable } from "re-resizable";
 import { Link } from "react-router";
+
 import {
   Button,
   buttonStyles,
@@ -31,9 +31,11 @@ import {
 } from "@/core";
 import { EdgeStyleDialog } from "@/modules/EdgesStyling";
 import EntitiesTabular from "@/modules/EntitiesTabular/EntitiesTabular";
-import { NodeStyleDialog } from "@/modules/NodesStyling";
-import { LABELS } from "@/utils/constants";
 import GraphViewer from "@/modules/GraphViewer";
+import { NodeStyleDialog } from "@/modules/NodesStyling";
+import { cn } from "@/utils";
+import { LABELS } from "@/utils/constants";
+
 import { Sidebar } from "./Sidebar";
 
 const RESIZE_ENABLE_TOP = {

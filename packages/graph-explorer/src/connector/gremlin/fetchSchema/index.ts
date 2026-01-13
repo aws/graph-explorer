@@ -1,21 +1,25 @@
-import type { SchemaResponse } from "@/connector/useGEFetchTypes";
-import edgeLabelsTemplate from "./edgeLabelsTemplate";
-import edgesSchemaTemplate from "./edgesSchemaTemplate";
-import vertexLabelsTemplate from "./vertexLabelsTemplate";
-import verticesSchemaTemplate from "./verticesSchemaTemplate";
-import type { GEdge, GInt64, GVertex } from "../types";
-import type { GraphSummary, GremlinFetch } from "../types";
 import { chunk } from "lodash";
+
 import type { LoggerConnector } from "@/connector/LoggerConnector";
-import { DEFAULT_BATCH_REQUEST_SIZE } from "@/utils";
+import type { SchemaResponse } from "@/connector/useGEFetchTypes";
+
 import {
   createEdge,
   createVertex,
   mapEdgeToTypeConfig,
   mapVertexToTypeConfigs,
 } from "@/core";
-import mapApiVertex from "../mappers/mapApiVertex";
+import { DEFAULT_BATCH_REQUEST_SIZE } from "@/utils";
+
+import type { GEdge, GInt64, GVertex } from "../types";
+import type { GraphSummary, GremlinFetch } from "../types";
+
 import mapApiEdge from "../mappers/mapApiEdge";
+import mapApiVertex from "../mappers/mapApiVertex";
+import edgeLabelsTemplate from "./edgeLabelsTemplate";
+import edgesSchemaTemplate from "./edgesSchemaTemplate";
+import vertexLabelsTemplate from "./vertexLabelsTemplate";
+import verticesSchemaTemplate from "./verticesSchemaTemplate";
 
 type RawVertexLabelsResponse = {
   requestId: string;

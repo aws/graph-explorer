@@ -1,4 +1,13 @@
+import type {
+  ConnectionConfig,
+  QueryEngine,
+  NeptuneServiceType,
+} from "@shared/types";
+
+import { useQueryClient } from "@tanstack/react-query";
+import { useAtomCallback } from "jotai/utils";
 import { useCallback, useState } from "react";
+
 import {
   Button,
   Checkbox,
@@ -9,11 +18,6 @@ import {
   SelectField,
   TextAreaField,
 } from "@/components";
-import type {
-  ConnectionConfig,
-  QueryEngine,
-  NeptuneServiceType,
-} from "@shared/types";
 import {
   activeConfigurationAtom,
   allGraphSessionsAtom,
@@ -29,8 +33,6 @@ import {
   DEFAULT_FETCH_TIMEOUT,
   DEFAULT_NODE_EXPAND_LIMIT,
 } from "@/utils/constants";
-import { useAtomCallback } from "jotai/utils";
-import { useQueryClient } from "@tanstack/react-query";
 
 type ConnectionForm = {
   name?: string;

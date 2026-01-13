@@ -3,7 +3,10 @@ import type {
   ComponentPropsWithRef,
   ReactNode,
 } from "react";
+
 import { cn } from "@/utils";
+
+import { FormItem } from "./Form";
 import { Label } from "./Label";
 import {
   Select,
@@ -12,7 +15,6 @@ import {
   SelectContent,
   SelectItem,
 } from "./Select";
-import { FormItem } from "./Form";
 
 export type SelectOption = {
   label: string;

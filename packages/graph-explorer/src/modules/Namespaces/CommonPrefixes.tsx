@@ -1,3 +1,5 @@
+import { Virtuoso } from "react-virtuoso";
+
 import {
   ListRow,
   ListRowContent,
@@ -9,7 +11,6 @@ import {
   useSearchItems,
 } from "@/components";
 import commonPrefixes from "@/utils/common-prefixes.json";
-import { Virtuoso } from "react-virtuoso";
 
 const COMMON_PREFIXES_ITEMS = Object.entries(commonPrefixes)
   .map(([prefix, uri]) => {

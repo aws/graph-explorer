@@ -1,6 +1,7 @@
 import { ZodError } from "zod";
-import { NetworkError } from "./NetworkError";
+
 import { isCancellationError } from "./isCancellationError";
+import { NetworkError } from "./NetworkError";
 
 export type DisplayError = {
   title: string;

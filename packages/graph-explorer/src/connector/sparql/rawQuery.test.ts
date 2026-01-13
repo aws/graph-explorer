@@ -1,5 +1,12 @@
+import {
+  createRandomName,
+  createRandomInteger,
+  createRandomUrlString,
+  createRandomBoolean,
+  createRandomDate,
+} from "@shared/utils/testing";
 import { describe, it, expect, vi } from "vitest";
-import { rawQuery } from "./rawquery";
+
 import {
   createResultScalar,
   createResultBundle,
@@ -13,13 +20,8 @@ import {
   createQuadSparqlResponse,
   createQuadBindingsForEntities,
 } from "@/utils/testing";
-import {
-  createRandomName,
-  createRandomInteger,
-  createRandomUrlString,
-  createRandomBoolean,
-  createRandomDate,
-} from "@shared/utils/testing";
+
+import { rawQuery } from "./rawquery";
 
 describe("rawQuery", () => {
   it("should return empty array for empty query", async () => {

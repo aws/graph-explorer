@@ -1,7 +1,3 @@
-import { createResultEdge } from "@/connector/entities";
-import mapApiEdge from "./mapApiEdge";
-import type { OCEdge } from "../types";
-import { createTestableEdge, mapToOcEdge } from "@/utils/testing";
 import {
   createRandomName,
   createRandomInteger,
@@ -9,6 +5,13 @@ import {
   createRandomDouble,
   createRandomDate,
 } from "@shared/utils/testing";
+
+import { createResultEdge } from "@/connector/entities";
+import { createTestableEdge, mapToOcEdge } from "@/utils/testing";
+
+import type { OCEdge } from "../types";
+
+import mapApiEdge from "./mapApiEdge";
 
 describe("mapApiEdge", () => {
   it("should map an empty edge", () => {

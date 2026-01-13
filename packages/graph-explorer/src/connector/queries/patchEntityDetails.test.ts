@@ -1,15 +1,16 @@
+import { createQueryClient } from "@/core/queryClient";
 import {
   createTestableEdge,
   createTestableVertex,
   FakeExplorer,
 } from "@/utils/testing";
-import { patchEntityDetails } from "./patchEntityDetails";
-import { createQueryClient } from "@/core/queryClient";
+
 import {
   createResultScalar,
   createResultBundle,
   createPatchedResultBundle,
 } from "../entities";
+import { patchEntityDetails } from "./patchEntityDetails";
 
 describe("patchEntityDetails", () => {
   it("should return empty array", async () => {

@@ -1,5 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
+
 import type { EdgeId } from "@/core";
+
 import { getExplorer, getStore, updateEdgeGraphCanvasState } from "./helpers";
 
 export function edgeDetailsQuery(edgeId: EdgeId) {

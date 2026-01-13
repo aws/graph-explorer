@@ -1,3 +1,7 @@
+import type { ComponentPropsWithRef } from "react";
+
+import { PlusCircleIcon, RotateCwIcon } from "lucide-react";
+
 import { Button } from "@/components";
 import { SearchIcon } from "@/components/icons";
 import { PanelEmptyState } from "@/components/PanelEmptyState";
@@ -7,8 +11,6 @@ import {
   useRestoreGraphSession,
 } from "@/core";
 import { cn, formatEntityCounts } from "@/utils";
-import { PlusCircleIcon, RotateCwIcon } from "lucide-react";
-import type { ComponentPropsWithRef } from "react";
 
 export function GraphViewerEmptyState(props: ComponentPropsWithRef<"div">) {
   const availablePrevSession = useAvailablePreviousSession();

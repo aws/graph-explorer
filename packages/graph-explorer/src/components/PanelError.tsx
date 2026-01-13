@@ -1,15 +1,8 @@
-import { createDisplayError } from "@/utils/createDisplayError";
-import { GraphIcon } from "./icons";
-import { Button } from "./Button";
-import {
-  EmptyState,
-  EmptyStateIcon,
-  EmptyStateContent,
-  EmptyStateTitle,
-  EmptyStateDescription,
-  EmptyStateActions,
-} from "./EmptyState";
 import { InfoIcon, RotateCcwIcon } from "lucide-react";
+
+import { createDisplayError } from "@/utils/createDisplayError";
+
+import { Button } from "./Button";
 import {
   Dialog,
   DialogBody,
@@ -20,8 +13,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "./Dialog";
-import { Label } from "./Label";
+import {
+  EmptyState,
+  EmptyStateIcon,
+  EmptyStateContent,
+  EmptyStateTitle,
+  EmptyStateDescription,
+  EmptyStateActions,
+} from "./EmptyState";
 import { FormItem } from "./Form";
+import { GraphIcon } from "./icons";
+import { Label } from "./Label";
 
 export default function PanelError({
   error,

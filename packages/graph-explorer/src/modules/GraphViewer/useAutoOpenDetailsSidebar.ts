@@ -1,5 +1,6 @@
-import { userLayoutAtom } from "@/core";
 import { useSetAtom } from "jotai";
+
+import { userLayoutAtom } from "@/core";
 
 export function useAutoOpenDetailsSidebar() {
   const setUserLayout = useSetAtom(userLayoutAtom);

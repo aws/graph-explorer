@@ -1,6 +1,9 @@
-import { cn, isEven } from "@/utils";
-import { ChevronRightIcon } from "lucide-react";
 import type { ComponentPropsWithRef } from "react";
+
+import { ChevronRightIcon } from "lucide-react";
+
+import { cn, isEven } from "@/utils";
+
 import { Collapsible, CollapsibleTrigger } from "./Collapsible";
 
 export function SearchResult({

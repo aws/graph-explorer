@@ -9,6 +9,7 @@ import {
   type Vertex,
   type VertexId,
 } from "@/core";
+
 import { createPatchedResultVertex, type PatchedResultVertex } from "./vertex";
 
 /**

@@ -1,10 +1,12 @@
+import { useAtom } from "jotai";
+
 import {
   edgesSelectedIdsAtom,
   nodesSelectedIdsAtom,
   type EdgeId,
   type VertexId,
 } from "@/core";
-import { useAtom } from "jotai";
+
 import { useAutoOpenDetailsSidebar } from "./useAutoOpenDetailsSidebar";
 
 /**

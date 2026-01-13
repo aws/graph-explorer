@@ -3,13 +3,15 @@ import {
   createRandomDouble,
   createRandomInteger,
 } from "@shared/utils/testing";
+
+import { LABELS } from "@/utils";
+
 import {
   createResultScalar,
   createTypedValue,
   getDisplayValueForScalar,
   type ResultScalar,
 } from "./scalar";
-import { LABELS } from "@/utils";
 
 describe("scalar", () => {
   describe("createScalar", () => {

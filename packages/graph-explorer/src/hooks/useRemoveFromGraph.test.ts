@@ -1,18 +1,8 @@
-import {
-  createRandomEdge,
-  createRandomVertex,
-  DbState,
-  renderHookWithJotai,
-} from "@/utils/testing";
-import { act } from "react";
-import {
-  useClearGraph,
-  useRemoveEdgeFromGraph,
-  useRemoveFromGraph,
-  useRemoveNodeFromGraph,
-} from "./useRemoveFromGraph";
 import { createArray } from "@shared/utils/testing";
 import { waitFor } from "@testing-library/react";
+import { useAtomValue } from "jotai";
+import { act } from "react";
+
 import {
   activeGraphSessionAtom,
   edgesAtom,
@@ -27,7 +17,19 @@ import {
   toEdgeMap,
   toNodeMap,
 } from "@/core";
-import { useAtomValue } from "jotai";
+import {
+  createRandomEdge,
+  createRandomVertex,
+  DbState,
+  renderHookWithJotai,
+} from "@/utils/testing";
+
+import {
+  useClearGraph,
+  useRemoveEdgeFromGraph,
+  useRemoveFromGraph,
+  useRemoveNodeFromGraph,
+} from "./useRemoveFromGraph";
 
 test("should remove one node", async () => {
   const vertex = createRandomVertex();

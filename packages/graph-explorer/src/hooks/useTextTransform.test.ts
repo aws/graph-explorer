@@ -1,3 +1,5 @@
+import { vi } from "vitest";
+
 import {
   activeConfigurationAtom,
   configurationAtom,
@@ -9,8 +11,8 @@ import {
   createRandomSchema,
   renderHookWithJotai,
 } from "@/utils/testing";
+
 import useTextTransform from "./useTextTransform";
-import { vi } from "vitest";
 
 function initializeConfigWithPrefix(store: AppStore) {
   // Create config and setup schema

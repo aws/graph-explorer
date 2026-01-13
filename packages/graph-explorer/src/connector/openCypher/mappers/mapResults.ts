@@ -1,14 +1,17 @@
-import { logger } from "@/utils";
 import { z } from "zod";
 import { fromError } from "zod-validation-error";
-import mapApiVertex from "./mapApiVertex";
-import mapApiEdge from "./mapApiEdge";
-import type { OCEdge, OCVertex } from "../types";
+
 import {
   createResultBundle,
   createResultScalar,
   type ResultEntity,
 } from "@/connector/entities";
+import { logger } from "@/utils";
+
+import type { OCEdge, OCVertex } from "../types";
+
+import mapApiEdge from "./mapApiEdge";
+import mapApiVertex from "./mapApiVertex";
 
 const cypherScalarValueSchema = z.union([
   z.number(),

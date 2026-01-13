@@ -1,11 +1,6 @@
-import { cn } from "@/utils";
-import {
-  type VertexId,
-  useNeighbors,
-  useNeighborByType as useNeighborsByType,
-  useVertexPreferences,
-  createVertexType,
-} from "@/core";
+import { EyeIcon } from "lucide-react";
+import { type ComponentPropsWithoutRef, useState } from "react";
+
 import {
   Button,
   Chip,
@@ -14,12 +9,18 @@ import {
   TooltipTrigger,
   VertexIcon,
 } from "@/components";
+import {
+  type VertexId,
+  useNeighbors,
+  useNeighborByType as useNeighborsByType,
+  useVertexPreferences,
+  createVertexType,
+} from "@/core";
+import { useQueryEngine } from "@/core/connector";
 import useNeighborsOptions, {
   type NeighborOption,
 } from "@/hooks/useNeighborsOptions";
-import { type ComponentPropsWithoutRef, useState } from "react";
-import { useQueryEngine } from "@/core/connector";
-import { EyeIcon } from "lucide-react";
+import { cn } from "@/utils";
 
 export type NeighborsListProps = {
   vertexId: VertexId;

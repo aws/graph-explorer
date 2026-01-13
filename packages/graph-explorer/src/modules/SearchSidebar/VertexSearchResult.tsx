@@ -1,4 +1,7 @@
-import { createVertex, useDisplayVertexFromVertex } from "@/core";
+import { MinusCircleIcon, PlusCircleIcon } from "lucide-react";
+
+import type { PatchedResultVertex } from "@/connector/entities";
+
 import {
   type ButtonProps,
   CollapsibleContent,
@@ -9,13 +12,13 @@ import {
   stopPropagation,
   VertexRow,
 } from "@/components";
+import { createVertex, useDisplayVertexFromVertex } from "@/core";
 import {
   useAddToGraphMutation,
   useHasVertexBeenAddedToGraph,
   useRemoveNodeFromGraph,
 } from "@/hooks";
-import { MinusCircleIcon, PlusCircleIcon } from "lucide-react";
-import type { PatchedResultVertex } from "@/connector/entities";
+
 import { createEntityKey, EntitySearchResult } from "./EntitySearchResult";
 import { useVertexAttributesAsScalars } from "./useVertexAttributesAsScalars";
 

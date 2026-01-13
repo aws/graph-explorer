@@ -1,13 +1,15 @@
 import type { DisplayAttribute, DisplayVertex } from "@/core";
+
+import { VertexRow } from "@/components";
 import useTranslations from "@/hooks/useTranslations";
 import NeighborsList from "@/modules/common/NeighborsList/NeighborsList";
-import EntityAttribute from "./EntityAttribute";
 import {
   LABELS,
   RESERVED_ID_PROPERTY,
   RESERVED_TYPES_PROPERTY,
 } from "@/utils/constants";
-import { VertexRow } from "@/components";
+
+import EntityAttribute from "./EntityAttribute";
 
 export type VertexDetailProps = {
   node: DisplayVertex;

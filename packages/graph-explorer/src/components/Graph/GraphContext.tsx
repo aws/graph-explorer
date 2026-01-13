@@ -1,4 +1,3 @@
-import type { GraphRef } from "@/components/Graph/Graph";
 import {
   createContext,
   useContext,
@@ -6,6 +5,8 @@ import {
   type PropsWithChildren,
   type RefObject,
 } from "react";
+
+import type { GraphRef } from "@/components/Graph/Graph";
 
 interface GraphContextValue {
   graphRef: RefObject<GraphRef | null>;

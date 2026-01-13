@@ -1,4 +1,8 @@
+import { act } from "react";
+
+import { createEdgeType, createVertexType } from "@/core";
 import { DbState, renderHookWithState } from "@/utils/testing";
+
 import {
   defaultEdgePreferences,
   defaultVertexPreferences,
@@ -7,8 +11,6 @@ import {
   type EdgePreferencesStorageModel,
   type VertexPreferencesStorageModel,
 } from "./userPreferences";
-import { act } from "react";
-import { createEdgeType, createVertexType } from "@/core";
 
 function createExpectedVertex(existing: VertexPreferencesStorageModel) {
   return {

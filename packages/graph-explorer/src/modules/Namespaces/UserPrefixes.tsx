@@ -1,13 +1,7 @@
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogBody,
-  DialogFooter,
-  DialogDescription,
-} from "@/components/Dialog";
+import { useAtomCallback } from "jotai/utils";
 import { useCallback, useState } from "react";
+import { Virtuoso } from "react-virtuoso";
+
 import {
   AddIcon,
   Button,
@@ -26,14 +20,21 @@ import {
   useSearchItems,
 } from "@/components";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogBody,
+  DialogFooter,
+  DialogDescription,
+} from "@/components/Dialog";
+import {
   activeConfigurationAtom,
   type PrefixTypeConfig,
   schemaAtom,
   useConfiguration,
 } from "@/core";
 import { usePrefixes } from "@/core/StateProvider/schema";
-import { Virtuoso } from "react-virtuoso";
-import { useAtomCallback } from "jotai/utils";
 
 type PrefixForm = {
   prefix: string;

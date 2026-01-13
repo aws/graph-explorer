@@ -1,3 +1,7 @@
+import { useAtomValue } from "jotai";
+
+import type { Branded } from "@/utils";
+
 import {
   edgesFilteredIdsAtom,
   edgesTypesFilteredAtom,
@@ -11,8 +15,7 @@ import {
   type EntityRawId,
   type VertexId,
 } from "@/core";
-import type { Branded } from "@/utils";
-import { useAtomValue } from "jotai";
+
 import type { EdgeId } from "../entities/edge";
 
 /** A string representation of a vertex ID that encodes the original type. Cytoscape requires IDs to be strings. */
