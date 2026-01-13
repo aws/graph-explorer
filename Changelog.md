@@ -1,5 +1,27 @@
 # Graph Explorer Change Log
 
+## Release 2.5.2
+
+This release adds automatic loading of backup configuration files on startup,
+enabling infrastructure-as-code deployments and simplifying Docker-based setups.
+
+### New Features
+
+- **Auto-Load Backup Configuration**: Graph Explorer now automatically loads
+  `graph-explorer-config.json` backup file on startup when IndexedDB is empty,
+  similar to how `defaultConnection.json` is auto-loaded. This enables
+  infrastructure-as-code deployments and simplifies Docker-based setups. An
+  optional `GRAPH_EXP_FORCE_LOAD_BACKUP_CONFIG` environment variable allows
+  forcing the backup config to always load, overriding IndexedDB data.
+
+### All Changes
+
+- Add automatic loading of backup configuration file on startup by @jeremy-london
+  in https://github.com/aws/graph-explorer/pull/1453
+
+**Full Changelog**:
+https://github.com/aws/graph-explorer/compare/v2.5.1...v2.5.2
+
 ## Release 2.5.1
 
 This release includes a fix for a regression that caused neighbor expansion in
