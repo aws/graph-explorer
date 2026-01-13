@@ -6,9 +6,9 @@ import {
 } from "@/utils/testing";
 
 import {
-  createResultScalar,
-  createResultBundle,
   createPatchedResultBundle,
+  createResultBundle,
+  createResultScalar,
 } from "../entities";
 import { patchEntityDetails } from "./patchEntityDetails";
 

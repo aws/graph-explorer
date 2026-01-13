@@ -1,12 +1,12 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { createResultScalar } from "@/connector/entities";
 import {
-  type DisplayEdge,
-  type DisplayAttribute,
-  createVertexId,
   createEdgeId,
   createEdgeType,
+  createVertexId,
+  type DisplayAttribute,
+  type DisplayEdge,
 } from "@/core";
 import {
   createRandomQueryEngine,

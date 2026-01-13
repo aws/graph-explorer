@@ -4,8 +4,8 @@ import {
   SearchResultAttributeValue,
 } from "@/components";
 import {
-  type ResultScalar,
   getDisplayValueForScalar,
+  type ResultScalar,
 } from "@/connector/entities";
 import { useTextTransform } from "@/hooks";
 

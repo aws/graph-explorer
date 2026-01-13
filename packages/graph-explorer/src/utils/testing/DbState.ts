@@ -3,6 +3,7 @@ import type { Explorer } from "@/connector";
 import {
   activeConfigurationAtom,
   allGraphSessionsAtom,
+  type AppStore,
   configurationAtom,
   type Edge,
   type EdgeId,
@@ -10,14 +11,16 @@ import {
   edgesAtom,
   edgesFilteredIdsAtom,
   edgesTypesFilteredAtom,
+  type EdgeType,
   explorerForTestingAtom,
-  mapVertexToTypeConfigs,
   mapEdgeToTypeConfig,
+  mapVertexToTypeConfigs,
   nodesAtom,
   nodesFilteredIdsAtom,
   nodesTypesFilteredAtom,
   type RawConfiguration,
   schemaAtom,
+  type SchemaStorageModel,
   toEdgeMap,
   toNodeMap,
   type UserStyling,
@@ -25,19 +28,16 @@ import {
   type Vertex,
   type VertexId,
   type VertexPreferencesStorageModel,
-  type AppStore,
-  type EdgeType,
   type VertexType,
-  type SchemaStorageModel,
 } from "@/core";
 
 import { createMockExplorer } from "./createMockExplorer";
 import {
-  createRandomSchema,
-  createRandomRawConfiguration,
-  createRandomVertex,
   createRandomEdge,
+  createRandomRawConfiguration,
+  createRandomSchema,
   createRandomUserStyling,
+  createRandomVertex,
   type TestableEdge,
   type TestableVertex,
 } from "./randomData";

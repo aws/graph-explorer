@@ -5,17 +5,17 @@ import { useCallback } from "react";
 
 import {
   activeSchemaAtom,
-  edgePreferenceByTypeAtom,
-  edgeTypeConfigSelector,
-  vertexPreferenceByTypeAtom,
-  vertexTypeConfigSelector,
   type AttributeConfig,
+  edgePreferenceByTypeAtom,
   type EdgePreferences,
   type EdgeType,
   type EdgeTypeConfig,
+  edgeTypeConfigSelector,
+  vertexPreferenceByTypeAtom,
   type VertexPreferences,
   type VertexType,
   type VertexTypeConfig,
+  vertexTypeConfigSelector,
 } from "@/core";
 import { type TextTransformer, textTransformSelector } from "@/hooks";
 import { LABELS, logger, SEARCH_TOKENS } from "@/utils";

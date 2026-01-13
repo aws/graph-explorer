@@ -1,9 +1,9 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useTransition } from "react";
 
-import type { VertexId, EdgeId } from "@/core";
+import type { EdgeId, VertexId } from "@/core";
 
-import { bulkVertexDetailsQuery, bulkEdgeDetailsQuery } from "@/connector";
+import { bulkEdgeDetailsQuery, bulkVertexDetailsQuery } from "@/connector";
 
 export function useRefreshEntities() {
   const queryClient = useQueryClient();

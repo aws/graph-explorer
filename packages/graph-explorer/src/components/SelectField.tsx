@@ -10,10 +10,10 @@ import { FormItem } from "./Form";
 import { Label } from "./Label";
 import {
   Select,
-  SelectTrigger,
-  SelectValue,
   SelectContent,
   SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "./Select";
 
 export type SelectOption = {

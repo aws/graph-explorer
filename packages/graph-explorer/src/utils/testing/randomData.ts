@@ -20,11 +20,11 @@ import {
 } from "@shared/utils/testing";
 
 import {
-  createResultVertex,
+  createPatchedResultEdge,
   createPatchedResultVertex,
   createResultEdge,
-  createPatchedResultEdge,
   createResultScalar,
+  createResultVertex,
 } from "@/connector/entities";
 import { createRdfEdgeId } from "@/connector/sparql/createRdfEdgeId";
 import {
@@ -34,10 +34,12 @@ import {
   createEdge,
   createEdgeId,
   createEdgePreference,
+  createEdgeType,
   createNewConfigurationId,
   createVertex,
   createVertexId,
   createVertexPreference,
+  createVertexType,
   type EdgeConnection,
   type EdgeId,
   type EdgePreferences,
@@ -51,8 +53,7 @@ import {
   type LineStyle,
   type PrefixTypeConfig,
   type RawConfiguration,
-  createEdgeType,
-  createVertexType,
+  type SchemaStorageModel,
   type UserStyling,
   type Vertex,
   type VertexId,
@@ -60,7 +61,6 @@ import {
   type VertexPreferencesStorageModel,
   type VertexType,
   type VertexTypeConfig,
-  type SchemaStorageModel,
 } from "@/core";
 import {
   createExportedGraph,

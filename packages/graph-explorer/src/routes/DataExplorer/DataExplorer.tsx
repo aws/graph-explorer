@@ -12,8 +12,8 @@ import {
   EmptyStateDescription,
   EmptyStateTitle,
   NavBar,
-  NavBarContent,
   NavBarActions,
+  NavBarContent,
   NavBarTitle,
   NavBarVersion,
   Panel,
@@ -38,15 +38,15 @@ import {
 import Tabular from "@/components/Tabular/Tabular";
 import { type KeywordSearchRequest, searchQuery } from "@/connector";
 import {
-  useUpdateSchemaFromEntities,
-  type Vertex,
+  createVertexType,
   type DisplayVertex,
   useConfiguration,
   useDisplayVertexTypeConfig,
   useDisplayVertexTypeConfigs,
   useDisplayVerticesFromVertices,
+  useUpdateSchemaFromEntities,
+  type Vertex,
   type VertexType,
-  createVertexType,
 } from "@/core";
 import { useVertexTypeConfig } from "@/core/ConfigurationProvider/useConfiguration";
 import { useVertexStyling } from "@/core/StateProvider/userPreferences";

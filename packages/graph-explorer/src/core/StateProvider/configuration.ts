@@ -6,14 +6,14 @@ import { cloneDeep, isEqual, uniq } from "lodash";
 
 import {
   activeConfigurationAtom,
+  type AttributeConfig,
   configurationAtom,
-  userStylingAtom,
   createEdgeType,
   createVertexType,
-  type AttributeConfig,
   type EdgeType,
   type EdgeTypeConfig,
   type RawConfiguration,
+  userStylingAtom,
   type VertexType,
   type VertexTypeConfig,
 } from "@/core";

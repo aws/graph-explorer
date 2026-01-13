@@ -17,15 +17,15 @@ import {
 } from "@/components";
 import {
   Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogBody,
+  DialogClose,
+  DialogContent,
   DialogDescription,
   DialogFooter,
-  DialogClose,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/Dialog";
-import { useDisplayEdgeTypeConfig, type EdgeType } from "@/core";
+import { type EdgeType, useDisplayEdgeTypeConfig } from "@/core";
 import {
   type ArrowStyle,
   type LineStyle,

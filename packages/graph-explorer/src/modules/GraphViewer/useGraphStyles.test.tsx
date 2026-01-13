@@ -1,14 +1,14 @@
 import { waitFor } from "@testing-library/react";
-import { describe, expect, it, vi, beforeEach, type Mock } from "vitest";
+import { beforeEach, describe, expect, it, type Mock, vi } from "vitest";
 
 import type { GraphProps } from "@/components/Graph";
 
 import { createEdgeType, createVertexType } from "@/core";
 import {
+  createRandomEdgeTypeConfig,
+  createRandomVertexTypeConfig,
   DbState,
   renderHookWithState,
-  createRandomVertexTypeConfig,
-  createRandomEdgeTypeConfig,
 } from "@/utils/testing";
 
 import { renderNode } from "./renderNode";

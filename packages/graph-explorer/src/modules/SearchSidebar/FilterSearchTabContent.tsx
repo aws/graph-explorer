@@ -3,19 +3,19 @@ import type { UseQueryResult } from "@tanstack/react-query";
 import type { KeywordSearchResponse } from "@/connector";
 
 import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  FormItem,
-  Label,
   Checkbox,
+  FormItem,
   Input,
+  Label,
   PanelEmptyState,
   PanelError,
   SearchSadIcon,
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   Spinner,
 } from "@/components";
 import { createPatchedResultVertex } from "@/connector/entities";

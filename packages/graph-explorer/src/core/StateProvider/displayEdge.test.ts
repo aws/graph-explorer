@@ -7,10 +7,10 @@ import {
   activeConfigurationAtom,
   type AppStore,
   configurationAtom,
+  createEdgeType,
   type Edge,
   getRawId,
   schemaAtom,
-  createEdgeType,
   type SchemaStorageModel,
 } from "@/core";
 import { formatDate } from "@/utils";

@@ -3,10 +3,10 @@ import { useCallback } from "react";
 import { toast } from "sonner";
 
 import {
-  createNewConfigurationId,
-  configurationAtom,
-  schemaAtom,
   activeConfigurationAtom,
+  configurationAtom,
+  createNewConfigurationId,
+  schemaAtom,
 } from "@/core";
 import useResetState from "@/core/StateProvider/useResetState";
 import { fromFileToJson } from "@/utils/fileData";

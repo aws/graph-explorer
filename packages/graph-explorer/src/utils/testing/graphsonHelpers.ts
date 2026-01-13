@@ -20,11 +20,11 @@ import type {
 } from "@/connector/gremlin/types";
 
 import {
-  type ResultVertex,
-  type ResultEntity,
-  type ResultEdge,
-  type ScalarValue,
   createTypedValue,
+  type ResultEdge,
+  type ResultEntity,
+  type ResultVertex,
+  type ScalarValue,
 } from "@/connector/entities";
 import {
   type Edge,

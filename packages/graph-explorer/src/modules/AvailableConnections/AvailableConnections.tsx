@@ -3,23 +3,23 @@ import { Virtuoso } from "react-virtuoso";
 
 import {
   AddIcon,
-  PanelHeaderActionButton,
-  PanelHeaderActions,
-  PanelHeader,
-  TrayArrowIcon,
-  PanelTitle,
-  PanelHeaderDivider,
+  FileButton,
   Panel,
   PanelContent,
-  FileButton,
+  PanelHeader,
+  PanelHeaderActionButton,
+  PanelHeaderActions,
+  PanelHeaderDivider,
+  PanelTitle,
+  TrayArrowIcon,
 } from "@/components";
 import {
   Dialog,
+  DialogBody,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogBody,
-  DialogDescription,
 } from "@/components/Dialog";
 import { activeConfigurationAtom, configurationAtom } from "@/core";
 import CreateConnection from "@/modules/CreateConnection";

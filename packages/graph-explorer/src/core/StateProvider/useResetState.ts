@@ -15,9 +15,9 @@ import {
   edgesFilteredIdsAtom,
   edgesOutOfFocusIdsAtom,
   edgesSelectedIdsAtom,
-  edgesTypesFilteredAtom,
   edgesTableFiltersAtom,
   edgesTableSortsAtom,
+  edgesTypesFilteredAtom,
 } from "./edges";
 import { isRestorePreviousSessionAvailableAtom } from "./graphSession";
 import {

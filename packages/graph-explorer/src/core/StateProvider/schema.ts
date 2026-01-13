@@ -18,11 +18,11 @@ import type { SetStateActionWithReset } from "@/utils/jotai";
 import { createTypedValue, type ScalarValue } from "@/connector/entities";
 import {
   activeConfigurationAtom,
-  schemaAtom,
   type Edge,
   type EdgeType,
   type Entities,
   type EntityProperties,
+  schemaAtom,
   type Vertex,
   type VertexType,
 } from "@/core";

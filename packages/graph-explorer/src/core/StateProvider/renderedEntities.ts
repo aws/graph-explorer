@@ -3,16 +3,16 @@ import { useAtomValue } from "jotai";
 import type { Branded } from "@/utils";
 
 import {
+  type DisplayEdge,
+  type DisplayVertex,
   edgesFilteredIdsAtom,
   edgesTypesFilteredAtom,
+  type EntityRawId,
   nodesFilteredIdsAtom,
   nodesTypesFilteredAtom,
   useAllNeighbors,
   useDisplayEdgesInCanvas,
   useDisplayVerticesInCanvas,
-  type DisplayEdge,
-  type DisplayVertex,
-  type EntityRawId,
   type VertexId,
 } from "@/core";
 

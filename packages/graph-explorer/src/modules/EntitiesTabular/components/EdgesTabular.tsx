@@ -7,8 +7,8 @@ import type { ColumnDefinition, TabularInstance } from "@/components/Tabular";
 import {
   EmptyState,
   EmptyStateContent,
-  EmptyStateTitle,
   EmptyStateDescription,
+  EmptyStateTitle,
 } from "@/components";
 import { makeIconToggleCell } from "@/components/Tabular/builders";
 import { TabularEmptyBodyControls } from "@/components/Tabular/controls";

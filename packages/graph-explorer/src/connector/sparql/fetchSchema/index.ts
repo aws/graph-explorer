@@ -5,9 +5,9 @@ import type {
 } from "@/connector/useGEFetchTypes";
 
 import {
+  type AttributeConfig,
   createEdgeType,
   createVertexType,
-  type AttributeConfig,
   type VertexType,
 } from "@/core";
 import { defaultVertexTypeConfig } from "@/core/StateProvider/configuration";

@@ -10,11 +10,11 @@ import {
   VertexIcon,
 } from "@/components";
 import {
-  type VertexId,
+  createVertexType,
   useNeighbors,
   useNeighborByType as useNeighborsByType,
   useVertexPreferences,
-  createVertexType,
+  type VertexId,
 } from "@/core";
 import { useQueryEngine } from "@/core/connector";
 import useNeighborsOptions, {

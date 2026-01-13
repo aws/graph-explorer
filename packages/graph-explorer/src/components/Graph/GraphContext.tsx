@@ -1,9 +1,9 @@
 import {
   createContext,
-  useContext,
-  useRef,
   type PropsWithChildren,
   type RefObject,
+  useContext,
+  useRef,
 } from "react";
 
 import type { GraphRef } from "@/components/Graph/Graph";

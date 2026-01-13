@@ -6,9 +6,9 @@ import { DbState, renderHookWithState } from "@/utils/testing";
 import {
   defaultEdgePreferences,
   defaultVertexPreferences,
+  type EdgePreferencesStorageModel,
   useEdgeStyling,
   useVertexStyling,
-  type EdgePreferencesStorageModel,
   type VertexPreferencesStorageModel,
 } from "./userPreferences";
 

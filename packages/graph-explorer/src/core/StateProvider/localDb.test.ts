@@ -11,14 +11,14 @@ import {
 } from "@/utils/testing";
 
 import {
-  createBackupData,
-  type LocalDb,
-  renameEntry,
   addRestoredPrefix,
-  removePrefixFromRestoredEntries,
+  createBackupData,
   hasRestoredPrefix,
-  removeRestoredPrefix,
+  type LocalDb,
   readBackupDataFromFile,
+  removePrefixFromRestoredEntries,
+  removeRestoredPrefix,
+  renameEntry,
   restoreBackup,
 } from "./localDb";
 import { serializeData } from "./serializeData";

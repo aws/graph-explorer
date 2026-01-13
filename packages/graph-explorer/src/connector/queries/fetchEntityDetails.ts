@@ -2,7 +2,7 @@ import type { QueryClient } from "@tanstack/react-query";
 
 import { toast } from "sonner";
 
-import type { VertexId, EdgeId } from "@/core";
+import type { EdgeId, VertexId } from "@/core";
 
 import { bulkEdgeDetailsQuery, bulkVertexDetailsQuery } from "@/connector";
 import { formatEntityCounts } from "@/utils";

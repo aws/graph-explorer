@@ -9,7 +9,7 @@ import {
 import type { SchemaStorageModel } from "../StateProvider";
 import type { RawConfiguration } from "./types";
 
-import { serializeData, deserializeData } from "../StateProvider/serializeData";
+import { deserializeData, serializeData } from "../StateProvider/serializeData";
 
 describe("Schema", () => {
   test("serialization round-trip preserves schema data", () => {

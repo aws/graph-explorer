@@ -6,8 +6,8 @@ import { logger, query } from "@/utils";
 import type { RawQueryRequest, RawQueryResponse } from "../useGEFetchTypes";
 
 import {
-  createResultScalar,
   createResultBundle,
+  createResultScalar,
   createResultVertex,
   type ResultEntity,
 } from "../entities";
@@ -15,12 +15,12 @@ import isErrorResponse from "../utils/isErrorResponse";
 import { mapQuadToEntities } from "./mappers/mapQuadToEntities";
 import { mapSparqlValueToScalar } from "./mappers/mapSparqlValueToScalar";
 import {
+  sparqlAskResponseSchema,
   type SparqlFetch,
+  type SparqlQuadBinding,
+  sparqlQuadBindingSchema,
   sparqlResponseSchema,
   sparqlValueSchema,
-  sparqlAskResponseSchema,
-  sparqlQuadBindingSchema,
-  type SparqlQuadBinding,
 } from "./types";
 
 // Zod schema for any SPARQL response - uses a record of variable names to SPARQL values

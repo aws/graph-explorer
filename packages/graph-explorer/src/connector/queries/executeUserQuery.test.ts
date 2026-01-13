@@ -6,7 +6,7 @@ import {
   FakeExplorer,
 } from "@/utils/testing";
 
-import { getAllGraphableEntities, createResultScalar } from "../entities";
+import { createResultScalar, getAllGraphableEntities } from "../entities";
 import { executeUserQuery } from "./executeUserQuery";
 
 describe("executeUserQuery", () => {

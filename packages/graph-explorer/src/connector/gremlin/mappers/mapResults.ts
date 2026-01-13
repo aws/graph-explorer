@@ -1,8 +1,8 @@
 import {
-  type ResultEntity,
-  createResultScalar,
   createResultBundle,
+  createResultScalar,
   getDisplayValueForScalar,
+  type ResultEntity,
   type ResultScalar,
 } from "@/connector/entities";
 

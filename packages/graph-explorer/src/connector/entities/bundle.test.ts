@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { ASCII, LABELS } from "@/utils/constants";
 import { createTestableEdge, createTestableVertex } from "@/utils/testing";

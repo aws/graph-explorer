@@ -2,9 +2,9 @@ import { useAtomValue } from "jotai";
 import { Tabs as TabsPrimitive } from "radix-ui";
 import { Resizable } from "re-resizable";
 import {
-  useState,
   type ComponentPropsWithRef,
   type PropsWithChildren,
+  useState,
 } from "react";
 
 import {
@@ -20,9 +20,9 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/Tooltip";
 import {
   CLOSED_SIDEBAR_WIDTH,
   DEFAULT_SIDEBAR_WIDTH,
+  type SidebarItems,
   useSidebar,
   useSidebarSize,
-  type SidebarItems,
 } from "@/core";
 import { totalFilteredCount } from "@/core/StateProvider/filterCount";
 import { useTranslations } from "@/hooks";

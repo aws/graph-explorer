@@ -9,13 +9,13 @@ import {
   configurationAtom,
   createVertex,
   createVertexId,
+  createVertexType,
   type DisplayAttribute,
   getRawId,
   schemaAtom,
-  createVertexType,
+  type SchemaStorageModel,
   useDisplayVertexFromVertex,
   type Vertex,
-  type SchemaStorageModel,
 } from "@/core";
 import { formatDate, LABELS } from "@/utils";
 import {

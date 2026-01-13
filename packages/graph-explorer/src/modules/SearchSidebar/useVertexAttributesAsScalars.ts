@@ -1,4 +1,4 @@
-import type { DisplayVertex, DisplayAttribute } from "@/core";
+import type { DisplayAttribute, DisplayVertex } from "@/core";
 
 import { createResultScalar } from "@/connector/entities";
 import { useTranslations } from "@/hooks";

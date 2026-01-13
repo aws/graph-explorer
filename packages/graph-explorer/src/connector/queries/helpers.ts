@@ -3,12 +3,12 @@ import type { QueryClient } from "@tanstack/react-query";
 import type { GraphExplorerMeta } from "@/core/queryClient";
 
 import {
+  type AppStore,
   createEdge,
   createVertex,
+  type Edge,
   edgesAtom,
   nodesAtom,
-  type AppStore,
-  type Edge,
   type Vertex,
 } from "@/core";
 import { logger } from "@/utils";

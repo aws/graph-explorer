@@ -1,6 +1,6 @@
 import { atom, useAtomValue, useSetAtom } from "jotai";
 
-import { VertexIconByType, type CheckboxListItemProps } from "@/components";
+import { type CheckboxListItemProps, VertexIconByType } from "@/components";
 import { EdgeIcon } from "@/components/icons";
 import {
   edgesTypesFilteredAtom,

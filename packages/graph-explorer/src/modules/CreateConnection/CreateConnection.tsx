@@ -1,7 +1,7 @@
 import type {
   ConnectionConfig,
-  QueryEngine,
   NeptuneServiceType,
+  QueryEngine,
 } from "@shared/types";
 
 import { useQueryClient } from "@tanstack/react-query";

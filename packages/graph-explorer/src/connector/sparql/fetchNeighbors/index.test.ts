@@ -1,12 +1,12 @@
 import { createRandomUrlString } from "@shared/utils/testing";
-import { describe, test, expect, vi } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 import { createVertex } from "@/core";
 import {
-  createTestableVertex,
-  createTestableEdge,
   createQuadBindingsForEntities,
   createQuadSparqlResponse,
+  createTestableEdge,
+  createTestableVertex,
 } from "@/utils/testing";
 
 import type { SPARQLNeighborsRequest } from "../types";

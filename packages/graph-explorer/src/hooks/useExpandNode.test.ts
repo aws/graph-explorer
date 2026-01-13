@@ -14,8 +14,8 @@ import {
 } from "@/utils/testing";
 
 import useExpandNode, {
-  useDefaultNeighborExpansionLimit,
   type ExpandNodesRequest,
+  useDefaultNeighborExpansionLimit,
 } from "./useExpandNode";
 
 describe("useDefaultNeighborExpansionLimit", () => {

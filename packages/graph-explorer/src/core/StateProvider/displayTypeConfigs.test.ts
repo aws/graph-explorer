@@ -14,11 +14,11 @@ import {
 } from "@/utils/testing";
 
 import {
+  mapToDisplayEdgeTypeConfig,
+  mapToDisplayVertexTypeConfig,
   useDisplayEdgeTypeConfig,
   useDisplayVertexTypeConfig,
   useSearchableAttributes,
-  mapToDisplayVertexTypeConfig,
-  mapToDisplayEdgeTypeConfig,
 } from "./displayTypeConfigs";
 import { RDFS_LABEL_URI } from "./sortAttributeByName";
 

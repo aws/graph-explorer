@@ -24,19 +24,19 @@ import {
 } from "@/components/icons";
 import {
   type EdgeId,
-  type VertexId,
-  userLayoutAtom,
   type SidebarItems,
-  useDisplayVertex,
   useDisplayEdgeInCanvas,
+  useDisplayVertex,
+  userLayoutAtom,
+  type VertexId,
 } from "@/core";
 import {
   useClearGraph,
+  useContextMenuTarget,
   useExpandNode,
   useRefreshEntities,
   useRemoveFromGraph,
   useTranslations,
-  useContextMenuTarget,
 } from "@/hooks";
 import { useDefaultNeighborExpansionLimit } from "@/hooks/useExpandNode";
 import { useOpenEdgeStyleDialog } from "@/modules/EdgesStyling";

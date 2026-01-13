@@ -8,8 +8,8 @@ import {
   createRandomSchema,
   createRandomVertex,
   createRandomVertexType,
-  renderHookWithState,
   DbState,
+  renderHookWithState,
 } from "@/utils/testing";
 
 import type {
@@ -20,14 +20,14 @@ import type {
 
 import {
   createEdge,
-  createVertex,
   createEdgeType,
+  createVertex,
   createVertexType,
   type EntityProperties,
 } from "../entities";
 import {
-  mapVertexToTypeConfigs,
   mapEdgeToTypeConfig,
+  mapVertexToTypeConfigs,
   shouldUpdateSchemaFromEntities,
   updateSchemaFromEntities,
   updateSchemaPrefixes,

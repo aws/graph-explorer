@@ -3,15 +3,15 @@ import { atomFamily } from "jotai-family";
 
 import {
   type DisplayAttribute,
+  getRawId,
   getSortedDisplayAttributes,
   nodesAtom,
+  nodeSelector,
   nodesSelectedIdsAtom,
   queryEngineSelector,
-  nodeSelector,
-  getRawId,
+  useVertex,
   type Vertex,
   type VertexId,
-  useVertex,
   vertexPreferenceByTypeAtom,
   type VertexType,
 } from "@/core";

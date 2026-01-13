@@ -1,6 +1,6 @@
 import type {
-  ResultVertex,
   ResultEdge,
+  ResultVertex,
   ScalarValue,
 } from "@/connector/entities";
 import type {

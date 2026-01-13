@@ -1,6 +1,6 @@
 import type { ComponentPropsWithoutRef } from "react";
 
-import { useVertexPreferences, type DisplayVertex } from "@/core";
+import { type DisplayVertex, useVertexPreferences } from "@/core";
 import { ASCII, cn, LABELS } from "@/utils";
 
 import { SearchResultSubtitle, SearchResultTitle, VertexSymbol } from ".";

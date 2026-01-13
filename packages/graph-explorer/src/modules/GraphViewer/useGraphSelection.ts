@@ -1,9 +1,9 @@
 import { useAtom } from "jotai";
 
 import {
+  type EdgeId,
   edgesSelectedIdsAtom,
   nodesSelectedIdsAtom,
-  type EdgeId,
   type VertexId,
 } from "@/core";
 

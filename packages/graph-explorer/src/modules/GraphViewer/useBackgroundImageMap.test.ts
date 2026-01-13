@@ -1,11 +1,11 @@
 import { waitFor } from "@testing-library/react";
-import { describe, expect, it, vi, beforeEach, type Mock } from "vitest";
+import { beforeEach, describe, expect, it, type Mock, vi } from "vitest";
 
 import { defaultVertexPreferences } from "@/core";
 import {
-  renderHookWithState,
-  DbState,
   createRandomVertexPreferences,
+  DbState,
+  renderHookWithState,
 } from "@/utils/testing";
 
 import { renderNode } from "./renderNode";

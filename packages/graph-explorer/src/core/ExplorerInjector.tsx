@@ -1,4 +1,4 @@
-import { useQueryClient, type DefaultOptions } from "@tanstack/react-query";
+import { type DefaultOptions, useQueryClient } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
 import { useMemo, useState } from "react";
 

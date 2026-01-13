@@ -4,7 +4,7 @@ import { atomFamily } from "jotai-family";
 import { atomWithReset } from "jotai/utils";
 
 import { vertexDetailsQuery } from "@/connector";
-import { type Vertex, type VertexId, createVertex } from "@/core";
+import { createVertex, type Vertex, type VertexId } from "@/core";
 
 export function toNodeMap(nodes: Iterable<Vertex>): Map<VertexId, Vertex> {
   return new Map(Iterator.from(nodes).map(n => [n.id, n]));

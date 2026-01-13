@@ -19,6 +19,7 @@ import type { SelectedElements } from "@/components/Graph/Graph.model";
 import type { ElementEventCallback } from "@/components/Graph/hooks/useAddClickEvents";
 
 import {
+  IconButton,
   Panel,
   PanelContent,
   PanelHeader,
@@ -27,7 +28,6 @@ import {
   PanelHeaderCloseButton,
   PanelHeaderDivider,
   PanelTitle,
-  IconButton,
   VertexSymbolByType,
 } from "@/components";
 import { Graph } from "@/components/Graph";

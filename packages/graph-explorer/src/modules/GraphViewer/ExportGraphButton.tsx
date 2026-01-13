@@ -2,7 +2,7 @@ import { useAtomValue } from "jotai";
 import { SaveIcon } from "lucide-react";
 
 import { PanelHeaderActionButton } from "@/components";
-import { nodesAtom, edgesAtom, useExplorer, useConfiguration } from "@/core";
+import { edgesAtom, nodesAtom, useConfiguration, useExplorer } from "@/core";
 import { saveFile, toJsonFileData } from "@/utils/fileData";
 
 import { createDefaultFileName, createExportedGraph } from "./exportedGraph";

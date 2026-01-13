@@ -21,12 +21,12 @@ import {
 } from "@/components";
 import {
   Dialog,
+  DialogBody,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogBody,
-  DialogFooter,
-  DialogDescription,
 } from "@/components/Dialog";
 import {
   activeConfigurationAtom,

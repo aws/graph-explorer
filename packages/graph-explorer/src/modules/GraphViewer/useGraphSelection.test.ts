@@ -1,7 +1,7 @@
 import { act } from "react";
 
 import { renderHookWithState } from "@/utils/testing";
-import { createRandomVertexId, createRandomEdgeId } from "@/utils/testing";
+import { createRandomEdgeId, createRandomVertexId } from "@/utils/testing";
 
 import { useGraphSelection } from "./useGraphSelection";
 

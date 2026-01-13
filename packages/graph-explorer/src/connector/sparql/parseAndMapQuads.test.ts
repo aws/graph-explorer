@@ -2,10 +2,10 @@ import { createArray } from "@shared/utils/testing";
 
 import { logger } from "@/utils";
 import {
-  createTestableVertex,
-  createTestableEdge,
   createQuadBindingsForEntities,
   createQuadSparqlResponse,
+  createTestableEdge,
+  createTestableVertex,
 } from "@/utils/testing";
 
 import { parseAndMapQuads } from "./parseAndMapQuads";

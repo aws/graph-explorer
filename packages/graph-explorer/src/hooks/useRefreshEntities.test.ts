@@ -1,7 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { act, waitFor } from "@testing-library/react";
 
-import { vertexDetailsQuery, edgeDetailsQuery } from "@/connector";
+import { edgeDetailsQuery, vertexDetailsQuery } from "@/connector";
 import {
   createRandomEdge,
   createRandomVertex,

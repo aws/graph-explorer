@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook } from "@testing-library/react";
 import { Provider } from "jotai";
 
-import { getAppStore, type AppStore } from "@/core";
+import { type AppStore, getAppStore } from "@/core";
 import { createQueryClient } from "@/core/queryClient";
 
 import { DbState } from "./DbState";

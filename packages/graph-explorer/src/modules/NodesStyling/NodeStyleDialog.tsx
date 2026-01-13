@@ -20,13 +20,13 @@ import {
 } from "@/components";
 import {
   Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogBody,
+  DialogClose,
+  DialogContent,
   DialogDescription,
   DialogFooter,
-  DialogClose,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/Dialog";
 import { useDisplayVertexTypeConfig, type VertexType } from "@/core";
 import {

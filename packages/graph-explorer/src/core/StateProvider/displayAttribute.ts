@@ -1,4 +1,4 @@
-import type { Vertex, Edge, EntityPropertyValue } from "@/core";
+import type { Edge, EntityPropertyValue, Vertex } from "@/core";
 import type { TextTransformer } from "@/hooks";
 
 import { getDisplayValueForScalar } from "@/connector/entities";

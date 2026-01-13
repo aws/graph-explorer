@@ -4,7 +4,7 @@ import { logger } from "@/utils";
 
 import isErrorResponse from "../utils/isErrorResponse";
 import { mapQuadToEntities } from "./mappers/mapQuadToEntities";
-import { sparqlResponseSchema, sparqlQuadBindingSchema } from "./types";
+import { sparqlQuadBindingSchema, sparqlResponseSchema } from "./types";
 
 /**
  * Checks the data for error information, then parses to SPARQL quad bindings and maps to result entities.

@@ -37,11 +37,11 @@ import {
 import { LinkButton } from "@/components/Button";
 import {
   Dialog,
+  DialogBody,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogBody,
-  DialogDescription,
 } from "@/components/Dialog";
 import {
   activeSchemaSelector,

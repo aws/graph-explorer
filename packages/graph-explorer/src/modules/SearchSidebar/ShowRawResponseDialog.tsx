@@ -1,5 +1,5 @@
 import { ClipboardCheckIcon, ClipboardIcon } from "lucide-react";
-import { useState, type ComponentPropsWithoutRef } from "react";
+import { type ComponentPropsWithoutRef, useState } from "react";
 
 import {
   Button,

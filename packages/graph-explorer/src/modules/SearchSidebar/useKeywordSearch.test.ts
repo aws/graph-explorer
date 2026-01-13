@@ -4,15 +4,15 @@ import { vi } from "vitest";
 
 import {
   activeConfigurationAtom,
+  type AppStore,
   configurationAtom,
   schemaAtom,
-  type AppStore,
 } from "@/core";
 import { SEARCH_TOKENS } from "@/utils";
 import {
+  createRandomRawConfiguration,
   createRandomSchema,
   renderHookWithJotai,
-  createRandomRawConfiguration,
 } from "@/utils/testing";
 
 import useKeywordSearch from "./useKeywordSearch";

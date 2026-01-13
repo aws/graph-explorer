@@ -7,10 +7,10 @@ import {
 } from "@shared/utils/testing";
 
 import {
-  createResultScalar,
-  type ResultVertex,
-  type ResultEdge,
   createResultBundle,
+  createResultScalar,
+  type ResultEdge,
+  type ResultVertex,
 } from "@/connector/entities";
 import {
   createGEdge,

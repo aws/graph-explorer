@@ -2,14 +2,14 @@
 
 // DEV NOTE: The DOMParser in happy-dom is not fully functional. Using jsdom until it works properly.
 
-import { createRandomName, createRandomColor } from "@shared/utils/testing";
+import { createRandomColor, createRandomName } from "@shared/utils/testing";
 import { QueryClient } from "@tanstack/react-query";
 import { vi } from "vitest";
 
 import { logger } from "@/utils";
 import { createRandomVertexType } from "@/utils/testing";
 
-import { type VertexIconConfig, renderNode } from "./renderNode";
+import { renderNode, type VertexIconConfig } from "./renderNode";
 
 const client = new QueryClient();
 const fetchMock = vi.fn<typeof fetch>();

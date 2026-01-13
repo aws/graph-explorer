@@ -1,7 +1,7 @@
 import type { ComponentPropsWithRef, CSSProperties } from "react";
 
 import { PencilIcon } from "lucide-react";
-import { HexColorPicker, HexColorInput } from "react-colorful";
+import { HexColorInput, HexColorPicker } from "react-colorful";
 
 import {
   Button,

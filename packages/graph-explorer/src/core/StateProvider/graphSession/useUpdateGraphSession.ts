@@ -6,8 +6,8 @@ import { logger } from "@/utils";
 import { edgesAtom } from "../edges";
 import { nodesAtom } from "../nodes";
 import {
-  type GraphSessionStorageModel,
   activeGraphSessionAtom,
+  type GraphSessionStorageModel,
   isRestorePreviousSessionAvailableAtom,
 } from "./storage";
 

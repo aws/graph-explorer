@@ -1,24 +1,24 @@
 import {
-  createRandomName,
-  createRandomInteger,
-  createRandomUrlString,
   createRandomBoolean,
   createRandomDate,
+  createRandomInteger,
+  createRandomName,
+  createRandomUrlString,
 } from "@shared/utils/testing";
-import { describe, it, expect, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import {
-  createResultScalar,
   createResultBundle,
+  createResultScalar,
   createResultVertex,
 } from "@/connector/entities";
 import {
-  createUriValue,
   createLiteralValue,
-  createTestableVertex,
-  createTestableEdge,
-  createQuadSparqlResponse,
   createQuadBindingsForEntities,
+  createQuadSparqlResponse,
+  createTestableEdge,
+  createTestableVertex,
+  createUriValue,
 } from "@/utils/testing";
 
 import { rawQuery } from "./rawquery";

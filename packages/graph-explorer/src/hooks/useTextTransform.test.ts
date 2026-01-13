@@ -2,9 +2,9 @@ import { vi } from "vitest";
 
 import {
   activeConfigurationAtom,
+  type AppStore,
   configurationAtom,
   schemaAtom,
-  type AppStore,
 } from "@/core";
 import {
   createRandomRawConfiguration,

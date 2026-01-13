@@ -5,11 +5,11 @@ import dagre from "cytoscape-dagre";
 import fcose from "cytoscape-fcose";
 import klay from "cytoscape-klay";
 import {
+  type ComponentPropsWithoutRef,
   memo,
   useCallback,
   useImperativeHandle,
   useState,
-  type ComponentPropsWithoutRef,
 } from "react";
 
 import { cn } from "@/utils";

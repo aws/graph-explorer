@@ -5,13 +5,13 @@ import { act } from "react";
 import {
   activeGraphSessionAtom,
   activeSchemaSelector,
+  createVertexType,
   edgesAtom,
   type EdgeTypeConfig,
-  mapVertexToTypeConfigs,
-  mapEdgeToTypeConfig,
   type GraphSessionStorageModel,
+  mapEdgeToTypeConfig,
+  mapVertexToTypeConfigs,
   nodesAtom,
-  createVertexType,
   type VertexTypeConfig,
 } from "@/core";
 import {

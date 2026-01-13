@@ -5,8 +5,8 @@ import { Link } from "react-router";
 import {
   buttonStyles,
   NavBar,
-  NavBarContent,
   NavBarActions,
+  NavBarContent,
   NavBarTitle,
   NavBarVersion,
   Panel,

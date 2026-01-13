@@ -1,13 +1,13 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 
 import type { EdgeId, VertexId } from "@/core";
 
 import { createGraphSelection } from "@/modules/GraphViewer/useGraphSelection";
 import {
-  renderHookWithState,
-  DbState,
-  createTestableVertex,
   createTestableEdge,
+  createTestableVertex,
+  DbState,
+  renderHookWithState,
 } from "@/utils/testing";
 
 import { useContextMenuTarget } from "./useContextMenuTarget";

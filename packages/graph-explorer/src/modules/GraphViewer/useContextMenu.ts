@@ -7,11 +7,11 @@ import type {
 } from "@/components/Graph/hooks/useAddClickEvents";
 
 import {
+  type EdgeId,
   getEdgeIdFromRenderedEdgeId,
   getVertexIdFromRenderedVertexId,
   type RenderedEdge,
   type RenderedVertex,
-  type EdgeId,
   type VertexId,
 } from "@/core";
 import { useClickOutside } from "@/utils";

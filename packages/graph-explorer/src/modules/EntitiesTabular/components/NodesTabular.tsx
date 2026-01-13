@@ -15,8 +15,8 @@ import { TabularEmptyBodyControls } from "@/components/Tabular/controls";
 import Tabular from "@/components/Tabular/Tabular";
 import {
   type DisplayVertex,
-  useDisplayVerticesInCanvas,
   useAllNeighbors,
+  useDisplayVerticesInCanvas,
 } from "@/core";
 import {
   nodesFilteredIdsAtom,
