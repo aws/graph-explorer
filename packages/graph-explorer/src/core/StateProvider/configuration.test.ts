@@ -17,7 +17,7 @@ import type {
   RawConfiguration,
   VertexTypeConfig,
 } from "../ConfigurationProvider";
-import type { SchemaInference } from "./schema";
+import type { SchemaStorageModel } from "./schema";
 import type { UserStyling } from "./userPreferences";
 import { createRandomName } from "@shared/utils/testing";
 import { RESERVED_TYPES_PROPERTY } from "@/utils";
@@ -86,7 +86,7 @@ describe("mergedConfiguration", () => {
           ...e,
         }))
         .map(patchToRemoveDisplayLabel),
-    } satisfies SchemaInference;
+    } satisfies SchemaStorageModel;
 
     expect(result.schema?.vertices).toEqual(expectedSchema.vertices);
     expect(result.schema?.edges).toEqual(expectedSchema.edges);
@@ -139,7 +139,7 @@ describe("mergedConfiguration", () => {
           ...style,
         };
       }),
-    } satisfies SchemaInference;
+    } satisfies SchemaStorageModel;
 
     expect(result.schema?.vertices).toEqual(expectedSchema.vertices);
     expect(result.schema?.edges).toEqual(expectedSchema.edges);

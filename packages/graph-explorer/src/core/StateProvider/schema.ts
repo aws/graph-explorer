@@ -25,7 +25,7 @@ import type { SetStateActionWithReset } from "@/utils/jotai";
 import { createTypedValue, type ScalarValue } from "@/connector/entities";
 import type { Simplify } from "type-fest";
 
-export type SchemaInference = {
+export type SchemaStorageModel = {
   vertices: VertexTypeConfig[];
   edges: EdgeTypeConfig[];
   prefixes?: Array<PrefixTypeConfig>;
@@ -48,7 +48,7 @@ const schemaByIdAtom = atomFamily((id: ConfigurationId | null) => {
   });
 });
 
-const emptySchema: SchemaInference = {
+const emptySchema: SchemaStorageModel = {
   vertices: [],
   edges: [],
   prefixes: [],
@@ -60,7 +60,7 @@ export const activeSchemaAtom = atom(get => {
 });
 
 /** Gets the stored active schema or a default empty schema */
-export function useActiveSchema(): SchemaInference {
+export function useActiveSchema(): SchemaStorageModel {
   return useDeferredValue(useAtomValue(activeSchemaAtom));
 }
 
@@ -103,7 +103,7 @@ export type EdgeSchema = Simplify<
   Readonly<ReturnType<typeof createEdgeSchema>>
 >;
 
-function createGraphSchema(stored: SchemaInference) {
+function createGraphSchema(stored: SchemaStorageModel) {
   logger.debug("Creating graph schema", stored);
   const vertices = new Map<VertexType, VertexSchema>();
   for (const vtConfig of stored.vertices) {
@@ -151,7 +151,11 @@ export const activeSchemaSelector = atom(
     const activeSchema = id ? schemaMap.get(id) : null;
     return activeSchema;
   },
-  (get, set, update: SetStateActionWithReset<SchemaInference | undefined>) => {
+  (
+    get,
+    set,
+    update: SetStateActionWithReset<SchemaStorageModel | undefined>,
+  ) => {
     const schemaId = get(activeConfigurationAtom);
     if (!schemaId) {
       return;
@@ -182,7 +186,7 @@ export const activeSchemaSelector = atom(
 /** Updates the schema based on the given nodes and edges. */
 export function updateSchemaFromEntities(
   entities: Partial<Entities>,
-  schema: SchemaInference,
+  schema: SchemaStorageModel,
 ) {
   const vertices = entities.vertices ?? [];
   const edges = entities.edges ?? [];
@@ -206,7 +210,7 @@ export function updateSchemaFromEntities(
     ...schema,
     vertices: mergedVertices,
     edges: mergedEdges,
-  } satisfies SchemaInference;
+  } satisfies SchemaStorageModel;
 
   // Update the generated prefixes in the schema
   newSchema = updateSchemaPrefixes(newSchema);
@@ -320,7 +324,9 @@ function detectDataType(value: ScalarValue) {
 }
 
 /** Generate RDF prefixes for all the resource URIs in the schema. */
-export function updateSchemaPrefixes(schema: SchemaInference): SchemaInference {
+export function updateSchemaPrefixes(
+  schema: SchemaStorageModel,
+): SchemaStorageModel {
   const existingPrefixes = schema.prefixes ?? [];
 
   // Get all the resource URIs from the vertex and edge type configs
@@ -344,7 +350,7 @@ export function updateSchemaPrefixes(schema: SchemaInference): SchemaInference {
 }
 
 /** A performant way to construct the set of resource URIs from the schema. */
-function getResourceUris(schema: SchemaInference) {
+function getResourceUris(schema: SchemaStorageModel) {
   const result = new Set<string>();
 
   schema.vertices.forEach(v => {
@@ -397,7 +403,7 @@ export type UpdateSchemaHandler = ReturnType<
 /** Attempts to efficiently detect if the schema should be updated. */
 export function shouldUpdateSchemaFromEntities(
   entities: Partial<Entities>,
-  schema: SchemaInference,
+  schema: SchemaStorageModel,
 ) {
   const vertices = entities.vertices ?? [];
   const edges = entities.edges ?? [];
