@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/require-await */
 import type {
   CountsByTypeResponse,
+  EdgeConnectionsRequest,
+  EdgeConnectionsResponse,
   EdgeDetailsRequest,
   Explorer,
   NeighborCount,
@@ -14,6 +16,7 @@ import type {
 
 import {
   type Edge,
+  type EdgeConnection,
   type Entities,
   normalizeConnection,
   type NormalizedConnection,
@@ -191,6 +194,43 @@ export class FakeExplorer implements Explorer {
     throw new Error(
       "rawQuery can never have a fake implmentation. Use mocking instead.",
     );
+  }
+
+  async fetchEdgeConnections(
+    request: EdgeConnectionsRequest,
+  ): Promise<EdgeConnectionsResponse> {
+    const edgeTypeSet = new Set(request.edgeTypes);
+    const seen = new Set<string>();
+    const edgeConnections: EdgeConnection[] = [];
+
+    for (const edge of this.edges) {
+      if (!edgeTypeSet.has(edge.type)) {
+        continue;
+      }
+
+      const source = this.vertexMap.get(edge.sourceId);
+      const target = this.vertexMap.get(edge.targetId);
+      if (!source || !target) {
+        continue;
+      }
+
+      for (const sourceType of source.types) {
+        for (const targetType of target.types) {
+          const key = `${sourceType}-${edge.type}-${targetType}`;
+          if (seen.has(key)) {
+            continue;
+          }
+          seen.add(key);
+          edgeConnections.push({
+            sourceVertexType: sourceType,
+            edgeType: edge.type,
+            targetVertexType: targetType,
+          });
+        }
+      }
+    }
+
+    return { edgeConnections };
   }
 
   findNeighbors(vertexId: VertexId) {

@@ -9,6 +9,7 @@ import type { GraphSummary } from "./types";
 
 import { fetchDatabaseRequest } from "../fetchDatabaseRequest";
 import { edgeDetails } from "./edgeDetails";
+import fetchEdgeConnections from "./fetchEdgeConnections";
 import fetchNeighbors from "./fetchNeighbors";
 import fetchSchema from "./fetchSchema";
 import fetchVertexTypeCounts from "./fetchVertexTypeCounts";
@@ -109,6 +110,13 @@ export function createOpenCypherExplorer(
     async rawQuery(req, options) {
       remoteLogger.info("[openCypher Explorer] Fetching raw query...");
       return rawQuery(_openCypherFetch(connection, featureFlags, options), req);
+    },
+    async fetchEdgeConnections(req, options) {
+      remoteLogger.info("[openCypher Explorer] Fetching edge connections...");
+      return fetchEdgeConnections(
+        _openCypherFetch(connection, featureFlags, options),
+        req,
+      );
     },
   } satisfies Explorer;
 }
