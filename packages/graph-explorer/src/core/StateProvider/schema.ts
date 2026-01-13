@@ -1,6 +1,7 @@
 import type {
   AttributeConfig,
   ConfigurationId,
+  EdgeConnection,
   EdgeTypeConfig,
   PrefixTypeConfig,
   VertexTypeConfig,
@@ -39,6 +40,8 @@ export type SchemaStorageModel = {
   edges: EdgeTypeConfig[];
   /** RDF namespace prefixes for SPARQL connections. */
   prefixes?: Array<PrefixTypeConfig>;
+  /** Edge connections between node labels. */
+  edgeConnections?: Array<EdgeConnection>;
   /** When the schema was last updated. */
   lastUpdate?: Date;
   /** Whether a schema sync has been attempted. */
@@ -118,6 +121,40 @@ export type EdgeSchema = Simplify<
   Readonly<ReturnType<typeof createEdgeSchema>>
 >;
 
+function createEdgeConnectionsSchema(edgeConnections: EdgeConnection[]) {
+  const all = edgeConnections;
+
+  const byVertexType = new Map<VertexType, EdgeConnection[]>();
+  for (const conn of edgeConnections) {
+    // Add to source vertex type
+    const sourceConns = byVertexType.get(conn.sourceVertexType) ?? [];
+    sourceConns.push(conn);
+    byVertexType.set(conn.sourceVertexType, sourceConns);
+
+    // Add to target vertex type (if different from source)
+    if (conn.targetVertexType !== conn.sourceVertexType) {
+      const targetConns = byVertexType.get(conn.targetVertexType) ?? [];
+      targetConns.push(conn);
+      byVertexType.set(conn.targetVertexType, targetConns);
+    }
+  }
+
+  return {
+    /** All edge connections in the schema */
+    all,
+    /** Edge connections grouped by vertex type (includes both source and target) */
+    byVertexType,
+    /** Get all connections for a specific vertex type */
+    forVertexType(type: VertexType): EdgeConnection[] {
+      return byVertexType.get(type) ?? [];
+    },
+  };
+}
+
+export type EdgeConnectionsSchema = ReturnType<
+  typeof createEdgeConnectionsSchema
+>;
+
 function createGraphSchema(stored: SchemaStorageModel) {
   logger.debug("Creating graph schema", stored);
   const vertices = new Map<VertexType, VertexSchema>();
@@ -129,7 +166,12 @@ function createGraphSchema(stored: SchemaStorageModel) {
   for (const etConfig of stored.edges) {
     edges.set(etConfig.type, createEdgeSchema(etConfig));
   }
-  return { vertices, edges };
+
+  const edgeConnections = createEdgeConnectionsSchema(
+    stored.edgeConnections ?? [],
+  );
+
+  return { vertices, edges, edgeConnections };
 }
 
 export function useGraphSchema() {

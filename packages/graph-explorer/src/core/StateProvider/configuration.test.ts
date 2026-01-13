@@ -86,10 +86,14 @@ describe("mergedConfiguration", () => {
           ...e,
         }))
         .map(patchToRemoveDisplayLabel),
+      edgeConnections: schema.edgeConnections,
     } satisfies SchemaStorageModel;
 
     expect(result.schema?.vertices).toEqual(expectedSchema.vertices);
     expect(result.schema?.edges).toEqual(expectedSchema.edges);
+    expect(result.schema?.edgeConnections).toEqual(
+      expectedSchema.edgeConnections,
+    );
     expect(result.schema).toEqual(expectedSchema);
     expect(result).toEqual({
       ...config,
@@ -139,10 +143,14 @@ describe("mergedConfiguration", () => {
           ...style,
         };
       }),
+      edgeConnections: schema.edgeConnections,
     } satisfies SchemaStorageModel;
 
     expect(result.schema?.vertices).toEqual(expectedSchema.vertices);
     expect(result.schema?.edges).toEqual(expectedSchema.edges);
+    expect(result.schema?.edgeConnections).toEqual(
+      expectedSchema.edgeConnections,
+    );
     expect(result.schema).toEqual(expectedSchema);
     expect(result).toEqual({
       ...config,

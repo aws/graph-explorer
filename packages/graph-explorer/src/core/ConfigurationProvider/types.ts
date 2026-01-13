@@ -99,6 +99,29 @@ export type PrefixTypeConfig = {
   __matches?: Set<string>;
 };
 
+/**
+ * Represents a connection between node labels via an edge type.
+ * Used by Schema Explorer to visualize relationships between node types.
+ */
+export type EdgeConnection = {
+  /**
+   * The edge type name
+   */
+  edgeType: EdgeType;
+  /**
+   * The source node label
+   */
+  sourceVertexType: VertexType;
+  /**
+   * The target node label
+   */
+  targetVertexType: VertexType;
+  /**
+   * Count of edges with this connection pattern
+   */
+  count?: number;
+};
+
 export type RawConfiguration = {
   /**
    * Unique identifier for this config
