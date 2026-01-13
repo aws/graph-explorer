@@ -5,6 +5,7 @@ import tseslint from "typescript-eslint";
 import reactLint from "eslint-plugin-react";
 import reactHooks from "eslint-plugin-react-hooks";
 import tanstackQueryLint from "@tanstack/eslint-plugin-query";
+import perfectionist from "eslint-plugin-perfectionist";
 import eslintConfigPrettier from "eslint-config-prettier";
 import { includeIgnoreFile } from "@eslint/compat";
 import { fileURLToPath } from "node:url";
@@ -107,6 +108,21 @@ export default defineConfig(
     files: ["packages/graph-explorer-proxy-server/**/*.{ts,js}"],
     languageOptions: {
       globals: globals.node,
+    },
+  },
+
+  {
+    plugins: {
+      perfectionist,
+    },
+    rules: {
+      "perfectionist/sort-imports": [
+        "error",
+        {
+          type: "natural",
+          order: "asc",
+        },
+      ],
     },
   },
 
