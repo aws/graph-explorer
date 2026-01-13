@@ -1,16 +1,17 @@
 import type {
   ConfigurationContextProps,
-  EdgeConnection,
-  EdgeTypeConfig,
-  VertexTypeConfig,
   Edge,
+  EdgeConnection,
   EdgeId,
+  EdgeTypeConfig,
+  Entities,
+  NormalizedConnection,
   Vertex,
   VertexId,
-  NormalizedConnection,
-  Entities,
   VertexType,
+  VertexTypeConfig,
 } from "@/core";
+
 import type { ResultEntity } from "./entities";
 
 export type QueryOptions = RequestInit & {

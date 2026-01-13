@@ -1,3 +1,5 @@
+import { useQuery } from "@tanstack/react-query";
+import { useAtom, useAtomValue } from "jotai";
 import {
   type PropsWithChildren,
   startTransition,
@@ -5,12 +7,12 @@ import {
   useEffect,
 } from "react";
 import { useLocation } from "react-router";
+
 import { PanelEmptyState, Spinner } from "@/components";
 import Redirect from "@/components/Redirect";
 import { logger } from "@/utils";
-import { useQuery } from "@tanstack/react-query";
+
 import { fetchDefaultConnection } from "./defaultConnection";
-import { useAtom, useAtomValue } from "jotai";
 import {
   activeConfigurationAtom,
   configurationAtom,

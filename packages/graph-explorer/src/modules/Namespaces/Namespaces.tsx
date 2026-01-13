@@ -9,10 +9,11 @@ import {
   SidebarTabsList,
   SidebarTabsTrigger,
 } from "@/components";
+
+import { SidebarCloseButton } from "../SidebarCloseButton";
 import CommonPrefixes from "./CommonPrefixes";
 import GeneratedPrefixes from "./GeneratedPrefixes";
 import UserPrefixes from "./UserPrefixes";
-import { SidebarCloseButton } from "../SidebarCloseButton";
 
 function Namespaces() {
   return (

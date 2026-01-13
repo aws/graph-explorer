@@ -1,6 +1,8 @@
 import type { NextFunction, Request, Response } from "express";
-import { type LevelWithSilent, pino } from "pino";
 import type { PrettyOptions } from "pino-pretty";
+
+import { type LevelWithSilent, pino } from "pino";
+
 import { env } from "./env.js";
 
 export type LogLevel = LevelWithSilent;

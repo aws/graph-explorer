@@ -1,6 +1,8 @@
 import { env } from "@/utils";
-import colorizeSvg from "./colorizeSvg";
+
 import type { BoundingBox } from "./types";
+
+import colorizeSvg from "./colorizeSvg";
 
 export type DrawImageOption = {
   /**

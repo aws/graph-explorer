@@ -1,3 +1,10 @@
+import {
+  type ConnectionConfig,
+  type QueryEngine,
+  queryEngineOptions,
+} from "@shared/types";
+import { z } from "zod";
+
 import { parseRdfEdgeIdString } from "@/connector/sparql/parseEdgeId";
 import {
   createEdgeId,
@@ -7,12 +14,6 @@ import {
   type VertexId,
 } from "@/core/entities";
 import { escapeString, LABELS, logger } from "@/utils";
-import {
-  type ConnectionConfig,
-  type QueryEngine,
-  queryEngineOptions,
-} from "@shared/types";
-import { z } from "zod";
 
 export const exportedGraphSchema = z.object({
   meta: z.object({

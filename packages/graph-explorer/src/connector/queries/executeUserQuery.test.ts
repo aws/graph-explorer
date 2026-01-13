@@ -1,12 +1,13 @@
+import { edgesAtom, getAppStore, nodesAtom } from "@/core";
 import { createQueryClient } from "@/core/queryClient";
 import {
   createTestableEdge,
   createTestableVertex,
   FakeExplorer,
 } from "@/utils/testing";
+
+import { createResultScalar, getAllGraphableEntities } from "../entities";
 import { executeUserQuery } from "./executeUserQuery";
-import { getAllGraphableEntities, createResultScalar } from "../entities";
-import { edgesAtom, getAppStore, nodesAtom } from "@/core";
 
 describe("executeUserQuery", () => {
   it("should execute a query with empty results", async () => {

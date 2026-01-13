@@ -1,3 +1,6 @@
+import { ChevronLeftIcon, ChevronRightIcon, ListIcon } from "lucide-react";
+import { useState } from "react";
+
 import {
   Button,
   type ButtonProps,
@@ -6,14 +9,13 @@ import {
   PanelFooter,
   Spinner,
 } from "@/components";
-import { useAddToGraphMutation } from "@/hooks/useAddToGraph";
-import { ChevronLeftIcon, ChevronRightIcon, ListIcon } from "lucide-react";
-import { useState } from "react";
-import { createEntityKey, EntitySearchResult } from "./EntitySearchResult";
 import {
   getAllGraphableEntities,
   type PatchedResultEntity,
 } from "@/connector/entities";
+import { useAddToGraphMutation } from "@/hooks/useAddToGraph";
+
+import { createEntityKey, EntitySearchResult } from "./EntitySearchResult";
 import { ShowRawResponseDialogButton } from "./ShowRawResponseDialog";
 
 export function SearchResultsList({

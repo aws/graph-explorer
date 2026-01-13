@@ -1,21 +1,24 @@
-import { batchPromisesSerially } from "@/utils";
-import { DEFAULT_CONCURRENT_REQUESTS_LIMIT } from "@/utils/constants";
-import type { SchemaResponse } from "@/connector/useGEFetchTypes";
-import edgeLabelsTemplate from "./edgeLabelsTemplate";
-import edgesSchemaTemplate from "./edgesSchemaTemplate";
-import vertexLabelsTemplate from "./vertexLabelsTemplate";
-import verticesSchemaTemplate from "./verticesSchemaTemplate";
-import type { OCEdge, OCVertex } from "../types";
-import type { GraphSummary, OpenCypherFetch } from "../types";
 import type { LoggerConnector } from "@/connector/LoggerConnector";
-import mapApiVertex from "../mappers/mapApiVertex";
+import type { SchemaResponse } from "@/connector/useGEFetchTypes";
+
 import {
   createEdge,
   createVertex,
   mapEdgeToTypeConfig,
   mapVertexToTypeConfigs,
 } from "@/core";
+import { batchPromisesSerially } from "@/utils";
+import { DEFAULT_CONCURRENT_REQUESTS_LIMIT } from "@/utils/constants";
+
+import type { OCEdge, OCVertex } from "../types";
+import type { GraphSummary, OpenCypherFetch } from "../types";
+
 import mapApiEdge from "../mappers/mapApiEdge";
+import mapApiVertex from "../mappers/mapApiVertex";
+import edgeLabelsTemplate from "./edgeLabelsTemplate";
+import edgesSchemaTemplate from "./edgesSchemaTemplate";
+import vertexLabelsTemplate from "./vertexLabelsTemplate";
+import verticesSchemaTemplate from "./verticesSchemaTemplate";
 
 // Response types for raw data returned by OpenCypher queries
 type RawVertexLabelsResponse = {

@@ -1,4 +1,5 @@
 import { LABELS } from "@/utils";
+
 import { createVertex } from "./vertex";
 
 describe("createVertex", () => {

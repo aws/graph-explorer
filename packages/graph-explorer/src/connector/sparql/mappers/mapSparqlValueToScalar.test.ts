@@ -1,6 +1,8 @@
-import { describe, test, expect } from "vitest";
-import { mapSparqlValueToScalar } from "./mapSparqlValueToScalar";
+import { describe, expect, test } from "vitest";
+
 import type { SparqlValue } from "../types";
+
+import { mapSparqlValueToScalar } from "./mapSparqlValueToScalar";
 
 describe("mapSparqlValueToScalar", () => {
   describe("URI values", () => {

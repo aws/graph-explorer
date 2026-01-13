@@ -1,6 +1,8 @@
 import { createTestableEdge, mapToOcEdge } from "@/utils/testing";
-import { edgeDetails } from "./edgeDetails";
+
 import type { ResultEdge } from "../entities";
+
+import { edgeDetails } from "./edgeDetails";
 
 describe("edgeDetails", () => {
   it("should return empty when request is empty", async () => {

@@ -1,19 +1,21 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import localforage from "localforage";
-import { useState, useRef } from "react";
+import { FolderOpenIcon } from "lucide-react";
+import { useRef, useState } from "react";
+
 import {
-  ErrorIcon,
-  Paragraph,
   Button,
   CheckIcon,
-  FileButton,
-  type FileButtonHandle,
   Dialog,
   DialogBody,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
+  ErrorIcon,
+  FileButton,
+  type FileButtonHandle,
+  Paragraph,
   Spinner,
 } from "@/components";
 import {
@@ -23,7 +25,6 @@ import {
 } from "@/core/StateProvider/localDb";
 import { useDebounceValue } from "@/hooks";
 import { LABELS, RELOAD_URL } from "@/utils/constants";
-import { FolderOpenIcon } from "lucide-react";
 
 export default function LoadConfigButton() {
   const [file, setFile] = useState<File | null>(null);

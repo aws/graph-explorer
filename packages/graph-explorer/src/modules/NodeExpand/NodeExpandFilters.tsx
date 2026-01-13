@@ -1,3 +1,8 @@
+import type { PropsWithChildren } from "react";
+
+import { ListFilterPlusIcon, Trash2Icon } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
+
 import {
   addRemoveAnimationProps,
   Button,
@@ -19,9 +24,6 @@ import {
 } from "@/components";
 import { useSearchableAttributes } from "@/core";
 import useTranslations from "@/hooks/useTranslations";
-import type { PropsWithChildren } from "react";
-import { ListFilterPlusIcon, Trash2Icon } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
 
 let nextFilterId = 1;
 export type NodeExpandFilter = {

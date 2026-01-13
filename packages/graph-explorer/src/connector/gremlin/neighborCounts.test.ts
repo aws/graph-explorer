@@ -1,13 +1,15 @@
 import { createVertexId, createVertexType, type EntityRawId } from "@/core";
-import { neighborCounts } from "./neighborCounts";
 import { query } from "@/utils";
-import type { NeighborCount } from "../useGEFetchTypes";
 import {
   createGMap,
   createGremlinResponse,
   createRandomVertexId,
 } from "@/utils/testing";
+
+import type { NeighborCount } from "../useGEFetchTypes";
 import type { GMap } from "./types";
+
+import { neighborCounts } from "./neighborCounts";
 
 describe("neighborCounts", () => {
   it("should return empty for an empty request", async () => {

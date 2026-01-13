@@ -1,3 +1,10 @@
+import type { Simplify } from "type-fest";
+
+import { atom, useAtomValue } from "jotai";
+import { atomFamily } from "jotai-family";
+import { RESET, useAtomCallback } from "jotai/utils";
+import { startTransition, useCallback, useDeferredValue } from "react";
+
 import type {
   AttributeConfig,
   ConfigurationId,
@@ -6,25 +13,21 @@ import type {
   PrefixTypeConfig,
   VertexTypeConfig,
 } from "@/core/ConfigurationProvider";
+import type { SetStateActionWithReset } from "@/utils/jotai";
+
+import { createTypedValue, type ScalarValue } from "@/connector/entities";
 import {
   activeConfigurationAtom,
-  schemaAtom,
   type Edge,
   type EdgeType,
   type Entities,
   type EntityProperties,
+  schemaAtom,
   type Vertex,
   type VertexType,
 } from "@/core";
 import { logger } from "@/utils";
 import generatePrefixes from "@/utils/generatePrefixes";
-import { startTransition, useCallback, useDeferredValue } from "react";
-import { atom, useAtomValue } from "jotai";
-import { RESET, useAtomCallback } from "jotai/utils";
-import { atomFamily } from "jotai-family";
-import type { SetStateActionWithReset } from "@/utils/jotai";
-import { createTypedValue, type ScalarValue } from "@/connector/entities";
-import type { Simplify } from "type-fest";
 
 /**
  * Persisted schema state for a database connection.

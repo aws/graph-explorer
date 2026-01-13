@@ -1,13 +1,15 @@
-import { describe, expect, it, vi, beforeEach, type Mock } from "vitest";
 import { waitFor } from "@testing-library/react";
-import { useBackgroundImageMap } from "./useBackgroundImageMap";
-import { renderNode } from "./renderNode";
-import {
-  renderHookWithState,
-  DbState,
-  createRandomVertexPreferences,
-} from "@/utils/testing";
+import { beforeEach, describe, expect, it, type Mock, vi } from "vitest";
+
 import { defaultVertexPreferences } from "@/core";
+import {
+  createRandomVertexPreferences,
+  DbState,
+  renderHookWithState,
+} from "@/utils/testing";
+
+import { renderNode } from "./renderNode";
+import { useBackgroundImageMap } from "./useBackgroundImageMap";
 
 // Mock the renderNode function
 vi.mock("./renderNode");

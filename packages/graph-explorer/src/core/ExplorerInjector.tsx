@@ -1,9 +1,11 @@
-import { logger } from "@/utils";
-import { useQueryClient, type DefaultOptions } from "@tanstack/react-query";
-import { createDefaultOptions } from "./queryClient";
+import { type DefaultOptions, useQueryClient } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
 import { useMemo, useState } from "react";
+
+import { logger } from "@/utils";
+
 import { explorerAtom } from "./connector";
+import { createDefaultOptions } from "./queryClient";
 import { getAppStore } from "./StateProvider/appStore";
 
 /**

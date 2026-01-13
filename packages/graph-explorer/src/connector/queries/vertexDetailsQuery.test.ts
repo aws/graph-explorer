@@ -1,11 +1,12 @@
+import { getAppStore, nodesAtom } from "@/core";
+import { createQueryClient } from "@/core/queryClient";
 import {
   createRandomVertex,
   createRandomVertexId,
   FakeExplorer,
 } from "@/utils/testing";
+
 import { vertexDetailsQuery } from "./vertexDetailsQuery";
-import { createQueryClient } from "@/core/queryClient";
-import { getAppStore, nodesAtom } from "@/core";
 
 describe("vertexDetailsQuery", () => {
   it("should return null when vertex is not found", async () => {

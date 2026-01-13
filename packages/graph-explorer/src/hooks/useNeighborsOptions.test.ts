@@ -1,13 +1,16 @@
-import useNeighborsOptions from "./useNeighborsOptions";
+import { waitFor } from "@testing-library/react";
+
+import type { NeighborCount } from "@/connector";
+
+import { createVertexType } from "@/core";
 import {
   createRandomEdge,
   createRandomVertex,
   DbState,
   renderHookWithState,
 } from "@/utils/testing";
-import type { NeighborCount } from "@/connector";
-import { waitFor } from "@testing-library/react";
-import { createVertexType } from "@/core";
+
+import useNeighborsOptions from "./useNeighborsOptions";
 
 describe("useNeighborsOptions", () => {
   afterEach(() => {

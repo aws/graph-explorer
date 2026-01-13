@@ -1,3 +1,32 @@
+import type { Writable } from "type-fest";
+
+import {
+  type NeptuneServiceType,
+  neptuneServiceTypeOptions,
+  type QueryEngine,
+  queryEngineOptions,
+} from "@shared/types";
+import {
+  createArray,
+  createRandomBoolean,
+  createRandomColor,
+  createRandomDate,
+  createRandomDouble,
+  createRandomInteger,
+  createRandomName,
+  createRandomUrlString,
+  createRecord,
+  randomlyUndefined,
+} from "@shared/utils/testing";
+
+import {
+  createPatchedResultEdge,
+  createPatchedResultVertex,
+  createResultEdge,
+  createResultScalar,
+  createResultVertex,
+} from "@/connector/entities";
+import { createRdfEdgeId } from "@/connector/sparql/createRdfEdgeId";
 import {
   type ArrowStyle,
   type AttributeConfig,
@@ -5,10 +34,12 @@ import {
   createEdge,
   createEdgeId,
   createEdgePreference,
+  createEdgeType,
   createNewConfigurationId,
   createVertex,
   createVertexId,
   createVertexPreference,
+  createVertexType,
   type EdgeConnection,
   type EdgeId,
   type EdgePreferences,
@@ -22,8 +53,7 @@ import {
   type LineStyle,
   type PrefixTypeConfig,
   type RawConfiguration,
-  createEdgeType,
-  createVertexType,
+  type SchemaStorageModel,
   type UserStyling,
   type Vertex,
   type VertexId,
@@ -31,39 +61,11 @@ import {
   type VertexPreferencesStorageModel,
   type VertexType,
   type VertexTypeConfig,
-  type SchemaStorageModel,
 } from "@/core";
-import {
-  createArray,
-  createRandomBoolean,
-  createRandomColor,
-  createRandomDate,
-  createRandomDouble,
-  createRandomInteger,
-  createRandomName,
-  createRandomUrlString,
-  createRecord,
-  randomlyUndefined,
-} from "@shared/utils/testing";
-import {
-  type NeptuneServiceType,
-  neptuneServiceTypeOptions,
-  type QueryEngine,
-  queryEngineOptions,
-} from "@shared/types";
 import {
   createExportedGraph,
   type ExportedGraphConnection,
 } from "@/modules/GraphViewer/exportedGraph";
-import { createRdfEdgeId } from "@/connector/sparql/createRdfEdgeId";
-import {
-  createResultVertex,
-  createPatchedResultVertex,
-  createResultEdge,
-  createPatchedResultEdge,
-  createResultScalar,
-} from "@/connector/entities";
-import type { Writable } from "type-fest";
 
 /*
 

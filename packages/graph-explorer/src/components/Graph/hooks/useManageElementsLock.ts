@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+
 import type { CytoscapeType } from "../Graph.model";
 
 interface UseManageElementsSelection {

@@ -1,6 +1,7 @@
-import { normalize } from "@/utils/testing";
-import keywordSearchTemplate from "./keywordSearchTemplate";
 import { SEARCH_TOKENS } from "@/utils";
+import { normalize } from "@/utils/testing";
+
+import keywordSearchTemplate from "./keywordSearchTemplate";
 
 describe("SPARQL > keywordSearchTemplate", () => {
   it("Should return a template for an empty request", () => {

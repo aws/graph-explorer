@@ -1,7 +1,9 @@
 import { createRandomInteger } from "@shared/utils/testing";
 import { toast } from "sonner";
-import type { FetchEntityDetailsResult } from "./fetchEntityDetails";
+
 import { createRandomEntities } from "@/utils/testing";
+
+import type { FetchEntityDetailsResult } from "./fetchEntityDetails";
 
 describe("notifyOnIncompleteRestoration", () => {
   it("should not show a notification when all entities were found", async () => {

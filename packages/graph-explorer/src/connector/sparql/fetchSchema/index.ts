@@ -1,21 +1,24 @@
-import { batchPromisesSerially } from "@/utils";
-import { DEFAULT_CONCURRENT_REQUESTS_LIMIT } from "@/utils/constants";
+import type { LoggerConnector } from "@/connector/LoggerConnector";
 import type {
   EdgeSchemaResponse,
   SchemaResponse,
 } from "@/connector/useGEFetchTypes";
+
+import {
+  type AttributeConfig,
+  createEdgeType,
+  createVertexType,
+  type VertexType,
+} from "@/core";
+import { defaultVertexTypeConfig } from "@/core/StateProvider/configuration";
+import { batchPromisesSerially } from "@/utils";
+import { DEFAULT_CONCURRENT_REQUESTS_LIMIT } from "@/utils/constants";
+
+import type { GraphSummary, SparqlFetch, SparqlValue } from "../types";
+
 import classesWithCountsTemplates from "./classesWithCountsTemplates";
 import predicatesByClassTemplate from "./predicatesByClassTemplate";
 import predicatesWithCountsTemplate from "./predicatesWithCountsTemplate";
-import type { GraphSummary, SparqlFetch, SparqlValue } from "../types";
-import type { LoggerConnector } from "@/connector/LoggerConnector";
-import { defaultVertexTypeConfig } from "@/core/StateProvider/configuration";
-import {
-  createEdgeType,
-  createVertexType,
-  type AttributeConfig,
-  type VertexType,
-} from "@/core";
 
 type RawClassesWCountsResponse = {
   results: {

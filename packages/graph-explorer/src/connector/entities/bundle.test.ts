@@ -1,8 +1,10 @@
-import { describe, it, expect } from "vitest";
-import { createPatchedResultBundle, getDisplayValueForBundle } from "./bundle";
-import { createResultScalar } from "./scalar";
+import { describe, expect, it } from "vitest";
+
 import { ASCII, LABELS } from "@/utils/constants";
 import { createTestableEdge, createTestableVertex } from "@/utils/testing";
+
+import { createPatchedResultBundle, getDisplayValueForBundle } from "./bundle";
+import { createResultScalar } from "./scalar";
 
 describe("getDisplayValueForBundle", () => {
   it("should format scalar values with names", () => {

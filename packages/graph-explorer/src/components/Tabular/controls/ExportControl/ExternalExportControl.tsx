@@ -1,5 +1,8 @@
 import { saveAs } from "file-saver";
 import { useState } from "react";
+
+import type { TabularInstance } from "@/components/Tabular/helpers/tableInstanceToTabularInstance";
+
 import {
   Button,
   Checkbox,
@@ -12,11 +15,10 @@ import {
   SelectField,
 } from "@/components";
 import { TrayArrowIcon } from "@/components/icons";
-import type { TabularInstance } from "@/components/Tabular/helpers/tableInstanceToTabularInstance";
+import { toCsvFileData, toJsonFileData } from "@/utils/fileData";
 
 import { transformToCsv } from "./transformToCsv";
 import { transformToJson } from "./transformToJson";
-import { toCsvFileData, toJsonFileData } from "@/utils/fileData";
 
 type ExportControlProps<T extends Record<string, unknown>> = {
   instance: TabularInstance<T>;

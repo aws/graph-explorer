@@ -1,27 +1,29 @@
+import { useMutation } from "@tanstack/react-query";
+import { atom, useAtomValue } from "jotai";
 import { toast } from "sonner";
+
 import {
-  setEdgeDetailsQueryCache,
-  setVertexDetailsQueryCache,
   type Explorer,
   type NeighborsRequest,
+  setEdgeDetailsQueryCache,
+  setVertexDetailsQueryCache,
 } from "@/connector";
-import { loggerSelector } from "@/core/connector";
-import { useMutation } from "@tanstack/react-query";
+import { getExplorer } from "@/connector/queries/helpers";
 import {
-  useFetchedNeighborsCallback,
-  useNeighborsCallback,
   activeConnectionAtom,
   defaultNeighborExpansionLimitAtom,
   defaultNeighborExpansionLimitEnabledAtom,
-  type Entities,
-  type VertexId,
-  type Vertex,
   type Edge,
+  type Entities,
+  useFetchedNeighborsCallback,
+  useNeighborsCallback,
+  type Vertex,
+  type VertexId,
 } from "@/core";
+import { loggerSelector } from "@/core/connector";
 import { createDisplayError } from "@/utils/createDisplayError";
+
 import { useAddToGraph } from "./useAddToGraph";
-import { atom, useAtomValue } from "jotai";
-import { getExplorer } from "@/connector/queries/helpers";
 
 export type ExpandNodeFilters = Omit<
   NeighborsRequest,

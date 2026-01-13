@@ -1,3 +1,9 @@
+import { createRandomName } from "@shared/utils/testing";
+
+import type { TextTransformer } from "@/hooks";
+
+import { createEdgeType, createVertexType } from "@/core";
+import { LABELS, SEARCH_TOKENS } from "@/utils";
 import {
   createRandomEdgePreferences,
   createRandomEdgeTypeConfig,
@@ -6,18 +12,15 @@ import {
   DbState,
   renderHookWithState,
 } from "@/utils/testing";
+
 import {
+  mapToDisplayEdgeTypeConfig,
+  mapToDisplayVertexTypeConfig,
   useDisplayEdgeTypeConfig,
   useDisplayVertexTypeConfig,
   useSearchableAttributes,
-  mapToDisplayVertexTypeConfig,
-  mapToDisplayEdgeTypeConfig,
 } from "./displayTypeConfigs";
-import { createRandomName } from "@shared/utils/testing";
-import { LABELS, SEARCH_TOKENS } from "@/utils";
-import type { TextTransformer } from "@/hooks";
 import { RDFS_LABEL_URI } from "./sortAttributeByName";
-import { createEdgeType, createVertexType } from "@/core";
 
 // Simple identity text transformer for testing (non-SPARQL behavior)
 const identityTextTransform: TextTransformer = (text: string) => text;

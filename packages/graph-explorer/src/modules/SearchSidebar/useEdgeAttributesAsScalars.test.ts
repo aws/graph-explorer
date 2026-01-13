@@ -1,18 +1,20 @@
-import { describe, it, expect } from "vitest";
-import { useEdgeAttributesAsScalars } from "./useEdgeAttributesAsScalars";
+import { describe, expect, it } from "vitest";
+
+import { createResultScalar } from "@/connector/entities";
 import {
-  type DisplayEdge,
-  type DisplayAttribute,
-  createVertexId,
   createEdgeId,
   createEdgeType,
+  createVertexId,
+  type DisplayAttribute,
+  type DisplayEdge,
 } from "@/core";
 import {
   createRandomQueryEngine,
   DbState,
   renderHookWithState,
 } from "@/utils/testing";
-import { createResultScalar } from "@/connector/entities";
+
+import { useEdgeAttributesAsScalars } from "./useEdgeAttributesAsScalars";
 
 describe("useEdgeAttributesAsScalars", () => {
   let dbState = new DbState();

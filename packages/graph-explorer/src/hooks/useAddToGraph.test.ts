@@ -1,3 +1,19 @@
+import { waitFor } from "@testing-library/react";
+import { useAtomValue } from "jotai";
+import { act } from "react";
+
+import {
+  activeGraphSessionAtom,
+  activeSchemaSelector,
+  createVertexType,
+  edgesAtom,
+  type EdgeTypeConfig,
+  type GraphSessionStorageModel,
+  mapEdgeToTypeConfig,
+  mapVertexToTypeConfigs,
+  nodesAtom,
+  type VertexTypeConfig,
+} from "@/core";
 import {
   createRandomEdge,
   createRandomEntities,
@@ -6,22 +22,8 @@ import {
   DbState,
   renderHookWithState,
 } from "@/utils/testing";
+
 import { useAddToGraph } from "./useAddToGraph";
-import { act } from "react";
-import {
-  activeGraphSessionAtom,
-  activeSchemaSelector,
-  edgesAtom,
-  type EdgeTypeConfig,
-  mapVertexToTypeConfigs,
-  mapEdgeToTypeConfig,
-  type GraphSessionStorageModel,
-  nodesAtom,
-  createVertexType,
-  type VertexTypeConfig,
-} from "@/core";
-import { waitFor } from "@testing-library/react";
-import { useAtomValue } from "jotai";
 
 test("should add one node", async () => {
   const dbState = new DbState();

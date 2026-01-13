@@ -1,18 +1,22 @@
+import { v4 } from "uuid";
+
+import type { FeatureFlags, NormalizedConnection } from "@/core";
+
+import { createLoggerFromConnection } from "@/core/connector";
+import { logger } from "@/utils";
+
+import type { Explorer, ExplorerRequestOptions } from "../useGEFetchTypes";
+import type { GraphSummary, GremlinFetch } from "./types";
+
+import { fetchDatabaseRequest } from "../fetchDatabaseRequest";
+import { edgeDetails } from "./edgeDetails";
 import fetchNeighbors from "./fetchNeighbors";
 import fetchSchema from "./fetchSchema";
 import fetchVertexTypeCounts from "./fetchVertexTypeCounts";
 import keywordSearch from "./keywordSearch";
-import { fetchDatabaseRequest } from "../fetchDatabaseRequest";
-import type { GraphSummary, GremlinFetch } from "./types";
-import { v4 } from "uuid";
-import type { Explorer, ExplorerRequestOptions } from "../useGEFetchTypes";
-import { logger } from "@/utils";
-import { createLoggerFromConnection } from "@/core/connector";
-import type { FeatureFlags, NormalizedConnection } from "@/core";
-import { vertexDetails } from "./vertexDetails";
-import { edgeDetails } from "./edgeDetails";
-import { rawQuery } from "./rawQuery";
 import { neighborCounts } from "./neighborCounts";
+import { rawQuery } from "./rawQuery";
+import { vertexDetails } from "./vertexDetails";
 
 function _gremlinFetch(
   connection: NormalizedConnection,

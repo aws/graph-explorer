@@ -1,12 +1,15 @@
-import type { VertexId, VertexType } from "@/core";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { atom, useAtomValue } from "jotai";
-import { useAtomCallback } from "jotai/utils";
 import { atomFamily } from "jotai-family";
+import { useAtomCallback } from "jotai/utils";
+import { useCallback, useMemo } from "react";
+
+import type { VertexId, VertexType } from "@/core";
+
+import { bulkNeighborCountsQuery, neighborsCountQuery } from "@/connector";
+
 import { edgesAtom } from "./edges";
 import { nodesAtom, toNodeMap } from "./nodes";
-import { useCallback, useMemo } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { bulkNeighborCountsQuery, neighborsCountQuery } from "@/connector";
 
 export type NeighborCounts = {
   all: number;

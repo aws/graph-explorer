@@ -1,18 +1,24 @@
-import { cloneDeep, isEqual, uniq } from "lodash";
+import type { ConnectionConfig } from "@shared/types";
+
 import { atom } from "jotai";
+import { selectAtom } from "jotai/utils";
+import { cloneDeep, isEqual, uniq } from "lodash";
+
 import {
   activeConfigurationAtom,
+  type AttributeConfig,
   configurationAtom,
-  userStylingAtom,
   createEdgeType,
   createVertexType,
-  type AttributeConfig,
   type EdgeType,
   type EdgeTypeConfig,
   type RawConfiguration,
+  userStylingAtom,
   type VertexType,
   type VertexTypeConfig,
 } from "@/core";
+import { RESERVED_TYPES_PROPERTY } from "@/utils/constants";
+
 import { activeSchemaSelector, type SchemaStorageModel } from "./schema";
 import {
   defaultEdgePreferences,
@@ -21,9 +27,6 @@ import {
   type UserStyling,
   type VertexPreferencesStorageModel,
 } from "./userPreferences";
-import { RESERVED_TYPES_PROPERTY } from "@/utils/constants";
-import type { ConnectionConfig } from "@shared/types";
-import { selectAtom } from "jotai/utils";
 
 /** Gets the currently active config. */
 export const activeConfigSelector = atom(get => {

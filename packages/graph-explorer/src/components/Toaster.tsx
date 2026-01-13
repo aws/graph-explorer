@@ -1,4 +1,3 @@
-import { Toaster as SonnerToaster } from "sonner";
 import {
   CircleCheckIcon,
   InfoIcon,
@@ -6,6 +5,7 @@ import {
   OctagonXIcon,
   TriangleAlertIcon,
 } from "lucide-react";
+import { Toaster as SonnerToaster } from "sonner";
 
 /**
  * The notification provider component that renders the Toaster.

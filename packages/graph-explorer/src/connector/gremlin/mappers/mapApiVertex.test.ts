@@ -1,4 +1,12 @@
 import {
+  createRandomBoolean,
+  createRandomDate,
+  createRandomDouble,
+  createRandomInteger,
+  createRandomName,
+} from "@shared/utils/testing";
+
+import {
   createGDate,
   createGDouble,
   createGInt32,
@@ -6,14 +14,8 @@ import {
   createGVertexProperty,
   createTestableVertex,
 } from "@/utils/testing";
+
 import mapApiVertex from "./mapApiVertex";
-import {
-  createRandomBoolean,
-  createRandomDate,
-  createRandomDouble,
-  createRandomInteger,
-  createRandomName,
-} from "@shared/utils/testing";
 
 describe("mapApiVertex", () => {
   it("should map a graphSON vertex to a vertex", () => {

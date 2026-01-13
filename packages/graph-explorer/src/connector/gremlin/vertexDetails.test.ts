@@ -2,6 +2,7 @@ import {
   createGremlinResponseFromVertices,
   createTestableVertex,
 } from "@/utils/testing";
+
 import { vertexDetails } from "./vertexDetails";
 
 describe("vertexDetails", () => {

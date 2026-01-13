@@ -1,3 +1,6 @@
+import { createArray, createRandomName } from "@shared/utils/testing";
+
+import { LABELS } from "@/utils";
 import {
   createRandomEdge,
   createRandomEdgeConnection,
@@ -5,31 +8,31 @@ import {
   createRandomSchema,
   createRandomVertex,
   createRandomVertexType,
-  renderHookWithState,
   DbState,
+  renderHookWithState,
 } from "@/utils/testing";
-import {
-  mapVertexToTypeConfigs,
-  mapEdgeToTypeConfig,
-  shouldUpdateSchemaFromEntities,
-  updateSchemaFromEntities,
-  updateSchemaPrefixes,
-  useGraphSchema,
-} from "./schema";
-import { createArray, createRandomName } from "@shared/utils/testing";
+
 import type {
   EdgeTypeConfig,
   PrefixTypeConfig,
   VertexTypeConfig,
 } from "../ConfigurationProvider";
+
 import {
   createEdge,
-  createVertex,
   createEdgeType,
+  createVertex,
   createVertexType,
   type EntityProperties,
 } from "../entities";
-import { LABELS } from "@/utils";
+import {
+  mapEdgeToTypeConfig,
+  mapVertexToTypeConfigs,
+  shouldUpdateSchemaFromEntities,
+  updateSchemaFromEntities,
+  updateSchemaPrefixes,
+  useGraphSchema,
+} from "./schema";
 
 describe("schema", () => {
   describe("mapVertexToTypeConfigs", () => {

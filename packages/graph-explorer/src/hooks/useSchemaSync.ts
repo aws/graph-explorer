@@ -1,9 +1,11 @@
-import { useEffect } from "react";
-import { useResolvedConfig } from "@/core/ConfigurationProvider";
-import useUpdateSchema from "./useUpdateSchema";
 import { useIsFetching, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
+
 import { schemaSyncQuery } from "@/connector";
+import { useResolvedConfig } from "@/core/ConfigurationProvider";
 import { logger } from "@/utils";
+
+import useUpdateSchema from "./useUpdateSchema";
 
 export function useIsSyncing() {
   return useIsFetching({ queryKey: ["schema"] }) > 0;

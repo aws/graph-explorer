@@ -1,25 +1,27 @@
-import { describe, it, expect, vi } from "vitest";
-import { rawQuery } from "./rawquery";
 import {
-  createResultScalar,
+  createRandomBoolean,
+  createRandomDate,
+  createRandomInteger,
+  createRandomName,
+  createRandomUrlString,
+} from "@shared/utils/testing";
+import { describe, expect, it, vi } from "vitest";
+
+import {
   createResultBundle,
+  createResultScalar,
   createResultVertex,
 } from "@/connector/entities";
 import {
-  createUriValue,
   createLiteralValue,
-  createTestableVertex,
-  createTestableEdge,
-  createQuadSparqlResponse,
   createQuadBindingsForEntities,
+  createQuadSparqlResponse,
+  createTestableEdge,
+  createTestableVertex,
+  createUriValue,
 } from "@/utils/testing";
-import {
-  createRandomName,
-  createRandomInteger,
-  createRandomUrlString,
-  createRandomBoolean,
-  createRandomDate,
-} from "@shared/utils/testing";
+
+import { rawQuery } from "./rawquery";
 
 describe("rawQuery", () => {
   it("should return empty array for empty query", async () => {

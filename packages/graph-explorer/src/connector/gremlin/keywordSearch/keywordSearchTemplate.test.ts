@@ -1,6 +1,7 @@
 import { SEARCH_TOKENS } from "@/utils";
-import keywordSearchTemplate from "./keywordSearchTemplate";
 import { normalizeWithNoSpace as normalize } from "@/utils/testing";
+
+import keywordSearchTemplate from "./keywordSearchTemplate";
 
 describe("Gremlin > keywordSearchTemplate", () => {
   it("Should return a template for an empty request", () => {

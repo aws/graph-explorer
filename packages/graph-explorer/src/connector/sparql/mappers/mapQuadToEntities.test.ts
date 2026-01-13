@@ -1,10 +1,12 @@
-import { mapQuadToEntities } from "./mapQuadToEntities";
+import { createArray } from "@shared/utils/testing";
+
 import {
   createQuadBindingsForEntities,
   createTestableEdge,
   createTestableVertex,
 } from "@/utils/testing";
-import { createArray } from "@shared/utils/testing";
+
+import { mapQuadToEntities } from "./mapQuadToEntities";
 
 describe("mapQuadToEntities", () => {
   it("should map empty data to empty results", () => {

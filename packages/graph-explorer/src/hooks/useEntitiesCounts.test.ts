@@ -1,6 +1,8 @@
-import useEntitiesCounts from "./useEntitiesCounts";
-import type { RawConfiguration, SchemaStorageModel } from "@/core";
+import { createRandomInteger } from "@shared/utils/testing";
 import { vi } from "vitest";
+
+import type { RawConfiguration, SchemaStorageModel } from "@/core";
+
 import {
   createRandomEdgeTypeConfig,
   createRandomRawConfiguration,
@@ -9,7 +11,8 @@ import {
   DbState,
   renderHookWithState,
 } from "@/utils/testing";
-import { createRandomInteger } from "@shared/utils/testing";
+
+import useEntitiesCounts from "./useEntitiesCounts";
 
 function renderUseEntitiesHook(
   config: RawConfiguration,

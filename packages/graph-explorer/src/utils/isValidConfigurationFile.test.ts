@@ -1,7 +1,9 @@
-import { describe, expect, test } from "vitest";
-import isValidConfigurationFile from "./isValidConfigurationFile";
-import { createNewConfigurationId } from "@/core/ConfigurationProvider/types";
 import { createRandomName, createRandomUrlString } from "@shared/utils/testing";
+import { describe, expect, test } from "vitest";
+
+import { createNewConfigurationId } from "@/core/ConfigurationProvider/types";
+
+import isValidConfigurationFile from "./isValidConfigurationFile";
 
 describe("isValidConfigurationFile", () => {
   test("should return true for valid configuration", () => {

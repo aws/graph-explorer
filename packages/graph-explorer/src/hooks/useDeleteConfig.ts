@@ -1,3 +1,7 @@
+import { useAtomValue } from "jotai";
+import { useAtomCallback } from "jotai/utils";
+import { useCallback } from "react";
+
 import {
   activeConfigurationAtom,
   allGraphSessionsAtom,
@@ -6,9 +10,6 @@ import {
   schemaAtom,
 } from "@/core";
 import { logger } from "@/utils";
-import { useAtomValue } from "jotai";
-import { useAtomCallback } from "jotai/utils";
-import { useCallback } from "react";
 
 export function useDeleteConfig() {
   return useAtomCallback(

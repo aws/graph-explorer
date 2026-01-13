@@ -1,8 +1,24 @@
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import difference from "lodash/difference";
+import { EyeIcon, EyeOff } from "lucide-react";
+
 import type { ColumnDefinition, TabularInstance } from "@/components/Tabular";
+
+import {
+  EmptyState,
+  EmptyStateContent,
+  EmptyStateDescription,
+  EmptyStateTitle,
+} from "@/components";
 import { makeIconToggleCell } from "@/components/Tabular/builders";
 import { TabularEmptyBodyControls } from "@/components/Tabular/controls";
 import Tabular from "@/components/Tabular/Tabular";
+import {
+  type DisplayEdge,
+  type DisplayVertex,
+  useDisplayEdgesInCanvas,
+  useDisplayVerticesInCanvas,
+} from "@/core";
 import {
   edgesFilteredIdsAtom,
   edgesOutOfFocusIdsAtom,
@@ -12,22 +28,8 @@ import {
 } from "@/core/StateProvider/edges";
 import { useDeepMemo } from "@/hooks";
 import useTranslations from "@/hooks/useTranslations";
-import {
-  type DisplayEdge,
-  type DisplayVertex,
-  useDisplayEdgesInCanvas,
-  useDisplayVerticesInCanvas,
-} from "@/core";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { LABELS } from "@/utils";
 import { useGraphSelection } from "@/modules/GraphViewer/useGraphSelection";
-import { EyeIcon, EyeOff } from "lucide-react";
-import {
-  EmptyState,
-  EmptyStateContent,
-  EmptyStateTitle,
-  EmptyStateDescription,
-} from "@/components";
+import { LABELS } from "@/utils";
 
 /** Creates the model for the table data */
 function createEdgeForTable(

@@ -1,12 +1,22 @@
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import difference from "lodash/difference";
+import { EyeIcon, EyeOffIcon } from "lucide-react";
+
 import type { ColumnDefinition, TabularInstance } from "@/components/Tabular";
+
+import {
+  EmptyState,
+  EmptyStateContent,
+  EmptyStateDescription,
+  EmptyStateTitle,
+} from "@/components";
 import { makeIconToggleCell } from "@/components/Tabular/builders";
 import { TabularEmptyBodyControls } from "@/components/Tabular/controls";
 import Tabular from "@/components/Tabular/Tabular";
 import {
   type DisplayVertex,
-  useDisplayVerticesInCanvas,
   useAllNeighbors,
+  useDisplayVerticesInCanvas,
 } from "@/core";
 import {
   nodesFilteredIdsAtom,
@@ -15,17 +25,8 @@ import {
   nodesTableSortsAtom,
   useToggleFilteredNode,
 } from "@/core/StateProvider/nodes";
-
 import { useDeepMemo, useTranslations } from "@/hooks";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useGraphSelection } from "@/modules/GraphViewer/useGraphSelection";
-import { EyeIcon, EyeOffIcon } from "lucide-react";
-import {
-  EmptyState,
-  EmptyStateContent,
-  EmptyStateDescription,
-  EmptyStateTitle,
-} from "@/components";
 
 type ToggleVertex = DisplayVertex & {
   __is_visible: boolean;

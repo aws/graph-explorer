@@ -1,11 +1,12 @@
-import { VertexSearchResult } from "./VertexSearchResult";
-import { EdgeSearchResult } from "./EdgeSearchResult";
-import { ScalarSearchResult } from "./ScalarSearchResult";
-import { BundleSearchResult } from "./BundleSearchResult";
 import {
   getDisplayValueForBundle,
   type PatchedResultEntity,
 } from "@/connector/entities";
+
+import { BundleSearchResult } from "./BundleSearchResult";
+import { EdgeSearchResult } from "./EdgeSearchResult";
+import { ScalarSearchResult } from "./ScalarSearchResult";
+import { VertexSearchResult } from "./VertexSearchResult";
 
 export function EntitySearchResult({
   entity,

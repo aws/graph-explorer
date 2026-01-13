@@ -1,7 +1,8 @@
+import { ClientLoggerConnector } from "@/connector/LoggerConnector";
 import { globalMockFetch } from "@/connector/testUtils/globalMockFetch";
 import mockGremlinFetch from "@/connector/testUtils/mockGremlinFetch";
+
 import fetchSchema from ".";
-import { ClientLoggerConnector } from "@/connector/LoggerConnector";
 
 describe("Gremlin > fetchSchema", () => {
   it("Should return an inferred schema", async () => {

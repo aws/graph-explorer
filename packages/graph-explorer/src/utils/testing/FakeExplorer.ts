@@ -11,6 +11,7 @@ import type {
   RawQueryResponse,
   VertexDetailsRequest,
 } from "@/connector";
+
 import {
   type Edge,
   type Entities,
@@ -23,6 +24,7 @@ import {
   type VertexId,
   type VertexType,
 } from "@/core";
+
 import {
   createRandomConnectionWithId,
   type TestableEdge,

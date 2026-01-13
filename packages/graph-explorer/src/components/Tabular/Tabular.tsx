@@ -1,28 +1,30 @@
-import { cn, getChildOfType } from "@/utils";
+import type { TableInstance } from "react-table";
+
 import {
   type PropsWithChildren,
   useEffect,
   useImperativeHandle,
   useState,
 } from "react";
-import type { TableInstance } from "react-table";
 import useDeepCompareEffect from "use-deep-compare-effect";
 
 import { useDeepMemo } from "@/hooks";
+import { cn, getChildOfType } from "@/utils";
+
+import type { TabularInstance } from "./helpers/tableInstanceToTabularInstance";
+import type { TabularOptions } from "./useTabular";
 
 import {
   PaginationControl,
   TabularEmptyBodyControls,
   TabularFooterControls,
 } from "./controls";
-import type { TabularInstance } from "./helpers/tableInstanceToTabularInstance";
 import tableInstanceToTabularInstance from "./helpers/tableInstanceToTabularInstance";
 import TabularControlsProvider, {
   useTabularControl,
 } from "./TabularControlsProvider";
 import TabularHeader from "./TabularHeader";
 import TabularRow from "./TabularRow";
-import type { TabularOptions } from "./useTabular";
 import useTabular from "./useTabular";
 
 export interface TabularProps<T extends object> extends TabularOptions<T> {

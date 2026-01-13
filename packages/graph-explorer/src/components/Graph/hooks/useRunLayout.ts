@@ -1,6 +1,9 @@
 import type cytoscape from "cytoscape";
+
 import { useEffect, useRef } from "react";
+
 import type { CytoscapeType, LayoutName } from "../Graph.model";
+
 import { runLayout } from "../helpers/layout";
 
 interface UseUpdateLayout {

@@ -1,9 +1,11 @@
-import { act } from "react";
-import useFiltersConfig from "./useFiltersConfig";
-import { DbState, renderHookWithState } from "@/utils/testing";
 import { sample } from "lodash";
+import { act } from "react";
 import { vi } from "vitest";
+
 import { createEdgeType, createVertexType } from "@/core";
+import { DbState, renderHookWithState } from "@/utils/testing";
+
+import useFiltersConfig from "./useFiltersConfig";
 
 describe("useFiltersConfig", () => {
   let dbState = new DbState();

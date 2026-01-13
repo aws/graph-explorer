@@ -1,6 +1,6 @@
 import type {
-  ResultVertex,
   ResultEdge,
+  ResultVertex,
   ScalarValue,
 } from "@/connector/entities";
 import type {
@@ -8,6 +8,7 @@ import type {
   OCProperties,
   OCVertex,
 } from "@/connector/openCypher/types";
+
 import { type EntityProperties, getRawId } from "@/core";
 
 export function mapToOcVertex(vertex: ResultVertex): OCVertex {

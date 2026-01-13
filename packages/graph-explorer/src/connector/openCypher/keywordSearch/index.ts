@@ -1,14 +1,17 @@
-import { createVertex, type Vertex } from "@/core";
 import type {
   ErrorResponse,
   KeywordSearchRequest,
   KeywordSearchResponse,
 } from "@/connector/useGEFetchTypes";
+
 import isErrorResponse from "@/connector/utils/isErrorResponse";
-import mapApiVertex from "../mappers/mapApiVertex";
-import keywordSearchTemplate from "./keywordSearchTemplate";
+import { createVertex, type Vertex } from "@/core";
+
 import type { OCVertex } from "../types";
 import type { OpenCypherFetch } from "../types";
+
+import mapApiVertex from "../mappers/mapApiVertex";
+import keywordSearchTemplate from "./keywordSearchTemplate";
 
 type RawKeySearchResponse = {
   results: [

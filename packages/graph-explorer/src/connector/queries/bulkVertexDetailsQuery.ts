@@ -1,7 +1,10 @@
 import { queryOptions } from "@tanstack/react-query";
-import type { Vertex, VertexId } from "@/core";
-import { DEFAULT_BATCH_REQUEST_SIZE } from "@/utils";
 import { chunk } from "lodash";
+
+import type { Vertex, VertexId } from "@/core";
+
+import { DEFAULT_BATCH_REQUEST_SIZE } from "@/utils";
+
 import {
   getExplorer,
   getStore,

@@ -1,8 +1,11 @@
-import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import useUpdateSchema from "./useUpdateSchema";
-import { nodeCountByNodeTypeQuery } from "@/connector";
+import { useEffect } from "react";
+
 import type { VertexType } from "@/core";
+
+import { nodeCountByNodeTypeQuery } from "@/connector";
+
+import useUpdateSchema from "./useUpdateSchema";
 
 export default function useUpdateVertexTypeCounts(vertexType: VertexType) {
   const query = useQuery(nodeCountByNodeTypeQuery(vertexType));

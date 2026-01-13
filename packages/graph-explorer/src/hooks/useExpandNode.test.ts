@@ -1,3 +1,9 @@
+import { act, waitFor } from "@testing-library/react";
+
+import {
+  defaultNeighborExpansionLimitAtom,
+  defaultNeighborExpansionLimitEnabledAtom,
+} from "@/core";
 import {
   createTestableEdge,
   createTestableVertex,
@@ -6,15 +12,11 @@ import {
   renderHookWithJotai,
   renderHookWithState,
 } from "@/utils/testing";
+
 import useExpandNode, {
-  useDefaultNeighborExpansionLimit,
   type ExpandNodesRequest,
+  useDefaultNeighborExpansionLimit,
 } from "./useExpandNode";
-import {
-  defaultNeighborExpansionLimitAtom,
-  defaultNeighborExpansionLimitEnabledAtom,
-} from "@/core";
-import { act, waitFor } from "@testing-library/react";
 
 describe("useDefaultNeighborExpansionLimit", () => {
   it("should return the app limit when defined", () => {

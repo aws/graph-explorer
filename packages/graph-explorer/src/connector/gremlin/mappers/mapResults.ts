@@ -1,11 +1,13 @@
 import {
-  type ResultEntity,
-  createResultScalar,
   createResultBundle,
+  createResultScalar,
   getDisplayValueForScalar,
+  type ResultEntity,
   type ResultScalar,
 } from "@/connector/entities";
+
 import type { GAnyValue, GList } from "../types";
+
 import mapApiEdge from "./mapApiEdge";
 import mapApiVertex from "./mapApiVertex";
 

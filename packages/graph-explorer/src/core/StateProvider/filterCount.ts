@@ -1,4 +1,5 @@
 import { atom } from "jotai";
+
 import { edgesTypesFilteredAtom } from "./edges";
 import { nodesTypesFilteredAtom } from "./nodes";
 

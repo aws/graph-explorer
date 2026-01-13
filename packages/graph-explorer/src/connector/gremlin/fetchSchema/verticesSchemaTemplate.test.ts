@@ -1,5 +1,6 @@
-import verticesSchemaTemplate from "./verticesSchemaTemplate";
 import { normalizeWithNoSpace as normalize } from "@/utils/testing";
+
+import verticesSchemaTemplate from "./verticesSchemaTemplate";
 
 describe("Gremlin > verticesSchemaTemplate", () => {
   it("Should return a template with the projection of each type", () => {

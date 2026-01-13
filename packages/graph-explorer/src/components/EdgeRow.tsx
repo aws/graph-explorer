@@ -1,7 +1,10 @@
-import type { DisplayEdge, DisplayVertex } from "@/core";
 import type { ComponentPropsWithoutRef } from "react";
-import { EdgeSymbol } from "./EdgeSymbol";
+
+import type { DisplayEdge, DisplayVertex } from "@/core";
+
 import { ASCII, cn } from "@/utils";
+
+import { EdgeSymbol } from "./EdgeSymbol";
 import { SearchResultSubtitle, SearchResultTitle } from "./SearchResult";
 
 /**

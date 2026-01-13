@@ -1,3 +1,7 @@
+import { waitFor } from "@testing-library/react";
+import { useAtomValue } from "jotai";
+import { act } from "react";
+
 import {
   activeConfigurationAtom,
   allGraphSessionsAtom,
@@ -11,10 +15,8 @@ import {
   DbState,
   renderHookWithJotai,
 } from "@/utils/testing";
-import { waitFor } from "@testing-library/react";
-import { act } from "react";
+
 import { useDeleteActiveConfiguration } from "./useDeleteConfig";
-import { useAtomValue } from "jotai";
 
 test("should delete the active configuration", async () => {
   const config1 = createRandomRawConfiguration();

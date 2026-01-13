@@ -1,25 +1,27 @@
-import { toJsonFileData } from "@/utils/fileData";
-import {
-  createRandomRawConfiguration,
-  createRandomSchema,
-} from "@/utils/testing";
-import {
-  createBackupData,
-  type LocalDb,
-  renameEntry,
-  addRestoredPrefix,
-  removePrefixFromRestoredEntries,
-  hasRestoredPrefix,
-  removeRestoredPrefix,
-  readBackupDataFromFile,
-  restoreBackup,
-} from "./localDb";
-import { serializeData } from "./serializeData";
 import {
   createRandomDate,
   createRandomInteger,
   createRandomName,
 } from "@shared/utils/testing";
+
+import { toJsonFileData } from "@/utils/fileData";
+import {
+  createRandomRawConfiguration,
+  createRandomSchema,
+} from "@/utils/testing";
+
+import {
+  addRestoredPrefix,
+  createBackupData,
+  hasRestoredPrefix,
+  type LocalDb,
+  readBackupDataFromFile,
+  removePrefixFromRestoredEntries,
+  removeRestoredPrefix,
+  renameEntry,
+  restoreBackup,
+} from "./localDb";
+import { serializeData } from "./serializeData";
 
 describe("exportFromLocalForage", () => {
   let timestamp: Date;

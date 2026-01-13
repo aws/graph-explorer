@@ -1,18 +1,21 @@
-import useKeywordSearch from "./useKeywordSearch";
 import type { QueryEngine } from "@shared/types";
-import {
-  createRandomSchema,
-  renderHookWithJotai,
-  createRandomRawConfiguration,
-} from "@/utils/testing";
+
+import { vi } from "vitest";
+
 import {
   activeConfigurationAtom,
+  type AppStore,
   configurationAtom,
   schemaAtom,
-  type AppStore,
 } from "@/core";
-import { vi } from "vitest";
 import { SEARCH_TOKENS } from "@/utils";
+import {
+  createRandomRawConfiguration,
+  createRandomSchema,
+  renderHookWithJotai,
+} from "@/utils/testing";
+
+import useKeywordSearch from "./useKeywordSearch";
 
 vi.mock("./useKeywordSearchQuery", () => ({
   useKeywordSearchQuery: vi.fn().mockReturnValue({

@@ -1,4 +1,5 @@
 import type { FC, ReactNode } from "react";
+
 import { Children, isValidElement } from "react";
 
 const getChildOfType = (children: ReactNode, type: string) => {

@@ -1,23 +1,25 @@
+import { atom, useAtomValue } from "jotai";
+import { atomFamily } from "jotai-family";
+import { useAtomCallback } from "jotai/utils";
+import { useCallback } from "react";
+
 import {
   activeSchemaAtom,
-  edgePreferenceByTypeAtom,
-  edgeTypeConfigSelector,
-  vertexPreferenceByTypeAtom,
-  vertexTypeConfigSelector,
   type AttributeConfig,
+  edgePreferenceByTypeAtom,
   type EdgePreferences,
   type EdgeType,
   type EdgeTypeConfig,
+  edgeTypeConfigSelector,
+  vertexPreferenceByTypeAtom,
   type VertexPreferences,
   type VertexType,
   type VertexTypeConfig,
+  vertexTypeConfigSelector,
 } from "@/core";
 import { type TextTransformer, textTransformSelector } from "@/hooks";
 import { LABELS, logger, SEARCH_TOKENS } from "@/utils";
-import { useAtomCallback } from "jotai/utils";
-import { atomFamily } from "jotai-family";
-import { atom, useAtomValue } from "jotai";
-import { useCallback } from "react";
+
 import { sortAttributeByName } from "./sortAttributeByName";
 
 export type DisplayVertexTypeConfig = {

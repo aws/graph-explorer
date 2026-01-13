@@ -1,16 +1,17 @@
+import { createResultScalar } from "@/connector/entities";
 import {
-  type DisplayVertex,
   createVertexId,
-  type DisplayAttribute,
   createVertexType,
+  type DisplayAttribute,
+  type DisplayVertex,
 } from "@/core";
 import {
-  DbState,
   createRandomQueryEngine,
+  DbState,
   renderHookWithState,
 } from "@/utils/testing";
+
 import { useVertexAttributesAsScalars } from "./useVertexAttributesAsScalars";
-import { createResultScalar } from "@/connector/entities";
 
 describe("useVertexAttributesAsScalars", () => {
   let dbState = new DbState();

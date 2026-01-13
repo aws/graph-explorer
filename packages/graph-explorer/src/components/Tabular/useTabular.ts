@@ -1,5 +1,4 @@
 import { type MouseEvent, useEffect, useMemo, useRef, useState } from "react";
-
 import {
   type ActionType,
   type CellProps,
@@ -29,7 +28,9 @@ import {
   type UseSortByColumnOptions,
   useTable,
 } from "react-table";
+
 import { useDeepMemo } from "@/hooks";
+
 import TextFilter from "./filters/TextFilter";
 import columnDefinitionToColumn from "./helpers/columnDefinitionToColumn";
 import useDiffState from "./plugins/useDiffState";

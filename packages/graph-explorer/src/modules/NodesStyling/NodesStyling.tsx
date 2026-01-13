@@ -1,3 +1,6 @@
+import { Virtuoso } from "react-virtuoso";
+import { Fragment } from "react/jsx-runtime";
+
 import {
   Divider,
   Panel,
@@ -8,10 +11,9 @@ import {
 } from "@/components";
 import { useDisplayVertexTypeConfigs } from "@/core";
 import useTranslations from "@/hooks/useTranslations";
-import SingleNodeStyling from "./SingleNodeStyling";
-import { Fragment } from "react/jsx-runtime";
+
 import { SidebarCloseButton } from "../SidebarCloseButton";
-import { Virtuoso } from "react-virtuoso";
+import SingleNodeStyling from "./SingleNodeStyling";
 
 function NodesStyling() {
   const vtConfigs = useDisplayVertexTypeConfigs().values().toArray();

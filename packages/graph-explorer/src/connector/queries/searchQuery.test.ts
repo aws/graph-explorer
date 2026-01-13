@@ -1,7 +1,8 @@
+import { getAppStore, nodesAtom } from "@/core";
 import { createQueryClient } from "@/core/queryClient";
 import { createTestableVertex, FakeExplorer } from "@/utils/testing";
+
 import { searchQuery } from "./searchQuery";
-import { getAppStore, nodesAtom } from "@/core";
 import { vertexDetailsQuery } from "./vertexDetailsQuery";
 
 describe("searchQuery", () => {

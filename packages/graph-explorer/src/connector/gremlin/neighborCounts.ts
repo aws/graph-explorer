@@ -1,13 +1,15 @@
+import { createVertexId, createVertexType, type VertexType } from "@/core";
 import { query } from "@/utils";
+
 import type {
   ErrorResponse,
   NeighborCountsRequest,
   NeighborCountsResponse,
 } from "../useGEFetchTypes";
 import type { GInt64, GremlinFetch } from "./types";
+
 import isErrorResponse from "../utils/isErrorResponse";
 import { idParam } from "./idParam";
-import { createVertexId, createVertexType, type VertexType } from "@/core";
 import { extractRawId } from "./mappers/extractRawId";
 import { parseGMap } from "./mappers/parseGMap";
 

@@ -1,4 +1,5 @@
 import type { IconBaseProps } from "./IconBase";
+
 import IconBase from "./IconBase";
 
 const UploadIcon = (props: IconBaseProps) => (

@@ -1,7 +1,8 @@
 import { globalMockFetch } from "@/connector/testUtils/globalMockFetch";
 import mockGremlinFetch from "@/connector/testUtils/mockGremlinFetch";
-import keywordSearch from ".";
 import { createVertex, createVertexId } from "@/core";
+
+import keywordSearch from ".";
 
 describe("Gremlin > keywordSearch", () => {
   it("Should return 1 random node", async () => {

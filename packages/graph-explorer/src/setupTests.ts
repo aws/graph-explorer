@@ -2,13 +2,16 @@
  * Global test setup for all tests
  */
 
-import { expect, afterEach, vi } from "vitest";
-import { cleanup } from "@testing-library/react";
+import type { Store } from "jotai/vanilla/store";
+
 import * as matchers from "@testing-library/jest-dom/matchers";
+import { cleanup } from "@testing-library/react";
 import "core-js/full/iterator";
 import { createStore } from "jotai";
+import { afterEach, expect, vi } from "vitest";
+
 import type { Explorer } from "./connector";
-import type { Store } from "jotai/vanilla/store";
+
 import { getAppStore } from "./core";
 
 expect.extend(matchers);

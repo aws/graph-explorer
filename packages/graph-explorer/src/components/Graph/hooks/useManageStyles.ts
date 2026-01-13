@@ -1,6 +1,9 @@
 import type cytoscape from "cytoscape";
+
 import { useEffect } from "react";
+
 import type { CytoscapeType } from "../Graph.model";
+
 import defaultEdgeStyle from "../styles/defaultEdgeStyle";
 import defaultNodeStyle from "../styles/defaultNodeStyle";
 import defaultSubwayEdgeStyles from "../styles/defaultSubwayEdgeStyles";

@@ -1,7 +1,7 @@
 import {
   createEdgeId,
-  createVertexId,
   createEdgeType,
+  createVertexId,
   type EdgeId,
   type EdgeType,
   type EntityProperties,
@@ -9,6 +9,7 @@ import {
   type Vertex,
   type VertexId,
 } from "@/core";
+
 import { createPatchedResultVertex, type PatchedResultVertex } from "./vertex";
 
 /**

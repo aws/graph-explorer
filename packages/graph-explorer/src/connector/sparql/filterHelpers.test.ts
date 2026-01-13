@@ -1,11 +1,13 @@
+import { createRandomUrlString } from "@shared/utils/testing";
+
+import { createVertexId } from "@/core";
+import { query } from "@/utils";
+
 import {
   getLimit,
   getNeighborsFilter,
   getSubjectClasses,
 } from "./filterHelpers";
-import { createRandomUrlString } from "@shared/utils/testing";
-import { createVertexId } from "@/core";
-import { query } from "@/utils";
 
 describe("getSubjectClasses", () => {
   it("should return empty string if no subject classes", () => {
