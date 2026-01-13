@@ -1,9 +1,10 @@
+import type { AutoBoundingBox } from "./types";
+
 import addPadding, { type AddPaddingOptions } from "./addPadding";
 import adjustAnchor, { type AdjustAnchorOptions } from "./adjustAnchor";
 import applyStyle from "./applyStyle";
 import drawImage, { type DrawImageOption } from "./drawImage";
 import drawRectangle, { type DrawRectangleOptions } from "./drawRectangle";
-import type { AutoBoundingBox } from "./types";
 
 export type TextStyle = {
   bold?: boolean;

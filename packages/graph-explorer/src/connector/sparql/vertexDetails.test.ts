@@ -1,14 +1,16 @@
+import { createRandomInteger } from "@shared/utils/testing";
+
+import { createVertexId } from "@/core";
+import { query } from "@/utils";
 import {
   createQuadBindingsForEntities,
   createQuadSparqlResponse,
   createTestableVertex,
   type TestableVertex,
 } from "@/utils/testing";
-import { vertexDetails } from "./vertexDetails";
-import { createVertexId } from "@/core";
-import { createRandomInteger } from "@shared/utils/testing";
-import { query } from "@/utils";
+
 import { rdfTypeUri } from "./types";
+import { vertexDetails } from "./vertexDetails";
 
 describe("vertexDetails", () => {
   it("should return an empty array when no vertex IDs are provided", async () => {

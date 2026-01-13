@@ -1,5 +1,8 @@
-import type { UpdateSchemaHandler } from "@/core";
 import { queryOptions } from "@tanstack/react-query";
+
+import type { UpdateSchemaHandler } from "@/core";
+
+import { getAllGraphableEntities } from "../entities";
 import {
   getExplorer,
   getStore,
@@ -8,7 +11,6 @@ import {
   updateVertexGraphCanvasState,
 } from "./helpers";
 import { patchEntityDetails } from "./patchEntityDetails";
-import { getAllGraphableEntities } from "../entities";
 
 export function executeUserQuery(
   query: string,

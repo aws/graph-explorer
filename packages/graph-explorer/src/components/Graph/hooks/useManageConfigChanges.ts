@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+
 import type { Config, CytoscapeType } from "../Graph.model";
 
 function useChangeConfig(

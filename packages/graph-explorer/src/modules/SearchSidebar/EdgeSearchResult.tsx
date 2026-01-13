@@ -1,9 +1,7 @@
-import {
-  createEdge,
-  createVertex,
-  useDisplayEdgeFromEdge,
-  useDisplayVertex,
-} from "@/core";
+import { MinusCircleIcon, PlusCircleIcon } from "lucide-react";
+
+import type { PatchedResultEdge } from "@/connector/entities";
+
 import {
   type ButtonProps,
   CollapsibleContent,
@@ -15,13 +13,18 @@ import {
   stopPropagation,
 } from "@/components";
 import {
+  createEdge,
+  createVertex,
+  useDisplayEdgeFromEdge,
+  useDisplayVertex,
+} from "@/core";
+import {
   useAddToGraphMutation,
   useHasEdgeBeenAddedToGraph,
   useRemoveEdgeFromGraph,
 } from "@/hooks";
-import { MinusCircleIcon, PlusCircleIcon } from "lucide-react";
+
 import { createEntityKey, EntitySearchResult } from "./EntitySearchResult";
-import type { PatchedResultEdge } from "@/connector/entities";
 import { useEdgeAttributesAsScalars } from "./useEdgeAttributesAsScalars";
 
 export function EdgeSearchResult({

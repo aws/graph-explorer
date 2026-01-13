@@ -1,8 +1,8 @@
-import { cn } from "@/utils";
+import { XIcon } from "lucide-react";
 import React from "react";
 
 import { IconButton, type IconButtonProps } from "@/components/IconButton";
-import { XIcon } from "lucide-react";
+import { cn } from "@/utils";
 
 interface PanelProps extends React.ComponentPropsWithRef<"div"> {
   variant?: "default" | "sidebar";

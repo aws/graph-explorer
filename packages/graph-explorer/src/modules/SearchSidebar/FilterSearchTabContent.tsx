@@ -1,27 +1,29 @@
-import useKeywordSearch from "./useKeywordSearch";
-import { SearchResultsList } from "./SearchResultsList";
+import type { UseQueryResult } from "@tanstack/react-query";
+
+import type { KeywordSearchResponse } from "@/connector";
+
 import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  FormItem,
-  Label,
   Checkbox,
+  FormItem,
   Input,
+  Label,
   PanelEmptyState,
   PanelError,
   SearchSadIcon,
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   Spinner,
 } from "@/components";
-
-import { useTranslations } from "@/hooks";
 import { createPatchedResultVertex } from "@/connector/entities";
-import type { UseQueryResult } from "@tanstack/react-query";
+import { useTranslations } from "@/hooks";
+
+import { SearchResultsList } from "./SearchResultsList";
+import useKeywordSearch from "./useKeywordSearch";
 import { useCancelKeywordSearch } from "./useKeywordSearchQuery";
-import type { KeywordSearchResponse } from "@/connector";
 
 export function FilterSearchTabContent() {
   const t = useTranslations();

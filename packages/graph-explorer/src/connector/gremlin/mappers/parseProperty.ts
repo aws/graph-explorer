@@ -1,4 +1,5 @@
 import type { EntityPropertyValue } from "@/core";
+
 import type { GProperty, GVertexProperty } from "../types";
 
 export default function parseProperty(

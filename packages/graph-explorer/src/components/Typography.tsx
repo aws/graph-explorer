@@ -1,7 +1,10 @@
-import { cn } from "@/utils";
 import type { ComponentProps } from "react";
-import { Alert, AlertDescription, AlertTitle } from "./Alert";
+
 import { CircleAlertIcon } from "lucide-react";
+
+import { cn } from "@/utils";
+
+import { Alert, AlertDescription, AlertTitle } from "./Alert";
 
 export function PageHeading({ className, ...props }: ComponentProps<"h1">) {
   return (

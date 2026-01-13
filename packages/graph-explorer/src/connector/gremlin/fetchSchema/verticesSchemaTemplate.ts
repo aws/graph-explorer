@@ -1,5 +1,6 @@
-import { query } from "@/utils";
 import { uniq } from "lodash";
+
+import { query } from "@/utils";
 
 /**
  * Given a set of nodes labels, it returns a Gremlin template that contains

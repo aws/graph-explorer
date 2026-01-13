@@ -1,10 +1,12 @@
-import type { VertexTypeConfig } from "@/core";
-import { logger } from "@/utils";
 import {
   keepPreviousData,
   type QueryClient,
   queryOptions,
 } from "@tanstack/react-query";
+
+import type { VertexTypeConfig } from "@/core";
+
+import { logger } from "@/utils";
 
 export type VertexIconConfig = Pick<
   VertexTypeConfig,

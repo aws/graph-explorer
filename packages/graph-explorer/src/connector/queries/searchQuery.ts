@@ -1,6 +1,9 @@
 import { queryOptions } from "@tanstack/react-query";
-import type { KeywordSearchRequest } from "../useGEFetchTypes";
+
 import type { UpdateSchemaHandler } from "@/core/StateProvider/schema";
+
+import type { KeywordSearchRequest } from "../useGEFetchTypes";
+
 import {
   getExplorer,
   getStore,

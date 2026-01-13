@@ -1,7 +1,8 @@
 import { escapeString, query, SEARCH_TOKENS } from "@/utils";
-import { rdfTypeUri, type SPARQLKeywordSearchRequest } from "../types";
-import { idParam } from "../idParam";
+
 import { getLimit, getSubjectClasses } from "../filterHelpers";
+import { idParam } from "../idParam";
+import { rdfTypeUri, type SPARQLKeywordSearchRequest } from "../types";
 
 /**
  * Fetch nodes matching the given search parameters

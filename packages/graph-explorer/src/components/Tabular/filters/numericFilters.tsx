@@ -8,8 +8,10 @@ import {
   LessOrEqualThanIcon,
   LessThanIcon,
 } from "@/components/icons";
-import TextFilter from "./TextFilter";
+
 import type { TextFilterProps } from "./TextFilter";
+
+import TextFilter from "./TextFilter";
 
 type FilterFn<T extends object = object> = (
   rows: Row<T>[],

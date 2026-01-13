@@ -1,5 +1,6 @@
-import applyStyle, { type ApplyStyleOptions } from "./applyStyle";
 import type { Coordinates } from "./types";
+
+import applyStyle, { type ApplyStyleOptions } from "./applyStyle";
 
 export type DrawCircleOptions = ApplyStyleOptions & {
   radius?: number;

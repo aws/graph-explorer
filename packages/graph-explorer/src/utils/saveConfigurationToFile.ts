@@ -1,5 +1,7 @@
 import { saveAs } from "file-saver";
+
 import type { ConfigurationContextProps } from "@/core";
+
 import { toJsonFileData } from "./fileData";
 
 const saveConfigurationToFile = (config: ConfigurationContextProps) => {
@@ -18,6 +20,7 @@ const saveConfigurationToFile = (config: ConfigurationContextProps) => {
         __matches: Array.from(prefix.__matches || []),
       })),
       lastUpdate: config.schema?.lastUpdate?.toISOString(),
+      edgeConnections: config.schema?.edgeConnections,
     },
   };
 

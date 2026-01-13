@@ -1,12 +1,15 @@
-import { cn } from "@/utils";
 import type {
   ComponentPropsWithoutRef,
   PropsWithChildren,
   ReactNode,
 } from "react";
-import { Label } from "./Label";
-import { Checkbox } from "./Checkbox";
+
 import { Virtuoso } from "react-virtuoso";
+
+import { cn } from "@/utils";
+
+import { Checkbox } from "./Checkbox";
+import { Label } from "./Label";
 
 export type CheckboxListItemProps = {
   id: string;

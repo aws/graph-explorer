@@ -1,5 +1,5 @@
-import localForage from "localforage";
 import { atom } from "jotai";
+import localForage from "localforage";
 
 localForage.config({
   name: "ge",

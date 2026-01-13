@@ -1,8 +1,11 @@
-import { describe, it, expect, vi } from "vitest";
-import saveConfigurationToFile from "./saveConfigurationToFile";
 import * as fileSaver from "file-saver";
+import { describe, expect, it, vi } from "vitest";
+
 import type { ConfigurationContextProps } from "@/core";
-import { createVertexType, createEdgeType } from "@/core";
+
+import { createEdgeType, createVertexType } from "@/core";
+
+import saveConfigurationToFile from "./saveConfigurationToFile";
 import { createRandomRawConfiguration } from "./testing";
 
 vi.mock("file-saver", () => ({
@@ -280,5 +283,87 @@ describe("saveConfigurationToFile", () => {
     expect(parsed.displayLabel).toBeDefined();
     expect(parsed.connection).toBeDefined();
     expect(parsed.schema).toBeDefined();
+  });
+
+  it("should export edgeConnections when present", async () => {
+    const config: ConfigurationContextProps = {
+      ...createRandomRawConfiguration(),
+      schema: {
+        vertices: [],
+        edges: [],
+        prefixes: [],
+        totalVertices: 0,
+        totalEdges: 0,
+        lastUpdate: new Date(),
+        lastSyncFail: false,
+        triedToSync: true,
+        edgeConnections: [
+          {
+            edgeType: createEdgeType("knows"),
+            sourceVertexType: createVertexType("Person"),
+            targetVertexType: createVertexType("Person"),
+            count: 42,
+          },
+          {
+            edgeType: createEdgeType("worksAt"),
+            sourceVertexType: createVertexType("Person"),
+            targetVertexType: createVertexType("Company"),
+          },
+        ],
+      },
+      totalVertices: 0,
+      vertexTypes: [],
+      totalEdges: 0,
+      edgeTypes: [],
+    };
+
+    saveConfigurationToFile(config);
+
+    const [blob] = saveAsMock.mock.calls[0];
+    const text = await (blob as Blob).text();
+    const parsed = JSON.parse(text);
+
+    expect(parsed.schema.edgeConnections).toStrictEqual([
+      {
+        edgeType: "knows",
+        sourceVertexType: "Person",
+        targetVertexType: "Person",
+        count: 42,
+      },
+      {
+        edgeType: "worksAt",
+        sourceVertexType: "Person",
+        targetVertexType: "Company",
+      },
+    ]);
+  });
+
+  it("should handle undefined edgeConnections", async () => {
+    const config: ConfigurationContextProps = {
+      ...createRandomRawConfiguration(),
+      schema: {
+        vertices: [],
+        edges: [],
+        prefixes: [],
+        totalVertices: 0,
+        totalEdges: 0,
+        lastUpdate: new Date(),
+        lastSyncFail: false,
+        triedToSync: true,
+        edgeConnections: undefined,
+      },
+      totalVertices: 0,
+      vertexTypes: [],
+      totalEdges: 0,
+      edgeTypes: [],
+    };
+
+    saveConfigurationToFile(config);
+
+    const [blob] = saveAsMock.mock.calls[0];
+    const text = await (blob as Blob).text();
+    const parsed = JSON.parse(text);
+
+    expect(parsed.schema.edgeConnections).toBeUndefined();
   });
 });

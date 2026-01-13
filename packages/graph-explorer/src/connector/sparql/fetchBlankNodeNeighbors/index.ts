@@ -1,12 +1,14 @@
-import blankNodeOneHopNeighborsTemplate from "./blankNodeOneHopNeighborsTemplate";
+import { createEdge, createVertex, type Vertex, type VertexType } from "@/core";
+import { logger } from "@/utils";
+
 import type {
   SPARQLBlankNodeNeighborsRequest,
   SPARQLBlankNodeNeighborsResponse,
   SparqlFetch,
 } from "../types";
-import { logger } from "@/utils";
-import { createEdge, createVertex, type Vertex, type VertexType } from "@/core";
+
 import { parseAndMapQuads } from "../parseAndMapQuads";
+import blankNodeOneHopNeighborsTemplate from "./blankNodeOneHopNeighborsTemplate";
 
 export default async function fetchBlankNodeNeighbors(
   sparqlFetch: SparqlFetch,

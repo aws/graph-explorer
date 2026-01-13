@@ -1,38 +1,59 @@
+import type { Simplify } from "type-fest";
+
+import { atom, useAtomValue } from "jotai";
+import { atomFamily } from "jotai-family";
+import { RESET, useAtomCallback } from "jotai/utils";
+import { startTransition, useCallback, useDeferredValue } from "react";
+
 import type {
   AttributeConfig,
   ConfigurationId,
+  EdgeConnection,
   EdgeTypeConfig,
   PrefixTypeConfig,
   VertexTypeConfig,
 } from "@/core/ConfigurationProvider";
+import type { SetStateActionWithReset } from "@/utils/jotai";
+
+import { createTypedValue, type ScalarValue } from "@/connector/entities";
 import {
   activeConfigurationAtom,
-  schemaAtom,
   type Edge,
   type EdgeType,
   type Entities,
   type EntityProperties,
+  schemaAtom,
   type Vertex,
   type VertexType,
 } from "@/core";
 import { logger } from "@/utils";
 import generatePrefixes from "@/utils/generatePrefixes";
-import { startTransition, useCallback, useDeferredValue } from "react";
-import { atom, useAtomValue } from "jotai";
-import { RESET, useAtomCallback } from "jotai/utils";
-import { atomFamily } from "jotai-family";
-import type { SetStateActionWithReset } from "@/utils/jotai";
-import { createTypedValue, type ScalarValue } from "@/connector/entities";
-import type { Simplify } from "type-fest";
 
-export type SchemaInference = {
+/**
+ * Persisted schema state for a database connection.
+ *
+ * This is the runtime representation of the discovered graph schema, stored in
+ * Jotai atoms and persisted to IndexedDB. It gets populated from database
+ * schema queries and incrementally updated as users explore the graph.
+ */
+export type SchemaStorageModel = {
+  /** Vertex type configurations with their attributes. */
   vertices: VertexTypeConfig[];
+  /** Edge type configurations with their attributes. */
   edges: EdgeTypeConfig[];
+  /** RDF namespace prefixes for SPARQL connections. */
   prefixes?: Array<PrefixTypeConfig>;
+  /** Edge connections between node labels. */
+  edgeConnections?: Array<EdgeConnection>;
+  /** When the schema was last updated. */
   lastUpdate?: Date;
+  /** Whether a schema sync has been attempted. */
   triedToSync?: boolean;
+  /** Whether the last schema sync failed. */
   lastSyncFail?: boolean;
+  /** Total vertex count from the database. */
   totalVertices?: number;
+  /** Total edge count from the database. */
   totalEdges?: number;
 };
 
@@ -48,7 +69,7 @@ const schemaByIdAtom = atomFamily((id: ConfigurationId | null) => {
   });
 });
 
-const emptySchema: SchemaInference = {
+const emptySchema: SchemaStorageModel = {
   vertices: [],
   edges: [],
   prefixes: [],
@@ -60,7 +81,7 @@ export const activeSchemaAtom = atom(get => {
 });
 
 /** Gets the stored active schema or a default empty schema */
-export function useActiveSchema(): SchemaInference {
+export function useActiveSchema(): SchemaStorageModel {
   return useDeferredValue(useAtomValue(activeSchemaAtom));
 }
 
@@ -103,7 +124,41 @@ export type EdgeSchema = Simplify<
   Readonly<ReturnType<typeof createEdgeSchema>>
 >;
 
-function createGraphSchema(stored: SchemaInference) {
+function createEdgeConnectionsSchema(edgeConnections: EdgeConnection[]) {
+  const all = edgeConnections;
+
+  const byVertexType = new Map<VertexType, EdgeConnection[]>();
+  for (const conn of edgeConnections) {
+    // Add to source vertex type
+    const sourceConns = byVertexType.get(conn.sourceVertexType) ?? [];
+    sourceConns.push(conn);
+    byVertexType.set(conn.sourceVertexType, sourceConns);
+
+    // Add to target vertex type (if different from source)
+    if (conn.targetVertexType !== conn.sourceVertexType) {
+      const targetConns = byVertexType.get(conn.targetVertexType) ?? [];
+      targetConns.push(conn);
+      byVertexType.set(conn.targetVertexType, targetConns);
+    }
+  }
+
+  return {
+    /** All edge connections in the schema */
+    all,
+    /** Edge connections grouped by vertex type (includes both source and target) */
+    byVertexType,
+    /** Get all connections for a specific vertex type */
+    forVertexType(type: VertexType): EdgeConnection[] {
+      return byVertexType.get(type) ?? [];
+    },
+  };
+}
+
+export type EdgeConnectionsSchema = ReturnType<
+  typeof createEdgeConnectionsSchema
+>;
+
+function createGraphSchema(stored: SchemaStorageModel) {
   logger.debug("Creating graph schema", stored);
   const vertices = new Map<VertexType, VertexSchema>();
   for (const vtConfig of stored.vertices) {
@@ -114,7 +169,12 @@ function createGraphSchema(stored: SchemaInference) {
   for (const etConfig of stored.edges) {
     edges.set(etConfig.type, createEdgeSchema(etConfig));
   }
-  return { vertices, edges };
+
+  const edgeConnections = createEdgeConnectionsSchema(
+    stored.edgeConnections ?? [],
+  );
+
+  return { vertices, edges, edgeConnections };
 }
 
 export function useGraphSchema() {
@@ -151,7 +211,11 @@ export const activeSchemaSelector = atom(
     const activeSchema = id ? schemaMap.get(id) : null;
     return activeSchema;
   },
-  (get, set, update: SetStateActionWithReset<SchemaInference | undefined>) => {
+  (
+    get,
+    set,
+    update: SetStateActionWithReset<SchemaStorageModel | undefined>,
+  ) => {
     const schemaId = get(activeConfigurationAtom);
     if (!schemaId) {
       return;
@@ -182,7 +246,7 @@ export const activeSchemaSelector = atom(
 /** Updates the schema based on the given nodes and edges. */
 export function updateSchemaFromEntities(
   entities: Partial<Entities>,
-  schema: SchemaInference,
+  schema: SchemaStorageModel,
 ) {
   const vertices = entities.vertices ?? [];
   const edges = entities.edges ?? [];
@@ -206,7 +270,7 @@ export function updateSchemaFromEntities(
     ...schema,
     vertices: mergedVertices,
     edges: mergedEdges,
-  } satisfies SchemaInference;
+  } satisfies SchemaStorageModel;
 
   // Update the generated prefixes in the schema
   newSchema = updateSchemaPrefixes(newSchema);
@@ -320,7 +384,9 @@ function detectDataType(value: ScalarValue) {
 }
 
 /** Generate RDF prefixes for all the resource URIs in the schema. */
-export function updateSchemaPrefixes(schema: SchemaInference): SchemaInference {
+export function updateSchemaPrefixes(
+  schema: SchemaStorageModel,
+): SchemaStorageModel {
   const existingPrefixes = schema.prefixes ?? [];
 
   // Get all the resource URIs from the vertex and edge type configs
@@ -344,7 +410,7 @@ export function updateSchemaPrefixes(schema: SchemaInference): SchemaInference {
 }
 
 /** A performant way to construct the set of resource URIs from the schema. */
-function getResourceUris(schema: SchemaInference) {
+function getResourceUris(schema: SchemaStorageModel) {
   const result = new Set<string>();
 
   schema.vertices.forEach(v => {
@@ -397,7 +463,7 @@ export type UpdateSchemaHandler = ReturnType<
 /** Attempts to efficiently detect if the schema should be updated. */
 export function shouldUpdateSchemaFromEntities(
   entities: Partial<Entities>,
-  schema: SchemaInference,
+  schema: SchemaStorageModel,
 ) {
   const vertices = entities.vertices ?? [];
   const edges = entities.edges ?? [];

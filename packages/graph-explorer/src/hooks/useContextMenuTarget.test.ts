@@ -1,13 +1,16 @@
-import { describe, it, expect, beforeEach } from "vitest";
-import {
-  renderHookWithState,
-  DbState,
-  createTestableVertex,
-  createTestableEdge,
-} from "@/utils/testing";
-import { useContextMenuTarget } from "./useContextMenuTarget";
+import { beforeEach, describe, expect, it } from "vitest";
+
 import type { EdgeId, VertexId } from "@/core";
+
 import { createGraphSelection } from "@/modules/GraphViewer/useGraphSelection";
+import {
+  createTestableEdge,
+  createTestableVertex,
+  DbState,
+  renderHookWithState,
+} from "@/utils/testing";
+
+import { useContextMenuTarget } from "./useContextMenuTarget";
 
 describe("useContextMenuTarget", () => {
   let state: DbState;

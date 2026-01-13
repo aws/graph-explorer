@@ -1,4 +1,5 @@
 import type { VertexId } from "./vertex";
+
 import { createEdgeId, createVertexId, getRawId } from "./entityIdType";
 
 describe("createVertexId", () => {

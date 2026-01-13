@@ -1,4 +1,5 @@
 import { BracketsIcon } from "lucide-react";
+
 import {
   CollapsibleContent,
   SearchResultCollapsible,
@@ -7,12 +8,13 @@ import {
   SearchResultSymbol,
   SearchResultTitle,
 } from "@/components";
-import { createEntityKey, EntitySearchResult } from "./EntitySearchResult";
 import {
   getDisplayValueForBundle,
   type PatchedResultBundle,
 } from "@/connector/entities";
 import { useTextTransform } from "@/hooks";
+
+import { createEntityKey, EntitySearchResult } from "./EntitySearchResult";
 
 export function BundleSearchResult({
   bundle,

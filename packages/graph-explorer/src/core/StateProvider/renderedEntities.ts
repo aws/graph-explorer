@@ -1,18 +1,21 @@
+import { useAtomValue } from "jotai";
+
+import type { Branded } from "@/utils";
+
 import {
+  type DisplayEdge,
+  type DisplayVertex,
   edgesFilteredIdsAtom,
   edgesTypesFilteredAtom,
+  type EntityRawId,
   nodesFilteredIdsAtom,
   nodesTypesFilteredAtom,
   useAllNeighbors,
   useDisplayEdgesInCanvas,
   useDisplayVerticesInCanvas,
-  type DisplayEdge,
-  type DisplayVertex,
-  type EntityRawId,
   type VertexId,
 } from "@/core";
-import type { Branded } from "@/utils";
-import { useAtomValue } from "jotai";
+
 import type { EdgeId } from "../entities/edge";
 
 /** A string representation of a vertex ID that encodes the original type. Cytoscape requires IDs to be strings. */

@@ -1,4 +1,5 @@
 import { createVertex } from "@/core";
+
 import { createResultVertex } from "./vertex";
 
 describe("createResultVertex", () => {

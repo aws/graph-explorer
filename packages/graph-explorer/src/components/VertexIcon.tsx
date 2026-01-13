@@ -1,12 +1,15 @@
+import type { CSSProperties } from "react";
+
+import SVG from "react-inlinesvg";
+
 import {
   useVertexPreferences,
   type VertexPreferences,
   type VertexType,
 } from "@/core";
-import SVG from "react-inlinesvg";
 import { cn } from "@/utils";
+
 import { SearchResultSymbol } from "./SearchResult";
-import type { CSSProperties } from "react";
 
 interface Props {
   vertexStyle: VertexPreferences;

@@ -1,4 +1,5 @@
 import type { VertexType } from "@/core";
+
 import { query } from "@/utils";
 
 // Return all predicates which are connected from the given class

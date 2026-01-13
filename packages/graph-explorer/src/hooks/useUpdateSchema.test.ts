@@ -1,19 +1,21 @@
+import { createRandomDate, createRandomInteger } from "@shared/utils/testing";
+import { useAtomValue } from "jotai";
+import { act } from "react";
+
+import {
+  activeConfigurationAtom,
+  createNewConfigurationId,
+  schemaAtom,
+  type SchemaStorageModel,
+} from "@/core";
 import {
   createRandomSchema,
   createRandomSchemaResponse,
   createRandomVertexType,
   renderHookWithJotai,
 } from "@/utils/testing";
-import { createRandomDate, createRandomInteger } from "@shared/utils/testing";
+
 import useUpdateSchema from "./useUpdateSchema";
-import { act } from "react";
-import {
-  activeConfigurationAtom,
-  createNewConfigurationId,
-  schemaAtom,
-  type SchemaInference,
-} from "@/core";
-import { useAtomValue } from "jotai";
 
 describe("useUpdateSchema", () => {
   describe("setSyncFailure", () => {
@@ -36,7 +38,7 @@ describe("useUpdateSchema", () => {
       expect(schema).toEqual({
         ...existingSchema,
         lastSyncFail: true,
-      } satisfies SchemaInference);
+      } satisfies SchemaStorageModel);
     });
   });
 
@@ -66,7 +68,7 @@ describe("useUpdateSchema", () => {
         lastSyncFail: false,
         lastUpdate: vi.getMockedSystemTime()!,
         triedToSync: true,
-      } satisfies SchemaInference);
+      } satisfies SchemaStorageModel);
     });
 
     it("should update existing schema", () => {
@@ -85,7 +87,7 @@ describe("useUpdateSchema", () => {
         lastSyncFail: false,
         lastUpdate: vi.getMockedSystemTime()!,
         triedToSync: true,
-      } satisfies SchemaInference);
+      } satisfies SchemaStorageModel);
     });
   });
 

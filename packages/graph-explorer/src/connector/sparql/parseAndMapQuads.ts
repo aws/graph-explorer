@@ -1,8 +1,10 @@
-import { logger } from "@/utils";
-import { mapQuadToEntities } from "./mappers/mapQuadToEntities";
 import { fromError } from "zod-validation-error";
+
+import { logger } from "@/utils";
+
 import isErrorResponse from "../utils/isErrorResponse";
-import { sparqlResponseSchema, sparqlQuadBindingSchema } from "./types";
+import { mapQuadToEntities } from "./mappers/mapQuadToEntities";
+import { sparqlQuadBindingSchema, sparqlResponseSchema } from "./types";
 
 /**
  * Checks the data for error information, then parses to SPARQL quad bindings and maps to result entities.

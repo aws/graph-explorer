@@ -1,7 +1,9 @@
 import type { VertexId } from "@/core";
+
+import { LABELS, query } from "@/utils";
+
 import { idParam } from "./idParam";
 import { rdfTypeUri } from "./types";
-import { LABELS, query } from "@/utils";
 
 /**
  * Generates a SPARQL FILTER clause to restrict results to specific subject classes.

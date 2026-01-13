@@ -1,8 +1,10 @@
 import type { EdgeId } from "@/core";
+
 import {
   createRandomEdgeForRdf,
   createRandomVertexForRdf,
 } from "@/utils/testing";
+
 import { edgeDetails } from "./edgeDetails";
 
 describe("edgeDetails", () => {

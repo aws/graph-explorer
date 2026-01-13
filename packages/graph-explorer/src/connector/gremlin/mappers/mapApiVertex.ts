@@ -1,7 +1,8 @@
-import { createResultVertex } from "../../entities";
 import type { GVertex } from "../types";
-import parsePropertiesValues from "./parsePropertiesValues";
+
+import { createResultVertex } from "../../entities";
 import { extractRawId } from "./extractRawId";
+import parsePropertiesValues from "./parsePropertiesValues";
 
 export default function mapApiVertex(apiVertex: GVertex, name?: string) {
   // Split multi-label from Neptune and filter out empty strings

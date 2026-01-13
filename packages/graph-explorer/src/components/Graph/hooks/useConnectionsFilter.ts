@@ -1,5 +1,7 @@
 import { useCallback } from "react";
+
 import type { CytoscapeType } from "../Graph.model";
+
 import useFilter from "./useFilter";
 
 export type ConnectionsFilterConfig = {

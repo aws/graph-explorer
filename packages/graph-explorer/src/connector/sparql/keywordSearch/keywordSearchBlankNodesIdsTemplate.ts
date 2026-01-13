@@ -1,5 +1,7 @@
 import { query } from "@/utils";
+
 import type { SPARQLKeywordSearchRequest } from "../types";
+
 import { findSubjectsMatchingFilters } from "./keywordSearchTemplate";
 
 /**

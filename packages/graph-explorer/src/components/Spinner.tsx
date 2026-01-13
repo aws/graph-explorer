@@ -1,6 +1,8 @@
-import { cn } from "@/utils";
 import type { PropsWithChildren } from "react";
+
 import { LoaderIcon } from "@/components/icons";
+import { cn } from "@/utils";
+
 import type { IconBaseProps } from "./icons/IconBase";
 
 interface SpinnerProps extends PropsWithChildren<IconBaseProps> {

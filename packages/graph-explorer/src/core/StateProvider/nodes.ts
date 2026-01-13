@@ -1,9 +1,10 @@
-import { atom, useAtomValue, useSetAtom } from "jotai";
-import { atomWithReset } from "jotai/utils";
-import { atomFamily } from "jotai-family";
-import { type Vertex, type VertexId, createVertex } from "@/core";
-import { vertexDetailsQuery } from "@/connector";
 import { useQuery } from "@tanstack/react-query";
+import { atom, useAtomValue, useSetAtom } from "jotai";
+import { atomFamily } from "jotai-family";
+import { atomWithReset } from "jotai/utils";
+
+import { vertexDetailsQuery } from "@/connector";
+import { createVertex, type Vertex, type VertexId } from "@/core";
 
 export function toNodeMap(nodes: Iterable<Vertex>): Map<VertexId, Vertex> {
   return new Map(Iterator.from(nodes).map(n => [n.id, n]));

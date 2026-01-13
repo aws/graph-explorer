@@ -1,6 +1,8 @@
-import { cn } from "@/utils";
-import { EdgeIcon } from "./icons";
 import type { ComponentPropsWithoutRef } from "react";
+
+import { cn } from "@/utils";
+
+import { EdgeIcon } from "./icons";
 import { SearchResultSymbol } from "./SearchResult";
 
 /** Icon representing an edge in the graph. */

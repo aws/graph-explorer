@@ -1,14 +1,17 @@
-import { describe, test, expect, vi } from "vitest";
-import fetchNeighbors from "./index";
-import type { SPARQLNeighborsRequest } from "../types";
+import { createRandomUrlString } from "@shared/utils/testing";
+import { describe, expect, test, vi } from "vitest";
+
+import { createVertex } from "@/core";
 import {
-  createTestableVertex,
-  createTestableEdge,
   createQuadBindingsForEntities,
   createQuadSparqlResponse,
+  createTestableEdge,
+  createTestableVertex,
 } from "@/utils/testing";
-import { createRandomUrlString } from "@shared/utils/testing";
-import { createVertex } from "@/core";
+
+import type { SPARQLNeighborsRequest } from "../types";
+
+import fetchNeighbors from "./index";
 
 describe("fetchNeighbors", () => {
   const mockSparqlFetch = vi.fn() as any;

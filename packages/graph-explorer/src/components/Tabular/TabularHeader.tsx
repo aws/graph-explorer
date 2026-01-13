@@ -1,6 +1,8 @@
-import { cn } from "@/utils";
-import { ArrowDown } from "lucide-react";
 import type { HeaderGroup, TableInstance } from "react-table";
+
+import { ArrowDown } from "lucide-react";
+
+import { cn } from "@/utils";
 
 const TabularHeader = <T extends object>({
   headerGroup,

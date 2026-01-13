@@ -1,14 +1,17 @@
 import { queryOptions } from "@tanstack/react-query";
-import type { Edge, EdgeId } from "@/core";
-import { DEFAULT_BATCH_REQUEST_SIZE } from "@/utils";
 import { chunk } from "lodash";
+
+import type { Edge, EdgeId } from "@/core";
+
+import { DEFAULT_BATCH_REQUEST_SIZE } from "@/utils";
+
+import { edgeDetailsQuery } from "./edgeDetailsQuery";
 import {
   getExplorer,
   getStore,
   setEdgeDetailsQueryCache,
   updateEdgeGraphCanvasState,
 } from "./helpers";
-import { edgeDetailsQuery } from "./edgeDetailsQuery";
 
 export function bulkEdgeDetailsQuery(
   edgeIds: EdgeId[],

@@ -10,9 +10,10 @@ import {
   SidebarTabsList,
   SidebarTabsTrigger,
 } from "@/components";
-import useFiltersConfig from "./useFiltersConfig";
-import { SidebarCloseButton } from "../SidebarCloseButton";
 import { useTranslations } from "@/hooks";
+
+import { SidebarCloseButton } from "../SidebarCloseButton";
+import useFiltersConfig from "./useFiltersConfig";
 
 function EntitiesFilter() {
   const t = useTranslations();

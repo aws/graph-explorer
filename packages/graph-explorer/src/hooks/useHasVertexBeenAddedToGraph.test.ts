@@ -1,11 +1,12 @@
-import { createRandomVertex, renderHookWithJotai } from "@/utils/testing";
-import { useHasVertexBeenAddedToGraph } from "./useHasVertexBeenAddedToGraph";
 import {
   nodesAtom,
   nodesFilteredIdsAtom,
   nodesTypesFilteredAtom,
   toNodeMap,
 } from "@/core";
+import { createRandomVertex, renderHookWithJotai } from "@/utils/testing";
+
+import { useHasVertexBeenAddedToGraph } from "./useHasVertexBeenAddedToGraph";
 
 test("returns false if vertex has not been added to graph", () => {
   const vertex = createRandomVertex();

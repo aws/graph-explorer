@@ -1,8 +1,11 @@
 import { vi } from "vitest";
+
 import type { SchemaResponse } from "@/connector/useGEFetchTypes";
-import fetchSchema from ".";
+
 import { ClientLoggerConnector } from "@/connector/LoggerConnector";
 import { createEdgeType, createVertexType } from "@/core";
+
+import fetchSchema from ".";
 
 describe("OpenCypher > fetchSchema", () => {
   it("Should return a schema", async () => {

@@ -1,5 +1,7 @@
 import uniq from "lodash/uniq";
+
 import type { KeywordSearchRequest } from "@/connector";
+
 import { escapeString, SEARCH_TOKENS } from "@/utils";
 
 /**

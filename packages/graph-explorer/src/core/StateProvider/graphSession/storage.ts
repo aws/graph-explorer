@@ -1,7 +1,9 @@
 import { atom } from "jotai";
-import type { EdgeId, VertexId } from "../../entities";
 import { atomWithReset, RESET } from "jotai/utils";
+
 import { activeConfigurationAtom, allGraphSessionsAtom } from "@/core";
+
+import type { EdgeId, VertexId } from "../../entities";
 
 /** A model for the graph data that is stored in local storage. */
 export type GraphSessionStorageModel = {

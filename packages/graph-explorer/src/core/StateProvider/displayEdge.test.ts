@@ -1,12 +1,19 @@
+import type { QueryEngine } from "@shared/types";
+
+import { createRandomDate, createRandomName } from "@shared/utils/testing";
+
+import { getDisplayValueForScalar } from "@/connector/entities";
 import {
   activeConfigurationAtom,
   type AppStore,
   configurationAtom,
+  createEdgeType,
   type Edge,
   getRawId,
   schemaAtom,
-  createEdgeType,
+  type SchemaStorageModel,
 } from "@/core";
+import { formatDate } from "@/utils";
 import {
   createRandomEdge,
   createRandomEdgePreferencesStorageModel,
@@ -17,13 +24,10 @@ import {
   renderHookWithJotai,
   renderHookWithState,
 } from "@/utils/testing";
-import { useDisplayEdgeFromEdge } from "./displayEdge";
-import { formatDate } from "@/utils";
-import { createRandomDate, createRandomName } from "@shared/utils/testing";
+
 import type { DisplayAttribute } from "./displayAttribute";
-import type { Schema } from "../ConfigurationProvider";
-import type { QueryEngine } from "@shared/types";
-import { getDisplayValueForScalar } from "@/connector/entities";
+
+import { useDisplayEdgeFromEdge } from "./displayEdge";
 
 describe("useDisplayEdgeFromEdge", () => {
   let dbState = new DbState();
@@ -229,7 +233,7 @@ describe("useDisplayEdgeFromEdge", () => {
     return result.current;
   }
 
-  function withSchema(schema: Schema) {
+  function withSchema(schema: SchemaStorageModel) {
     const config = createRandomRawConfiguration();
     return (store: AppStore) => {
       store.set(configurationAtom, new Map([[config.id, config]]));
@@ -238,7 +242,10 @@ describe("useDisplayEdgeFromEdge", () => {
     };
   }
 
-  function withSchemaAndConnection(schema: Schema, queryEngine: QueryEngine) {
+  function withSchemaAndConnection(
+    schema: SchemaStorageModel,
+    queryEngine: QueryEngine,
+  ) {
     const config = createRandomRawConfiguration();
     config.connection!.queryEngine = queryEngine;
     return (store: AppStore) => {

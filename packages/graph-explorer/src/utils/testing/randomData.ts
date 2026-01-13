@@ -1,37 +1,11 @@
+import type { Writable } from "type-fest";
+
 import {
-  type ArrowStyle,
-  type AttributeConfig,
-  type ConnectionWithId,
-  createEdge,
-  createEdgeId,
-  createEdgePreference,
-  createNewConfigurationId,
-  createVertex,
-  createVertexId,
-  createVertexPreference,
-  type EdgeId,
-  type EdgePreferences,
-  type EdgePreferencesStorageModel,
-  type EdgeType,
-  type EdgeTypeConfig,
-  type Entities,
-  type EntityProperties,
-  type EntityRawId,
-  type FeatureFlags,
-  type LineStyle,
-  type PrefixTypeConfig,
-  type RawConfiguration,
-  type Schema,
-  createEdgeType,
-  createVertexType,
-  type UserStyling,
-  type Vertex,
-  type VertexId,
-  type VertexPreferences,
-  type VertexPreferencesStorageModel,
-  type VertexType,
-  type VertexTypeConfig,
-} from "@/core";
+  type NeptuneServiceType,
+  neptuneServiceTypeOptions,
+  type QueryEngine,
+  queryEngineOptions,
+} from "@shared/types";
 import {
   createArray,
   createRandomBoolean,
@@ -44,25 +18,54 @@ import {
   createRecord,
   randomlyUndefined,
 } from "@shared/utils/testing";
+
 import {
-  type NeptuneServiceType,
-  neptuneServiceTypeOptions,
-  type QueryEngine,
-  queryEngineOptions,
-} from "@shared/types";
+  createPatchedResultEdge,
+  createPatchedResultVertex,
+  createResultEdge,
+  createResultScalar,
+  createResultVertex,
+} from "@/connector/entities";
+import { createRdfEdgeId } from "@/connector/sparql/createRdfEdgeId";
+import {
+  type ArrowStyle,
+  type AttributeConfig,
+  type ConnectionWithId,
+  createEdge,
+  createEdgeId,
+  createEdgePreference,
+  createEdgeType,
+  createNewConfigurationId,
+  createVertex,
+  createVertexId,
+  createVertexPreference,
+  createVertexType,
+  type EdgeConnection,
+  type EdgeId,
+  type EdgePreferences,
+  type EdgePreferencesStorageModel,
+  type EdgeType,
+  type EdgeTypeConfig,
+  type Entities,
+  type EntityProperties,
+  type EntityRawId,
+  type FeatureFlags,
+  type LineStyle,
+  type PrefixTypeConfig,
+  type RawConfiguration,
+  type SchemaStorageModel,
+  type UserStyling,
+  type Vertex,
+  type VertexId,
+  type VertexPreferences,
+  type VertexPreferencesStorageModel,
+  type VertexType,
+  type VertexTypeConfig,
+} from "@/core";
 import {
   createExportedGraph,
   type ExportedGraphConnection,
 } from "@/modules/GraphViewer/exportedGraph";
-import { createRdfEdgeId } from "@/connector/sparql/createRdfEdgeId";
-import {
-  createResultVertex,
-  createPatchedResultVertex,
-  createResultEdge,
-  createPatchedResultEdge,
-  createResultScalar,
-} from "@/connector/entities";
-import type { Writable } from "type-fest";
 
 /*
 
@@ -177,15 +180,31 @@ export function createRandomPrefixTypeConfig(): PrefixTypeConfig {
 }
 
 /**
- * Creates a random schema object.
- * @returns A random Schema object.
+ * Creates a random EdgeConnection object.
+ * Used for testing Schema Explorer edge connection functionality.
+ * @returns A random EdgeConnection object.
  */
-export function createRandomSchema(): Schema {
+export function createRandomEdgeConnection(): EdgeConnection {
+  return {
+    edgeType: createRandomEdgeType(),
+    sourceVertexType: createRandomVertexType(),
+    targetVertexType: createRandomVertexType(),
+    count: randomlyUndefined(createRandomInteger({ min: 1, max: 1000 })),
+  };
+}
+
+/**
+ * Creates a random schema object.
+ * @returns A random SchemaStorageModel object.
+ */
+export function createRandomSchema(): SchemaStorageModel {
   const edges = createArray(3, createRandomEdgeTypeConfig);
   const vertices = createArray(3, createRandomVertexTypeConfig);
-  const schema: Schema = {
+  const edgeConnections = createArray(5, createRandomEdgeConnection);
+  const schema: SchemaStorageModel = {
     edges,
     vertices,
+    edgeConnections: randomlyUndefined(edgeConnections),
     totalEdges: edges
       .map(e => e.total ?? 0)
       .reduce((prev, current) => current + prev, 0),

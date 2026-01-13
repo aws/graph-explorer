@@ -1,11 +1,15 @@
+import type { ConnectionConfig } from "@shared/types";
+
+import { v4 } from "uuid";
+
 import type {
   EdgePreferencesStorageModel,
   VertexPreferencesStorageModel,
 } from "@/core/StateProvider/userPreferences";
 import type { Branded } from "@/utils";
-import type { ConnectionConfig } from "@shared/types";
-import { v4 } from "uuid";
+
 import type { EdgeType, VertexType } from "../entities";
+import type { SchemaStorageModel } from "../StateProvider";
 
 export type ConfigurationId = Branded<string, "ConfigurationId">;
 
@@ -98,18 +102,27 @@ export type PrefixTypeConfig = {
   __matches?: Set<string>;
 };
 
-export type Schema = {
-  totalVertices: number;
-  vertices: Array<VertexTypeConfig>;
-  totalEdges: number;
-  edges: Array<EdgeTypeConfig>;
-  lastUpdate?: Date;
-  triedToSync?: boolean;
-  lastSyncFail?: boolean;
+/**
+ * Represents a connection between node labels via an edge type.
+ * Used by Schema Explorer to visualize relationships between node types.
+ */
+export type EdgeConnection = {
   /**
-   * List of RDF prefixes (only for SPARQL)
+   * The edge type name
    */
-  prefixes?: Array<PrefixTypeConfig>;
+  edgeType: EdgeType;
+  /**
+   * The source node label
+   */
+  sourceVertexType: VertexType;
+  /**
+   * The target node label
+   */
+  targetVertexType: VertexType;
+  /**
+   * Count of edges with this connection pattern
+   */
+  count?: number;
 };
 
 export type RawConfiguration = {
@@ -125,7 +138,7 @@ export type RawConfiguration = {
   /**
    * Database schema: types, names, labels, icons, ...
    */
-  schema?: Schema;
+  schema?: SchemaStorageModel;
 };
 
 export type ConfigurationContextProps = RawConfiguration & {

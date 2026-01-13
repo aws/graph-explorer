@@ -1,7 +1,8 @@
 import { useAtomValue } from "jotai";
 import { RefreshCwIcon } from "lucide-react";
+
 import { IconButton, Spinner } from "@/components";
-import { nodesSelectedIdsAtom, edgesSelectedIdsAtom } from "@/core";
+import { edgesSelectedIdsAtom, nodesSelectedIdsAtom } from "@/core";
 import { useRefreshEntities } from "@/hooks";
 
 export function EntitiesRefreshButton() {

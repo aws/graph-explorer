@@ -1,9 +1,12 @@
-import { logger } from "@/utils";
 import type { KeywordSearchResponse } from "@/connector";
-import keywordSearchTemplate from "./keywordSearchTemplate";
-import type { SparqlFetch, SPARQLKeywordSearchRequest } from "../types";
+
 import { createVertex } from "@/core";
+import { logger } from "@/utils";
+
+import type { SparqlFetch, SPARQLKeywordSearchRequest } from "../types";
+
 import { parseAndMapQuads } from "../parseAndMapQuads";
+import keywordSearchTemplate from "./keywordSearchTemplate";
 
 async function keywordSearch(
   sparqlFetch: SparqlFetch,

@@ -3,31 +3,8 @@ import type {
   MouseEventHandler,
   PropsWithChildren,
 } from "react";
-import { createContext, use } from "react";
-import { Divider, EdgeIcon, GraphIcon, StylingIcon } from "@/components";
-import {
-  CenterGraphIcon,
-  DetailsIcon,
-  ExpandGraphIcon,
-} from "@/components/icons";
-import {
-  type EdgeId,
-  type VertexId,
-  userLayoutAtom,
-  type SidebarItems,
-  useDisplayVertex,
-  useDisplayEdgeInCanvas,
-} from "@/core";
-import {
-  useClearGraph,
-  useExpandNode,
-  useRefreshEntities,
-  useRemoveFromGraph,
-  useTranslations,
-  useContextMenuTarget,
-} from "@/hooks";
-import { useDefaultNeighborExpansionLimit } from "@/hooks/useExpandNode";
-import useGraphGlobalActions from "../useGraphGlobalActions";
+
+import { useSetAtom } from "jotai";
 import {
   CircleSlash2,
   FullscreenIcon,
@@ -37,11 +14,37 @@ import {
   ZoomInIcon,
   ZoomOutIcon,
 } from "lucide-react";
-import { useOpenNodeStyleDialog } from "@/modules/NodesStyling";
+import { createContext, use } from "react";
+
+import { Divider, EdgeIcon, GraphIcon, StylingIcon } from "@/components";
+import {
+  CenterGraphIcon,
+  DetailsIcon,
+  ExpandGraphIcon,
+} from "@/components/icons";
+import {
+  type EdgeId,
+  type SidebarItems,
+  useDisplayEdgeInCanvas,
+  useDisplayVertex,
+  userLayoutAtom,
+  type VertexId,
+} from "@/core";
+import {
+  useClearGraph,
+  useContextMenuTarget,
+  useExpandNode,
+  useRefreshEntities,
+  useRemoveFromGraph,
+  useTranslations,
+} from "@/hooks";
+import { useDefaultNeighborExpansionLimit } from "@/hooks/useExpandNode";
 import { useOpenEdgeStyleDialog } from "@/modules/EdgesStyling";
-import { useSetAtom } from "jotai";
-import { useGraphSelection } from "../useGraphSelection";
+import { useOpenNodeStyleDialog } from "@/modules/NodesStyling";
 import { cn } from "@/utils";
+
+import useGraphGlobalActions from "../useGraphGlobalActions";
+import { useGraphSelection } from "../useGraphSelection";
 
 type ContextMenuProps = {
   affectedNodesIds: VertexId[];

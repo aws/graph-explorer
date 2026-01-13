@@ -1,5 +1,6 @@
-import { query } from "@/utils";
 import { uniq } from "lodash";
+
+import { query } from "@/utils";
 
 /**
  * Given a set of edge types, it returns a Gremlin template that contains

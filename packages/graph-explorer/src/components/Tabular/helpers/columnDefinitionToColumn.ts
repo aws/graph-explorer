@@ -3,8 +3,10 @@ import type {
   ColumnGroup,
   ColumnInterfaceBasedOnValue,
 } from "react-table";
-import { numericFilter } from "../filters";
+
 import type { ColumnDefinition } from "../useTabular";
+
+import { numericFilter } from "../filters";
 
 const resolverFilterType = <T extends object>(
   column: ColumnDefinition<T>,

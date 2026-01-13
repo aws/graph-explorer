@@ -1,10 +1,12 @@
+import type { QueryEngine } from "@shared/types";
+
 import { flatten } from "flat";
+
 import { useQueryEngine } from "@/core/connector";
 
 import gremlinTs from "./translations/gremlin-translations.json";
-import sparqlTs from "./translations/sparql-translations.json";
 import openCypherTs from "./translations/openCypher-translations.json";
-import type { QueryEngine } from "@shared/types";
+import sparqlTs from "./translations/sparql-translations.json";
 
 const translations: Record<QueryEngine, Record<string, string>> = {
   gremlin: flatten(gremlinTs),

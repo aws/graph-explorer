@@ -1,10 +1,5 @@
-import {
-  type ResultVertex,
-  type ResultEntity,
-  type ResultEdge,
-  type ScalarValue,
-  createTypedValue,
-} from "@/connector/entities";
+import { createRandomInteger } from "@shared/utils/testing";
+
 import type {
   GAnyValue,
   GBulkSet,
@@ -23,6 +18,14 @@ import type {
   GVertex,
   GVertexProperty,
 } from "@/connector/gremlin/types";
+
+import {
+  createTypedValue,
+  type ResultEdge,
+  type ResultEntity,
+  type ResultVertex,
+  type ScalarValue,
+} from "@/connector/entities";
 import {
   type Edge,
   type EdgeId,
@@ -31,7 +34,6 @@ import {
   type Vertex,
   type VertexId,
 } from "@/core";
-import { createRandomInteger } from "@shared/utils/testing";
 
 export function createGremlinResponseFromVertices(...vertices: ResultVertex[]) {
   return createGremlinResponse(...vertices.map(createGVertex));

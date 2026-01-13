@@ -1,7 +1,8 @@
-import { describe, expect, test, vi } from "vitest";
+import { createRandomName, createRandomUrlString } from "@shared/utils/testing";
 import { act } from "@testing-library/react";
-import { useImportConnectionFile } from "./useImportConnectionFile";
-import { DbState, renderHookWithState } from "@/utils/testing";
+import { toast } from "sonner";
+import { describe, expect, test, vi } from "vitest";
+
 import {
   activeConfigurationAtom,
   configurationAtom,
@@ -9,8 +10,9 @@ import {
   getAppStore,
   schemaAtom,
 } from "@/core";
-import { createRandomName, createRandomUrlString } from "@shared/utils/testing";
-import { toast } from "sonner";
+import { DbState, renderHookWithState } from "@/utils/testing";
+
+import { useImportConnectionFile } from "./useImportConnectionFile";
 
 const mockResetState = vi.fn();
 vi.mock("@/core/StateProvider/useResetState", () => ({

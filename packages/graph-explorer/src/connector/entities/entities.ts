@@ -7,6 +7,7 @@ import {
   toNodeMap,
   type VertexId,
 } from "@/core";
+
 import type { PatchedResultBundle, ResultBundle } from "./bundle";
 import type { PatchedResultEdge, ResultEdge } from "./edge";
 import type { ResultScalar } from "./scalar";

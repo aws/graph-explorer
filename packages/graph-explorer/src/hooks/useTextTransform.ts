@@ -1,7 +1,8 @@
-import replacePrefixes from "@/utils/replacePrefixes";
-import { prefixesAtom, queryEngineSelector } from "@/core";
 import { atom, useAtomValue } from "jotai";
+
+import { prefixesAtom, queryEngineSelector } from "@/core";
 import { logger } from "@/utils";
+import replacePrefixes from "@/utils/replacePrefixes";
 
 export type TextTransformer = (text: string) => string;
 

@@ -1,3 +1,6 @@
+import { createRandomName } from "@shared/utils/testing";
+
+import { RESERVED_TYPES_PROPERTY } from "@/utils";
 import {
   createRandomEdgePreferencesStorageModel,
   createRandomEdgeTypeConfig,
@@ -6,6 +9,14 @@ import {
   createRandomVertexPreferencesStorageModel,
   createRandomVertexTypeConfig,
 } from "@/utils/testing";
+
+import type {
+  RawConfiguration,
+  VertexTypeConfig,
+} from "../ConfigurationProvider";
+import type { SchemaStorageModel } from "./schema";
+import type { UserStyling } from "./userPreferences";
+
 import {
   defaultEdgeTypeConfig,
   defaultVertexTypeConfig,
@@ -13,14 +24,6 @@ import {
   type NormalizedConnection,
   patchToRemoveDisplayLabel,
 } from "./configuration";
-import type {
-  RawConfiguration,
-  VertexTypeConfig,
-} from "../ConfigurationProvider";
-import type { SchemaInference } from "./schema";
-import type { UserStyling } from "./userPreferences";
-import { createRandomName } from "@shared/utils/testing";
-import { RESERVED_TYPES_PROPERTY } from "@/utils";
 
 /** The default empty connection values when no value is provided. */
 const defaultEmptyConnection: NormalizedConnection = {
@@ -86,10 +89,14 @@ describe("mergedConfiguration", () => {
           ...e,
         }))
         .map(patchToRemoveDisplayLabel),
-    } satisfies SchemaInference;
+      edgeConnections: schema.edgeConnections,
+    } satisfies SchemaStorageModel;
 
     expect(result.schema?.vertices).toEqual(expectedSchema.vertices);
     expect(result.schema?.edges).toEqual(expectedSchema.edges);
+    expect(result.schema?.edgeConnections).toEqual(
+      expectedSchema.edgeConnections,
+    );
     expect(result.schema).toEqual(expectedSchema);
     expect(result).toEqual({
       ...config,
@@ -139,10 +146,14 @@ describe("mergedConfiguration", () => {
           ...style,
         };
       }),
-    } satisfies SchemaInference;
+      edgeConnections: schema.edgeConnections,
+    } satisfies SchemaStorageModel;
 
     expect(result.schema?.vertices).toEqual(expectedSchema.vertices);
     expect(result.schema?.edges).toEqual(expectedSchema.edges);
+    expect(result.schema?.edgeConnections).toEqual(
+      expectedSchema.edgeConnections,
+    );
     expect(result.schema).toEqual(expectedSchema);
     expect(result).toEqual({
       ...config,

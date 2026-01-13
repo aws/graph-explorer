@@ -1,5 +1,6 @@
 import { LABELS, SEARCH_TOKENS } from "@/utils";
 import { normalize } from "@/utils/testing";
+
 import keywordSearchTemplate from "./keywordSearchTemplate";
 
 describe("OpenCypher > keywordSearchTemplate", () => {

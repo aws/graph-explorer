@@ -1,6 +1,8 @@
-import { type ToggleableView, useSidebar, userLayoutAtom } from "@/core";
-import { renderHookWithJotai } from "@/utils/testing";
 import { act } from "react";
+
+import { type ToggleableView, userLayoutAtom, useSidebar } from "@/core";
+import { renderHookWithJotai } from "@/utils/testing";
+
 import { useAutoOpenDetailsSidebar } from "./useAutoOpenDetailsSidebar";
 
 describe("useAutoOpenDetailsSidebar", () => {

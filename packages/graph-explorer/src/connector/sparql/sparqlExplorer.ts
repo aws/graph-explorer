@@ -1,30 +1,34 @@
+import { v4 } from "uuid";
+
+import type { FeatureFlags, NormalizedConnection } from "@/core";
+
+import { createLoggerFromConnection } from "@/core/connector";
+import { env, logger } from "@/utils";
+
 import type {
   Criterion,
   Explorer,
   ExplorerRequestOptions,
 } from "../useGEFetchTypes";
-import { fetchDatabaseRequest } from "../fetchDatabaseRequest";
-import fetchClassCounts from "./fetchVertexCountsByType";
-import fetchNeighbors from "./fetchNeighbors";
-import fetchSchema from "./fetchSchema";
-import keywordSearch from "./keywordSearch";
 import type {
   BlankNodesMap,
   GraphSummary,
   SPARQLKeywordSearchRequest,
   SPARQLNeighborsRequest,
 } from "./types";
-import { v4 } from "uuid";
-import { env, logger } from "@/utils";
-import { createLoggerFromConnection } from "@/core/connector";
-import type { FeatureFlags, NormalizedConnection } from "@/core";
+
+import { fetchDatabaseRequest } from "../fetchDatabaseRequest";
+import { edgeDetails } from "./edgeDetails";
+import fetchNeighbors from "./fetchNeighbors";
 import { replaceBlankNodeFromNeighbors } from "./fetchNeighbors/replaceBlankNodeFromNeighbors";
 import { storedBlankNodeNeighborsRequest } from "./fetchNeighbors/storedBlankNodeNeighborsRequest";
+import fetchSchema from "./fetchSchema";
+import fetchClassCounts from "./fetchVertexCountsByType";
+import keywordSearch from "./keywordSearch";
 import { replaceBlankNodeFromSearch } from "./keywordSearch/replaceBlankNodeFromSearch";
-import { vertexDetails } from "./vertexDetails";
-import { edgeDetails } from "./edgeDetails";
 import { neighborCounts } from "./neighborCounts";
 import { rawQuery } from "./rawquery";
+import { vertexDetails } from "./vertexDetails";
 
 function _sparqlFetch(
   connection: NormalizedConnection,

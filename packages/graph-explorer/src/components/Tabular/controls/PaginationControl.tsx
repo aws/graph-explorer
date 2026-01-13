@@ -1,11 +1,12 @@
-import { IconButton, Label, SelectField, toHumanString } from "@/components";
-import { cn } from "@/utils";
 import {
   ChevronFirstIcon,
   ChevronLastIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
 } from "lucide-react";
+
+import { IconButton, Label, SelectField, toHumanString } from "@/components";
+import { cn } from "@/utils";
 
 export type PaginationControlProps = {
   className?: string;

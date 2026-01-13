@@ -1,12 +1,13 @@
 import type { PropsWithChildren, ReactNode } from "react";
+
 import { Button, type ButtonProps } from "../Button/Button";
 import {
   EmptyState,
-  EmptyStateIcon,
-  EmptyStateContent,
-  EmptyStateTitle,
-  EmptyStateDescription,
   EmptyStateActions,
+  EmptyStateContent,
+  EmptyStateDescription,
+  EmptyStateIcon,
+  EmptyStateTitle,
 } from "../EmptyState";
 
 export type PanelEmptyStateProps = {

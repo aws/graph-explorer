@@ -1,6 +1,8 @@
 import type { ScalarValue } from "@/connector/entities";
-import type { TestableEdge, TestableVertex } from "./randomData";
+
 import { rdfTypeUri, type SparqlQuadBinding } from "@/connector/sparql/types";
+
+import type { TestableEdge, TestableVertex } from "./randomData";
 
 export function createUriValue(value: string) {
   return {

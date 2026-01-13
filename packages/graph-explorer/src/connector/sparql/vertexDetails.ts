@@ -1,12 +1,14 @@
+import { createVertex } from "@/core";
 import { logger, query } from "@/utils";
+
 import type {
   VertexDetailsRequest,
   VertexDetailsResponse,
 } from "../useGEFetchTypes";
-import { rdfTypeUri, type SparqlFetch } from "./types";
-import { createVertex } from "@/core";
+
 import { idParam } from "./idParam";
 import { parseAndMapQuads } from "./parseAndMapQuads";
+import { rdfTypeUri, type SparqlFetch } from "./types";
 
 export async function vertexDetails(
   sparqlFetch: SparqlFetch,

@@ -1,6 +1,7 @@
-import { cn } from "@/utils";
-import GraphExplorerIcon from "@/components/icons/GraphExplorerIcon";
 import type { ComponentPropsWithRef, ReactNode } from "react";
+
+import GraphExplorerIcon from "@/components/icons/GraphExplorerIcon";
+import { cn } from "@/utils";
 
 type NavBarProps = {
   logoVisible?: boolean;

@@ -1,7 +1,8 @@
-import { oneHopNeighborsTemplate } from "./oneHopNeighborsTemplate";
 import { createVertexId } from "@/core";
 import { query } from "@/utils";
 import { normalizeWithNewlines as normalize } from "@/utils/testing";
+
+import { oneHopNeighborsTemplate } from "./oneHopNeighborsTemplate";
 
 describe("oneHopNeighborsTemplate", () => {
   it("should produce documentation example", () => {

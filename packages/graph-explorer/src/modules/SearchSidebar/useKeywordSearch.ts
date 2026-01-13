@@ -1,12 +1,14 @@
-import { useDisplayVertexTypeConfigs, useSearchableAttributes } from "@/core";
-import useDebounceValue from "@/hooks/useDebounceValue";
-import { useKeywordSearchQuery } from "../SearchSidebar/useKeywordSearchQuery";
-
-import { useQueryEngine } from "@/core/connector";
 import { useAtom } from "jotai";
 import { atomWithReset } from "jotai/utils";
-import { SEARCH_TOKENS } from "@/utils";
+
 import type { SelectOption } from "@/components";
+
+import { useDisplayVertexTypeConfigs, useSearchableAttributes } from "@/core";
+import { useQueryEngine } from "@/core/connector";
+import useDebounceValue from "@/hooks/useDebounceValue";
+import { SEARCH_TOKENS } from "@/utils";
+
+import { useKeywordSearchQuery } from "../SearchSidebar/useKeywordSearchQuery";
 
 export interface PromiseWithCancel<T> extends Promise<T> {
   cancel?: () => void;

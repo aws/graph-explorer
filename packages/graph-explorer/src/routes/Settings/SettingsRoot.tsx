@@ -1,10 +1,13 @@
+import { type PropsWithChildren, Suspense } from "react";
+import { Link, NavLink, Outlet, type To } from "react-router";
+
 import {
   buttonStyles,
   DatabaseIcon,
   ForwardIcon,
   NavBar,
-  NavBarContent,
   NavBarActions,
+  NavBarContent,
   NavBarTitle,
   NavBarVersion,
   Panel,
@@ -13,8 +16,6 @@ import {
   Workspace,
   WorkspaceContent,
 } from "@/components";
-import { Link, NavLink, Outlet, type To } from "react-router";
-import { type PropsWithChildren, Suspense } from "react";
 import AppLoadingPage from "@/core/AppLoadingPage";
 import { cn } from "@/utils";
 import { LABELS } from "@/utils/constants";

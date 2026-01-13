@@ -1,16 +1,18 @@
 import {
-  createGDate,
-  createGDouble,
-  createGInt32,
-  createGVertexProperty,
-} from "@/utils/testing";
-import parseProperty from "./parseProperty";
-import {
   createRandomBoolean,
   createRandomDouble,
   createRandomInteger,
   createRandomName,
 } from "@shared/utils/testing";
+
+import {
+  createGDate,
+  createGDouble,
+  createGInt32,
+  createGVertexProperty,
+} from "@/utils/testing";
+
+import parseProperty from "./parseProperty";
 
 describe("parseProperty", () => {
   it("should parse a string value", () => {

@@ -1,10 +1,12 @@
+import { createArray } from "@shared/utils/testing";
+
+import { edgesAtom, getAppStore } from "@/core";
+import { createQueryClient } from "@/core/queryClient";
+import { DEFAULT_BATCH_REQUEST_SIZE } from "@/utils";
 import { createRandomEdge, FakeExplorer } from "@/utils/testing";
+
 import { bulkEdgeDetailsQuery } from "./bulkEdgeDetailsQuery";
 import { edgeDetailsQuery } from "./edgeDetailsQuery";
-import { createQueryClient } from "@/core/queryClient";
-import { createArray } from "@shared/utils/testing";
-import { DEFAULT_BATCH_REQUEST_SIZE } from "@/utils";
-import { edgesAtom, getAppStore } from "@/core";
 
 describe("bulkEdgeDetailsQuery", () => {
   it("should return nothing when input is empty", async () => {

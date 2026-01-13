@@ -1,5 +1,6 @@
-import { Editor, type Monaco } from "@monaco-editor/react";
 import type { ComponentProps } from "react";
+
+import { Editor, type Monaco } from "@monaco-editor/react";
 
 export function CodeEditor({
   options,

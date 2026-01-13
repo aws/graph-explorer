@@ -1,6 +1,8 @@
-import useEntitiesCounts from "./useEntitiesCounts";
-import type { RawConfiguration, Schema } from "@/core";
+import { createRandomInteger } from "@shared/utils/testing";
 import { vi } from "vitest";
+
+import type { RawConfiguration, SchemaStorageModel } from "@/core";
+
 import {
   createRandomEdgeTypeConfig,
   createRandomRawConfiguration,
@@ -9,9 +11,13 @@ import {
   DbState,
   renderHookWithState,
 } from "@/utils/testing";
-import { createRandomInteger } from "@shared/utils/testing";
 
-function renderUseEntitiesHook(config: RawConfiguration, schema: Schema) {
+import useEntitiesCounts from "./useEntitiesCounts";
+
+function renderUseEntitiesHook(
+  config: RawConfiguration,
+  schema: SchemaStorageModel,
+) {
   const dbState = new DbState();
   dbState.activeSchema = schema;
   dbState.activeConfig = config;
@@ -20,7 +26,7 @@ function renderUseEntitiesHook(config: RawConfiguration, schema: Schema) {
 
 describe("useEntitiesCounts", () => {
   let config: RawConfiguration;
-  let schema: Schema;
+  let schema: SchemaStorageModel;
 
   beforeEach(() => {
     config = createRandomRawConfiguration();

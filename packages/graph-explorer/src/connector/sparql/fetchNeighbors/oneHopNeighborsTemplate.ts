@@ -1,15 +1,16 @@
 import { query } from "@/utils";
+
+import {
+  getLimit,
+  getNeighborsFilter,
+  getSubjectClasses,
+} from "../filterHelpers";
 import { idParam } from "../idParam";
 import {
   rdfTypeUri,
   type SPARQLCriterion,
   type SPARQLNeighborsRequest,
 } from "../types";
-import {
-  getLimit,
-  getNeighborsFilter,
-  getSubjectClasses,
-} from "../filterHelpers";
 
 /**
  * Creates a SPARQL query that will find all neighbors for the given resource URI and search filters.

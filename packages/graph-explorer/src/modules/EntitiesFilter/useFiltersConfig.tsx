@@ -1,5 +1,7 @@
+import { atom, useAtomValue, useSetAtom } from "jotai";
+
+import { type CheckboxListItemProps, VertexIconByType } from "@/components";
 import { EdgeIcon } from "@/components/icons";
-import { VertexIconByType, type CheckboxListItemProps } from "@/components";
 import {
   edgesTypesFilteredAtom,
   edgeTypesSelector,
@@ -8,7 +10,6 @@ import {
   useDisplayVertexTypeConfigs,
   vertexTypesSelector,
 } from "@/core";
-import { atom, useAtomValue, useSetAtom } from "jotai";
 
 const selectedVerticesSelector = atom(get => {
   const filteredNodeTypes = get(nodesTypesFilteredAtom);

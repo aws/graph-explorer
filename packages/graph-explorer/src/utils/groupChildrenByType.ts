@@ -1,6 +1,7 @@
 import type { ComponentClass, FC, FunctionComponent, ReactNode } from "react";
-import { Children } from "react";
 import type { ReadonlyDeep } from "type-fest";
+
+import { Children } from "react";
 
 const groupChildrenByType = (
   children: ReadonlyDeep<ReactNode | ReactNode[]>,

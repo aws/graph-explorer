@@ -1,11 +1,13 @@
-import { describe, expect, test, vi, beforeEach } from "vitest";
-import { act, render } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { act, render } from "@testing-library/react";
 import { Provider } from "jotai";
-import { ExplorerInjector } from "./ExplorerInjector";
-import { explorerForTestingAtom } from "./connector";
-import { getAppStore } from "./StateProvider/appStore";
+import { beforeEach, describe, expect, test, vi } from "vitest";
+
 import { createMockExplorer } from "@/utils/testing";
+
+import { explorerForTestingAtom } from "./connector";
+import { ExplorerInjector } from "./ExplorerInjector";
+import { getAppStore } from "./StateProvider/appStore";
 
 function renderExplorerInjector(queryClient: QueryClient) {
   const store = getAppStore();

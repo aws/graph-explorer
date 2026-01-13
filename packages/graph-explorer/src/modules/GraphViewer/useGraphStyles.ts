@@ -1,12 +1,15 @@
 import Color from "color";
 import { useDeferredValue } from "react";
+
+import type { GraphProps } from "@/components/Graph";
+
 import {
+  type EdgePreferences,
   useAllEdgePreferences,
   useAllVertexPreferences,
-  type EdgePreferences,
   type VertexPreferences,
 } from "@/core";
-import type { GraphProps } from "@/components/Graph";
+
 import { useBackgroundImageMap } from "./useBackgroundImageMap";
 
 const LINE_PATTERN = {

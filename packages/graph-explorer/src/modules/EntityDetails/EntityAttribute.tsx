@@ -1,6 +1,8 @@
-import type { DisplayAttribute } from "@/core";
-import { cn } from "@/utils";
 import type { ComponentPropsWithoutRef } from "react";
+
+import type { DisplayAttribute } from "@/core";
+
+import { cn } from "@/utils";
 
 export type EntityAttributeProps = {
   attribute: DisplayAttribute;

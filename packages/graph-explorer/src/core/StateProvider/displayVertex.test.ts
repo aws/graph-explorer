@@ -1,3 +1,23 @@
+import type { QueryEngine } from "@shared/types";
+
+import { createRandomDate, createRandomName } from "@shared/utils/testing";
+
+import { getDisplayValueForScalar } from "@/connector/entities";
+import {
+  activeConfigurationAtom,
+  type AppStore,
+  configurationAtom,
+  createVertex,
+  createVertexId,
+  createVertexType,
+  type DisplayAttribute,
+  getRawId,
+  schemaAtom,
+  type SchemaStorageModel,
+  useDisplayVertexFromVertex,
+  type Vertex,
+} from "@/core";
+import { formatDate, LABELS } from "@/utils";
 import {
   createRandomRawConfiguration,
   createRandomSchema,
@@ -9,24 +29,6 @@ import {
   renderHookWithJotai,
   renderHookWithState,
 } from "@/utils/testing";
-import {
-  activeConfigurationAtom,
-  type AppStore,
-  configurationAtom,
-  createVertex,
-  createVertexId,
-  type DisplayAttribute,
-  getRawId,
-  type Schema,
-  schemaAtom,
-  createVertexType,
-  useDisplayVertexFromVertex,
-  type Vertex,
-} from "@/core";
-import { formatDate, LABELS } from "@/utils";
-import { createRandomDate, createRandomName } from "@shared/utils/testing";
-import type { QueryEngine } from "@shared/types";
-import { getDisplayValueForScalar } from "@/connector/entities";
 
 describe("useDisplayVertexFromVertex", () => {
   it("should keep the same ID", () => {
@@ -211,7 +213,7 @@ describe("useDisplayVertexFromVertex", () => {
     return result.current;
   }
 
-  function withSchema(schema: Schema) {
+  function withSchema(schema: SchemaStorageModel) {
     const config = createRandomRawConfiguration();
     return (store: AppStore) => {
       store.set(configurationAtom, new Map([[config.id, config]]));
@@ -220,7 +222,10 @@ describe("useDisplayVertexFromVertex", () => {
     };
   }
 
-  function withSchemaAndConnection(schema: Schema, queryEngine: QueryEngine) {
+  function withSchemaAndConnection(
+    schema: SchemaStorageModel,
+    queryEngine: QueryEngine,
+  ) {
     const config = createRandomRawConfiguration();
     config.connection!.queryEngine = queryEngine;
     return (store: AppStore) => {

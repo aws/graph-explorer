@@ -1,19 +1,25 @@
-import { cloneDeep, isEqual, uniq } from "lodash";
+import type { ConnectionConfig } from "@shared/types";
+
 import { atom } from "jotai";
+import { selectAtom } from "jotai/utils";
+import { cloneDeep, isEqual, uniq } from "lodash";
+
 import {
   activeConfigurationAtom,
+  type AttributeConfig,
   configurationAtom,
-  userStylingAtom,
   createEdgeType,
   createVertexType,
-  type AttributeConfig,
   type EdgeType,
   type EdgeTypeConfig,
   type RawConfiguration,
+  userStylingAtom,
   type VertexType,
   type VertexTypeConfig,
 } from "@/core";
-import { activeSchemaSelector, type SchemaInference } from "./schema";
+import { RESERVED_TYPES_PROPERTY } from "@/utils/constants";
+
+import { activeSchemaSelector, type SchemaStorageModel } from "./schema";
 import {
   defaultEdgePreferences,
   defaultVertexPreferences,
@@ -21,9 +27,6 @@ import {
   type UserStyling,
   type VertexPreferencesStorageModel,
 } from "./userPreferences";
-import { RESERVED_TYPES_PROPERTY } from "@/utils/constants";
-import type { ConnectionConfig } from "@shared/types";
-import { selectAtom } from "jotai/utils";
 
 /** Gets the currently active config. */
 export const activeConfigSelector = atom(get => {
@@ -56,7 +59,7 @@ export const mergedConfigurationSelector = atom(get => {
 });
 
 export function mergeConfiguration(
-  currentSchema: SchemaInference | null | undefined,
+  currentSchema: SchemaStorageModel | null | undefined,
   currentConfig: RawConfiguration,
   userStyling: UserStyling,
 ): RawConfiguration {
@@ -101,6 +104,7 @@ export function mergeConfiguration(
       lastSyncFail: currentSchema?.lastSyncFail,
       totalVertices: currentSchema?.totalVertices ?? 0,
       totalEdges: currentSchema?.totalEdges ?? 0,
+      edgeConnections: currentSchema?.edgeConnections,
     },
   };
 }

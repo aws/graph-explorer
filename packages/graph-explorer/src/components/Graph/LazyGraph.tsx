@@ -1,4 +1,5 @@
 import { lazy, Suspense } from "react";
+
 import type { GraphProps } from "./Graph";
 
 // Lazy load the Graph component to defer loading the cytoscape bundle

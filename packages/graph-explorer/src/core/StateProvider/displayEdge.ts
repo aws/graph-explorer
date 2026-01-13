@@ -1,23 +1,24 @@
+import { atom, useAtomValue } from "jotai";
+import { atomFamily } from "jotai-family";
+
 import {
+  type DisplayAttribute,
+  displayEdgeTypeConfigSelector,
   type Edge,
   type EdgeId,
-  getRawId,
-  type VertexId,
-  displayEdgeTypeConfigSelector,
-  type DisplayAttribute,
-  getSortedDisplayAttributes,
-  edgesAtom,
-  edgesSelectedIdsAtom,
-  queryEngineSelector,
-  edgeSelector,
   edgePreferenceByTypeAtom,
-  useEdgeInCanvas,
+  edgesAtom,
+  edgeSelector,
+  edgesSelectedIdsAtom,
   type EdgeType,
+  getRawId,
+  getSortedDisplayAttributes,
+  queryEngineSelector,
+  useEdgeInCanvas,
+  type VertexId,
 } from "@/core";
 import { textTransformSelector } from "@/hooks";
 import { LABELS, RESERVED_ID_PROPERTY, RESERVED_TYPES_PROPERTY } from "@/utils";
-import { atom, useAtomValue } from "jotai";
-import { atomFamily } from "jotai-family";
 
 /** Represents an edge's display information after all transformations have been applied. */
 export type DisplayEdge = {

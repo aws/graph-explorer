@@ -1,7 +1,8 @@
-import { createTestableVertex, createTestableEdge } from "@/utils/testing";
-import { getAllGraphableEntityIds, getAllGraphableEntities } from "./entities";
+import { createTestableEdge, createTestableVertex } from "@/utils/testing";
+
+import { createPatchedResultBundle, createResultBundle } from "./bundle";
+import { getAllGraphableEntities, getAllGraphableEntityIds } from "./entities";
 import { createResultScalar } from "./scalar";
-import { createResultBundle, createPatchedResultBundle } from "./bundle";
 
 describe("entities", () => {
   describe("getAllGraphableEntityIds", () => {

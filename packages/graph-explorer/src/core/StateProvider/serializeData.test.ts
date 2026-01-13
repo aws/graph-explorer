@@ -1,10 +1,11 @@
 import {
-  createRandomName,
-  createRandomInteger,
-  createRandomDate,
   createArray,
+  createRandomDate,
+  createRandomInteger,
+  createRandomName,
 } from "@shared/utils/testing";
-import { serializeData, deserializeData } from "./serializeData";
+
+import { deserializeData, serializeData } from "./serializeData";
 
 describe("serializeData", () => {
   test("serialize string", () => {

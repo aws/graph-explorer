@@ -1,6 +1,7 @@
-import oneHopTemplate from "./oneHopTemplate";
 import { createVertexId } from "@/core";
 import { query } from "@/utils";
+
+import oneHopTemplate from "./oneHopTemplate";
 
 describe("OpenCypher > oneHopTemplate", () => {
   it("Should return a template for a simple vertex id", () => {

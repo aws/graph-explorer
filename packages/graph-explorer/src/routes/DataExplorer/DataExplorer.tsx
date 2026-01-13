@@ -1,18 +1,7 @@
-import { cn } from "@/utils";
-import { useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useRef } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router";
-import {
-  useUpdateSchemaFromEntities,
-  type Vertex,
-  type DisplayVertex,
-  useConfiguration,
-  useDisplayVertexTypeConfig,
-  useDisplayVertexTypeConfigs,
-  useDisplayVerticesFromVertices,
-  type VertexType,
-  createVertexType,
-} from "@/core";
+
 import {
   Button,
   buttonStyles,
@@ -23,8 +12,8 @@ import {
   EmptyStateDescription,
   EmptyStateTitle,
   NavBar,
-  NavBarContent,
   NavBarActions,
+  NavBarContent,
   NavBarTitle,
   NavBarVersion,
   Panel,
@@ -48,11 +37,23 @@ import {
 } from "@/components/Tabular";
 import Tabular from "@/components/Tabular/Tabular";
 import { type KeywordSearchRequest, searchQuery } from "@/connector";
+import {
+  createVertexType,
+  type DisplayVertex,
+  useConfiguration,
+  useDisplayVertexTypeConfig,
+  useDisplayVertexTypeConfigs,
+  useDisplayVerticesFromVertices,
+  useUpdateSchemaFromEntities,
+  type Vertex,
+  type VertexType,
+} from "@/core";
+import { useVertexTypeConfig } from "@/core/ConfigurationProvider/useConfiguration";
 import { useVertexStyling } from "@/core/StateProvider/userPreferences";
 import { useAddVertexToGraph, useHasVertexBeenAddedToGraph } from "@/hooks";
 import useTranslations from "@/hooks/useTranslations";
 import useUpdateVertexTypeCounts from "@/hooks/useUpdateVertexTypeCounts";
-import { useVertexTypeConfig } from "@/core/ConfigurationProvider/useConfiguration";
+import { cn } from "@/utils";
 import {
   LABELS,
   RESERVED_ID_PROPERTY,

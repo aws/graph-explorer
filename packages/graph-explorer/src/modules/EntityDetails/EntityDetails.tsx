@@ -1,3 +1,5 @@
+import { useAtom } from "jotai";
+
 import {
   AutoFitLeftIcon,
   Panel,
@@ -10,16 +12,16 @@ import {
 } from "@/components";
 import GraphIcon from "@/components/icons/GraphIcon";
 import PanelEmptyState from "@/components/PanelEmptyState/PanelEmptyState";
-import EdgeDetail from "./EdgeDetail";
-import NodeDetail from "./NodeDetail";
 import {
   userLayoutAtom,
   useSelectedDisplayEdges,
   useSelectedDisplayVertices,
 } from "@/core";
+
 import { SidebarCloseButton } from "../SidebarCloseButton";
-import { useAtom } from "jotai";
+import EdgeDetail from "./EdgeDetail";
 import { EntitiesRefreshButton } from "./EntitiesRefreshButton";
+import NodeDetail from "./NodeDetail";
 
 function EntityDetails() {
   const [userLayout, setUserLayout] = useAtom(userLayoutAtom);

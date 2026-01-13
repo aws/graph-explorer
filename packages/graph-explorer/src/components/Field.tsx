@@ -1,6 +1,8 @@
-import { useMemo, type ComponentPropsWithRef } from "react";
 import { cva, type VariantProps } from "cva";
+import { type ComponentPropsWithRef, useMemo } from "react";
+
 import { cn } from "@/utils";
+
 import { Label } from "./Label";
 import { Separator } from "./Separator";
 

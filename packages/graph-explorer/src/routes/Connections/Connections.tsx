@@ -1,10 +1,12 @@
+import { useAtomValue } from "jotai";
 import { useState } from "react";
 import { Link } from "react-router";
+
 import {
   buttonStyles,
   NavBar,
-  NavBarContent,
   NavBarActions,
+  NavBarContent,
   NavBarTitle,
   NavBarVersion,
   Panel,
@@ -15,14 +17,13 @@ import {
   WorkspaceContent,
 } from "@/components";
 import { ExplorerIcon, GearIcon } from "@/components/icons";
+import GraphExplorerIcon from "@/components/icons/GraphExplorerIcon";
 import { configurationAtom, useConfiguration } from "@/core";
 import { useIsSyncing } from "@/hooks/useSchemaSync";
 import AvailableConnections from "@/modules/AvailableConnections";
 import ConnectionDetail from "@/modules/ConnectionDetail";
-import { LABELS } from "@/utils/constants";
-import GraphExplorerIcon from "@/components/icons/GraphExplorerIcon";
 import { cn } from "@/utils";
-import { useAtomValue } from "jotai";
+import { LABELS } from "@/utils/constants";
 
 export default function Connections() {
   const config = useConfiguration();

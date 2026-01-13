@@ -1,13 +1,15 @@
+import { createVertex } from "@/core";
 import { logger, query } from "@/utils";
+
 import type {
   VertexDetailsRequest,
   VertexDetailsResponse,
 } from "../useGEFetchTypes";
 import type { OpenCypherFetch } from "./types";
-import { mapResults } from "./mappers/mapResults";
+
 import isErrorResponse from "../utils/isErrorResponse";
 import { idParam } from "./idParam";
-import { createVertex } from "@/core";
+import { mapResults } from "./mappers/mapResults";
 
 export async function vertexDetails(
   openCypherFetch: OpenCypherFetch,

@@ -1,10 +1,10 @@
 import {
+  buttonStyles,
+  LabelledSetting,
   PageHeading,
   SendIcon,
   SettingsSection,
   SettingsSectionContainer,
-  buttonStyles,
-  LabelledSetting,
 } from "@/components";
 import { env } from "@/utils";
 import { LABELS } from "@/utils/constants";

@@ -1,15 +1,17 @@
 import type {
   ConfigurationContextProps,
-  EdgeTypeConfig,
-  VertexTypeConfig,
   Edge,
+  EdgeConnection,
   EdgeId,
+  EdgeTypeConfig,
+  Entities,
+  NormalizedConnection,
   Vertex,
   VertexId,
-  NormalizedConnection,
-  Entities,
   VertexType,
+  VertexTypeConfig,
 } from "@/core";
+
 import type { ResultEntity } from "./entities";
 
 export type QueryOptions = RequestInit & {
@@ -51,6 +53,11 @@ export type SchemaResponse = {
    * List of edges definitions.
    */
   edges: EdgeSchemaResponse[];
+  /**
+   * Edge connections between node labels.
+   * Used by Schema Explorer to visualize relationships between node types.
+   */
+  edgeConnections?: EdgeConnection[];
 };
 
 export type Criterion = {

@@ -1,16 +1,18 @@
+import { vi } from "vitest";
+
 import {
   activeConfigurationAtom,
+  type AppStore,
   configurationAtom,
   schemaAtom,
-  type AppStore,
 } from "@/core";
 import {
   createRandomRawConfiguration,
   createRandomSchema,
   renderHookWithJotai,
 } from "@/utils/testing";
+
 import useTextTransform from "./useTextTransform";
-import { vi } from "vitest";
 
 function initializeConfigWithPrefix(store: AppStore) {
   // Create config and setup schema

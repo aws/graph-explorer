@@ -1,5 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
+
 import type { VertexId } from "@/core";
+
 import { getExplorer, getStore, updateVertexGraphCanvasState } from "./helpers";
 
 export function vertexDetailsQuery(vertexId: VertexId) {

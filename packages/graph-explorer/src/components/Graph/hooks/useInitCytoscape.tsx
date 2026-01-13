@@ -2,9 +2,10 @@ import cytoscape from "cytoscape";
 import debounce from "lodash/debounce";
 import { useEffect, useRef, useState } from "react";
 
+import { useDeepMemo } from "@/hooks";
+
 import type { GraphProps } from "../Graph";
 import type { Config, CytoscapeType } from "../Graph.model";
-import { useDeepMemo } from "@/hooks";
 
 export interface UseInitCytoscapeProps extends Required<
   Pick<GraphProps, keyof Omit<Config, "minZoom" | "maxZoom" | "pan">>

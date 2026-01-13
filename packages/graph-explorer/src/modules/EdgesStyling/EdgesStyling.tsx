@@ -1,4 +1,6 @@
+import { Virtuoso } from "react-virtuoso";
 import { Fragment } from "react/jsx-runtime";
+
 import {
   Divider,
   Panel,
@@ -9,9 +11,9 @@ import {
 } from "@/components";
 import { useDisplayEdgeTypeConfigs } from "@/core";
 import useTranslations from "@/hooks/useTranslations";
-import SingleEdgeStyling from "./SingleEdgeStyling";
+
 import { SidebarCloseButton } from "../SidebarCloseButton";
-import { Virtuoso } from "react-virtuoso";
+import SingleEdgeStyling from "./SingleEdgeStyling";
 
 function EdgesStyling() {
   const etConfigMap = useDisplayEdgeTypeConfigs();
