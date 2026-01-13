@@ -15,7 +15,6 @@ import {
   nodesFilteredIdsAtom,
   nodesTypesFilteredAtom,
   type RawConfiguration,
-  type Schema,
   schemaAtom,
   toEdgeMap,
   toNodeMap,
@@ -27,6 +26,7 @@ import {
   type AppStore,
   type EdgeType,
   type VertexType,
+  type SchemaStorageModel,
 } from "@/core";
 import {
   createRandomSchema,
@@ -44,7 +44,7 @@ import type { Explorer } from "@/connector";
  * Helps build up the state of the Jotai database with common data.
  */
 export class DbState {
-  activeSchema: Schema;
+  activeSchema: SchemaStorageModel;
   activeConfig: RawConfiguration;
   activeStyling: UserStyling;
 

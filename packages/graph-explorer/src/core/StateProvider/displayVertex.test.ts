@@ -17,11 +17,11 @@ import {
   createVertexId,
   type DisplayAttribute,
   getRawId,
-  type Schema,
   schemaAtom,
   createVertexType,
   useDisplayVertexFromVertex,
   type Vertex,
+  type SchemaStorageModel,
 } from "@/core";
 import { formatDate, LABELS } from "@/utils";
 import { createRandomDate, createRandomName } from "@shared/utils/testing";
@@ -211,7 +211,7 @@ describe("useDisplayVertexFromVertex", () => {
     return result.current;
   }
 
-  function withSchema(schema: Schema) {
+  function withSchema(schema: SchemaStorageModel) {
     const config = createRandomRawConfiguration();
     return (store: AppStore) => {
       store.set(configurationAtom, new Map([[config.id, config]]));
@@ -220,7 +220,10 @@ describe("useDisplayVertexFromVertex", () => {
     };
   }
 
-  function withSchemaAndConnection(schema: Schema, queryEngine: QueryEngine) {
+  function withSchemaAndConnection(
+    schema: SchemaStorageModel,
+    queryEngine: QueryEngine,
+  ) {
     const config = createRandomRawConfiguration();
     config.connection!.queryEngine = queryEngine;
     return (store: AppStore) => {

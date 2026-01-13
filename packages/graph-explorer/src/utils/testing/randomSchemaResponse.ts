@@ -12,7 +12,7 @@ import { createArray, createRandomInteger } from "@shared/utils/testing";
 
 /**
  * Creates a random schema response object.
- * @returns A random Schema object.
+ * @returns A random SchemaResponse object.
  */
 export function createRandomSchemaResponse(): SchemaResponse {
   const edges = createArray(3, createRandomEdgeTypeConfig);
