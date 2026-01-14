@@ -51,6 +51,7 @@ export * from "./NavBar";
 
 export * from "./Toaster";
 
+export * from "./RouteButton";
 export * from "./Spinner";
 
 export * from "./Panel";

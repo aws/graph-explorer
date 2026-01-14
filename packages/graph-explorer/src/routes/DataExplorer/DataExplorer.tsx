@@ -11,6 +11,7 @@ import {
   EmptyStateContent,
   EmptyStateDescription,
   EmptyStateTitle,
+  GraphExplorerRouteButton,
   NavBar,
   NavBarActions,
   NavBarContent,
@@ -27,7 +28,6 @@ import {
   Workspace,
   WorkspaceContent,
 } from "@/components";
-import { ExplorerIcon } from "@/components/icons";
 import {
   type ColumnDefinition,
   PaginationControl,
@@ -127,13 +127,7 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
         </NavBarContent>
         <NavBarActions>
           <NavBarVersion>{__GRAPH_EXP_VERSION__}</NavBarVersion>
-          <Link
-            to="/graph-explorer"
-            className={cn(buttonStyles({ variant: "filled" }))}
-          >
-            <ExplorerIcon />
-            Open {LABELS.APP_NAME}
-          </Link>
+          <GraphExplorerRouteButton variant="filled" />
         </NavBarActions>
       </NavBar>
       <NavBar>
