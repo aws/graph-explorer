@@ -142,6 +142,15 @@ src/
 - ESLint + Prettier
 - TypeScript strict mode
 
+### Import Sorting
+
+Imports are sorted using eslint-plugin-perfectionist with natural sorting order.
+Run `pnpm lint` to auto-fix import order issues, or lint individual files with:
+
+```bash
+pnpm eslint --fix <path-to-file>
+```
+
 ### Deployment
 
 - Docker Compose for local development
