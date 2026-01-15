@@ -258,8 +258,9 @@ describe("scalar", () => {
     });
 
     it("should format zero without scientific notation", () => {
-      const result = getDisplayValueForScalar(0);
-      expect(result).toBe("0");
+      expect(getDisplayValueForScalar(0)).toBe("0");
+      expect(getDisplayValueForScalar(0.0)).toBe("0");
+      expect(getDisplayValueForScalar(parseFloat("0.00"))).toBe("0");
     });
 
     it("should return boolean for boolean scalar", () => {
