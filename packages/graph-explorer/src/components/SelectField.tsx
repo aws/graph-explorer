@@ -83,7 +83,7 @@ function SelectField({
     <FormItem>
       {label ? <Label>{label}</Label> : null}
       <Select value={value} onValueChange={onValueChange}>
-        <SelectTrigger>
+        <SelectTrigger className={className}>
           <SelectValue>
             {selectedOption ? (
               <RenderItem item={selectedOption} />
