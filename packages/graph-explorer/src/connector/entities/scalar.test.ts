@@ -165,14 +165,101 @@ describe("scalar", () => {
       expect(result).toBe(LABELS.EMPTY_VALUE);
     });
 
-    it("should return number for integer scalar", () => {
-      const result = getDisplayValueForScalar(123456);
-      expect(result).toBe("123,456");
+    it("should return number formatted", () => {
+      // Large integers
+      expect(getDisplayValueForScalar(123456)).toBe("123,456");
+      expect(getDisplayValueForScalar(1234567)).toBe("1,234,567");
+      expect(getDisplayValueForScalar(12345678)).toBe("12,345,678");
+      expect(getDisplayValueForScalar(123456789)).toBe("123,456,789");
+      expect(getDisplayValueForScalar(1234567890)).toBe("1.235E9");
+      expect(getDisplayValueForScalar(12345678901)).toBe("1.235E10");
+      expect(getDisplayValueForScalar(123456789012)).toBe("1.235E11");
+
+      // Small floats
+      expect(getDisplayValueForScalar(0.123456789)).toBe("0.1235");
+      expect(getDisplayValueForScalar(0.0123456789)).toBe("0.0123");
+      expect(getDisplayValueForScalar(0.00123456789)).toBe("0.0012");
+      expect(getDisplayValueForScalar(0.000123456789)).toBe("1.235E-4");
+      expect(getDisplayValueForScalar(0.0000123456789)).toBe("1.235E-5");
+      expect(getDisplayValueForScalar(0.00000123456789)).toBe("1.235E-6");
+      expect(getDisplayValueForScalar(0.000000123456789)).toBe("1.235E-7");
+      expect(getDisplayValueForScalar(0.0000000123456789)).toBe("1.235E-8");
+      expect(getDisplayValueForScalar(0.00000000123456789)).toBe("1.235E-9");
+
+      // Large floats
+      expect(getDisplayValueForScalar(123456.123456789)).toBe("123,456.1235");
+      expect(getDisplayValueForScalar(1234567.0123456789)).toBe(
+        "1,234,567.0123",
+      );
+      // eslint-disable-next-line no-loss-of-precision
+      expect(getDisplayValueForScalar(12345678.00123456789)).toBe(
+        "12,345,678.0012",
+      );
+      // eslint-disable-next-line no-loss-of-precision
+      expect(getDisplayValueForScalar(123456789.000123456789)).toBe(
+        "123,456,789.0001",
+      );
+      // eslint-disable-next-line no-loss-of-precision
+      expect(getDisplayValueForScalar(1234567890.0000123456789)).toBe(
+        "1.235E9",
+      );
+      // eslint-disable-next-line no-loss-of-precision
+      expect(getDisplayValueForScalar(12345678901.00000123456789)).toBe(
+        "1.235E10",
+      );
+      // eslint-disable-next-line no-loss-of-precision
+      expect(getDisplayValueForScalar(123456789012.000000123456789)).toBe(
+        "1.235E11",
+      );
+      // eslint-disable-next-line no-loss-of-precision
+      expect(getDisplayValueForScalar(1234567890123.0000000123456789)).toBe(
+        "1.235E12",
+      );
     });
 
     it("should return number for double scalar", () => {
       const result = getDisplayValueForScalar(123.45);
       expect(result).toBe("123.45");
+    });
+
+    it("should truncate to 4 fraction digits", () => {
+      const result = getDisplayValueForScalar(1.123456789);
+      expect(result).toBe("1.1235");
+    });
+
+    it("should use scientific notation for very small numbers", () => {
+      const result = getDisplayValueForScalar(0.0001);
+      expect(result).toBe("1E-4");
+    });
+
+    it("should use scientific notation for very large numbers", () => {
+      const result = getDisplayValueForScalar(1e10);
+      expect(result).toBe("1E10");
+    });
+
+    it("should use standard notation at the small threshold boundary", () => {
+      const result = getDisplayValueForScalar(0.001);
+      expect(result).toBe("0.001");
+    });
+
+    it("should use standard notation at the large threshold boundary", () => {
+      const result = getDisplayValueForScalar(1e9);
+      expect(result).toBe("1,000,000,000");
+    });
+
+    it("should use scientific notation for negative very small numbers", () => {
+      const result = getDisplayValueForScalar(-0.00001);
+      expect(result).toBe("-1E-5");
+    });
+
+    it("should use scientific notation for negative very large numbers", () => {
+      const result = getDisplayValueForScalar(-1e11);
+      expect(result).toBe("-1E11");
+    });
+
+    it("should format zero without scientific notation", () => {
+      const result = getDisplayValueForScalar(0);
+      expect(result).toBe("0");
     });
 
     it("should return boolean for boolean scalar", () => {

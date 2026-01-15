@@ -96,7 +96,7 @@ export function getDisplayValueForScalar(value: ScalarValue) {
       // Check for empty string
       return !typedValue.value.trim() ? LABELS.EMPTY_VALUE : typedValue.value;
     case "number":
-      return new Intl.NumberFormat().format(typedValue.value);
+      return formatNumber(typedValue.value);
     case "boolean":
       return String(typedValue.value);
     case "date":
@@ -104,4 +104,33 @@ export function getDisplayValueForScalar(value: ScalarValue) {
     case "null":
       return LABELS.MISSING_VALUE;
   }
+}
+
+/**
+ * Formats a number for display using locale-specific formatting.
+ *
+ * Uses scientific notation for very small (< 0.001) or very large (> 1e9)
+ * numbers to improve readability. Otherwise, uses standard decimal formatting
+ * with up to 4 fraction digits. Zero is always formatted without scientific
+ * notation.
+ *
+ * @param value - The number to format
+ * @returns A formatted string representation of the number
+ *
+ * @example
+ * formatNumber(1234.5678)    // "1,234.5678" (locale-dependent)
+ * formatNumber(0.0001)       // "1E-4" (scientific notation)
+ * formatNumber(1e10)         // "1E10" (scientific notation)
+ * formatNumber(0)            // "0"
+ */
+function formatNumber(value: number) {
+  if (value !== 0 && (Math.abs(value) < 0.001 || Math.abs(value) > 1e9)) {
+    return new Intl.NumberFormat(undefined, {
+      notation: "scientific",
+      maximumSignificantDigits: 4,
+    }).format(value);
+  }
+  return new Intl.NumberFormat(undefined, {
+    maximumFractionDigits: 4,
+  }).format(value);
 }
