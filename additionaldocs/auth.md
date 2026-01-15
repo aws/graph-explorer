@@ -1,10 +1,10 @@
 # Authentication and Authorization
 
-The Graph Explorer UI does not have built-in support for any user authentication or authorization.
+When Graph Explorer is deployed using a Neptune (SageMaker) Notebook in AWS (which is the default option for using Graph Explorer), then the endpoint is protected via IAM authentication. The Notebook proxies the Graph Explorer endpoint and provides authentication.
 
-Anyone with access to the service URL can access the graph data (even if Neptune database instances are locked down, because the UI is not). This is a security issue if the data is sensitive.
+However, when using a custom Graph Explorer deployment such as running Graph Explorer containers in Kubernetes, then the application will not have built-in support for any user authentication or authorization. Anyone with access to the service URL can access the graph data (even if the Neptune database instances are locked down, because the UI is not). This is a security issue if the data is sensitive.
 
-Authentication can be added by putting Graph Explorer behind an Nginx reverse proxy server. The Graph Explorer route should only be accessible by Nginx. Nginx can then be configured to add authentication.
+Authentication can be added by putting custom Graph Explorer deployments behind an Nginx reverse proxy server. The Graph Explorer route should only be accessible by Nginx. Nginx can then be configured to add authentication.
 
 
 ## HTTP Basic Authentication
