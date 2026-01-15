@@ -1,12 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { useRef } from "react";
-import { Link, useNavigate, useParams, useSearchParams } from "react-router";
+import { useNavigate, useParams, useSearchParams } from "react-router";
 
 import {
   Button,
-  buttonStyles,
   CheckIcon,
-  ChevronLeftIcon,
+  ConnectionsRouteButton,
   EmptyState,
   EmptyStateContent,
   EmptyStateDescription,
@@ -18,10 +17,10 @@ import {
   NavBarTitle,
   NavBarVersion,
   Panel,
+  PanelEmptyState,
   PanelError,
   PanelGroup,
   PanelHeader,
-  PanelTitle,
   SelectField,
   SendIcon,
   Spinner,
@@ -53,7 +52,6 @@ import { useVertexStyling } from "@/core/StateProvider/userPreferences";
 import { useAddVertexToGraph, useHasVertexBeenAddedToGraph } from "@/hooks";
 import useTranslations from "@/hooks/useTranslations";
 import useUpdateVertexTypeCounts from "@/hooks/useUpdateVertexTypeCounts";
-import { cn } from "@/utils";
 import {
   LABELS,
   RESERVED_ID_PROPERTY,
@@ -127,36 +125,23 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
         </NavBarContent>
         <NavBarActions>
           <NavBarVersion>{__GRAPH_EXP_VERSION__}</NavBarVersion>
+          <ConnectionsRouteButton />
           <GraphExplorerRouteButton variant="filled" />
-        </NavBarActions>
-      </NavBar>
-      <NavBar>
-        <NavBarContent>
-          <Link to="/connections" className={cn(buttonStyles())}>
-            <ChevronLeftIcon />
-            Back to all Data
-          </Link>
-        </NavBarContent>
-        <NavBarActions>
-          <SelectField
-            className="w-[200px]"
-            value={vertexType}
-            onValueChange={onVertexTypeChange}
-            options={vertexTypeOptions}
-            label={t("node-type")}
-            labelPlacement="inner"
-          />
-          <DisplayNameAndDescriptionOptions vertexType={vertexType} />
         </NavBarActions>
       </NavBar>
       <WorkspaceContent>
         <PanelGroup className="grid">
           <Panel>
-            <PanelHeader>
-              <PanelTitle className="flex flex-row">
-                {displayTypeConfig.displayLabel}{" "}
-                {query.isFetching ? <Spinner /> : null}
-              </PanelTitle>
+            <PanelHeader className="justify-between py-3">
+              <SelectField
+                className="w-64"
+                value={vertexType}
+                onValueChange={onVertexTypeChange}
+                options={vertexTypeOptions}
+                label={t("node-type")}
+                labelPlacement="inner"
+              />
+              <DisplayNameAndDescriptionOptions vertexType={vertexType} />
             </PanelHeader>
             <Tabular
               ref={tableRef}
@@ -171,6 +156,9 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
               disableSorting={true}
             >
               <TabularEmptyBodyControls>
+                {query.isPending ? (
+                  <PanelEmptyState title="Loading data..." icon={<Spinner />} />
+                ) : null}
                 {query.isError ? (
                   <PanelError error={query.error} onRetry={query.refetch} />
                 ) : null}
