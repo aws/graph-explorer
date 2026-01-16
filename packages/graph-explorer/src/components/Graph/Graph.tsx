@@ -375,7 +375,7 @@ export const Graph = ({
 
   return (
     <div
-      className={cn("size-fulloverflow-hidden relative", className)}
+      className={cn("relative size-full overflow-hidden", className)}
       ref={wrapperRefCb}
       inert={isEmpty}
       {...props}
