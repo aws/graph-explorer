@@ -12,6 +12,7 @@ export const ExportControl: FunctionComponent<ExportControlProps> = props => {
   const { instance } = useTabularControl();
 
   if (!instance) {
+    console.error("ExportControl: No instance found");
     return null;
   }
 

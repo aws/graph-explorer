@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router";
 
 import {
@@ -20,6 +20,7 @@ import {
   PanelError,
   PanelGroup,
   PanelHeader,
+  PanelHeaderActions,
   PanelTitle,
   SelectField,
   SendIcon,
@@ -35,6 +36,7 @@ import {
   TabularFooterControls,
   type TabularInstance,
 } from "@/components/Tabular";
+import { ExternalExportControl } from "@/components/Tabular/controls/ExportControl/ExternalExportControl";
 import Tabular from "@/components/Tabular/Tabular";
 import { type KeywordSearchRequest, searchQuery } from "@/connector";
 import {
@@ -94,6 +96,8 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
     usePagingOptions();
 
   const tableRef = useRef<TabularInstance<DisplayVertex> | null>(null);
+  const [tableInstance, setTableInstance] =
+    useState<TabularInstance<DisplayVertex> | null>(null);
   const columns = useColumnDefinitions(vertexType);
 
   const query = useDataExplorerQuery(vertexType, pageSize, pageIndex);
@@ -159,13 +163,21 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
         <PanelGroup className="grid">
           <Panel>
             <PanelHeader>
-              <PanelTitle className="flex flex-row">
+              <PanelTitle className="flex flex-row items-center gap-2">
                 {displayTypeConfig.displayLabel}{" "}
                 {query.isFetching ? <Spinner /> : null}
               </PanelTitle>
+              {tableInstance ? (
+                <PanelHeaderActions>
+                  <ExternalExportControl instance={tableInstance} />
+                </PanelHeaderActions>
+              ) : null}
             </PanelHeader>
             <Tabular
-              ref={tableRef}
+              ref={instance => {
+                tableRef.current = instance;
+                setTableInstance(instance);
+              }}
               defaultColumn={DEFAULT_COLUMN}
               data={displayVertices}
               columns={columns}
