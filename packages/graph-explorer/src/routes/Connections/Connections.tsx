@@ -12,6 +12,7 @@ import {
   PanelContent,
   PanelEmptyState,
   PanelGroup,
+  SchemaExplorerRouteButton,
   SettingsRouteButton,
   Workspace,
   WorkspaceContent,
@@ -41,6 +42,7 @@ export default function Connections() {
           <NavBarVersion>{__GRAPH_EXP_VERSION__}</NavBarVersion>
           <div className="flex gap-2">
             <SettingsRouteButton />
+            <SchemaExplorerRouteButton />
             <GraphExplorerRouteButton variant="filled" />
           </div>
         </NavBarActions>
