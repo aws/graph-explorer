@@ -1,3 +1,8 @@
+---
+inclusion: fileMatch
+fileMatchPattern: "{**/*.md,additionaldocs/**}"
+---
+
 # Project Documentation Standards
 
 ## Writing Style & Tone

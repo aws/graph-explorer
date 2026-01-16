@@ -1,3 +1,8 @@
+---
+inclusion: fileMatch
+fileMatchPattern: "**/{*.test.{ts,tsx},setupTests.ts}"
+---
+
 # Testing Standards & Best Practices
 
 ## Test Data Creation
