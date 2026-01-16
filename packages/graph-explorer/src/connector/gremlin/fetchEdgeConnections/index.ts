@@ -49,11 +49,11 @@ export default async function fetchEdgeConnections(
 
   for (const { edgeType, values } of results) {
     for (const item of values) {
-      const mapValues = item["@value"];
       // Map format: ['sourceType', value, 'targetType', value]
+      const [, sourceValue, , targetValue] = item["@value"];
       // Neptune multi-label vertices use :: delimiter
-      const sourceTypes = mapValues[1].split("::").filter(Boolean);
-      const targetTypes = mapValues[3].split("::").filter(Boolean);
+      const sourceTypes = sourceValue.split("::").filter(Boolean);
+      const targetTypes = targetValue.split("::").filter(Boolean);
 
       for (const sourceType of sourceTypes) {
         for (const targetType of targetTypes) {
