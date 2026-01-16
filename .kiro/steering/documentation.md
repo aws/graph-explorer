@@ -63,7 +63,10 @@ fileMatchPattern: "{**/*.md,additionaldocs/**}"
 
 ## File Organization
 
-### Documentation Structure
+### Documentation Structure (Aspirational)
+
+The following structure is the recommended organization for documentation. The
+actual `additionaldocs/` folder may not yet match this structure completely.
 
 ```
 README.md                           # Project overview and quick start
