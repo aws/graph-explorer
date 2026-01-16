@@ -1,9 +1,8 @@
 import { type PropsWithChildren, Suspense } from "react";
-import { Link, NavLink, Outlet, type To } from "react-router";
+import { NavLink, Outlet, type To } from "react-router";
 
 import {
-  buttonStyles,
-  DatabaseIcon,
+  ConnectionsRouteButton,
   ForwardIcon,
   NavBar,
   NavBarActions,
@@ -30,13 +29,7 @@ export default function SettingsRoot() {
 
         <NavBarActions>
           <NavBarVersion>{__GRAPH_EXP_VERSION__}</NavBarVersion>
-          <Link
-            to="/connections"
-            className={cn(buttonStyles({ variant: "filled" }))}
-          >
-            <DatabaseIcon />
-            Open Connections
-          </Link>
+          <ConnectionsRouteButton variant="filled" />
         </NavBarActions>
       </NavBar>
       <WorkspaceContent>
