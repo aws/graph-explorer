@@ -13,5 +13,6 @@ export function createMockExplorer(): Explorer {
     edgeDetails: vi.fn(),
     vertexDetails: vi.fn(),
     rawQuery: vi.fn(),
+    fetchEdgeConnections: vi.fn(),
   };
 }

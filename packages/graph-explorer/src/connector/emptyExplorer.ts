@@ -31,4 +31,5 @@ export const emptyExplorer: Explorer = {
   vertexDetails: async () => ({ vertices: [] }),
   edgeDetails: async () => ({ edges: [] }),
   rawQuery: async () => ({ results: [], rawResponse: null }),
+  fetchEdgeConnections: async () => ({ edgeConnections: [] }),
 };

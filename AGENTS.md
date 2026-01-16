@@ -156,3 +156,28 @@ src/
 - Prefer `DbState` over manual state management
 - Prefer tests that limit mocks to external systems
 - Always check `setupTests.ts` for global setup to avoid duplication
+
+### Branded Types
+
+The project uses branded types from `@/utils` for type safety. These prevent
+accidental mixing of similar types at compile time.
+
+| Type               | Creator Function             | Location                                |
+| ------------------ | ---------------------------- | --------------------------------------- |
+| `VertexId`         | `createVertexId()`           | `@/core/entities/vertex`                |
+| `VertexType`       | `createVertexType()`         | `@/core/entities/vertex`                |
+| `EdgeId`           | `createEdgeId()`             | `@/core/entities/edge`                  |
+| `EdgeType`         | `createEdgeType()`           | `@/core/entities/edge`                  |
+| `ConfigurationId`  | `createNewConfigurationId()` | `@/core/ConfigurationProvider/types`    |
+| `RenderedVertexId` | `toRenderedVertexId()`       | `@/core/StateProvider/renderedEntities` |
+| `RenderedEdgeId`   | `toRenderedEdgeId()`         | `@/core/StateProvider/renderedEntities` |
+
+Always use the appropriate branded type instead of `string` when working with
+these identifiers.
+
+### Database Queries
+
+- Use the `query` template tag from `@/utils` for all query strings (Gremlin,
+  openCypher, SPARQL) to ensure consistent formatting
+- For Gremlin queries, use `escapeString()` from `@/utils` to escape special
+  characters in string literals

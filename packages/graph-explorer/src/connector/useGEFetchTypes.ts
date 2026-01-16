@@ -3,6 +3,7 @@ import type {
   Edge,
   EdgeConnection,
   EdgeId,
+  EdgeType,
   EdgeTypeConfig,
   Entities,
   NormalizedConnection,
@@ -212,6 +213,19 @@ export type RawQueryResponse = {
   rawResponse: unknown;
 };
 
+export type EdgeConnectionsRequest = {
+  edgeTypes: EdgeType[];
+};
+
+export type EdgeConnectionsResponse = {
+  /**
+   * Edge connections between vertex types.
+   * Each connection represents a distinct pattern of
+   * sourceVertexType -> edgeType -> targetVertexType
+   */
+  edgeConnections: EdgeConnection[];
+};
+
 /**
  * Abstracted interface to the common database queries used by
  * Graph Explorer.
@@ -247,4 +261,8 @@ export type Explorer = {
     req: RawQueryRequest,
     options?: ExplorerRequestOptions,
   ) => Promise<RawQueryResponse>;
+  fetchEdgeConnections: (
+    req: EdgeConnectionsRequest,
+    options?: ExplorerRequestOptions,
+  ) => Promise<EdgeConnectionsResponse>;
 };
