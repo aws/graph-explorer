@@ -9,6 +9,8 @@
 - Prefer named function syntax over anonymous arrow functions for top-level
   declarations (e.g., `function handleClick() {}` over
   `const handleClick = () => {}`)
+- Imports are sorted using ESLint, which can be invoked for a single file using
+  `pnpm eslint --fix <path-to-file>`
 
 ### React Rules
 
@@ -86,8 +88,8 @@ src/
 ├── core/                         # Core application logic and providers
 ├── hooks/                        # Custom React hooks
 ├── modules/                      # Feature-specific modules
+├── routes/                       # Route definitions
 ├── utils/                        # Utility functions
-├── workspaces/                   # Main application views/pages
 └── App.tsx                       # Root component
 ```
 
@@ -152,10 +154,17 @@ src/
 
 ### Testing
 
-- Prefer `renderHookWithState` over `renderHook` or `renderHookWithJotai`
-- Prefer `DbState` over manual state management
-- Prefer tests that limit mocks to external systems
-- Always check `setupTests.ts` for global setup to avoid duplication
+- From the package root you can just call `pnpm test`. The commit should pass
+  all tests before you merge.
+- To focus on one step, add the Vitest pattern:
+  `pnpm vitest run -t "<test name>"`.
+- Fix any test or type errors until the whole suite is green.
+- After moving files or changing imports, run
+  `pnpm lint --filter <project_name>` to be sure ESLint and TypeScript rules
+  still pass.
+- Add or update tests for the code you change, even if nobody asked.
+
+See `.kiro/steering/testing.md` for testing patterns and examples.
 
 ### Branded Types
 
