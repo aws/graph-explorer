@@ -16,7 +16,7 @@ export function edgeConnectionsQuery(edgeTypes: EdgeType[]) {
       const store = getStore(meta);
 
       const results = await explorer.fetchEdgeConnections(
-        { edgeTypes },
+        { edgeTypes: sortedEdgeTypes },
         { signal },
       );
 
