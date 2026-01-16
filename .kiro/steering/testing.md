@@ -5,6 +5,26 @@ fileMatchPattern: "**/{*.test.{ts,tsx},setupTests.ts}"
 
 # Testing Standards & Best Practices
 
+## Quick Reference
+
+```typescript
+// Common testing imports
+import {
+  DbState,
+  createTestableVertex,
+  createTestableEdge,
+  renderHookWithState,
+} from "@/utils/testing";
+import { createRandomName, createRandomInteger } from "@shared/utils/testing";
+```
+
+## Core Principles
+
+- Prefer `renderHookWithState` over `renderHook` or `renderHookWithJotai`
+- Prefer `DbState` over manual state management
+- Prefer tests that limit mocks to external systems
+- Always check `setupTests.ts` for global setup to avoid duplication
+
 ## Test Data Creation
 
 ### Random Data Factories
@@ -444,12 +464,10 @@ styling, configuration, or type-only changes.
 ### Error Testing
 
 ```typescript
-test("should handle errors gracefully", () => {
+test("should handle errors gracefully", async () => {
   const mockFetch = vi.fn().mockRejectedValue(new Error("Test error"));
 
   // Test error handling behavior
-  expect(async () => {
-    await functionUnderTest(mockFetch);
-  }).rejects.toThrow("Test error");
+  await expect(functionUnderTest(mockFetch)).rejects.toThrow("Test error");
 });
 ```
