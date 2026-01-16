@@ -179,20 +179,67 @@ may receive 404 not found responses or get connection refused errors.
 ## Backup Graph Explorer Data
 
 Inside of Graph Explorer there is an option to export all the configuration data
-that Graph Explorer uses. This data is local to the user’s browser and does not
+that Graph Explorer uses. This data is local to the user's browser and does not
 exist on the server.
 
 To gather the config data:
 
 1. Launch Graph Explorer
 2. Navigate to the connections screen
-3. Press the “Settings” button in the navigation bar
-4. Select the “General” page within settings
-5. Press the “Save Configuration” button
+3. Press the "Settings" button in the navigation bar
+4. Select the "General" page within settings
+5. Press the "Save Configuration" button
 6. Choose where to save the exported file
 
-This backup can be restored using the “Load Configuration” button in the same
+This backup can be restored using the "Load Configuration" button in the same
 settings page.
+
+### Auto-Load Backup Configuration
+
+Graph Explorer can automatically load a backup configuration file
+(`graph-explorer-config.json`) on startup, similar to how
+`defaultConnection.json` is auto-loaded. This is useful for Docker deployments
+and infrastructure-as-code scenarios.
+
+**How it works:**
+
+- The backup config file (`graph-explorer-config.json`) should be placed in the
+  `CONFIGURATION_FOLDER_PATH` directory (same location as
+  `defaultConnection.json`)
+- On startup, Graph Explorer checks if IndexedDB is empty
+- If empty, it automatically fetches and restores the backup config file
+- This ensures connections, styles, schemas, and other customizations are loaded
+  automatically
+
+**Docker Setup:**
+
+```yaml
+services:
+  graph-explorer:
+    volumes:
+      - ./config/graph-explorer:/graph-explorer-config
+    environment:
+      - CONFIGURATION_FOLDER_PATH=/graph-explorer-config
+```
+
+**Force Load Option:**
+
+By default, the backup config only loads when IndexedDB is empty (to prevent
+overwriting existing user data). To always load the backup config file,
+regardless of IndexedDB contents, set:
+
+```yaml
+environment:
+  - GRAPH_EXP_FORCE_LOAD_BACKUP_CONFIG=true
+```
+
+**Behavior:**
+
+- `defaultConnection.json` → ✅ Auto-loads (connections only) - always works
+- `graph-explorer-config.json` → ✅ Auto-loads (full config) when IndexedDB is
+  empty - default behavior
+- `graph-explorer-config.json` → ✅ Always loads when
+  `GRAPH_EXP_FORCE_LOAD_BACKUP_CONFIG=true` - override behavior
 
 ## Gathering SageMaker Logs
 

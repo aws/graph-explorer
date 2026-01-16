@@ -4,4 +4,6 @@ export const env = {
   MODE: import.meta.env.MODE,
   BASE_URL: import.meta.env.BASE_URL,
   GRAPH_EXP_FEEDBACK_URL: import.meta.env.GRAPH_EXP_FEEDBACK_URL,
+  GRAPH_EXP_FORCE_LOAD_BACKUP_CONFIG:
+    import.meta.env.GRAPH_EXP_FORCE_LOAD_BACKUP_CONFIG === "true",
 };

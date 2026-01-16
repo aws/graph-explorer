@@ -71,6 +71,11 @@ Docker image. You can find the latest version of the image on
    you should now see the Connections UI. See below description on Connections
    UI to configure your first connection to Amazon Neptune.
 
+<!-- prettier-ignore -->
+> [!TIP]
+> 
+> You can automatically load a backup configuration file (`graph-explorer-config.json`) on startup by mounting it as a volume. See [Auto-Load Backup Configuration](../troubleshooting.md#auto-load-backup-configuration) for details.
+
 #### Gremlin Server Database
 
 Gremlin Server is an easy way to get started with graph databases. This example
