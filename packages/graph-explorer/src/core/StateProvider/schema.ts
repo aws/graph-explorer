@@ -96,6 +96,29 @@ export const prefixesAtom = atom(get => {
   return schema.prefixes ?? [];
 });
 
+/** Setter-only atom to update edge connections in the active schema. */
+export const setEdgeConnectionsAtom = atom(
+  null,
+  (get, set, edgeConnections: EdgeConnection[]) => {
+    const activeConfigId = get(activeConfigurationAtom);
+    if (!activeConfigId) {
+      return;
+    }
+    set(schemaAtom, prev => {
+      const activeSchema = prev.get(activeConfigId);
+      if (!activeSchema) {
+        return prev;
+      }
+      const updated = new Map(prev);
+      updated.set(activeConfigId, {
+        ...activeSchema,
+        edgeConnections,
+      });
+      return updated;
+    });
+  },
+);
+
 function createVertexSchema(vtConfig: VertexTypeConfig) {
   return {
     type: vtConfig.type,

@@ -7,6 +7,7 @@ export * from "./bulkVertexDetailsQuery";
 export * from "./bulkEdgeDetailsQuery";
 export * from "./vertexDetailsQuery";
 export * from "./edgeDetailsQuery";
+export * from "./edgeConnectionsQuery";
 export * from "./executeUserQuery";
 export * from "./fetchEntityDetails";
 
