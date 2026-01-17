@@ -9,10 +9,16 @@ export function transformToCsv<T extends object>(
   const csvRows = data.map(row =>
     columns.map(col => {
       const accessor = col.definition?.accessor;
-      if (accessor == null || typeof accessor !== "string") {
+      if (accessor == null) {
         return null;
       }
-      return (row as any)[accessor];
+      if (typeof accessor === "function") {
+        return (accessor as (row: T) => unknown)(row);
+      }
+      if (typeof accessor === "string") {
+        return (row as Record<string, unknown>)[accessor];
+      }
+      return null;
     }),
   );
   const headers = columns.map(col => col.definition?.label || col.instance.id);

@@ -20,6 +20,8 @@ import { toCsvFileData, toJsonFileData } from "@/utils/fileData";
 import { transformToCsv } from "./transformToCsv";
 import { transformToJson } from "./transformToJson";
 
+const EXCLUDED_COLUMN_IDS = ["__send_to_explorer"];
+
 type ExportControlProps<T extends Record<string, unknown>> = {
   instance: TabularInstance<T>;
 };
@@ -51,21 +53,30 @@ export function ExternalExportControl<T extends Record<string, unknown>>({
 function ExportOptionsModal<T extends Record<string, unknown>>({
   instance,
   onClose,
-}: ExportControlProps<T> & { onClose: () => void }) {
+  forceOnlyPage = false,
+}: ExportControlProps<T> & { onClose: () => void; forceOnlyPage?: boolean }) {
   const { rows, data, page, columns, columnOrder, visibleColumns } = instance;
   const [format, setFormat] = useState("csv");
   const [name, setName] = useState<string>("");
-  const [options, setOptions] = useState<Record<string, boolean>>({});
+  const [options, setOptions] = useState<Record<string, boolean>>(
+    forceOnlyPage ? { "only-page": true } : {},
+  );
+
+  const exportableColumnOrder = columnOrder.filter(
+    col => !EXCLUDED_COLUMN_IDS.includes(col),
+  );
+
   const [selectedColumns, setSelectedColumns] = useState(
-    columnOrder.reduce<Record<string, boolean>>((init, col) => {
+    exportableColumnOrder.reduce<Record<string, boolean>>((init, col) => {
       init[col] = visibleColumns[col];
       return init;
     }, {}),
   );
 
   const onExport = () => {
-    // Filter down to only the columns that are selected
+    // Filter down to only the columns that are selected, excluding special columns
     const columnsToExport = Object.entries(selectedColumns)
+      .filter(([id]) => !EXCLUDED_COLUMN_IDS.includes(id))
       .filter(([, isSelected]) => isSelected)
       .map(([id]) => columns.find(c => c.instance.id === id))
       .filter(c => c != null);
@@ -107,7 +118,7 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
       <div className="space-y-3">
         <div className="text-base font-medium">Export columns</div>
         <div className="flex flex-col gap-2">
-          {columnOrder.map(columnId =>
+          {exportableColumnOrder.map(columnId =>
             !visibleColumns[columnId] ? null : (
               <Label key={columnId} className="text-text-primary">
                 <Checkbox
