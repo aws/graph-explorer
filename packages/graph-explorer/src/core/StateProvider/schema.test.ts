@@ -32,6 +32,7 @@ import {
   updateSchemaFromEntities,
   updateSchemaPrefixes,
   useGraphSchema,
+  useHasActiveSchema,
 } from "./schema";
 
 describe("schema", () => {
@@ -509,5 +510,25 @@ describe("useGraphSchema edgeConnections", () => {
     expect(
       result.current.edgeConnections.forVertexType(vertexType),
     ).toStrictEqual([conn]);
+  });
+});
+
+describe("useHasActiveSchema", () => {
+  test("should return false when schema has no lastUpdate", () => {
+    const state = new DbState();
+    state.activeSchema.lastUpdate = undefined;
+
+    const { result } = renderHookWithState(() => useHasActiveSchema(), state);
+
+    expect(result.current).toBe(false);
+  });
+
+  test("should return true when schema has lastUpdate", () => {
+    const state = new DbState();
+    state.activeSchema.lastUpdate = new Date();
+
+    const { result } = renderHookWithState(() => useHasActiveSchema(), state);
+
+    expect(result.current).toBe(true);
   });
 });
