@@ -1,4 +1,29 @@
+---
+inclusion: fileMatch
+fileMatchPattern: "**/{*.test.{ts,tsx},setupTests.ts}"
+---
+
 # Testing Standards & Best Practices
+
+## Quick Reference
+
+```typescript
+// Common testing imports
+import {
+  DbState,
+  createTestableVertex,
+  createTestableEdge,
+  renderHookWithState,
+} from "@/utils/testing";
+import { createRandomName, createRandomInteger } from "@shared/utils/testing";
+```
+
+## Core Principles
+
+- Prefer `renderHookWithState` over `renderHook` or `renderHookWithJotai`
+- Prefer `DbState` over manual state management
+- Prefer tests that limit mocks to external systems
+- Always check `setupTests.ts` for global setup to avoid duplication
 
 ## Test Data Creation
 
@@ -359,6 +384,57 @@ test("should handle RDF construct query", async () => {
 });
 ```
 
+## Test Execution Strategy
+
+### Targeted Testing for Small Changes
+
+For small, isolated changes, run only the relevant tests instead of the full
+test suite:
+
+```bash
+# Run tests for a specific file
+pnpm vitest --run <path-to-file>
+
+# Run tests matching a pattern
+pnpm vitest --run src/modules/SchemaGraph
+
+# Run tests for files related to your changes
+pnpm vitest --run src/connector/gremlin/fetchSchema
+```
+
+### When to Run Full Test Suite
+
+Only run the full test suite (`pnpm test`) in these situations:
+
+- At the end of implementing a large feature or set of changes
+- Before creating a pull request
+- After making changes that could have wide-reaching effects (e.g., shared
+  utilities, core providers, type definitions)
+- When explicitly requested
+
+### Quick Validation with pnpm checks
+
+For a quick validation of changes, run all static checks (type checking,
+linting, and formatting) in a single command:
+
+```bash
+pnpm checks
+```
+
+This takes less than a minute and catches most issues without running the full
+test suite. Use this as your default validation for small changes.
+
+### Type Checking Only
+
+For changes that don't have associated tests, verify type correctness:
+
+```bash
+pnpm check:types
+```
+
+This is faster than running the full test suite and catches most issues with
+styling, configuration, or type-only changes.
+
 ## Best Practices
 
 ### Data Isolation
@@ -388,12 +464,10 @@ test("should handle RDF construct query", async () => {
 ### Error Testing
 
 ```typescript
-test("should handle errors gracefully", () => {
+test("should handle errors gracefully", async () => {
   const mockFetch = vi.fn().mockRejectedValue(new Error("Test error"));
 
   // Test error handling behavior
-  expect(async () => {
-    await functionUnderTest(mockFetch);
-  }).rejects.toThrow("Test error");
+  await expect(functionUnderTest(mockFetch)).rejects.toThrow("Test error");
 });
 ```
