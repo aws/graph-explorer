@@ -51,6 +51,8 @@ RUN pnpm install && \
     pnpm clean:dep && \
     pnpm install --prod --ignore-scripts && \
     npm uninstall -g npm && \
+    corepack disable && \
+    rm -rf /usr/local/bin/pnpm* /usr/local/bin/corepack && \
     rm -rf $HOME/.local && \
     chmod a+x ./process-environment.sh && \
     chmod a+x ./docker-entrypoint.sh
