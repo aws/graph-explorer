@@ -6,7 +6,7 @@ environment variables to switch to HTTP.
 
 ### Requirements
 
-- pnpm >=10.18.0
+- pnpm >=10.28.0
 - node >=24.13.0
 
 #### Node Version
