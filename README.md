@@ -111,6 +111,11 @@ defaults, and their descriptions.
     minutes).
   - `GRAPH_EXP_NODE_EXPANSION_LIMIT` - `None` - Controls the limit for node
     counts and expansion queries.
+  - `GRAPH_EXP_FORCE_LOAD_BACKUP_CONFIG` - `false` - When set to `"true"`,
+    always loads the backup configuration file (`graph-explorer-config.json`) on
+    startup, overriding any existing IndexedDB data. Useful for Docker
+    deployments where you want the mounted config file to always take
+    precedence.
 - Conditionally Required:
   - Required if `USING_PROXY_SERVER=True`
     - `GRAPH_CONNECTION_URL` - `None` - See

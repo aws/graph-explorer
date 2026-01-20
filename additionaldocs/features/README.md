@@ -14,7 +14,10 @@ out our [roadmap](../../ROADMAP.md) and participate in the discussions.
 - **Save Configuration:** This action will export all the configuration data
   within the Graph Explorer local database. This will not store any data from
   the connected graph databases. However, the export may contain the shape of
-  the schema for your databases and the connection URL.
+  the schema for your databases and the connection URL. The exported file is
+  named `graph-explorer-config.json` and can be used for automatic loading on
+  startup (see
+  [Auto-Load Backup Configuration](../troubleshooting.md#auto-load-backup-configuration)).
 - **Load Configuration:** This action will replace all the Graph Explorer
   configuration data you currently have with the data in the provided
   configuration file. This is a destructive act and can not be undone. It is
