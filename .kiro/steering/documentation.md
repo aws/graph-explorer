@@ -47,7 +47,7 @@ fileMatchPattern: "{**/*.md,additionaldocs/**}"
 
 ### Assumptions & Prerequisites
 
-- **System Requirements**: Always specify Node.js version (>=24.4.0), OS
+- **System Requirements**: Always specify Node.js version (>=24.13.0), OS
   compatibility
 - **Dependencies**: List required software (Docker, pnpm, AWS CLI if needed)
 - **Access Requirements**: Database endpoints, AWS credentials, network access
@@ -223,7 +223,7 @@ Get Graph Explorer running in under 5 minutes:
 
 ## Prerequisites
 
-- Docker (for containerized deployment) OR Node.js >=24.4.0 + pnpm
+- Docker (for containerized deployment) OR Node.js >=24.13.0 + pnpm
 - Graph database endpoint (Neptune, TinkerPop, etc.)
 - Network access to your database
 - AWS credentials (if using Neptune with IAM auth)
