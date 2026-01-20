@@ -5,9 +5,9 @@
   "author": "amazon",
   "license": "Apache-2.0",
   "type": "module",
-  "packageManager": "pnpm@10.18.0+sha512.e804f889f1cecc40d572db084eec3e4881739f8dec69c0ff10d2d1beff9a4e309383ba27b5b750059d7f4c149535b6cd0d2cb1ed3aeb739239a4284a68f40cfa",
+  "packageManager": "pnpm@10.28.1+sha512.7d7dbbca9e99447b7c3bf7a73286afaaf6be99251eb9498baefa7d406892f67b879adb3a1d7e687fc4ccc1a388c7175fbaae567a26ab44d1067b54fcb0d6a316",
   "engines": {
-    "node": ">=24.4.0"
+    "node": ">=24.13.0"
   },
   "private": true,
   "scripts": {
