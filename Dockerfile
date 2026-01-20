@@ -50,6 +50,7 @@ RUN pnpm install && \
     pnpm build && \
     pnpm clean:dep && \
     pnpm install --prod --ignore-scripts && \
+    npm uninstall -g npm && \
     rm -rf $HOME/.local && \
     chmod a+x ./process-environment.sh && \
     chmod a+x ./docker-entrypoint.sh
