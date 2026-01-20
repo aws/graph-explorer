@@ -17,6 +17,7 @@ import {
   NavBarTitle,
   NavBarVersion,
   PanelGroup,
+  SchemaExplorerRouteButton,
   Workspace,
   WorkspaceContent,
 } from "@/components";
@@ -94,6 +95,7 @@ const GraphExplorer = () => {
 
           <Divider axis="vertical" className="h-[50%]" />
 
+          <SchemaExplorerRouteButton />
           <ConnectionsRouteButton variant="filled" />
         </NavBarActions>
       </NavBar>
