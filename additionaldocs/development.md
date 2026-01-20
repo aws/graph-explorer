@@ -7,7 +7,7 @@ environment variables to switch to HTTP.
 ### Requirements
 
 - pnpm >=10.18.0
-- node >=24.4.0
+- node >=24.13.0
 
 #### Node Version
 
@@ -19,7 +19,7 @@ nvm use
 ```
 
 Otherwise, use whatever method you use to install
-[Node v24.4.0](https://nodejs.org/en/download).
+[Node v24.13.0](https://nodejs.org/en/download).
 
 #### Node Corepack
 

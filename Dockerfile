@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 FROM amazonlinux:2023 AS base
-ENV NODE_VERSION=24.4.0
+ENV NODE_VERSION=24.13.0
 
 RUN yum update -y && \
     yum install -y tar xz openssl && \
