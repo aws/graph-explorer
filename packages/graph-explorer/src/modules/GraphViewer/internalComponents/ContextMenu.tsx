@@ -17,6 +17,7 @@ import {
 import { createContext, use } from "react";
 
 import { Divider, EdgeIcon, GraphIcon, StylingIcon } from "@/components";
+import { useGraphGlobalActions } from "@/components/Graph";
 import {
   CenterGraphIcon,
   DetailsIcon,
@@ -43,7 +44,6 @@ import { useOpenEdgeStyleDialog } from "@/modules/EdgesStyling";
 import { useOpenNodeStyleDialog } from "@/modules/NodesStyling";
 import { cn } from "@/utils";
 
-import useGraphGlobalActions from "../useGraphGlobalActions";
 import { useGraphSelection } from "../useGraphSelection";
 
 type ContextMenuProps = {

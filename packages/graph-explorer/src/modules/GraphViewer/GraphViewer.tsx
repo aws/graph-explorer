@@ -1,13 +1,5 @@
 import { useAtomValue } from "jotai";
-import {
-  BadgeInfoIcon,
-  CircleSlash2,
-  FullscreenIcon,
-  GitCompareArrowsIcon,
-  ImageDownIcon,
-  ZoomInIcon,
-  ZoomOutIcon,
-} from "lucide-react";
+import { BadgeInfoIcon } from "lucide-react";
 import {
   Activity,
   type ComponentPropsWithRef,
@@ -19,7 +11,6 @@ import type { SelectedElements } from "@/components/Graph/Graph.model";
 import type { ElementEventCallback } from "@/components/Graph/hooks/useAddClickEvents";
 
 import {
-  IconButton,
   Panel,
   PanelContent,
   PanelHeader,
@@ -31,6 +22,14 @@ import {
   VertexSymbolByType,
 } from "@/components";
 import { Graph } from "@/components/Graph";
+import {
+  ClearCanvasButton,
+  DownloadScreenshotButton,
+  RerunLayoutButton,
+  ZoomInButton,
+  ZoomOutButton,
+  ZoomToFitButton,
+} from "@/components/Graph";
 import { GraphProvider } from "@/components/Graph/GraphContext";
 import {
   createRenderedEdgeId,
@@ -46,7 +45,7 @@ import {
 } from "@/core";
 import { edgesOutOfFocusIdsAtom } from "@/core/StateProvider/edges";
 import { nodesOutOfFocusIdsAtom } from "@/core/StateProvider/nodes";
-import { useClearGraph, useExpandNode } from "@/hooks";
+import { useExpandNode } from "@/hooks";
 import { useDefaultNeighborExpansionLimit } from "@/hooks/useExpandNode";
 import { cn, isVisible } from "@/utils";
 
@@ -56,7 +55,6 @@ import { ImportGraphButton } from "./ImportGraphButton";
 import ContextMenu from "./internalComponents/ContextMenu";
 import { graphLayoutSelectionAtom, SelectLayout } from "./SelectLayout";
 import useContextMenu from "./useContextMenu";
-import useGraphGlobalActions from "./useGraphGlobalActions";
 import { useGraphSelection } from "./useGraphSelection";
 import useGraphStyles from "./useGraphStyles";
 import useNodeBadges from "./useNodeBadges";
@@ -114,13 +112,6 @@ function GraphViewerContent({
   };
 
   const [legendOpen, setLegendOpen] = useState(false);
-  const {
-    onZoomIn,
-    onZoomOut,
-    onSaveScreenshot,
-    onFitAllToCanvas,
-    onRunLayout,
-  } = useGraphGlobalActions();
 
   const {
     clearAllLayers,
@@ -153,7 +144,6 @@ function GraphViewerContent({
   };
 
   const layout = useAtomValue(graphLayoutSelectionAtom);
-  const onClearGraph = useClearGraph();
 
   const nodes = useRenderedVertices();
   const edges = useRenderedEdges();
@@ -167,44 +157,17 @@ function GraphViewerContent({
           <PanelTitle>Graph View</PanelTitle>
           <PanelHeaderActions>
             <SelectLayout className="max-w-64 min-w-auto" />
-            <IconButton
-              tooltipText="Re-run Layout"
-              icon={<GitCompareArrowsIcon />}
-              variant="text"
-              onClick={onRunLayout}
-            />
-            <IconButton
-              tooltipText="Zoom to Fit"
-              icon={<FullscreenIcon />}
-              variant="text"
-              onClick={onFitAllToCanvas}
-            />
+            <RerunLayoutButton />
+            <ZoomToFitButton />
             <div className="grow" />
-            <PanelHeaderActionButton
-              label="Download Screenshot"
-              icon={<ImageDownIcon />}
-              onClick={onSaveScreenshot}
-            />
+            <DownloadScreenshotButton />
             <ExportGraphButton />
             <ImportGraphButton />
             <PanelHeaderDivider />
-            <PanelHeaderActionButton
-              label="Zoom in"
-              icon={<ZoomInIcon />}
-              onClick={onZoomIn}
-            />
-            <PanelHeaderActionButton
-              label="Zoom out"
-              icon={<ZoomOutIcon />}
-              onClick={onZoomOut}
-            />
+            <ZoomInButton />
+            <ZoomOutButton />
             <PanelHeaderDivider />
-            <PanelHeaderActionButton
-              label="Clear canvas"
-              icon={<CircleSlash2 />}
-              color="danger"
-              onClick={onClearGraph}
-            />
+            <ClearCanvasButton />
             <PanelHeaderActionButton
               label="Legend"
               icon={<BadgeInfoIcon />}
