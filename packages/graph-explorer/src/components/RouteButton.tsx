@@ -39,7 +39,7 @@ export function GraphExplorerRouteButton({ variant }: RouteButtonProps) {
   const hasSchema = useHasActiveSchema();
   return (
     <Link
-      to={!hasSchema ? "/connections" : "/graph-explorer"}
+      to={hasSchema ? "/graph-explorer" : "/connections"}
       className={cn(buttonStyles({ variant }))}
       aria-disabled={!hasSchema}
     >
@@ -53,7 +53,7 @@ export function DataExplorerRouteButton({ variant }: RouteButtonProps) {
   const hasSchema = useHasActiveSchema();
   return (
     <Link
-      to={!hasSchema ? "/connections" : "/data-explorer"}
+      to={hasSchema ? "/data-explorer" : "/connections"}
       className={cn(buttonStyles({ variant }))}
       aria-disabled={!hasSchema}
     >
