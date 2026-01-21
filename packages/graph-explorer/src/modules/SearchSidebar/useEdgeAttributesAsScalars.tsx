@@ -16,7 +16,7 @@ export function useEdgeAttributesAsScalars(edge: DisplayEdge) {
     : null;
 
   const labelScalar = createResultScalar({
-    name: t("edges-styling.edge-type"),
+    name: t("edge-type"),
     value: edge.displayTypes,
   });
 

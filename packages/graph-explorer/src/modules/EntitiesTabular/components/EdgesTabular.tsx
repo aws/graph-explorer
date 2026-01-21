@@ -87,31 +87,31 @@ function EdgesTabular({ ref }: EdgesTabularProps) {
     {
       id: "edge-type",
       accessor: "displayTypes",
-      label: t("entities-tabular.edge-type"),
+      label: t("edge-type"),
       overflow: "ellipsis",
     },
     {
       id: "source-id",
       accessor: "sourceDisplayId",
-      label: t("entities-tabular.source-id"),
+      label: t("source-id"),
       overflow: "ellipsis",
     },
     {
       id: "source-type",
       accessor: "sourceDisplayTypes",
-      label: t("entities-tabular.source-type"),
+      label: t("source-type"),
       overflow: "ellipsis",
     },
     {
       id: "target-id",
       accessor: "targetDisplayId",
-      label: t("entities-tabular.target-id"),
+      label: t("target-id"),
       overflow: "ellipsis",
     },
     {
       id: "target-type",
       accessor: "targetDisplayTypes",
-      label: t("entities-tabular.target-type"),
+      label: t("target-type"),
       overflow: "ellipsis",
     },
   ];

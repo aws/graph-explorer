@@ -132,20 +132,20 @@ function SingleVertexMenu({ vertexId }: { vertexId: VertexId }) {
       <Divider />
       <ContextMenuItem onClick={handleExpand}>
         <ExpandGraphIcon />
-        Expand {t("graph-viewer.node").toLowerCase()}
+        Expand {t("node").toLowerCase()}
       </ContextMenuItem>
       <ContextMenuItem onClick={handleRefresh}>
         <RefreshCwIcon />
-        Refresh {t("graph-viewer.node").toLowerCase()}
+        Refresh {t("node").toLowerCase()}
       </ContextMenuItem>
       <Divider />
       <ContextMenuItem onClick={handleFit}>
         <FullscreenIcon />
-        Fit {t("graph-viewer.node").toLowerCase()} to frame
+        Fit {t("node").toLowerCase()} to frame
       </ContextMenuItem>
       <ContextMenuItem onClick={handleCenter}>
         <CenterGraphIcon />
-        Center {t("graph-viewer.node").toLowerCase()}
+        Center {t("node").toLowerCase()}
       </ContextMenuItem>
       <Divider />
       <ContextMenuItem onClick={openSidebarPanel("details")}>
@@ -158,12 +158,12 @@ function SingleVertexMenu({ vertexId }: { vertexId: VertexId }) {
       </ContextMenuItem>
       <ContextMenuItem onClick={handleOpenStyle}>
         <StylingIcon />
-        Customize {t("graph-viewer.node").toLowerCase()} style
+        Customize {t("node").toLowerCase()} style
       </ContextMenuItem>
       <Divider />
       <ContextMenuItem onClick={handleRemove}>
         <MinusCircleIcon color="red" />
-        Remove {t("graph-viewer.node").toLowerCase()} from view
+        Remove {t("node").toLowerCase()} from view
       </ContextMenuItem>
     </ContextMenuContent>
   );
@@ -203,16 +203,16 @@ function SingleEdgeMenu({ edgeId }: { edgeId: EdgeId }) {
       <Divider />
       <ContextMenuItem onClick={handleRefresh}>
         <RefreshCwIcon />
-        Refresh {t("graph-viewer.edge").toLowerCase()}
+        Refresh {t("edge").toLowerCase()}
       </ContextMenuItem>
       <Divider />
       <ContextMenuItem onClick={handleFit}>
         <FullscreenIcon />
-        Fit {t("graph-viewer.edge").toLowerCase()} to frame
+        Fit {t("edge").toLowerCase()} to frame
       </ContextMenuItem>
       <ContextMenuItem onClick={handleCenter}>
         <CenterGraphIcon />
-        Center {t("graph-viewer.edge").toLowerCase()}
+        Center {t("edge").toLowerCase()}
       </ContextMenuItem>
       <Divider />
       <ContextMenuItem onClick={openSidebarPanel("details")}>
@@ -221,12 +221,12 @@ function SingleEdgeMenu({ edgeId }: { edgeId: EdgeId }) {
       </ContextMenuItem>
       <ContextMenuItem onClick={handleOpenStyle}>
         <StylingIcon />
-        Customize {t("graph-viewer.edge").toLowerCase()} style
+        Customize {t("edge").toLowerCase()} style
       </ContextMenuItem>
       <Divider />
       <ContextMenuItem onClick={handleRemove}>
         <MinusCircleIcon color="red" />
-        Remove {t("graph-viewer.edge").toLowerCase()} from view
+        Remove {t("edge").toLowerCase()} from view
       </ContextMenuItem>
     </ContextMenuContent>
   );

@@ -121,7 +121,7 @@ export function createErrorNotification(
     );
 
     const displayQueryEngine = getTranslation(
-      "available-connections.graph-type",
+      "graph-type",
       error.connection.queryEngine,
     );
 

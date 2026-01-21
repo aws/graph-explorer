@@ -56,27 +56,27 @@ const EdgeDetail = ({ edge }: EdgeDetailProps) => {
       : []),
     {
       name: RESERVED_TYPES_PROPERTY,
-      displayLabel: t("entities-tabular.edge-type"),
+      displayLabel: t("edge-type"),
       displayValue: edge.displayTypes,
     },
     {
       name: "sourceVertex",
-      displayLabel: t("entities-tabular.source-id"),
+      displayLabel: t("source-id"),
       displayValue: sourceVertex.displayId,
     },
     {
       name: "sourceVertexType",
-      displayLabel: t("entities-tabular.source-type"),
+      displayLabel: t("source-type"),
       displayValue: sourceVertex.displayTypes,
     },
     {
       name: "targetVertex",
-      displayLabel: t("entities-tabular.target-id"),
+      displayLabel: t("target-id"),
       displayValue: targetVertex.displayId,
     },
     {
       name: "targetVertexType",
-      displayLabel: t("entities-tabular.target-type"),
+      displayLabel: t("target-type"),
       displayValue: targetVertex.displayTypes,
     },
     ...edge.attributes,

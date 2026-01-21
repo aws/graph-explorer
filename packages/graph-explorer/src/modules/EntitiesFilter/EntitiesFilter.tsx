@@ -30,10 +30,10 @@ function EntitiesFilter() {
         <SidebarTabs defaultValue="vertex">
           <SidebarTabsList>
             <SidebarTabsTrigger value="vertex">
-              {t("entities-filter.node-types")}
+              {t("node-types")}
             </SidebarTabsTrigger>
             <SidebarTabsTrigger value="edge">
-              {t("entities-filter.edge-types")}
+              {t("edge-types")}
             </SidebarTabsTrigger>
           </SidebarTabsList>
           <SidebarTabsContent value="vertex">

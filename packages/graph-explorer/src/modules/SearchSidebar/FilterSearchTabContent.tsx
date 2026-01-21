@@ -47,7 +47,7 @@ export function FilterSearchTabContent() {
       <div className="flex flex-col gap-4 p-3">
         <div className="grid w-full grid-cols-2 gap-4">
           <FormItem>
-            <Label htmlFor="nodeType">{t("keyword-search.node-type")}</Label>
+            <Label htmlFor="nodeType">{t("node-type")}</Label>
             <Select
               name="nodeType"
               value={selectedVertexType}
@@ -70,9 +70,7 @@ export function FilterSearchTabContent() {
             </Select>
           </FormItem>
           <FormItem>
-            <Label htmlFor="attribute">
-              {t("keyword-search.node-attribute")}
-            </Label>
+            <Label htmlFor="attribute">{t("property")}</Label>
             <Select
               name="attribute"
               value={selectedAttribute}
