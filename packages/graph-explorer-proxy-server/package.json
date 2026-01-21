@@ -23,7 +23,6 @@
     "date-fns": "^4.1.0",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
-    "fs": "0.0.1-security",
     "https": "^1.0.0",
     "node-fetch": "^3.3.2",
     "pino": "^10.1.0",

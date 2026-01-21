@@ -1,3 +1,7 @@
+---
+inclusion: always
+---
+
 # Graph Explorer Product Overview
 
 Graph Explorer is a React-based web application that enables users to visualize

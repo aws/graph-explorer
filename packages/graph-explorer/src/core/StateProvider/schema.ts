@@ -80,6 +80,17 @@ export const activeSchemaAtom = atom(get => {
   return get(schemaByIdAtom(id));
 });
 
+/**
+ * Hook to check if the active schema has been synchronized from the database.
+ *
+ * @returns True if the active schema has a lastUpdate timestamp, indicating
+ * it has been populated from a database schema query at least once.
+ */
+export function useHasActiveSchema() {
+  const activeSchema = useAtomValue(activeSchemaAtom);
+  return !!activeSchema.lastUpdate;
+}
+
 /** Gets the stored active schema or a default empty schema */
 export function useActiveSchema(): SchemaStorageModel {
   return useDeferredValue(useAtomValue(activeSchemaAtom));
@@ -95,6 +106,29 @@ export const prefixesAtom = atom(get => {
   const schema = get(activeSchemaAtom);
   return schema.prefixes ?? [];
 });
+
+/** Setter-only atom to update edge connections in the active schema. */
+export const setEdgeConnectionsAtom = atom(
+  null,
+  (get, set, edgeConnections: EdgeConnection[]) => {
+    const activeConfigId = get(activeConfigurationAtom);
+    if (!activeConfigId) {
+      return;
+    }
+    set(schemaAtom, prev => {
+      const activeSchema = prev.get(activeConfigId);
+      if (!activeSchema) {
+        return prev;
+      }
+      const updated = new Map(prev);
+      updated.set(activeConfigId, {
+        ...activeSchema,
+        edgeConnections,
+      });
+      return updated;
+    });
+  },
+);
 
 function createVertexSchema(vtConfig: VertexTypeConfig) {
   return {

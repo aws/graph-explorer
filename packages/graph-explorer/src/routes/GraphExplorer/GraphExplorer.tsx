@@ -1,9 +1,8 @@
 import { Resizable } from "re-resizable";
-import { Link } from "react-router";
 
 import {
   Button,
-  buttonStyles,
+  ConnectionsRouteButton,
   Divider,
   EmptyState,
   EmptyStateActions,
@@ -18,10 +17,11 @@ import {
   NavBarTitle,
   NavBarVersion,
   PanelGroup,
+  SchemaExplorerRouteButton,
   Workspace,
   WorkspaceContent,
 } from "@/components";
-import { DatabaseIcon, EmptyWidgetIcon, GraphIcon } from "@/components/icons";
+import { EmptyWidgetIcon, GraphIcon } from "@/components/icons";
 import GridIcon from "@/components/icons/GridIcon";
 import {
   DEFAULT_TABLE_VIEW_HEIGHT,
@@ -92,14 +92,11 @@ const GraphExplorer = () => {
               onClick={toggleTableVisibility}
             />
           </div>
+
           <Divider axis="vertical" className="h-[50%]" />
-          <Link
-            to="/connections"
-            className={cn(buttonStyles({ variant: "filled" }))}
-          >
-            <DatabaseIcon />
-            Open Connections
-          </Link>
+
+          <SchemaExplorerRouteButton />
+          <ConnectionsRouteButton variant="filled" />
         </NavBarActions>
       </NavBar>
 

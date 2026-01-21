@@ -1,34 +1,32 @@
 import { useQuery } from "@tanstack/react-query";
 import { useRef, useState } from "react";
-import { Link, useNavigate, useParams, useSearchParams } from "react-router";
+import { useNavigate, useParams, useSearchParams } from "react-router";
 
 import {
   Button,
-  buttonStyles,
   CheckIcon,
-  ChevronLeftIcon,
+  ConnectionsRouteButton,
   EmptyState,
   EmptyStateContent,
   EmptyStateDescription,
   EmptyStateTitle,
+  GraphExplorerRouteButton,
   NavBar,
   NavBarActions,
   NavBarContent,
   NavBarTitle,
   NavBarVersion,
   Panel,
+  PanelEmptyState,
   PanelError,
   PanelGroup,
   PanelHeader,
-  PanelHeaderActions,
-  PanelTitle,
   SelectField,
   SendIcon,
   Spinner,
   Workspace,
   WorkspaceContent,
 } from "@/components";
-import { ExplorerIcon } from "@/components/icons";
 import {
   type ColumnDefinition,
   PaginationControl,
@@ -55,7 +53,6 @@ import { useVertexStyling } from "@/core/StateProvider/userPreferences";
 import { useAddVertexToGraph, useHasVertexBeenAddedToGraph } from "@/hooks";
 import useTranslations from "@/hooks/useTranslations";
 import useUpdateVertexTypeCounts from "@/hooks/useUpdateVertexTypeCounts";
-import { cn } from "@/utils";
 import {
   LABELS,
   RESERVED_ID_PROPERTY,
@@ -131,47 +128,28 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
         </NavBarContent>
         <NavBarActions>
           <NavBarVersion>{__GRAPH_EXP_VERSION__}</NavBarVersion>
-          <Link
-            to="/graph-explorer"
-            className={cn(buttonStyles({ variant: "filled" }))}
-          >
-            <ExplorerIcon />
-            Open {LABELS.APP_NAME}
-          </Link>
-        </NavBarActions>
-      </NavBar>
-      <NavBar>
-        <NavBarContent>
-          <Link to="/connections" className={cn(buttonStyles())}>
-            <ChevronLeftIcon />
-            Back to all Data
-          </Link>
-        </NavBarContent>
-        <NavBarActions>
-          <SelectField
-            className="w-[200px]"
-            value={vertexType}
-            onValueChange={onVertexTypeChange}
-            options={vertexTypeOptions}
-            label={t("node-type")}
-            labelPlacement="inner"
-          />
-          <DisplayNameAndDescriptionOptions vertexType={vertexType} />
+          <ConnectionsRouteButton />
+          <GraphExplorerRouteButton variant="filled" />
         </NavBarActions>
       </NavBar>
       <WorkspaceContent>
         <PanelGroup className="grid">
           <Panel>
-            <PanelHeader>
-              <PanelTitle className="flex flex-row items-center gap-2">
-                {displayTypeConfig.displayLabel}{" "}
-                {query.isFetching ? <Spinner /> : null}
-              </PanelTitle>
-              {tableInstance ? (
-                <PanelHeaderActions>
+            <PanelHeader className="justify-between py-3">
+              <SelectField
+                className="w-64"
+                value={vertexType}
+                onValueChange={onVertexTypeChange}
+                options={vertexTypeOptions}
+                label={t("node-type")}
+                labelPlacement="inner"
+              />
+              <div className="flex items-center gap-2">
+                <DisplayNameAndDescriptionOptions vertexType={vertexType} />
+                {tableInstance ? (
                   <ExternalExportControl instance={tableInstance} />
-                </PanelHeaderActions>
-              ) : null}
+                ) : null}
+              </div>
             </PanelHeader>
             <Tabular
               ref={instance => {
@@ -189,6 +167,9 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
               disableSorting={true}
             >
               <TabularEmptyBodyControls>
+                {query.isPending ? (
+                  <PanelEmptyState title="Loading data..." icon={<Spinner />} />
+                ) : null}
                 {query.isError ? (
                   <PanelError error={query.error} onRetry={query.refetch} />
                 ) : null}

@@ -1,9 +1,8 @@
 import { useAtomValue } from "jotai";
 import { useState } from "react";
-import { Link } from "react-router";
 
 import {
-  buttonStyles,
+  GraphExplorerRouteButton,
   NavBar,
   NavBarActions,
   NavBarContent,
@@ -13,17 +12,16 @@ import {
   PanelContent,
   PanelEmptyState,
   PanelGroup,
+  SchemaExplorerRouteButton,
+  SettingsRouteButton,
   Workspace,
   WorkspaceContent,
 } from "@/components";
-import { ExplorerIcon, GearIcon } from "@/components/icons";
 import GraphExplorerIcon from "@/components/icons/GraphExplorerIcon";
 import { configurationAtom, useConfiguration } from "@/core";
 import { useIsSyncing } from "@/hooks/useSchemaSync";
 import AvailableConnections from "@/modules/AvailableConnections";
 import ConnectionDetail from "@/modules/ConnectionDetail";
-import { cn } from "@/utils";
-import { LABELS } from "@/utils/constants";
 
 export default function Connections() {
   const config = useConfiguration();
@@ -43,24 +41,9 @@ export default function Connections() {
         <NavBarActions>
           <NavBarVersion>{__GRAPH_EXP_VERSION__}</NavBarVersion>
           <div className="flex gap-2">
-            <Link
-              to="/settings/general"
-              className={cn(buttonStyles({ variant: "default" }))}
-            >
-              <GearIcon />
-              Settings
-            </Link>
-
-            <Link
-              to={
-                !config?.schema?.lastUpdate ? "/connections" : "/graph-explorer"
-              }
-              className={cn(buttonStyles({ variant: "filled" }))}
-              aria-disabled={!config?.schema?.lastUpdate}
-            >
-              <ExplorerIcon />
-              Open {LABELS.APP_NAME}
-            </Link>
+            <SettingsRouteButton />
+            <SchemaExplorerRouteButton />
+            <GraphExplorerRouteButton variant="filled" />
           </div>
         </NavBarActions>
       </NavBar>

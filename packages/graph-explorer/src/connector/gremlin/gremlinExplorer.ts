@@ -10,6 +10,7 @@ import type { GraphSummary, GremlinFetch } from "./types";
 
 import { fetchDatabaseRequest } from "../fetchDatabaseRequest";
 import { edgeDetails } from "./edgeDetails";
+import fetchEdgeConnections from "./fetchEdgeConnections";
 import fetchNeighbors from "./fetchNeighbors";
 import fetchSchema from "./fetchSchema";
 import fetchVertexTypeCounts from "./fetchVertexTypeCounts";
@@ -150,6 +151,13 @@ export function createGremlinExplorer(
         req,
       );
       return result;
+    },
+    async fetchEdgeConnections(req, options) {
+      remoteLogger.info("[Gremlin Explorer] Fetching edge connections...");
+      return fetchEdgeConnections(
+        _gremlinFetch(connection, featureFlags, options),
+        req,
+      );
     },
   } satisfies Explorer;
 }

@@ -19,6 +19,7 @@ import type {
 
 import { fetchDatabaseRequest } from "../fetchDatabaseRequest";
 import { edgeDetails } from "./edgeDetails";
+import fetchEdgeConnections from "./fetchEdgeConnections";
 import fetchNeighbors from "./fetchNeighbors";
 import { replaceBlankNodeFromNeighbors } from "./fetchNeighbors/replaceBlankNodeFromNeighbors";
 import { storedBlankNodeNeighborsRequest } from "./fetchNeighbors/storedBlankNodeNeighborsRequest";
@@ -189,6 +190,13 @@ export function createSparqlExplorer(
     async rawQuery(req, options) {
       remoteLogger.info("[SPARQL Explorer] Fetching raw query...");
       return await rawQuery(
+        _sparqlFetch(connection, featureFlags, options),
+        req,
+      );
+    },
+    async fetchEdgeConnections(req, options) {
+      remoteLogger.info("[SPARQL Explorer] Fetching edge connections...");
+      return fetchEdgeConnections(
         _sparqlFetch(connection, featureFlags, options),
         req,
       );

@@ -12,7 +12,7 @@ import {
 const ANIMATION_DURATION = 150;
 const ANIMATION_EASING = "ease-in-out-cubic";
 
-const useGraphGlobalActions = () => {
+export function useGraphGlobalActions() {
   const graphRef = useGraphRef();
   const [isZoomInDisabled, setIsZoomInDisabled] = useState(false);
   const [isZoomOutDisabled, setIsZoomOutDisabled] = useState(false);
@@ -242,6 +242,4 @@ const useGraphGlobalActions = () => {
     isZoomInDisabled,
     isZoomOutDisabled,
   };
-};
-
-export default useGraphGlobalActions;
+}

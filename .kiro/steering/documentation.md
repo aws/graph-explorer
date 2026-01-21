@@ -1,3 +1,8 @@
+---
+inclusion: fileMatch
+fileMatchPattern: "{**/*.md,additionaldocs/**}"
+---
+
 # Project Documentation Standards
 
 ## Writing Style & Tone
@@ -42,7 +47,7 @@
 
 ### Assumptions & Prerequisites
 
-- **System Requirements**: Always specify Node.js version (>=24.4.0), OS
+- **System Requirements**: Always specify Node.js version (>=24.13.0), OS
   compatibility
 - **Dependencies**: List required software (Docker, pnpm, AWS CLI if needed)
 - **Access Requirements**: Database endpoints, AWS credentials, network access
@@ -58,7 +63,10 @@
 
 ## File Organization
 
-### Documentation Structure
+### Documentation Structure (Aspirational)
+
+The following structure is the recommended organization for documentation. The
+actual `additionaldocs/` folder may not yet match this structure completely.
 
 ```
 README.md                           # Project overview and quick start
@@ -215,7 +223,7 @@ Get Graph Explorer running in under 5 minutes:
 
 ## Prerequisites
 
-- Docker (for containerized deployment) OR Node.js >=24.4.0 + pnpm
+- Docker (for containerized deployment) OR Node.js >=24.13.0 + pnpm
 - Graph database endpoint (Neptune, TinkerPop, etc.)
 - Network access to your database
 - AWS credentials (if using Neptune with IAM auth)
