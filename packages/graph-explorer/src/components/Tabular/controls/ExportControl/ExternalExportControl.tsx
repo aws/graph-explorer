@@ -24,10 +24,14 @@ const EXCLUDED_COLUMN_IDS = ["__send_to_explorer"];
 
 type ExportControlProps<T extends Record<string, unknown>> = {
   instance: TabularInstance<T>;
+  hideIncludeFiltersCheckbox?: boolean;
+  forceOnlyPage?: boolean;
 };
 
 export function ExternalExportControl<T extends Record<string, unknown>>({
   instance,
+  hideIncludeFiltersCheckbox,
+  forceOnlyPage,
 }: ExportControlProps<T>) {
   const [opened, setOpened] = useState(false);
 
@@ -44,6 +48,8 @@ export function ExternalExportControl<T extends Record<string, unknown>>({
         <ExportOptionsModal
           instance={instance}
           onClose={() => setOpened(false)}
+          forceOnlyPage={forceOnlyPage}
+          hideIncludeFiltersCheckbox={hideIncludeFiltersCheckbox}
         />
       </PopoverContent>
     </Popover>
@@ -54,7 +60,11 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
   instance,
   onClose,
   forceOnlyPage = false,
-}: ExportControlProps<T> & { onClose: () => void; forceOnlyPage?: boolean }) {
+  hideIncludeFiltersCheckbox = false,
+}: ExportControlProps<T> & {
+  onClose: () => void;
+  forceOnlyPage?: boolean;
+}) {
   const { rows, data, page, columns, columnOrder, visibleColumns } = instance;
   const [format, setFormat] = useState("csv");
   const [name, setName] = useState<string>("");
@@ -141,19 +151,21 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
       <div className="space-y-3">
         <div className="text-base font-medium">Options</div>
         <div className="flex flex-col gap-2">
-          <Label className="text-text-primary">
-            <Checkbox
-              aria-label="Keep filtering and sorting"
-              checked={options["include-filters"]}
-              onCheckedChange={isSelected => {
-                setOptions(prev => ({
-                  ...prev,
-                  "include-filters": Boolean(isSelected),
-                }));
-              }}
-            />
-            Keep filtering and sorting
-          </Label>
+          {hideIncludeFiltersCheckbox ? null : (
+            <Label className="text-text-primary">
+              <Checkbox
+                aria-label="Keep filtering and sorting"
+                checked={options["include-filters"]}
+                onCheckedChange={isSelected => {
+                  setOptions(prev => ({
+                    ...prev,
+                    "include-filters": Boolean(isSelected),
+                  }));
+                }}
+              />
+              Keep filtering and sorting
+            </Label>
+          )}
           <Label className="text-text-primary">
             <Checkbox
               aria-label="Only current page"

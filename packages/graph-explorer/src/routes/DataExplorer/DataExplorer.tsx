@@ -147,7 +147,11 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
               <div className="flex items-center gap-2">
                 <DisplayNameAndDescriptionOptions vertexType={vertexType} />
                 {tableInstance ? (
-                  <ExternalExportControl instance={tableInstance} />
+                  <ExternalExportControl
+                    instance={tableInstance}
+                    hideIncludeFiltersCheckbox
+                    forceOnlyPage
+                  />
                 ) : null}
               </div>
             </PanelHeader>
