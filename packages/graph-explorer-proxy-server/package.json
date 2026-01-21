@@ -1,6 +1,6 @@
 {
   "name": "graph-explorer-proxy-server",
-  "version": "2.5.1",
+  "version": "2.5.2",
   "description": "Server to facilitate communication between the browser and the supported graph database.",
   "main": "dist/node-server.js",
   "type": "module",
@@ -23,7 +23,6 @@
     "date-fns": "^4.1.0",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
-    "fs": "0.0.1-security",
     "https": "^1.0.0",
     "node-fetch": "^3.3.2",
     "pino": "^10.1.0",

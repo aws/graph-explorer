@@ -1,9 +1,9 @@
 {
   "name": "graph-explorer",
-  "version": "2.5.1",
+  "version": "2.5.2",
   "description": "Graph Explorer",
   "engines": {
-    "node": ">=24.4.0"
+    "node": ">=24.13.0"
   },
   "type": "module",
   "scripts": {
