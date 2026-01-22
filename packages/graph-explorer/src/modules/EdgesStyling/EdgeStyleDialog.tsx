@@ -25,7 +25,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/Dialog";
-import { type EdgeType, useDisplayEdgeTypeConfig } from "@/core";
+import {
+  type EdgeType,
+  useDisplayEdgeTypeConfig,
+  useQueryEngine,
+} from "@/core";
 import {
   type ArrowStyle,
   type LineStyle,
@@ -69,9 +73,12 @@ export function EdgeStyleDialog() {
 function Content({ edgeType }: { edgeType: EdgeType }) {
   const displayConfig = useDisplayEdgeTypeConfig(edgeType);
   const t = useTranslations();
+  const queryEngine = useQueryEngine();
 
   const { edgeStyle, setEdgeStyle, resetEdgeStyle } = useEdgeStyling(edgeType);
 
+  // In SPARQL there are no edge attributes, so predicate is the only and default option
+  const hideDisplayNameAttribute = queryEngine === "sparql";
   const selectOptions = (() => {
     const options = displayConfig.attributes.map(attr => ({
       value: attr.name,
@@ -97,28 +104,31 @@ function Content({ edgeType }: { edgeType: EdgeType }) {
         </DialogHeader>
         <DialogBody>
           <FieldSet>
-            <FieldGroup>
-              <Field>
-                <FieldLabel>Display Name {t("property")}</FieldLabel>
-                <Select
-                  value={edgeStyle.displayNameAttribute}
-                  onValueChange={value =>
-                    setEdgeStyle({ displayNameAttribute: value })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a display attribute" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {selectOptions.map(option => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </Field>
-            </FieldGroup>
+            {hideDisplayNameAttribute ? null : (
+              <FieldGroup>
+                <Field>
+                  <FieldLabel>Display Name {t("property")}</FieldLabel>
+                  <Select
+                    value={edgeStyle.displayNameAttribute}
+                    onValueChange={value =>
+                      setEdgeStyle({ displayNameAttribute: value })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a display attribute" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {selectOptions.map(option => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
+              </FieldGroup>
+            )}
+
             <FieldSet>
               <FieldLegend>Label Styling</FieldLegend>
               <FieldGroup className="grid grid-cols-2 gap-4">
