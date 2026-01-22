@@ -8,11 +8,7 @@ import {
   type DisplayAttribute,
   type DisplayEdge,
 } from "@/core";
-import {
-  createRandomQueryEngine,
-  DbState,
-  renderHookWithState,
-} from "@/utils/testing";
+import { DbState, renderHookWithState } from "@/utils/testing";
 
 import { useEdgeAttributesAsScalars } from "./useEdgeAttributesAsScalars";
 
@@ -48,20 +44,19 @@ describe("useEdgeAttributesAsScalars", () => {
     dbState = new DbState();
   });
 
-  describe("Gremlin/OpenCypher", () => {
+  describe("Gremlin", () => {
     beforeEach(() => {
-      dbState.activeConfig.connection!.queryEngine =
-        createRandomQueryEngine("pg");
+      dbState.activeConfig.connection!.queryEngine = "gremlin";
     });
 
-    it("should return ID, Label, and attributes for edge with unique ID", () => {
+    it("should return ID, Edge Label, and attributes for edge with unique ID", () => {
       const { result } = renderHookWithState(
         () => useEdgeAttributesAsScalars(edge),
         dbState,
       );
 
       const scalars = result.current;
-      expect(scalars).toHaveLength(4); // ID + Label + 2 attributes
+      expect(scalars).toHaveLength(4); // ID + Edge Label + 2 attributes
 
       expect(scalars[0]).toEqual(
         createResultScalar({
@@ -93,7 +88,6 @@ describe("useEdgeAttributesAsScalars", () => {
     });
 
     it("should not include ID for edge without unique ID", () => {
-      dbState.activeConfig.connection!.queryEngine = "gremlin";
       const edgeWithoutId = {
         ...edge,
         hasUniqueId: false,
@@ -105,11 +99,77 @@ describe("useEdgeAttributesAsScalars", () => {
       );
 
       const scalars = result.current;
-      expect(scalars).toHaveLength(3); // Label + 2 attributes (no ID)
+      expect(scalars).toHaveLength(3); // Edge Label + 2 attributes (no ID)
 
       expect(scalars[0]).toEqual(
         createResultScalar({
           name: "Edge Label",
+          value: "knows",
+        }),
+      );
+    });
+  });
+
+  describe("openCypher", () => {
+    beforeEach(() => {
+      dbState.activeConfig.connection!.queryEngine = "openCypher";
+    });
+
+    it("should return ID, Relationship Type, and attributes for edge with unique ID", () => {
+      const { result } = renderHookWithState(
+        () => useEdgeAttributesAsScalars(edge),
+        dbState,
+      );
+
+      const scalars = result.current;
+      expect(scalars).toHaveLength(4); // ID + Relationship Type + 2 attributes
+
+      expect(scalars[0]).toEqual(
+        createResultScalar({
+          name: "ID",
+          value: "edge-1",
+        }),
+      );
+
+      expect(scalars[1]).toEqual(
+        createResultScalar({
+          name: "Relationship Type",
+          value: "knows",
+        }),
+      );
+
+      expect(scalars[2]).toEqual(
+        createResultScalar({
+          name: "Since",
+          value: "2020",
+        }),
+      );
+
+      expect(scalars[3]).toEqual(
+        createResultScalar({
+          name: "Weight",
+          value: "0.8",
+        }),
+      );
+    });
+
+    it("should not include ID for edge without unique ID", () => {
+      const edgeWithoutId = {
+        ...edge,
+        hasUniqueId: false,
+      };
+
+      const { result } = renderHookWithState(
+        () => useEdgeAttributesAsScalars(edgeWithoutId),
+        dbState,
+      );
+
+      const scalars = result.current;
+      expect(scalars).toHaveLength(3); // Relationship Type + 2 attributes (no ID)
+
+      expect(scalars[0]).toEqual(
+        createResultScalar({
+          name: "Relationship Type",
           value: "knows",
         }),
       );

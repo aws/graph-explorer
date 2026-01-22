@@ -260,7 +260,7 @@ const CreateConnection = ({
           />
         </FormItem>
         <FormItem>
-          <Label>Graph Type</Label>
+          <Label>Query Language</Label>
           <SelectField
             options={CONNECTIONS_OP}
             value={form.queryEngine}

@@ -131,8 +131,8 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
               <GlobeIcon />
             </InfoItemIcon>
             <InfoItemContent>
-              <InfoItemLabel>Graph Type</InfoItemLabel>
-              <InfoItemValue>{t("graph-type")}</InfoItemValue>
+              <InfoItemLabel>Query Language</InfoItemLabel>
+              <InfoItemValue>{t("query-language")}</InfoItemValue>
             </InfoItemContent>
           </InfoItem>
           <InfoItem>

@@ -123,7 +123,7 @@ export function createErrorNotification(
     );
 
     const displayQueryEngine = getTranslation(
-      "graph-type",
+      "query-language",
       error.connection.queryEngine,
     );
 
@@ -132,7 +132,7 @@ export function createErrorNotification(
       return `The graph file requires switching to connection ${matchingConnection.displayLabel}.`;
     } else {
       const dbUrl = error.connection.dbUrl;
-      return `The graph file requires a connection to ${dbUrl} using the graph type ${displayQueryEngine}.`;
+      return `The graph file requires a connection to ${dbUrl} using the query language ${displayQueryEngine}.`;
     }
   }
   return "Failed to load the graph because an error occurred.";

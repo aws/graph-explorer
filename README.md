@@ -98,7 +98,7 @@ defaults, and their descriptions.
     [Add a New Connection](#connections-ui)
 - Optional
   - `GRAPH_TYPE` - `None` - If not specified, multiple connections will be
-    created for every available graph type / query language. See
+    created for every available query language. See
     [Add a New Connection](#connections-ui)
   - `USING_PROXY_SERVER` - `False` - See [Add a New Connection](#connections-ui)
   - `IAM` - `False` - See [Add a New Connection](#connections-ui)

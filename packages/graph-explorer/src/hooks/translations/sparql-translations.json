@@ -15,7 +15,7 @@
   "target-type": "Target Class",
   "property": "Datatype Property",
   "properties": "Datatype Properties",
-  "graph-type": "RDF-SPARQL",
+  "query-language": "RDF-SPARQL",
 
   "nodes-styling": {
     "title": "Resource Styling"
