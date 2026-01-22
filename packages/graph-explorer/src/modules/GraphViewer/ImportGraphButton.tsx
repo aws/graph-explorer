@@ -8,8 +8,9 @@ import { FileButton, PanelHeaderActionButton, Spinner } from "@/components";
 import { fetchEntityDetails, notifyOnIncompleteRestoration } from "@/connector";
 import { configurationAtom, type ConnectionWithId, useExplorer } from "@/core";
 import { useAddToGraph } from "@/hooks";
+import { useEntityCountFormatterCallback } from "@/hooks/useEntityCountFormatter";
 import { getTranslation } from "@/hooks/useTranslations";
-import { formatEntityCounts, logger } from "@/utils";
+import { logger } from "@/utils";
 import { fromFileToJson } from "@/utils/fileData";
 
 import {
@@ -40,6 +41,7 @@ function useImportGraphMutation() {
   const queryClient = useQueryClient();
   const explorer = useExplorer();
   const addToGraph = useAddToGraph();
+  const formatEntityCounts = useEntityCountFormatterCallback();
   const allConfigs = useAtomValue(configurationAtom);
   const allConnections = allConfigs
     .values()

@@ -10,7 +10,8 @@ import {
   useAvailablePreviousSession,
   useRestoreGraphSession,
 } from "@/core";
-import { cn, formatEntityCounts } from "@/utils";
+import { useFormattedEntityCounts } from "@/hooks/useEntityCountFormatter";
+import { cn } from "@/utils";
 
 export function GraphViewerEmptyState(props: ComponentPropsWithRef<"div">) {
   const availablePrevSession = useAvailablePreviousSession();
@@ -35,7 +36,7 @@ function RestorePreviousSessionEmptyState({
 } & ComponentPropsWithRef<"div">) {
   const restore = useRestoreGraphSession();
 
-  const entityCounts = formatEntityCounts(
+  const entityCounts = useFormattedEntityCounts(
     prevSession.vertices.size,
     prevSession.edges.size,
   );
