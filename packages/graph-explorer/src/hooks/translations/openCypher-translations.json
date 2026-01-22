@@ -15,7 +15,7 @@
   "target-type": "Target Label",
   "property": "Property",
   "properties": "Properties",
-  "graph-type": "PG-openCypher",
+  "query-language": "PG-openCypher",
 
   "nodes-styling": {
     "title": "Node Label Styling"

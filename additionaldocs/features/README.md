@@ -35,7 +35,7 @@ to add a new connection. You can also edit and delete connections.
 
 - **Add a new connection:**
   - **Name:** Enter a name for your connection (e.g., `MyNeptuneCluster`).
-  - **Graph Type:** Choose a graph data model that corresponds to your graph
+  - **Query Language:** Choose a query language that corresponds to your graph
     database.
   - **Public or proxy endpoint:** Provide the publicly accessible endpoint URL
     for a graph database, e.g., Gremlin Server. If connecting to Amazon Neptune,

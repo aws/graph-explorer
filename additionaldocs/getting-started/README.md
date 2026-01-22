@@ -91,7 +91,7 @@ It comes with a very small graph dataset.
    ```
 3. Open Graph Explorer and add a new connection
    - Name: `Gremlin Server`
-   - Graph Type: `Gremlin`
+   - Query Language: `Gremlin`
    - Public or Proxy Endpoint: `https://localhost`
    - Using Proxy Server: `true`
    - Graph Connection URL: `http://localhost:8182`

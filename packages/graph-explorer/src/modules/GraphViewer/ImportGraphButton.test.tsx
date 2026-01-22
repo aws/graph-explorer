@@ -47,7 +47,7 @@ describe("createErrorNotification", () => {
     const notification = createErrorNotification(error, file, allConnections);
 
     expect(notification).toBe(
-      `The graph file requires a connection to ${connection.dbUrl} using the graph type PG-Gremlin.`,
+      `The graph file requires a connection to ${connection.dbUrl} using the query language PG-Gremlin.`,
     );
   });
 
@@ -61,7 +61,7 @@ describe("createErrorNotification", () => {
     const notification = createErrorNotification(error, file, allConnections);
 
     expect(notification).toBe(
-      `The graph file requires a connection to ${connection.dbUrl} using the graph type RDF-SPARQL.`,
+      `The graph file requires a connection to ${connection.dbUrl} using the query language RDF-SPARQL.`,
     );
   });
 
@@ -75,7 +75,7 @@ describe("createErrorNotification", () => {
     const notification = createErrorNotification(error, file, allConnections);
 
     expect(notification).toBe(
-      `The graph file requires a connection to ${connection.dbUrl} using the graph type PG-openCypher.`,
+      `The graph file requires a connection to ${connection.dbUrl} using the query language PG-openCypher.`,
     );
   });
 

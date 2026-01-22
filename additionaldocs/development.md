@@ -30,7 +30,7 @@ manager used for the project is consistent.
 corepack enable
 ```
 
-### Supported Graph Types
+### Supported Graph Data Models and Query Languages
 
 - Labelled Property Graph (PG) using Gremlin or openCypher
 - Resource Description Framework (RDF) using SPARQL
