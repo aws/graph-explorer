@@ -3,7 +3,8 @@ import { toast } from "sonner";
 
 import { fetchEntityDetails, notifyOnIncompleteRestoration } from "@/connector";
 import { useAddToGraph } from "@/hooks";
-import { formatEntityCounts, logger } from "@/utils";
+import { useEntityCountFormatterCallback } from "@/hooks/useEntityCountFormatter";
+import { logger } from "@/utils";
 import { createDisplayError } from "@/utils/createDisplayError";
 
 import type { GraphSessionStorageModel } from "./storage";
@@ -14,6 +15,7 @@ import type { GraphSessionStorageModel } from "./storage";
 export function useRestoreGraphSession() {
   const queryClient = useQueryClient();
   const addToGraph = useAddToGraph();
+  const formatEntityCounts = useEntityCountFormatterCallback();
 
   const mutation = useMutation({
     mutationFn: async (graph: GraphSessionStorageModel) => {
