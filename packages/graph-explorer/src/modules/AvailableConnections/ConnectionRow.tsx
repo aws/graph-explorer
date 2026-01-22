@@ -31,7 +31,7 @@ function ConnectionRow({
     : null;
 
   const graphType = t(
-    "available-connections.graph-type",
+    "graph-type",
     connection.connection?.queryEngine || "gremlin",
   );
 

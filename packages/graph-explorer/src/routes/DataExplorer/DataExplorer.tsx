@@ -205,11 +205,11 @@ function DisplayNameAndDescriptionOptions({
     }));
 
     options.unshift({
-      label: t("data-explorer.node-type"),
+      label: t("node-type"),
       value: RESERVED_TYPES_PROPERTY,
     });
     options.unshift({
-      label: t("data-explorer.node-id"),
+      label: t("node-id"),
       value: RESERVED_ID_PROPERTY,
     });
 
@@ -281,7 +281,7 @@ function useColumnDefinitions(vertexType: VertexType) {
           LABELS.MISSING_VALUE,
       }));
     vtColumns.unshift({
-      label: t("data-explorer.node-id"),
+      label: t("node-id"),
       id: SEARCH_TOKENS.NODE_ID,
       accessor: row => row.displayId,
       filterable: false,

@@ -79,7 +79,7 @@ function Content({ edgeType }: { edgeType: EdgeType }) {
     }));
 
     options.unshift({
-      label: t("edges-styling.edge-type"),
+      label: t("edge-type"),
       value: RESERVED_TYPES_PROPERTY,
     });
 

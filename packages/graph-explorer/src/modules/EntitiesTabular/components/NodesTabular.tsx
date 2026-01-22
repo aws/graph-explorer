@@ -67,14 +67,14 @@ function NodesTabular({ ref }: NodesTabularProps) {
     {
       id: "node-id",
       accessor: "displayId",
-      label: t("entities-tabular.node-id"),
+      label: t("node-id"),
       overflow: "ellipsis",
       oneLine: true,
     },
     {
       id: "node-type",
       accessor: "displayTypes",
-      label: t("entities-tabular.node-type"),
+      label: t("node-type"),
       filter: (rows, _columnIds, filterValue) =>
         rows.filter(row =>
           row.original.displayTypes

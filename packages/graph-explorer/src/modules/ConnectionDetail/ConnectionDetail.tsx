@@ -132,7 +132,7 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
             </InfoItemIcon>
             <InfoItemContent>
               <InfoItemLabel>Graph Type</InfoItemLabel>
-              <InfoItemValue>{t("connection-detail.graph-type")}</InfoItemValue>
+              <InfoItemValue>{t("graph-type")}</InfoItemValue>
             </InfoItemContent>
           </InfoItem>
           <InfoItem>
@@ -272,7 +272,7 @@ function VertexCounts() {
         <GraphIcon />
       </InfoItemIcon>
       <InfoItemContent>
-        <InfoItemLabel>{t("connection-detail.nodes")}</InfoItemLabel>
+        <InfoItemLabel>{t("nodes")}</InfoItemLabel>
         <InfoItemValue>{humanReadable}</InfoItemValue>
       </InfoItemContent>
     </InfoItem>
@@ -292,7 +292,7 @@ function EdgeCounts() {
         <EdgeIcon />
       </InfoItemIcon>
       <InfoItemContent>
-        <InfoItemLabel>{t("connection-detail.edges")}</InfoItemLabel>
+        <InfoItemLabel>{t("edges")}</InfoItemLabel>
         <InfoItemValue>{humanReadable}</InfoItemValue>
       </InfoItemContent>
     </InfoItem>

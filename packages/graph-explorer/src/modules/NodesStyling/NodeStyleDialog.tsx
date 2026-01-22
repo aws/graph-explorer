@@ -98,11 +98,11 @@ function Content({ vertexType }: { vertexType: VertexType }) {
     }));
 
     options.unshift({
-      label: t("nodes-styling.node-type"),
+      label: t("node-type"),
       value: RESERVED_TYPES_PROPERTY,
     });
     options.unshift({
-      label: t("nodes-styling.node-id"),
+      label: t("node-id"),
       value: RESERVED_ID_PROPERTY,
     });
 
@@ -227,7 +227,7 @@ function Content({ vertexType }: { vertexType: VertexType }) {
             <FieldGroup>
               <div className="grid grid-cols-2 gap-4">
                 <Field>
-                  <FieldLabel>{t("graph-viewer.node")} Color</FieldLabel>
+                  <FieldLabel>{t("node")} Color</FieldLabel>
                   <ColorPopover
                     color={vertexStyle.color}
                     onColorChange={(color: string) => setVertexStyle({ color })}

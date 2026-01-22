@@ -1,48 +1,38 @@
 {
+  "node": "Node",
+  "nodes": "Nodes",
+  "edge": "Edge",
+  "edges": "Edges",
   "node-id": "Node Id",
   "node-type": "Node Label",
   "node-types": "Node Labels",
   "edge-id": "Edge Id",
   "edge-type": "Edge Label",
   "edge-types": "Edge Labels",
+  "source-id": "Source Id",
+  "source-type": "Source Label",
+  "target-id": "Target Id",
+  "target-type": "Target Label",
   "property": "Attribute",
   "properties": "Attributes",
+  "graph-type": "PG-openCypher",
 
-  "available-connections": {
-    "graph-type": "PG-openCypher"
+  "nodes-styling": {
+    "title": "Node Styling"
   },
-  "graph-viewer": {
-    "node": "Node",
-    "edge": "Edge"
+  "edges-styling": {
+    "title": "Edge Styling"
+  },
+  "keyword-search": {
+    "node-type-placeholder": "Select a node label",
+    "node-attribute-placeholder": "Select an attribute"
   },
   "connection-detail": {
-    "graph-type": "PG-openCypher",
-    "nodes": "Nodes",
-    "edges": "Edges",
     "search-placeholder": "Search for node label",
     "no-search-title": "No Node Labels",
     "no-search-subtitle": "No node labels found with searched criteria",
     "no-elements-title": "No Nodes",
     "no-elements-subtitle": "No nodes found to be shown in this list"
-  },
-  "nodes-styling": {
-    "title": "Node Styling",
-    "node-id": "Node Id",
-    "node-type": "Node Label"
-  },
-  "edges-styling": {
-    "title": "Edge Styling",
-    "edge-type": "Edge Label"
-  },
-  "keyword-search": {
-    "node-type": "Node label",
-    "node-type-placeholder": "Select a node label",
-    "node-attribute": "Attribute",
-    "node-attribute-placeholder": "Select an attribute"
-  },
-  "entities-filter": {
-    "node-types": "Node Labels",
-    "edge-types": "Edge Labels"
   },
   "node-expand": {
     "edge-selection-title": "Edge Selection",
@@ -60,18 +50,7 @@
   "entities-tabular": {
     "all-nodes": "All Nodes",
     "all-edges": "All Edges",
-    "node-id": "Node Id",
-    "node-type": "Node Label",
     "nodes-placeholder": "Add a node in the Graph View to see its data",
-    "edge-type": "Edge Label",
-    "source-id": "Source Id",
-    "source-type": "Source Label",
-    "target-id": "Target Id",
-    "target-type": "Target Label",
     "edges-placeholder": "Add a node in the Graph View to see its connections"
-  },
-  "data-explorer": {
-    "node-id": "Node Id",
-    "node-type": "Node Label"
   }
 }
