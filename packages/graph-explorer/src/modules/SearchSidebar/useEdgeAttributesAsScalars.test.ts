@@ -93,6 +93,7 @@ describe("useEdgeAttributesAsScalars", () => {
     });
 
     it("should not include ID for edge without unique ID", () => {
+      dbState.activeConfig.connection!.queryEngine = "gremlin";
       const edgeWithoutId = {
         ...edge,
         hasUniqueId: false,

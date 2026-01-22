@@ -91,7 +91,7 @@ function EntitiesTabular() {
                   setSelectedTable(tableId as TableId);
                 }}
               >
-                <SelectTrigger className="w-36">
+                <SelectTrigger className="w-48">
                   <SelectValue placeholder="Select an entity type" />
                 </SelectTrigger>
                 <SelectContent>

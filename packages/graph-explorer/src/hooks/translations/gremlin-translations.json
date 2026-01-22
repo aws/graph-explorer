@@ -13,19 +13,19 @@
   "source-type": "Source Label",
   "target-id": "Target Id",
   "target-type": "Target Label",
-  "property": "Attribute",
-  "properties": "Attributes",
+  "property": "Property",
+  "properties": "Properties",
   "graph-type": "PG-Gremlin",
 
   "nodes-styling": {
-    "title": "Node Styling"
+    "title": "Node Label Styling"
   },
   "edges-styling": {
-    "title": "Edge Styling"
+    "title": "Edge Label Styling"
   },
   "keyword-search": {
     "node-type-placeholder": "Select a node label",
-    "node-attribute-placeholder": "Select an attribute"
+    "node-attribute-placeholder": "Select a property"
   },
   "connection-detail": {
     "search-placeholder": "Search for node label",

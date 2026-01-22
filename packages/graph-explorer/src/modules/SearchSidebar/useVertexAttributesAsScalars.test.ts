@@ -109,7 +109,7 @@ describe("useVertexAttributesAsScalars", () => {
 
       expect(scalars[0]).toEqual(
         createResultScalar({
-          name: "Resource URI",
+          name: "Resource Id",
           value: "vertex-1",
         }),
       );
