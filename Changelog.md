@@ -1,5 +1,17 @@
 # Graph Explorer Change Log
 
+## Release 2.5.2
+
+This release bumps the Node & PNPM versions and cleans up the Docker image.
+
+## All Changes
+
+- Cleanup Docker image and update dependencies by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1468
+
+**Full Changelog**:
+https://github.com/aws/graph-explorer/compare/v2.5.1...v2.5.2
+
 ## Release 2.5.1
 
 This release includes a fix for a regression that caused neighbor expansion in
