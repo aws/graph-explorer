@@ -1,31 +1,31 @@
 {
   "node": "Node",
   "nodes": "Nodes",
-  "edge": "Edge",
-  "edges": "Edges",
+  "edge": "Relationship",
+  "edges": "Relationships",
   "node-id": "Node Id",
   "node-type": "Node Label",
   "node-types": "Node Labels",
-  "edge-id": "Edge Id",
-  "edge-type": "Edge Label",
-  "edge-types": "Edge Labels",
+  "edge-id": "Relationship Id",
+  "edge-type": "Relationship Type",
+  "edge-types": "Relationship Types",
   "source-id": "Source Id",
   "source-type": "Source Label",
   "target-id": "Target Id",
   "target-type": "Target Label",
-  "property": "Attribute",
-  "properties": "Attributes",
+  "property": "Property",
+  "properties": "Properties",
   "graph-type": "PG-openCypher",
 
   "nodes-styling": {
-    "title": "Node Styling"
+    "title": "Node Label Styling"
   },
   "edges-styling": {
-    "title": "Edge Styling"
+    "title": "Relationship Type Styling"
   },
   "keyword-search": {
     "node-type-placeholder": "Select a node label",
-    "node-attribute-placeholder": "Select an attribute"
+    "node-attribute-placeholder": "Select a property"
   },
   "connection-detail": {
     "search-placeholder": "Search for node label",
@@ -35,7 +35,7 @@
     "no-elements-subtitle": "No nodes found to be shown in this list"
   },
   "node-expand": {
-    "edge-selection-title": "Edge Selection",
+    "edge-selection-title": "Relationship Selection",
     "edge-selection-subtitle": "Select a node to expand its connections",
     "no-selection-title": "No Selection",
     "no-selection-subtitle": "Select a node to expand its connections",
@@ -49,7 +49,7 @@
   },
   "entities-tabular": {
     "all-nodes": "All Nodes",
-    "all-edges": "All Edges",
+    "all-edges": "All Relationships",
     "nodes-placeholder": "Add a node in the Graph View to see its data",
     "edges-placeholder": "Add a node in the Graph View to see its connections"
   }
