@@ -35,7 +35,11 @@ import {
   type TabularInstance,
 } from "@/components/Tabular";
 import Tabular from "@/components/Tabular/Tabular";
-import { type KeywordSearchRequest, searchQuery } from "@/connector";
+import {
+  type KeywordSearchRequest,
+  nodeCountByNodeTypeQuery,
+  searchQuery,
+} from "@/connector";
 import {
   createVertexType,
   type DisplayVertex,
@@ -51,7 +55,6 @@ import { useVertexTypeConfig } from "@/core/ConfigurationProvider/useConfigurati
 import { useVertexStyling } from "@/core/StateProvider/userPreferences";
 import { useAddVertexToGraph, useHasVertexBeenAddedToGraph } from "@/hooks";
 import useTranslations from "@/hooks/useTranslations";
-import useUpdateVertexTypeCounts from "@/hooks/useUpdateVertexTypeCounts";
 import {
   LABELS,
   RESERVED_ID_PROPERTY,
@@ -84,7 +87,7 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
   const navigate = useNavigate();
 
   // Automatically updates counts if needed
-  useUpdateVertexTypeCounts(vertexType);
+  useQuery(nodeCountByNodeTypeQuery(vertexType));
 
   const vertexConfig = useVertexTypeConfig(vertexType);
   const displayTypeConfig = useDisplayVertexTypeConfig(vertexType);
